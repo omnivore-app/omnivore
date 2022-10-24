@@ -3,10 +3,12 @@ import SwiftUI
 import Utils
 
 public struct FeedCard: View {
+  let tapHandler: () -> Void
   @ObservedObject var item: LinkedItem
 
-  public init(item: LinkedItem) {
+  public init(item: LinkedItem, tapHandler: @escaping () -> Void = {}) {
     self.item = item
+    self.tapHandler = tapHandler
   }
 
   public var body: some View {
@@ -76,6 +78,11 @@ public struct FeedCard: View {
           }
         }
         .padding(.top, 0)
+        #if os(macOS)
+          .onTapGesture {
+            tapHandler()
+          }
+        #endif
       }
     }
     .padding(.top, 0)

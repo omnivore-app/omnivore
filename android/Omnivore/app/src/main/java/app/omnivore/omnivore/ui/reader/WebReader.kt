@@ -8,28 +8,115 @@ import android.view.*
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import androidx.compose.foundation.layout.Box
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.TopAppBar
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.viewmodel.compose.viewModel
 import app.omnivore.omnivore.R
 import com.google.gson.Gson
+import java.util.*
+import kotlin.math.roundToInt
 
 
 @Composable
 fun WebReaderLoadingContainer(slug: String, webReaderViewModel: WebReaderViewModel) {
+  var showWebPreferencesDialog by remember { mutableStateOf(false ) }
+
   val webReaderParams: WebReaderParams? by webReaderViewModel.webReaderParamsLiveData.observeAsState(null)
+  val annotation: String? by webReaderViewModel.annotationLiveData.observeAsState(null)
+
+  val maxToolbarHeight = 48.dp
+  val maxToolbarHeightPx = with(LocalDensity.current) { maxToolbarHeight.roundToPx().toFloat() }
+  val toolbarHeightPx = remember { mutableStateOf(maxToolbarHeightPx) }
+
+  // Create a connection to the nested scroll system and listen to the scroll happening inside child Column
+  val nestedScrollConnection = remember {
+    object : NestedScrollConnection {
+      override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+        val delta = available.y
+        val newHeight = toolbarHeightPx.value + delta
+        toolbarHeightPx.value = newHeight.coerceIn(0f, maxToolbarHeightPx)
+        return Offset.Zero
+      }
+    }
+  }
 
   if (webReaderParams == null) {
     webReaderViewModel.loadItem(slug = slug)
   }
 
   if (webReaderParams != null) {
-    WebReader(webReaderParams!!, webReaderViewModel)
+    Box(
+      modifier = Modifier
+        .fillMaxSize()
+        .nestedScroll(nestedScrollConnection)
+    ) {
+      Column(
+        modifier = Modifier
+          .fillMaxSize()
+          .verticalScroll(webReaderViewModel.scrollState)
+
+      ) {
+        Row(
+          modifier = Modifier
+            .fillMaxWidth()
+            .requiredHeight(height = maxToolbarHeight)
+        ) {
+        }
+        WebReader(webReaderParams!!, webReaderViewModel.storedWebPreferences(), webReaderViewModel)
+      }
+
+      TopAppBar(
+        modifier = Modifier
+          .height(height = with(LocalDensity.current) {
+            toolbarHeightPx.value.roundToInt().toDp()
+          } ),
+        backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
+        title = {},
+        actions = {
+          IconButton(onClick = { showWebPreferencesDialog = true }) {
+            Icon(
+              imageVector = Icons.Filled.Settings,
+              contentDescription = null
+            )
+          }
+        }
+      )
+
+      if (showWebPreferencesDialog) {
+        WebPreferencesDialog(
+          onDismiss = {
+            showWebPreferencesDialog = false
+          },
+          webReaderViewModel = webReaderViewModel
+        )
+      }
+
+      if (annotation != null) {
+        AnnotationEditView(
+          initialAnnotation = annotation!!,
+          onSave = {
+            webReaderViewModel.saveAnnotation(it)
+          },
+          onCancel = {
+            webReaderViewModel.cancelAnnotationEdit()
+          }
+        )
+      }
+    }
   } else {
     // TODO: add a proper loading view
     Text("Loading...")
@@ -38,23 +125,22 @@ fun WebReaderLoadingContainer(slug: String, webReaderViewModel: WebReaderViewMod
 
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
-fun WebReader(params: WebReaderParams, webReaderViewModel: WebReaderViewModel) {
-  // TODO: maybe handle cases where js can be queued up?
-  val javascriptToExecute = remember { mutableStateOf<String?>(null) }
-
-  val annotation: String? by webReaderViewModel.annotationLiveData.observeAsState(null)
+fun WebReader(
+  params: WebReaderParams,
+  preferences: WebPreferences,
+  webReaderViewModel: WebReaderViewModel
+) {
+  val javascriptActionLoopUUID: UUID by webReaderViewModel
+    .javascriptActionLoopUUIDLiveData
+    .observeAsState(UUID.randomUUID())
 
   WebView.setWebContentsDebuggingEnabled(true)
 
   val webReaderContent = WebReaderContent(
-    textFontSize = 12,
-    lineHeight =  150,
-    maxWidthPercentage = 100,
+    preferences = preferences,
     item = params.item,
     themeKey = "LightGray",
-    fontFamily = WebFont.SYSTEM ,
     articleContent = params.articleContent,
-    prefersHighContrastText = false,
   )
 
   val styledContent = webReaderContent.styledContent()
@@ -100,24 +186,14 @@ fun WebReader(params: WebReaderParams, webReaderViewModel: WebReaderViewModel) {
         )
       }
     }, update = {
-      if (javascriptToExecute.value != null) {
-        it.evaluateJavascript(javascriptToExecute.value!!, null)
+      if (javascriptActionLoopUUID != webReaderViewModel.lastJavascriptActionLoopUUID) {
+        for (script in webReaderViewModel.javascriptDispatchQueue) {
+          Log.d("js", "executing script: $script")
+          it.evaluateJavascript(script, null)
+        }
+        webReaderViewModel.resetJavascriptDispatchQueue()
       }
     })
-
-    if (annotation != null) {
-      AnnotationEditView(
-        initialAnnotation = annotation!!,
-        onSave = {
-          val script = "var event = new Event('saveAnnotation');event.annotation = '$it';document.dispatchEvent(event);"
-          javascriptToExecute.value = script
-          webReaderViewModel.cancelAnnotationEdit()
-        },
-        onCancel = {
-          webReaderViewModel.cancelAnnotationEdit()
-        }
-      )
-    }
   }
 }
 

@@ -1,6 +1,5 @@
 import addressparser from 'addressparser'
 import { ContentHandler } from '../content-handler'
-import { parseHTML } from 'linkedom'
 
 export class SubstackHandler extends ContentHandler {
   constructor() {
@@ -50,17 +49,16 @@ export class SubstackHandler extends ContentHandler {
 
   async isNewsletter({
     postHeader,
-    html,
+    dom,
   }: {
     postHeader: string
     from: string
     unSubHeader: string
-    html: string
+    dom: Document
   }): Promise<boolean> {
     if (postHeader) {
       return Promise.resolve(true)
     }
-    const dom = parseHTML(html).document
     // substack newsletter emails have tables with a *post-meta class
     if (dom.querySelector('table[class$="post-meta"]')) {
       return true

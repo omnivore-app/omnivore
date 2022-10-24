@@ -9,6 +9,7 @@ import { TDotCoHandler } from './websites/t-dot-co-handler'
 import { TwitterHandler } from './websites/twitter-handler'
 import { YoutubeHandler } from './websites/youtube-handler'
 import { WikipediaHandler } from './websites/wikipedia-handler'
+import { GitHubHandler } from './websites/github-handler'
 import {
   ContentHandler,
   NewsletterInput,
@@ -23,6 +24,9 @@ import { BloombergNewsletterHandler } from './newsletters/bloomberg-newsletter-h
 import { BeehiivHandler } from './newsletters/beehiiv-handler'
 import { ConvertkitHandler } from './newsletters/convertkit-handler'
 import { RevueHandler } from './newsletters/revue-handler'
+import { GhostHandler } from './newsletters/ghost-handler'
+import { parseHTML } from 'linkedom'
+import { CooperPressHandler } from './newsletters/cooper-press-handler'
 
 const validateUrlString = (url: string) => {
   const u = new URL(url)
@@ -52,6 +56,7 @@ const contentHandlers: ContentHandler[] = [
   new TwitterHandler(),
   new YoutubeHandler(),
   new WikipediaHandler(),
+  new GitHubHandler(),
   new AxiosHandler(),
   new GolangHandler(),
   new MorningBrewHandler(),
@@ -68,6 +73,8 @@ const newsletterHandlers: ContentHandler[] = [
   new BeehiivHandler(),
   new ConvertkitHandler(),
   new RevueHandler(),
+  new GhostHandler(),
+  new CooperPressHandler(),
 ]
 
 export const preHandleContent = async (
@@ -117,13 +124,29 @@ export const preParseContent = async (
   return undefined
 }
 
+export const getNewsletterHandler = async (input: {
+  postHeader: string
+  from: string
+  unSubHeader: string
+  html: string
+}): Promise<ContentHandler | undefined> => {
+  const dom = parseHTML(input.html).document
+  for (const handler of newsletterHandlers) {
+    if (await handler.isNewsletter({ ...input, dom })) {
+      return handler
+    }
+  }
+
+  return undefined
+}
+
 export const handleNewsletter = async (
   input: NewsletterInput
 ): Promise<NewsletterResult | undefined> => {
-  for (const handler of newsletterHandlers) {
-    if (await handler.isNewsletter(input)) {
-      return handler.handleNewsletter(input)
-    }
+  const handler = await getNewsletterHandler(input)
+  if (handler) {
+    console.log('handleNewsletter', handler.name, input.title)
+    return handler.handleNewsletter(input)
   }
 
   return undefined
@@ -133,4 +156,5 @@ module.exports = {
   preHandleContent,
   handleNewsletter,
   preParseContent,
+  getNewsletterHandler,
 }

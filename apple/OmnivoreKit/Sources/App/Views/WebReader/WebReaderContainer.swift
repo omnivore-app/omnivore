@@ -75,47 +75,49 @@ struct WebReaderContainerView: View {
     }
   }
 
-  var audioNavbarItem: some View {
-    if audioController.isLoadingItem(itemID: item.unwrappedID) {
-      return AnyView(ProgressView()
+  #if os(iOS)
+    var audioNavbarItem: some View {
+      if audioController.isLoadingItem(itemID: item.unwrappedID) {
+        return AnyView(ProgressView()
+          .padding(.horizontal)
+          .scaleEffect(navBarVisibilityRatio))
+      } else {
+        return AnyView(Button(
+          action: {
+            switch audioController.state {
+            case .playing:
+              if audioController.itemAudioProperties?.itemID == self.item.unwrappedID {
+                audioController.pause()
+                return
+              }
+              fallthrough
+            case .paused:
+              if audioController.itemAudioProperties?.itemID == self.item.unwrappedID {
+                audioController.unpause()
+                return
+              }
+              fallthrough
+            default:
+              audioController.play(itemAudioProperties: item.audioProperties)
+            }
+          },
+          label: {
+            textToSpeechButtonImage
+          }
+        )
         .padding(.horizontal)
         .scaleEffect(navBarVisibilityRatio))
-    } else {
-      return AnyView(Button(
-        action: {
-          switch audioController.state {
-          case .playing:
-            if audioController.itemAudioProperties?.itemID == self.item.unwrappedID {
-              audioController.pause()
-              return
-            }
-            fallthrough
-          case .paused:
-            if audioController.itemAudioProperties?.itemID == self.item.unwrappedID {
-              audioController.unpause()
-              return
-            }
-            fallthrough
-          default:
-            audioController.play(itemAudioProperties: item.audioProperties)
-          }
-        },
-        label: {
-          textToSpeechButtonImage
-        }
-      )
-      .padding(.horizontal)
-      .scaleEffect(navBarVisibilityRatio))
+      }
     }
-  }
 
-  var textToSpeechButtonImage: some View {
-    if audioController.state == .stopped || audioController.itemAudioProperties?.itemID != self.item.id {
-      return Image(systemName: "headphones").font(.appTitleThree)
+    var textToSpeechButtonImage: some View {
+      if audioController.state == .stopped || audioController.itemAudioProperties?.itemID != self.item.id {
+        return Image(systemName: "headphones").font(.appTitleThree)
+      }
+      let name = audioController.isPlayingItem(itemID: item.unwrappedID) ? "pause.circle" : "play.circle"
+      return Image(systemName: name).font(.appNavbarIcon)
     }
-    let name = audioController.isPlayingItem(itemID: item.unwrappedID) ? "pause.circle" : "play.circle"
-    return Image(systemName: name).font(.appNavbarIcon)
-  }
+  #endif
 
   var navBar: some View {
     HStack(alignment: .center) {
@@ -131,10 +133,8 @@ struct WebReaderContainerView: View {
         )
         .scaleEffect(navBarVisibilityRatio)
         Spacer()
-      #endif
-      if FeatureFlag.enableTextToSpeechButton {
         audioNavbarItem
-      }
+      #endif
       Button(
         action: { showPreferencesPopover.toggle() },
         label: {
@@ -152,7 +152,7 @@ struct WebReaderContainerView: View {
           Group {
             Button(
               action: { showHighlightsView = true },
-              label: { Label("View Highlights", systemImage: "highlighter") }
+              label: { Label("View Highlights & Notes", systemImage: "highlighter") }
             )
             Button(
               action: { showTitleEdit = true },
@@ -176,6 +176,12 @@ struct WebReaderContainerView: View {
                   systemImage: item.isArchived ? "tray.and.arrow.down.fill" : "archivebox"
                 )
               }
+            )
+            Button(
+              action: {
+                dataService.updateLinkReadingProgress(itemID: item.unwrappedID, readingProgress: 0, anchorIndex: 0)
+              },
+              label: { Label("Reset Read Location", systemImage: "arrow.counterclockwise.circle") }
             )
             Button(
               action: { shareActionID = UUID() },

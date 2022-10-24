@@ -12,6 +12,7 @@ import Views
 
   struct HomeFeedContainerView: View {
     @State var hasHighlightMutations = false
+    @State var searchPresented = false
     @EnvironmentObject var dataService: DataService
     @EnvironmentObject var audioController: AudioController
 
@@ -66,7 +67,15 @@ import Views
         .sheet(item: $viewModel.itemForHighlightsView) { item in
           HighlightsListView(itemObjectID: item.objectID, hasHighlightMutations: $hasHighlightMutations)
         }
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+          ToolbarItem(placement: .barLeading) {
+            Image.smallOmnivoreLogo
+              .renderingMode(.template)
+              .resizable()
+              .frame(width: 24, height: 24)
+              .foregroundColor(.appGrayTextContrast)
+          }
           ToolbarItem(placement: .barTrailing) {
             Button("", action: {})
               .disabled(true)
@@ -89,14 +98,27 @@ import Views
             }
           }
           ToolbarItem(placement: .barTrailing) {
+            Button(
+              action: { searchPresented = true },
+              label: {
+                Image(systemName: "magnifyingglass")
+                  .resizable()
+                  .frame(width: 18, height: 18)
+                  .padding(.vertical)
+                  .foregroundColor(.appGrayTextContrast)
+              }
+            )
+          }
+          ToolbarItem(placement: .barTrailing) {
             if UIDevice.isIPhone {
               NavigationLink(
                 destination: { ProfileView() },
                 label: {
-                  Image.profile
+                  Image(systemName: "person.circle")
                     .resizable()
-                    .frame(width: 26, height: 26)
-                    .padding(.vertical)
+                    .frame(width: 22, height: 22)
+                    .padding(.vertical, 16)
+                    .foregroundColor(.appGrayTextContrast)
                 }
               )
             } else {
@@ -105,8 +127,6 @@ import Views
           }
         }
       }
-      .navigationTitle("Home")
-      .navigationBarTitleDisplayMode(.inline)
       .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
         loadItems(isRefresh: true)
       }
@@ -148,6 +168,9 @@ import Views
           }
         }
       }
+      .fullScreenCover(isPresented: $searchPresented) {
+        LibrarySearchView(homeFeedViewModel: self.viewModel)
+      }
       .task {
         if viewModel.items.isEmpty {
           loadItems(isRefresh: true)
@@ -159,74 +182,22 @@ import Views
   struct HomeFeedView: View {
     @EnvironmentObject var dataService: DataService
     @Binding var prefersListLayout: Bool
-    @State private var showLabelsSheet = false
     @ObservedObject var viewModel: HomeFeedViewModel
 
     var body: some View {
       VStack(spacing: 0) {
-        SearchBar(searchTerm: $viewModel.searchTerm)
-
-        ZStack(alignment: .bottom) {
-          ScrollView(.horizontal, showsIndicators: false) {
-            HStack {
-              Menu(
-                content: {
-                  ForEach(LinkedItemFilter.allCases, id: \.self) { filter in
-                    Button(filter.displayName, action: { viewModel.appliedFilter = filter.rawValue })
-                  }
-                },
-                label: {
-                  TextChipButton.makeMenuButton(
-                    title: LinkedItemFilter(rawValue: viewModel.appliedFilter)?.displayName ?? "Filter"
-                  )
-                }
-              )
-              Menu(
-                content: {
-                  ForEach(LinkedItemSort.allCases, id: \.self) { sort in
-                    Button(sort.displayName, action: { viewModel.appliedSort = sort.rawValue })
-                  }
-                },
-                label: {
-                  TextChipButton.makeMenuButton(
-                    title: LinkedItemSort(rawValue: viewModel.appliedSort)?.displayName ?? "Sort"
-                  )
-                }
-              )
-              TextChipButton.makeAddLabelButton {
-                showLabelsSheet = true
-              }
-              ForEach(viewModel.selectedLabels, id: \.self) { label in
-                TextChipButton.makeRemovableLabelButton(feedItemLabel: label, negated: false) {
-                  viewModel.selectedLabels.removeAll { $0.id == label.id }
-                }
-              }
-              ForEach(viewModel.negatedLabels, id: \.self) { label in
-                TextChipButton.makeRemovableLabelButton(feedItemLabel: label, negated: true) {
-                  viewModel.negatedLabels.removeAll { $0.id == label.id }
-                }
-              }
-              Spacer()
-            }
-            .padding(.horizontal)
-            .sheet(isPresented: $showLabelsSheet) {
-              FilterByLabelsView(
-                initiallySelected: viewModel.selectedLabels,
-                initiallyNegated: viewModel.negatedLabels
-              ) {
-                self.viewModel.selectedLabels = $0
-                self.viewModel.negatedLabels = $1
-              }
-            }
-          }
-          if viewModel.showLoadingBar {
-            ShimmeringLoader()
-          }
-        }
         if prefersListLayout || !enableGrid {
           HomeFeedListView(prefersListLayout: $prefersListLayout, viewModel: viewModel)
         } else {
           HomeFeedGridView(viewModel: viewModel)
+        }
+      }.sheet(isPresented: $viewModel.showLabelsSheet) {
+        FilterByLabelsView(
+          initiallySelected: viewModel.selectedLabels,
+          initiallyNegated: viewModel.negatedLabels
+        ) {
+          self.viewModel.selectedLabels = $0
+          self.viewModel.negatedLabels = $1
         }
       }
     }
@@ -243,6 +214,59 @@ import Views
 
     @ObservedObject var viewModel: HomeFeedViewModel
 
+    var filtersHeader: some View {
+      ScrollView(.horizontal, showsIndicators: false) {
+        HStack {
+          if viewModel.searchTerm.count > 0 {
+            TextChipButton.makeSearchFilterButton(title: viewModel.searchTerm) {
+              viewModel.searchTerm = ""
+            }
+          } else {
+            Menu(
+              content: {
+                ForEach(LinkedItemFilter.allCases, id: \.self) { filter in
+                  Button(filter.displayName, action: { viewModel.appliedFilter = filter.rawValue })
+                }
+              },
+              label: {
+                TextChipButton.makeMenuButton(
+                  title: LinkedItemFilter(rawValue: viewModel.appliedFilter)?.displayName ?? "Filter"
+                )
+              }
+            )
+          }
+          Menu(
+            content: {
+              ForEach(LinkedItemSort.allCases, id: \.self) { sort in
+                Button(sort.displayName, action: { viewModel.appliedSort = sort.rawValue })
+              }
+            },
+            label: {
+              TextChipButton.makeMenuButton(
+                title: LinkedItemSort(rawValue: viewModel.appliedSort)?.displayName ?? "Sort"
+              )
+            }
+          )
+          TextChipButton.makeAddLabelButton {
+            viewModel.showLabelsSheet = true
+          }
+          ForEach(viewModel.selectedLabels, id: \.self) { label in
+            TextChipButton.makeRemovableLabelButton(feedItemLabel: label, negated: false) {
+              viewModel.selectedLabels.removeAll { $0.id == label.id }
+            }
+          }
+          ForEach(viewModel.negatedLabels, id: \.self) { label in
+            TextChipButton.makeRemovableLabelButton(feedItemLabel: label, negated: true) {
+              viewModel.negatedLabels.removeAll { $0.id == label.id }
+            }
+          }
+          Spacer()
+        }
+        .padding(0)
+      }
+      .listRowSeparator(.hidden)
+    }
+
     var body: some View {
       ZStack {
         NavigationLink(
@@ -251,8 +275,17 @@ import Views
         ) {
           EmptyView()
         }
-        List {
-          Section {
+        VStack(spacing: 0) {
+          if viewModel.showLoadingBar {
+            ShimmeringLoader()
+          } else {
+            Spacer(minLength: 2)
+          }
+
+          List {
+            if viewModel.items.count > 0 || viewModel.searchTerm.count > 0 {
+              filtersHeader
+            }
             ForEach(viewModel.items) { item in
               FeedCardNavigationLink(
                 item: item,
@@ -261,7 +294,7 @@ import Views
               .contextMenu {
                 Button(
                   action: { viewModel.itemForHighlightsView = item },
-                  label: { Label("View Highlights", systemImage: "highlighter") }
+                  label: { Label("View Highlights & Notes", systemImage: "highlighter") }
                 )
                 Button(
                   action: { viewModel.itemUnderTitleEdit = item },
@@ -269,7 +302,7 @@ import Views
                 )
                 Button(
                   action: { viewModel.itemUnderLabelEdit = item },
-                  label: { Label("Edit Labels", systemImage: "tag") }
+                  label: { Label(item.labels?.count == 0 ? "Add Labels" : "Edit Labels", systemImage: "tag") }
                 )
                 Button(action: {
                   withAnimation(.linear(duration: 0.4)) {
@@ -290,8 +323,10 @@ import Views
                     itemToRemove = item
                     confirmationShown = true
                   },
-                  label: { Label("Delete", systemImage: "trash") }
-                )
+                  label: {
+                    Label("Remove Item", systemImage: "trash")
+                  }
+                ).tint(.red)
                 if FeatureFlag.enableSnooze {
                   Button {
                     viewModel.itemToSnoozeID = item.id
@@ -307,26 +342,23 @@ import Views
               }
               .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                 if !item.isArchived {
-                  Button {
+                  Button(action: {
                     withAnimation(.linear(duration: 0.4)) {
                       viewModel.setLinkArchived(dataService: dataService, objectID: item.objectID, archived: true)
                     }
-                  } label: {
+                  }, label: {
                     Label("Archive", systemImage: "archivebox")
-                  }.tint(.green)
+                  }).tint(.green)
                 } else {
-                  Button {
+                  Button(action: {
                     withAnimation(.linear(duration: 0.4)) {
                       viewModel.setLinkArchived(dataService: dataService, objectID: item.objectID, archived: false)
                     }
-                  } label: {
+                  }, label: {
                     Label("Unarchive", systemImage: "tray.and.arrow.down.fill")
-                  }.tint(.indigo)
+                  }).tint(.indigo)
                 }
-              }
-              .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                 Button(
-                  role: .destructive,
                   action: {
                     itemToRemove = item
                     confirmationShown = true
@@ -334,17 +366,7 @@ import Views
                   label: {
                     Image(systemName: "trash")
                   }
-                )
-              }.alert("Are you sure?", isPresented: $confirmationShown) {
-                Button("Remove Link", role: .destructive) {
-                  if let itemToRemove = itemToRemove {
-                    withAnimation {
-                      viewModel.removeLink(dataService: dataService, objectID: itemToRemove.objectID)
-                    }
-                  }
-                  self.itemToRemove = nil
-                }
-                Button("Cancel", role: .cancel) { self.itemToRemove = nil }
+                ).tint(.red)
               }
               .swipeActions(edge: .leading, allowsFullSwipe: true) {
                 if FeatureFlag.enableSnooze {
@@ -358,8 +380,21 @@ import Views
               }
             }
           }
+          .padding(.top, 0)
+          .listStyle(PlainListStyle())
+          .alert("Are you sure you want to remove this item? All associated notes and highlights will be deleted.",
+                 isPresented: $confirmationShown) {
+            Button("Remove Item") {
+              if let itemToRemove = itemToRemove {
+                withAnimation {
+                  viewModel.removeLink(dataService: dataService, objectID: itemToRemove.objectID)
+                }
+              }
+              self.itemToRemove = nil
+            }
+            Button("Cancel", role: .cancel) { self.itemToRemove = nil }
+          }
         }
-        .listStyle(PlainListStyle())
       }
     }
   }
@@ -414,17 +449,6 @@ import Views
                 isContextMenuOpen: $isContextMenuOpen,
                 viewModel: viewModel
               )
-              .alert("Are you sure?", isPresented: $confirmationShown) {
-                Button("Remove Link", role: .destructive) {
-                  if let itemToRemove = itemToRemove {
-                    withAnimation {
-                      viewModel.removeLink(dataService: dataService, objectID: itemToRemove.objectID)
-                    }
-                  }
-                  self.itemToRemove = nil
-                }
-                Button("Cancel", role: .cancel) { self.itemToRemove = nil }
-              }
             }
           }
           .padding()
@@ -448,6 +472,17 @@ import Views
             LoadingSection()
           }
         }
+      }
+      .alert("Are you sure you want to remove this item? All associated notes and highlights will be deleted.", isPresented: $confirmationShown) {
+        Button("Remove Item", role: .destructive) {
+          if let itemToRemove = itemToRemove {
+            withAnimation {
+              viewModel.removeLink(dataService: dataService, objectID: itemToRemove.objectID)
+            }
+          }
+          self.itemToRemove = nil
+        }
+        Button("Cancel", role: .cancel) { self.itemToRemove = nil }
       }
     }
   }

@@ -1885,6 +1885,27 @@ const schema = gql`
     NOT_FOUND
   }
 
+  union RecentSearchesResult = RecentSearchesSuccess | RecentSearchesError
+
+  type RecentSearchesSuccess {
+    searches: [RecentSearch!]!
+  }
+
+  type RecentSearch {
+    id: ID!
+    term: String!
+    createdAt: Date!
+  }
+
+  type RecentSearchesError {
+    errorCodes: [RecentSearchesErrorCode!]!
+  }
+
+  enum RecentSearchesErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -2002,6 +2023,7 @@ const schema = gql`
     typeaheadSearch(query: String!, first: Int): TypeaheadSearchResult!
     updatesSince(after: String, first: Int, since: Date!): UpdatesSinceResult!
     integrations: IntegrationsResult!
+    recentSearches: RecentSearchesResult!
   }
 `
 

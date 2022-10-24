@@ -86,7 +86,7 @@ struct EmailSignupFormView: View {
       VStack(spacing: 28) {
         ScrollView(showsIndicators: false) {
           if horizontalSizeClass == .regular {
-            Spacer(minLength: 150)
+            Spacer(minLength: isMacApp ? 50 : 150)
           }
           VStack {
             // Email
@@ -96,10 +96,12 @@ struct EmailSignupFormView: View {
                 .foregroundColor(.appGrayText)
               TextField("", text: $email)
                 .focused($focusedField, equals: .email)
+              #if os(iOS)
                 .textContentType(.emailAddress)
                 .keyboardType(.emailAddress)
                 .textInputAutocapitalization(.never)
-                .disableAutocorrection(true)
+              #endif
+              .disableAutocorrection(true)
                 .submitLabel(.next)
             }
             .padding(.bottom, 8)
@@ -111,9 +113,11 @@ struct EmailSignupFormView: View {
                 .foregroundColor(.appGrayText)
               SecureField("", text: $password)
                 .focused($focusedField, equals: .password)
+              #if os(iOS)
                 .textContentType(.newPassword)
                 .textInputAutocapitalization(.never)
-                .disableAutocorrection(true)
+              #endif
+              .disableAutocorrection(true)
                 .submitLabel(.next)
             }
             .padding(.bottom, 8)
@@ -125,9 +129,11 @@ struct EmailSignupFormView: View {
                 .foregroundColor(.appGrayText)
               TextField("", text: $name)
                 .focused($focusedField, equals: .fullName)
+              #if os(iOS)
                 .textContentType(.name)
                 .keyboardType(.alphabet)
-                .disableAutocorrection(true)
+              #endif
+              .disableAutocorrection(true)
                 .submitLabel(.next)
             }
             .padding(.bottom, 8)
@@ -141,10 +147,12 @@ struct EmailSignupFormView: View {
                     .foregroundColor(.appGrayText)
                   TextField("", text: $viewModel.potentialUsername)
                     .focused($focusedField, equals: .username)
+                  #if os(iOS)
                     .textInputAutocapitalization(.never)
                     .textContentType(.username)
-                    .disableAutocorrection(true)
                     .keyboardType(.alphabet)
+                  #endif
+                  .disableAutocorrection(true)
                     .submitLabel(.done)
                 }
 

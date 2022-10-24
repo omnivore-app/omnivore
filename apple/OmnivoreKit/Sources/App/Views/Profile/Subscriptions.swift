@@ -64,6 +64,12 @@ struct SubscriptionsView: View {
         )
         .buttonStyle(RoundedRectButtonStyle())
       }
+    } else if viewModel.subscriptions.isEmpty {
+      VStack(alignment: .center) {
+        Spacer()
+        Text("You have no current subscriptions.")
+        Spacer()
+      }
     } else {
       Group {
         #if os(iOS)
@@ -117,7 +123,7 @@ struct SubscriptionCell: View {
   let subscription: Subscription
 
   var body: some View {
-    VStack {
+    HStack {
       VStack(alignment: .leading, spacing: 6) {
         Text(subscription.name)
           .font(.appCallout)
@@ -134,7 +140,28 @@ struct SubscriptionCell: View {
       }
       .multilineTextAlignment(.leading)
       .padding(.vertical, 8)
-      .frame(minHeight: 50)
+
+      Spacer()
+
+      Group {
+        if let icon = subscription.icon, let imageURL = URL(string: icon) {
+          AsyncImage(url: imageURL) { phase in
+            if let image = phase.image {
+              image
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: 40, height: 40)
+                .cornerRadius(6)
+            } else if phase.error != nil {
+              EmptyView().frame(width: 40, height: 40, alignment: .top)
+            } else {
+              Color.appButtonBackground
+                .frame(width: 40, height: 40)
+                .cornerRadius(2)
+            }
+          }
+        }
+      }.frame(minHeight: 50)
     }
   }
 }

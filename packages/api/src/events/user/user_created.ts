@@ -5,50 +5,16 @@ import {
 } from 'typeorm'
 
 import { Profile } from '../../entity/profile'
-import { Follower } from '../../entity/follower'
 import { IntercomClient } from '../../utils/intercom'
 import { createPubSubClient } from '../../datalayer/pubsub'
 import { env } from '../../env'
 import { analytics } from '../../utils/analytics'
-
-@EventSubscriber()
-export class FollowOmnivoreUser implements EntitySubscriberInterface<Profile> {
-  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-  listenTo() {
-    return Profile
-  }
-
-  async afterInsert(event: InsertEvent<Profile>): Promise<void> {
-    const OMNIVORE_USER = 'hello'
-    const omnivoreProfile = await event.manager.getRepository(Profile).findOne({
-      where: { username: OMNIVORE_USER },
-      relations: ['user'],
-    })
-
-    if (!omnivoreProfile) {
-      console.log('unable to find omnivore hello user')
-      return
-    }
-
-    await event.manager
-      .getRepository(Follower)
-      .save({ user: event.entity.user, followee: omnivoreProfile.user })
-
-    await event.manager.query(
-      `insert into omnivore.links (user_id, article_id, article_url, article_hash, slug)
-        select $1, article_id, article_url, article_hash, slug
-        from omnivore.links l where l.user_id = $2
-        `,
-      [event.entity.user.id, omnivoreProfile.user.id]
-    )
-  }
-}
+import { addPopularReadsForNewUser } from '../../services/popular_reads'
 
 @EventSubscriber()
 export class CreateIntercomAccount
   implements EntitySubscriberInterface<Profile>
 {
-  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   listenTo() {
     return Profile
   }
@@ -72,7 +38,6 @@ export class CreateIntercomAccount
 
 @EventSubscriber()
 export class IdentifySegmentUser implements EntitySubscriberInterface<Profile> {
-  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   listenTo() {
     return Profile
   }
@@ -99,7 +64,6 @@ export class IdentifySegmentUser implements EntitySubscriberInterface<Profile> {
 
 @EventSubscriber()
 export class PublishNewUserEvent implements EntitySubscriberInterface<Profile> {
-  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   listenTo() {
     return Profile
   }
@@ -112,5 +76,18 @@ export class PublishNewUserEvent implements EntitySubscriberInterface<Profile> {
       event.entity.user.name,
       event.entity.username
     )
+  }
+}
+
+@EventSubscriber()
+export class AddPopularReadsToNewUser
+  implements EntitySubscriberInterface<Profile>
+{
+  listenTo() {
+    return Profile
+  }
+
+  async afterInsert(event: InsertEvent<Profile>): Promise<void> {
+    await addPopularReadsForNewUser(event.entity.user.id)
   }
 }

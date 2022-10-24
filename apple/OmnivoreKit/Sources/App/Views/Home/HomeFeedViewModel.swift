@@ -19,6 +19,7 @@ import Views
   @Published var itemUnderTitleEdit: LinkedItem?
   @Published var itemForHighlightsView: LinkedItem?
   @Published var searchTerm = ""
+  @Published var scopeSelection = 0
   @Published var selectedLabels = [LinkedItemLabel]()
   @Published var negatedLabels = [LinkedItemLabel]()
   @Published var snoozePresented = false
@@ -27,8 +28,11 @@ import Views
   @Published var showLoadingBar = false
   @Published var appliedSort = LinkedItemSort.newest.rawValue
 
+  @Published var selectedLinkItem: NSManagedObjectID? // used by mac app only
   @Published var selectedItem: LinkedItem?
   @Published var linkIsActive = false
+
+  @Published var showLabelsSheet = false
 
   @AppStorage(UserDefaultKey.lastSelectedLinkedItemFilter.rawValue) var appliedFilter = LinkedItemFilter.inbox.rawValue
 
@@ -40,20 +44,26 @@ import Views
     // Pop the current selected item if needed
     if selectedItem != nil, selectedItem?.objectID != objectID {
       // Temporarily disable animation to avoid excessive animations
-      UIView.setAnimationsEnabled(false)
+      #if os(iOS)
+        UIView.setAnimationsEnabled(false)
+      #endif
 
       linkIsActive = false
       selectedItem = nil
 
       DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
+        self.selectedLinkItem = objectID
         self.selectedItem = dataService.viewContext.object(with: objectID) as? LinkedItem
         self.linkIsActive = true
       }
 
       DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(200)) {
-        UIView.setAnimationsEnabled(true)
+        #if os(iOS)
+          UIView.setAnimationsEnabled(true)
+        #endif
       }
     } else {
+      selectedLinkItem = objectID
       selectedItem = dataService.viewContext.object(with: objectID) as? LinkedItem
       linkIsActive = true
     }

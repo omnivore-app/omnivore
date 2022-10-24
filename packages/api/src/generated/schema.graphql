@@ -983,6 +983,7 @@ type Query {
   labels: LabelsResult!
   me: User
   newsletterEmails: NewsletterEmailsResult!
+  recentSearches: RecentSearchesResult!
   reminder(linkId: ID!): ReminderResult!
   search(after: String, first: Int, query: String): SearchResult!
   sendInstallInstructions: SendInstallInstructionsResult!
@@ -1019,6 +1020,27 @@ type ReadState {
   progressPercent: Float!
   reading: Boolean
   readingTime: Int
+}
+
+type RecentSearch {
+  createdAt: Date!
+  id: ID!
+  term: String!
+}
+
+type RecentSearchesError {
+  errorCodes: [RecentSearchesErrorCode!]!
+}
+
+enum RecentSearchesErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+union RecentSearchesResult = RecentSearchesError | RecentSearchesSuccess
+
+type RecentSearchesSuccess {
+  searches: [RecentSearch!]!
 }
 
 type Reminder {

@@ -51,8 +51,10 @@ struct InnerRootView: View {
         .onAppear {
           viewModel.triggerPushNotificationRequestIfNeeded()
         }
+      #if os(iOS)
         .miniPlayer()
-        .snackBar(isShowing: $viewModel.showSnackbar, message: viewModel.snackbarMessage)
+      #endif
+      .snackBar(isShowing: $viewModel.showSnackbar, message: viewModel.snackbarMessage)
         // Schedule the dismissal every time we present the snackbar.
         .onChange(of: viewModel.showSnackbar) { newValue in
           if newValue {

@@ -31,7 +31,7 @@ describe('/article/save API', () => {
   })
 
   describe('POST /article/save', () => {
-    const url = 'https://www.example.com'
+    const url = 'https://blog.omnivore.app'
 
     context('when token and url are valid', () => {
       it('should create an article saving request', async () => {

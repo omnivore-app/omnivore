@@ -48,7 +48,6 @@ export function Article(props: ArticleProps): JSX.Element {
   const debouncedSetReadingProgress = useMemo(
     () =>
       debounce((readingProgress: number) => {
-        console.log('setReadingProgress', readingProgress)
         setReadingProgress(readingProgress)
       }, 2000),
     []

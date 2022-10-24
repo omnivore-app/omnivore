@@ -171,10 +171,10 @@ Readability.prototype = {
     // Readability-readerable.js. Please keep both copies in sync.
     articleNegativeLookBehindCandidates: /breadcrumbs|breadcrumb|utils|trilist/i,
     articleNegativeLookAheadCandidates: /outstream(.?)_|sub(.?)_|m_|omeda-promo-|in-article-advert|block-ad-.*/i,
-    unlikelyCandidates: /\bad\b|ai2html|banner|breadcrumbs|breadcrumb|combx|comment|community|cover-wrap|disqus|extra|footer|gdpr|header|legends|menu|related|remark|replies|rss|shoutbox|sidebar|skyscraper|social|sponsor|supplemental|ad-break|agegate|pagination|pager(?!ow)|popup|yom-remote|copyright|keywords|outline|infinite-list|beta|recirculation|site-index|hide-for-print|post-end-share-cta|post-end-cta-full|post-footer|post-head|post-tag|li-date|main-navigation|programtic-ads|outstream_article|hfeed|comment-holder|back-to-top|show-up-next|onward-journey|topic-tracker|list-nav|block-ad-entity|adSpecs|gift-article-button|modal-title|in-story-masthead|share-tools|standard-dock|expanded-dock|margins-h/i,
+    unlikelyCandidates: /\bad\b|ai2html|banner|breadcrumbs|breadcrumb|combx|comment|community|cover-wrap|disqus|extra|footer|gdpr|header|legends|menu|related|remark|replies|rss|shoutbox|sidebar|skyscraper|social|sponsor|supplemental|ad-break|agegate|pagination|pager(?!ow)|popup|yom-remote|copyright|keywords|outline|infinite-list|beta|recirculation|site-index|hide-for-print|post-end-share-cta|post-end-cta-full|post-footer|post-head|post-tag|li-date|main-navigation|programtic-ads|outstream_article|hfeed|comment-holder|back-to-top|show-up-next|onward-journey|topic-tracker|list-nav|block-ad-entity|adSpecs|gift-article-button|modal-title|in-story-masthead|share-tools|standard-dock|expanded-dock|margins-h|subscribe-dialog/i,
     // okMaybeItsACandidate: /and|article(?!-breadcrumb)|body|column|content|main|shadow|post-header/i,
     get okMaybeItsACandidate() {
-      return new RegExp(`and|(?<!${this.articleNegativeLookAheadCandidates.source})article(?!-(${this.articleNegativeLookBehindCandidates.source}))|body|column|content|^(?!main-navigation|main-header)main|shadow|post-header|hfeed site|blog-posts hfeed|container-banners|menu-opacity`, 'i')
+      return new RegExp(`and|(?<!${this.articleNegativeLookAheadCandidates.source})article(?!-(${this.articleNegativeLookBehindCandidates.source}))|body|column|content|^(?!main-navigation|main-header)main|shadow|post-header|hfeed site|blog-posts hfeed|container-banners|menu-opacity|header-with-anchor-widget`, 'i')
     },
 
     positive: /article|body|content|entry|hentry|h-entry|main|page|pagination|post|text|blog|story|tweet(-\w+)?|instagram|image|container-banners/i,
@@ -1909,10 +1909,21 @@ Readability.prototype = {
       values["og:site_name"] || null;
 
     // get website icon
-    const iconLink = this._doc.querySelector(
+    const siteIcon = this._doc.querySelector(
       "link[rel='apple-touch-icon'], link[rel='shortcut icon'], link[rel='icon']"
     );
-    metadata.siteIcon = iconLink?.href;
+    if (siteIcon) {
+      const iconHref = siteIcon.getAttribute("href");
+      if (iconHref) {
+        if (this.REGEXPS.b64DataUrl.test(iconHref)) {
+          // base64 encoded image
+          metadata.siteIcon = iconHref;
+        } else {
+          // allow relative URLs
+          metadata.siteIcon = this.toAbsoluteURI(iconHref);
+        }
+      }
+    }
 
     // get published date
     metadata.publishedDate = jsonld.publishedDate ||
@@ -2212,13 +2223,12 @@ Readability.prototype = {
 
   _createPlaceholders: async function (e) {
     for (const element of Array.from(e.getElementsByTagName('a'))) {
-
       if (this.isEmbed(element)) {
         return;
       }
 
       // Create tweets placeholders from links
-      if (element.href.includes('twitter.com') || element.parentNode.className === 'tweet') {
+      if (element.href.includes('twitter.com') || (element.parentNode && element.parentNode.className === 'tweet')) {
         const link = element.href;
         const regex = /(https?:\/\/twitter\.com\/\w+\/status\/)(\d+)/gm;
         const match = regex.exec(link);
@@ -2232,12 +2242,12 @@ Readability.prototype = {
 
           // remove all containers the tweet is nested in (if they contain the tweet only)
           let tweetParent = tweet.parentElement || tweet.parentNode;
-          while (tweetParent && tweetParent.children.length === 1) {
+          while (tweetParent && tweetParent.children.length === 1 && tweetParent.parentNode) {
             tweetParent.parentNode.replaceChild(tweet, tweetParent);
             tweetParent = tweet.parentElement || tweet.parentNode;
           }
 
-          if (tweetParent && tweetParent.className.includes('twitter-tweet')) {
+          if (tweetParent && tweetParent.className.includes('twitter-tweet') && tweetParent.parentNode) {
             tweetParent.parentNode.replaceChild(tweet, tweetParent);
           }
         } else if (element.parentNode && element.parentNode.className === 'tweet') {

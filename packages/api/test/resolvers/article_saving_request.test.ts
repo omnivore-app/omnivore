@@ -78,7 +78,7 @@ describe('ArticleSavingRequest API', () => {
   describe('createArticleSavingRequest', () => {
     it('returns the article saving request', async () => {
       const res = await graphqlRequest(
-        createArticleSavingRequestMutation('https://example.com'),
+        createArticleSavingRequestMutation('https://blog.omnivore.app'),
         authToken
       ).expect(200)
 
@@ -89,7 +89,7 @@ describe('ArticleSavingRequest API', () => {
 
     it('creates a page in elastic', async () => {
       const res = await graphqlRequest(
-        createArticleSavingRequestMutation('https://example.com/1'),
+        createArticleSavingRequestMutation('https://blog.omnivore.app/1'),
         authToken
       ).expect(200)
 
@@ -117,7 +117,7 @@ describe('ArticleSavingRequest API', () => {
     before(async () => {
       // create article saving request
       const res = await graphqlRequest(
-        createArticleSavingRequestMutation('https://example.com/2'),
+        createArticleSavingRequestMutation('https://blog.omnivore.app/2'),
         authToken
       ).expect(200)
       articleSavingRequestId =

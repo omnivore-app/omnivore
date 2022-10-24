@@ -20,7 +20,8 @@ public extension DataService {
         unsubscribeHttpUrl: try $0.unsubscribeHttpUrl(),
         unsubscribeMailTo: try $0.unsubscribeMailTo(),
         updatedAt: try $0.updatedAt().value,
-        url: try $0.url()
+        url: try $0.url(),
+        icon: try $0.icon()
       )
     }
 

@@ -39,7 +39,7 @@ describe('parseMetadata', async () => {
 describe('parsePreparedContent', async () => {
   it('gets published date when JSONLD fails to load', async () => {
     const html = load('./test/utils/data/stratechery-blog-post.html')
-    const result = await parsePreparedContent('https://example.com/', {
+    const result = await parsePreparedContent('https://blog.omnivore.app/', {
       document: html,
       pageInfo: {},
     })
@@ -66,7 +66,7 @@ describe('parsePreparedContent', async () => {
                     </head>
                     <body>body</body>
                     </html>`
-    const result = await parsePreparedContent('https://example.com/', {
+    const result = await parsePreparedContent('https://blog.omnivore.app/', {
       document: html,
       pageInfo: {},
     })

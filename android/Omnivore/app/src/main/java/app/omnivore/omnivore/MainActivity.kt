@@ -10,16 +10,20 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import app.omnivore.omnivore.ui.theme.OmnivoreTheme
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import app.omnivore.omnivore.ui.auth.LoginViewModel
 import app.omnivore.omnivore.ui.home.HomeViewModel
-import app.omnivore.omnivore.ui.reader.PDFReaderViewModel
 import app.omnivore.omnivore.ui.reader.WebReaderViewModel
 import app.omnivore.omnivore.ui.root.RootView
+import app.omnivore.omnivore.ui.theme.OmnivoreTheme
+import com.pspdfkit.PSPDFKit
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -29,6 +33,18 @@ class MainActivity : ComponentActivity() {
     val loginViewModel: LoginViewModel by viewModels()
     val homeViewModel: HomeViewModel by viewModels()
     val webReaderViewModel: WebReaderViewModel by viewModels()
+
+    val context = this
+
+    GlobalScope.launch(Dispatchers.IO) {
+      val licenseKey = getString(R.string.pspdfkit_license_key)
+
+      if (licenseKey.length > 30) {
+        PSPDFKit.initialize(context, licenseKey)
+      } else {
+        PSPDFKit.initialize(context, null)
+      }
+    }
 
     setContent {
       OmnivoreTheme {

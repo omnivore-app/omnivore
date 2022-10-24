@@ -1,5 +1,4 @@
 import { ContentHandler } from '../content-handler'
-import { parseHTML } from 'linkedom'
 
 export class BeehiivHandler extends ContentHandler {
   constructor() {
@@ -8,7 +7,7 @@ export class BeehiivHandler extends ContentHandler {
   }
 
   findNewsletterHeaderHref(dom: Document): string | undefined {
-    const readOnline = dom.querySelectorAll('table tr td div a[class*="link"]')
+    const readOnline = dom.querySelectorAll('table tr td a')
     let res: string | undefined = undefined
     readOnline.forEach((e) => {
       if (e.textContent === 'Read Online') {
@@ -22,9 +21,9 @@ export class BeehiivHandler extends ContentHandler {
     postHeader: string
     from: string
     unSubHeader: string
-    html: string
+    dom: Document
   }): Promise<boolean> {
-    const dom = parseHTML(input.html).document
+    const dom = input.dom
     if (dom.querySelectorAll('img[src*="beehiiv.net"]').length > 0) {
       const beehiivUrl = this.findNewsletterHeaderHref(dom)
       if (beehiivUrl) {

@@ -1,5 +1,4 @@
 import { ContentHandler } from '../content-handler'
-import { parseHTML } from 'linkedom'
 
 export class ConvertkitHandler extends ContentHandler {
   constructor() {
@@ -8,10 +7,13 @@ export class ConvertkitHandler extends ContentHandler {
   }
 
   findNewsletterHeaderHref(dom: Document): string | undefined {
-    const readOnline = dom.querySelectorAll('table tr td a')
+    const readOnline = dom.querySelectorAll('a')
     let res: string | undefined = undefined
     readOnline.forEach((e) => {
-      if (e.textContent === 'View this email in your browser') {
+      if (
+        e.textContent === 'View this email in your browser' ||
+        e.textContent === 'Read on FS'
+      ) {
         res = e.getAttribute('href') || undefined
       }
     })
@@ -22,12 +24,12 @@ export class ConvertkitHandler extends ContentHandler {
     postHeader: string
     from: string
     unSubHeader: string
-    html: string
+    dom: Document
   }): Promise<boolean> {
-    const dom = parseHTML(input.html).document
+    const dom = input.dom
     return Promise.resolve(
       dom.querySelectorAll(
-        'img[src*="convertkit.com"], img[src*="convertkit-mail.com"]'
+        'img[src*="convertkit.com"], img[src*="convertkit-mail"]'
       ).length > 0
     )
   }

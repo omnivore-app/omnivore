@@ -15,6 +15,9 @@ describe('saveEmail', () => {
   })
 
   it('doesnt fail if saved twice', async () => {
+    const url = 'https://blog.omnivore.app/fake-url'
+    const title = 'fake title'
+    const author = 'fake author'
     const user = await createTestUser(username)
     const ctx: SaveContext = {
       pubsub: createPubSubClient(),
@@ -24,26 +27,29 @@ describe('saveEmail', () => {
 
     await saveEmail(ctx, {
       originalContent: `<html><body>${fakeContent}</body></html>`,
-      url: 'https://example.com',
-      title: 'fake title',
-      author: 'fake author',
+      url,
+      title,
+      author,
     })
 
     // This ensures row level security doesnt prevent
-    // resaving the same URL
+    // saving the same URL
     const secondResult = await saveEmail(ctx, {
       originalContent: `<html><body>${fakeContent}</body></html>`,
-      url: 'https://example.com',
-      title: 'fake title',
-      author: 'fake author',
+      url,
+      title,
+      author,
     })
     expect(secondResult).to.not.be.undefined
 
-    const page = await getPageByParam({ userId: user.id })
+    const page = await getPageByParam({
+      userId: user.id,
+      url,
+    })
     expect(page).to.exist
-    expect(page?.url).to.equal('https://example.com')
-    expect(page?.title).to.equal('fake title')
-    expect(page?.author).to.equal('fake author')
+    expect(page?.url).to.equal(url)
+    expect(page?.title).to.equal(title)
+    expect(page?.author).to.equal(author)
     expect(page?.content).to.contain(fakeContent)
   })
 })

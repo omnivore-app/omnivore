@@ -65,7 +65,8 @@ extension URLRequest {
     var headers = [
       "content-type": "application/json",
       "user-agent": userAgent,
-      "app-language": Locale.preferredLanguages[0]
+      "app-language": Locale.preferredLanguages[0],
+      "X-OmnivoreClient": "ios"
     ]
 
     if let deviceLanguage = NSLocale.current.languageCode {

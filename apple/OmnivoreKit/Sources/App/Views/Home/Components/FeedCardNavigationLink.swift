@@ -3,6 +3,38 @@ import Services
 import SwiftUI
 import Views
 
+struct MacFeedCardNavigationLink: View {
+  @EnvironmentObject var dataService: DataService
+  @EnvironmentObject var audioController: AudioController
+
+  let item: LinkedItem
+
+  @ObservedObject var viewModel: HomeFeedViewModel
+
+  var body: some View {
+    ZStack {
+      NavigationLink(
+        destination: LinkItemDetailView(
+          linkedItemObjectID: item.objectID,
+          isPDF: item.isPDF
+        ),
+        tag: item.objectID,
+        selection: $viewModel.selectedLinkItem
+      ) {
+        EmptyView()
+      }
+      .opacity(0)
+      .buttonStyle(PlainButtonStyle())
+      .onAppear {
+        Task { await viewModel.itemAppeared(item: item, dataService: dataService, audioController: audioController) }
+      }
+      FeedCard(item: item) {
+        viewModel.selectedLinkItem = item.objectID
+      }
+    }
+  }
+}
+
 struct FeedCardNavigationLink: View {
   @EnvironmentObject var dataService: DataService
   @EnvironmentObject var audioController: AudioController

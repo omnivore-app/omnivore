@@ -1,5 +1,4 @@
 import { parseHTML } from 'linkedom'
-import * as _ from 'underscore'
 import { SentenceTokenizer, WordPunctTokenizer } from 'natural'
 import { htmlToText } from 'html-to-text'
 
@@ -114,12 +113,8 @@ function emit(textItems: string[], text: string) {
   textItems.push(text)
 }
 
-const cleanText = (text: string): string => {
-  return stripEmojis(_.escape(text.replace(/\s+/g, ' ')))
-}
-
 function cleanTextNode(textNode: ChildNode): string {
-  return cleanText(textNode.textContent ?? '')
+  return stripEmojis(textNode.textContent ?? '')
 }
 
 function emitTextNode(
@@ -395,7 +390,7 @@ export const htmlToSpeechFile = (htmlInput: HtmlInput): SpeechFile => {
     const titleUtterance = textToUtterances({
       tokenizer,
       idx: '',
-      textItems: [cleanText(title)], // title could have HTML entity names like & or emoji
+      textItems: [stripEmojis(title)], // title could have emoji
       wordOffset,
       isHtml: false,
     })[0]

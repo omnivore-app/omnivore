@@ -56,6 +56,7 @@
             <p>
                 <span>Which brings us to the third item on the list, and the real sticking point. As far as I’m aware, no current or planned future Web API ever lets you do number three. There are many new web “technologies” swarming around the custom packet idea (</span><a href="https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API" rel="">WebRTC</a><span>,</span> <a href="https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API" rel="">WebSockets</a><span>,</span> <a href="https://github.com/w3c/webtransport" rel="">WebTransport</a><span>), but to the best of my knowledge, all of them require an HTTPS connection to be made first, so your “custom packet” servers still need to implement all of HTTPS anyway.</span>
             </p>
+            <h2> What is the deployment scenario? </h2>
             <p> I can imagine someone raising the following objection at this point: “If you don’t support HTTPS on the server, how do you serve the WASM/JavaScript/whatever with the custom packet logic in the first place?” </p>
             <p> That’s a reasonable question. </p>
             <p> The answer is, the two most logical deployment scenarios I can think of both involve a separate server (or process) for the initial HTTPS transaction. </p>
@@ -64,6 +65,7 @@
                 <span>The second would be less common, but plausible: you run your own CDN-equivalent, because</span> <a href="https://knowyourmeme.com/memes/chuck-norris-facts" rel="">you’re just that hard core</a><span>. But you expect that your HTTPS code is more vulnerable than your custom code, since HTTPS is vastly more complicated and has ridiculous things in it like arbitrary text parsing, which no one in their right mind would ever put into a “secure” protocol. So you cabin your HTTPS server instances into their own restricted processes or own machines entirely. This prevents exploits of the HTTPS code from affecting anything other than newly connecting users - existing users (who are only talking to your custom servers) remain unharmed.</span>
             </p>
             <p> In neither scenario do you actually include HTTPS code in any of the processes running your actual secure server. </p>
+            <h2> What precedent has been set by other “secure” APIs in the browser? </h2>
             <p> So that’s the hopefully-at-least-somewhat-convincing explanation of why someone might want raw UDP. Now the question is, can raw UDP be provided by a browser in a way that is “secure”? </p>
             <p>
                 <span>I’m putting a lot of these words in scare quotes because browsers</span> <em>aren’t</em> <span>secure for any serious definition of that word, and hopefully that is overwhelmingly obvious to everyone who has ever used one. But just to be clear about the landscape, there are two different ways browsers are not secure:</span>
@@ -113,6 +115,7 @@
             <p>
                 <span>Hopefully we can all agree that this extremely low bar for security is the only hurdle one should have to clear in order to dismiss concerns of “security” as a reason not to implement a feature in a W3C spec. It’s not much, but it is</span> <em>something</em><span>.</span>
             </p>
+            <h2> Can raw UDP meet this security standard? </h2>
             <p>
                 <span>OK, finally, with all that out of the way, this is what I actually wanted someone to point me to</span> <a href="https://twitter.com/cmuratori/status/1543874684868931584" rel="">when I asked about this on Twitter</a><span>. I just wanted to see that someone, somewhere, had worked out exactly why UDP could not be made to fit the same security model considered acceptable across other basic web features already deployed and considered “secure”.</span>
             </p>
@@ -142,6 +145,7 @@
                 <span>Nobody seems to be panicked about this. Nobody has pushed the policy that the W3C should standardize on a specific web server deployment that you are forced to use, or a set of n of them made by Google/Mozilla/Apple, or what have you. It is just assumed that everyone is allowed to write their own</span> <em>server</em> <span>packet handling, but that no one is allowed to write their own</span> <em>client</em> <span>packet handling.</span>
             </p>
             <p> So that’s what I would like explained. Internet, justify this! </p>
+            <h2> Appendix A.1.2b subsection 12: What about destination consent? </h2>
             <p> I have seen people mention (but not support) a claim that raw UDP would cause “denial of service” problems because malicious web pages would send UDP packets to random servers in an attempt to overload them. This claim seems completely baseless to me, because there is no reason why you can’t employ the relevant XHR DDoS restrictions to UDP. If DDoS was the concern, just require that UDP packets be sent exclusively within the same domain as the originating code. </p>
             <p>
                 <span>Furthermore, you could restrict the port ranges of raw web UDP to some assigned range. A new port range could be explicitly reserved</span> <em>just for raw web UDP</em> <span>if that makes people more comfortable, so it could literally be discarded at the gateway on any network that doesn’t want to support raw UDP for web, making it easier to deal with than UDP attacks from native code and viruses which can choose their ports at will.</span>

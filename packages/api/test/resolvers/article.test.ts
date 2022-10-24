@@ -34,6 +34,7 @@ import {
 } from '../../src/elastic/pages'
 import { addHighlightToPage } from '../../src/elastic/highlights'
 import { refreshIndex } from '../../src/elastic'
+import { SearchHistory } from '../../src/entity/search_history'
 
 chai.use(chaiString)
 
@@ -402,7 +403,7 @@ describe('Article API', () => {
 
     context('when saving an archived article', () => {
       before(async () => {
-        url = 'https://example.com/saving-archived-article.com'
+        url = 'https://blog.omnivore.app/saving-archived-article.com'
         source = 'puppeteer-parse'
         document = '<p>test</p>'
         title = 'new title'
@@ -432,7 +433,7 @@ describe('Article API', () => {
         await deletePage(pageId, ctx)
       })
 
-      it('should unarchive the article', async () => {
+      it('unarchives the article', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
 
         expect(res.body.data.createArticle.createdArticle.isArchived).to.false
@@ -541,7 +542,7 @@ describe('Article API', () => {
   describe('SavePage', () => {
     let query = ''
     let title = 'Example Title'
-    let url = 'https://example.com'
+    let url = 'https://blog.omnivore.app'
     let originalContent = '<div>Example Content</div>'
 
     beforeEach(() => {
@@ -563,7 +564,7 @@ describe('Article API', () => {
 
     context('when we save a page that is already archived', () => {
       before(() => {
-        url = 'https://example.com/new-url'
+        url = 'https://blog.omnivore.app/new-url'
       })
 
       after(async () => {
@@ -610,7 +611,7 @@ describe('Article API', () => {
 
   describe('SaveUrl', () => {
     let query = ''
-    let url = 'https://example.com/new-url-1'
+    let url = 'https://blog.omnivore.app/new-url-1'
 
     beforeEach(() => {
       query = saveUrlQuery(url)
@@ -687,6 +688,7 @@ describe('Article API', () => {
         await graphqlRequest(query, authToken).expect(200)
         const page = await getPageById(articleId)
         expect(page?.state).to.eql(ArticleSavingRequestStatus.Deleted)
+        expect(page?.highlights).to.eql([])
       })
     })
   })
@@ -771,7 +773,7 @@ describe('Article API', () => {
 
     context('when the file is uploaded', () => {
       before(async () => {
-        url = 'https://example.com/'
+        url = 'https://blog.omnivore.app/'
         const uploadFile = await getRepository(UploadFile).save({
           fileName: 'test.pdf',
           contentType: 'application/pdf',
@@ -842,6 +844,33 @@ describe('Article API', () => {
 
     after(async () => {
       await deletePagesByParam({ userId: user.id }, ctx)
+      await getRepository(SearchHistory).delete({ user: { id: user.id } })
+    })
+
+    context('when we search for a keyword', () => {
+      before(() => {
+        keyword = 'search'
+      })
+
+      it('saves the term in search history', async () => {
+        await graphqlRequest(query, authToken).expect(200)
+        const searchHistories = await getRepository(SearchHistory).findBy({
+          user: { id: user.id },
+        })
+        expect(searchHistories.length).to.eq(1)
+        expect(searchHistories[0].term).to.eq(keyword)
+        const searchHistory = searchHistories[0]
+
+        // Check that the search history is updated
+        await graphqlRequest(query, authToken).expect(200)
+        const newSearchHistories = await getRepository(SearchHistory).findBy({
+          user: { id: user.id },
+        })
+        expect(newSearchHistories.length).to.eq(1)
+        expect(newSearchHistories[0].createdAt).to.be.greaterThan(
+          searchHistory.createdAt
+        )
+      })
     })
 
     context('when type:highlights is not in the query', () => {

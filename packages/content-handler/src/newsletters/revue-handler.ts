@@ -1,5 +1,4 @@
 import { ContentHandler } from '../content-handler'
-import { parseHTML } from 'linkedom'
 
 export class RevueHandler extends ContentHandler {
   constructor() {
@@ -22,9 +21,9 @@ export class RevueHandler extends ContentHandler {
     postHeader: string
     from: string
     unSubHeader: string
-    html: string
+    dom: Document
   }): Promise<boolean> {
-    const dom = parseHTML(input.html).document
+    const dom = input.dom
     if (
       dom.querySelectorAll('img[src*="getrevue.co"], img[src*="revue.email"]')
         .length > 0
