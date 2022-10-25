@@ -94,7 +94,7 @@ export const createApp = (): {
   app.use(json({ limit: '100mb' }))
   app.use(urlencoded({ limit: '100mb', extended: true }))
 
-  if (env.dev.isLocal) {
+  if (!env.dev.isLocal) {
     const apiLimiter = rateLimit({
       windowMs: 60 * 1000, // 1 minute
       max: 50, // Limit each IP to 10 requests per `window` (here, per minute)
