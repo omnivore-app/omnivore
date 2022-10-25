@@ -24,7 +24,8 @@ struct WebReaderContainerView: View {
   @State var showNavBarActionID: UUID?
   @State var shareActionID: UUID?
   @State var annotation = String()
-  @State var showBottomBar: Bool = false
+  @State var showBottomBar = false
+  @State private var bottomBarOpacity = 0.0
 
   @EnvironmentObject var dataService: DataService
   @EnvironmentObject var audioController: AudioController
@@ -349,14 +350,21 @@ struct WebReaderContainerView: View {
         VStack(spacing: 0) {
           navBar
           Spacer()
-          bottomButtons
-            .frame(height: 48)
-            .background(Color.isDarkMode ? Color(red: 44 / 255.0, green: 44 / 255.0, blue: 46 / 255.0) : Color.white)
-            .cornerRadius(6)
-            .padding(.bottom, 34)
-            .shadow(color: .gray.opacity(0.13), radius: 8, x: 0, y: 4)
-
-            .offset(y: showBottomBar ? 0.0 : 120.0)
+          if showBottomBar {
+            bottomButtons
+              .frame(height: 48)
+              .background(Color.isDarkMode ? Color(red: 44 / 255.0, green: 44 / 255.0, blue: 46 / 255.0) : Color.white)
+              .cornerRadius(6)
+              .padding(.bottom, 34)
+              .shadow(color: .gray.opacity(0.13), radius: 8, x: 0, y: 4)
+              .opacity(bottomBarOpacity)
+              .onAppear {
+                withAnimation(Animation.linear(duration: 0.25)) { self.bottomBarOpacity = 1 }
+              }
+              .onDisappear {
+                self.bottomBarOpacity = 0
+              }
+          }
         }
       #endif
     }
