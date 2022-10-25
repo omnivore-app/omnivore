@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState} from 'react'
+import { useRouter } from 'next/router'
 import { styled } from '@stitches/react'
 import { Toaster } from 'react-hot-toast'
 import { DownloadSimple, Eye, Link } from 'phosphor-react'
@@ -55,6 +56,7 @@ export default function Integrations(): JSX.Element {
   const [integrationsArray, setIntegrationsArray] = useState(
     Array<integrationsCard>()
   )
+  const router = useRouter()
 
   const readwiseConnected = useMemo(() => {
     return integrations.some((i) => i.type == 'READWISE')
@@ -71,7 +73,7 @@ export default function Integrations(): JSX.Element {
           text: `Install Logseq Plugin`,
           icon: <DownloadSimple size={16} weight={'bold'} />,
           style: 'ctaDarkYellow',
-          action: () => alert('You may already have it'),
+          action: () =>   alert('New LInk required')
         },
       },
       {
@@ -82,7 +84,7 @@ export default function Integrations(): JSX.Element {
           text: readwiseConnected ? 'Remove' : 'Connect to Readwise',
           icon: <Link size={16} weight={'bold'} />,
           style: readwiseConnected ? 'ctaWhite' : 'ctaDarkYellow',
-          action: () => alert('readwise'),
+          action: () => router.push("/settings/integrations/readwise")
         },
       },
       {
@@ -93,7 +95,7 @@ export default function Integrations(): JSX.Element {
           text: 'View Webhooks',
           icon: <Eye size={16} weight={'bold'} />,
           style: 'ctaWhite',
-          action: () => alert('readwise - Open new Page'),
+          action: () =>router.push("/settings/webhooks"),
         },
       },
     ])
