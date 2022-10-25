@@ -21,6 +21,8 @@ const createHighlightQuery = (
   linkId: string,
   highlightId: string,
   shortHighlightId: string,
+  highlightPositionPercent = 0.0,
+  highlightPositionAnchorIndex = 0,
   prefix = '_prefix',
   suffix = '_suffix',
   quote = '_quote',
@@ -37,11 +39,15 @@ const createHighlightQuery = (
         shortId: "${shortHighlightId}",
         patch: "${patch}",
         articleId: "${linkId}",
+        highlightPositionPercent: ${highlightPositionPercent},
+        highlightPositionAnchorIndex: ${highlightPositionAnchorIndex}
       }
     ) {
       ... on CreateHighlightSuccess {
         highlight {
           id
+          highlightPositionPercent
+          highlightPositionAnchorIndex
         }
       }
       ... on CreateHighlightError {
@@ -57,6 +63,8 @@ const mergeHighlightQuery = (
   highlightId: string,
   shortHighlightId: string,
   overlapHighlightIdList: string[],
+  highlightPositionPercent = 0.0,
+  highlightPositionAnchorIndex = 0,
   prefix = '_prefix',
   suffix = '_suffix',
   quote = '_quote',
@@ -73,12 +81,16 @@ const mergeHighlightQuery = (
         shortId: "${shortHighlightId}",
         patch: "${patch}",
         articleId: "${pageId}",
-        overlapHighlightIdList: "${overlapHighlightIdList}"
+        overlapHighlightIdList: "${overlapHighlightIdList}",
+        highlightPositionPercent: ${highlightPositionPercent},
+        highlightPositionAnchorIndex: ${highlightPositionAnchorIndex}
       }
     ) {
       ... on MergeHighlightSuccess {
         highlight {
           id
+          highlightPositionPercent
+          highlightPositionAnchorIndex
         }
       }
       ... on MergeHighlightError {
@@ -119,15 +131,25 @@ describe('Highlights API', () => {
     it('should not fail', async () => {
       const highlightId = generateFakeUuid()
       const shortHighlightId = '_short_id'
+      const highlightPositionPercent = 35.0
+      const highlightPositionAnchorIndex = 15
       const query = createHighlightQuery(
         authToken,
         pageId,
         highlightId,
-        shortHighlightId
+        shortHighlightId,
+        highlightPositionPercent,
+        highlightPositionAnchorIndex
       )
       const res = await graphqlRequest(query, authToken).expect(200)
 
       expect(res.body.data.createHighlight.highlight.id).to.eq(highlightId)
+      expect(
+        res.body.data.createHighlight.highlight.highlightPositionPercent
+      ).to.eq(highlightPositionPercent)
+      expect(
+        res.body.data.createHighlight.highlight.highlightPositionAnchorIndex
+      ).to.eq(highlightPositionAnchorIndex)
     })
   })
 
@@ -150,15 +172,25 @@ describe('Highlights API', () => {
     it('should not fail', async () => {
       const newHighlightId = generateFakeUuid()
       const newShortHighlightId = '_short_id_2'
+      const highlightPositionPercent = 50.0
+      const highlightPositionAnchorIndex = 25
       const query = mergeHighlightQuery(
         pageId,
         newHighlightId,
         newShortHighlightId,
-        [highlightId]
+        [highlightId],
+        highlightPositionPercent,
+        highlightPositionAnchorIndex
       )
       const res = await graphqlRequest(query, authToken).expect(200)
 
       expect(res.body.data.mergeHighlight.highlight.id).to.eq(newHighlightId)
+      expect(
+        res.body.data.mergeHighlight.highlight.highlightPositionPercent
+      ).to.eq(highlightPositionPercent)
+      expect(
+        res.body.data.mergeHighlight.highlight.highlightPositionAnchorIndex
+      ).to.eq(highlightPositionAnchorIndex)
     })
   })
 })

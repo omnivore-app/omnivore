@@ -247,6 +247,8 @@ enum CreateHighlightErrorCode {
 input CreateHighlightInput {
   annotation: String
   articleId: ID!
+  highlightPositionAnchorIndex: Int
+  highlightPositionPercent: Float
   id: ID!
   patch: String!
   prefix: String
@@ -648,6 +650,8 @@ type Highlight {
   annotation: String
   createdAt: Date!
   createdByMe: Boolean!
+  highlightPositionAnchorIndex: Int
+  highlightPositionPercent: Float
   id: ID!
   patch: String!
   prefix: String
@@ -797,6 +801,8 @@ enum MergeHighlightErrorCode {
 input MergeHighlightInput {
   annotation: String
   articleId: ID!
+  highlightPositionAnchorIndex: Int
+  highlightPositionPercent: Float
   id: ID!
   overlapHighlightIdList: [String!]!
   patch: String!

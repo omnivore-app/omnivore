@@ -639,6 +639,8 @@ const schema = gql`
     updatedAt: Date!
     reactions: [Reaction!]!
     createdByMe: Boolean!
+    highlightPositionPercent: Float
+    highlightPositionAnchorIndex: Int
   }
 
   input CreateHighlightInput {
@@ -651,6 +653,8 @@ const schema = gql`
     suffix: String @sanitize
     annotation: String @sanitize(maxLength: 4000)
     sharedAt: Date
+    highlightPositionPercent: Float
+    highlightPositionAnchorIndex: Int
   }
 
   type CreateHighlightSuccess {
@@ -681,6 +685,8 @@ const schema = gql`
     suffix: String @sanitize
     annotation: String @sanitize(maxLength: 8000)
     overlapHighlightIdList: [String!]!
+    highlightPositionPercent: Float
+    highlightPositionAnchorIndex: Int
   }
 
   type MergeHighlightSuccess {
