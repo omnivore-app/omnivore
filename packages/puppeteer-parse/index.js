@@ -304,19 +304,19 @@ exports.puppeteer = Sentry.GCPFunction.wrapHttpFunction(async (req, res) => {
     console.log('error with handler: ', e);
   }
 
-  var context, page, finalUrl;
-  if ((!content || !title) && contentType !== 'application/pdf') {
-    const result = await retrievePage(url)
-    if (result && result.context) { context = result.context }
-    if (result && result.page) { page = result.page }
-    if (result && result.finalUrl) { finalUrl = result.finalUrl }
-    if (result && result.contentType) { contentType = result.contentType }
-    console.log('context, page, finalUrl, contentType', context, page, finalUrl, contentType);
-  } else {
-    finalUrl = url
-  }
-
+  let context, page, finalUrl;
   try {
+    if ((!content || !title) && contentType !== 'application/pdf') {
+      const result = await retrievePage(url)
+      if (result && result.context) { context = result.context }
+      if (result && result.page) { page = result.page }
+      if (result && result.finalUrl) { finalUrl = result.finalUrl }
+      if (result && result.contentType) { contentType = result.contentType }
+      console.log('context, page, finalUrl, contentType', context, page, finalUrl, contentType);
+    } else {
+      finalUrl = url
+    }
+
     if (contentType === 'application/pdf') {
       const uploadedFileId = await uploadPdf(finalUrl, userId, articleSavingRequestId);
       const l = await saveUploadedPdf(userId, finalUrl, uploadedFileId, articleSavingRequestId);
@@ -641,7 +641,7 @@ async function retrievePage(url) {
   });
 
   try {
-    const response = await page.goto(url, { waitUntil: ['networkidle2'] });
+    const response = await page.goto(url, { timeout: 8 * 1000, waitUntil: ['networkidle2'] });
     const finalUrl = response.url();
     const contentType = response.headers()['content-type'];
 
