@@ -3,10 +3,10 @@ import useSWR from 'swr'
 import { publicGqlFetcher } from '../networkHelpers'
 
 export interface Integration {
-  id: String
+  id: string
   type: IntegrationType
-  token: String
-  enabled: Boolean
+  token: string
+  enabled: boolean
   createdAt: Date
   updatedAt: Date
 }
