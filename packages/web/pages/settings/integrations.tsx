@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { styled } from '@stitches/react'
 import { Toaster } from 'react-hot-toast'
-import { DownloadSimple, Eye, Link, Plus } from 'phosphor-react'
+import { DownloadSimple, Eye, Link } from 'phosphor-react'
 import Image from 'next/image'
 
 import {
@@ -14,6 +14,7 @@ import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
 import { applyStoredTheme } from '../../lib/themeUpdater'
 import { Button } from '../../components/elements/Button'
 import { useGetIntegrationsQuery } from '../../lib/networking/queries/useGetIntegrationsQuery'
+import { useGetWebhooksQuery } from '../../lib/networking/queries/useGetWebhooksQuery'
 
 // Styles
 const Header = styled(Box, {
@@ -43,11 +44,13 @@ type integrationsCard = {
     text: string
     icon?: JSX.Element
     style: string
+    action: () => void
   }
 }
 export default function Integrations(): JSX.Element {
   applyStoredTheme(false)
   const { integrations } = useGetIntegrationsQuery()
+  const { webhooks } = useGetWebhooksQuery()
 
   const [integrationsArray, setIntegrationsArray] = useState(
     Array<integrationsCard>()
@@ -56,6 +59,7 @@ export default function Integrations(): JSX.Element {
   const readwiseConnected = useMemo(() => {
     return integrations.some((i) => i.type == 'READWISE')
   }, [integrations])
+  
 
   useEffect(() => {
     setIntegrationsArray([
@@ -67,6 +71,7 @@ export default function Integrations(): JSX.Element {
           text: `Install Logseq Plugin`,
           icon: <DownloadSimple size={16} weight={'bold'} />,
           style: 'ctaDarkYellow',
+          action: () => alert('You may already have it'),
         },
       },
       {
@@ -76,21 +81,23 @@ export default function Integrations(): JSX.Element {
         button: {
           text: readwiseConnected ? 'Remove' : 'Connect to Readwise',
           icon: <Link size={16} weight={'bold'} />,
-          style: 'ctaDarkYellow',
+          style: readwiseConnected ? 'ctaWhite' : 'ctaDarkYellow',
+          action: () => alert('readwise'),
         },
       },
       {
         icon: '/static/icons/webhooks.svg',
         title: 'Webhooks',
-        subText: '## Webhooks',
+        subText: `${webhooks.length} Webhooks`,
         button: {
           text: 'View Webhooks',
           icon: <Eye size={16} weight={'bold'} />,
           style: 'ctaWhite',
+          action: () => alert('readwise - Open new Page'),
         },
       },
     ])
-  }, [])
+  }, [readwiseConnected, webhooks])
 
   return (
     <PrimaryLayout pageTestId={'integrations'}>
@@ -152,7 +159,7 @@ export default function Integrations(): JSX.Element {
                 <h3>{item.title}</h3>
                 <p>{item.subText}</p>
               </Box>
-              <HStack css={{}}>
+              <HStack>
                 <Button
                   style={
                     item.button.style === 'ctaDarkYellow'
@@ -162,11 +169,9 @@ export default function Integrations(): JSX.Element {
                   css={{
                     py: '10px',
                     px: '14px',
-                    mr: '16px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    minWidth: '255px',
+                    minWidth: '230px',
                   }}
+                  onClick={item.button.action}
                 >
                   {item.button.icon}
                   <SpanBox
