@@ -1,9 +1,6 @@
 import { useCallback, useState } from 'react'
 import { styled } from '@stitches/react'
-import { Toaster } from 'react-hot-toast'
 import Link from 'next/link'
-
-import { PrimaryLayout } from '../PrimaryLayout'
 
 import { Box, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
@@ -34,12 +31,7 @@ export function Readwise(): JSX.Element {
   }, [token])
 
   return (
-    <PrimaryLayout pageTestId={'integrations'}>
-      <Toaster
-        containerStyle={{
-          top: '5rem',
-        }}
-      />
+    <>
       <Header css={{ textAlign: 'center' }}>Readwise</Header>
       <VStack
         distribution={'start'}
@@ -73,7 +65,7 @@ export function Readwise(): JSX.Element {
           css={{
             border: '1px solid $textNonessential',
             borderRadius: '8px',
-            width: '60%',
+            width: '80%',
             bg: 'transparent',
             fontSize: '16px',
             textIndent: '8px',
@@ -96,6 +88,6 @@ export function Readwise(): JSX.Element {
           Set Token
         </Button>
       </VStack>
-    </PrimaryLayout>
+    </>
   )
 }
