@@ -111,6 +111,12 @@
                 "type": "date"
               }
             }
+          },
+          "highlightPositionPercent": {
+            "type": "float"
+          },
+          "highlightPositionAnchorIndex": {
+            "type": "integer"
           }
         }
       },
