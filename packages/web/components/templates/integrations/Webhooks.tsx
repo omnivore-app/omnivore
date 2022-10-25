@@ -39,7 +39,8 @@ export function Webhooks(): JSX.Element {
           width={75}
           height={75}
         />
-        <Header>WebHooks</Header>
+        <Header>Webhooks</Header>
+
         <HStack
           alignment={'center'}
           distribution={'end'}
@@ -62,6 +63,28 @@ export function Webhooks(): JSX.Element {
             </SpanBox>
           </Button>
         </HStack>
+      </HStack>
+
+      <HStack
+        css={{
+          fontSize: '16px',
+          color: '$utilityTextDefault',
+          m: '20px 0',
+        }}
+      >
+        Use Webhooks to Ut enim ad minim veniam, quis nostrud exercitation.
+        Tityre, tu patulae recubans sub tegmine fagi dolor. Etiam habebis sem
+        dicantur magna mollis euismod.
+      </HStack>
+
+      <HStack
+        css={{
+            fontSize: '16px',
+            color: '$utilityTextDefault',
+            m: '20px 0',
+          }}>
+
+
       </HStack>
     </VStack>
   )
