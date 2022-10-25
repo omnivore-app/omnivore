@@ -353,7 +353,7 @@ struct WebReaderContainerView: View {
           if showBottomBar {
             bottomButtons
               .frame(height: 48)
-              .background(Color.isDarkMode ? Color(red: 44 / 255.0, green: 44 / 255.0, blue: 46 / 255.0) : Color.white)
+              .background(Color.webControlButtonBackground)
               .cornerRadius(6)
               .padding(.bottom, 34)
               .shadow(color: .gray.opacity(0.13), radius: 8, x: 0, y: 4)
