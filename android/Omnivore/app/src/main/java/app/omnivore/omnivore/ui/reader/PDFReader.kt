@@ -100,6 +100,8 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener {
     hasLoadedHighlights = true
 
     thumbnailBar.setDocument(document, configuration)
+    fragment.addDocumentListener(modularSearchView)
+    modularSearchView.setDocument(document, configuration)
 
     val params = viewModel.pdfReaderParamsLiveData.value
 
