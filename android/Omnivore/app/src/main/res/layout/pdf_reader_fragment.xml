@@ -22,24 +22,12 @@
         android:elevation="8dp"
         android:visibility="visible"/>
 
-    <com.pspdfkit.ui.PdfThumbnailGrid
-        android:id="@+id/thumbnailGrid"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="invisible"/>
-
-    <com.pspdfkit.ui.PdfOutlineView
-        android:id="@+id/outlineView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="invisible"/>
-
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="end|center"
-        android:background="@color/design_default_color_primary"
-        android:orientation="vertical"
+        android:layout_gravity="end"
+        android:background="@color/gray_B7B7B7"
+        android:orientation="horizontal"
         android:splitMotionEvents="false">
 
         <ImageView

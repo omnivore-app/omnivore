@@ -21,6 +21,7 @@ import com.pspdfkit.annotations.LinkAnnotation
 import com.pspdfkit.annotations.actions.ActionType
 import com.pspdfkit.annotations.actions.UriAction
 import com.pspdfkit.configuration.PdfConfiguration
+import com.pspdfkit.configuration.activity.ThumbnailBarMode
 import com.pspdfkit.configuration.page.PageScrollDirection
 import com.pspdfkit.document.DocumentSaveOptions
 import com.pspdfkit.document.PdfDocument
@@ -40,21 +41,24 @@ import com.pspdfkit.utils.PdfUtils
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class PDFReaderActivity: AppCompatActivity(), DocumentListener, OnDocumentLongPressListener {
+class PDFReaderActivity: AppCompatActivity(), DocumentListener {
   private var hasLoadedHighlights = false
 
   private lateinit var fragment: PdfFragment
   private lateinit var thumbnailBar: PdfThumbnailBar
   private lateinit var configuration: PdfConfiguration
   private lateinit var modularSearchView: PdfSearchViewModular
-  private lateinit var thumbnailGrid: PdfThumbnailGrid
   private lateinit var highlighter: SearchResultHighlighter
-  private lateinit var pdfOutlineView: PdfOutlineView
 
   val viewModel: PDFReaderViewModel by viewModels()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+
+    configuration = PdfConfiguration.Builder()
+      .scrollDirection(PageScrollDirection.HORIZONTAL)
+      .build()
+
     setContentView(R.layout.pdf_reader_fragment)
 
     // Create the observer which updates the UI.
@@ -72,10 +76,6 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, OnDocumentLongPr
   }
 
   private fun load(params: PDFReaderParams) {
-    val configuration = PdfConfiguration.Builder()
-      .scrollDirection(PageScrollDirection.HORIZONTAL)
-      .build()
-
     // First, try to restore a previously created fragment.
     // If no fragment exists, create a new one.
     fragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer) as PdfFragment?
@@ -83,22 +83,21 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, OnDocumentLongPr
 
     // Initialize all PSPDFKit UI components.
     initModularSearchViewAndButton()
-    initOutlineViewAndButton()
     initThumbnailBar()
-    initThumbnailGridAndButton()
 
     fragment.apply {
       addDocumentListener(this@PDFReaderActivity)
       addDocumentListener(modularSearchView)
       addDocumentListener(thumbnailBar.documentListener)
-      addDocumentListener(thumbnailGrid)
-      setOnDocumentLongPressListener(this@PDFReaderActivity)
+      isImmersive = true
     }
   }
 
   override fun onDocumentLoaded(document: PdfDocument) {
     if (hasLoadedHighlights) return
     hasLoadedHighlights = true
+
+    thumbnailBar.setDocument(document, configuration)
 
     val params = viewModel.pdfReaderParamsLiveData.value
 
@@ -131,70 +130,12 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, OnDocumentLongPr
     return fragment
   }
 
-  private fun initThumbnailGridAndButton() {
-    thumbnailGrid = findViewById(R.id.thumbnailGrid)
-      ?: throw IllegalStateException("Error while loading CustomFragmentActivity. The example layout was missing the thumbnail grid view.")
-
-    thumbnailGrid.setOnPageClickListener { view, pageIndex ->
-      fragment.pageIndex = pageIndex
-      view.hide()
-    }
-
-    // The thumbnail grid is hidden by default. Set up a click listener to show it.
-    val openThumbnailGridButton = findViewById<ImageView>(R.id.openThumbnailGridButton)
-      ?: throw IllegalStateException(
-        "Error while loading CustomFragmentActivity. The example layout" +
-          " was missing the open thumbnail grid button with id `R.id.openThumbnailGridButton`."
-      )
-
-    openThumbnailGridButton.apply {
-      setImageDrawable(
-        tintDrawable(
-          openThumbnailGridButton.drawable,
-          ContextCompat.getColor(this@PDFReaderActivity, R.color.white)
-        )
-      )
-      setOnClickListener {
-        if (thumbnailGrid.isShown) thumbnailGrid.hide() else thumbnailGrid.show()
-      }
-    }
-  }
-
   private fun initThumbnailBar() {
     thumbnailBar = findViewById(R.id.thumbnailBar)
       ?: throw IllegalStateException("Error while loading CustomFragmentActivity. The example layout was missing thumbnail bar view.")
 
     thumbnailBar.setOnPageChangedListener { _, pageIndex: Int -> fragment.pageIndex = pageIndex }
-  }
-
-  private fun initOutlineViewAndButton() {
-    pdfOutlineView = findViewById(R.id.outlineView)
-      ?: throw IllegalStateException("Error while loading CustomFragmentActivity. The example layout was missing the outline view.")
-
-    pdfOutlineView.apply {
-      val outlineViewListener = DefaultOutlineViewListener(fragment)
-      setOnAnnotationTapListener(outlineViewListener)
-      setOnOutlineElementTapListener(outlineViewListener)
-      setBookmarkAdapter(DefaultBookmarkAdapter(fragment))
-    }
-
-    val openOutlineButton = findViewById<ImageView>(R.id.openOutlineButton)
-      ?: throw IllegalStateException(
-        "Error while loading CustomFragmentActivity. The example layout " +
-          "was missing the open outline view button with id `R.id.openOutlineButton`."
-      )
-
-    openOutlineButton.apply {
-      setImageDrawable(
-        tintDrawable(
-          openOutlineButton.drawable,
-          ContextCompat.getColor(this@PDFReaderActivity, R.color.white)
-        )
-      )
-      setOnClickListener {
-        if (pdfOutlineView.isShown) pdfOutlineView.hide() else pdfOutlineView.show()
-      }
-    }
+    thumbnailBar.setThumbnailBarMode(ThumbnailBarMode.THUMBNAIL_BAR_MODE_FLOATING)
   }
 
   private fun initModularSearchViewAndButton() {
@@ -250,65 +191,9 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, OnDocumentLongPr
         modularSearchView.hide()
         return
       }
-      thumbnailGrid.isDisplayed -> {
-        thumbnailGrid.hide()
-        return
-      }
-      pdfOutlineView.isDisplayed -> {
-        pdfOutlineView.hide()
-        return
-      }
       else -> super.onBackPressed()
     }
   }
-
-  override fun onDocumentLongPress(
-    document: PdfDocument,
-    @IntRange(from = 0) pageIndex: Int,
-    event: MotionEvent?,
-    pagePosition: PointF?,
-    longPressedAnnotation: Annotation?
-  ): Boolean {
-    // This code showcases how to handle long click gesture on the document links.
-    fragment.view?.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
-
-    if (longPressedAnnotation is LinkAnnotation) {
-      val action = longPressedAnnotation.action
-      if (action?.type == ActionType.URI) {
-        val uri = (action as UriAction).uri ?: return true
-        Toast.makeText(this@PDFReaderActivity, uri, Toast.LENGTH_LONG).show()
-        return true
-      }
-    }
-    return false
-  }
-
-  // Rest of the `DocumentListener` methods are unused.
-  override fun onDocumentLoadFailed(exception: Throwable) = Unit
-
-  override fun onDocumentSave(document: PdfDocument, saveOptions: DocumentSaveOptions): Boolean = true
-
-  override fun onDocumentSaved(document: PdfDocument) = Unit
-
-  override fun onDocumentSaveFailed(document: PdfDocument, exception: Throwable) = Unit
-
-  override fun onDocumentSaveCancelled(document: PdfDocument) = Unit
-
-  override fun onPageClick(
-    document: PdfDocument,
-    @IntRange(from = 0) pageIndex: Int,
-    event: MotionEvent?,
-    pagePosition: PointF?,
-    clickedAnnotation: Annotation?
-  ): Boolean = false
-
-  override fun onDocumentClick(): Boolean = false
-
-  override fun onPageChanged(document: PdfDocument, @IntRange(from = 0) pageIndex: Int) = Unit
-
-  override fun onDocumentZoomed(document: PdfDocument, @IntRange(from = 0) pageIndex: Int, scaleFactor: Float) = Unit
-
-  override fun onPageUpdated(document: PdfDocument, @IntRange(from = 0) pageIndex: Int) = Unit
 
   private fun tintDrawable(drawable: Drawable, tint: Int): Drawable {
     val tintedDrawable = DrawableCompat.wrap(drawable)
