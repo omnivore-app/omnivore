@@ -5,8 +5,10 @@ import android.graphics.RectF
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
+import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -136,6 +138,28 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener {
 
     thumbnailBar.setOnPageChangedListener { _, pageIndex: Int -> fragment.pageIndex = pageIndex }
     thumbnailBar.setThumbnailBarMode(ThumbnailBarMode.THUMBNAIL_BAR_MODE_FLOATING)
+
+    val toggleThumbnailButton = findViewById<ImageView>(R.id.toggleThumbnailButton)
+      ?: throw IllegalStateException(
+        "Error while loading CustomFragmentActivity. The example layout " +
+          "was missing the open search button with id `R.id.openThumbnailGridButton`."
+      )
+
+    toggleThumbnailButton.apply {
+      setImageDrawable(
+        tintDrawable(
+          drawable,
+          ContextCompat.getColor(this@PDFReaderActivity, R.color.black)
+        )
+      )
+      setOnClickListener {
+        if (thumbnailBar.visibility == View.VISIBLE) {
+          thumbnailBar.visibility = View.INVISIBLE
+        } else {
+          thumbnailBar.visibility = View.VISIBLE
+        }
+      }
+    }
   }
 
   private fun initModularSearchViewAndButton() {
@@ -176,7 +200,7 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener {
       setImageDrawable(
         tintDrawable(
           drawable,
-          ContextCompat.getColor(this@PDFReaderActivity, R.color.white)
+          ContextCompat.getColor(this@PDFReaderActivity, R.color.black)
         )
       )
       setOnClickListener {

@@ -26,7 +26,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end"
-        android:background="@color/gray_B7B7B7"
         android:orientation="horizontal"
         android:splitMotionEvents="false">
 
@@ -34,23 +33,13 @@
             android:id="@+id/openSearchButton"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:background="?android:attr/selectableItemBackground"
             android:padding="12dp"
             android:src="@drawable/pspdf__ic_search" />
 
         <ImageView
-            android:id="@+id/openOutlineButton"
+            android:id="@+id/toggleThumbnailButton"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:background="?android:attr/selectableItemBackground"
-            android:padding="12dp"
-            android:src="@drawable/pspdf__ic_outline" />
-
-        <ImageView
-            android:id="@+id/openThumbnailGridButton"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:background="?android:attr/selectableItemBackground"
             android:padding="12dp"
             android:src="@drawable/pspdf__ic_thumbnails" />
     </LinearLayout>
