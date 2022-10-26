@@ -61,25 +61,26 @@ export default function Integrations(): JSX.Element {
   const readwiseConnected = useMemo(() => {
     return integrations.some((i) => i.type == 'READWISE')
   }, [integrations])
-  
 
   useEffect(() => {
     setIntegrationsArray([
       {
         icon: '/static/icons/logseq.svg',
         title: 'Logseq',
-        subText: 'Organize your personal knowledge base',
+        subText: 'Logseq is an open-source knowledge base. Use the Omnivore Logseq plugin to sync articles, highlights, and notes to Logseq.',
         button: {
           text: `Install Logseq Plugin`,
           icon: <DownloadSimple size={16} weight={'bold'} />,
           style: 'ctaDarkYellow',
-          action: () =>   alert('New LInk required')
+          action: () => {
+            router.push(`https://github.com/omnivore-app/logseq-omnivore`)
+          }
         },
       },
       {
         icon: '/static/icons/readwise.svg',
         title: 'ReadWise',
-        subText: 'Synchronize ebooks & articles from Readwise account',
+        subText: 'Readwise makes it easy to revisit and learn from your ebook & article highlights. Use our Readwise integration to sync your highlights from Omnivore to Readwise.',
         button: {
           text: readwiseConnected ? 'Remove' : 'Connect to Readwise',
           icon: <Link size={16} weight={'bold'} />,
@@ -99,7 +100,7 @@ export default function Integrations(): JSX.Element {
         },
       },
     ])
-  }, [readwiseConnected, webhooks])
+  }, [readwiseConnected, integrations, webhooks])
 
   return (
     <PrimaryLayout pageTestId={'integrations'}>
