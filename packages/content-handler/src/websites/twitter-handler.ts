@@ -58,6 +58,7 @@ interface Tweets {
 const TWITTER_BEARER_TOKEN = process.env.TWITTER_BEARER_TOKEN
 const TWITTER_URL_MATCH =
   /twitter\.com\/(?:#!\/)?(\w+)\/status(?:es)?\/(\d+)(?:\/.*)?/
+const MAX_THREAD_DEPTH = 100
 
 const getTweetFields = () => {
   const TWEET_FIELDS =
@@ -81,7 +82,7 @@ const getTweetThread = async (conversationId: string): Promise<Tweets> => {
       '?query=' +
       encodeURIComponent(`conversation_id:${conversationId}`) +
       getTweetFields() +
-      '&max_results=100'
+      `&max_results=${MAX_THREAD_DEPTH}`
   )
 
   if (!TWITTER_BEARER_TOKEN) {
@@ -213,60 +214,67 @@ const getTweetIds = async (tweetId: string): Promise<string[]> => {
     ],
   })
 
-  const page = await browser.newPage()
+  try {
+    const page = await browser.newPage()
 
-  await page.goto(pageURL, {
-    waitUntil: 'networkidle2',
-  })
+    await page.goto(pageURL, {
+      waitUntil: 'networkidle2',
+    })
 
-  await waitFor(4000)
+    await waitFor(4000)
 
-  /** @type {string[]} */
-  const tweetIds = (await page.evaluate(async () => {
-    const ids: string[] = []
+    return (await page.evaluate(async () => {
+      const MAX_THREAD_DEPTH = 100
+      const ids: string[] = []
 
-    /**
-     * Wait for `ms` amount of milliseconds
-     * @param {number} ms
-     */
-    const waitFor = (ms: number) =>
-      new Promise((resolve) => setTimeout(resolve, ms))
+      /**
+       * Wait for `ms` amount of milliseconds
+       * @param {number} ms
+       */
+      const waitFor = (ms: number) =>
+        new Promise((resolve) => setTimeout(resolve, ms))
 
-    // Find the first Show thread button and click it
-    const showRepliesButton = Array.from(
-      document.querySelectorAll('div[dir="auto"]')
-    )
-      .filter((node) => node.children[0] && node.children[0].tagName === 'SPAN')
-      .find((node) => node.children[0].innerHTML === 'Show replies')
+      // Find the first Show thread button and click it
+      const showRepliesButton = Array.from(
+        document.querySelectorAll('div[dir="auto"]')
+      )
+        .filter(
+          (node) => node.children[0] && node.children[0].tagName === 'SPAN'
+        )
+        .find((node) => node.children[0].innerHTML === 'Show replies')
 
-    if (showRepliesButton) {
-      ;(showRepliesButton as HTMLElement).click()
+      if (showRepliesButton) {
+        ;(showRepliesButton as HTMLElement).click()
 
-      await waitFor(2000)
-    }
+        await waitFor(2000)
+      }
 
-    const timeNodes = Array.from(document.querySelectorAll('time'))
+      const timeNodes = Array.from(document.querySelectorAll('time'))
 
-    for (const timeNode of timeNodes) {
-      /** @type {HTMLAnchorElement | HTMLSpanElement} */
-      const timeContainerAnchor = timeNode.parentElement
-      if (!timeContainerAnchor) continue
+      for (let i = 0; i < timeNodes.length && i < MAX_THREAD_DEPTH; i++) {
+        const timeContainerAnchor: HTMLAnchorElement | HTMLSpanElement | null =
+          timeNodes[i].parentElement
+        if (!timeContainerAnchor) continue
 
-      if (timeContainerAnchor.tagName === 'SPAN') continue
+        if (timeContainerAnchor.tagName === 'SPAN') continue
 
-      const id = (timeContainerAnchor as HTMLAnchorElement).href
-        .split('/')
-        .reverse()[0]
+        const href = timeContainerAnchor.getAttribute('href')
+        if (!href) continue
 
-      ids.push(id)
-    }
+        const id = href.split('/').reverse()[0]
+        if (!id) continue
 
-    return ids
-  })) as string[]
+        ids.push(id)
+      }
 
-  await browser.close()
-
-  return tweetIds
+      return ids
+    })) as string[]
+  } catch (error) {
+    console.log(error)
+    return []
+  } finally {
+    await browser.close()
+  }
 }
 
 export class TwitterHandler extends ContentHandler {
