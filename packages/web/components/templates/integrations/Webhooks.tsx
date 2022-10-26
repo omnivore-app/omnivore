@@ -5,6 +5,8 @@ import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 
 import { Plus } from 'phosphor-react'
+import { useGetWebhooksQuery } from '../../../lib/networking/queries/useGetWebhooksQuery'
+import { useMemo } from 'react'
 
 // Styles
 const Header = styled(Box, {
@@ -13,12 +15,41 @@ const Header = styled(Box, {
   margin: '20px',
 })
 
+interface Webhook {
+    id?: string
+    url: string
+    eventTypes: string
+    contentType?: string
+    method?: string
+    enabled?: string
+    createdAt?: Date
+    updatedAt?: Date
+  }
+
 export function Webhooks(): JSX.Element {
+
+  const { webhooks } = useGetWebhooksQuery()
+
+  const webhooksList = useMemo(() => {
+    const webhooksList = new Map<string, Webhook>()
+    webhooks.forEach((webhook) =>
+    webhooksList.set(webhook.id, {
+        url: webhook.url,
+        eventTypes: webhook.eventTypes.join(', '),
+        method: webhook.method,
+        contentType: webhook.contentType,
+        createdAt: webhook.createdAt,
+      })
+    )
+    return webhooksList
+  }, [webhooks])
+
+  console.log('webhooksList', webhooksList)
   return (
     <VStack
       distribution={'start'}
       css={{
-        width: '90%',
+        width: '80%',
         margin: '0 auto',
         height: '500px',
       }}
@@ -54,7 +85,6 @@ export function Webhooks(): JSX.Element {
             css={{
               py: '10px',
               px: '14px',
-              mr: '16px',
             }}
           >
             <Plus size={16} weight="bold" />
@@ -79,9 +109,9 @@ export function Webhooks(): JSX.Element {
 
       <HStack
         css={{
-            fontSize: '16px',
-            color: '$utilityTextDefault',
-            m: '20px 0',
+            border: '1px solid white',
+            height: '100%',
+            width: '100%',
           }}>
 
 
