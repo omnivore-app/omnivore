@@ -24,6 +24,8 @@ struct WebReaderContainerView: View {
   @State var showNavBarActionID: UUID?
   @State var shareActionID: UUID?
   @State var annotation = String()
+  @State var showBottomBar = false
+  @State private var bottomBarOpacity = 0.0
 
   @EnvironmentObject var dataService: DataService
   @EnvironmentObject var audioController: AudioController
@@ -119,6 +121,38 @@ struct WebReaderContainerView: View {
     }
   #endif
 
+  var bottomButtons: some View {
+    HStack(alignment: .center) {
+      Button(action: archive, label: {
+        Image(systemName: item.isArchived ? "tray.and.arrow.down" : "archivebox")
+      }).frame(width: 48, height: 48)
+        .padding(.leading, 8)
+      Divider().opacity(0.8)
+
+      Button(action: delete, label: {
+        Image(systemName: "trash")
+      }).frame(width: 48, height: 48)
+      Divider().opacity(0.8)
+
+      Button(action: editLabels, label: {
+        Image(systemName: "tag")
+      }).frame(width: 48, height: 48)
+      Divider().opacity(0.8)
+
+      Button(action: share, label: {
+        Image(systemName: "square.and.arrow.up")
+      }).frame(width: 48, height: 48)
+
+        // TODO: We don't have a single note function yet
+//      Divider()
+//
+//      Button(action: addNote, label: {
+//        Image(systemName: "note")
+//      }).frame(width: 48, height: 48)
+        .padding(.trailing, 8)
+    }.foregroundColor(.appGrayTextContrast)
+  }
+
   var navBar: some View {
     HStack(alignment: .center) {
       #if os(iOS)
@@ -159,16 +193,12 @@ struct WebReaderContainerView: View {
               label: { Label("Edit Title/Description", systemImage: "textbox") }
             )
             Button(
-              action: { showLabelsModal = true },
+              action: editLabels,
               label: { Label("Edit Labels", systemImage: "tag") }
             )
             Button(
               action: {
-                dataService.archiveLink(objectID: item.objectID, archived: !item.isArchived)
-                #if os(iOS)
-                  presentationMode.wrappedValue.dismiss()
-                #endif
-                Snackbar.show(message: !item.isArchived ? "Link archived" : "Link moved to Inbox")
+                archive()
               },
               label: {
                 Label(
@@ -184,11 +214,11 @@ struct WebReaderContainerView: View {
               label: { Label("Reset Read Location", systemImage: "arrow.counterclockwise.circle") }
             )
             Button(
-              action: { shareActionID = UUID() },
+              action: share,
               label: { Label("Share Original", systemImage: "square.and.arrow.up") }
             )
             Button(
-              action: { showDeleteConfirmation = true },
+              action: delete,
               label: { Label("Delete", systemImage: "trash") }
             )
           }
@@ -268,7 +298,8 @@ struct WebReaderContainerView: View {
           annotationSaveTransactionID: $annotationSaveTransactionID,
           showNavBarActionID: $showNavBarActionID,
           shareActionID: $shareActionID,
-          annotation: $annotation
+          annotation: $annotation,
+          showBottomBar: $showBottomBar
         )
         .onTapGesture {
           withAnimation {
@@ -319,6 +350,21 @@ struct WebReaderContainerView: View {
         VStack(spacing: 0) {
           navBar
           Spacer()
+          if showBottomBar {
+            bottomButtons
+              .frame(height: 48)
+              .background(Color.webControlButtonBackground)
+              .cornerRadius(6)
+              .padding(.bottom, 34)
+              .shadow(color: .gray.opacity(0.13), radius: 8, x: 0, y: 4)
+              .opacity(bottomBarOpacity)
+              .onAppear {
+                withAnimation(Animation.linear(duration: 0.25)) { self.bottomBarOpacity = 1 }
+              }
+              .onDisappear {
+                self.bottomBarOpacity = 0
+              }
+          }
         }
       #endif
     }
@@ -336,4 +382,26 @@ struct WebReaderContainerView: View {
       WebViewManager.shared().loadHTMLString("<html></html>", baseURL: nil)
     }
   }
+
+  func archive() {
+    dataService.archiveLink(objectID: item.objectID, archived: !item.isArchived)
+    #if os(iOS)
+      presentationMode.wrappedValue.dismiss()
+    #endif
+    Snackbar.show(message: !item.isArchived ? "Link archived" : "Link moved to Inbox")
+  }
+
+  func share() {
+    shareActionID = UUID()
+  }
+
+  func delete() {
+    showDeleteConfirmation = true
+  }
+
+  func editLabels() {
+    showLabelsModal = true
+  }
+
+  func scrollToTop() {}
 }
