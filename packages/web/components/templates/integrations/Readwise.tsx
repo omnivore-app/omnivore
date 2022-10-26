@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { styled } from '@stitches/react'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -9,6 +9,9 @@ import { StyledText } from '../../elements/StyledText'
 import { FormInput } from '../../elements/FormElements'
 
 import { setIntegrationMutation } from '../../../lib/networking/mutations/setIntegrationMutation'
+import { Integration, useGetIntegrationsQuery } from '../../../lib/networking/queries/useGetIntegrationsQuery'
+import { Router, useRouter } from 'next/router'
+import { showSuccessToast } from '../../../lib/toastHelpers'
 
 // Styles
 const Header = styled(Box, {
@@ -18,17 +21,23 @@ const Header = styled(Box, {
 })
 
 export function Readwise(): JSX.Element {
+  const router = useRouter()
   const [token, setToken] = useState<string>('')
   const [errorMessage, setErrorMessage] =
     useState<string | undefined>(undefined)
 
-  const setReadwiseToken = useCallback(() => {
-    setIntegrationMutation({
-      token,
-      type: 'READWISE',
-      enabled: true,
-    })
-    console.log('SETTING READWISE TOKEN', token)
+  const setReadwiseToken = useCallback(async () => {
+    try {
+      const result = await setIntegrationMutation({
+        token,
+        type: 'READWISE',
+        enabled: true,
+      })
+      router.push(`/settings/integrations`)
+      showSuccessToast('Your Readwise API token has been set.')
+    } catch (err) {
+      setErrorMessage('Error: ' + err)
+    }
   }, [token])
 
   return (
@@ -65,15 +74,16 @@ export function Readwise(): JSX.Element {
           fontSize: '18px',
           color: '$utilityTextDefault',
           m: '20px',
+          whiteSpace: 'pre-wrap'
         }}
       >
-        Enter your API key from Readwise below. You can get your token
+        Enter your API key from Readwise below. You can get your token{' '}
         <Link
           style={{ color: '$utilityTextDefault' }}
           href="https://readwise.io/access_token"
         >
           here
-        </Link>
+        </Link>.
       </HStack>
 
       <FormInput

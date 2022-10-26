@@ -10,6 +10,10 @@ export type SetIntegrationInput = {
 }
 
 type SetIntegrationResult = {
+  setIntegration?: SetIntegrationData
+}
+
+type SetIntegrationData = {
   setIntegration?: SetIntegrationSuccess
   errorCodes?: unknown[]
 }
@@ -29,7 +33,7 @@ type Integration = {
 
 export async function setIntegrationMutation(
   input: SetIntegrationInput
-): Promise<string | undefined> {
+): Promise<Integration | undefined> {
   const mutation = gql`
     mutation SetIntegration(
       $input: SetIntegrationInput!
@@ -52,13 +56,13 @@ export async function setIntegrationMutation(
     }
   `
 
-  try {
-    const data = await gqlFetcher(mutation, { input }) as SetIntegrationResult
-    console.log(input, data);
-    const output = data as any
-    console.log(output)
-    return output?.updatedLabel
-  } catch (err) {
-    return undefined
+  const data = await gqlFetcher(mutation, { input }) as SetIntegrationResult
+  const output = data as any
+  const error = data.setIntegration?.errorCodes?.find(() => true)
+  if (error) {
+    if (error === 'INVALID_TOKEN')
+      throw 'Your token is invalid.'
+    throw error
   }
+  return output.setIntegration?.setIntegration?.integration
 }
