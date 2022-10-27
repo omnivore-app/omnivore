@@ -353,7 +353,9 @@ export class TwitterHandler extends ContentHandler {
       author.username
     }</a> ${author.name} <a href="${url}">${formatTimestamp(
       tweetData.created_at
-    )}</a>
+    )}</a><p itemscope="" itemprop="author" itemtype="https://schema.org/Person">${
+      author.name
+    }</p>
     `
 
     const content = `
