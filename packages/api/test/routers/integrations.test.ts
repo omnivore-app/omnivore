@@ -190,7 +190,7 @@ describe('Integrations routers', () => {
                       JSON.stringify({
                         userId: user.id,
                         type: 'page',
-                        data: { id: page.id },
+                        id: page.id,
                       })
                     ).toString('base64'),
                     publishTime: new Date().toISOString(),
@@ -257,7 +257,7 @@ describe('Integrations routers', () => {
                       JSON.stringify({
                         userId: user.id,
                         type: 'highlight',
-                        data: { articleId: page.id },
+                        articleId: page.id,
                       })
                     ).toString('base64'),
                     publishTime: new Date().toISOString(),
