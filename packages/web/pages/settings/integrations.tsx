@@ -79,7 +79,7 @@ export default function Integrations(): JSX.Element {
       },
       {
         icon: '/static/icons/readwise.svg',
-        title: 'ReadWise',
+        title: 'Readwise',
         subText: 'Readwise makes it easy to revisit and learn from your ebook & article highlights. Use our Readwise integration to sync your highlights from Omnivore to Readwise.',
         button: {
           text: readwiseConnected ? 'Remove' : 'Connect to Readwise',
