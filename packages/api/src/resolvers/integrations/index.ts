@@ -60,6 +60,7 @@ export const setIntegrationResolver = authorized<
         id: existingIntegration.id,
         enabled: input.enabled,
         token: input.token,
+        taskName: existingIntegration.taskName,
       }
     } else {
       // Create
