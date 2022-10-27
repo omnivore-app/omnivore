@@ -32,6 +32,7 @@
     "axios": "^0.27.2",
     "linkedom": "^0.14.16",
     "luxon": "^3.0.4",
+    "puppeteer-core": "^19.1.1",
     "rfc2047": "^4.0.1",
     "underscore": "^1.13.6",
     "uuid": "^9.0.0"

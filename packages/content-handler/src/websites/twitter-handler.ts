@@ -2,6 +2,7 @@ import { ContentHandler, PreHandleResult } from '../content-handler'
 import axios from 'axios'
 import { DateTime } from 'luxon'
 import _ from 'underscore'
+import puppeteer from 'puppeteer-core'
 
 interface TweetIncludes {
   users: {
@@ -48,7 +49,7 @@ interface Tweet {
   includes: TweetIncludes
 }
 
-interface TweetThread {
+interface Tweets {
   data: TweetData[]
   includes: TweetIncludes
   meta: TweetMeta
@@ -57,6 +58,7 @@ interface TweetThread {
 const TWITTER_BEARER_TOKEN = process.env.TWITTER_BEARER_TOKEN
 const TWITTER_URL_MATCH =
   /twitter\.com\/(?:#!\/)?(\w+)\/status(?:es)?\/(\d+)(?:\/.*)?/
+const MAX_THREAD_DEPTH = 100
 
 const getTweetFields = () => {
   const TWEET_FIELDS =
@@ -73,26 +75,21 @@ const getTweetFields = () => {
 }
 
 // unroll recent tweet thread
-const getTweetThread = async (
-  conversationId: string,
-  username: string
-): Promise<TweetThread> => {
+const getTweetThread = async (conversationId: string): Promise<Tweets> => {
   const BASE_ENDPOINT = 'https://api.twitter.com/2/tweets/search/recent'
   const apiUrl = new URL(
     BASE_ENDPOINT +
       '?query=' +
-      encodeURIComponent(
-        `conversation_id:${conversationId} from:${username} to:${username}`
-      ) +
+      encodeURIComponent(`conversation_id:${conversationId}`) +
       getTweetFields() +
-      '&max_results=100'
+      `&max_results=${MAX_THREAD_DEPTH}`
   )
 
   if (!TWITTER_BEARER_TOKEN) {
     throw new Error('No Twitter bearer token found')
   }
 
-  const response = await axios.get<TweetThread>(apiUrl.toString(), {
+  const response = await axios.get<Tweets>(apiUrl.toString(), {
     headers: {
       Authorization: `Bearer ${TWITTER_BEARER_TOKEN}`,
       redirect: 'follow',
@@ -119,6 +116,24 @@ const getTweetById = async (id: string): Promise<Tweet> => {
   return response.data
 }
 
+const getTweetsByIds = async (ids: string[]): Promise<Tweets> => {
+  const BASE_ENDPOINT = 'https://api.twitter.com/2/tweets?ids='
+  const apiUrl = new URL(BASE_ENDPOINT + ids.join() + getTweetFields())
+
+  if (!TWITTER_BEARER_TOKEN) {
+    throw new Error('No Twitter bearer token found')
+  }
+
+  const response = await axios.get<Tweets>(apiUrl.toString(), {
+    headers: {
+      Authorization: `Bearer ${TWITTER_BEARER_TOKEN}`,
+      redirect: 'follow',
+    },
+  })
+
+  return response.data
+}
+
 const titleForAuthor = (author: { name: string }) => {
   return `${author.name} on Twitter`
 }
@@ -132,6 +147,134 @@ const formatTimestamp = (timestamp: string) => {
   return DateTime.fromJSDate(new Date(timestamp)).toLocaleString(
     DateTime.DATETIME_FULL
   )
+}
+
+const getTweetsFromResponse = (response: Tweets): Tweet[] => {
+  const tweets = []
+  for (const t of response.data) {
+    const media = response.includes.media?.filter((m) =>
+      t.attachments?.media_keys?.includes(m.media_key)
+    )
+    const tweet: Tweet = {
+      data: t,
+      includes: {
+        users: response.includes.users,
+        media,
+      },
+    }
+    tweets.push(tweet)
+  }
+  return tweets
+}
+
+const getOldTweets = async (conversationId: string): Promise<Tweet[]> => {
+  const tweetIds = await getTweetIds(conversationId)
+  const response = await getTweetsByIds(tweetIds)
+  return getTweetsFromResponse(response)
+}
+
+const getRecentTweets = async (conversationId: string): Promise<Tweet[]> => {
+  const thread = await getTweetThread(conversationId)
+  if (thread.meta.result_count === 0) {
+    return []
+  }
+  // tweets are in reverse chronological order in the thread
+  return getTweetsFromResponse(thread).reverse()
+}
+
+/**
+ * Wait for `ms` amount of milliseconds
+ * @param {number} ms
+ */
+const waitFor = (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms))
+
+/**
+ * Get tweets(even older than 7 days) using puppeteer
+ * @param {string} tweetId
+ */
+const getTweetIds = async (tweetId: string): Promise<string[]> => {
+  const pageURL = `https://twitter.com/anyone/status/${tweetId}`
+
+  // Modify this variable to control the size of viewport
+  const factor = 0.2
+  const height = Math.floor(2000 / factor)
+  const width = Math.floor(1700 / factor)
+
+  const browser = await puppeteer.launch({
+    executablePath: process.env.CHROMIUM_PATH,
+    headless: true,
+    defaultViewport: {
+      width,
+      height,
+    },
+    args: [
+      `--force-device-scale-factor=${factor}`,
+      `--window-size=${width},${height}`,
+    ],
+  })
+
+  try {
+    const page = await browser.newPage()
+
+    await page.goto(pageURL, {
+      waitUntil: 'networkidle2',
+    })
+
+    await waitFor(4000)
+
+    return (await page.evaluate(async () => {
+      const MAX_THREAD_DEPTH = 100
+      const ids: string[] = []
+
+      /**
+       * Wait for `ms` amount of milliseconds
+       * @param {number} ms
+       */
+      const waitFor = (ms: number) =>
+        new Promise((resolve) => setTimeout(resolve, ms))
+
+      // Find the first Show thread button and click it
+      const showRepliesButton = Array.from(
+        document.querySelectorAll('div[dir="auto"]')
+      )
+        .filter(
+          (node) => node.children[0] && node.children[0].tagName === 'SPAN'
+        )
+        .find((node) => node.children[0].innerHTML === 'Show replies')
+
+      if (showRepliesButton) {
+        ;(showRepliesButton as HTMLElement).click()
+
+        await waitFor(2000)
+      }
+
+      const timeNodes = Array.from(document.querySelectorAll('time'))
+
+      for (let i = 0; i < timeNodes.length && i < MAX_THREAD_DEPTH; i++) {
+        const timeContainerAnchor: HTMLAnchorElement | HTMLSpanElement | null =
+          timeNodes[i].parentElement
+        if (!timeContainerAnchor) continue
+
+        if (timeContainerAnchor.tagName === 'SPAN') continue
+
+        const href = timeContainerAnchor.getAttribute('href')
+        if (!href) continue
+
+        const id = href.split('/').reverse()[0]
+        if (!id) continue
+
+        ids.push(id)
+      }
+
+      return ids
+    })) as string[]
+  } catch (error) {
+    console.log(error)
+    return []
+  } finally {
+    await browser.close()
+  }
 }
 
 export class TwitterHandler extends ContentHandler {
@@ -164,25 +307,15 @@ export class TwitterHandler extends ContentHandler {
     const authorImage = author.profile_image_url.replace('_normal', '_400x400')
     const description = _.escape(tweetData.text)
 
-    const tweets = [tweet]
-    // we want to get the full thread
-    const thread = await getTweetThread(conversationId, author.username)
-    if (thread.meta.result_count > 0) {
-      // tweets are in reverse chronological order in the thread
-      for (const t of thread.data.reverse()) {
-        // get the tweet media if it exists
-        const media = thread.includes.media?.filter((m) =>
-          t.attachments?.media_keys?.includes(m.media_key)
-        )
-        const tweet: Tweet = {
-          data: t,
-          includes: {
-            users: thread.includes.users,
-            media,
-          },
-        }
-        tweets.push(tweet)
-      }
+    let tweets: Tweet[]
+    if (
+      new Date(tweet.data.created_at).getTime() <
+      Date.now() - 7 * 24 * 60 * 60 * 1000
+    ) {
+      // tweet is older than 7 days, so we need to use puppeteer to get the older tweets
+      tweets = await getOldTweets(conversationId)
+    } else {
+      tweets = [tweet, ...(await getRecentTweets(conversationId))]
     }
 
     let tweetsContent = ''
