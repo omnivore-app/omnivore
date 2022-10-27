@@ -169,6 +169,9 @@ const getTweetsFromResponse = (response: Tweets): Tweet[] => {
 
 const getOldTweets = async (conversationId: string): Promise<Tweet[]> => {
   const tweetIds = await getTweetIds(conversationId)
+  if (tweetIds.length === 0) {
+    return []
+  }
   const response = await getTweetsByIds(tweetIds)
   return getTweetsFromResponse(response)
 }
@@ -203,7 +206,7 @@ const getTweetIds = async (tweetId: string): Promise<string[]> => {
 
   const browser = await puppeteer.launch({
     executablePath: process.env.CHROMIUM_PATH,
-    headless: true,
+    headless: !!process.env.LAUNCH_HEADLESS,
     defaultViewport: {
       width,
       height,
@@ -221,6 +224,7 @@ const getTweetIds = async (tweetId: string): Promise<string[]> => {
 
     await page.goto(pageURL, {
       waitUntil: 'networkidle2',
+      timeout: 60000,
     })
 
     await waitFor(4000)
