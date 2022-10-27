@@ -169,6 +169,9 @@ const getTweetsFromResponse = (response: Tweets): Tweet[] => {
 
 const getOldTweets = async (conversationId: string): Promise<Tweet[]> => {
   const tweetIds = await getTweetIds(conversationId)
+  if (tweetIds.length === 0) {
+    return []
+  }
   const response = await getTweetsByIds(tweetIds)
   return getTweetsFromResponse(response)
 }
@@ -203,7 +206,7 @@ const getTweetIds = async (tweetId: string): Promise<string[]> => {
 
   const browser = await puppeteer.launch({
     executablePath: process.env.CHROMIUM_PATH,
-    headless: true,
+    headless: !!process.env.LAUNCH_HEADLESS,
     defaultViewport: {
       width,
       height,
@@ -211,6 +214,8 @@ const getTweetIds = async (tweetId: string): Promise<string[]> => {
     args: [
       `--force-device-scale-factor=${factor}`,
       `--window-size=${width},${height}`,
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
     ],
   })
 
@@ -219,6 +224,7 @@ const getTweetIds = async (tweetId: string): Promise<string[]> => {
 
     await page.goto(pageURL, {
       waitUntil: 'networkidle2',
+      timeout: 60000,
     })
 
     await waitFor(4000)
@@ -307,16 +313,8 @@ export class TwitterHandler extends ContentHandler {
     const authorImage = author.profile_image_url.replace('_normal', '_400x400')
     const description = _.escape(tweetData.text)
 
-    let tweets: Tweet[]
-    if (
-      new Date(tweet.data.created_at).getTime() <
-      Date.now() - 7 * 24 * 60 * 60 * 1000
-    ) {
-      // tweet is older than 7 days, so we need to use puppeteer to get the older tweets
-      tweets = await getOldTweets(conversationId)
-    } else {
-      tweets = [tweet, ...(await getRecentTweets(conversationId))]
-    }
+    // use puppeteer to get all tweet replies in the thread
+    const tweets = await getOldTweets(conversationId)
 
     let tweetsContent = ''
     for (const tweet of tweets) {
