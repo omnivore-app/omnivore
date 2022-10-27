@@ -342,8 +342,7 @@ async function fetchContent(req, res) {
           content = result.domContent;
         }
       } else {
-        console.log('using prefetched content and title');
-        console.log(content);
+        logger.info('using prefetched content and title');
       }
 
       logRecord.fetchContentTime = Date.now() - functionStartTime;
@@ -363,12 +362,10 @@ async function fetchContent(req, res) {
 
       logRecord.totalTime = Date.now() - functionStartTime;
       logRecord.result = apiResponse.createArticle;
-      console.log(`parse-page`, logRecord);
     }
   } catch (e) {
-    console.log('error', e)
     logRecord.error = e.message;
-    console.log(`Error while retrieving page`, logRecord);
+    logger.error(`Error while retrieving page`, logRecord);
 
     // fallback to scrapingbee
     const sbResult = await fetchContentWithScrapingBee(url);
@@ -391,11 +388,11 @@ async function fetchContent(req, res) {
 
     logRecord.totalTime = Date.now() - functionStartTime;
     logRecord.result = apiResponse.createArticle;
-    logger.info(`parse-page`, logRecord);
   } finally {
     if (context) {
       await context.close();
     }
+    logger.info(`parse-page`, logRecord);
   }
 
   return res.sendStatus(200);
