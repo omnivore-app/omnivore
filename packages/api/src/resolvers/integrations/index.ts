@@ -55,16 +55,11 @@ export const setIntegrationResolver = authorized<
         }
       }
 
-      if (existingIntegration.enabled === input.enabled) {
-        return {
-          integration: existingIntegration,
-        }
-      }
       integrationToSave = {
         ...integrationToSave,
         id: existingIntegration.id,
-        taskName: existingIntegration.taskName,
         enabled: input.enabled,
+        token: input.token,
       }
     } else {
       // Create
@@ -93,18 +88,28 @@ export const setIntegrationResolver = authorized<
       }
     }
 
+    // save integration
+    const integration = await getRepository(Integration).save(integrationToSave)
+
     if (!integrationToSave.id || integrationToSave.enabled) {
       // create a task to sync all the pages if new integration or enable integration
       const taskName = await enqueueSyncWithIntegration(user.id, input.type)
       log.info('enqueued task', taskName)
-      integrationToSave.taskName = taskName
+
+      // update task name in integration
+      await getRepository(Integration).update(integration.id, { taskName })
+      integration.taskName = taskName
     } else if (integrationToSave.taskName) {
       // delete the task if disable integration and task exists
       await deleteTask(integrationToSave.taskName)
-      integrationToSave.taskName = null
       log.info('task deleted', integrationToSave.taskName)
+
+      // update task name in integration
+      await getRepository(Integration).update(integration.id, {
+        taskName: null,
+      })
+      integration.taskName = null
     }
-    const integration = await getRepository(Integration).save(integrationToSave)
 
     analytics.track({
       userId: uid,
