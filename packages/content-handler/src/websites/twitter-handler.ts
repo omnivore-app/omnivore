@@ -211,6 +211,8 @@ const getTweetIds = async (tweetId: string): Promise<string[]> => {
     args: [
       `--force-device-scale-factor=${factor}`,
       `--window-size=${width},${height}`,
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
     ],
   })
 
