@@ -81,6 +81,7 @@ export function Readwise(): JSX.Element {
         <Link
           style={{ color: '$utilityTextDefault' }}
           href="https://readwise.io/access_token"
+          target="_blank"
         >
           here
         </Link>.
