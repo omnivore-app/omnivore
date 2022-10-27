@@ -313,16 +313,8 @@ export class TwitterHandler extends ContentHandler {
     const authorImage = author.profile_image_url.replace('_normal', '_400x400')
     const description = _.escape(tweetData.text)
 
-    let tweets: Tweet[]
-    if (
-      new Date(tweet.data.created_at).getTime() <
-      Date.now() - 7 * 24 * 60 * 60 * 1000
-    ) {
-      // tweet is older than 7 days, so we need to use puppeteer to get the older tweets
-      tweets = await getOldTweets(conversationId)
-    } else {
-      tweets = [tweet, ...(await getRecentTweets(conversationId))]
-    }
+    // use puppeteer to get all tweet replies in the thread
+    const tweets = await getOldTweets(conversationId)
 
     let tweetsContent = ''
     for (const tweet of tweets) {
