@@ -1,41 +1,28 @@
 package app.omnivore.omnivore.ui.reader
 
-import android.graphics.PointF
 import android.graphics.RectF
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import android.view.HapticFeedbackConstants
-import android.view.MotionEvent
 import android.view.View
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.annotation.IntRange
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.lifecycle.Observer
 import app.omnivore.omnivore.R
 import com.pspdfkit.annotations.Annotation
-import com.pspdfkit.annotations.LinkAnnotation
-import com.pspdfkit.annotations.actions.ActionType
-import com.pspdfkit.annotations.actions.UriAction
+import com.pspdfkit.annotations.AnnotationProvider
 import com.pspdfkit.configuration.PdfConfiguration
 import com.pspdfkit.configuration.activity.ThumbnailBarMode
 import com.pspdfkit.configuration.page.PageScrollDirection
-import com.pspdfkit.document.DocumentSaveOptions
 import com.pspdfkit.document.PdfDocument
 import com.pspdfkit.document.search.SearchResult
 import com.pspdfkit.listeners.DocumentListener
-import com.pspdfkit.listeners.OnDocumentLongPressListener
 import com.pspdfkit.ui.PdfFragment
-import com.pspdfkit.ui.PdfOutlineView
 import com.pspdfkit.ui.PdfThumbnailBar
-import com.pspdfkit.ui.PdfThumbnailGrid
-import com.pspdfkit.ui.outline.DefaultBookmarkAdapter
-import com.pspdfkit.ui.outline.DefaultOutlineViewListener
 import com.pspdfkit.ui.search.PdfSearchViewModular
 import com.pspdfkit.ui.search.SearchResultHighlighter
 import com.pspdfkit.ui.search.SimpleSearchResultListener
@@ -92,6 +79,28 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener {
       addDocumentListener(modularSearchView)
       addDocumentListener(thumbnailBar.documentListener)
       isImmersive = true
+
+      addOnAnnotationUpdatedListener(object: AnnotationProvider.OnAnnotationUpdatedListener {
+        override fun onAnnotationCreated(annotation: Annotation) {
+          Log.i("anno", "The annotation was created. $annotation")
+        }
+
+        override fun onAnnotationUpdated(annotation: Annotation) {
+          Log.i("anno", "The annotation was updated. $annotation")
+        }
+
+        override fun onAnnotationRemoved(annotation: Annotation) {
+          Log.i("anno", "The annotation was removed. $annotation")
+        }
+
+        override fun onAnnotationZOrderChanged(
+          p0: Int,
+          p1: MutableList<Annotation>,
+          p2: MutableList<Annotation>
+        ) {
+          // Unimplemented
+        }
+      })
     }
   }
 
