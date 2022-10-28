@@ -3,7 +3,7 @@ import { styled } from '@stitches/react'
 import Link from 'next/link'
 import Image from 'next/image'
 
-import { Box, HStack, VStack } from '../../elements/LayoutPrimitives'
+import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { StyledText } from '../../elements/StyledText'
 import { FormInput } from '../../elements/FormElements'
@@ -77,13 +77,13 @@ export function Readwise(): JSX.Element {
           whiteSpace: 'pre-wrap'
         }}
       >
-        Enter your API key from Readwise below. You can get your token{' '}
+        <SpanBox>Enter your API key from Readwise below. You can get your token{' '}
         <Link
           style={{ color: '$utilityTextDefault' }}
           href="https://readwise.io/access_token"
         >
           here
-        </Link>.
+        </Link>.</SpanBox>
       </HStack>
 
       <FormInput
