@@ -56,11 +56,11 @@ export function Readwise(): JSX.Element {
         <Header>Readwise</Header>
       </HStack>
 
-      {!isValidating && readwiseIntegration && (
+      {readwiseIntegration && (
         <RemoveReadwiseForm integration={readwiseIntegration} revalidate={revalidate} />
       )}
 
-      {!isValidating && !readwiseIntegration && (
+      {!readwiseIntegration && (
         <AddReadwiseForm />
       )}
 
@@ -104,13 +104,15 @@ function AddReadwiseForm(): JSX.Element {
       }}
     >
       <SpanBox>Enter your API key from Readwise below. You can get your token{' '}
-      <Link
+      <a
+        target='_blank'
+        rel="noreferrer"
+        referrerPolicy='no-referrer'
         style={{ color: '$utilityTextDefault' }}
         href="https://readwise.io/access_token"
-        target="_blank"
       >
         here
-      </Link>.</SpanBox>
+      </a>.</SpanBox>
     </HStack>
 
     <FormInput
