@@ -14,12 +14,8 @@ type SetIntegrationResult = {
 }
 
 type SetIntegrationData = {
-  setIntegration?: SetIntegrationSuccess
-  errorCodes?: unknown[]
-}
-
-type SetIntegrationSuccess = {
   integration: Integration
+  errorCodes?: unknown[]
 }
 
 type Integration = {
@@ -64,5 +60,5 @@ export async function setIntegrationMutation(
       throw 'Your token is invalid.'
     throw error
   }
-  return output.setIntegration?.setIntegration?.integration
+  return output.setIntegration?.integration
 }
