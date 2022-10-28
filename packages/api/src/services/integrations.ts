@@ -88,14 +88,16 @@ export const syncWithIntegration = async (
   integration: Integration,
   pages: Page[]
 ): Promise<boolean> => {
-  let result = false
+  let result = true
   switch (integration.type) {
-    case IntegrationType.Readwise:
-      result = await syncWithReadwise(
-        integration.token,
-        pages.flatMap(pageToReadwiseHighlight)
-      )
+    case IntegrationType.Readwise: {
+      const highlights = pages.flatMap(pageToReadwiseHighlight)
+      // If there are no highlights, we will skip the sync
+      if (highlights.length > 0) {
+        result = await syncWithReadwise(integration.token, highlights)
+      }
       break
+    }
     default:
       return false
   }
