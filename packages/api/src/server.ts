@@ -100,6 +100,14 @@ export const createApp = (): {
       max: 50, // Limit each IP to 10 requests per `window` (here, per minute)
       standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
       legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+      keyGenerator: (req) => {
+        return (
+          req.header('authorization') ||
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+          (req.cookies['auth'] as string) ||
+          req.ip
+        )
+      },
     })
     // Apply the rate limiting middleware to API calls only
     app.use('/api/', apiLimiter)

@@ -13,8 +13,10 @@ import { DateFilter } from '../../utils/search'
 
 export interface Message {
   type?: EntityType
-  data?: any
+  id?: string
   userId: string
+  pageId?: string
+  articleId?: string
 }
 
 const logger = buildLogger('app.dispatch')
@@ -41,7 +43,9 @@ export function integrationsServiceRouter() {
     }
 
     try {
-      const { userId, type, data }: Message = JSON.parse(msgStr)
+      const data: Message = JSON.parse(msgStr)
+      const userId = data.userId
+      const type = data.type
       if (!userId) {
         logger.info('No userId found in message')
         res.status(400).send('Bad Request')
@@ -62,7 +66,7 @@ export function integrationsServiceRouter() {
       const action = req.params.action.toUpperCase()
       if (action === 'SYNC_UPDATED') {
         // get updated page by id
-        let id = ''
+        let id: string | undefined
         switch (type) {
           case EntityType.PAGE:
             id = data.id
@@ -73,6 +77,11 @@ export function integrationsServiceRouter() {
           case EntityType.LABEL:
             id = data.pageId
             break
+        }
+        if (!id) {
+          logger.info('No id found in message')
+          res.status(400).send('Bad Request')
+          return
         }
         const page = await getPageById(id)
         if (!page) {

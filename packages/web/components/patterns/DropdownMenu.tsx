@@ -21,6 +21,7 @@ export type HeaderDropdownAction =
   | 'navigate-to-profile'
   | 'navigate-to-subscriptions'
   | 'navigate-to-api'
+  | 'navigate-to-integrations'
   | 'increaseFontSize'
   | 'decreaseFontSize'
   | 'logout'
@@ -87,6 +88,10 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
         onSelect={() => props.actionHandler('navigate-to-api')}
         title="API Keys"
       />
+      {/* <DropdownOption
+        onSelect={() => props.actionHandler('navigate-to-integrations')}
+        title="Integrations"
+      /> */}
       <DropdownOption
         onSelect={() => window.Intercom('show')}
         title="Feedback"

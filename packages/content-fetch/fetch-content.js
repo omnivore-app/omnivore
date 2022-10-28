@@ -268,7 +268,6 @@ async function fetchContent(req, res) {
         }
       } else {
         console.log('using prefetched content and title');
-        console.log(content);
       }
 
       logRecord.fetchContentTime = Date.now() - functionStartTime;
@@ -288,10 +287,8 @@ async function fetchContent(req, res) {
 
       logRecord.totalTime = Date.now() - functionStartTime;
       logRecord.result = apiResponse.createArticle;
-      console.log(`parse-page`, logRecord);
     }
   } catch (e) {
-    console.log('error', e)
     logRecord.error = e.message;
     console.log(`Error while retrieving page`, logRecord);
 
@@ -316,11 +313,11 @@ async function fetchContent(req, res) {
 
     logRecord.totalTime = Date.now() - functionStartTime;
     logRecord.result = apiResponse.createArticle;
-    console.log(`parse-page`, logRecord);
   } finally {
     if (context) {
       await context.close();
     }
+    console.log(`parse-page`, logRecord);
   }
 
   return res.sendStatus(200);

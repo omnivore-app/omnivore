@@ -179,6 +179,8 @@ export interface Highlight {
   sharedAt?: Date | null
   updatedAt: Date
   labels?: Label[]
+  highlightPositionPercent?: number | null
+  highlightPositionAnchorIndex?: number | null
 }
 
 export interface Page {

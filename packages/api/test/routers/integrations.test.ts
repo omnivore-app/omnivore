@@ -132,23 +132,16 @@ describe('Integrations routers', () => {
               refresh: true,
             }
             // create highlight
-            const location = 109
-            const patch = `@@ -${location + 1},16 +${location + 1},36 @@
- . We're
-+%3Comnivore_highlight%3E
- humbled
-@@ -254,16 +254,37 @@
- h in the
-+%3C/omnivore_highlight%3E
-  coming`
+            const highlightPositionPercent = 25
             highlight = {
               createdAt: new Date(),
               id: 'test id',
-              patch,
+              patch: 'test patch',
               quote: 'test quote',
               shortId: 'test shortId',
               updatedAt: new Date(),
               userId: user.id,
+              highlightPositionPercent,
             }
             await addHighlightToPage(page.id, highlight, ctx)
             // create highlights data for integration request
@@ -162,8 +155,8 @@ describe('Integrations routers', () => {
                   highlighted_at: highlight.createdAt.toISOString(),
                   category: 'articles',
                   image_url: page.image,
-                  location,
-                  location_type: 'page',
+                  location: highlightPositionPercent,
+                  location_type: 'order',
                   note: highlight.annotation,
                   source_type: 'omnivore',
                   source_url: page.url,
@@ -190,7 +183,7 @@ describe('Integrations routers', () => {
                       JSON.stringify({
                         userId: user.id,
                         type: 'page',
-                        data: { id: page.id },
+                        id: page.id,
                       })
                     ).toString('base64'),
                     publishTime: new Date().toISOString(),
@@ -257,7 +250,7 @@ describe('Integrations routers', () => {
                       JSON.stringify({
                         userId: user.id,
                         type: 'highlight',
-                        data: { articleId: page.id },
+                        articleId: page.id,
                       })
                     ).toString('base64'),
                     publishTime: new Date().toISOString(),

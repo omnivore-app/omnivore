@@ -19,6 +19,7 @@ public extension Color {
   static var appTextDefault: Color { Color("_utilityTextDefault", bundle: .module) }
   static var appPrimaryBackground: Color { Color("_appPrimaryBackground", bundle: .module) }
   static var checkmarkBlue: Color { Color("_checkmarkBlue", bundle: .module) }
+  static var webControlButtonBackground: Color { Color("_webControlButtonBackground", bundle: .module) }
 
   // Apple system UIColor equivalents
   #if os(iOS)
