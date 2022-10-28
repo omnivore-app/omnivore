@@ -1950,6 +1950,93 @@ const schema = gql`
     NOT_FOUND
   }
 
+  union RulesResult = RulesSuccess | RulesError
+
+  type RulesSuccess {
+    rules: [Rule!]!
+  }
+
+  type Rule {
+    id: ID!
+    name: String
+    query: String!
+    actions: [RuleAction!]!
+    triggerType: RuleTriggerType!
+    createdAt: Date!
+    updatedAt: Date!
+  }
+
+  type RuleAction {
+    type: RuleActionType!
+    value: String
+  }
+
+  enum RuleActionType {
+    ADD_LABEL
+    ARCHIVE
+    MARK_AS_READ
+    SEND_NOTIFICATION
+  }
+
+  enum RuleTriggerType {
+    ON_PAGE_UPDATED
+    CRON
+  }
+
+  type RulesError {
+    errorCodes: [RulesErrorCode!]!
+  }
+
+  enum RulesErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+  }
+
+  input SetRuleInput {
+    id: ID
+    name: String
+    query: String!
+    actions: [RuleActionInput!]!
+    triggerType: RuleTriggerType!
+  }
+
+  input RuleActionInput {
+    type: RuleActionType!
+    value: String
+  }
+
+  union SetRuleResult = SetRuleSuccess | SetRuleError
+
+  type SetRuleSuccess {
+    rule: Rule!
+  }
+
+  type SetRuleError {
+    errorCodes: [SetRuleErrorCode!]!
+  }
+
+  enum SetRuleErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+  }
+
+  union DeleteRuleResult = DeleteRuleSuccess | DeleteRuleError
+
+  type DeleteRuleSuccess {
+    rule: Rule!
+  }
+
+  type DeleteRuleError {
+    errorCodes: [DeleteRuleErrorCode!]!
+  }
+
+  enum DeleteRuleErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -2022,6 +2109,8 @@ const schema = gql`
     setIntegration(input: SetIntegrationInput!): SetIntegrationResult!
     deleteIntegration(id: ID!): DeleteIntegrationResult!
     optInFeature(input: OptInFeatureInput!): OptInFeatureResult!
+    setRule(input: SetRuleInput!): SetRuleResult!
+    deleteRule(id: ID!): DeleteRuleResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed
@@ -2069,6 +2158,7 @@ const schema = gql`
     updatesSince(after: String, first: Int, since: Date!): UpdatesSinceResult!
     integrations: IntegrationsResult!
     recentSearches: RecentSearchesResult!
+    rules: RulesResult!
   }
 `
 
