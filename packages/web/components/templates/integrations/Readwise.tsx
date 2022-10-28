@@ -106,6 +106,7 @@ function AddReadwiseForm(): JSX.Element {
       <SpanBox>Enter your API key from Readwise below. You can get your token{' '}
       <a
         target='_blank'
+        rel="noreferrer"
         referrerPolicy='no-referrer'
         style={{ color: '$utilityTextDefault' }}
         href="https://readwise.io/access_token"
