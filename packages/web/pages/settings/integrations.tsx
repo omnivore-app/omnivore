@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState} from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/router'
 import { styled } from '@stitches/react'
 import { Toaster } from 'react-hot-toast'
@@ -16,6 +16,8 @@ import { applyStoredTheme } from '../../lib/themeUpdater'
 import { Button } from '../../components/elements/Button'
 import { useGetIntegrationsQuery } from '../../lib/networking/queries/useGetIntegrationsQuery'
 import { useGetWebhooksQuery } from '../../lib/networking/queries/useGetWebhooksQuery'
+import { deleteIntegrationMutation } from '../../lib/networking/mutations/deleteIntegrationMutation'
+import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 
 // Styles
 const Header = styled(Box, {
@@ -50,7 +52,7 @@ type integrationsCard = {
 }
 export default function Integrations(): JSX.Element {
   applyStoredTheme(false)
-  const { integrations } = useGetIntegrationsQuery()
+  const { integrations, revalidate } = useGetIntegrationsQuery()
   const { webhooks } = useGetWebhooksQuery()
 
   const [integrationsArray, setIntegrationsArray] = useState(
@@ -59,33 +61,49 @@ export default function Integrations(): JSX.Element {
   const router = useRouter()
 
   const readwiseConnected = useMemo(() => {
-    return integrations.some((i) => i.type == 'READWISE')
+    return integrations.find((i) => i.type == 'READWISE')
   }, [integrations])
+
+  const deleteIntegration = async (id: string) => {
+    try {
+      await deleteIntegrationMutation(id)
+      revalidate()
+      showSuccessToast('Integration Removed')
+    } catch (err) {
+      showErrorToast('Error: ' + err)
+    }
+  }
 
   useEffect(() => {
     setIntegrationsArray([
       {
         icon: '/static/icons/logseq.svg',
         title: 'Logseq',
-        subText: 'Logseq is an open-source knowledge base. Use the Omnivore Logseq plugin to sync articles, highlights, and notes to Logseq.',
+        subText:
+          'Logseq is an open-source knowledge base. Use the Omnivore Logseq plugin to sync articles, highlights, and notes to Logseq.',
         button: {
           text: `Install Logseq Plugin`,
           icon: <DownloadSimple size={16} weight={'bold'} />,
           style: 'ctaDarkYellow',
           action: () => {
             router.push(`https://github.com/omnivore-app/logseq-omnivore`)
-          }
+          },
         },
       },
       {
         icon: '/static/icons/readwise.svg',
         title: 'ReadWise',
-        subText: 'Readwise makes it easy to revisit and learn from your ebook & article highlights. Use our Readwise integration to sync your highlights from Omnivore to Readwise.',
+        subText:
+          'Readwise makes it easy to revisit and learn from your ebook & article highlights. Use our Readwise integration to sync your highlights from Omnivore to Readwise.',
         button: {
           text: readwiseConnected ? 'Remove' : 'Connect to Readwise',
           icon: <Link size={16} weight={'bold'} />,
           style: readwiseConnected ? 'ctaWhite' : 'ctaDarkYellow',
-          action: () => router.push("/settings/integrations/readwise")
+          action: () => {
+            readwiseConnected
+              ? deleteIntegration(readwiseConnected.id)
+              : router.push('/settings/integrations/readwise')
+          },
         },
       },
       {
@@ -96,7 +114,7 @@ export default function Integrations(): JSX.Element {
           text: 'View Webhooks',
           icon: <Eye size={16} weight={'bold'} />,
           style: 'ctaWhite',
-          action: () =>router.push("/settings/integrations/webhooks"),
+          action: () => router.push('/settings/integrations/webhooks'),
         },
       },
     ])
