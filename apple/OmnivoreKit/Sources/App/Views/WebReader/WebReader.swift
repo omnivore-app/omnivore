@@ -89,6 +89,7 @@ struct WebReader: PlatformViewRepresentable {
 
     if readerSettingsChangedTransactionID != context.coordinator.previousReaderSettingsChangedUUID {
       context.coordinator.previousReaderSettingsChangedUUID = readerSettingsChangedTransactionID
+      (webView as? OmnivoreWebView)?.updateTheme()
       (webView as? OmnivoreWebView)?.updateFontFamily()
       (webView as? OmnivoreWebView)?.updateFontSize()
       (webView as? OmnivoreWebView)?.updateTextContrast()

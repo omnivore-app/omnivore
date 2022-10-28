@@ -3,6 +3,8 @@ import {
   lighterTheme,
   darkTheme,
   darkerTheme,
+  sepiaTheme,
+  charcoalTheme,
 } from '../components/tokens/stitches.config'
 import { userPersonalizationMutation } from './networking/mutations/userPersonalizationMutation'
 
@@ -26,7 +28,9 @@ export function updateThemeLocally(themeId: string): void {
     lighterTheme,
     ThemeId.Light,
     darkTheme,
-    darkerTheme
+    darkerTheme,
+    sepiaTheme,
+    charcoalTheme
   )
   document.body.classList.add(themeId)
 }
@@ -41,6 +45,10 @@ export function currentThemeName(): string {
       return 'Darker'
     case ThemeId.Lighter:
       return 'Lighter'
+    case ThemeId.Sepia:
+      return 'Sepia'
+    case ThemeId.Charcoal:
+      return 'Charcoal'
     default:
       return ''
   }

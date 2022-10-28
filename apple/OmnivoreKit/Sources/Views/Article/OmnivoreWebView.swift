@@ -44,6 +44,12 @@ public final class OmnivoreWebView: WKWebView {
     fatalError("init(coder:) has not been implemented")
   }
 
+  public func updateTheme() {
+    if let themeName = UserDefaults.standard.value(forKey: UserDefaultKey.themeName.rawValue) as? String {
+      dispatchEvent(.updateTheme(themeName: "Gray" /* themeName */ ))
+    }
+  }
+
   public func updateFontFamily() {
     if let fontFamily = UserDefaults.standard.value(forKey: UserDefaultKey.preferredWebFont.rawValue) as? String {
       dispatchEvent(.updateFontFamily(family: fontFamily))
@@ -293,6 +299,7 @@ public enum WebViewDispatchEvent {
   case updateFontSize(size: Int)
   case updateColorMode(isDark: Bool)
   case updateFontFamily(family: String)
+  case updateTheme(themeName: String)
   case saveAnnotation(annotation: String)
   case annotate
   case highlight
@@ -320,6 +327,8 @@ public enum WebViewDispatchEvent {
       return "updateColorMode"
     case .updateFontFamily:
       return "updateFontFamily"
+    case .updateTheme:
+      return "updateTheme"
     case .saveAnnotation:
       return "saveAnnotation"
     case .annotate:
@@ -347,6 +356,8 @@ public enum WebViewDispatchEvent {
       return "event.lineHeight = '\(height)';"
     case let .updateMaxWidthPercentage(maxWidthPercentage: maxWidthPercentage):
       return "event.maxWidthPercentage = '\(maxWidthPercentage)';"
+    case let .updateTheme(themeName: themeName):
+      return "event.themeName = '\(themeName)';"
     case let .updateFontSize(size: size):
       return "event.fontSize = '\(size)';"
     case let .updateColorMode(isDark: isDark):

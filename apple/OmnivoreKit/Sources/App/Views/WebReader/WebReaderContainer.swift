@@ -240,7 +240,8 @@ struct WebReaderContainerView: View {
     }
     .frame(height: readerViewNavBarHeight * navBarVisibilityRatio)
     .opacity(navBarVisibilityRatio)
-    .background(Color.systemBackground)
+    .background(Color.black)
+    .background(Theme.fromName(themeName: ThemeManager.currentThemeName)?.bgColor ?? .clear)
     .alert("Are you sure?", isPresented: $showDeleteConfirmation) {
       Button("Remove Link", role: .destructive) {
         Snackbar.show(message: "Link removed")
@@ -301,6 +302,7 @@ struct WebReaderContainerView: View {
           annotation: $annotation,
           showBottomBar: $showBottomBar
         )
+        .background(Theme.fromName(themeName: ThemeManager.currentThemeName)?.bgColor ?? .clear)
         .onTapGesture {
           withAnimation {
             navBarVisibilityRatio = 1

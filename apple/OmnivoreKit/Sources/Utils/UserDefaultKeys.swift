@@ -19,4 +19,5 @@ public enum UserDefaultKey: String {
   case textToSpeechPreloadEnabled
   case recentSearchTerms
   case audioPlayerExpanded
+  case themeName
 }

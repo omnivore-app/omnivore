@@ -16,7 +16,7 @@ struct WebReaderContent {
   init(
     item: LinkedItem,
     articleContent: ArticleContent,
-    isDark: Bool,
+    isDark _: Bool,
     fontSize: Int,
     lineHeight: Int,
     maxWidthPercentage: Int,
@@ -27,7 +27,7 @@ struct WebReaderContent {
     self.lineHeight = lineHeight
     self.maxWidthPercentage = maxWidthPercentage
     self.item = item
-    self.themeKey = isDark ? "Gray" : "LightGray"
+    self.themeKey = ThemeManager.currentThemeName // isDark ? "Gray" : "Charcoal"
     self.fontFamily = fontFamily
     self.articleContent = articleContent
     self.prefersHighContrastText = prefersHighContrastText
