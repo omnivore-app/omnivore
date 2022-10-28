@@ -3,7 +3,7 @@ import { env } from '../env'
 import axios from 'axios'
 import { wait } from '../utils/helpers'
 import { Page } from '../elastic/types'
-import { getHighlightLocation, getHighlightUrl } from './highlights'
+import { getHighlightUrl } from './highlights'
 import { Integration } from '../entity/integration'
 import { getRepository } from '../entity/utils'
 
@@ -66,7 +66,6 @@ const validateReadwiseToken = async (token: string): Promise<boolean> => {
 const pageToReadwiseHighlight = (page: Page): ReadwiseHighlight[] => {
   if (!page.highlights) return []
   return page.highlights.map((highlight) => {
-    const location = getHighlightLocation(highlight.patch)
     return {
       text: highlight.quote,
       title: page.title,
@@ -75,8 +74,8 @@ const pageToReadwiseHighlight = (page: Page): ReadwiseHighlight[] => {
       highlighted_at: new Date(highlight.createdAt).toISOString(),
       category: 'articles',
       image_url: page.image,
-      location,
-      location_type: location ? 'page' : 'order',
+      location: highlight.highlightPositionPercent || undefined,
+      location_type: 'order',
       note: highlight.annotation || undefined,
       source_type: 'omnivore',
       source_url: page.url,
