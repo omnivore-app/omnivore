@@ -68,9 +68,20 @@ export class SubstackHandler extends ContentHandler {
     }
     // If the article has a header link, and substack icons its probably a newsletter
     const href = this.findNewsletterHeaderHref(dom)
+    const oldHeartIcon = dom.querySelector(
+      'table tbody td span a img[src*="HeartIcon"]'
+    )
+    const oldRecommendIcon = dom.querySelector(
+      'table tbody td span a img[src*="RecommendIconRounded"]'
+    )
     const heartIcon = dom.querySelector('a img[src*="LucideHeart"]')
     const commentsIcon = dom.querySelector('a img[src*="LucideComments"]')
-    return Promise.resolve(!!(href && (heartIcon || commentsIcon)))
+    return Promise.resolve(
+      !!(
+        href &&
+        (oldHeartIcon || oldRecommendIcon || heartIcon || commentsIcon)
+      )
+    )
   }
 
   async parseNewsletterUrl(
