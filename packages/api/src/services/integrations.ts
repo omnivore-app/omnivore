@@ -69,11 +69,11 @@ const pageToReadwiseHighlight = (page: Page): ReadwiseHighlight[] => {
     return {
       text: highlight.quote,
       title: page.title,
-      author: page.author,
+      author: page.author || undefined,
       highlight_url: getHighlightUrl(page.slug, highlight.id),
       highlighted_at: new Date(highlight.createdAt).toISOString(),
       category: 'articles',
-      image_url: page.image,
+      image_url: page.image || undefined,
       location: highlight.highlightPositionPercent || undefined,
       location_type: 'order',
       note: highlight.annotation || undefined,
