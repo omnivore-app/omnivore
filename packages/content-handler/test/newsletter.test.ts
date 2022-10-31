@@ -16,6 +16,7 @@ import { ConvertkitHandler } from '../src/newsletters/convertkit-handler'
 import { GhostHandler } from '../src/newsletters/ghost-handler'
 import { CooperPressHandler } from '../src/newsletters/cooper-press-handler'
 import { getNewsletterHandler } from '../src'
+import { parseHTML } from 'linkedom'
 
 chai.use(chaiAsPromised)
 chai.use(chaiString)
@@ -127,6 +128,41 @@ describe('Newsletter email test', () => {
         unSubHeader: '',
       })
       expect(handler).to.be.undefined
+    })
+
+    it('returns SubstackHandler for substack newsletter with static tweets', async () => {
+      const html = load(
+        './test/data/substack-with-static-tweets-newsletter.html'
+      )
+      const handler = await getNewsletterHandler({
+        html,
+        postHeader: '',
+        from: '',
+        unSubHeader: '',
+      })
+      expect(handler).to.be.instanceOf(SubstackHandler)
+    })
+
+    it('fixes up static tweets in Substack newsletters', async () => {
+      const url = 'https://astralcodexten.substack.com/p/nick-cammarata-on-jhana'
+      const html = load(
+        './test/data/substack-with-static-tweets-newsletter.html'
+      )
+      const handler = await getNewsletterHandler({
+        html,
+        postHeader: '',
+        from: '',
+        unSubHeader: '',
+      })
+      expect(handler).to.be.instanceOf(SubstackHandler)
+
+      const dom = parseHTML(html).document
+      expect(handler?.shouldPreParse(url, dom)).to.be
+
+      const preparsed = await handler?.preParse(url, dom)
+      const tweets = Array.from(preparsed?.querySelectorAll('div[class="_omnivore-static-tweet"]') ?? [])
+
+      expect(tweets.length).to.eq(7)
     })
 
     it('returns BeehiivHandler for beehiiv.com newsletter', async () => {

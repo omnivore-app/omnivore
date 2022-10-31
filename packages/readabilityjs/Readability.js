@@ -414,6 +414,10 @@ Readability.prototype = {
    * @return void
    */
   _cleanClasses: function (node) {
+    if (node.className.startsWith("_omnivore")) {
+      return;
+    }
+
     if (this.EMBEDS_CLASSES.includes(node.className) || this.hasEmbed(node)) {
       return;
     }
@@ -598,7 +602,7 @@ Readability.prototype = {
         continue;
       }
 
-      if (node.parentNode && ["DIV", "SECTION"].includes(node.tagName) && !(node.id && node.id.startsWith("readability"))) {
+      if (node.parentNode && ["DIV", "SECTION"].includes(node.tagName) && !(node.id && node.id.startsWith("readability") && !this._isOmnivoreNode(node)) {
         if (this._isElementWithoutContent(node)) {
           node = this._removeAndGetNext(node);
           continue;
@@ -1136,6 +1140,11 @@ Readability.prototype = {
       while (node) {
         var matchString = node.className + " " + node.id;
 
+        if (this._isOmnivoreNode(node)) {
+          node = this._getNextNode(node);
+          continue;
+        }
+
         if (!this._isProbablyVisible(node)) {
           this.log("Removing hidden node - " + matchString);
           node = this._removeAndGetNext(node);
@@ -1337,7 +1346,7 @@ Readability.prototype = {
         var candidateScore = candidate.readability.contentScore * (1 - this._getLinkDensity(candidate));
         candidate.readability.contentScore = candidateScore;
 
-        this.log("Candidate:", candidate, "with score " + candidateScore);
+        this.log("Candidate:", candidate.nodeName, candidate.className, "with score " + candidateScore);
 
         for (var t = 0; t < this._nbTopCandidates; t++) {
           var aTopCandidate = topCandidates[t];
@@ -1465,7 +1474,7 @@ Readability.prototype = {
         var sibling = siblings[s];
         var append = false;
 
-        this.log("Looking at sibling node:", sibling, sibling.readability ? ("with score " + sibling.readability.contentScore) : "");
+        this.log("Looking at sibling node:", sibling.nodeName, sibling.className, sibling.readability ? ("with score " + sibling.readability.contentScore) : "");
         this.log("Sibling has score", sibling.readability ? sibling.readability.contentScore : "Unknown");
 
         if (sibling === topCandidate) {
@@ -1496,7 +1505,7 @@ Readability.prototype = {
         }
 
         if (append) {
-          this.log("Appending node:", sibling);
+          this.log("Appending node:", sibling.nodeName);
 
           if (this.ALTER_TO_DIV_EXCEPTIONS.indexOf(sibling.nodeName) === -1) {
             // We have a node that isn't a common block level element, like a form or td tag.
@@ -2556,12 +2565,12 @@ Readability.prototype = {
       if (imgHeight && imgWidhth && imgHeight === imgWidhth) {
         if (elem.tagName.toLowerCase() === 'svg') {
           if(imgHeight <= 21){
-            this.log(`Removing small square SVG: ${imgWidhth}x${imgHeight}`, elem, `className: ${elem.className}`, `src: ${elem.src}`);
+            this.log(`Removing small square SVG: ${imgWidhth}x${imgHeight}`, `className: ${elem.className}`, `src: ${elem.src}`);
             elem.parentNode.removeChild(elem);
           }
           return;
         } else if(imgHeight <= 80) {
-          this.log(`Removing small square image: ${imgWidhth}x${imgHeight}`, elem, `className: ${elem.className}`, `src: ${elem.src}`);
+          this.log(`Removing small square image: ${imgWidhth}x${imgHeight}`, `className: ${elem.className}`, `src: ${elem.src}`);
           elem.parentNode.removeChild(elem);
           return;
         }
@@ -2765,6 +2774,7 @@ Readability.prototype = {
         }
 
         var haveToRemove =
+          !this._isOmnivoreNode(node) && (
           (img > 1 && p / img < 0.5 && !this._hasAncestorTag(node, "figure")) ||
           (!isList && li > p) ||
           (input > Math.floor(p/3)) ||
@@ -2774,15 +2784,28 @@ Readability.prototype = {
           // some website like https://substack.com might have their custom styling of tweets
           // we should omit ignoring their particular case by checking against "tweet" classname
           (weight >= 25 && linkDensity > 0.5 && !(node.className === "tweet" && linkDensity === 1)) ||
-          ((embedCount === 1 && contentLength < 75) || embedCount > 1);
+          ((embedCount === 1 && contentLength < 75) || embedCount > 1))
 
-        if (haveToRemove)
-          this.log("Cleaning Conditionally", { node, className: node.className, children: Array.from(node.children).map(ch => ch.tagName) });
+        if (haveToRemove) {
+          this.log("Cleaning Conditionally", { className: node.className, children: Array.from(node.children).map(ch => ch.tagName) });
+        }
 
         return haveToRemove;
       }
       return false;
     });
+  },
+
+  _isOmnivoreNode: function(node) {
+    var walk = node
+
+    while (walk) {
+      if (walk.className && node.className.startsWith("_omnivore")) {
+        return true
+      }
+      walk = walk.parentElement
+    }
+    return false
   },
 
   /**
