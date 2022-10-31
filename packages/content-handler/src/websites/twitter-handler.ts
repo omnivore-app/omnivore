@@ -167,8 +167,11 @@ const getTweetsFromResponse = (response: Tweets): Tweet[] => {
   return tweets
 }
 
-const getOldTweets = async (conversationId: string): Promise<Tweet[]> => {
-  const tweetIds = await getTweetIds(conversationId)
+const getOldTweets = async (
+  conversationId: string,
+  username: string
+): Promise<Tweet[]> => {
+  const tweetIds = await getTweetIds(conversationId, username)
   if (tweetIds.length === 0) {
     return []
   }
@@ -195,9 +198,13 @@ const waitFor = (ms: number) =>
 /**
  * Get tweets(even older than 7 days) using puppeteer
  * @param {string} tweetId
+ * @param {string} author
  */
-const getTweetIds = async (tweetId: string): Promise<string[]> => {
-  const pageURL = `https://twitter.com/anyone/status/${tweetId}`
+const getTweetIds = async (
+  tweetId: string,
+  author: string
+): Promise<string[]> => {
+  const pageURL = `https://twitter.com/${author}/status/${tweetId}`
 
   // Modify this variable to control the size of viewport
   const factor = 0.2
@@ -229,7 +236,7 @@ const getTweetIds = async (tweetId: string): Promise<string[]> => {
 
     await waitFor(4000)
 
-    return (await page.evaluate(async () => {
+    return (await page.evaluate(async (author) => {
       const MAX_THREAD_DEPTH = 100
       const ids: string[] = []
 
@@ -267,14 +274,19 @@ const getTweetIds = async (tweetId: string): Promise<string[]> => {
         const href = timeContainerAnchor.getAttribute('href')
         if (!href) continue
 
-        const id = href.split('/').reverse()[0]
-        if (!id) continue
+        // Get the tweet id and username from the href: https://twitter.com/username/status/1234567890
+        const match = href.match(/\/([^/]+)\/status\/(\d+)/)
+        if (!match) continue
 
-        ids.push(id)
+        const id = match[2]
+        const username = match[1]
+
+        // skip non-author replies
+        username === author && ids.push(id)
       }
 
       return ids
-    })) as string[]
+    }, author)) as string[]
   } catch (error) {
     console.log(error)
     return []
@@ -314,7 +326,7 @@ export class TwitterHandler extends ContentHandler {
     const description = _.escape(tweetData.text)
 
     // use puppeteer to get all tweet replies in the thread
-    const tweets = await getOldTweets(conversationId)
+    const tweets = await getOldTweets(conversationId, author.username)
 
     let tweetsContent = ''
     for (const tweet of tweets) {
@@ -351,11 +363,9 @@ export class TwitterHandler extends ContentHandler {
     const tweetUrl = `
        — <a href="https://twitter.com/${author.username}">${
       author.username
-    }</a> ${author.name} <a href="${url}">${formatTimestamp(
-      tweetData.created_at
-    )}</a><p itemscope="" itemprop="author" itemtype="https://schema.org/Person">${
+    }</a> <span itemscope itemtype="https://schema.org/Person" itemprop="author">${
       author.name
-    }</p>
+    }</span> <a href="${url}">${formatTimestamp(tweetData.created_at)}</a>
     `
 
     const content = `
