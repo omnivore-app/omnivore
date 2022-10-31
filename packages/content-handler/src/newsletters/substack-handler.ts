@@ -68,12 +68,8 @@ export class SubstackHandler extends ContentHandler {
     }
     // If the article has a header link, and substack icons its probably a newsletter
     const href = this.findNewsletterHeaderHref(dom)
-    const heartIcon = dom.querySelector(
-      'a img[src*="LucideHeart"]'
-    )
-    const commentsIcon = dom.querySelector(
-      'a img[src*="LucideComments"]'
-    )
+    const heartIcon = dom.querySelector('a img[src*="LucideHeart"]')
+    const commentsIcon = dom.querySelector('a img[src*="LucideComments"]')
     return Promise.resolve(!!(href && (heartIcon || commentsIcon)))
   }
 
@@ -91,15 +87,17 @@ export class SubstackHandler extends ContentHandler {
 
   fixupStaticTweets(dom: Document): Document {
     const preClassName = '_omnivore-static-'
-    const staticTweets = Array.from(dom.querySelectorAll('div[class="tweet static"]'))
+    const staticTweets = Array.from(
+      dom.querySelectorAll('div[class="tweet static"]')
+    )
 
     if (staticTweets.length < 1) {
       return dom
     }
 
-    const recurse = (node: Node,  f: (node: Node) => void) => {
-      for (var i = 0; i < node.childNodes.length; i++) {
-        var child = node.childNodes[i]
+    const recurse = (node: Node, f: (node: Node) => void) => {
+      for (let i = 0; i < node.childNodes.length; i++) {
+        const child = node.childNodes[i]
         recurse(child, f)
         f(child)
       }
@@ -118,7 +116,7 @@ export class SubstackHandler extends ContentHandler {
       recurse(tweet, (n: Node) => {
         if (isHTMLElement(n)) {
           const className = n.className
-          if (className.startsWith("tweet-")) {
+          if (className.startsWith('tweet-')) {
             n.className = preClassName + className
           }
           n.removeAttribute('style')
