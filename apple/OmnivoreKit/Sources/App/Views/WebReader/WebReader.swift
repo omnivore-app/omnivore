@@ -92,7 +92,6 @@ struct WebReader: PlatformViewRepresentable {
         }
       } catch {
         showInSnackbar("Error saving note.")
-        showHighlightAnnotationModal = true
       }
     }
 
