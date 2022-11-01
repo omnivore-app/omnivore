@@ -23,7 +23,7 @@ interface ForwardEmailMessage {
   html: string
   unsubMailTo?: string
   unsubHttpUrl?: string
-  text?: string
+  text: string
   forwardedFrom?: string
 }
 
@@ -37,7 +37,7 @@ export function emailsServiceRouter() {
     logger.info('email forward router')
 
     const { message, expired } = readPushSubscription(req)
-    logger.info('pubsub message:', message, 'expired:', expired)
+    logger.info('pubsub message:', { message, expired })
 
     if (!message) {
       res.status(400).send('Bad Request')
@@ -45,7 +45,7 @@ export function emailsServiceRouter() {
     }
 
     if (expired) {
-      logger.log('discards expired message:', message)
+      logger.info('discards expired message.')
       res.status(200).send('Expired')
       return
     }
@@ -58,9 +58,9 @@ export function emailsServiceRouter() {
         !('from' in data) ||
         !('to' in data) ||
         !('subject' in data) ||
-        !('html' in data)
+        (!('html' in data) && !('text' in data))
       ) {
-        logger.info('Invalid message')
+        logger.error('Invalid message')
         res.status(400).send('Bad Request')
         return
       }
@@ -69,7 +69,7 @@ export function emailsServiceRouter() {
       const newsletterEmail = await getNewsletterEmail(data.to)
 
       if (!newsletterEmail) {
-        logger.info('newsletter email not found', data.to)
+        logger.info('newsletter email not found', { email: data.to })
         res.status(200).send('Not Found')
         return
       }
@@ -83,12 +83,12 @@ export function emailsServiceRouter() {
           data.subject
         )
       ) {
-        logger.info('handling as article', data)
+        logger.info('handling as article')
         await saveEmail(ctx, {
           title: getTitleFromEmailSubject(data.subject),
           author: parsedFrom.name,
           url: generateUniqueUrl(),
-          originalContent: data.html,
+          originalContent: data.html || data.text,
         })
         res.status(200).send('Article')
         return
@@ -113,8 +113,8 @@ export function emailsServiceRouter() {
       })
 
       if (!result) {
-        logger.info('Email not forwarded', data)
-        res.status(200).send('Failed to send email')
+        logger.error('Email not forwarded')
+        res.status(500).send('Failed to send email')
         return
       }
 
