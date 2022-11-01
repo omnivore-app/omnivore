@@ -235,6 +235,17 @@ describe('Newsletter email test', () => {
       })
       expect(handler).to.be.instanceOf(HeyWorldHandler)
     })
+
+    it('returns ConvertkitHandler for Tomasz Tunguz newsletter', async () => {
+      const html = load('./test/data/tomasz-tunguz-newsletter.html')
+      const handler = await getNewsletterHandler({
+        html,
+        postHeader: '',
+        from: '',
+        unSubHeader: '',
+      })
+      expect(handler).to.be.instanceOf(ConvertkitHandler)
+    })
   })
 
   describe('findNewsletterUrl', async () => {
