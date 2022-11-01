@@ -32,6 +32,10 @@ const Subheader = styled(Box, {
   borderBottom: '1px solid $grayLine',
   margin: '0 auto',
   width: '80%',
+  // Our defined media queries don't work in styled components
+  '@media (max-width: 575px)': {
+    width: '100%',
+  },
 })
 
 //interface
@@ -139,6 +143,9 @@ export default function Integrations(): JSX.Element {
           width: '80%',
           margin: '0 auto',
           height: '500px',
+          '@smDown': {
+            width: '100%'
+          }
         }}
       >
         <Header>Applications</Header>
@@ -157,6 +164,7 @@ export default function Integrations(): JSX.Element {
                 alignItems: 'center',
                 '@smDown': {
                   flexWrap: 'wrap',
+                  borderRadius: 'unset',
                 },
               }}
             >
