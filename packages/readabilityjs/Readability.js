@@ -2797,10 +2797,14 @@ Readability.prototype = {
   },
 
   _isOmnivoreNode: function(node) {
+    const prefix = '_omnivore'
     var walk = node
 
     while (walk) {
-      if (walk.className && walk.className.startsWith("_omnivore")) {
+      if (walk.className && walk.className.startsWith && walk.className.startsWith(prefix)) {
+        return true
+      }
+      if (walk.className && walk.className.hasOwnProperty && walk.className.hasOwnProperty(prefix)) {
         return true
       }
       walk = walk.parentElement
