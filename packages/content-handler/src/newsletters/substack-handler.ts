@@ -106,16 +106,12 @@ export class SubstackHandler extends ContentHandler {
       return dom
     }
 
-    const recurse = (node: Node, f: (node: Node) => void) => {
-      for (let i = 0; i < node.childNodes.length; i++) {
-        const child = node.childNodes[i]
+    const recurse = (node: Element, f: (node: Element) => void) => {
+      for (let i = 0; i < node.children.length; i++) {
+        const child = node.children[i]
         recurse(child, f)
         f(child)
       }
-    }
-
-    const isHTMLElement = (node: Node): node is HTMLElement => {
-      return node.nodeType == 1
     }
 
     for (const tweet of Array.from(staticTweets)) {
@@ -124,14 +120,12 @@ export class SubstackHandler extends ContentHandler {
 
       // get all children, rename their class, remove style
       // elements (style will be handled in the reader)
-      recurse(tweet, (n: Node) => {
-        if (isHTMLElement(n)) {
-          const className = n.className
-          if (className.startsWith('tweet-')) {
-            n.className = preClassName + className
-          }
-          n.removeAttribute('style')
+      recurse(tweet, (n: Element) => {
+        const className = n.className
+        if (className.startsWith('tweet-')) {
+          n.className = preClassName + className
         }
+        n.removeAttribute('style')
       })
     }
 
