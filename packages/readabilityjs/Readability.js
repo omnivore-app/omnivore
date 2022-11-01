@@ -2800,7 +2800,7 @@ Readability.prototype = {
     var walk = node
 
     while (walk) {
-      if (walk.className && node.className.startsWith("_omnivore")) {
+      if (walk.className && walk.className.startsWith("_omnivore")) {
         return true
       }
       walk = walk.parentElement
