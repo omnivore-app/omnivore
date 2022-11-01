@@ -126,7 +126,7 @@ export function ReaderSettingsControl(props: ReaderSettingsProps): JSX.Element {
             }}
           >
             <StyledText
-              color={theme.colors.readerFontTransparent.toString()}
+              color={theme.colors.readerFont.toString()}
               css={{ pl: '12px', m: '0px', pt: '14px' }}
             >
               Margin:
@@ -193,7 +193,7 @@ export function ReaderSettingsControl(props: ReaderSettingsProps): JSX.Element {
             }}
           >
             <StyledText
-              color={theme.colors.readerFontTransparent.toString()}
+              color={theme.colors.readerFont.toString()}
               css={{ pl: '12px', m: '0px', pt: '14px' }}
             >
               Line Spacing:

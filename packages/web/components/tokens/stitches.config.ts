@@ -6,6 +6,8 @@ export enum ThemeId {
   Light = 'LightGray',
   Dark = 'Gray',
   Darker = 'Dark',
+  Sepia = 'Sepia',
+  Charcoal = 'Charcoal'
 }
 
 export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
@@ -211,7 +213,6 @@ const darkThemeSpec = {
     readerBg: '#303030',
     readerFont: '#b9b9b9',
     readerFontHighContrast: 'white',
-    readerFontTransparent: 'rgba(185,185,185,0.65)',
     readerHeader: '#b9b9b9',
     readerTableHeader: '#FFFFFF',
     tooltipIcons: '#5F5E58',
@@ -236,12 +237,35 @@ const darkThemeSpec = {
   },
 }
 
-// Avatar Fallback color
+const sepiaThemeSpec = {
+  colors: {
+    // Reader Colors
+    readerBg: '#F9F1DC',
+    readerFont: '#554A34',
+    readerFontHighContrast: 'black',
+    readerHeader: '554A34',
+    readerTableHeader: '#FFFFFF',
+  }
+}
+
+const charcoalThemeSpec = {
+  colors: {
+    // Reader Colors
+    readerBg: '#303030',
+    readerFont: '#b9b9b9',
+    readerFontHighContrast: 'white',
+    readerHeader: '#b9b9b9',
+    readerTableHeader: '#FFFFFF',
+  }
+}
+
 
 // Dark and Darker theme now match each other.
 // Use the darkThemeSpec object to make updates.
 export const darkTheme = createTheme(ThemeId.Dark, darkThemeSpec)
 export const darkerTheme = createTheme(ThemeId.Darker, darkThemeSpec)
+export const sepiaTheme = createTheme(ThemeId.Sepia, {...darkThemeSpec, ...sepiaThemeSpec})
+export const charcoalTheme = createTheme(ThemeId.Charcoal, {...darkThemeSpec, ...charcoalThemeSpec})
 
 // Lighter theme now matches the default theme.
 // This only exists for users that might still have a lighter theme set

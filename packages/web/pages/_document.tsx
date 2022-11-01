@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable functional/no-class */
-import { useEffect } from 'react'
 import NextDocument, { Html, Head, Main, NextScript } from 'next/document'
 import { getCssText, globalStyles } from '../components/tokens/stitches.config'
 
@@ -35,7 +34,7 @@ export default class Document extends NextDocument {
       var themeId = window.localStorage.getItem('theme')
 
       if (themeId) {
-        document.body.classList.remove('theme-default', 'White', 'Gray', 'LightGray', 'Dark')
+        document.body.classList.remove('theme-default', 'White', 'Gray', 'LightGray', 'Dark', 'Sepia', 'Charcoal')
         document.body.classList.add(themeId)
       }
     `

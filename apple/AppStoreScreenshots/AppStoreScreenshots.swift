@@ -83,8 +83,11 @@ final class AppStoreScreenshots: XCTestCase {
   func testScreenshotSubscriptions() throws {
     let app = XCUIApplication()
     setupSnapshot(app)
-    app.navigationBars["Home"]/*@START_MENU_TOKEN@*/ .buttons["_profile"]/*[[".otherElements[\"_profile\"].buttons[\"_profile\"]",".buttons[\"_profile\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/ .tap()
-    app.collectionViews.buttons["Subscriptions"].tap()
+//    app.navigationBars.firstMatch.buttons["person.circle"].tap()
+//    app.collectionViews.buttons["Subscriptions"].tap()
+//
+//    XCUIApplication().navigationBars["_TtGC7SwiftUI19UIHosting"]/*@START_MENU_TOKEN@*/.buttons["ToggleSidebar"]/*[[".buttons[\"Show Sidebar\"]",".buttons[\"ToggleSidebar\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.tap()
+//
 
     snapshot("Newsletters")
 

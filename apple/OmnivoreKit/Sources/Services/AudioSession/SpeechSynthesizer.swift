@@ -120,7 +120,7 @@ struct SpeechSynthesizer {
   func createPlayerItems(from: Int) -> [SpeechItem] {
     var result: [SpeechItem] = []
 
-    for idx in from ..< document.utterances.count {
+    for idx in from ..< min(7, document.utterances.count) {
       let utterance = document.utterances[idx]
       let voiceStr = utterance.voice ?? document.defaultVoice
       let segmentStr = String(format: "%04d", arguments: [idx])

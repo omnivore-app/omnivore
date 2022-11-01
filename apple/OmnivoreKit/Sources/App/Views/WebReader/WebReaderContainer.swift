@@ -299,7 +299,8 @@ struct WebReaderContainerView: View {
           showNavBarActionID: $showNavBarActionID,
           shareActionID: $shareActionID,
           annotation: $annotation,
-          showBottomBar: $showBottomBar
+          showBottomBar: $showBottomBar,
+          showHighlightAnnotationModal: $showHighlightAnnotationModal
         )
         .onTapGesture {
           withAnimation {
@@ -317,7 +318,6 @@ struct WebReaderContainerView: View {
             annotation: $annotation,
             onSave: {
               annotationSaveTransactionID = UUID()
-              showHighlightAnnotationModal = false
             },
             onCancel: {
               showHighlightAnnotationModal = false
