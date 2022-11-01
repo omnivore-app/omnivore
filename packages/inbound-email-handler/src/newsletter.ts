@@ -10,7 +10,7 @@ interface Unsubscribe {
 const EMAIL_CONFIRMATION_CODE_RECEIVED_TOPIC = 'emailConfirmationCodeReceived'
 const CONFIRMATION_EMAIL_SENDER_ADDRESS = 'forwarding-noreply@google.com'
 // check unicode parentheses too
-const CONFIRMATION_CODE_PATTERN = /^[(（]#\d+[)）]/u
+const CONFIRMATION_CODE_PATTERN = /\d+/u
 const UNSUBSCRIBE_HTTP_URL_PATTERN = /<(https?:\/\/[^>]*)>/
 const UNSUBSCRIBE_MAIL_TO_PATTERN = /<mailto:([^>]*)>/
 
@@ -55,7 +55,7 @@ export const getConfirmationCode = (subject: string): string | undefined => {
   if (matches) {
     // get the number code only
     // e.g. (#123456) => 123456
-    return matches[0].slice(2, -1)
+    return matches[0]
   }
   return undefined
 }

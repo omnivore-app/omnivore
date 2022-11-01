@@ -25,6 +25,14 @@ describe('Confirmation email test', () => {
 
       expect(isConfirmationEmail(from, subject)).to.be.true
     })
+
+    it('returns true when email is in Spanish', () => {
+      from = 'Equipo de Gmail <forwarding-noreply@google.com>'
+      subject =
+        'Confirmación de reenvío de 123456789 (n.º Gmail) - Recibir correo de test@omnivore.app'
+
+      expect(isConfirmationEmail(from, subject)).to.be.true
+    })
   })
 
   describe('#getConfirmationCode()', () => {
@@ -41,6 +49,13 @@ describe('Confirmation email test', () => {
     it('returns the confirmation code from the Google Japan email', () => {
       code = '123456789'
       subject = `（#${code}）SWG の転送の確認 - test@omnivore.app からメールを受信`
+
+      expect(getConfirmationCode(subject)).to.equal(code)
+    })
+
+    it('returns the confirmation code from the Spanish email', () => {
+      code = '123456789'
+      subject = `Confirmación de reenvío de ${code} (n.º Gmail) - Recibir correo de test@omnivore.app`
 
       expect(getConfirmationCode(subject)).to.equal(code)
     })
