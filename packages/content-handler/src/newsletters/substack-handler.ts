@@ -9,14 +9,15 @@ export class SubstackHandler extends ContentHandler {
 
   shouldPreParse(url: string, dom: Document): boolean {
     const host = this.name + '.com'
+    const cdnHost = 'substackcdn.com'
     // check if url ends with substack.com
-    // or has a profile image hosted at substack.com
+    // or has a profile image hosted at substack.com or substackcdn.com
     return (
       new URL(url).hostname.endsWith(host) ||
       !!dom
         .querySelector('.email-body img')
         ?.getAttribute('src')
-        ?.includes(host)
+        ?.includes(host || cdnHost)
     )
   }
 
@@ -33,6 +34,8 @@ export class SubstackHandler extends ContentHandler {
     body?.querySelector('.post-cta')?.remove()
     body?.querySelector('.container-border')?.remove()
     body?.querySelector('.footer')?.remove()
+
+    dom = this.fixupStaticTweets(dom)
 
     return Promise.resolve(dom)
   }
@@ -65,13 +68,20 @@ export class SubstackHandler extends ContentHandler {
     }
     // If the article has a header link, and substack icons its probably a newsletter
     const href = this.findNewsletterHeaderHref(dom)
-    const heartIcon = dom.querySelector(
+    const oldHeartIcon = dom.querySelector(
       'table tbody td span a img[src*="HeartIcon"]'
     )
-    const recommendIcon = dom.querySelector(
+    const oldRecommendIcon = dom.querySelector(
       'table tbody td span a img[src*="RecommendIconRounded"]'
     )
-    return Promise.resolve(!!(href && (heartIcon || recommendIcon)))
+    const heartIcon = dom.querySelector('a img[src*="LucideHeart"]')
+    const commentsIcon = dom.querySelector('a img[src*="LucideComments"]')
+    return Promise.resolve(
+      !!(
+        href &&
+        (oldHeartIcon || oldRecommendIcon || heartIcon || commentsIcon)
+      )
+    )
   }
 
   async parseNewsletterUrl(
@@ -84,5 +94,39 @@ export class SubstackHandler extends ContentHandler {
       return Promise.resolve(addressparser(postHeader)[0].name)
     }
     return this.findNewsletterUrl(html)
+  }
+
+  fixupStaticTweets(dom: Document): Document {
+    const preClassName = '_omnivore-static-'
+    const staticTweets = dom.querySelectorAll('div[class="tweet static"]')
+
+    if (staticTweets.length < 1) {
+      return dom
+    }
+
+    const recurse = (node: Element, f: (node: Element) => void) => {
+      for (let i = 0; i < node.children.length; i++) {
+        const child = node.children[i]
+        recurse(child, f)
+        f(child)
+      }
+    }
+
+    for (const tweet of Array.from(staticTweets)) {
+      tweet.className = preClassName + 'tweet'
+      tweet.removeAttribute('style')
+
+      // get all children, rename their class, remove style
+      // elements (style will be handled in the reader)
+      recurse(tweet, (n: Element) => {
+        const className = n.className
+        if (className.startsWith('tweet-')) {
+          n.className = preClassName + className
+        }
+        n.removeAttribute('style')
+      })
+    }
+
+    return dom
   }
 }

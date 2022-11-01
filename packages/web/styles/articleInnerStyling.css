@@ -361,3 +361,90 @@ on smaller screens we display the note icon
 .article-inner-css .morning-brew-markets td:nth-child(4) {
   width: 20%;
 }
+
+._omnivore-static-tweet {
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 550px;
+  margin: 32px auto;
+  border: 1px solid #e0e0e0;
+  direction: ltr;
+  border-radius: 8;
+  padding: 16px 16px ;
+  box-sizing: border-box;
+  -webkit-font-smoothing: subpixel-antialiased;
+}
+
+._omnivore-static-tweet-header {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    gap: 12px;
+}
+
+._omnivore-static-tweet-link-top {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-decoration: none;
+}
+
+._omnivore-static-tweet-header-avatar {
+  -ms-interpolation-mode: bicubic; 
+  border: none !important;
+  border-radius: 50%;
+  float: left;
+  height: 48px;
+  width: 48px;
+  margin: 0;
+  margin-right: 12px;
+  max-width: 100%;
+  vertical-align: middle;
+}
+
+._omnivore-static-tweet-header {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    gap: 12px;
+}
+
+._omnivore-static-tweet-link-bottom {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    white-space: pre-wrap;
+}
+
+._omnivore-static-tweet-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+._omnivore-static-tweet-footer hr {
+  background: #e0e0e0;
+  border: none;
+  height: 1px;
+  margin: 12px 0;
+  padding: 0;
+  width: 100%;
+}
+
+._omnivore-static-tweet-author-handle {
+  display: block;
+}
+
+._omnivore-static-tweet-ufi {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+
+._omnivore-static-tweet-ufi .likes, .retweets {
+  display: flex;
+  gap: 4px;
+  text-decoration: none;
+}
