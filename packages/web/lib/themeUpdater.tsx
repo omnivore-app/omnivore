@@ -25,6 +25,9 @@ export function updateThemeLocally(themeId: string): void {
   }
 
   document.body.classList.remove(
+    lighterTheme,
+    darkTheme,
+    darkerTheme,
     ThemeId.Light,
     ThemeId.Dark,
     ThemeId.Darker,

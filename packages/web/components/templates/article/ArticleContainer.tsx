@@ -204,7 +204,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           padding: '16px',
           maxWidth: `${styles.maxWidthPercentage ?? 100}%`,
           background: props.isAppleAppEmbed
-            ? theme.colors.readerBg.toString()
+            ? 'unset'
             : theme.colors.readerBg.toString(),
           '--text-font-family': styles.fontFamily,
           '--text-font-size': `${styles.fontSize}px`,
@@ -238,7 +238,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
               fontFamily: styles.fontFamily,
               width: '100%',
               wordWrap: 'break-word',
-              color: '$readerFont',
             }}
           >
             {props.article.title}
