@@ -74,7 +74,7 @@ extension WebReaderCoordinator: WKNavigationDelegate {
   func webView(_ webView: WKWebView, didFinish _: WKNavigation!) {
     #if os(iOS)
       webView.isOpaque = true
-      webView.backgroundColor = .clear
+      webView.backgroundColor = .systemBackground
     #endif
   }
 
