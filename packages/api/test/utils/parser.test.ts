@@ -38,11 +38,17 @@ describe('parseMetadata', async () => {
 
 describe('parsePreparedContent', async () => {
   it('gets published date when JSONLD fails to load', async () => {
+    nock('https://stratechery.com:443', {"encodedQueryParams":true})
+      .get('/wp-json/oembed/1.0/embed')
+      .query({"url":"https%3A%2F%2Fstratechery.com%2F2016%2Fits-a-tesla%2F"})
+      .reply(401)
+
     const html = load('./test/utils/data/stratechery-blog-post.html')
     const result = await parsePreparedContent('https://blog.omnivore.app/', {
       document: html,
       pageInfo: {},
     })
+
     expect(result.parsedContent?.publishedDate?.getTime()).to.equal(
       new Date('2016-04-05T15:27:51+00:00').getTime()
     )
