@@ -17,6 +17,7 @@ import { GhostHandler } from '../src/newsletters/ghost-handler'
 import { CooperPressHandler } from '../src/newsletters/cooper-press-handler'
 import { getNewsletterHandler } from '../src'
 import { parseHTML } from 'linkedom'
+import { HeyWorldHandler } from '../src/newsletters/hey-world-handler'
 
 chai.use(chaiAsPromised)
 chai.use(chaiString)
@@ -144,7 +145,8 @@ describe('Newsletter email test', () => {
     })
 
     it('fixes up static tweets in Substack newsletters', async () => {
-      const url = 'https://astralcodexten.substack.com/p/nick-cammarata-on-jhana'
+      const url =
+        'https://astralcodexten.substack.com/p/nick-cammarata-on-jhana'
       const html = load(
         './test/data/substack-with-static-tweets-newsletter.html'
       )
@@ -160,7 +162,9 @@ describe('Newsletter email test', () => {
       expect(handler?.shouldPreParse(url, dom)).to.be.true
 
       const preparsed = await handler?.preParse(url, dom)
-      const tweets = Array.from(preparsed?.querySelectorAll('div[class="_omnivore-static-tweet"]') ?? [])
+      const tweets = Array.from(
+        preparsed?.querySelectorAll('div[class="_omnivore-static-tweet"]') ?? []
+      )
 
       expect(tweets.length).to.eq(7)
     })
@@ -218,6 +222,18 @@ describe('Newsletter email test', () => {
         unSubHeader: '',
       })
       expect(handler).to.be.instanceOf(CooperPressHandler)
+    })
+
+    it('returns HeyWorldHandler for hey world newsletter', async () => {
+      const html = load('./test/data/hey-world-newsletter.html')
+      const handler = await getNewsletterHandler({
+        html,
+        postHeader: '',
+        from: 'Hongbo Wu <hw@world.hey.com>',
+        unSubHeader:
+          '<https://world.hey.com/dhh/subscribers/MtuoW9TvSJK9o5c7ohB72V2s/unsubscribe>',
+      })
+      expect(handler).to.be.instanceOf(HeyWorldHandler)
     })
   })
 
@@ -332,6 +348,22 @@ describe('Newsletter email test', () => {
         const html = load('./test/data/node-weekly-newsletter.html')
         const url = await new CooperPressHandler().findNewsletterUrl(html)
         expect(url).to.startWith('https://nodeweekly.com/issues/459')
+      })
+    })
+
+    context('when email is from hey world', () => {
+      before(() => {
+        nock('https://world.hey.com')
+          .head('/dhh/here-s-how-to-fix-twitter-79632ecb')
+          .reply(200, '')
+      })
+
+      it('gets the URL from the header', async () => {
+        const html = load('./test/data/hey-world-newsletter.html')
+        const url = await new HeyWorldHandler().findNewsletterUrl(html)
+        expect(url).to.startWith(
+          'https://world.hey.com/dhh/here-s-how-to-fix-twitter-79632ecb'
+        )
       })
     })
   })
