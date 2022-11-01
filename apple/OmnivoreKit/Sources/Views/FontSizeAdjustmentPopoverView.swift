@@ -142,14 +142,16 @@ public enum WebFont: String, CaseIterable {
             }
           )
 
-          HStack {
-            NavigationLink(destination: fontList) {
+          NavigationLink(destination: fontList) {
+            HStack {
               Text("Font")
+              Spacer()
+              Image(systemName: "chevron.right")
+//              Button(action: {}, label: { Text("Crimson Text").frame(width: 91) })
+//                .buttonStyle(RoundedRectButtonStyle())
             }
-            Spacer()
-            Button(action: {}, label: { Text("Crimson Text").frame(width: 91) })
-              .buttonStyle(RoundedRectButtonStyle())
           }
+          .foregroundColor(.appGrayTextContrast)
           .frame(height: 40)
 
           Toggle("High Contrast Text:", isOn: $prefersHighContrastText)
