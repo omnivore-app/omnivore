@@ -157,7 +157,7 @@ describe('Newsletter email test', () => {
       expect(handler).to.be.instanceOf(SubstackHandler)
 
       const dom = parseHTML(html).document
-      expect(handler?.shouldPreParse(url, dom)).to.be
+      expect(handler?.shouldPreParse(url, dom)).to.be.true
 
       const preparsed = await handler?.preParse(url, dom)
       const tweets = Array.from(preparsed?.querySelectorAll('div[class="_omnivore-static-tweet"]') ?? [])
