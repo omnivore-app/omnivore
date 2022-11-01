@@ -146,10 +146,11 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         omnivoreCtaYellow: 'rgb(255, 210, 52)',
 
         // Reader Colors
-        readerBg: '#F9F1DC', // #E5E5E5',
-        readerFont: '#554A34',
-        readerFontHighContrast: '#342100', // black',
-        readerHeader: '554A34',
+        readerBg: '#E5E5E5',
+        readerFont: '#3D3D3D',
+        readerFontHighContrast: 'black',
+        readerFontTransparent: 'rgba(61,61,61,0.65)',
+        readerHeader: '3D3D3D',
         readerTableHeader: '#FFFFFF',
 
         // Avatar Fallback color

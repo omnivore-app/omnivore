@@ -1,6 +1,6 @@
+import Models
 import Utils
 import WebKit
-import Models
 
 /// Describes actions that can be sent from the WebView back to native views.
 /// The names on the javascript side must match for an action to be handled.

@@ -25,12 +25,12 @@ export function updateThemeLocally(themeId: string): void {
   }
 
   document.body.classList.remove(
-    lighterTheme,
     ThemeId.Light,
-    darkTheme,
-    darkerTheme,
-    sepiaTheme,
-    charcoalTheme
+    ThemeId.Dark,
+    ThemeId.Darker,
+    ThemeId.Lighter,
+    ThemeId.Sepia,
+    ThemeId.Charcoal,
   )
   document.body.classList.add(themeId)
 }
