@@ -103,8 +103,8 @@ public enum WebFont: String, CaseIterable {
     public var body: some View {
       NavigationView {
         VStack(alignment: .center) {
-          themePicker
-            .padding(.bottom, 16)
+//          themePicker
+//            .padding(.bottom, 16)
 
           LabelledStepper(
             labelText: "Font Size",

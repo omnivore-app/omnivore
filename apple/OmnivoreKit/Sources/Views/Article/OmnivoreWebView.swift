@@ -1,6 +1,7 @@
 import Utils
 import WebKit
 
+
 /// Describes actions that can be sent from the WebView back to native views.
 /// The names on the javascript side must match for an action to be handled.
 public enum WebViewAction: String, CaseIterable {
@@ -31,12 +32,6 @@ public final class OmnivoreWebView: WKWebView {
         self.isFindInteractionEnabled = true
       }
     #endif
-
-    NotificationCenter.default.addObserver(forName: NSNotification.Name("SpeakingReaderItem"), object: nil, queue: OperationQueue.main, using: { notification in
-      if let pageID = notification.userInfo?["pageID"] as? String, let anchorIdx = notification.userInfo?["anchorIdx"] as? String {
-        self.dispatchEvent(.speakingSection(anchorIdx: anchorIdx))
-      }
-    })
   }
 
   @available(*, unavailable)
@@ -45,20 +40,32 @@ public final class OmnivoreWebView: WKWebView {
   }
 
   public func updateTheme() {
-    if let themeName = UserDefaults.standard.value(forKey: UserDefaultKey.themeName.rawValue) as? String {
-      dispatchEvent(.updateTheme(themeName: "Gray" /* themeName */ ))
+    do {
+      if let themeName = UserDefaults.standard.value(forKey: UserDefaultKey.themeName.rawValue) as? String {
+        try dispatchEvent(.updateTheme(themeName: "Gray" /* themeName */ ))
+      }
+    } catch {
+      showErrorInSnackbar("Error updating theme")
     }
   }
 
   public func updateFontFamily() {
-    if let fontFamily = UserDefaults.standard.value(forKey: UserDefaultKey.preferredWebFont.rawValue) as? String {
-      dispatchEvent(.updateFontFamily(family: fontFamily))
+    do {
+      if let fontFamily = UserDefaults.standard.value(forKey: UserDefaultKey.preferredWebFont.rawValue) as? String {
+        try dispatchEvent(.updateFontFamily(family: fontFamily))
+      }
+    } catch {
+      showErrorInSnackbar("Error updating font")
     }
   }
 
   public func updateFontSize() {
-    if let fontSize = UserDefaults.standard.value(forKey: UserDefaultKey.preferredWebFontSize.rawValue) as? Int {
-      dispatchEvent(.updateFontSize(size: fontSize))
+    do {
+      if let fontSize = UserDefaults.standard.value(forKey: UserDefaultKey.preferredWebFontSize.rawValue) as? Int {
+        try dispatchEvent(.updateFontSize(size: fontSize))
+      }
+    } catch {
+      showErrorInSnackbar("Error updating font")
     }
   }
 
@@ -66,13 +73,21 @@ public final class OmnivoreWebView: WKWebView {
     if let maxWidthPercentage = UserDefaults.standard.value(
       forKey: UserDefaultKey.preferredWebMaxWidthPercentage.rawValue
     ) as? Int {
-      dispatchEvent(.updateMaxWidthPercentage(maxWidthPercentage: maxWidthPercentage))
+      do {
+        try dispatchEvent(.updateMaxWidthPercentage(maxWidthPercentage: maxWidthPercentage))
+      } catch {
+        showErrorInSnackbar("Error updating max width")
+      }
     }
   }
 
   public func updateLineHeight() {
     if let height = UserDefaults.standard.value(forKey: UserDefaultKey.preferredWebLineSpacing.rawValue) as? Int {
-      dispatchEvent(.updateLineHeight(height: height))
+      do {
+        try dispatchEvent(.updateLineHeight(height: height))
+      } catch {
+        showErrorInSnackbar("Error updating line height")
+      }
     }
   }
 
@@ -82,17 +97,35 @@ public final class OmnivoreWebView: WKWebView {
     ) as? Bool
 
     if let isHighContrast = isHighContrast {
-      dispatchEvent(.handleFontContrastChange(isHighContrast: isHighContrast))
+      do {
+        try dispatchEvent(.handleFontContrastChange(isHighContrast: isHighContrast))
+      } catch {
+        showErrorInSnackbar("Error updating text contrast")
+      }
     }
   }
 
   public func shareOriginalItem() {
-    dispatchEvent(.share)
+    do {
+      try dispatchEvent(.share)
+    } catch {
+      showErrorInSnackbar("Error updating line height")
+    }
   }
 
-  public func dispatchEvent(_ event: WebViewDispatchEvent) {
-    evaluateJavaScript(event.script) { _, err in
-      if let err = err { print("evaluateJavaScript error", err) }
+  public func dispatchEvent(_ event: WebViewDispatchEvent) throws {
+    let script = try event.script
+    var errResult: Error?
+
+    evaluateJavaScript(script) { _, err in
+      if let err = err {
+        print("evaluateJavaScript error", err)
+        errResult = err
+      }
+    }
+
+    if let errResult = errResult {
+      throw errResult
     }
   }
 
@@ -100,7 +133,11 @@ public final class OmnivoreWebView: WKWebView {
     override public func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
       super.traitCollectionDidChange(previousTraitCollection)
       guard previousTraitCollection?.userInterfaceStyle != traitCollection.userInterfaceStyle else { return }
-      dispatchEvent(.updateColorMode(isDark: traitCollection.userInterfaceStyle == .dark))
+      do {
+        try dispatchEvent(.updateColorMode(isDark: traitCollection.userInterfaceStyle == .dark))
+      } catch {
+        showErrorInSnackbar("Error updating theme")
+      }
     }
 
   #elseif os(macOS)
@@ -210,28 +247,48 @@ public final class OmnivoreWebView: WKWebView {
     }
 
     @objc private func annotateSelection() {
-      dispatchEvent(.annotate)
+      do {
+        try dispatchEvent(.annotate)
+      } catch {
+        showErrorInSnackbar("Error creating highlight")
+      }
       hideMenu()
     }
 
     @objc private func highlightSelection() {
-      dispatchEvent(.highlight)
+      do {
+        try dispatchEvent(.highlight)
+      } catch {
+        showErrorInSnackbar("Error creating highlight")
+      }
       hideMenu()
     }
 
     @objc private func shareSelection() {
-      dispatchEvent(.share)
+      do {
+        try dispatchEvent(.share)
+      } catch {
+        showErrorInSnackbar("Error sharing highlight")
+      }
       hideMenu()
     }
 
     @objc private func removeSelection() {
-      dispatchEvent(.remove)
+      do {
+        try dispatchEvent(.remove)
+      } catch {
+        showErrorInSnackbar("Error deleting highlight")
+      }
       hideMenu()
     }
 
     @objc override public func copy(_ sender: Any?) {
       super.copy(sender)
-      dispatchEvent(.copyHighlight)
+      do {
+        try dispatchEvent(.copyHighlight)
+      } catch {
+        showErrorInSnackbar("Error copying highlight")
+      }
       hideMenu()
     }
 
@@ -265,7 +322,7 @@ public final class OmnivoreWebView: WKWebView {
 
     private func hideMenuAndDismissHighlight() {
       hideMenu()
-      dispatchEvent(.dismissHighlight)
+      try? dispatchEvent(.dismissHighlight)
     }
 
     private func showHighlightMenu(_ rect: CGRect) {
@@ -310,7 +367,10 @@ public enum WebViewDispatchEvent {
   case speakingSection(anchorIdx: String)
 
   var script: String {
-    "var event = new Event('\(eventName)');\(scriptPropertyLine)document.dispatchEvent(event);"
+    get throws {
+      let propertyLine = try scriptPropertyLine
+      return "var event = new Event('\(eventName)');\(propertyLine)document.dispatchEvent(event);"
+    }
   }
 
   private var eventName: String {
@@ -349,27 +409,35 @@ public enum WebViewDispatchEvent {
   }
 
   private var scriptPropertyLine: String {
-    switch self {
-    case let .handleFontContrastChange(isHighContrast: isHighContrast):
-      return "event.fontContrast = '\(isHighContrast ? "high" : "normal")';"
-    case let .updateLineHeight(height: height):
-      return "event.lineHeight = '\(height)';"
-    case let .updateMaxWidthPercentage(maxWidthPercentage: maxWidthPercentage):
-      return "event.maxWidthPercentage = '\(maxWidthPercentage)';"
-    case let .updateTheme(themeName: themeName):
-      return "event.themeName = '\(themeName)';"
-    case let .updateFontSize(size: size):
-      return "event.fontSize = '\(size)';"
-    case let .updateColorMode(isDark: isDark):
-      return "event.isDark = '\(isDark)';"
-    case let .updateFontFamily(family: family):
-      return "event.fontFamily = '\(family)';"
-    case let .saveAnnotation(annotation: annotation):
-      return "event.annotation = '\(annotation)';"
-    case let .speakingSection(anchorIdx: anchorIdx):
-      return "event.anchorIdx = '\(anchorIdx)';"
-    case .annotate, .highlight, .share, .remove, .copyHighlight, .dismissHighlight:
-      return ""
+    get throws {
+      switch self {
+      case let .handleFontContrastChange(isHighContrast: isHighContrast):
+        return "event.fontContrast = '\(isHighContrast ? "high" : "normal")';"
+      case let .updateLineHeight(height: height):
+        return "event.lineHeight = '\(height)';"
+      case let .updateMaxWidthPercentage(maxWidthPercentage: maxWidthPercentage):
+        return "event.maxWidthPercentage = '\(maxWidthPercentage)';"
+      case let .updateTheme(themeName: themeName):
+        return "event.themeName = '\(themeName)';"
+      case let .updateFontSize(size: size):
+        return "event.fontSize = '\(size)';"
+      case let .updateColorMode(isDark: isDark):
+        return "event.isDark = '\(isDark)';"
+      case let .updateFontFamily(family: family):
+        return "event.fontFamily = '\(family)';"
+      case let .saveAnnotation(annotation: annotation):
+        let encoder = JSONEncoder()
+        if let encoded = try? encoder.encode(annotation) {
+          let str = String(decoding: encoded, as: UTF8.self)
+          return "event.annotation = '\(str)';"
+        } else {
+          throw BasicError.message(messageText: "Unable to serialize highlight note.")
+        }
+      case let .speakingSection(anchorIdx: anchorIdx):
+        return "event.anchorIdx = '\(anchorIdx)';"
+      case .annotate, .highlight, .share, .remove, .copyHighlight, .dismissHighlight:
+        return ""
+      }
     }
   }
 }

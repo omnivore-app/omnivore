@@ -17,6 +17,7 @@ struct WebReader: PlatformViewRepresentable {
   @Binding var shareActionID: UUID?
   @Binding var annotation: String
   @Binding var showBottomBar: Bool
+  @Binding var showHighlightAnnotationModal: Bool
 
   func makeCoordinator() -> WebReaderCoordinator {
     WebReaderCoordinator()
@@ -84,7 +85,15 @@ struct WebReader: PlatformViewRepresentable {
   private func updatePlatformView(_ webView: WKWebView, context: Context) {
     if annotationSaveTransactionID != context.coordinator.lastSavedAnnotationID {
       context.coordinator.lastSavedAnnotationID = annotationSaveTransactionID
-      (webView as? OmnivoreWebView)?.dispatchEvent(.saveAnnotation(annotation: annotation))
+      do {
+        try (webView as? OmnivoreWebView)?.dispatchEvent(.saveAnnotation(annotation: annotation))
+        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
+          showHighlightAnnotationModal = false
+        }
+      } catch {
+        showInSnackbar("Error saving note.")
+        showHighlightAnnotationModal = true
+      }
     }
 
     if readerSettingsChangedTransactionID != context.coordinator.previousReaderSettingsChangedUUID {
