@@ -98,9 +98,7 @@ export class SubstackHandler extends ContentHandler {
 
   fixupStaticTweets(dom: Document): Document {
     const preClassName = '_omnivore-static-'
-    const staticTweets = Array.from(
-      dom.querySelectorAll('div[class="tweet static"]')
-    )
+    const staticTweets = dom.querySelectorAll('div[class="tweet static"]')
 
     if (staticTweets.length < 1) {
       return dom
