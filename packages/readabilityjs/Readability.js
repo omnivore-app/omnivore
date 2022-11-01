@@ -602,7 +602,7 @@ Readability.prototype = {
         continue;
       }
 
-      if (node.parentNode && ["DIV", "SECTION"].includes(node.tagName) && !(node.id && node.id.startsWith("readability") && !this._isOmnivoreNode(node)) {
+      if (node.parentNode && ["DIV", "SECTION"].includes(node.tagName) && !this._isOmnivoreNode(node) && !(node.id && node.id.startsWith("readability"))) {
         if (this._isElementWithoutContent(node)) {
           node = this._removeAndGetNext(node);
           continue;
