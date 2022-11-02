@@ -146,7 +146,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         omnivoreCtaYellow: 'rgb(255, 210, 52)',
 
         // Reader Colors
-        readerBg: '#E5E5E5',
+        readerBg: 'white',
         readerFont: '#3D3D3D',
         readerFontHighContrast: 'black',
         readerFontTransparent: 'rgba(61,61,61,0.65)',
