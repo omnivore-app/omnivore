@@ -42,7 +42,7 @@ public final class OmnivoreWebView: WKWebView {
   public func updateTheme() {
     do {
       if let themeName = UserDefaults.standard.value(forKey: UserDefaultKey.themeName.rawValue) as? String {
-        try dispatchEvent(.updateTheme(themeName: "Gray" /* themeName */ ))
+        try dispatchEvent(.updateTheme(themeName: themeName))
       }
     } catch {
       showErrorInSnackbar("Error updating theme")

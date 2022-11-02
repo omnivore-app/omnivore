@@ -229,6 +229,69 @@ div#appleid-signin {
 }
 
 @font-face {
+  font-family: 'Montserrat';
+  font-weight: 400;
+  font-style: normal;
+  src: url('/static/fonts/Source_Serif_Pro/Montserrat-Regular.ttf');
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  font-weight: 700;
+  font-style: normal;
+  src: url('/static/fonts/Source_Serif_Pro/Montserrat-Bold.ttf');
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  font-weight: 400;
+  font-style: italic;
+  src: url('/static/fonts/Source_Serif_Pro/Montserrat-Italic.ttf');
+}
+
+@font-face {
+  font-family: 'Georgia';
+  font-weight: 400;
+  font-style: normal;
+  src: url('/static/fonts/Source_Serif_Pro/Georgia-Regular.ttf');
+}
+
+@font-face {
+  font-family: 'Georgia';
+  font-weight: 700;
+  font-style: normal;
+  src: url('/static/fonts/Source_Serif_Pro/Georgia-Bold.ttf');
+}
+
+@font-face {
+  font-family: 'Georgia';
+  font-weight: 400;
+  font-style: italic;
+  src: url('/static/fonts/Source_Serif_Pro/Georgia-Italic.ttf');
+}
+
+@font-face {
+  font-family: 'Newsreader';
+  font-weight: 400;
+  font-style: normal;
+  src: url('/static/fonts/Source_Serif_Pro/Newsreader-Regular.ttf');
+}
+
+@font-face {
+  font-family: 'Newsreader';
+  font-weight: 700;
+  font-style: normal;
+  src: url('/static/fonts/Source_Serif_Pro/Newsreader-Bold.ttf');
+}
+
+@font-face {
+  font-family: 'Newsreader';
+  font-weight: 400;
+  font-style: italic;
+  src: url('/static/fonts/Source_Serif_Pro/Newsreader-Italic.ttf');
+}
+
+@font-face {
   font-family: 'SF Mono';
   font-weight: 400;
   font-style: normal;
