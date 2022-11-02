@@ -16,6 +16,7 @@ import { File, Storage } from '@google-cloud/storage'
 import { endSsml, htmlToSpeechFile, startSsml } from './htmlToSsml'
 import crypto from 'crypto'
 import { createRedisClient } from './redis'
+import { RedisClientType } from 'redis'
 
 interface UtteranceInput {
   voice?: string
@@ -46,6 +47,7 @@ Sentry.GCPFunction.init({
   tracesSampleRate: 0,
 })
 
+const MAX_CHARACTER_COUNT = 50000
 const storage = new Storage()
 
 const uploadToBucket = async (
@@ -82,6 +84,28 @@ const updateSpeech = async (
   )
 
   return response.status === 200
+}
+
+const getCharacterCountFromRedis = async (
+  redisClient: RedisClientType,
+  token: string
+): Promise<number> => {
+  const wordCount = await redisClient.get(`tts:charCount:${token}`)
+  return wordCount ? parseInt(wordCount) : 0
+}
+
+// store character count of each text to speech request in redis
+// which will be used to rate limit the request
+// expires after 1 day
+const updateCharacterCountInRedis = async (
+  redisClient: RedisClientType,
+  token: string,
+  wordCount: number
+): Promise<void> => {
+  await redisClient.set(`tts:charCount:${token}`, wordCount.toString(), {
+    EX: 3600 * 24, // in seconds
+    NX: true,
+  })
 }
 
 export const textToSpeechHandler = Sentry.GCPFunction.wrapHttpFunction(
@@ -177,6 +201,18 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
 
     try {
       const utteranceInput = req.body as UtteranceInput
+      if (!utteranceInput.text) {
+        return res.status(400).send('INVALID_INPUT')
+      }
+
+      // validate character count
+      const characterCount =
+        (await getCharacterCountFromRedis(redisClient, token)) +
+        utteranceInput.text.length
+      if (characterCount > MAX_CHARACTER_COUNT) {
+        return res.status(429).send('RATE_LIMITED')
+      }
+
       const ssmlOptions = {
         primaryVoice: utteranceInput.voice,
         secondaryVoice: utteranceInput.voice,
@@ -221,6 +257,9 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
         }
       )
       console.log('Cache saved')
+
+      // update character count
+      await updateCharacterCountInRedis(redisClient, token, characterCount)
 
       res.send({
         idx: utteranceInput.idx,
