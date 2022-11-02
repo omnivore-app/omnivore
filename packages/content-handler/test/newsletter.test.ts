@@ -246,6 +246,17 @@ describe('Newsletter email test', () => {
       })
       expect(handler).to.be.instanceOf(ConvertkitHandler)
     })
+
+    it('returns undefined for convertkit confirmation email', async () => {
+      const html = load('./test/data/convertkit-confirmation.html')
+      const handler = await getNewsletterHandler({
+        html,
+        postHeader: '',
+        from: '',
+        unSubHeader: '',
+      })
+      expect(handler).to.be.undefined
+    })
   })
 
   describe('findNewsletterUrl', async () => {
