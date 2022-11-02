@@ -17,7 +17,6 @@ export function SkeletonArticleContainer(props: SkeletonArticleContainerProps): 
     lineHeight: props.lineHeight ?? 150,
     fontFamily: props.fontFamily ?? 'inter',
     readerFontColor: theme.colors.readerFont.toString(),
-    readerFontColorTransparent: theme.colors.readerFontTransparent.toString(),
     readerTableHeaderColor: theme.colors.readerTableHeader.toString(),
     readerHeadersColor: theme.colors.readerHeader.toString(),
   }
@@ -40,7 +39,6 @@ export function SkeletonArticleContainer(props: SkeletonArticleContainerProps): 
           '--figure-margin': '1.6rem auto',
           '--hr-margin': '1em',
           '--font-color': styles.readerFontColor,
-          '--font-color-transparent': styles.readerFontColorTransparent,
           '--table-header-color': styles.readerTableHeaderColor,
           '--headers-color': styles.readerHeadersColor,
           '@sm': {

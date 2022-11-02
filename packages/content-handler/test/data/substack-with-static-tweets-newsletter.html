@@ -1,0 +1,3270 @@
+<html style="">
+  <head>
+    <title>Nick Cammarata On Jhana</title>
+    <style>
+      @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+        .typography .markup table.image-wrapper img,
+        .typography.editor .markup table.image-wrapper img,
+        .typography .markup table.kindle-wrapper img,
+        .typography.editor .markup table.kindle-wrapper img {
+          max-width: 550px;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .typography .markup div.youtube-inner div.youtube-screen,
+        .typography.editor .markup div.youtube-inner div.youtube-screen,
+        .typography .markup div.vimeo-inner div.youtube-screen,
+        .typography.editor .markup div.vimeo-inner div.youtube-screen {
+          display: none !important;
+        }
+      }
+
+      @media screen and (max-width: 370px) {
+        .typography .markup div.tiktok-wrap,
+        .typography.editor .markup div.tiktok-wrap {
+          width: calc(95vw - 32px);
+          height: calc((95vw - 32px - 2px) / 0.485714);
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .typography
+          .markup
+          div.embedded-publication-wrap
+          .embedded-publication.show-subscribe,
+        .typography.editor
+          .markup
+          div.embedded-publication-wrap
+          .embedded-publication.show-subscribe {
+          padding: 24px;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .typography
+          .markup
+          div.subscription-widget-wrap
+          .subscription-widget.show-subscribe,
+        .typography.editor
+          .markup
+          div.subscription-widget-wrap
+          .subscription-widget.show-subscribe,
+        .typography
+          .markup
+          div.captioned-button-wrap
+          .subscription-widget.show-subscribe,
+        .typography.editor
+          .markup
+          div.captioned-button-wrap
+          .subscription-widget.show-subscribe {
+          padding: 24px;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .typography
+          .markup
+          div.subscription-widget-wrap
+          .subscription-widget.show-subscribe
+          .subscription-widget-subscribe
+          .button,
+        .typography.editor
+          .markup
+          div.subscription-widget-wrap
+          .subscription-widget.show-subscribe
+          .subscription-widget-subscribe
+          .button,
+        .typography
+          .markup
+          div.captioned-button-wrap
+          .subscription-widget.show-subscribe
+          .subscription-widget-subscribe
+          .button,
+        .typography.editor
+          .markup
+          div.captioned-button-wrap
+          .subscription-widget.show-subscribe
+          .subscription-widget-subscribe
+          .button {
+          padding: 10px 12px;
+          min-width: 110px;
+        }
+      }
+
+      @media (max-width: 650px) {
+        .typography .markup .tweet,
+        .typography.editor .markup .tweet {
+          padding: 12px;
+        }
+      }
+
+      @media (max-width: 650px) {
+        .typography .markup .tweet .tweet-text,
+        .typography.editor .markup .tweet .tweet-text {
+          font-size: 14px;
+          line-height: 20px;
+        }
+      }
+
+      @media (max-width: 650px) {
+        .typography .markup .tweet .tweet-photos-container.two,
+        .typography.editor .markup .tweet .tweet-photos-container.two,
+        .typography .markup .tweet .tweet-photos-container.three,
+        .typography.editor .markup .tweet .tweet-photos-container.three,
+        .typography .markup .tweet .tweet-photos-container.four,
+        .typography.editor .markup .tweet .tweet-photos-container.four {
+          height: 200px;
+        }
+      }
+
+      @media (max-width: 650px) {
+        .typography .markup .tweet a.expanded-link .expanded-link-img,
+        .typography.editor .markup .tweet a.expanded-link .expanded-link-img {
+          max-height: 180px;
+        }
+      }
+
+      @media (max-width: 650px) {
+        .typography .markup .tweet a.expanded-link .expanded-link-description,
+        .typography.editor
+          .markup
+          .tweet
+          a.expanded-link
+          .expanded-link-description {
+          display: none;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .typography .markup .apple-podcast-container,
+        .typography.editor .markup .apple-podcast-container {
+          width: unset;
+        }
+      }
+
+      @media (max-width: 420px) {
+        .typography
+          .markup
+          .install-substack-app-embed
+          img.install-substack-app-embed-img,
+        .typography.editor
+          .markup
+          .install-substack-app-embed
+          img.install-substack-app-embed-img {
+          margin: 0 auto 16px auto;
+        }
+      }
+
+      @media screen and (min-width: 420px) and (max-width: 600px) {
+        .typography
+          .markup
+          .install-substack-app-embed
+          .install-substack-app-embed-text,
+        .typography.editor
+          .markup
+          .install-substack-app-embed
+          .install-substack-app-embed-text {
+          max-width: calc(100% - 100px);
+          width: initial;
+        }
+      }
+
+      @media (max-width: 420px) {
+        .typography
+          .markup
+          .install-substack-app-embed
+          .install-substack-app-embed-text,
+        .typography.editor
+          .markup
+          .install-substack-app-embed
+          .install-substack-app-embed-text {
+          margin: 0 0 12px 0;
+          max-width: 100%;
+          width: auto;
+          text-align: center;
+        }
+      }
+
+      @media (max-width: 600px) {
+        .typography
+          .markup
+          .install-substack-app-embed
+          .install-substack-app-embed-link,
+        .typography.editor
+          .markup
+          .install-substack-app-embed
+          .install-substack-app-embed-link {
+          margin-top: 16px;
+          width: 100%;
+        }
+      }
+
+      @media screen and (min-width: 481px) {
+        .share-button-container {
+          height: 38px;
+        }
+      }
+
+      @media screen and (min-width: 481px) {
+        .share-button-container a.comment {
+          height: 38px;
+          line-height: 38px;
+          padding-right: 10px;
+        }
+      }
+
+      @media screen and (max-width: 480px) {
+        .share-button-container .separator {
+          display: block;
+          margin: 0;
+          height: 8px;
+          border-left: none;
+        }
+      }
+
+      @media screen and (max-width: 480px) {
+        .share-button-container a.share.first img {
+          padding-left: 0;
+        }
+      }
+
+      @media screen and (min-width: 481px) {
+        .share-button-container a.mobile {
+          display: none !important;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .social-media-share-preview__description {
+          -webkit-line-clamp: 2;
+        }
+      }
+
+      @media screen and (max-width: 1000px) {
+        .congrats-box {
+          flex-direction: column;
+        }
+        .congrats-box .congrats-box-right {
+          margin-left: 38px;
+          margin-top: 16px;
+        }
+      }
+
+      @media screen and (max-width: 500px) {
+        .congrats-box {
+          display: none;
+        }
+      }
+
+      @media screen and (min-width: 541px) {
+        .settings-add-pub-modal-wrapper
+          .container
+          .add-recommending-pub-modal-container {
+          padding: 36px;
+          height: 680px;
+        }
+      }
+
+      @media screen and (min-width: 541px) {
+        .settings-add-pub-modal-wrapper
+          .container
+          .add-recommending-pub-modal-container
+          .footer {
+          position: absolute;
+          bottom: 36px;
+          margin: 0px;
+        }
+      }
+
+      @media screen and (max-width: 840px) {
+        .header-with-anchor-widget .header-anchor-widget,
+        .header-anchor-container .header-anchor-widget {
+          display: none;
+        }
+      }
+
+      @media screen and (min-width: 768px) {
+        .post {
+          padding: 32px 0 0 0;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .post .post-header .post-label {
+          margin-top: 8px;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .post
+          .post-header
+          .meta-author-wrap.alternative-meta
+          .meta-right-column
+          .post-meta {
+          margin-top: 6px;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .post .post-footer.use-separators {
+          justify-content: center;
+          margin: 0 -16px;
+          padding: 0;
+          gap: 0;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .post .post-footer.next-prev {
+          height: 64px;
+          justify-content: space-between;
+          box-sizing: border-box;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .post-contributor-footer .post-contributor-bio-table {
+          display: block;
+        }
+        .post-contributor-footer .post-contributor-bio-table-row {
+          display: flex;
+          flex-direction: row;
+        }
+        .post-contributor-footer .post-contributor-bio-userhead-cell,
+        .post-contributor-footer .post-contributor-bio-body-cell {
+          display: block;
+        }
+        .post-contributor-footer .post-contributor-bio-body-cell {
+          flex-grow: 1;
+        }
+        .post-contributor-footer .post-contributor-bio-body-table {
+          display: block;
+        }
+        .post-contributor-footer .post-contributor-bio-body-table-row {
+          display: block;
+        }
+        .post-contributor-footer .post-contributor-bio-copy-cell,
+        .post-contributor-footer .post-contributor-bio-controls-cell {
+          display: block;
+        }
+        .post-contributor-footer .post-contributor-bio-copy-cell {
+          margin: 0 0 16px 0;
+        }
+        .post-contributor-footer .post-contributor-bio-controls-cell {
+          width: auto;
+        }
+        .post-contributor-footer .post-contributor-bio-controls {
+          margin: auto;
+        }
+        .post-contributor-footer
+          .post-contributor-bio-controls
+          .button.primary {
+          width: 100%;
+        }
+        .post-contributor-footer .post-contributor-bio-text {
+          font-size: 14px;
+        }
+      }
+
+      @media screen and (min-width: 768px) {
+        .post-silhouette {
+          padding: 16px 0;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .post-silhouette .post-silhouette-title {
+          margin-top: 10.44225025px;
+          height: 120px;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .post-silhouette .post-silhouette-meta {
+          width: 75%;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .post-silhouette .post-silhouette-meta.with-byline-image {
+          margin: 20px 0;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .use-theme-bg .post-meta.alternative-meta .post-meta-item,
+        .post-meta.alternative-meta .post-meta-item {
+          padding-right: 16px;
+        }
+      }
+
+      @media screen and (max-width: 370px) {
+        .use-theme-bg .post-meta.alternative-meta .post-meta-item,
+        .post-meta.alternative-meta .post-meta-item {
+          font-size: 14px;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .use-theme-bg
+          .post-meta.alternative-meta
+          .post-meta-item.guest-author-publication,
+        .post-meta.alternative-meta .post-meta-item.guest-author-publication {
+          display: none;
+        }
+      }
+
+      @media screen and (max-width: 370px) {
+        .post-meta .post-meta-item .post-meta-button {
+          height: 36px !important;
+        }
+        .post-meta .post-meta-item .post-meta-button .meta-button-label {
+          display: none;
+        }
+        .post-meta .post-meta-item .post-meta-button > svg {
+          margin-right: 0;
+        }
+      }
+
+      @media screen and (max-width: 370px) {
+        .post-meta .post-meta-item {
+          font-size: 12px;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .post-preview > .post-preview-content .post-preview-meta {
+          margin-top: 12px 0;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .post-preview > .post-preview-image {
+          display: none;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .post-preview-silhouette .post-preview-silhouette-image {
+          display: none;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .post .floating-subscribe-button {
+          bottom: 20px;
+          right: 20px;
+        }
+      }
+
+      @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+        body .markup table.image-wrapper img,
+        body .markup table.kindle-wrapper img {
+          max-width: 550px;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        body .markup div.youtube-inner div.youtube-screen,
+        body .markup div.vimeo-inner div.youtube-screen {
+          display: none !important;
+        }
+      }
+
+      @media screen and (max-width: 370px) {
+        body .markup div.tiktok-wrap {
+          width: calc(95vw - 32px);
+          height: calc((95vw - 32px - 2px) / 0.485714);
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        body
+          .markup
+          div.embedded-publication-wrap
+          .embedded-publication.show-subscribe {
+          padding: 24px;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        body
+          .markup
+          div.subscription-widget-wrap
+          .subscription-widget.show-subscribe,
+        body
+          .markup
+          div.captioned-button-wrap
+          .subscription-widget.show-subscribe {
+          padding: 24px;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        body
+          .markup
+          div.subscription-widget-wrap
+          .subscription-widget.show-subscribe
+          .subscription-widget-subscribe
+          .button,
+        body
+          .markup
+          div.captioned-button-wrap
+          .subscription-widget.show-subscribe
+          .subscription-widget-subscribe
+          .button {
+          padding: 10px 12px;
+          min-width: 110px;
+        }
+      }
+
+      @media (max-width: 650px) {
+        body .markup .tweet {
+          padding: 12px;
+        }
+      }
+
+      @media (max-width: 650px) {
+        body .markup .tweet .tweet-text {
+          font-size: 14px;
+          line-height: 20px;
+        }
+      }
+
+      @media (max-width: 650px) {
+        body .markup .tweet .tweet-photos-container.two,
+        body .markup .tweet .tweet-photos-container.three,
+        body .markup .tweet .tweet-photos-container.four {
+          height: 200px;
+        }
+      }
+
+      @media (max-width: 650px) {
+        body .markup .tweet a.expanded-link .expanded-link-img {
+          max-height: 180px;
+        }
+      }
+
+      @media (max-width: 650px) {
+        body .markup .tweet a.expanded-link .expanded-link-description {
+          display: none;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        body .markup .apple-podcast-container {
+          width: unset;
+        }
+      }
+
+      @media (max-width: 420px) {
+        body
+          .markup
+          .install-substack-app-embed
+          img.install-substack-app-embed-img {
+          margin: 0 auto 16px auto;
+        }
+      }
+
+      @media screen and (min-width: 420px) and (max-width: 600px) {
+        body
+          .markup
+          .install-substack-app-embed
+          .install-substack-app-embed-text {
+          max-width: calc(100% - 100px);
+          width: initial;
+        }
+      }
+
+      @media (max-width: 420px) {
+        body
+          .markup
+          .install-substack-app-embed
+          .install-substack-app-embed-text {
+          margin: 0 0 12px 0;
+          max-width: 100%;
+          width: auto;
+          text-align: center;
+        }
+      }
+
+      @media (max-width: 600px) {
+        body
+          .markup
+          .install-substack-app-embed
+          .install-substack-app-embed-link {
+          margin-top: 16px;
+          width: 100%;
+        }
+      }
+
+      @media screen and (min-width: 500px) {
+        body .header a.logo {
+          width: 42px;
+          height: 42px;
+          border-radius: 8px;
+        }
+      }
+
+      @media screen and (max-width: 420px) {
+        body
+          .subscription-receipt
+          table:first-of-type
+          .subscription-amount
+          .subscription-discount {
+          width: 72px !important;
+        }
+      }
+
+      @media screen and (min-width: 481px) {
+        body .share-button-container {
+          height: auto;
+        }
+      }
+
+      @media screen and (max-width: 480px) {
+        body .share-button-container .separator {
+          display: block !important;
+          margin: 0 !important;
+          height: 8px !important;
+          border-left: none !important;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        body .footer {
+          outline: 8px solid #eeeeee !important;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .digest .item .post-meta-item.audience {
+          display: none;
+        }
+      }
+
+      @media screen and (min-width: 500px) {
+        .digest-publication .logo img {
+          width: 42px;
+          height: 42px;
+          border-radius: 4px;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .comments-page .container .comment-list .collapsed-reply {
+          margin-left: 17px;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .comment > .comment-list {
+          padding-left: 25px;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .finish-magic-login-modal .modal-content .container {
+          padding: 24px 0;
+        }
+      }
+
+      @media (max-width: 650px) {
+        .reader2-text-b3 {
+          line-height: 22px;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .reader2-text-h4 {
+          line-height: 22px;
+        }
+      }
+
+      @media screen and (min-width: 541px) {
+        .user-profile-modal {
+          padding-left: 12px;
+          padding-right: 12px;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .subscribe-widget form.form .sideBySideWrap button.rightButton {
+          padding: 10px 12px;
+        }
+      }
+
+      @media screen and (min-width: 541px) {
+        .pub-icon:hover .logo-hover,
+        .feed-item-icon:hover .logo-hover {
+          display: block;
+        }
+      }
+
+      @media screen and (max-width: 768px) {
+        .file-embed-wrapper {
+          padding: 0;
+        }
+      }
+
+      @media screen and (max-width: 768px) {
+        .file-embed-wrapper-editor {
+          padding: 0;
+        }
+      }
+
+      @media screen and (max-width: 768px) {
+        .file-embed-wrapper-editor:active {
+          padding: 0;
+        }
+      }
+
+      @media only screen and (max-width: 650px) {
+        .file-embed-button.wide,
+        .file-embed-error-button.wide {
+          display: none;
+        }
+      }
+
+      @media only screen and (min-width: 630px) {
+        .file-embed-button.narrow,
+        .file-embed-error-button.narrow {
+          display: none;
+        }
+      }
+
+      @media screen and (min-width: 541px) {
+        .audio-player-wrapper .audio-player {
+          min-width: 500px;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .audio-player-wrapper .audio-player .audio-player-progress {
+          border-left-width: 16px;
+          border-right-width: 16px;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .audio-player-wrapper
+          .audio-player
+          .audio-player-progress
+          .audio-player-progress-bar
+          .audio-player-progress-bar-popup {
+          top: -54px;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .audio-player-wrapper-fancy .audio-player .audio-player-progress {
+          border-left-width: 16px;
+          border-right-width: 16px;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .audio-player-wrapper-fancy
+          .audio-player
+          .audio-player-progress
+          .audio-player-progress-bar
+          .audio-player-progress-bar-popup {
+          top: -54px;
+        }
+      }
+
+      @media (min-width: 250px) {
+        .audio-player-wrapper-fancy .audio-player {
+          padding: 32px;
+        }
+        .audio-player-wrapper-fancy .audio-player .btn-group {
+          display: flex;
+        }
+        .audio-player-wrapper-fancy
+          .audio-player
+          .btn-group
+          .button:last-of-type {
+          display: block;
+        }
+      }
+
+      @media (min-width: 300px) {
+        .audio-player-wrapper-fancy .audio-player .btn-group {
+          display: block;
+        }
+        .audio-player-wrapper-fancy
+          .audio-player
+          .btn-group
+          .button:first-of-type {
+          display: block;
+        }
+      }
+
+      @media (min-width: 350px) {
+        .audio-player-wrapper-fancy .audio-player .audio-player-substack-logo {
+          display: block;
+        }
+        .audio-player-wrapper-fancy .audio-player .audio-player-title {
+          margin-top: 16px;
+        }
+        .audio-player-wrapper-fancy
+          .audio-player
+          .audio-player-hero-image-container {
+          padding-top: 15%;
+          width: 15%;
+          display: block;
+        }
+        .audio-player-wrapper-fancy
+          .audio-player
+          .btn-group
+          .button:first-of-type {
+          display: block;
+        }
+        .audio-player-wrapper-fancy .audio-player .audio-player-substack-logo {
+          display: block;
+        }
+      }
+
+      @media (min-width: 350px) {
+        .audio-player-wrapper-fancy
+          .audio-player
+          .audio-player-hero-image-container {
+          padding-top: 25%;
+          width: 25%;
+          display: block;
+        }
+        .audio-player-wrapper-fancy .audio-player .btn-group {
+          display: flex;
+        }
+        .audio-player-wrapper-fancy
+          .audio-player
+          .btn-group
+          .button:first-of-type {
+          display: block;
+        }
+      }
+
+      @media (min-width: 400px) {
+        .audio-player-wrapper-fancy
+          .audio-player
+          .audio-player-hero-image-container {
+          padding-top: 40%;
+          width: 40%;
+        }
+      }
+
+      @media (max-width: 400px) {
+        .audio-player-wrapper-fancy .audio-player .btn-group {
+          margin-top: 12px;
+        }
+        .audio-player-wrapper-fancy .audio-player .btn-group .button {
+          font-size: 13px;
+          padding: 6px 12px;
+          height: auto;
+          margin-top: 10px;
+        }
+      }
+
+      @media (min-width: 600px) {
+        .audio-player-wrapper-fancy
+          .audio-player
+          .audio-player-hero-image-container {
+          padding-top: 55%;
+          width: 55%;
+        }
+      }
+
+      @media (max-width: 650px) {
+        .poll-editor-modal {
+          min-width: calc(100% - 20px);
+        }
+      }
+
+      @media (max-width: 750px) {
+        .poll-embed .poll-anchor-target .poll-anchor-copy-button {
+          left: 8px;
+          top: 45px;
+        }
+      }
+
+      @media screen and (min-width: 541px) {
+        .poll-embed
+          .poll-wrapper.poll-web
+          .poll-dialog
+          .modal-table
+          .modal-row
+          .modal-content
+          > .container {
+          width: 552px;
+          padding: 26px 24px;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .poll-embed
+          .poll-wrapper.poll-web
+          .poll-dialog
+          .modal-table
+          .modal-row
+          .modal-content
+          > .container {
+          padding: 40px 0;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .poll-embed
+          .poll-wrapper.poll-web
+          .poll-dialog
+          .modal-row
+          .modal-cell
+          .modal-exit-btn {
+          margin-right: -20px;
+        }
+      }
+
+      @media not all and (min-resolution: 0.001dpcm) {
+      }
+    </style>
+  </head>
+  <body class="email-body" style="font-kerning: auto">
+    <div
+      style="
+        display: none;
+        font-size: 1px;
+        color: #333333;
+        line-height: 1px;
+        max-height: 0px;
+        max-width: 0px;
+        opacity: 0;
+        overflow: hidden;
+      "
+      class="preview"
+    >
+      ...
+      &#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;
+    </div>
+    <table
+      role="presentation"
+      width="100%"
+      border="0"
+      cellspacing="0"
+      cellpadding="0"
+      class="email-body-container"
+    >
+      <tr>
+        <td></td>
+        <td width="550" class="content"></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td></td>
+        <td align="left" width="550" class="content">
+          <div
+            style="
+              font-size: 16px;
+              line-height: 26px;
+              margin: 0 auto;
+              max-width: 550px;
+              overflow-wrap: break-word;
+              width: 100%;
+            "
+          >
+            <table
+              role="presentation"
+              width="100%"
+              border="0"
+              cellspacing="0"
+              cellpadding="0"
+            >
+              <tr>
+                <td align="right" style="height: 20px">
+                  <table
+                    role="presentation"
+                    width="auto"
+                    border="0"
+                    cellspacing="0"
+                    cellpadding="0"
+                  >
+                    <tr>
+                      <td style="vertical-align: middle">
+                        <span
+                          class="tw-font-body tw-text-ssm tw-text-substack-secondary"
+                          style="
+                            color: #808080 !important;
+                            font-family: SF Pro Text, -apple-system,
+                              BlinkMacSystemFont, Inter, Segoe UI, Roboto,
+                              Helvetica, Arial, sans-serif, Apple Color Emoji,
+                              Segoe UI Emoji, Segoe UI Symbol !important;
+                            font-size: 13px !important;
+                          "
+                          ><a
+                            href="https://open.substack.com/pub/astralcodexten/p/nick-cammarata-on-jhana?utm_source=email&redirect=app-store"
+                            class="tw-text-substack-secondary tw-underline"
+                            style="
+                              -webkit-text-decoration-line: underline !important;
+                              color: #808080 !important;
+                              text-decoration-line: underline !important;
+                            "
+                            >Open in app</a
+                          >
+                          or
+                          <a
+                            href="https://substack.com/redirect/2/eyJlIjoiaHR0cHM6Ly9hc3RyYWxjb2RleHRlbi5zdWJzdGFjay5jb20vcC9uaWNrLWNhbW1hcmF0YS1vbi1qaGFuYT90b2tlbj1leUoxYzJWeVgybGtJam96T1RZNE16RXlMQ0p3YjNOMFgybGtJam80TURBME1qazBOU3dpYVdGMElqb3hOalkyT0RNME5URTRMQ0psZUhBaU9qRTJOamswTWpZMU1UZ3NJbWx6Y3lJNkluQjFZaTA0T1RFeU1DSXNJbk4xWWlJNkluQnZjM1F0Y21WaFkzUnBiMjRpZlEuMV90OWNxb1AxdW1UTWRaczYwRXpPZjFybFFBSVhpSU5QOGg4dzMwME9kSSIsInAiOjgwMDQyOTQ1LCJzIjo4OTEyMCwiZiI6ZmFsc2UsInUiOjM5NjgzMTIsImlhdCI6MTY2NjgzNDUxOCwiZXhwIjoxNjY5NDI2NTE4LCJpc3MiOiJwdWItMCIsInN1YiI6ImxpbmstcmVkaXJlY3QifQ.MjJfXmPWE3dgvyROb0gqYErOxbd61Tpb0oKPN7wXaSU?"
+                            class="tw-text-substack-secondary tw-underline"
+                            style="
+                              -webkit-text-decoration-line: underline !important;
+                              color: #808080 !important;
+                              text-decoration-line: underline !important;
+                            "
+                            >online</a
+                          ></span
+                        >
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+            <div
+              dir="auto"
+              class="post typography"
+              style="font-size: 16px; line-height: 26px; padding: 16px 0 0 0"
+            >
+              <div
+                class="post-header"
+                style="font-size: 16px; line-height: 26px"
+              >
+                <h1
+                  class="post-title published"
+                  style="
+                    -moz-osx-font-smoothing: antialiased;
+                    -webkit-font-smoothing: antialiased;
+                    color: #404040;
+                    font-family: 'SF Compact Display', -apple-system,
+                      BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+                      sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+                      'Segoe UI Symbol';
+                    font-size: 32px;
+                    font-weight: bold;
+                    line-height: 36px;
+                    margin: 0;
+                  "
+                >
+                  <a
+                    href="https://substack.com/app-link/post"
+                    style="color: #404040; text-decoration: none"
+                    >Nick Cammarata On Jhana</a
+                  >
+                </h1>
+                <h3
+                  class="subtitle"
+                  style="
+                    -moz-osx-font-smoothing: antialiased;
+                    -webkit-font-smoothing: antialiased;
+                    color: #808080;
+                    font-family: 'SF Compact Display', -apple-system,
+                      BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+                      sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+                      'Segoe UI Symbol';
+                    font-size: 18px;
+                    font-weight: normal;
+                    line-height: 24px;
+                    margin: 4px 0 0;
+                    margin-top: 12px;
+                  "
+                >
+                  ...
+                </h3>
+                <table
+                  cellpadding="0"
+                  cellspacing="0"
+                  class="post-meta custom"
+                  style="align-items: center; height: 20px; margin: 1em 0"
+                >
+                  <tr>
+                    <td
+                      title="2022-10-27T01:35:14.254Z"
+                      class="post-meta-item post-date"
+                      style="
+                        color: #808080;
+                        font-family: -apple-system, BlinkMacSystemFont,
+                          'Segoe UI', Roboto, Helvetica, Arial, sans-serif,
+                          'Apple Color Emoji', 'Segoe UI Emoji',
+                          'Segoe UI Symbol';
+                        font-size: 14px;
+                        font-weight: 400;
+                        height: 14px;
+                        margin-right: 0;
+                        padding: 0px 12px 0px 0;
+                        padding-bottom: 0;
+                        padding-right: 0;
+                        padding-top: 0;
+                        position: relative;
+                        text-decoration: none;
+                        white-space: nowrap;
+                      "
+                    >
+                      <div
+                        class="frontend-pencraft-Text-module__reset--20JLV frontend-pencraft-Text-module__size-12--2onFT frontend-pencraft-Text-module__line-height-20--1soeQ frontend-pencraft-Text-module__weight-medium--aTbx5 frontend-pencraft-Text-module__font-meta--2i-cR frontend-pencraft-Text-module__color-secondary--XjVGl frontend-pencraft-Text-module__meta--3RRSj"
+                        style="
+                          color: #808080;
+                          font-family: 'SF Compact Text', 'SF Pro Text',
+                            -apple-system, BlinkMacSystemFont, 'Inter',
+                            'Segoe UI', Roboto, Helvetica, Arial, sans-serif,
+                            'Apple Color Emoji', 'Segoe UI Emoji',
+                            'Segoe UI Symbol';
+                          font-size: 12px;
+                          font-weight: 500;
+                          letter-spacing: 0.2px;
+                          line-height: 20px;
+                          margin: 0;
+                          text-decoration: unset;
+                          text-transform: uppercase;
+                        "
+                      >
+                        <time datetime="2022-10-27T01:35:14.254Z">Oct 27</time>
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+                <table
+                  role="presentation"
+                  width="100%"
+                  border="0"
+                  cellspacing="0"
+                  cellpadding="0"
+                  class="email-ufi-2-top"
+                  style="
+                    border-bottom: 1px solid #e0e0e0;
+                    border-top: 1px solid #e0e0e0;
+                    min-width: 100%;
+                  "
+                >
+                  <tr height="16">
+                    <td height="16" style="font-size: 0px; line-height: 0">
+                      &#160;
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <table
+                        role="presentation"
+                        width="100%"
+                        border="0"
+                        cellspacing="0"
+                        cellpadding="0"
+                      >
+                        <tr>
+                          <td>
+                            <table
+                              role="presentation"
+                              width="auto"
+                              border="0"
+                              cellspacing="0"
+                              cellpadding="0"
+                            >
+                              <tr>
+                                <td style="vertical-align: middle">
+                                  <table
+                                    role="presentation"
+                                    width="38"
+                                    border="0"
+                                    cellspacing="0"
+                                    cellpadding="0"
+                                  >
+                                    <tr>
+                                      <td align="center">
+                                        <a
+                                          href="https://substack.com/app-link/post"
+                                          style="
+                                            border: 1px solid #e0e0e0;
+                                            border-radius: 100000px;
+                                            box-sizing: border-box;
+                                            color: #808080;
+                                            display: inline-block;
+                                            font-family: 'SF Pro Text',
+                                              -apple-system, ui-sans-serif,
+                                              BlinkMacSystemFont, 'Segoe UI',
+                                              Roboto, Helvetica, Arial,
+                                              sans-serif, 'Apple Color Emoji',
+                                              'Segoe UI Emoji',
+                                              'Segoe UI Symbol';
+                                            font-size: 12px;
+                                            font-weight: 500;
+                                            line-height: 1;
+                                            min-width: 38px;
+                                            padding: 9px 0;
+                                            text-decoration: none;
+                                            text-transform: uppercase;
+                                            width: 38px;
+                                          "
+                                          class="email-icon-button"
+                                          ><img
+                                            src="https://substackcdn.com/image/fetch/w_36,c_scale,f_png,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack.com%2Ficon%2FLucideHeart%3Fv%3D4%26height%3D36%26fill%3Dnone%26stroke%3D%2523808080%26strokeWidth%3D2"
+                                            width="18"
+                                            height="18"
+                                            style="
+                                              border: none !important;
+                                              max-width: 18px;
+                                              vertical-align: middle;
+                                            "
+                                            alt=""
+                                            class="icon"
+                                        /></a>
+                                      </td>
+                                    </tr>
+                                  </table>
+                                </td>
+                                <td width="8" style="min-width: 8px"></td>
+                                <td style="vertical-align: middle">
+                                  <table
+                                    role="presentation"
+                                    width="38"
+                                    border="0"
+                                    cellspacing="0"
+                                    cellpadding="0"
+                                  >
+                                    <tr>
+                                      <td align="center">
+                                        <a
+                                          href="https://substack.com/app-link/post"
+                                          style="
+                                            border: 1px solid #e0e0e0;
+                                            border-radius: 100000px;
+                                            box-sizing: border-box;
+                                            color: #808080;
+                                            display: inline-block;
+                                            font-family: 'SF Pro Text',
+                                              -apple-system, ui-sans-serif,
+                                              BlinkMacSystemFont, 'Segoe UI',
+                                              Roboto, Helvetica, Arial,
+                                              sans-serif, 'Apple Color Emoji',
+                                              'Segoe UI Emoji',
+                                              'Segoe UI Symbol';
+                                            font-size: 12px;
+                                            font-weight: 500;
+                                            line-height: 1;
+                                            min-width: 38px;
+                                            padding: 9px 0;
+                                            text-decoration: none;
+                                            text-transform: uppercase;
+                                            width: 38px;
+                                          "
+                                          class="email-icon-button"
+                                          ><img
+                                            src="https://substackcdn.com/image/fetch/w_36,c_scale,f_png,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack.com%2Ficon%2FLucideComments%3Fv%3D4%26height%3D36%26fill%3Dnone%26stroke%3D%2523808080%26strokeWidth%3D2"
+                                            width="18"
+                                            height="18"
+                                            style="
+                                              border: none !important;
+                                              max-width: 18px;
+                                              vertical-align: middle;
+                                            "
+                                            alt=""
+                                            class="icon"
+                                        /></a>
+                                      </td>
+                                    </tr>
+                                  </table>
+                                </td>
+                                <td width="8" style="min-width: 8px"></td>
+                                <td style="vertical-align: middle">
+                                  <table
+                                    role="presentation"
+                                    width="38"
+                                    border="0"
+                                    cellspacing="0"
+                                    cellpadding="0"
+                                  >
+                                    <tr>
+                                      <td align="center">
+                                        <a
+                                          href="https://substack.com/app-link/post"
+                                          style="
+                                            border: 1px solid #e0e0e0;
+                                            border-radius: 100000px;
+                                            box-sizing: border-box;
+                                            color: #808080;
+                                            display: inline-block;
+                                            font-family: 'SF Pro Text',
+                                              -apple-system, ui-sans-serif,
+                                              BlinkMacSystemFont, 'Segoe UI',
+                                              Roboto, Helvetica, Arial,
+                                              sans-serif, 'Apple Color Emoji',
+                                              'Segoe UI Emoji',
+                                              'Segoe UI Symbol';
+                                            font-size: 12px;
+                                            font-weight: 500;
+                                            line-height: 1;
+                                            min-width: 38px;
+                                            padding: 9px 0;
+                                            text-decoration: none;
+                                            text-transform: uppercase;
+                                            width: 38px;
+                                          "
+                                          class="email-icon-button"
+                                          ><img
+                                            src="https://substackcdn.com/image/fetch/w_36,c_scale,f_png,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack.com%2Ficon%2FLucideShare%3Fv%3D4%26height%3D36%26fill%3Dnone%26stroke%3D%2523808080%26strokeWidth%3D2"
+                                            width="18"
+                                            height="18"
+                                            style="
+                                              border: none !important;
+                                              max-width: 18px;
+                                              vertical-align: middle;
+                                            "
+                                            alt=""
+                                            class="icon"
+                                        /></a>
+                                      </td>
+                                    </tr>
+                                  </table>
+                                </td>
+                              </tr>
+                            </table>
+                          </td>
+                          <td align="right">
+                            <table
+                              role="presentation"
+                              width="auto"
+                              border="0"
+                              cellspacing="0"
+                              cellpadding="0"
+                            >
+                              <tr>
+                                <td style="vertical-align: middle">
+                                  <table
+                                    role="presentation"
+                                    width="auto"
+                                    border="0"
+                                    cellspacing="0"
+                                    cellpadding="0"
+                                  >
+                                    <tr>
+                                      <td align="center">
+                                        <a
+                                          href="https://open.substack.com/pub/astralcodexten/p/nick-cammarata-on-jhana"
+                                          class="email-button-outline"
+                                          style="
+                                            border: 1px solid #e0e0e0;
+                                            border-radius: 100000px;
+                                            color: #808080;
+                                            display: inline-block;
+                                            font-family: 'SF Pro Text',
+                                              -apple-system, ui-sans-serif,
+                                              BlinkMacSystemFont, 'Segoe UI',
+                                              Roboto, Helvetica, Arial,
+                                              sans-serif, 'Apple Color Emoji',
+                                              'Segoe UI Emoji',
+                                              'Segoe UI Symbol';
+                                            font-size: 12px;
+                                            font-weight: 500;
+                                            line-height: 12px;
+                                            padding: 9px 14px;
+                                            text-decoration: none;
+                                            text-transform: uppercase;
+                                          "
+                                          ><div
+                                            class="email-button-spacer"
+                                            style="
+                                              display: inline-block;
+                                              font-size: 16px;
+                                              line-height: 26px;
+                                              max-width: 0;
+                                              min-height: 18px;
+                                              vertical-align: middle;
+                                            "
+                                          ></div>
+                                          <span
+                                            class="email-button-text"
+                                            style="vertical-align: middle"
+                                            >&#9655;&#160;&#160;Listen</span
+                                          ></a
+                                        >
+                                      </td>
+                                    </tr>
+                                  </table>
+                                </td>
+                                <td width="8" style="min-width: 8px"></td>
+                                <td style="vertical-align: middle">
+                                  <table
+                                    role="presentation"
+                                    width="auto"
+                                    border="0"
+                                    cellspacing="0"
+                                    cellpadding="0"
+                                  >
+                                    <tr>
+                                      <td align="center">
+                                        <a
+                                          href="https://substack.com/redirect/2/eyJlIjoiaHR0cHM6Ly9hc3RyYWxjb2RleHRlbi5zdWJzdGFjay5jb20vcC9uaWNrLWNhbW1hcmF0YS1vbi1qaGFuYT91dG1fc291cmNlPXN1YnN0YWNrJnV0bV9tZWRpdW09ZW1haWwmdG9rZW49ZXlKMWMyVnlYMmxrSWpvek9UWTRNekV5TENKd2IzTjBYMmxrSWpvNE1EQTBNamswTlN3aWFXRjBJam94TmpZMk9ETTBOVEU0TENKbGVIQWlPakUyTmprME1qWTFNVGdzSW1semN5STZJbkIxWWkwNE9URXlNQ0lzSW5OMVlpSTZJbk5oZG1VdGNHOXpkQ0o5LkRCTHR6UHkwWWlFS1l3aXczcnFNWTJBcmFpWDllTFg1ZkFaSlJfQ2QySU0mYWN0aW9uPXNhdmUiLCJwIjo4MDA0Mjk0NSwicyI6ODkxMjAsImYiOmZhbHNlLCJ1IjozOTY4MzEyLCJpYXQiOjE2NjY4MzQ1MTgsImV4cCI6MTY2OTQyNjUxOCwiaXNzIjoicHViLTAiLCJzdWIiOiJsaW5rLXJlZGlyZWN0In0.MAIax-YeVdDyOnSvI_vO8LbcUdWSTZOL5YIf7Lxe39Y?"
+                                          class="email-button-outline"
+                                          style="
+                                            border: 1px solid #e0e0e0;
+                                            border-radius: 100000px;
+                                            color: #808080;
+                                            display: inline-block;
+                                            font-family: 'SF Pro Text',
+                                              -apple-system, ui-sans-serif,
+                                              BlinkMacSystemFont, 'Segoe UI',
+                                              Roboto, Helvetica, Arial,
+                                              sans-serif, 'Apple Color Emoji',
+                                              'Segoe UI Emoji',
+                                              'Segoe UI Symbol';
+                                            font-size: 12px;
+                                            font-weight: 500;
+                                            line-height: 12px;
+                                            padding: 9px 14px;
+                                            text-decoration: none;
+                                            text-transform: uppercase;
+                                          "
+                                          ><div
+                                            class="email-button-spacer"
+                                            style="
+                                              display: inline-block;
+                                              font-size: 16px;
+                                              line-height: 26px;
+                                              max-width: 0;
+                                              min-height: 18px;
+                                              vertical-align: middle;
+                                            "
+                                          ></div>
+                                          <span
+                                            class="email-button-text"
+                                            style="vertical-align: middle"
+                                            >Save</span
+                                          ></a
+                                        >
+                                      </td>
+                                    </tr>
+                                  </table>
+                                </td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <tr height="16">
+                    <td height="16" style="font-size: 0px; line-height: 0">
+                      &#160;
+                    </td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+            <div
+              dir="auto"
+              class="post typography"
+              style="font-size: 16px; line-height: 26px; padding: 16px 0 0 0"
+            >
+              <div
+                dir="auto"
+                class="body markup"
+                style="
+                  font-family: 'SF Pro Display', -apple-system,
+                    BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, Helvetica,
+                    Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+                    'Segoe UI Symbol';
+                  font-size: 16px;
+                  font-weight: 400;
+                  line-height: 26px;
+                  margin-bottom: 16px;
+                  text-align: initial;
+                  width: 100%;
+                  word-break: break-word;
+                "
+              >
+                <p
+                  style="
+                    color: #404040;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 20px 0;
+                    margin-top: 0;
+                  "
+                >
+                  Buddhists say that if you meditate enough, you can learn to
+                  enter a state of extreme bliss called jhana.
+                </p>
+                <p
+                  style="
+                    color: #404040;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 20px 0;
+                  "
+                >
+                  <span>(there are many different jhana states - </span
+                  ><a
+                    href="https://substack.com/redirect/eb48f0b4-84a4-411f-aef0-ad34ffe3e1ca?r=2d1yw"
+                    rel=""
+                    style="color: #67bdfc; text-decoration: none"
+                    >there&#8217;s a discussion of the distinctions here</a
+                  ><span>
+                    - but I&#8217;m lumping them together for simplicity. For
+                    attempted explanations of why jhana should exist, see </span
+                  ><a
+                    href="https://substack.com/redirect/0a26df7a-325e-457c-b6f0-af92b18f8142?r=2d1yw"
+                    rel=""
+                    style="color: #67bdfc; text-decoration: none"
+                    >here </a
+                  ><span>and </span
+                  ><a
+                    href="https://substack.com/redirect/7b2f8aaa-6bd7-4a74-b706-69fe72cb4805?r=2d1yw"
+                    rel=""
+                    style="color: #67bdfc; text-decoration: none"
+                    >here</a
+                  ><span>.)</span>
+                </p>
+                <p
+                  style="
+                    color: #404040;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 20px 0;
+                  "
+                >
+                  Jhana is different from enlightenment. Enlightenment changes
+                  you forever. Jhana is just a state you can enter during
+                  meditation sessions, then leave when the session is over.
+                  Enlightenment takes years or decades of work, but some people
+                  describe reaching jhana after a few months of practice.
+                  Hardcore Buddhists insist that jhana is good only insofar as
+                  it serves as a stepping stone to enlightenment; others may
+                  find extreme bliss desirable in its own right.
+                </p>
+                <p
+                  style="
+                    color: #404040;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 20px 0;
+                  "
+                >
+                  <a
+                    href="https://substack.com/redirect/c0593230-d5a4-4856-8cc9-69956a9db2b1?r=2d1yw"
+                    rel=""
+                    style="color: #67bdfc; text-decoration: none"
+                    >Nick Cammarata</a
+                  ><span>
+                    of OpenAI sometimes meditates and reaches jhana. I&#8217;ve
+                    found his descriptions unusually, well, descriptive:</span
+                  >
+                </p>
+                <div
+                  class="tweet static"
+                  style="
+                    -webkit-font-smoothing: subpixel-antialiased;
+                    background: #ffffff;
+                    border: 1px solid #e0e0e0;
+                    border-radius: 8px;
+                    box-sizing: border-box;
+                    color: #404040;
+                    direction: ltr;
+                    display: block;
+                    flex-direction: column;
+                    font-family: 'SF Pro Text', -apple-system, ui-sans-serif,
+                      BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+                      sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+                      'Segoe UI Symbol';
+                    font-size: 14px;
+                    font-weight: 400;
+                    gap: 12px;
+                    line-height: 20px;
+                    margin: 32px auto;
+                    max-width: 550px;
+                    padding: 16px 16px 12px;
+                    transition: box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+                      background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+                  "
+                >
+                  <a
+                    class="tweet-link-top"
+                    href="https://substack.com/redirect/91abf3a9-2ee3-448c-9967-d33f72d61463?r=2d1yw"
+                    target="_blank"
+                    rel=""
+                    style="
+                      color: #404040;
+                      display: block;
+                      flex-direction: column;
+                      gap: 12px;
+                      text-decoration: none;
+                      white-space: pre-wrap;
+                    "
+                    ><div
+                      class="tweet-header"
+                      style="
+                        align-items: center;
+                        display: block;
+                        flex-direction: row;
+                        font-size: 16px;
+                        gap: 12px;
+                        height: 48px;
+                        line-height: 26px;
+                        margin-bottom: 12px;
+                      "
+                    >
+                      <img
+                        class="tweet-header-avatar"
+                        src="https://substackcdn.com/image/twitter_name/w_96/nickcammarata.jpg"
+                        alt="Twitter avatar for @nickcammarata"
+                        style="
+                          -ms-interpolation-mode: bicubic;
+                          border: none !important;
+                          border-radius: 50%;
+                          display: block;
+                          float: left;
+                          height: 48px;
+                          margin: 0;
+                          margin-right: 12px;
+                          max-width: 100%;
+                          vertical-align: middle;
+                          width: 48px;
+                        "
+                      />
+                      <div
+                        class="tweet-header-text"
+                        style="
+                          display: block;
+                          flex-direction: column;
+                          font-size: 14px;
+                          line-height: 20px;
+                          padding-top: 4px;
+                        "
+                      >
+                        <span
+                          class="tweet-author-name"
+                          style="display: block; font-weight: 600"
+                          >Nick </span
+                        ><span
+                          class="tweet-author-handle"
+                          style="color: #808080; display: block"
+                          >@nickcammarata</span
+                        >
+                      </div>
+                    </div>
+                    <div
+                      class="tweet-text"
+                      style="
+                        font-size: 20px;
+                        line-height: 24px;
+                        margin-bottom: 16px;
+                      "
+                    >
+                      <span class="tweet-fake-link" style="color: #1da1f2"
+                        >@rgblong</span
+                      ><span> </span
+                      ><span class="tweet-fake-link" style="color: #1da1f2"
+                        >@algekalipso</span
+                      ><span>
+                        one obvious thing is jhana but it's such a simple state
+                        it's hard to compare to normal life, just different
+                        axes. Best comparable I have for jhana is sex (many
+                        people compare these) bc they're surprisingly similar.
+                        Jhana killed my desire for casual sex bc it's 10-100x
+                        better</span
+                      >
+                    </div></a
+                  ><a
+                    class="tweet-link-bottom"
+                    href="https://substack.com/redirect/91abf3a9-2ee3-448c-9967-d33f72d61463?r=2d1yw"
+                    target="_blank"
+                    rel=""
+                    style="
+                      color: #404040;
+                      display: block;
+                      flex-direction: column;
+                      gap: 12px;
+                      text-decoration: none;
+                      white-space: pre-wrap;
+                    "
+                    ><div
+                      class="tweet-footer"
+                      style="
+                        align-items: flex-start;
+                        display: block;
+                        flex-direction: column;
+                        font-size: 14px;
+                        gap: 8px;
+                        line-height: 20px;
+                        margin-top: 12px;
+                      "
+                    >
+                      <span class="tweet-date" style="color: #808080; flex: 1"
+                        >6:46 PM &#8729; Oct 19, 2022</span
+                      >
+                    </div></a
+                  >
+                </div>
+                <div
+                  class="tweet static"
+                  style="
+                    -webkit-font-smoothing: subpixel-antialiased;
+                    background: #ffffff;
+                    border: 1px solid #e0e0e0;
+                    border-radius: 8px;
+                    box-sizing: border-box;
+                    color: #404040;
+                    direction: ltr;
+                    display: block;
+                    flex-direction: column;
+                    font-family: 'SF Pro Text', -apple-system, ui-sans-serif,
+                      BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+                      sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+                      'Segoe UI Symbol';
+                    font-size: 14px;
+                    font-weight: 400;
+                    gap: 12px;
+                    line-height: 20px;
+                    margin: 32px auto;
+                    max-width: 550px;
+                    padding: 16px 16px 12px;
+                    transition: box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+                      background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+                  "
+                >
+                  <a
+                    class="tweet-link-top"
+                    href="https://substack.com/redirect/96d678de-5185-41d4-bf7a-296d5ab06651?r=2d1yw"
+                    target="_blank"
+                    rel=""
+                    style="
+                      color: #404040;
+                      display: block;
+                      flex-direction: column;
+                      gap: 12px;
+                      text-decoration: none;
+                      white-space: pre-wrap;
+                    "
+                    ><div
+                      class="tweet-header"
+                      style="
+                        align-items: center;
+                        display: block;
+                        flex-direction: row;
+                        font-size: 16px;
+                        gap: 12px;
+                        height: 48px;
+                        line-height: 26px;
+                        margin-bottom: 12px;
+                      "
+                    >
+                      <img
+                        class="tweet-header-avatar"
+                        src="https://substackcdn.com/image/twitter_name/w_96/nickcammarata.jpg"
+                        alt="Twitter avatar for @nickcammarata"
+                        style="
+                          -ms-interpolation-mode: bicubic;
+                          border: none !important;
+                          border-radius: 50%;
+                          display: block;
+                          float: left;
+                          height: 48px;
+                          margin: 0;
+                          margin-right: 12px;
+                          max-width: 100%;
+                          vertical-align: middle;
+                          width: 48px;
+                        "
+                      />
+                      <div
+                        class="tweet-header-text"
+                        style="
+                          display: block;
+                          flex-direction: column;
+                          font-size: 14px;
+                          line-height: 20px;
+                          padding-top: 4px;
+                        "
+                      >
+                        <span
+                          class="tweet-author-name"
+                          style="display: block; font-weight: 600"
+                          >Nick </span
+                        ><span
+                          class="tweet-author-handle"
+                          style="color: #808080; display: block"
+                          >@nickcammarata</span
+                        >
+                      </div>
+                    </div>
+                    <div
+                      class="tweet-text"
+                      style="
+                        font-size: 20px;
+                        line-height: 24px;
+                        margin-bottom: 16px;
+                      "
+                    >
+                      <span class="tweet-fake-link" style="color: #1da1f2"
+                        >@rgblong</span
+                      ><span> </span
+                      ><span class="tweet-fake-link" style="color: #1da1f2"
+                        >@algekalipso</span
+                      ><span>
+                        or said differently, if I could have my max ideal
+                        everything is 100% perfect casual sex fantasy situation,
+                        any partner or set of partners etc (but none in a
+                        romantic relationship) or sit in quiet in jhana I'd
+                        definitely do the latter</span
+                      >
+                    </div></a
+                  ><a
+                    class="tweet-link-bottom"
+                    href="https://substack.com/redirect/96d678de-5185-41d4-bf7a-296d5ab06651?r=2d1yw"
+                    target="_blank"
+                    rel=""
+                    style="
+                      color: #404040;
+                      display: block;
+                      flex-direction: column;
+                      gap: 12px;
+                      text-decoration: none;
+                      white-space: pre-wrap;
+                    "
+                    ><div
+                      class="tweet-footer"
+                      style="
+                        align-items: flex-start;
+                        display: block;
+                        flex-direction: column;
+                        font-size: 14px;
+                        gap: 8px;
+                        line-height: 20px;
+                        margin-top: 12px;
+                      "
+                    >
+                      <span class="tweet-date" style="color: #808080; flex: 1"
+                        >6:47 PM &#8729; Oct 19, 2022</span
+                      >
+                    </div></a
+                  >
+                </div>
+                <div
+                  class="tweet static"
+                  style="
+                    -webkit-font-smoothing: subpixel-antialiased;
+                    background: #ffffff;
+                    border: 1px solid #e0e0e0;
+                    border-radius: 8px;
+                    box-sizing: border-box;
+                    color: #404040;
+                    direction: ltr;
+                    display: block;
+                    flex-direction: column;
+                    font-family: 'SF Pro Text', -apple-system, ui-sans-serif,
+                      BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+                      sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+                      'Segoe UI Symbol';
+                    font-size: 14px;
+                    font-weight: 400;
+                    gap: 12px;
+                    line-height: 20px;
+                    margin: 32px auto;
+                    max-width: 550px;
+                    padding: 16px 16px 12px;
+                    transition: box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+                      background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+                  "
+                >
+                  <a
+                    class="tweet-link-top"
+                    href="https://substack.com/redirect/5054a9b8-cd68-49be-96d8-6c1d5684b391?r=2d1yw"
+                    target="_blank"
+                    rel=""
+                    style="
+                      color: #404040;
+                      display: block;
+                      flex-direction: column;
+                      gap: 12px;
+                      text-decoration: none;
+                      white-space: pre-wrap;
+                    "
+                    ><div
+                      class="tweet-header"
+                      style="
+                        align-items: center;
+                        display: block;
+                        flex-direction: row;
+                        font-size: 16px;
+                        gap: 12px;
+                        height: 48px;
+                        line-height: 26px;
+                        margin-bottom: 12px;
+                      "
+                    >
+                      <img
+                        class="tweet-header-avatar"
+                        src="https://substackcdn.com/image/twitter_name/w_96/nickcammarata.jpg"
+                        alt="Twitter avatar for @nickcammarata"
+                        style="
+                          -ms-interpolation-mode: bicubic;
+                          border: none !important;
+                          border-radius: 50%;
+                          display: block;
+                          float: left;
+                          height: 48px;
+                          margin: 0;
+                          margin-right: 12px;
+                          max-width: 100%;
+                          vertical-align: middle;
+                          width: 48px;
+                        "
+                      />
+                      <div
+                        class="tweet-header-text"
+                        style="
+                          display: block;
+                          flex-direction: column;
+                          font-size: 14px;
+                          line-height: 20px;
+                          padding-top: 4px;
+                        "
+                      >
+                        <span
+                          class="tweet-author-name"
+                          style="display: block; font-weight: 600"
+                          >Nick </span
+                        ><span
+                          class="tweet-author-handle"
+                          style="color: #808080; display: block"
+                          >@nickcammarata</span
+                        >
+                      </div>
+                    </div>
+                    <div
+                      class="tweet-text"
+                      style="
+                        font-size: 20px;
+                        line-height: 24px;
+                        margin-bottom: 16px;
+                      "
+                    >
+                      <span class="tweet-fake-link" style="color: #1da1f2"
+                        >@rgblong</span
+                      ><span> </span
+                      ><span class="tweet-fake-link" style="color: #1da1f2"
+                        >@algekalipso</span
+                      ><span>
+                        jhana made me not crave pleasure so much anymore. Cured
+                        that &quot;addiction&quot; via surplus. So I don't
+                        actually do it that much, and I usually forget that I
+                        can do it (this is common) rather than having to limit
+                        myself. Much prefer not be in pain and just live a
+                        normal peaceful day</span
+                      >
+                    </div></a
+                  ><a
+                    class="tweet-link-bottom"
+                    href="https://substack.com/redirect/5054a9b8-cd68-49be-96d8-6c1d5684b391?r=2d1yw"
+                    target="_blank"
+                    rel=""
+                    style="
+                      color: #404040;
+                      display: block;
+                      flex-direction: column;
+                      gap: 12px;
+                      text-decoration: none;
+                      white-space: pre-wrap;
+                    "
+                    ><div
+                      class="tweet-footer"
+                      style="
+                        align-items: flex-start;
+                        display: block;
+                        flex-direction: column;
+                        font-size: 14px;
+                        gap: 8px;
+                        line-height: 20px;
+                        margin-top: 12px;
+                      "
+                    >
+                      <span class="tweet-date" style="color: #808080; flex: 1"
+                        >6:52 PM &#8729; Oct 19, 2022</span
+                      >
+                      <hr
+                        style="
+                          background: #e0e0e0;
+                          border: none;
+                          height: 1px;
+                          margin: 12px 0;
+                          padding: 0;
+                          width: 100%;
+                        "
+                      />
+                      <div
+                        class="tweet-ufi"
+                        style="
+                          align-items: center;
+                          display: block;
+                          font-size: 16px;
+                          gap: 24px;
+                          height: 20px;
+                          line-height: 26px;
+                        "
+                      >
+                        <span
+                          href="https://twitter.com/nickcammarata/status/1582806870233821184/likes"
+                          class="likes"
+                          style="
+                            color: #808080;
+                            display: block;
+                            float: left;
+                            font-size: 14px;
+                            gap: 4px;
+                            line-height: 20px;
+                            margin-right: 24px;
+                            text-decoration: none;
+                          "
+                          ><span
+                            class="like-count"
+                            style="
+                              color: #404040;
+                              font-weight: 600;
+                              margin-right: 4px;
+                            "
+                            >19</span
+                          ><span>Likes</span></span
+                        ><span
+                          href="https://twitter.com/nickcammarata/status/1582806870233821184/retweets"
+                          class="retweets"
+                          style="
+                            color: #808080;
+                            display: block;
+                            float: left;
+                            font-size: 14px;
+                            gap: 4px;
+                            line-height: 20px;
+                            margin-right: 24px;
+                            text-decoration: none;
+                          "
+                          ><span
+                            class="rt-count"
+                            style="
+                              color: #404040;
+                              font-weight: 600;
+                              margin-right: 4px;
+                            "
+                            >3</span
+                          ><span>Retweets</span></span
+                        >
+                      </div>
+                    </div></a
+                  >
+                </div>
+                <div
+                  class="tweet static"
+                  style="
+                    -webkit-font-smoothing: subpixel-antialiased;
+                    background: #ffffff;
+                    border: 1px solid #e0e0e0;
+                    border-radius: 8px;
+                    box-sizing: border-box;
+                    color: #404040;
+                    direction: ltr;
+                    display: block;
+                    flex-direction: column;
+                    font-family: 'SF Pro Text', -apple-system, ui-sans-serif,
+                      BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+                      sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+                      'Segoe UI Symbol';
+                    font-size: 14px;
+                    font-weight: 400;
+                    gap: 12px;
+                    line-height: 20px;
+                    margin: 32px auto;
+                    max-width: 550px;
+                    padding: 16px 16px 12px;
+                    transition: box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+                      background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+                  "
+                >
+                  <a
+                    class="tweet-link-top"
+                    href="https://substack.com/redirect/b80b405e-fc0a-4184-8cc1-e717d4d21cd4?r=2d1yw"
+                    target="_blank"
+                    rel=""
+                    style="
+                      color: #404040;
+                      display: block;
+                      flex-direction: column;
+                      gap: 12px;
+                      text-decoration: none;
+                      white-space: pre-wrap;
+                    "
+                    ><div
+                      class="tweet-header"
+                      style="
+                        align-items: center;
+                        display: block;
+                        flex-direction: row;
+                        font-size: 16px;
+                        gap: 12px;
+                        height: 48px;
+                        line-height: 26px;
+                        margin-bottom: 12px;
+                      "
+                    >
+                      <img
+                        class="tweet-header-avatar"
+                        src="https://substackcdn.com/image/twitter_name/w_96/nickcammarata.jpg"
+                        alt="Twitter avatar for @nickcammarata"
+                        style="
+                          -ms-interpolation-mode: bicubic;
+                          border: none !important;
+                          border-radius: 50%;
+                          display: block;
+                          float: left;
+                          height: 48px;
+                          margin: 0;
+                          margin-right: 12px;
+                          max-width: 100%;
+                          vertical-align: middle;
+                          width: 48px;
+                        "
+                      />
+                      <div
+                        class="tweet-header-text"
+                        style="
+                          display: block;
+                          flex-direction: column;
+                          font-size: 14px;
+                          line-height: 20px;
+                          padding-top: 4px;
+                        "
+                      >
+                        <span
+                          class="tweet-author-name"
+                          style="display: block; font-weight: 600"
+                          >Nick </span
+                        ><span
+                          class="tweet-author-handle"
+                          style="color: #808080; display: block"
+                          >@nickcammarata</span
+                        >
+                      </div>
+                    </div>
+                    <div
+                      class="tweet-text"
+                      style="
+                        font-size: 20px;
+                        line-height: 24px;
+                        margin-bottom: 16px;
+                      "
+                    >
+                      <span class="tweet-fake-link" style="color: #1da1f2"
+                        >@rgblong</span
+                      ><span> </span
+                      ><span class="tweet-fake-link" style="color: #1da1f2"
+                        >@algekalipso</span
+                      ><span>
+                        the best analogy I have is if you're extremely thirsty
+                        you'd do anything for water but if you're barely thirsty
+                        it's kind of just nice and helpful. And you certainly
+                        wouldn't break a bone for it. Pre jhana I was always
+                        &quot;thirsty&quot; for feeling good, now I'm a lot less
+                        so</span
+                      >
+                    </div></a
+                  ><a
+                    class="tweet-link-bottom"
+                    href="https://substack.com/redirect/b80b405e-fc0a-4184-8cc1-e717d4d21cd4?r=2d1yw"
+                    target="_blank"
+                    rel=""
+                    style="
+                      color: #404040;
+                      display: block;
+                      flex-direction: column;
+                      gap: 12px;
+                      text-decoration: none;
+                      white-space: pre-wrap;
+                    "
+                    ><div
+                      class="tweet-footer"
+                      style="
+                        align-items: flex-start;
+                        display: block;
+                        flex-direction: column;
+                        font-size: 14px;
+                        gap: 8px;
+                        line-height: 20px;
+                        margin-top: 12px;
+                      "
+                    >
+                      <span class="tweet-date" style="color: #808080; flex: 1"
+                        >6:54 PM &#8729; Oct 19, 2022</span
+                      >
+                    </div></a
+                  >
+                </div>
+                <div
+                  class="tweet static"
+                  style="
+                    -webkit-font-smoothing: subpixel-antialiased;
+                    background: #ffffff;
+                    border: 1px solid #e0e0e0;
+                    border-radius: 8px;
+                    box-sizing: border-box;
+                    color: #404040;
+                    direction: ltr;
+                    display: block;
+                    flex-direction: column;
+                    font-family: 'SF Pro Text', -apple-system, ui-sans-serif,
+                      BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+                      sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+                      'Segoe UI Symbol';
+                    font-size: 14px;
+                    font-weight: 400;
+                    gap: 12px;
+                    line-height: 20px;
+                    margin: 32px auto;
+                    max-width: 550px;
+                    padding: 16px 16px 12px;
+                    transition: box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+                      background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+                  "
+                >
+                  <a
+                    class="tweet-link-top"
+                    href="https://substack.com/redirect/134cf62c-d886-4561-8f1b-b161807931bb?r=2d1yw"
+                    target="_blank"
+                    rel=""
+                    style="
+                      color: #404040;
+                      display: block;
+                      flex-direction: column;
+                      gap: 12px;
+                      text-decoration: none;
+                      white-space: pre-wrap;
+                    "
+                    ><div
+                      class="tweet-header"
+                      style="
+                        align-items: center;
+                        display: block;
+                        flex-direction: row;
+                        font-size: 16px;
+                        gap: 12px;
+                        height: 48px;
+                        line-height: 26px;
+                        margin-bottom: 12px;
+                      "
+                    >
+                      <img
+                        class="tweet-header-avatar"
+                        src="https://substackcdn.com/image/twitter_name/w_96/nickcammarata.jpg"
+                        alt="Twitter avatar for @nickcammarata"
+                        loading="lazy"
+                        style="
+                          -ms-interpolation-mode: bicubic;
+                          border: none !important;
+                          border-radius: 50%;
+                          display: block;
+                          float: left;
+                          height: 48px;
+                          margin: 0;
+                          margin-right: 12px;
+                          max-width: 100%;
+                          vertical-align: middle;
+                          width: 48px;
+                        "
+                      />
+                      <div
+                        class="tweet-header-text"
+                        style="
+                          display: block;
+                          flex-direction: column;
+                          font-size: 14px;
+                          line-height: 20px;
+                          padding-top: 4px;
+                        "
+                      >
+                        <span
+                          class="tweet-author-name"
+                          style="display: block; font-weight: 600"
+                          >Nick </span
+                        ><span
+                          class="tweet-author-handle"
+                          style="color: #808080; display: block"
+                          >@nickcammarata</span
+                        >
+                      </div>
+                    </div>
+                    <div
+                      class="tweet-text"
+                      style="
+                        font-size: 20px;
+                        line-height: 24px;
+                        margin-bottom: 16px;
+                      "
+                    >
+                      <span class="tweet-fake-link" style="color: #1da1f2"
+                        >@algekalipso</span
+                      ><span> </span
+                      ><span class="tweet-fake-link" style="color: #1da1f2"
+                        >@rgblong</span
+                      ><span>
+                        any idea why it reduces cravings for pleasure so much
+                        rather than just causing addiction? It's very strange
+                        that 1. happiness buttons are real and you can press
+                        them whenever with ~only positive side effects 2.
+                        they're so non-addictive that you forget about
+                        them</span
+                      >
+                    </div></a
+                  ><a
+                    class="tweet-link-bottom"
+                    href="https://substack.com/redirect/134cf62c-d886-4561-8f1b-b161807931bb?r=2d1yw"
+                    target="_blank"
+                    rel=""
+                    style="
+                      color: #404040;
+                      display: block;
+                      flex-direction: column;
+                      gap: 12px;
+                      text-decoration: none;
+                      white-space: pre-wrap;
+                    "
+                    ><div
+                      class="tweet-footer"
+                      style="
+                        align-items: flex-start;
+                        display: block;
+                        flex-direction: column;
+                        font-size: 14px;
+                        gap: 8px;
+                        line-height: 20px;
+                        margin-top: 12px;
+                      "
+                    >
+                      <span class="tweet-date" style="color: #808080; flex: 1"
+                        >7:00 PM &#8729; Oct 19, 2022</span
+                      >
+                      <hr
+                        style="
+                          background: #e0e0e0;
+                          border: none;
+                          height: 1px;
+                          margin: 12px 0;
+                          padding: 0;
+                          width: 100%;
+                        "
+                      />
+                      <div
+                        class="tweet-ufi"
+                        style="
+                          align-items: center;
+                          display: block;
+                          font-size: 16px;
+                          gap: 24px;
+                          height: 20px;
+                          line-height: 26px;
+                        "
+                      >
+                        <span
+                          href="https://twitter.com/nickcammarata/status/1582808823718637568/likes"
+                          class="likes"
+                          style="
+                            color: #808080;
+                            display: block;
+                            float: left;
+                            font-size: 14px;
+                            gap: 4px;
+                            line-height: 20px;
+                            margin-right: 24px;
+                            text-decoration: none;
+                          "
+                          ><span
+                            class="like-count"
+                            style="
+                              color: #404040;
+                              font-weight: 600;
+                              margin-right: 4px;
+                            "
+                            >12</span
+                          ><span>Likes</span></span
+                        ><span
+                          href="https://twitter.com/nickcammarata/status/1582808823718637568/retweets"
+                          class="retweets"
+                          style="
+                            color: #808080;
+                            display: block;
+                            float: left;
+                            font-size: 14px;
+                            gap: 4px;
+                            line-height: 20px;
+                            margin-right: 24px;
+                            text-decoration: none;
+                          "
+                          ><span
+                            class="rt-count"
+                            style="
+                              color: #404040;
+                              font-weight: 600;
+                              margin-right: 4px;
+                            "
+                            >1</span
+                          ><span>Retweet</span></span
+                        >
+                      </div>
+                    </div></a
+                  >
+                </div>
+                <p
+                  style="
+                    color: #404040;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 20px 0;
+                  "
+                >
+                  And he links to others with similar perspectives:
+                </p>
+                <div
+                  class="tweet static"
+                  style="
+                    -webkit-font-smoothing: subpixel-antialiased;
+                    background: #ffffff;
+                    border: 1px solid #e0e0e0;
+                    border-radius: 8px;
+                    box-sizing: border-box;
+                    color: #404040;
+                    direction: ltr;
+                    display: block;
+                    flex-direction: column;
+                    font-family: 'SF Pro Text', -apple-system, ui-sans-serif,
+                      BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+                      sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+                      'Segoe UI Symbol';
+                    font-size: 14px;
+                    font-weight: 400;
+                    gap: 12px;
+                    line-height: 20px;
+                    margin: 32px auto;
+                    max-width: 550px;
+                    padding: 16px 16px 12px;
+                    transition: box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+                      background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+                  "
+                >
+                  <a
+                    class="tweet-link-top"
+                    href="https://substack.com/redirect/5f37947c-129c-43f3-9a3e-20000fc472ed?r=2d1yw"
+                    target="_blank"
+                    rel=""
+                    style="
+                      color: #404040;
+                      display: block;
+                      flex-direction: column;
+                      gap: 12px;
+                      text-decoration: none;
+                      white-space: pre-wrap;
+                    "
+                    ><div
+                      class="tweet-header"
+                      style="
+                        align-items: center;
+                        display: block;
+                        flex-direction: row;
+                        font-size: 16px;
+                        gap: 12px;
+                        height: 48px;
+                        line-height: 26px;
+                        margin-bottom: 12px;
+                      "
+                    >
+                      <img
+                        class="tweet-header-avatar"
+                        src="https://substackcdn.com/image/twitter_name/w_96/RomeoStevens76.jpg"
+                        alt="Twitter avatar for @RomeoStevens76"
+                        loading="lazy"
+                        style="
+                          -ms-interpolation-mode: bicubic;
+                          border: none !important;
+                          border-radius: 50%;
+                          display: block;
+                          float: left;
+                          height: 48px;
+                          margin: 0;
+                          margin-right: 12px;
+                          max-width: 100%;
+                          vertical-align: middle;
+                          width: 48px;
+                        "
+                      />
+                      <div
+                        class="tweet-header-text"
+                        style="
+                          display: block;
+                          flex-direction: column;
+                          font-size: 14px;
+                          line-height: 20px;
+                          padding-top: 4px;
+                        "
+                      >
+                        <span
+                          class="tweet-author-name"
+                          style="display: block; font-weight: 600"
+                          >RomeoStevens </span
+                        ><span
+                          class="tweet-author-handle"
+                          style="color: #808080; display: block"
+                          >@RomeoStevens76</span
+                        >
+                      </div>
+                    </div>
+                    <div
+                      class="tweet-text"
+                      style="
+                        font-size: 20px;
+                        line-height: 24px;
+                        margin-bottom: 16px;
+                      "
+                    >
+                      <span class="tweet-fake-link" style="color: #1da1f2"
+                        >@jd_pressman</span
+                      ><span> Jhana is better than orgasm</span>
+                    </div></a
+                  ><a
+                    class="tweet-link-bottom"
+                    href="https://substack.com/redirect/5f37947c-129c-43f3-9a3e-20000fc472ed?r=2d1yw"
+                    target="_blank"
+                    rel=""
+                    style="
+                      color: #404040;
+                      display: block;
+                      flex-direction: column;
+                      gap: 12px;
+                      text-decoration: none;
+                      white-space: pre-wrap;
+                    "
+                    ><div
+                      class="tweet-footer"
+                      style="
+                        align-items: flex-start;
+                        display: block;
+                        flex-direction: column;
+                        font-size: 14px;
+                        gap: 8px;
+                        line-height: 20px;
+                        margin-top: 12px;
+                      "
+                    >
+                      <span class="tweet-date" style="color: #808080; flex: 1"
+                        >11:03 PM &#8729; Aug 19, 2022</span
+                      >
+                    </div></a
+                  >
+                </div>
+                <div
+                  class="tweet static"
+                  style="
+                    -webkit-font-smoothing: subpixel-antialiased;
+                    background: #ffffff;
+                    border: 1px solid #e0e0e0;
+                    border-radius: 8px;
+                    box-sizing: border-box;
+                    color: #404040;
+                    direction: ltr;
+                    display: block;
+                    flex-direction: column;
+                    font-family: 'SF Pro Text', -apple-system, ui-sans-serif,
+                      BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+                      sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+                      'Segoe UI Symbol';
+                    font-size: 14px;
+                    font-weight: 400;
+                    gap: 12px;
+                    line-height: 20px;
+                    margin: 32px auto;
+                    max-width: 550px;
+                    padding: 16px 16px 12px;
+                    transition: box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+                      background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+                  "
+                >
+                  <a
+                    class="tweet-link-top"
+                    href="https://substack.com/redirect/21b8f473-0133-40a0-a21b-f325ec0b1902?r=2d1yw"
+                    target="_blank"
+                    rel=""
+                    style="
+                      color: #404040;
+                      display: block;
+                      flex-direction: column;
+                      gap: 12px;
+                      text-decoration: none;
+                      white-space: pre-wrap;
+                    "
+                    ><div
+                      class="tweet-header"
+                      style="
+                        align-items: center;
+                        display: block;
+                        flex-direction: row;
+                        font-size: 16px;
+                        gap: 12px;
+                        height: 48px;
+                        line-height: 26px;
+                        margin-bottom: 12px;
+                      "
+                    >
+                      <img
+                        class="tweet-header-avatar"
+                        src="https://substackcdn.com/image/twitter_name/w_96/ladymcscope.jpg"
+                        alt="Twitter avatar for @ladymcscope"
+                        loading="lazy"
+                        style="
+                          -ms-interpolation-mode: bicubic;
+                          border: none !important;
+                          border-radius: 50%;
+                          display: block;
+                          float: left;
+                          height: 48px;
+                          margin: 0;
+                          margin-right: 12px;
+                          max-width: 100%;
+                          vertical-align: middle;
+                          width: 48px;
+                        "
+                      />
+                      <div
+                        class="tweet-header-text"
+                        style="
+                          display: block;
+                          flex-direction: column;
+                          font-size: 14px;
+                          line-height: 20px;
+                          padding-top: 4px;
+                        "
+                      >
+                        <span
+                          class="tweet-author-name"
+                          style="display: block; font-weight: 600"
+                          >Lady Red is investigating bliss </span
+                        ><span
+                          class="tweet-author-handle"
+                          style="color: #808080; display: block"
+                          >@ladymcscope</span
+                        >
+                      </div>
+                    </div>
+                    <div
+                      class="tweet-text"
+                      style="
+                        font-size: 20px;
+                        line-height: 24px;
+                        margin-bottom: 16px;
+                      "
+                    >
+                      Jhana practice is making me pretty weird. I&#8217;m
+                      blissing put in macys. After ~2 hour practice session
+                      today, I did an errand and went to macys for a duvet. Uhh,
+                      my senses are heightened and touching fabric feels as
+                      intense as sex&#8230; and all my pleasures just echo and
+                      grow inside me
+                    </div></a
+                  ><a
+                    class="tweet-link-bottom"
+                    href="https://substack.com/redirect/21b8f473-0133-40a0-a21b-f325ec0b1902?r=2d1yw"
+                    target="_blank"
+                    rel=""
+                    style="
+                      color: #404040;
+                      display: block;
+                      flex-direction: column;
+                      gap: 12px;
+                      text-decoration: none;
+                      white-space: pre-wrap;
+                    "
+                    ><div
+                      class="tweet-footer"
+                      style="
+                        align-items: flex-start;
+                        display: block;
+                        flex-direction: column;
+                        font-size: 14px;
+                        gap: 8px;
+                        line-height: 20px;
+                        margin-top: 12px;
+                      "
+                    >
+                      <span class="tweet-date" style="color: #808080; flex: 1"
+                        >10:46 PM &#8729; Oct 9, 2022</span
+                      >
+                    </div></a
+                  >
+                </div>
+                <p
+                  style="
+                    color: #404040;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 20px 0;
+                  "
+                >
+                  In other words: jhana is incredibly blissful, orders of
+                  magnitude better than even amazing sex. With enough meditation
+                  ability, you can access it on demand, with no side effects.
+                  But it isn&#8217;t addictive; Nick maintains a normal job and
+                  social life. As far as I know, he doesn&#8217;t steal from his
+                  friends to buy more incense and meditation cushions. In fact,
+                  jhana is so non-reinforcing that Nick often
+                  &#8220;forgets&#8221; it&#8217;s even an option.
+                </p>
+                <p
+                  style="
+                    color: #404040;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 20px 0;
+                  "
+                >
+                  <span
+                    >We&#8217;ve been talking recently about the difference
+                    between </span
+                  ><a
+                    href="https://substack.com/redirect/c4d98691-185b-487b-bab6-509c297fe11b?r=2d1yw"
+                    rel=""
+                    style="color: #67bdfc; text-decoration: none"
+                    >happiness and reinforcement</a
+                  ><span> (cf </span
+                  ><a
+                    href="https://substack.com/redirect/07e3cc16-5e31-46a3-9830-9acda2260330?r=2d1yw"
+                    rel=""
+                    style="color: #67bdfc; text-decoration: none"
+                    >wanting vs. liking</a
+                  ><span
+                    >). If jhana works the way that Nick and others describe it,
+                    then it&#8217;s an extreme example of this distinction -
+                    almost maximally pleasurable, but with disproportionately
+                    little (zero?) reinforcement value. I don&#8217;t think
+                    normal models of reward have a good explanation here.</span
+                  >
+                </p>
+                <p
+                  style="
+                    color: #404040;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 20px 0;
+                  "
+                >
+                  <span
+                    >This is one reason I&#8217;m still interested in Qualia
+                    Research Institute ideas like the </span
+                  ><a
+                    href="https://substack.com/redirect/ac73c028-e089-4809-8722-b3c43ed4f94d?r=2d1yw"
+                    rel=""
+                    style="color: #67bdfc; text-decoration: none"
+                    >Symmetry Theory of Valence</a
+                  ><span>, even though there are </span
+                  ><a
+                    href="https://substack.com/redirect/ffadadd6-8578-4147-afa4-d82f689cc408?r=2d1yw"
+                    rel=""
+                    style="color: #67bdfc; text-decoration: none"
+                    >some strong objections to them</a
+                  ><span
+                    >. I interpret QRI as coming at the problem from the
+                    opposite direction as everyone else: normal neuroscience
+                    starts with normal brain behavior and tries to build on it
+                    until they can one day explain crazy things like jhana; QRI
+                    starts with crazy things like jhana and tries to build down
+                    until they can explain ordinary behavior. This is naturally
+                    going to be shakier and harder to research - but somebody
+                    should be trying it.</span
+                  >
+                </p>
+                <p
+                  style="
+                    color: #404040;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 20px 0;
+                  "
+                >
+                  Discussion questions:
+                </p>
+                <ol style="margin-bottom: 0; margin-top: 0; padding: 0">
+                  <li style="margin: 8px 0 0 32px">
+                    <p
+                      style="
+                        box-sizing: border-box;
+                        color: #404040;
+                        font-size: 16px;
+                        line-height: 26px;
+                        margin: 0;
+                        margin-bottom: 0;
+                        padding-left: 4px;
+                      "
+                    >
+                      Suppose there were a town where you could eat infinite
+                      amazing food without any weight gain, have amazing sex
+                      with as many attractive people as you wanted, and watch
+                      the greatest shows and symphonies in the world, all for
+                      free. Also you have lots of great friends there who are
+                      always willing to hang out and have fun with you. How far
+                      away (in minutes) would that town need to be from your
+                      house before you went there less than once a week? Once a
+                      month?
+                    </p>
+                  </li>
+                  <li style="margin: 8px 0 0 32px">
+                    <p
+                      style="
+                        box-sizing: border-box;
+                        color: #404040;
+                        font-size: 16px;
+                        line-height: 26px;
+                        margin: 0;
+                        margin-bottom: 0;
+                        padding-left: 4px;
+                      "
+                    >
+                      Suppose that you read this post and decide to study
+                      meditation to reach jhana. You study hard for six months,
+                      succeed, and it&#8217;s even better than you imagined -
+                      but it isn&#8217;t reinforcing on a neurological level.
+                      Does this register as negative prediction error in the
+                      reward center? Would it make you less likely to try plans
+                      like &#8220;study meditation&#8221; in the future, because
+                      they &#8220;don&#8217;t pay off&#8221;?
+                    </p>
+                  </li>
+                  <li style="margin: 8px 0 0 32px">
+                    <p
+                      style="
+                        box-sizing: border-box;
+                        color: #404040;
+                        font-size: 16px;
+                        line-height: 26px;
+                        margin: 0;
+                        margin-bottom: 0;
+                        padding-left: 4px;
+                      "
+                    >
+                      When Nick says that he&#8217;s less interested in casual
+                      sex now, because jhana is an easier way to get pleasure,
+                      what is going on at a neurological level? Is this
+                      nonsense? If some sex addict who says &#8220;it&#8217;s
+                      not even pleasurable anymore, I just feel like it&#8217;s
+                      a compulsion&#8221; learned to access jhana, would this
+                      cure his sex addiction?
+                    </p>
+                  </li>
+                </ol>
+              </div>
+            </div>
+            <div
+              class="container-border"
+              style="
+                border-top: 1px solid #e0e0e0;
+                box-sizing: border-box;
+                font-size: 16px;
+                line-height: 26px;
+                margin: 32px 0 0;
+                width: 100%;
+              "
+            ></div>
+            <div
+              class="post-cta"
+              style="font-size: 16px; line-height: 26px; margin: 24px 0 40px"
+            >
+              <p
+                style="
+                  color: #404040;
+                  font-size: 16px;
+                  font-style: italic;
+                  line-height: 26px;
+                  margin: 24px 0 0;
+                  margin-top: 0;
+                "
+              >
+                <span
+                  >Thanks for subscribing to
+                  <a
+                    href="https://substack.com/redirect/4620f583-e49d-497e-b144-20436f8be261?r=2d1yw"
+                    style="color: #67bdfc; text-decoration: none"
+                    >Astral Codex Ten</a
+                  >. This post is public, so feel free to share it.</span
+                >
+              </p>
+              <p
+                class="cta-box"
+                style="
+                  color: #404040;
+                  font-size: 16px;
+                  font-style: italic;
+                  line-height: 26px;
+                  margin: 24px 0 0;
+                  text-align: center;
+                "
+              >
+                <a
+                  role="button"
+                  href="https://substack.com/redirect/595c5fe4-2575-42d2-a8b9-26c9208f1ac8?r=2d1yw"
+                  class="button primary twitter-link"
+                  style="
+                    background-color: #67bdfc;
+                    border: 0px solid #67bdfc;
+                    border-radius: 4px;
+                    border-width: 13px 20px 13px 18px;
+                    box-sizing: content-box;
+                    color: #ffffff !important;
+                    cursor: pointer;
+                    display: inline-block;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
+                      Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji',
+                      'Segoe UI Emoji', 'Segoe UI Symbol';
+                    font-size: 17px;
+                    font-style: normal;
+                    font-weight: 300;
+                    height: 24px;
+                    line-height: 24px;
+                    margin: 0;
+                    opacity: 1;
+                    outline: none;
+                    padding: 0;
+                    text-align: center;
+                    text-decoration: none !important;
+                    vertical-align: middle;
+                    white-space: nowrap;
+                  "
+                  ><span style="color: #ffffff; text-decoration: none"
+                    >Share</span
+                  ></a
+                >
+              </p>
+            </div>
+            <table
+              role="presentation"
+              width="100%"
+              border="0"
+              cellspacing="0"
+              cellpadding="0"
+              class="email-ufi-2-bottom"
+              style="border-top: 1px solid #e0e0e0; min-width: 100%"
+            >
+              <tr height="16">
+                <td height="16" style="font-size: 0px; line-height: 0">
+                  &#160;
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <table
+                    role="presentation"
+                    width="100%"
+                    border="0"
+                    cellspacing="0"
+                    cellpadding="0"
+                  >
+                    <tr>
+                      <td>
+                        <table
+                          role="presentation"
+                          width="auto"
+                          border="0"
+                          cellspacing="0"
+                          cellpadding="0"
+                          style="margin: 0 auto"
+                        >
+                          <tr>
+                            <td style="vertical-align: middle">
+                              <table
+                                role="presentation"
+                                width="auto"
+                                border="0"
+                                cellspacing="0"
+                                cellpadding="0"
+                              >
+                                <tr>
+                                  <td align="center">
+                                    <a
+                                      href="https://substack.com/app-link/post"
+                                      class="email-button-outline"
+                                      style="
+                                        border: 1px solid #e0e0e0;
+                                        border-radius: 100000px;
+                                        color: #808080;
+                                        display: inline-block;
+                                        font-family: 'SF Pro Text',
+                                          -apple-system, ui-sans-serif,
+                                          BlinkMacSystemFont, 'Segoe UI', Roboto,
+                                          Helvetica, Arial, sans-serif,
+                                          'Apple Color Emoji', 'Segoe UI Emoji',
+                                          'Segoe UI Symbol';
+                                        font-size: 12px;
+                                        font-weight: 500;
+                                        line-height: 12px;
+                                        padding: 9px 14px;
+                                        text-decoration: none;
+                                        text-transform: uppercase;
+                                      "
+                                      ><img
+                                        src="https://substackcdn.com/image/fetch/w_36,c_scale,f_png,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack.com%2Ficon%2FLucideHeart%3Fv%3D4%26height%3D36%26fill%3Dnone%26stroke%3D%2523808080%26strokeWidth%3D2"
+                                        width="18"
+                                        height="18"
+                                        style="
+                                          border: none !important;
+                                          margin-right: 8px;
+                                          max-width: 18px;
+                                          min-height: 18px;
+                                          min-width: 18px;
+                                          vertical-align: middle;
+                                        "
+                                        alt=""
+                                        class="icon"
+                                      /><span
+                                        class="email-button-text"
+                                        style="vertical-align: middle"
+                                        >Like</span
+                                      ></a
+                                    >
+                                  </td>
+                                </tr>
+                              </table>
+                            </td>
+                            <td width="8" style="min-width: 8px"></td>
+                            <td style="vertical-align: middle">
+                              <table
+                                role="presentation"
+                                width="auto"
+                                border="0"
+                                cellspacing="0"
+                                cellpadding="0"
+                              >
+                                <tr>
+                                  <td align="center">
+                                    <a
+                                      href="https://substack.com/app-link/post"
+                                      class="email-button-outline"
+                                      style="
+                                        border: 1px solid #e0e0e0;
+                                        border-radius: 100000px;
+                                        color: #808080;
+                                        display: inline-block;
+                                        font-family: 'SF Pro Text',
+                                          -apple-system, ui-sans-serif,
+                                          BlinkMacSystemFont, 'Segoe UI', Roboto,
+                                          Helvetica, Arial, sans-serif,
+                                          'Apple Color Emoji', 'Segoe UI Emoji',
+                                          'Segoe UI Symbol';
+                                        font-size: 12px;
+                                        font-weight: 500;
+                                        line-height: 12px;
+                                        padding: 9px 14px;
+                                        text-decoration: none;
+                                        text-transform: uppercase;
+                                      "
+                                      ><img
+                                        src="https://substackcdn.com/image/fetch/w_36,c_scale,f_png,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack.com%2Ficon%2FLucideComments%3Fv%3D4%26height%3D36%26fill%3Dnone%26stroke%3D%2523808080%26strokeWidth%3D2"
+                                        width="18"
+                                        height="18"
+                                        style="
+                                          border: none !important;
+                                          margin-right: 8px;
+                                          max-width: 18px;
+                                          min-height: 18px;
+                                          min-width: 18px;
+                                          vertical-align: middle;
+                                        "
+                                        alt=""
+                                        class="icon"
+                                      /><span
+                                        class="email-button-text"
+                                        style="vertical-align: middle"
+                                        >Comment</span
+                                      ></a
+                                    >
+                                  </td>
+                                </tr>
+                              </table>
+                            </td>
+                            <td width="8" style="min-width: 8px"></td>
+                            <td style="vertical-align: middle">
+                              <table
+                                role="presentation"
+                                width="auto"
+                                border="0"
+                                cellspacing="0"
+                                cellpadding="0"
+                              >
+                                <tr>
+                                  <td align="center">
+                                    <a
+                                      href="https://substack.com/app-link/post"
+                                      class="email-button-outline"
+                                      style="
+                                        border: 1px solid #e0e0e0;
+                                        border-radius: 100000px;
+                                        color: #808080;
+                                        display: inline-block;
+                                        font-family: 'SF Pro Text',
+                                          -apple-system, ui-sans-serif,
+                                          BlinkMacSystemFont, 'Segoe UI', Roboto,
+                                          Helvetica, Arial, sans-serif,
+                                          'Apple Color Emoji', 'Segoe UI Emoji',
+                                          'Segoe UI Symbol';
+                                        font-size: 12px;
+                                        font-weight: 500;
+                                        line-height: 12px;
+                                        padding: 9px 14px;
+                                        text-decoration: none;
+                                        text-transform: uppercase;
+                                      "
+                                      ><img
+                                        src="https://substackcdn.com/image/fetch/w_36,c_scale,f_png,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack.com%2Ficon%2FLucideShare%3Fv%3D4%26height%3D36%26fill%3Dnone%26stroke%3D%2523808080%26strokeWidth%3D2"
+                                        width="18"
+                                        height="18"
+                                        style="
+                                          border: none !important;
+                                          margin-right: 8px;
+                                          max-width: 18px;
+                                          min-height: 18px;
+                                          min-width: 18px;
+                                          vertical-align: middle;
+                                        "
+                                        alt=""
+                                        class="icon"
+                                      /><span
+                                        class="email-button-text"
+                                        style="vertical-align: middle"
+                                        >Share</span
+                                      ></a
+                                    >
+                                  </td>
+                                </tr>
+                              </table>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                      <td align="right">
+                        <table
+                          role="presentation"
+                          width="auto"
+                          border="0"
+                          cellspacing="0"
+                          cellpadding="0"
+                        >
+                          <tr></tr>
+                        </table>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              <tr height="16">
+                <td height="16" style="font-size: 0px; line-height: 0">
+                  &#160;
+                </td>
+              </tr>
+            </table>
+            <div
+              class="footer"
+              style="
+                background: #eeeeee !important;
+                border-radius: 4px;
+                color: #808080;
+                font-size: 16px;
+                line-height: 26px;
+                padding: 16px;
+                text-align: center;
+              "
+            >
+              <p
+                class="small"
+                style="
+                  color: #808080;
+                  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
+                    Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji',
+                    'Segoe UI Emoji', 'Segoe UI Symbol';
+                  font-size: 12px;
+                  line-height: 20px;
+                  margin: 0;
+                  padding-bottom: 16px;
+                "
+              >
+                &#169; 2022 <span>Scott Alexander</span><br />548 Market Street
+                PMB 72296, San Francisco, CA 94104 <br /><a
+                  href="https://substack.com/redirect/2/eyJlIjoiaHR0cHM6Ly9hc3RyYWxjb2RleHRlbi5zdWJzdGFjay5jb20vYWN0aW9uL2Rpc2FibGVfZW1haWw_dG9rZW49ZXlKMWMyVnlYMmxrSWpvek9UWTRNekV5TENKd2IzTjBYMmxrSWpvNE1EQTBNamswTlN3aWFXRjBJam94TmpZMk9ETTBOVEU0TENKbGVIQWlPakUyTmprME1qWTFNVGdzSW1semN5STZJbkIxWWkwNE9URXlNQ0lzSW5OMVlpSTZJbVJwYzJGaWJHVmZaVzFoYVd3aWZRLlNnaTAtenNPUjBJUUpzd0lFOUk2Q2xPY0VBSWIwOTVzbW5DS2NFSEZIczgiLCJwIjo4MDA0Mjk0NSwicyI6ODkxMjAsImYiOmZhbHNlLCJ1IjozOTY4MzEyLCJpYXQiOjE2NjY4MzQ1MTgsImV4cCI6MTY2OTQyNjUxOCwiaXNzIjoicHViLTAiLCJzdWIiOiJsaW5rLXJlZGlyZWN0In0.PDDBwmYeVX9ucxYVN_R-VCwRtfBhrLZB87ctAtTnGCg?"
+                  style="color: #67bdfc; text-decoration: none"
+                  ><span style="color: #808080; text-decoration: underline"
+                    >Unsubscribe</span
+                  ></a
+                >
+              </p>
+              <p
+                class="small powered-by-substack"
+                style="
+                  color: #808080;
+                  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
+                    Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji',
+                    'Segoe UI Emoji', 'Segoe UI Symbol';
+                  font-size: 12px;
+                  line-height: 20px;
+                  margin: 0;
+                  margin-top: 0;
+                  padding-bottom: 0;
+                "
+              >
+                <a
+                  href="https://substack.com/redirect/fb7e3735-93c6-4c9f-8d9c-e48a4129f71d?r=2d1yw"
+                  style="
+                    color: #67bdfc;
+                    display: inline-block;
+                    margin: 0 4px;
+                    text-decoration: none;
+                  "
+                  ><img
+                    src="https://substackcdn.com/image/fetch/w_260,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack.com%2Fimg%2Femail%2Fgeneric-app-button%402x.png"
+                    srcset="
+                      https://substackcdn.com/image/fetch/w_130,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack.com%2Fimg%2Femail%2Fgeneric-app-button.png,
+                      https://substackcdn.com/image/fetch/w_260,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack.com%2Fimg%2Femail%2Fgeneric-app-button%402x.png 2x,
+                      https://substackcdn.com/image/fetch/w_390,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack.com%2Fimg%2Femail%2Fgeneric-app-button%403x.png 3x
+                    "
+                    width="130"
+                    alt="Get the app"
+                    height="40"
+                    style="
+                      border: none !important;
+                      max-width: 550px;
+                      vertical-align: middle;
+                    " /></a
+                ><a
+                  href="https://substack.com/redirect/b36f7bf7-7379-4048-a1ab-08c9770c6ca5?r=2d1yw"
+                  style="
+                    color: #67bdfc;
+                    display: inline-block;
+                    margin: 0 4px;
+                    text-decoration: none;
+                  "
+                  ><img
+                    src="https://substackcdn.com/image/fetch/w_270,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack.com%2Fimg%2Femail%2Fpublish-button%402x.png"
+                    srcset="
+                      https://substackcdn.com/image/fetch/w_135,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack.com%2Fimg%2Femail%2Fpublish-button.png,
+                      https://substackcdn.com/image/fetch/w_270,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack.com%2Fimg%2Femail%2Fpublish-button%402x.png 2x,
+                      https://substackcdn.com/image/fetch/w_405,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack.com%2Fimg%2Femail%2Fpublish-button%403x.png 3x
+                    "
+                    width="135"
+                    alt="Start writing"
+                    height="40"
+                    style="
+                      border: none !important;
+                      max-width: 550px;
+                      vertical-align: middle;
+                    "
+                /></a>
+              </p>
+            </div>
+          </div>
+        </td>
+        <td></td>
+      </tr>
+    </table>
+  </body>
+</html>

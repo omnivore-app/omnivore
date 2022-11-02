@@ -361,3 +361,183 @@ on smaller screens we display the note icon
 .article-inner-css .morning-brew-markets td:nth-child(4) {
   width: 20%;
 }
+
+.article-inner-css ._omnivore-static-tweet {
+  color: #0F1419 !important;
+  background: #ffffff !important;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 550px;
+  margin: 32px auto;
+  border: 1px solid #e0e0e0;
+  direction: ltr;
+  border-radius: 8px;
+  padding: 16px 16px ;
+  box-sizing: border-box;
+  -webkit-font-smoothing: subpixel-antialiased;
+}
+
+._omnivore-static-tweet ._omnivore-static-tweet-header {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  gap: 12px;
+  margin: unset;
+  justify-content: flex-start;
+  color: #0F1419 !important;
+}
+
+
+._omnivore-static-tweet-header ._omnivore-static-tweet-header-text {
+  display: flex;
+  flex-direction: column;
+  color: #0F1419 !important;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+._omnivore-static-tweet-header-text .tweet-author-name {
+  font-weight: 600;
+}
+
+._omnivore-static-tweet-header-text .tweet-author-handle {
+  color: #808080;
+}
+
+
+._omnivore-static-tweet ._omnivore-static-tweet-fake-link {
+  color: #1da1f2;
+}
+
+._omnivore-static-tweet ._omnivore-static-tweet-text {
+  font-size: 14px;
+  line-height: 20px;
+  color: #0F1419 !important;
+}
+
+._omnivore-static-tweet ._omnivore-static-tweet-link-top {
+  text-decoration: none;
+}
+
+._omnivore-static-tweet ._omnivore-static-tweet-header-avatar {
+  -ms-interpolation-mode: bicubic; 
+  border: none !important;
+  border-radius: 50%;
+  float: left;
+  height: 48px;
+  width: 48px;
+  margin: unset !important;
+  margin-right: 12px;
+  max-width: 100%;
+  vertical-align: middle;
+}
+
+._omnivore-static-tweet ._omnivore-static-tweet-link-bottom {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  white-space: pre-wrap;
+}
+
+._omnivore-static-tweet ._omnivore-static-tweet-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  color: #808080;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+._omnivore-static-tweet ._omnivore-static-tweet-footer hr {
+  background: #e0e0e0;
+  border: none;
+  height: 1px;
+  margin: 12px 0;
+  padding: 0;
+  width: 100%;
+  color: #496F72;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+._omnivore-static-tweet ._omnivore-static-tweet-author-handle {
+  display: block;
+}
+
+._omnivore-static-tweet ._omnivore-static-tweet-ufi {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+
+._omnivore-static-tweet ._omnivore-static-tweet-ufi .likes, .retweets {
+  display: flex;
+  gap: 4px;
+  text-decoration: none;
+  color: #808080;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+._omnivore-static-tweet ._omnivore-static-tweet-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 2px;
+}
+
+._omnivore-static-tweet .expanded-link {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+._omnivore-static-tweet .expanded-link-img {
+  cursor: pointer;
+  width: 100%;
+  max-height: 280px;
+  max-width: 100%;
+  object-fit: cover;
+  margin: 0px auto !important
+}
+
+._omnivore-static-tweet .expanded-link img {
+  margin: 0px auto !important
+}
+
+._omnivore-static-tweet .expanded-link-bottom {
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  gap: 2px;
+  font-size: 14px;
+  line-height: 20px;
+  text-decoration: none;
+}
+
+.expanded-link-bottom .expanded-link-domain {
+  color: #808080;
+  text-transform: lowercase;
+  text-decoration: none;
+}
+
+.expanded-link-bottom .expanded-link-title {
+  color: #0F1419 !important;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.expanded-link-bottom .expanded-link-description {
+  color: #808080;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}

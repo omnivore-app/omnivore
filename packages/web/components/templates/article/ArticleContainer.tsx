@@ -11,7 +11,7 @@ import { ReportIssuesModal } from './ReportIssuesModal'
 import { reportIssueMutation } from '../../../lib/networking/mutations/reportIssueMutation'
 import { ArticleHeaderToolbar } from './ArticleHeaderToolbar'
 import { userPersonalizationMutation } from '../../../lib/networking/mutations/userPersonalizationMutation'
-import { updateThemeLocally } from '../../../lib/themeUpdater'
+import { updateTheme, updateThemeLocally } from '../../../lib/themeUpdater'
 import { ArticleMutations } from '../../../lib/articleActions'
 import { LabelChip } from '../../elements/LabelChip'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
@@ -121,6 +121,17 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
       }
     }
 
+    interface UpdateThemeEvent extends Event {
+      themeName?: string
+    }
+
+    const handleThemeChange = async (event: UpdateThemeEvent) => {
+      const newTheme = event.themeName
+      if (newTheme) {
+        updateTheme(newTheme)
+      }
+    }
+
     interface UpdateColorModeEvent extends Event {
       isDark?: string
     }
@@ -145,6 +156,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
       'updateMaxWidthPercentage',
       updateMaxWidthPercentage
     )
+    document.addEventListener('updateTheme', handleThemeChange)
     document.addEventListener('updateFontSize', handleFontSizeChange)
     document.addEventListener('updateColorMode', updateColorMode)
     document.addEventListener(
@@ -160,6 +172,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         'updateMaxWidthPercentage',
         updateMaxWidthPercentage
       )
+      document.removeEventListener('updateTheme', handleThemeChange)
       document.removeEventListener('updateFontSize', handleFontSizeChange)
       document.removeEventListener('updateColorMode', updateColorMode)
       document.removeEventListener(
@@ -179,7 +192,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     readerFontColor: highContrastFont
       ? theme.colors.readerFontHighContrast.toString()
       : theme.colors.readerFont.toString(),
-    readerFontColorTransparent: theme.colors.readerFontTransparent.toString(),
     readerTableHeaderColor: theme.colors.readerTableHeader.toString(),
     readerHeadersColor: theme.colors.readerHeader.toString(),
   }
@@ -193,7 +205,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           maxWidth: `${styles.maxWidthPercentage ?? 100}%`,
           background: props.isAppleAppEmbed
             ? 'unset'
-            : theme.colors.grayBg.toString(),
+            : theme.colors.readerBg.toString(),
           '--text-font-family': styles.fontFamily,
           '--text-font-size': `${styles.fontSize}px`,
           '--line-height': `${styles.lineHeight}%`,
@@ -202,7 +214,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           '--figure-margin': '1.6rem auto',
           '--hr-margin': '1em',
           '--font-color': styles.readerFontColor,
-          '--font-color-transparent': styles.readerFontColorTransparent,
           '--table-header-color': styles.readerTableHeaderColor,
           '--headers-color': styles.readerHeadersColor,
           '@sm': {

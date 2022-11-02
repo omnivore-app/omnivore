@@ -37,7 +37,7 @@ import Views
 struct NewsletterEmailsView: View {
   @EnvironmentObject var dataService: DataService
   @StateObject var viewModel = NewsletterEmailsViewModel()
-  let footerText = "Add PDFs to your library, or subscribe to emails using an Omnivore email address."
+  let footerText = "Add PDFs to your library, or subscribe to newsletters using an Omnivore email address."
 
   var body: some View {
     Group {

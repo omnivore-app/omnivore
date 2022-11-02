@@ -25,12 +25,12 @@ import Views
   func handleArchiveAction(dataService: DataService) {
     guard let objectID = item?.objectID ?? pdfItem?.objectID else { return }
     dataService.archiveLink(objectID: objectID, archived: !isItemArchived)
-    Snackbar.show(message: !isItemArchived ? "Link archived" : "Link moved to Inbox")
+    showInSnackbar(!isItemArchived ? "Link archived" : "Link moved to Inbox")
   }
 
   func handleDeleteAction(dataService: DataService) {
     guard let objectID = item?.objectID ?? pdfItem?.objectID else { return }
-    Snackbar.show(message: "Link removed")
+    showInSnackbar("Link removed")
     dataService.removeLink(objectID: objectID)
   }
 

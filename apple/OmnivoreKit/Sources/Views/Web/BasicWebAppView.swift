@@ -19,6 +19,7 @@ import WebKit
       webView.isOpaque = false
       webView.backgroundColor = UIColor.clear
       if let url = request.url {
+        // let themeID = Color.isDarkMode ? "Gray" /* "Sepia" */ : "Charcoal"
         let themeID = Color.isDarkMode ? "Gray" : "LightGray"
         webView.injectCookie(cookieString: "theme=\(themeID); Max-Age=31536000;", url: url)
       }
@@ -51,7 +52,7 @@ import WebKit
       if let url = request.url {
         // Dark mode is still rendering a white background on mac for some reason.
         // Forcing light mode for now until we figure out a fix
-        let themeID = "LightGray" // NSApp.effectiveAppearance.name == NSAppearance.Name.darkAqua ? "Gray" : "LightGray"
+        let themeID = "Charcoal" // NSApp.effectiveAppearance.name == NSAppearance.Name.darkAqua ? "Gray" : "LightGray"
         webView.injectCookie(cookieString: "theme=\(themeID); Max-Age=31536000;", url: url)
       }
       return webView

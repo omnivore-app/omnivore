@@ -69,81 +69,114 @@ public enum WebFont: String, CaseIterable {
       .navigationTitle("Reader Font")
     }
 
+    var themePicker: some View {
+      ScrollView(.horizontal, showsIndicators: false) {
+        HStack(spacing: 16) {
+          ForEach(Theme.allCases, id: \.self) { theme in
+            VStack {
+              ZStack {
+                Circle()
+                  .foregroundColor(theme.bgColor)
+                  .frame(minWidth: 32, minHeight: 32)
+                  .padding(8)
+              }
+
+              Text(theme.rawValue).font(.appCaption)
+            }
+            .padding(8)
+            .background(Color(red: 248 / 255.0, green: 248 / 255.0, blue: 248 / 255.0))
+            .onTapGesture {
+              ThemeManager.currentThemeName = theme.rawValue
+              updateReaderPreferences()
+            }
+            .cornerRadius(8)
+            .overlay(
+              RoundedRectangle(cornerRadius: 8)
+                .stroke(ThemeManager.currentThemeName == theme.rawValue ? Color.appCtaYellow : .clear, lineWidth: 2)
+            )
+            .padding(2)
+          }
+        }
+      }
+    }
+
     public var body: some View {
       NavigationView {
-        ScrollView(showsIndicators: false) {
-          VStack(alignment: .center) {
-            VStack {
-              LabelledStepper(
-                labelText: "Font Size:",
-                onIncrement: {
-                  storedFontSize = min(storedFontSize + 2, 28)
-                  updateReaderPreferences()
-                },
-                onDecrement: {
-                  storedFontSize = max(storedFontSize - 2, 10)
-                  updateReaderPreferences()
-                }
-              )
+        VStack(alignment: .center) {
+//          themePicker
+//            .padding(.bottom, 16)
 
-              LabelledStepper(
-                labelText: "Margin:",
-                onIncrement: {
-                  storedMaxWidthPercentage = max(storedMaxWidthPercentage - 10, 40)
-                  updateReaderPreferences()
-                },
-                onDecrement: {
-                  storedMaxWidthPercentage = min(storedMaxWidthPercentage + 10, 100)
-                  updateReaderPreferences()
-                }
-              )
+          LabelledStepper(
+            labelText: "Font Size",
+            onIncrement: {
+              storedFontSize = min(storedFontSize + 2, 28)
+              updateReaderPreferences()
+            },
+            onDecrement: {
+              storedFontSize = max(storedFontSize - 2, 10)
+              updateReaderPreferences()
+            }
+          )
 
-              LabelledStepper(
-                labelText: "Line Spacing:",
-                onIncrement: {
-                  storedLineSpacing = min(storedLineSpacing + 25, 300)
-                  updateReaderPreferences()
-                },
-                onDecrement: {
-                  storedLineSpacing = max(storedLineSpacing - 25, 100)
-                  updateReaderPreferences()
-                }
-              )
+          LabelledStepper(
+            labelText: "Margin",
+            onIncrement: {
+              storedMaxWidthPercentage = max(storedMaxWidthPercentage - 10, 40)
+              updateReaderPreferences()
+            },
+            onDecrement: {
+              storedMaxWidthPercentage = min(storedMaxWidthPercentage + 10, 100)
+              updateReaderPreferences()
+            }
+          )
 
-              Toggle("High Contrast Text:", isOn: $prefersHighContrastText)
-                .frame(height: 40)
-                .padding(.trailing, 6)
-                .onChange(of: prefersHighContrastText) { _ in
-                  updateReaderPreferences()
-                }
+          LabelledStepper(
+            labelText: "Line Spacing",
+            onIncrement: {
+              storedLineSpacing = min(storedLineSpacing + 25, 300)
+              updateReaderPreferences()
+            },
+            onDecrement: {
+              storedLineSpacing = max(storedLineSpacing - 25, 100)
+              updateReaderPreferences()
+            }
+          )
 
-              HStack {
-                NavigationLink(destination: fontList) {
-                  Text("Change Reader Font")
-                }
-                Image(systemName: "chevron.right")
-                Spacer()
-              }
-              .frame(height: 40)
-
+          NavigationLink(destination: fontList) {
+            HStack {
+              Text("Font")
               Spacer()
+              Image(systemName: "chevron.right")
+//              Button(action: {}, label: { Text("Crimson Text").frame(width: 91) })
+//                .buttonStyle(RoundedRectButtonStyle())
             }
           }
+          .foregroundColor(.appGrayTextContrast)
+          .frame(height: 40)
+
+          Toggle("High Contrast Text:", isOn: $prefersHighContrastText)
+            .frame(height: 40)
+            .padding(.trailing, 6)
+            .onChange(of: prefersHighContrastText) { _ in
+              updateReaderPreferences()
+            }
+
+          Spacer()
         }
         .padding()
         .navigationTitle("Reader Preferences")
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-          ToolbarItem(placement: .barTrailing) {
-            Button(
-              action: dismissAction,
-              label: { Text("Done").foregroundColor(.appGrayTextContrast).padding() }
-            )
-          }
-        }
+//        .toolbar {
+//          ToolbarItem(placement: .barTrailing) {
+//            Button(
+//              action: dismissAction,
+//              label: { Text("Done").foregroundColor(.appGrayTextContrast).padding() }
+//            )
+//          }
+//        }
       }
-      .navigationViewStyle(.stack)
-      .accentColor(.appGrayTextContrast)
+      // .navigationViewStyle(.stack)
+      // .accentColor(.appGrayTextContrast)
     }
   }
 
