@@ -1,6 +1,7 @@
 package app.omnivore.omnivore.ui.reader
 
 import android.content.Context
+import android.graphics.RectF
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
@@ -10,10 +11,7 @@ import app.omnivore.omnivore.DatastoreRepository
 import app.omnivore.omnivore.graphql.generated.type.CreateHighlightInput
 import app.omnivore.omnivore.models.Highlight
 import app.omnivore.omnivore.models.LinkedItem
-import app.omnivore.omnivore.networking.Networker
-import app.omnivore.omnivore.networking.createHighlight
-import app.omnivore.omnivore.networking.createWebHighlight
-import app.omnivore.omnivore.networking.linkedItem
+import app.omnivore.omnivore.networking.*
 import com.apollographql.apollo3.api.Optional
 import com.google.gson.Gson
 import com.pspdfkit.annotations.Annotation
@@ -92,6 +90,9 @@ class PDFReaderViewModel @Inject constructor(
       shortId = UUID.randomUUID().toString().replace("-","").substring(0,8),
     )
 
+//    val ggg = overlappingHighlights(annotation)
+//    Log.d("annny", "has ${ggg.count()} overlapping highlights")
+
     viewModelScope.launch {
       val isHighlightSynced = networker.createHighlight(createHighlightInput)
       Log.d("Network", "isHighlightSynced = $isHighlightSynced")
@@ -99,10 +100,37 @@ class PDFReaderViewModel @Inject constructor(
   }
 
   fun updateHighlight(annotation: Annotation) {
-
+    Log.d("annny", "updated $annotation")
   }
 
   fun deleteHighlight(annotation: Annotation) {
+    Log.d("annny", "deleted $annotation")
+  }
 
+  private fun overlappingHighlights(annotation: Annotation): List<Highlight> {
+    var result: MutableList<Highlight> = mutableListOf()
+
+    for (highlight in pdfReaderParamsLiveData.value?.articleContent?.highlights ?: listOf()) {
+      if (hasOverlappingHighlights(highlight, annotation)) {
+        result.add(highlight)
+      }
+    }
+
+    return result
+  }
+
+  private fun hasOverlappingHighlights(highlight: Highlight, annotation: Annotation): Boolean {
+    val highlightRects = Gson().fromJson(highlight.patch, HighlightRects::class.java).rects
+
+    for (rect in highlightRects) {
+      if (rect.intersect(annotation.boundingBox)) {
+        return true
+      }
+    }
+    return false
   }
 }
+
+data class HighlightRects(
+  val rects: List<RectF>
+)
