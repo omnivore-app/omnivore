@@ -4,7 +4,7 @@ import Image from 'next/image'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 
-import { Plus } from 'phosphor-react'
+import { Link, Plus } from 'phosphor-react'
 import { useGetWebhooksQuery } from '../../../lib/networking/queries/useGetWebhooksQuery'
 import { useMemo } from 'react'
 
@@ -16,29 +16,29 @@ const Header = styled(Box, {
 })
 
 interface Webhook {
-    id?: string
-    url: string
-    eventTypes: string
-    contentType?: string
-    method?: string
-    enabled?: string
-    createdAt?: Date
-    updatedAt?: Date
-  }
+  id?: string
+  url: string
+  eventTypes: string
+  contentType?: string
+  method?: string
+  enabled?: string
+  createdAt?: Date
+  updatedAt?: Date
+}
 
 export function Webhooks(): JSX.Element {
-
   const { webhooks } = useGetWebhooksQuery()
 
   const webhooksList = useMemo(() => {
-    const webhooksList = new Map<string, Webhook>()
-    webhooks.forEach((webhook) =>
-    webhooksList.set(webhook.id, {
-        url: webhook.url,
-        eventTypes: webhook.eventTypes.join(', '),
-        method: webhook.method,
-        contentType: webhook.contentType,
-        createdAt: webhook.createdAt,
+    const webhooksList: Array<Webhook> = []
+    webhooks.forEach((webhookItem) =>
+      webhooksList.push({
+        id: webhookItem.id,
+        url: webhookItem.url,
+        eventTypes: webhookItem.eventTypes.join(', '),
+        method: webhookItem.method,
+        contentType: webhookItem.contentType,
+        createdAt: webhookItem.createdAt,
       })
     )
     return webhooksList
@@ -109,12 +109,42 @@ export function Webhooks(): JSX.Element {
 
       <HStack
         css={{
-            border: '1px solid white',
-            height: '100%',
-            width: '100%',
-          }}>
-
-
+          border: '1px solid white',
+          height: '100%',
+          width: '100%',
+        }}
+      >
+        {webhooksList.map((item) => {
+          return (
+            <Box
+              key={'dgfgfdfg'}
+              css={{
+                width: '100%',
+                backgroundColor: '$grayBg',
+                borderBottom: '1px solid $grayLine',
+                padding: '10px',
+                display: 'flex',
+                alignItems: 'center',
+              }}
+            >
+              <Link size={20} weight={'bold'} />
+              <Box
+                css={{
+                  width: '60%',
+                  padding: '10px',
+                  color: '$utilityTextDefault',
+                  m: '10px',
+                  'h3, p': {
+                    margin: '0',
+                  },
+                }}
+              >
+                <h3>{item.method}</h3>
+                <p>{item.createdAt}</p>
+              </Box>
+            </Box>
+          )
+        })}
       </HStack>
     </VStack>
   )
