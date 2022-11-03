@@ -7,9 +7,14 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.DatastoreRepository
+import app.omnivore.omnivore.graphql.generated.type.CreateHighlightInput
+import app.omnivore.omnivore.models.Highlight
 import app.omnivore.omnivore.models.LinkedItem
 import app.omnivore.omnivore.networking.Networker
+import app.omnivore.omnivore.networking.createHighlight
+import app.omnivore.omnivore.networking.createWebHighlight
 import app.omnivore.omnivore.networking.linkedItem
+import com.apollographql.apollo3.api.Optional
 import com.google.gson.Gson
 import com.pspdfkit.annotations.Annotation
 import com.pspdfkit.document.download.DownloadJob
@@ -18,6 +23,7 @@ import com.pspdfkit.document.download.Progress
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.io.File
+import java.util.*
 import javax.inject.Inject
 
 data class PDFReaderParams(
@@ -73,5 +79,30 @@ class PDFReaderViewModel @Inject constructor(
 
   fun reset() {
     pdfReaderParamsLiveData.postValue(null)
+  }
+
+  fun createHighlight(annotation: Annotation, articleID: String) {
+    // TODO: Check for overlapping highlights
+    val createHighlightInput = CreateHighlightInput(
+      annotation = Optional.presentIfNotNull(null),
+      articleId = articleID,
+      id = UUID.randomUUID().toString(),
+      patch = annotation.toInstantJson(),
+      quote = annotation.contents ?: "",
+      shortId = UUID.randomUUID().toString().replace("-","").substring(0,8),
+    )
+
+    viewModelScope.launch {
+      val isHighlightSynced = networker.createHighlight(createHighlightInput)
+      Log.d("Network", "isHighlightSynced = $isHighlightSynced")
+    }
+  }
+
+  fun updateHighlight(annotation: Annotation) {
+
+  }
+
+  fun deleteHighlight(annotation: Annotation) {
+
   }
 }

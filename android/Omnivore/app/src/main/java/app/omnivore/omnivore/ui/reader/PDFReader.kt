@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.lifecycle.Observer
 import app.omnivore.omnivore.R
+import app.omnivore.omnivore.models.Highlight
 import com.pspdfkit.annotations.Annotation
 import com.pspdfkit.annotations.AnnotationProvider
 import com.pspdfkit.configuration.PdfConfiguration
@@ -28,6 +29,10 @@ import com.pspdfkit.ui.search.SearchResultHighlighter
 import com.pspdfkit.ui.search.SimpleSearchResultListener
 import com.pspdfkit.utils.PdfUtils
 import dagger.hilt.android.AndroidEntryPoint
+import java.time.Duration
+import java.time.LocalDateTime
+import java.util.*
+import kotlin.time.Duration.Companion.seconds
 
 @AndroidEntryPoint
 class PDFReaderActivity: AppCompatActivity(), DocumentListener {
@@ -82,15 +87,17 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener {
 
       addOnAnnotationUpdatedListener(object: AnnotationProvider.OnAnnotationUpdatedListener {
         override fun onAnnotationCreated(annotation: Annotation) {
-          Log.i("anno", "The annotation was created. $annotation")
+          if (isNewAnnotation(annotation)) {
+            viewModel.createHighlight(annotation, params.item.id)
+          }
         }
 
         override fun onAnnotationUpdated(annotation: Annotation) {
-          Log.i("anno", "The annotation was updated. $annotation")
+          viewModel.updateHighlight(annotation)
         }
 
         override fun onAnnotationRemoved(annotation: Annotation) {
-          Log.i("anno", "The annotation was removed. $annotation")
+          viewModel.deleteHighlight(annotation)
         }
 
         override fun onAnnotationZOrderChanged(
@@ -104,6 +111,14 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener {
     }
   }
 
+  // If created time is less than 2 seconds then we consider it a newly created annotation
+  private fun isNewAnnotation(annotation: Annotation): Boolean {
+    val currentTime = Calendar.getInstance().time.time
+    val createdTime = annotation.createdDate?.time ?: 0
+    val duration = currentTime - createdTime
+    return duration < 2000
+  }
+
   override fun onDocumentLoaded(document: PdfDocument) {
     if (hasLoadedHighlights) return
     hasLoadedHighlights = true
@@ -115,16 +130,7 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener {
     val params = viewModel.pdfReaderParamsLiveData.value
 
     params?.let {
-      for (highlight in it.articleContent.highlights) {
-        val highlightAnnotation = fragment
-          .document
-          ?.annotationProvider
-          ?.createAnnotationFromInstantJson(highlight.patch)
-
-        highlightAnnotation?.let {
-          fragment.addAnnotationToPage(highlightAnnotation, true)
-        }
-      }
+      loadHighlights(it.articleContent.highlights)
 
       fragment.scrollTo(
         RectF(0f, 0f, 0f, 0f),
@@ -132,6 +138,19 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener {
         0,
         true
       )
+    }
+  }
+
+  private fun loadHighlights(highlights: List<Highlight>) {
+    for (highlight in highlights) {
+      val highlightAnnotation = fragment
+        .document
+        ?.annotationProvider
+        ?.createAnnotationFromInstantJson(highlight.patch)
+
+      highlightAnnotation?.let {
+        fragment.addAnnotationToPage(highlightAnnotation, true)
+      }
     }
   }
 
