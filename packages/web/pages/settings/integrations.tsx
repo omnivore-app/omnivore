@@ -118,7 +118,7 @@ export default function Integrations(): JSX.Element {
           text: 'View Webhooks',
           icon: <Eye size={16} weight={'bold'} />,
           style: 'ctaWhite',
-          action: () => router.push('/settings/integrations/webhooks'),
+          action: () => router.push('/settings/webhooks'),
         },
       },
     ])
