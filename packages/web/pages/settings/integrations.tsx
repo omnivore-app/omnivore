@@ -122,7 +122,7 @@ export default function Integrations(): JSX.Element {
         },
       },
     ])
-  }, [readwiseConnected, integrations, webhooks])
+  }, [])
 
   return (
     <PrimaryLayout pageTestId={'integrations'}>
@@ -144,8 +144,8 @@ export default function Integrations(): JSX.Element {
           margin: '0 auto',
           height: '500px',
           '@smDown': {
-            width: '100%'
-          }
+            width: '100%',
+          },
         }}
       >
         <Header>Applications</Header>
@@ -176,8 +176,10 @@ export default function Integrations(): JSX.Element {
               />
               <Box
                 css={{
-                  width: '60%',
-                  padding: '10px',
+                  '@sm': {
+                    width: '60%',
+                  },
+                  padding: '8px',
                   color: '$utilityTextDefault',
                   m: '10px',
                   'h3, p': {
@@ -188,7 +190,7 @@ export default function Integrations(): JSX.Element {
                 <h3>{item.title}</h3>
                 <p>{item.subText}</p>
               </Box>
-              <HStack>
+              <HStack css={{ '@smDown': { width: '100%' } }}>
                 <Button
                   style={
                     item.button.style === 'ctaDarkYellow'
@@ -199,6 +201,7 @@ export default function Integrations(): JSX.Element {
                     py: '10px',
                     px: '14px',
                     minWidth: '230px',
+                    width: '100%',
                   }}
                   onClick={item.button.action}
                 >
