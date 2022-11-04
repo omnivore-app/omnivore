@@ -7,16 +7,20 @@ import * as Sentry from '@sentry/serverless'
 import axios from 'axios'
 import * as jwt from 'jsonwebtoken'
 import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
-import {
-  SpeechMark,
-  synthesizeTextToSpeech,
-  TextToSpeechInput,
-} from './textToSpeech'
+import { AzureTextToSpeech } from './azure'
 import { File, Storage } from '@google-cloud/storage'
 import { endSsml, htmlToSpeechFile, startSsml } from './htmlToSsml'
 import crypto from 'crypto'
 import { createRedisClient } from './redis'
-import { RedisClientType } from 'redis'
+import {
+  SpeechMark,
+  TextToSpeechInput,
+  TextToSpeechOutput,
+} from './textToSpeech'
+import { createClient } from 'redis'
+
+// explicitly create the return type of RedisClient
+type RedisClient = ReturnType<typeof createClient>
 
 interface UtteranceInput {
   voice?: string
@@ -24,6 +28,7 @@ interface UtteranceInput {
   language?: string
   text: string
   idx: string
+  isUltraRealisticVoice?: boolean
 }
 
 interface HTMLInput {
@@ -49,6 +54,20 @@ Sentry.GCPFunction.init({
 
 const MAX_CHARACTER_COUNT = 50000
 const storage = new Storage()
+
+const textToSpeechHandlers = [new AzureTextToSpeech()]
+
+const synthesizeTextToSpeech = async (
+  input: TextToSpeechInput
+): Promise<TextToSpeechOutput> => {
+  const textToSpeechHandler = textToSpeechHandlers.find((handler) =>
+    handler.use(input)
+  )
+  if (!textToSpeechHandler) {
+    throw new Error('No text to speech handler found')
+  }
+  return textToSpeechHandler.synthesizeTextToSpeech(input)
+}
 
 const uploadToBucket = async (
   filePath: string,
@@ -87,7 +106,7 @@ const updateSpeech = async (
 }
 
 const getCharacterCountFromRedis = async (
-  redisClient: RedisClientType,
+  redisClient: RedisClient,
   token: string
 ): Promise<number> => {
   const wordCount = await redisClient.get(`tts:charCount:${token}`)
@@ -98,7 +117,7 @@ const getCharacterCountFromRedis = async (
 // which will be used to rate limit the request
 // expires after 1 day
 const updateCharacterCountInRedis = async (
-  redisClient: RedisClientType,
+  redisClient: RedisClient,
   token: string,
   wordCount: number
 ): Promise<void> => {
