@@ -21,7 +21,11 @@
     }
 
     var isPresented: Bool {
-      audioController.itemAudioProperties != nil && audioController.state != .stopped
+      let presented = audioController.itemAudioProperties != nil && audioController.state != .stopped
+      if !presented {
+        print("isPresented: ", audioController.itemAudioProperties, audioController.state)
+      }
+      return true // presented
     }
 
     var playPauseButtonImage: String {
@@ -172,6 +176,9 @@
             }
           }
         }
+      }.alert("There was an error playing back your audio.",
+              isPresented: $audioController.playbackError) {
+        Button("Dismiss", role: .none) {}
       }
     }
   }

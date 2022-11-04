@@ -59,6 +59,9 @@
           let duration = CMTimeGetSeconds(item.duration)
           item.session.updateDuration(forItem: item.speechItem, newDuration: duration)
         }
+        if item.status == .failed {
+          item.session.stopWithError()
+        }
       }
 
       NotificationCenter.default.addObserver(
@@ -119,23 +122,35 @@
         Task {
           guard let speechItem = self.owner?.speechItem else {
             // This probably can't happen, but if it does, just returning should
-            // let AVPlayer try again.
-            print("No speech item found: ", self.owner?.speechItem)
+            DispatchQueue.main.async {
+              self.processPlaybackError(error: BasicError.message(messageText: "No speech item found."))
+            }
             return
           }
 
-          // TODO: how do we want to propogate this and handle it in the player
-          let speechData = try? await SpeechSynthesizer.download(speechItem: speechItem, session: self.session)
-          DispatchQueue.main.async {
-            if speechData == nil {
-              self.session = nil
-            }
-            if let owner = self.owner, let speechData = speechData {
-              owner.speechMarks = speechData.speechMarks
-            }
-            self.mediaData = speechData?.audioData
+          do {
+            let speechData = try await SpeechSynthesizer.download(speechItem: speechItem, session: self.session ?? URLSession.shared)
 
-            self.processPendingRequests()
+            DispatchQueue.main.async {
+              if speechData == nil {
+                self.session = nil
+                self.processPlaybackError(error: BasicError.message(messageText: "Unable to download speech data."))
+                return
+              }
+
+              if let owner = self.owner, let speechData = speechData {
+                owner.speechMarks = speechData.speechMarks
+              }
+              self.mediaData = speechData?.audioData
+
+              self.processPendingRequests()
+            }
+          } catch URLError.cancelled {
+            print("cancelled request error being ignored")
+          } catch {
+            DispatchQueue.main.async {
+              self.processPlaybackError(error: error)
+            }
           }
         }
       }
@@ -155,6 +170,15 @@
         })
 
         // remove fulfilled requests from pending requests
+        _ = requestsFulfilled.map { self.pendingRequests.remove($0) }
+      }
+
+      func processPlaybackError(error: Error?) {
+        let requestsFulfilled = Set<AVAssetResourceLoadingRequest>(pendingRequests.compactMap {
+          $0.finishLoading(with: error)
+          return nil
+        })
+
         _ = requestsFulfilled.map { self.pendingRequests.remove($0) }
       }
 
@@ -205,9 +229,12 @@
     @Published public var duration: TimeInterval = 0
     @Published public var timeElapsedString: String?
     @Published public var durationString: String?
-    @Published public var voiceList: [(name: String, key: String, category: VoiceCategory, selected: Bool)]?
+    @Published public var voiceList: [VoiceItem]?
+    @Published public var realisticVoiceList: [VoiceItem]?
 
     @Published public var textItems: [String]?
+
+    @Published public var playbackError: Bool = false
 
     let dataService: DataService
 
@@ -224,6 +251,7 @@
 
       super.init()
       self.voiceList = generateVoiceList()
+      self.realisticVoiceList = generateRealisticVoiceList()
     }
 
     deinit {
@@ -277,11 +305,25 @@
       }
     }
 
-    public func generateVoiceList() -> [(name: String, key: String, category: VoiceCategory, selected: Bool)] {
+    public func stopWithError() {
+      stop()
+      playbackError = true
+    }
+
+    public func generateVoiceList() -> [VoiceItem] {
       Voices.Pairs.flatMap { voicePair in
         [
-          (name: voicePair.firstName, key: voicePair.firstKey, category: voicePair.category, selected: voicePair.firstKey == currentVoice),
-          (name: voicePair.secondName, key: voicePair.secondKey, category: voicePair.category, selected: voicePair.secondKey == currentVoice)
+          VoiceItem(name: voicePair.firstName, key: voicePair.firstKey, category: voicePair.category, selected: voicePair.firstKey == currentVoice),
+          VoiceItem(name: voicePair.secondName, key: voicePair.secondKey, category: voicePair.category, selected: voicePair.secondKey == currentVoice)
+        ]
+      }.sorted { $0.name.lowercased() < $1.name.lowercased() }
+    }
+
+    public func generateRealisticVoiceList() -> [VoiceItem] {
+      Voices.UltraPairs.flatMap { voicePair in
+        [
+          VoiceItem(name: voicePair.firstName, key: voicePair.firstKey, category: voicePair.category, selected: voicePair.firstKey == currentVoice),
+          VoiceItem(name: voicePair.secondName, key: voicePair.secondKey, category: voicePair.category, selected: voicePair.secondKey == currentVoice)
         ]
       }.sorted { $0.name.lowercased() < $1.name.lowercased() }
     }
@@ -419,6 +461,8 @@
 
     @AppStorage(UserDefaultKey.textToSpeechPreloadEnabled.rawValue) public var preloadEnabled = false
 
+    @AppStorage(UserDefaultKey.textToSpeechUseUltraRealisticVoices.rawValue) public var useUltraRealisticVoices = false
+
     public var currentVoiceLanguage: VoiceLanguage {
       Voices.Languages.first(where: { $0.key == currentLanguage }) ?? Voices.English
     }
@@ -458,6 +502,7 @@
       set {
         _currentVoice = newValue
         voiceList = generateVoiceList()
+        realisticVoiceList = generateRealisticVoiceList()
 
         var currentIdx = 0
         var currentOffset = 0.0

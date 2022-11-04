@@ -14,6 +14,13 @@ public struct VoiceLanguage {
   public let categories: [VoiceCategory]
 }
 
+public struct VoiceItem {
+  public let name: String
+  public let key: String
+  public let category: VoiceCategory
+  public let selected: Bool
+}
+
 public enum VoiceCategory: String, CaseIterable {
   case enUS = "English (US)"
   case enAU = "English (Australia)"
@@ -40,6 +47,12 @@ public struct VoicePair {
 }
 
 public enum Voices {
+  public static func isUltraRealisticVoice(_ voiceKey: String) -> Bool {
+    UltraPairs.contains(where: { voice in
+      voice.firstKey == voiceKey || voice.secondKey == voiceKey
+    })
+  }
+
   public static let English = VoiceLanguage(key: "en",
                                             name: "English",
                                             defaultVoice: "en-US-ChristopherNeural",
@@ -71,5 +84,38 @@ public enum Voices {
     VoicePair(firstKey: "de-DE-AmalaNeural", secondKey: "de-DE-BerndNeural", firstName: "Amala", secondName: "Bernd", language: "de-DE", category: .deDE),
     VoicePair(firstKey: "de-DE-ChristophNeural", secondKey: "de-DE-LouisaNeural", firstName: "Christoph", secondName: "Louisa", language: "de-DE", category: .deDE),
     VoicePair(firstKey: "ja-JP-NanamiNeural", secondKey: "ja-JP-KeitaNeural", firstName: "Nanami", secondName: "Keita", language: "ja-JP", category: .jaJP)
+  ]
+
+  public static let UltraPairs = [
+    VoicePair(firstKey: "Larry", secondKey: "susan", firstName: "Larry", secondName: "Susan", language: "en-US", category: .enUS),
+
+    VoicePair(firstKey: "Jordan", secondKey: "William", firstName: "Jordan", secondName: "William", language: "en-US", category: .enUS),
+    VoicePair(firstKey: "Adrian", secondKey: "Anthony", firstName: "Adrian", secondName: "Anthony", language: "en-US", category: .enUS),
+
+    VoicePair(firstKey: "Oliver", secondKey: "Arthur", firstName: "Oliver", secondName: "Arthur", language: "en-UK", category: .enUK),
+
+    VoicePair(firstKey: "Daniel", secondKey: "Charlotte", firstName: "Daniel", secondName: "Charlotte", language: "en-CA", category: .enCA),
+
+    VoicePair(firstKey: "Alexander", secondKey: "Aurora", firstName: "Alexander", secondName: "Aurora", language: "en-UK", category: .enUK),
+
+    VoicePair(firstKey: "Axel", secondKey: "Carter", firstName: "Axel", secondName: "Carter", language: "en-US", category: .enUS),
+
+    VoicePair(firstKey: "Ellie", secondKey: "Evelyn", firstName: "Ellie", secondName: "Evelyn", language: "en-US", category: .enUS),
+
+    VoicePair(firstKey: "Frankie", secondKey: "Harrison", firstName: "Frankie", secondName: "Harrison", language: "en-US", category: .enUS),
+
+    VoicePair(firstKey: "Frederick", secondKey: "Hunter", firstName: "Frederick", secondName: "Hunter", language: "en-UK", category: .enUK),
+
+    VoicePair(firstKey: "Lillian", secondKey: "Lottie", firstName: "Lillian", secondName: "Lottie", language: "en-UK", category: .enUK),
+
+    VoicePair(firstKey: "Nolan", secondKey: "Phoebe", firstName: "Nolan", secondName: "Phoebe", language: "en-UK", category: .enUK),
+
+    VoicePair(firstKey: "Daisy", secondKey: "Stella", firstName: "Daisy", secondName: "Stella", language: "en-UK", category: .enUK),
+
+    VoicePair(firstKey: "Maverick", secondKey: "Natalie", firstName: "Maverick", secondName: "Natalie", language: "en-US", category: .enUS),
+
+    VoicePair(firstKey: "Nova", secondKey: "Owen", firstName: "Nova", secondName: "Owen", language: "en-US", category: .enUS)
+
+    // VoicePair(firstKey: "Theodore", secondKey: "Theodore", firstName: "Theodore", secondName: "Theodore", language: "en-US", category: .enUS)
   ]
 }

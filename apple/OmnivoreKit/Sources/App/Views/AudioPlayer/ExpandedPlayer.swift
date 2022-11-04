@@ -146,7 +146,7 @@
                 +
                 Text(audioController.unreadText)
                 .font(.textToSpeechRead.leading(.loose))
-                .foregroundColor(Color.appGrayText)
+                .foregroundColor(audioController.useUltraRealisticVoices ? Color.appGrayTextContrast : Color.appGrayText)
             }
           }
         }
