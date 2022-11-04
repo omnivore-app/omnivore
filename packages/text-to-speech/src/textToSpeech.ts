@@ -11,7 +11,7 @@ export interface TextToSpeechInput {
 
 export interface TextToSpeechOutput {
   audioData?: Buffer
-  speechMarks?: SpeechMark[]
+  speechMarks: SpeechMark[]
 }
 
 export interface SpeechMark {

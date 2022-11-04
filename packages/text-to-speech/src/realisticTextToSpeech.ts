@@ -76,6 +76,7 @@ export class RealisticTextToSpeech implements TextToSpeech {
 
     return {
       audioData,
+      speechMarks: [],
     }
   }
 
