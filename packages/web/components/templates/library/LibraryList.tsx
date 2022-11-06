@@ -1,5 +1,5 @@
-import { SetStateAction, useMemo, useState } from 'react'
-import Dropzone, { useDropzone } from 'react-dropzone'
+import { useMemo, useState } from 'react'
+import Dropzone from 'react-dropzone'
 import { Box } from '../../elements/LayoutPrimitives'
 import { useGetViewerQuery } from '../../../lib/networking/queries/useGetViewerQuery'
 import { useGetUserPreferences } from '../../../lib/networking/queries/useGetUserPreferences'
@@ -54,7 +54,7 @@ export function LibraryList(props: LibraryListProps): JSX.Element {
 
   return (
     <Box css={{ overflowY: 'scroll' }}>
-      <Dropzone onDrop={handleDrop} preventDropOnDocument={true} noClick={true}>
+      <Dropzone onDrop={handleDrop} preventDropOnDocument={true} noClick={true} >
         {({ getRootProps, getInputProps, acceptedFiles, fileRejections }) => (
           <div {...getRootProps({ className: 'dropzone' })}>
             <p>Drag n drop files, or click to select files</p>
