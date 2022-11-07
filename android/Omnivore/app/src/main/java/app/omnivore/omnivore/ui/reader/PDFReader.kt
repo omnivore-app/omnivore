@@ -94,6 +94,7 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener {
         }
 
         override fun onAnnotationUpdated(annotation: Annotation) {
+          if (!isNewAnnotation(annotation)) { return }
           val highlightAnnotation = annotation as? HighlightAnnotation ?: return
           viewModel.syncUpdatedAnnotationHighlight(highlightAnnotation, articleID = params.item.id)
         }
