@@ -796,6 +796,7 @@
     }
 
     public func unpause() {
+      stopVoiceSample()
       if let player = player {
         player.rate = Float(playbackRate)
         state = .playing
