@@ -246,6 +246,8 @@
     var durations: [Double]?
     var lastReadUpdate = 0.0
 
+    var samplePlayer: AVAudioPlayer?
+
     public init(dataService: DataService) {
       self.dataService = dataService
 
@@ -631,15 +633,33 @@
 
     public func playVoiceSample(voice: String) {
       do {
-        if let url = Bundle.main.url(forResource: "tts-voice-sample-\(voice)", withExtension: "mp3") {
-          let player = try AVAudioPlayer(contentsOf: url, fileTypeHint: AVFileType.mp3.rawValue)
-          player.play()
+        pause()
+
+        if let url = Bundle(url: UtilsPackage.bundleURL)?.url(forResource: voice, withExtension: "mp3") {
+          samplePlayer = try AVAudioPlayer(contentsOf: url, fileTypeHint: AVFileType.mp3.rawValue)
+          if !(samplePlayer?.play() ?? false) {
+            throw BasicError.message(messageText: "Unable to playback audio")
+          }
         } else {
           NSNotification.operationFailed(message: "Error playing voice sample.")
         }
       } catch {
         print("ERROR", error)
         NSNotification.operationFailed(message: "Error playing voice sample.")
+      }
+    }
+
+    public func isPlayingSample(voice: String) -> Bool {
+      if let samplePlayer = self.samplePlayer, let url = Bundle(url: UtilsPackage.bundleURL)?.url(forResource: voice, withExtension: "mp3") {
+        return samplePlayer.url == url && samplePlayer.isPlaying
+      }
+      return false
+    }
+
+    public func stopVoiceSample() {
+      if let samplePlayer = self.samplePlayer {
+        samplePlayer.stop()
+        self.samplePlayer = nil
       }
     }
 
