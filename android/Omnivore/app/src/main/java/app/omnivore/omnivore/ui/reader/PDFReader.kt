@@ -16,6 +16,7 @@ import app.omnivore.omnivore.R
 import app.omnivore.omnivore.models.Highlight
 import com.pspdfkit.annotations.Annotation
 import com.pspdfkit.annotations.AnnotationProvider
+import com.pspdfkit.annotations.HighlightAnnotation
 import com.pspdfkit.configuration.PdfConfiguration
 import com.pspdfkit.configuration.activity.ThumbnailBarMode
 import com.pspdfkit.configuration.page.PageScrollDirection
@@ -93,7 +94,8 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener {
         }
 
         override fun onAnnotationUpdated(annotation: Annotation) {
-          viewModel.updateHighlight(annotation)
+          val highlightAnnotation = annotation as? HighlightAnnotation ?: return
+          viewModel.syncUpdatedAnnotationHighlight(highlightAnnotation, articleID = params.item.id)
         }
 
         override fun onAnnotationRemoved(annotation: Annotation) {

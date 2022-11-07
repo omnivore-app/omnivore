@@ -15,11 +15,15 @@ import app.omnivore.omnivore.networking.*
 import com.apollographql.apollo3.api.Optional
 import com.google.gson.Gson
 import com.pspdfkit.annotations.Annotation
+import com.pspdfkit.annotations.HighlightAnnotation
 import com.pspdfkit.document.download.DownloadJob
 import com.pspdfkit.document.download.DownloadRequest
 import com.pspdfkit.document.download.Progress
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
+import org.json.JSONArray
+import org.json.JSONObject
 import java.io.File
 import java.util.*
 import javax.inject.Inject
@@ -36,7 +40,8 @@ class PDFReaderViewModel @Inject constructor(
   private val networker: Networker
 ): ViewModel() {
   val pdfReaderParamsLiveData = MutableLiveData<PDFReaderParams?>(null)
-  var annotations: List<Annotation> = listOf()
+  var annotations: List<HighlightAnnotation> = listOf()
+  var documentHighlights: MutableList<Highlight> = mutableListOf()
 
   fun loadItem(slug: String, context: Context) {
     viewModelScope.launch {
@@ -56,6 +61,8 @@ class PDFReaderViewModel @Inject constructor(
         }
 
         override fun onComplete(output: File) {
+          documentHighlights.addAll(0, articleQueryResult.highlights)
+
           val articleContent = ArticleContent(
             title = article.title,
             htmlContent = article.content ?: "",
@@ -79,58 +86,94 @@ class PDFReaderViewModel @Inject constructor(
     pdfReaderParamsLiveData.postValue(null)
   }
 
-  fun createHighlight(annotation: Annotation, articleID: String) {
-    // TODO: Check for overlapping highlights
+  fun createHighlight(annotation: Annotation, articleID: String, updateDoc: Boolean = true) {
+    val highlightID = UUID.randomUUID().toString()
+    val shortID = UUID.randomUUID().toString().replace("-","").substring(0,8)
+    val quote = annotation.contents ?: ""
+
+    val jsonValues = JSONObject()
+      .put("id", highlightID)
+      .put("shortId", shortID)
+      .put("quote", quote)
+      .put("articleId", articleID)
+
+    val omnivoreHighlight = JSONObject()
+      .put("omnivoreHighlight", jsonValues)
+
+    annotation.customData = omnivoreHighlight
+
     val createHighlightInput = CreateHighlightInput(
       annotation = Optional.presentIfNotNull(null),
       articleId = articleID,
-      id = UUID.randomUUID().toString(),
+      id = highlightID,
       patch = annotation.toInstantJson(),
-      quote = annotation.contents ?: "",
-      shortId = UUID.randomUUID().toString().replace("-","").substring(0,8),
+      quote = quote,
+      shortId = shortID,
     )
 
-//    val ggg = overlappingHighlights(annotation)
-//    Log.d("annny", "has ${ggg.count()} overlapping highlights")
-
     viewModelScope.launch {
-      val isHighlightSynced = networker.createHighlight(createHighlightInput)
-      Log.d("Network", "isHighlightSynced = $isHighlightSynced")
+      val highlight = networker.createHighlight(createHighlightInput)
+      if (highlight != null) {
+        documentHighlights.add(highlight)
+      }
     }
   }
 
-  fun updateHighlight(annotation: Annotation) {
-    Log.d("annny", "updated $annotation")
+  fun syncUpdatedAnnotationHighlight(annotation: HighlightAnnotation, articleID: String) {
+    val overlapList = overlappingHighlightIDs(annotation)
+    // TODO: Delete the overlap list
+    // Calling create highlight creates a loop...
+//    createHighlight(annotation, articleID)
   }
 
   fun deleteHighlight(annotation: Annotation) {
     Log.d("annny", "deleted $annotation")
   }
 
-  private fun overlappingHighlights(annotation: Annotation): List<Highlight> {
-    var result: MutableList<Highlight> = mutableListOf()
+  private fun overlappingHighlightIDs(annotation: HighlightAnnotation): List<String> {
+    val result: MutableList<String> = mutableListOf()
+    val highlightID = pluckHighlightID(annotation) ?: return listOf()
 
-    for (highlight in pdfReaderParamsLiveData.value?.articleContent?.highlights ?: listOf()) {
-      if (hasOverlappingHighlights(highlight, annotation)) {
-        result.add(highlight)
+    val pageHighlights = documentHighlights.filter {
+      Gson().fromJson(it.patch, HighlightPatch::class.java).pageIndex == annotation.pageIndex
+    }
+
+    for (highlight in pageHighlights) {
+      if (highlight.id == highlightID) {
+        continue
+      }
+
+      val rects = Gson().fromJson(highlight.patch, HighlightPatch::class.java).rects
+      if (hasOverlaps(annotation.rects, rects)) {
+        result.add(highlight.id)
       }
     }
+
+    result.add(highlightID)
 
     return result
   }
 
-  private fun hasOverlappingHighlights(highlight: Highlight, annotation: Annotation): Boolean {
-    val highlightRects = Gson().fromJson(highlight.patch, HighlightRects::class.java).rects
-
-    for (rect in highlightRects) {
-      if (rect.intersect(annotation.boundingBox)) {
-        return true
+  private fun hasOverlaps(leftRects: List<RectF>, rightRects: List<List<Double>>): Boolean {
+    for (leftRect in leftRects) {
+      for (rightRect in rightRects) {
+        val transformedRect = RectF(rightRect[0].toFloat(), rightRect[1].toFloat(), rightRect[2].toFloat(), rightRect[3].toFloat())
+        if (transformedRect.intersect(leftRect)) {
+          return true
+        }
       }
     }
+
     return false
+  }
+
+  private fun pluckHighlightID(annotation: Annotation): String? {
+    val omnivoreHighlight = annotation.customData?.get("omnivoreHighlight") as? JSONObject
+    return omnivoreHighlight?.get("id") as? String
   }
 }
 
-data class HighlightRects(
-  val rects: List<RectF>
+data class HighlightPatch(
+  val rects: List<List<Double>>,
+  val pageIndex: Int
 )
