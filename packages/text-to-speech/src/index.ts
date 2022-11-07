@@ -167,6 +167,8 @@ export const textToSpeechHandler = Sentry.GCPFunction.wrapHttpFunction(
       }) as NodeJS.WriteStream
       // synthesize text to speech
       const startTime = Date.now()
+      // temporary solution to use realistic text to speech
+      input.isUltraRealisticVoice = true
       const { speechMarks } = await synthesizeTextToSpeech({
         ...input,
         textType: 'html',

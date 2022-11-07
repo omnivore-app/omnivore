@@ -7,6 +7,7 @@ import axios from 'axios'
 import ffmpegPath from '@ffmpeg-installer/ffmpeg'
 import ffmpeg from 'fluent-ffmpeg'
 import { PassThrough } from 'stream'
+import { htmlToSpeechFile } from './htmlToSsml'
 
 ffmpeg.setFfmpegPath(ffmpegPath.path)
 
@@ -15,15 +16,24 @@ interface PlayHtConvertResponse {
   payload: string[]
 }
 
-const streamWavToMp3 = (inputStream: PassThrough, outputSteam: PassThrough) => {
+const streamWavToMp3 = (
+  inputStream: PassThrough,
+  outputStream: PassThrough
+) => {
   ffmpeg(inputStream)
+    .inputFormat('wav')
+    .format('mp3')
+    .audioBitrate('32k')
+    .audioChannels(2)
+    .audioCodec('libmp3lame')
     .on('error', (err) => {
       throw err
     })
     .on('end', () => {
-      outputSteam.end()
+      console.debug('transcoding finished')
+      outputStream.end()
     })
-    .pipe(outputSteam, { end: true })
+    .pipe(outputStream, { end: true })
 }
 
 export class RealisticTextToSpeech implements TextToSpeech {
@@ -38,7 +48,7 @@ export class RealisticTextToSpeech implements TextToSpeech {
     }
 
     const inputStream = new PassThrough()
-    const outputStream = input.audioStream
+    const outputStream = input.audioStream as PassThrough
 
     const HEADERS = {
       Authorization: apiKey,
@@ -46,9 +56,19 @@ export class RealisticTextToSpeech implements TextToSpeech {
       'Content-Type': 'application/json',
     }
 
+    const speechFile = htmlToSpeechFile({
+      title: '',
+      content: input.text,
+      options: {
+        primaryVoice: input.voice,
+        secondaryVoice: input.secondaryVoice,
+        language: input.language,
+      },
+    })
+    const content = speechFile.utterances.map((u) => u.text)
     const data = {
       voice: input.voice,
-      content: [input.text],
+      content,
     }
 
     // get the download url first
@@ -70,7 +90,8 @@ export class RealisticTextToSpeech implements TextToSpeech {
     // timeout after 1 hour
     const timeout = 60 * 60 * 1000
     const startTime = Date.now()
-    while (true) {
+    let audioData: Buffer | undefined
+    while (!audioData) {
       if (Date.now() - startTime > timeout) {
         throw new Error('Timeout when polling the download url')
       }
@@ -85,8 +106,9 @@ export class RealisticTextToSpeech implements TextToSpeech {
         })
 
         // write the audio file to the input stream
-        inputStream.end(downloadResponse.data)
-        break
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        audioData = Buffer.from(downloadResponse.data, 'binary')
+        inputStream.end(audioData)
       } catch (e) {
         // ignore error
         console.debug('checking status of audio file', downloadUrl)
@@ -94,11 +116,10 @@ export class RealisticTextToSpeech implements TextToSpeech {
     }
 
     // transcode the audio file to mp3
-    if (outputStream) {
-      streamWavToMp3(inputStream, outputStream as PassThrough)
-    }
+    streamWavToMp3(inputStream, outputStream)
 
     return {
+      audioData,
       speechMarks: [],
     }
   }
