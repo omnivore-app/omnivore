@@ -429,7 +429,7 @@ public enum WebViewDispatchEvent {
         let encoder = JSONEncoder()
         if let encoded = try? encoder.encode(annotation) {
           let str = String(decoding: encoded, as: UTF8.self)
-          return "event.annotation = '\(str)';"
+          return "event.annotation = \(str);"
         } else {
           throw BasicError.message(messageText: "Unable to serialize highlight note.")
         }
