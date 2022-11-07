@@ -40,6 +40,7 @@ interface HTMLInput {
   rate?: string
   complimentaryVoice?: string
   bucket: string
+  isUltraRealisticVoice?: boolean
 }
 
 interface CacheResult {
@@ -134,11 +135,16 @@ const updateCharacterCountInRedis = async (
 export const textToSpeechHandler = Sentry.GCPFunction.wrapHttpFunction(
   async (req, res) => {
     console.info('Text to speech request body:', req.body)
-    const token = req.query.token as string
     if (!process.env.JWT_SECRET) {
       console.error('JWT_SECRET not exists')
       return res.status(500).send({ errorCodes: 'JWT_SECRET_NOT_EXISTS' })
     }
+
+    const token = (req.query.token || req.headers.authorization) as string
+    if (!token) {
+      return res.status(401).send({ errorCode: 'INVALID_TOKEN' })
+    }
+
     try {
       jwt.verify(token, process.env.JWT_SECRET)
     } catch (e) {
@@ -169,13 +175,18 @@ export const textToSpeechHandler = Sentry.GCPFunction.wrapHttpFunction(
       console.info(
         `Synthesize text to speech completed in ${Date.now() - startTime} ms`
       )
+
       // speech marks file to be saved in GCS
-      const speechMarksFileName = `speech/${id}.json`
-      await uploadToBucket(
-        speechMarksFileName,
-        Buffer.from(JSON.stringify(speechMarks)),
-        bucket
-      )
+      let speechMarksFileName: string | undefined
+      if (speechMarks.length > 0) {
+        speechMarksFileName = `speech/${id}.json`
+        await uploadToBucket(
+          speechMarksFileName,
+          Buffer.from(JSON.stringify(speechMarks)),
+          bucket
+        )
+      }
+
       // update speech state
       const updated = await updateSpeech(
         id,

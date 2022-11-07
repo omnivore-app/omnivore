@@ -4,10 +4,26 @@ import {
   TextToSpeechOutput,
 } from './textToSpeech'
 import axios from 'axios'
+import ffmpegPath from '@ffmpeg-installer/ffmpeg'
+import ffmpeg from 'fluent-ffmpeg'
+import { PassThrough } from 'stream'
+
+ffmpeg.setFfmpegPath(ffmpegPath.path)
 
 interface PlayHtConvertResponse {
   message: string
   payload: string[]
+}
+
+const streamWavToMp3 = (inputStream: PassThrough, outputSteam: PassThrough) => {
+  ffmpeg(inputStream)
+    .on('error', (err) => {
+      throw err
+    })
+    .on('end', () => {
+      outputSteam.end()
+    })
+    .pipe(outputSteam, { end: true })
 }
 
 export class RealisticTextToSpeech implements TextToSpeech {
@@ -20,6 +36,9 @@ export class RealisticTextToSpeech implements TextToSpeech {
     if (!apiEndpoint || !apiKey || !userId) {
       throw new Error('PlayHT API credentials not set')
     }
+
+    const inputStream = new PassThrough()
+    const outputStream = input.audioStream
 
     const HEADERS = {
       Authorization: apiKey,
@@ -48,11 +67,10 @@ export class RealisticTextToSpeech implements TextToSpeech {
     const downloadUrl = response.data.payload[0]
 
     // polling the download url until the file is ready
-    // timeout after 5 minutes
-    const timeout = 5 * 60 * 1000
+    // timeout after 1 hour
+    const timeout = 60 * 60 * 1000
     const startTime = Date.now()
-    let audioData: Buffer | undefined
-    while (!audioData) {
+    while (true) {
       if (Date.now() - startTime > timeout) {
         throw new Error('Timeout when polling the download url')
       }
@@ -65,17 +83,22 @@ export class RealisticTextToSpeech implements TextToSpeech {
             'Content-Type': 'audio/wav',
           },
         })
-        // convert the wav file to buffer
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        audioData = Buffer.from(downloadResponse.data, 'binary')
+
+        // write the audio file to the input stream
+        inputStream.end(downloadResponse.data)
+        break
       } catch (e) {
         // ignore error
         console.debug('checking status of audio file', downloadUrl)
       }
     }
 
+    // transcode the audio file to mp3
+    if (outputStream) {
+      streamWavToMp3(inputStream, outputStream as PassThrough)
+    }
+
     return {
-      audioData,
       speechMarks: [],
     }
   }
