@@ -191,10 +191,11 @@ struct SpeechSynthesizer {
     let decoder = JSONDecoder()
 
     if !redownloadCached {
-      if let speechMarksData = try? Data(contentsOf: speechItem.localSpeechURL),
-         let speechMarks = try? decoder.decode([SpeechMark].self, from: speechMarksData),
-         let localData = try? Data(contentsOf: speechItem.localAudioURL)
-      {
+      if let localData = try? Data(contentsOf: speechItem.localAudioURL) {
+        var speechMarks: [SpeechMark]?
+        if let speechMarksData = try? Data(contentsOf: speechItem.localSpeechURL) {
+          speechMarks = try? decoder.decode([SpeechMark].self, from: speechMarksData)
+        }
         return SynthesizeData(audioData: localData, speechMarks: speechMarks)
       }
     }
