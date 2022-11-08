@@ -44,7 +44,7 @@ export type SSMLOptions = {
 const DEFAULT_LANGUAGE = 'en-US'
 const DEFAULT_VOICE = 'en-US-JennyNeural'
 const DEFAULT_SECONDARY_VOICE = 'en-US-GuyNeural'
-const DEFAULT_RATE = '1.0'
+const DEFAULT_RATE = '1.1'
 
 const ANCHOR_ELEMENTS_BLOCKED_ATTRIBUTES = [
   'omnivore-highlight-id',
