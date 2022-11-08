@@ -86,25 +86,6 @@ export const createGCSFile = (bucket: string, filename: string): File => {
   return storage.bucket(bucket).file(filename)
 }
 
-export const listGCSFiles = async (
-  bucket: string,
-  prefix: string
-): Promise<string[]> => {
-  const [files] = await storage.bucket(bucket).getFiles({
-    prefix,
-  })
-  return files.map((file) => file.name)
-}
-
-export const downloadFromBucket = async (
-  bucket: string,
-  filename: string
-): Promise<Buffer> => {
-  const file = createGCSFile(bucket, filename)
-  const [data] = await file.download()
-  return data
-}
-
 const updateSpeech = async (
   speechId: string,
   token: string,

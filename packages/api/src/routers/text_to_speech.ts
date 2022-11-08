@@ -62,7 +62,7 @@ export function textToSpeechRouter() {
           title: page.title,
           content: page.content,
           options: {
-            primaryVoice: 'Harrison',
+            primaryVoice: 'larry',
             secondaryVoice: 'Evelyn',
           },
         })

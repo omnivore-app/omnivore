@@ -54,7 +54,9 @@ export class RealisticTextToSpeech implements TextToSpeech {
     // audio file to be saved in GCS
     const audioFileName = `speech/${input.key}.mp3`
     const audioFile = createGCSFile(bucket, audioFileName)
-    if (await audioFile.exists()) {
+    // check if audio file already exists
+    const [exists] = await audioFile.exists()
+    if (exists) {
       console.debug('Audio file already exists')
       const [audioData] = await audioFile.download()
       return {
