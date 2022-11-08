@@ -88,34 +88,17 @@ public enum Voices {
 
   public static let UltraPairs = [
     VoicePair(firstKey: "Larry", secondKey: "Susan", firstName: "Larry", secondName: "Susan", language: "en-US", category: .enUS),
-
     VoicePair(firstKey: "Jordan", secondKey: "William", firstName: "Jordan", secondName: "William", language: "en-US", category: .enUS),
-    VoicePair(firstKey: "Adrian", secondKey: "Anthony", firstName: "Adrian", secondName: "Anthony", language: "en-US", category: .enUS),
-
-    VoicePair(firstKey: "Oliver", secondKey: "Arthur", firstName: "Oliver", secondName: "Arthur", language: "en-UK", category: .enUK),
+    VoicePair(firstKey: "Evelyn", secondKey: "Axel", firstName: "Evelyn", secondName: "Axel", language: "en-US", category: .enUS),
+    VoicePair(firstKey: "Nova", secondKey: "Owen", firstName: "Nova", secondName: "Owen", language: "en-US", category: .enUS),
+    VoicePair(firstKey: "Frankie", secondKey: "Natalie", firstName: "Frankie", secondName: "Natalie", language: "en-US", category: .enUS),
 
     VoicePair(firstKey: "Daniel", secondKey: "Charlotte", firstName: "Daniel", secondName: "Charlotte", language: "en-CA", category: .enCA),
+    VoicePair(firstKey: "Lillian", secondKey: "Aurora", firstName: "Lillian", secondName: "Aurora", language: "en-UK", category: .enUK),
 
-    VoicePair(firstKey: "Alexander", secondKey: "Aurora", firstName: "Alexander", secondName: "Aurora", language: "en-UK", category: .enUK),
-
-    VoicePair(firstKey: "Axel", secondKey: "Carter", firstName: "Axel", secondName: "Carter", language: "en-US", category: .enUS),
-
-    VoicePair(firstKey: "Ellie", secondKey: "Evelyn", firstName: "Ellie", secondName: "Evelyn", language: "en-US", category: .enUS),
-
-    VoicePair(firstKey: "Frankie", secondKey: "Harrison", firstName: "Frankie", secondName: "Harrison", language: "en-US", category: .enUS),
-
+    VoicePair(firstKey: "Oliver", secondKey: "Arthur", firstName: "Oliver", secondName: "Arthur", language: "en-UK", category: .enUK),
     VoicePair(firstKey: "Frederick", secondKey: "Hunter", firstName: "Frederick", secondName: "Hunter", language: "en-UK", category: .enUK),
-
-    VoicePair(firstKey: "Lillian", secondKey: "Lottie", firstName: "Lillian", secondName: "Lottie", language: "en-UK", category: .enUK),
-
     VoicePair(firstKey: "Nolan", secondKey: "Phoebe", firstName: "Nolan", secondName: "Phoebe", language: "en-UK", category: .enUK),
-
-    VoicePair(firstKey: "Daisy", secondKey: "Stella", firstName: "Daisy", secondName: "Stella", language: "en-UK", category: .enUK),
-
-    VoicePair(firstKey: "Maverick", secondKey: "Natalie", firstName: "Maverick", secondName: "Natalie", language: "en-US", category: .enUS),
-
-    VoicePair(firstKey: "Nova", secondKey: "Owen", firstName: "Nova", secondName: "Owen", language: "en-US", category: .enUS)
-
-    // VoicePair(firstKey: "Theodore", secondKey: "Theodore", firstName: "Theodore", secondName: "Theodore", language: "en-US", category: .enUS)
+    VoicePair(firstKey: "Daisy", secondKey: "Stella", firstName: "Daisy", secondName: "Stella", language: "en-UK", category: .enUK)
   ]
 }

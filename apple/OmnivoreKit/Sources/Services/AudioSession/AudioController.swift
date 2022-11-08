@@ -636,6 +636,8 @@
         pause()
 
         if let url = Bundle(url: UtilsPackage.bundleURL)?.url(forResource: voice, withExtension: "mp3") {
+          try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [])
+
           samplePlayer = try AVAudioPlayer(contentsOf: url, fileTypeHint: AVFileType.mp3.rawValue)
           if !(samplePlayer?.play() ?? false) {
             throw BasicError.message(messageText: "Unable to playback audio")
