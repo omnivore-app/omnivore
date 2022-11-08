@@ -24,12 +24,12 @@ import { RealisticTextToSpeech } from './realisticTextToSpeech'
 type RedisClient = ReturnType<typeof createClient>
 
 interface UtteranceInput {
-  voice?: string
-  rate?: string
-  language?: string
   text: string
   idx: string
   isUltraRealisticVoice?: boolean
+  voice?: string
+  rate?: string
+  language?: string
 }
 
 interface HTMLInput {

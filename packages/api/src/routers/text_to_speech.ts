@@ -67,8 +67,10 @@ export function textToSpeechRouter() {
           title: page.title,
           content: page.content,
           options: {
-            primaryVoice: userPersonalization?.speechVoice || 'Larry',
-            secondaryVoice: 'Evelyn',
+            primaryVoice: userPersonalization?.speechVoice || 'Axel',
+            secondaryVoice: userPersonalization?.speechVoice || 'Evelyn',
+            language: page.language || 'English',
+            rate: '1.1',
           },
         })
 
@@ -78,7 +80,7 @@ export function textToSpeechRouter() {
             userId,
             speechId: utterance.idx,
             text: utterance.text,
-            voice: utterance.voice || 'Larry',
+            voice: utterance.voice || 'Axel',
             priority: 'high',
             isUltraRealisticVoice: true,
           })
