@@ -4,7 +4,7 @@
 import express from 'express'
 import cors from 'cors'
 import { corsConfig } from '../utils/corsConfig'
-import { setClaims } from '../entity/utils'
+import { getRepository, setClaims } from '../entity/utils'
 import { getPageById } from '../elastic/pages'
 import { Speech, SpeechState } from '../entity/speech'
 import { buildLogger } from '../utils/logger'
@@ -14,6 +14,7 @@ import { readPushSubscription } from '../datalayer/pubsub'
 import { AppDataSource } from '../server'
 import { enqueueTextToSpeech } from '../utils/createTask'
 import { htmlToSpeechFile } from '@omnivore/text-to-speech-handler'
+import { UserPersonalization } from '../entity/user_personalization'
 
 const logger = buildLogger('app.dispatch')
 
@@ -58,11 +59,15 @@ export function textToSpeechRouter() {
       if (await shouldSynthesize(userId, page)) {
         logger.info('page needs to be synthesized')
 
+        const userPersonalization = await getRepository(
+          UserPersonalization
+        ).findOneBy({ user: { id: userId } })
+
         const speechFile = htmlToSpeechFile({
           title: page.title,
           content: page.content,
           options: {
-            primaryVoice: 'larry',
+            primaryVoice: userPersonalization?.speechVoice || 'larry',
             secondaryVoice: 'Evelyn',
           },
         })
@@ -73,7 +78,7 @@ export function textToSpeechRouter() {
             userId,
             speechId: utterance.idx,
             text: utterance.text,
-            voice: utterance.voice || 'Harrison',
+            voice: utterance.voice || 'larry',
             priority: 'low',
             isUltraRealisticVoice: true,
           })
