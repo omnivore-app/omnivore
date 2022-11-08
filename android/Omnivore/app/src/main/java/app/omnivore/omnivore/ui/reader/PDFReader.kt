@@ -22,6 +22,7 @@ import com.pspdfkit.annotations.HighlightAnnotation
 import com.pspdfkit.configuration.PdfConfiguration
 import com.pspdfkit.configuration.activity.ThumbnailBarMode
 import com.pspdfkit.configuration.page.PageScrollDirection
+import com.pspdfkit.datastructures.TextSelection
 import com.pspdfkit.document.PdfDocument
 import com.pspdfkit.document.search.SearchResult
 import com.pspdfkit.listeners.DocumentListener
@@ -30,6 +31,8 @@ import com.pspdfkit.ui.PdfThumbnailBar
 import com.pspdfkit.ui.search.PdfSearchViewModular
 import com.pspdfkit.ui.search.SearchResultHighlighter
 import com.pspdfkit.ui.search.SimpleSearchResultListener
+import com.pspdfkit.ui.special_mode.controller.TextSelectionController
+import com.pspdfkit.ui.special_mode.manager.TextSelectionManager
 import com.pspdfkit.utils.PdfUtils
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.Duration
@@ -38,8 +41,9 @@ import java.util.*
 import kotlin.time.Duration.Companion.seconds
 
 @AndroidEntryPoint
-class PDFReaderActivity: AppCompatActivity(), DocumentListener {
+class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionManager.OnTextSelectionChangeListener, TextSelectionManager.OnTextSelectionModeChangeListener {
   private var hasLoadedHighlights = false
+  private var pendingHighlightAnnotation: HighlightAnnotation? = null
 
   private lateinit var fragment: PdfFragment
   private lateinit var thumbnailBar: PdfThumbnailBar
@@ -83,6 +87,8 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener {
     initThumbnailBar()
 
     fragment.apply {
+      addOnTextSelectionModeChangeListener(this@PDFReaderActivity)
+      addOnTextSelectionChangeListener(this@PDFReaderActivity)
       addDocumentListener(this@PDFReaderActivity)
       addDocumentListener(modularSearchView)
       addDocumentListener(thumbnailBar.documentListener)
@@ -273,5 +279,29 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener {
     val tintedDrawable = DrawableCompat.wrap(drawable)
     DrawableCompat.setTint(tintedDrawable, tint)
     return tintedDrawable
+  }
+
+  override fun onBeforeTextSelectionChange(p0: TextSelection?, p1: TextSelection?): Boolean {
+    return true
+  }
+
+  override fun onAfterTextSelectionChange(p0: TextSelection?, p1: TextSelection?) {
+    val textRects = p0?.textBlocks ?: return
+    val pageIndex = p0.pageIndex
+    pendingHighlightAnnotation = HighlightAnnotation(pageIndex, textRects)
+    Log.d("pdf", "created annotation: $pendingHighlightAnnotation")
+//    fragment.addAnnotationToPage(highlightAnnotation, false)
+  }
+
+  override fun onEnterTextSelectionMode(p0: TextSelectionController) {
+    val textRects = p0?.textSelection?.textBlocks ?: return
+    val pageIndex = p0.textSelection?.pageIndex ?: return
+    pendingHighlightAnnotation = HighlightAnnotation(pageIndex, textRects)
+    Log.d("pdf", "updated annotation via mode listener: $pendingHighlightAnnotation")
+  }
+
+  override fun onExitTextSelectionMode(p0: TextSelectionController) {
+    pendingHighlightAnnotation = null
+    Log.d("pdf", "destroyed pending highlight")
   }
 }
