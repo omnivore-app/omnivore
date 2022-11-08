@@ -7,7 +7,7 @@ import axios from 'axios'
 import ffmpegPath from '@ffmpeg-installer/ffmpeg'
 import ffmpeg from 'fluent-ffmpeg'
 import { PassThrough } from 'stream'
-import { htmlToSpeechFile } from './htmlToSsml'
+import { createGCSFile } from './index'
 
 ffmpeg.setFfmpegPath(ffmpegPath.path)
 
@@ -16,24 +16,23 @@ interface PlayHtConvertResponse {
   payload: string[]
 }
 
-const streamWavToMp3 = (
+const convertWavToMp3AndUpload = async (
   inputStream: PassThrough,
   outputStream: PassThrough
 ) => {
-  ffmpeg(inputStream)
-    .inputFormat('wav')
-    .format('mp3')
-    .audioBitrate('32k')
-    .audioChannels(2)
-    .audioCodec('libmp3lame')
-    .on('error', (err) => {
-      throw err
-    })
-    .on('end', () => {
-      console.debug('transcoding finished')
-      outputStream.end()
-    })
-    .pipe(outputStream, { end: true })
+  return new Promise<void>((resolve, reject) => {
+    ffmpeg(inputStream)
+      .audioCodec('libmp3lame')
+      .format('mp3')
+      .on('error', (err) => {
+        reject(err)
+      })
+      .on('end', () => {
+        console.debug('Finished processing')
+        resolve()
+      })
+      .pipe(outputStream, { end: true })
+  })
 }
 
 export class RealisticTextToSpeech implements TextToSpeech {
@@ -47,8 +46,18 @@ export class RealisticTextToSpeech implements TextToSpeech {
       throw new Error('PlayHT API credentials not set')
     }
 
+    const bucket = process.env.GCS_UPLOAD_BUCKET
+    if (!bucket) {
+      throw new Error('GCS_UPLOAD_BUCKET not set')
+    }
+
+    // audio file to be saved in GCS
+    const audioFileName = `speech/${input.key}.mp3`
+    const audioFile = createGCSFile(bucket, audioFileName)
+    const outputStream = audioFile.createWriteStream({
+      resumable: true,
+    }) as PassThrough
     const inputStream = new PassThrough()
-    const outputStream = input.audioStream as PassThrough
 
     const HEADERS = {
       Authorization: apiKey,
@@ -56,19 +65,9 @@ export class RealisticTextToSpeech implements TextToSpeech {
       'Content-Type': 'application/json',
     }
 
-    const speechFile = htmlToSpeechFile({
-      title: '',
-      content: input.text,
-      options: {
-        primaryVoice: input.voice,
-        secondaryVoice: input.secondaryVoice,
-        language: input.language,
-      },
-    })
-    const content = speechFile.utterances.map((u) => u.text)
     const data = {
       voice: input.voice,
-      content,
+      content: [input.text],
     }
 
     // get the download url first
@@ -116,7 +115,7 @@ export class RealisticTextToSpeech implements TextToSpeech {
     }
 
     // transcode the audio file to mp3
-    streamWavToMp3(inputStream, outputStream)
+    await convertWavToMp3AndUpload(inputStream, outputStream)
 
     return {
       audioData,

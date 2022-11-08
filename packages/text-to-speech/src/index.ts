@@ -40,7 +40,6 @@ interface HTMLInput {
   rate?: string
   complimentaryVoice?: string
   bucket: string
-  isUltraRealisticVoice?: boolean
 }
 
 interface CacheResult {
@@ -83,7 +82,7 @@ const uploadToBucket = async (
   await storage.bucket(bucket).file(filePath).save(data, options)
 }
 
-const createGCSFile = (bucket: string, filename: string): File => {
+export const createGCSFile = (bucket: string, filename: string): File => {
   return storage.bucket(bucket).file(filename)
 }
 
@@ -168,11 +167,11 @@ export const textToSpeechHandler = Sentry.GCPFunction.wrapHttpFunction(
       // synthesize text to speech
       const startTime = Date.now()
       // temporary solution to use realistic text to speech
-      input.isUltraRealisticVoice = true
       const { speechMarks } = await synthesizeTextToSpeech({
         ...input,
         textType: 'html',
         audioStream,
+        key: id,
       })
       console.info(
         `Synthesize text to speech completed in ${Date.now() - startTime} ms`
@@ -284,6 +283,7 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
       const input: TextToSpeechInput = {
         ...utteranceInput,
         textType: 'ssml',
+        key: cacheKey,
       }
       const { audioData, speechMarks } = await synthesizeTextToSpeech(input)
       if (!audioData) {

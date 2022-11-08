@@ -4,7 +4,7 @@
 import express from 'express'
 import cors from 'cors'
 import { corsConfig } from '../utils/corsConfig'
-import { getRepository, setClaims } from '../entity/utils'
+import { setClaims } from '../entity/utils'
 import { getPageById } from '../elastic/pages'
 import { Speech, SpeechState } from '../entity/speech'
 import { buildLogger } from '../utils/logger'
@@ -13,7 +13,7 @@ import { shouldSynthesize } from '../services/speech'
 import { readPushSubscription } from '../datalayer/pubsub'
 import { AppDataSource } from '../server'
 import { enqueueTextToSpeech } from '../utils/createTask'
-import { UserPersonalization } from '../entity/user_personalization'
+import { htmlToSpeechFile } from '@omnivore/text-to-speech-handler'
 
 const logger = buildLogger('app.dispatch')
 
@@ -57,26 +57,29 @@ export function textToSpeechRouter() {
       // checks if this page needs to be synthesized automatically
       if (await shouldSynthesize(userId, page)) {
         logger.info('page needs to be synthesized')
-        const userPersonalization = await getRepository(
-          UserPersonalization
-        ).findOneBy({ user: { id: userId } })
-        // initialize state
-        const speech = await getRepository(Speech).save({
-          user: { id: userId },
-          elasticPageId: id,
-          state: SpeechState.INITIALIZED,
-          voice: userPersonalization?.speechVoice || 'Harrison',
+
+        const speechFile = htmlToSpeechFile({
+          title: page.title,
+          content: page.content,
+          options: {
+            primaryVoice: 'Harrison',
+            secondaryVoice: 'Evelyn',
+          },
         })
-        // enqueue a task to convert text to speech
-        const taskName = await enqueueTextToSpeech({
-          userId,
-          speechId: speech.id,
-          text: page.content,
-          voice: speech.voice,
-          priority: 'low',
-          isUltraRealisticVoice: true,
-        })
-        logger.info('Start Text to speech task', { taskName })
+
+        for (const utterance of speechFile.utterances) {
+          // enqueue a task to convert text to speech
+          const taskName = await enqueueTextToSpeech({
+            userId,
+            speechId: utterance.idx,
+            text: utterance.text,
+            voice: utterance.voice || 'Harrison',
+            priority: 'low',
+            isUltraRealisticVoice: true,
+          })
+          logger.info('Start Text to speech task', { taskName })
+        }
+
         return res.status(202).send('Text to speech task started')
       }
 

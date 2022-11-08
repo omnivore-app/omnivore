@@ -1,5 +1,6 @@
 export interface TextToSpeechInput {
   text: string
+  key: string
   voice?: string
   language?: string
   textType?: 'html' | 'ssml'
