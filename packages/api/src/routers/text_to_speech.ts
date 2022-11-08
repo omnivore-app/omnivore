@@ -15,6 +15,7 @@ import { AppDataSource } from '../server'
 import { enqueueTextToSpeech } from '../utils/createTask'
 import { htmlToSpeechFile } from '@omnivore/text-to-speech-handler'
 import { UserPersonalization } from '../entity/user_personalization'
+import { ArticleSavingRequestStatus } from '../elastic/types'
 
 const logger = buildLogger('app.dispatch')
 
@@ -36,23 +37,28 @@ export function textToSpeechRouter() {
     }
 
     try {
-      const data: { userId: string; type: string; id: string; state: string } =
+      const data: { userId: string; type: string; id: string } =
         JSON.parse(msgStr)
-      const { userId, type, id, state } = data
+      const { userId, type, id } = data
       if (!userId || !type || !id) {
         logger.info('Invalid data')
         return res.status(400).send('Bad Request')
       }
 
-      if (type.toUpperCase() !== 'PAGE' || state !== 'SUCCEEDED') {
-        logger.info('Not a page or not succeeded')
-        return res.status(200).send('Not a page or not succeeded')
+      if (type.toUpperCase() !== 'PAGE') {
+        logger.info('Not a page')
+        return res.status(200).send('Not a page')
       }
 
       const page = await getPageById(id)
       if (!page) {
         logger.info('No page found', { id })
         return res.status(200).send('No page found')
+      }
+
+      if (page.state === ArticleSavingRequestStatus.Processing) {
+        logger.info('Page is still processing, try again later', { id })
+        return res.status(400).send('Page is still processing')
       }
 
       // checks if this page needs to be synthesized automatically
