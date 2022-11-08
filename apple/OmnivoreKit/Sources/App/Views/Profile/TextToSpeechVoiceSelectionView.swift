@@ -19,10 +19,12 @@
     var body: some View {
       Group {
         Form {
-          Toggle("Use Ultra Realistic Voices", isOn: $audioController.useUltraRealisticVoices)
-            .accentColor(Color.green)
+          if language.key == "en" {
+            Toggle("Use Ultra Realistic Voices", isOn: $audioController.useUltraRealisticVoices)
+              .accentColor(Color.green)
+          }
 
-          if audioController.useUltraRealisticVoices {
+          if language.key == "en", audioController.useUltraRealisticVoices {
             Section {
               Text("Ultra realistic voices take longer to generate and do not offer a follow along user interface.")
                 .multilineTextAlignment(.leading)
