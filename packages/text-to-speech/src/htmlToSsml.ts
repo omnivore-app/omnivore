@@ -16,7 +16,7 @@ export interface Utterance {
   text: string
   wordOffset: number
   wordCount: number
-  voice?: string
+  voice: string
 }
 
 export interface SpeechFile {
@@ -269,7 +269,7 @@ const textToUtterances = ({
   idx: string
   textItems: string[]
   wordOffset: number
-  voice?: string
+  voice: string
   isHtml?: boolean
 }): Utterance[] => {
   let text = textItems.join('')
@@ -393,6 +393,7 @@ export const htmlToSpeechFile = (htmlInput: HtmlInput): SpeechFile => {
       textItems: [stripEmojis(title)], // title could have emoji
       wordOffset,
       isHtml: false,
+      voice: defaultVoice,
     })[0]
     utterances.push(titleUtterance)
     wordOffset += titleUtterance.wordCount
@@ -413,7 +414,9 @@ export const htmlToSpeechFile = (htmlInput: HtmlInput): SpeechFile => {
         textItems,
         wordOffset,
         voice:
-          node.nodeName === 'BLOCKQUOTE' ? options.secondaryVoice : undefined,
+          node.nodeName === 'BLOCKQUOTE'
+            ? options.secondaryVoice || defaultVoice
+            : defaultVoice,
       })
       const wordCount = newUtterances.reduce((acc, u) => acc + u.wordCount, 0)
       wordCount > 0 && utterances.push(...newUtterances)
