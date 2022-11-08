@@ -1,10 +1,12 @@
 package app.omnivore.omnivore.ui.reader
 
+import android.graphics.PointF
 import android.graphics.RectF
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.MotionEvent
 import android.view.View
 import android.widget.ImageView
 import androidx.activity.viewModels
@@ -250,6 +252,21 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener {
       }
       else -> super.onBackPressed()
     }
+  }
+
+  override fun onPageClick(
+    document: PdfDocument,
+    pageIndex: Int,
+    event: MotionEvent?,
+    pagePosition: PointF?,
+    clickedAnnotation: Annotation?
+  ): Boolean {
+    if (clickedAnnotation != null) {
+      // TODO: show menu with delete and add note buttons
+      Log.d("pdf", "clicked annotation: $clickedAnnotation")
+    }
+
+    return super.onPageClick(document, pageIndex, event, pagePosition, clickedAnnotation)
   }
 
   private fun tintDrawable(drawable: Drawable, tint: Int): Drawable {
