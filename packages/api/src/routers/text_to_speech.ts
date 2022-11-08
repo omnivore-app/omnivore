@@ -68,9 +68,7 @@ export function textToSpeechRouter() {
           content: page.content,
           options: {
             primaryVoice: userPersonalization?.speechVoice || 'Axel',
-            secondaryVoice: userPersonalization?.speechVoice || 'Evelyn',
-            language: page.language || 'English',
-            rate: '1.1',
+            secondaryVoice: 'Evelyn',
           },
         })
 
@@ -83,6 +81,8 @@ export function textToSpeechRouter() {
             voice: utterance.voice || 'Axel',
             priority: 'high',
             isUltraRealisticVoice: true,
+            language: page.language || 'English',
+            rate: '1.1',
           })
           logger.info('Start Text to speech task', { taskName })
         }
