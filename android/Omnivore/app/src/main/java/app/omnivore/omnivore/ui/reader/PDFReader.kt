@@ -26,6 +26,7 @@ import com.pspdfkit.datastructures.TextSelection
 import com.pspdfkit.document.PdfDocument
 import com.pspdfkit.document.search.SearchResult
 import com.pspdfkit.listeners.DocumentListener
+import com.pspdfkit.listeners.OnPreparePopupToolbarListener
 import com.pspdfkit.ui.PdfFragment
 import com.pspdfkit.ui.PdfThumbnailBar
 import com.pspdfkit.ui.search.PdfSearchViewModular
@@ -33,15 +34,13 @@ import com.pspdfkit.ui.search.SearchResultHighlighter
 import com.pspdfkit.ui.search.SimpleSearchResultListener
 import com.pspdfkit.ui.special_mode.controller.TextSelectionController
 import com.pspdfkit.ui.special_mode.manager.TextSelectionManager
+import com.pspdfkit.ui.toolbar.popup.PdfTextSelectionPopupToolbar
 import com.pspdfkit.utils.PdfUtils
 import dagger.hilt.android.AndroidEntryPoint
-import java.time.Duration
-import java.time.LocalDateTime
 import java.util.*
-import kotlin.time.Duration.Companion.seconds
 
 @AndroidEntryPoint
-class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionManager.OnTextSelectionChangeListener, TextSelectionManager.OnTextSelectionModeChangeListener {
+class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionManager.OnTextSelectionChangeListener, TextSelectionManager.OnTextSelectionModeChangeListener, OnPreparePopupToolbarListener {
   private var hasLoadedHighlights = false
   private var pendingHighlightAnnotation: HighlightAnnotation? = null
 
@@ -76,6 +75,8 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
     viewModel.loadItem(slug, this)
   }
 
+  // TODO: implement onDestroy to remove listeners?
+
   private fun load(params: PDFReaderParams) {
     // First, try to restore a previously created fragment.
     // If no fragment exists, create a new one.
@@ -87,6 +88,7 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
     initThumbnailBar()
 
     fragment.apply {
+      setOnPreparePopupToolbarListener(this@PDFReaderActivity)
       addOnTextSelectionModeChangeListener(this@PDFReaderActivity)
       addOnTextSelectionChangeListener(this@PDFReaderActivity)
       addDocumentListener(this@PDFReaderActivity)
@@ -303,5 +305,9 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
   override fun onExitTextSelectionMode(p0: TextSelectionController) {
     pendingHighlightAnnotation = null
     Log.d("pdf", "destroyed pending highlight")
+  }
+
+  override fun onPrepareTextSelectionPopupToolbar(p0: PdfTextSelectionPopupToolbar) {
+    Log.d("pdf", "popup toolbar action")
   }
 }
