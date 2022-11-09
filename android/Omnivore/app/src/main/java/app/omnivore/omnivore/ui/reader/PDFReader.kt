@@ -1,5 +1,8 @@
 package app.omnivore.omnivore.ui.reader
 
+import android.annotation.SuppressLint
+import android.content.ContentValues
+import android.content.Intent
 import android.graphics.PointF
 import android.graphics.RectF
 import android.graphics.drawable.Drawable
@@ -29,12 +32,16 @@ import com.pspdfkit.listeners.DocumentListener
 import com.pspdfkit.listeners.OnPreparePopupToolbarListener
 import com.pspdfkit.ui.PdfFragment
 import com.pspdfkit.ui.PdfThumbnailBar
+import com.pspdfkit.ui.PopupToolbar
 import com.pspdfkit.ui.search.PdfSearchViewModular
 import com.pspdfkit.ui.search.SearchResultHighlighter
 import com.pspdfkit.ui.search.SimpleSearchResultListener
 import com.pspdfkit.ui.special_mode.controller.TextSelectionController
 import com.pspdfkit.ui.special_mode.manager.TextSelectionManager
+import com.pspdfkit.ui.toolbar.ContextualToolbar
+import com.pspdfkit.ui.toolbar.ToolbarCoordinatorLayout
 import com.pspdfkit.ui.toolbar.popup.PdfTextSelectionPopupToolbar
+import com.pspdfkit.ui.toolbar.popup.PopupToolbarMenuItem
 import com.pspdfkit.utils.PdfUtils
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
@@ -43,6 +50,7 @@ import java.util.*
 class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionManager.OnTextSelectionChangeListener, TextSelectionManager.OnTextSelectionModeChangeListener, OnPreparePopupToolbarListener {
   private var hasLoadedHighlights = false
   private var pendingHighlightAnnotation: HighlightAnnotation? = null
+  private var textSelectionController: TextSelectionController? = null
 
   private lateinit var fragment: PdfFragment
   private lateinit var thumbnailBar: PdfThumbnailBar
@@ -299,15 +307,52 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
     val textRects = p0?.textSelection?.textBlocks ?: return
     val pageIndex = p0.textSelection?.pageIndex ?: return
     pendingHighlightAnnotation = HighlightAnnotation(pageIndex, textRects)
+    textSelectionController = p0
     Log.d("pdf", "updated annotation via mode listener: $pendingHighlightAnnotation")
   }
 
   override fun onExitTextSelectionMode(p0: TextSelectionController) {
+    textSelectionController = null
     pendingHighlightAnnotation = null
     Log.d("pdf", "destroyed pending highlight")
   }
 
+  @SuppressLint("ResourceType")
   override fun onPrepareTextSelectionPopupToolbar(p0: PdfTextSelectionPopupToolbar) {
-    Log.d("pdf", "popup toolbar action")
+    val onClickListener = PopupToolbar.OnPopupToolbarItemClickedListener {
+      when (it.id) {
+        1 -> {
+          Log.d("pdf", "user selected highlight action")
+          textSelectionController?.textSelection = null
+          p0.dismiss()
+          return@OnPopupToolbarItemClickedListener true
+        }
+        2 -> {
+          Log.d("pdf", "user selected annotate action")
+          textSelectionController?.textSelection = null
+          p0.dismiss()
+          return@OnPopupToolbarItemClickedListener true
+        }
+        3 -> {
+          Log.d("pdf", "user selected copy action")
+          textSelectionController?.textSelection = null
+          p0.dismiss()
+          return@OnPopupToolbarItemClickedListener true
+        }
+        else -> {
+          p0.dismiss()
+          textSelectionController?.textSelection = null
+          return@OnPopupToolbarItemClickedListener false
+        }
+      }
+    }
+
+    p0.setOnPopupToolbarItemClickedListener(onClickListener)
+
+    p0.menuItems = listOf(
+      PopupToolbarMenuItem(1, R.string.highlight_menu_action),
+      PopupToolbarMenuItem(2, R.string.annotate_menu_action),
+      PopupToolbarMenuItem(3, R.string.copy_menu_action),
+    )
   }
 }
