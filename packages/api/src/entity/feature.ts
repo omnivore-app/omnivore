@@ -21,11 +21,11 @@ export class Feature {
   @Column('text')
   name!: string
 
-  @Column('text')
-  token!: string
-
   @Column('timestamp', { nullable: true })
   grantedAt?: Date | null
+
+  @Column('timestamp', { nullable: true })
+  expiredAt?: Date | null
 
   @CreateDateColumn({ default: () => 'CURRENT_TIMESTAMP' })
   createdAt!: Date

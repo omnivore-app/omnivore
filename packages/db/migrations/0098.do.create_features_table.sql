@@ -8,8 +8,8 @@ CREATE TABLE IF NOT EXISTS omnivore.features (
     id uuid PRIMARY KEY DEFAULT uuid_generate_v1mc(),
     user_id uuid NOT NULL REFERENCES omnivore.user ON DELETE CASCADE,
     name text NOT NULL,
-    token text NOT NULL,
     granted_at timestamptz,
+    expired_at timestamptz,
     created_at timestamptz NOT NULL DEFAULT current_timestamp,
     updated_at timestamptz NOT NULL DEFAULT current_timestamp,
     UNIQUE (user_id, name)
