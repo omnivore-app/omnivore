@@ -57,15 +57,13 @@ const optInUltraRealisticVoice = async (uid: string): Promise<Feature> => {
 }
 
 export const signFeatureToken = (feature: Feature): string => {
-  console.log('signing token', feature)
   return jwt.sign(
     {
-      userid: feature.user.id,
-      feature_name: feature.name,
-      createdat: feature.createdAt.getTime(),
-      expiresat: feature.expiresAt?.getTime() || null,
-      grantedat: feature.grantedAt?.getTime() || null,
+      uid: feature.user.id,
+      featureName: feature.name,
+      grantedAt: feature.grantedAt ? feature.grantedAt.getTime() / 1000 : null,
     },
-    env.server.jwtSecret
+    env.server.jwtSecret,
+    { expiresIn: '1d' }
   )
 }

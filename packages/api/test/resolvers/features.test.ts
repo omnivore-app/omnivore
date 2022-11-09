@@ -29,7 +29,7 @@ describe('features resolvers', () => {
   })
 
   describe('optInFeature API', () => {
-    const feature = 'ultra-realistic-voice'
+    const featureName = 'ultra-realistic-voice'
     const now = new Date()
     let clock: SinonFakeTimers
 
@@ -52,12 +52,13 @@ describe('features resolvers', () => {
       }
     `
 
-    beforeEach(() => {
+    before(() => {
+      console.log('opting in to feature')
       // mock date and ignore milliseconds
       clock = sinon.useFakeTimers(now.setSeconds(now.getSeconds(), 0))
     })
 
-    afterEach(() => {
+    after(() => {
       clock.restore()
     })
 
@@ -70,22 +71,23 @@ describe('features resolvers', () => {
       })
 
       it('opts in to the feature', async () => {
-        const res = await graphqlRequest(query(feature), authToken).expect(200)
+        const res = await graphqlRequest(query(featureName), authToken).expect(
+          200
+        )
 
         const token = jwt.sign(
           {
-            userid: loginUser.id,
-            feature_name: feature,
-            createdat: Date.now(),
-            expiresat: null,
-            grantedat: Date.now(),
+            uid: loginUser.id,
+            featureName,
+            grantedAt: Date.now() / 1000,
           },
-          env.server.jwtSecret
+          env.server.jwtSecret,
+          { expiresIn: '1d' }
         )
 
         expect(res.body.data.optInFeature).to.eql({
           feature: {
-            name: feature,
+            name: featureName,
             grantedAt: new Date().toISOString(),
             token,
           },
@@ -112,7 +114,7 @@ describe('features resolvers', () => {
         const features = users.map((user) => {
           return {
             user: { id: user.id },
-            name: feature,
+            name: featureName,
             grantedAt: new Date(),
           }
         })
@@ -126,27 +128,28 @@ describe('features resolvers', () => {
           name: Like(`user%`),
         })
         await getRepository(Feature).delete({
-          name: feature,
+          name: featureName,
         })
       })
 
       it('does not opt in to the feature', async () => {
-        const res = await graphqlRequest(query(feature), authToken).expect(200)
+        const res = await graphqlRequest(query(featureName), authToken).expect(
+          200
+        )
 
         const token = jwt.sign(
           {
-            userid: loginUser.id,
-            feature_name: feature,
-            createdat: Date.now(),
-            expiresat: null,
-            grantedat: null,
+            uid: loginUser.id,
+            featureName,
+            grantedAt: null,
           },
-          env.server.jwtSecret
+          env.server.jwtSecret,
+          { expiresIn: '1d' }
         )
 
         expect(res.body.data.optInFeature).to.eql({
           feature: {
-            name: feature,
+            name: featureName,
             grantedAt: null,
             token,
           },
@@ -159,7 +162,7 @@ describe('features resolvers', () => {
         // opt in
         await getRepository(Feature).save({
           user: { id: loginUser.id },
-          name: feature,
+          name: featureName,
           grantedAt: new Date(),
         })
       })
@@ -172,22 +175,23 @@ describe('features resolvers', () => {
       })
 
       it('returns the feature', async () => {
-        const res = await graphqlRequest(query(feature), authToken).expect(200)
+        const res = await graphqlRequest(query(featureName), authToken).expect(
+          200
+        )
 
         const token = jwt.sign(
           {
-            userid: loginUser.id,
-            feature_name: feature,
-            createdat: Date.now(),
-            expiresat: null,
-            grantedat: Date.now(),
+            uid: loginUser.id,
+            featureName,
+            grantedAt: Date.now() / 1000,
           },
-          env.server.jwtSecret
+          env.server.jwtSecret,
+          { expiresIn: '1d' }
         )
 
         expect(res.body.data.optInFeature).to.eql({
           feature: {
-            name: feature,
+            name: featureName,
             grantedAt: new Date().toISOString(),
             token,
           },
