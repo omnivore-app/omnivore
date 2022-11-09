@@ -53,8 +53,8 @@ describe('features resolvers', () => {
     `
 
     beforeEach(() => {
-      // mock date
-      clock = sinon.useFakeTimers(now.getTime())
+      // mock date and ignore milliseconds
+      clock = sinon.useFakeTimers(now.setSeconds(now.getSeconds(), 0))
     })
 
     afterEach(() => {
@@ -76,8 +76,9 @@ describe('features resolvers', () => {
           {
             userid: loginUser.id,
             feature_name: feature,
-            createdat: now.getTime(),
-            grantedat: now.getTime(),
+            createdat: Date.now(),
+            expiresat: null,
+            grantedat: Date.now(),
           },
           env.server.jwtSecret
         )
@@ -85,8 +86,7 @@ describe('features resolvers', () => {
         expect(res.body.data.optInFeature).to.eql({
           feature: {
             name: feature,
-            // set milliseconds to 000
-            grantedAt: now.toISOString().replace(/\.\d{3}Z$/, '.000Z'),
+            grantedAt: new Date().toISOString(),
             token,
           },
         })
@@ -113,7 +113,7 @@ describe('features resolvers', () => {
           return {
             user: { id: user.id },
             name: feature,
-            grantedAt: now,
+            grantedAt: new Date(),
           }
         })
 
@@ -137,8 +137,9 @@ describe('features resolvers', () => {
           {
             userid: loginUser.id,
             feature_name: feature,
-            createdat: now.getTime(),
-            grantedat: now.getTime(),
+            createdat: Date.now(),
+            expiresat: null,
+            grantedat: null,
           },
           env.server.jwtSecret
         )
@@ -177,8 +178,9 @@ describe('features resolvers', () => {
           {
             userid: loginUser.id,
             feature_name: feature,
-            createdat: now.getTime(),
-            grantedat: now.getTime(),
+            createdat: Date.now(),
+            expiresat: null,
+            grantedat: Date.now(),
           },
           env.server.jwtSecret
         )
@@ -186,7 +188,7 @@ describe('features resolvers', () => {
         expect(res.body.data.optInFeature).to.eql({
           feature: {
             name: feature,
-            grantedAt: now.toISOString().replace(/\.\d{3}Z$/, '.000Z'),
+            grantedAt: new Date().toISOString(),
             token,
           },
         })

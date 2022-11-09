@@ -41,6 +41,7 @@ export const optInFeatureResolver = authorized<
     }
 
     const token = signFeatureToken(optIn)
+    console.log('token', token)
 
     return {
       feature: {

@@ -24,9 +24,12 @@ export const optInFeature = async (
 }
 
 const optInUltraRealisticVoice = async (uid: string): Promise<Feature> => {
-  const feature = await getRepository(Feature).findOneBy({
-    user: { id: uid },
-    name: FeatureName.UltraRealisticVoice,
+  const feature = await getRepository(Feature).findOne({
+    where: {
+      user: { id: uid },
+      name: FeatureName.UltraRealisticVoice,
+    },
+    relations: ['user'],
   })
   if (feature) {
     // already opted in
@@ -54,13 +57,14 @@ const optInUltraRealisticVoice = async (uid: string): Promise<Feature> => {
 }
 
 export const signFeatureToken = (feature: Feature): string => {
+  console.log('signing token', feature)
   return jwt.sign(
     {
       userid: feature.user.id,
       feature_name: feature.name,
       createdat: feature.createdAt.getTime(),
-      expiresat: feature.expiresAt?.getTime(),
-      grantedat: feature.grantedAt?.getTime(),
+      expiresat: feature.expiresAt?.getTime() || null,
+      grantedat: feature.grantedAt?.getTime() || null,
     },
     env.server.jwtSecret
   )
