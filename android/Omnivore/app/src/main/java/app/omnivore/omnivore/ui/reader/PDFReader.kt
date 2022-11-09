@@ -103,41 +103,7 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
       addDocumentListener(modularSearchView)
       addDocumentListener(thumbnailBar.documentListener)
       isImmersive = true
-
-      addOnAnnotationUpdatedListener(object: AnnotationProvider.OnAnnotationUpdatedListener {
-        override fun onAnnotationCreated(annotation: Annotation) {
-          if (isNewAnnotation(annotation)) {
-            viewModel.createHighlight(annotation, params.item.id)
-          }
-        }
-
-        override fun onAnnotationUpdated(annotation: Annotation) {
-          if (!isNewAnnotation(annotation)) { return }
-          val highlightAnnotation = annotation as? HighlightAnnotation ?: return
-          viewModel.syncUpdatedAnnotationHighlight(highlightAnnotation, articleID = params.item.id)
-        }
-
-        override fun onAnnotationRemoved(annotation: Annotation) {
-          viewModel.deleteHighlight(annotation)
-        }
-
-        override fun onAnnotationZOrderChanged(
-          p0: Int,
-          p1: MutableList<Annotation>,
-          p2: MutableList<Annotation>
-        ) {
-          // Unimplemented
-        }
-      })
     }
-  }
-
-  // If created time is less than 2 seconds then we consider it a newly created annotation
-  private fun isNewAnnotation(annotation: Annotation): Boolean {
-    val currentTime = Calendar.getInstance().time.time
-    val createdTime = annotation.createdDate?.time ?: 0
-    val duration = currentTime - createdTime
-    return duration < 2000
   }
 
   override fun onDocumentLoaded(document: PdfDocument) {
@@ -299,8 +265,6 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
     val textRects = p0?.textBlocks ?: return
     val pageIndex = p0.pageIndex
     pendingHighlightAnnotation = HighlightAnnotation(pageIndex, textRects)
-    Log.d("pdf", "created annotation: $pendingHighlightAnnotation")
-//    fragment.addAnnotationToPage(highlightAnnotation, false)
   }
 
   override fun onEnterTextSelectionMode(p0: TextSelectionController) {
@@ -308,21 +272,32 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
     val pageIndex = p0.textSelection?.pageIndex ?: return
     pendingHighlightAnnotation = HighlightAnnotation(pageIndex, textRects)
     textSelectionController = p0
-    Log.d("pdf", "updated annotation via mode listener: $pendingHighlightAnnotation")
   }
 
   override fun onExitTextSelectionMode(p0: TextSelectionController) {
     textSelectionController = null
     pendingHighlightAnnotation = null
-    Log.d("pdf", "destroyed pending highlight")
   }
 
   @SuppressLint("ResourceType")
   override fun onPrepareTextSelectionPopupToolbar(p0: PdfTextSelectionPopupToolbar) {
-    val onClickListener = PopupToolbar.OnPopupToolbarItemClickedListener {
+    val onClickListener = PopupToolbar.OnPopupToolbarItemClickedListener { it ->
       when (it.id) {
         1 -> {
-          Log.d("pdf", "user selected highlight action")
+          pendingHighlightAnnotation?.let { annotation ->
+            val existingAnnotations = fragment.document?.annotationProvider?.getAnnotations(fragment.pageIndex) ?: listOf()
+            val overlappingAnnotations = viewModel.overlappingAnnotations(annotation, existingAnnotations)
+            val overlapIDs = overlappingAnnotations.mapNotNull { viewModel.pluckHighlightID(it) }
+
+            for (overlappingAnnotation in overlappingAnnotations) {
+              fragment.document?.annotationProvider?.removeAnnotationFromPage(overlappingAnnotation)
+            }
+
+            fragment.addAnnotationToPage(annotation, false) {
+              viewModel.syncHighlightUpdates(annotation, overlapIDs)
+            }
+          }
+
           textSelectionController?.textSelection = null
           p0.dismiss()
           return@OnPopupToolbarItemClickedListener true
