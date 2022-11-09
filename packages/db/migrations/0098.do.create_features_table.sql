@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS omnivore.features (
     user_id uuid NOT NULL REFERENCES omnivore.user ON DELETE CASCADE,
     name text NOT NULL,
     granted_at timestamptz,
-    expired_at timestamptz,
+    expires_at timestamptz,
     created_at timestamptz NOT NULL DEFAULT current_timestamp,
     updated_at timestamptz NOT NULL DEFAULT current_timestamp,
     UNIQUE (user_id, name)

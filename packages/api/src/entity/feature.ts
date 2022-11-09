@@ -25,7 +25,7 @@ export class Feature {
   grantedAt?: Date | null
 
   @Column('timestamp', { nullable: true })
-  expiredAt?: Date | null
+  expiresAt?: Date | null
 
   @CreateDateColumn({ default: () => 'CURRENT_TIMESTAMP' })
   createdAt!: Date
