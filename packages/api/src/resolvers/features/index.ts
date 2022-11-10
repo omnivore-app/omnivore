@@ -40,7 +40,7 @@ export const optInFeatureResolver = authorized<
       }
     }
 
-    const token = signFeatureToken(optIn)
+    const token = signFeatureToken(optIn, claims.uid)
 
     return {
       feature: {
