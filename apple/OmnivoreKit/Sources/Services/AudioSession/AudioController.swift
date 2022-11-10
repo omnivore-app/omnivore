@@ -275,6 +275,9 @@
 
     @AppStorage(UserDefaultKey.textToSpeechUseUltraRealisticVoices.rawValue) public var useUltraRealisticVoices = false
 
+    @AppStorage(UserDefaultKey.textToSpeechUltraRealisticFeatureKey.rawValue) public var ultraRealisticFeatureKey: String = ""
+    @AppStorage(UserDefaultKey.textToSpeechUltraRealisticFeatureRequested.rawValue) public var ultraRealisticFeatureRequested: Bool = false
+
     public var currentVoiceLanguage: VoiceLanguage {
       Voices.Languages.first(where: { $0.key == currentLanguage }) ?? Voices.English
     }

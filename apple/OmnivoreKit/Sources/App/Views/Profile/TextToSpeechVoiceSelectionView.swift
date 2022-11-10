@@ -2,14 +2,17 @@
   import Models
   import Services
   import SwiftUI
+  import Utils
   import Views
 
   struct TextToSpeechVoiceSelectionView: View {
     @EnvironmentObject var audioController: AudioController
+    @EnvironmentObject var dataService: DataService
+
+    @StateObject var viewModel = TextToSpeechVoiceSelectionViewModel()
+
     let language: VoiceLanguage
     let showLanguageChanger: Bool
-
-    @State var playbackSample: String? = nil
 
     init(forLanguage: VoiceLanguage, showLanguageChanger: Bool) {
       self.language = forLanguage
@@ -20,15 +23,30 @@
       Group {
         Form {
           if language.key == "en" {
-            Toggle("Use Ultra Realistic Voices", isOn: $audioController.useUltraRealisticVoices)
-              .accentColor(Color.green)
-          }
+            if viewModel.waitingForRealisticVoices {
+              HStack {
+                Text("Signing up for beta")
+                Spacer()
+                ProgressView()
+              }
+            } else {
+              Toggle("Use Ultra Realistic Voices", isOn: $viewModel.realisticVoicesToggle)
+                .accentColor(Color.green)
+            }
 
-          if language.key == "en", audioController.useUltraRealisticVoices {
-            Section {
-              Text("Ultra realistic voices take longer to generate and do not offer a follow along user interface.")
+            if !viewModel.waitingForRealisticVoices, !audioController.ultraRealisticFeatureKey.isEmpty {
+              Text("You are in the ultra realistic voices beta. During the beta you can listen to 10,000 words of audio per day.")
+                .multilineTextAlignment(.leading)
+            } else if audioController.ultraRealisticFeatureRequested {
+              Text("Your request to join the ultra realistic voices demo has been received. You will be informed by email when a spot is available.")
+                .multilineTextAlignment(.leading)
+            } else {
+              Text("Ultra realistic voices are currently in limited beta. Enabling the feature will add you to the beta queue.")
                 .multilineTextAlignment(.leading)
             }
+          }
+
+          if audioController.useUltraRealisticVoices {
             ultraRealisticVoices
           } else {
             if showLanguageChanger {
@@ -43,6 +61,24 @@
         }
       }
       .navigationTitle("Choose a Voice")
+      .onAppear {
+        viewModel.realisticVoicesToggle = (audioController.useUltraRealisticVoices && !audioController.ultraRealisticFeatureKey.isEmpty)
+      }.onChange(of: viewModel.realisticVoicesToggle) { value in
+        if value, audioController.ultraRealisticFeatureKey.isEmpty {
+          // User wants to sign up
+          viewModel.waitingForRealisticVoices = true
+          Task {
+            await viewModel.requestUltraRealisticFeatureAccess(
+              dataService: self.dataService,
+              audioController: audioController
+            )
+          }
+        } else if value, !audioController.ultraRealisticFeatureKey.isEmpty {
+          audioController.useUltraRealisticVoices = true
+        } else if !value {
+          audioController.useUltraRealisticVoices = false
+        }
+      }
     }
 
     private var standardVoices: some View {
@@ -69,27 +105,27 @@
       HStack {
         Button(action: {
           if audioController.isPlayingSample(voice: voice.key) {
-            playbackSample = nil
+            viewModel.playbackSample = nil
             audioController.stopVoiceSample()
           } else {
-            playbackSample = voice.key
+            viewModel.playbackSample = voice.key
             audioController.playVoiceSample(voice: voice.key)
             Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { timer in
               let playing = audioController.isPlayingSample(voice: voice.key)
               if playing {
-                playbackSample = voice.key
+                viewModel.playbackSample = voice.key
               } else if !playing {
                 // If the playback sample is something else, its taken ownership
                 // of the value so we just ignore it and shut down our timer.
-                if playbackSample == voice.key {
-                  playbackSample = nil
+                if viewModel.playbackSample == voice.key {
+                  viewModel.playbackSample = nil
                 }
                 timer.invalidate()
               }
             }
           }
         }, label: {
-          if playbackSample == voice.key {
+          if viewModel.playbackSample == voice.key {
             Image(systemName: "stop.circle")
               .font(.appTitleTwo)
               .padding(.trailing, 16)
