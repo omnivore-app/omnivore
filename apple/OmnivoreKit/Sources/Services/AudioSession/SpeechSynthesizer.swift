@@ -81,11 +81,13 @@ struct SpeechSynthesizer {
   let document: SpeechDocument
   let appEnvironment: AppEnvironment
   let networker: Networker
+  let speechAuthHeader: String?
 
-  init(appEnvironment: AppEnvironment, networker: Networker, document: SpeechDocument) {
+  init(appEnvironment: AppEnvironment, networker: Networker, document: SpeechDocument, speechAuthHeader: String?) {
     self.appEnvironment = appEnvironment
     self.networker = networker
     self.document = document
+    self.speechAuthHeader = speechAuthHeader
   }
 
   func estimatedDurations(forSpeed speed: Double) -> [Double] {
@@ -157,6 +159,10 @@ struct SpeechSynthesizer {
 
     for (header, value) in networker.defaultHeaders {
       request.setValue(value, forHTTPHeaderField: header)
+    }
+
+    if let speechAuthHeader = speechAuthHeader {
+      request.setValue(speechAuthHeader, forHTTPHeaderField: "Authorization")
     }
 
     return request

@@ -147,7 +147,7 @@
 
       for itemID in itemIDs {
         if let document = try? await downloadSpeechFile(itemID: itemID, priority: .low) {
-          let synthesizer = SpeechSynthesizer(appEnvironment: dataService.appEnvironment, networker: dataService.networker, document: document)
+          let synthesizer = SpeechSynthesizer(appEnvironment: dataService.appEnvironment, networker: dataService.networker, document: document, speechAuthHeader: speechAuthHeader)
           do {
             try await synthesizer.preload()
             return true
@@ -161,7 +161,7 @@
 
     public func downloadForOffline(itemID: String) async -> Bool {
       if let document = try? await downloadSpeechFile(itemID: itemID, priority: .low) {
-        let synthesizer = SpeechSynthesizer(appEnvironment: dataService.appEnvironment, networker: dataService.networker, document: document)
+        let synthesizer = SpeechSynthesizer(appEnvironment: dataService.appEnvironment, networker: dataService.networker, document: document, speechAuthHeader: speechAuthHeader)
         for item in synthesizer.createPlayerItems(from: 0) {
           do {
             _ = try await SpeechSynthesizer.download(speechItem: item, redownloadCached: true)
@@ -277,6 +277,13 @@
 
     @AppStorage(UserDefaultKey.textToSpeechUltraRealisticFeatureKey.rawValue) public var ultraRealisticFeatureKey: String = ""
     @AppStorage(UserDefaultKey.textToSpeechUltraRealisticFeatureRequested.rawValue) public var ultraRealisticFeatureRequested: Bool = false
+
+    var speechAuthHeader: String? {
+      if Voices.isUltraRealisticVoice(currentVoice), !ultraRealisticFeatureKey.isEmpty {
+        return ultraRealisticFeatureKey
+      }
+      return nil
+    }
 
     public var currentVoiceLanguage: VoiceLanguage {
       Voices.Languages.first(where: { $0.key == currentLanguage }) ?? Voices.English
@@ -414,7 +421,7 @@
 
           DispatchQueue.main.async {
             if let document = document {
-              let synthesizer = SpeechSynthesizer(appEnvironment: self.dataService.appEnvironment, networker: self.dataService.networker, document: document)
+              let synthesizer = SpeechSynthesizer(appEnvironment: self.dataService.appEnvironment, networker: self.dataService.networker, document: document, speechAuthHeader: self.speechAuthHeader)
 
               self.setTextItems()
               self.durations = synthesizer.estimatedDurations(forSpeed: self.playbackRate)
@@ -568,7 +575,7 @@
         }
       }
 
-      let synthesizer = SpeechSynthesizer(appEnvironment: dataService.appEnvironment, networker: dataService.networker, document: document)
+      let synthesizer = SpeechSynthesizer(appEnvironment: dataService.appEnvironment, networker: dataService.networker, document: document, speechAuthHeader: speechAuthHeader)
       durations = synthesizer.estimatedDurations(forSpeed: playbackRate)
       self.synthesizer = synthesizer
 
