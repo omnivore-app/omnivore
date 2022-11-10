@@ -82,7 +82,7 @@ describe('features resolvers', () => {
             grantedAt: Date.now() / 1000,
           },
           env.server.jwtSecret,
-          { expiresIn: '1d' }
+          { expiresIn: '1y' }
         )
 
         expect(res.body.data.optInFeature).to.eql({
@@ -144,7 +144,7 @@ describe('features resolvers', () => {
             grantedAt: null,
           },
           env.server.jwtSecret,
-          { expiresIn: '1d' }
+          { expiresIn: '1y' }
         )
 
         expect(res.body.data.optInFeature).to.eql({
@@ -186,7 +186,7 @@ describe('features resolvers', () => {
             grantedAt: Date.now() / 1000,
           },
           env.server.jwtSecret,
-          { expiresIn: '1d' }
+          { expiresIn: '1y' }
         )
 
         expect(res.body.data.optInFeature).to.eql({
