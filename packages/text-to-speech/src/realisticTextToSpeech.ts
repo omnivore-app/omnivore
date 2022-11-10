@@ -7,7 +7,6 @@ import axios from 'axios'
 import ffmpegPath from '@ffmpeg-installer/ffmpeg'
 import ffmpeg from 'fluent-ffmpeg'
 import { PassThrough } from 'stream'
-import { createGCSFile } from './index'
 
 ffmpeg.setFfmpegPath(ffmpegPath.path)
 
@@ -46,28 +45,6 @@ export class RealisticTextToSpeech implements TextToSpeech {
       throw new Error('PlayHT API credentials not set')
     }
 
-    const bucket = process.env.GCS_UPLOAD_BUCKET
-    if (!bucket) {
-      throw new Error('GCS_UPLOAD_BUCKET not set')
-    }
-
-    // audio file to be saved in GCS
-    const audioFileName = `speech/${input.key}.mp3`
-    const audioFile = createGCSFile(bucket, audioFileName)
-    // check if audio file already exists
-    const [exists] = await audioFile.exists()
-    if (exists) {
-      console.debug('Audio file already exists')
-      const [audioData] = await audioFile.download()
-      return {
-        audioData,
-        speechMarks: [],
-      }
-    }
-
-    const outputStream = audioFile.createWriteStream({
-      resumable: true,
-    }) as PassThrough
     const inputStream = new PassThrough()
 
     const HEADERS = {
@@ -100,8 +77,8 @@ export class RealisticTextToSpeech implements TextToSpeech {
     // timeout after 1 hour
     const timeout = 60 * 60 * 1000
     const startTime = Date.now()
-    let audioData: Buffer | undefined
-    while (!audioData) {
+    let isReady = false
+    while (!isReady) {
       if (Date.now() - startTime > timeout) {
         throw new Error('Timeout when polling the download url')
       }
@@ -117,16 +94,32 @@ export class RealisticTextToSpeech implements TextToSpeech {
 
         // write the audio file to the input stream
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        audioData = Buffer.from(downloadResponse.data, 'binary')
-        inputStream.end(audioData)
+        inputStream.end(Buffer.from(downloadResponse.data, 'binary'))
+        isReady = true
       } catch (e) {
         // ignore error
         console.debug('checking status of audio file', downloadUrl)
       }
     }
 
+    const outputStream = new PassThrough()
     // transcode the audio file to mp3
     await convertWavToMp3AndUpload(inputStream, outputStream)
+
+    // convert the buffer stream to a buffer
+    const audioData = await new Promise<Buffer>((resolve, reject) => {
+      const chunks: Buffer[] = []
+      outputStream.on('data', (chunk) => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        chunks.push(chunk)
+      })
+      outputStream.on('end', () => {
+        resolve(Buffer.concat(chunks))
+      })
+      outputStream.on('error', (err) => {
+        reject(err)
+      })
+    })
 
     return {
       audioData,
