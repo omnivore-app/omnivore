@@ -47,6 +47,12 @@ interface CacheResult {
   speechMarks: SpeechMark[]
 }
 
+interface Claim {
+  uid: string
+  featureName: string | null
+  grantedAt: number | null
+}
+
 dotenv.config()
 Sentry.GCPFunction.init({
   dsn: process.env.SENTRY_DSN,
@@ -222,14 +228,10 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
       return res.status(401).send({ errorCode: 'INVALID_TOKEN' })
     }
 
-    let uid: string
+    let claim: Claim
     try {
       jwt.verify(token, process.env.JWT_SECRET)
-      const claim = jwt.decode(token) as { uid: string }
-      uid = claim.uid
-      if (!uid) {
-        throw new Error('uid not exists')
-      }
+      claim = jwt.decode(token) as Claim
     } catch (e) {
       console.error('Authentication error:', e)
       return res.status(401).send({ errorCode: 'UNAUTHENTICATED' })
@@ -247,9 +249,17 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
         return res.status(400).send('INVALID_INPUT')
       }
 
+      // validate if user has opted in to use ultra realistic voice feature
+      if (
+        utteranceInput.isUltraRealisticVoice &&
+        (claim.featureName !== 'ultra-realistic-voice' || !claim.grantedAt)
+      ) {
+        return res.status(403).send('UNAUTHORIZED')
+      }
+
       // validate character count
       const characterCount =
-        (await getCharacterCountFromRedis(redisClient, uid)) +
+        (await getCharacterCountFromRedis(redisClient, claim.uid)) +
         utteranceInput.text.length
       if (characterCount > MAX_CHARACTER_COUNT) {
         return res.status(429).send('RATE_LIMITED')
@@ -336,7 +346,7 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
       console.log('Cache saved')
 
       // update character count
-      await updateCharacterCountInRedis(redisClient, uid, characterCount)
+      await updateCharacterCountInRedis(redisClient, claim.uid, characterCount)
 
       res.send({
         idx: utteranceInput.idx,
