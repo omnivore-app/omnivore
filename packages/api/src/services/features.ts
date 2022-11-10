@@ -4,7 +4,7 @@ import * as jwt from 'jsonwebtoken'
 import { env } from '../env'
 import { IsNull, Not } from 'typeorm'
 
-enum FeatureName {
+export enum FeatureName {
   UltraRealisticVoice = 'ultra-realistic-voice',
 }
 
@@ -56,14 +56,43 @@ const optInUltraRealisticVoice = async (uid: string): Promise<Feature> => {
   })
 }
 
-export const signFeatureToken = (feature: Feature): string => {
+export const signFeatureToken = (
+  feature: {
+    name?: string
+    grantedAt?: Date | null
+  },
+  userId: string
+): string => {
   return jwt.sign(
     {
-      uid: feature.user.id,
+      uid: userId,
       featureName: feature.name,
       grantedAt: feature.grantedAt ? feature.grantedAt.getTime() / 1000 : null,
     },
     env.server.jwtSecret,
     { expiresIn: '1y' }
   )
+}
+
+export const isOptedIn = async (
+  name: FeatureName,
+  uid: string
+): Promise<boolean> => {
+  const feature = await getRepository(Feature).findOneBy({
+    user: { id: uid },
+    name,
+    grantedAt: Not(IsNull()),
+  })
+
+  return !!feature
+}
+
+export const getFeature = async (
+  name: FeatureName,
+  uid: string
+): Promise<Feature | null> => {
+  return getRepository(Feature).findOneBy({
+    user: { id: uid },
+    name,
+  })
 }

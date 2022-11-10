@@ -1,6 +1,7 @@
 import { searchPages } from '../elastic/pages'
 import { Page, PageType } from '../elastic/types'
 import { SortBy, SortOrder } from '../utils/search'
+import { FeatureName, isOptedIn } from './features'
 
 /*
  * We should not synthesize the page when:
@@ -16,7 +17,7 @@ export const shouldSynthesize = async (
     return false
   }
 
-  if (process.env.TEXT_TO_SPEECH_BETA_TEST) {
+  if (await isOptedIn(FeatureName.UltraRealisticVoice, userId)) {
     return true
   }
 

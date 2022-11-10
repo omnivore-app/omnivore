@@ -16,6 +16,7 @@ import { enqueueTextToSpeech } from '../utils/createTask'
 import { htmlToSpeechFile } from '@omnivore/text-to-speech-handler'
 import { UserPersonalization } from '../entity/user_personalization'
 import { ArticleSavingRequestStatus } from '../elastic/types'
+import { FeatureName, getFeature } from '../services/features'
 
 const logger = buildLogger('app.dispatch')
 
@@ -80,6 +81,11 @@ export function textToSpeechRouter() {
           },
         })
 
+        const feature = await getFeature(
+          FeatureName.UltraRealisticVoice,
+          userId
+        )
+
         for (const utterance of speechFile.utterances) {
           // enqueue a task to convert text to speech
           const taskName = await enqueueTextToSpeech({
@@ -91,6 +97,8 @@ export function textToSpeechRouter() {
             isUltraRealisticVoice: true,
             language: speechFile.language,
             rate: userPersonalization?.speechRate || '1.1',
+            featureName: feature?.name,
+            grantedAt: feature?.grantedAt,
           })
           logger.info('Start Text to speech task', { taskName })
         }
