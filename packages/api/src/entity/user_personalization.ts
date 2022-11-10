@@ -39,11 +39,14 @@ export class UserPersonalization {
   @Column('text', { nullable: true })
   speechVoice?: string
 
-  @Column('integer', { nullable: true })
-  speechRate?: number
+  @Column('text', { nullable: true })
+  speechSecondaryVoice?: string
 
-  @Column('integer', { nullable: true })
-  speechVolume?: number
+  @Column('text', { nullable: true })
+  speechRate?: string
+
+  @Column('text', { nullable: true })
+  speechVolume?: string
 
   @CreateDateColumn({ default: () => 'CURRENT_TIMESTAMP' })
   createdAt!: Date

@@ -344,6 +344,9 @@ export const enqueueTextToSpeech = async ({
   bucket = env.fileUpload.gcsUploadBucket,
   queue = 'omnivore-demo-text-to-speech-queue',
   location = env.gcp.location,
+  isUltraRealisticVoice = false,
+  language,
+  rate,
 }: {
   userId: string
   speechId: string
@@ -354,6 +357,9 @@ export const enqueueTextToSpeech = async ({
   textType?: 'text' | 'ssml'
   queue?: string
   location?: string
+  isUltraRealisticVoice?: boolean
+  language?: string
+  rate?: string
 }): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT } = process.env
   const payload = {
@@ -362,6 +368,9 @@ export const enqueueTextToSpeech = async ({
     voice,
     bucket,
     textType,
+    isUltraRealisticVoice,
+    language,
+    rate,
   }
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore

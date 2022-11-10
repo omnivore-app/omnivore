@@ -524,6 +524,16 @@ type DeviceToken {
   token: String!
 }
 
+type Feature {
+  createdAt: Date!
+  expiresAt: Date
+  grantedAt: Date
+  id: ID!
+  name: String!
+  token: String!
+  updatedAt: Date!
+}
+
 type FeedArticle {
   annotationsCount: Int
   article: Article!
@@ -865,6 +875,7 @@ type Mutation {
   logOut: LogOutResult!
   mergeHighlight(input: MergeHighlightInput!): MergeHighlightResult!
   moveLabel(input: MoveLabelInput!): MoveLabelResult!
+  optInFeature(input: OptInFeatureInput!): OptInFeatureResult!
   reportItem(input: ReportItemInput!): ReportItemResult!
   revokeApiKey(id: ID!): RevokeApiKeyResult!
   saveArticleReadingProgress(input: SaveArticleReadingProgressInput!): SaveArticleReadingProgressResult!
@@ -915,6 +926,25 @@ union NewsletterEmailsResult = NewsletterEmailsError | NewsletterEmailsSuccess
 
 type NewsletterEmailsSuccess {
   newsletterEmails: [NewsletterEmail!]!
+}
+
+type OptInFeatureError {
+  errorCodes: [OptInFeatureErrorCode!]!
+}
+
+enum OptInFeatureErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+}
+
+input OptInFeatureInput {
+  name: String!
+}
+
+union OptInFeatureResult = OptInFeatureError | OptInFeatureSuccess
+
+type OptInFeatureSuccess {
+  feature: Feature!
 }
 
 type Page {

@@ -13,6 +13,9 @@ import { shouldSynthesize } from '../services/speech'
 import { readPushSubscription } from '../datalayer/pubsub'
 import { AppDataSource } from '../server'
 import { enqueueTextToSpeech } from '../utils/createTask'
+import { htmlToSpeechFile } from '@omnivore/text-to-speech-handler'
+import { UserPersonalization } from '../entity/user_personalization'
+import { ArticleSavingRequestStatus } from '../elastic/types'
 
 const logger = buildLogger('app.dispatch')
 
@@ -34,17 +37,17 @@ export function textToSpeechRouter() {
     }
 
     try {
-      const data: { userId: string; type: string; id: string; state: string } =
+      const data: { userId: string; type: string; id: string } =
         JSON.parse(msgStr)
-      const { userId, type, id, state } = data
+      const { userId, type, id } = data
       if (!userId || !type || !id) {
         logger.info('Invalid data')
         return res.status(400).send('Bad Request')
       }
 
-      if (type.toUpperCase() !== 'PAGE' || state !== 'SUCCEEDED') {
-        logger.info('Not a page or not succeeded')
-        return res.status(200).send('Not a page or not succeeded')
+      if (type.toUpperCase() !== 'PAGE') {
+        logger.info('Not a page')
+        return res.status(200).send('Not a page')
       }
 
       const page = await getPageById(id)
@@ -53,25 +56,45 @@ export function textToSpeechRouter() {
         return res.status(200).send('No page found')
       }
 
+      if (page.state === ArticleSavingRequestStatus.Processing) {
+        logger.info('Page is still processing, try again later', { id })
+        return res.status(400).send('Page is still processing')
+      }
+
       // checks if this page needs to be synthesized automatically
       if (await shouldSynthesize(userId, page)) {
         logger.info('page needs to be synthesized')
-        // initialize state
-        const speech = await getRepository(Speech).save({
-          user: { id: userId },
-          elasticPageId: id,
-          state: SpeechState.INITIALIZED,
-          voice: 'en-US-JennyNeural',
+
+        const userPersonalization = await getRepository(
+          UserPersonalization
+        ).findOneBy({ user: { id: userId } })
+
+        const speechFile = htmlToSpeechFile({
+          title: page.title,
+          content: page.content,
+          options: {
+            primaryVoice: userPersonalization?.speechVoice || 'Axel',
+            secondaryVoice:
+              userPersonalization?.speechSecondaryVoice || 'Evelyn',
+            language: page.language,
+          },
         })
-        // enqueue a task to convert text to speech
-        const taskName = await enqueueTextToSpeech({
-          userId,
-          speechId: speech.id,
-          text: page.content,
-          voice: speech.voice,
-          priority: 'low',
-        })
-        logger.info('Start Text to speech task', { taskName })
+
+        for (const utterance of speechFile.utterances) {
+          // enqueue a task to convert text to speech
+          const taskName = await enqueueTextToSpeech({
+            userId,
+            speechId: utterance.idx,
+            text: utterance.text,
+            voice: utterance.voice || 'Axel',
+            priority: 'high',
+            isUltraRealisticVoice: true,
+            language: speechFile.language,
+            rate: userPersonalization?.speechRate || '1.1',
+          })
+          logger.info('Start Text to speech task', { taskName })
+        }
+
         return res.status(202).send('Text to speech task started')
       }
 

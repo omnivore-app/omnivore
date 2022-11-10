@@ -21,6 +21,7 @@
     "deploy": "yarn build && yarn gcloud-deploy"
   },
   "devDependencies": {
+    "@types/fluent-ffmpeg": "^2.1.20",
     "@types/html-to-text": "^8.1.1",
     "@types/natural": "^5.1.1",
     "@types/node": "^14.11.2",
@@ -30,11 +31,13 @@
     "mocha": "^10.0.0"
   },
   "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "@google-cloud/functions-framework": "3.1.2",
     "@google-cloud/storage": "^6.4.1",
     "@sentry/serverless": "^6.16.1",
     "axios": "^0.27.2",
     "dotenv": "^16.0.1",
+    "fluent-ffmpeg": "^2.1.2",
     "html-to-text": "^8.2.1",
     "jsonwebtoken": "^8.5.1",
     "linkedom": "^0.14.12",
