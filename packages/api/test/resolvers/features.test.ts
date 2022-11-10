@@ -100,10 +100,10 @@ describe('features resolvers', () => {
         // create 1000 opt-in users
         const usersToSave = Array.from(Array(1000).keys()).map((i) => {
           return {
-            name: `user${i}`,
+            name: `opt-in-user-${i}`,
             source: 'GOOGLE',
             sourceUserId: `fake-user-id-user${i}`,
-            email: `user${i}@omnivore.app`,
+            email: `opt-in-user-${i}@omnivore.app`,
             username: `user${i}`,
             bio: `i am user${i}`,
           }
@@ -125,7 +125,7 @@ describe('features resolvers', () => {
       after(async () => {
         // reset opt-in users
         await getRepository(User).delete({
-          name: Like(`user%`),
+          name: Like(`opt-in-user-%`),
         })
         await getRepository(Feature).delete({
           name: featureName,
