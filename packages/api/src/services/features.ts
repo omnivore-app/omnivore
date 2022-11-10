@@ -64,6 +64,6 @@ export const signFeatureToken = (feature: Feature): string => {
       grantedAt: feature.grantedAt ? feature.grantedAt.getTime() / 1000 : null,
     },
     env.server.jwtSecret,
-    { expiresIn: '1d' }
+    { expiresIn: '1y' }
   )
 }
