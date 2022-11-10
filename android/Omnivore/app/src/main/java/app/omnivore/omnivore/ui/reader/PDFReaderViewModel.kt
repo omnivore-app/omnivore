@@ -1,7 +1,6 @@
 package app.omnivore.omnivore.ui.reader
 
 import android.content.Context
-import android.graphics.RectF
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
@@ -10,7 +9,6 @@ import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.DatastoreRepository
 import app.omnivore.omnivore.graphql.generated.type.CreateHighlightInput
 import app.omnivore.omnivore.graphql.generated.type.MergeHighlightInput
-import app.omnivore.omnivore.models.Highlight
 import app.omnivore.omnivore.models.LinkedItem
 import app.omnivore.omnivore.networking.*
 import com.apollographql.apollo3.api.Optional
@@ -21,9 +19,7 @@ import com.pspdfkit.document.download.DownloadJob
 import com.pspdfkit.document.download.DownloadRequest
 import com.pspdfkit.document.download.Progress
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
-import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 import java.util.*
@@ -89,7 +85,13 @@ class PDFReaderViewModel @Inject constructor(
     val shortID = UUID.randomUUID().toString().replace("-","").substring(0,8)
     val quote = newAnnotation.contents ?: ""
 
-    newAnnotation.customData = createCustomData(highlightID, shortID, quote, itemID)
+    val jsonValues = JSONObject()
+      .put("id", highlightID)
+      .put("shortId", shortID)
+      .put("quote", quote)
+      .put("articleId", itemID)
+
+    newAnnotation.customData = JSONObject().put("omnivoreHighlight", jsonValues)
 
     if (overlapIds.isNotEmpty()) {
       val input = MergeHighlightInput(
@@ -121,22 +123,6 @@ class PDFReaderViewModel @Inject constructor(
     }
   }
 
-  private fun createCustomData(
-    highlightID: String,
-    shortID: String,
-    quote: String,
-    articleID: String
-  ): JSONObject {
-    val jsonValues = JSONObject()
-      .put("id", highlightID)
-      .put("shortId", shortID)
-      .put("quote", quote)
-      .put("articleId", articleID)
-
-    return JSONObject()
-      .put("omnivoreHighlight", jsonValues)
-  }
-
   fun deleteHighlight(annotation: Annotation) {
     val highlightID = pluckHighlightID(annotation) ?: return
     viewModelScope.launch {
@@ -157,6 +143,11 @@ class PDFReaderViewModel @Inject constructor(
     return result
   }
 
+  fun pluckHighlightID(annotation: Annotation): String? {
+    val omnivoreHighlight = annotation.customData?.get("omnivoreHighlight") as? JSONObject
+    return omnivoreHighlight?.get("id") as? String
+  }
+
   private fun hasOverlaps(leftAnnotation: Annotation, rightAnnotation: Annotation): Boolean {
     for (leftRect in (leftAnnotation as? HighlightAnnotation)?.rects ?: listOf()) {
       for (rightRect in (rightAnnotation as? HighlightAnnotation)?.rects ?: listOf()) {
@@ -167,10 +158,5 @@ class PDFReaderViewModel @Inject constructor(
     }
 
     return false
-  }
-
-  fun pluckHighlightID(annotation: Annotation): String? {
-    val omnivoreHighlight = annotation.customData?.get("omnivoreHighlight") as? JSONObject
-    return omnivoreHighlight?.get("id") as? String
   }
 }
