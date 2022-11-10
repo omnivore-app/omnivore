@@ -377,7 +377,7 @@
         // Sometimes we get negatives
         currentItemOffset = max(currentItemOffset, 0)
 
-        let idx = item.speechItem.audioIdx
+        let idx = currentAudioIndex // item.speechItem.audioIdx
         let currentItem = document?.utterances[idx].text ?? ""
         let currentReadIndex = currentItem.index(currentItem.startIndex, offsetBy: min(currentItemOffset, currentItem.count))
         let lastItem = String(currentItem[..<currentReadIndex])
@@ -561,6 +561,7 @@
       if let player = player {
         observer = player.observe(\.currentItem, options: [.new]) { _, _ in
           self.currentAudioIndex = (player.currentItem as? SpeechPlayerItem)?.speechItem.audioIdx ?? 0
+          self.updateReadText()
         }
       }
 
