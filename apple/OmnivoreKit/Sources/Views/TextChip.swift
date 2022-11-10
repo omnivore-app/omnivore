@@ -5,10 +5,14 @@ import Utils
 public struct TextChip: View {
   @Environment(\.colorScheme) var colorScheme
 
+  let checked: Bool
+  var onTap: ((TextChip) -> Void)?
+
   public init(text: String, color: Color, negated: Bool = false) {
     self.text = text
     self.color = color
     self.negated = negated
+    self.checked = false
   }
 
   public init?(feedItemLabel: LinkedItemLabel, negated: Bool = false) {
@@ -17,9 +21,24 @@ public struct TextChip: View {
     self.text = feedItemLabel.name ?? ""
     self.color = color
     self.negated = negated
+    self.checked = false
   }
 
-  let text: String
+  public init?(feedItemLabel: LinkedItemLabel, negated: Bool = false, checked: Bool = false, onTap: ((TextChip) -> Void)?) {
+    guard let color = Color(hex: feedItemLabel.color ?? "") else {
+      print("RETURNING NUL!")
+      return nil
+    }
+
+    print("TEXT CHIP", feedItemLabel.name, checked)
+    self.text = feedItemLabel.name ?? ""
+    self.color = color
+    self.negated = negated
+    self.onTap = onTap
+    self.checked = checked
+  }
+
+  public let text: String
   let color: Color
   let negated: Bool
 
@@ -53,16 +72,31 @@ public struct TextChip: View {
   }
 
   public var body: some View {
-    Text(text)
-      .strikethrough(color: negated ? textColor : .clear)
-      .padding(.horizontal, 10)
-      .padding(.vertical, 5)
-      .font(.appCaptionBold)
-      .foregroundColor(textColor)
-      .lineLimit(1)
-      .background(Capsule().fill(backgroundColor))
-      .overlay(Capsule().stroke(borderColor, lineWidth: 1))
-      .padding(1)
+    ZStack(alignment: .topTrailing) {
+      Text(text)
+        .strikethrough(color: negated ? textColor : .clear)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 5)
+        .font(.appCaptionBold)
+        .foregroundColor(textColor)
+        .lineLimit(1)
+        .background(Capsule().fill(backgroundColor))
+        .overlay(Capsule().stroke(borderColor, lineWidth: 1))
+        .padding(1)
+        .overlay(alignment: .topTrailing) {
+          if checked {
+            Image(systemName: "checkmark.circle.fill")
+              .font(.appBody)
+              .symbolVariant(.circle.fill)
+              .foregroundStyle(Color.appBackground, Color.appGreenSuccess)
+              .padding([.top, .trailing], -6)
+          }
+        }
+    }.onTapGesture {
+      if let onTap = onTap {
+        onTap(self)
+      }
+    }
   }
 }
 
