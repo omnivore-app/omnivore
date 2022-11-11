@@ -1945,6 +1945,10 @@ export type SetUserPersonalizationInput = {
   libraryLayoutType?: InputMaybe<Scalars['String']>;
   librarySortOrder?: InputMaybe<SortOrder>;
   margin?: InputMaybe<Scalars['Int']>;
+  speechRate?: InputMaybe<Scalars['String']>;
+  speechSecondaryVoice?: InputMaybe<Scalars['String']>;
+  speechVoice?: InputMaybe<Scalars['String']>;
+  speechVolume?: InputMaybe<Scalars['String']>;
   theme?: InputMaybe<Scalars['String']>;
 };
 

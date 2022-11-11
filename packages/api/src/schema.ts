@@ -1003,6 +1003,10 @@ const schema = gql`
     margin: Int
     libraryLayoutType: String @sanitize
     librarySortOrder: SortOrder
+    speechVoice: String
+    speechSecondaryVoice: String
+    speechRate: String
+    speechVolume: String
   }
 
   # Type: ArticleSavingRequest

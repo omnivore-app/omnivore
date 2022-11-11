@@ -9,5 +9,6 @@ export const corsConfig = {
     'https://web-demo.omnivore.app',
     'http://localhost:3000',
     'lsp://logseq.io',
+    'https://studio.apollographql.com',
   ],
 }
