@@ -989,6 +989,7 @@ const schema = gql`
     | SetUserPersonalizationError
   enum SetUserPersonalizationErrorCode {
     UNAUTHORIZED
+    NOT_FOUND
   }
   type SetUserPersonalizationError {
     errorCodes: [SetUserPersonalizationErrorCode!]!

@@ -1432,6 +1432,7 @@ type SetUserPersonalizationError {
 }
 
 enum SetUserPersonalizationErrorCode {
+  NOT_FOUND
   UNAUTHORIZED
 }
 

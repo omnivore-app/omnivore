@@ -1936,6 +1936,7 @@ export type SetUserPersonalizationError = {
 };
 
 export enum SetUserPersonalizationErrorCode {
+  NotFound = 'NOT_FOUND',
   Unauthorized = 'UNAUTHORIZED'
 }
 
