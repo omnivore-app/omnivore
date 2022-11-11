@@ -54,10 +54,12 @@ export function LibraryList(props: LibraryListProps): JSX.Element {
 
   return (
     <Box css={{ overflowY: 'scroll' }}>
-      <Dropzone onDrop={handleDrop} preventDropOnDocument={true} noClick={true} >
+      <Dropzone onDrop={handleDrop} preventDropOnDocument={true} noClick={true}>
         {({ getRootProps, getInputProps, acceptedFiles, fileRejections }) => (
           <div {...getRootProps({ className: 'dropzone' })}>
-            <p>Drag n drop files anywhere below</p>
+            <Box css={{ color: '$utilityTextDefault', marginTop: '$1'}}>
+              Drag n drop files anywhere below
+            </Box>
             <input {...getInputProps()} />
 
             <Masonry
@@ -113,7 +115,6 @@ export function LibraryList(props: LibraryListProps): JSX.Element {
           </div>
         )}
       </Dropzone>
-
       {/* Temporary code */}
       <div>
         <strong>Files:</strong>
@@ -122,8 +123,8 @@ export function LibraryList(props: LibraryListProps): JSX.Element {
             <li key={fileName}>{fileName}</li>
           ))}
         </ul>
-      </div> {/* Temporary code */}
-
+      </div>{' '}
+      {/* Temporary code */}
       {/* Extra padding at bottom to give space for scrolling */}
       <Box css={{ width: '100%', height: '200px' }} />
     </Box>

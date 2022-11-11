@@ -1,4 +1,4 @@
-import { Box, HStack, VStack } from './../../elements/LayoutPrimitives'
+import { Box, HStack, SpanBox, VStack } from './../../elements/LayoutPrimitives'
 import Dropzone from 'react-dropzone'
 import type {
   LibraryItem,
@@ -828,7 +828,9 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
         >
           {({ getRootProps, getInputProps, acceptedFiles, fileRejections }) => (
             <div {...getRootProps({ className: 'dropzone' })}>
-              <p>Drag n drop files anywhere below</p>
+              <Box css={{ color: '$utilityTextDefault', marginTop: '$1'}}>
+                Drag n drop files anywhere below
+              </Box>
               <input {...getInputProps()} />
               {!props.isValidating && props.items.length == 0 ? (
                 <EmptyLibrary
@@ -940,7 +942,6 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
           )}
         </Dropzone>
       </VStack>
-
       {/* Temporary code */}
       <div>
         <strong>Files:</strong>
@@ -949,8 +950,8 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
             <li key={fileName}>{fileName}</li>
           ))}
         </ul>
-      </div> {/* Temporary code */}
-
+      </div>{' '}
+      {/* Temporary code */}
       {props.showAddLinkModal && (
         <AddLinkModal onOpenChange={() => props.setShowAddLinkModal(false)} />
       )}
