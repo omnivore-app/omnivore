@@ -672,6 +672,14 @@
         case .reset:
           if let playerItem = player.currentItem as? SpeechPlayerItem {
             let itemElapsed = playerItem.status == .readyToPlay ? CMTimeGetSeconds(playerItem.currentTime()) : 0
+            if itemElapsed >= CMTimeGetSeconds(playerItem.duration) + 0.5 {
+              // Occasionally AV wont send an event for a new item starting for ~3s, if this
+              // happens we can try to manually update the time
+              if playerItem.speechItem.audioIdx + 1 < (document?.utterances.count ?? 0) {
+                currentAudioIndex = playerItem.speechItem.audioIdx + 1
+              }
+            }
+
             timeElapsed = durationBefore(playerIndex: playerItem.speechItem.audioIdx) + itemElapsed
             timeElapsedString = formatTimeInterval(timeElapsed)
 
