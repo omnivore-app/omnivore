@@ -1432,6 +1432,7 @@ type SetUserPersonalizationError {
 }
 
 enum SetUserPersonalizationErrorCode {
+  NOT_FOUND
   UNAUTHORIZED
 }
 
@@ -1441,6 +1442,10 @@ input SetUserPersonalizationInput {
   libraryLayoutType: String
   librarySortOrder: SortOrder
   margin: Int
+  speechRate: String
+  speechSecondaryVoice: String
+  speechVoice: String
+  speechVolume: String
   theme: String
 }
 
@@ -1911,6 +1916,10 @@ type UserPersonalization {
   libraryLayoutType: String
   librarySortOrder: SortOrder
   margin: Int
+  speechRate: String
+  speechSecondaryVoice: String
+  speechVoice: String
+  speechVolume: String
   theme: String
 }
 

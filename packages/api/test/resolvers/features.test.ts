@@ -10,7 +10,7 @@ import sinon, { SinonFakeTimers } from 'sinon'
 import { env } from '../../src/env'
 import { Like } from 'typeorm'
 
-describe('features resolvers', () => {
+xdescribe('features resolvers', () => {
   let loginUser: User
   let authToken: string
 

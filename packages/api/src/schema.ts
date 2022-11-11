@@ -963,6 +963,10 @@ const schema = gql`
     margin: Int
     libraryLayoutType: String
     librarySortOrder: SortOrder
+    speechVoice: String
+    speechSecondaryVoice: String
+    speechRate: String
+    speechVolume: String
   }
 
   # Query: UserPersonalization
@@ -985,6 +989,7 @@ const schema = gql`
     | SetUserPersonalizationError
   enum SetUserPersonalizationErrorCode {
     UNAUTHORIZED
+    NOT_FOUND
   }
   type SetUserPersonalizationError {
     errorCodes: [SetUserPersonalizationErrorCode!]!
@@ -999,6 +1004,10 @@ const schema = gql`
     margin: Int
     libraryLayoutType: String @sanitize
     librarySortOrder: SortOrder
+    speechVoice: String
+    speechSecondaryVoice: String
+    speechRate: String
+    speechVolume: String
   }
 
   # Type: ArticleSavingRequest

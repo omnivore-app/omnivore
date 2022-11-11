@@ -19,34 +19,34 @@ export class UserPersonalization {
   user!: User
 
   @Column('text', { nullable: true })
-  fontFamily?: string
+  fontFamily?: string | null
 
   @Column('integer', { nullable: true })
-  fontSize?: number
+  fontSize?: number | null
 
   @Column('text', { nullable: true })
-  margin?: number
+  margin?: number | null
 
   @Column('text', { nullable: true })
-  theme?: string
+  theme?: string | null
 
   @Column('text', { nullable: true })
-  libraryLayoutType?: string
+  libraryLayoutType?: string | null
 
   @Column('text', { nullable: true })
-  librarySortOrder?: string
+  librarySortOrder?: string | null
 
   @Column('text', { nullable: true })
-  speechVoice?: string
+  speechVoice?: string | null
 
   @Column('text', { nullable: true })
-  speechSecondaryVoice?: string
+  speechSecondaryVoice?: string | null
 
   @Column('text', { nullable: true })
-  speechRate?: string
+  speechRate?: string | null
 
   @Column('text', { nullable: true })
-  speechVolume?: string
+  speechVolume?: string | null
 
   @CreateDateColumn({ default: () => 'CURRENT_TIMESTAMP' })
   createdAt!: Date

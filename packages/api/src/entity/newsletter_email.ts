@@ -22,7 +22,7 @@ export class NewsletterEmail {
   user!: User
 
   @Column('varchar', { nullable: true })
-  confirmationCode?: string
+  confirmationCode?: string | null
 
   @CreateDateColumn()
   createdAt!: Date
