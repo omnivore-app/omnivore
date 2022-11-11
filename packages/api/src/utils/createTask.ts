@@ -9,13 +9,10 @@ import { buildLogger } from './logger'
 import { nanoid } from 'nanoid'
 import { google } from '@google-cloud/tasks/build/protos/protos'
 import { IntegrationType } from '../entity/integration'
-import { promisify } from 'util'
-import * as jwt from 'jsonwebtoken'
 import { signFeatureToken } from '../services/features'
 import View = google.cloud.tasks.v2.Task.View
 
 const logger = buildLogger('app.dispatch')
-const signToken = promisify(jwt.sign)
 
 // Instantiates a client.
 const client = new CloudTasksClient()
@@ -343,7 +340,7 @@ export const enqueueTextToSpeech = async ({
   priority,
   textType = 'ssml',
   bucket = env.fileUpload.gcsUploadBucket,
-  queue = 'omnivore-demo-text-to-speech-queue',
+  queue = 'omnivore-text-to-speech-queue',
   location = env.gcp.location,
   isUltraRealisticVoice = false,
   language,
