@@ -106,9 +106,7 @@ const validateInvite = async (
     return false
   }
   const membershipRepo = entityManager.getRepository(GroupMembership)
-  const numMembers = await membershipRepo.count({
-    where: { invite: invite },
-  })
+  const numMembers = await membershipRepo.countBy({ invite: { id: invite.id } })
   if (numMembers >= invite.maxMembers) {
     console.log('rejecting invite, too many users', invite, numMembers)
     return false

@@ -335,10 +335,16 @@ import Views
                     Label { Text("Snooze") } icon: { Image.moon }
                   }
                 }
-                Button(
-                  action: { viewModel.downloadAudio(audioController: audioController, item: item) },
-                  label: { Label("Download Audio", systemImage: "icloud.and.arrow.down") }
-                )
+                if let author = item.author {
+                  Button(
+                    action: {
+                      viewModel.searchTerm = "author:\"\(author)\""
+                    },
+                    label: {
+                      Label(String("More by \(author)"), systemImage: "person")
+                    }
+                  )
+                }
               }
               .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                 if !item.isArchived {

@@ -596,6 +596,17 @@ export type DeviceToken = {
   token: Scalars['String'];
 };
 
+export type Feature = {
+  __typename?: 'Feature';
+  createdAt: Scalars['Date'];
+  expiresAt?: Maybe<Scalars['Date']>;
+  grantedAt?: Maybe<Scalars['Date']>;
+  id: Scalars['ID'];
+  name: Scalars['String'];
+  token: Scalars['String'];
+  updatedAt: Scalars['Date'];
+};
+
 export type FeedArticle = {
   __typename?: 'FeedArticle';
   annotationsCount?: Maybe<Scalars['Int']>;
@@ -971,6 +982,7 @@ export type Mutation = {
   logOut: LogOutResult;
   mergeHighlight: MergeHighlightResult;
   moveLabel: MoveLabelResult;
+  optInFeature: OptInFeatureResult;
   reportItem: ReportItemResult;
   revokeApiKey: RevokeApiKeyResult;
   saveArticleReadingProgress: SaveArticleReadingProgressResult;
@@ -1110,6 +1122,11 @@ export type MutationMergeHighlightArgs = {
 
 export type MutationMoveLabelArgs = {
   input: MoveLabelInput;
+};
+
+
+export type MutationOptInFeatureArgs = {
+  input: OptInFeatureInput;
 };
 
 
@@ -1279,6 +1296,27 @@ export type NewsletterEmailsResult = NewsletterEmailsError | NewsletterEmailsSuc
 export type NewsletterEmailsSuccess = {
   __typename?: 'NewsletterEmailsSuccess';
   newsletterEmails: Array<NewsletterEmail>;
+};
+
+export type OptInFeatureError = {
+  __typename?: 'OptInFeatureError';
+  errorCodes: Array<OptInFeatureErrorCode>;
+};
+
+export enum OptInFeatureErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  NotFound = 'NOT_FOUND'
+}
+
+export type OptInFeatureInput = {
+  name: Scalars['String'];
+};
+
+export type OptInFeatureResult = OptInFeatureError | OptInFeatureSuccess;
+
+export type OptInFeatureSuccess = {
+  __typename?: 'OptInFeatureSuccess';
+  feature: Feature;
 };
 
 export type Page = {
@@ -1898,6 +1936,7 @@ export type SetUserPersonalizationError = {
 };
 
 export enum SetUserPersonalizationErrorCode {
+  NotFound = 'NOT_FOUND',
   Unauthorized = 'UNAUTHORIZED'
 }
 
@@ -1907,6 +1946,10 @@ export type SetUserPersonalizationInput = {
   libraryLayoutType?: InputMaybe<Scalars['String']>;
   librarySortOrder?: InputMaybe<SortOrder>;
   margin?: InputMaybe<Scalars['Int']>;
+  speechRate?: InputMaybe<Scalars['String']>;
+  speechSecondaryVoice?: InputMaybe<Scalars['String']>;
+  speechVoice?: InputMaybe<Scalars['String']>;
+  speechVolume?: InputMaybe<Scalars['String']>;
   theme?: InputMaybe<Scalars['String']>;
 };
 
@@ -2420,6 +2463,10 @@ export type UserPersonalization = {
   libraryLayoutType?: Maybe<Scalars['String']>;
   librarySortOrder?: Maybe<SortOrder>;
   margin?: Maybe<Scalars['Int']>;
+  speechRate?: Maybe<Scalars['String']>;
+  speechSecondaryVoice?: Maybe<Scalars['String']>;
+  speechVoice?: Maybe<Scalars['String']>;
+  speechVolume?: Maybe<Scalars['String']>;
   theme?: Maybe<Scalars['String']>;
 };
 
@@ -2684,6 +2731,7 @@ export type ResolversTypes = {
   DeleteWebhookResult: ResolversTypes['DeleteWebhookError'] | ResolversTypes['DeleteWebhookSuccess'];
   DeleteWebhookSuccess: ResolverTypeWrapper<DeleteWebhookSuccess>;
   DeviceToken: ResolverTypeWrapper<DeviceToken>;
+  Feature: ResolverTypeWrapper<Feature>;
   FeedArticle: ResolverTypeWrapper<FeedArticle>;
   FeedArticleEdge: ResolverTypeWrapper<FeedArticleEdge>;
   FeedArticlesError: ResolverTypeWrapper<FeedArticlesError>;
@@ -2755,6 +2803,11 @@ export type ResolversTypes = {
   NewsletterEmailsErrorCode: NewsletterEmailsErrorCode;
   NewsletterEmailsResult: ResolversTypes['NewsletterEmailsError'] | ResolversTypes['NewsletterEmailsSuccess'];
   NewsletterEmailsSuccess: ResolverTypeWrapper<NewsletterEmailsSuccess>;
+  OptInFeatureError: ResolverTypeWrapper<OptInFeatureError>;
+  OptInFeatureErrorCode: OptInFeatureErrorCode;
+  OptInFeatureInput: OptInFeatureInput;
+  OptInFeatureResult: ResolversTypes['OptInFeatureError'] | ResolversTypes['OptInFeatureSuccess'];
+  OptInFeatureSuccess: ResolverTypeWrapper<OptInFeatureSuccess>;
   Page: ResolverTypeWrapper<Page>;
   PageInfo: ResolverTypeWrapper<PageInfo>;
   PageInfoInput: PageInfoInput;
@@ -3045,6 +3098,7 @@ export type ResolversParentTypes = {
   DeleteWebhookResult: ResolversParentTypes['DeleteWebhookError'] | ResolversParentTypes['DeleteWebhookSuccess'];
   DeleteWebhookSuccess: DeleteWebhookSuccess;
   DeviceToken: DeviceToken;
+  Feature: Feature;
   FeedArticle: FeedArticle;
   FeedArticleEdge: FeedArticleEdge;
   FeedArticlesError: FeedArticlesError;
@@ -3103,6 +3157,10 @@ export type ResolversParentTypes = {
   NewsletterEmailsError: NewsletterEmailsError;
   NewsletterEmailsResult: ResolversParentTypes['NewsletterEmailsError'] | ResolversParentTypes['NewsletterEmailsSuccess'];
   NewsletterEmailsSuccess: NewsletterEmailsSuccess;
+  OptInFeatureError: OptInFeatureError;
+  OptInFeatureInput: OptInFeatureInput;
+  OptInFeatureResult: ResolversParentTypes['OptInFeatureError'] | ResolversParentTypes['OptInFeatureSuccess'];
+  OptInFeatureSuccess: OptInFeatureSuccess;
   Page: Page;
   PageInfo: PageInfo;
   PageInfoInput: PageInfoInput;
@@ -3677,6 +3735,17 @@ export type DeviceTokenResolvers<ContextType = ResolverContext, ParentType exten
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type FeatureResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Feature'] = ResolversParentTypes['Feature']> = {
+  createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  expiresAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  grantedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  token?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type FeedArticleResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['FeedArticle'] = ResolversParentTypes['FeedArticle']> = {
   annotationsCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   article?: Resolver<ResolversTypes['Article'], ParentType, ContextType>;
@@ -3971,6 +4040,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   logOut?: Resolver<ResolversTypes['LogOutResult'], ParentType, ContextType>;
   mergeHighlight?: Resolver<ResolversTypes['MergeHighlightResult'], ParentType, ContextType, RequireFields<MutationMergeHighlightArgs, 'input'>>;
   moveLabel?: Resolver<ResolversTypes['MoveLabelResult'], ParentType, ContextType, RequireFields<MutationMoveLabelArgs, 'input'>>;
+  optInFeature?: Resolver<ResolversTypes['OptInFeatureResult'], ParentType, ContextType, RequireFields<MutationOptInFeatureArgs, 'input'>>;
   reportItem?: Resolver<ResolversTypes['ReportItemResult'], ParentType, ContextType, RequireFields<MutationReportItemArgs, 'input'>>;
   revokeApiKey?: Resolver<ResolversTypes['RevokeApiKeyResult'], ParentType, ContextType, RequireFields<MutationRevokeApiKeyArgs, 'id'>>;
   saveArticleReadingProgress?: Resolver<ResolversTypes['SaveArticleReadingProgressResult'], ParentType, ContextType, RequireFields<MutationSaveArticleReadingProgressArgs, 'input'>>;
@@ -4020,6 +4090,20 @@ export type NewsletterEmailsResultResolvers<ContextType = ResolverContext, Paren
 
 export type NewsletterEmailsSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['NewsletterEmailsSuccess'] = ResolversParentTypes['NewsletterEmailsSuccess']> = {
   newsletterEmails?: Resolver<Array<ResolversTypes['NewsletterEmail']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type OptInFeatureErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['OptInFeatureError'] = ResolversParentTypes['OptInFeatureError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['OptInFeatureErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type OptInFeatureResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['OptInFeatureResult'] = ResolversParentTypes['OptInFeatureResult']> = {
+  __resolveType: TypeResolveFn<'OptInFeatureError' | 'OptInFeatureSuccess', ParentType, ContextType>;
+};
+
+export type OptInFeatureSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['OptInFeatureSuccess'] = ResolversParentTypes['OptInFeatureSuccess']> = {
+  feature?: Resolver<ResolversTypes['Feature'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -4692,6 +4776,10 @@ export type UserPersonalizationResolvers<ContextType = ResolverContext, ParentTy
   libraryLayoutType?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   librarySortOrder?: Resolver<Maybe<ResolversTypes['SortOrder']>, ParentType, ContextType>;
   margin?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  speechRate?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  speechSecondaryVoice?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  speechVoice?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  speechVolume?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   theme?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -4835,6 +4923,7 @@ export type Resolvers<ContextType = ResolverContext> = {
   DeleteWebhookResult?: DeleteWebhookResultResolvers<ContextType>;
   DeleteWebhookSuccess?: DeleteWebhookSuccessResolvers<ContextType>;
   DeviceToken?: DeviceTokenResolvers<ContextType>;
+  Feature?: FeatureResolvers<ContextType>;
   FeedArticle?: FeedArticleResolvers<ContextType>;
   FeedArticleEdge?: FeedArticleEdgeResolvers<ContextType>;
   FeedArticlesError?: FeedArticlesErrorResolvers<ContextType>;
@@ -4885,6 +4974,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   NewsletterEmailsError?: NewsletterEmailsErrorResolvers<ContextType>;
   NewsletterEmailsResult?: NewsletterEmailsResultResolvers<ContextType>;
   NewsletterEmailsSuccess?: NewsletterEmailsSuccessResolvers<ContextType>;
+  OptInFeatureError?: OptInFeatureErrorResolvers<ContextType>;
+  OptInFeatureResult?: OptInFeatureResultResolvers<ContextType>;
+  OptInFeatureSuccess?: OptInFeatureSuccessResolvers<ContextType>;
   Page?: PageResolvers<ContextType>;
   PageInfo?: PageInfoResolvers<ContextType>;
   Profile?: ProfileResolvers<ContextType>;

@@ -90,7 +90,7 @@ describe('Integrations resolvers', () => {
 
         before(async () => {
           existingIntegration = await getRepository(Integration).save({
-            user: loginUser,
+            user: { id: loginUser.id },
             type: DataIntegrationType.Readwise,
             token: 'fakeToken',
           })
@@ -138,7 +138,7 @@ describe('Integrations resolvers', () => {
 
           afterEach(async () => {
             await getRepository(Integration).delete({
-              user: loginUser,
+              user: { id: loginUser.id },
               type: integrationType,
             })
           })
@@ -191,7 +191,7 @@ describe('Integrations resolvers', () => {
           before(async () => {
             otherUser = await createTestUser('otherUser')
             existingIntegration = await getRepository(Integration).save({
-              user: otherUser,
+              user: { id: otherUser.id },
               type: DataIntegrationType.Readwise,
               token: 'fakeToken',
             })
@@ -219,7 +219,7 @@ describe('Integrations resolvers', () => {
         context('when integration belongs to the user', () => {
           before(async () => {
             existingIntegration = await getRepository(Integration).save({
-              user: loginUser,
+              user: { id: loginUser.id },
               type: DataIntegrationType.Readwise,
               token: 'fakeToken',
             })
@@ -321,7 +321,7 @@ describe('Integrations resolvers', () => {
 
     before(async () => {
       existingIntegration = await getRepository(Integration).save({
-        user: loginUser,
+        user: { id: loginUser.id },
         type: DataIntegrationType.Readwise,
         token: 'fakeToken',
       })
@@ -367,7 +367,7 @@ describe('Integrations resolvers', () => {
 
       beforeEach(async () => {
         existingIntegration = await getRepository(Integration).save({
-          user: loginUser,
+          user: { id: loginUser.id },
           type: DataIntegrationType.Readwise,
           token: 'fakeToken',
           taskName: 'some task name',

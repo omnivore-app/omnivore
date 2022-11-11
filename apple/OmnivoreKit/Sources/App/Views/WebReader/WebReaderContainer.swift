@@ -214,6 +214,10 @@ struct WebReaderContainerView: View {
               label: { Label("Reset Read Location", systemImage: "arrow.counterclockwise.circle") }
             )
             Button(
+              action: { /* viewModel.downloadAudio(audioController: audioController, item: item) */ },
+              label: { Label("Download Audio", systemImage: "icloud.and.arrow.down") }
+            )
+            Button(
               action: share,
               label: { Label("Share Original", systemImage: "square.and.arrow.up") }
             )

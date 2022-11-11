@@ -963,6 +963,10 @@ const schema = gql`
     margin: Int
     libraryLayoutType: String
     librarySortOrder: SortOrder
+    speechVoice: String
+    speechSecondaryVoice: String
+    speechRate: String
+    speechVolume: String
   }
 
   # Query: UserPersonalization
@@ -985,6 +989,7 @@ const schema = gql`
     | SetUserPersonalizationError
   enum SetUserPersonalizationErrorCode {
     UNAUTHORIZED
+    NOT_FOUND
   }
   type SetUserPersonalizationError {
     errorCodes: [SetUserPersonalizationErrorCode!]!
@@ -999,6 +1004,10 @@ const schema = gql`
     margin: Int
     libraryLayoutType: String @sanitize
     librarySortOrder: SortOrder
+    speechVoice: String
+    speechSecondaryVoice: String
+    speechRate: String
+    speechVolume: String
   }
 
   # Type: ArticleSavingRequest
@@ -1912,6 +1921,35 @@ const schema = gql`
     BAD_REQUEST
   }
 
+  input OptInFeatureInput {
+    name: String!
+  }
+
+  union OptInFeatureResult = OptInFeatureSuccess | OptInFeatureError
+
+  type OptInFeatureSuccess {
+    feature: Feature!
+  }
+
+  type Feature {
+    id: ID!
+    name: String!
+    token: String!
+    createdAt: Date!
+    updatedAt: Date!
+    grantedAt: Date
+    expiresAt: Date
+  }
+
+  type OptInFeatureError {
+    errorCodes: [OptInFeatureErrorCode!]!
+  }
+
+  enum OptInFeatureErrorCode {
+    BAD_REQUEST
+    NOT_FOUND
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -1983,6 +2021,7 @@ const schema = gql`
     moveLabel(input: MoveLabelInput!): MoveLabelResult!
     setIntegration(input: SetIntegrationInput!): SetIntegrationResult!
     deleteIntegration(id: ID!): DeleteIntegrationResult!
+    optInFeature(input: OptInFeatureInput!): OptInFeatureResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed

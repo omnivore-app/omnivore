@@ -280,6 +280,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
       'sort',
       'has',
       'saved',
+      'author',
       'published',
       'subscription',
       'language',
@@ -355,6 +356,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
           break
         }
         // match filters
+        case 'author':
         case 'title':
         case 'description':
         case 'content': {

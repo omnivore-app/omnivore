@@ -71,10 +71,6 @@ public struct GridCard: View {
         action: { menuActionHandler(.delete) },
         label: { Label("Delete", systemImage: "trash") }
       )
-      Button(
-        action: { menuActionHandler(.downloadAudio) },
-        label: { Label("Download Audio", systemImage: "icloud.and.arrow.down") }
-      )
     }
   }
 

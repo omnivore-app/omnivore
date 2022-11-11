@@ -9,12 +9,10 @@ import { buildLogger } from './logger'
 import { nanoid } from 'nanoid'
 import { google } from '@google-cloud/tasks/build/protos/protos'
 import { IntegrationType } from '../entity/integration'
-import { promisify } from 'util'
-import * as jwt from 'jsonwebtoken'
+import { signFeatureToken } from '../services/features'
 import View = google.cloud.tasks.v2.Task.View
 
 const logger = buildLogger('app.dispatch')
-const signToken = promisify(jwt.sign)
 
 // Instantiates a client.
 const client = new CloudTasksClient()
@@ -342,8 +340,13 @@ export const enqueueTextToSpeech = async ({
   priority,
   textType = 'ssml',
   bucket = env.fileUpload.gcsUploadBucket,
-  queue = 'omnivore-demo-text-to-speech-queue',
+  queue = 'omnivore-text-to-speech-queue',
   location = env.gcp.location,
+  isUltraRealisticVoice = false,
+  language,
+  rate,
+  featureName,
+  grantedAt,
 }: {
   userId: string
   speechId: string
@@ -354,6 +357,11 @@ export const enqueueTextToSpeech = async ({
   textType?: 'text' | 'ssml'
   queue?: string
   location?: string
+  isUltraRealisticVoice?: boolean
+  language?: string
+  rate?: string
+  featureName?: string
+  grantedAt?: Date | null
 }): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT } = process.env
   const payload = {
@@ -362,12 +370,11 @@ export const enqueueTextToSpeech = async ({
     voice,
     bucket,
     textType,
+    isUltraRealisticVoice,
+    language,
+    rate,
   }
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  const token = await signToken({ uid: userId }, env.server.jwtSecret, {
-    expiresIn: '1h',
-  })
+  const token = signFeatureToken({ name: featureName, grantedAt }, userId)
   const taskHandlerUrl = `${env.queue.textToSpeechTaskHandlerUrl}?token=${token}`
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment
   if (env.dev.isLocal || !GOOGLE_CLOUD_PROJECT) {
