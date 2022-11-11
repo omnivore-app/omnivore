@@ -280,7 +280,7 @@ public struct ShareExtensionView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
       )
-      .foregroundColor(.white)
+      .foregroundColor(.appGrayTextContrast)
       .background(Color.appButtonBackground)
       .frame(height: 52)
       .cornerRadius(8)
