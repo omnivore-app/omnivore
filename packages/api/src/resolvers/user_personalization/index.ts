@@ -1,30 +1,35 @@
 import {
-  GetUserPersonalizationResult,
   GetUserPersonalizationError,
-  SetUserPersonalizationSuccess,
-  SetUserPersonalizationError,
+  GetUserPersonalizationResult,
   MutationSetUserPersonalizationArgs,
+  SetUserPersonalizationError,
+  SetUserPersonalizationSuccess,
   SortOrder,
 } from '../../generated/graphql'
 import { authorized } from '../../utils/helpers'
+import { UserPersonalization } from '../../entity/user_personalization'
+import { AppDataSource } from '../../server'
+import { setClaims } from '../../entity/utils'
 
 export const setUserPersonalizationResolver = authorized<
   SetUserPersonalizationSuccess,
   SetUserPersonalizationError,
   MutationSetUserPersonalizationArgs
->(async (_, { input }, { models, authTrx, claims: { uid } }) => {
-  const updatedUserPersonalization = await authTrx((tx) =>
-    models.userPersonalization.upsert(
-      {
-        userId: uid,
-        ...input,
-      },
-      tx
+>(async (_, { input }, { claims: { uid } }) => {
+  const updatedUserPersonalization =
+    await AppDataSource.transaction<UserPersonalization>(
+      async (entityManager) => {
+        await setClaims(entityManager, uid)
+
+        return entityManager.getRepository(UserPersonalization).save({
+          user: { id: uid },
+          ...input,
+        })
+      }
     )
-  )
 
   // Cast SortOrder from string to enum
-  const librarySortOrder = updatedUserPersonalization?.librarySortOrder as
+  const librarySortOrder = updatedUserPersonalization.librarySortOrder as
     | SortOrder
     | null
     | undefined

@@ -1911,6 +1911,10 @@ type UserPersonalization {
   libraryLayoutType: String
   librarySortOrder: SortOrder
   margin: Int
+  speechRate: String
+  speechSecondaryVoice: String
+  speechVoice: String
+  speechVolume: String
   theme: String
 }
 

@@ -2458,6 +2458,10 @@ export type UserPersonalization = {
   libraryLayoutType?: Maybe<Scalars['String']>;
   librarySortOrder?: Maybe<SortOrder>;
   margin?: Maybe<Scalars['Int']>;
+  speechRate?: Maybe<Scalars['String']>;
+  speechSecondaryVoice?: Maybe<Scalars['String']>;
+  speechVoice?: Maybe<Scalars['String']>;
+  speechVolume?: Maybe<Scalars['String']>;
   theme?: Maybe<Scalars['String']>;
 };
 
@@ -4767,6 +4771,10 @@ export type UserPersonalizationResolvers<ContextType = ResolverContext, ParentTy
   libraryLayoutType?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   librarySortOrder?: Resolver<Maybe<ResolversTypes['SortOrder']>, ParentType, ContextType>;
   margin?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  speechRate?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  speechSecondaryVoice?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  speechVoice?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  speechVolume?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   theme?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
