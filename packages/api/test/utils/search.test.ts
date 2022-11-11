@@ -151,3 +151,11 @@ describe('query with in param set to invalid value', () => {
     expect(result.inFilter).to.eq(InFilter.INBOX)
   })
 })
+
+describe('query with author set', () => {
+  it('adds author to the match filters', () => {
+    const result = parseSearchQuery('author:"Omnivore Blog"')
+    expect(result.matchFilters).to.contain({ field: 'author', value:'omnivore blog' })
+  })
+})
+
