@@ -28,6 +28,12 @@ import Views
           audioController.useUltraRealisticVoices = true
           audioController.ultraRealisticFeatureRequested = true
           audioController.ultraRealisticFeatureKey = feature.granted ? feature.token : ""
+          if feature.granted, !Voices.isUltraRealisticVoice(audioController.currentVoice) {
+            // Attempt to set to an ultra voice
+            if let voice = Voices.UltraPairs.first {
+              audioController.currentVoice = voice.firstKey
+            }
+          }
           self.realisticVoicesToggle = true
         } else {
           audioController.useUltraRealisticVoices = false

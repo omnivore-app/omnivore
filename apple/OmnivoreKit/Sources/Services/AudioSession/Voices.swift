@@ -36,10 +36,10 @@ public enum VoiceCategory: String, CaseIterable {
 }
 
 public struct VoicePair {
-  let firstKey: String
+  public let firstKey: String
   let secondKey: String
 
-  let firstName: String
+  public let firstName: String
   let secondName: String
 
   let language: String
