@@ -18,6 +18,9 @@ import { UserPersonalization } from '../entity/user_personalization'
 import { ArticleSavingRequestStatus } from '../elastic/types'
 import { FeatureName, getFeature } from '../services/features'
 
+const DEFAULT_VOICE = 'Larry'
+const DEFAULT_COMPLIMENTARY_VOICE = 'Evelyn'
+
 const logger = buildLogger('app.dispatch')
 
 export function textToSpeechRouter() {
@@ -74,9 +77,10 @@ export function textToSpeechRouter() {
           title: page.title,
           content: page.content,
           options: {
-            primaryVoice: userPersonalization?.speechVoice || 'Axel',
+            primaryVoice: userPersonalization?.speechVoice || DEFAULT_VOICE,
             secondaryVoice:
-              userPersonalization?.speechSecondaryVoice || 'Evelyn',
+              userPersonalization?.speechSecondaryVoice ||
+              DEFAULT_COMPLIMENTARY_VOICE,
             language: page.language,
           },
         })
@@ -92,7 +96,7 @@ export function textToSpeechRouter() {
             userId,
             speechId: utterance.idx,
             text: utterance.text,
-            voice: utterance.voice || 'Axel',
+            voice: utterance.voice || DEFAULT_VOICE,
             priority: 'high',
             isUltraRealisticVoice: true,
             language: speechFile.language,
