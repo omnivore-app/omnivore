@@ -221,6 +221,12 @@ struct WebReaderContainerView: View {
               action: share,
               label: { Label("Share Original", systemImage: "square.and.arrow.up") }
             )
+            if viewModel.hasOriginalUrl(item) {
+              Button(
+                action: share,
+                label: { Label("Share Original", systemImage: "square.and.arrow.up") }
+              )
+            }
             Button(
               action: delete,
               label: { Label("Delete", systemImage: "trash") }

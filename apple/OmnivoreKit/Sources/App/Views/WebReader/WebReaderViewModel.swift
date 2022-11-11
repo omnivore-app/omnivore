@@ -12,6 +12,16 @@ struct SafariWebLink: Identifiable {
   @Published var articleContent: ArticleContent?
   @Published var errorMessage: String?
 
+  func hasOriginalUrl(_ item: LinkedItem) -> Bool {
+    if let pageURLString = item.pageURLString, let host = URL(string: pageURLString)?.host {
+      if host == "omnivore.app" {
+        return false
+      }
+      return true
+    }
+    return false
+  }
+
   func loadContent(dataService: DataService, username: String, itemID: String, retryCount: Int = 0) async {
     errorMessage = nil
 
