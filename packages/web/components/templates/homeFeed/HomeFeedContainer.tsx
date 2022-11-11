@@ -1,4 +1,5 @@
 import { Box, HStack, VStack } from './../../elements/LayoutPrimitives'
+import Dropzone from 'react-dropzone'
 import type {
   LibraryItem,
   LibraryItemsQueryInput,
@@ -702,6 +703,11 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
     setShowUnsubscribeConfirmation(false)
   }
 
+  const [fileNames, setFileNames] = useState([])
+
+  const handleDrop = (acceptedFiles: any) =>
+    setFileNames(acceptedFiles.map((file: { name: any }) => file.name))
+
   return (
     <>
       <VStack
@@ -715,6 +721,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
         }}
       >
         <Toaster />
+
         {props.isValidating && props.items.length == 0 && <TopBarProgress />}
         <HStack alignment="center" distribution="start" css={{ width: '100%' }}>
           <StyledText
@@ -766,6 +773,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
           searchTerm={props.searchTerm}
           applySearchQuery={props.applySearchQuery}
         />
+
         {viewerData?.me && (
           <Box
             css={{
@@ -813,112 +821,136 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
             })}
           </Box>
         )}
-        {!props.isValidating && props.items.length == 0 ? (
-          <EmptyLibrary
-            onAddLinkClicked={() => {
-              props.setShowAddLinkModal(true)
-            }}
-          />
-        ) : (
-          <Box
-            ref={props.gridContainerRef}
-            css={{
-              py: '$3',
-              display: 'grid',
-              width: '100%',
-              gridAutoRows: 'auto',
-              borderRadius: '8px',
-              gridGap: layout == 'LIST_LAYOUT' ? '0' : '$3',
-              marginTop: layout == 'LIST_LAYOUT' ? '21px' : '0',
-              marginBottom: '0px',
-              paddingTop: layout == 'LIST_LAYOUT' ? '0' : '21px',
-              paddingBottom: layout == 'LIST_LAYOUT' ? '0px' : '21px',
-              overflow: 'hidden',
-              '@smDown': {
-                border: 'unset',
-                width: layout == 'LIST_LAYOUT' ? '100vw' : undefined,
-                margin: layout == 'LIST_LAYOUT' ? '16px -16px' : undefined,
-                borderRadius: layout == 'LIST_LAYOUT' ? 0 : undefined,
-              },
-              '@md': {
-                gridTemplateColumns:
-                  layout == 'LIST_LAYOUT' ? 'none' : '1fr 1fr',
-              },
-              '@lg': {
-                gridTemplateColumns:
-                  layout == 'LIST_LAYOUT' ? 'none' : 'repeat(3, 1fr)',
-              },
-            }}
-          >
-            {props.items.map((linkedItem) => (
-              <Box
-                className="linkedItemCard"
-                data-testid="linkedItemCard"
-                id={linkedItem.node.id}
-                tabIndex={0}
-                key={linkedItem.node.id}
-                css={{
-                  width: '100%',
-                  '&> div': {
-                    bg: '$grayBg',
-                  },
-                  '&:focus': {
-                    '> div': {
-                      bg: '$grayBgActive',
-                    },
-                  },
-                  '&:hover': {
-                    '> div': {
-                      bg: '$grayBgActive',
-                    },
-                  },
-                }}
-              >
-                {viewerData?.me && (
-                  <LinkedItemCard
-                    layout={layout}
-                    item={linkedItem.node}
-                    viewer={viewerData.me}
-                    handleAction={(action: LinkedItemCardAction) => {
-                      if (action === 'delete') {
-                        setShowRemoveLinkConfirmation(true)
-                        props.setLinkToRemove(linkedItem)
-                      } else if (action === 'editTitle') {
-                        props.setShowEditTitleModal(true)
-                        props.setLinkToEdit(linkedItem)
-                      } else if (action == 'unsubscribe') {
-                        setShowUnsubscribeConfirmation(true)
-                        props.setLinkToUnsubscribe(linkedItem)
-                      } else {
-                        props.actionHandler(action, linkedItem)
-                      }
-                    }}
-                  />
-                )}
-              </Box>
-            ))}
-          </Box>
-        )}
-        <HStack
-          distribution="center"
-          css={{ width: '100%', mt: '$2', mb: '$4' }}
+        <Dropzone
+          onDrop={handleDrop}
+          preventDropOnDocument={true}
+          noClick={true}
         >
-          {props.hasMore ? (
-            <Button
-              style="ctaGray"
-              css={{
-                cursor: props.isValidating ? 'not-allowed' : 'pointer',
-              }}
-              onClick={props.loadMore}
-              disabled={props.isValidating}
-            >
-              {props.isValidating ? 'Loading' : 'Load More'}
-            </Button>
-          ) : (
-            <StyledText style="caption"></StyledText>
+          {({ getRootProps, getInputProps, acceptedFiles, fileRejections }) => (
+            <div {...getRootProps({ className: 'dropzone' })}>
+              <p>Drag n drop files anywhere below</p>
+              <input {...getInputProps()} />
+              {!props.isValidating && props.items.length == 0 ? (
+                <EmptyLibrary
+                  onAddLinkClicked={() => {
+                    props.setShowAddLinkModal(true)
+                  }}
+                />
+              ) : (
+                <Box
+                  ref={props.gridContainerRef}
+                  css={{
+                    py: '$3',
+                    display: 'grid',
+                    width: '100%',
+                    gridAutoRows: 'auto',
+                    borderRadius: '8px',
+                    gridGap: layout == 'LIST_LAYOUT' ? '0' : '$3',
+                    marginTop: layout == 'LIST_LAYOUT' ? '21px' : '0',
+                    marginBottom: '0px',
+                    paddingTop: layout == 'LIST_LAYOUT' ? '0' : '21px',
+                    paddingBottom: layout == 'LIST_LAYOUT' ? '0px' : '21px',
+                    overflow: 'hidden',
+                    '@smDown': {
+                      border: 'unset',
+                      width: layout == 'LIST_LAYOUT' ? '100vw' : undefined,
+                      margin:
+                        layout == 'LIST_LAYOUT' ? '16px -16px' : undefined,
+                      borderRadius: layout == 'LIST_LAYOUT' ? 0 : undefined,
+                    },
+                    '@md': {
+                      gridTemplateColumns:
+                        layout == 'LIST_LAYOUT' ? 'none' : '1fr 1fr',
+                    },
+                    '@lg': {
+                      gridTemplateColumns:
+                        layout == 'LIST_LAYOUT' ? 'none' : 'repeat(3, 1fr)',
+                    },
+                  }}
+                >
+                  {props.items.map((linkedItem) => (
+                    <Box
+                      className="linkedItemCard"
+                      data-testid="linkedItemCard"
+                      id={linkedItem.node.id}
+                      tabIndex={0}
+                      key={linkedItem.node.id}
+                      css={{
+                        width: '100%',
+                        '&> div': {
+                          bg: '$grayBg',
+                        },
+                        '&:focus': {
+                          '> div': {
+                            bg: '$grayBgActive',
+                          },
+                        },
+                        '&:hover': {
+                          '> div': {
+                            bg: '$grayBgActive',
+                          },
+                        },
+                      }}
+                    >
+                      {viewerData?.me && (
+                        <LinkedItemCard
+                          layout={layout}
+                          item={linkedItem.node}
+                          viewer={viewerData.me}
+                          handleAction={(action: LinkedItemCardAction) => {
+                            if (action === 'delete') {
+                              setShowRemoveLinkConfirmation(true)
+                              props.setLinkToRemove(linkedItem)
+                            } else if (action === 'editTitle') {
+                              props.setShowEditTitleModal(true)
+                              props.setLinkToEdit(linkedItem)
+                            } else if (action == 'unsubscribe') {
+                              setShowUnsubscribeConfirmation(true)
+                              props.setLinkToUnsubscribe(linkedItem)
+                            } else {
+                              props.actionHandler(action, linkedItem)
+                            }
+                          }}
+                        />
+                      )}
+                    </Box>
+                  ))}
+                </Box>
+              )}
+              <HStack
+                distribution="center"
+                css={{ width: '100%', mt: '$2', mb: '$4' }}
+              >
+                {props.hasMore ? (
+                  <Button
+                    style="ctaGray"
+                    css={{
+                      cursor: props.isValidating ? 'not-allowed' : 'pointer',
+                    }}
+                    onClick={props.loadMore}
+                    disabled={props.isValidating}
+                  >
+                    {props.isValidating ? 'Loading' : 'Load More'}
+                  </Button>
+                ) : (
+                  <StyledText style="caption"></StyledText>
+                )}
+              </HStack>
+            </div>
           )}
-        </HStack>
+        </Dropzone>
       </VStack>
+
+      {/* Temporary code */}
+      <div>
+        <strong>Files:</strong>
+        <ul>
+          {fileNames.map((fileName) => (
+            <li key={fileName}>{fileName}</li>
+          ))}
+        </ul>
+      </div> {/* Temporary code */}
+
       {props.showAddLinkModal && (
         <AddLinkModal onOpenChange={() => props.setShowAddLinkModal(false)} />
       )}

@@ -30,7 +30,7 @@ export function LibraryList(props: LibraryListProps): JSX.Element {
 
   const [fileNames, setFileNames] = useState([])
 
-  const handleDrop = (acceptedFiles) =>
+  const handleDrop = (acceptedFiles: any) =>
     setFileNames(acceptedFiles.map((file: { name: any }) => file.name))
 
   const libraryItems = useMemo(() => {
@@ -57,7 +57,7 @@ export function LibraryList(props: LibraryListProps): JSX.Element {
       <Dropzone onDrop={handleDrop} preventDropOnDocument={true} noClick={true} >
         {({ getRootProps, getInputProps, acceptedFiles, fileRejections }) => (
           <div {...getRootProps({ className: 'dropzone' })}>
-            <p>Drag n drop files, or click to select files</p>
+            <p>Drag n drop files anywhere below</p>
             <input {...getInputProps()} />
 
             <Masonry
@@ -122,7 +122,7 @@ export function LibraryList(props: LibraryListProps): JSX.Element {
             <li key={fileName}>{fileName}</li>
           ))}
         </ul>
-      </div>
+      </div> {/* Temporary code */}
 
       {/* Extra padding at bottom to give space for scrolling */}
       <Box css={{ width: '100%', height: '200px' }} />
