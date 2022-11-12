@@ -4,7 +4,7 @@ import { CSS, styled } from '@stitches/react'
 type LandingSectionProps = {
   titleText: string,
   descriptionText: React.ReactElement,
-  icon: React.ReactElement,
+  icon?: React.ReactElement,
   image: React.ReactElement,
   containerStyles?: CSS,
 }
@@ -75,9 +75,9 @@ export function LandingSection(props: LandingSectionProps): JSX.Element {
       <MainContainer distribution='start' alignment='center' css={props.containerStyles}>
         <VStack distribution='center' css={layoutStyles}>
           <VStack css={innerLayoutStyles}>
-            <VStack distribution='center' alignment='center' css={iconContainerStyles}>
+            {/* <VStack distribution='center' alignment='center' css={iconContainerStyles}>
               {props.icon}
-            </VStack>
+            </VStack> */}
             <Box css={titleTextStyles}>{props.titleText}</Box>
             <Box css={descriptionTextStyles}>{props.descriptionText}</Box>
           </VStack>
