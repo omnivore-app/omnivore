@@ -32,19 +32,19 @@ const descriptionTextStyles = {
   color: 'rgb(125, 125, 125)',
 }
 
-const iconContainerStyles = {
-  width: 56,
-  height: 56,
-  background: 'white',
-  border: '1px solid rgba(61, 61, 61, 0.08)',
-  boxSizing: 'border-box',
-  borderRadius: '50%',
-  '@mdDown': {
-    width: 32,
-    height: 32,
-    padding: 5,
-  },
-}
+// const iconContainerStyles = {
+//   width: 56,
+//   height: 56,
+//   background: 'white',
+//   border: '1px solid rgba(61, 61, 61, 0.08)',
+//   boxSizing: 'border-box',
+//   borderRadius: '50%',
+//   '@mdDown': {
+//     width: 32,
+//     height: 32,
+//     padding: 5,
+//   },
+// }
 
 const imageContainerStyles = {
   width: '50%',
