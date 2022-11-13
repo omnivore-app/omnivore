@@ -92,6 +92,9 @@ const containerStyles = {
 const reversedSectionStyles = {
   flexDirection: 'row-reverse',
   marginBottom: 20,
+  '@mdDown': {
+    width: '100%',
+  },
 }
 
 const callToActionStyles = {
@@ -161,9 +164,8 @@ export function LandingSectionsContainer({
           srcSet="/static/landing/landingPage-1.png"
           alt="landingHero-1"
           style={{
-            width: '90%',
-            maxWidth: '90%',
-            height: '80%',
+            width: '70%',
+            maxWidth: '70%',
           }}
         />
       </Box>
@@ -182,7 +184,7 @@ export function LandingSectionsContainer({
             <img
               srcSet="/static/landing/landingPage-2.png"
               alt="landing-2"
-              style={{ height: '50vw', maxHeight: 500 }}
+              style={{ maxHeight: 400 }}
               sizes="auto 50vw"
             />
           }
@@ -232,8 +234,8 @@ export function LandingSectionsContainer({
           image={
             <img
               srcSet="/static/landing/landingPage-4.png"
-              alt="landing-3"
-              style={{ height: '38vw', maxHeight: 400, marginLeft: 40 }}
+              alt="landing-4"
+              style={{ maxHeight: 400, width: '100%' }}
               sizes="auto 50vw"
             />
           }
@@ -254,7 +256,7 @@ export function LandingSectionsContainer({
             <img
               srcSet="/static/landing/landingPage-5.png"
               alt="landing-5"
-              style={{ height: '38vw', maxHeight: 400 }}
+              style={{ maxHeight: 400 }}
               sizes="auto 50vw"
             />
           }
@@ -296,7 +298,7 @@ export function LandingSectionsContainer({
           <img
             srcSet="/static/landing/landingPage-7.png"
             alt="landing-7"
-            style={{ height: '38vw', maxHeight: 400 }}
+            style={{ maxHeight: 400 }}
             sizes="auto 50vw"
           />
         }

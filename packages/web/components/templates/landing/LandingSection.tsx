@@ -2,11 +2,11 @@ import { HStack, VStack, Box } from '../../elements/LayoutPrimitives'
 import { CSS, styled } from '@stitches/react'
 
 type LandingSectionProps = {
-  titleText: string,
-  descriptionText: React.ReactElement,
-  icon?: React.ReactElement,
-  image: React.ReactElement,
-  containerStyles?: CSS,
+  titleText: string
+  descriptionText: React.ReactElement
+  icon?: React.ReactElement
+  image: React.ReactElement
+  containerStyles?: CSS
 }
 
 const MainContainer = styled(HStack, {
@@ -25,7 +25,7 @@ const titleTextStyles = {
   },
   '@xl': {
     fontSize: 45,
-  }
+  },
 }
 
 const descriptionTextStyles = {
@@ -48,43 +48,43 @@ const iconContainerStyles = {
 
 const imageContainerStyles = {
   width: '50%',
-  '@mdDown': {
-    width: 0,
-    display: 'none',
-  }
+  alignSelf: 'center',
 }
 
 const layoutStyles = {
   width: '50%',
-  padding: 10,
+  alignSelf: 'center',
+  padding: 20,
   '@mdDown': {
     width: '100%',
-  }
-}
-
-const innerLayoutStyles = {
-  maxWidth: 480,
-  alignSelf: 'center',
-  '@mdDown': {
-    alignItems: 'center',
   },
 }
-  
+
+// const innerLayoutStyles = {
+//   maxWidth: 480,
+//   alignSelf: 'center',
+//   '@mdDown': {
+//     alignItems: 'center',
+//   },
+// }
+
 export function LandingSection(props: LandingSectionProps): JSX.Element {
-    return (
-      <MainContainer distribution='start' alignment='center' css={props.containerStyles}>
-        <VStack distribution='center' css={layoutStyles}>
-          <VStack css={innerLayoutStyles}>
-            {/* <VStack distribution='center' alignment='center' css={iconContainerStyles}>
+  return (
+    <MainContainer
+      css={{flexWrap: 'wrap', ...props.containerStyles}}
+    >
+      <VStack distribution="center" alignment={'center'} css={layoutStyles}>
+        <VStack>
+          {/* <VStack distribution='center' alignment='center' css={iconContainerStyles}>
               {props.icon}
             </VStack> */}
-            <Box css={titleTextStyles}>{props.titleText}</Box>
-            <Box css={descriptionTextStyles}>{props.descriptionText}</Box>
-          </VStack>
+          <Box css={titleTextStyles}>{props.titleText}</Box>
+          <Box css={descriptionTextStyles}>{props.descriptionText}</Box>
         </VStack>
-        <HStack distribution='center' css={imageContainerStyles}>
-          {props.image}
-        </HStack>
-      </MainContainer>
-    )
+      </VStack>
+      <Box css={imageContainerStyles}>
+        {props.image}
+      </Box>
+    </MainContainer>
+  )
 }
