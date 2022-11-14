@@ -1,17 +1,17 @@
 package app.omnivore.omnivore.ui.reader
 
 import android.annotation.SuppressLint
-import android.content.ContentValues
-import android.content.Intent
 import android.graphics.PointF
 import android.graphics.RectF
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.widget.ImageView
+import android.widget.PopupMenu
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -20,7 +20,6 @@ import androidx.lifecycle.Observer
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.models.Highlight
 import com.pspdfkit.annotations.Annotation
-import com.pspdfkit.annotations.AnnotationProvider
 import com.pspdfkit.annotations.HighlightAnnotation
 import com.pspdfkit.configuration.PdfConfiguration
 import com.pspdfkit.configuration.activity.ThumbnailBarMode
@@ -38,13 +37,11 @@ import com.pspdfkit.ui.search.SearchResultHighlighter
 import com.pspdfkit.ui.search.SimpleSearchResultListener
 import com.pspdfkit.ui.special_mode.controller.TextSelectionController
 import com.pspdfkit.ui.special_mode.manager.TextSelectionManager
-import com.pspdfkit.ui.toolbar.ContextualToolbar
-import com.pspdfkit.ui.toolbar.ToolbarCoordinatorLayout
 import com.pspdfkit.ui.toolbar.popup.PdfTextSelectionPopupToolbar
 import com.pspdfkit.ui.toolbar.popup.PopupToolbarMenuItem
 import com.pspdfkit.utils.PdfUtils
 import dagger.hilt.android.AndroidEntryPoint
-import java.util.*
+
 
 @AndroidEntryPoint
 class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionManager.OnTextSelectionChangeListener, TextSelectionManager.OnTextSelectionModeChangeListener, OnPreparePopupToolbarListener {
@@ -244,11 +241,30 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
     clickedAnnotation: Annotation?
   ): Boolean {
     if (clickedAnnotation != null) {
-      // TODO: show menu with delete and add note buttons
-      Log.d("pdf", "clicked annotation: $clickedAnnotation")
+      showHighlightSelectionPopover(clickedAnnotation)
     }
 
     return super.onPageClick(document, pageIndex, event, pagePosition, clickedAnnotation)
+  }
+
+  private fun showHighlightSelectionPopover(clickedAnnotation: Annotation) {
+    // TODO: anchor popover at exact position of tap (maybe add an empty view at tap loc and anchor to that?)
+    val popupMenu = PopupMenu(this, fragment.view, Gravity.CENTER, androidx.appcompat.R.attr.actionOverflowMenuStyle, 0)
+
+    popupMenu.menuInflater.inflate(R.menu.highlight_selection_menu, popupMenu.menu)
+
+    popupMenu.setOnMenuItemClickListener(PopupMenu.OnMenuItemClickListener { item ->
+      when(item.itemId) {
+        R.id.annotate ->
+          Log.d("pdf", "annotate button tapped")
+        R.id.delete -> {
+          viewModel.deleteHighlight(clickedAnnotation)
+          fragment.document?.annotationProvider?.removeAnnotationFromPage(clickedAnnotation)
+        }
+      }
+      true
+    })
+    popupMenu.show()
   }
 
   private fun tintDrawable(drawable: Drawable, tint: Int): Drawable {
