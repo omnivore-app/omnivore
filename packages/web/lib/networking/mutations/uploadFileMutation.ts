@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid'
 type UploadFileInput = {
   url: string
   contentType: string 
-  createPageEntry?: Boolean
+  createPageEntry?: boolean
   clientRequestId?: string
 }
 
