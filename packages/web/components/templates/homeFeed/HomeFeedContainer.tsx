@@ -730,7 +730,6 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
         if (!request?.uploadSignedUrl) {
           throw 'No upload URL available'
         }
-        console.log("UPLOADING DATA", data)
 
         const uploadSignedUrl = new URL(request?.uploadSignedUrl)
         const uploadResult = await new Promise((resolve) => {
