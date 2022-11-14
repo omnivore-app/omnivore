@@ -704,10 +704,12 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
     setShowUnsubscribeConfirmation(false)
   }
 
-  const [fileNames, setFileNames] = useState([])
+  const [uploadingFiles, setUploadingFiles] = useState([])
+  const [inDragOperation, setInDragOperation] = useState(false)
 
   const handleDrop = async (acceptedFiles: any) => {
-    setFileNames(acceptedFiles.map((file: { name: any }) => file.name))
+    setInDragOperation(false)
+    setUploadingFiles(acceptedFiles.map((file: { name: any }) => file.name))
 
     for (const file of acceptedFiles) {
       try {
@@ -732,6 +734,8 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
         console.log("ERROR", error)
       }
     }
+
+    setUploadingFiles([])
   }
 
   return (
@@ -849,14 +853,23 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
         )}
         <Dropzone
           onDrop={handleDrop}
+          onDragEnter={() => { setInDragOperation(true) }}
+          onDragLeave={() => { setInDragOperation(false) }}
           preventDropOnDocument={true}
           noClick={true}
         >
           {({ getRootProps, getInputProps, acceptedFiles, fileRejections }) => (
             <div {...getRootProps({ className: 'dropzone' })}>
-              <Box css={{ color: '$utilityTextDefault', marginTop: '$1'}}>
-                Drag n drop files anywhere below
-              </Box>
+              {(inDragOperation && uploadingFiles.length < 1) && (
+                <Box css={{ color: '$utilityTextDefault', marginTop: '$1'}}>
+                  Drag n drop files anywhere below
+                </Box>
+              )}
+              {uploadingFiles.length > 0 ? (
+                <Box css={{ color: '$utilityTextDefault', marginTop: '$1'}}>
+                  Uploading Files...
+                </Box>
+              ) : null}
               <input {...getInputProps()} />
               {!props.isValidating && props.items.length == 0 ? (
                 <EmptyLibrary
@@ -972,7 +985,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
       <div>
         <strong>Files:</strong>
         <ul>
-          {fileNames.map((fileName) => (
+          {uploadingFiles.map((fileName) => (
             <li key={fileName}>{fileName}</li>
           ))}
         </ul>
