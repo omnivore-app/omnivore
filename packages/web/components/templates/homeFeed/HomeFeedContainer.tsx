@@ -722,8 +722,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
           throw 'No upload URL available'
         }
 
-        const uploadSignedUrl = new URL(request?.uploadSignedUrl)
-        const uploadResult = await fetch(uploadSignedUrl, {
+        const uploadResult = await fetch(request?.uploadSignedUrl, {
           method: 'PUT',
           body: file,
         })
