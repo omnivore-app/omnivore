@@ -1,6 +1,10 @@
 package app.omnivore.omnivore.ui.reader
 
+import android.R.attr.label
 import android.annotation.SuppressLint
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.graphics.PointF
 import android.graphics.RectF
 import android.graphics.drawable.Drawable
@@ -33,7 +37,6 @@ import com.pspdfkit.ui.PdfFragment
 import com.pspdfkit.ui.PdfThumbnailBar
 import com.pspdfkit.ui.PopupToolbar
 import com.pspdfkit.ui.search.PdfSearchViewModular
-import com.pspdfkit.ui.search.SearchResultHighlighter
 import com.pspdfkit.ui.search.SimpleSearchResultListener
 import com.pspdfkit.ui.special_mode.controller.TextSelectionController
 import com.pspdfkit.ui.special_mode.manager.TextSelectionManager
@@ -333,7 +336,10 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
           return@OnPopupToolbarItemClickedListener true
         }
         3 -> {
-          Log.d("pdf", "user selected copy action")
+          val text = textSelectionController?.textSelection?.text ?: ""
+          val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+          val clip = ClipData.newPlainText(text, text)
+          clipboard.setPrimaryClip(clip)
           textSelectionController?.textSelection = null
           p0.dismiss()
           return@OnPopupToolbarItemClickedListener true
