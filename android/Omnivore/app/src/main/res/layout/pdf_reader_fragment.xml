@@ -27,6 +27,24 @@
         android:layout_height="wrap_content"
         android:layout_gravity="end"
         android:orientation="horizontal"
+        android:elevation="16dp"
+        android:splitMotionEvents="false">
+
+        <ImageView
+            android:id="@+id/closeSearchButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:padding="12dp"
+            android:elevation="16dp"
+            android:visibility="invisible"
+            android:src="@drawable/close" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:orientation="horizontal"
         android:splitMotionEvents="false">
 
         <ImageView
@@ -41,6 +59,6 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:padding="12dp"
-            android:src="@drawable/pspdf__ic_thumbnails" />
+            android:src="@drawable/pdf_thumbnail_toggle" />
     </LinearLayout>
 </FrameLayout>

@@ -53,7 +53,6 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
   private lateinit var thumbnailBar: PdfThumbnailBar
   private lateinit var configuration: PdfConfiguration
   private lateinit var modularSearchView: PdfSearchViewModular
-  private lateinit var highlighter: SearchResultHighlighter
 
   val viewModel: PDFReaderViewModel by viewModels()
 
@@ -177,38 +176,31 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
   }
 
   private fun initModularSearchViewAndButton() {
-    // The search result highlighter will highlight any selected result.
-    highlighter = SearchResultHighlighter(this).also {
-      fragment.addDrawableProvider(it)
-    }
-
-    modularSearchView = findViewById(R.id.modularSearchView)
-      ?: throw IllegalStateException("Error while loading CustomFragmentActivity. The example layout was missing the search view.")
-
-    modularSearchView.setSearchViewListener(object : SimpleSearchResultListener() {
-      override fun onMoreSearchResults(results: List<SearchResult>) {
-        highlighter.addSearchResults(results)
-      }
-
-      override fun onSearchCleared() {
-        highlighter.clearSearchResults()
-      }
-
-      override fun onSearchResultSelected(result: SearchResult?) {
-        // Pass on the search result to the highlighter. If 'null' the highlighter will clear any selection.
-        highlighter.setSelectedSearchResult(result)
-        if (result != null) {
-          fragment.scrollTo(PdfUtils.createPdfRectUnion(result.textBlock.pageRects), result.pageIndex, 250, false)
-        }
-      }
-    })
-
     // The search view is hidden by default (see layout). Set up a click listener that will show the view once pressed.
     val openSearchButton = findViewById<ImageView>(R.id.openSearchButton)
       ?: throw IllegalStateException(
         "Error while loading CustomFragmentActivity. The example layout " +
           "was missing the open search button with id `R.id.openSearchButton`."
       )
+
+    val closeSearchButton = findViewById<ImageView>(R.id.closeSearchButton)
+      ?: throw IllegalStateException(
+        "Error while loading CustomFragmentActivity. The example layout " +
+          "was missing the close search button with id `R.id.closeSearchButton`."
+      )
+
+    modularSearchView = findViewById(R.id.modularSearchView)
+      ?: throw IllegalStateException("Error while loading CustomFragmentActivity. The example layout was missing the search view.")
+
+    modularSearchView.setSearchViewListener(object : SimpleSearchResultListener() {
+      override fun onSearchResultSelected(result: SearchResult?) {
+        // Pass on the search result to the highlighter. If 'null' the highlighter will clear any selection.
+        if (result != null) {
+          closeSearchButton.visibility = View.INVISIBLE
+          fragment.scrollTo(PdfUtils.createPdfRectUnion(result.textBlock.pageRects), result.pageIndex, 250, false)
+        }
+      }
+    })
 
     openSearchButton.apply {
       setImageDrawable(
@@ -217,8 +209,24 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
           ContextCompat.getColor(this@PDFReaderActivity, R.color.black)
         )
       )
+
       setOnClickListener {
-        if (modularSearchView.isShown) modularSearchView.hide() else modularSearchView.show()
+        closeSearchButton.visibility = View.VISIBLE
+        modularSearchView.show()
+      }
+    }
+
+    closeSearchButton.apply {
+      setImageDrawable(
+        tintDrawable(
+          drawable,
+          ContextCompat.getColor(this@PDFReaderActivity, R.color.white)
+        )
+      )
+
+      setOnClickListener {
+        closeSearchButton.visibility = View.INVISIBLE
+        modularSearchView.hide()
       }
     }
   }
