@@ -706,10 +706,6 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
 
   const [fileNames, setFileNames] = useState([])
 
-  const uploadFiles = useCallback(async () => {
-
-  }, [fileNames])
-
   const handleDrop = async (acceptedFiles: any) => {
     setFileNames(acceptedFiles.map((file: { name: any }) => file.name))
 
@@ -734,12 +730,24 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
         if (!request?.uploadSignedUrl) {
           throw 'No upload URL available'
         }
+        console.log("UPLOADING DATA", data)
 
-        const signedUrl = new URL(request?.uploadSignedUrl)
-        const result = await fetch(signedUrl, {
-          method: 'PUT',
-        })
-        console.log('result of uploading: ', result)
+        const uploadSignedUrl = new URL(request?.uploadSignedUrl)
+        const uploadResult = await new Promise((resolve) => {
+          const xhr = new XMLHttpRequest()
+          xhr.open('PUT', uploadSignedUrl, true)
+          xhr.setRequestHeader('Content-Type', file.type)
+
+          xhr.onerror = () => {
+            resolve(undefined);
+          }
+          xhr.onload = (event) => {
+            resolve(event)
+          };
+          xhr.send(blob as Blob)
+        });
+
+        console.log('result of uploading: ', uploadResult)
       } catch {
         alert('Error uploading file')
       }
