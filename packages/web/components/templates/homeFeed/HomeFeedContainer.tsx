@@ -51,6 +51,7 @@ import {
   TypeaheadSearchItemsData,
   typeaheadSearchQuery,
 } from '../../../lib/networking/queries/typeaheadSearch'
+import { uploadFileRequestMutation } from '../../../lib/networking/mutations/uploadFileMutation'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 
@@ -705,8 +706,46 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
 
   const [fileNames, setFileNames] = useState([])
 
-  const handleDrop = (acceptedFiles: any) =>
+  const uploadFiles = useCallback(async () => {
+
+  }, [fileNames])
+
+  const handleDrop = async (acceptedFiles: any) => {
     setFileNames(acceptedFiles.map((file: { name: any }) => file.name))
+
+    for (const file of acceptedFiles) {
+      console.log("FILE: ", file)
+      try {
+        const request = await uploadFileRequestMutation({
+          url: `file://${file.path}`,
+          contentType: file.type,
+          createPageEntry: true,
+        })
+        const blob = await new Promise((resolve, reject) => {
+          const reader = new FileReader()
+          reader.onload = async () => {
+            resolve(reader.result);
+          }
+          reader.onerror = (error) => {
+            reject(error);
+          }
+          reader.readAsDataURL(file);
+        })
+        if (!request?.uploadSignedUrl) {
+          throw 'No upload URL available'
+        }
+
+        const signedUrl = new URL(request?.uploadSignedUrl)
+        const result = await fetch(signedUrl, {
+          method: 'PUT',
+          mode: 'no-cors',
+        })
+        console.log('result of uploading: ', result)
+      } catch {
+        alert('Error uploading file')
+      }
+    }
+  }
 
   return (
     <>
