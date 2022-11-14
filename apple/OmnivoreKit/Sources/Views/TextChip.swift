@@ -110,7 +110,7 @@ public struct TextChipButton: View {
   }
 
   public static func makeSearchFilterButton(title: String, onTap: @escaping () -> Void) -> TextChipButton {
-    TextChipButton(title: "Search: \(title)", color: .appCtaYellow, actionType: .clear, negated: false, onTap: onTap)
+    TextChipButton(title: title, color: .appCtaYellow, actionType: .filter, negated: false, onTap: onTap)
   }
 
   public static func makeShowOptionsButton(title: String, onTap: @escaping () -> Void) -> TextChipButton {
@@ -135,11 +135,11 @@ public struct TextChipButton: View {
     case remove
     case add
     case show
-    case clear
+    case filter
 
     var systemIconName: String {
       switch self {
-      case .clear, .remove:
+      case .filter, .remove:
         return "xmark"
       case .add:
         return "plus"
@@ -173,6 +173,10 @@ public struct TextChipButton: View {
   public var body: some View {
     VStack(spacing: 0) {
       HStack {
+        if actionType == .filter {
+          Image(systemName: "line.3.horizontal.decrease")
+        }
+
         Text(text)
           .strikethrough(color: negated ? foregroundColor : .clear)
           .padding(.leading, 3)
