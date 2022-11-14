@@ -51,6 +51,5 @@ export async function uploadFileRequestMutation(
   if (error) {
     throw error
   }
-  console.log("RESPONSE DATA: ", data)
   return output?.uploadFileRequest
 }

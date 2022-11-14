@@ -27,6 +27,7 @@ type LibraryItemsQueryResponse = {
     size: number | ((_size: number) => number)
   ) => Promise<unknown[] | undefined>
   performActionOnItem: (action: LibraryItemAction, item: LibraryItem) => void
+  mutate: () => void
 }
 
 type LibraryItemAction =
@@ -352,5 +353,6 @@ export function useGetLibraryItemsQuery({
     performActionOnItem,
     size,
     setSize,
+    mutate
   }
 }

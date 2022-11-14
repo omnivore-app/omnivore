@@ -127,7 +127,7 @@ export function HomeFeedContainer(): JSX.Element {
     })
   )
 
-  const { itemsPages, size, setSize, isValidating, performActionOnItem } =
+  const { itemsPages, size, setSize, isValidating, performActionOnItem, mutate } =
     useGetLibraryItemsQuery(queryInputs)
 
   useEffect(() => {
@@ -560,6 +560,7 @@ export function HomeFeedContainer(): JSX.Element {
     <HomeFeedGrid
       items={libraryItems}
       actionHandler={handleCardAction}
+      reloadItems={mutate}
       searchTerm={queryInputs.searchQuery}
       gridContainerRef={gridContainerRef}
       applySearchQuery={(searchQuery: string) => {
@@ -613,6 +614,7 @@ export function HomeFeedContainer(): JSX.Element {
 type HomeFeedContentProps = {
   items: LibraryItem[]
   searchTerm?: string
+  reloadItems: () => void
   gridContainerRef: React.RefObject<HTMLDivElement>
   applySearchQuery: (searchQuery: string) => void
   hasMore: boolean
@@ -736,6 +738,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
     }
 
     setUploadingFiles([])
+    props.reloadItems()
   }
 
   return (
