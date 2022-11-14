@@ -14,7 +14,7 @@ import {
 export interface SearchBody {
   query: {
     bool: {
-      filter: (
+      must: (
         | {
             term: {
               [K: string]: string
