@@ -1,5 +1,6 @@
 import type * as Stitches from '@stitches/react'
 import { createStitches, createTheme } from '@stitches/react'
+import { rgba } from 'color2k'
 
 export enum ThemeId {
   Lighter = 'White',
@@ -109,6 +110,8 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
       zIndices: {},
       transitions: {},
       colors: {
+        isDark: false,
+
         // Grayscale
         grayBase: '#F8F8F8',
         grayBg: '#FFFFFF',
@@ -150,7 +153,6 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         readerFont: '#3D3D3D',
         readerFontHighContrast: 'black',
         readerFontTransparent: 'rgba(61,61,61,0.65)',
-        readerHeader: '3D3D3D',
         readerTableHeader: '#FFFFFF',
 
         // Avatar Fallback color
@@ -185,6 +187,8 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
 
 const darkThemeSpec = {
   colors: {
+    isDark: true,
+
     grayBase: '#252525',
     grayBg: '#3B3938',
     grayBgActive: '#4f4d4c',
@@ -213,7 +217,6 @@ const darkThemeSpec = {
     readerBg: '#303030',
     readerFont: '#b9b9b9',
     readerFontHighContrast: 'white',
-    readerHeader: '#b9b9b9',
     readerTableHeader: '#FFFFFF',
     tooltipIcons: '#5F5E58',
     avatarBg: '#000000',
@@ -239,12 +242,13 @@ const darkThemeSpec = {
 
 const sepiaThemeSpec = {
   colors: {
-    // Reader Colors
-    readerBg: '#F9F1DC',
-    readerFont: '#554A34',
+    readerBg: '#FAF5E9',
+    readerFont: '#454139',
     readerFontHighContrast: 'black',
-    readerHeader: '554A34',
-    readerTableHeader: '#FFFFFF',
+
+    highlight: '#FFD234',
+    highlightBackground: '226, 209, 168',
+    highlightText: '#454139',
   }
 }
 
@@ -254,16 +258,13 @@ const charcoalThemeSpec = {
     readerBg: '#303030',
     readerFont: '#b9b9b9',
     readerFontHighContrast: 'white',
-    readerHeader: '#b9b9b9',
-    readerTableHeader: '#FFFFFF',
   }
 }
 
-
 // Dark and Darker theme now match each other.
 // Use the darkThemeSpec object to make updates.
-export const darkTheme = createTheme(ThemeId.Dark, darkThemeSpec)
-export const darkerTheme = createTheme(ThemeId.Darker, darkThemeSpec)
+// export const darkTheme = createTheme(ThemeId.Dark, darkThemeSpec)
+export const darkTheme =  createTheme(ThemeId.Dark, darkThemeSpec)
 export const sepiaTheme = createTheme(ThemeId.Sepia, {...darkThemeSpec, ...sepiaThemeSpec})
 export const charcoalTheme = createTheme(ThemeId.Charcoal, {...darkThemeSpec, ...charcoalThemeSpec})
 

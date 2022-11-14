@@ -153,6 +153,65 @@ struct WebReaderContainerView: View {
     }.foregroundColor(.appGrayTextContrast)
   }
 
+  var readerMenu: some View {
+    Menu(
+      content: {
+        Group {
+          Button(
+            action: { showHighlightsView = true },
+            label: { Label("View Highlights & Notes", systemImage: "highlighter") }
+          )
+          Button(
+            action: { showTitleEdit = true },
+            label: { Label("Edit Title/Description", systemImage: "textbox") }
+          )
+          Button(
+            action: editLabels,
+            label: { Label("Edit Labels", systemImage: "tag") }
+          )
+          Button(
+            action: {
+              archive()
+            },
+            label: {
+              Label(
+                item.isArchived ? "Unarchive" : "Archive",
+                systemImage: item.isArchived ? "tray.and.arrow.down.fill" : "archivebox"
+              )
+            }
+          )
+          Button(
+            action: {
+              dataService.updateLinkReadingProgress(itemID: item.unwrappedID, readingProgress: 0, anchorIndex: 0)
+            },
+            label: { Label("Reset Read Location", systemImage: "arrow.counterclockwise.circle") }
+          )
+          Button(
+            action: { /* viewModel.downloadAudio(audioController: audioController, item: item) */ },
+            label: { Label("Download Audio", systemImage: "icloud.and.arrow.down") }
+          )
+          Button(
+            action: share,
+            label: { Label("Share Original", systemImage: "square.and.arrow.up") }
+          )
+          Button(
+            action: delete,
+            label: { Label("Delete", systemImage: "trash") }
+          )
+        }
+      },
+      label: {
+        #if os(iOS)
+          Image.profile
+            .padding(.horizontal)
+            .scaleEffect(navBarVisibilityRatio)
+        #else
+          Text("Options")
+        #endif
+      }
+    )
+  }
+
   var navBar: some View {
     HStack(alignment: .center) {
       #if os(iOS)
@@ -161,7 +220,6 @@ struct WebReaderContainerView: View {
           label: {
             Image(systemName: "chevron.backward")
               .font(.appNavbarIcon)
-              .foregroundColor(.appGrayTextContrast)
               .padding(.horizontal)
           }
         )
@@ -181,62 +239,9 @@ struct WebReaderContainerView: View {
       #if os(macOS)
         Spacer()
       #endif
-      Menu(
-        content: {
-          Group {
-            Button(
-              action: { showHighlightsView = true },
-              label: { Label("View Highlights & Notes", systemImage: "highlighter") }
-            )
-            Button(
-              action: { showTitleEdit = true },
-              label: { Label("Edit Title/Description", systemImage: "textbox") }
-            )
-            Button(
-              action: editLabels,
-              label: { Label("Edit Labels", systemImage: "tag") }
-            )
-            Button(
-              action: {
-                archive()
-              },
-              label: {
-                Label(
-                  item.isArchived ? "Unarchive" : "Archive",
-                  systemImage: item.isArchived ? "tray.and.arrow.down.fill" : "archivebox"
-                )
-              }
-            )
-            Button(
-              action: {
-                dataService.updateLinkReadingProgress(itemID: item.unwrappedID, readingProgress: 0, anchorIndex: 0)
-              },
-              label: { Label("Reset Read Location", systemImage: "arrow.counterclockwise.circle") }
-            )
-            Button(
-              action: { /* viewModel.downloadAudio(audioController: audioController, item: item) */ },
-              label: { Label("Download Audio", systemImage: "icloud.and.arrow.down") }
-            )
-            Button(
-              action: share,
-              label: { Label("Share Original", systemImage: "square.and.arrow.up") }
-            )
-            Button(
-              action: delete,
-              label: { Label("Delete", systemImage: "trash") }
-            )
-          }
-        },
-        label: {
-          #if os(iOS)
-            Image.profile
-              .padding(.horizontal)
-              .scaleEffect(navBarVisibilityRatio)
-          #else
-            Text("Options")
-          #endif
-        }
-      )
+
+      readerMenu
+
       #if os(macOS)
         .frame(maxWidth: 100)
         .padding(.trailing, 16)
@@ -244,7 +249,8 @@ struct WebReaderContainerView: View {
     }
     .frame(height: readerViewNavBarHeight * navBarVisibilityRatio)
     .opacity(navBarVisibilityRatio)
-    .background(Color.systemBackground)
+    .background(Theme.current.bgColor)
+    .foregroundColor(Theme.current.fgColor)
     .alert("Are you sure?", isPresented: $showDeleteConfirmation) {
       Button("Remove Link", role: .destructive) {
         Snackbar.show(message: "Link removed")

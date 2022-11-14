@@ -17,10 +17,9 @@ import WebKit
     public func makeUIView(context _: Context) -> WKWebView {
       webView.scrollView.isScrollEnabled = true
       webView.isOpaque = false
-      webView.backgroundColor = UIColor.clear
+      // webView.backgroundColor = UIColor.clear
       if let url = request.url {
-        // let themeID = Color.isDarkMode ? "Gray" /* "Sepia" */ : "Charcoal"
-        let themeID = Color.isDarkMode ? "Gray" : "LightGray"
+        let themeID = ThemeManager.currentThemeName
         webView.injectCookie(cookieString: "theme=\(themeID); Max-Age=31536000;", url: url)
       }
       return webView

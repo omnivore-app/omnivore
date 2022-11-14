@@ -11,7 +11,7 @@ import { ReportIssuesModal } from './ReportIssuesModal'
 import { reportIssueMutation } from '../../../lib/networking/mutations/reportIssueMutation'
 import { ArticleHeaderToolbar } from './ArticleHeaderToolbar'
 import { userPersonalizationMutation } from '../../../lib/networking/mutations/userPersonalizationMutation'
-import { updateTheme, updateThemeLocally } from '../../../lib/themeUpdater'
+import { currentThemeName, updateTheme, updateThemeLocally } from '../../../lib/themeUpdater'
 import { ArticleMutations } from '../../../lib/articleActions'
 import { LabelChip } from '../../elements/LabelChip'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
@@ -128,7 +128,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     const handleThemeChange = async (event: UpdateThemeEvent) => {
       const newTheme = event.themeName
       if (newTheme) {
-        updateTheme(newTheme)
+        updateThemeLocally(newTheme)
       }
     }
 
@@ -193,9 +193,9 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
       ? theme.colors.readerFontHighContrast.toString()
       : theme.colors.readerFont.toString(),
     readerTableHeaderColor: theme.colors.readerTableHeader.toString(),
-    readerHeadersColor: theme.colors.readerHeader.toString(),
   }
-  console.log('setting font family: ', styles.fontFamily)
+  console.log("current theme info: ", currentThemeName())
+  console.log(" -- ", theme.colors)
 
   return (
     <>
@@ -204,9 +204,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         css={{
           padding: '16px',
           maxWidth: `${styles.maxWidthPercentage ?? 100}%`,
-          background: props.isAppleAppEmbed
-            ? 'unset'
-            : theme.colors.readerBg.toString(),
+          background: theme.colors.readerBg.toString(),
           '--text-font-family': styles.fontFamily,
           '--text-font-size': `${styles.fontSize}px`,
           '--line-height': `${styles.lineHeight}%`,
@@ -216,7 +214,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           '--hr-margin': '1em',
           '--font-color': styles.readerFontColor,
           '--table-header-color': styles.readerTableHeaderColor,
-          '--headers-color': styles.readerHeadersColor,
           '@sm': {
             '--blockquote-padding': '1em 2em',
             '--blockquote-icon-font-size': '1.7rem',

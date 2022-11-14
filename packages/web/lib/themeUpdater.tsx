@@ -2,9 +2,7 @@ import {
   ThemeId,
   lighterTheme,
   darkTheme,
-  darkerTheme,
   sepiaTheme,
-  charcoalTheme,
 } from '../components/tokens/stitches.config'
 import { userPersonalizationMutation } from './networking/mutations/userPersonalizationMutation'
 
@@ -27,13 +25,7 @@ export function updateThemeLocally(themeId: string): void {
   document.body.classList.remove(
     lighterTheme,
     darkTheme,
-    darkerTheme,
-    ThemeId.Light,
-    ThemeId.Dark,
-    ThemeId.Darker,
-    ThemeId.Lighter,
-    ThemeId.Sepia,
-    ThemeId.Charcoal,
+    sepiaTheme
   )
   document.body.classList.add(themeId)
 }
@@ -79,37 +71,5 @@ export function applyStoredTheme(syncWithServer = true): ThemeId | undefined {
 
 export function isDarkTheme(): boolean {
   const currentTheme = currentThemeName()
-  return currentTheme === 'Dark' || currentTheme === 'Darker'
-}
-
-export function darkenTheme(): void {
-  switch (currentTheme()) {
-    case ThemeId.Dark:
-      updateTheme(ThemeId.Darker)
-      break
-    case ThemeId.Light:
-      updateTheme(ThemeId.Dark)
-      break
-    case ThemeId.Lighter:
-      updateTheme(ThemeId.Light)
-      break
-    default:
-      break
-  }
-}
-
-export function lightenTheme(): void {
-  switch (currentTheme()) {
-    case ThemeId.Dark:
-      updateTheme(ThemeId.Light)
-      break
-    case ThemeId.Darker:
-      updateTheme(ThemeId.Dark)
-      break
-    case ThemeId.Light:
-      updateTheme(ThemeId.Lighter)
-      break
-    default:
-      break
-  }
+  return currentTheme === 'Dark' || currentTheme === 'Darker' || currentTheme === 'Sepia'
 }

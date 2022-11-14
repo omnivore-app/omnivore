@@ -18,7 +18,6 @@ export function SkeletonArticleContainer(props: SkeletonArticleContainerProps): 
     fontFamily: props.fontFamily ?? 'inter',
     readerFontColor: theme.colors.readerFont.toString(),
     readerTableHeaderColor: theme.colors.readerTableHeader.toString(),
-    readerHeadersColor: theme.colors.readerHeader.toString(),
   }
 
   return (
@@ -40,7 +39,6 @@ export function SkeletonArticleContainer(props: SkeletonArticleContainerProps): 
           '--hr-margin': '1em',
           '--font-color': styles.readerFontColor,
           '--table-header-color': styles.readerTableHeaderColor,
-          '--headers-color': styles.readerHeadersColor,
           '@sm': {
             '--blockquote-padding': '1em 2em',
             '--blockquote-icon-font-size': '1.7rem',

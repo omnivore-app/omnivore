@@ -20,7 +20,8 @@ import {
   Priority,
 } from 'kbar'
 import { animatorStyle, KBarResultsComponents, searchStyle } from '../components/elements/KBar'
-import { darkenTheme, lightenTheme } from '../lib/themeUpdater'
+import { updateTheme } from '../lib/themeUpdater'
+import { ThemeId } from '../components/tokens/stitches.config'
 
 TopBarProgress.config({
   barColors: {
@@ -48,7 +49,7 @@ const generateActions = (router: NextRouter) => {
       shortcut: ['v', 'l'],
       keywords: 'light theme',
       priority: Priority.LOW,
-      perform: () => lightenTheme(),
+      perform: () => updateTheme(ThemeId.Light),
     },
     {
       id: 'darkTheme',
@@ -57,7 +58,16 @@ const generateActions = (router: NextRouter) => {
       shortcut: ['v', 'd'],
       keywords: 'dark theme',
       priority: Priority.LOW,
-      perform: () => darkenTheme(),
+      perform: () => updateTheme(ThemeId.Dark),
+    },
+    {
+      id: 'sepiaTheme',
+      section: 'Preferences',
+      name: 'Change theme (sepia) ',
+      shortcut: ['v', 's'],
+      keywords: 'sepia theme',
+      priority: Priority.LOW,
+      perform: () => updateTheme(ThemeId.Sepia),
     },
   ]
 

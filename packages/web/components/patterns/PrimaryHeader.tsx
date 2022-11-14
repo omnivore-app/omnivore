@@ -30,12 +30,6 @@ export function PrimaryHeader(props: HeaderProps): JSX.Element {
   useKeyboardShortcuts(
     primaryCommands((action) => {
       switch (action) {
-        // case 'themeDarker':
-        //   darkenTheme()
-        //   break
-        // case 'themeLighter':
-        //   lightenTheme()
-        //   break
         case 'toggleShortcutHelpModalDisplay':
           props.setShowKeyboardCommandsModal(true)
           break
@@ -57,17 +51,14 @@ export function PrimaryHeader(props: HeaderProps): JSX.Element {
 
   function headerDropdownActionHandler(action: HeaderDropdownAction): void {
     switch (action) {
-      case 'apply-darker-theme':
-        updateTheme(ThemeId.Darker)
-        break
       case 'apply-dark-theme':
         updateTheme(ThemeId.Dark)
         break
-      case 'apply-lighter-theme':
-        updateTheme(ThemeId.Lighter)
-        break
       case 'apply-light-theme':
         updateTheme(ThemeId.Light)
+        break
+      case 'apply-sepia-theme':
+        updateTheme(ThemeId.Sepia)
         break
       case 'increaseFontSize':
         document.dispatchEvent(new Event('increaseFontSize'))

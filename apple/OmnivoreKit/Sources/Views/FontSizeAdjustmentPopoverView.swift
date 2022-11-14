@@ -134,8 +134,8 @@ public enum WebFont: String, CaseIterable {
     public var body: some View {
       NavigationView {
         VStack(alignment: .center) {
-//          themePicker
-//            .padding(.bottom, 16)
+          themePicker
+            .padding(.bottom, 16)
 
           LabelledStepper(
             labelText: "Font Size",
@@ -161,17 +161,17 @@ public enum WebFont: String, CaseIterable {
             }
           )
 
-          LabelledStepper(
-            labelText: "Line Spacing",
-            onIncrement: {
-              storedLineSpacing = min(storedLineSpacing + 25, 300)
-              updateReaderPreferences()
-            },
-            onDecrement: {
-              storedLineSpacing = max(storedLineSpacing - 25, 100)
-              updateReaderPreferences()
-            }
-          )
+//          LabelledStepper(
+//            labelText: "Line Spacing",
+//            onIncrement: {
+//              storedLineSpacing = min(storedLineSpacing + 25, 300)
+//              updateReaderPreferences()
+//            },
+//            onDecrement: {
+//              storedLineSpacing = max(storedLineSpacing - 25, 100)
+//              updateReaderPreferences()
+//            }
+//          )
 
           NavigationLink(destination: fontList) {
             HStack {

@@ -12,30 +12,22 @@ import Utils
 public enum Theme: String, CaseIterable {
   case system = "System"
   case sepia = "Sepia"
-  case charcoal = "Charcoal"
-  case mint = "Mint"
-
-  case solarized = "Solarized"
-
-  case light = "Light"
-  case dark = "Dark"
 
   public var bgColor: Color {
     switch self {
     case .system:
       return Color.systemBackground
-    case .charcoal:
-      return Color(red: 48 / 255.0, green: 48 / 255.0, blue: 48 / 255.0)
     case .sepia:
-      return Color(red: 249 / 255.0, green: 241 / 255.0, blue: 220 / 255.0)
-    case .mint:
-      return Color(red: 202 / 255.0, green: 230 / 255.0, blue: 208 / 255.0)
-    case .solarized:
-      return Color(red: 13 / 255.0, green: 39 / 255.0, blue: 50 / 255.0)
-    case .light:
-      return Color.white
-    case .dark:
-      return Color.black
+      return Color(red: 250 / 255.0, green: 245 / 255.0, blue: 233 / 255.0)
+    }
+  }
+
+  public var fgColor: Color {
+    switch self {
+    case .system:
+      return Color.appGrayTextContrast
+    case .sepia:
+      return Color(red: 57 / 255.0, green: 44 / 255.0, blue: 46 / 255.0)
     }
   }
 
@@ -46,6 +38,17 @@ public enum Theme: String, CaseIterable {
       }
     }
     return nil
+  }
+
+  public static var current: Theme {
+    if let theme = fromName(themeName: ThemeManager.currentThemeName) {
+      return theme
+    }
+    return .system
+  }
+
+  public static var currentBg: Color {
+    current.bgColor
   }
 }
 

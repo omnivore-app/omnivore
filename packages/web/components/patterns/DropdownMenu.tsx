@@ -11,10 +11,9 @@ import { currentThemeName } from '../../lib/themeUpdater'
 import { Check } from 'phosphor-react'
 
 export type HeaderDropdownAction =
-  | 'apply-darker-theme'
   | 'apply-dark-theme'
   | 'apply-light-theme'
-  | 'apply-lighter-theme'
+  | 'apply-sepia-theme'
   | 'navigate-to-install'
   | 'navigate-to-emails'
   | 'navigate-to-labels'
@@ -49,7 +48,7 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
             css={{ background: '#FFFFFF' }}
             data-state={isDark ? 'unselected' : 'selected' }
             onClick={() => {
-              props.actionHandler('apply-lighter-theme')
+              props.actionHandler('apply-light-theme')
               setCurrentTheme(currentThemeName())
             }}
           >
@@ -63,6 +62,19 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
             data-state={isDark ? 'selected' : 'unselected' }
             onClick={() => {
               props.actionHandler('apply-dark-theme')
+              setCurrentTheme(currentThemeName())
+            }}
+          >
+            {isDark && (
+              <Check color='#F9D354' size={32} />
+            )}
+          </Button>
+          <Button
+            style="themeSwitch"
+            css={{ background: 'green' }}
+            data-state={isDark ? 'selected' : 'unselected' }
+            onClick={() => {
+              props.actionHandler('apply-sepia-theme')
               setCurrentTheme(currentThemeName())
             }}
           >

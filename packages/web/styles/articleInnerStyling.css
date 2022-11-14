@@ -32,6 +32,7 @@
   height: unset !important;
   padding: 0px 8px;
   cursor: pointer;
+  stroke: var(--colors-highlightText);
 }
 /* 
 on smaller screens we display the note icon
@@ -55,7 +56,7 @@ on smaller screens we display the note icon
   margin-inline-end: 0px;
   line-height: var(--line-height);
   font-size: var(--text-font-size);
-  color: var(--headers-color);
+  color: var(--font-color);
   font-weight: bold;
 }
 .article-inner-css h1 {
