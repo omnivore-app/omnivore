@@ -738,7 +738,6 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
         const signedUrl = new URL(request?.uploadSignedUrl)
         const result = await fetch(signedUrl, {
           method: 'PUT',
-          mode: 'no-cors',
         })
         console.log('result of uploading: ', result)
       } catch {
