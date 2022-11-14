@@ -710,45 +710,27 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
     setFileNames(acceptedFiles.map((file: { name: any }) => file.name))
 
     for (const file of acceptedFiles) {
-      console.log("FILE: ", file)
       try {
         const request = await uploadFileRequestMutation({
-          url: `file://${file.path}`,
+          // This will tell the backend not to save the URL
+          // and give it the local filename as the title.
+          url: `file://local/${file.path}`,
           contentType: file.type,
           createPageEntry: true,
-        })
-        const blob = await new Promise((resolve, reject) => {
-          const reader = new FileReader()
-          reader.onload = async () => {
-            resolve(reader.result);
-          }
-          reader.onerror = (error) => {
-            reject(error);
-          }
-          reader.readAsDataURL(file);
         })
         if (!request?.uploadSignedUrl) {
           throw 'No upload URL available'
         }
 
         const uploadSignedUrl = new URL(request?.uploadSignedUrl)
-        const uploadResult = await new Promise((resolve) => {
-          const xhr = new XMLHttpRequest()
-          xhr.open('PUT', uploadSignedUrl, true)
-          xhr.setRequestHeader('Content-Type', file.type)
-
-          xhr.onerror = () => {
-            resolve(undefined);
-          }
-          xhr.onload = (event) => {
-            resolve(event)
-          };
-          xhr.send(blob as Blob)
-        });
+        const uploadResult = await fetch(uploadSignedUrl, {
+          method: 'PUT',
+          body: file,
+        })
 
         console.log('result of uploading: ', uploadResult)
-      } catch {
-        alert('Error uploading file')
+      } catch (error) {
+        console.log("ERROR", error)
       }
     }
   }
