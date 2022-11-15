@@ -121,8 +121,8 @@ export function makeHighlightNodeAttributes(
     })
     const { parentNode, nextSibling } = node
 
-    var isPre = false
-    var nodeElement = (node instanceof HTMLElement) ? node : node.parentElement
+    let isPre = false
+    const nodeElement = (node instanceof HTMLElement) ? node : node.parentElement
     if (nodeElement) {
       isPre = (window.getComputedStyle(nodeElement).whiteSpace.startsWith('pre'))
     }
