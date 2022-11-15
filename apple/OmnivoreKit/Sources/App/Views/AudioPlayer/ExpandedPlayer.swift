@@ -14,10 +14,6 @@
     @State var showVoiceSheet = false
     @State var tabIndex: Int = 0
 
-    var isPresented: Bool {
-      audioController.itemAudioProperties != nil && audioController.state != .stopped
-    }
-
     var playPauseButtonImage: String {
       switch audioController.state {
       case .playing:
@@ -146,7 +142,7 @@
                 +
                 Text(audioController.unreadText)
                 .font(.textToSpeechRead.leading(.loose))
-                .foregroundColor(Color.appGrayText)
+                .foregroundColor(audioController.useUltraRealisticVoices ? Color.appGrayTextContrast : Color.appGrayText)
             }
           }
         }
@@ -345,7 +341,7 @@
     }
 
     public var body: some View {
-      if let itemAudioProperties = self.audioController.itemAudioProperties, isPresented {
+      if let itemAudioProperties = self.audioController.itemAudioProperties {
         playerContent(itemAudioProperties)
           .tint(.appGrayTextContrast)
       } else {

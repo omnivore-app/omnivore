@@ -50,7 +50,7 @@ import Views
                 )
                 Button(
                   action: { viewModel.itemUnderLabelEdit = item },
-                  label: { Label("Edit Labels", systemImage: "tag") }
+                  label: { Label(item.labels?.count == 0 ? "Add Labels" : "Edit Labels", systemImage: "tag") }
                 )
                 Button(action: {
                   withAnimation(.linear(duration: 0.4)) {

@@ -16,6 +16,7 @@ struct UtteranceRequest: Codable {
   let voice: String
   let language: String
   let rate: String
+  let isUltraRealisticVoice: Bool
 }
 
 struct Utterance: Decodable {
@@ -26,10 +27,12 @@ struct Utterance: Decodable {
   public let wordCount: Double
 
   func toSSML(document: SpeechDocument) throws -> Data? {
+    let usedVoice = voice ?? document.defaultVoice
     let request = UtteranceRequest(text: text,
-                                   voice: voice ?? document.defaultVoice,
+                                   voice: usedVoice,
                                    language: document.language,
-                                   rate: "1.1")
+                                   rate: "1.1",
+                                   isUltraRealisticVoice: Voices.isUltraRealisticVoice(usedVoice))
     return try JSONEncoder().encode(request)
   }
 }
@@ -78,11 +81,13 @@ struct SpeechSynthesizer {
   let document: SpeechDocument
   let appEnvironment: AppEnvironment
   let networker: Networker
+  let speechAuthHeader: String?
 
-  init(appEnvironment: AppEnvironment, networker: Networker, document: SpeechDocument) {
+  init(appEnvironment: AppEnvironment, networker: Networker, document: SpeechDocument, speechAuthHeader: String?) {
     self.appEnvironment = appEnvironment
     self.networker = networker
     self.document = document
+    self.speechAuthHeader = speechAuthHeader
   }
 
   func estimatedDurations(forSpeed speed: Double) -> [Double] {
@@ -120,7 +125,7 @@ struct SpeechSynthesizer {
   func createPlayerItems(from: Int) -> [SpeechItem] {
     var result: [SpeechItem] = []
 
-    for idx in from ..< min(7, document.utterances.count) {
+    for idx in from ..< document.utterances.count {
       let utterance = document.utterances[idx]
       let voiceStr = utterance.voice ?? document.defaultVoice
       let segmentStr = String(format: "%04d", arguments: [idx])
@@ -156,34 +161,52 @@ struct SpeechSynthesizer {
       request.setValue(value, forHTTPHeaderField: header)
     }
 
+    if let speechAuthHeader = speechAuthHeader {
+      request.setValue(speechAuthHeader, forHTTPHeaderField: "Authorization")
+    }
+
     return request
+  }
+
+  static func downloadData(session: URLSession, request: URLRequest) async throws -> Data {
+    do {
+      let result: (Data, URLResponse)? = try await session.data(for: request)
+      guard let httpResponse = result?.1 as? HTTPURLResponse, 200 ..< 300 ~= httpResponse.statusCode else {
+        print("error: ", result?.1)
+        throw BasicError.message(messageText: "audioFetch failed. no response or bad status code.")
+      }
+
+      guard let data = result?.0 else {
+        throw BasicError.message(messageText: "audioFetch failed. no data received.")
+      }
+
+      return data
+    } catch URLError.cancelled {
+      print("cancled request error being ignored")
+      return Data()
+    } catch {
+      print("ERROR DOWNLOADING AUDIO DATA", error)
+      throw error
+    }
   }
 
   static func download(speechItem: SpeechItem,
                        redownloadCached: Bool = false,
-                       session: URLSession? = URLSession.shared) async throws -> SynthesizeData?
+                       session: URLSession = URLSession.shared) async throws -> SynthesizeData?
   {
     let decoder = JSONDecoder()
 
     if !redownloadCached {
-      if let speechMarksData = try? Data(contentsOf: speechItem.localSpeechURL),
-         let speechMarks = try? decoder.decode([SpeechMark].self, from: speechMarksData),
-         let localData = try? Data(contentsOf: speechItem.localAudioURL)
-      {
+      if let localData = try? Data(contentsOf: speechItem.localAudioURL) {
+        var speechMarks: [SpeechMark]?
+        if let speechMarksData = try? Data(contentsOf: speechItem.localSpeechURL) {
+          speechMarks = try? decoder.decode([SpeechMark].self, from: speechMarksData)
+        }
         return SynthesizeData(audioData: localData, speechMarks: speechMarks)
       }
     }
 
-    let request = speechItem.urlRequest
-    let result: (Data, URLResponse)? = try? await (session ?? URLSession.shared).data(for: request)
-    guard let httpResponse = result?.1 as? HTTPURLResponse, 200 ..< 300 ~= httpResponse.statusCode else {
-      print("error: ", result?.1 as Any)
-      throw BasicError.message(messageText: "audioFetch failed. no response or bad status code.")
-    }
-
-    guard let data = result?.0 else {
-      throw BasicError.message(messageText: "audioFetch failed. no data received.")
-    }
+    let data = try await downloadData(session: session, request: speechItem.urlRequest)
 
     let tempPath = FileManager.default
       .urls(for: .cachesDirectory, in: .userDomainMask)[0]
@@ -204,8 +227,6 @@ struct SpeechSynthesizer {
       try? FileManager.default.removeItem(at: speechItem.localAudioURL)
       try FileManager.default.moveItem(at: tempPath, to: speechItem.localAudioURL)
 
-      let savedData = try? Data(contentsOf: speechItem.localAudioURL)
-
       let encoder = JSONEncoder()
       let speechMarksData = try encoder.encode(jsonData.speechMarks)
       try speechMarksData.write(to: tempSMPath)
@@ -214,6 +235,7 @@ struct SpeechSynthesizer {
 
       return SynthesizeData(audioData: audioData, speechMarks: jsonData.speechMarks)
     } catch {
+      print("ERROR DOWNLOADING SPEECH DATA:", error)
       let errorMessage = "audioFetch failed. could not write MP3 data to disk"
       throw BasicError.message(messageText: errorMessage)
     }
@@ -222,12 +244,12 @@ struct SpeechSynthesizer {
 
 struct SynthesizeResult: Decodable {
   let audioData: String
-  let speechMarks: [SpeechMark]
+  let speechMarks: [SpeechMark]?
 }
 
 struct SynthesizeData: Decodable {
   let audioData: Data
-  let speechMarks: [SpeechMark]
+  let speechMarks: [SpeechMark]?
 }
 
 extension Data {

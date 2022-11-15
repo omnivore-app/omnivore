@@ -5,10 +5,14 @@ import Utils
 public struct TextChip: View {
   @Environment(\.colorScheme) var colorScheme
 
+  let checked: Bool
+  var onTap: ((TextChip) -> Void)?
+
   public init(text: String, color: Color, negated: Bool = false) {
     self.text = text
     self.color = color
     self.negated = negated
+    self.checked = false
   }
 
   public init?(feedItemLabel: LinkedItemLabel, negated: Bool = false) {
@@ -17,9 +21,22 @@ public struct TextChip: View {
     self.text = feedItemLabel.name ?? ""
     self.color = color
     self.negated = negated
+    self.checked = false
   }
 
-  let text: String
+  public init?(feedItemLabel: LinkedItemLabel, negated: Bool = false, checked: Bool = false, onTap: ((TextChip) -> Void)?) {
+    guard let color = Color(hex: feedItemLabel.color ?? "") else {
+      return nil
+    }
+
+    self.text = feedItemLabel.name ?? ""
+    self.color = color
+    self.negated = negated
+    self.onTap = onTap
+    self.checked = checked
+  }
+
+  public let text: String
   let color: Color
   let negated: Bool
 
@@ -53,16 +70,31 @@ public struct TextChip: View {
   }
 
   public var body: some View {
-    Text(text)
-      .strikethrough(color: negated ? textColor : .clear)
-      .padding(.horizontal, 10)
-      .padding(.vertical, 5)
-      .font(.appCaptionBold)
-      .foregroundColor(textColor)
-      .lineLimit(1)
-      .background(Capsule().fill(backgroundColor))
-      .overlay(Capsule().stroke(borderColor, lineWidth: 1))
-      .padding(1)
+    ZStack(alignment: .topTrailing) {
+      Text(text)
+        .strikethrough(color: negated ? textColor : .clear)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 5)
+        .font(.appCaptionBold)
+        .foregroundColor(textColor)
+        .lineLimit(1)
+        .background(Capsule().fill(backgroundColor))
+        .overlay(Capsule().stroke(borderColor, lineWidth: 1))
+        .padding(1)
+        .overlay(alignment: .topTrailing) {
+          if checked {
+            Image(systemName: "checkmark.circle.fill")
+              .font(.appBody)
+              .symbolVariant(.circle.fill)
+              .foregroundStyle(Color.appBackground, Color.appGreenSuccess)
+              .padding([.top, .trailing], -6)
+          }
+        }
+    }.onTapGesture {
+      if let onTap = onTap {
+        onTap(self)
+      }
+    }
   }
 }
 
@@ -76,7 +108,7 @@ public struct TextChipButton: View {
   }
 
   public static func makeSearchFilterButton(title: String, onTap: @escaping () -> Void) -> TextChipButton {
-    TextChipButton(title: "Search: \(title)", color: .appCtaYellow, actionType: .clear, negated: false, onTap: onTap)
+    TextChipButton(title: title, color: .appCtaYellow, actionType: .filter, negated: false, onTap: onTap)
   }
 
   public static func makeShowOptionsButton(title: String, onTap: @escaping () -> Void) -> TextChipButton {
@@ -101,11 +133,11 @@ public struct TextChipButton: View {
     case remove
     case add
     case show
-    case clear
+    case filter
 
     var systemIconName: String {
       switch self {
-      case .clear, .remove:
+      case .filter, .remove:
         return "xmark"
       case .add:
         return "plus"
@@ -139,6 +171,10 @@ public struct TextChipButton: View {
   public var body: some View {
     VStack(spacing: 0) {
       HStack {
+        if actionType == .filter {
+          Image(systemName: "line.3.horizontal.decrease")
+        }
+
         Text(text)
           .strikethrough(color: negated ? foregroundColor : .clear)
           .padding(.leading, 3)

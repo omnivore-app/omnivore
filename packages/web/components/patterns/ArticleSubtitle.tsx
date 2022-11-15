@@ -12,16 +12,17 @@ type ArticleSubtitleProps = {
   hideButton?: boolean
 }
 
-export function ArticleSubtitle(props: ArticleSubtitleProps): JSX.Element {
+export function ArticleSubtitle(props: ArticleSubtitleProps): JSX.Element {  
   const textStyle = props.style || 'footnote'
+  const subtitle = articleSubtitle(props.href, props.author)
 
   return (
     <Box>
       <StyledText style={textStyle} css={{ wordBreak: 'break-word' }}>
-        {articleSubtitle(props.href, props.author)}{' '}
-        <span style={{ position: 'relative', bottom: 1 }}>• </span>{' '}
+        {subtitle}{' '}
+        {subtitle && (<span style={{ position: 'relative', bottom: 1 }}>• </span>)}{' '}
         {formattedLongDate(props.rawDisplayDate)}{' '}
-        {!props.hideButton && (
+        {!props.hideButton && !shouldHideUrl(props.href) && (
           <>
             <span style={{ position: 'relative', bottom: 1 }}>• </span>{' '}
             <StyledLink
@@ -42,11 +43,26 @@ export function ArticleSubtitle(props: ArticleSubtitleProps): JSX.Element {
   )
 }
 
-function articleSubtitle(url: string, author?: string): string {
+function shouldHideUrl(url: string): boolean {
+  const origin = new URL(url).origin
+  const hideHosts = ['https://storage.googleapis.com', 'https://omnivore.app']
+  if (hideHosts.indexOf(origin) != -1) {
+    return true
+  }
+  return false
+}
+
+function articleSubtitle(url: string, author?: string): string | undefined {
+  const origin = new URL(url).origin
+  const hideUrl = shouldHideUrl(url)
   if (author) {
-    return `${authoredByText(author)}, ${new URL(url).hostname}`
+    const auth = `${authoredByText(author)}`
+    return hideUrl ? auth : `${auth}, ${new URL(url).hostname}`
   } else {
-    return new URL(url).origin
+    if (hideUrl) {
+      return undefined
+    }
+    return origin
   }
 }
 
