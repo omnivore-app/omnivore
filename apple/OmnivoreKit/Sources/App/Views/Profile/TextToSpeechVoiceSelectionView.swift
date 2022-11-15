@@ -22,7 +22,7 @@
     var body: some View {
       Group {
         Form {
-          if language.key == "en" {
+          if FeatureFlag.enableUltraRealisticVoices, language.key == "en" {
             if viewModel.waitingForRealisticVoices {
               HStack {
                 Text("Signing up for beta")
