@@ -20,14 +20,6 @@
       self.presentingView = AnyView(presentingView)
     }
 
-    var isPresented: Bool {
-      let presented = audioController.itemAudioProperties != nil && audioController.state != .stopped
-      if !presented {
-        print("isPresented: ", audioController.itemAudioProperties, audioController.state)
-      }
-      return true // presented
-    }
-
     var playPauseButtonImage: String {
       switch audioController.state {
       case .playing:
@@ -162,7 +154,7 @@
     public var body: some View {
       ZStack(alignment: .center) {
         presentingView
-        if let itemAudioProperties = self.audioController.itemAudioProperties, isPresented {
+        if let itemAudioProperties = self.audioController.itemAudioProperties {
           ZStack(alignment: .bottom) {
             Color.systemBackground.edgesIgnoringSafeArea(.bottom)
               .frame(height: expanded ? 0 : 88, alignment: .bottom)
