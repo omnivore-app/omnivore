@@ -15,6 +15,10 @@ const TEST_OPTIONS = {
   rate: '1.0',
 }
 
+const load = (filename: string) => {
+  return fs.readFileSync(path.join(__dirname, filename), 'utf8')
+}
+
 describe('stripEmojis', () => {
   it('strips emojis from text and removes the extra space', () => {
     const text = '🥛The Big Short guy is back with a new prediction'
@@ -226,10 +230,8 @@ describe('htmlToSpeechFile', () => {
 
 describe('convert HTML to Speech file', () => {
   it('converts each <li> to an utterance', () => {
-    const html = fs.readFileSync(
-      path.resolve(__dirname, './fixtures/li.html'),
-      { encoding: 'utf-8' }
-    )
+    const html = load('./fixtures/li.html')
+
     const speechFile = htmlToSpeechFile({
       content: html,
       title: 'Wang Yi at the UN; Fu Zhenghua sentenced; Nvidia China sales',
@@ -289,5 +291,16 @@ describe('convert HTML to Speech file', () => {
     expect(speechFile.utterances[1].text).to.eql(
       'If terms of the original $12.5 billion financing package remain the same, bankers may struggle to sell the risky Twitter buyout debt just as credit markets begin to crack, with yields at multiyear highs, they’re potentially on the hook for hundreds of millions of dollars of losses on the unsecured portion alone should they try to unload it to investors.'
     )
+  })
+
+  it('splits sentences correctly in a blockquote element', () => {
+    const html = load('./fixtures/blockquote.html')
+
+    const speechFile = htmlToSpeechFile({
+      content: html,
+      options: TEST_OPTIONS,
+    })
+
+    expect(speechFile.utterances).to.have.lengthOf(42)
   })
 })
