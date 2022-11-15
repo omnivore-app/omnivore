@@ -26,7 +26,6 @@ public struct TextChip: View {
 
   public init?(feedItemLabel: LinkedItemLabel, negated: Bool = false, checked: Bool = false, onTap: ((TextChip) -> Void)?) {
     guard let color = Color(hex: feedItemLabel.color ?? "") else {
-      print("RETURNING NUL!")
       return nil
     }
 
