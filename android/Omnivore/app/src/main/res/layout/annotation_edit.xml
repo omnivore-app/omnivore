@@ -4,11 +4,12 @@
     android:layout_width="fill_parent" android:layout_height="fill_parent"
     android:background="#ffffff">
 
-    <EditText android:layout_width="fill_parent"
+    <EditText
+        android:layout_width="fill_parent"
         android:layout_gravity="center"
         android:layout_height="wrap_content"
         android:hint="Add note."
-        android:id="@+id/body"
+        android:id="@+id/highlightNoteTextField"
         android:textColor="#000000"
         android:lines="3" />
 

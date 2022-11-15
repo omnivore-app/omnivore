@@ -36,6 +36,7 @@ class PDFReaderViewModel @Inject constructor(
   private val datastoreRepo: DatastoreRepository,
   private val networker: Networker
 ): ViewModel() {
+  var annotationUnderNoteEdit: Annotation? = null
   val pdfReaderParamsLiveData = MutableLiveData<PDFReaderParams?>(null)
 
   fun loadItem(slug: String, context: Context) {
@@ -79,11 +80,10 @@ class PDFReaderViewModel @Inject constructor(
     pdfReaderParamsLiveData.postValue(null)
   }
 
-  fun syncHighlightUpdates(newAnnotation: Annotation, overlapIds: List<String>) {
+  fun syncHighlightUpdates(newAnnotation: Annotation, quote: String, overlapIds: List<String>) {
     val itemID = pdfReaderParamsLiveData.value?.item?.id ?: return
     val highlightID = UUID.randomUUID().toString()
     val shortID = UUID.randomUUID().toString().replace("-","").substring(0,8)
-    val quote = newAnnotation.contents ?: ""
 
     val jsonValues = JSONObject()
       .put("id", highlightID)

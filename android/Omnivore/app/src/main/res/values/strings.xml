@@ -6,5 +6,7 @@
     <string name="highlight_menu_action">Highlight</string>
     <string name="copy_menu_action">Copy</string>
     <string name="annotate_menu_action">Annotate</string>
-    <string name="delete_highlight_menu_title">Delete</string>
+    <string name="pdf_remove_highlight">Remove</string>
+    <string name="pdf_highlight_menu_action">Highlight</string>
+    <string name="pdf_highlight_copy">Copy</string>
 </resources>

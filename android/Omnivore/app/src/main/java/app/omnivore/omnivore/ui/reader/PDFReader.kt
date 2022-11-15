@@ -10,11 +10,11 @@ import android.graphics.RectF
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.PopupMenu
 import androidx.activity.viewModels
@@ -45,6 +45,7 @@ import com.pspdfkit.ui.toolbar.popup.PdfTextSelectionPopupToolbar
 import com.pspdfkit.ui.toolbar.popup.PopupToolbarMenuItem
 import com.pspdfkit.utils.PdfUtils
 import dagger.hilt.android.AndroidEntryPoint
+import org.json.JSONObject
 
 
 @AndroidEntryPoint
@@ -265,19 +266,29 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
 
     popupMenu.menuInflater.inflate(R.menu.highlight_selection_menu, popupMenu.menu)
 
-    popupMenu.setOnMenuItemClickListener(PopupMenu.OnMenuItemClickListener { item ->
+    popupMenu.setOnMenuItemClickListener { item ->
       when(item.itemId) {
         R.id.annotate -> {
-          showAnnotationView()
-          Log.d("pdf", "annotate button tapped")
+          viewModel.annotationUnderNoteEdit = clickedAnnotation
+          // Disabled notes for now since we didn't implement on ios
+//          showAnnotationView()
         }
         R.id.delete -> {
           viewModel.deleteHighlight(clickedAnnotation)
           fragment.document?.annotationProvider?.removeAnnotationFromPage(clickedAnnotation)
         }
+        R.id.copyPdfHighlight -> {
+          val omnivoreHighlight = clickedAnnotation.customData?.get("omnivoreHighlight") as? JSONObject
+          val quote = omnivoreHighlight?.get("quote") as? String
+          quote?.let {
+            val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val clip = ClipData.newPlainText(it, it)
+            clipboard.setPrimaryClip(clip)
+          }
+        }
       }
       true
-    })
+    }
     popupMenu.show()
   }
 
@@ -315,6 +326,7 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
       when (it.id) {
         1 -> {
           pendingHighlightAnnotation?.let { annotation ->
+            val quote = textSelectionController?.textSelection?.text ?: ""
             val existingAnnotations = fragment.document?.annotationProvider?.getAnnotations(fragment.pageIndex) ?: listOf()
             val overlappingAnnotations = viewModel.overlappingAnnotations(annotation, existingAnnotations)
             val overlapIDs = overlappingAnnotations.mapNotNull { viewModel.pluckHighlightID(it) }
@@ -324,7 +336,7 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
             }
 
             fragment.addAnnotationToPage(annotation, false) {
-              viewModel.syncHighlightUpdates(annotation, overlapIDs)
+              viewModel.syncHighlightUpdates(annotation, quote, overlapIDs)
             }
           }
 
@@ -332,12 +344,12 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
           p0.dismiss()
           return@OnPopupToolbarItemClickedListener true
         }
-        2 -> {
-          Log.d("pdf", "user selected annotate action")
-          textSelectionController?.textSelection = null
-          p0.dismiss()
-          return@OnPopupToolbarItemClickedListener true
-        }
+//        2 -> {
+//          Log.d("pdf", "user selected annotate action")
+//          textSelectionController?.textSelection = null
+//          p0.dismiss()
+//          return@OnPopupToolbarItemClickedListener true
+//        }
         3 -> {
           val text = textSelectionController?.textSelection?.text ?: ""
           val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
@@ -358,18 +370,22 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
     p0.setOnPopupToolbarItemClickedListener(onClickListener)
 
     p0.menuItems = listOf(
-      PopupToolbarMenuItem(1, R.string.highlight_menu_action),
-      PopupToolbarMenuItem(2, R.string.annotate_menu_action),
-      PopupToolbarMenuItem(3, R.string.copy_menu_action),
+      PopupToolbarMenuItem(1, R.string.pdf_highlight_menu_action),
+//      PopupToolbarMenuItem(2, R.string.annotate_menu_action),
+      PopupToolbarMenuItem(3, R.string.pdf_highlight_copy),
     )
   }
 
-  private fun showAnnotationView() {
+  private fun showAnnotationView(initialText: String) {
     val annotationDialog = Dialog(this)
     annotationDialog.setContentView(R.layout.annotation_edit)
 
+    val textField = annotationDialog.findViewById(R.id.highlightNoteTextField) as EditText
+    textField.setText(initialText)
     val confirmButton = annotationDialog.findViewById(R.id.confirmAnnotation) as Button
+
     confirmButton.setOnClickListener {
+      val newNoteText =
       annotationDialog.dismiss()
     }
 
