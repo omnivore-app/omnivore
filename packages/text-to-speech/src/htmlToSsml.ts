@@ -178,6 +178,10 @@ function emitElement(
     }
     if (child.nodeType == 1 /* Node.ELEMENT_NODE */) {
       maxVisitedIdx = emitElement(textItems, child as HTMLElement, false)
+      if (child.nodeName === 'LI') {
+        // add a new line after each list item
+        emit(textItems, '\n')
+      }
     }
   }
 
