@@ -1961,7 +1961,6 @@ const schema = gql`
     name: String
     query: String!
     actions: [RuleAction!]!
-    triggerType: RuleTriggerType!
     createdAt: Date!
     updatedAt: Date!
   }
@@ -1978,11 +1977,6 @@ const schema = gql`
     SEND_NOTIFICATION
   }
 
-  enum RuleTriggerType {
-    ON_PAGE_UPDATED
-    CRON
-  }
-
   type RulesError {
     errorCodes: [RulesErrorCode!]!
   }
@@ -1997,7 +1991,6 @@ const schema = gql`
     name: String
     query: String!
     actions: [RuleActionInput!]!
-    triggerType: RuleTriggerType!
   }
 
   input RuleActionInput {

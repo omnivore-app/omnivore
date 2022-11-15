@@ -1162,7 +1162,6 @@ type Rule {
   id: ID!
   name: String
   query: String!
-  triggerType: RuleTriggerType!
   updatedAt: Date!
 }
 
@@ -1181,11 +1180,6 @@ enum RuleActionType {
   ARCHIVE
   MARK_AS_READ
   SEND_NOTIFICATION
-}
-
-enum RuleTriggerType {
-  CRON
-  ON_PAGE_UPDATED
 }
 
 type RulesError {
@@ -1463,7 +1457,6 @@ input SetRuleInput {
   id: ID
   name: String
   query: String!
-  triggerType: RuleTriggerType!
 }
 
 union SetRuleResult = SetRuleError | SetRuleSuccess

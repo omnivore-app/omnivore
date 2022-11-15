@@ -1654,7 +1654,6 @@ export type Rule = {
   id: Scalars['ID'];
   name?: Maybe<Scalars['String']>;
   query: Scalars['String'];
-  triggerType: RuleTriggerType;
   updatedAt: Scalars['Date'];
 };
 
@@ -1674,11 +1673,6 @@ export enum RuleActionType {
   Archive = 'ARCHIVE',
   MarkAsRead = 'MARK_AS_READ',
   SendNotification = 'SEND_NOTIFICATION'
-}
-
-export enum RuleTriggerType {
-  Cron = 'CRON',
-  OnPageUpdated = 'ON_PAGE_UPDATED'
 }
 
 export type RulesError = {
@@ -1979,7 +1973,6 @@ export type SetRuleInput = {
   id?: InputMaybe<Scalars['ID']>;
   name?: InputMaybe<Scalars['String']>;
   query: Scalars['String'];
-  triggerType: RuleTriggerType;
 };
 
 export type SetRuleResult = SetRuleError | SetRuleSuccess;
@@ -2951,7 +2944,6 @@ export type ResolversTypes = {
   RuleAction: ResolverTypeWrapper<RuleAction>;
   RuleActionInput: RuleActionInput;
   RuleActionType: RuleActionType;
-  RuleTriggerType: RuleTriggerType;
   RulesError: ResolverTypeWrapper<RulesError>;
   RulesErrorCode: RulesErrorCode;
   RulesResult: ResolversTypes['RulesError'] | ResolversTypes['RulesSuccess'];
@@ -4413,7 +4405,6 @@ export type RuleResolvers<ContextType = ResolverContext, ParentType extends Reso
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   query?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  triggerType?: Resolver<ResolversTypes['RuleTriggerType'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
