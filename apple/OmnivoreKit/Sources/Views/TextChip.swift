@@ -29,7 +29,6 @@ public struct TextChip: View {
       return nil
     }
 
-    print("TEXT CHIP", feedItemLabel.name, checked)
     self.text = feedItemLabel.name ?? ""
     self.color = color
     self.negated = negated
