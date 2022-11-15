@@ -260,6 +260,11 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
     return super.onPageClick(document, pageIndex, event, pagePosition, clickedAnnotation)
   }
 
+  override fun onPageChanged(document: PdfDocument, pageIndex: Int) {
+    viewModel.syncPageChange(pageIndex, document.pageCount)
+    super.onPageChanged(document, pageIndex)
+  }
+
   private fun showHighlightSelectionPopover(clickedAnnotation: Annotation) {
     // TODO: anchor popover at exact position of tap (maybe add an empty view at tap loc and anchor to that?)
     val popupMenu = PopupMenu(this, fragment.view, Gravity.CENTER, androidx.appcompat.R.attr.actionOverflowMenuStyle, 0)

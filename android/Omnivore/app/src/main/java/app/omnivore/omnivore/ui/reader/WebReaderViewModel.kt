@@ -75,7 +75,7 @@ class WebReaderViewModel @Inject constructor(
       }
       "articleReadingProgress" -> {
         viewModelScope.launch {
-          val isReadingProgressSynced = networker.updateReadingProgress(jsonString)
+          val isReadingProgressSynced = networker.updateWebReadingProgress(jsonString)
           Log.d("Network", "isReadingProgressSynced = $isReadingProgressSynced")
         }
       }

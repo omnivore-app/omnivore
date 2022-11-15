@@ -22,6 +22,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.io.File
+import java.lang.Double.max
+import java.lang.Double.min
 import java.util.*
 import javax.inject.Inject
 
@@ -38,6 +40,7 @@ class PDFReaderViewModel @Inject constructor(
 ): ViewModel() {
   var annotationUnderNoteEdit: Annotation? = null
   val pdfReaderParamsLiveData = MutableLiveData<PDFReaderParams?>(null)
+  private var currentReadingProgress = 0.0
 
   fun loadItem(slug: String, context: Context) {
     viewModelScope.launch {
@@ -66,6 +69,7 @@ class PDFReaderViewModel @Inject constructor(
             labelsJSONString = Gson().toJson(articleQueryResult.labels)
           )
 
+          currentReadingProgress = article.readingProgress
           pdfReaderParamsLiveData.postValue(PDFReaderParams(article, articleContent, Uri.fromFile(output)))
         }
 
@@ -78,6 +82,22 @@ class PDFReaderViewModel @Inject constructor(
 
   fun reset() {
     pdfReaderParamsLiveData.postValue(null)
+  }
+
+  fun syncPageChange(currentPageIndex: Int, totalPages: Int) {
+    val rawProgress = ((currentPageIndex + 1).toDouble() / totalPages.toDouble()) * 100
+    val percent = min(100.0, max(0.0, rawProgress))
+    if (percent > currentReadingProgress) {
+      currentReadingProgress = percent
+      viewModelScope.launch {
+        val params = ReadingProgressParams(
+          id = pdfReaderParamsLiveData.value?.item?.id,
+          readingProgressPercent = percent,
+          readingProgressAnchorIndex = currentPageIndex
+        )
+        networker.updateReadingProgress(params)
+      }
+    }
   }
 
   fun syncHighlightUpdates(newAnnotation: Annotation, quote: String, overlapIds: List<String>) {
