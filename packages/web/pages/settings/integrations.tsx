@@ -32,6 +32,10 @@ const Subheader = styled(Box, {
   borderBottom: '1px solid $grayLine',
   margin: '0 auto',
   width: '80%',
+  // Our defined media queries don't work in styled components
+  '@media (max-width: 575px)': {
+    width: '100%',
+  },
 })
 
 //interface
@@ -114,11 +118,11 @@ export default function Integrations(): JSX.Element {
           text: 'View Webhooks',
           icon: <Eye size={16} weight={'bold'} />,
           style: 'ctaWhite',
-          action: () => router.push('/settings/integrations/webhooks'),
+          action: () => router.push('/settings/webhooks'),
         },
       },
     ])
-  }, [readwiseConnected, integrations, webhooks])
+  }, [])
 
   return (
     <PrimaryLayout pageTestId={'integrations'}>
@@ -139,6 +143,9 @@ export default function Integrations(): JSX.Element {
           width: '80%',
           margin: '0 auto',
           height: '500px',
+          '@smDown': {
+            width: '100%',
+          },
         }}
       >
         <Header>Applications</Header>
@@ -157,6 +164,7 @@ export default function Integrations(): JSX.Element {
                 alignItems: 'center',
                 '@smDown': {
                   flexWrap: 'wrap',
+                  borderRadius: 'unset',
                 },
               }}
             >
@@ -168,8 +176,10 @@ export default function Integrations(): JSX.Element {
               />
               <Box
                 css={{
-                  width: '60%',
-                  padding: '10px',
+                  '@sm': {
+                    width: '60%',
+                  },
+                  padding: '8px',
                   color: '$utilityTextDefault',
                   m: '10px',
                   'h3, p': {
@@ -180,7 +190,7 @@ export default function Integrations(): JSX.Element {
                 <h3>{item.title}</h3>
                 <p>{item.subText}</p>
               </Box>
-              <HStack>
+              <HStack css={{ '@smDown': { width: '100%' } }}>
                 <Button
                   style={
                     item.button.style === 'ctaDarkYellow'
@@ -191,6 +201,7 @@ export default function Integrations(): JSX.Element {
                     py: '10px',
                     px: '14px',
                     minWidth: '230px',
+                    width: '100%',
                   }}
                   onClick={item.button.action}
                 >

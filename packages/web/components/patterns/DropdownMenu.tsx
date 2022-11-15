@@ -88,10 +88,10 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
         onSelect={() => props.actionHandler('navigate-to-api')}
         title="API Keys"
       />
-      {/* <DropdownOption
+      <DropdownOption
         onSelect={() => props.actionHandler('navigate-to-integrations')}
         title="Integrations"
-      /> */}
+      />
       <DropdownOption
         onSelect={() => window.Intercom('show')}
         title="Feedback"

@@ -17,6 +17,9 @@ public enum UserDefaultKey: String {
   case textToSpeechPreferredVoice
   case textToSpeechDefaultLanguage
   case textToSpeechPreloadEnabled
+  case textToSpeechUseUltraRealisticVoices
+  case textToSpeechUltraRealisticFeatureKey
+  case textToSpeechUltraRealisticFeatureRequested
   case recentSearchTerms
   case audioPlayerExpanded
   case themeName

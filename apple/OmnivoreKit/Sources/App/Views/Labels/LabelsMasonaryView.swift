@@ -1,0 +1,99 @@
+//
+//  LabelsMasonaryView.swift
+//
+//
+//  Created by Jackson Harper on 11/9/22.
+//
+
+import Foundation
+import SwiftUI
+
+import Models
+import Views
+
+struct LabelsMasonaryView: View {
+  // var allLabels: [LinkedItemLabel]
+  // var selectedLabels: [LinkedItemLabel]
+  var onLabelTap: (LinkedItemLabel, TextChip) -> Void
+
+  var iteration = UUID().uuidString
+
+  @State private var totalHeight = CGFloat.zero
+  private var labelItems: [(label: LinkedItemLabel, selected: Bool)]
+
+  init(labels allLabels: [LinkedItemLabel],
+       selectedLabels: [LinkedItemLabel],
+       onLabelTap: @escaping (LinkedItemLabel, TextChip) -> Void)
+  {
+    self.onLabelTap = onLabelTap
+
+    let selected = selectedLabels.map { (label: $0, selected: true) }
+    let unselected = allLabels.filter { !selectedLabels.contains($0) }.map { (label: $0, selected: false) }
+    labelItems = (selected + unselected).sorted(by: { left, right in
+      (left.label.name ?? "") < (right.label.name ?? "")
+    })
+  }
+
+  var body: some View {
+    VStack {
+      GeometryReader { geometry in
+        self.generateContent(in: geometry)
+      }
+    }
+    .frame(height: totalHeight)
+  }
+
+  private func generateContent(in geom: GeometryProxy) -> some View {
+    var width = CGFloat.zero
+    var height = CGFloat.zero
+
+    return ZStack(alignment: .topLeading) {
+      ForEach(self.labelItems, id: \.label.self) { label in
+        self.item(for: label)
+          .padding([.horizontal, .vertical], 6)
+          .alignmentGuide(.leading, computeValue: { dim in
+            if abs(width - dim.width) > geom.size.width {
+              width = 0
+              height -= dim.height
+            }
+            let result = width
+            if label == self.labelItems.last! {
+              width = 0 // last item
+            } else {
+              width -= dim.width
+            }
+            return result
+          })
+          .alignmentGuide(.top, computeValue: { _ in
+            let result = height
+            if label == self.labelItems.last! {
+              height = 0 // last item
+            }
+            return result
+          })
+      }
+    }
+    .background(viewHeightReader($totalHeight))
+  }
+
+  private func item(for item: (label: LinkedItemLabel, selected: Bool)) -> some View {
+    if item.selected {
+      print(" -- SELECTED LABEL", item.label.name)
+    }
+    print("GETTING ITERATION", iteration)
+    let chip = TextChip(feedItemLabel: item.label, negated: false, checked: item.selected) { chip in
+      onLabelTap(item.label, chip)
+    }
+    return chip
+  }
+
+  private func viewHeightReader(_ binding: Binding<CGFloat>) -> some View {
+    GeometryReader { geometry -> Color in
+      let rect = geometry.frame(in: .local)
+      DispatchQueue.main.async {
+        binding.wrappedValue = rect.size.height
+      }
+      return .clear
+    }
+  }
+}

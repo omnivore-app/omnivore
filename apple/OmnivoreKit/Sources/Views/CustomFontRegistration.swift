@@ -12,7 +12,17 @@ public func registerFonts() -> Bool {
     registerFont(bundle: .module, fontName: "Inter-Light-300", fontExtension: "ttf"),
     registerFont(bundle: .module, fontName: "Inter-ExtraLight-200", fontExtension: "ttf"),
     registerFont(bundle: .module, fontName: "Inter-Thin", fontExtension: "ttf"),
-    registerFont(bundle: .module, fontName: "SFMonoRegular", fontExtension: "otf")
+    registerFont(bundle: .module, fontName: "SFMonoRegular", fontExtension: "otf"),
+    registerFont(bundle: .module, fontName: "Merriweather-Regular", fontExtension: "ttf"),
+    registerFont(bundle: .module, fontName: "Lora-Regular", fontExtension: "ttf"),
+    registerFont(bundle: .module, fontName: "OpenSans-Regular", fontExtension: "ttf"),
+    registerFont(bundle: .module, fontName: "Roboto-Regular", fontExtension: "ttf"),
+    registerFont(bundle: .module, fontName: "CrimsonText-Regular", fontExtension: "ttf"),
+    registerFont(bundle: .module, fontName: "OpenDyslexicAlta-Regular", fontExtension: "otf"),
+    registerFont(bundle: .module, fontName: "Georgia-Regular", fontExtension: "ttf"),
+    registerFont(bundle: .module, fontName: "Montserrat-Regular", fontExtension: "ttf"),
+    registerFont(bundle: .module, fontName: "Newsreader-Regular", fontExtension: "ttf"),
+    registerFont(bundle: .module, fontName: "SourceSerifPro-Regular", fontExtension: "ttf")
   ]
   .allSatisfy { $0 }
 }

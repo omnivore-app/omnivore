@@ -20,10 +20,6 @@
       self.presentingView = AnyView(presentingView)
     }
 
-    var isPresented: Bool {
-      audioController.itemAudioProperties != nil && audioController.state != .stopped
-    }
-
     var playPauseButtonImage: String {
       switch audioController.state {
       case .playing:
@@ -158,7 +154,7 @@
     public var body: some View {
       ZStack(alignment: .center) {
         presentingView
-        if let itemAudioProperties = self.audioController.itemAudioProperties, isPresented {
+        if let itemAudioProperties = self.audioController.itemAudioProperties {
           ZStack(alignment: .bottom) {
             Color.systemBackground.edgesIgnoringSafeArea(.bottom)
               .frame(height: expanded ? 0 : 88, alignment: .bottom)
@@ -172,6 +168,9 @@
             }
           }
         }
+      }.alert("There was an error playing back your audio.",
+              isPresented: $audioController.playbackError) {
+        Button("Dismiss", role: .none) {}
       }
     }
   }

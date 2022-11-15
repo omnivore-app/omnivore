@@ -5,8 +5,8 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { createReactionResolver, deleteReactionResolver } from './reaction'
 import { Claims, WithDataSourcesContext } from './types'
-import { createImageProxyUrl } from './../utils/imageproxy'
-import { userDataToUser, validatedDate } from './../utils/helpers'
+import { createImageProxyUrl } from '../utils/imageproxy'
+import { userDataToUser, validatedDate } from '../utils/helpers'
 
 import {
   Article,
@@ -18,7 +18,7 @@ import {
   Reaction,
   SearchItem,
   User,
-} from './../generated/graphql'
+} from '../generated/graphql'
 
 import {
   addPopularReadResolver,
@@ -101,6 +101,7 @@ import {
 } from '../utils/uploads'
 import { getPageByParam } from '../elastic/pages'
 import { recentSearchesResolver } from './recent_searches'
+import { optInFeatureResolver } from './features'
 
 /* eslint-disable @typescript-eslint/naming-convention */
 type ResultResolveType = {
@@ -171,6 +172,7 @@ export const functionResolvers = {
     moveLabel: moveLabelResolver,
     setIntegration: setIntegrationResolver,
     deleteIntegration: deleteIntegrationResolver,
+    optInFeature: optInFeatureResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -607,4 +609,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('Integrations'),
   ...resultResolveTypeResolver('DeleteIntegration'),
   ...resultResolveTypeResolver('RecentSearches'),
+  ...resultResolveTypeResolver('OptInFeature'),
 }

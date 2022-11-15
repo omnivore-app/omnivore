@@ -42,7 +42,7 @@ public final class OmnivoreWebView: WKWebView {
   public func updateTheme() {
     do {
       if let themeName = UserDefaults.standard.value(forKey: UserDefaultKey.themeName.rawValue) as? String {
-        try dispatchEvent(.updateTheme(themeName: "Gray" /* themeName */ ))
+        try dispatchEvent(.updateTheme(themeName: themeName))
       }
     } catch {
       showErrorInSnackbar("Error updating theme")
@@ -429,7 +429,7 @@ public enum WebViewDispatchEvent {
         let encoder = JSONEncoder()
         if let encoded = try? encoder.encode(annotation) {
           let str = String(decoding: encoded, as: UTF8.self)
-          return "event.annotation = '\(str)';"
+          return "event.annotation = \(str);"
         } else {
           throw BasicError.message(messageText: "Unable to serialize highlight note.")
         }

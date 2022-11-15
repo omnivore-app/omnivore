@@ -27,6 +27,7 @@ import { RevueHandler } from './newsletters/revue-handler'
 import { GhostHandler } from './newsletters/ghost-handler'
 import { parseHTML } from 'linkedom'
 import { CooperPressHandler } from './newsletters/cooper-press-handler'
+import { HeyWorldHandler } from './newsletters/hey-world-handler'
 
 const validateUrlString = (url: string) => {
   const u = new URL(url)
@@ -75,6 +76,7 @@ const newsletterHandlers: ContentHandler[] = [
   new RevueHandler(),
   new GhostHandler(),
   new CooperPressHandler(),
+  new HeyWorldHandler(),
 ]
 
 export const preHandleContent = async (

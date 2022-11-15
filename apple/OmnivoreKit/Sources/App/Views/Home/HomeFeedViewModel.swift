@@ -175,14 +175,6 @@ import Views
     showLoadingBar = false
   }
 
-  func downloadAudio(audioController: AudioController, item: LinkedItem) {
-    Snackbar.show(message: "Downloading Offline Audio")
-    Task {
-      let downloaded = await audioController.downloadForOffline(itemID: item.unwrappedID)
-      Snackbar.show(message: downloaded ? "Audio file downloaded" : "Error downloading audio")
-    }
-  }
-
   private var fetchRequest: NSFetchRequest<Models.LinkedItem> {
     let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
 

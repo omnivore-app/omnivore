@@ -11,16 +11,43 @@ public enum WebFont: String, CaseIterable {
   case crimsontext = "Crimson Text"
   case sourceserifpro = "Source Serif Pro"
   case openDyslexic = "OpenDyslexic"
+  case georgia = "Georgia"
+  case montserrat = "Montserrat"
+  case newsreader = "Newsreader"
+
+  static var sorted: [WebFont] {
+    allCases.sorted { left, right in
+      left.displayValue <= right.displayValue
+    }
+  }
+
+  public var registeredName: String {
+    switch self {
+    case .openDyslexic:
+      return "OpenDyslexicAlta"
+    case .system:
+      return "San Francisco"
+    default:
+      return rawValue
+    }
+  }
 
   public var displayValue: String {
     switch self {
-    case .inter, .merriweather, .lora, .opensans, .roboto, .crimsontext, .sourceserifpro:
+    case .inter, .merriweather, .lora, .opensans, .roboto, .crimsontext, .sourceserifpro, .georgia, .montserrat, .newsreader:
       return rawValue
     case .openDyslexic:
       return "Open Dyslexic"
     case .system:
       return "System Default"
     }
+  }
+
+  public func font() -> Font? {
+    if let uiFont = UIFont(name: registeredName, size: 22) {
+      return Font(uiFont as CTFont)
+    }
+    return Font.system(size: 22)
   }
 }
 
@@ -46,7 +73,7 @@ public enum WebFont: String, CaseIterable {
 
     var fontList: some View {
       List {
-        ForEach(WebFont.allCases, id: \.self) { font in
+        ForEach(WebFont.sorted, id: \.self) { font in
           Button(
             action: {
               preferredFont = font.rawValue
@@ -54,14 +81,18 @@ public enum WebFont: String, CaseIterable {
             },
             label: {
               HStack {
-                Text(font.displayValue).foregroundColor(.appGrayTextContrast)
+                Text(font.displayValue)
+                  .font(font.font())
+                  .foregroundColor(.appGrayTextContrast)
                 Spacer()
                 if font.rawValue == preferredFont {
-                  Image(systemName: "checkmark").foregroundColor(.appGrayTextContrast)
+                  Image(systemName: "checkmark")
+                    .font(Font.system(size: 18))
+                    .foregroundColor(.appGrayTextContrast)
                 }
               }
             }
-          )
+          ).frame(minHeight: 44)
         }
       }
       .listStyle(.plain)

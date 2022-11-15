@@ -7,7 +7,6 @@ public enum GridCardAction {
   case delete
   case editLabels
   case editTitle
-  case downloadAudio
   case viewHighlights
 }
 
@@ -46,17 +45,19 @@ public struct GridCard: View {
 
   var contextMenuView: some View {
     Group {
-      Button(
-        action: { menuActionHandler(.viewHighlights) },
-        label: { Label("View Highlights & Notes", systemImage: "highlighter") }
-      )
+      if (item.highlights?.count ?? 0) > 0 {
+        Button(
+          action: { menuActionHandler(.viewHighlights) },
+          label: { Label("View Highlights & Notes", systemImage: "highlighter") }
+        )
+      }
       Button(
         action: { menuActionHandler(.editTitle) },
         label: { Label("Edit Title/Description", systemImage: "textbox") }
       )
       Button(
         action: { menuActionHandler(.editLabels) },
-        label: { Label("Edit Labels", systemImage: "tag") }
+        label: { Label(item.labels?.count == 0 ? "Add Labels" : "Edit Labels", systemImage: "tag") }
       )
       Button(
         action: { menuActionHandler(.toggleArchiveStatus) },
@@ -70,10 +71,6 @@ public struct GridCard: View {
       Button(
         action: { menuActionHandler(.delete) },
         label: { Label("Delete", systemImage: "trash") }
-      )
-      Button(
-        action: { menuActionHandler(.downloadAudio) },
-        label: { Label("Download Audio", systemImage: "icloud.and.arrow.down") }
       )
     }
   }
