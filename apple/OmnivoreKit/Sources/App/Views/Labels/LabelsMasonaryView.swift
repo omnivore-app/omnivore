@@ -50,7 +50,7 @@ struct LabelsMasonaryView: View {
     return ZStack(alignment: .topLeading) {
       ForEach(self.labelItems, id: \.label.self) { label in
         self.item(for: label)
-          .padding([.horizontal, .vertical], 4)
+          .padding([.horizontal, .vertical], 6)
           .alignmentGuide(.leading, computeValue: { dim in
             if abs(width - dim.width) > geom.size.width {
               width = 0
