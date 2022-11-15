@@ -301,6 +301,12 @@ describe('convert HTML to Speech file', () => {
       options: TEST_OPTIONS,
     })
 
-    expect(speechFile.utterances).to.have.lengthOf(42)
+    expect(speechFile.utterances).to.have.lengthOf(5)
+    expect(speechFile.utterances[0].text).to.eql(
+      'Just for curiosity, how do you pick the articles for Slow Chinese? Any advice on finding opportunities to communicate in Chinese? What are your tips to improve comprehension? '
+    )
+    expect(speechFile.utterances[1].text).to.eql(
+      'I feel like I’m working on reading, listening, and speaking all at once, sometimes I feel like I’m just getting surface understanding. '
+    )
   })
 })
