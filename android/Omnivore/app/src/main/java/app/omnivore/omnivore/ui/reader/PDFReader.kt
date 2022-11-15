@@ -1,7 +1,7 @@
 package app.omnivore.omnivore.ui.reader
 
-import android.R.attr.label
 import android.annotation.SuppressLint
+import android.app.Dialog
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -14,6 +14,7 @@ import android.util.Log
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.PopupMenu
 import androidx.activity.viewModels
@@ -266,8 +267,10 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
 
     popupMenu.setOnMenuItemClickListener(PopupMenu.OnMenuItemClickListener { item ->
       when(item.itemId) {
-        R.id.annotate ->
+        R.id.annotate -> {
+          showAnnotationView()
           Log.d("pdf", "annotate button tapped")
+        }
         R.id.delete -> {
           viewModel.deleteHighlight(clickedAnnotation)
           fragment.document?.annotationProvider?.removeAnnotationFromPage(clickedAnnotation)
@@ -359,5 +362,22 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
       PopupToolbarMenuItem(2, R.string.annotate_menu_action),
       PopupToolbarMenuItem(3, R.string.copy_menu_action),
     )
+  }
+
+  private fun showAnnotationView() {
+    val annotationDialog = Dialog(this)
+    annotationDialog.setContentView(R.layout.annotation_edit)
+
+    val confirmButton = annotationDialog.findViewById(R.id.confirmAnnotation) as Button
+    confirmButton.setOnClickListener {
+      annotationDialog.dismiss()
+    }
+
+    val cancelBtn = annotationDialog.findViewById(R.id.cancel) as Button
+    cancelBtn.setOnClickListener {
+      annotationDialog.dismiss()
+    }
+
+    annotationDialog.show()
   }
 }
