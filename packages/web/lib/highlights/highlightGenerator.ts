@@ -121,10 +121,17 @@ export function makeHighlightNodeAttributes(
     })
     const { parentNode, nextSibling } = node
 
+    var isPre = false
+    var nodeElement = (node instanceof HTMLElement) ? node : node.parentElement
+    if (nodeElement) {
+      isPre = (window.getComputedStyle(nodeElement).whiteSpace.startsWith('pre'))
+    }
+
     parentNode?.removeChild(node)
     textPartsToHighlight.forEach(({ highlight, text: rawText }, i) => {
-      // Prevent hardcoded \n, we'll create new-lines based on the startsParagraph data
-      const text = rawText.replace(/\n/g, '')
+      // If we are not in preformatted text, prevent hardcoded \n,
+      // we'll create new-lines based on the startsParagraph data
+      const text = isPre ? rawText : rawText.replace(/\n/g, '')
       const newTextNode = document.createTextNode(text)
 
       if (!highlight) {

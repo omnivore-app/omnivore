@@ -195,7 +195,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     readerTableHeaderColor: theme.colors.readerTableHeader.toString(),
     readerHeadersColor: theme.colors.readerHeader.toString(),
   }
-  console.log('setting font family: ', styles.fontFamily)
 
   return (
     <>
