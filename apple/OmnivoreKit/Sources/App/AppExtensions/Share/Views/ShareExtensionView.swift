@@ -182,7 +182,6 @@ public struct ShareExtensionView: View {
             editingTitle = true
           }
       })
-        // Disabling this button temporarily
         .disabled(editingTitle)
         .opacity(editingTitle ? 0.0 : 1.0)
 
