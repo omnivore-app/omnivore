@@ -22,6 +22,7 @@ WORKDIR /app
 
 ENV CHROMIUM_PATH /usr/bin/chromium-browser
 ENV LAUNCH_HEADLESS=true
+ENV PORT 9090
 
 COPY package.json .
 COPY yarn.lock .
@@ -34,9 +35,9 @@ COPY /packages/puppeteer-parse/package.json ./packages/puppeteer-parse/package.j
 
 RUN yarn install --pure-lockfile
 
-ADD /packages/content-fetch ./packages/content-fetch
 ADD /packages/content-handler ./packages/content-handler
 ADD /packages/puppeteer-parse ./packages/puppeteer-parse
+ADD /packages/content-fetch ./packages/content-fetch
 RUN yarn workspace @omnivore/content-handler build
 
 # After building, fetch the production dependencies
@@ -44,7 +45,7 @@ RUN rm -rf /app/packages/content-fetch/node_modules
 RUN rm -rf /app/node_modules
 RUN yarn install --pure-lockfile --production
 
-EXPOSE 8080
+EXPOSE 9090
 
-CMD ["yarn", "workspace", "@omnivore/content-fetch", "start"]
-
+# USER pptruser
+ENTRYPOINT ["yarn", "workspace", "@omnivore/content-fetch", "start_gcf"]

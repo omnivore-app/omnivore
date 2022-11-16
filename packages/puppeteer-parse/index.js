@@ -3,8 +3,8 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable @typescript-eslint/no-require-imports */
-require('dotenv').config();
 const Url = require('url');
+// const puppeteer = require('puppeteer-extra');
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
@@ -13,10 +13,8 @@ const { config, format, loggers, transports } = require('winston');
 const { LoggingWinston } = require('@google-cloud/logging-winston');
 const { DateTime } = require('luxon');
 const os = require('os');
-const Sentry = require('@sentry/serverless');
 const { Storage } = require('@google-cloud/storage');
-
-const chromium = require('chrome-aws-lambda');
+const { parseHTML } = require('linkedom');
 const puppeteer = require('puppeteer-core');
 const { preHandleContent } = require("@omnivore/content-handler");
 
@@ -28,20 +26,7 @@ const storage = new Storage();
 const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [];
 const previewBucket = process.env.PREVIEW_IMAGE_BUCKET ? storage.bucket(process.env.PREVIEW_IMAGE_BUCKET) : undefined;
 
-Sentry.GCPFunction.init({
-  dsn: process.env.SENTRY_DSN,
-  tracesSampleRate: 0,
-});
-
-const MOBILE_USER_AGENT = 'Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.62 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
-const DESKTOP_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4372.0 Safari/537.36'
-const BOT_DESKTOP_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4372.0 Safari/537.36'
-const NON_BOT_DESKTOP_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4372.0 Safari/537.36'
-const NON_BOT_HOSTS = ['bloomberg.com', 'forbes.com']
-
 const filePath = `${os.tmpdir()}/previewImage.png`;
-const ALLOWED_CONTENT_TYPES = ['text/html', 'application/octet-stream', 'text/plain', 'application/pdf'];
-
 
 const colors = {
   emerg: 'inverse underline magenta',
@@ -102,6 +87,15 @@ function buildLogger(id, options) {
   });
 }
 
+const MOBILE_USER_AGENT = 'Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.62 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
+const DESKTOP_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4372.0 Safari/537.36'
+const BOT_DESKTOP_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4372.0 Safari/537.36'
+const NON_BOT_DESKTOP_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4372.0 Safari/537.36'
+const NON_BOT_HOSTS = ['bloomberg.com', 'forbes.com']
+const NON_SCRIPT_HOSTS= ['medium.com', 'fastcompany.com'];
+
+const ALLOWED_CONTENT_TYPES = ['text/html', 'application/octet-stream', 'text/plain', 'application/pdf'];
+
 const userAgentForUrl = (url) => {
   try {
     const u = new URL(url);
@@ -116,15 +110,38 @@ const userAgentForUrl = (url) => {
   return DESKTOP_USER_AGENT
 };
 
+const fetchContentWithScrapingBee = async (url) => {
+  const response = await axios.get('https://app.scrapingbee.com/api/v1', {
+    params: {
+      'api_key':  process.env.SCRAPINGBEE_API_KEY,
+      'url': url,
+      'render_js': 'false',
+      'premium_proxy': 'true',
+      'country_code':'us'
+    }
+  })
+
+  const dom = parseHTML(response.data).document;
+  return { title: dom.title, domContent: dom.documentElement.outerHTML, url: url }
+}
+
+const enableJavascriptForUrl = (url) => {
+  try {
+    const u = new URL(url);
+    for (const host of NON_SCRIPT_HOSTS) {
+      if (u.hostname.endsWith(host)) {
+        return false;
+      }
+    }
+  } catch (e) {
+    console.log('error getting hostname for url', url, e)
+  }
+  return true
+};
+
 // launch Puppeteer
 const getBrowserPromise = (async () => {
-  // return puppeteer.launch({
-  //   args: chromium.args,
-  //   defaultViewport: chromium.defaultViewport,
-  //   executablePath: process.env.CHROMIUM_PATH,
-  //   headless: chromium.headless,
-  //   ignoreHTTPSErrors: true,
-  // });
+  console.log("starting with proxy url", process.env.PROXY_URL)
   return puppeteer.launch({
     args: [
       '--allow-running-insecure-content',
@@ -170,7 +187,7 @@ const uploadToSignedUrl = async ({ id, uploadSignedUrl }, contentType, contentOb
   })
 };
 
-const getUploadIdAndSignedUrl = async (userId, url) => {
+const getUploadIdAndSignedUrl = async (userId, url, articleSavingRequestId) => {
   const auth = await signToken({ uid: userId }, process.env.JWT_SECRET);
   const data = JSON.stringify({
     query: `mutation UploadFileRequest($input: UploadFileRequestInput!) {
@@ -188,17 +205,18 @@ const getUploadIdAndSignedUrl = async (userId, url) => {
       input: {
         url,
         contentType: 'application/pdf',
+        clientRequestId: articleSavingRequestId,
       }
     }
   });
 
   const response = await axios.post(`${process.env.REST_BACKEND_ENDPOINT}/graphql`, data,
-  {
-    headers: {
-      Cookie: `auth=${auth};`,
-      'Content-Type': 'application/json',
-    },
-  });
+    {
+      headers: {
+        Cookie: `auth=${auth};`,
+        'Content-Type': 'application/json',
+      },
+    });
   return response.data.data.uploadFileRequest;
 };
 
@@ -231,12 +249,12 @@ const sendCreateArticleMutation = async (userId, input) => {
 
   const auth = await signToken({ uid: userId }, process.env.JWT_SECRET);
   const response = await axios.post(`${process.env.REST_BACKEND_ENDPOINT}/graphql`, data,
-  {
-    headers: {
-      Cookie: `auth=${auth};`,
-      'Content-Type': 'application/json',
-    },
-  });
+    {
+      headers: {
+        Cookie: `auth=${auth};`,
+        'Content-Type': 'application/json',
+      },
+    });
   return response.data.data.createArticle;
 };
 
@@ -249,14 +267,7 @@ const saveUploadedPdf = async (userId, url, uploadFileId, articleSavingRequestId
   );
 };
 
-/**
- * Cloud Function entry point, HTTP trigger.
- * Loads the requested URL via Puppeteer, captures page content and sends it to backend
- *
- * @param {Object} req Cloud Function request context.
- * @param {Object} res Cloud Function response context.
- */
-exports.puppeteer = Sentry.GCPFunction.wrapHttpFunction(async (req, res) => {
+async function fetchContent(req, res) {
   functionStartTime = Date.now();
   // Grabbing execution and trace ids to attach logs to the appropriate function call
   const execution_id = req.get('function-execution-id');
@@ -269,7 +280,7 @@ exports.puppeteer = Sentry.GCPFunction.wrapHttpFunction(async (req, res) => {
   });
 
   let url = getUrl(req);
-  const userId = req.body.userId || req.query.userId;
+  const userId = (req.query ? req.query.userId : undefined) || (req.body ? req.body.userId : undefined);
   const articleSavingRequestId = (req.query ? req.query.saveRequestId : undefined) || (req.body ? req.body.saveRequestId : undefined);
 
   logRecord = {
@@ -285,7 +296,7 @@ exports.puppeteer = Sentry.GCPFunction.wrapHttpFunction(async (req, res) => {
 
   if (!url) {
     logRecord.urlIsInvalid = true;
-    logger.error(`Valid URL to parse not specified`, logRecord);
+    logger.info(`Valid URL to parse not specified`, logRecord);
     return res.sendStatus(400);
   }
 
@@ -301,7 +312,7 @@ exports.puppeteer = Sentry.GCPFunction.wrapHttpFunction(async (req, res) => {
     if (result && result.content) { content = result.content }
     if (result && result.contentType) { contentType = result.contentType }
   } catch (e) {
-    console.log('error with handler: ', e);
+    logger.info('error with handler: ', e);
   }
 
   let context, page, finalUrl;
@@ -312,7 +323,6 @@ exports.puppeteer = Sentry.GCPFunction.wrapHttpFunction(async (req, res) => {
       if (result && result.page) { page = result.page }
       if (result && result.finalUrl) { finalUrl = result.finalUrl }
       if (result && result.contentType) { contentType = result.contentType }
-      console.log('context, page, finalUrl, contentType', context, page, finalUrl, contentType);
     } else {
       finalUrl = url
     }
@@ -323,14 +333,19 @@ exports.puppeteer = Sentry.GCPFunction.wrapHttpFunction(async (req, res) => {
     } else {
       if (!content || !title) {
         const result = await retrieveHtml(page);
-        title = result.title;
-        content = result.domContent;
+        if (result.isBlocked) {
+          const sbResult = await fetchContentWithScrapingBee(url)
+          title = sbResult.title
+          content = sbResult.domContent
+        } else {
+          title = result.title;
+          content = result.domContent;
+        }
       } else {
-        console.log('using prefetched content and title');
-        console.log(content);
+        logger.info('using prefetched content and title');
       }
 
-      logRecord.contentFetchTime = Date.now() - functionStartTime;
+      logRecord.fetchContentTime = Date.now() - functionStartTime;
 
       const apiResponse = await sendCreateArticleMutation(userId, {
         url: finalUrl,
@@ -347,33 +362,351 @@ exports.puppeteer = Sentry.GCPFunction.wrapHttpFunction(async (req, res) => {
 
       logRecord.totalTime = Date.now() - functionStartTime;
       logRecord.result = apiResponse.createArticle;
-      logger.info(`parse-page`, logRecord);
     }
   } catch (e) {
-    console.log('error', e)
     logRecord.error = e.message;
     logger.error(`Error while retrieving page`, logRecord);
-    return res.sendStatus(503);
+
+    // fallback to scrapingbee
+    const sbResult = await fetchContentWithScrapingBee(url);
+    const sbUrl = finalUrl || sbResult.url;
+    const content = sbResult.domContent;
+    logRecord.fetchContentTime = Date.now() - functionStartTime;
+
+    const apiResponse = await sendCreateArticleMutation(userId, {
+      url: sbUrl,
+      articleSavingRequestId,
+      preparedDocument: {
+        document: content,
+        pageInfo: {
+          title: sbResult.title,
+          canonicalUrl: sbUrl,
+        },
+      },
+      skipParsing: !content,
+    });
+
+    logRecord.totalTime = Date.now() - functionStartTime;
+    logRecord.result = apiResponse.createArticle;
   } finally {
     if (context) {
       await context.close();
     }
+    logger.info(`parse-page`, logRecord);
   }
 
   return res.sendStatus(200);
-});
+}
 
-/**
- * Cloud Function entry point, HTTP trigger.
- * Loads the requested URL via Puppeteer and captures a screenshot of the provided element
- *
- * @param {Object} req Cloud Function request context.
- * Inlcudes:
- *  * url - URL address of the page to open
- * @param {Object} res Cloud Function response context.
- */
-exports.preview = Sentry.GCPFunction.wrapHttpFunction(async (req, res) => {
-  functionStartTime = Date.now();
+function validateUrlString(url) {
+  const u = new URL(url);
+  // Make sure the URL is http or https
+  if (u.protocol !== 'http:' && u.protocol !== 'https:') {
+    throw new Error('Invalid URL protocol check failed')
+  }
+  // Make sure the domain is not localhost
+  if (u.hostname === 'localhost' || u.hostname === '0.0.0.0') {
+    throw new Error('Invalid URL is localhost')
+  }
+  // Make sure the domain is not a private IP
+  if (/^(10|172\.16|192\.168)\..*/.test(u.hostname)) {
+    throw new Error('Invalid URL is private ip')
+  }
+}
+
+function getUrl(req) {
+  const urlStr = (req.query ? req.query.url : undefined) || (req.body ? req.body.url : undefined);
+  if (!urlStr) {
+    throw new Error('No URL specified');
+  }
+
+  validateUrlString(urlStr);
+
+  const parsed = Url.parse(urlStr);
+  return parsed.href;
+}
+
+async function blockResources(client) {
+  const blockedResources = [
+    // Assets
+    // '*/favicon.ico',
+    // '.css',
+    // '.jpg',
+    // '.jpeg',
+    // '.png',
+    // '.svg',
+    // '.woff',
+
+    // Analytics and other fluff
+    '*.optimizely.com',
+    'everesttech.net',
+    'userzoom.com',
+    'doubleclick.net',
+    'googleadservices.com',
+    'adservice.google.com/*',
+    'connect.facebook.com',
+    'connect.facebook.net',
+    'sp.analytics.yahoo.com',
+  ]
+
+  await client.send('Network.setBlockedURLs', { urls: blockedResources });
+}
+
+async function retrievePage(url) {
+  validateUrlString(url);
+
+  const browser = await getBrowserPromise;
+  logRecord.timing = { ...logRecord.timing, browserOpened: Date.now() - functionStartTime };
+
+  const context = await browser.createIncognitoBrowserContext();
+  const page = await context.newPage()
+
+  if (!enableJavascriptForUrl(url)) {
+    await page.setJavaScriptEnabled(false);
+  }
+  await page.setUserAgent(userAgentForUrl(url));
+
+  const client = await page.target().createCDPSession();
+
+  // intercept request when response headers was received
+  await client.send('Network.setRequestInterception', {
+    patterns: [
+      {
+        urlPattern: '*',
+        resourceType: 'Document',
+        interceptionStage: 'HeadersReceived',
+      },
+    ],
+  });
+
+  const path = require('path');
+  const download_path = path.resolve('./download_dir/');
+
+  await client.send('Page.setDownloadBehavior', {
+    behavior: 'allow',
+    userDataDir: './',
+    downloadPath: download_path,
+  })
+
+  client.on('Network.requestIntercepted', async e => {
+    const headers = e.responseHeaders || {};
+
+    const [contentType] = (headers['content-type'] || headers['Content-Type'] || '')
+      .toLowerCase()
+      .split(';');
+    const obj = { interceptionId: e.interceptionId };
+
+    if (e.responseStatusCode >= 200 && e.responseStatusCode < 300) {
+      // We only check content-type on success responses
+      // as it doesn't matter what the content type is for things
+      // like redirects
+      if (contentType && !ALLOWED_CONTENT_TYPES.includes(contentType)) {
+        obj['errorReason'] = 'BlockedByClient';
+      }
+    }
+
+    try {
+      await client.send('Network.continueInterceptedRequest', obj);
+      // eslint-disable-next-line no-empty
+    } catch {}
+  });
+
+  await blockResources(client);
+
+  /*
+    * Disallow MathJax from running in Puppeteer and modifying the document,
+    * we shall instead run it in our frontend application to transform any
+    * mathjax content when present.
+    */
+  await page.setRequestInterception(true);
+  let requestCount = 0;
+  page.on('request', request => {
+    if (['font', 'image', 'media'].includes(request.resourceType())) {
+      request.abort();
+      return;
+    }
+    if (requestCount++ > 100) {
+      request.abort();
+      return;
+    }
+    if (
+      request.resourceType() === 'script' &&
+      request.url().toLowerCase().indexOf('mathjax') > -1
+    ) {
+      request.abort();
+      return
+    }
+    request.continue();
+  });
+
+  // Puppeteer fails during download of PDf files,
+  // so record the failure and use those items
+  let lastPdfUrl = undefined;
+  page.on('response', response => {
+    if (response.headers()['content-type'] === 'application/pdf') {
+      lastPdfUrl = response.url();
+    }
+  });
+
+  try {
+    const response = await page.goto(url, { timeout: 8 * 1000, waitUntil: ['networkidle2'] });
+    const finalUrl = response.url();
+    const contentType = response.headers()['content-type'];
+
+    logRecord.finalUrl = response.url();
+    logRecord.contentType = response.headers()['content-type'];
+
+    return { context, page, response, finalUrl, contentType };
+  } catch (error) {
+    if (lastPdfUrl) {
+      return { context, page, finalUrl: lastPdfUrl, contentType: 'application/pdf' };
+    }
+    await context.close();
+    throw error;
+  }
+}
+
+async function retrieveHtml(page) {
+  let domContent = '', title;
+  try {
+    title = await page.title();
+    logRecord.title = title;
+
+    const pageScrollingStart = Date.now();
+    /* scroll with a 5 second timeout */
+    await Promise.race([
+      new Promise(resolve => {
+        (async function () {
+          try {
+            await page.evaluate(`(async () => {
+                /* credit: https://github.com/puppeteer/puppeteer/issues/305 */
+                return new Promise((resolve, reject) => {
+                  let scrollHeight = document.body.scrollHeight;
+                  let totalHeight = 0;
+                  let distance = 500;
+                  let timer = setInterval(() => {
+                    window.scrollBy(0, distance);
+                    totalHeight += distance;
+                    if(totalHeight >= scrollHeight){
+                      clearInterval(timer);
+                      resolve(true);
+                    }
+                  }, 10);
+                });
+              })()`);
+          } catch (e) {
+            logRecord.scrollError = true;
+          } finally {
+            resolve(true);
+          }
+        })();
+      }),
+      await page.waitForTimeout(1000),
+    ]);
+    logRecord.timing = { ...logRecord.timing, pageScrolled: Date.now() - pageScrollingStart };
+
+    const iframes = {};
+    const urls = [];
+    const framesPromises = [];
+    const allowedUrls = /instagram\.com/gi;
+
+    for (const frame of page.mainFrame().childFrames()) {
+      if (frame.url() && allowedUrls.test(frame.url())) {
+        urls.push(frame.url());
+        framesPromises.push(frame.evaluate(el => el.innerHTML, await frame.$('body')));
+      }
+    }
+
+    (await Promise.all(framesPromises)).forEach((frame, index) => (iframes[urls[index]] = frame));
+
+    const domContentCapturingStart = Date.now();
+    // get document body with all hidden elements removed
+    domContent = await page.evaluate(iframes => {
+      const BI_SRC_REGEXP = /url\("(.+?)"\)/gi;
+
+      Array.from(document.body.getElementsByTagName('*')).forEach(el => {
+        const style = window.getComputedStyle(el);
+
+        try {
+          // Removing blurred images since they are mostly the copies of lazy loaded ones
+          if (['img', 'image'].includes(el.tagName.toLowerCase())) {
+            const filter = style.getPropertyValue('filter');
+            if (filter && filter.startsWith('blur')) {
+              el.parentNode && el.parentNode.removeChild(el);
+            }
+          }
+        } catch (err) {
+          // throw Error('error with element: ' + JSON.stringify(Array.from(document.body.getElementsByTagName('*'))))
+        }
+
+        // convert all nodes with background image to img nodes
+        if (!['', 'none'].includes(style.getPropertyValue('background-image'))) {
+          const filter = style.getPropertyValue('filter');
+          // avoiding image nodes with a blur effect creation
+          if (filter && filter.startsWith('blur')) {
+            el && el.parentNode && el.parentNode.removeChild(el);
+          } else {
+            const matchedSRC = BI_SRC_REGEXP.exec(style.getPropertyValue('background-image'));
+            // Using "g" flag with a regex we have to manually break down lastIndex to zero after every usage
+            // More details here: https://stackoverflow.com/questions/1520800/why-does-a-regexp-with-global-flag-give-wrong-results
+            BI_SRC_REGEXP.lastIndex = 0;
+
+            if (matchedSRC && matchedSRC[1] && !el.src) {
+              // Replacing element only of there are no content inside, b/c might remove important div with content.
+              // Article example: http://www.josiahzayner.com/2017/01/genetic-designer-part-i.html
+              // DIV with class "content-inner" has `url("https://resources.blogblog.com/blogblog/data/1kt/travel/bg_container.png")` background image.
+              if (el.innerHTML.length < 25) {
+                const img = document.createElement('img');
+                img.src = matchedSRC[1];
+                el && el.parentNode && el.parentNode.removeChild(el);
+              }
+            }
+          }
+        }
+
+        if (el.tagName === 'IFRAME') {
+          if (iframes[el.src]) {
+            const newNode = document.createElement('div');
+            newNode.className = 'omnivore-instagram-embed';
+            newNode.innerHTML = iframes[el.src];
+            el && el.parentNode && el.parentNode.replaceChild(newNode, el);
+          }
+        }
+      });
+
+      if (document.querySelector('[data-translate="managed_checking_msg"]') ||
+        document.getElementById('px-block-form-wrapper')) {
+        return 'IS_BLOCKED'
+      }
+
+      return document.documentElement.outerHTML;
+    }, iframes);
+    logRecord.puppeteerSuccess = true;
+    logRecord.timing = {
+      ...logRecord.timing,
+      contenCaptured: Date.now() - domContentCapturingStart,
+    };
+
+    // [END puppeteer-block]
+  } catch (e) {
+    if (e.message.startsWith('net::ERR_BLOCKED_BY_CLIENT at ')) {
+      logRecord.blockedByClient = true;
+    } else {
+      logRecord.puppeteerSuccess = false;
+      logRecord.puppeteerError = {
+        message: e.message,
+        stack: e.stack,
+      };
+    }
+  }
+  if (domContent === 'IS_BLOCKED') {
+    return { isBlocked: true };
+  }
+  return { domContent, title };
+}
+
+async function preview(req, res) {
+  const functionStartTime = Date.now();
   // Grabbing execution and trace ids to attach logs to the appropriate function call
   const execution_id = req.get('function-execution-id');
   const traceId = (req.get('x-cloud-trace-context') || '').split('/')[0];
@@ -392,7 +725,7 @@ exports.preview = Sentry.GCPFunction.wrapHttpFunction(async (req, res) => {
   const url = getUrl(req);
   console.log('preview request url', url);
 
-  logRecord = {
+  const logRecord = {
     url,
     query: req.query,
     origin: req.get('Origin'),
@@ -415,7 +748,7 @@ exports.preview = Sentry.GCPFunction.wrapHttpFunction(async (req, res) => {
     return res.sendStatus(400);
   }
 
-  const browser = await getBrowserPromise;
+  const browser = await getBrowserPromise(process.env.PROXY_URL, process.env.CHROMIUM_PATH);
   logRecord.timing = { ...logRecord.timing, browserOpened: Date.now() - functionStartTime };
 
   const page = await browser.newPage();
@@ -490,296 +823,10 @@ exports.preview = Sentry.GCPFunction.wrapHttpFunction(async (req, res) => {
 
   logger.info(`preview-image`, logRecord);
   return res.redirect(`${process.env.PREVIEW_IMAGE_CDN_ORIGIN}/${destination}`);
-});
-
-function validateUrlString(url) {
-  const u = new URL(url);
-  // Make sure the URL is http or https
-  if (u.protocol !== 'http:' && u.protocol !== 'https:') {
-    throw new Error('Invalid URL protocol check failed')
-  }
-  // Make sure the domain is not localhost
-  if (u.hostname === 'localhost' || u.hostname === '0.0.0.0') {
-    throw new Error('Invalid URL is localhost')
-  }
-  // Make sure the domain is not a private IP
-  if (/^(10|172\.16|192\.168)\..*/.test(u.hostname)) {
-    throw new Error('Invalid URL is private ip')
-  }
 }
 
-function getUrl(req) {
-  if (req.query.url || req.body.url) {
-    const urlStr = req.query.url || req.body.url;
-    validateUrlString(urlStr);
+module.exports = {
+  fetchContent,
+  preview,
+};
 
-    const url = Url.parse(urlStr);
-    return url.href;
-  }
-  try {
-    return Url.parse(JSON.parse(req.body).url).href;
-  } catch (e) {}
-}
-
-async function blockResources(client) {
-  const blockedResources = [
-    // Assets
-    // '*/favicon.ico',
-    // '.css',
-    // '.jpg',
-    // '.jpeg',
-    // '.png',
-    // '.svg',
-    // '.woff',
-
-    // Analytics and other fluff
-    '*.optimizely.com',
-    'everesttech.net',
-    'userzoom.com',
-    'doubleclick.net',
-    'googleadservices.com',
-    'adservice.google.com/*',
-    'connect.facebook.com',
-    'connect.facebook.net',
-    'sp.analytics.yahoo.com',
-  ]
-
-  await client.send('Network.setBlockedURLs', { urls: blockedResources });
-}
-
-async function retrievePage(url) {
-  validateUrlString(url);
-
-  const browser = await getBrowserPromise;
-  logRecord.timing = { ...logRecord.timing, browserOpened: Date.now() - functionStartTime };
-
-  const context = await browser.createIncognitoBrowserContext();
-  const page = await context.newPage();
-  await page.setUserAgent(userAgentForUrl(url));
-
-  const client = await page.target().createCDPSession();
-
-  // intercept request when response headers was received
-  await client.send('Network.setRequestInterception', {
-    patterns: [
-      {
-        urlPattern: '*',
-        resourceType: 'Document',
-        interceptionStage: 'HeadersReceived',
-      },
-    ],
-  });
-
-  const path = require('path');
-  const download_path = path.resolve('./download_dir/');
-
-  await client.send('Page.setDownloadBehavior', {
-      behavior: 'allow',
-      userDataDir: './',
-      downloadPath: download_path,
-  })
-
-  client.on('Network.requestIntercepted', async e => {
-    const headers = e.responseHeaders || {};
-
-    const [contentType] = (headers['content-type'] || headers['Content-Type'] || '')
-      .toLowerCase()
-      .split(';');
-    const obj = { interceptionId: e.interceptionId };
-
-    if (e.responseStatusCode >= 200 && e.responseStatusCode < 300) {
-      // We only check content-type on success responses
-      // as it doesn't matter what the content type is for things
-      // like redirects
-      if (contentType && !ALLOWED_CONTENT_TYPES.includes(contentType)) {
-        obj['errorReason'] = 'BlockedByClient';
-      }
-    }
-
-    try {
-      await client.send('Network.continueInterceptedRequest', obj);
-      // eslint-disable-next-line no-empty
-    } catch {}
-  });
-
-  await blockResources(client);
-
-  /*
-  * Disallow MathJax from running in Puppeteer and modifying the document,
-  * we shall instead run it in our frontend application to transform any
-  * mathjax content when present.
-  */
-  await page.setRequestInterception(true);
-  let requestCount = 0;
-  page.on('request', request => {
-    if (['font', 'image', 'media'].includes(request.resourceType())) {
-      request.abort();
-      return;
-    }
-    if (requestCount++ > 100) {
-      request.abort();
-      return;
-    }
-    if (
-      request.resourceType() === 'script' &&
-      request.url().toLowerCase().indexOf('mathjax') > -1
-    ) {
-      request.abort();
-      return
-    }
-    request.continue();
-  });
-
-
-  // Puppeteer fails during download of PDf files,
-  // so record the failure and use those items
-  let lastPdfUrl = undefined;
-  page.on('response', response => {
-    if (response.headers()['content-type'] === 'application/pdf') {
-      lastPdfUrl = response.url();
-    }
-  });
-
-  try {
-    const response = await page.goto(url, { timeout: 8 * 1000, waitUntil: ['networkidle2'] });
-    const finalUrl = response.url();
-    const contentType = response.headers()['content-type'];
-
-    logRecord.finalUrl = response.url();
-    logRecord.contentType = response.headers()['content-type'];
-
-    return { context, page, response, finalUrl, contentType };
-  } catch (error) {
-    if (lastPdfUrl) {
-      return { context, page, finalUrl: lastPdfUrl, contentType: 'application/pdf' };
-    }
-    await context.close();
-    throw error;
-  }
-}
-
-async function retrieveHtml(page) {
-  let domContent = '', title;
-  try {
-    title = await page.title();
-    logRecord.title = title;
-
-    const pageScrollingStart = Date.now();
-    /* scroll with a 5 second timeout */
-    await Promise.race([
-      new Promise(resolve => {
-        (async function () {
-          try {
-            await page.evaluate(`(async () => {
-                /* credit: https://github.com/puppeteer/puppeteer/issues/305 */
-                return new Promise((resolve, reject) => {
-                  let scrollHeight = document.body.scrollHeight;
-                  let totalHeight = 0;
-                  let distance = 500;
-                  let timer = setInterval(() => {
-                    window.scrollBy(0, distance);
-                    totalHeight += distance;
-                    if(totalHeight >= scrollHeight){
-                      clearInterval(timer);
-                      resolve(true);
-                    }
-                  }, 10);
-                });
-              })()`);
-          } catch (e) {
-            logRecord.scrollError = true;
-          } finally {
-            resolve(true);
-          }
-        })();
-      }),
-      await page.waitForTimeout(1000), // 1 second timeout
-    ]);
-    logRecord.timing = { ...logRecord.timing, pageScrolled: Date.now() - pageScrollingStart };
-
-    const iframes = {};
-    const urls = [];
-    const framesPromises = [];
-    const allowedUrls = /instagram\.com/gi;
-
-    for (const frame of page.mainFrame().childFrames()) {
-      if (frame.url() && allowedUrls.test(frame.url())) {
-        urls.push(frame.url());
-        framesPromises.push(frame.evaluate(el => el.innerHTML, await frame.$('body')));
-      }
-    }
-
-    (await Promise.all(framesPromises)).forEach((frame, index) => (iframes[urls[index]] = frame));
-
-    const domContentCapturingStart = Date.now();
-    // get document body with all hidden elements removed
-    domContent = await page.evaluate(iframes => {
-      const BI_SRC_REGEXP = /url\("(.+?)"\)/gi;
-
-      Array.from(document.body.getElementsByTagName('*')).forEach(el => {
-        const style = window.getComputedStyle(el);
-
-        // Removing blurred images since they are mostly the copies of lazy loaded ones
-        if (['img', 'image'].includes(el.tagName.toLowerCase())) {
-          const filter = style.getPropertyValue('filter');
-          if (filter && filter.startsWith('blur')) {
-            el.parentNode && el.parentNode.removeChild(el);
-          }
-        }
-
-        // convert all nodes with background image to img nodes
-        if (!['', 'none'].includes(style.getPropertyValue('background-image'))) {
-          const filter = style.getPropertyValue('filter');
-          // avoiding image nodes with a blur effect creation
-          if (filter && filter.startsWith('blur')) {
-            el && el.parentNode && el.parentNode.removeChild(el);
-          } else {
-            const matchedSRC = BI_SRC_REGEXP.exec(style.getPropertyValue('background-image'));
-            // Using "g" flag with a regex we have to manually break down lastIndex to zero after every usage
-            // More details here: https://stackoverflow.com/questions/1520800/why-does-a-regexp-with-global-flag-give-wrong-results
-            BI_SRC_REGEXP.lastIndex = 0;
-
-            if (matchedSRC && matchedSRC[1] && !el.src) {
-              // Replacing element only of there are no content inside, b/c might remove important div with content.
-              // Article example: http://www.josiahzayner.com/2017/01/genetic-designer-part-i.html
-              // DIV with class "content-inner" has `url("https://resources.blogblog.com/blogblog/data/1kt/travel/bg_container.png")` background image.
-              if (el.innerHTML.length < 25) {
-                const img = document.createElement('img');
-                img.src = matchedSRC[1];
-                el && el.parentNode && el.parentNode.removeChild(el);
-              }
-            }
-          }
-        }
-
-        if (el.tagName === 'IFRAME') {
-          if (iframes[el.src]) {
-            const newNode = document.createElement('div');
-            newNode.className = 'omnivore-instagram-embed';
-            newNode.innerHTML = iframes[el.src];
-            el && el.parentNode && el.parentNode.replaceChild(newNode, el);
-          }
-        }
-      });
-      return document.documentElement.outerHTML;
-    }, iframes);
-    logRecord.puppeteerSuccess = true;
-    logRecord.timing = {
-      ...logRecord.timing,
-      contenCaptured: Date.now() - domContentCapturingStart,
-    };
-
-    // [END puppeteer-block]
-  } catch (e) {
-    if (e.message.startsWith('net::ERR_BLOCKED_BY_CLIENT at ')) {
-      logRecord.blockedByClient = true;
-    } else {
-      logRecord.puppeteerSuccess = false;
-      logRecord.puppeteerError = {
-        message: e.message,
-        stack: e.stack,
-      };
-    }
-  }
-  return { domContent, title };
-}

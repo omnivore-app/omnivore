@@ -4,18 +4,20 @@
   "description": "Service that fetches page content from a URL",
   "main": "index.js",
   "dependencies": {
-    "@omnivore/content-handler": "1.0.0",
-    "axios": "^0.27.2",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
-    "jsonwebtoken": "^8.5.1",
-    "linkedom": "^0.14.9",
-    "luxon": "^2.3.1",
-    "puppeteer-core": "^16.1.0",
-    "underscore": "^1.13.4"
+    "@omnivore/puppeteer-parse": "^1.0.0",
+    "@sentry/serverless": "^6.13.3"
+  },
+  "devDependencies": {
+    "@google-cloud/functions-framework": "^3.0.0",
+    "chai": "^4.3.6",
+    "mocha": "^10.0.0"
   },
   "scripts": {
     "start": "node app.js",
-    "test": "yarn mocha"
+    "start_gcf": "npx functions-framework --port=9090 --target=puppeteer",
+    "start_preview": "npx functions-framework --target=preview",
+    "test": "mocha test/*.js"
   }
 }
