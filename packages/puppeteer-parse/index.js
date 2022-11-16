@@ -15,12 +15,17 @@ const { DateTime } = require('luxon');
 const os = require('os');
 const { Storage } = require('@google-cloud/storage');
 const { parseHTML } = require('linkedom');
-const puppeteer = require('puppeteer-core');
 const { preHandleContent } = require("@omnivore/content-handler");
 
+const puppeteer = require('puppeteer-extra');
+
 // Add stealth plugin to hide puppeteer usage
-// const StealthPlugin = require('puppeteer-extra-plugin-stealth');
-// puppeteer.use(StealthPlugin());
+const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+puppeteer.use(StealthPlugin());
+
+// Add adblocker plugin to block all ads and trackers (saves bandwidth)
+const AdblockerPlugin = require('puppeteer-extra-plugin-adblocker');
+puppeteer.use(AdblockerPlugin({ blockTrackers: true }));
 
 const storage = new Storage();
 const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [];
