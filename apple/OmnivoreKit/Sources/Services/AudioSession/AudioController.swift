@@ -27,172 +27,6 @@
     case high
   }
 
-  // Somewhat based on: https://github.com/neekeetab/CachingPlayerItem/blob/master/CachingPlayerItem.swift
-  class SpeechPlayerItem: AVPlayerItem {
-    let resourceLoaderDelegate = ResourceLoaderDelegate()
-    let session: AudioController
-    let speechItem: SpeechItem
-    var speechMarks: [SpeechMark]?
-
-    let completed: () -> Void
-
-    var observer: Any?
-
-    init(session: AudioController, speechItem: SpeechItem, completed: @escaping () -> Void) {
-      self.speechItem = speechItem
-      self.session = session
-      self.completed = completed
-
-      guard let fakeUrl = URL(string: "app.omnivore.speech://\(speechItem.localAudioURL.path).mp3") else {
-        fatalError("internal inconsistency")
-      }
-
-      let asset = AVURLAsset(url: fakeUrl)
-      asset.resourceLoader.setDelegate(resourceLoaderDelegate, queue: DispatchQueue.main)
-
-      super.init(asset: asset, automaticallyLoadedAssetKeys: nil)
-
-      resourceLoaderDelegate.owner = self
-
-      self.observer = observe(\.status, options: [.new]) { item, _ in
-        if item.status == .readyToPlay {
-          let duration = CMTimeGetSeconds(item.duration)
-          item.session.updateDuration(forItem: item.speechItem, newDuration: duration)
-        }
-      }
-
-      NotificationCenter.default.addObserver(
-        forName: NSNotification.Name.AVPlayerItemDidPlayToEndTime,
-        object: self, queue: OperationQueue.main
-      ) { [weak self] _ in
-        guard let self = self else { return }
-        self.completed()
-      }
-    }
-
-    deinit {
-      observer = nil
-      resourceLoaderDelegate.session?.invalidateAndCancel()
-    }
-
-    open func download() {
-      if resourceLoaderDelegate.session == nil {
-        resourceLoaderDelegate.startDataRequest(with: speechItem.urlRequest)
-      }
-    }
-
-    @objc func playbackStalledHandler() {
-      print("playback stalled...")
-    }
-
-    class ResourceLoaderDelegate: NSObject, AVAssetResourceLoaderDelegate {
-      var session: URLSession?
-      var mediaData: Data?
-      var pendingRequests = Set<AVAssetResourceLoadingRequest>()
-      weak var owner: SpeechPlayerItem?
-
-      func resourceLoader(_: AVAssetResourceLoader,
-                          shouldWaitForLoadingOfRequestedResource loadingRequest: AVAssetResourceLoadingRequest) -> Bool
-      {
-        if owner == nil {
-          return true
-        }
-
-        if session == nil {
-          guard let initialUrl = owner?.speechItem.urlRequest else {
-            fatalError("internal inconsistency")
-          }
-
-          startDataRequest(with: initialUrl)
-        }
-
-        pendingRequests.insert(loadingRequest)
-        processPendingRequests()
-        return true
-      }
-
-      func startDataRequest(with _: URLRequest) {
-        let configuration = URLSessionConfiguration.default
-        configuration.requestCachePolicy = .reloadIgnoringLocalAndRemoteCacheData
-        session = URLSession(configuration: configuration)
-
-        Task {
-          guard let speechItem = self.owner?.speechItem else {
-            // This probably can't happen, but if it does, just returning should
-            // let AVPlayer try again.
-            print("No speech item found: ", self.owner?.speechItem)
-            return
-          }
-
-          // TODO: how do we want to propogate this and handle it in the player
-          let speechData = try? await SpeechSynthesizer.download(speechItem: speechItem, session: self.session)
-          DispatchQueue.main.async {
-            if speechData == nil {
-              self.session = nil
-            }
-            if let owner = self.owner, let speechData = speechData {
-              owner.speechMarks = speechData.speechMarks
-            }
-            self.mediaData = speechData?.audioData
-
-            self.processPendingRequests()
-          }
-        }
-      }
-
-      func resourceLoader(_: AVAssetResourceLoader, didCancel loadingRequest: AVAssetResourceLoadingRequest) {
-        pendingRequests.remove(loadingRequest)
-      }
-
-      func processPendingRequests() {
-        let requestsFulfilled = Set<AVAssetResourceLoadingRequest>(pendingRequests.compactMap {
-          self.fillInContentInformationRequest($0.contentInformationRequest)
-          if self.haveEnoughDataToFulfillRequest($0.dataRequest!) {
-            $0.finishLoading()
-            return $0
-          }
-          return nil
-        })
-
-        // remove fulfilled requests from pending requests
-        _ = requestsFulfilled.map { self.pendingRequests.remove($0) }
-      }
-
-      func fillInContentInformationRequest(_ contentInformationRequest: AVAssetResourceLoadingContentInformationRequest?) {
-        contentInformationRequest?.contentType = UTType.mp3.identifier
-
-        if let mediaData = mediaData {
-          contentInformationRequest?.isByteRangeAccessSupported = true
-          contentInformationRequest?.contentLength = Int64(mediaData.count)
-        }
-      }
-
-      func haveEnoughDataToFulfillRequest(_ dataRequest: AVAssetResourceLoadingDataRequest) -> Bool {
-        let requestedOffset = Int(dataRequest.requestedOffset)
-        let requestedLength = dataRequest.requestedLength
-        let currentOffset = Int(dataRequest.currentOffset)
-
-        guard let songDataUnwrapped = mediaData,
-              songDataUnwrapped.count > currentOffset
-        else {
-          // Don't have any data at all for this request.
-          return false
-        }
-
-        let bytesToRespond = min(songDataUnwrapped.count - currentOffset, requestedLength)
-        let range = Range(uncheckedBounds: (currentOffset, currentOffset + bytesToRespond))
-        let dataToRespond = songDataUnwrapped.subdata(in: range)
-        dataRequest.respond(with: dataToRespond)
-
-        return songDataUnwrapped.count >= requestedLength + requestedOffset
-      }
-
-      deinit {
-        session?.invalidateAndCancel()
-      }
-    }
-  }
-
   // swiftlint:disable all
   public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate {
     @Published public var state: AudioControllerState = .stopped
@@ -205,9 +39,12 @@
     @Published public var duration: TimeInterval = 0
     @Published public var timeElapsedString: String?
     @Published public var durationString: String?
-    @Published public var voiceList: [(name: String, key: String, category: VoiceCategory, selected: Bool)]?
+    @Published public var voiceList: [VoiceItem]?
+    @Published public var realisticVoiceList: [VoiceItem]?
 
     @Published public var textItems: [String]?
+
+    @Published public var playbackError: Bool = false
 
     let dataService: DataService
 
@@ -219,11 +56,14 @@
     var durations: [Double]?
     var lastReadUpdate = 0.0
 
+    var samplePlayer: AVAudioPlayer?
+
     public init(dataService: DataService) {
       self.dataService = dataService
 
       super.init()
       self.voiceList = generateVoiceList()
+      self.realisticVoiceList = generateRealisticVoiceList()
     }
 
     deinit {
@@ -277,11 +117,25 @@
       }
     }
 
-    public func generateVoiceList() -> [(name: String, key: String, category: VoiceCategory, selected: Bool)] {
+    public func stopWithError() {
+      stop()
+      playbackError = true
+    }
+
+    public func generateVoiceList() -> [VoiceItem] {
       Voices.Pairs.flatMap { voicePair in
         [
-          (name: voicePair.firstName, key: voicePair.firstKey, category: voicePair.category, selected: voicePair.firstKey == currentVoice),
-          (name: voicePair.secondName, key: voicePair.secondKey, category: voicePair.category, selected: voicePair.secondKey == currentVoice)
+          VoiceItem(name: voicePair.firstName, key: voicePair.firstKey, category: voicePair.category, selected: voicePair.firstKey == currentVoice),
+          VoiceItem(name: voicePair.secondName, key: voicePair.secondKey, category: voicePair.category, selected: voicePair.secondKey == currentVoice)
+        ]
+      }.sorted { $0.name.lowercased() < $1.name.lowercased() }
+    }
+
+    public func generateRealisticVoiceList() -> [VoiceItem] {
+      Voices.UltraPairs.flatMap { voicePair in
+        [
+          VoiceItem(name: voicePair.firstName, key: voicePair.firstKey, category: voicePair.category, selected: voicePair.firstKey == currentVoice),
+          VoiceItem(name: voicePair.secondName, key: voicePair.secondKey, category: voicePair.category, selected: voicePair.secondKey == currentVoice)
         ]
       }.sorted { $0.name.lowercased() < $1.name.lowercased() }
     }
@@ -293,7 +147,7 @@
 
       for itemID in itemIDs {
         if let document = try? await downloadSpeechFile(itemID: itemID, priority: .low) {
-          let synthesizer = SpeechSynthesizer(appEnvironment: dataService.appEnvironment, networker: dataService.networker, document: document)
+          let synthesizer = SpeechSynthesizer(appEnvironment: dataService.appEnvironment, networker: dataService.networker, document: document, speechAuthHeader: speechAuthHeader)
           do {
             try await synthesizer.preload()
             return true
@@ -307,7 +161,7 @@
 
     public func downloadForOffline(itemID: String) async -> Bool {
       if let document = try? await downloadSpeechFile(itemID: itemID, priority: .low) {
-        let synthesizer = SpeechSynthesizer(appEnvironment: dataService.appEnvironment, networker: dataService.networker, document: document)
+        let synthesizer = SpeechSynthesizer(appEnvironment: dataService.appEnvironment, networker: dataService.networker, document: document, speechAuthHeader: speechAuthHeader)
         for item in synthesizer.createPlayerItems(from: 0) {
           do {
             _ = try await SpeechSynthesizer.download(speechItem: item, redownloadCached: true)
@@ -419,6 +273,18 @@
 
     @AppStorage(UserDefaultKey.textToSpeechPreloadEnabled.rawValue) public var preloadEnabled = false
 
+    @AppStorage(UserDefaultKey.textToSpeechUseUltraRealisticVoices.rawValue) public var useUltraRealisticVoices = false
+
+    @AppStorage(UserDefaultKey.textToSpeechUltraRealisticFeatureKey.rawValue) public var ultraRealisticFeatureKey: String = ""
+    @AppStorage(UserDefaultKey.textToSpeechUltraRealisticFeatureRequested.rawValue) public var ultraRealisticFeatureRequested: Bool = false
+
+    var speechAuthHeader: String? {
+      if Voices.isUltraRealisticVoice(currentVoice), !ultraRealisticFeatureKey.isEmpty {
+        return ultraRealisticFeatureKey
+      }
+      return nil
+    }
+
     public var currentVoiceLanguage: VoiceLanguage {
       Voices.Languages.first(where: { $0.key == currentLanguage }) ?? Voices.English
     }
@@ -458,6 +324,7 @@
       set {
         _currentVoice = newValue
         voiceList = generateVoiceList()
+        realisticVoiceList = generateRealisticVoiceList()
 
         var currentIdx = 0
         var currentOffset = 0.0
@@ -520,7 +387,7 @@
         // Sometimes we get negatives
         currentItemOffset = max(currentItemOffset, 0)
 
-        let idx = item.speechItem.audioIdx
+        let idx = currentAudioIndex // item.speechItem.audioIdx
         let currentItem = document?.utterances[idx].text ?? ""
         let currentReadIndex = currentItem.index(currentItem.startIndex, offsetBy: min(currentItemOffset, currentItem.count))
         let lastItem = String(currentItem[..<currentReadIndex])
@@ -554,7 +421,7 @@
 
           DispatchQueue.main.async {
             if let document = document {
-              let synthesizer = SpeechSynthesizer(appEnvironment: self.dataService.appEnvironment, networker: self.dataService.networker, document: document)
+              let synthesizer = SpeechSynthesizer(appEnvironment: self.dataService.appEnvironment, networker: self.dataService.networker, document: document, speechAuthHeader: self.speechAuthHeader)
 
               self.setTextItems()
               self.durations = synthesizer.estimatedDurations(forSpeed: self.playbackRate)
@@ -586,15 +453,35 @@
 
     public func playVoiceSample(voice: String) {
       do {
-        if let url = Bundle.main.url(forResource: "tts-voice-sample-\(voice)", withExtension: "mp3") {
-          let player = try AVAudioPlayer(contentsOf: url, fileTypeHint: AVFileType.mp3.rawValue)
-          player.play()
+        pause()
+
+        if let url = Bundle(url: UtilsPackage.bundleURL)?.url(forResource: voice, withExtension: "mp3") {
+          try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [])
+
+          samplePlayer = try AVAudioPlayer(contentsOf: url, fileTypeHint: AVFileType.mp3.rawValue)
+          if !(samplePlayer?.play() ?? false) {
+            throw BasicError.message(messageText: "Unable to playback audio")
+          }
         } else {
           NSNotification.operationFailed(message: "Error playing voice sample.")
         }
       } catch {
         print("ERROR", error)
         NSNotification.operationFailed(message: "Error playing voice sample.")
+      }
+    }
+
+    public func isPlayingSample(voice: String) -> Bool {
+      if let samplePlayer = self.samplePlayer, let url = Bundle(url: UtilsPackage.bundleURL)?.url(forResource: voice, withExtension: "mp3") {
+        return samplePlayer.url == url && samplePlayer.isPlaying
+      }
+      return false
+    }
+
+    public func stopVoiceSample() {
+      if let samplePlayer = self.samplePlayer {
+        samplePlayer.stop()
+        self.samplePlayer = nil
       }
     }
 
@@ -684,10 +571,11 @@
       if let player = player {
         observer = player.observe(\.currentItem, options: [.new]) { _, _ in
           self.currentAudioIndex = (player.currentItem as? SpeechPlayerItem)?.speechItem.audioIdx ?? 0
+          self.updateReadText()
         }
       }
 
-      let synthesizer = SpeechSynthesizer(appEnvironment: dataService.appEnvironment, networker: dataService.networker, document: document)
+      let synthesizer = SpeechSynthesizer(appEnvironment: dataService.appEnvironment, networker: dataService.networker, document: document, speechAuthHeader: speechAuthHeader)
       durations = synthesizer.estimatedDurations(forSpeed: playbackRate)
       self.synthesizer = synthesizer
 
@@ -696,9 +584,12 @@
 
     func synthesizeFrom(start: Int, playWhenReady: Bool, atOffset: Double = 0.0) {
       if let synthesizer = self.synthesizer, let items = self.synthesizer?.createPlayerItems(from: start) {
+        let prefetchQueue = OperationQueue()
+        prefetchQueue.maxConcurrentOperationCount = 5
+
         for speechItem in items {
           let isLast = speechItem.audioIdx == synthesizer.document.utterances.count - 1
-          let playerItem = SpeechPlayerItem(session: self, speechItem: speechItem) {
+          let playerItem = SpeechPlayerItem(session: self, prefetchQueue: prefetchQueue, speechItem: speechItem) {
             if isLast {
               self.player?.pause()
               self.state = .reachedEnd
@@ -731,6 +622,7 @@
     }
 
     public func unpause() {
+      stopVoiceSample()
       if let player = player {
         player.rate = Float(playbackRate)
         state = .playing
@@ -780,6 +672,14 @@
         case .reset:
           if let playerItem = player.currentItem as? SpeechPlayerItem {
             let itemElapsed = playerItem.status == .readyToPlay ? CMTimeGetSeconds(playerItem.currentTime()) : 0
+            if itemElapsed >= CMTimeGetSeconds(playerItem.duration) + 0.5 {
+              // Occasionally AV wont send an event for a new item starting for ~3s, if this
+              // happens we can try to manually update the time
+              if playerItem.speechItem.audioIdx + 1 < (document?.utterances.count ?? 0) {
+                currentAudioIndex = playerItem.speechItem.audioIdx + 1
+              }
+            }
+
             timeElapsed = durationBefore(playerIndex: playerItem.speechItem.audioIdx) + itemElapsed
             timeElapsedString = formatTimeInterval(timeElapsed)
 

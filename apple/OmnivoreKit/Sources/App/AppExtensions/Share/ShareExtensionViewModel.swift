@@ -1,12 +1,13 @@
 import CoreData
 import Models
+import Services
 import SwiftUI
 import Utils
 import Views
 
 public class ShareExtensionViewModel: ObservableObject {
   @Published public var status: ShareExtensionStatus = .processing
-  @Published public var title: String?
+  @Published public var title: String = ""
   @Published public var url: String?
   @Published public var iconURL: String?
   @Published public var linkedItem: LinkedItem?
@@ -42,6 +43,22 @@ public class ShareExtensionViewModel: ObservableObject {
     }
   }
 
+  func setLinkArchived(dataService: DataService, objectID: NSManagedObjectID, archived: Bool) {
+    dataService.archiveLink(objectID: objectID, archived: archived)
+  }
+
+  func removeLink(dataService: DataService, objectID: NSManagedObjectID) {
+    dataService.removeLink(objectID: objectID)
+  }
+
+  func submitTitleEdit(dataService: DataService, itemID: String, title: String, description: String) {
+    dataService.updateLinkedItemTitleAndDescription(
+      itemID: itemID,
+      title: title,
+      description: description
+    )
+  }
+
   #if os(iOS)
     func queueSaveOperation(_ payload: PageScrapePayload) {
       ProcessInfo().performExpiringActivity(withReason: "app.omnivore.SaveActivity") { [self] expiring in
@@ -72,7 +89,7 @@ public class ShareExtensionViewModel: ObservableObject {
 
           switch payload.contentType {
           case let .html(html: _, title: title, iconURL: iconURL):
-            self.title = title
+            self.title = title ?? ""
             self.iconURL = iconURL
             self.url = hostname
           case .none:

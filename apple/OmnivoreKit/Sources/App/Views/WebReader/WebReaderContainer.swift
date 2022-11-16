@@ -153,6 +153,60 @@ struct WebReaderContainerView: View {
     }.foregroundColor(.appGrayTextContrast)
   }
 
+  func menuItems(for item: LinkedItem) -> some View {
+    let hasLabels = item.labels?.count == 0
+    let hasHighlights = (item.highlights?.count ?? 0) > 0
+    return Group {
+      if hasHighlights {
+        Button(
+          action: { showHighlightsView = true },
+          label: { Label("View Highlights & Notes", systemImage: "highlighter") }
+        )
+      }
+      Button(
+        action: { showTitleEdit = true },
+        label: { Label("Edit Title/Description", systemImage: "textbox") }
+      )
+      Button(
+        action: editLabels,
+        label: { Label(hasLabels ? "Edit Labels" : "Add Labels", systemImage: "tag") }
+      )
+      Button(
+        action: {
+          archive()
+        },
+        label: {
+          Label(
+            item.isArchived ? "Unarchive" : "Archive",
+            systemImage: item.isArchived ? "tray.and.arrow.down.fill" : "archivebox"
+          )
+        }
+      )
+      Button(
+        action: {
+          dataService.updateLinkReadingProgress(itemID: item.unwrappedID, readingProgress: 0, anchorIndex: 0)
+        },
+        label: { Label("Reset Read Location", systemImage: "arrow.counterclockwise.circle") }
+      )
+      Button(
+        action: {
+          viewModel.downloadAudio(audioController: audioController, item: item)
+        },
+        label: { Label("Download Audio", systemImage: "icloud.and.arrow.down") }
+      )
+      if viewModel.hasOriginalUrl(item) {
+        Button(
+          action: share,
+          label: { Label("Share Original", systemImage: "square.and.arrow.up") }
+        )
+      }
+      Button(
+        action: delete,
+        label: { Label("Delete", systemImage: "trash") }
+      )
+    }
+  }
+
   var navBar: some View {
     HStack(alignment: .center) {
       #if os(iOS)
@@ -183,49 +237,7 @@ struct WebReaderContainerView: View {
       #endif
       Menu(
         content: {
-          Group {
-            Button(
-              action: { showHighlightsView = true },
-              label: { Label("View Highlights & Notes", systemImage: "highlighter") }
-            )
-            Button(
-              action: { showTitleEdit = true },
-              label: { Label("Edit Title/Description", systemImage: "textbox") }
-            )
-            Button(
-              action: editLabels,
-              label: { Label("Edit Labels", systemImage: "tag") }
-            )
-            Button(
-              action: {
-                archive()
-              },
-              label: {
-                Label(
-                  item.isArchived ? "Unarchive" : "Archive",
-                  systemImage: item.isArchived ? "tray.and.arrow.down.fill" : "archivebox"
-                )
-              }
-            )
-            Button(
-              action: {
-                dataService.updateLinkReadingProgress(itemID: item.unwrappedID, readingProgress: 0, anchorIndex: 0)
-              },
-              label: { Label("Reset Read Location", systemImage: "arrow.counterclockwise.circle") }
-            )
-            Button(
-              action: { /* viewModel.downloadAudio(audioController: audioController, item: item) */ },
-              label: { Label("Download Audio", systemImage: "icloud.and.arrow.down") }
-            )
-            Button(
-              action: share,
-              label: { Label("Share Original", systemImage: "square.and.arrow.up") }
-            )
-            Button(
-              action: delete,
-              label: { Label("Delete", systemImage: "trash") }
-            )
-          }
+          menuItems(for: item)
         },
         label: {
           #if os(iOS)

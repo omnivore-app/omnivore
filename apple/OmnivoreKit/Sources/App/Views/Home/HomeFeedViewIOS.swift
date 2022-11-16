@@ -215,56 +215,118 @@ import Views
     @ObservedObject var viewModel: HomeFeedViewModel
 
     var filtersHeader: some View {
-      ScrollView(.horizontal, showsIndicators: false) {
-        HStack {
-          if viewModel.searchTerm.count > 0 {
-            TextChipButton.makeSearchFilterButton(title: viewModel.searchTerm) {
-              viewModel.searchTerm = ""
+      GeometryReader { reader in
+        ScrollView(.horizontal, showsIndicators: false) {
+          HStack {
+            if viewModel.searchTerm.count > 0 {
+              TextChipButton.makeSearchFilterButton(title: viewModel.searchTerm) {
+                viewModel.searchTerm = ""
+              }.frame(maxWidth: reader.size.width * 0.66)
+            } else {
+              Menu(
+                content: {
+                  ForEach(LinkedItemFilter.allCases, id: \.self) { filter in
+                    Button(filter.displayName, action: { viewModel.appliedFilter = filter.rawValue })
+                  }
+                },
+                label: {
+                  TextChipButton.makeMenuButton(
+                    title: LinkedItemFilter(rawValue: viewModel.appliedFilter)?.displayName ?? "Filter"
+                  )
+                }
+              )
             }
-          } else {
             Menu(
               content: {
-                ForEach(LinkedItemFilter.allCases, id: \.self) { filter in
-                  Button(filter.displayName, action: { viewModel.appliedFilter = filter.rawValue })
+                ForEach(LinkedItemSort.allCases, id: \.self) { sort in
+                  Button(sort.displayName, action: { viewModel.appliedSort = sort.rawValue })
                 }
               },
               label: {
                 TextChipButton.makeMenuButton(
-                  title: LinkedItemFilter(rawValue: viewModel.appliedFilter)?.displayName ?? "Filter"
+                  title: LinkedItemSort(rawValue: viewModel.appliedSort)?.displayName ?? "Sort"
                 )
               }
             )
-          }
-          Menu(
-            content: {
-              ForEach(LinkedItemSort.allCases, id: \.self) { sort in
-                Button(sort.displayName, action: { viewModel.appliedSort = sort.rawValue })
+            TextChipButton.makeAddLabelButton {
+              viewModel.showLabelsSheet = true
+            }
+            ForEach(viewModel.selectedLabels, id: \.self) { label in
+              TextChipButton.makeRemovableLabelButton(feedItemLabel: label, negated: false) {
+                viewModel.selectedLabels.removeAll { $0.id == label.id }
               }
+            }
+            ForEach(viewModel.negatedLabels, id: \.self) { label in
+              TextChipButton.makeRemovableLabelButton(feedItemLabel: label, negated: true) {
+                viewModel.negatedLabels.removeAll { $0.id == label.id }
+              }
+            }
+            Spacer()
+          }
+          .padding(0)
+        }
+        .listRowSeparator(.hidden)
+      }
+    }
+
+    func menuItems(for item: LinkedItem) -> some View {
+      Group {
+        if (item.highlights?.count ?? 0) > 0 {
+          Button(
+            action: { viewModel.itemForHighlightsView = item },
+            label: { Label("View Highlights & Notes", systemImage: "highlighter") }
+          )
+        }
+        Button(
+          action: { viewModel.itemUnderTitleEdit = item },
+          label: { Label("Edit Title/Description", systemImage: "textbox") }
+        )
+        Button(
+          action: { viewModel.itemUnderLabelEdit = item },
+          label: { Label(item.labels?.count == 0 ? "Add Labels" : "Edit Labels", systemImage: "tag") }
+        )
+        Button(action: {
+          withAnimation(.linear(duration: 0.4)) {
+            viewModel.setLinkArchived(
+              dataService: dataService,
+              objectID: item.objectID,
+              archived: !item.isArchived
+            )
+          }
+        }, label: {
+          Label(
+            item.isArchived ? "Unarchive" : "Archive",
+            systemImage: item.isArchived ? "tray.and.arrow.down.fill" : "archivebox"
+          )
+        })
+        Button(
+          action: {
+            itemToRemove = item
+            confirmationShown = true
+          },
+          label: {
+            Label("Remove Item", systemImage: "trash")
+          }
+        ).tint(.red)
+        if FeatureFlag.enableSnooze {
+          Button {
+            viewModel.itemToSnoozeID = item.id
+            viewModel.snoozePresented = true
+          } label: {
+            Label { Text("Snooze") } icon: { Image.moon }
+          }
+        }
+        if let author = item.author {
+          Button(
+            action: {
+              viewModel.searchTerm = "author:\"\(author)\""
             },
             label: {
-              TextChipButton.makeMenuButton(
-                title: LinkedItemSort(rawValue: viewModel.appliedSort)?.displayName ?? "Sort"
-              )
+              Label(String("More by \(author)"), systemImage: "person")
             }
           )
-          TextChipButton.makeAddLabelButton {
-            viewModel.showLabelsSheet = true
-          }
-          ForEach(viewModel.selectedLabels, id: \.self) { label in
-            TextChipButton.makeRemovableLabelButton(feedItemLabel: label, negated: false) {
-              viewModel.selectedLabels.removeAll { $0.id == label.id }
-            }
-          }
-          ForEach(viewModel.negatedLabels, id: \.self) { label in
-            TextChipButton.makeRemovableLabelButton(feedItemLabel: label, negated: true) {
-              viewModel.negatedLabels.removeAll { $0.id == label.id }
-            }
-          }
-          Spacer()
         }
-        .padding(0)
       }
-      .listRowSeparator(.hidden)
     }
 
     var body: some View {
@@ -292,59 +354,7 @@ import Views
                 viewModel: viewModel
               )
               .contextMenu {
-                Button(
-                  action: { viewModel.itemForHighlightsView = item },
-                  label: { Label("View Highlights & Notes", systemImage: "highlighter") }
-                )
-                Button(
-                  action: { viewModel.itemUnderTitleEdit = item },
-                  label: { Label("Edit Title/Description", systemImage: "textbox") }
-                )
-                Button(
-                  action: { viewModel.itemUnderLabelEdit = item },
-                  label: { Label(item.labels?.count == 0 ? "Add Labels" : "Edit Labels", systemImage: "tag") }
-                )
-                Button(action: {
-                  withAnimation(.linear(duration: 0.4)) {
-                    viewModel.setLinkArchived(
-                      dataService: dataService,
-                      objectID: item.objectID,
-                      archived: !item.isArchived
-                    )
-                  }
-                }, label: {
-                  Label(
-                    item.isArchived ? "Unarchive" : "Archive",
-                    systemImage: item.isArchived ? "tray.and.arrow.down.fill" : "archivebox"
-                  )
-                })
-                Button(
-                  action: {
-                    itemToRemove = item
-                    confirmationShown = true
-                  },
-                  label: {
-                    Label("Remove Item", systemImage: "trash")
-                  }
-                ).tint(.red)
-                if FeatureFlag.enableSnooze {
-                  Button {
-                    viewModel.itemToSnoozeID = item.id
-                    viewModel.snoozePresented = true
-                  } label: {
-                    Label { Text("Snooze") } icon: { Image.moon }
-                  }
-                }
-                if let author = item.author {
-                  Button(
-                    action: {
-                      viewModel.searchTerm = "author:\"\(author)\""
-                    },
-                    label: {
-                      Label(String("More by \(author)"), systemImage: "person")
-                    }
-                  )
-                }
+                menuItems(for: item)
               }
               .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                 if !item.isArchived {
@@ -428,8 +438,6 @@ import Views
         viewModel.itemUnderLabelEdit = item
       case .editTitle:
         viewModel.itemUnderTitleEdit = item
-      case .downloadAudio:
-        viewModel.downloadAudio(audioController: audioController, item: item)
       }
     }
 

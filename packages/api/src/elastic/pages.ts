@@ -37,7 +37,7 @@ const appendQuery = (body: SearchBody, query: string): void => {
 }
 
 const appendTypeFilter = (body: SearchBody, filter: PageType): void => {
-  body.query.bool.filter.push({
+  body.query.bool.must.push({
     term: {
       pageType: filter,
     },
@@ -47,7 +47,7 @@ const appendTypeFilter = (body: SearchBody, filter: PageType): void => {
 const appendReadFilter = (body: SearchBody, filter: ReadFilter): void => {
   switch (filter) {
     case ReadFilter.UNREAD:
-      body.query.bool.filter.push({
+      body.query.bool.must.push({
         range: {
           readingProgressPercent: {
             lt: 98,
@@ -56,7 +56,7 @@ const appendReadFilter = (body: SearchBody, filter: ReadFilter): void => {
       })
       break
     case ReadFilter.READ:
-      body.query.bool.filter.push({
+      body.query.bool.must.push({
         range: {
           readingProgressPercent: {
             gte: 98,
@@ -69,7 +69,7 @@ const appendReadFilter = (body: SearchBody, filter: ReadFilter): void => {
 const appendInFilter = (body: SearchBody, filter: InFilter): void => {
   switch (filter) {
     case InFilter.ARCHIVE:
-      body.query.bool.filter.push({
+      body.query.bool.must.push({
         exists: {
           field: 'archivedAt',
         },
@@ -88,7 +88,7 @@ const appendHasFilters = (body: SearchBody, filters: HasFilter[]): void => {
   filters.forEach((filter) => {
     switch (filter) {
       case HasFilter.HIGHLIGHTS:
-        body.query.bool.filter.push({
+        body.query.bool.must.push({
           nested: {
             path: 'highlights',
             query: {
@@ -100,7 +100,7 @@ const appendHasFilters = (body: SearchBody, filters: HasFilter[]): void => {
         })
         break
       case HasFilter.SHARED_AT:
-        body.query.bool.filter.push({
+        body.query.bool.must.push({
           exists: {
             field: 'sharedAt',
           },
@@ -133,7 +133,7 @@ const appendIncludeLabelFilter = (
   filters: LabelFilter[]
 ): void => {
   filters.forEach((filter) => {
-    body.query.bool.filter.push({
+    body.query.bool.must.push({
       nested: {
         path: 'labels',
         query: {
@@ -148,7 +148,7 @@ const appendIncludeLabelFilter = (
 
 const appendDateFilters = (body: SearchBody, filters: DateFilter[]): void => {
   filters.forEach((filter) => {
-    body.query.bool.filter.push({
+    body.query.bool.must.push({
       range: {
         [filter.field]: {
           gt: filter.startDate,
@@ -161,7 +161,7 @@ const appendDateFilters = (body: SearchBody, filters: DateFilter[]): void => {
 
 const appendTermFilters = (body: SearchBody, filters: FieldFilter[]): void => {
   filters.forEach((filter) => {
-    body.query.bool.filter.push({
+    body.query.bool.must.push({
       term: {
         [filter.field]: filter.value,
       },
@@ -171,7 +171,7 @@ const appendTermFilters = (body: SearchBody, filters: FieldFilter[]): void => {
 
 const appendMatchFilters = (body: SearchBody, filters: FieldFilter[]): void => {
   filters.forEach((filter) => {
-    body.query.bool.filter.push({
+    body.query.bool.must.push({
       match: {
         [filter.field]: filter.value,
       },
@@ -374,7 +374,7 @@ export const searchPages = async (
     const body: SearchBody = {
       query: {
         bool: {
-          filter: [
+          must: [
             {
               term: {
                 userId,
