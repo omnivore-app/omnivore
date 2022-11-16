@@ -116,9 +116,10 @@ import Views
     // If possible start prefetching new pages in the background
     if let itemIDs = syncResult?.updatedItemIDs,
        let username = dataService.currentViewer?.username,
-       itemIDs.count > 0 {
+       itemIDs.count > 0
+    {
       Task {
-        await dataService.prefetchPages(itemIDs: itemIDs.map { $0.uriRepresentation().absoluteString }, username: username)
+        await dataService.prefetchPages(itemIDs: itemIDs, username: username)
       }
     }
   }

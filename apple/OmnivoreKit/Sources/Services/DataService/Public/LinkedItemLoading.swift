@@ -30,10 +30,9 @@ public extension DataService {
       throw BasicError.message(messageText: "CoreData error")
     }
 
-    
     let prev = previousQueryResult?.updatedItemIDs ?? []
     let result = LinkedItemSyncResult(
-      updatedItemIDs: prev + fetchResult.items.map { $0.id },
+      updatedItemIDs: prev + fetchResult.items.map(\.id),
       cursor: fetchResult.cursor
     )
 

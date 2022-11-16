@@ -6,7 +6,6 @@ import Utils
 public extension DataService {
   func prefetchPages(itemIDs: [String], username: String) async {
     await withTaskGroup(of: Void.self) { group in
-      print(" PREFETCHING PAGES: ", itemIDs)
       for itemID in itemIDs {
         group.addTask {
           await self.prefetchPage(pendingLink: PendingLink(itemID: itemID, retryCount: 1), username: username)
