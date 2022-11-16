@@ -289,6 +289,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
             rectY: rect.y,
             rectWidth: rect.width,
             rectHeight: rect.height,
+            highlightID: highlight.id,
           }
           window?.webkit?.messageHandlers.viewerAction?.postMessage({
             actionID: 'showMenu',

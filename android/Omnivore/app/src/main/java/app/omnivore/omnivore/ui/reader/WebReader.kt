@@ -162,11 +162,12 @@ fun WebReader(
         }
 
         val javascriptInterface = AndroidWebKitMessenger { actionID, json ->
+          Log.d("wv", "received actionID from Android: $actionID, $json")
           when (actionID) {
             "existingHighlightTap" -> {
               isExistingHighlightSelected = true
               actionTapCoordinates = Gson().fromJson(json, ActionTapCoordinates::class.java)
-              Log.d("Loggo", "receive existing highlight tap action: $actionTapCoordinates")
+              Log.d("wv", "receive existing highlight tap action: $actionTapCoordinates")
               startActionMode(null, ActionMode.TYPE_PRIMARY)
             }
             else -> {
