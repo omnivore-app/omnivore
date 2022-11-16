@@ -35,7 +35,7 @@ export class GitHubHandler extends ContentHandler {
     if (twitterTitle && twitterTitleContent) {
       twitterTitle.setAttribute(
         'content',
-        twitterTitleContent.replace(/GitHub - .*\//, '')
+        twitterTitleContent.replace(/GitHub - (.*?)\//, '')
       )
     }
 
