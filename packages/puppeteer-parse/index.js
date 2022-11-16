@@ -9,9 +9,6 @@ const axios = require('axios');
 const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
 const signToken = promisify(jwt.sign);
-const { config, format, loggers, transports } = require('winston');
-const { LoggingWinston } = require('@google-cloud/logging-winston');
-const { DateTime } = require('luxon');
 const os = require('os');
 const { Storage } = require('@google-cloud/storage');
 const { parseHTML } = require('linkedom');
@@ -32,65 +29,6 @@ const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGIN
 const previewBucket = process.env.PREVIEW_IMAGE_BUCKET ? storage.bucket(process.env.PREVIEW_IMAGE_BUCKET) : undefined;
 
 const filePath = `${os.tmpdir()}/previewImage.png`;
-
-const colors = {
-  emerg: 'inverse underline magenta',
-  alert: 'underline magenta',
-  crit: 'inverse underline red', // Any error that is forcing a shutdown of the service or application to prevent data loss.
-  error: 'underline red', // Any error which is fatal to the operation, but not the service or application
-  warning: 'underline yellow', // Anything that can potentially cause application oddities
-  notice: 'underline cyan', // Normal but significant condition
-  info: 'underline green', // Generally useful information to log
-  debug: 'underline gray',
-};
-
-const googleConfigs = {
-  level: 'info',
-  logName: 'logger',
-  levels: config.syslog.levels,
-  resource: {
-    labels: {
-      function_name: process.env.FUNCTION_TARGET,
-      project_id: process.env.GCP_PROJECT,
-    },
-    type: 'cloud_function',
-  },
-};
-
-function localConfig(id) {
-  return {
-    level: 'debug',
-    format: format.combine(
-      format.colorize({ all: true, colors }),
-      format(info =>
-        Object.assign(info, {
-          timestamp: DateTime.local().toLocaleString(DateTime.TIME_24_WITH_SECONDS),
-        }),
-      )(),
-      format.printf(info => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { timestamp, message, level, ...meta } = info;
-
-        return `[${id}@${info.timestamp}] ${info.message}${
-          Object.keys(meta).length ? '\n' + JSON.stringify(meta, null, 4) : ''
-        }`;
-      }),
-    ),
-  };
-}
-
-function buildLoggerTransport(id, options) {
-  return process.env.IS_LOCAL
-    ? new transports.Console(localConfig(id))
-    : new LoggingWinston({ ...googleConfigs, ...{ logName: id }, ...options });
-}
-
-function buildLogger(id, options) {
-  return loggers.get(id, {
-    levels: config.syslog.levels,
-    transports: [buildLoggerTransport(id, options)],
-  });
-}
 
 const MOBILE_USER_AGENT = 'Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.62 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
 const DESKTOP_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4372.0 Safari/537.36'
@@ -274,15 +212,6 @@ const saveUploadedPdf = async (userId, url, uploadFileId, articleSavingRequestId
 
 async function fetchContent(req, res) {
   functionStartTime = Date.now();
-  // Grabbing execution and trace ids to attach logs to the appropriate function call
-  const execution_id = req.get('function-execution-id');
-  const traceId = (req.get('x-cloud-trace-context') || '').split('/')[0];
-  const logger = buildLogger('cloudfunctions.googleapis.com%2Fcloud-functions', {
-    trace: `projects/${process.env.GCLOUD_PROJECT}/traces/${traceId}`,
-    labels: {
-      execution_id: execution_id,
-    },
-  });
 
   let url = getUrl(req);
   const userId = (req.query ? req.query.userId : undefined) || (req.body ? req.body.userId : undefined);
@@ -297,11 +226,11 @@ async function fetchContent(req, res) {
     },
   };
 
-  logger.info(`Article parsing request`, logRecord);
+  console.info(`Article parsing request`, logRecord);
 
   if (!url) {
     logRecord.urlIsInvalid = true;
-    logger.info(`Valid URL to parse not specified`, logRecord);
+    console.info(`Valid URL to parse not specified`, logRecord);
     return res.sendStatus(400);
   }
 
@@ -317,7 +246,7 @@ async function fetchContent(req, res) {
     if (result && result.content) { content = result.content }
     if (result && result.contentType) { contentType = result.contentType }
   } catch (e) {
-    logger.info('error with handler: ', e);
+    console.info('error with handler: ', e);
   }
 
   let context, page, finalUrl;
@@ -347,7 +276,7 @@ async function fetchContent(req, res) {
           content = result.domContent;
         }
       } else {
-        logger.info('using prefetched content and title');
+        console.info('using prefetched content and title');
       }
 
       logRecord.fetchContentTime = Date.now() - functionStartTime;
@@ -370,7 +299,7 @@ async function fetchContent(req, res) {
     }
   } catch (e) {
     logRecord.error = e.message;
-    logger.error(`Error while retrieving page`, logRecord);
+    console.error(`Error while retrieving page`, logRecord);
 
     // fallback to scrapingbee
     const sbResult = await fetchContentWithScrapingBee(url);
@@ -397,7 +326,7 @@ async function fetchContent(req, res) {
     if (context) {
       await context.close();
     }
-    logger.info(`parse-page`, logRecord);
+    console.info(`parse-page`, logRecord);
   }
 
   return res.sendStatus(200);
@@ -715,7 +644,7 @@ async function preview(req, res) {
   // Grabbing execution and trace ids to attach logs to the appropriate function call
   const execution_id = req.get('function-execution-id');
   const traceId = (req.get('x-cloud-trace-context') || '').split('/')[0];
-  const logger = buildLogger('cloudfunctions.googleapis.com%2Fcloud-functions', {
+  const console = buildconsole('cloudfunctions.googleapis.com%2Fcloud-functions', {
     trace: `projects/${process.env.GCLOUD_PROJECT}/traces/${traceId}`,
     labels: {
       execution_id: execution_id,
@@ -723,7 +652,7 @@ async function preview(req, res) {
   });
 
   if (!process.env.PREVIEW_IMAGE_BUCKET) {
-    logger.error(`PREVIEW_IMAGE_BUCKET not set`)
+    console.error(`PREVIEW_IMAGE_BUCKET not set`)
     return res.sendStatus(500);
   }
 
@@ -739,17 +668,17 @@ async function preview(req, res) {
     },
   };
 
-  logger.info(`Public preview image generation request`, logRecord);
+  console.info(`Public preview image generation request`, logRecord);
 
   if (!url) {
     logRecord.urlIsInvalid = true;
-    logger.error(`Valid URL to parse is not specified`, logRecord);
+    console.error(`Valid URL to parse is not specified`, logRecord);
     return res.sendStatus(400);
   }
   const { origin } = new URL(url);
   if (!ALLOWED_ORIGINS.some(o => o === origin)) {
     logRecord.forbiddenOrigin = true;
-    logger.error(`This origin is not allowed: ${origin}`, logRecord);
+    console.error(`This origin is not allowed: ${origin}`, logRecord);
     return res.sendStatus(400);
   }
 
@@ -780,7 +709,7 @@ async function preview(req, res) {
   );
   if (!selector) {
     logRecord.selectorIsInvalid = true;
-    logger.error(`Valid element selector is not specified`, logRecord);
+    console.error(`Valid element selector is not specified`, logRecord);
     await page.close();
     return res.sendStatus(400);
   }
@@ -795,7 +724,7 @@ async function preview(req, res) {
   );
   if (!destination) {
     logRecord.destinationIsInvalid = true;
-    logger.error(`Valid file destination is not specified`, logRecord);
+    console.error(`Valid file destination is not specified`, logRecord);
     await page.close();
     return res.sendStatus(400);
   }
@@ -806,7 +735,7 @@ async function preview(req, res) {
     await page.waitForSelector(selector, { timeout: 3000 }); // wait for the selector to load
   } catch (error) {
     logRecord.elementNotFound = true;
-    logger.error(`Element is not presented on the page`, logRecord);
+    console.error(`Element is not presented on the page`, logRecord);
     await page.close();
     return res.sendStatus(400);
   }
@@ -826,7 +755,7 @@ async function preview(req, res) {
     console.log('error uploading to bucket, this is non-fatal', e)
   }
 
-  logger.info(`preview-image`, logRecord);
+  console.info(`preview-image`, logRecord);
   return res.redirect(`${process.env.PREVIEW_IMAGE_CDN_ORIGIN}/${destination}`);
 }
 
