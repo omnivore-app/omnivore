@@ -1961,6 +1961,7 @@ const schema = gql`
     name: String
     query: String!
     actions: [RuleAction!]!
+    enabled: Boolean!
     createdAt: Date!
     updatedAt: Date!
   }
@@ -1991,6 +1992,7 @@ const schema = gql`
     name: String
     query: String!
     actions: [RuleActionInput!]!
+    enabled: Boolean!
   }
 
   input RuleActionInput {

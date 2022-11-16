@@ -1159,6 +1159,7 @@ type RevokeApiKeySuccess {
 type Rule {
   actions: [RuleAction!]!
   createdAt: Date!
+  enabled: Boolean!
   id: ID!
   name: String
   query: String!
@@ -1454,6 +1455,7 @@ enum SetRuleErrorCode {
 
 input SetRuleInput {
   actions: [RuleActionInput!]!
+  enabled: Boolean!
   id: ID
   name: String
   query: String!

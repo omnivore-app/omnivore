@@ -1651,6 +1651,7 @@ export type Rule = {
   __typename?: 'Rule';
   actions: Array<RuleAction>;
   createdAt: Scalars['Date'];
+  enabled: Scalars['Boolean'];
   id: Scalars['ID'];
   name?: Maybe<Scalars['String']>;
   query: Scalars['String'];
@@ -1970,6 +1971,7 @@ export enum SetRuleErrorCode {
 
 export type SetRuleInput = {
   actions: Array<RuleActionInput>;
+  enabled: Scalars['Boolean'];
   id?: InputMaybe<Scalars['ID']>;
   name?: InputMaybe<Scalars['String']>;
   query: Scalars['String'];
@@ -4402,6 +4404,7 @@ export type RevokeApiKeySuccessResolvers<ContextType = ResolverContext, ParentTy
 export type RuleResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Rule'] = ResolversParentTypes['Rule']> = {
   actions?: Resolver<Array<ResolversTypes['RuleAction']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  enabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   query?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
