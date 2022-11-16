@@ -6,11 +6,11 @@
   "dependencies": {
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "@google-cloud/functions-framework": "^3.0.0",
     "@omnivore/puppeteer-parse": "^1.0.0",
     "@sentry/serverless": "^6.13.3"
   },
   "devDependencies": {
-    "@google-cloud/functions-framework": "^3.0.0",
     "chai": "^4.3.6",
     "mocha": "^10.0.0"
   },

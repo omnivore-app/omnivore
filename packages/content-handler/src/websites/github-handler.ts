@@ -12,7 +12,6 @@ export class GitHubHandler extends ContentHandler {
 
   async preParse(url: string, dom: Document): Promise<Document> {
     const body = dom.querySelector('body')
-    const head = dom.querySelector('head')
     const article = dom.querySelector('article')
     const twitterTitle = dom.querySelector(`meta[name='twitter:title']`)
     const linkAuthor = dom.querySelector(`span[itemprop='author']`)
@@ -34,7 +33,10 @@ export class GitHubHandler extends ContentHandler {
     // Remove the GitHub - and repo org from the title
     const twitterTitleContent = twitterTitle?.getAttribute('content')
     if (twitterTitle && twitterTitleContent) {
-      twitterTitle.setAttribute('content', twitterTitleContent.replace(/GitHub - .*\//, ''))
+      twitterTitle.setAttribute(
+        'content',
+        twitterTitleContent.replace(/GitHub - .*\//, '')
+      )
     }
 
     return Promise.resolve(dom)
