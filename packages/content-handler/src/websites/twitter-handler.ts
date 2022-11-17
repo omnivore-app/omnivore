@@ -2,7 +2,7 @@ import { ContentHandler, PreHandleResult } from '../content-handler'
 import axios from 'axios'
 import { DateTime } from 'luxon'
 import _ from 'underscore'
-import puppeteer from 'puppeteer-core'
+import { Browser } from 'puppeteer-core'
 
 interface TweetIncludes {
   users: {
@@ -168,10 +168,11 @@ const getTweetsFromResponse = (response: Tweets): Tweet[] => {
 }
 
 const getOldTweets = async (
+  browser: Browser,
   conversationId: string,
   username: string
 ): Promise<Tweet[]> => {
-  const tweetIds = await getTweetIds(conversationId, username)
+  const tweetIds = await getTweetIds(browser, conversationId, username)
   if (tweetIds.length === 0) {
     return []
   }
@@ -197,37 +198,40 @@ const waitFor = (ms: number) =>
 
 /**
  * Get tweets(even older than 7 days) using puppeteer
+ * @param browser
  * @param {string} tweetId
  * @param {string} author
  */
 const getTweetIds = async (
+  browser: Browser,
   tweetId: string,
   author: string
 ): Promise<string[]> => {
   const pageURL = `https://twitter.com/${author}/status/${tweetId}`
 
-  // Modify this variable to control the size of viewport
-  const factor = 0.2
-  const height = Math.floor(2000 / factor)
-  const width = Math.floor(1700 / factor)
+  // // Modify this variable to control the size of viewport
+  // const factor = 0.2
+  // const height = Math.floor(2000 / factor)
+  // const width = Math.floor(1700 / factor)
+  //
+  // const browser = await puppeteer.launch({
+  //   executablePath: process.env.CHROMIUM_PATH,
+  //   headless: !!process.env.LAUNCH_HEADLESS,
+  //   defaultViewport: {
+  //     width,
+  //     height,
+  //   },
+  //   args: [
+  //     `--force-device-scale-factor=${factor}`,
+  //     `--window-size=${width},${height}`,
+  //     '--no-sandbox',
+  //     '--disable-setuid-sandbox',
+  //   ],
+  // })
 
-  const browser = await puppeteer.launch({
-    executablePath: process.env.CHROMIUM_PATH,
-    headless: !!process.env.LAUNCH_HEADLESS,
-    defaultViewport: {
-      width,
-      height,
-    },
-    args: [
-      `--force-device-scale-factor=${factor}`,
-      `--window-size=${width},${height}`,
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-    ],
-  })
-
+  const context = await browser.createIncognitoBrowserContext()
   try {
-    const page = await browser.newPage()
+    const page = await context.newPage()
 
     await page.goto(pageURL, {
       waitUntil: 'networkidle2',
@@ -291,7 +295,7 @@ const getTweetIds = async (
     console.log(error)
     return []
   } finally {
-    await browser.close()
+    await context.close()
   }
 }
 
@@ -305,7 +309,7 @@ export class TwitterHandler extends ContentHandler {
     return !!TWITTER_BEARER_TOKEN && TWITTER_URL_MATCH.test(url.toString())
   }
 
-  async preHandle(url: string): Promise<PreHandleResult> {
+  async preHandle(url: string, browser: Browser): Promise<PreHandleResult> {
     const tweetId = tweetIdFromStatusUrl(url)
     if (!tweetId) {
       throw new Error('could not find tweet id in url')
@@ -326,7 +330,7 @@ export class TwitterHandler extends ContentHandler {
     const description = _.escape(tweetData.text)
 
     // use puppeteer to get all tweet replies in the thread
-    const tweets = await getOldTweets(conversationId, author.username)
+    const tweets = await getOldTweets(browser, conversationId, author.username)
 
     let tweetsContent = ''
     for (const tweet of tweets) {

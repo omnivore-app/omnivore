@@ -237,7 +237,8 @@ async function fetchContent(req, res) {
   // pre handle url with custom handlers
   let title, content, contentType;
   try {
-    const result = await preHandleContent(url);
+    const browser = await getBrowserPromise;
+    const result = await preHandleContent(url, browser);
     if (result && result.url) {
       url = result.url
       validateUrlString(url);
@@ -682,16 +683,16 @@ async function preview(req, res) {
     return res.sendStatus(400);
   }
 
-  const browser = await getBrowserPromise(process.env.PROXY_URL, process.env.CHROMIUM_PATH);
+  const browser = await getBrowserPromise;
   logRecord.timing = { ...logRecord.timing, browserOpened: Date.now() - functionStartTime };
 
   const page = await browser.newPage();
   const pageLoadingStart = Date.now();
   const modifiedUrl = new URL(url);
-  modifiedUrl.searchParams.append('fontSize', 24);
-  modifiedUrl.searchParams.append('adjustAspectRatio', 1.91);
+  modifiedUrl.searchParams.append('fontSize', '24');
+  modifiedUrl.searchParams.append('adjustAspectRatio', '1.91');
   try {
-    await page.goto(modifiedUrl);
+    await page.goto(modifiedUrl.toString());
     logRecord.timing = { ...logRecord.timing, pageLoaded: Date.now() - pageLoadingStart };
   } catch (error) {
     console.log('error going to page: ', modifiedUrl)
