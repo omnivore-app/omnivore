@@ -9,7 +9,6 @@ public class ShareExtensionViewModel: ObservableObject {
   @Published public var status: ShareExtensionStatus = .processing
   @Published public var title: String = ""
   @Published public var url: String?
-  @Published public var iconURL: String?
   @Published public var linkedItem: LinkedItem?
   @Published public var requestId = UUID().uuidString.lowercased()
   @Published var debugText: String?
@@ -88,26 +87,15 @@ public class ShareExtensionViewModel: ObservableObject {
           let hostname = URL(string: payload.url)?.host ?? ""
 
           switch payload.contentType {
-          case let .html(html: _, title: title, iconURL: iconURL):
+          case let .html(html: _, title: title):
             self.title = title ?? ""
-            self.iconURL = iconURL
             self.url = hostname
           case .none:
             self.url = hostname
             self.title = payload.url
-            if var url = url {
-              url.path = "/favicon.ico"
-              self.iconURL = url.url?.absoluteString
-            }
           case let .pdf(localUrl: localUrl):
             self.url = hostname
             self.title = PDFUtils.titleFromPdfFile(localUrl.absoluteString)
-            Task {
-              let localThumbnail = try await PDFUtils.createThumbnailFor(inputUrl: localUrl)
-              DispatchQueue.main.async {
-                self.iconURL = localThumbnail?.absoluteString
-              }
-            }
           }
         }
 
@@ -155,7 +143,7 @@ public class ShareExtensionViewModel: ObservableObject {
           localPdfURL: localUrl,
           url: pageScrapePayload.url
         )
-      case let .html(html, title, _):
+      case let .html(html, title):
         newRequestID = try await services.dataService.createPage(
           id: requestId,
           originalHtml: html,

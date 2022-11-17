@@ -177,10 +177,9 @@ public final class DataService: ObservableObject {
         linkedItem.contentReader = "PDF"
         linkedItem.tempPDFURL = localUrl
         linkedItem.title = PDFUtils.titleFromPdfFile(pageScrape.url)
-      case let .html(html: html, title: title, iconURL: iconURL):
+      case let .html(html: html, title: title):
         linkedItem.contentReader = "WEB"
         linkedItem.originalHtml = html
-        linkedItem.imageURLString = iconURL
         linkedItem.title = title ?? PDFUtils.titleFromPdfFile(pageScrape.url)
       case .none:
         linkedItem.contentReader = "WEB"
