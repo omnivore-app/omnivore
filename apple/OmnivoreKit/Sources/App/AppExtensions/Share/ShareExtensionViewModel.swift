@@ -172,6 +172,15 @@ public class ShareExtensionViewModel: ObservableObject {
     }
 
     updateStatusOnMain(requestId: newRequestID, newStatus: .synced)
+
+    // Prefetch the newly saved content
+    if let itemID = newRequestID,
+       let currentViewer = services.dataService.currentViewer?.username,
+       (try? await services.dataService.loadArticleContentWithRetries(itemID: itemID, username: currentViewer)) != nil
+    {
+      updateStatusOnMain(requestId: requestId, newStatus: .saved, objectID: linkedItemObjectID)
+    }
+
     return true
   }
 
@@ -184,6 +193,10 @@ public class ShareExtensionViewModel: ObservableObject {
 
       if let objectID = objectID {
         self.linkedItem = self.services.dataService.viewContext.object(with: objectID) as? LinkedItem
+        if let title = self.linkedItem?.title {
+          self.title = title
+        }
+        self.url = self.linkedItem?.pageURLString
       }
     }
   }
