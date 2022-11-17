@@ -110,15 +110,17 @@ import Views
   func syncItems(dataService: DataService, syncStartTime: Date) async {
     let lastSyncDate = dateFormatter.date(from: lastItemSyncTime) ?? Date(timeIntervalSinceReferenceDate: 0)
     let syncResult = try? await dataService.syncLinkedItems(since: lastSyncDate, cursor: nil)
+
     if syncResult != nil {
       lastItemSyncTime = dateFormatter.string(from: syncStartTime)
     }
+
     // If possible start prefetching new pages in the background
     if let itemIDs = syncResult?.updatedItemIDs,
        let username = dataService.currentViewer?.username,
        itemIDs.count > 0
     {
-      Task {
+      Task.detached(priority: .background) {
         await dataService.prefetchPages(itemIDs: itemIDs, username: username)
       }
     }
@@ -176,20 +178,18 @@ import Views
     isLoading = true
     showLoadingBar = true
 
-    _ = await [
-      loadCurrentViewer(dataService: dataService),
-      loadLabels(dataService: dataService),
-      syncItems(dataService: dataService, syncStartTime: syncStartTime)
-    ]
-    print("fetched all prelim data", CFAbsoluteTimeGetCurrent() - start)
+    await withTaskGroup(of: Void.self) { group in
+      group.addTask { await self.loadCurrentViewer(dataService: dataService) }
+      group.addTask { await self.loadLabels(dataService: dataService) }
+      group.addTask { await self.syncItems(dataService: dataService, syncStartTime: syncStartTime) }
+      await group.waitForAll()
+    }
 
     if searchTerm.replacingOccurrences(of: " ", with: "").isEmpty {
       updateFetchController(dataService: dataService)
     } else {
-      print("PERFORMING SEARCH FOR ITEMS")
       await loadSearchQuery(dataService: dataService, isRefresh: isRefresh)
     }
-    print("loaded the linked items", CFAbsoluteTimeGetCurrent() - start)
 
     isLoading = false
     showLoadingBar = false
