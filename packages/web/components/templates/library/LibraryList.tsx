@@ -29,9 +29,13 @@ export function LibraryList(props: LibraryListProps): JSX.Element {
     useGetLibraryItemsQuery(defaultQuery)
 
   const [fileNames, setFileNames] = useState([])
+  const [inDragOperation, setInDragOperation] = useState(false)
+  const [uploadingFiles, setUploadingFiles] = useState([])
 
-  const handleDrop = (acceptedFiles: any) =>
+  const handleDrop = (acceptedFiles: any) => {
     setFileNames(acceptedFiles.map((file: { name: any }) => file.name))
+    setUploadingFiles(acceptedFiles.map((file: { name: any }) => file.name))
+  }
 
   const libraryItems = useMemo(() => {
     const items =
@@ -54,14 +58,47 @@ export function LibraryList(props: LibraryListProps): JSX.Element {
 
   return (
     <Box css={{ overflowY: 'scroll' }}>
-      <Dropzone onDrop={handleDrop} preventDropOnDocument={true} noClick={true}>
+      {inDragOperation && uploadingFiles.length < 1 && (
+        <Box
+          css={{
+            border: '3px dashed gray',
+            backgroundColor: 'aliceblue',
+            borderRadius: '5px',
+            width: '75%',
+            height: '70%',
+            position: 'absolute',
+            opacity: '0.8',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <Box
+            css={{
+              color: '$utilityTextDefault',
+              fontWeight: '800',
+              fontSize: '$4',
+            }}
+          >
+            Drag n drop files here
+          </Box>
+        </Box>
+      )}
+      <Dropzone
+        onDrop={handleDrop}
+        preventDropOnDocument={true}
+        onDragEnter={() => {
+          setInDragOperation(true)
+        }}
+        onDragLeave={() => {
+          setInDragOperation(false)
+        }}
+        noClick={true}
+        noDragEventsBubbling={true}
+      >
         {({ getRootProps, getInputProps, acceptedFiles, fileRejections }) => (
-          <div {...getRootProps({ className: 'dropzone' })}>
-            <Box css={{ color: '$utilityTextDefault', marginTop: '$1'}}>
-              Drag n drop files anywhere below
-            </Box>
+          <Box {...getRootProps({ className: 'dropzone' })}>
             <input {...getInputProps()} />
-
             <Masonry
               breakpointCols={
                 props.layoutCoordinator.layout == 'LIST_LAYOUT'
@@ -112,7 +149,7 @@ export function LibraryList(props: LibraryListProps): JSX.Element {
                 </Box>
               ))}
             </Masonry>
-          </div>
+          </Box>
         )}
       </Dropzone>
       {/* Temporary code */}

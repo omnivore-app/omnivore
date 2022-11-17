@@ -98,17 +98,14 @@ export function HomeFeedContainer(): JSX.Element {
 
   const gridContainerRef = useRef<HTMLDivElement>(null)
 
-  const [shareTarget, setShareTarget] = useState<LibraryItem | undefined>(
-    undefined
-  )
+  const [shareTarget, setShareTarget] =
+    useState<LibraryItem | undefined>(undefined)
 
-  const [snoozeTarget, setSnoozeTarget] = useState<LibraryItem | undefined>(
-    undefined
-  )
+  const [snoozeTarget, setSnoozeTarget] =
+    useState<LibraryItem | undefined>(undefined)
 
-  const [labelsTarget, setLabelsTarget] = useState<LibraryItem | undefined>(
-    undefined
-  )
+  const [labelsTarget, setLabelsTarget] =
+    useState<LibraryItem | undefined>(undefined)
 
   const [showAddLinkModal, setShowAddLinkModal] = useState(false)
   const [showEditTitleModal, setShowEditTitleModal] = useState(false)
@@ -127,8 +124,14 @@ export function HomeFeedContainer(): JSX.Element {
     })
   )
 
-  const { itemsPages, size, setSize, isValidating, performActionOnItem, mutate } =
-    useGetLibraryItemsQuery(queryInputs)
+  const {
+    itemsPages,
+    size,
+    setSize,
+    isValidating,
+    performActionOnItem,
+    mutate,
+  } = useGetLibraryItemsQuery(queryInputs)
 
   useEffect(() => {
     if (queryValue.startsWith('#')) {
@@ -687,6 +690,19 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
     },
   })
 
+  const DragnDropStyle = styled('div', {
+    border: '3px dashed gray',
+    backgroundColor: 'aliceblue',
+    borderRadius: '5px',
+    width: '95%',
+    height: '100%',
+    position: 'absolute',
+    opacity: '0.8',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  })
+
   const removeItem = () => {
     if (!props.linkToRemove) {
       return
@@ -733,7 +749,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
 
         console.log('result of uploading: ', uploadResult)
       } catch (error) {
-        console.log("ERROR", error)
+        console.log('ERROR', error)
       }
     }
 
@@ -856,22 +872,36 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
         )}
         <Dropzone
           onDrop={handleDrop}
-          onDragEnter={() => { setInDragOperation(true) }}
-          onDragLeave={() => { setInDragOperation(false) }}
+          onDragEnter={() => {
+            setInDragOperation(true)
+          }}
+          onDragLeave={() => {
+            setInDragOperation(false)
+          }}
           preventDropOnDocument={true}
           noClick={true}
         >
           {({ getRootProps, getInputProps, acceptedFiles, fileRejections }) => (
             <div {...getRootProps({ className: 'dropzone' })}>
-              {(inDragOperation && uploadingFiles.length < 1) && (
-                <Box css={{ color: '$utilityTextDefault', marginTop: '$1'}}>
-                  Drag n drop files anywhere below
-                </Box>
+              {inDragOperation && uploadingFiles.length < 1 && (
+                <DragnDropStyle>
+                  <Box
+                    css={{
+                      color: '$utilityTextDefault',
+                      fontWeight: '800',
+                      fontSize: '$4',
+                    }}
+                  >
+                    Drag n drop files here
+                  </Box>
+                </DragnDropStyle>
               )}
               {uploadingFiles.length > 0 ? (
-                <Box css={{ color: '$utilityTextDefault', marginTop: '$1'}}>
-                  Uploading Files...
-                </Box>
+                <DragnDropStyle>
+                  <Box css={{ color: '$utilityTextDefault', marginTop: '$1' }}>
+                    Uploading Files...
+                  </Box>
+                </DragnDropStyle>
               ) : null}
               <input {...getInputProps()} />
               {!props.isValidating && props.items.length == 0 ? (
