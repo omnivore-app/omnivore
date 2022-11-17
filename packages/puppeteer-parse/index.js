@@ -117,8 +117,6 @@ const getBrowserPromise = (async () => {
   });
 })();
 
-let logRecord, functionStartTime;
-
 const uploadToSignedUrl = async ({ id, uploadSignedUrl }, contentType, contentObjUrl) => {
   const stream = await axios.get(contentObjUrl, { responseType: 'stream' });
   return await axios.put(uploadSignedUrl, stream.data, {
@@ -211,13 +209,13 @@ const saveUploadedPdf = async (userId, url, uploadFileId, articleSavingRequestId
 };
 
 async function fetchContent(req, res) {
-  functionStartTime = Date.now();
+  let functionStartTime = Date.now();
 
   let url = getUrl(req);
   const userId = (req.query ? req.query.userId : undefined) || (req.body ? req.body.userId : undefined);
   const articleSavingRequestId = (req.query ? req.query.saveRequestId : undefined) || (req.body ? req.body.saveRequestId : undefined);
 
-  logRecord = {
+  let logRecord = {
     url,
     userId,
     articleSavingRequestId,
@@ -253,7 +251,7 @@ async function fetchContent(req, res) {
   let context, page, finalUrl;
   try {
     if ((!content || !title) && contentType !== 'application/pdf') {
-      const result = await retrievePage(url)
+      const result = await retrievePage(url, logRecord, functionStartTime);
       if (result && result.context) { context = result.context }
       if (result && result.page) { page = result.page }
       if (result && result.finalUrl) { finalUrl = result.finalUrl }
@@ -267,7 +265,7 @@ async function fetchContent(req, res) {
       const l = await saveUploadedPdf(userId, finalUrl, uploadedFileId, articleSavingRequestId);
     } else {
       if (!content || !title) {
-        const result = await retrieveHtml(page);
+        const result = await retrieveHtml(page, logRecord);
         if (result.isBlocked) {
           const sbResult = await fetchContentWithScrapingBee(url)
           title = sbResult.title
@@ -387,7 +385,7 @@ async function blockResources(client) {
   await client.send('Network.setBlockedURLs', { urls: blockedResources });
 }
 
-async function retrievePage(url) {
+async function retrievePage(url, logRecord, functionStartTime) {
   validateUrlString(url);
 
   const browser = await getBrowserPromise;
@@ -501,7 +499,7 @@ async function retrievePage(url) {
   }
 }
 
-async function retrieveHtml(page) {
+async function retrieveHtml(page, logRecord) {
   let domContent = '', title;
   try {
     title = await page.title();

@@ -2,7 +2,7 @@ import { ContentHandler, PreHandleResult } from '../content-handler'
 import axios from 'axios'
 import { DateTime } from 'luxon'
 import _ from 'underscore'
-import { Browser } from 'puppeteer-core'
+import { Browser, BrowserContext } from 'puppeteer-core'
 
 interface TweetIncludes {
   users: {
@@ -209,28 +209,9 @@ const getTweetIds = async (
 ): Promise<string[]> => {
   const pageURL = `https://twitter.com/${author}/status/${tweetId}`
 
-  // // Modify this variable to control the size of viewport
-  // const factor = 0.2
-  // const height = Math.floor(2000 / factor)
-  // const width = Math.floor(1700 / factor)
-  //
-  // const browser = await puppeteer.launch({
-  //   executablePath: process.env.CHROMIUM_PATH,
-  //   headless: !!process.env.LAUNCH_HEADLESS,
-  //   defaultViewport: {
-  //     width,
-  //     height,
-  //   },
-  //   args: [
-  //     `--force-device-scale-factor=${factor}`,
-  //     `--window-size=${width},${height}`,
-  //     '--no-sandbox',
-  //     '--disable-setuid-sandbox',
-  //   ],
-  // })
-
-  const context = await browser.createIncognitoBrowserContext()
+  let context: BrowserContext | undefined
   try {
+    context = await browser.createIncognitoBrowserContext()
     const page = await context.newPage()
 
     await page.goto(pageURL, {
@@ -295,7 +276,9 @@ const getTweetIds = async (
     console.log(error)
     return []
   } finally {
-    await context.close()
+    if (context) {
+      await context.close()
+    }
   }
 }
 
