@@ -898,7 +898,13 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
               )}
               {uploadingFiles.length > 0 ? (
                 <DragnDropStyle>
-                  <Box css={{ color: '$utilityTextDefault', marginTop: '$1' }}>
+                  <Box
+                    css={{
+                      color: '$utilityTextDefault',
+                      fontWeight: '800',
+                      fontSize: '$4',
+                    }}
+                  >
                     Uploading Files...
                   </Box>
                 </DragnDropStyle>
