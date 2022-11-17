@@ -9,7 +9,7 @@ CREATE TABLE omnivore.rules (
     user_id uuid NOT NULL REFERENCES omnivore.user ON DELETE CASCADE,
     description text,
     query text NOT NULL,
-    actions text[] NOT NULL,
+    actions json NOT NULL, -- array of actions of type {type: 'action_type', params: [action_params]}
     enabled boolean NOT NULL DEFAULT true,
     created_at timestamptz NOT NULL DEFAULT current_timestamp,
     updated_at timestamptz NOT NULL DEFAULT current_timestamp
