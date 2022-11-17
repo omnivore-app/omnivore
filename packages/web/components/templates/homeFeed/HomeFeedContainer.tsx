@@ -695,7 +695,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
     backgroundColor: 'aliceblue',
     borderRadius: '5px',
     width: '95%',
-    height: '100%',
+    height: '80%',
     position: 'absolute',
     opacity: '0.8',
     display: 'flex',
@@ -1015,14 +1015,14 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
         </Dropzone>
       </VStack>
       {/* Temporary code */}
-      <div>
+      {/* <div>
         <strong>Files:</strong>
         <ul>
           {uploadingFiles.map((fileName) => (
             <li key={fileName}>{fileName}</li>
           ))}
         </ul>
-      </div>{' '}
+      </div> */}
       {/* Temporary code */}
       {props.showAddLinkModal && (
         <AddLinkModal onOpenChange={() => props.setShowAddLinkModal(false)} />
