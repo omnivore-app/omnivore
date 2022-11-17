@@ -102,6 +102,7 @@ import {
 import { getPageByParam } from '../elastic/pages'
 import { recentSearchesResolver } from './recent_searches'
 import { optInFeatureResolver } from './features'
+import { setRuleResolver } from './rules'
 
 /* eslint-disable @typescript-eslint/naming-convention */
 type ResultResolveType = {
@@ -173,6 +174,7 @@ export const functionResolvers = {
     setIntegration: setIntegrationResolver,
     deleteIntegration: deleteIntegrationResolver,
     optInFeature: optInFeatureResolver,
+    setRule: setRuleResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -610,4 +612,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('DeleteIntegration'),
   ...resultResolveTypeResolver('RecentSearches'),
   ...resultResolveTypeResolver('OptInFeature'),
+  ...resultResolveTypeResolver('SetRule'),
 }

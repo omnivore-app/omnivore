@@ -1660,12 +1660,12 @@ export type Rule = {
 
 export type RuleAction = {
   __typename?: 'RuleAction';
-  params: Array<Maybe<Scalars['String']>>;
+  params: Array<Scalars['String']>;
   type: RuleActionType;
 };
 
 export type RuleActionInput = {
-  params: Array<InputMaybe<Scalars['String']>>;
+  params: Array<Scalars['String']>;
   type: RuleActionType;
 };
 
@@ -1971,9 +1971,9 @@ export enum SetRuleErrorCode {
 
 export type SetRuleInput = {
   actions: Array<RuleActionInput>;
+  description?: InputMaybe<Scalars['String']>;
   enabled: Scalars['Boolean'];
   id?: InputMaybe<Scalars['ID']>;
-  name?: InputMaybe<Scalars['String']>;
   query: Scalars['String'];
 };
 
@@ -4413,7 +4413,7 @@ export type RuleResolvers<ContextType = ResolverContext, ParentType extends Reso
 };
 
 export type RuleActionResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RuleAction'] = ResolversParentTypes['RuleAction']> = {
-  params?: Resolver<Array<Maybe<ResolversTypes['String']>>, ParentType, ContextType>;
+  params?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   type?: Resolver<ResolversTypes['RuleActionType'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };

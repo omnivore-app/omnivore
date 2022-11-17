@@ -1968,7 +1968,7 @@ const schema = gql`
 
   type RuleAction {
     type: RuleActionType!
-    params: [String]!
+    params: [String!]!
   }
 
   enum RuleActionType {
@@ -1989,7 +1989,7 @@ const schema = gql`
 
   input SetRuleInput {
     id: ID
-    name: String
+    description: String
     query: String!
     actions: [RuleActionInput!]!
     enabled: Boolean!

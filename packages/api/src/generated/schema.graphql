@@ -1167,12 +1167,12 @@ type Rule {
 }
 
 type RuleAction {
-  params: [String]!
+  params: [String!]!
   type: RuleActionType!
 }
 
 input RuleActionInput {
-  params: [String]!
+  params: [String!]!
   type: RuleActionType!
 }
 
@@ -1455,9 +1455,9 @@ enum SetRuleErrorCode {
 
 input SetRuleInput {
   actions: [RuleActionInput!]!
+  description: String
   enabled: Boolean!
   id: ID
-  name: String
   query: String!
 }
 
