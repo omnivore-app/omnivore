@@ -414,7 +414,11 @@ Readability.prototype = {
    * @return void
    */
   _cleanClasses: function (node) {
-    if (node.className.startsWith("_omnivore")) {
+    if (node.className && node.className.startsWith && node.className.startsWith('_omnivore')) {
+      return;
+    }
+
+    if (node.className && node.className.hasOwnProperty && node.className.hasOwnProperty('_omnivore')) {
       return;
     }
 
