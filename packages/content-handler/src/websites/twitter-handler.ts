@@ -213,7 +213,7 @@ const getTweetIds = async (
 
   const browser = await puppeteer.launch({
     executablePath: process.env.CHROMIUM_PATH,
-    headless: process.env.LAUNCH_HEADLESS === 'true',
+    headless: !!process.env.LAUNCH_HEADLESS,
     defaultViewport: {
       width,
       height,
