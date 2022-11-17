@@ -21,8 +21,8 @@ export class Rule {
   @Column('text')
   query!: string
 
-  @Column('text', { array: true })
-  actions!: string[]
+  @Column('simple-json')
+  actions!: { type: string; params: string[] }[]
 
   @Column('text', { nullable: true })
   description?: string | null

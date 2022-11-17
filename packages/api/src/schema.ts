@@ -1968,7 +1968,7 @@ const schema = gql`
 
   type RuleAction {
     type: RuleActionType!
-    value: String
+    params: [String]!
   }
 
   enum RuleActionType {
@@ -1997,7 +1997,7 @@ const schema = gql`
 
   input RuleActionInput {
     type: RuleActionType!
-    value: String
+    params: [String]!
   }
 
   union SetRuleResult = SetRuleSuccess | SetRuleError

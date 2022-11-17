@@ -1167,13 +1167,13 @@ type Rule {
 }
 
 type RuleAction {
+  params: [String]!
   type: RuleActionType!
-  value: String
 }
 
 input RuleActionInput {
+  params: [String]!
   type: RuleActionType!
-  value: String
 }
 
 enum RuleActionType {
