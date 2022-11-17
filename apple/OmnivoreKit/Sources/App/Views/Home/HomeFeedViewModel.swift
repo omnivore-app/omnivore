@@ -36,10 +36,6 @@ import Views
 
   @AppStorage(UserDefaultKey.lastSelectedLinkedItemFilter.rawValue) var appliedFilter = LinkedItemFilter.inbox.rawValue
 
-  @AppStorage(UserDefaultKey.lastItemSyncTime.rawValue) var lastItemSyncTime = DateFormatter.formatterISO8601.string(
-    from: Date(timeIntervalSinceReferenceDate: 0)
-  )
-
   func handleReaderItemNotification(objectID: NSManagedObjectID, dataService: DataService) {
     // Pop the current selected item if needed
     if selectedItem != nil, selectedItem?.objectID != objectID {
@@ -108,11 +104,11 @@ import Views
   }
 
   func syncItems(dataService: DataService, syncStartTime: Date) async {
-    let lastSyncDate = dateFormatter.date(from: lastItemSyncTime) ?? Date(timeIntervalSinceReferenceDate: 0)
+    let lastSyncDate = dateFormatter.date(from: dataService.lastItemSyncTime) ?? Date(timeIntervalSinceReferenceDate: 0)
     let syncResult = try? await dataService.syncLinkedItems(since: lastSyncDate, cursor: nil)
 
     if syncResult != nil {
-      lastItemSyncTime = dateFormatter.string(from: syncStartTime)
+      dataService.lastItemSyncTime = dateFormatter.string(from: syncStartTime)
     }
 
     // If possible start prefetching new pages in the background

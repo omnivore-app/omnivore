@@ -4,6 +4,7 @@ import Foundation
 import Models
 import OSLog
 import QuickLookThumbnailing
+import SwiftUI
 import Utils
 
 #if os(iOS)
@@ -27,6 +28,10 @@ public final class DataService: ObservableObject {
   public var viewContext: NSManagedObjectContext {
     persistentContainer.viewContext
   }
+
+  @AppStorage(UserDefaultKey.lastItemSyncTime.rawValue) public var lastItemSyncTime = DateFormatter.formatterISO8601.string(
+    from: Date(timeIntervalSinceReferenceDate: 0)
+  )
 
   public init(appEnvironment: AppEnvironment, networker: Networker) {
     self.appEnvironment = appEnvironment
@@ -96,10 +101,7 @@ public final class DataService: ObservableObject {
   }
 
   public func resetCoreData() {
-    UserDefaults.standard.set(
-      DateFormatter.formatterISO8601.string(from: Date(timeIntervalSinceReferenceDate: 0)),
-      forKey: UserDefaultKey.lastItemSyncTime.rawValue
-    )
+    lastItemSyncTime = DateFormatter.formatterISO8601.string(from: Date(timeIntervalSinceReferenceDate: 0))
 
     clearCoreData()
 
