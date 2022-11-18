@@ -19,6 +19,9 @@ export class Rule {
   user!: User
 
   @Column('text')
+  name!: string
+
+  @Column('text')
   query!: string
 
   @Column('simple-json')

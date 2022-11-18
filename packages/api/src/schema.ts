@@ -1958,7 +1958,7 @@ const schema = gql`
 
   type Rule {
     id: ID!
-    name: String
+    name: String!
     query: String!
     actions: [RuleAction!]!
     enabled: Boolean!
@@ -1989,6 +1989,7 @@ const schema = gql`
 
   input SetRuleInput {
     id: ID
+    name: String!
     description: String
     query: String!
     actions: [RuleActionInput!]!
@@ -1997,7 +1998,7 @@ const schema = gql`
 
   input RuleActionInput {
     type: RuleActionType!
-    params: [String]!
+    params: [String!]!
   }
 
   union SetRuleResult = SetRuleSuccess | SetRuleError

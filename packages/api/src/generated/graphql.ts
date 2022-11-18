@@ -1653,7 +1653,7 @@ export type Rule = {
   createdAt: Scalars['Date'];
   enabled: Scalars['Boolean'];
   id: Scalars['ID'];
-  name?: Maybe<Scalars['String']>;
+  name: Scalars['String'];
   query: Scalars['String'];
   updatedAt: Scalars['Date'];
 };
@@ -1974,6 +1974,7 @@ export type SetRuleInput = {
   description?: InputMaybe<Scalars['String']>;
   enabled: Scalars['Boolean'];
   id?: InputMaybe<Scalars['ID']>;
+  name: Scalars['String'];
   query: Scalars['String'];
 };
 
@@ -4406,7 +4407,7 @@ export type RuleResolvers<ContextType = ResolverContext, ParentType extends Reso
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   enabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   query?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;

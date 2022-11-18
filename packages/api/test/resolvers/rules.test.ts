@@ -29,6 +29,7 @@ describe('Rules Resolver', () => {
 
   describe('set rules', () => {
     const setRulesQuery = (
+      name: string,
       query: string,
       actions: { type: string; params: string[] }[],
       enabled: boolean,
@@ -37,6 +38,7 @@ describe('Rules Resolver', () => {
       mutation {
         setRule(input: {
           ${id ? `id: "${id}",` : ''}
+          name: "${name}",
           query: "${query}",
           actions: [${actions.map(
             (action) => `{
@@ -73,7 +75,8 @@ describe('Rules Resolver', () => {
 
     it('should set rules', async () => {
       const query = setRulesQuery(
-        'test',
+        'test rule',
+        'test query',
         [{ type: 'ADD_LABEL', params: [] }],
         true
       )

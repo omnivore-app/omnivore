@@ -1161,7 +1161,7 @@ type Rule {
   createdAt: Date!
   enabled: Boolean!
   id: ID!
-  name: String
+  name: String!
   query: String!
   updatedAt: Date!
 }
@@ -1458,6 +1458,7 @@ input SetRuleInput {
   description: String
   enabled: Boolean!
   id: ID
+  name: String!
   query: String!
 }
 

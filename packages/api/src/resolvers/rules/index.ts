@@ -8,6 +8,15 @@ import {
 import { getRepository } from '../../entity/utils'
 import { User } from '../../entity/user'
 import { Rule } from '../../entity/rule'
+import {
+  getPubSubSubscriptionName,
+  getPubSubSubscriptionOptions,
+  getPubSubTopicName,
+} from '../../services/rules'
+import {
+  createPubSubSubscription,
+  deletePubSubSubscription,
+} from '../../utils/pubsub'
 
 export const setRuleResolver = authorized<
   SetRuleSuccess,
@@ -30,7 +39,28 @@ export const setRuleResolver = authorized<
     }
   }
 
-  // TODO: Validate query and actions
+  // create or delete pubsub subscription based on action and enabled state
+  for (const action of input.actions) {
+    const topicName = getPubSubTopicName(action)
+    const subscriptionName = getPubSubSubscriptionName(
+      topicName,
+      user.id,
+      input.name
+    )
+
+    if (input.enabled) {
+      const options = getPubSubSubscriptionOptions(
+        user.id,
+        input.name,
+        input.query,
+        action
+      )
+      await createPubSubSubscription(topicName, subscriptionName, options)
+    } else {
+      await deletePubSubSubscription(topicName, subscriptionName)
+    }
+  }
+
   const rule = await getRepository(Rule).save({
     ...input,
     id: input.id || undefined,
