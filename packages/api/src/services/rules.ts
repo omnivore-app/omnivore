@@ -1,6 +1,7 @@
 import { RuleAction, RuleActionType } from '../generated/graphql'
 import { CreateSubscriptionOptions } from '@google-cloud/pubsub'
 import { env } from '../env'
+import { getDeviceTokensByUserId } from './user_device_tokens'
 
 enum RuleTrigger {
   ON_PAGE_UPDATE,
@@ -40,12 +41,12 @@ export const getPubSubSubscriptionName = (
   return `${topicName}-${userId}-rule-${ruleName}`
 }
 
-export const getPubSubSubscriptionOptions = (
+export const getPubSubSubscriptionOptions = async (
   userId: string,
   ruleName: string,
   filter: string,
   action: RuleAction
-): CreateSubscriptionOptions => {
+): Promise<CreateSubscriptionOptions> => {
   const options: CreateSubscriptionOptions = {
     messageRetentionDuration: 60 * 10, // 10 minutes
     expirationPolicy: {
@@ -70,10 +71,17 @@ export const getPubSubSubscriptionOptions = (
         throw new Error('Missing notification messages')
       }
 
+      const deviceTokens = await getDeviceTokensByUserId(userId)
+      if (!deviceTokens || deviceTokens.length === 0) {
+        throw new Error('No device tokens found')
+      }
+
       options.pushConfig = {
-        pushEndpoint: `${env.queue.notificationEndpoint}/${userId}`,
+        pushEndpoint: `${env.queue.notificationEndpoint}/${userId}?token=${env.queue.verificationToken}`,
         attributes: {
+          filter,
           messages: JSON.stringify(params),
+          tokens: JSON.stringify(deviceTokens.map((t) => t.token)),
         },
       }
       break
