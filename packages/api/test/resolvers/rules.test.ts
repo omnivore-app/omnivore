@@ -30,7 +30,7 @@ describe('Rules Resolver', () => {
   describe('set rules', () => {
     const setRulesQuery = (
       name: string,
-      query: string,
+      filter: string,
       actions: { type: string; params: string[] }[],
       enabled: boolean,
       id?: string
@@ -39,7 +39,7 @@ describe('Rules Resolver', () => {
         setRule(input: {
           ${id ? `id: "${id}",` : ''}
           name: "${name}",
-          query: "${query}",
+          filter: "${filter}",
           actions: [${actions.map(
             (action) => `{
             type: ${action.type}, params: [${action.params.map(
