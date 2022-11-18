@@ -10,7 +10,6 @@ const mobileContainerStyles = {
   alignSelf: 'center',
   marginTop: 80,
   maxWidth: 960,
-
   px: '2vw',
   '@md': {
     px: '6vw',

@@ -49,6 +49,9 @@ const descriptionTextStyles = {
 const imageContainerStyles = {
   width: '50%',
   alignSelf: 'center',
+  '@mdDown': {
+    width: '100%',
+  },
 }
 
 const layoutStyles = {

@@ -106,7 +106,8 @@ const callToActionStyles = {
     '0px 7px 8px rgba(32, 31, 29, 0.03), 0px 18px 24px rgba(32, 31, 29, 0.03)',
   padding: 40,
   marginTop: 64,
-  height: 330,
+  minheight: 330,
+  width: 'inherit',
   // '@mdDown': {
   //   display: 'none',
   // },
@@ -124,7 +125,9 @@ const callToActionText = {
   fontSize: 64,
   lineHeight: '70px',
   textAlign: 'center',
-  maxWidth: 500,
+  padding: '20px',
+
+ // maxWidth: 500,
 }
 
 // const underlineIconStyles = {
@@ -154,7 +157,7 @@ export function LandingSectionsContainer({
         css={{
           display: 'flex',
           justifyContent: 'center',
-          margin: '40px',
+          // margin: '40px',
           '@mdDown': {
             margin: '0 0 10px 0',
           },
@@ -185,7 +188,7 @@ export function LandingSectionsContainer({
               srcSet="/static/landing/landingPage-2.png"
               alt="landing-2"
               style={{ maxHeight: 400 }}
-              sizes="auto 50vw"
+              // sizes="auto 50vw"
             />
           }
           // icon={
@@ -213,8 +216,8 @@ export function LandingSectionsContainer({
             <img
               srcSet="/static/landing/landingPage-3.png"
               alt="landing-3"
-              style={{ width: '100%', marginRight: 40 }}
-              sizes="auto 50vw"
+              style={{ width: '100%' }}
+              // sizes="auto 50vw"
             />
           }
           // icon={<Palette size={32} color={iconColor} weight="duotone" />}
@@ -236,7 +239,7 @@ export function LandingSectionsContainer({
               srcSet="/static/landing/landingPage-4.png"
               alt="landing-4"
               style={{ maxHeight: 400, width: '100%' }}
-              sizes="auto 50vw"
+              // sizes="auto 50vw"
             />
           }
           // icon={<EnvelopeSimple size={32} color={iconColor} weight="duotone" />}
@@ -257,7 +260,7 @@ export function LandingSectionsContainer({
               srcSet="/static/landing/landingPage-5.png"
               alt="landing-5"
               style={{ maxHeight: 400 }}
-              sizes="auto 50vw"
+              // sizes="auto 50vw"
             />
           }
           // icon={<FloppyDisk size={32} color={iconColor} weight="duotone" />}
@@ -279,8 +282,8 @@ export function LandingSectionsContainer({
           <img
             srcSet="/static/landing/landingPage-6.png"
             alt="landing-6"
-            style={{ width: '100%', marginRight: 40 }}
-            sizes="auto 50vw"
+            style={{ width: '100%' }}
+            // sizes="auto 50vw"
           />
         }
         // icon={<FloppyDisk size={32} color={iconColor} weight="duotone" />}
@@ -298,8 +301,8 @@ export function LandingSectionsContainer({
           <img
             srcSet="/static/landing/landingPage-7.png"
             alt="landing-7"
-            style={{ maxHeight: 400 }}
-            sizes="auto 50vw"
+            style={{ maxHeight: 400, width: '100%', }}
+            // sizes="auto 50vw"
           />
         }
         // icon={<FloppyDisk size={32} color={iconColor} weight="duotone" />}
