@@ -1,4 +1,4 @@
-import { initializeApp } from 'firebase-admin/app'
+import { applicationDefault, initializeApp } from 'firebase-admin/app'
 import {
   BatchResponse,
   getMessaging,
@@ -7,7 +7,9 @@ import {
 } from 'firebase-admin/messaging'
 
 // getting credentials from App Engine
-initializeApp()
+initializeApp({
+  credential: applicationDefault(),
+})
 
 export const sendPushNotification = async (
   message: Message
@@ -25,7 +27,7 @@ export const sendBatchPushNotifications = async (
   messages: Message[]
 ): Promise<BatchResponse | undefined> => {
   const res = await getMessaging().sendAll(messages)
-  console.debug('success count: ', res.successCount)
+  console.debug('res', res)
 
   return res
 }

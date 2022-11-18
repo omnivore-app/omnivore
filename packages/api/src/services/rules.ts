@@ -77,8 +77,9 @@ export const getPubSubSubscriptionOptions = async (
       }
 
       options.pushConfig = {
-        pushEndpoint: `${env.queue.notificationEndpoint}/${userId}?token=${env.queue.verificationToken}`,
+        pushEndpoint: `${env.queue.notificationEndpoint}?token=${env.queue.verificationToken}`,
         attributes: {
+          userId,
           filter,
           messages: JSON.stringify(params),
           tokens: JSON.stringify(deviceTokens.map((t) => t.token)),

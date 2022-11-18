@@ -2,9 +2,17 @@ import * as Sentry from '@sentry/serverless'
 import { Request, Response } from 'express'
 import { sendBatchPushNotifications } from './sendNotification'
 import { Message } from 'firebase-admin/lib/messaging'
+import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
+
+dotenv.config()
+
+interface SubscriptionAttributes {
+  messages: string[]
+  tokens: string[]
+}
 
 interface SubscriptionData {
-  attributes?: string
+  attributes?: SubscriptionAttributes
   data: string
 }
 
@@ -22,7 +30,10 @@ const readPushSubscription = (req: Request): SubscriptionData | null => {
     return null
   }
 
-  const body = req.body as { message: { data: string }; attributes?: string }
+  const body = req.body as {
+    message: { data: string }
+    attributes?: SubscriptionAttributes
+  }
   const data = Buffer.from(body.message.data, 'base64').toString('utf-8')
 
   return {
@@ -49,30 +60,32 @@ const getBatchMessages = (messages: string[], tokens: string[]): Message[] => {
 
 export const notification = Sentry.GCPFunction.wrapHttpFunction(
   async (req: Request, res: Response) => {
-    const subscriptionData = readPushSubscription(req)
-    if (!subscriptionData) {
-      res.status(400).send('Invalid request')
-      return
-    }
-
-    const { attributes } = subscriptionData
-    if (!attributes) {
-      res.status(400).send('Invalid request')
-      return
-    }
-
-    const { messages, tokens } = JSON.parse(attributes) as {
-      messages: string[]
-      tokens: string[]
-    }
-    if (!messages || messages.length === 0 || !tokens || tokens.length === 0) {
-      res.status(400).send('Invalid request')
-      return
-    }
-
-    const batchMessages = getBatchMessages(messages, tokens)
-
     try {
+      const subscriptionData = readPushSubscription(req)
+      if (!subscriptionData) {
+        res.status(400).send('Invalid request')
+        return
+      }
+
+      const { attributes } = subscriptionData
+      if (!attributes) {
+        res.status(400).send('Invalid request')
+        return
+      }
+
+      const { messages, tokens } = attributes
+      if (
+        !messages ||
+        messages.length === 0 ||
+        !tokens ||
+        tokens.length === 0
+      ) {
+        res.status(400).send('Invalid request')
+        return
+      }
+
+      const batchMessages = getBatchMessages(messages, tokens)
+
       await sendBatchPushNotifications(batchMessages)
 
       res.status(200).send('OK')
