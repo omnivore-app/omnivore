@@ -32,20 +32,6 @@ const descriptionTextStyles = {
   color: 'rgb(125, 125, 125)',
 }
 
-// const iconContainerStyles = {
-//   width: 56,
-//   height: 56,
-//   background: 'white',
-//   border: '1px solid rgba(61, 61, 61, 0.08)',
-//   boxSizing: 'border-box',
-//   borderRadius: '50%',
-//   '@mdDown': {
-//     width: 32,
-//     height: 32,
-//     padding: 5,
-//   },
-// }
-
 const imageContainerStyles = {
   width: '50%',
   alignSelf: 'center',
@@ -63,31 +49,16 @@ const layoutStyles = {
   },
 }
 
-// const innerLayoutStyles = {
-//   maxWidth: 480,
-//   alignSelf: 'center',
-//   '@mdDown': {
-//     alignItems: 'center',
-//   },
-// }
-
 export function LandingSection(props: LandingSectionProps): JSX.Element {
   return (
-    <MainContainer
-      css={{flexWrap: 'wrap', ...props.containerStyles}}
-    >
+    <MainContainer css={{ flexWrap: 'wrap', ...props.containerStyles }}>
       <VStack distribution="center" alignment={'center'} css={layoutStyles}>
         <VStack>
-          {/* <VStack distribution='center' alignment='center' css={iconContainerStyles}>
-              {props.icon}
-            </VStack> */}
           <Box css={titleTextStyles}>{props.titleText}</Box>
           <Box css={descriptionTextStyles}>{props.descriptionText}</Box>
         </VStack>
       </VStack>
-      <Box css={imageContainerStyles}>
-        {props.image}
-      </Box>
+      <Box css={imageContainerStyles}>{props.image}</Box>
     </MainContainer>
   )
 }

@@ -1,15 +1,7 @@
 import Link from 'next/link'
 import { VStack, Box } from '../../elements/LayoutPrimitives'
-// import { CurvedUnderlineIcon } from '../../elements/images/CurvedUnderlineIcon'
 import { Button } from '../../elements/Button'
-
-import {
-  // MagnifyingGlass,
-  // Palette,
-  // EnvelopeSimple,
-  // FloppyDisk,
-  ArrowRight,
-} from 'phosphor-react'
+import { ArrowRight } from 'phosphor-react'
 import { LandingSection } from './LandingSection'
 
 const buttonStyles = {
@@ -63,32 +55,6 @@ const containerStyles = {
   },
 }
 
-// const titleStyles = {
-//   fontWeight: '600',
-//   fontSize: '24',
-//   textAlign: 'center',
-//   lineHeight: '36px',
-//   color: '#FF9B3E',
-//   '@mdDown': {
-//     fontSize: 16,
-//     letterSpacing: '0.02em',
-//   },
-// }
-
-// const subTitleText = {
-//   fontSize: 64,
-//   maxWidth: 590,
-//   fontWeight: '700',
-//   textAlign: 'center',
-//   lineHeight: '70px',
-//   mb: 30,
-//   '@mdDown': {
-//     maxWidth: 295,
-//     fontSize: 32,
-//     lineHeight: '40px',
-//   },
-// }
-
 const reversedSectionStyles = {
   flexDirection: 'row-reverse',
   marginBottom: 20,
@@ -108,9 +74,7 @@ const callToActionStyles = {
   marginTop: 64,
   minheight: 330,
   width: 'inherit',
-  // '@mdDown': {
-  //   display: 'none',
-  // },
+
   '@md': {
     width: '100%',
   },
@@ -126,16 +90,7 @@ const callToActionText = {
   lineHeight: '70px',
   textAlign: 'center',
   padding: '20px',
-
- // maxWidth: 500,
 }
-
-// const underlineIconStyles = {
-//   height: '5px',
-//   alignSelf: 'normal',
-//   position: 'relative',
-//   bottom: 20,
-// }
 
 type LandingSectionsContainerProps = {
   hideFirst?: boolean
@@ -188,12 +143,8 @@ export function LandingSectionsContainer({
               srcSet="/static/landing/landingPage-2.png"
               alt="landing-2"
               style={{ maxHeight: 400 }}
-              // sizes="auto 50vw"
             />
           }
-          // icon={
-          //   <MagnifyingGlass size={32} color={iconColor} weight="duotone" />
-          // }
         />
       )}
       {!hideSecond && (
@@ -217,10 +168,8 @@ export function LandingSectionsContainer({
               srcSet="/static/landing/landingPage-3.png"
               alt="landing-3"
               style={{ width: '100%' }}
-              // sizes="auto 50vw"
             />
           }
-          // icon={<Palette size={32} color={iconColor} weight="duotone" />}
           containerStyles={reversedSectionStyles}
         />
       )}
@@ -239,10 +188,8 @@ export function LandingSectionsContainer({
               srcSet="/static/landing/landingPage-4.png"
               alt="landing-4"
               style={{ maxHeight: 400, width: '100%' }}
-              // sizes="auto 50vw"
             />
           }
-          // icon={<EnvelopeSimple size={32} color={iconColor} weight="duotone" />}
         />
       )}
       {!hideFourth && (
@@ -260,10 +207,8 @@ export function LandingSectionsContainer({
               srcSet="/static/landing/landingPage-5.png"
               alt="landing-5"
               style={{ maxHeight: 400 }}
-              // sizes="auto 50vw"
             />
           }
-          // icon={<FloppyDisk size={32} color={iconColor} weight="duotone" />}
           containerStyles={reversedSectionStyles}
         />
       )}
@@ -283,10 +228,8 @@ export function LandingSectionsContainer({
             srcSet="/static/landing/landingPage-6.png"
             alt="landing-6"
             style={{ width: '100%' }}
-            // sizes="auto 50vw"
           />
         }
-        // icon={<FloppyDisk size={32} color={iconColor} weight="duotone" />}
       />
       <LandingSection
         titleText="Listen to what you're reading."
@@ -301,11 +244,9 @@ export function LandingSectionsContainer({
           <img
             srcSet="/static/landing/landingPage-7.png"
             alt="landing-7"
-            style={{ maxHeight: 400, width: '100%', }}
-            // sizes="auto 50vw"
+            style={{ maxHeight: 400, width: '100%' }}
           />
         }
-        // icon={<FloppyDisk size={32} color={iconColor} weight="duotone" />}
         containerStyles={reversedSectionStyles}
       />
       <VStack alignment="center" css={callToActionStyles}>
