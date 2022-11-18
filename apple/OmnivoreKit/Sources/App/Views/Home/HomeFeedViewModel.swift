@@ -183,6 +183,9 @@ import Views
 
     if searchTerm.replacingOccurrences(of: " ", with: "").isEmpty {
       updateFetchController(dataService: dataService)
+      if appliedFilter != LinkedItemFilter.inbox.rawValue {
+        await loadSearchQuery(dataService: dataService, isRefresh: isRefresh)
+      }
     } else {
       await loadSearchQuery(dataService: dataService, isRefresh: isRefresh)
     }
