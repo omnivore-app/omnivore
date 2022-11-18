@@ -1959,7 +1959,7 @@ const schema = gql`
   type Rule {
     id: ID!
     name: String!
-    query: String!
+    filter: String!
     actions: [RuleAction!]!
     enabled: Boolean!
     createdAt: Date!
@@ -1991,7 +1991,7 @@ const schema = gql`
     id: ID
     name: String!
     description: String
-    query: String!
+    filter: String!
     actions: [RuleActionInput!]!
     enabled: Boolean!
   }

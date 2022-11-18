@@ -1,5 +1,6 @@
 import { RuleAction, RuleActionType } from '../generated/graphql'
 import { CreateSubscriptionOptions } from '@google-cloud/pubsub'
+import { env } from '../env'
 
 enum RuleTrigger {
   ON_PAGE_UPDATE,
@@ -42,14 +43,10 @@ export const getPubSubSubscriptionName = (
 export const getPubSubSubscriptionOptions = (
   userId: string,
   ruleName: string,
-  query: string,
+  filter: string,
   action: RuleAction
 ): CreateSubscriptionOptions => {
-  const topic = getPubSubTopicName(action)
-  const name = getPubSubSubscriptionName(topic, userId, ruleName)
   const options: CreateSubscriptionOptions = {
-    name,
-    topic,
     messageRetentionDuration: 60 * 10, // 10 minutes
     expirationPolicy: {
       ttl: null, // never expire
@@ -63,14 +60,24 @@ export const getPubSubSubscriptionOptions = (
         seconds: 600,
       },
     },
-    filter: query,
+    filter,
   }
 
   switch (action.type) {
-    case RuleActionType.SendNotification:
-      options.pushEndpoint = `${process.env
-        .PUSH_NOTIFICATION_ENDPOINT!}?message=${action.params[0]}`
+    case RuleActionType.SendNotification: {
+      const params = action.params
+      if (params.length === 0) {
+        throw new Error('Missing notification messages')
+      }
+
+      options.pushConfig = {
+        pushEndpoint: `${env.queue.notificationEndpoint}/${userId}`,
+        attributes: {
+          messages: JSON.stringify(params),
+        },
+      }
       break
+    }
     // TODO: Add more actions, e.g. RuleActionType.SendEmail
   }
 

@@ -1160,9 +1160,9 @@ type Rule {
   actions: [RuleAction!]!
   createdAt: Date!
   enabled: Boolean!
+  filter: String!
   id: ID!
   name: String!
-  query: String!
   updatedAt: Date!
 }
 
@@ -1457,9 +1457,9 @@ input SetRuleInput {
   actions: [RuleActionInput!]!
   description: String
   enabled: Boolean!
+  filter: String!
   id: ID
   name: String!
-  query: String!
 }
 
 union SetRuleResult = SetRuleError | SetRuleSuccess

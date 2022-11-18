@@ -22,7 +22,7 @@ export class Rule {
   name!: string
 
   @Column('text')
-  query!: string
+  filter!: string
 
   @Column('simple-json')
   actions!: { type: string; params: string[] }[]

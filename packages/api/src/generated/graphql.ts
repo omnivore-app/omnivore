@@ -1652,9 +1652,9 @@ export type Rule = {
   actions: Array<RuleAction>;
   createdAt: Scalars['Date'];
   enabled: Scalars['Boolean'];
+  filter: Scalars['String'];
   id: Scalars['ID'];
   name: Scalars['String'];
-  query: Scalars['String'];
   updatedAt: Scalars['Date'];
 };
 
@@ -1973,9 +1973,9 @@ export type SetRuleInput = {
   actions: Array<RuleActionInput>;
   description?: InputMaybe<Scalars['String']>;
   enabled: Scalars['Boolean'];
+  filter: Scalars['String'];
   id?: InputMaybe<Scalars['ID']>;
   name: Scalars['String'];
-  query: Scalars['String'];
 };
 
 export type SetRuleResult = SetRuleError | SetRuleSuccess;
@@ -4406,9 +4406,9 @@ export type RuleResolvers<ContextType = ResolverContext, ParentType extends Reso
   actions?: Resolver<Array<ResolversTypes['RuleAction']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   enabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  filter?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  query?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
