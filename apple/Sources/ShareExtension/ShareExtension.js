@@ -18,8 +18,8 @@ ShareExtension.prototype = {
           const range = sel.getRangeAt(0)
           const endMarker = document.createElement("span")
           const startMarker = document.createElement("span")
-          endMarker.setAttribute("data-omnivore-highlight-end", true)
-          startMarker.setAttribute("data-omnivore-highlight-start", true)
+          endMarker.setAttribute("data-omnivore-highlight-end", "true")
+          startMarker.setAttribute("data-omnivore-highlight-start", "true")
 
           var container = document.createElement("div");
           for (var i = 0, len = sel.rangeCount; i < len; ++i) {
