@@ -50,7 +50,7 @@ export const setRuleResolver = authorized<
       )
 
       if (input.enabled) {
-        const options = getPubSubSubscriptionOptions(
+        const options = await getPubSubSubscriptionOptions(
           user.id,
           input.name,
           input.filter,
