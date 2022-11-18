@@ -34,11 +34,17 @@ describe('Rules Resolver', () => {
       enabled: boolean,
       id?: string
     ) => `
-      mutation SetRule($input: SetRuleInput!) {
+      mutation {
         setRule(input: {
           ${id ? `id: "${id}",` : ''}
           query: "${query}",
-          actions: ${JSON.stringify(actions)},
+          actions: [${actions.map(
+            (action) => `{
+            type: ${action.type}, params: [${action.params.map(
+              (param) => `"${param}"`
+            )}]
+            }`
+          )}],
           enabled: ${enabled}
         }) {
           ... on SetRuleSuccess {
