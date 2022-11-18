@@ -87,7 +87,7 @@ public class ShareExtensionViewModel: ObservableObject {
           let hostname = URL(string: payload.url)?.host ?? ""
 
           switch payload.contentType {
-          case let .html(html: _, title: title):
+          case let .html(html: _, title: title, _):
             self.title = title ?? ""
             self.url = hostname
           case .none:
@@ -143,7 +143,7 @@ public class ShareExtensionViewModel: ObservableObject {
           localPdfURL: localUrl,
           url: pageScrapePayload.url
         )
-      case let .html(html, title):
+      case let .html(html, title, _):
         newRequestID = try await services.dataService.createPage(
           id: requestId,
           originalHtml: html,

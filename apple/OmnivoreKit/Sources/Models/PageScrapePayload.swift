@@ -8,11 +8,26 @@ import UniformTypeIdentifiers
 
 let URLREGEX = #"[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)"#
 
+public struct HighlightData {
+  public let highlightHTML: String
+  public let highlightText: String
+
+  public static func make(dict: NSDictionary?) -> HighlightData? {
+    if let dict = dict,
+       let highlightHTML = dict["highlightHTML"] as? String,
+       let highlightText = dict["highlightText"] as? String
+    {
+      return HighlightData(highlightHTML: highlightHTML, highlightText: highlightText)
+    }
+    return nil
+  }
+}
+
 public struct PageScrapePayload {
   public enum ContentType {
     case none
-    case html(html: String, title: String?)
     case pdf(localUrl: URL)
+    case html(html: String, title: String?, highlightData: HighlightData?)
   }
 
   public let url: String
@@ -33,9 +48,9 @@ public struct PageScrapePayload {
     self.contentType = .pdf(localUrl: localUrl)
   }
 
-  init(url: String, title: String?, html: String) {
+  init(url: String, title: String?, html: String, highlightData: HighlightData?) {
     self.url = url
-    self.contentType = .html(html: html, title: title)
+    self.contentType = .html(html: html, title: title, highlightData: highlightData)
   }
 }
 
@@ -317,7 +332,10 @@ private extension PageScrapePayload {
     }
 
     if let html = html {
-      return PageScrapePayload(url: url, title: title, html: html)
+      return PageScrapePayload(url: url,
+                               title: title,
+                               html: html,
+                               highlightData: HighlightData.make(dict: results))
     }
 
     return PageScrapePayload(url: url)

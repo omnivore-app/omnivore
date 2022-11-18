@@ -11,34 +11,47 @@ function iconURL() {
 }
 
 ShareExtension.prototype = {
-    getHighlightHTML: function() {
+    markHighlightSelection: () => {
       try {
-        var sel = window.getSelection()
-        return (function () {
-          var html = "";
-          var sel = window.getSelection();
-          if (sel.rangeCount) {
-              var container = document.createElement("div");
-              for (var i = 0, len = sel.rangeCount; i < len; ++i) {
-                  container.appendChild(sel.getRangeAt(i).cloneContents());
-              }
-              html = container.innerHTML;
+        const sel = window.getSelection();
+        if (sel.rangeCount) {
+          const range = sel.getRangeAt(0)
+          const endMarker = document.createElement("span")
+          const startMarker = document.createElement("span")
+          endMarker.setAttribute("data-omnivore-highlight-end", true)
+          startMarker.setAttribute("data-omnivore-highlight-start", true)
+
+          var container = document.createElement("div");
+          for (var i = 0, len = sel.rangeCount; i < len; ++i) {
+            container.appendChild(sel.getRangeAt(i).cloneContents());
           }
-          return html;
-        })()
-      } catch {
-        
+
+          const endRange = range.cloneRange()
+          endRange.collapse(false)
+          endRange.insertNode(endMarker)
+
+          range.insertNode(startMarker)
+
+          return {
+            highlightHTML: container.innerHTML,
+            highlightText: container.innerText
+          }
+        }
+      } catch(error) {
+        console.log("ERROR", error)
       }
       return null
     },
     run: function(arguments) {
+        const highlightData = this.markHighlightSelection()
+
         arguments.completionFunction({
           'url': window.location.href,
           'title': document.title.toString(),
           'iconURL': iconURL(),
           'contentType': document.contentType,
           'originalHTML': new XMLSerializer().serializeToString(document),
-          'highlightHTML': this.getHighlightHTML()
+          ...highlightData
         });
     }
 };
