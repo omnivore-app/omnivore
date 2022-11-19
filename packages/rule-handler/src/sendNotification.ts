@@ -11,6 +11,25 @@ initializeApp({
   credential: applicationDefault(),
 })
 
+export const getBatchMessages = (
+  messages: string[],
+  tokens: string[]
+): Message[] => {
+  const batchMessages: Message[] = []
+  messages.forEach((message) => {
+    tokens.forEach((token) => {
+      batchMessages.push({
+        token,
+        notification: {
+          body: message,
+        },
+      })
+    })
+  })
+
+  return batchMessages
+}
+
 export const sendPushNotification = async (
   message: Message
 ): Promise<string | undefined> => {
