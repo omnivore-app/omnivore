@@ -9,83 +9,26 @@ const axios = require('axios');
 const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
 const signToken = promisify(jwt.sign);
-const { config, format, loggers, transports } = require('winston');
-const { LoggingWinston } = require('@google-cloud/logging-winston');
-const { DateTime } = require('luxon');
 const os = require('os');
 const { Storage } = require('@google-cloud/storage');
 const { parseHTML } = require('linkedom');
-const puppeteer = require('puppeteer-core');
 const { preHandleContent } = require("@omnivore/content-handler");
 
+const puppeteer = require('puppeteer-extra');
+
 // Add stealth plugin to hide puppeteer usage
-// const StealthPlugin = require('puppeteer-extra-plugin-stealth');
-// puppeteer.use(StealthPlugin());
+const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+puppeteer.use(StealthPlugin());
+
+// Add adblocker plugin to block all ads and trackers (saves bandwidth)
+const AdblockerPlugin = require('puppeteer-extra-plugin-adblocker');
+puppeteer.use(AdblockerPlugin({ blockTrackers: true }));
 
 const storage = new Storage();
 const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [];
 const previewBucket = process.env.PREVIEW_IMAGE_BUCKET ? storage.bucket(process.env.PREVIEW_IMAGE_BUCKET) : undefined;
 
 const filePath = `${os.tmpdir()}/previewImage.png`;
-
-const colors = {
-  emerg: 'inverse underline magenta',
-  alert: 'underline magenta',
-  crit: 'inverse underline red', // Any error that is forcing a shutdown of the service or application to prevent data loss.
-  error: 'underline red', // Any error which is fatal to the operation, but not the service or application
-  warning: 'underline yellow', // Anything that can potentially cause application oddities
-  notice: 'underline cyan', // Normal but significant condition
-  info: 'underline green', // Generally useful information to log
-  debug: 'underline gray',
-};
-
-const googleConfigs = {
-  level: 'info',
-  logName: 'logger',
-  levels: config.syslog.levels,
-  resource: {
-    labels: {
-      function_name: process.env.FUNCTION_TARGET,
-      project_id: process.env.GCP_PROJECT,
-    },
-    type: 'cloud_function',
-  },
-};
-
-function localConfig(id) {
-  return {
-    level: 'debug',
-    format: format.combine(
-      format.colorize({ all: true, colors }),
-      format(info =>
-        Object.assign(info, {
-          timestamp: DateTime.local().toLocaleString(DateTime.TIME_24_WITH_SECONDS),
-        }),
-      )(),
-      format.printf(info => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { timestamp, message, level, ...meta } = info;
-
-        return `[${id}@${info.timestamp}] ${info.message}${
-          Object.keys(meta).length ? '\n' + JSON.stringify(meta, null, 4) : ''
-        }`;
-      }),
-    ),
-  };
-}
-
-function buildLoggerTransport(id, options) {
-  return process.env.IS_LOCAL
-    ? new transports.Console(localConfig(id))
-    : new LoggingWinston({ ...googleConfigs, ...{ logName: id }, ...options });
-}
-
-function buildLogger(id, options) {
-  return loggers.get(id, {
-    levels: config.syslog.levels,
-    transports: [buildLoggerTransport(id, options)],
-  });
-}
 
 const MOBILE_USER_AGENT = 'Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.62 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
 const DESKTOP_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4372.0 Safari/537.36'
@@ -173,8 +116,6 @@ const getBrowserPromise = (async () => {
     timeout: 120000, // 2 minutes
   });
 })();
-
-let logRecord, functionStartTime;
 
 const uploadToSignedUrl = async ({ id, uploadSignedUrl }, contentType, contentObjUrl) => {
   const stream = await axios.get(contentObjUrl, { responseType: 'stream' });
@@ -268,22 +209,13 @@ const saveUploadedPdf = async (userId, url, uploadFileId, articleSavingRequestId
 };
 
 async function fetchContent(req, res) {
-  functionStartTime = Date.now();
-  // Grabbing execution and trace ids to attach logs to the appropriate function call
-  const execution_id = req.get('function-execution-id');
-  const traceId = (req.get('x-cloud-trace-context') || '').split('/')[0];
-  const logger = buildLogger('cloudfunctions.googleapis.com%2Fcloud-functions', {
-    trace: `projects/${process.env.GCLOUD_PROJECT}/traces/${traceId}`,
-    labels: {
-      execution_id: execution_id,
-    },
-  });
+  let functionStartTime = Date.now();
 
   let url = getUrl(req);
   const userId = (req.query ? req.query.userId : undefined) || (req.body ? req.body.userId : undefined);
   const articleSavingRequestId = (req.query ? req.query.saveRequestId : undefined) || (req.body ? req.body.saveRequestId : undefined);
 
-  logRecord = {
+  let logRecord = {
     url,
     userId,
     articleSavingRequestId,
@@ -292,18 +224,19 @@ async function fetchContent(req, res) {
     },
   };
 
-  logger.info(`Article parsing request`, logRecord);
+  console.info(`Article parsing request`, logRecord);
 
   if (!url) {
     logRecord.urlIsInvalid = true;
-    logger.info(`Valid URL to parse not specified`, logRecord);
+    console.info(`Valid URL to parse not specified`, logRecord);
     return res.sendStatus(400);
   }
 
   // pre handle url with custom handlers
   let title, content, contentType;
   try {
-    const result = await preHandleContent(url);
+    const browser = await getBrowserPromise;
+    const result = await preHandleContent(url, browser);
     if (result && result.url) {
       url = result.url
       validateUrlString(url);
@@ -312,13 +245,13 @@ async function fetchContent(req, res) {
     if (result && result.content) { content = result.content }
     if (result && result.contentType) { contentType = result.contentType }
   } catch (e) {
-    logger.info('error with handler: ', e);
+    console.info('error with handler: ', e);
   }
 
   let context, page, finalUrl;
   try {
     if ((!content || !title) && contentType !== 'application/pdf') {
-      const result = await retrievePage(url)
+      const result = await retrievePage(url, logRecord, functionStartTime);
       if (result && result.context) { context = result.context }
       if (result && result.page) { page = result.page }
       if (result && result.finalUrl) { finalUrl = result.finalUrl }
@@ -332,7 +265,7 @@ async function fetchContent(req, res) {
       const l = await saveUploadedPdf(userId, finalUrl, uploadedFileId, articleSavingRequestId);
     } else {
       if (!content || !title) {
-        const result = await retrieveHtml(page);
+        const result = await retrieveHtml(page, logRecord);
         if (result.isBlocked) {
           const sbResult = await fetchContentWithScrapingBee(url)
           title = sbResult.title
@@ -342,7 +275,7 @@ async function fetchContent(req, res) {
           content = result.domContent;
         }
       } else {
-        logger.info('using prefetched content and title');
+        console.info('using prefetched content and title');
       }
 
       logRecord.fetchContentTime = Date.now() - functionStartTime;
@@ -365,7 +298,7 @@ async function fetchContent(req, res) {
     }
   } catch (e) {
     logRecord.error = e.message;
-    logger.error(`Error while retrieving page`, logRecord);
+    console.error(`Error while retrieving page`, logRecord);
 
     // fallback to scrapingbee
     const sbResult = await fetchContentWithScrapingBee(url);
@@ -392,7 +325,7 @@ async function fetchContent(req, res) {
     if (context) {
       await context.close();
     }
-    logger.info(`parse-page`, logRecord);
+    console.info(`parse-page`, logRecord);
   }
 
   return res.sendStatus(200);
@@ -452,7 +385,7 @@ async function blockResources(client) {
   await client.send('Network.setBlockedURLs', { urls: blockedResources });
 }
 
-async function retrievePage(url) {
+async function retrievePage(url, logRecord, functionStartTime) {
   validateUrlString(url);
 
   const browser = await getBrowserPromise;
@@ -549,7 +482,7 @@ async function retrievePage(url) {
   });
 
   try {
-    const response = await page.goto(url, { timeout: 8 * 1000, waitUntil: ['networkidle2'] });
+    const response = await page.goto(url, { timeout: 30 * 1000, waitUntil: ['networkidle2'] });
     const finalUrl = response.url();
     const contentType = response.headers()['content-type'];
 
@@ -566,7 +499,7 @@ async function retrievePage(url) {
   }
 }
 
-async function retrieveHtml(page) {
+async function retrieveHtml(page, logRecord) {
   let domContent = '', title;
   try {
     title = await page.title();
@@ -710,7 +643,7 @@ async function preview(req, res) {
   // Grabbing execution and trace ids to attach logs to the appropriate function call
   const execution_id = req.get('function-execution-id');
   const traceId = (req.get('x-cloud-trace-context') || '').split('/')[0];
-  const logger = buildLogger('cloudfunctions.googleapis.com%2Fcloud-functions', {
+  const console = buildconsole('cloudfunctions.googleapis.com%2Fcloud-functions', {
     trace: `projects/${process.env.GCLOUD_PROJECT}/traces/${traceId}`,
     labels: {
       execution_id: execution_id,
@@ -718,7 +651,7 @@ async function preview(req, res) {
   });
 
   if (!process.env.PREVIEW_IMAGE_BUCKET) {
-    logger.error(`PREVIEW_IMAGE_BUCKET not set`)
+    console.error(`PREVIEW_IMAGE_BUCKET not set`)
     return res.sendStatus(500);
   }
 
@@ -734,30 +667,30 @@ async function preview(req, res) {
     },
   };
 
-  logger.info(`Public preview image generation request`, logRecord);
+  console.info(`Public preview image generation request`, logRecord);
 
   if (!url) {
     logRecord.urlIsInvalid = true;
-    logger.error(`Valid URL to parse is not specified`, logRecord);
+    console.error(`Valid URL to parse is not specified`, logRecord);
     return res.sendStatus(400);
   }
   const { origin } = new URL(url);
   if (!ALLOWED_ORIGINS.some(o => o === origin)) {
     logRecord.forbiddenOrigin = true;
-    logger.error(`This origin is not allowed: ${origin}`, logRecord);
+    console.error(`This origin is not allowed: ${origin}`, logRecord);
     return res.sendStatus(400);
   }
 
-  const browser = await getBrowserPromise(process.env.PROXY_URL, process.env.CHROMIUM_PATH);
+  const browser = await getBrowserPromise;
   logRecord.timing = { ...logRecord.timing, browserOpened: Date.now() - functionStartTime };
 
   const page = await browser.newPage();
   const pageLoadingStart = Date.now();
   const modifiedUrl = new URL(url);
-  modifiedUrl.searchParams.append('fontSize', 24);
-  modifiedUrl.searchParams.append('adjustAspectRatio', 1.91);
+  modifiedUrl.searchParams.append('fontSize', '24');
+  modifiedUrl.searchParams.append('adjustAspectRatio', '1.91');
   try {
-    await page.goto(modifiedUrl);
+    await page.goto(modifiedUrl.toString());
     logRecord.timing = { ...logRecord.timing, pageLoaded: Date.now() - pageLoadingStart };
   } catch (error) {
     console.log('error going to page: ', modifiedUrl)
@@ -775,7 +708,7 @@ async function preview(req, res) {
   );
   if (!selector) {
     logRecord.selectorIsInvalid = true;
-    logger.error(`Valid element selector is not specified`, logRecord);
+    console.error(`Valid element selector is not specified`, logRecord);
     await page.close();
     return res.sendStatus(400);
   }
@@ -790,7 +723,7 @@ async function preview(req, res) {
   );
   if (!destination) {
     logRecord.destinationIsInvalid = true;
-    logger.error(`Valid file destination is not specified`, logRecord);
+    console.error(`Valid file destination is not specified`, logRecord);
     await page.close();
     return res.sendStatus(400);
   }
@@ -801,7 +734,7 @@ async function preview(req, res) {
     await page.waitForSelector(selector, { timeout: 3000 }); // wait for the selector to load
   } catch (error) {
     logRecord.elementNotFound = true;
-    logger.error(`Element is not presented on the page`, logRecord);
+    console.error(`Element is not presented on the page`, logRecord);
     await page.close();
     return res.sendStatus(400);
   }
@@ -821,7 +754,7 @@ async function preview(req, res) {
     console.log('error uploading to bucket, this is non-fatal', e)
   }
 
-  logger.info(`preview-image`, logRecord);
+  console.info(`preview-image`, logRecord);
   return res.redirect(`${process.env.PREVIEW_IMAGE_CDN_ORIGIN}/${destination}`);
 }
 

@@ -345,9 +345,8 @@ import Views
           }
 
           List {
-            if viewModel.items.count > 0 || viewModel.searchTerm.count > 0 {
-              filtersHeader
-            }
+            filtersHeader
+
             ForEach(viewModel.items) { item in
               FeedCardNavigationLink(
                 item: item,
