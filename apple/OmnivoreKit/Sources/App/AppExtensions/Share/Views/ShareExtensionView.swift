@@ -14,6 +14,7 @@ public struct ShareExtensionView: View {
   @State var hideUntilReminded = false
   @State var editingTitle = false
   @State var editingLabels = false
+  @State var viewingHighlight = false
   @State var previousLabels: [LinkedItemLabel]?
   @State var messageText: String?
 
@@ -44,27 +45,14 @@ public struct ShareExtensionView: View {
     }
   }
 
-  private var cloudIconName: String {
+  private var titleColor: Color {
     switch viewModel.status {
-    case .synced:
-      return "checkmark.icloud"
     case .saved, .processing:
-      return "icloud"
-    case .failed(error: _), .syncFailed(error: _):
-      return "exclamationmark.icloud"
-    }
-  }
-
-  private var cloudIconColor: Color {
-    switch viewModel.status {
-    case .saved:
       return .appGrayText
-    case .processing:
-      return .clear
     case .failed(error: _), .syncFailed(error: _):
       return .red
     case .synced:
-      return .blue
+      return .appGreenSuccess
     }
   }
 
@@ -101,7 +89,7 @@ public struct ShareExtensionView: View {
 
       Text(messageText ?? titleText)
         .font(.appSubheadline)
-        .foregroundColor(isSynced ? .appGreenSuccess : .appGrayText)
+        .foregroundColor(titleColor)
 
       Spacer()
     }
@@ -184,6 +172,56 @@ public struct ShareExtensionView: View {
                              onLabelTap: onLabelTap)
         }.background(Color.appButtonBackground)
           .cornerRadius(8)
+      }
+    }
+    .padding(16)
+    .frame(maxWidth: .infinity, maxHeight: self.editingLabels ? .infinity : 60)
+    .background(Color.appButtonBackground)
+    .cornerRadius(8)
+  }
+
+  var highlightSection: some View {
+    HStack {
+      if !viewingHighlight {
+        ZStack {
+          Circle()
+            .foregroundColor(Color.appBackground)
+            .frame(width: 34, height: 34)
+
+          Image(systemName: "highlighter")
+            .font(.appCallout)
+            .frame(width: 34, height: 34)
+            .foregroundColor(Color.black)
+        }
+        .padding(.trailing, 8)
+
+        VStack {
+          Text("Highlight")
+            .font(.appSubheadline)
+            .foregroundColor(Color.appGrayTextContrast)
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+          let labelCount = 0
+          Text(labelCount > 0 ?
+            "\(labelCount) label\(labelCount > 1 ? "s" : "") selected"
+            : "Select text before saving to create highlight")
+            .font(.appFootnote)
+            .foregroundColor(Color.appGrayText)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+
+        Spacer()
+
+        Image(systemName: "chevron.right")
+          .font(.appCallout)
+      } else {
+//        Text(self.pageSc)
+//        ScrollView {
+//          LabelsMasonaryView(labels: labelsViewModel.labels,
+//                             selectedLabels: labelsViewModel.selectedLabels,
+//                             onLabelTap: onLabelTap)
+//        }.background(Color.appButtonBackground)
+//          .cornerRadius(8)
       }
     }
     .padding(16)
@@ -373,11 +411,16 @@ public struct ShareExtensionView: View {
 
       if !editingTitle {
         labelsSection
-          .padding(.top, 12)
           .onTapGesture {
             withAnimation {
               previousLabels = self.labelsViewModel.selectedLabels
               editingLabels = true
+            }
+          }
+        highlightSection
+          .onTapGesture {
+            withAnimation {
+              viewingHighlight = true
             }
           }
       }
@@ -402,6 +445,7 @@ public struct ShareExtensionView: View {
     .onAppear {
       viewModel.savePage(extensionContext: extensionContext)
     }
+
     .environmentObject(viewModel.services.dataService)
     .task {
       await labelsViewModel.loadLabelsFromStore(dataService: viewModel.services.dataService)

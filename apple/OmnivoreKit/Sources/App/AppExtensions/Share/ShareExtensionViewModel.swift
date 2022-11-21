@@ -166,7 +166,7 @@ public class ShareExtensionViewModel: ObservableObject {
        let currentViewer = services.dataService.currentViewer?.username,
        (try? await services.dataService.loadArticleContentWithRetries(itemID: itemID, username: currentViewer)) != nil
     {
-      updateStatusOnMain(requestId: requestId, newStatus: .saved, objectID: linkedItemObjectID)
+      updateStatusOnMain(requestId: requestId, newStatus: .synced, objectID: linkedItemObjectID)
     }
 
     return true
@@ -190,7 +190,11 @@ public class ShareExtensionViewModel: ObservableObject {
   }
 }
 
-public enum ShareExtensionStatus {
+public enum ShareExtensionStatus: Equatable {
+  public static func == (lhs: ShareExtensionStatus, rhs: ShareExtensionStatus) -> Bool {
+    lhs.displayMessage == rhs.displayMessage
+  }
+
   case processing
   case saved
   case synced
