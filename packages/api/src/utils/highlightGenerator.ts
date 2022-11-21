@@ -94,9 +94,9 @@ function getTextNodesBetween(rootNode: Node, startNode: Node, endNode: Node) {
   }
 }
 
-export function findEmbeddedHighlight(
+export const findEmbeddedHighlight = (
   dom: Element
-): EmbeddedHighlightData | undefined {
+): EmbeddedHighlightData | undefined => {
   const startNode = dom.querySelector(
     'span[data-omnivore-highlight-start="true"]'
   )
@@ -158,7 +158,6 @@ function generateDiffPatch(
   afterNodes: ArticleTextContent
 ): string {
   const textWithTags = `${beforeNodes.articleText}<${highlightTag}>${highlightNodes.articleText}</${highlightTag}>${afterNodes.articleText}`
-
   const diffMatchPatch = new DiffMatchPatch()
   const patch = diffMatchPatch.patch_toText(
     diffMatchPatch.patch_make(allArticleNodes.articleText, textWithTags)
