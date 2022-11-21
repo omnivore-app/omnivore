@@ -1,9 +1,11 @@
 import * as Sentry from '@sentry/serverless'
 import express, { Request, Response } from 'express'
 import * as dotenv from 'dotenv'
-import { closeDBConnection, createDBConnection, getRepository } from './db'
-import { Rules } from './entity/rules'
-import { triggerActions } from './rule' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
+import { getEnabledRules, triggerActions } from './rule'
+import { promisify } from 'util'
+import * as jwt from 'jsonwebtoken'
+
+const signToken = promisify(jwt.sign)
 
 dotenv.config()
 
@@ -58,8 +60,22 @@ const readPushSubscription = (
   return { message: message, expired: expired(body) }
 }
 
+export const getAuthToken = async (
+  userId: string,
+  jwtSecret: string
+): Promise<string> => {
+  const auth = await signToken({ uid: userId }, jwtSecret)
+  return auth as string
+}
+
 export const ruleHandler = Sentry.GCPFunction.wrapHttpFunction(
   async (req: Request, res: Response) => {
+    const apiEndpoint = process.env.API_ENDPOINT
+    const jwtSecret = process.env.JWT_SECRET
+    if (!apiEndpoint || !jwtSecret) {
+      throw new Error('REST_BACKEND_ENDPOINT or JWT_SECRET not set')
+    }
+
     const { message: msgStr, expired } = readPushSubscription(req)
 
     if (!msgStr) {
@@ -88,16 +104,10 @@ export const ruleHandler = Sentry.GCPFunction.wrapHttpFunction(
         return
       }
 
-      await createDBConnection()
+      // get rules by calling api
+      const rules = await getEnabledRules(userId, apiEndpoint, jwtSecret)
 
-      const rules = await getRepository(Rules).findBy({
-        user: { id: userId },
-        enabled: true,
-      })
-
-      await triggerActions(userId, rules, data)
-
-      await closeDBConnection()
+      await triggerActions(userId, rules, data, apiEndpoint, jwtSecret)
 
       res.status(200).send('OK')
     } catch (error) {

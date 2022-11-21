@@ -21,11 +21,10 @@
   },
   "dependencies": {
     "@google-cloud/functions-framework": "3.1.2",
+    "@sentry/serverless": "^6.16.1",
+    "axios": "^0.27.2",
     "dotenv": "^16.0.1",
     "firebase-admin": "^10.0.2",
-    "@sentry/serverless": "^6.16.1",
-    "pg": "^8.3.3",
-    "typeorm": "^0.3.4",
-    "typeorm-naming-strategies": "^4.1.0"
+    "jsonwebtoken": "^8.5.1"
   }
 }

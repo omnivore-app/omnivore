@@ -5,11 +5,57 @@ import {
   Message,
   MulticastMessage,
 } from 'firebase-admin/messaging'
+import axios from 'axios'
+import { getAuthToken } from './index'
+
+export interface UserDeviceToken {
+  id: string
+  token: string
+  userId: string
+  createdAt: Date
+}
 
 // getting credentials from App Engine
 initializeApp({
   credential: applicationDefault(),
 })
+
+export const getUserDeviceTokens = async (
+  userId: string,
+  apiEndpoint: string,
+  jwtSecret: string
+): Promise<UserDeviceToken[]> => {
+  const auth = await getAuthToken(userId, jwtSecret)
+
+  const data = JSON.stringify({
+    query: `query {
+      userDeviceTokens(userId: "${userId}") {
+        ... on UserDeviceTokensError {
+          errorCodes
+        }
+        ... on UserDeviceTokensSuccess {
+          userDeviceTokens {
+            id
+            token
+            userId
+            createdAt
+          }
+        }
+      }
+    }`,
+  })
+
+  const response = await axios.post(`${apiEndpoint}/graphql`, data, {
+    headers: {
+      Cookie: `auth=${auth};`,
+      'Content-Type': 'application/json',
+    },
+  })
+
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+  return response.data.data.userDeviceTokens
+    .userDeviceTokens as UserDeviceToken[]
+}
 
 export const getBatchMessages = (
   messages: string[],

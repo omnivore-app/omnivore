@@ -159,11 +159,6 @@ services:
       - "9091:8080"
     environment:
       - PUBSUB_VERIFICATION_TOKEN=some_token
-      - PG_HOST=postgres
-      - PG_PORT=5432
-      - PG_USER=app_user
-      - PG_PASSWORD=app_pass
-      - PG_DB=omnivore
     depends_on:
       migrate:
         condition: service_completed_successfully
