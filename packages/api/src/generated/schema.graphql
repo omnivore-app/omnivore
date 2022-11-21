@@ -1242,6 +1242,7 @@ type SaveError {
 }
 
 enum SaveErrorCode {
+  EMBEDDED_HIGHLIGHT_FAILED
   UNAUTHORIZED
   UNKNOWN
 }

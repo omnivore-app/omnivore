@@ -16,6 +16,11 @@ import { ILike } from 'typeorm'
 import { v4 as uuid } from 'uuid'
 import addressparser from 'addressparser'
 import { preParseContent } from '@omnivore/content-handler'
+import {
+  findEmbeddedHighlight,
+  EmbeddedHighlightData,
+} from './highlightGenerator'
+import { HighlightData } from '../datalayer/highlight/model'
 
 const logger = buildLogger('utils.parse')
 
@@ -70,6 +75,7 @@ export type ParsedContentPuppeteer = {
   parsedContent: Readability.ParseResult | null
   canonicalUrl?: string | null
   pageType: PageType
+  highlightData?: EmbeddedHighlightData
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -178,6 +184,7 @@ export const parsePreparedContent = async (
   }
 
   let article = null
+  let highlightData = undefined
   const { document, pageInfo } = preparedDocument
 
   // Checking for content type acceptance or if there are no contentType
@@ -232,6 +239,10 @@ export const parsePreparedContent = async (
           }
         })
         article.content = article.dom.outerHTML
+      }
+
+      if (article?.dom) {
+        highlightData = findEmbeddedHighlight(article?.dom)
       }
 
       const ANCHOR_ELEMENTS_BLOCKED_ATTRIBUTES = [
@@ -315,6 +326,7 @@ export const parsePreparedContent = async (
     parsedContent: article,
     canonicalUrl,
     pageType: parseOriginalContent(dom),
+    highlightData,
   }
 }
 
