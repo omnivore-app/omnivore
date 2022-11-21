@@ -9,6 +9,7 @@ import { NewsletterEmail } from '../../src/entity/newsletter_email'
 import { SaveContext } from '../../src/services/save_email'
 import { createPubSubClient } from '../../src/datalayer/pubsub'
 import { getPageByParam } from '../../src/elastic/pages'
+import nock from 'nock'
 
 describe('saveNewsletterEmail', () => {
   const username = 'fakeUser'
@@ -35,6 +36,7 @@ describe('saveNewsletterEmail', () => {
   })
 
   it('adds the newsletter to the library', async () => {
+    nock('https://blog.omnivore.app').get('/fake-url').reply(404)
     const url = 'https://blog.omnivore.app/fake-url'
 
     await saveNewsletterEmail(

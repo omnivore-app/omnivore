@@ -12,6 +12,16 @@ public struct LinkedItemQueryResult {
   }
 }
 
+public struct LinkedItemSyncResult {
+  public let updatedItemIDs: [String]
+  public let cursor: String?
+
+  public init(updatedItemIDs: [String], cursor: String?) {
+    self.updatedItemIDs = updatedItemIDs
+    self.cursor = cursor
+  }
+}
+
 public struct LinkedItemAudioProperties {
   public let itemID: String
   public let objectID: NSManagedObjectID
@@ -62,11 +72,22 @@ public extension LinkedItem {
     return (pageURLString ?? "").hasSuffix("pdf")
   }
 
+  func hideHost(_ host: String) -> Bool {
+    switch host {
+    case "storage.googleapis.com":
+      return true
+    case "omnivore.app":
+      return true
+    default:
+      return false
+    }
+  }
+
   var publisherDisplayName: String? {
     if let siteName = siteName {
       return siteName
     }
-    if let host = URL(string: publisherURLString ?? pageURLString ?? "")?.host, host != "storage.googleapis.com" {
+    if let host = URL(string: publisherURLString ?? pageURLString ?? "")?.host, !hideHost(host) {
       return host
     }
     return nil

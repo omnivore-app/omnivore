@@ -3,13 +3,13 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/delete"
-        android:title="@string/delete_highlight_menu_title"
+        android:title="@string/pdf_remove_highlight"
         app:showAsAction="always">
     </item>
 
     <item
-        android:id="@+id/annotate"
-        android:title="@string/annotate_menu_action"
+        android:id="@+id/copyPdfHighlight"
+        android:title="@string/pdf_highlight_copy"
         app:showAsAction="always">
     </item>
 </menu>

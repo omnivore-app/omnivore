@@ -1,5 +1,9 @@
 package app.omnivore.omnivore.ui.reader
 
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -10,7 +14,34 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.unit.dp
+import androidx.fragment.app.Fragment
+import app.omnivore.omnivore.ui.theme.OmnivoreTheme
+
+class AnnotationEditFragment : Fragment() {
+  override fun onCreateView(
+    inflater: LayoutInflater,
+    container: ViewGroup?,
+    savedInstanceState: Bundle?
+  ): View? {
+    return ComposeView(requireContext()).apply {
+      // Dispose of the Composition when the view's LifecycleOwner
+      // is destroyed
+      setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+      setContent {
+        OmnivoreTheme {
+          AnnotationEditView(
+            initialAnnotation = "Initial Annotation",
+            onSave = {},
+            onCancel = {}
+          )
+        }
+      }
+    }
+  }
+}
 
 // TODO: better layout and styling for this view
 @OptIn(ExperimentalMaterial3Api::class)

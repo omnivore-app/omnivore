@@ -1,6 +1,7 @@
 import Models
 import Services
 import SwiftUI
+import Views
 import WebKit
 
 struct SafariWebLink: Identifiable {
@@ -11,6 +12,24 @@ struct SafariWebLink: Identifiable {
 @MainActor final class WebReaderViewModel: ObservableObject {
   @Published var articleContent: ArticleContent?
   @Published var errorMessage: String?
+
+  func hasOriginalUrl(_ item: LinkedItem) -> Bool {
+    if let pageURLString = item.pageURLString, let host = URL(string: pageURLString)?.host {
+      if host == "omnivore.app" {
+        return false
+      }
+      return true
+    }
+    return false
+  }
+
+  func downloadAudio(audioController: AudioController, item: LinkedItem) {
+    Snackbar.show(message: "Downloading Offline Audio")
+    Task {
+      let downloaded = await audioController.downloadForOffline(itemID: item.unwrappedID)
+      Snackbar.show(message: downloaded ? "Audio file downloaded" : "Error downloading audio")
+    }
+  }
 
   func loadContent(dataService: DataService, username: String, itemID: String, retryCount: Int = 0) async {
     errorMessage = nil

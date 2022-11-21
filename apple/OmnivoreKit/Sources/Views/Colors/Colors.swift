@@ -3,6 +3,7 @@ import SwiftUI
 public extension Color {
   static var appBackground: Color { Color("_background", bundle: .module) }
   static var appDeepBackground: Color { Color("_deepBackground", bundle: .module) }
+  static var appGreenSuccess: Color { Color("_appGreenSuccess", bundle: .module) }
 
   // GrayScale -- adapted from Radix Colors
   static var appGrayBorder: Color { Color("_grayBorder", bundle: .module) }

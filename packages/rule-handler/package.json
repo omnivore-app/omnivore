@@ -1,0 +1,30 @@
+{
+  "name": "@omnivore/rule-handler",
+  "version": "1.0.0",
+  "main": "build/src/index.js",
+  "files": [
+    "build/src"
+  ],
+  "license": "Apache-2.0",
+  "scripts": {
+    "test": "yarn mocha -r ts-node/register --config mocha-config.json",
+    "lint": "eslint src --ext ts,js,tsx,jsx",
+    "compile": "tsc",
+    "build": "tsc",
+    "start": "functions-framework --target=ruleHandler",
+    "dev": "concurrently \"tsc -w\" \"nodemon --watch ./build/ --exec npm run start\""
+  },
+  "devDependencies": {
+    "chai": "^4.3.6",
+    "eslint-plugin-prettier": "^4.0.0",
+    "mocha": "^10.0.0"
+  },
+  "dependencies": {
+    "@google-cloud/functions-framework": "3.1.2",
+    "@sentry/serverless": "^6.16.1",
+    "axios": "^0.27.2",
+    "dotenv": "^16.0.1",
+    "firebase-admin": "^10.0.2",
+    "jsonwebtoken": "^8.5.1"
+  }
+}

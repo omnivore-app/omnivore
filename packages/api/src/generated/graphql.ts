@@ -571,6 +571,24 @@ export type DeleteReminderSuccess = {
   reminder: Reminder;
 };
 
+export type DeleteRuleError = {
+  __typename?: 'DeleteRuleError';
+  errorCodes: Array<DeleteRuleErrorCode>;
+};
+
+export enum DeleteRuleErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type DeleteRuleResult = DeleteRuleError | DeleteRuleSuccess;
+
+export type DeleteRuleSuccess = {
+  __typename?: 'DeleteRuleSuccess';
+  rule: Rule;
+};
+
 export type DeleteWebhookError = {
   __typename?: 'DeleteWebhookError';
   errorCodes: Array<DeleteWebhookErrorCode>;
@@ -594,6 +612,23 @@ export type DeviceToken = {
   createdAt: Scalars['Date'];
   id: Scalars['ID'];
   token: Scalars['String'];
+};
+
+export type DeviceTokensError = {
+  __typename?: 'DeviceTokensError';
+  errorCodes: Array<DeviceTokensErrorCode>;
+};
+
+export enum DeviceTokensErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type DeviceTokensResult = DeviceTokensError | DeviceTokensSuccess;
+
+export type DeviceTokensSuccess = {
+  __typename?: 'DeviceTokensSuccess';
+  deviceTokens: Array<DeviceToken>;
 };
 
 export type Feature = {
@@ -975,6 +1010,7 @@ export type Mutation = {
   deleteNewsletterEmail: DeleteNewsletterEmailResult;
   deleteReaction: DeleteReactionResult;
   deleteReminder: DeleteReminderResult;
+  deleteRule: DeleteRuleResult;
   deleteWebhook: DeleteWebhookResult;
   generateApiKey: GenerateApiKeyResult;
   googleLogin: LoginResult;
@@ -996,6 +1032,7 @@ export type Mutation = {
   setLabels: SetLabelsResult;
   setLabelsForHighlight: SetLabelsResult;
   setLinkArchived: ArchiveLinkResult;
+  setRule: SetRuleResult;
   setShareArticle: SetShareArticleResult;
   setShareHighlight: SetShareHighlightResult;
   setUserPersonalization: SetUserPersonalizationResult;
@@ -1091,6 +1128,11 @@ export type MutationDeleteReactionArgs = {
 
 
 export type MutationDeleteReminderArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteRuleArgs = {
   id: Scalars['ID'];
 };
 
@@ -1192,6 +1234,11 @@ export type MutationSetLabelsForHighlightArgs = {
 
 export type MutationSetLinkArchivedArgs = {
   input: ArchiveLinkInput;
+};
+
+
+export type MutationSetRuleArgs = {
+  input: SetRuleInput;
 };
 
 
@@ -1386,6 +1433,7 @@ export type Query = {
   article: ArticleResult;
   articleSavingRequest: ArticleSavingRequestResult;
   articles: ArticlesResult;
+  deviceTokens: DeviceTokensResult;
   feedArticles: FeedArticlesResult;
   getFollowers: GetFollowersResult;
   getFollowing: GetFollowingResult;
@@ -1397,6 +1445,7 @@ export type Query = {
   newsletterEmails: NewsletterEmailsResult;
   recentSearches: RecentSearchesResult;
   reminder: ReminderResult;
+  rules: RulesResult;
   search: SearchResult;
   sendInstallInstructions: SendInstallInstructionsResult;
   sharedArticle: SharedArticleResult;
@@ -1452,6 +1501,11 @@ export type QueryGetFollowingArgs = {
 
 export type QueryReminderArgs = {
   linkId: Scalars['ID'];
+};
+
+
+export type QueryRulesArgs = {
+  enabled?: InputMaybe<Scalars['Boolean']>;
 };
 
 
@@ -1616,6 +1670,52 @@ export type RevokeApiKeySuccess = {
   apiKey: ApiKey;
 };
 
+export type Rule = {
+  __typename?: 'Rule';
+  actions: Array<RuleAction>;
+  createdAt: Scalars['Date'];
+  enabled: Scalars['Boolean'];
+  filter: Scalars['String'];
+  id: Scalars['ID'];
+  name: Scalars['String'];
+  updatedAt: Scalars['Date'];
+};
+
+export type RuleAction = {
+  __typename?: 'RuleAction';
+  params: Array<Scalars['String']>;
+  type: RuleActionType;
+};
+
+export type RuleActionInput = {
+  params: Array<Scalars['String']>;
+  type: RuleActionType;
+};
+
+export enum RuleActionType {
+  AddLabel = 'ADD_LABEL',
+  Archive = 'ARCHIVE',
+  MarkAsRead = 'MARK_AS_READ',
+  SendNotification = 'SEND_NOTIFICATION'
+}
+
+export type RulesError = {
+  __typename?: 'RulesError';
+  errorCodes: Array<RulesErrorCode>;
+};
+
+export enum RulesErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type RulesResult = RulesError | RulesSuccess;
+
+export type RulesSuccess = {
+  __typename?: 'RulesSuccess';
+  rules: Array<Rule>;
+};
+
 export type SaveArticleReadingProgressError = {
   __typename?: 'SaveArticleReadingProgressError';
   errorCodes: Array<SaveArticleReadingProgressErrorCode>;
@@ -1647,6 +1747,7 @@ export type SaveError = {
 };
 
 export enum SaveErrorCode {
+  EmbeddedHighlightFailed = 'EMBEDDED_HIGHLIGHT_FAILED',
   Unauthorized = 'UNAUTHORIZED',
   Unknown = 'UNKNOWN'
 }
@@ -1879,6 +1980,33 @@ export type SetLabelsResult = SetLabelsError | SetLabelsSuccess;
 export type SetLabelsSuccess = {
   __typename?: 'SetLabelsSuccess';
   labels: Array<Label>;
+};
+
+export type SetRuleError = {
+  __typename?: 'SetRuleError';
+  errorCodes: Array<SetRuleErrorCode>;
+};
+
+export enum SetRuleErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type SetRuleInput = {
+  actions: Array<RuleActionInput>;
+  description?: InputMaybe<Scalars['String']>;
+  enabled: Scalars['Boolean'];
+  filter: Scalars['String'];
+  id?: InputMaybe<Scalars['ID']>;
+  name: Scalars['String'];
+};
+
+export type SetRuleResult = SetRuleError | SetRuleSuccess;
+
+export type SetRuleSuccess = {
+  __typename?: 'SetRuleSuccess';
+  rule: Rule;
 };
 
 export type SetShareArticleError = {
@@ -2726,11 +2854,19 @@ export type ResolversTypes = {
   DeleteReminderErrorCode: DeleteReminderErrorCode;
   DeleteReminderResult: ResolversTypes['DeleteReminderError'] | ResolversTypes['DeleteReminderSuccess'];
   DeleteReminderSuccess: ResolverTypeWrapper<DeleteReminderSuccess>;
+  DeleteRuleError: ResolverTypeWrapper<DeleteRuleError>;
+  DeleteRuleErrorCode: DeleteRuleErrorCode;
+  DeleteRuleResult: ResolversTypes['DeleteRuleError'] | ResolversTypes['DeleteRuleSuccess'];
+  DeleteRuleSuccess: ResolverTypeWrapper<DeleteRuleSuccess>;
   DeleteWebhookError: ResolverTypeWrapper<DeleteWebhookError>;
   DeleteWebhookErrorCode: DeleteWebhookErrorCode;
   DeleteWebhookResult: ResolversTypes['DeleteWebhookError'] | ResolversTypes['DeleteWebhookSuccess'];
   DeleteWebhookSuccess: ResolverTypeWrapper<DeleteWebhookSuccess>;
   DeviceToken: ResolverTypeWrapper<DeviceToken>;
+  DeviceTokensError: ResolverTypeWrapper<DeviceTokensError>;
+  DeviceTokensErrorCode: DeviceTokensErrorCode;
+  DeviceTokensResult: ResolversTypes['DeviceTokensError'] | ResolversTypes['DeviceTokensSuccess'];
+  DeviceTokensSuccess: ResolverTypeWrapper<DeviceTokensSuccess>;
   Feature: ResolverTypeWrapper<Feature>;
   FeedArticle: ResolverTypeWrapper<FeedArticle>;
   FeedArticleEdge: ResolverTypeWrapper<FeedArticleEdge>;
@@ -2835,6 +2971,14 @@ export type ResolversTypes = {
   RevokeApiKeyErrorCode: RevokeApiKeyErrorCode;
   RevokeApiKeyResult: ResolversTypes['RevokeApiKeyError'] | ResolversTypes['RevokeApiKeySuccess'];
   RevokeApiKeySuccess: ResolverTypeWrapper<RevokeApiKeySuccess>;
+  Rule: ResolverTypeWrapper<Rule>;
+  RuleAction: ResolverTypeWrapper<RuleAction>;
+  RuleActionInput: RuleActionInput;
+  RuleActionType: RuleActionType;
+  RulesError: ResolverTypeWrapper<RulesError>;
+  RulesErrorCode: RulesErrorCode;
+  RulesResult: ResolversTypes['RulesError'] | ResolversTypes['RulesSuccess'];
+  RulesSuccess: ResolverTypeWrapper<RulesSuccess>;
   SaveArticleReadingProgressError: ResolverTypeWrapper<SaveArticleReadingProgressError>;
   SaveArticleReadingProgressErrorCode: SaveArticleReadingProgressErrorCode;
   SaveArticleReadingProgressInput: SaveArticleReadingProgressInput;
@@ -2883,6 +3027,11 @@ export type ResolversTypes = {
   SetLabelsInput: SetLabelsInput;
   SetLabelsResult: ResolversTypes['SetLabelsError'] | ResolversTypes['SetLabelsSuccess'];
   SetLabelsSuccess: ResolverTypeWrapper<SetLabelsSuccess>;
+  SetRuleError: ResolverTypeWrapper<SetRuleError>;
+  SetRuleErrorCode: SetRuleErrorCode;
+  SetRuleInput: SetRuleInput;
+  SetRuleResult: ResolversTypes['SetRuleError'] | ResolversTypes['SetRuleSuccess'];
+  SetRuleSuccess: ResolverTypeWrapper<SetRuleSuccess>;
   SetShareArticleError: ResolverTypeWrapper<SetShareArticleError>;
   SetShareArticleErrorCode: SetShareArticleErrorCode;
   SetShareArticleInput: SetShareArticleInput;
@@ -3094,10 +3243,16 @@ export type ResolversParentTypes = {
   DeleteReminderError: DeleteReminderError;
   DeleteReminderResult: ResolversParentTypes['DeleteReminderError'] | ResolversParentTypes['DeleteReminderSuccess'];
   DeleteReminderSuccess: DeleteReminderSuccess;
+  DeleteRuleError: DeleteRuleError;
+  DeleteRuleResult: ResolversParentTypes['DeleteRuleError'] | ResolversParentTypes['DeleteRuleSuccess'];
+  DeleteRuleSuccess: DeleteRuleSuccess;
   DeleteWebhookError: DeleteWebhookError;
   DeleteWebhookResult: ResolversParentTypes['DeleteWebhookError'] | ResolversParentTypes['DeleteWebhookSuccess'];
   DeleteWebhookSuccess: DeleteWebhookSuccess;
   DeviceToken: DeviceToken;
+  DeviceTokensError: DeviceTokensError;
+  DeviceTokensResult: ResolversParentTypes['DeviceTokensError'] | ResolversParentTypes['DeviceTokensSuccess'];
+  DeviceTokensSuccess: DeviceTokensSuccess;
   Feature: Feature;
   FeedArticle: FeedArticle;
   FeedArticleEdge: FeedArticleEdge;
@@ -3182,6 +3337,12 @@ export type ResolversParentTypes = {
   RevokeApiKeyError: RevokeApiKeyError;
   RevokeApiKeyResult: ResolversParentTypes['RevokeApiKeyError'] | ResolversParentTypes['RevokeApiKeySuccess'];
   RevokeApiKeySuccess: RevokeApiKeySuccess;
+  Rule: Rule;
+  RuleAction: RuleAction;
+  RuleActionInput: RuleActionInput;
+  RulesError: RulesError;
+  RulesResult: ResolversParentTypes['RulesError'] | ResolversParentTypes['RulesSuccess'];
+  RulesSuccess: RulesSuccess;
   SaveArticleReadingProgressError: SaveArticleReadingProgressError;
   SaveArticleReadingProgressInput: SaveArticleReadingProgressInput;
   SaveArticleReadingProgressResult: ResolversParentTypes['SaveArticleReadingProgressError'] | ResolversParentTypes['SaveArticleReadingProgressSuccess'];
@@ -3221,6 +3382,10 @@ export type ResolversParentTypes = {
   SetLabelsInput: SetLabelsInput;
   SetLabelsResult: ResolversParentTypes['SetLabelsError'] | ResolversParentTypes['SetLabelsSuccess'];
   SetLabelsSuccess: SetLabelsSuccess;
+  SetRuleError: SetRuleError;
+  SetRuleInput: SetRuleInput;
+  SetRuleResult: ResolversParentTypes['SetRuleError'] | ResolversParentTypes['SetRuleSuccess'];
+  SetRuleSuccess: SetRuleSuccess;
   SetShareArticleError: SetShareArticleError;
   SetShareArticleInput: SetShareArticleInput;
   SetShareArticleResult: ResolversParentTypes['SetShareArticleError'] | ResolversParentTypes['SetShareArticleSuccess'];
@@ -3714,6 +3879,20 @@ export type DeleteReminderSuccessResolvers<ContextType = ResolverContext, Parent
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type DeleteRuleErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteRuleError'] = ResolversParentTypes['DeleteRuleError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['DeleteRuleErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type DeleteRuleResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteRuleResult'] = ResolversParentTypes['DeleteRuleResult']> = {
+  __resolveType: TypeResolveFn<'DeleteRuleError' | 'DeleteRuleSuccess', ParentType, ContextType>;
+};
+
+export type DeleteRuleSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteRuleSuccess'] = ResolversParentTypes['DeleteRuleSuccess']> = {
+  rule?: Resolver<ResolversTypes['Rule'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type DeleteWebhookErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteWebhookError'] = ResolversParentTypes['DeleteWebhookError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['DeleteWebhookErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -3732,6 +3911,20 @@ export type DeviceTokenResolvers<ContextType = ResolverContext, ParentType exten
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   token?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type DeviceTokensErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeviceTokensError'] = ResolversParentTypes['DeviceTokensError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['DeviceTokensErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type DeviceTokensResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeviceTokensResult'] = ResolversParentTypes['DeviceTokensResult']> = {
+  __resolveType: TypeResolveFn<'DeviceTokensError' | 'DeviceTokensSuccess', ParentType, ContextType>;
+};
+
+export type DeviceTokensSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeviceTokensSuccess'] = ResolversParentTypes['DeviceTokensSuccess']> = {
+  deviceTokens?: Resolver<Array<ResolversTypes['DeviceToken']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -4033,6 +4226,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   deleteNewsletterEmail?: Resolver<ResolversTypes['DeleteNewsletterEmailResult'], ParentType, ContextType, RequireFields<MutationDeleteNewsletterEmailArgs, 'newsletterEmailId'>>;
   deleteReaction?: Resolver<ResolversTypes['DeleteReactionResult'], ParentType, ContextType, RequireFields<MutationDeleteReactionArgs, 'id'>>;
   deleteReminder?: Resolver<ResolversTypes['DeleteReminderResult'], ParentType, ContextType, RequireFields<MutationDeleteReminderArgs, 'id'>>;
+  deleteRule?: Resolver<ResolversTypes['DeleteRuleResult'], ParentType, ContextType, RequireFields<MutationDeleteRuleArgs, 'id'>>;
   deleteWebhook?: Resolver<ResolversTypes['DeleteWebhookResult'], ParentType, ContextType, RequireFields<MutationDeleteWebhookArgs, 'id'>>;
   generateApiKey?: Resolver<ResolversTypes['GenerateApiKeyResult'], ParentType, ContextType, RequireFields<MutationGenerateApiKeyArgs, 'input'>>;
   googleLogin?: Resolver<ResolversTypes['LoginResult'], ParentType, ContextType, RequireFields<MutationGoogleLoginArgs, 'input'>>;
@@ -4054,6 +4248,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   setLabels?: Resolver<ResolversTypes['SetLabelsResult'], ParentType, ContextType, RequireFields<MutationSetLabelsArgs, 'input'>>;
   setLabelsForHighlight?: Resolver<ResolversTypes['SetLabelsResult'], ParentType, ContextType, RequireFields<MutationSetLabelsForHighlightArgs, 'input'>>;
   setLinkArchived?: Resolver<ResolversTypes['ArchiveLinkResult'], ParentType, ContextType, RequireFields<MutationSetLinkArchivedArgs, 'input'>>;
+  setRule?: Resolver<ResolversTypes['SetRuleResult'], ParentType, ContextType, RequireFields<MutationSetRuleArgs, 'input'>>;
   setShareArticle?: Resolver<ResolversTypes['SetShareArticleResult'], ParentType, ContextType, RequireFields<MutationSetShareArticleArgs, 'input'>>;
   setShareHighlight?: Resolver<ResolversTypes['SetShareHighlightResult'], ParentType, ContextType, RequireFields<MutationSetShareHighlightArgs, 'input'>>;
   setUserPersonalization?: Resolver<ResolversTypes['SetUserPersonalizationResult'], ParentType, ContextType, RequireFields<MutationSetUserPersonalizationArgs, 'input'>>;
@@ -4148,6 +4343,7 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   article?: Resolver<ResolversTypes['ArticleResult'], ParentType, ContextType, RequireFields<QueryArticleArgs, 'slug' | 'username'>>;
   articleSavingRequest?: Resolver<ResolversTypes['ArticleSavingRequestResult'], ParentType, ContextType, RequireFields<QueryArticleSavingRequestArgs, 'id'>>;
   articles?: Resolver<ResolversTypes['ArticlesResult'], ParentType, ContextType, Partial<QueryArticlesArgs>>;
+  deviceTokens?: Resolver<ResolversTypes['DeviceTokensResult'], ParentType, ContextType>;
   feedArticles?: Resolver<ResolversTypes['FeedArticlesResult'], ParentType, ContextType, Partial<QueryFeedArticlesArgs>>;
   getFollowers?: Resolver<ResolversTypes['GetFollowersResult'], ParentType, ContextType, Partial<QueryGetFollowersArgs>>;
   getFollowing?: Resolver<ResolversTypes['GetFollowingResult'], ParentType, ContextType, Partial<QueryGetFollowingArgs>>;
@@ -4159,6 +4355,7 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   newsletterEmails?: Resolver<ResolversTypes['NewsletterEmailsResult'], ParentType, ContextType>;
   recentSearches?: Resolver<ResolversTypes['RecentSearchesResult'], ParentType, ContextType>;
   reminder?: Resolver<ResolversTypes['ReminderResult'], ParentType, ContextType, RequireFields<QueryReminderArgs, 'linkId'>>;
+  rules?: Resolver<ResolversTypes['RulesResult'], ParentType, ContextType, Partial<QueryRulesArgs>>;
   search?: Resolver<ResolversTypes['SearchResult'], ParentType, ContextType, Partial<QuerySearchArgs>>;
   sendInstallInstructions?: Resolver<ResolversTypes['SendInstallInstructionsResult'], ParentType, ContextType>;
   sharedArticle?: Resolver<ResolversTypes['SharedArticleResult'], ParentType, ContextType, RequireFields<QuerySharedArticleArgs, 'slug' | 'username'>>;
@@ -4248,6 +4445,37 @@ export type RevokeApiKeyResultResolvers<ContextType = ResolverContext, ParentTyp
 
 export type RevokeApiKeySuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RevokeApiKeySuccess'] = ResolversParentTypes['RevokeApiKeySuccess']> = {
   apiKey?: Resolver<ResolversTypes['ApiKey'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type RuleResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Rule'] = ResolversParentTypes['Rule']> = {
+  actions?: Resolver<Array<ResolversTypes['RuleAction']>, ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  enabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  filter?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type RuleActionResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RuleAction'] = ResolversParentTypes['RuleAction']> = {
+  params?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['RuleActionType'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type RulesErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RulesError'] = ResolversParentTypes['RulesError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['RulesErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type RulesResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RulesResult'] = ResolversParentTypes['RulesResult']> = {
+  __resolveType: TypeResolveFn<'RulesError' | 'RulesSuccess', ParentType, ContextType>;
+};
+
+export type RulesSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RulesSuccess'] = ResolversParentTypes['RulesSuccess']> = {
+  rules?: Resolver<Array<ResolversTypes['Rule']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -4420,6 +4648,20 @@ export type SetLabelsResultResolvers<ContextType = ResolverContext, ParentType e
 
 export type SetLabelsSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SetLabelsSuccess'] = ResolversParentTypes['SetLabelsSuccess']> = {
   labels?: Resolver<Array<ResolversTypes['Label']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SetRuleErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SetRuleError'] = ResolversParentTypes['SetRuleError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['SetRuleErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SetRuleResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SetRuleResult'] = ResolversParentTypes['SetRuleResult']> = {
+  __resolveType: TypeResolveFn<'SetRuleError' | 'SetRuleSuccess', ParentType, ContextType>;
+};
+
+export type SetRuleSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SetRuleSuccess'] = ResolversParentTypes['SetRuleSuccess']> = {
+  rule?: Resolver<ResolversTypes['Rule'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -4919,10 +5161,16 @@ export type Resolvers<ContextType = ResolverContext> = {
   DeleteReminderError?: DeleteReminderErrorResolvers<ContextType>;
   DeleteReminderResult?: DeleteReminderResultResolvers<ContextType>;
   DeleteReminderSuccess?: DeleteReminderSuccessResolvers<ContextType>;
+  DeleteRuleError?: DeleteRuleErrorResolvers<ContextType>;
+  DeleteRuleResult?: DeleteRuleResultResolvers<ContextType>;
+  DeleteRuleSuccess?: DeleteRuleSuccessResolvers<ContextType>;
   DeleteWebhookError?: DeleteWebhookErrorResolvers<ContextType>;
   DeleteWebhookResult?: DeleteWebhookResultResolvers<ContextType>;
   DeleteWebhookSuccess?: DeleteWebhookSuccessResolvers<ContextType>;
   DeviceToken?: DeviceTokenResolvers<ContextType>;
+  DeviceTokensError?: DeviceTokensErrorResolvers<ContextType>;
+  DeviceTokensResult?: DeviceTokensResultResolvers<ContextType>;
+  DeviceTokensSuccess?: DeviceTokensSuccessResolvers<ContextType>;
   Feature?: FeatureResolvers<ContextType>;
   FeedArticle?: FeedArticleResolvers<ContextType>;
   FeedArticleEdge?: FeedArticleEdgeResolvers<ContextType>;
@@ -4995,6 +5243,11 @@ export type Resolvers<ContextType = ResolverContext> = {
   RevokeApiKeyError?: RevokeApiKeyErrorResolvers<ContextType>;
   RevokeApiKeyResult?: RevokeApiKeyResultResolvers<ContextType>;
   RevokeApiKeySuccess?: RevokeApiKeySuccessResolvers<ContextType>;
+  Rule?: RuleResolvers<ContextType>;
+  RuleAction?: RuleActionResolvers<ContextType>;
+  RulesError?: RulesErrorResolvers<ContextType>;
+  RulesResult?: RulesResultResolvers<ContextType>;
+  RulesSuccess?: RulesSuccessResolvers<ContextType>;
   SaveArticleReadingProgressError?: SaveArticleReadingProgressErrorResolvers<ContextType>;
   SaveArticleReadingProgressResult?: SaveArticleReadingProgressResultResolvers<ContextType>;
   SaveArticleReadingProgressSuccess?: SaveArticleReadingProgressSuccessResolvers<ContextType>;
@@ -5024,6 +5277,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   SetLabelsError?: SetLabelsErrorResolvers<ContextType>;
   SetLabelsResult?: SetLabelsResultResolvers<ContextType>;
   SetLabelsSuccess?: SetLabelsSuccessResolvers<ContextType>;
+  SetRuleError?: SetRuleErrorResolvers<ContextType>;
+  SetRuleResult?: SetRuleResultResolvers<ContextType>;
+  SetRuleSuccess?: SetRuleSuccessResolvers<ContextType>;
   SetShareArticleError?: SetShareArticleErrorResolvers<ContextType>;
   SetShareArticleResult?: SetShareArticleResultResolvers<ContextType>;
   SetShareArticleSuccess?: SetShareArticleSuccessResolvers<ContextType>;

@@ -19,8 +19,13 @@ data class ReadingProgressParams(
   )
 }
 
-suspend fun Networker.updateReadingProgress(jsonString: String): Boolean {
-  val input = Gson().fromJson(jsonString, ReadingProgressParams::class.java).asSaveReadingProgressInput()
+suspend fun Networker.updateWebReadingProgress(jsonString: String): Boolean {
+  val params = Gson().fromJson(jsonString, ReadingProgressParams::class.java)
+  return updateReadingProgress(params)
+}
+
+suspend fun Networker.updateReadingProgress(params: ReadingProgressParams): Boolean {
+  val input = params.asSaveReadingProgressInput()
 
   Log.d("Loggo", "created reading progress input: $input")
 

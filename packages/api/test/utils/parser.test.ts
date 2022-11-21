@@ -38,9 +38,9 @@ describe('parseMetadata', async () => {
 
 describe('parsePreparedContent', async () => {
   it('gets published date when JSONLD fails to load', async () => {
-    nock('https://stratechery.com:443', {"encodedQueryParams":true})
+    nock('https://stratechery.com:443', { encodedQueryParams: true })
       .get('/wp-json/oembed/1.0/embed')
-      .query({"url":"https%3A%2F%2Fstratechery.com%2F2016%2Fits-a-tesla%2F"})
+      .query({ url: 'https%3A%2F%2Fstratechery.com%2F2016%2Fits-a-tesla%2F' })
       .reply(401)
 
     const html = load('./test/utils/data/stratechery-blog-post.html')
@@ -51,6 +51,29 @@ describe('parsePreparedContent', async () => {
 
     expect(result.parsedContent?.publishedDate?.getTime()).to.equal(
       new Date('2016-04-05T15:27:51+00:00').getTime()
+    )
+  })
+  it('returns a highlight range if markers are found in the HTML', async () => {
+    const html = `
+      <html>
+        <body>
+          <div>
+            <div id='article-container'>
+              some prefix text
+              <span data-omnivore-highlight-start="true"></span>This is some text within the highlight markers<span data-omnivore-highlight-end="true"></span>
+              some suffix text
+            </div>
+          </div>
+        </body>
+      </html>
+    `
+    const result = await parsePreparedContent('https://blog.omnivore.app/', {
+      document: html,
+      pageInfo: {},
+    })
+
+    expect(result.highlightData?.quote).to.eq(
+      'This is some text within the highlight markers'
     )
   })
 })

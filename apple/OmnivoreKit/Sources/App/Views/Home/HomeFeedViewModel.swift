@@ -36,10 +36,6 @@ import Views
 
   @AppStorage(UserDefaultKey.lastSelectedLinkedItemFilter.rawValue) var appliedFilter = LinkedItemFilter.inbox.rawValue
 
-  @AppStorage(UserDefaultKey.lastItemSyncTime.rawValue) var lastItemSyncTime = DateFormatter.formatterISO8601.string(
-    from: Date(timeIntervalSinceReferenceDate: 0)
-  )
-
   func handleReaderItemNotification(objectID: NSManagedObjectID, dataService: DataService) {
     // Pop the current selected item if needed
     if selectedItem != nil, selectedItem?.objectID != objectID {
@@ -91,32 +87,47 @@ import Views
     items.insert(item, at: 0)
   }
 
-  func loadItems(dataService: DataService, audioController: AudioController, isRefresh: Bool) async {
-    let syncStartTime = Date()
-    let thisSearchIdx = searchIdx
-    searchIdx += 1
-
-    isLoading = true
-    showLoadingBar = true
-
+  func loadCurrentViewer(dataService: DataService) async {
     // Cache the viewer
     if dataService.currentViewer == nil {
-      Task { _ = try? await dataService.fetchViewer() }
+      _ = try? await dataService.fetchViewer()
     }
+  }
 
-    // Fetch labels if none are available locally
+  func loadLabels(dataService: DataService) async {
     let fetchRequest: NSFetchRequest<Models.LinkedItemLabel> = LinkedItemLabel.fetchRequest()
     fetchRequest.fetchLimit = 1
 
     if (try? dataService.viewContext.count(for: fetchRequest)) == 0 {
       _ = try? await dataService.labels()
     }
+  }
 
-    // Sync items if necessary
-    let lastSyncDate = dateFormatter.date(from: lastItemSyncTime) ?? Date(timeIntervalSinceReferenceDate: 0)
+  func syncItems(dataService: DataService, syncStartTime: Date) async {
+    let lastSyncDate = dateFormatter.date(from: dataService.lastItemSyncTime) ?? Date(timeIntervalSinceReferenceDate: 0)
     let syncResult = try? await dataService.syncLinkedItems(since: lastSyncDate, cursor: nil)
+
     if syncResult != nil {
-      lastItemSyncTime = dateFormatter.string(from: syncStartTime)
+      dataService.lastItemSyncTime = dateFormatter.string(from: syncStartTime)
+    }
+
+    // If possible start prefetching new pages in the background
+    if let itemIDs = syncResult?.updatedItemIDs,
+       let username = dataService.currentViewer?.username,
+       itemIDs.count > 0
+    {
+      Task.detached(priority: .background) {
+        await dataService.prefetchPages(itemIDs: itemIDs, username: username)
+      }
+    }
+  }
+
+  func loadSearchQuery(dataService: DataService, isRefresh: Bool) async {
+    let thisSearchIdx = searchIdx
+    searchIdx += 1
+
+    if thisSearchIdx > 0, thisSearchIdx <= receivedIdx {
+      return
     }
 
     let queryResult = try? await dataService.loadLinkedItems(
@@ -124,15 +135,6 @@ import Views
       searchQuery: searchQuery,
       cursor: isRefresh ? nil : cursor
     )
-
-    // Search results aren't guaranteed to return in order so this
-    // will discard old results that are returned while a user is typing.
-    // For example if a user types 'Canucks', often the search results
-    // for 'C' are returned after 'Canucks' because it takes the backend
-    // much longer to compute.
-    if thisSearchIdx > 0, thisSearchIdx <= receivedIdx {
-      return
-    }
 
     if let queryResult = queryResult {
       let newItems: [LinkedItem] = {
@@ -159,28 +161,37 @@ import Views
       cursor = queryResult.cursor
       if let username = dataService.currentViewer?.username {
         await dataService.prefetchPages(itemIDs: newItems.map(\.unwrappedID), username: username)
-        // Only preload the first item in the list. We are doing this during the beta
-        // because it will kick off the user's future items being automatically transcribed.
-        // This happens because when an article is saved, we check if the user has a recent
-        // listen. If they do, we will automatically transcribe their message.
-        if let first = newItems.filter({ !$0.isPDF }).first?.id {
-          _ = await audioController.preload(itemIDs: [first])
-        }
       }
     } else {
       updateFetchController(dataService: dataService)
     }
+  }
+
+  func loadItems(dataService: DataService, audioController _: AudioController, isRefresh: Bool) async {
+    let syncStartTime = Date()
+    let start = CFAbsoluteTimeGetCurrent()
+
+    isLoading = true
+    showLoadingBar = true
+
+    await withTaskGroup(of: Void.self) { group in
+      group.addTask { await self.loadCurrentViewer(dataService: dataService) }
+      group.addTask { await self.loadLabels(dataService: dataService) }
+      group.addTask { await self.syncItems(dataService: dataService, syncStartTime: syncStartTime) }
+      await group.waitForAll()
+    }
+
+    if searchTerm.replacingOccurrences(of: " ", with: "").isEmpty {
+      updateFetchController(dataService: dataService)
+      if appliedFilter != LinkedItemFilter.inbox.rawValue {
+        await loadSearchQuery(dataService: dataService, isRefresh: isRefresh)
+      }
+    } else {
+      await loadSearchQuery(dataService: dataService, isRefresh: isRefresh)
+    }
 
     isLoading = false
     showLoadingBar = false
-  }
-
-  func downloadAudio(audioController: AudioController, item: LinkedItem) {
-    Snackbar.show(message: "Downloading Offline Audio")
-    Task {
-      let downloaded = await audioController.downloadForOffline(itemID: item.unwrappedID)
-      Snackbar.show(message: downloaded ? "Audio file downloaded" : "Error downloading audio")
-    }
   }
 
   private var fetchRequest: NSFetchRequest<Models.LinkedItem> {
