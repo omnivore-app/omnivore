@@ -20,7 +20,6 @@ import {
   findEmbeddedHighlight,
   EmbeddedHighlightData,
 } from './highlightGenerator'
-import { HighlightData } from '../datalayer/highlight/model'
 
 const logger = buildLogger('utils.parse')
 
