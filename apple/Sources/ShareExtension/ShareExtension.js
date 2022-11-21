@@ -12,6 +12,19 @@ function iconURL() {
 
 ShareExtension.prototype = {
     markHighlightSelection: () => {
+      // First remove any previous markers, this would only normally happen during debugging
+      try {
+        const markers = window.document.querySelectorAll(
+          `span[data-omnivore-highlight-start="true"],
+           span[data-omnivore-highlight-end="true"]`
+        )
+
+        for (let i = 0; i < markers.length; i++) {
+          markers[i].remove();
+        }
+      } catch {
+        // This should be OK
+      }
       try {
         const sel = window.getSelection();
         if (sel.rangeCount) {
