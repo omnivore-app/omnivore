@@ -9,6 +9,7 @@ public class ShareExtensionViewModel: ObservableObject {
   @Published public var status: ShareExtensionStatus = .processing
   @Published public var title: String = ""
   @Published public var url: String?
+  @Published public var highlightData: HighlightData?
   @Published public var linkedItem: LinkedItem?
   @Published public var requestId = UUID().uuidString.lowercased()
   @Published var debugText: String?
@@ -83,13 +84,13 @@ public class ShareExtensionViewModel: ObservableObject {
         DispatchQueue.main.async {
           self.status = .saved
 
-          let url = URLComponents(string: payload.url)
           let hostname = URL(string: payload.url)?.host ?? ""
 
           switch payload.contentType {
-          case let .html(html: _, title: title, _):
+          case let .html(html: _, title: title, highlightData: highlightData):
             self.title = title ?? ""
             self.url = hostname
+            self.highlightData = highlightData
           case .none:
             self.url = hostname
             self.title = payload.url
