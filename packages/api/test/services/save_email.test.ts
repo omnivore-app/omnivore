@@ -5,6 +5,7 @@ import { createTestUser, deleteTestUser } from '../db'
 import { SaveContext, saveEmail } from '../../src/services/save_email'
 import { createPubSubClient } from '../../src/datalayer/pubsub'
 import { getPageByParam } from '../../src/elastic/pages'
+import nock from 'nock/types'
 
 describe('saveEmail', () => {
   const username = 'fakeUser'
@@ -15,6 +16,8 @@ describe('saveEmail', () => {
   })
 
   it('doesnt fail if saved twice', async () => {
+    nock('https://blog.omnivore.app').get('/fake-url').reply(404)
+
     const url = 'https://blog.omnivore.app/fake-url'
     const title = 'fake title'
     const author = 'fake author'
