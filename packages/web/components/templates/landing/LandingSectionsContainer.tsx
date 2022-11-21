@@ -244,7 +244,7 @@ export function LandingSectionsContainer({
           <img
             srcSet="/static/landing/landingPage-7.png"
             alt="landing-7"
-            style={{ maxHeight: 400, width: '100%' }}
+            style={{ maxHeight: 400}}
           />
         }
         containerStyles={reversedSectionStyles}
