@@ -37,6 +37,7 @@ import {
   deleteNewsletterEmailResolver,
   deleteReminderResolver,
   deleteWebhookResolver,
+  deviceTokensResolver,
   generateApiKeyResolver,
   getAllUsersResolver,
   getArticleResolver,
@@ -204,6 +205,7 @@ export const functionResolvers = {
     integrations: integrationsResolver,
     recentSearches: recentSearchesResolver,
     rules: rulesResolver,
+    deviceTokens: deviceTokensResolver,
   },
   User: {
     async sharedArticles(
@@ -616,4 +618,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('OptInFeature'),
   ...resultResolveTypeResolver('SetRule'),
   ...resultResolveTypeResolver('Rules'),
+  ...resultResolveTypeResolver('DeviceTokens'),
 }

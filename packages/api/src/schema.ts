@@ -2033,6 +2033,21 @@ const schema = gql`
     NOT_FOUND
   }
 
+  union DeviceTokensResult = DeviceTokensSuccess | DeviceTokensError
+
+  type DeviceTokensSuccess {
+    deviceTokens: [DeviceToken!]!
+  }
+
+  type DeviceTokensError {
+    errorCodes: [DeviceTokensErrorCode!]!
+  }
+
+  enum DeviceTokensErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -2155,6 +2170,7 @@ const schema = gql`
     integrations: IntegrationsResult!
     recentSearches: RecentSearchesResult!
     rules(enabled: Boolean): RulesResult!
+    deviceTokens: DeviceTokensResult!
   }
 `
 

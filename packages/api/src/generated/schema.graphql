@@ -540,6 +540,21 @@ type DeviceToken {
   token: String!
 }
 
+type DeviceTokensError {
+  errorCodes: [DeviceTokensErrorCode!]!
+}
+
+enum DeviceTokensErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+union DeviceTokensResult = DeviceTokensError | DeviceTokensSuccess
+
+type DeviceTokensSuccess {
+  deviceTokens: [DeviceToken!]!
+}
+
 type Feature {
   createdAt: Date!
   expiresAt: Date
@@ -1028,6 +1043,7 @@ type Query {
   article(slug: String!, username: String!): ArticleResult!
   articleSavingRequest(id: ID!): ArticleSavingRequestResult!
   articles(after: String, first: Int, includePending: Boolean, query: String, sharedOnly: Boolean, sort: SortParams): ArticlesResult!
+  deviceTokens: DeviceTokensResult!
   feedArticles(after: String, first: Int, sharedByUser: ID, sort: SortParams): FeedArticlesResult!
   getFollowers(userId: ID): GetFollowersResult!
   getFollowing(userId: ID): GetFollowingResult!

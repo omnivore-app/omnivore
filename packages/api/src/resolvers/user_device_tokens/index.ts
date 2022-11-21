@@ -1,6 +1,9 @@
 import { authorized } from '../../utils/helpers'
 import {
   DeviceToken,
+  DeviceTokensError,
+  DeviceTokensErrorCode,
+  DeviceTokensSuccess,
   MutationSetDeviceTokenArgs,
   SetDeviceTokenError,
   SetDeviceTokenErrorCode,
@@ -13,6 +16,7 @@ import {
   deleteDeviceToken,
   getDeviceToken,
   getDeviceTokenByToken,
+  getDeviceTokensByUserId,
 } from '../../services/user_device_tokens'
 import { UserDeviceToken } from '../../entity/user_device_tokens'
 import { QueryFailedError } from 'typeorm'
@@ -118,6 +122,41 @@ export const setDeviceTokenResolver = authorized<
 
     return {
       errorCodes: [SetDeviceTokenErrorCode.Unauthorized],
+    }
+  }
+})
+
+export const deviceTokensResolver = authorized<
+  DeviceTokensSuccess,
+  DeviceTokensError
+>(async (_parent, _args, { claims: { uid }, log }) => {
+  try {
+    log.info('deviceTokensResolver', {
+      labels: {
+        source: 'resolver',
+        resolver: 'deviceTokensResolver',
+        uid,
+      },
+    })
+
+    const deviceTokens = await getDeviceTokensByUserId(uid)
+    console.log('deviceTokens', deviceTokens)
+
+    return {
+      deviceTokens: deviceTokens.map(deviceTokenToData),
+    }
+  } catch (e) {
+    log.error('Error getting device tokens', {
+      e,
+      labels: {
+        source: 'resolver',
+        resolver: 'rulesResolver',
+        uid,
+      },
+    })
+
+    return {
+      errorCodes: [DeviceTokensErrorCode.BadRequest],
     }
   }
 })

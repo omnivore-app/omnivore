@@ -614,6 +614,23 @@ export type DeviceToken = {
   token: Scalars['String'];
 };
 
+export type DeviceTokensError = {
+  __typename?: 'DeviceTokensError';
+  errorCodes: Array<DeviceTokensErrorCode>;
+};
+
+export enum DeviceTokensErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type DeviceTokensResult = DeviceTokensError | DeviceTokensSuccess;
+
+export type DeviceTokensSuccess = {
+  __typename?: 'DeviceTokensSuccess';
+  deviceTokens: Array<DeviceToken>;
+};
+
 export type Feature = {
   __typename?: 'Feature';
   createdAt: Scalars['Date'];
@@ -1416,6 +1433,7 @@ export type Query = {
   article: ArticleResult;
   articleSavingRequest: ArticleSavingRequestResult;
   articles: ArticlesResult;
+  deviceTokens: DeviceTokensResult;
   feedArticles: FeedArticlesResult;
   getFollowers: GetFollowersResult;
   getFollowing: GetFollowingResult;
@@ -2844,6 +2862,10 @@ export type ResolversTypes = {
   DeleteWebhookResult: ResolversTypes['DeleteWebhookError'] | ResolversTypes['DeleteWebhookSuccess'];
   DeleteWebhookSuccess: ResolverTypeWrapper<DeleteWebhookSuccess>;
   DeviceToken: ResolverTypeWrapper<DeviceToken>;
+  DeviceTokensError: ResolverTypeWrapper<DeviceTokensError>;
+  DeviceTokensErrorCode: DeviceTokensErrorCode;
+  DeviceTokensResult: ResolversTypes['DeviceTokensError'] | ResolversTypes['DeviceTokensSuccess'];
+  DeviceTokensSuccess: ResolverTypeWrapper<DeviceTokensSuccess>;
   Feature: ResolverTypeWrapper<Feature>;
   FeedArticle: ResolverTypeWrapper<FeedArticle>;
   FeedArticleEdge: ResolverTypeWrapper<FeedArticleEdge>;
@@ -3227,6 +3249,9 @@ export type ResolversParentTypes = {
   DeleteWebhookResult: ResolversParentTypes['DeleteWebhookError'] | ResolversParentTypes['DeleteWebhookSuccess'];
   DeleteWebhookSuccess: DeleteWebhookSuccess;
   DeviceToken: DeviceToken;
+  DeviceTokensError: DeviceTokensError;
+  DeviceTokensResult: ResolversParentTypes['DeviceTokensError'] | ResolversParentTypes['DeviceTokensSuccess'];
+  DeviceTokensSuccess: DeviceTokensSuccess;
   Feature: Feature;
   FeedArticle: FeedArticle;
   FeedArticleEdge: FeedArticleEdge;
@@ -3888,6 +3913,20 @@ export type DeviceTokenResolvers<ContextType = ResolverContext, ParentType exten
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type DeviceTokensErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeviceTokensError'] = ResolversParentTypes['DeviceTokensError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['DeviceTokensErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type DeviceTokensResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeviceTokensResult'] = ResolversParentTypes['DeviceTokensResult']> = {
+  __resolveType: TypeResolveFn<'DeviceTokensError' | 'DeviceTokensSuccess', ParentType, ContextType>;
+};
+
+export type DeviceTokensSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeviceTokensSuccess'] = ResolversParentTypes['DeviceTokensSuccess']> = {
+  deviceTokens?: Resolver<Array<ResolversTypes['DeviceToken']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type FeatureResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Feature'] = ResolversParentTypes['Feature']> = {
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   expiresAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
@@ -4303,6 +4342,7 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   article?: Resolver<ResolversTypes['ArticleResult'], ParentType, ContextType, RequireFields<QueryArticleArgs, 'slug' | 'username'>>;
   articleSavingRequest?: Resolver<ResolversTypes['ArticleSavingRequestResult'], ParentType, ContextType, RequireFields<QueryArticleSavingRequestArgs, 'id'>>;
   articles?: Resolver<ResolversTypes['ArticlesResult'], ParentType, ContextType, Partial<QueryArticlesArgs>>;
+  deviceTokens?: Resolver<ResolversTypes['DeviceTokensResult'], ParentType, ContextType>;
   feedArticles?: Resolver<ResolversTypes['FeedArticlesResult'], ParentType, ContextType, Partial<QueryFeedArticlesArgs>>;
   getFollowers?: Resolver<ResolversTypes['GetFollowersResult'], ParentType, ContextType, Partial<QueryGetFollowersArgs>>;
   getFollowing?: Resolver<ResolversTypes['GetFollowingResult'], ParentType, ContextType, Partial<QueryGetFollowingArgs>>;
@@ -5127,6 +5167,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   DeleteWebhookResult?: DeleteWebhookResultResolvers<ContextType>;
   DeleteWebhookSuccess?: DeleteWebhookSuccessResolvers<ContextType>;
   DeviceToken?: DeviceTokenResolvers<ContextType>;
+  DeviceTokensError?: DeviceTokensErrorResolvers<ContextType>;
+  DeviceTokensResult?: DeviceTokensResultResolvers<ContextType>;
+  DeviceTokensSuccess?: DeviceTokensSuccessResolvers<ContextType>;
   Feature?: FeatureResolvers<ContextType>;
   FeedArticle?: FeedArticleResolvers<ContextType>;
   FeedArticleEdge?: FeedArticleEdgeResolvers<ContextType>;
