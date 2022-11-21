@@ -490,6 +490,7 @@ const schema = gql`
   enum SaveErrorCode {
     UNKNOWN
     UNAUTHORIZED
+    EMBEDDED_HIGHLIGHT_FAILED
   }
 
   type SaveError {

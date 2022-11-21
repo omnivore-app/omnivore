@@ -1747,6 +1747,7 @@ export type SaveError = {
 };
 
 export enum SaveErrorCode {
+  EmbeddedHighlightFailed = 'EMBEDDED_HIGHLIGHT_FAILED',
   Unauthorized = 'UNAUTHORIZED',
   Unknown = 'UNKNOWN'
 }
