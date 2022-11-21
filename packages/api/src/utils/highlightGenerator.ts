@@ -74,7 +74,7 @@ function getTextNodesBetween(rootNode: Node, startNode: Node, endNode: Node) {
     }
 
     for (
-      var i = 0, len = node.childNodes.length;
+      let i = 0, len = node.childNodes.length;
       !reachedEndNode && i < len;
       ++i
     ) {
