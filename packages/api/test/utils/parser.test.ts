@@ -57,7 +57,13 @@ describe('parsePreparedContent', async () => {
     const html = `
       <html>
         <body>
-          <span data-omnivore-highlight-start="true"></span>This is some text within the highlight markers<span data-omnivore-highlight-end="true"></span>
+          <div>
+            <div id='article-container'>
+              some prefix text
+              <span data-omnivore-highlight-start="true"></span>This is some text within the highlight markers<span data-omnivore-highlight-end="true"></span>
+              some suffix text
+            </div>
+          </div>
         </body>
       </html>
     `
