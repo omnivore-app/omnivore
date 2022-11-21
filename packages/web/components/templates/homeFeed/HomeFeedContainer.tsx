@@ -1,5 +1,6 @@
 import { Box, HStack, SpanBox, VStack } from './../../elements/LayoutPrimitives'
 import Dropzone from 'react-dropzone'
+import ProgressBar from '@ramonak/react-progress-bar'
 import type {
   LibraryItem,
   LibraryItemsQueryInput,
@@ -697,7 +698,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
     width: '95%',
     height: '80%',
     position: 'absolute',
-    opacity: '0.8',
+    opacity: '0.9',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
@@ -903,9 +904,18 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
                       color: '$utilityTextDefault',
                       fontWeight: '800',
                       fontSize: '$4',
+                      width:'80%'
                     }}
                   >
-                    Uploading Files...
+                    <ProgressBar
+                      completed={60}
+                      maxCompleted={100}
+                      customLabel="Uploading Files..."
+                      bgColor='rgb(255, 210, 52)'
+                      labelColor='black'
+                      animateOnRender={true}
+                      initCompletedOnAnimation={60}
+                    />
                   </Box>
                 </DragnDropStyle>
               ) : null}
