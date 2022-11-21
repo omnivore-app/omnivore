@@ -8,7 +8,7 @@ import {
 import axios from 'axios'
 import { getAuthToken } from './index'
 
-export interface UserDeviceToken {
+export interface DeviceToken {
   id: string
   token: string
   userId: string
@@ -20,24 +20,23 @@ initializeApp({
   credential: applicationDefault(),
 })
 
-export const getUserDeviceTokens = async (
+export const getDeviceTokens = async (
   userId: string,
   apiEndpoint: string,
   jwtSecret: string
-): Promise<UserDeviceToken[]> => {
+): Promise<DeviceToken[]> => {
   const auth = await getAuthToken(userId, jwtSecret)
 
   const data = JSON.stringify({
     query: `query {
-      userDeviceTokens(userId: "${userId}") {
-        ... on UserDeviceTokensError {
+      deviceTokens {
+        ... on DeviceTokensError {
           errorCodes
         }
-        ... on UserDeviceTokensSuccess {
-          userDeviceTokens {
+        ... on DeviceTokensSuccess {
+          deviceTokens {
             id
             token
-            userId
             createdAt
           }
         }
@@ -53,8 +52,7 @@ export const getUserDeviceTokens = async (
   })
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  return response.data.data.userDeviceTokens
-    .userDeviceTokens as UserDeviceToken[]
+  return response.data.data.deviceTokens.deviceTokens as DeviceToken[]
 }
 
 export const getBatchMessages = (

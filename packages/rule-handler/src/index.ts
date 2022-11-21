@@ -70,7 +70,7 @@ export const getAuthToken = async (
 
 export const ruleHandler = Sentry.GCPFunction.wrapHttpFunction(
   async (req: Request, res: Response) => {
-    const apiEndpoint = process.env.API_ENDPOINT
+    const apiEndpoint = process.env.REST_BACKEND_ENDPOINT
     const jwtSecret = process.env.JWT_SECRET
     if (!apiEndpoint || !jwtSecret) {
       throw new Error('REST_BACKEND_ENDPOINT or JWT_SECRET not set')

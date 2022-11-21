@@ -1,6 +1,6 @@
 import {
   getBatchMessages,
-  getUserDeviceTokens,
+  getDeviceTokens,
   sendBatchPushNotifications,
 } from './sendNotification'
 import { getAuthToken, PubSubData } from './index'
@@ -107,7 +107,7 @@ export const sendNotification = async (
   jwtSecret: string
 ) => {
   // get device tokens by calling api
-  const tokens = await getUserDeviceTokens(userId, apiEndpoint, jwtSecret)
+  const tokens = await getDeviceTokens(userId, apiEndpoint, jwtSecret)
 
   const batchMessages = getBatchMessages(
     messages,
