@@ -5,6 +5,7 @@ import {
 } from './sendNotification'
 import { getRepository } from './db'
 import { UserDeviceToken } from './entity/user_device_tokens'
+import { PubSubData } from './index'
 
 enum RuleActionType {
   AddLabel = 'ADD_LABEL',
@@ -16,10 +17,14 @@ enum RuleActionType {
 export const triggerActions = async (
   userId: string,
   rules: Rules[],
-  data: any
+  data: PubSubData
 ) => {
   for (const rule of rules) {
     // TODO: filter out rules that don't match the trigger
+    if (!data.subscription) {
+      console.debug('no subscription')
+      continue
+    }
 
     for (const action of rule.actions) {
       switch (action.type) {
@@ -28,6 +33,10 @@ export const triggerActions = async (
         case RuleActionType.MarkAsRead:
           continue
         case RuleActionType.SendNotification:
+          if (action.params.length === 0) {
+            console.log('No notification messages provided')
+            continue
+          }
           await sendNotification(userId, action.params)
       }
     }

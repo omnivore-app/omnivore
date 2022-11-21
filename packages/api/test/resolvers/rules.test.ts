@@ -52,7 +52,7 @@ describe('Rules Resolver', () => {
           ... on SetRuleSuccess {
             rule {
               id
-              query
+              filter
               actions {
                 type
                 params
@@ -76,13 +76,13 @@ describe('Rules Resolver', () => {
     it('should set rules', async () => {
       const query = setRulesQuery(
         'test rule',
-        'test query',
+        'test filter',
         [{ type: 'ADD_LABEL', params: [] }],
         true
       )
 
       const res = await graphqlRequest(query, authToken).expect(200)
-      expect(res.body.data.setRule.rule.query).to.equal('test')
+      expect(res.body.data.setRule.rule.filter).to.equal('test filter')
     })
   })
 })

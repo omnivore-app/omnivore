@@ -16,6 +16,12 @@ interface PubSubRequestBody {
   message: PubSubRequestMessage
 }
 
+export interface PubSubData {
+  subscription: string
+  userId: string
+  type: EntityType
+}
+
 enum EntityType {
   PAGE = 'page',
   HIGHLIGHT = 'highlight',
@@ -68,7 +74,7 @@ export const ruleHandler = Sentry.GCPFunction.wrapHttpFunction(
     }
 
     try {
-      const data = JSON.parse(msgStr) as { userId: string; type: EntityType }
+      const data = JSON.parse(msgStr) as PubSubData
       const { userId, type } = data
       if (!userId || !type) {
         console.log('No userId or type found in message')
