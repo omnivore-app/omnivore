@@ -702,6 +702,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
+    zIndex: '1',
   })
 
   const removeItem = () => {
@@ -897,28 +898,28 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
                   </Box>
                 </DragnDropStyle>
               )}
-              {uploadingFiles.length > 0 ? (
-                <DragnDropStyle>
-                  <Box
-                    css={{
-                      color: '$utilityTextDefault',
-                      fontWeight: '800',
-                      fontSize: '$4',
-                      width:'80%'
-                    }}
-                  >
-                    <ProgressBar
-                      completed={60}
-                      maxCompleted={100}
-                      customLabel="Uploading Files..."
-                      bgColor='rgb(255, 210, 52)'
-                      labelColor='black'
-                      animateOnRender={true}
-                      initCompletedOnAnimation={60}
-                    />
-                  </Box>
-                </DragnDropStyle>
-              ) : null}
+              {uploadingFiles.length > 0 && (
+                  <DragnDropStyle>
+                    <Box
+                      css={{
+                        color: '$utilityTextDefault',
+                        fontWeight: '800',
+                        fontSize: '$4',
+                        width: '80%',
+                      }}
+                    >
+                      <ProgressBar
+                        completed={60}
+                        maxCompleted={100}
+                        customLabel="Uploading Files..."
+                        bgColor="rgb(255, 210, 52)"
+                        labelColor="black"
+                        animateOnRender={true}
+                        initCompletedOnAnimation={60}
+                      />
+                    </Box>
+                  </DragnDropStyle>
+              )}
               <input {...getInputProps()} />
               {!props.isValidating && props.items.length == 0 ? (
                 <EmptyLibrary
