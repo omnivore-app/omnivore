@@ -9,7 +9,7 @@ import { NewsletterEmail } from '../../src/entity/newsletter_email'
 import { SaveContext } from '../../src/services/save_email'
 import { createPubSubClient } from '../../src/datalayer/pubsub'
 import { getPageByParam } from '../../src/elastic/pages'
-import nock from 'nock/types'
+import nock from 'nock'
 
 describe('saveNewsletterEmail', () => {
   const username = 'fakeUser'

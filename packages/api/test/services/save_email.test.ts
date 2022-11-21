@@ -5,7 +5,7 @@ import { createTestUser, deleteTestUser } from '../db'
 import { SaveContext, saveEmail } from '../../src/services/save_email'
 import { createPubSubClient } from '../../src/datalayer/pubsub'
 import { getPageByParam } from '../../src/elastic/pages'
-import nock from 'nock/types'
+import nock from 'nock'
 
 describe('saveEmail', () => {
   const username = 'fakeUser'
