@@ -9,6 +9,18 @@ import {
 } from 'typeorm'
 import { User } from './user'
 
+export enum RuleActionType {
+  AddLabel = 'ADD_LABEL',
+  Archive = 'ARCHIVE',
+  MarkAsRead = 'MARK_AS_READ',
+  SendNotification = 'SEND_NOTIFICATION',
+}
+
+export interface RuleAction {
+  type: RuleActionType
+  params: string[]
+}
+
 @Entity({ name: 'rules' })
 export class Rule {
   @PrimaryGeneratedColumn('uuid')
@@ -25,7 +37,7 @@ export class Rule {
   filter!: string
 
   @Column('simple-json')
-  actions!: { type: string; params: string[] }[]
+  actions!: RuleAction[]
 
   @Column('text', { nullable: true })
   description?: string | null

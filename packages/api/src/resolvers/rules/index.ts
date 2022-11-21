@@ -1,6 +1,10 @@
 import { authorized } from '../../utils/helpers'
 import {
   MutationSetRuleArgs,
+  QueryRulesArgs,
+  RulesError,
+  RulesErrorCode,
+  RulesSuccess,
   SetRuleError,
   SetRuleErrorCode,
   SetRuleSuccess,
@@ -52,6 +56,52 @@ export const setRuleResolver = authorized<
 
     return {
       errorCodes: [SetRuleErrorCode.BadRequest],
+    }
+  }
+})
+
+export const rulesResolver = authorized<
+  RulesSuccess,
+  RulesError,
+  QueryRulesArgs
+>(async (_, { enabled }, { claims, log }) => {
+  log.info('Getting rules', {
+    enabled,
+    labels: {
+      source: 'resolver',
+      resolver: 'rulesResolver',
+      uid: claims.uid,
+    },
+  })
+
+  try {
+    const user = await getRepository(User).findOneBy({ id: claims.uid })
+    if (!user) {
+      return {
+        errorCodes: [RulesErrorCode.Unauthorized],
+      }
+    }
+
+    const rules = await getRepository(Rule).findBy({
+      user: { id: claims.uid },
+      enabled: enabled === null ? undefined : enabled,
+    })
+
+    return {
+      rules,
+    }
+  } catch (error) {
+    log.error('Error getting rules', {
+      error,
+      labels: {
+        source: 'resolver',
+        resolver: 'rulesResolver',
+        uid: claims.uid,
+      },
+    })
+
+    return {
+      errorCodes: [RulesErrorCode.BadRequest],
     }
   }
 })

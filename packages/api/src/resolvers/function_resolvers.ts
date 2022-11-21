@@ -59,6 +59,7 @@ import {
   reminderResolver,
   reportItemResolver,
   revokeApiKeyResolver,
+  rulesResolver,
   saveArticleReadingProgressResolver,
   saveFileResolver,
   savePageResolver,
@@ -72,6 +73,7 @@ import {
   setLabelsForHighlightResolver,
   setLabelsResolver,
   setLinkArchivedResolver,
+  setRuleResolver,
   setShareArticleResolver,
   setShareHighlightResolver,
   setUserPersonalizationResolver,
@@ -102,7 +104,6 @@ import {
 import { getPageByParam } from '../elastic/pages'
 import { recentSearchesResolver } from './recent_searches'
 import { optInFeatureResolver } from './features'
-import { setRuleResolver } from './rules'
 
 /* eslint-disable @typescript-eslint/naming-convention */
 type ResultResolveType = {
@@ -202,6 +203,7 @@ export const functionResolvers = {
     updatesSince: updatesSinceResolver,
     integrations: integrationsResolver,
     recentSearches: recentSearchesResolver,
+    rules: rulesResolver,
   },
   User: {
     async sharedArticles(
@@ -613,4 +615,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('RecentSearches'),
   ...resultResolveTypeResolver('OptInFeature'),
   ...resultResolveTypeResolver('SetRule'),
+  ...resultResolveTypeResolver('Rules'),
 }

@@ -4,7 +4,7 @@ import { graphqlRequest, request } from '../util'
 import { User } from '../../src/entity/user'
 import { createTestUser, deleteTestUser } from '../db'
 import { getRepository } from '../../src/entity/utils'
-import { Rule } from '../../src/entity/rule'
+import { Rule, RuleAction, RuleActionType } from '../../src/entity/rule'
 
 describe('Rules Resolver', () => {
   const username = 'fakeUser'
@@ -31,7 +31,7 @@ describe('Rules Resolver', () => {
     const setRulesQuery = (
       name: string,
       filter: string,
-      actions: { type: string; params: string[] }[],
+      actions: RuleAction[],
       enabled: boolean,
       id?: string
     ) => `
@@ -77,12 +77,57 @@ describe('Rules Resolver', () => {
       const query = setRulesQuery(
         'test rule',
         'test filter',
-        [{ type: 'ADD_LABEL', params: [] }],
+        [{ type: RuleActionType.SendNotification, params: [] }],
         true
       )
 
       const res = await graphqlRequest(query, authToken).expect(200)
       expect(res.body.data.setRule.rule.filter).to.equal('test filter')
+    })
+  })
+
+  describe('get rules', () => {
+    before(async () => {
+      await getRepository(Rule).save({
+        user: { id: user.id },
+        name: 'test rule',
+        filter: 'test filter',
+        actions: [{ type: RuleActionType.SendNotification, params: [] }],
+        enabled: true,
+      })
+    })
+
+    after(async () => {
+      await getRepository(Rule).delete({ user: { id: user.id } })
+    })
+
+    const getRulesQuery = (enabled: boolean | null = null) => `
+      query {
+        rules (enabled: ${enabled}) {
+          ... on RulesSuccess {
+            rules {
+              id
+              name
+              filter
+              actions {
+                type
+                params
+              }
+              enabled
+              createdAt
+              updatedAt
+            }
+          }
+          ... on RulesError {
+            errorCodes
+          }
+        }
+      }
+    `
+
+    it('should get rules', async () => {
+      const res = await graphqlRequest(getRulesQuery(), authToken).expect(200)
+      expect(res.body.data.rules.rules.length).to.equal(1)
     })
   })
 })

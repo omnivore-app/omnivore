@@ -1039,7 +1039,7 @@ type Query {
   newsletterEmails: NewsletterEmailsResult!
   recentSearches: RecentSearchesResult!
   reminder(linkId: ID!): ReminderResult!
-  rules: RulesResult!
+  rules(enabled: Boolean): RulesResult!
   search(after: String, first: Int, query: String): SearchResult!
   sendInstallInstructions: SendInstallInstructionsResult!
   sharedArticle(selectedHighlightId: String, slug: String!, username: String!): SharedArticleResult!

@@ -2154,7 +2154,7 @@ const schema = gql`
     updatesSince(after: String, first: Int, since: Date!): UpdatesSinceResult!
     integrations: IntegrationsResult!
     recentSearches: RecentSearchesResult!
-    rules: RulesResult!
+    rules(enabled: Boolean): RulesResult!
   }
 `
 

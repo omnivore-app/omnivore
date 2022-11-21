@@ -1486,6 +1486,11 @@ export type QueryReminderArgs = {
 };
 
 
+export type QueryRulesArgs = {
+  enabled?: InputMaybe<Scalars['Boolean']>;
+};
+
+
 export type QuerySearchArgs = {
   after?: InputMaybe<Scalars['String']>;
   first?: InputMaybe<Scalars['Int']>;
@@ -4309,7 +4314,7 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   newsletterEmails?: Resolver<ResolversTypes['NewsletterEmailsResult'], ParentType, ContextType>;
   recentSearches?: Resolver<ResolversTypes['RecentSearchesResult'], ParentType, ContextType>;
   reminder?: Resolver<ResolversTypes['ReminderResult'], ParentType, ContextType, RequireFields<QueryReminderArgs, 'linkId'>>;
-  rules?: Resolver<ResolversTypes['RulesResult'], ParentType, ContextType>;
+  rules?: Resolver<ResolversTypes['RulesResult'], ParentType, ContextType, Partial<QueryRulesArgs>>;
   search?: Resolver<ResolversTypes['SearchResult'], ParentType, ContextType, Partial<QuerySearchArgs>>;
   sendInstallInstructions?: Resolver<ResolversTypes['SendInstallInstructionsResult'], ParentType, ContextType>;
   sharedArticle?: Resolver<ResolversTypes['SharedArticleResult'], ParentType, ContextType, RequireFields<QuerySharedArticleArgs, 'slug' | 'username'>>;
