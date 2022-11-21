@@ -9,16 +9,19 @@ import { expect } from 'chai'
 import { UserDeviceToken } from '../../src/entity/user_device_tokens'
 import { SetDeviceTokenErrorCode } from '../../src/generated/graphql'
 import 'mocha'
+import { User } from '../../src/entity/user'
+import { getRepository } from '../../src/entity/utils'
 
 describe('Device tokens API', () => {
   const username = 'fakeUser'
 
   let authToken: string
   let deviceToken: UserDeviceToken
+  let user: User
 
   before(async () => {
     // create test user and login
-    const user = await createTestUser(username)
+    user = await createTestUser(username)
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
@@ -61,6 +64,11 @@ describe('Device tokens API', () => {
           }
         }
       `
+    })
+
+    after(async () => {
+      // clean up
+      await getRepository(UserDeviceToken).delete({ user: { id: user.id } })
     })
 
     context('when id in input is not null', () => {
@@ -135,6 +143,45 @@ describe('Device tokens API', () => {
     it('responds status code 500 when invalid user', async () => {
       const invalidAuthToken = 'Fake token'
       return graphqlRequest(query, invalidAuthToken).expect(500)
+    })
+  })
+
+  describe('Get device tokens', () => {
+    const token = 'Some token'
+
+    const query = `
+      query {
+        deviceTokens {
+          ... on DeviceTokensSuccess {
+            deviceTokens {
+              id
+              token
+              createdAt
+            }
+          }
+          ... on DeviceTokensError {
+            errorCodes
+          }
+        }
+      }
+    `
+
+    before(async () => {
+      // create test device token
+      await getRepository(UserDeviceToken).save({
+        user: { id: user.id },
+        token,
+      })
+    })
+
+    after(async () => {
+      // clean up
+      await getRepository(UserDeviceToken).delete({ token })
+    })
+
+    it('responds with status code 200 and returns all device tokens', async () => {
+      const response = await graphqlRequest(query, authToken).expect(200)
+      expect(response.body.data.deviceTokens.deviceTokens).to.have.lengthOf(1)
     })
   })
 })

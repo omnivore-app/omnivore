@@ -37,6 +37,7 @@ import {
   deleteNewsletterEmailResolver,
   deleteReminderResolver,
   deleteWebhookResolver,
+  deviceTokensResolver,
   generateApiKeyResolver,
   getAllUsersResolver,
   getArticleResolver,
@@ -59,6 +60,7 @@ import {
   reminderResolver,
   reportItemResolver,
   revokeApiKeyResolver,
+  rulesResolver,
   saveArticleReadingProgressResolver,
   saveFileResolver,
   savePageResolver,
@@ -72,6 +74,7 @@ import {
   setLabelsForHighlightResolver,
   setLabelsResolver,
   setLinkArchivedResolver,
+  setRuleResolver,
   setShareArticleResolver,
   setShareHighlightResolver,
   setUserPersonalizationResolver,
@@ -173,6 +176,7 @@ export const functionResolvers = {
     setIntegration: setIntegrationResolver,
     deleteIntegration: deleteIntegrationResolver,
     optInFeature: optInFeatureResolver,
+    setRule: setRuleResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -200,6 +204,8 @@ export const functionResolvers = {
     updatesSince: updatesSinceResolver,
     integrations: integrationsResolver,
     recentSearches: recentSearchesResolver,
+    rules: rulesResolver,
+    deviceTokens: deviceTokensResolver,
   },
   User: {
     async sharedArticles(
@@ -610,4 +616,7 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('DeleteIntegration'),
   ...resultResolveTypeResolver('RecentSearches'),
   ...resultResolveTypeResolver('OptInFeature'),
+  ...resultResolveTypeResolver('SetRule'),
+  ...resultResolveTypeResolver('Rules'),
+  ...resultResolveTypeResolver('DeviceTokens'),
 }

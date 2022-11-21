@@ -149,3 +149,16 @@ services:
     depends_on:
       api:
         condition: service_healthy
+
+  rule-handler:
+    build:
+      context: .
+      dockerfile: ./packages/rule-handler/Dockerfile
+    container_name: "omnivore-rule-handler"
+    ports:
+      - "9091:8080"
+    environment:
+      - PUBSUB_VERIFICATION_TOKEN=some_token
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
