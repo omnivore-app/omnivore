@@ -18,7 +18,7 @@
     "@google-cloud/opentelemetry-cloud-trace-exporter": "^1.1.0",
     "@google-cloud/pubsub": "^3.2.1",
     "@google-cloud/storage": "^5.18.1",
-    "@google-cloud/tasks": "^2.3.0",
+    "@google-cloud/tasks": "^3.0.5",
     "@graphql-tools/utils": "^9.1.1",
     "@omnivore/content-handler": "1.0.0",
     "@omnivore/readability": "1.0.0",
