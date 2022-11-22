@@ -4,10 +4,8 @@ import { UserDeviceToken } from '../entity/user_device_tokens'
 import { env } from '../env'
 import { ContentReader } from '../generated/graphql'
 import { analytics } from '../utils/analytics'
-import { sendMulticastPushNotifications } from '../utils/sendNotification'
 import { getNewsletterEmail } from './newsletters'
 import { SaveContext, saveEmail, SaveEmailInput } from './save_email'
-import { getDeviceTokensByUserId } from './user_device_tokens'
 import { Page } from '../elastic/types'
 import { addLabelToPage } from './labels'
 import { saveSubscription } from './subscriptions'
@@ -97,19 +95,19 @@ export const saveNewsletterEmail = async (
   })
   console.log('newsletter label added:', result)
 
-  // sends push notification
-  const deviceTokens = await getDeviceTokensByUserId(newsletterEmail.user.id)
-  if (!deviceTokens) {
-    console.log('Device tokens not set:', newsletterEmail.user.id)
-    return true
-  }
-
-  const multicastMessage = messageForLink(page, deviceTokens)
-  await sendMulticastPushNotifications(
-    newsletterEmail.user.id,
-    multicastMessage,
-    'newsletter'
-  )
+  // // sends push notification
+  // const deviceTokens = await getDeviceTokensByUserId(newsletterEmail.user.id)
+  // if (!deviceTokens) {
+  //   console.log('Device tokens not set:', newsletterEmail.user.id)
+  //   return true
+  // }
+  //
+  // const multicastMessage = messageForLink(page, deviceTokens)
+  // await sendMulticastPushNotifications(
+  //   newsletterEmail.user.id,
+  //   multicastMessage,
+  //   'newsletter'
+  // )
 
   return true
 }
