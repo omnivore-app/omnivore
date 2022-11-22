@@ -94,7 +94,14 @@ export const triggerActions = async (
             console.log('No notification messages provided')
             continue
           }
-          await sendNotification(userId, action.params, apiEndpoint, jwtSecret)
+          await sendNotification(
+            userId,
+            data.subscription,
+            action.params,
+            apiEndpoint,
+            jwtSecret,
+            data.image
+          )
       }
     }
   }
@@ -102,16 +109,21 @@ export const triggerActions = async (
 
 export const sendNotification = async (
   userId: string,
+  subscription: string,
   messages: string[],
   apiEndpoint: string,
-  jwtSecret: string
+  jwtSecret: string,
+  image?: string
 ) => {
+  const title = `📫 - ${subscription} has published a new article`
   // get device tokens by calling api
   const tokens = await getDeviceTokens(userId, apiEndpoint, jwtSecret)
 
   const batchMessages = getBatchMessages(
+    title,
     messages,
-    tokens.map((t) => t.token)
+    tokens.map((t) => t.token),
+    image
   )
 
   return sendBatchPushNotifications(batchMessages)

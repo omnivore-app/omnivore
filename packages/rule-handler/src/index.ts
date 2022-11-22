@@ -19,9 +19,10 @@ interface PubSubRequestBody {
 }
 
 export interface PubSubData {
-  subscription: string
   userId: string
   type: EntityType
+  subscription?: string
+  image?: string
 }
 
 enum EntityType {

@@ -56,8 +56,10 @@ export const getDeviceTokens = async (
 }
 
 export const getBatchMessages = (
+  title: string,
   messages: string[],
-  tokens: string[]
+  tokens: string[],
+  imageUrl?: string
 ): Message[] => {
   const batchMessages: Message[] = []
   messages.forEach((message) => {
@@ -65,7 +67,9 @@ export const getBatchMessages = (
       batchMessages.push({
         token,
         notification: {
+          title,
           body: message,
+          imageUrl,
         },
       })
     })
