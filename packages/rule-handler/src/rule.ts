@@ -1,8 +1,4 @@
-import {
-  getBatchMessages,
-  getDeviceTokens,
-  sendBatchPushNotifications,
-} from './notification'
+import { sendNotification } from './notification'
 import { getAuthToken, PubSubData } from './index'
 import axios from 'axios'
 import { parse, SearchParserKeyWordOffset } from 'search-query-parser'
@@ -142,33 +138,10 @@ export const triggerActions = async (
         case RuleActionType.MarkAsRead:
           continue
         case RuleActionType.SendNotification:
-          if (action.params.length === 0) {
-            console.log('No notification messages provided')
-            continue
+          for (const message of action.params) {
+            await sendNotification(userId, apiEndpoint, jwtSecret, message)
           }
-          await sendNotification(userId, action.params, apiEndpoint, jwtSecret)
       }
     }
   }
-}
-
-export const sendNotification = async (
-  userId: string,
-  messages: string[],
-  apiEndpoint: string,
-  jwtSecret: string,
-  title?: string,
-  image?: string
-) => {
-  // get device tokens by calling api
-  const tokens = await getDeviceTokens(userId, apiEndpoint, jwtSecret)
-
-  const batchMessages = getBatchMessages(
-    messages,
-    tokens.map((t) => t.token),
-    title,
-    image
-  )
-
-  return sendBatchPushNotifications(batchMessages)
 }
