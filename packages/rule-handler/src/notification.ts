@@ -26,10 +26,14 @@ export const sendNotification = async (
     notificationType: 'rule',
   }
 
-  await axios.post(`${apiEndpoint}/notification/send`, data, {
-    headers: {
-      Cookie: `auth=${auth};`,
-      'Content-Type': 'application/json',
-    },
-  })
+  try {
+    await axios.post(`${apiEndpoint}/notification/send`, data, {
+      headers: {
+        Cookie: `auth=${auth};`,
+        'Content-Type': 'application/json',
+      },
+    })
+  } catch (e) {
+    console.error(e)
+  }
 }
