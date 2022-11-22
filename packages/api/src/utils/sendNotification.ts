@@ -1,4 +1,4 @@
-import { initializeApp } from 'firebase-admin/app'
+import { applicationDefault, initializeApp } from 'firebase-admin/app'
 import {
   BatchResponse,
   getMessaging,
@@ -11,7 +11,9 @@ import { analytics } from './analytics'
 export type PushNotificationType = 'newsletter' | 'reminder' | 'rule'
 
 // getting credentials from App Engine
-initializeApp()
+initializeApp({
+  credential: applicationDefault(),
+})
 
 export const sendPushNotification = async (
   userId: string,

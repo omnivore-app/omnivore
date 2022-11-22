@@ -107,6 +107,11 @@ export const ruleHandler = Sentry.GCPFunction.wrapHttpFunction(
 
       // get rules by calling api
       const rules = await getEnabledRules(userId, apiEndpoint, jwtSecret)
+      if (!rules || rules.length === 0) {
+        console.log('No rules found')
+        res.status(200).send('No Rules')
+        return
+      }
 
       await triggerActions(userId, rules, data, apiEndpoint, jwtSecret)
 
