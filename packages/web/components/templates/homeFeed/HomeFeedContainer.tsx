@@ -1,6 +1,6 @@
 import { Box, HStack, SpanBox, VStack } from './../../elements/LayoutPrimitives'
 import Dropzone from 'react-dropzone'
-import ProgressBar from '@ramonak/react-progress-bar'
+import * as Progress from '@radix-ui/react-progress'
 import type {
   LibraryItem,
   LibraryItemsQueryInput,
@@ -15,7 +15,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { LibrarySearchBar } from './LibrarySearchBar'
 import { StyledText } from '../../elements/StyledText'
 import { AddLinkModal } from './AddLinkModal'
-import { styled } from '../../tokens/stitches.config'
+import { styled, theme } from '../../tokens/stitches.config'
 import { ListLayoutIcon } from '../../elements/images/ListLayoutIcon'
 import { GridLayoutIcon } from '../../elements/images/GridLayoutIcon'
 import {
@@ -52,6 +52,7 @@ import {
   TypeaheadSearchItemsData,
   typeaheadSearchQuery,
 } from '../../../lib/networking/queries/typeaheadSearch'
+import axios from 'axios'
 import { uploadFileRequestMutation } from '../../../lib/networking/mutations/uploadFileMutation'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
@@ -99,14 +100,17 @@ export function HomeFeedContainer(): JSX.Element {
 
   const gridContainerRef = useRef<HTMLDivElement>(null)
 
-  const [shareTarget, setShareTarget] =
-    useState<LibraryItem | undefined>(undefined)
+  const [shareTarget, setShareTarget] = useState<LibraryItem | undefined>(
+    undefined
+  )
 
-  const [snoozeTarget, setSnoozeTarget] =
-    useState<LibraryItem | undefined>(undefined)
+  const [snoozeTarget, setSnoozeTarget] = useState<LibraryItem | undefined>(
+    undefined
+  )
 
-  const [labelsTarget, setLabelsTarget] =
-    useState<LibraryItem | undefined>(undefined)
+  const [labelsTarget, setLabelsTarget] = useState<LibraryItem | undefined>(
+    undefined
+  )
 
   const [showAddLinkModal, setShowAddLinkModal] = useState(false)
   const [showEditTitleModal, setShowEditTitleModal] = useState(false)
@@ -726,6 +730,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
 
   const [uploadingFiles, setUploadingFiles] = useState([])
   const [inDragOperation, setInDragOperation] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
 
   const handleDrop = async (acceptedFiles: any) => {
     setInDragOperation(false)
@@ -744,9 +749,18 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
           throw 'No upload URL available'
         }
 
-        const uploadResult = await fetch(request?.uploadSignedUrl, {
+        const uploadResult = await axios.request({
           method: 'PUT',
-          body: file,
+          url: request?.uploadSignedUrl,
+          data: file,
+          withCredentials: false,
+          headers: {
+            'Content-Type': 'application/pdf',
+          },
+          onUploadProgress: (p) => {
+            console.log('upload progress: ', (p.loaded / p.total) * 100)
+            setUploadProgress((p.loaded / p.total) * 100)
+          },
         })
 
         console.log('result of uploading: ', uploadResult)
@@ -894,31 +908,41 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
                       fontSize: '$4',
                     }}
                   >
-                    Drag n drop files here
+                    Drop PDF document here to add to your library
                   </Box>
                 </DragnDropStyle>
               )}
               {uploadingFiles.length > 0 && (
-                  <DragnDropStyle>
-                    <Box
+                <DragnDropStyle>
+                  <Box
+                    css={{
+                      color: '$utilityTextDefault',
+                      fontWeight: '800',
+                      fontSize: '$4',
+                      width: '80%',
+                    }}
+                  >
+                    <Progress.Root
+                      className="ProgressRoot"
+                      value={uploadProgress}
+                    >
+                      <Progress.Indicator
+                        className="ProgressIndicator"
+                        style={{
+                          transform: `translateX(-${100 - uploadProgress}%)`,
+                        }}
+                      />
+                    </Progress.Root>
+                    <StyledText
+                      style="boldText"
                       css={{
-                        color: '$utilityTextDefault',
-                        fontWeight: '800',
-                        fontSize: '$4',
-                        width: '80%',
+                        color: theme.colors.omnivoreGray.toString(),
                       }}
                     >
-                      <ProgressBar
-                        completed={60}
-                        maxCompleted={100}
-                        customLabel="Uploading Files..."
-                        bgColor="rgb(255, 210, 52)"
-                        labelColor="black"
-                        animateOnRender={true}
-                        initCompletedOnAnimation={60}
-                      />
-                    </Box>
-                  </DragnDropStyle>
+                      Uploading file
+                    </StyledText>
+                  </Box>
+                </DragnDropStyle>
               )}
               <input {...getInputProps()} />
               {!props.isValidating && props.items.length == 0 ? (
