@@ -908,7 +908,8 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
                       fontSize: '$4',
                     }}
                   >
-                    Drop PDF document here to add to your library
+                    Drag PDF document to this area to upload and add to your
+                    library
                   </Box>
                 </DragnDropStyle>
               )}
