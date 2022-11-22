@@ -18,7 +18,7 @@
     "build-storybook": "build-storybook -s public"
   },
   "dependencies": {
-    "@radix-ui/react-avatar": "^0.1.1",
+    "@radix-ui/react-avatar": "^1.0.1",
     "@radix-ui/react-checkbox": "^0.1.5",
     "@radix-ui/react-dialog": "^0.1.1",
     "@radix-ui/react-dropdown-menu": "^0.1.6",
