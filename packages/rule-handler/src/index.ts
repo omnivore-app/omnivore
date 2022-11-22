@@ -99,7 +99,7 @@ export const ruleHandler = Sentry.GCPFunction.wrapHttpFunction(
       }
 
       if (type !== EntityType.PAGE) {
-        console.log('Not a page update')
+        console.log('Not a page')
         res.status(200).send('Not Page')
         return
       }
