@@ -911,7 +911,10 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
           noClick={true}
         >
           {({ getRootProps, getInputProps, acceptedFiles, fileRejections }) => (
-            <div {...getRootProps({ className: 'dropzone' })}>
+            <div
+              {...getRootProps({ className: 'dropzone' })}
+              style={{ width: '100%', height: '100%' }}
+            >
               {inDragOperation && uploadingFiles.length < 1 && (
                 <DragnDropContainer>
                   <DragnDropStyle>
