@@ -1,4 +1,6 @@
-import { Box, HStack, VStack } from './../../elements/LayoutPrimitives'
+import { Box, HStack, SpanBox, VStack } from './../../elements/LayoutPrimitives'
+import Dropzone from 'react-dropzone'
+import * as Progress from '@radix-ui/react-progress'
 import type {
   LibraryItem,
   LibraryItemsQueryInput,
@@ -13,7 +15,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { LibrarySearchBar } from './LibrarySearchBar'
 import { StyledText } from '../../elements/StyledText'
 import { AddLinkModal } from './AddLinkModal'
-import { styled } from '../../tokens/stitches.config'
+import { styled, theme } from '../../tokens/stitches.config'
 import { ListLayoutIcon } from '../../elements/images/ListLayoutIcon'
 import { GridLayoutIcon } from '../../elements/images/GridLayoutIcon'
 import {
@@ -50,6 +52,8 @@ import {
   TypeaheadSearchItemsData,
   typeaheadSearchQuery,
 } from '../../../lib/networking/queries/typeaheadSearch'
+import axios from 'axios'
+import { uploadFileRequestMutation } from '../../../lib/networking/mutations/uploadFileMutation'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 
@@ -125,8 +129,14 @@ export function HomeFeedContainer(): JSX.Element {
     })
   )
 
-  const { itemsPages, size, setSize, isValidating, performActionOnItem } =
-    useGetLibraryItemsQuery(queryInputs)
+  const {
+    itemsPages,
+    size,
+    setSize,
+    isValidating,
+    performActionOnItem,
+    mutate,
+  } = useGetLibraryItemsQuery(queryInputs)
 
   useEffect(() => {
     if (queryValue.startsWith('#')) {
@@ -558,6 +568,7 @@ export function HomeFeedContainer(): JSX.Element {
     <HomeFeedGrid
       items={libraryItems}
       actionHandler={handleCardAction}
+      reloadItems={mutate}
       searchTerm={queryInputs.searchQuery}
       gridContainerRef={gridContainerRef}
       applySearchQuery={(searchQuery: string) => {
@@ -611,6 +622,7 @@ export function HomeFeedContainer(): JSX.Element {
 type HomeFeedContentProps = {
   items: LibraryItem[]
   searchTerm?: string
+  reloadItems: () => void
   gridContainerRef: React.RefObject<HTMLDivElement>
   applySearchQuery: (searchQuery: string) => void
   hasMore: boolean
@@ -683,6 +695,20 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
     },
   })
 
+  const DragnDropStyle = styled('div', {
+    border: '3px dashed gray',
+    backgroundColor: 'aliceblue',
+    borderRadius: '5px',
+    width: '95%',
+    height: '80%',
+    position: 'absolute',
+    opacity: '0.9',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: '1',
+  })
+
   const removeItem = () => {
     if (!props.linkToRemove) {
       return
@@ -702,6 +728,51 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
     setShowUnsubscribeConfirmation(false)
   }
 
+  const [uploadingFiles, setUploadingFiles] = useState([])
+  const [inDragOperation, setInDragOperation] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
+
+  const handleDrop = async (acceptedFiles: any) => {
+    setInDragOperation(false)
+    setUploadingFiles(acceptedFiles.map((file: { name: any }) => file.name))
+
+    for (const file of acceptedFiles) {
+      try {
+        const request = await uploadFileRequestMutation({
+          // This will tell the backend not to save the URL
+          // and give it the local filename as the title.
+          url: `file://local/${file.path}`,
+          contentType: file.type,
+          createPageEntry: true,
+        })
+        if (!request?.uploadSignedUrl) {
+          throw 'No upload URL available'
+        }
+
+        const uploadResult = await axios.request({
+          method: 'PUT',
+          url: request?.uploadSignedUrl,
+          data: file,
+          withCredentials: false,
+          headers: {
+            'Content-Type': 'application/pdf',
+          },
+          onUploadProgress: (p) => {
+            console.log('upload progress: ', (p.loaded / p.total) * 100)
+            setUploadProgress((p.loaded / p.total) * 100)
+          },
+        })
+
+        console.log('result of uploading: ', uploadResult)
+      } catch (error) {
+        console.log('ERROR', error)
+      }
+    }
+
+    setUploadingFiles([])
+    props.reloadItems()
+  }
+
   return (
     <>
       <VStack
@@ -715,6 +786,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
         }}
       >
         <Toaster />
+
         {props.isValidating && props.items.length == 0 && <TopBarProgress />}
         <HStack alignment="center" distribution="start" css={{ width: '100%' }}>
           <StyledText
@@ -766,6 +838,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
           searchTerm={props.searchTerm}
           applySearchQuery={props.applySearchQuery}
         />
+
         {viewerData?.me && (
           <Box
             css={{
@@ -813,112 +886,185 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
             })}
           </Box>
         )}
-        {!props.isValidating && props.items.length == 0 ? (
-          <EmptyLibrary
-            onAddLinkClicked={() => {
-              props.setShowAddLinkModal(true)
-            }}
-          />
-        ) : (
-          <Box
-            ref={props.gridContainerRef}
-            css={{
-              py: '$3',
-              display: 'grid',
-              width: '100%',
-              gridAutoRows: 'auto',
-              borderRadius: '8px',
-              gridGap: layout == 'LIST_LAYOUT' ? '0' : '$3',
-              marginTop: layout == 'LIST_LAYOUT' ? '21px' : '0',
-              marginBottom: '0px',
-              paddingTop: layout == 'LIST_LAYOUT' ? '0' : '21px',
-              paddingBottom: layout == 'LIST_LAYOUT' ? '0px' : '21px',
-              overflow: 'hidden',
-              '@smDown': {
-                border: 'unset',
-                width: layout == 'LIST_LAYOUT' ? '100vw' : undefined,
-                margin: layout == 'LIST_LAYOUT' ? '16px -16px' : undefined,
-                borderRadius: layout == 'LIST_LAYOUT' ? 0 : undefined,
-              },
-              '@md': {
-                gridTemplateColumns:
-                  layout == 'LIST_LAYOUT' ? 'none' : '1fr 1fr',
-              },
-              '@lg': {
-                gridTemplateColumns:
-                  layout == 'LIST_LAYOUT' ? 'none' : 'repeat(3, 1fr)',
-              },
-            }}
-          >
-            {props.items.map((linkedItem) => (
-              <Box
-                className="linkedItemCard"
-                data-testid="linkedItemCard"
-                id={linkedItem.node.id}
-                tabIndex={0}
-                key={linkedItem.node.id}
-                css={{
-                  width: '100%',
-                  '&> div': {
-                    bg: '$grayBg',
-                  },
-                  '&:focus': {
-                    '> div': {
-                      bg: '$grayBgActive',
-                    },
-                  },
-                  '&:hover': {
-                    '> div': {
-                      bg: '$grayBgActive',
-                    },
-                  },
-                }}
-              >
-                {viewerData?.me && (
-                  <LinkedItemCard
-                    layout={layout}
-                    item={linkedItem.node}
-                    viewer={viewerData.me}
-                    handleAction={(action: LinkedItemCardAction) => {
-                      if (action === 'delete') {
-                        setShowRemoveLinkConfirmation(true)
-                        props.setLinkToRemove(linkedItem)
-                      } else if (action === 'editTitle') {
-                        props.setShowEditTitleModal(true)
-                        props.setLinkToEdit(linkedItem)
-                      } else if (action == 'unsubscribe') {
-                        setShowUnsubscribeConfirmation(true)
-                        props.setLinkToUnsubscribe(linkedItem)
-                      } else {
-                        props.actionHandler(action, linkedItem)
-                      }
-                    }}
-                  />
-                )}
-              </Box>
-            ))}
-          </Box>
-        )}
-        <HStack
-          distribution="center"
-          css={{ width: '100%', mt: '$2', mb: '$4' }}
+        <Dropzone
+          onDrop={handleDrop}
+          onDragEnter={() => {
+            setInDragOperation(true)
+          }}
+          onDragLeave={() => {
+            setInDragOperation(false)
+          }}
+          preventDropOnDocument={true}
+          noClick={true}
         >
-          {props.hasMore ? (
-            <Button
-              style="ctaGray"
-              css={{
-                cursor: props.isValidating ? 'not-allowed' : 'pointer',
-              }}
-              onClick={props.loadMore}
-              disabled={props.isValidating}
-            >
-              {props.isValidating ? 'Loading' : 'Load More'}
-            </Button>
-          ) : (
-            <StyledText style="caption"></StyledText>
+          {({ getRootProps, getInputProps, acceptedFiles, fileRejections }) => (
+            <div {...getRootProps({ className: 'dropzone' })}>
+              {inDragOperation && uploadingFiles.length < 1 && (
+                <DragnDropStyle>
+                  <Box
+                    css={{
+                      color: '$utilityTextDefault',
+                      fontWeight: '800',
+                      fontSize: '$4',
+                    }}
+                  >
+                    Drop PDF document here to add to your library
+                  </Box>
+                </DragnDropStyle>
+              )}
+              {uploadingFiles.length > 0 && (
+                <DragnDropStyle>
+                  <Box
+                    css={{
+                      color: '$utilityTextDefault',
+                      fontWeight: '800',
+                      fontSize: '$4',
+                      width: '80%',
+                    }}
+                  >
+                    <Progress.Root
+                      className="ProgressRoot"
+                      value={uploadProgress}
+                    >
+                      <Progress.Indicator
+                        className="ProgressIndicator"
+                        style={{
+                          transform: `translateX(-${100 - uploadProgress}%)`,
+                        }}
+                      />
+                    </Progress.Root>
+                    <StyledText
+                      style="boldText"
+                      css={{
+                        color: theme.colors.omnivoreGray.toString(),
+                      }}
+                    >
+                      Uploading file
+                    </StyledText>
+                  </Box>
+                </DragnDropStyle>
+              )}
+              <input {...getInputProps()} />
+              {!props.isValidating && props.items.length == 0 ? (
+                <EmptyLibrary
+                  onAddLinkClicked={() => {
+                    props.setShowAddLinkModal(true)
+                  }}
+                />
+              ) : (
+                <Box
+                  ref={props.gridContainerRef}
+                  css={{
+                    py: '$3',
+                    display: 'grid',
+                    width: '100%',
+                    gridAutoRows: 'auto',
+                    borderRadius: '8px',
+                    gridGap: layout == 'LIST_LAYOUT' ? '0' : '$3',
+                    marginTop: layout == 'LIST_LAYOUT' ? '21px' : '0',
+                    marginBottom: '0px',
+                    paddingTop: layout == 'LIST_LAYOUT' ? '0' : '21px',
+                    paddingBottom: layout == 'LIST_LAYOUT' ? '0px' : '21px',
+                    overflow: 'hidden',
+                    '@smDown': {
+                      border: 'unset',
+                      width: layout == 'LIST_LAYOUT' ? '100vw' : undefined,
+                      margin:
+                        layout == 'LIST_LAYOUT' ? '16px -16px' : undefined,
+                      borderRadius: layout == 'LIST_LAYOUT' ? 0 : undefined,
+                    },
+                    '@md': {
+                      gridTemplateColumns:
+                        layout == 'LIST_LAYOUT' ? 'none' : '1fr 1fr',
+                    },
+                    '@lg': {
+                      gridTemplateColumns:
+                        layout == 'LIST_LAYOUT' ? 'none' : 'repeat(3, 1fr)',
+                    },
+                  }}
+                >
+                  {props.items.map((linkedItem) => (
+                    <Box
+                      className="linkedItemCard"
+                      data-testid="linkedItemCard"
+                      id={linkedItem.node.id}
+                      tabIndex={0}
+                      key={linkedItem.node.id}
+                      css={{
+                        width: '100%',
+                        '&> div': {
+                          bg: '$grayBg',
+                        },
+                        '&:focus': {
+                          '> div': {
+                            bg: '$grayBgActive',
+                          },
+                        },
+                        '&:hover': {
+                          '> div': {
+                            bg: '$grayBgActive',
+                          },
+                        },
+                      }}
+                    >
+                      {viewerData?.me && (
+                        <LinkedItemCard
+                          layout={layout}
+                          item={linkedItem.node}
+                          viewer={viewerData.me}
+                          handleAction={(action: LinkedItemCardAction) => {
+                            if (action === 'delete') {
+                              setShowRemoveLinkConfirmation(true)
+                              props.setLinkToRemove(linkedItem)
+                            } else if (action === 'editTitle') {
+                              props.setShowEditTitleModal(true)
+                              props.setLinkToEdit(linkedItem)
+                            } else if (action == 'unsubscribe') {
+                              setShowUnsubscribeConfirmation(true)
+                              props.setLinkToUnsubscribe(linkedItem)
+                            } else {
+                              props.actionHandler(action, linkedItem)
+                            }
+                          }}
+                        />
+                      )}
+                    </Box>
+                  ))}
+                </Box>
+              )}
+              <HStack
+                distribution="center"
+                css={{ width: '100%', mt: '$2', mb: '$4' }}
+              >
+                {props.hasMore ? (
+                  <Button
+                    style="ctaGray"
+                    css={{
+                      cursor: props.isValidating ? 'not-allowed' : 'pointer',
+                    }}
+                    onClick={props.loadMore}
+                    disabled={props.isValidating}
+                  >
+                    {props.isValidating ? 'Loading' : 'Load More'}
+                  </Button>
+                ) : (
+                  <StyledText style="caption"></StyledText>
+                )}
+              </HStack>
+            </div>
           )}
-        </HStack>
+        </Dropzone>
       </VStack>
+      {/* Temporary code */}
+      {/* <div>
+        <strong>Files:</strong>
+        <ul>
+          {uploadingFiles.map((fileName) => (
+            <li key={fileName}>{fileName}</li>
+          ))}
+        </ul>
+      </div> */}
+      {/* Temporary code */}
       {props.showAddLinkModal && (
         <AddLinkModal onOpenChange={() => props.setShowAddLinkModal(false)} />
       )}
