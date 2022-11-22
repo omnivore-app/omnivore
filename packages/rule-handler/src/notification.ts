@@ -56,9 +56,9 @@ export const getDeviceTokens = async (
 }
 
 export const getBatchMessages = (
-  title: string,
   messages: string[],
   tokens: string[],
+  title?: string,
   imageUrl?: string
 ): Message[] => {
   const batchMessages: Message[] = []
@@ -93,8 +93,5 @@ export const sendMulticastPushNotifications = async (
 export const sendBatchPushNotifications = async (
   messages: Message[]
 ): Promise<BatchResponse | undefined> => {
-  const res = await getMessaging().sendAll(messages)
-  console.debug('res', res)
-
-  return res
+  return getMessaging().sendAll(messages)
 }
