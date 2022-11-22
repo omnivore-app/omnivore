@@ -909,6 +909,9 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
           }}
           preventDropOnDocument={true}
           noClick={true}
+          accept={{
+            'application/pdf': ['.pdf'],
+          }}
         >
           {({ getRootProps, getInputProps, acceptedFiles, fileRejections }) => (
             <div
