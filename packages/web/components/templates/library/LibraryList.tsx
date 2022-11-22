@@ -97,7 +97,10 @@ export function LibraryList(props: LibraryListProps): JSX.Element {
         noDragEventsBubbling={true}
       >
         {({ getRootProps, getInputProps, acceptedFiles, fileRejections }) => (
-          <Box {...getRootProps({ className: 'dropzone' })}>
+          <Box
+            {...getRootProps({ className: 'dropzone' })}
+            css={{ width: '100%' }}
+          >
             <input {...getInputProps()} />
             <Masonry
               breakpointCols={

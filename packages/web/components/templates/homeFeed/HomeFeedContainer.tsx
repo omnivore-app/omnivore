@@ -695,18 +695,31 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
     },
   })
 
-  const DragnDropStyle = styled('div', {
-    border: '3px dashed gray',
-    backgroundColor: 'aliceblue',
-    borderRadius: '5px',
-    width: '95%',
+  const DragnDropContainer = styled('div', {
+    width: '100%',
     height: '80%',
     position: 'absolute',
-    opacity: '0.9',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: '1',
+    alignSelf: 'center',
+    left: 0,
+  })
+
+  const DragnDropStyle = styled('div', {
+    border: '3px dashed gray',
+    backgroundColor: 'aliceblue',
+    borderRadius: '5px',
+    width: '100%',
+    height: '100%',
+    opacity: '0.9',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
+    left: 0,
+    margin: '16px',
   })
 
   const removeItem = () => {
@@ -900,49 +913,53 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
           {({ getRootProps, getInputProps, acceptedFiles, fileRejections }) => (
             <div {...getRootProps({ className: 'dropzone' })}>
               {inDragOperation && uploadingFiles.length < 1 && (
-                <DragnDropStyle>
-                  <Box
-                    css={{
-                      color: '$utilityTextDefault',
-                      fontWeight: '800',
-                      fontSize: '$4',
-                    }}
-                  >
-                    Drop PDF document here to add to your library
-                  </Box>
-                </DragnDropStyle>
-              )}
-              {uploadingFiles.length > 0 && (
-                <DragnDropStyle>
-                  <Box
-                    css={{
-                      color: '$utilityTextDefault',
-                      fontWeight: '800',
-                      fontSize: '$4',
-                      width: '80%',
-                    }}
-                  >
-                    <Progress.Root
-                      className="ProgressRoot"
-                      value={uploadProgress}
-                    >
-                      <Progress.Indicator
-                        className="ProgressIndicator"
-                        style={{
-                          transform: `translateX(-${100 - uploadProgress}%)`,
-                        }}
-                      />
-                    </Progress.Root>
-                    <StyledText
-                      style="boldText"
+                <DragnDropContainer>
+                  <DragnDropStyle>
+                    <Box
                       css={{
-                        color: theme.colors.omnivoreGray.toString(),
+                        color: '$utilityTextDefault',
+                        fontWeight: '800',
+                        fontSize: '$4',
                       }}
                     >
-                      Uploading file
-                    </StyledText>
-                  </Box>
-                </DragnDropStyle>
+                      Drop PDF document to to upload and add to your library
+                    </Box>
+                  </DragnDropStyle>
+                </DragnDropContainer>
+              )}
+              {uploadingFiles.length > 0 && (
+                <DragnDropContainer>
+                  <DragnDropStyle>
+                    <Box
+                      css={{
+                        color: '$utilityTextDefault',
+                        fontWeight: '800',
+                        fontSize: '$4',
+                        width: '80%',
+                      }}
+                    >
+                      <Progress.Root
+                        className="ProgressRoot"
+                        value={uploadProgress}
+                      >
+                        <Progress.Indicator
+                          className="ProgressIndicator"
+                          style={{
+                            transform: `translateX(-${100 - uploadProgress}%)`,
+                          }}
+                        />
+                      </Progress.Root>
+                      <StyledText
+                        style="boldText"
+                        css={{
+                          color: theme.colors.omnivoreGray.toString(),
+                        }}
+                      >
+                        Uploading file
+                      </StyledText>
+                    </Box>
+                  </DragnDropStyle>
+                </DragnDropContainer>
               )}
               <input {...getInputProps()} />
               {!props.isValidating && props.items.length == 0 ? (
