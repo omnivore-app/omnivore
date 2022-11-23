@@ -42,7 +42,7 @@ const parseSearchFilter = (filter: string): SearchFilter[] => {
   }
 
   const parsed = parse(searchFilter, {
-    keywords: ['subscription', 'content', 'is'],
+    keywords: ['subscription', 'content', 'is', 'type'],
     tokenize: true,
   })
   if (parsed.offsets) {
@@ -51,15 +51,21 @@ const parseSearchFilter = (filter: string): SearchFilter[] => {
       .map((offset) => offset as SearchParserKeyWordOffset)
 
     for (const keyword of keywords) {
+      if (!keyword.value) {
+        continue
+      }
       switch (keyword.keyword) {
         case 'subscription':
-          keyword.value && result.push(new SubscriptionFilter(keyword.value))
+          result.push(new SubscriptionFilter(keyword.value))
           break
         case 'content':
-          keyword.value && result.push(new ContentFilter(keyword.value))
+          result.push(new ContentFilter(keyword.value))
           break
         case 'is':
-          keyword.value && result.push(new ReadFilter(keyword.value))
+          result.push(new ReadFilter(keyword.value))
+          break
+        case 'type':
+          result.push(new ReadFilter(keyword.value))
           break
       }
     }
