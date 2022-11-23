@@ -1,5 +1,4 @@
 import axios from 'axios'
-import { getAuthToken } from './index'
 
 interface NotificationData {
   body: string
@@ -10,15 +9,12 @@ interface NotificationData {
 }
 
 export const sendNotification = async (
-  userId: string,
   apiEndpoint: string,
-  jwtSecret: string,
+  auth: string,
   message: string,
   title?: string,
   image?: string
 ) => {
-  const auth = await getAuthToken(userId, jwtSecret)
-
   const data: NotificationData = {
     body: message,
     title: title || message,

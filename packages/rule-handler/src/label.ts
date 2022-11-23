@@ -1,15 +1,11 @@
 import axios from 'axios'
-import { getAuthToken } from './index'
 
 export const addLabels = async (
-  userId: string,
   apiEndpoint: string,
-  jwtSecret: string,
+  auth: string,
   pageId: string,
   labelIds: string[]
 ) => {
-  const auth = await getAuthToken(userId, jwtSecret)
-
   const data = JSON.stringify({
     query: `mutation SetLabels($input: SetLabelsInput!) {
               setLabels(input: $input) {
