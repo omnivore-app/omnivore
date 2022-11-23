@@ -135,8 +135,8 @@ export const triggerActions = async (
     for (const action of rule.actions) {
       switch (action.type) {
         case RuleActionType.AddLabel:
-          if (action.params.length === 0) {
-            console.log('No label id provided')
+          if (!data.id || action.params.length === 0) {
+            console.log('invalid data for add label action')
             continue
           }
           await addLabels(
