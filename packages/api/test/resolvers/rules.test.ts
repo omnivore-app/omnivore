@@ -130,4 +130,41 @@ describe('Rules Resolver', () => {
       expect(res.body.data.rules.rules.length).to.equal(1)
     })
   })
+
+  describe('delete rules', () => {
+    let rule: Rule
+
+    before(async () => {
+      rule = await getRepository(Rule).save({
+        user: { id: user.id },
+        name: 'test rule',
+        filter: 'test filter',
+        actions: [{ type: RuleActionType.SendNotification, params: [] }],
+        enabled: true,
+      })
+    })
+
+    const deleteRulesQuery = (id: string) => `
+      mutation {
+        deleteRule(id: "${id}") {
+          ... on DeleteRuleSuccess {
+            rule {
+              id
+            }
+          }
+          ... on DeleteRuleError {
+            errorCodes
+          }
+        }
+      }
+    `
+
+    it('should delete rules', async () => {
+      const res = await graphqlRequest(
+        deleteRulesQuery(rule.id),
+        authToken
+      ).expect(200)
+      expect(res.body.data.deleteRule.rule.id).to.equal(rule.id)
+    })
+  })
 })
