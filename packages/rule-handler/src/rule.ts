@@ -8,6 +8,7 @@ import { SearchFilter } from './search_filter'
 import { SubscriptionFilter } from './search_filter/subscription_filter'
 import { ContentFilter } from './search_filter/content_filter'
 import { ReadFilter } from './search_filter/read_filter'
+import { TypeFilter } from './search_filter/type_filter'
 
 export enum RuleActionType {
   AddLabel = 'ADD_LABEL',
@@ -65,7 +66,7 @@ const parseSearchFilter = (filter: string): SearchFilter[] => {
           result.push(new ReadFilter(keyword.value))
           break
         case 'type':
-          result.push(new ReadFilter(keyword.value))
+          result.push(new TypeFilter(keyword.value))
           break
       }
     }
