@@ -36,6 +36,7 @@ import {
   deleteLabelResolver,
   deleteNewsletterEmailResolver,
   deleteReminderResolver,
+  deleteRuleResolver,
   deleteWebhookResolver,
   deviceTokensResolver,
   generateApiKeyResolver,
@@ -177,6 +178,7 @@ export const functionResolvers = {
     deleteIntegration: deleteIntegrationResolver,
     optInFeature: optInFeatureResolver,
     setRule: setRuleResolver,
+    deleteRule: deleteRuleResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -619,4 +621,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('SetRule'),
   ...resultResolveTypeResolver('Rules'),
   ...resultResolveTypeResolver('DeviceTokens'),
+  ...resultResolveTypeResolver('DeleteRule'),
 }

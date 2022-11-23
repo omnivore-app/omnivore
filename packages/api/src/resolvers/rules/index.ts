@@ -1,5 +1,9 @@
 import { authorized } from '../../utils/helpers'
 import {
+  DeleteRuleError,
+  DeleteRuleErrorCode,
+  DeleteRuleSuccess,
+  MutationDeleteRuleArgs,
   MutationSetRuleArgs,
   QueryRulesArgs,
   RulesError,
@@ -102,6 +106,54 @@ export const rulesResolver = authorized<
 
     return {
       errorCodes: [RulesErrorCode.BadRequest],
+    }
+  }
+})
+
+export const deleteRuleResolver = authorized<
+  DeleteRuleSuccess,
+  DeleteRuleError,
+  MutationDeleteRuleArgs
+>(async (_, { id }, { claims, log }) => {
+  log.info('Deleting rule', {
+    id,
+    labels: {
+      source: 'resolver',
+      resolver: 'deleteRuleResolver',
+      uid: claims.uid,
+    },
+  })
+
+  try {
+    const rule = await getRepository(Rule).findOneBy({
+      id,
+      user: { id: claims.uid },
+    })
+    if (!rule) {
+      return {
+        errorCodes: [DeleteRuleErrorCode.NotFound],
+      }
+    }
+
+    await getRepository(Rule).delete({
+      id: rule.id,
+    })
+
+    return {
+      rule,
+    }
+  } catch (error) {
+    log.error('Error deleting rule', {
+      error,
+      labels: {
+        source: 'resolver',
+        resolver: 'deleteRuleResolver',
+        uid: claims.uid,
+      },
+    })
+
+    return {
+      errorCodes: [DeleteRuleErrorCode.BadRequest],
     }
   }
 })
