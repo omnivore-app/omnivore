@@ -133,6 +133,8 @@ export const triggerActions = async (
       continue
     }
 
+    const authToken = await getAuthToken(userId, jwtSecret)
+
     for (const action of rule.actions) {
       switch (action.type) {
         case RuleActionType.AddLabel:
@@ -140,31 +142,25 @@ export const triggerActions = async (
             console.log('invalid data for add label action')
             continue
           }
-          await addLabels(
-            userId,
-            apiEndpoint,
-            jwtSecret,
-            data.id,
-            action.params
-          )
+          await addLabels(apiEndpoint, authToken, data.id, action.params)
           break
         case RuleActionType.Archive:
           if (!data.id) {
             console.log('invalid data for archive action')
             continue
           }
-          await archivePage(userId, apiEndpoint, jwtSecret, data.id)
+          await archivePage(apiEndpoint, authToken, data.id)
           break
         case RuleActionType.MarkAsRead:
           if (!data.id) {
             console.log('invalid data for mark as read action')
             continue
           }
-          await markPageAsRead(userId, apiEndpoint, jwtSecret, data.id)
+          await markPageAsRead(apiEndpoint, authToken, data.id)
           break
         case RuleActionType.SendNotification:
           for (const message of action.params) {
-            await sendNotification(userId, apiEndpoint, jwtSecret, message)
+            await sendNotification(apiEndpoint, authToken, message)
           }
           break
       }

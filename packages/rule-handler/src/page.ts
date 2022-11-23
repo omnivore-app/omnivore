@@ -1,30 +1,27 @@
-import { getAuthToken } from './index'
 import axios from 'axios'
 
 export const archivePage = async (
   pageId: string,
-  userId: string,
   apiEndpoint: string,
-  jwtSecret: string
+  auth: string
 ) => {
-  const auth = await getAuthToken(userId, jwtSecret)
-
   const data = JSON.stringify({
-    query: `mutation ArchivePage($input: ArchivePageInput!) {
-              archivePage(input: $input) {
-                ... on ArchivePageSuccess {
-                  page {
-                    id
-                  }
+    query: `mutation SetLinkArchived($input: ArchiveLinkInput!) {
+              setLinkArchived(input: $input) {
+                ... on ArchiveLinkSuccess {
+                  linkId
+                  message
                 }
-                ... on ArchivePageError {
+                ... on ArchiveLinkError {
+                  message
                   errorCodes
                 }
               }
             }`,
     variables: {
       input: {
-        pageId,
+        linkId: pageId,
+        archived: true,
       },
     },
   })
@@ -43,28 +40,27 @@ export const archivePage = async (
 
 export const markPageAsRead = async (
   pageId: string,
-  userId: string,
   apiEndpoint: string,
-  jwtSecret: string
+  auth: string
 ) => {
-  const auth = await getAuthToken(userId, jwtSecret)
-
   const data = JSON.stringify({
-    query: `mutation MarkPageAsRead($input: MarkPageAsReadInput!) {
-              markPageAsRead(input: $input) {
-                ... on MarkPageAsReadSuccess {
-                  page {
+    query: `mutation SaveArticleReadingProgress($input: SaveArticleReadingProgressInput!) {
+              saveArticleReadingProgress(input: $input) {
+                ... on SaveArticleReadingProgressSuccess {
+                  updatedArticle {
                     id
                   }
                 }
-                ... on MarkPageAsReadError {
+                ... on SaveArticleReadingProgressError {
                   errorCodes
                 }
               }
             }`,
     variables: {
       input: {
-        pageId,
+        id: pageId,
+        readingProgressPercent: 100,
+        readingProgressAnchorIndex: 0,
       },
     },
   })
