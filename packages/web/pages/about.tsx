@@ -41,7 +41,10 @@ export default function LandingPage(): JSX.Element {
   return (
     <>
       <LandingHeader />
-      <VStack css={{ background: '#FEFCF5', color: '#3D3D3D' }}>
+      <VStack
+        alignment="center"
+        css={{ background: '#FEFCF5', color: '#3D3D3D' }}
+      >
         <VStack css={mobileContainerStyles}>
           <Box css={headingStyles}>
             Omnivore is the read-it-later app for serious readers.

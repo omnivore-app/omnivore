@@ -42,6 +42,7 @@ const containerStyles = {
   pt: 32,
   pb: 100,
   width: '100%',
+  maxWidth: '1224px',
   background:
     'linear-gradient(0deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)), linear-gradient(0deg, rgba(253, 250, 236, 0.7), rgba(253, 250, 236, 0.7))',
   '@mdDown': {
@@ -92,19 +93,7 @@ const callToActionText = {
   padding: '20px',
 }
 
-type LandingSectionsContainerProps = {
-  hideFirst?: boolean
-  hideSecond?: boolean
-  hideThird?: boolean
-  hideFourth?: boolean
-}
-
-export function LandingSectionsContainer({
-  hideFirst = false,
-  hideSecond = false,
-  hideThird = false,
-  hideFourth = false,
-}: LandingSectionsContainerProps): JSX.Element {
+export function LandingSectionsContainer(): JSX.Element {
   // const iconColor = 'rgb(255, 210, 52)'
   return (
     <VStack alignment="center" distribution="start" css={containerStyles}>
@@ -112,14 +101,16 @@ export function LandingSectionsContainer({
         css={{
           display: 'flex',
           justifyContent: 'center',
-          // margin: '40px',
+          marginBottom: '120px',
           '@mdDown': {
             margin: '0 0 10px 0',
           },
         }}
       >
         <img
-          srcSet="/static/landing/landingPage-1.png"
+          srcSet="/static/landing/landingPage-1.png,
+                  /static/landing/landingPage-1@2x.png 2x,
+                  /static/landing/landingPage-1@3x.png 3x"
           alt="landingHero-1"
           style={{
             width: '70%',
@@ -128,90 +119,94 @@ export function LandingSectionsContainer({
         />
       </Box>
 
-      {!hideFirst && (
-        <LandingSection
-          titleText="Unclutter your reading."
-          descriptionText={
+      <LandingSection
+        titleText="Unclutter your reading."
+        descriptionText={
+          <p>
+            Omnivore strips away the ads, trackers, and clutter and formats
+            pages for easy reading without distractions. The text-focused view
+            also makes articles smaller and quicker to load.
+          </p>
+        }
+        image={
+          <img
+            srcSet="/static/landing/landingPage-2.png,
+                      /static/landing/landingPage-2@2x.png 2x,
+                      /static/landing/landingPage-2@3x.png 3x"
+            alt="landing-2"
+            style={{ maxWidth: '100%' }}
+          />
+        }
+      />
+
+      <LandingSection
+        titleText="Save links from anywhere. Forever."
+        descriptionText={
+          <>
             <p>
-              Omnivore strips away the ads, trackers, and clutter and formats
-              pages for easy reading without distractions. The text-focused view
-              also makes articles smaller and quicker to load.
+              With the Omnivore app for iOS and Android and extensions for all
+              major web browsers, you can add to your reading list any time.
             </p>
-          }
-          image={
-            <img
-              srcSet="/static/landing/landingPage-2.png"
-              alt="landing-2"
-              style={{ maxHeight: 400 }}
-            />
-          }
-        />
-      )}
-      {!hideSecond && (
-        <LandingSection
-          titleText="Save links from anywhere. Forever."
-          descriptionText={
-            <>
-              <p>
-                With the Omnivore app for iOS and Android and extensions for all
-                major web browsers, you can add to your reading list any time.
-              </p>
-              <p>
-                Saved articles remain in your Omnivore library forever — even if
-                the site where you found them goes away. Access them any time in
-                our reader view or in their original format.
-              </p>
-            </>
-          }
-          image={
-            <img
-              srcSet="/static/landing/landingPage-3.png"
-              alt="landing-3"
-              style={{ width: '100%' }}
-            />
-          }
-          containerStyles={reversedSectionStyles}
-        />
-      )}
-      {!hideThird && (
-        <LandingSection
-          titleText="All your newsletters in one place."
-          descriptionText={
             <p>
-              Send subscriptions directly to your Omnivore library, and read
-              them on your own time, away from the constant distractions and
-              interruptions of your email inbox.
+              Saved articles remain in your Omnivore library forever — even if
+              the site where you found them goes away. Access them any time in
+              our reader view or in their original format.
             </p>
-          }
-          image={
-            <img
-              srcSet="/static/landing/landingPage-4.png"
-              alt="landing-4"
-              style={{ maxHeight: 400, width: '100%' }}
-            />
-          }
-        />
-      )}
-      {!hideFourth && (
-        <LandingSection
-          titleText="Stay organized and in control."
-          descriptionText={
-            <p>
-              Read what you want, not what some algorithm says you should. Keep
-              your reading organized and easily available with labels, filters,
-              and fully indexed text searches.
-            </p>
-          }
-          image={
-            <img
-              srcSet="/static/landing/landingPage-5.png"
-              alt="landing-5"
-              style={{ maxHeight: 400 }}
-            />
-          }
-          containerStyles={reversedSectionStyles}
-        />
-      )}
+          </>
+        }
+        image={
+          <img
+            srcSet="/static/landing/landingPage-3.png,
+                      /static/landing/landingPage-3@2x.png,
+                      /static/landing/landingPage-3@3x.png 3x"
+            alt="landing-3"
+            style={{ maxWidth: '100%' }}
+          />
+        }
+        containerStyles={reversedSectionStyles}
+      />
+
+      <LandingSection
+        titleText="All your newsletters in one place."
+        descriptionText={
+          <p>
+            Send subscriptions directly to your Omnivore library, and read them
+            on your own time, away from the constant distractions and
+            interruptions of your email inbox.
+          </p>
+        }
+        image={
+          <img
+            srcSet="/static/landing/landingPage-4.png,
+                      /static/landing/landingPage-4@2x.png 2x,
+                      /static/landing/landingPage-4@3x.png 3x"
+            alt="landing-4"
+            style={{ maxWidth: '100%' }}
+          />
+        }
+      />
+
+      <LandingSection
+        titleText="Stay organized and in control."
+        descriptionText={
+          <p>
+            Read what you want, not what some algorithm says you should. Keep
+            your reading organized and easily available with labels, filters,
+            and fully indexed text searches.
+          </p>
+        }
+        image={
+          <img
+            srcSet="/static/landing/landingPage-5.png,
+                      /static/landing/landingPage-5@2x.png 2x,
+                      /static/landing/landingPage-5@3x.png 3x"
+            alt="landing-5"
+            style={{ maxWidth: '100%' }}
+          />
+        }
+        containerStyles={reversedSectionStyles}
+      />
+
       <LandingSection
         titleText="Built for advanced users."
         descriptionText={
@@ -225,9 +220,11 @@ export function LandingSectionsContainer({
         }
         image={
           <img
-            srcSet="/static/landing/landingPage-6.png"
+            srcSet="/static/landing/landingPage-6.png,
+                    /static/landing/landingPage-6@2x.png 2x,
+                    /static/landing/landingPage-6@3x.png 3x"
             alt="landing-6"
-            style={{ width: '100%' }}
+            style={{ maxWidth: '100%' }}
           />
         }
       />
@@ -242,9 +239,11 @@ export function LandingSectionsContainer({
         }
         image={
           <img
-            srcSet="/static/landing/landingPage-7.png"
+            srcSet="/static/landing/landingPage-7.png,
+            /static/landing/landingPage-7@2x.png 2x,
+            /static/landing/landingPage-7@3x.png 3x"
             alt="landing-7"
-            style={{ maxHeight: '360px' }}
+            style={{ maxWidth: '100%' }}
           />
         }
         containerStyles={reversedSectionStyles}
