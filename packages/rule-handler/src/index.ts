@@ -22,8 +22,9 @@ export interface PubSubData {
   id: string
   userId: string
   type: EntityType
-  subscription?: string
-  image?: string
+  subscription: string
+  image: string
+  content: string
 }
 
 enum EntityType {
@@ -114,7 +115,17 @@ export const ruleHandler = Sentry.GCPFunction.wrapHttpFunction(
         return
       }
 
-      await triggerActions(userId, rules, data, apiEndpoint, jwtSecret)
+      const triggeredActions = await triggerActions(
+        userId,
+        rules,
+        data,
+        apiEndpoint,
+        jwtSecret
+      )
+      if (triggeredActions.length === 0) {
+        res.status(200).send('No Actions')
+        return
+      }
 
       res.status(200).send('OK')
     } catch (error) {

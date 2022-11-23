@@ -4,6 +4,9 @@ import axios from 'axios'
 import { parse, SearchParserKeyWordOffset } from 'search-query-parser'
 import { addLabels } from './label'
 import { archivePage, markPageAsRead } from './page'
+import { SearchFilter } from './search_filter'
+import { SubscriptionFilter } from './search_filter/subscription_filter'
+import { ContentFilter } from './search_filter/content_filter'
 
 export enum RuleActionType {
   AddLabel = 'ADD_LABEL',
@@ -29,20 +32,16 @@ export interface Rule {
   updatedAt: Date
 }
 
-interface SearchFilter {
-  subscriptionFilter?: string
-}
-
-const parseSearchFilter = (filter: string): SearchFilter => {
+const parseSearchFilter = (filter: string): SearchFilter[] => {
   const searchFilter = filter ? filter.replace(/\W\s":/g, '') : undefined
-  const result: SearchFilter = {}
+  const result: SearchFilter[] = []
 
   if (!searchFilter || searchFilter === '*') {
     return result
   }
 
   const parsed = parse(searchFilter, {
-    keywords: ['subscription'],
+    keywords: ['subscription', 'content'],
     tokenize: true,
   })
   if (parsed.offsets) {
@@ -53,7 +52,11 @@ const parseSearchFilter = (filter: string): SearchFilter => {
     for (const keyword of keywords) {
       switch (keyword.keyword) {
         case 'subscription':
-          result.subscriptionFilter = keyword.value
+          keyword.value && result.push(new SubscriptionFilter(keyword.value))
+          break
+        case 'content':
+          keyword.value && result.push(new ContentFilter(keyword.value))
+          break
       }
     }
   }
@@ -62,24 +65,14 @@ const parseSearchFilter = (filter: string): SearchFilter => {
 }
 
 const isValidData = (filter: string, data: PubSubData): boolean => {
-  const searchFilter = parseSearchFilter(filter)
+  const searchFilters = parseSearchFilter(filter)
 
-  if (searchFilter.subscriptionFilter) {
-    return isValidSubscription(searchFilter.subscriptionFilter, data)
+  if (searchFilters.length === 0) {
+    console.debug('no search filters found')
+    return true
   }
 
-  return true
-}
-
-const isValidSubscription = (
-  subscriptionFilter: string,
-  data: PubSubData
-): boolean => {
-  if (!data.subscription) {
-    return false
-  }
-
-  return subscriptionFilter === '*' || data.subscription === subscriptionFilter
+  return searchFilters.every((searchFilter) => searchFilter.isValid(data))
 }
 
 export const getEnabledRules = async (
@@ -128,12 +121,13 @@ export const triggerActions = async (
   apiEndpoint: string,
   jwtSecret: string
 ) => {
+  const triggeredActions: RuleAction[] = []
+  const authToken = await getAuthToken(userId, jwtSecret)
+
   for (const rule of rules) {
     if (!isValidData(rule.filter, data)) {
       continue
     }
-
-    const authToken = await getAuthToken(userId, jwtSecret)
 
     for (const action of rule.actions) {
       switch (action.type) {
@@ -143,6 +137,7 @@ export const triggerActions = async (
             continue
           }
           await addLabels(apiEndpoint, authToken, data.id, action.params)
+          triggeredActions.push(action)
           break
         case RuleActionType.Archive:
           if (!data.id) {
@@ -150,6 +145,7 @@ export const triggerActions = async (
             continue
           }
           await archivePage(apiEndpoint, authToken, data.id)
+          triggeredActions.push(action)
           break
         case RuleActionType.MarkAsRead:
           if (!data.id) {
@@ -157,13 +153,17 @@ export const triggerActions = async (
             continue
           }
           await markPageAsRead(apiEndpoint, authToken, data.id)
+          triggeredActions.push(action)
           break
         case RuleActionType.SendNotification:
           for (const message of action.params) {
             await sendNotification(apiEndpoint, authToken, message)
           }
+          triggeredActions.push(action)
           break
       }
     }
   }
+
+  return triggeredActions
 }
