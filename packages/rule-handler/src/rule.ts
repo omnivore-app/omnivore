@@ -3,6 +3,7 @@ import { getAuthToken, PubSubData } from './index'
 import axios from 'axios'
 import { parse, SearchParserKeyWordOffset } from 'search-query-parser'
 import { addLabels } from './label'
+import { archivePage, markPageAsRead } from './page'
 
 export enum RuleActionType {
   AddLabel = 'ADD_LABEL',
@@ -148,8 +149,19 @@ export const triggerActions = async (
           )
           break
         case RuleActionType.Archive:
+          if (!data.id) {
+            console.log('invalid data for archive action')
+            continue
+          }
+          await archivePage(userId, apiEndpoint, jwtSecret, data.id)
+          break
         case RuleActionType.MarkAsRead:
-          continue
+          if (!data.id) {
+            console.log('invalid data for mark as read action')
+            continue
+          }
+          await markPageAsRead(userId, apiEndpoint, jwtSecret, data.id)
+          break
         case RuleActionType.SendNotification:
           for (const message of action.params) {
             await sendNotification(userId, apiEndpoint, jwtSecret, message)
