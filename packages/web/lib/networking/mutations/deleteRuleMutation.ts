@@ -1,6 +1,5 @@
 import { gql } from 'graphql-request'
 import { gqlFetcher } from '../networkHelpers'
-import { IntegrationType } from '../queries/useGetIntegrationsQuery'
 import { Rule } from '../queries/useGetRulesQuery'
 
 type DeleteRuleResult = {
@@ -16,7 +15,7 @@ type DeleteRuleSuccess = {
   rule: Rule
 }
 
-export async function deleteRuleMutation(id: string): Promise<Integration> {
+export async function deleteRuleMutation(id: string): Promise<Rule> {
   const mutation = gql`
     mutation DeleteRule($id: ID!) {
       deleteRule(id: $id) {

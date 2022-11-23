@@ -252,10 +252,10 @@ export default function Rules(): JSX.Element {
     },
     {
       title: 'Actions',
-      render: (text: String, row: { actions: RuleAction[] }) => (
+      render: (text: string, row: { actions: RuleAction[] }) => (
         <>
           {row.actions.map((action: RuleAction, index: number) => {
-            let color = action.type.length > 5 ? 'geekblue' : 'green'
+            const color = action.type.length > 5 ? 'geekblue' : 'green'
             return (
               <Tag color={color} key={index}>
                 {action.type}(
