@@ -502,6 +502,22 @@ type DeleteReminderSuccess {
   reminder: Reminder!
 }
 
+type DeleteRuleError {
+  errorCodes: [DeleteRuleErrorCode!]!
+}
+
+enum DeleteRuleErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+union DeleteRuleResult = DeleteRuleError | DeleteRuleSuccess
+
+type DeleteRuleSuccess {
+  rule: Rule!
+}
+
 type DeleteWebhookError {
   errorCodes: [DeleteWebhookErrorCode!]!
 }
@@ -522,6 +538,21 @@ type DeviceToken {
   createdAt: Date!
   id: ID!
   token: String!
+}
+
+type DeviceTokensError {
+  errorCodes: [DeviceTokensErrorCode!]!
+}
+
+enum DeviceTokensErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+union DeviceTokensResult = DeviceTokensError | DeviceTokensSuccess
+
+type DeviceTokensSuccess {
+  deviceTokens: [DeviceToken!]!
 }
 
 type Feature {
@@ -868,6 +899,7 @@ type Mutation {
   deleteNewsletterEmail(newsletterEmailId: ID!): DeleteNewsletterEmailResult!
   deleteReaction(id: ID!): DeleteReactionResult!
   deleteReminder(id: ID!): DeleteReminderResult!
+  deleteRule(id: ID!): DeleteRuleResult!
   deleteWebhook(id: ID!): DeleteWebhookResult!
   generateApiKey(input: GenerateApiKeyInput!): GenerateApiKeyResult!
   googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -889,6 +921,7 @@ type Mutation {
   setLabels(input: SetLabelsInput!): SetLabelsResult!
   setLabelsForHighlight(input: SetLabelsForHighlightInput!): SetLabelsResult!
   setLinkArchived(input: ArchiveLinkInput!): ArchiveLinkResult!
+  setRule(input: SetRuleInput!): SetRuleResult!
   setShareArticle(input: SetShareArticleInput!): SetShareArticleResult!
   setShareHighlight(input: SetShareHighlightInput!): SetShareHighlightResult!
   setUserPersonalization(input: SetUserPersonalizationInput!): SetUserPersonalizationResult!
@@ -1010,6 +1043,7 @@ type Query {
   article(slug: String!, username: String!): ArticleResult!
   articleSavingRequest(id: ID!): ArticleSavingRequestResult!
   articles(after: String, first: Int, includePending: Boolean, query: String, sharedOnly: Boolean, sort: SortParams): ArticlesResult!
+  deviceTokens: DeviceTokensResult!
   feedArticles(after: String, first: Int, sharedByUser: ID, sort: SortParams): FeedArticlesResult!
   getFollowers(userId: ID): GetFollowersResult!
   getFollowing(userId: ID): GetFollowingResult!
@@ -1021,6 +1055,7 @@ type Query {
   newsletterEmails: NewsletterEmailsResult!
   recentSearches: RecentSearchesResult!
   reminder(linkId: ID!): ReminderResult!
+  rules(enabled: Boolean): RulesResult!
   search(after: String, first: Int, query: String): SearchResult!
   sendInstallInstructions: SendInstallInstructionsResult!
   sharedArticle(selectedHighlightId: String, slug: String!, username: String!): SharedArticleResult!
@@ -1137,6 +1172,48 @@ type RevokeApiKeySuccess {
   apiKey: ApiKey!
 }
 
+type Rule {
+  actions: [RuleAction!]!
+  createdAt: Date!
+  enabled: Boolean!
+  filter: String!
+  id: ID!
+  name: String!
+  updatedAt: Date!
+}
+
+type RuleAction {
+  params: [String!]!
+  type: RuleActionType!
+}
+
+input RuleActionInput {
+  params: [String!]!
+  type: RuleActionType!
+}
+
+enum RuleActionType {
+  ADD_LABEL
+  ARCHIVE
+  MARK_AS_READ
+  SEND_NOTIFICATION
+}
+
+type RulesError {
+  errorCodes: [RulesErrorCode!]!
+}
+
+enum RulesErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+union RulesResult = RulesError | RulesSuccess
+
+type RulesSuccess {
+  rules: [Rule!]!
+}
+
 type SaveArticleReadingProgressError {
   errorCodes: [SaveArticleReadingProgressErrorCode!]!
 }
@@ -1165,6 +1242,7 @@ type SaveError {
 }
 
 enum SaveErrorCode {
+  EMBEDDED_HIGHLIGHT_FAILED
   UNAUTHORIZED
   UNKNOWN
 }
@@ -1380,6 +1458,31 @@ union SetLabelsResult = SetLabelsError | SetLabelsSuccess
 
 type SetLabelsSuccess {
   labels: [Label!]!
+}
+
+type SetRuleError {
+  errorCodes: [SetRuleErrorCode!]!
+}
+
+enum SetRuleErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+input SetRuleInput {
+  actions: [RuleActionInput!]!
+  description: String
+  enabled: Boolean!
+  filter: String!
+  id: ID
+  name: String!
+}
+
+union SetRuleResult = SetRuleError | SetRuleSuccess
+
+type SetRuleSuccess {
+  rule: Rule!
 }
 
 type SetShareArticleError {

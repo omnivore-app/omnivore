@@ -1,27 +1,25 @@
 {
   "name": "@omnivore/puppeteer-parse",
   "version": "1.0.0",
-  "description": "Google Cloud Function that accepts URL of the article and parses its content",
+  "description": "Accepts URL of the article and parses its content",
   "main": "index.js",
   "dependencies": {
-    "@google-cloud/functions-framework": "^3.1.2",
-    "@google-cloud/logging-winston": "^5.1.1",
     "@google-cloud/storage": "^5.18.1",
     "@omnivore/content-handler": "1.0.0",
-    "@sentry/serverless": "^6.13.3",
     "axios": "^0.27.2",
-    "chrome-aws-lambda": "^10.1.0",
-    "dotenv": "^8.2.0",
     "jsonwebtoken": "^8.5.1",
     "linkedom": "^0.14.9",
-    "luxon": "^2.3.1",
     "puppeteer-core": "^16.1.0",
-    "underscore": "^1.13.4",
-    "winston": "^3.3.3"
+    "puppeteer-extra": "^3.3.4",
+    "puppeteer-extra-plugin-adblocker": "^2.13.5",
+    "puppeteer-extra-plugin-stealth": "^2.11.1",
+    "underscore": "^1.13.4"
+  },
+  "devDependencies": {
+    "chai": "^4.3.6",
+    "mocha": "^10.0.0"
   },
   "scripts": {
-    "start": "npx functions-framework --port=9090 --target=puppeteer",
-    "start_preview": "npx functions-framework --target=preview",
-    "test": "yarn mocha"
+    "test": "mocha test/*.js"
   }
 }

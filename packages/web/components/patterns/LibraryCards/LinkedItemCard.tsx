@@ -4,7 +4,19 @@ import type { LinkedItemCardProps } from './CardTypes'
 import { HighlightItemCard } from './HighlightItemCard'
 import { PageType } from '../../../lib/networking/fragments/articleFragment'
 
+const shouldHideUrl = (url: string): boolean => {
+  const origin = new URL(url).origin
+  const hideHosts = ['https://storage.googleapis.com', 'https://omnivore.app']
+  if (hideHosts.indexOf(origin) != -1) {
+    return true
+  }
+  return false
+}
+
 const siteName = (originalArticleUrl: string, itemUrl: string): string => {
+  if (shouldHideUrl(originalArticleUrl)) {
+    return ''
+  }
   try {
     return new URL(originalArticleUrl).hostname.replace(/^www\./, '')
   } catch {}

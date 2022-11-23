@@ -14,8 +14,8 @@ public extension DataService {
   func syncLinkedItems(
     since date: Date,
     cursor: String?,
-    previousQueryResult: LinkedItemQueryResult? = nil
-  ) async throws -> LinkedItemQueryResult {
+    previousQueryResult: LinkedItemSyncResult? = nil
+  ) async throws -> LinkedItemSyncResult? {
     if previousQueryResult == nil {
       // Send offline changes to server before fetching items
       // only on the first call of this function
@@ -26,16 +26,17 @@ public extension DataService {
 
     LinkedItem.deleteItems(ids: fetchResult.deletedItemIDs, context: backgroundContext)
 
-    guard let itemIDs = fetchResult.items.persist(context: backgroundContext) else {
+    if fetchResult.items.persist(context: backgroundContext) == nil {
       throw BasicError.message(messageText: "CoreData error")
     }
 
-    let result = LinkedItemQueryResult(
-      itemIDs: itemIDs + (previousQueryResult?.itemIDs ?? []),
+    let prev = previousQueryResult?.updatedItemIDs ?? []
+    let result = LinkedItemSyncResult(
+      updatedItemIDs: prev + fetchResult.items.map(\.id),
       cursor: fetchResult.cursor
     )
 
-    if fetchResult.hasMoreItems, (previousQueryResult?.itemIDs.count ?? 0) < 200 {
+    if fetchResult.hasMoreItems, (previousQueryResult?.updatedItemIDs.count ?? 0) < 200 {
       return try await syncLinkedItems(
         since: date,
         cursor: fetchResult.cursor,
@@ -58,7 +59,7 @@ public extension DataService {
     cursor: String?
   ) async throws -> LinkedItemQueryResult {
     // Send offline changes to server before fetching items
-    try? await syncOfflineItemsWithServerIfNeeded()
+    // try? await syncOfflineItemsWithServerIfNeeded()
 
     let fetchResult = try await fetchLinkedItems(limit: limit, searchQuery: searchQuery, cursor: cursor)
 

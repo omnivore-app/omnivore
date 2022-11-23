@@ -1,0 +1,12 @@
+{
+  "title": "Parallelizing the Naughty Dog Engine Using Fibers",
+  "byline": null,
+  "dir": null,
+  "excerpt": "This talk is a detailed walkthrough of the game engine modifications needed to make The Last of Us Remastered run at 60 fps on PlayStation 4. Topics covered will include the fiber-based job system Naughty Dog adopted for the game, the overall...",
+  "siteName": null,
+  "siteIcon": "http://fakehost/img/favicon.ico",
+  "previewImage": "https://ubm-twvideo01.s3.amazonaws.com/o1/vault/gdc2015/Images/GDC15_Vault-thumb_v1.png",
+  "publishedDate": null,
+  "language": "English",
+  "readerable": true
+}

@@ -3,6 +3,7 @@ import rfc2047 from 'rfc2047'
 import { v4 as uuid } from 'uuid'
 import { parseHTML } from 'linkedom'
 import axios from 'axios'
+import { Browser } from 'puppeteer-core'
 
 interface Unsubscribe {
   mailTo?: string
@@ -62,7 +63,7 @@ export abstract class ContentHandler {
     return false
   }
 
-  async preHandle(url: string): Promise<PreHandleResult> {
+  async preHandle(url: string, browser?: Browser): Promise<PreHandleResult> {
     return Promise.resolve({ url })
   }
 

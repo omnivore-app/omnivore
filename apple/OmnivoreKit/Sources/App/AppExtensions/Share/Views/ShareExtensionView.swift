@@ -12,13 +12,20 @@ public struct ShareExtensionView: View {
 
   @State var reminderTime: ReminderTime?
   @State var hideUntilReminded = false
-  @State var editingTitle = false
-  @State var editingLabels = false
   @State var previousLabels: [LinkedItemLabel]?
   @State var messageText: String?
 
+  @State var viewState = ViewState.mainView
+
   enum FocusField: Hashable {
     case titleEditor
+  }
+
+  enum ViewState {
+    case mainView
+    case editingTitle
+    case editingLabels
+    case viewingHighlight
   }
 
   @FocusState private var focusedField: FocusField?
@@ -44,27 +51,14 @@ public struct ShareExtensionView: View {
     }
   }
 
-  private var cloudIconName: String {
+  private var titleColor: Color {
     switch viewModel.status {
-    case .synced:
-      return "checkmark.icloud"
     case .saved, .processing:
-      return "icloud"
-    case .failed(error: _), .syncFailed(error: _):
-      return "exclamationmark.icloud"
-    }
-  }
-
-  private var cloudIconColor: Color {
-    switch viewModel.status {
-    case .saved:
       return .appGrayText
-    case .processing:
-      return .clear
     case .failed(error: _), .syncFailed(error: _):
       return .red
     case .synced:
-      return .blue
+      return .appGreenSuccess
     }
   }
 
@@ -79,71 +73,6 @@ public struct ShareExtensionView: View {
       }
     #endif
     return nil
-  }
-
-  public var previewCard: some View {
-    HStack {
-      if let iconURLStr = viewModel.iconURL, let iconURL = URL(string: iconURLStr) {
-        if !iconURL.isFileURL {
-          AsyncImage(
-            url: iconURL,
-            content: { image in
-              image
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(width: 61, height: 61)
-                .clipped()
-            },
-            placeholder: {
-              Color.appButtonBackground
-                .aspectRatio(contentMode: .fill)
-                .frame(width: 61, height: 61)
-            }
-          )
-        } else {
-          if let localImage = localImage(from: iconURL) {
-            localImage
-              .resizable()
-              .aspectRatio(contentMode: .fill)
-              .frame(width: 61, height: 61)
-              .clipped()
-          } else {
-            Color.appButtonBackground
-              .aspectRatio(contentMode: .fill)
-              .frame(width: 61, height: 61)
-          }
-        }
-      } else {
-        Color.appButtonBackground
-          .aspectRatio(contentMode: .fill)
-          .frame(width: 61, height: 61)
-      }
-
-      VStack(alignment: .leading) {
-        Text(viewModel.title ?? "")
-          .lineLimit(1)
-          .foregroundColor(.appGrayTextContrast)
-          .font(Font.system(size: 15, weight: .semibold))
-        Text(viewModel.url ?? "")
-          .lineLimit(1)
-          .foregroundColor(.appGrayText)
-          .font(Font.system(size: 12, weight: .regular))
-      }
-      Spacer()
-      VStack {
-        Spacer()
-        Image(systemName: cloudIconName)
-          .resizable()
-          .aspectRatio(contentMode: .fill)
-          .frame(width: 12, height: 12, alignment: .trailing)
-          .foregroundColor(cloudIconColor)
-          // .padding(.trailing, 6)
-          .padding(EdgeInsets(top: 0, leading: 0, bottom: 8, trailing: 8))
-      }
-    }
-    .background(Color.appButtonBackground)
-    .frame(maxWidth: .infinity, maxHeight: 61)
-    .cornerRadius(8)
   }
 
   var isSynced: Bool {
@@ -166,7 +95,7 @@ public struct ShareExtensionView: View {
 
       Text(messageText ?? titleText)
         .font(.appSubheadline)
-        .foregroundColor(isSynced ? .appGreenSuccess : .appGrayText)
+        .foregroundColor(titleColor)
 
       Spacer()
     }
@@ -179,14 +108,14 @@ public struct ShareExtensionView: View {
           .font(.appFootnote)
           .padding(.trailing, 8)
           .onTapGesture {
-            editingTitle = true
+            viewState = .editingTitle
           }
       })
-        .disabled(editingTitle)
-        .opacity(editingTitle ? 0.0 : 1.0)
+        .disabled(viewState == .editingTitle)
+        .opacity(viewState == .editingTitle ? 0.0 : 1.0)
 
       VStack(alignment: .leading) {
-        if !editingTitle {
+        if viewState != .editingTitle {
           Text(self.viewModel.title)
             .font(.appSubheadline)
             .foregroundColor(.appGrayTextContrast)
@@ -211,7 +140,7 @@ public struct ShareExtensionView: View {
 
   var labelsSection: some View {
     HStack {
-      if !editingLabels {
+      if viewState != .editingLabels {
         ZStack {
           Circle()
             .foregroundColor(Color.blue)
@@ -243,16 +172,76 @@ public struct ShareExtensionView: View {
         Image(systemName: "chevron.right")
           .font(.appCallout)
       } else {
-        ScrollView {
-          LabelsMasonaryView(labels: labelsViewModel.labels,
-                             selectedLabels: labelsViewModel.selectedLabels,
-                             onLabelTap: onLabelTap)
-        }.background(Color.appButtonBackground)
-          .cornerRadius(8)
+        VStack {
+          ScrollView {
+            LabelsMasonaryView(labels: labelsViewModel.labels,
+                               selectedLabels: labelsViewModel.selectedLabels,
+                               onLabelTap: onLabelTap)
+          }.background(Color.appButtonBackground)
+            .cornerRadius(8)
+
+          Button(
+            action: { labelsViewModel.showCreateLabelModal = true },
+            label: {
+              HStack {
+                Spacer()
+                Image(systemName: "plus")
+                Text("Create label")
+                Spacer()
+              }
+            }
+          ).buttonStyle(RoundedRectButtonStyle(color: .blue, textColor: .white))
+        }
       }
     }
     .padding(16)
-    .frame(maxWidth: .infinity, maxHeight: self.editingLabels ? .infinity : 60)
+    .frame(maxWidth: .infinity, maxHeight: viewState == .editingLabels ? .infinity : 60)
+    .background(Color.appButtonBackground)
+    .cornerRadius(8)
+  }
+
+  var highlightSection: some View {
+    HStack {
+      if viewState != .viewingHighlight {
+        ZStack {
+          Circle()
+            .foregroundColor(Color.appBackground)
+            .frame(width: 34, height: 34)
+
+          Image(systemName: "highlighter")
+            .font(.appCallout)
+            .frame(width: 34, height: 34)
+            .foregroundColor(Color.black)
+        }
+        .padding(.trailing, 8)
+
+        VStack {
+          Text("Highlight")
+            .font(.appSubheadline)
+            .foregroundColor(Color.appGrayTextContrast)
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+          Text(viewModel.highlightData != nil ?
+            viewModel.highlightData!.highlightText
+            : "Select text before saving to create highlight")
+            .font(.appFootnote)
+            .foregroundColor(Color.appGrayText)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+
+        Spacer()
+
+        Image(systemName: "chevron.right")
+          .font(.appCallout)
+      } else if let highlightText = self.viewModel.highlightData?.highlightText {
+        Text(highlightText)
+          .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+          .cornerRadius(8)
+          .padding(0)
+      }
+    }
+    .padding(16)
+    .frame(maxWidth: .infinity, maxHeight: viewState == .viewingHighlight ? .infinity : 60)
     .background(Color.appButtonBackground)
     .cornerRadius(8)
   }
@@ -351,6 +340,19 @@ public struct ShareExtensionView: View {
     }
   }
 
+  var editingViewTitle: String {
+    switch viewState {
+    case .editingTitle:
+      return "Edit Title"
+    case .editingLabels:
+      return "Labels"
+    case .viewingHighlight:
+      return "Highlight"
+    default:
+      return ""
+    }
+  }
+
   public var body: some View {
     VStack(alignment: .center) {
       Capsule()
@@ -358,7 +360,7 @@ public struct ShareExtensionView: View {
         .frame(width: 60, height: 4)
         .padding(.top, 10)
 
-      if !editingLabels, !editingTitle {
+      if viewState == .mainView {
         titleBar
           .padding(.top, 10)
           .padding(.bottom, 12)
@@ -366,28 +368,28 @@ public struct ShareExtensionView: View {
         ZStack {
           Button(action: {
             withAnimation {
-              if editingLabels {
+              if viewState == .editingLabels {
                 if let linkedItem = self.viewModel.linkedItem {
                   self.labelsViewModel.selectedLabels = previousLabels ?? []
                   self.labelsViewModel.saveItemLabelChanges(itemID: linkedItem.unwrappedID,
                                                             dataService: self.viewModel.services.dataService)
                 }
               }
-              editingTitle = false
-              editingLabels = false
+              viewState = .mainView
             }
           }, label: { Text("Cancel") })
             .frame(maxWidth: .infinity, alignment: .leading)
+            .opacity(viewState == .viewingHighlight ? 0.0 : 1.0)
+          // Don't show viewState when viewing the highlight
 
-          Text(editingTitle ? "Edit Title" : "Labels").bold()
+          Text(editingViewTitle).bold()
             .frame(maxWidth: .infinity, alignment: .center)
 
           Button(action: {
             withAnimation {
-              editingTitle = false
-              editingLabels = false
+              viewState = .mainView
 
-              if editingTitle {
+              if viewState == .editingTitle {
                 if let linkedItem = self.viewModel.linkedItem {
                   viewModel.submitTitleEdit(dataService: self.viewModel.services.dataService,
                                             itemID: linkedItem.unwrappedID,
@@ -403,11 +405,11 @@ public struct ShareExtensionView: View {
         .padding(.bottom, 4)
       }
 
-      if !editingLabels, !editingTitle {
+      if viewState == .mainView {
         titleBox
       }
 
-      if editingTitle {
+      if viewState == .editingTitle {
         ScrollView(showsIndicators: false) {
           VStack(alignment: .center, spacing: 16) {
             VStack(alignment: .leading, spacing: 6) {
@@ -436,20 +438,29 @@ public struct ShareExtensionView: View {
         Spacer()
       }
 
-      if !editingTitle {
-        labelsSection
-          .padding(.top, 12)
-          .onTapGesture {
-            withAnimation {
-              previousLabels = self.labelsViewModel.selectedLabels
-              editingLabels = true
+      if viewState != .editingTitle {
+        if viewState != .viewingHighlight {
+          labelsSection
+            .onTapGesture {
+              withAnimation {
+                previousLabels = self.labelsViewModel.selectedLabels
+                viewState = .editingLabels
+              }
             }
-          }
+        }
+        if viewState != .editingLabels {
+          highlightSection
+            .onTapGesture {
+              withAnimation {
+                viewState = .viewingHighlight
+              }
+            }
+        }
       }
 
       Spacer()
 
-      if !editingLabels, !editingTitle {
+      if viewState == .mainView {
         Divider()
           .padding(.bottom, 20)
 
@@ -466,6 +477,9 @@ public struct ShareExtensionView: View {
     .padding(.horizontal, 16)
     .onAppear {
       viewModel.savePage(extensionContext: extensionContext)
+    }
+    .sheet(isPresented: $labelsViewModel.showCreateLabelModal) {
+      CreateLabelView(viewModel: labelsViewModel)
     }
     .environmentObject(viewModel.services.dataService)
     .task {

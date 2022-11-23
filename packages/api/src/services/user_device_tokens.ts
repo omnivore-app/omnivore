@@ -20,7 +20,7 @@ export const getDeviceTokenByToken = async (
 
 export const getDeviceTokensByUserId = async (
   userId: string
-): Promise<UserDeviceToken[] | undefined> => {
+): Promise<UserDeviceToken[]> => {
   return getRepository(UserDeviceToken).find({
     where: { user: { id: userId } },
   })

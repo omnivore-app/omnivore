@@ -14,6 +14,7 @@ import normalizeUrl from 'normalize-url'
 import { createPageSaveRequest } from './create_page_save_request'
 import { ArticleSavingRequestStatus, Page } from '../elastic/types'
 import { createPage, getPageByParam, updatePage } from '../elastic/pages'
+import { addHighlightToPage } from '../elastic/highlights'
 
 type SaveContext = {
   pubsub: PubsubClient
@@ -101,12 +102,15 @@ export const savePage = async (
     savedAt: new Date(),
   }
 
+  let pageId: string | undefined = undefined
   const existingPage = await getPageByParam({
     userId: saver.userId,
     url: articleToSave.url,
     state: ArticleSavingRequestStatus.Succeeded,
   })
+
   if (existingPage) {
+    pageId = existingPage.id
     if (
       !(await updatePage(
         existingPage.id,
@@ -139,10 +143,33 @@ export const savePage = async (
       }
     }
   } else {
-    if (!(await createPage(articleToSave, ctx))) {
+    pageId = await createPage(articleToSave, ctx)
+    if (!pageId) {
       return {
         errorCodes: [SaveErrorCode.Unknown],
         message: 'Failed to create new page',
+      }
+    }
+  }
+
+  if (pageId && parseResult.highlightData) {
+    const highlight = {
+      updatedAt: new Date(),
+      createdAt: new Date(),
+      userId: ctx.uid,
+      elasticPageId: pageId,
+      ...parseResult.highlightData,
+    }
+
+    if (
+      !(await addHighlightToPage(pageId, highlight, {
+        pubsub: ctx.pubsub,
+        uid: ctx.uid,
+      }))
+    ) {
+      return {
+        errorCodes: [SaveErrorCode.EmbeddedHighlightFailed],
+        message: 'Failed to save highlight',
       }
     }
   }

@@ -90,5 +90,5 @@ jobs:
         run: 'docker build --file packages/content-fetch/Dockerfile .'
       - name: Build the inbound-email-handler docker image
         run: 'docker build --file packages/inbound-email-handler/Dockerfile .'
-      - name: Build the puppeteer-parse docker image
-        run: 'docker build --file packages/puppeteer-parse/Dockerfile .'
+      - name: Build the content-fetch cloud function docker image
+        run: 'docker build --file packages/content-fetch/Dockerfile-gcf .'

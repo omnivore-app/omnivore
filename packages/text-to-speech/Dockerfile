@@ -23,5 +23,5 @@ RUN yarn install --pure-lockfile --production
 
 EXPOSE 8080
 
-CMD ["yarn", "workspace", "@omnivore/text-to-speech-handler", "start"]
+CMD ["yarn", "workspace", "@omnivore/text-to-speech-handler", "start_streaming"]
 

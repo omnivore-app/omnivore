@@ -12,6 +12,16 @@ public struct LinkedItemQueryResult {
   }
 }
 
+public struct LinkedItemSyncResult {
+  public let updatedItemIDs: [String]
+  public let cursor: String?
+
+  public init(updatedItemIDs: [String], cursor: String?) {
+    self.updatedItemIDs = updatedItemIDs
+    self.cursor = cursor
+  }
+}
+
 public struct LinkedItemAudioProperties {
   public let itemID: String
   public let objectID: NSManagedObjectID

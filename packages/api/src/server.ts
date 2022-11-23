@@ -47,6 +47,7 @@ import { webhooksServiceRouter } from './routers/svc/webhooks'
 import { integrationsServiceRouter } from './routers/svc/integrations'
 import { textToSpeechRouter } from './routers/text_to_speech'
 import * as httpContext from 'express-http-context'
+import { notificationRouter } from './routers/notification_router'
 
 const PORT = process.env.PORT || 4000
 
@@ -131,6 +132,7 @@ export const createApp = (): {
   app.use('/api/article', articleRouter())
   app.use('/api/mobile-auth', mobileAuthRouter())
   app.use('/api/text-to-speech', textToSpeechRouter())
+  app.use('/api/notification', notificationRouter())
   app.use('/svc/pubsub/content', contentServiceRouter())
   app.use('/svc/pubsub/links', linkServiceRouter())
   app.use('/svc/pubsub/newsletters', newsletterServiceRouter())

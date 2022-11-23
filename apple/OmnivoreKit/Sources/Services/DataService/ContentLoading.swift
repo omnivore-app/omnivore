@@ -110,7 +110,15 @@ extension DataService {
       let highlightObjects = articleProps.highlights.map {
         $0.asManagedObject(context: self.backgroundContext)
       }
-      linkedItem.addToHighlights(NSSet(array: highlightObjects))
+
+      let unsyncedHighlights = existingItem?.highlights?.filter { highlight in
+        if let highlight = highlight as? Highlight, highlight.serverSyncStatus == ServerSyncStatus.isNSync.rawValue {
+          return false
+        }
+        return true
+      }.compactMap { $0 as? Highlight } ?? []
+
+      linkedItem.highlights = NSSet(array: highlightObjects + unsyncedHighlights)
       linkedItem.htmlContent = articleProps.htmlContent
       linkedItem.id = articleProps.item.id
       linkedItem.state = articleProps.item.state.rawValue

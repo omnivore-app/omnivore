@@ -22,15 +22,43 @@
         android:elevation="8dp"
         android:visibility="visible"/>
 
-    <com.pspdfkit.ui.PdfThumbnailGrid
-        android:id="@+id/thumbnailGrid"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="invisible"/>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:orientation="horizontal"
+        android:elevation="16dp"
+        android:splitMotionEvents="false">
 
-    <com.pspdfkit.ui.PdfOutlineView
-        android:id="@+id/outlineView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="invisible"/>
+        <ImageView
+            android:id="@+id/closeSearchButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:padding="12dp"
+            android:elevation="16dp"
+            android:visibility="invisible"
+            android:src="@drawable/close" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:orientation="horizontal"
+        android:splitMotionEvents="false">
+
+        <ImageView
+            android:id="@+id/openSearchButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:padding="12dp"
+            android:src="@drawable/pspdf__ic_search" />
+
+        <ImageView
+            android:id="@+id/toggleThumbnailButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:padding="12dp"
+            android:src="@drawable/pdf_thumbnail_toggle" />
+    </LinearLayout>
 </FrameLayout>

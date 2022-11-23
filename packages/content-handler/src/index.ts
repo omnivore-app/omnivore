@@ -28,6 +28,7 @@ import { GhostHandler } from './newsletters/ghost-handler'
 import { parseHTML } from 'linkedom'
 import { CooperPressHandler } from './newsletters/cooper-press-handler'
 import { HeyWorldHandler } from './newsletters/hey-world-handler'
+import { Browser } from 'puppeteer-core'
 
 const validateUrlString = (url: string) => {
   const u = new URL(url)
@@ -80,7 +81,8 @@ const newsletterHandlers: ContentHandler[] = [
 ]
 
 export const preHandleContent = async (
-  url: string
+  url: string,
+  browser: Browser
 ): Promise<PreHandleResult | undefined> => {
   // Before we run the regular handlers we check to see if we need tp
   // pre-resolve the URL. TODO: This should probably happen recursively,
@@ -104,7 +106,7 @@ export const preHandleContent = async (
   for (const handler of contentHandlers) {
     if (handler.shouldPreHandle(url)) {
       console.log('preHandleContent', handler.name, url)
-      return handler.preHandle(url)
+      return handler.preHandle(url, browser)
     }
   }
   return undefined

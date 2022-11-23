@@ -257,8 +257,9 @@ struct WebReaderContainerView: View {
     .frame(height: readerViewNavBarHeight * navBarVisibilityRatio)
     .opacity(navBarVisibilityRatio)
     .background(Color.systemBackground)
-    .alert("Are you sure?", isPresented: $showDeleteConfirmation) {
-      Button("Remove Link", role: .destructive) {
+    .alert("Are you sure you want to remove this item? All associated notes and highlights will be deleted.",
+           isPresented: $showDeleteConfirmation) {
+      Button("Remove Item", role: .destructive) {
         Snackbar.show(message: "Link removed")
         dataService.removeLink(objectID: item.objectID)
         #if os(iOS)

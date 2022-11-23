@@ -4,6 +4,7 @@ import Foundation
 import Models
 import OSLog
 import QuickLookThumbnailing
+import SwiftUI
 import Utils
 
 #if os(iOS)
@@ -27,6 +28,10 @@ public final class DataService: ObservableObject {
   public var viewContext: NSManagedObjectContext {
     persistentContainer.viewContext
   }
+
+  @AppStorage(UserDefaultKey.lastItemSyncTime.rawValue) public var lastItemSyncTime = DateFormatter.formatterISO8601.string(
+    from: Date(timeIntervalSinceReferenceDate: 0)
+  )
 
   public init(appEnvironment: AppEnvironment, networker: Networker) {
     self.appEnvironment = appEnvironment
@@ -96,10 +101,7 @@ public final class DataService: ObservableObject {
   }
 
   public func resetCoreData() {
-    UserDefaults.standard.set(
-      DateFormatter.formatterISO8601.string(from: Date(timeIntervalSinceReferenceDate: 0)),
-      forKey: UserDefaultKey.lastItemSyncTime.rawValue
-    )
+    lastItemSyncTime = DateFormatter.formatterISO8601.string(from: Date(timeIntervalSinceReferenceDate: 0))
 
     clearCoreData()
 
@@ -177,10 +179,9 @@ public final class DataService: ObservableObject {
         linkedItem.contentReader = "PDF"
         linkedItem.tempPDFURL = localUrl
         linkedItem.title = PDFUtils.titleFromPdfFile(pageScrape.url)
-      case let .html(html: html, title: title, iconURL: iconURL):
+      case let .html(html: html, title: title, highlightData: _):
         linkedItem.contentReader = "WEB"
         linkedItem.originalHtml = html
-        linkedItem.imageURLString = iconURL
         linkedItem.title = title ?? PDFUtils.titleFromPdfFile(pageScrape.url)
       case .none:
         linkedItem.contentReader = "WEB"

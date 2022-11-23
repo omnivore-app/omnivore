@@ -5,8 +5,6 @@ import { kx } from '../../datalayer/knex_config'
 import { setClaims } from '../../datalayer/helpers'
 import { sendEmail } from '../../utils/sendEmail'
 import { env, homePageURL } from '../../env'
-import { sendMulticastPushNotifications } from '../../utils/sendNotification'
-import { getDeviceTokensByUserId } from '../../services/user_device_tokens'
 import { MulticastMessage } from 'firebase-admin/messaging'
 import { UserDeviceToken } from '../../entity/user_device_tokens'
 import { ContentReader } from '../../generated/graphql'
@@ -108,19 +106,19 @@ export function remindersServiceRouter() {
           to: user.email,
         })
 
-        // send push notifications
-        const deviceTokens = await getDeviceTokensByUserId(userId)
-        if (deviceTokens && deviceTokens.length > 0) {
-          const message = messageForPages(pageReminders, deviceTokens)
-          await sendMulticastPushNotifications(userId, message, 'reminder')
-        }
-
-        if (!deviceTokens) {
-          console.log('Device tokens not set:', userId)
-
-          res.status(400).send('Device token Not Found')
-          return
-        }
+        // // send push notifications
+        // const deviceTokens = await getDeviceTokensByUserId(userId)
+        // if (deviceTokens && deviceTokens.length > 0) {
+        //   const message = messageForPages(pageReminders, deviceTokens)
+        //   await sendMulticastPushNotifications(userId, message, 'reminder')
+        // }
+        //
+        // if (!deviceTokens) {
+        //   console.log('Device tokens not set:', userId)
+        //
+        //   res.status(400).send('Device token Not Found')
+        //   return
+        // }
       }
 
       await updateRemindersStatus(models, userId, pagesToUnarchive, remindAt)

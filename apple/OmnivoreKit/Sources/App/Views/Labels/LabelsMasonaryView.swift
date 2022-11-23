@@ -77,10 +77,6 @@ struct LabelsMasonaryView: View {
   }
 
   private func item(for item: (label: LinkedItemLabel, selected: Bool)) -> some View {
-    if item.selected {
-      print(" -- SELECTED LABEL", item.label.name)
-    }
-    print("GETTING ITERATION", iteration)
     let chip = TextChip(feedItemLabel: item.label, negated: false, checked: item.selected) { chip in
       onLabelTap(item.label, chip)
     }

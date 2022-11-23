@@ -62,7 +62,7 @@ class WebReaderViewModel @Inject constructor(
     when (actionID) {
       "createHighlight" -> {
         viewModelScope.launch {
-          val isHighlightSynced = networker.createHighlight(jsonString)
+          val isHighlightSynced = networker.createWebHighlight(jsonString)
           Log.d("Network", "isHighlightSynced = $isHighlightSynced")
         }
       }
@@ -75,7 +75,7 @@ class WebReaderViewModel @Inject constructor(
       }
       "articleReadingProgress" -> {
         viewModelScope.launch {
-          val isReadingProgressSynced = networker.updateReadingProgress(jsonString)
+          val isReadingProgressSynced = networker.updateWebReadingProgress(jsonString)
           Log.d("Network", "isReadingProgressSynced = $isReadingProgressSynced")
         }
       }

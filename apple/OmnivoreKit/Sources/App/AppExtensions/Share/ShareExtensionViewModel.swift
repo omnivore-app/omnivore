@@ -9,7 +9,7 @@ public class ShareExtensionViewModel: ObservableObject {
   @Published public var status: ShareExtensionStatus = .processing
   @Published public var title: String = ""
   @Published public var url: String?
-  @Published public var iconURL: String?
+  @Published public var highlightData: HighlightData?
   @Published public var linkedItem: LinkedItem?
   @Published public var requestId = UUID().uuidString.lowercased()
   @Published var debugText: String?
@@ -84,30 +84,19 @@ public class ShareExtensionViewModel: ObservableObject {
         DispatchQueue.main.async {
           self.status = .saved
 
-          let url = URLComponents(string: payload.url)
           let hostname = URL(string: payload.url)?.host ?? ""
 
           switch payload.contentType {
-          case let .html(html: _, title: title, iconURL: iconURL):
+          case let .html(html: _, title: title, highlightData: highlightData):
             self.title = title ?? ""
-            self.iconURL = iconURL
             self.url = hostname
+            self.highlightData = highlightData
           case .none:
             self.url = hostname
             self.title = payload.url
-            if var url = url {
-              url.path = "/favicon.ico"
-              self.iconURL = url.url?.absoluteString
-            }
           case let .pdf(localUrl: localUrl):
             self.url = hostname
             self.title = PDFUtils.titleFromPdfFile(localUrl.absoluteString)
-            Task {
-              let localThumbnail = try await PDFUtils.createThumbnailFor(inputUrl: localUrl)
-              DispatchQueue.main.async {
-                self.iconURL = localThumbnail?.absoluteString
-              }
-            }
           }
         }
 
@@ -172,6 +161,15 @@ public class ShareExtensionViewModel: ObservableObject {
     }
 
     updateStatusOnMain(requestId: newRequestID, newStatus: .synced)
+
+    // Prefetch the newly saved content
+    if let itemID = newRequestID,
+       let currentViewer = services.dataService.currentViewer?.username,
+       (try? await services.dataService.loadArticleContentWithRetries(itemID: itemID, username: currentViewer)) != nil
+    {
+      updateStatusOnMain(requestId: requestId, newStatus: .synced, objectID: linkedItemObjectID)
+    }
+
     return true
   }
 
@@ -184,12 +182,20 @@ public class ShareExtensionViewModel: ObservableObject {
 
       if let objectID = objectID {
         self.linkedItem = self.services.dataService.viewContext.object(with: objectID) as? LinkedItem
+        if let title = self.linkedItem?.title {
+          self.title = title
+        }
+        self.url = self.linkedItem?.pageURLString
       }
     }
   }
 }
 
-public enum ShareExtensionStatus {
+public enum ShareExtensionStatus: Equatable {
+  public static func == (lhs: ShareExtensionStatus, rhs: ShareExtensionStatus) -> Bool {
+    lhs.displayMessage == rhs.displayMessage
+  }
+
   case processing
   case saved
   case synced
