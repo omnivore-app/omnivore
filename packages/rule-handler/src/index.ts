@@ -125,6 +125,7 @@ export const ruleHandler = Sentry.GCPFunction.wrapHttpFunction(
         jwtSecret
       )
       if (triggeredActions.length === 0) {
+        console.log('No actions triggered')
         res.status(200).send('No Actions')
         return
       }

@@ -131,49 +131,45 @@ export const triggerActions = async (
   apiEndpoint: string,
   jwtSecret: string
 ) => {
-  const triggeredActions: RuleAction[] = []
   const authToken = await getAuthToken(userId, jwtSecret)
 
-  for (const rule of rules) {
+  const actionPromises = rules.map((rule) => {
     if (!isValidData(rule.filter, data)) {
-      continue
+      return
     }
 
-    for (const action of rule.actions) {
+    return rule.actions.map((action) => {
       switch (action.type) {
         case RuleActionType.AddLabel:
           if (!data.id || action.params.length === 0) {
             console.log('invalid data for add label action')
-            continue
+            return
           }
-          await addLabels(apiEndpoint, authToken, data.id, action.params)
-          triggeredActions.push(action)
-          break
+
+          return addLabels(apiEndpoint, authToken, data.id, action.params)
         case RuleActionType.Archive:
           if (!data.id) {
             console.log('invalid data for archive action')
-            continue
+            return
           }
-          await archivePage(apiEndpoint, authToken, data.id)
-          triggeredActions.push(action)
-          break
+
+          return archivePage(apiEndpoint, authToken, data.id)
         case RuleActionType.MarkAsRead:
           if (!data.id) {
             console.log('invalid data for mark as read action')
-            continue
+            return
           }
-          await markPageAsRead(apiEndpoint, authToken, data.id)
-          triggeredActions.push(action)
-          break
-        case RuleActionType.SendNotification:
-          for (const message of action.params) {
-            await sendNotification(apiEndpoint, authToken, message)
-          }
-          triggeredActions.push(action)
-          break
-      }
-    }
-  }
 
-  return triggeredActions
+          return markPageAsRead(apiEndpoint, authToken, data.id)
+        case RuleActionType.SendNotification:
+          return sendNotification(
+            apiEndpoint,
+            authToken,
+            'New page added to your feed'
+          )
+      }
+    })
+  })
+
+  return Promise.all(actionPromises.flat().filter((p) => p !== undefined))
 }

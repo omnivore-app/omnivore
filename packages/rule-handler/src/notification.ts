@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-interface NotificationData {
+interface RequestData {
   body: string
   title?: string
   data?: Record<string, string>
@@ -11,19 +11,21 @@ interface NotificationData {
 export const sendNotification = async (
   apiEndpoint: string,
   auth: string,
-  message: string,
+  body: string,
   title?: string,
-  image?: string
+  image?: string,
+  data?: Record<string, string>
 ) => {
-  const data: NotificationData = {
-    body: message,
-    title: title || message,
+  const requestData: RequestData = {
+    body,
+    title,
     image,
     notificationType: 'rule',
+    data,
   }
 
   try {
-    await axios.post(`${apiEndpoint}/notification/send`, data, {
+    return axios.post(`${apiEndpoint}/notification/send`, requestData, {
       headers: {
         Cookie: `auth=${auth};`,
         'Content-Type': 'application/json',
