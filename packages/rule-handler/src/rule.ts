@@ -7,6 +7,7 @@ import { archivePage, markPageAsRead } from './page'
 import { SearchFilter } from './search_filter'
 import { SubscriptionFilter } from './search_filter/subscription_filter'
 import { ContentFilter } from './search_filter/content_filter'
+import { ReadFilter } from './search_filter/read_filter'
 
 export enum RuleActionType {
   AddLabel = 'ADD_LABEL',
@@ -41,7 +42,7 @@ const parseSearchFilter = (filter: string): SearchFilter[] => {
   }
 
   const parsed = parse(searchFilter, {
-    keywords: ['subscription', 'content'],
+    keywords: ['subscription', 'content', 'is'],
     tokenize: true,
   })
   if (parsed.offsets) {
@@ -56,6 +57,9 @@ const parseSearchFilter = (filter: string): SearchFilter[] => {
           break
         case 'content':
           keyword.value && result.push(new ContentFilter(keyword.value))
+          break
+        case 'is':
+          keyword.value && result.push(new ReadFilter(keyword.value))
           break
       }
     }

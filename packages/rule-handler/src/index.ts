@@ -25,6 +25,7 @@ export interface PubSubData {
   subscription: string
   image: string
   content: string
+  readingProgressPercent: number
 }
 
 enum EntityType {
