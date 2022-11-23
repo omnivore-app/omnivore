@@ -14,7 +14,7 @@ import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
 import { Button, Space, Table, Form, Input, Modal, Tag, Select } from 'antd'
 
 // import 'antd/dist/antd.dark.css'
-// import 'antd/dist/antd.compact.css'
+import 'antd/dist/antd.compact.css'
 
 import { Box, HStack } from '../../components/elements/LayoutPrimitives'
 import { useGetLabelsQuery } from '../../lib/networking/queries/useGetLabelsQuery'
