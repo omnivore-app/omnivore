@@ -19,6 +19,7 @@ interface PubSubRequestBody {
 }
 
 export interface PubSubData {
+  id: string
   userId: string
   type: EntityType
   subscription?: string

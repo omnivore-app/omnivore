@@ -2,6 +2,7 @@ import { sendNotification } from './notification'
 import { getAuthToken, PubSubData } from './index'
 import axios from 'axios'
 import { parse, SearchParserKeyWordOffset } from 'search-query-parser'
+import { addLabels } from './label'
 
 export enum RuleActionType {
   AddLabel = 'ADD_LABEL',
@@ -134,6 +135,18 @@ export const triggerActions = async (
     for (const action of rule.actions) {
       switch (action.type) {
         case RuleActionType.AddLabel:
+          if (action.params.length === 0) {
+            console.log('No label id provided')
+            continue
+          }
+          await addLabels(
+            userId,
+            apiEndpoint,
+            jwtSecret,
+            data.id,
+            action.params
+          )
+          break
         case RuleActionType.Archive:
         case RuleActionType.MarkAsRead:
           continue
@@ -141,6 +154,7 @@ export const triggerActions = async (
           for (const message of action.params) {
             await sendNotification(userId, apiEndpoint, jwtSecret, message)
           }
+          break
       }
     }
   }
