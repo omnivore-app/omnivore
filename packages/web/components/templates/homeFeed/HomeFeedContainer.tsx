@@ -1176,6 +1176,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
                     item={props.linkToRemove?.node}
                     viewer={viewerData.me}
                     layout="GRID_LAYOUT"
+                    // eslint-disable-next-line @typescript-eslint/no-empty-function
                     handleAction={() => {}}
                   />
                 </Box>
