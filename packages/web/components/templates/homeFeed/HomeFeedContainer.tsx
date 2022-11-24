@@ -1158,10 +1158,34 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
       )}
       {showRemoveLinkConfirmation && (
         <ConfirmationModal
-          message={
-            'Are you sure you want to remove this item? All associated notes and highlights will be deleted.'
+          richMessage={
+            <VStack alignment="center" distribution="center">
+              <StyledText style="modalTitle" css={{ margin: '0px 8px' }}>
+                Are you sure you want to delete this item? All associated notes
+                and highlights will be deleted.
+              </StyledText>
+              {props.linkToRemove?.node && viewerData?.me && (
+                <Box
+                  css={{
+                    transform: 'scale(0.6)',
+                    opacity: 0.8,
+                    pointerEvents: 'none',
+                    filter: 'grayscale(1)',
+                  }}
+                >
+                  <LinkedItemCard
+                    item={props.linkToRemove?.node}
+                    viewer={viewerData.me}
+                    layout="GRID_LAYOUT"
+                    // eslint-disable-next-line @typescript-eslint/no-empty-function
+                    handleAction={() => {}}
+                  />
+                </Box>
+              )}
+            </VStack>
           }
           onAccept={removeItem}
+          acceptButtonLabel="Delete Item"
           onOpenChange={() => setShowRemoveLinkConfirmation(false)}
         />
       )}

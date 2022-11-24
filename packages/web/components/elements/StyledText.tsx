@@ -52,9 +52,10 @@ const textVariants = {
       margin: 0,
     },
     modalTitle: {
-      fontSize: '29px',
-      lineHeight: '37.7px',
-      color: '$textDefault',
+      fontSize: '16px',
+      fontWeight: '600',
+      color: '$grayText',
+      lineHeight: '1.50',
       margin: 0,
     },
     boldText: {
@@ -194,13 +195,10 @@ export const StyledList = styled('ul', {
   color: '$grayTextContrast',
 })
 
-export const StyledImg = styled('img', {
-})
+export const StyledImg = styled('img', {})
 
 export const StyledAnchor = styled('a', {
-  textDecoration: 'none'
+  textDecoration: 'none',
 })
 
-export const StyledMark = styled('mark', {
-
-})
+export const StyledMark = styled('mark', {})
