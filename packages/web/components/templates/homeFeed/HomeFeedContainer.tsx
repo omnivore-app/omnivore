@@ -1160,16 +1160,17 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
         <ConfirmationModal
           richMessage={
             <VStack alignment="center" distribution="center">
-              <StyledText style="modalTitle" css={{ margin: '8px' }}>
+              <StyledText style="modalTitle" css={{ margin: '0px 8px' }}>
                 Are you sure you want to delete this item? All associated notes
                 and highlights will be deleted.
               </StyledText>
               {props.linkToRemove?.node && viewerData?.me && (
                 <Box
                   css={{
-                    transform: 'scale(0.8)',
-                    opacity: 0.5,
+                    transform: 'scale(0.6)',
+                    opacity: 0.8,
                     pointerEvents: 'none',
+                    filter: 'grayscale(1)',
                   }}
                 >
                   <LinkedItemCard

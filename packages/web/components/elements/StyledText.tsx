@@ -53,6 +53,7 @@ const textVariants = {
     },
     modalTitle: {
       fontSize: '16px',
+      fontWeight: '600',
       color: '$grayText',
       lineHeight: '1.50',
       margin: 0,
