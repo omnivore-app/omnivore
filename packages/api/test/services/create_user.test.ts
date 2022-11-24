@@ -17,6 +17,8 @@ import sinonChai from 'sinon-chai'
 import sinon from 'sinon'
 import * as util from '../../src/utils/sendEmail'
 import { MailDataRequired } from '@sendgrid/helpers/classes/mail'
+import { User } from '../../src/entity/user'
+import { getRepository } from '../../src/entity/utils'
 
 chai.use(sinonChai)
 
@@ -24,8 +26,14 @@ describe('create user', () => {
   context('create a user with an invite', () => {
     it('follows the other user in the group', async () => {
       after(async () => {
-        await deleteTestUser(testOwner)
-        await deleteTestUser(testUser)
+        const testUser = await getRepository(User).findOneBy({
+          name: 'testuser',
+        })
+        await deleteTestUser(testUser!.id)
+        const testOwner = await getRepository(User).findOneBy({
+          name: 'testowner',
+        })
+        await deleteTestUser(testOwner!.id)
       })
 
       const testOwner = 'testowner'
@@ -46,7 +54,10 @@ describe('create user', () => {
 
     it('creates profile when user exists but profile not', async () => {
       after(async () => {
-        await deleteTestUser(name)
+        const user = await getRepository(User).findOneBy({
+          name: 'userWithoutProfile',
+        })
+        await deleteTestUser(user!.id)
       })
 
       const name = 'userWithoutProfile'
@@ -71,7 +82,8 @@ describe('create user', () => {
 
       afterEach(async () => {
         sinon.restore()
-        await deleteTestUser(name)
+        const user = await getRepository(User).findOneBy({ name })
+        await deleteTestUser(user!.id)
       })
 
       it('creates the user with pending status and correct name', async () => {
@@ -95,7 +107,8 @@ describe('create user', () => {
 
       after(async () => {
         sinon.restore()
-        await deleteTestUser(name)
+        const user = await getRepository(User).findOneBy({ name })
+        await deleteTestUser(user!.id)
       })
 
       it('rejects with error', async () => {

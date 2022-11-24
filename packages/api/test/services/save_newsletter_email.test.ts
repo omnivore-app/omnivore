@@ -12,7 +12,6 @@ import { getPageByParam } from '../../src/elastic/pages'
 import nock from 'nock'
 
 describe('saveNewsletterEmail', () => {
-  const username = 'fakeUser'
   const fakeContent = 'fake content'
   const title = 'fake title'
   const author = 'fake author'
@@ -22,7 +21,7 @@ describe('saveNewsletterEmail', () => {
   let ctx: SaveContext
 
   before(async () => {
-    user = await createTestUser(username)
+    user = await createTestUser('fakeUser')
     email = await createNewsletterEmail(user.id)
     ctx = {
       pubsub: createPubSubClient(),
@@ -32,7 +31,7 @@ describe('saveNewsletterEmail', () => {
   })
 
   after(async () => {
-    await deleteTestUser(username)
+    await deleteTestUser(user.id)
   })
 
   it('adds the newsletter to the library', async () => {

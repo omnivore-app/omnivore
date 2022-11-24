@@ -24,7 +24,7 @@ describe('Rules Resolver', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(username)
+    await deleteTestUser(user.id)
   })
 
   describe('set rules', () => {

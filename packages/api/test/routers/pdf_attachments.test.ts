@@ -11,7 +11,6 @@ import { expect } from 'chai'
 import { getPageById } from '../../src/elastic/pages'
 
 describe('PDF attachments Router', () => {
-  const username = 'fakeUser'
   const newsletterEmail = 'fakeEmail@omnivore.app'
 
   let user: User
@@ -19,7 +18,7 @@ describe('PDF attachments Router', () => {
 
   before(async () => {
     // create test user and login
-    user = await createTestUser(username)
+    user = await createTestUser('fakeUser')
 
     await createTestNewsletterEmail(user, newsletterEmail)
     authToken = jwt.sign(newsletterEmail, process.env.JWT_SECRET || '')
@@ -27,7 +26,7 @@ describe('PDF attachments Router', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(username)
+    await deleteTestUser(user.id)
   })
 
   describe('upload', () => {

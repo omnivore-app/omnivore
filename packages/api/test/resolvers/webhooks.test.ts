@@ -8,14 +8,12 @@ import { Webhook } from '../../src/entity/webhook'
 import { getRepository } from '../../src/entity/utils'
 
 describe('Webhooks API', () => {
-  const username = 'fakeUser'
-
   let user: User
   let authToken: string
 
   before(async () => {
     // create test user and login
-    user = await createTestUser(username)
+    user = await createTestUser('fakeUser')
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
@@ -39,7 +37,7 @@ describe('Webhooks API', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(username)
+    await deleteTestUser(user.id)
   })
 
   describe('Get webhook', () => {

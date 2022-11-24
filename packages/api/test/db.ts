@@ -9,10 +9,12 @@ import { UserDeviceToken } from '../src/entity/user_device_tokens'
 import { Label } from '../src/entity/label'
 import { Subscription } from '../src/entity/subscription'
 import { AppDataSource } from '../src/server'
-import { getRepository } from '../src/entity/utils'
+import { getRepository, setClaims } from '../src/entity/utils'
 import { createUser } from '../src/services/create_user'
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
 import { SubscriptionStatus } from '../src/generated/graphql'
+import { Integration } from '../src/entity/integration'
+import { FindOptionsWhere } from 'typeorm'
 
 const runMigrations = async () => {
   const migrationDirectory = __dirname + '/../../db/migrations'
@@ -42,7 +44,8 @@ const runMigrations = async () => {
 }
 
 export const createTestConnection = async (): Promise<void> => {
-  await runMigrations()
+  // need to manually run migrations before creating the connection
+  // await runMigrations()
 
   AppDataSource.setOptions({
     type: 'postgres',
@@ -60,12 +63,11 @@ export const createTestConnection = async (): Promise<void> => {
   await AppDataSource.initialize()
 }
 
-export const deleteTestUser = async (name: string) => {
-  await AppDataSource.createQueryBuilder()
-    .delete()
-    .from(User)
-    .where({ email: `${name}@omnivore.app` })
-    .execute()
+export const deleteTestUser = async (userId: string) => {
+  await AppDataSource.transaction(async (t) => {
+    await setClaims(t, userId)
+    await t.getRepository(User).delete(userId)
+  })
 }
 
 export const createTestUser = async (
@@ -200,5 +202,42 @@ export const createTestSubscription = async (
     user,
     name,
     status: SubscriptionStatus.Active,
+  })
+}
+
+export const deleteTestLabels = async (
+  userId: string,
+  criteria: string[] | FindOptionsWhere<Label>
+) => {
+  await AppDataSource.transaction(async (t) => {
+    await setClaims(t, userId)
+    await t.getRepository(Label).delete(criteria)
+  })
+}
+
+export const deleteTestIntegrations = async (
+  userId: string,
+  criteria: string[] | FindOptionsWhere<Integration>
+) => {
+  await AppDataSource.transaction(async (t) => {
+    await setClaims(t, userId)
+    await t.getRepository(Integration).delete(criteria)
+  })
+}
+
+export const updateTestUser = async (userId: string, update: Partial<User>) => {
+  await AppDataSource.transaction(async (t) => {
+    await setClaims(t, userId)
+    await t.getRepository(User).update(userId, update)
+  })
+}
+
+export const deleteTestDeviceTokens = async (
+  userId: string,
+  criteria: string[] | FindOptionsWhere<UserDeviceToken>
+) => {
+  await AppDataSource.transaction(async (t) => {
+    await setClaims(t, userId)
+    await t.getRepository(UserDeviceToken).delete(criteria)
   })
 }

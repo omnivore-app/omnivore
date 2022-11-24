@@ -8,7 +8,6 @@ import { expect } from 'chai'
 import nock from 'nock'
 
 describe('Webhooks Router', () => {
-  const username = 'fakeUser'
   const token = process.env.PUBSUB_VERIFICATION_TOKEN || ''
   const webhookBaseUrl = 'https://localhost:3000'
   const webhookPath = `/webhooks`
@@ -18,7 +17,7 @@ describe('Webhooks Router', () => {
 
   before(async () => {
     // create test user and login
-    user = await createTestUser(username)
+    user = await createTestUser('fakeUser')
     await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
@@ -32,7 +31,7 @@ describe('Webhooks Router', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(username)
+    await deleteTestUser(user.id)
   })
 
   describe('trigger webhooks', () => {

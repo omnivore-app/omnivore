@@ -6,15 +6,13 @@ import 'mocha'
 import { User } from '../../src/entity/user'
 
 describe('Subscriptions API', () => {
-  const username = 'fakeUser'
-
   let user: User
   let authToken: string
   let subscriptions: Subscription[]
 
   before(async () => {
     // create test user and login
-    user = await createTestUser(username)
+    user = await createTestUser('fakeUser')
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
@@ -29,7 +27,7 @@ describe('Subscriptions API', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(username)
+    await deleteTestUser(user.id)
   })
 
   describe('GET subscriptions', () => {
