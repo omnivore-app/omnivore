@@ -231,3 +231,13 @@ export const updateTestUser = async (userId: string, update: Partial<User>) => {
     await t.getRepository(User).update(userId, update)
   })
 }
+
+export const deleteTestDeviceTokens = async (
+  userId: string,
+  criteria: string[] | FindOptionsWhere<UserDeviceToken>
+) => {
+  await AppDataSource.transaction(async (t) => {
+    await setClaims(t, userId)
+    await t.getRepository(UserDeviceToken).delete(criteria)
+  })
+}

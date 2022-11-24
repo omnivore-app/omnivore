@@ -1,6 +1,7 @@
 import {
   createTestDeviceToken,
   createTestUser,
+  deleteTestDeviceTokens,
   deleteTestUser,
   getDeviceToken,
 } from '../db'
@@ -66,7 +67,7 @@ describe('Device tokens API', () => {
 
     after(async () => {
       // clean up
-      await getRepository(UserDeviceToken).delete({ user: { id: user.id } })
+      await deleteTestDeviceTokens(user.id, { user: { id: user.id } })
     })
 
     context('when id in input is not null', () => {
@@ -174,7 +175,7 @@ describe('Device tokens API', () => {
 
     after(async () => {
       // clean up
-      await getRepository(UserDeviceToken).delete({ token })
+      await deleteTestDeviceTokens(user.id, { token })
     })
 
     it('responds with status code 200 and returns all device tokens', async () => {
