@@ -65,8 +65,6 @@ interface BackendEnv {
     reminderTaskHanderUrl: string
     integrationTaskHandlerUrl: string
     textToSpeechTaskHandlerUrl: string
-    notificationEndpoint: string
-    verificationToken: string
   }
   fileUpload: {
     gcsUploadBucket: string
@@ -154,8 +152,6 @@ const nullableEnvVars = [
   'AZURE_SPEECH_KEY',
   'AZURE_SPEECH_REGION',
   'GCP_LOCATION',
-  'NOTIFICATION_ENDPOINT',
-  'PUBSUB_VERIFICATION_TOKEN',
 ] // Allow some vars to be null/empty
 
 /* If not in GAE and Prod/QA/Demo env (f.e. on localhost/dev env), allow following env vars to be null */
@@ -241,8 +237,6 @@ export function getEnv(): BackendEnv {
     reminderTaskHanderUrl: parse('REMINDER_TASK_HANDLER_URL'),
     integrationTaskHandlerUrl: parse('INTEGRATION_TASK_HANDLER_URL'),
     textToSpeechTaskHandlerUrl: parse('TEXT_TO_SPEECH_TASK_HANDLER_URL'),
-    notificationEndpoint: parse('NOTIFICATION_ENDPOINT'),
-    verificationToken: parse('PUBSUB_VERIFICATION_TOKEN'),
   }
   const imageProxy = {
     url: parse('IMAGE_PROXY_URL'),

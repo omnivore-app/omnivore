@@ -1832,6 +1832,7 @@ enum UpdatePageErrorCode {
 }
 
 input UpdatePageInput {
+  byline: String
   description: String
   pageId: ID!
   title: String
