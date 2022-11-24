@@ -34,6 +34,7 @@ export interface SearchFilter {
   dateFilters: DateFilter[]
   termFilters: FieldFilter[]
   matchFilters: FieldFilter[]
+  ids: string[]
 }
 
 export enum LabelFilterType {
@@ -245,6 +246,14 @@ const parseFieldFilter = (
   }
 }
 
+const parseIds = (field: string, str?: string): string[] | undefined => {
+  if (str === undefined) {
+    return undefined
+  }
+
+  return str.split(',')
+}
+
 export const parseSearchQuery = (query: string | undefined): SearchFilter => {
   const searchQuery = query ? query.replace(/\W\s":/g, '') : undefined
   const result: SearchFilter = {
@@ -256,6 +265,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
     dateFilters: [],
     termFilters: [],
     matchFilters: [],
+    ids: [],
   }
 
   if (!searchQuery) {
@@ -268,6 +278,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
       dateFilters: [],
       termFilters: [],
       matchFilters: [],
+      ids: [],
     }
   }
 
@@ -288,6 +299,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
       'description',
       'content',
       'updated',
+      'includes',
     ],
     tokenize: true,
   })
@@ -362,6 +374,11 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
         case 'content': {
           const fieldFilter = parseFieldFilter(keyword.keyword, keyword.value)
           fieldFilter && result.matchFilters.push(fieldFilter)
+          break
+        }
+        case 'includes': {
+          const ids = parseIds(keyword.keyword, keyword.value)
+          ids && result.ids.push(...ids)
           break
         }
       }
