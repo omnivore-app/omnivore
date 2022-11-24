@@ -75,7 +75,7 @@
       stop()
 
       self.itemAudioProperties = itemAudioProperties
-      startAudio()
+      startAudio(atIndex: itemAudioProperties.startIndex, andOffset: itemAudioProperties.startOffset)
 
       EventTracker.track(
         .audioSessionStart(linkID: itemAudioProperties.itemID)
@@ -85,6 +85,8 @@
     public func stop() {
       let stoppedId = itemAudioProperties?.itemID
       let stoppedTimeElapsed = timeElapsed
+
+      savePositionInfo(force: true)
 
       player?.pause()
       timer?.invalidate()
@@ -206,6 +208,9 @@
     public func seek(to: TimeInterval) {
       let position = max(0, to)
 
+      // Always reset this state when seeking so we trigger a re-saving of positional info
+      lastReadUpdate = 0
+
       // If we are in reachedEnd state, and seek back, we need to move to
       // paused state
       if to < duration, state == .reachedEnd {
@@ -248,6 +253,7 @@
         // There was no foundIdx, so we are probably trying to seek past the end, so
         // just seek to the last possible duration.
         if let durations = self.durations, let last = durations.last {
+          lastReadUpdate = 0
           player?.removeAllItems()
           synthesizeFrom(start: durations.count - 1, playWhenReady: state == .playing, atOffset: last)
         }
@@ -536,7 +542,7 @@
         .appendingPathComponent("speech-\(currentVoice).json")
     }
 
-    public func startAudio() {
+    public func startAudio(atIndex index: Int, andOffset offset: Double) {
       state = .loading
       setupNotifications()
 
@@ -547,7 +553,11 @@
           DispatchQueue.main.async {
             self.setTextItems()
             if let document = document {
-              self.startStreamingAudio(itemID: itemID, document: document)
+              // Don't attempt to seek past the end, restart from beginning if we are
+              // past the max utterances in the document.
+              let startIndex = index < document.utterances.count ? index : 0
+              let startOffset = index < document.utterances.count ? offset : 0.0
+              self.startStreamingAudio(itemID: itemID, document: document, atIndex: startIndex, andOffset: startOffset)
             } else {
               print("unable to load speech document")
               // TODO: Post error to SnackBar
@@ -558,7 +568,7 @@
     }
 
     // swiftlint:disable all
-    private func startStreamingAudio(itemID _: String, document: SpeechDocument) {
+    private func startStreamingAudio(itemID _: String, document: SpeechDocument, atIndex index: Int, andOffset offset: Double) {
       do {
         try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [])
       } catch {
@@ -579,7 +589,7 @@
       durations = synthesizer.estimatedDurations(forSpeed: playbackRate)
       self.synthesizer = synthesizer
 
-      synthesizeFrom(start: 0, playWhenReady: true)
+      synthesizeFrom(start: index, playWhenReady: true, atOffset: offset)
     }
 
     func synthesizeFrom(start: Int, playWhenReady: Bool, atOffset: Double = 0.0) {
@@ -618,6 +628,7 @@
       if let player = player {
         player.pause()
         state = .paused
+        savePositionInfo(force: true)
       }
     }
 
@@ -702,12 +713,27 @@
         }
       }
 
-      if timeElapsed - 10 > lastReadUpdate {
+      savePositionInfo()
+    }
+
+    func savePositionInfo(force: Bool = false) {
+      if force || (timeElapsed - 10 > lastReadUpdate) {
         let percentProgress = timeElapsed / duration
+        let speechIndex = (player?.currentItem as? SpeechPlayerItem)?.speechItem.audioIdx ?? 0
         let anchorIndex = Int((player?.currentItem as? SpeechPlayerItem)?.speechItem.htmlIdx ?? "") ?? 0
 
         if let itemID = itemAudioProperties?.itemID {
           dataService.updateLinkReadingProgress(itemID: itemID, readingProgress: percentProgress, anchorIndex: anchorIndex)
+        }
+
+        if let itemID = itemAudioProperties?.itemID, let player = player, let currentItem = player.currentItem {
+          let currentOffset = CMTimeGetSeconds(currentItem.currentTime())
+          print("updating listening info: ", speechIndex, currentOffset, timeElapsed)
+
+          dataService.updateLinkListeningProgress(itemID: itemID,
+                                                  listenIndex: speechIndex,
+                                                  listenOffset: currentOffset,
+                                                  listenTime: timeElapsed)
         }
 
         lastReadUpdate = timeElapsed
