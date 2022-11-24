@@ -1,9 +1,9 @@
 import { sendNotification } from './notification'
 import { getAuthToken, PubSubData } from './index'
 import axios, { AxiosResponse } from 'axios'
-import { addLabels } from './label'
+import { setLabels } from './label'
 import { archivePage, markPageAsRead } from './page'
-import { isMatched } from './filter'
+import { filterPage } from './filter'
 
 export enum RuleActionType {
   AddLabel = 'ADD_LABEL',
@@ -79,26 +79,35 @@ export const triggerActions = async (
   const actionPromises: Promise<AxiosResponse<any, any> | undefined>[] = []
 
   for (const rule of rules) {
-    if (
-      !(await isMatched(userId, apiEndpoint, authToken, rule.filter, data.id))
-    ) {
+    const filteredPage = await filterPage(
+      userId,
+      apiEndpoint,
+      authToken,
+      rule.filter,
+      data.id
+    )
+    if (!filteredPage) {
       continue
     }
 
     rule.actions.forEach((action) => {
       switch (action.type) {
-        case RuleActionType.AddLabel:
-          data.id &&
-            actionPromises.push(
-              addLabels(apiEndpoint, authToken, data.id, action.params)
-            )
+        case RuleActionType.AddLabel: {
+          const existingLabelIds = filteredPage.labels.map((label) => label.id)
+          // combine existing labels with new labels in a set to avoid duplicates
+          const labelIds = new Set([...existingLabelIds, ...action.params])
+
+          actionPromises.push(
+            setLabels(apiEndpoint, authToken, data.id, Array.from(labelIds))
+          )
           break
+        }
         case RuleActionType.Archive:
-          data.id &&
+          !filteredPage.isArchived &&
             actionPromises.push(archivePage(apiEndpoint, authToken, data.id))
           break
         case RuleActionType.MarkAsRead:
-          data.id &&
+          filteredPage.readingProgressPercent < 100 &&
             actionPromises.push(markPageAsRead(apiEndpoint, authToken, data.id))
           break
         case RuleActionType.SendNotification:
