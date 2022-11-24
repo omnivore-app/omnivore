@@ -63,6 +63,18 @@ jobs:
         run: |
           source ~/.nvm/nvm.sh
           yarn install --frozen-lockfile
+      - name: Database Migration
+        run: |
+          yarn workspace @omnivore/db migrate
+          psql -h localhost -p ${{ job.services.postgres.ports[5432] }} -U postgres -c "CREATE USER app_user WITH ENCRYPTED PASSWORD 'app_pass';GRANT omnivore_user to app_user;"
+        env:
+          PG_HOST: localhost
+          PG_PORT: ${{ job.services.postgres.ports[5432] }}
+          PG_USER: postgres
+          PG_PASSWORD: postgres
+          PG_DB: omnivore_test
+          ELASTIC_URL: http://localhost:${{ job.services.elastic.ports[9200] }}/
+          PGPASSWORD: postgres # This is required for the psql command to work without a password prompt
       - name: TypeScript, Lint, Tests
         run: |
           source ~/.nvm/nvm.sh
@@ -72,8 +84,8 @@ jobs:
         env:
           PG_HOST: localhost
           PG_PORT: ${{ job.services.postgres.ports[5432] }}
-          PG_USER: postgres
-          PG_PASSWORD: postgres
+          PG_USER: app_user
+          PG_PASSWORD: app_pass
           PG_DB: omnivore_test
           PG_POOL_MAX: 10
           ELASTIC_URL: http://localhost:${{ job.services.elastic.ports[9200] }}/

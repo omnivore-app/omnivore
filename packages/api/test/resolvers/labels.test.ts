@@ -1,4 +1,9 @@
-import { createTestLabel, createTestUser, deleteTestUser } from '../db'
+import {
+  createTestLabel,
+  createTestUser,
+  deleteTestLabels,
+  deleteTestUser,
+} from '../db'
 import {
   createTestElasticPage,
   generateFakeUuid,
@@ -40,7 +45,7 @@ describe('Labels API', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(user.name)
+    await deleteTestUser(user.id)
   })
 
   describe('GET labels', () => {
@@ -56,7 +61,10 @@ describe('Labels API', () => {
 
     after(async () => {
       // clean up
-      await getRepository(Label).delete(labels.map((l) => l.id))
+      await deleteTestLabels(
+        user.id,
+        labels.map((l) => l.id)
+      )
     })
 
     beforeEach(() => {
@@ -146,7 +154,7 @@ describe('Labels API', () => {
 
       after(async () => {
         // clean up
-        await getRepository(Label).delete({ name })
+        await deleteTestLabels(user.id, { name })
       })
 
       it('should create label', async () => {
@@ -167,7 +175,7 @@ describe('Labels API', () => {
       })
 
       after(async () => {
-        await getRepository(Label).delete(existingLabel.id)
+        await deleteTestLabels(user.id, [existingLabel.id])
       })
 
       it('should return error code LABEL_ALREADY_EXISTS', async () => {
@@ -341,7 +349,10 @@ describe('Labels API', () => {
 
     after(async () => {
       // clean up
-      await getRepository(Label).delete(labels.map((l) => l.id))
+      await deleteTestLabels(
+        user.id,
+        labels.map((l) => l.id)
+      )
       await deletePage(page.id, ctx)
     })
 
@@ -465,7 +476,7 @@ describe('Labels API', () => {
       })
 
       after(async () => {
-        await getRepository(Label).delete(toUpdateLabel.id)
+        await deleteTestLabels(user.id, [toUpdateLabel.id])
       })
 
       it('should return the updated label', async () => {
@@ -541,7 +552,10 @@ describe('Labels API', () => {
 
     after(async () => {
       // clean up
-      await getRepository(Label).delete(labels.map((l) => l.id))
+      await deleteTestLabels(
+        user.id,
+        labels.map((l) => l.id)
+      )
       await deletePage(page.id, ctx)
     })
 
@@ -669,7 +683,10 @@ describe('Labels API', () => {
 
     after(async () => {
       // clean up
-      await getRepository(Label).delete(labels.map((l) => l.id))
+      await deleteTestLabels(
+        user.id,
+        labels.map((l) => l.id)
+      )
     })
 
     context('when label exists', () => {

@@ -56,6 +56,11 @@ export interface SearchBody {
               [K: string]: string
             }
           }
+        | {
+            terms: {
+              [K: string]: string[]
+            }
+          }
       )[]
       should: {
         multi_match: {
@@ -278,4 +283,5 @@ export interface PageSearchArgs {
   matchFilters?: FieldFilter[]
   includePending?: boolean | null
   includeDeleted?: boolean
+  ids?: string[]
 }

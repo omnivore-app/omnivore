@@ -10,7 +10,6 @@ import { hashPassword } from '../../src/utils/auth'
 import 'mocha'
 
 describe('User API', () => {
-  const username = 'fake_user'
   const correctPassword = 'fakePassword'
   const anotherUsername = 'newFakeUser'
 
@@ -21,7 +20,7 @@ describe('User API', () => {
   before(async () => {
     const hashedPassword = await hashPassword(correctPassword)
     // create test user and login
-    user = await createTestUser(username, '', hashedPassword)
+    user = await createTestUser('fake_user', '', hashedPassword)
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
@@ -34,8 +33,8 @@ describe('User API', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(username)
-    await deleteTestUser(anotherUsername)
+    await deleteTestUser(user.id)
+    await deleteTestUser(anotherUser.id)
   })
 
   describe('Update user', () => {

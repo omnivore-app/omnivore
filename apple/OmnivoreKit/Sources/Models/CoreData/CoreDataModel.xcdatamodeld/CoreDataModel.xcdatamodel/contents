@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="21279" systemVersion="21G115" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="21512" systemVersion="21G115" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="Highlight" representedClassName="Highlight" syncable="YES" codeGenerationType="class">
         <attribute name="annotation" optional="YES" attributeType="String"/>
         <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
@@ -31,6 +31,9 @@
         <attribute name="imageURLString" optional="YES" attributeType="String"/>
         <attribute name="isArchived" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="language" optional="YES" attributeType="String"/>
+        <attribute name="listenPositionIndex" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="listenPositionOffset" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="listenPositionTime" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="localPDF" optional="YES" attributeType="String"/>
         <attribute name="onDeviceImageURLString" optional="YES" attributeType="String"/>
         <attribute name="originalHtml" optional="YES" attributeType="String"/>

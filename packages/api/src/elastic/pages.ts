@@ -179,6 +179,14 @@ const appendMatchFilters = (body: SearchBody, filters: FieldFilter[]): void => {
   })
 }
 
+const appendIdsFilter = (body: SearchBody, ids: string[]): void => {
+  body.query.bool.must.push({
+    terms: {
+      _id: ids,
+    },
+  })
+}
+
 export const createPage = async (
   page: Page,
   ctx: PageContext
@@ -359,6 +367,7 @@ export const searchPages = async (
       dateFilters,
       termFilters,
       matchFilters,
+      ids,
     } = args
     // default order is descending
     const sortOrder = sort?.order || SortOrder.DESCENDING
@@ -429,6 +438,9 @@ export const searchPages = async (
     }
     if (matchFilters) {
       appendMatchFilters(body, matchFilters)
+    }
+    if (ids && ids.length > 0) {
+      appendIdsFilter(body, ids)
     }
 
     if (!args.includePending) {

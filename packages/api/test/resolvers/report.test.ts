@@ -8,15 +8,13 @@ import { expect } from 'chai'
 import { getRepository } from '../../src/entity/utils'
 
 describe('Report API', () => {
-  const username = 'fakeUser'
-
   let user: User
   let authToken: string
   let page: Page
 
   before(async () => {
     // create test user and login
-    user = await createTestUser(username)
+    user = await createTestUser('fakeUser')
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
@@ -29,7 +27,7 @@ describe('Report API', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(username)
+    await deleteTestUser(user.id)
   })
 
   describe('reportItem', () => {
@@ -58,12 +56,6 @@ describe('Report API', () => {
       before(() => {
         pageId = page.id
         reportTypes = [ReportType.ContentDisplay]
-      })
-
-      after(async () => {
-        await getRepository(ContentDisplayReport).delete({
-          elasticPageId: pageId,
-        })
       })
 
       it('should report an item', async () => {

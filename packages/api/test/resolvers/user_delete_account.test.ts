@@ -28,13 +28,12 @@ const deleteAccountRequest = async (authToken: string, userId: string) => {
 }
 
 describe('the deleteAccount API', () => {
-  const username = 'newFakeUser'
   let authToken: string
   let user: User
 
   before(async () => {
     // create test user and login
-    user = await createTestUser(username)
+    user = await createTestUser('newFakeUser')
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
@@ -43,7 +42,7 @@ describe('the deleteAccount API', () => {
   })
 
   after(async () => {
-    await deleteTestUser(username)
+    await deleteTestUser(user.id)
   })
 
   context('deleting a user that exists', () => {

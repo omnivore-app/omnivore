@@ -29,7 +29,7 @@ describe('recent_searches resolver', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(user.name)
+    await deleteTestUser(user.id)
   })
 
   describe('recentSearches API', () => {

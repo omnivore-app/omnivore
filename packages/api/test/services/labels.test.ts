@@ -13,15 +13,16 @@ import { Label } from '../../src/entity/label'
 import { Link } from '../../src/entity/link'
 import { labelsLoader } from '../../src/services/labels'
 import { getRepository } from '../../src/entity/utils'
+import { User } from '../../src/entity/user'
 
 describe('batch get labels from linkIds', () => {
-  let username = 'testUser'
+  let user: User
   let labels: Label[] = []
   let link: Link
 
   before(async () => {
     // create test user
-    const user = await createTestUser(username)
+    user = await createTestUser('fakeUser')
 
     // Create some test links
     const page = await createTestPage()
@@ -41,7 +42,7 @@ describe('batch get labels from linkIds', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(username)
+    await deleteTestUser(user.id)
   })
 
   it('should return a list of label from one link', async () => {

@@ -18,19 +18,21 @@ type ConfirmationModalProps = {
   onOpenChange: (open: boolean) => void
 }
 
-export function ConfirmationModal(props: ConfirmationModalProps): JSX.Element {
+export function DeleteItemConfirmationModal(
+  props: ConfirmationModalProps
+): JSX.Element {
   return (
     <ModalRoot defaultOpen onOpenChange={props.onOpenChange}>
       <ModalOverlay />
       <ModalContent css={{ bg: '$grayBg', maxWidth: '20em' }}>
-        <VStack alignment="center" distribution="center" css={{ p: '$2' }}>
+        <VStack alignment="center" distribution="end" css={{ p: '$2' }}>
           {props.icon ? props.icon : null}
           {props.richMessage ? (
             props.richMessage
           ) : (
             <StyledText>{props.message}</StyledText>
           )}
-          <HStack distribution="center" css={{ pt: '$2' }}>
+          <HStack distribution="end" css={{ pt: '$2' }}>
             <Button
               style="ctaOutlineYellow"
               css={{ mr: '$2' }}

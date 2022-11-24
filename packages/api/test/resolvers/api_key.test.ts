@@ -25,8 +25,6 @@ const testAPIKey = (apiKey: string): supertest.Test => {
 }
 
 describe('Api Key resolver', () => {
-  const username = 'fake_user'
-
   let authToken: string
   let user: User
   let query: string
@@ -36,7 +34,7 @@ describe('Api Key resolver', () => {
 
   before(async () => {
     // create test user and login
-    user = await createTestUser(username)
+    user = await createTestUser('fake_user')
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
@@ -46,7 +44,7 @@ describe('Api Key resolver', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(username)
+    await deleteTestUser(user.id)
   })
 
   describe('generate api key', () => {

@@ -113,7 +113,7 @@ describe('isProbablyArticle', () => {
   })
 
   after(async () => {
-    await deleteTestUser(user.name)
+    await deleteTestUser(user.id)
   })
 
   it('returns true when email is signed up with us', async () => {

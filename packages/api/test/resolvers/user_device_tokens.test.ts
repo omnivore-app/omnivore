@@ -1,6 +1,7 @@
 import {
   createTestDeviceToken,
   createTestUser,
+  deleteTestDeviceTokens,
   deleteTestUser,
   getDeviceToken,
 } from '../db'
@@ -13,15 +14,13 @@ import { User } from '../../src/entity/user'
 import { getRepository } from '../../src/entity/utils'
 
 describe('Device tokens API', () => {
-  const username = 'fakeUser'
-
   let authToken: string
   let deviceToken: UserDeviceToken
   let user: User
 
   before(async () => {
     // create test user and login
-    user = await createTestUser(username)
+    user = await createTestUser('fakeUser')
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
@@ -34,7 +33,7 @@ describe('Device tokens API', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(username)
+    await deleteTestUser(user.id)
   })
 
   describe('Set device token', () => {
@@ -68,7 +67,7 @@ describe('Device tokens API', () => {
 
     after(async () => {
       // clean up
-      await getRepository(UserDeviceToken).delete({ user: { id: user.id } })
+      await deleteTestDeviceTokens(user.id, { user: { id: user.id } })
     })
 
     context('when id in input is not null', () => {
@@ -176,7 +175,7 @@ describe('Device tokens API', () => {
 
     after(async () => {
       // clean up
-      await getRepository(UserDeviceToken).delete({ token })
+      await deleteTestDeviceTokens(user.id, { token })
     })
 
     it('responds with status code 200 and returns all device tokens', async () => {

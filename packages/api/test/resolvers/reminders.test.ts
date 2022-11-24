@@ -12,6 +12,7 @@ import {
 } from '../db'
 import { expect } from 'chai'
 import { Reminder } from '../../src/entity/reminder'
+import { User } from '../../src/entity/user'
 import {
   CreateReminderErrorCode,
   ReminderErrorCode,
@@ -22,15 +23,14 @@ import 'mocha'
 import { Page } from '../../src/elastic/types'
 
 describe('Reminders API', () => {
-  const username = 'fakeUser'
-
   let authToken: string
   let page: Page
   let reminder: Reminder
+  let user: User
 
   before(async () => {
     // create test user and login
-    const user = await createTestUser(username)
+    user = await createTestUser('fakeUser')
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
@@ -44,7 +44,7 @@ describe('Reminders API', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(username)
+    await deleteTestUser(user.id)
   })
 
   describe('Get reminder', () => {

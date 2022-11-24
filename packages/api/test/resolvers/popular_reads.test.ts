@@ -6,8 +6,6 @@ import { User } from '../../src/entity/user'
 import { getPageByParam } from '../../src/elastic/pages'
 
 describe('PopularReads API', () => {
-  const username = 'fakeUser'
-
   let user: User
   let authToken: string
 
@@ -28,7 +26,7 @@ describe('PopularReads API', () => {
 
   before(async () => {
     // create test user and login
-    user = await createTestUser(username)
+    user = await createTestUser('fakeUser')
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
@@ -38,7 +36,7 @@ describe('PopularReads API', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(username)
+    await deleteTestUser(user.id)
   })
 
   describe('addPopularRead', () => {

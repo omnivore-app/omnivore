@@ -1,18 +1,15 @@
-import {
-  createTestUser,
-  deleteTestUser,
-} from '../db'
+import { createTestUser, deleteTestUser } from '../db'
 import { graphqlRequest, request } from '../util'
 import 'mocha'
+import { User } from '../../src/entity/user'
 
 describe('Send Install Instructions API', () => {
-  const username = 'fakeUser'
-
   let authToken: string
+  let user: User
 
   before(async () => {
     // create test user and login
-    const user = await createTestUser(username)
+    user = await createTestUser('fakeUser')
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
@@ -22,7 +19,7 @@ describe('Send Install Instructions API', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(username)
+    await deleteTestUser(user.id)
   })
 
   describe('Send install instructions', () => {

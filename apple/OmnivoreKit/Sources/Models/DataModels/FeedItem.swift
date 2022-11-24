@@ -29,6 +29,8 @@ public struct LinkedItemAudioProperties {
   public let byline: String?
   public let imageURL: URL?
   public let language: String?
+  public let startIndex: Int
+  public let startOffset: Double
 }
 
 // Internal model used for parsing a push notification object only
@@ -149,7 +151,9 @@ public extension LinkedItem {
       title: unwrappedTitle,
       byline: formattedByline,
       imageURL: imageURL,
-      language: language
+      language: language,
+      startIndex: Int(listenPositionIndex),
+      startOffset: listenPositionOffset
     )
   }
 
@@ -174,7 +178,10 @@ public extension LinkedItem {
     newAnchorIndex: Int? = nil,
     newIsArchivedValue: Bool? = nil,
     newTitle: String? = nil,
-    newDescription: String? = nil
+    newDescription: String? = nil,
+    listenPositionIndex: Int? = nil,
+    listenPositionOffset: Double? = nil,
+    listenPositionTime: Double? = nil
   ) {
     context.perform {
       if let newReadingProgress = newReadingProgress {
@@ -195,6 +202,18 @@ public extension LinkedItem {
 
       if let newDescription = newDescription {
         self.descriptionText = newDescription
+      }
+
+      if let listenPositionIndex = listenPositionIndex {
+        self.listenPositionIndex = Int64(listenPositionIndex)
+      }
+
+      if let listenPositionOffset = listenPositionOffset {
+        self.listenPositionOffset = listenPositionOffset
+      }
+
+      if let listenPositionTime = listenPositionTime {
+        self.listenPositionTime = listenPositionTime
       }
 
       guard context.hasChanges else { return }

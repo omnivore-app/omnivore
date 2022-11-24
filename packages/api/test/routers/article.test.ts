@@ -4,10 +4,10 @@ import { expect } from 'chai'
 import nock from 'nock'
 import 'mocha'
 import { env } from '../../src/env'
+import { User } from '../../src/entity/user'
 
 describe('/article/save API', () => {
-  const username = 'fakeUser'
-
+  let user: User
   let authToken: string
 
   // We need to mock the pupeeteer-parse
@@ -17,7 +17,7 @@ describe('/article/save API', () => {
 
   before(async () => {
     // create test user and login
-    const user = await createTestUser(username)
+    user = await createTestUser('fakeUser')
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
@@ -27,7 +27,7 @@ describe('/article/save API', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(username)
+    await deleteTestUser(user.id)
   })
 
   describe('POST /article/save', () => {

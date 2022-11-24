@@ -5,7 +5,6 @@ import { hashPassword } from '../../src/utils/auth'
 import 'mocha'
 
 describe('Sanitize Directive', () => {
-  const username = 'fake_user'
   const correctPassword = 'fakePassword'
 
   let authToken: string
@@ -13,7 +12,7 @@ describe('Sanitize Directive', () => {
 
   before(async () => {
     const hashedPassword = await hashPassword(correctPassword)
-    user = await createTestUser(username, '', hashedPassword)
+    user = await createTestUser('fake_user', '', hashedPassword)
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
@@ -22,7 +21,7 @@ describe('Sanitize Directive', () => {
   })
 
   after(async () => {
-    await deleteTestUser(username)
+    await deleteTestUser(user.id)
   })
 
   describe('Update user with a bio that is too long', () => {

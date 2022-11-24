@@ -2,17 +2,21 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm'
+import { User } from '../user'
 
 @Entity()
 export class ContentDisplayReport {
   @PrimaryGeneratedColumn('uuid')
   id?: string
 
-  @Column('text')
-  userId!: string
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'user_id' })
+  user!: User
 
   @Column('text')
   pageId?: string

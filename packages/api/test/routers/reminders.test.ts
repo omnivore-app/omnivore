@@ -13,15 +13,13 @@ import { expect } from 'chai'
 import 'mocha'
 
 describe('Reminders Router', () => {
-  const username = 'fakeUser'
-
   let authToken: string
   let user: User
   let reminder: Reminder
 
   before(async () => {
     // create test user and login
-    user = await createTestUser(username)
+    user = await createTestUser('fakeUser')
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
@@ -35,7 +33,7 @@ describe('Reminders Router', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(username)
+    await deleteTestUser(user.id)
   })
 
   describe('trigger reminders', () => {
