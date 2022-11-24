@@ -397,9 +397,9 @@ import Views
           }
           .padding(.top, 0)
           .listStyle(PlainListStyle())
-          .alert("Are you sure you want to remove this item? All associated notes and highlights will be deleted.",
+          .alert("Are you sure you want to delete this item? All associated notes and highlights will be deleted.",
                  isPresented: $confirmationShown) {
-            Button("Remove Item") {
+            Button("Delete Item") {
               if let itemToRemove = itemToRemove {
                 withAnimation {
                   viewModel.removeLink(dataService: dataService, objectID: itemToRemove.objectID)
@@ -486,8 +486,8 @@ import Views
           }
         }
       }
-      .alert("Are you sure you want to remove this item? All associated notes and highlights will be deleted.", isPresented: $confirmationShown) {
-        Button("Remove Item", role: .destructive) {
+      .alert("Are you sure you want to delete this item? All associated notes and highlights will be deleted.", isPresented: $confirmationShown) {
+        Button("Delete Item", role: .destructive) {
           if let itemToRemove = itemToRemove {
             withAnimation {
               viewModel.removeLink(dataService: dataService, objectID: itemToRemove.objectID)
