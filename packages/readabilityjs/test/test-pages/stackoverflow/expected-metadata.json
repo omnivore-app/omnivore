@@ -1,0 +1,12 @@
+{
+  "title": "What does the \"yield\" keyword do in Python?",
+  "byline": "Alex. S.",
+  "dir": null,
+  "excerpt": "What is the use of the yield keyword in Python? What does it do? For example, I'm trying to understand this code1: def _get_child_candidates(self, distance, min_dist, max_dist): if self._leftch...",
+  "siteName": "Stack Overflow",
+  "siteIcon": "https://cdn.sstatic.net/Sites/stackoverflow/Img/favicon.ico?v=ec617d715196",
+  "previewImage": "https://cdn.sstatic.net/Sites/stackoverflow/Img/apple-touch-icon@2.png?v=73d79a89bded",
+  "publishedDate": null,
+  "language": "English",
+  "readerable": true
+}
