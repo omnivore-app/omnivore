@@ -786,6 +786,7 @@ export type Highlight = {
   highlightPositionAnchorIndex?: Maybe<Scalars['Int']>;
   highlightPositionPercent?: Maybe<Scalars['Float']>;
   id: Scalars['ID'];
+  labels?: Maybe<Array<Label>>;
   patch: Scalars['String'];
   prefix?: Maybe<Scalars['String']>;
   quote: Scalars['String'];
@@ -4053,6 +4054,7 @@ export type HighlightResolvers<ContextType = ResolverContext, ParentType extends
   highlightPositionAnchorIndex?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   highlightPositionPercent?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  labels?: Resolver<Maybe<Array<ResolversTypes['Label']>>, ParentType, ContextType>;
   patch?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   prefix?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   quote?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
