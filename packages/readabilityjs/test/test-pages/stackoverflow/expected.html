@@ -1,0 +1,223 @@
+<DIV class="page" id="readability-page-1">
+    <div>
+        <div>
+            <div itemprop="text">
+                <p> To understand what <code>yield</code> does, you must understand what <em>generators</em> are. And before you can understand generators, you must understand <em>iterables</em>. </p>
+                <h2> Iterables </h2>
+                <p> When you create a list, you can read its items one by one. Reading its items one by one is called iteration: </p>
+                <pre><code><span>&gt;&gt;&gt; </span>mylist = [<span>1</span>, <span>2</span>, <span>3</span>]
+<span>&gt;&gt;&gt; </span><span>for</span> i <span>in</span> mylist:
+<span>... </span>   <span>print</span>(i)
+<span>1</span>
+<span>2</span>
+<span>3</span>
+</code></pre>
+                <p>
+                    <code>mylist</code> is an <em>iterable</em>. When you use a list comprehension, you create a list, and so an iterable:
+                </p>
+                <pre><code><span>&gt;&gt;&gt; </span>mylist = [x*x <span>for</span> x <span>in</span> <span>range</span>(<span>3</span>)]
+<span>&gt;&gt;&gt; </span><span>for</span> i <span>in</span> mylist:
+<span>... </span>   <span>print</span>(i)
+<span>0</span>
+<span>1</span>
+<span>4</span>
+</code></pre>
+                <p> Everything you can use "<code>for... in...</code>" on is an iterable; <code>lists</code>, <code>strings</code>, files... </p>
+                <p> These iterables are handy because you can read them as much as you wish, but you store all the values in memory and this is not always what you want when you have a lot of values. </p>
+                <h2> Generators </h2>
+                <p> Generators are iterators, a kind of iterable <strong>you can only iterate over once</strong>. Generators do not store all the values in memory, <strong>they generate the values on the fly</strong>: </p>
+                <pre><code><span>&gt;&gt;&gt; </span>mygenerator = (x*x <span>for</span> x <span>in</span> <span>range</span>(<span>3</span>))
+<span>&gt;&gt;&gt; </span><span>for</span> i <span>in</span> mygenerator:
+<span>... </span>   <span>print</span>(i)
+<span>0</span>
+<span>1</span>
+<span>4</span>
+</code></pre>
+                <p> It is just the same except you used <code>()</code> instead of <code>[]</code>. BUT, you <strong>cannot</strong> perform <code>for i in mygenerator</code> a second time since generators can only be used once: they calculate 0, then forget about it and calculate 1, and end calculating 4, one by one. </p>
+                <h2> Yield </h2>
+                <p>
+                    <code>yield</code> is a keyword that is used like <code>return</code>, except the function will return a generator.
+                </p>
+                <pre><code><span>&gt;&gt;&gt; </span><span>def</span> <span>create_generator</span>():
+<span>... </span>   mylist = <span>range</span>(<span>3</span>)
+<span>... </span>   <span>for</span> i <span>in</span> mylist:
+<span>... </span>       <span>yield</span> i*i
+...
+<span>&gt;&gt;&gt; </span>mygenerator = create_generator() <span># create a generator</span>
+<span>&gt;&gt;&gt; </span><span>print</span>(mygenerator) <span># mygenerator is an object!</span>
+&lt;generator <span>object</span> create_generator at <span>0xb7555c34</span>&gt;
+<span>&gt;&gt;&gt; </span><span>for</span> i <span>in</span> mygenerator:
+<span>... </span>    <span>print</span>(i)
+<span>0</span>
+<span>1</span>
+<span>4</span>
+</code></pre>
+                <p> Here it's a useless example, but it's handy when you know your function will return a huge set of values that you will only need to read once. </p>
+                <p> To master <code>yield</code>, you must understand that <strong>when you call the function, the code you have written in the function body does not run.</strong> The function only returns the generator object, this is a bit tricky. </p>
+                <p> Then, your code will continue from where it left off each time <code>for</code> uses the generator. </p>
+                <p> Now the hard part: </p>
+                <p> The first time the <code>for</code> calls the generator object created from your function, it will run the code in your function from the beginning until it hits <code>yield</code>, then it'll return the first value of the loop. Then, each subsequent call will run another iteration of the loop you have written in the function and return the next value. This will continue until the generator is considered empty, which happens when the function runs without hitting <code>yield</code>. That can be because the loop has come to an end, or because you no longer satisfy an <code>"if/else"</code>. </p>
+                <hr>
+                <h2> Your code explained </h2>
+                <p>
+                    <em>Generator:</em>
+                </p>
+                <pre><code><span># Here you create the method of the node object that will return the generator</span>
+<span>def</span> <span>_get_child_candidates</span>(<span>self, distance, min_dist, max_dist</span>):
+
+    <span># Here is the code that will be called each time you use the generator object:</span>
+
+    <span># If there is still a child of the node object on its left</span>
+    <span># AND if the distance is ok, return the next child</span>
+    <span>if</span> self._leftchild <span>and</span> distance - max_dist &lt; self._median:
+        <span>yield</span> self._leftchild
+
+    <span># If there is still a child of the node object on its right</span>
+    <span># AND if the distance is ok, return the next child</span>
+    <span>if</span> self._rightchild <span>and</span> distance + max_dist &gt;= self._median:
+        <span>yield</span> self._rightchild
+
+    <span># If the function arrives here, the generator will be considered empty</span>
+    <span># there are no more than two values: the left and the right children</span>
+</code></pre>
+                <p>
+                    <em>Caller:</em>
+                </p>
+                <pre><code><span># Create an empty list and a list with the current object reference</span>
+result, candidates = <span>list</span>(), [self]
+
+<span># Loop on candidates (they contain only one element at the beginning)</span>
+<span>while</span> candidates:
+
+    <span># Get the last candidate and remove it from the list</span>
+    node = candidates.pop()
+
+    <span># Get the distance between obj and the candidate</span>
+    distance = node._get_dist(obj)
+
+    <span># If the distance is ok, then you can fill in the result</span>
+    <span>if</span> distance &lt;= max_dist <span>and</span> distance &gt;= min_dist:
+        result.extend(node._values)
+
+    <span># Add the children of the candidate to the candidate's list</span>
+    <span># so the loop will keep running until it has looked</span>
+    <span># at all the children of the children of the children, etc. of the candidate</span>
+    candidates.extend(node._get_child_candidates(distance, min_dist, max_dist))
+
+<span>return</span> result
+</code></pre>
+                <p> This code contains several smart parts: </p>
+                <ul>
+                    <li>
+                        <p> The loop iterates on a list, but the list expands while the loop is being iterated. It's a concise way to go through all these nested data even if it's a bit dangerous since you can end up with an infinite loop. In this case, <code>candidates.extend(node._get_child_candidates(distance, min_dist, max_dist))</code> exhausts all the values of the generator, but <code>while</code> keeps creating new generator objects which will produce different values from the previous ones since it's not applied on the same node. </p>
+                    </li>
+                    <li>
+                        <p> The <code>extend()</code> method is a list object method that expects an iterable and adds its values to the list. </p>
+                    </li>
+                </ul>
+                <p> Usually, we pass a list to it: </p>
+                <pre><code><span>&gt;&gt;&gt; </span>a = [<span>1</span>, <span>2</span>]
+<span>&gt;&gt;&gt; </span>b = [<span>3</span>, <span>4</span>]
+<span>&gt;&gt;&gt; </span>a.extend(b)
+<span>&gt;&gt;&gt; </span><span>print</span>(a)
+[<span>1</span>, <span>2</span>, <span>3</span>, <span>4</span>]
+</code></pre>
+                <p> But in your code, it gets a generator, which is good because: </p>
+                <ol>
+                    <li>You don't need to read the values twice. </li>
+                    <li>You may have a lot of children and you don't want them all stored in memory. </li>
+                </ol>
+                <p> And it works because Python does not care if the argument of a method is a list or not. Python expects iterables so it will work with strings, lists, tuples, and generators! This is called duck typing and is one of the reasons why Python is so cool. But this is another story, for another question... </p>
+                <p> You can stop here, or read a little bit to see an advanced use of a generator: </p>
+                <h2> Controlling a generator exhaustion </h2>
+                <pre><code><span>&gt;&gt;&gt; </span><span>class</span> <span>Bank</span>(): <span># Let's create a bank, building ATMs</span>
+<span>... </span>   crisis = <span>False</span>
+<span>... </span>   <span>def</span> <span>create_atm</span>(<span>self</span>):
+<span>... </span>       <span>while</span> <span>not</span> self.crisis:
+<span>... </span>           <span>yield</span> <span>"$100"</span>
+<span>&gt;&gt;&gt; </span>hsbc = Bank() <span># When everything's ok the ATM gives you as much as you want</span>
+<span>&gt;&gt;&gt; </span>corner_street_atm = hsbc.create_atm()
+<span>&gt;&gt;&gt; </span><span>print</span>(corner_street_atm.<span>next</span>())
+$<span>100</span>
+<span>&gt;&gt;&gt; </span><span>print</span>(corner_street_atm.<span>next</span>())
+$<span>100</span>
+<span>&gt;&gt;&gt; </span><span>print</span>([corner_street_atm.<span>next</span>() <span>for</span> cash <span>in</span> <span>range</span>(<span>5</span>)])
+[<span>'$100'</span>, <span>'$100'</span>, <span>'$100'</span>, <span>'$100'</span>, <span>'$100'</span>]
+<span>&gt;&gt;&gt; </span>hsbc.crisis = <span>True</span> <span># Crisis is coming, no more money!</span>
+<span>&gt;&gt;&gt; </span><span>print</span>(corner_street_atm.<span>next</span>())
+&lt;<span>type</span> <span>'exceptions.StopIteration'</span>&gt;
+<span>&gt;&gt;&gt; </span>wall_street_atm = hsbc.create_atm() <span># It's even true for new ATMs</span>
+<span>&gt;&gt;&gt; </span><span>print</span>(wall_street_atm.<span>next</span>())
+&lt;<span>type</span> <span>'exceptions.StopIteration'</span>&gt;
+<span>&gt;&gt;&gt; </span>hsbc.crisis = <span>False</span> <span># The trouble is, even post-crisis the ATM remains empty</span>
+<span>&gt;&gt;&gt; </span><span>print</span>(corner_street_atm.<span>next</span>())
+&lt;<span>type</span> <span>'exceptions.StopIteration'</span>&gt;
+<span>&gt;&gt;&gt; </span>brand_new_atm = hsbc.create_atm() <span># Build a new one to get back in business</span>
+<span>&gt;&gt;&gt; </span><span>for</span> cash <span>in</span> brand_new_atm:
+<span>... </span>   <span>print</span> cash
+$<span>100</span>
+$<span>100</span>
+$<span>100</span>
+$<span>100</span>
+$<span>100</span>
+$<span>100</span>
+$<span>100</span>
+$<span>100</span>
+$<span>100</span>
+...
+</code></pre>
+                <p>
+                    <strong>Note:</strong> For Python 3, use<code>print(corner_street_atm.__next__())</code> or <code>print(next(corner_street_atm))</code>
+                </p>
+                <p> It can be useful for various things like controlling access to a resource. </p>
+                <h2> Itertools, your best friend </h2>
+                <p> The itertools module contains special functions to manipulate iterables. Ever wish to duplicate a generator? Chain two generators? Group values in a nested list with a one-liner? <code>Map / Zip</code> without creating another list? </p>
+                <p> Then just <code>import itertools</code>. </p>
+                <p> An example? Let's see the possible orders of arrival for a four-horse race: </p>
+                <pre><code><span>&gt;&gt;&gt; </span>horses = [<span>1</span>, <span>2</span>, <span>3</span>, <span>4</span>]
+<span>&gt;&gt;&gt; </span>races = itertools.permutations(horses)
+<span>&gt;&gt;&gt; </span><span>print</span>(races)
+&lt;itertools.permutations <span>object</span> at <span>0xb754f1dc</span>&gt;
+<span>&gt;&gt;&gt; </span><span>print</span>(<span>list</span>(itertools.permutations(horses)))
+[(<span>1</span>, <span>2</span>, <span>3</span>, <span>4</span>),
+ (<span>1</span>, <span>2</span>, <span>4</span>, <span>3</span>),
+ (<span>1</span>, <span>3</span>, <span>2</span>, <span>4</span>),
+ (<span>1</span>, <span>3</span>, <span>4</span>, <span>2</span>),
+ (<span>1</span>, <span>4</span>, <span>2</span>, <span>3</span>),
+ (<span>1</span>, <span>4</span>, <span>3</span>, <span>2</span>),
+ (<span>2</span>, <span>1</span>, <span>3</span>, <span>4</span>),
+ (<span>2</span>, <span>1</span>, <span>4</span>, <span>3</span>),
+ (<span>2</span>, <span>3</span>, <span>1</span>, <span>4</span>),
+ (<span>2</span>, <span>3</span>, <span>4</span>, <span>1</span>),
+ (<span>2</span>, <span>4</span>, <span>1</span>, <span>3</span>),
+ (<span>2</span>, <span>4</span>, <span>3</span>, <span>1</span>),
+ (<span>3</span>, <span>1</span>, <span>2</span>, <span>4</span>),
+ (<span>3</span>, <span>1</span>, <span>4</span>, <span>2</span>),
+ (<span>3</span>, <span>2</span>, <span>1</span>, <span>4</span>),
+ (<span>3</span>, <span>2</span>, <span>4</span>, <span>1</span>),
+ (<span>3</span>, <span>4</span>, <span>1</span>, <span>2</span>),
+ (<span>3</span>, <span>4</span>, <span>2</span>, <span>1</span>),
+ (<span>4</span>, <span>1</span>, <span>2</span>, <span>3</span>),
+ (<span>4</span>, <span>1</span>, <span>3</span>, <span>2</span>),
+ (<span>4</span>, <span>2</span>, <span>1</span>, <span>3</span>),
+ (<span>4</span>, <span>2</span>, <span>3</span>, <span>1</span>),
+ (<span>4</span>, <span>3</span>, <span>1</span>, <span>2</span>),
+ (<span>4</span>, <span>3</span>, <span>2</span>, <span>1</span>)]
+</code></pre>
+                <h2> Understanding the inner mechanisms of iteration </h2>
+                <p> Iteration is a process implying iterables (implementing the <code>__iter__()</code> method) and iterators (implementing the <code>__next__()</code> method). Iterables are any objects you can get an iterator from. Iterators are objects that let you iterate on iterables. </p>
+                <p> There is more about it in this article about <a href="https://web.archive.org/web/20201109034340/http://effbot.org/zone/python-for-statement.htm" rel="noreferrer">how <code>for</code> loops work</a>. </p>
+            </div>
+            <div>
+                <p> answered <span title="2008-10-23 22:48:44Z">Oct 23, 2008 at 22:48</span>
+                </p>
+                <div itemprop="author" itemscope="itemscope" itemtype="http://schema.org/Person">
+                    <p><a href="http://fakehost/users/9951/e-satis">e-satis</a><span itemprop="name">e-satis</span></p>
+                    <p><span title="reputation score 564,577" dir="ltr">565k</span><span>110 gold badges</span><span>294 silver badges</span><span>328 bronze badges</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <p><span itemprop="commentCount">9</span></p>
+    </div>
+</DIV>

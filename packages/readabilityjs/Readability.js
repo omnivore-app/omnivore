@@ -1089,9 +1089,14 @@ Readability.prototype = {
       var itemprop = node.getAttribute("itemprop");
     }
 
-    if ((rel === "author" || (itemprop && itemprop.indexOf("author") !== -1) || this.REGEXPS.byline.test(matchString)) && this._isValidByline(node.textContent)) {
-      this._articleByline = node.textContent.trim();
-      return true;
+    if ((rel === "author" || itemprop && itemprop.indexOf("author") !== -1) || this.REGEXPS.byline.test(matchString)) {
+      var allText = node.textContent.trim()
+      var nameText = node.querySelector('span[itemprop="name"]')?.textContent
+      const bylineText = nameText ?? allText
+      if (this._isValidByline(bylineText)) {
+        this._articleByline = bylineText
+        return true;
+      }
     }
 
     return false;
