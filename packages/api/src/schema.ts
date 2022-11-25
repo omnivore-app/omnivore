@@ -643,6 +643,7 @@ const schema = gql`
     createdByMe: Boolean!
     highlightPositionPercent: Float
     highlightPositionAnchorIndex: Int
+    labels: [Label!]
   }
 
   input CreateHighlightInput {
