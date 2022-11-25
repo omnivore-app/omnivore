@@ -183,9 +183,12 @@ import Views
 
     if searchTerm.replacingOccurrences(of: " ", with: "").isEmpty {
       updateFetchController(dataService: dataService)
-      if appliedFilter != LinkedItemFilter.inbox.rawValue {
-        await loadSearchQuery(dataService: dataService, isRefresh: isRefresh)
-      }
+      // For now we are forcing the search because we are fetching items in reverse
+      // with the sync API, but search fetches in descending order
+
+      // if appliedFilter != LinkedItemFilter.inbox.rawValue {
+      await loadSearchQuery(dataService: dataService, isRefresh: isRefresh)
+      // }
     } else {
       await loadSearchQuery(dataService: dataService, isRefresh: isRefresh)
     }
