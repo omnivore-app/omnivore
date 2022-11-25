@@ -1538,6 +1538,7 @@ export type QueryUpdatesSinceArgs = {
   after?: InputMaybe<Scalars['String']>;
   first?: InputMaybe<Scalars['Int']>;
   since: Scalars['Date'];
+  sort?: InputMaybe<SortParams>;
 };
 
 

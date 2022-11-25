@@ -1071,15 +1071,15 @@ describe('Article API', () => {
         ).length
       ).to.eql(3)
       expect(res.body.data.updatesSince.edges[0].itemID).to.eq(
-        deletedPages[0].id
+        deletedPages[2].id
       )
       expect(res.body.data.updatesSince.edges[1].itemID).to.eq(
         deletedPages[1].id
       )
       expect(res.body.data.updatesSince.edges[2].itemID).to.eq(
-        deletedPages[2].id
+        deletedPages[0].id
       )
-      expect(res.body.data.updatesSince.edges[2].updateReason).to.eq(
+      expect(res.body.data.updatesSince.edges[0].updateReason).to.eq(
         UpdateReason.Deleted
       )
     })
