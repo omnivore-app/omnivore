@@ -2387,6 +2387,7 @@ export enum UpdatePageErrorCode {
 }
 
 export type UpdatePageInput = {
+  byline?: InputMaybe<Scalars['String']>;
   description?: InputMaybe<Scalars['String']>;
   pageId: Scalars['ID'];
   title?: InputMaybe<Scalars['String']>;

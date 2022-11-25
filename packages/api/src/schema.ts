@@ -530,6 +530,7 @@ const schema = gql`
     pageId: ID!
     title: String
     description: String
+    byline: String
   }
 
   type UpdatePageSuccess {
