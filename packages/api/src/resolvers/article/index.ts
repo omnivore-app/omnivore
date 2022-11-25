@@ -14,6 +14,7 @@ import {
   CreateArticleErrorCode,
   CreateArticleSuccess,
   FeedArticle,
+  InputMaybe,
   MutationCreateArticleArgs,
   MutationSaveArticleReadingProgressArgs,
   MutationSetBookmarkArticleArgs,
@@ -37,6 +38,7 @@ import {
   SetShareArticleError,
   SetShareArticleErrorCode,
   SetShareArticleSuccess,
+  SortParams,
   TypeaheadSearchError,
   TypeaheadSearchErrorCode,
   TypeaheadSearchSuccess,
@@ -966,74 +968,84 @@ export const updatesSinceResolver = authorized<
   UpdatesSinceSuccess,
   UpdatesSinceError,
   QueryUpdatesSinceArgs
->(async (_obj, { since, first, after }, { claims: { uid } }) => {
-  if (!uid) {
-    return { errorCodes: [UpdatesSinceErrorCode.Unauthorized] }
-  }
-
-  analytics.track({
-    userId: uid,
-    event: 'updatesSince',
-    properties: {
-      env: env.server.apiEnv,
-      since,
-      first,
-      after,
-    },
-  })
-
-  const startCursor = after || ''
-  const size = first || 10
-  const startDate = new Date(since)
-  const [pages, totalCount] = (await searchPages(
-    {
-      from: Number(startCursor),
-      size: size + 1, // fetch one more item to get next cursor
-      includeDeleted: true,
-      dateFilters: [{ field: 'updatedAt', startDate }],
-      sort: { by: SortBy.UPDATED, order: SortOrder.ASCENDING },
-    },
-    uid
-  )) || [[], 0]
-
-  const start =
-    startCursor && !isNaN(Number(startCursor)) ? Number(startCursor) : 0
-  const hasNextPage = pages.length > size
-  const endCursor = String(start + pages.length - (hasNextPage ? 1 : 0))
-
-  //TODO: refactor so that the lastCursor included
-  if (hasNextPage) {
-    // remove an extra if exists
-    pages.pop()
-  }
-
-  const edges = pages.map((p) => {
-    const updateReason = getUpdateReason(p, startDate)
-    return {
-      node: {
-        ...p,
-        image: p.image && createImageProxyUrl(p.image, 260, 260),
-        isArchived: !!p.archivedAt,
-        contentReader:
-          p.pageType === PageType.File ? ContentReader.Pdf : ContentReader.Web,
-      } as SearchItem,
-      cursor: endCursor,
-      itemID: p.id,
-      updateReason,
+>(
+  async (
+    _obj,
+    { since, first, after, sort: sortParams },
+    { claims: { uid } }
+  ) => {
+    if (!uid) {
+      return { errorCodes: [UpdatesSinceErrorCode.Unauthorized] }
     }
-  })
 
-  return {
-    edges,
-    pageInfo: {
-      hasPreviousPage: false,
-      startCursor,
-      hasNextPage,
-      endCursor,
-      totalCount,
-    },
+    analytics.track({
+      userId: uid,
+      event: 'updatesSince',
+      properties: {
+        env: env.server.apiEnv,
+        since,
+        first,
+        after,
+      },
+    })
+
+    const sort = sortParamsToElasticSort(sortParams)
+
+    const startCursor = after || ''
+    const size = first || 10
+    const startDate = new Date(since)
+    const [pages, totalCount] = (await searchPages(
+      {
+        from: Number(startCursor),
+        size: size + 1, // fetch one more item to get next cursor
+        includeDeleted: true,
+        dateFilters: [{ field: 'updatedAt', startDate }],
+        sort,
+      },
+      uid
+    )) || [[], 0]
+
+    const start =
+      startCursor && !isNaN(Number(startCursor)) ? Number(startCursor) : 0
+    const hasNextPage = pages.length > size
+    const endCursor = String(start + pages.length - (hasNextPage ? 1 : 0))
+
+    //TODO: refactor so that the lastCursor included
+    if (hasNextPage) {
+      // remove an extra if exists
+      pages.pop()
+    }
+
+    const edges = pages.map((p) => {
+      const updateReason = getUpdateReason(p, startDate)
+      return {
+        node: {
+          ...p,
+          image: p.image && createImageProxyUrl(p.image, 260, 260),
+          isArchived: !!p.archivedAt,
+          contentReader:
+            p.pageType === PageType.File
+              ? ContentReader.Pdf
+              : ContentReader.Web,
+        } as SearchItem,
+        cursor: endCursor,
+        itemID: p.id,
+        updateReason,
+      }
+    })
+
+    return {
+      edges,
+      pageInfo: {
+        hasPreviousPage: false,
+        startCursor,
+        hasNextPage,
+        endCursor,
+        totalCount,
+      },
+    }
   }
-})
+)
 
 const getUpdateReason = (page: Page, since: Date) => {
   if (page.state === ArticleSavingRequestStatus.Deleted) {
@@ -1043,4 +1055,30 @@ const getUpdateReason = (page: Page, since: Date) => {
     return UpdateReason.Created
   }
   return UpdateReason.Updated
+}
+
+const sortParamsToElasticSort = (
+  sortParams: InputMaybe<SortParams> | undefined
+) => {
+  const sort = { by: SortBy.UPDATED, order: SortOrder.DESCENDING }
+
+  if (sortParams) {
+    sortParams.order === 'ASCENDING' && (sort.order = SortOrder.ASCENDING)
+    switch (sortParams.by) {
+      case 'UPDATED_TIME':
+        sort.by = SortBy.UPDATED
+        break
+      case 'SCORE':
+        sort.by = SortBy.SCORE
+        break
+      case 'PUBLISHED_AT':
+        sort.by = SortBy.PUBLISHED
+        break
+      case 'SAVED_AT':
+        sort.by = SortBy.SAVED
+        break
+    }
+  }
+
+  return sort
 }

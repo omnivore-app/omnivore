@@ -2168,7 +2168,12 @@ const schema = gql`
     webhook(id: ID!): WebhookResult!
     apiKeys: ApiKeysResult!
     typeaheadSearch(query: String!, first: Int): TypeaheadSearchResult!
-    updatesSince(after: String, first: Int, since: Date!): UpdatesSinceResult!
+    updatesSince(
+      after: String
+      first: Int
+      since: Date!
+      sort: SortParams
+    ): UpdatesSinceResult!
     integrations: IntegrationsResult!
     recentSearches: RecentSearchesResult!
     rules(enabled: Boolean): RulesResult!
