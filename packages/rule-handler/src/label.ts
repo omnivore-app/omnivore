@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-export const addLabels = async (
+export const setLabels = async (
   apiEndpoint: string,
   auth: string,
   pageId: string,

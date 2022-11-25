@@ -9,10 +9,17 @@ interface SearchResponse {
 }
 
 interface Edge {
-  node: Node
+  node: Page
 }
 
-interface Node {
+interface Page {
+  id: string
+  labels: Label[]
+  isArchived: boolean
+  readingProgressPercent: number
+}
+
+interface Label {
   id: string
 }
 
@@ -21,7 +28,7 @@ export const search = async (
   apiEndpoint: string,
   auth: string,
   query: string
-): Promise<Node[]> => {
+): Promise<Page[]> => {
   const requestData = JSON.stringify({
     query: `query Search($query: String) {
               search(query: $query) {
@@ -29,6 +36,11 @@ export const search = async (
                   edges {
                     node {
                       id
+                      labels {
+                        id
+                      }
+                      isArchived
+                      readingProgressPercent      
                     }
                   }
                 }
@@ -55,7 +67,7 @@ export const search = async (
     )
 
     const edges = response.data.data.search.edges
-    if (edges.length == 0) {
+    if (edges.length === 0) {
       return []
     }
 
@@ -67,15 +79,15 @@ export const search = async (
   }
 }
 
-export const isMatched = async (
+export const filterPage = async (
   userId: string,
   apiEndpoint: string,
   auth: string,
   filter: string,
   pageId: string
-): Promise<boolean> => {
+): Promise<Page | null> => {
   filter += ` includes:${pageId}`
-  const nodes = await search(userId, apiEndpoint, auth, filter)
+  const pages = await search(userId, apiEndpoint, auth, filter)
 
-  return nodes.length > 0
+  return pages.length > 0 ? pages[0] : null
 }
