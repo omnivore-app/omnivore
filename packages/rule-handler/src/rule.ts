@@ -94,8 +94,14 @@ export const triggerActions = async (
       switch (action.type) {
         case RuleActionType.AddLabel: {
           const existingLabelIds = filteredPage.labels.map((label) => label.id)
+          const newLabelIds = action.params
+          if (newLabelIds.every((id) => existingLabelIds.includes(id))) {
+            // All labels are already set
+            return
+          }
+
           // combine existing labels with new labels in a set to avoid duplicates
-          const labelIds = new Set([...existingLabelIds, ...action.params])
+          const labelIds = new Set([...existingLabelIds, ...newLabelIds])
 
           actionPromises.push(
             setLabels(apiEndpoint, authToken, data.id, Array.from(labelIds))
