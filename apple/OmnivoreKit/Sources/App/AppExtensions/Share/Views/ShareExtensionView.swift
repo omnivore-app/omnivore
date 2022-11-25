@@ -16,6 +16,7 @@ public struct ShareExtensionView: View {
   @State var messageText: String?
 
   @State var viewState = ViewState.mainView
+  @State var showHighlightInstructionAlert = false
 
   enum FocusField: Hashable {
     case titleEditor
@@ -297,7 +298,7 @@ public struct ShareExtensionView: View {
       Button(
         action: {},
         label: {
-          Button(action: {}, label: { Label("Dismiss", systemImage: "arrow.down.to.line") })
+          Button("Dismiss", role: .cancel, action: {})
         }
       )
       Button(action: {
@@ -452,7 +453,11 @@ public struct ShareExtensionView: View {
           highlightSection
             .onTapGesture {
               withAnimation {
-                viewState = .viewingHighlight
+                if viewModel.highlightData != nil {
+                  viewState = .viewingHighlight
+                } else {
+                  showHighlightInstructionAlert = true
+                }
               }
             }
         }
@@ -480,6 +485,10 @@ public struct ShareExtensionView: View {
     }
     .sheet(isPresented: $labelsViewModel.showCreateLabelModal) {
       CreateLabelView(viewModel: labelsViewModel)
+    }
+    .alert("Before saving an article select text in Safari to create a highlight on save.",
+           isPresented: $showHighlightInstructionAlert) {
+      Button("Ok", role: .cancel) { showHighlightInstructionAlert = false }
     }
     .environmentObject(viewModel.services.dataService)
     .task {
