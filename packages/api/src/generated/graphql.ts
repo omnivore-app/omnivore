@@ -1538,6 +1538,7 @@ export type QueryUpdatesSinceArgs = {
   after?: InputMaybe<Scalars['String']>;
   first?: InputMaybe<Scalars['Int']>;
   since: Scalars['Date'];
+  sort?: InputMaybe<SortParams>;
 };
 
 
@@ -2387,6 +2388,7 @@ export enum UpdatePageErrorCode {
 }
 
 export type UpdatePageInput = {
+  byline?: InputMaybe<Scalars['String']>;
   description?: InputMaybe<Scalars['String']>;
   pageId: Scalars['ID'];
   title?: InputMaybe<Scalars['String']>;

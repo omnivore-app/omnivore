@@ -9,7 +9,7 @@ import { StyledText } from '../../elements/StyledText'
 import { CrossIcon } from '../../elements/images/CrossIcon'
 import { theme } from '../../tokens/stitches.config'
 import { FormInput } from '../../elements/FormElements'
-import { useState, useCallback } from 'react'
+import { useState } from 'react'
 import { LibraryItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { StyledTextArea } from '../../elements/StyledTextArea'
 import { updatePageMutation } from '../../../lib/networking/mutations/updatePageMutation'
@@ -18,11 +18,12 @@ import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 type EditTitleModalProps = {
   onOpenChange: (open: boolean) => void
   item: LibraryItem
-  updateItem: (item: LibraryItem) => Promise<void>,
+  updateItem: (item: LibraryItem) => Promise<void>
 }
 
 export function EditTitleModal(props: EditTitleModalProps): JSX.Element {
   const [title, setTitle] = useState(props.item.node.title)
+  const [author, setAuthor] = useState(props.item.node.author)
   const [description, setDescription] = useState(props.item.node.description)
 
   const handleUpdateTitle = async () => {
@@ -31,14 +32,16 @@ export function EditTitleModal(props: EditTitleModalProps): JSX.Element {
         pageId: props.item.node.id,
         title,
         description,
+        byline: author,
       })
-      
+
       if (res) {
         await props.updateItem({
           cursor: props.item.cursor,
           node: {
             ...props.item.node,
             title: title,
+            author: author,
             description: description,
           },
         })
@@ -52,7 +55,7 @@ export function EditTitleModal(props: EditTitleModalProps): JSX.Element {
         })
       }
     } else {
-      showErrorToast('Title can\'t be empty', {
+      showErrorToast('Title must be a non-empty value', {
         position: 'bottom-right',
       })
     }
@@ -65,7 +68,7 @@ export function EditTitleModal(props: EditTitleModalProps): JSX.Element {
         css={{ bg: '$grayBg', pt: '0px' }}
         onInteractOutside={() => {
           // remove focus from modal
-          (document.activeElement as HTMLElement).blur()
+          ;(document.activeElement as HTMLElement).blur()
         }}
       >
         <VStack distribution="start" css={{ p: '$2' }}>
@@ -103,6 +106,20 @@ export function EditTitleModal(props: EditTitleModalProps): JSX.Element {
                 autoFocus
                 placeholder="Edit Title"
                 onChange={(event) => setTitle(event.target.value)}
+                css={{
+                  borderRadius: '8px',
+                  border: '1px solid $grayTextContrast',
+                  width: '100%',
+                  p: '$2',
+                }}
+              />
+              <StyledText css={{ mt: '22px', mb: '6px' }}>Author</StyledText>
+              <FormInput
+                type="author"
+                value={author}
+                autoFocus
+                placeholder="Edit Author"
+                onChange={(event) => setAuthor(event.target.value)}
                 css={{
                   borderRadius: '8px',
                   border: '1px solid $grayTextContrast',

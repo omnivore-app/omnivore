@@ -1061,7 +1061,7 @@ type Query {
   sharedArticle(selectedHighlightId: String, slug: String!, username: String!): SharedArticleResult!
   subscriptions(sort: SortParams): SubscriptionsResult!
   typeaheadSearch(first: Int, query: String!): TypeaheadSearchResult!
-  updatesSince(after: String, first: Int, since: Date!): UpdatesSinceResult!
+  updatesSince(after: String, first: Int, since: Date!, sort: SortParams): UpdatesSinceResult!
   user(userId: ID, username: String): UserResult!
   users: UsersResult!
   validateUsername(username: String!): Boolean!
@@ -1832,6 +1832,7 @@ enum UpdatePageErrorCode {
 }
 
 input UpdatePageInput {
+  byline: String
   description: String
   pageId: ID!
   title: String

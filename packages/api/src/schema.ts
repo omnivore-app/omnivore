@@ -530,6 +530,7 @@ const schema = gql`
     pageId: ID!
     title: String
     description: String
+    byline: String
   }
 
   type UpdatePageSuccess {
@@ -2167,7 +2168,12 @@ const schema = gql`
     webhook(id: ID!): WebhookResult!
     apiKeys: ApiKeysResult!
     typeaheadSearch(query: String!, first: Int): TypeaheadSearchResult!
-    updatesSince(after: String, first: Int, since: Date!): UpdatesSinceResult!
+    updatesSince(
+      after: String
+      first: Int
+      since: Date!
+      sort: SortParams
+    ): UpdatesSinceResult!
     integrations: IntegrationsResult!
     recentSearches: RecentSearchesResult!
     rules(enabled: Boolean): RulesResult!

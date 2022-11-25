@@ -1,11 +1,11 @@
 import {
+  MutationUpdatePageArgs,
   UpdatePageError,
   UpdatePageErrorCode,
   UpdatePageSuccess,
-  MutationUpdatePageArgs,
 } from '../../generated/graphql'
 import { authorized, userDataToUser } from '../../utils/helpers'
-import { updatePage, getPageById } from '../../elastic/pages'
+import { getPageById, updatePage } from '../../elastic/pages'
 import { Page } from '../../entity/page'
 import { Merge } from '../../util'
 
@@ -39,6 +39,7 @@ export const updatePageResolver = authorized<
     id: input.pageId,
     title: input.title || undefined,
     description: input.description || '',
+    author: input.byline ?? undefined,
   }
 
   const updateResult = await updatePage(input.pageId, pageData, { ...ctx, uid })
