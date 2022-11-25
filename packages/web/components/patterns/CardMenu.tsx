@@ -50,7 +50,7 @@ export function CardMenu(props: CardMenuProps): JSX.Element {
       />
       <DropdownOption
         onSelect={() => props.actionHandler('editTitle')}
-        title="Edit Title"
+        title="Edit Metadata"
       />
       {isVipUser(props.viewer) && (
         <DropdownOption
