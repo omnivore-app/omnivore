@@ -55,7 +55,8 @@ public class ShareExtensionViewModel: ObservableObject {
     dataService.updateLinkedItemTitleAndDescription(
       itemID: itemID,
       title: title,
-      description: description
+      description: description,
+      author: nil
     )
   }
 

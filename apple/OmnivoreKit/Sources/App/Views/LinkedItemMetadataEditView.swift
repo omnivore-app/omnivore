@@ -6,9 +6,11 @@ import Views
 @MainActor final class LinkedItemTitleEditViewModel: ObservableObject {
   @Published var title = ""
   @Published var description = ""
+  @Published var author = ""
 
   func load(item: LinkedItem) {
     title = item.unwrappedTitle
+    author = item.author ?? ""
     description = item.descriptionText ?? ""
   }
 
@@ -16,12 +18,14 @@ import Views
     dataService.updateLinkedItemTitleAndDescription(
       itemID: item.unwrappedID,
       title: title,
-      description: description
+      description: description,
+      // Don't set author to an empty string
+      author: author.isEmpty ? nil : author
     )
   }
 }
 
-struct LinkedItemTitleEditView: View {
+struct LinkedItemMetadataEditView: View {
   @EnvironmentObject var dataService: DataService
   @Environment(\.presentationMode) private var presentationMode
   @StateObject var viewModel = LinkedItemTitleEditViewModel()
@@ -36,6 +40,14 @@ struct LinkedItemTitleEditView: View {
             .font(.appFootnote)
             .foregroundColor(.appGrayTextContrast)
           TextField("", text: $viewModel.title)
+            .textFieldStyle(StandardTextFieldStyle(textColor: .appGrayTextContrast))
+        }
+
+        VStack(alignment: .leading, spacing: 6) {
+          Text("Author")
+            .font(.appFootnote)
+            .foregroundColor(.appGrayTextContrast)
+          TextField("", text: $viewModel.author)
             .textFieldStyle(StandardTextFieldStyle(textColor: .appGrayTextContrast))
         }
 

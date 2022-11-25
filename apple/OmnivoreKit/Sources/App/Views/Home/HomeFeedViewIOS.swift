@@ -62,7 +62,7 @@ import Views
           ApplyLabelsView(mode: .item(item), onSave: nil)
         }
         .sheet(item: $viewModel.itemUnderTitleEdit) { item in
-          LinkedItemTitleEditView(item: item)
+          LinkedItemMetadataEditView(item: item)
         }
         .sheet(item: $viewModel.itemForHighlightsView) { item in
           HighlightsListView(itemObjectID: item.objectID, hasHighlightMutations: $hasHighlightMutations)
@@ -279,7 +279,7 @@ import Views
         }
         Button(
           action: { viewModel.itemUnderTitleEdit = item },
-          label: { Label("Edit Title/Description", systemImage: "textbox") }
+          label: { Label("Edit Metadata", systemImage: "textbox") }
         )
         Button(
           action: { viewModel.itemUnderLabelEdit = item },
