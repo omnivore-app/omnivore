@@ -105,7 +105,9 @@ import Views
 
   func syncItems(dataService: DataService, syncStartTime: Date) async {
     let lastSyncDate = dateFormatter.date(from: dataService.lastItemSyncTime) ?? Date(timeIntervalSinceReferenceDate: 0)
-    let syncResult = try? await dataService.syncLinkedItems(since: lastSyncDate, cursor: nil)
+    let syncResult = try? await dataService.syncLinkedItems(since: lastSyncDate,
+                                                            cursor: nil,
+                                                            deferFetchingMore: true)
 
     if syncResult != nil {
       dataService.lastItemSyncTime = dateFormatter.string(from: syncStartTime)
@@ -169,7 +171,6 @@ import Views
 
   func loadItems(dataService: DataService, audioController _: AudioController, isRefresh: Bool) async {
     let syncStartTime = Date()
-    let start = CFAbsoluteTimeGetCurrent()
 
     isLoading = true
     showLoadingBar = true
@@ -186,9 +187,9 @@ import Views
       // For now we are forcing the search because we are fetching items in reverse
       // with the sync API, but search fetches in descending order
 
-      // if appliedFilter != LinkedItemFilter.inbox.rawValue {
-      await loadSearchQuery(dataService: dataService, isRefresh: isRefresh)
-      // }
+      if appliedFilter != LinkedItemFilter.inbox.rawValue {
+        await loadSearchQuery(dataService: dataService, isRefresh: isRefresh)
+      }
     } else {
       await loadSearchQuery(dataService: dataService, isRefresh: isRefresh)
     }
