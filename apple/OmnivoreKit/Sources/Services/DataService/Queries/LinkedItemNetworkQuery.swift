@@ -62,11 +62,14 @@ extension DataService {
       )
     }
 
+    let sort = InputObjects.SortParams(by: Enums.SortBy.savedAt, order: OptionalArgument(Enums.SortOrder.descending))
+
     let query = Selection.Query {
       try $0.updatesSince(
         after: OptionalArgument(cursor),
         first: OptionalArgument(limit),
         since: DateTime(from: since),
+        sort: OptionalArgument(sort),
         selection: selection
       )
     }

@@ -5,10 +5,14 @@ import { HighlightItemCard } from './HighlightItemCard'
 import { PageType } from '../../../lib/networking/fragments/articleFragment'
 
 const shouldHideUrl = (url: string): boolean => {
-  const origin = new URL(url).origin
-  const hideHosts = ['https://storage.googleapis.com', 'https://omnivore.app']
-  if (hideHosts.indexOf(origin) != -1) {
-    return true
+  try {
+    const origin = new URL(url).origin
+    const hideHosts = ['https://storage.googleapis.com', 'https://omnivore.app']
+    if (hideHosts.indexOf(origin) != -1) {
+      return true
+    }
+  } catch {
+    console.log('invalid url item', url)
   }
   return false
 }
