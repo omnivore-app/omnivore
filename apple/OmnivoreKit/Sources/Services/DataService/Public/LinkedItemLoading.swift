@@ -14,7 +14,8 @@ public extension DataService {
   func syncLinkedItems(
     since date: Date,
     cursor: String?,
-    previousQueryResult: LinkedItemSyncResult? = nil
+    previousQueryResult: LinkedItemSyncResult? = nil,
+    deferFetchingMore: Bool
   ) async throws -> LinkedItemSyncResult? {
     if previousQueryResult == nil {
       // Send offline changes to server before fetching items
@@ -36,12 +37,24 @@ public extension DataService {
       cursor: fetchResult.cursor
     )
 
-    if fetchResult.hasMoreItems, (previousQueryResult?.updatedItemIDs.count ?? 0) < 200 {
-      return try await syncLinkedItems(
-        since: date,
-        cursor: fetchResult.cursor,
-        previousQueryResult: result
-      )
+    if fetchResult.hasMoreItems, (previousQueryResult?.updatedItemIDs.count ?? 0) < 40 {
+      if deferFetchingMore {
+        Task.detached(priority: .background) {
+          try await self.syncLinkedItems(
+            since: date,
+            cursor: fetchResult.cursor,
+            previousQueryResult: result,
+            deferFetchingMore: deferFetchingMore
+          )
+        }
+      } else {
+        return try await syncLinkedItems(
+          since: date,
+          cursor: fetchResult.cursor,
+          previousQueryResult: result,
+          deferFetchingMore: deferFetchingMore
+        )
+      }
     }
 
     return result
