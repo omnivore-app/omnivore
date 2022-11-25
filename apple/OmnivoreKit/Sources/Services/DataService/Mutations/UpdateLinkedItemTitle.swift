@@ -4,7 +4,7 @@ import Models
 import SwiftGraphQL
 
 extension DataService {
-  public func updateLinkedItemTitleAndDescription(itemID: String, title: String, description: String) {
+  public func updateLinkedItemTitleAndDescription(itemID: String, title: String, description: String, author: String?) {
     backgroundContext.perform { [weak self] in
       guard let self = self else { return }
       guard let linkedItem = LinkedItem.lookup(byID: itemID, inContext: self.backgroundContext) else { return }
@@ -12,7 +12,8 @@ extension DataService {
       linkedItem.update(
         inContext: self.backgroundContext,
         newTitle: title,
-        newDescription: description
+        newDescription: description,
+        newAuthor: author
       )
 
       // Send update to server

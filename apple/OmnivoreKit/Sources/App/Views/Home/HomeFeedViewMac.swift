@@ -46,7 +46,7 @@ import Views
                 // TODO: add highlights view button
                 Button(
                   action: { viewModel.itemUnderTitleEdit = item },
-                  label: { Label("Edit Title/Description", systemImage: "textbox") }
+                  label: { Label("Edit Metadata", systemImage: "textbox") }
                 )
                 Button(
                   action: { viewModel.itemUnderLabelEdit = item },
@@ -143,7 +143,7 @@ import Views
         ApplyLabelsView(mode: .item(item), onSave: nil)
       }
       .sheet(item: $viewModel.itemUnderTitleEdit) { item in
-        LinkedItemTitleEditView(item: item)
+        LinkedItemMetadataEditView(item: item)
       }
       // TODO: add highlights view sheet
       .task {

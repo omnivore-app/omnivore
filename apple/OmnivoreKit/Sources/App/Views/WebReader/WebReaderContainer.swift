@@ -165,7 +165,7 @@ struct WebReaderContainerView: View {
       }
       Button(
         action: { showTitleEdit = true },
-        label: { Label("Edit Title/Description", systemImage: "textbox") }
+        label: { Label("Edit Metadata", systemImage: "textbox") }
       )
       Button(
         action: editLabels,
@@ -272,7 +272,7 @@ struct WebReaderContainerView: View {
       ApplyLabelsView(mode: .item(item), onSave: { _ in showLabelsModal = false })
     }
     .sheet(isPresented: $showTitleEdit) {
-      LinkedItemTitleEditView(item: item)
+      LinkedItemMetadataEditView(item: item)
     }
     .sheet(isPresented: $showHighlightsView, onDismiss: onHighlightListViewDismissal) {
       HighlightsListView(
