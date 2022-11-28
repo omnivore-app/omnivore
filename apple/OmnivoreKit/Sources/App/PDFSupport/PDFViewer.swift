@@ -85,11 +85,10 @@ import Utils
             builder.shouldAskForAnnotationUsername = false
           }
           .updateControllerConfiguration { controller in
-            // Store config state so we only run this update closure once
             saveSettings(configuration: controller.configuration)
 
+            // Store config state so we only run this update closure once
             guard pdfStateObject.controllerNeedsConfig else { return }
-            print("document is valid", document.isValid)
             coordinator.setController(controller: controller, dataService: dataService)
 
             // Disable the Document Editor
