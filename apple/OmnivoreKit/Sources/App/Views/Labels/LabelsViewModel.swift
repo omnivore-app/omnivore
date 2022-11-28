@@ -36,6 +36,29 @@ import Views
     isLoading = false
   }
 
+  func loadLabels(
+    dataService: DataService,
+    highlight: Highlight
+  ) async {
+    isLoading = true
+
+    if let labelIDs = try? await dataService.labels() {
+      dataService.viewContext.performAndWait {
+        self.labels = labelIDs.compactMap { dataService.viewContext.object(with: $0) as? LinkedItemLabel }
+      }
+      let selLabels = highlight.labels ?? []
+      for label in labels {
+        if selLabels.contains(label) {
+          selectedLabels.append(label)
+        } else {
+          unselectedLabels.append(label)
+        }
+      }
+    }
+
+    isLoading = false
+  }
+
   func loadLabelsFromStore(dataService: DataService) async {
     let fetchRequest: NSFetchRequest<Models.LinkedItemLabel> = LinkedItemLabel.fetchRequest()
 
@@ -93,6 +116,10 @@ import Views
 
   func saveItemLabelChanges(itemID: String, dataService: DataService) {
     dataService.updateItemLabels(itemID: itemID, labelIDs: selectedLabels.map(\.unwrappedID))
+  }
+
+  func saveHighlightLabelChanges(highlightID: String, dataService: DataService) {
+    dataService.setLabelsForHighlight(highlightID: highlightID, labelIDs: selectedLabels.map(\.unwrappedID))
   }
 
   func addLabelToItem(_ label: LinkedItemLabel) {

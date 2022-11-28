@@ -2,7 +2,7 @@ import CoreData
 import Foundation
 import Models
 
-struct InternalLinkedItemLabel: Encodable {
+public struct InternalLinkedItemLabel: Encodable {
   let id: String
   let name: String
   let color: String
@@ -39,7 +39,7 @@ struct InternalLinkedItemLabel: Encodable {
     return label
   }
 
-  static func make(_ labels: NSSet?) -> [InternalLinkedItemLabel] {
+  public static func make(_ labels: NSSet?) -> [InternalLinkedItemLabel] {
     labels?
       .compactMap { label in
         if let label = label as? LinkedItemLabel {

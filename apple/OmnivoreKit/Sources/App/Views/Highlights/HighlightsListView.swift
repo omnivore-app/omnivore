@@ -11,6 +11,7 @@ struct HighlightsListView: View {
 
   let itemObjectID: NSManagedObjectID
   @Binding var hasHighlightMutations: Bool
+  @State var setLabelsHighlight: Highlight?
 
   var emptyView: some View {
     Text("""
@@ -61,10 +62,21 @@ struct HighlightsListView: View {
                 highlightID: highlightParams.highlightID,
                 dataService: dataService
               )
+            },
+            onSetLabels: { highlightID in
+              setLabelsHighlight = Highlight.lookup(byID: highlightID, inContext: dataService.viewContext)
             }
           )
         }
       }
+    }.sheet(item: $setLabelsHighlight) { highlight in
+      ApplyLabelsView(mode: .highlight(highlight), onSave: { selectedLabels in
+        hasHighlightMutations = true
+
+        viewModel.setLabelsForHighlight(highlightID: highlight.unwrappedID,
+                                        labels: selectedLabels,
+                                        dataService: dataService)
+      })
     }
   }
 

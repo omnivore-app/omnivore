@@ -10,6 +10,7 @@ struct HighlightListItemParams: Identifiable {
   let title: String
   let annotation: String
   let quote: String
+  let labels: [LinkedItemLabel]
 }
 
 @MainActor final class HighlightsListViewModel: ObservableObject {
@@ -29,7 +30,8 @@ struct HighlightListItemParams: Identifiable {
         highlightID: highlightID,
         title: highlightItems[index].title,
         annotation: annotation,
-        quote: highlightItems[index].quote
+        quote: highlightItems[index].quote,
+        labels: highlightItems[index].labels
       )
     }
   }
@@ -37,6 +39,20 @@ struct HighlightListItemParams: Identifiable {
   func deleteHighlight(highlightID: String, dataService: DataService) {
     dataService.deleteHighlight(highlightID: highlightID)
     highlightItems.removeAll { $0.highlightID == highlightID }
+  }
+
+  func setLabelsForHighlight(highlightID: String, labels: [LinkedItemLabel], dataService: DataService) {
+    dataService.setLabelsForHighlight(highlightID: highlightID, labelIDs: labels.map(\.unwrappedID))
+
+    if let index = highlightItems.firstIndex(where: { $0.highlightID == highlightID }) {
+      highlightItems[index] = HighlightListItemParams(
+        highlightID: highlightID,
+        title: highlightItems[index].title,
+        annotation: highlightItems[index].annotation,
+        quote: highlightItems[index].quote,
+        labels: labels
+      )
+    }
   }
 
   private func loadHighlights(item: LinkedItem) {
@@ -51,7 +67,8 @@ struct HighlightListItemParams: Identifiable {
         highlightID: $0.unwrappedID,
         title: "Highlight",
         annotation: $0.annotation ?? "",
-        quote: $0.quote ?? ""
+        quote: $0.quote ?? "",
+        labels: $0.labels.asArray(of: LinkedItemLabel.self)
       )
     }
   }

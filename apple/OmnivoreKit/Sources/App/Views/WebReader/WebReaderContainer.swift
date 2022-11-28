@@ -11,6 +11,7 @@ struct WebReaderContainerView: View {
 
   @State private var showPreferencesPopover = false
   @State private var showLabelsModal = false
+  @State private var showHighlightLabelsModal = false
   @State private var showTitleEdit = false
   @State private var showHighlightsView = false
   @State private var hasPerformedHighlightMutations = false
@@ -269,6 +270,9 @@ struct WebReaderContainerView: View {
       Button("Cancel", role: .cancel, action: {})
     }
     .sheet(isPresented: $showLabelsModal) {
+      ApplyLabelsView(mode: .item(item), onSave: { _ in showLabelsModal = false })
+    }
+    .sheet(isPresented: $showHighlightLabelsModal) {
       ApplyLabelsView(mode: .item(item), onSave: { _ in showLabelsModal = false })
     }
     .sheet(isPresented: $showTitleEdit) {

@@ -11,6 +11,7 @@ struct HighlightsListCard: View {
   @Binding var hasHighlightMutations: Bool
   let onSaveAnnotation: (String) -> Void
   let onDeleteHighlight: () -> Void
+  let onSetLabels: (String) -> Void
 
   var contextMenuView: some View {
     Group {
@@ -29,6 +30,12 @@ struct HighlightsListCard: View {
           Snackbar.show(message: "Highlight copied")
         },
         label: { Label("Copy", systemImage: "doc.on.doc") }
+      )
+      Button(
+        action: {
+          onSetLabels(highlightParams.highlightID)
+        },
+        label: { Label("Labels", systemImage: "tag") }
       )
       Button(
         action: onDeleteHighlight,
@@ -108,6 +115,20 @@ struct HighlightsListCard: View {
             addNoteSection
           } else {
             noteSection
+          }
+
+          if highlightParams.labels.count > 0 {
+            ScrollView(.horizontal, showsIndicators: false) {
+              HStack {
+                ForEach(highlightParams.labels, id: \.self) {
+                  TextChip(feedItemLabel: $0)
+                }
+                Spacer()
+              }
+            }.introspectScrollView { scrollView in
+              scrollView.bounces = false
+            }
+            .padding(.top, 0)
           }
         }
         .padding(.bottom, 8)
