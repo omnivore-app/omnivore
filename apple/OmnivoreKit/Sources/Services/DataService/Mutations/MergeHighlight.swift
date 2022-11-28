@@ -23,7 +23,8 @@ extension DataService {
       annotation: nil,
       createdAt: nil,
       updatedAt: nil,
-      createdByMe: true
+      createdByMe: true,
+      labels: []
     )
 
     internalHighlight.persist(
