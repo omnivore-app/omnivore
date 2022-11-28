@@ -6315,6 +6315,7 @@ extension Objects {
     let highlightPositionAnchorIndex: [String: Int]
     let highlightPositionPercent: [String: Double]
     let id: [String: String]
+    let labels: [String: [Objects.Label]]
     let patch: [String: String]
     let prefix: [String: String]
     let quote: [String: String]
@@ -6366,6 +6367,10 @@ extension Objects.Highlight: Decodable {
         }
       case "id":
         if let value = try container.decode(String?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      case "labels":
+        if let value = try container.decode([Objects.Label]?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
       case "patch":
@@ -6424,6 +6429,7 @@ extension Objects.Highlight: Decodable {
     highlightPositionAnchorIndex = map["highlightPositionAnchorIndex"]
     highlightPositionPercent = map["highlightPositionPercent"]
     id = map["id"]
+    labels = map["labels"]
     patch = map["patch"]
     prefix = map["prefix"]
     quote = map["quote"]
@@ -6534,6 +6540,22 @@ extension Fields where TypeLock == Objects.Highlight {
       throw HttpError.badpayload
     case .mocking:
       return String.mockValue
+    }
+  }
+
+  func labels<Type>(selection: Selection<Type, [Objects.Label]?>) throws -> Type {
+    let field = GraphQLField.composite(
+      name: "labels",
+      arguments: [],
+      selection: selection.selection
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      return try selection.decode(data: data.labels[field.alias!])
+    case .mocking:
+      return selection.mock()
     }
   }
 
