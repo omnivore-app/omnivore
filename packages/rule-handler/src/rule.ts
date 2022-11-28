@@ -93,38 +93,43 @@ export const triggerActions = async (
     rule.actions.forEach((action) => {
       switch (action.type) {
         case RuleActionType.AddLabel: {
-          const existingLabelIds = filteredPage.labels.map((label) => label.id)
-          const newLabelIds = action.params
-          if (newLabelIds.every((id) => existingLabelIds.includes(id))) {
-            // All labels are already set
-            return
-          }
+          const existingLabelIds =
+            filteredPage.labels?.map((label) => label.id) || []
+          const labelIdsToSet = [...existingLabelIds]
 
-          // combine existing labels with new labels in a set to avoid duplicates
-          const labelIds = new Set([...existingLabelIds, ...newLabelIds])
+          // combine existing labels with new labels to avoid duplicates
+          action.params.forEach((newLabelId) => {
+            if (!labelIdsToSet.includes(newLabelId)) {
+              labelIdsToSet.push(newLabelId)
+            }
+          })
 
-          actionPromises.push(
-            setLabels(apiEndpoint, authToken, data.id, Array.from(labelIds))
+          // call the api if it has new labels to set
+          return (
+            labelIdsToSet.length > existingLabelIds.length &&
+            actionPromises.push(
+              setLabels(apiEndpoint, authToken, data.id, labelIdsToSet)
+            )
           )
-          break
         }
         case RuleActionType.Archive:
-          !filteredPage.isArchived &&
+          return (
+            !filteredPage.isArchived &&
             actionPromises.push(archivePage(apiEndpoint, authToken, data.id))
-          break
+          )
         case RuleActionType.MarkAsRead:
-          filteredPage.readingProgressPercent < 100 &&
+          return (
+            filteredPage.readingProgressPercent < 100 &&
             actionPromises.push(markPageAsRead(apiEndpoint, authToken, data.id))
-          break
+          )
         case RuleActionType.SendNotification:
-          actionPromises.push(
+          return actionPromises.push(
             sendNotification(
               apiEndpoint,
               authToken,
               'New page added to your feed'
             )
           )
-          break
       }
     })
   }

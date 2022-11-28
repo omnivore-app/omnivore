@@ -14,7 +14,7 @@ interface Edge {
 
 interface Page {
   id: string
-  labels: Label[]
+  labels?: Label[] // labels is optional in the API response
   isArchived: boolean
   readingProgressPercent: number
 }
