@@ -346,6 +346,7 @@ import Views
 
           List {
             filtersHeader
+              .listRowSeparator(.hidden, edges: .top)
 
             ForEach(viewModel.items) { item in
               FeedCardNavigationLink(
