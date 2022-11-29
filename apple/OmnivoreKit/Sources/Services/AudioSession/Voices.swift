@@ -70,7 +70,7 @@ public enum Voices {
     VoiceLanguage(key: "hi", name: "Hindi", defaultVoice: "hi-IN-MadhurNeural", categories: [.hiIN]),
     VoiceLanguage(key: "ja", name: "Japanese", defaultVoice: "ja-JP-NanamiNeural", categories: [.jaJP]),
     VoiceLanguage(key: "es", name: "Spanish", defaultVoice: "es-ES-AlvaroNeural", categories: [.esES]),
-    VoiceLanguage(key: "ta", name: "Tamil", defaultVoice: "ta-IN-PallaviNeural", categories: [.taIN])
+    VoiceLanguage(key: "ta", name: "Tamil", defaultVoice: "ta-IN-PallaviNeural", categories: [.taIN, .taLK, .taMY, .taSG])
   ]
 
   // swiftlint:disable all
