@@ -78,20 +78,14 @@ public struct TextChip: View {
         .font(.appCaptionBold)
         .foregroundColor(textColor)
         .lineLimit(1)
-//        .background(Capsule().fill(backgroundColor))
-//        .overlay(Capsule().stroke(borderColor, lineWidth: 1))
-//        .background(Rectangle()
-//          .stroke(borderColor, lineWidth: 1)
-//          .background(Rectangle().fill(backgroundColor))
-//          .cornerRadius(4)
-//        )
-//        .overlay(Rectangle().stroke(borderColor, lineWidth: 1).cornerRadius(4))
-        .background(backgroundColor)
+        .background(
+          RoundedRectangle(cornerRadius: 4)
+            .fill(backgroundColor)
+        )
         .overlay(
           RoundedRectangle(cornerRadius: 4)
             .stroke(borderColor, lineWidth: 1)
         )
-
         .padding(1)
         .overlay(alignment: .topTrailing) {
           if checked {
