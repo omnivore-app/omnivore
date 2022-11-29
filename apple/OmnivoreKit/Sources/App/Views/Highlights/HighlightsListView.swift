@@ -67,6 +67,7 @@ struct HighlightsListView: View {
               setLabelsHighlight = Highlight.lookup(byID: highlightID, inContext: dataService.viewContext)
             }
           )
+          .listRowSeparator(.hidden)
         }
       }
     }.sheet(item: $setLabelsHighlight) { highlight in

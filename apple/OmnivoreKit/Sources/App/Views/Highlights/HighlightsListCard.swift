@@ -45,19 +45,19 @@ struct HighlightsListCard: View {
   }
 
   var noteSection: some View {
-    Group {
-      HStack {
-        Image(systemName: "note.text")
+    HStack {
+      let isEmpty = highlightParams.annotation.isEmpty
+      Spacer(minLength: 6)
 
-        Text("Note")
-          .font(.appSubheadline)
-          .foregroundColor(.appGrayTextContrast)
-          .lineLimit(1)
-
-        Spacer()
-      }
-
-      Text(highlightParams.annotation)
+      Text(isEmpty ? "Add Notes" : highlightParams.annotation)
+        .lineSpacing(6)
+        .accentColor(.appGraySolid)
+        .foregroundColor(isEmpty ? .appGrayText : .appGrayTextContrast)
+        .font(.appSubheadline)
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.appButtonBackground)
+        .cornerRadius(8)
     }
     .onTapGesture {
       annotation = highlightParams.annotation
@@ -65,20 +65,24 @@ struct HighlightsListCard: View {
     }
   }
 
-  var addNoteSection: some View {
-    HStack {
-      Image(systemName: "note.text.badge.plus").foregroundColor(.appGrayTextContrast)
-
-      Text("ADD NOTE")
-        .font(.appFootnote)
-        .foregroundColor(Color.appCtaYellow)
-        .lineLimit(1)
-
-      Spacer()
-    }
-    .onTapGesture {
-      annotation = highlightParams.annotation
-      showAnnotationModal = true
+  var labelsView: some View {
+    if highlightParams.labels.count > 0 {
+      return AnyView(ScrollView(.horizontal, showsIndicators: false) {
+        HStack {
+          ForEach(highlightParams.labels, id: \.self) {
+            TextChip(feedItemLabel: $0)
+              .padding(.leading, 0)
+          }
+          Spacer()
+        }
+      }.introspectScrollView { scrollView in
+        scrollView.bounces = false
+      }
+      .padding(.top, 0)
+      .padding(.leading, 0)
+      .padding(.bottom, 0))
+    } else {
+      return AnyView(EmptyView())
     }
   }
 
@@ -108,31 +112,14 @@ struct HighlightsListCard: View {
           .padding(.top, 2)
           .padding(.trailing, 6)
 
-        VStack(alignment: .leading, spacing: 24) {
+        VStack(alignment: .leading, spacing: 16) {
           Text(highlightParams.quote)
-
-          if highlightParams.annotation.isEmpty {
-            addNoteSection
-          } else {
-            noteSection
-          }
-
-          if highlightParams.labels.count > 0 {
-            ScrollView(.horizontal, showsIndicators: false) {
-              HStack {
-                ForEach(highlightParams.labels, id: \.self) {
-                  TextChip(feedItemLabel: $0)
-                }
-                Spacer()
-              }
-            }.introspectScrollView { scrollView in
-              scrollView.bounces = false
-            }
-            .padding(.top, 0)
-          }
+          labelsView
         }
-        .padding(.bottom, 8)
       }
+      .padding(.bottom, 4)
+
+      noteSection
     }
     .sheet(isPresented: $showAnnotationModal) {
       HighlightAnnotationSheet(
