@@ -58,7 +58,7 @@ public struct TextChip: View {
   }
 
   var backgroundColor: Color {
-    color.opacity(colorScheme == .dark ? 0.08 : 1)
+    color.opacity(colorScheme == .dark ? 0.2 : 1)
   }
 
   var borderColor: Color {
@@ -73,7 +73,7 @@ public struct TextChip: View {
     ZStack(alignment: .topTrailing) {
       Text(text)
         .strikethrough(color: negated ? textColor : .clear)
-        .padding(.horizontal, 10)
+        .padding(.horizontal, 8)
         .padding(.vertical, 5)
         .font(.appCaptionBold)
         .foregroundColor(textColor)
