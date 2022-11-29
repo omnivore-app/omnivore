@@ -29,6 +29,7 @@ import { parseHTML } from 'linkedom'
 import { CooperPressHandler } from './newsletters/cooper-press-handler'
 import { HeyWorldHandler } from './newsletters/hey-world-handler'
 import { Browser } from 'puppeteer-core'
+import { StackOverflowHandler } from './websites/stack-overflow-handler'
 
 const validateUrlString = (url: string) => {
   const u = new URL(url)
@@ -64,6 +65,7 @@ const contentHandlers: ContentHandler[] = [
   new MorningBrewHandler(),
   new BloombergNewsletterHandler(),
   new SubstackHandler(),
+  new StackOverflowHandler(),
 ]
 
 const newsletterHandlers: ContentHandler[] = [
