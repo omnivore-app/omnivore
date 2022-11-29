@@ -49,7 +49,7 @@ struct HighlightsListCard: View {
       let isEmpty = highlightParams.annotation.isEmpty
       Spacer(minLength: 6)
 
-      Text(isEmpty ? "Add Notes" : highlightParams.annotation)
+      Text(isEmpty ? "Add Notes..." : highlightParams.annotation)
         .lineSpacing(6)
         .accentColor(.appGraySolid)
         .foregroundColor(isEmpty ? .appGrayText : .appGrayTextContrast)
