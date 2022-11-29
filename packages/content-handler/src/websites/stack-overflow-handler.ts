@@ -10,10 +10,14 @@ export class StackOverflowHandler extends ContentHandler {
     const newText = element.ownerDocument.createElement('div')
     const text = element.querySelector(`div[itemprop='text']`)
     if (text) {
-      const votes = element.querySelector(`div[itemprop='upvoteCount']`)
+      const votes = element
+        .querySelector(`div[itemprop='upvoteCount']`)
+        ?.getAttribute('data-value')
 
       if (votes) {
-        newText.innerHTML = `<h2>${title}:${votes.innerHTML}vote(s)</h2><div>${text.innerHTML}</div>`
+        newText.innerHTML = `<h2>${title}: ${votes} vote${
+          votes === '1' ? '' : 's'
+        }</h2>${text.innerHTML}`
       }
     }
     return newText
@@ -89,7 +93,7 @@ export class StackOverflowHandler extends ContentHandler {
     const mainEntity = dom.querySelector(`div[itemprop='mainEntity']`)
     if (mainEntity) {
       const newMainEntity = dom.createElement('div')
-      const question = mainEntity.querySelector('.question')
+      const question = mainEntity.querySelector('#question')
       if (question) {
         newMainEntity.appendChild(this.parseText(question, 'Question'))
         newMainEntity.appendChild(this.parseAuthors(question))
