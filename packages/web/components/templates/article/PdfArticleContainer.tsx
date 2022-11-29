@@ -16,6 +16,7 @@ import { useCanShareNative } from '../../../lib/hooks/useCanShareNative'
 import { webBaseURL } from '../../../lib/appConfig'
 import { pspdfKitKey } from '../../../lib/appConfig'
 import { HighlightsModal } from './HighlightsModal'
+import { HighlightNoteModal } from './HighlightNoteModal'
 
 export type PdfArticleContainerProps = {
   viewerUsername: string
@@ -31,6 +32,12 @@ export default function PdfArticleContainer(
   const [shareTarget, setShareTarget] = useState<Highlight | undefined>(
     undefined
   )
+  const [noteTarget, setNoteTarget] = useState<Highlight | undefined>(undefined)
+  const [noteTargetPageIndex, setNoteTargetPageIndex] = useState<
+    number | undefined
+  >(undefined)
+
+  const highlightsRef = useRef<Highlight[]>([])
   const canShareNative = useCanShareNative()
 
   const getHighlightURL = useCallback(
@@ -111,6 +118,30 @@ export default function PdfArticleContainer(
             })
           },
         }
+        const note = {
+          type: 'custom' as const,
+          title: 'Note',
+          id: 'tooltip-note-annotation',
+          className: 'TooltipItem-Note',
+          onPress: async () => {
+            if (
+              annotation.customData &&
+              annotation.customData.omnivoreHighlight &&
+              (annotation.customData.omnivoreHighlight as Highlight).shortId
+            ) {
+              const data = annotation.customData.omnivoreHighlight as Highlight
+              const savedHighlight = highlightsRef.current.find(
+                (other: Highlight) => {
+                  return other.id === data.id
+                }
+              )
+              data.annotation = savedHighlight?.annotation ?? data.annotation
+              setNoteTargetPageIndex(annotation.pageIndex)
+              setNoteTarget(data)
+            }
+            instance.setSelectedAnnotation(null)
+          },
+        }
         const share = {
           type: 'custom' as const,
           title: 'Share',
@@ -128,15 +159,15 @@ export default function PdfArticleContainer(
             instance.setSelectedAnnotation(null)
           },
         }
-        return [copy, remove]
+        return [copy, note, remove]
       }
 
-      const annotationPresets = PSPDFKit.defaultAnnotationPresets;
+      const annotationPresets = PSPDFKit.defaultAnnotationPresets
       annotationPresets.highlight = {
         opacity: 0.45,
         color: new PSPDFKit.Color({ r: 255, g: 210, b: 52 }),
         blendMode: PSPDFKit.BlendMode.multiply,
-      };
+      }
 
       instance = await PSPDFKit.load({
         container: container || '.pdf-container',
@@ -170,9 +201,14 @@ export default function PdfArticleContainer(
         }
       })
 
-      // Apply highlights to the PDF
+      // Store the highlights in the highlightsRef and apply them to the PDF
+      highlightsRef.current = props.article.highlights
       for (const highlight of props.article.highlights) {
         const patch = JSON.parse(highlight.patch)
+        if (highlight.annotation && patch.customData.omnivoreHighight) {
+          patch.customData.omnivoreHighight.annotation = highlight.annotation
+        }
+
         const annotation = PSPDFKit.Annotations.fromSerializableObject(patch)
 
         try {
@@ -266,7 +302,7 @@ export default function PdfArticleContainer(
             PSPDFKit.Annotations.toSerializableObject(annotation)
 
           if (overlapping.size === 0) {
-            await createHighlightMutation({
+            const result = await createHighlightMutation({
               id: id,
               shortId: shortId,
               quote: quote,
@@ -275,6 +311,9 @@ export default function PdfArticleContainer(
               suffix: surroundingText.suffix,
               patch: JSON.stringify(serialized),
             })
+            if (result) {
+              highlightsRef.current.push(result)
+            }
           } else {
             // Create a new single highlight in the PDF
             const rects = highlightAnnotation.rects.concat(
@@ -305,7 +344,7 @@ export default function PdfArticleContainer(
             const mergedIds = overlapping.map(
               (ha) => (ha.customData?.omnivoreHighlight as Highlight).id
             )
-            await mergeHighlightMutation({
+            const result = await mergeHighlightMutation({
               quote,
               id,
               shortId,
@@ -315,6 +354,9 @@ export default function PdfArticleContainer(
               articleId: props.article.id,
               overlapHighlightIdList: mergedIds.toArray(),
             })
+            if (result) {
+              props.article.highlights.push(result)
+            }
           }
         }
       )
@@ -358,6 +400,31 @@ export default function PdfArticleContainer(
           highlight={shareTarget}
           onOpenChange={() => {
             setShareTarget(undefined)
+          }}
+        />
+      )}
+      {noteTarget && (
+        <HighlightNoteModal
+          highlight={noteTarget}
+          author={props.article.author ?? ''}
+          title={props.article.title}
+          onUpdate={(highlight: Highlight) => {
+            let event = new Event('updateHighlight') as UpdateHighlightEvent
+            event.pageIndex = noteTargetPageIndex
+            event.highlight = highlight
+            document.dispatchEvent(event)
+            const savedHighlight = highlightsRef.current.find(
+              (other: Highlight) => {
+                return other.id == highlight.id
+              }
+            )
+
+            if (savedHighlight) {
+              savedHighlight.annotation = highlight.annotation
+            }
+          }}
+          onOpenChange={() => {
+            setNoteTarget(undefined)
           }}
         />
       )}

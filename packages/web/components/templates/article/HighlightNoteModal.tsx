@@ -35,11 +35,17 @@ export function HighlightNoteModal(
     props.highlight?.annotation ?? ''
   )
 
-  useConfirmListener(() => {
-    saveNoteChanges()
-  }, undefined, true)
+  useConfirmListener(
+    () => {
+      saveNoteChanges()
+    },
+    undefined,
+    true
+  )
 
-  const updatedAtMessage = props.highlight ? readableUpdatedAtMessage(props.highlight?.updatedAt) : undefined
+  const updatedAtMessage = props.highlight
+    ? readableUpdatedAtMessage(props.highlight?.updatedAt)
+    : undefined
 
   const handleNoteContentChange = useCallback(
     (event: React.ChangeEvent<HTMLTextAreaElement>): void => {
@@ -61,7 +67,8 @@ export function HighlightNoteModal(
       } else {
         showErrorToast('Error updating your note', { position: 'bottom-right' })
       }
-    } if (!props.highlight && props.createHighlightForNote) {
+    }
+    if (!props.highlight && props.createHighlightForNote) {
       const result = await props.createHighlightForNote(noteContent)
       if (result) {
         props.onOpenChange(true)
@@ -99,7 +106,7 @@ export function HighlightNoteModal(
                 height: '248px',
                 fontSize: '14px',
                 border: '1px solid $textNonessential',
-                borderRadius: '6px'
+                borderRadius: '6px',
               }}
               autoFocus
               placeholder={'Add your note here'}
@@ -107,7 +114,10 @@ export function HighlightNoteModal(
               onChange={handleNoteContentChange}
               maxLength={4000}
             />
-            <ModalButtonBar onOpenChange={props.onOpenChange} acceptButtonLabel="Save" />
+            <ModalButtonBar
+              onOpenChange={props.onOpenChange}
+              acceptButtonLabel="Save"
+            />
           </VStack>
         </form>
       </ModalContent>
