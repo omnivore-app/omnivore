@@ -18,7 +18,7 @@
           }
           innerBody
         }
-      }
+      }.navigationTitle("Text to Speech")
     }
 
     private var innerBody: some View {
