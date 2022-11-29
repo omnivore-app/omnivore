@@ -53,6 +53,7 @@ export class StackOverflowHandler extends ContentHandler {
 
     const authors = element.querySelectorAll(`.post-signature`)
     authors.forEach((author) => {
+      const isOwner = author.classList.contains('owner')
       const name = author.querySelector(`.user-details a`)?.textContent
       const link = author.querySelector(`.user-details a`)?.getAttribute('href')
       const reputation = author.querySelector(`.reputation-score`)?.textContent
@@ -67,6 +68,12 @@ export class StackOverflowHandler extends ContentHandler {
         newAuthor.innerHTML = `<a href="${link}"><b>${name}</b></a> - ${reputation} reputation - ${
           badges || 'no badge'
         } - ${date}`
+        if (isOwner) {
+          const author = dom.createElement('span')
+          author.setAttribute('rel', 'author')
+          author.innerHTML = name
+          newAuthor.appendChild(author)
+        }
         newAuthors.appendChild(newAuthor)
       }
     })
