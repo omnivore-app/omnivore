@@ -169,4 +169,11 @@ struct SafariWebLink: Identifiable {
       replyHandler(nil, "Unknown actionID: \(actionID)")
     }
   }
+
+  func setLabelsForHighlight(highlightID: String,
+                             labelIDs: [String],
+                             dataService: DataService)
+  {
+    dataService.setLabelsForHighlight(highlightID: highlightID, labelIDs: labelIDs)
+  }
 }

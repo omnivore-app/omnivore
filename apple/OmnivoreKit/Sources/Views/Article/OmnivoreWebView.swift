@@ -295,7 +295,14 @@ public final class OmnivoreWebView: WKWebView {
       hideMenu()
     }
 
-    @objc public func setLabels(_: Any?) {}
+    @objc public func setLabels(_: Any?) {
+      do {
+        try dispatchEvent(.setHighlightLabels)
+      } catch {
+        showErrorInSnackbar("Error setting labels for highlight")
+      }
+      hideMenu()
+    }
 
     override public func buildMenu(with builder: UIMenuBuilder) {
       if #available(iOS 16.0, *) {
@@ -368,6 +375,7 @@ public enum WebViewDispatchEvent {
   case highlight
   case share
   case remove
+  case setHighlightLabels
   case copyHighlight
   case dismissHighlight
   case speakingSection(anchorIdx: String)
@@ -405,6 +413,8 @@ public enum WebViewDispatchEvent {
       return "share"
     case .remove:
       return "remove"
+    case .setHighlightLabels:
+      return "setHighlightLabels"
     case .copyHighlight:
       return "copyHighlight"
     case .dismissHighlight:
@@ -441,7 +451,7 @@ public enum WebViewDispatchEvent {
         }
       case let .speakingSection(anchorIdx: anchorIdx):
         return "event.anchorIdx = '\(anchorIdx)';"
-      case .annotate, .highlight, .share, .remove, .copyHighlight, .dismissHighlight:
+      case .annotate, .highlight, .setHighlightLabels, .share, .remove, .copyHighlight, .dismissHighlight:
         return ""
       }
     }

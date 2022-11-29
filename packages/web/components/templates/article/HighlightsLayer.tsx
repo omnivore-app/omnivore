@@ -381,6 +381,14 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         case 'unshare':
           console.log('unshare')
           break // TODO: implement -- need to show confirmation dialog
+        case 'setHighlightLabels':
+          if (props.isAppleAppEmbed) {
+            window?.webkit?.messageHandlers.highlightAction?.postMessage({
+              actionID: 'setHighlightLabels',
+              highlightID: focusedHighlight?.id,
+            })
+          }
+          break
       }
     },
     [
@@ -414,6 +422,10 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
 
     const dismissHighlight = () => {
       setFocusedHighlight(undefined)
+    }
+
+    const setHighlightLabels = () => {
+      handleAction('setHighlightLabels')
     }
 
     const copy = async () => {
@@ -468,6 +480,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
     document.addEventListener('dismissHighlight', dismissHighlight)
     document.addEventListener('saveAnnotation', saveAnnotation)
     document.addEventListener('speakingSection', speakingSection)
+    document.addEventListener('setHighlightLabels', setHighlightLabels)
 
     return () => {
       document.removeEventListener('annotate', annotate)
@@ -478,6 +491,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       document.removeEventListener('dismissHighlight', dismissHighlight)
       document.removeEventListener('saveAnnotation', saveAnnotation)
       document.removeEventListener('speakingSection', speakingSection)
+      document.removeEventListener('setHighlightLabels', setHighlightLabels)
     }
   })
 

@@ -73,6 +73,9 @@ struct WebReaderContainerView: View {
     case "annotate":
       annotation = messageBody["annotation"] ?? ""
       showHighlightAnnotationModal = true
+    case "setHighlightLabels":
+      annotation = messageBody["highlightID"] ?? ""
+      showHighlightLabelsModal = true
     default:
       break
     }
@@ -272,9 +275,6 @@ struct WebReaderContainerView: View {
     .sheet(isPresented: $showLabelsModal) {
       ApplyLabelsView(mode: .item(item), onSave: { _ in showLabelsModal = false })
     }
-    .sheet(isPresented: $showHighlightLabelsModal) {
-      ApplyLabelsView(mode: .item(item), onSave: { _ in showLabelsModal = false })
-    }
     .sheet(isPresented: $showTitleEdit) {
       LinkedItemMetadataEditView(item: item)
     }
@@ -344,6 +344,15 @@ struct WebReaderContainerView: View {
               showHighlightAnnotationModal = false
             }
           )
+        }
+        .sheet(isPresented: $showHighlightLabelsModal) {
+          if let highlight = Highlight.lookup(byID: self.annotation, inContext: self.dataService.viewContext) {
+            ApplyLabelsView(mode: .highlight(highlight)) { selectedLabels in
+              viewModel.setLabelsForHighlight(highlightID: highlight.unwrappedID,
+                                              labelIDs: selectedLabels.map(\.unwrappedID),
+                                              dataService: dataService)
+            }
+          }
         }
       } else if let errorMessage = viewModel.errorMessage {
         Text(errorMessage).padding()
