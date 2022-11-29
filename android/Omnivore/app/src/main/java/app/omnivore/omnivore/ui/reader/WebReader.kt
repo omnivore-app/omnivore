@@ -231,9 +231,10 @@ class OmnivoreWebView(context: Context) : WebView(context) {
         }
         R.id.highlight -> {
           val script = "var event = new Event('highlight');document.dispatchEvent(event);"
-          evaluateJavascript(script, null)
-          clearFocus()
-          mode.finish()
+          evaluateJavascript(script) {
+            clearFocus()
+            mode.finish()
+          }
           true
         }
         R.id.delete -> {

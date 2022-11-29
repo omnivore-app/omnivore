@@ -90,6 +90,12 @@ class WebReaderViewModel @Inject constructor(
       "shareHighlight" -> {
         // unimplemented
       }
+      "mergeHighlight" -> {
+        viewModelScope.launch {
+          val isHighlightSynced = networker.mergeWebHighlights(jsonString)
+          Log.d("Network", "isMergedHighlightSynced = $isHighlightSynced")
+        }
+      }
       else -> {
         Log.d("Loggo", "receive unrecognized action of $actionID with json: $jsonString")
       }
