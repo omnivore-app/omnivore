@@ -10,7 +10,7 @@ import {
 } from 'typeorm'
 import { User } from './user'
 
-@Entity({ name: 'search_filter' })
+@Entity({ name: 'search_filters' })
 @Unique('search_filter_unique_key', ['user', 'name'])
 export class SearchFilter {
   @PrimaryGeneratedColumn('uuid')
