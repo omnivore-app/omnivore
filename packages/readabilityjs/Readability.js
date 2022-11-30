@@ -2785,7 +2785,7 @@ Readability.prototype = {
           return false;
         }
 
-        var parentClasses = node.parentNode.classList;
+        var parentClasses = node.parentNode?.classList || [];
         var haveToRemove =
           !this._isOmnivoreNode(node) && (
           (img > 1 && p / img < 0.5 && !this._hasAncestorTag(node, "figure")) ||
