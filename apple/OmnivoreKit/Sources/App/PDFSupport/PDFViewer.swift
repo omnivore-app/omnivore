@@ -9,6 +9,17 @@ import Utils
   import Services
 
   struct PDFViewer: View {
+    enum SettingsKeys: String {
+      case pageTransitionKey = "PDFViewer.pageTransition"
+      case pageModeKey = "PDFViewer.pageModeKey"
+      case scrollDirectionKey = "PDFViewer.scrollDirectionKey"
+      case spreadFittingKey = "PDFViewer.spreadFittingKey"
+
+      func storedValue() -> UInt {
+        UInt(UserDefaults.standard.integer(forKey: rawValue))
+      }
+    }
+
     final class PDFStateObject: ObservableObject {
       @Published var document: Document?
       @Published var coordinator: PDFViewCoordinator?
@@ -33,18 +44,51 @@ import Utils
       self.viewModel = viewModel
     }
 
+    func saveSettings(configuration: PDFConfiguration) {
+      let defaults = UserDefaults.standard
+      defaults.set(configuration.pageTransition.rawValue, forKey: SettingsKeys.pageTransitionKey.rawValue)
+      defaults.set(configuration.pageMode.rawValue, forKey: SettingsKeys.pageModeKey.rawValue)
+      defaults.set(configuration.scrollDirection.rawValue, forKey: SettingsKeys.scrollDirectionKey.rawValue)
+      defaults.set(configuration.spreadFitting.rawValue, forKey: SettingsKeys.spreadFittingKey.rawValue)
+    }
+
+    func restoreSettings(builder: PDFConfigurationBuilder) {
+      if let pageTransition = PageTransition(rawValue: SettingsKeys.pageTransitionKey.storedValue()) {
+        builder.pageTransition = pageTransition
+      }
+
+      if let pageMode = PageMode(rawValue: SettingsKeys.pageModeKey.storedValue()) {
+        builder.pageMode = pageMode
+      }
+
+      if let scrollDirection = ScrollDirection(rawValue: SettingsKeys.scrollDirectionKey.storedValue()) {
+        builder.scrollDirection = scrollDirection
+      }
+
+      if let spreadFitting = PDFConfiguration.SpreadFitting(
+        rawValue: Int(SettingsKeys.spreadFittingKey.storedValue())
+      ) {
+        builder.spreadFitting = spreadFitting
+      }
+    }
+
     var body: some View {
       if let document = pdfStateObject.document, let coordinator = pdfStateObject.coordinator {
         PDFView(document: document)
           .useParentNavigationBar(true)
           .updateConfiguration { builder in
+            builder.settingsOptions = [.pageTransition, .pageMode, .scrollDirection, .spreadFitting, .appearance]
+
+            restoreSettings(builder: builder)
+
             builder.textSelectionShouldSnapToWord = true
             builder.shouldAskForAnnotationUsername = false
           }
           .updateControllerConfiguration { controller in
+            saveSettings(configuration: controller.configuration)
+
             // Store config state so we only run this update closure once
             guard pdfStateObject.controllerNeedsConfig else { return }
-            print("document is valid", document.isValid)
             coordinator.setController(controller: controller, dataService: dataService)
 
             // Disable the Document Editor

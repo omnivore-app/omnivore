@@ -179,6 +179,7 @@ public extension LinkedItem {
     newIsArchivedValue: Bool? = nil,
     newTitle: String? = nil,
     newDescription: String? = nil,
+    newAuthor: String? = nil,
     listenPositionIndex: Int? = nil,
     listenPositionOffset: Double? = nil,
     listenPositionTime: Double? = nil
@@ -202,6 +203,10 @@ public extension LinkedItem {
 
       if let newDescription = newDescription {
         self.descriptionText = newDescription
+      }
+
+      if let newAuthor = newAuthor {
+        self.author = newAuthor
       }
 
       if let listenPositionIndex = listenPositionIndex {

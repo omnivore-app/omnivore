@@ -69,6 +69,6 @@ var dependencies: [Package.Dependency] {
     .package(url: "https://github.com/google/GoogleSignIn-iOS", from: "6.2.2")
   ]
   // Comment out following line for macOS build
-  deps.append(.package(url: "https://github.com/PSPDFKit/PSPDFKit-SP", branch: "master"))
+  deps.append(.package(url: "https://github.com/PSPDFKit/PSPDFKit-SP", from: "12.0.1"))
   return deps
 }

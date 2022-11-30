@@ -694,6 +694,7 @@ type Highlight {
   highlightPositionAnchorIndex: Int
   highlightPositionPercent: Float
   id: ID!
+  labels: [Label!]
   patch: String!
   prefix: String
   quote: String!

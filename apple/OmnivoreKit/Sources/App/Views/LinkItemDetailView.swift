@@ -150,7 +150,7 @@ struct LinkItemDetailView: View {
           Group {
             Button(
               action: { showTitleEdit = true },
-              label: { Label("Edit Title/Description", systemImage: "textbox") }
+              label: { Label("Edit Metadata", systemImage: "textbox") }
             )
             Button(
               action: { viewModel.handleArchiveAction(dataService: dataService) },
@@ -188,7 +188,7 @@ struct LinkItemDetailView: View {
     }
     .sheet(isPresented: $showTitleEdit) {
       if let item = viewModel.item {
-        LinkedItemTitleEditView(item: item)
+        LinkedItemMetadataEditView(item: item)
       }
     }
   }
