@@ -2,19 +2,26 @@ import { PubsubClient } from '../datalayer/pubsub'
 import { homePageURL } from '../env'
 import {
   Maybe,
+  PreparedDocumentInput,
   SaveErrorCode,
   SavePageInput,
   SaveResult,
 } from '../generated/graphql'
 import { DataModels } from '../resolvers/types'
-import { generateSlug, stringToHash, validatedDate } from '../utils/helpers'
+import {
+  generateSlug,
+  stringToHash,
+  validatedDate,
+  wordsCount,
+} from '../utils/helpers'
 import { parsePreparedContent } from '../utils/parser'
 
 import normalizeUrl from 'normalize-url'
 import { createPageSaveRequest } from './create_page_save_request'
-import { ArticleSavingRequestStatus, Page } from '../elastic/types'
+import { ArticleSavingRequestStatus, Page, PageType } from '../elastic/types'
 import { createPage, getPageByParam, updatePage } from '../elastic/pages'
 import { addHighlightToPage } from '../elastic/highlights'
+import { Readability } from '@omnivore/readability'
 
 type SaveContext = {
   pubsub: PubsubClient
@@ -78,29 +85,18 @@ export const savePage = async (
     },
   })
 
-  const articleToSave: Page = {
-    id: input.clientRequestId,
-    slug,
+  const articleToSave = parsedContentToPage({
+    url: input.url,
+    title: input.title,
     userId: saver.userId,
-    originalHtml: parseResult.domContent,
-    content: parseResult.parsedContent?.content || '',
-    description: parseResult.parsedContent?.excerpt,
-    title: parseResult.parsedContent?.title || input.title || croppedPathname,
-    author: parseResult.parsedContent?.byline,
-    url: normalizeUrl(parseResult.canonicalUrl || input.url, {
-      stripHash: true,
-      stripWWW: false,
-    }),
+    pageId: input.clientRequestId,
+    slug,
+    croppedPathname,
+    parsedContent: parseResult.parsedContent,
     pageType: parseResult.pageType,
-    hash: stringToHash(parseResult.parsedContent?.content || input.url),
-    image: parseResult.parsedContent?.previewImage,
-    publishedAt: validatedDate(parseResult.parsedContent?.publishedDate),
-    readingProgressPercent: 0,
-    readingProgressAnchorIndex: 0,
-    state: ArticleSavingRequestStatus.Succeeded,
-    createdAt: new Date(),
-    savedAt: new Date(),
-  }
+    originalHtml: parseResult.domContent,
+    canonicalUrl: parseResult.canonicalUrl,
+  })
 
   let pageId: string | undefined = undefined
   const existingPage = await getPageByParam({
@@ -177,5 +173,73 @@ export const savePage = async (
   return {
     clientRequestId: input.clientRequestId,
     url: `${homePageURL()}/${saver.username}/${slug}`,
+  }
+}
+
+// convert parsed content to an elastic page
+export const parsedContentToPage = ({
+  url,
+  userId,
+  originalHtml,
+  pageId,
+  parsedContent,
+  slug,
+  croppedPathname,
+  title,
+  preparedDocument,
+  canonicalUrl,
+  pageType,
+  uploadFileHash,
+  uploadFileId,
+  saveTime,
+}: {
+  url: string
+  userId: string
+  slug: string
+  croppedPathname: string
+  pageType: PageType
+  parsedContent: Readability.ParseResult | null
+  originalHtml?: string | null
+  pageId?: string | null
+  title?: string | null
+  preparedDocument?: PreparedDocumentInput | null
+  canonicalUrl?: string | null
+  uploadFileHash?: string | null
+  uploadFileId?: string | null
+  saveTime?: Date
+}): Page => {
+  return {
+    id: pageId || '',
+    slug,
+    userId,
+    originalHtml,
+    content: parsedContent?.content || '',
+    description: parsedContent?.excerpt,
+    title:
+      title ||
+      parsedContent?.title ||
+      preparedDocument?.pageInfo.title ||
+      croppedPathname ||
+      parsedContent?.siteName ||
+      url,
+    author: parsedContent?.byline,
+    url: normalizeUrl(canonicalUrl || url, {
+      stripHash: true,
+      stripWWW: false,
+    }),
+    pageType,
+    hash: uploadFileHash || stringToHash(parsedContent?.content || url),
+    image: parsedContent?.previewImage,
+    publishedAt: validatedDate(parsedContent?.publishedDate),
+    uploadFileId: uploadFileId,
+    readingProgressPercent: 0,
+    readingProgressAnchorIndex: 0,
+    state: ArticleSavingRequestStatus.Succeeded,
+    createdAt: saveTime || new Date(),
+    savedAt: saveTime || new Date(),
+    siteName: parsedContent?.siteName,
+    language: parsedContent?.language,
+    siteIcon: parsedContent?.siteIcon,
+    wordsCount: wordsCount(parsedContent?.textContent || ''),
   }
 }
