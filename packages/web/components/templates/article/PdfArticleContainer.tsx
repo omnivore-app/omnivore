@@ -355,7 +355,7 @@ export default function PdfArticleContainer(
               overlapHighlightIdList: mergedIds.toArray(),
             })
             if (result) {
-              props.article.highlights.push(result)
+              highlightsRef.current.push(result)
             }
           }
         }
