@@ -106,7 +106,11 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   const removeHighlightCallback = useCallback(
     async (id?: string) => {
       const highlightId = id || focusedHighlight?.id
-      if (!highlightId) return
+
+      if (!highlightId) {
+        console.error('Failed to identify highlight to be removed')
+        return
+      }
 
       const didDeleteHighlight =
         await props.articleMutations.deleteHighlightMutation(highlightId)
@@ -291,6 +295,8 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         // FIXME: Apply note preview opening on the note icon click only
 
         if (highlight) {
+          setFocusedHighlight(highlight)
+
           // In the native app we post a message with the rect of the
           // highlight, so the app can display a native menu
           const rect = (target as Element).getBoundingClientRect()
@@ -309,7 +315,6 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
             'existingHighlightTap',
             JSON.stringify(message)
           )
-          setFocusedHighlight(highlight)
         }
       } else if ((target as Element).hasAttribute(highlightNoteIdAttribute)) {
         const id = (target as HTMLSpanElement).getAttribute(
@@ -320,7 +325,9 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           highlight: highlight,
           highlightModalAction: 'addComment',
         })
-      } else setFocusedHighlight(undefined)
+      } else {
+        setFocusedHighlight(undefined)
+      }
     },
     [highlights, highlightLocations]
   )

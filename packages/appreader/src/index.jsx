@@ -23,6 +23,7 @@ const mutation = async (name, input) => {
       name,
       JSON.stringify(input)
     )
+    return true // TODO: see if we can get a result from Android instead
   }
 }
 

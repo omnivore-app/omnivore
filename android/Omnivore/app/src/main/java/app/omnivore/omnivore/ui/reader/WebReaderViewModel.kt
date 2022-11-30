@@ -71,8 +71,11 @@ class WebReaderViewModel @Inject constructor(
         }
       }
       "deleteHighlight" -> {
-        // { highlightId }
         Log.d("Loggo", "receive delete highlight action: $jsonString")
+        viewModelScope.launch {
+          val isHighlightDeletionSynced = networker.deleteHighlight(jsonString)
+          Log.d("Network", "isHighlightDeletionSynced = $isHighlightDeletionSynced")
+        }
       }
       "updateHighlight" -> {
         Log.d("Loggo", "receive update highlight action: $jsonString")
@@ -111,6 +114,8 @@ class WebReaderViewModel @Inject constructor(
     annotationLiveData.value = null
     scrollState = ScrollState(0)
     javascriptDispatchQueue = mutableListOf()
+    hasTappedExistingHighlight = false
+    lastTappedLocationRect = null
   }
 
   fun resetJavascriptDispatchQueue() {

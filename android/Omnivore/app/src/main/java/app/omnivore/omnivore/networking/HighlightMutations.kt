@@ -13,7 +13,7 @@ import com.pspdfkit.annotations.HighlightAnnotation
 
 data class CreateHighlightParams(
    val shortId: String?,
-   val highlightID: String?,
+   val id: String?,
    val quote: String?,
    val patch: String?,
    val articleId: String?,
@@ -22,7 +22,7 @@ data class CreateHighlightParams(
   fun asCreateHighlightInput() = CreateHighlightInput(
     annotation = Optional.presentIfNotNull(`annotation`),
     articleId = articleId ?: "",
-    id = highlightID ?: "",
+    id = id ?: "",
     patch = patch ?: "",
     quote = quote ?: "",
     shortId = shortId ?: ""
@@ -31,7 +31,7 @@ data class CreateHighlightParams(
 
 data class MergeHighlightsParams(
   val shortId: String?,
-  val highlightID: String?,
+  val id: String?,
   val quote: String?,
   val patch: String?,
   val articleId: String?,
@@ -44,12 +44,23 @@ data class MergeHighlightsParams(
     annotation = Optional.presentIfNotNull(`annotation`),
     prefix = Optional.presentIfNotNull(prefix),
     articleId = articleId ?: "",
-    id = highlightID ?: "",
+    id = id ?: "",
     patch = patch ?: "",
     quote = quote ?: "",
     shortId = shortId ?: "",
     overlapHighlightIdList = overlapHighlightIdList ?: listOf()
   )
+}
+
+data class DeleteHighlightParams(
+  val highlightId: String?
+) {
+  fun asIdList() = listOf(highlightId ?: "")
+}
+
+suspend fun Networker.deleteHighlight(jsonString: String): Boolean {
+  val input = Gson().fromJson(jsonString, DeleteHighlightParams::class.java).asIdList()
+  return deleteHighlights(input)
 }
 
 suspend fun Networker.deleteHighlights(highlightIDs: List<String>): Boolean {
