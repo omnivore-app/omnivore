@@ -37,9 +37,10 @@ export const updatePageResolver = authorized<
 
   const pageData = {
     id: input.pageId,
-    title: input.title || undefined,
-    description: input.description || '',
+    title: input.title ?? undefined,
+    description: input.description ?? undefined,
     author: input.byline ?? undefined,
+    savedAt: input.savedAt ? new Date(input.savedAt) : undefined,
   }
 
   const updateResult = await updatePage(input.pageId, pageData, { ...ctx, uid })
