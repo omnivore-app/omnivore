@@ -409,10 +409,6 @@ export default function PdfArticleContainer(
           author={props.article.author ?? ''}
           title={props.article.title}
           onUpdate={(highlight: Highlight) => {
-            let event = new Event('updateHighlight') as UpdateHighlightEvent
-            event.pageIndex = noteTargetPageIndex
-            event.highlight = highlight
-            document.dispatchEvent(event)
             const savedHighlight = highlightsRef.current.find(
               (other: Highlight) => {
                 return other.id == highlight.id
