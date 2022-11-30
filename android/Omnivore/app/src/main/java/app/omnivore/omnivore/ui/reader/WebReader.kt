@@ -148,6 +148,8 @@ fun WebReader(
   Box {
     AndroidView(factory = {
       OmnivoreWebView(it).apply {
+        viewModel = webReaderViewModel
+
         layoutParams = ViewGroup.LayoutParams(
           ViewGroup.LayoutParams.MATCH_PARENT,
           ViewGroup.LayoutParams.MATCH_PARENT
@@ -162,13 +164,20 @@ fun WebReader(
         }
 
         val javascriptInterface = AndroidWebKitMessenger { actionID, json ->
-          Log.d("wv", "received actionID from Android: $actionID, $json")
+          webReaderViewModel.hasTappedExistingHighlight = false
+
           when (actionID) {
+            "userTap" -> {
+              val tapCoordinates = Gson().fromJson(json, ActionTapCoordinates::class.java)
+              Log.d("wvt", "received tap action: $tapCoordinates")
+              webReaderViewModel.lastTappedLocationRect = tapCoordinates.asRect()
+            }
             "existingHighlightTap" -> {
-              isExistingHighlightSelected = true
-              actionTapCoordinates = Gson().fromJson(json, ActionTapCoordinates::class.java)
+              val actionTapCoordinates = Gson().fromJson(json, ActionTapCoordinates::class.java)
               Log.d("wv", "receive existing highlight tap action: $actionTapCoordinates")
-              startActionMode(null, ActionMode.TYPE_PRIMARY)
+              webReaderViewModel.hasTappedExistingHighlight = true
+              webReaderViewModel.lastTappedLocationRect = actionTapCoordinates.asRect()
+              startActionMode(null, ActionMode.TYPE_FLOATING)
             }
             else -> {
               webReaderViewModel.handleIncomingWebMessage(actionID, json)
@@ -199,15 +208,14 @@ fun WebReader(
 }
 
 class OmnivoreWebView(context: Context) : WebView(context) {
-  var isExistingHighlightSelected = false
-  var actionTapCoordinates: ActionTapCoordinates? = null
+  var viewModel: WebReaderViewModel? = null
 
   private val actionModeCallback = object : ActionMode.Callback2() {
     // Called when the action mode is created; startActionMode() was called
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
-      if (isExistingHighlightSelected) {
+      if (viewModel?.hasTappedExistingHighlight == true) {
+        Log.d("wv", "inflating existing highlight menu")
         mode.menuInflater.inflate(R.menu.highlight_selection_menu, menu)
-        isExistingHighlightSelected = false
       } else {
         mode.menuInflater.inflate(R.menu.text_selection_menu, menu)
       }
@@ -253,18 +261,23 @@ class OmnivoreWebView(context: Context) : WebView(context) {
 
     // Called when the user exits the action mode
     override fun onDestroyActionMode(mode: ActionMode) {
-      Log.d("Loggo", "destroying menu: $mode")
-      isExistingHighlightSelected = false
-      actionTapCoordinates = null
+      Log.d("wv", "destroying menu: $mode")
+      viewModel?.hasTappedExistingHighlight = false
     }
 
     override fun onGetContentRect(mode: ActionMode?, view: View?, outRect: Rect?) {
-      Log.d("Loggo", "outRect: $outRect, View: $view")
-      outRect?.set(left, top, right, bottom)
+      Log.d("wv", "outRect: $outRect, View: $view")
+      if (viewModel?.lastTappedLocationRect != null) {
+        Log.d("wv", "setting rect based on last tapped rect")
+        outRect?.set(viewModel!!.lastTappedLocationRect!!)
+      } else {
+        outRect?.set(left, top, right, bottom)
+      }
     }
   }
 
   override fun startActionMode(callback: ActionMode.Callback?): ActionMode {
+    Log.d("wv", "startActionMode:callback called")
     return super.startActionMode(actionModeCallback)
   }
 
@@ -272,11 +285,12 @@ class OmnivoreWebView(context: Context) : WebView(context) {
     originalView: View?,
     callback: ActionMode.Callback?
   ): ActionMode {
+    Log.d("wv", "startActionMode:originalView:callback called")
     return super.startActionModeForChild(originalView, actionModeCallback)
   }
 
   override fun startActionMode(callback: ActionMode.Callback?, type: Int): ActionMode {
-    Log.d("Loggo", "startActionMode:type called")
+    Log.d("wv", "startActionMode:type called")
     return super.startActionMode(actionModeCallback, type)
   }
 }
@@ -293,4 +307,13 @@ data class ActionTapCoordinates(
   val rectY: Double,
   val rectWidth: Double,
   val rectHeight: Double,
-)
+) {
+  fun asRect(): Rect {
+    return Rect(
+      rectX.toInt(),
+      rectY.toInt(),
+      rectX.toInt(),
+      rectY.toInt()
+    )
+  }
+}

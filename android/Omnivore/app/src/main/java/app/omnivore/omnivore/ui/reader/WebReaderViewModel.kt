@@ -1,5 +1,6 @@
 package app.omnivore.omnivore.ui.reader
 
+import android.graphics.Rect
 import android.util.Log
 import androidx.compose.foundation.ScrollState
 import androidx.lifecycle.MutableLiveData
@@ -38,6 +39,9 @@ class WebReaderViewModel @Inject constructor(
   val webReaderParamsLiveData = MutableLiveData<WebReaderParams?>(null)
   val annotationLiveData = MutableLiveData<String?>(null)
   val javascriptActionLoopUUIDLiveData = MutableLiveData(lastJavascriptActionLoopUUID)
+
+  var hasTappedExistingHighlight = false
+  var lastTappedLocationRect: Rect? = null
 
   fun loadItem(slug: String) {
     viewModelScope.launch {

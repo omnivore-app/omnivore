@@ -29,16 +29,6 @@ data class CreateHighlightParams(
   )
 }
 
-//2022-11-29 13:41:56.273 13373-14177/app.omnivore.omnivore D/wv: received actionID from Android:
-// mergeHighlight, {
-// "prefix":"In what may be its final public hearing, the committee intends to present new  theevidence about the former president’s state of mind and central role in the plan to overturn ",
-// "suffix":"2020 election.",
-// "quote":"",
-// "id":"646a3b52-a134-469e-8ea3-26aad47f74c3",
-// "shortId":"IK35C_Hp","patch":"@@ -307,32 +307,73 @@\n  to overturn the\n+%3Comnivore_highlight%3E%3C/omnivore_highlight%3E\n  2020 election.P\n",
-// "articleId":"14bb47ff-af23-461b-8ce3-1afe6b8bdc5b",
-// "overlapHighlightIdList":[""]}
-
 data class MergeHighlightsParams(
   val shortId: String?,
   val highlightID: String?,
