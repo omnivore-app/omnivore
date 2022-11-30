@@ -196,6 +196,10 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       props.articleMutations
     )
 
+    if (result.errorMessage) {
+      throw 'Failed to create highlight: ' + result.errorMessage
+    }
+
     if (!result.highlights || result.highlights.length == 0) {
       // TODO: show an error message
       console.error('Failed to create highlight')
@@ -218,26 +222,18 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       if (!selectionData) {
         return
       }
-      const result = await createHighlightFromSelection(
-        selectionData,
-        annotation
-      )
-      if (!result) {
-        showErrorToast('Error saving highlight', { position: 'bottom-right' })
+      try {
+        const result = await createHighlightFromSelection(
+          selectionData,
+          annotation
+        )
+        if (!result) {
+          showErrorToast('Error saving highlight', { position: 'bottom-right' })
+          throw 'Error creating highlight'
+        }
+      } catch (error) {
+        throw error
       }
-      // if (successAction === 'share' && canShareNative) {
-      //   handleNativeShare(highlight.shortId)
-      //   return
-      // } else {
-      //   setFocusedHighlight(undefined)
-      // }
-
-      // if (successAction === 'addComment') {
-      //   openNoteModal({
-      //     highlightModalAction: 'addComment',
-      //     highlight,
-      //   })
-      // }
     },
     [
       handleNativeShare,
@@ -328,13 +324,13 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   }, [handleClickHighlight])
 
   const handleAction = useCallback(
-    (action: HighlightAction) => {
+    async (action: HighlightAction) => {
       switch (action) {
         case 'delete':
-          removeHighlightCallback()
+          await removeHighlightCallback()
           break
         case 'create':
-          createHighlightCallback('none')
+          await createHighlightCallback('none')
           break
         case 'comment':
           if (props.highlightBarDisabled || focusedHighlight) {
@@ -375,7 +371,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
               })
             }
           } else {
-            createHighlightCallback('share')
+            await createHighlightCallback('share')
           }
           break
         case 'unshare':
@@ -403,21 +399,49 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
     ]
   )
 
+  const dispatchHighlightError = (action: string, error: unknown) => {
+    if (props.isAppleAppEmbed) {
+      window?.webkit?.messageHandlers.highlightAction?.postMessage({
+        actionID: 'highlightError',
+        highlightAction: action,
+        highlightID: focusedHighlight?.id,
+        error: typeof error === 'string' ? error : JSON.stringify(error),
+      })
+    }
+  }
+
+  const dispatchHighlightMessage = (actionID: string) => {
+    if (props.isAppleAppEmbed) {
+      window?.webkit?.messageHandlers.highlightAction?.postMessage({
+        actionID: actionID,
+        highlightID: focusedHighlight?.id,
+      })
+    }
+  }
+
   useEffect(() => {
-    const annotate = () => {
-      handleAction('comment')
+    const safeHandleAction = async (action: HighlightAction) => {
+      try {
+        await handleAction(action)
+      } catch (error) {
+        dispatchHighlightError(action, error)
+      }
     }
 
-    const highlight = () => {
-      handleAction('create')
+    const annotate = async () => {
+      await safeHandleAction('comment')
     }
 
-    const share = () => {
-      handleAction('share')
+    const highlight = async () => {
+      await safeHandleAction('create')
     }
 
-    const remove = () => {
-      handleAction('delete')
+    const share = async () => {
+      await safeHandleAction('share')
+    }
+
+    const remove = async () => {
+      await safeHandleAction('delete')
     }
 
     const dismissHighlight = () => {
@@ -465,10 +489,20 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
             'failed to change annotation for highlight with id',
             focusedHighlight.id
           )
+          dispatchHighlightError(
+            'saveAnnotation',
+            'Failed to create highlight.'
+          )
         }
         setFocusedHighlight(undefined)
+        dispatchHighlightMessage('noteCreated')
       } else {
-        createHighlightCallback('none', event.annotation)
+        try {
+          await createHighlightCallback('none', event.annotation)
+          dispatchHighlightMessage('noteCreated')
+        } catch (error) {
+          dispatchHighlightError('saveAnnotation', error)
+        }
       }
     }
 

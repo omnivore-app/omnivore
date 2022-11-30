@@ -3,6 +3,8 @@ import SwiftUI
 
 public struct HighlightAnnotationSheet: View {
   @Binding var annotation: String
+  @Binding var errorAlertMessage: String?
+  @Binding var showErrorAlertMessage: Bool
 
   let onSave: () -> Void
   let onCancel: () -> Void
@@ -10,11 +12,15 @@ public struct HighlightAnnotationSheet: View {
   public init(
     annotation: Binding<String>,
     onSave: @escaping () -> Void,
-    onCancel: @escaping () -> Void
+    onCancel: @escaping () -> Void,
+    errorAlertMessage: Binding<String?>,
+    showErrorAlertMessage: Binding<Bool>
   ) {
     self._annotation = annotation
     self.onSave = onSave
     self.onCancel = onCancel
+    self._errorAlertMessage = errorAlertMessage
+    self._showErrorAlertMessage = showErrorAlertMessage
   }
 
   public var body: some View {
@@ -43,5 +49,11 @@ public struct HighlightAnnotationSheet: View {
       Spacer()
     }
     .padding()
+    .alert(errorAlertMessage ?? "An error occurred", isPresented: $showErrorAlertMessage) {
+      Button("Ok", role: .cancel, action: {
+        errorAlertMessage = nil
+        showErrorAlertMessage = false
+      })
+    }
   }
 }

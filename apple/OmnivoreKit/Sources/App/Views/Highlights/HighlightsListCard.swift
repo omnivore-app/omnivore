@@ -13,6 +13,9 @@ struct HighlightsListCard: View {
   let onDeleteHighlight: () -> Void
   let onSetLabels: (String) -> Void
 
+  @State var errorAlertMessage: String?
+  @State var showErrorAlertMessage = false
+
   var contextMenuView: some View {
     Group {
       Button(
@@ -131,7 +134,9 @@ struct HighlightsListCard: View {
         },
         onCancel: {
           showAnnotationModal = false
-        }
+        },
+        errorAlertMessage: $errorAlertMessage,
+        showErrorAlertMessage: $showErrorAlertMessage
       )
     }
   }

@@ -87,9 +87,6 @@ struct WebReader: PlatformViewRepresentable {
       context.coordinator.lastSavedAnnotationID = annotationSaveTransactionID
       do {
         try (webView as? OmnivoreWebView)?.dispatchEvent(.saveAnnotation(annotation: annotation))
-        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
-          showHighlightAnnotationModal = false
-        }
       } catch {
         showInSnackbar("Error saving note.")
       }

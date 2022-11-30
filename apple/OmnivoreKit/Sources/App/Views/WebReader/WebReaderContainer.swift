@@ -27,6 +27,8 @@ struct WebReaderContainerView: View {
   @State var annotation = String()
   @State var showBottomBar = false
   @State private var bottomBarOpacity = 0.0
+  @State private var errorAlertMessage: String?
+  @State private var showErrorAlertMessage = false
 
   @EnvironmentObject var dataService: DataService
   @EnvironmentObject var audioController: AudioController
@@ -73,6 +75,11 @@ struct WebReaderContainerView: View {
     case "annotate":
       annotation = messageBody["annotation"] ?? ""
       showHighlightAnnotationModal = true
+    case "noteCreated":
+      showHighlightAnnotationModal = false
+    case "highlightError":
+      errorAlertMessage = messageBody["error"] ?? "An error occurred."
+      showErrorAlertMessage = true
     case "setHighlightLabels":
       annotation = messageBody["highlightID"] ?? ""
       showHighlightLabelsModal = true
@@ -334,6 +341,12 @@ struct WebReaderContainerView: View {
             SafariView(url: $0.url)
           }
         #endif
+        .alert(errorAlertMessage ?? "An error occurred", isPresented: $showErrorAlertMessage) {
+          Button("Ok", role: .cancel, action: {
+            errorAlertMessage = nil
+            showErrorAlertMessage = false
+          })
+        }
         .sheet(isPresented: $showHighlightAnnotationModal) {
           HighlightAnnotationSheet(
             annotation: $annotation,
@@ -342,7 +355,9 @@ struct WebReaderContainerView: View {
             },
             onCancel: {
               showHighlightAnnotationModal = false
-            }
+            },
+            errorAlertMessage: $errorAlertMessage,
+            showErrorAlertMessage: $showErrorAlertMessage
           )
         }
         .sheet(isPresented: $showHighlightLabelsModal) {
