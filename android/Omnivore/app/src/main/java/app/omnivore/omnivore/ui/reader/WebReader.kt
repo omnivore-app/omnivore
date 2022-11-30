@@ -27,6 +27,9 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import app.omnivore.omnivore.R
 import com.google.gson.Gson
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.math.roundToInt
 
@@ -170,14 +173,18 @@ fun WebReader(
             "userTap" -> {
               val tapCoordinates = Gson().fromJson(json, TapCoordinates::class.java)
               Log.d("wvt", "received tap action: $tapCoordinates")
-              webReaderViewModel.lastTappedLocationRect = tapCoordinates.asRect()
+              CoroutineScope(Dispatchers.Main).launch {
+                webReaderViewModel.lastTappedLocationRect = tapCoordinates.asRect()
+              }
             }
             "existingHighlightTap" -> {
               val actionTapCoordinates = Gson().fromJson(json, ActionTapCoordinates::class.java)
               Log.d("wv", "receive existing highlight tap action: $actionTapCoordinates")
-              webReaderViewModel.hasTappedExistingHighlight = true
-              webReaderViewModel.lastTappedLocationRect = actionTapCoordinates.asRect()
-              startActionMode(null, ActionMode.TYPE_FLOATING)
+              CoroutineScope(Dispatchers.Main).launch {
+                webReaderViewModel.hasTappedExistingHighlight = true
+                webReaderViewModel.lastTappedLocationRect = actionTapCoordinates.asRect()
+                startActionMode(null, ActionMode.TYPE_FLOATING)
+              }
             }
             else -> {
               webReaderViewModel.handleIncomingWebMessage(actionID, json)
@@ -225,6 +232,7 @@ class OmnivoreWebView(context: Context) : WebView(context) {
     // Called each time the action mode is shown. Always called after onCreateActionMode, but
     // may be called multiple times if the mode is invalidated.
     override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
+      Log.d("wv", "preparing action mode $menu")
       return false // Return false if nothing is done
     }
 
