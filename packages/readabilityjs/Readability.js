@@ -244,6 +244,9 @@ Readability.prototype = {
     "apos": "'",
   },
 
+  // These are the classes that we skip when cleaning a tag
+  CLASSES_TO_SKIP: ["post-body", "StoryBodyCompanionColumn"],
+
   /**
    * Run any post-process modifications to article content as necessary.
    *
@@ -2782,6 +2785,7 @@ Readability.prototype = {
           return false;
         }
 
+        var parentClasses = node.parentNode.classList;
         var haveToRemove =
           !this._isOmnivoreNode(node) && (
           (img > 1 && p / img < 0.5 && !this._hasAncestorTag(node, "figure")) ||
@@ -2789,7 +2793,7 @@ Readability.prototype = {
           (input > Math.floor(p/3)) ||
           (!isList && headingDensity < 0.9 && contentLength < 25 && (img === 0 || img > 2) && !this._hasAncestorTag(node, "figure")) ||
           // ignores link density for the links inside the .post-body div (the main content)
-          (!isList && weight < 25 && linkDensity > 0.2 && !(node.parentElement.className.includes("post-body") && linkDensity === 1)) ||
+          (!isList && weight < 25 && linkDensity > 0.2 && !(this.CLASSES_TO_SKIP.some((c) => parentClasses.contains(c))) )||
           // some website like https://substack.com might have their custom styling of tweets
           // we should omit ignoring their particular case by checking against "tweet" classname
           (weight >= 25 && linkDensity > 0.5 && !(node.className === "tweet" && linkDensity === 1)) ||
