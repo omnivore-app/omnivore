@@ -76,6 +76,8 @@
     var menuButton: some View {
       Menu {
         Menu(String(format: "Playback Speed (%.1f×)", audioController.playbackRate)) {
+          playbackRateButton(rate: 0.8, title: "0.8×", selected: audioController.playbackRate == 0.8)
+          playbackRateButton(rate: 0.9, title: "0.9×", selected: audioController.playbackRate == 0.9)
           playbackRateButton(rate: 1.0, title: "1.0×", selected: audioController.playbackRate == 1.0)
           playbackRateButton(rate: 1.1, title: "1.1×", selected: audioController.playbackRate == 1.1)
           playbackRateButton(rate: 1.2, title: "1.2×", selected: audioController.playbackRate == 1.2)
