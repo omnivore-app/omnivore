@@ -1,4 +1,4 @@
-import { Box, HStack, SpanBox, VStack } from './../../elements/LayoutPrimitives'
+import { Box, HStack, VStack } from './../../elements/LayoutPrimitives'
 import Dropzone from 'react-dropzone'
 import * as Progress from '@radix-ui/react-progress'
 import type {
@@ -100,17 +100,14 @@ export function HomeFeedContainer(): JSX.Element {
 
   const gridContainerRef = useRef<HTMLDivElement>(null)
 
-  const [shareTarget, setShareTarget] = useState<LibraryItem | undefined>(
-    undefined
-  )
+  const [shareTarget, setShareTarget] =
+    useState<LibraryItem | undefined>(undefined)
 
-  const [snoozeTarget, setSnoozeTarget] = useState<LibraryItem | undefined>(
-    undefined
-  )
+  const [snoozeTarget, setSnoozeTarget] =
+    useState<LibraryItem | undefined>(undefined)
 
-  const [labelsTarget, setLabelsTarget] = useState<LibraryItem | undefined>(
-    undefined
-  )
+  const [labelsTarget, setLabelsTarget] =
+    useState<LibraryItem | undefined>(undefined)
 
   const [showAddLinkModal, setShowAddLinkModal] = useState(false)
   const [showEditTitleModal, setShowEditTitleModal] = useState(false)
@@ -771,8 +768,13 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
             'Content-Type': 'application/pdf',
           },
           onUploadProgress: (p) => {
-            console.log('upload progress: ', (p.loaded / p.total) * 100)
-            setUploadProgress((p.loaded / p.total) * 100)
+            if (!p.total) {
+              console.warn('No total available for upload progress')
+              return
+            }
+            const progress = (p.loaded / p.total) * 100
+            console.log('upload progress: ', progress)
+            setUploadProgress(progress)
           },
         })
 
