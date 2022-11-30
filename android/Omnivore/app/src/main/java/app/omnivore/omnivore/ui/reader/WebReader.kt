@@ -175,6 +175,8 @@ fun WebReader(
               Log.d("wvt", "received tap action: $tapCoordinates")
               CoroutineScope(Dispatchers.Main).launch {
                 webReaderViewModel.lastTappedLocationRect = tapCoordinates.asRect()
+                actionMode?.finish()
+                actionMode = null
               }
             }
             "existingHighlightTap" -> {
@@ -216,10 +218,12 @@ fun WebReader(
 
 class OmnivoreWebView(context: Context) : WebView(context) {
   var viewModel: WebReaderViewModel? = null
+  var actionMode: ActionMode? = null
 
   private val actionModeCallback = object : ActionMode.Callback2() {
     // Called when the action mode is created; startActionMode() was called
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
+      actionMode = mode
       if (viewModel?.hasTappedExistingHighlight == true) {
         Log.d("wv", "inflating existing highlight menu")
         mode.menuInflater.inflate(R.menu.highlight_selection_menu, menu)
@@ -241,8 +245,10 @@ class OmnivoreWebView(context: Context) : WebView(context) {
       return when (item.itemId) {
         R.id.annotate -> {
           val script = "var event = new Event('annotate');document.dispatchEvent(event);"
-          evaluateJavascript(script, null)
-          mode.finish()
+          evaluateJavascript(script) {
+            mode.finish()
+            actionMode = null
+          }
           true
         }
         R.id.highlight -> {
@@ -250,14 +256,17 @@ class OmnivoreWebView(context: Context) : WebView(context) {
           evaluateJavascript(script) {
             clearFocus()
             mode.finish()
+            actionMode = null
           }
           true
         }
         R.id.delete -> {
           val script = "var event = new Event('remove');document.dispatchEvent(event);"
-          evaluateJavascript(script, null)
-          clearFocus()
-          mode.finish()
+          evaluateJavascript(script) {
+            clearFocus()
+            mode.finish()
+            actionMode = null
+          }
           true
         }
         else -> {
@@ -271,6 +280,7 @@ class OmnivoreWebView(context: Context) : WebView(context) {
     override fun onDestroyActionMode(mode: ActionMode) {
       Log.d("wv", "destroying menu: $mode")
       viewModel?.hasTappedExistingHighlight = false
+      actionMode = null
     }
 
     override fun onGetContentRect(mode: ActionMode?, view: View?, outRect: Rect?) {
