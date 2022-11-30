@@ -31,6 +31,7 @@
     "@sentry/nextjs": "^6.16.1",
     "@stitches/react": "^1.2.5",
     "antd": "4.24.3",
+    "axios": "^1.2.0",
     "color2k": "^2.0.0",
     "cookie": "^0.5.0",
     "diff-match-patch": "^1.0.5",
