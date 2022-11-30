@@ -4,6 +4,6 @@
 
 BEGIN;
 
-DROP TABLE IF EXISTS omnivore.search_filters;
+DROP TABLE IF EXISTS omnivore.filters;
 
 COMMIT;

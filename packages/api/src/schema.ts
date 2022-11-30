@@ -2051,6 +2051,69 @@ const schema = gql`
     BAD_REQUEST
   }
 
+  input SaveFilterInput {
+    id: ID
+    name: String!
+    filter: String!
+    description: String
+  }
+
+  union SaveFilterResult = SaveFilterSuccess | SaveFilterError
+
+  type SaveFilterSuccess {
+    filter: Filter!
+  }
+
+  type Filter {
+    id: ID!
+    name: String!
+    filter: String!
+    description: String
+    createdAt: Date!
+    updatedAt: Date!
+  }
+
+  type SaveFilterError {
+    errorCodes: [SaveFilterErrorCode!]!
+  }
+
+  enum SaveFilterErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+  }
+
+  union FiltersResult = FiltersSuccess | FiltersError
+
+  type FiltersSuccess {
+    filters: [Filter!]!
+  }
+
+  type FiltersError {
+    errorCodes: [FiltersErrorCode!]!
+  }
+
+  enum FiltersErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+  }
+
+  union DeleteFilterResult = DeleteFilterSuccess | DeleteFilterError
+
+  type DeleteFilterSuccess {
+    filter: Filter!
+  }
+
+  type DeleteFilterError {
+    errorCodes: [DeleteFilterErrorCode!]!
+  }
+
+  enum DeleteFilterErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -2125,6 +2188,8 @@ const schema = gql`
     optInFeature(input: OptInFeatureInput!): OptInFeatureResult!
     setRule(input: SetRuleInput!): SetRuleResult!
     deleteRule(id: ID!): DeleteRuleResult!
+    saveFilter(input: SaveFilterInput!): SaveFilterResult!
+    deleteFilter(id: ID!): DeleteFilterResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed
@@ -2179,6 +2244,7 @@ const schema = gql`
     recentSearches: RecentSearchesResult!
     rules(enabled: Boolean): RulesResult!
     deviceTokens: DeviceTokensResult!
+    filters: FiltersResult!
   }
 `
 

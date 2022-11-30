@@ -445,6 +445,24 @@ export type DeleteAccountSuccess = {
   userID: Scalars['ID'];
 };
 
+export type DeleteFilterError = {
+  __typename?: 'DeleteFilterError';
+  errorCodes: Array<DeleteFilterErrorCode>;
+};
+
+export enum DeleteFilterErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type DeleteFilterResult = DeleteFilterError | DeleteFilterSuccess;
+
+export type DeleteFilterSuccess = {
+  __typename?: 'DeleteFilterSuccess';
+  filter: Filter;
+};
+
 export type DeleteHighlightError = {
   __typename?: 'DeleteHighlightError';
   errorCodes: Array<DeleteHighlightErrorCode>;
@@ -677,6 +695,33 @@ export type FeedArticlesSuccess = {
   __typename?: 'FeedArticlesSuccess';
   edges: Array<FeedArticleEdge>;
   pageInfo: PageInfo;
+};
+
+export type Filter = {
+  __typename?: 'Filter';
+  createdAt: Scalars['Date'];
+  description?: Maybe<Scalars['String']>;
+  filter: Scalars['String'];
+  id: Scalars['ID'];
+  name: Scalars['String'];
+  updatedAt: Scalars['Date'];
+};
+
+export type FiltersError = {
+  __typename?: 'FiltersError';
+  errorCodes: Array<FiltersErrorCode>;
+};
+
+export enum FiltersErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type FiltersResult = FiltersError | FiltersSuccess;
+
+export type FiltersSuccess = {
+  __typename?: 'FiltersSuccess';
+  filters: Array<Filter>;
 };
 
 export type GenerateApiKeyError = {
@@ -1004,6 +1049,7 @@ export type Mutation = {
   createReaction: CreateReactionResult;
   createReminder: CreateReminderResult;
   deleteAccount: DeleteAccountResult;
+  deleteFilter: DeleteFilterResult;
   deleteHighlight: DeleteHighlightResult;
   deleteHighlightReply: DeleteHighlightReplyResult;
   deleteIntegration: DeleteIntegrationResult;
@@ -1024,6 +1070,7 @@ export type Mutation = {
   revokeApiKey: RevokeApiKeyResult;
   saveArticleReadingProgress: SaveArticleReadingProgressResult;
   saveFile: SaveResult;
+  saveFilter: SaveFilterResult;
   savePage: SaveResult;
   saveUrl: SaveResult;
   setBookmarkArticle: SetBookmarkArticleResult;
@@ -1095,6 +1142,11 @@ export type MutationCreateReminderArgs = {
 
 export type MutationDeleteAccountArgs = {
   userID: Scalars['ID'];
+};
+
+
+export type MutationDeleteFilterArgs = {
+  id: Scalars['ID'];
 };
 
 
@@ -1190,6 +1242,11 @@ export type MutationSaveArticleReadingProgressArgs = {
 
 export type MutationSaveFileArgs = {
   input: SaveFileInput;
+};
+
+
+export type MutationSaveFilterArgs = {
+  input: SaveFilterInput;
 };
 
 
@@ -1436,6 +1493,7 @@ export type Query = {
   articles: ArticlesResult;
   deviceTokens: DeviceTokensResult;
   feedArticles: FeedArticlesResult;
+  filters: FiltersResult;
   getFollowers: GetFollowersResult;
   getFollowing: GetFollowingResult;
   getUserPersonalization: GetUserPersonalizationResult;
@@ -1759,6 +1817,31 @@ export type SaveFileInput = {
   source: Scalars['String'];
   uploadFileId: Scalars['ID'];
   url: Scalars['String'];
+};
+
+export type SaveFilterError = {
+  __typename?: 'SaveFilterError';
+  errorCodes: Array<SaveFilterErrorCode>;
+};
+
+export enum SaveFilterErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type SaveFilterInput = {
+  description?: InputMaybe<Scalars['String']>;
+  filter: Scalars['String'];
+  id?: InputMaybe<Scalars['ID']>;
+  name: Scalars['String'];
+};
+
+export type SaveFilterResult = SaveFilterError | SaveFilterSuccess;
+
+export type SaveFilterSuccess = {
+  __typename?: 'SaveFilterSuccess';
+  filter: Filter;
 };
 
 export type SavePageInput = {
@@ -2829,6 +2912,10 @@ export type ResolversTypes = {
   DeleteAccountErrorCode: DeleteAccountErrorCode;
   DeleteAccountResult: ResolversTypes['DeleteAccountError'] | ResolversTypes['DeleteAccountSuccess'];
   DeleteAccountSuccess: ResolverTypeWrapper<DeleteAccountSuccess>;
+  DeleteFilterError: ResolverTypeWrapper<DeleteFilterError>;
+  DeleteFilterErrorCode: DeleteFilterErrorCode;
+  DeleteFilterResult: ResolversTypes['DeleteFilterError'] | ResolversTypes['DeleteFilterSuccess'];
+  DeleteFilterSuccess: ResolverTypeWrapper<DeleteFilterSuccess>;
   DeleteHighlightError: ResolverTypeWrapper<DeleteHighlightError>;
   DeleteHighlightErrorCode: DeleteHighlightErrorCode;
   DeleteHighlightReplyError: ResolverTypeWrapper<DeleteHighlightReplyError>;
@@ -2877,6 +2964,11 @@ export type ResolversTypes = {
   FeedArticlesErrorCode: FeedArticlesErrorCode;
   FeedArticlesResult: ResolversTypes['FeedArticlesError'] | ResolversTypes['FeedArticlesSuccess'];
   FeedArticlesSuccess: ResolverTypeWrapper<FeedArticlesSuccess>;
+  Filter: ResolverTypeWrapper<Filter>;
+  FiltersError: ResolverTypeWrapper<FiltersError>;
+  FiltersErrorCode: FiltersErrorCode;
+  FiltersResult: ResolversTypes['FiltersError'] | ResolversTypes['FiltersSuccess'];
+  FiltersSuccess: ResolverTypeWrapper<FiltersSuccess>;
   Float: ResolverTypeWrapper<Scalars['Float']>;
   GenerateApiKeyError: ResolverTypeWrapper<GenerateApiKeyError>;
   GenerateApiKeyErrorCode: GenerateApiKeyErrorCode;
@@ -2990,6 +3082,11 @@ export type ResolversTypes = {
   SaveError: ResolverTypeWrapper<SaveError>;
   SaveErrorCode: SaveErrorCode;
   SaveFileInput: SaveFileInput;
+  SaveFilterError: ResolverTypeWrapper<SaveFilterError>;
+  SaveFilterErrorCode: SaveFilterErrorCode;
+  SaveFilterInput: SaveFilterInput;
+  SaveFilterResult: ResolversTypes['SaveFilterError'] | ResolversTypes['SaveFilterSuccess'];
+  SaveFilterSuccess: ResolverTypeWrapper<SaveFilterSuccess>;
   SavePageInput: SavePageInput;
   SaveResult: ResolversTypes['SaveError'] | ResolversTypes['SaveSuccess'];
   SaveSuccess: ResolverTypeWrapper<SaveSuccess>;
@@ -3225,6 +3322,9 @@ export type ResolversParentTypes = {
   DeleteAccountError: DeleteAccountError;
   DeleteAccountResult: ResolversParentTypes['DeleteAccountError'] | ResolversParentTypes['DeleteAccountSuccess'];
   DeleteAccountSuccess: DeleteAccountSuccess;
+  DeleteFilterError: DeleteFilterError;
+  DeleteFilterResult: ResolversParentTypes['DeleteFilterError'] | ResolversParentTypes['DeleteFilterSuccess'];
+  DeleteFilterSuccess: DeleteFilterSuccess;
   DeleteHighlightError: DeleteHighlightError;
   DeleteHighlightReplyError: DeleteHighlightReplyError;
   DeleteHighlightReplyResult: ResolversParentTypes['DeleteHighlightReplyError'] | ResolversParentTypes['DeleteHighlightReplySuccess'];
@@ -3262,6 +3362,10 @@ export type ResolversParentTypes = {
   FeedArticlesError: FeedArticlesError;
   FeedArticlesResult: ResolversParentTypes['FeedArticlesError'] | ResolversParentTypes['FeedArticlesSuccess'];
   FeedArticlesSuccess: FeedArticlesSuccess;
+  Filter: Filter;
+  FiltersError: FiltersError;
+  FiltersResult: ResolversParentTypes['FiltersError'] | ResolversParentTypes['FiltersSuccess'];
+  FiltersSuccess: FiltersSuccess;
   Float: Scalars['Float'];
   GenerateApiKeyError: GenerateApiKeyError;
   GenerateApiKeyInput: GenerateApiKeyInput;
@@ -3352,6 +3456,10 @@ export type ResolversParentTypes = {
   SaveArticleReadingProgressSuccess: SaveArticleReadingProgressSuccess;
   SaveError: SaveError;
   SaveFileInput: SaveFileInput;
+  SaveFilterError: SaveFilterError;
+  SaveFilterInput: SaveFilterInput;
+  SaveFilterResult: ResolversParentTypes['SaveFilterError'] | ResolversParentTypes['SaveFilterSuccess'];
+  SaveFilterSuccess: SaveFilterSuccess;
   SavePageInput: SavePageInput;
   SaveResult: ResolversParentTypes['SaveError'] | ResolversParentTypes['SaveSuccess'];
   SaveSuccess: SaveSuccess;
@@ -3784,6 +3892,20 @@ export type DeleteAccountSuccessResolvers<ContextType = ResolverContext, ParentT
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type DeleteFilterErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteFilterError'] = ResolversParentTypes['DeleteFilterError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['DeleteFilterErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type DeleteFilterResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteFilterResult'] = ResolversParentTypes['DeleteFilterResult']> = {
+  __resolveType: TypeResolveFn<'DeleteFilterError' | 'DeleteFilterSuccess', ParentType, ContextType>;
+};
+
+export type DeleteFilterSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteFilterSuccess'] = ResolversParentTypes['DeleteFilterSuccess']> = {
+  filter?: Resolver<ResolversTypes['Filter'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type DeleteHighlightErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteHighlightError'] = ResolversParentTypes['DeleteHighlightError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['DeleteHighlightErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -3974,6 +4096,30 @@ export type FeedArticlesResultResolvers<ContextType = ResolverContext, ParentTyp
 export type FeedArticlesSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['FeedArticlesSuccess'] = ResolversParentTypes['FeedArticlesSuccess']> = {
   edges?: Resolver<Array<ResolversTypes['FeedArticleEdge']>, ParentType, ContextType>;
   pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type FilterResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Filter'] = ResolversParentTypes['Filter']> = {
+  createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  filter?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type FiltersErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['FiltersError'] = ResolversParentTypes['FiltersError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['FiltersErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type FiltersResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['FiltersResult'] = ResolversParentTypes['FiltersResult']> = {
+  __resolveType: TypeResolveFn<'FiltersError' | 'FiltersSuccess', ParentType, ContextType>;
+};
+
+export type FiltersSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['FiltersSuccess'] = ResolversParentTypes['FiltersSuccess']> = {
+  filters?: Resolver<Array<ResolversTypes['Filter']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -4223,6 +4369,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   createReaction?: Resolver<ResolversTypes['CreateReactionResult'], ParentType, ContextType, RequireFields<MutationCreateReactionArgs, 'input'>>;
   createReminder?: Resolver<ResolversTypes['CreateReminderResult'], ParentType, ContextType, RequireFields<MutationCreateReminderArgs, 'input'>>;
   deleteAccount?: Resolver<ResolversTypes['DeleteAccountResult'], ParentType, ContextType, RequireFields<MutationDeleteAccountArgs, 'userID'>>;
+  deleteFilter?: Resolver<ResolversTypes['DeleteFilterResult'], ParentType, ContextType, RequireFields<MutationDeleteFilterArgs, 'id'>>;
   deleteHighlight?: Resolver<ResolversTypes['DeleteHighlightResult'], ParentType, ContextType, RequireFields<MutationDeleteHighlightArgs, 'highlightId'>>;
   deleteHighlightReply?: Resolver<ResolversTypes['DeleteHighlightReplyResult'], ParentType, ContextType, RequireFields<MutationDeleteHighlightReplyArgs, 'highlightReplyId'>>;
   deleteIntegration?: Resolver<ResolversTypes['DeleteIntegrationResult'], ParentType, ContextType, RequireFields<MutationDeleteIntegrationArgs, 'id'>>;
@@ -4243,6 +4390,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   revokeApiKey?: Resolver<ResolversTypes['RevokeApiKeyResult'], ParentType, ContextType, RequireFields<MutationRevokeApiKeyArgs, 'id'>>;
   saveArticleReadingProgress?: Resolver<ResolversTypes['SaveArticleReadingProgressResult'], ParentType, ContextType, RequireFields<MutationSaveArticleReadingProgressArgs, 'input'>>;
   saveFile?: Resolver<ResolversTypes['SaveResult'], ParentType, ContextType, RequireFields<MutationSaveFileArgs, 'input'>>;
+  saveFilter?: Resolver<ResolversTypes['SaveFilterResult'], ParentType, ContextType, RequireFields<MutationSaveFilterArgs, 'input'>>;
   savePage?: Resolver<ResolversTypes['SaveResult'], ParentType, ContextType, RequireFields<MutationSavePageArgs, 'input'>>;
   saveUrl?: Resolver<ResolversTypes['SaveResult'], ParentType, ContextType, RequireFields<MutationSaveUrlArgs, 'input'>>;
   setBookmarkArticle?: Resolver<ResolversTypes['SetBookmarkArticleResult'], ParentType, ContextType, RequireFields<MutationSetBookmarkArticleArgs, 'input'>>;
@@ -4349,6 +4497,7 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   articles?: Resolver<ResolversTypes['ArticlesResult'], ParentType, ContextType, Partial<QueryArticlesArgs>>;
   deviceTokens?: Resolver<ResolversTypes['DeviceTokensResult'], ParentType, ContextType>;
   feedArticles?: Resolver<ResolversTypes['FeedArticlesResult'], ParentType, ContextType, Partial<QueryFeedArticlesArgs>>;
+  filters?: Resolver<ResolversTypes['FiltersResult'], ParentType, ContextType>;
   getFollowers?: Resolver<ResolversTypes['GetFollowersResult'], ParentType, ContextType, Partial<QueryGetFollowersArgs>>;
   getFollowing?: Resolver<ResolversTypes['GetFollowingResult'], ParentType, ContextType, Partial<QueryGetFollowingArgs>>;
   getUserPersonalization?: Resolver<ResolversTypes['GetUserPersonalizationResult'], ParentType, ContextType>;
@@ -4500,6 +4649,20 @@ export type SaveArticleReadingProgressSuccessResolvers<ContextType = ResolverCon
 export type SaveErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SaveError'] = ResolversParentTypes['SaveError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['SaveErrorCode']>, ParentType, ContextType>;
   message?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SaveFilterErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SaveFilterError'] = ResolversParentTypes['SaveFilterError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['SaveFilterErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SaveFilterResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SaveFilterResult'] = ResolversParentTypes['SaveFilterResult']> = {
+  __resolveType: TypeResolveFn<'SaveFilterError' | 'SaveFilterSuccess', ParentType, ContextType>;
+};
+
+export type SaveFilterSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SaveFilterSuccess'] = ResolversParentTypes['SaveFilterSuccess']> = {
+  filter?: Resolver<ResolversTypes['Filter'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -5144,6 +5307,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   DeleteAccountError?: DeleteAccountErrorResolvers<ContextType>;
   DeleteAccountResult?: DeleteAccountResultResolvers<ContextType>;
   DeleteAccountSuccess?: DeleteAccountSuccessResolvers<ContextType>;
+  DeleteFilterError?: DeleteFilterErrorResolvers<ContextType>;
+  DeleteFilterResult?: DeleteFilterResultResolvers<ContextType>;
+  DeleteFilterSuccess?: DeleteFilterSuccessResolvers<ContextType>;
   DeleteHighlightError?: DeleteHighlightErrorResolvers<ContextType>;
   DeleteHighlightReplyError?: DeleteHighlightReplyErrorResolvers<ContextType>;
   DeleteHighlightReplyResult?: DeleteHighlightReplyResultResolvers<ContextType>;
@@ -5181,6 +5347,10 @@ export type Resolvers<ContextType = ResolverContext> = {
   FeedArticlesError?: FeedArticlesErrorResolvers<ContextType>;
   FeedArticlesResult?: FeedArticlesResultResolvers<ContextType>;
   FeedArticlesSuccess?: FeedArticlesSuccessResolvers<ContextType>;
+  Filter?: FilterResolvers<ContextType>;
+  FiltersError?: FiltersErrorResolvers<ContextType>;
+  FiltersResult?: FiltersResultResolvers<ContextType>;
+  FiltersSuccess?: FiltersSuccessResolvers<ContextType>;
   GenerateApiKeyError?: GenerateApiKeyErrorResolvers<ContextType>;
   GenerateApiKeyResult?: GenerateApiKeyResultResolvers<ContextType>;
   GenerateApiKeySuccess?: GenerateApiKeySuccessResolvers<ContextType>;
@@ -5256,6 +5426,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   SaveArticleReadingProgressResult?: SaveArticleReadingProgressResultResolvers<ContextType>;
   SaveArticleReadingProgressSuccess?: SaveArticleReadingProgressSuccessResolvers<ContextType>;
   SaveError?: SaveErrorResolvers<ContextType>;
+  SaveFilterError?: SaveFilterErrorResolvers<ContextType>;
+  SaveFilterResult?: SaveFilterResultResolvers<ContextType>;
+  SaveFilterSuccess?: SaveFilterSuccessResolvers<ContextType>;
   SaveResult?: SaveResultResolvers<ContextType>;
   SaveSuccess?: SaveSuccessResolvers<ContextType>;
   SearchError?: SearchErrorResolvers<ContextType>;
