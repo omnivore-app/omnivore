@@ -270,18 +270,14 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         return
       }
 
-      const rect = (target as Element).getBoundingClientRect()
-
-      const rectAttributes = {
-        rectX: rect.x,
-        rectY: rect.y,
-        rectWidth: rect.width,
-        rectHeight: rect.height,
+      const tapAttributes = {
+        tapX: event.screenX,
+        tapY: event.screenY,
       }
 
       window?.AndroidWebKitMessenger?.handleIdentifiableMessage(
         'userTap',
-        JSON.stringify(rectAttributes)
+        JSON.stringify(tapAttributes)
       )
 
       focusedHighlightMousePos.current = { pageX, pageY }
@@ -297,9 +293,13 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         if (highlight) {
           // In the native app we post a message with the rect of the
           // highlight, so the app can display a native menu
+          const rect = (target as Element).getBoundingClientRect()
           const message = {
+            rectX: rect.x,
+            rectY: rect.y,
+            rectWidth: rect.width,
+            rectHeight: rect.height,
             highlightID: highlight.id,
-            ...rectAttributes,
           }
           window?.webkit?.messageHandlers.viewerAction?.postMessage({
             actionID: 'showMenu',

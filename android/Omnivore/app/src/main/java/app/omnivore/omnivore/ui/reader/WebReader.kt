@@ -168,7 +168,7 @@ fun WebReader(
 
           when (actionID) {
             "userTap" -> {
-              val tapCoordinates = Gson().fromJson(json, ActionTapCoordinates::class.java)
+              val tapCoordinates = Gson().fromJson(json, TapCoordinates::class.java)
               Log.d("wvt", "received tap action: $tapCoordinates")
               webReaderViewModel.lastTappedLocationRect = tapCoordinates.asRect()
             }
@@ -268,7 +268,7 @@ class OmnivoreWebView(context: Context) : WebView(context) {
     override fun onGetContentRect(mode: ActionMode?, view: View?, outRect: Rect?) {
       Log.d("wv", "outRect: $outRect, View: $view")
       if (viewModel?.lastTappedLocationRect != null) {
-        Log.d("wv", "setting rect based on last tapped rect")
+        Log.d("wv", "setting rect based on last tapped rect: ${viewModel?.lastTappedLocationRect.toString()}")
         outRect?.set(viewModel!!.lastTappedLocationRect!!)
       } else {
         outRect?.set(left, top, right, bottom)
@@ -314,6 +314,20 @@ data class ActionTapCoordinates(
       rectY.toInt(),
       rectX.toInt(),
       rectY.toInt()
+    )
+  }
+}
+
+data class TapCoordinates(
+  val tapX: Double,
+  val tapY: Double
+) {
+  fun asRect(): Rect {
+    return Rect(
+      tapX.toInt(),
+      tapY.toInt(),
+      tapX.toInt(),
+      tapY.toInt()
     )
   }
 }
