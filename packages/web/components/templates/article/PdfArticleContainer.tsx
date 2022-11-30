@@ -430,7 +430,7 @@ export default function PdfArticleContainer(
       )}
       {props.showHighlightsModal && (
         <HighlightsModal
-          highlights={props.article.highlights}
+          highlights={highlightsRef.current}
           onOpenChange={() => props.setShowHighlightsModal(false)}
         />
       )}
