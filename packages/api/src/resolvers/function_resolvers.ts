@@ -58,6 +58,7 @@ import {
   labelsResolver,
   logOutResolver,
   mergeHighlightResolver,
+  moveFilterResolver,
   moveLabelResolver,
   newsletterEmailsResolver,
   reminderResolver,
@@ -184,6 +185,7 @@ export const functionResolvers = {
     deleteRule: deleteRuleResolver,
     saveFilter: saveFilterResolver,
     deleteFilter: deleteFilterResolver,
+    moveFilter: moveFilterResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -631,4 +633,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('SaveFilter'),
   ...resultResolveTypeResolver('Filters'),
   ...resultResolveTypeResolver('DeleteFilter'),
+  ...resultResolveTypeResolver('MoveFilter'),
 }

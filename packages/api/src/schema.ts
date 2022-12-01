@@ -2068,6 +2068,7 @@ const schema = gql`
     id: ID!
     name: String!
     filter: String!
+    position: Int!
     description: String
     createdAt: Date!
     updatedAt: Date!
@@ -2109,6 +2110,27 @@ const schema = gql`
   }
 
   enum DeleteFilterErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+  }
+
+  input MoveFilterInput {
+    filterId: ID!
+    afterFilterId: ID # null to move to the top
+  }
+
+  union MoveFilterResult = MoveFilterSuccess | MoveFilterError
+
+  type MoveFilterSuccess {
+    filter: Filter!
+  }
+
+  type MoveFilterError {
+    errorCodes: [MoveFilterErrorCode!]!
+  }
+
+  enum MoveFilterErrorCode {
     UNAUTHORIZED
     BAD_REQUEST
     NOT_FOUND
@@ -2190,6 +2212,7 @@ const schema = gql`
     deleteRule(id: ID!): DeleteRuleResult!
     saveFilter(input: SaveFilterInput!): SaveFilterResult!
     deleteFilter(id: ID!): DeleteFilterResult!
+    moveFilter(input: MoveFilterInput!): MoveFilterResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed

@@ -29,6 +29,9 @@ export class Filter {
   @Column('varchar', { length: 255 })
   filter!: string
 
+  @Column('integer', { default: 0 })
+  position!: number
+
   @CreateDateColumn({ default: () => 'CURRENT_TIMESTAMP' })
   createdAt!: Date
 

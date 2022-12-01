@@ -6,15 +6,23 @@ import {
   FiltersError,
   FiltersErrorCode,
   FiltersSuccess,
+  MoveFilterError,
+  MoveFilterErrorCode,
+  MoveFilterSuccess,
   MutationDeleteFilterArgs,
+  MutationMoveFilterArgs,
   MutationSaveFilterArgs,
   SaveFilterError,
   SaveFilterErrorCode,
   SaveFilterSuccess,
 } from '../../generated/graphql'
 import { Filter } from '../../entity/filter'
-import { getRepository } from '../../entity/utils'
+import { getRepository, setClaims } from '../../entity/utils'
 import { User } from '../../entity/user'
+import { AppDataSource } from '../../server'
+import { Between } from 'typeorm'
+import { analytics } from '../../utils/analytics'
+import { env } from '../../env'
 
 export const saveFilterResolver = authorized<
   SaveFilterSuccess,
@@ -134,8 +142,9 @@ export const filtersResolver = authorized<FiltersSuccess, FiltersError>(
         }
       }
 
-      const filters = await getRepository(Filter).findBy({
-        user: { id: claims.uid },
+      const filters = await getRepository(Filter).find({
+        where: { user: { id: claims.uid } },
+        order: { position: 'ASC' },
       })
 
       return {
@@ -157,3 +166,132 @@ export const filtersResolver = authorized<FiltersSuccess, FiltersError>(
     }
   }
 )
+
+export const moveFilterResolver = authorized<
+  MoveFilterSuccess,
+  MoveFilterError,
+  MutationMoveFilterArgs
+>(async (_, { input }, { claims: { uid }, log }) => {
+  log.info('Moving filters', {
+    input,
+    filters: {
+      source: 'resolver',
+      resolver: 'moveFilterResolver',
+      uid,
+    },
+  })
+
+  const { filterId, afterFilterId } = input
+
+  try {
+    const user = await getRepository(User).findOneBy({ id: uid })
+    if (!user) {
+      return {
+        errorCodes: [MoveFilterErrorCode.Unauthorized],
+      }
+    }
+
+    const filter = await getRepository(Filter).findOne({
+      where: { id: filterId },
+      relations: ['user'],
+    })
+    if (!filter) {
+      return {
+        errorCodes: [MoveFilterErrorCode.NotFound],
+      }
+    }
+    if (filter.user.id !== uid) {
+      return {
+        errorCodes: [MoveFilterErrorCode.Unauthorized],
+      }
+    }
+
+    if (filter.id === afterFilterId) {
+      // nothing to do
+      return { filter }
+    }
+
+    const oldPosition = filter.position
+    // if afterFilterId is not provided, move to the top
+    let newPosition = 1
+    if (afterFilterId) {
+      const afterFilter = await getRepository(Filter).findOne({
+        where: { id: afterFilterId },
+        relations: ['user'],
+      })
+      if (!afterFilter) {
+        return {
+          errorCodes: [MoveFilterErrorCode.NotFound],
+        }
+      }
+      if (afterFilter.user.id !== uid) {
+        return {
+          errorCodes: [MoveFilterErrorCode.Unauthorized],
+        }
+      }
+      newPosition = afterFilter.position
+    }
+    const moveUp = newPosition < oldPosition
+
+    // move filter to the new position
+    const updated = await AppDataSource.transaction(async (t) => {
+      await setClaims(t, uid)
+
+      // update the position of the other filters
+      const updated = await t.getRepository(Filter).update(
+        {
+          user: { id: uid },
+          position: Between(
+            Math.min(newPosition, oldPosition),
+            Math.max(newPosition, oldPosition)
+          ),
+        },
+        {
+          position: () => `position + ${moveUp ? 1 : -1}`,
+        }
+      )
+      if (!updated.affected) {
+        return null
+      }
+
+      // update the position of the filter
+      return t.getRepository(Filter).save({
+        ...filter,
+        position: newPosition,
+      })
+    })
+
+    if (!updated) {
+      return {
+        errorCodes: [MoveFilterErrorCode.BadRequest],
+      }
+    }
+
+    analytics.track({
+      userId: uid,
+      event: 'filter_moved',
+      properties: {
+        filterId,
+        afterFilterId,
+        env: env.server.apiEnv,
+      },
+    })
+
+    return {
+      filter: updated,
+    }
+  } catch (error) {
+    log.error('Error moving filters', {
+      error,
+      labels: {
+        source: 'resolver',
+        resolver: 'moveFilterResolver',
+        uid,
+      },
+    })
+
+    return {
+      errorCodes: [MoveFilterErrorCode.BadRequest],
+    }
+  }
+})

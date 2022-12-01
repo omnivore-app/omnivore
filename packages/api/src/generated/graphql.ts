@@ -704,6 +704,7 @@ export type Filter = {
   filter: Scalars['String'];
   id: Scalars['ID'];
   name: Scalars['String'];
+  position: Scalars['Int'];
   updatedAt: Scalars['Date'];
 };
 
@@ -1014,6 +1015,29 @@ export type MergeHighlightSuccess = {
   overlapHighlightIdList: Array<Scalars['String']>;
 };
 
+export type MoveFilterError = {
+  __typename?: 'MoveFilterError';
+  errorCodes: Array<MoveFilterErrorCode>;
+};
+
+export enum MoveFilterErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type MoveFilterInput = {
+  afterFilterId?: InputMaybe<Scalars['ID']>;
+  filterId: Scalars['ID'];
+};
+
+export type MoveFilterResult = MoveFilterError | MoveFilterSuccess;
+
+export type MoveFilterSuccess = {
+  __typename?: 'MoveFilterSuccess';
+  filter: Filter;
+};
+
 export type MoveLabelError = {
   __typename?: 'MoveLabelError';
   errorCodes: Array<MoveLabelErrorCode>;
@@ -1064,6 +1088,7 @@ export type Mutation = {
   googleSignup: GoogleSignupResult;
   logOut: LogOutResult;
   mergeHighlight: MergeHighlightResult;
+  moveFilter: MoveFilterResult;
   moveLabel: MoveLabelResult;
   optInFeature: OptInFeatureResult;
   reportItem: ReportItemResult;
@@ -1212,6 +1237,11 @@ export type MutationGoogleSignupArgs = {
 
 export type MutationMergeHighlightArgs = {
   input: MergeHighlightInput;
+};
+
+
+export type MutationMoveFilterArgs = {
+  input: MoveFilterInput;
 };
 
 
@@ -3023,6 +3053,11 @@ export type ResolversTypes = {
   MergeHighlightInput: MergeHighlightInput;
   MergeHighlightResult: ResolversTypes['MergeHighlightError'] | ResolversTypes['MergeHighlightSuccess'];
   MergeHighlightSuccess: ResolverTypeWrapper<MergeHighlightSuccess>;
+  MoveFilterError: ResolverTypeWrapper<MoveFilterError>;
+  MoveFilterErrorCode: MoveFilterErrorCode;
+  MoveFilterInput: MoveFilterInput;
+  MoveFilterResult: ResolversTypes['MoveFilterError'] | ResolversTypes['MoveFilterSuccess'];
+  MoveFilterSuccess: ResolverTypeWrapper<MoveFilterSuccess>;
   MoveLabelError: ResolverTypeWrapper<MoveLabelError>;
   MoveLabelErrorCode: MoveLabelErrorCode;
   MoveLabelInput: MoveLabelInput;
@@ -3410,6 +3445,10 @@ export type ResolversParentTypes = {
   MergeHighlightInput: MergeHighlightInput;
   MergeHighlightResult: ResolversParentTypes['MergeHighlightError'] | ResolversParentTypes['MergeHighlightSuccess'];
   MergeHighlightSuccess: MergeHighlightSuccess;
+  MoveFilterError: MoveFilterError;
+  MoveFilterInput: MoveFilterInput;
+  MoveFilterResult: ResolversParentTypes['MoveFilterError'] | ResolversParentTypes['MoveFilterSuccess'];
+  MoveFilterSuccess: MoveFilterSuccess;
   MoveLabelError: MoveLabelError;
   MoveLabelInput: MoveLabelInput;
   MoveLabelResult: ResolversParentTypes['MoveLabelError'] | ResolversParentTypes['MoveLabelSuccess'];
@@ -4105,6 +4144,7 @@ export type FilterResolvers<ContextType = ResolverContext, ParentType extends Re
   filter?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  position?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -4344,6 +4384,20 @@ export type MergeHighlightSuccessResolvers<ContextType = ResolverContext, Parent
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type MoveFilterErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['MoveFilterError'] = ResolversParentTypes['MoveFilterError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['MoveFilterErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type MoveFilterResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['MoveFilterResult'] = ResolversParentTypes['MoveFilterResult']> = {
+  __resolveType: TypeResolveFn<'MoveFilterError' | 'MoveFilterSuccess', ParentType, ContextType>;
+};
+
+export type MoveFilterSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['MoveFilterSuccess'] = ResolversParentTypes['MoveFilterSuccess']> = {
+  filter?: Resolver<ResolversTypes['Filter'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type MoveLabelErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['MoveLabelError'] = ResolversParentTypes['MoveLabelError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['MoveLabelErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -4384,6 +4438,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   googleSignup?: Resolver<ResolversTypes['GoogleSignupResult'], ParentType, ContextType, RequireFields<MutationGoogleSignupArgs, 'input'>>;
   logOut?: Resolver<ResolversTypes['LogOutResult'], ParentType, ContextType>;
   mergeHighlight?: Resolver<ResolversTypes['MergeHighlightResult'], ParentType, ContextType, RequireFields<MutationMergeHighlightArgs, 'input'>>;
+  moveFilter?: Resolver<ResolversTypes['MoveFilterResult'], ParentType, ContextType, RequireFields<MutationMoveFilterArgs, 'input'>>;
   moveLabel?: Resolver<ResolversTypes['MoveLabelResult'], ParentType, ContextType, RequireFields<MutationMoveLabelArgs, 'input'>>;
   optInFeature?: Resolver<ResolversTypes['OptInFeatureResult'], ParentType, ContextType, RequireFields<MutationOptInFeatureArgs, 'input'>>;
   reportItem?: Resolver<ResolversTypes['ReportItemResult'], ParentType, ContextType, RequireFields<MutationReportItemArgs, 'input'>>;
@@ -5388,6 +5443,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   MergeHighlightError?: MergeHighlightErrorResolvers<ContextType>;
   MergeHighlightResult?: MergeHighlightResultResolvers<ContextType>;
   MergeHighlightSuccess?: MergeHighlightSuccessResolvers<ContextType>;
+  MoveFilterError?: MoveFilterErrorResolvers<ContextType>;
+  MoveFilterResult?: MoveFilterResultResolvers<ContextType>;
+  MoveFilterSuccess?: MoveFilterSuccessResolvers<ContextType>;
   MoveLabelError?: MoveLabelErrorResolvers<ContextType>;
   MoveLabelResult?: MoveLabelResultResolvers<ContextType>;
   MoveLabelSuccess?: MoveLabelSuccessResolvers<ContextType>;
