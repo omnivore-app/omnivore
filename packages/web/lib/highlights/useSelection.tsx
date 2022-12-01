@@ -132,6 +132,15 @@ export function useSelection(
     [highlightLocations]
   )
 
+  const copyTextSelection = useCallback(async () => {
+    // Send message to Android to paste since we don't have the
+    // correct permissions to write to clipboard from WebView directly
+    window.AndroidWebKitMessenger?.handleIdentifiableMessage(
+      'writeToClipboard',
+      JSON.stringify({ quote: selectionAttributes?.selection.toString() })
+    )
+  }, [selectionAttributes?.selection])
+
   useEffect(() => {
     if (disabled) {
       return
@@ -140,13 +149,15 @@ export function useSelection(
     document.addEventListener('mouseup', handleFinishTouch)
     document.addEventListener('touchend', handleFinishTouch)
     document.addEventListener('contextmenu', handleFinishTouch)
+    document.addEventListener('copyTextSelection', copyTextSelection)
 
     return () => {
       document.removeEventListener('mouseup', handleFinishTouch)
       document.removeEventListener('touchend', handleFinishTouch)
       document.removeEventListener('contextmenu', handleFinishTouch)
+      document.removeEventListener('copyTextSelection', copyTextSelection)
     }
-  }, [highlightLocations, handleFinishTouch, disabled])
+  }, [highlightLocations, handleFinishTouch, disabled, copyTextSelection])
 
   return [selectionAttributes, setSelectionAttributes]
 }

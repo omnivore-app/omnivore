@@ -5,9 +5,10 @@
     <string name="welcome_subtitle">Save articles and read them later in our distraction-free reader.</string>
     <string name="highlight_menu_action">Highlight</string>
     <string name="copy_menu_action">Copy</string>
-    <string name="annotate_menu_action">Annotate</string>
+    <string name="annotate_menu_action">Note</string>
     <string name="pdf_remove_highlight">Remove</string>
     <string name="pdf_highlight_menu_action">Highlight</string>
     <string name="pdf_highlight_copy">Copy</string>
     <string name="highlight_note">Note</string>
+    <string name="copyTextSelection">Copy</string>
 </resources>

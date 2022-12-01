@@ -279,6 +279,15 @@ class OmnivoreWebView(context: Context) : WebView(context) {
           }
           true
         }
+        R.id.copyTextSelection -> {
+          val script = "var event = new Event('copyTextSelection');document.dispatchEvent(event);"
+          evaluateJavascript(script) {
+            clearFocus()
+            mode.finish()
+            actionMode = null
+          }
+          true
+        }
         R.id.removeHighlight -> {
           val script = "var event = new Event('remove');document.dispatchEvent(event);"
           evaluateJavascript(script) {
