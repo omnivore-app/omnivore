@@ -53,7 +53,7 @@ public struct GridCard: View {
       }
       Button(
         action: { menuActionHandler(.editTitle) },
-        label: { Label("Edit Metadata", systemImage: "textbox") }
+        label: { Label("Edit Info", systemImage: "info.circle") }
       )
       Button(
         action: { menuActionHandler(.editLabels) },

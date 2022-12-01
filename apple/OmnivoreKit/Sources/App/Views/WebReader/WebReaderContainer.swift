@@ -164,6 +164,17 @@ struct WebReaderContainerView: View {
     }.foregroundColor(.appGrayTextContrast)
   }
 
+  func audioMenuItem() -> some View {
+    Button(
+      action: {
+        viewModel.downloadAudio(audioController: audioController, item: item)
+      },
+      label: {
+        Label(viewModel.isDownloadingAudio ? "Downloading Audio" : "Download Audio", systemImage: "icloud.and.arrow.down")
+      }
+    )
+  }
+
   func menuItems(for item: LinkedItem) -> some View {
     let hasLabels = item.labels?.count == 0
     let hasHighlights = (item.highlights?.count ?? 0) > 0
@@ -176,7 +187,7 @@ struct WebReaderContainerView: View {
       }
       Button(
         action: { showTitleEdit = true },
-        label: { Label("Edit Metadata", systemImage: "textbox") }
+        label: { Label("Edit Info", systemImage: "info.circle") }
       )
       Button(
         action: editLabels,
@@ -199,12 +210,8 @@ struct WebReaderContainerView: View {
         },
         label: { Label("Reset Read Location", systemImage: "arrow.counterclockwise.circle") }
       )
-      Button(
-        action: {
-          viewModel.downloadAudio(audioController: audioController, item: item)
-        },
-        label: { Label("Download Audio", systemImage: "icloud.and.arrow.down") }
-      )
+      audioMenuItem()
+
       if viewModel.hasOriginalUrl(item) {
         Button(
           action: share,

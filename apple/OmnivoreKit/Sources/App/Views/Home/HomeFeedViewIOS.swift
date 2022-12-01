@@ -279,7 +279,7 @@ import Views
         }
         Button(
           action: { viewModel.itemUnderTitleEdit = item },
-          label: { Label("Edit Metadata", systemImage: "textbox") }
+          label: { Label("Edit Info", systemImage: "info.circle") }
         )
         Button(
           action: { viewModel.itemUnderLabelEdit = item },
