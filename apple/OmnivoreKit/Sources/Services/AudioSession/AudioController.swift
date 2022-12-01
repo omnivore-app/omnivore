@@ -120,7 +120,7 @@
     }
 
     public func stopWithError() {
-      stop()
+      pause()
       playbackError = true
     }
 
@@ -667,7 +667,7 @@
     @objc func fireTimer() {
       if let player = player {
         if player.error != nil || player.currentItem?.error != nil {
-          stop()
+          stopWithError()
         }
 
         if let durations = durations {

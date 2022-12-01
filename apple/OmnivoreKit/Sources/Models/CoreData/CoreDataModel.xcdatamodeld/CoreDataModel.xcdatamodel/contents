@@ -13,6 +13,7 @@
         <attribute name="shortId" attributeType="String"/>
         <attribute name="suffix" optional="YES" attributeType="String"/>
         <attribute name="updatedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <relationship name="labels" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LinkedItemLabel" inverseName="highlights" inverseEntity="LinkedItemLabel"/>
         <relationship name="linkedItem" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LinkedItem" inverseName="highlights" inverseEntity="LinkedItem"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
@@ -67,6 +68,7 @@
         <attribute name="labelDescription" optional="YES" attributeType="String"/>
         <attribute name="name" attributeType="String"/>
         <attribute name="serverSyncStatus" attributeType="Integer 64" defaultValueString="NO" usesScalarValueType="YES"/>
+        <relationship name="highlights" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Highlight" inverseName="labels" inverseEntity="Highlight"/>
         <relationship name="linkedItems" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LinkedItem" inverseName="labels" inverseEntity="LinkedItem"/>
         <uniquenessConstraints>
             <uniquenessConstraint>

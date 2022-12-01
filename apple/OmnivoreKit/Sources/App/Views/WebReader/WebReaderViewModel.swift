@@ -12,6 +12,12 @@ struct SafariWebLink: Identifiable {
 @MainActor final class WebReaderViewModel: ObservableObject {
   @Published var articleContent: ArticleContent?
   @Published var errorMessage: String?
+  @Published var isDownloadingAudio: Bool = false
+  @Published var audioDownloadTask: Task<Void, Error>?
+
+  deinit {
+    print("deinit WebReaderViewModel")
+  }
 
   func hasOriginalUrl(_ item: LinkedItem) -> Bool {
     if let pageURLString = item.pageURLString, let host = URL(string: pageURLString)?.host {
@@ -25,9 +31,22 @@ struct SafariWebLink: Identifiable {
 
   func downloadAudio(audioController: AudioController, item: LinkedItem) {
     Snackbar.show(message: "Downloading Offline Audio")
-    Task {
-      let downloaded = await audioController.downloadForOffline(itemID: item.unwrappedID)
-      Snackbar.show(message: downloaded ? "Audio file downloaded" : "Error downloading audio")
+    isDownloadingAudio = true
+
+    if let audioDownloadTask = audioDownloadTask {
+      audioDownloadTask.cancel()
+    }
+
+    let itemID = item.unwrappedID
+    audioDownloadTask = Task.detached(priority: .background) {
+      let canceled = Task.isCancelled
+      let downloaded = await audioController.downloadForOffline(itemID: itemID)
+      DispatchQueue.main.async {
+        self.isDownloadingAudio = false
+        if !canceled {
+          Snackbar.show(message: downloaded ? "Audio file downloaded" : "Error downloading audio")
+        }
+      }
     }
   }
 
@@ -168,5 +187,12 @@ struct SafariWebLink: Identifiable {
     default:
       replyHandler(nil, "Unknown actionID: \(actionID)")
     }
+  }
+
+  func setLabelsForHighlight(highlightID: String,
+                             labelIDs: [String],
+                             dataService: DataService)
+  {
+    dataService.setLabelsForHighlight(highlightID: highlightID, labelIDs: labelIDs)
   }
 }

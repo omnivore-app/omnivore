@@ -6,11 +6,12 @@ import Views
 struct ApplyLabelsView: View {
   enum Mode {
     case item(LinkedItem)
+    case highlight(Highlight)
     case list([LinkedItemLabel])
 
     var navTitle: String {
       switch self {
-      case .item:
+      case .item, .highlight:
         return "Assign Labels"
       case .list:
         return "Apply Label Filters"
@@ -19,7 +20,7 @@ struct ApplyLabelsView: View {
 
     var confirmButtonText: String {
       switch self {
-      case .item:
+      case .item, .highlight:
         return "Save"
       case .list:
         return "Apply"
@@ -109,6 +110,8 @@ struct ApplyLabelsView: View {
         switch mode {
         case let .item(feedItem):
           viewModel.saveItemLabelChanges(itemID: feedItem.unwrappedID, dataService: dataService)
+        case .highlight:
+          onSave?(viewModel.selectedLabels)
         case .list:
           onSave?(viewModel.selectedLabels)
         }
@@ -148,6 +151,8 @@ struct ApplyLabelsView: View {
       switch mode {
       case let .item(feedItem):
         await viewModel.loadLabels(dataService: dataService, item: feedItem)
+      case let .highlight(highlight):
+        await viewModel.loadLabels(dataService: dataService, highlight: highlight)
       case let .list(labels):
         await viewModel.loadLabels(dataService: dataService, initiallySelectedLabels: labels)
       }

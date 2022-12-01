@@ -1,6 +1,16 @@
 import Models
 import SwiftGraphQL
 
+let highlightLabelSelection = Selection.Label {
+  InternalLinkedItemLabel(
+    id: try $0.id(),
+    name: try $0.name(),
+    color: try $0.color(),
+    createdAt: try $0.createdAt()?.value,
+    labelDescription: try $0.description()
+  )
+}
+
 let highlightSelection = Selection.Highlight {
   InternalHighlight(
     id: try $0.id(),
@@ -12,6 +22,7 @@ let highlightSelection = Selection.Highlight {
     annotation: try $0.annotation(),
     createdAt: try $0.createdAt().value,
     updatedAt: try $0.updatedAt().value,
-    createdByMe: try $0.createdByMe()
+    createdByMe: try $0.createdByMe(),
+    labels: try $0.labels(selection: highlightLabelSelection.list.nullable) ?? []
   )
 }

@@ -45,15 +45,13 @@ public struct GridCard: View {
 
   var contextMenuView: some View {
     Group {
-      if (item.highlights?.count ?? 0) > 0 {
-        Button(
-          action: { menuActionHandler(.viewHighlights) },
-          label: { Label("View Highlights & Notes", systemImage: "highlighter") }
-        )
-      }
+      Button(
+        action: { menuActionHandler(.viewHighlights) },
+        label: { Label("Notebook", systemImage: "highlighter") }
+      )
       Button(
         action: { menuActionHandler(.editTitle) },
-        label: { Label("Edit Metadata", systemImage: "textbox") }
+        label: { Label("Edit Info", systemImage: "info.circle") }
       )
       Button(
         action: { menuActionHandler(.editLabels) },

@@ -41,7 +41,7 @@ export function LabelChip(props: LabelChipProps): JSX.Element {
         css={{
           display: 'inline-table',
           margin: '4px',
-          borderRadius: '32px',
+          borderRadius: '4px',
           color: isDarkMode ? darkThemeTextColor : lightThemeTextColor,
           fontSize: '12px',
           fontWeight: 'bold',
@@ -49,7 +49,9 @@ export function LabelChip(props: LabelChipProps): JSX.Element {
           whiteSpace: 'nowrap',
           cursor: 'pointer',
           backgroundClip: 'padding-box',
-          border: isDarkMode ? `1px solid ${darkThemeTextColor}` :`1px solid rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.7)`,
+          border: isDarkMode
+            ? `1px solid ${darkThemeTextColor}`
+            : `1px solid rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.7)`,
           backgroundColor: isDarkMode
             ? `rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.08)`
             : props.color,

@@ -208,10 +208,12 @@ public final class OmnivoreWebView: WKWebView {
         // on iOS16 we use menuBuilder to create these items
         currentMenu = .defaultMenu
         let annotate = UIMenuItem(title: "Annotate", action: #selector(annotateSelection))
+        let labels = UIMenuItem(title: "Labels", action: #selector(setLabels))
+
         let remove = UIMenuItem(title: "Remove", action: #selector(removeSelection))
         //     let share = UIMenuItem(title: "Share", action: #selector(shareSelection))
 
-        UIMenuController.shared.menuItems = [remove, /* share, */ annotate]
+        UIMenuController.shared.menuItems = [remove, labels, annotate]
       }
     }
 
@@ -235,6 +237,7 @@ public final class OmnivoreWebView: WKWebView {
       case #selector(shareSelection): return true
       case #selector(removeSelection): return true
       case #selector(copy(_:)): return true
+      case #selector(setLabels(_:)): return true
       case Selector(("_lookup:")): return true
       case Selector(("_define:")): return true
       case Selector(("_findSelected:")): return true
@@ -292,15 +295,25 @@ public final class OmnivoreWebView: WKWebView {
       hideMenu()
     }
 
+    @objc public func setLabels(_: Any?) {
+      do {
+        try dispatchEvent(.setHighlightLabels)
+      } catch {
+        showErrorInSnackbar("Error setting labels for highlight")
+      }
+      hideMenu()
+    }
+
     override public func buildMenu(with builder: UIMenuBuilder) {
       if #available(iOS 16.0, *) {
         let annotate = UICommand(title: "Note", action: #selector(annotateSelection))
         let highlight = UICommand(title: "Highlight", action: #selector(highlightSelection))
         let remove = UICommand(title: "Remove", action: #selector(removeSelection))
+        let setLabels = UICommand(title: "Labels", action: #selector(setLabels))
 
         let omnivore = UIMenu(title: "",
                               options: .displayInline,
-                              children: currentMenu == .defaultMenu ? [highlight, annotate] : [annotate, remove])
+                              children: currentMenu == .defaultMenu ? [highlight, annotate] : [annotate, setLabels, remove])
         builder.insertSibling(omnivore, beforeMenu: .lookup)
       }
 
@@ -362,6 +375,7 @@ public enum WebViewDispatchEvent {
   case highlight
   case share
   case remove
+  case setHighlightLabels
   case copyHighlight
   case dismissHighlight
   case speakingSection(anchorIdx: String)
@@ -399,6 +413,8 @@ public enum WebViewDispatchEvent {
       return "share"
     case .remove:
       return "remove"
+    case .setHighlightLabels:
+      return "setHighlightLabels"
     case .copyHighlight:
       return "copyHighlight"
     case .dismissHighlight:
@@ -435,7 +451,7 @@ public enum WebViewDispatchEvent {
         }
       case let .speakingSection(anchorIdx: anchorIdx):
         return "event.anchorIdx = '\(anchorIdx)';"
-      case .annotate, .highlight, .share, .remove, .copyHighlight, .dismissHighlight:
+      case .annotate, .highlight, .setHighlightLabels, .share, .remove, .copyHighlight, .dismissHighlight:
         return ""
       }
     }
