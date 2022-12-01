@@ -13,8 +13,6 @@ import {
 } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { StyledText } from '../../elements/StyledText'
-import { CrossIcon } from '../../elements/images/CrossIcon'
-import { CommentIcon } from '../../elements/images/CommentIcon'
 import { TrashIcon } from '../../elements/images/TrashIcon'
 import { theme } from '../../tokens/stitches.config'
 import type { Highlight } from '../../../lib/networking/fragments/highlightFragment'
@@ -22,7 +20,7 @@ import { HighlightView } from '../../patterns/HighlightView'
 import { useCallback, useRef, useState } from 'react'
 import { StyledTextArea } from '../../elements/StyledTextArea'
 import { ConfirmationModal } from '../../patterns/ConfirmationModal'
-import { DotsThree, Pen, Trash } from 'phosphor-react'
+import { DotsThree } from 'phosphor-react'
 import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
 
 type HighlightsModalProps = {
@@ -48,7 +46,7 @@ export function HighlightsModal(props: HighlightsModalProps): JSX.Element {
       >
         <VStack distribution="start" css={{ height: '100%' }}>
           <ModalTitleBar title="Notebook" onOpenChange={props.onOpenChange} />
-          <Box css={{ overflow: 'auto', mt: '24px', width: '100%' }}>
+          <Box css={{ overflow: 'auto', width: '100%' }}>
             {props.highlights.map((highlight) => (
               <ModalHighlightView
                 key={highlight.id}
@@ -122,8 +120,8 @@ function ModalHighlightView(props: ModalHighlightViewProps): JSX.Element {
             }
           >
             <DropdownOption
-              onSelect={() => {
-                copyHighlight()
+              onSelect={async () => {
+                await copyHighlight()
               }}
               title="Copy"
             />
@@ -148,12 +146,14 @@ function ModalHighlightView(props: ModalHighlightViewProps): JSX.Element {
               bg: '$grayBase',
               p: '16px',
               width: '100%',
-              marginTop: '16px',
+              marginTop: '24px',
               color: '$grayText',
             }}
             onClick={() => setIsEditing(true)}
           >
-            {props.highlight.annotation ?? 'Add your notes...'}
+            {props.highlight.annotation
+              ? props.highlight.annotation
+              : 'Add your notes...'}
           </StyledText>
         ) : null}
         {isEditing && (
