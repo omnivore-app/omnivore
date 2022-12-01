@@ -322,7 +322,7 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
       }
       // synthesize text to speech if cache miss
       const { audioData, speechMarks } = await synthesizeTextToSpeech(input)
-      if (!audioData) {
+      if (!audioData || audioData.length === 0) {
         return res.status(500).send({ errorCode: 'SYNTHESIZER_ERROR' })
       }
 
