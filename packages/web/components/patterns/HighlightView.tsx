@@ -22,7 +22,7 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
     fontSize: '18px',
     lineHeight: '27px',
     color: '$grayText',
-    padding: '0px 10px',
+    padding: '0px 16px',
     borderLeft: '2px solid $omnivoreCtaYellow',
   })
 
