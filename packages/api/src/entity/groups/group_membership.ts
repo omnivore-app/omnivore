@@ -1,4 +1,5 @@
 import {
+  Column,
   CreateDateColumn,
   Entity,
   JoinColumn,
@@ -33,4 +34,7 @@ export class GroupMembership {
 
   @UpdateDateColumn()
   updatedAt?: Date
+
+  @Column('boolean', { default: false })
+  isAdmin!: boolean
 }
