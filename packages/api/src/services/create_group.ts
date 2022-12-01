@@ -8,8 +8,8 @@ import { AppDataSource } from '../server'
 export const createGroup = async (input: {
   admin: User
   name: string
-  maxMembers?: number
-  expiresInDays?: number
+  maxMembers?: number | null
+  expiresInDays?: number | null
 }): Promise<[Group, Invite]> => {
   const [group, invite] = await AppDataSource.transaction<[Group, Invite]>(
     async (t) => {
@@ -28,7 +28,7 @@ export const createGroup = async (input: {
         group,
         code,
         createdBy: input.admin,
-        maxMembers: input.maxMembers || 50,
+        maxMembers: input.maxMembers || 12,
         expirationTime: expirationTime,
       })
       // Add the admin to the group as its first user
@@ -36,6 +36,7 @@ export const createGroup = async (input: {
         user: input.admin,
         group,
         invite,
+        isAdmin: true,
       })
       return [group, invite]
     }

@@ -2137,6 +2137,37 @@ const schema = gql`
     NOT_FOUND
   }
 
+  input CreateGroupInput {
+    name: String! @sanitize(maxLength: 140)
+    maxMembers: Int
+    expiresInDays: Int
+  }
+
+  union CreateGroupResult = CreateGroupSuccess | CreateGroupError
+
+  type CreateGroupSuccess {
+    group: RecommendationGroup!
+  }
+
+  type RecommendationGroup {
+    id: ID!
+    name: String!
+    inviteUrl: String!
+    admins: [User!]!
+    members: [User!]!
+    createdAt: Date!
+    updatedAt: Date!
+  }
+
+  type CreateGroupError {
+    errorCodes: [CreateGroupErrorCode!]!
+  }
+
+  enum CreateGroupErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -2214,6 +2245,7 @@ const schema = gql`
     saveFilter(input: SaveFilterInput!): SaveFilterResult!
     deleteFilter(id: ID!): DeleteFilterResult!
     moveFilter(input: MoveFilterInput!): MoveFilterResult!
+    createGroup(input: CreateGroupInput!): CreateGroupResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed

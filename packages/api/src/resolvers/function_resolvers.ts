@@ -26,6 +26,7 @@ import {
   articleSavingRequestResolver,
   createArticleResolver,
   createArticleSavingRequestResolver,
+  createGroupResolver,
   createHighlightResolver,
   createLabelResolver,
   createNewsletterEmailResolver,
@@ -186,6 +187,7 @@ export const functionResolvers = {
     saveFilter: saveFilterResolver,
     deleteFilter: deleteFilterResolver,
     moveFilter: moveFilterResolver,
+    createGroup: createGroupResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -634,4 +636,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('Filters'),
   ...resultResolveTypeResolver('DeleteFilter'),
   ...resultResolveTypeResolver('MoveFilter'),
+  ...resultResolveTypeResolver('CreateGroup'),
 }
