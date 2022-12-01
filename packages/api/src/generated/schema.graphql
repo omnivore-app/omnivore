@@ -1836,6 +1836,7 @@ input UpdatePageInput {
   byline: String
   description: String
   pageId: ID!
+  savedAt: Date
   title: String
 }
 
