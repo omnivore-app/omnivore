@@ -271,12 +271,10 @@ import Views
 
     func menuItems(for item: LinkedItem) -> some View {
       Group {
-        if (item.highlights?.count ?? 0) > 0 {
-          Button(
-            action: { viewModel.itemForHighlightsView = item },
-            label: { Label("View Highlights & Notes", systemImage: "highlighter") }
-          )
-        }
+        Button(
+          action: { viewModel.itemForHighlightsView = item },
+          label: { Label("Notebook", systemImage: "highlighter") }
+        )
         Button(
           action: { viewModel.itemUnderTitleEdit = item },
           label: { Label("Edit Info", systemImage: "info.circle") }

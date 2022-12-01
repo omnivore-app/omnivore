@@ -15,7 +15,7 @@ struct HighlightsListView: View {
 
   var emptyView: some View {
     Text("""
-    You have not added any highlights to this page.
+    You have not added any highlights or notes to this page.
     """)
       .multilineTextAlignment(.center)
       .padding(16)
@@ -23,7 +23,7 @@ struct HighlightsListView: View {
 
   var innerBody: some View {
     (viewModel.highlightItems.count > 0 ? AnyView(listView) : AnyView(emptyView))
-      .navigationTitle("Highlights & Notes")
+      .navigationTitle("Notebook")
       .listStyle(PlainListStyle())
     #if os(iOS)
       .navigationBarTitleDisplayMode(.inline)
