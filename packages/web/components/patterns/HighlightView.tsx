@@ -8,7 +8,7 @@ type HighlightViewProps = {
   highlight: Highlight
   author?: string
   title?: string
-  scrollToHighlight?: (arg: string) => void;
+  scrollToHighlight?: (arg: string) => void
 }
 
 export function HighlightView(props: HighlightViewProps): JSX.Element {
@@ -21,19 +21,21 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
     margin: '0px 0px 0px 0px',
     fontSize: '18px',
     lineHeight: '27px',
-    color: '$utilityTextDefault',
-    cursor: 'pointer',
+    color: '$grayText',
+    padding: '0px 10px',
+    borderLeft: '2px solid $omnivoreCtaYellow',
   })
 
   return (
     <VStack css={{ width: '100%', boxSizing: 'border-box' }}>
-      <StyledQuote onClick={() => {
-        if (props.scrollToHighlight) {
-          props.scrollToHighlight(props.highlight.id)
-        }
-      }}>
-        {props.highlight.prefix}
-        <SpanBox css={{ bg: 'rgb($highlightBackground)', p: '1px', borderRadius: '2px', }}>
+      <StyledQuote
+        onClick={() => {
+          if (props.scrollToHighlight) {
+            props.scrollToHighlight(props.highlight.id)
+          }
+        }}
+      >
+        <SpanBox css={{ p: '1px', borderRadius: '2px' }}>
           {lines.map((line: string, index: number) => (
             <Fragment key={index}>
               {line}
@@ -46,13 +48,7 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
             </Fragment>
           ))}
         </SpanBox>
-        {props.highlight.suffix}
       </StyledQuote>
-      <Box css={{p: '24px', pt: '0', width: '100%', boxSizing: 'border-box'}}>
-        {props.author && props.title &&(
-          <StyledText style="highlightTitleAndAuthor">{props.title + props.author}</StyledText>
-        )}
-      </Box>
     </VStack>
   )
 }
