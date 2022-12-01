@@ -1,6 +1,5 @@
 package app.omnivore.omnivore.ui.reader
 
-import android.graphics.Rect
 import android.util.Log
 import androidx.compose.foundation.ScrollState
 import androidx.lifecycle.MutableLiveData
@@ -14,7 +13,6 @@ import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import org.json.JSONObject
 import java.util.*
 import javax.inject.Inject
 
@@ -41,7 +39,7 @@ class WebReaderViewModel @Inject constructor(
   val javascriptActionLoopUUIDLiveData = MutableLiveData(lastJavascriptActionLoopUUID)
 
   var hasTappedExistingHighlight = false
-  var lastTappedLocationRect: Rect? = null
+  var lastTapCoordinates: TapCoordinates? = null
 
   fun loadItem(slug: String) {
     viewModelScope.launch {
@@ -115,7 +113,7 @@ class WebReaderViewModel @Inject constructor(
     scrollState = ScrollState(0)
     javascriptDispatchQueue = mutableListOf()
     hasTappedExistingHighlight = false
-    lastTappedLocationRect = null
+    lastTapCoordinates = null
   }
 
   fun resetJavascriptDispatchQueue() {

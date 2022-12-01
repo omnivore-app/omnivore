@@ -275,8 +275,8 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       }
 
       const tapAttributes = {
-        tapX: event.screenX,
-        tapY: event.screenY,
+        tapX: event.clientX,
+        tapY: event.clientY,
       }
 
       window?.AndroidWebKitMessenger?.handleIdentifiableMessage(
@@ -300,20 +300,18 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           // In the native app we post a message with the rect of the
           // highlight, so the app can display a native menu
           const rect = (target as Element).getBoundingClientRect()
-          const message = {
+
+          window?.webkit?.messageHandlers.viewerAction?.postMessage({
+            actionID: 'showMenu',
             rectX: rect.x,
             rectY: rect.y,
             rectWidth: rect.width,
             rectHeight: rect.height,
-            highlightID: highlight.id,
-          }
-          window?.webkit?.messageHandlers.viewerAction?.postMessage({
-            actionID: 'showMenu',
-            ...message,
           })
+
           window?.AndroidWebKitMessenger?.handleIdentifiableMessage(
             'existingHighlightTap',
-            JSON.stringify(message)
+            JSON.stringify({ ...tapAttributes })
           )
         }
       } else if ((target as Element).hasAttribute(highlightNoteIdAttribute)) {

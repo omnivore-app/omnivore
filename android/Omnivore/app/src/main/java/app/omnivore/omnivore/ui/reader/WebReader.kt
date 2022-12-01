@@ -24,7 +24,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.lifecycle.viewmodel.compose.viewModel
 import app.omnivore.omnivore.R
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
@@ -174,17 +173,17 @@ fun WebReader(
               val tapCoordinates = Gson().fromJson(json, TapCoordinates::class.java)
               Log.d("wvt", "received tap action: $tapCoordinates")
               CoroutineScope(Dispatchers.Main).launch {
-                webReaderViewModel.lastTappedLocationRect = tapCoordinates.asRect()
+                webReaderViewModel.lastTapCoordinates = tapCoordinates
                 actionMode?.finish()
                 actionMode = null
               }
             }
             "existingHighlightTap" -> {
-              val actionTapCoordinates = Gson().fromJson(json, ActionTapCoordinates::class.java)
-              Log.d("wv", "receive existing highlight tap action: $actionTapCoordinates")
+              val tapCoordinates = Gson().fromJson(json, TapCoordinates::class.java)
+              Log.d("wv", "receive existing highlight tap action: $tapCoordinates")
               CoroutineScope(Dispatchers.Main).launch {
                 webReaderViewModel.hasTappedExistingHighlight = true
-                webReaderViewModel.lastTappedLocationRect = actionTapCoordinates.asRect()
+                webReaderViewModel.lastTapCoordinates = tapCoordinates
                 startActionMode(null, ActionMode.TYPE_FLOATING)
               }
             }
@@ -236,7 +235,6 @@ class OmnivoreWebView(context: Context) : WebView(context) {
     // Called each time the action mode is shown. Always called after onCreateActionMode, but
     // may be called multiple times if the mode is invalidated.
     override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
-      Log.d("wv", "preparing action mode $menu")
       return false // Return false if nothing is done
     }
 
@@ -285,9 +283,17 @@ class OmnivoreWebView(context: Context) : WebView(context) {
 
     override fun onGetContentRect(mode: ActionMode?, view: View?, outRect: Rect?) {
       Log.d("wv", "outRect: $outRect, View: $view")
-      if (viewModel?.lastTappedLocationRect != null) {
-        Log.d("wv", "setting rect based on last tapped rect: ${viewModel?.lastTappedLocationRect.toString()}")
-        outRect?.set(viewModel!!.lastTappedLocationRect!!)
+      if (viewModel?.lastTapCoordinates != null) {
+        val scrollYOffset = viewModel?.scrollState?.value ?: 0
+        val xValue = viewModel!!.lastTapCoordinates!!.tapX.toInt()
+        val yValue = viewModel!!.lastTapCoordinates!!.tapY.toInt() + scrollYOffset
+        val rect = Rect(xValue, yValue, xValue, yValue)
+
+        Log.d("wv", "scrollState: $scrollYOffset")
+        Log.d("wv", "setting rect based on last tapped rect: ${viewModel?.lastTapCoordinates.toString()}")
+        Log.d("wv", "rect: $rect")
+
+        outRect?.set(rect)
       } else {
         outRect?.set(left, top, right, bottom)
       }
@@ -320,32 +326,7 @@ class AndroidWebKitMessenger(val messageHandler: (String, String) -> Unit) {
   }
 }
 
-data class ActionTapCoordinates(
-  val rectX: Double,
-  val rectY: Double,
-  val rectWidth: Double,
-  val rectHeight: Double,
-) {
-  fun asRect(): Rect {
-    return Rect(
-      rectX.toInt(),
-      rectY.toInt(),
-      rectX.toInt(),
-      rectY.toInt()
-    )
-  }
-}
-
 data class TapCoordinates(
   val tapX: Double,
   val tapY: Double
-) {
-  fun asRect(): Rect {
-    return Rect(
-      tapX.toInt(),
-      tapY.toInt(),
-      tapX.toInt(),
-      tapY.toInt()
-    )
-  }
-}
+)
