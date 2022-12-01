@@ -346,6 +346,10 @@
       if let itemAudioProperties = self.audioController.itemAudioProperties {
         playerContent(itemAudioProperties)
           .tint(.appGrayTextContrast)
+          .alert("There was an error playing back your audio.",
+                 isPresented: $audioController.playbackError) {
+            Button("Dismiss", role: .none) {}
+          }
       } else {
         EmptyView()
       }
