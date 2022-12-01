@@ -470,7 +470,15 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
 
     const copy = async () => {
       if (focusedHighlight) {
-        await navigator.clipboard.writeText(focusedHighlight.quote)
+        if (window.AndroidWebKitMessenger) {
+          window.AndroidWebKitMessenger.handleIdentifiableMessage(
+            'writeToClipboard',
+            JSON.stringify({ quote: focusedHighlight.quote })
+          )
+        } else {
+          await navigator.clipboard.writeText(focusedHighlight.quote)
+        }
+
         setFocusedHighlight(undefined)
       }
     }

@@ -1,6 +1,8 @@
 package app.omnivore.omnivore.ui.reader
 
 import android.annotation.SuppressLint
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.graphics.Rect
 import android.util.Log
@@ -24,11 +26,13 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.ContextCompat.getSystemService
 import app.omnivore.omnivore.R
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.json.JSONObject
 import java.util.*
 import kotlin.math.roundToInt
 
@@ -187,6 +191,14 @@ fun WebReader(
                 startActionMode(null, ActionMode.TYPE_FLOATING)
               }
             }
+            "writeToClipboard" -> {
+              val quote = Gson().fromJson(json, HighlightQuote::class.java).quote
+              quote.let { unwrappedQuote ->
+                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                val clip = ClipData.newPlainText(unwrappedQuote, unwrappedQuote)
+                clipboard.setPrimaryClip(clip)
+              }
+            }
             else -> {
               webReaderViewModel.handleIncomingWebMessage(actionID, json)
             }
@@ -241,7 +253,7 @@ class OmnivoreWebView(context: Context) : WebView(context) {
     // Called when the user selects a contextual menu item
     override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
       return when (item.itemId) {
-        R.id.annotate -> {
+        R.id.annotateHighlight -> {
           val script = "var event = new Event('annotate');document.dispatchEvent(event);"
           evaluateJavascript(script) {
             mode.finish()
@@ -258,7 +270,16 @@ class OmnivoreWebView(context: Context) : WebView(context) {
           }
           true
         }
-        R.id.delete -> {
+        R.id.copyHighlight -> {
+          val script = "var event = new Event('copyHighlight');document.dispatchEvent(event);"
+          evaluateJavascript(script) {
+            clearFocus()
+            mode.finish()
+            actionMode = null
+          }
+          true
+        }
+        R.id.removeHighlight -> {
           val script = "var event = new Event('remove');document.dispatchEvent(event);"
           evaluateJavascript(script) {
             clearFocus()
@@ -330,3 +351,5 @@ data class TapCoordinates(
   val tapX: Double,
   val tapY: Double
 )
+
+data class HighlightQuote(val quote: String?)

@@ -269,7 +269,7 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
     // TODO: anchor popover at exact position of tap (maybe add an empty view at tap loc and anchor to that?)
     val popupMenu = PopupMenu(this, fragment.view, Gravity.CENTER, androidx.appcompat.R.attr.actionOverflowMenuStyle, 0)
 
-    popupMenu.menuInflater.inflate(R.menu.highlight_selection_menu, popupMenu.menu)
+    popupMenu.menuInflater.inflate(R.menu.pdf_highlight_selection_menu, popupMenu.menu)
 
     popupMenu.setOnMenuItemClickListener { item ->
       when(item.itemId) {
