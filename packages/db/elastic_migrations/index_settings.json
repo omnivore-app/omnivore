@@ -160,6 +160,21 @@
       },
       "wordsCount": {
         "type": "integer"
+      },
+      "recommendedBy": {
+        "type": "nested",
+        "properties": {
+          "id": {
+            "type": "keyword"
+          },
+          "name": {
+            "type": "keyword",
+            "normalizer": "lowercase_normalizer"
+          },
+          "recommendedAt": {
+            "type": "date"
+          }
+        }
       }
     }
   }

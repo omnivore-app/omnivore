@@ -188,6 +188,12 @@ export interface Highlight {
   highlightPositionAnchorIndex?: number | null
 }
 
+export interface Group {
+  id: string
+  name: string
+  recommendedAt: Date
+}
+
 export interface Page {
   id: string
   userId: string
@@ -224,6 +230,7 @@ export interface Page {
   readAt?: Date
   listenedAt?: Date
   wordsCount?: number
+  recommendedBy?: Group[]
 }
 
 export interface SearchItem {
