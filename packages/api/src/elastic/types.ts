@@ -188,7 +188,7 @@ export interface Highlight {
   highlightPositionAnchorIndex?: number | null
 }
 
-export interface Group {
+export interface Recommendation {
   id: string
   name: string
   recommendedAt: Date
@@ -230,7 +230,7 @@ export interface Page {
   readAt?: Date
   listenedAt?: Date
   wordsCount?: number
-  recommendedBy?: Group[]
+  recommendedBy?: Recommendation[]
 }
 
 export interface SearchItem {
@@ -263,6 +263,7 @@ export interface SearchItem {
   wordsCount?: number
   siteName?: string
   siteIcon?: string
+  recommendedBy?: Recommendation[]
 }
 
 const keys = ['_id', 'url', 'slug', 'userId', 'uploadFileId', 'state'] as const

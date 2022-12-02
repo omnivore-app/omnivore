@@ -6,6 +6,10 @@ import {
   GroupsErrorCode,
   GroupsSuccess,
   MutationCreateGroupArgs,
+  MutationRecommendArgs,
+  RecommendError,
+  RecommendErrorCode,
+  RecommendSuccess,
 } from '../../generated/graphql'
 import {
   createGroup,
@@ -15,6 +19,10 @@ import {
 import { authorized, userDataToUser } from '../../utils/helpers'
 import { getRepository } from '../../entity/utils'
 import { User } from '../../entity/user'
+import { Group } from '../../entity/groups/group'
+import { In } from 'typeorm'
+import { getPageByParam } from '../../elastic/pages'
+import { enqueueRecommendation } from '../../utils/createTask'
 
 export const createGroupResolver = authorized<
   CreateGroupSuccess,
@@ -116,3 +124,77 @@ export const groupsResolver = authorized<GroupsSuccess, GroupsError>(
     }
   }
 )
+
+export const recommendResolver = authorized<
+  RecommendSuccess,
+  RecommendError,
+  MutationRecommendArgs
+>(async (_, { input }, { claims: { uid }, log }) => {
+  log.info('Recommend', {
+    input,
+    labels: {
+      source: 'resolver',
+      resolver: 'recommendResolver',
+      uid,
+    },
+  })
+
+  try {
+    const user = await getRepository(User).findOneBy({
+      id: uid,
+    })
+    if (!user) {
+      return {
+        errorCodes: [RecommendErrorCode.Unauthorized],
+      }
+    }
+
+    const groups = await getRepository(Group).find({
+      where: { id: In(input.groupIds) },
+    })
+    if (groups.length === 0) {
+      return {
+        errorCodes: [RecommendErrorCode.NotFound],
+      }
+    }
+
+    const page = await getPageByParam({ _id: input.pageId, userId: uid })
+    if (!page) {
+      return {
+        errorCodes: [RecommendErrorCode.NotFound],
+      }
+    }
+
+    const taskNames = await Promise.all(
+      groups
+        .map((group) =>
+          group.members
+            .filter((member) => member.id !== uid)
+            .map((member) =>
+              enqueueRecommendation(member.id, page.id, {
+                ...group,
+                recommendedAt: new Date(),
+              })
+            )
+        )
+        .flat()
+    )
+
+    return {
+      taskNames,
+    }
+  } catch (error) {
+    log.error('Error recommending', {
+      error,
+      labels: {
+        source: 'resolver',
+        resolver: 'recommendResolver',
+        uid,
+      },
+    })
+
+    return {
+      errorCodes: [RecommendErrorCode.BadRequest],
+    }
+  }
+})

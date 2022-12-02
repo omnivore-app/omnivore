@@ -1010,6 +1010,7 @@ type Mutation {
   moveFilter(input: MoveFilterInput!): MoveFilterResult!
   moveLabel(input: MoveLabelInput!): MoveLabelResult!
   optInFeature(input: OptInFeatureInput!): OptInFeatureResult!
+  recommend(input: RecommendInput!): RecommendResult!
   reportItem(input: ReportItemInput!): ReportItemResult!
   revokeApiKey(id: ID!): RevokeApiKeyResult!
   saveArticleReadingProgress(input: SaveArticleReadingProgressInput!): SaveArticleReadingProgressResult!
@@ -1217,6 +1218,27 @@ union RecentSearchesResult = RecentSearchesError | RecentSearchesSuccess
 
 type RecentSearchesSuccess {
   searches: [RecentSearch!]!
+}
+
+type RecommendError {
+  errorCodes: [RecommendErrorCode!]!
+}
+
+enum RecommendErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+input RecommendInput {
+  groupIds: [ID!]!
+  pageId: ID!
+}
+
+union RecommendResult = RecommendError | RecommendSuccess
+
+type RecommendSuccess {
+  taskNames: [String!]!
 }
 
 type RecommendationGroup {

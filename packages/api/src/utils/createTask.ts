@@ -10,7 +10,7 @@ import { nanoid } from 'nanoid'
 import { google } from '@google-cloud/tasks/build/protos/protos'
 import { IntegrationType } from '../entity/integration'
 import { signFeatureToken } from '../services/features'
-import { Group } from '../elastic/types'
+import { Recommendation } from '../elastic/types'
 import View = google.cloud.tasks.v2.Task.View
 
 const logger = buildLogger('app.dispatch')
@@ -409,13 +409,13 @@ export const enqueueTextToSpeech = async ({
 export const enqueueRecommendation = async (
   userId: string,
   pageId: string,
-  group: Group
+  recommendation: Recommendation
 ): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT } = process.env
   const payload = {
     userId,
     pageId,
-    group,
+    recommendation,
   }
 
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment

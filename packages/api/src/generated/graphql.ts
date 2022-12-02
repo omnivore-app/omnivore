@@ -1132,6 +1132,7 @@ export type Mutation = {
   moveFilter: MoveFilterResult;
   moveLabel: MoveLabelResult;
   optInFeature: OptInFeatureResult;
+  recommend: RecommendResult;
   reportItem: ReportItemResult;
   revokeApiKey: RevokeApiKeyResult;
   saveArticleReadingProgress: SaveArticleReadingProgressResult;
@@ -1298,6 +1299,11 @@ export type MutationMoveLabelArgs = {
 
 export type MutationOptInFeatureArgs = {
   input: OptInFeatureInput;
+};
+
+
+export type MutationRecommendArgs = {
+  input: RecommendInput;
 };
 
 
@@ -1741,6 +1747,29 @@ export type RecentSearchesResult = RecentSearchesError | RecentSearchesSuccess;
 export type RecentSearchesSuccess = {
   __typename?: 'RecentSearchesSuccess';
   searches: Array<RecentSearch>;
+};
+
+export type RecommendError = {
+  __typename?: 'RecommendError';
+  errorCodes: Array<RecommendErrorCode>;
+};
+
+export enum RecommendErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type RecommendInput = {
+  groupIds: Array<Scalars['ID']>;
+  pageId: Scalars['ID'];
+};
+
+export type RecommendResult = RecommendError | RecommendSuccess;
+
+export type RecommendSuccess = {
+  __typename?: 'RecommendSuccess';
+  taskNames: Array<Scalars['String']>;
 };
 
 export type RecommendationGroup = {
@@ -3157,6 +3186,11 @@ export type ResolversTypes = {
   RecentSearchesErrorCode: RecentSearchesErrorCode;
   RecentSearchesResult: ResolversTypes['RecentSearchesError'] | ResolversTypes['RecentSearchesSuccess'];
   RecentSearchesSuccess: ResolverTypeWrapper<RecentSearchesSuccess>;
+  RecommendError: ResolverTypeWrapper<RecommendError>;
+  RecommendErrorCode: RecommendErrorCode;
+  RecommendInput: RecommendInput;
+  RecommendResult: ResolversTypes['RecommendError'] | ResolversTypes['RecommendSuccess'];
+  RecommendSuccess: ResolverTypeWrapper<RecommendSuccess>;
   RecommendationGroup: ResolverTypeWrapper<RecommendationGroup>;
   Reminder: ResolverTypeWrapper<Reminder>;
   ReminderError: ResolverTypeWrapper<ReminderError>;
@@ -3550,6 +3584,10 @@ export type ResolversParentTypes = {
   RecentSearchesError: RecentSearchesError;
   RecentSearchesResult: ResolversParentTypes['RecentSearchesError'] | ResolversParentTypes['RecentSearchesSuccess'];
   RecentSearchesSuccess: RecentSearchesSuccess;
+  RecommendError: RecommendError;
+  RecommendInput: RecommendInput;
+  RecommendResult: ResolversParentTypes['RecommendError'] | ResolversParentTypes['RecommendSuccess'];
+  RecommendSuccess: RecommendSuccess;
   RecommendationGroup: RecommendationGroup;
   Reminder: Reminder;
   ReminderError: ReminderError;
@@ -4547,6 +4585,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   moveFilter?: Resolver<ResolversTypes['MoveFilterResult'], ParentType, ContextType, RequireFields<MutationMoveFilterArgs, 'input'>>;
   moveLabel?: Resolver<ResolversTypes['MoveLabelResult'], ParentType, ContextType, RequireFields<MutationMoveLabelArgs, 'input'>>;
   optInFeature?: Resolver<ResolversTypes['OptInFeatureResult'], ParentType, ContextType, RequireFields<MutationOptInFeatureArgs, 'input'>>;
+  recommend?: Resolver<ResolversTypes['RecommendResult'], ParentType, ContextType, RequireFields<MutationRecommendArgs, 'input'>>;
   reportItem?: Resolver<ResolversTypes['ReportItemResult'], ParentType, ContextType, RequireFields<MutationReportItemArgs, 'input'>>;
   revokeApiKey?: Resolver<ResolversTypes['RevokeApiKeyResult'], ParentType, ContextType, RequireFields<MutationRevokeApiKeyArgs, 'id'>>;
   saveArticleReadingProgress?: Resolver<ResolversTypes['SaveArticleReadingProgressResult'], ParentType, ContextType, RequireFields<MutationSaveArticleReadingProgressArgs, 'input'>>;
@@ -4719,6 +4758,20 @@ export type RecentSearchesResultResolvers<ContextType = ResolverContext, ParentT
 
 export type RecentSearchesSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RecentSearchesSuccess'] = ResolversParentTypes['RecentSearchesSuccess']> = {
   searches?: Resolver<Array<ResolversTypes['RecentSearch']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type RecommendErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RecommendError'] = ResolversParentTypes['RecommendError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['RecommendErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type RecommendResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RecommendResult'] = ResolversParentTypes['RecommendResult']> = {
+  __resolveType: TypeResolveFn<'RecommendError' | 'RecommendSuccess', ParentType, ContextType>;
+};
+
+export type RecommendSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RecommendSuccess'] = ResolversParentTypes['RecommendSuccess']> = {
+  taskNames?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -5591,6 +5644,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   RecentSearchesError?: RecentSearchesErrorResolvers<ContextType>;
   RecentSearchesResult?: RecentSearchesResultResolvers<ContextType>;
   RecentSearchesSuccess?: RecentSearchesSuccessResolvers<ContextType>;
+  RecommendError?: RecommendErrorResolvers<ContextType>;
+  RecommendResult?: RecommendResultResolvers<ContextType>;
+  RecommendSuccess?: RecommendSuccessResolvers<ContextType>;
   RecommendationGroup?: RecommendationGroupResolvers<ContextType>;
   Reminder?: ReminderResolvers<ContextType>;
   ReminderError?: ReminderErrorResolvers<ContextType>;

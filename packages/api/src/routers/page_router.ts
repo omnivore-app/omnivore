@@ -29,7 +29,7 @@ import {
 import { Claims } from '../resolvers/types'
 import { createPage, getPageByParam, updatePage } from '../elastic/pages'
 import { createPubSubClient } from '../datalayer/pubsub'
-import { Group } from '../elastic/types'
+import { Recommendation } from '../elastic/types'
 import { addRecommendation } from '../elastic/recommendation'
 
 const logger = buildLogger('app.dispatch')
@@ -166,13 +166,13 @@ export function pageRouter() {
       const {
         userId: recommendedUserId,
         pageId,
-        group,
+        recommendation,
       } = req.body as {
         userId: string
         pageId: string
-        group: Group
+        recommendation: Recommendation
       }
-      if (!recommendedUserId || !pageId || !group) {
+      if (!recommendedUserId || !pageId || !recommendation) {
         return res.status(400).send({ errorCode: 'BAD_DATA' })
       }
 
@@ -189,7 +189,11 @@ export function pageRouter() {
         return res.status(404).send({ errorCode: 'NOT_FOUND' })
       }
 
-      const recommendedPageId = await addRecommendation(ctx, page, group)
+      const recommendedPageId = await addRecommendation(
+        ctx,
+        page,
+        recommendation
+      )
       if (!recommendedPageId) {
         logger.error('Failed to add recommendation to page')
         return res.sendStatus(500)

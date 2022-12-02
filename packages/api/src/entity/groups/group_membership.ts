@@ -16,7 +16,7 @@ import { Invite } from './invite'
 @Entity()
 export class GroupMembership {
   @PrimaryGeneratedColumn('uuid')
-  id?: string
+  id!: string
 
   @OneToOne(() => User)
   @JoinColumn()
