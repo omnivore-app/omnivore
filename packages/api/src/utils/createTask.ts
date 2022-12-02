@@ -10,6 +10,7 @@ import { nanoid } from 'nanoid'
 import { google } from '@google-cloud/tasks/build/protos/protos'
 import { IntegrationType } from '../entity/integration'
 import { signFeatureToken } from '../services/features'
+import { Group } from '../elastic/types'
 import View = google.cloud.tasks.v2.Task.View
 
 const logger = buildLogger('app.dispatch')
@@ -95,7 +96,7 @@ export const createAppEngineTask = async ({
   project,
   queue = env.queue.name,
   location = env.queue.location,
-  taskHandlerUrl = env.queue.reminderTaskHanderUrl,
+  taskHandlerUrl = env.queue.reminderTaskHandlerUrl,
   payload,
   priority = 'high',
   scheduleTime,
@@ -278,7 +279,7 @@ export const enqueueReminder = async (
     project: GOOGLE_CLOUD_PROJECT,
     payload,
     scheduleTime,
-    taskHandlerUrl: env.queue.reminderTaskHanderUrl,
+    taskHandlerUrl: env.queue.reminderTaskHandlerUrl,
   })
 
   if (!createdTasks || !createdTasks[0].name) {
@@ -393,6 +394,41 @@ export const enqueueTextToSpeech = async ({
     queue,
     location,
     priority,
+  })
+
+  if (!createdTasks || !createdTasks[0].name) {
+    logger.error(`Unable to get the name of the task`, {
+      payload,
+      createdTasks,
+    })
+    throw new CreateTaskError(`Unable to get the name of the task`)
+  }
+  return createdTasks[0].name
+}
+
+export const enqueueRecommendation = async (
+  recommendedUserId: string,
+  recommendedPageId: string,
+  userId: string,
+  group: Group
+): Promise<string> => {
+  const { GOOGLE_CLOUD_PROJECT } = process.env
+  const payload = {
+    userId,
+    recommendedUserId,
+    recommendedPageId,
+    group,
+  }
+
+  // If there is no Google Cloud Project Id exposed, it means that we are in local environment
+  if (env.dev.isLocal || !GOOGLE_CLOUD_PROJECT) {
+    return nanoid()
+  }
+
+  const createdTasks = await createHttpTaskWithToken({
+    project: GOOGLE_CLOUD_PROJECT,
+    payload,
+    taskHandlerUrl: env.queue.recommendationTaskHandlerUrl,
   })
 
   if (!createdTasks || !createdTasks[0].name) {
