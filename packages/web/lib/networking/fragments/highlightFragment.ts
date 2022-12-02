@@ -1,4 +1,5 @@
 import { gql } from 'graphql-request'
+import { Label, labelFragment } from './labelFragment'
 
 export const highlightFragment = gql`
   fragment HighlightFields on Highlight {
@@ -12,6 +13,12 @@ export const highlightFragment = gql`
     createdByMe
     updatedAt
     sharedAt
+    labels {
+      id
+      name
+      color
+      createdAt
+    }
   }
 `
 
@@ -26,6 +33,7 @@ export type Highlight = {
   createdByMe: boolean
   updatedAt: string
   sharedAt: string
+  labels?: Label[]
 }
 
 export type User = {
