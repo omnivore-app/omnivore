@@ -42,7 +42,7 @@ export function HighlightsModal(props: HighlightsModalProps): JSX.Element {
           event.preventDefault()
           props.onOpenChange(false)
         }}
-        css={{ overflow: 'auto', px: '24px', zIndex: '10' }}
+        css={{ overflow: 'auto', px: '24px' }}
       >
         <VStack distribution="start" css={{ height: '100%' }}>
           <ModalTitleBar title="Notebook" onOpenChange={props.onOpenChange} />

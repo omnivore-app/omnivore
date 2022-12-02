@@ -37,6 +37,7 @@ import { SkeletonArticleContainer } from '../../../components/templates/article/
 import { useRegisterActions } from 'kbar'
 import { deleteLinkMutation } from '../../../lib/networking/mutations/deleteLinkMutation'
 import { ConfirmationModal } from '../../../components/patterns/ConfirmationModal'
+import { setLabelsMutation } from '../../../lib/networking/mutations/setLabelsMutation'
 
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
   () => import('./../../../components/templates/article/PdfArticleContainer'),
@@ -365,10 +366,17 @@ export default function Home(): JSX.Element {
 
       {article && readerSettings.showSetLabelsModal && (
         <SetLabelsModal
-          article={article}
-          linkId={article.id}
-          labels={article.labels}
-          articleActionHandler={actionHandler}
+          provider={article}
+          // labels={article.labels}
+          onSave={(labels: Label[] | undefined) => {
+            actionHandler('refreshLabels', labels)
+          }}
+          save={(labels: Label[]) => {
+            return setLabelsMutation(
+              article.linkId,
+              labels.map((label) => label.id)
+            )
+          }}
           onOpenChange={() => readerSettings.setShowSetLabelsModal(false)}
         />
       )}

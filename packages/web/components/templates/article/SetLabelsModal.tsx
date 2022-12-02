@@ -2,22 +2,22 @@ import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
 import { Button } from '../../elements/Button'
 import { CrossIcon } from '../../elements/images/CrossIcon'
-import { HStack, VStack } from '../../elements/LayoutPrimitives'
+import { HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import {
   ModalRoot,
   ModalOverlay,
   ModalContent,
+  ModalTitleBar,
 } from '../../elements/ModalPrimitives'
 import { StyledText } from '../../elements/StyledText'
 import { theme } from '../../tokens/stitches.config'
-import { SetLabelsControl } from './SetLabelsControl'
+import { LabelsProvider, SetLabelsControl } from './SetLabelsControl'
 
 type SetLabelsModalProps = {
-  linkId: string
-  labels: Label[] | undefined
-  article?: ArticleAttributes
+  provider?: LabelsProvider
   onOpenChange: (open: boolean) => void
-  articleActionHandler: (action: string, arg?: unknown) => void
+  onSave: (labels: Label[] | undefined) => void
+  save: (labels: Label[]) => Promise<Label[] | undefined>
 }
 
 export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
@@ -31,27 +31,10 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
           props.onOpenChange(false)
         }}
       >
-        <VStack css={{ width: '100%' }}>
-          <HStack
-              distribution="between"
-              alignment="center"
-              css={{ width: '100%' }}
-            >
-              <StyledText style="modalHeadline" css={{ pl: '16px' }}>Labels</StyledText>
-              <Button
-                css={{ pt: '16px', pr: '16px' }}
-                style="ghost"
-                onClick={() => {
-                  props.onOpenChange(false)
-                }}
-                tabIndex={-1}
-              >
-                <CrossIcon
-                  size={14}
-                  strokeColor={theme.colors.grayText.toString()}
-                />
-              </Button>
-          </HStack>
+        <VStack distribution="start" css={{ height: '100%' }}>
+          <SpanBox css={{ p: '16px', width: '100%' }}>
+            <ModalTitleBar title="Labels" onOpenChange={props.onOpenChange} />
+          </SpanBox>
           <SetLabelsControl {...props} />
         </VStack>
       </ModalContent>
