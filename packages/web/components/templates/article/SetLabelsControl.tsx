@@ -19,7 +19,7 @@ export interface LabelsProvider {
 }
 
 type SetLabelsControlProps = {
-  provider?: LabelsProvider
+  provider: LabelsProvider
   onSave: (labels: Label[] | undefined) => void
   save: (labels: Label[]) => Promise<Label[] | undefined>
 }
@@ -240,7 +240,7 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
   const [filterText, setFilterText] = useState('')
   const { labels, revalidate } = useGetLabelsQuery()
   const [selectedLabels, setSelectedLabels] = useState<Label[]>(
-    props.provider?.labels || []
+    props.provider.labels ?? []
   )
 
   useEffect(() => {
@@ -269,9 +269,7 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
       setSelectedLabels(newSelectedLabels)
 
       const result = await props.save(newSelectedLabels)
-      if (props.provider) {
-        props.provider.labels = result
-      }
+      props.provider.labels = result
       if (props.onSave) {
         props.onSave(result)
       }

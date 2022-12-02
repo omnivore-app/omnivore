@@ -22,6 +22,9 @@ import { StyledTextArea } from '../../elements/StyledTextArea'
 import { ConfirmationModal } from '../../patterns/ConfirmationModal'
 import { DotsThree } from 'phosphor-react'
 import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
+import { SetLabelsModal } from './SetLabelsModal'
+import { Label } from '../../../lib/networking/fragments/labelFragment'
+import { setLabelsForHighlight } from '../../../lib/networking/mutations/setLabelsForHighlight'
 
 type HighlightsModalProps = {
   highlights: Highlight[]
@@ -33,6 +36,10 @@ type HighlightsModalProps = {
 export function HighlightsModal(props: HighlightsModalProps): JSX.Element {
   const [showConfirmDeleteHighlightId, setShowConfirmDeleteHighlightId] =
     useState<undefined | string>(undefined)
+  const [labelsTarget, setLabelsTarget] = useState<Highlight | undefined>(
+    undefined
+  )
+  const [, updateState] = useState({})
 
   return (
     <ModalRoot defaultOpen onOpenChange={props.onOpenChange}>
@@ -53,6 +60,7 @@ export function HighlightsModal(props: HighlightsModalProps): JSX.Element {
                 highlight={highlight}
                 showDelete={!!props.deleteHighlightAction}
                 scrollToHighlight={props.scrollToHighlight}
+                setSetLabelsTarget={setLabelsTarget}
                 setShowConfirmDeleteHighlightId={
                   setShowConfirmDeleteHighlightId
                 }
@@ -73,7 +81,7 @@ export function HighlightsModal(props: HighlightsModalProps): JSX.Element {
           </Box>
         </VStack>
       </ModalContent>
-      {showConfirmDeleteHighlightId ? (
+      {showConfirmDeleteHighlightId && (
         <ConfirmationModal
           message={'Are you sure you want to delete this highlight?'}
           onAccept={() => {
@@ -90,7 +98,25 @@ export function HighlightsModal(props: HighlightsModalProps): JSX.Element {
             />
           }
         />
-      ) : null}
+      )}
+      {labelsTarget && (
+        <SetLabelsModal
+          provider={labelsTarget}
+          onOpenChange={function (open: boolean): void {
+            setLabelsTarget(undefined)
+          }}
+          onSave={function (labels: Label[] | undefined): void {
+            updateState({})
+          }}
+          save={function (labels: Label[]): Promise<Label[] | undefined> {
+            const result = setLabelsForHighlight(
+              labelsTarget.id,
+              labels.map((label) => label.id)
+            )
+            return result
+          }}
+        />
+      )}
     </ModalRoot>
   )
 }
@@ -100,6 +126,8 @@ type ModalHighlightViewProps = {
   showDelete: boolean
   scrollToHighlight?: (arg: string) => void
   deleteHighlightAction: () => void
+
+  setSetLabelsTarget: (highlight: Highlight) => void
   setShowConfirmDeleteHighlightId: (id: string | undefined) => void
 }
 
@@ -125,7 +153,12 @@ function ModalHighlightView(props: ModalHighlightViewProps): JSX.Element {
               }}
               title="Copy"
             />
-            {/* <DropdownOption onSelect={() => {}} title="Labels" /> */}
+            <DropdownOption
+              onSelect={() => {
+                props.setSetLabelsTarget(props.highlight)
+              }}
+              title="Labels"
+            />
             <DropdownOption
               onSelect={() => {
                 props.setShowConfirmDeleteHighlightId(props.highlight.id)

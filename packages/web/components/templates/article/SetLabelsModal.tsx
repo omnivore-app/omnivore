@@ -14,7 +14,7 @@ import { theme } from '../../tokens/stitches.config'
 import { LabelsProvider, SetLabelsControl } from './SetLabelsControl'
 
 type SetLabelsModalProps = {
-  provider?: LabelsProvider
+  provider: LabelsProvider
   onOpenChange: (open: boolean) => void
   onSave: (labels: Label[] | undefined) => void
   save: (labels: Label[]) => Promise<Label[] | undefined>
