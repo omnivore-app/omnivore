@@ -150,7 +150,7 @@ struct LinkItemDetailView: View {
           Group {
             Button(
               action: { showTitleEdit = true },
-              label: { Label("Edit Metadata", systemImage: "textbox") }
+              label: { Label("Edit Info", systemImage: "info.circle") }
             )
             Button(
               action: { viewModel.handleArchiveAction(dataService: dataService) },

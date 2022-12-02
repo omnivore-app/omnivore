@@ -21,7 +21,8 @@ extension DataService {
       annotation: annotation,
       createdAt: nil,
       updatedAt: nil,
-      createdByMe: true
+      createdByMe: true,
+      labels: []
     )
 
     internalHighlight.persist(context: backgroundContext, associatedItemID: articleId)

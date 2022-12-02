@@ -31,6 +31,7 @@ import {
   createNewsletterEmailResolver,
   createReminderResolver,
   deleteAccountResolver,
+  deleteFilterResolver,
   deleteHighlightResolver,
   deleteIntegrationResolver,
   deleteLabelResolver,
@@ -39,6 +40,7 @@ import {
   deleteRuleResolver,
   deleteWebhookResolver,
   deviceTokensResolver,
+  filtersResolver,
   generateApiKeyResolver,
   getAllUsersResolver,
   getArticleResolver,
@@ -56,6 +58,7 @@ import {
   labelsResolver,
   logOutResolver,
   mergeHighlightResolver,
+  moveFilterResolver,
   moveLabelResolver,
   newsletterEmailsResolver,
   reminderResolver,
@@ -64,6 +67,7 @@ import {
   rulesResolver,
   saveArticleReadingProgressResolver,
   saveFileResolver,
+  saveFilterResolver,
   savePageResolver,
   saveUrlResolver,
   searchResolver,
@@ -179,6 +183,9 @@ export const functionResolvers = {
     optInFeature: optInFeatureResolver,
     setRule: setRuleResolver,
     deleteRule: deleteRuleResolver,
+    saveFilter: saveFilterResolver,
+    deleteFilter: deleteFilterResolver,
+    moveFilter: moveFilterResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -208,6 +215,7 @@ export const functionResolvers = {
     recentSearches: recentSearchesResolver,
     rules: rulesResolver,
     deviceTokens: deviceTokensResolver,
+    filters: filtersResolver,
   },
   User: {
     async sharedArticles(
@@ -622,4 +630,8 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('Rules'),
   ...resultResolveTypeResolver('DeviceTokens'),
   ...resultResolveTypeResolver('DeleteRule'),
+  ...resultResolveTypeResolver('SaveFilter'),
+  ...resultResolveTypeResolver('Filters'),
+  ...resultResolveTypeResolver('DeleteFilter'),
+  ...resultResolveTypeResolver('MoveFilter'),
 }

@@ -13,6 +13,7 @@ struct InternalHighlight: Encodable {
   let createdAt: Date?
   let updatedAt: Date?
   let createdByMe: Bool
+  var labels: [InternalLinkedItemLabel]
 
   func asManagedObject(context: NSManagedObjectContext) -> Highlight {
     let fetchRequest: NSFetchRequest<Models.Highlight> = Highlight.fetchRequest()
@@ -33,6 +34,15 @@ struct InternalHighlight: Encodable {
     highlight.createdAt = createdAt
     highlight.updatedAt = updatedAt
     highlight.createdByMe = createdByMe
+
+    if let existingLabels = highlight.labels {
+      highlight.removeFromLabels(existingLabels)
+    }
+
+    for label in labels {
+      highlight.addToLabels(label.asManagedObject(inContext: context))
+    }
+
     return highlight
   }
 
@@ -47,7 +57,8 @@ struct InternalHighlight: Encodable {
       annotation: highlight.annotation,
       createdAt: highlight.createdAt,
       updatedAt: highlight.updatedAt,
-      createdByMe: highlight.createdByMe
+      createdByMe: highlight.createdByMe,
+      labels: InternalLinkedItemLabel.make(highlight.labels)
     )
   }
 

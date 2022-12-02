@@ -390,6 +390,22 @@ type DeleteAccountSuccess {
   userID: ID!
 }
 
+type DeleteFilterError {
+  errorCodes: [DeleteFilterErrorCode!]!
+}
+
+enum DeleteFilterErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+union DeleteFilterResult = DeleteFilterError | DeleteFilterSuccess
+
+type DeleteFilterSuccess {
+  filter: Filter!
+}
+
 type DeleteHighlightError {
   errorCodes: [DeleteHighlightErrorCode!]!
 }
@@ -596,6 +612,31 @@ union FeedArticlesResult = FeedArticlesError | FeedArticlesSuccess
 type FeedArticlesSuccess {
   edges: [FeedArticleEdge!]!
   pageInfo: PageInfo!
+}
+
+type Filter {
+  createdAt: Date!
+  description: String
+  filter: String!
+  id: ID!
+  name: String!
+  position: Int!
+  updatedAt: Date!
+}
+
+type FiltersError {
+  errorCodes: [FiltersErrorCode!]!
+}
+
+enum FiltersErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+union FiltersResult = FiltersError | FiltersSuccess
+
+type FiltersSuccess {
+  filters: [Filter!]!
 }
 
 type GenerateApiKeyError {
@@ -861,6 +902,27 @@ type MergeHighlightSuccess {
   overlapHighlightIdList: [String!]!
 }
 
+type MoveFilterError {
+  errorCodes: [MoveFilterErrorCode!]!
+}
+
+enum MoveFilterErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+input MoveFilterInput {
+  afterFilterId: ID
+  filterId: ID!
+}
+
+union MoveFilterResult = MoveFilterError | MoveFilterSuccess
+
+type MoveFilterSuccess {
+  filter: Filter!
+}
+
 type MoveLabelError {
   errorCodes: [MoveLabelErrorCode!]!
 }
@@ -893,6 +955,7 @@ type Mutation {
   createReaction(input: CreateReactionInput!): CreateReactionResult!
   createReminder(input: CreateReminderInput!): CreateReminderResult!
   deleteAccount(userID: ID!): DeleteAccountResult!
+  deleteFilter(id: ID!): DeleteFilterResult!
   deleteHighlight(highlightId: ID!): DeleteHighlightResult!
   deleteHighlightReply(highlightReplyId: ID!): DeleteHighlightReplyResult!
   deleteIntegration(id: ID!): DeleteIntegrationResult!
@@ -907,12 +970,14 @@ type Mutation {
   googleSignup(input: GoogleSignupInput!): GoogleSignupResult!
   logOut: LogOutResult!
   mergeHighlight(input: MergeHighlightInput!): MergeHighlightResult!
+  moveFilter(input: MoveFilterInput!): MoveFilterResult!
   moveLabel(input: MoveLabelInput!): MoveLabelResult!
   optInFeature(input: OptInFeatureInput!): OptInFeatureResult!
   reportItem(input: ReportItemInput!): ReportItemResult!
   revokeApiKey(id: ID!): RevokeApiKeyResult!
   saveArticleReadingProgress(input: SaveArticleReadingProgressInput!): SaveArticleReadingProgressResult!
   saveFile(input: SaveFileInput!): SaveResult!
+  saveFilter(input: SaveFilterInput!): SaveFilterResult!
   savePage(input: SavePageInput!): SaveResult!
   saveUrl(input: SaveUrlInput!): SaveResult!
   setBookmarkArticle(input: SetBookmarkArticleInput!): SetBookmarkArticleResult!
@@ -1046,6 +1111,7 @@ type Query {
   articles(after: String, first: Int, includePending: Boolean, query: String, sharedOnly: Boolean, sort: SortParams): ArticlesResult!
   deviceTokens: DeviceTokensResult!
   feedArticles(after: String, first: Int, sharedByUser: ID, sort: SortParams): FeedArticlesResult!
+  filters: FiltersResult!
   getFollowers(userId: ID): GetFollowersResult!
   getFollowing(userId: ID): GetFollowingResult!
   getUserPersonalization: GetUserPersonalizationResult!
@@ -1253,6 +1319,29 @@ input SaveFileInput {
   source: String!
   uploadFileId: ID!
   url: String!
+}
+
+type SaveFilterError {
+  errorCodes: [SaveFilterErrorCode!]!
+}
+
+enum SaveFilterErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+input SaveFilterInput {
+  description: String
+  filter: String!
+  id: ID
+  name: String!
+}
+
+union SaveFilterResult = SaveFilterError | SaveFilterSuccess
+
+type SaveFilterSuccess {
+  filter: Filter!
 }
 
 input SavePageInput {
@@ -1836,6 +1925,7 @@ input UpdatePageInput {
   byline: String
   description: String
   pageId: ID!
+  savedAt: Date
   title: String
 }
 

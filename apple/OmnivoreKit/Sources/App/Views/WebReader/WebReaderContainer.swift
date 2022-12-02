@@ -11,6 +11,7 @@ struct WebReaderContainerView: View {
 
   @State private var showPreferencesPopover = false
   @State private var showLabelsModal = false
+  @State private var showHighlightLabelsModal = false
   @State private var showTitleEdit = false
   @State private var showHighlightsView = false
   @State private var hasPerformedHighlightMutations = false
@@ -26,6 +27,8 @@ struct WebReaderContainerView: View {
   @State var annotation = String()
   @State var showBottomBar = false
   @State private var bottomBarOpacity = 0.0
+  @State private var errorAlertMessage: String?
+  @State private var showErrorAlertMessage = false
 
   @EnvironmentObject var dataService: DataService
   @EnvironmentObject var audioController: AudioController
@@ -72,6 +75,14 @@ struct WebReaderContainerView: View {
     case "annotate":
       annotation = messageBody["annotation"] ?? ""
       showHighlightAnnotationModal = true
+    case "noteCreated":
+      showHighlightAnnotationModal = false
+    case "highlightError":
+      errorAlertMessage = messageBody["error"] ?? "An error occurred."
+      showErrorAlertMessage = true
+    case "setHighlightLabels":
+      annotation = messageBody["highlightID"] ?? ""
+      showHighlightLabelsModal = true
     default:
       break
     }
@@ -153,19 +164,27 @@ struct WebReaderContainerView: View {
     }.foregroundColor(.appGrayTextContrast)
   }
 
+  func audioMenuItem() -> some View {
+    Button(
+      action: {
+        viewModel.downloadAudio(audioController: audioController, item: item)
+      },
+      label: {
+        Label(viewModel.isDownloadingAudio ? "Downloading Audio" : "Download Audio", systemImage: "icloud.and.arrow.down")
+      }
+    )
+  }
+
   func menuItems(for item: LinkedItem) -> some View {
     let hasLabels = item.labels?.count == 0
-    let hasHighlights = (item.highlights?.count ?? 0) > 0
     return Group {
-      if hasHighlights {
-        Button(
-          action: { showHighlightsView = true },
-          label: { Label("View Highlights & Notes", systemImage: "highlighter") }
-        )
-      }
+      Button(
+        action: { showHighlightsView = true },
+        label: { Label("Notebook", systemImage: "highlighter") }
+      )
       Button(
         action: { showTitleEdit = true },
-        label: { Label("Edit Metadata", systemImage: "textbox") }
+        label: { Label("Edit Info", systemImage: "info.circle") }
       )
       Button(
         action: editLabels,
@@ -188,12 +207,8 @@ struct WebReaderContainerView: View {
         },
         label: { Label("Reset Read Location", systemImage: "arrow.counterclockwise.circle") }
       )
-      Button(
-        action: {
-          viewModel.downloadAudio(audioController: audioController, item: item)
-        },
-        label: { Label("Download Audio", systemImage: "icloud.and.arrow.down") }
-      )
+      audioMenuItem()
+
       if viewModel.hasOriginalUrl(item) {
         Button(
           action: share,
@@ -330,6 +345,12 @@ struct WebReaderContainerView: View {
             SafariView(url: $0.url)
           }
         #endif
+        .alert(errorAlertMessage ?? "An error occurred", isPresented: $showErrorAlertMessage) {
+          Button("Ok", role: .cancel, action: {
+            errorAlertMessage = nil
+            showErrorAlertMessage = false
+          })
+        }
         .sheet(isPresented: $showHighlightAnnotationModal) {
           HighlightAnnotationSheet(
             annotation: $annotation,
@@ -338,8 +359,19 @@ struct WebReaderContainerView: View {
             },
             onCancel: {
               showHighlightAnnotationModal = false
-            }
+            },
+            errorAlertMessage: $errorAlertMessage,
+            showErrorAlertMessage: $showErrorAlertMessage
           )
+        }
+        .sheet(isPresented: $showHighlightLabelsModal) {
+          if let highlight = Highlight.lookup(byID: self.annotation, inContext: self.dataService.viewContext) {
+            ApplyLabelsView(mode: .highlight(highlight)) { selectedLabels in
+              viewModel.setLabelsForHighlight(highlightID: highlight.unwrappedID,
+                                              labelIDs: selectedLabels.map(\.unwrappedID),
+                                              dataService: dataService)
+            }
+          }
         }
       } else if let errorMessage = viewModel.errorMessage {
         Text(errorMessage).padding()

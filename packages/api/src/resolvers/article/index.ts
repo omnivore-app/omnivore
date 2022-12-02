@@ -59,11 +59,9 @@ import {
   isBase64Image,
   isParsingTimeout,
   pageError,
-  stringToHash,
   titleForFilePath,
   userDataToUser,
   validatedDate,
-  wordsCount,
 } from '../../utils/helpers'
 import {
   ParsedContentPuppeteer,
@@ -99,6 +97,7 @@ import {
 } from '../../elastic/pages'
 import { searchHighlights } from '../../elastic/highlights'
 import { saveSearchHistory } from '../../services/search_history'
+import { parsedContentToPage } from '../../services/save_page'
 
 export type PartialArticle = Omit<
   Article,
@@ -262,40 +261,22 @@ export const createArticleResolver = authorized<
 
       const saveTime = new Date()
       const slug = generateSlug(parsedContent?.title || croppedPathname)
-      const articleToSave: Page = {
-        id: pageId || '',
+      const articleToSave = parsedContentToPage({
+        url,
+        title,
+        parsedContent,
         userId: uid,
-        originalHtml: domContent,
-        content: parsedContent?.content || '',
-        description: parsedContent?.excerpt || '',
-        title:
-          title ||
-          parsedContent?.title ||
-          preparedDocument?.pageInfo.title ||
-          croppedPathname ||
-          parsedContent?.siteName ||
-          url,
-        author: parsedContent?.byline,
-        url: normalizeUrl(canonicalUrl || url, {
-          stripHash: true,
-          stripWWW: false,
-        }),
-        pageType: pageType,
-        hash: uploadFileHash || stringToHash(parsedContent?.content || url),
-        image: parsedContent?.previewImage,
-        publishedAt: validatedDate(parsedContent?.publishedDate),
-        uploadFileId: uploadFileId,
+        pageId,
         slug,
-        createdAt: saveTime,
-        savedAt: saveTime,
-        siteName: parsedContent?.siteName,
-        siteIcon: parsedContent?.siteIcon,
-        readingProgressPercent: 0,
-        readingProgressAnchorIndex: 0,
-        state: ArticleSavingRequestStatus.Succeeded,
-        language: parsedContent?.language,
-        wordsCount: wordsCount(parsedContent?.textContent || ''),
-      }
+        croppedPathname,
+        originalHtml: domContent,
+        pageType,
+        preparedDocument,
+        uploadFileHash,
+        canonicalUrl,
+        uploadFileId,
+        saveTime,
+      })
 
       let archive = false
       if (pageId) {

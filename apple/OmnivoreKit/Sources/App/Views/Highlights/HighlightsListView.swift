@@ -11,10 +11,11 @@ struct HighlightsListView: View {
 
   let itemObjectID: NSManagedObjectID
   @Binding var hasHighlightMutations: Bool
+  @State var setLabelsHighlight: Highlight?
 
   var emptyView: some View {
     Text("""
-    You have not added any highlights to this page.
+    You have not added any highlights or notes to this page.
     """)
       .multilineTextAlignment(.center)
       .padding(16)
@@ -22,7 +23,7 @@ struct HighlightsListView: View {
 
   var innerBody: some View {
     (viewModel.highlightItems.count > 0 ? AnyView(listView) : AnyView(emptyView))
-      .navigationTitle("Highlights & Notes")
+      .navigationTitle("Notebook")
       .listStyle(PlainListStyle())
     #if os(iOS)
       .navigationBarTitleDisplayMode(.inline)
@@ -61,10 +62,22 @@ struct HighlightsListView: View {
                 highlightID: highlightParams.highlightID,
                 dataService: dataService
               )
+            },
+            onSetLabels: { highlightID in
+              setLabelsHighlight = Highlight.lookup(byID: highlightID, inContext: dataService.viewContext)
             }
           )
+          .listRowSeparator(.hidden)
         }
       }
+    }.sheet(item: $setLabelsHighlight) { highlight in
+      ApplyLabelsView(mode: .highlight(highlight), onSave: { selectedLabels in
+        hasHighlightMutations = true
+
+        viewModel.setLabelsForHighlight(highlightID: highlight.unwrappedID,
+                                        labels: selectedLabels,
+                                        dataService: dataService)
+      })
     }
   }
 

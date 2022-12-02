@@ -113,21 +113,6 @@ const textVariants = {
       textDecoration: 'underline',
       cursor: 'pointer',
     },
-    highlightTitleAndAuthor: {
-      fontSize: '18px',
-      fontStyle: 'italic',
-      lineHeight: '22.5px',
-      letterSpacing: '0.01em',
-      margin: '0px',
-      color: '$utilityTextSubtle',
-    },
-    highlightTitle: {
-      fontSize: '14px',
-      fontWeight: '400',
-      lineHeight: '1.5',
-      margin: '0px',
-      color: '$omnivoreGray',
-    },
     navLink: {
       m: 0,
       fontSize: '$1',

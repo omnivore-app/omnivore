@@ -23,7 +23,7 @@ public extension Font {
   }
 
   static var textToSpeechRead: Font {
-    Font.custom(InterFont.bold.rawValue, size: 24, relativeTo: .title2)
+    Font.system(size: 24, weight: .bold)
   }
 
   static var appNavbarIcon: Font {
