@@ -7,13 +7,16 @@ export const addRecommendation = async (
   recommendation: Recommendation
 ): Promise<string | undefined> => {
   try {
-    const userId = ctx.uid
     // check if the page is already recommended to the group
     const existingPage = await getPageByParam({
-      userId,
+      userId: ctx.uid,
       url: page.url,
     })
     if (existingPage) {
+      if (existingPage.recommendedBy?.includes(recommendation)) {
+        return existingPage._id
+      }
+
       // update recommendedBy in the existing page
       const recommendedBy = (existingPage.recommendedBy || []).concat(
         recommendation
@@ -30,10 +33,17 @@ export const addRecommendation = async (
     }
 
     // create a new page
-    const newPage = {
+    const newPage: Page = {
       ...page,
+      id: '',
       recommendedBy: [recommendation],
-      userId,
+      userId: ctx.uid,
+      readingProgressPercent: 0,
+      readingProgressAnchorIndex: 0,
+      sharedAt: new Date(),
+      highlights: [],
+      readAt: undefined,
+      labels: [],
     }
 
     return createPage(newPage, ctx)

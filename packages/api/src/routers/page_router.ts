@@ -163,21 +163,17 @@ export function pageRouter() {
       }
       const claims = jwt.decode(token) as Claims
 
-      const {
-        userId: recommendedUserId,
-        pageId,
-        recommendation,
-      } = req.body as {
+      const { userId, pageId, recommendation } = req.body as {
         userId: string
         pageId: string
         recommendation: Recommendation
       }
-      if (!recommendedUserId || !pageId || !recommendation) {
+      if (!userId || !pageId || !recommendation) {
         return res.status(400).send({ errorCode: 'BAD_DATA' })
       }
 
       const ctx = {
-        uid: recommendedUserId,
+        uid: userId,
         pubsub: createPubSubClient(),
       }
 
