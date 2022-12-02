@@ -17,6 +17,15 @@ export const createGroup = async (input: {
 }): Promise<[Group, Invite]> => {
   const [group, invite] = await AppDataSource.transaction<[Group, Invite]>(
     async (t) => {
+      // Max number of groups a user can create
+      const maxGroups = 3
+      const groupCount = await getRepository(Group).countBy({
+        createdBy: { id: input.admin.id },
+      })
+      if (groupCount >= maxGroups) {
+        throw new Error('Max groups reached')
+      }
+
       const group = await t.getRepository(Group).save({
         name: input.name,
         createdBy: input.admin,
