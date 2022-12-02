@@ -1,14 +1,18 @@
 import { Group, Page, PageContext } from './types'
-import { createPage, updatePage } from './pages'
+import { createPage, getPageByParam, updatePage } from './pages'
 
-export const recommendPage = async (
+export const addRecommendation = async (
   ctx: PageContext,
   page: Page,
-  userId: string,
-  group: Group,
-  existingPage?: Page
+  group: Group
 ): Promise<string | undefined> => {
   try {
+    const userId = ctx.uid
+    // check if the page is already recommended to the group
+    const existingPage = await getPageByParam({
+      userId,
+      url: page.url,
+    })
     if (existingPage) {
       // update recommendedBy in the existing page
       const recommendedBy = (existingPage.recommendedBy || []).concat(group)

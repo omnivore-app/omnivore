@@ -407,16 +407,14 @@ export const enqueueTextToSpeech = async ({
 }
 
 export const enqueueRecommendation = async (
-  recommendedUserId: string,
-  recommendedPageId: string,
   userId: string,
+  pageId: string,
   group: Group
 ): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT } = process.env
   const payload = {
     userId,
-    recommendedUserId,
-    recommendedPageId,
+    pageId,
     group,
   }
 

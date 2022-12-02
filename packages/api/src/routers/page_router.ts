@@ -5,17 +5,14 @@
 import express from 'express'
 import {
   ArticleSavingRequestStatus,
-  CreateArticleErrorCode,
   PageType,
   UploadFileStatus,
 } from '../generated/graphql'
-import { isSiteBlockedForParse } from '../utils/blocked'
 import cors from 'cors'
 import { env } from '../env'
 import { buildLogger } from '../utils/logger'
 import * as jwt from 'jsonwebtoken'
 import { corsConfig } from '../utils/corsConfig'
-import { createPageSaveRequest } from '../services/create_page_save_request'
 import { initModels } from '../server'
 import { kx } from '../datalayer/knex_config'
 import {
@@ -32,6 +29,8 @@ import {
 import { Claims } from '../resolvers/types'
 import { createPage, getPageByParam, updatePage } from '../elastic/pages'
 import { createPubSubClient } from '../datalayer/pubsub'
+import { Group } from '../elastic/types'
+import { addRecommendation } from '../elastic/recommendation'
 
 const logger = buildLogger('app.dispatch')
 
@@ -148,6 +147,57 @@ export function pageRouter() {
     console.log('redirecting to signed URL', signedUrl)
     return res.redirect(signedUrl)
   })
+
+  // Add recommended pages to a user's library
+  router.options(
+    '/recommend',
+    cors<express.Request>({ ...corsConfig, maxAge: 600 })
+  )
+  router.post(
+    '/recommend',
+    cors<express.Request>(corsConfig),
+    async (req, res) => {
+      const token = req?.cookies?.auth || req?.headers?.authorization
+      if (!token || !jwt.verify(token, env.server.jwtSecret)) {
+        return res.status(401).send({ errorCode: 'UNAUTHORIZED' })
+      }
+      const claims = jwt.decode(token) as Claims
+
+      const {
+        userId: recommendedUserId,
+        pageId,
+        group,
+      } = req.body as {
+        userId: string
+        pageId: string
+        group: Group
+      }
+      if (!recommendedUserId || !pageId || !group) {
+        return res.status(400).send({ errorCode: 'BAD_DATA' })
+      }
+
+      const ctx = {
+        uid: recommendedUserId,
+        pubsub: createPubSubClient(),
+      }
+
+      const page = await getPageByParam({
+        userId: claims.uid,
+        _id: pageId,
+      })
+      if (!page) {
+        return res.status(404).send({ errorCode: 'NOT_FOUND' })
+      }
+
+      const recommendedPageId = await addRecommendation(ctx, page, group)
+      if (!recommendedPageId) {
+        logger.error('Failed to add recommendation to page')
+        return res.sendStatus(500)
+      }
+
+      return res.send({ recommendedPageId })
+    }
+  )
 
   return router
 }
