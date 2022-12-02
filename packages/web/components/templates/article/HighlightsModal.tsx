@@ -112,7 +112,7 @@ function ModalHighlightView(props: ModalHighlightViewProps): JSX.Element {
 
   return (
     <>
-      <VStack>
+      <VStack css={{ maxHeight: '80%' }}>
         <SpanBox css={{ marginLeft: 'auto' }}>
           <Dropdown
             triggerElement={
