@@ -232,6 +232,27 @@ type CreateArticleSuccess {
   user: User!
 }
 
+type CreateGroupError {
+  errorCodes: [CreateGroupErrorCode!]!
+}
+
+enum CreateGroupErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+input CreateGroupInput {
+  expiresInDays: Int
+  maxMembers: Int
+  name: String!
+}
+
+union CreateGroupResult = CreateGroupError | CreateGroupSuccess
+
+type CreateGroupSuccess {
+  group: RecommendationGroup!
+}
+
 type CreateHighlightError {
   errorCodes: [CreateHighlightErrorCode!]!
 }
@@ -728,6 +749,21 @@ type GoogleSignupSuccess {
   me: User!
 }
 
+type GroupsError {
+  errorCodes: [GroupsErrorCode!]!
+}
+
+enum GroupsErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+union GroupsResult = GroupsError | GroupsSuccess
+
+type GroupsSuccess {
+  groups: [RecommendationGroup!]!
+}
+
 type Highlight {
   annotation: String
   createdAt: Date!
@@ -948,6 +984,7 @@ type Mutation {
   addPopularRead(name: String!): AddPopularReadResult!
   createArticle(input: CreateArticleInput!): CreateArticleResult!
   createArticleSavingRequest(input: CreateArticleSavingRequestInput!): CreateArticleSavingRequestResult!
+  createGroup(input: CreateGroupInput!): CreateGroupResult!
   createHighlight(input: CreateHighlightInput!): CreateHighlightResult!
   createHighlightReply(input: CreateHighlightReplyInput!): CreateHighlightReplyResult!
   createLabel(input: CreateLabelInput!): CreateLabelResult!
@@ -1115,6 +1152,7 @@ type Query {
   getFollowers(userId: ID): GetFollowersResult!
   getFollowing(userId: ID): GetFollowingResult!
   getUserPersonalization: GetUserPersonalizationResult!
+  groups: GroupsResult!
   hello: String
   integrations: IntegrationsResult!
   labels: LabelsResult!
@@ -1179,6 +1217,16 @@ union RecentSearchesResult = RecentSearchesError | RecentSearchesSuccess
 
 type RecentSearchesSuccess {
   searches: [RecentSearch!]!
+}
+
+type RecommendationGroup {
+  admins: [User!]!
+  createdAt: Date!
+  id: ID!
+  inviteUrl: String!
+  members: [User!]!
+  name: String!
+  updatedAt: Date!
 }
 
 type Reminder {

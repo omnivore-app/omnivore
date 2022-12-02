@@ -1,7 +1,9 @@
 import {
+  Column,
   CreateDateColumn,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -20,7 +22,7 @@ export class GroupMembership {
   @JoinColumn()
   user!: User
 
-  @OneToOne(() => Group)
+  @ManyToOne(() => Group, (group) => group.members)
   @JoinColumn()
   group!: Group
 
@@ -33,4 +35,7 @@ export class GroupMembership {
 
   @UpdateDateColumn()
   updatedAt?: Date
+
+  @Column('boolean', { default: false })
+  isAdmin!: boolean
 }

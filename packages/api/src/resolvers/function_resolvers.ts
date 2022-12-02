@@ -26,6 +26,7 @@ import {
   articleSavingRequestResolver,
   createArticleResolver,
   createArticleSavingRequestResolver,
+  createGroupResolver,
   createHighlightResolver,
   createLabelResolver,
   createNewsletterEmailResolver,
@@ -54,6 +55,7 @@ import {
   getUserResolver,
   googleLoginResolver,
   googleSignupResolver,
+  groupsResolver,
   integrationsResolver,
   labelsResolver,
   logOutResolver,
@@ -186,6 +188,7 @@ export const functionResolvers = {
     saveFilter: saveFilterResolver,
     deleteFilter: deleteFilterResolver,
     moveFilter: moveFilterResolver,
+    createGroup: createGroupResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -216,6 +219,7 @@ export const functionResolvers = {
     rules: rulesResolver,
     deviceTokens: deviceTokensResolver,
     filters: filtersResolver,
+    groups: groupsResolver,
   },
   User: {
     async sharedArticles(
@@ -634,4 +638,6 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('Filters'),
   ...resultResolveTypeResolver('DeleteFilter'),
   ...resultResolveTypeResolver('MoveFilter'),
+  ...resultResolveTypeResolver('CreateGroup'),
+  ...resultResolveTypeResolver('Groups'),
 }

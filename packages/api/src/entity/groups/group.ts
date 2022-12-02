@@ -3,17 +3,19 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm'
 
 import { User } from '../user'
+import { GroupMembership } from './group_membership'
 
 @Entity()
 export class Group {
   @PrimaryGeneratedColumn('uuid')
-  id?: string
+  id!: string
 
   @Column('text')
   name!: string
@@ -23,8 +25,11 @@ export class Group {
   createdBy!: User
 
   @CreateDateColumn()
-  createdAt?: Date
+  createdAt!: Date
 
   @UpdateDateColumn()
-  updatedAt?: Date
+  updatedAt!: Date
+
+  @OneToMany(() => GroupMembership, (groupMembership) => groupMembership.group)
+  members!: GroupMembership[]
 }
