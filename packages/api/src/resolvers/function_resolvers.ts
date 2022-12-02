@@ -55,6 +55,7 @@ import {
   getUserResolver,
   googleLoginResolver,
   googleSignupResolver,
+  groupsResolver,
   integrationsResolver,
   labelsResolver,
   logOutResolver,
@@ -218,6 +219,7 @@ export const functionResolvers = {
     rules: rulesResolver,
     deviceTokens: deviceTokensResolver,
     filters: filtersResolver,
+    groups: groupsResolver,
   },
   User: {
     async sharedArticles(
@@ -637,4 +639,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('DeleteFilter'),
   ...resultResolveTypeResolver('MoveFilter'),
   ...resultResolveTypeResolver('CreateGroup'),
+  ...resultResolveTypeResolver('Groups'),
 }

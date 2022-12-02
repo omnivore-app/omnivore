@@ -2168,6 +2168,21 @@ const schema = gql`
     BAD_REQUEST
   }
 
+  union GroupsResult = GroupsSuccess | GroupsError
+
+  type GroupsSuccess {
+    groups: [RecommendationGroup!]!
+  }
+
+  type GroupsError {
+    errorCodes: [GroupsErrorCode!]!
+  }
+
+  enum GroupsErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -2301,6 +2316,7 @@ const schema = gql`
     rules(enabled: Boolean): RulesResult!
     deviceTokens: DeviceTokensResult!
     filters: FiltersResult!
+    groups: GroupsResult!
   }
 `
 

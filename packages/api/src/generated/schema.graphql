@@ -749,6 +749,21 @@ type GoogleSignupSuccess {
   me: User!
 }
 
+type GroupsError {
+  errorCodes: [GroupsErrorCode!]!
+}
+
+enum GroupsErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+union GroupsResult = GroupsError | GroupsSuccess
+
+type GroupsSuccess {
+  groups: [RecommendationGroup!]!
+}
+
 type Highlight {
   annotation: String
   createdAt: Date!
@@ -1137,6 +1152,7 @@ type Query {
   getFollowers(userId: ID): GetFollowersResult!
   getFollowing(userId: ID): GetFollowingResult!
   getUserPersonalization: GetUserPersonalizationResult!
+  groups: GroupsResult!
   hello: String
   integrations: IntegrationsResult!
   labels: LabelsResult!

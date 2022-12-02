@@ -847,6 +847,23 @@ export type GoogleSignupSuccess = {
   me: User;
 };
 
+export type GroupsError = {
+  __typename?: 'GroupsError';
+  errorCodes: Array<GroupsErrorCode>;
+};
+
+export enum GroupsErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type GroupsResult = GroupsError | GroupsSuccess;
+
+export type GroupsSuccess = {
+  __typename?: 'GroupsSuccess';
+  groups: Array<RecommendationGroup>;
+};
+
 export type Highlight = {
   __typename?: 'Highlight';
   annotation?: Maybe<Scalars['String']>;
@@ -1556,6 +1573,7 @@ export type Query = {
   getFollowers: GetFollowersResult;
   getFollowing: GetFollowingResult;
   getUserPersonalization: GetUserPersonalizationResult;
+  groups: GroupsResult;
   hello?: Maybe<Scalars['String']>;
   integrations: IntegrationsResult;
   labels: LabelsResult;
@@ -3068,6 +3086,10 @@ export type ResolversTypes = {
   GoogleSignupInput: GoogleSignupInput;
   GoogleSignupResult: ResolversTypes['GoogleSignupError'] | ResolversTypes['GoogleSignupSuccess'];
   GoogleSignupSuccess: ResolverTypeWrapper<GoogleSignupSuccess>;
+  GroupsError: ResolverTypeWrapper<GroupsError>;
+  GroupsErrorCode: GroupsErrorCode;
+  GroupsResult: ResolversTypes['GroupsError'] | ResolversTypes['GroupsSuccess'];
+  GroupsSuccess: ResolverTypeWrapper<GroupsSuccess>;
   Highlight: ResolverTypeWrapper<Highlight>;
   HighlightReply: ResolverTypeWrapper<HighlightReply>;
   HighlightStats: ResolverTypeWrapper<HighlightStats>;
@@ -3471,6 +3493,9 @@ export type ResolversParentTypes = {
   GoogleSignupInput: GoogleSignupInput;
   GoogleSignupResult: ResolversParentTypes['GoogleSignupError'] | ResolversParentTypes['GoogleSignupSuccess'];
   GoogleSignupSuccess: GoogleSignupSuccess;
+  GroupsError: GroupsError;
+  GroupsResult: ResolversParentTypes['GroupsError'] | ResolversParentTypes['GroupsSuccess'];
+  GroupsSuccess: GroupsSuccess;
   Highlight: Highlight;
   HighlightReply: HighlightReply;
   HighlightStats: HighlightStats;
@@ -4299,6 +4324,20 @@ export type GoogleSignupSuccessResolvers<ContextType = ResolverContext, ParentTy
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type GroupsErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GroupsError'] = ResolversParentTypes['GroupsError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['GroupsErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type GroupsResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GroupsResult'] = ResolversParentTypes['GroupsResult']> = {
+  __resolveType: TypeResolveFn<'GroupsError' | 'GroupsSuccess', ParentType, ContextType>;
+};
+
+export type GroupsSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GroupsSuccess'] = ResolversParentTypes['GroupsSuccess']> = {
+  groups?: Resolver<Array<ResolversTypes['RecommendationGroup']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type HighlightResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Highlight'] = ResolversParentTypes['Highlight']> = {
   annotation?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
@@ -4623,6 +4662,7 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   getFollowers?: Resolver<ResolversTypes['GetFollowersResult'], ParentType, ContextType, Partial<QueryGetFollowersArgs>>;
   getFollowing?: Resolver<ResolversTypes['GetFollowingResult'], ParentType, ContextType, Partial<QueryGetFollowingArgs>>;
   getUserPersonalization?: Resolver<ResolversTypes['GetUserPersonalizationResult'], ParentType, ContextType>;
+  groups?: Resolver<ResolversTypes['GroupsResult'], ParentType, ContextType>;
   hello?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   integrations?: Resolver<ResolversTypes['IntegrationsResult'], ParentType, ContextType>;
   labels?: Resolver<ResolversTypes['LabelsResult'], ParentType, ContextType>;
@@ -5502,6 +5542,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   GoogleSignupError?: GoogleSignupErrorResolvers<ContextType>;
   GoogleSignupResult?: GoogleSignupResultResolvers<ContextType>;
   GoogleSignupSuccess?: GoogleSignupSuccessResolvers<ContextType>;
+  GroupsError?: GroupsErrorResolvers<ContextType>;
+  GroupsResult?: GroupsResultResolvers<ContextType>;
+  GroupsSuccess?: GroupsSuccessResolvers<ContextType>;
   Highlight?: HighlightResolvers<ContextType>;
   HighlightReply?: HighlightReplyResolvers<ContextType>;
   HighlightStats?: HighlightStatsResolvers<ContextType>;

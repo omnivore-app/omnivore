@@ -2,11 +2,17 @@ import {
   CreateGroupError,
   CreateGroupErrorCode,
   CreateGroupSuccess,
+  GroupsError,
+  GroupsErrorCode,
+  GroupsSuccess,
   MutationCreateGroupArgs,
 } from '../../generated/graphql'
-import { createGroup } from '../../services/create_group'
+import {
+  createGroup,
+  getInviteUrl,
+  getRecommendationGroups,
+} from '../../services/create_group'
 import { authorized, userDataToUser } from '../../utils/helpers'
-import { homePageURL } from '../../env'
 import { getRepository } from '../../entity/utils'
 import { User } from '../../entity/user'
 
@@ -42,7 +48,7 @@ export const createGroupResolver = authorized<
       expiresInDays: input.expiresInDays,
     })
 
-    const inviteUrl = `${homePageURL()}/invite/${invite.code}`
+    const inviteUrl = getInviteUrl(invite)
     const user = userDataToUser(userData)
 
     return {
@@ -68,3 +74,45 @@ export const createGroupResolver = authorized<
     }
   }
 })
+
+export const groupsResolver = authorized<GroupsSuccess, GroupsError>(
+  async (_, __, { claims: { uid }, log }) => {
+    log.info('Getting groups', {
+      labels: {
+        source: 'resolver',
+        resolver: 'groupsResolver',
+        uid,
+      },
+    })
+
+    try {
+      const user = await getRepository(User).findOneBy({
+        id: uid,
+      })
+      if (!user) {
+        return {
+          errorCodes: [GroupsErrorCode.Unauthorized],
+        }
+      }
+
+      const groups = await getRecommendationGroups(user)
+
+      return {
+        groups,
+      }
+    } catch (error) {
+      log.error('Error getting groups', {
+        error,
+        labels: {
+          source: 'resolver',
+          resolver: 'groupsResolver',
+          uid,
+        },
+      })
+
+      return {
+        errorCodes: [GroupsErrorCode.BadRequest],
+      }
+    }
+  }
+)

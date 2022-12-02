@@ -3,6 +3,7 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -21,7 +22,7 @@ export class GroupMembership {
   @JoinColumn()
   user!: User
 
-  @OneToOne(() => Group)
+  @ManyToOne(() => Group, (group) => group.members)
   @JoinColumn()
   group!: Group
 
