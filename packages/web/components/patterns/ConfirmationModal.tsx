@@ -22,7 +22,7 @@ export function ConfirmationModal(props: ConfirmationModalProps): JSX.Element {
   return (
     <ModalRoot defaultOpen onOpenChange={props.onOpenChange}>
       <ModalOverlay />
-      <ModalContent css={{ bg: '$grayBg', maxWidth: '20em' }}>
+      <ModalContent css={{ bg: '$grayBg', maxWidth: '20em', zIndex: '20' }}>
         <VStack alignment="center" distribution="center" css={{ p: '$2' }}>
           {props.icon ? props.icon : null}
           {props.richMessage ? (
