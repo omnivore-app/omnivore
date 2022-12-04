@@ -915,7 +915,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
             'application/pdf': ['.pdf'],
           }}
         >
-          {({ getRootProps, getInputProps, acceptedFiles, fileRejections }) => (
+          {({ getRootProps, getInputProps }) => (
             <div
               {...getRootProps({ className: 'dropzone' })}
               style={{ width: '100%', height: '100%' }}
@@ -930,7 +930,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
                         fontSize: '$4',
                       }}
                     >
-                      Drop PDF document to to upload and add to your library
+                      Drop PDF document to upload and add to your library
                     </Box>
                   </DragnDropStyle>
                 </DragnDropContainer>
@@ -1080,16 +1080,6 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
           )}
         </Dropzone>
       </VStack>
-      {/* Temporary code */}
-      {/* <div>
-        <strong>Files:</strong>
-        <ul>
-          {uploadingFiles.map((fileName) => (
-            <li key={fileName}>{fileName}</li>
-          ))}
-        </ul>
-      </div> */}
-      {/* Temporary code */}
       {props.showAddLinkModal && (
         <AddLinkModal onOpenChange={() => props.setShowAddLinkModal(false)} />
       )}
