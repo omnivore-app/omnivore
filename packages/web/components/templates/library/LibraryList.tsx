@@ -48,7 +48,6 @@ const DragnDropStyle = styled('div', {
 
 export type LibraryListProps = {
   layoutCoordinator: LayoutCoordinator
-  reloadItems: () => void
 }
 
 export function LibraryList(props: LibraryListProps): JSX.Element {
