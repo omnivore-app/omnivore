@@ -222,7 +222,6 @@ export function LibraryList(props: LibraryListProps): JSX.Element {
               }
               className="omnivore-masonry-grid"
               columnClassName="omnivore-masonry-grid_column"
-              reloadItems={mutate}
             >
               {libraryItems.map((linkedItem) => (
                 <Box
