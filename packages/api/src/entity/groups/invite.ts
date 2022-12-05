@@ -14,7 +14,7 @@ import { Group } from './group'
 @Entity()
 export class Invite {
   @PrimaryGeneratedColumn('uuid')
-  id?: string
+  id!: string
 
   @Column('text')
   code!: string

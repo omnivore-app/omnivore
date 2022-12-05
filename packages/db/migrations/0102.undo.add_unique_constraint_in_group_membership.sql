@@ -10,4 +10,6 @@ REVOKE UPDATE ON omnivore.invite FROM omnivore_user;
 
 REVOKE UPDATE ON omnivore.group FROM omnivore_user;
 
+REVOKE UPDATE ON omnivore.group_membership FROM omnivore_user;
+
 COMMIT;

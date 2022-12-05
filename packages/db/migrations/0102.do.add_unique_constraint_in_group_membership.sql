@@ -10,4 +10,6 @@ GRANT UPDATE ON TABLE omnivore.invite TO omnivore_user;
 
 GRANT UPDATE ON TABLE omnivore.group TO omnivore_user;
 
+GRANT UPDATE ON TABLE omnivore.group_membership TO omnivore_user;
+
 COMMIT;

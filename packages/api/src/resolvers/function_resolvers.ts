@@ -57,6 +57,7 @@ import {
   googleSignupResolver,
   groupsResolver,
   integrationsResolver,
+  joinGroupResolver,
   labelsResolver,
   logOutResolver,
   mergeHighlightResolver,
@@ -191,6 +192,7 @@ export const functionResolvers = {
     moveFilter: moveFilterResolver,
     createGroup: createGroupResolver,
     recommend: recommendResolver,
+    joinGroup: joinGroupResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -643,4 +645,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('CreateGroup'),
   ...resultResolveTypeResolver('Groups'),
   ...resultResolveTypeResolver('Recommend'),
+  ...resultResolveTypeResolver('JoinGroup'),
 }

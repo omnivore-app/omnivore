@@ -5,16 +5,21 @@ import {
   GroupsError,
   GroupsErrorCode,
   GroupsSuccess,
+  JoinGroupError,
+  JoinGroupErrorCode,
+  JoinGroupSuccess,
   MutationCreateGroupArgs,
   MutationRecommendArgs,
   RecommendError,
   RecommendErrorCode,
   RecommendSuccess,
+  MutationJoinGroupArgs,
 } from '../../generated/graphql'
 import {
   createGroup,
   getInviteUrl,
   getRecommendationGroups,
+  joinGroup,
 } from '../../services/create_group'
 import { authorized, userDataToUser } from '../../utils/helpers'
 import { getRepository } from '../../entity/utils'
@@ -204,6 +209,52 @@ export const recommendResolver = authorized<
 
     return {
       errorCodes: [RecommendErrorCode.BadRequest],
+    }
+  }
+})
+
+export const joinGroupResolver = authorized<
+  JoinGroupSuccess,
+  JoinGroupError,
+  MutationJoinGroupArgs
+>(async (_, { inviteCode }, { claims: { uid }, log }) => {
+  log.info('Joining group', {
+    inviteCode,
+    labels: {
+      source: 'resolver',
+      resolver: 'joinGroupResolver',
+      uid,
+    },
+  })
+
+  try {
+    const user = await getRepository(User).findOne({
+      where: { id: uid },
+      relations: ['profile'],
+    })
+    if (!user) {
+      return {
+        errorCodes: [JoinGroupErrorCode.Unauthorized],
+      }
+    }
+
+    const group = await joinGroup(user, inviteCode)
+
+    return {
+      group,
+    }
+  } catch (error) {
+    log.error('Error joining group', {
+      error,
+      labels: {
+        source: 'resolver',
+        resolver: 'joinGroupResolver',
+        uid,
+      },
+    })
+
+    return {
+      errorCodes: [JoinGroupErrorCode.BadRequest],
     }
   }
 })

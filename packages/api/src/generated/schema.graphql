@@ -825,6 +825,22 @@ type IntegrationsSuccess {
   integrations: [Integration!]!
 }
 
+type JoinGroupError {
+  errorCodes: [JoinGroupErrorCode!]!
+}
+
+enum JoinGroupErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+union JoinGroupResult = JoinGroupError | JoinGroupSuccess
+
+type JoinGroupSuccess {
+  group: RecommendationGroup!
+}
+
 type Label {
   color: String!
   createdAt: Date
@@ -1005,6 +1021,7 @@ type Mutation {
   generateApiKey(input: GenerateApiKeyInput!): GenerateApiKeyResult!
   googleLogin(input: GoogleLoginInput!): LoginResult!
   googleSignup(input: GoogleSignupInput!): GoogleSignupResult!
+  joinGroup(inviteCode: String!): JoinGroupResult!
   logOut: LogOutResult!
   mergeHighlight(input: MergeHighlightInput!): MergeHighlightResult!
   moveFilter(input: MoveFilterInput!): MoveFilterResult!

@@ -931,6 +931,24 @@ export type IntegrationsSuccess = {
   integrations: Array<Integration>;
 };
 
+export type JoinGroupError = {
+  __typename?: 'JoinGroupError';
+  errorCodes: Array<JoinGroupErrorCode>;
+};
+
+export enum JoinGroupErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type JoinGroupResult = JoinGroupError | JoinGroupSuccess;
+
+export type JoinGroupSuccess = {
+  __typename?: 'JoinGroupSuccess';
+  group: RecommendationGroup;
+};
+
 export type Label = {
   __typename?: 'Label';
   color: Scalars['String'];
@@ -1127,6 +1145,7 @@ export type Mutation = {
   generateApiKey: GenerateApiKeyResult;
   googleLogin: LoginResult;
   googleSignup: GoogleSignupResult;
+  joinGroup: JoinGroupResult;
   logOut: LogOutResult;
   mergeHighlight: MergeHighlightResult;
   moveFilter: MoveFilterResult;
@@ -1279,6 +1298,11 @@ export type MutationGoogleLoginArgs = {
 
 export type MutationGoogleSignupArgs = {
   input: GoogleSignupInput;
+};
+
+
+export type MutationJoinGroupArgs = {
+  inviteCode: Scalars['String'];
 };
 
 
@@ -3130,6 +3154,10 @@ export type ResolversTypes = {
   IntegrationsErrorCode: IntegrationsErrorCode;
   IntegrationsResult: ResolversTypes['IntegrationsError'] | ResolversTypes['IntegrationsSuccess'];
   IntegrationsSuccess: ResolverTypeWrapper<IntegrationsSuccess>;
+  JoinGroupError: ResolverTypeWrapper<JoinGroupError>;
+  JoinGroupErrorCode: JoinGroupErrorCode;
+  JoinGroupResult: ResolversTypes['JoinGroupError'] | ResolversTypes['JoinGroupSuccess'];
+  JoinGroupSuccess: ResolverTypeWrapper<JoinGroupSuccess>;
   Label: ResolverTypeWrapper<Label>;
   LabelsError: ResolverTypeWrapper<LabelsError>;
   LabelsErrorCode: LabelsErrorCode;
@@ -3539,6 +3567,9 @@ export type ResolversParentTypes = {
   IntegrationsError: IntegrationsError;
   IntegrationsResult: ResolversParentTypes['IntegrationsError'] | ResolversParentTypes['IntegrationsSuccess'];
   IntegrationsSuccess: IntegrationsSuccess;
+  JoinGroupError: JoinGroupError;
+  JoinGroupResult: ResolversParentTypes['JoinGroupError'] | ResolversParentTypes['JoinGroupSuccess'];
+  JoinGroupSuccess: JoinGroupSuccess;
   Label: Label;
   LabelsError: LabelsError;
   LabelsResult: ResolversParentTypes['LabelsError'] | ResolversParentTypes['LabelsSuccess'];
@@ -4436,6 +4467,20 @@ export type IntegrationsSuccessResolvers<ContextType = ResolverContext, ParentTy
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type JoinGroupErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['JoinGroupError'] = ResolversParentTypes['JoinGroupError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['JoinGroupErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type JoinGroupResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['JoinGroupResult'] = ResolversParentTypes['JoinGroupResult']> = {
+  __resolveType: TypeResolveFn<'JoinGroupError' | 'JoinGroupSuccess', ParentType, ContextType>;
+};
+
+export type JoinGroupSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['JoinGroupSuccess'] = ResolversParentTypes['JoinGroupSuccess']> = {
+  group?: Resolver<ResolversTypes['RecommendationGroup'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type LabelResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Label'] = ResolversParentTypes['Label']> = {
   color?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
@@ -4580,6 +4625,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   generateApiKey?: Resolver<ResolversTypes['GenerateApiKeyResult'], ParentType, ContextType, RequireFields<MutationGenerateApiKeyArgs, 'input'>>;
   googleLogin?: Resolver<ResolversTypes['LoginResult'], ParentType, ContextType, RequireFields<MutationGoogleLoginArgs, 'input'>>;
   googleSignup?: Resolver<ResolversTypes['GoogleSignupResult'], ParentType, ContextType, RequireFields<MutationGoogleSignupArgs, 'input'>>;
+  joinGroup?: Resolver<ResolversTypes['JoinGroupResult'], ParentType, ContextType, RequireFields<MutationJoinGroupArgs, 'inviteCode'>>;
   logOut?: Resolver<ResolversTypes['LogOutResult'], ParentType, ContextType>;
   mergeHighlight?: Resolver<ResolversTypes['MergeHighlightResult'], ParentType, ContextType, RequireFields<MutationMergeHighlightArgs, 'input'>>;
   moveFilter?: Resolver<ResolversTypes['MoveFilterResult'], ParentType, ContextType, RequireFields<MutationMoveFilterArgs, 'input'>>;
@@ -5605,6 +5651,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   IntegrationsError?: IntegrationsErrorResolvers<ContextType>;
   IntegrationsResult?: IntegrationsResultResolvers<ContextType>;
   IntegrationsSuccess?: IntegrationsSuccessResolvers<ContextType>;
+  JoinGroupError?: JoinGroupErrorResolvers<ContextType>;
+  JoinGroupResult?: JoinGroupResultResolvers<ContextType>;
+  JoinGroupSuccess?: JoinGroupSuccessResolvers<ContextType>;
   Label?: LabelResolvers<ContextType>;
   LabelsError?: LabelsErrorResolvers<ContextType>;
   LabelsResult?: LabelsResultResolvers<ContextType>;
