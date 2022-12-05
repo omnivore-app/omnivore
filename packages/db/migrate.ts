@@ -70,7 +70,7 @@ log(`Migrating to ${targetMigrationLabel}.\n`)
 const logAppliedMigrations = (
   appliedMigrations: Postgrator.Migration[]
 ): void => {
-  if (appliedMigrations.length > 0) {
+  if (appliedMigrations && appliedMigrations.length > 0) {
     log(
       `Applied ${chalk.green(
         appliedMigrations.length.toString()

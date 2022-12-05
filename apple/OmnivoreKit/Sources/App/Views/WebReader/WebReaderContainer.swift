@@ -29,6 +29,7 @@ struct WebReaderContainerView: View {
   @State private var bottomBarOpacity = 0.0
   @State private var errorAlertMessage: String?
   @State private var showErrorAlertMessage = false
+  @State private var displayRecommendSheet = false
 
   @EnvironmentObject var dataService: DataService
   @EnvironmentObject var audioController: AudioController
@@ -219,6 +220,13 @@ struct WebReaderContainerView: View {
         action: delete,
         label: { Label("Delete", systemImage: "trash") }
       )
+      Button(
+        action: {
+          // dataService.updateLinkReadingProgress(itemID: item.unwrappedID, readingProgress: 0, anchorIndex: 0)
+          displayRecommendSheet = true
+        },
+        label: { Label("Recommend", systemImage: "sparkles") }
+      )
     }
   }
 
@@ -350,6 +358,14 @@ struct WebReaderContainerView: View {
             errorAlertMessage = nil
             showErrorAlertMessage = false
           })
+        }
+        .formSheet(isPresented: $displayRecommendSheet) {
+          NavigationView {
+            RecommendToView(
+              dataService: dataService,
+              viewModel: RecommendToViewModel(pageID: item.unwrappedID)
+            )
+          }
         }
         .sheet(isPresented: $showHighlightAnnotationModal) {
           HighlightAnnotationSheet(
