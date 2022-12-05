@@ -2,22 +2,22 @@ import { gql } from 'graphql-request'
 import { Label, labelFragment } from '../fragments/labelFragment'
 import { gqlFetcher } from '../networkHelpers'
 
-type SetLabelsResult = {
-  setLabels: SetLabels
+export type SetLabelsForHighlightResult = {
+  setLabelsForHighlight: SetLabelsForHighlight
   errorCodes?: unknown[]
 }
 
-type SetLabels = {
+type SetLabelsForHighlight = {
   labels: Label[]
 }
 
-export async function setLabelsMutation(
-  pageId: string,
+export async function setLabelsForHighlight(
+  highlightId: string,
   labelIds: string[]
 ): Promise<Label[] | undefined> {
   const mutation = gql`
-    mutation SetLabels($input: SetLabelsInput!) {
-      setLabels(input: $input) {
+    mutation SetLabelsForHighlight($input: SetLabelsForHighlightInput!) {
+      setLabelsForHighlight(input: $input) {
         ... on SetLabelsSuccess {
           labels {
             ...LabelFields
@@ -33,11 +33,11 @@ export async function setLabelsMutation(
 
   try {
     const data = (await gqlFetcher(mutation, {
-      input: { pageId, labelIds },
-    })) as SetLabelsResult
-    return data.errorCodes ? undefined : data.setLabels.labels
+      input: { highlightId, labelIds },
+    })) as SetLabelsForHighlightResult
+    return data.errorCodes ? undefined : data.setLabelsForHighlight.labels
   } catch (error) {
-    console.log('SetLabelsOutput error', error)
+    console.log('setLabelsForHighlightInput error', error)
     return undefined
   }
 }
