@@ -52,6 +52,16 @@ export interface SearchBody {
             }
           }
         | {
+            nested: {
+              path: 'recommendedBy'
+              query: {
+                term: {
+                  'recommendedBy.name': string
+                }
+              }
+            }
+          }
+        | {
             match: {
               [K: string]: string
             }
@@ -292,4 +302,5 @@ export interface PageSearchArgs {
   includePending?: boolean | null
   includeDeleted?: boolean
   ids?: string[]
+  recommendedBy?: string
 }

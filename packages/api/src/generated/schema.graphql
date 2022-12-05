@@ -86,6 +86,7 @@ type Article {
   readAt: Date
   readingProgressAnchorIndex: Int!
   readingProgressPercent: Float!
+  recommendedBy: [Recommendation!]
   savedAt: Date!
   savedByViewer: Boolean
   shareInfo: LinkShareInfo
@@ -1258,6 +1259,12 @@ type RecommendSuccess {
   taskNames: [String!]!
 }
 
+type Recommendation {
+  id: ID!
+  name: String!
+  recommendedAt: Date!
+}
+
 type RecommendationGroup {
   admins: [User!]!
   createdAt: Date!
@@ -1481,6 +1488,7 @@ type SearchItem {
   readAt: Date
   readingProgressAnchorIndex: Int!
   readingProgressPercent: Float!
+  recommendedBy: [Recommendation!]
   savedAt: Date!
   shortId: String
   siteIcon: String

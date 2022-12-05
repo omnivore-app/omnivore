@@ -110,6 +110,7 @@ export type Article = {
   readAt?: Maybe<Scalars['Date']>;
   readingProgressAnchorIndex: Scalars['Int'];
   readingProgressPercent: Scalars['Float'];
+  recommendedBy?: Maybe<Array<Recommendation>>;
   savedAt: Scalars['Date'];
   savedByViewer?: Maybe<Scalars['Boolean']>;
   shareInfo?: Maybe<LinkShareInfo>;
@@ -1796,6 +1797,13 @@ export type RecommendSuccess = {
   taskNames: Array<Scalars['String']>;
 };
 
+export type Recommendation = {
+  __typename?: 'Recommendation';
+  id: Scalars['ID'];
+  name: Scalars['String'];
+  recommendedAt: Scalars['Date'];
+};
+
 export type RecommendationGroup = {
   __typename?: 'RecommendationGroup';
   admins: Array<User>;
@@ -2038,6 +2046,7 @@ export type SearchItem = {
   readAt?: Maybe<Scalars['Date']>;
   readingProgressAnchorIndex: Scalars['Int'];
   readingProgressPercent: Scalars['Float'];
+  recommendedBy?: Maybe<Array<Recommendation>>;
   savedAt: Scalars['Date'];
   shortId?: Maybe<Scalars['String']>;
   siteIcon?: Maybe<Scalars['String']>;
@@ -3219,6 +3228,7 @@ export type ResolversTypes = {
   RecommendInput: RecommendInput;
   RecommendResult: ResolversTypes['RecommendError'] | ResolversTypes['RecommendSuccess'];
   RecommendSuccess: ResolverTypeWrapper<RecommendSuccess>;
+  Recommendation: ResolverTypeWrapper<Recommendation>;
   RecommendationGroup: ResolverTypeWrapper<RecommendationGroup>;
   Reminder: ResolverTypeWrapper<Reminder>;
   ReminderError: ResolverTypeWrapper<ReminderError>;
@@ -3619,6 +3629,7 @@ export type ResolversParentTypes = {
   RecommendInput: RecommendInput;
   RecommendResult: ResolversParentTypes['RecommendError'] | ResolversParentTypes['RecommendSuccess'];
   RecommendSuccess: RecommendSuccess;
+  Recommendation: Recommendation;
   RecommendationGroup: RecommendationGroup;
   Reminder: Reminder;
   ReminderError: ReminderError;
@@ -3865,6 +3876,7 @@ export type ArticleResolvers<ContextType = ResolverContext, ParentType extends R
   readAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   readingProgressAnchorIndex?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   readingProgressPercent?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  recommendedBy?: Resolver<Maybe<Array<ResolversTypes['Recommendation']>>, ParentType, ContextType>;
   savedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   savedByViewer?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   shareInfo?: Resolver<Maybe<ResolversTypes['LinkShareInfo']>, ParentType, ContextType>;
@@ -4821,6 +4833,13 @@ export type RecommendSuccessResolvers<ContextType = ResolverContext, ParentType 
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type RecommendationResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Recommendation'] = ResolversParentTypes['Recommendation']> = {
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  recommendedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type RecommendationGroupResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RecommendationGroup'] = ResolversParentTypes['RecommendationGroup']> = {
   admins?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
@@ -4974,6 +4993,7 @@ export type SearchItemResolvers<ContextType = ResolverContext, ParentType extend
   readAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   readingProgressAnchorIndex?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   readingProgressPercent?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  recommendedBy?: Resolver<Maybe<Array<ResolversTypes['Recommendation']>>, ParentType, ContextType>;
   savedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   shortId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   siteIcon?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -5696,6 +5716,7 @@ export type Resolvers<ContextType = ResolverContext> = {
   RecommendError?: RecommendErrorResolvers<ContextType>;
   RecommendResult?: RecommendResultResolvers<ContextType>;
   RecommendSuccess?: RecommendSuccessResolvers<ContextType>;
+  Recommendation?: RecommendationResolvers<ContextType>;
   RecommendationGroup?: RecommendationGroupResolvers<ContextType>;
   Reminder?: ReminderResolvers<ContextType>;
   ReminderError?: ReminderErrorResolvers<ContextType>;
