@@ -6,4 +6,8 @@ BEGIN;
 
 ALTER TABLE omnivore.group_membership DROP CONSTRAINT IF EXISTS group_membership_unique;
 
+REVOKE UPDATE ON omnivore.invite FROM omnivore_user;
+
+REVOKE UPDATE ON omnivore.group FROM omnivore_user;
+
 COMMIT;
