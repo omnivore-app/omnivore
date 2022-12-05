@@ -1,7 +1,6 @@
 import { PrimaryLayout } from '../components/templates/PrimaryLayout'
 import { HomeFeedContainer } from '../components/templates/homeFeed/HomeFeedContainer'
 import { VStack } from './../components/elements/LayoutPrimitives'
-import { useRef } from 'react'
 
 export default function Home(): JSX.Element {
   return <LoadedContent />
