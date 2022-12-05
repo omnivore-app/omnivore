@@ -91,6 +91,13 @@
         <attribute name="savedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="term" optional="YES" attributeType="String"/>
     </entity>
+    <entity name="RecommendationGroup" representedClassName="RecommendationGroup" syncable="YES" codeGenerationType="class">
+        <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" optional="YES" attributeType="String"/>
+        <attribute name="inviteUrl" optional="YES" attributeType="String"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="updatedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+    </entity>
     <entity name="Viewer" representedClassName="Viewer" syncable="YES" codeGenerationType="class">
         <attribute name="name" attributeType="String"/>
         <attribute name="profileImageURL" optional="YES" attributeType="String"/>

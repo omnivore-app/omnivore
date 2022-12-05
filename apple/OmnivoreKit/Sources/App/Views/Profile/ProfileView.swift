@@ -108,6 +108,12 @@ struct ProfileView: View {
       #endif
 
       Section {
+        NavigationLink(destination: GroupsView()) {
+          Text("Recommendation Groups")
+        }
+      }
+
+      Section {
         NavigationLink(
           destination: BasicWebAppView.privacyPolicyWebView(baseURL: dataService.appEnvironment.webAppBaseURL)
         ) {
