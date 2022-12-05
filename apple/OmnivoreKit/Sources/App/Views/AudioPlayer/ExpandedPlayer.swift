@@ -355,42 +355,6 @@
       }
     }
 
-    var changeVoiceView: some View {
-      NavigationView {
-        VStack {
-          List {
-            ForEach(audioController.voiceList ?? [], id: \.key.self) { voice in
-              Button(action: {
-                audioController.currentVoice = voice.key
-                self.showVoiceSheet = false
-              }, label: {
-                HStack {
-                  Text(voice.name)
-
-                  Spacer()
-
-                  if voice.selected {
-                    Image(systemName: "checkmark")
-                  }
-                }
-                .contentShape(Rectangle())
-              }).buttonStyle(PlainButtonStyle())
-            }
-          }
-          .padding(.top, 32)
-          .listStyle(.plain)
-          Spacer()
-        }
-        .navigationBarTitle("Voice")
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationBarItems(leading: Button(action: { self.showVoiceSheet = false }, label: {
-          Image(systemName: "chevron.backward")
-            .font(.appNavbarIcon)
-            .tint(.appGrayTextContrast)
-        }))
-      }
-    }
-
     var scrubbing: Bool {
       switch audioController.scrubState {
       case .scrubStarted:
