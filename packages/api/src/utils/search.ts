@@ -35,6 +35,7 @@ export interface SearchFilter {
   termFilters: FieldFilter[]
   matchFilters: FieldFilter[]
   ids: string[]
+  recommendedBy?: string
 }
 
 export enum LabelFilterType {
@@ -80,6 +81,14 @@ export interface SortParams {
 export interface FieldFilter {
   field: string
   value: string
+}
+
+const parseRecommendedBy = (str?: string): string | undefined => {
+  if (str === undefined) {
+    return undefined
+  }
+
+  return str.toLowerCase()
 }
 
 const parseIsFilter = (str: string | undefined): ReadFilter => {
@@ -300,6 +309,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
       'content',
       'updated',
       'includes',
+      'recommendedBy',
     ],
     tokenize: true,
   })
@@ -379,6 +389,10 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
         case 'includes': {
           const ids = parseIds(keyword.keyword, keyword.value)
           ids && result.ids.push(...ids)
+          break
+        }
+        case 'recommendedBy': {
+          result.recommendedBy = parseRecommendedBy(keyword.value)
           break
         }
       }
