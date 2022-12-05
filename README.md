@@ -15,14 +15,16 @@ We built Omnivore because we love reading and we want it to be more social. Join
 - Highlighting, notes, search, and sharing
 - Full keyboard navigation
 - Automatically saves your place in long articles
-- Add articles via email (with substack support!)
+- Add newsletter articles via email (with substack support!)
 - PDF support
 - [Web app](https://omnivore.app/) written in Node.js and TypeScript
 - [Native iOS app](https://omnivore.app/install/ios)
 - Progressive web app for Android users
 - Browser extensions for [Chrome](https://omnivore.app/install/chrome), [Safari](https://omnivore.app/install/safari), [Firefox](https://omnivore.app/install/firefox), and [Edge](https://omnivore.app/install/edge)
 - Labels (aka tagging)
-- Offline support (coming soon!)
+- Offline support
+- Text to speech (iOS only)
+- [Logseq](https://logseq.com/) support via our [Logseq Plugin](https://github.com/omnivore-app/logseq-omnivore)
 
 Every single part is fully open source! Fork it, extend it, or deploy it to your own server.
 
