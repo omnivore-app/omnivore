@@ -211,7 +211,7 @@ export const googleSignupResolver: ResolverFn<
       me: userDataToUser({ ...user, profile: { ...profile, private: false } }),
     }
   } catch (err) {
-    console.log('error', err)
+    console.log('error signing up with google', err)
     if (isErrorWithCode(err)) {
       return { errorCodes: [err.errorCode as SignupErrorCode] }
     }
