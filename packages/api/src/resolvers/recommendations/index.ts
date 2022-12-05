@@ -9,18 +9,18 @@ import {
   JoinGroupErrorCode,
   JoinGroupSuccess,
   MutationCreateGroupArgs,
+  MutationJoinGroupArgs,
   MutationRecommendArgs,
   RecommendError,
   RecommendErrorCode,
   RecommendSuccess,
-  MutationJoinGroupArgs,
 } from '../../generated/graphql'
 import {
   createGroup,
   getInviteUrl,
   getRecommendationGroups,
   joinGroup,
-} from '../../services/create_group'
+} from '../../services/groups'
 import { authorized, userDataToUser } from '../../utils/helpers'
 import { getRepository } from '../../entity/utils'
 import { User } from '../../entity/user'
