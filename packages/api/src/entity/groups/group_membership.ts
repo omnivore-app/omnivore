@@ -6,6 +6,7 @@ import {
   ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
+  Unique,
   UpdateDateColumn,
 } from 'typeorm'
 
@@ -14,6 +15,7 @@ import { Group } from './group'
 import { Invite } from './invite'
 
 @Entity()
+@Unique('group_membership_unique', ['user', 'group'])
 export class GroupMembership {
   @PrimaryGeneratedColumn('uuid')
   id!: string
