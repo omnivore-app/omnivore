@@ -29,6 +29,8 @@ struct RecommendationGroupView: View {
   @EnvironmentObject var dataService: DataService
   @StateObject var viewModel: RecommendationsGroupViewModel
 
+  @State var presentShareSheet = false
+
   var body: some View {
     Group {
       #if os(iOS)
@@ -45,6 +47,14 @@ struct RecommendationGroupView: View {
     .task { await viewModel.loadGroups(dataService: dataService) }
   }
 
+  private var shareView: some View {
+    if let shareLink = URL(string: viewModel.recommendationGroup.inviteUrl) {
+      return AnyView(ShareSheet(activityItems: [shareLink]))
+    } else {
+      return AnyView(Text("Error copying invite URL"))
+    }
+  }
+
   private var innerBody: some View {
     Group {
       Section("Name") {
@@ -53,21 +63,14 @@ struct RecommendationGroupView: View {
 
       Section("Invite Link") {
         Button(action: {
-          #if os(iOS)
-            UIPasteboard.general.string = viewModel.recommendationGroup.inviteUrl
-          #endif
-
-          #if os(macOS)
-            let pasteBoard = NSPasteboard.general
-            pasteBoard.clearContents()
-            pasteBoard.writeObjects([viewModel.recommendationGroup.inviteUrl as NSString])
-          #endif
-
-          Snackbar.show(message: "Invite link copied")
+          presentShareSheet = true
         }, label: {
           Text("[\(viewModel.recommendationGroup.inviteUrl)](\(viewModel.recommendationGroup.inviteUrl))")
         })
       }
+    }
+    .formSheet(isPresented: $presentShareSheet) {
+      shareView
     }
     .navigationTitle(viewModel.recommendationGroup.name)
   }
