@@ -2183,6 +2183,27 @@ const schema = gql`
     BAD_REQUEST
   }
 
+  input RecommendInput {
+    pageId: ID!
+    groupIds: [ID!]!
+  }
+
+  union RecommendResult = RecommendSuccess | RecommendError
+
+  type RecommendSuccess {
+    taskNames: [String!]!
+  }
+
+  type RecommendError {
+    errorCodes: [RecommendErrorCode!]!
+  }
+
+  enum RecommendErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -2261,6 +2282,7 @@ const schema = gql`
     deleteFilter(id: ID!): DeleteFilterResult!
     moveFilter(input: MoveFilterInput!): MoveFilterResult!
     createGroup(input: CreateGroupInput!): CreateGroupResult!
+    recommend(input: RecommendInput!): RecommendResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed

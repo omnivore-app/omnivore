@@ -63,6 +63,7 @@ import {
   moveFilterResolver,
   moveLabelResolver,
   newsletterEmailsResolver,
+  recommendResolver,
   reminderResolver,
   reportItemResolver,
   revokeApiKeyResolver,
@@ -189,6 +190,7 @@ export const functionResolvers = {
     deleteFilter: deleteFilterResolver,
     moveFilter: moveFilterResolver,
     createGroup: createGroupResolver,
+    recommend: recommendResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -640,4 +642,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('MoveFilter'),
   ...resultResolveTypeResolver('CreateGroup'),
   ...resultResolveTypeResolver('Groups'),
+  ...resultResolveTypeResolver('Recommend'),
 }

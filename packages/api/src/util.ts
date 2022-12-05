@@ -62,9 +62,10 @@ interface BackendEnv {
     name: string
     contentFetchUrl: string
     contentFetchGCFUrl: string
-    reminderTaskHanderUrl: string
+    reminderTaskHandlerUrl: string
     integrationTaskHandlerUrl: string
     textToSpeechTaskHandlerUrl: string
+    recommendationTaskHandlerUrl: string
   }
   fileUpload: {
     gcsUploadBucket: string
@@ -152,6 +153,7 @@ const nullableEnvVars = [
   'AZURE_SPEECH_KEY',
   'AZURE_SPEECH_REGION',
   'GCP_LOCATION',
+  'RECOMMENDATION_TASK_HANDLER_URL',
 ] // Allow some vars to be null/empty
 
 /* If not in GAE and Prod/QA/Demo env (f.e. on localhost/dev env), allow following env vars to be null */
@@ -234,9 +236,10 @@ export function getEnv(): BackendEnv {
     name: parse('PUPPETEER_QUEUE_NAME'),
     contentFetchUrl: parse('CONTENT_FETCH_URL'),
     contentFetchGCFUrl: parse('CONTENT_FETCH_GCF_URL'),
-    reminderTaskHanderUrl: parse('REMINDER_TASK_HANDLER_URL'),
+    reminderTaskHandlerUrl: parse('REMINDER_TASK_HANDLER_URL'),
     integrationTaskHandlerUrl: parse('INTEGRATION_TASK_HANDLER_URL'),
     textToSpeechTaskHandlerUrl: parse('TEXT_TO_SPEECH_TASK_HANDLER_URL'),
+    recommendationTaskHandlerUrl: parse('RECOMMENDATION_TASK_HANDLER_URL'),
   }
   const imageProxy = {
     url: parse('IMAGE_PROXY_URL'),
