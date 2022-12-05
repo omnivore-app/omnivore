@@ -86,6 +86,21 @@ public struct FeedCard: View {
           }
         #endif
       }
+
+      if let recommendedBy = item.recommendedBy, recommendedBy.count > 0 {
+        let str = recommendedBy.reduce("") { str, item in
+          if let item = item as? Recommendation, let name = item.name {
+            return str + name
+          }
+          return str
+        }
+        HStack {
+          Text("Recommended in \(str)")
+            .font(.appCaption)
+            .frame(alignment: .leading)
+          Spacer()
+        }
+      }
     }
     .padding(.top, 0)
     .padding(.bottom, 8)

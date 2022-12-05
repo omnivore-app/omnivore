@@ -59,6 +59,7 @@ public extension DataService {
             }
           }
         case let .failure(error):
+          print("RESULT: ", result)
           continuation.resume(throwing: SaveArticleError.make(from: error))
         }
       }
@@ -72,6 +73,7 @@ extension SaveArticleError {
     case .network, .timeout:
       return .network
     case .badpayload, .badURL, .badstatus, .cancelled:
+      print("HTTP ERROR", httpError)
       return .unknown(description: httpError.localizedDescription)
     }
   }

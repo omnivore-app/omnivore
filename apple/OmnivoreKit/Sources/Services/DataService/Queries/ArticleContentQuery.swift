@@ -44,6 +44,7 @@ extension DataService {
           contentReader: try $0.contentReader().rawValue,
           originalHtml: nil,
           language: try $0.language(),
+          recommendedBy: try $0.recommendedBy(selection: recommendationSelection.list.nullable) ?? [],
           labels: try $0.labels(selection: feedItemLabelSelection.list.nullable) ?? []
         ),
         htmlContent: try $0.content(),
