@@ -2204,6 +2204,22 @@ const schema = gql`
     NOT_FOUND
   }
 
+  union JoinGroupResult = JoinGroupSuccess | JoinGroupError
+
+  type JoinGroupSuccess {
+    group: RecommendationGroup!
+  }
+
+  type JoinGroupError {
+    errorCodes: [JoinGroupErrorCode!]!
+  }
+
+  enum JoinGroupErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -2283,6 +2299,7 @@ const schema = gql`
     moveFilter(input: MoveFilterInput!): MoveFilterResult!
     createGroup(input: CreateGroupInput!): CreateGroupResult!
     recommend(input: RecommendInput!): RecommendResult!
+    joinGroup(inviteCode: String!): JoinGroupResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed

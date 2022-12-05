@@ -5,7 +5,11 @@ import {
   GroupsError,
   GroupsErrorCode,
   GroupsSuccess,
+  JoinGroupError,
+  JoinGroupErrorCode,
+  JoinGroupSuccess,
   MutationCreateGroupArgs,
+  MutationJoinGroupArgs,
   MutationRecommendArgs,
   RecommendError,
   RecommendErrorCode,
@@ -15,7 +19,8 @@ import {
   createGroup,
   getInviteUrl,
   getRecommendationGroups,
-} from '../../services/create_group'
+  joinGroup,
+} from '../../services/groups'
 import { authorized, userDataToUser } from '../../utils/helpers'
 import { getRepository } from '../../entity/utils'
 import { User } from '../../entity/user'
@@ -204,6 +209,52 @@ export const recommendResolver = authorized<
 
     return {
       errorCodes: [RecommendErrorCode.BadRequest],
+    }
+  }
+})
+
+export const joinGroupResolver = authorized<
+  JoinGroupSuccess,
+  JoinGroupError,
+  MutationJoinGroupArgs
+>(async (_, { inviteCode }, { claims: { uid }, log }) => {
+  log.info('Joining group', {
+    inviteCode,
+    labels: {
+      source: 'resolver',
+      resolver: 'joinGroupResolver',
+      uid,
+    },
+  })
+
+  try {
+    const user = await getRepository(User).findOne({
+      where: { id: uid },
+      relations: ['profile'],
+    })
+    if (!user) {
+      return {
+        errorCodes: [JoinGroupErrorCode.Unauthorized],
+      }
+    }
+
+    const group = await joinGroup(user, inviteCode)
+
+    return {
+      group,
+    }
+  } catch (error) {
+    log.error('Error joining group', {
+      error,
+      labels: {
+        source: 'resolver',
+        resolver: 'joinGroupResolver',
+        uid,
+      },
+    })
+
+    return {
+      errorCodes: [JoinGroupErrorCode.BadRequest],
     }
   }
 })

@@ -91,3 +91,59 @@ export const getRecommendationGroups = async (
 export const getInviteUrl = (invite: Invite) => {
   return `${homePageURL()}/invite/${invite.code}`
 }
+
+export const joinGroup = async (
+  user: User,
+  inviteCode: string
+): Promise<RecommendationGroup> => {
+  const invite = await AppDataSource.transaction<Invite>(async (t) => {
+    // Check if the invite exists
+    const invite = await t
+      .getRepository(Invite)
+      .createQueryBuilder('invite')
+      .setLock('pessimistic_write')
+      .innerJoinAndSelect('invite.group', 'group')
+      .where('invite.code = :inviteCode AND invite.expiration_time >= NOW()', {
+        inviteCode,
+      })
+      .getOne()
+
+    if (!invite) {
+      throw new Error('Invite not found')
+    }
+
+    // Check if exceeded max members considering concurrent requests
+    await t.query(
+      `
+insert into omnivore.group_membership (user_id, group_id, invite_id)
+select $1, $2, $3
+from omnivore.group_membership
+where group_id = $2
+having count(*) < $4`,
+      [user.id, invite.group.id, invite.id, invite.maxMembers]
+    )
+
+    return invite
+  })
+
+  const group = await getRepository(Group).findOneOrFail({
+    where: { id: invite.group.id },
+    relations: ['members', 'members.user.profile'],
+  })
+  const admins: GraphqlUser[] = []
+  const members: GraphqlUser[] = []
+  group.members.forEach((m) => {
+    const user = userDataToUser(m.user)
+    if (m.isAdmin) {
+      admins.push(user)
+    }
+    members.push(user)
+  })
+
+  return {
+    ...group,
+    inviteUrl: getInviteUrl(invite),
+    admins,
+    members,
+  }
+}
