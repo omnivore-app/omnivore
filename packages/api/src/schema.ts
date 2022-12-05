@@ -329,6 +329,12 @@ const schema = gql`
     updatedAt: Date!
   }
 
+  type Recommendation {
+    id: ID!
+    name: String!
+    recommendedAt: Date!
+  }
+
   type Article {
     id: ID!
     title: String!
@@ -369,6 +375,7 @@ const schema = gql`
     state: ArticleSavingRequestStatus
     language: String
     readAt: Date
+    recommendedBy: [Recommendation!]
   }
 
   # Query: article
@@ -1515,6 +1522,7 @@ const schema = gql`
     savedAt: Date!
     highlights: [Highlight!]
     siteIcon: String
+    recommendedBy: [Recommendation!]
   }
 
   type SearchItemEdge {
