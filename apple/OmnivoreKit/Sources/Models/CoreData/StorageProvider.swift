@@ -21,6 +21,7 @@ public class PersistentContainer: NSPersistentContainer {
     #endif
     let appGroupContainer = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID)
     let appGroupContainerURL = appGroupContainer?.appendingPathComponent("store.sqlite")
+    print("starting with sqlite container", appGroupContainerURL)
 
     container.persistentStoreDescriptions.first!.url = appGroupContainerURL
 

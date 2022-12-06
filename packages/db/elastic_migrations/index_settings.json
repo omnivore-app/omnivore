@@ -167,7 +167,7 @@
       "wordsCount": {
         "type": "integer"
       },
-      "recommendedBy": {
+      "recommendations": {
         "type": "nested",
         "properties": {
           "id": {

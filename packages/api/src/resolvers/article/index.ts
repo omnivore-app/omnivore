@@ -1015,6 +1015,7 @@ export const updatesSinceResolver = authorized<
       }
     })
 
+    console.log('edges', JSON.stringify(edges))
     return {
       edges,
       pageInfo: {

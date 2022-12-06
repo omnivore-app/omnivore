@@ -26,7 +26,7 @@ struct InternalLinkedItem {
   let contentReader: String?
   let originalHtml: String?
   let language: String?
-  let recommendedBy: [InternalRecommendation]
+  let recommendations: [InternalRecommendation]
   var labels: [InternalLinkedItemLabel]
 
   var isPDF: Bool {
@@ -73,12 +73,12 @@ struct InternalLinkedItem {
       linkedItem.addToLabels(label.asManagedObject(inContext: context))
     }
 
-    if let existingRecommendation = linkedItem.recommendedBy {
-      linkedItem.removeFromRecommendedBy(existingRecommendation)
+    if let existingRecommendation = linkedItem.recommendations {
+      linkedItem.removeFromRecommendations(existingRecommendation)
     }
 
-    for recommendation in recommendedBy {
-      linkedItem.addToRecommendedBy(recommendation.asManagedObject(inContext: context))
+    for recommendation in recommendations {
+      linkedItem.addToRecommendations(recommendation.asManagedObject(inContext: context))
     }
 
     return linkedItem
@@ -142,7 +142,7 @@ extension JSONArticle {
       contentReader: contentReader,
       originalHtml: nil,
       language: language,
-      recommendedBy: [], // TODO:
+      recommendations: [], // TODO:
       labels: []
     )
 

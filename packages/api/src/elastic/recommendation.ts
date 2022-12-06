@@ -13,19 +13,19 @@ export const addRecommendation = async (
       url: page.url,
     })
     if (existingPage) {
-      if (existingPage.recommendedBy?.includes(recommendation)) {
+      if (existingPage.recommendations?.includes(recommendation)) {
         return existingPage._id
       }
 
       // update recommendedBy in the existing page
-      const recommendedBy = (existingPage.recommendedBy || []).concat(
+      const recommendations = (existingPage.recommendations || []).concat(
         recommendation
       )
 
       await updatePage(
         existingPage.id,
         {
-          recommendedBy,
+          recommendations,
         },
         ctx
       )
@@ -36,7 +36,7 @@ export const addRecommendation = async (
     const newPage: Page = {
       ...page,
       id: '',
-      recommendedBy: [recommendation],
+      recommendations: [recommendation],
       userId: ctx.uid,
       readingProgressPercent: 0,
       readingProgressAnchorIndex: 0,

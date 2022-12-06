@@ -42,6 +42,22 @@ public struct InternalUserProfile: Identifiable {
     return userProfile
   }
 
+  public static func makeSingle(_ user: UserProfile?) -> InternalUserProfile? {
+    if let user = user,
+       let userID = user.userID,
+       let name = user.name,
+       let username = user.username
+    {
+      return InternalUserProfile(
+        userID: userID,
+        name: name,
+        username: username,
+        profileImageURL: user.profileImageURL
+      )
+    }
+    return nil
+  }
+
   public static func make(_ users: NSSet?) -> [InternalUserProfile] {
     users?
       .compactMap { user in

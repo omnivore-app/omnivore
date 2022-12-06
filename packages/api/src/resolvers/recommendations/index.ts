@@ -185,7 +185,8 @@ export const recommendResolver = authorized<
                 member.user.id,
                 page.id,
                 {
-                  ...group,
+                  id: group.id,
+                  name: group.name,
                   note: input.note ?? null,
                   user: {
                     userId: user.id,

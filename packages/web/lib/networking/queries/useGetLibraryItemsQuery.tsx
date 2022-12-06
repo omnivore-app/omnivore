@@ -82,7 +82,7 @@ export type LibraryItemNode = {
   siteName?: string
   subscription?: string
   readAt?: string
-  recommendedBy?: Recommendation[]
+  recommendations?: Recommendation[]
 }
 
 export type Recommendation = {
@@ -151,7 +151,7 @@ export function useGetLibraryItemsQuery({
               siteName
               subscription
               readAt
-              recommendedBy {
+              recommendations {
                 id
                 name
                 note

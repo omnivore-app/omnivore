@@ -684,7 +684,7 @@ extension Objects {
     let readAt: [String: DateTime]
     let readingProgressAnchorIndex: [String: Int]
     let readingProgressPercent: [String: Double]
-    let recommendedBy: [String: [Objects.Recommendation]]
+    let recommendations: [String: [Objects.Recommendation]]
     let savedAt: [String: DateTime]
     let savedByViewer: [String: Bool]
     let shareInfo: [String: Objects.LinkShareInfo]
@@ -807,7 +807,7 @@ extension Objects.Article: Decodable {
         if let value = try container.decode(Double?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
-      case "recommendedBy":
+      case "recommendations":
         if let value = try container.decode([Objects.Recommendation]?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
@@ -903,7 +903,7 @@ extension Objects.Article: Decodable {
     readAt = map["readAt"]
     readingProgressAnchorIndex = map["readingProgressAnchorIndex"]
     readingProgressPercent = map["readingProgressPercent"]
-    recommendedBy = map["recommendedBy"]
+    recommendations = map["recommendations"]
     savedAt = map["savedAt"]
     savedByViewer = map["savedByViewer"]
     shareInfo = map["shareInfo"]
@@ -1282,9 +1282,9 @@ extension Fields where TypeLock == Objects.Article {
     }
   }
 
-  func recommendedBy<Type>(selection: Selection<Type, [Objects.Recommendation]?>) throws -> Type {
+  func recommendations<Type>(selection: Selection<Type, [Objects.Recommendation]?>) throws -> Type {
     let field = GraphQLField.composite(
-      name: "recommendedBy",
+      name: "recommendations",
       arguments: [],
       selection: selection.selection
     )
@@ -1292,7 +1292,7 @@ extension Fields where TypeLock == Objects.Article {
 
     switch response {
     case let .decoding(data):
-      return try selection.decode(data: data.recommendedBy[field.alias!])
+      return try selection.decode(data: data.recommendations[field.alias!])
     case .mocking:
       return selection.mock()
     }
@@ -13733,7 +13733,9 @@ extension Objects {
     let __typename: TypeName = .recommendation
     let id: [String: String]
     let name: [String: String]
+    let note: [String: String]
     let recommendedAt: [String: DateTime]
+    let user: [String: Objects.RecommendingUser]
 
     enum TypeName: String, Codable {
       case recommendation = "Recommendation"
@@ -13761,8 +13763,16 @@ extension Objects.Recommendation: Decodable {
         if let value = try container.decode(String?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
+      case "note":
+        if let value = try container.decode(String?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
       case "recommendedAt":
         if let value = try container.decode(DateTime?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      case "user":
+        if let value = try container.decode(Objects.RecommendingUser?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
       default:
@@ -13777,7 +13787,9 @@ extension Objects.Recommendation: Decodable {
 
     id = map["id"]
     name = map["name"]
+    note = map["note"]
     recommendedAt = map["recommendedAt"]
+    user = map["user"]
   }
 }
 
@@ -13818,6 +13830,21 @@ extension Fields where TypeLock == Objects.Recommendation {
     }
   }
 
+  func note() throws -> String? {
+    let field = GraphQLField.leaf(
+      name: "note",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      return data.note[field.alias!]
+    case .mocking:
+      return nil
+    }
+  }
+
   func recommendedAt() throws -> DateTime {
     let field = GraphQLField.leaf(
       name: "recommendedAt",
@@ -13833,6 +13860,22 @@ extension Fields where TypeLock == Objects.Recommendation {
       throw HttpError.badpayload
     case .mocking:
       return DateTime.mockValue
+    }
+  }
+
+  func user<Type>(selection: Selection<Type, Objects.RecommendingUser?>) throws -> Type {
+    let field = GraphQLField.composite(
+      name: "user",
+      arguments: [],
+      selection: selection.selection
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      return try selection.decode(data: data.user[field.alias!])
+    case .mocking:
+      return selection.mock()
     }
   }
 }
@@ -14050,6 +14093,140 @@ extension Fields where TypeLock == Objects.RecommendationGroup {
 
 extension Selection where TypeLock == Never, Type == Never {
   typealias RecommendationGroup<T> = Selection<T, Objects.RecommendationGroup>
+}
+
+extension Objects {
+  struct RecommendingUser {
+    let __typename: TypeName = .recommendingUser
+    let name: [String: String]
+    let profileImageUrl: [String: String]
+    let userId: [String: String]
+    let username: [String: String]
+
+    enum TypeName: String, Codable {
+      case recommendingUser = "RecommendingUser"
+    }
+  }
+}
+
+extension Objects.RecommendingUser: Decodable {
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
+
+    var map = HashMap()
+    for codingKey in container.allKeys {
+      if codingKey.isTypenameKey { continue }
+
+      let alias = codingKey.stringValue
+      let field = GraphQLField.getFieldNameFromAlias(alias)
+
+      switch field {
+      case "name":
+        if let value = try container.decode(String?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      case "profileImageUrl":
+        if let value = try container.decode(String?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      case "userId":
+        if let value = try container.decode(String?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      case "username":
+        if let value = try container.decode(String?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      default:
+        throw DecodingError.dataCorrupted(
+          DecodingError.Context(
+            codingPath: decoder.codingPath,
+            debugDescription: "Unknown key \(field)."
+          )
+        )
+      }
+    }
+
+    name = map["name"]
+    profileImageUrl = map["profileImageUrl"]
+    userId = map["userId"]
+    username = map["username"]
+  }
+}
+
+extension Fields where TypeLock == Objects.RecommendingUser {
+  func name() throws -> String {
+    let field = GraphQLField.leaf(
+      name: "name",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.name[field.alias!] {
+        return data
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return String.mockValue
+    }
+  }
+
+  func profileImageUrl() throws -> String? {
+    let field = GraphQLField.leaf(
+      name: "profileImageURL",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      return data.profileImageUrl[field.alias!]
+    case .mocking:
+      return nil
+    }
+  }
+
+  func userId() throws -> String {
+    let field = GraphQLField.leaf(
+      name: "userId",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.userId[field.alias!] {
+        return data
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return String.mockValue
+    }
+  }
+
+  func username() throws -> String {
+    let field = GraphQLField.leaf(
+      name: "username",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.username[field.alias!] {
+        return data
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return String.mockValue
+    }
+  }
+}
+
+extension Selection where TypeLock == Never, Type == Never {
+  typealias RecommendingUser<T> = Selection<T, Objects.RecommendingUser>
 }
 
 extension Objects {
@@ -15471,7 +15648,7 @@ extension Objects {
     let readAt: [String: DateTime]
     let readingProgressAnchorIndex: [String: Int]
     let readingProgressPercent: [String: Double]
-    let recommendedBy: [String: [Objects.Recommendation]]
+    let recommendations: [String: [Objects.Recommendation]]
     let savedAt: [String: DateTime]
     let shortId: [String: String]
     let siteIcon: [String: String]
@@ -15584,7 +15761,7 @@ extension Objects.SearchItem: Decodable {
         if let value = try container.decode(Double?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
-      case "recommendedBy":
+      case "recommendations":
         if let value = try container.decode([Objects.Recommendation]?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
@@ -15670,7 +15847,7 @@ extension Objects.SearchItem: Decodable {
     readAt = map["readAt"]
     readingProgressAnchorIndex = map["readingProgressAnchorIndex"]
     readingProgressPercent = map["readingProgressPercent"]
-    recommendedBy = map["recommendedBy"]
+    recommendations = map["recommendations"]
     savedAt = map["savedAt"]
     shortId = map["shortId"]
     siteIcon = map["siteIcon"]
@@ -16011,9 +16188,9 @@ extension Fields where TypeLock == Objects.SearchItem {
     }
   }
 
-  func recommendedBy<Type>(selection: Selection<Type, [Objects.Recommendation]?>) throws -> Type {
+  func recommendations<Type>(selection: Selection<Type, [Objects.Recommendation]?>) throws -> Type {
     let field = GraphQLField.composite(
-      name: "recommendedBy",
+      name: "recommendations",
       arguments: [],
       selection: selection.selection
     )
@@ -16021,7 +16198,7 @@ extension Fields where TypeLock == Objects.SearchItem {
 
     switch response {
     case let .decoding(data):
-      return try selection.decode(data: data.recommendedBy[field.alias!])
+      return try selection.decode(data: data.recommendations[field.alias!])
     case .mocking:
       return selection.mock()
     }
@@ -30128,16 +30305,20 @@ extension InputObjects {
   struct RecommendInput: Encodable, Hashable {
     var groupIds: [String]
 
+    var note: OptionalArgument<String> = .absent()
+
     var pageId: String
 
     func encode(to encoder: Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
       try container.encode(groupIds, forKey: .groupIds)
+      if note.hasValue { try container.encode(note, forKey: .note) }
       try container.encode(pageId, forKey: .pageId)
     }
 
     enum CodingKeys: String, CodingKey {
       case groupIds
+      case note
       case pageId
     }
   }

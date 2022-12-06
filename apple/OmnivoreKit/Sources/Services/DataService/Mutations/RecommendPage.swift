@@ -4,7 +4,7 @@ import Models
 import SwiftGraphQL
 
 public extension DataService {
-  func recommendPage(pageID: String, groupIDs: [String]) async throws {
+  func recommendPage(pageID: String, groupIDs: [String], note: String?) async throws {
     enum MutationResult {
       case saved(taskNames: [String])
       case error(errorMessage: String)
@@ -21,7 +21,7 @@ public extension DataService {
 
     let mutation = Selection.Mutation {
       try $0.recommend(
-        input: .init(groupIds: groupIDs, pageId: pageID),
+        input: .init(groupIds: groupIDs, note: OptionalArgument(note), pageId: pageID),
         selection: selection
       )
     }

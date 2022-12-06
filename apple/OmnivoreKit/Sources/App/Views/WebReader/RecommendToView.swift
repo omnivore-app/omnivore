@@ -10,6 +10,7 @@ import Views
   @Published var selectedGroups = [String]()
   @Published var isRunning = false
   @Published var showError = false
+  @Published var note: String?
 
   let pageID: String
 
@@ -34,7 +35,7 @@ import Views
     isRunning = true
 
     do {
-      try await dataService.recommendPage(pageID: pageID, groupIDs: selectedGroups)
+      try await dataService.recommendPage(pageID: pageID, groupIDs: selectedGroups, note: note)
     } catch {
       showError = true
     }

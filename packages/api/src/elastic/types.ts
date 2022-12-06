@@ -249,7 +249,7 @@ export interface Page {
   readAt?: Date
   listenedAt?: Date
   wordsCount?: number
-  recommendedBy?: Recommendation[]
+  recommendations?: Recommendation[]
 }
 
 export interface SearchItem {
@@ -282,7 +282,7 @@ export interface SearchItem {
   wordsCount?: number
   siteName?: string
   siteIcon?: string
-  recommendedBy?: Recommendation[]
+  recommendations?: Recommendation[]
 }
 
 const keys = ['_id', 'url', 'slug', 'userId', 'uploadFileId', 'state'] as const

@@ -2,10 +2,11 @@ import CoreData
 import Foundation
 import Models
 
-public struct InternalRecommendation: Encodable {
+public struct InternalRecommendation {
   let id: String
   let name: String
-  let recommendedAt: Date?
+  let user: InternalUserProfile?
+  let recommendedAt: Date
 
   func asManagedObject(inContext context: NSManagedObjectContext) -> Recommendation {
     let existing = Recommendation.lookup(byID: id, inContext: context)
@@ -13,6 +14,7 @@ public struct InternalRecommendation: Encodable {
     recommendation.id = id
     recommendation.name = name
     recommendation.recommendedAt = recommendedAt
+    recommendation.user = user?.asManagedObject(inContext: context)
     return recommendation
   }
 
@@ -27,6 +29,7 @@ public struct InternalRecommendation: Encodable {
           return InternalRecommendation(
             id: id,
             name: name,
+            user: InternalUserProfile.makeSingle(recommendation.user),
             recommendedAt: recommendedAt
           )
         }
