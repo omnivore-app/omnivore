@@ -97,6 +97,10 @@ struct ProfileView: View {
         NavigationLink(destination: SubscriptionsView()) {
           Text("Subscriptions")
         }
+
+        NavigationLink(destination: GroupsView()) {
+          Text("Recommendation Groups")
+        }
       }
 
       #if os(iOS)
@@ -106,12 +110,6 @@ struct ProfileView: View {
           }
         }
       #endif
-
-      Section {
-        NavigationLink(destination: GroupsView()) {
-          Text("Recommendation Groups")
-        }
-      }
 
       Section {
         NavigationLink(
