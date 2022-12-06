@@ -181,7 +181,7 @@
             "type": "date"
           },
           "note": {
-            "type": "keyword"
+            "type": "text"
           },
           "user": {
             "type": "nested",
