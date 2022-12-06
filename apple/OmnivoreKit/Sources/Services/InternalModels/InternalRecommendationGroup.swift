@@ -9,10 +9,12 @@ import CoreData
 import Foundation
 import Models
 
-public struct InternalRecommendationGroup: Encodable, Identifiable {
+public struct InternalRecommendationGroup: Identifiable {
   public let id: String
   public let name: String
   public let inviteUrl: String
+  public let admins: [InternalUserProfile]
+  public let members: [InternalUserProfile]
 
   func asManagedObject(inContext context: NSManagedObjectContext) -> RecommendationGroup {
     let fetchRequest: NSFetchRequest<Models.RecommendationGroup> = RecommendationGroup.fetchRequest()
@@ -37,7 +39,9 @@ public struct InternalRecommendationGroup: Encodable, Identifiable {
       return InternalRecommendationGroup(
         id: id,
         name: name,
-        inviteUrl: inviteUrl
+        inviteUrl: inviteUrl,
+        admins: InternalUserProfile.make(recommendationGroup.admins),
+        members: InternalUserProfile.make(recommendationGroup.members)
       )
     }
     return nil

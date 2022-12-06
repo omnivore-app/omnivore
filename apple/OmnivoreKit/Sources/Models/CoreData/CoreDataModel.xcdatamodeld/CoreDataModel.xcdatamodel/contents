@@ -104,6 +104,14 @@
         <attribute name="inviteUrl" optional="YES" attributeType="String"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="updatedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <relationship name="admins" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Viewer"/>
+        <relationship name="members" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Viewer"/>
+    </entity>
+    <entity name="UserProfile" representedClassName="UserProfile" syncable="YES" codeGenerationType="class">
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="profileImageURL" optional="YES" attributeType="String"/>
+        <attribute name="userID" optional="YES" attributeType="String"/>
+        <attribute name="username" optional="YES" attributeType="String"/>
     </entity>
     <entity name="Viewer" representedClassName="Viewer" syncable="YES" codeGenerationType="class">
         <attribute name="name" attributeType="String"/>

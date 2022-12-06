@@ -5,12 +5,12 @@ public extension Authenticator {
   func createPendingAccountUsingApple(
     token: String,
     name: PersonNameComponents?
-  ) async throws -> UserProfile {
+  ) async throws -> NewUserProfile {
     let params = CreatePendingAccountParams(token: token, provider: .apple, fullName: name)
     return try await createPendingAccount(params: params)
   }
 
-  func createAccount(userProfile: UserProfile) async throws {
+  func createAccount(userProfile: NewUserProfile) async throws {
     let params = CreateAccountParams(
       pendingUserToken: pendingUserToken ?? "",
       userProfile: userProfile
@@ -34,7 +34,7 @@ public extension Authenticator {
 }
 
 extension Authenticator {
-  func createPendingAccount(params: CreatePendingAccountParams) async throws -> UserProfile {
+  func createPendingAccount(params: CreatePendingAccountParams) async throws -> NewUserProfile {
     do {
       let encodedParams = (try? JSONEncoder().encode(params)) ?? Data()
       let pendingUserAuthPayload = try await networker.createPendingUser(params: encodedParams)

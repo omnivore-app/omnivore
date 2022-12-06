@@ -7,8 +7,8 @@ import Views
 
 @MainActor final class RegistrationViewModel: ObservableObject {
   enum RegistrationState {
-    case createProfile(userProfile: UserProfile)
-    case newAppleSignUp(userProfile: UserProfile)
+    case createProfile(userProfile: NewUserProfile)
+    case newAppleSignUp(userProfile: NewUserProfile)
   }
 
   @Published var loginError: LoginError?
@@ -65,7 +65,7 @@ import Views
     case let .loginError(error):
       loginError = error
     case .newOmnivoreUser:
-      registrationState = .createProfile(userProfile: UserProfile(username: "", name: ""))
+      registrationState = .createProfile(userProfile: NewUserProfile(username: "", name: ""))
     case .existingOmnivoreUser:
       break
     }

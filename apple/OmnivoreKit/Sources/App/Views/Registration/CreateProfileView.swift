@@ -6,7 +6,7 @@ import Utils
 import Views
 
 @MainActor final class CreateProfileViewModel: ObservableObject {
-  private(set) var initialUserProfile = UserProfile(username: "", name: "", bio: nil)
+  private(set) var initialUserProfile = NewUserProfile(username: "", name: "", bio: nil)
   var isConfigured = false
 
   var hasSuggestedProfile: Bool {
@@ -31,7 +31,7 @@ import Views
   init() {}
 
   func submitProfile(name: String, bio: String, authenticator: Authenticator) {
-    let profileOrError = UserProfile.make(
+    let profileOrError = NewUserProfile.make(
       username: potentialUsername,
       name: name,
       bio: bio.isEmpty ? nil : bio
@@ -77,7 +77,7 @@ import Views
     }
   }
 
-  func submitProfile(userProfile: UserProfile, authenticator: Authenticator) async {
+  func submitProfile(userProfile: NewUserProfile, authenticator: Authenticator) async {
     do {
       try await authenticator.createAccount(userProfile: userProfile)
     } catch {
@@ -87,7 +87,7 @@ import Views
     }
   }
 
-  func configure(profile: UserProfile, dataService: DataService) {
+  func configure(profile: NewUserProfile, dataService: DataService) {
     guard !isConfigured else { return }
 
     isConfigured = true
@@ -104,7 +104,7 @@ import Views
 }
 
 struct CreateProfileView: View {
-  private let initialUserProfile: UserProfile
+  private let initialUserProfile: NewUserProfile
   @State private var isConfigured = false
   @Environment(\.horizontalSizeClass) var horizontalSizeClass
   @EnvironmentObject var authenticator: Authenticator
@@ -114,7 +114,7 @@ struct CreateProfileView: View {
   @State private var name = ""
   @State private var bio = ""
 
-  init(userProfile: UserProfile) {
+  init(userProfile: NewUserProfile) {
     self.initialUserProfile = userProfile
   }
 
