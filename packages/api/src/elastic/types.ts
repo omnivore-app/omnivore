@@ -53,10 +53,10 @@ export interface SearchBody {
           }
         | {
             nested: {
-              path: 'recommendedBy'
+              path: 'recommendations'
               query: {
                 term: {
-                  'recommendedBy.name': string
+                  'recommendations.name': string
                 }
               }
             }
