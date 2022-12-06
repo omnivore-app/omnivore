@@ -1,9 +1,12 @@
 import {
+  Column,
   CreateDateColumn,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
+  Unique,
   UpdateDateColumn,
 } from 'typeorm'
 
@@ -12,15 +15,16 @@ import { Group } from './group'
 import { Invite } from './invite'
 
 @Entity()
+@Unique('group_membership_unique', ['user', 'group'])
 export class GroupMembership {
   @PrimaryGeneratedColumn('uuid')
-  id?: string
+  id!: string
 
   @OneToOne(() => User)
   @JoinColumn()
   user!: User
 
-  @OneToOne(() => Group)
+  @ManyToOne(() => Group, (group) => group.members)
   @JoinColumn()
   group!: Group
 
@@ -33,4 +37,7 @@ export class GroupMembership {
 
   @UpdateDateColumn()
   updatedAt?: Date
+
+  @Column('boolean', { default: false })
+  isAdmin!: boolean
 }

@@ -33,4 +33,7 @@ export class Profile {
 
   @UpdateDateColumn()
   updatedAt!: Date
+
+  @Column('boolean', { default: false })
+  private!: boolean
 }

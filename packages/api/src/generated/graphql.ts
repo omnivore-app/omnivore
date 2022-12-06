@@ -110,6 +110,7 @@ export type Article = {
   readAt?: Maybe<Scalars['Date']>;
   readingProgressAnchorIndex: Scalars['Int'];
   readingProgressPercent: Scalars['Float'];
+  recommendedBy?: Maybe<Array<Recommendation>>;
   savedAt: Scalars['Date'];
   savedByViewer?: Maybe<Scalars['Boolean']>;
   shareInfo?: Maybe<LinkShareInfo>;
@@ -273,6 +274,29 @@ export type CreateArticleSuccess = {
   created: Scalars['Boolean'];
   createdArticle: Article;
   user: User;
+};
+
+export type CreateGroupError = {
+  __typename?: 'CreateGroupError';
+  errorCodes: Array<CreateGroupErrorCode>;
+};
+
+export enum CreateGroupErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type CreateGroupInput = {
+  expiresInDays?: InputMaybe<Scalars['Int']>;
+  maxMembers?: InputMaybe<Scalars['Int']>;
+  name: Scalars['String'];
+};
+
+export type CreateGroupResult = CreateGroupError | CreateGroupSuccess;
+
+export type CreateGroupSuccess = {
+  __typename?: 'CreateGroupSuccess';
+  group: RecommendationGroup;
 };
 
 export type CreateHighlightError = {
@@ -824,6 +848,23 @@ export type GoogleSignupSuccess = {
   me: User;
 };
 
+export type GroupsError = {
+  __typename?: 'GroupsError';
+  errorCodes: Array<GroupsErrorCode>;
+};
+
+export enum GroupsErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type GroupsResult = GroupsError | GroupsSuccess;
+
+export type GroupsSuccess = {
+  __typename?: 'GroupsSuccess';
+  groups: Array<RecommendationGroup>;
+};
+
 export type Highlight = {
   __typename?: 'Highlight';
   annotation?: Maybe<Scalars['String']>;
@@ -889,6 +930,24 @@ export type IntegrationsResult = IntegrationsError | IntegrationsSuccess;
 export type IntegrationsSuccess = {
   __typename?: 'IntegrationsSuccess';
   integrations: Array<Integration>;
+};
+
+export type JoinGroupError = {
+  __typename?: 'JoinGroupError';
+  errorCodes: Array<JoinGroupErrorCode>;
+};
+
+export enum JoinGroupErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type JoinGroupResult = JoinGroupError | JoinGroupSuccess;
+
+export type JoinGroupSuccess = {
+  __typename?: 'JoinGroupSuccess';
+  group: RecommendationGroup;
 };
 
 export type Label = {
@@ -1066,6 +1125,7 @@ export type Mutation = {
   addPopularRead: AddPopularReadResult;
   createArticle: CreateArticleResult;
   createArticleSavingRequest: CreateArticleSavingRequestResult;
+  createGroup: CreateGroupResult;
   createHighlight: CreateHighlightResult;
   createHighlightReply: CreateHighlightReplyResult;
   createLabel: CreateLabelResult;
@@ -1086,11 +1146,13 @@ export type Mutation = {
   generateApiKey: GenerateApiKeyResult;
   googleLogin: LoginResult;
   googleSignup: GoogleSignupResult;
+  joinGroup: JoinGroupResult;
   logOut: LogOutResult;
   mergeHighlight: MergeHighlightResult;
   moveFilter: MoveFilterResult;
   moveLabel: MoveLabelResult;
   optInFeature: OptInFeatureResult;
+  recommend: RecommendResult;
   reportItem: ReportItemResult;
   revokeApiKey: RevokeApiKeyResult;
   saveArticleReadingProgress: SaveArticleReadingProgressResult;
@@ -1137,6 +1199,11 @@ export type MutationCreateArticleArgs = {
 
 export type MutationCreateArticleSavingRequestArgs = {
   input: CreateArticleSavingRequestInput;
+};
+
+
+export type MutationCreateGroupArgs = {
+  input: CreateGroupInput;
 };
 
 
@@ -1235,6 +1302,11 @@ export type MutationGoogleSignupArgs = {
 };
 
 
+export type MutationJoinGroupArgs = {
+  inviteCode: Scalars['String'];
+};
+
+
 export type MutationMergeHighlightArgs = {
   input: MergeHighlightInput;
 };
@@ -1252,6 +1324,11 @@ export type MutationMoveLabelArgs = {
 
 export type MutationOptInFeatureArgs = {
   input: OptInFeatureInput;
+};
+
+
+export type MutationRecommendArgs = {
+  input: RecommendInput;
 };
 
 
@@ -1527,6 +1604,7 @@ export type Query = {
   getFollowers: GetFollowersResult;
   getFollowing: GetFollowingResult;
   getUserPersonalization: GetUserPersonalizationResult;
+  groups: GroupsResult;
   hello?: Maybe<Scalars['String']>;
   integrations: IntegrationsResult;
   labels: LabelsResult;
@@ -1694,6 +1772,47 @@ export type RecentSearchesResult = RecentSearchesError | RecentSearchesSuccess;
 export type RecentSearchesSuccess = {
   __typename?: 'RecentSearchesSuccess';
   searches: Array<RecentSearch>;
+};
+
+export type RecommendError = {
+  __typename?: 'RecommendError';
+  errorCodes: Array<RecommendErrorCode>;
+};
+
+export enum RecommendErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type RecommendInput = {
+  groupIds: Array<Scalars['ID']>;
+  pageId: Scalars['ID'];
+};
+
+export type RecommendResult = RecommendError | RecommendSuccess;
+
+export type RecommendSuccess = {
+  __typename?: 'RecommendSuccess';
+  taskNames: Array<Scalars['String']>;
+};
+
+export type Recommendation = {
+  __typename?: 'Recommendation';
+  id: Scalars['ID'];
+  name: Scalars['String'];
+  recommendedAt: Scalars['Date'];
+};
+
+export type RecommendationGroup = {
+  __typename?: 'RecommendationGroup';
+  admins: Array<User>;
+  createdAt: Scalars['Date'];
+  id: Scalars['ID'];
+  inviteUrl: Scalars['String'];
+  members: Array<User>;
+  name: Scalars['String'];
+  updatedAt: Scalars['Date'];
 };
 
 export type Reminder = {
@@ -1927,6 +2046,7 @@ export type SearchItem = {
   readAt?: Maybe<Scalars['Date']>;
   readingProgressAnchorIndex: Scalars['Int'];
   readingProgressPercent: Scalars['Float'];
+  recommendedBy?: Maybe<Array<Recommendation>>;
   savedAt: Scalars['Date'];
   shortId?: Maybe<Scalars['String']>;
   siteIcon?: Maybe<Scalars['String']>;
@@ -2909,6 +3029,11 @@ export type ResolversTypes = {
   CreateArticleSavingRequestResult: ResolversTypes['CreateArticleSavingRequestError'] | ResolversTypes['CreateArticleSavingRequestSuccess'];
   CreateArticleSavingRequestSuccess: ResolverTypeWrapper<CreateArticleSavingRequestSuccess>;
   CreateArticleSuccess: ResolverTypeWrapper<CreateArticleSuccess>;
+  CreateGroupError: ResolverTypeWrapper<CreateGroupError>;
+  CreateGroupErrorCode: CreateGroupErrorCode;
+  CreateGroupInput: CreateGroupInput;
+  CreateGroupResult: ResolversTypes['CreateGroupError'] | ResolversTypes['CreateGroupSuccess'];
+  CreateGroupSuccess: ResolverTypeWrapper<CreateGroupSuccess>;
   CreateHighlightError: ResolverTypeWrapper<CreateHighlightError>;
   CreateHighlightErrorCode: CreateHighlightErrorCode;
   CreateHighlightInput: CreateHighlightInput;
@@ -3023,6 +3148,10 @@ export type ResolversTypes = {
   GoogleSignupInput: GoogleSignupInput;
   GoogleSignupResult: ResolversTypes['GoogleSignupError'] | ResolversTypes['GoogleSignupSuccess'];
   GoogleSignupSuccess: ResolverTypeWrapper<GoogleSignupSuccess>;
+  GroupsError: ResolverTypeWrapper<GroupsError>;
+  GroupsErrorCode: GroupsErrorCode;
+  GroupsResult: ResolversTypes['GroupsError'] | ResolversTypes['GroupsSuccess'];
+  GroupsSuccess: ResolverTypeWrapper<GroupsSuccess>;
   Highlight: ResolverTypeWrapper<Highlight>;
   HighlightReply: ResolverTypeWrapper<HighlightReply>;
   HighlightStats: ResolverTypeWrapper<HighlightStats>;
@@ -3034,6 +3163,10 @@ export type ResolversTypes = {
   IntegrationsErrorCode: IntegrationsErrorCode;
   IntegrationsResult: ResolversTypes['IntegrationsError'] | ResolversTypes['IntegrationsSuccess'];
   IntegrationsSuccess: ResolverTypeWrapper<IntegrationsSuccess>;
+  JoinGroupError: ResolverTypeWrapper<JoinGroupError>;
+  JoinGroupErrorCode: JoinGroupErrorCode;
+  JoinGroupResult: ResolversTypes['JoinGroupError'] | ResolversTypes['JoinGroupSuccess'];
+  JoinGroupSuccess: ResolverTypeWrapper<JoinGroupSuccess>;
   Label: ResolverTypeWrapper<Label>;
   LabelsError: ResolverTypeWrapper<LabelsError>;
   LabelsErrorCode: LabelsErrorCode;
@@ -3090,6 +3223,13 @@ export type ResolversTypes = {
   RecentSearchesErrorCode: RecentSearchesErrorCode;
   RecentSearchesResult: ResolversTypes['RecentSearchesError'] | ResolversTypes['RecentSearchesSuccess'];
   RecentSearchesSuccess: ResolverTypeWrapper<RecentSearchesSuccess>;
+  RecommendError: ResolverTypeWrapper<RecommendError>;
+  RecommendErrorCode: RecommendErrorCode;
+  RecommendInput: RecommendInput;
+  RecommendResult: ResolversTypes['RecommendError'] | ResolversTypes['RecommendSuccess'];
+  RecommendSuccess: ResolverTypeWrapper<RecommendSuccess>;
+  Recommendation: ResolverTypeWrapper<Recommendation>;
+  RecommendationGroup: ResolverTypeWrapper<RecommendationGroup>;
   Reminder: ResolverTypeWrapper<Reminder>;
   ReminderError: ResolverTypeWrapper<ReminderError>;
   ReminderErrorCode: ReminderErrorCode;
@@ -3331,6 +3471,10 @@ export type ResolversParentTypes = {
   CreateArticleSavingRequestResult: ResolversParentTypes['CreateArticleSavingRequestError'] | ResolversParentTypes['CreateArticleSavingRequestSuccess'];
   CreateArticleSavingRequestSuccess: CreateArticleSavingRequestSuccess;
   CreateArticleSuccess: CreateArticleSuccess;
+  CreateGroupError: CreateGroupError;
+  CreateGroupInput: CreateGroupInput;
+  CreateGroupResult: ResolversParentTypes['CreateGroupError'] | ResolversParentTypes['CreateGroupSuccess'];
+  CreateGroupSuccess: CreateGroupSuccess;
   CreateHighlightError: CreateHighlightError;
   CreateHighlightInput: CreateHighlightInput;
   CreateHighlightReplyError: CreateHighlightReplyError;
@@ -3421,6 +3565,9 @@ export type ResolversParentTypes = {
   GoogleSignupInput: GoogleSignupInput;
   GoogleSignupResult: ResolversParentTypes['GoogleSignupError'] | ResolversParentTypes['GoogleSignupSuccess'];
   GoogleSignupSuccess: GoogleSignupSuccess;
+  GroupsError: GroupsError;
+  GroupsResult: ResolversParentTypes['GroupsError'] | ResolversParentTypes['GroupsSuccess'];
+  GroupsSuccess: GroupsSuccess;
   Highlight: Highlight;
   HighlightReply: HighlightReply;
   HighlightStats: HighlightStats;
@@ -3430,6 +3577,9 @@ export type ResolversParentTypes = {
   IntegrationsError: IntegrationsError;
   IntegrationsResult: ResolversParentTypes['IntegrationsError'] | ResolversParentTypes['IntegrationsSuccess'];
   IntegrationsSuccess: IntegrationsSuccess;
+  JoinGroupError: JoinGroupError;
+  JoinGroupResult: ResolversParentTypes['JoinGroupError'] | ResolversParentTypes['JoinGroupSuccess'];
+  JoinGroupSuccess: JoinGroupSuccess;
   Label: Label;
   LabelsError: LabelsError;
   LabelsResult: ResolversParentTypes['LabelsError'] | ResolversParentTypes['LabelsSuccess'];
@@ -3475,6 +3625,12 @@ export type ResolversParentTypes = {
   RecentSearchesError: RecentSearchesError;
   RecentSearchesResult: ResolversParentTypes['RecentSearchesError'] | ResolversParentTypes['RecentSearchesSuccess'];
   RecentSearchesSuccess: RecentSearchesSuccess;
+  RecommendError: RecommendError;
+  RecommendInput: RecommendInput;
+  RecommendResult: ResolversParentTypes['RecommendError'] | ResolversParentTypes['RecommendSuccess'];
+  RecommendSuccess: RecommendSuccess;
+  Recommendation: Recommendation;
+  RecommendationGroup: RecommendationGroup;
   Reminder: Reminder;
   ReminderError: ReminderError;
   ReminderResult: ResolversParentTypes['ReminderError'] | ResolversParentTypes['ReminderSuccess'];
@@ -3720,6 +3876,7 @@ export type ArticleResolvers<ContextType = ResolverContext, ParentType extends R
   readAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   readingProgressAnchorIndex?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   readingProgressPercent?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  recommendedBy?: Resolver<Maybe<Array<ResolversTypes['Recommendation']>>, ParentType, ContextType>;
   savedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   savedByViewer?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   shareInfo?: Resolver<Maybe<ResolversTypes['LinkShareInfo']>, ParentType, ContextType>;
@@ -3827,6 +3984,20 @@ export type CreateArticleSuccessResolvers<ContextType = ResolverContext, ParentT
   created?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   createdArticle?: Resolver<ResolversTypes['Article'], ParentType, ContextType>;
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CreateGroupErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CreateGroupError'] = ResolversParentTypes['CreateGroupError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['CreateGroupErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CreateGroupResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CreateGroupResult'] = ResolversParentTypes['CreateGroupResult']> = {
+  __resolveType: TypeResolveFn<'CreateGroupError' | 'CreateGroupSuccess', ParentType, ContextType>;
+};
+
+export type CreateGroupSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CreateGroupSuccess'] = ResolversParentTypes['CreateGroupSuccess']> = {
+  group?: Resolver<ResolversTypes['RecommendationGroup'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -4234,6 +4405,20 @@ export type GoogleSignupSuccessResolvers<ContextType = ResolverContext, ParentTy
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type GroupsErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GroupsError'] = ResolversParentTypes['GroupsError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['GroupsErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type GroupsResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GroupsResult'] = ResolversParentTypes['GroupsResult']> = {
+  __resolveType: TypeResolveFn<'GroupsError' | 'GroupsSuccess', ParentType, ContextType>;
+};
+
+export type GroupsSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GroupsSuccess'] = ResolversParentTypes['GroupsSuccess']> = {
+  groups?: Resolver<Array<ResolversTypes['RecommendationGroup']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type HighlightResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Highlight'] = ResolversParentTypes['Highlight']> = {
   annotation?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
@@ -4291,6 +4476,20 @@ export type IntegrationsResultResolvers<ContextType = ResolverContext, ParentTyp
 
 export type IntegrationsSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['IntegrationsSuccess'] = ResolversParentTypes['IntegrationsSuccess']> = {
   integrations?: Resolver<Array<ResolversTypes['Integration']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type JoinGroupErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['JoinGroupError'] = ResolversParentTypes['JoinGroupError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['JoinGroupErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type JoinGroupResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['JoinGroupResult'] = ResolversParentTypes['JoinGroupResult']> = {
+  __resolveType: TypeResolveFn<'JoinGroupError' | 'JoinGroupSuccess', ParentType, ContextType>;
+};
+
+export type JoinGroupSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['JoinGroupSuccess'] = ResolversParentTypes['JoinGroupSuccess']> = {
+  group?: Resolver<ResolversTypes['RecommendationGroup'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -4417,6 +4616,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   addPopularRead?: Resolver<ResolversTypes['AddPopularReadResult'], ParentType, ContextType, RequireFields<MutationAddPopularReadArgs, 'name'>>;
   createArticle?: Resolver<ResolversTypes['CreateArticleResult'], ParentType, ContextType, RequireFields<MutationCreateArticleArgs, 'input'>>;
   createArticleSavingRequest?: Resolver<ResolversTypes['CreateArticleSavingRequestResult'], ParentType, ContextType, RequireFields<MutationCreateArticleSavingRequestArgs, 'input'>>;
+  createGroup?: Resolver<ResolversTypes['CreateGroupResult'], ParentType, ContextType, RequireFields<MutationCreateGroupArgs, 'input'>>;
   createHighlight?: Resolver<ResolversTypes['CreateHighlightResult'], ParentType, ContextType, RequireFields<MutationCreateHighlightArgs, 'input'>>;
   createHighlightReply?: Resolver<ResolversTypes['CreateHighlightReplyResult'], ParentType, ContextType, RequireFields<MutationCreateHighlightReplyArgs, 'input'>>;
   createLabel?: Resolver<ResolversTypes['CreateLabelResult'], ParentType, ContextType, RequireFields<MutationCreateLabelArgs, 'input'>>;
@@ -4437,11 +4637,13 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   generateApiKey?: Resolver<ResolversTypes['GenerateApiKeyResult'], ParentType, ContextType, RequireFields<MutationGenerateApiKeyArgs, 'input'>>;
   googleLogin?: Resolver<ResolversTypes['LoginResult'], ParentType, ContextType, RequireFields<MutationGoogleLoginArgs, 'input'>>;
   googleSignup?: Resolver<ResolversTypes['GoogleSignupResult'], ParentType, ContextType, RequireFields<MutationGoogleSignupArgs, 'input'>>;
+  joinGroup?: Resolver<ResolversTypes['JoinGroupResult'], ParentType, ContextType, RequireFields<MutationJoinGroupArgs, 'inviteCode'>>;
   logOut?: Resolver<ResolversTypes['LogOutResult'], ParentType, ContextType>;
   mergeHighlight?: Resolver<ResolversTypes['MergeHighlightResult'], ParentType, ContextType, RequireFields<MutationMergeHighlightArgs, 'input'>>;
   moveFilter?: Resolver<ResolversTypes['MoveFilterResult'], ParentType, ContextType, RequireFields<MutationMoveFilterArgs, 'input'>>;
   moveLabel?: Resolver<ResolversTypes['MoveLabelResult'], ParentType, ContextType, RequireFields<MutationMoveLabelArgs, 'input'>>;
   optInFeature?: Resolver<ResolversTypes['OptInFeatureResult'], ParentType, ContextType, RequireFields<MutationOptInFeatureArgs, 'input'>>;
+  recommend?: Resolver<ResolversTypes['RecommendResult'], ParentType, ContextType, RequireFields<MutationRecommendArgs, 'input'>>;
   reportItem?: Resolver<ResolversTypes['ReportItemResult'], ParentType, ContextType, RequireFields<MutationReportItemArgs, 'input'>>;
   revokeApiKey?: Resolver<ResolversTypes['RevokeApiKeyResult'], ParentType, ContextType, RequireFields<MutationRevokeApiKeyArgs, 'id'>>;
   saveArticleReadingProgress?: Resolver<ResolversTypes['SaveArticleReadingProgressResult'], ParentType, ContextType, RequireFields<MutationSaveArticleReadingProgressArgs, 'input'>>;
@@ -4557,6 +4759,7 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   getFollowers?: Resolver<ResolversTypes['GetFollowersResult'], ParentType, ContextType, Partial<QueryGetFollowersArgs>>;
   getFollowing?: Resolver<ResolversTypes['GetFollowingResult'], ParentType, ContextType, Partial<QueryGetFollowingArgs>>;
   getUserPersonalization?: Resolver<ResolversTypes['GetUserPersonalizationResult'], ParentType, ContextType>;
+  groups?: Resolver<ResolversTypes['GroupsResult'], ParentType, ContextType>;
   hello?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   integrations?: Resolver<ResolversTypes['IntegrationsResult'], ParentType, ContextType>;
   labels?: Resolver<ResolversTypes['LabelsResult'], ParentType, ContextType>;
@@ -4613,6 +4816,38 @@ export type RecentSearchesResultResolvers<ContextType = ResolverContext, ParentT
 
 export type RecentSearchesSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RecentSearchesSuccess'] = ResolversParentTypes['RecentSearchesSuccess']> = {
   searches?: Resolver<Array<ResolversTypes['RecentSearch']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type RecommendErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RecommendError'] = ResolversParentTypes['RecommendError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['RecommendErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type RecommendResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RecommendResult'] = ResolversParentTypes['RecommendResult']> = {
+  __resolveType: TypeResolveFn<'RecommendError' | 'RecommendSuccess', ParentType, ContextType>;
+};
+
+export type RecommendSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RecommendSuccess'] = ResolversParentTypes['RecommendSuccess']> = {
+  taskNames?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type RecommendationResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Recommendation'] = ResolversParentTypes['Recommendation']> = {
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  recommendedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type RecommendationGroupResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RecommendationGroup'] = ResolversParentTypes['RecommendationGroup']> = {
+  admins?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  inviteUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  members?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -4758,6 +4993,7 @@ export type SearchItemResolvers<ContextType = ResolverContext, ParentType extend
   readAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   readingProgressAnchorIndex?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   readingProgressPercent?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  recommendedBy?: Resolver<Maybe<Array<ResolversTypes['Recommendation']>>, ParentType, ContextType>;
   savedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   shortId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   siteIcon?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -5341,6 +5577,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   CreateArticleSavingRequestResult?: CreateArticleSavingRequestResultResolvers<ContextType>;
   CreateArticleSavingRequestSuccess?: CreateArticleSavingRequestSuccessResolvers<ContextType>;
   CreateArticleSuccess?: CreateArticleSuccessResolvers<ContextType>;
+  CreateGroupError?: CreateGroupErrorResolvers<ContextType>;
+  CreateGroupResult?: CreateGroupResultResolvers<ContextType>;
+  CreateGroupSuccess?: CreateGroupSuccessResolvers<ContextType>;
   CreateHighlightError?: CreateHighlightErrorResolvers<ContextType>;
   CreateHighlightReplyError?: CreateHighlightReplyErrorResolvers<ContextType>;
   CreateHighlightReplyResult?: CreateHighlightReplyResultResolvers<ContextType>;
@@ -5422,6 +5661,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   GoogleSignupError?: GoogleSignupErrorResolvers<ContextType>;
   GoogleSignupResult?: GoogleSignupResultResolvers<ContextType>;
   GoogleSignupSuccess?: GoogleSignupSuccessResolvers<ContextType>;
+  GroupsError?: GroupsErrorResolvers<ContextType>;
+  GroupsResult?: GroupsResultResolvers<ContextType>;
+  GroupsSuccess?: GroupsSuccessResolvers<ContextType>;
   Highlight?: HighlightResolvers<ContextType>;
   HighlightReply?: HighlightReplyResolvers<ContextType>;
   HighlightStats?: HighlightStatsResolvers<ContextType>;
@@ -5429,6 +5671,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   IntegrationsError?: IntegrationsErrorResolvers<ContextType>;
   IntegrationsResult?: IntegrationsResultResolvers<ContextType>;
   IntegrationsSuccess?: IntegrationsSuccessResolvers<ContextType>;
+  JoinGroupError?: JoinGroupErrorResolvers<ContextType>;
+  JoinGroupResult?: JoinGroupResultResolvers<ContextType>;
+  JoinGroupSuccess?: JoinGroupSuccessResolvers<ContextType>;
   Label?: LabelResolvers<ContextType>;
   LabelsError?: LabelsErrorResolvers<ContextType>;
   LabelsResult?: LabelsResultResolvers<ContextType>;
@@ -5468,6 +5713,11 @@ export type Resolvers<ContextType = ResolverContext> = {
   RecentSearchesError?: RecentSearchesErrorResolvers<ContextType>;
   RecentSearchesResult?: RecentSearchesResultResolvers<ContextType>;
   RecentSearchesSuccess?: RecentSearchesSuccessResolvers<ContextType>;
+  RecommendError?: RecommendErrorResolvers<ContextType>;
+  RecommendResult?: RecommendResultResolvers<ContextType>;
+  RecommendSuccess?: RecommendSuccessResolvers<ContextType>;
+  Recommendation?: RecommendationResolvers<ContextType>;
+  RecommendationGroup?: RecommendationGroupResolvers<ContextType>;
   Reminder?: ReminderResolvers<ContextType>;
   ReminderError?: ReminderErrorResolvers<ContextType>;
   ReminderResult?: ReminderResultResolvers<ContextType>;

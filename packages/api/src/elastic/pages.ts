@@ -186,6 +186,19 @@ const appendIdsFilter = (body: SearchBody, ids: string[]): void => {
   })
 }
 
+const appendRecommendedBy = (body: SearchBody, recommendedBy: string): void => {
+  body.query.bool.must.push({
+    nested: {
+      path: 'recommendedBy',
+      query: {
+        term: {
+          'recommendedBy.name': recommendedBy,
+        },
+      },
+    },
+  })
+}
+
 export const createPage = async (
   page: Page,
   ctx: PageContext
@@ -439,6 +452,10 @@ export const searchPages = async (
     }
     if (ids && ids.length > 0) {
       appendIdsFilter(body, ids)
+    }
+
+    if (args.recommendedBy) {
+      appendRecommendedBy(body, args.recommendedBy)
     }
 
     if (!args.includePending) {

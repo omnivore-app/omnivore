@@ -1,5 +1,6 @@
 import { Fragment, useMemo } from 'react'
 import type { Highlight } from '../../lib/networking/fragments/highlightFragment'
+import { LabelChip } from '../elements/LabelChip'
 import { Box, VStack, Blockquote, SpanBox } from '../elements/LayoutPrimitives'
 import { StyledText } from '../elements/StyledText'
 import { styled } from '../tokens/stitches.config'
@@ -48,6 +49,11 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
             </Fragment>
           ))}
         </SpanBox>
+        <Box css={{ display: 'block', pt: '16px' }}>
+          {props.highlight.labels?.map(({ name, color }, index) => (
+            <LabelChip key={index} text={name || ''} color={color} />
+          ))}
+        </Box>
       </StyledQuote>
     </VStack>
   )

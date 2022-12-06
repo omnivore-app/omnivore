@@ -52,6 +52,16 @@ export interface SearchBody {
             }
           }
         | {
+            nested: {
+              path: 'recommendedBy'
+              query: {
+                term: {
+                  'recommendedBy.name': string
+                }
+              }
+            }
+          }
+        | {
             match: {
               [K: string]: string
             }
@@ -188,6 +198,12 @@ export interface Highlight {
   highlightPositionAnchorIndex?: number | null
 }
 
+export interface Recommendation {
+  id: string
+  name: string
+  recommendedAt: Date
+}
+
 export interface Page {
   id: string
   userId: string
@@ -224,6 +240,7 @@ export interface Page {
   readAt?: Date
   listenedAt?: Date
   wordsCount?: number
+  recommendedBy?: Recommendation[]
 }
 
 export interface SearchItem {
@@ -256,6 +273,7 @@ export interface SearchItem {
   wordsCount?: number
   siteName?: string
   siteIcon?: string
+  recommendedBy?: Recommendation[]
 }
 
 const keys = ['_id', 'url', 'slug', 'userId', 'uploadFileId', 'state'] as const
@@ -284,4 +302,5 @@ export interface PageSearchArgs {
   includePending?: boolean | null
   includeDeleted?: boolean
   ids?: string[]
+  recommendedBy?: string
 }

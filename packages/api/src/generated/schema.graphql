@@ -86,6 +86,7 @@ type Article {
   readAt: Date
   readingProgressAnchorIndex: Int!
   readingProgressPercent: Float!
+  recommendedBy: [Recommendation!]
   savedAt: Date!
   savedByViewer: Boolean
   shareInfo: LinkShareInfo
@@ -230,6 +231,27 @@ type CreateArticleSuccess {
   created: Boolean!
   createdArticle: Article!
   user: User!
+}
+
+type CreateGroupError {
+  errorCodes: [CreateGroupErrorCode!]!
+}
+
+enum CreateGroupErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+input CreateGroupInput {
+  expiresInDays: Int
+  maxMembers: Int
+  name: String!
+}
+
+union CreateGroupResult = CreateGroupError | CreateGroupSuccess
+
+type CreateGroupSuccess {
+  group: RecommendationGroup!
 }
 
 type CreateHighlightError {
@@ -728,6 +750,21 @@ type GoogleSignupSuccess {
   me: User!
 }
 
+type GroupsError {
+  errorCodes: [GroupsErrorCode!]!
+}
+
+enum GroupsErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+union GroupsResult = GroupsError | GroupsSuccess
+
+type GroupsSuccess {
+  groups: [RecommendationGroup!]!
+}
+
 type Highlight {
   annotation: String
   createdAt: Date!
@@ -787,6 +824,22 @@ union IntegrationsResult = IntegrationsError | IntegrationsSuccess
 
 type IntegrationsSuccess {
   integrations: [Integration!]!
+}
+
+type JoinGroupError {
+  errorCodes: [JoinGroupErrorCode!]!
+}
+
+enum JoinGroupErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+union JoinGroupResult = JoinGroupError | JoinGroupSuccess
+
+type JoinGroupSuccess {
+  group: RecommendationGroup!
 }
 
 type Label {
@@ -948,6 +1001,7 @@ type Mutation {
   addPopularRead(name: String!): AddPopularReadResult!
   createArticle(input: CreateArticleInput!): CreateArticleResult!
   createArticleSavingRequest(input: CreateArticleSavingRequestInput!): CreateArticleSavingRequestResult!
+  createGroup(input: CreateGroupInput!): CreateGroupResult!
   createHighlight(input: CreateHighlightInput!): CreateHighlightResult!
   createHighlightReply(input: CreateHighlightReplyInput!): CreateHighlightReplyResult!
   createLabel(input: CreateLabelInput!): CreateLabelResult!
@@ -968,11 +1022,13 @@ type Mutation {
   generateApiKey(input: GenerateApiKeyInput!): GenerateApiKeyResult!
   googleLogin(input: GoogleLoginInput!): LoginResult!
   googleSignup(input: GoogleSignupInput!): GoogleSignupResult!
+  joinGroup(inviteCode: String!): JoinGroupResult!
   logOut: LogOutResult!
   mergeHighlight(input: MergeHighlightInput!): MergeHighlightResult!
   moveFilter(input: MoveFilterInput!): MoveFilterResult!
   moveLabel(input: MoveLabelInput!): MoveLabelResult!
   optInFeature(input: OptInFeatureInput!): OptInFeatureResult!
+  recommend(input: RecommendInput!): RecommendResult!
   reportItem(input: ReportItemInput!): ReportItemResult!
   revokeApiKey(id: ID!): RevokeApiKeyResult!
   saveArticleReadingProgress(input: SaveArticleReadingProgressInput!): SaveArticleReadingProgressResult!
@@ -1115,6 +1171,7 @@ type Query {
   getFollowers(userId: ID): GetFollowersResult!
   getFollowing(userId: ID): GetFollowingResult!
   getUserPersonalization: GetUserPersonalizationResult!
+  groups: GroupsResult!
   hello: String
   integrations: IntegrationsResult!
   labels: LabelsResult!
@@ -1179,6 +1236,43 @@ union RecentSearchesResult = RecentSearchesError | RecentSearchesSuccess
 
 type RecentSearchesSuccess {
   searches: [RecentSearch!]!
+}
+
+type RecommendError {
+  errorCodes: [RecommendErrorCode!]!
+}
+
+enum RecommendErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+input RecommendInput {
+  groupIds: [ID!]!
+  pageId: ID!
+}
+
+union RecommendResult = RecommendError | RecommendSuccess
+
+type RecommendSuccess {
+  taskNames: [String!]!
+}
+
+type Recommendation {
+  id: ID!
+  name: String!
+  recommendedAt: Date!
+}
+
+type RecommendationGroup {
+  admins: [User!]!
+  createdAt: Date!
+  id: ID!
+  inviteUrl: String!
+  members: [User!]!
+  name: String!
+  updatedAt: Date!
 }
 
 type Reminder {
@@ -1394,6 +1488,7 @@ type SearchItem {
   readAt: Date
   readingProgressAnchorIndex: Int!
   readingProgressPercent: Float!
+  recommendedBy: [Recommendation!]
   savedAt: Date!
   shortId: String
   siteIcon: String

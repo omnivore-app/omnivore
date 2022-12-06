@@ -7,7 +7,7 @@ import {
   deleteTestUser,
   getProfile,
 } from '../db'
-import { createGroup } from '../../src/services/create_group'
+import { createGroup } from '../../src/services/groups'
 import {
   getUserFollowers,
   getUserFollowing,

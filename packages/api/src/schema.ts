@@ -329,6 +329,12 @@ const schema = gql`
     updatedAt: Date!
   }
 
+  type Recommendation {
+    id: ID!
+    name: String!
+    recommendedAt: Date!
+  }
+
   type Article {
     id: ID!
     title: String!
@@ -369,6 +375,7 @@ const schema = gql`
     state: ArticleSavingRequestStatus
     language: String
     readAt: Date
+    recommendedBy: [Recommendation!]
   }
 
   # Query: article
@@ -1515,6 +1522,7 @@ const schema = gql`
     savedAt: Date!
     highlights: [Highlight!]
     siteIcon: String
+    recommendedBy: [Recommendation!]
   }
 
   type SearchItemEdge {
@@ -2137,6 +2145,89 @@ const schema = gql`
     NOT_FOUND
   }
 
+  input CreateGroupInput {
+    name: String! @sanitize(maxLength: 140)
+    maxMembers: Int
+    expiresInDays: Int
+  }
+
+  union CreateGroupResult = CreateGroupSuccess | CreateGroupError
+
+  type CreateGroupSuccess {
+    group: RecommendationGroup!
+  }
+
+  type RecommendationGroup {
+    id: ID!
+    name: String!
+    inviteUrl: String!
+    admins: [User!]!
+    members: [User!]!
+    createdAt: Date!
+    updatedAt: Date!
+  }
+
+  type CreateGroupError {
+    errorCodes: [CreateGroupErrorCode!]!
+  }
+
+  enum CreateGroupErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+  }
+
+  union GroupsResult = GroupsSuccess | GroupsError
+
+  type GroupsSuccess {
+    groups: [RecommendationGroup!]!
+  }
+
+  type GroupsError {
+    errorCodes: [GroupsErrorCode!]!
+  }
+
+  enum GroupsErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+  }
+
+  input RecommendInput {
+    pageId: ID!
+    groupIds: [ID!]!
+  }
+
+  union RecommendResult = RecommendSuccess | RecommendError
+
+  type RecommendSuccess {
+    taskNames: [String!]!
+  }
+
+  type RecommendError {
+    errorCodes: [RecommendErrorCode!]!
+  }
+
+  enum RecommendErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+  }
+
+  union JoinGroupResult = JoinGroupSuccess | JoinGroupError
+
+  type JoinGroupSuccess {
+    group: RecommendationGroup!
+  }
+
+  type JoinGroupError {
+    errorCodes: [JoinGroupErrorCode!]!
+  }
+
+  enum JoinGroupErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -2214,6 +2305,9 @@ const schema = gql`
     saveFilter(input: SaveFilterInput!): SaveFilterResult!
     deleteFilter(id: ID!): DeleteFilterResult!
     moveFilter(input: MoveFilterInput!): MoveFilterResult!
+    createGroup(input: CreateGroupInput!): CreateGroupResult!
+    recommend(input: RecommendInput!): RecommendResult!
+    joinGroup(inviteCode: String!): JoinGroupResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed
@@ -2269,6 +2363,7 @@ const schema = gql`
     rules(enabled: Boolean): RulesResult!
     deviceTokens: DeviceTokensResult!
     filters: FiltersResult!
+    groups: GroupsResult!
   }
 `
 

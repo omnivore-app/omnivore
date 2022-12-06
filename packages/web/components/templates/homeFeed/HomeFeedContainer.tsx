@@ -54,6 +54,7 @@ import {
 } from '../../../lib/networking/queries/typeaheadSearch'
 import axios from 'axios'
 import { uploadFileRequestMutation } from '../../../lib/networking/mutations/uploadFileMutation'
+import { setLabelsMutation } from '../../../lib/networking/mutations/setLabelsMutation'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 
@@ -100,14 +101,17 @@ export function HomeFeedContainer(): JSX.Element {
 
   const gridContainerRef = useRef<HTMLDivElement>(null)
 
-  const [shareTarget, setShareTarget] =
-    useState<LibraryItem | undefined>(undefined)
+  const [shareTarget, setShareTarget] = useState<LibraryItem | undefined>(
+    undefined
+  )
 
-  const [snoozeTarget, setSnoozeTarget] =
-    useState<LibraryItem | undefined>(undefined)
+  const [snoozeTarget, setSnoozeTarget] = useState<LibraryItem | undefined>(
+    undefined
+  )
 
-  const [labelsTarget, setLabelsTarget] =
-    useState<LibraryItem | undefined>(undefined)
+  const [labelsTarget, setLabelsTarget] = useState<LibraryItem | undefined>(
+    undefined
+  )
 
   const [showAddLinkModal, setShowAddLinkModal] = useState(false)
   const [showEditTitleModal, setShowEditTitleModal] = useState(false)
@@ -1200,17 +1204,21 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
       )}
       {props.labelsTarget?.node.id && (
         <SetLabelsModal
-          linkId={props.labelsTarget.node.id}
-          labels={props.labelsTarget.node.labels}
-          articleActionHandler={(action, value) => {
-            switch (action) {
-              case 'refreshLabels':
-                if (props.labelsTarget) {
-                  props.labelsTarget.node.labels = value as Label[] | undefined
-                  updateState({})
-                }
-                break
+          provider={props.labelsTarget.node}
+          onSave={(labels: Label[] | undefined) => {
+            if (props.labelsTarget) {
+              props.labelsTarget.node.labels = labels
+              updateState({})
             }
+          }}
+          save={(labels: Label[]) => {
+            if (props.labelsTarget?.node.id) {
+              return setLabelsMutation(
+                props.labelsTarget.node.id,
+                labels.map((label) => label.id)
+              )
+            }
+            return Promise.resolve(undefined)
           }}
           onOpenChange={() => {
             if (props.labelsTarget) {

@@ -10,6 +10,7 @@ import { nanoid } from 'nanoid'
 import { google } from '@google-cloud/tasks/build/protos/protos'
 import { IntegrationType } from '../entity/integration'
 import { signFeatureToken } from '../services/features'
+import { Recommendation } from '../elastic/types'
 import View = google.cloud.tasks.v2.Task.View
 
 const logger = buildLogger('app.dispatch')
@@ -26,6 +27,7 @@ const createHttpTaskWithToken = async ({
   payload,
   priority = 'high',
   scheduleTime,
+  requestHeaders,
 }: {
   project: string
   queue?: string
@@ -35,6 +37,7 @@ const createHttpTaskWithToken = async ({
   payload: unknown
   priority?: 'low' | 'high'
   scheduleTime?: number
+  requestHeaders?: Record<string, string>
 }): Promise<
   [
     protos.google.cloud.tasks.v2.ITask,
@@ -70,6 +73,7 @@ const createHttpTaskWithToken = async ({
       url: taskHandlerUrl,
       headers: {
         'Content-Type': 'application/json',
+        ...requestHeaders,
       },
       body,
       ...(serviceAccountEmail
@@ -95,7 +99,7 @@ export const createAppEngineTask = async ({
   project,
   queue = env.queue.name,
   location = env.queue.location,
-  taskHandlerUrl = env.queue.reminderTaskHanderUrl,
+  taskHandlerUrl = env.queue.reminderTaskHandlerUrl,
   payload,
   priority = 'high',
   scheduleTime,
@@ -278,7 +282,7 @@ export const enqueueReminder = async (
     project: GOOGLE_CLOUD_PROJECT,
     payload,
     scheduleTime,
-    taskHandlerUrl: env.queue.reminderTaskHanderUrl,
+    taskHandlerUrl: env.queue.reminderTaskHandlerUrl,
   })
 
   if (!createdTasks || !createdTasks[0].name) {
@@ -393,6 +397,54 @@ export const enqueueTextToSpeech = async ({
     queue,
     location,
     priority,
+  })
+
+  if (!createdTasks || !createdTasks[0].name) {
+    logger.error(`Unable to get the name of the task`, {
+      payload,
+      createdTasks,
+    })
+    throw new CreateTaskError(`Unable to get the name of the task`)
+  }
+  return createdTasks[0].name
+}
+
+export const enqueueRecommendation = async (
+  userId: string,
+  pageId: string,
+  recommendation: Recommendation,
+  authToken: string
+): Promise<string> => {
+  const { GOOGLE_CLOUD_PROJECT } = process.env
+  const payload = {
+    userId,
+    pageId,
+    recommendation,
+  }
+
+  const headers = {
+    Authorization: authToken,
+  }
+  // If there is no Google Cloud Project Id exposed, it means that we are in local environment
+  if (env.dev.isLocal || !GOOGLE_CLOUD_PROJECT) {
+    // Calling the handler function directly.
+    setTimeout(() => {
+      axios
+        .post(env.queue.recommendationTaskHandlerUrl, payload, {
+          headers,
+        })
+        .catch((error) => {
+          logger.error(error)
+        })
+    }, 0)
+    return ''
+  }
+
+  const createdTasks = await createHttpTaskWithToken({
+    project: GOOGLE_CLOUD_PROJECT,
+    payload,
+    taskHandlerUrl: env.queue.recommendationTaskHandlerUrl,
+    requestHeaders: headers,
   })
 
   if (!createdTasks || !createdTasks[0].name) {
