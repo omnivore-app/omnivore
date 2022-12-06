@@ -222,7 +222,6 @@ struct WebReaderContainerView: View {
       )
       Button(
         action: {
-          // dataService.updateLinkReadingProgress(itemID: item.unwrappedID, readingProgress: 0, anchorIndex: 0)
           showRecommendSheet = true
         },
         label: { Label("Recommend", systemImage: "sparkles") }
@@ -365,6 +364,8 @@ struct WebReaderContainerView: View {
               dataService: dataService,
               viewModel: RecommendToViewModel(pageID: item.unwrappedID)
             )
+          }.onDisappear {
+            showRecommendSheet = false
           }
         }
         .sheet(isPresented: $showHighlightAnnotationModal) {
