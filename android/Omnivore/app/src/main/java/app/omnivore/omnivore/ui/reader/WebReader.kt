@@ -1,6 +1,8 @@
 package app.omnivore.omnivore.ui.reader
 
 import android.annotation.SuppressLint
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.graphics.Rect
 import android.util.Log
@@ -24,9 +26,13 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.core.content.ContextCompat.getSystemService
 import app.omnivore.omnivore.R
 import com.google.gson.Gson
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import org.json.JSONObject
 import java.util.*
 import kotlin.math.roundToInt
 
@@ -148,6 +154,8 @@ fun WebReader(
   Box {
     AndroidView(factory = {
       OmnivoreWebView(it).apply {
+        viewModel = webReaderViewModel
+
         layoutParams = ViewGroup.LayoutParams(
           ViewGroup.LayoutParams.MATCH_PARENT,
           ViewGroup.LayoutParams.MATCH_PARENT
@@ -162,12 +170,34 @@ fun WebReader(
         }
 
         val javascriptInterface = AndroidWebKitMessenger { actionID, json ->
+          webReaderViewModel.hasTappedExistingHighlight = false
+
           when (actionID) {
+            "userTap" -> {
+              val tapCoordinates = Gson().fromJson(json, TapCoordinates::class.java)
+              Log.d("wvt", "received tap action: $tapCoordinates")
+              CoroutineScope(Dispatchers.Main).launch {
+                webReaderViewModel.lastTapCoordinates = tapCoordinates
+                actionMode?.finish()
+                actionMode = null
+              }
+            }
             "existingHighlightTap" -> {
-              isExistingHighlightSelected = true
-              actionTapCoordinates = Gson().fromJson(json, ActionTapCoordinates::class.java)
-              Log.d("Loggo", "receive existing highlight tap action: $actionTapCoordinates")
-              startActionMode(null, ActionMode.TYPE_PRIMARY)
+              val tapCoordinates = Gson().fromJson(json, TapCoordinates::class.java)
+              Log.d("wv", "receive existing highlight tap action: $tapCoordinates")
+              CoroutineScope(Dispatchers.Main).launch {
+                webReaderViewModel.hasTappedExistingHighlight = true
+                webReaderViewModel.lastTapCoordinates = tapCoordinates
+                startActionMode(null, ActionMode.TYPE_FLOATING)
+              }
+            }
+            "writeToClipboard" -> {
+              val quote = Gson().fromJson(json, HighlightQuote::class.java).quote
+              quote.let { unwrappedQuote ->
+                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                val clip = ClipData.newPlainText(unwrappedQuote, unwrappedQuote)
+                clipboard.setPrimaryClip(clip)
+              }
             }
             else -> {
               webReaderViewModel.handleIncomingWebMessage(actionID, json)
@@ -198,15 +228,16 @@ fun WebReader(
 }
 
 class OmnivoreWebView(context: Context) : WebView(context) {
-  var isExistingHighlightSelected = false
-  var actionTapCoordinates: ActionTapCoordinates? = null
+  var viewModel: WebReaderViewModel? = null
+  var actionMode: ActionMode? = null
 
   private val actionModeCallback = object : ActionMode.Callback2() {
     // Called when the action mode is created; startActionMode() was called
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
-      if (isExistingHighlightSelected) {
+      actionMode = mode
+      if (viewModel?.hasTappedExistingHighlight == true) {
+        Log.d("wv", "inflating existing highlight menu")
         mode.menuInflater.inflate(R.menu.highlight_selection_menu, menu)
-        isExistingHighlightSelected = false
       } else {
         mode.menuInflater.inflate(R.menu.text_selection_menu, menu)
       }
@@ -222,24 +253,48 @@ class OmnivoreWebView(context: Context) : WebView(context) {
     // Called when the user selects a contextual menu item
     override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
       return when (item.itemId) {
-        R.id.annotate -> {
+        R.id.annotateHighlight -> {
           val script = "var event = new Event('annotate');document.dispatchEvent(event);"
-          evaluateJavascript(script, null)
-          mode.finish()
+          evaluateJavascript(script) {
+            mode.finish()
+            actionMode = null
+          }
           true
         }
         R.id.highlight -> {
           val script = "var event = new Event('highlight');document.dispatchEvent(event);"
-          evaluateJavascript(script, null)
-          clearFocus()
-          mode.finish()
+          evaluateJavascript(script) {
+            clearFocus()
+            mode.finish()
+            actionMode = null
+          }
           true
         }
-        R.id.delete -> {
+        R.id.copyHighlight -> {
+          val script = "var event = new Event('copyHighlight');document.dispatchEvent(event);"
+          evaluateJavascript(script) {
+            clearFocus()
+            mode.finish()
+            actionMode = null
+          }
+          true
+        }
+        R.id.copyTextSelection -> {
+          val script = "var event = new Event('copyTextSelection');document.dispatchEvent(event);"
+          evaluateJavascript(script) {
+            clearFocus()
+            mode.finish()
+            actionMode = null
+          }
+          true
+        }
+        R.id.removeHighlight -> {
           val script = "var event = new Event('remove');document.dispatchEvent(event);"
-          evaluateJavascript(script, null)
-          clearFocus()
-          mode.finish()
+          evaluateJavascript(script) {
+            clearFocus()
+            mode.finish()
+            actionMode = null
+          }
           true
         }
         else -> {
@@ -251,18 +306,32 @@ class OmnivoreWebView(context: Context) : WebView(context) {
 
     // Called when the user exits the action mode
     override fun onDestroyActionMode(mode: ActionMode) {
-      Log.d("Loggo", "destroying menu: $mode")
-      isExistingHighlightSelected = false
-      actionTapCoordinates = null
+      Log.d("wv", "destroying menu: $mode")
+      viewModel?.hasTappedExistingHighlight = false
+      actionMode = null
     }
 
     override fun onGetContentRect(mode: ActionMode?, view: View?, outRect: Rect?) {
-      Log.d("Loggo", "outRect: $outRect, View: $view")
-      outRect?.set(left, top, right, bottom)
+      Log.d("wv", "outRect: $outRect, View: $view")
+      if (viewModel?.lastTapCoordinates != null) {
+        val scrollYOffset = viewModel?.scrollState?.value ?: 0
+        val xValue = viewModel!!.lastTapCoordinates!!.tapX.toInt()
+        val yValue = viewModel!!.lastTapCoordinates!!.tapY.toInt() + scrollYOffset
+        val rect = Rect(xValue, yValue, xValue, yValue)
+
+        Log.d("wv", "scrollState: $scrollYOffset")
+        Log.d("wv", "setting rect based on last tapped rect: ${viewModel?.lastTapCoordinates.toString()}")
+        Log.d("wv", "rect: $rect")
+
+        outRect?.set(rect)
+      } else {
+        outRect?.set(left, top, right, bottom)
+      }
     }
   }
 
   override fun startActionMode(callback: ActionMode.Callback?): ActionMode {
+    Log.d("wv", "startActionMode:callback called")
     return super.startActionMode(actionModeCallback)
   }
 
@@ -270,11 +339,12 @@ class OmnivoreWebView(context: Context) : WebView(context) {
     originalView: View?,
     callback: ActionMode.Callback?
   ): ActionMode {
+    Log.d("wv", "startActionMode:originalView:callback called")
     return super.startActionModeForChild(originalView, actionModeCallback)
   }
 
   override fun startActionMode(callback: ActionMode.Callback?, type: Int): ActionMode {
-    Log.d("Loggo", "startActionMode:type called")
+    Log.d("wv", "startActionMode:type called")
     return super.startActionMode(actionModeCallback, type)
   }
 }
@@ -286,9 +356,9 @@ class AndroidWebKitMessenger(val messageHandler: (String, String) -> Unit) {
   }
 }
 
-data class ActionTapCoordinates(
-  val rectX: Double,
-  val rectY: Double,
-  val rectWidth: Double,
-  val rectHeight: Double,
+data class TapCoordinates(
+  val tapX: Double,
+  val tapY: Double
 )
+
+data class HighlightQuote(val quote: String?)

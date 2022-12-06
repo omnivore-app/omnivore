@@ -62,7 +62,7 @@ fun HomeViewContent(
 
   LazyColumn(
     state = listState,
-    verticalArrangement = Arrangement.Center,
+    verticalArrangement = Arrangement.Top,
     horizontalAlignment = Alignment.CenterHorizontally,
     modifier = modifier
       .background(MaterialTheme.colorScheme.background)

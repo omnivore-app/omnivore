@@ -13,7 +13,6 @@ import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import org.json.JSONObject
 import java.util.*
 import javax.inject.Inject
 
@@ -38,6 +37,9 @@ class WebReaderViewModel @Inject constructor(
   val webReaderParamsLiveData = MutableLiveData<WebReaderParams?>(null)
   val annotationLiveData = MutableLiveData<String?>(null)
   val javascriptActionLoopUUIDLiveData = MutableLiveData(lastJavascriptActionLoopUUID)
+
+  var hasTappedExistingHighlight = false
+  var lastTapCoordinates: TapCoordinates? = null
 
   fun loadItem(slug: String) {
     viewModelScope.launch {
@@ -67,8 +69,11 @@ class WebReaderViewModel @Inject constructor(
         }
       }
       "deleteHighlight" -> {
-        // { highlightId }
         Log.d("Loggo", "receive delete highlight action: $jsonString")
+        viewModelScope.launch {
+          val isHighlightDeletionSynced = networker.deleteHighlight(jsonString)
+          Log.d("Network", "isHighlightDeletionSynced = $isHighlightDeletionSynced")
+        }
       }
       "updateHighlight" -> {
         Log.d("Loggo", "receive update highlight action: $jsonString")
@@ -90,6 +95,12 @@ class WebReaderViewModel @Inject constructor(
       "shareHighlight" -> {
         // unimplemented
       }
+      "mergeHighlight" -> {
+        viewModelScope.launch {
+          val isHighlightSynced = networker.mergeWebHighlights(jsonString)
+          Log.d("Network", "isMergedHighlightSynced = $isHighlightSynced")
+        }
+      }
       else -> {
         Log.d("Loggo", "receive unrecognized action of $actionID with json: $jsonString")
       }
@@ -101,6 +112,8 @@ class WebReaderViewModel @Inject constructor(
     annotationLiveData.value = null
     scrollState = ScrollState(0)
     javascriptDispatchQueue = mutableListOf()
+    hasTappedExistingHighlight = false
+    lastTapCoordinates = null
   }
 
   fun resetJavascriptDispatchQueue() {
