@@ -7,13 +7,19 @@
       "analyzer": {
         "strip_html_analyzer": {
           "tokenizer": "standard",
-          "char_filter": ["html_strip"],
-          "filter": ["lowercase"]
+          "char_filter": [
+            "html_strip"
+          ],
+          "filter": [
+            "lowercase"
+          ]
         }
       },
       "normalizer": {
         "lowercase_normalizer": {
-          "filter": ["lowercase"]
+          "filter": [
+            "lowercase"
+          ]
         }
       }
     }
@@ -173,6 +179,28 @@
           },
           "recommendedAt": {
             "type": "date"
+          },
+          "note": {
+            "type": "keyword"
+          },
+          "user": {
+            "type": "nested",
+            "properties": {
+              "userID": {
+                "type": "keyword"
+              },
+              "name": {
+                "type": "keyword",
+                "normalizer": "lowercase_normalizer"
+              },
+              "username": {
+                "type": "keyword",
+                "normalizer": "lowercase_normalizer"
+              },
+              "profileImageURL": {
+                "type": "keyword"
+              }
+            }
           }
         }
       }

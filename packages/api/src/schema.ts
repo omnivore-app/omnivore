@@ -329,10 +329,19 @@ const schema = gql`
     updatedAt: Date!
   }
 
+  type RecommendingUser {
+    userId: String!
+    name: String!
+    username: String!
+    profileImageURL: String
+  }
+
   type Recommendation {
     id: ID!
     name: String!
+    user: RecommendingUser
     recommendedAt: Date!
+    note: String
   }
 
   type Article {
@@ -2194,6 +2203,7 @@ const schema = gql`
   input RecommendInput {
     pageId: ID!
     groupIds: [ID!]!
+    note: String
   }
 
   union RecommendResult = RecommendSuccess | RecommendError

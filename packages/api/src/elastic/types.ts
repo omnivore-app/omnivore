@@ -198,9 +198,18 @@ export interface Highlight {
   highlightPositionAnchorIndex?: number | null
 }
 
+export interface RecommendingUser {
+  userId: string
+  name: string
+  username: string
+  profileImageURL: string | null
+}
+
 export interface Recommendation {
   id: string
   name: string
+  note: string | null
+  user: RecommendingUser
   recommendedAt: Date
 }
 

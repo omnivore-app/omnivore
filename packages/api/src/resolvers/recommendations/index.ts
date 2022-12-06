@@ -146,8 +146,9 @@ export const recommendResolver = authorized<
   })
 
   try {
-    const user = await getRepository(User).findOneBy({
-      id: uid,
+    const user = await getRepository(User).findOne({
+      where: { id: uid },
+      relations: ['profile'],
     })
     if (!user) {
       return {
@@ -185,6 +186,13 @@ export const recommendResolver = authorized<
                 page.id,
                 {
                   ...group,
+                  note: input.note ?? null,
+                  user: {
+                    userId: user.id,
+                    name: user.name,
+                    username: user.profile.username,
+                    profileImageURL: user.profile.pictureUrl,
+                  },
                   recommendedAt: new Date(),
                 },
                 auth
@@ -198,6 +206,7 @@ export const recommendResolver = authorized<
       taskNames,
     }
   } catch (error) {
+    console.log('Error recommending: ', error)
     log.error('Error recommending', {
       error,
       labels: {
