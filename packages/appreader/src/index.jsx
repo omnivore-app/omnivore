@@ -23,7 +23,29 @@ const mutation = async (name, input) => {
       name,
       JSON.stringify(input)
     )
-    return true // TODO: see if we can get a result from Android instead
+
+    // TODO: handle errors
+    switch (name) {
+      case 'createHighlight':
+        return input
+      case 'deleteHighlight':
+        return true
+      case 'mergeHighlight':
+        return {
+          id: input['id'],
+          shortID: input['shortId'],
+          quote: input['quote'],
+          patch: input['patch'],
+          createdByMe: true,
+          labels: [],
+        }
+      case 'updateHighlight':
+        return true
+      case 'articleReadingProgress':
+        return true
+      default:
+        return true
+    }
   }
 }
 
