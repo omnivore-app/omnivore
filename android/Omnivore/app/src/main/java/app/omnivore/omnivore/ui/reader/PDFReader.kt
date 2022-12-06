@@ -6,17 +6,16 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.graphics.PointF
+import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
-import android.view.Gravity
-import android.view.MotionEvent
-import android.view.View
+import android.util.Log
+import android.view.*
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
-import android.widget.PopupMenu
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -53,6 +52,8 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
   private var hasLoadedHighlights = false
   private var pendingHighlightAnnotation: HighlightAnnotation? = null
   private var textSelectionController: TextSelectionController? = null
+  private var clickedHighlight: Annotation? = null
+  private var clickedHighlightPosition: PointF? = null
 
   private lateinit var fragment: PdfFragment
   private lateinit var thumbnailBar: PdfThumbnailBar
@@ -84,7 +85,11 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
     viewModel.loadItem(slug, this)
   }
 
-  // TODO: implement onDestroy to remove listeners?
+  override fun onDestroy() {
+    resetHighlightTap()
+    // TODO: remove listeners?
+    super.onDestroy()
+  }
 
   private fun load(params: PDFReaderParams) {
     // First, try to restore a previously created fragment.
@@ -254,7 +259,9 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
     clickedAnnotation: Annotation?
   ): Boolean {
     if (clickedAnnotation != null) {
-      showHighlightSelectionPopover(clickedAnnotation)
+      clickedHighlight = clickedAnnotation
+      clickedHighlightPosition = pagePosition
+      startActionMode(null, ActionMode.TYPE_FLOATING)
     }
 
     return super.onPageClick(document, pageIndex, event, pagePosition, clickedAnnotation)
@@ -263,38 +270,6 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
   override fun onPageChanged(document: PdfDocument, pageIndex: Int) {
     viewModel.syncPageChange(pageIndex, document.pageCount)
     super.onPageChanged(document, pageIndex)
-  }
-
-  private fun showHighlightSelectionPopover(clickedAnnotation: Annotation) {
-    // TODO: anchor popover at exact position of tap (maybe add an empty view at tap loc and anchor to that?)
-    val popupMenu = PopupMenu(this, fragment.view, Gravity.CENTER, androidx.appcompat.R.attr.actionOverflowMenuStyle, 0)
-
-    popupMenu.menuInflater.inflate(R.menu.pdf_highlight_selection_menu, popupMenu.menu)
-
-    popupMenu.setOnMenuItemClickListener { item ->
-      when(item.itemId) {
-        R.id.annotate -> {
-          viewModel.annotationUnderNoteEdit = clickedAnnotation
-          // Disabled notes for now since we didn't implement on ios
-//          showAnnotationView()
-        }
-        R.id.delete -> {
-          viewModel.deleteHighlight(clickedAnnotation)
-          fragment.document?.annotationProvider?.removeAnnotationFromPage(clickedAnnotation)
-        }
-        R.id.copyPdfHighlight -> {
-          val omnivoreHighlight = clickedAnnotation.customData?.get("omnivoreHighlight") as? JSONObject
-          val quote = omnivoreHighlight?.get("quote") as? String
-          quote?.let {
-            val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-            val clip = ClipData.newPlainText(it, it)
-            clipboard.setPrimaryClip(clip)
-          }
-        }
-      }
-      true
-    }
-    popupMenu.show()
   }
 
   private fun tintDrawable(drawable: Drawable, tint: Int): Drawable {
@@ -381,6 +356,88 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
     )
   }
 
+  var actionMode: ActionMode? = null
+
+  private val actionModeCallback = object : ActionMode.Callback2() {
+    // Called when the action mode is created; startActionMode() was called
+    override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
+      actionMode = mode
+      mode.menuInflater.inflate(R.menu.pdf_highlight_selection_menu, menu)
+      return true
+    }
+
+    // Called each time the action mode is shown. Always called after onCreateActionMode, but
+    // may be called multiple times if the mode is invalidated.
+    override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
+      return false // Return false if nothing is done
+    }
+
+    // Called when the user selects a contextual menu item
+    override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
+      return when (item.itemId) {
+        R.id.annotate -> {
+          Log.d("pdf", "annotate button tapped")
+          viewModel.annotationUnderNoteEdit = clickedHighlight
+          showAnnotationView("") // TODO: grab initial text
+          true
+        }
+        R.id.delete -> {
+          Log.d("pdf", "remove button tapped")
+          clickedHighlight?.let {
+            viewModel.deleteHighlight(it)
+            fragment.document?.annotationProvider?.removeAnnotationFromPage(it)
+          }
+          resetHighlightTap()
+          true
+        }
+        R.id.copyPdfHighlight -> {
+          Log.d("pdf", "copy button tapped")
+
+          val omnivoreHighlight = clickedHighlight?.customData?.get("omnivoreHighlight") as? JSONObject
+          val quote = omnivoreHighlight?.get("quote") as? String
+          quote?.let {
+            val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val clip = ClipData.newPlainText(it, it)
+            clipboard.setPrimaryClip(clip)
+          }
+          resetHighlightTap()
+          true
+        }
+        else -> {
+          Log.d("pdf", "unrecognized action")
+          resetHighlightTap()
+          false
+        }
+      }
+    }
+
+    // Called when the user exits the action mode
+    override fun onDestroyActionMode(mode: ActionMode) {
+      clickedHighlight = null
+      clickedHighlightPosition = null
+    }
+
+    override fun onGetContentRect(mode: ActionMode?, view: View?, outRect: Rect?) {
+      clickedHighlightPosition?.let {
+        val xValue = it.x.toInt()
+        val yValue = it.y.toInt()
+        val rect = Rect(xValue, yValue, xValue, yValue)
+        outRect?.set(rect)
+      }
+    }
+  }
+
+  private fun resetHighlightTap() {
+    actionMode?.finish()
+    actionMode = null
+    clickedHighlight = null
+    clickedHighlightPosition = null
+  }
+
+  override fun startActionMode(callback: ActionMode.Callback?, type: Int): ActionMode? {
+    return super.startActionMode(actionModeCallback, type)
+  }
+
   private fun showAnnotationView(initialText: String) {
     val annotationDialog = Dialog(this)
     annotationDialog.setContentView(R.layout.annotation_edit)
@@ -390,12 +447,16 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
     val confirmButton = annotationDialog.findViewById(R.id.confirmAnnotation) as Button
 
     confirmButton.setOnClickListener {
-      val newNoteText =
+      val newNoteText = textField.text
+      // TODO: persist new note
+      Log.d("pdf", "new annotation text: $newNoteText")
+      resetHighlightTap()
       annotationDialog.dismiss()
     }
 
     val cancelBtn = annotationDialog.findViewById(R.id.cancel) as Button
     cancelBtn.setOnClickListener {
+      resetHighlightTap()
       annotationDialog.dismiss()
     }
 
