@@ -110,7 +110,7 @@ export type Article = {
   readAt?: Maybe<Scalars['Date']>;
   readingProgressAnchorIndex: Scalars['Int'];
   readingProgressPercent: Scalars['Float'];
-  recommendedBy?: Maybe<Array<Recommendation>>;
+  recommendations?: Maybe<Array<Recommendation>>;
   savedAt: Scalars['Date'];
   savedByViewer?: Maybe<Scalars['Boolean']>;
   shareInfo?: Maybe<LinkShareInfo>;
@@ -1787,6 +1787,7 @@ export enum RecommendErrorCode {
 
 export type RecommendInput = {
   groupIds: Array<Scalars['ID']>;
+  note?: InputMaybe<Scalars['String']>;
   pageId: Scalars['ID'];
 };
 
@@ -1801,7 +1802,9 @@ export type Recommendation = {
   __typename?: 'Recommendation';
   id: Scalars['ID'];
   name: Scalars['String'];
+  note?: Maybe<Scalars['String']>;
   recommendedAt: Scalars['Date'];
+  user?: Maybe<RecommendingUser>;
 };
 
 export type RecommendationGroup = {
@@ -1813,6 +1816,14 @@ export type RecommendationGroup = {
   members: Array<User>;
   name: Scalars['String'];
   updatedAt: Scalars['Date'];
+};
+
+export type RecommendingUser = {
+  __typename?: 'RecommendingUser';
+  name: Scalars['String'];
+  profileImageURL?: Maybe<Scalars['String']>;
+  userId: Scalars['String'];
+  username: Scalars['String'];
 };
 
 export type Reminder = {
@@ -2046,7 +2057,7 @@ export type SearchItem = {
   readAt?: Maybe<Scalars['Date']>;
   readingProgressAnchorIndex: Scalars['Int'];
   readingProgressPercent: Scalars['Float'];
-  recommendedBy?: Maybe<Array<Recommendation>>;
+  recommendations?: Maybe<Array<Recommendation>>;
   savedAt: Scalars['Date'];
   shortId?: Maybe<Scalars['String']>;
   siteIcon?: Maybe<Scalars['String']>;
@@ -3230,6 +3241,7 @@ export type ResolversTypes = {
   RecommendSuccess: ResolverTypeWrapper<RecommendSuccess>;
   Recommendation: ResolverTypeWrapper<Recommendation>;
   RecommendationGroup: ResolverTypeWrapper<RecommendationGroup>;
+  RecommendingUser: ResolverTypeWrapper<RecommendingUser>;
   Reminder: ResolverTypeWrapper<Reminder>;
   ReminderError: ResolverTypeWrapper<ReminderError>;
   ReminderErrorCode: ReminderErrorCode;
@@ -3631,6 +3643,7 @@ export type ResolversParentTypes = {
   RecommendSuccess: RecommendSuccess;
   Recommendation: Recommendation;
   RecommendationGroup: RecommendationGroup;
+  RecommendingUser: RecommendingUser;
   Reminder: Reminder;
   ReminderError: ReminderError;
   ReminderResult: ResolversParentTypes['ReminderError'] | ResolversParentTypes['ReminderSuccess'];
@@ -3876,7 +3889,7 @@ export type ArticleResolvers<ContextType = ResolverContext, ParentType extends R
   readAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   readingProgressAnchorIndex?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   readingProgressPercent?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
-  recommendedBy?: Resolver<Maybe<Array<ResolversTypes['Recommendation']>>, ParentType, ContextType>;
+  recommendations?: Resolver<Maybe<Array<ResolversTypes['Recommendation']>>, ParentType, ContextType>;
   savedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   savedByViewer?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   shareInfo?: Resolver<Maybe<ResolversTypes['LinkShareInfo']>, ParentType, ContextType>;
@@ -4836,7 +4849,9 @@ export type RecommendSuccessResolvers<ContextType = ResolverContext, ParentType 
 export type RecommendationResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Recommendation'] = ResolversParentTypes['Recommendation']> = {
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  note?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   recommendedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  user?: Resolver<Maybe<ResolversTypes['RecommendingUser']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -4848,6 +4863,14 @@ export type RecommendationGroupResolvers<ContextType = ResolverContext, ParentTy
   members?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type RecommendingUserResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RecommendingUser'] = ResolversParentTypes['RecommendingUser']> = {
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  profileImageURL?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  userId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -4993,7 +5016,7 @@ export type SearchItemResolvers<ContextType = ResolverContext, ParentType extend
   readAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   readingProgressAnchorIndex?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   readingProgressPercent?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
-  recommendedBy?: Resolver<Maybe<Array<ResolversTypes['Recommendation']>>, ParentType, ContextType>;
+  recommendations?: Resolver<Maybe<Array<ResolversTypes['Recommendation']>>, ParentType, ContextType>;
   savedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   shortId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   siteIcon?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -5718,6 +5741,7 @@ export type Resolvers<ContextType = ResolverContext> = {
   RecommendSuccess?: RecommendSuccessResolvers<ContextType>;
   Recommendation?: RecommendationResolvers<ContextType>;
   RecommendationGroup?: RecommendationGroupResolvers<ContextType>;
+  RecommendingUser?: RecommendingUserResolvers<ContextType>;
   Reminder?: ReminderResolvers<ContextType>;
   ReminderError?: ReminderErrorResolvers<ContextType>;
   ReminderResult?: ReminderResultResolvers<ContextType>;

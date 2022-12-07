@@ -1,9 +1,9 @@
 import SwiftUI
 
 public struct ProfileCardData {
-  let name: String
-  let username: String
-  let imageURL: URL?
+  public let name: String
+  public let username: String
+  public let imageURL: URL?
 
   public init(name: String = "", username: String = "", imageURL: URL? = nil) {
     self.name = name

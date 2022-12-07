@@ -80,8 +80,24 @@ export type LibraryItemNode = {
   state: State
   pageType: PageType
   siteName?: string
-  subscription?: string,
+  subscription?: string
   readAt?: string
+  recommendations?: Recommendation[]
+}
+
+export type Recommendation = {
+  id: string
+  name: string
+  note?: string
+  user?: RecommendingUser
+  recommendedAt: Date
+}
+
+export type RecommendingUser = {
+  userId: string
+  name: string
+  username: string
+  profileImageURL?: string
 }
 
 export type PageInfo = {
@@ -135,6 +151,18 @@ export function useGetLibraryItemsQuery({
               siteName
               subscription
               readAt
+              recommendations {
+                id
+                name
+                note
+                user {
+                  userId
+                  name
+                  username
+                  profileImageURL
+                }
+                recommendedAt
+              }
             }
           }
           pageInfo {
@@ -198,7 +226,7 @@ export function useGetLibraryItemsQuery({
   }
 
   const getIndexOf = (page: LibraryItems, item: LibraryItem) => {
-    return page.edges.findIndex(i => i.node.id === item.node.id)
+    return page.edges.findIndex((i) => i.node.id === item.node.id)
   }
 
   const performActionOnItem = async (
@@ -329,7 +357,9 @@ export function useGetLibraryItemsQuery({
           })
           unsubscribeMutation(item.node.subscription).then((res) => {
             if (res) {
-              showSuccessToast('Unsubscribed successfully', { position: 'bottom-right' })
+              showSuccessToast('Unsubscribed successfully', {
+                position: 'bottom-right',
+              })
             } else {
               showErrorToast('Error unsubscribing', {
                 position: 'bottom-right',
@@ -337,8 +367,8 @@ export function useGetLibraryItemsQuery({
             }
           })
         }
-        case 'update-item':
-          updateData(item)
+      case 'update-item':
+        updateData(item)
         break
       case 'refresh':
         await mutate()
@@ -353,6 +383,6 @@ export function useGetLibraryItemsQuery({
     performActionOnItem,
     size,
     setSize,
-    mutate
+    mutate,
   }
 }

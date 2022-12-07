@@ -29,6 +29,7 @@ struct WebReaderContainerView: View {
   @State private var bottomBarOpacity = 0.0
   @State private var errorAlertMessage: String?
   @State private var showErrorAlertMessage = false
+  @State private var showRecommendSheet = false
 
   @EnvironmentObject var dataService: DataService
   @EnvironmentObject var audioController: AudioController
@@ -150,8 +151,8 @@ struct WebReaderContainerView: View {
       }).frame(width: 48, height: 48)
       Divider().opacity(0.8)
 
-      Button(action: share, label: {
-        Image(systemName: "square.and.arrow.up")
+      Button(action: recommend, label: {
+        Image(systemName: "sparkles")
       }).frame(width: 48, height: 48)
 
         // TODO: We don't have a single note function yet
@@ -218,6 +219,12 @@ struct WebReaderContainerView: View {
       Button(
         action: delete,
         label: { Label("Delete", systemImage: "trash") }
+      )
+      Button(
+        action: {
+          showRecommendSheet = true
+        },
+        label: { Label("Recommend", systemImage: "sparkles") }
       )
     }
   }
@@ -351,6 +358,16 @@ struct WebReaderContainerView: View {
             showErrorAlertMessage = false
           })
         }
+        .formSheet(isPresented: $showRecommendSheet) {
+          NavigationView {
+            RecommendToView(
+              dataService: dataService,
+              viewModel: RecommendToViewModel(pageID: item.unwrappedID)
+            )
+          }.onDisappear {
+            showRecommendSheet = false
+          }
+        }
         .sheet(isPresented: $showHighlightAnnotationModal) {
           HighlightAnnotationSheet(
             annotation: $annotation,
@@ -438,6 +455,10 @@ struct WebReaderContainerView: View {
       presentationMode.wrappedValue.dismiss()
     #endif
     Snackbar.show(message: !item.isArchived ? "Link archived" : "Link moved to Inbox")
+  }
+
+  func recommend() {
+    showRecommendSheet = true
   }
 
   func share() {

@@ -48,12 +48,12 @@ struct EmailAuthPayload: Decodable {
 
 struct CreateAccountParams: Encodable {
   let pendingUserToken: String
-  let userProfile: UserProfile
+  let userProfile: NewUserProfile
 }
 
 struct PendingUserAuthPayload: Decodable {
   let pendingUserToken: String
-  let pendingUserProfile: UserProfile
+  let pendingUserProfile: NewUserProfile
 }
 
 struct PendingEmailVerificationAuthPayload: Decodable {

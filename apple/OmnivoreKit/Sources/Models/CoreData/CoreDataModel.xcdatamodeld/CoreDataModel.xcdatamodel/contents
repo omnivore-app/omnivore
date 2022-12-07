@@ -55,6 +55,7 @@
         <attribute name="updatedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <relationship name="highlights" toMany="YES" deletionRule="Cascade" destinationEntity="Highlight" inverseName="linkedItem" inverseEntity="Highlight"/>
         <relationship name="labels" toMany="YES" deletionRule="Nullify" destinationEntity="LinkedItemLabel" inverseName="linkedItems" inverseEntity="LinkedItemLabel"/>
+        <relationship name="recommendations" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Recommendation" inverseName="linkedItem" inverseEntity="Recommendation"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="id"/>
@@ -90,6 +91,28 @@
         <attribute name="id" optional="YES" attributeType="String"/>
         <attribute name="savedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="term" optional="YES" attributeType="String"/>
+    </entity>
+    <entity name="Recommendation" representedClassName="Recommendation" syncable="YES" codeGenerationType="class">
+        <attribute name="id" optional="YES" attributeType="String"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="recommendedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <relationship name="linkedItem" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LinkedItem" inverseName="recommendations" inverseEntity="LinkedItem"/>
+        <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="UserProfile"/>
+    </entity>
+    <entity name="RecommendationGroup" representedClassName="RecommendationGroup" syncable="YES" codeGenerationType="class">
+        <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" optional="YES" attributeType="String"/>
+        <attribute name="inviteUrl" optional="YES" attributeType="String"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="updatedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <relationship name="admins" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Viewer"/>
+        <relationship name="members" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Viewer"/>
+    </entity>
+    <entity name="UserProfile" representedClassName="UserProfile" syncable="YES" codeGenerationType="class">
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="profileImageURL" optional="YES" attributeType="String"/>
+        <attribute name="userID" optional="YES" attributeType="String"/>
+        <attribute name="username" optional="YES" attributeType="String"/>
     </entity>
     <entity name="Viewer" representedClassName="Viewer" syncable="YES" codeGenerationType="class">
         <attribute name="name" attributeType="String"/>

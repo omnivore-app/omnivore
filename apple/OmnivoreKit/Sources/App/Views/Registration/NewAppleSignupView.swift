@@ -9,7 +9,7 @@ import Views
 
   init() {}
 
-  func submitProfile(userProfile: UserProfile, authenticator: Authenticator) async {
+  func submitProfile(userProfile: NewUserProfile, authenticator: Authenticator) async {
     do {
       try await authenticator.createAccount(userProfile: userProfile)
     } catch {
@@ -23,7 +23,7 @@ import Views
 struct NewAppleSignupView: View {
   @EnvironmentObject var authenticator: Authenticator
   @StateObject private var viewModel = NewAppleSignupViewModel()
-  let userProfile: UserProfile
+  let userProfile: NewUserProfile
   let showProfileEditView: () -> Void
 
   var body: some View {

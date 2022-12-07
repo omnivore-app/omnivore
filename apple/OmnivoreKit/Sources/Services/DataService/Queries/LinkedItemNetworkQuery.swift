@@ -224,6 +224,40 @@ extension DataService {
   }
 }
 
+let recommendingUserSelection = Selection.RecommendingUser {
+  do {
+    return InternalUserProfile(
+      userID: try $0.userId(),
+      name: try $0.name(),
+      username: try $0.username(),
+      profileImageURL: nil // try $0.profileImageUrl() ?? nil
+    )
+  } catch {
+    print("ERROR WITH recommendingUserSelection", error)
+    throw error
+  }
+}
+
+let recommendationSelection = Selection.Recommendation {
+  do {
+    let result = InternalRecommendation(
+      id: try $0.id(),
+      name: try $0.name(),
+      user: try $0.user(selection: recommendingUserSelection.nullable),
+      recommendedAt: try $0.recommendedAt().value ?? Date()
+    )
+    return result
+  } catch {
+    print("ERROR WITH recommendationSelection", error)
+    throw error
+  }
+}
+
+private func emptyrecommended() -> [InternalRecommendation] {
+  print("got the empty InternalRecommendation")
+  return []
+}
+
 private let libraryArticleSelection = Selection.Article {
   InternalLinkedItem(
     id: try $0.id(),
@@ -249,6 +283,7 @@ private let libraryArticleSelection = Selection.Article {
     contentReader: try $0.contentReader().rawValue,
     originalHtml: nil,
     language: try $0.language(),
+    recommendations: try $0.recommendations(selection: recommendationSelection.list.nullable) ?? emptyrecommended(),
     labels: try $0.labels(selection: feedItemLabelSelection.list.nullable) ?? []
   )
 }
@@ -286,6 +321,7 @@ private let searchItemSelection = Selection.SearchItem {
     contentReader: try $0.contentReader().rawValue,
     originalHtml: nil,
     language: try $0.language(),
+    recommendations: try $0.recommendations(selection: recommendationSelection.list.nullable) ?? [],
     labels: try $0.labels(selection: feedItemLabelSelection.list.nullable) ?? []
   )
 }

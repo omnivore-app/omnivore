@@ -62,7 +62,7 @@ extension WebReaderCoordinator: WKNavigationDelegate {
   // swiftlint:disable:next line_length
   func webView(_: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
     if navigationAction.navigationType == .linkActivated {
-      if let linkURL = navigationAction.request.url {
+      if let linkURL = navigationAction.request.url, !linkURL.isFileURL {
         linkHandler(linkURL)
       }
       decisionHandler(.cancel)
