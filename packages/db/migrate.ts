@@ -5,7 +5,6 @@ import chalk from 'chalk'
 import { Client } from '@elastic/elasticsearch'
 import { readFileSync } from 'fs'
 import { join } from 'path'
-import { print } from 'graphql'
 
 dotenv.config()
 
@@ -71,7 +70,7 @@ log(`Migrating to ${targetMigrationLabel}.\n`)
 const logAppliedMigrations = (
   appliedMigrations: Postgrator.Migration[]
 ): void => {
-  if (appliedMigrations && appliedMigrations.length > 0) {
+  if (appliedMigrations.length > 0) {
     log(
       `Applied ${chalk.green(
         appliedMigrations.length.toString()
@@ -110,86 +109,6 @@ const createIndex = async (): Promise<void> => {
   })
 }
 
-const reIndex = async (): Promise<void> => {
-  const newPages = INDEX_NAME + '-002'
-  // // create index
-  // try {
-  //   await esClient.indices.delete({
-  //     index: newPages,
-  //   })
-  // } catch (e) {
-  //   console.log('001: ', e)
-  // }
-
-  // try {
-  //   await esClient.indices.delete({
-  //     index: 'pages-temp',
-  //   })
-  // } catch (e) {
-  //   console.log('002: ', e)
-  // }
-
-  // try {
-  //   await esClient.indices.delete({
-  //     index: 'pages-temp-001',
-  //   })
-  // } catch (e) {
-  //   console.log('003: ', e)
-  // }
-
-  // try {
-  //   await esClient.indices.delete({
-  //     index: 'pages-temp',
-  //   })
-  // } catch (e) {
-  //   console.log('002: ', e)
-  // }
-
-  try {
-    log('getting pages alias:')
-    const result = await esClient.indices.getAlias({
-      index: 'pages_alias',
-    })
-    log('result ' + JSON.stringify(result.body))
-  } catch (err) {
-    log('fetch error: ' + err)
-  }
-
-  log('creating newPages')
-  await esClient.indices.create({
-    index: newPages,
-    body: JSON.parse(indexSettings),
-  })
-
-  log('reindexing')
-  await esClient.reindex({
-    body: {
-      source: { index: INDEX_NAME },
-      dest: { index: newPages },
-    },
-    wait_for_completion: true,
-  })
-
-  console.log('updateAliases')
-
-  await esClient.indices.updateAliases({
-    body: {
-      actions: [
-        {
-          add: { index: newPages, alias: 'pages_alias', is_write_index: true },
-        },
-      ],
-    },
-  })
-
-  console.log('updateAliases 002')
-  esClient.indices.updateAliases({
-    body: {
-      actions: [{ remove: { index: INDEX_NAME, alias: 'pages_alias' } }],
-    },
-  })
-}
-
 const updateMappings = async (): Promise<void> => {
   // update mappings
   await esClient.indices.putMapping({
@@ -212,85 +131,59 @@ const postgresMigration = postgrator
     process.exit(1)
   })
 
-// console.log('reindexing')
-// reIndex()
-//   .then(() => console.log('reindexed elastic'))
-//   .catch((err) => console.log('error reindexing', err))
-
 // elastic migration
 log('Creating elastic index...')
-const indexTest = async (): Promise<void> => {
-  log('running indexTest')
-  try {
-    const result = await esClient.indices.getAlias({
-      index: 'pages_alias',
+const elasticMigration = esClient.indices
+  .exists({ index: INDEX_ALIAS })
+  .then(({ body: exists }) => {
+    if (!exists) {
+      return createIndex().then(() => log('Elastic index created.'))
+    } else {
+      log('Elastic index already exists.')
+    }
+  })
+  .then(() => {
+    log('Updating elastic index mappings...')
+    return updateMappings().then(() => {
+      log('Elastic index mappings updated.')
     })
-    log('result ' + JSON.stringify(result.body))
-  } catch (err) {
-    log('fetch error: ' + err)
-  }
-}
+  })
+  .then(() => {
+    log('Adding default state to pages in elastic...')
+    return esClient
+      .update_by_query({
+        index: INDEX_ALIAS,
+        requests_per_second: 250,
+        scroll_size: 500,
+        timeout: '30m',
+        body: {
+          script: {
+            source: 'ctx._source.state = params.state',
+            lang: 'painless',
+            params: {
+              state: 'SUCCEEDED',
+            },
+          },
+          query: {
+            bool: {
+              must_not: [
+                {
+                  exists: {
+                    field: 'state',
+                  },
+                },
+              ],
+            },
+          },
+        },
+      })
+      .then(() => log('Default state added.'))
+  })
+  .catch((error) => {
+    log(`${chalk.red('Elastic migration failed: ')}${error.message}`, chalk.red)
+    const { appliedMigrations } = error
+    logAppliedMigrations(appliedMigrations)
+    process.exit(1)
+  })
 
-reIndex().then(() => console.log('ran reindex'))
-// indexTest().then(() => console.log('ran index test'))
-
-// const elasticMigration = esClient.indices
-//   .exists({ index: INDEX_ALIAS })
-//   .then(({ body: exists }) => {
-//     if (!exists) {
-//       return createIndex().then(() => log('Elastic index created.'))
-//     } else {
-//       log('Elastic index already exists.')
-//     }
-//   })
-//   .then(() => {
-//     log('Updating elastic index mappings...')
-//     return updateMappings().then(() => {
-//       log('Elastic index mappings updated.')
-//     })
-//   })
-//   .then(() => {
-//     log('Adding default state to pages in elastic...')
-//     return esClient
-//       .update_by_query({
-//         index: INDEX_ALIAS,
-//         requests_per_second: 250,
-//         scroll_size: 500,
-//         timeout: '30m',
-//         body: {
-//           script: {
-//             source: 'ctx._source.state = params.state',
-//             lang: 'painless',
-//             params: {
-//               state: 'SUCCEEDED',
-//             },
-//           },
-//           query: {
-//             bool: {
-//               must_not: [
-//                 {
-//                   exists: {
-//                     field: 'state',
-//                   },
-//                 },
-//               ],
-//             },
-//           },
-//         },
-//       })
-//       .then(() => log('Default state added.'))
-//   })
-//   .catch((error) => {
-//     console.log('error', JSON.stringify(error))
-//     log(`${chalk.red('Elastic migration failed: ')}${error.message}`, chalk.red)
-//     const { appliedMigrations } = error
-//     logAppliedMigrations(appliedMigrations)
-//     process.exit(1)
-//   })
-
-Promise.all([
-  // postgresMigration,
-  // indexTest,
-  // reIndex,
-  /* elasticMigration */
-]).then(() => log('Exiting...'))
+Promise.all([postgresMigration, elasticMigration]).then(() => log('Exiting...'))
