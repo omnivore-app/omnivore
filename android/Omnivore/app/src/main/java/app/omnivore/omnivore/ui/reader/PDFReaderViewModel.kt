@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.DatastoreRepository
 import app.omnivore.omnivore.graphql.generated.type.CreateHighlightInput
 import app.omnivore.omnivore.graphql.generated.type.MergeHighlightInput
+import app.omnivore.omnivore.graphql.generated.type.UpdateHighlightInput
 import app.omnivore.omnivore.models.LinkedItem
 import app.omnivore.omnivore.networking.*
 import com.apollographql.apollo3.api.Optional
@@ -152,8 +153,16 @@ class PDFReaderViewModel @Inject constructor(
       annotation.customData = JSONObject().put("omnivoreHighlight", it)
     }
 
-    // TODO: Sync update with data service
-
+    // Sync update with data service
+    viewModelScope.launch {
+      val input = UpdateHighlightInput(
+        annotation = Optional.presentIfNotNull(note),
+        highlightId = pluckHighlightID(annotation) ?: "",
+        sharedAt = Optional.Absent
+      )
+      networker.updateHighlight(input)
+      Log.d("network", "updated $annotation")
+    }
   }
 
   fun deleteHighlight(annotation: Annotation) {

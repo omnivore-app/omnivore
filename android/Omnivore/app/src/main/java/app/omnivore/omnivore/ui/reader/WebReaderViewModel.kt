@@ -77,6 +77,10 @@ class WebReaderViewModel @Inject constructor(
       }
       "updateHighlight" -> {
         Log.d("Loggo", "receive update highlight action: $jsonString")
+        viewModelScope.launch {
+          val isHighlightUpdateSynced = networker.updateWebHighlight(jsonString)
+          Log.d("Network", "isHighlightUpdateSynced = $isHighlightUpdateSynced")
+        }
       }
       "articleReadingProgress" -> {
         viewModelScope.launch {
