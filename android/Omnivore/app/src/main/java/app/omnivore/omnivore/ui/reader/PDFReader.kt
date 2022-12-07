@@ -377,8 +377,10 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
       return when (item.itemId) {
         R.id.annotate -> {
           Log.d("pdf", "annotate button tapped")
-          viewModel.annotationUnderNoteEdit = clickedHighlight
-          showAnnotationView("") // TODO: grab initial text
+          clickedHighlight?.let {
+            viewModel.annotationUnderNoteEdit = it
+            showAnnotationView(viewModel.pluckExistingNote(it) ?: "")
+          }
           true
         }
         R.id.delete -> {
@@ -432,6 +434,7 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
     actionMode = null
     clickedHighlight = null
     clickedHighlightPosition = null
+    viewModel.annotationUnderNoteEdit = null
   }
 
   override fun startActionMode(callback: ActionMode.Callback?, type: Int): ActionMode? {
@@ -448,8 +451,11 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
 
     confirmButton.setOnClickListener {
       val newNoteText = textField.text
-      // TODO: persist new note
-      Log.d("pdf", "new annotation text: $newNoteText")
+
+      clickedHighlight?.let { highlight ->
+        viewModel.updateHighlightNote(highlight, newNoteText.toString())
+      }
+
       resetHighlightTap()
       annotationDialog.dismiss()
     }

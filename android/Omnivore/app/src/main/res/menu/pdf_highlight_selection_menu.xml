@@ -7,11 +7,11 @@
         app:showAsAction="always">
     </item>
 
-<!--    <item-->
-<!--        android:id="@+id/annotate"-->
-<!--        android:title="@string/pdf_highlight_menu_note"-->
-<!--        app:showAsAction="always">-->
-<!--    </item>-->
+    <item
+        android:id="@+id/annotate"
+        android:title="@string/pdf_highlight_menu_note"
+        app:showAsAction="always">
+    </item>
 
     <item
         android:id="@+id/delete"
