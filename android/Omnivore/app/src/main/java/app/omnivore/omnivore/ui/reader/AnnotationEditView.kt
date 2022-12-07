@@ -1,5 +1,6 @@
 package app.omnivore.omnivore.ui.reader
 
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -20,10 +21,24 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.unit.dp
-import androidx.fragment.app.Fragment
+import androidx.fragment.app.DialogFragment
 import app.omnivore.omnivore.ui.theme.OmnivoreTheme
 
-class AnnotationEditFragment : Fragment() {
+class AnnotationEditFragment : DialogFragment() {
+  private var onSave: (String) -> Unit = {}
+  private var onCancel: () -> Unit = {}
+  private var initialAnnotation: String = ""
+
+  fun configure(
+    initialAnnotation: String,
+    onSave: (String) -> Unit,
+    onCancel: () -> Unit,
+  ) {
+    this.initialAnnotation = initialAnnotation
+    this.onSave = onSave
+    this.onCancel = onCancel
+  }
+
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
@@ -36,23 +51,29 @@ class AnnotationEditFragment : Fragment() {
       setContent {
         OmnivoreTheme {
           AnnotationEditView(
-            initialAnnotation = "Initial Annotation",
-            onSave = {},
-            onCancel = {}
+            initialAnnotation,
+            onSave,
+            onCancel,
+            dismissAction = { dismiss() }
           )
         }
       }
     }
   }
+
+  override fun onDismiss(dialog: DialogInterface) {
+    onCancel()
+    super.onDismiss(dialog)
+  }
 }
 
-// TODO: better layout and styling for this view
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AnnotationEditView(
   initialAnnotation: String,
   onSave: (String) -> Unit,
   onCancel: () -> Unit,
+  dismissAction: () -> Unit = {}
 ) {
   val annotation = remember { mutableStateOf(initialAnnotation) }
   val focusRequester = FocusRequester()
@@ -71,6 +92,7 @@ fun AnnotationEditView(
         TextButton(
           onClick = {
             onCancel()
+            dismissAction()
           }
         ) {
           Text("Cancel")
@@ -85,6 +107,7 @@ fun AnnotationEditView(
         TextButton(
           onClick = {
             onSave(annotation.value)
+            dismissAction()
           }
         ) {
           Text("Save")

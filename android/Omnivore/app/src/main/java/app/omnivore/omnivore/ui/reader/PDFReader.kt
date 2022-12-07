@@ -86,6 +86,7 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
   }
 
   override fun onDestroy() {
+    actionMode?.finish()
     resetHighlightTap()
     // TODO: remove listeners?
     super.onDestroy()
@@ -442,30 +443,19 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
   }
 
   private fun showAnnotationView(initialText: String) {
-    val annotationDialog = Dialog(this)
-    annotationDialog.setContentView(R.layout.annotation_edit)
-
-    val textField = annotationDialog.findViewById(R.id.highlightNoteTextField) as EditText
-    textField.setText(initialText)
-    val confirmButton = annotationDialog.findViewById(R.id.confirmAnnotation) as Button
-
-    confirmButton.setOnClickListener {
-      val newNoteText = textField.text
-
-      clickedHighlight?.let { highlight ->
-        viewModel.updateHighlightNote(highlight, newNoteText.toString())
-      }
-
-      resetHighlightTap()
-      annotationDialog.dismiss()
-    }
-
-    val cancelBtn = annotationDialog.findViewById(R.id.cancel) as Button
-    cancelBtn.setOnClickListener {
-      resetHighlightTap()
-      annotationDialog.dismiss()
-    }
-
-    annotationDialog.show()
+    val annotationEditFragment = AnnotationEditFragment()
+    annotationEditFragment.configure(
+      onSave = { newNote ->
+        clickedHighlight?.let { highlight ->
+          viewModel.updateHighlightNote(highlight, newNote)
+        }
+        resetHighlightTap()
+      },
+      onCancel = {
+        resetHighlightTap()
+      },
+      initialAnnotation = initialText
+    )
+    annotationEditFragment.show(fragment.childFragmentManager, null)
   }
 }
