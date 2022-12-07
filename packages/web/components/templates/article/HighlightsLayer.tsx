@@ -275,8 +275,8 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       }
 
       const tapAttributes = {
-        tapX: event.clientX,
-        tapY: event.clientY,
+        tapX: event.screenX,
+        tapY: event.screenY,
       }
 
       window?.AndroidWebKitMessenger?.handleIdentifiableMessage(
