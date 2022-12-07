@@ -9,7 +9,11 @@ import {
 import { Highlight, highlightFragment } from '../fragments/highlightFragment'
 import { ScopedMutator } from 'swr/dist/types'
 import { Label, labelFragment } from '../fragments/labelFragment'
-import { LibraryItems } from './useGetLibraryItemsQuery'
+import {
+  LibraryItems,
+  Recommendation,
+  recommendationFragment,
+} from './useGetLibraryItemsQuery'
 
 type ArticleQueryInput = {
   username?: string
@@ -54,6 +58,7 @@ export type ArticleAttributes = {
   linkId: string
   labels?: Label[]
   state?: State
+  recommendations?: Recommendation[]
 }
 
 const query = gql`
@@ -73,6 +78,9 @@ const query = gql`
           labels {
             ...LabelFields
           }
+          recommendations {
+            ...RecommendationFields
+          }
         }
       }
       ... on ArticleError {
@@ -83,6 +91,7 @@ const query = gql`
   ${articleFragment}
   ${highlightFragment}
   ${labelFragment}
+  ${recommendationFragment}
 `
 
 export function useGetArticleQuery({
@@ -115,7 +124,7 @@ export function useGetArticleQuery({
   return {
     articleData: resultData,
     isLoading: !error && !data,
-    articleFetchError: resultError ? resultError as string[] : null,
+    articleFetchError: resultError ? (resultError as string[]) : null,
   }
 }
 

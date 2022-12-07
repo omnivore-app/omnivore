@@ -7,7 +7,7 @@ export type LabelColor =
   | '#7BE4FF'
   | '#CE88EF'
   | '#EF8C43'
-  | 'custom color';
+  | 'custom color'
 
 export const labelFragment = gql`
   fragment LabelFields on Label {

@@ -5,6 +5,7 @@ import Models
 public struct InternalRecommendation {
   let id: String
   let name: String
+  let note: String?
   let user: InternalUserProfile?
   let recommendedAt: Date
 
@@ -13,6 +14,7 @@ public struct InternalRecommendation {
     let recommendation = existing ?? Recommendation(entity: Recommendation.entity(), insertInto: context)
     recommendation.id = id
     recommendation.name = name
+    recommendation.note = note
     recommendation.recommendedAt = recommendedAt
     recommendation.user = user?.asManagedObject(inContext: context)
     return recommendation
@@ -29,6 +31,7 @@ public struct InternalRecommendation {
           return InternalRecommendation(
             id: id,
             name: name,
+            note: recommendation.note,
             user: InternalUserProfile.makeSingle(recommendation.user),
             recommendedAt: recommendedAt
           )

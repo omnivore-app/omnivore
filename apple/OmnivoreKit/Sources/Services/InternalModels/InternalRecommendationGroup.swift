@@ -46,6 +46,16 @@ public struct InternalRecommendationGroup: Identifiable {
     }
     return nil
   }
+
+  public static func readable(list: [InternalRecommendationGroup]) -> String {
+    list.reduce("") { str, group in
+      if str.isEmpty {
+        return group.name
+      } else {
+        return str + ", " + group.name
+      }
+    }
+  }
 }
 
 extension Sequence where Element == InternalRecommendationGroup {

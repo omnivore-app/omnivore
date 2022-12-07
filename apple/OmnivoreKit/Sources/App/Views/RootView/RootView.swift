@@ -47,30 +47,35 @@ struct InnerRootView: View {
 
   @ViewBuilder private var innerBody: some View {
     if authenticator.isLoggedIn {
-      PrimaryContentView()
-        .onAppear {
-          viewModel.triggerPushNotificationRequestIfNeeded()
-        }
-      #if os(iOS)
-        .miniPlayer()
-      #endif
-      .snackBar(isShowing: $viewModel.showSnackbar, message: viewModel.snackbarMessage)
-        // Schedule the dismissal every time we present the snackbar.
-        .onChange(of: viewModel.showSnackbar) { newValue in
-          if newValue {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-              withAnimation {
-                viewModel.showSnackbar = false
+      GeometryReader { geo in
+        PrimaryContentView()
+          .onAppear {
+            viewModel.triggerPushNotificationRequestIfNeeded()
+          }
+        #if os(iOS)
+          .miniPlayer()
+          .formSheet(isPresented: $viewModel.showNewFeaturePrimer, modalSize: CGSize(width: geo.size.width * 0.66, height: geo.size.width * 0.66)) {
+            FeaturePrimer.recommendationsPrimer
+          }
+          .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(300)) {
+              viewModel.showNewFeaturePrimer = viewModel.shouldShowNewFeaturePrimer
+              viewModel.shouldShowNewFeaturePrimer = false
+            }
+          }
+        #endif
+        .snackBar(isShowing: $viewModel.showSnackbar, message: viewModel.snackbarMessage)
+          // Schedule the dismissal every time we present the snackbar.
+          .onChange(of: viewModel.showSnackbar) { newValue in
+            if newValue {
+              DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                withAnimation {
+                  viewModel.showSnackbar = false
+                }
               }
             }
           }
-        }
-      #if os(iOS)
-        .customAlert(isPresented: $viewModel.showPushNotificationPrimer) {
-          pushNotificationPrimerView
-        }
-      #endif
-
+      }
     } else {
       WelcomeView()
         .accessibilityElement()
@@ -105,14 +110,14 @@ struct InnerRootView: View {
   }
 
   #if os(iOS)
-    private var pushNotificationPrimerView: PushNotificationPrimer {
-      PushNotificationPrimer(
-        acceptAction: { viewModel.handlePushNotificationPrimerAcceptance() },
-        denyAction: {
-          UserDefaults.standard.set(true, forKey: UserDefaultKey.userHasDeniedPushPrimer.rawValue)
-          viewModel.showPushNotificationPrimer = false
-        }
-      )
-    }
+//    private var pushNotificationPrimerView: PushNotificationPrimer {
+//      PushNotificationPrimer(
+//        acceptAction: { viewModel.handlePushNotificationPrimerAcceptance() },
+//        denyAction: {
+//          UserDefaults.standard.set(true, forKey: UserDefaultKey.userHasDeniedPushPrimer.rawValue)
+//          viewModel.showPushNotificationPrimer = false
+//        }
+//      )
+//    }
   #endif
 }

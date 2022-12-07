@@ -88,19 +88,10 @@ public struct FeedCard: View {
       }
 
       if let recommendations = item.recommendations, recommendations.count > 0 {
-        let byStr = recommendations.reduce("") { str, item in
-          if let item = item as? Recommendation, let name = item.user?.name {
-            return str + name
-          }
-          return str
-        }
-        let inStr = recommendations.reduce("") { str, item in
-          if let item = item as? Recommendation, let name = item.name {
-            return str + name
-          }
-          return str
-        }
+        let byStr = Recommendation.byline(recommendations)
+        let inStr = Recommendation.groupsLine(recommendations)
         HStack {
+          Image(systemName: "sparkles")
           Text("Recommended by \(byStr) in \(inStr)")
             .font(.appCaption)
             .frame(alignment: .leading)

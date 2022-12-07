@@ -6,7 +6,7 @@ import Views
 @MainActor final class RecommendationsGroupsViewModel: ObservableObject {
   @Published var isLoading = false
   @Published var isCreating = false
-  @Published var networkError = true
+  @Published var networkError = false
   @Published var recommendationGroups = [InternalRecommendationGroup]()
 
   @Published var showCreateSheet = false
@@ -130,13 +130,28 @@ struct GroupsView: View {
         .disabled(viewModel.isLoading)
       }
 
-      Section(header: Text("Your recommendation groups")) {
-        ForEach(viewModel.recommendationGroups) { recommendationGroup in
-          NavigationLink(
-            destination: RecommendationGroupView(viewModel: RecommendationsGroupViewModel(recommendationGroup: recommendationGroup))
-          ) {
-            Text(recommendationGroup.name)
+      if viewModel.recommendationGroups.count > 0 {
+        Section(header: Text("Your recommendation groups")) {
+          ForEach(viewModel.recommendationGroups) { recommendationGroup in
+            NavigationLink(
+              destination: RecommendationGroupView(viewModel: RecommendationsGroupViewModel(recommendationGroup: recommendationGroup))
+            ) {
+              Text(recommendationGroup.name)
+            }
           }
+        }
+      } else {
+        Section {
+          Text("""
+          You are not a member of any groups.
+          Create a new group and send the invite link to your friends get started.
+
+          During the beta you are limited to creating three groups, and each group
+          can have a maximum of twelve users.
+
+          [Learn more about groups](https://blog.omnivore.app/p/dca38ba4-8a74-42cc-90ca-d5ffa5d075cc)
+          """)
+            .accentColor(.blue)
         }
       }
     }

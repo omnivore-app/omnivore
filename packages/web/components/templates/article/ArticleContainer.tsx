@@ -1,12 +1,25 @@
 import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
 import { Article } from './../../../components/templates/article/Article'
-import { Box, SpanBox, VStack } from './../../elements/LayoutPrimitives'
+import {
+  Blockquote,
+  Box,
+  HStack,
+  SpanBox,
+  VStack,
+} from './../../elements/LayoutPrimitives'
 import { StyledText } from './../../elements/StyledText'
 import { ArticleSubtitle } from './../../patterns/ArticleSubtitle'
-import { theme, ThemeId } from './../../tokens/stitches.config'
+import { styled, theme, ThemeId } from './../../tokens/stitches.config'
 import { HighlightsLayer } from '../../templates/article/HighlightsLayer'
 import { Button } from '../../elements/Button'
-import { MutableRefObject, useEffect, useState, useRef } from 'react'
+import {
+  MutableRefObject,
+  useEffect,
+  useState,
+  useRef,
+  useReducer,
+  useMemo,
+} from 'react'
 import { ReportIssuesModal } from './ReportIssuesModal'
 import { reportIssueMutation } from '../../../lib/networking/mutations/reportIssueMutation'
 import { ArticleHeaderToolbar } from './ArticleHeaderToolbar'
@@ -19,6 +32,9 @@ import {
   HighlightLocation,
   makeHighlightStartEndOffset,
 } from '../../../lib/highlights/highlightGenerator'
+import { Recommendation } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+import { Avatar } from '../../elements/Avatar'
+import { Sparkle } from 'phosphor-react'
 
 type ArticleContainerProps = {
   article: ArticleAttributes
@@ -41,12 +57,15 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   const [showReportIssuesModal, setShowReportIssuesModal] = useState(false)
   const [fontSize, setFontSize] = useState(props.fontSize ?? 20)
   // iOS app embed can overide the original margin and line height
-  const [maxWidthPercentageOverride, setMaxWidthPercentageOverride] =
-    useState<number | null>(null)
-  const [lineHeightOverride, setLineHeightOverride] =
-    useState<number | null>(null)
-  const [fontFamilyOverride, setFontFamilyOverride] =
-    useState<string | null>(null)
+  const [maxWidthPercentageOverride, setMaxWidthPercentageOverride] = useState<
+    number | null
+  >(null)
+  const [lineHeightOverride, setLineHeightOverride] = useState<number | null>(
+    null
+  )
+  const [fontFamilyOverride, setFontFamilyOverride] = useState<string | null>(
+    null
+  )
   const [highContrastFont, setHighContrastFont] = useState(
     props.highContrastFont ?? false
   )
@@ -196,6 +215,31 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     readerHeadersColor: theme.colors.readerHeader.toString(),
   }
 
+  const recommendationByline = useMemo(() => {
+    return props.article.recommendations
+      ?.flatMap((recommendation) => {
+        return recommendation.user?.name
+      })
+      .join(', ')
+  }, [props.article.recommendations])
+
+  const recommendationsWithNotes = useMemo(() => {
+    return (
+      props.article.recommendations?.filter((recommendation) => {
+        return recommendation.note
+      }) ?? []
+    )
+  }, [props.article.recommendations])
+
+  const StyledQuote = styled(Blockquote, {
+    margin: '0px 0px 0px 0px',
+    fontSize: '18px',
+    lineHeight: '27px',
+    color: '$grayText',
+    padding: '0px 16px',
+    borderLeft: '2px solid $omnivoreCtaYellow',
+  })
+
   return (
     <>
       <Box
@@ -266,6 +310,45 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
               ))}
             </SpanBox>
           ) : null}
+          {recommendationByline && (
+            <VStack
+              css={{
+                borderRadius: '6px',
+                bg: '$grayBase',
+                p: '16px',
+                pt: '16px',
+                width: '100%',
+                marginTop: '24px',
+                color: '$grayText',
+                lineHeight: '2.0',
+              }}
+            >
+              <HStack css={{ gap: '8px' }}>
+                <Sparkle size="14" />
+                <StyledText
+                  style="recommendedByline"
+                  css={{ paddingTop: '0px' }}
+                >
+                  Recommended by {recommendationByline}
+                </StyledText>
+              </HStack>
+
+              {recommendationsWithNotes.map((item, idx) => (
+                <VStack key={item.id} alignment="start" distribution="start">
+                  {/* <StyledQuote>{item.note}</StyledQuote> */}
+                  <HStack css={{}} alignment="start">
+                    <StyledText style="userNote">
+                      <SpanBox css={{ opacity: '0.5' }}>
+                        {item.user?.name}:
+                      </SpanBox>{' '}
+                      {item.note}
+                    </StyledText>
+                    :
+                  </HStack>
+                </VStack>
+              ))}
+            </VStack>
+          )}
         </VStack>
         <Article
           articleId={props.article.id}

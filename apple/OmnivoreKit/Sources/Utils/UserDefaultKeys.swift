@@ -23,4 +23,5 @@ public enum UserDefaultKey: String {
   case recentSearchTerms
   case audioPlayerExpanded
   case themeName
+  case shouldShowNewFeaturePrimer
 }

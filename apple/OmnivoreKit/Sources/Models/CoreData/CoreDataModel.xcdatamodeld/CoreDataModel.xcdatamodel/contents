@@ -55,7 +55,7 @@
         <attribute name="updatedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <relationship name="highlights" toMany="YES" deletionRule="Cascade" destinationEntity="Highlight" inverseName="linkedItem" inverseEntity="Highlight"/>
         <relationship name="labels" toMany="YES" deletionRule="Nullify" destinationEntity="LinkedItemLabel" inverseName="linkedItems" inverseEntity="LinkedItemLabel"/>
-        <relationship name="recommendations" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Recommendation" inverseName="linkedItem" inverseEntity="Recommendation"/>
+        <relationship name="recommendations" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Recommendation" inverseName="linkeditem" inverseEntity="Recommendation"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="id"/>
@@ -95,8 +95,9 @@
     <entity name="Recommendation" representedClassName="Recommendation" syncable="YES" codeGenerationType="class">
         <attribute name="id" optional="YES" attributeType="String"/>
         <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="note" optional="YES" attributeType="String"/>
         <attribute name="recommendedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
-        <relationship name="linkedItem" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LinkedItem" inverseName="recommendations" inverseEntity="LinkedItem"/>
+        <relationship name="linkeditem" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LinkedItem" inverseName="recommendations" inverseEntity="LinkedItem"/>
         <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="UserProfile"/>
     </entity>
     <entity name="RecommendationGroup" representedClassName="RecommendationGroup" syncable="YES" codeGenerationType="class">

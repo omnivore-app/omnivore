@@ -78,6 +78,7 @@ struct WebReaderContent {
             readingProgressAnchorIndex: \(item.readingProgressAnchor),
             labels: \(item.labelsJSONString),
             highlights: \(articleContent.highlightsJSONString),
+            recommendations: \(item.recommendationsJSONString),
           }
 
           window.fontSize = \(textFontSize)

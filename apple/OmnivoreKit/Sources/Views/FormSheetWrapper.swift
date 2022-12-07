@@ -49,7 +49,7 @@ import SwiftUI
         controller.view.sizeToFit()
         controller.modalPresentationStyle = .formSheet
         controller.modalTransitionStyle = .crossDissolve
-        controller.preferredContentSize = CGSize(width: 320, height: 320)
+        controller.preferredContentSize = modalSize
       }
 
       controller.presentationController?.delegate = self

@@ -5,7 +5,7 @@ import Views
 
 @MainActor final class RecommendationsGroupViewModel: ObservableObject {
   @Published var isLoading = false
-  @Published var networkError = true
+  @Published var networkError = false
   @Published var recommendationGroup: InternalRecommendationGroup
 
   init(recommendationGroup: InternalRecommendationGroup) {
@@ -71,8 +71,6 @@ struct RecommendationGroupView: View {
   @EnvironmentObject var dataService: DataService
   @StateObject var viewModel: RecommendationsGroupViewModel
 
-  @State var presentShareSheet = false
-
   var body: some View {
     Group {
       #if os(iOS)
@@ -110,12 +108,22 @@ struct RecommendationGroupView: View {
 
   private var membersSection: some View {
     Section("Members") {
-      ForEach(viewModel.nonAdmins) { member in
-        SmallUserCard(data: ProfileCardData(
-          name: member.name,
-          username: member.username,
-          imageURL: member.profileImageURL != nil ? URL(string: member.profileImageURL!) : nil
-        ))
+      if viewModel.nonAdmins.count > 0 {
+        ForEach(viewModel.nonAdmins) { member in
+          SmallUserCard(data: ProfileCardData(
+            name: member.name,
+            username: member.username,
+            imageURL: member.profileImageURL != nil ? URL(string: member.profileImageURL!) : nil
+          ))
+        }
+      } else {
+        Text("""
+        This group does not have any members. Add users to your group by sending
+        them the invite link.
+
+        [Learn more about groups](https://blog.omnivore.app/p/dca38ba4-8a74-42cc-90ca-d5ffa5d075cc)
+        """)
+          .accentColor(.blue)
       }
     }
   }
@@ -128,7 +136,17 @@ struct RecommendationGroupView: View {
 
       Section("Invite Link") {
         Button(action: {
-          presentShareSheet = true
+          #if os(iOS)
+            UIPasteboard.general.string = viewModel.recommendationGroup.inviteUrl
+          #endif
+
+          #if os(macOS)
+            let pasteBoard = NSPasteboard.general
+            pasteBoard.clearContents()
+            pasteBoard.writeObjects([highlightParams.quote as NSString])
+          #endif
+
+          Snackbar.show(message: "Invite link copied")
         }, label: {
           Text("[\(viewModel.recommendationGroup.inviteUrl)](\(viewModel.recommendationGroup.inviteUrl))")
             .font(.appCaption)
@@ -137,9 +155,6 @@ struct RecommendationGroupView: View {
 
       adminsSection
       membersSection
-    }
-    .formSheet(isPresented: $presentShareSheet) {
-      shareView
     }
     .navigationTitle(viewModel.recommendationGroup.name)
   }

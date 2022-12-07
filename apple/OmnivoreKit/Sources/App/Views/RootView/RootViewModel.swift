@@ -14,7 +14,9 @@ import Views
 public final class RootViewModel: ObservableObject {
   let services = Services()
 
-  @Published public var showPushNotificationPrimer = false
+  @Published public var showNewFeaturePrimer = false
+  @AppStorage(UserDefaultKey.shouldShowNewFeaturePrimer.rawValue) var shouldShowNewFeaturePrimer = true
+
   @Published var snackbarMessage: String?
   @Published var showSnackbar = false
   @Published var showMiniPlayer = true
@@ -34,32 +36,32 @@ public final class RootViewModel: ObservableObject {
   }
 
   func triggerPushNotificationRequestIfNeeded() {
-    guard FeatureFlag.enablePushNotifications else { return }
-
-    if UserDefaults.standard.bool(forKey: UserDefaultKey.userHasDeniedPushPrimer.rawValue) {
-      return
-    }
-
-    #if os(iOS)
-      UNUserNotificationCenter.current().getNotificationSettings { [weak self] settings in
-        switch settings.authorizationStatus {
-        case .notDetermined:
-          DispatchQueue.main.async {
-            self?.showPushNotificationPrimer = true
-          }
-        case .authorized, .provisional, .ephemeral, .denied:
-          return
-        @unknown default:
-          return
-        }
-      }
-    #endif
+//    guard FeatureFlag.enablePushNotifications else { return }
+//
+//    if UserDefaults.standard.bool(forKey: UserDefaultKey.userHasDeniedPushPrimer.rawValue) {
+//      return
+//    }
+//
+//    #if os(iOS)
+//      UNUserNotificationCenter.current().getNotificationSettings { [weak self] settings in
+//        switch settings.authorizationStatus {
+//        case .notDetermined:
+//          DispatchQueue.main.async {
+//            self?.showPushNotificationPrimer = true
+//          }
+//        case .authorized, .provisional, .ephemeral, .denied:
+//          return
+//        @unknown default:
+//          return
+//        }
+//      }
+//    #endif
   }
 
   #if os(iOS)
     func handlePushNotificationPrimerAcceptance() {
-      showPushNotificationPrimer = false
-      UNUserNotificationCenter.current().requestAuth()
+//      showPushNotificationPrimer = false
+//      UNUserNotificationCenter.current().requestAuth()
     }
   #endif
 }
