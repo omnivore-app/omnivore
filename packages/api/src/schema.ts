@@ -329,10 +329,19 @@ const schema = gql`
     updatedAt: Date!
   }
 
+  type RecommendingUser {
+    userId: String!
+    name: String!
+    username: String!
+    profileImageURL: String
+  }
+
   type Recommendation {
     id: ID!
     name: String!
+    user: RecommendingUser
     recommendedAt: Date!
+    note: String
   }
 
   type Article {
@@ -375,7 +384,7 @@ const schema = gql`
     state: ArticleSavingRequestStatus
     language: String
     readAt: Date
-    recommendedBy: [Recommendation!]
+    recommendations: [Recommendation!]
   }
 
   # Query: article
@@ -1522,7 +1531,7 @@ const schema = gql`
     savedAt: Date!
     highlights: [Highlight!]
     siteIcon: String
-    recommendedBy: [Recommendation!]
+    recommendations: [Recommendation!]
   }
 
   type SearchItemEdge {
@@ -2194,6 +2203,7 @@ const schema = gql`
   input RecommendInput {
     pageId: ID!
     groupIds: [ID!]!
+    note: String
   }
 
   union RecommendResult = RecommendSuccess | RecommendError

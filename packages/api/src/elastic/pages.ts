@@ -189,10 +189,10 @@ const appendIdsFilter = (body: SearchBody, ids: string[]): void => {
 const appendRecommendedBy = (body: SearchBody, recommendedBy: string): void => {
   body.query.bool.must.push({
     nested: {
-      path: 'recommendedBy',
+      path: 'recommendations',
       query: {
         term: {
-          'recommendedBy.name': recommendedBy,
+          'recommendations.name': recommendedBy,
         },
       },
     },

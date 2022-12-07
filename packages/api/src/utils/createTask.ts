@@ -423,7 +423,7 @@ export const enqueueRecommendation = async (
   }
 
   const headers = {
-    Authorization: authToken,
+    Cookie: `auth=${authToken}`,
   }
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment
   if (env.dev.isLocal || !GOOGLE_CLOUD_PROJECT) {

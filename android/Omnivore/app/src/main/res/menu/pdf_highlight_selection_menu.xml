@@ -2,20 +2,14 @@
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/removeHighlight"
+        android:id="@+id/delete"
         android:title="@string/pdf_remove_highlight"
         app:showAsAction="always">
     </item>
 
     <item
-        android:id="@+id/annotateHighlight"
-        android:title="@string/highlight_note"
-        app:showAsAction="always">
-    </item>
-
-    <item
-        android:id="@+id/copyHighlight"
+        android:id="@+id/copyPdfHighlight"
         android:title="@string/pdf_highlight_copy"
-        app:showAsAction="ifRoom">
+        app:showAsAction="always">
     </item>
 </menu>

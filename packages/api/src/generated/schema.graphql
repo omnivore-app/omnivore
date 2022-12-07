@@ -86,7 +86,7 @@ type Article {
   readAt: Date
   readingProgressAnchorIndex: Int!
   readingProgressPercent: Float!
-  recommendedBy: [Recommendation!]
+  recommendations: [Recommendation!]
   savedAt: Date!
   savedByViewer: Boolean
   shareInfo: LinkShareInfo
@@ -1250,6 +1250,7 @@ enum RecommendErrorCode {
 
 input RecommendInput {
   groupIds: [ID!]!
+  note: String
   pageId: ID!
 }
 
@@ -1262,7 +1263,9 @@ type RecommendSuccess {
 type Recommendation {
   id: ID!
   name: String!
+  note: String
   recommendedAt: Date!
+  user: RecommendingUser
 }
 
 type RecommendationGroup {
@@ -1273,6 +1276,13 @@ type RecommendationGroup {
   members: [User!]!
   name: String!
   updatedAt: Date!
+}
+
+type RecommendingUser {
+  name: String!
+  profileImageURL: String
+  userId: String!
+  username: String!
 }
 
 type Reminder {
@@ -1488,7 +1498,7 @@ type SearchItem {
   readAt: Date
   readingProgressAnchorIndex: Int!
   readingProgressPercent: Float!
-  recommendedBy: [Recommendation!]
+  recommendations: [Recommendation!]
   savedAt: Date!
   shortId: String
   siteIcon: String

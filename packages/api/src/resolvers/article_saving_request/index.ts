@@ -42,7 +42,7 @@ export const createArticleSavingRequestResolver = authorized<
       articleSavingRequest: request,
     }
   } catch (err) {
-    console.log('error', err)
+    console.log('error saving article', err)
     if (isErrorWithCode(err)) {
       return {
         errorCodes: [err.errorCode as CreateArticleSavingRequestErrorCode],

@@ -1,52 +1,19 @@
+import CoreData
 import Foundation
-import Utils
-
-public struct UserProfile: Codable {
-  public let username: String
-  public let name: String
-  public let bio: String?
-
-  public init(
-    username: String,
-    name: String,
-    bio: String? = nil
-  ) {
-    self.username = username
-    self.name = name
-    self.bio = bio
-  }
-}
 
 public extension UserProfile {
-  static func make(
-    username: String,
-    name: String,
-    bio: String?
-  ) -> Either<UserProfile, String> {
-    let userProfile = UserProfile(
-      username: username,
-      name: name,
-      bio: bio
+  static func lookup(byID userID: String, inContext context: NSManagedObjectContext) -> UserProfile? {
+    let fetchRequest: NSFetchRequest<Models.UserProfile> = UserProfile.fetchRequest()
+    fetchRequest.predicate = NSPredicate(
+      format: "%K == %@", #keyPath(UserProfile.userID), userID
     )
 
-    if let errorMessage = userProfile.validationErrorMessage {
-      return .right(errorMessage)
-    } else {
-      return .left(userProfile)
-    }
-  }
+    var result: UserProfile?
 
-  private var validationErrorMessage: String? {
-    if name.isEmpty {
-      return "The name field is missing."
+    context.performAndWait {
+      result = (try? context.fetch(fetchRequest))?.first
     }
 
-    return nil
+    return result
   }
-}
-
-public extension Viewer {
-  var unwrappedUsername: String { username ?? "" }
-  var unwrappedName: String { name ?? "" }
-  var unwrappedUserID: String { userID ?? "" }
 }

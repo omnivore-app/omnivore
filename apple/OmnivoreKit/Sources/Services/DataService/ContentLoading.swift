@@ -48,6 +48,7 @@ extension DataService {
       do {
         objectID = try await persistArticleContent(articleProps: fetchResult)
       } catch {
+        print("caught article content error: ", error)
         var message = "unknown error"
         let basicError = (error as? BasicError) ?? BasicError.message(messageText: "unknown error")
         if case let BasicError.message(messageText) = basicError {
@@ -230,7 +231,7 @@ extension DataService {
     } catch {
       // We don't propogate these errors, we just let it pass through so
       // the user can attempt to fetch content again.
-      print("Error syncUnsyncedArticleContent")
+      print("Error syncUnsyncedArticleContent", error)
     }
   }
 }

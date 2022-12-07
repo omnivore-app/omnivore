@@ -9,11 +9,14 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.unit.dp
@@ -52,6 +55,7 @@ fun AnnotationEditView(
   onCancel: () -> Unit,
 ) {
   val annotation = remember { mutableStateOf(initialAnnotation) }
+  val focusRequester = FocusRequester()
 
   Column(
     modifier = Modifier
@@ -61,39 +65,62 @@ fun AnnotationEditView(
   ) {
     Column(
       modifier = Modifier.padding(16.dp),
+      horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-      Text(text = "Note")
+      Row {
+        TextButton(
+          onClick = {
+            onCancel()
+          }
+        ) {
+          Text("Cancel")
+        }
+
+        Spacer(modifier = Modifier.weight(1.0F))
+
+        Text(text = "Note")
+
+        Spacer(modifier = Modifier.weight(1.0F))
+
+        TextButton(
+          onClick = {
+            onSave(annotation.value)
+          }
+        ) {
+          Text("Save")
+        }
+      }
 
       Spacer(modifier = Modifier.height(8.dp))
 
       TextField(
         value = annotation.value,
-        onValueChange = { annotation.value = it }
+        onValueChange = { annotation.value = it },
+        modifier = Modifier
+          .width(IntrinsicSize.Max)
+          .height(IntrinsicSize.Max)
+          .weight(1.0F)
+          .focusRequester(focusRequester)
       )
-    }
 
-    Spacer(modifier = Modifier.height(8.dp))
-
-    Row(
-      modifier = Modifier.align(Alignment.End)
-    ) {
-      Button(
-        onClick = {
-          onCancel()
-        }
-      ) {
-        Text("Cancel")
+      LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
       }
 
-      Spacer(modifier = Modifier.width(8.dp))
-
-      Button(
-        onClick = {
-          onSave(annotation.value)
-        }
-      ) {
-        Text("Save")
-      }
+//      Row {
+//        Spacer(modifier = Modifier.weight(0.1F))
+//        TextField(
+//          value = annotation.value,
+//          onValueChange = { annotation.value = it },
+//          modifier = Modifier
+//            .width(IntrinsicSize.Max)
+//            .height(IntrinsicSize.Max)
+//            .weight(1.0F)
+//        )
+//        Spacer(modifier = Modifier.weight(0.1F))
+//      }
     }
+
+    Spacer(modifier = Modifier.height(16.dp))
   }
 }

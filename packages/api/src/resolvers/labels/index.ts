@@ -201,7 +201,7 @@ export const deleteLabelResolver = authorized<
       label,
     }
   } catch (error) {
-    log.error('error', error)
+    log.error('error deleting label', error)
     return {
       errorCodes: [DeleteLabelErrorCode.BadRequest],
     }
