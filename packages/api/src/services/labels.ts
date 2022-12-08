@@ -6,6 +6,7 @@ import { addLabelInPage } from '../elastic/labels'
 import { getRepository } from '../entity/utils'
 import { Link } from '../entity/link'
 import DataLoader from 'dataloader'
+import { generateRandomColor } from '../utils/helpers'
 
 const batchGetLabelsFromLinkIds = async (
   linkIds: readonly string[]
@@ -95,8 +96,7 @@ export const createLabel = async (
   }
 
   // create a new label and assign a random color if not provided
-  label.color =
-    label.color || `#${Math.floor(Math.random() * 16777215).toString(16)}`
+  label.color = label.color || generateRandomColor()
 
   return getRepository(Label).save({
     ...label,
