@@ -362,7 +362,7 @@ struct WebReaderContainerView: View {
           NavigationView {
             RecommendToView(
               dataService: dataService,
-              viewModel: RecommendToViewModel(pageID: item.unwrappedID)
+              viewModel: RecommendToViewModel(pageID: item.unwrappedID, highlightCount: item.highlights?.count ?? 0)
             )
           }.onDisappear {
             showRecommendSheet = false

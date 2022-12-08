@@ -12,11 +12,14 @@ import Views
   @Published var showError = false
   @Published var showNoteView = false
   @Published var note: String = ""
+  @Published var withHighlights: Bool = true
 
   let pageID: String
+  let highlightCount: Int
 
-  init(pageID: String) {
+  init(pageID: String, highlightCount: Int) {
     self.pageID = pageID
+    self.highlightCount = highlightCount
   }
 
   func loadGroups(dataService: DataService) async {
@@ -36,7 +39,10 @@ import Views
     isRunning = true
 
     do {
-      try await dataService.recommendPage(pageID: pageID, groupIDs: selectedGroups.map(\.id), note: note.isEmpty ? nil : note)
+      try await dataService.recommendPage(pageID: pageID,
+                                          groupIDs: selectedGroups.map(\.id),
+                                          note: note.isEmpty ? nil : note,
+                                          withHighlights: withHighlights)
     } catch {
       showError = true
     }
@@ -111,6 +117,13 @@ struct RecommendToView: View {
             .padding(.top, 24)
             .padding(.leading, 16)
         )
+      if viewModel.highlightCount > 0 {
+        Toggle(isOn: $viewModel.withHighlights, label: {
+          HStack(alignment: .firstTextBaseline) {
+            Text("Include \(viewModel.highlightCount) highlight\(viewModel.highlightCount > 1 ? "s" : "")")
+          }
+        })
+      }
       Spacer()
     }
     .padding(16)
