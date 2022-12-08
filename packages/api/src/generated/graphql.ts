@@ -1153,6 +1153,7 @@ export type Mutation = {
   moveLabel: MoveLabelResult;
   optInFeature: OptInFeatureResult;
   recommend: RecommendResult;
+  recommendHighlights: RecommendHighlightsResult;
   reportItem: ReportItemResult;
   revokeApiKey: RevokeApiKeyResult;
   saveArticleReadingProgress: SaveArticleReadingProgressResult;
@@ -1329,6 +1330,11 @@ export type MutationOptInFeatureArgs = {
 
 export type MutationRecommendArgs = {
   input: RecommendInput;
+};
+
+
+export type MutationRecommendHighlightsArgs = {
+  input: RecommendHighlightsInput;
 };
 
 
@@ -1785,17 +1791,43 @@ export enum RecommendErrorCode {
   Unauthorized = 'UNAUTHORIZED'
 }
 
+export type RecommendHighlightsError = {
+  __typename?: 'RecommendHighlightsError';
+  errorCodes: Array<RecommendHighlightsErrorCode>;
+};
+
+export enum RecommendHighlightsErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type RecommendHighlightsInput = {
+  groupIds: Array<Scalars['ID']>;
+  highlightIds: Array<Scalars['ID']>;
+  note?: InputMaybe<Scalars['String']>;
+  pageId: Scalars['ID'];
+};
+
+export type RecommendHighlightsResult = RecommendHighlightsError | RecommendHighlightsSuccess;
+
+export type RecommendHighlightsSuccess = {
+  __typename?: 'RecommendHighlightsSuccess';
+  success: Scalars['Boolean'];
+};
+
 export type RecommendInput = {
   groupIds: Array<Scalars['ID']>;
   note?: InputMaybe<Scalars['String']>;
   pageId: Scalars['ID'];
+  recommendedWithHighlights?: InputMaybe<Scalars['Boolean']>;
 };
 
 export type RecommendResult = RecommendError | RecommendSuccess;
 
 export type RecommendSuccess = {
   __typename?: 'RecommendSuccess';
-  taskNames: Array<Scalars['String']>;
+  success: Scalars['Boolean'];
 };
 
 export type Recommendation = {
@@ -3236,6 +3268,11 @@ export type ResolversTypes = {
   RecentSearchesSuccess: ResolverTypeWrapper<RecentSearchesSuccess>;
   RecommendError: ResolverTypeWrapper<RecommendError>;
   RecommendErrorCode: RecommendErrorCode;
+  RecommendHighlightsError: ResolverTypeWrapper<RecommendHighlightsError>;
+  RecommendHighlightsErrorCode: RecommendHighlightsErrorCode;
+  RecommendHighlightsInput: RecommendHighlightsInput;
+  RecommendHighlightsResult: ResolversTypes['RecommendHighlightsError'] | ResolversTypes['RecommendHighlightsSuccess'];
+  RecommendHighlightsSuccess: ResolverTypeWrapper<RecommendHighlightsSuccess>;
   RecommendInput: RecommendInput;
   RecommendResult: ResolversTypes['RecommendError'] | ResolversTypes['RecommendSuccess'];
   RecommendSuccess: ResolverTypeWrapper<RecommendSuccess>;
@@ -3638,6 +3675,10 @@ export type ResolversParentTypes = {
   RecentSearchesResult: ResolversParentTypes['RecentSearchesError'] | ResolversParentTypes['RecentSearchesSuccess'];
   RecentSearchesSuccess: RecentSearchesSuccess;
   RecommendError: RecommendError;
+  RecommendHighlightsError: RecommendHighlightsError;
+  RecommendHighlightsInput: RecommendHighlightsInput;
+  RecommendHighlightsResult: ResolversParentTypes['RecommendHighlightsError'] | ResolversParentTypes['RecommendHighlightsSuccess'];
+  RecommendHighlightsSuccess: RecommendHighlightsSuccess;
   RecommendInput: RecommendInput;
   RecommendResult: ResolversParentTypes['RecommendError'] | ResolversParentTypes['RecommendSuccess'];
   RecommendSuccess: RecommendSuccess;
@@ -4657,6 +4698,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   moveLabel?: Resolver<ResolversTypes['MoveLabelResult'], ParentType, ContextType, RequireFields<MutationMoveLabelArgs, 'input'>>;
   optInFeature?: Resolver<ResolversTypes['OptInFeatureResult'], ParentType, ContextType, RequireFields<MutationOptInFeatureArgs, 'input'>>;
   recommend?: Resolver<ResolversTypes['RecommendResult'], ParentType, ContextType, RequireFields<MutationRecommendArgs, 'input'>>;
+  recommendHighlights?: Resolver<ResolversTypes['RecommendHighlightsResult'], ParentType, ContextType, RequireFields<MutationRecommendHighlightsArgs, 'input'>>;
   reportItem?: Resolver<ResolversTypes['ReportItemResult'], ParentType, ContextType, RequireFields<MutationReportItemArgs, 'input'>>;
   revokeApiKey?: Resolver<ResolversTypes['RevokeApiKeyResult'], ParentType, ContextType, RequireFields<MutationRevokeApiKeyArgs, 'id'>>;
   saveArticleReadingProgress?: Resolver<ResolversTypes['SaveArticleReadingProgressResult'], ParentType, ContextType, RequireFields<MutationSaveArticleReadingProgressArgs, 'input'>>;
@@ -4837,12 +4879,26 @@ export type RecommendErrorResolvers<ContextType = ResolverContext, ParentType ex
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type RecommendHighlightsErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RecommendHighlightsError'] = ResolversParentTypes['RecommendHighlightsError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['RecommendHighlightsErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type RecommendHighlightsResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RecommendHighlightsResult'] = ResolversParentTypes['RecommendHighlightsResult']> = {
+  __resolveType: TypeResolveFn<'RecommendHighlightsError' | 'RecommendHighlightsSuccess', ParentType, ContextType>;
+};
+
+export type RecommendHighlightsSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RecommendHighlightsSuccess'] = ResolversParentTypes['RecommendHighlightsSuccess']> = {
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type RecommendResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RecommendResult'] = ResolversParentTypes['RecommendResult']> = {
   __resolveType: TypeResolveFn<'RecommendError' | 'RecommendSuccess', ParentType, ContextType>;
 };
 
 export type RecommendSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RecommendSuccess'] = ResolversParentTypes['RecommendSuccess']> = {
-  taskNames?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -5737,6 +5793,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   RecentSearchesResult?: RecentSearchesResultResolvers<ContextType>;
   RecentSearchesSuccess?: RecentSearchesSuccessResolvers<ContextType>;
   RecommendError?: RecommendErrorResolvers<ContextType>;
+  RecommendHighlightsError?: RecommendHighlightsErrorResolvers<ContextType>;
+  RecommendHighlightsResult?: RecommendHighlightsResultResolvers<ContextType>;
+  RecommendHighlightsSuccess?: RecommendHighlightsSuccessResolvers<ContextType>;
   RecommendResult?: RecommendResultResolvers<ContextType>;
   RecommendSuccess?: RecommendSuccessResolvers<ContextType>;
   Recommendation?: RecommendationResolvers<ContextType>;

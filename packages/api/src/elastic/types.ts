@@ -208,7 +208,7 @@ export interface RecommendingUser {
 export interface Recommendation {
   id: string
   name: string
-  note: string | null
+  note?: string | null
   user: RecommendingUser
   recommendedAt: Date
 }

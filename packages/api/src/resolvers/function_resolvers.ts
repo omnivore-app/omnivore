@@ -64,6 +64,7 @@ import {
   moveFilterResolver,
   moveLabelResolver,
   newsletterEmailsResolver,
+  recommendHighlightsResolver,
   recommendResolver,
   reminderResolver,
   reportItemResolver,
@@ -193,6 +194,7 @@ export const functionResolvers = {
     createGroup: createGroupResolver,
     recommend: recommendResolver,
     joinGroup: joinGroupResolver,
+    recommendHighlights: recommendHighlightsResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -646,4 +648,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('Groups'),
   ...resultResolveTypeResolver('Recommend'),
   ...resultResolveTypeResolver('JoinGroup'),
+  ...resultResolveTypeResolver('RecommendHighlights'),
 }

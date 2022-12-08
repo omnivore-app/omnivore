@@ -413,13 +413,15 @@ export const enqueueRecommendation = async (
   userId: string,
   pageId: string,
   recommendation: Recommendation,
-  authToken: string
+  authToken: string,
+  highlightIds?: string[]
 ): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT } = process.env
   const payload = {
     userId,
     pageId,
     recommendation,
+    highlightIds,
   }
 
   const headers = {
