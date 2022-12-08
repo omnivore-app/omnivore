@@ -140,7 +140,7 @@ struct GroupsView: View {
             }
           }
         }
-      } else {
+      } else if !viewModel.isLoading {
         Section {
           Text("""
           You are not a member of any groups.
@@ -153,6 +153,8 @@ struct GroupsView: View {
           """)
             .accentColor(.blue)
         }
+      } else {
+        ProgressView()
       }
     }
     .navigationTitle("Recommendation Groups")
