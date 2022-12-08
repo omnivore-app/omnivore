@@ -76,3 +76,30 @@ export const getLabelsByIds = async (
     select: ['id', 'name', 'color', 'description', 'createdAt'],
   })
 }
+
+export const createLabel = async (
+  user: User,
+  label: {
+    name: string
+    color?: string
+    description?: string
+  }
+): Promise<Label> => {
+  const existingLabel = await getRepository(Label).findOneBy({
+    user: { id: user.id },
+    name: ILike(label.name),
+  })
+
+  if (existingLabel) {
+    return existingLabel
+  }
+
+  // create a new label and assign a random color if not provided
+  label.color =
+    label.color || `#${Math.floor(Math.random() * 16777215).toString(16)}`
+
+  return getRepository(Label).save({
+    ...label,
+    user: { id: user.id },
+  })
+}

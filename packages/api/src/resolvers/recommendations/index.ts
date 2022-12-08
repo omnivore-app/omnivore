@@ -38,6 +38,7 @@ import { In } from 'typeorm'
 import { getPageByParam } from '../../elastic/pages'
 import { enqueueRecommendation } from '../../utils/createTask'
 import { env } from '../../env'
+import { createLabel } from '../../services/labels'
 
 export const createGroupResolver = authorized<
   CreateGroupSuccess,
@@ -70,6 +71,9 @@ export const createGroupResolver = authorized<
       maxMembers: input.maxMembers,
       expiresInDays: input.expiresInDays,
     })
+
+    // create a new label for the group
+    await createLabel(userData, { name: input.name })
 
     const inviteUrl = getInviteUrl(invite)
     const user = userDataToUser(userData)
