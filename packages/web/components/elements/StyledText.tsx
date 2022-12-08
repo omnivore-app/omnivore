@@ -166,6 +166,8 @@ export const StyledText = styled('p', {
   },
 })
 
+export const StyledTextSpan = styled('span', StyledText)
+
 export const StyledListElement = styled('li', {
   fontFamily: 'Inter',
   fontWeight: 'normal',
