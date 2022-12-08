@@ -25,6 +25,7 @@ import {
 } from '../../generated/graphql'
 import {
   createGroup,
+  createLabelAndRuleForGroup,
   getInviteUrl,
   getRecommendationGroups,
   joinGroup,
@@ -70,6 +71,8 @@ export const createGroupResolver = authorized<
       maxMembers: input.maxMembers,
       expiresInDays: input.expiresInDays,
     })
+
+    await createLabelAndRuleForGroup(uid, group.name)
 
     const inviteUrl = getInviteUrl(invite)
     const user = userDataToUser(userData)
@@ -262,6 +265,8 @@ export const joinGroupResolver = authorized<
     }
 
     const group = await joinGroup(user, inviteCode)
+
+    await createLabelAndRuleForGroup(user.id, group.name)
 
     return {
       group,

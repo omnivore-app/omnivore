@@ -8,6 +8,9 @@ import { RecommendationGroup, User as GraphqlUser } from '../generated/graphql'
 import { getRepository } from '../entity/utils'
 import { homePageURL } from '../env'
 import { userDataToUser } from '../utils/helpers'
+import { createLabel } from './labels'
+import { createRule } from './rules'
+import { RuleActionType } from '../entity/rule'
 
 export const createGroup = async (input: {
   admin: User
@@ -198,5 +201,29 @@ export const leaveGroup = async (
     }
 
     return true
+  })
+}
+
+export const createLabelAndRuleForGroup = async (
+  userId: string,
+  groupName: string
+) => {
+  // create a new label for the group
+  const label = await createLabel(userId, { name: groupName })
+
+  // create a rule to add the label to all pages in the group
+  await createRule(userId, {
+    name: groupName,
+    actions: [
+      {
+        type: RuleActionType.AddLabel,
+        params: [label.id],
+      },
+      {
+        type: RuleActionType.SendNotification,
+        params: [groupName],
+      },
+    ],
+    filter: `recommendedBy:"${groupName}"`,
   })
 }
