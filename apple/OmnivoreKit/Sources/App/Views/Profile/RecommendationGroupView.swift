@@ -22,10 +22,16 @@ import Views
 
   func leaveGroup(dataService: DataService) async -> Bool {
     isLeaving = true
-    try? await dataService.leaveGroup(groupID: recommendationGroup.id)
+    defer {
+      isLeaving = false
+    }
 
-    isLeaving = false
-    Snackbar.show(message: "You have left the group.")
+    do {
+      try await dataService.leaveGroup(groupID: recommendationGroup.id)
+      Snackbar.show(message: "You have left the group.")
+    } catch {
+      return false
+    }
     return true
   }
 }

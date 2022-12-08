@@ -37,8 +37,13 @@ public extension DataService {
         }
 
         switch payload.data {
-        case .saved:
-          continuation.resume()
+        case let .saved(success):
+          if success {
+            continuation.resume()
+          } else {
+            continuation.resume(throwing: BasicError.message(messageText: "Unknown error"))
+          }
+          return
         case let .error(errorMessage: errorMessage):
           continuation.resume(throwing: BasicError.message(messageText: errorMessage))
         }
