@@ -5,7 +5,9 @@ import Views
 
 @MainActor final class RecommendationsGroupViewModel: ObservableObject {
   @Published var isLoading = false
+  @Published var isLeaving = false
   @Published var networkError = false
+  @Published var showLeaveGroup = false
   @Published var recommendationGroup: InternalRecommendationGroup
 
   init(recommendationGroup: InternalRecommendationGroup) {
@@ -16,6 +18,15 @@ import Views
     recommendationGroup.members.filter { member in
       !recommendationGroup.admins.contains(where: { member.id == $0.id })
     }
+  }
+
+  func leaveGroup(dataService: DataService) async -> Bool {
+    isLeaving = true
+    try? await dataService.leaveGroup(groupID: recommendationGroup.id)
+
+    isLeaving = false
+    Snackbar.show(message: "You have left the group.")
+    return true
   }
 }
 
@@ -68,6 +79,8 @@ private struct SmallUserCard: View {
 }
 
 struct RecommendationGroupView: View {
+  @Environment(\.dismiss) private var dismiss
+
   @EnvironmentObject var dataService: DataService
   @StateObject var viewModel: RecommendationsGroupViewModel
 
@@ -128,6 +141,16 @@ struct RecommendationGroupView: View {
     }
   }
 
+  private var leaveSection: some View {
+    if viewModel.isLeaving {
+      return AnyView(ProgressView())
+    }
+    return AnyView(Button(action: {
+      viewModel.showLeaveGroup = true
+    }, label: { Text("Leave Group") })
+      .accentColor(.red))
+  }
+
   private var innerBody: some View {
     Group {
       Section("Name") {
@@ -155,6 +178,22 @@ struct RecommendationGroupView: View {
 
       adminsSection
       membersSection
+
+      leaveSection
+    }
+    .alert(isPresented: $viewModel.showLeaveGroup) {
+      Alert(
+        title: Text("Are you sure you want to leave this group? No data will be deleted, but you will stop receiving recommendations from the group."),
+        primaryButton: .destructive(Text("Leave Group")) {
+          Task {
+            let success = await viewModel.leaveGroup(dataService: dataService)
+            if success {
+              dismiss()
+            }
+          }
+        },
+        secondaryButton: .cancel()
+      )
     }
     .navigationTitle(viewModel.recommendationGroup.name)
   }
