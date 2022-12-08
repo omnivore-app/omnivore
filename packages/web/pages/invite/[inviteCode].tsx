@@ -81,7 +81,7 @@ export default function InvitePage(): JSX.Element {
           }}
         >
           <StyledText style="subHeadline" css={{ color: '$omnivoreGray' }}>
-            You're invited
+            You&apos;re invited
           </StyledText>
 
           <StyledText
