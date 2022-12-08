@@ -33,10 +33,27 @@ export const FormInput = styled('input', {
   },
 })
 
+export const FormLabel = styled('label', {
+  fontSize: '16px',
+  color: '$omnivoreGray',
+})
+
 export const BorderedFormInput = styled(FormInput, {
+  height: '40px',
+  margin: '0',
+  padding: '4px 11px',
+  color: 'rgba(0,0,0,.88)',
+  fontSize: '14px',
+  lineHeight: '1.6',
+  listStyle: 'none',
+  width: '100%',
+  minWidth: '0',
+  backgroundColor: '#fff',
+  borderWidth: '1px',
+  borderStyle: 'solid',
+  borderColor: '#d9d9d9',
   borderRadius: '6px',
-  border: `1px solid $grayBorder`,
-  p: '$3',
+  transition: 'all .2s',
 })
 
 export function GeneralFormInput(props: FormInputProps): JSX.Element {
@@ -53,7 +70,7 @@ export function GeneralFormInput(props: FormInputProps): JSX.Element {
     return (
       <VStack>
         {input.options?.map((label, index) => (
-          <HStack key={index} alignment='center'>
+          <HStack key={index} alignment="center">
             <Checkbox
               key={index}
               checked={input.value[index]}
@@ -73,9 +90,19 @@ export function GeneralFormInput(props: FormInputProps): JSX.Element {
     )
   } else if (props.type === 'select') {
     return (
-      <select onChange={input.onChange} style={{ padding: '8px', height: '38px', borderRadius: '6px', minWidth: '196px' }}>
+      <select
+        onChange={input.onChange}
+        style={{
+          padding: '8px',
+          height: '38px',
+          borderRadius: '6px',
+          minWidth: '196px',
+        }}
+      >
         {input.options?.map((label, index) => (
-          <option key={index} value={label}>{label}</option>
+          <option key={index} value={label}>
+            {label}
+          </option>
         ))}
       </select>
     )

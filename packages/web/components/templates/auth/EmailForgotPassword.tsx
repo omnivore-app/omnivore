@@ -2,32 +2,19 @@ import { SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { StyledText } from '../../elements/StyledText'
 import { useEffect, useState } from 'react'
-import { FormInput } from '../../elements/FormElements'
+import { BorderedFormInput, FormLabel } from '../../elements/FormElements'
 import { fetchEndpoint } from '../../../lib/appConfig'
 import { logoutMutation } from '../../../lib/networking/mutations/logoutMutation'
-import { styled } from '@stitches/react'
 import { useRouter } from 'next/router'
 import { formatMessage } from '../../../locales/en/messages'
 import { parseErrorCodes } from '../../../lib/queryParamParser'
 
-const BorderedFormInput = styled(FormInput, {
-  height: '40px',
-  paddingLeft: '6px',
-  borderRadius: '6px',
-  background: 'white',
-  color: '$omnivoreGray',
-  border: `1px solid 1px solid rgba(0, 0, 0, 0.06)`,
-})
-
-const FormLabel = styled('label', {
-  fontSize: '16px',
-  color: '$omnivoreGray',
-})
-
 export function EmailForgotPassword(): JSX.Element {
   const router = useRouter()
   const [email, setEmail] = useState<string>('')
-  const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined)
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(
+    undefined
+  )
 
   useEffect(() => {
     if (!router.isReady) return
@@ -40,9 +27,24 @@ export function EmailForgotPassword(): JSX.Element {
 
   return (
     <form action={`${fetchEndpoint}/auth/forgot-password`} method="POST">
-      <VStack alignment="center" css={{ padding: '16px' }}>
-        <StyledText style="subHeadline" css={{ color: '$omnivoreGray' }}>Reset your password</StyledText>
-        <VStack css={{ width: '100%', minWidth: '320px', gap: '16px', pb: '16px' }}>
+      <VStack
+        alignment="center"
+        css={{
+          padding: '16px',
+          background: 'white',
+          minWidth: '340px',
+          width: '70vw',
+          maxWidth: '576px',
+          borderRadius: '8px',
+          boxShadow: 'rgb(224 224 224) 9px 9px 9px -9px',
+        }}
+      >
+        <StyledText style="subHeadline" css={{ color: '$omnivoreGray' }}>
+          Reset your password
+        </StyledText>
+        <VStack
+          css={{ width: '100%', minWidth: '320px', gap: '16px', pb: '16px' }}
+        >
           <SpanBox css={{ width: '100%' }}>
             <FormLabel>Email</FormLabel>
             <BorderedFormInput
@@ -52,15 +54,16 @@ export function EmailForgotPassword(): JSX.Element {
               value={email}
               placeholder="Email"
               css={{ bg: 'white', color: 'black' }}
-              onChange={(e) => { e.preventDefault(); setEmail(e.target.value); }}
+              onChange={(e) => {
+                e.preventDefault()
+                setEmail(e.target.value)
+              }}
             />
           </SpanBox>
         </VStack>
-        
-        {errorMessage && (
-          <StyledText style="error">{errorMessage}</StyledText>
-        )}
-        <Button type="submit" style="ctaDarkYellow" css={{  my: '$2' }}>
+
+        {errorMessage && <StyledText style="error">{errorMessage}</StyledText>}
+        <Button type="submit" style="ctaDarkYellow" css={{ my: '$2' }}>
           Reset Password
         </Button>
         <Button
