@@ -16,7 +16,7 @@ android {
     defaultConfig {
         applicationId "app.omnivore.omnivore"
         minSdk 23
-        targetSdk 32
+        targetSdk 33
         versionCode 9
         versionName "0.0.10"
 
