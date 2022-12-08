@@ -142,8 +142,8 @@ dependencies {
     implementation "androidx.datastore:datastore-preferences:1.0.0"
 
 //Dagger - Hilt
-    implementation 'com.google.dagger:hilt-android:2.42'
-    kapt 'com.google.dagger:hilt-compiler:2.42'
+    implementation "com.google.dagger:hilt-android:$hilt_version"
+    kapt "com.google.dagger:hilt-compiler:$hilt_version"
 
     implementation 'com.apollographql.apollo3:apollo-runtime:3.5.0'
 
