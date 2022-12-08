@@ -88,6 +88,7 @@ fun WebReaderLoadingContainer(slug: String, webReaderViewModel: WebReaderViewMod
       TopAppBar(
         modifier = Modifier
           .height(height = with(LocalDensity.current) {
+            webReaderViewModel.currentToolbarHeight = toolbarHeightPx.value.toInt()
             toolbarHeightPx.value.roundToInt().toDp()
           } ),
         backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
@@ -316,12 +317,12 @@ class OmnivoreWebView(context: Context) : WebView(context) {
       if (viewModel?.lastTapCoordinates != null) {
         val scrollYOffset = viewModel?.scrollState?.value ?: 0
         val xValue = viewModel!!.lastTapCoordinates!!.tapX.toInt()
-        val yValue = viewModel!!.lastTapCoordinates!!.tapY.toInt() + scrollYOffset
+        val yValue = viewModel!!.lastTapCoordinates!!.tapY.toInt() + scrollYOffset + (viewModel?.currentToolbarHeight ?: 0)
         val rect = Rect(xValue, yValue, xValue, yValue)
 
-        Log.d("wv", "scrollState: $scrollYOffset")
-        Log.d("wv", "setting rect based on last tapped rect: ${viewModel?.lastTapCoordinates.toString()}")
-        Log.d("wv", "rect: $rect")
+        Log.d("wvt", "scrollState: ${viewModel?.scrollState?.value}, bar height: ${viewModel?.currentToolbarHeight}")
+        Log.d("wvt", "setting rect based on last tapped rect: ${viewModel?.lastTapCoordinates.toString()}")
+        Log.d("wvt", "rect: $rect")
 
         outRect?.set(rect)
       } else {

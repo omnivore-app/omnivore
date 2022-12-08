@@ -11,4 +11,5 @@
     <string name="pdf_highlight_copy">Copy</string>
     <string name="highlight_note">Note</string>
     <string name="copyTextSelection">Copy</string>
+    <string name="pdf_highlight_menu_note">Note</string>
 </resources>

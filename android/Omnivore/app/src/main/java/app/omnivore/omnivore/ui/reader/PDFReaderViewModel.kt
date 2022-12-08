@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.DatastoreRepository
 import app.omnivore.omnivore.graphql.generated.type.CreateHighlightInput
 import app.omnivore.omnivore.graphql.generated.type.MergeHighlightInput
+import app.omnivore.omnivore.graphql.generated.type.UpdateHighlightInput
 import app.omnivore.omnivore.models.LinkedItem
 import app.omnivore.omnivore.networking.*
 import com.apollographql.apollo3.api.Optional
@@ -115,7 +116,7 @@ class PDFReaderViewModel @Inject constructor(
 
     if (overlapIds.isNotEmpty()) {
       val input = MergeHighlightInput(
-        annotation = Optional.presentIfNotNull(newAnnotation.contents),
+        annotation = Optional.Absent, // TODO: make sure we preserve note locally
         articleId = itemID,
         id = highlightID,
         overlapHighlightIdList = overlapIds,
@@ -143,6 +144,27 @@ class PDFReaderViewModel @Inject constructor(
     }
   }
 
+  fun updateHighlightNote(annotation: Annotation, note: String) {
+    // Save the updated note locally
+    val omnivoreHighlight = annotation.customData?.get("omnivoreHighlight") as? JSONObject
+    omnivoreHighlight?.put("editedNote", note)
+    omnivoreHighlight?.let {
+      Log.d("pdf", "setting custom data: $omnivoreHighlight")
+      annotation.customData = JSONObject().put("omnivoreHighlight", it)
+    }
+
+    // Sync update with data service
+    viewModelScope.launch {
+      val input = UpdateHighlightInput(
+        annotation = Optional.presentIfNotNull(note),
+        highlightId = pluckHighlightID(annotation) ?: "",
+        sharedAt = Optional.Absent
+      )
+      networker.updateHighlight(input)
+      Log.d("network", "updated $annotation")
+    }
+  }
+
   fun deleteHighlight(annotation: Annotation) {
     val highlightID = pluckHighlightID(annotation) ?: return
     viewModelScope.launch {
@@ -166,6 +188,22 @@ class PDFReaderViewModel @Inject constructor(
   fun pluckHighlightID(annotation: Annotation): String? {
     val omnivoreHighlight = annotation.customData?.get("omnivoreHighlight") as? JSONObject
     return omnivoreHighlight?.get("id") as? String
+  }
+
+  fun pluckExistingNote(annotation: Annotation): String? {
+    val omnivoreHighlight = annotation.customData?.opt("omnivoreHighlight") as? JSONObject ?: return null
+
+    val editedNote = omnivoreHighlight.opt("editedNote") as? String
+    if (editedNote != null) { return editedNote }
+
+    val shortID = omnivoreHighlight.get("shortId") as? String ?: return null
+
+    pdfReaderParamsLiveData.value?.articleContent?.highlights?.let {
+      val matchingHighlight = it.firstOrNull { highlight -> highlight.shortId == shortID }
+      return matchingHighlight?.annotation
+    }
+
+    return null
   }
 
   private fun hasOverlaps(leftAnnotation: Annotation, rightAnnotation: Annotation): Boolean {

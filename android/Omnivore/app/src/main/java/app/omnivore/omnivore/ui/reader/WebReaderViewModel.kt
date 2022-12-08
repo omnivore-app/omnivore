@@ -2,6 +2,7 @@ package app.omnivore.omnivore.ui.reader
 
 import android.util.Log
 import androidx.compose.foundation.ScrollState
+import androidx.compose.ui.unit.Density
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -33,6 +34,7 @@ class WebReaderViewModel @Inject constructor(
   var lastJavascriptActionLoopUUID: UUID = UUID.randomUUID()
   var javascriptDispatchQueue: MutableList<String> = mutableListOf()
   var scrollState = ScrollState(0)
+  var currentToolbarHeight = 0
 
   val webReaderParamsLiveData = MutableLiveData<WebReaderParams?>(null)
   val annotationLiveData = MutableLiveData<String?>(null)
@@ -77,6 +79,10 @@ class WebReaderViewModel @Inject constructor(
       }
       "updateHighlight" -> {
         Log.d("Loggo", "receive update highlight action: $jsonString")
+        viewModelScope.launch {
+          val isHighlightUpdateSynced = networker.updateWebHighlight(jsonString)
+          Log.d("Network", "isHighlightUpdateSynced = $isHighlightUpdateSynced")
+        }
       }
       "articleReadingProgress" -> {
         viewModelScope.launch {
