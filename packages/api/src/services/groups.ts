@@ -147,3 +147,51 @@ having count(*) < $4`,
     members,
   }
 }
+
+export const leaveGroup = async (
+  user: User,
+  groupId: string
+): Promise<boolean> => {
+  return AppDataSource.transaction(async (t) => {
+    const group = await t
+      .getRepository(Group)
+      .createQueryBuilder('group')
+      .setLock('pessimistic_write')
+      .innerJoinAndSelect('group.members', 'members')
+      .where('group.id = :groupId', { groupId })
+      .getOne()
+
+    if (!group) {
+      throw new Error('Group not found')
+    }
+
+    const membership = await t.getRepository(GroupMembership).findOne({
+      where: { user: { id: user.id }, group: { id: group.id } },
+    })
+    if (!membership) {
+      throw new Error('User not in group')
+    }
+
+    await t.getRepository(GroupMembership).remove(membership)
+
+    if (membership.isAdmin) {
+      // If the user is the admin, we need to promote another user to admin
+      const hasAdmin = group.members.some(
+        (m) => m.isAdmin && m.user.id !== user.id
+      )
+      if (!hasAdmin) {
+        const newAdmin = group.members.find((m) => !m.isAdmin)
+        if (!newAdmin) {
+          // delete the group if there are no more members
+          await t.getRepository(Group).delete({ id: group.id })
+          return true
+        }
+
+        newAdmin.isAdmin = true
+        await t.getRepository(GroupMembership).save(newAdmin)
+      }
+    }
+
+    return true
+  })
+}

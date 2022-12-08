@@ -867,6 +867,22 @@ type LabelsSuccess {
   labels: [Label!]!
 }
 
+type LeaveGroupError {
+  errorCodes: [LeaveGroupErrorCode!]!
+}
+
+enum LeaveGroupErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+union LeaveGroupResult = LeaveGroupError | LeaveGroupSuccess
+
+type LeaveGroupSuccess {
+  success: Boolean!
+}
+
 type Link {
   highlightStats: HighlightStats!
   id: ID!
@@ -1023,6 +1039,7 @@ type Mutation {
   googleLogin(input: GoogleLoginInput!): LoginResult!
   googleSignup(input: GoogleSignupInput!): GoogleSignupResult!
   joinGroup(inviteCode: String!): JoinGroupResult!
+  leaveGroup(groupId: ID!): LeaveGroupResult!
   logOut: LogOutResult!
   mergeHighlight(input: MergeHighlightInput!): MergeHighlightResult!
   moveFilter(input: MoveFilterInput!): MoveFilterResult!

@@ -2264,6 +2264,22 @@ const schema = gql`
     NOT_FOUND
   }
 
+  union LeaveGroupResult = LeaveGroupSuccess | LeaveGroupError
+
+  type LeaveGroupSuccess {
+    success: Boolean!
+  }
+
+  type LeaveGroupError {
+    errorCodes: [LeaveGroupErrorCode!]!
+  }
+
+  enum LeaveGroupErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -2347,6 +2363,7 @@ const schema = gql`
     recommendHighlights(
       input: RecommendHighlightsInput!
     ): RecommendHighlightsResult!
+    leaveGroup(groupId: ID!): LeaveGroupResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed

@@ -59,6 +59,7 @@ import {
   integrationsResolver,
   joinGroupResolver,
   labelsResolver,
+  leaveGroupResolver,
   logOutResolver,
   mergeHighlightResolver,
   moveFilterResolver,
@@ -195,6 +196,7 @@ export const functionResolvers = {
     recommend: recommendResolver,
     joinGroup: joinGroupResolver,
     recommendHighlights: recommendHighlightsResolver,
+    leaveGroup: leaveGroupResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -649,4 +651,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('Recommend'),
   ...resultResolveTypeResolver('JoinGroup'),
   ...resultResolveTypeResolver('RecommendHighlights'),
+  ...resultResolveTypeResolver('LeaveGroup'),
 }

@@ -8,8 +8,12 @@ import {
   JoinGroupError,
   JoinGroupErrorCode,
   JoinGroupSuccess,
+  LeaveGroupError,
+  LeaveGroupErrorCode,
+  LeaveGroupSuccess,
   MutationCreateGroupArgs,
   MutationJoinGroupArgs,
+  MutationLeaveGroupArgs,
   MutationRecommendArgs,
   MutationRecommendHighlightsArgs,
   RecommendError,
@@ -24,6 +28,7 @@ import {
   getInviteUrl,
   getRecommendationGroups,
   joinGroup,
+  leaveGroup,
 } from '../../services/groups'
 import { authorized, userDataToUser } from '../../utils/helpers'
 import { getRepository } from '../../entity/utils'
@@ -365,6 +370,51 @@ export const recommendHighlightsResolver = authorized<
 
     return {
       errorCodes: [RecommendHighlightsErrorCode.BadRequest],
+    }
+  }
+})
+
+export const leaveGroupResolver = authorized<
+  LeaveGroupSuccess,
+  LeaveGroupError,
+  MutationLeaveGroupArgs
+>(async (_, { groupId }, { claims: { uid }, log }) => {
+  log.info('Leaving group', {
+    groupId,
+    labels: {
+      source: 'resolver',
+      resolver: 'leaveGroupResolver',
+      uid,
+    },
+  })
+
+  try {
+    const user = await getRepository(User).findOneBy({
+      id: uid,
+    })
+    if (!user) {
+      return {
+        errorCodes: [LeaveGroupErrorCode.Unauthorized],
+      }
+    }
+
+    const success = await leaveGroup(user, groupId)
+
+    return {
+      success,
+    }
+  } catch (error) {
+    log.error('Error leaving group', {
+      error,
+      labels: {
+        source: 'resolver',
+        resolver: 'leaveGroupResolver',
+        uid,
+      },
+    })
+
+    return {
+      errorCodes: [LeaveGroupErrorCode.BadRequest],
     }
   }
 })
