@@ -35,7 +35,7 @@ export const addRecommendation = async (
           existingRecommendation.id === recommendation.id
       )
       if (isRecommended && newHighlights.length === 0) {
-        return existingPage._id
+        return existingPage.id
       }
 
       // update recommendations in the existing page
@@ -51,6 +51,7 @@ export const addRecommendation = async (
         },
         ctx
       )
+
       return existingPage.id
     }
 

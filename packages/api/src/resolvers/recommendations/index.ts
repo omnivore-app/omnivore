@@ -177,6 +177,10 @@ export const recommendResolver = authorized<
       }
     }
 
+    const recommendedHighlightIds = input.recommendedWithHighlights
+      ? page.highlights?.map((h) => h.id)
+      : undefined
+
     const exp = Math.floor(Date.now() / 1000) + 60 * 60 * 24 // 1 day
     const auth = (await signToken({ uid, exp }, env.server.jwtSecret)) as string
     await Promise.all(
@@ -200,7 +204,8 @@ export const recommendResolver = authorized<
                   },
                   recommendedAt: new Date(),
                 },
-                auth
+                auth,
+                recommendedHighlightIds
               )
             )
         )
