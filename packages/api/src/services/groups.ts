@@ -172,12 +172,11 @@ export const leaveGroup = async (
       throw new Error('User not in group')
     }
 
-    const membershipId = membership.id
-    await t.getRepository(GroupMembership).remove(membership)
+    await t.getRepository(GroupMembership).delete(membership.id)
 
     if (group.members.length === 1) {
       // delete the group if there are no more members
-      await t.getRepository(Group).remove(group)
+      await t.getRepository(Group).delete(group.id)
 
       return true
     }
@@ -185,7 +184,7 @@ export const leaveGroup = async (
     if (membership.isAdmin) {
       // If the user is the only admin, we need to promote another user to admin
       const hasAdmin = group.members.some(
-        (m) => m.isAdmin && m.id !== membershipId
+        (m) => m.isAdmin && m.id !== membership.id
       )
       if (!hasAdmin) {
         const newAdmin = group.members.find((m) => !m.isAdmin)
