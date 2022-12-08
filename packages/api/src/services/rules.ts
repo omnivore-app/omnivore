@@ -1,10 +1,9 @@
-import { User } from '../entity/user'
 import { Rule, RuleAction } from '../entity/rule'
 import { getRepository } from '../entity/utils'
 import { ILike } from 'typeorm'
 
 export const createRule = async (
-  user: User,
+  userId: string,
   rule: {
     name: string
     description?: string
@@ -13,7 +12,7 @@ export const createRule = async (
   }
 ): Promise<Rule> => {
   const existingRule = await getRepository(Rule).findOneBy({
-    user: { id: user.id },
+    user: { id: userId },
     name: ILike(rule.name),
   })
 
@@ -23,6 +22,6 @@ export const createRule = async (
 
   return getRepository(Rule).save({
     ...rule,
-    user: { id: user.id },
+    user: { id: userId },
   })
 }

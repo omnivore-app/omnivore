@@ -78,7 +78,7 @@ export const getLabelsByIds = async (
 }
 
 export const createLabel = async (
-  user: User,
+  userId: string,
   label: {
     name: string
     color?: string
@@ -86,7 +86,7 @@ export const createLabel = async (
   }
 ): Promise<Label> => {
   const existingLabel = await getRepository(Label).findOneBy({
-    user: { id: user.id },
+    user: { id: userId },
     name: ILike(label.name),
   })
 
@@ -100,6 +100,6 @@ export const createLabel = async (
 
   return getRepository(Label).save({
     ...label,
-    user: { id: user.id },
+    user: { id: userId },
   })
 }

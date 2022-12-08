@@ -25,6 +25,7 @@ import {
 } from '../../generated/graphql'
 import {
   createGroup,
+  createLabelAndRuleForGroup,
   getInviteUrl,
   getRecommendationGroups,
   joinGroup,
@@ -38,9 +39,6 @@ import { In } from 'typeorm'
 import { getPageByParam } from '../../elastic/pages'
 import { enqueueRecommendation } from '../../utils/createTask'
 import { env } from '../../env'
-import { createLabel } from '../../services/labels'
-import { createRule } from '../../services/rules'
-import { RuleActionType } from '../../entity/rule'
 
 export const createGroupResolver = authorized<
   CreateGroupSuccess,
@@ -74,24 +72,7 @@ export const createGroupResolver = authorized<
       expiresInDays: input.expiresInDays,
     })
 
-    // create a new label for the group
-    const label = await createLabel(userData, { name: input.name })
-
-    // create a rule to add the label to all pages in the group
-    await createRule(userData, {
-      name: input.name,
-      actions: [
-        {
-          type: RuleActionType.AddLabel,
-          params: [label.id],
-        },
-        {
-          type: RuleActionType.SendNotification,
-          params: [input.name],
-        },
-      ],
-      filter: `recommendedBy:${group.name}`,
-    })
+    await createLabelAndRuleForGroup(uid, group.name)
 
     const inviteUrl = getInviteUrl(invite)
     const user = userDataToUser(userData)
@@ -285,24 +266,7 @@ export const joinGroupResolver = authorized<
 
     const group = await joinGroup(user, inviteCode)
 
-    // create a new label for the group
-    const label = await createLabel(user, { name: group.name })
-
-    // create a rule to add the label to all pages in the group
-    await createRule(user, {
-      name: group.name,
-      actions: [
-        {
-          type: RuleActionType.AddLabel,
-          params: [label.id],
-        },
-        {
-          type: RuleActionType.SendNotification,
-          params: [group.name],
-        },
-      ],
-      filter: `recommendedBy:${group.name}`,
-    })
+    await createLabelAndRuleForGroup(user.id, group.name)
 
     return {
       group,
