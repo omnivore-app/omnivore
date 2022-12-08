@@ -978,6 +978,24 @@ export type LabelsSuccess = {
   labels: Array<Label>;
 };
 
+export type LeaveGroupError = {
+  __typename?: 'LeaveGroupError';
+  errorCodes: Array<LeaveGroupErrorCode>;
+};
+
+export enum LeaveGroupErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type LeaveGroupResult = LeaveGroupError | LeaveGroupSuccess;
+
+export type LeaveGroupSuccess = {
+  __typename?: 'LeaveGroupSuccess';
+  success: Scalars['Boolean'];
+};
+
 export type Link = {
   __typename?: 'Link';
   highlightStats: HighlightStats;
@@ -1147,6 +1165,7 @@ export type Mutation = {
   googleLogin: LoginResult;
   googleSignup: GoogleSignupResult;
   joinGroup: JoinGroupResult;
+  leaveGroup: LeaveGroupResult;
   logOut: LogOutResult;
   mergeHighlight: MergeHighlightResult;
   moveFilter: MoveFilterResult;
@@ -1305,6 +1324,11 @@ export type MutationGoogleSignupArgs = {
 
 export type MutationJoinGroupArgs = {
   inviteCode: Scalars['String'];
+};
+
+
+export type MutationLeaveGroupArgs = {
+  groupId: Scalars['ID'];
 };
 
 
@@ -3215,6 +3239,10 @@ export type ResolversTypes = {
   LabelsErrorCode: LabelsErrorCode;
   LabelsResult: ResolversTypes['LabelsError'] | ResolversTypes['LabelsSuccess'];
   LabelsSuccess: ResolverTypeWrapper<LabelsSuccess>;
+  LeaveGroupError: ResolverTypeWrapper<LeaveGroupError>;
+  LeaveGroupErrorCode: LeaveGroupErrorCode;
+  LeaveGroupResult: ResolversTypes['LeaveGroupError'] | ResolversTypes['LeaveGroupSuccess'];
+  LeaveGroupSuccess: ResolverTypeWrapper<LeaveGroupSuccess>;
   Link: ResolverTypeWrapper<Link>;
   LinkShareInfo: ResolverTypeWrapper<LinkShareInfo>;
   LogOutError: ResolverTypeWrapper<LogOutError>;
@@ -3633,6 +3661,9 @@ export type ResolversParentTypes = {
   LabelsError: LabelsError;
   LabelsResult: ResolversParentTypes['LabelsError'] | ResolversParentTypes['LabelsSuccess'];
   LabelsSuccess: LabelsSuccess;
+  LeaveGroupError: LeaveGroupError;
+  LeaveGroupResult: ResolversParentTypes['LeaveGroupError'] | ResolversParentTypes['LeaveGroupSuccess'];
+  LeaveGroupSuccess: LeaveGroupSuccess;
   Link: Link;
   LinkShareInfo: LinkShareInfo;
   LogOutError: LogOutError;
@@ -4571,6 +4602,20 @@ export type LabelsSuccessResolvers<ContextType = ResolverContext, ParentType ext
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type LeaveGroupErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['LeaveGroupError'] = ResolversParentTypes['LeaveGroupError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['LeaveGroupErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type LeaveGroupResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['LeaveGroupResult'] = ResolversParentTypes['LeaveGroupResult']> = {
+  __resolveType: TypeResolveFn<'LeaveGroupError' | 'LeaveGroupSuccess', ParentType, ContextType>;
+};
+
+export type LeaveGroupSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['LeaveGroupSuccess'] = ResolversParentTypes['LeaveGroupSuccess']> = {
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type LinkResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Link'] = ResolversParentTypes['Link']> = {
   highlightStats?: Resolver<ResolversTypes['HighlightStats'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -4692,6 +4737,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   googleLogin?: Resolver<ResolversTypes['LoginResult'], ParentType, ContextType, RequireFields<MutationGoogleLoginArgs, 'input'>>;
   googleSignup?: Resolver<ResolversTypes['GoogleSignupResult'], ParentType, ContextType, RequireFields<MutationGoogleSignupArgs, 'input'>>;
   joinGroup?: Resolver<ResolversTypes['JoinGroupResult'], ParentType, ContextType, RequireFields<MutationJoinGroupArgs, 'inviteCode'>>;
+  leaveGroup?: Resolver<ResolversTypes['LeaveGroupResult'], ParentType, ContextType, RequireFields<MutationLeaveGroupArgs, 'groupId'>>;
   logOut?: Resolver<ResolversTypes['LogOutResult'], ParentType, ContextType>;
   mergeHighlight?: Resolver<ResolversTypes['MergeHighlightResult'], ParentType, ContextType, RequireFields<MutationMergeHighlightArgs, 'input'>>;
   moveFilter?: Resolver<ResolversTypes['MoveFilterResult'], ParentType, ContextType, RequireFields<MutationMoveFilterArgs, 'input'>>;
@@ -5757,6 +5803,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   LabelsError?: LabelsErrorResolvers<ContextType>;
   LabelsResult?: LabelsResultResolvers<ContextType>;
   LabelsSuccess?: LabelsSuccessResolvers<ContextType>;
+  LeaveGroupError?: LeaveGroupErrorResolvers<ContextType>;
+  LeaveGroupResult?: LeaveGroupResultResolvers<ContextType>;
+  LeaveGroupSuccess?: LeaveGroupSuccessResolvers<ContextType>;
   Link?: LinkResolvers<ContextType>;
   LinkShareInfo?: LinkShareInfoResolvers<ContextType>;
   LogOutError?: LogOutErrorResolvers<ContextType>;
