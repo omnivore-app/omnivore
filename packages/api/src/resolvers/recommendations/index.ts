@@ -11,8 +11,12 @@ import {
   MutationCreateGroupArgs,
   MutationJoinGroupArgs,
   MutationRecommendArgs,
+  MutationRecommendHighlightsArgs,
   RecommendError,
   RecommendErrorCode,
+  RecommendHighlightsError,
+  RecommendHighlightsErrorCode,
+  RecommendHighlightsSuccess,
   RecommendSuccess,
 } from '../../generated/graphql'
 import {
@@ -173,9 +177,13 @@ export const recommendResolver = authorized<
       }
     }
 
+    const recommendedHighlightIds = input.recommendedWithHighlights
+      ? page.highlights?.map((h) => h.id)
+      : undefined
+
     const exp = Math.floor(Date.now() / 1000) + 60 * 60 * 24 // 1 day
     const auth = (await signToken({ uid, exp }, env.server.jwtSecret)) as string
-    const taskNames = await Promise.all(
+    await Promise.all(
       groups
         .map((group) =>
           group.members
@@ -196,7 +204,8 @@ export const recommendResolver = authorized<
                   },
                   recommendedAt: new Date(),
                 },
-                auth
+                auth,
+                recommendedHighlightIds
               )
             )
         )
@@ -204,10 +213,9 @@ export const recommendResolver = authorized<
     )
 
     return {
-      taskNames,
+      success: true,
     }
   } catch (error) {
-    console.log('Error recommending: ', error)
     log.error('Error recommending', {
       error,
       labels: {
@@ -265,6 +273,98 @@ export const joinGroupResolver = authorized<
 
     return {
       errorCodes: [JoinGroupErrorCode.BadRequest],
+    }
+  }
+})
+
+export const recommendHighlightsResolver = authorized<
+  RecommendHighlightsSuccess,
+  RecommendHighlightsError,
+  MutationRecommendHighlightsArgs
+>(async (_, { input }, { claims: { uid }, log, signToken }) => {
+  log.info('Recommend highlights', {
+    input,
+    labels: {
+      source: 'resolver',
+      resolver: 'recommendHighlightsResolver',
+      uid,
+    },
+  })
+
+  try {
+    const user = await getRepository(User).findOne({
+      where: { id: uid },
+      relations: ['profile'],
+    })
+    if (!user) {
+      return {
+        errorCodes: [RecommendHighlightsErrorCode.Unauthorized],
+      }
+    }
+
+    const groups = await getRepository(Group).find({
+      where: { id: In(input.groupIds) },
+      relations: ['members', 'members.user'],
+    })
+    if (groups.length === 0) {
+      return {
+        errorCodes: [RecommendHighlightsErrorCode.NotFound],
+      }
+    }
+
+    const page = await getPageByParam({ _id: input.pageId, userId: uid })
+    if (!page) {
+      return {
+        errorCodes: [RecommendHighlightsErrorCode.NotFound],
+      }
+    }
+
+    const exp = Math.floor(Date.now() / 1000) + 60 * 60 * 24 // 1 day
+    const auth = (await signToken({ uid, exp }, env.server.jwtSecret)) as string
+    await Promise.all(
+      groups
+        .map((group) =>
+          group.members
+            .filter((member) => member.user.id !== uid)
+            .map((member) =>
+              enqueueRecommendation(
+                member.user.id,
+                page.id,
+                {
+                  id: group.id,
+                  name: group.name,
+                  note: input.note,
+                  user: {
+                    userId: user.id,
+                    name: user.name,
+                    username: user.profile.username,
+                    profileImageURL: user.profile.pictureUrl,
+                  },
+                  recommendedAt: new Date(),
+                },
+                auth,
+                input.highlightIds
+              )
+            )
+        )
+        .flat()
+    )
+
+    return {
+      success: true,
+    }
+  } catch (error) {
+    log.error('Error recommending highlights', {
+      error,
+      labels: {
+        source: 'resolver',
+        resolver: 'recommendHighlightsResolver',
+        uid,
+      },
+    })
+
+    return {
+      errorCodes: [RecommendHighlightsErrorCode.BadRequest],
     }
   }
 })

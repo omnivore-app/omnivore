@@ -1029,6 +1029,7 @@ type Mutation {
   moveLabel(input: MoveLabelInput!): MoveLabelResult!
   optInFeature(input: OptInFeatureInput!): OptInFeatureResult!
   recommend(input: RecommendInput!): RecommendResult!
+  recommendHighlights(input: RecommendHighlightsInput!): RecommendHighlightsResult!
   reportItem(input: ReportItemInput!): ReportItemResult!
   revokeApiKey(id: ID!): RevokeApiKeyResult!
   saveArticleReadingProgress(input: SaveArticleReadingProgressInput!): SaveArticleReadingProgressResult!
@@ -1248,16 +1249,40 @@ enum RecommendErrorCode {
   UNAUTHORIZED
 }
 
+type RecommendHighlightsError {
+  errorCodes: [RecommendHighlightsErrorCode!]!
+}
+
+enum RecommendHighlightsErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+input RecommendHighlightsInput {
+  groupIds: [ID!]!
+  highlightIds: [ID!]!
+  note: String
+  pageId: ID!
+}
+
+union RecommendHighlightsResult = RecommendHighlightsError | RecommendHighlightsSuccess
+
+type RecommendHighlightsSuccess {
+  success: Boolean!
+}
+
 input RecommendInput {
   groupIds: [ID!]!
   note: String
   pageId: ID!
+  recommendedWithHighlights: Boolean
 }
 
 union RecommendResult = RecommendError | RecommendSuccess
 
 type RecommendSuccess {
-  taskNames: [String!]!
+  success: Boolean!
 }
 
 type Recommendation {

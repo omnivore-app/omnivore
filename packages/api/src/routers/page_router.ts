@@ -163,10 +163,11 @@ export function pageRouter() {
       }
       const claims = jwt.decode(token) as Claims
 
-      const { userId, pageId, recommendation } = req.body as {
+      const { userId, pageId, recommendation, highlightIds } = req.body as {
         userId: string
         pageId: string
         recommendation: Recommendation
+        highlightIds?: string[]
       }
       if (!userId || !pageId || !recommendation) {
         return res.status(400).send({ errorCode: 'BAD_DATA' })
@@ -188,7 +189,8 @@ export function pageRouter() {
       const recommendedPageId = await addRecommendation(
         ctx,
         page,
-        recommendation
+        recommendation,
+        highlightIds
       )
       if (!recommendedPageId) {
         logger.error('Failed to add recommendation to page')

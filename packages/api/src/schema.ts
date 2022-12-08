@@ -2204,12 +2204,13 @@ const schema = gql`
     pageId: ID!
     groupIds: [ID!]!
     note: String
+    recommendedWithHighlights: Boolean
   }
 
   union RecommendResult = RecommendSuccess | RecommendError
 
   type RecommendSuccess {
-    taskNames: [String!]!
+    success: Boolean!
   }
 
   type RecommendError {
@@ -2233,6 +2234,31 @@ const schema = gql`
   }
 
   enum JoinGroupErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+  }
+
+  input RecommendHighlightsInput {
+    pageId: ID!
+    highlightIds: [ID!]!
+    groupIds: [ID!]!
+    note: String
+  }
+
+  union RecommendHighlightsResult =
+      RecommendHighlightsSuccess
+    | RecommendHighlightsError
+
+  type RecommendHighlightsSuccess {
+    success: Boolean!
+  }
+
+  type RecommendHighlightsError {
+    errorCodes: [RecommendHighlightsErrorCode!]!
+  }
+
+  enum RecommendHighlightsErrorCode {
     UNAUTHORIZED
     BAD_REQUEST
     NOT_FOUND
@@ -2318,6 +2344,9 @@ const schema = gql`
     createGroup(input: CreateGroupInput!): CreateGroupResult!
     recommend(input: RecommendInput!): RecommendResult!
     joinGroup(inviteCode: String!): JoinGroupResult!
+    recommendHighlights(
+      input: RecommendHighlightsInput!
+    ): RecommendHighlightsResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed
