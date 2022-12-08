@@ -8497,6 +8497,136 @@ extension Selection where TypeLock == Never, Type == Never {
 }
 
 extension Objects {
+  struct LeaveGroupError {
+    let __typename: TypeName = .leaveGroupError
+    let errorCodes: [String: [Enums.LeaveGroupErrorCode]]
+
+    enum TypeName: String, Codable {
+      case leaveGroupError = "LeaveGroupError"
+    }
+  }
+}
+
+extension Objects.LeaveGroupError: Decodable {
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
+
+    var map = HashMap()
+    for codingKey in container.allKeys {
+      if codingKey.isTypenameKey { continue }
+
+      let alias = codingKey.stringValue
+      let field = GraphQLField.getFieldNameFromAlias(alias)
+
+      switch field {
+      case "errorCodes":
+        if let value = try container.decode([Enums.LeaveGroupErrorCode]?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      default:
+        throw DecodingError.dataCorrupted(
+          DecodingError.Context(
+            codingPath: decoder.codingPath,
+            debugDescription: "Unknown key \(field)."
+          )
+        )
+      }
+    }
+
+    errorCodes = map["errorCodes"]
+  }
+}
+
+extension Fields where TypeLock == Objects.LeaveGroupError {
+  func errorCodes() throws -> [Enums.LeaveGroupErrorCode] {
+    let field = GraphQLField.leaf(
+      name: "errorCodes",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.errorCodes[field.alias!] {
+        return data
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return []
+    }
+  }
+}
+
+extension Selection where TypeLock == Never, Type == Never {
+  typealias LeaveGroupError<T> = Selection<T, Objects.LeaveGroupError>
+}
+
+extension Objects {
+  struct LeaveGroupSuccess {
+    let __typename: TypeName = .leaveGroupSuccess
+    let success: [String: Bool]
+
+    enum TypeName: String, Codable {
+      case leaveGroupSuccess = "LeaveGroupSuccess"
+    }
+  }
+}
+
+extension Objects.LeaveGroupSuccess: Decodable {
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
+
+    var map = HashMap()
+    for codingKey in container.allKeys {
+      if codingKey.isTypenameKey { continue }
+
+      let alias = codingKey.stringValue
+      let field = GraphQLField.getFieldNameFromAlias(alias)
+
+      switch field {
+      case "success":
+        if let value = try container.decode(Bool?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      default:
+        throw DecodingError.dataCorrupted(
+          DecodingError.Context(
+            codingPath: decoder.codingPath,
+            debugDescription: "Unknown key \(field)."
+          )
+        )
+      }
+    }
+
+    success = map["success"]
+  }
+}
+
+extension Fields where TypeLock == Objects.LeaveGroupSuccess {
+  func success() throws -> Bool {
+    let field = GraphQLField.leaf(
+      name: "success",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.success[field.alias!] {
+        return data
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return Bool.mockValue
+    }
+  }
+}
+
+extension Selection where TypeLock == Never, Type == Never {
+  typealias LeaveGroupSuccess<T> = Selection<T, Objects.LeaveGroupSuccess>
+}
+
+extension Objects {
   struct Link {
     let __typename: TypeName = .link
     let highlightStats: [String: Objects.HighlightStats]
@@ -9671,6 +9801,7 @@ extension Objects {
     let googleLogin: [String: Unions.LoginResult]
     let googleSignup: [String: Unions.GoogleSignupResult]
     let joinGroup: [String: Unions.JoinGroupResult]
+    let leaveGroup: [String: Unions.LeaveGroupResult]
     let logOut: [String: Unions.LogOutResult]
     let mergeHighlight: [String: Unions.MergeHighlightResult]
     let moveFilter: [String: Unions.MoveFilterResult]
@@ -9826,6 +9957,10 @@ extension Objects.Mutation: Decodable {
         }
       case "joinGroup":
         if let value = try container.decode(Unions.JoinGroupResult?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      case "leaveGroup":
+        if let value = try container.decode(Unions.LeaveGroupResult?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
       case "logOut":
@@ -10015,6 +10150,7 @@ extension Objects.Mutation: Decodable {
     googleLogin = map["googleLogin"]
     googleSignup = map["googleSignup"]
     joinGroup = map["joinGroup"]
+    leaveGroup = map["leaveGroup"]
     logOut = map["logOut"]
     mergeHighlight = map["mergeHighlight"]
     moveFilter = map["moveFilter"]
@@ -10524,6 +10660,25 @@ extension Fields where TypeLock == Objects.Mutation {
     switch response {
     case let .decoding(data):
       if let data = data.joinGroup[field.alias!] {
+        return try selection.decode(data: data)
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return selection.mock()
+    }
+  }
+
+  func leaveGroup<Type>(groupId: String, selection: Selection<Type, Unions.LeaveGroupResult>) throws -> Type {
+    let field = GraphQLField.composite(
+      name: "leaveGroup",
+      arguments: [Argument(name: "groupId", type: "ID!", value: groupId)],
+      selection: selection.selection
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.leaveGroup[field.alias!] {
         return try selection.decode(data: data)
       }
       throw HttpError.badpayload
@@ -25320,6 +25475,80 @@ extension Selection where TypeLock == Never, Type == Never {
 }
 
 extension Unions {
+  struct LeaveGroupResult {
+    let __typename: TypeName
+    let errorCodes: [String: [Enums.LeaveGroupErrorCode]]
+    let success: [String: Bool]
+
+    enum TypeName: String, Codable {
+      case leaveGroupError = "LeaveGroupError"
+      case leaveGroupSuccess = "LeaveGroupSuccess"
+    }
+  }
+}
+
+extension Unions.LeaveGroupResult: Decodable {
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
+
+    var map = HashMap()
+    for codingKey in container.allKeys {
+      if codingKey.isTypenameKey { continue }
+
+      let alias = codingKey.stringValue
+      let field = GraphQLField.getFieldNameFromAlias(alias)
+
+      switch field {
+      case "errorCodes":
+        if let value = try container.decode([Enums.LeaveGroupErrorCode]?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      case "success":
+        if let value = try container.decode(Bool?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      default:
+        throw DecodingError.dataCorrupted(
+          DecodingError.Context(
+            codingPath: decoder.codingPath,
+            debugDescription: "Unknown key \(field)."
+          )
+        )
+      }
+    }
+
+    __typename = try container.decode(TypeName.self, forKey: DynamicCodingKeys(stringValue: "__typename")!)
+
+    errorCodes = map["errorCodes"]
+    success = map["success"]
+  }
+}
+
+extension Fields where TypeLock == Unions.LeaveGroupResult {
+  func on<Type>(leaveGroupError: Selection<Type, Objects.LeaveGroupError>, leaveGroupSuccess: Selection<Type, Objects.LeaveGroupSuccess>) throws -> Type {
+    select([GraphQLField.fragment(type: "LeaveGroupError", selection: leaveGroupError.selection), GraphQLField.fragment(type: "LeaveGroupSuccess", selection: leaveGroupSuccess.selection)])
+
+    switch response {
+    case let .decoding(data):
+      switch data.__typename {
+      case .leaveGroupError:
+        let data = Objects.LeaveGroupError(errorCodes: data.errorCodes)
+        return try leaveGroupError.decode(data: data)
+      case .leaveGroupSuccess:
+        let data = Objects.LeaveGroupSuccess(success: data.success)
+        return try leaveGroupSuccess.decode(data: data)
+      }
+    case .mocking:
+      return leaveGroupError.mock()
+    }
+  }
+}
+
+extension Selection where TypeLock == Never, Type == Never {
+  typealias LeaveGroupResult<T> = Selection<T, Unions.LeaveGroupResult>
+}
+
+extension Unions {
   struct LogOutResult {
     let __typename: TypeName
     let errorCodes: [String: [Enums.LogOutErrorCode]]
@@ -29348,6 +29577,17 @@ extension Enums {
 extension Enums {
   /// LabelsErrorCode
   enum LabelsErrorCode: String, CaseIterable, Codable {
+    case badRequest = "BAD_REQUEST"
+
+    case notFound = "NOT_FOUND"
+
+    case unauthorized = "UNAUTHORIZED"
+  }
+}
+
+extension Enums {
+  /// LeaveGroupErrorCode
+  enum LeaveGroupErrorCode: String, CaseIterable, Codable {
     case badRequest = "BAD_REQUEST"
 
     case notFound = "NOT_FOUND"
