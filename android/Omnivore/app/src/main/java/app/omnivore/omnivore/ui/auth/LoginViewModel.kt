@@ -268,7 +268,7 @@ class LoginViewModel @Inject constructor(
 
   fun handleGoogleAuthTask(task: Task<GoogleSignInAccount>) {
     val result = task?.getResult(ApiException::class.java)
-    val googleIdToken = result.idToken
+    val googleIdToken = result?.idToken ?: ""
 
     // If token is missing then set the error message
     if (googleIdToken == null) {
