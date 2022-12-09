@@ -18,7 +18,7 @@ interface Page {
   isArchived: boolean
   readingProgressPercent: number
   title: string
-  image?: string
+  image: string | null
 }
 
 interface Label {
