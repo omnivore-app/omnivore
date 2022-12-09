@@ -132,8 +132,8 @@ export const triggerActions = async (
           const params = action.params
           if (params.length > 0) {
             const param = JSON.parse(params[0]) as NotificationData
-            data.body = param.body
-            data.title = param.title
+            data.body = param.body || data.body
+            data.title = param.title || data.title
             data.image = param.image || data.image
           }
 
