@@ -57,7 +57,7 @@ export function notificationRouter() {
       notification: {
         title,
         body,
-        imageUrl,
+        //  imageUrl,
       },
       data,
       tokens: tokens.map((token) => token.token),
