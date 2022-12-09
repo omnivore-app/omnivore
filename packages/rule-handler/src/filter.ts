@@ -17,6 +17,8 @@ interface Page {
   labels?: Label[] // labels is optional in the API response
   isArchived: boolean
   readingProgressPercent: number
+  title: string
+  image?: string
 }
 
 interface Label {
@@ -41,6 +43,8 @@ export const search = async (
                       }
                       isArchived
                       readingProgressPercent      
+                      title
+                      image
                     }
                   }
                 }

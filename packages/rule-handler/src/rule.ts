@@ -1,4 +1,4 @@
-import { sendNotification } from './notification'
+import { NotificationData, sendNotification } from './notification'
 import { getAuthToken, PubSubData } from './index'
 import axios, { AxiosResponse } from 'axios'
 import { setLabels } from './label'
@@ -122,14 +122,26 @@ export const triggerActions = async (
             filteredPage.readingProgressPercent < 100 &&
             actionPromises.push(markPageAsRead(apiEndpoint, authToken, data.id))
           )
-        case RuleActionType.SendNotification:
+        case RuleActionType.SendNotification: {
+          const data: NotificationData = {
+            title: 'New page added to your feed',
+            body: filteredPage.title,
+            image: filteredPage.image,
+          }
+
+          const params = action.params
+          if (params.length > 0) {
+            const param = JSON.parse(params[0]) as NotificationData
+            data.body = param.body
+            data.title = param.title
+            data.image = param.image
+            data.data = param.data
+          }
+
           return actionPromises.push(
-            sendNotification(
-              apiEndpoint,
-              authToken,
-              'New page added to your feed'
-            )
+            sendNotification(apiEndpoint, authToken, data)
           )
+        }
       }
     })
   }
