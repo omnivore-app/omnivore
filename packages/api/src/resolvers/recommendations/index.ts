@@ -194,28 +194,26 @@ export const recommendResolver = authorized<
     await Promise.all(
       groups
         .map((group) =>
-          group.members
-            .filter((member) => member.user.id !== uid)
-            .map((member) =>
-              enqueueRecommendation(
-                member.user.id,
-                page.id,
-                {
-                  id: group.id,
-                  name: group.name,
-                  note: input.note ?? null,
-                  user: {
-                    userId: user.id,
-                    name: user.name,
-                    username: user.profile.username,
-                    profileImageURL: user.profile.pictureUrl,
-                  },
-                  recommendedAt: new Date(),
+          group.members.map((member) =>
+            enqueueRecommendation(
+              member.user.id,
+              page.id,
+              {
+                id: group.id,
+                name: group.name,
+                note: input.note ?? null,
+                user: {
+                  userId: user.id,
+                  name: user.name,
+                  username: user.profile.username,
+                  profileImageURL: user.profile.pictureUrl,
                 },
-                auth,
-                recommendedHighlightIds
-              )
+                recommendedAt: new Date(),
+              },
+              auth,
+              recommendedHighlightIds
             )
+          )
         )
         .flat()
     )
