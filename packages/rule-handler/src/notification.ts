@@ -8,13 +8,17 @@ interface RequestData {
   notificationType?: string
 }
 
+export interface NotificationData {
+  body: string
+  title?: string
+  image?: string
+  data?: Record<string, string>
+}
+
 export const sendNotification = async (
   apiEndpoint: string,
   auth: string,
-  body: string,
-  title?: string,
-  image?: string,
-  data?: Record<string, string>
+  { body, title, image, data }: NotificationData
 ) => {
   const requestData: RequestData = {
     body,
