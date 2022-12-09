@@ -221,7 +221,14 @@ export const createLabelAndRuleForGroup = async (
       },
       {
         type: RuleActionType.SendNotification,
-        params: [groupName],
+        params: [
+          `
+            {
+              "title": "New page recommended in ${groupName}",
+              "body": "A new page was added to the group ${groupName}"
+            }
+          `,
+        ],
       },
     ],
     filter: `recommendedBy:"${groupName}"`,
