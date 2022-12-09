@@ -28,7 +28,8 @@ import Views
           self.desiredNotificationsEnabled = granted
           Task {
             if let savedToken = UserDefaults.standard.string(forKey: UserDefaultKey.firebasePushToken.rawValue) {
-              try? await dataService.syncDeviceToken(deviceTokenOperation: DeviceTokenOperation.addToken(token: savedToken))
+              try? await dataService.syncDeviceToken(
+                deviceTokenOperation: DeviceTokenOperation.addToken(token: savedToken))
             }
             NotificationCenter.default.post(name: Notification.Name("ReconfigurePushNotifications"), object: nil)
           }
@@ -82,6 +83,12 @@ struct PushNotificationSettingsView: View {
         [account rules](https://omnivore.app/settings/rules) which you can edit online.
         """)
           .accentColor(.blue)
+      }
+
+      Section {
+        NavigationLink("Devices") {
+          PushNotificationDevicesView()
+        }
       }
     }
     .navigationTitle("Push Notifications")
