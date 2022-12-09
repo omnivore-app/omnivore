@@ -1,3 +1,4 @@
+
 import Models
 import Services
 import SwiftUI
@@ -18,19 +19,27 @@ import Views
     }
   }
 
-  func tryUpdateToDesired() {
-    print("trying to update to desired state: ", desiredNotificationsEnabled)
+  func tryUpdateToDesired(dataService: DataService) {
+    UserDefaults.standard.set(desiredNotificationsEnabled, forKey: UserDefaultKey.notificationsEnabled.rawValue)
+
     if desiredNotificationsEnabled {
-      UNUserNotificationCenter.current().requestAuthorization(options: [.alert]) { granted, error in
-        print("notification status: ", granted, "error: ", error)
+      UNUserNotificationCenter.current().requestAuthorization(options: [.alert]) { granted, _ in
         DispatchQueue.main.async {
           self.desiredNotificationsEnabled = granted
+          Task {
+            if let savedToken = UserDefaults.standard.string(forKey: UserDefaultKey.firebasePushToken.rawValue) {
+              try? await dataService.syncDeviceToken(deviceTokenOperation: DeviceTokenOperation.addToken(token: savedToken))
+            }
+            NotificationCenter.default.post(name: Notification.Name("ReconfigurePushNotifications"), object: nil)
+          }
         }
       }
     } else {
-      // UNUserNotificationCenter.current().r
-      UIApplication.shared.openURL(URL(string:"prefs:root=NOTIFICATIONS_ID")!)
-
+      if let tokenID = UserDefaults.standard.string(forKey: UserDefaultKey.deviceTokenID.rawValue) {
+        Task {
+          try? await Services().dataService.syncDeviceToken(deviceTokenOperation: .deleteToken(tokenID: tokenID))
+        }
+      }
     }
   }
 }
@@ -61,7 +70,7 @@ struct PushNotificationSettingsView: View {
       Section {
         Toggle(isOn: $viewModel.desiredNotificationsEnabled, label: { Text("Notifications Enabled") })
       }.onChange(of: viewModel.desiredNotificationsEnabled) { _ in
-        viewModel.tryUpdateToDesired()
+        viewModel.tryUpdateToDesired(dataService: dataService)
       }
 
       Section {

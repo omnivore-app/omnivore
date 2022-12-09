@@ -8,9 +8,7 @@ import UIKit
 import Utils
 
 extension AppDelegate {
-  func configurePushNotifications() {
-    guard FeatureFlag.enablePushNotifications else { return }
-
+  func configureFirebase() {
     let keys: FirebaseKeys? = {
       let isProd = (PublicValet.storedAppEnvironment ?? .initialAppEnvironment) == .prod
       let firebaseKeys = isProd ? AppKeys.sharedInstance?.firebaseProdKeys : AppKeys.sharedInstance?.firebaseDemoKeys
@@ -30,9 +28,21 @@ extension AppDelegate {
     FirebaseApp.configure(options: firebaseOpts)
     FirebaseConfiguration.shared.setLoggerLevel(.min)
 
+    if UserDefaults.standard.bool(forKey: UserDefaultKey.notificationsEnabled.rawValue) {
+      registerForNotifications()
+    }
+  }
+
+  func registerForNotifications() {
+    Messaging.messaging().delegate = self
     UNUserNotificationCenter.current().delegate = self
     UIApplication.shared.registerForRemoteNotifications()
-    Messaging.messaging().delegate = self
+  }
+
+  func unregisterForNotifications() {
+    Messaging.messaging().delegate = nil
+    UNUserNotificationCenter.current().delegate = nil
+    UIApplication.shared.unregisterForRemoteNotifications()
   }
 }
 
@@ -87,12 +97,16 @@ extension AppDelegate: MessagingDelegate {
     guard let fcmToken = fcmToken else { return }
 
     let savedToken = UserDefaults.standard.string(forKey: UserDefaultKey.firebasePushToken.rawValue)
+    let deviceTokenID = UserDefaults.standard.string(forKey: UserDefaultKey.deviceTokenID.rawValue)
 
-    if savedToken == fcmToken {
+    // If the deviceTokenID is null, that means we haven't set our token yet, and this is just
+    // a previously saved token.
+    if savedToken == fcmToken, deviceTokenID != nil {
       return
     }
 
-    UserDefaults.standard.set(fcmToken, forKey: UserDefaultKey.firebasePushToken.rawValue)
-    Services().dataService.syncDeviceToken(deviceTokenOperation: .addToken(token: fcmToken))
+    Task {
+      try? await Services().dataService.syncDeviceToken(deviceTokenOperation: .addToken(token: fcmToken))
+    }
   }
 }

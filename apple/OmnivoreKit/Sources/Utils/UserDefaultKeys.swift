@@ -25,4 +25,5 @@ public enum UserDefaultKey: String {
   case themeName
   case shouldShowNewFeaturePrimer
   case notificationsEnabled
+  case deviceTokenID
 }
