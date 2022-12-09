@@ -668,7 +668,7 @@ const schema = gql`
     shortId: String!
     articleId: ID!
     patch: String!
-    quote: String! @sanitize(maxLength: 2000)
+    quote: String! @sanitize(maxLength: 6000)
     prefix: String @sanitize
     suffix: String @sanitize
     annotation: String @sanitize(maxLength: 4000)
@@ -700,7 +700,7 @@ const schema = gql`
     shortId: ID!
     articleId: ID!
     patch: String!
-    quote: String! @sanitize(maxLength: 2000)
+    quote: String! @sanitize(maxLength: 6000)
     prefix: String @sanitize
     suffix: String @sanitize
     annotation: String @sanitize(maxLength: 8000)

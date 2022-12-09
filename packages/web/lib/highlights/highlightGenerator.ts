@@ -12,7 +12,7 @@ const highlightTag = 'omnivore_highlight'
 const highlightClassname = 'highlight'
 const highlightWithNoteClassName = 'highlight_with_note'
 const articleContainerId = 'article-container'
-export const maxHighlightLength = 2000
+export const maxHighlightLength = 6000
 
 const nonParagraphTagsRegEx =
   /^(a|b|basefont|bdo|big|em|font|i|s|small|span|strike|strong|su[bp]|tt|u|code|mark)$/i
@@ -122,9 +122,9 @@ export function makeHighlightNodeAttributes(
     const { parentNode, nextSibling } = node
 
     let isPre = false
-    const nodeElement = (node instanceof HTMLElement) ? node : node.parentElement
+    const nodeElement = node instanceof HTMLElement ? node : node.parentElement
     if (nodeElement) {
-      isPre = (window.getComputedStyle(nodeElement).whiteSpace.startsWith('pre'))
+      isPre = window.getComputedStyle(nodeElement).whiteSpace.startsWith('pre')
     }
 
     parentNode?.removeChild(node)
