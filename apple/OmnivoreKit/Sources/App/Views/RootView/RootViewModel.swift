@@ -35,32 +35,8 @@ public final class RootViewModel: ObservableObject {
     #endif
   }
 
-  func triggerPushNotificationRequestIfNeeded() {
-//    guard FeatureFlag.enablePushNotifications else { return }
-//
-//    if UserDefaults.standard.bool(forKey: UserDefaultKey.userHasDeniedPushPrimer.rawValue) {
-//      return
-//    }
-//
-//    #if os(iOS)
-//      UNUserNotificationCenter.current().getNotificationSettings { [weak self] settings in
-//        switch settings.authorizationStatus {
-//        case .notDetermined:
-//          DispatchQueue.main.async {
-//            self?.showPushNotificationPrimer = true
-//          }
-//        case .authorized, .provisional, .ephemeral, .denied:
-//          return
-//        @unknown default:
-//          return
-//        }
-//      }
-//    #endif
-  }
-
   #if os(iOS)
     func handlePushNotificationPrimerAcceptance() {
-//      showPushNotificationPrimer = false
 //      UNUserNotificationCenter.current().requestAuth()
     }
   #endif

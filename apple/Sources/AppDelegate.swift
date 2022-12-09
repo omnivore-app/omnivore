@@ -47,6 +47,7 @@ private let logger = Logger(subsystem: "app.omnivore", category: "app-delegate")
 
       Services.registerBackgroundFetch()
       configurePushNotifications()
+
       return true
     }
   }

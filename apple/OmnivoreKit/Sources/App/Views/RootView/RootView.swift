@@ -49,12 +49,10 @@ struct InnerRootView: View {
     if authenticator.isLoggedIn {
       GeometryReader { geo in
         PrimaryContentView()
-          .onAppear {
-            viewModel.triggerPushNotificationRequestIfNeeded()
-          }
         #if os(iOS)
           .miniPlayer()
-          .formSheet(isPresented: $viewModel.showNewFeaturePrimer, modalSize: CGSize(width: geo.size.width * 0.66, height: geo.size.width * 0.66)) {
+          .formSheet(isPresented: $viewModel.showNewFeaturePrimer,
+                     modalSize: CGSize(width: geo.size.width * 0.66, height: geo.size.width * 0.66)) {
             FeaturePrimer.recommendationsPrimer
           }
           .onAppear {
