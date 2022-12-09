@@ -126,7 +126,7 @@ export const triggerActions = async (
           const data: NotificationData = {
             title: 'New page added to your library',
             body: filteredPage.title,
-            image: filteredPage.image,
+            image: filteredPage.image || undefined,
           }
 
           const params = action.params
