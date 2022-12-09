@@ -124,7 +124,7 @@ export const triggerActions = async (
           )
         case RuleActionType.SendNotification: {
           const data: NotificationData = {
-            title: 'New page added to your feed',
+            title: 'New page added to your library',
             body: filteredPage.title,
             image: filteredPage.image,
           }
