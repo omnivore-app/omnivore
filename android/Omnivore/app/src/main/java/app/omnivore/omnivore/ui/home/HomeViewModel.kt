@@ -72,13 +72,13 @@ class HomeViewModel @Inject constructor(
       receivedIdx = thisSearchIdx
       cursor = searchResult.cursor
 
-      if (searchTextLiveData.value != "") {
+      if (searchTextLiveData.value != "" || clearPreviousSearch) {
         val previousItems = if (clearPreviousSearch) listOf() else searchedItems
         searchedItems = previousItems.plus(searchResult.items)
-        itemsLiveData.value = searchedItems
+        itemsLiveData.postValue(searchedItems)
       } else {
         items = items.plus(searchResult.items)
-        itemsLiveData.value = items
+        itemsLiveData.postValue(items)
       }
 
       CoroutineScope(Dispatchers.Main).launch {
