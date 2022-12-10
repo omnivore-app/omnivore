@@ -1,5 +1,8 @@
 package app.omnivore.omnivore.ui.home
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -7,6 +10,8 @@ import app.omnivore.omnivore.models.LinkedItem
 import app.omnivore.omnivore.networking.Networker
 import app.omnivore.omnivore.networking.search
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -26,6 +31,7 @@ class HomeViewModel @Inject constructor(
   // Live Data
   val searchTextLiveData = MutableLiveData("")
   val itemsLiveData = MutableLiveData<List<LinkedItem>>(listOf())
+  var isRefreshing by mutableStateOf(false)
 
   fun updateSearchText(text: String) {
     searchTextLiveData.value = text
@@ -35,6 +41,11 @@ class HomeViewModel @Inject constructor(
     } else {
       load(clearPreviousSearch = true)
     }
+  }
+
+  fun refresh() {
+    isRefreshing = true
+    load(true)
   }
 
   fun load(clearPreviousSearch: Boolean = false) {
@@ -68,6 +79,10 @@ class HomeViewModel @Inject constructor(
       } else {
         items = items.plus(searchResult.items)
         itemsLiveData.value = items
+      }
+
+      CoroutineScope(Dispatchers.Main).launch {
+        isRefreshing = false
       }
     }
   }
