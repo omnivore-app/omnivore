@@ -81,5 +81,5 @@
     }
   },
 
-  "web_accessible_resources": ["views/cta-popup.html"]
+  "web_accessible_resources": ["views/cta-popup.html", "views/save-popup.html"]
 }
