@@ -91,6 +91,24 @@
     return fragment;
   }
 
+  function savePopUp (payload) {
+    const fragment = document.createDocumentFragment();
+
+    const closeButtonEl = createToastCloseButton();
+    fragment.appendChild(closeButtonEl);
+
+    const iframeEl = document.createElement('iframe');
+    const iframePath = '/views/save-popup.html?url=' + encodeURIComponent(payload.url);
+    const iframeUrl = ENV_EXTENSION_ORIGIN + iframePath;
+    iframeEl.src = iframeUrl;
+    iframeEl.style.cssText = `all: initial !important;
+      width: 310px !important;
+      height: 310px !important;
+  `;
+    fragment.appendChild(iframeEl);
+    return fragment;
+  }
+
   function updateToastText (payload) {
     if (!currentTextEl) return;
 
@@ -155,6 +173,7 @@
   }
 
   function showMessageToast (payload) {
+    console.log(payload);
     const bodyEl = document.body;
     if (!bodyEl) return;
 
@@ -174,8 +193,17 @@
       currentIconEl.innerHTML = systemIcons.spinner;
       updateToastText(payload);
     } else if (payload.type !== 'error') {
-      currentIconEl.innerHTML = systemIcons.success;
-      updateToastText(payload);
+      // currentIconEl.innerHTML = systemIcons.success;
+      currentToastEl.textContent = '';
+      currentToastEl.style.setProperty('width', '310px', 'important');
+      currentToastEl.style.setProperty('height', 'auto', 'important');
+      currentIconEl = null;
+      currentTextEl = null;
+      const savePopUpEl = savePopUp(payload);
+      currentToastEl.appendChild(savePopUpEl);
+      duration = 600e3;
+      
+      // updateToastText(payload);
     } else if (payload.errorCode && payload.errorCode === 401) {
       currentToastEl.textContent = '';
       currentToastEl.style.setProperty('width', '310px', 'important');

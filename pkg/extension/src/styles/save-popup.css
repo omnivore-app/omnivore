@@ -1,0 +1,78 @@
+/**
+ * Fonts
+ */
+
+@font-face {
+  font-style: normal;
+  font-weight: 400;
+  font-family: Inter;
+  src: local(''), url('/fonts/inter-v3-latin-400.woff2') format('woff2');
+}
+
+@font-face {
+  font-style: normal;
+  font-weight: 600;
+  font-family: Inter;
+  src: local(''), url('/fonts/inter-v3-latin-600.woff2') format('woff2');
+}
+
+@font-face {
+  font-style: normal;
+  font-weight: 700;
+  font-family: Inter;
+  src: local(''), url('/fonts/inter-v3-latin-700.woff2') format('woff2');
+}
+
+/**
+   * Other
+   */
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  margin: 0;
+}
+
+.save-container {
+  position: relative;
+  overflow-y: auto;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  padding: 24px 12px;
+  background-color: #fff;
+  color: #3d3d3d;
+  font-family: Inter, sans-serif;
+}
+
+.save-header {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-top: 10px;
+  border: 1px solid #90ee90;
+  background-color: #90ee90;
+  border-radius: 5px;
+  padding: 5px;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.save-icon {
+  padding-top: 5px;
+}
+
+.save-link {
+  color: #3d3d3d;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.save-content {
+  margin: 0;
+  font-size: 14px;
+}
