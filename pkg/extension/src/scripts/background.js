@@ -235,6 +235,7 @@ function handleSaveResponse(tab, field, xhr) {
           linkText: 'Read Now',
           type: 'success',
           title: tab.title,
+          url: url,
         }
       })
 

@@ -1,17 +1,20 @@
-;(function () {
-  const urlSearch = window.location.search
-  console.log(window)
-  const urlMatch = urlSearch.match(/[?&]url=([^&]+)/)
-  if (!urlMatch) return
+'use strict';
 
-  const encodedUrl = urlMatch[1]
-  if (!encodedUrl) return
+(function () {
+//   const urlSearch = window.location.search
 
-  const url = decodeURIComponent(encodedUrl)
+//   const urlMatch = urlSearch.match(/[?&]url=([^&]+)/)
+//   if (!urlMatch) return
 
-  const linkEl = document.getElementById('get-omnivore-link')
-  const loginLinkEl = document.getElementById('omnivore-login')
+//   const encodedUrl = urlMatch[1]
+//   if (!encodedUrl) return
 
-  linkEl.href = url
-  loginLinkEl.href = url
+  //const url = decodeURIComponent(encodedUrl)
+
+//   const articleLinkEl = document.getElementById('get-article-link')
+//   console.log(articleLinkEl);
+  //const loginLinkEl = document.getElementById('omnivore-login')
+
+  //articleLinkEl.href = url
+  //loginLinkEl.href = url
 })()
