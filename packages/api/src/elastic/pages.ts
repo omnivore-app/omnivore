@@ -212,7 +212,7 @@ export const createPage = async (
         updatedAt: new Date(),
         savedAt: new Date(),
       },
-      refresh: ctx.refresh,
+      refresh: 'wait_for', // wait for the index to be refreshed before returning
     })
 
     page.id = body._id as string
