@@ -1,13 +1,14 @@
 package app.omnivore.omnivore.ui.home
 
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Divider
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.List
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -18,8 +19,10 @@ import androidx.compose.ui.unit.sp
 import app.omnivore.omnivore.models.LinkedItem
 import coil.compose.rememberAsyncImagePainter
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun LinkedItemCard(item: LinkedItem, onClickHandler: () -> Unit) {
+fun LinkedItemCard(item: LinkedItem, onClickHandler: () -> Unit, actionHandler: (LinkedItemAction) -> Unit) {
+  var isMenuExpanded by remember { mutableStateOf(false) }
   val publisherDisplayName = item.publisherDisplayName()
 
   Column {
@@ -29,7 +32,11 @@ fun LinkedItemCard(item: LinkedItem, onClickHandler: () -> Unit) {
       modifier = Modifier
         .fillMaxWidth()
         .padding(12.dp)
-        .clickable(onClick = onClickHandler)
+        .combinedClickable(
+          onClick = onClickHandler,
+          onLongClick = { isMenuExpanded = true }
+        )
+        .background(if (isMenuExpanded) Color.LightGray else Color.Transparent)
     ) {
       Column(
         verticalArrangement = Arrangement.spacedBy(2.dp),
@@ -75,5 +82,37 @@ fun LinkedItemCard(item: LinkedItem, onClickHandler: () -> Unit) {
     }
 
     Divider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 1.dp)
+
+    DropdownMenu(
+      expanded = isMenuExpanded,
+      onDismissRequest = { isMenuExpanded = false }
+    ) {
+      DropdownMenuItem(
+        text = { Text("Archive") },
+        onClick = {
+          actionHandler(LinkedItemAction.Archive)
+          isMenuExpanded = false
+        },
+        leadingIcon = {
+          Icon(
+            Icons.Outlined.List, // TODO: use more appropriate icon
+            contentDescription = null
+          )
+        }
+      )
+      DropdownMenuItem(
+        text = { Text("Remove Item") },
+        onClick = {
+          actionHandler(LinkedItemAction.Delete)
+          isMenuExpanded = false
+        },
+        leadingIcon = {
+          Icon(
+            Icons.Outlined.Delete,
+            contentDescription = null
+          )
+        }
+      )
+    }
   }
 }

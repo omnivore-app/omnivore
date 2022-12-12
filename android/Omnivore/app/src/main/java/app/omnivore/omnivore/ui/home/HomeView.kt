@@ -97,7 +97,8 @@ fun HomeViewContent(
             } else {
               navController.navigate("WebReader/${item.slug}")
             }
-          }
+          },
+          actionHandler = { homeViewModel.handleLinkedItemAction(item.id, it) }
         )
       }
     }

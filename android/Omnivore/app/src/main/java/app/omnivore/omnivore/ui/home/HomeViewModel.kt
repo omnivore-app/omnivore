@@ -1,5 +1,6 @@
 package app.omnivore.omnivore.ui.home
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -87,6 +88,17 @@ class HomeViewModel @Inject constructor(
     }
   }
 
+  fun handleLinkedItemAction(itemID: String, action: LinkedItemAction) {
+    when (action) {
+      LinkedItemAction.Delete -> {
+        Log.d("maxx", "delete action for id: $itemID")
+      }
+      LinkedItemAction.Archive -> {
+        Log.d("maxx", "archive action for id: $itemID")
+      }
+    }
+  }
+
   private fun searchQuery(): String {
       var query = "in:inbox sort:saved"
 
@@ -96,4 +108,9 @@ class HomeViewModel @Inject constructor(
 
       return query
   }
+}
+
+enum class LinkedItemAction {
+  Delete,
+  Archive
 }
