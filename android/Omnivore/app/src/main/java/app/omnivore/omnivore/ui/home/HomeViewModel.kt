@@ -8,8 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.models.LinkedItem
-import app.omnivore.omnivore.networking.Networker
-import app.omnivore.omnivore.networking.search
+import app.omnivore.omnivore.networking.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -91,11 +90,31 @@ class HomeViewModel @Inject constructor(
   fun handleLinkedItemAction(itemID: String, action: LinkedItemAction) {
     when (action) {
       LinkedItemAction.Delete -> {
-        Log.d("maxx", "delete action for id: $itemID")
+        removeItemFromList(itemID)
+
+        viewModelScope.launch {
+          networker.deleteLinkedItem(itemID)
+        }
       }
       LinkedItemAction.Archive -> {
-        Log.d("maxx", "archive action for id: $itemID")
+        removeItemFromList(itemID)
+        viewModelScope.launch {
+          networker.archiveLinkedItem(itemID)
+        }
       }
+      LinkedItemAction.Unarchive -> {
+        removeItemFromList(itemID)
+        viewModelScope.launch {
+          networker.unarchiveLinkedItem(itemID)
+        }
+      }
+    }
+  }
+
+  private fun removeItemFromList(itemID: String) {
+    itemsLiveData.value?.let {
+      val newList = it.filter { item -> item.id != itemID }
+      itemsLiveData.postValue(newList)
     }
   }
 
@@ -112,5 +131,6 @@ class HomeViewModel @Inject constructor(
 
 enum class LinkedItemAction {
   Delete,
-  Archive
+  Archive,
+  Unarchive
 }

@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.List
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -88,9 +87,10 @@ fun LinkedItemCard(item: LinkedItem, onClickHandler: () -> Unit, actionHandler: 
       onDismissRequest = { isMenuExpanded = false }
     ) {
       DropdownMenuItem(
-        text = { Text("Archive") },
+        text = { Text(if (item.isArchived) "Unarchive" else "Archive") },
         onClick = {
-          actionHandler(LinkedItemAction.Archive)
+          val action = if (item.isArchived) LinkedItemAction.Unarchive else LinkedItemAction.Archive
+          actionHandler(action)
           isMenuExpanded = false
         },
         leadingIcon = {
