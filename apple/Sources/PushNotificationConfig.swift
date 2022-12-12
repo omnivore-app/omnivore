@@ -9,6 +9,8 @@ import Utils
 
 extension AppDelegate {
   func configureFirebase() {
+    guard FeatureFlag.enablePushNotifications else { return }
+
     let keys: FirebaseKeys? = {
       let isProd = (PublicValet.storedAppEnvironment ?? .initialAppEnvironment) == .prod
       let firebaseKeys = isProd ? AppKeys.sharedInstance?.firebaseProdKeys : AppKeys.sharedInstance?.firebaseDemoKeys
