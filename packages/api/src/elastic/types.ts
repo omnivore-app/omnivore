@@ -55,7 +55,10 @@ export interface SearchBody {
             nested: {
               path: 'recommendations'
               query: {
-                term: {
+                exists?: {
+                  field: string
+                }
+                term?: {
                   'recommendations.name': string
                 }
               }
