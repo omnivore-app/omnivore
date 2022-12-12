@@ -7,7 +7,7 @@ export enum ThemeId {
   Dark = 'Gray',
   Darker = 'Dark',
   Sepia = 'Sepia',
-  Charcoal = 'Charcoal'
+  Charcoal = 'Charcoal',
 }
 
 export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
@@ -132,6 +132,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
 
         // Semantic Colors
         highlightBackground: '250, 227, 146',
+        recommendedHighlightBackground: '#E5FFE5',
         highlight: '#FFD234',
         highlightText: '#3D3D3D',
         error: '#FA5E4A',
@@ -164,7 +165,6 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         libraryBackground: '#FFFFFF',
         libraryActiveMenuItem: '#F8F8F8',
         border: '#F0F0F0',
-
 
         //utility
         textNonEssential: 'rgba(10, 8, 6, 0.4)',
@@ -205,6 +205,7 @@ const darkThemeSpec = {
 
     // Semantic Colors
     highlightBackground: '134, 119, 64',
+    recommendedHighlightBackground: '#1F4315',
     highlight: '#FFD234',
     highlightText: 'white',
     error: '#FA5E4A',
@@ -245,7 +246,7 @@ const sepiaThemeSpec = {
     readerFontHighContrast: 'black',
     readerHeader: '554A34',
     readerTableHeader: '#FFFFFF',
-  }
+  },
 }
 
 const charcoalThemeSpec = {
@@ -256,16 +257,21 @@ const charcoalThemeSpec = {
     readerFontHighContrast: 'white',
     readerHeader: '#b9b9b9',
     readerTableHeader: '#FFFFFF',
-  }
+  },
 }
-
 
 // Dark and Darker theme now match each other.
 // Use the darkThemeSpec object to make updates.
 export const darkTheme = createTheme(ThemeId.Dark, darkThemeSpec)
 export const darkerTheme = createTheme(ThemeId.Darker, darkThemeSpec)
-export const sepiaTheme = createTheme(ThemeId.Sepia, {...darkThemeSpec, ...sepiaThemeSpec})
-export const charcoalTheme = createTheme(ThemeId.Charcoal, {...darkThemeSpec, ...charcoalThemeSpec})
+export const sepiaTheme = createTheme(ThemeId.Sepia, {
+  ...darkThemeSpec,
+  ...sepiaThemeSpec,
+})
+export const charcoalTheme = createTheme(ThemeId.Charcoal, {
+  ...darkThemeSpec,
+  ...charcoalThemeSpec,
+})
 
 // Lighter theme now matches the default theme.
 // This only exists for users that might still have a lighter theme set
@@ -273,8 +279,8 @@ export const lighterTheme = createTheme(ThemeId.Lighter, {})
 
 // Apply global styles in here
 export const globalStyles = globalCss({
-  'body': {
-    backgroundColor: '$grayBase'
+  body: {
+    backgroundColor: '$grayBase',
   },
   '*': {
     '&:focus': {

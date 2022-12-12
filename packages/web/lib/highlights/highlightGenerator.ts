@@ -67,7 +67,7 @@ function nodeAttributesFromHighlight(
   const patch = highlight.patch
   const id = highlight.id
   const withNote = !!highlight.annotation
-  const customColor = undefined
+  var customColor = undefined
   const tooltip = undefined
   // We've disabled shared highlights, so passing undefined
   // here now, and removing the user object from highlights
@@ -77,6 +77,10 @@ function nodeAttributesFromHighlight(
   // const tooltip = !highlight.createdByMe
   //   ? `Created by: @${highlight.user.profile.username}`
   //   : undefined
+
+  if (!highlight.createdByMe) {
+    customColor = 'var(--colors-recommendedHighlightBackground)'
+  }
 
   return makeHighlightNodeAttributes(patch, id, withNote, customColor, tooltip)
 }

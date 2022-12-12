@@ -13,6 +13,7 @@ struct InternalHighlight: Encodable {
   let createdAt: Date?
   let updatedAt: Date?
   let createdByMe: Bool
+  let createdBy: InternalUserProfile?
   var labels: [InternalLinkedItemLabel]
 
   func asManagedObject(context: NSManagedObjectContext) -> Highlight {
@@ -34,6 +35,10 @@ struct InternalHighlight: Encodable {
     highlight.createdAt = createdAt
     highlight.updatedAt = updatedAt
     highlight.createdByMe = createdByMe
+
+    if let createdBy = createdBy {
+      highlight.createdBy = createdBy.asManagedObject(inContext: context)
+    }
 
     if let existingLabels = highlight.labels {
       highlight.removeFromLabels(existingLabels)
@@ -58,6 +63,7 @@ struct InternalHighlight: Encodable {
       createdAt: highlight.createdAt,
       updatedAt: highlight.updatedAt,
       createdByMe: highlight.createdByMe,
+      createdBy: InternalUserProfile.makeSingle(highlight.createdBy),
       labels: InternalLinkedItemLabel.make(highlight.labels)
     )
   }

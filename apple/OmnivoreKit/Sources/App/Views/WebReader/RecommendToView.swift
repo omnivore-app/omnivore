@@ -26,7 +26,7 @@ import Views
     isLoading = true
 
     do {
-      recommendationGroups = try await dataService.recommendationGroups()
+      recommendationGroups = try await dataService.recommendationGroups().filter(\.canPost)
     } catch {
       print("ERROR fetching recommendationGroups: ", error)
       networkError = true
@@ -120,7 +120,7 @@ struct RecommendToView: View {
       if viewModel.highlightCount > 0 {
         Toggle(isOn: $viewModel.withHighlights, label: {
           HStack(alignment: .firstTextBaseline) {
-            Text("Include \(viewModel.highlightCount) highlight\(viewModel.highlightCount > 1 ? "s" : "")")
+            Text("Include your \(viewModel.highlightCount) highlight\(viewModel.highlightCount > 1 ? "s" : "")")
           }
         })
       }
@@ -139,24 +139,35 @@ struct RecommendToView: View {
         EmptyView()
       }
       List {
-        Section("Select groups to recommend to") {
-          ForEach(viewModel.recommendationGroups) { group in
-            HStack {
-              Text(group.name)
+        if !viewModel.isLoading, viewModel.recommendationGroups.count < 1 {
+          Text("""
+          You do not have any groups you can post to.
 
-              Spacer()
+          Join a group or create your own to start recommending articles.
 
-              if viewModel.selectedGroups.contains(where: { $0.id == group.id }) {
-                Image(systemName: "checkmark")
+          [Learn more about groups](https://blog.omnivore.app/p/dca38ba4-8a74-42cc-90ca-d5ffa5d075cc)
+          """)
+            .accentColor(.blue)
+        } else {
+          Section("Select groups to recommend to") {
+            ForEach(viewModel.recommendationGroups) { group in
+              HStack {
+                Text(group.name)
+
+                Spacer()
+
+                if viewModel.selectedGroups.contains(where: { $0.id == group.id }) {
+                  Image(systemName: "checkmark")
+                }
               }
-            }
-            .contentShape(Rectangle())
-            .onTapGesture {
-              let idx = viewModel.selectedGroups.firstIndex(where: { $0.id == group.id })
-              if let idx = idx {
-                viewModel.selectedGroups.remove(at: idx)
-              } else {
-                viewModel.selectedGroups.append(group)
+              .contentShape(Rectangle())
+              .onTapGesture {
+                let idx = viewModel.selectedGroups.firstIndex(where: { $0.id == group.id })
+                if let idx = idx {
+                  viewModel.selectedGroups.remove(at: idx)
+                } else {
+                  viewModel.selectedGroups.append(group)
+                }
               }
             }
           }

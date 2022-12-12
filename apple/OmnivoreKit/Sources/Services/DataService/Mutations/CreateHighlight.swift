@@ -22,6 +22,7 @@ extension DataService {
       createdAt: nil,
       updatedAt: nil,
       createdByMe: true,
+      createdBy: nil,
       labels: []
     )
 

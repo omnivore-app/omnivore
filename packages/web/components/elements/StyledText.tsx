@@ -23,12 +23,12 @@ const textVariants = {
       lineHeight: '1.25',
     },
     recommendedByline: {
-      // fontWeight: 'bold',
+      fontWeight: 'bold',
       fontSize: '13.5px',
       paddingTop: '4px',
       mt: '0px',
-      mb: '24px',
-      color: '$grayText',
+      mb: '16px',
+      color: '$grayTextContrast',
     },
     userName: {
       fontWeight: '600',

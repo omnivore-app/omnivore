@@ -133,7 +133,7 @@ public extension LinkedItem {
     let recommendations = self.recommendations.asArray(of: Recommendation.self).map { recommendation in
       let recommendedAt = recommendation.recommendedAt == nil ? nil : recommendation.recommendedAt?.ISO8601Format()
       return [
-        "id": NSString(string: recommendation.id ?? ""),
+        "id": NSString(string: recommendation.groupID ?? ""),
         "name": NSString(string: recommendation.name ?? ""),
         "note": recommendation.note == nil ? nil : NSString(string: recommendation.note ?? ""),
         "user": recommendation.user == nil ? nil : NSDictionary(dictionary: [

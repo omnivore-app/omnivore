@@ -7,7 +7,7 @@ import {
   SpanBox,
   VStack,
 } from './../../elements/LayoutPrimitives'
-import { StyledText } from './../../elements/StyledText'
+import { StyledText, StyledTextSpan } from './../../elements/StyledText'
 import { ArticleSubtitle } from './../../patterns/ArticleSubtitle'
 import { styled, theme, ThemeId } from './../../tokens/stitches.config'
 import { HighlightsLayer } from '../../templates/article/HighlightsLayer'
@@ -215,14 +215,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     readerHeadersColor: theme.colors.readerHeader.toString(),
   }
 
-  const recommendationByline = useMemo(() => {
-    return props.article.recommendations
-      ?.flatMap((recommendation) => {
-        return recommendation.user?.name
-      })
-      .join(', ')
-  }, [props.article.recommendations])
-
   const recommendationsWithNotes = useMemo(() => {
     return (
       props.article.recommendations?.filter((recommendation) => {
@@ -310,40 +302,60 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
               ))}
             </SpanBox>
           ) : null}
-          {recommendationByline && (
+          {recommendationsWithNotes.length > 0 && (
             <VStack
+              id="recommendations-container"
               css={{
                 borderRadius: '6px',
-                bg: '$grayBase',
+                bg: '$grayBgSubtle',
                 p: '16px',
                 pt: '16px',
+                pb: '2px',
                 width: '100%',
                 marginTop: '24px',
                 color: '$grayText',
                 lineHeight: '2.0',
               }}
             >
-              <HStack css={{ gap: '8px' }}>
-                <Sparkle size="14" />
+              <HStack css={{ pb: '0px', mb: '0px' }}>
                 <StyledText
                   style="recommendedByline"
-                  css={{ paddingTop: '0px' }}
+                  css={{ paddingTop: '0px', mb: '16px' }}
                 >
-                  Recommended by {recommendationByline}
+                  Comments{' '}
+                  <SpanBox css={{ color: 'grayText', fontWeight: '400' }}>
+                    &nbsp;{` ${recommendationsWithNotes.length}`}
+                  </SpanBox>
                 </StyledText>
               </HStack>
 
               {recommendationsWithNotes.map((item, idx) => (
-                <VStack key={item.id} alignment="start" distribution="start">
+                <VStack
+                  key={item.id}
+                  alignment="start"
+                  distribution="start"
+                  css={{ pt: '0px', pb: '8px' }}
+                >
                   {/* <StyledQuote>{item.note}</StyledQuote> */}
-                  <HStack css={{}} alignment="start">
-                    <StyledText style="userNote">
-                      <SpanBox css={{ opacity: '0.5' }}>
-                        {item.user?.name}:
-                      </SpanBox>{' '}
+                  <HStack>
+                    <SpanBox
+                      css={{
+                        verticalAlign: 'top',
+                        minWidth: '28px',
+                        display: 'flex',
+                      }}
+                    >
+                      <Avatar
+                        imageURL={item.user?.profileImageURL}
+                        height="28px"
+                        noFade={true}
+                        tooltip={item.user?.name}
+                        fallbackText={item.user?.username[0] ?? 'U'}
+                      />
+                    </SpanBox>
+                    <StyledText style="userNote" css={{ pl: '16px' }}>
                       {item.note}
                     </StyledText>
-                    :
                   </HStack>
                 </VStack>
               ))}

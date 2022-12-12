@@ -13,6 +13,8 @@ public struct InternalRecommendationGroup: Identifiable {
   public let id: String
   public let name: String
   public let inviteUrl: String
+  public let canPost: Bool
+  public let canSeeMembers: Bool
   public let admins: [InternalUserProfile]
   public let members: [InternalUserProfile]
 
@@ -40,6 +42,8 @@ public struct InternalRecommendationGroup: Identifiable {
         id: id,
         name: name,
         inviteUrl: inviteUrl,
+        canPost: recommendationGroup.canPost,
+        canSeeMembers: recommendationGroup.canSeeMembers,
         admins: InternalUserProfile.make(recommendationGroup.admins),
         members: InternalUserProfile.make(recommendationGroup.members)
       )

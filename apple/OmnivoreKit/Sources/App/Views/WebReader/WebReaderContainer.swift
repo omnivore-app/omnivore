@@ -359,10 +359,12 @@ struct WebReaderContainerView: View {
           })
         }
         .formSheet(isPresented: $showRecommendSheet) {
+          let highlightCount = item.highlights.asArray(of: Highlight.self).filter(\.createdByMe).count
           NavigationView {
             RecommendToView(
               dataService: dataService,
-              viewModel: RecommendToViewModel(pageID: item.unwrappedID, highlightCount: item.highlights?.count ?? 0)
+              viewModel: RecommendToViewModel(pageID: item.unwrappedID,
+                                              highlightCount: highlightCount)
             )
           }.onDisappear {
             showRecommendSheet = false

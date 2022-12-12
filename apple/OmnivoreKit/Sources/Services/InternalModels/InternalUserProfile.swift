@@ -2,7 +2,7 @@ import CoreData
 import Foundation
 import Models
 
-public struct InternalUserProfile: Identifiable {
+public struct InternalUserProfile: Identifiable, Encodable {
   let userID: String
   public let name: String
   public let username: String

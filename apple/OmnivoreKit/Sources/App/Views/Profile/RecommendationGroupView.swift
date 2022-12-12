@@ -127,7 +127,14 @@ struct RecommendationGroupView: View {
 
   private var membersSection: some View {
     Section("Members") {
-      if viewModel.nonAdmins.count > 0 {
+      if !viewModel.recommendationGroup.canSeeMembers {
+        Text("""
+        The admin of this group does not allow viewing all members.
+
+        [Learn more about groups](https://blog.omnivore.app/p/dca38ba4-8a74-42cc-90ca-d5ffa5d075cc)
+        """)
+          .accentColor(.blue)
+      } else if viewModel.nonAdmins.count > 0 {
         ForEach(viewModel.nonAdmins) { member in
           SmallUserCard(data: ProfileCardData(
             name: member.name,

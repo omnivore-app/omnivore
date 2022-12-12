@@ -235,7 +235,7 @@ let recommendingUserSelection = Selection.RecommendingUser {
 
 let recommendationSelection = Selection.Recommendation {
   InternalRecommendation(
-    id: try $0.id(),
+    groupID: try $0.id(),
     name: try $0.name(),
     note: try $0.note(),
     user: try $0.user(selection: recommendingUserSelection.nullable),

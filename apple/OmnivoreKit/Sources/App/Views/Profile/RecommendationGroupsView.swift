@@ -10,6 +10,8 @@ import Views
   @Published var recommendationGroups = [InternalRecommendationGroup]()
 
   @Published var showCreateSheet = false
+  @Published var newGroupOnlyAdminCanPost = false
+  @Published var newGroupOnlyAdminCanSeeMembers = false
 
   @Published var showCreateError = false
   @Published var createGroupError: String?
@@ -30,7 +32,6 @@ import Views
     isCreating = true
 
     if let group = try? await dataService.createRecommendationGroup(name: name) {
-      print("CREATED GROUP: ", group)
       await loadGroups(dataService: dataService)
       showCreateSheet = false
     } else {
@@ -67,6 +68,11 @@ struct CreateRecommendationGroupView: View {
     NavigationView {
       Form {
         TextField("Name", text: $name, prompt: Text("Group Name"))
+
+        Section {
+          Toggle("Only admins can post", isOn: $viewModel.newGroupOnlyAdminCanPost)
+          Toggle("Only admins can see members", isOn: $viewModel.newGroupOnlyAdminCanSeeMembers)
+        }
       }
       .alert(isPresented: $viewModel.showCreateError) {
         Alert(
