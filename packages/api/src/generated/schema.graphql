@@ -243,9 +243,13 @@ enum CreateGroupErrorCode {
 }
 
 input CreateGroupInput {
+  description: String
   expiresInDays: Int
   maxMembers: Int
   name: String!
+  onlyAdminCanPost: Boolean
+  onlyAdminCanSeeMembers: Boolean
+  topics: [String!]
 }
 
 union CreateGroupResult = CreateGroupError | CreateGroupSuccess
@@ -1312,11 +1316,15 @@ type Recommendation {
 
 type RecommendationGroup {
   admins: [User!]!
+  canPost: Boolean!
+  canSeeMembers: Boolean!
   createdAt: Date!
+  description: String
   id: ID!
   inviteUrl: String!
   members: [User!]!
   name: String!
+  topics: [String!]
   updatedAt: Date!
 }
 

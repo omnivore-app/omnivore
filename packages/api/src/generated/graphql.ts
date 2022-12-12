@@ -287,9 +287,13 @@ export enum CreateGroupErrorCode {
 }
 
 export type CreateGroupInput = {
+  description?: InputMaybe<Scalars['String']>;
   expiresInDays?: InputMaybe<Scalars['Int']>;
   maxMembers?: InputMaybe<Scalars['Int']>;
   name: Scalars['String'];
+  onlyAdminCanPost?: InputMaybe<Scalars['Boolean']>;
+  onlyAdminCanSeeMembers?: InputMaybe<Scalars['Boolean']>;
+  topics?: InputMaybe<Array<Scalars['String']>>;
 };
 
 export type CreateGroupResult = CreateGroupError | CreateGroupSuccess;
@@ -1866,11 +1870,15 @@ export type Recommendation = {
 export type RecommendationGroup = {
   __typename?: 'RecommendationGroup';
   admins: Array<User>;
+  canPost: Scalars['Boolean'];
+  canSeeMembers: Scalars['Boolean'];
   createdAt: Scalars['Date'];
+  description?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   inviteUrl: Scalars['String'];
   members: Array<User>;
   name: Scalars['String'];
+  topics?: Maybe<Array<Scalars['String']>>;
   updatedAt: Scalars['Date'];
 };
 
@@ -4959,11 +4967,15 @@ export type RecommendationResolvers<ContextType = ResolverContext, ParentType ex
 
 export type RecommendationGroupResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RecommendationGroup'] = ResolversParentTypes['RecommendationGroup']> = {
   admins?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType>;
+  canPost?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  canSeeMembers?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   inviteUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   members?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  topics?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
