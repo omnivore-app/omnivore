@@ -240,7 +240,7 @@ export const updatePage = async (
           updatedAt: new Date(),
         },
       },
-      refresh: 'wait_for', // wait for the index to be refreshed before returning
+      refresh: ctx.refresh,
       retry_on_conflict: 3,
     })
 
