@@ -16,6 +16,7 @@ interface PubSubRequestMessage {
 
 interface PubSubRequestBody {
   message: PubSubRequestMessage
+  subscription: string
 }
 
 export interface PubSubData {
@@ -45,24 +46,26 @@ const expired = (body: PubSubRequestBody): boolean => {
 
 const readPushSubscription = (
   req: express.Request
-): { message: string | undefined; expired: boolean } => {
-  console.debug('request query', req.body)
-
+): { message: string | undefined; expired: boolean; subscription?: string } => {
   if (req.query.token !== process.env.PUBSUB_VERIFICATION_TOKEN) {
     console.log('query does not include valid pubsub token')
     return { message: undefined, expired: false }
   }
 
   // GCP PubSub sends the request as a base64 encoded string
-  if (!('message' in req.body)) {
-    console.log('Invalid pubsub message: message not in body')
+  if (!('message' in req.body) || !('subscription' in req.body)) {
+    console.log('Invalid pubsub message: message or subscription not in body')
     return { message: undefined, expired: false }
   }
 
   const body = req.body as PubSubRequestBody
   const message = Buffer.from(body.message.data, 'base64').toString('utf-8')
 
-  return { message: message, expired: expired(body) }
+  return {
+    message: message,
+    expired: expired(body),
+    subscription: body.subscription,
+  }
 }
 
 export const getAuthToken = async (
@@ -81,9 +84,9 @@ export const ruleHandler = Sentry.GCPFunction.wrapHttpFunction(
       throw new Error('REST_BACKEND_ENDPOINT or JWT_SECRET not set')
     }
 
-    const { message: msgStr, expired } = readPushSubscription(req)
+    const { message: msgStr, expired, subscription } = readPushSubscription(req)
 
-    if (!msgStr) {
+    if (!msgStr || !subscription) {
       res.status(400).send('Bad Request')
       return
     }
@@ -117,12 +120,21 @@ export const ruleHandler = Sentry.GCPFunction.wrapHttpFunction(
         return
       }
 
+      // subscription: 'projects/omnivore-demo/subscriptions/entityUpdated-rule'
+      const eventType = subscription.match(/entity(.*)-rule/)?.[1]
+      if (!eventType) {
+        console.log('No event type found')
+        res.status(200).send('No Event Type')
+        return
+      }
+
       const triggeredActions = await triggerActions(
         userId,
         rules,
         data,
         apiEndpoint,
-        jwtSecret
+        jwtSecret,
+        eventType
       )
       if (triggeredActions.length === 0) {
         console.log('No actions triggered')
