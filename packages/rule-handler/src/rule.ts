@@ -29,6 +29,8 @@ export interface Rule {
   updatedAt: Date
 }
 
+const EVENT_FILTERS = ['event:created', 'event:updated']
+
 export const getEnabledRules = async (
   userId: string,
   apiEndpoint: string,
@@ -73,17 +75,34 @@ export const triggerActions = async (
   rules: Rule[],
   data: PubSubData,
   apiEndpoint: string,
-  jwtSecret: string
+  jwtSecret: string,
+  eventType: string
 ) => {
   const authToken = await getAuthToken(userId, jwtSecret)
   const actionPromises: Promise<AxiosResponse<any, any> | undefined>[] = []
 
   for (const rule of rules) {
+    let filter = rule.filter
+    const filters = filter.split(' ')
+
+    // Check if the rule is enabled for the event type
+    const eventFilterIndex = filters.findIndex((f) => EVENT_FILTERS.includes(f))
+    if (eventFilterIndex !== -1) {
+      const eventFilter = filters[eventFilterIndex]
+      if (eventFilter !== `event:${eventType}`.toLowerCase()) {
+        continue
+      }
+
+      // Remove the event filter from the filter string
+      filters.splice(eventFilterIndex, 1)
+      filter = filters.join(' ')
+    }
+
     const filteredPage = await filterPage(
       userId,
       apiEndpoint,
       authToken,
-      rule.filter,
+      filter,
       data.id
     )
     if (!filteredPage) {
