@@ -71,6 +71,10 @@ export const createGroupResolver = authorized<
       name: input.name,
       maxMembers: input.maxMembers,
       expiresInDays: input.expiresInDays,
+      description: input.description,
+      topics: input.topics,
+      onlyAdminCanPost: input.onlyAdminCanPost,
+      onlyAdminCanSeeMembers: input.onlyAdminCanSeeMembers,
     })
 
     analytics.track({
@@ -94,6 +98,10 @@ export const createGroupResolver = authorized<
         inviteUrl,
         admins: [user],
         members: [user],
+        canSeeMembers: true,
+        canPost: true,
+        description: group.description,
+        topics: group.topics?.split(','),
       },
     }
   } catch (error) {
