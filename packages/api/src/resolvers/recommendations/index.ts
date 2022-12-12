@@ -39,6 +39,7 @@ import { In } from 'typeorm'
 import { getPageByParam } from '../../elastic/pages'
 import { enqueueRecommendation } from '../../utils/createTask'
 import { env } from '../../env'
+import { analytics } from '../../utils/analytics'
 
 export const createGroupResolver = authorized<
   CreateGroupSuccess,
@@ -70,6 +71,16 @@ export const createGroupResolver = authorized<
       name: input.name,
       maxMembers: input.maxMembers,
       expiresInDays: input.expiresInDays,
+    })
+
+    analytics.track({
+      userId: uid,
+      event: 'group_created',
+      properties: {
+        group_id: group.id,
+        group_name: group.name,
+        group_invite_code: invite.code,
+      },
     })
 
     await createLabelAndRuleForGroup(uid, group.name)
@@ -264,6 +275,15 @@ export const joinGroupResolver = authorized<
 
     const group = await joinGroup(user, inviteCode)
 
+    analytics.track({
+      userId: uid,
+      event: 'group_joined',
+      properties: {
+        group_id: group.id,
+        group_name: group.name,
+      },
+    })
+
     await createLabelAndRuleForGroup(user.id, group.name)
 
     return {
@@ -402,6 +422,14 @@ export const leaveGroupResolver = authorized<
     }
 
     const success = await leaveGroup(user, groupId)
+
+    analytics.track({
+      userId: uid,
+      event: 'group_left',
+      properties: {
+        group_id: groupId,
+      },
+    })
 
     return {
       success,
