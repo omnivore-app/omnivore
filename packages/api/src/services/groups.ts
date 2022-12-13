@@ -254,6 +254,6 @@ export const createLabelAndRuleForGroup = async (
         ],
       },
     ],
-    filter: `recommendedBy:"${groupName}"`,
+    filter: `event:created recommendedBy:"${groupName}"`,
   })
 }
