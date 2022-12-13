@@ -269,3 +269,19 @@ export const createLabelAndRuleForGroup = async (
 
   await Promise.all([addLabelPromise, sendNotificationPromise])
 }
+
+// find groups where id is in the groupIds and the user is a member of the group and the user is allowed to post
+export const getGroupsWhereUserCanPost = async (
+  userId: string,
+  groupIds: string[]
+): Promise<Group[]> => {
+  return getRepository(Group)
+    .createQueryBuilder('group')
+    .innerJoin('group.members', 'members1')
+    .whereInIds(groupIds)
+    .andWhere('members1.user_id = :userId', { userId })
+    .andWhere('(members1.is_admin = true OR group.only_admin_can_post = false)')
+    .innerJoinAndSelect('group.members', 'members')
+    .innerJoinAndSelect('members.user', 'user')
+    .getMany()
+}
