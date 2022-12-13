@@ -9,8 +9,6 @@ import Utils
 
 extension AppDelegate {
   func configureFirebase() {
-    guard UserDefaults.standard.bool(forKey: UserDefaultKey.notificationsEnabled.rawValue) else { return }
-
     let keys: FirebaseKeys? = {
       let isProd = (PublicValet.storedAppEnvironment ?? .initialAppEnvironment) == .prod
       let firebaseKeys = isProd ? AppKeys.sharedInstance?.firebaseProdKeys : AppKeys.sharedInstance?.firebaseDemoKeys
@@ -30,9 +28,7 @@ extension AppDelegate {
     FirebaseApp.configure(options: firebaseOpts)
     FirebaseConfiguration.shared.setLoggerLevel(.min)
 
-    if UserDefaults.standard.bool(forKey: UserDefaultKey.notificationsEnabled.rawValue) {
-      registerForNotifications()
-    }
+    registerForNotifications()
   }
 
   func registerForNotifications() {
@@ -55,6 +51,8 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     withCompletionHandler completionHandler:
     @escaping (UNNotificationPresentationOptions) -> Void
   ) {
+    guard UserDefaults.standard.bool(forKey: UserDefaultKey.notificationsEnabled.rawValue) else { return }
+
     let userInfo = notification.request.content.userInfo
     UIApplication.shared.applicationIconBadgeNumber = 0
     print(userInfo) // extract data sent along with PN
@@ -66,6 +64,8 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     didReceive response: UNNotificationResponse,
     withCompletionHandler completionHandler: @escaping () -> Void
   ) {
+    guard UserDefaults.standard.bool(forKey: UserDefaultKey.notificationsEnabled.rawValue) else { return }
+
     let userInfo = response.notification.request.content.userInfo
 
     if let linkData = userInfo["link"] as? String {
@@ -100,6 +100,12 @@ extension AppDelegate: MessagingDelegate {
 
     let savedToken = UserDefaults.standard.string(forKey: UserDefaultKey.firebasePushToken.rawValue)
     let deviceTokenID = UserDefaults.standard.string(forKey: UserDefaultKey.deviceTokenID.rawValue)
+
+    if !UserDefaults.standard.bool(forKey: UserDefaultKey.notificationsEnabled.rawValue) {
+      // save the token for use later if needed and return so it is not uploaded
+      UserDefaults.standard.set(fcmToken, forKey: UserDefaultKey.firebasePushToken.rawValue)
+      return
+    }
 
     // If the deviceTokenID is null, that means we haven't set our token yet, and this is just
     // a previously saved token.
