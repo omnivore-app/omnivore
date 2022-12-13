@@ -235,13 +235,22 @@ export const createLabelAndRuleForGroup = async (
   const label = await createLabel(userId, { name: groupName })
 
   // create a rule to add the label to all pages in the group
-  await createRule(userId, {
-    name: groupName,
+  const addLabelPromise = createRule(userId, {
+    name: `Add label ${groupName} to all pages in group ${groupName}`,
     actions: [
       {
         type: RuleActionType.AddLabel,
         params: [label.id],
       },
+    ],
+    // always add the label to pages in the group
+    filter: `recommendedBy:"${groupName}"`,
+  })
+
+  // create a rule to send a notification when a page is recommended
+  const sendNotificationPromise = createRule(userId, {
+    name: `Send notification when a page is recommended to ${groupName}`,
+    actions: [
       {
         type: RuleActionType.SendNotification,
         params: [
@@ -257,4 +266,6 @@ export const createLabelAndRuleForGroup = async (
     // add a condition to check if the page is created
     filter: `event:created recommendedBy:"${groupName}"`,
   })
+
+  await Promise.all([addLabelPromise, sendNotificationPromise])
 }
