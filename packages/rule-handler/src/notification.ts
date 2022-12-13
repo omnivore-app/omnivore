@@ -23,7 +23,7 @@ export const sendNotification = async (
   const requestData: RequestData = {
     body,
     title,
-    image,
+    // image,
     notificationType: 'rule',
     data,
   }
