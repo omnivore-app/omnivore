@@ -26,6 +26,7 @@ import {
 import {
   createGroup,
   createLabelAndRuleForGroup,
+  getGroupsWhereUserCanPost,
   getInviteUrl,
   getRecommendationGroups,
   joinGroup,
@@ -187,18 +188,16 @@ export const recommendResolver = authorized<
       }
     }
 
-    const groups = await getRepository(Group).find({
-      where: { id: In(input.groupIds) },
-      relations: ['members', 'members.user'],
-    })
-    if (groups.length === 0) {
+    const page = await getPageByParam({ _id: input.pageId, userId: uid })
+    if (!page) {
       return {
         errorCodes: [RecommendErrorCode.NotFound],
       }
     }
 
-    const page = await getPageByParam({ _id: input.pageId, userId: uid })
-    if (!page) {
+    // find groups where id is in the groupIds and the user is a member of the group and the user is allowed to post
+    const groups = await getGroupsWhereUserCanPost(uid, input.groupIds)
+    if (groups.length === 0) {
       return {
         errorCodes: [RecommendErrorCode.NotFound],
       }
@@ -211,7 +210,7 @@ export const recommendResolver = authorized<
 
     const exp = Math.floor(Date.now() / 1000) + 60 * 60 * 24 // 1 day
     const auth = (await signToken({ uid, exp }, env.server.jwtSecret)) as string
-    await Promise.all(
+    const taskNames = await Promise.all(
       groups
         .map((group) =>
           group.members.map((member) =>
@@ -237,6 +236,7 @@ export const recommendResolver = authorized<
         )
         .flat()
     )
+    console.log('taskNames', taskNames)
 
     return {
       success: true,

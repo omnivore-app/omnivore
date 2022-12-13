@@ -79,17 +79,16 @@ export const getRecommendationGroups = async (
   return groupMembers.map((gm) => {
     const admins: GraphqlUser[] = []
     const members: GraphqlUser[] = []
+    // Return all members
+    gm.group.members.forEach((m) => {
+      const user = userDataToUser(m.user)
+      if (m.isAdmin) {
+        admins.push(user)
+      }
+      members.push(user)
+    })
+
     const canSeeMembers = gm.group.onlyAdminCanSeeMembers ? gm.isAdmin : true
-    if (canSeeMembers) {
-      // Return all members
-      gm.group.members.forEach((m) => {
-        const user = userDataToUser(m.user)
-        if (m.isAdmin) {
-          admins.push(user)
-        }
-        members.push(user)
-      })
-    }
 
     return {
       id: gm.group.id,
@@ -98,7 +97,7 @@ export const getRecommendationGroups = async (
       updatedAt: gm.group.updatedAt,
       inviteUrl: getInviteUrl(gm.invite),
       admins,
-      members,
+      members: canSeeMembers ? members : [],
       topics: gm.group.topics?.split(','),
       description: gm.group.description,
       canPost: gm.group.onlyAdminCanPost ? gm.isAdmin : true,
@@ -151,22 +150,20 @@ having count(*) < $4`,
   })
   const admins: GraphqlUser[] = []
   const members: GraphqlUser[] = []
-  if (!group.onlyAdminCanSeeMembers) {
-    // Return all members
-    group.members.forEach((m) => {
-      const user = userDataToUser(m.user)
-      if (m.isAdmin) {
-        admins.push(user)
-      }
-      members.push(user)
-    })
-  }
+  // Return all members
+  group.members.forEach((m) => {
+    const user = userDataToUser(m.user)
+    if (m.isAdmin) {
+      admins.push(user)
+    }
+    members.push(user)
+  })
 
   return {
     ...group,
     inviteUrl: getInviteUrl(invite),
     admins,
-    members,
+    members: group.onlyAdminCanSeeMembers ? [] : members,
     topics: group.topics?.split(','),
     description: group.description,
     canPost: !group.onlyAdminCanPost,
@@ -268,4 +265,20 @@ export const createLabelAndRuleForGroup = async (
   })
 
   await Promise.all([addLabelPromise, sendNotificationPromise])
+}
+
+// find groups where id is in the groupIds and the user is a member of the group and the user is allowed to post
+export const getGroupsWhereUserCanPost = async (
+  userId: string,
+  groupIds: string[]
+): Promise<Group[]> => {
+  return getRepository(Group)
+    .createQueryBuilder('group')
+    .innerJoin('group.members', 'members1')
+    .whereInIds(groupIds)
+    .andWhere('members1.user_id = :userId', { userId })
+    .andWhere('(members1.is_admin = true OR group.only_admin_can_post = false)')
+    .innerJoinAndSelect('group.members', 'members')
+    .innerJoinAndSelect('members.user', 'user')
+    .getMany()
 }
