@@ -232,9 +232,9 @@ export function LandingSectionsContainer(): JSX.Element {
         titleText="Listen to what you're reading."
         descriptionText={
           <p>
-            Lorem IpsumRead what you want, not what some algorithm says you
-            should. Keep your reading organized and easily available with
-            labels, filters, and fully indexed text searches.
+            Omnivore for iOS features realistic humanlike text-to-speech. So you
+            can give your eyes a break and listen to any article saved to your
+            library.
           </p>
         }
         image={
