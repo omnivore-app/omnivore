@@ -1,4 +1,9 @@
-import { Page, PageContext, Recommendation } from './types'
+import {
+  ArticleSavingRequestStatus,
+  Page,
+  PageContext,
+  Recommendation,
+} from './types'
 import { createPage, getPageByParam, updatePage } from './pages'
 
 export const addRecommendation = async (
@@ -66,7 +71,14 @@ export const addRecommendation = async (
       sharedAt: new Date(),
       highlights,
       readAt: undefined,
-      labels: [],
+      labels: undefined,
+      subscription: undefined,
+      unsubHttpUrl: undefined,
+      unsubMailTo: undefined,
+      _id: undefined,
+      archivedAt: undefined,
+      state: ArticleSavingRequestStatus.Succeeded,
+      taskName: undefined,
     }
 
     return createPage(newPage, ctx)

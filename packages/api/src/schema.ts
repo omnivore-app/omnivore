@@ -2158,6 +2158,10 @@ const schema = gql`
     name: String! @sanitize(maxLength: 140)
     maxMembers: Int
     expiresInDays: Int
+    description: String
+    topics: [String!]
+    onlyAdminCanPost: Boolean
+    onlyAdminCanSeeMembers: Boolean
   }
 
   union CreateGroupResult = CreateGroupSuccess | CreateGroupError
@@ -2174,6 +2178,10 @@ const schema = gql`
     members: [User!]!
     createdAt: Date!
     updatedAt: Date!
+    canPost: Boolean!
+    description: String
+    topics: [String!]
+    canSeeMembers: Boolean!
   }
 
   type CreateGroupError {

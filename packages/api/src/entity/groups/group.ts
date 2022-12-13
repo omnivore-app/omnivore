@@ -32,4 +32,16 @@ export class Group {
 
   @OneToMany(() => GroupMembership, (groupMembership) => groupMembership.group)
   members!: GroupMembership[]
+
+  @Column('text', { nullable: true })
+  description?: string | null
+
+  @Column('text', { nullable: true })
+  topics?: string | null
+
+  @Column('boolean', { default: false })
+  onlyAdminCanPost!: boolean
+
+  @Column('boolean', { default: false })
+  onlyAdminCanSeeMembers!: boolean
 }

@@ -187,14 +187,23 @@ const appendIdsFilter = (body: SearchBody, ids: string[]): void => {
 }
 
 const appendRecommendedBy = (body: SearchBody, recommendedBy: string): void => {
+  const query =
+    recommendedBy === '*'
+      ? {
+          exists: {
+            field: 'recommendations',
+          },
+        }
+      : {
+          term: {
+            'recommendations.name': recommendedBy,
+          },
+        }
+
   body.query.bool.must.push({
     nested: {
       path: 'recommendations',
-      query: {
-        term: {
-          'recommendations.name': recommendedBy,
-        },
-      },
+      query,
     },
   })
 }

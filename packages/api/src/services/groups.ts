@@ -17,6 +17,10 @@ export const createGroup = async (input: {
   name: string
   maxMembers?: number | null
   expiresInDays?: number | null
+  description?: string | null
+  topics?: string[] | null
+  onlyAdminCanPost?: boolean | null
+  onlyAdminCanSeeMembers?: boolean | null
 }): Promise<[Group, Invite]> => {
   const [group, invite] = await AppDataSource.transaction<[Group, Invite]>(
     async (t) => {
@@ -32,6 +36,10 @@ export const createGroup = async (input: {
       const group = await t.getRepository(Group).save({
         name: input.name,
         createdBy: input.admin,
+        description: input.description,
+        topics: input.topics?.join(','),
+        onlyAdminCanPost: input.onlyAdminCanPost ?? false,
+        onlyAdminCanSeeMembers: input.onlyAdminCanSeeMembers ?? false,
       })
 
       const code = nanoid(8)
@@ -71,13 +79,17 @@ export const getRecommendationGroups = async (
   return groupMembers.map((gm) => {
     const admins: GraphqlUser[] = []
     const members: GraphqlUser[] = []
-    gm.group.members.forEach((m) => {
-      const user = userDataToUser(m.user)
-      if (m.isAdmin) {
-        admins.push(user)
-      }
-      members.push(user)
-    })
+    const canSeeMembers = gm.group.onlyAdminCanSeeMembers ? gm.isAdmin : true
+    if (canSeeMembers) {
+      // Return all members
+      gm.group.members.forEach((m) => {
+        const user = userDataToUser(m.user)
+        if (m.isAdmin) {
+          admins.push(user)
+        }
+        members.push(user)
+      })
+    }
 
     return {
       id: gm.group.id,
@@ -87,6 +99,10 @@ export const getRecommendationGroups = async (
       inviteUrl: getInviteUrl(gm.invite),
       admins,
       members,
+      topics: gm.group.topics?.split(','),
+      description: gm.group.description,
+      canPost: gm.group.onlyAdminCanPost ? gm.isAdmin : true,
+      canSeeMembers,
     }
   })
 }
@@ -135,19 +151,26 @@ having count(*) < $4`,
   })
   const admins: GraphqlUser[] = []
   const members: GraphqlUser[] = []
-  group.members.forEach((m) => {
-    const user = userDataToUser(m.user)
-    if (m.isAdmin) {
-      admins.push(user)
-    }
-    members.push(user)
-  })
+  if (!group.onlyAdminCanSeeMembers) {
+    // Return all members
+    group.members.forEach((m) => {
+      const user = userDataToUser(m.user)
+      if (m.isAdmin) {
+        admins.push(user)
+      }
+      members.push(user)
+    })
+  }
 
   return {
     ...group,
     inviteUrl: getInviteUrl(invite),
     admins,
     members,
+    topics: group.topics?.split(','),
+    description: group.description,
+    canPost: !group.onlyAdminCanPost,
+    canSeeMembers: !group.onlyAdminCanSeeMembers,
   }
 }
 
