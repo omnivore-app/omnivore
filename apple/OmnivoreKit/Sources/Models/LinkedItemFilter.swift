@@ -81,10 +81,11 @@ public extension LinkedItemFilter {
       )
       return NSCompoundPredicate(andPredicateWithSubpredicates: [notInArchivePredicate, newsletterLabelPredicate])
     case .recommended:
-      let recommendationsPredicate = NSPredicate(
+      // non-archived or deleted items with the Newsletter label
+      let recommendedPredicate = NSPredicate(
         format: "recommendations.@count > 0"
       )
-      return NSCompoundPredicate(andPredicateWithSubpredicates: [notInArchivePredicate, recommendationsPredicate])
+      return NSCompoundPredicate(andPredicateWithSubpredicates: [notInArchivePredicate, recommendedPredicate])
     case .all:
       // include everything undeleted
       return undeletedPredicate

@@ -9,7 +9,7 @@ import Utils
 
 extension AppDelegate {
   func configureFirebase() {
-    guard FeatureFlag.enablePushNotifications else { return }
+    guard UserDefaults.standard.bool(forKey: UserDefaultKey.notificationsEnabled.rawValue) else { return }
 
     let keys: FirebaseKeys? = {
       let isProd = (PublicValet.storedAppEnvironment ?? .initialAppEnvironment) == .prod

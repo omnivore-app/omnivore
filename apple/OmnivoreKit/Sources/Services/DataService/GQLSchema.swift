@@ -14198,11 +14198,15 @@ extension Objects {
   struct RecommendationGroup {
     let __typename: TypeName = .recommendationGroup
     let admins: [String: [Objects.User]]
+    let canPost: [String: Bool]
+    let canSeeMembers: [String: Bool]
     let createdAt: [String: DateTime]
+    let description: [String: String]
     let id: [String: String]
     let inviteUrl: [String: String]
     let members: [String: [Objects.User]]
     let name: [String: String]
+    let topics: [String: [String]]
     let updatedAt: [String: DateTime]
 
     enum TypeName: String, Codable {
@@ -14227,8 +14231,20 @@ extension Objects.RecommendationGroup: Decodable {
         if let value = try container.decode([Objects.User]?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
+      case "canPost":
+        if let value = try container.decode(Bool?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      case "canSeeMembers":
+        if let value = try container.decode(Bool?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
       case "createdAt":
         if let value = try container.decode(DateTime?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      case "description":
+        if let value = try container.decode(String?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
       case "id":
@@ -14247,6 +14263,10 @@ extension Objects.RecommendationGroup: Decodable {
         if let value = try container.decode(String?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
+      case "topics":
+        if let value = try container.decode([String]?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
       case "updatedAt":
         if let value = try container.decode(DateTime?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
@@ -14262,11 +14282,15 @@ extension Objects.RecommendationGroup: Decodable {
     }
 
     admins = map["admins"]
+    canPost = map["canPost"]
+    canSeeMembers = map["canSeeMembers"]
     createdAt = map["createdAt"]
+    description = map["description"]
     id = map["id"]
     inviteUrl = map["inviteUrl"]
     members = map["members"]
     name = map["name"]
+    topics = map["topics"]
     updatedAt = map["updatedAt"]
   }
 }
@@ -14291,6 +14315,42 @@ extension Fields where TypeLock == Objects.RecommendationGroup {
     }
   }
 
+  func canPost() throws -> Bool {
+    let field = GraphQLField.leaf(
+      name: "canPost",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.canPost[field.alias!] {
+        return data
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return Bool.mockValue
+    }
+  }
+
+  func canSeeMembers() throws -> Bool {
+    let field = GraphQLField.leaf(
+      name: "canSeeMembers",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.canSeeMembers[field.alias!] {
+        return data
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return Bool.mockValue
+    }
+  }
+
   func createdAt() throws -> DateTime {
     let field = GraphQLField.leaf(
       name: "createdAt",
@@ -14306,6 +14366,21 @@ extension Fields where TypeLock == Objects.RecommendationGroup {
       throw HttpError.badpayload
     case .mocking:
       return DateTime.mockValue
+    }
+  }
+
+  func description() throws -> String? {
+    let field = GraphQLField.leaf(
+      name: "description",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      return data.description[field.alias!]
+    case .mocking:
+      return nil
     }
   }
 
@@ -14379,6 +14454,21 @@ extension Fields where TypeLock == Objects.RecommendationGroup {
       throw HttpError.badpayload
     case .mocking:
       return String.mockValue
+    }
+  }
+
+  func topics() throws -> [String]? {
+    let field = GraphQLField.leaf(
+      name: "topics",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      return data.topics[field.alias!]
+    case .mocking:
+      return nil
     }
   }
 
@@ -30362,23 +30452,39 @@ extension InputObjects {
 
 extension InputObjects {
   struct CreateGroupInput: Encodable, Hashable {
+    var description: OptionalArgument<String> = .absent()
+
     var expiresInDays: OptionalArgument<Int> = .absent()
 
     var maxMembers: OptionalArgument<Int> = .absent()
 
     var name: String
 
+    var onlyAdminCanPost: OptionalArgument<Bool> = .absent()
+
+    var onlyAdminCanSeeMembers: OptionalArgument<Bool> = .absent()
+
+    var topics: OptionalArgument<[String]> = .absent()
+
     func encode(to encoder: Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
+      if description.hasValue { try container.encode(description, forKey: .description) }
       if expiresInDays.hasValue { try container.encode(expiresInDays, forKey: .expiresInDays) }
       if maxMembers.hasValue { try container.encode(maxMembers, forKey: .maxMembers) }
       try container.encode(name, forKey: .name)
+      if onlyAdminCanPost.hasValue { try container.encode(onlyAdminCanPost, forKey: .onlyAdminCanPost) }
+      if onlyAdminCanSeeMembers.hasValue { try container.encode(onlyAdminCanSeeMembers, forKey: .onlyAdminCanSeeMembers) }
+      if topics.hasValue { try container.encode(topics, forKey: .topics) }
     }
 
     enum CodingKeys: String, CodingKey {
+      case description
       case expiresInDays
       case maxMembers
       case name
+      case onlyAdminCanPost
+      case onlyAdminCanSeeMembers
+      case topics
     }
   }
 }

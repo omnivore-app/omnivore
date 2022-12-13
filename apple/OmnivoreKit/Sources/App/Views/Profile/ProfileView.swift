@@ -109,9 +109,9 @@ struct ProfileView: View {
 
       #if os(iOS)
         Section {
-//          NavigationLink(destination: PushNotificationSettingsView()) {
-//            Text("Push Notifications")
-//          }
+          NavigationLink(destination: PushNotificationSettingsView()) {
+            Text("Push Notifications")
+          }
           NavigationLink(destination: TextToSpeechView()) {
             Text("Text to Speech")
           }
