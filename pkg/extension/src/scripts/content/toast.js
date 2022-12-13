@@ -101,7 +101,9 @@
     fragment.appendChild(closeButtonEl)
 
     const iframeEl = document.createElement('iframe')
-    const iframePath = '/views/save-popup.html'
+    const iframePath =
+      '/views/save-popup.html?payload=' +
+      new URLSearchParams(payload).toString()
     const iframeUrl = ENV_EXTENSION_ORIGIN + iframePath
     iframeEl.src = iframeUrl
     iframeEl.style.cssText = `all: initial !important;
@@ -109,54 +111,7 @@
       height: 310px !important;
   `
     fragment.appendChild(iframeEl)
-
-    // const linkEl = document.createElement('a')
-    // if (payload.link.startsWith('http')) {
-    //   linkEl.href = payload.link;
-    // }
-    // linkEl.target = '_blank'
-    // linkEl.rel = 'external nofollow noopener noreferrer'
-    // linkEl.textContent = payload.title
-    // linkEl.style.cssText = `all: initial !important;
-    //   margin-left: 1rem !important;
-    //   color: #0645ad !important;
-    //   font: inherit !important;
-    //   cursor: pointer !important;
-    // `
-    // fragment.appendChild(linkEl);
-
-    // const articleLinkEl = fragment.getElementById('get-article-link')
-    // articleLinkEl.innerText = payload.title;
-    // articleLinkEl.href= payload.url;
-    //fragment.appendChild(articleLinkEl);
-
-//     const saveHtml = document.write(`<section class="save-container">
-//     <div class="save-header">
-//         <svg class="save-icon" width="30" height="30" viewBox="0 0 25 20" xmlns="http://www.w3.org/2000/svg">
-//             <path
-//                 d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zm0 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm3.043 4.502.085.015.063.02.076.04.055.04.032.03.037.041.042.062.03.06.02.062.015.082.002.067-.008.068-.03.102-.05.093-.047.057-4.011 4.013a.5.5 0 0 1-.638.057l-.07-.057-2-2-.037-.042-.042-.062-.03-.06-.02-.062-.012-.06-.004-.053v-.057l.016-.086.02-.063.04-.076.04-.055.03-.032.041-.037.062-.042.06-.03.062-.02.059-.012.054-.004h.058l.085.016.063.02.093.052.057.046L7 9.293l3.646-3.647.042-.037.062-.042.06-.03.062-.02.059-.012.054-.004h.058z" />
-//             </path>
-//         </svg>
-
-//         <span>Saved to Omnivore</span>
-//     </div>
-
-//     <div class="save-content">
-//         <h4><a target="_blank" class="save-link" id="get-article-link" href="#"></a></h4>
-//     </div>
-
-//     <div class="save-footer">
-//         <!-- <button id="labels-list">
-//             <a target="_blank" class="save-link" id="get-article-link" href="#">Read Now</a>
-//         </button> -->
-//         <button id="button-readNow">
-//             Read Now
-//         </button>
-//     </div>
-// </section>`)
-//     fragment.appendChild(saveHtml);
-
-    return fragment;
+    return fragment
   }
 
   function updateToastText(payload) {

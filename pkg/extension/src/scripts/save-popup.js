@@ -1,20 +1,14 @@
-'use strict';
+'use strict'
+;(function () {
+  // This gets the link of the iframe -> then it returns [key, values] -> fromEntries method will return the object
+  const payload = Object.fromEntries([
+    ...new URL(window.location.href).searchParams.entries(),
+  ])
 
-(function () {
-//   const urlSearch = window.location.search
+  const articleLinkEl = document.getElementById('get-article-link')
+  console.log(articleLinkEl)
+  const titleEl = document.getElementById('article-title')
 
-//   const urlMatch = urlSearch.match(/[?&]url=([^&]+)/)
-//   if (!urlMatch) return
-
-//   const encodedUrl = urlMatch[1]
-//   if (!encodedUrl) return
-
-  //const url = decodeURIComponent(encodedUrl)
-
-//   const articleLinkEl = document.getElementById('get-article-link')
-//   console.log(articleLinkEl);
-  //const loginLinkEl = document.getElementById('omnivore-login')
-
-  //articleLinkEl.href = url
-  //loginLinkEl.href = url
+  articleLinkEl.href = payload.linkReadNow
+  titleEl.innerText = payload.title
 })()

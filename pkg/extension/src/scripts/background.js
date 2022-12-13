@@ -231,11 +231,10 @@ function handleSaveResponse(tab, field, xhr) {
         action: ACTIONS.ShowMessage,
         payload: {
           text: 'Saved to Omnivore',
-          link: url ?? omnivoreURL + '/home',
+          linkReadNow: url ?? omnivoreURL + '/home',
           linkText: 'Read Now',
           type: 'success',
           title: tab.title,
-          url: url,
         }
       })
 

@@ -41,7 +41,6 @@ body {
   position: relative;
   overflow-y: auto;
   box-sizing: border-box;
-
   padding: 24px 12px;
   background-color: #fff;
   color: #3d3d3d;
@@ -53,12 +52,13 @@ body {
   justify-content: flex-start;
   align-items: center;
   margin-top: 10px;
-  border: 1px solid #90ee90;
-  background-color: #90ee90;
+  border: 1px solid #AEF7CE;
+  background-color: #AEF7CE;
   border-radius: 5px;
   padding: 5px;
   font-weight: 600;
   font-size: 16px;
+  color: #18914C;
 }
 
 .save-icon {
@@ -69,9 +69,16 @@ body {
   color: #3d3d3d;
   text-decoration: none;
   cursor: pointer;
+  font-size: 16px;
 }
 
 .save-content {
+  color: #3d3d3d;
   margin: 0;
-  font-size: 14px;
+  font-size: 16px;
+  min-height: 150px;
+  width: 100%;
+}
+.save-footer {
+    font-weight: 700;
 }
