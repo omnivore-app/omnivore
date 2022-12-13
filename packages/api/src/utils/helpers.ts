@@ -273,3 +273,13 @@ export const wordsCount = (text: string, isHtml = true): number => {
 export const isBase64Image = (str: string): boolean => {
   return str.startsWith('data:image/')
 }
+
+export const generateRandomColor = (): string => {
+  return (
+    '#' +
+    Math.floor(Math.random() * 16777215)
+      .toString(16)
+      .padStart(6, '0')
+      .toUpperCase()
+  )
+}

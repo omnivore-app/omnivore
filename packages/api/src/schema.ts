@@ -668,7 +668,7 @@ const schema = gql`
     shortId: String!
     articleId: ID!
     patch: String!
-    quote: String! @sanitize(maxLength: 2000)
+    quote: String! @sanitize(maxLength: 6000)
     prefix: String @sanitize
     suffix: String @sanitize
     annotation: String @sanitize(maxLength: 4000)
@@ -700,7 +700,7 @@ const schema = gql`
     shortId: ID!
     articleId: ID!
     patch: String!
-    quote: String! @sanitize(maxLength: 2000)
+    quote: String! @sanitize(maxLength: 6000)
     prefix: String @sanitize
     suffix: String @sanitize
     annotation: String @sanitize(maxLength: 8000)
@@ -2158,6 +2158,10 @@ const schema = gql`
     name: String! @sanitize(maxLength: 140)
     maxMembers: Int
     expiresInDays: Int
+    description: String
+    topics: [String!]
+    onlyAdminCanPost: Boolean
+    onlyAdminCanSeeMembers: Boolean
   }
 
   union CreateGroupResult = CreateGroupSuccess | CreateGroupError
@@ -2174,6 +2178,10 @@ const schema = gql`
     members: [User!]!
     createdAt: Date!
     updatedAt: Date!
+    canPost: Boolean!
+    description: String
+    topics: [String!]
+    canSeeMembers: Boolean!
   }
 
   type CreateGroupError {
@@ -2204,12 +2212,13 @@ const schema = gql`
     pageId: ID!
     groupIds: [ID!]!
     note: String
+    recommendedWithHighlights: Boolean
   }
 
   union RecommendResult = RecommendSuccess | RecommendError
 
   type RecommendSuccess {
-    taskNames: [String!]!
+    success: Boolean!
   }
 
   type RecommendError {
@@ -2233,6 +2242,47 @@ const schema = gql`
   }
 
   enum JoinGroupErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+  }
+
+  input RecommendHighlightsInput {
+    pageId: ID!
+    highlightIds: [ID!]!
+    groupIds: [ID!]!
+    note: String
+  }
+
+  union RecommendHighlightsResult =
+      RecommendHighlightsSuccess
+    | RecommendHighlightsError
+
+  type RecommendHighlightsSuccess {
+    success: Boolean!
+  }
+
+  type RecommendHighlightsError {
+    errorCodes: [RecommendHighlightsErrorCode!]!
+  }
+
+  enum RecommendHighlightsErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+  }
+
+  union LeaveGroupResult = LeaveGroupSuccess | LeaveGroupError
+
+  type LeaveGroupSuccess {
+    success: Boolean!
+  }
+
+  type LeaveGroupError {
+    errorCodes: [LeaveGroupErrorCode!]!
+  }
+
+  enum LeaveGroupErrorCode {
     UNAUTHORIZED
     BAD_REQUEST
     NOT_FOUND
@@ -2318,6 +2368,10 @@ const schema = gql`
     createGroup(input: CreateGroupInput!): CreateGroupResult!
     recommend(input: RecommendInput!): RecommendResult!
     joinGroup(inviteCode: String!): JoinGroupResult!
+    recommendHighlights(
+      input: RecommendHighlightsInput!
+    ): RecommendHighlightsResult!
+    leaveGroup(groupId: ID!): LeaveGroupResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed

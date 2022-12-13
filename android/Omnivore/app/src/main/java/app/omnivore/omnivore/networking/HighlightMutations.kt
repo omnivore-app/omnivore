@@ -4,8 +4,10 @@ import android.util.Log
 import app.omnivore.omnivore.graphql.generated.CreateHighlightMutation
 import app.omnivore.omnivore.graphql.generated.DeleteHighlightMutation
 import app.omnivore.omnivore.graphql.generated.MergeHighlightMutation
+import app.omnivore.omnivore.graphql.generated.UpdateHighlightMutation
 import app.omnivore.omnivore.graphql.generated.type.CreateHighlightInput
 import app.omnivore.omnivore.graphql.generated.type.MergeHighlightInput
+import app.omnivore.omnivore.graphql.generated.type.UpdateHighlightInput
 import app.omnivore.omnivore.models.Highlight
 import com.apollographql.apollo3.api.Optional
 import com.google.gson.Gson
@@ -26,6 +28,18 @@ data class CreateHighlightParams(
     patch = patch ?: "",
     quote = quote ?: "",
     shortId = shortId ?: ""
+  )
+}
+
+data class UpdateHighlightParams(
+  val highlightId: String?,
+  val `annotation`: String?,
+  val sharedAt: String?,
+) {
+  fun asUpdateHighlightInput() = UpdateHighlightInput(
+    annotation = Optional.presentIfNotNull(`annotation`),
+    highlightId = highlightId ?: "",
+    sharedAt = Optional.presentIfNotNull(sharedAt)
   )
 }
 
@@ -72,6 +86,17 @@ suspend fun Networker.deleteHighlights(highlightIDs: List<String>): Boolean {
 
   val hasFailure = statuses.any { !it }
   return !hasFailure
+}
+
+suspend fun Networker.updateWebHighlight(jsonString: String): Boolean {
+  val input = Gson().fromJson(jsonString, UpdateHighlightParams::class.java).asUpdateHighlightInput()
+  return updateHighlight(input)
+}
+
+suspend fun Networker.updateHighlight(input: UpdateHighlightInput): Boolean {
+  val result = authenticatedApolloClient().mutation(UpdateHighlightMutation(input)).execute()
+  Log.d("Network", "update highlight result: $result")
+  return result.data?.updateHighlight?.onUpdateHighlightSuccess?.highlight != null
 }
 
 suspend fun Networker.mergeWebHighlights(jsonString: String): Boolean {

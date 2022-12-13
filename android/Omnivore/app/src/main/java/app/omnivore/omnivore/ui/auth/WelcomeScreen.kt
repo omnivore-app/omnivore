@@ -101,6 +101,7 @@ fun WelcomeScreenContent(viewModel: LoginViewModel) {
         )
       when (result) {
         SnackbarResult.ActionPerformed -> viewModel.resetErrorMessage()
+        else -> {}
       }
     }
 

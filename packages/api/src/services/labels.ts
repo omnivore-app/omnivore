@@ -6,6 +6,7 @@ import { addLabelInPage } from '../elastic/labels'
 import { getRepository } from '../entity/utils'
 import { Link } from '../entity/link'
 import DataLoader from 'dataloader'
+import { generateRandomColor } from '../utils/helpers'
 
 const batchGetLabelsFromLinkIds = async (
   linkIds: readonly string[]
@@ -74,5 +75,31 @@ export const getLabelsByIds = async (
   return getRepository(Label).find({
     where: { id: In(labelIds), user: { id: userId } },
     select: ['id', 'name', 'color', 'description', 'createdAt'],
+  })
+}
+
+export const createLabel = async (
+  userId: string,
+  label: {
+    name: string
+    color?: string
+    description?: string
+  }
+): Promise<Label> => {
+  const existingLabel = await getRepository(Label).findOneBy({
+    user: { id: userId },
+    name: ILike(label.name),
+  })
+
+  if (existingLabel) {
+    return existingLabel
+  }
+
+  // create a new label and assign a random color if not provided
+  label.color = label.color || generateRandomColor()
+
+  return getRepository(Label).save({
+    ...label,
+    user: { id: userId },
   })
 }

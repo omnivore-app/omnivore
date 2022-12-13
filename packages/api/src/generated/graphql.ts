@@ -287,9 +287,13 @@ export enum CreateGroupErrorCode {
 }
 
 export type CreateGroupInput = {
+  description?: InputMaybe<Scalars['String']>;
   expiresInDays?: InputMaybe<Scalars['Int']>;
   maxMembers?: InputMaybe<Scalars['Int']>;
   name: Scalars['String'];
+  onlyAdminCanPost?: InputMaybe<Scalars['Boolean']>;
+  onlyAdminCanSeeMembers?: InputMaybe<Scalars['Boolean']>;
+  topics?: InputMaybe<Array<Scalars['String']>>;
 };
 
 export type CreateGroupResult = CreateGroupError | CreateGroupSuccess;
@@ -978,6 +982,24 @@ export type LabelsSuccess = {
   labels: Array<Label>;
 };
 
+export type LeaveGroupError = {
+  __typename?: 'LeaveGroupError';
+  errorCodes: Array<LeaveGroupErrorCode>;
+};
+
+export enum LeaveGroupErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type LeaveGroupResult = LeaveGroupError | LeaveGroupSuccess;
+
+export type LeaveGroupSuccess = {
+  __typename?: 'LeaveGroupSuccess';
+  success: Scalars['Boolean'];
+};
+
 export type Link = {
   __typename?: 'Link';
   highlightStats: HighlightStats;
@@ -1147,12 +1169,14 @@ export type Mutation = {
   googleLogin: LoginResult;
   googleSignup: GoogleSignupResult;
   joinGroup: JoinGroupResult;
+  leaveGroup: LeaveGroupResult;
   logOut: LogOutResult;
   mergeHighlight: MergeHighlightResult;
   moveFilter: MoveFilterResult;
   moveLabel: MoveLabelResult;
   optInFeature: OptInFeatureResult;
   recommend: RecommendResult;
+  recommendHighlights: RecommendHighlightsResult;
   reportItem: ReportItemResult;
   revokeApiKey: RevokeApiKeyResult;
   saveArticleReadingProgress: SaveArticleReadingProgressResult;
@@ -1307,6 +1331,11 @@ export type MutationJoinGroupArgs = {
 };
 
 
+export type MutationLeaveGroupArgs = {
+  groupId: Scalars['ID'];
+};
+
+
 export type MutationMergeHighlightArgs = {
   input: MergeHighlightInput;
 };
@@ -1329,6 +1358,11 @@ export type MutationOptInFeatureArgs = {
 
 export type MutationRecommendArgs = {
   input: RecommendInput;
+};
+
+
+export type MutationRecommendHighlightsArgs = {
+  input: RecommendHighlightsInput;
 };
 
 
@@ -1785,17 +1819,43 @@ export enum RecommendErrorCode {
   Unauthorized = 'UNAUTHORIZED'
 }
 
+export type RecommendHighlightsError = {
+  __typename?: 'RecommendHighlightsError';
+  errorCodes: Array<RecommendHighlightsErrorCode>;
+};
+
+export enum RecommendHighlightsErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type RecommendHighlightsInput = {
+  groupIds: Array<Scalars['ID']>;
+  highlightIds: Array<Scalars['ID']>;
+  note?: InputMaybe<Scalars['String']>;
+  pageId: Scalars['ID'];
+};
+
+export type RecommendHighlightsResult = RecommendHighlightsError | RecommendHighlightsSuccess;
+
+export type RecommendHighlightsSuccess = {
+  __typename?: 'RecommendHighlightsSuccess';
+  success: Scalars['Boolean'];
+};
+
 export type RecommendInput = {
   groupIds: Array<Scalars['ID']>;
   note?: InputMaybe<Scalars['String']>;
   pageId: Scalars['ID'];
+  recommendedWithHighlights?: InputMaybe<Scalars['Boolean']>;
 };
 
 export type RecommendResult = RecommendError | RecommendSuccess;
 
 export type RecommendSuccess = {
   __typename?: 'RecommendSuccess';
-  taskNames: Array<Scalars['String']>;
+  success: Scalars['Boolean'];
 };
 
 export type Recommendation = {
@@ -1810,11 +1870,15 @@ export type Recommendation = {
 export type RecommendationGroup = {
   __typename?: 'RecommendationGroup';
   admins: Array<User>;
+  canPost: Scalars['Boolean'];
+  canSeeMembers: Scalars['Boolean'];
   createdAt: Scalars['Date'];
+  description?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   inviteUrl: Scalars['String'];
   members: Array<User>;
   name: Scalars['String'];
+  topics?: Maybe<Array<Scalars['String']>>;
   updatedAt: Scalars['Date'];
 };
 
@@ -3183,6 +3247,10 @@ export type ResolversTypes = {
   LabelsErrorCode: LabelsErrorCode;
   LabelsResult: ResolversTypes['LabelsError'] | ResolversTypes['LabelsSuccess'];
   LabelsSuccess: ResolverTypeWrapper<LabelsSuccess>;
+  LeaveGroupError: ResolverTypeWrapper<LeaveGroupError>;
+  LeaveGroupErrorCode: LeaveGroupErrorCode;
+  LeaveGroupResult: ResolversTypes['LeaveGroupError'] | ResolversTypes['LeaveGroupSuccess'];
+  LeaveGroupSuccess: ResolverTypeWrapper<LeaveGroupSuccess>;
   Link: ResolverTypeWrapper<Link>;
   LinkShareInfo: ResolverTypeWrapper<LinkShareInfo>;
   LogOutError: ResolverTypeWrapper<LogOutError>;
@@ -3236,6 +3304,11 @@ export type ResolversTypes = {
   RecentSearchesSuccess: ResolverTypeWrapper<RecentSearchesSuccess>;
   RecommendError: ResolverTypeWrapper<RecommendError>;
   RecommendErrorCode: RecommendErrorCode;
+  RecommendHighlightsError: ResolverTypeWrapper<RecommendHighlightsError>;
+  RecommendHighlightsErrorCode: RecommendHighlightsErrorCode;
+  RecommendHighlightsInput: RecommendHighlightsInput;
+  RecommendHighlightsResult: ResolversTypes['RecommendHighlightsError'] | ResolversTypes['RecommendHighlightsSuccess'];
+  RecommendHighlightsSuccess: ResolverTypeWrapper<RecommendHighlightsSuccess>;
   RecommendInput: RecommendInput;
   RecommendResult: ResolversTypes['RecommendError'] | ResolversTypes['RecommendSuccess'];
   RecommendSuccess: ResolverTypeWrapper<RecommendSuccess>;
@@ -3596,6 +3669,9 @@ export type ResolversParentTypes = {
   LabelsError: LabelsError;
   LabelsResult: ResolversParentTypes['LabelsError'] | ResolversParentTypes['LabelsSuccess'];
   LabelsSuccess: LabelsSuccess;
+  LeaveGroupError: LeaveGroupError;
+  LeaveGroupResult: ResolversParentTypes['LeaveGroupError'] | ResolversParentTypes['LeaveGroupSuccess'];
+  LeaveGroupSuccess: LeaveGroupSuccess;
   Link: Link;
   LinkShareInfo: LinkShareInfo;
   LogOutError: LogOutError;
@@ -3638,6 +3714,10 @@ export type ResolversParentTypes = {
   RecentSearchesResult: ResolversParentTypes['RecentSearchesError'] | ResolversParentTypes['RecentSearchesSuccess'];
   RecentSearchesSuccess: RecentSearchesSuccess;
   RecommendError: RecommendError;
+  RecommendHighlightsError: RecommendHighlightsError;
+  RecommendHighlightsInput: RecommendHighlightsInput;
+  RecommendHighlightsResult: ResolversParentTypes['RecommendHighlightsError'] | ResolversParentTypes['RecommendHighlightsSuccess'];
+  RecommendHighlightsSuccess: RecommendHighlightsSuccess;
   RecommendInput: RecommendInput;
   RecommendResult: ResolversParentTypes['RecommendError'] | ResolversParentTypes['RecommendSuccess'];
   RecommendSuccess: RecommendSuccess;
@@ -4530,6 +4610,20 @@ export type LabelsSuccessResolvers<ContextType = ResolverContext, ParentType ext
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type LeaveGroupErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['LeaveGroupError'] = ResolversParentTypes['LeaveGroupError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['LeaveGroupErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type LeaveGroupResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['LeaveGroupResult'] = ResolversParentTypes['LeaveGroupResult']> = {
+  __resolveType: TypeResolveFn<'LeaveGroupError' | 'LeaveGroupSuccess', ParentType, ContextType>;
+};
+
+export type LeaveGroupSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['LeaveGroupSuccess'] = ResolversParentTypes['LeaveGroupSuccess']> = {
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type LinkResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Link'] = ResolversParentTypes['Link']> = {
   highlightStats?: Resolver<ResolversTypes['HighlightStats'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -4651,12 +4745,14 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   googleLogin?: Resolver<ResolversTypes['LoginResult'], ParentType, ContextType, RequireFields<MutationGoogleLoginArgs, 'input'>>;
   googleSignup?: Resolver<ResolversTypes['GoogleSignupResult'], ParentType, ContextType, RequireFields<MutationGoogleSignupArgs, 'input'>>;
   joinGroup?: Resolver<ResolversTypes['JoinGroupResult'], ParentType, ContextType, RequireFields<MutationJoinGroupArgs, 'inviteCode'>>;
+  leaveGroup?: Resolver<ResolversTypes['LeaveGroupResult'], ParentType, ContextType, RequireFields<MutationLeaveGroupArgs, 'groupId'>>;
   logOut?: Resolver<ResolversTypes['LogOutResult'], ParentType, ContextType>;
   mergeHighlight?: Resolver<ResolversTypes['MergeHighlightResult'], ParentType, ContextType, RequireFields<MutationMergeHighlightArgs, 'input'>>;
   moveFilter?: Resolver<ResolversTypes['MoveFilterResult'], ParentType, ContextType, RequireFields<MutationMoveFilterArgs, 'input'>>;
   moveLabel?: Resolver<ResolversTypes['MoveLabelResult'], ParentType, ContextType, RequireFields<MutationMoveLabelArgs, 'input'>>;
   optInFeature?: Resolver<ResolversTypes['OptInFeatureResult'], ParentType, ContextType, RequireFields<MutationOptInFeatureArgs, 'input'>>;
   recommend?: Resolver<ResolversTypes['RecommendResult'], ParentType, ContextType, RequireFields<MutationRecommendArgs, 'input'>>;
+  recommendHighlights?: Resolver<ResolversTypes['RecommendHighlightsResult'], ParentType, ContextType, RequireFields<MutationRecommendHighlightsArgs, 'input'>>;
   reportItem?: Resolver<ResolversTypes['ReportItemResult'], ParentType, ContextType, RequireFields<MutationReportItemArgs, 'input'>>;
   revokeApiKey?: Resolver<ResolversTypes['RevokeApiKeyResult'], ParentType, ContextType, RequireFields<MutationRevokeApiKeyArgs, 'id'>>;
   saveArticleReadingProgress?: Resolver<ResolversTypes['SaveArticleReadingProgressResult'], ParentType, ContextType, RequireFields<MutationSaveArticleReadingProgressArgs, 'input'>>;
@@ -4837,12 +4933,26 @@ export type RecommendErrorResolvers<ContextType = ResolverContext, ParentType ex
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type RecommendHighlightsErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RecommendHighlightsError'] = ResolversParentTypes['RecommendHighlightsError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['RecommendHighlightsErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type RecommendHighlightsResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RecommendHighlightsResult'] = ResolversParentTypes['RecommendHighlightsResult']> = {
+  __resolveType: TypeResolveFn<'RecommendHighlightsError' | 'RecommendHighlightsSuccess', ParentType, ContextType>;
+};
+
+export type RecommendHighlightsSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RecommendHighlightsSuccess'] = ResolversParentTypes['RecommendHighlightsSuccess']> = {
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type RecommendResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RecommendResult'] = ResolversParentTypes['RecommendResult']> = {
   __resolveType: TypeResolveFn<'RecommendError' | 'RecommendSuccess', ParentType, ContextType>;
 };
 
 export type RecommendSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RecommendSuccess'] = ResolversParentTypes['RecommendSuccess']> = {
-  taskNames?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -4857,11 +4967,15 @@ export type RecommendationResolvers<ContextType = ResolverContext, ParentType ex
 
 export type RecommendationGroupResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RecommendationGroup'] = ResolversParentTypes['RecommendationGroup']> = {
   admins?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType>;
+  canPost?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  canSeeMembers?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   inviteUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   members?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  topics?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -5701,6 +5815,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   LabelsError?: LabelsErrorResolvers<ContextType>;
   LabelsResult?: LabelsResultResolvers<ContextType>;
   LabelsSuccess?: LabelsSuccessResolvers<ContextType>;
+  LeaveGroupError?: LeaveGroupErrorResolvers<ContextType>;
+  LeaveGroupResult?: LeaveGroupResultResolvers<ContextType>;
+  LeaveGroupSuccess?: LeaveGroupSuccessResolvers<ContextType>;
   Link?: LinkResolvers<ContextType>;
   LinkShareInfo?: LinkShareInfoResolvers<ContextType>;
   LogOutError?: LogOutErrorResolvers<ContextType>;
@@ -5737,6 +5854,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   RecentSearchesResult?: RecentSearchesResultResolvers<ContextType>;
   RecentSearchesSuccess?: RecentSearchesSuccessResolvers<ContextType>;
   RecommendError?: RecommendErrorResolvers<ContextType>;
+  RecommendHighlightsError?: RecommendHighlightsErrorResolvers<ContextType>;
+  RecommendHighlightsResult?: RecommendHighlightsResultResolvers<ContextType>;
+  RecommendHighlightsSuccess?: RecommendHighlightsSuccessResolvers<ContextType>;
   RecommendResult?: RecommendResultResolvers<ContextType>;
   RecommendSuccess?: RecommendSuccessResolvers<ContextType>;
   Recommendation?: RecommendationResolvers<ContextType>;

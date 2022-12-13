@@ -98,6 +98,7 @@ import {
 import { searchHighlights } from '../../elastic/highlights'
 import { saveSearchHistory } from '../../services/search_history'
 import { parsedContentToPage } from '../../services/save_page'
+import * as httpContext from 'express-http-context'
 
 export type PartialArticle = Omit<
   Article,
@@ -908,7 +909,10 @@ export const searchResolver = authorized<
 
   // save query, including advanced search terms, in search history
   if (params.query) {
-    await saveSearchHistory(claims.uid, params.query)
+    const client = httpContext.get('client') as string | undefined
+    // don't save search history for rule based queries
+    client !== 'rule-handler' &&
+      (await saveSearchHistory(claims.uid, params.query))
   }
 
   return {

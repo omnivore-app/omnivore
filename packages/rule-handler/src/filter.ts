@@ -17,6 +17,8 @@ interface Page {
   labels?: Label[] // labels is optional in the API response
   isArchived: boolean
   readingProgressPercent: number
+  title: string
+  image: string | null
 }
 
 interface Label {
@@ -41,6 +43,8 @@ export const search = async (
                       }
                       isArchived
                       readingProgressPercent      
+                      title
+                      image
                     }
                   }
                 }
@@ -62,6 +66,7 @@ export const search = async (
         headers: {
           Cookie: `auth=${auth};`,
           'Content-Type': 'application/json',
+          'X-OmnivoreClient': 'rule-handler',
         },
       }
     )

@@ -187,14 +187,23 @@ const appendIdsFilter = (body: SearchBody, ids: string[]): void => {
 }
 
 const appendRecommendedBy = (body: SearchBody, recommendedBy: string): void => {
+  const query =
+    recommendedBy === '*'
+      ? {
+          exists: {
+            field: 'recommendations',
+          },
+        }
+      : {
+          term: {
+            'recommendations.name': recommendedBy,
+          },
+        }
+
   body.query.bool.must.push({
     nested: {
       path: 'recommendations',
-      query: {
-        term: {
-          'recommendations.name': recommendedBy,
-        },
-      },
+      query,
     },
   })
 }
@@ -212,7 +221,7 @@ export const createPage = async (
         updatedAt: new Date(),
         savedAt: new Date(),
       },
-      refresh: ctx.refresh,
+      refresh: 'wait_for', // wait for the index to be refreshed before returning
     })
 
     page.id = body._id as string

@@ -243,9 +243,13 @@ enum CreateGroupErrorCode {
 }
 
 input CreateGroupInput {
+  description: String
   expiresInDays: Int
   maxMembers: Int
   name: String!
+  onlyAdminCanPost: Boolean
+  onlyAdminCanSeeMembers: Boolean
+  topics: [String!]
 }
 
 union CreateGroupResult = CreateGroupError | CreateGroupSuccess
@@ -867,6 +871,22 @@ type LabelsSuccess {
   labels: [Label!]!
 }
 
+type LeaveGroupError {
+  errorCodes: [LeaveGroupErrorCode!]!
+}
+
+enum LeaveGroupErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+union LeaveGroupResult = LeaveGroupError | LeaveGroupSuccess
+
+type LeaveGroupSuccess {
+  success: Boolean!
+}
+
 type Link {
   highlightStats: HighlightStats!
   id: ID!
@@ -1023,12 +1043,14 @@ type Mutation {
   googleLogin(input: GoogleLoginInput!): LoginResult!
   googleSignup(input: GoogleSignupInput!): GoogleSignupResult!
   joinGroup(inviteCode: String!): JoinGroupResult!
+  leaveGroup(groupId: ID!): LeaveGroupResult!
   logOut: LogOutResult!
   mergeHighlight(input: MergeHighlightInput!): MergeHighlightResult!
   moveFilter(input: MoveFilterInput!): MoveFilterResult!
   moveLabel(input: MoveLabelInput!): MoveLabelResult!
   optInFeature(input: OptInFeatureInput!): OptInFeatureResult!
   recommend(input: RecommendInput!): RecommendResult!
+  recommendHighlights(input: RecommendHighlightsInput!): RecommendHighlightsResult!
   reportItem(input: ReportItemInput!): ReportItemResult!
   revokeApiKey(id: ID!): RevokeApiKeyResult!
   saveArticleReadingProgress(input: SaveArticleReadingProgressInput!): SaveArticleReadingProgressResult!
@@ -1248,16 +1270,40 @@ enum RecommendErrorCode {
   UNAUTHORIZED
 }
 
+type RecommendHighlightsError {
+  errorCodes: [RecommendHighlightsErrorCode!]!
+}
+
+enum RecommendHighlightsErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+input RecommendHighlightsInput {
+  groupIds: [ID!]!
+  highlightIds: [ID!]!
+  note: String
+  pageId: ID!
+}
+
+union RecommendHighlightsResult = RecommendHighlightsError | RecommendHighlightsSuccess
+
+type RecommendHighlightsSuccess {
+  success: Boolean!
+}
+
 input RecommendInput {
   groupIds: [ID!]!
   note: String
   pageId: ID!
+  recommendedWithHighlights: Boolean
 }
 
 union RecommendResult = RecommendError | RecommendSuccess
 
 type RecommendSuccess {
-  taskNames: [String!]!
+  success: Boolean!
 }
 
 type Recommendation {
@@ -1270,11 +1316,15 @@ type Recommendation {
 
 type RecommendationGroup {
   admins: [User!]!
+  canPost: Boolean!
+  canSeeMembers: Boolean!
   createdAt: Date!
+  description: String
   id: ID!
   inviteUrl: String!
   members: [User!]!
   name: String!
+  topics: [String!]
   updatedAt: Date!
 }
 

@@ -8,12 +8,19 @@ import { RecommendationGroup, User as GraphqlUser } from '../generated/graphql'
 import { getRepository } from '../entity/utils'
 import { homePageURL } from '../env'
 import { userDataToUser } from '../utils/helpers'
+import { createLabel } from './labels'
+import { createRule } from './rules'
+import { RuleActionType } from '../entity/rule'
 
 export const createGroup = async (input: {
   admin: User
   name: string
   maxMembers?: number | null
   expiresInDays?: number | null
+  description?: string | null
+  topics?: string[] | null
+  onlyAdminCanPost?: boolean | null
+  onlyAdminCanSeeMembers?: boolean | null
 }): Promise<[Group, Invite]> => {
   const [group, invite] = await AppDataSource.transaction<[Group, Invite]>(
     async (t) => {
@@ -29,6 +36,10 @@ export const createGroup = async (input: {
       const group = await t.getRepository(Group).save({
         name: input.name,
         createdBy: input.admin,
+        description: input.description,
+        topics: input.topics?.join(','),
+        onlyAdminCanPost: input.onlyAdminCanPost ?? false,
+        onlyAdminCanSeeMembers: input.onlyAdminCanSeeMembers ?? false,
       })
 
       const code = nanoid(8)
@@ -68,6 +79,7 @@ export const getRecommendationGroups = async (
   return groupMembers.map((gm) => {
     const admins: GraphqlUser[] = []
     const members: GraphqlUser[] = []
+    // Return all members
     gm.group.members.forEach((m) => {
       const user = userDataToUser(m.user)
       if (m.isAdmin) {
@@ -76,6 +88,8 @@ export const getRecommendationGroups = async (
       members.push(user)
     })
 
+    const canSeeMembers = gm.group.onlyAdminCanSeeMembers ? gm.isAdmin : true
+
     return {
       id: gm.group.id,
       name: gm.group.name,
@@ -83,7 +97,11 @@ export const getRecommendationGroups = async (
       updatedAt: gm.group.updatedAt,
       inviteUrl: getInviteUrl(gm.invite),
       admins,
-      members,
+      members: canSeeMembers ? members : [],
+      topics: gm.group.topics?.split(','),
+      description: gm.group.description,
+      canPost: gm.group.onlyAdminCanPost ? gm.isAdmin : true,
+      canSeeMembers,
     }
   })
 }
@@ -132,6 +150,7 @@ having count(*) < $4`,
   })
   const admins: GraphqlUser[] = []
   const members: GraphqlUser[] = []
+  // Return all members
   group.members.forEach((m) => {
     const user = userDataToUser(m.user)
     if (m.isAdmin) {
@@ -144,6 +163,122 @@ having count(*) < $4`,
     ...group,
     inviteUrl: getInviteUrl(invite),
     admins,
-    members,
+    members: group.onlyAdminCanSeeMembers ? [] : members,
+    topics: group.topics?.split(','),
+    description: group.description,
+    canPost: !group.onlyAdminCanPost,
+    canSeeMembers: !group.onlyAdminCanSeeMembers,
   }
+}
+
+export const leaveGroup = async (
+  user: User,
+  groupId: string
+): Promise<boolean> => {
+  return AppDataSource.transaction(async (t) => {
+    const group = await t
+      .getRepository(Group)
+      .createQueryBuilder('group')
+      .setLock('pessimistic_write')
+      .innerJoinAndSelect('group.members', 'members')
+      .where('group.id = :groupId', { groupId })
+      .getOne()
+
+    if (!group) {
+      throw new Error('Group not found')
+    }
+
+    const membership = await t.getRepository(GroupMembership).findOne({
+      where: { user: { id: user.id }, group: { id: group.id } },
+    })
+    if (!membership) {
+      throw new Error('User not in group')
+    }
+
+    await t.getRepository(GroupMembership).delete(membership.id)
+
+    if (group.members.length === 1) {
+      // delete the group if there are no more members
+      await t.getRepository(Group).delete(group.id)
+
+      return true
+    }
+
+    if (membership.isAdmin) {
+      // If the user is the only admin, we need to promote another user to admin
+      const hasAdmin = group.members.some(
+        (m) => m.isAdmin && m.id !== membership.id
+      )
+      if (!hasAdmin) {
+        const newAdmin = group.members.find((m) => !m.isAdmin)
+        if (!newAdmin) {
+          throw new Error('No user found')
+        }
+
+        newAdmin.isAdmin = true
+        await t.getRepository(GroupMembership).save(newAdmin)
+      }
+    }
+
+    return true
+  })
+}
+
+export const createLabelAndRuleForGroup = async (
+  userId: string,
+  groupName: string
+) => {
+  // create a new label for the group
+  const label = await createLabel(userId, { name: groupName })
+
+  // create a rule to add the label to all pages in the group
+  const addLabelPromise = createRule(userId, {
+    name: `Add label ${groupName} to all pages in group ${groupName}`,
+    actions: [
+      {
+        type: RuleActionType.AddLabel,
+        params: [label.id],
+      },
+    ],
+    // always add the label to pages in the group
+    filter: `recommendedBy:"${groupName}"`,
+  })
+
+  // create a rule to send a notification when a page is recommended
+  const sendNotificationPromise = createRule(userId, {
+    name: `Send notification when a page is recommended to ${groupName}`,
+    actions: [
+      {
+        type: RuleActionType.SendNotification,
+        params: [
+          `
+            {
+              "title": "New page recommended in ${groupName}",
+              "body": "A new page was added to the group ${groupName}"
+            }
+          `,
+        ],
+      },
+    ],
+    // add a condition to check if the page is created
+    filter: `event:created recommendedBy:"${groupName}"`,
+  })
+
+  await Promise.all([addLabelPromise, sendNotificationPromise])
+}
+
+// find groups where id is in the groupIds and the user is a member of the group and the user is allowed to post
+export const getGroupsWhereUserCanPost = async (
+  userId: string,
+  groupIds: string[]
+): Promise<Group[]> => {
+  return getRepository(Group)
+    .createQueryBuilder('group')
+    .innerJoin('group.members', 'members1')
+    .whereInIds(groupIds)
+    .andWhere('members1.user_id = :userId', { userId })
+    .andWhere('(members1.is_admin = true OR group.only_admin_can_post = false)')
+    .innerJoinAndSelect('group.members', 'members')
+    .innerJoinAndSelect('members.user', 'user')
+    .getMany()
 }

@@ -1,4 +1,4 @@
-import { sendNotification } from './notification'
+import { NotificationData, sendNotification } from './notification'
 import { getAuthToken, PubSubData } from './index'
 import axios, { AxiosResponse } from 'axios'
 import { setLabels } from './label'
@@ -28,6 +28,8 @@ export interface Rule {
   createdAt: Date
   updatedAt: Date
 }
+
+const EVENT_FILTERS = ['event:created', 'event:updated']
 
 export const getEnabledRules = async (
   userId: string,
@@ -73,17 +75,34 @@ export const triggerActions = async (
   rules: Rule[],
   data: PubSubData,
   apiEndpoint: string,
-  jwtSecret: string
+  jwtSecret: string,
+  eventType: string
 ) => {
   const authToken = await getAuthToken(userId, jwtSecret)
   const actionPromises: Promise<AxiosResponse<any, any> | undefined>[] = []
 
   for (const rule of rules) {
+    let filter = rule.filter
+    const filters = filter.split(' ')
+
+    // Check if the rule is enabled for the event type
+    const eventFilterIndex = filters.findIndex((f) => EVENT_FILTERS.includes(f))
+    if (eventFilterIndex !== -1) {
+      const eventFilter = filters[eventFilterIndex]
+      if (eventFilter !== `event:${eventType}`.toLowerCase()) {
+        continue
+      }
+
+      // Remove the event filter from the filter string
+      filters.splice(eventFilterIndex, 1)
+      filter = filters.join(' ')
+    }
+
     const filteredPage = await filterPage(
       userId,
       apiEndpoint,
       authToken,
-      rule.filter,
+      filter,
       data.id
     )
     if (!filteredPage) {
@@ -122,14 +141,25 @@ export const triggerActions = async (
             filteredPage.readingProgressPercent < 100 &&
             actionPromises.push(markPageAsRead(apiEndpoint, authToken, data.id))
           )
-        case RuleActionType.SendNotification:
+        case RuleActionType.SendNotification: {
+          const data: NotificationData = {
+            title: 'New page added to your library',
+            body: filteredPage.title,
+            image: filteredPage.image || undefined,
+          }
+
+          const params = action.params
+          if (params.length > 0) {
+            const param = JSON.parse(params[0]) as NotificationData
+            data.body = param.body || data.body
+            data.title = param.title || data.title
+            data.image = param.image || data.image
+          }
+
           return actionPromises.push(
-            sendNotification(
-              apiEndpoint,
-              authToken,
-              'New page added to your feed'
-            )
+            sendNotification(apiEndpoint, authToken, data)
           )
+        }
       }
     })
   }
