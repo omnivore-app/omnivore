@@ -196,20 +196,17 @@
       duration = 20e3
       currentIconEl.innerHTML = systemIcons.spinner
       updateToastText(payload)
+
     } else if (payload.type !== 'error') {
-      // currentIconEl.innerHTML = systemIcons.success;
+
       currentToastEl.textContent = ''
       currentToastEl.style.setProperty('width', '310px', 'important')
       currentToastEl.style.setProperty('height', 'auto', 'important')
       currentIconEl = null
       currentTextEl = null
       const savePopUpEl = savePopUp(payload)
-
       currentToastEl.appendChild(savePopUpEl)
-      // const articleLinkEl = document.getElementById('get-article-link')
-      // articleLinkEl.innerText = payload.title;
-      // articleLinkEl.href= payload.url;
-      duration = 600e3
+      duration = 8e3
 
       // updateToastText(payload);
     } else if (payload.errorCode && payload.errorCode === 401) {
