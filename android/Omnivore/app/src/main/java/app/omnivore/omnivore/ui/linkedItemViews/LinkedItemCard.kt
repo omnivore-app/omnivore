@@ -1,11 +1,8 @@
-package app.omnivore.omnivore.ui.home
+package app.omnivore.omnivore.ui.linkedItemViews
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.List
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -16,6 +13,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.omnivore.omnivore.models.LinkedItem
+import app.omnivore.omnivore.ui.home.LinkedItemAction
 import coil.compose.rememberAsyncImagePainter
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -82,37 +80,11 @@ fun LinkedItemCard(item: LinkedItem, onClickHandler: () -> Unit, actionHandler: 
 
     Divider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 1.dp)
 
-    DropdownMenu(
-      expanded = isMenuExpanded,
-      onDismissRequest = { isMenuExpanded = false }
-    ) {
-      DropdownMenuItem(
-        text = { Text(if (item.isArchived) "Unarchive" else "Archive") },
-        onClick = {
-          val action = if (item.isArchived) LinkedItemAction.Unarchive else LinkedItemAction.Archive
-          actionHandler(action)
-          isMenuExpanded = false
-        },
-        leadingIcon = {
-          Icon(
-            Icons.Outlined.List, // TODO: use more appropriate icon
-            contentDescription = null
-          )
-        }
-      )
-      DropdownMenuItem(
-        text = { Text("Remove Item") },
-        onClick = {
-          actionHandler(LinkedItemAction.Delete)
-          isMenuExpanded = false
-        },
-        leadingIcon = {
-          Icon(
-            Icons.Outlined.Delete,
-            contentDescription = null
-          )
-        }
-      )
-    }
+    LinkedItemContextMenu(
+      isExpanded = isMenuExpanded,
+      isArchived = item.isArchived,
+      onDismiss = { isMenuExpanded = false },
+      actionHandler = actionHandler
+    )
   }
 }

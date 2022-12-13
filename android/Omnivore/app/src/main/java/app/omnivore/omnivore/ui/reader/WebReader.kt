@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -28,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat.getSystemService
 import app.omnivore.omnivore.R
+import app.omnivore.omnivore.ui.linkedItemViews.LinkedItemContextMenu
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -39,6 +41,7 @@ import kotlin.math.roundToInt
 
 @Composable
 fun WebReaderLoadingContainer(slug: String, webReaderViewModel: WebReaderViewModel) {
+  var isMenuExpanded by remember { mutableStateOf(false) }
   var showWebPreferencesDialog by remember { mutableStateOf(false ) }
 
   val webReaderParams: WebReaderParams? by webReaderViewModel.webReaderParamsLiveData.observeAsState(null)
@@ -94,12 +97,25 @@ fun WebReaderLoadingContainer(slug: String, webReaderViewModel: WebReaderViewMod
         backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
         title = {},
         actions = {
+          // Disabling menu until we implement local persistence
+//          IconButton(onClick = { isMenuExpanded = true }) {
+//            Icon(
+//              imageVector = Icons.Filled.Menu,
+//              contentDescription = null
+//            )
+//          }
           IconButton(onClick = { showWebPreferencesDialog = true }) {
             Icon(
-              imageVector = Icons.Filled.Settings,
+              imageVector = Icons.Filled.Settings, // TODO: set a better icon
               contentDescription = null
             )
           }
+          LinkedItemContextMenu(
+            isExpanded = isMenuExpanded,
+            isArchived = webReaderParams!!.item.isArchived,
+            onDismiss = { isMenuExpanded = false },
+            actionHandler = { webReaderViewModel.handleLinkedItemAction(webReaderParams!!.item.id, it) }
+          )
         }
       )
 

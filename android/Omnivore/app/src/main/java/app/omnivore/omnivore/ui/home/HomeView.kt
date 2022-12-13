@@ -18,10 +18,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import app.omnivore.omnivore.Routes
 import app.omnivore.omnivore.models.LinkedItem
+import app.omnivore.omnivore.ui.linkedItemViews.LinkedItemCard
 import app.omnivore.omnivore.ui.reader.PDFReaderActivity
 import kotlinx.coroutines.flow.distinctUntilChanged
 
