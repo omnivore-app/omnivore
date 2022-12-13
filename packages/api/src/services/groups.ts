@@ -79,17 +79,16 @@ export const getRecommendationGroups = async (
   return groupMembers.map((gm) => {
     const admins: GraphqlUser[] = []
     const members: GraphqlUser[] = []
+    // Return all members
+    gm.group.members.forEach((m) => {
+      const user = userDataToUser(m.user)
+      if (m.isAdmin) {
+        admins.push(user)
+      }
+      members.push(user)
+    })
+
     const canSeeMembers = gm.group.onlyAdminCanSeeMembers ? gm.isAdmin : true
-    if (canSeeMembers) {
-      // Return all members
-      gm.group.members.forEach((m) => {
-        const user = userDataToUser(m.user)
-        if (m.isAdmin) {
-          admins.push(user)
-        }
-        members.push(user)
-      })
-    }
 
     return {
       id: gm.group.id,
@@ -98,7 +97,7 @@ export const getRecommendationGroups = async (
       updatedAt: gm.group.updatedAt,
       inviteUrl: getInviteUrl(gm.invite),
       admins,
-      members,
+      members: canSeeMembers ? members : [],
       topics: gm.group.topics?.split(','),
       description: gm.group.description,
       canPost: gm.group.onlyAdminCanPost ? gm.isAdmin : true,
@@ -151,22 +150,20 @@ having count(*) < $4`,
   })
   const admins: GraphqlUser[] = []
   const members: GraphqlUser[] = []
-  if (!group.onlyAdminCanSeeMembers) {
-    // Return all members
-    group.members.forEach((m) => {
-      const user = userDataToUser(m.user)
-      if (m.isAdmin) {
-        admins.push(user)
-      }
-      members.push(user)
-    })
-  }
+  // Return all members
+  group.members.forEach((m) => {
+    const user = userDataToUser(m.user)
+    if (m.isAdmin) {
+      admins.push(user)
+    }
+    members.push(user)
+  })
 
   return {
     ...group,
     inviteUrl: getInviteUrl(invite),
     admins,
-    members,
+    members: group.onlyAdminCanSeeMembers ? [] : members,
     topics: group.topics?.split(','),
     description: group.description,
     canPost: !group.onlyAdminCanPost,
