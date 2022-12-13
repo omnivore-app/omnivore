@@ -270,7 +270,7 @@ class OmnivoreWebView(context: Context) : WebView(context) {
     // Called when the user selects a contextual menu item
     override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
       return when (item.itemId) {
-        R.id.annotateHighlight -> {
+        R.id.annotateHighlight, R.id.annotate -> {
           val script = "var event = new Event('annotate');document.dispatchEvent(event);"
           evaluateJavascript(script) {
             mode.finish()

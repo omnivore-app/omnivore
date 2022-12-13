@@ -32,6 +32,7 @@ object AppModule {
   ): Analytics {
     val writeKey = app.getString(R.string.segment_write_key)
 
+    // TODO: abstract analytics to custom class
     return Analytics(writeKey, app.applicationContext) {
       trackApplicationLifecycleEvents = true
       application = app.applicationContext
