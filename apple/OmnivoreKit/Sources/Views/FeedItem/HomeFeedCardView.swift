@@ -57,10 +57,8 @@ public struct FeedCard: View {
                   .aspectRatio(contentMode: .fill)
                   .frame(width: 80, height: 80)
                   .cornerRadius(6)
-              } else if phase.error != nil {
-                EmptyView().frame(width: 80, height: 80, alignment: .top)
               } else {
-                Color.appButtonBackground
+                Color.systemBackground
                   .frame(width: 80, height: 80)
                   .cornerRadius(6)
               }
