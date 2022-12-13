@@ -1,5 +1,6 @@
 package app.omnivore.omnivore.ui.home
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -8,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.models.LinkedItem
 import app.omnivore.omnivore.networking.*
+import com.pspdfkit.analytics.Analytics
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -16,7 +18,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-  private val networker: Networker
+  private val networker: Networker,
+  private val analytics: com.segment.analytics.kotlin.core.Analytics
 ): ViewModel() {
   private var cursor: String? = null
   private var items: List<LinkedItem> = listOf()
