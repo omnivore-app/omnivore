@@ -247,8 +247,6 @@ function handleSaveResponse(tab, field, xhr) {
           type: 'error',
           link: url ?? omnivoreURL + '/home',
           linkText: 'Read Now',
-          title: tab.title,
-          content: '<h1>hello</h1>'
         }
       })
       return undefined
@@ -258,8 +256,6 @@ function handleSaveResponse(tab, field, xhr) {
 
 async function saveUrl(currentTab, url) {
   const requestId = uuidv4()
-  console.log('currentTab', currentTab);
-  console.log('URLLLLLLLL', url);
   await saveApiRequest(currentTab, SAVE_URL_QUERY, 'saveUrl', {
     source: 'extension',
     clientRequestId: requestId,
@@ -269,7 +265,6 @@ async function saveUrl(currentTab, url) {
 }
 
 async function saveApiRequest(currentTab, query, field, input) {
-  console.log('currentTab', currentTab.title);
   browserApi.tabs.sendMessage(currentTab.id, {
     action: ACTIONS.ShowMessage,
     payload: {
@@ -635,7 +630,6 @@ function getActionableState (tab) {
     tabUrl.startsWith('https://omnivore.app/') &&
     tabUrl.startsWith('https://dev.omnivore.app/')
   ) return false;
-console.log('TABBBBB', tab);
   return true;
 }
 
@@ -644,7 +638,6 @@ function reflectIconState (tab) {
   if (!tabId) return;
 
   const active = getActionableState(tab);
-  console.log('ACTIVE TAB', active);
   updateActionIcon(tabId, active);
 }
 
