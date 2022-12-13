@@ -204,8 +204,9 @@ export const recommendResolver = authorized<
       }
     }
 
+    // only recommend highlights created by the user
     const recommendedHighlightIds = input.recommendedWithHighlights
-      ? page.highlights?.map((h) => h.id)
+      ? page.highlights?.filter((h) => h.userId === uid)?.map((h) => h.id)
       : undefined
 
     const exp = Math.floor(Date.now() / 1000) + 60 * 60 * 24 // 1 day
