@@ -2,9 +2,17 @@ import CoreData
 import Foundation
 
 public extension Recommendation {
-  static func byline(_ set: NSSet) -> String {
-    Array(set).reduce("") { str, item in
-      if let recommendation = item as? Recommendation, let userName = recommendation.user?.name {
+  // Returns the recommendations from other users, filtering out the viewer
+  // if they have also recommended the page.
+  static func notViewers(viewer: Viewer?, _ set: NSSet?) -> [Recommendation] {
+    Array(set ?? [])
+      .compactMap { $0 as? Recommendation }
+      .filter { $0.user?.userID != viewer?.userID }
+  }
+
+  static func byline(_ recommendations: [Recommendation]) -> String {
+    recommendations.reduce("") { str, recommendation in
+      if let userName = recommendation.user?.name {
         if str.isEmpty {
           return userName
         } else {
@@ -15,9 +23,9 @@ public extension Recommendation {
     }
   }
 
-  static func groupsLine(_ set: NSSet) -> String {
-    Array(set).reduce("") { str, item in
-      if let recommendation = item as? Recommendation, let name = recommendation.name {
+  static func groupsLine(_ recommendations: [Recommendation]) -> String {
+    recommendations.reduce("") { str, recommendation in
+      if let name = recommendation.name {
         if str.isEmpty {
           return name
         } else {

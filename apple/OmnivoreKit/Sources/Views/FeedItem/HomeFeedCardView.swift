@@ -3,11 +3,13 @@ import SwiftUI
 import Utils
 
 public struct FeedCard: View {
+  let viewer: Viewer?
   let tapHandler: () -> Void
   @ObservedObject var item: LinkedItem
 
-  public init(item: LinkedItem, tapHandler: @escaping () -> Void = {}) {
+  public init(item: LinkedItem, viewer: Viewer?, tapHandler: @escaping () -> Void = {}) {
     self.item = item
+    self.viewer = viewer
     self.tapHandler = tapHandler
   }
 
@@ -87,9 +89,9 @@ public struct FeedCard: View {
         #endif
       }
 
-      if let recommendations = item.recommendations, recommendations.count > 0 {
-        let byStr = Recommendation.byline(recommendations)
-        let inStr = Recommendation.groupsLine(recommendations)
+      if let recs = Recommendation.notViewers(viewer: viewer, item.recommendations), recs.count > 0 {
+        let byStr = Recommendation.byline(recs)
+        let inStr = Recommendation.groupsLine(recs)
         HStack {
           Image(systemName: "sparkles")
           Text("Recommended by \(byStr) in \(inStr)")
