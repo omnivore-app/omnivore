@@ -1,13 +1,10 @@
-package app.omnivore.omnivore.ui.home
+package app.omnivore.omnivore.ui.linkedItemViews
 
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Divider
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -16,10 +13,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.omnivore.omnivore.models.LinkedItem
+import app.omnivore.omnivore.ui.home.LinkedItemAction
 import coil.compose.rememberAsyncImagePainter
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun LinkedItemCard(item: LinkedItem, onClickHandler: () -> Unit) {
+fun LinkedItemCard(item: LinkedItem, onClickHandler: () -> Unit, actionHandler: (LinkedItemAction) -> Unit) {
+  var isMenuExpanded by remember { mutableStateOf(false) }
   val publisherDisplayName = item.publisherDisplayName()
 
   Column {
@@ -29,7 +29,11 @@ fun LinkedItemCard(item: LinkedItem, onClickHandler: () -> Unit) {
       modifier = Modifier
         .fillMaxWidth()
         .padding(12.dp)
-        .clickable(onClick = onClickHandler)
+        .combinedClickable(
+          onClick = onClickHandler,
+          onLongClick = { isMenuExpanded = true }
+        )
+        .background(if (isMenuExpanded) Color.LightGray else Color.Transparent)
     ) {
       Column(
         verticalArrangement = Arrangement.spacedBy(2.dp),
@@ -75,5 +79,12 @@ fun LinkedItemCard(item: LinkedItem, onClickHandler: () -> Unit) {
     }
 
     Divider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 1.dp)
+
+    LinkedItemContextMenu(
+      isExpanded = isMenuExpanded,
+      isArchived = item.isArchived,
+      onDismiss = { isMenuExpanded = false },
+      actionHandler = actionHandler
+    )
   }
 }

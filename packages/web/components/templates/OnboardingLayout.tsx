@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react'
 import { PageMetaData } from '../patterns/PageMetaData'
 import { VStack, HStack, Box } from '../elements/LayoutPrimitives'
-import { OmnivoreNameLogo } from '../elements/images/OmnivoreNameLogo'
+import { OmnivoreFestiveLogo } from '../elements/images/OmnivoreFestiveLogo'
 import { StyledText } from '../elements/StyledText'
 import { Button } from '../elements/Button'
 import { useRouter } from 'next/router'
@@ -16,9 +16,9 @@ type OnboardingLayoutProps = {
   description?: string
   children: ReactNode
   image?: ReactNode
-  nextPage?: string,
-  reduceSpace?: boolean,
-  onNext?: () => void | Promise<void>,
+  nextPage?: string
+  reduceSpace?: boolean
+  onNext?: () => void | Promise<void>
 }
 
 export const OnboardingLayout = ({
@@ -36,29 +36,30 @@ export const OnboardingLayout = ({
 
   const NextButton = () => {
     const handleNext = async () => {
-      onNext && await onNext()
-      router.push(nextPage ?? `/onboarding/0${pageNumber+1}`)
+      onNext && (await onNext())
+      router.push(nextPage ?? `/onboarding/0${pageNumber + 1}`)
     }
 
     return (
-    <Button
-      style="ctaDarkYellow"
-      css={{ 
-        width: '111px',
-        height: '44px',
-        color: 'rgba(10, 8, 6, 0.8)',
-        fontWeight: 600,
-        fontSize: '16px',
-        textDecoration: 'none',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}
-      onClick={handleNext}
-    >
-      Next
-    </Button>
-  )}
+      <Button
+        style="ctaDarkYellow"
+        css={{
+          width: '111px',
+          height: '44px',
+          color: 'rgba(10, 8, 6, 0.8)',
+          fontWeight: 600,
+          fontSize: '16px',
+          textDecoration: 'none',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+        onClick={handleNext}
+      >
+        Next
+      </Button>
+    )
+  }
 
   return (
     <>
@@ -122,7 +123,7 @@ export const OnboardingLayout = ({
               }}
               alignment="center"
             >
-              <OmnivoreNameLogo />
+              <OmnivoreFestiveLogo href="/login" />
               <StyledText
                 style="logoTitle"
                 css={{ color: '#0A080666', paddingLeft: '9px', fontSize: 15 }}
@@ -255,4 +256,3 @@ export const OnboardingLayout = ({
     </>
   )
 }
-

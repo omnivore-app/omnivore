@@ -1,0 +1,12 @@
+mutation SetBookmarkArticle($input: SetBookmarkArticleInput!) {
+  setBookmarkArticle(input: $input) {
+    ... on SetBookmarkArticleSuccess {
+      bookmarkedArticle {
+        id
+      }
+    }
+    ... on SetBookmarkArticleError {
+      errorCodes
+    }
+  }
+}

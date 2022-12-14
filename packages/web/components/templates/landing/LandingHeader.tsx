@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { Box, SpanBox } from '../../elements/LayoutPrimitives'
-import { OmnivoreNameLogo } from '../../elements/images/OmnivoreNameLogo'
+import { OmnivoreFestiveLogo } from '../../elements/images/OmnivoreFestiveLogo'
 
 const containerStyles = {
   position: 'absolute',
@@ -29,17 +29,24 @@ const textStyles = {
   pr: '6px',
   fontSize: 24,
   lineHeight: '24px',
-  fontWeight: 'normal'
+  fontWeight: 'normal',
 }
 
 export function LandingHeader(): JSX.Element {
   return (
     <Box css={containerStyles}>
-      <OmnivoreNameLogo color={'#3D3D3D'} href='/login' />
+      <OmnivoreFestiveLogo color={'#3D3D3D'} href="/login" />
       <Box css={linkStyles}>
         <Box>
           <Link passHref href="/login">
-            <a style={{textDecoration: 'none', color: '#3D3D3D', fontFamily: 'Inter', fontWeight: 500 }}>
+            <a
+              style={{
+                textDecoration: 'none',
+                color: '#3D3D3D',
+                fontFamily: 'Inter',
+                fontWeight: 500,
+              }}
+            >
               <SpanBox css={textStyles}>Log in</SpanBox>
             </a>
           </Link>
