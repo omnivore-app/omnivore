@@ -67,7 +67,7 @@ function nodeAttributesFromHighlight(
   const patch = highlight.patch
   const id = highlight.id
   const withNote = !!highlight.annotation
-  var customColor = undefined
+  let customColor = undefined
   const tooltip = undefined
   // We've disabled shared highlights, so passing undefined
   // here now, and removing the user object from highlights
