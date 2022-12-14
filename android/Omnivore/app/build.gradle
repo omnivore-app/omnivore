@@ -143,6 +143,11 @@ dependencies {
 
     implementation 'com.segment.analytics.kotlin:android:1.10.0'
     implementation 'io.intercom.android:intercom-sdk-base:14.0.0'
+
+    // Room Deps
+    implementation "androidx.room:room-runtime:$room_version"
+    annotationProcessor "androidx.room:room-compiler:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
 }
 
 apollo {
