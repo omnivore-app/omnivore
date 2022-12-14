@@ -1,3 +1,4 @@
+import CoreData
 import Models
 import Services
 import SwiftUI
@@ -26,6 +27,20 @@ import Views
     isLoading = true
 
     do {
+      dataService.viewContext.performAndWait {
+        let fetchRequest: NSFetchRequest<Models.RecommendationGroup> = RecommendationGroup.fetchRequest()
+        let sort = NSSortDescriptor(key: #keyPath(RecommendationGroup.createdAt), ascending: false)
+        fetchRequest.sortDescriptors = [sort]
+        fetchRequest.predicate = NSPredicate(format: "canPost == %@", NSNumber(value: true))
+
+        // If this fails we will fallback to making the API call
+        let groups = try? dataService.viewContext.fetch(fetchRequest).compactMap { object in
+          InternalRecommendationGroup.make(from: object)
+        }
+        if let groups = groups {
+          self.recommendationGroups = groups
+        }
+      }
       recommendationGroups = try await dataService.recommendationGroups().filter(\.canPost)
     } catch {
       print("ERROR fetching recommendationGroups: ", error)
@@ -35,8 +50,9 @@ import Views
     isLoading = false
   }
 
-  func recommend(dataService: DataService) async {
+  func recommend(dataService: DataService) async -> Bool {
     isRunning = true
+    defer { isRunning = false }
 
     do {
       try await dataService.recommendPage(pageID: pageID,
@@ -45,9 +61,11 @@ import Views
                                           withHighlights: withHighlights)
     } catch {
       showError = true
+      return false
     }
 
     isRunning = false
+    return true
   }
 }
 
@@ -72,9 +90,10 @@ struct RecommendToView: View {
     } else {
       return AnyView(Button(action: {
         Task {
-          await viewModel.recommend(dataService: dataService)
-          Snackbar.show(message: "Recommendation sent")
-          dismiss()
+          if await viewModel.recommend(dataService: dataService) {
+            Snackbar.show(message: "Recommendation sent")
+            dismiss()
+          }
         }
       }, label: {
         Text("Send")

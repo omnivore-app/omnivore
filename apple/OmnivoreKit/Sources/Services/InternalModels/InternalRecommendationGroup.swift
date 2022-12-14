@@ -28,12 +28,14 @@ public struct InternalRecommendationGroup: Identifiable {
 
     recommendationGroup.id = id
     recommendationGroup.name = name
+    recommendationGroup.canPost = canPost
+    recommendationGroup.canSeeMembers = canSeeMembers
     recommendationGroup.inviteUrl = inviteUrl
 
     return recommendationGroup
   }
 
-  static func make(from recommendationGroup: RecommendationGroup) -> InternalRecommendationGroup? {
+  public static func make(from recommendationGroup: RecommendationGroup) -> InternalRecommendationGroup? {
     if let id = recommendationGroup.id,
        let name = recommendationGroup.name,
        let inviteUrl = recommendationGroup.inviteUrl
