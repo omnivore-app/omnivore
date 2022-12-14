@@ -16,6 +16,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.intercom.android.sdk.Intercom
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -268,6 +269,7 @@ class LoginViewModel @Inject constructor(
   fun logout() {
     viewModelScope.launch {
       datastoreRepo.clear()
+      Intercom.client().logout()
     }
   }
 

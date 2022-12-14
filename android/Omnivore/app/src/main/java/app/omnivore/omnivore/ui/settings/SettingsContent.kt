@@ -16,6 +16,8 @@ import app.omnivore.omnivore.Routes
 import app.omnivore.omnivore.ui.auth.LoginViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import io.intercom.android.sdk.Intercom
+import io.intercom.android.sdk.IntercomSpace
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -51,6 +53,11 @@ fun SettingsView(
         .padding(horizontal = 16.dp)
     ) {
       LogoutButton { loginViewModel.logout() }
+      Button(onClick = {
+        Intercom.client().present(space = IntercomSpace.Messages)
+      }) {
+        Text(text = "Open Help Center")
+      }
     }
   }
 }
