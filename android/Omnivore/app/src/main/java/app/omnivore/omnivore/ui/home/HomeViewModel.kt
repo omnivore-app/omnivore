@@ -19,7 +19,6 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
   private val networker: Networker,
-  private val analytics: com.segment.analytics.kotlin.core.Analytics
 ): ViewModel() {
   private var cursor: String? = null
   private var items: List<LinkedItem> = listOf()

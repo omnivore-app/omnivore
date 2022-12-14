@@ -36,7 +36,8 @@ data class PendingEmailUserCreds(
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-  private val datastoreRepo: DatastoreRepository
+  private val datastoreRepo: DatastoreRepository,
+  private val eventTracker: EventTracker
 ): ViewModel() {
   private var validateUsernameJob: Job? = null
 
@@ -88,6 +89,10 @@ class LoginViewModel @Inject constructor(
       datastoreRepo.clearValue(DatastoreKeys.omnivorePendingUserToken)
     }
     showSocialLogin()
+  }
+
+  fun registerUser() {
+    // TODO: eventTracker.registerUser()
   }
 
   private fun resetState() {

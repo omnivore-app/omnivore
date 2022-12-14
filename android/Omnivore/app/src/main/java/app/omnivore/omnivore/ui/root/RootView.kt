@@ -53,6 +53,13 @@ fun RootView(
     } else {
       WelcomeScreen(viewModel = loginViewModel)
     }
+
+    DisposableEffect(hasAuthToken) {
+      if (hasAuthToken) {
+        loginViewModel.registerUser()
+      }
+      onDispose {}
+    }
   }
 }
 
