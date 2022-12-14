@@ -322,12 +322,13 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
           p0.dismiss()
           return@OnPopupToolbarItemClickedListener true
         }
-//        2 -> {
-//          Log.d("pdf", "user selected annotate action")
+        2 -> {
+          Log.d("pdf", "user selected annotate action")
+          showAnnotationView("")
 //          textSelectionController?.textSelection = null
-//          p0.dismiss()
-//          return@OnPopupToolbarItemClickedListener true
-//        }
+          p0.dismiss()
+          return@OnPopupToolbarItemClickedListener true
+        }
         3 -> {
           val text = textSelectionController?.textSelection?.text ?: ""
           val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
@@ -349,7 +350,7 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
 
     p0.menuItems = listOf(
       PopupToolbarMenuItem(1, R.string.pdf_highlight_menu_action),
-//      PopupToolbarMenuItem(2, R.string.annotate_menu_action),
+      PopupToolbarMenuItem(2, R.string.annotate_menu_action),
       PopupToolbarMenuItem(3, R.string.pdf_highlight_copy),
     )
   }
@@ -432,6 +433,7 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
     actionMode = null
     clickedHighlight = null
     clickedHighlightPosition = null
+    textSelectionController?.textSelection = null
     viewModel.annotationUnderNoteEdit = null
   }
 
@@ -443,8 +445,15 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
     val annotationEditFragment = AnnotationEditFragment()
     annotationEditFragment.configure(
       onSave = { newNote ->
-        clickedHighlight?.let { highlight ->
-          viewModel.updateHighlightNote(highlight, newNote)
+        if (clickedHighlight != null) {
+          viewModel.updateHighlightNote(clickedHighlight!!, newNote)
+        } else {
+          pendingHighlightAnnotation?.let { annotation ->
+            val quote = textSelectionController?.textSelection?.text ?: ""
+            fragment.addAnnotationToPage(annotation, false) {
+              viewModel.syncHighlightUpdates(annotation, quote, listOf(), newNote)
+            }
+          }
         }
         resetHighlightTap()
       },

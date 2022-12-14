@@ -1,0 +1,13 @@
+query Viewer {
+  me {
+    id
+    name
+    isFullUser
+    profile {
+      id
+      username
+      pictureUrl
+      bio
+    }
+  }
+}

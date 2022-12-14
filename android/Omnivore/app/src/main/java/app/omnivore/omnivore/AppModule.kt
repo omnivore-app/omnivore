@@ -22,4 +22,8 @@ object AppModule {
   @Singleton
   @Provides
   fun provideNetworker(datastore: DatastoreRepository) = Networker(datastore)
+
+  @Singleton
+  @Provides
+  fun provideAnalytics(@ApplicationContext app: Context) = EventTracker(app)
 }

@@ -101,7 +101,7 @@ class PDFReaderViewModel @Inject constructor(
     }
   }
 
-  fun syncHighlightUpdates(newAnnotation: Annotation, quote: String, overlapIds: List<String>) {
+  fun syncHighlightUpdates(newAnnotation: Annotation, quote: String, overlapIds: List<String>, note: String? = null) {
     val itemID = pdfReaderParamsLiveData.value?.item?.id ?: return
     val highlightID = UUID.randomUUID().toString()
     val shortID = UUID.randomUUID().toString().replace("-","").substring(0,8)
@@ -130,7 +130,7 @@ class PDFReaderViewModel @Inject constructor(
       }
     } else {
       val createHighlightInput = CreateHighlightInput(
-        annotation = Optional.presentIfNotNull(null),
+        annotation = Optional.presentIfNotNull(note),
         articleId = itemID,
         id = highlightID,
         patch = newAnnotation.toInstantJson(),
@@ -141,17 +141,16 @@ class PDFReaderViewModel @Inject constructor(
       viewModelScope.launch {
         networker.createHighlight(createHighlightInput)
       }
+
+      if (note != null) {
+        storeUpdatedNoteLocally(newAnnotation, note!!)
+      }
     }
   }
 
   fun updateHighlightNote(annotation: Annotation, note: String) {
     // Save the updated note locally
-    val omnivoreHighlight = annotation.customData?.get("omnivoreHighlight") as? JSONObject
-    omnivoreHighlight?.put("editedNote", note)
-    omnivoreHighlight?.let {
-      Log.d("pdf", "setting custom data: $omnivoreHighlight")
-      annotation.customData = JSONObject().put("omnivoreHighlight", it)
-    }
+    storeUpdatedNoteLocally(annotation, note)
 
     // Sync update with data service
     viewModelScope.launch {
@@ -162,6 +161,15 @@ class PDFReaderViewModel @Inject constructor(
       )
       networker.updateHighlight(input)
       Log.d("network", "updated $annotation")
+    }
+  }
+
+  private fun storeUpdatedNoteLocally(annotation: Annotation, note: String) {
+    val omnivoreHighlight = annotation.customData?.get("omnivoreHighlight") as? JSONObject
+    omnivoreHighlight?.put("editedNote", note)
+    omnivoreHighlight?.let {
+      Log.d("pdf", "setting custom data: $omnivoreHighlight")
+      annotation.customData = JSONObject().put("omnivoreHighlight", it)
     }
   }
 
