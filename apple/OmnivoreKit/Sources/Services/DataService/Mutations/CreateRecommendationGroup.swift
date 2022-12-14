@@ -21,7 +21,8 @@ public extension DataService {
       )
     }
 
-    let input = InputObjects.CreateGroupInput(name: name,
+    let input = InputObjects.CreateGroupInput(expiresInDays: OptionalArgument(14),
+                                              name: name,
                                               onlyAdminCanPost: OptionalArgument(onlyAdminCanPost),
                                               onlyAdminCanSeeMembers: OptionalArgument(onlyAdminCanSeeMembers))
 

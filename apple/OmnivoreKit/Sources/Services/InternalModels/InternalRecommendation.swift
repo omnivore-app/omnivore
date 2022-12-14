@@ -10,8 +10,7 @@ public struct InternalRecommendation {
   let recommendedAt: Date
 
   func asManagedObject(inContext context: NSManagedObjectContext) -> Recommendation {
-    // let existing = Recommendation.lookup(byID: id, inContext: context)
-    let recommendation = /* existing ?? */ Recommendation(entity: Recommendation.entity(), insertInto: context)
+    let recommendation = Recommendation(entity: Recommendation.entity(), insertInto: context)
     recommendation.groupID = groupID
     recommendation.name = name
     recommendation.note = note
