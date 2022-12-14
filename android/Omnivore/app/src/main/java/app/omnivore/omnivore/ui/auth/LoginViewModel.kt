@@ -8,6 +8,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import app.omnivore.omnivore.*
 import app.omnivore.omnivore.graphql.generated.SearchQuery
 import app.omnivore.omnivore.graphql.generated.ValidateUsernameQuery
+import app.omnivore.omnivore.networking.Networker
+import app.omnivore.omnivore.networking.viewer
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Optional
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -37,7 +39,8 @@ data class PendingEmailUserCreds(
 @HiltViewModel
 class LoginViewModel @Inject constructor(
   private val datastoreRepo: DatastoreRepository,
-  private val eventTracker: EventTracker
+  private val eventTracker: EventTracker,
+  private val networker: Networker
 ): ViewModel() {
   private var validateUsernameJob: Job? = null
 
@@ -92,7 +95,12 @@ class LoginViewModel @Inject constructor(
   }
 
   fun registerUser() {
-    // TODO: eventTracker.registerUser()
+    viewModelScope.launch {
+      val viewer = networker.viewer()
+      viewer?.let {
+        eventTracker.registerUser(viewer.id)
+      }
+    }
   }
 
   private fun resetState() {
