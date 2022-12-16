@@ -5,6 +5,9 @@ import {
 } from '../components/templates/landing/LandingSectionsContainer'
 import { LandingHeader } from '../components/templates/landing/LandingHeader'
 import { LandingFooter } from '../components/templates/landing/LandingFooter'
+import { useGetViewerQuery } from '../lib/networking/queries/useGetViewerQuery'
+import { useRouter } from 'next/router'
+import { PageMetaData } from '../components/patterns/PageMetaData'
 
 const mobileContainerStyles = {
   alignSelf: 'center',
@@ -40,6 +43,12 @@ const subHeadingStyles = {
 export default function LandingPage(): JSX.Element {
   return (
     <>
+      <PageMetaData
+        title="Omnivore"
+        path="/about"
+        ogImage="/static/images/og-homepage.png"
+      />
+
       <LandingHeader />
       <VStack
         alignment="center"

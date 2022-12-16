@@ -1,0 +1,1 @@
+https://blog.jetbrains.com/dotnet/2022/12/15/the-future-of-net-with-wasm/?utm_campaign=rider&utm_content=blazor-wasm-future&utm_medium=referral&utm_source=twitter

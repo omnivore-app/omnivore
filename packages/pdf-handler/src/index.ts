@@ -2,7 +2,7 @@ import {
   EventFunction,
   CloudFunctionsContext,
 } from '@google-cloud/functions-framework/build/src/functions'
-import { Storage } from '@google-cloud/storage'
+import { GetSignedUrlConfig, Storage } from '@google-cloud/storage'
 import { PubSub } from '@google-cloud/pubsub'
 import { parsePdf } from './pdf'
 
@@ -30,11 +30,20 @@ const shouldHandle = (data: StorageEventData, ctx: CloudFunctionsContext) => {
   return true
 }
 
-const getDocumentUrl = (data: StorageEventData): URL | undefined => {
+const getDocumentUrl = async (
+  data: StorageEventData
+): Promise<URL | undefined> => {
+  const options: GetSignedUrlConfig = {
+    version: 'v4',
+    action: 'read',
+    expires: Date.now() + 240 * 60 * 1000,
+  }
+
   try {
     const bucket = storage.bucket(data.bucket)
     const file = bucket.file(data.name)
-    return new URL(file.publicUrl())
+    const [url] = await file.getSignedUrl(options)
+    return new URL(url)
   } catch (e) {
     return undefined
   }
@@ -67,7 +76,8 @@ export const pdfHandler: EventFunction = async (event, context) => {
   if (shouldHandle(data, ctx)) {
     console.log('handling pdf data', data)
 
-    const url = getDocumentUrl(data)
+    const url = await getDocumentUrl(data)
+    console.log('PDF url: ', url)
     if (!url) {
       console.log('Could not fetch PDF', data.bucket, data.name)
       return
@@ -81,7 +91,14 @@ export const pdfHandler: EventFunction = async (event, context) => {
       parsed.author,
       parsed.description
     )
-    console.log('publish result', res)
+    console.log(
+      'publish result',
+      res,
+      'title',
+      parsed.title,
+      'author',
+      parsed.author
+    )
   } else {
     console.log('not handling pdf data', data)
   }
