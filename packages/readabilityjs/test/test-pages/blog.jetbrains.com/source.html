@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>
+            The Future of .NET with WASM | The .NET Tools Blog
+        </title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta http-equiv="Cache-Control" content="no-cache" />
+        <link rel="preload" href="https://resources.jetbrains.com/storage/jetbrains-sans/JetBrainsSans-Light.woff" as="font" type="font/woff" crossorigin="" />
+        <link rel="preload" href="https://resources.jetbrains.com/storage/jetbrains-sans/JetBrainsSans-Light.woff2" as="font" type="font/woff2" crossorigin="" />
+        <link rel="preload" href="https://resources.jetbrains.com/storage/jetbrains-sans/JetBrainsSans-Regular.woff" as="font" type="font/woff" crossorigin="" />
+        <link rel="preload" href="https://resources.jetbrains.com/storage/jetbrains-sans/JetBrainsSans-Regular.woff2" as="font" type="font/woff2" crossorigin="" />
+        <link rel="preload" href="https://resources.jetbrains.com/storage/jetbrains-sans/JetBrainsSans-SemiBold.woff" as="font" type="font/woff" crossorigin="" />
+        <link rel="preload" href="https://resources.jetbrains.com/storage/jetbrains-sans/JetBrainsSans-SemiBold.woff2" as="font" type="font/woff2" crossorigin="" />
+        <link rel="preload" href="/wp-content/themes/jetbrains/assets/fonts/JetBrainsMono-Regular.woff" as="font" type="font/woff" crossorigin="" />
+        <link rel="preload" href="/wp-content/themes/jetbrains/assets/fonts/JetBrainsMono-Regular.woff2" as="font" type="font/woff2" crossorigin="" />
+        <style type="text/css">
+        /*<![CDATA[*/
+        /*
+        * Core styles for PriorityNav.js
+        * These styles are not optional and should always be included
+        *
+        * Free to use under the MIT License.
+        * http://twitter.com/GijsRoge
+        */
+        .priority-nav {
+        white-space: nowrap;
+        /*
+        * Makes sure the menu's are inline-block so they don't take up
+        * the entire width of its parent. This will break the plugin.
+        */
+        }
+
+        .priority-nav > ul {
+        display: inline-block;
+        }
+
+        .priority-nav > ul > li {
+        display: inline-block;
+        }
+
+        .priority-nav-has-dropdown .priority-nav__dropdown-toggle {
+        position: relative;
+        }
+
+        .priority-nav__wrapper {
+        position: relative;
+        }
+
+        .priority-nav__dropdown {
+        position: absolute;
+        visibility: hidden;
+        }
+
+        .priority-nav__dropdown.show {
+        visibility: visible;
+        }
+
+        .priority-nav__dropdown-toggle {
+        visibility: hidden;
+        position: absolute;
+        }
+
+        .priority-nav-is-visible {
+        visibility: visible;
+        }
+
+        .priority-nav-is-hidden {
+        visibility: hidden;
+        }
+        /* Light weight */
+        @font-face {
+        font-family: 'JetBrains Sans';
+        src: url('https://resources.jetbrains.com/storage/jetbrains-sans/JetBrainsSans-Light.woff2') format('woff2'), url('https://resources.jetbrains.com/storage/jetbrains-sans/JetBrainsSans-Light.woff') format('woff');
+        font-weight: 300;
+        font-style: normal;
+        font-display: swap;
+        }
+        /* Regular weight */
+        @font-face {
+        font-family: 'JetBrains Sans';
+        src: url('https://resources.jetbrains.com/storage/jetbrains-sans/JetBrainsSans-Regular.woff2') format('woff2'), url('https://resources.jetbrains.com/storage/jetbrains-sans/JetBrainsSans-Regular.woff') format('woff');
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+        }
+        /* SemiBold weight */
+        @font-face {
+        font-family: 'JetBrains Sans';
+        src: url('https://resources.jetbrains.com/storage/jetbrains-sans/JetBrainsSans-SemiBold.woff2') format('woff2'), url('https://resources.jetbrains.com/storage/jetbrains-sans/JetBrainsSans-SemiBold.woff') format('woff');
+        font-weight: 600;
+        font-style: normal;
+        font-display: swap;
+        }
+        .menu-list,.dropdown-language,.navbar ul.row,.sub-menu,main ul:not([class]):not([id]),.menu__nav>ul,.priority-nav__dropdown,.social{margin:0;padding:0;list-style:none}.clearfix:after{content:'';display:block;clear:both}.ellipsis{white-space:nowrap;text-overflow:ellipsis;overflow:hidden}html{box-sizing:border-box}*,*:before,*:after{box-sizing:inherit}*{max-height:1000000px}body{color:#27282C;background:#fff;font:16px/1.2 "Arial","Helvetica Neue","Helvetica",sans-serif;min-width:320px;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}img{max-width:100%;height:auto;vertical-align:top}.gm-style img{max-width:none}h1,.h1,h2,.h2,h3,.h3,h4,.h4,h5,.h5,h6,.h6,.h{font-family:"Arial","Helvetica Neue","Helvetica",sans-serif;font-weight:700;margin:0 0 0.5em;color:#27282C}h1,.h1{font-size:36px}h2,.h2{font-size:24px}h3,.h3{font-size:22px}h4,.h4{font-size:20px}h5,.h5{font-size:18px}h6,.h6{font-size:16px}p{margin:0 0 1em}a{color:#167DFF}a:hover,a:focus{text-decoration:none}form,fieldset{margin:0;padding:0;border-style:none}input[type='text'],input[type='tel'],input[type='email'],input[type='search'],input[type='password'],textarea{-webkit-appearance:none;-webkit-border-radius:0;box-sizing:border-box;outline:none;border:1px solid rgba(39,40,44,0.15);padding:0.4em 0.7em}input[type='text']::-webkit-input-placeholder,input[type='tel']::-webkit-input-placeholder,input[type='email']::-webkit-input-placeholder,input[type='search']::-webkit-input-placeholder,input[type='password']::-webkit-input-placeholder,textarea::-webkit-input-placeholder{color:#27282C}input[type='text']::-moz-placeholder,input[type='tel']::-moz-placeholder,input[type='email']::-moz-placeholder,input[type='search']::-moz-placeholder,input[type='password']::-moz-placeholder,textarea::-moz-placeholder{opacity:1;color:#27282C}input[type='text']:-moz-placeholder,input[type='tel']:-moz-placeholder,input[type='email']:-moz-placeholder,input[type='search']:-moz-placeholder,input[type='password']:-moz-placeholder,textarea:-moz-placeholder{color:#27282C}input[type='text']:-ms-input-placeholder,input[type='tel']:-ms-input-placeholder,input[type='email']:-ms-input-placeholder,input[type='search']:-ms-input-placeholder,input[type='password']:-ms-input-placeholder,textarea:-ms-input-placeholder{color:#27282C}input[type='text'].placeholder,input[type='tel'].placeholder,input[type='email'].placeholder,input[type='search'].placeholder,input[type='password'].placeholder,textarea.placeholder{color:#27282C}select{-webkit-border-radius:0}textarea{resize:vertical;vertical-align:top}button,input[type='button'],input[type='reset'],input[type='file'],input[type='submit']{-webkit-appearance:none;-webkit-border-radius:0;cursor:pointer}/*! normalize.css v3.0.3 | MIT License | github.com/necolas/normalize.css */html{font-family:sans-serif;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}body{margin:0}article,aside,details,figcaption,figure,footer,header,hgroup,main,menu,nav,section,summary{display:block}audio,canvas,progress,video{display:inline-block;vertical-align:baseline}audio:not([controls]){display:none;height:0}[hidden],template{display:none}a{background-color:transparent}a:active,a:hover{outline:0}abbr[title]{border-bottom:1px dotted}b,strong{font-weight:bold}dfn{font-style:italic}mark{background:#ff0;color:#000}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sup{top:-0.5em}sub{bottom:-0.25em}img{border:0}svg:not(:root){overflow:hidden}figure{margin:1em 40px}hr{box-sizing:content-box;height:0}pre{overflow:auto}code,kbd,pre,samp{font-family:monospace, monospace;font-size:1em}button,input,optgroup,select,textarea{color:inherit;font:inherit;margin:0}button{overflow:visible}button,select{text-transform:none}button,html input[type="button"],input[type="reset"],input[type="submit"]{-webkit-appearance:button;cursor:pointer}button[disabled],html input[disabled]{cursor:default}button::-moz-focus-inner,input::-moz-focus-inner{border:0;padding:0}input{line-height:normal}input[type="checkbox"],input[type="radio"]{box-sizing:border-box;padding:0}input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-outer-spin-button{height:auto}input[type="search"]{-webkit-appearance:textfield}input[type="search"]::-webkit-search-cancel-button,input[type="search"]::-webkit-search-decoration{-webkit-appearance:none}fieldset{border:1px solid #c0c0c0;margin:0 2px;padding:0.35em 0.625em 0.75em}legend{border:0;padding:0}textarea{overflow:auto}optgroup{font-weight:bold}table{border-collapse:collapse;border-spacing:0}td,th{padding:0}[class^="icon-"],[class*=" icon-"]{font-family:'icomoon' !important;speak:never;font-style:normal;font-weight:normal;font-variant:normal;text-transform:none;line-height:1;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.icon-close:before{content:"\e91c"}.icon-menu:before{content:"\e91b"}.icon-union:before{content:"\e91a"}.icon-language:before{content:"\e919"}.icon-instagram:before{content:"\e902"}.icon-linkedin:before{content:"\e904"}.icon-pocket:before{content:"\e906"}.icon-reddit:before{content:"\e908"}.icon-search:before{content:"\e909"}.icon-share:before{content:"\e911"}.icon-slack:before{content:"\e912"}.icon-stackoverflow:before{content:"\e913"}.icon-twitter:before{content:"\e914"}.icon-vk:before{content:"\e915"}.icon-weibo:before{content:"\e916"}.icon-email:before{content:"\e917"}.icon-facebook:before{content:"\e918"}.icon-cart:before{content:"\e900"}.icon-comments:before{content:"\e901"}.icon-globus:before{content:"\e903"}.icon-like:before{content:"\e905"}.icon-rss-feed:before{content:"\e907"}.icon-user:before{content:"\e90a"}.icon-wechat:before{content:"\e90b"}.icon-youtube:before{content:"\e90c"}.icon-arrow-left:before{content:"\e90d"}.icon-arrow-right:before{content:"\e90e"}.icon-bag:before{content:"\e90f"}.icon-down:before{content:"\e910"}.header{position:relative;flex-shrink:0;background:#27282c;z-index:99}.header>.container{display:flex;flex-wrap:wrap;align-items:center}.logo{display:block;width:72px}.menu-list{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;padding:12px 0 12px 30px;width:calc(100% - 72px)}@media (min-width: 769px){.menu-list{padding:0 0 0 30px}}.menu-list>li{position:relative;margin-left:13px}@media (min-width: 768px){.menu-list>li{margin-left:26px}}@media (max-width: 767px){.menu-list>li:first-child{display:flex;justify-content:flex-end;width:100%;margin-bottom:10px}}.menu-list a{display:flex;align-items:center;color:#fff}.menu-list a:hover{color:#fff;text-decoration:none}.menu-list i{color:#fff;font-size:24px}.menu-list i.icon-down{font-size:22px;margin-left:8px}.dropdown-language{transition:opacity .15s ease-in-out,visibility .15s ease-in-out;position:absolute;top:100%;right:-15px;transform:none;width:120px;background:#27282C;margin:11px 0 0;padding:10px 0;text-align:center;opacity:0;visibility:hidden}@media (min-width: 641px){.dropdown-language{right:-32px}}@media (min-width: 769px){.dropdown-language{margin:24px 0 0 0}}@media (min-width: 1566px){.dropdown-language{right:-48px}}.dropdown-language a{display:block;padding:8px 8px;color:rgba(255,255,255,0.7)}.dropdown-language a:hover{color:#fff;text-decoration:none}.navbar{transition:opacity .15s ease-in-out,visibility .15s ease-in-out;position:absolute;top:100%;left:0;right:0;z-index:99;background:#fff;padding:30px 0 8px;opacity:0;visibility:hidden}.navbar ul.row{display:flex;flex-wrap:wrap}.navbar ul.row>li{width:100%;padding-left:16px}@media (min-width: 641px){.navbar ul.row>li{padding-left:32px}}@media (min-width: 769px){.navbar ul.row>li{width:18%}}@media (min-width: 1281px){.navbar ul.row>li{padding-left:32px}}@media (min-width: 1025px){.navbar ul.row>li:first-child{width:24%}}.navbar ul.row>li>.sub-menu>li:first-child{margin:0 0 9px}@media (max-width: 768px){.navbar ul.row>li>.sub-menu>li{width:100%}}.navbar h3{margin:0}.navbar h3+.sub-menu{margin-top:9px}.sub-menu{display:flex;flex-wrap:wrap;margin-bottom:16px}.sub-menu li{margin:0 0 10px;width:50%;padding:6px 0 0}@media (min-width: 641px){.sub-menu li{width:25%}}@media (min-width: 769px){.sub-menu li{width:100%}}@media (min-width: 1025px){.sub-menu li.columns .sub-menu{display:block;column-count:2}}@media (min-width: 1025px){.sub-menu li.columns .sub-menu li{width:auto;margin-left:-38px}}@media (min-width: 1025px){.sub-menu li.columns .sub-menu a{padding-left:38px}}.sub-menu li.columns .sub-menu a img{padding:0 0 4px}@media (min-width: 1025px){.sub-menu li.columns .sub-menu a img{left:0}}.sub-menu a{position:relative;color:rgba(39,40,44,0.7)}.sub-menu a:hover{color:#27282C;text-decoration:none}@media (min-width: 769px){.sub-menu a:hover img{opacity:1;visibility:visible}}.sub-menu a img{transition:opacity .15s ease-in-out,visibility .15s ease-in-out;position:absolute;width:32px;height:32px;left:-40px;top:-6px;opacity:0;visibility:hidden}.resize-active *{transition:none !important}html[lang="en_US"] body{font-family:"JetBrains Sans","Arial","Helvetica Neue","Helvetica",sans-serif}html[lang="en_US"] body h1,html[lang="en_US"] body .h1,html[lang="en_US"] body h2,html[lang="en_US"] body .h2,html[lang="en_US"] body h3,html[lang="en_US"] body .h3,html[lang="en_US"] body h4,html[lang="en_US"] body .h4,html[lang="en_US"] body h5,html[lang="en_US"] body .h5,html[lang="en_US"] body h6,html[lang="en_US"] body .h6,html[lang="en_US"] body .h{font-family:inherit}body.admin-bar #wp-admin-bar-customize,body.admin-bar #wp-admin-bar-comments,body.admin-bar #wp-admin-bar-all-in-one-seo-pack{display:none}body.admin-bar #wp-admin-bar-new-content>.ab-item{pointer-events:none}body.admin-bar #wp-admin-bar-new-content #wp-admin-bar-new-post{display:none}body{display:flex;font-size:16px;line-height:1.5;font-weight:300}body.nav-active .navbar{opacity:1;visibility:visible}body.nav-active .overlay{opacity:1;visibility:visible}body.lang-active .header .dropdown-language{opacity:1;visibility:visible}body.footer-lang-active .footer .dropdown-language{opacity:1;visibility:visible}body .tag{transition:background-color .15s ease-in-out,color .15s ease-in-out;padding:5px 13px;background-color:rgba(39,40,44,0.05);display:inline-block;border-radius:4px;margin:0 8px 8px 0;white-space:nowrap;cursor:pointer}body .tag:hover{background-color:rgba(22,125,255,0.1);color:#167DFF;text-decoration:none}@media (max-width: 767px){body.search .top-page{padding-bottom:35px}}@media (max-width: 767px){body.search .menu{display:none}}#wrapper{min-height:100vh;width:100%;display:flex;flex-direction:column;overflow:hidden;position:relative}a{transition:color .15s ease-in-out;text-decoration:none}a:hover{text-decoration:underline}h1{line-height:1.22;font-weight:400}@media (min-width: 641px){h1{font-size:42px;line-height:1.3;letter-spacing:-1px}}h2{font-weight:400;line-height:1.33;letter-spacing:-.5px}@media (min-width: 641px){h2{font-size:35px;line-height:1.2}}h3{font-size:20px;line-height:1.6;font-weight:500;margin:0 0 16px}@media (min-width: 641px){h3{font-size:26px;line-height:1.07692}}h4{font-size:16px;line-height:.15;font-weight:600;margin:0 0 16px}@media (min-width: 641px){h4{font-size:22px;line-height:1.090909}}h5{font-size:13px;line-height:1.54;font-weight:600;margin:0 0 8px}@media (min-width: 641px){h5{font-size:20px;line-height:1}}.btn{display:inline-block;vertical-align:middle;text-align:center;border-radius:2em;color:#fff;background:#167DFF;padding:8px 24px}.btn:hover{text-decoration:none}pre,code{font-family:"JetBrainsMono","Times","Baskerville","Georgia",serif;font-style:normal;font-weight:400;font-size:15px;line-height:23px;background:#F4F4F4;border-radius:4px;padding:12px 16px}pre code{padding:0}code{padding:4px 6px}input[type="search"]{-webkit-appearance:none}.container{max-width:1534px;margin:0 auto;padding:0 15px}@media (min-width: 641px){.container{padding:0 32px}}main{flex-grow:1}main .article-section .content ul:not([class]):not([id]){margin-bottom:24px}main .article-section .content ul:not([class]):not([id]) li{padding-bottom:0}main .article-section .content ul:not([class]):not([id]) li ul:not([class]):not([id]){margin-top:0;margin-bottom:0}main ul:not([class]):not([id]) li{position:relative;padding:0 0 24px 25px}main ul:not([class]):not([id]) li:before{content:'';position:absolute;top:13px;left:2px;width:4px;height:4px;background:#27282C;border-radius:50%}main ul:not([class]):not([id]) li ul:not([class]):not([id]){margin-top:24px;max-width:670px}main ul:not([class]):not([id]) li ul:not([class]):not([id]) li{padding-left:32px}main ul:not([class]):not([id]) li ul:not([class]):not([id]) li:before{left:8px;background:transparent;border:1px solid #27282C}button{background:transparent;border:none;outline:none}.form-group{position:relative}.found-wrap{padding:0 16px}@media (min-width: 769px){.row{display:flex;flex-wrap:wrap;margin:0 -16px}}@media (min-width: 769px){.row.card_container .col:nth-child(4n+4){display:flex}}@media (min-width: 769px){.col{display:flex;width:50%;padding:0 16px}}@media (min-width: 1025px){.col{width:33.332%}}@media (min-width: 1281px){.col{width:25%}}@media (min-width: 1025px){.col:nth-child(4n+4){display:none}}@media (min-width: 1281px){.col:nth-child(4n+4){display:flex}}@media (max-width: 767px){.col:last-child .card{margin:0}}.col--double{display:block;width:100%}@media (min-width: 1281px){.col--double{width:66.664%}}.col--double img{border-radius:10px}@media (min-width: 1025px){.row.last-col-home .col:nth-child(4n+4){display:flex}}@media (min-width: 1025px){.row.last-col-home .col:nth-child(4n+7),.row.last-col-home .col:nth-child(4n+8){display:none}}@media (min-width: 1281px){.row.last-col-home .col:nth-child(4n+7),.row.last-col-home .col:nth-child(4n+8){display:flex}}@media (min-width: 1025px){.row.last-col-home.show_all .col:nth-child(4n+7),.row.last-col-home.show_all .col:nth-child(4n+8){display:flex}}@media (min-width: 1281px){.row.last-col-home.show_all .col:nth-child(4n+7),.row.last-col-home.show_all .col:nth-child(4n+8){display:flex}}@media (min-width: 1025px){.row.latest_posts .col:nth-child(4n+6){display:none}}@media (min-width: 1281px){.row.latest_posts .col:nth-child(4n+6){display:flex}}@media (min-width: 1025px){.row.latest_posts .col:nth-child(4n+5){display:none}}@media (min-width: 1281px){.row.latest_posts .col:nth-child(4n+5){display:flex}}@media (min-width: 1025px){.row.latest_posts .col:nth-child(4n+4){display:flex}}.row.latest_posts .col--double{display:block;width:100%}@media (min-width: 1025px){.row.latest_posts .col--double{width:66.66%}}@media (min-width: 1281px){.row.latest_posts .col--double{width:50%}}.dark-theme{background:#27282C;color:white}.light-gray-bg{background:#F4F4F4}.light-gray-bg .card{background:#fff}.top-page{position:relative;padding:35px 0 76px}@media (min-width: 769px){.top-page{padding:30px 0 90px}}.top-page h2{margin:0}.top-page__head{position:relative;display:flex;flex-wrap:wrap;align-items:center;z-index:15}.top-page__head .text-container{width:100%}@media (min-width: 641px){.top-page__head .text-container{width:calc(100% - 72px - 24px)}}.top-page__head .text-container a{color:#27282C}.top-page__head .text-container a:hover{text-decoration:none}.top-page__head p{width:100%;margin:0}.top-page__head img{width:72px;height:72px;margin:0 24px 16px 0}@media (min-width: 1025px){.top-page__head img{margin:0 24px 0 0}}.menu{transition:transform .15s ease-in-out;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;padding:17px 0;position:absolute;bottom:0;left:15px;right:15px;background:#fff;z-index:9;max-width:1470px;margin:0 auto;transform:translateY(0)}@media (min-width: 641px){.menu{padding:17px 0;left:32px;right:32px}}@media (min-width: 769px){.menu{padding:24px 0}}@media (min-width: 1501px){.menu{width:100%;left:auto;right:auto}}.menu:before{content:'';position:absolute;top:0;left:0;bottom:0;background:#fff;padding:0 0 0 9999px;margin:0 0 0 -9999px}.menu:after{content:'';position:absolute;top:0;right:0;bottom:0;padding:0 9999px 0 0;margin:0 -9999px 0 0;background:#fff}.menu__border{position:absolute;bottom:0;left:0;right:0;height:1px;background:rgba(39,40,44,0.15)}.menu__border:before{content:'';position:absolute;bottom:0;right:0;padding:0 9999px 0 0;margin:0 -9999px 0 0;height:1px;background:rgba(39,40,44,0.15);z-index:99}.menu__border:after{content:'';position:absolute;bottom:0;left:0;padding:0 0 0 9999px;margin:0 0 0 -9999px;height:1px;background:rgba(39,40,44,0.15);z-index:99}.menu.fixed{position:fixed;top:0;bottom:auto;z-index:991}.menu__nav{width:38%}@media (min-width: 481px){.menu__nav{width:64%}}@media (min-width: 769px){.menu__nav{width:65%}}.menu__nav>ul{display:inline-block;margin:0 -14px;white-space:nowrap}.menu__nav>ul li{display:inline-block;padding:0 14px}.menu__nav>ul a{color:rgba(39,40,44,0.7)}.menu__nav>ul a:hover{color:#27282C;text-decoration:none}.menu__nav>ul a.curent_tax{color:#27282C;text-decoration:none}.menu__nav .priority-nav__wrapper{font-weight:300;font-size:16px;line-height:1.5;padding:0 0 0 16px}.menu__nav .nav__dropdown-toggle{opacity:.7}.menu__nav .nav__dropdown-toggle:after{content:"\e910";font-size:24px;font-family:'icomoon';display:inline-block;vertical-align:middle;color:#27282C}.menu__right{display:flex;justify-content:flex-end;width:62%}@media (min-width: 481px){.menu__right{width:36%}}@media (min-width: 769px){.menu__right{width:35%}}@media (max-width: 767px){.menu__right .social{display:none}}.menu__right .social li:first-child{display:none}@media (min-width: 1025px){.menu__right .social li:first-child{display:block}}@media (max-width: 767px){.menu__right .btn{font-size:13px}}.priority-nav__dropdown{top:100%;left:6px;padding:16px;border:1px solid rgba(39,40,44,0.15);background-color:white;margin:27px 0 0;z-index:99}@media (min-width: 768px){.priority-nav__dropdown{margin-top:28px}}@media (min-width: 1024px){.priority-nav__dropdown{margin-top:35px}}.priority-nav__dropdown li{margin:0 0 16px}.priority-nav__dropdown li:last-child{margin:0}.priority-nav__dropdown a{color:rgba(39,40,44,0.7)}.priority-nav__dropdown a:hover{color:#27282C;text-decoration:none}.social{display:flex;flex-wrap:wrap;align-items:center;margin:0 -4px}.social li{padding:0 4px}.social span{color:rgba(39,40,44,0.8)}.social a{font-size:24px;display:flex;color:#27282C}.social a:hover{text-decoration:none}.intro{padding:72px 0 56px;background:#F4F4F4}.intro h1{margin:0 0 24px}.intro h2{max-width:720px}.promo{padding:32px 0 0}.promo .tag{font-size:13px;line-height:1.54;font-weight:300;margin:0 8px 16px 0}.promo__row{display:flex;flex-wrap:wrap;flex-direction:column;position:relative;overflow:hidden}@media (min-width: 1024px){.promo__row{align-items:center;flex-direction:row}}.promo__img{background-position:0 0;background-repeat:no-repeat;background-size:cover;min-height:153px;width:100%;height:42vw;max-height:500px;overflow:hidden;border-radius:10px}@media (min-width: 640px){.promo__img{height:32vh;min-height:285px}}@media (min-width: 1024px){.promo__img{width:48.34%;min-height:218px;height:26vh}}@media (min-width: 1200px){.promo__img{width:58.73%;min-height:379px}}.promo__img:only-child{width:100%}.promo__text{font-size:19px;line-height:1.474;font-weight:350;padding:16px 0}@media (min-width: 640px){.promo__text{width:72%;padding:32px 0}}@media (min-width: 1024px){.promo__text{width:47%;padding:0 0 0 32px}}@media (min-width: 1200px){.promo__text{width:36%}}@media (min-width: 1440px){.promo__text{width:29.4%}}.promo__text:only-child{width:100%}.promo__text h1,.promo__text h2{font-size:20px;line-height:1.4;font-weight:530;letter-spacing:0;margin-top:0;margin-bottom:16px}.promo__text h1 a,.promo__text h2 a{display:inline-block;color:inherit}.promo__text h1 a:hover,.promo__text h2 a:hover{text-decoration:none}@media (min-width: 1200px){.promo__text h1,.promo__text h2{font-size:35px;line-height:1.2;margin-bottom:24px}}.promo__text p{margin:0 0 16px;opacity:.7}@media (min-width: 1200px){.promo__text p{margin:0 0 24px}}.promo__text .tag{display:none}.promo__link .btn{padding:10px 30px;margin:0 22px 0 0}.overlay{transition:opacity .15s ease-in-out,visibility .15s ease-in-out;position:fixed;top:0;left:0;right:0;bottom:0;background-color:rgba(0,0,0,0.8);z-index:11;opacity:0;visibility:hidden}.tag-list{display:flex;flex-wrap:wrap;align-items:baseline}.subscribe{font-size:20px;line-height:1.6;font-weight:300;background-color:#F4F4F4;background-image:url(./edfb9b9971efea6f04ad75dc85db7c3a.svg);background-repeat:no-repeat;background-position-x:390%;background-position-y:25%;background-size:93%;width:100%;padding:32px}.subscribe h2{margin:0}.subscribe p{margin:0 0 15px}.subscribe form input[type="email"]{font-size:16px;line-height:1.5;font-weight:300;max-width:328px;width:100%;height:42px;padding:6px 15px;margin:0 0 9px}.subscribe form .checkbox{padding:0 4px 28px}.subscribe form label{font-size:13px;line-height:1.54;font-weight:300}.subscribe form label a{color:#27282C;text-decoration:underline}.subscribe form label a:hover{text-decoration:none}.subscribe form button,.subscribe form input[type="submit"],.subscribe form .btn{transition:opacity .15s ease-in-out;font-size:16px;line-height:1.5;font-weight:300;border-radius:2em;outline:none;background:#27282C;color:#fff;border:none;padding:8px 24px}.subscribe form button:hover,.subscribe form input[type="submit"]:hover,.subscribe form .btn:hover{opacity:.8}.follow h4{font-size:16px;line-height:1.5;font-weight:300;margin:0 0 8px}.select-row{display:flex;flex-wrap:wrap;margin:0 0 48px}@media (max-width: 767px){.select-row .select{width:100%;margin:0 0 16px}}select{-webkit-appearance:none;-moz-appearance:none;-ms-appearance:none;appearance:none;outline:0;box-shadow:none;border:1px solid rgba(39,40,44,0.15);background-image:none}select:focus{border-color:#27282C}select::-ms-expand{display:none}select{flex:1;padding:8px 48px 8px 17px;cursor:pointer}.select{position:relative;display:flex;margin:0 20px 0 0;overflow:hidden}.select:after{content:"\e910";font-family:'icomoon';position:absolute;top:4px;right:13px;font-size:24px;cursor:pointer;pointer-events:none}.scrollUp .menu{transform:translate3d(0, -100%, 0)}.page-not-found{padding:60px 0}.page-not-found .container{max-width:800px}.page-not-found form{position:relative;display:flex;flex-wrap:wrap;justify-content:space-between}.page-not-found input[type="text"]{width:100%;height:40px;padding:5px 15px;margin:0 0 16px}@media (min-width: 769px){.page-not-found input[type="text"]{width:calc(100% - 118px);margin:0}}.page-not-found input[type="submit"]{border:none;outline:none;border-radius:2em;color:#fff;background:#167DFF;padding:8px 24px}.disabled{pointer-events:none}.buttons__row{display:flex;flex-wrap:wrap;align-items:center}.buttons .btn{padding:11px 37px;margin:0 25px 0 0}.buttons .btn--transparent{border:1px solid rgba(25,25,28,0.3);background:transparent;color:#19191C;padding:11px 33px}.fake-hash{position:absolute;top:-9999px;left:-9999px;opacity:0;visibility:hidden}
+
+        /*# sourceMappingURL=app.min.css.map*/    
+        /*]]>*/
+        </style>
+        <script type="text/javascript" async="async" src="https://www.google-analytics.com/plugins/ua/linkid.js"></script>
+        <script type="text/javascript" async="async" src="https://www.googletagmanager.com/gtag/destination?id=G-9J976DJZ68&amp;l=dataLayer&amp;cx=c"></script>
+        <script type="text/javascript" async="async" src="https://www.google-analytics.com/analytics.js"></script>
+        <script async="async" src="https://www.googletagmanager.com/gtm.js?id=GTM-5P98"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/search-insights@2.0.2"></script>
+        <script>
+        <![CDATA[
+        var ALGOLIA_INSIGHTS_SRC = "https://cdn.jsdelivr.net/npm/search-insights@2.0.2";
+
+        !function(e,a,t,n,s,i,c){e.AlgoliaAnalyticsObject=s,e[s]=e[s]||function(){
+        (e[s].queue=e[s].queue||[]).push(arguments)},i=a.createElement(t),c=a.getElementsByTagName(t)[0],
+        i.async=1,i.src=n,c.parentNode.insertBefore(i,c)
+        }(window,document,"script",ALGOLIA_INSIGHTS_SRC,"aa");
+        ]]>
+        </script>
+        <link rel="icon" href="https://blog.jetbrains.com/wp-content/themes/jetbrains/assets/img/favicons/favicon.ico" sizes="any" /><!-- 32×32 -->
+        <link rel="icon" href="https://blog.jetbrains.com/wp-content/themes/jetbrains/assets/img/favicons/icon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="https://blog.jetbrains.com/wp-content/themes/jetbrains/assets/img/favicons/apple-touch-icon.png" /><!-- 180×180 -->
+        <link rel="manifest" href="https://blog.jetbrains.com/wp-content/themes/jetbrains/assets/img/favicons/site.webmanifest" />
+        <meta name="apple-mobile-web-app-title" content="JetBrains Blog" />
+        <meta name="application-name" content="JetBrains Blog" />
+        <meta name="msapplication-TileColor" content="#000000" />
+        <meta name="theme-color" content="#000000" />
+        <meta name="robots" content="max-image-preview:large" />
+        <link rel="alternate" hreflang="en" href="https://blog.jetbrains.com/dotnet/2022/12/15/the-future-of-net-with-wasm/" />
+        <link rel="alternate" hreflang="x-default" href="https://blog.jetbrains.com/dotnet/2022/12/15/the-future-of-net-with-wasm/" />
+        <link rel="dns-prefetch" href="//resources.jetbrains.com" />
+        <link rel="dns-prefetch" href="//maxcdn.bootstrapcdn.com" />
+        <style id="global-styles-inline-css" type="text/css">
+        /*<![CDATA[*/
+        body{--wp--preset--color--black: #000000;--wp--preset--color--cyan-bluish-gray: #abb8c3;--wp--preset--color--white: #ffffff;--wp--preset--color--pale-pink: #f78da7;--wp--preset--color--vivid-red: #cf2e2e;--wp--preset--color--luminous-vivid-orange: #ff6900;--wp--preset--color--luminous-vivid-amber: #fcb900;--wp--preset--color--light-green-cyan: #7bdcb5;--wp--preset--color--vivid-green-cyan: #00d084;--wp--preset--color--pale-cyan-blue: #8ed1fc;--wp--preset--color--vivid-cyan-blue: #0693e3;--wp--preset--color--vivid-purple: #9b51e0;--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg,rgba(6,147,227,1) 0%,rgb(155,81,224) 100%);--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%);--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg,rgba(252,185,0,1) 0%,rgba(255,105,0,1) 100%);--wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg,rgba(255,105,0,1) 0%,rgb(207,46,46) 100%);--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%);--wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg,rgb(74,234,220) 0%,rgb(151,120,209) 20%,rgb(207,42,186) 40%,rgb(238,44,130) 60%,rgb(251,105,98) 80%,rgb(254,248,76) 100%);--wp--preset--gradient--blush-light-purple: linear-gradient(135deg,rgb(255,206,236) 0%,rgb(152,150,240) 100%);--wp--preset--gradient--blush-bordeaux: linear-gradient(135deg,rgb(254,205,165) 0%,rgb(254,45,45) 50%,rgb(107,0,62) 100%);--wp--preset--gradient--luminous-dusk: linear-gradient(135deg,rgb(255,203,112) 0%,rgb(199,81,192) 50%,rgb(65,88,208) 100%);--wp--preset--gradient--pale-ocean: linear-gradient(135deg,rgb(255,245,203) 0%,rgb(182,227,212) 50%,rgb(51,167,181) 100%);--wp--preset--gradient--electric-grass: linear-gradient(135deg,rgb(202,248,128) 0%,rgb(113,206,126) 100%);--wp--preset--gradient--midnight: linear-gradient(135deg,rgb(2,3,129) 0%,rgb(40,116,252) 100%);--wp--preset--duotone--dark-grayscale: url('#wp-duotone-dark-grayscale');--wp--preset--duotone--grayscale: url('#wp-duotone-grayscale');--wp--preset--duotone--purple-yellow: url('#wp-duotone-purple-yellow');--wp--preset--duotone--blue-red: url('#wp-duotone-blue-red');--wp--preset--duotone--midnight: url('#wp-duotone-midnight');--wp--preset--duotone--magenta-yellow: url('#wp-duotone-magenta-yellow');--wp--preset--duotone--purple-green: url('#wp-duotone-purple-green');--wp--preset--duotone--blue-orange: url('#wp-duotone-blue-orange');--wp--preset--font-size--small: 13px;--wp--preset--font-size--medium: 20px;--wp--preset--font-size--large: 36px;--wp--preset--font-size--x-large: 42px;}.has-black-color{color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-color{color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-color{color: var(--wp--preset--color--white) !important;}.has-pale-pink-color{color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-color{color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-color{color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-color{color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-color{color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-color{color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-color{color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-color{color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-color{color: var(--wp--preset--color--vivid-purple) !important;}.has-black-background-color{background-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-background-color{background-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-background-color{background-color: var(--wp--preset--color--white) !important;}.has-pale-pink-background-color{background-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-background-color{background-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-background-color{background-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-background-color{background-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-background-color{background-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-background-color{background-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-background-color{background-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-background-color{background-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-background-color{background-color: var(--wp--preset--color--vivid-purple) !important;}.has-black-border-color{border-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-border-color{border-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-border-color{border-color: var(--wp--preset--color--white) !important;}.has-pale-pink-border-color{border-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-border-color{border-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-border-color{border-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-border-color{border-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-border-color{border-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-border-color{border-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-border-color{border-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-border-color{border-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-border-color{border-color: var(--wp--preset--color--vivid-purple) !important;}.has-vivid-cyan-blue-to-vivid-purple-gradient-background{background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple) !important;}.has-light-green-cyan-to-vivid-green-cyan-gradient-background{background: var(--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan) !important;}.has-luminous-vivid-amber-to-luminous-vivid-orange-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange) !important;}.has-luminous-vivid-orange-to-vivid-red-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-orange-to-vivid-red) !important;}.has-very-light-gray-to-cyan-bluish-gray-gradient-background{background: var(--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray) !important;}.has-cool-to-warm-spectrum-gradient-background{background: var(--wp--preset--gradient--cool-to-warm-spectrum) !important;}.has-blush-light-purple-gradient-background{background: var(--wp--preset--gradient--blush-light-purple) !important;}.has-blush-bordeaux-gradient-background{background: var(--wp--preset--gradient--blush-bordeaux) !important;}.has-luminous-dusk-gradient-background{background: var(--wp--preset--gradient--luminous-dusk) !important;}.has-pale-ocean-gradient-background{background: var(--wp--preset--gradient--pale-ocean) !important;}.has-electric-grass-gradient-background{background: var(--wp--preset--gradient--electric-grass) !important;}.has-midnight-gradient-background{background: var(--wp--preset--gradient--midnight) !important;}.has-small-font-size{font-size: var(--wp--preset--font-size--small) !important;}.has-medium-font-size{font-size: var(--wp--preset--font-size--medium) !important;}.has-large-font-size{font-size: var(--wp--preset--font-size--large) !important;}.has-x-large-font-size{font-size: var(--wp--preset--font-size--x-large) !important;}
+        /*]]>*/
+        </style>
+        <link rel="stylesheet" id="pb-accordion-blocks-style-css" href="https://blog.jetbrains.com/wp-content/plugins/accordion-blocks/build/index.css?ver=1671153505" type="text/css" media="all" />
+        <link rel="stylesheet" id="ppress-frontend-css" href="https://blog.jetbrains.com/wp-content/plugins/wp-user-avatar/assets/css/frontend.min.css?ver=4.3.2" type="text/css" media="all" />
+        <link rel="stylesheet" id="ppress-flatpickr-css" href="https://blog.jetbrains.com/wp-content/plugins/wp-user-avatar/assets/flatpickr/flatpickr.min.css?ver=4.3.2" type="text/css" media="all" />
+        <link rel="stylesheet" id="ppress-select2-css" href="https://blog.jetbrains.com/wp-content/plugins/wp-user-avatar/assets/select2/select2.min.css?ver=e138ef45bff209668d39d296de5c7b40" type="text/css" media="all" />
+        <link rel="stylesheet" id="ez-toc-css" href="https://blog.jetbrains.com/wp-content/plugins/easy-table-of-contents/assets/css/screen.min.css?ver=e138ef45bff209668d39d296de5c7b40" type="text/css" media="all" />
+        <style id="ez-toc-inline-css" type="text/css">
+        /*<![CDATA[*/
+        div#ez-toc-container p.ez-toc-title {font-size: 120%;}div#ez-toc-container p.ez-toc-title {font-weight: 500;}div#ez-toc-container ul li {font-size: 95%;}div#ez-toc-container nav ul ul li ul li {font-size: %!important;}
+        /*]]>*/
+        </style>
+        <link rel="stylesheet" id="cms-navigation-style-base-css" href="https://blog.jetbrains.com/wp-content/plugins/wpml-cms-nav/res/css/cms-navigation-base.css?ver=1.5.5" type="text/css" media="screen" />
+        <link rel="stylesheet" id="cms-navigation-style-css" href="https://blog.jetbrains.com/wp-content/plugins/wpml-cms-nav/res/css/cms-navigation.css?ver=1.5.5" type="text/css" media="screen" />
+        <link rel="stylesheet" id="font-awesome-css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css?ver=4.7.0" type="text/css" media="all" />
+        <link rel="stylesheet" id="enlighterjs-css" href="https://blog.jetbrains.com/wp-content/plugins/enlighter/cache/enlighterjs.min.css?ver=1xeD0E9ltABXgL+" type="text/css" media="all" />
+        <link rel="stylesheet" id="icomoon_font-css" href="https://blog.jetbrains.com/wp-content/themes/jetbrains/assets/dist/icomoon_font.min.css?ver=2.0.5" type="text/css" media="all" />
+        <link rel="stylesheet" id="font-jetbrains-mono-css" href="https://blog.jetbrains.com/wp-content/themes/jetbrains/assets/dist/fontjetbrainsmono.min.css?ver=2.0.5" type="text/css" media="all" />
+        <link rel="stylesheet" id="single-post-css" href="https://blog.jetbrains.com/wp-content/themes/jetbrains/assets/dist/singlepost.min.css?ver=2.0.5" type="text/css" media="all" />
+        <script type="text/javascript" src="https://blog.jetbrains.com/wp-content/themes/jetbrains/assets/jquery/jquery.min.js" id="jquery-js"></script>
+        <script type="text/javascript" id="wpml-cookie-js-extra">
+        /* <![CDATA[ */
+        var wpml_cookies = {"wp-wpml_current_language":{"value":"en","expires":1,"path":"\/"}};
+        var wpml_cookies = {"wp-wpml_current_language":{"value":"en","expires":1,"path":"\/"}};
+        /* ]]> */
+        </script>
+        <script type="text/javascript" src="https://blog.jetbrains.com/wp-content/plugins/sitepress-multilingual-cms/res/js/cookies/language-cookie.js?ver=4.5.2" id="wpml-cookie-js"></script>
+        <script type="text/javascript" src="https://blog.jetbrains.com/wp-content/plugins/wp-user-avatar/assets/flatpickr/flatpickr.min.js?ver=4.3.2" id="ppress-flatpickr-js"></script>
+        <script type="text/javascript" src="https://blog.jetbrains.com/wp-content/plugins/wp-user-avatar/assets/select2/select2.min.js?ver=4.3.2" id="ppress-select2-js"></script>
+        <link rel="https://api.w.org/" href="https://blog.jetbrains.com/wp-json/" />
+        <link rel="alternate" type="application/json" href="https://blog.jetbrains.com/wp-json/wp/v2/dotnet/284011" />
+        <link rel="shortlink" href="https://blog.jetbrains.com/?p=284011/" />
+        <link rel="alternate" type="application/json+oembed" href="https://blog.jetbrains.com/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fblog.jetbrains.com%2Fdotnet%2F2022%2F12%2F15%2Fthe-future-of-net-with-wasm%2F" />
+        <link rel="alternate" type="text/xml+oembed" href="https://blog.jetbrains.com/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fblog.jetbrains.com%2Fdotnet%2F2022%2F12%2F15%2Fthe-future-of-net-with-wasm%2F&amp;format=xml" />
+        <meta name="generator" content="WPML ver:4.5.2 stt:60,9,1,4,3,28,29,43,46,2,54;" />
+        <meta property="og:locale" content="en_US" />
+        <meta property="og:site_name" content="The JetBrains Blog" />
+        <meta property="og:title" content="The Future of .NET with WASM | The .NET Tools Blog" />
+        <meta property="og:url" content="https://blog.jetbrains.com/dotnet/2022/12/15/the-future-of-net-with-wasm/" />
+        <meta property="og:image" content="https://blog.jetbrains.com/wp-content/uploads/2022/10/rd-how-tos-blog-social-share-image-1280x720-1.png" />
+        <meta property="og:type" content="website" />
+        <meta property="og:description" content="You’ve likely heard about Blazor, .NET’s frontend framework for writing web applications. Blazor lets you use your existing C# skills to build full-stack applications, from client to server. One way t" /><!-- Google+ / Schema.org -->
+        <meta itemprop="name" content="The Future of .NET with WASM | The .NET Tools Blog" />
+        <meta itemprop="headline" content="The Future of .NET with WASM | The .NET Tools Blog" />
+        <meta itemprop="image" content="https://blog.jetbrains.com/wp-content/uploads/2022/10/rd-how-tos-blog-social-share-image-1280x720-1.png" />
+        <meta itemprop="description" content="You’ve likely heard about Blazor, .NET’s frontend framework for writing web applications. Blazor lets you use your existing C# skills to build full-stack applications, from client to server. One way t" />
+        <meta name="image" content="https://blog.jetbrains.com/wp-content/uploads/2022/10/rd-how-tos-blog-social-share-image-1280x720-1.png" /><!-- Twitter Cards -->
+        <meta name="twitter:title" content="The Future of .NET with WASM | The .NET Tools Blog" />
+        <meta name="twitter:url" content="https://blog.jetbrains.com/dotnet/2022/12/15/the-future-of-net-with-wasm/" />
+        <meta name="twitter:creator" content="@resharper" />
+        <meta name="twitter:site" content="@resharper" />
+        <meta name="twitter:image:src" content="https://blog.jetbrains.com/wp-content/uploads/2022/10/rd-how-tos-blog-social-share-image-1280x720-1.png" />
+        <meta name="twitter:description" content="You’ve likely heard about Blazor, .NET’s frontend framework for writing web applications. Blazor lets you use your existing C# skills to build full-stack applications, from client to server. One way t" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="description" content="You’ve likely heard about Blazor, .NET’s frontend framework for writing web applications. Blazor lets you use your existing C# skills to build full-stack applications, from client to server. One way t" />
+        <link rel="icon" href="https://blog.jetbrains.com/wp-content/uploads/2020/07/favicon-32x32-1.png" sizes="32x32" />
+        <link rel="icon" href="https://blog.jetbrains.com/wp-content/uploads/2020/07/favicon-32x32-1.png" sizes="192x192" />
+        <link rel="apple-touch-icon" href="https://blog.jetbrains.com/wp-content/uploads/2020/07/favicon-32x32-1.png" />
+        <meta name="msapplication-TileImage" content="https://blog.jetbrains.com/wp-content/uploads/2020/07/favicon-32x32-1.png" /><!-- Google Tag Manager -->
+
+        <script>
+        <![CDATA[
+        (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer','GTM-5P98');
+        ]]>
+        </script><!-- End Google Tag Manager -->
+
+        <style type="text/css" id="wp-custom-css">
+        /*<![CDATA[*/
+                        /* blog.jetbrains.com-theme/blob/master/custom.css */
+
+        #extendify-templates-inserter {
+        display: none !important; 
+        }
+
+        .enlighter-k3{
+        background-color: transparent !important;
+        }
+
+        a[href*="/tag/newsletter"],
+        a[href*="/tag/newsletter"],
+        a[href*="/tag/how2pro"],
+        a[href*="/tag/sendtoall"],
+        a[href*="/tag/newsletter-resharper"],
+        a[href*="/tag/newsletter-rider"],
+        a[href*="/tag/newsletter-cpp"],
+        a[href*="/tag/newsletter-rust"],
+        a[href*="/webstorm/tag/digest"],
+        a[href*="/category/uncategorized"],
+        a[href*="/category/newsletter"],a[href*="/category/java-annotated"],a[href*="/tag/news-company/"],a[href*="/tag/major-news/"],
+        a[href*="/category/newsletter"],
+        a[href*="/category/how2pro"],
+        a[href*="/category/sendtoall"],
+        a[href*="/category/newsletter-resharper"],
+        a[href*="/category/newsletter-rider"],
+        a[href*="/category/newsletter-cpp"],
+        a[href*="/category/newsletter-rust"] {
+        display: none !important;
+        }
+
+        #wrapper > main > section.promo div.promo__text > a.tag {
+        display: none !important;
+        }
+
+        table, th, td {
+        border: 1px solid rgba(50,50,93,.1);
+        border-collapse: collapse;
+        padding: 8px;
+        }
+
+        .wp-block-image figcaption {
+        font-size: .7em;
+        margin-top: .5em;
+        margin-bottom: 1em;
+        text-align: center;
+        font-style: italic;
+        }
+
+        div.content>p[data-nosnippet] {
+        font-size: 80%;
+        }
+
+        blockquote,
+        blockquote.wp-block-quote {
+        font-size: 100%;
+        line-height: 1.5;
+        margin: 32px 0px;
+        padding: 0px 18px;
+        border-left: 2px solid rgba(0, 0, 0, 0.12);
+        }
+
+        figure.wp-block-embed.is-type-video .wp-block-embed__wrapper, figure.wp-block-embed.is-type-video .wp-block-embed__wrapper {
+        position: relative;
+        width: 100%;
+        height: 0;
+        padding-bottom: 56.25%;
+        }
+
+        div.card__header > h3 {
+        font-size:18px !important;
+        }
+
+        .navbar h3 {
+        font-size:20px !important;
+        }
+
+        h2, h3, h4, h5 {
+        margin-top: 20px;
+        }
+
+        h4, h5 {
+        font-size: 20px !important;
+        }
+
+        figure.wp-block-embed.is-type-video iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        }
+
+        div.content > ul > li > img {
+        margin: 0.5em 0;
+        }
+
+        .alignright {
+        float: right;
+        }
+
+        .wp-block-video {
+        margin: 0 0 1em !important;
+        }
+
+        video {
+        max-width: 100%;
+        }
+
+        .copy-heading {
+        margin-top: 20px;
+        }
+        /*]]>*/
+        </style>
+        <link rel="alternate" type="application/rss+xml" title="The .NET Tools Blog : Essential productivity kit for .NET developers | The JetBrains Blog" href="https://blog.jetbrains.com/dotnet/feed/" />
+        <script type="module" defer="defer" src="https://comments.blog.jetbrains.com/web/counter.mjs"></script>
+        <script type="module" defer="defer" src="https://comments.blog.jetbrains.com/web/embed.mjs"></script>
+    </head>
+    <body class="dotnet-template-default single single-dotnet postid-284011 wp-embed-responsive scrollUp">
+        <!-- Google Tag Manager (noscript) -->
+        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5P98" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript> <!-- End Google Tag Manager (noscript) -->
+        <div id="wrapper">
+            <header class="header">
+                <div class="container">
+                    <strong class="logo"><a href="https://blog.jetbrains.com/"><img src="https://blog.jetbrains.com/wp-content/uploads/2021/02/logo-jb.svg" alt="" /></a></strong>
+                    <ul class="menu-list">
+                        <li>
+                            <a href="#" class="nav-opener">Blogs by Topic </a>
+                        </li>
+                        <li>
+                            <a href="https://blog.jetbrains.com/search/"></a>
+                        </li>
+                    </ul>
+                    <nav class="navbar">
+                        <div class="container">
+                            <ul class="row">
+                                <li id="menu-item-118356" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-118356">
+                                    <ul class="sub-menu">
+                                        <li id="menu-item-284" class="columns menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-284">
+                                            <h3>
+                                                IDEs
+                                            </h3>
+                                            <ul class="sub-menu">
+                                                <li id="menu-item-285" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-285">
+                                                    <a title="AppCode Blog" href="/appcode/"><img src="https://blog.jetbrains.com/wp-content/uploads/2019/01/appcode_icon.svg" />AppCode</a>
+                                                </li>
+                                                <li id="menu-item-286" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-286">
+                                                    <a title="CLion Blog" href="/clion/"><img src="https://blog.jetbrains.com/wp-content/uploads/2019/01/clion_icon.svg" />CLion</a>
+                                                </li>
+                                                <li id="menu-item-287" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-287">
+                                                    <a title="DataGrip Blog" href="/datagrip/"><img src="https://blog.jetbrains.com/wp-content/uploads/2019/01/datagrip_icon.svg" />DataGrip</a>
+                                                </li>
+                                                <li id="menu-item-231265" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-231265">
+                                                    <a href="/dataspell/"><img src="https://blog.jetbrains.com/wp-content/uploads/2022/08/dataspell.svg" />DataSpell</a>
+                                                </li>
+                                                <li id="menu-item-217910" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-217910">
+                                                    <a href="/fleet/"><img src="https://blog.jetbrains.com/wp-content/uploads/2022/01/fleet_icon.svg" />Fleet</a>
+                                                </li>
+                                                <li id="menu-item-288" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-288">
+                                                    <a title="GoLand Blog" href="/go/"><img src="https://blog.jetbrains.com/wp-content/uploads/2019/01/goland_icon.svg" />GoLand</a>
+                                                </li>
+                                                <li id="menu-item-289" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-289">
+                                                    <a title="IntelliJ IDEA Blog" href="/idea/"><img src="https://blog.jetbrains.com/wp-content/uploads/2019/01/idea_icon.svg" />IntelliJ IDEA</a>
+                                                </li>
+                                                <li id="menu-item-291" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-291">
+                                                    <a title="PhpStorm Blog" href="/phpstorm/"><img src="https://blog.jetbrains.com/wp-content/uploads/2019/01/phpstorm_icon.svg" />PhpStorm</a>
+                                                </li>
+                                                <li id="menu-item-292" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-292">
+                                                    <a title="PyCharm Blog" href="/pycharm/"><img src="https://blog.jetbrains.com/wp-content/uploads/2019/01/pycharm_icon.svg" />PyCharm</a>
+                                                </li>
+                                                <li id="menu-item-293" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-293">
+                                                    <a title="Rider Blog" href="/dotnet/tag/rider/"><img src="https://blog.jetbrains.com/wp-content/uploads/2019/01/rider_icon.svg" />Rider</a>
+                                                </li>
+                                                <li id="menu-item-294" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-294">
+                                                    <a title="RubyMine Blog" href="/ruby/"><img src="https://blog.jetbrains.com/wp-content/uploads/2019/01/rubymine_icon.svg" />RubyMine</a>
+                                                </li>
+                                                <li id="menu-item-296" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-296">
+                                                    <a title="WebStorm Blog" href="/webstorm/"><img src="https://blog.jetbrains.com/wp-content/uploads/2019/01/webstorm_icon.svg" />WebStorm</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li id="menu-item-155083" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-155083">
+                                    <ul class="sub-menu">
+                                        <li id="menu-item-155084" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-155084">
+                                            <h3>
+                                                Plugins &amp; Services
+                                            </h3>
+                                            <ul class="sub-menu">
+                                                <li id="menu-item-126770" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-126770">
+                                                    <a href="/big-data-tools/"><img src="https://blog.jetbrains.com/wp-content/uploads/2021/03/big-data-tools.svg" />Big Data Tools</a>
+                                                </li>
+                                                <li id="menu-item-136584" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-136584">
+                                                    <a href="https://blog.jetbrains.com/blog/tag/codewithme/"><img src="https://blog.jetbrains.com/wp-content/uploads/2022/08/code-with-me.svg" />Code With Me</a>
+                                                </li>
+                                                <li id="menu-item-170477" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-170477">
+                                                    <a href="/qa/">Quality Assurance</a>
+                                                </li>
+                                                <li id="menu-item-310" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-310">
+                                                    <a title="JetBrains Platform Blog" href="/platform/"><img src="https://blog.jetbrains.com/wp-content/uploads/2020/08/platform.svg" />JetBrains Platform</a>
+                                                </li>
+                                                <li id="menu-item-155027" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-155027">
+                                                    <a href="/rust/"><img src="https://blog.jetbrains.com/wp-content/uploads/2020/07/ij-rust-plugin.svg" />Rust</a>
+                                                </li>
+                                                <li id="menu-item-123129" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-123129">
+                                                    <a href="/scala/"><img src="https://blog.jetbrains.com/wp-content/uploads/2019/01/idea_icon.svg" />Scala</a>
+                                                </li>
+                                                <li id="menu-item-295" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-295">
+                                                    <a title="Toolbox App Blog" href="/toolbox-app/"><img src="https://blog.jetbrains.com/wp-content/uploads/2020/03/toolbox_icon.svg" />Toolbox App</a>
+                                                </li>
+                                                <li id="menu-item-268151" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-268151">
+                                                    <a href="/writerside/">Writerside</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li id="menu-item-118358" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-118358">
+                                    <ul class="sub-menu">
+                                        <li id="menu-item-305" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-305">
+                                            <h3>
+                                                Team Tools
+                                            </h3>
+                                            <ul class="sub-menu">
+                                                <li id="menu-item-65109" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-65109">
+                                                    <a href="/datalore/"><img src="https://blog.jetbrains.com/wp-content/uploads/2020/07/datalore-601596800569137-1.svg" />Datalore</a>
+                                                </li>
+                                                <li id="menu-item-753" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-753">
+                                                    <a title="JetBrains Space Blog" href="/space/"><img src="https://blog.jetbrains.com/wp-content/uploads/2020/02/space_icon.svg" />Space</a>
+                                                </li>
+                                                <li id="menu-item-306" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-306">
+                                                    <a title="TeamCity Blog" href="/teamcity/"><img src="https://blog.jetbrains.com/wp-content/uploads/2019/01/teamcity_icon.svg" />TeamCity</a>
+                                                </li>
+                                                <li id="menu-item-307" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-307">
+                                                    <a title="Upsource Blog" href="/upsource/"><img src="https://blog.jetbrains.com/wp-content/uploads/2019/01/upsource_icon.svg" />Upsource</a>
+                                                </li>
+                                                <li id="menu-item-308" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-308">
+                                                    <a title="YouTrack Blog" href="/youtrack/"><img src="https://blog.jetbrains.com/wp-content/uploads/2019/01/youtrack_icon.svg" />YouTrack</a>
+                                                </li>
+                                                <li id="menu-item-309" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-309">
+                                                    <a title="Hub Blog" href="/hub/"><img src="https://blog.jetbrains.com/wp-content/uploads/2019/01/hub_icon.svg" />Hub</a>
+                                                </li>
+                                                <li id="menu-item-165129" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-165129">
+                                                    <a href="/qodana/"><img src="https://blog.jetbrains.com/wp-content/uploads/2021/07/qodana_icon.svg" />Qodana</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li id="menu-item-118357" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-118357">
+                                    <ul class="sub-menu">
+                                        <li id="menu-item-297" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-297">
+                                            <h3>
+                                                .NET &amp; Visual Studio
+                                            </h3>
+                                            <ul class="sub-menu">
+                                                <li id="menu-item-304" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-304">
+                                                    <a title=".NET Tools" href="/dotnet/"><img src="https://blog.jetbrains.com/wp-content/uploads/2019/01/dotUltimate_icon.svg" />.NET Tools</a>
+                                                </li>
+                                                <li id="menu-item-300" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-300">
+                                                    <a title="ReSharper C++ Blog" href="/rscpp/"><img src="https://blog.jetbrains.com/wp-content/uploads/2019/01/resharper-cpp_icon.svg" />ReSharper C++</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li id="menu-item-63316" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-63316">
+                                            <h3>
+                                                Languages &amp; Frameworks
+                                            </h3>
+                                            <ul class="sub-menu">
+                                                <li id="menu-item-311" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-311">
+                                                    <a title="Kotlin Blog" href="/kotlin/"><img src="https://blog.jetbrains.com/wp-content/uploads/2019/01/kotlin-2.svg" />Kotlin</a>
+                                                </li>
+                                                <li id="menu-item-63315" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-63315">
+                                                    <a href="/ktor/"><img src="https://blog.jetbrains.com/wp-content/uploads/2020/07/ktor.svg" />Ktor</a>
+                                                </li>
+                                                <li id="menu-item-290" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-290">
+                                                    <a title="MPS Blog" href="/mps/"><img src="https://blog.jetbrains.com/wp-content/uploads/2019/01/mps_icon.svg" />MPS</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li id="menu-item-118359" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-118359">
+                                    <ul class="sub-menu">
+                                        <li id="menu-item-63314" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-63314">
+                                            <h3>
+                                                Education &amp; Research
+                                            </h3>
+                                            <ul class="sub-menu">
+                                                <li id="menu-item-118360" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-118360">
+                                                    <a href="/education/">Edu Products</a>
+                                                </li>
+                                                <li id="menu-item-285585" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-285585">
+                                                    <a href="/research/">Research</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li id="menu-item-312" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-312">
+                                            <h3>
+                                                Company
+                                            </h3>
+                                            <ul class="sub-menu">
+                                                <li id="menu-item-313" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-313">
+                                                    <a title="JetBrains Company Blog" href="/blog/"><img src="https://blog.jetbrains.com/wp-content/uploads/2020/08/news.svg" />Company Blog</a>
+                                                </li>
+                                                <li id="menu-item-227873" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-227873">
+                                                    <a href="/security/">Security</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </nav>
+                </div>
+            </header>
+            <main>
+                <div class="top-page">
+                    <div class="container">
+                        <div class="top-page__head">
+                            <a href="https://blog.jetbrains.com/dotnet/"><img src="https://blog.jetbrains.com/wp-content/uploads/2019/01/dotUltimate_icon.svg" alt="Dotnet logo" /></a>
+                            <div class="text-container">
+                                <a href="https://blog.jetbrains.com/dotnet/">
+                                <h2>
+                                    The .NET Tools Blog
+                                </h2>
+                                <p>
+                                    Essential productivity kit for .NET developers
+                                </p></a>
+                            </div>
+                        </div>
+                        <div class="menu fixed">
+                            <nav class="menu__nav">
+                                <ul class="menu__nav-list">
+                                    <li>
+                                        <a href="/dotnet/category/how-tos/">How-To's</a>
+                                    </li>
+                                    <li>
+                                        <a href="/dotnet/category/releases/">Releases</a>
+                                    </li>
+                                    <li>
+                                        <a href="/dotnet/category/webinars/">Webinars</a>
+                                    </li>
+                                    <li>
+                                        <a href="/dotnet/category/events/">Events</a>
+                                    </li>
+                                    <li>
+                                        <a href="/dotnet/tag/net-annotated/">.NET Annotated</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                            <div class="menu__right">
+                                <a href="https://www.jetbrains.com/dotnet/" class="btn">Get Tools</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <aside class="sidebar hidden">
+                    <div class="sidebar__holder">
+                        <img class="sidebar__logo" src="https://blog.jetbrains.com/wp-content/uploads/2019/01/dotUltimate_icon.svg" alt="Dotnet logo" /> <span class="sidebar__title">The Future of .NET with WASM</span>
+                        <div class="tag-list">
+                            <a href="/dotnet/tag/net/" class="tag">.NET</a> <a href="/dotnet/tag/c/" class="tag">C#</a> <a href="/dotnet/tag/wasi/" class="tag">WASI</a> <a href="/dotnet/tag/wasm/" class="tag">WASM</a> <a href="/dotnet/tag/web/" class="tag">web</a>
+                        </div><a href="#remark42" class="remark42__counter remark42_comments icon-comments" data-url="https://blog.jetbrains.com/dotnet/2022/12/15/the-future-of-net-with-wasm/">2</a>
+                        <div id="block-9" class="widget widget_block">
+                            <div class="subscribe-form" data-form-id="2741">
+                                <div class="subscribe-form__wrap">
+                                    <form class="subscribe-form js-subscribe-form">
+                                        <input type="hidden" name="subId" value="62" /> <input type="hidden" name="formid" value="2741" /> <input type="hidden" name="dotNetBlog" value="true" /> <input type="hidden" name="subscriptionTopicWelcomeEmail" value="dotNet Blog" />
+                                        <div class="subscribe-form__field">
+                                            <label class="subscribe-form__label" for="subscribe-form__email">Subscribe to a monthly digest curated from the .NET Tools blog:</label>
+                                            <div class="input-with-button">
+                                                <input type="email" required="" value="" placeholder="Email" name="Email" id="subscribe-form__email" class="input input-with-button__input subscribe-form__email-field" />
+                                                <div class="input-with-button__button-wrap">
+                                                    <img src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20x='0px'%20y='0px'%20width='10.1px'%20height='17.4px'%20viewBox='-300.7%20388.6%2010.1%2017.4'%20inline='true'%3E%20%3Cpath%20d='M-290.6,404.6l-1.4,1.4l-8-8l-0.7-0.7l0.7-0.7l8-8l1.4,1.4l-7.3,7.3L-290.6,404.6z'%20inline='true'%20/%3E%20%3C/svg%3E" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="subscribe-form__message js-subscribe-form-message"></div>
+                                        <div class="subscribe-form__field subscribe-form__privacy-checkbox-field">
+                                            <div class="js-privacy-checkbox-wrap">
+                                                <div class="checkbox-privacy-with-tooltip">
+                                                    <div class="form__field">
+                                                        <label class="checkbox"><input type="checkbox" name="privacyConsent" id="privacy-notice" class="js-checkbox-privacy-consent checkbox-privacy-with-tooltip__checkbox" required="true" /><span class="checkbox__label checkbox-privacy-with-tooltip__message js-message-from-server"><span class="checkbox-privacy-with-tooltip__text-wrapper">By submitting this form, I agree to the <a href="https://www.jetbrains.com/company/privacy.html" target="_blank">JetBrains Privacy Policy</a><!--unsafe--><span class="js-privacy-tooltip checkbox-privacy-with-tooltip__tooltip jb-tooltip-target">?</span></span></span></label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                    <div class="subscribe-form__after-submit" data-form-id="2741">
+                                        <b>Thanks, we've got you!</b>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+                <section class="article-section" data-clarity-region="article">
+                    <div class="content">
+                        <a href="/dotnet/category/net-tools/" class="tag">.NET Tools</a> <a href="/dotnet/category/how-tos/" class="tag">How-To's</a>
+                        <h1>
+                            The Future of .NET with WASM
+                        </h1>
+                        <div class="post-info">
+                            <img src="https://blog.jetbrains.com/wp-content/uploads/2021/06/avatar-0.5x-200x200.png" width="200" height="200" alt="Khalid Abuhakmeh" loading="lazy" class="avatar avatar-200 wp-user-avatar wp-user-avatar-200 photo avatar-default" />
+                            <div class="post-info__text">
+                                <a href="https://blog.jetbrains.com/author/khalid-abuhakmeh">Khalid Abuhakmeh</a> <time class="publish-date" data-year="2022" data-month="12" data-day="15" datetime="2022-12-15">December 15, 2022</time>
+                            </div>
+                        </div>
+                        <div id="ez-toc-container" class="ez-toc-v2_0_36_1 counter-hierarchy ez-toc-counter ez-toc-transparent ez-toc-container-direction">
+                            <div class="ez-toc-title-container">
+                                <p class="ez-toc-title">
+                                    Table of Contents
+                                </p><span class="ez-toc-title-toggle"><a href="#" class="ez-toc-pull-right ez-toc-btn ez-toc-btn-xs ez-toc-btn-default ez-toc-toggle" style="display: flex;"><label for="item" aria-label="Table of Content"><span style="display: flex;align-items: center;width: 35px;height: 30px;justify-content: center;"><svg style="fill: #999;color:#999" xmlns="http://www.w3.org/2000/svg" class="list-377408" width="20px" height="20px" viewbox="0 0 24 24" fill="none">
+                                <path d="M6 6H4v2h2V6zm14 0H8v2h12V6zM4 11h2v2H4v-2zm16 0H8v2h12v-2zM4 16h2v2H4v-2zm16 0H8v2h12v-2z" fill="currentColor"></path></svg><svg style="fill: #999;color:#999" class="arrow-unsorted-368013" xmlns="http://www.w3.org/2000/svg" width="10px" height="10px" viewbox="0 0 24 24" version="1.2" baseprofile="tiny">
+                                <path d="M18.2 9.3l-6.2-6.3-6.2 6.3c-.2.2-.3.4-.3.7s.1.5.3.7c.2.2.4.3.7.3h11c.3 0 .5-.1.7-.3.2-.2.3-.5.3-.7s-.1-.5-.3-.7zM5.8 14.7l6.2 6.3 6.2-6.3c.2-.2.3-.5.3-.7s-.1-.5-.3-.7c-.2-.2-.4-.3-.7-.3h-11c-.3 0-.5.1-.7.3-.2.2-.3.5-.3.7s.1.5.3.7z"></path></svg></span></label><input type="checkbox" id="item" /></a></span>
+                            </div>
+                            <nav>
+                                <ul class="ez-toc-list ez-toc-list-level-1">
+                                    <li class="ez-toc-page-1 ez-toc-heading-level-2">
+                                        <a class="ez-toc-link ez-toc-heading-1" href="#What_is_WebAssembly" title="What is WebAssembly?">What is WebAssembly?</a>
+                                    </li>
+                                    <li class="ez-toc-page-1 ez-toc-heading-level-2">
+                                        <a class="ez-toc-link ez-toc-heading-2" href="#What_is_Wasmtime" title="What is Wasmtime?">What is Wasmtime?</a>
+                                    </li>
+                                    <li class="ez-toc-page-1 ez-toc-heading-level-2">
+                                        <a class="ez-toc-link ez-toc-heading-3" href="#Installing_Wasmtime" title="Installing Wasmtime">Installing Wasmtime</a>
+                                    </li>
+                                    <li class="ez-toc-page-1 ez-toc-heading-level-2">
+                                        <a class="ez-toc-link ez-toc-heading-4" href="#Compiling_a_WASM_NET_application" title="Compiling a WASM .NET application">Compiling a WASM .NET application</a>
+                                    </li>
+                                    <li class="ez-toc-page-1 ez-toc-heading-level-2">
+                                        <a class="ez-toc-link ez-toc-heading-5" href="#Consuming_WASM_and_WAT_modules_from_NET" title="Consuming WASM and WAT modules from .NET">Consuming WASM and WAT modules from .NET</a>
+                                    </li>
+                                    <li class="ez-toc-page-1 ez-toc-heading-level-2">
+                                        <a class="ez-toc-link ez-toc-heading-6" href="#The_current_reality_of_WASM_on_the_server" title="The current reality of WASM on the server">The current reality of WASM on the server</a>
+                                    </li>
+                                    <li class="ez-toc-page-1 ez-toc-heading-level-2">
+                                        <a class="ez-toc-link ez-toc-heading-7" href="#Imagining_the_future_of_WASM_on_the_server" title="Imagining the future of WASM on the server&#160;">Imagining the future of WASM on the server&#160;</a>
+                                    </li>
+                                    <li class="ez-toc-page-1 ez-toc-heading-level-2">
+                                        <a class="ez-toc-link ez-toc-heading-8" href="#Conclusion" title="Conclusion">Conclusion</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                        <p>
+                            You’ve likely heard about <a href="https://dotnet.microsoft.com/en-us/apps/aspnet/web-apps/blazor">Blazor</a>, .NET’s frontend framework for writing web applications. Blazor lets you use your existing C# skills to build full-stack applications, from client to server. One way to construct Blazor applications is to compile your frontend into a WebAssembly (WASM) file and deploy and run your app in a web browser. The Blazor WASM approach can help you build client experiences similar to native desktop applications with a native performance profile.
+                        </p>
+                        <p>
+                            But what about WebAssembly on the server? In this post, we’ll see the benefits of using WASM outside the browser and its potential as a transformative technology on the server.&#160;
+                        </p>
+                        <h2>
+                            <span class="ez-toc-section" id="What_is_WebAssembly"></span>What is WebAssembly?
+                        </h2>
+                        <p>
+                            WebAssembly is a low-level assembly-like language with a binary format that runs in modern web browsers. As a result, WebAssembly programs can perform at near-native speeds allowing for new and exciting applications for web clients from desktop-like apps, emulators, high-performance video games, photo editors, and more. The additional benefit of WebAssembly is it can be run either as an extra add-on via service workers, enhancing or replacing the existing JavaScript experience on the client.
+                        </p>
+                        <p>
+                            The designers of WebAssembly always meant it to run alongside the current web model. Developers unfamiliar with JavaScript can choose from a wide range of languages to write WebAssembly, including C, C++, C#, Go, Python and Rust, with many more languages looking at targeting WASM as an artifact of compilation. For .NET developers, you can think of the <code>.wasm</code> file extension as a <code>.dll</code> or <code>.exe</code> format. The file format is a standard, and WebAssembly System Interface (WASI) compliant runtime will be able to consume them.
+                        </p>
+                        <p>
+                            One such runtime we’ll be exploring in this post is <strong><a href="https://wasmtime.dev/">Wasmtime</a></strong>.
+                        </p>
+                        <h2>
+                            <span class="ez-toc-section" id="What_is_Wasmtime"></span>What is Wasmtime?
+                        </h2>
+                        <p>
+                            Developed by the <a href="https://bytecodealliance.org/">Bytecode Alliance</a>, <a href="https://wasmtime.dev/">Wasmtime is a runtime for WebAssembly</a>, allowing you to consume <code>.wasm</code> files and run them on Windows, macOS, or Linux systems outside a web client. Wasmtime is a fast, secure, and standards-compliant runtime for WebAssembly, and supports the <a href="https://wasi.dev/">WebAssembly System Interface (WASI)</a>.
+                        </p>
+                        <p>
+                            The most crucial feature of Wasmtime is its ability to interact with the native operating system, allowing for configurable access to system resources. Resources include disk access, TCP listeners, hardware input interfaces, and more.
+                        </p>
+                        <p>
+                            In addition to running standalone <code>.wasm</code> files, you can use Wasmtime inside your applications to consume third-party dependencies. The portability of the WASM format opens up a world where you can have native interop with a standard format across all languages.
+                        </p>
+                        <p>
+                            Wasmtime also supports debugging using popular native debugging tools like GDB or LLDB, which many of the IntelliJ-family products already support. The debugging experience depends on your technology stack’s build tools.
+                        </p>
+                        <p>
+                            Speaking of build tools, let’s build our first WASM server application, but first, let’s install Wasmtime.
+                        </p>
+                        <h2>
+                            <span class="ez-toc-section" id="Installing_Wasmtime"></span>Installing Wasmtime
+                        </h2>
+                        <p>
+                            Wasmtime is a CLI executable, so it’s straightforward to install on any environment. The first step is to visit the <a href="https://wasmtime.dev/">official Bytecode Alliance website</a>. You can also just run the following command.
+                        </p>
+                        <div class="enlighter-default enlighter-v-standard enlighter-t-wpcustom enlighter-hover enlighter-overflow-scroll">
+                            <div class="enlighter-toolbar-top enlighter-toolbar">
+                                <img src="data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%0D%0A%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%0D%0A%3Csvg%20version%3D%221.1%22%20id%3D%22Ebene_2%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%0D%0A%09%20width%3D%2246px%22%20height%3D%2246px%22%20viewBox%3D%220%200%2046%2046%22%20enable-background%3D%22new%200%200%2046%2046%22%20xml%3Aspace%3D%22preserve%22%3E%0D%0A%3Cg%3E%0D%0A%09%3Cpath%20d%3D%22M19.436%2C36.875L6.568%2C25.002v-3.863L19.436%2C9.267v5.041l-9.583%2C8.668v0.188l9.583%2C8.669V36.875z%22%2F%3E%0D%0A%09%3Cpath%20d%3D%22M26.343%2C36.875v-5.041l9.583-8.669v-0.188l-9.583-8.668V9.267l12.868%2C11.872v3.863L26.343%2C36.875z%22%2F%3E%0D%0A%3C%2Fg%3E%0D%0A%3C%2Fsvg%3E%0D%0A" /><img src="data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%0D%0A%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%0D%0A%3Csvg%20version%3D%221.1%22%20id%3D%22Ebene_2%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%0D%0A%09%20width%3D%2246px%22%20height%3D%2246px%22%20viewBox%3D%220%200%2046%2046%22%20enable-background%3D%22new%200%200%2046%2046%22%20xml%3Aspace%3D%22preserve%22%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%224%22%20stroke-miterlimit%3D%2210%22%20x1%3D%2253.75%22%20y1%3D%2239.353%22%20x2%3D%2286.375%22%20y2%3D%2239.353%22%2F%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%224%22%20stroke-miterlimit%3D%2210%22%20x1%3D%2251.711%22%20y1%3D%2230.534%22%20x2%3D%2284.336%22%20y2%3D%2230.534%22%2F%3E%0D%0A%3Crect%20x%3D%228.932%22%20y%3D%227.334%22%20fill%3D%22%23FFFFFF%22%20stroke%3D%22%23000000%22%20stroke-width%3D%223%22%20stroke-miterlimit%3D%2210%22%20width%3D%2221.097%22%20height%3D%2224.952%22%2F%3E%0D%0A%3Crect%20x%3D%2218.942%22%20y%3D%2215.424%22%20fill%3D%22%23FFFFFF%22%20stroke%3D%22%23000000%22%20stroke-width%3D%223%22%20stroke-miterlimit%3D%2210%22%20width%3D%2221.096%22%20height%3D%2224.953%22%2F%3E%0D%0A%3C%2Fsvg%3E%0D%0A" /><img src="data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%0D%0A%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%0D%0A%3Csvg%20version%3D%221.1%22%20id%3D%22Ebene_2%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%0D%0A%09%20width%3D%2246px%22%20height%3D%2246px%22%20viewBox%3D%220%200%2046%2046%22%20enable-background%3D%22new%200%200%2046%2046%22%20xml%3Aspace%3D%22preserve%22%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%224%22%20stroke-miterlimit%3D%2210%22%20x1%3D%227.125%22%20y1%3D%229.25%22%20x2%3D%2239.75%22%20y2%3D%229.25%22%2F%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%224%22%20stroke-miterlimit%3D%2210%22%20x1%3D%227.125%22%20y1%3D%2218.167%22%20x2%3D%2239.75%22%20y2%3D%2218.167%22%2F%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%224%22%20stroke-miterlimit%3D%2210%22%20x1%3D%227.125%22%20y1%3D%2227.083%22%20x2%3D%2239.75%22%20y2%3D%2227.083%22%2F%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%224%22%20stroke-miterlimit%3D%2210%22%20x1%3D%227.125%22%20y1%3D%2236%22%20x2%3D%2229.809%22%20y2%3D%2236%22%2F%3E%0D%0A%3C%2Fsvg%3E%0D%0A" /><img src="data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%0D%0A%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%0D%0A%3Csvg%20version%3D%221.1%22%20id%3D%22E%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%0D%0A%09%20width%3D%2246px%22%20height%3D%2246px%22%20viewBox%3D%220%200%2046%2046%22%20enable-background%3D%22new%200%200%2046%2046%22%20xml%3Aspace%3D%22preserve%22%3E%0D%0A%3Cg%3E%0D%0A%09%3Cpath%20fill%3D%22%23202F65%22%20d%3D%22M32.48%2C25.614H19.64l-4.933%2C9.826l17.746%2C0.037l-6.173%2C5.358L8.167%2C40.912L16.29%2C6.055h22.974l-5.734%2C5.354%0D%0A%09%09l-13.306-0.027l0.672%2C8.797h12.841L32.48%2C25.614z%22%2F%3E%0D%0A%3C%2Fg%3E%0D%0A%3C%2Fsvg%3E%0D%0A" />
+                            </div>
+                            <div class="enlighter" style="">
+                                <div class="">
+                                    <div>
+                                        <span class="enlighter-text">curl https:</span><span class="enlighter-c0">//wasmtime.dev/install.sh -sSf | bash</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="enlighter-raw">
+                                curl https://wasmtime.dev/install.sh -sSf | bash
+                            </div>
+                            <div class="enlighter-toolbar-bottom enlighter-toolbar"></div>
+                        </div>
+                        <pre class="EnlighterJSRAW enlighter-origin" data-enlighter-language="generic" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">curl https://wasmtime.dev/install.sh -sSf | bash</pre>
+                        <p>
+                            Windows users can do the same using the Windows Subsystem for Linux (WSL), or <a href="https://github.com/bytecodealliance/wasmtime/releases">grab the installer from the Wasmtime releases</a> page.
+                        </p>
+                        <p>
+                            You can check you’ve successfully installed Wasmtime by running the command <code>wasmtime –version</code> from the command line.
+                        </p>
+                        <div class="enlighter-default enlighter-v-standard enlighter-t-wpcustom enlighter-hover enlighter-overflow-scroll">
+                            <div class="enlighter-toolbar-top enlighter-toolbar">
+                                <img src="data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%0D%0A%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%0D%0A%3Csvg%20version%3D%221.1%22%20id%3D%22Ebene_2%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%0D%0A%09%20width%3D%2246px%22%20height%3D%2246px%22%20viewBox%3D%220%200%2046%2046%22%20enable-background%3D%22new%200%200%2046%2046%22%20xml%3Aspace%3D%22preserve%22%3E%0D%0A%3Cg%3E%0D%0A%09%3Cpath%20d%3D%22M19.436%2C36.875L6.568%2C25.002v-3.863L19.436%2C9.267v5.041l-9.583%2C8.668v0.188l9.583%2C8.669V36.875z%22%2F%3E%0D%0A%09%3Cpath%20d%3D%22M26.343%2C36.875v-5.041l9.583-8.669v-0.188l-9.583-8.668V9.267l12.868%2C11.872v3.863L26.343%2C36.875z%22%2F%3E%0D%0A%3C%2Fg%3E%0D%0A%3C%2Fsvg%3E%0D%0A" /><img src="data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%0D%0A%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%0D%0A%3Csvg%20version%3D%221.1%22%20id%3D%22Ebene_2%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%0D%0A%09%20width%3D%2246px%22%20height%3D%2246px%22%20viewBox%3D%220%200%2046%2046%22%20enable-background%3D%22new%200%200%2046%2046%22%20xml%3Aspace%3D%22preserve%22%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%224%22%20stroke-miterlimit%3D%2210%22%20x1%3D%2253.75%22%20y1%3D%2239.353%22%20x2%3D%2286.375%22%20y2%3D%2239.353%22%2F%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%224%22%20stroke-miterlimit%3D%2210%22%20x1%3D%2251.711%22%20y1%3D%2230.534%22%20x2%3D%2284.336%22%20y2%3D%2230.534%22%2F%3E%0D%0A%3Crect%20x%3D%228.932%22%20y%3D%227.334%22%20fill%3D%22%23FFFFFF%22%20stroke%3D%22%23000000%22%20stroke-width%3D%223%22%20stroke-miterlimit%3D%2210%22%20width%3D%2221.097%22%20height%3D%2224.952%22%2F%3E%0D%0A%3Crect%20x%3D%2218.942%22%20y%3D%2215.424%22%20fill%3D%22%23FFFFFF%22%20stroke%3D%22%23000000%22%20stroke-width%3D%223%22%20stroke-miterlimit%3D%2210%22%20width%3D%2221.096%22%20height%3D%2224.953%22%2F%3E%0D%0A%3C%2Fsvg%3E%0D%0A" /><img src="data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%0D%0A%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%0D%0A%3Csvg%20version%3D%221.1%22%20id%3D%22Ebene_2%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%0D%0A%09%20width%3D%2246px%22%20height%3D%2246px%22%20viewBox%3D%220%200%2046%2046%22%20enable-background%3D%22new%200%200%2046%2046%22%20xml%3Aspace%3D%22preserve%22%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%224%22%20stroke-miterlimit%3D%2210%22%20x1%3D%227.125%22%20y1%3D%229.25%22%20x2%3D%2239.75%22%20y2%3D%229.25%22%2F%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%224%22%20stroke-miterlimit%3D%2210%22%20x1%3D%227.125%22%20y1%3D%2218.167%22%20x2%3D%2239.75%22%20y2%3D%2218.167%22%2F%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%224%22%20stroke-miterlimit%3D%2210%22%20x1%3D%227.125%22%20y1%3D%2227.083%22%20x2%3D%2239.75%22%20y2%3D%2227.083%22%2F%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%224%22%20stroke-miterlimit%3D%2210%22%20x1%3D%227.125%22%20y1%3D%2236%22%20x2%3D%2229.809%22%20y2%3D%2236%22%2F%3E%0D%0A%3C%2Fsvg%3E%0D%0A" /><img src="data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%0D%0A%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%0D%0A%3Csvg%20version%3D%221.1%22%20id%3D%22E%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%0D%0A%09%20width%3D%2246px%22%20height%3D%2246px%22%20viewBox%3D%220%200%2046%2046%22%20enable-background%3D%22new%200%200%2046%2046%22%20xml%3Aspace%3D%22preserve%22%3E%0D%0A%3Cg%3E%0D%0A%09%3Cpath%20fill%3D%22%23202F65%22%20d%3D%22M32.48%2C25.614H19.64l-4.933%2C9.826l17.746%2C0.037l-6.173%2C5.358L8.167%2C40.912L16.29%2C6.055h22.974l-5.734%2C5.354%0D%0A%09%09l-13.306-0.027l0.672%2C8.797h12.841L32.48%2C25.614z%22%2F%3E%0D%0A%3C%2Fg%3E%0D%0A%3C%2Fsvg%3E%0D%0A" />
+                            </div>
+                            <div class="enlighter" style="">
+                                <div class="">
+                                    <div>
+                                        <span class="enlighter-g1">&gt;</span> <span class="enlighter-text">wasmtime --version</span>
+                                    </div>
+                                </div>
+                                <div class="">
+                                    <div>
+                                        <span class="enlighter-text">wasmtime-cli</span> <span class="enlighter-n0">1.0</span><span class="enlighter-text">.</span><span class="enlighter-m3">1</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="enlighter-raw">
+                                &gt; wasmtime --version wasmtime-cli 1.0.1
+                            </div>
+                            <div class="enlighter-toolbar-bottom enlighter-toolbar"></div>
+                        </div>
+                        <pre class="EnlighterJSRAW enlighter-origin" data-enlighter-language="generic" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">&gt; wasmtime --version
+wasmtime-cli 1.0.1</pre>
+                        <h2>
+                            <span class="ez-toc-section" id="Compiling_a_WASM_NET_application"></span>Compiling a WASM .NET application
+                        </h2>
+                        <p>
+                            <strong>Note: You’ll need the latest version of .NET 7 SDK installed</strong>
+                        </p>
+                        <p>
+                            Our goal in this section is to take a C# Console application and compile it to a <code>.wasm</code> file. The solution will be a self-contained application that won’t need unique WASI resources like TCP listeners, file access, or environment variables.&#160;
+                        </p>
+                        <p>
+                            First, let’s start with a brand new Console Application project. From JetBrains Rider’s new solution window, select the <strong><em>“Console Application”</em></strong> template and call it <em><strong>“HelloWasm”</strong></em> or whatever you’d like.&#160;
+                        </p>
+                        <figure class="wp-block-image size-full">
+                            <img width="1600" height="1058" src="https://blog.jetbrains.com/wp-content/uploads/2022/10/image.png" alt="" class="wp-image-284012" />
+                        </figure>
+                        <p>
+                            Once the solution is ready, you’ll need to add the “<strong>Wasi.Sdk”</strong> NuGet package to your console project. If you don’t see the package, be sure that you have the <strong>Prerelease</strong> checkbox checked.
+                        </p>
+                        <figure class="wp-block-image size-full">
+                            <img loading="lazy" width="1600" height="562" src="https://blog.jetbrains.com/wp-content/uploads/2022/10/image-1.png" alt="" class="wp-image-284023" />
+                            <figcaption>
+                                Wasi.Sdk Nuget package in JetBrains Rider’s NuGet tool window
+                            </figcaption>
+                        </figure>
+                        <p>
+                            You’re ready to compile the console application into a <code>.wasm</code> artifact. Before doing so, change the line in <code>Program.cs</code> to the following:
+                        </p>
+                        <div class="enlighter-default enlighter-v-standard enlighter-t-wpcustom enlighter-hover enlighter-overflow-scroll">
+                            <div class="enlighter-toolbar-top enlighter-toolbar">
+                                <img src="data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%0D%0A%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%0D%0A%3Csvg%20version%3D%221.1%22%20id%3D%22Ebene_2%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%0D%0A%09%20width%3D%2246px%22%20height%3D%2246px%22%20viewBox%3D%220%200%2046%2046%22%20enable-background%3D%22new%200%200%2046%2046%22%20xml%3Aspace%3D%22preserve%22%3E%0D%0A%3Cg%3E%0D%0A%09%3Cpath%20d%3D%22M19.436%2C36.875L6.568%2C25.002v-3.863L19.436%2C9.267v5.041l-9.583%2C8.668v0.188l9.583%2C8.669V36.875z%22%2F%3E%0D%0A%09%3Cpath%20d%3D%22M26.343%2C36.875v-5.041l9.583-8.669v-0.188l-9.583-8.668V9.267l12.868%2C11.872v3.863L26.343%2C36.875z%22%2F%3E%0D%0A%3C%2Fg%3E%0D%0A%3C%2Fsvg%3E%0D%0A" /><img src="data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%0D%0A%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%0D%0A%3Csvg%20version%3D%221.1%22%20id%3D%22Ebene_2%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%0D%0A%09%20width%3D%2246px%22%20height%3D%2246px%22%20viewBox%3D%220%200%2046%2046%22%20enable-background%3D%22new%200%200%2046%2046%22%20xml%3Aspace%3D%22preserve%22%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%224%22%20stroke-miterlimit%3D%2210%22%20x1%3D%2253.75%22%20y1%3D%2239.353%22%20x2%3D%2286.375%22%20y2%3D%2239.353%22%2F%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%224%22%20stroke-miterlimit%3D%2210%22%20x1%3D%2251.711%22%20y1%3D%2230.534%22%20x2%3D%2284.336%22%20y2%3D%2230.534%22%2F%3E%0D%0A%3Crect%20x%3D%228.932%22%20y%3D%227.334%22%20fill%3D%22%23FFFFFF%22%20stroke%3D%22%23000000%22%20stroke-width%3D%223%22%20stroke-miterlimit%3D%2210%22%20width%3D%2221.097%22%20height%3D%2224.952%22%2F%3E%0D%0A%3Crect%20x%3D%2218.942%22%20y%3D%2215.424%22%20fill%3D%22%23FFFFFF%22%20stroke%3D%22%23000000%22%20stroke-width%3D%223%22%20stroke-miterlimit%3D%2210%22%20width%3D%2221.096%22%20height%3D%2224.953%22%2F%3E%0D%0A%3C%2Fsvg%3E%0D%0A" /><img src="data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%0D%0A%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%0D%0A%3Csvg%20version%3D%221.1%22%20id%3D%22Ebene_2%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%0D%0A%09%20width%3D%2246px%22%20height%3D%2246px%22%20viewBox%3D%220%200%2046%2046%22%20enable-background%3D%22new%200%200%2046%2046%22%20xml%3Aspace%3D%22preserve%22%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%224%22%20stroke-miterlimit%3D%2210%22%20x1%3D%227.125%22%20y1%3D%229.25%22%20x2%3D%2239.75%22%20y2%3D%229.25%22%2F%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%224%22%20stroke-miterlimit%3D%2210%22%20x1%3D%227.125%22%20y1%3D%2218.167%22%20x2%3D%2239.75%22%20y2%3D%2218.167%22%2F%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%224%22%20stroke-miterlimit%3D%2210%22%20x1%3D%227.125%22%20y1%3D%2227.083%22%20x2%3D%2239.75%22%20y2%3D%2227.083%22%2F%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%224%22%20stroke-miterlimit%3D%2210%22%20x1%3D%227.125%22%20y1%3D%2236%22%20x2%3D%2229.809%22%20y2%3D%2236%22%2F%3E%0D%0A%3C%2Fsvg%3E%0D%0A" /><img src="data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%0D%0A%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%0D%0A%3Csvg%20version%3D%221.1%22%20id%3D%22E%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%0D%0A%09%20width%3D%2246px%22%20height%3D%2246px%22%20viewBox%3D%220%200%2046%2046%22%20enable-background%3D%22new%200%200%2046%2046%22%20xml%3Aspace%3D%22preserve%22%3E%0D%0A%3Cg%3E%0D%0A%09%3Cpath%20fill%3D%22%23202F65%22%20d%3D%22M32.48%2C25.614H19.64l-4.933%2C9.826l17.746%2C0.037l-6.173%2C5.358L8.167%2C40.912L16.29%2C6.055h22.974l-5.734%2C5.354%0D%0A%09%09l-13.306-0.027l0.672%2C8.797h12.841L32.48%2C25.614z%22%2F%3E%0D%0A%3C%2Fg%3E%0D%0A%3C%2Fsvg%3E%0D%0A" />
+                            </div>
+                            <div class="enlighter" style="">
+                                <div class="">
+                                    <div>
+                                        <span class="enlighter-text">Console.</span><span class="enlighter-m3">WriteLine</span><span class="enlighter-g1">(</span><span class="enlighter-s0">"Hello, Wasmtime!"</span><span class="enlighter-g1">)</span><span class="enlighter-text">;</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="enlighter-raw">
+                                Console.WriteLine("Hello, Wasmtime!");
+                            </div>
+                            <div class="enlighter-toolbar-bottom enlighter-toolbar"></div>
+                        </div>
+                        <pre class="EnlighterJSRAW enlighter-origin" data-enlighter-language="csharp" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">Console.WriteLine("Hello, Wasmtime!");</pre>
+                        <p>
+                            Building your project, you will see references to bundling System libraries commonly used in .NET applications. Remember that WASM is native byte code. The .NET runtime must be packaged and shipped as part of your artifact. This is not any different than Blazor WASM deployments for a web client.
+                        </p>
+                        <figure class="wp-block-image size-full">
+                            <img loading="lazy" width="1600" height="1105" src="https://blog.jetbrains.com/wp-content/uploads/2022/10/image-2.png" alt="" class="wp-image-284034" />
+                            <figcaption>
+                                Building a Wasi.Sdk-powered .NET project inside of JetBrains Rider
+                            </figcaption>
+                        </figure>
+                        <p>
+                            Now, let’s run our WASM file using Wasmtime. In Rider, you’ll use the <strong>Run Anything</strong> dialog (Ctrl+Ctrl) to run the following command:
+                        </p>
+                        <div class="enlighter-default enlighter-v-standard enlighter-t-wpcustom enlighter-hover enlighter-overflow-scroll">
+                            <div class="enlighter-toolbar-top enlighter-toolbar">
+                                <img src="data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%0D%0A%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%0D%0A%3Csvg%20version%3D%221.1%22%20id%3D%22Ebene_2%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%0D%0A%09%20width%3D%2246px%22%20height%3D%2246px%22%20viewBox%3D%220%200%2046%2046%22%20enable-background%3D%22new%200%200%2046%2046%22%20xml%3Aspace%3D%22preserve%22%3E%0D%0A%3Cg%3E%0D%0A%09%3Cpath%20d%3D%22M19.436%2C36.875L6.568%2C25.002v-3.863L19.436%2C9.267v5.041l-9.583%2C8.668v0.188l9.583%2C8.669V36.875z%22%2F%3E%0D%0A%09%3Cpath%20d%3D%22M26.343%2C36.875v-5.041l9.583-8.669v-0.188l-9.583-8.668V9.267l12.868%2C11.872v3.863L26.343%2C36.875z%22%2F%3E%0D%0A%3C%2Fg%3E%0D%0A%3C%2Fsvg%3E%0D%0A" /><img src="data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%0D%0A%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%0D%0A%3Csvg%20version%3D%221.1%22%20id%3D%22Ebene_2%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%0D%0A%09%20width%3D%2246px%22%20height%3D%2246px%22%20viewBox%3D%220%200%2046%2046%22%20enable-background%3D%22new%200%200%2046%2046%22%20xml%3Aspace%3D%22preserve%22%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%224%22%20stroke-miterlimit%3D%2210%22%20x1%3D%2253.75%22%20y1%3D%2239.353%22%20x2%3D%2286.375%22%20y2%3D%2239.353%22%2F%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%224%22%20stroke-miterlimit%3D%2210%22%20x1%3D%2251.711%22%20y1%3D%2230.534%22%20x2%3D%2284.336%22%20y2%3D%2230.534%22%2F%3E%0D%0A%3Crect%20x%3D%228.932%22%20y%3D%227.334%22%20fill%3D%22%23FFFFFF%22%20stroke%3D%22%23000000%22%20stroke-width%3D%223%22%20stroke-miterlimit%3D%2210%22%20width%3D%2221.097%22%20height%3D%2224.952%22%2F%3E%0D%0A%3Crect%20x%3D%2218.942%22%20y%3D%2215.424%22%20fill%3D%22%23FFFFFF%22%20stroke%3D%22%23000000%22%20stroke-width%3D%223%22%20stroke-miterlimit%3D%2210%22%20width%3D%2221.096%22%20height%3D%2224.953%22%2F%3E%0D%0A%3C%2Fsvg%3E%0D%0A" /><img src="data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%0D%0A%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%0D%0A%3Csvg%20version%3D%221.1%22%20id%3D%22Ebene_2%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%0D%0A%09%20width%3D%2246px%22%20height%3D%2246px%22%20viewBox%3D%220%200%2046%2046%22%20enable-background%3D%22new%200%200%2046%2046%22%20xml%3Aspace%3D%22preserve%22%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%224%22%20stroke-miterlimit%3D%2210%22%20x1%3D%227.125%22%20y1%3D%229.25%22%20x2%3D%2239.75%22%20y2%3D%229.25%22%2F%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%224%22%20stroke-miterlimit%3D%2210%22%20x1%3D%227.125%22%20y1%3D%2218.167%22%20x2%3D%2239.75%22%20y2%3D%2218.167%22%2F%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%224%22%20stroke-miterlimit%3D%2210%22%20x1%3D%227.125%22%20y1%3D%2227.083%22%20x2%3D%2239.75%22%20y2%3D%2227.083%22%2F%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%224%22%20stroke-miterlimit%3D%2210%22%20x1%3D%227.125%22%20y1%3D%2236%22%20x2%3D%2229.809%22%20y2%3D%2236%22%2F%3E%0D%0A%3C%2Fsvg%3E%0D%0A" /><img src="data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%0D%0A%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%0D%0A%3Csvg%20version%3D%221.1%22%20id%3D%22E%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%0D%0A%09%20width%3D%2246px%22%20height%3D%2246px%22%20viewBox%3D%220%200%2046%2046%22%20enable-background%3D%22new%200%200%2046%2046%22%20xml%3Aspace%3D%22preserve%22%3E%0D%0A%3Cg%3E%0D%0A%09%3Cpath%20fill%3D%22%23202F65%22%20d%3D%22M32.48%2C25.614H19.64l-4.933%2C9.826l17.746%2C0.037l-6.173%2C5.358L8.167%2C40.912L16.29%2C6.055h22.974l-5.734%2C5.354%0D%0A%09%09l-13.306-0.027l0.672%2C8.797h12.841L32.48%2C25.614z%22%2F%3E%0D%0A%3C%2Fg%3E%0D%0A%3C%2Fsvg%3E%0D%0A" />
+                            </div>
+                            <div class="enlighter" style="">
+                                <div class="">
+                                    <div>
+                                        <span class="enlighter-text">wasmtime ./HelloWasm/bin/Debug/net7.</span><span class="enlighter-m3">0</span><span class="enlighter-text">/HelloWasm.</span><span class="enlighter-m3">wasm</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="enlighter-raw">
+                                wasmtime ./HelloWasm/bin/Debug/net7.0/HelloWasm.wasm
+                            </div>
+                            <div class="enlighter-toolbar-bottom enlighter-toolbar"></div>
+                        </div>
+                        <pre class="EnlighterJSRAW enlighter-origin" data-enlighter-language="generic" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">wasmtime ./HelloWasm/bin/Debug/net7.0/HelloWasm.wasm</pre>
+                        <p>
+                            When successful, you should see your Console application’s output.
+                        </p>
+                        <figure class="wp-block-image size-full is-resized">
+                            <img loading="lazy" src="https://blog.jetbrains.com/wp-content/uploads/2022/10/image-3.png" alt="" class="wp-image-284045" width="695" height="228" />
+                            <figcaption>
+                                Successful output in JetBrains Rider’s “Run Anything” tool window
+                            </figcaption>
+                        </figure>
+                        <p>
+                            Awesome! You just wrote your first WASM-targeted .NET application. Now you could deploy the <code>.wasm</code> file to any host that supports WebAssmebly.
+                        </p>
+                        <h2>
+                            <span class="ez-toc-section" id="Consuming_WASM_and_WAT_modules_from_NET"></span>Consuming WASM and WAT modules from .NET
+                        </h2>
+                        <p>
+                            While it’s certainly possible to consume a <code>.wasm</code> file in .NET, it is a bit more tedious than the plug-and-play experience of a NuGet package. Currently, there is a <strong><em>Wasmruntime</em></strong> NuGet package that contains low-level APIs for dealing with the elements of a host. These elements include an <code>Engine</code>, <code>Module</code>, <code>Linker</code>, <code>Store</code>, and more. They allow you to define your custom host, including low-level system calls and what calling them may do on a WASI-compliant system. For more information, I recommend reading excellent <a href="https://developer.mozilla.org/en-US/docs/WebAssembly/Concepts#webassembly_goals">Mozilla documentation to understand how WASM interfaces with a host</a>.
+                        </p>
+                        <p>
+                            I would not recommend most developers attempt to write their host; instead, the community should wait for the Byte Code Alliance to create a safe-by-default host.
+                        </p>
+                        <p>
+                            Let’s look at an example where we use the WebAssembly Text (WAT) format to link a C# function to WebAssembly. WAT is a human-readable and editable format representing the WASM binary format.
+                        </p>
+                        <div class="enlighter-default enlighter-v-standard enlighter-t-wpcustom enlighter-hover enlighter-overflow-scroll">
+                            <div class="enlighter-toolbar-top enlighter-toolbar">
+                                <img src="data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%0D%0A%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%0D%0A%3Csvg%20version%3D%221.1%22%20id%3D%22Ebene_2%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%0D%0A%09%20width%3D%2246px%22%20height%3D%2246px%22%20viewBox%3D%220%200%2046%2046%22%20enable-background%3D%22new%200%200%2046%2046%22%20xml%3Aspace%3D%22preserve%22%3E%0D%0A%3Cg%3E%0D%0A%09%3Cpath%20d%3D%22M19.436%2C36.875L6.568%2C25.002v-3.863L19.436%2C9.267v5.041l-9.583%2C8.668v0.188l9.583%2C8.669V36.875z%22%2F%3E%0D%0A%09%3Cpath%20d%3D%22M26.343%2C36.875v-5.041l9.583-8.669v-0.188l-9.583-8.668V9.267l12.868%2C11.872v3.863L26.343%2C36.875z%22%2F%3E%0D%0A%3C%2Fg%3E%0D%0A%3C%2Fsvg%3E%0D%0A" /><img src="data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%0D%0A%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%0D%0A%3Csvg%20version%3D%221.1%22%20id%3D%22Ebene_2%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%0D%0A%09%20width%3D%2246px%22%20height%3D%2246px%22%20viewBox%3D%220%200%2046%2046%22%20enable-background%3D%22new%200%200%2046%2046%22%20xml%3Aspace%3D%22preserve%22%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%224%22%20stroke-miterlimit%3D%2210%22%20x1%3D%2253.75%22%20y1%3D%2239.353%22%20x2%3D%2286.375%22%20y2%3D%2239.353%22%2F%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%224%22%20stroke-miterlimit%3D%2210%22%20x1%3D%2251.711%22%20y1%3D%2230.534%22%20x2%3D%2284.336%22%20y2%3D%2230.534%22%2F%3E%0D%0A%3Crect%20x%3D%228.932%22%20y%3D%227.334%22%20fill%3D%22%23FFFFFF%22%20stroke%3D%22%23000000%22%20stroke-width%3D%223%22%20stroke-miterlimit%3D%2210%22%20width%3D%2221.097%22%20height%3D%2224.952%22%2F%3E%0D%0A%3Crect%20x%3D%2218.942%22%20y%3D%2215.424%22%20fill%3D%22%23FFFFFF%22%20stroke%3D%22%23000000%22%20stroke-width%3D%223%22%20stroke-miterlimit%3D%2210%22%20width%3D%2221.096%22%20height%3D%2224.953%22%2F%3E%0D%0A%3C%2Fsvg%3E%0D%0A" /><img src="data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%0D%0A%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%0D%0A%3Csvg%20version%3D%221.1%22%20id%3D%22Ebene_2%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%0D%0A%09%20width%3D%2246px%22%20height%3D%2246px%22%20viewBox%3D%220%200%2046%2046%22%20enable-background%3D%22new%200%200%2046%2046%22%20xml%3Aspace%3D%22preserve%22%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%224%22%20stroke-miterlimit%3D%2210%22%20x1%3D%227.125%22%20y1%3D%229.25%22%20x2%3D%2239.75%22%20y2%3D%229.25%22%2F%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%224%22%20stroke-miterlimit%3D%2210%22%20x1%3D%227.125%22%20y1%3D%2218.167%22%20x2%3D%2239.75%22%20y2%3D%2218.167%22%2F%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%224%22%20stroke-miterlimit%3D%2210%22%20x1%3D%227.125%22%20y1%3D%2227.083%22%20x2%3D%2239.75%22%20y2%3D%2227.083%22%2F%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%224%22%20stroke-miterlimit%3D%2210%22%20x1%3D%227.125%22%20y1%3D%2236%22%20x2%3D%2229.809%22%20y2%3D%2236%22%2F%3E%0D%0A%3C%2Fsvg%3E%0D%0A" /><img src="data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%0D%0A%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%0D%0A%3Csvg%20version%3D%221.1%22%20id%3D%22E%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%0D%0A%09%20width%3D%2246px%22%20height%3D%2246px%22%20viewBox%3D%220%200%2046%2046%22%20enable-background%3D%22new%200%200%2046%2046%22%20xml%3Aspace%3D%22preserve%22%3E%0D%0A%3Cg%3E%0D%0A%09%3Cpath%20fill%3D%22%23202F65%22%20d%3D%22M32.48%2C25.614H19.64l-4.933%2C9.826l17.746%2C0.037l-6.173%2C5.358L8.167%2C40.912L16.29%2C6.055h22.974l-5.734%2C5.354%0D%0A%09%09l-13.306-0.027l0.672%2C8.797h12.841L32.48%2C25.614z%22%2F%3E%0D%0A%3C%2Fg%3E%0D%0A%3C%2Fsvg%3E%0D%0A" />
+                            </div>
+                            <div class="enlighter" style="">
+                                <div class="">
+                                    <div>
+                                        <span class="enlighter-k0">using</span> <span class="enlighter-k10">Wasmtime;</span>
+                                    </div>
+                                </div>
+                                <div class=""></div>
+                                <div class="">
+                                    <div>
+                                        <span class="enlighter-k0">using</span> <span class="enlighter-k2">var</span> <span class="enlighter-text">engine =</span> <span class="enlighter-k3">new</span> <span class="enlighter-m0">Engine</span><span class="enlighter-g1">()</span><span class="enlighter-text">;</span>
+                                    </div>
+                                </div>
+                                <div class=""></div>
+                                <div class="">
+                                    <div>
+                                        <span class="enlighter-k0">using</span> <span class="enlighter-k2">var</span> <span class="enlighter-text">module = Module.</span><span class="enlighter-m3">FromText</span><span class="enlighter-g1">(</span>
+                                    </div>
+                                </div>
+                                <div class="">
+                                    <div>
+                                        <span class="enlighter-text">engine,</span>
+                                    </div>
+                                </div>
+                                <div class="">
+                                    <div>
+                                        <span class="enlighter-s0">"hello"</span><span class="enlighter-text">,</span>
+                                    </div>
+                                </div>
+                                <div class="">
+                                    <div>
+                                        <span class="enlighter-s0">"(module (func $hello (import \"\" \"hello\")) (func (export \"run\") (call $hello)))"</span>
+                                    </div>
+                                </div>
+                                <div class="">
+                                    <div>
+                                        <span class="enlighter-g1">)</span><span class="enlighter-text">;</span>
+                                    </div>
+                                </div>
+                                <div class=""></div>
+                                <div class="">
+                                    <div>
+                                        <span class="enlighter-k0">using</span> <span class="enlighter-k2">var</span> <span class="enlighter-text">linker =</span> <span class="enlighter-k3">new</span> <span class="enlighter-m0">Linker</span><span class="enlighter-g1">(</span><span class="enlighter-text">engine</span><span class="enlighter-g1">)</span><span class="enlighter-text">;</span>
+                                    </div>
+                                </div>
+                                <div class="">
+                                    <div>
+                                        <span class="enlighter-k0">using</span> <span class="enlighter-k2">var</span> <span class="enlighter-text">store =</span> <span class="enlighter-k3">new</span> <span class="enlighter-m0">Store</span><span class="enlighter-g1">(</span><span class="enlighter-text">engine</span><span class="enlighter-g1">)</span><span class="enlighter-text">;</span>
+                                    </div>
+                                </div>
+                                <div class=""></div>
+                                <div class="">
+                                    <div>
+                                        <span class="enlighter-text">linker.</span><span class="enlighter-m3">Define</span><span class="enlighter-g1">(</span>
+                                    </div>
+                                </div>
+                                <div class="">
+                                    <div>
+                                        <span class="enlighter-s0">""</span><span class="enlighter-text">,</span>
+                                    </div>
+                                </div>
+                                <div class="">
+                                    <div>
+                                        <span class="enlighter-s0">"hello"</span><span class="enlighter-text">,</span>
+                                    </div>
+                                </div>
+                                <div class="">
+                                    <div>
+                                        <span class="enlighter-text">Function.</span><span class="enlighter-m3">FromCallback</span><span class="enlighter-g1">(</span><span class="enlighter-text">store,</span> <span class="enlighter-g1">()</span> <span class="enlighter-text">=</span><span class="enlighter-g1">&gt;</span> <span class="enlighter-text">Console.</span><span class="enlighter-m3">WriteLine</span><span class="enlighter-g1">(</span><span class="enlighter-s0">"Hello from C#!"</span><span class="enlighter-g1">))</span>
+                                    </div>
+                                </div>
+                                <div class="">
+                                    <div>
+                                        <span class="enlighter-g1">)</span><span class="enlighter-text">;</span>
+                                    </div>
+                                </div>
+                                <div class=""></div>
+                                <div class="">
+                                    <div>
+                                        <span class="enlighter-k2">var</span> <span class="enlighter-text">instance = linker.</span><span class="enlighter-m3">Instantiate</span><span class="enlighter-g1">(</span><span class="enlighter-text">store, module</span><span class="enlighter-g1">)</span><span class="enlighter-text">;</span>
+                                    </div>
+                                </div>
+                                <div class="">
+                                    <div>
+                                        <span class="enlighter-k2">var</span> <span class="enlighter-text">run = instance.</span><span class="enlighter-m3">GetAction</span><span class="enlighter-g1">(</span><span class="enlighter-s0">"run"</span><span class="enlighter-g1">)</span><span class="enlighter-text">!;</span>
+                                    </div>
+                                </div>
+                                <div class="">
+                                    <div>
+                                        <span class="enlighter-m0">run</span><span class="enlighter-g1">()</span><span class="enlighter-text">;</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="enlighter-raw">
+                                using Wasmtime; using var engine = new Engine(); using var module = Module.FromText( engine, "hello", "(module (func $hello (import \"\" \"hello\")) (func (export \"run\") (call $hello)))" ); using var linker = new Linker(engine); using var store = new Store(engine); linker.Define( "", "hello", Function.FromCallback(store, () =&gt; Console.WriteLine("Hello from C#!")) ); var instance = linker.Instantiate(store, module); var run = instance.GetAction("run")!; run();
+                            </div>
+                            <div class="enlighter-toolbar-bottom enlighter-toolbar"></div>
+                        </div>
+                        <pre class="EnlighterJSRAW enlighter-origin" data-enlighter-language="csharp" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">using Wasmtime;
+
+using var engine = new Engine();
+
+using var module = Module.FromText(
+    engine,
+    "hello",
+    "(module (func $hello (import \"\" \"hello\")) (func (export \"run\") (call $hello)))"
+);
+
+using var linker = new Linker(engine);
+using var store = new Store(engine);
+
+linker.Define(
+    "",
+    "hello",
+    Function.FromCallback(store, () =&gt; Console.WriteLine("Hello from C#!"))
+);
+
+var instance = linker.Instantiate(store, module);
+var run = instance.GetAction("run")!;
+run();
+</pre>
+                        <p>
+                            The critical thing to note in this example is that our WebAssembly module uses a reference to <code>$hello</code>. Since our C# application manages our WebAssembly context, we can create a definition for <code>$hello</code> using the method <code>Function.FromCallback</code>. In C#, we ask the linker, which now contains both our <code>.wat</code> definition and our new implementation of <code>$hello</code> for the <code>run</code> method. All that’s left is to invoke our <code>Action</code> and see the results.
+                        </p>
+                        <div class="enlighter-default enlighter-v-standard enlighter-t-wpcustom enlighter-hover enlighter-overflow-scroll">
+                            <div class="enlighter-toolbar-top enlighter-toolbar">
+                                <img src="data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%0D%0A%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%0D%0A%3Csvg%20version%3D%221.1%22%20id%3D%22Ebene_2%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%0D%0A%09%20width%3D%2246px%22%20height%3D%2246px%22%20viewBox%3D%220%200%2046%2046%22%20enable-background%3D%22new%200%200%2046%2046%22%20xml%3Aspace%3D%22preserve%22%3E%0D%0A%3Cg%3E%0D%0A%09%3Cpath%20d%3D%22M19.436%2C36.875L6.568%2C25.002v-3.863L19.436%2C9.267v5.041l-9.583%2C8.668v0.188l9.583%2C8.669V36.875z%22%2F%3E%0D%0A%09%3Cpath%20d%3D%22M26.343%2C36.875v-5.041l9.583-8.669v-0.188l-9.583-8.668V9.267l12.868%2C11.872v3.863L26.343%2C36.875z%22%2F%3E%0D%0A%3C%2Fg%3E%0D%0A%3C%2Fsvg%3E%0D%0A" /><img src="data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%0D%0A%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%0D%0A%3Csvg%20version%3D%221.1%22%20id%3D%22Ebene_2%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%0D%0A%09%20width%3D%2246px%22%20height%3D%2246px%22%20viewBox%3D%220%200%2046%2046%22%20enable-background%3D%22new%200%200%2046%2046%22%20xml%3Aspace%3D%22preserve%22%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%224%22%20stroke-miterlimit%3D%2210%22%20x1%3D%2253.75%22%20y1%3D%2239.353%22%20x2%3D%2286.375%22%20y2%3D%2239.353%22%2F%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%224%22%20stroke-miterlimit%3D%2210%22%20x1%3D%2251.711%22%20y1%3D%2230.534%22%20x2%3D%2284.336%22%20y2%3D%2230.534%22%2F%3E%0D%0A%3Crect%20x%3D%228.932%22%20y%3D%227.334%22%20fill%3D%22%23FFFFFF%22%20stroke%3D%22%23000000%22%20stroke-width%3D%223%22%20stroke-miterlimit%3D%2210%22%20width%3D%2221.097%22%20height%3D%2224.952%22%2F%3E%0D%0A%3Crect%20x%3D%2218.942%22%20y%3D%2215.424%22%20fill%3D%22%23FFFFFF%22%20stroke%3D%22%23000000%22%20stroke-width%3D%223%22%20stroke-miterlimit%3D%2210%22%20width%3D%2221.096%22%20height%3D%2224.953%22%2F%3E%0D%0A%3C%2Fsvg%3E%0D%0A" /><img src="data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%0D%0A%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%0D%0A%3Csvg%20version%3D%221.1%22%20id%3D%22Ebene_2%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%0D%0A%09%20width%3D%2246px%22%20height%3D%2246px%22%20viewBox%3D%220%200%2046%2046%22%20enable-background%3D%22new%200%200%2046%2046%22%20xml%3Aspace%3D%22preserve%22%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%224%22%20stroke-miterlimit%3D%2210%22%20x1%3D%227.125%22%20y1%3D%229.25%22%20x2%3D%2239.75%22%20y2%3D%229.25%22%2F%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%224%22%20stroke-miterlimit%3D%2210%22%20x1%3D%227.125%22%20y1%3D%2218.167%22%20x2%3D%2239.75%22%20y2%3D%2218.167%22%2F%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%224%22%20stroke-miterlimit%3D%2210%22%20x1%3D%227.125%22%20y1%3D%2227.083%22%20x2%3D%2239.75%22%20y2%3D%2227.083%22%2F%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%224%22%20stroke-miterlimit%3D%2210%22%20x1%3D%227.125%22%20y1%3D%2236%22%20x2%3D%2229.809%22%20y2%3D%2236%22%2F%3E%0D%0A%3C%2Fsvg%3E%0D%0A" /><img src="data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%0D%0A%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%0D%0A%3Csvg%20version%3D%221.1%22%20id%3D%22E%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%0D%0A%09%20width%3D%2246px%22%20height%3D%2246px%22%20viewBox%3D%220%200%2046%2046%22%20enable-background%3D%22new%200%200%2046%2046%22%20xml%3Aspace%3D%22preserve%22%3E%0D%0A%3Cg%3E%0D%0A%09%3Cpath%20fill%3D%22%23202F65%22%20d%3D%22M32.48%2C25.614H19.64l-4.933%2C9.826l17.746%2C0.037l-6.173%2C5.358L8.167%2C40.912L16.29%2C6.055h22.974l-5.734%2C5.354%0D%0A%09%09l-13.306-0.027l0.672%2C8.797h12.841L32.48%2C25.614z%22%2F%3E%0D%0A%3C%2Fg%3E%0D%0A%3C%2Fsvg%3E%0D%0A" />
+                            </div>
+                            <div class="enlighter" style="">
+                                <div class="">
+                                    <div>
+                                        <span class="enlighter-text">Hello from C</span><span class="enlighter-c0">#!</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="enlighter-raw">
+                                Hello from C#!
+                            </div>
+                            <div class="enlighter-toolbar-bottom enlighter-toolbar"></div>
+                        </div>
+                        <pre class="EnlighterJSRAW enlighter-origin" data-enlighter-language="generic" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">Hello from C#!</pre>
+                        <p>
+                            While it may seem trivial, we’ll be able to run and consume WASM in our .NET applications. That opens up possibilities for solving problems using solutions from other ecosystems.
+                        </p>
+                        <h2>
+                            <span class="ez-toc-section" id="The_current_reality_of_WASM_on_the_server"></span>The current reality of WASM on the server
+                        </h2>
+                        <p>
+                            While this post has been relatively optimistic about the prospect of WASM, there are limitations to the technology that folks should be aware of, and they will vary based on the WASM host.
+                        </p>
+                        <p>
+                            The first significant limitation is threading. So far, with my testing, Wasmtime only has access to a single thread for execution. Thread limits are not entirely a deal-breaker, but you’ll need to rewrite some of your solutions to reduce the need for threading. This limitation becomes apparent when using an API that involves <code>Thread</code> or <code>Task.Delay</code>, which will halt your running process or terminate it catastrophically. However, threading may not be an issue in the near future as <a href="https://github.com/dotnet/runtime/issues/68162">.NET adds multi-threaded support to WASM</a>. Wasmtime also enables multiple threads with an experimental flag, but your technology stack will need to take advantage of that feature.
+                        </p>
+                        <p>
+                            The .NET runtime targeting WASM is the same as Blazor WASM, which is to say it has limits. APIs will not work based on a lack of support from the current WASM host. Missing APIs could limit your ability to solve specific problems. The APIs are still in active development and could change based on features added to Wasmtime and other WASI runtimes.
+                        </p>
+                        <p>
+                            Another issue I’ve found is there is currently no outward socket support. Lack of socket support limits a WASM application’s ability to communicate with dependencies like a database or web service. <a href="https://github.com/WebAssembly/wasi-sockets">Discussions of a Socket specification</a> will resolve this issue, allowing for more robust WASM apps. In addition, this should enable .NET developers to use data access tools like Entity Framework Core or Dapper with few issues.
+                        </p>
+                        <p>
+                            Tooling is another concern; vendors must catch up to the experiences .NET developers have gotten used to developing .NET applications. Luckily for developers, Wasmruntime uses standard debugging tools like LLDB and GDB, making integrating them into existing tools much more manageable.
+                        </p>
+                        <p>
+                            Infrastructure will play an essential role in how you build your WASM solutions. The strength of WASM comes from the ability to start and dispose of executing modules quickly in the vein of “microservices” or “functions”. However, a different architectural approach will require you to rethink your existing applications’ orchestration and units of work. In addition, you and your team may not have the bandwidth to deal with the technical and conceptual challenges simultaneously.&#160;
+                        </p>
+                        <p>
+                            How does a modern WASM-powered application look when deployed? Some folks think it looks like functions as a service (FaaS), while others see it as a replacement for containers in a Kubernetes cluster, and both are perfectly valid. Luckily, many new WASM hosts are springing up along with reliable cloud providers AWS, Microsoft Azure, and Cloudflare, adding options to their ever-expanding list of services.
+                        </p>
+                        <h2>
+                            <span class="ez-toc-section" id="Imagining_the_future_of_WASM_on_the_server"></span>Imagining the future of WASM on the server&#160;
+                        </h2>
+                        <p>
+                            We’ve reached the speculative part of the post, where we get to imagine the future of WASM and how it may transform your development experience, from writing code to deploying a solution. So let’s start with the process of development.
+                        </p>
+                        <p>
+                            If you’ve developed any Blazor WASM application, you’ll likely realize that little feels different while writing code. After all, it’s C#! The debugging experience may be slightly different, as you now deal with a completely different host and runtime, specifically the web browser. However, writing solutions to target WASM will feel very similar to Blazor WASM, and I expect the experience to improve as tooling catches up. Switching to WASM apps will be easier for most developers than switching to a new programming paradigm.
+                        </p>
+                        <p>
+                            The frameworks targeting WASM will likely change, as you will want to reconsider how and when functions are executing. For example, <a href="https://www.fermyon.com/blog/webassembly-for-dotnet-developers-spin-sdk-intro">Fermyon released a .NET Spin SDK</a> specifically for their hosting platform that targets WASM. Let’s look at how you might write a function given their SDK.
+                        </p>
+                        <div class="enlighter-default enlighter-v-standard enlighter-t-wpcustom enlighter-hover enlighter-overflow-scroll">
+                            <div class="enlighter-toolbar-top enlighter-toolbar">
+                                <img src="data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%0D%0A%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%0D%0A%3Csvg%20version%3D%221.1%22%20id%3D%22Ebene_2%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%0D%0A%09%20width%3D%2246px%22%20height%3D%2246px%22%20viewBox%3D%220%200%2046%2046%22%20enable-background%3D%22new%200%200%2046%2046%22%20xml%3Aspace%3D%22preserve%22%3E%0D%0A%3Cg%3E%0D%0A%09%3Cpath%20d%3D%22M19.436%2C36.875L6.568%2C25.002v-3.863L19.436%2C9.267v5.041l-9.583%2C8.668v0.188l9.583%2C8.669V36.875z%22%2F%3E%0D%0A%09%3Cpath%20d%3D%22M26.343%2C36.875v-5.041l9.583-8.669v-0.188l-9.583-8.668V9.267l12.868%2C11.872v3.863L26.343%2C36.875z%22%2F%3E%0D%0A%3C%2Fg%3E%0D%0A%3C%2Fsvg%3E%0D%0A" /><img src="data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%0D%0A%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%0D%0A%3Csvg%20version%3D%221.1%22%20id%3D%22Ebene_2%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%0D%0A%09%20width%3D%2246px%22%20height%3D%2246px%22%20viewBox%3D%220%200%2046%2046%22%20enable-background%3D%22new%200%200%2046%2046%22%20xml%3Aspace%3D%22preserve%22%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%224%22%20stroke-miterlimit%3D%2210%22%20x1%3D%2253.75%22%20y1%3D%2239.353%22%20x2%3D%2286.375%22%20y2%3D%2239.353%22%2F%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%224%22%20stroke-miterlimit%3D%2210%22%20x1%3D%2251.711%22%20y1%3D%2230.534%22%20x2%3D%2284.336%22%20y2%3D%2230.534%22%2F%3E%0D%0A%3Crect%20x%3D%228.932%22%20y%3D%227.334%22%20fill%3D%22%23FFFFFF%22%20stroke%3D%22%23000000%22%20stroke-width%3D%223%22%20stroke-miterlimit%3D%2210%22%20width%3D%2221.097%22%20height%3D%2224.952%22%2F%3E%0D%0A%3Crect%20x%3D%2218.942%22%20y%3D%2215.424%22%20fill%3D%22%23FFFFFF%22%20stroke%3D%22%23000000%22%20stroke-width%3D%223%22%20stroke-miterlimit%3D%2210%22%20width%3D%2221.096%22%20height%3D%2224.953%22%2F%3E%0D%0A%3C%2Fsvg%3E%0D%0A" /><img src="data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%0D%0A%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%0D%0A%3Csvg%20version%3D%221.1%22%20id%3D%22Ebene_2%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%0D%0A%09%20width%3D%2246px%22%20height%3D%2246px%22%20viewBox%3D%220%200%2046%2046%22%20enable-background%3D%22new%200%200%2046%2046%22%20xml%3Aspace%3D%22preserve%22%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%224%22%20stroke-miterlimit%3D%2210%22%20x1%3D%227.125%22%20y1%3D%229.25%22%20x2%3D%2239.75%22%20y2%3D%229.25%22%2F%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%224%22%20stroke-miterlimit%3D%2210%22%20x1%3D%227.125%22%20y1%3D%2218.167%22%20x2%3D%2239.75%22%20y2%3D%2218.167%22%2F%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%224%22%20stroke-miterlimit%3D%2210%22%20x1%3D%227.125%22%20y1%3D%2227.083%22%20x2%3D%2239.75%22%20y2%3D%2227.083%22%2F%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%224%22%20stroke-miterlimit%3D%2210%22%20x1%3D%227.125%22%20y1%3D%2236%22%20x2%3D%2229.809%22%20y2%3D%2236%22%2F%3E%0D%0A%3C%2Fsvg%3E%0D%0A" /><img src="data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%0D%0A%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%0D%0A%3Csvg%20version%3D%221.1%22%20id%3D%22E%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%0D%0A%09%20width%3D%2246px%22%20height%3D%2246px%22%20viewBox%3D%220%200%2046%2046%22%20enable-background%3D%22new%200%200%2046%2046%22%20xml%3Aspace%3D%22preserve%22%3E%0D%0A%3Cg%3E%0D%0A%09%3Cpath%20fill%3D%22%23202F65%22%20d%3D%22M32.48%2C25.614H19.64l-4.933%2C9.826l17.746%2C0.037l-6.173%2C5.358L8.167%2C40.912L16.29%2C6.055h22.974l-5.734%2C5.354%0D%0A%09%09l-13.306-0.027l0.672%2C8.797h12.841L32.48%2C25.614z%22%2F%3E%0D%0A%3C%2Fg%3E%0D%0A%3C%2Fsvg%3E%0D%0A" />
+                            </div>
+                            <div class="enlighter" style="">
+                                <div class="">
+                                    <div>
+                                        <span class="enlighter-k0">using</span> <span class="enlighter-k10">System.Net;</span>
+                                    </div>
+                                </div>
+                                <div class="">
+                                    <div>
+                                        <span class="enlighter-k0">using</span> <span class="enlighter-k10">Fermyon.Spin.Sdk;</span>
+                                    </div>
+                                </div>
+                                <div class=""></div>
+                                <div class="">
+                                    <div>
+                                        <span class="enlighter-k0">namespace</span> <span class="enlighter-k10">Microservice;</span>
+                                    </div>
+                                </div>
+                                <div class=""></div>
+                                <div class="">
+                                    <div>
+                                        <span class="enlighter-k0">public</span> <span class="enlighter-k0">static</span> <span class="enlighter-k0">class</span> <span class="enlighter-text">Handler</span>
+                                    </div>
+                                </div>
+                                <div class="">
+                                    <div>
+                                        <span class="enlighter-g1">{</span>
+                                    </div>
+                                </div>
+                                <div class="">
+                                    <div>
+                                        <span class="enlighter-g1">[</span><span class="enlighter-text">HttpHandler</span><span class="enlighter-g1">]</span>
+                                    </div>
+                                </div>
+                                <div class="">
+                                    <div>
+                                        <span class="enlighter-k0">public</span> <span class="enlighter-k0">static</span> <span class="enlighter-text">HttpResponse</span> <span class="enlighter-m0">HandleHttpRequest</span><span class="enlighter-g1">(</span><span class="enlighter-text">HttpRequest request</span><span class="enlighter-g1">)</span>
+                                    </div>
+                                </div>
+                                <div class="">
+                                    <div>
+                                        <span class="enlighter-g1">{</span>
+                                    </div>
+                                </div>
+                                <div class="">
+                                    <div>
+                                        <span class="enlighter-k0">return</span> <span class="enlighter-k3">new</span> <span class="enlighter-text">HttpResponse</span>
+                                    </div>
+                                </div>
+                                <div class="">
+                                    <div>
+                                        <span class="enlighter-g1">{</span>
+                                    </div>
+                                </div>
+                                <div class="">
+                                    <div>
+                                        <span class="enlighter-text">StatusCode = HttpStatusCode.</span><span class="enlighter-m3">OK</span><span class="enlighter-text">,</span>
+                                    </div>
+                                </div>
+                                <div class="">
+                                    <div>
+                                        <span class="enlighter-text">BodyAsString =</span> <span class="enlighter-s0">"Hello from .NET"</span><span class="enlighter-text">,</span>
+                                    </div>
+                                </div>
+                                <div class="">
+                                    <div>
+                                        <span class="enlighter-g1">}</span><span class="enlighter-text">;</span>
+                                    </div>
+                                </div>
+                                <div class="">
+                                    <div>
+                                        <span class="enlighter-g1">}</span>
+                                    </div>
+                                </div>
+                                <div class="">
+                                    <div>
+                                        <span class="enlighter-g1">}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="enlighter-raw">
+                                using System.Net; using Fermyon.Spin.Sdk; namespace Microservice; public static class Handler { [HttpHandler] public static HttpResponse HandleHttpRequest(HttpRequest request) { return new HttpResponse { StatusCode = HttpStatusCode.OK, BodyAsString = "Hello from .NET", }; } }
+                            </div>
+                            <div class="enlighter-toolbar-bottom enlighter-toolbar"></div>
+                        </div>
+                        <pre class="EnlighterJSRAW enlighter-origin" data-enlighter-language="csharp" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">using System.Net;
+using Fermyon.Spin.Sdk;
+
+namespace Microservice;
+
+public static class Handler
+{
+    [HttpHandler]
+    public static HttpResponse HandleHttpRequest(HttpRequest request)
+    {
+        return new HttpResponse
+        {
+            StatusCode = HttpStatusCode.OK,
+            BodyAsString = "Hello from .NET",
+        };
+    }
+}
+</pre>
+                        <p>
+                            This example begs questions. For example, how do you transition from ASP.NET Core Minimal Endpoints or ASP.NET Core MVC to this new approach? Does ASP.NET Core need to rethink how to compile existing applications into deployable units? I expect a lot of conversations and strategies to emerge as developers adopt WASM.
+                        </p>
+                        <p>
+                            We could see WASM replace most instances of containerization, especially when WASM can package both runtimes and the applications that depend on them in one portable package. Advantages you could hope to see: Reduced CPU and memory usage, decreased cold-boot times, reduced hosting bills, and more significant economies of scale.
+                        </p>
+                        <p>
+                            These <code>.wasm</code> files can also be considerably smaller as they don’t have the same need for layers found in images built on entire operating systems. The portability and efficiency of WASM hosts will lead to more hosting options from vendors, new and old.
+                        </p>
+                        <p>
+                            Finally, the most exciting prospect of WASM on the server is the fulfillment of an agnostic cloud environment, where you, as the developer, no longer have to worry about regions. WASM can be deployed simultaneously to many global regions beyond cloud vendors’ limited and congested regions. WASM can start closest to your users and provide them with the fastest experience possible regardless of their country of origin. This democratization of user experience is most exciting for folks delivering global-scale applications.
+                        </p>
+                        <h2>
+                            <span class="ez-toc-section" id="Conclusion"></span>Conclusion
+                        </h2>
+                        <p>
+                            In this post, we delved into WebAssembly and the efforts to run it on the server using Wasmtime. While it’s still relatively new, the promise of WASM on the server is exciting, and .NET is at the forefront of giving developers more hosting options. As tooling and development experience improves, so will the solutions developers deliver to customers. As you’ve seen, the experience even now is good.
+                        </p>
+                        <p>
+                            There are limitations with WASM, but like all technologies, the community will push solutions forward, and progress will occur. It’s still important to be careful when choosing cutting-edge technologies as solutions, as you’ll likely be some of the first and only folks experiencing those issues.&#160;
+                        </p>
+                        <p>
+                            That said, I’m cautiously optimistic about the future of WASM, and I hope you found something in this article that has sparked your curiosity to explore the topic further.
+                        </p>
+                        <div class="content__row" data-gtm-vis-recent-on-screen-58776_1312="1749" data-gtm-vis-first-on-screen-58776_1312="1749" data-gtm-vis-total-visible-time-58776_1312="100" data-gtm-vis-has-fired-58776_1312="1">
+                            <div class="tag-list">
+                                <a href="/dotnet/tag/net/" class="tag">.NET</a> <a href="/dotnet/tag/c/" class="tag">C#</a> <a href="/dotnet/tag/wasi/" class="tag">WASI</a> <a href="/dotnet/tag/wasm/" class="tag">WASM</a> <a href="/dotnet/tag/web/" class="tag">web</a>
+                            </div>
+                            <ul class="social">
+                                <li>
+                                    <span>Share</span>
+                                </li>
+                                <li>
+                                    <a target="_blank" href="https://www.facebook.com/sharer.php?u=https%3A%2F%2Fblog.jetbrains.com%2Fdotnet%2F2022%2F12%2F15%2Fthe-future-of-net-with-wasm%2F" rel="noopener noreferrer"></a>
+                                </li>
+                                <li>
+                                    <a target="_blank" href="https://twitter.com/intent/tweet?source=https%3A%2F%2Fblog.jetbrains.com%2Fdotnet%2F2022%2F12%2F15%2Fthe-future-of-net-with-wasm%2F&amp;text=https%3A%2F%2Fblog.jetbrains.com%2Fdotnet%2F2022%2F12%2F15%2Fthe-future-of-net-with-wasm%2F&amp;via=resharper" rel="noopener noreferrer"></a>
+                                </li>
+                                <li>
+                                    <a target="_blank" href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https%3A%2F%2Fblog.jetbrains.com%2Fdotnet%2F2022%2F12%2F15%2Fthe-future-of-net-with-wasm%2F" rel="noopener noreferrer"></a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="content__pagination">
+                            <a class="content__pagination-prev" href="https://blog.jetbrains.com/dotnet/2022/12/14/jetbrains-three-webinars-on-game-development-live-streams/">JetBrains Three Webinars on Game Development – Live Streams</a>
+                        </div>
+                    </div>
+                    <div class="container comments-container">
+                        <div class="content">
+                            <div id="remark42">
+                                <iframe src="https://comments.blog.jetbrains.com/web/iframe.html?host=https%3A%2F%2Fcomments.blog.jetbrains.com&amp;site_id=remark&amp;components=counter%2Cembed&amp;max_shown_comments=150&amp;locale=en&amp;url=https%3A%2F%2Fblog.jetbrains.com%2Fdotnet%2F2022%2F12%2F15%2Fthe-future-of-net-with-wasm%2F" name="{}" frameborder="0" allowtransparency="true" scrolling="no" tabindex="0" title="Comments | Remark42" horizontalscrolling="no" verticalscrolling="no" style="height: 100%; width: 100%; border: none; padding: 0px; margin: 0px; overflow: hidden; color-scheme: none;" id="{}"></iframe>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <div class="section light-gray-bg">
+                    <div class="container">
+                        <div class="section__head">
+                            <h2>
+                                Discover more
+                            </h2>
+                        </div>
+                        <div class="row">
+                            <div class="col" post_id="301550">
+                                <a class="card img-visible" href="https://blog.jetbrains.com/dotnet/2022/12/14/jetbrains-three-webinars-on-game-development-live-streams/"><img width="2560" height="1200" src="https://blog.jetbrains.com/wp-content/uploads/2022/12/DSGN-14061_Rider_Creating_Games_With_Unity_Design_and_Manage_Scenes_With_RiderFlow_Blog_Featured_image_1280x600.png" class="attachment-full size-full wp-post-image" alt="" loading="lazy" sizes="(max-width: 768px) 768px , 525px" />
+                                <div class="card__header">
+                                    <time class="publish-date" data-year="2022" data-month="12" data-day="14" datetime="2022-12-14">December 14, 2022</time>
+                                    <h3>
+                                        JetBrains Three Webinars on Game Development – Live Streams
+                                    </h3>
+                                </div>
+                                <div class="card__body">
+                                    <p>
+                                        This winter, we’re presenting a series of webinars dedicated to JetBrains tools used for game development. No matter whether you prefer to use Unity or Unreal Engine for your game, Rider is a perfect IDE for either. RiderFlow is also a great addition for managing 3D scenes.
+                                    </p>
+                                </div>
+                                <div class="card__footer">
+                                    <div class="author">
+                                        <img src="https://blog.jetbrains.com/wp-content/uploads/2022/11/2022-11-29-14.32.34-e1669728861882-50x50.jpg" width="50" height="50" alt="Anna Ruban" loading="lazy" class="avatar avatar-200 wp-user-avatar wp-user-avatar-200 photo avatar-default" /> <span>Anna Ruban</span>
+                                    </div><span class="remark42__counter icon-comments" data-url="https://blog.jetbrains.com/dotnet/2022/12/14/jetbrains-three-webinars-on-game-development-live-streams/">0</span>
+                                </div></a>
+                            </div>
+                            <div class="col" post_id="305305">
+                                <a class="card img-visible" href="https://blog.jetbrains.com/dotnet/2022/12/07/dotcover-dotmemory-dotpeek-dottrace-2022-3/"><img width="2560" height="1200" src="https://blog.jetbrains.com/wp-content/uploads/2022/12/1280x600_4dotNet_featured.png" class="attachment-full size-full wp-post-image" alt="" loading="lazy" sizes="(max-width: 768px) 768px , 525px" />
+                                <div class="card__header">
+                                    <time class="publish-date" data-year="2022" data-month="12" data-day="07" datetime="2022-12-07">December 7, 2022</time>
+                                    <h3>
+                                        dotCover, dotMemory, dotPeek, and dotTrace 2022.3 Released!
+                                    </h3>
+                                </div>
+                                <div class="card__body">
+                                    <p>
+                                        A moment ago, we released the 2022.3 versions of dotTrace, dotMemory, dotCover, and dotPeek. Take a look at the updates and features that are now available. dotCover 2022.3 You can use dotCover on ARM64 CPUs on Windows. This applies to all versions: dotCover standalone, dotCover in Rider, dotCover in Visual Studio, and the dotCover console runner.Beginning with this release, restarting Unity is no longer required and test coverage in JetBrains Rider is supported out of the box.You can now use the dotCover console runner on ARM32 CPUs on Linux.We’ve added the Show Covering Tests actio
+                                    </p>
+                                </div>
+                                <div class="card__footer">
+                                    <div class="author">
+                                        <img src="https://blog.jetbrains.com/wp-content/uploads/2021/03/userpic-50x50.png" width="50" height="50" alt="Alexander Kurakin" loading="lazy" class="avatar avatar-200 wp-user-avatar wp-user-avatar-200 photo avatar-default" /> <span>Alexander Kurakin</span>
+                                    </div><span class="remark42__counter icon-comments" data-url="https://blog.jetbrains.com/dotnet/2022/12/07/dotcover-dotmemory-dotpeek-dottrace-2022-3/">2</span>
+                                </div></a>
+                            </div>
+                            <div class="col" post_id="304867">
+                                <a class="card img-visible" href="https://blog.jetbrains.com/dotnet/2022/12/07/resharper-2022-3/"><img width="2560" height="1200" src="https://blog.jetbrains.com/wp-content/uploads/2022/12/Release_Preview_image_1280x600_ReSharper_released-2x.png" class="attachment-full size-full wp-post-image" alt="" loading="lazy" sizes="(max-width: 768px) 768px , 525px" />
+                                <div class="card__header">
+                                    <time class="publish-date" data-year="2022" data-month="12" data-day="07" datetime="2022-12-07">December 7, 2022</time>
+                                    <h3>
+                                        ReSharper 2022.3 Released With More C# 11 Features, NuGet Vulnerabilities Detection, and Support for Visual Studio ARM64.
+                                    </h3>
+                                </div>
+                                <div class="card__body">
+                                    <p>
+                                        Hello everyone, ReSharper 2022.3 and other JetBrains .NET tools have just been released. In this article we’re going to go over the highlights of this major update for ReSharper as well as touch on the features coming to ReSharper C++. To learn more about our other .NET tools, including dotCover, dotMemory, dotPeek, and dotTrace, please check out this separate blog post. Now let’s get started! C# support C#11 features With our latest release we’re are finalizing basic support for the latest C# 11 features, starting with UTF-8 literals. The code analysis now suggests using a
+                                    </p>
+                                </div>
+                                <div class="card__footer">
+                                    <div class="author">
+                                        <img src="https://blog.jetbrains.com/wp-content/uploads/2022/07/F34E0F9B-D3F0-4DD4-B7C7-B11AF3FC6D25-50x50.jpeg" width="50" height="50" alt="Sasha Ivanova" loading="lazy" class="avatar avatar-200 wp-user-avatar wp-user-avatar-200 photo avatar-default" /> <span>Sasha Ivanova</span>
+                                    </div><span class="remark42__counter icon-comments" data-url="https://blog.jetbrains.com/dotnet/2022/12/07/resharper-2022-3/">1</span>
+                                </div></a>
+                            </div>
+                            <div class="col" post_id="304698">
+                                <a class="card img-visible" href="https://blog.jetbrains.com/dotnet/2022/12/07/rider-2022-3/"><img width="2560" height="1200" src="https://blog.jetbrains.com/wp-content/uploads/2022/12/Release_Preview_image_1280x600_Rider_released-2x.png" class="attachment-full size-full wp-post-image" alt="" loading="lazy" sizes="(max-width: 768px) 768px , 525px" />
+                                <div class="card__header">
+                                    <time class="publish-date" data-year="2022" data-month="12" data-day="07" datetime="2022-12-07">December 7, 2022</time>
+                                    <h3>
+                                        Rider 2022.3: Support for .NET 7 SDK, the Latest From C#11, Major Performance Improvements, and More!
+                                    </h3>
+                                </div>
+                                <div class="card__body">
+                                    <p>
+                                        Hello everyone, It's the most wonderful time of the year: not only are the holidays upon us, but Rider 2022.3 – the last major version of Rider this year – has just been released. Let’s see what’s inside. Performance improvements We’ve made several changes to increase Rider’s startup speed and reduce the time it takes to open a solution and get to work. The IDE can now load a solution file and build its project tree instantly, without having to wait for the backend to initialize. We’ve also introduced several improvements to Rider’s backend performance. You can learn all ab
+                                    </p>
+                                </div>
+                                <div class="card__footer">
+                                    <div class="author">
+                                        <img src="https://blog.jetbrains.com/wp-content/uploads/2022/07/F34E0F9B-D3F0-4DD4-B7C7-B11AF3FC6D25-50x50.jpeg" width="50" height="50" alt="Sasha Ivanova" loading="lazy" class="avatar avatar-200 wp-user-avatar wp-user-avatar-200 photo avatar-default" /> <span>Sasha Ivanova</span>
+                                    </div><span class="remark42__counter icon-comments" data-url="https://blog.jetbrains.com/dotnet/2022/12/07/rider-2022-3/">9</span>
+                                </div></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+            <footer class="footer">
+                <div class="container">
+                    <div class="footer__top">
+                        <ul class="footer__nav">
+                            <li id="menu-item-118361" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-118361">
+                                <a href="https://www.jetbrains.com/company/privacy.html">Privacy &amp; Security</a>
+                            </li>
+                            <li id="menu-item-118362" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-118362">
+                                <a href="https://www.jetbrains.com/company/useterms.html">Terms of Use</a>
+                            </li>
+                            <li id="menu-item-118363" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-118363">
+                                <a href="https://www.jetbrains.com/legal/">Legal</a>
+                            </li>
+                            <li id="menu-item-118364" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-118364">
+                                <a href="https://www.jetbrains.com/genuine-tools/">Genuine tools</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <ul class="social">
+                        <li>
+                            <a href="https://twitter.com/jetbrains"></a>
+                        </li>
+                        <li>
+                            <a href="https://www.facebook.com/JetBrains"></a>
+                        </li>
+                        <li>
+                            <a href="https://www.linkedin.com/company/jetbrains"></a>
+                        </li>
+                        <li>
+                            <a href="https://www.instagram.com/jetbrains/"></a>
+                        </li>
+                        <li>
+                            <a href="https://www.youtube.com/user/JetBrainsTV"></a>
+                        </li>
+                        <li>
+                            <a href="https://blog.jetbrains.com/feed/"></a>
+                        </li>
+                    </ul><span class="copyright">Copyright © 2000–2022 JetBrains s.r.o.</span>
+                </div>
+            </footer>
+        </div>
+        <script>
+        <![CDATA[
+        var remark_config = {
+                                            host: "https://comments.blog.jetbrains.com",
+                                            site_id: "remark",
+                                            components: ["counter","embed"],
+                                            max_shown_comments: 150,
+                                            locale: "en"
+                                            };
+        ]]>
+        </script>
+        <script>
+        <![CDATA[
+        !function(e,n){for(var o=0;o<e.length;o++){var r=n.createElement("script"),c=".js",d=n.head||n.body;"noModule"in r?(r.type="module",c=".mjs"):r.async=!0,r.defer=!0,r.src=remark_config.host+"/web/"+e[o]+c,d.appendChild(r)}}(remark_config.components||["embed"],document);
+        ]]>
+        </script>
+        <link rel="stylesheet" id="blog-new-css" href="https://resources.jetbrains.com/storage/ui/blogs-new.css?ver=2.0.3" type="text/css" media="all" />
+        <script type="text/javascript" src="https://blog.jetbrains.com/wp-content/plugins/accordion-blocks/js/accordion-blocks.min.js?ver=1671153505" id="pb-accordion-blocks-frontend-script-js"></script>
+        <script type="text/javascript" id="">
+        //<![CDATA[
+        var separator="|",firstCookieName="first_utm_parameters",lastCookieName="last_utm_parameters",cookieValue="",undefinedCookieValue=("undefined"+separator).repeat(2)+"undefined",undefinedCookieValueExtended=("undefined"+separator).repeat(5)+"undefined";function getCookie(a){return(a=document.cookie.match(new RegExp("(?:^|; )"+a.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g,"\\$1")+"\x3d([^;]*)")))?a[1]:void 0}
+        function setCookie(a,b){var d=31104E6,c=new Date,e=c.getTime();c.setTime(e+d);c=c.toUTCString();document.cookie=a+"\x3d"+b+"; SameSite\x3dNone; Secure; expires\x3d"+c+"; path\x3d/; domain\x3d."+location.hostname.replace(/^www\./i,"")}function getQueryParam(a){var b=window.location.search.replaceAll("+","%2b");b=new URLSearchParams(b);return(a=b.get(a))?a.replaceAll("%2b","+"):void 0}
+        cookieValue=getQueryParam("utm_source")||getQueryParam("utm_medium")||getQueryParam("utm_campaign")?getQueryParam("utm_source")+separator+getQueryParam("utm_medium")+separator+getQueryParam("utm_campaign"):getQueryParam("source")+separator+getQueryParam("medium")+separator+getQueryParam("campaign");cookieValue=getQueryParam("utm_term")?cookieValue+separator+getQueryParam("utm_term"):getQueryParam("keyword")?cookieValue+separator+getQueryParam("keyword"):cookieValue+separator+getQueryParam("term");
+        cookieValue=getQueryParam("utm_content")?cookieValue+separator+getQueryParam("utm_content"):cookieValue+separator+getQueryParam("content");cookieValue=getQueryParam("gclid")?cookieValue+separator+getQueryParam("gclid"):cookieValue+separator+getQueryParam("msclkid");cookieValue=cookieValue.replace(/\s|,|;/g,"_");
+        if(cookieValue!==undefinedCookieValueExtended){var first_cookie_value=getCookie(firstCookieName);first_cookie_value&&first_cookie_value!==undefinedCookieValue&&first_cookie_value!==undefinedCookieValueExtended||setCookie(firstCookieName,cookieValue);setCookie(lastCookieName,cookieValue)};
+        //]]>
+        </script> 
+        <script type="module" src="https://blog.jetbrains.com/wp-content/plugins/instant-page/instantpage.js?ver=5.6.1" id="instantpage-js"></script> 
+        <script type="text/javascript" src="https://blog.jetbrains.com/wp-content/plugins/map-shortcode//map.js?ver=e138ef45bff209668d39d296de5c7b40" id="gmaps-js"></script> 
+        <script type="text/javascript" id="ppress-frontend-script-js-extra">
+
+        /* <![CDATA[ */
+        var pp_ajax_form = {"ajaxurl":"https:\/\/blog.jetbrains.com\/wp-admin\/admin-ajax.php","confirm_delete":"Are you sure?","deleting_text":"Deleting...","deleting_error":"An error occurred. Please try again.","nonce":"577d3dc187","disable_ajax_form":"false","is_checkout":"0","is_checkout_tax_enabled":"0"};
+        /* ]]> */
+        </script> 
+        <script type="text/javascript" src="https://blog.jetbrains.com/wp-content/plugins/wp-user-avatar/assets/js/frontend.min.js?ver=4.3.2" id="ppress-frontend-script-js"></script> 
+        <script type="text/javascript" src="https://blog.jetbrains.com/wp-content/plugins/enlighter/cache/enlighterjs.min.js?ver=1xeD0E9ltABXgL+" id="enlighterjs-js"></script> 
+        <script type="text/javascript" id="enlighterjs-js-after">
+        //<![CDATA[
+
+        !function(e,n){if("undefined"!=typeof EnlighterJS){var o={"selectors":{"block":"pre.EnlighterJSRAW","inline":"code.EnlighterJSRAW"},"options":{"indent":4,"ampersandCleanup":true,"linehover":true,"rawcodeDbclick":false,"textOverflow":"scroll","linenumbers":false,"theme":"wpcustom","language":"generic","retainCssClasses":false,"collapse":false,"toolbarOuter":"","toolbarTop":"{BTN_RAW}{BTN_COPY}{BTN_WINDOW}{BTN_WEBSITE}","toolbarBottom":""}};(e.EnlighterJSINIT=function(){EnlighterJS.init(o.selectors.block,o.selectors.inline,o.options)})()}else{(n&&(n.error||n.log)||function(){})("Error: EnlighterJS resources not loaded yet!")}}(window,console);
+        //]]>
+        </script> 
+        <script type="text/javascript" id="app-js-extra">
+
+        /* <![CDATA[ */
+        var loadmore_params = {"ajaxurl":"https:\/\/blog.jetbrains.com\/wp-admin\/admin-ajax.php?wpml_lang=en","post_data":{"post_type":"dotnet"},"current_page":"1","max_page":"0"};
+        var current_lang = "en-us";
+        var jetbrains_texts = {"loadmore":{"load_more":"Load more","loading":"Loading..."}};
+        /* ]]> */
+        </script> 
+        <script type="text/javascript" src="https://blog.jetbrains.com/wp-content/themes/jetbrains/assets/dist/app.min.js?ver=2.0.5" id="app-js"></script> 
+        <script type="text/javascript" src="https://resources.jetbrains.com/storage/ui/blogs-new.js?ver=1.1.0" id="blog-new-js"></script> 
+        <script type="text/javascript" src="https://blog.jetbrains.com/wp-content/themes/jetbrains/assets/dist/singlepost.min.js?ver=2.0.5" id="single-post-js"></script> 
+        <script type="text/javascript" src="https://blog.jetbrains.com/wp-content/plugins/easy-table-of-contents/vendor/smooth-scroll/jquery.smooth-scroll.min.js?ver=2.2.0" id="ez-toc-jquery-smooth-scroll-js"></script> 
+        <script type="text/javascript" src="https://blog.jetbrains.com/wp-content/plugins/easy-table-of-contents/vendor/js-cookie/js.cookie.min.js?ver=2.2.1" id="ez-toc-js-cookie-js"></script> 
+        <script type="text/javascript" src="https://blog.jetbrains.com/wp-content/plugins/easy-table-of-contents/vendor/sticky-kit/jquery.sticky-kit.min.js?ver=1.9.2" id="ez-toc-jquery-sticky-kit-js"></script> 
+        <script type="text/javascript" id="ez-toc-js-js-extra">
+
+        /* <![CDATA[ */
+        var ezTOC = {"smooth_scroll":"1","visibility_hide_by_default":"","width":"auto","scroll_offset":"30","affixSelector":".sidebar__holder"};
+        /* ]]> */
+        </script> 
+        <script type="text/javascript" src="https://blog.jetbrains.com/wp-content/plugins/easy-table-of-contents/assets/js/front.min.js?ver=2.0.36.1-1667799850" id="ez-toc-js-js"></script> 
+        <script>
+        <![CDATA[
+
+        if(jQuery('.subscribe-form').length>0){
+        ui.subscribeForm('.subscribe-form');
+        }
+        if(jQuery('img[data-gif-src]').length>0){
+        ui.gifPlayer('img[data-gif-src]');
+        }
+        ]]>
+        </script> <!-- Build # -->
+         
+        <script type="text/javascript" id="">
+        //<![CDATA[
+        window.dataLayer=window.dataLayer||[];window.dataLayer.push({originalLocation:document.location.protocol+"//"+document.location.hostname+document.location.pathname+document.location.search});
+        //]]>
+        </script>
+    </body>
+</html>
