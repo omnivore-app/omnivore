@@ -1,6 +1,7 @@
 import { ContentHandler, PreHandleResult } from '../content-handler'
 import axios from 'axios'
 import _ from 'underscore'
+import YoutubeTranscript from 'youtube-transcript'
 
 const YOUTUBE_URL_MATCH =
   /^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w-]+\?v=|embed\/|v\/)?)([\w-]+)(\S+)?$/
@@ -53,6 +54,11 @@ export class YoutubeHandler extends ContentHandler {
     const width = height * ratio
     const authorName = _.escape(oembed.author_name)
 
+    console.log('got video id', videoId)
+    const response = await YoutubeTranscript.fetchTranscript(videoId)
+    const transcript = response.map((item) => item.text).join(' ')
+    console.log('transcript: ', transcript)
+
     const content = `
     <html>
       <head><title>${title}</title>
@@ -66,10 +72,11 @@ export class YoutubeHandler extends ContentHandler {
       <iframe width="${width}" height="${height}" src="https://www.youtube.com/embed/${videoId}" title="${title}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         <p><a href="${url}" target="_blank">${title}</a></p>
         <p itemscope="" itemprop="author" itemtype="http://schema.org/Person">By <a href="${oembed.author_url}" target="_blank">${authorName}</a></p>
+        <p class='omnivore-youtube-transcript'>
+          ${transcript}
+        </p>
       </body>
     </html>`
-
-    console.log('got video id', videoId)
 
     return { content, title: 'Youtube Content' }
   }

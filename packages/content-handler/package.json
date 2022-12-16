@@ -35,6 +35,7 @@
     "puppeteer-core": "^19.1.1",
     "rfc2047": "^4.0.1",
     "underscore": "^1.13.6",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "youtube-transcript": "^1.0.4"
   }
 }
