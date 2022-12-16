@@ -1,0 +1,182 @@
+<DIV class="page" id="readability-page-1">
+    <div id="wrapper">
+        <main>
+            <div>
+                <p><a href="https://blog.jetbrains.com/dotnet/"><img src="https://blog.jetbrains.com/wp-content/uploads/2019/01/dotUltimate_icon.svg" alt="Dotnet logo"></a></p>
+            </div>
+            <div data-clarity-region="article">
+                <h2> The Future of .NET with WASM </h2>
+                <div>
+                    <p><img src="https://blog.jetbrains.com/wp-content/uploads/2021/06/avatar-0.5x-200x200.png" width="200" height="200" alt="Khalid Abuhakmeh" loading="lazy"></p>
+                </div>
+                <div id="ez-toc-container">
+                    <nav>
+                        <ul>
+                            <li>
+                                <a href="#What_is_WebAssembly" title="What is WebAssembly?">What is WebAssembly?</a>
+                            </li>
+                            <li>
+                                <a href="#What_is_Wasmtime" title="What is Wasmtime?">What is Wasmtime?</a>
+                            </li>
+                            <li>
+                                <a href="#Installing_Wasmtime" title="Installing Wasmtime">Installing Wasmtime</a>
+                            </li>
+                            <li>
+                                <a href="#Compiling_a_WASM_NET_application" title="Compiling a WASM .NET application">Compiling a WASM .NET application</a>
+                            </li>
+                            <li>
+                                <a href="#Consuming_WASM_and_WAT_modules_from_NET" title="Consuming WASM and WAT modules from .NET">Consuming WASM and WAT modules from .NET</a>
+                            </li>
+                            <li>
+                                <a href="#The_current_reality_of_WASM_on_the_server" title="The current reality of WASM on the server">The current reality of WASM on the server</a>
+                            </li>
+                            <li>
+                                <a href="#Imagining_the_future_of_WASM_on_the_server" title="Imagining the future of WASM on the server ">Imagining the future of WASM on the server&nbsp;</a>
+                            </li>
+                            <li>
+                                <a href="#Conclusion" title="Conclusion">Conclusion</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+                <p> You’ve likely heard about <a href="https://dotnet.microsoft.com/en-us/apps/aspnet/web-apps/blazor">Blazor</a>, .NET’s frontend framework for writing web applications. Blazor lets you use your existing C# skills to build full-stack applications, from client to server. One way to construct Blazor applications is to compile your frontend into a WebAssembly (WASM) file and deploy and run your app in a web browser. The Blazor WASM approach can help you build client experiences similar to native desktop applications with a native performance profile. </p>
+                <p> But what about WebAssembly on the server? In this post, we’ll see the benefits of using WASM outside the browser and its potential as a transformative technology on the server.&nbsp; </p>
+                <h2>
+                    <span id="What_is_WebAssembly"></span>What is WebAssembly?
+                </h2>
+                <p> WebAssembly is a low-level assembly-like language with a binary format that runs in modern web browsers. As a result, WebAssembly programs can perform at near-native speeds allowing for new and exciting applications for web clients from desktop-like apps, emulators, high-performance video games, photo editors, and more. The additional benefit of WebAssembly is it can be run either as an extra add-on via service workers, enhancing or replacing the existing JavaScript experience on the client. </p>
+                <p> The designers of WebAssembly always meant it to run alongside the current web model. Developers unfamiliar with JavaScript can choose from a wide range of languages to write WebAssembly, including C, C++, C#, Go, Python and Rust, with many more languages looking at targeting WASM as an artifact of compilation. For .NET developers, you can think of the <code>.wasm</code> file extension as a <code>.dll</code> or <code>.exe</code> format. The file format is a standard, and WebAssembly System Interface (WASI) compliant runtime will be able to consume them. </p>
+                <p> One such runtime we’ll be exploring in this post is <strong><a href="https://wasmtime.dev/">Wasmtime</a></strong>. </p>
+                <h2>
+                    <span id="What_is_Wasmtime"></span>What is Wasmtime?
+                </h2>
+                <p> Developed by the <a href="https://bytecodealliance.org/">Bytecode Alliance</a>, <a href="https://wasmtime.dev/">Wasmtime is a runtime for WebAssembly</a>, allowing you to consume <code>.wasm</code> files and run them on Windows, macOS, or Linux systems outside a web client. Wasmtime is a fast, secure, and standards-compliant runtime for WebAssembly, and supports the <a href="https://wasi.dev/">WebAssembly System Interface (WASI)</a>. </p>
+                <p> The most crucial feature of Wasmtime is its ability to interact with the native operating system, allowing for configurable access to system resources. Resources include disk access, TCP listeners, hardware input interfaces, and more. </p>
+                <p> In addition to running standalone <code>.wasm</code> files, you can use Wasmtime inside your applications to consume third-party dependencies. The portability of the WASM format opens up a world where you can have native interop with a standard format across all languages. </p>
+                <p> Wasmtime also supports debugging using popular native debugging tools like GDB or LLDB, which many of the IntelliJ-family products already support. The debugging experience depends on your technology stack’s build tools. </p>
+                <p> Speaking of build tools, let’s build our first WASM server application, but first, let’s install Wasmtime. </p>
+                <h2>
+                    <span id="Installing_Wasmtime"></span>Installing Wasmtime
+                </h2>
+                <p> Wasmtime is a CLI executable, so it’s straightforward to install on any environment. The first step is to visit the <a href="https://wasmtime.dev/">official Bytecode Alliance website</a>. You can also just run the following command. </p>
+                <pre data-enlighter-language="generic" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">curl https://wasmtime.dev/install.sh -sSf | bash</pre>
+                <p> Windows users can do the same using the Windows Subsystem for Linux (WSL), or <a href="https://github.com/bytecodealliance/wasmtime/releases">grab the installer from the Wasmtime releases</a> page. </p>
+                <p> You can check you’ve successfully installed Wasmtime by running the command <code>wasmtime –version</code> from the command line. </p>
+                <pre data-enlighter-language="generic" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">&gt; wasmtime --version
+wasmtime-cli 1.0.1</pre>
+                <h2>
+                    <span id="Compiling_a_WASM_NET_application"></span>Compiling a WASM .NET application
+                </h2>
+                <p>
+                    <strong>Note: You’ll need the latest version of .NET 7 SDK installed</strong>
+                </p>
+                <p> Our goal in this section is to take a C# Console application and compile it to a <code>.wasm</code> file. The solution will be a self-contained application that won’t need unique WASI resources like TCP listeners, file access, or environment variables.&nbsp; </p>
+                <p> First, let’s start with a brand new Console Application project. From JetBrains Rider’s new solution window, select the <strong><em>“Console Application”</em></strong> template and call it <em><strong>“HelloWasm”</strong></em> or whatever you’d like.&nbsp; </p>
+                <figure>
+                    <img width="1600" height="1058" src="https://blog.jetbrains.com/wp-content/uploads/2022/10/image.png" alt="">
+                </figure>
+                <p> Once the solution is ready, you’ll need to add the “<strong>Wasi.Sdk”</strong> NuGet package to your console project. If you don’t see the package, be sure that you have the <strong>Prerelease</strong> checkbox checked. </p>
+                <figure>
+                    <img loading="lazy" width="1600" height="562" src="https://blog.jetbrains.com/wp-content/uploads/2022/10/image-1.png" alt="">
+                    <figcaption> Wasi.Sdk Nuget package in JetBrains Rider’s NuGet tool window </figcaption>
+                </figure>
+                <p> You’re ready to compile the console application into a <code>.wasm</code> artifact. Before doing so, change the line in <code>Program.cs</code> to the following: </p>
+                <pre data-enlighter-language="csharp" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">Console.WriteLine("Hello, Wasmtime!");</pre>
+                <p> Building your project, you will see references to bundling System libraries commonly used in .NET applications. Remember that WASM is native byte code. The .NET runtime must be packaged and shipped as part of your artifact. This is not any different than Blazor WASM deployments for a web client. </p>
+                <figure>
+                    <img loading="lazy" width="1600" height="1105" src="https://blog.jetbrains.com/wp-content/uploads/2022/10/image-2.png" alt="">
+                    <figcaption> Building a Wasi.Sdk-powered .NET project inside of JetBrains Rider </figcaption>
+                </figure>
+                <p> Now, let’s run our WASM file using Wasmtime. In Rider, you’ll use the <strong>Run Anything</strong> dialog (Ctrl+Ctrl) to run the following command: </p>
+                <pre data-enlighter-language="generic" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">wasmtime ./HelloWasm/bin/Debug/net7.0/HelloWasm.wasm</pre>
+                <p> When successful, you should see your Console application’s output. </p>
+                <figure>
+                    <img loading="lazy" src="https://blog.jetbrains.com/wp-content/uploads/2022/10/image-3.png" alt="" width="695" height="228">
+                    <figcaption> Successful output in JetBrains Rider’s “Run Anything” tool window </figcaption>
+                </figure>
+                <p> Awesome! You just wrote your first WASM-targeted .NET application. Now you could deploy the <code>.wasm</code> file to any host that supports WebAssmebly. </p>
+                <h2>
+                    <span id="Consuming_WASM_and_WAT_modules_from_NET"></span>Consuming WASM and WAT modules from .NET
+                </h2>
+                <p> While it’s certainly possible to consume a <code>.wasm</code> file in .NET, it is a bit more tedious than the plug-and-play experience of a NuGet package. Currently, there is a <strong><em>Wasmruntime</em></strong> NuGet package that contains low-level APIs for dealing with the elements of a host. These elements include an <code>Engine</code>, <code>Module</code>, <code>Linker</code>, <code>Store</code>, and more. They allow you to define your custom host, including low-level system calls and what calling them may do on a WASI-compliant system. For more information, I recommend reading excellent <a href="https://developer.mozilla.org/en-US/docs/WebAssembly/Concepts#webassembly_goals">Mozilla documentation to understand how WASM interfaces with a host</a>. </p>
+                <p> I would not recommend most developers attempt to write their host; instead, the community should wait for the Byte Code Alliance to create a safe-by-default host. </p>
+                <p> Let’s look at an example where we use the WebAssembly Text (WAT) format to link a C# function to WebAssembly. WAT is a human-readable and editable format representing the WASM binary format. </p>
+                <pre data-enlighter-language="csharp" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">using Wasmtime;
+
+using var engine = new Engine();
+
+using var module = Module.FromText(
+    engine,
+    "hello",
+    "(module (func $hello (import \"\" \"hello\")) (func (export \"run\") (call $hello)))"
+);
+
+using var linker = new Linker(engine);
+using var store = new Store(engine);
+
+linker.Define(
+    "",
+    "hello",
+    Function.FromCallback(store, () =&gt; Console.WriteLine("Hello from C#!"))
+);
+
+var instance = linker.Instantiate(store, module);
+var run = instance.GetAction("run")!;
+run();
+</pre>
+                <p> The critical thing to note in this example is that our WebAssembly module uses a reference to <code>$hello</code>. Since our C# application manages our WebAssembly context, we can create a definition for <code>$hello</code> using the method <code>Function.FromCallback</code>. In C#, we ask the linker, which now contains both our <code>.wat</code> definition and our new implementation of <code>$hello</code> for the <code>run</code> method. All that’s left is to invoke our <code>Action</code> and see the results. </p>
+                <pre data-enlighter-language="generic" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">Hello from C#!</pre>
+                <p> While it may seem trivial, we’ll be able to run and consume WASM in our .NET applications. That opens up possibilities for solving problems using solutions from other ecosystems. </p>
+                <h2>
+                    <span id="The_current_reality_of_WASM_on_the_server"></span>The current reality of WASM on the server
+                </h2>
+                <p> While this post has been relatively optimistic about the prospect of WASM, there are limitations to the technology that folks should be aware of, and they will vary based on the WASM host. </p>
+                <p> The first significant limitation is threading. So far, with my testing, Wasmtime only has access to a single thread for execution. Thread limits are not entirely a deal-breaker, but you’ll need to rewrite some of your solutions to reduce the need for threading. This limitation becomes apparent when using an API that involves <code>Thread</code> or <code>Task.Delay</code>, which will halt your running process or terminate it catastrophically. However, threading may not be an issue in the near future as <a href="https://github.com/dotnet/runtime/issues/68162">.NET adds multi-threaded support to WASM</a>. Wasmtime also enables multiple threads with an experimental flag, but your technology stack will need to take advantage of that feature. </p>
+                <p> The .NET runtime targeting WASM is the same as Blazor WASM, which is to say it has limits. APIs will not work based on a lack of support from the current WASM host. Missing APIs could limit your ability to solve specific problems. The APIs are still in active development and could change based on features added to Wasmtime and other WASI runtimes. </p>
+                <p> Another issue I’ve found is there is currently no outward socket support. Lack of socket support limits a WASM application’s ability to communicate with dependencies like a database or web service. <a href="https://github.com/WebAssembly/wasi-sockets">Discussions of a Socket specification</a> will resolve this issue, allowing for more robust WASM apps. In addition, this should enable .NET developers to use data access tools like Entity Framework Core or Dapper with few issues. </p>
+                <p> Tooling is another concern; vendors must catch up to the experiences .NET developers have gotten used to developing .NET applications. Luckily for developers, Wasmruntime uses standard debugging tools like LLDB and GDB, making integrating them into existing tools much more manageable. </p>
+                <p> Infrastructure will play an essential role in how you build your WASM solutions. The strength of WASM comes from the ability to start and dispose of executing modules quickly in the vein of “microservices” or “functions”. However, a different architectural approach will require you to rethink your existing applications’ orchestration and units of work. In addition, you and your team may not have the bandwidth to deal with the technical and conceptual challenges simultaneously.&nbsp; </p>
+                <p> How does a modern WASM-powered application look when deployed? Some folks think it looks like functions as a service (FaaS), while others see it as a replacement for containers in a Kubernetes cluster, and both are perfectly valid. Luckily, many new WASM hosts are springing up along with reliable cloud providers AWS, Microsoft Azure, and Cloudflare, adding options to their ever-expanding list of services. </p>
+                <h2>
+                    <span id="Imagining_the_future_of_WASM_on_the_server"></span>Imagining the future of WASM on the server&nbsp;
+                </h2>
+                <p> We’ve reached the speculative part of the post, where we get to imagine the future of WASM and how it may transform your development experience, from writing code to deploying a solution. So let’s start with the process of development. </p>
+                <p> If you’ve developed any Blazor WASM application, you’ll likely realize that little feels different while writing code. After all, it’s C#! The debugging experience may be slightly different, as you now deal with a completely different host and runtime, specifically the web browser. However, writing solutions to target WASM will feel very similar to Blazor WASM, and I expect the experience to improve as tooling catches up. Switching to WASM apps will be easier for most developers than switching to a new programming paradigm. </p>
+                <p> The frameworks targeting WASM will likely change, as you will want to reconsider how and when functions are executing. For example, <a href="https://www.fermyon.com/blog/webassembly-for-dotnet-developers-spin-sdk-intro">Fermyon released a .NET Spin SDK</a> specifically for their hosting platform that targets WASM. Let’s look at how you might write a function given their SDK. </p>
+                <pre data-enlighter-language="csharp" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">using System.Net;
+using Fermyon.Spin.Sdk;
+
+namespace Microservice;
+
+public static class Handler
+{
+    [HttpHandler]
+    public static HttpResponse HandleHttpRequest(HttpRequest request)
+    {
+        return new HttpResponse
+        {
+            StatusCode = HttpStatusCode.OK,
+            BodyAsString = "Hello from .NET",
+        };
+    }
+}
+</pre>
+                <p> This example begs questions. For example, how do you transition from ASP.NET Core Minimal Endpoints or ASP.NET Core MVC to this new approach? Does ASP.NET Core need to rethink how to compile existing applications into deployable units? I expect a lot of conversations and strategies to emerge as developers adopt WASM. </p>
+                <p> We could see WASM replace most instances of containerization, especially when WASM can package both runtimes and the applications that depend on them in one portable package. Advantages you could hope to see: Reduced CPU and memory usage, decreased cold-boot times, reduced hosting bills, and more significant economies of scale. </p>
+                <p> These <code>.wasm</code> files can also be considerably smaller as they don’t have the same need for layers found in images built on entire operating systems. The portability and efficiency of WASM hosts will lead to more hosting options from vendors, new and old. </p>
+                <p> Finally, the most exciting prospect of WASM on the server is the fulfillment of an agnostic cloud environment, where you, as the developer, no longer have to worry about regions. WASM can be deployed simultaneously to many global regions beyond cloud vendors’ limited and congested regions. WASM can start closest to your users and provide them with the fastest experience possible regardless of their country of origin. This democratization of user experience is most exciting for folks delivering global-scale applications. </p>
+                <h2>
+                    <span id="Conclusion"></span>Conclusion
+                </h2>
+                <p> In this post, we delved into WebAssembly and the efforts to run it on the server using Wasmtime. While it’s still relatively new, the promise of WASM on the server is exciting, and .NET is at the forefront of giving developers more hosting options. As tooling and development experience improves, so will the solutions developers deliver to customers. As you’ve seen, the experience even now is good. </p>
+                <p> There are limitations with WASM, but like all technologies, the community will push solutions forward, and progress will occur. It’s still important to be careful when choosing cutting-edge technologies as solutions, as you’ll likely be some of the first and only folks experiencing those issues.&nbsp; </p>
+                <p> That said, I’m cautiously optimistic about the future of WASM, and I hope you found something in this article that has sparked your curiosity to explore the topic further. </p>
+            </div>
+            <div>
+                <P>
+                <h2> Discover more </h2>
+                </P>
+            </div>
+        </main>
+    </div>
+</DIV>

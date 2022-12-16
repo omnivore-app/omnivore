@@ -1827,7 +1827,7 @@ Readability.prototype = {
     var metaElements = this._doc.getElementsByTagName("meta");
 
     // property is a space-separated list of values
-    var propertyPattern = /\s*(dc|dcterm|og|twitter|article)\s*:\s*(author|creator|description|title|site_name|published_time|published|date|image)\s*/gi;
+    var propertyPattern = /\s*(dc|dcterm|og|twitter|article)\s*:\s*(locale|author|creator|description|title|site_name|published_time|published|date|image)\s*/gi;
 
     // name is a single value
     var namePattern = /^\s*(?:(dc|dcterm|og|twitter|weibo:(article|webpage))\s*[\.:]\s*)?(author|creator|description|title|site_name|date|image)\s*$/i;
@@ -2920,8 +2920,12 @@ Readability.prototype = {
       return 'English';
     }
 
-    let lang = new Intl.DisplayNames(['en'], {type: 'language'});
-    return lang.of(code.split('-')[0]);
+    try {
+      let lang = new Intl.DisplayNames(['en'], {type: 'language'});
+      return lang.of(code.split('_')[0]);
+    } catch {
+      return 'English'
+    }
   },
 
   /**

@@ -1,0 +1,12 @@
+{
+  "title": "The .NET Tools Blog",
+  "byline": null,
+  "dir": null,
+  "excerpt": "You’ve likely heard about Blazor, .NET’s frontend framework for writing web applications. Blazor lets you use your existing C# skills to build full-stack applications, from client to server. One way t",
+  "siteName": "The JetBrains Blog",
+  "siteIcon": "https://blog.jetbrains.com/wp-content/themes/jetbrains/assets/img/favicons/favicon.ico",
+  "previewImage": "https://blog.jetbrains.com/wp-content/uploads/2022/10/rd-how-tos-blog-social-share-image-1280x720-1.png",
+  "publishedDate": "2022-12-14T16:00:00.000Z",
+  "language": "English",
+  "readerable": true
+}
