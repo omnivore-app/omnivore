@@ -79,9 +79,14 @@ suspend fun Networker.deleteHighlight(jsonString: String): Boolean {
 
 suspend fun Networker.deleteHighlights(highlightIDs: List<String>): Boolean {
   val statuses: MutableList<Boolean> = mutableListOf()
-  for (highlightID in highlightIDs) {
-    val result = authenticatedApolloClient().mutation(DeleteHighlightMutation(highlightID)).execute()
-    statuses.add(result.data?.deleteHighlight?.onDeleteHighlightSuccess?.highlight != null)
+  try {
+    for (highlightID in highlightIDs) {
+      val result =
+        authenticatedApolloClient().mutation(DeleteHighlightMutation(highlightID)).execute()
+      statuses.add(result.data?.deleteHighlight?.onDeleteHighlightSuccess?.highlight != null)
+    }
+  } catch (e: java.lang.Exception) {
+    return false
   }
 
   val hasFailure = statuses.any { !it }
@@ -94,9 +99,13 @@ suspend fun Networker.updateWebHighlight(jsonString: String): Boolean {
 }
 
 suspend fun Networker.updateHighlight(input: UpdateHighlightInput): Boolean {
-  val result = authenticatedApolloClient().mutation(UpdateHighlightMutation(input)).execute()
-  Log.d("Network", "update highlight result: $result")
-  return result.data?.updateHighlight?.onUpdateHighlightSuccess?.highlight != null
+  return try {
+    val result = authenticatedApolloClient().mutation(UpdateHighlightMutation(input)).execute()
+    Log.d("Network", "update highlight result: $result")
+    result.data?.updateHighlight?.onUpdateHighlightSuccess?.highlight != null
+  } catch (e: java.lang.Exception) {
+    false
+  }
 }
 
 suspend fun Networker.mergeWebHighlights(jsonString: String): Boolean {
@@ -105,9 +114,13 @@ suspend fun Networker.mergeWebHighlights(jsonString: String): Boolean {
 }
 
 suspend fun Networker.mergeHighlights(input: MergeHighlightInput): Boolean {
-  val result = authenticatedApolloClient().mutation(MergeHighlightMutation(input)).execute()
-  Log.d("Network", "highlight merge result: $result")
-  return result.data?.mergeHighlight?.onMergeHighlightSuccess?.highlight != null
+  return try {
+    val result = authenticatedApolloClient().mutation(MergeHighlightMutation(input)).execute()
+    Log.d("Network", "highlight merge result: $result")
+    result.data?.mergeHighlight?.onMergeHighlightSuccess?.highlight != null
+  } catch (e: java.lang.Exception) {
+    false
+  }
 }
 
 suspend fun Networker.createWebHighlight(jsonString: String): Boolean {
@@ -118,24 +131,28 @@ suspend fun Networker.createWebHighlight(jsonString: String): Boolean {
 suspend fun Networker.createHighlight(input: CreateHighlightInput): Highlight? {
   Log.d("Loggo", "created highlight input: $input")
 
-  val result = authenticatedApolloClient().mutation(CreateHighlightMutation(input)).execute()
+  try {
+    val result = authenticatedApolloClient().mutation(CreateHighlightMutation(input)).execute()
 
-  val createdHighlight = result.data?.createHighlight?.onCreateHighlightSuccess?.highlight
+    val createdHighlight = result.data?.createHighlight?.onCreateHighlightSuccess?.highlight
 
-  if (createdHighlight != null) {
-    return Highlight(
-      id = createdHighlight.highlightFields.id,
-      shortId = createdHighlight.highlightFields.shortId,
-      quote = createdHighlight.highlightFields.quote,
-      prefix = createdHighlight.highlightFields.prefix,
-      suffix = createdHighlight.highlightFields.suffix,
-      patch = createdHighlight.highlightFields.patch,
-      annotation = createdHighlight.highlightFields.annotation,
-      createdAt = null, // TODO: update gql query to get this
-      updatedAt = createdHighlight.highlightFields.updatedAt,
-      createdByMe = createdHighlight.highlightFields.createdByMe,
-    )
-  } else {
+    if (createdHighlight != null) {
+      return Highlight(
+        id = createdHighlight.highlightFields.id,
+        shortId = createdHighlight.highlightFields.shortId,
+        quote = createdHighlight.highlightFields.quote,
+        prefix = createdHighlight.highlightFields.prefix,
+        suffix = createdHighlight.highlightFields.suffix,
+        patch = createdHighlight.highlightFields.patch,
+        annotation = createdHighlight.highlightFields.annotation,
+        createdAt = null, // TODO: update gql query to get this
+        updatedAt = createdHighlight.highlightFields.updatedAt,
+        createdByMe = createdHighlight.highlightFields.createdByMe,
+      )
+    } else {
+      return null
+    }
+  } catch (e: java.lang.Exception) {
     return null
   }
 }
