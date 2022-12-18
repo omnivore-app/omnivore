@@ -56,7 +56,8 @@ export default function LandingPage(): JSX.Element {
       >
         <VStack css={mobileContainerStyles}>
           <Box css={headingStyles}>
-            Omnivore is the read-it-later app for serious readers.
+            Omnivore is the free, open source, read-it-later app for serious
+            readers.
           </Box>
           <Box css={subHeadingStyles}>
             Distraction free. Privacy focused. Open source.
