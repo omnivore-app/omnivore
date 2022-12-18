@@ -142,6 +142,7 @@ export const createApp = (): {
   app.use('/svc/pubsub/integrations', integrationsServiceRouter())
   app.use('/svc/reminders', remindersServiceRouter())
   app.use('/svc/pdf-attachments', pdfAttachmentsRouter())
+  app.use('/ifttt/v1/actions/', iftttRouter())
 
   if (env.dev.isLocal) {
     app.use('/local/debug', localDebugRouter())
