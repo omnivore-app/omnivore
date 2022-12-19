@@ -2,8 +2,8 @@
   "manifest_version": 2,
   "name": "process.env.EXTENSION_NAME",
   "short_name": "process.env.EXTENSION_NAME",
-  "version": "0.1.28",
-  "description": "Read-it-later for serious readers",
+  "version": "0.1.26",
+  "description": "Save articles to your Omnivore library",
   "author": "Omnivore Media, Inc",
   "default_locale": "en",
   "developer": {
@@ -21,17 +21,14 @@
     "128": "/images/extension/icon-128.png",
     "256": "/images/extension/icon-256.png"
   },
-  "permissions": [
-    "activeTab",
-    "storage",
-    "contextMenus",
-    "https://*/**",
-    "http://*/**"
-  ],
+
+  "permissions": ["activeTab", "storage", "contextMenus", "https://*/**", "http://*/**"],
+
   "background": {
     "page": "/views/background.html",
     "persistent": true
   },
+
   "minimum_chrome_version": "21",
   "minimum_opera_version": "15",
   "applications": {
@@ -44,12 +41,10 @@
       "id": "save-extension@omnivore.app"
     }
   },
+
   "content_scripts": [
     {
-      "matches": [
-        "https://*/**",
-        "http://*/**"
-      ],
+      "matches": ["https://*/**", "http://*/**"],
       "js": [
         "/scripts/constants.js",
         "/scripts/content/page-info.js",
@@ -59,16 +54,12 @@
       ]
     },
     {
-      "matches": [
-        "https://*/**",
-        "http://*/**"
-      ],
-      "js": [
-        "/scripts/content/grab-iframe-content.js"
-      ],
+      "matches": ["https://*/**", "http://*/**"],
+      "js": ["/scripts/content/grab-iframe-content.js"],
       "all_frames": true
     }
   ],
+
   "browser_action": {
     "default_icon": {
       "16": "/images/toolbar/icon-16.png",
@@ -78,17 +69,17 @@
       "38": "/images/toolbar/icon-38.png",
       "48": "/images/toolbar/icon-48.png"
     },
-    "default_title": "Omnivore: Read-it-later for serious readers"
+    "default_title": "Omnivore Save Article"
   },
+
   "commands": {
     "_execute_browser_action": {
-      "suggested_key": {
-        "default": "Alt + O"
-      },
-      "description": "Save the current tab to Omnivore"
+        "suggested_key": {
+          "default": "Alt + O"
+        },
+        "description": "Save the current tab to Omnivore"
     }
   },
-  "web_accessible_resources": [
-    "views/cta-popup.html"
-  ]
+
+  "web_accessible_resources": ["views/cta-popup.html"]
 }
