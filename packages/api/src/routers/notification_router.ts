@@ -39,17 +39,11 @@ export function notificationRouter() {
     } = req.body as Notification
 
     if (!userId || !body) {
-      console.log(
-        ' -- send notification failed no user id or body',
-        userId,
-        body
-      )
       return res.status(400).send({ errorCode: 'BAD_DATA' })
     }
 
     const tokens = await getDeviceTokensByUserId(userId)
     if (tokens.length === 0) {
-      console.log(' -- send notification failed no device tokens')
       return res.status(400).send({ errorCode: 'NO_DEVICE_TOKENS' })
     }
 
@@ -57,7 +51,7 @@ export function notificationRouter() {
       notification: {
         title,
         body,
-        //  imageUrl,
+        imageUrl,
       },
       data,
       tokens: tokens.map((token) => token.token),
@@ -69,7 +63,6 @@ export function notificationRouter() {
       notificationType || 'rule'
     )
     if (!result) {
-      console.log(' -- send notification failed for message: ', message)
       return res.status(400).send({ errorCode: 'SEND_NOTIFICATION_FAILED' })
     }
 
