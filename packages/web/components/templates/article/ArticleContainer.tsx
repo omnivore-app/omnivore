@@ -362,7 +362,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           ) : null}
           {recommendationsWithNotes.length > 0 && (
             <RecommendationComments
-              recommendations={{ recommendationsWithNotes }}
+              recommendationsWithNotes={recommendationsWithNotes}
             />
           )}
         </VStack>
