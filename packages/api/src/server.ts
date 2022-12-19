@@ -48,6 +48,7 @@ import { integrationsServiceRouter } from './routers/svc/integrations'
 import { textToSpeechRouter } from './routers/text_to_speech'
 import * as httpContext from 'express-http-context'
 import { notificationRouter } from './routers/notification_router'
+import { iftttRouter } from './routers/ifttt_router'
 
 const PORT = process.env.PORT || 4000
 
