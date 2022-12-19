@@ -53,6 +53,73 @@ type ArticleContainerProps = {
   setShowHighlightsModal: React.Dispatch<React.SetStateAction<boolean>>
 }
 
+type RecommendationCommentsProps = {
+  recommendationsWithNotes: Recommendation[]
+}
+
+const RecommendationComments = (
+  props: RecommendationCommentsProps
+): JSX.Element => {
+  return (
+    <VStack
+      id="recommendations-container"
+      css={{
+        borderRadius: '6px',
+        bg: '$grayBgSubtle',
+        p: '16px',
+        pt: '16px',
+        pb: '2px',
+        width: '100%',
+        marginTop: '24px',
+        color: '$grayText',
+        lineHeight: '2.0',
+      }}
+    >
+      <HStack css={{ pb: '0px', mb: '0px' }}>
+        <StyledText
+          style="recommendedByline"
+          css={{ paddingTop: '0px', mb: '16px' }}
+        >
+          Comments{' '}
+          <SpanBox css={{ color: 'grayText', fontWeight: '400' }}>
+            &nbsp;{` ${props.recommendationsWithNotes.length}`}
+          </SpanBox>
+        </StyledText>
+      </HStack>
+
+      {props.recommendationsWithNotes.map((item, idx) => (
+        <VStack
+          key={item.id}
+          alignment="start"
+          distribution="start"
+          css={{ pt: '0px', pb: '8px' }}
+        >
+          <HStack>
+            <SpanBox
+              css={{
+                verticalAlign: 'top',
+                minWidth: '28px',
+                display: 'flex',
+              }}
+            >
+              <Avatar
+                imageURL={item.user?.profileImageURL}
+                height="28px"
+                noFade={true}
+                tooltip={item.user?.name}
+                fallbackText={item.user?.username[0] ?? 'U'}
+              />
+            </SpanBox>
+            <StyledText style="userNote" css={{ pl: '16px' }}>
+              {item.note}
+            </StyledText>
+          </HStack>
+        </VStack>
+      ))}
+    </VStack>
+  )
+}
+
 export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   const [showReportIssuesModal, setShowReportIssuesModal] = useState(false)
   const [fontSize, setFontSize] = useState(props.fontSize ?? 20)
@@ -223,15 +290,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     )
   }, [props.article.recommendations])
 
-  const StyledQuote = styled(Blockquote, {
-    margin: '0px 0px 0px 0px',
-    fontSize: '18px',
-    lineHeight: '27px',
-    color: '$grayText',
-    padding: '0px 16px',
-    borderLeft: '2px solid $omnivoreCtaYellow',
-  })
-
   return (
     <>
       <Box
@@ -303,63 +361,9 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
             </SpanBox>
           ) : null}
           {recommendationsWithNotes.length > 0 && (
-            <VStack
-              id="recommendations-container"
-              css={{
-                borderRadius: '6px',
-                bg: '$grayBgSubtle',
-                p: '16px',
-                pt: '16px',
-                pb: '2px',
-                width: '100%',
-                marginTop: '24px',
-                color: '$grayText',
-                lineHeight: '2.0',
-              }}
-            >
-              <HStack css={{ pb: '0px', mb: '0px' }}>
-                <StyledText
-                  style="recommendedByline"
-                  css={{ paddingTop: '0px', mb: '16px' }}
-                >
-                  Comments{' '}
-                  <SpanBox css={{ color: 'grayText', fontWeight: '400' }}>
-                    &nbsp;{` ${recommendationsWithNotes.length}`}
-                  </SpanBox>
-                </StyledText>
-              </HStack>
-
-              {recommendationsWithNotes.map((item, idx) => (
-                <VStack
-                  key={item.id}
-                  alignment="start"
-                  distribution="start"
-                  css={{ pt: '0px', pb: '8px' }}
-                >
-                  {/* <StyledQuote>{item.note}</StyledQuote> */}
-                  <HStack>
-                    <SpanBox
-                      css={{
-                        verticalAlign: 'top',
-                        minWidth: '28px',
-                        display: 'flex',
-                      }}
-                    >
-                      <Avatar
-                        imageURL={item.user?.profileImageURL}
-                        height="28px"
-                        noFade={true}
-                        tooltip={item.user?.name}
-                        fallbackText={item.user?.username[0] ?? 'U'}
-                      />
-                    </SpanBox>
-                    <StyledText style="userNote" css={{ pl: '16px' }}>
-                      {item.note}
-                    </StyledText>
-                  </HStack>
-                </VStack>
-              ))}
-            </VStack>
+            <RecommendationComments
+              recommendations={{ recommendationsWithNotes }}
+            />
           )}
         </VStack>
         <Article
