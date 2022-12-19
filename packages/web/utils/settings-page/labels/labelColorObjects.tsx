@@ -47,7 +47,6 @@ export const labelColorObjects: LabelColorObjects = {
 
 export const randomLabelColorHex = () => {
   const colorHexes = Object.keys(labelColorObjects).slice(0, -1)
-  const randomColorHex =
-    colorHexes[Math.floor(Math.random() * colorHexes.length)]
+  const randomColorHex = colorHexes[Math.floor(Math.random() * colorHexes.length)]
   return randomColorHex
 }
