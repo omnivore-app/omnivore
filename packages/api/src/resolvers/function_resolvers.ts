@@ -116,6 +116,7 @@ import {
 import { getPageByParam } from '../elastic/pages'
 import { recentSearchesResolver } from './recent_searches'
 import { optInFeatureResolver } from './features'
+import { uploadImportFileResolver } from './importers/uploadImportFileResolver'
 
 /* eslint-disable @typescript-eslint/naming-convention */
 type ResultResolveType = {
@@ -197,6 +198,7 @@ export const functionResolvers = {
     joinGroup: joinGroupResolver,
     recommendHighlights: recommendHighlightsResolver,
     leaveGroup: leaveGroupResolver,
+    uploadImportFile: uploadImportFileResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -656,4 +658,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('JoinGroup'),
   ...resultResolveTypeResolver('RecommendHighlights'),
   ...resultResolveTypeResolver('LeaveGroup'),
+  ...resultResolveTypeResolver('UploadImportFile'),
 }
