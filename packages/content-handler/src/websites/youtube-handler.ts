@@ -55,7 +55,10 @@ export class YoutubeHandler extends ContentHandler {
     const authorName = _.escape(oembed.author_name)
 
     console.log('got video id', videoId)
-    const response = await YoutubeTranscript.fetchTranscript(videoId)
+    const response = await YoutubeTranscript.fetchTranscript(videoId, {
+      lang: 'en',
+      country: 'US',
+    })
     const transcript = response.map((item) => item.text).join(' ')
     console.log('transcript: ', transcript)
 
