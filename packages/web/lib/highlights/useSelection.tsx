@@ -184,6 +184,9 @@ async function makeSelectionRange(): Promise<
   }
 
   const articleContentElement = document.getElementById('article-container')
+  const recommendationsElement = document.getElementById(
+    'recommendations-container'
+  )
 
   if (!articleContentElement)
     throw new Error('Unable to find the article content element')
@@ -192,6 +195,11 @@ async function makeSelectionRange(): Promise<
   allowedRange.selectNode(articleContentElement)
 
   const range = selection.getRangeAt(0)
+
+  if (recommendationsElement && range.intersectsNode(recommendationsElement)) {
+    console.log('attempt to highlight in recommendations area')
+    return undefined
+  }
 
   const start = range.compareBoundaryPoints(Range.START_TO_START, allowedRange)
   const end = range.compareBoundaryPoints(Range.END_TO_END, allowedRange)

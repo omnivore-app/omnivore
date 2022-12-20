@@ -8497,6 +8497,136 @@ extension Selection where TypeLock == Never, Type == Never {
 }
 
 extension Objects {
+  struct LeaveGroupError {
+    let __typename: TypeName = .leaveGroupError
+    let errorCodes: [String: [Enums.LeaveGroupErrorCode]]
+
+    enum TypeName: String, Codable {
+      case leaveGroupError = "LeaveGroupError"
+    }
+  }
+}
+
+extension Objects.LeaveGroupError: Decodable {
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
+
+    var map = HashMap()
+    for codingKey in container.allKeys {
+      if codingKey.isTypenameKey { continue }
+
+      let alias = codingKey.stringValue
+      let field = GraphQLField.getFieldNameFromAlias(alias)
+
+      switch field {
+      case "errorCodes":
+        if let value = try container.decode([Enums.LeaveGroupErrorCode]?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      default:
+        throw DecodingError.dataCorrupted(
+          DecodingError.Context(
+            codingPath: decoder.codingPath,
+            debugDescription: "Unknown key \(field)."
+          )
+        )
+      }
+    }
+
+    errorCodes = map["errorCodes"]
+  }
+}
+
+extension Fields where TypeLock == Objects.LeaveGroupError {
+  func errorCodes() throws -> [Enums.LeaveGroupErrorCode] {
+    let field = GraphQLField.leaf(
+      name: "errorCodes",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.errorCodes[field.alias!] {
+        return data
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return []
+    }
+  }
+}
+
+extension Selection where TypeLock == Never, Type == Never {
+  typealias LeaveGroupError<T> = Selection<T, Objects.LeaveGroupError>
+}
+
+extension Objects {
+  struct LeaveGroupSuccess {
+    let __typename: TypeName = .leaveGroupSuccess
+    let success: [String: Bool]
+
+    enum TypeName: String, Codable {
+      case leaveGroupSuccess = "LeaveGroupSuccess"
+    }
+  }
+}
+
+extension Objects.LeaveGroupSuccess: Decodable {
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
+
+    var map = HashMap()
+    for codingKey in container.allKeys {
+      if codingKey.isTypenameKey { continue }
+
+      let alias = codingKey.stringValue
+      let field = GraphQLField.getFieldNameFromAlias(alias)
+
+      switch field {
+      case "success":
+        if let value = try container.decode(Bool?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      default:
+        throw DecodingError.dataCorrupted(
+          DecodingError.Context(
+            codingPath: decoder.codingPath,
+            debugDescription: "Unknown key \(field)."
+          )
+        )
+      }
+    }
+
+    success = map["success"]
+  }
+}
+
+extension Fields where TypeLock == Objects.LeaveGroupSuccess {
+  func success() throws -> Bool {
+    let field = GraphQLField.leaf(
+      name: "success",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.success[field.alias!] {
+        return data
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return Bool.mockValue
+    }
+  }
+}
+
+extension Selection where TypeLock == Never, Type == Never {
+  typealias LeaveGroupSuccess<T> = Selection<T, Objects.LeaveGroupSuccess>
+}
+
+extension Objects {
   struct Link {
     let __typename: TypeName = .link
     let highlightStats: [String: Objects.HighlightStats]
@@ -9671,12 +9801,14 @@ extension Objects {
     let googleLogin: [String: Unions.LoginResult]
     let googleSignup: [String: Unions.GoogleSignupResult]
     let joinGroup: [String: Unions.JoinGroupResult]
+    let leaveGroup: [String: Unions.LeaveGroupResult]
     let logOut: [String: Unions.LogOutResult]
     let mergeHighlight: [String: Unions.MergeHighlightResult]
     let moveFilter: [String: Unions.MoveFilterResult]
     let moveLabel: [String: Unions.MoveLabelResult]
     let optInFeature: [String: Unions.OptInFeatureResult]
     let recommend: [String: Unions.RecommendResult]
+    let recommendHighlights: [String: Unions.RecommendHighlightsResult]
     let reportItem: [String: Objects.ReportItemResult]
     let revokeApiKey: [String: Unions.RevokeApiKeyResult]
     let saveArticleReadingProgress: [String: Unions.SaveArticleReadingProgressResult]
@@ -9827,6 +9959,10 @@ extension Objects.Mutation: Decodable {
         if let value = try container.decode(Unions.JoinGroupResult?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
+      case "leaveGroup":
+        if let value = try container.decode(Unions.LeaveGroupResult?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
       case "logOut":
         if let value = try container.decode(Unions.LogOutResult?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
@@ -9849,6 +9985,10 @@ extension Objects.Mutation: Decodable {
         }
       case "recommend":
         if let value = try container.decode(Unions.RecommendResult?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      case "recommendHighlights":
+        if let value = try container.decode(Unions.RecommendHighlightsResult?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
       case "reportItem":
@@ -10010,12 +10150,14 @@ extension Objects.Mutation: Decodable {
     googleLogin = map["googleLogin"]
     googleSignup = map["googleSignup"]
     joinGroup = map["joinGroup"]
+    leaveGroup = map["leaveGroup"]
     logOut = map["logOut"]
     mergeHighlight = map["mergeHighlight"]
     moveFilter = map["moveFilter"]
     moveLabel = map["moveLabel"]
     optInFeature = map["optInFeature"]
     recommend = map["recommend"]
+    recommendHighlights = map["recommendHighlights"]
     reportItem = map["reportItem"]
     revokeApiKey = map["revokeApiKey"]
     saveArticleReadingProgress = map["saveArticleReadingProgress"]
@@ -10526,6 +10668,25 @@ extension Fields where TypeLock == Objects.Mutation {
     }
   }
 
+  func leaveGroup<Type>(groupId: String, selection: Selection<Type, Unions.LeaveGroupResult>) throws -> Type {
+    let field = GraphQLField.composite(
+      name: "leaveGroup",
+      arguments: [Argument(name: "groupId", type: "ID!", value: groupId)],
+      selection: selection.selection
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.leaveGroup[field.alias!] {
+        return try selection.decode(data: data)
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return selection.mock()
+    }
+  }
+
   func logOut<Type>(selection: Selection<Type, Unions.LogOutResult>) throws -> Type {
     let field = GraphQLField.composite(
       name: "logOut",
@@ -10632,6 +10793,25 @@ extension Fields where TypeLock == Objects.Mutation {
     switch response {
     case let .decoding(data):
       if let data = data.recommend[field.alias!] {
+        return try selection.decode(data: data)
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return selection.mock()
+    }
+  }
+
+  func recommendHighlights<Type>(input: InputObjects.RecommendHighlightsInput, selection: Selection<Type, Unions.RecommendHighlightsResult>) throws -> Type {
+    let field = GraphQLField.composite(
+      name: "recommendHighlights",
+      arguments: [Argument(name: "input", type: "RecommendHighlightsInput!", value: input)],
+      selection: selection.selection
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.recommendHighlights[field.alias!] {
         return try selection.decode(data: data)
       }
       throw HttpError.badpayload
@@ -13664,9 +13844,139 @@ extension Selection where TypeLock == Never, Type == Never {
 }
 
 extension Objects {
+  struct RecommendHighlightsError {
+    let __typename: TypeName = .recommendHighlightsError
+    let errorCodes: [String: [Enums.RecommendHighlightsErrorCode]]
+
+    enum TypeName: String, Codable {
+      case recommendHighlightsError = "RecommendHighlightsError"
+    }
+  }
+}
+
+extension Objects.RecommendHighlightsError: Decodable {
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
+
+    var map = HashMap()
+    for codingKey in container.allKeys {
+      if codingKey.isTypenameKey { continue }
+
+      let alias = codingKey.stringValue
+      let field = GraphQLField.getFieldNameFromAlias(alias)
+
+      switch field {
+      case "errorCodes":
+        if let value = try container.decode([Enums.RecommendHighlightsErrorCode]?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      default:
+        throw DecodingError.dataCorrupted(
+          DecodingError.Context(
+            codingPath: decoder.codingPath,
+            debugDescription: "Unknown key \(field)."
+          )
+        )
+      }
+    }
+
+    errorCodes = map["errorCodes"]
+  }
+}
+
+extension Fields where TypeLock == Objects.RecommendHighlightsError {
+  func errorCodes() throws -> [Enums.RecommendHighlightsErrorCode] {
+    let field = GraphQLField.leaf(
+      name: "errorCodes",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.errorCodes[field.alias!] {
+        return data
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return []
+    }
+  }
+}
+
+extension Selection where TypeLock == Never, Type == Never {
+  typealias RecommendHighlightsError<T> = Selection<T, Objects.RecommendHighlightsError>
+}
+
+extension Objects {
+  struct RecommendHighlightsSuccess {
+    let __typename: TypeName = .recommendHighlightsSuccess
+    let success: [String: Bool]
+
+    enum TypeName: String, Codable {
+      case recommendHighlightsSuccess = "RecommendHighlightsSuccess"
+    }
+  }
+}
+
+extension Objects.RecommendHighlightsSuccess: Decodable {
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
+
+    var map = HashMap()
+    for codingKey in container.allKeys {
+      if codingKey.isTypenameKey { continue }
+
+      let alias = codingKey.stringValue
+      let field = GraphQLField.getFieldNameFromAlias(alias)
+
+      switch field {
+      case "success":
+        if let value = try container.decode(Bool?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      default:
+        throw DecodingError.dataCorrupted(
+          DecodingError.Context(
+            codingPath: decoder.codingPath,
+            debugDescription: "Unknown key \(field)."
+          )
+        )
+      }
+    }
+
+    success = map["success"]
+  }
+}
+
+extension Fields where TypeLock == Objects.RecommendHighlightsSuccess {
+  func success() throws -> Bool {
+    let field = GraphQLField.leaf(
+      name: "success",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.success[field.alias!] {
+        return data
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return Bool.mockValue
+    }
+  }
+}
+
+extension Selection where TypeLock == Never, Type == Never {
+  typealias RecommendHighlightsSuccess<T> = Selection<T, Objects.RecommendHighlightsSuccess>
+}
+
+extension Objects {
   struct RecommendSuccess {
     let __typename: TypeName = .recommendSuccess
-    let taskNames: [String: [String]]
+    let success: [String: Bool]
 
     enum TypeName: String, Codable {
       case recommendSuccess = "RecommendSuccess"
@@ -13686,8 +13996,8 @@ extension Objects.RecommendSuccess: Decodable {
       let field = GraphQLField.getFieldNameFromAlias(alias)
 
       switch field {
-      case "taskNames":
-        if let value = try container.decode([String]?.self, forKey: codingKey) {
+      case "success":
+        if let value = try container.decode(Bool?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
       default:
@@ -13700,26 +14010,26 @@ extension Objects.RecommendSuccess: Decodable {
       }
     }
 
-    taskNames = map["taskNames"]
+    success = map["success"]
   }
 }
 
 extension Fields where TypeLock == Objects.RecommendSuccess {
-  func taskNames() throws -> [String] {
+  func success() throws -> Bool {
     let field = GraphQLField.leaf(
-      name: "taskNames",
+      name: "success",
       arguments: []
     )
     select(field)
 
     switch response {
     case let .decoding(data):
-      if let data = data.taskNames[field.alias!] {
+      if let data = data.success[field.alias!] {
         return data
       }
       throw HttpError.badpayload
     case .mocking:
-      return []
+      return Bool.mockValue
     }
   }
 }
@@ -13888,11 +14198,15 @@ extension Objects {
   struct RecommendationGroup {
     let __typename: TypeName = .recommendationGroup
     let admins: [String: [Objects.User]]
+    let canPost: [String: Bool]
+    let canSeeMembers: [String: Bool]
     let createdAt: [String: DateTime]
+    let description: [String: String]
     let id: [String: String]
     let inviteUrl: [String: String]
     let members: [String: [Objects.User]]
     let name: [String: String]
+    let topics: [String: [String]]
     let updatedAt: [String: DateTime]
 
     enum TypeName: String, Codable {
@@ -13917,8 +14231,20 @@ extension Objects.RecommendationGroup: Decodable {
         if let value = try container.decode([Objects.User]?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
+      case "canPost":
+        if let value = try container.decode(Bool?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      case "canSeeMembers":
+        if let value = try container.decode(Bool?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
       case "createdAt":
         if let value = try container.decode(DateTime?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      case "description":
+        if let value = try container.decode(String?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
       case "id":
@@ -13937,6 +14263,10 @@ extension Objects.RecommendationGroup: Decodable {
         if let value = try container.decode(String?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
+      case "topics":
+        if let value = try container.decode([String]?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
       case "updatedAt":
         if let value = try container.decode(DateTime?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
@@ -13952,11 +14282,15 @@ extension Objects.RecommendationGroup: Decodable {
     }
 
     admins = map["admins"]
+    canPost = map["canPost"]
+    canSeeMembers = map["canSeeMembers"]
     createdAt = map["createdAt"]
+    description = map["description"]
     id = map["id"]
     inviteUrl = map["inviteUrl"]
     members = map["members"]
     name = map["name"]
+    topics = map["topics"]
     updatedAt = map["updatedAt"]
   }
 }
@@ -13981,6 +14315,42 @@ extension Fields where TypeLock == Objects.RecommendationGroup {
     }
   }
 
+  func canPost() throws -> Bool {
+    let field = GraphQLField.leaf(
+      name: "canPost",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.canPost[field.alias!] {
+        return data
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return Bool.mockValue
+    }
+  }
+
+  func canSeeMembers() throws -> Bool {
+    let field = GraphQLField.leaf(
+      name: "canSeeMembers",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.canSeeMembers[field.alias!] {
+        return data
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return Bool.mockValue
+    }
+  }
+
   func createdAt() throws -> DateTime {
     let field = GraphQLField.leaf(
       name: "createdAt",
@@ -13996,6 +14366,21 @@ extension Fields where TypeLock == Objects.RecommendationGroup {
       throw HttpError.badpayload
     case .mocking:
       return DateTime.mockValue
+    }
+  }
+
+  func description() throws -> String? {
+    let field = GraphQLField.leaf(
+      name: "description",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      return data.description[field.alias!]
+    case .mocking:
+      return nil
     }
   }
 
@@ -14069,6 +14454,21 @@ extension Fields where TypeLock == Objects.RecommendationGroup {
       throw HttpError.badpayload
     case .mocking:
       return String.mockValue
+    }
+  }
+
+  func topics() throws -> [String]? {
+    let field = GraphQLField.leaf(
+      name: "topics",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      return data.topics[field.alias!]
+    case .mocking:
+      return nil
     }
   }
 
@@ -25165,6 +25565,80 @@ extension Selection where TypeLock == Never, Type == Never {
 }
 
 extension Unions {
+  struct LeaveGroupResult {
+    let __typename: TypeName
+    let errorCodes: [String: [Enums.LeaveGroupErrorCode]]
+    let success: [String: Bool]
+
+    enum TypeName: String, Codable {
+      case leaveGroupError = "LeaveGroupError"
+      case leaveGroupSuccess = "LeaveGroupSuccess"
+    }
+  }
+}
+
+extension Unions.LeaveGroupResult: Decodable {
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
+
+    var map = HashMap()
+    for codingKey in container.allKeys {
+      if codingKey.isTypenameKey { continue }
+
+      let alias = codingKey.stringValue
+      let field = GraphQLField.getFieldNameFromAlias(alias)
+
+      switch field {
+      case "errorCodes":
+        if let value = try container.decode([Enums.LeaveGroupErrorCode]?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      case "success":
+        if let value = try container.decode(Bool?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      default:
+        throw DecodingError.dataCorrupted(
+          DecodingError.Context(
+            codingPath: decoder.codingPath,
+            debugDescription: "Unknown key \(field)."
+          )
+        )
+      }
+    }
+
+    __typename = try container.decode(TypeName.self, forKey: DynamicCodingKeys(stringValue: "__typename")!)
+
+    errorCodes = map["errorCodes"]
+    success = map["success"]
+  }
+}
+
+extension Fields where TypeLock == Unions.LeaveGroupResult {
+  func on<Type>(leaveGroupError: Selection<Type, Objects.LeaveGroupError>, leaveGroupSuccess: Selection<Type, Objects.LeaveGroupSuccess>) throws -> Type {
+    select([GraphQLField.fragment(type: "LeaveGroupError", selection: leaveGroupError.selection), GraphQLField.fragment(type: "LeaveGroupSuccess", selection: leaveGroupSuccess.selection)])
+
+    switch response {
+    case let .decoding(data):
+      switch data.__typename {
+      case .leaveGroupError:
+        let data = Objects.LeaveGroupError(errorCodes: data.errorCodes)
+        return try leaveGroupError.decode(data: data)
+      case .leaveGroupSuccess:
+        let data = Objects.LeaveGroupSuccess(success: data.success)
+        return try leaveGroupSuccess.decode(data: data)
+      }
+    case .mocking:
+      return leaveGroupError.mock()
+    }
+  }
+}
+
+extension Selection where TypeLock == Never, Type == Never {
+  typealias LeaveGroupResult<T> = Selection<T, Unions.LeaveGroupResult>
+}
+
+extension Unions {
   struct LogOutResult {
     let __typename: TypeName
     let errorCodes: [String: [Enums.LogOutErrorCode]]
@@ -25763,10 +26237,84 @@ extension Selection where TypeLock == Never, Type == Never {
 }
 
 extension Unions {
+  struct RecommendHighlightsResult {
+    let __typename: TypeName
+    let errorCodes: [String: [Enums.RecommendHighlightsErrorCode]]
+    let success: [String: Bool]
+
+    enum TypeName: String, Codable {
+      case recommendHighlightsError = "RecommendHighlightsError"
+      case recommendHighlightsSuccess = "RecommendHighlightsSuccess"
+    }
+  }
+}
+
+extension Unions.RecommendHighlightsResult: Decodable {
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
+
+    var map = HashMap()
+    for codingKey in container.allKeys {
+      if codingKey.isTypenameKey { continue }
+
+      let alias = codingKey.stringValue
+      let field = GraphQLField.getFieldNameFromAlias(alias)
+
+      switch field {
+      case "errorCodes":
+        if let value = try container.decode([Enums.RecommendHighlightsErrorCode]?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      case "success":
+        if let value = try container.decode(Bool?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      default:
+        throw DecodingError.dataCorrupted(
+          DecodingError.Context(
+            codingPath: decoder.codingPath,
+            debugDescription: "Unknown key \(field)."
+          )
+        )
+      }
+    }
+
+    __typename = try container.decode(TypeName.self, forKey: DynamicCodingKeys(stringValue: "__typename")!)
+
+    errorCodes = map["errorCodes"]
+    success = map["success"]
+  }
+}
+
+extension Fields where TypeLock == Unions.RecommendHighlightsResult {
+  func on<Type>(recommendHighlightsError: Selection<Type, Objects.RecommendHighlightsError>, recommendHighlightsSuccess: Selection<Type, Objects.RecommendHighlightsSuccess>) throws -> Type {
+    select([GraphQLField.fragment(type: "RecommendHighlightsError", selection: recommendHighlightsError.selection), GraphQLField.fragment(type: "RecommendHighlightsSuccess", selection: recommendHighlightsSuccess.selection)])
+
+    switch response {
+    case let .decoding(data):
+      switch data.__typename {
+      case .recommendHighlightsError:
+        let data = Objects.RecommendHighlightsError(errorCodes: data.errorCodes)
+        return try recommendHighlightsError.decode(data: data)
+      case .recommendHighlightsSuccess:
+        let data = Objects.RecommendHighlightsSuccess(success: data.success)
+        return try recommendHighlightsSuccess.decode(data: data)
+      }
+    case .mocking:
+      return recommendHighlightsError.mock()
+    }
+  }
+}
+
+extension Selection where TypeLock == Never, Type == Never {
+  typealias RecommendHighlightsResult<T> = Selection<T, Unions.RecommendHighlightsResult>
+}
+
+extension Unions {
   struct RecommendResult {
     let __typename: TypeName
     let errorCodes: [String: [Enums.RecommendErrorCode]]
-    let taskNames: [String: [String]]
+    let success: [String: Bool]
 
     enum TypeName: String, Codable {
       case recommendError = "RecommendError"
@@ -25791,8 +26339,8 @@ extension Unions.RecommendResult: Decodable {
         if let value = try container.decode([Enums.RecommendErrorCode]?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
-      case "taskNames":
-        if let value = try container.decode([String]?.self, forKey: codingKey) {
+      case "success":
+        if let value = try container.decode(Bool?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
       default:
@@ -25808,7 +26356,7 @@ extension Unions.RecommendResult: Decodable {
     __typename = try container.decode(TypeName.self, forKey: DynamicCodingKeys(stringValue: "__typename")!)
 
     errorCodes = map["errorCodes"]
-    taskNames = map["taskNames"]
+    success = map["success"]
   }
 }
 
@@ -25823,7 +26371,7 @@ extension Fields where TypeLock == Unions.RecommendResult {
         let data = Objects.RecommendError(errorCodes: data.errorCodes)
         return try recommendError.decode(data: data)
       case .recommendSuccess:
-        let data = Objects.RecommendSuccess(taskNames: data.taskNames)
+        let data = Objects.RecommendSuccess(success: data.success)
         return try recommendSuccess.decode(data: data)
       }
     case .mocking:
@@ -29128,6 +29676,17 @@ extension Enums {
 }
 
 extension Enums {
+  /// LeaveGroupErrorCode
+  enum LeaveGroupErrorCode: String, CaseIterable, Codable {
+    case badRequest = "BAD_REQUEST"
+
+    case notFound = "NOT_FOUND"
+
+    case unauthorized = "UNAUTHORIZED"
+  }
+}
+
+extension Enums {
   /// LogOutErrorCode
   enum LogOutErrorCode: String, CaseIterable, Codable {
     case logOutFailed = "LOG_OUT_FAILED"
@@ -29254,6 +29813,17 @@ extension Enums {
 extension Enums {
   /// RecommendErrorCode
   enum RecommendErrorCode: String, CaseIterable, Codable {
+    case badRequest = "BAD_REQUEST"
+
+    case notFound = "NOT_FOUND"
+
+    case unauthorized = "UNAUTHORIZED"
+  }
+}
+
+extension Enums {
+  /// RecommendHighlightsErrorCode
+  enum RecommendHighlightsErrorCode: String, CaseIterable, Codable {
     case badRequest = "BAD_REQUEST"
 
     case notFound = "NOT_FOUND"
@@ -29882,23 +30452,39 @@ extension InputObjects {
 
 extension InputObjects {
   struct CreateGroupInput: Encodable, Hashable {
+    var description: OptionalArgument<String> = .absent()
+
     var expiresInDays: OptionalArgument<Int> = .absent()
 
     var maxMembers: OptionalArgument<Int> = .absent()
 
     var name: String
 
+    var onlyAdminCanPost: OptionalArgument<Bool> = .absent()
+
+    var onlyAdminCanSeeMembers: OptionalArgument<Bool> = .absent()
+
+    var topics: OptionalArgument<[String]> = .absent()
+
     func encode(to encoder: Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
+      if description.hasValue { try container.encode(description, forKey: .description) }
       if expiresInDays.hasValue { try container.encode(expiresInDays, forKey: .expiresInDays) }
       if maxMembers.hasValue { try container.encode(maxMembers, forKey: .maxMembers) }
       try container.encode(name, forKey: .name)
+      if onlyAdminCanPost.hasValue { try container.encode(onlyAdminCanPost, forKey: .onlyAdminCanPost) }
+      if onlyAdminCanSeeMembers.hasValue { try container.encode(onlyAdminCanSeeMembers, forKey: .onlyAdminCanSeeMembers) }
+      if topics.hasValue { try container.encode(topics, forKey: .topics) }
     }
 
     enum CodingKeys: String, CodingKey {
+      case description
       case expiresInDays
       case maxMembers
       case name
+      case onlyAdminCanPost
+      case onlyAdminCanSeeMembers
+      case topics
     }
   }
 }
@@ -30302,8 +30888,10 @@ extension InputObjects {
 }
 
 extension InputObjects {
-  struct RecommendInput: Encodable, Hashable {
+  struct RecommendHighlightsInput: Encodable, Hashable {
     var groupIds: [String]
+
+    var highlightIds: [String]
 
     var note: OptionalArgument<String> = .absent()
 
@@ -30312,14 +30900,43 @@ extension InputObjects {
     func encode(to encoder: Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
       try container.encode(groupIds, forKey: .groupIds)
+      try container.encode(highlightIds, forKey: .highlightIds)
       if note.hasValue { try container.encode(note, forKey: .note) }
       try container.encode(pageId, forKey: .pageId)
     }
 
     enum CodingKeys: String, CodingKey {
       case groupIds
+      case highlightIds
       case note
       case pageId
+    }
+  }
+}
+
+extension InputObjects {
+  struct RecommendInput: Encodable, Hashable {
+    var groupIds: [String]
+
+    var note: OptionalArgument<String> = .absent()
+
+    var pageId: String
+
+    var recommendedWithHighlights: OptionalArgument<Bool> = .absent()
+
+    func encode(to encoder: Encoder) throws {
+      var container = encoder.container(keyedBy: CodingKeys.self)
+      try container.encode(groupIds, forKey: .groupIds)
+      if note.hasValue { try container.encode(note, forKey: .note) }
+      try container.encode(pageId, forKey: .pageId)
+      if recommendedWithHighlights.hasValue { try container.encode(recommendedWithHighlights, forKey: .recommendedWithHighlights) }
+    }
+
+    enum CodingKeys: String, CodingKey {
+      case groupIds
+      case note
+      case pageId
+      case recommendedWithHighlights
     }
   }
 }

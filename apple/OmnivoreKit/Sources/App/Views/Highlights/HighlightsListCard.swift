@@ -107,10 +107,37 @@ struct HighlightsListCard: View {
       }
       .padding(.top, 16)
 
+      if let createdBy = highlightParams.createdBy {
+        HStack(alignment: .center) {
+          if let profileImageURL = createdBy.profileImageURL, let url = URL(string: profileImageURL) {
+            AsyncImage(
+              url: url,
+              content: { $0.resizable() },
+              placeholder: {
+                Image(systemName: "person.crop.circle")
+                  .resizable()
+                  .foregroundColor(.appGrayText)
+              }
+            )
+            .aspectRatio(contentMode: .fill)
+            .frame(width: 14, height: 14, alignment: .center)
+            .clipShape(Circle())
+          } else {
+            Image(systemName: "person.crop.circle")
+              .resizable()
+              .foregroundColor(.appGrayText)
+              .frame(width: 14, height: 14)
+          }
+          Text("Highlight by \(highlightParams.createdBy?.name ?? "you")")
+            .font(.appFootnote)
+            .foregroundColor(.appGrayText)
+        }
+      }
+
       HStack {
         Divider()
           .frame(width: 2)
-          .overlay(Color.appYellow48)
+          .overlay(highlightParams.createdBy != nil ? Color(red: 206 / 255.0, green: 239 / 255.0, blue: 159 / 255.0) : Color.appYellow48)
           .opacity(0.8)
           .padding(.top, 2)
           .padding(.trailing, 6)

@@ -23,6 +23,7 @@ let highlightSelection = Selection.Highlight {
     createdAt: try $0.createdAt().value,
     updatedAt: try $0.updatedAt().value,
     createdByMe: try $0.createdByMe(),
+    createdBy: try $0.user(selection: userProfileSelection),
     labels: try $0.labels(selection: highlightLabelSelection.list.nullable) ?? []
   )
 }

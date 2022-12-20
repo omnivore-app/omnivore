@@ -3,16 +3,17 @@ import Foundation
 import Models
 
 public struct InternalRecommendation {
-  let id: String
+  let groupID: String
   let name: String
+  let note: String?
   let user: InternalUserProfile?
   let recommendedAt: Date
 
   func asManagedObject(inContext context: NSManagedObjectContext) -> Recommendation {
-    let existing = Recommendation.lookup(byID: id, inContext: context)
-    let recommendation = existing ?? Recommendation(entity: Recommendation.entity(), insertInto: context)
-    recommendation.id = id
+    let recommendation = Recommendation(entity: Recommendation.entity(), insertInto: context)
+    recommendation.groupID = groupID
     recommendation.name = name
+    recommendation.note = note
     recommendation.recommendedAt = recommendedAt
     recommendation.user = user?.asManagedObject(inContext: context)
     return recommendation
@@ -22,13 +23,14 @@ public struct InternalRecommendation {
     recommendations?
       .compactMap { recommendation in
         if let recommendation = recommendation as? Recommendation,
-           let id = recommendation.id,
+           let groupID = recommendation.groupID,
            let name = recommendation.name,
            let recommendedAt = recommendation.recommendedAt
         {
           return InternalRecommendation(
-            id: id,
+            groupID: groupID,
             name: name,
+            note: recommendation.note,
             user: InternalUserProfile.makeSingle(recommendation.user),
             recommendedAt: recommendedAt
           )

@@ -1,12 +1,25 @@
 import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
 import { Article } from './../../../components/templates/article/Article'
-import { Box, SpanBox, VStack } from './../../elements/LayoutPrimitives'
-import { StyledText } from './../../elements/StyledText'
+import {
+  Blockquote,
+  Box,
+  HStack,
+  SpanBox,
+  VStack,
+} from './../../elements/LayoutPrimitives'
+import { StyledText, StyledTextSpan } from './../../elements/StyledText'
 import { ArticleSubtitle } from './../../patterns/ArticleSubtitle'
-import { theme, ThemeId } from './../../tokens/stitches.config'
+import { styled, theme, ThemeId } from './../../tokens/stitches.config'
 import { HighlightsLayer } from '../../templates/article/HighlightsLayer'
 import { Button } from '../../elements/Button'
-import { MutableRefObject, useEffect, useState, useRef } from 'react'
+import {
+  MutableRefObject,
+  useEffect,
+  useState,
+  useRef,
+  useReducer,
+  useMemo,
+} from 'react'
 import { ReportIssuesModal } from './ReportIssuesModal'
 import { reportIssueMutation } from '../../../lib/networking/mutations/reportIssueMutation'
 import { ArticleHeaderToolbar } from './ArticleHeaderToolbar'
@@ -19,6 +32,9 @@ import {
   HighlightLocation,
   makeHighlightStartEndOffset,
 } from '../../../lib/highlights/highlightGenerator'
+import { Recommendation } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+import { Avatar } from '../../elements/Avatar'
+import { Sparkle } from 'phosphor-react'
 
 type ArticleContainerProps = {
   article: ArticleAttributes
@@ -37,16 +53,86 @@ type ArticleContainerProps = {
   setShowHighlightsModal: React.Dispatch<React.SetStateAction<boolean>>
 }
 
+type RecommendationCommentsProps = {
+  recommendationsWithNotes: Recommendation[]
+}
+
+const RecommendationComments = (
+  props: RecommendationCommentsProps
+): JSX.Element => {
+  return (
+    <VStack
+      id="recommendations-container"
+      css={{
+        borderRadius: '6px',
+        bg: '$grayBgSubtle',
+        p: '16px',
+        pt: '16px',
+        pb: '2px',
+        width: '100%',
+        marginTop: '24px',
+        color: '$grayText',
+        lineHeight: '2.0',
+      }}
+    >
+      <HStack css={{ pb: '0px', mb: '0px' }}>
+        <StyledText
+          style="recommendedByline"
+          css={{ paddingTop: '0px', mb: '16px' }}
+        >
+          Comments{' '}
+          <SpanBox css={{ color: 'grayText', fontWeight: '400' }}>
+            &nbsp;{` ${props.recommendationsWithNotes.length}`}
+          </SpanBox>
+        </StyledText>
+      </HStack>
+
+      {props.recommendationsWithNotes.map((item, idx) => (
+        <VStack
+          key={item.id}
+          alignment="start"
+          distribution="start"
+          css={{ pt: '0px', pb: '8px' }}
+        >
+          <HStack>
+            <SpanBox
+              css={{
+                verticalAlign: 'top',
+                minWidth: '28px',
+                display: 'flex',
+              }}
+            >
+              <Avatar
+                imageURL={item.user?.profileImageURL}
+                height="28px"
+                noFade={true}
+                tooltip={item.user?.name}
+                fallbackText={item.user?.username[0] ?? 'U'}
+              />
+            </SpanBox>
+            <StyledText style="userNote" css={{ pl: '16px' }}>
+              {item.note}
+            </StyledText>
+          </HStack>
+        </VStack>
+      ))}
+    </VStack>
+  )
+}
+
 export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   const [showReportIssuesModal, setShowReportIssuesModal] = useState(false)
   const [fontSize, setFontSize] = useState(props.fontSize ?? 20)
   // iOS app embed can overide the original margin and line height
-  const [maxWidthPercentageOverride, setMaxWidthPercentageOverride] =
-    useState<number | null>(null)
-  const [lineHeightOverride, setLineHeightOverride] =
-    useState<number | null>(null)
-  const [fontFamilyOverride, setFontFamilyOverride] =
-    useState<string | null>(null)
+  const [maxWidthPercentageOverride, setMaxWidthPercentageOverride] = useState<
+    number | null
+  >(null)
+  const [lineHeightOverride, setLineHeightOverride] = useState<number | null>(
+    null
+  )
+  const [fontFamilyOverride, setFontFamilyOverride] = useState<string | null>(
+    null
+  )
   const [highContrastFont, setHighContrastFont] = useState(
     props.highContrastFont ?? false
   )
@@ -196,6 +282,14 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     readerHeadersColor: theme.colors.readerHeader.toString(),
   }
 
+  const recommendationsWithNotes = useMemo(() => {
+    return (
+      props.article.recommendations?.filter((recommendation) => {
+        return recommendation.note
+      }) ?? []
+    )
+  }, [props.article.recommendations])
+
   return (
     <>
       <Box
@@ -266,6 +360,11 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
               ))}
             </SpanBox>
           ) : null}
+          {recommendationsWithNotes.length > 0 && (
+            <RecommendationComments
+              recommendationsWithNotes={recommendationsWithNotes}
+            />
+          )}
         </VStack>
         <Article
           articleId={props.article.id}

@@ -11,6 +11,7 @@ struct HighlightListItemParams: Identifiable {
   let annotation: String
   let quote: String
   let labels: [LinkedItemLabel]
+  let createdBy: InternalUserProfile?
 }
 
 @MainActor final class HighlightsListViewModel: ObservableObject {
@@ -31,7 +32,8 @@ struct HighlightListItemParams: Identifiable {
         title: highlightItems[index].title,
         annotation: annotation,
         quote: highlightItems[index].quote,
-        labels: highlightItems[index].labels
+        labels: highlightItems[index].labels,
+        createdBy: highlightItems[index].createdBy
       )
     }
   }
@@ -50,7 +52,8 @@ struct HighlightListItemParams: Identifiable {
         title: highlightItems[index].title,
         annotation: highlightItems[index].annotation,
         quote: highlightItems[index].quote,
-        labels: labels
+        labels: labels,
+        createdBy: highlightItems[index].createdBy
       )
     }
   }
@@ -68,7 +71,8 @@ struct HighlightListItemParams: Identifiable {
         title: "Highlight",
         annotation: $0.annotation ?? "",
         quote: $0.quote ?? "",
-        labels: $0.labels.asArray(of: LinkedItemLabel.self)
+        labels: $0.labels.asArray(of: LinkedItemLabel.self),
+        createdBy: $0.createdByMe ? nil : InternalUserProfile.makeSingle($0.createdBy)
       )
     }
   }

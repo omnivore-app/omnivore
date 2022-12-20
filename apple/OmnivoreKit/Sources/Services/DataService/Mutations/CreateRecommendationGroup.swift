@@ -4,7 +4,7 @@ import Models
 import SwiftGraphQL
 
 public extension DataService {
-  func createRecommendationGroup(name: String) async throws -> InternalRecommendationGroup {
+  func createRecommendationGroup(name: String, onlyAdminCanPost: Bool, onlyAdminCanSeeMembers: Bool) async throws -> InternalRecommendationGroup {
     enum MutationResult {
       case saved(recommendationGroup: InternalRecommendationGroup)
       case error(errorCode: Enums.CreateGroupErrorCode)
@@ -21,7 +21,10 @@ public extension DataService {
       )
     }
 
-    let input = InputObjects.CreateGroupInput(name: name)
+    let input = InputObjects.CreateGroupInput(expiresInDays: OptionalArgument(14),
+                                              name: name,
+                                              onlyAdminCanPost: OptionalArgument(onlyAdminCanPost),
+                                              onlyAdminCanSeeMembers: OptionalArgument(onlyAdminCanSeeMembers))
 
     let mutation = Selection.Mutation {
       try $0.createGroup(input: input, selection: selection)

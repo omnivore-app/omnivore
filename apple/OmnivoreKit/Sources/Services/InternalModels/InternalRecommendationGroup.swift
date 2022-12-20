@@ -13,6 +13,8 @@ public struct InternalRecommendationGroup: Identifiable {
   public let id: String
   public let name: String
   public let inviteUrl: String
+  public let canPost: Bool
+  public let canSeeMembers: Bool
   public let admins: [InternalUserProfile]
   public let members: [InternalUserProfile]
 
@@ -26,12 +28,14 @@ public struct InternalRecommendationGroup: Identifiable {
 
     recommendationGroup.id = id
     recommendationGroup.name = name
+    recommendationGroup.canPost = canPost
+    recommendationGroup.canSeeMembers = canSeeMembers
     recommendationGroup.inviteUrl = inviteUrl
 
     return recommendationGroup
   }
 
-  static func make(from recommendationGroup: RecommendationGroup) -> InternalRecommendationGroup? {
+  public static func make(from recommendationGroup: RecommendationGroup) -> InternalRecommendationGroup? {
     if let id = recommendationGroup.id,
        let name = recommendationGroup.name,
        let inviteUrl = recommendationGroup.inviteUrl
@@ -40,11 +44,23 @@ public struct InternalRecommendationGroup: Identifiable {
         id: id,
         name: name,
         inviteUrl: inviteUrl,
+        canPost: recommendationGroup.canPost,
+        canSeeMembers: recommendationGroup.canSeeMembers,
         admins: InternalUserProfile.make(recommendationGroup.admins),
         members: InternalUserProfile.make(recommendationGroup.members)
       )
     }
     return nil
+  }
+
+  public static func readable(list: [InternalRecommendationGroup]) -> String {
+    list.reduce("") { str, group in
+      if str.isEmpty {
+        return group.name
+      } else {
+        return str + ", " + group.name
+      }
+    }
   }
 }
 
