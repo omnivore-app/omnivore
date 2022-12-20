@@ -25,6 +25,36 @@ export class YoutubeHandler extends ContentHandler {
     this.name = 'Youtube'
   }
 
+  async getDefaultLanguageCode(videoId: string) {
+    const response = await axios.get(
+      `https://www.youtube.com/watch?v=${videoId}`
+    )
+    const html = response.data as string
+    const match = html.match(/"captionTracks":\[(.*?)\]/)
+    if (!match || match.length < 2) {
+      return undefined
+    }
+    const captionTracks = JSON.parse(`[${match[1]}]`) as [
+      {
+        baseUrl: string
+        name: {
+          simpleText: string
+        }
+        languageCode: string
+      }
+    ]
+    const defaultCaptionTrackIndex = html.match(
+      /"defaultCaptionTrackIndex":(\d+)/
+    )
+    if (!defaultCaptionTrackIndex || defaultCaptionTrackIndex.length < 2) {
+      return undefined
+    }
+    const defaultCaptionTrack =
+      captionTracks[parseInt(defaultCaptionTrackIndex[1])]
+
+    return defaultCaptionTrack.languageCode
+  }
+
   shouldPreHandle(url: string): boolean {
     return YOUTUBE_URL_MATCH.test(url.toString())
   }
@@ -55,9 +85,10 @@ export class YoutubeHandler extends ContentHandler {
     const authorName = _.escape(oembed.author_name)
 
     console.log('got video id', videoId)
+    const defaultLanguageCode = await this.getDefaultLanguageCode(videoId)
+
     const response = await YoutubeTranscript.fetchTranscript(videoId, {
-      lang: 'en',
-      country: 'US',
+      lang: defaultLanguageCode || 'en',
     })
     const transcript = response.map((item) => item.text).join(' ')
     console.log('transcript: ', transcript)
