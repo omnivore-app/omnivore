@@ -1,6 +1,7 @@
 package app.omnivore.omnivore.networking
 
 import app.omnivore.omnivore.graphql.generated.SearchQuery
+import app.omnivore.omnivore.graphql.generated.TypeaheadSearchQuery
 import app.omnivore.omnivore.models.LinkedItem
 import com.apollographql.apollo3.api.Optional
 
@@ -8,6 +9,46 @@ data class SearchQueryResponse(
   val cursor: String?,
   val items: List<LinkedItem>
 )
+
+suspend fun Networker.typeaheadSearch(
+  query: String
+): SearchQueryResponse {
+  try {
+    val result = authenticatedApolloClient().query(
+      TypeaheadSearchQuery(query)
+    ).execute()
+
+    val itemList = result.data?.typeaheadSearch?.onTypeaheadSearchSuccess?.items ?: listOf()
+
+    val items = itemList.map {
+      LinkedItem(
+        id = it.id,
+        title = it.title,
+        createdAt = "",
+        savedAt = "",
+        readAt = "",
+        updatedAt = "",
+        readingProgress = 0.0,
+        readingProgressAnchor = 0,
+        imageURLString = null,
+        pageURLString = "",
+        descriptionText = "",
+        publisherURLString = "",
+        siteName = it.siteName,
+        author = "",
+        publishDate = null,
+        slug = it.slug,
+        isArchived = false,
+        contentReader = null,
+        content = null
+      )
+    }
+
+    return SearchQueryResponse(null, items)
+  } catch (e: java.lang.Exception) {
+    return SearchQueryResponse(null, listOf())
+  }
+}
 
 suspend fun Networker.search(
   cursor: String? = null,
