@@ -112,9 +112,7 @@ export default function ExtensionsInstallHelp({
             height: '130px',
           }}
         >
-          <img
-            src="/static/images/extension-preview.svg"
-          />
+          <img src="/static/images/extension-preview.svg" />
         </Box>
       </Box>
       <Box
@@ -123,9 +121,6 @@ export default function ExtensionsInstallHelp({
           gridRow: '1',
           display: 'flex',
           flexDirection: 'column',
-          '@lg': {
-            marginTop: '$3',
-          },
         }}
       >
         <StyledText
@@ -163,7 +158,6 @@ export default function ExtensionsInstallHelp({
             gridColumn: '2',
             gridRow: '1',
             alignSelf: 'center',
-            marginTop: !onboarding ? '$4' : 65,
           },
         }}
       >
