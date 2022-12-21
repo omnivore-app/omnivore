@@ -55,6 +55,7 @@ export default function LandingPage(): JSX.Element {
           title="Omnivore"
           path="/"
           ogImage="/static/images/og-homepage.png"
+          description="Omnivore is the free, open source, read-it-later app for serious readers."
         />
         <LoadingView bgColor="#FEFCF5" />
       </>
@@ -67,6 +68,7 @@ export default function LandingPage(): JSX.Element {
         title="Omnivore"
         path="/"
         ogImage="/static/images/og-homepage.png"
+        description="Omnivore is the free, open source, read-it-later app for serious readers."
       />
 
       <LandingHeader />
