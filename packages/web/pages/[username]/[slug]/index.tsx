@@ -265,8 +265,6 @@ export default function Home(): JSX.Element {
     return <LoadingView />
   }
 
-  console.log('reader settings modal: ', readerSettings)
-
   return (
     <PrimaryLayout
       pageTestId="home-page-tag"
