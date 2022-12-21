@@ -37,7 +37,7 @@ export function HighlightBar(props: HighlightBarProps): JSX.Element {
       <Box
         css={{
           width: '100%',
-          maxWidth: '300px',
+          maxWidth: props.isNewHighlight ? '280px' : '330px',
           height: '48px',
           position: 'fixed',
           background: '$grayBg',
@@ -46,7 +46,7 @@ export function HighlightBar(props: HighlightBarProps): JSX.Element {
           boxShadow: theme.shadows.cardBoxShadow.toString(),
           bottom: 'calc(38px + env(safe-area-inset-bottom, 40px))',
           '@smDown': {
-            maxWidth: '80%',
+            maxWidth: '85%',
             bottom: `calc(28px + ${
               isAndroid() ? 30 : 0
             }px + env(safe-area-inset-bottom, 40px))`,
@@ -61,7 +61,7 @@ export function HighlightBar(props: HighlightBarProps): JSX.Element {
       <Box
         css={{
           width: '100%',
-          maxWidth: '300px',
+          maxWidth: props.isNewHighlight ? '280px' : '330px',
           height: '48px',
           position: 'absolute',
           background: '$grayBg',
