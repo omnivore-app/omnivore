@@ -67,14 +67,22 @@ import Views
         .sheet(item: $viewModel.itemForHighlightsView) { item in
           HighlightsListView(itemObjectID: item.objectID, hasHighlightMutations: $hasHighlightMutations)
         }
+        .sheet(isPresented: $viewModel.showCommunityModal) {
+          CommunityModal()
+        }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
           ToolbarItem(placement: .barLeading) {
-            Image.smallOmnivoreLogo
-              .renderingMode(.template)
-              .resizable()
-              .frame(width: 24, height: 24)
-              .foregroundColor(.appGrayTextContrast)
+            Button(action: {
+              viewModel.showCommunityModal = true
+            }, label: {
+              Image.smallOmnivoreLogo
+                .renderingMode(.template)
+                .resizable()
+                .frame(width: 24, height: 24)
+                .foregroundColor(.appGrayTextContrast)
+            })
+              .transition(.scale)
           }
           ToolbarItem(placement: .barTrailing) {
             Button("", action: {})

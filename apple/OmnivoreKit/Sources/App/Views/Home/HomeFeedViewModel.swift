@@ -33,6 +33,7 @@ import Views
   @Published var linkIsActive = false
 
   @Published var showLabelsSheet = false
+  @Published var showCommunityModal = false
 
   @AppStorage(UserDefaultKey.lastSelectedLinkedItemFilter.rawValue) var appliedFilter = LinkedItemFilter.inbox.rawValue
 
