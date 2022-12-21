@@ -1,40 +1,21 @@
 import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
 import { Article } from './../../../components/templates/article/Article'
-import {
-  Blockquote,
-  Box,
-  HStack,
-  SpanBox,
-  VStack,
-} from './../../elements/LayoutPrimitives'
-import { StyledText, StyledTextSpan } from './../../elements/StyledText'
+import { Box, HStack, SpanBox, VStack } from './../../elements/LayoutPrimitives'
+import { StyledText } from './../../elements/StyledText'
 import { ArticleSubtitle } from './../../patterns/ArticleSubtitle'
-import { styled, theme, ThemeId } from './../../tokens/stitches.config'
+import { theme, ThemeId } from './../../tokens/stitches.config'
 import { HighlightsLayer } from '../../templates/article/HighlightsLayer'
 import { Button } from '../../elements/Button'
-import {
-  MutableRefObject,
-  useEffect,
-  useState,
-  useRef,
-  useReducer,
-  useMemo,
-} from 'react'
+import { useEffect, useState, useRef, useMemo } from 'react'
 import { ReportIssuesModal } from './ReportIssuesModal'
 import { reportIssueMutation } from '../../../lib/networking/mutations/reportIssueMutation'
-import { ArticleHeaderToolbar } from './ArticleHeaderToolbar'
 import { userPersonalizationMutation } from '../../../lib/networking/mutations/userPersonalizationMutation'
 import { updateTheme, updateThemeLocally } from '../../../lib/themeUpdater'
 import { ArticleMutations } from '../../../lib/articleActions'
 import { LabelChip } from '../../elements/LabelChip'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
-import {
-  HighlightLocation,
-  makeHighlightStartEndOffset,
-} from '../../../lib/highlights/highlightGenerator'
 import { Recommendation } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { Avatar } from '../../elements/Avatar'
-import { Sparkle } from 'phosphor-react'
 
 type ArticleContainerProps = {
   article: ArticleAttributes
