@@ -4,11 +4,11 @@ import { gqlFetcher } from '../networkHelpers'
 
 export type SetLabelsForHighlightResult = {
   setLabelsForHighlight: SetLabelsForHighlight
-  errorCodes?: unknown[]
 }
 
 type SetLabelsForHighlight = {
   labels: Label[]
+  errorCodes?: unknown[]
 }
 
 export async function setLabelsForHighlight(
@@ -35,7 +35,11 @@ export async function setLabelsForHighlight(
     const data = (await gqlFetcher(mutation, {
       input: { highlightId, labelIds },
     })) as SetLabelsForHighlightResult
-    return data.errorCodes ? undefined : data.setLabelsForHighlight.labels
+    console.log(' -- errorCodes', data.setLabelsForHighlight.errorCodes)
+
+    return data.setLabelsForHighlight.errorCodes
+      ? undefined
+      : data.setLabelsForHighlight.labels
   } catch (error) {
     console.log('setLabelsForHighlightInput error', error)
     return undefined

@@ -126,6 +126,7 @@ export default function Home(): JSX.Element {
           }
           break
         case 'refreshLabels':
+          console.log('refreshing labels: ', arg)
           setLabels(arg as Label[])
           break
         case 'showHighlights':
@@ -264,6 +265,8 @@ export default function Home(): JSX.Element {
     return <LoadingView />
   }
 
+  console.log('reader settings modal: ', readerSettings)
+
   return (
     <PrimaryLayout
       pageTestId="home-page-tag"
@@ -367,7 +370,7 @@ export default function Home(): JSX.Element {
       {article && readerSettings.showSetLabelsModal && (
         <SetLabelsModal
           provider={article}
-          onSave={(labels: Label[] | undefined) => {
+          onLabelsChanged={(labels: Label[]) => {
             actionHandler('refreshLabels', labels)
           }}
           save={(labels: Label[]) => {

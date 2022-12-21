@@ -6,9 +6,8 @@ import { AnchoredPopover } from '../patterns/AnchoredPopover'
 import { StyledText } from '../elements/StyledText'
 import { Button } from '../elements/Button'
 import { HStack, Box } from '../elements/LayoutPrimitives'
-import { TrashIcon } from '../elements/images/TrashIcon'
 import { PenWithColorIcon } from '../elements/images/PenWithColorIcon'
-import { Note, Trash, TrashSimple } from 'phosphor-react'
+import { Note, Tag, Trash } from 'phosphor-react'
 
 type PageCoordinates = {
   pageX: number
@@ -38,7 +37,7 @@ export function HighlightBar(props: HighlightBarProps): JSX.Element {
       <Box
         css={{
           width: '100%',
-          maxWidth: '240px',
+          maxWidth: '300px',
           height: '48px',
           position: 'fixed',
           background: '$grayBg',
@@ -62,7 +61,7 @@ export function HighlightBar(props: HighlightBarProps): JSX.Element {
       <Box
         css={{
           width: '100%',
-          maxWidth: '240px',
+          maxWidth: '300px',
           height: '48px',
           position: 'absolute',
           background: '$grayBg',
@@ -127,28 +126,54 @@ function BarContent(props: HighlightBarProps): JSX.Element {
           </HStack>
         </Button>
       ) : (
-        <Button
-          style="plainIcon"
-          title="Remove Highlight"
-          onClick={() => props.handleButtonClick('delete')}
-          css={{ color: '$readerFont', height: '100%', m: 0, p: 0 }}
-        >
-          <HStack css={{ height: '100%', alignItems: 'center' }}>
-            <Trash size={24} color={theme.colors.omnivoreRed.toString()} />
-            <StyledText
-              style="body"
-              css={{
-                pl: '12px',
-                m: '0px',
-                color: '$readerFont',
-                fontWeight: '400',
-                fontSize: '16px',
-              }}
-            >
-              Delete
-            </StyledText>
-          </HStack>
-        </Button>
+        <>
+          <Button
+            style="plainIcon"
+            title="Remove Highlight"
+            onClick={() => props.handleButtonClick('delete')}
+            css={{ color: '$readerFont', height: '100%', m: 0, p: 0 }}
+          >
+            <HStack css={{ height: '100%', alignItems: 'center' }}>
+              <Trash size={24} color={theme.colors.omnivoreRed.toString()} />
+              <StyledText
+                style="body"
+                css={{
+                  pl: '12px',
+                  m: '0px',
+                  color: '$readerFont',
+                  fontWeight: '400',
+                  fontSize: '16px',
+                }}
+              >
+                Delete
+              </StyledText>
+            </HStack>
+          </Button>
+          <Separator />
+
+          <Button
+            style="plainIcon"
+            title="Set Labels"
+            onClick={() => props.handleButtonClick('setHighlightLabels')}
+            css={{ color: '$readerFont', height: '100%', m: 0, p: 0 }}
+          >
+            <HStack css={{ height: '100%', alignItems: 'center' }}>
+              <Tag size={24} color={theme.colors.readerFont.toString()} />
+              <StyledText
+                style="body"
+                css={{
+                  pl: '12px',
+                  m: '0px',
+                  color: '$readerFont',
+                  fontWeight: '400',
+                  fontSize: '16px',
+                }}
+              >
+                Labels
+              </StyledText>
+            </HStack>
+          </Button>
+        </>
       )}
       <Separator />
       <Button

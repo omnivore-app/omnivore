@@ -24,6 +24,9 @@ import { useCanShareNative } from '../../../lib/hooks/useCanShareNative'
 import { showErrorToast } from '../../../lib/toastHelpers'
 import { ArticleMutations } from '../../../lib/articleActions'
 import { isTouchScreenDevice } from '../../../lib/deviceType'
+import { SetLabelsModal } from './SetLabelsModal'
+import { setLabelsForHighlight } from '../../../lib/networking/mutations/setLabelsForHighlight'
+import { Label } from '../../../lib/networking/fragments/labelFragment'
 
 type HighlightsLayerProps = {
   highlights: Highlight[]
@@ -73,6 +76,10 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   const [selectionData, setSelectionData] = useSelection(
     highlightLocations,
     false //noteModal.open,
+  )
+
+  const [labelsTarget, setLabelsTarget] = useState<Highlight | undefined>(
+    undefined
   )
 
   const canShareNative = useCanShareNative()
@@ -399,6 +406,8 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
               actionID: 'setHighlightLabels',
               highlightID: focusedHighlight?.id,
             })
+          } else {
+            setLabelsTarget(focusedHighlight)
           }
           break
       }
@@ -564,6 +573,25 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           setHighlightModalAction({ highlightModalAction: 'none' })
         }
         createHighlightForNote={highlightModalAction?.createHighlightForNote}
+      />
+    )
+  }
+
+  if (labelsTarget) {
+    return (
+      <SetLabelsModal
+        provider={labelsTarget}
+        onOpenChange={function (open: boolean): void {
+          setLabelsTarget(undefined)
+        }}
+        onLabelsChanged={function (labels: Label[] | undefined): void {}}
+        save={function (labels: Label[]): Promise<Label[] | undefined> {
+          const result = setLabelsForHighlight(
+            labelsTarget.id,
+            labels.map((label) => label.id)
+          )
+          return result
+        }}
       />
     )
   }
