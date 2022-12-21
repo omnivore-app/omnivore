@@ -55,6 +55,10 @@ public struct CommunityModal: View {
           Link("Tweet about Omnivore", destination: url)
         }
 
+        if let url = URL(string: "https://discord.gg/h2z5rppzz9") {
+          Link("Join us on Discord", destination: url)
+        }
+
         if let url = URL(string: "https://github.com/omnivore-app/omnivore") {
           Link("Star on GitHub", destination: url)
         }
