@@ -35,9 +35,10 @@ export async function setLabelsMutation(
     const data = (await gqlFetcher(mutation, {
       input: { pageId, labelIds },
     })) as SetLabelsResult
+    console.log(' -- errorCodes', data.errorCodes)
     return data.errorCodes ? undefined : data.setLabels.labels
   } catch (error) {
-    console.log('SetLabelsOutput error', error)
+    console.log(' -- SetLabelsOutput error', error)
     return undefined
   }
 }
