@@ -129,6 +129,26 @@ public extension LinkedItem {
     return String(data: JSON, encoding: .utf8) ?? "[]"
   }
 
+  var recommendationsJSONString: String {
+    let recommendations = self.recommendations.asArray(of: Recommendation.self).map { recommendation in
+      let recommendedAt = recommendation.recommendedAt == nil ? nil : recommendation.recommendedAt?.ISO8601Format()
+      return [
+        "id": NSString(string: recommendation.groupID ?? ""),
+        "name": NSString(string: recommendation.name ?? ""),
+        "note": recommendation.note == nil ? nil : NSString(string: recommendation.note ?? ""),
+        "user": recommendation.user == nil ? nil : NSDictionary(dictionary: [
+          "userID": NSString(string: recommendation.user?.userID ?? ""),
+          "name": NSString(string: recommendation.user?.name ?? ""),
+          "username": NSString(string: recommendation.user?.username ?? ""),
+          "profileImageURL": recommendation.user?.profileImageURL == nil ? nil : NSString(string: recommendation.user?.profileImageURL ?? "")
+        ]),
+        "recommendedAt": recommendedAt == nil ? nil : NSString(string: recommendedAt!)
+      ]
+    }
+    guard let JSON = (try? JSONSerialization.data(withJSONObject: recommendations, options: .prettyPrinted)) else { return "[]" }
+    return String(data: JSON, encoding: .utf8) ?? "[]"
+  }
+
   var formattedByline: String {
     var byline = ""
 

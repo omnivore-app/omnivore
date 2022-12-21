@@ -3,11 +3,13 @@ import SwiftUI
 import Utils
 
 public struct FeedCard: View {
+  let viewer: Viewer?
   let tapHandler: () -> Void
   @ObservedObject var item: LinkedItem
 
-  public init(item: LinkedItem, tapHandler: @escaping () -> Void = {}) {
+  public init(item: LinkedItem, viewer: Viewer?, tapHandler: @escaping () -> Void = {}) {
     self.item = item
+    self.viewer = viewer
     self.tapHandler = tapHandler
   }
 
@@ -55,10 +57,8 @@ public struct FeedCard: View {
                   .aspectRatio(contentMode: .fill)
                   .frame(width: 80, height: 80)
                   .cornerRadius(6)
-              } else if phase.error != nil {
-                EmptyView().frame(width: 80, height: 80, alignment: .top)
               } else {
-                Color.appButtonBackground
+                Color.systemBackground
                   .frame(width: 80, height: 80)
                   .cornerRadius(6)
               }
@@ -87,20 +87,11 @@ public struct FeedCard: View {
         #endif
       }
 
-      if let recommendations = item.recommendations, recommendations.count > 0 {
-        let byStr = recommendations.reduce("") { str, item in
-          if let item = item as? Recommendation, let name = item.user?.name {
-            return str + name
-          }
-          return str
-        }
-        let inStr = recommendations.reduce("") { str, item in
-          if let item = item as? Recommendation, let name = item.name {
-            return str + name
-          }
-          return str
-        }
+      if let recs = Recommendation.notViewers(viewer: viewer, item.recommendations), recs.count > 0 {
+        let byStr = Recommendation.byline(recs)
+        let inStr = Recommendation.groupsLine(recs)
         HStack {
+          Image(systemName: "sparkles")
           Text("Recommended by \(byStr) in \(inStr)")
             .font(.appCaption)
             .frame(alignment: .leading)

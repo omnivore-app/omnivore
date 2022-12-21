@@ -76,6 +76,26 @@ struct ProfileView: View {
     #endif
   }
 
+  private var accountSection: some View {
+    Section {
+      NavigationLink(destination: LabelsView()) {
+        Text("Labels")
+      }
+
+      NavigationLink(destination: NewsletterEmailsView()) {
+        Text("Emails")
+      }
+
+      NavigationLink(destination: SubscriptionsView()) {
+        Text("Subscriptions")
+      }
+
+      NavigationLink(destination: GroupsView()) {
+        Text("Recommendation Groups")
+      }
+    }
+  }
+
   private var innerBody: some View {
     Group {
       Section {
@@ -85,26 +105,13 @@ struct ProfileView: View {
           }
       }
 
-      Section {
-        NavigationLink(destination: LabelsView()) {
-          Text("Labels")
-        }
-
-        NavigationLink(destination: NewsletterEmailsView()) {
-          Text("Emails")
-        }
-
-        NavigationLink(destination: SubscriptionsView()) {
-          Text("Subscriptions")
-        }
-
-        NavigationLink(destination: GroupsView()) {
-          Text("Recommendation Groups")
-        }
-      }
+      accountSection
 
       #if os(iOS)
         Section {
+          NavigationLink(destination: PushNotificationSettingsView()) {
+            Text("Push Notifications")
+          }
           NavigationLink(destination: TextToSpeechView()) {
             Text("Text to Speech")
           }

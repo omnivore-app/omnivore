@@ -22,6 +22,28 @@ const textVariants = {
       fontSize: '$2',
       lineHeight: '1.25',
     },
+    recommendedByline: {
+      fontWeight: 'bold',
+      fontSize: '13.5px',
+      paddingTop: '4px',
+      mt: '0px',
+      mb: '16px',
+      color: '$grayTextContrast',
+    },
+    userName: {
+      fontWeight: '600',
+      fontSize: '13.5px',
+      paddingTop: '4px',
+      my: '6px',
+      color: '$grayText',
+    },
+    userNote: {
+      fontSize: '16px',
+      paddingTop: '0px',
+      marginTop: '0px',
+      lineHeight: '1.5',
+      color: '$grayTextContrast',
+    },
     headline: {
       fontSize: '$4',
       '@md': {

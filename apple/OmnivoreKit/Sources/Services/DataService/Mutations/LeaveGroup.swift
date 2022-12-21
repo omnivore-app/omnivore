@@ -4,24 +4,24 @@ import Models
 import SwiftGraphQL
 
 public extension DataService {
-  func recommendPage(pageID: String, groupIDs: [String], note: String?, withHighlights: Bool?) async throws {
+  func leaveGroup(groupID: String) async throws {
     enum MutationResult {
       case saved(success: Bool)
       case error(errorMessage: String)
     }
 
-    let selection = Selection<MutationResult, Unions.RecommendResult> {
+    let selection = Selection<MutationResult, Unions.LeaveGroupResult> {
       try $0.on(
-        recommendError: .init { .error(errorMessage: try $0.errorCodes().first.toString()) },
-        recommendSuccess: .init {
+        leaveGroupError: .init { .error(errorMessage: try $0.errorCodes().first.toString()) },
+        leaveGroupSuccess: .init {
           .saved(success: try $0.success())
         }
       )
     }
 
     let mutation = Selection.Mutation {
-      try $0.recommend(
-        input: .init(groupIds: groupIDs, note: OptionalArgument(note), pageId: pageID, recommendedWithHighlights: OptionalArgument(withHighlights)),
+      try $0.leaveGroup(
+        groupId: groupID,
         selection: selection
       )
     }
@@ -37,8 +37,13 @@ public extension DataService {
         }
 
         switch payload.data {
-        case .saved:
-          continuation.resume()
+        case let .saved(success):
+          if success {
+            continuation.resume()
+          } else {
+            continuation.resume(throwing: BasicError.message(messageText: "Unknown error"))
+          }
+          return
         case let .error(errorMessage: errorMessage):
           continuation.resume(throwing: BasicError.message(messageText: errorMessage))
         }

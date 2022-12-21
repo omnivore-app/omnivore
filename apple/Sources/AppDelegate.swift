@@ -46,7 +46,16 @@ private let logger = Logger(subsystem: "app.omnivore", category: "app-delegate")
       }
 
       Services.registerBackgroundFetch()
-      configurePushNotifications()
+      configureFirebase()
+
+      NotificationCenter.default.addObserver(forName: Notification.Name("ReconfigurePushNotifications"), object: nil, queue: OperationQueue.main) { _ in
+        if UserDefaults.standard.bool(forKey: UserDefaultKey.notificationsEnabled.rawValue) {
+          self.registerForNotifications()
+        } else {
+          self.unregisterForNotifications()
+        }
+      }
+
       return true
     }
   }

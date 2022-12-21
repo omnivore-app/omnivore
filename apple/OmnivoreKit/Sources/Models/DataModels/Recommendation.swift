@@ -2,20 +2,37 @@ import CoreData
 import Foundation
 
 public extension Recommendation {
-  var unwrappedID: String { id ?? "" }
+  // Returns the recommendations from other users, filtering out the viewer
+  // if they have also recommended the page.
+  static func notViewers(viewer: Viewer?, _ set: NSSet?) -> [Recommendation] {
+    Array(set ?? [])
+      .compactMap { $0 as? Recommendation }
+      .filter { $0.user?.userID != viewer?.userID }
+  }
 
-  static func lookup(byID recommendationID: String, inContext context: NSManagedObjectContext) -> Recommendation? {
-    let fetchRequest: NSFetchRequest<Models.Recommendation> = Recommendation.fetchRequest()
-    fetchRequest.predicate = NSPredicate(
-      format: "id == %@", recommendationID
-    )
-
-    var recommendation: Recommendation?
-
-    context.performAndWait {
-      recommendation = (try? context.fetch(fetchRequest))?.first
+  static func byline(_ recommendations: [Recommendation]) -> String {
+    recommendations.reduce("") { str, recommendation in
+      if let userName = recommendation.user?.name {
+        if str.isEmpty {
+          return userName
+        } else {
+          return str + ", " + userName
+        }
+      }
+      return str
     }
+  }
 
-    return recommendation
+  static func groupsLine(_ recommendations: [Recommendation]) -> String {
+    recommendations.reduce("") { str, recommendation in
+      if let name = recommendation.name {
+        if str.isEmpty {
+          return name
+        } else {
+          return str + ", " + name
+        }
+      }
+      return str
+    }
   }
 }

@@ -108,6 +108,21 @@ export type PageInfo = {
   totalCount: number
 }
 
+export const recommendationFragment = gql`
+  fragment RecommendationFields on Recommendation {
+    id
+    name
+    note
+    user {
+      userId
+      name
+      username
+      profileImageURL
+    }
+    recommendedAt
+  }
+`
+
 export function useGetLibraryItemsQuery({
   limit,
   sortDescending,

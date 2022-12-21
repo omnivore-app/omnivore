@@ -5,7 +5,9 @@ import Views
 
 @MainActor final class RecommendationsGroupViewModel: ObservableObject {
   @Published var isLoading = false
-  @Published var networkError = true
+  @Published var isLeaving = false
+  @Published var networkError = false
+  @Published var showLeaveGroup = false
   @Published var recommendationGroup: InternalRecommendationGroup
 
   init(recommendationGroup: InternalRecommendationGroup) {
@@ -16,6 +18,21 @@ import Views
     recommendationGroup.members.filter { member in
       !recommendationGroup.admins.contains(where: { member.id == $0.id })
     }
+  }
+
+  func leaveGroup(dataService: DataService) async -> Bool {
+    isLeaving = true
+    defer {
+      isLeaving = false
+    }
+
+    do {
+      try await dataService.leaveGroup(groupID: recommendationGroup.id)
+      Snackbar.show(message: "You have left the group.")
+    } catch {
+      return false
+    }
+    return true
   }
 }
 
@@ -68,10 +85,10 @@ private struct SmallUserCard: View {
 }
 
 struct RecommendationGroupView: View {
+  @Environment(\.dismiss) private var dismiss
+
   @EnvironmentObject var dataService: DataService
   @StateObject var viewModel: RecommendationsGroupViewModel
-
-  @State var presentShareSheet = false
 
   var body: some View {
     Group {
@@ -110,14 +127,41 @@ struct RecommendationGroupView: View {
 
   private var membersSection: some View {
     Section("Members") {
-      ForEach(viewModel.nonAdmins) { member in
-        SmallUserCard(data: ProfileCardData(
-          name: member.name,
-          username: member.username,
-          imageURL: member.profileImageURL != nil ? URL(string: member.profileImageURL!) : nil
-        ))
+      if !viewModel.recommendationGroup.canSeeMembers {
+        Text("""
+        The admin of this group does not allow viewing all members.
+
+        [Learn more about groups](https://blog.omnivore.app/p/dca38ba4-8a74-42cc-90ca-d5ffa5d075cc)
+        """)
+          .accentColor(.blue)
+      } else if viewModel.nonAdmins.count > 0 {
+        ForEach(viewModel.nonAdmins) { member in
+          SmallUserCard(data: ProfileCardData(
+            name: member.name,
+            username: member.username,
+            imageURL: member.profileImageURL != nil ? URL(string: member.profileImageURL!) : nil
+          ))
+        }
+      } else {
+        Text("""
+        This group does not have any members. Add users to your group by sending
+        them the invite link.
+
+        [Learn more about groups](https://blog.omnivore.app/p/dca38ba4-8a74-42cc-90ca-d5ffa5d075cc)
+        """)
+          .accentColor(.blue)
       }
     }
+  }
+
+  private var leaveSection: some View {
+    if viewModel.isLeaving {
+      return AnyView(ProgressView())
+    }
+    return AnyView(Button(action: {
+      viewModel.showLeaveGroup = true
+    }, label: { Text("Leave Group") })
+      .accentColor(.red))
   }
 
   private var innerBody: some View {
@@ -128,7 +172,17 @@ struct RecommendationGroupView: View {
 
       Section("Invite Link") {
         Button(action: {
-          presentShareSheet = true
+          #if os(iOS)
+            UIPasteboard.general.string = viewModel.recommendationGroup.inviteUrl
+          #endif
+
+          #if os(macOS)
+            let pasteBoard = NSPasteboard.general
+            pasteBoard.clearContents()
+            pasteBoard.writeObjects([highlightParams.quote as NSString])
+          #endif
+
+          Snackbar.show(message: "Invite link copied")
         }, label: {
           Text("[\(viewModel.recommendationGroup.inviteUrl)](\(viewModel.recommendationGroup.inviteUrl))")
             .font(.appCaption)
@@ -137,9 +191,22 @@ struct RecommendationGroupView: View {
 
       adminsSection
       membersSection
+
+      leaveSection
     }
-    .formSheet(isPresented: $presentShareSheet) {
-      shareView
+    .alert(isPresented: $viewModel.showLeaveGroup) {
+      Alert(
+        title: Text("Are you sure you want to leave this group? No data will be deleted, but you will stop receiving recommendations from the group."),
+        primaryButton: .destructive(Text("Leave Group")) {
+          Task {
+            let success = await viewModel.leaveGroup(dataService: dataService)
+            if success {
+              dismiss()
+            }
+          }
+        },
+        secondaryButton: .cancel()
+      )
     }
     .navigationTitle(viewModel.recommendationGroup.name)
   }
