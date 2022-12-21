@@ -30,14 +30,15 @@ public struct CommunityModal: View {
           .frame(maxWidth: .infinity, alignment: .leading)
 
         HStack {
-          TextChip(text: "¡ Help Wanted !", color: Color.red)
+          TextChip(text: "Help Wanted", color: Color.red)
             .frame(alignment: .leading)
-          TextChip(text: "¡ Community !", color: Color.green)
+          TextChip(text: "Community", color: Color.appCtaYellow)
             .frame(alignment: .leading)
         }
       }
+      .padding(.top, 16)
+      .padding(.bottom, 16)
 
-      // ScrollView {
       Text((try? AttributedString(markdown: message,
                                   options: AttributedString.MarkdownParsingOptions(interpretedSyntax: .inlineOnlyPreservingWhitespace))) ?? "")
         .foregroundColor(Color.appGrayText)
@@ -64,7 +65,7 @@ public struct CommunityModal: View {
         }
       }
       .frame(maxWidth: .infinity, alignment: .leading)
-      .padding(.top, 16)
+      .padding(.top, 32)
 
       Spacer()
 
