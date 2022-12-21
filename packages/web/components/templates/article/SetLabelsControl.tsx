@@ -20,7 +20,7 @@ export interface LabelsProvider {
 
 type SetLabelsControlProps = {
   provider: LabelsProvider
-  onSave: (labels: Label[] | undefined) => void
+  onLabelsChanged: (labels: Label[]) => void
   save: (labels: Label[]) => Promise<Label[] | undefined>
 }
 
@@ -269,9 +269,11 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
       setSelectedLabels(newSelectedLabels)
 
       const result = await props.save(newSelectedLabels)
-      props.provider.labels = result
-      if (props.onSave) {
-        props.onSave(result)
+      if (result) {
+        props.provider.labels = result
+        if (props.onLabelsChanged) {
+          props.onLabelsChanged(result)
+        }
       }
 
       revalidate()

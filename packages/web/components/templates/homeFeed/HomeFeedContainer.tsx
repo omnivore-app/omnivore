@@ -1205,7 +1205,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
       {props.labelsTarget?.node.id && (
         <SetLabelsModal
           provider={props.labelsTarget.node}
-          onSave={(labels: Label[] | undefined) => {
+          onLabelsChanged={(labels: Label[]) => {
             if (props.labelsTarget) {
               props.labelsTarget.node.labels = labels
               updateState({})

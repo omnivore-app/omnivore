@@ -147,7 +147,7 @@ export function ArticleActionsMenu(
                   }
                   return Promise.resolve(undefined)
                 }}
-                onSave={(labels) => {
+                onLabelsChanged={(labels) => {
                   props.articleActionHandler('refreshLabels', labels)
                 }}
               />
