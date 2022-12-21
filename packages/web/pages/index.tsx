@@ -43,13 +43,22 @@ const subHeadingStyles = {
 
 export default function LandingPage(): JSX.Element {
   const router = useRouter()
-  const { viewerData, viewerDataError, isLoading } = useGetViewerQuery()
+  const { viewerData, isLoading } = useGetViewerQuery()
 
   if (!isLoading && router.isReady && viewerData?.me) {
     router.push('/home')
     return <></>
   } else if (isLoading) {
-    return <LoadingView bgColor="#FEFCF5" />
+    return (
+      <>
+        <PageMetaData
+          title="Omnivore"
+          path="/"
+          ogImage="/static/images/og-homepage.png"
+        />
+        <LoadingView bgColor="#FEFCF5" />
+      </>
+    )
   }
 
   return (
