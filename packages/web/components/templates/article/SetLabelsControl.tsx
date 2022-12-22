@@ -285,9 +285,13 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
     if (!labels) {
       return []
     }
-    return labels.filter((label) => {
-      return label.name.toLowerCase().includes(filterText.toLowerCase())
-    })
+    return labels
+      .filter((label) => {
+        return label.name.toLowerCase().includes(filterText.toLowerCase())
+      })
+      .sort((left: Label, right: Label) => {
+        return left.name.localeCompare(right.name)
+      })
   }, [labels, filterText])
 
   // Move focus through the labels list on tab or arrow up/down keys

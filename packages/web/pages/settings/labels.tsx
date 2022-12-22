@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
 import { Button } from '../../components/elements/Button'
 import { styled, theme } from '../../components/tokens/stitches.config'
@@ -161,6 +161,12 @@ export default function LabelsPage(): JSX.Element {
   const breakpoint = 768
 
   applyStoredTheme(false)
+
+  const sortedLabels = useMemo(() => {
+    return labels.sort((left: Label, right: Label) =>
+      left.name.localeCompare(right.name)
+    )
+  }, [labels])
 
   useEffect(() => {
     const handleResizeWindow = () => setWindowWidth(window.innerWidth)
@@ -362,9 +368,9 @@ export default function LabelsPage(): JSX.Element {
             )
           ) : null}
         </>
-        {labels
-          ? labels.map((label, i) => {
-              const isLastChild = i === labels.length - 1
+        {sortedLabels
+          ? sortedLabels.map((label, i) => {
+              const isLastChild = i === sortedLabels.length - 1
               const isFirstChild = i === 0
               const cardProps = {
                 label: label,
