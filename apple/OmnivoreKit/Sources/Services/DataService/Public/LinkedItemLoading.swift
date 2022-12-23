@@ -34,17 +34,19 @@ public extension DataService {
     let prev = previousQueryResult?.updatedItemIDs ?? []
     let result = LinkedItemSyncResult(
       updatedItemIDs: prev + fetchResult.items.map(\.id),
-      cursor: fetchResult.cursor
+      cursor: fetchResult.cursor,
+      hasMore: fetchResult.hasMoreItems
     )
 
-    if fetchResult.hasMoreItems, (previousQueryResult?.updatedItemIDs.count ?? 0) < 40 {
+    print("synced since:", date, "total synced items:", result.updatedItemIDs.count, ", fetchResult.hasMoreItems", fetchResult.hasMoreItems)
+    if fetchResult.hasMoreItems {
       if deferFetchingMore {
         Task.detached(priority: .background) {
           try await self.syncLinkedItems(
             since: date,
             cursor: fetchResult.cursor,
             previousQueryResult: result,
-            deferFetchingMore: deferFetchingMore
+            deferFetchingMore: false
           )
         }
       } else {
@@ -54,6 +56,11 @@ public extension DataService {
           previousQueryResult: result,
           deferFetchingMore: deferFetchingMore
         )
+      }
+    } else {
+      print("setting last synced time to: ", date)
+      DispatchQueue.main.async {
+        self.lastItemSyncTime = DateFormatter.formatterISO8601.string(from: date)
       }
     }
 

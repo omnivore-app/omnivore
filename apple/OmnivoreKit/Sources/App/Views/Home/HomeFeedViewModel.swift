@@ -79,7 +79,9 @@ import Views
     let thresholdIndex = items.index(items.endIndex, offsetBy: -5)
 
     // Check if user has scrolled to the last five items in the list
-    if let itemIndex = itemIndex, itemIndex > thresholdIndex, items.count < thresholdIndex + 10 {
+    // Make sure we aren't currently loading though, as this would get triggered when the first set
+    // of items are presented to the user.
+    if let itemIndex = itemIndex, itemIndex > thresholdIndex, items.count < thresholdIndex + 10, !isLoading {
       await loadItems(dataService: dataService, audioController: audioController, isRefresh: false)
     }
   }
@@ -104,14 +106,15 @@ import Views
     }
   }
 
-  func syncItems(dataService: DataService, syncStartTime: Date) async {
+  func syncItems(dataService: DataService, syncStartTime _: Date) async {
     let lastSyncDate = dateFormatter.date(from: dataService.lastItemSyncTime) ?? Date(timeIntervalSinceReferenceDate: 0)
     let syncResult = try? await dataService.syncLinkedItems(since: lastSyncDate,
                                                             cursor: nil,
                                                             deferFetchingMore: true)
 
-    if syncResult != nil {
-      dataService.lastItemSyncTime = dateFormatter.string(from: syncStartTime)
+    if syncResult?.hasMore {
+      // dataService.lastItemSyncTime = dateFormatter.string(from: syncStartTime)
+      self.isLoading = true
     }
 
     // If possible start prefetching new pages in the background
