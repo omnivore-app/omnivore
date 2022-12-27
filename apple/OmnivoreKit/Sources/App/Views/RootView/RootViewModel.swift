@@ -15,7 +15,7 @@ public final class RootViewModel: ObservableObject {
   let services = Services()
 
   @Published public var showNewFeaturePrimer = false
-  @AppStorage(UserDefaultKey.shouldShowNewFeaturePrimer.rawValue) var shouldShowNewFeaturePrimer = true
+  @AppStorage(UserDefaultKey.shouldShowNewFeaturePrimer.rawValue) var shouldShowNewFeaturePrimer = false
 
   @Published var snackbarMessage: String?
   @Published var showSnackbar = false

@@ -207,7 +207,7 @@ import Views
     showLoadingBar = false
   }
 
-  func loadMoreItems(dataService: DataService, isRefresh _: Bool) async {
+  func loadMoreItems(dataService: DataService, isRefresh: Bool) async {
     isLoading = true
     showLoadingBar = true
 
