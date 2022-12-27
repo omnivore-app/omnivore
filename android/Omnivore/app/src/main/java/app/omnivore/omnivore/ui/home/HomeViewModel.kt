@@ -59,7 +59,12 @@ class HomeViewModel @Inject constructor(
       searchIdx += 1
 
       // Execute the search
-      val searchResult = networker.search(cursor = cursor, query = searchQuery())
+      val searchResult =
+        if (searchTextLiveData.value != "") {
+          networker.typeaheadSearch(searchTextLiveData.value ?: "")
+        } else {
+          networker.search(cursor = cursor, query = searchQuery())
+        }
 
       // Search results aren't guaranteed to return in order so this
       // will discard old results that are returned while a user is typing.

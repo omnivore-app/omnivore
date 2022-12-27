@@ -51,26 +51,30 @@ class SaveViewModel @Inject constructor(
         .addHttpHeader("Authorization", value = authToken)
         .build()
 
-      val response = apolloClient.mutation(
-        SaveUrlMutation(
-          SaveUrlInput(
-            clientRequestId = UUID.randomUUID().toString(),
-            source = "android",
-            url = url
+      try {
+        val response = apolloClient.mutation(
+          SaveUrlMutation(
+            SaveUrlInput(
+              clientRequestId = UUID.randomUUID().toString(),
+              source = "android",
+              url = url
+            )
           )
-        )
-      ).execute()
+        ).execute()
 
-      isLoading = false
+        isLoading = false
 
-      val success = (response.data?.saveUrl?.onSaveSuccess?.url != null)
-      message = if (success) {
-        "Page Saved"
-      } else {
-        "There was an error saving your page"
+        val success = (response.data?.saveUrl?.onSaveSuccess?.url != null)
+        message = if (success) {
+          "Page Saved"
+        } else {
+          "There was an error saving your page"
+        }
+
+        Log.d(ContentValues.TAG, "Saved URL?: $success")
+      } catch (e: java.lang.Exception) {
+        message = "There was an error saving your page"
       }
-
-      Log.d(ContentValues.TAG, "Saved URL?: $success")
     }
   }
 }

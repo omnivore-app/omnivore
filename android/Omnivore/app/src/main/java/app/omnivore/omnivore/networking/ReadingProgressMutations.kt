@@ -25,17 +25,22 @@ suspend fun Networker.updateWebReadingProgress(jsonString: String): Boolean {
 }
 
 suspend fun Networker.updateReadingProgress(params: ReadingProgressParams): Boolean {
-  val input = params.asSaveReadingProgressInput()
+  try {
+    val input = params.asSaveReadingProgressInput()
 
-  Log.d("Loggo", "created reading progress input: $input")
+    Log.d("Loggo", "created reading progress input: $input")
 
-  val result = authenticatedApolloClient()
-    .mutation(SaveArticleReadingProgressMutation(input))
-    .execute()
+    val result = authenticatedApolloClient()
+      .mutation(SaveArticleReadingProgressMutation(input))
+      .execute()
 
-  val articleID = result.data?.saveArticleReadingProgress?.onSaveArticleReadingProgressSuccess?.updatedArticle?.id
+    val articleID =
+      result.data?.saveArticleReadingProgress?.onSaveArticleReadingProgressSuccess?.updatedArticle?.id
 
-  Log.d("Loggo", "updated article with id: $articleID")
+    Log.d("Loggo", "updated article with id: $articleID")
 
-  return articleID != null
+    return articleID != null
+  } catch (e: java.lang.Exception) {
+    return false
+  }
 }

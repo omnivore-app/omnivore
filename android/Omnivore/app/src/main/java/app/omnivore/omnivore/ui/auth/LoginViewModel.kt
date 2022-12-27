@@ -8,6 +8,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import app.omnivore.omnivore.*
 import app.omnivore.omnivore.graphql.generated.SearchQuery
 import app.omnivore.omnivore.graphql.generated.ValidateUsernameQuery
+import app.omnivore.omnivore.networking.LinkedItemQueryResponse
 import app.omnivore.omnivore.networking.Networker
 import app.omnivore.omnivore.networking.viewer
 import com.apollographql.apollo3.ApolloClient
@@ -146,16 +147,21 @@ class LoginViewModel @Inject constructor(
         .serverUrl("${Constants.apiURL}/api/graphql")
         .build()
 
-      val response = apolloClient.query(
-        ValidateUsernameQuery(username = potentialUsername)
-      ).execute()
+      try {
+        val response = apolloClient.query(
+          ValidateUsernameQuery(username = potentialUsername)
+        ).execute()
 
-      if (response.data?.validateUsername == true) {
-        usernameValidationErrorMessage = null
-        hasValidUsername = true
-      } else {
+        if (response.data?.validateUsername == true) {
+          usernameValidationErrorMessage = null
+          hasValidUsername = true
+        } else {
+          hasValidUsername = false
+          usernameValidationErrorMessage = "This username is not available."
+        }
+      } catch (e: java.lang.Exception) {
         hasValidUsername = false
-        usernameValidationErrorMessage = "This username is not available."
+        usernameValidationErrorMessage = "Sorry we're having trouble connecting to the server."
       }
     }
   }
