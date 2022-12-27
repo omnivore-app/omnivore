@@ -6,6 +6,7 @@
   "dependencies": {
     "@google-cloud/storage": "^5.18.1",
     "@omnivore/content-handler": "1.0.0",
+    "@omnivore/readability": "1.0.0",
     "axios": "^0.27.2",
     "jsonwebtoken": "^8.5.1",
     "linkedom": "^0.14.9",

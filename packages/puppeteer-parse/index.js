@@ -13,6 +13,7 @@ const os = require('os');
 const { Storage } = require('@google-cloud/storage');
 const { parseHTML } = require('linkedom');
 const { preHandleContent } = require("@omnivore/content-handler");
+const { Readability } = require("@omnivore/readability");
 
 const puppeteer = require('puppeteer-extra');
 
@@ -280,6 +281,8 @@ async function fetchContent(req, res) {
 
       logRecord.fetchContentTime = Date.now() - functionStartTime;
 
+      const readabilityResult = content ? (await getReadabilityResult(url, content)) : null;
+
       const apiResponse = await sendCreateArticleMutation(userId, {
         url: finalUrl,
         articleSavingRequestId,
@@ -290,7 +293,8 @@ async function fetchContent(req, res) {
             canonicalUrl: finalUrl,
           },
         },
-        skipParsing: !content,
+        skipParsing: !!readabilityResult,
+        readabilityResult,
       });
 
       logRecord.totalTime = Date.now() - functionStartTime;
@@ -306,6 +310,8 @@ async function fetchContent(req, res) {
     const content = sbResult.domContent;
     logRecord.fetchContentTime = Date.now() - functionStartTime;
 
+    const readabilityResult = content ? (await getReadabilityResult(url, content)) : null;
+
     const apiResponse = await sendCreateArticleMutation(userId, {
       url: sbUrl,
       articleSavingRequestId,
@@ -316,7 +322,8 @@ async function fetchContent(req, res) {
           canonicalUrl: sbUrl,
         },
       },
-      skipParsing: !content,
+      skipParsing: !!readabilityResult,
+      readabilityResult,
     });
 
     logRecord.totalTime = Date.now() - functionStartTime;
@@ -756,6 +763,12 @@ async function preview(req, res) {
 
   console.info(`preview-image`, logRecord);
   return res.redirect(`${process.env.PREVIEW_IMAGE_CDN_ORIGIN}/${destination}`);
+}
+
+async function getReadabilityResult(url, domContent) {
+  const document = parseHTML(domContent).document;
+  const readability = new Readability(document, { url });
+  return readability.parse();
 }
 
 module.exports = {
