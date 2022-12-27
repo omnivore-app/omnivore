@@ -1612,6 +1612,21 @@ export enum PageType {
   Website = 'WEBSITE'
 }
 
+export type ParseResult = {
+  byline: Scalars['String'];
+  content: Scalars['String'];
+  dir: Scalars['String'];
+  excerpt: Scalars['String'];
+  language?: InputMaybe<Scalars['String']>;
+  length: Scalars['Int'];
+  previewImage?: InputMaybe<Scalars['String']>;
+  publishedDate?: InputMaybe<Scalars['Date']>;
+  siteIcon?: InputMaybe<Scalars['String']>;
+  siteName?: InputMaybe<Scalars['String']>;
+  textContent: Scalars['String'];
+  title: Scalars['String'];
+};
+
 export type PreparedDocumentInput = {
   document: Scalars['String'];
   pageInfo: PageInfoInput;
@@ -2071,6 +2086,7 @@ export type SaveFilterSuccess = {
 export type SavePageInput = {
   clientRequestId: Scalars['ID'];
   originalContent: Scalars['String'];
+  parseResult?: InputMaybe<ParseResult>;
   source: Scalars['String'];
   title?: InputMaybe<Scalars['String']>;
   url: Scalars['String'];
@@ -3291,6 +3307,7 @@ export type ResolversTypes = {
   PageInfo: ResolverTypeWrapper<PageInfo>;
   PageInfoInput: PageInfoInput;
   PageType: PageType;
+  ParseResult: ParseResult;
   PreparedDocumentInput: PreparedDocumentInput;
   Profile: ResolverTypeWrapper<Profile>;
   Query: ResolverTypeWrapper<{}>;
@@ -3704,6 +3721,7 @@ export type ResolversParentTypes = {
   Page: Page;
   PageInfo: PageInfo;
   PageInfoInput: PageInfoInput;
+  ParseResult: ParseResult;
   PreparedDocumentInput: PreparedDocumentInput;
   Profile: Profile;
   Query: {};

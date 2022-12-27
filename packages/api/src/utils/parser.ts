@@ -17,8 +17,8 @@ import { v4 as uuid } from 'uuid'
 import addressparser from 'addressparser'
 import { preParseContent } from '@omnivore/content-handler'
 import {
-  findEmbeddedHighlight,
   EmbeddedHighlightData,
+  findEmbeddedHighlight,
 } from './highlightGenerator'
 
 const logger = buildLogger('utils.parse')
@@ -174,6 +174,7 @@ const getReadabilityResult = async (
 export const parsePreparedContent = async (
   url: string,
   preparedDocument: PreparedDocumentInput,
+  parseResult?: Readability.ParseResult | null,
   isNewsletter?: boolean,
   allowRetry = true
 ): Promise<ParsedContentPuppeteer> => {
@@ -208,13 +209,21 @@ export const parsePreparedContent = async (
   preParsedDom && (dom = preParsedDom)
 
   try {
-    article = await getReadabilityResult(url, document, dom, isNewsletter)
+    article =
+      parseResult ||
+      (await getReadabilityResult(url, document, dom, isNewsletter))
     if (!article?.textContent && allowRetry) {
       const newDocument = {
         ...preparedDocument,
         document: '<html>' + preparedDocument.document + '</html>',
       }
-      return parsePreparedContent(url, newDocument, isNewsletter, false)
+      return parsePreparedContent(
+        url,
+        newDocument,
+        parseResult,
+        isNewsletter,
+        false
+      )
     }
 
     // Format code blocks

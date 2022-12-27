@@ -1169,6 +1169,21 @@ enum PageType {
   WEBSITE
 }
 
+input ParseResult {
+  byline: String!
+  content: String!
+  dir: String!
+  excerpt: String!
+  language: String
+  length: Int!
+  previewImage: String
+  publishedDate: Date
+  siteIcon: String
+  siteName: String
+  textContent: String!
+  title: String!
+}
+
 input PreparedDocumentInput {
   document: String!
   pageInfo: PageInfoInput!
@@ -1501,6 +1516,7 @@ type SaveFilterSuccess {
 input SavePageInput {
   clientRequestId: ID!
   originalContent: String!
+  parseResult: ParseResult
   source: String!
   title: String
   url: String!

@@ -526,12 +526,28 @@ const schema = gql`
     uploadFileId: ID!
   }
 
+  input ParseResult {
+    title: String!
+    byline: String!
+    dir: String!
+    content: String!
+    textContent: String!
+    length: Int!
+    excerpt: String!
+    siteName: String
+    siteIcon: String
+    previewImage: String
+    publishedDate: Date
+    language: String
+  }
+
   input SavePageInput {
     url: String!
     source: String!
     clientRequestId: ID!
     title: String
     originalContent: String!
+    parseResult: ParseResult
   }
 
   input SaveUrlInput {
