@@ -7,7 +7,8 @@
     "test": "mocha test/test-*.js",
     "generate-testcase": "node test/generate-testcase.js",
     "perf": "matcha benchmarks/benchmarks.js",
-    "perf-reference": "READABILITY_PERF_REFERENCE=1 matcha --reporter ./benchmarks/benchmark-reporter.js benchmarks/benchmarks.js"
+    "perf-reference": "READABILITY_PERF_REFERENCE=1 matcha --reporter ./benchmarks/benchmark-reporter.js benchmarks/benchmarks.js",
+    "start": "functions-framework --target=readability"
   },
   "repository": {
     "type": "git",
@@ -24,7 +25,6 @@
   "homepage": "https://github.com/mozilla/readability",
   "devDependencies": {
     "@c4312/matcha": "^1.3.1",
-    "axios": "^0.27.2",
     "chai": "^2.1.*",
     "chai-as-promised": "^7.1.1",
     "htmltidy2": "^0.3.0",
@@ -35,8 +35,12 @@
     "sinon": "^7.3.2"
   },
   "dependencies": {
+    "axios": "^0.27.2",
+    "dotenv": "^8.2.0",
     "html-entities": "^2.3.2",
     "modern-random-ua": "^1.0.3",
-    "parse-srcset": "^1.0.2"
+    "parse-srcset": "^1.0.2",
+    "@google-cloud/functions-framework": "^3.0.0",
+    "@sentry/serverless": "^6.13.3"
   }
 }
