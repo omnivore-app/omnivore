@@ -17,6 +17,7 @@ import Views
     @EnvironmentObject var audioController: AudioController
 
     @AppStorage(UserDefaultKey.homeFeedlayoutPreference.rawValue) var prefersListLayout = false
+    @AppStorage(UserDefaultKey.shouldPromptCommunityModal.rawValue) var shouldPromptCommunityModal = true
     @ObservedObject var viewModel: HomeFeedViewModel
 
     func loadItems(isRefresh: Bool) {
@@ -69,6 +70,9 @@ import Views
         }
         .sheet(isPresented: $viewModel.showCommunityModal) {
           CommunityModal()
+            .onAppear {
+              shouldPromptCommunityModal = false
+            }
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -81,8 +85,14 @@ import Views
                 .resizable()
                 .frame(width: 24, height: 24)
                 .foregroundColor(.appGrayTextContrast)
+                .overlay(alignment: .topTrailing, content: {
+                  if shouldPromptCommunityModal {
+                    Circle()
+                      .fill(Color.red)
+                      .frame(width: 6, height: 6)
+                  }
+                })
             })
-              .transition(.scale)
           }
           ToolbarItem(placement: .barTrailing) {
             Button("", action: {})

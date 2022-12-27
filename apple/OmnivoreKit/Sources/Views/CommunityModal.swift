@@ -15,8 +15,10 @@ public struct CommunityModal: View {
   @Environment(\.dismiss) private var dismiss
 
   let message: String = """
-  Thank you for being a member of the Omnivore Community. Omnivore relies on help from \
-  our community to grow. Below are a few simple things you can do to help us build a better Omnivore.
+  Thank you for being a member of the Omnivore Community.
+
+  Omnivore relies on help from our community to grow. Below are a few simple
+  things you can do to help us build a better Omnivore.
   """
 
   public init() {}
@@ -30,9 +32,9 @@ public struct CommunityModal: View {
           .frame(maxWidth: .infinity, alignment: .leading)
 
         HStack {
-          TextChip(text: "Help Wanted", color: Color.red)
+          TextChip(text: "Help Wanted", color: Color.appBackground)
             .frame(alignment: .leading)
-          TextChip(text: "Community", color: Color.appCtaYellow)
+          TextChip(text: "Community", color: Color.green)
             .frame(alignment: .leading)
         }
       }
@@ -54,6 +56,10 @@ public struct CommunityModal: View {
 
         if let url = URL(string: tweetUrl) {
           Link("Tweet about Omnivore", destination: url)
+        }
+
+        if let url = URL(string: "https://twitter.com/omnivoreapp") {
+          Link("Follow us on Twitter", destination: url)
         }
 
         if let url = URL(string: "https://discord.gg/h2z5rppzz9") {

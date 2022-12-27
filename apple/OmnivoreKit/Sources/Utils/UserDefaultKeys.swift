@@ -26,4 +26,5 @@ public enum UserDefaultKey: String {
   case shouldShowNewFeaturePrimer
   case notificationsEnabled
   case deviceTokenID
+  case shouldPromptCommunityModal
 }
