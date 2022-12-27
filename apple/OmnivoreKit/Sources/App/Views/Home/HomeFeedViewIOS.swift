@@ -20,7 +20,7 @@ import Views
     @ObservedObject var viewModel: HomeFeedViewModel
 
     func loadItems(isRefresh: Bool) {
-      Task { await viewModel.loadItems(dataService: dataService, audioController: audioController, isRefresh: isRefresh) }
+      Task { await viewModel.loadItems(dataService: dataService, isRefresh: isRefresh) }
     }
 
     var body: some View {
@@ -448,7 +448,7 @@ import Views
     }
 
     func loadItems(isRefresh: Bool) {
-      Task { await viewModel.loadItems(dataService: dataService, audioController: audioController, isRefresh: isRefresh) }
+      Task { await viewModel.loadItems(dataService: dataService, isRefresh: isRefresh) }
     }
 
     var body: some View {

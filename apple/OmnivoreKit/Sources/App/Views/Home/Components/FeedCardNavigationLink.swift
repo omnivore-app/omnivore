@@ -26,7 +26,7 @@ struct MacFeedCardNavigationLink: View {
       .opacity(0)
       .buttonStyle(PlainButtonStyle())
       .onAppear {
-        Task { await viewModel.itemAppeared(item: item, dataService: dataService, audioController: audioController) }
+        Task { await viewModel.itemAppeared(item: item, dataService: dataService) }
       }
       FeedCard(item: item, viewer: dataService.currentViewer) {
         viewModel.selectedLinkItem = item.objectID
@@ -56,7 +56,7 @@ struct FeedCardNavigationLink: View {
         .opacity(0)
         .buttonStyle(PlainButtonStyle())
         .onAppear {
-          Task { await viewModel.itemAppeared(item: item, dataService: dataService, audioController: audioController) }
+          Task { await viewModel.itemAppeared(item: item, dataService: dataService) }
         }
         FeedCard(item: item, viewer: dataService.currentViewer)
       }
@@ -95,7 +95,7 @@ struct GridCardNavigationLink: View {
         withAnimation { tapAction() }
       })
         .onAppear {
-          Task { await viewModel.itemAppeared(item: item, dataService: dataService, audioController: audioController) }
+          Task { await viewModel.itemAppeared(item: item, dataService: dataService) }
         }
     }
     .aspectRatio(1.8, contentMode: .fill)
