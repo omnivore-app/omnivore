@@ -87,11 +87,17 @@ export class YoutubeHandler extends ContentHandler {
     console.log('got video id', videoId)
     const defaultLanguageCode = await this.getDefaultLanguageCode(videoId)
 
-    const response = await YoutubeTranscript.fetchTranscript(videoId, {
-      lang: defaultLanguageCode || 'en',
-    })
-    const transcript = response.map((item) => item.text).join(' ')
-    console.log('transcript: ', transcript)
+    let transcript = ''
+    try {
+      const response = await YoutubeTranscript.fetchTranscript(videoId, {
+        lang: defaultLanguageCode || 'en',
+      })
+
+      transcript = response.map((item) => item.text).join(' ')
+      console.debug('transcript: ', transcript)
+    } catch (e) {
+      console.log('error getting transcript', e)
+    }
 
     const content = `
     <html>
