@@ -39,6 +39,9 @@ import Views
           prefersListLayout: $prefersListLayout,
           viewModel: viewModel
         )
+        .onAppear {
+          loadItems(isRefresh: true)
+        }
         .refreshable {
           loadItems(isRefresh: true)
         }
@@ -315,15 +318,10 @@ import Views
             systemImage: item.isArchived ? "tray.and.arrow.down.fill" : "archivebox"
           )
         })
-        Button(
-          action: {
-            itemToRemove = item
-            confirmationShown = true
-          },
-          label: {
-            Label("Remove Item", systemImage: "trash")
-          }
-        ).tint(.red)
+        Button("Remove Item", role: .destructive) {
+          itemToRemove = item
+          confirmationShown = true
+        }
         if FeatureFlag.enableSnooze {
           Button {
             viewModel.itemToSnoozeID = item.id
@@ -416,7 +414,7 @@ import Views
           .listStyle(PlainListStyle())
           .alert("Are you sure you want to delete this item? All associated notes and highlights will be deleted.",
                  isPresented: $confirmationShown) {
-            Button("Delete Item") {
+            Button("Remove Item", role: .destructive) {
               if let itemToRemove = itemToRemove {
                 withAnimation {
                   viewModel.removeLink(dataService: dataService, objectID: itemToRemove.objectID)
