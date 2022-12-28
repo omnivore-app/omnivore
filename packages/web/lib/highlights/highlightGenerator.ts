@@ -126,7 +126,7 @@ export function makeHighlightNodeAttributes(
       // If we are not in preformatted text, prevent hardcoded \n,
       // we'll create new-lines based on the startsParagraph data
       const text = isPre ? rawText : rawText.replace(/\n/g, '')
-      const newTextNode = document.createTextNode(text)
+      const newTextNode = document.createTextNode(rawText)
 
       if (!highlight) {
         return parentNode?.insertBefore(newTextNode, nextSibling)
