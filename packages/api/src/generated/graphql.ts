@@ -1613,16 +1613,16 @@ export enum PageType {
 }
 
 export type ParseResult = {
-  byline: Scalars['String'];
+  byline?: InputMaybe<Scalars['String']>;
   content: Scalars['String'];
-  dir: Scalars['String'];
+  dir?: InputMaybe<Scalars['String']>;
   excerpt: Scalars['String'];
   language?: InputMaybe<Scalars['String']>;
   length: Scalars['Int'];
   previewImage?: InputMaybe<Scalars['String']>;
   publishedDate?: InputMaybe<Scalars['Date']>;
-  siteIcon: Scalars['String'];
-  siteName: Scalars['String'];
+  siteIcon?: InputMaybe<Scalars['String']>;
+  siteName?: InputMaybe<Scalars['String']>;
   textContent: Scalars['String'];
   title: Scalars['String'];
 };

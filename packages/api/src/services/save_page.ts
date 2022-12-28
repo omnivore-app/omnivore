@@ -226,7 +226,7 @@ export const parsedContentToPage = ({
       croppedPathname ||
       parsedContent?.siteName ||
       url,
-    author: parsedContent?.byline,
+    author: parsedContent?.byline ?? undefined,
     url: normalizeUrl(canonicalUrl || url, {
       stripHash: true,
       stripWWW: false,
@@ -241,9 +241,9 @@ export const parsedContentToPage = ({
     state: ArticleSavingRequestStatus.Succeeded,
     createdAt: saveTime || new Date(),
     savedAt: saveTime || new Date(),
-    siteName: parsedContent?.siteName,
+    siteName: parsedContent?.siteName ?? undefined,
     language: parsedContent?.language ?? undefined,
-    siteIcon: parsedContent?.siteIcon,
+    siteIcon: parsedContent?.siteIcon ?? undefined,
     wordsCount: wordsCount(parsedContent?.textContent || ''),
   }
 }

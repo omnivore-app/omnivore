@@ -528,14 +528,14 @@ const schema = gql`
 
   input ParseResult {
     title: String!
-    byline: String!
-    dir: String!
+    byline: String
+    dir: String
     content: String!
     textContent: String!
     length: Int!
     excerpt: String!
-    siteName: String!
-    siteIcon: String!
+    siteName: String
+    siteIcon: String
     previewImage: String
     publishedDate: Date
     language: String

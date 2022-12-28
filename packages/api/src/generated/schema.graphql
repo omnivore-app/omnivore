@@ -1170,16 +1170,16 @@ enum PageType {
 }
 
 input ParseResult {
-  byline: String!
+  byline: String
   content: String!
-  dir: String!
+  dir: String
   excerpt: String!
   language: String
   length: Int!
   previewImage: String
   publishedDate: Date
-  siteIcon: String!
-  siteName: String!
+  siteIcon: String
+  siteName: String
   textContent: String!
   title: String!
 }

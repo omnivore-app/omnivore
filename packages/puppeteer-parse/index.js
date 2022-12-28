@@ -23,7 +23,7 @@ puppeteer.use(StealthPlugin());
 
 // Add adblocker plugin to block all ads and trackers (saves bandwidth)
 const AdblockerPlugin = require('puppeteer-extra-plugin-adblocker');
-puppeteer.use(AdblockerPlugin({ blockTrackers: true }));
+// puppeteer.use(AdblockerPlugin({ blockTrackers: true }));
 
 const storage = new Storage();
 const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [];
@@ -200,6 +200,35 @@ const sendCreateArticleMutation = async (userId, input) => {
   return response.data.data.createArticle;
 };
 
+const sendSavePageMutation = async (userId, input) => {
+  const data = JSON.stringify({
+    query: `mutation SavePage ($input: SavePageInput!){
+          savePage(input:$input){
+            ... on SaveSuccess{
+              url
+              clientRequestId
+            }
+            ... on SaveError{
+                errorCodes
+            }
+          }
+    }`,
+    variables: {
+      input: Object.assign({}, input , { source: 'puppeteer-parse' }),
+    },
+  });
+
+  const auth = await signToken({ uid: userId }, process.env.JWT_SECRET);
+  const response = await axios.post(`${process.env.REST_BACKEND_ENDPOINT}/graphql`, data,
+    {
+      headers: {
+        Cookie: `auth=${auth};`,
+        'Content-Type': 'application/json',
+      },
+    });
+  return response.data.data.savePage;
+};
+
 const saveUploadedPdf = async (userId, url, uploadFileId, articleSavingRequestId) => {
   return sendCreateArticleMutation(userId, {
       url: encodeURI(url),
@@ -283,18 +312,12 @@ async function fetchContent(req, res) {
 
       const readabilityResult = content ? (await getReadabilityResult(url, content)) : null;
 
-      const apiResponse = await sendCreateArticleMutation(userId, {
+      const apiResponse = await sendSavePageMutation(userId, {
         url: finalUrl,
-        articleSavingRequestId,
-        preparedDocument: {
-          document: content,
-          pageInfo: {
-            title,
-            canonicalUrl: finalUrl,
-          },
-        },
-        skipParsing: !!readabilityResult,
-        readabilityResult,
+        clientRequestId: articleSavingRequestId,
+        title,
+        originalContent: content,
+        parseResult: readabilityResult,
       });
 
       logRecord.totalTime = Date.now() - functionStartTime;
@@ -312,18 +335,12 @@ async function fetchContent(req, res) {
 
     const readabilityResult = content ? (await getReadabilityResult(url, content)) : null;
 
-    const apiResponse = await sendCreateArticleMutation(userId, {
-      url: sbUrl,
-      articleSavingRequestId,
-      preparedDocument: {
-        document: content,
-        pageInfo: {
-          title: sbResult.title,
-          canonicalUrl: sbUrl,
-        },
-      },
-      skipParsing: !!readabilityResult,
-      readabilityResult,
+    const apiResponse = await sendSavePageMutation(userId, {
+      url: finalUrl,
+      clientRequestId: articleSavingRequestId,
+      title,
+      originalContent: content,
+      parseResult: readabilityResult,
     });
 
     logRecord.totalTime = Date.now() - functionStartTime;
