@@ -3,6 +3,9 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable @typescript-eslint/no-require-imports */
+const { encode } = require("urlsafe-base64");
+const crypto = require("crypto");
+
 const Url = require('url');
 // const puppeteer = require('puppeteer-extra');
 const axios = require('axios');
@@ -23,6 +26,7 @@ puppeteer.use(StealthPlugin());
 
 // Add adblocker plugin to block all ads and trackers (saves bandwidth)
 const AdblockerPlugin = require('puppeteer-extra-plugin-adblocker');
+const createDOMPurify = require("dompurify");
 puppeteer.use(AdblockerPlugin({ blockTrackers: true }));
 
 const storage = new Storage();
@@ -782,10 +786,97 @@ async function preview(req, res) {
   return res.redirect(`${process.env.PREVIEW_IMAGE_CDN_ORIGIN}/${destination}`);
 }
 
-async function getReadabilityResult(url, domContent) {
-  const document = parseHTML(domContent).document;
-  const readability = new Readability(document, { url });
-  return readability.parse();
+const DOM_PURIFY_CONFIG = {
+  ADD_TAGS: ['iframe'],
+  ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'scrolling'],
+  FORBID_ATTR: [
+    'data-ml-dynamic',
+    'data-ml-dynamic-type',
+    'data-orig-url',
+    'data-ml-id',
+    'data-ml',
+    'data-xid',
+    'data-feature',
+  ],
+}
+
+function domPurifySanitizeHook(node, data) {
+  if (data.tagName === 'iframe') {
+    const urlRegex = /^(https?:)?\/\/www\.youtube(-nocookie)?\.com\/embed\//i
+    const src = node.getAttribute('src') || ''
+    const dataSrc = node.getAttribute('data-src') || ''
+
+    if (src && urlRegex.test(src)) {
+      return
+    }
+
+    if (dataSrc && urlRegex.test(dataSrc)) {
+      node.setAttribute('src', dataSrc)
+      return
+    }
+
+    node.parentNode?.removeChild(node)
+  }
+}
+
+function getPurifiedContent(html) {
+  const newWindow = parseHTML('')
+  const DOMPurify = createDOMPurify(newWindow)
+  DOMPurify.addHook('uponSanitizeElement', domPurifySanitizeHook)
+  const clean = DOMPurify.sanitize(html, DOM_PURIFY_CONFIG)
+  return parseHTML(clean).document
+}
+
+function signImageProxyUrl(url) {
+  return encode(
+    crypto.createHmac('sha256', process.env.IMAGE_PROXY_SECRET).update(url).digest()
+  )
+}
+
+function createImageProxyUrl(url, width = 0, height = 0) {
+  if (!process.env.IMAGE_PROXY_URL || !process.env.IMAGE_PROXY_SECRET) {
+    return url
+  }
+
+  const urlWithOptions = `${url}#${width}x${height}`
+  const signature = signImageProxyUrl(urlWithOptions)
+
+  return `${process.env.IMAGE_PROXY_URL}/${width}x${height},s${signature}/${url}`
+}
+
+async function getReadabilityResult(url, document) {
+  // First attempt to read the article as is.
+  // if that fails attempt to purify then read
+  const sources = [
+    () => {
+      return document
+    },
+    () => {
+      return getPurifiedContent(document)
+    },
+  ]
+
+  for (const source of sources) {
+    const document = source()
+    if (!document) {
+      continue
+    }
+
+    try {
+      const article = await new Readability(document, {
+        createImageProxyUrl,
+        url,
+      }).parse()
+
+      if (article) {
+        return article
+      }
+    } catch (error) {
+      console.log('parsing error for url', url, error)
+    }
+  }
+
+  return null
 }
 
 module.exports = {

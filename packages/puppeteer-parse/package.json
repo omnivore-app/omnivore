@@ -8,13 +8,16 @@
     "@omnivore/content-handler": "1.0.0",
     "@omnivore/readability": "1.0.0",
     "axios": "^0.27.2",
+    "crypto": "^1.0.1",
+    "dompurify": "^2.4.1",
     "jsonwebtoken": "^8.5.1",
     "linkedom": "^0.14.9",
     "puppeteer-core": "^16.1.0",
     "puppeteer-extra": "^3.3.4",
     "puppeteer-extra-plugin-adblocker": "^2.13.5",
     "puppeteer-extra-plugin-stealth": "^2.11.1",
-    "underscore": "^1.13.4"
+    "underscore": "^1.13.4",
+    "urlsafe-base64": "^1.0.0"
   },
   "devDependencies": {
     "chai": "^4.3.6",
