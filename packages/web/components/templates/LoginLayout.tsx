@@ -7,7 +7,7 @@ import {
 } from '../elements/LayoutPrimitives'
 import { LoginForm } from './LoginForm'
 import type { LoginFormProps } from './LoginForm'
-import { OmnivoreFestiveLogo } from '../elements/images/OmnivoreFestiveLogo'
+import { OmnivoreNameLogo } from '../elements/images/OmnivoreNameLogo'
 import { theme } from '../tokens/stitches.config'
 
 export function LoginLayout(props: LoginFormProps): JSX.Element {
@@ -34,7 +34,7 @@ export function LoginLayout(props: LoginFormProps): JSX.Element {
           width: '100%',
         }}
       >
-        <OmnivoreFestiveLogo
+        <OmnivoreNameLogo
           color={theme.colors.omnivoreGray.toString()}
           href="/login"
         />
