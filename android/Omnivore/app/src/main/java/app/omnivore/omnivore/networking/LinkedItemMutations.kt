@@ -6,9 +6,13 @@ import app.omnivore.omnivore.graphql.generated.type.ArchiveLinkInput
 import app.omnivore.omnivore.graphql.generated.type.SetBookmarkArticleInput
 
 suspend fun Networker.deleteLinkedItem(itemID: String): Boolean {
-  val input = SetBookmarkArticleInput(itemID, false)
-  val result = authenticatedApolloClient().mutation(SetBookmarkArticleMutation(input)).execute()
-  return result.data?.setBookmarkArticle?.onSetBookmarkArticleSuccess?.bookmarkedArticle?.id != null
+  return try {
+    val input = SetBookmarkArticleInput(itemID, false)
+    val result = authenticatedApolloClient().mutation(SetBookmarkArticleMutation(input)).execute()
+    result.data?.setBookmarkArticle?.onSetBookmarkArticleSuccess?.bookmarkedArticle?.id != null
+  } catch (e: java.lang.Exception) {
+    false
+  }
 }
 
 suspend fun Networker.archiveLinkedItem(itemID: String): Boolean {
@@ -20,7 +24,11 @@ suspend fun Networker.unarchiveLinkedItem(itemID: String): Boolean {
 }
 
 private suspend fun Networker.updateArchiveStatusLinkedItem(itemID: String, setAsArchived: Boolean): Boolean {
-  val input = ArchiveLinkInput(setAsArchived, itemID)
-  val result = authenticatedApolloClient().mutation(SetLinkArchivedMutation(input)).execute()
-  return result.data?.setLinkArchived?.onArchiveLinkSuccess?.linkId != null
+  return try {
+    val input = ArchiveLinkInput(setAsArchived, itemID)
+    val result = authenticatedApolloClient().mutation(SetLinkArchivedMutation(input)).execute()
+    result.data?.setLinkArchived?.onArchiveLinkSuccess?.linkId != null
+  } catch (e: java.lang.Exception) {
+    false
+  }
 }

@@ -47,7 +47,7 @@ fun LinkedItemCard(item: LinkedItem, onClickHandler: () -> Unit, actionHandler: 
           lineHeight = 20.sp
         )
 
-        if (item.author != null) {
+        if (item.author != null && item.author != "") {
           Text(
             text = "By ${item.author}",
             style = MaterialTheme.typography.bodyMedium,

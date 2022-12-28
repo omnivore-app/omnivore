@@ -13,5 +13,6 @@ export const corsConfig = {
     'http://localhost:3000',
     'lsp://logseq.io',
     env.dev.isLocal && 'https://studio.apollographql.com',
+    'app://obsidian.md',
   ],
 }
