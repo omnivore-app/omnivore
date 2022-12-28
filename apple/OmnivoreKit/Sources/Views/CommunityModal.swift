@@ -17,61 +17,96 @@ public struct CommunityModal: View {
   let message: String = """
   Thank you for being a member of the Omnivore Community.
 
-  Omnivore relies on help from our community to grow. Below are a few simple
+  Omnivore is a free and open-source project and relies on \
+  help from our community to grow. Below are a few simple \
   things you can do to help us build a better Omnivore.
   """
 
   public init() {}
 
-  public var body: some View {
-    VStack(spacing: 0) {
-      VStack(alignment: .leading) {
-        Text("Help build the Omnivore Community")
-          .font(.textToSpeechRead)
-          .foregroundColor(Color.appGrayTextContrast)
-          .frame(maxWidth: .infinity, alignment: .leading)
+//  var body: some View {
+//          ZStack {
+//              Image("Biz-card_2020")
+//                  .resizable()
+//                  .edgesIgnoringSafeArea(.all)
+//              closeButton
+//          }
+//      }
 
-        HStack {
-          TextChip(text: "Help Wanted", color: Color.appBackground)
-            .frame(alignment: .leading)
-          TextChip(text: "Community", color: Color.green)
-            .frame(alignment: .leading)
+  var closeButton: some View {
+    VStack {
+      HStack {
+        Spacer()
+        Button(action: {
+          dismiss()
+        }) {
+          Image(systemName: "xmark.circle")
+            .padding(10)
         }
       }
-      .padding(.top, 16)
-      .padding(.bottom, 16)
+      .padding(.top, 5)
+      Spacer()
+    }
+  }
+
+  public var header: some View {
+    VStack(spacing: 0) {
+      Text("Help build the Omnivore Community")
+        .font(.textToSpeechRead)
+        .foregroundColor(Color.appGrayTextContrast)
+        .frame(maxWidth: .infinity, alignment: .leading)
+
+      HStack {
+        TextChip(text: "Help Wanted", color: Color.appBackground)
+          .frame(alignment: .leading)
+        TextChip(text: "Community", color: Color.green)
+          .frame(alignment: .leading)
+      }
+      .padding(.top, 10)
+      .frame(maxWidth: .infinity, alignment: .leading)
+    }
+  }
+
+  let links = [
+    (title: "Tweet about Omnivore", url: tweetUrl),
+    (title: "Follow us on Twitter", url: "https://twitter.com/omnivoreapp"),
+    (title: "Join us on Discord", url: "https://discord.gg/h2z5rppzz9"),
+    (title: "Star on GitHub", url: "https://github.com/omnivore-app/omnivore")
+  ]
+
+  var buttonLinks: some View {
+    VStack(spacing: 15) {
+      Button(action: {
+        if let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
+          SKStoreReviewController.requestReview(in: scene)
+        }
+      }, label: { Text("Review on the AppStore") })
+        .frame(maxWidth: .infinity, alignment: .leading)
+
+      ForEach(links, id: \.url) { link in
+        if let url = URL(string: link.url) {
+          Link(link.title, destination: url)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+      }
+    }.frame(maxWidth: .infinity, alignment: .leading)
+  }
+
+  public var body: some View {
+    VStack(spacing: 0) {
+      header
 
       Text((try? AttributedString(markdown: message,
                                   options: AttributedString.MarkdownParsingOptions(interpretedSyntax: .inlineOnlyPreservingWhitespace))) ?? "")
-        .foregroundColor(Color.appGrayText)
+        .multilineTextAlignment(.leading)
+        .foregroundColor(Color.appGrayTextContrast)
         .accentColor(.blue)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.top, 16)
 
-      Group {
-        Button(action: {
-          if let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
-            SKStoreReviewController.requestReview(in: scene)
-          }
-        }, label: { Text("Review on the AppStore") })
+      Spacer()
 
-        if let url = URL(string: tweetUrl) {
-          Link("Tweet about Omnivore", destination: url)
-        }
-
-        if let url = URL(string: "https://twitter.com/omnivoreapp") {
-          Link("Follow us on Twitter", destination: url)
-        }
-
-        if let url = URL(string: "https://discord.gg/h2z5rppzz9") {
-          Link("Join us on Discord", destination: url)
-        }
-
-        if let url = URL(string: "https://github.com/omnivore-app/omnivore") {
-          Link("Star on GitHub", destination: url)
-        }
-      }
-      .frame(maxWidth: .infinity, alignment: .leading)
-      .padding(.top, 32)
+      buttonLinks
 
       Spacer()
 
@@ -79,6 +114,8 @@ public struct CommunityModal: View {
         dismiss()
       }, label: { Text("Dismiss") })
         .buttonStyle(PlainButtonStyle())
+        .padding(.bottom, 16)
+        .frame(alignment: .bottom)
     }.padding()
   }
 }
