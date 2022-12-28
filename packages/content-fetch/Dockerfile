@@ -37,6 +37,7 @@ RUN yarn install --pure-lockfile
 ADD /packages/content-fetch ./packages/content-fetch
 ADD /packages/content-handler ./packages/content-handler
 ADD /packages/puppeteer-parse ./packages/puppeteer-parse
+ADD /packages/readabilityjs ./packages/readabilityjs
 RUN yarn workspace @omnivore/content-handler build
 
 # After building, fetch the production dependencies
