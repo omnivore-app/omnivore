@@ -1178,8 +1178,8 @@ input ParseResult {
   length: Int!
   previewImage: String
   publishedDate: Date
-  siteIcon: String
-  siteName: String
+  siteIcon: String!
+  siteName: String!
   textContent: String!
   title: String!
 }

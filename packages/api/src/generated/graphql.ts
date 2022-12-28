@@ -1621,8 +1621,8 @@ export type ParseResult = {
   length: Scalars['Int'];
   previewImage?: InputMaybe<Scalars['String']>;
   publishedDate?: InputMaybe<Scalars['Date']>;
-  siteIcon?: InputMaybe<Scalars['String']>;
-  siteName?: InputMaybe<Scalars['String']>;
+  siteIcon: Scalars['String'];
+  siteName: Scalars['String'];
   textContent: Scalars['String'];
   title: Scalars['String'];
 };

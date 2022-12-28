@@ -534,8 +534,8 @@ const schema = gql`
     textContent: String!
     length: Int!
     excerpt: String!
-    siteName: String
-    siteIcon: String
+    siteName: String!
+    siteIcon: String!
     previewImage: String
     publishedDate: Date
     language: String

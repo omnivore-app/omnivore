@@ -161,11 +161,11 @@ declare module '@omnivore/readability' {
       /** Article site icon */
       siteIcon: string
       /** Article preview image */
-      previewImage?: string
+      previewImage?: string | null
       /** Article published date */
-      publishedDate?: Date
-      dom?: Element
-      language?: string
+      publishedDate?: Date | null
+      dom?: Element | null
+      language?: string | null
     }
   }
 
