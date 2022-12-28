@@ -9,7 +9,10 @@ RUN apk add --no-cache \
       ca-certificates \
       ttf-freefont \
       nodejs \
-      yarn
+      yarn \
+      g++ \
+      make \
+      python3
 
 # Add user so we don't need --no-sandbox.
 RUN addgroup -S pptruser && adduser -S -g pptruser pptruser \
@@ -30,6 +33,7 @@ COPY tsconfig.json .
 COPY .prettierrc .
 COPY .eslintrc .
 
+COPY /packages/readabilityjs/package.json ./packages/readabilityjs/package.json
 COPY /packages/content-handler/package.json ./packages/content-handler/package.json
 COPY /packages/puppeteer-parse/package.json ./packages/puppeteer-parse/package.json
 
