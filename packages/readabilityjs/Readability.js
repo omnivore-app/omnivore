@@ -2998,7 +2998,6 @@ Readability.prototype = {
       siteIcon: metadata.siteIcon,
       previewImage: metadata.previewImage,
       publishedDate: metadata.publishedDate || publishedAt || this._articlePublishedDate,
-      dom: articleContent,
       language: this._getLanguage(metadata.locale || this._languageCode),
     };
   }

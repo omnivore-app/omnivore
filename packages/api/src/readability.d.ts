@@ -145,9 +145,9 @@ declare module '@omnivore/readability' {
       /** Article title */
       title: string
       /** Author metadata */
-      byline: string
+      byline?: string | null
       /** Content direction */
-      dir: string
+      dir?: string | null
       /** HTML string of processed article content */
       content: string
       /** non-HTML version of `content`  */
@@ -157,15 +157,14 @@ declare module '@omnivore/readability' {
       /** Article description, or short excerpt from the content */
       excerpt: string
       /** Article site name */
-      siteName: string
+      siteName?: string | null
       /** Article site icon */
-      siteIcon: string
+      siteIcon?: string | null
       /** Article preview image */
-      previewImage?: string
+      previewImage?: string | null
       /** Article published date */
-      publishedDate?: Date
-      dom?: Element
-      language?: string
+      publishedDate?: Date | null
+      language?: string | null
     }
   }
 

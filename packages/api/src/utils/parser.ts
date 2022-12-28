@@ -17,8 +17,8 @@ import { v4 as uuid } from 'uuid'
 import addressparser from 'addressparser'
 import { preParseContent } from '@omnivore/content-handler'
 import {
-  findEmbeddedHighlight,
   EmbeddedHighlightData,
+  findEmbeddedHighlight,
 } from './highlightGenerator'
 
 const logger = buildLogger('utils.parse')
@@ -174,6 +174,7 @@ const getReadabilityResult = async (
 export const parsePreparedContent = async (
   url: string,
   preparedDocument: PreparedDocumentInput,
+  parseResult?: Readability.ParseResult | null,
   isNewsletter?: boolean,
   allowRetry = true
 ): Promise<ParsedContentPuppeteer> => {
@@ -208,20 +209,29 @@ export const parsePreparedContent = async (
   preParsedDom && (dom = preParsedDom)
 
   try {
-    article = await getReadabilityResult(url, document, dom, isNewsletter)
+    article =
+      parseResult ||
+      (await getReadabilityResult(url, document, dom, isNewsletter))
     if (!article?.textContent && allowRetry) {
       const newDocument = {
         ...preparedDocument,
         document: '<html>' + preparedDocument.document + '</html>',
       }
-      return parsePreparedContent(url, newDocument, isNewsletter, false)
+      return parsePreparedContent(
+        url,
+        newDocument,
+        parseResult,
+        isNewsletter,
+        false
+      )
     }
 
     // Format code blocks
     // TODO: we probably want to move this type of thing
     // to the handlers, and have some concept of postHandle
-    if (article?.dom) {
-      const codeBlocks = article.dom.querySelectorAll('code')
+    if (article?.content) {
+      const articleDom = parseHTML(article.content).document
+      const codeBlocks = articleDom.querySelectorAll('code')
       if (codeBlocks.length > 0) {
         codeBlocks.forEach((e) => {
           if (e.textContent) {
@@ -237,12 +247,10 @@ export const parsePreparedContent = async (
             e.replaceWith(code)
           }
         })
-        article.content = article.dom.outerHTML
+        article.content = articleDom.documentElement.outerHTML
       }
 
-      if (article?.dom) {
-        highlightData = findEmbeddedHighlight(article?.dom)
-      }
+      highlightData = findEmbeddedHighlight(articleDom.documentElement)
 
       const ANCHOR_ELEMENTS_BLOCKED_ATTRIBUTES = [
         'omnivore-highlight-id',
@@ -251,7 +259,7 @@ export const parsePreparedContent = async (
       ]
 
       // Get the top level element?
-      const pageNode = article.dom.firstElementChild as HTMLElement
+      const pageNode = articleDom.firstElementChild as HTMLElement
       const nodesToVisitStack: [HTMLElement] = [pageNode]
       const visitedNodeList = []
 
@@ -281,7 +289,7 @@ export const parsePreparedContent = async (
         node.setAttribute('data-omnivore-anchor-idx', (index + 1).toString())
       })
 
-      article.content = article.dom.outerHTML
+      article.content = articleDom.documentElement.outerHTML
     }
 
     const newWindow = parseHTML('')

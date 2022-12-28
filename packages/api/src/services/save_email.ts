@@ -41,6 +41,7 @@ export const saveEmail = async (
         // can leave this empty for now
       },
     },
+    null,
     true
   )
   const content = parseResult.parsedContent?.content || input.originalContent
@@ -62,15 +63,21 @@ export const saveEmail = async (
     }),
     pageType: parseResult.pageType,
     hash: stringToHash(content),
-    image: metadata?.previewImage || parseResult.parsedContent?.previewImage,
-    publishedAt: validatedDate(parseResult.parsedContent?.publishedDate),
+    image:
+      metadata?.previewImage ||
+      parseResult.parsedContent?.previewImage ||
+      undefined,
+    publishedAt: validatedDate(
+      parseResult.parsedContent?.publishedDate ?? undefined
+    ),
     createdAt: new Date(),
     savedAt: new Date(),
     readingProgressAnchorIndex: 0,
     readingProgressPercent: 0,
     subscription: input.author,
     state: ArticleSavingRequestStatus.Succeeded,
-    siteIcon: parseResult.parsedContent?.siteIcon,
+    siteIcon: parseResult.parsedContent?.siteIcon ?? undefined,
+    siteName: parseResult.parsedContent?.siteName ?? undefined,
   }
 
   const page = await getPageByParam({
