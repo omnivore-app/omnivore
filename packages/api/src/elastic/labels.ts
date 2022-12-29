@@ -106,18 +106,19 @@ export const deleteLabel = async (
       index: INDEX_ALIAS,
       body: {
         script: {
-          source: `if (ctx._source.highlights != null && ctx._source.highlights[0].labels != null) {
-                     ctx._source.highlights[0].labels.removeIf(label -> label.name == params.label);
-                     ctx._source.updatedAt = params.updatedAt
+          source: `if (ctx._source.highlights != null) {
+                     for (h in ctx._source.highlights) {
+                        if (h.labels != null) {
+                          h.labels.removeIf(l -> l.name == params.label)
+                        }
+                     }
                    }
                    if (ctx._source.labels != null) {
                      ctx._source.labels.removeIf(label -> label.name == params.label);
-                     ctx._source.updatedAt = params.updatedAt
                    }`,
           lang: 'painless',
           params: {
             label: label,
-            updatedAt: new Date(),
           },
         },
         query: {
@@ -182,19 +183,30 @@ export const updateLabel = async (
       body: {
         script: {
           source: `if (ctx._source.labels != null) {
-                     ctx._source.labels.removeIf(l -> l.id == params.label.id);
-                     ctx._source.labels.add(params.label);
-                     ctx._source.updatedAt = params.updatedAt
+                      for (l in ctx._source.labels) {
+                        if (l.id == params.label.id) {
+                          l.name = params.label.name;
+                          l.color = params.label.color;
+                          l.description = params.description;
+                        } 
+                      }
                    }
-                   if (ctx._source.highlights != null && ctx._source.highlights[0].labels != null) {
-                     ctx._source.highlights[0].labels.removeIf(l -> l.id == params.label.id);
-                     ctx._source.highlights[0].labels.add(params.label);
-                     ctx._source.updatedAt = params.updatedAt
+                   if (ctx._source.highlights != null) {
+                     for (h in ctx._source.highlights) {
+                        if (h.labels != null) {
+                          for (l in h.labels) {
+                            if (l.id == params.label.id) {
+                              l.name = params.label.name;
+                              l.color = params.label.color;
+                              l.description = params.description;
+                            }
+                          }
+                        }
+                      }
                    }`,
           lang: 'painless',
           params: {
             label: label,
-            updatedAt: new Date(),
           },
         },
         query: {
@@ -260,10 +272,11 @@ export const setLabelsForHighlight = async (
       index: INDEX_ALIAS,
       body: {
         script: {
-          source: `ctx._source.highlights[0].labels = params.labels;
+          source: `ctx._source.highlights.find(h -> params.highlightId == h.id).labels = params.labels;
                    ctx._source.updatedAt = params.updatedAt`,
           lang: 'painless',
           params: {
+            highlightId,
             labels: labels,
             updatedAt: new Date(),
           },
