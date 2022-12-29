@@ -151,17 +151,17 @@ struct WebReaderContainerView: View {
       }).frame(width: 48, height: 48)
       Divider().opacity(0.8)
 
-      Button(action: recommend, label: {
-        Image(systemName: "sparkles")
-      }).frame(width: 48, height: 48)
-
-        // TODO: We don't have a single note function yet
-//      Divider()
-//
-//      Button(action: addNote, label: {
-//        Image(systemName: "note")
-//      }).frame(width: 48, height: 48)
-        .padding(.trailing, 8)
+      if viewModel.recommendationGroupsEnabled {
+        Button(action: recommend, label: {
+          Image(systemName: "sparkles")
+        }).frame(width: 48, height: 48)
+          .padding(.trailing, 8)
+      } else if viewModel.hasOriginalUrl(item) {
+        Button(action: share, label: {
+          Image(systemName: "square.and.arrow.up")
+        }).frame(width: 48, height: 48)
+          .padding(.trailing, 8)
+      }
     }.foregroundColor(.appGrayTextContrast)
   }
 
@@ -220,12 +220,14 @@ struct WebReaderContainerView: View {
         action: delete,
         label: { Label("Delete", systemImage: "trash") }
       )
-      Button(
-        action: {
-          showRecommendSheet = true
-        },
-        label: { Label("Recommend", systemImage: "sparkles") }
-      )
+      if viewModel.recommendationGroupsEnabled {
+        Button(
+          action: {
+            showRecommendSheet = true
+          },
+          label: { Label("Recommend", systemImage: "sparkles") }
+        )
+      }
     }
   }
 

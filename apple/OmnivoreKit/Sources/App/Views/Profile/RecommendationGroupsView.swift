@@ -1,6 +1,7 @@
 import Models
 import Services
 import SwiftUI
+import Utils
 import Views
 
 @MainActor final class RecommendationsGroupsViewModel: ObservableObject {
@@ -16,6 +17,8 @@ import Views
 
   @Published var onlyAdminCanPost = false
   @Published var onlyAdminCanSeeMembers = false
+
+  @AppStorage(UserDefaultKey.recommendationGroupsEnabled.rawValue) var recommendationGroupsEnabled = false
 
   func loadGroups(dataService: DataService) async {
     isLoading = true
@@ -137,6 +140,9 @@ struct GroupsView: View {
 
   private var innerBody: some View {
     Group {
+      Section {
+        Toggle(isOn: $viewModel.recommendationGroupsEnabled, label: { Text("Enabled") })
+      }
       Section {
         Button(
           action: { viewModel.showCreateSheet = true },

@@ -1,6 +1,7 @@
 import Models
 import Services
 import SwiftUI
+import Utils
 import Views
 import WebKit
 
@@ -15,9 +16,7 @@ struct SafariWebLink: Identifiable {
   @Published var isDownloadingAudio: Bool = false
   @Published var audioDownloadTask: Task<Void, Error>?
 
-  deinit {
-    print("deinit WebReaderViewModel")
-  }
+  @AppStorage(UserDefaultKey.recommendationGroupsEnabled.rawValue) var recommendationGroupsEnabled = false
 
   func hasOriginalUrl(_ item: LinkedItem) -> Bool {
     if let pageURLString = item.pageURLString, let host = URL(string: pageURLString)?.host {
