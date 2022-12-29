@@ -273,7 +273,9 @@ export function ArticleActionsMenu(
       {props.article && readerSettings.showSetLabelsModal && (
         <SetLabelsModal
           provider={props.article}
-          onOpenChange={(open: boolean) => {}}
+          onOpenChange={(open: boolean) => {
+            readerSettings.setShowSetLabelsModal(false)
+          }}
           onLabelsUpdated={(labels: Label[]) => {
             props.articleActionHandler('refreshLabels', labels)
           }}
