@@ -260,10 +260,11 @@ export const setLabelsForHighlight = async (
       index: INDEX_ALIAS,
       body: {
         script: {
-          source: `ctx._source.highlights[0].labels = params.labels;
+          source: `ctx._source.highlights.stream().filter(h -> params.highlightId.equals(h.id)).findAny().orElse(null).labels = params.labels;
                    ctx._source.updatedAt = params.updatedAt`,
           lang: 'painless',
           params: {
+            highlightId,
             labels: labels,
             updatedAt: new Date(),
           },
