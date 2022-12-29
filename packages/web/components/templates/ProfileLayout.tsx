@@ -1,5 +1,5 @@
 import { Box, VStack, HStack } from '../elements/LayoutPrimitives'
-import { OmnivoreFestiveLogo } from '../elements/images/OmnivoreFestiveLogo'
+import { OmnivoreNameLogo } from '../elements/images/OmnivoreNameLogo'
 import { theme } from '../tokens/stitches.config'
 
 type ProfileLayoutProps = {
@@ -39,7 +39,7 @@ export function ProfileLayout(props: ProfileLayoutProps): JSX.Element {
             },
           }}
         >
-          <OmnivoreFestiveLogo
+          <OmnivoreNameLogo
             color={theme.colors.omnivoreGray.toString()}
             href="/login"
           />
