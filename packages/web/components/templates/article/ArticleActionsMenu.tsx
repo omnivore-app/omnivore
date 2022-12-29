@@ -20,6 +20,7 @@ import { useReaderSettings } from '../../../lib/hooks/useReaderSettings'
 import { useRef } from 'react'
 import { setLabelsMutation } from '../../../lib/networking/mutations/setLabelsMutation'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
+import { SetLabelsModal } from './SetLabelsModal'
 
 export type ArticleActionsMenuLayout = 'top' | 'side'
 
@@ -102,12 +103,7 @@ export function ArticleActionsMenu(
                 tooltipContent="Adjust Display Settings"
                 tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
               >
-                <SpanBox ref={displaySettingsButtonRef}>
-                  <TextAa
-                    size={24}
-                    color={theme.colors.readerFont.toString()}
-                  />
-                </SpanBox>
+                <TextAa size={24} color={theme.colors.readerFont.toString()} />
               </TooltipWrapped>
             </Button>
             <MenuSeparator layout={props.layout} />
@@ -122,37 +118,56 @@ export function ArticleActionsMenu(
           }}
         >
           {props.article ? (
-            <ActionDropdown
-              layout={props.layout}
-              triggerElement={
+            <>
+              <Button
+                style="articleActionIcon"
+                onClick={() => readerSettings.setShowSetLabelsModal(true)}
+              >
                 <TooltipWrapped
                   tooltipContent="Edit labels"
                   tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
                 >
-                  <TagSimple
-                    size={24}
-                    color={theme.colors.readerFont.toString()}
-                  />
+                  <SpanBox ref={displaySettingsButtonRef}>
+                    <TagSimple
+                      size={24}
+                      color={theme.colors.readerFont.toString()}
+                    />
+                  </SpanBox>
                 </TooltipWrapped>
-              }
-            >
-              <SetLabelsControl
-                provider={props.article}
-                save={(labels: Label[]) => {
-                  if (props.article?.id) {
-                    return setLabelsMutation(
-                      props.article?.id,
-                      labels.map((label) => label.id)
-                    )
-                  }
-                  return Promise.resolve(undefined)
-                }}
-                onLabelsChanged={(labels) => {
-                  props.articleActionHandler('refreshLabels', labels)
-                }}
-              />
-            </ActionDropdown>
+              </Button>
+              <MenuSeparator layout={props.layout} />
+            </>
           ) : (
+            // <ActionDropdown
+            //   layout={props.layout}
+            //   triggerElement={
+            //     <TooltipWrapped
+            //       tooltipContent="Edit labels"
+            //       tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
+            //     >
+            //       <TagSimple
+            //         size={24}
+            //         color={theme.colors.readerFont.toString()}
+            //       />
+            //     </TooltipWrapped>
+            //   }
+            // >
+            //   <SetLabelsControl
+            //     provider={props.article}
+            //     save={(labels: Label[]) => {
+            //       if (props.article?.id) {
+            //         return setLabelsMutation(
+            //           props.article?.id,
+            //           labels.map((label) => label.id)
+            //         )
+            //       }
+            //       return Promise.resolve(undefined)
+            //     }}
+            //     onLabelsChanged={(labels) => {
+            //       props.articleActionHandler('refreshLabels', labels)
+            //     }}
+            //   />
+            // </ActionDropdown>
             <Button
               style="articleActionIcon"
               css={{
@@ -252,6 +267,27 @@ export function ArticleActionsMenu(
           onOpenChange={() =>
             readerSettings.setShowEditDisplaySettingsModal(false)
           }
+        />
+      )}
+
+      {props.article && readerSettings.showSetLabelsModal && (
+        <SetLabelsModal
+          provider={props.article}
+          onOpenChange={(open: boolean) => {}}
+          onLabelsUpdated={(labels: Label[]) => {
+            props.articleActionHandler('refreshLabels', labels)
+          }}
+          save={(labels: Label[]) => {
+            if (props.article?.id) {
+              return (
+                setLabelsMutation(
+                  props.article?.id,
+                  labels.map((l) => l.id)
+                ) ?? []
+              )
+            }
+            return Promise.resolve(labels)
+          }}
         />
       )}
     </>

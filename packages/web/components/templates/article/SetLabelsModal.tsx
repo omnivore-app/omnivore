@@ -12,40 +12,30 @@ import { LabelsProvider, SetLabelsControl } from './SetLabelsControl'
 
 type SetLabelsModalProps = {
   provider: LabelsProvider
+
+  onLabelsUpdated?: (labels: Label[]) => void
   onOpenChange: (open: boolean) => void
-  onLabelsChanged: (labels: Label[]) => void
   save: (labels: Label[]) => Promise<Label[] | undefined>
 }
 
 export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
-  const [selectedLabels, setSelectedLabels] = useState(props.provider.labels)
+  const [selectedLabels, setSelectedLabels] = useState(
+    props.provider.labels ?? []
+  )
+
   const onOpenChange = useCallback(
     async (open: boolean) => {
-      console.log('SetLabelsModal::onOpenChange: ', open, selectedLabels)
-      if (selectedLabels) {
-        const result = await props.save(selectedLabels)
-        console.log('SetLabelsModal::onOpenChange: ', result)
+      const result = await props.save(selectedLabels)
+      if (props.onLabelsUpdated) {
+        props.onLabelsUpdated(selectedLabels)
+      }
 
-        if (result) {
-          props.onLabelsChanged(result)
-        } else {
-          showErrorToast('Error updating labels')
-        }
-      } else {
-        console.log('SetLabelsModal::onOpenChange: no selectedLabels')
+      if (!result) {
+        showErrorToast('Error updating labels')
       }
       props.onOpenChange(open)
     },
-    [props.onOpenChange]
-  )
-
-  const handleSave = useCallback(
-    (labels: Label[]) => {
-      console.log('setting selected labels: ', labels)
-      setSelectedLabels(labels)
-      return Promise.resolve(labels)
-    },
-    [selectedLabels, setSelectedLabels]
+    [props, selectedLabels, setSelectedLabels]
   )
 
   return (
@@ -64,8 +54,9 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
           </SpanBox>
           <SetLabelsControl
             provider={props.provider}
-            save={handleSave}
-            onLabelsChanged={props.onLabelsChanged}
+            selectedLabels={selectedLabels}
+            setSelectedLabels={setSelectedLabels}
+            onLabelsUpdated={props.onLabelsUpdated}
           />
         </VStack>
       </ModalContent>
