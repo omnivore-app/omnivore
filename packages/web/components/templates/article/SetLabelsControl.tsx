@@ -258,6 +258,8 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
 
   const toggleLabel = useCallback(
     async (label: Label) => {
+      console.log('toggling label: ', label)
+
       let newSelectedLabels = [...selectedLabels]
       if (isSelected(label)) {
         newSelectedLabels = selectedLabels.filter((other) => {
@@ -268,12 +270,17 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
       }
       setSelectedLabels(newSelectedLabels)
 
-      const result = await props.save(newSelectedLabels)
-      if (result) {
-        props.provider.labels = result
-        if (props.onLabelsChanged) {
-          props.onLabelsChanged(result)
+      try {
+        const result = await props.save(newSelectedLabels)
+        console.log(' -- result of setting labels: ', result)
+        if (result) {
+          props.provider.labels = result
+          if (props.onLabelsChanged) {
+            props.onLabelsChanged(result)
+          }
         }
+      } catch (err) {
+        console.log(' -- error setting labels: ', err)
       }
 
       revalidate()
