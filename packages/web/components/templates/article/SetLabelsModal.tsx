@@ -21,13 +21,18 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
   const [selectedLabels, setSelectedLabels] = useState(props.provider.labels)
   const onOpenChange = useCallback(
     async (open: boolean) => {
+      console.log('SetLabelsModal::onOpenChange: ', open, selectedLabels)
       if (selectedLabels) {
         const result = await props.save(selectedLabels)
+        console.log('SetLabelsModal::onOpenChange: ', result)
+
         if (result) {
           props.onLabelsChanged(result)
         } else {
           showErrorToast('Error updating labels')
         }
+      } else {
+        console.log('SetLabelsModal::onOpenChange: no selectedLabels')
       }
       props.onOpenChange(open)
     },
