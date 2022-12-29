@@ -269,16 +269,14 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
         newSelectedLabels = [...selectedLabels, label]
       }
       setSelectedLabels(newSelectedLabels)
+      props.provider.labels = newSelectedLabels
+      if (props.onLabelsChanged) {
+        props.onLabelsChanged(newSelectedLabels)
+      }
 
       try {
         const result = await props.save(newSelectedLabels)
         console.log(' -- result of setting labels: ', result)
-        if (result) {
-          props.provider.labels = result
-          if (props.onLabelsChanged) {
-            props.onLabelsChanged(result)
-          }
-        }
       } catch (err) {
         console.log(' -- error setting labels: ', err)
       }

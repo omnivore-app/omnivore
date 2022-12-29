@@ -41,6 +41,7 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
 
   const handleSave = useCallback(
     (labels: Label[]) => {
+      console.log('setting selected labels: ', labels)
       setSelectedLabels(labels)
       return Promise.resolve(labels)
     },
