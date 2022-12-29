@@ -53,15 +53,15 @@ public struct FeaturePrimer: View {
   public static var recommendationsPrimer: some View {
     FeaturePrimer(
       isBeta: true,
-      title: "Introducing Recommendation Groups",
+      title: "Introducing Clubs",
       message: """
-      Recommendation groups make it easy to share great reads with friends and co-workers.
+      Clubs make it easy to share great reads with friends and co-workers.
 
-      To get started, create a Recommendation Group from the profile page and invite some friends.
+      To get started, create a club from the profile page and invite some friends.
 
-      *During the beta you can create a max of three groups. Group sizes are limited to 12 people.*
+      *During the beta you can create a max of three clubs. Club sizes are limited to 12 people.*
 
-      [Learn more about groups](https://blog.omnivore.app/p/dca38ba4-8a74-42cc-90ca-d5ffa5d075cc)
+      [Learn more about clubs](https://blog.omnivore.app/p/dca38ba4-8a74-42cc-90ca-d5ffa5d075cc)
 
       """
     )
