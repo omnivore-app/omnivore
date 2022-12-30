@@ -6,24 +6,12 @@ public extension DataService {
   /// Requests `LinkedItem`s updates from the server since a certain datae
   /// and stores it in CoreData while deleting all the items with ids the server says
   /// have been deleted.
-  /// - Parameters:
-  ///   - limit: max count of items
-  ///   - searchQuery: search terms and filters
-  ///   - cursor: cursor when loading batch for infinite list
-  /// - Returns: `LinkedItemQueryResult` (managed object IDs and an optional cursor)
   func syncLinkedItems(
-    since date: Date,
+    since: Date,
     cursor: String?,
-    previousQueryResult: LinkedItemSyncResult? = nil,
-    deferFetchingMore: Bool
-  ) async throws -> LinkedItemSyncResult? {
-    if previousQueryResult == nil {
-      // Send offline changes to server before fetching items
-      // only on the first call of this function
-      try? await syncOfflineItemsWithServerIfNeeded()
-    }
-
-    let fetchResult = try await linkedItemUpdates(since: date, limit: 20, cursor: cursor)
+    descending: Bool = true
+  ) async throws -> LinkedItemSyncResult {
+    let fetchResult = try await linkedItemUpdates(since: since, limit: 20, cursor: cursor, descending: descending)
 
     LinkedItem.deleteItems(ids: fetchResult.deletedItemIDs, context: backgroundContext)
 
@@ -31,31 +19,14 @@ public extension DataService {
       throw BasicError.message(messageText: "CoreData error")
     }
 
-    let prev = previousQueryResult?.updatedItemIDs ?? []
+    let newestChange = fetchResult.items.max { $0.updatedAt < $1.updatedAt }
     let result = LinkedItemSyncResult(
-      updatedItemIDs: prev + fetchResult.items.map(\.id),
-      cursor: fetchResult.cursor
+      updatedItemIDs: fetchResult.items.map(\.id),
+      cursor: fetchResult.cursor,
+      hasMore: fetchResult.hasMoreItems,
+      mostRecentUpdatedAt: newestChange?.updatedAt,
+      isEmpty: fetchResult.deletedItemIDs.isEmpty && fetchResult.items.isEmpty
     )
-
-    if fetchResult.hasMoreItems, (previousQueryResult?.updatedItemIDs.count ?? 0) < 40 {
-      if deferFetchingMore {
-        Task.detached(priority: .background) {
-          try await self.syncLinkedItems(
-            since: date,
-            cursor: fetchResult.cursor,
-            previousQueryResult: result,
-            deferFetchingMore: deferFetchingMore
-          )
-        }
-      } else {
-        return try await syncLinkedItems(
-          since: date,
-          cursor: fetchResult.cursor,
-          previousQueryResult: result,
-          deferFetchingMore: deferFetchingMore
-        )
-      }
-    }
 
     return result
   }
@@ -103,5 +74,53 @@ public extension DataService {
 
     let articleContent = try await loadArticleContentWithRetries(itemID: requestID, username: username, requestCount: 0)
     return articleContent.objectID
+  }
+
+  // This will iterate through a paginated list of sync updates, and upon completing each one,
+  // update the lastItemSyncTime to the pages most recent change. This allows us to paginate
+  // very large sets of changes that could fail due to rate limiting or network failures.
+  // Eventually we should be able to work through the list of changes and catch up.
+  func syncLinkedItemsInBackground(
+    since: Date,
+    onComplete: @escaping () -> Void
+  ) {
+    Task.detached(priority: .background) {
+      var count = 0
+      for try await result in BackgroundSync(dataService: self, since: since, cursor: nil) {
+        count += result.updatedItemIDs.count
+        if count > 180 {
+          break
+        }
+      }
+      DispatchQueue.main.sync {
+        self.lastItemSyncTime = DateFormatter.formatterISO8601.string(from: Date.now)
+        onComplete()
+      }
+    }
+  }
+}
+
+struct BackgroundSync: AsyncSequence {
+  public typealias Element = LinkedItemSyncResult
+  public let dataService: DataService
+  public let since: Date
+  public let cursor: String?
+
+  public struct AsyncIterator: AsyncIteratorProtocol {
+    let dataService: DataService
+    public var since: Date
+    public var cursor: String?
+
+    public mutating func next() async throws -> LinkedItemSyncResult? {
+      let result = try await dataService.syncLinkedItems(since: since,
+                                                         cursor: cursor,
+                                                         descending: true)
+      cursor = result.cursor
+      return result.isEmpty ? nil : result
+    }
+  }
+
+  public func makeAsyncIterator() -> AsyncIterator {
+    AsyncIterator(dataService: dataService, since: since, cursor: cursor)
   }
 }

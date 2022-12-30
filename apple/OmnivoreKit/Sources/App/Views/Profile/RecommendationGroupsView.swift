@@ -40,7 +40,7 @@ import Views
       await loadGroups(dataService: dataService)
       showCreateSheet = false
     } else {
-      createGroupError = "Error creating group"
+      createGroupError = "Error creating club"
       showCreateError = true
     }
 
@@ -72,9 +72,9 @@ struct CreateRecommendationGroupView: View {
   var body: some View {
     NavigationView {
       Form {
-        TextField("Name", text: $name, prompt: Text("Group Name"))
+        TextField("Name", text: $name, prompt: Text("Club Name"))
 
-        Section {
+        Section("Club Rules") {
           Toggle("Only admins can post", isOn: $viewModel.onlyAdminCanPost)
           Toggle("Only admins can see members", isOn: $viewModel.onlyAdminCanSeeMembers)
         }
@@ -82,7 +82,7 @@ struct CreateRecommendationGroupView: View {
         Section {
           Section {
             Text("""
-            [Learn more about groups](https://blog.omnivore.app/p/dca38ba4-8a74-42cc-90ca-d5ffa5d075cc)
+            [Learn more about clubs](https://blog.omnivore.app/p/dca38ba4-8a74-42cc-90ca-d5ffa5d075cc)
             """)
               .accentColor(.blue)
           }
@@ -99,7 +99,7 @@ struct CreateRecommendationGroupView: View {
       }
     }
     .navigationViewStyle(.stack)
-    .navigationTitle("Create Group")
+    .navigationTitle("Create Club")
     .navigationBarTitleDisplayMode(.inline)
     .navigationBarItems(leading:
       Button(action: {
@@ -132,7 +132,7 @@ struct GroupsView: View {
       }
     }
     .task { await viewModel.loadGroups(dataService: dataService) }
-    .navigationTitle("Recommendation Groups")
+    .navigationTitle("Clubs")
   }
 
   private var innerBody: some View {
@@ -143,7 +143,7 @@ struct GroupsView: View {
           label: {
             HStack {
               Image(systemName: "plus.circle.fill").foregroundColor(.green)
-              Text("Create a new group")
+              Text("Create a new club")
               Spacer()
             }
           }
@@ -152,7 +152,7 @@ struct GroupsView: View {
 
       if !viewModel.isLoading {
         if viewModel.recommendationGroups.count > 0 {
-          Section(header: Text("Your recommendation groups")) {
+          Section(header: Text("Your clubs")) {
             ForEach(viewModel.recommendationGroups) { recommendationGroup in
               let vm = RecommendationsGroupViewModel(recommendationGroup: recommendationGroup)
               NavigationLink(
@@ -165,13 +165,13 @@ struct GroupsView: View {
         } else {
           Section {
             Text("""
-            You are not a member of any groups.
-            Create a new group and send the invite link to your friends get started.
+            You are not a member of any clubs.
+            Create a new club and send the invite link to your friends get started.
 
-            During the beta you are limited to creating three groups, and each group
+            During the beta you are limited to creating three clubs, and each club
             can have a maximum of twelve users.
 
-            [Learn more about groups](https://blog.omnivore.app/p/dca38ba4-8a74-42cc-90ca-d5ffa5d075cc)
+            [Learn more about clubs](https://blog.omnivore.app/p/dca38ba4-8a74-42cc-90ca-d5ffa5d075cc)
             """)
               .accentColor(.blue)
           }

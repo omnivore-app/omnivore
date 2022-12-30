@@ -4,7 +4,7 @@ import Models
 import Utils
 
 public extension DataService {
-  internal func syncOfflineItemsWithServerIfNeeded() async throws {
+  func syncOfflineItemsWithServerIfNeeded() async throws {
     var unsyncedLinkedItems = [LinkedItem]()
     var unsyncedHighlights = [Highlight]()
 

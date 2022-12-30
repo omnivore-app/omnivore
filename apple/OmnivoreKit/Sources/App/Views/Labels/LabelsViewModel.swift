@@ -12,6 +12,10 @@ import Views
   @Published var showCreateLabelModal = false
   @Published var labelSearchFilter = ""
 
+  func setLabels(_ labels: [LinkedItemLabel]) {
+    self.labels = labels.sorted { $0.unwrappedName.trimmingCharacters(in: .whitespaces) < $1.unwrappedName.trimmingCharacters(in: .whitespaces) }
+  }
+
   func loadLabels(
     dataService: DataService,
     item: LinkedItem? = nil,
@@ -19,16 +23,22 @@ import Views
   ) async {
     isLoading = true
 
-    if let labelIDs = try? await dataService.labels() {
-      dataService.viewContext.performAndWait {
-        self.labels = labelIDs.compactMap { dataService.viewContext.object(with: $0) as? LinkedItemLabel }
-      }
-      let selLabels = initiallySelectedLabels ?? item?.sortedLabels ?? []
-      for label in labels {
-        if selLabels.contains(label) {
-          selectedLabels.append(label)
-        } else {
-          unselectedLabels.append(label)
+    await loadLabelsFromStore(dataService: dataService)
+
+    Task.detached(priority: .userInitiated) {
+      if let labelIDs = try? await dataService.labels() {
+        DispatchQueue.main.async {
+          dataService.viewContext.performAndWait {
+            self.setLabels(labelIDs.compactMap { dataService.viewContext.object(with: $0) as? LinkedItemLabel })
+          }
+          let selLabels = initiallySelectedLabels ?? item?.sortedLabels ?? []
+          for label in self.labels {
+            if selLabels.contains(label) {
+              self.selectedLabels.append(label)
+            } else {
+              self.unselectedLabels.append(label)
+            }
+          }
         }
       }
     }
@@ -44,7 +54,7 @@ import Views
 
     if let labelIDs = try? await dataService.labels() {
       dataService.viewContext.performAndWait {
-        self.labels = labelIDs.compactMap { dataService.viewContext.object(with: $0) as? LinkedItemLabel }
+        setLabels(labelIDs.compactMap { dataService.viewContext.object(with: $0) as? LinkedItemLabel })
       }
       let selLabels = highlight.labels ?? []
       for label in labels {
@@ -69,7 +79,7 @@ import Views
     if fetchedLabels?.count == 0 {
       await fetchLabelsFromNetwork(dataService: dataService)
     } else {
-      labels = fetchedLabels ?? []
+      setLabels(fetchedLabels ?? [])
       unselectedLabels = fetchedLabels ?? []
     }
   }
@@ -82,7 +92,7 @@ import Views
       labelIDs.compactMap { dataService.viewContext.object(with: $0) as? LinkedItemLabel }
     }
 
-    labels = fetchedLabels
+    setLabels(fetchedLabels)
     unselectedLabels = fetchedLabels
   }
 

@@ -33,6 +33,16 @@ import Views
   @Published var linkIsActive = false
 
   @Published var showLabelsSheet = false
+  @Published var showCommunityModal = false
+
+  var cursor: String?
+
+  // These are used to make sure we handle search result
+  // responses in the right order
+  var searchIdx = 0
+  var receivedIdx = 0
+
+  var syncCursor: String?
 
   @AppStorage(UserDefaultKey.lastSelectedLinkedItemFilter.rawValue) var appliedFilter = LinkedItemFilter.inbox.rawValue
 
@@ -65,21 +75,16 @@ import Views
     }
   }
 
-  var cursor: String?
-
-  // These are used to make sure we handle search result
-  // responses in the right order
-  var searchIdx = 0
-  var receivedIdx = 0
-
-  func itemAppeared(item: LinkedItem, dataService: DataService, audioController: AudioController) async {
+  func itemAppeared(item: LinkedItem, dataService: DataService) async {
     if isLoading { return }
     let itemIndex = items.firstIndex(where: { $0.id == item.id })
     let thresholdIndex = items.index(items.endIndex, offsetBy: -5)
 
     // Check if user has scrolled to the last five items in the list
-    if let itemIndex = itemIndex, itemIndex > thresholdIndex, items.count < thresholdIndex + 10 {
-      await loadItems(dataService: dataService, audioController: audioController, isRefresh: false)
+    // Make sure we aren't currently loading though, as this would get triggered when the first set
+    // of items are presented to the user.
+    if let itemIndex = itemIndex, itemIndex > thresholdIndex {
+      await loadMoreItems(dataService: dataService, isRefresh: false)
     }
   }
 
@@ -103,14 +108,23 @@ import Views
     }
   }
 
-  func syncItems(dataService: DataService, syncStartTime: Date) async {
+  func syncItems(dataService: DataService) async {
+    let syncStart = Date.now
     let lastSyncDate = dateFormatter.date(from: dataService.lastItemSyncTime) ?? Date(timeIntervalSinceReferenceDate: 0)
-    let syncResult = try? await dataService.syncLinkedItems(since: lastSyncDate,
-                                                            cursor: nil,
-                                                            deferFetchingMore: true)
 
-    if syncResult != nil {
-      dataService.lastItemSyncTime = dateFormatter.string(from: syncStartTime)
+    try? await dataService.syncOfflineItemsWithServerIfNeeded()
+
+    let syncResult = try? await dataService.syncLinkedItems(since: lastSyncDate,
+                                                            cursor: nil)
+
+    syncCursor = syncResult?.cursor
+    if let syncResult = syncResult, syncResult.hasMore {
+      dataService.syncLinkedItemsInBackground(since: lastSyncDate) {
+        // Set isLoading to false here
+        self.isLoading = false
+      }
+    } else {
+      dataService.lastItemSyncTime = DateFormatter.formatterISO8601.string(from: syncStart)
     }
 
     // If possible start prefetching new pages in the background
@@ -169,30 +183,35 @@ import Views
     }
   }
 
-  func loadItems(dataService: DataService, audioController _: AudioController, isRefresh: Bool) async {
-    let syncStartTime = Date()
-
+  func loadItems(dataService: DataService, isRefresh: Bool) async {
     isLoading = true
     showLoadingBar = true
 
     await withTaskGroup(of: Void.self) { group in
       group.addTask { await self.loadCurrentViewer(dataService: dataService) }
       group.addTask { await self.loadLabels(dataService: dataService) }
-      group.addTask { await self.syncItems(dataService: dataService, syncStartTime: syncStartTime) }
+      group.addTask { await self.syncItems(dataService: dataService) }
       await group.waitForAll()
     }
 
     if searchTerm.replacingOccurrences(of: " ", with: "").isEmpty {
       updateFetchController(dataService: dataService)
-      // For now we are forcing the search because we are fetching items in reverse
-      // with the sync API, but search fetches in descending order
-
-      if appliedFilter != LinkedItemFilter.inbox.rawValue {
+      if appliedFilter != LinkedItemFilter.inbox.rawValue || !isRefresh {
         await loadSearchQuery(dataService: dataService, isRefresh: isRefresh)
       }
     } else {
       await loadSearchQuery(dataService: dataService, isRefresh: isRefresh)
     }
+
+    isLoading = false
+    showLoadingBar = false
+  }
+
+  func loadMoreItems(dataService: DataService, isRefresh: Bool) async {
+    isLoading = true
+    showLoadingBar = true
+
+    await loadSearchQuery(dataService: dataService, isRefresh: isRefresh)
 
     isLoading = false
     showLoadingBar = false

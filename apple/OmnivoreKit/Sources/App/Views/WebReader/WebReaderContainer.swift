@@ -6,6 +6,7 @@ import Utils
 import Views
 import WebKit
 
+// swiftlint:disable:next type_body_length
 struct WebReaderContainerView: View {
   let item: LinkedItem
 
@@ -16,7 +17,6 @@ struct WebReaderContainerView: View {
   @State private var showHighlightsView = false
   @State private var hasPerformedHighlightMutations = false
   @State var showHighlightAnnotationModal = false
-  @State var safariWebLink: SafariWebLink?
   @State private var navBarVisibilityRatio = 1.0
   @State private var showDeleteConfirmation = false
   @State private var progressViewOpacity = 0.0
@@ -30,6 +30,10 @@ struct WebReaderContainerView: View {
   @State private var errorAlertMessage: String?
   @State private var showErrorAlertMessage = false
   @State private var showRecommendSheet = false
+
+  @State var safariWebLink: SafariWebLink?
+  @State var displayLinkSheet = false
+  @State var linkToOpen: URL?
 
   @EnvironmentObject var dataService: DataService
   @EnvironmentObject var audioController: AudioController
@@ -326,7 +330,12 @@ struct WebReaderContainerView: View {
             #if os(macOS)
               NSWorkspace.shared.open($0)
             #elseif os(iOS)
-              safariWebLink = SafariWebLink(id: UUID(), url: $0)
+              if UIDevice.current.userInterfaceIdiom == .phone, $0.absoluteString != item.unwrappedPageURLString {
+                linkToOpen = $0
+                displayLinkSheet = true
+              } else {
+                safariWebLink = SafariWebLink(id: UUID(), url: $0)
+              }
             #endif
           },
           webViewActionHandler: webViewActionHandler,
@@ -346,6 +355,22 @@ struct WebReaderContainerView: View {
             navBarVisibilityRatio = 1
             showNavBarActionID = UUID()
           }
+        }
+        .confirmationDialog(linkToOpen?.absoluteString ?? "", isPresented: $displayLinkSheet) {
+          Button(action: {
+            if let linkToOpen = linkToOpen {
+              safariWebLink = SafariWebLink(id: UUID(), url: linkToOpen)
+            }
+          }, label: { Text("Open") })
+          Button(action: {
+            UIPasteboard.general.string = item.unwrappedPageURLString
+            showInSnackbar("Link Copied")
+          }, label: { Text("Copy Link") })
+          Button(action: {
+            if let linkToOpen = linkToOpen {
+              viewModel.saveLink(dataService: dataService, url: linkToOpen)
+            }
+          }, label: { Text("Save to Omnivore") })
         }
         #if os(iOS)
           .fullScreenCover(item: $safariWebLink) {

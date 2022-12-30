@@ -195,4 +195,17 @@ struct SafariWebLink: Identifiable {
   {
     dataService.setLabelsForHighlight(highlightID: highlightID, labelIDs: labelIDs)
   }
+
+  func saveLink(dataService: DataService, url: URL) {
+    Task {
+      do {
+        Snackbar.show(message: "Saving link")
+        print("SAVING: ", url.absoluteString)
+        _ = try await dataService.createPageFromUrl(id: UUID().uuidString, url: url.absoluteString)
+        Snackbar.show(message: "Link saved")
+      } catch {
+        Snackbar.show(message: "Error saving link")
+      }
+    }
+  }
 }
