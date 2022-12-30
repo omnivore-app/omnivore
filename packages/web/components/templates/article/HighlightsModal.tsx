@@ -105,7 +105,7 @@ export function HighlightsModal(props: HighlightsModalProps): JSX.Element {
           onOpenChange={function (open: boolean): void {
             setLabelsTarget(undefined)
           }}
-          onLabelsChanged={function (labels: Label[]): void {
+          onLabelsUpdated={function (labels: Label[]): void {
             updateState({})
           }}
           save={function (labels: Label[]): Promise<Label[] | undefined> {

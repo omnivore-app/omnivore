@@ -70,7 +70,7 @@ export const getHighlightById = async (
           nested: {
             path: 'highlights',
             query: {
-              match: {
+              term: {
                 'highlights.id': id,
               },
             },

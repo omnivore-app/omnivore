@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react'
 import { PageMetaData } from '../patterns/PageMetaData'
 import { VStack, HStack, Box } from '../elements/LayoutPrimitives'
-import { OmnivoreFestiveLogo } from '../elements/images/OmnivoreFestiveLogo'
+import { OmnivoreNameLogo } from '../elements/images/OmnivoreNameLogo'
 import { StyledText } from '../elements/StyledText'
 import { Button } from '../elements/Button'
 import { useRouter } from 'next/router'
@@ -123,7 +123,7 @@ export const OnboardingLayout = ({
               }}
               alignment="center"
             >
-              <OmnivoreFestiveLogo href="/login" />
+              <OmnivoreNameLogo href="/login" />
               <StyledText
                 style="logoTitle"
                 css={{ color: '#0A080666', paddingLeft: '9px', fontSize: 15 }}

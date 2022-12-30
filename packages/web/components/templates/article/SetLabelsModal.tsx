@@ -1,6 +1,6 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
-import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
+import { showErrorToast } from '../../../lib/toastHelpers'
 import { SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import {
   ModalRoot,
@@ -12,35 +12,67 @@ import { LabelsProvider, SetLabelsControl } from './SetLabelsControl'
 
 type SetLabelsModalProps = {
   provider: LabelsProvider
+
+  onLabelsUpdated?: (labels: Label[]) => void
   onOpenChange: (open: boolean) => void
-  onLabelsChanged: (labels: Label[]) => void
   save: (labels: Label[]) => Promise<Label[] | undefined>
 }
 
 export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
-  const [selectedLabels, setSelectedLabels] = useState(props.provider.labels)
+  const [previousSelectedLabels, setPreviousSelectedLabels] = useState(
+    props.provider.labels ?? []
+  )
+  const [selectedLabels, setSelectedLabels] = useState(
+    props.provider.labels ?? []
+  )
+
+  const labelsEqual = (left: Label[], right: Label[]) => {
+    if (left.length !== right.length) {
+      return false
+    }
+
+    for (const label of left) {
+      if (!right.find((r) => label.id == r.id)) {
+        return false
+      }
+    }
+
+    return true
+  }
+
   const onOpenChange = useCallback(
     async (open: boolean) => {
-      if (selectedLabels) {
+      // Only make API call if the labels have been modified
+      if (!labelsEqual(selectedLabels, previousSelectedLabels)) {
         const result = await props.save(selectedLabels)
-        if (result) {
-          props.onLabelsChanged(result)
-        } else {
+        if (props.onLabelsUpdated) {
+          props.onLabelsUpdated(selectedLabels)
+        }
+
+        if (!result) {
           showErrorToast('Error updating labels')
         }
       }
+
       props.onOpenChange(open)
     },
-    [props.onOpenChange]
+    [props, selectedLabels, previousSelectedLabels, setSelectedLabels]
   )
 
-  const handleSave = useCallback(
-    (labels: Label[]) => {
-      setSelectedLabels(labels)
-      return Promise.resolve(labels)
-    },
-    [selectedLabels, setSelectedLabels]
-  )
+  useEffect(() => {
+    if (labelsEqual(selectedLabels, previousSelectedLabels)) {
+      return
+    }
+
+    props
+      .save(selectedLabels)
+      .then((result) => {
+        setPreviousSelectedLabels(result ?? [])
+      })
+      .catch((err) => {
+        console.log('error saving labels: ', err)
+      })
+  }, [selectedLabels, setPreviousSelectedLabels])
 
   return (
     <ModalRoot defaultOpen onOpenChange={onOpenChange}>
@@ -58,8 +90,9 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
           </SpanBox>
           <SetLabelsControl
             provider={props.provider}
-            save={handleSave}
-            onLabelsChanged={props.onLabelsChanged}
+            selectedLabels={selectedLabels}
+            setSelectedLabels={setSelectedLabels}
+            onLabelsUpdated={props.onLabelsUpdated}
           />
         </VStack>
       </ModalContent>

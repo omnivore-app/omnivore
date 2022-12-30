@@ -77,13 +77,17 @@ export const savePage = async (
   input: SavePageInput
 ): Promise<SaveResult> => {
   const [slug, croppedPathname] = createSlug(input.url, input.title)
-  const parseResult = await parsePreparedContent(input.url, {
-    document: input.originalContent,
-    pageInfo: {
-      title: input.title,
-      canonicalUrl: input.url,
+  const parseResult = await parsePreparedContent(
+    input.url,
+    {
+      document: input.originalContent,
+      pageInfo: {
+        title: input.title,
+        canonicalUrl: input.url,
+      },
     },
-  })
+    input.parseResult
+  )
 
   const articleToSave = parsedContentToPage({
     url: input.url,
@@ -222,24 +226,24 @@ export const parsedContentToPage = ({
       croppedPathname ||
       parsedContent?.siteName ||
       url,
-    author: parsedContent?.byline,
+    author: parsedContent?.byline ?? undefined,
     url: normalizeUrl(canonicalUrl || url, {
       stripHash: true,
       stripWWW: false,
     }),
     pageType,
     hash: uploadFileHash || stringToHash(parsedContent?.content || url),
-    image: parsedContent?.previewImage,
-    publishedAt: validatedDate(parsedContent?.publishedDate),
+    image: parsedContent?.previewImage ?? undefined,
+    publishedAt: validatedDate(parsedContent?.publishedDate ?? undefined),
     uploadFileId: uploadFileId,
     readingProgressPercent: 0,
     readingProgressAnchorIndex: 0,
     state: ArticleSavingRequestStatus.Succeeded,
     createdAt: saveTime || new Date(),
     savedAt: saveTime || new Date(),
-    siteName: parsedContent?.siteName,
-    language: parsedContent?.language,
-    siteIcon: parsedContent?.siteIcon,
+    siteName: parsedContent?.siteName ?? undefined,
+    language: parsedContent?.language ?? undefined,
+    siteIcon: parsedContent?.siteIcon ?? undefined,
     wordsCount: wordsCount(parsedContent?.textContent || ''),
   }
 }

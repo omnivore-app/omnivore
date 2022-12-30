@@ -3,6 +3,9 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable @typescript-eslint/no-require-imports */
+const { encode } = require("urlsafe-base64");
+const crypto = require("crypto");
+
 const Url = require('url');
 // const puppeteer = require('puppeteer-extra');
 const axios = require('axios');
@@ -13,6 +16,7 @@ const os = require('os');
 const { Storage } = require('@google-cloud/storage');
 const { parseHTML } = require('linkedom');
 const { preHandleContent } = require("@omnivore/content-handler");
+const { Readability } = require("@omnivore/readability");
 
 const puppeteer = require('puppeteer-extra');
 
@@ -22,6 +26,7 @@ puppeteer.use(StealthPlugin());
 
 // Add adblocker plugin to block all ads and trackers (saves bandwidth)
 const AdblockerPlugin = require('puppeteer-extra-plugin-adblocker');
+const createDOMPurify = require("dompurify");
 puppeteer.use(AdblockerPlugin({ blockTrackers: true }));
 
 const storage = new Storage();
@@ -199,6 +204,35 @@ const sendCreateArticleMutation = async (userId, input) => {
   return response.data.data.createArticle;
 };
 
+const sendSavePageMutation = async (userId, input) => {
+  const data = JSON.stringify({
+    query: `mutation SavePage ($input: SavePageInput!){
+          savePage(input:$input){
+            ... on SaveSuccess{
+              url
+              clientRequestId
+            }
+            ... on SaveError{
+                errorCodes
+            }
+          }
+    }`,
+    variables: {
+      input: Object.assign({}, input , { source: 'puppeteer-parse' }),
+    },
+  });
+
+  const auth = await signToken({ uid: userId }, process.env.JWT_SECRET);
+  const response = await axios.post(`${process.env.REST_BACKEND_ENDPOINT}/graphql`, data,
+    {
+      headers: {
+        Cookie: `auth=${auth};`,
+        'Content-Type': 'application/json',
+      },
+    });
+  return response.data.data.savePage;
+};
+
 const saveUploadedPdf = async (userId, url, uploadFileId, articleSavingRequestId) => {
   return sendCreateArticleMutation(userId, {
       url: encodeURI(url),
@@ -280,17 +314,14 @@ async function fetchContent(req, res) {
 
       logRecord.fetchContentTime = Date.now() - functionStartTime;
 
-      const apiResponse = await sendCreateArticleMutation(userId, {
+      const readabilityResult = content ? (await getReadabilityResult(url, content)) : null;
+
+      const apiResponse = await sendSavePageMutation(userId, {
         url: finalUrl,
-        articleSavingRequestId,
-        preparedDocument: {
-          document: content,
-          pageInfo: {
-            title,
-            canonicalUrl: finalUrl,
-          },
-        },
-        skipParsing: !content,
+        clientRequestId: articleSavingRequestId,
+        title,
+        originalContent: content,
+        parseResult: readabilityResult,
       });
 
       logRecord.totalTime = Date.now() - functionStartTime;
@@ -306,17 +337,14 @@ async function fetchContent(req, res) {
     const content = sbResult.domContent;
     logRecord.fetchContentTime = Date.now() - functionStartTime;
 
-    const apiResponse = await sendCreateArticleMutation(userId, {
-      url: sbUrl,
-      articleSavingRequestId,
-      preparedDocument: {
-        document: content,
-        pageInfo: {
-          title: sbResult.title,
-          canonicalUrl: sbUrl,
-        },
-      },
-      skipParsing: !content,
+    const readabilityResult = content ? (await getReadabilityResult(url, content)) : null;
+
+    const apiResponse = await sendSavePageMutation(userId, {
+      url: finalUrl,
+      clientRequestId: articleSavingRequestId,
+      title,
+      originalContent: content,
+      parseResult: readabilityResult,
     });
 
     logRecord.totalTime = Date.now() - functionStartTime;
@@ -756,6 +784,99 @@ async function preview(req, res) {
 
   console.info(`preview-image`, logRecord);
   return res.redirect(`${process.env.PREVIEW_IMAGE_CDN_ORIGIN}/${destination}`);
+}
+
+const DOM_PURIFY_CONFIG = {
+  ADD_TAGS: ['iframe'],
+  ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'scrolling'],
+  FORBID_ATTR: [
+    'data-ml-dynamic',
+    'data-ml-dynamic-type',
+    'data-orig-url',
+    'data-ml-id',
+    'data-ml',
+    'data-xid',
+    'data-feature',
+  ],
+}
+
+function domPurifySanitizeHook(node, data) {
+  if (data.tagName === 'iframe') {
+    const urlRegex = /^(https?:)?\/\/www\.youtube(-nocookie)?\.com\/embed\//i
+    const src = node.getAttribute('src') || ''
+    const dataSrc = node.getAttribute('data-src') || ''
+
+    if (src && urlRegex.test(src)) {
+      return
+    }
+
+    if (dataSrc && urlRegex.test(dataSrc)) {
+      node.setAttribute('src', dataSrc)
+      return
+    }
+
+    node.parentNode?.removeChild(node)
+  }
+}
+
+function getPurifiedContent(html) {
+  const newWindow = parseHTML('')
+  const DOMPurify = createDOMPurify(newWindow)
+  DOMPurify.addHook('uponSanitizeElement', domPurifySanitizeHook)
+  const clean = DOMPurify.sanitize(html, DOM_PURIFY_CONFIG)
+  return parseHTML(clean).document
+}
+
+function signImageProxyUrl(url) {
+  return encode(
+    crypto.createHmac('sha256', process.env.IMAGE_PROXY_SECRET).update(url).digest()
+  )
+}
+
+function createImageProxyUrl(url, width = 0, height = 0) {
+  if (!process.env.IMAGE_PROXY_URL || !process.env.IMAGE_PROXY_SECRET) {
+    return url
+  }
+
+  const urlWithOptions = `${url}#${width}x${height}`
+  const signature = signImageProxyUrl(urlWithOptions)
+
+  return `${process.env.IMAGE_PROXY_URL}/${width}x${height},s${signature}/${url}`
+}
+
+async function getReadabilityResult(url, document) {
+  // First attempt to read the article as is.
+  // if that fails attempt to purify then read
+  const sources = [
+    () => {
+      return document
+    },
+    () => {
+      return getPurifiedContent(document)
+    },
+  ]
+
+  for (const source of sources) {
+    const document = source()
+    if (!document) {
+      continue
+    }
+
+    try {
+      const article = await new Readability(document, {
+        createImageProxyUrl,
+        url,
+      }).parse()
+
+      if (article) {
+        return article
+      }
+    } catch (error) {
+      console.log('parsing error for url', url, error)
+    }
+  }
+
+  return null
 }
 
 module.exports = {

@@ -10,7 +10,6 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,13 +22,16 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import app.omnivore.omnivore.R
+import app.omnivore.omnivore.ui.theme.OmnivoreTheme
 import com.google.android.gms.common.GoogleApiAvailability
 import kotlinx.coroutines.launch
 
 @Composable
 fun WelcomeScreen(viewModel: LoginViewModel) {
-  Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFFFCEBA8)) {
-    WelcomeScreenContent(viewModel = viewModel)
+  OmnivoreTheme(darkTheme = false) {
+    Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFFFCEBA8)) {
+      WelcomeScreenContent(viewModel = viewModel)
+    }
   }
 }
 

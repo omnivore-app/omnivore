@@ -1,6 +1,4 @@
-import { OmnivoreFestiveLogo } from '../../elements/images/OmnivoreFestiveLogo'
 import Link from 'next/link'
-import Image from 'next/image'
 import { Box, HStack } from '../../elements/LayoutPrimitives'
 import { GithubLogo, DiscordLogo, TwitterLogo } from 'phosphor-react'
 

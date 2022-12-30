@@ -368,7 +368,7 @@ export default function Home(): JSX.Element {
       {article && readerSettings.showSetLabelsModal && (
         <SetLabelsModal
           provider={article}
-          onLabelsChanged={(labels: Label[]) => {
+          onLabelsUpdated={(labels: Label[]) => {
             actionHandler('refreshLabels', labels)
           }}
           save={(labels: Label[]) => {
