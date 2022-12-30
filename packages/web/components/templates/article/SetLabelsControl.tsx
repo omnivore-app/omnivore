@@ -20,8 +20,11 @@ export interface LabelsProvider {
 
 type SetLabelsControlProps = {
   provider: LabelsProvider
-  onLabelsChanged: (labels: Label[]) => void
-  save: (labels: Label[]) => Promise<Label[] | undefined>
+
+  selectedLabels: Label[]
+  setSelectedLabels: (labels: Label[]) => void
+
+  onLabelsUpdated?: (labels: Label[]) => void
 }
 
 type HeaderProps = {
@@ -239,9 +242,6 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
   const router = useRouter()
   const [filterText, setFilterText] = useState('')
   const { labels, revalidate } = useGetLabelsQuery()
-  const [selectedLabels, setSelectedLabels] = useState<Label[]>(
-    props.provider.labels ?? []
-  )
 
   useEffect(() => {
     setFocusedIndex(undefined)
@@ -249,36 +249,33 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
 
   const isSelected = useCallback(
     (label: Label): boolean => {
-      return selectedLabels.some((other) => {
+      return props.selectedLabels.some((other) => {
         return other.id === label.id
       })
     },
-    [selectedLabels]
+    [props.selectedLabels]
   )
 
   const toggleLabel = useCallback(
     async (label: Label) => {
-      let newSelectedLabels = [...selectedLabels]
+      let newSelectedLabels = [...props.selectedLabels]
       if (isSelected(label)) {
-        newSelectedLabels = selectedLabels.filter((other) => {
+        newSelectedLabels = props.selectedLabels.filter((other) => {
           return other.id !== label.id
         })
       } else {
-        newSelectedLabels = [...selectedLabels, label]
+        newSelectedLabels = [...props.selectedLabels, label]
       }
-      setSelectedLabels(newSelectedLabels)
+      props.setSelectedLabels(newSelectedLabels)
+      props.provider.labels = newSelectedLabels
 
-      const result = await props.save(newSelectedLabels)
-      if (result) {
-        props.provider.labels = result
-        if (props.onLabelsChanged) {
-          props.onLabelsChanged(result)
-        }
+      if (props.onLabelsUpdated) {
+        props.onLabelsUpdated(newSelectedLabels)
       }
 
       revalidate()
     },
-    [isSelected, selectedLabels, setSelectedLabels]
+    [isSelected, props]
   )
 
   const filteredLabels = useMemo(() => {
@@ -349,14 +346,7 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
         }
       }
     },
-    [
-      filterText,
-      filteredLabels,
-      focusedIndex,
-      isSelected,
-      selectedLabels,
-      setSelectedLabels,
-    ]
+    [filterText, filteredLabels, focusedIndex, isSelected, props]
   )
 
   const createLabelFromFilterText = useCallback(async () => {
@@ -373,7 +363,7 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
     } else {
       showErrorToast('Failed to create label', { position: 'bottom-right' })
     }
-  }, [filterText, selectedLabels, setSelectedLabels, toggleLabel])
+  }, [filterText, props, toggleLabel])
 
   return (
     <VStack

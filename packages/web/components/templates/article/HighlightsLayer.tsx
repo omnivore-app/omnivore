@@ -584,8 +584,6 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         onOpenChange={function (open: boolean): void {
           setLabelsTarget(undefined)
         }}
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
-        onLabelsChanged={function (labels: Label[]): void {}}
         save={function (labels: Label[]): Promise<Label[] | undefined> {
           const result = setLabelsForHighlight(
             labelsTarget.id,
