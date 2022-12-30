@@ -35,6 +35,7 @@ export function useGetLabelsQuery(): LabelsQueryResponse {
   `
 
   const { data, mutate, error, isValidating } = useSWR(query, publicGqlFetcher)
+  console.log(' getting labels: ', isValidating)
 
   try {
     if (data) {
