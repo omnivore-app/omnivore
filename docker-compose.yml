@@ -65,6 +65,8 @@ services:
       - elastic
     ports:
       - "5601:5601"
+    profiles:
+      - debug
 
   redis:
     image: "redis:6.2.7"
