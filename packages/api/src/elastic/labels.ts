@@ -296,16 +296,14 @@ export const setLabelsForHighlight = async (
       conflicts: 'proceed', // ignore conflicts
     })
 
-    if (!body.updated) {
-      return false
-    }
-
-    for (const label of labels) {
-      await ctx.pubsub.entityCreated<Label & { highlightId: string }>(
-        EntityType.LABEL,
-        { highlightId, ...label },
-        ctx.uid
-      )
+    if (body.updated > 0) {
+      for (const label of labels) {
+        await ctx.pubsub.entityCreated<Label & { highlightId: string }>(
+          EntityType.LABEL,
+          { highlightId, ...label },
+          ctx.uid
+        )
+      }
     }
 
     return true
