@@ -31,7 +31,7 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
       return false
     }
 
-    for (var label of left) {
+    for (let label of left) {
       if (!right.find((r) => label.id == r.id)) {
         return false
       }
