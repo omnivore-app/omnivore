@@ -175,7 +175,7 @@ class WebReaderViewModel @Inject constructor(
     javascriptActionLoopUUIDLiveData.value = UUID.randomUUID()
   }
 
-  fun storedWebPreferences(): WebPreferences = runBlocking {
+  fun storedWebPreferences(isDarkMode: Boolean): WebPreferences = runBlocking {
     val storedFontSize = datastoreRepo.getInt(DatastoreKeys.preferredWebFontSize)
     val storedLineHeight = datastoreRepo.getInt(DatastoreKeys.preferredWebLineHeight)
     val storedMaxWidth = datastoreRepo.getInt(DatastoreKeys.preferredWebMaxWidthPercentage)
@@ -189,7 +189,7 @@ class WebReaderViewModel @Inject constructor(
       textFontSize = storedFontSize ?: 12,
       lineHeight = storedLineHeight ?: 150,
       maxWidthPercentage = storedMaxWidth ?: 100,
-      themeKey = "LightGray", // TODO: match system value
+      themeKey = if (isDarkMode) "Gray" else "LightGray",
       fontFamily = storedWebFont,
       prefersHighContrastText = prefersHighContrastFont
     )

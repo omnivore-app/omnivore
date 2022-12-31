@@ -10,6 +10,7 @@ import android.view.*
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.TopAppBar
@@ -21,6 +22,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -85,7 +87,7 @@ fun WebReaderLoadingContainer(slug: String, webReaderViewModel: WebReaderViewMod
             .requiredHeight(height = maxToolbarHeight)
         ) {
         }
-        WebReader(webReaderParams!!, webReaderViewModel.storedWebPreferences(), webReaderViewModel)
+        WebReader(webReaderParams!!, webReaderViewModel.storedWebPreferences(isSystemInDarkTheme()), webReaderViewModel)
       }
 
       TopAppBar(
@@ -162,15 +164,18 @@ fun WebReader(
   val webReaderContent = WebReaderContent(
     preferences = preferences,
     item = params.item,
-    themeKey = "LightGray",
     articleContent = params.articleContent,
   )
 
   val styledContent = webReaderContent.styledContent()
+  val isInDarkMode = isSystemInDarkTheme()
 
   Box {
     AndroidView(factory = {
       OmnivoreWebView(it).apply {
+        if (isInDarkMode) {
+          setBackgroundColor(Color.Transparent.hashCode())
+        }
         viewModel = webReaderViewModel
 
         layoutParams = ViewGroup.LayoutParams(
