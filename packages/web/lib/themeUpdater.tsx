@@ -33,7 +33,7 @@ export function updateThemeLocally(themeId: string): void {
     ThemeId.Darker,
     ThemeId.Lighter,
     ThemeId.Sepia,
-    ThemeId.Charcoal,
+    ThemeId.Charcoal
   )
   document.body.classList.add(themeId)
 }
@@ -70,7 +70,9 @@ export function applyStoredTheme(syncWithServer = true): ThemeId | undefined {
     return undefined
   }
 
-  const theme = window.localStorage.getItem(themeKey) as ThemeId | undefined
+  const theme = (window.themeKey || window.localStorage.getItem(themeKey)) as
+    | ThemeId
+    | undefined
   if (theme && Object.values(ThemeId).includes(theme)) {
     syncWithServer ? updateTheme(theme) : updateThemeLocally(theme)
   }

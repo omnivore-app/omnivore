@@ -2,6 +2,7 @@ package app.omnivore.omnivore.ui.reader
 
 import android.util.Log
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
@@ -42,7 +43,7 @@ fun WebPreferencesDialog(onDismiss: () -> Unit, webReaderViewModel: WebReaderVie
 
 @Composable
 fun WebPreferencesView(webReaderViewModel: WebReaderViewModel) {
-  val currentWebPreferences = webReaderViewModel.storedWebPreferences()
+  val currentWebPreferences = webReaderViewModel.storedWebPreferences(isSystemInDarkTheme())
   val isFontListExpanded = remember { mutableStateOf(false) }
   val highContrastTextSwitchState = remember { mutableStateOf(currentWebPreferences.prefersHighContrastText) }
   val selectedWebFontRawValue = remember { mutableStateOf(currentWebPreferences.fontFamily.rawValue) }

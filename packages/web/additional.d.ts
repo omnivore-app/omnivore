@@ -15,6 +15,7 @@ declare global {
     intercomSettings: IntercomSettings
     analytics?: Analytics
     AndroidWebKitMessenger?: AndroidWebKitMessenger
+    themeKey?: string
   }
 }
 
