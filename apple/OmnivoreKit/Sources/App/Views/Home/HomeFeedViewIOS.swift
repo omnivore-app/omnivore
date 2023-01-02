@@ -39,9 +39,6 @@ import Views
           prefersListLayout: $prefersListLayout,
           viewModel: viewModel
         )
-        .onAppear {
-          loadItems(isRefresh: true)
-        }
         .refreshable {
           loadItems(isRefresh: true)
         }
