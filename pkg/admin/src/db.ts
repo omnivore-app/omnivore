@@ -40,6 +40,11 @@ export const registerDatabase = async (): Promise<Connection> => {
   return connection
 }
 
+export enum StatusType {
+  Active = 'ACTIVE',
+  Pending = 'PENDING',
+}
+
 @Entity({ name: 'admin_user' })
 export class AdminUser extends BaseEntity {
   @PrimaryGeneratedColumn()
@@ -68,6 +73,9 @@ export class User extends BaseEntity {
 
   @Column({ type: 'timestamp' })
   public updated_at!: Date
+
+  @Column({ type: 'enum', enum: StatusType })
+  status!: StatusType
 
   @OneToMany(() => UserArticle, (ua) => ua.user)
   articles!: UserArticle[]
