@@ -385,6 +385,7 @@ const schema = gql`
     language: String
     readAt: Date
     recommendations: [Recommendation!]
+    wordsCount: Int
   }
 
   # Query: article
@@ -1548,6 +1549,7 @@ const schema = gql`
     highlights: [Highlight!]
     siteIcon: String
     recommendations: [Recommendation!]
+    wordsCount: Int
   }
 
   type SearchItemEdge {

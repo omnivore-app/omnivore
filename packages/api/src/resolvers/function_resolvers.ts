@@ -6,7 +6,7 @@
 import { createReactionResolver, deleteReactionResolver } from './reaction'
 import { Claims, WithDataSourcesContext } from './types'
 import { createImageProxyUrl } from '../utils/imageproxy'
-import { userDataToUser, validatedDate } from '../utils/helpers'
+import { userDataToUser, validatedDate, wordsCount } from '../utils/helpers'
 
 import {
   Article,
@@ -509,6 +509,10 @@ export const functionResolvers = {
     },
     image(article: { image?: string }): string | undefined {
       return article.image && createImageProxyUrl(article.image, 260, 260)
+    },
+    wordsCount(article: { wordsCount?: number; content?: string }) {
+      if (article.wordsCount) return article.wordsCount
+      return article.content ? wordsCount(article.content) : undefined
     },
   },
   ArticleSavingRequest: {
