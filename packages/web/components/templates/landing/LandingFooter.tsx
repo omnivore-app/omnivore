@@ -107,7 +107,7 @@ export function LandingFooter(): JSX.Element {
             </Link>
           </Box>
         </HStack>
-        <Box css={copyrightStyles}>© 2022 Omnivore</Box>
+        <Box css={copyrightStyles}>© 2023 Omnivore</Box>
       </Box>
       <Box css={sectionTwo}>
         <Box css={{ height: 215 }}>
