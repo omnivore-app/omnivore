@@ -8,7 +8,7 @@ import { LinkedItemCardAction } from '../../patterns/LibraryCards/CardTypes'
 import { LibraryGridCard } from '../../patterns/LibraryCards/LibraryGridCard'
 import { LayoutCoordinator } from './LibraryContainer'
 import { EmptyLibrary } from '../homeFeed/EmptyLibrary'
-import Masonry from 'react-masonry-css'
+// import Masonry from 'react-masonry-css'
 
 export type LibraryListProps = {
   layoutCoordinator: LayoutCoordinator
@@ -54,118 +54,89 @@ export function LibraryList(props: LibraryListProps): JSX.Element {
       />
     )
   }
-  console.log(fileNames)
+
+  //   <Box
+  //   css={{
+  //     border: '3px dashed gray',
+  //     backgroundColor: 'aliceblue',
+  //     borderRadius: '5px',
+  //     position: 'absolute',
+  //     opacity: '0.8',
+  //     display: 'flex',
+  //     justifyContent: 'center',
+  //     alignItems: 'center',
+  //     padding: '30px',
+  //   }}
+  // >
 
   return (
-    <Box css={{ overflowY: 'scroll' }}>
-      {inDragOperation && uploadingFiles.length < 1 && (
-        <Box
-          css={{
-            border: '3px dashed gray',
-            backgroundColor: 'aliceblue',
-            borderRadius: '5px',
-            width: '75%',
-            height: '70%',
-            position: 'absolute',
-            opacity: '0.8',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
-          <Box
-            css={{
-              color: '$utilityTextDefault',
-              fontWeight: '800',
-              fontSize: '$4',
-            }}
-          >
-            Drag n drop files here
-          </Box>
-        </Box>
-      )}
-      <Dropzone
-        onDrop={handleDrop}
-        preventDropOnDocument={true}
-        onDragEnter={() => {
-          setInDragOperation(true)
+    <Box css={{ overflowY: 'scroll', width: '100%' }}>
+      <Box
+        css={{
+          display: 'grid',
+          gridAutoRows: 'auto',
+          gridTemplateColumns: 'repeat(3, 1fr)',
+          maxWidth: '1024px',
+          gridGap: '20px',
+
+          // '@smDown': {
+          //   border: 'unset',
+          //   width:
+          //     props.layoutCoordinator.layout == 'LIST_LAYOUT'
+          //       ? '100vw'
+          //       : undefined,
+          // },
+          // '@md': {
+          //   gridTemplateColumns:
+          //     props.layoutCoordinator.layout == 'LIST_LAYOUT'
+          //       ? 'none'
+          //       : '1fr 1fr',
+          // },
+          // '@lg': {
+          //   gridTemplateColumns:
+          //     props.layoutCoordinator.layout == 'LIST_LAYOUT'
+          //       ? 'none'
+          //       : 'repeat(3, 1fr)',
+          // },
         }}
-        onDragLeave={() => {
-          setInDragOperation(false)
-        }}
-        noClick={true}
-        noDragEventsBubbling={true}
       >
-        {({ getRootProps, getInputProps, acceptedFiles, fileRejections }) => (
+        {libraryItems.map((linkedItem) => (
           <Box
-            {...getRootProps({ className: 'dropzone' })}
-            css={{ width: '100%' }}
+            className="linkedItemCard"
+            data-testid="linkedItemCard"
+            id={linkedItem.node.id}
+            tabIndex={0}
+            key={linkedItem.node.id}
+            // css={{
+            //   width: '100%',
+            //   '&> div': {
+            //     bg: '$libraryBackground',
+            //   },
+            //   '&:focus': {
+            //     '> div': {
+            //       bg: '$grayBgActive',
+            //     },
+            //   },
+            //   '&:hover': {
+            //     '> div': {
+            //       bg: '$grayBgActive',
+            //     },
+            //   },
+            // }}
           >
-            <input {...getInputProps()} />
-            <Masonry
-              breakpointCols={
-                props.layoutCoordinator.layout == 'LIST_LAYOUT'
-                  ? 1
-                  : {
-                      default: 3,
-                      1200: 2,
-                      992: 1,
-                    }
-              }
-              className="omnivore-masonry-grid"
-              columnClassName="omnivore-masonry-grid_column"
-            >
-              {libraryItems.map((linkedItem) => (
-                <Box
-                  className="linkedItemCard"
-                  data-testid="linkedItemCard"
-                  id={linkedItem.node.id}
-                  tabIndex={0}
-                  key={linkedItem.node.id}
-                  css={{
-                    width: '100%',
-                    '&> div': {
-                      bg: '$libraryBackground',
-                    },
-                    '&:focus': {
-                      '> div': {
-                        bg: '$grayBgActive',
-                      },
-                    },
-                    '&:hover': {
-                      '> div': {
-                        bg: '$grayBgActive',
-                      },
-                    },
-                  }}
-                >
-                  {viewerData?.me && (
-                    <LibraryGridCard
-                      layout={props.layoutCoordinator.layout}
-                      item={linkedItem.node}
-                      viewer={viewerData.me}
-                      handleAction={(action: LinkedItemCardAction) => {
-                        console.log('card clicked')
-                      }}
-                    />
-                  )}
-                </Box>
-              ))}
-            </Masonry>
+            {viewerData?.me && (
+              <LibraryGridCard
+                layout={props.layoutCoordinator.layout}
+                item={linkedItem.node}
+                viewer={viewerData.me}
+                handleAction={(action: LinkedItemCardAction) => {
+                  console.log('card clicked')
+                }}
+              />
+            )}
           </Box>
-        )}
-      </Dropzone>
-      {/* Temporary code */}
-      <div>
-        <strong>Files:</strong>
-        <ul>
-          {fileNames.map((fileName) => (
-            <li key={fileName}>{fileName}</li>
-          ))}
-        </ul>
-      </div>{' '}
-      {/* Temporary code */}
-      {/* Extra padding at bottom to give space for scrolling */}
+        ))}
+      </Box>
       <Box css={{ width: '100%', height: '200px' }} />
     </Box>
   )

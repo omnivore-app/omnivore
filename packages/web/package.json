@@ -34,6 +34,7 @@
     "axios": "^1.2.0",
     "color2k": "^2.0.0",
     "cookie": "^0.5.0",
+    "dayjs": "^1.11.7",
     "diff-match-patch": "^1.0.5",
     "downshift": "^6.1.9",
     "graphql-request": "^3.6.1",

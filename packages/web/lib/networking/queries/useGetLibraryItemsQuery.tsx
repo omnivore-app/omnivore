@@ -82,6 +82,7 @@ export type LibraryItemNode = {
   siteName?: string
   subscription?: string
   readAt?: string
+  savedAt?: string
   recommendations?: Recommendation[]
 }
 
@@ -166,6 +167,7 @@ export function useGetLibraryItemsQuery({
               siteName
               subscription
               readAt
+              savedAt
               recommendations {
                 id
                 name
@@ -389,6 +391,8 @@ export function useGetLibraryItemsQuery({
         await mutate()
     }
   }
+
+  console.log('responsePages', responsePages)
 
   return {
     isValidating,
