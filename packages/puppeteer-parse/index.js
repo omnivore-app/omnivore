@@ -590,7 +590,7 @@ async function retrieveHtml(page, logRecord) {
 
         try {
           // Removing blurred images since they are mostly the copies of lazy loaded ones
-          if (['img', 'image'].includes(el.tagName.toLowerCase())) {
+          if (el.tagName && ['img', 'image'].includes(el.tagName.toLowerCase())) {
             const filter = style.getPropertyValue('filter');
             if (filter && filter.startsWith('blur')) {
               el.parentNode && el.parentNode.removeChild(el);
