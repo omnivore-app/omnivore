@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { Box, HStack } from '../../elements/LayoutPrimitives'
 import { GithubLogo, DiscordLogo, TwitterLogo } from 'phosphor-react'
+import { theme } from '../../tokens/stitches.config'
 
 const containerStyles = {
   padding: '5vw',
@@ -65,6 +66,9 @@ const supportStyles = {
   '@mdDown': {
     fontSize: '3vw',
   },
+  a: {
+    color: theme.colors.omnivoreCtaYellow.toString(),
+  },
 }
 
 const imageStyles = {
@@ -107,7 +111,7 @@ export function LandingFooter(): JSX.Element {
             </Link>
           </Box>
         </HStack>
-        <Box css={copyrightStyles}>© 2022 Omnivore</Box>
+        <Box css={copyrightStyles}>© 2023 Omnivore</Box>
       </Box>
       <Box css={sectionTwo}>
         <Box css={{ height: 215 }}>
