@@ -1,9 +1,10 @@
 package app.omnivore.omnivore.networking
 
 import app.omnivore.omnivore.graphql.generated.GetArticleQuery
-import app.omnivore.omnivore.models.Highlight
 import app.omnivore.omnivore.models.LinkedItem
 import app.omnivore.omnivore.models.LinkedItemLabel
+import app.omnivore.omnivore.persistence.entities.Highlight
+import java.time.LocalDate
 
 data class LinkedItemQueryResponse(
   val item: LinkedItem?,
@@ -39,6 +40,8 @@ suspend fun Networker.linkedItem(slug: String): LinkedItemQueryResponse {
     }
 
     val highlights = article.highlights.map {
+//      val updatedAtString = it.highlightFields.updatedAt as? String
+
       Highlight(
         id = it.highlightFields.id,
         shortId = it.highlightFields.shortId,
@@ -48,8 +51,10 @@ suspend fun Networker.linkedItem(slug: String): LinkedItemQueryResponse {
         patch = it.highlightFields.patch,
         annotation = it.highlightFields.annotation,
         createdAt = null, // TODO: update gql query to get this
-        updatedAt = it.highlightFields.updatedAt,
+        updatedAt = null, //updatedAtString?.let { str -> LocalDate.parse(str) }, TODO: fix date parsing
         createdByMe = it.highlightFields.createdByMe,
+        markedForDeletion = false,
+        serverSyncStatus = 1 // TODO: create enum for this
       )
     }
 

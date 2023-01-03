@@ -2,6 +2,7 @@ package app.omnivore.omnivore.persistence.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.time.LocalDate
 import java.util.Date
 
 @Entity
@@ -17,7 +18,8 @@ data class Highlight(
   val serverSyncStatus: Int, // default 0
   val shortId: String,
   val suffix: String?,
-  val updatedAt: Date?
+  val updatedAt: LocalDate?
 
   // has many LinkedItems and LinkedItemLabels
+  // has a UserProfile
 )
