@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { Box, HStack } from '../../elements/LayoutPrimitives'
 import { GithubLogo, DiscordLogo, TwitterLogo } from 'phosphor-react'
+import { theme } from '../../tokens/stitches.config'
 
 const containerStyles = {
   padding: '5vw',
@@ -64,6 +65,9 @@ const supportStyles = {
   color: 'white',
   '@mdDown': {
     fontSize: '3vw',
+  },
+  a: {
+    color: theme.colors.omnivoreCtaYellow.toString(),
   },
 }
 
