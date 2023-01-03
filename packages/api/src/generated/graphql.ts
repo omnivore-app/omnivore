@@ -126,6 +126,7 @@ export type Article = {
   updatedAt: Scalars['Date'];
   uploadFileId?: Maybe<Scalars['ID']>;
   url: Scalars['String'];
+  wordsCount?: Maybe<Scalars['Int']>;
 };
 
 
@@ -2151,6 +2152,7 @@ export type SearchItem = {
   updatedAt?: Maybe<Scalars['Date']>;
   uploadFileId?: Maybe<Scalars['ID']>;
   url: Scalars['String'];
+  wordsCount?: Maybe<Scalars['Int']>;
 };
 
 export type SearchItemEdge = {
@@ -4003,6 +4005,7 @@ export type ArticleResolvers<ContextType = ResolverContext, ParentType extends R
   updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   uploadFileId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  wordsCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -5162,6 +5165,7 @@ export type SearchItemResolvers<ContextType = ResolverContext, ParentType extend
   updatedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   uploadFileId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  wordsCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 

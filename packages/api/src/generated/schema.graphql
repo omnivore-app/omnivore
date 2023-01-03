@@ -102,6 +102,7 @@ type Article {
   updatedAt: Date!
   uploadFileId: ID
   url: String!
+  wordsCount: Int
 }
 
 type ArticleEdge {
@@ -1578,6 +1579,7 @@ type SearchItem {
   updatedAt: Date
   uploadFileId: ID
   url: String!
+  wordsCount: Int
 }
 
 type SearchItemEdge {
