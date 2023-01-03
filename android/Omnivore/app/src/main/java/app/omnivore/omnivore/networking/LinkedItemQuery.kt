@@ -33,7 +33,7 @@ suspend fun Networker.linkedItem(slug: String): LinkedItemQueryResponse {
         id = it.labelFields.id,
         name = it.labelFields.name,
         color = it.labelFields.color,
-        createdAt = it.labelFields.createdAt,
+        createdAt = it.labelFields.createdAt as String?,
         labelDescription = it.labelFields.description
       )
     }

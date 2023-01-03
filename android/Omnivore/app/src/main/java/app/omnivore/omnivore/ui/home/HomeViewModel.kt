@@ -1,22 +1,27 @@
 package app.omnivore.omnivore.ui.home
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.omnivore.omnivore.DataService
 import app.omnivore.omnivore.persistence.entities.LinkedItem
 import app.omnivore.omnivore.networking.*
+import app.omnivore.omnivore.persistence.AppDatabase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
   private val networker: Networker,
+  private val dataService: DataService
 ): ViewModel() {
   private var cursor: String? = null
   private var items: List<LinkedItem> = listOf()
@@ -53,6 +58,11 @@ class HomeViewModel @Inject constructor(
     }
 
     viewModelScope.launch {
+      withContext(Dispatchers.IO) {
+        val viewers = dataService.db.viewerDao().getAll()
+        Log.d("appDatabase", "found ${viewers.count()} viewers in db")
+      }
+
       val thisSearchIdx = searchIdx
       searchIdx += 1
 
