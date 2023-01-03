@@ -20,6 +20,7 @@ data class Highlight(
   val suffix: String?,
   val updatedAt: LocalDate?
 
-  // has many LinkedItems and LinkedItemLabels
-  // has a UserProfile
+  // has many LinkedItemLabels (inverse: labels have many highlights)
+  // has one linkedItem (inverse: linkedItem has many highlights
+  // has a UserProfile (no inverse)
 )

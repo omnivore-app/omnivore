@@ -41,7 +41,7 @@ data class LinkedItem(
 
 // hasMany highlights
 // hasMany labels
-// has Many recommendations
+// has Many recommendations (rec has one linkedItem)
 ) {
   fun publisherDisplayName(): String? {
     return publisherURLString?.toUri()?.host
