@@ -1,10 +1,9 @@
 package app.omnivore.omnivore.networking
 
 import app.omnivore.omnivore.graphql.generated.GetArticleQuery
-import app.omnivore.omnivore.models.LinkedItem
-import app.omnivore.omnivore.models.LinkedItemLabel
+import app.omnivore.omnivore.persistence.entities.LinkedItem
+import app.omnivore.omnivore.persistence.entities.LinkedItemLabel
 import app.omnivore.omnivore.persistence.entities.Highlight
-import java.time.LocalDate
 
 data class LinkedItemQueryResponse(
   val item: LinkedItem?,

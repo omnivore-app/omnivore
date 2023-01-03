@@ -12,7 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.omnivore.omnivore.models.LinkedItem
+import app.omnivore.omnivore.persistence.entities.LinkedItem
 import app.omnivore.omnivore.ui.home.LinkedItemAction
 import coil.compose.rememberAsyncImagePainter
 

@@ -1,15 +1,13 @@
 package app.omnivore.omnivore.ui.home
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.omnivore.omnivore.models.LinkedItem
+import app.omnivore.omnivore.persistence.entities.LinkedItem
 import app.omnivore.omnivore.networking.*
-import com.pspdfkit.analytics.Analytics
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

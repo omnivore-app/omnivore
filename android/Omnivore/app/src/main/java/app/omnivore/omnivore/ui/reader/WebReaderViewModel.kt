@@ -2,13 +2,12 @@ package app.omnivore.omnivore.ui.reader
 
 import android.util.Log
 import androidx.compose.foundation.ScrollState
-import androidx.compose.ui.unit.Density
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.DatastoreKeys
 import app.omnivore.omnivore.DatastoreRepository
-import app.omnivore.omnivore.models.LinkedItem
+import app.omnivore.omnivore.persistence.entities.LinkedItem
 import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.ui.home.LinkedItemAction
 import com.google.gson.Gson

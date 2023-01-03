@@ -1,7 +1,7 @@
 package app.omnivore.omnivore.ui.reader
 
 import android.util.Log
-import app.omnivore.omnivore.models.LinkedItem
+import app.omnivore.omnivore.persistence.entities.LinkedItem
 import app.omnivore.omnivore.persistence.entities.Highlight
 import com.google.gson.Gson
 

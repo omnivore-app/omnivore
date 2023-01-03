@@ -1,4 +1,4 @@
-package app.omnivore.omnivore.models
+package app.omnivore.omnivore.persistence.entities
 
 import androidx.core.net.toUri
 

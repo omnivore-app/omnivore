@@ -1,4 +1,4 @@
-package app.omnivore.omnivore.models
+package app.omnivore.omnivore.persistence.entities
 
 data class LinkedItemLabel(
   val id: String,
