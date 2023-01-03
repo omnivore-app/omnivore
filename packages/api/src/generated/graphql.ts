@@ -2910,6 +2910,7 @@ export type UploadImportFileSuccess = {
 };
 
 export enum UploadImportFileType {
+  Matter = 'MATTER',
   Pocket = 'POCKET',
   UrlList = 'URL_LIST'
 }

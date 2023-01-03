@@ -2269,6 +2269,7 @@ type UploadImportFileSuccess {
 }
 
 enum UploadImportFileType {
+  MATTER
   POCKET
   URL_LIST
 }

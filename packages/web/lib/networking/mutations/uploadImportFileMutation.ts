@@ -1,7 +1,11 @@
 import { gqlFetcher } from '../networkHelpers'
 import { v4 as uuidv4 } from 'uuid'
 
-export type UploadImportFileType = 'URL_LIST' | 'POCKET'
+export enum UploadImportFileType {
+  URL_LIST = 'URL_LIST',
+  POCKET = 'POCKET',
+  MATTER = 'MATTER',
+}
 
 type UploadImportFileResponseData = {
   uploadImportFile?: UploadImportFileData

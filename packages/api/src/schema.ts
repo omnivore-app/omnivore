@@ -2309,6 +2309,7 @@ const schema = gql`
   enum UploadImportFileType {
     URL_LIST
     POCKET
+    MATTER
   }
 
   enum UploadImportFileErrorCode {

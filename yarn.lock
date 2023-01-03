@@ -19744,11 +19744,6 @@ mocha@^9.0.1:
     yargs-parser "20.2.4"
     yargs-unparser "2.0.0"
 
-modern-random-ua@^1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/modern-random-ua/-/modern-random-ua-1.0.3.tgz#c6fca366e60ea9a793c9d99021533744d7f58c41"
-  integrity sha1-xvyjZuYOqaeTydmQIVM3RNf1jEE=
-
 modify-values@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/modify-values/-/modify-values-1.0.1.tgz#b3939fa605546474e3e3e3c63d64bd43b4ee6022"
@@ -22940,6 +22935,11 @@ react-slidedown@^2.4.5:
   integrity sha512-HGDfrqo70r1WVE0DwrySPdCT27/2wcZaJYh5kOnmuPSCtjDDJrNkDdn4Ep/cma2VVfwupeAGhbc2pbrGThU6VQ==
   dependencies:
     tslib "^2.0.0"
+
+react-spinners@^0.13.7:
+  version "0.13.7"
+  resolved "https://registry.yarnpkg.com/react-spinners/-/react-spinners-0.13.7.tgz#0f423c415bfa56765ce9fb36ff604e52a92b37a9"
+  integrity sha512-mRamn56bfxWbGcacif5RT3UbeJaXi2AttjtPwSmomuv2IcxjpbfETCzdTvaQpNDk0E33ENJsStsQeKAZFuJcpA==
 
 react-style-singleton@^2.1.0:
   version "2.1.1"
