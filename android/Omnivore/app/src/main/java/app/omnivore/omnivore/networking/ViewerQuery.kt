@@ -10,10 +10,10 @@ suspend fun Networker.viewer(): Viewer? {
 
     return if (me != null) {
       Viewer(
-        id = me.id,
+        userID = me.id,
         name = me.name,
         username = me.profile.username,
-        pictureUrl = me.profile.pictureUrl
+        profileImageURL = me.profile.pictureUrl
       )
     } else {
       null
