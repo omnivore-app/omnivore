@@ -6,7 +6,6 @@ var prettyPrint = require("./utils").prettyPrint;
 var htmltidy = require("htmltidy2").tidy;
 
 var { Readability, isProbablyReaderable } = require("../index");
-const { generate: generateRandomUA } = require("modern-random-ua/random_ua");
 const puppeteer = require('puppeteer');
 const { parseHTML } = require("linkedom");
 
@@ -14,7 +13,29 @@ var testcaseRoot = path.join(__dirname, "test-pages");
 
 var argURL = process.argv[3]; // Could be undefined, we'll warn if it is if that is an issue.
 
+const MOBILE_USER_AGENT = 'Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.62 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
+const DESKTOP_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4372.0 Safari/537.36'
+const BOT_DESKTOP_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4372.0 Safari/537.36'
+const NON_BOT_DESKTOP_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4372.0 Safari/537.36'
+const NON_BOT_HOSTS = ['bloomberg.com', 'forbes.com']
 const NON_SCRIPT_HOSTS= ['medium.com', 'fastcompany.com'];
+
+const ALLOWED_CONTENT_TYPES = ['text/html', 'application/octet-stream', 'text/plain', 'application/pdf'];
+
+const userAgentForUrl = (url) => {
+  try {
+    const u = new URL(url);
+    for (const host of NON_BOT_HOSTS) {
+      if (u.hostname.endsWith(host)) {
+        return NON_BOT_DESKTOP_USER_AGENT;
+      }
+    }
+  } catch (e) {
+    console.log('error getting user agent for url', url, e)
+  }
+  return DESKTOP_USER_AGENT
+};
+
 const enableJavascriptForUrl = (url) => {
   try {
     const u = new URL(url);
@@ -81,8 +102,7 @@ async function fetchSource(url, callbackFn) {
   if (!enableJavascriptForUrl(url)) {
     await page.setJavaScriptEnabled(false);
   }
-  const ua = generateRandomUA();
-  await page.setUserAgent(ua);
+  await page.setUserAgent(userAgentForUrl(url));
 
   try {
     /*
@@ -142,12 +162,16 @@ async function fetchSource(url, callbackFn) {
       Array.from(document.body.getElementsByTagName('*')).forEach(el => {
         const style = window.getComputedStyle(el);
 
-        // Removing blurred images since they are mostly the copies of lazy loaded ones
-        if (['img', 'image'].includes(el.tagName.toLowerCase())) {
-          const filter = style.getPropertyValue('filter');
-          if (filter && filter.startsWith('blur')) {
-            el.parentNode && el.parentNode.removeChild(el);
+        try {
+          // Removing blurred images since they are mostly the copies of lazy loaded ones
+          if (el.tagName && ['img', 'image'].includes(el.tagName.toLowerCase())) {
+            const filter = style.getPropertyValue('filter');
+            if (filter && filter.startsWith('blur')) {
+              el.parentNode && el.parentNode.removeChild(el);
+            }
           }
+        } catch (err) {
+          // throw Error('error with element: ' + JSON.stringify(Array.from(document.body.getElementsByTagName('*'))))
         }
 
         // convert all nodes with background image to img nodes
@@ -155,7 +179,6 @@ async function fetchSource(url, callbackFn) {
           const filter = style.getPropertyValue('filter');
           // avoiding image nodes with a blur effect creation
           if (filter && filter.startsWith('blur')) {
-            // console.log('\n\n\n\n Filter found: ', filter);
             el && el.parentNode && el.parentNode.removeChild(el);
           } else {
             const matchedSRC = BI_SRC_REGEXP.exec(style.getPropertyValue('background-image'));
@@ -168,12 +191,9 @@ async function fetchSource(url, callbackFn) {
               // Article example: http://www.josiahzayner.com/2017/01/genetic-designer-part-i.html
               // DIV with class "content-inner" has `url("https://resources.blogblog.com/blogblog/data/1kt/travel/bg_container.png")` background image.
               if (el.innerHTML.length < 25) {
-                console.log('Replacing element with image');
                 const img = document.createElement('img');
                 img.src = matchedSRC[1];
-                el && el.parentNode && el.parentNode.replaceChild(img, el);
-              } else {
-                console.log('Element has too much content: ', el.innerHTML.length);
+                el && el.parentNode && el.parentNode.removeChild(el);
               }
             }
           }
