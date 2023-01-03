@@ -215,22 +215,18 @@ const getTweetIds = async (
     const page = await context.newPage()
 
     await page.goto(pageURL, {
-      waitUntil: 'networkidle2',
-      timeout: 60000,
+      waitUntil: 'networkidle0',
     })
 
-    await waitFor(4000)
-
     return (await page.evaluate(async (author) => {
-      const MAX_THREAD_DEPTH = 100
-      const ids: string[] = []
-
       /**
        * Wait for `ms` amount of milliseconds
        * @param {number} ms
        */
       const waitFor = (ms: number) =>
         new Promise((resolve) => setTimeout(resolve, ms))
+
+      const ids: Set<string> = new Set()
 
       // Find the first Show thread button and click it
       const showRepliesButton = Array.from(
@@ -247,30 +243,42 @@ const getTweetIds = async (
         await waitFor(2000)
       }
 
-      const timeNodes = Array.from(document.querySelectorAll('time'))
+      const distance = 1080
+      const scrollHeight = document.body.scrollHeight
+      let currentHeight = 0
+      // keep scrolling until there are no more elements
+      while (currentHeight < scrollHeight) {
+        const timeNodes = Array.from(document.querySelectorAll('time'))
 
-      for (let i = 0; i < timeNodes.length && i < MAX_THREAD_DEPTH; i++) {
-        const timeContainerAnchor: HTMLAnchorElement | HTMLSpanElement | null =
-          timeNodes[i].parentElement
-        if (!timeContainerAnchor) continue
+        for (let i = 0; i < timeNodes.length; i++) {
+          const timeContainerAnchor:
+            | HTMLAnchorElement
+            | HTMLSpanElement
+            | null = timeNodes[i].parentElement
+          if (!timeContainerAnchor) continue
 
-        if (timeContainerAnchor.tagName === 'SPAN') continue
+          if (timeContainerAnchor.tagName === 'SPAN') continue
 
-        const href = timeContainerAnchor.getAttribute('href')
-        if (!href) continue
+          const href = timeContainerAnchor.getAttribute('href')
+          if (!href) continue
 
-        // Get the tweet id and username from the href: https://twitter.com/username/status/1234567890
-        const match = href.match(/\/([^/]+)\/status\/(\d+)/)
-        if (!match) continue
+          // Get the tweet id and username from the href: https://twitter.com/username/status/1234567890
+          const match = href.match(/\/([^/]+)\/status\/(\d+)/)
+          if (!match) continue
 
-        const id = match[2]
-        const username = match[1]
+          const id = match[2]
+          const username = match[1]
 
-        // skip non-author replies
-        username === author && ids.push(id)
+          // skip non-author replies
+          username === author && ids.add(id)
+        }
+
+        window.scrollBy(0, distance)
+        await waitFor(100)
+        currentHeight += distance
       }
 
-      return ids
+      return Array.from(ids)
     }, author)) as string[]
   } catch (error) {
     console.log(error)
