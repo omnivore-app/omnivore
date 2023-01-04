@@ -24,7 +24,7 @@
     "@sentry/serverless": "^6.16.1",
     "axios": "^0.27.2",
     "dotenv": "^16.0.1",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "search-query-parser": "^1.6.0"
   }
 }

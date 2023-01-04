@@ -66,7 +66,7 @@
     "highlightjs": "^9.16.2",
     "html-entities": "^2.3.2",
     "intercom-client": "^3.1.4",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "jwks-rsa": "^2.0.3",
     "knex": "0.21.12",
     "knex-stringcase": "^1.4.2",

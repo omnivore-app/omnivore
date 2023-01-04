@@ -39,7 +39,7 @@
     "dotenv": "^16.0.1",
     "fluent-ffmpeg": "^2.1.2",
     "html-to-text": "^8.2.1",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "linkedom": "^0.14.12",
     "microsoft-cognitiveservices-speech-sdk": "^1.22.0",
     "natural": "^5.2.3",
