@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import app.omnivore.omnivore.Routes
 import app.omnivore.omnivore.persistence.entities.SavedItem
+import app.omnivore.omnivore.persistence.entities.SavedItemCardData
 import app.omnivore.omnivore.ui.savedItemViews.SavedItemCard
 import app.omnivore.omnivore.ui.reader.PDFReaderActivity
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -70,7 +71,7 @@ fun LibraryViewContent(
     onRefresh = { libraryViewModel.refresh() }
   )
 
-  val savedItems: List<SavedItem> by libraryViewModel.itemsLiveData.observeAsState(listOf())
+  val cardsData: List<SavedItemCardData> by libraryViewModel.itemsLiveData.observeAsState(listOf())
 
   Box(
     modifier = Modifier
@@ -86,19 +87,19 @@ fun LibraryViewContent(
         .fillMaxSize()
         .padding(horizontal = 6.dp)
     ) {
-      items(savedItems) { item ->
+      items(cardsData) { cardData ->
         SavedItemCard(
-          item = item,
+          cardData = cardData,
           onClickHandler = {
-            if (item.isPDF()) {
+            if (cardData.isPDF()) {
               val intent = Intent(context, PDFReaderActivity::class.java)
-              intent.putExtra("SAVED_ITEM_SLUG", item.slug)
+              intent.putExtra("SAVED_ITEM_SLUG", cardData.slug)
               context.startActivity(intent)
             } else {
-              navController.navigate("WebReader/${item.slug}")
+              navController.navigate("WebReader/${cardData.slug}")
             }
           },
-          actionHandler = { libraryViewModel.handleSavedItemAction(item.id, it) }
+          actionHandler = { libraryViewModel.handleSavedItemAction(cardData.id, it) }
         )
       }
     }

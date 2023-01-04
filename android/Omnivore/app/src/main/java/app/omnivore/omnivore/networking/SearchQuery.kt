@@ -3,11 +3,12 @@ package app.omnivore.omnivore.networking
 import app.omnivore.omnivore.graphql.generated.SearchQuery
 import app.omnivore.omnivore.graphql.generated.TypeaheadSearchQuery
 import app.omnivore.omnivore.persistence.entities.SavedItem
+import app.omnivore.omnivore.persistence.entities.SavedItemCardData
 import com.apollographql.apollo3.api.Optional
 
 data class SearchQueryResponse(
   val cursor: String?,
-  val items: List<SavedItem>
+  val cardsData: List<SavedItemCardData>
 )
 
 suspend fun Networker.typeaheadSearch(
@@ -20,31 +21,21 @@ suspend fun Networker.typeaheadSearch(
 
     val itemList = result.data?.typeaheadSearch?.onTypeaheadSearchSuccess?.items ?: listOf()
 
-    val items = itemList.map {
-      SavedItem(
+    val cardsData = itemList.map {
+      SavedItemCardData(
         id = it.id,
-        title = it.title,
-        createdAt = "",
-        savedAt = "",
-        readAt = "",
-        updatedAt = "",
-        readingProgress = 0.0,
-        readingProgressAnchor = 0,
-        imageURLString = null,
-        pageURLString = "",
-        descriptionText = "",
-        publisherURLString = "",
-        siteName = it.siteName,
-        author = "",
-        publishDate = null,
         slug = it.slug,
+        publisherURLString = "",
+        title = it.title,
+        author = "",
+        imageURLString = null,
         isArchived = false,
+        pageURLString = "",
         contentReader = null,
-        content = null
       )
     }
 
-    return SearchQueryResponse(null, items)
+    return SearchQueryResponse(null, cardsData)
   } catch (e: java.lang.Exception) {
     return SearchQueryResponse(null, listOf())
   }
@@ -68,31 +59,21 @@ suspend fun Networker.search(
     val newCursor = result.data?.search?.onSearchSuccess?.pageInfo?.endCursor
     val itemList = result.data?.search?.onSearchSuccess?.edges ?: listOf()
 
-    val items = itemList.map {
-      SavedItem(
+    val cardsData = itemList.map {
+      SavedItemCardData(
         id = it.node.id,
-        title = it.node.title,
-        createdAt = it.node.createdAt as String,
-        savedAt = it.node.savedAt as String,
-        readAt = it.node.readAt as String?,
-        updatedAt = it.node.updatedAt as String?,
-        readingProgress = it.node.readingProgressPercent,
-        readingProgressAnchor = it.node.readingProgressAnchorIndex,
-        imageURLString = it.node.image,
-        pageURLString = it.node.url,
-        descriptionText = it.node.description,
-        publisherURLString = it.node.originalArticleUrl,
-        siteName = it.node.siteName,
-        author = it.node.author,
-        publishDate = it.node.publishedAt as String?,
         slug = it.node.slug,
+        publisherURLString = it.node.originalArticleUrl,
+        title = it.node.title,
+        author = it.node.author,
+        imageURLString = it.node.image,
         isArchived = it.node.isArchived,
+        pageURLString = it.node.url,
         contentReader = it.node.contentReader.rawValue,
-        content = null
       )
     }
 
-    return SearchQueryResponse(newCursor, items)
+    return SearchQueryResponse(newCursor, cardsData)
   } catch (e: java.lang.Exception) {
     return SearchQueryResponse(null, listOf())
   }

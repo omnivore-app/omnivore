@@ -8,8 +8,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.DataService
-import app.omnivore.omnivore.persistence.entities.SavedItem
 import app.omnivore.omnivore.networking.*
+import app.omnivore.omnivore.persistence.entities.SavedItemCardData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -23,8 +23,8 @@ class LibraryViewModel @Inject constructor(
   private val dataService: DataService
 ): ViewModel() {
   private var cursor: String? = null
-  private var items: List<SavedItem> = listOf()
-  private var searchedItems: List<SavedItem> = listOf()
+  private var items: List<SavedItemCardData> = listOf()
+  private var searchedItems: List<SavedItemCardData> = listOf()
 
   // These are used to make sure we handle search result
   // responses in the right order
@@ -33,7 +33,7 @@ class LibraryViewModel @Inject constructor(
 
   // Live Data
   val searchTextLiveData = MutableLiveData("")
-  val itemsLiveData = MutableLiveData<List<SavedItem>>(listOf())
+  val itemsLiveData = MutableLiveData<List<SavedItemCardData>>(listOf())
   var isRefreshing by mutableStateOf(false)
 
   fun updateSearchText(text: String) {
@@ -82,18 +82,18 @@ class LibraryViewModel @Inject constructor(
 
       if (searchTextLiveData.value != "" || clearPreviousSearch) {
         val previousItems = if (clearPreviousSearch) listOf() else searchedItems
-        searchedItems = previousItems.plus(searchResult.items)
+        searchedItems = previousItems.plus(searchResult.cardsData)
         itemsLiveData.postValue(searchedItems)
       } else {
-        items = items.plus(searchResult.items)
+        items = items.plus(searchResult.cardsData)
         itemsLiveData.postValue(items)
       }
 
-      withContext(Dispatchers.IO) {
-        dataService.db.savedItemDao().insertAll(items)
-        val items = dataService.db.savedItemDao().getLibraryData()
-        Log.d("appDatabase", "libraryData: $items")
-      }
+//      withContext(Dispatchers.IO) {
+//        dataService.db.savedItemDao().insertAll(items)
+//        val items = dataService.db.savedItemDao().getLibraryData()
+//        Log.d("appDatabase", "libraryData: $items")
+//      }
 
       CoroutineScope(Dispatchers.Main).launch {
         isRefreshing = false
