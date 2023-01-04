@@ -62,15 +62,15 @@ const importCompletedTask = async (userId: string, urlsEnqueued: number) => {
   }
 
   const exp = Math.floor(Date.now() / 1000) + 60 * 60 * 24 // 1 day
-  const authToken = await signToken(
+  const authToken = (await signToken(
     { uid: userId, exp },
     process.env.JWT_SECRET
-  )
+  )) as string
   const headers = {
     Authorization: `auth=${authToken}`,
   }
 
-  createCloudTask(
+  return createCloudTask(
     {
       userId,
       subject: 'Your Omnivore import has completed processing',
