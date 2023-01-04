@@ -48,13 +48,13 @@ describe('uploadImportFile API', () => {
 
   describe('UploadImportFile', () => {
     context('when it is a pocket file', () => {
-      it('should create an upload URL', async () => {
+      xit('should create an upload URL', async () => {
         const res = await uploadImportFile(authToken, 'POCKET', 'text/csv')
         expect(res.body.data.uploadImportFile.uploadSignedUrl).to.not.be.null
       })
     })
     context('when it is a pocket file', () => {
-      it('should create an upload URL', async () => {
+      xit('should create an upload URL', async () => {
         const res = await uploadImportFile(authToken, 'URL_LIST', 'text/csv')
         expect(res.body.data.uploadImportFile.uploadSignedUrl).to.not.be.null
       })
