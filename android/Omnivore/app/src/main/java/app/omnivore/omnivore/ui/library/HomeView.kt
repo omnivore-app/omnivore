@@ -1,4 +1,4 @@
-package app.omnivore.omnivore.ui.home
+package app.omnivore.omnivore.ui.library
 
 import android.content.Intent
 import androidx.compose.foundation.background
@@ -28,23 +28,23 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeView(
-  homeViewModel: HomeViewModel,
+fun LibraryView(
+  libraryViewModel: LibraryViewModel,
   navController: NavHostController
 ) {
-  val searchText: String by homeViewModel.searchTextLiveData.observeAsState("")
+  val searchText: String by libraryViewModel.searchTextLiveData.observeAsState("")
 
   Scaffold(
     topBar = {
       SearchBar(
         searchText = searchText,
-        onSearchTextChanged = { homeViewModel.updateSearchText(it) },
+        onSearchTextChanged = { libraryViewModel.updateSearchText(it) },
         onSettingsIconClick = { navController.navigate(Routes.Settings.route) }
       )
     }
   ) { paddingValues ->
-    HomeViewContent(
-      homeViewModel,
+    LibraryViewContent(
+      libraryViewModel,
       navController,
       modifier = Modifier
         .padding(
@@ -57,8 +57,8 @@ fun HomeView(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun HomeViewContent(
-  homeViewModel: HomeViewModel,
+fun LibraryViewContent(
+  libraryViewModel: LibraryViewModel,
   navController: NavHostController,
   modifier: Modifier
 ) {
@@ -66,11 +66,11 @@ fun HomeViewContent(
   val listState = rememberLazyListState()
 
   val pullRefreshState = rememberPullRefreshState(
-    refreshing = homeViewModel.isRefreshing,
-    onRefresh = { homeViewModel.refresh() }
+    refreshing = libraryViewModel.isRefreshing,
+    onRefresh = { libraryViewModel.refresh() }
   )
 
-  val linkedItems: List<LinkedItem> by homeViewModel.itemsLiveData.observeAsState(listOf())
+  val linkedItems: List<LinkedItem> by libraryViewModel.itemsLiveData.observeAsState(listOf())
 
   Box(
     modifier = Modifier
@@ -98,17 +98,17 @@ fun HomeViewContent(
               navController.navigate("WebReader/${item.slug}")
             }
           },
-          actionHandler = { homeViewModel.handleLinkedItemAction(item.id, it) }
+          actionHandler = { libraryViewModel.handleLinkedItemAction(item.id, it) }
         )
       }
     }
 
     InfiniteListHandler(listState = listState) {
-      homeViewModel.load()
+      libraryViewModel.load()
     }
     
     PullRefreshIndicator(
-      refreshing = homeViewModel.isRefreshing,
+      refreshing = libraryViewModel.isRefreshing,
       state = pullRefreshState,
       modifier = Modifier.align(Alignment.TopCenter)
     )

@@ -9,7 +9,7 @@ import app.omnivore.omnivore.DatastoreKeys
 import app.omnivore.omnivore.DatastoreRepository
 import app.omnivore.omnivore.persistence.entities.LinkedItem
 import app.omnivore.omnivore.networking.*
-import app.omnivore.omnivore.ui.home.LinkedItemAction
+import app.omnivore.omnivore.ui.library.LinkedItemAction
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -69,28 +69,28 @@ class WebReaderViewModel @Inject constructor(
       LinkedItemAction.Delete -> {
         viewModelScope.launch {
           networker.deleteLinkedItem(itemID)
-          popToHomeView(itemID)
+          popToLibraryView(itemID)
         }
       }
       LinkedItemAction.Archive -> {
         viewModelScope.launch {
           networker.archiveLinkedItem(itemID)
-          popToHomeView(itemID)
+          popToLibraryView(itemID)
         }
       }
       LinkedItemAction.Unarchive -> {
         viewModelScope.launch {
           networker.unarchiveLinkedItem(itemID)
-          popToHomeView(itemID)
+          popToLibraryView(itemID)
         }
       }
     }
   }
 
-  private fun popToHomeView(itemID: String) {
+  private fun popToLibraryView(itemID: String) {
     CoroutineScope(Dispatchers.Main).launch {
-      // TODO: pop to home
-      Log.d("maxx", "should pop to home and remove item with ID: $itemID")
+      // TODO: pop to library
+      Log.d("maxx", "should pop to library and remove item with ID: $itemID")
     }
   }
 

@@ -8,7 +8,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import app.omnivore.omnivore.ui.home.LinkedItemAction
+import app.omnivore.omnivore.ui.library.LinkedItemAction
 
 @Composable
 fun LinkedItemContextMenu(

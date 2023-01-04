@@ -16,15 +16,15 @@ import androidx.navigation.compose.rememberNavController
 import app.omnivore.omnivore.Routes
 import app.omnivore.omnivore.ui.auth.LoginViewModel
 import app.omnivore.omnivore.ui.auth.WelcomeScreen
-import app.omnivore.omnivore.ui.home.HomeView
-import app.omnivore.omnivore.ui.home.HomeViewModel
+import app.omnivore.omnivore.ui.library.LibraryView
+import app.omnivore.omnivore.ui.library.LibraryViewModel
 import app.omnivore.omnivore.ui.reader.*
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 @Composable
 fun RootView(
   loginViewModel: LoginViewModel,
-  homeViewModel: HomeViewModel,
+  libraryViewModel: LibraryViewModel,
   webReaderViewModel: WebReaderViewModel
 ) {
   val hasAuthToken: Boolean by loginViewModel.hasAuthTokenLiveData.observeAsState(false)
@@ -47,7 +47,7 @@ fun RootView(
     if (hasAuthToken) {
       PrimaryNavigator(
         loginViewModel = loginViewModel,
-        homeViewModel = homeViewModel,
+        libraryViewModel = libraryViewModel,
         webReaderViewModel = webReaderViewModel
       )
     } else {
@@ -66,15 +66,15 @@ fun RootView(
 @Composable
 fun PrimaryNavigator(
   loginViewModel: LoginViewModel,
-  homeViewModel: HomeViewModel,
+  libraryViewModel: LibraryViewModel,
   webReaderViewModel: WebReaderViewModel
 ) {
   val navController = rememberNavController()
 
-  NavHost(navController = navController, startDestination = Routes.Home.route) {
-    composable(Routes.Home.route) {
-      HomeView(
-        homeViewModel = homeViewModel,
+  NavHost(navController = navController, startDestination = Routes.Library.route) {
+    composable(Routes.Library.route) {
+      LibraryView(
+        libraryViewModel = libraryViewModel,
         navController = navController
       )
     }

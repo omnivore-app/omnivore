@@ -1,4 +1,4 @@
-package app.omnivore.omnivore.ui.home
+package app.omnivore.omnivore.ui.library
 
 import android.util.Log
 import androidx.compose.runtime.getValue
@@ -10,7 +10,6 @@ import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.DataService
 import app.omnivore.omnivore.persistence.entities.LinkedItem
 import app.omnivore.omnivore.networking.*
-import app.omnivore.omnivore.persistence.AppDatabase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -19,7 +18,7 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeViewModel @Inject constructor(
+class LibraryViewModel @Inject constructor(
   private val networker: Networker,
   private val dataService: DataService
 ): ViewModel() {
