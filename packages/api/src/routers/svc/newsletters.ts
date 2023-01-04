@@ -1,7 +1,10 @@
 import express from 'express'
 import { readPushSubscription } from '../../datalayer/pubsub'
 import { updateConfirmationCode } from '../../services/newsletters'
-import { saveNewsletterEmail } from '../../services/save_newsletter_email'
+import {
+  NewsletterMessage,
+  saveNewsletterEmail,
+} from '../../services/save_newsletter_email'
 
 interface SetConfirmationCodeMessage {
   emailAddress: string
@@ -81,8 +84,7 @@ export function newsletterServiceRouter() {
 
     try {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const data = JSON.parse(message)
-
+      const data = JSON.parse(message) as NewsletterMessage
       if (
         !('email' in data) ||
         !('content' in data) ||
