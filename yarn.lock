@@ -2746,6 +2746,13 @@
   dependencies:
     google-gax "^2.24.1"
 
+"@google-cloud/tasks@^3.0.5":
+  version "3.0.5"
+  resolved "https://registry.yarnpkg.com/@google-cloud/tasks/-/tasks-3.0.5.tgz#4c0c648d10c7cf10b2e1599dd5a48bf8cc78cbd6"
+  integrity sha512-fC7afAV2d+zz0A2TxJWBZyBTHlB8nWBkNr/7BH6ZM/uAgT6gmSLfDho3aQNttnumj7IiI0vwUx31Zu1wG3m7yw==
+  dependencies:
+    google-gax "^3.5.2"
+
 "@graphql-codegen/cli@^2.6.2":
   version "2.6.2"
   resolved "https://registry.yarnpkg.com/@graphql-codegen/cli/-/cli-2.6.2.tgz#a9aa4656141ee0998cae8c7ad7d0bf9ca8e0c9ae"
