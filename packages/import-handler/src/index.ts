@@ -10,6 +10,12 @@ import { Stream } from 'node:stream'
 import { v4 as uuid } from 'uuid'
 import { createCloudTask } from './task'
 
+import axios, { AxiosResponse } from 'axios'
+import { promisify } from 'util'
+import * as jwt from 'jsonwebtoken'
+
+const signToken = promisify(jwt.sign)
+
 const storage = new Storage()
 
 interface StorageEventData {
@@ -50,6 +56,30 @@ const importURL = async (
   })
 }
 
+const importCompletedTask = async (userId: string, urlsEnqueued: number) => {
+  if (!process.env.JWT_SECRET) {
+    throw 'Envrionment not setup correctly'
+  }
+
+  const exp = Math.floor(Date.now() / 1000) + 60 * 60 * 24 // 1 day
+  const authToken = await signToken(
+    { uid: userId, exp },
+    process.env.JWT_SECRET
+  )
+  const headers = {
+    Authorization: `auth=${authToken}`,
+  }
+
+  createCloudTask(
+    {
+      userId,
+      subject: 'Your Omnivore import has completed processing',
+      body: `${urlsEnqueued} URLs have been pcoessed and should be available in your library.`,
+    },
+    headers
+  )
+}
+
 const handlerForFile = (name: string): importHandlerFunc | undefined => {
   const fileName = path.parse(name).name
   if (fileName.startsWith('MATTER')) {
@@ -79,21 +109,30 @@ export const importHandler: EventFunction = async (event, context) => {
       return
     }
 
+    const regex = new RegExp('imports/(.*?)/')
+    const groups = regex.exec(data.name)
+    if (!groups || groups.length < 2) {
+      console.log('could not match file pattern: ', data.name)
+      return
+    }
+    const userId = [...groups][1]
+    if (!userId) {
+      console.log('could not extract userId from file name')
+      return
+    }
+
+    let countImported = 0
     await handler(stream, async (url): Promise<void> => {
       try {
         // Imports are stored in the format imports/<user id>/<type>-<uuid>.csv
-        const regex = new RegExp('imports/(.*?)/')
-        const groups = regex.exec(data.name)
-        if (!groups || groups.length < 2) {
-          console.log('could not match file pattern: ', data.name)
-          return
-        }
-        const userId = [...groups][1]
         const result = await importURL(userId, url, 'csv-importer')
         console.log('import url result', result)
+        countImported = countImported + 1
       } catch (err) {
         console.log('error importing url', err)
       }
     })
+
+    await importCompletedTask(userId, countImported)
   }
 }

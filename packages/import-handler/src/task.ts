@@ -10,7 +10,10 @@ type TaskPayload = {
 
 const cloudTask = new CloudTasksClient()
 
-export const createCloudTask = async (payload: TaskPayload) => {
+export const createCloudTask = async (
+  payload: unknown,
+  requestHeaders?: Record<string, string>
+) => {
   const queue = 'omnivore-import-queue'
   const location = process.env.GCP_LOCATION
   const project = process.env.GCP_PROJECT_ID
@@ -40,6 +43,7 @@ export const createCloudTask = async (payload: TaskPayload) => {
       url: taskHandlerUrl,
       headers: {
         'Content-Type': 'application/json',
+        ...requestHeaders,
       },
       body,
       ...(serviceAccountEmail

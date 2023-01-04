@@ -48,6 +48,7 @@ import { integrationsServiceRouter } from './routers/svc/integrations'
 import { textToSpeechRouter } from './routers/text_to_speech'
 import * as httpContext from 'express-http-context'
 import { notificationRouter } from './routers/notification_router'
+import { userRouter } from './routers/user_router'
 
 const PORT = process.env.PORT || 4000
 
@@ -129,6 +130,7 @@ export const createApp = (): {
 
   app.use('/api/auth', authRouter())
   app.use('/api/page', pageRouter())
+  app.use('/api/user', userRouter())
   app.use('/api/article', articleRouter())
   app.use('/api/mobile-auth', mobileAuthRouter())
   app.use('/api/text-to-speech', textToSpeechRouter())
