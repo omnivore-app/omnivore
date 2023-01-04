@@ -2,12 +2,12 @@ package app.omnivore.omnivore.networking
 
 import app.omnivore.omnivore.graphql.generated.SearchQuery
 import app.omnivore.omnivore.graphql.generated.TypeaheadSearchQuery
-import app.omnivore.omnivore.persistence.entities.LinkedItem
+import app.omnivore.omnivore.persistence.entities.SavedItem
 import com.apollographql.apollo3.api.Optional
 
 data class SearchQueryResponse(
   val cursor: String?,
-  val items: List<LinkedItem>
+  val items: List<SavedItem>
 )
 
 suspend fun Networker.typeaheadSearch(
@@ -21,7 +21,7 @@ suspend fun Networker.typeaheadSearch(
     val itemList = result.data?.typeaheadSearch?.onTypeaheadSearchSuccess?.items ?: listOf()
 
     val items = itemList.map {
-      LinkedItem(
+      SavedItem(
         id = it.id,
         title = it.title,
         createdAt = "",
@@ -69,7 +69,7 @@ suspend fun Networker.search(
     val itemList = result.data?.search?.onSearchSuccess?.edges ?: listOf()
 
     val items = itemList.map {
-      LinkedItem(
+      SavedItem(
         id = it.node.id,
         title = it.node.title,
         createdAt = it.node.createdAt as String,

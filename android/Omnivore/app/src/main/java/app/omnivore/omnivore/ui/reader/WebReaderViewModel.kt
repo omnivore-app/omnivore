@@ -7,9 +7,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.DatastoreKeys
 import app.omnivore.omnivore.DatastoreRepository
-import app.omnivore.omnivore.persistence.entities.LinkedItem
+import app.omnivore.omnivore.persistence.entities.SavedItem
 import app.omnivore.omnivore.networking.*
-import app.omnivore.omnivore.ui.library.LinkedItemAction
+import app.omnivore.omnivore.ui.library.SavedItemAction
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -20,7 +20,7 @@ import java.util.*
 import javax.inject.Inject
 
 data class WebReaderParams(
-  val item: LinkedItem,
+  val item: SavedItem,
   val articleContent: ArticleContent
 )
 
@@ -47,7 +47,7 @@ class WebReaderViewModel @Inject constructor(
 
   fun loadItem(slug: String) {
     viewModelScope.launch {
-      val articleQueryResult = networker.linkedItem(slug)
+      val articleQueryResult = networker.savedItem(slug)
 
       val article = articleQueryResult.item ?: return@launch
 
@@ -64,23 +64,23 @@ class WebReaderViewModel @Inject constructor(
     }
   }
 
-  fun handleLinkedItemAction(itemID: String, action: LinkedItemAction) {
+  fun handleSavedItemAction(itemID: String, action: SavedItemAction) {
     when (action) {
-      LinkedItemAction.Delete -> {
+      SavedItemAction.Delete -> {
         viewModelScope.launch {
-          networker.deleteLinkedItem(itemID)
+          networker.deleteSavedItem(itemID)
           popToLibraryView(itemID)
         }
       }
-      LinkedItemAction.Archive -> {
+      SavedItemAction.Archive -> {
         viewModelScope.launch {
-          networker.archiveLinkedItem(itemID)
+          networker.archiveSavedItem(itemID)
           popToLibraryView(itemID)
         }
       }
-      LinkedItemAction.Unarchive -> {
+      SavedItemAction.Unarchive -> {
         viewModelScope.launch {
-          networker.unarchiveLinkedItem(itemID)
+          networker.unarchiveSavedItem(itemID)
           popToLibraryView(itemID)
         }
       }

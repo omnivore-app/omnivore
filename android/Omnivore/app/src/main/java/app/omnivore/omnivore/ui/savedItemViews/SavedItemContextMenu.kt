@@ -1,4 +1,4 @@
-package app.omnivore.omnivore.ui.linkedItemViews
+package app.omnivore.omnivore.ui.savedItemViews
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
@@ -8,14 +8,14 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import app.omnivore.omnivore.ui.library.LinkedItemAction
+import app.omnivore.omnivore.ui.library.SavedItemAction
 
 @Composable
-fun LinkedItemContextMenu(
+fun SavedItemContextMenu(
   isExpanded: Boolean,
   isArchived: Boolean,
   onDismiss: () -> Unit,
-  actionHandler: (LinkedItemAction) -> Unit
+  actionHandler: (SavedItemAction) -> Unit
 ) {
   DropdownMenu(
     expanded = isExpanded,
@@ -24,7 +24,7 @@ fun LinkedItemContextMenu(
     DropdownMenuItem(
       text = { Text(if (isArchived) "Unarchive" else "Archive") },
       onClick = {
-        val action = if (isArchived) LinkedItemAction.Unarchive else LinkedItemAction.Archive
+        val action = if (isArchived) SavedItemAction.Unarchive else SavedItemAction.Archive
         actionHandler(action)
         onDismiss()
       },
@@ -38,7 +38,7 @@ fun LinkedItemContextMenu(
     DropdownMenuItem(
       text = { Text("Remove Item") },
       onClick = {
-        actionHandler(LinkedItemAction.Delete)
+        actionHandler(SavedItemAction.Delete)
         onDismiss()
       },
       leadingIcon = {

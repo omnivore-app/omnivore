@@ -78,7 +78,7 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
     // Observe the LiveData, passing in this activity as the LifecycleOwner and the observer.
     viewModel.pdfReaderParamsLiveData.observe(this, pdfParamsObserver)
 
-    val slug = intent.getStringExtra("LINKED_ITEM_SLUG") ?: ""
+    val slug = intent.getStringExtra("SAVED_ITEM_SLUG") ?: ""
     viewModel.loadItem(slug, this)
   }
 

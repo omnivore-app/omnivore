@@ -8,7 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.DataService
-import app.omnivore.omnivore.persistence.entities.LinkedItem
+import app.omnivore.omnivore.persistence.entities.SavedItem
 import app.omnivore.omnivore.networking.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -23,8 +23,8 @@ class LibraryViewModel @Inject constructor(
   private val dataService: DataService
 ): ViewModel() {
   private var cursor: String? = null
-  private var items: List<LinkedItem> = listOf()
-  private var searchedItems: List<LinkedItem> = listOf()
+  private var items: List<SavedItem> = listOf()
+  private var searchedItems: List<SavedItem> = listOf()
 
   // These are used to make sure we handle search result
   // responses in the right order
@@ -33,7 +33,7 @@ class LibraryViewModel @Inject constructor(
 
   // Live Data
   val searchTextLiveData = MutableLiveData("")
-  val itemsLiveData = MutableLiveData<List<LinkedItem>>(listOf())
+  val itemsLiveData = MutableLiveData<List<SavedItem>>(listOf())
   var isRefreshing by mutableStateOf(false)
 
   fun updateSearchText(text: String) {
@@ -100,25 +100,25 @@ class LibraryViewModel @Inject constructor(
     }
   }
 
-  fun handleLinkedItemAction(itemID: String, action: LinkedItemAction) {
+  fun handleSavedItemAction(itemID: String, action: SavedItemAction) {
     when (action) {
-      LinkedItemAction.Delete -> {
+      SavedItemAction.Delete -> {
         removeItemFromList(itemID)
 
         viewModelScope.launch {
-          networker.deleteLinkedItem(itemID)
+          networker.deleteSavedItem(itemID)
         }
       }
-      LinkedItemAction.Archive -> {
+      SavedItemAction.Archive -> {
         removeItemFromList(itemID)
         viewModelScope.launch {
-          networker.archiveLinkedItem(itemID)
+          networker.archiveSavedItem(itemID)
         }
       }
-      LinkedItemAction.Unarchive -> {
+      SavedItemAction.Unarchive -> {
         removeItemFromList(itemID)
         viewModelScope.launch {
-          networker.unarchiveLinkedItem(itemID)
+          networker.unarchiveSavedItem(itemID)
         }
       }
     }
@@ -142,7 +142,7 @@ class LibraryViewModel @Inject constructor(
   }
 }
 
-enum class LinkedItemAction {
+enum class SavedItemAction {
   Delete,
   Archive,
   Unarchive

@@ -1,4 +1,4 @@
-package app.omnivore.omnivore.ui.linkedItemViews
+package app.omnivore.omnivore.ui.savedItemViews
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -12,13 +12,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.omnivore.omnivore.persistence.entities.LinkedItem
-import app.omnivore.omnivore.ui.library.LinkedItemAction
+import app.omnivore.omnivore.persistence.entities.SavedItem
+import app.omnivore.omnivore.ui.library.SavedItemAction
 import coil.compose.rememberAsyncImagePainter
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun LinkedItemCard(item: LinkedItem, onClickHandler: () -> Unit, actionHandler: (LinkedItemAction) -> Unit) {
+fun SavedItemCard(item: SavedItem, onClickHandler: () -> Unit, actionHandler: (SavedItemAction) -> Unit) {
   var isMenuExpanded by remember { mutableStateOf(false) }
   val publisherDisplayName = item.publisherDisplayName()
 
@@ -69,7 +69,7 @@ fun LinkedItemCard(item: LinkedItem, onClickHandler: () -> Unit, actionHandler: 
       if (item.imageURLString != null) {
         Image(
           painter = rememberAsyncImagePainter(item.imageURLString),
-          contentDescription = "Image associated with linked item",
+          contentDescription = "Image associated with saved item",
           modifier = Modifier
             .padding(top = 6.dp)
             .clip(RoundedCornerShape(6.dp))
@@ -80,7 +80,7 @@ fun LinkedItemCard(item: LinkedItem, onClickHandler: () -> Unit, actionHandler: 
 
     Divider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 1.dp)
 
-    LinkedItemContextMenu(
+    SavedItemContextMenu(
       isExpanded = isMenuExpanded,
       isArchived = item.isArchived,
       onDismiss = { isMenuExpanded = false },

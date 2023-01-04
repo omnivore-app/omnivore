@@ -11,5 +11,5 @@ data class Recommendation(
   val recommendedAt: String?
 )
 
-// hasOne LinkedItem
+// hasOne SavedItem
 // hasOne UserProfile

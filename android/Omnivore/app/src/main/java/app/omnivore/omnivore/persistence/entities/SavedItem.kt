@@ -6,7 +6,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-data class LinkedItem(
+data class SavedItem(
   @PrimaryKey val id: String,
   val title: String,
   val createdAt: String,
@@ -41,7 +41,7 @@ data class LinkedItem(
 
 // hasMany highlights
 // hasMany labels
-// has Many recommendations (rec has one linkedItem)
+// has Many recommendations (rec has one savedItem)
 ) {
   fun publisherDisplayName(): String? {
     return publisherURLString?.toUri()?.host
@@ -56,7 +56,7 @@ data class LinkedItem(
     if (this === other) return true
     if (javaClass != other?.javaClass) return false
 
-    other as LinkedItem
+    other as SavedItem
 
     if (id != other.id) return false
 

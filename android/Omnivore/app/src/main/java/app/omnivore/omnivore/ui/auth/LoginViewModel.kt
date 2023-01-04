@@ -4,15 +4,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.*
-import androidx.lifecycle.viewmodel.compose.viewModel
 import app.omnivore.omnivore.*
-import app.omnivore.omnivore.graphql.generated.SearchQuery
 import app.omnivore.omnivore.graphql.generated.ValidateUsernameQuery
-import app.omnivore.omnivore.networking.LinkedItemQueryResponse
 import app.omnivore.omnivore.networking.Networker
 import app.omnivore.omnivore.networking.viewer
 import com.apollographql.apollo3.ApolloClient
-import com.apollographql.apollo3.api.Optional
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task

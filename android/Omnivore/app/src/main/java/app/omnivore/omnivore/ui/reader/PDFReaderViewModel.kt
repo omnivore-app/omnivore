@@ -10,7 +10,7 @@ import app.omnivore.omnivore.DatastoreRepository
 import app.omnivore.omnivore.graphql.generated.type.CreateHighlightInput
 import app.omnivore.omnivore.graphql.generated.type.MergeHighlightInput
 import app.omnivore.omnivore.graphql.generated.type.UpdateHighlightInput
-import app.omnivore.omnivore.persistence.entities.LinkedItem
+import app.omnivore.omnivore.persistence.entities.SavedItem
 import app.omnivore.omnivore.networking.*
 import com.apollographql.apollo3.api.Optional
 import com.google.gson.Gson
@@ -29,7 +29,7 @@ import java.util.*
 import javax.inject.Inject
 
 data class PDFReaderParams(
-  val item: LinkedItem,
+  val item: SavedItem,
   val articleContent: ArticleContent,
   val localFileUri: Uri
 )
@@ -45,7 +45,7 @@ class PDFReaderViewModel @Inject constructor(
 
   fun loadItem(slug: String, context: Context) {
     viewModelScope.launch {
-      val articleQueryResult = networker.linkedItem(slug)
+      val articleQueryResult = networker.savedItem(slug)
 
       val article = articleQueryResult.item ?: return@launch
 

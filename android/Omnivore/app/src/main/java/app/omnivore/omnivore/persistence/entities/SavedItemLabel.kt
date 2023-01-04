@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-data class LinkedItemLabel(
+data class SavedItemLabel(
   @PrimaryKey val id: String,
   val name: String,
   val color: String,
@@ -14,4 +14,4 @@ data class LinkedItemLabel(
 )
 
 // has many highlights
-// has many linkedItems
+// has many savedItems
