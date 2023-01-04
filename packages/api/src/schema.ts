@@ -2306,6 +2306,28 @@ const schema = gql`
     NOT_FOUND
   }
 
+  enum UploadImportFileType {
+    URL_LIST
+    POCKET
+    MATTER
+  }
+
+  enum UploadImportFileErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    UPLOAD_DAILY_LIMIT_EXCEEDED
+  }
+
+  union UploadImportFileResult = UploadImportFileSuccess | UploadImportFileError
+
+  type UploadImportFileError {
+    errorCodes: [UploadImportFileErrorCode!]!
+  }
+
+  type UploadImportFileSuccess {
+    uploadSignedUrl: String
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -2390,6 +2412,10 @@ const schema = gql`
       input: RecommendHighlightsInput!
     ): RecommendHighlightsResult!
     leaveGroup(groupId: ID!): LeaveGroupResult!
+    uploadImportFile(
+      type: UploadImportFileType!
+      contentType: String!
+    ): UploadImportFileResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed

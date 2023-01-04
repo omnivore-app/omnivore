@@ -1083,6 +1083,7 @@ type Mutation {
   updateUser(input: UpdateUserInput!): UpdateUserResult!
   updateUserProfile(input: UpdateUserProfileInput!): UpdateUserProfileResult!
   uploadFileRequest(input: UploadFileRequestInput!): UploadFileRequestResult!
+  uploadImportFile(contentType: String!, type: UploadImportFileType!): UploadImportFileResult!
 }
 
 type NewsletterEmail {
@@ -2249,6 +2250,28 @@ type UploadFileRequestSuccess {
 enum UploadFileStatus {
   COMPLETED
   INITIALIZED
+}
+
+type UploadImportFileError {
+  errorCodes: [UploadImportFileErrorCode!]!
+}
+
+enum UploadImportFileErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+  UPLOAD_DAILY_LIMIT_EXCEEDED
+}
+
+union UploadImportFileResult = UploadImportFileError | UploadImportFileSuccess
+
+type UploadImportFileSuccess {
+  uploadSignedUrl: String
+}
+
+enum UploadImportFileType {
+  MATTER
+  POCKET
+  URL_LIST
 }
 
 type User {
