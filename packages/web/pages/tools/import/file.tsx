@@ -163,7 +163,7 @@ export default function ImportUploader(): JSX.Element {
                 </StyledText>
                 <select
                   onChange={(event) => {
-                    var changeType: UploadImportFileType =
+                    const changeType: UploadImportFileType =
                       UploadImportFileType[
                         event.currentTarget
                           .value as keyof typeof UploadImportFileType
