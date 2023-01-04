@@ -12,7 +12,6 @@ export const createPubSubClient = (): PubsubClient => {
       return Promise.resolve()
     }
 
-    console.log(`Publishing ${topicName}`, msg)
     return client
       .topic(topicName)
       .publishMessage({ data: msg })
@@ -126,7 +125,6 @@ const expired = (body: PubSubRequestBody): boolean => {
 export const readPushSubscription = (
   req: express.Request
 ): { message: string | undefined; expired: boolean } => {
-  console.log('request query', req.body)
   if (req.query.token !== process.env.PUBSUB_VERIFICATION_TOKEN) {
     console.log('query does not include valid pubsub token')
     return { message: undefined, expired: false }
