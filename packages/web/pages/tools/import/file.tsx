@@ -141,7 +141,11 @@ export default function ImportUploader(): JSX.Element {
           {uploadState == 'completed' ? (
             <StyledText
               style="caption"
-              css={{ pt: '10px', color: theme.colors.omnivoreGray.toString() }}
+              css={{
+                pt: '10px',
+                pb: '20px',
+                color: theme.colors.omnivoreGray.toString(),
+              }}
             >
               Your upload has completed. Please note that it can take some time
               for your library to be updated. You will be sent an email when the
@@ -162,6 +166,7 @@ export default function ImportUploader(): JSX.Element {
                   File type:
                 </StyledText>
                 <select
+                  disabled={uploadState == 'uploading'}
                   onChange={(event) => {
                     const changeType: UploadImportFileType =
                       UploadImportFileType[
@@ -193,27 +198,43 @@ export default function ImportUploader(): JSX.Element {
                   }}
                 ></FormLabel>
                 <HStack css={{ py: '16px' }} distribution="start">
-                  <input type="file" onChange={onTypeChange} />
+                  <input
+                    type="file"
+                    onChange={onTypeChange}
+                    disabled={uploadState == 'uploading'}
+                  />
                   {/* <Box>{file && `${file.name}`}</Box> */}
                 </HStack>
               </HStack>
-
-              <HStack css={{ width: '100%' }} distribution="start">
-                <FormLabel css={{ height: '38px', width: '88px' }}></FormLabel>
-                {uploadState == 'none' && (
-                  <Button onClick={handleUploadClick} style="ctaDarkYellow">
-                    Upload
-                  </Button>
-                )}
-                {uploadState == 'uploading' && (
-                  <SyncLoader
-                    color={theme.colors.omnivoreGray.toString()}
-                    size={8}
-                  />
-                )}
-              </HStack>
             </>
           )}
+
+          <HStack css={{ width: '100%' }} distribution="start">
+            <FormLabel css={{ height: '38px', width: '88px' }}></FormLabel>
+            {uploadState == 'none' && (
+              <Button onClick={handleUploadClick} style="ctaDarkYellow">
+                Upload
+              </Button>
+            )}
+            {uploadState == 'uploading' && (
+              <SyncLoader
+                color={theme.colors.omnivoreGray.toString()}
+                size={8}
+              />
+            )}
+            {uploadState == 'completed' && (
+              <Button
+                onClick={(e) => {
+                  window.location.href = '/home'
+                  e.preventDefault()
+                }}
+                style="ctaDarkYellow"
+              >
+                Return to Library
+              </Button>
+            )}
+          </HStack>
+
           <HStack css={{ width: '100%', pt: '10px' }} distribution="start">
             <FormLabel css={{ height: '38px', width: '88px' }}></FormLabel>
             {errorMessage && (
