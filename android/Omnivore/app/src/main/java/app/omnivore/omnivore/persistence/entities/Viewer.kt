@@ -1,6 +1,7 @@
 package app.omnivore.omnivore.persistence.entities
 
 import androidx.room.*
+import app.omnivore.omnivore.persistence.BaseDao
 
 @Entity
 data class Viewer(

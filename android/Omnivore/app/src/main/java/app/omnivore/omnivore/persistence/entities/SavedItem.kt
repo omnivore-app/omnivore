@@ -1,9 +1,8 @@
 package app.omnivore.omnivore.persistence.entities
 
 import androidx.core.net.toUri
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import androidx.room.*
+import app.omnivore.omnivore.persistence.BaseDao
 
 @Entity
 data class SavedItem(
@@ -66,4 +65,29 @@ data class SavedItem(
   override fun hashCode(): Int {
     return id.hashCode()
   }
+}
+
+data class SavedItemCardData(
+  val id: String,
+  val publisherURLString: String?,
+  val title: String,
+  val author: String?,
+  val imageURLString: String?,
+  val isArchived: Boolean
+) {
+  fun publisherDisplayName(): String? {
+    return publisherURLString?.toUri()?.host
+  }
+}
+
+@Dao
+interface SavedItemDao {
+  @Query("SELECT id, publisherURLString, title, author, imageURLString, isArchived FROM SavedItem")
+  fun getLibraryData(): List<SavedItemCardData>
+
+  @Query("SELECT * FROM savedItem")
+  fun getAll(): List<SavedItem>
+
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  fun insertAll(items: List<SavedItem>)
 }

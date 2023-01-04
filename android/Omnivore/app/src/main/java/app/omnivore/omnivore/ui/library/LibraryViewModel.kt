@@ -94,6 +94,12 @@ class LibraryViewModel @Inject constructor(
         itemsLiveData.postValue(items)
       }
 
+      withContext(Dispatchers.IO) {
+        dataService.db.savedItemDao().insertAll(items)
+        val items = dataService.db.savedItemDao().getLibraryData()
+        Log.d("appDatabase", "libraryData: $items")
+      }
+
       CoroutineScope(Dispatchers.Main).launch {
         isRefreshing = false
       }
