@@ -8,10 +8,10 @@ import app.omnivore.omnivore.graphql.generated.UpdateHighlightMutation
 import app.omnivore.omnivore.graphql.generated.type.CreateHighlightInput
 import app.omnivore.omnivore.graphql.generated.type.MergeHighlightInput
 import app.omnivore.omnivore.graphql.generated.type.UpdateHighlightInput
-import app.omnivore.omnivore.models.Highlight
+import app.omnivore.omnivore.persistence.entities.Highlight
 import com.apollographql.apollo3.api.Optional
 import com.google.gson.Gson
-import com.pspdfkit.annotations.HighlightAnnotation
+import java.time.LocalDate
 
 data class CreateHighlightParams(
    val shortId: String?,
@@ -137,6 +137,8 @@ suspend fun Networker.createHighlight(input: CreateHighlightInput): Highlight? {
     val createdHighlight = result.data?.createHighlight?.onCreateHighlightSuccess?.highlight
 
     if (createdHighlight != null) {
+//      val updatedAtString = createdHighlight.highlightFields.updatedAt as? String
+
       return Highlight(
         id = createdHighlight.highlightFields.id,
         shortId = createdHighlight.highlightFields.shortId,
@@ -146,8 +148,10 @@ suspend fun Networker.createHighlight(input: CreateHighlightInput): Highlight? {
         patch = createdHighlight.highlightFields.patch,
         annotation = createdHighlight.highlightFields.annotation,
         createdAt = null, // TODO: update gql query to get this
-        updatedAt = createdHighlight.highlightFields.updatedAt,
+        updatedAt = null, // TODO: fix updatedAtString?.let { LocalDate.parse(it) },
         createdByMe = createdHighlight.highlightFields.createdByMe,
+        markedForDeletion = false,
+        serverSyncStatus = 1 // TODO: create enum for this
       )
     } else {
       return null

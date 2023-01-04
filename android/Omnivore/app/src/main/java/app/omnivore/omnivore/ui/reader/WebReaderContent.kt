@@ -1,8 +1,8 @@
 package app.omnivore.omnivore.ui.reader
 
 import android.util.Log
-import app.omnivore.omnivore.models.Highlight
-import app.omnivore.omnivore.models.LinkedItem
+import app.omnivore.omnivore.persistence.entities.SavedItem
+import app.omnivore.omnivore.persistence.entities.Highlight
 import com.google.gson.Gson
 
 enum class WebFont(val displayText: String, val rawValue: String) {
@@ -39,7 +39,7 @@ data class ArticleContent(
 
 data class WebReaderContent(
   val preferences: WebPreferences,
-  val item: LinkedItem,
+  val item: SavedItem,
   val articleContent: ArticleContent,
 ) {
   fun styledContent(): String {

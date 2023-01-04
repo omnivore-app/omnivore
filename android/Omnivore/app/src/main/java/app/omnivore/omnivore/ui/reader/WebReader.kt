@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -29,14 +28,12 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.content.ContextCompat.getSystemService
 import app.omnivore.omnivore.R
-import app.omnivore.omnivore.ui.linkedItemViews.LinkedItemContextMenu
+import app.omnivore.omnivore.ui.savedItemViews.SavedItemContextMenu
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.json.JSONObject
 import java.util.*
 import kotlin.math.roundToInt
 
@@ -112,11 +109,11 @@ fun WebReaderLoadingContainer(slug: String, webReaderViewModel: WebReaderViewMod
               contentDescription = null
             )
           }
-          LinkedItemContextMenu(
+          SavedItemContextMenu(
             isExpanded = isMenuExpanded,
             isArchived = webReaderParams!!.item.isArchived,
             onDismiss = { isMenuExpanded = false },
-            actionHandler = { webReaderViewModel.handleLinkedItemAction(webReaderParams!!.item.id, it) }
+            actionHandler = { webReaderViewModel.handleSavedItemAction(webReaderParams!!.item.id, it) }
           )
         }
       )

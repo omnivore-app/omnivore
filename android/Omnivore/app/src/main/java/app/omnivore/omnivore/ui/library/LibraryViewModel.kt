@@ -1,4 +1,4 @@
-package app.omnivore.omnivore.ui.home
+package app.omnivore.omnivore.ui.library
 
 import android.util.Log
 import androidx.compose.runtime.getValue
@@ -7,22 +7,24 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.omnivore.omnivore.models.LinkedItem
+import app.omnivore.omnivore.DataService
 import app.omnivore.omnivore.networking.*
-import com.pspdfkit.analytics.Analytics
+import app.omnivore.omnivore.persistence.entities.SavedItemCardData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeViewModel @Inject constructor(
+class LibraryViewModel @Inject constructor(
   private val networker: Networker,
+  private val dataService: DataService
 ): ViewModel() {
   private var cursor: String? = null
-  private var items: List<LinkedItem> = listOf()
-  private var searchedItems: List<LinkedItem> = listOf()
+  private var items: List<SavedItemCardData> = listOf()
+  private var searchedItems: List<SavedItemCardData> = listOf()
 
   // These are used to make sure we handle search result
   // responses in the right order
@@ -31,7 +33,7 @@ class HomeViewModel @Inject constructor(
 
   // Live Data
   val searchTextLiveData = MutableLiveData("")
-  val itemsLiveData = MutableLiveData<List<LinkedItem>>(listOf())
+  val itemsLiveData = MutableLiveData<List<SavedItemCardData>>(listOf())
   var isRefreshing by mutableStateOf(false)
 
   fun updateSearchText(text: String) {
@@ -80,12 +82,18 @@ class HomeViewModel @Inject constructor(
 
       if (searchTextLiveData.value != "" || clearPreviousSearch) {
         val previousItems = if (clearPreviousSearch) listOf() else searchedItems
-        searchedItems = previousItems.plus(searchResult.items)
+        searchedItems = previousItems.plus(searchResult.cardsData)
         itemsLiveData.postValue(searchedItems)
       } else {
-        items = items.plus(searchResult.items)
+        items = items.plus(searchResult.cardsData)
         itemsLiveData.postValue(items)
       }
+
+//      withContext(Dispatchers.IO) {
+//        dataService.db.savedItemDao().insertAll(items)
+//        val items = dataService.db.savedItemDao().getLibraryData()
+//        Log.d("appDatabase", "libraryData: $items")
+//      }
 
       CoroutineScope(Dispatchers.Main).launch {
         isRefreshing = false
@@ -93,25 +101,25 @@ class HomeViewModel @Inject constructor(
     }
   }
 
-  fun handleLinkedItemAction(itemID: String, action: LinkedItemAction) {
+  fun handleSavedItemAction(itemID: String, action: SavedItemAction) {
     when (action) {
-      LinkedItemAction.Delete -> {
+      SavedItemAction.Delete -> {
         removeItemFromList(itemID)
 
         viewModelScope.launch {
-          networker.deleteLinkedItem(itemID)
+          networker.deleteSavedItem(itemID)
         }
       }
-      LinkedItemAction.Archive -> {
+      SavedItemAction.Archive -> {
         removeItemFromList(itemID)
         viewModelScope.launch {
-          networker.archiveLinkedItem(itemID)
+          networker.archiveSavedItem(itemID)
         }
       }
-      LinkedItemAction.Unarchive -> {
+      SavedItemAction.Unarchive -> {
         removeItemFromList(itemID)
         viewModelScope.launch {
-          networker.unarchiveLinkedItem(itemID)
+          networker.unarchiveSavedItem(itemID)
         }
       }
     }
@@ -135,7 +143,7 @@ class HomeViewModel @Inject constructor(
   }
 }
 
-enum class LinkedItemAction {
+enum class SavedItemAction {
   Delete,
   Archive,
   Unarchive
