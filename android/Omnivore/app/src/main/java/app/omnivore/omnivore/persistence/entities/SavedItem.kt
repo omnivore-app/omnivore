@@ -51,6 +51,20 @@ data class SavedItem(
     return contentReader == "PDF" || hasPDFSuffix
   }
 
+  fun asSavedItemCardData(): SavedItemCardData {
+    return SavedItemCardData(
+      id = id,
+      slug = slug,
+      publisherURLString = publisherURLString,
+      title = title,
+      author = author,
+      imageURLString = imageURLString,
+      isArchived = isArchived,
+      pageURLString = pageURLString,
+      contentReader = contentReader,
+    )
+  }
+
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (javaClass != other?.javaClass) return false
@@ -69,20 +83,28 @@ data class SavedItem(
 
 data class SavedItemCardData(
   val id: String,
+  val slug: String,
   val publisherURLString: String?,
   val title: String,
   val author: String?,
   val imageURLString: String?,
-  val isArchived: Boolean
+  val isArchived: Boolean,
+  val pageURLString: String,
+  val contentReader: String?
 ) {
   fun publisherDisplayName(): String? {
     return publisherURLString?.toUri()?.host
+  }
+
+  fun isPDF(): Boolean {
+    val hasPDFSuffix = pageURLString.endsWith("pdf")
+    return contentReader == "PDF" || hasPDFSuffix
   }
 }
 
 @Dao
 interface SavedItemDao {
-  @Query("SELECT id, publisherURLString, title, author, imageURLString, isArchived FROM SavedItem")
+  @Query("SELECT id, slug, publisherURLString, title, author, imageURLString, isArchived, pageURLString, contentReader FROM SavedItem")
   fun getLibraryData(): List<SavedItemCardData>
 
   @Query("SELECT * FROM savedItem")

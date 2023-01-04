@@ -57,11 +57,6 @@ class LibraryViewModel @Inject constructor(
     }
 
     viewModelScope.launch {
-      withContext(Dispatchers.IO) {
-        val viewers = dataService.db.viewerDao().getAll()
-        Log.d("appDatabase", "found ${viewers.count()} viewers in db")
-      }
-
       val thisSearchIdx = searchIdx
       searchIdx += 1
 
