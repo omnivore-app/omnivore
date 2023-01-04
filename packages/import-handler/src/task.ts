@@ -1,5 +1,5 @@
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
 import { CloudTasksClient, protos } from '@google-cloud/tasks'
-import { google } from '@google-cloud/tasks/build/protos/protos'
 
 type TaskPayload = {
   url: string
@@ -32,9 +32,7 @@ export const createCloudTask = async (payload: TaskPayload) => {
     payload,
   })
 
-  let convertedPayload: string | ArrayBuffer
-  convertedPayload = JSON.stringify(payload)
-
+  const convertedPayload = JSON.stringify(payload)
   const body = Buffer.from(convertedPayload).toString('base64')
   const task: protos.google.cloud.tasks.v2.ITask = {
     httpRequest: {
