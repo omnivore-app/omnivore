@@ -1,8 +1,5 @@
-/* eslint-disable @typescript-eslint/restrict-template-expressions */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import express from 'express'
 import { CreateArticleErrorCode } from '../generated/graphql'
 import { isSiteBlockedForParse } from '../utils/blocked'
