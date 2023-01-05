@@ -1201,7 +1201,7 @@ type Profile {
 
 type Query {
   apiKeys: ApiKeysResult!
-  article(slug: String!, username: String!): ArticleResult!
+  article(format: String, slug: String!, username: String!): ArticleResult!
   articleSavingRequest(id: ID!): ArticleSavingRequestResult!
   articles(after: String, first: Int, includePending: Boolean, query: String, sharedOnly: Boolean, sort: SortParams): ArticlesResult!
   deviceTokens: DeviceTokensResult!

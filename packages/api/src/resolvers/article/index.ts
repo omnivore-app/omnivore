@@ -64,6 +64,7 @@ import {
   validatedDate,
 } from '../../utils/helpers'
 import {
+  htmlToMarkdown,
   ParsedContentPuppeteer,
   parsePreparedContent,
 } from '../../utils/parser'
@@ -401,7 +402,7 @@ export const getArticleResolver: ResolverFn<
   Record<string, unknown>,
   WithDataSourcesContext,
   QueryArticleArgs
-> = async (_obj, { slug }, { claims, pubsub }, info) => {
+> = async (_obj, { slug, format }, { claims, pubsub }, info) => {
   try {
     if (!claims?.uid) {
       return { errorCodes: [ArticleErrorCode.Unauthorized] }
@@ -441,6 +442,10 @@ export const getArticleResolver: ResolverFn<
 
     if (isParsingTimeout(page)) {
       page.content = UNPARSEABLE_CONTENT
+    }
+
+    if (format === 'markdown') {
+      page.content = htmlToMarkdown(page.content)
     }
 
     return {

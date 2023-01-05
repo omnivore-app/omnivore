@@ -1685,6 +1685,7 @@ export type Query = {
 
 
 export type QueryArticleArgs = {
+  format?: InputMaybe<Scalars['String']>;
   slug: Scalars['String'];
   username: Scalars['String'];
 };

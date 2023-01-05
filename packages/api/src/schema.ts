@@ -2432,7 +2432,7 @@ const schema = gql`
       query: String
       includePending: Boolean
     ): ArticlesResult!
-    article(username: String!, slug: String!): ArticleResult!
+    article(username: String!, slug: String!, format: String): ArticleResult!
     sharedArticle(
       username: String!
       slug: String!
