@@ -20,6 +20,7 @@ import {
   EmbeddedHighlightData,
   findEmbeddedHighlight,
 } from './highlightGenerator'
+import { NodeHtmlMarkdown } from 'node-html-markdown'
 
 const logger = buildLogger('utils.parse')
 
@@ -466,4 +467,18 @@ export const fetchFavicon = async (
     console.log('Error fetching favicon', e)
     return undefined
   }
+}
+
+/* ********************************************************* *
+ * Re-use
+ * If using it several times, creating an instance saves time
+ * ********************************************************* */
+const nhm = new NodeHtmlMarkdown(
+  /* options (optional) */ {},
+  /* customTransformers (optional) */ undefined,
+  /* customCodeBlockTranslators (optional) */ undefined
+)
+
+export const htmlToMarkdown = (html: string) => {
+  return nhm.translate(/* html */ html)
 }

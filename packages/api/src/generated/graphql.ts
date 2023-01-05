@@ -1685,6 +1685,7 @@ export type Query = {
 
 
 export type QueryArticleArgs = {
+  format?: InputMaybe<Scalars['String']>;
   slug: Scalars['String'];
   username: Scalars['String'];
 };
@@ -1736,6 +1737,8 @@ export type QueryRulesArgs = {
 export type QuerySearchArgs = {
   after?: InputMaybe<Scalars['String']>;
   first?: InputMaybe<Scalars['Int']>;
+  format?: InputMaybe<Scalars['String']>;
+  includeContent?: InputMaybe<Scalars['Boolean']>;
   query?: InputMaybe<Scalars['String']>;
 };
 
@@ -2127,6 +2130,7 @@ export type SearchItem = {
   __typename?: 'SearchItem';
   annotation?: Maybe<Scalars['String']>;
   author?: Maybe<Scalars['String']>;
+  content?: Maybe<Scalars['String']>;
   contentReader: ContentReader;
   createdAt: Scalars['Date'];
   description?: Maybe<Scalars['String']>;
@@ -5173,6 +5177,7 @@ export type SearchErrorResolvers<ContextType = ResolverContext, ParentType exten
 export type SearchItemResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SearchItem'] = ResolversParentTypes['SearchItem']> = {
   annotation?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   author?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  content?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   contentReader?: Resolver<ResolversTypes['ContentReader'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;

@@ -1550,6 +1550,7 @@ const schema = gql`
     siteIcon: String
     recommendations: [Recommendation!]
     wordsCount: Int
+    content: String
   }
 
   type SearchItemEdge {
@@ -2432,7 +2433,7 @@ const schema = gql`
       query: String
       includePending: Boolean
     ): ArticlesResult!
-    article(username: String!, slug: String!): ArticleResult!
+    article(username: String!, slug: String!, format: String): ArticleResult!
     sharedArticle(
       username: String!
       slug: String!
@@ -2453,7 +2454,13 @@ const schema = gql`
     newsletterEmails: NewsletterEmailsResult!
     reminder(linkId: ID!): ReminderResult!
     labels: LabelsResult!
-    search(after: String, first: Int, query: String): SearchResult!
+    search(
+      after: String
+      first: Int
+      query: String
+      includeContent: Boolean
+      format: String
+    ): SearchResult!
     subscriptions(sort: SortParams): SubscriptionsResult!
     sendInstallInstructions: SendInstallInstructionsResult!
     webhooks: WebhooksResult!

@@ -64,6 +64,7 @@ import {
   validatedDate,
 } from '../../utils/helpers'
 import {
+  htmlToMarkdown,
   ParsedContentPuppeteer,
   parsePreparedContent,
 } from '../../utils/parser'
@@ -401,7 +402,7 @@ export const getArticleResolver: ResolverFn<
   Record<string, unknown>,
   WithDataSourcesContext,
   QueryArticleArgs
-> = async (_obj, { slug }, { claims, pubsub }, info) => {
+> = async (_obj, { slug, format }, { claims, pubsub }, info) => {
   try {
     if (!claims?.uid) {
       return { errorCodes: [ArticleErrorCode.Unauthorized] }
@@ -441,6 +442,10 @@ export const getArticleResolver: ResolverFn<
 
     if (isParsingTimeout(page)) {
       page.content = UNPARSEABLE_CONTENT
+    }
+
+    if (format === 'markdown') {
+      page.content = htmlToMarkdown(page.content)
     }
 
     return {
@@ -869,6 +874,7 @@ export const searchResolver = authorized<
         size: first + 1, // fetch one more item to get next cursor
         sort: searchQuery.sortParams,
         includePending: true,
+        includeContent: params.includeContent ?? false,
         ...searchQuery,
       },
       claims.uid
@@ -890,6 +896,11 @@ export const searchResolver = authorized<
     if (siteIcon && !isBase64Image(siteIcon)) {
       siteIcon = createImageProxyUrl(siteIcon, 128, 128)
     }
+
+    if (params.includeContent && params.format === 'markdown' && r.content) {
+      r.content = htmlToMarkdown(r.content)
+    }
+
     return {
       node: {
         ...r,
