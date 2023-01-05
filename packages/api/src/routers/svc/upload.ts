@@ -15,7 +15,6 @@ export function uploadServiceRouter() {
   const router = express.Router()
 
   router.post('/:folder', async (req, res) => {
-    logger.info('upload data to folder', req.params.folder)
     const { message: msgStr, expired } = readPushSubscription(req)
 
     if (!msgStr) {
@@ -38,7 +37,7 @@ export function uploadServiceRouter() {
         data.userId
       }/${DateTime.now().toFormat('yyyy-LL-dd')}/${uuidv4()}.json`
 
-      logger.info('uploading data to', filePath)
+      logger.info('uploading data to', { filePath })
       await uploadToBucket(
         filePath,
         Buffer.from(msgStr, 'utf8'),

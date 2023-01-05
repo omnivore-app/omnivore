@@ -14,7 +14,7 @@ import { fetchFavicon } from '../utils/parser'
 import { updatePage } from '../elastic/pages'
 import { isBase64Image } from '../utils/helpers'
 
-interface NewsletterMessage {
+export interface NewsletterMessage {
   email: string
   content: string
   url: string
