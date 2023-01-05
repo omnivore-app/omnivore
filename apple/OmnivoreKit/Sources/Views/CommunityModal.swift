@@ -20,6 +20,9 @@ public struct CommunityModal: View {
   Omnivore is a free and open-source project and relies on \
   help from our community to grow. Below are a few simple \
   things you can do to help us build a better Omnivore.
+
+  If you would like to financially assist Omnivore \
+  please [Contribute on Open Collective](https://opencollective.com/omnivore).
   """
 
   public init() {}
