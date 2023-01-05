@@ -7,7 +7,7 @@ export const EMAIL_USER_URL = (() => {
   if (!process.env.INTERNAL_SVC_ENDPOINT) {
     throw `Environment not configured correctly, no SVC endpoint`
   }
-  return (process.env.INTERNAL_SVC_ENDPOINT ?? '') + '/api/user/email'
+  return (process.env.INTERNAL_SVC_ENDPOINT ?? '') + 'api/user/email'
 })()
 
 export const CONTENT_FETCH_URL = process.env.CONTENT_FETCH_GCF_URL
