@@ -1,13 +1,6 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 import { CloudTasksClient, protos } from '@google-cloud/tasks'
 
-type TaskPayload = {
-  url: string
-  userId: string
-  saveRequestId: string
-  source: string
-}
-
 const cloudTask = new CloudTasksClient()
 
 export const createCloudTask = async (
