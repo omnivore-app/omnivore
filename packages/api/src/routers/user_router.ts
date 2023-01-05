@@ -23,7 +23,7 @@ export function userRouter() {
       res.status(401).send('UNAUTHORIZED')
       return
     }
-    const from = process.env.SENDER_MESSAGE
+    const from = env.sender.message
     const { body, subject } = req.body as {
       body?: string
       subject?: string
