@@ -4,12 +4,13 @@
   "description": "Service that fetches page content from a URL",
   "main": "index.js",
   "dependencies": {
-    "dotenv": "^8.2.0",
-    "express": "^4.17.1",
     "@google-cloud/functions-framework": "^3.0.0",
     "@omnivore/puppeteer-parse": "^1.0.0",
     "@sentry/serverless": "^6.13.3",
-    "winston": "^3.3.3"
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "winston": "^3.3.3",
+    "ytdl-core": "^4.11.2"
   },
   "devDependencies": {
     "chai": "^4.3.6",

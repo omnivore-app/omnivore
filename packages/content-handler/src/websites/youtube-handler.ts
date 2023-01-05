@@ -2,6 +2,7 @@ import { ContentHandler, PreHandleResult } from '../content-handler'
 import axios from 'axios'
 import _ from 'underscore'
 import YoutubeTranscript from 'youtube-transcript'
+import * as ytdl from 'ytdl-core'
 
 const YOUTUBE_URL_MATCH =
   /^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w-]+\?v=|embed\/|v\/)?)([\w-]+)(\S+)?$/
@@ -63,6 +64,21 @@ export class YoutubeHandler extends ContentHandler {
     const videoId = getYoutubeVideoId(url)
     if (!videoId) {
       return {}
+    }
+
+    const info = await ytdl.getInfo(url)
+    info.videoDetails.chapters.map((chapter) => {
+      console.log('chapter: ' + JSON.stringify(chapter))
+    })
+
+    const defaultIndex =
+      info.player_response.captions?.playerCaptionsTracklistRenderer
+        .defaultAudioTrackIndex
+    if (typeof defaultIndex == 'number') {
+      const captions =
+        info.player_response.captions?.playerCaptionsTracklistRenderer
+          .captionTracks[defaultIndex]
+      console.log('captions languageCode: ' + captions?.languageCode)
     }
 
     const oembedUrl =
