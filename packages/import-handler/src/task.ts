@@ -3,14 +3,23 @@ import { CloudTasksClient, protos } from '@google-cloud/tasks'
 
 const cloudTask = new CloudTasksClient()
 
+export const EMAIL_USER_URL = (() => {
+  if (!process.env.INTERNAL_SVC_ENDPOINT) {
+    throw `Environment not configured correctly, no SVC endpoint`
+  }
+  return (process.env.INTERNAL_SVC_ENDPOINT ?? '') + '/api/user/email'
+})()
+
+export const CONTENT_FETCH_URL = process.env.CONTENT_FETCH_GCF_URL
+
 export const createCloudTask = async (
+  taskHandlerUrl: string | undefined,
   payload: unknown,
   requestHeaders?: Record<string, string>
 ) => {
   const queue = 'omnivore-import-queue'
   const location = process.env.GCP_LOCATION
   const project = process.env.GCP_PROJECT_ID
-  const taskHandlerUrl = process.env.CONTENT_FETCH_GCF_URL
 
   if (!project || !location || !queue || !taskHandlerUrl) {
     throw `Environment not configured: ${project}, ${location}, ${queue}, ${taskHandlerUrl}`

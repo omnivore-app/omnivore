@@ -8,9 +8,8 @@ import * as path from 'path'
 import { importMatterHistory } from './matterHistory'
 import { Stream } from 'node:stream'
 import { v4 as uuid } from 'uuid'
-import { createCloudTask } from './task'
+import { CONTENT_FETCH_URL, createCloudTask, EMAIL_USER_URL } from './task'
 
-import axios, { AxiosResponse } from 'axios'
 import { promisify } from 'util'
 import * as jwt from 'jsonwebtoken'
 
@@ -48,7 +47,7 @@ const importURL = async (
   url: URL,
   source: string
 ): Promise<string | undefined> => {
-  return createCloudTask({
+  return createCloudTask(CONTENT_FETCH_URL, {
     userId,
     source,
     url: url.toString(),
@@ -56,7 +55,7 @@ const importURL = async (
   })
 }
 
-const importCompletedTask = async (userId: string, urlsEnqueued: number) => {
+const createEmailCloudTask = async (userId: string, payload: unknown) => {
   if (!process.env.JWT_SECRET) {
     throw 'Envrionment not setup correctly'
   }
@@ -70,14 +69,25 @@ const importCompletedTask = async (userId: string, urlsEnqueued: number) => {
     Authorization: authToken,
   }
 
-  return createCloudTask(
-    {
-      userId,
-      subject: 'Your Omnivore import has completed processing',
-      body: `${urlsEnqueued} URLs have been pcoessed and should be available in your library.`,
-    },
-    headers
-  )
+  return createCloudTask(EMAIL_USER_URL, payload, headers)
+}
+
+const sendImportFailedEmail = async (userId: string) => {
+  return createEmailCloudTask(userId, {
+    subject: 'Your Omnivore import failed.',
+    body: `There was an error importing your file. Please ensure you uploaded the correct file type, if you need help, please email feedback@omnivore.app`,
+  })
+}
+
+const sendImportCompletedEmail = async (
+  userId: string,
+  urlsEnqueued: number,
+  urlsFailed: number
+) => {
+  return createEmailCloudTask(userId, {
+    subject: 'Your Omnivore import has completed processing',
+    body: `${urlsEnqueued} URLs have been pcoessed and should be available in your library. ${urlsFailed} URLs failed to be parsed.`,
+  })
 }
 
 const handlerForFile = (name: string): importHandlerFunc | undefined => {
@@ -121,6 +131,7 @@ export const importHandler: EventFunction = async (event, context) => {
       return
     }
 
+    let countFailed = 0
     let countImported = 0
     await handler(stream, async (url): Promise<void> => {
       try {
@@ -130,9 +141,14 @@ export const importHandler: EventFunction = async (event, context) => {
         countImported = countImported + 1
       } catch (err) {
         console.log('error importing url', err)
+        countFailed = countFailed + 1
       }
     })
 
-    await importCompletedTask(userId, countImported)
+    if (countImported < 1) {
+      await sendImportFailedEmail(userId)
+    } else {
+      await sendImportCompletedEmail(userId, countImported, countFailed)
+    }
   }
 }
