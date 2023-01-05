@@ -66,7 +66,7 @@ const createEmailCloudTask = async (userId: string, payload: unknown) => {
     process.env.JWT_SECRET
   )) as string
   const headers = {
-    Authorization: authToken,
+    Cookie: `auth=${authToken}`,
   }
 
   return createCloudTask(EMAIL_USER_URL, payload, headers)
