@@ -1219,7 +1219,7 @@ type Query {
   recentSearches: RecentSearchesResult!
   reminder(linkId: ID!): ReminderResult!
   rules(enabled: Boolean): RulesResult!
-  search(after: String, first: Int, query: String): SearchResult!
+  search(after: String, first: Int, format: String, includeContent: Boolean, query: String): SearchResult!
   sendInstallInstructions: SendInstallInstructionsResult!
   sharedArticle(selectedHighlightId: String, slug: String!, username: String!): SharedArticleResult!
   subscriptions(sort: SortParams): SubscriptionsResult!
@@ -1548,6 +1548,7 @@ enum SearchErrorCode {
 type SearchItem {
   annotation: String
   author: String
+  content: String
   contentReader: ContentReader!
   createdAt: Date!
   description: String

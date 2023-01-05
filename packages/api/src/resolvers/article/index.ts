@@ -874,6 +874,7 @@ export const searchResolver = authorized<
         size: first + 1, // fetch one more item to get next cursor
         sort: searchQuery.sortParams,
         includePending: true,
+        includeContent: params.includeContent ?? false,
         ...searchQuery,
       },
       claims.uid
@@ -895,6 +896,11 @@ export const searchResolver = authorized<
     if (siteIcon && !isBase64Image(siteIcon)) {
       siteIcon = createImageProxyUrl(siteIcon, 128, 128)
     }
+
+    if (params.includeContent && params.format === 'markdown' && r.content) {
+      r.content = htmlToMarkdown(r.content)
+    }
+
     return {
       node: {
         ...r,
