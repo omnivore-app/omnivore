@@ -1,7 +1,5 @@
-/* eslint-disable @typescript-eslint/restrict-template-expressions */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import express from 'express'
 import { sendEmail } from '../utils/sendEmail'
 import { env } from '../env'
