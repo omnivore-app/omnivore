@@ -67,7 +67,7 @@ const importCompletedTask = async (userId: string, urlsEnqueued: number) => {
     process.env.JWT_SECRET
   )) as string
   const headers = {
-    Authorization: `auth=${authToken}`,
+    Authorization: authToken,
   }
 
   return createCloudTask(
