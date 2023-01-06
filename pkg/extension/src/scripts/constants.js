@@ -98,3 +98,17 @@ window.CREATE_ARTICLE_SAVING_REQUEST_QUERY = `mutation CreateArticleSavingReques
     }
   }
 }`;
+
+function handleBackendUrl(url) {
+  try {
+    const FORCE_CONTENT_FETCH_URLS = [
+      // twitter status url regex
+      /twitter\.com\/(?:#!\/)?(\w+)\/status(?:es)?\/(\d+)(?:\/.*)?/,
+      /^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w-]+\?v=|embed\/|v\/)?)([\w-]+)(\S+)?$/,
+    ]
+    return FORCE_CONTENT_FETCH_URLS.some((regex) => regex.test(url))
+    } catch (error) {
+    console.log('error checking url', url)
+  }
+  return false
+}
