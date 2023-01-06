@@ -145,7 +145,7 @@ export const importHandler: EventFunction = async (event, context) => {
       }
     })
 
-    if (countImported < 1) {
+    if (countImported <= 1) {
       await sendImportFailedEmail(userId)
     } else {
       await sendImportCompletedEmail(userId, countImported, countFailed)
