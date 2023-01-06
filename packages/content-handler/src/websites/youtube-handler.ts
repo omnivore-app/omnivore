@@ -1,7 +1,7 @@
 import { ContentHandler, PreHandleResult } from '../content-handler'
 import axios from 'axios'
 import _ from 'underscore'
-import YoutubeTranscript from 'youtube-transcript'
+import YoutubeTranscript, { TranscriptResponse } from 'youtube-transcript'
 import * as ytdl from 'ytdl-core'
 
 const YOUTUBE_URL_MATCH =
@@ -21,7 +21,7 @@ export const getYoutubeVideoId = (url: string) => {
 }
 
 type VideoInfo = {
-  videoId: string | undefined
+  videoId: string
   chapters: ytdl.Chapter[]
   defaultLanguage: string
 }
@@ -30,7 +30,8 @@ const getYouTubeVideoInfo = async (
   url: string
 ): Promise<VideoInfo | undefined> => {
   const info = await ytdl.getInfo(url)
-  if (!info.vid) {
+  console.log(JSON.stringify(info))
+  if (!info.videoDetails.videoId) {
     return undefined
   }
 
@@ -56,10 +57,79 @@ const getYouTubeVideoInfo = async (
   }
 
   return {
-    videoId: info.vid,
+    videoId: info.videoDetails.videoId,
     chapters: info.videoDetails.chapters,
     defaultLanguage: defaultLanguage ?? 'en',
   }
+}
+
+type TranscriptChapter = {
+  title: string | undefined
+  start: number
+  end: number
+  phrases: string[]
+}
+
+const groupTranscriptByChapters = (
+  chapters: ytdl.Chapter[],
+  transcript: TranscriptResponse[]
+): string => {
+  var tchapters: TranscriptChapter[] = chapters.map(
+    (chapter, idx, chapters) => {
+      if (idx < chapters.length - 1) {
+        return {
+          title: chapter.title,
+          start: chapter.start_time,
+          end: chapters[idx + 1].start_time,
+          phrases: [],
+        }
+      }
+      return {
+        title: chapter.title,
+        start: chapter.start_time,
+        end: Number.MAX_SAFE_INTEGER,
+        phrases: [],
+      }
+    }
+  )
+  if (tchapters.length < 1) {
+    tchapters = [
+      {
+        title: undefined,
+        start: 0,
+        end: Number.MAX_SAFE_INTEGER,
+        phrases: [],
+      },
+    ]
+  }
+
+  console.log('T CHAPTERS: ', tchapters)
+  for (var phrase of transcript) {
+    const chapter = tchapters.find((ch) => {
+      var pStart = phrase.offset / 1000
+      var pEnd = (phrase.offset + phrase.duration) / 1000
+      return pStart >= ch.start && pEnd <= ch.end
+    })
+    if (chapter) {
+      chapter.phrases.push(phrase.text)
+    } else {
+      console.log('no chapter for', phrase.offset, phrase.duration, phrase.text)
+    }
+  }
+
+  var text = ''
+  for (var tchapter of tchapters) {
+    console.log(tchapter.title)
+    text += `<h3 class='_omnivore-video-transcript-chapter'>${tchapter.title}</h3>`
+    text += `<div class='_omnivore-video-transcript>`
+    tchapter.phrases.forEach((ph) => {
+      console.log(' - ', ph)
+      text += `<span class='_omnivore-video-transcript-phrase'>${ph} </span>`
+    })
+    text += `</div>`
+  }
+
+  return text
 }
 
 export class YoutubeHandler extends ContentHandler {
@@ -77,6 +147,7 @@ export class YoutubeHandler extends ContentHandler {
     const videoInfo = await getYouTubeVideoInfo(url)
 
     if (!videoId || !videoInfo) {
+      console.log('error getting video info')
       return {}
     }
 
@@ -105,7 +176,8 @@ export class YoutubeHandler extends ContentHandler {
         lang: videoInfo.defaultLanguage,
       })
 
-      transcript = response.map((item) => item.text).join(' ')
+      transcript = groupTranscriptByChapters(videoInfo.chapters, response)
+      //      transcript = response.map((item) => item.text).join(' ')
       console.debug('transcript: ', transcript)
     } catch (e) {
       console.log('error getting transcript', e)
@@ -124,7 +196,7 @@ export class YoutubeHandler extends ContentHandler {
       <iframe width="${width}" height="${height}" src="https://www.youtube.com/embed/${videoId}" title="${title}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         <p><a href="${url}" target="_blank">${title}</a></p>
         <p itemscope="" itemprop="author" itemtype="http://schema.org/Person">By <a href="${oembed.author_url}" target="_blank">${authorName}</a></p>
-        <p class='omnivore-youtube-transcript'>
+        <p class='_omnivore-video-transcript'>
           ${transcript}
         </p>
       </body>
