@@ -12,7 +12,7 @@ import app.omnivore.omnivore.persistence.entities.ViewerDao
     Viewer::class,
     SavedItem::class
   ],
-  version = 1
+  version = 2
 )
 abstract class AppDatabase : RoomDatabase() {
   abstract fun viewerDao(): ViewerDao

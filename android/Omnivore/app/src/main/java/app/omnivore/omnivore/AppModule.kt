@@ -31,5 +31,8 @@ object AppModule {
 
   @Singleton
   @Provides
-  fun provideDataService(@ApplicationContext app: Context) = DataService(app)
+  fun provideDataService(
+    @ApplicationContext app: Context,
+    networker: Networker
+  ) = DataService(app, networker)
 }
