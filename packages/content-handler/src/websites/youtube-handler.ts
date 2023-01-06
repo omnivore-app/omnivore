@@ -20,40 +20,52 @@ export const getYoutubeVideoId = (url: string) => {
   return videoId
 }
 
+type VideoInfo = {
+  videoId: string | undefined
+  chapters: ytdl.Chapter[]
+  defaultLanguage: string
+}
+
+const getYouTubeVideoInfo = async (
+  url: string
+): Promise<VideoInfo | undefined> => {
+  const info = await ytdl.getInfo(url)
+  if (!info.vid) {
+    return undefined
+  }
+
+  info.videoDetails.chapters.map((chapter) => {
+    console.log('chapter: ' + JSON.stringify(chapter))
+  })
+
+  var defaultLanguage: string | undefined = undefined
+  const defaultIndex =
+    info.player_response.captions?.playerCaptionsTracklistRenderer
+      .defaultAudioTrackIndex
+  if (
+    typeof defaultIndex == 'number' &&
+    (info.player_response.captions?.playerCaptionsTracklistRenderer
+      .captionTracks.length ?? 0) < defaultIndex
+  ) {
+    const captions =
+      info.player_response.captions?.playerCaptionsTracklistRenderer
+        .captionTracks[defaultIndex]
+    if (captions?.languageCode) {
+      defaultLanguage = captions.languageCode
+    }
+  }
+
+  return {
+    videoId: info.vid,
+    chapters: info.videoDetails.chapters,
+    defaultLanguage: defaultLanguage ?? 'en',
+  }
+}
+
 export class YoutubeHandler extends ContentHandler {
   constructor() {
     super()
     this.name = 'Youtube'
-  }
-
-  async getDefaultLanguageCode(videoId: string) {
-    const response = await axios.get(
-      `https://www.youtube.com/watch?v=${videoId}`
-    )
-    const html = response.data as string
-    const match = html.match(/"captionTracks":\[(.*?)\]/)
-    if (!match || match.length < 2) {
-      return undefined
-    }
-    const captionTracks = JSON.parse(`[${match[1]}]`) as [
-      {
-        baseUrl: string
-        name: {
-          simpleText: string
-        }
-        languageCode: string
-      }
-    ]
-    const defaultCaptionTrackIndex = html.match(
-      /"defaultCaptionTrackIndex":(\d+)/
-    )
-    if (!defaultCaptionTrackIndex || defaultCaptionTrackIndex.length < 2) {
-      return undefined
-    }
-    const defaultCaptionTrack =
-      captionTracks[parseInt(defaultCaptionTrackIndex[1])]
-
-    return defaultCaptionTrack.languageCode
   }
 
   shouldPreHandle(url: string): boolean {
@@ -62,23 +74,10 @@ export class YoutubeHandler extends ContentHandler {
 
   async preHandle(url: string): Promise<PreHandleResult> {
     const videoId = getYoutubeVideoId(url)
-    if (!videoId) {
+    const videoInfo = await getYouTubeVideoInfo(url)
+
+    if (!videoId || !videoInfo) {
       return {}
-    }
-
-    const info = await ytdl.getInfo(url)
-    info.videoDetails.chapters.map((chapter) => {
-      console.log('chapter: ' + JSON.stringify(chapter))
-    })
-
-    const defaultIndex =
-      info.player_response.captions?.playerCaptionsTracklistRenderer
-        .defaultAudioTrackIndex
-    if (typeof defaultIndex == 'number') {
-      const captions =
-        info.player_response.captions?.playerCaptionsTracklistRenderer
-          .captionTracks[defaultIndex]
-      console.log('captions languageCode: ' + captions?.languageCode)
     }
 
     const oembedUrl =
@@ -100,13 +99,10 @@ export class YoutubeHandler extends ContentHandler {
     const width = height * ratio
     const authorName = _.escape(oembed.author_name)
 
-    console.log('got video id', videoId)
-    const defaultLanguageCode = await this.getDefaultLanguageCode(videoId)
-
     let transcript = ''
     try {
       const response = await YoutubeTranscript.fetchTranscript(videoId, {
-        lang: defaultLanguageCode || 'en',
+        lang: videoInfo.defaultLanguage,
       })
 
       transcript = response.map((item) => item.text).join(' ')
