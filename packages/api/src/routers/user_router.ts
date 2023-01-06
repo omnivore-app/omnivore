@@ -17,7 +17,7 @@ export function userRouter() {
 
   router.post('/email', cors<express.Request>(corsConfig), async (req, res) => {
     logger.info('email to-user router')
-    const token = req?.headers?.authorization
+    const token = req?.cookies?.auth || req?.headers?.authorization
     const claims = await getClaimsByToken(token)
     if (!claims) {
       res.status(401).send('UNAUTHORIZED')
