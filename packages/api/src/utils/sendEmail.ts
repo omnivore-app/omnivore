@@ -23,7 +23,8 @@ const asSendGridError = (error: any): SendGridError | undefined => {
 export const sendEmail = async (msg: MailDataRequired): Promise<boolean> => {
   const client = new MailService()
   if (!process.env.SENDGRID_MSGS_API_KEY) {
-    throw new Error('Sendgrid API key not set')
+    console.log('SendGrid API key not set.\nSending email:', msg)
+    return true
   }
 
   client.setApiKey(process.env.SENDGRID_MSGS_API_KEY)
