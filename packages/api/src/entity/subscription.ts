@@ -5,6 +5,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Unique,
   UpdateDateColumn,
 } from 'typeorm'
 import { User } from './user'
@@ -12,6 +13,7 @@ import { SubscriptionStatus } from '../generated/graphql'
 import { NewsletterEmail } from './newsletter_email'
 
 @Entity({ name: 'subscriptions' })
+@Unique(['name', 'user'])
 export class Subscription {
   @PrimaryGeneratedColumn('uuid')
   id!: string
