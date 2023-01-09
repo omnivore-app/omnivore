@@ -1192,6 +1192,8 @@ const schema = gql`
     id: ID!
     address: String!
     confirmationCode: String
+    createdAt: Date!
+    subscriptionCount: Int!
   }
 
   type NewsletterEmailsSuccess {

@@ -41,6 +41,7 @@ export const getNewsletterEmails = async (
   return getRepository(NewsletterEmail).find({
     where: { user: { id: userId } },
     order: { createdAt: 'DESC' },
+    relations: ['user', 'subscriptions'],
   })
 }
 

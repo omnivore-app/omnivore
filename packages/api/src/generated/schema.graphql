@@ -1089,7 +1089,9 @@ type Mutation {
 type NewsletterEmail {
   address: String!
   confirmationCode: String
+  createdAt: Date!
   id: ID!
+  subscriptionCount: Int!
 }
 
 type NewsletterEmailsError {

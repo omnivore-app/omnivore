@@ -9,6 +9,7 @@ import {
 } from 'typeorm'
 import { User } from './user'
 import { SubscriptionStatus } from '../generated/graphql'
+import { NewsletterEmail } from './newsletter_email'
 
 @Entity({ name: 'subscriptions' })
 export class Subscription {
@@ -28,8 +29,9 @@ export class Subscription {
   })
   status!: SubscriptionStatus
 
-  @Column('text')
-  newsletterEmail!: string
+  @ManyToOne(() => NewsletterEmail)
+  @JoinColumn({ name: 'newsletter_email_id' })
+  newsletterEmail!: NewsletterEmail
 
   @Column('text', { nullable: true })
   description?: string
