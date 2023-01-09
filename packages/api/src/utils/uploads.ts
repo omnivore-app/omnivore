@@ -18,6 +18,11 @@ export const getFilePublicUrl = (filePathName: string): string => {
   return storage.bucket(bucketName).file(filePathName).publicUrl()
 }
 
+export const countOfFilesWithPrefix = async (prefix: string) => {
+  const [files] = await storage.bucket(bucketName).getFiles({ prefix })
+  return files.length
+}
+
 export const generateUploadSignedUrl = async (
   filePathName: string,
   contentType: string,

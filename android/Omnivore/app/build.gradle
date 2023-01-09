@@ -15,10 +15,10 @@ android {
 
     defaultConfig {
         applicationId "app.omnivore.omnivore"
-        minSdk 23
+        minSdk 26
         targetSdk 33
-        versionCode 16
-        versionName "0.0.16"
+        versionCode 19
+        versionName "0.0.19"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -143,6 +143,11 @@ dependencies {
 
     implementation 'com.segment.analytics.kotlin:android:1.10.0'
     implementation 'io.intercom.android:intercom-sdk-base:14.0.0'
+
+    // Room Deps
+    implementation "androidx.room:room-runtime:$room_version"
+    annotationProcessor "androidx.room:room-compiler:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
 }
 
 apollo {

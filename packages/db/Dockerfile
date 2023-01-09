@@ -8,7 +8,7 @@ COPY tsconfig.json .
 
 COPY /packages/db/package.json ./packages/db/package.json
 
-RUN apk --no-cache --virtual build-dependencies add postgresql
+RUN apk --no-cache --virtual build-dependencies add postgresql uuidgen
 
 RUN yarn install
 

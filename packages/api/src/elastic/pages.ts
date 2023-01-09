@@ -388,6 +388,7 @@ export const searchPages = async (
       termFilters,
       matchFilters,
       ids,
+      includeContent,
     } = args
     // default order is descending
     const sortOrder = sort?.order || SortOrder.DESCENDING
@@ -424,7 +425,7 @@ export const searchPages = async (
       from,
       size,
       _source: {
-        excludes: ['originalHtml', 'content'],
+        excludes: includeContent ? [] : ['originalHtml', 'content'],
       },
     }
 
@@ -497,7 +498,7 @@ export const searchPages = async (
     return [
       response.body.hits.hits.map((hit: { _source: Page; _id: string }) => ({
         ...hit._source,
-        content: '',
+        content: includeContent ? hit._source.content : '',
         id: hit._id,
       })),
       response.body.hits.total.value,

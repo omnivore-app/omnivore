@@ -13,6 +13,7 @@ struct InternalLinkedItemUpdatesQueryResult {
   let deletedItemIDs: [String]
   let cursor: String?
   let hasMoreItems: Bool
+  let totalCount: Int
 }
 
 private struct SyncItemEdge {
@@ -26,12 +27,14 @@ extension DataService {
   func linkedItemUpdates(
     since: Date,
     limit: Int,
-    cursor: String?
+    cursor: String?,
+    descending: Bool = true
   ) async throws -> InternalLinkedItemUpdatesQueryResult {
     struct QuerySuccessResult {
       let edges: [SyncItemEdge]
       let cursor: String?
       let hasMoreItems: Bool
+      let totalCount: Int
     }
     enum QueryResult {
       case success(result: QuerySuccessResult)
@@ -55,6 +58,9 @@ extension DataService {
               }),
               hasMoreItems: try $0.pageInfo(selection: Selection.PageInfo {
                 try $0.hasNextPage()
+              }),
+              totalCount: try $0.pageInfo(selection: Selection.PageInfo {
+                try $0.totalCount() ?? -1
               })
             )
           )
@@ -62,7 +68,7 @@ extension DataService {
       )
     }
 
-    let sort = InputObjects.SortParams(by: Enums.SortBy.savedAt, order: OptionalArgument(Enums.SortOrder.descending))
+    let sort = InputObjects.SortParams(by: Enums.SortBy.updatedTime, order: OptionalArgument(descending ? Enums.SortOrder.descending : Enums.SortOrder.ascending))
 
     let query = Selection.Query {
       try $0.updatesSince(
@@ -99,7 +105,8 @@ extension DataService {
               items: items,
               deletedItemIDs: deletedItemIDs,
               cursor: result.cursor,
-              hasMoreItems: result.hasMoreItems
+              hasMoreItems: result.hasMoreItems,
+              totalCount: result.totalCount
             )
           )
         case let .error(error):

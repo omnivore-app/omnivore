@@ -17,10 +17,11 @@ import Views
     @EnvironmentObject var audioController: AudioController
 
     @AppStorage(UserDefaultKey.homeFeedlayoutPreference.rawValue) var prefersListLayout = false
+    @AppStorage(UserDefaultKey.shouldPromptCommunityModal.rawValue) var shouldPromptCommunityModal = true
     @ObservedObject var viewModel: HomeFeedViewModel
 
     func loadItems(isRefresh: Bool) {
-      Task { await viewModel.loadItems(dataService: dataService, audioController: audioController, isRefresh: isRefresh) }
+      Task { await viewModel.loadItems(dataService: dataService, isRefresh: isRefresh) }
     }
 
     var body: some View {
@@ -67,14 +68,31 @@ import Views
         .sheet(item: $viewModel.itemForHighlightsView) { item in
           HighlightsListView(itemObjectID: item.objectID, hasHighlightMutations: $hasHighlightMutations)
         }
+        .sheet(isPresented: $viewModel.showCommunityModal) {
+          CommunityModal()
+            .onAppear {
+              shouldPromptCommunityModal = false
+            }
+        }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
           ToolbarItem(placement: .barLeading) {
-            Image.smallOmnivoreLogo
-              .renderingMode(.template)
-              .resizable()
-              .frame(width: 24, height: 24)
-              .foregroundColor(.appGrayTextContrast)
+            Button(action: {
+              viewModel.showCommunityModal = true
+            }, label: {
+              Image.smallOmnivoreLogo
+                .renderingMode(.template)
+                .resizable()
+                .frame(width: 24, height: 24)
+                .foregroundColor(.appGrayTextContrast)
+                .overlay(alignment: .topTrailing, content: {
+                  if shouldPromptCommunityModal {
+                    Circle()
+                      .fill(Color.red)
+                      .frame(width: 6, height: 6)
+                  }
+                })
+            })
           }
           ToolbarItem(placement: .barTrailing) {
             Button("", action: {})
@@ -297,15 +315,10 @@ import Views
             systemImage: item.isArchived ? "tray.and.arrow.down.fill" : "archivebox"
           )
         })
-        Button(
-          action: {
-            itemToRemove = item
-            confirmationShown = true
-          },
-          label: {
-            Label("Remove Item", systemImage: "trash")
-          }
-        ).tint(.red)
+        Button("Remove Item", role: .destructive) {
+          itemToRemove = item
+          confirmationShown = true
+        }
         if FeatureFlag.enableSnooze {
           Button {
             viewModel.itemToSnoozeID = item.id
@@ -398,7 +411,7 @@ import Views
           .listStyle(PlainListStyle())
           .alert("Are you sure you want to delete this item? All associated notes and highlights will be deleted.",
                  isPresented: $confirmationShown) {
-            Button("Delete Item") {
+            Button("Remove Item", role: .destructive) {
               if let itemToRemove = itemToRemove {
                 withAnimation {
                   viewModel.removeLink(dataService: dataService, objectID: itemToRemove.objectID)
@@ -440,7 +453,7 @@ import Views
     }
 
     func loadItems(isRefresh: Bool) {
-      Task { await viewModel.loadItems(dataService: dataService, audioController: audioController, isRefresh: isRefresh) }
+      Task { await viewModel.loadItems(dataService: dataService, isRefresh: isRefresh) }
     }
 
     var body: some View {

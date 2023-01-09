@@ -286,6 +286,7 @@ export interface SearchItem {
   siteName?: string
   siteIcon?: string
   recommendations?: Recommendation[]
+  content?: string
 }
 
 const keys = ['_id', 'url', 'slug', 'userId', 'uploadFileId', 'state'] as const
@@ -315,4 +316,5 @@ export interface PageSearchArgs {
   includeDeleted?: boolean
   ids?: string[]
   recommendedBy?: string
+  includeContent?: boolean
 }

@@ -91,7 +91,7 @@ struct ProfileView: View {
       }
 
       NavigationLink(destination: GroupsView()) {
-        Text("Recommendation Groups")
+        Text("Clubs")
       }
     }
   }

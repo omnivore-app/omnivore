@@ -15,10 +15,16 @@ public struct LinkedItemQueryResult {
 public struct LinkedItemSyncResult {
   public let updatedItemIDs: [String]
   public let cursor: String?
+  public let hasMore: Bool
+  public let mostRecentUpdatedAt: Date?
+  public let isEmpty: Bool
 
-  public init(updatedItemIDs: [String], cursor: String?) {
+  public init(updatedItemIDs: [String], cursor: String?, hasMore: Bool, mostRecentUpdatedAt: Date?, isEmpty: Bool) {
     self.updatedItemIDs = updatedItemIDs
     self.cursor = cursor
+    self.hasMore = hasMore
+    self.mostRecentUpdatedAt = mostRecentUpdatedAt
+    self.isEmpty = isEmpty
   }
 }
 

@@ -126,6 +126,7 @@ export type Article = {
   updatedAt: Scalars['Date'];
   uploadFileId?: Maybe<Scalars['ID']>;
   url: Scalars['String'];
+  wordsCount?: Maybe<Scalars['Int']>;
 };
 
 
@@ -1208,6 +1209,7 @@ export type Mutation = {
   updateUser: UpdateUserResult;
   updateUserProfile: UpdateUserProfileResult;
   uploadFileRequest: UploadFileRequestResult;
+  uploadImportFile: UploadImportFileResult;
 };
 
 
@@ -1520,6 +1522,12 @@ export type MutationUploadFileRequestArgs = {
   input: UploadFileRequestInput;
 };
 
+
+export type MutationUploadImportFileArgs = {
+  contentType: Scalars['String'];
+  type: UploadImportFileType;
+};
+
 export type NewsletterEmail = {
   __typename?: 'NewsletterEmail';
   address: Scalars['String'];
@@ -1677,6 +1685,7 @@ export type Query = {
 
 
 export type QueryArticleArgs = {
+  format?: InputMaybe<Scalars['String']>;
   slug: Scalars['String'];
   username: Scalars['String'];
 };
@@ -1728,6 +1737,8 @@ export type QueryRulesArgs = {
 export type QuerySearchArgs = {
   after?: InputMaybe<Scalars['String']>;
   first?: InputMaybe<Scalars['Int']>;
+  format?: InputMaybe<Scalars['String']>;
+  includeContent?: InputMaybe<Scalars['Boolean']>;
   query?: InputMaybe<Scalars['String']>;
 };
 
@@ -2119,6 +2130,7 @@ export type SearchItem = {
   __typename?: 'SearchItem';
   annotation?: Maybe<Scalars['String']>;
   author?: Maybe<Scalars['String']>;
+  content?: Maybe<Scalars['String']>;
   contentReader: ContentReader;
   createdAt: Scalars['Date'];
   description?: Maybe<Scalars['String']>;
@@ -2151,6 +2163,7 @@ export type SearchItem = {
   updatedAt?: Maybe<Scalars['Date']>;
   uploadFileId?: Maybe<Scalars['ID']>;
   url: Scalars['String'];
+  wordsCount?: Maybe<Scalars['Int']>;
 };
 
 export type SearchItemEdge = {
@@ -2882,6 +2895,30 @@ export enum UploadFileStatus {
   Initialized = 'INITIALIZED'
 }
 
+export type UploadImportFileError = {
+  __typename?: 'UploadImportFileError';
+  errorCodes: Array<UploadImportFileErrorCode>;
+};
+
+export enum UploadImportFileErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED',
+  UploadDailyLimitExceeded = 'UPLOAD_DAILY_LIMIT_EXCEEDED'
+}
+
+export type UploadImportFileResult = UploadImportFileError | UploadImportFileSuccess;
+
+export type UploadImportFileSuccess = {
+  __typename?: 'UploadImportFileSuccess';
+  uploadSignedUrl?: Maybe<Scalars['String']>;
+};
+
+export enum UploadImportFileType {
+  Matter = 'MATTER',
+  Pocket = 'POCKET',
+  UrlList = 'URL_LIST'
+}
+
 export type User = {
   __typename?: 'User';
   followersCount?: Maybe<Scalars['Int']>;
@@ -3516,6 +3553,11 @@ export type ResolversTypes = {
   UploadFileRequestResult: ResolversTypes['UploadFileRequestError'] | ResolversTypes['UploadFileRequestSuccess'];
   UploadFileRequestSuccess: ResolverTypeWrapper<UploadFileRequestSuccess>;
   UploadFileStatus: UploadFileStatus;
+  UploadImportFileError: ResolverTypeWrapper<UploadImportFileError>;
+  UploadImportFileErrorCode: UploadImportFileErrorCode;
+  UploadImportFileResult: ResolversTypes['UploadImportFileError'] | ResolversTypes['UploadImportFileSuccess'];
+  UploadImportFileSuccess: ResolverTypeWrapper<UploadImportFileSuccess>;
+  UploadImportFileType: UploadImportFileType;
   User: ResolverTypeWrapper<User>;
   UserError: ResolverTypeWrapper<UserError>;
   UserErrorCode: UserErrorCode;
@@ -3884,6 +3926,9 @@ export type ResolversParentTypes = {
   UploadFileRequestInput: UploadFileRequestInput;
   UploadFileRequestResult: ResolversParentTypes['UploadFileRequestError'] | ResolversParentTypes['UploadFileRequestSuccess'];
   UploadFileRequestSuccess: UploadFileRequestSuccess;
+  UploadImportFileError: UploadImportFileError;
+  UploadImportFileResult: ResolversParentTypes['UploadImportFileError'] | ResolversParentTypes['UploadImportFileSuccess'];
+  UploadImportFileSuccess: UploadImportFileSuccess;
   User: User;
   UserError: UserError;
   UserPersonalization: UserPersonalization;
@@ -4003,6 +4048,7 @@ export type ArticleResolvers<ContextType = ResolverContext, ParentType extends R
   updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   uploadFileId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  wordsCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -4802,6 +4848,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   updateUser?: Resolver<ResolversTypes['UpdateUserResult'], ParentType, ContextType, RequireFields<MutationUpdateUserArgs, 'input'>>;
   updateUserProfile?: Resolver<ResolversTypes['UpdateUserProfileResult'], ParentType, ContextType, RequireFields<MutationUpdateUserProfileArgs, 'input'>>;
   uploadFileRequest?: Resolver<ResolversTypes['UploadFileRequestResult'], ParentType, ContextType, RequireFields<MutationUploadFileRequestArgs, 'input'>>;
+  uploadImportFile?: Resolver<ResolversTypes['UploadImportFileResult'], ParentType, ContextType, RequireFields<MutationUploadImportFileArgs, 'contentType' | 'type'>>;
 };
 
 export type NewsletterEmailResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['NewsletterEmail'] = ResolversParentTypes['NewsletterEmail']> = {
@@ -5130,6 +5177,7 @@ export type SearchErrorResolvers<ContextType = ResolverContext, ParentType exten
 export type SearchItemResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SearchItem'] = ResolversParentTypes['SearchItem']> = {
   annotation?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   author?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  content?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   contentReader?: Resolver<ResolversTypes['ContentReader'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -5162,6 +5210,7 @@ export type SearchItemResolvers<ContextType = ResolverContext, ParentType extend
   updatedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   uploadFileId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  wordsCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -5603,6 +5652,20 @@ export type UploadFileRequestSuccessResolvers<ContextType = ResolverContext, Par
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type UploadImportFileErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UploadImportFileError'] = ResolversParentTypes['UploadImportFileError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['UploadImportFileErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type UploadImportFileResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UploadImportFileResult'] = ResolversParentTypes['UploadImportFileResult']> = {
+  __resolveType: TypeResolveFn<'UploadImportFileError' | 'UploadImportFileSuccess', ParentType, ContextType>;
+};
+
+export type UploadImportFileSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UploadImportFileSuccess'] = ResolversParentTypes['UploadImportFileSuccess']> = {
+  uploadSignedUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type UserResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
   followersCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   friendsCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
@@ -5992,6 +6055,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   UploadFileRequestError?: UploadFileRequestErrorResolvers<ContextType>;
   UploadFileRequestResult?: UploadFileRequestResultResolvers<ContextType>;
   UploadFileRequestSuccess?: UploadFileRequestSuccessResolvers<ContextType>;
+  UploadImportFileError?: UploadImportFileErrorResolvers<ContextType>;
+  UploadImportFileResult?: UploadImportFileResultResolvers<ContextType>;
+  UploadImportFileSuccess?: UploadImportFileSuccessResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
   UserError?: UserErrorResolvers<ContextType>;
   UserPersonalization?: UserPersonalizationResolvers<ContextType>;

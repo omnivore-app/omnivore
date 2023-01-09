@@ -187,6 +187,13 @@
     if (pdfContent) {
       return pdfContent
     }
+    try {
+      if (handleBackendUrl(window.location.href)) {
+        return { type: 'url' }
+      }
+    } catch {
+      console.log('error checking url')
+    }
 
     async function scrollPage () {
       const scrollingEl = (document.scrollingElement || document.body);

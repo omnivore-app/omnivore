@@ -6,7 +6,7 @@
 import { createReactionResolver, deleteReactionResolver } from './reaction'
 import { Claims, WithDataSourcesContext } from './types'
 import { createImageProxyUrl } from '../utils/imageproxy'
-import { userDataToUser, validatedDate } from '../utils/helpers'
+import { userDataToUser, validatedDate, wordsCount } from '../utils/helpers'
 
 import {
   Article,
@@ -116,6 +116,7 @@ import {
 import { getPageByParam } from '../elastic/pages'
 import { recentSearchesResolver } from './recent_searches'
 import { optInFeatureResolver } from './features'
+import { uploadImportFileResolver } from './importers/uploadImportFileResolver'
 
 /* eslint-disable @typescript-eslint/naming-convention */
 type ResultResolveType = {
@@ -197,6 +198,7 @@ export const functionResolvers = {
     joinGroup: joinGroupResolver,
     recommendHighlights: recommendHighlightsResolver,
     leaveGroup: leaveGroupResolver,
+    uploadImportFile: uploadImportFileResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -510,6 +512,10 @@ export const functionResolvers = {
     image(article: { image?: string }): string | undefined {
       return article.image && createImageProxyUrl(article.image, 260, 260)
     },
+    wordsCount(article: { wordsCount?: number; content?: string }) {
+      if (article.wordsCount) return article.wordsCount
+      return article.content ? wordsCount(article.content) : undefined
+    },
   },
   ArticleSavingRequest: {
     async article(request: { userId: string; articleId: string }, __: unknown) {
@@ -652,4 +658,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('JoinGroup'),
   ...resultResolveTypeResolver('RecommendHighlights'),
   ...resultResolveTypeResolver('LeaveGroup'),
+  ...resultResolveTypeResolver('UploadImportFile'),
 }

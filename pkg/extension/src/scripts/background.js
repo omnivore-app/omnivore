@@ -321,7 +321,12 @@ async function saveArticle (tab) {
     }
 
     const requestId = uuidv4()
-    const { type, pageInfo, doc, uploadContentObjUrl } = response;
+    var { type } = response;
+    const { pageInfo, doc, uploadContentObjUrl } = response;
+
+    if (type == 'html' && handleBackendUrl(tab.url)) {
+      type = 'url'
+    }
 
     switch(type) {
       case 'html': {

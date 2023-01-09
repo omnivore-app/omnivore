@@ -21,7 +21,7 @@ services:
       context: .
       dockerfile: ./packages/db/Dockerfile
     container_name: "omnivore-migrate"
-    command: '/bin/sh ./packages/db/setup.sh'
+    command: '/bin/sh ./packages/db/setup.sh' # Also create a demo user with email: demo@omnivore.app, password: demo
     environment:
       - PGPASSWORD=postgres
       - PG_HOST=postgres
@@ -65,6 +65,8 @@ services:
       - elastic
     ports:
       - "5601:5601"
+    profiles:
+      - debug
 
   redis:
     image: "redis:6.2.7"

@@ -5,7 +5,7 @@ import app.omnivore.omnivore.graphql.generated.SetLinkArchivedMutation
 import app.omnivore.omnivore.graphql.generated.type.ArchiveLinkInput
 import app.omnivore.omnivore.graphql.generated.type.SetBookmarkArticleInput
 
-suspend fun Networker.deleteLinkedItem(itemID: String): Boolean {
+suspend fun Networker.deleteSavedItem(itemID: String): Boolean {
   return try {
     val input = SetBookmarkArticleInput(itemID, false)
     val result = authenticatedApolloClient().mutation(SetBookmarkArticleMutation(input)).execute()
@@ -15,15 +15,15 @@ suspend fun Networker.deleteLinkedItem(itemID: String): Boolean {
   }
 }
 
-suspend fun Networker.archiveLinkedItem(itemID: String): Boolean {
-  return updateArchiveStatusLinkedItem(itemID, true)
+suspend fun Networker.archiveSavedItem(itemID: String): Boolean {
+  return updateArchiveStatusSavedItem(itemID, true)
 }
 
-suspend fun Networker.unarchiveLinkedItem(itemID: String): Boolean {
-  return updateArchiveStatusLinkedItem(itemID, false)
+suspend fun Networker.unarchiveSavedItem(itemID: String): Boolean {
+  return updateArchiveStatusSavedItem(itemID, false)
 }
 
-private suspend fun Networker.updateArchiveStatusLinkedItem(itemID: String, setAsArchived: Boolean): Boolean {
+private suspend fun Networker.updateArchiveStatusSavedItem(itemID: String, setAsArchived: Boolean): Boolean {
   return try {
     val input = ArchiveLinkInput(setAsArchived, itemID)
     val result = authenticatedApolloClient().mutation(SetLinkArchivedMutation(input)).execute()

@@ -4,6 +4,7 @@ buildscript {
         lifecycle_version = '2.5.1'
         hilt_version = '2.44.2'
         gradle_plugin_version = '7.3.1'
+        room_version = '2.4.3'
     }
 
     dependencies {

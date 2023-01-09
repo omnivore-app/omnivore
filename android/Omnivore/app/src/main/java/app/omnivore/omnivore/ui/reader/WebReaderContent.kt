@@ -1,7 +1,8 @@
 package app.omnivore.omnivore.ui.reader
 
-import app.omnivore.omnivore.models.Highlight
-import app.omnivore.omnivore.models.LinkedItem
+import android.util.Log
+import app.omnivore.omnivore.persistence.entities.SavedItem
+import app.omnivore.omnivore.persistence.entities.Highlight
 import com.google.gson.Gson
 
 enum class WebFont(val displayText: String, val rawValue: String) {
@@ -38,8 +39,7 @@ data class ArticleContent(
 
 data class WebReaderContent(
   val preferences: WebPreferences,
-  val item: LinkedItem,
-  val themeKey: String,
+  val item: SavedItem,
   val articleContent: ArticleContent,
 ) {
   fun styledContent(): String {
@@ -49,7 +49,9 @@ data class WebReaderContent(
     val publishedAt =
       "new Date().toISOString()" //if (item.publishDate != null) "new Date((item.publishDate!.timeIntervalSince1970 * 1000)).toISOString()" else "undefined"
     val textFontSize = preferences.textFontSize
-    val highlightCssFilePath = "highlight${if (themeKey == "Gray") "-dark" else ""}.css"
+    val highlightCssFilePath = "highlight${if (preferences.themeKey == "Gray") "-dark" else ""}.css"
+
+    Log.d("theme", "current theme is: ${preferences.themeKey}")
 
     return """
           <!DOCTYPE html>
@@ -92,12 +94,12 @@ data class WebReaderContent(
                   highlights: ${articleContent.highlightsJSONString()},
                 }
 
+                window.themeKey = "${preferences.themeKey}"
                 window.fontSize = $textFontSize
                 window.fontFamily = "${preferences.fontFamily.rawValue}"
-                window.maxWidthPercentage = $preferences.maxWidthPercentage
-                window.lineHeight = $preferences.lineHeight
-                window.localStorage.setItem("theme", "$themeKey")
-                window.prefersHighContrastFont = $preferences.prefersHighContrastText
+                window.maxWidthPercentage = ${preferences.maxWidthPercentage}
+                window.lineHeight = ${preferences.lineHeight}
+                window.prefersHighContrastFont = ${preferences.prefersHighContrastText}
                 window.enableHighlightBar = false
               </script>
               <script src="bundle.js"></script>

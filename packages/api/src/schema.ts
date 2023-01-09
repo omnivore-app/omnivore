@@ -385,6 +385,7 @@ const schema = gql`
     language: String
     readAt: Date
     recommendations: [Recommendation!]
+    wordsCount: Int
   }
 
   # Query: article
@@ -1548,6 +1549,8 @@ const schema = gql`
     highlights: [Highlight!]
     siteIcon: String
     recommendations: [Recommendation!]
+    wordsCount: Int
+    content: String
   }
 
   type SearchItemEdge {
@@ -2304,6 +2307,28 @@ const schema = gql`
     NOT_FOUND
   }
 
+  enum UploadImportFileType {
+    URL_LIST
+    POCKET
+    MATTER
+  }
+
+  enum UploadImportFileErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    UPLOAD_DAILY_LIMIT_EXCEEDED
+  }
+
+  union UploadImportFileResult = UploadImportFileSuccess | UploadImportFileError
+
+  type UploadImportFileError {
+    errorCodes: [UploadImportFileErrorCode!]!
+  }
+
+  type UploadImportFileSuccess {
+    uploadSignedUrl: String
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -2388,6 +2413,10 @@ const schema = gql`
       input: RecommendHighlightsInput!
     ): RecommendHighlightsResult!
     leaveGroup(groupId: ID!): LeaveGroupResult!
+    uploadImportFile(
+      type: UploadImportFileType!
+      contentType: String!
+    ): UploadImportFileResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed
@@ -2404,7 +2433,7 @@ const schema = gql`
       query: String
       includePending: Boolean
     ): ArticlesResult!
-    article(username: String!, slug: String!): ArticleResult!
+    article(username: String!, slug: String!, format: String): ArticleResult!
     sharedArticle(
       username: String!
       slug: String!
@@ -2425,7 +2454,13 @@ const schema = gql`
     newsletterEmails: NewsletterEmailsResult!
     reminder(linkId: ID!): ReminderResult!
     labels: LabelsResult!
-    search(after: String, first: Int, query: String): SearchResult!
+    search(
+      after: String
+      first: Int
+      query: String
+      includeContent: Boolean
+      format: String
+    ): SearchResult!
     subscriptions(sort: SortParams): SubscriptionsResult!
     sendInstallInstructions: SendInstallInstructionsResult!
     webhooks: WebhooksResult!

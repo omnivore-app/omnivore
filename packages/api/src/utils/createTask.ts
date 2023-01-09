@@ -49,15 +49,6 @@ const createHttpTaskWithToken = async ({
   priority === 'low' && (queue = `${queue}-low`)
 
   const parent = client.queuePath(project, location, queue)
-  console.log(`Task creation options: `, {
-    project,
-    location,
-    queue,
-    taskHandlerUrl,
-    serviceAccountEmail,
-    payload,
-  })
-
   // Convert message to buffer.
   let convertedPayload: string | ArrayBuffer
   try {
@@ -118,14 +109,6 @@ export const createAppEngineTask = async ({
   }
 
   const parent = client.queuePath(project, location, queue)
-  console.log(`App Engine task creation options: `, {
-    project,
-    location,
-    queue,
-    taskHandlerUrl,
-    payload,
-  })
-
   const task: protos.google.cloud.tasks.v2.ITask = {
     appEngineHttpRequest: {
       httpMethod: 'POST',

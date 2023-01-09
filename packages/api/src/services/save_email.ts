@@ -1,4 +1,9 @@
-import { generateSlug, stringToHash, validatedDate } from '../utils/helpers'
+import {
+  generateSlug,
+  stringToHash,
+  validatedDate,
+  wordsCount,
+} from '../utils/helpers'
 import {
   FAKE_URL_PREFIX,
   parsePreparedContent,
@@ -78,6 +83,7 @@ export const saveEmail = async (
     state: ArticleSavingRequestStatus.Succeeded,
     siteIcon: parseResult.parsedContent?.siteIcon ?? undefined,
     siteName: parseResult.parsedContent?.siteName ?? undefined,
+    wordsCount: wordsCount(content),
   }
 
   const page = await getPageByParam({

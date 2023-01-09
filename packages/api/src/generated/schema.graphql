@@ -102,6 +102,7 @@ type Article {
   updatedAt: Date!
   uploadFileId: ID
   url: String!
+  wordsCount: Int
 }
 
 type ArticleEdge {
@@ -1082,6 +1083,7 @@ type Mutation {
   updateUser(input: UpdateUserInput!): UpdateUserResult!
   updateUserProfile(input: UpdateUserProfileInput!): UpdateUserProfileResult!
   uploadFileRequest(input: UploadFileRequestInput!): UploadFileRequestResult!
+  uploadImportFile(contentType: String!, type: UploadImportFileType!): UploadImportFileResult!
 }
 
 type NewsletterEmail {
@@ -1199,7 +1201,7 @@ type Profile {
 
 type Query {
   apiKeys: ApiKeysResult!
-  article(slug: String!, username: String!): ArticleResult!
+  article(format: String, slug: String!, username: String!): ArticleResult!
   articleSavingRequest(id: ID!): ArticleSavingRequestResult!
   articles(after: String, first: Int, includePending: Boolean, query: String, sharedOnly: Boolean, sort: SortParams): ArticlesResult!
   deviceTokens: DeviceTokensResult!
@@ -1217,7 +1219,7 @@ type Query {
   recentSearches: RecentSearchesResult!
   reminder(linkId: ID!): ReminderResult!
   rules(enabled: Boolean): RulesResult!
-  search(after: String, first: Int, query: String): SearchResult!
+  search(after: String, first: Int, format: String, includeContent: Boolean, query: String): SearchResult!
   sendInstallInstructions: SendInstallInstructionsResult!
   sharedArticle(selectedHighlightId: String, slug: String!, username: String!): SharedArticleResult!
   subscriptions(sort: SortParams): SubscriptionsResult!
@@ -1546,6 +1548,7 @@ enum SearchErrorCode {
 type SearchItem {
   annotation: String
   author: String
+  content: String
   contentReader: ContentReader!
   createdAt: Date!
   description: String
@@ -1578,6 +1581,7 @@ type SearchItem {
   updatedAt: Date
   uploadFileId: ID
   url: String!
+  wordsCount: Int
 }
 
 type SearchItemEdge {
@@ -2247,6 +2251,28 @@ type UploadFileRequestSuccess {
 enum UploadFileStatus {
   COMPLETED
   INITIALIZED
+}
+
+type UploadImportFileError {
+  errorCodes: [UploadImportFileErrorCode!]!
+}
+
+enum UploadImportFileErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+  UPLOAD_DAILY_LIMIT_EXCEEDED
+}
+
+union UploadImportFileResult = UploadImportFileError | UploadImportFileSuccess
+
+type UploadImportFileSuccess {
+  uploadSignedUrl: String
+}
+
+enum UploadImportFileType {
+  MATTER
+  POCKET
+  URL_LIST
 }
 
 type User {

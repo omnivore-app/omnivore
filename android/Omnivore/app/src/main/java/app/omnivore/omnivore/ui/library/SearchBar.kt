@@ -1,4 +1,4 @@
-package app.omnivore.omnivore.ui.home
+package app.omnivore.omnivore.ui.library
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -38,7 +38,7 @@ fun SearchBar(
       if (showSearchField) {
         SearchField(searchText, onSearchTextChanged)
       } else {
-        Text("Home")
+        Text("Library")
       }
     },
     colors = TopAppBarDefaults.smallTopAppBarColors(

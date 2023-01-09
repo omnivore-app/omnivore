@@ -19,7 +19,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.lifecycle.Observer
 import app.omnivore.omnivore.R
-import app.omnivore.omnivore.models.Highlight
+import app.omnivore.omnivore.persistence.entities.Highlight
 import com.pspdfkit.annotations.Annotation
 import com.pspdfkit.annotations.HighlightAnnotation
 import com.pspdfkit.configuration.PdfConfiguration
@@ -78,7 +78,7 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
     // Observe the LiveData, passing in this activity as the LifecycleOwner and the observer.
     viewModel.pdfReaderParamsLiveData.observe(this, pdfParamsObserver)
 
-    val slug = intent.getStringExtra("LINKED_ITEM_SLUG") ?: ""
+    val slug = intent.getStringExtra("SAVED_ITEM_SLUG") ?: ""
     viewModel.loadItem(slug, this)
   }
 

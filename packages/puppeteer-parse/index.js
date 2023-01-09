@@ -534,7 +534,7 @@ async function retrieveHtml(page, logRecord) {
     logRecord.title = title;
 
     const pageScrollingStart = Date.now();
-    /* scroll with a 5 second timeout */
+    /* scroll with a 5 seconds timeout */
     await Promise.race([
       new Promise(resolve => {
         (async function () {
@@ -562,7 +562,7 @@ async function retrieveHtml(page, logRecord) {
           }
         })();
       }),
-      await page.waitForTimeout(1000),
+      await page.waitForTimeout(5000),
     ]);
     logRecord.timing = { ...logRecord.timing, pageScrolled: Date.now() - pageScrollingStart };
 
@@ -590,7 +590,7 @@ async function retrieveHtml(page, logRecord) {
 
         try {
           // Removing blurred images since they are mostly the copies of lazy loaded ones
-          if (['img', 'image'].includes(el.tagName.toLowerCase())) {
+          if (el.tagName && ['img', 'image'].includes(el.tagName.toLowerCase())) {
             const filter = style.getPropertyValue('filter');
             if (filter && filter.startsWith('blur')) {
               el.parentNode && el.parentNode.removeChild(el);

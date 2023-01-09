@@ -1,7 +1,7 @@
 package app.omnivore.omnivore.networking
 
 import app.omnivore.omnivore.graphql.generated.ViewerQuery
-import app.omnivore.omnivore.models.Viewer
+import app.omnivore.omnivore.persistence.entities.Viewer
 
 suspend fun Networker.viewer(): Viewer? {
   try {
@@ -10,10 +10,10 @@ suspend fun Networker.viewer(): Viewer? {
 
     return if (me != null) {
       Viewer(
-        id = me.id,
+        userID = me.id,
         name = me.name,
         username = me.profile.username,
-        pictureUrl = me.profile.pictureUrl
+        profileImageURL = me.profile.pictureUrl
       )
     } else {
       null

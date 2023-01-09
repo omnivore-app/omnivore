@@ -28,7 +28,7 @@ import Views
 
     do {
       try await dataService.leaveGroup(groupID: recommendationGroup.id)
-      Snackbar.show(message: "You have left the group.")
+      Snackbar.show(message: "You have left the club.")
     } catch {
       return false
     }
@@ -129,9 +129,9 @@ struct RecommendationGroupView: View {
     Section("Members") {
       if !viewModel.recommendationGroup.canSeeMembers {
         Text("""
-        The admin of this group does not allow viewing all members.
+        The admin of this club does not allow viewing all members.
 
-        [Learn more about groups](https://blog.omnivore.app/p/dca38ba4-8a74-42cc-90ca-d5ffa5d075cc)
+        [Learn more about clubs](https://blog.omnivore.app/p/dca38ba4-8a74-42cc-90ca-d5ffa5d075cc)
         """)
           .accentColor(.blue)
       } else if viewModel.nonAdmins.count > 0 {
@@ -144,10 +144,10 @@ struct RecommendationGroupView: View {
         }
       } else {
         Text("""
-        This group does not have any members. Add users to your group by sending
+        This club does not have any members. Add users to your club by sending
         them the invite link.
 
-        [Learn more about groups](https://blog.omnivore.app/p/dca38ba4-8a74-42cc-90ca-d5ffa5d075cc)
+        [Learn more about clubs](https://blog.omnivore.app/p/dca38ba4-8a74-42cc-90ca-d5ffa5d075cc)
         """)
           .accentColor(.blue)
       }
@@ -160,7 +160,7 @@ struct RecommendationGroupView: View {
     }
     return AnyView(Button(action: {
       viewModel.showLeaveGroup = true
-    }, label: { Text("Leave Group") })
+    }, label: { Text("Leave Club") })
       .accentColor(.red))
   }
 
@@ -196,8 +196,8 @@ struct RecommendationGroupView: View {
     }
     .alert(isPresented: $viewModel.showLeaveGroup) {
       Alert(
-        title: Text("Are you sure you want to leave this group? No data will be deleted, but you will stop receiving recommendations from the group."),
-        primaryButton: .destructive(Text("Leave Group")) {
+        title: Text("Are you sure you want to leave this club? No data will be deleted, but you will stop receiving recommendations from the club."),
+        primaryButton: .destructive(Text("Leave Club")) {
           Task {
             let success = await viewModel.leaveGroup(dataService: dataService)
             if success {

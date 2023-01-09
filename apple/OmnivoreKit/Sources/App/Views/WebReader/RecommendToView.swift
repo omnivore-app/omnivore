@@ -29,9 +29,9 @@ import Views
     do {
       dataService.viewContext.performAndWait {
         let fetchRequest: NSFetchRequest<Models.RecommendationGroup> = RecommendationGroup.fetchRequest()
-        let sort = NSSortDescriptor(key: #keyPath(RecommendationGroup.createdAt), ascending: false)
-        fetchRequest.sortDescriptors = [sort]
+        let sort = NSSortDescriptor(key: #keyPath(RecommendationGroup.name), ascending: true)
         fetchRequest.predicate = NSPredicate(format: "canPost == %@", NSNumber(value: true))
+        fetchRequest.sortDescriptors = [sort]
 
         // If this fails we will fallback to making the API call
         let groups = try? dataService.viewContext.fetch(fetchRequest).compactMap { object in
@@ -41,7 +41,10 @@ import Views
           self.recommendationGroups = groups
         }
       }
-      recommendationGroups = try await dataService.recommendationGroups().filter(\.canPost)
+      recommendationGroups = try await dataService.recommendationGroups()
+        .filter(\.canPost)
+        .sorted(by: { $0.name < $1.name })
+
     } catch {
       print("ERROR fetching recommendationGroups: ", error)
       networkError = true
@@ -160,15 +163,15 @@ struct RecommendToView: View {
       List {
         if !viewModel.isLoading, viewModel.recommendationGroups.count < 1 {
           Text("""
-          You do not have any groups you can post to.
+          You do not have any clubs you can post to.
 
-          Join a group or create your own to start recommending articles.
+          Join a club or create your own to start recommending articles.
 
-          [Learn more about groups](https://blog.omnivore.app/p/dca38ba4-8a74-42cc-90ca-d5ffa5d075cc)
+          [Learn more about clubs](https://blog.omnivore.app/p/dca38ba4-8a74-42cc-90ca-d5ffa5d075cc)
           """)
             .accentColor(.blue)
         } else {
-          Section("Select groups to recommend to") {
+          Section("Select clubs to recommend to") {
             ForEach(viewModel.recommendationGroups) { group in
               HStack {
                 Text(group.name)

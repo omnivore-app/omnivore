@@ -1,7 +1,9 @@
 package app.omnivore.omnivore
 
 import android.content.Context
+import androidx.room.Room
 import app.omnivore.omnivore.networking.Networker
+import app.omnivore.omnivore.persistence.AppDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -26,4 +28,8 @@ object AppModule {
   @Singleton
   @Provides
   fun provideAnalytics(@ApplicationContext app: Context) = EventTracker(app)
+
+  @Singleton
+  @Provides
+  fun provideDataService(@ApplicationContext app: Context) = DataService(app)
 }
