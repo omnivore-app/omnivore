@@ -194,13 +194,14 @@ import Views
       await group.waitForAll()
     }
 
-    if searchTerm.replacingOccurrences(of: " ", with: "").isEmpty {
-      updateFetchController(dataService: dataService)
-      if appliedFilter != LinkedItemFilter.inbox.rawValue || !isRefresh {
-        await loadSearchQuery(dataService: dataService, isRefresh: isRefresh)
-      }
-    } else {
+    let shouldSearch = items.count < 1 || isRefresh
+    if shouldSearch {
       await loadSearchQuery(dataService: dataService, isRefresh: isRefresh)
+    } else {
+      updateFetchController(dataService: dataService)
+      Task.detached(priority: .background) {
+        await self.loadSearchQuery(dataService: dataService, isRefresh: isRefresh)
+      }
     }
 
     isLoading = false
