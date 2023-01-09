@@ -44,7 +44,7 @@ export default function LandingPage(): JSX.Element {
       <PageMetaData
         title="Omnivore"
         path="/about"
-        ogImage="/static/images/og-homepage.png"
+        ogImage="/static/images/og-homepage-02.png"
         description="Omnivore is the free, open source, read-it-later app for serious readers."
       />
 
