@@ -21,7 +21,7 @@ export const saveContentDisplayReport = async (
   // reparsed or updated later, this gives us a view of exactly
   // what the user saw.
   const result = await repo.save({
-    userId: uid,
+    user: { id: uid },
     elasticPageId: input.pageId,
     content: page.content,
     originalHtml: page.originalHtml || undefined,
