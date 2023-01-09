@@ -22,7 +22,7 @@ public struct CommunityModal: View {
   things you can do to help us build a better Omnivore.
 
   If you would like to financially assist Omnivore \
-  please [Contribute on Open Collective](https://opencollective.com/omnivore).
+  please [contribute on Open Collective](https://opencollective.com/omnivore).
   """
 
   public init() {}
