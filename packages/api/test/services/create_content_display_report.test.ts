@@ -1,19 +1,7 @@
 import 'mocha'
 import chai, { expect } from 'chai'
 import 'chai/register-should'
-import {
-  createTestPage,
-  createTestUser,
-  createUserWithoutProfile,
-  deleteTestUser,
-  getProfile,
-} from '../db'
-import { createGroup } from '../../src/services/groups'
-import {
-  getUserFollowers,
-  getUserFollowing,
-} from '../../src/services/followers'
-import { StatusType } from '../../src/datalayer/user/model'
+import { createTestUser, deleteTestUser } from '../db'
 import sinonChai from 'sinon-chai'
 import sinon from 'sinon'
 import * as util from '../../src/utils/sendEmail'
@@ -38,9 +26,6 @@ describe('saveContentDisplayReport', () => {
   })
 
   after(async () => {
-    await getRepository(ContentDisplayReport).delete({
-      user: { id: user.id },
-    })
     await deleteTestUser(user.id)
   })
 
