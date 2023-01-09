@@ -62,24 +62,6 @@ export default function SubscriptionsPage(): JSX.Element {
         rows={rows}
         onDelete={setConfirmUnsubscribeName}
       />
-
-      {/* TODO: Dynamically loaded from API response */}
-      <Table
-        heading={'Popular Newsletters'}
-        headers={['Substack', 'Axios', 'Bloomberg']}
-        rows={
-          new Map([
-            [
-              '0',
-              [
-                'https://substack.com/',
-                'https://www.axios.com/newsletters',
-                'https://www.bloomberg.com/account/newsletters',
-              ],
-            ],
-          ])
-        }
-      />
     </PrimaryLayout>
   )
 }
