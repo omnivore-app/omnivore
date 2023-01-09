@@ -78,15 +78,15 @@ export const saveNewsletterEmail = async (
   }
 
   // creates or updates subscription
-  const subscription = await saveSubscription({
+  const subscriptionId = await saveSubscription({
     userId: newsletterEmail.user.id,
     name: data.author,
-    newsletterEmail: newsletterEmail.address,
+    newsletterEmail,
     unsubscribeMailTo: data.unsubMailTo,
     unsubscribeHttpUrl: data.unsubHttpUrl,
     icon: page.siteIcon,
   })
-  console.log('subscription saved', subscription)
+  console.log('subscription saved', subscriptionId)
 
   // adds newsletters label to page
   const result = await addLabelToPage(saveCtx, page.id, {

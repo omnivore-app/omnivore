@@ -10,6 +10,8 @@ import { SaveContext } from '../../src/services/save_email'
 import { createPubSubClient } from '../../src/datalayer/pubsub'
 import { getPageByParam } from '../../src/elastic/pages'
 import nock from 'nock'
+import { getRepository } from '../../src/entity/utils'
+import { Subscription } from '../../src/entity/subscription'
 
 describe('saveNewsletterEmail', () => {
   const fakeContent = 'fake content'
@@ -55,6 +57,11 @@ describe('saveNewsletterEmail', () => {
     expect(page?.title).to.equal(title)
     expect(page?.author).to.equal(author)
     expect(page?.content).to.contain(fakeContent)
+
+    const subscriptions = await getRepository(Subscription).findBy({
+      newsletterEmail: { id: email.id },
+    })
+    expect(subscriptions).not.to.be.empty
   })
 
   it('should adds a Newsletter label to that page', async () => {

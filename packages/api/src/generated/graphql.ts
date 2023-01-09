@@ -1532,7 +1532,9 @@ export type NewsletterEmail = {
   __typename?: 'NewsletterEmail';
   address: Scalars['String'];
   confirmationCode?: Maybe<Scalars['String']>;
+  createdAt: Scalars['Date'];
   id: Scalars['ID'];
+  subscriptionCount: Scalars['Int'];
 };
 
 export type NewsletterEmailsError = {
@@ -4854,7 +4856,9 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
 export type NewsletterEmailResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['NewsletterEmail'] = ResolversParentTypes['NewsletterEmail']> = {
   address?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   confirmationCode?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  subscriptionCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
