@@ -1,5 +1,6 @@
 import {
   createTestNewsletterEmail,
+  createTestSubscription,
   createTestUser,
   deleteTestUser,
   getNewsletterEmail,
@@ -35,6 +36,9 @@ describe('Newsletters API', () => {
       'Test_email_address_2@omnivore.app'
     )
     newsletterEmails = [newsletterEmail1, newsletterEmail2]
+
+    //  create testing subscriptions
+    await createTestSubscription(user, 'sub', newsletterEmail2)
   })
 
   after(async () => {
@@ -51,6 +55,8 @@ describe('Newsletters API', () => {
               id
               address
               confirmationCode
+              createdAt
+              subscriptionCount
             }
           }
   
@@ -63,17 +69,31 @@ describe('Newsletters API', () => {
 
     it('responds with newsletter emails sort by created_at desc', async () => {
       const response = await graphqlRequest(query, authToken).expect(200)
-      expect(response.body.data.newsletterEmails.newsletterEmails).to.eqls(
-        newsletterEmails
-          .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-          .map((value) => {
-            return {
-              id: value.id,
-              address: value.address,
-              confirmationCode: value.confirmationCode,
-            }
-          })
-      )
+      expect(
+        response.body.data.newsletterEmails.newsletterEmails.map((e: any) => {
+          return {
+            ...e,
+            createdAt: new Date(e.createdAt).toISOString().split('.')[0] + 'Z',
+          }
+        })
+      ).to.eqls([
+        {
+          id: newsletterEmails[1].id,
+          address: newsletterEmails[1].address,
+          confirmationCode: newsletterEmails[1].confirmationCode,
+          createdAt:
+            newsletterEmails[1].createdAt.toISOString().split('.')[0] + 'Z',
+          subscriptionCount: 1,
+        },
+        {
+          id: newsletterEmails[0].id,
+          address: newsletterEmails[0].address,
+          confirmationCode: newsletterEmails[0].confirmationCode,
+          createdAt:
+            newsletterEmails[0].createdAt.toISOString().split('.')[0] + 'Z',
+          subscriptionCount: 0,
+        },
+      ])
     })
 
     it('responds status code 400 when invalid query', async () => {
