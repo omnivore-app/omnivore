@@ -107,6 +107,13 @@ import Views
       _ = try? await dataService.labels()
     }
   }
+  
+  // Sync Items
+  // 1 - Create start timestamp
+  // 2 - Retrieve last sync time from datastore
+  // 3 - Call syncOfflineItemsWithServerIfNeeded (DataService)
+  // 4 - Call dataService.syncLinkedItems
+  //
 
   func syncItems(dataService: DataService) async {
     let syncStart = Date.now

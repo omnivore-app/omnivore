@@ -53,7 +53,6 @@ suspend fun Networker.savedItem(slug: String): SavedItemQueryResponse {
         updatedAt = null, //updatedAtString?.let { str -> LocalDate.parse(str) }, TODO: fix date parsing
         createdByMe = it.highlightFields.createdByMe,
         markedForDeletion = false,
-        serverSyncStatus = 1 // TODO: create enum for this
       )
     }
 

@@ -15,3 +15,7 @@ class DataService @Inject constructor(
     AppDatabase::class.java, "omnivore-database"
   ).build()
 }
+
+//suspend fun DataService.sync(): Boolean {
+//
+//}

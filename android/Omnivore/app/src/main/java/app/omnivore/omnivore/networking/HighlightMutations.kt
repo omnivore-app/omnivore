@@ -8,6 +8,7 @@ import app.omnivore.omnivore.graphql.generated.UpdateHighlightMutation
 import app.omnivore.omnivore.graphql.generated.type.CreateHighlightInput
 import app.omnivore.omnivore.graphql.generated.type.MergeHighlightInput
 import app.omnivore.omnivore.graphql.generated.type.UpdateHighlightInput
+import app.omnivore.omnivore.models.ServerSyncStatus
 import app.omnivore.omnivore.persistence.entities.Highlight
 import com.apollographql.apollo3.api.Optional
 import com.google.gson.Gson
@@ -150,8 +151,7 @@ suspend fun Networker.createHighlight(input: CreateHighlightInput): Highlight? {
         createdAt = null, // TODO: update gql query to get this
         updatedAt = null, // TODO: fix updatedAtString?.let { LocalDate.parse(it) },
         createdByMe = createdHighlight.highlightFields.createdByMe,
-        markedForDeletion = false,
-        serverSyncStatus = 1 // TODO: create enum for this
+        markedForDeletion = false
       )
     } else {
       return null

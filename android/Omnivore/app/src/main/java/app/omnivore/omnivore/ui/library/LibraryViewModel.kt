@@ -8,19 +8,20 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.DataService
+import app.omnivore.omnivore.DatastoreKeys
+import app.omnivore.omnivore.DatastoreRepository
 import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.persistence.entities.SavedItemCardData
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
 class LibraryViewModel @Inject constructor(
   private val networker: Networker,
-  private val dataService: DataService
+  private val dataService: DataService,
+  private val datastoreRepo: DatastoreRepository
 ): ViewModel() {
   private var cursor: String? = null
   private var items: List<SavedItemCardData> = listOf()
@@ -49,6 +50,19 @@ class LibraryViewModel @Inject constructor(
   fun refresh() {
     isRefreshing = true
     load(true)
+  }
+
+  fun getLastSyncTime(): LocalDateTime? = runBlocking {
+    datastoreRepo.getString(DatastoreKeys.libraryLastSyncTimestamp)?.let {
+      LocalDateTime.parse(it)
+    }
+  }
+
+  fun syncItems() {
+    val syncStart = LocalDateTime.now()
+    val lastSyncDate = getLastSyncTime() ?: LocalDateTime.MIN
+
+//    try? await dataService.syncOfflineItemsWithServerIfNeeded()
   }
 
   fun load(clearPreviousSearch: Boolean = false) {

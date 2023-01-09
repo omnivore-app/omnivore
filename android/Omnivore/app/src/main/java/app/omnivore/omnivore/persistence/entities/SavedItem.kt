@@ -2,6 +2,7 @@ package app.omnivore.omnivore.persistence.entities
 
 import androidx.core.net.toUri
 import androidx.room.*
+import app.omnivore.omnivore.models.ServerSyncStatus
 import app.omnivore.omnivore.persistence.BaseDao
 
 @Entity
@@ -35,7 +36,7 @@ data class SavedItem(
   val onDeviceImageURLString: String? = null,
   val originalHtml: String? = null,
   @ColumnInfo(typeAffinity = ColumnInfo.BLOB) val pdfData: ByteArray? = null,
-  val serverSyncStatus: Int = 0, // TODO: implement,
+  val serverSyncStatus: Int = 0,
   val tempPDFURL: String? = null
 
 // hasMany highlights
