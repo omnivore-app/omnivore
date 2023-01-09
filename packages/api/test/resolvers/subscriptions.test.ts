@@ -4,6 +4,8 @@ import { Subscription } from '../../src/entity/subscription'
 import { expect } from 'chai'
 import 'mocha'
 import { User } from '../../src/entity/user'
+import { getRepository } from '../../src/entity/utils'
+import { NewsletterEmail } from '../../src/entity/newsletter_email'
 
 describe('Subscriptions API', () => {
   let user: User
@@ -19,9 +21,16 @@ describe('Subscriptions API', () => {
 
     authToken = res.body.authToken
 
+    // create test newsletter subscriptions
+    const newsletterEmail = await getRepository(NewsletterEmail).save({
+      user,
+      address: 'test@inbox.omnivore.app',
+      confirmationCode: 'test',
+    })
+
     //  create testing subscriptions
-    const sub1 = await createTestSubscription(user, 'sub_1')
-    const sub2 = await createTestSubscription(user, 'sub_2')
+    const sub1 = await createTestSubscription(user, 'sub_1', newsletterEmail)
+    const sub2 = await createTestSubscription(user, 'sub_2', newsletterEmail)
     subscriptions = [sub2, sub1]
   })
 

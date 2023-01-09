@@ -5,6 +5,7 @@
 BEGIN;
 
 ALTER TABLE omnivore.subscriptions
+    ADD CONSTRAINT subscriptions_user_id_name_key UNIQUE (user_id, name),
     ADD COLUMN newsletter_email_id uuid REFERENCES omnivore.newsletter_emails(id);
 
 -- migrate existing data

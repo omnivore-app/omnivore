@@ -6,6 +6,7 @@ BEGIN;
 
 -- remove old column
 ALTER TABLE omnivore.subscriptions
+    DROP CONSTRAINT subscriptions_user_id_name_key,
     ADD COLUMN newsletter_email text;
 
 -- migrate existing data
