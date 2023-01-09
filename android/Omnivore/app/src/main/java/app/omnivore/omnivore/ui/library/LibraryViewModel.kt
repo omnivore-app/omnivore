@@ -7,9 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.omnivore.omnivore.DataService
-import app.omnivore.omnivore.DatastoreKeys
-import app.omnivore.omnivore.DatastoreRepository
+import app.omnivore.omnivore.*
 import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.persistence.entities.SavedItemCardData
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -58,11 +56,14 @@ class LibraryViewModel @Inject constructor(
     }
   }
 
-  fun syncItems() {
+  suspend fun syncItems() {
     val syncStart = LocalDateTime.now()
     val lastSyncDate = getLastSyncTime() ?: LocalDateTime.MIN
 
-//    try? await dataService.syncOfflineItemsWithServerIfNeeded()
+    withContext(Dispatchers.IO) {
+      dataService.syncOfflineItemsWithServerIfNeeded()
+      dataService.sync(since = lastSyncDate.toString(), cursor = null)
+    }
   }
 
   fun load(clearPreviousSearch: Boolean = false) {
@@ -71,6 +72,7 @@ class LibraryViewModel @Inject constructor(
     }
 
     viewModelScope.launch {
+      syncItems()
       val thisSearchIdx = searchIdx
       searchIdx += 1
 
