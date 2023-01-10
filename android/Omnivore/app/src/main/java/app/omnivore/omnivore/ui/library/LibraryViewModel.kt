@@ -56,9 +56,23 @@ class LibraryViewModel @Inject constructor(
     }
   }
 
+  fun load(clearPreviousSearch: Boolean = false) {
+    viewModelScope.launch {
+      if (searchTextLiveData.value != "") {
+        performSearch(clearPreviousSearch)
+      } else {
+        syncItems()
+      }
+    }
+  }
+
   private suspend fun syncItems() {
     val syncStart = LocalDateTime.now()
     val lastSyncDate = getLastSyncTime() ?: LocalDateTime.MIN
+
+    CoroutineScope(Dispatchers.Main).launch {
+      isRefreshing = false
+    }
 
     withContext(Dispatchers.IO) {
       performItemSync(cursor = null, since = lastSyncDate.toString(), count = 0)
@@ -80,10 +94,6 @@ class LibraryViewModel @Inject constructor(
       val items = dataService.db.savedItemDao().getLibraryData()
 
       itemsLiveData.postValue(items)
-
-      CoroutineScope(Dispatchers.Main).launch {
-        isRefreshing = false
-      }
     }
   }
 
@@ -108,21 +118,11 @@ class LibraryViewModel @Inject constructor(
     }
 
     val previousItems = if (clearPreviousSearch) listOf() else searchedItems
-    searchedItems = previousItems.plus(searchResult.cardsData)
+    searchedItems = searchResult.cardsData
     itemsLiveData.postValue(searchedItems)
 
     CoroutineScope(Dispatchers.Main).launch {
       isRefreshing = false
-    }
-  }
-
-  fun load(clearPreviousSearch: Boolean = false) {
-    viewModelScope.launch {
-      if (searchTextLiveData.value != "") {
-        performSearch(clearPreviousSearch)
-      } else {
-        syncItems()
-      }
     }
   }
 
