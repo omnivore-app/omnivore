@@ -21,8 +21,6 @@ class DataService @Inject constructor(
 suspend fun DataService.sync(since: String, cursor: String?, limit: Int = 15): SavedItemSyncMarker {
   val syncResult = networker.savedItemUpdates(cursor = cursor, limit = limit, since = since) ?: return SavedItemSyncMarker.errorResult
 
-  Log.d("sync", "count: ${syncResult.totalCount}; sync result: $syncResult")
-
   db.savedItemDao().insertAll(syncResult.items)
 
   return SavedItemSyncMarker(

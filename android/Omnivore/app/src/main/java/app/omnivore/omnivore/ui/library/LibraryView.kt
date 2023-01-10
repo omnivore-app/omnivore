@@ -72,6 +72,8 @@ fun LibraryViewContent(
   )
 
   val cardsData: List<SavedItemCardData> by libraryViewModel.itemsLiveData.observeAsState(listOf())
+  val searchedCardsData: List<SavedItemCardData> by libraryViewModel.searchItemsLiveData.observeAsState(listOf())
+  val searchText: String by libraryViewModel.searchTextLiveData.observeAsState("")
 
   Box(
     modifier = Modifier
@@ -87,7 +89,7 @@ fun LibraryViewContent(
         .fillMaxSize()
         .padding(horizontal = 6.dp)
     ) {
-      items(cardsData) { cardData ->
+      items(if (searchText.isNotEmpty()) searchedCardsData else cardsData) { cardData ->
         SavedItemCard(
           cardData = cardData,
           onClickHandler = {

@@ -1,9 +1,9 @@
 package app.omnivore.omnivore.persistence.entities
 
 import androidx.core.net.toUri
+import androidx.lifecycle.LiveData
 import androidx.room.*
-import app.omnivore.omnivore.models.ServerSyncStatus
-import app.omnivore.omnivore.persistence.BaseDao
+import java.util.*
 
 @Entity
 data class SavedItem(
@@ -105,12 +105,15 @@ data class SavedItemCardData(
 
 @Dao
 interface SavedItemDao {
-  @Query("SELECT id, slug, publisherURLString, title, author, imageURLString, isArchived, pageURLString, contentReader FROM SavedItem")
-  fun getLibraryData(): List<SavedItemCardData>
+  @Query("SELECT id, slug, publisherURLString, title, author, imageURLString, isArchived, pageURLString, contentReader FROM SavedItem ORDER BY savedAt DESC")
+  fun getLibraryLiveData(): LiveData<List<SavedItemCardData>>
 
   @Query("SELECT * FROM savedItem")
   fun getAll(): List<SavedItem>
 
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   fun insertAll(items: List<SavedItem>)
+
+  @Query("DELETE FROM savedItem WHERE id = :itemID")
+  fun deleteById(itemID: String)
 }

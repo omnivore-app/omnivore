@@ -22,8 +22,6 @@ class LibraryViewModel @Inject constructor(
   private val datastoreRepo: DatastoreRepository
 ): ViewModel() {
   private var cursor: String? = null
-  private var items: List<SavedItemCardData> = listOf()
-  private var searchedItems: List<SavedItemCardData> = listOf()
 
   // These are used to make sure we handle search result
   // responses in the right order
@@ -32,14 +30,16 @@ class LibraryViewModel @Inject constructor(
 
   // Live Data
   val searchTextLiveData = MutableLiveData("")
-  val itemsLiveData = MutableLiveData<List<SavedItemCardData>>(listOf())
+  val searchItemsLiveData = MutableLiveData<List<SavedItemCardData>>(listOf())
+  val itemsLiveData = dataService.db.savedItemDao().getLibraryLiveData()
+
   var isRefreshing by mutableStateOf(false)
 
   fun updateSearchText(text: String) {
     searchTextLiveData.value = text
 
     if (text == "") {
-      itemsLiveData.value = items
+      searchItemsLiveData.value = listOf()
     } else {
       load(clearPreviousSearch = true)
     }
@@ -75,25 +75,21 @@ class LibraryViewModel @Inject constructor(
     }
 
     withContext(Dispatchers.IO) {
-      performItemSync(cursor = null, since = lastSyncDate.toString(), count = 0)
+      performItemSync(cursor = null, since = lastSyncDate.toString(), count = 0, startTime = syncStart.toString())
     }
   }
 
-  private suspend fun performItemSync(cursor: String?, since: String, count: Int) {
+  private suspend fun performItemSync(cursor: String?, since: String, count: Int, startTime: String) {
     dataService.syncOfflineItemsWithServerIfNeeded()
     val result = dataService.sync(since = since, cursor = cursor)
     val totalCount = count + result.count
 
-    Log.d("sync", "grabbed ${result.count} items in this batch")
+    Log.d("sync", "fetched ${result.count} items")
 
     if (totalCount < 180 && !result.hasError && result.hasMoreItems && result.cursor != null) {
-      performItemSync(cursor = result.cursor, since = since, count = totalCount)
+      performItemSync(cursor = result.cursor, since = since, count = totalCount, startTime = startTime)
     } else {
-      Log.d("sync", "grabbed $count total items")
-
-      val items = dataService.db.savedItemDao().getLibraryData()
-
-      itemsLiveData.postValue(items)
+      datastoreRepo.putString(DatastoreKeys.libraryLastSyncTimestamp, startTime)
     }
   }
 
@@ -117,9 +113,7 @@ class LibraryViewModel @Inject constructor(
       return
     }
 
-    val previousItems = if (clearPreviousSearch) listOf() else searchedItems
-    searchedItems = searchResult.cardsData
-    itemsLiveData.postValue(searchedItems)
+    searchItemsLiveData.postValue(searchResult.cardsData)
 
     CoroutineScope(Dispatchers.Main).launch {
       isRefreshing = false
@@ -151,9 +145,10 @@ class LibraryViewModel @Inject constructor(
   }
 
   private fun removeItemFromList(itemID: String) {
-    itemsLiveData.value?.let {
-      val newList = it.filter { item -> item.id != itemID }
-      itemsLiveData.postValue(newList)
+    viewModelScope.launch {
+      withContext(Dispatchers.IO) {
+        dataService.db.savedItemDao().deleteById(itemID)
+      }
     }
   }
 
