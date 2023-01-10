@@ -18,15 +18,32 @@ class DataService @Inject constructor(
   ).build()
 }
 
-suspend fun DataService.sync(since: String, cursor: String?, limit: Int = 15): Boolean {
-  val syncResult = networker.savedItemUpdates(cursor = cursor, limit = limit, since = since) ?: return false
+suspend fun DataService.sync(since: String, cursor: String?, limit: Int = 15): SavedItemSyncMarker {
+  val syncResult = networker.savedItemUpdates(cursor = cursor, limit = limit, since = since) ?: return SavedItemSyncMarker.errorResult
 
   Log.d("sync", "count: ${syncResult.totalCount}; sync result: $syncResult")
-  // TODO: Store items in Room DB
 
-  return true
+  db.savedItemDao().insertAll(syncResult.items)
+
+  return SavedItemSyncMarker(
+    hasError = false,
+    hasMoreItems = syncResult.hasMoreItems,
+    cursor = syncResult.cursor,
+    count = syncResult.items.size
+  )
 }
 
 suspend fun DataService.syncOfflineItemsWithServerIfNeeded() {
   // TODO: implement this
+}
+
+data class SavedItemSyncMarker(
+  val hasError: Boolean,
+  val hasMoreItems: Boolean,
+  val count: Int,
+  val cursor: String?
+) {
+  companion object {
+    val errorResult = SavedItemSyncMarker(hasError = true, hasMoreItems = true, cursor = null, count = 0)
+  }
 }

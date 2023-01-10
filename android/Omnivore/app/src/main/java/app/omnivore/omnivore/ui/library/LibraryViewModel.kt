@@ -56,63 +56,72 @@ class LibraryViewModel @Inject constructor(
     }
   }
 
-  suspend fun syncItems() {
+  private suspend fun syncItems() {
     val syncStart = LocalDateTime.now()
     val lastSyncDate = getLastSyncTime() ?: LocalDateTime.MIN
 
     withContext(Dispatchers.IO) {
-      dataService.syncOfflineItemsWithServerIfNeeded()
-      dataService.sync(since = lastSyncDate.toString(), cursor = null)
+      performItemSync(cursor = null, since = lastSyncDate.toString(), count = 0)
     }
   }
 
-  fun load(clearPreviousSearch: Boolean = false) {
+  private suspend fun performItemSync(cursor: String?, since: String, count: Int) {
+    dataService.syncOfflineItemsWithServerIfNeeded()
+    val result = dataService.sync(since = since, cursor = cursor)
+    val totalCount = count + result.count
+
+    Log.d("sync", "grabbed ${result.count} items in this batch")
+
+    if (totalCount < 180 && !result.hasError && result.hasMoreItems && result.cursor != null) {
+      performItemSync(cursor = result.cursor, since = since, count = totalCount)
+    } else {
+      Log.d("sync", "grabbed $count total items")
+
+      val items = dataService.db.savedItemDao().getLibraryData()
+
+      itemsLiveData.postValue(items)
+
+      CoroutineScope(Dispatchers.Main).launch {
+        isRefreshing = false
+      }
+    }
+  }
+
+  private suspend fun performSearch(clearPreviousSearch: Boolean) {
     if (clearPreviousSearch) {
       cursor = null
     }
 
+    val thisSearchIdx = searchIdx
+    searchIdx += 1
+
+    // Execute the search
+    val searchResult = networker.typeaheadSearch(searchTextLiveData.value ?: "")
+
+    // Search results aren't guaranteed to return in order so this
+    // will discard old results that are returned while a user is typing.
+    // For example if a user types 'Canucks', often the search results
+    // for 'C' are returned after 'Canucks' because it takes the backend
+    // much longer to compute.
+    if (thisSearchIdx in 1..receivedIdx) {
+      return
+    }
+
+    val previousItems = if (clearPreviousSearch) listOf() else searchedItems
+    searchedItems = previousItems.plus(searchResult.cardsData)
+    itemsLiveData.postValue(searchedItems)
+
+    CoroutineScope(Dispatchers.Main).launch {
+      isRefreshing = false
+    }
+  }
+
+  fun load(clearPreviousSearch: Boolean = false) {
     viewModelScope.launch {
-      syncItems()
-      val thisSearchIdx = searchIdx
-      searchIdx += 1
-
-      // Execute the search
-      val searchResult =
-        if (searchTextLiveData.value != "") {
-          networker.typeaheadSearch(searchTextLiveData.value ?: "")
-        } else {
-          networker.search(cursor = cursor, query = searchQuery())
-        }
-
-      // Search results aren't guaranteed to return in order so this
-      // will discard old results that are returned while a user is typing.
-      // For example if a user types 'Canucks', often the search results
-      // for 'C' are returned after 'Canucks' because it takes the backend
-      // much longer to compute.
-      if (thisSearchIdx in 1..receivedIdx) {
-        return@launch
-      }
-
-      receivedIdx = thisSearchIdx
-      cursor = searchResult.cursor
-
-      if (searchTextLiveData.value != "" || clearPreviousSearch) {
-        val previousItems = if (clearPreviousSearch) listOf() else searchedItems
-        searchedItems = previousItems.plus(searchResult.cardsData)
-        itemsLiveData.postValue(searchedItems)
+      if (searchTextLiveData.value != "") {
+        performSearch(clearPreviousSearch)
       } else {
-        items = items.plus(searchResult.cardsData)
-        itemsLiveData.postValue(items)
-      }
-
-//      withContext(Dispatchers.IO) {
-//        dataService.db.savedItemDao().insertAll(items)
-//        val items = dataService.db.savedItemDao().getLibraryData()
-//        Log.d("appDatabase", "libraryData: $items")
-//      }
-
-      CoroutineScope(Dispatchers.Main).launch {
-        isRefreshing = false
+        syncItems()
       }
     }
   }
