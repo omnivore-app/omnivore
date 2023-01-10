@@ -55,6 +55,7 @@
     "react-topbar-progress-indicator": "^4.1.1",
     "react-twitter-widgets": "^1.10.0",
     "swr": "^1.0.1",
+    "uslug": "^1.0.4",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
@@ -77,6 +78,7 @@
     "@types/react": "17.0.2",
     "@types/react-dom": "^17.0.2",
     "@types/segment-analytics": "^0.0.34",
+    "@types/uslug": "^1.0.1",
     "@types/uuid": "^8.3.1",
     "babel-jest": "^27.4.5",
     "babel-loader": "^8.2.3",

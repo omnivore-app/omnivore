@@ -45,9 +45,3 @@ declare module 'knex-stringcase' {
   function knexStringcase(config: KnexStringCaseConfig): Knex.Config
   export = knexStringcase
 }
-
-declare module 'voca/slugify' {
-  function slugify(subject?: string): string
-
-  export = slugify
-}

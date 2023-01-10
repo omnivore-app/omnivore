@@ -9,7 +9,7 @@ import {
 import { Claims, WithDataSourcesContext } from '../resolvers/types'
 import { RegistrationType, UserData } from '../datalayer/user/model'
 import crypto from 'crypto'
-import slugify from 'voca/slugify'
+import uslug from 'uslug'
 import { Merge } from '../util'
 import { CreateArticlesSuccessPartial } from '../resolvers'
 import { ArticleSavingRequestStatus, Page } from '../elastic/types'
@@ -162,7 +162,7 @@ export const userDataToUser = (
 })
 
 export const generateSlug = (title: string): string => {
-  return slugify(title).substring(0, 64) + '-' + Date.now().toString(16)
+  return uslug(title).substring(0, 64) + '-' + Date.now().toString(16)
 }
 
 export const MAX_CONTENT_LENGTH = 5e7 //50MB
