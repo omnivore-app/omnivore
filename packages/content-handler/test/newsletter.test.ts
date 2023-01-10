@@ -93,6 +93,11 @@ describe('Newsletter email test', () => {
       const from = 'Mike Allen <mike@axios.com>'
       expect(new AxiosHandler().parseAuthor(from)).to.equal('Mike Allen')
     })
+
+    it('returns email address if author is not there', () => {
+      const from = 'mike@axios.com'
+      expect(new AxiosHandler().parseAuthor(from)).to.equal(from)
+    })
   })
 
   describe('getNewsletterHandler', () => {
