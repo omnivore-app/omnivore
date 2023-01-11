@@ -44,6 +44,7 @@
     "jsonwebtoken": "^8.5.1",
     "nodemon": "^2.0.15",
     "unzip-stream": "^0.3.1",
-    "urlsafe-base64": "^1.0.0"
+    "urlsafe-base64": "^1.0.0",
+    "uuid": "^9.0.0"
   }
 }
