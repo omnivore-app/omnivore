@@ -28,7 +28,7 @@ suspend fun DataService.sync(since: String, cursor: String?, limit: Int = 15): S
     hasMoreItems = syncResult.hasMoreItems,
     cursor = syncResult.cursor,
     count = syncResult.items.size,
-    savedItemSlugs = syncResult.items.map { it.id }
+    savedItemSlugs = syncResult.items.map { it.savedItemId }
   )
 }
 

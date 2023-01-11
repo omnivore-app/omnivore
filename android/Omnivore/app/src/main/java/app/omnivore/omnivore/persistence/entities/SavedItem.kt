@@ -7,7 +7,7 @@ import java.util.*
 
 @Entity
 data class SavedItem(
-  @PrimaryKey val id: String,
+  @PrimaryKey val savedItemId: String,
   val title: String,
   val createdAt: String,
   val savedAt: String,
@@ -47,43 +47,24 @@ data class SavedItem(
     return publisherURLString?.toUri()?.host
   }
 
-  fun isPDF(): Boolean {
-    val hasPDFSuffix = pageURLString.endsWith("pdf")
-    return contentReader == "PDF" || hasPDFSuffix
-  }
-
-  fun asSavedItemCardData(): SavedItemCardData {
-    return SavedItemCardData(
-      id = id,
-      slug = slug,
-      publisherURLString = publisherURLString,
-      title = title,
-      author = author,
-      imageURLString = imageURLString,
-      isArchived = isArchived,
-      pageURLString = pageURLString,
-      contentReader = contentReader,
-    )
-  }
-
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (javaClass != other?.javaClass) return false
 
     other as SavedItem
 
-    if (id != other.id) return false
+    if (savedItemId != other.savedItemId) return false
 
     return true
   }
 
   override fun hashCode(): Int {
-    return id.hashCode()
+    return savedItemId.hashCode()
   }
 }
 
 data class SavedItemCardData(
-  val id: String,
+  val savedItemId: String,
   val slug: String,
   val publisherURLString: String?,
   val title: String,
@@ -105,7 +86,7 @@ data class SavedItemCardData(
 
 @Dao
 interface SavedItemDao {
-  @Query("SELECT id, slug, publisherURLString, title, author, imageURLString, isArchived, pageURLString, contentReader FROM SavedItem ORDER BY savedAt DESC")
+  @Query("SELECT savedItemId, slug, publisherURLString, title, author, imageURLString, isArchived, pageURLString, contentReader FROM SavedItem ORDER BY savedAt DESC")
   fun getLibraryLiveData(): LiveData<List<SavedItemCardData>>
 
   @Query("SELECT * FROM savedItem")
@@ -114,6 +95,6 @@ interface SavedItemDao {
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   fun insertAll(items: List<SavedItem>)
 
-  @Query("DELETE FROM savedItem WHERE id = :itemID")
+  @Query("DELETE FROM savedItem WHERE savedItemId = :itemID")
   fun deleteById(itemID: String)
 }

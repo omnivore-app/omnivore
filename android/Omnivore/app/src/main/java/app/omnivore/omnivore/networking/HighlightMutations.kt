@@ -8,11 +8,9 @@ import app.omnivore.omnivore.graphql.generated.UpdateHighlightMutation
 import app.omnivore.omnivore.graphql.generated.type.CreateHighlightInput
 import app.omnivore.omnivore.graphql.generated.type.MergeHighlightInput
 import app.omnivore.omnivore.graphql.generated.type.UpdateHighlightInput
-import app.omnivore.omnivore.models.ServerSyncStatus
 import app.omnivore.omnivore.persistence.entities.Highlight
 import com.apollographql.apollo3.api.Optional
 import com.google.gson.Gson
-import java.time.LocalDate
 
 data class CreateHighlightParams(
    val shortId: String?,
@@ -141,7 +139,7 @@ suspend fun Networker.createHighlight(input: CreateHighlightInput): Highlight? {
 //      val updatedAtString = createdHighlight.highlightFields.updatedAt as? String
 
       return Highlight(
-        id = createdHighlight.highlightFields.id,
+        highlightId = createdHighlight.highlightFields.id,
         shortId = createdHighlight.highlightFields.shortId,
         quote = createdHighlight.highlightFields.quote,
         prefix = createdHighlight.highlightFields.prefix,

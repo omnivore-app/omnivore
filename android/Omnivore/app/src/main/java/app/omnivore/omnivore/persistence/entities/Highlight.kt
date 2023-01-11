@@ -2,13 +2,12 @@ package app.omnivore.omnivore.persistence.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import app.omnivore.omnivore.models.ServerSyncStatus
 import java.time.LocalDate
 import java.util.Date
 
 @Entity
 data class Highlight(
-  @PrimaryKey val id: String,
+  @PrimaryKey val highlightId: String,
   val annotation: String?,
   val createdAt: Date?,
   val createdByMe: Boolean,

@@ -20,7 +20,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import app.omnivore.omnivore.Routes
-import app.omnivore.omnivore.persistence.entities.SavedItem
 import app.omnivore.omnivore.persistence.entities.SavedItemCardData
 import app.omnivore.omnivore.ui.savedItemViews.SavedItemCard
 import app.omnivore.omnivore.ui.reader.PDFReaderActivity
@@ -101,7 +100,7 @@ fun LibraryViewContent(
               navController.navigate("WebReader/${cardData.slug}")
             }
           },
-          actionHandler = { libraryViewModel.handleSavedItemAction(cardData.id, it) }
+          actionHandler = { libraryViewModel.handleSavedItemAction(cardData.savedItemId, it) }
         )
       }
     }

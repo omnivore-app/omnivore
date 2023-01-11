@@ -113,7 +113,7 @@ fun WebReaderLoadingContainer(slug: String, webReaderViewModel: WebReaderViewMod
             isExpanded = isMenuExpanded,
             isArchived = webReaderParams!!.item.isArchived,
             onDismiss = { isMenuExpanded = false },
-            actionHandler = { webReaderViewModel.handleSavedItemAction(webReaderParams!!.item.id, it) }
+            actionHandler = { webReaderViewModel.handleSavedItemAction(webReaderParams!!.item.savedItemId, it) }
           )
         }
       )

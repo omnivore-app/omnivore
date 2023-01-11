@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class RecommendationGroup(
-  @PrimaryKey val id: String,
+  @PrimaryKey val recommendationGroupId: String,
   val name: String?,
   val canPost: Boolean,
   val canSeeMembers: Boolean,

@@ -41,7 +41,7 @@ suspend fun Networker.savedItemUpdates(
 
     val savedItems = itemNodes.map {
       SavedItem(
-        id = it.id,
+        savedItemId = it.id,
         title = it.title,
         createdAt = it.createdAt as String,
         savedAt = it.savedAt as String,

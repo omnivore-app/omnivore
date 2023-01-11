@@ -22,7 +22,7 @@ suspend fun Networker.typeaheadSearch(
 
     val cardsData = itemList.map {
       SavedItemCardData(
-        id = it.id,
+        savedItemId = it.id,
         slug = it.slug,
         publisherURLString = "",
         title = it.title,
@@ -59,7 +59,7 @@ suspend fun Networker.search(
 
     val cardsData = itemList.map {
       SavedItemCardData(
-        id = it.node.id,
+        savedItemId = it.node.id,
         slug = it.node.slug,
         publisherURLString = it.node.originalArticleUrl,
         title = it.node.title,

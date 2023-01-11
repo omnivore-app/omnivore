@@ -30,7 +30,7 @@ suspend fun Networker.savedItem(slug: String): SavedItemQueryResponse {
 
     val savedItemLabels = labels.map {
       SavedItemLabel(
-        id = it.labelFields.id,
+        savedItemLabelId = it.labelFields.id,
         name = it.labelFields.name,
         color = it.labelFields.color,
         createdAt = it.labelFields.createdAt as String?,
@@ -42,7 +42,7 @@ suspend fun Networker.savedItem(slug: String): SavedItemQueryResponse {
 //      val updatedAtString = it.highlightFields.updatedAt as? String
 
       Highlight(
-        id = it.highlightFields.id,
+        highlightId = it.highlightFields.id,
         shortId = it.highlightFields.shortId,
         quote = it.highlightFields.quote,
         prefix = it.highlightFields.prefix,
@@ -60,7 +60,7 @@ suspend fun Networker.savedItem(slug: String): SavedItemQueryResponse {
     // TODO: handle errors
 
     val savedItem = SavedItem(
-      id = article.articleFields.id,
+      savedItemId = article.articleFields.id,
       title = article.articleFields.title,
       createdAt = article.articleFields.createdAt as String,
       savedAt = article.articleFields.savedAt as String,
