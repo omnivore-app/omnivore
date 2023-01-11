@@ -191,10 +191,10 @@ const handleEvent = async (data: StorageEvent) => {
 
     await handler(ctx, stream)
 
-    if (ctx.countImported <= 1) {
-      await sendImportFailedEmail(userId)
-    } else {
+    if (ctx.countImported > 0) {
       await sendImportCompletedEmail(userId, ctx.countImported, ctx.countFailed)
+    } else {
+      await sendImportFailedEmail(userId)
     }
   }
 }
