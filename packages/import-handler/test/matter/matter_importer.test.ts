@@ -48,7 +48,7 @@ describe('Load archive file', () => {
       return Promise.resolve()
     }
 
-    await importMatterArchive(stream, stub)
+    await importMatterArchive(stub, stream)
     expect(stub.countFailed).to.equal(0)
     expect(stub.countImported).to.equal(1)
     expect(urls).to.eql([
