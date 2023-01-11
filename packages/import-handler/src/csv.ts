@@ -7,7 +7,7 @@ import { parse } from '@fast-csv/parse'
 import { Stream } from 'stream'
 import { ImportContext } from '.'
 
-export const importCsv = async (stream: Stream, ctx: ImportContext) => {
+export const importCsv = async (ctx: ImportContext, stream: Stream) => {
   const parser = parse()
   stream.pipe(parser)
   for await (const row of parser) {

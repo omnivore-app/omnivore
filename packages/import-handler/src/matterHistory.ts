@@ -21,8 +21,8 @@ import { ImportContext } from '.'
 export type UrlHandler = (url: URL) => Promise<void>
 
 export const importMatterHistoryCsv = async (
-  stream: Stream,
-  ctx: ImportContext
+  ctx: ImportContext,
+  stream: Stream
 ): Promise<void> => {
   const parser = parse({
     headers: true,
@@ -202,8 +202,8 @@ const handleMatterHistoryRow = async (
 }
 
 export const importMatterArchive = async (
-  stream: Stream,
-  ctx: ImportContext
+  ctx: ImportContext,
+  stream: Stream
 ): Promise<void> => {
   const archiveDir = await unarchive(stream)
 

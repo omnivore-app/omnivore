@@ -1,7 +1,3 @@
-import {
-  EventFunction,
-  CloudFunctionsContext,
-} from '@google-cloud/functions-framework/build/src/functions'
 import { Storage } from '@google-cloud/storage'
 import { importCsv } from './csv'
 import * as path from 'path'
@@ -44,10 +40,7 @@ export type ImportContext = {
   contentHandler: ContentHandler
 }
 
-type importHandlerFunc = (
-  stream: Stream,
-  handler: ImportContext
-) => Promise<void>
+type importHandlerFunc = (ctx: ImportContext, stream: Stream) => Promise<void>
 
 interface StorageEvent {
   name: string
@@ -188,20 +181,20 @@ const handleEvent = async (data: StorageEvent) => {
       return
     }
 
-    const countFailed = 0
-    const countImported = 0
-    await handler(stream, {
+    const ctx = {
       userId,
       countImported: 0,
       countFailed: 0,
       urlHandler,
       contentHandler,
-    })
+    }
 
-    if (countImported <= 1) {
+    await handler(ctx, stream)
+
+    if (ctx.countImported <= 1) {
       await sendImportFailedEmail(userId)
     } else {
-      await sendImportCompletedEmail(userId, countImported, countFailed)
+      await sendImportCompletedEmail(userId, ctx.countImported, ctx.countFailed)
     }
   }
 }

@@ -19,7 +19,7 @@ describe('Load a simple CSV file', () => {
       return Promise.resolve()
     }
 
-    await importCsv(stream, stub)
+    await importCsv(stub, stream)
     expect(stub.countFailed).to.equal(0)
     expect(stub.countImported).to.equal(2)
     expect(urls).to.eql([

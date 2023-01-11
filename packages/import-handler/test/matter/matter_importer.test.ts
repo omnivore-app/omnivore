@@ -23,7 +23,7 @@ describe('Load a simple _matter_history file', () => {
       return Promise.resolve()
     }
 
-    await importMatterHistoryCsv(stream, stub)
+    await importMatterHistoryCsv(stub, stream)
     expect(stub.countFailed).to.equal(0)
     expect(stub.countImported).to.equal(1)
     expect(urls).to.eql([
