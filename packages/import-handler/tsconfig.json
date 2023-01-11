@@ -1,5 +1,6 @@
 {
   "extends": "./../../tsconfig.json",
+  "ts-node": {  "files": true },
   "compilerOptions": {
     "outDir": "build",
     "rootDir": ".",
