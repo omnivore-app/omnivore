@@ -3,19 +3,22 @@ import {
   CloudFunctionsContext,
 } from '@google-cloud/functions-framework/build/src/functions'
 import { Storage } from '@google-cloud/storage'
-import { importCsv, UrlHandler } from './csv'
+import { importCsv } from './csv'
 import * as path from 'path'
-import { importMatterHistory } from './matterHistory'
+import { importMatterArchive, importMatterHistoryCsv } from './matterHistory'
 import { Stream } from 'node:stream'
 import { v4 as uuid } from 'uuid'
 import { CONTENT_FETCH_URL, createCloudTask, EMAIL_USER_URL } from './task'
 
 import { promisify } from 'util'
 import * as jwt from 'jsonwebtoken'
+import { Readability } from '@omnivore/readability'
 
 const signToken = promisify(jwt.sign)
 
 const storage = new Storage()
+
+const CONTENT_TYPES = ['text/csv', 'application/zip']
 
 interface StorageEventData {
   bucket: string
@@ -23,10 +26,27 @@ interface StorageEventData {
   contentType: string
 }
 
+export type UrlHandler = (ctx: ImportContext, url: URL) => Promise<void>
+export type ContentHandler = (
+  ctx: ImportContext,
+  url: URL,
+  title: string,
+  originalContent: string,
+  parseResult: Readability.ParseResult
+) => Promise<void>
+
+export type ImportContext = {
+  userId: string
+  countImported: number
+  countFailed: number
+  urlHandler: UrlHandler
+  contentHandler: ContentHandler
+}
+
 type importHandlerFunc = (
   stream: Stream,
-  handler: UrlHandler
-) => Promise<number>
+  handler: ImportContext
+) => Promise<void>
 
 const shouldHandle = (data: StorageEventData, ctx: CloudFunctionsContext) => {
   console.log('deciding to handle', ctx, data)
@@ -35,7 +55,7 @@ const shouldHandle = (data: StorageEventData, ctx: CloudFunctionsContext) => {
   }
   if (
     !data.name.startsWith('imports/') ||
-    data.contentType.toLowerCase() != 'text/csv'
+    CONTENT_TYPES.indexOf(data.contentType.toLocaleLowerCase()) == -1
   ) {
     return false
   }
@@ -93,12 +113,41 @@ const sendImportCompletedEmail = async (
 const handlerForFile = (name: string): importHandlerFunc | undefined => {
   const fileName = path.parse(name).name
   if (fileName.startsWith('MATTER')) {
-    return importMatterHistory
+    return importMatterArchive
   } else if (fileName.startsWith('URL_LIST')) {
     return importCsv
   }
 
   return undefined
+}
+
+const urlHandler = async (ctx: ImportContext, url: URL): Promise<void> => {
+  try {
+    // Imports are stored in the format imports/<user id>/<type>-<uuid>.csv
+    const result = await importURL(ctx.userId, url, 'csv-importer')
+    if (result) {
+      ctx.countImported += 1
+    }
+  } catch (err) {
+    console.log('error importing url', err)
+  }
+}
+
+const contentHandler = async (
+  ctx: ImportContext,
+  url: URL,
+  title: string,
+  originalContent: string,
+  parseResult: Readability.ParseResult
+): Promise<void> => {
+  // const apiResponse = await sendSavePageMutation(userId, {
+  //   url: finalUrl,
+  //   clientRequestId: articleSavingRequestId,
+  //   title,
+  //   originalContent: content,
+  //   parseResult: readabilityResult,
+  // })
+  return Promise.resolve()
 }
 
 export const importHandler: EventFunction = async (event, context) => {
@@ -131,18 +180,14 @@ export const importHandler: EventFunction = async (event, context) => {
       return
     }
 
-    let countFailed = 0
-    let countImported = 0
-    await handler(stream, async (url): Promise<void> => {
-      try {
-        // Imports are stored in the format imports/<user id>/<type>-<uuid>.csv
-        const result = await importURL(userId, url, 'csv-importer')
-        console.log('import url result', result)
-        countImported = countImported + 1
-      } catch (err) {
-        console.log('error importing url', err)
-        countFailed = countFailed + 1
-      }
+    const countFailed = 0
+    const countImported = 0
+    await handler(stream, {
+      userId,
+      countImported: 0,
+      countFailed: 0,
+      urlHandler,
+      contentHandler,
     })
 
     if (countImported <= 1) {

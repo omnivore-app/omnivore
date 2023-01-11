@@ -5,24 +5,19 @@
 
 import { parse } from '@fast-csv/parse'
 import { Stream } from 'stream'
+import { ImportContext } from '.'
 
-export type UrlHandler = (url: URL) => Promise<void>
-
-export const importCsv = async (
-  stream: Stream,
-  handler: UrlHandler
-): Promise<number> => {
+export const importCsv = async (stream: Stream, ctx: ImportContext) => {
   const parser = parse()
   stream.pipe(parser)
-  let count = 0
   for await (const row of parser) {
     try {
       const url = new URL(row[0])
-      await handler(url)
+      await ctx.urlHandler(ctx, url)
+      ctx.countImported += 1
     } catch (error) {
       console.log('invalid url', row, error)
+      ctx.countFailed += 1
     }
-    count++
   }
-  return count
 }
