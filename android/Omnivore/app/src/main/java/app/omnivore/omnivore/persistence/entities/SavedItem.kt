@@ -97,4 +97,8 @@ interface SavedItemDao {
 
   @Query("DELETE FROM savedItem WHERE savedItemId = :itemID")
   fun deleteById(itemID: String)
+
+  @Transaction
+  @Query("SELECT savedItemId, slug, publisherURLString, title, author, imageURLString, isArchived, pageURLString, contentReader FROM SavedItem ORDER BY savedAt DESC")
+  fun getLibraryLiveDataWithLabels(): LiveData<List<SavedItemCardDataWithLabels>>
 }
