@@ -30,7 +30,6 @@ describe('saveContentDisplayReport', () => {
   })
 
   it('creates a report', async () => {
-    await getRepository(ContentDisplayReport).clear()
     const result = await saveContentDisplayReport(user.id, {
       itemUrl: 'https://fake.url.com',
       pageId: page.id,
