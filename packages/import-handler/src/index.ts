@@ -14,6 +14,13 @@ import { promisify } from 'util'
 import * as jwt from 'jsonwebtoken'
 import { Readability } from '@omnivore/readability'
 
+import Sentry from '@sentry/serverless'
+
+Sentry.GCPFunction.init({
+  dsn: process.env.SENTRY_DSN,
+  tracesSampleRate: 0,
+})
+
 const signToken = promisify(jwt.sign)
 
 const storage = new Storage()
@@ -197,3 +204,9 @@ export const importHandler: EventFunction = async (event, context) => {
     }
   }
 }
+
+export const httpServer = Sentry.GCPFunction.wrapHttpFunction(
+  async (req, res) => {
+    res.send('ok')
+  }
+)

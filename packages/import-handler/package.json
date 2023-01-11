@@ -14,7 +14,7 @@
     "lint": "eslint src --ext ts,js,tsx,jsx",
     "compile": "tsc",
     "build": "tsc",
-    "start_gcf": "npx functions-framework --port=9090 --target=puppeteer",
+    "start_gcf": "npx functions-framework --port=9090 --target=httpServer",
     "dev": "concurrently \"tsc -w\" \"nodemon --watch ./build/ --exec npm run start\""
   },
   "devDependencies": {
@@ -36,6 +36,7 @@
     "@google-cloud/storage": "^5.18.1",
     "@google-cloud/tasks": "^3.0.5",
     "@omnivore/readability": "1.0.0",
+    "@sentry/serverless": "^7.30.0",
     "@types/express": "^4.17.13",
     "csv-parser": "^3.0.0",
     "dompurify": "^2.4.3",
