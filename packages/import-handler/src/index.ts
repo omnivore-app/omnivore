@@ -207,6 +207,7 @@ export const gcsEventHandler: EventFunction = async (event, context) => {
 
 export const importHandler = Sentry.GCPFunction.wrapHttpFunction(
   async (req, res) => {
+    console.log('received: ', req.body)
     res.send('ok')
   }
 )
