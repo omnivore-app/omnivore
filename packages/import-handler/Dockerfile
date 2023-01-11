@@ -5,12 +5,11 @@ WORKDIR /app
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
 RUN apk add g++ make python3
 
-ENV PORT 9090
+ENV PORT 8080
 
 COPY package.json .
 COPY yarn.lock .
 COPY tsconfig.json .
-COPY .prettierrc .
 COPY .eslintrc .
 
 COPY /packages/readabilityjs/package.json ./packages/readabilityjs/package.json
@@ -27,6 +26,6 @@ RUN rm -rf /app/packages/import-handler/node_modules
 RUN rm -rf /app/node_modules
 RUN yarn install --pure-lockfile --production
 
-EXPOSE 9090
+EXPOSE 8080
 
 ENTRYPOINT ["yarn", "workspace", "@omnivore/import-handler", "start_gcf"]

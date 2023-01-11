@@ -3,12 +3,13 @@ import { CloudTasksClient, protos } from '@google-cloud/tasks'
 
 const cloudTask = new CloudTasksClient()
 
-export const EMAIL_USER_URL = (() => {
-  if (!process.env.INTERNAL_SVC_ENDPOINT) {
-    throw `Environment not configured correctly, no SVC endpoint`
+export const emailUserUrl = () => {
+  const envar = process.env.INTERNAL_SVC_ENDPOINT
+  if (envar) {
+    return envar + 'api/user/email'
   }
-  return (process.env.INTERNAL_SVC_ENDPOINT ?? '') + 'api/user/email'
-})()
+  throw 'INTERNAL_SVC_ENDPOINT not set'
+}
 
 export const CONTENT_FETCH_URL = process.env.CONTENT_FETCH_GCF_URL
 

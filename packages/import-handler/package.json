@@ -3,18 +3,17 @@
   "version": "1.0.0",
   "description": "",
   "main": "build/src/index.js",
-  "types": "build/src/index.d.ts",
   "files": [
     "build/src"
   ],
-  "license": "Apache-2.0",
   "keywords": [],
+  "license": "Apache-2.0",
   "scripts": {
     "test": "yarn mocha -r ts-node/register --config mocha-config.json",
     "lint": "eslint src --ext ts,js,tsx,jsx",
     "compile": "tsc",
     "build": "tsc",
-    "start_gcf": "npx functions-framework --port=9090 --target=httpServer",
+    "start": "functions-framework --target=importHandler",
     "dev": "concurrently \"tsc -w\" \"nodemon --watch ./build/ --exec npm run start\""
   },
   "devDependencies": {
@@ -38,10 +37,12 @@
     "@omnivore/readability": "1.0.0",
     "@sentry/serverless": "^7.30.0",
     "@types/express": "^4.17.13",
+    "axios": "^1.2.2",
     "csv-parser": "^3.0.0",
     "dompurify": "^2.4.3",
     "fs-extra": "^11.1.0",
     "jsonwebtoken": "^8.5.1",
+    "linkedom": "^0.14.21",
     "nodemon": "^2.0.15",
     "unzip-stream": "^0.3.1",
     "urlsafe-base64": "^1.0.0",

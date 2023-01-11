@@ -8,13 +8,13 @@ import * as path from 'path'
 import { importMatterArchive, importMatterHistoryCsv } from './matterHistory'
 import { Stream } from 'node:stream'
 import { v4 as uuid } from 'uuid'
-import { CONTENT_FETCH_URL, createCloudTask, EMAIL_USER_URL } from './task'
+import { CONTENT_FETCH_URL, createCloudTask, emailUserUrl } from './task'
 
 import { promisify } from 'util'
 import * as jwt from 'jsonwebtoken'
 import { Readability } from '@omnivore/readability'
 
-import Sentry from '@sentry/serverless'
+import * as Sentry from '@sentry/serverless'
 
 Sentry.GCPFunction.init({
   dsn: process.env.SENTRY_DSN,
@@ -96,7 +96,7 @@ const createEmailCloudTask = async (userId: string, payload: unknown) => {
     Cookie: `auth=${authToken}`,
   }
 
-  return createCloudTask(EMAIL_USER_URL, payload, headers)
+  return createCloudTask(emailUserUrl(), payload, headers)
 }
 
 const sendImportFailedEmail = async (userId: string) => {
@@ -157,7 +157,7 @@ const contentHandler = async (
   return Promise.resolve()
 }
 
-export const importHandler: EventFunction = async (event, context) => {
+export const gcsEventHandler: EventFunction = async (event, context) => {
   const data = event as StorageEventData
   const ctx = context as CloudFunctionsContext
 
@@ -205,7 +205,7 @@ export const importHandler: EventFunction = async (event, context) => {
   }
 }
 
-export const httpServer = Sentry.GCPFunction.wrapHttpFunction(
+export const importHandler = Sentry.GCPFunction.wrapHttpFunction(
   async (req, res) => {
     res.send('ok')
   }
