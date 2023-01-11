@@ -109,7 +109,7 @@ const sendImportCompletedEmail = async (
 ) => {
   return createEmailCloudTask(userId, {
     subject: 'Your Omnivore import has completed processing',
-    body: `${urlsEnqueued} URLs have been pcoessed and should be available in your library. ${urlsFailed} URLs failed to be parsed.`,
+    body: `${urlsEnqueued} URLs have been processed and should be available in your library. ${urlsFailed} URLs failed to be parsed.`,
   })
 }
 
