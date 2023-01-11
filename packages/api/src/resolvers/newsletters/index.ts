@@ -19,9 +19,9 @@ import {
 import { NewsletterEmail } from '../../entity/newsletter_email'
 import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
-import { AppDataSource } from '../../server'
 import { User } from '../../entity/user'
 import { unsubscribeAll } from '../../services/subscriptions'
+import { getRepository } from '../../entity/utils'
 
 export const createNewsletterEmailResolver = authorized<
   CreateNewsletterEmailSuccess,
@@ -40,7 +40,10 @@ export const createNewsletterEmailResolver = authorized<
     const newsletterEmail = await createNewsletterEmail(claims.uid)
 
     return {
-      newsletterEmail: newsletterEmail,
+      newsletterEmail: {
+        ...newsletterEmail,
+        subscriptionCount: 0,
+      },
     }
   } catch (e) {
     console.log(e)
@@ -58,7 +61,7 @@ export const newsletterEmailsResolver = authorized<
   console.log('newsletterEmailsResolver')
 
   try {
-    const user = await AppDataSource.getRepository(User).findOneBy({
+    const user = await getRepository(User).findOneBy({
       id: claims.uid,
     })
     if (!user) {
@@ -70,7 +73,10 @@ export const newsletterEmailsResolver = authorized<
     const newsletterEmails = await getNewsletterEmails(user.id)
 
     return {
-      newsletterEmails: newsletterEmails,
+      newsletterEmails: newsletterEmails.map((newsletterEmail) => ({
+        ...newsletterEmail,
+        subscriptionCount: newsletterEmail.subscriptions.length,
+      })),
     }
   } catch (e) {
     console.log(e)
@@ -96,13 +102,11 @@ export const deleteNewsletterEmailResolver = authorized<
   })
 
   try {
-    const newsletterEmail = await AppDataSource.getRepository(
-      NewsletterEmail
-    ).findOne({
+    const newsletterEmail = await getRepository(NewsletterEmail).findOne({
       where: {
         id: args.newsletterEmailId,
       },
-      relations: ['user'],
+      relations: ['user', 'subscriptions'],
     })
 
     if (!newsletterEmail) {
@@ -118,12 +122,15 @@ export const deleteNewsletterEmailResolver = authorized<
     }
 
     // unsubscribe all before deleting
-    await unsubscribeAll(newsletterEmail.user.id, newsletterEmail.address)
+    await unsubscribeAll(newsletterEmail)
 
     const deleted = await deleteNewsletterEmail(args.newsletterEmailId)
     if (deleted) {
       return {
-        newsletterEmail: newsletterEmail,
+        newsletterEmail: {
+          ...newsletterEmail,
+          subscriptionCount: newsletterEmail.subscriptions.length,
+        },
       }
     } else {
       // when user tries to delete other's newsletters emails or email already deleted

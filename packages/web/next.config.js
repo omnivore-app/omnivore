@@ -138,6 +138,12 @@ const moduleExports = {
           'https://apps.apple.com/us/app/omnivore-read-highlight-share/id1564031042',
         permanent: true,
       },
+      {
+        source: '/install/android',
+        destination:
+          'https://play.google.com/store/apps/details?id=app.omnivore.omnivore&pli=1',
+        permanent: true,
+      },
     ]
   },
 }

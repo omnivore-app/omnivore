@@ -134,7 +134,7 @@ export abstract class ContentHandler {
     // e.g. 'Jackson Harper from Omnivore App <jacksonh@substack.com>'
     // or 'Mike Allen <mike@axios.com>'
     const parsed = addressparser(from)
-    if (parsed.length > 0) {
+    if (parsed.length > 0 && parsed[0].name) {
       return parsed[0].name
     }
     return from

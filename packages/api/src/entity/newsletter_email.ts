@@ -4,10 +4,12 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm'
 import { User } from './user'
+import { Subscription } from './subscription'
 
 @Entity({ name: 'newsletter_emails' })
 export class NewsletterEmail {
@@ -29,4 +31,7 @@ export class NewsletterEmail {
 
   @UpdateDateColumn()
   updatedAt!: Date
+
+  @OneToMany(() => Subscription, (subscription) => subscription.newsletterEmail)
+  subscriptions!: Subscription[]
 }

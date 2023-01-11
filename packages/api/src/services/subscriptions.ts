@@ -9,7 +9,7 @@ import { createNewsletterEmail } from './newsletters'
 interface SaveSubscriptionInput {
   userId: string
   name: string
-  newsletterEmail: string
+  newsletterEmail: NewsletterEmail
   unsubscribeMailTo?: string
   unsubscribeHttpUrl?: string
   icon?: string
@@ -46,32 +46,21 @@ export const saveSubscription = async ({
   unsubscribeMailTo,
   unsubscribeHttpUrl,
   icon,
-}: SaveSubscriptionInput): Promise<Subscription> => {
-  const subscription = await getRepository(Subscription).findOneBy({
-    name,
-    user: { id: userId },
-  })
+}: SaveSubscriptionInput): Promise<string> => {
+  const result = await getRepository(Subscription).upsert(
+    {
+      name,
+      newsletterEmail,
+      user: { id: userId },
+      status: SubscriptionStatus.Active,
+      unsubscribeHttpUrl,
+      unsubscribeMailTo,
+      icon,
+    },
+    ['name', 'user']
+  )
 
-  if (subscription) {
-    // if subscription already exists, updates updatedAt
-    subscription.status = SubscriptionStatus.Active
-    subscription.newsletterEmail = newsletterEmail
-    icon && (subscription.icon = icon)
-    unsubscribeMailTo && (subscription.unsubscribeMailTo = unsubscribeMailTo)
-    unsubscribeHttpUrl && (subscription.unsubscribeHttpUrl = unsubscribeHttpUrl)
-    return getRepository(Subscription).save(subscription)
-  }
-
-  // create new subscription
-  return getRepository(Subscription).save({
-    name,
-    newsletterEmail,
-    user: { id: userId },
-    status: SubscriptionStatus.Active,
-    unsubscribeHttpUrl,
-    unsubscribeMailTo,
-    icon,
-  })
+  return result.identifiers[0].id as string
 }
 
 export const unsubscribe = async (
@@ -81,7 +70,7 @@ export const unsubscribe = async (
     // unsubscribe by sending email first
     await sendUnsubscribeEmail(
       subscription.unsubscribeMailTo,
-      subscription.newsletterEmail
+      subscription.newsletterEmail.address
     )
   } else if (subscription.unsubscribeHttpUrl) {
     // unsubscribe by sending http request if no unsubscribeMailTo
@@ -96,16 +85,16 @@ export const unsubscribe = async (
 }
 
 export const unsubscribeAll = async (
-  userId: string,
-  newsletterEmail: string
+  newsletterEmail: NewsletterEmail
 ): Promise<void> => {
   try {
     const subscriptions = await getRepository(Subscription).find({
       where: {
-        user: { id: userId },
+        user: { id: newsletterEmail.user.id },
         status: SubscriptionStatus.Active,
-        newsletterEmail,
+        newsletterEmail: { id: newsletterEmail.id },
       },
+      relations: ['newsletterEmail'],
     })
 
     for (const subscription of subscriptions) {
@@ -158,7 +147,7 @@ export class SubscribeHandler {
         (name: string): Promise<Subscription> => {
           return getRepository(Subscription).save({
             name,
-            newsletterEmail: newsletterEmail.address,
+            newsletterEmail: { id: newsletterEmail.id },
             user: { id: userId },
             status: SubscriptionStatus.Active,
           })

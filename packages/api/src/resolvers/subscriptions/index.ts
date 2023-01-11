@@ -55,12 +55,14 @@ export const subscriptionsResolver = authorized<
       order: {
         [sortBy]: sortOrder,
       },
+      relations: ['newsletterEmail'],
     })
 
     return {
       subscriptions: subscriptions.map((s) => ({
         ...s,
         icon: s.icon && createImageProxyUrl(s.icon, 128, 128),
+        newsletterEmail: s.newsletterEmail.address,
       })),
     }
   } catch (error) {
@@ -86,9 +88,9 @@ export const unsubscribeResolver = authorized<
       }
     }
 
-    const subscription = await getRepository(Subscription).findOneBy({
-      name: ILike(name),
-      user: { id: uid },
+    const subscription = await getRepository(Subscription).findOne({
+      where: { name: ILike(name), user: { id: uid } },
+      relations: ['newsletterEmail'],
     })
     if (!subscription) {
       return {
@@ -120,7 +122,12 @@ export const unsubscribeResolver = authorized<
       },
     })
 
-    return { subscription: unsubscribed }
+    return {
+      subscription: {
+        ...unsubscribed,
+        newsletterEmail: unsubscribed.newsletterEmail.address,
+      },
+    }
   } catch (error) {
     log.error('failed to unsubscribe', error)
     return {
@@ -179,7 +186,10 @@ export const subscribeResolver = authorized<
     })
 
     return {
-      subscriptions: newSubscriptions,
+      subscriptions: newSubscriptions.map((s) => ({
+        ...s,
+        newsletterEmail: s.newsletterEmail.address,
+      })),
     }
   } catch (error) {
     log.error('failed to subscribe', error)
