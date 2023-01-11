@@ -28,4 +28,4 @@ RUN yarn install --pure-lockfile --production
 
 EXPOSE 8080
 
-ENTRYPOINT ["yarn", "workspace", "@omnivore/import-handler", "start_gcf"]
+ENTRYPOINT ["yarn", "workspace", "@omnivore/import-handler", "start"]
