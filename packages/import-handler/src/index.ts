@@ -208,6 +208,15 @@ export const gcsEventHandler: EventFunction = async (event, context) => {
 export const importHandler = Sentry.GCPFunction.wrapHttpFunction(
   async (req, res) => {
     console.log('received: ', req.body, req.headers)
+    const pubSubMessage = req.body.message
+    if (pubSubMessage) {
+      console.log(
+        'pubsub message: ' +
+          Buffer.from(pubSubMessage.data, 'base64').toString().trim()
+      )
+    } else {
+      console.log('no pubsub message')
+    }
     res.send('ok')
   }
 )
