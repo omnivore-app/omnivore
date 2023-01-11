@@ -27,12 +27,6 @@ const storage = new Storage()
 
 const CONTENT_TYPES = ['text/csv', 'application/zip']
 
-interface StorageEventData {
-  bucket: string
-  name: string
-  contentType: string
-}
-
 export type UrlHandler = (ctx: ImportContext, url: URL) => Promise<void>
 export type ContentHandler = (
   ctx: ImportContext,
@@ -55,11 +49,20 @@ type importHandlerFunc = (
   handler: ImportContext
 ) => Promise<void>
 
-const shouldHandle = (data: StorageEventData, ctx: CloudFunctionsContext) => {
-  console.log('deciding to handle', ctx, data)
-  if (ctx.eventType !== 'google.storage.object.finalize') {
-    return false
+interface StorageEvent {
+  name: string
+  bucket: string
+  contentType: string
+}
+
+function isStorageEvent(event: any): event is StorageEvent {
+  if ('name' in event && 'bucket' in event && 'contentType' in event) {
+    return true
   }
+  return false
+}
+
+const shouldHandle = (data: StorageEvent) => {
   if (
     !data.name.startsWith('imports/') ||
     CONTENT_TYPES.indexOf(data.contentType.toLocaleLowerCase()) == -1
@@ -157,11 +160,8 @@ const contentHandler = async (
   return Promise.resolve()
 }
 
-export const gcsEventHandler: EventFunction = async (event, context) => {
-  const data = event as StorageEventData
-  const ctx = context as CloudFunctionsContext
-
-  if (shouldHandle(data, ctx)) {
+const handleEvent = async (data: StorageEvent) => {
+  if (shouldHandle(data)) {
     console.log('handling csv data', data)
 
     const stream = storage
@@ -205,15 +205,24 @@ export const gcsEventHandler: EventFunction = async (event, context) => {
   }
 }
 
+function isPubsubMessage(event: any): event is StorageEvent {
+  if ('name' in event && 'bucket' in event && 'contentType' in event) {
+    return true
+  }
+  return false
+}
+
 export const importHandler = Sentry.GCPFunction.wrapHttpFunction(
   async (req, res) => {
-    console.log('received: ', req.body, req.headers)
-    const pubSubMessage = req.body.message
-    if (pubSubMessage) {
-      console.log(
-        'pubsub message: ' +
-          Buffer.from(pubSubMessage.data, 'base64').toString().trim()
-      )
+    /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+    if ('message' in req.body && 'data' in req.body.message) {
+      /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+      const pubSubMessage = req.body.message.data as string
+      const str = Buffer.from(pubSubMessage, 'base64').toString().trim()
+      const obj = JSON.parse(str) as unknown
+      if (isStorageEvent(obj)) {
+        await handleEvent(obj)
+      }
     } else {
       console.log('no pubsub message')
     }
