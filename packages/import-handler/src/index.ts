@@ -157,6 +157,7 @@ const contentHandler = async (
   //   originalContent: content,
   //   parseResult: readabilityResult,
   // })
+  console.log('content handler: ', url, title)
   return Promise.resolve()
 }
 
