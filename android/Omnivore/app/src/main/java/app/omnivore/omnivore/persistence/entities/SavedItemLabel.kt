@@ -1,6 +1,5 @@
 package app.omnivore.omnivore.persistence.entities
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 
 @Entity

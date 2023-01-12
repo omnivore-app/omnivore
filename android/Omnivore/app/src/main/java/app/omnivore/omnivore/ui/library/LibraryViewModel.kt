@@ -83,6 +83,12 @@ class LibraryViewModel @Inject constructor(
   private suspend fun performItemSync(cursor: String?, since: String, count: Int, startTime: String) {
     dataService.syncOfflineItemsWithServerIfNeeded()
     val result = dataService.sync(since = since, cursor = cursor)
+
+    // TODO: Defer this until later?
+    for (slug in result.savedItemSlugs) {
+      dataService.syncSavedItemContent(slug)
+    }
+
     val totalCount = count + result.count
 
     Log.d("sync", "fetched ${result.count} items")

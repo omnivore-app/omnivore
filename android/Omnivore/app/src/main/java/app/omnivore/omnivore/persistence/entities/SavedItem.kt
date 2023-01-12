@@ -92,8 +92,14 @@ interface SavedItemDao {
   @Query("SELECT * FROM savedItem")
   fun getAll(): List<SavedItem>
 
+  @Query("SELECT * FROM savedItem WHERE slug = :slug")
+  fun getSavedItemWithLabelsAndHighlights(slug: String): SavedItemWithLabelsAndHighlights?
+
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   fun insertAll(items: List<SavedItem>)
+
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  fun insert(item: SavedItem)
 
   @Query("DELETE FROM savedItem WHERE savedItemId = :itemID")
   fun deleteById(itemID: String)

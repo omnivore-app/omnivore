@@ -5,6 +5,7 @@ import androidx.compose.foundation.ScrollState
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.omnivore.omnivore.DataService
 import app.omnivore.omnivore.DatastoreKeys
 import app.omnivore.omnivore.DatastoreRepository
 import app.omnivore.omnivore.persistence.entities.SavedItem
@@ -12,10 +13,7 @@ import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.ui.library.SavedItemAction
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import java.util.*
 import javax.inject.Inject
 
@@ -31,6 +29,7 @@ data class AnnotationWebViewMessage(
 @HiltViewModel
 class WebReaderViewModel @Inject constructor(
   private val datastoreRepo: DatastoreRepository,
+  private val dataService: DataService,
   private val networker: Networker
 ): ViewModel() {
   var lastJavascriptActionLoopUUID: UUID = UUID.randomUUID()
@@ -47,21 +46,45 @@ class WebReaderViewModel @Inject constructor(
 
   fun loadItem(slug: String) {
     viewModelScope.launch {
-      val articleQueryResult = networker.savedItem(slug)
+      // Attempt to load from db first
+      withContext(Dispatchers.IO) {
+        val persistedItem = dataService.db.savedItemDao().getSavedItemWithLabelsAndHighlights(slug)
 
-      val article = articleQueryResult.item ?: return@launch
+        if (persistedItem?.savedItem != null) {
+          val articleContent = ArticleContent(
+            title = persistedItem.savedItem.title,
+            htmlContent = persistedItem.savedItem.content ?: "",
+            highlights = persistedItem.highlights,
+            contentStatus = "SUCCEEDED",
+            objectID = "",
+            labelsJSONString = Gson().toJson(persistedItem.labels)
+          )
 
-      val articleContent = ArticleContent(
-        title = article.title,
-        htmlContent = article.content ?: "",
-        highlights = articleQueryResult.highlights,
-        contentStatus = "SUCCEEDED",
-        objectID = "",
-        labelsJSONString = Gson().toJson(articleQueryResult.labels)
-      )
-
-      webReaderParamsLiveData.value = WebReaderParams(article, articleContent)
+          Log.d("sync", "data loaded from db")
+          webReaderParamsLiveData.postValue(WebReaderParams(persistedItem.savedItem, articleContent))
+        } else {
+          loadItemFromServer(slug)
+        }
+      }
     }
+  }
+
+  private suspend fun loadItemFromServer(slug: String) {
+    val articleQueryResult = networker.savedItem(slug)
+
+    val article = articleQueryResult.item ?: return
+
+    val articleContent = ArticleContent(
+      title = article.title,
+      htmlContent = article.content ?: "",
+      highlights = articleQueryResult.highlights,
+      contentStatus = "SUCCEEDED",
+      objectID = "",
+      labelsJSONString = Gson().toJson(articleQueryResult.labels)
+    )
+
+    Log.d("sync", "data loaded from server")
+    webReaderParamsLiveData.postValue(WebReaderParams(article, articleContent))
   }
 
   fun handleSavedItemAction(itemID: String, action: SavedItemAction) {

@@ -1,12 +1,14 @@
 package app.omnivore.omnivore
 
 import android.content.Context
+import android.util.Log
 import androidx.room.Room
 import app.omnivore.omnivore.networking.Networker
 import app.omnivore.omnivore.networking.savedItem
 import app.omnivore.omnivore.networking.savedItemUpdates
 import app.omnivore.omnivore.persistence.AppDatabase
 import app.omnivore.omnivore.persistence.entities.SavedItem
+import app.omnivore.omnivore.persistence.entities.SavedItemAndHighlightCrossRef
 import app.omnivore.omnivore.persistence.entities.SavedItemAndSavedItemLabelCrossRef
 import app.omnivore.omnivore.persistence.entities.SavedItemLabel
 import javax.inject.Inject
@@ -89,7 +91,28 @@ suspend fun DataService.sync(since: String, cursor: String?, limit: Int = 15): S
 suspend fun DataService.syncSavedItemContent(slug: String) {
   val syncResult = networker.savedItem(slug)
 
-//  syncResult.item
+  val savedItem = syncResult.item ?: return
+  db.savedItemDao().insert(savedItem)
+
+  // Persist Labels
+  db.savedItemLabelDao().insertAll(syncResult.labels)
+
+  val labelCrossRefs = syncResult.labels.map {
+    SavedItemAndSavedItemLabelCrossRef(savedItemLabelId = it.savedItemLabelId, savedItemId = savedItem.savedItemId)
+  }
+
+  db.savedItemAndSavedItemLabelCrossRefDao().insertAll(labelCrossRefs)
+
+  // Persist Highlights
+  db.highlightDao().insertAll(syncResult.highlights)
+
+  val highlightCrossRefs = syncResult.highlights.map {
+    SavedItemAndHighlightCrossRef(highlightId = it.highlightId, savedItemId = savedItem.savedItemId)
+  }
+
+  db.savedItemAndHighlightCrossRefDao().insertAll(highlightCrossRefs)
+
+  Log.d("sync", "saved content for item with id: ${savedItem.savedItemId}")
 }
 
 suspend fun DataService.syncOfflineItemsWithServerIfNeeded() {
