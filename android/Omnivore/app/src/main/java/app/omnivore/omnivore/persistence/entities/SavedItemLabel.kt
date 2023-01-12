@@ -1,5 +1,6 @@
 package app.omnivore.omnivore.persistence.entities
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
 
 @Entity
@@ -11,6 +12,12 @@ data class SavedItemLabel(
   val labelDescription: String?,
   val serverSyncStatus: Int = 0
 )
+
+@Dao
+interface SavedItemLabelDao {
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  fun insertAll(items: List<SavedItemLabel>)
+}
 
 @Entity(primaryKeys = ["savedItemLabelId", "savedItemId"])
 data class SavedItemAndSavedItemLabelCrossRef(
@@ -37,6 +44,12 @@ data class SavedItemCardDataWithLabels(
   )
   val labels: List<SavedItemLabel>
 )
+
+@Dao
+interface SavedItemAndSavedItemLabelCrossRefDao {
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  fun insertAll(items: List<SavedItemAndSavedItemLabelCrossRef>)
+}
 
 // has many highlights
 // has many savedItems

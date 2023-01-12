@@ -18,9 +18,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import app.omnivore.omnivore.Routes
+import app.omnivore.omnivore.persistence.entities.SavedItemAndSavedItemLabelCrossRef
 import app.omnivore.omnivore.persistence.entities.SavedItemCardData
+import app.omnivore.omnivore.persistence.entities.SavedItemCardDataWithLabels
 import app.omnivore.omnivore.ui.savedItemViews.SavedItemCard
 import app.omnivore.omnivore.ui.reader.PDFReaderActivity
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -70,8 +73,8 @@ fun LibraryViewContent(
     onRefresh = { libraryViewModel.refresh() }
   )
 
-  val cardsData: List<SavedItemCardData> by libraryViewModel.itemsLiveData.observeAsState(listOf())
-  val searchedCardsData: List<SavedItemCardData> by libraryViewModel.searchItemsLiveData.observeAsState(listOf())
+  val cardsData: List<SavedItemCardDataWithLabels> by libraryViewModel.itemsLiveData.observeAsState(listOf())
+  val searchedCardsData: List<SavedItemCardDataWithLabels> by libraryViewModel.searchItemsLiveData.observeAsState(listOf())
   val searchText: String by libraryViewModel.searchTextLiveData.observeAsState("")
 
   Box(
@@ -88,19 +91,25 @@ fun LibraryViewContent(
         .fillMaxSize()
         .padding(horizontal = 6.dp)
     ) {
-      items(if (searchText.isNotEmpty()) searchedCardsData else cardsData) { cardData ->
+      items(if (searchText.isNotEmpty()) searchedCardsData else cardsData) { cardDataWithLabels ->
         SavedItemCard(
-          cardData = cardData,
+          cardData = cardDataWithLabels.cardData,
           onClickHandler = {
-            if (cardData.isPDF()) {
+            if (cardDataWithLabels.cardData.isPDF()) {
               val intent = Intent(context, PDFReaderActivity::class.java)
-              intent.putExtra("SAVED_ITEM_SLUG", cardData.slug)
+              intent.putExtra("SAVED_ITEM_SLUG", cardDataWithLabels.cardData.slug)
               context.startActivity(intent)
             } else {
-              navController.navigate("WebReader/${cardData.slug}")
+              navController.navigate("WebReader/${cardDataWithLabels.cardData.slug}")
             }
           },
-          actionHandler = { libraryViewModel.handleSavedItemAction(cardData.savedItemId, it) }
+          actionHandler = { libraryViewModel.handleSavedItemAction(cardDataWithLabels.cardData.savedItemId, it) }
+        )
+
+        Text(
+          text = "${cardDataWithLabels.labels.size.toString()} labels",
+          style = MaterialTheme.typography.titleMedium,
+          lineHeight = 20.sp
         )
       }
     }

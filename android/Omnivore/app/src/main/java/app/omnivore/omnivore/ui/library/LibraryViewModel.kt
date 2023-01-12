@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.*
 import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.persistence.entities.SavedItemCardData
+import app.omnivore.omnivore.persistence.entities.SavedItemCardDataWithLabels
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import java.time.LocalDateTime
@@ -30,8 +31,8 @@ class LibraryViewModel @Inject constructor(
 
   // Live Data
   val searchTextLiveData = MutableLiveData("")
-  val searchItemsLiveData = MutableLiveData<List<SavedItemCardData>>(listOf())
-  val itemsLiveData = dataService.db.savedItemDao().getLibraryLiveData()
+  val searchItemsLiveData = MutableLiveData<List<SavedItemCardDataWithLabels>>(listOf())
+  val itemsLiveData = dataService.db.savedItemDao().getLibraryLiveDataWithLabels()
 
   var isRefreshing by mutableStateOf(false)
 
@@ -113,7 +114,11 @@ class LibraryViewModel @Inject constructor(
       return
     }
 
-    searchItemsLiveData.postValue(searchResult.cardsData)
+    val cardsDataWithLabels = searchResult.cardsData.map {
+      SavedItemCardDataWithLabels(cardData = it, labels = listOf())
+    }
+
+    searchItemsLiveData.postValue(cardsDataWithLabels)
 
     CoroutineScope(Dispatchers.Main).launch {
       isRefreshing = false

@@ -6,6 +6,9 @@ import app.omnivore.omnivore.networking.Networker
 import app.omnivore.omnivore.networking.savedItem
 import app.omnivore.omnivore.networking.savedItemUpdates
 import app.omnivore.omnivore.persistence.AppDatabase
+import app.omnivore.omnivore.persistence.entities.SavedItem
+import app.omnivore.omnivore.persistence.entities.SavedItemAndSavedItemLabelCrossRef
+import app.omnivore.omnivore.persistence.entities.SavedItemLabel
 import javax.inject.Inject
 
 class DataService @Inject constructor(
@@ -21,14 +24,65 @@ class DataService @Inject constructor(
 suspend fun DataService.sync(since: String, cursor: String?, limit: Int = 15): SavedItemSyncResult {
   val syncResult = networker.savedItemUpdates(cursor = cursor, limit = limit, since = since) ?: return SavedItemSyncResult.errorResult
 
-  db.savedItemDao().insertAll(syncResult.items)
+  val savedItems = syncResult.items.map {
+    SavedItem(
+      savedItemId = it.id,
+      title = it.title,
+      createdAt = it.createdAt as String,
+      savedAt = it.savedAt as String,
+      readAt = it.readAt as String?,
+      updatedAt = it.updatedAt as String?,
+      readingProgress = it.readingProgressPercent,
+      readingProgressAnchor = it.readingProgressAnchorIndex,
+      imageURLString = it.image,
+      pageURLString = it.url,
+      descriptionText = it.description,
+      publisherURLString = it.originalArticleUrl,
+      siteName = it.siteName,
+      author = it.author,
+      publishDate = it.publishedAt as String?,
+      slug = it.slug,
+      isArchived = it.isArchived,
+      contentReader = it.contentReader.rawValue,
+      content = null
+    )
+  }
+
+  db.savedItemDao().insertAll(savedItems)
+
+  val labels: MutableList<SavedItemLabel> = mutableListOf()
+  val crossRefs: MutableList<SavedItemAndSavedItemLabelCrossRef> = mutableListOf()
+
+  // save labels
+  for (item in syncResult.items) {
+    val itemLabels = (item.labels ?: listOf()).map {
+      SavedItemLabel(
+        savedItemLabelId = it.id,
+        name = it.name,
+        color = it.color,
+        createdAt = null,
+        labelDescription = null
+      )
+    }
+
+    labels.addAll(itemLabels)
+
+    val newCrossRefs = itemLabels.map {
+      SavedItemAndSavedItemLabelCrossRef(savedItemLabelId = it.savedItemLabelId, savedItemId = item.id)
+    }
+
+    crossRefs.addAll(newCrossRefs)
+  }
+
+  db.savedItemLabelDao().insertAll(labels)
+  db.savedItemAndSavedItemLabelCrossRefDao().insertAll(crossRefs)
 
   return SavedItemSyncResult(
     hasError = false,
     hasMoreItems = syncResult.hasMoreItems,
     cursor = syncResult.cursor,
     count = syncResult.items.size,
-    savedItemSlugs = syncResult.items.map { it.savedItemId }
+    savedItemSlugs = syncResult.items.map { it.slug }
   )
 }
 
