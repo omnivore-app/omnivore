@@ -50,10 +50,7 @@ interface StorageEvent {
 }
 
 function isStorageEvent(event: any): event is StorageEvent {
-  if ('name' in event && 'bucket' in event && 'contentType' in event) {
-    return true
-  }
-  return false
+  return 'name' in event && 'bucket' in event && 'contentType' in event
 }
 
 const shouldHandle = (data: StorageEvent) => {
