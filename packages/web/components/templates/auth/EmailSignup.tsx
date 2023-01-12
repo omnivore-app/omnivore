@@ -19,12 +19,10 @@ export function EmailSignup(): JSX.Element {
   const [password, setPassword] = useState<string | undefined>(undefined)
   const [fullname, setFullname] = useState<string | undefined>(undefined)
   const [username, setUsername] = useState<string | undefined>(undefined)
-  const [debouncedUsername, setDebouncedUsername] = useState<
-    string | undefined
-  >(undefined)
-  const [errorMessage, setErrorMessage] = useState<string | undefined>(
-    undefined
-  )
+  const [debouncedUsername, setDebouncedUsername] =
+    useState<string | undefined>(undefined)
+  const [errorMessage, setErrorMessage] =
+    useState<string | undefined>(undefined)
 
   useEffect(() => {
     if (!router.isReady) return
@@ -60,7 +58,8 @@ export function EmailSignup(): JSX.Element {
           width: '70vw',
           maxWidth: '576px',
           borderRadius: '8px',
-          boxShadow: 'rgb(224 224 224) 9px 9px 9px -9px',
+          border: '1px solid #3D3D3D',
+          boxShadow: '#B1B1B1 9px 9px 9px -9px',
         }}
       >
         <StyledText style="subHeadline" css={{ color: '$omnivoreGray' }}>

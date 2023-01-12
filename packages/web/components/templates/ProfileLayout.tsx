@@ -12,7 +12,12 @@ export function ProfileLayout(props: ProfileLayoutProps): JSX.Element {
       <VStack
         alignment="center"
         distribution="center"
-        css={{ bg: '$omnivoreYellow', height: '100vh' }}
+        css={{
+          // bg: '$omnivoreYellow',
+          height: '100vh',
+          background:
+            '-webkit-linear-gradient(-65deg, rgba(255, 255, 255, 1.0) 45%, rgba(255, 210, 52, 1.0) 0%)',
+        }}
       >
         {props.children}
       </VStack>

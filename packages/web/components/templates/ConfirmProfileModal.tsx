@@ -15,9 +15,8 @@ export function ConfirmProfileModal(): JSX.Element {
   const [username, setUsername] = useState('')
   const [debouncedUsername, setDebouncedUsername] = useState('')
   const [bio, setBio] = useState('')
-  const [errorMessage, setErrorMessage] = useState<string | undefined>(
-    undefined
-  )
+  const [errorMessage, setErrorMessage] =
+    useState<string | undefined>(undefined)
 
   const { isUsernameValid, usernameErrorMessage } = useValidateUsernameQuery({
     username: debouncedUsername,
@@ -110,8 +109,9 @@ export function ConfirmProfileModal(): JSX.Element {
               <HStack
                 css={{
                   width: '100%',
-                  borderRadius: '6px',
-                  border: `1px solid $grayBorder`,
+                  borderRadius: '8px',
+                  border: '1px solid #3D3D3D',
+                  boxShadow: '#B1B1B1 9px 9px 9px -9px',
                   p: '$2',
                 }}
               >
@@ -139,7 +139,12 @@ export function ConfirmProfileModal(): JSX.Element {
               {isUsernameValid && (
                 <StyledText
                   style="caption"
-                  css={{ m: 0, pl: '$2', alignSelf: 'flex-start', color: '$omnivoreGray' }}
+                  css={{
+                    m: 0,
+                    pl: '$2',
+                    alignSelf: 'flex-start',
+                    color: '$omnivoreGray',
+                  }}
                 >
                   Username is available.
                 </StyledText>

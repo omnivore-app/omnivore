@@ -3,25 +3,30 @@
   "version": "1.0.0",
   "description": "",
   "main": "build/src/index.js",
-  "types": "build/src/index.d.ts",
   "files": [
     "build/src"
   ],
-  "license": "Apache-2.0",
   "keywords": [],
+  "license": "Apache-2.0",
   "scripts": {
     "test": "yarn mocha -r ts-node/register --config mocha-config.json",
     "lint": "eslint src --ext ts,js,tsx,jsx",
     "compile": "tsc",
     "build": "tsc",
-    "start": "functions-framework --source=build/src/ --target=importHandler",
-    "dev": "concurrently \"tsc -w\" \"nodemon --watch ./build/ --exec npm run start\"",
-    "gcloud-deploy": "gcloud functions deploy importHandler --region=$npm_config_region --runtime nodejs14 --trigger-bucket=$npm_config_bucket --env-vars-file=../gcf-shared/env-$npm_config_env.yaml",
-    "deploy": "yarn build && yarn gcloud-deploy"
+    "start": "functions-framework --target=importHandler",
+    "dev": "concurrently \"tsc -w\" \"nodemon --watch ./build/ --exec npm run start\""
   },
   "devDependencies": {
-    "@types/node": "^14.11.2",
+    "@types/chai": "^4.3.4",
+    "@types/chai-string": "^1.4.2",
+    "@types/dompurify": "^2.4.0",
+    "@types/fs-extra": "^11.0.1",
     "@types/jsonwebtoken": "^8.5.0",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^14.11.2",
+    "@types/unzip-stream": "^0.3.1",
+    "@types/urlsafe-base64": "^1.0.28",
+    "@types/uuid": "^9.0.0",
     "eslint-plugin-prettier": "^4.0.0"
   },
   "dependencies": {
@@ -29,9 +34,18 @@
     "@google-cloud/functions-framework": "3.1.2",
     "@google-cloud/storage": "^5.18.1",
     "@google-cloud/tasks": "^3.0.5",
+    "@omnivore/readability": "1.0.0",
+    "@sentry/serverless": "^7.30.0",
     "@types/express": "^4.17.13",
+    "axios": "^1.2.2",
     "csv-parser": "^3.0.0",
+    "dompurify": "^2.4.3",
+    "fs-extra": "^11.1.0",
     "jsonwebtoken": "^8.5.1",
-    "nodemon": "^2.0.15"
+    "linkedom": "^0.14.21",
+    "nodemon": "^2.0.15",
+    "unzip-stream": "^0.3.1",
+    "urlsafe-base64": "^1.0.0",
+    "uuid": "^9.0.0"
   }
 }
