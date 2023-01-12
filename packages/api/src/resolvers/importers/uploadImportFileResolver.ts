@@ -18,7 +18,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { buildLogger } from '../../utils/logger'
 
 const MAX_DAILY_UPLOADS = 4
-const VALID_CONTENT_TYPES = ['text/csv']
+const VALID_CONTENT_TYPES = ['text/csv', 'application/zip']
 
 const logger = buildLogger('app.dispatch')
 
@@ -26,6 +26,8 @@ const extensionForContentType = (contentType: string) => {
   switch (contentType) {
     case 'text/csv':
       return 'csv'
+    case 'application/zip':
+      return 'zip'
   }
   return '.unknown'
 }

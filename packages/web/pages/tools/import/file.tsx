@@ -96,7 +96,8 @@ export default function ImportUploader(): JSX.Element {
           width: '70vw',
           maxWidth: '576px',
           borderRadius: '8px',
-          boxShadow: 'rgb(224 224 224) 9px 9px 9px -9px',
+          border: '1px solid #3D3D3D',
+          boxShadow: '#B1B1B1 9px 9px 9px -9px',
         }}
       >
         <StyledText
