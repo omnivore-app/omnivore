@@ -195,13 +195,6 @@ const contentHandler = async (
 
 const handleEvent = async (data: StorageEvent) => {
   if (shouldHandle(data)) {
-    console.log('handling csv data', data)
-
-    const stream = storage
-      .bucket(data.bucket)
-      .file(data.name)
-      .createReadStream()
-
     const handler = handlerForFile(data.name)
     if (!handler) {
       console.log('no handler for file:', data.name)
@@ -219,6 +212,11 @@ const handleEvent = async (data: StorageEvent) => {
       console.log('could not extract userId from file name')
       return
     }
+
+    const stream = storage
+      .bucket(data.bucket)
+      .file(data.name)
+      .createReadStream()
 
     const ctx = {
       userId,
