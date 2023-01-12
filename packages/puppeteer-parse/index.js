@@ -348,7 +348,18 @@ async function fetchContent(req, res) {
     const content = sbResult.domContent;
     logRecord.fetchContentTime = Date.now() - functionStartTime;
 
-    const readabilityResult = content ? (await getReadabilityResult(url, content)) : null;
+    let readabilityResult = null;
+    if (content) {
+      let document = parseHTML(content).document;
+
+      // preParse content
+      const preParsedDom = await preParseContent(sbUrl, document)
+      if (preParsedDom) {
+        document = preParsedDom
+      }
+
+      readabilityResult = await getReadabilityResult(url, document);
+    }
 
     const apiResponse = await sendSavePageMutation(userId, {
       url: finalUrl,
