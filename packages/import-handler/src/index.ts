@@ -6,6 +6,7 @@ import { Stream } from 'node:stream'
 import { v4 as uuid } from 'uuid'
 import { CONTENT_FETCH_URL, createCloudTask, emailUserUrl } from './task'
 
+import axios from 'axios'
 import { promisify } from 'util'
 import * as jwt from 'jsonwebtoken'
 import { Readability } from '@omnivore/readability'
@@ -136,6 +137,44 @@ const urlHandler = async (ctx: ImportContext, url: URL): Promise<void> => {
   }
 }
 
+const sendSavePageMutation = async (userId: string, input: unknown) => {
+  const JWT_SECRET = process.env.JWT_SECRET
+  const REST_BACKEND_ENDPOINT = process.env.REST_BACKEND_ENDPOINT
+
+  if (!JWT_SECRET || !REST_BACKEND_ENDPOINT) {
+    throw 'Environment not configured correctly'
+  }
+
+  const data = JSON.stringify({
+    query: `mutation SavePage ($input: SavePageInput!){
+          savePage(input:$input){
+            ... on SaveSuccess{
+              url
+              clientRequestId
+            }
+            ... on SaveError{
+                errorCodes
+            }
+          }
+    }`,
+    variables: {
+      input: Object.assign({}, input, { source: 'puppeteer-parse' }),
+    },
+  })
+
+  const auth = (await signToken({ uid: userId }, JWT_SECRET)) as string
+  const response = await axios.post(`${REST_BACKEND_ENDPOINT}/graphql`, data, {
+    headers: {
+      Cookie: `auth=${auth};`,
+      'Content-Type': 'application/json',
+    },
+  })
+  console.log('save page response: ', response)
+
+  /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+  return !!response.data.data.savePage
+}
+
 const contentHandler = async (
   ctx: ImportContext,
   url: URL,
@@ -143,14 +182,17 @@ const contentHandler = async (
   originalContent: string,
   parseResult: Readability.ParseResult
 ): Promise<void> => {
-  // const apiResponse = await sendSavePageMutation(userId, {
-  //   url: finalUrl,
-  //   clientRequestId: articleSavingRequestId,
-  //   title,
-  //   originalContent: content,
-  //   parseResult: readabilityResult,
-  // })
-  console.log('content handler: ', url, title)
+  const requestId = uuid()
+  const apiResponse = await sendSavePageMutation(ctx.userId, {
+    url,
+    clientRequestId: requestId,
+    title,
+    originalContent,
+    parseResult,
+  })
+  if (!apiResponse) {
+    return Promise.reject()
+  }
   return Promise.resolve()
 }
 
@@ -197,13 +239,6 @@ const handleEvent = async (data: StorageEvent) => {
       await sendImportFailedEmail(userId)
     }
   }
-}
-
-function isPubsubMessage(event: any): event is StorageEvent {
-  if ('name' in event && 'bucket' in event && 'contentType' in event) {
-    return true
-  }
-  return false
 }
 
 export const importHandler = Sentry.GCPFunction.wrapHttpFunction(
