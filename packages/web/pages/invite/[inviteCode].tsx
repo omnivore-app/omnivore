@@ -17,9 +17,8 @@ export default function InvitePage(): JSX.Element {
   const router = useRouter()
   const { viewerData, viewerDataError, isLoading } = useGetViewerQuery()
   const { inviteCode } = router.query
-  const [errorMessage, setErrorMessage] = useState<string | undefined>(
-    undefined
-  )
+  const [errorMessage, setErrorMessage] =
+    useState<string | undefined>(undefined)
 
   // Check if the user is logged in and display an error message if they are not
   useEffect(() => {
@@ -77,7 +76,8 @@ export default function InvitePage(): JSX.Element {
             width: '70vw',
             maxWidth: '576px',
             borderRadius: '8px',
-            boxShadow: 'rgb(224 224 224) 9px 9px 9px -9px',
+            border: '1px solid #3D3D3D',
+            boxShadow: '#B1B1B1 9px 9px 9px -9px',
           }}
         >
           <StyledText style="subHeadline" css={{ color: '$omnivoreGray' }}>

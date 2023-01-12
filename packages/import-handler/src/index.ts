@@ -1,41 +1,62 @@
-import {
-  EventFunction,
-  CloudFunctionsContext,
-} from '@google-cloud/functions-framework/build/src/functions'
 import { Storage } from '@google-cloud/storage'
-import { importCsv, UrlHandler } from './csv'
+import { importCsv } from './csv'
 import * as path from 'path'
-import { importMatterHistory } from './matterHistory'
+import { importMatterArchive, importMatterHistoryCsv } from './matterHistory'
 import { Stream } from 'node:stream'
 import { v4 as uuid } from 'uuid'
-import { CONTENT_FETCH_URL, createCloudTask, EMAIL_USER_URL } from './task'
+import { CONTENT_FETCH_URL, createCloudTask, emailUserUrl } from './task'
 
+import axios from 'axios'
 import { promisify } from 'util'
 import * as jwt from 'jsonwebtoken'
+import { Readability } from '@omnivore/readability'
+
+import * as Sentry from '@sentry/serverless'
+
+Sentry.GCPFunction.init({
+  dsn: process.env.SENTRY_DSN,
+  tracesSampleRate: 0,
+})
 
 const signToken = promisify(jwt.sign)
 
 const storage = new Storage()
 
-interface StorageEventData {
-  bucket: string
+const CONTENT_TYPES = ['text/csv', 'application/zip']
+
+export type UrlHandler = (ctx: ImportContext, url: URL) => Promise<void>
+export type ContentHandler = (
+  ctx: ImportContext,
+  url: URL,
+  title: string,
+  originalContent: string,
+  parseResult: Readability.ParseResult
+) => Promise<void>
+
+export type ImportContext = {
+  userId: string
+  countImported: number
+  countFailed: number
+  urlHandler: UrlHandler
+  contentHandler: ContentHandler
+}
+
+type importHandlerFunc = (ctx: ImportContext, stream: Stream) => Promise<void>
+
+interface StorageEvent {
   name: string
+  bucket: string
   contentType: string
 }
 
-type importHandlerFunc = (
-  stream: Stream,
-  handler: UrlHandler
-) => Promise<number>
+function isStorageEvent(event: any): event is StorageEvent {
+  return 'name' in event && 'bucket' in event && 'contentType' in event
+}
 
-const shouldHandle = (data: StorageEventData, ctx: CloudFunctionsContext) => {
-  console.log('deciding to handle', ctx, data)
-  if (ctx.eventType !== 'google.storage.object.finalize') {
-    return false
-  }
+const shouldHandle = (data: StorageEvent) => {
   if (
     !data.name.startsWith('imports/') ||
-    data.contentType.toLowerCase() != 'text/csv'
+    CONTENT_TYPES.indexOf(data.contentType.toLocaleLowerCase()) == -1
   ) {
     return false
   }
@@ -69,7 +90,7 @@ const createEmailCloudTask = async (userId: string, payload: unknown) => {
     Cookie: `auth=${authToken}`,
   }
 
-  return createCloudTask(EMAIL_USER_URL, payload, headers)
+  return createCloudTask(emailUserUrl(), payload, headers)
 }
 
 const sendImportFailedEmail = async (userId: string) => {
@@ -86,14 +107,14 @@ const sendImportCompletedEmail = async (
 ) => {
   return createEmailCloudTask(userId, {
     subject: 'Your Omnivore import has completed processing',
-    body: `${urlsEnqueued} URLs have been pcoessed and should be available in your library. ${urlsFailed} URLs failed to be parsed.`,
+    body: `${urlsEnqueued} URLs have been processed and should be available in your library. ${urlsFailed} URLs failed to be parsed.`,
   })
 }
 
 const handlerForFile = (name: string): importHandlerFunc | undefined => {
   const fileName = path.parse(name).name
   if (fileName.startsWith('MATTER')) {
-    return importMatterHistory
+    return importMatterArchive
   } else if (fileName.startsWith('URL_LIST')) {
     return importCsv
   }
@@ -101,18 +122,79 @@ const handlerForFile = (name: string): importHandlerFunc | undefined => {
   return undefined
 }
 
-export const importHandler: EventFunction = async (event, context) => {
-  const data = event as StorageEventData
-  const ctx = context as CloudFunctionsContext
+const urlHandler = async (ctx: ImportContext, url: URL): Promise<void> => {
+  try {
+    // Imports are stored in the format imports/<user id>/<type>-<uuid>.csv
+    const result = await importURL(ctx.userId, url, 'csv-importer')
+    if (result) {
+      ctx.countImported += 1
+    }
+  } catch (err) {
+    console.log('error importing url', err)
+  }
+}
 
-  if (shouldHandle(data, ctx)) {
-    console.log('handling csv data', data)
+const sendSavePageMutation = async (userId: string, input: unknown) => {
+  const JWT_SECRET = process.env.JWT_SECRET
+  const REST_BACKEND_ENDPOINT = process.env.REST_BACKEND_ENDPOINT
 
-    const stream = storage
-      .bucket(data.bucket)
-      .file(data.name)
-      .createReadStream()
+  if (!JWT_SECRET || !REST_BACKEND_ENDPOINT) {
+    throw 'Environment not configured correctly'
+  }
 
+  const data = JSON.stringify({
+    query: `mutation SavePage ($input: SavePageInput!){
+          savePage(input:$input){
+            ... on SaveSuccess{
+              url
+              clientRequestId
+            }
+            ... on SaveError{
+                errorCodes
+            }
+          }
+    }`,
+    variables: {
+      input: Object.assign({}, input, { source: 'puppeteer-parse' }),
+    },
+  })
+
+  const auth = (await signToken({ uid: userId }, JWT_SECRET)) as string
+  const response = await axios.post(`${REST_BACKEND_ENDPOINT}/graphql`, data, {
+    headers: {
+      Cookie: `auth=${auth};`,
+      'Content-Type': 'application/json',
+    },
+  })
+  console.log('save page response: ', response)
+
+  /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+  return !!response.data.data.savePage
+}
+
+const contentHandler = async (
+  ctx: ImportContext,
+  url: URL,
+  title: string,
+  originalContent: string,
+  parseResult: Readability.ParseResult
+): Promise<void> => {
+  const requestId = uuid()
+  const apiResponse = await sendSavePageMutation(ctx.userId, {
+    url,
+    clientRequestId: requestId,
+    title,
+    originalContent,
+    parseResult,
+  })
+  if (!apiResponse) {
+    return Promise.reject()
+  }
+  return Promise.resolve()
+}
+
+const handleEvent = async (data: StorageEvent) => {
+  if (shouldHandle(data)) {
     const handler = handlerForFile(data.name)
     if (!handler) {
       console.log('no handler for file:', data.name)
@@ -131,24 +213,54 @@ export const importHandler: EventFunction = async (event, context) => {
       return
     }
 
-    let countFailed = 0
-    let countImported = 0
-    await handler(stream, async (url): Promise<void> => {
-      try {
-        // Imports are stored in the format imports/<user id>/<type>-<uuid>.csv
-        const result = await importURL(userId, url, 'csv-importer')
-        console.log('import url result', result)
-        countImported = countImported + 1
-      } catch (err) {
-        console.log('error importing url', err)
-        countFailed = countFailed + 1
-      }
-    })
+    const stream = storage
+      .bucket(data.bucket)
+      .file(data.name)
+      .createReadStream()
 
-    if (countImported <= 1) {
-      await sendImportFailedEmail(userId)
+    const ctx = {
+      userId,
+      countImported: 0,
+      countFailed: 0,
+      urlHandler,
+      contentHandler,
+    }
+
+    await handler(ctx, stream)
+
+    if (ctx.countImported > 0) {
+      await sendImportCompletedEmail(userId, ctx.countImported, ctx.countFailed)
     } else {
-      await sendImportCompletedEmail(userId, countImported, countFailed)
+      await sendImportFailedEmail(userId)
     }
   }
 }
+
+const getStorageEvent = (pubSubMessage: string): StorageEvent | undefined => {
+  try {
+    const str = Buffer.from(pubSubMessage, 'base64').toString().trim()
+    const obj = JSON.parse(str) as unknown
+    if (isStorageEvent(obj)) {
+      return obj
+    }
+  } catch (err) {
+    console.log('error deserializing event: ', { pubSubMessage, err })
+  }
+  return undefined
+}
+
+export const importHandler = Sentry.GCPFunction.wrapHttpFunction(
+  async (req, res) => {
+    /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+    if ('message' in req.body && 'data' in req.body.message) {
+      const pubSubMessage = req.body.message.data as string
+      const obj = getStorageEvent(pubSubMessage)
+      if (obj) {
+        await handleEvent(obj)
+      }
+    } else {
+      console.log('no pubsub message')
+    }
+    res.send('ok')
+  }
+)
