@@ -236,15 +236,26 @@ const handleEvent = async (data: StorageEvent) => {
   }
 }
 
+const getStorageEvent = (pubSubMessage: string): StorageEvent | undefined => {
+  try {
+    const str = Buffer.from(pubSubMessage, 'base64').toString().trim()
+    const obj = JSON.parse(str) as unknown
+    if (isStorageEvent(obj)) {
+      return obj
+    }
+  } catch (err) {
+    console.log('error deserializing event: ', { pubSubMessage, err })
+  }
+  return undefined
+}
+
 export const importHandler = Sentry.GCPFunction.wrapHttpFunction(
   async (req, res) => {
     /* eslint-disable @typescript-eslint/no-unsafe-member-access */
     if ('message' in req.body && 'data' in req.body.message) {
-      /* eslint-disable @typescript-eslint/no-unsafe-member-access */
       const pubSubMessage = req.body.message.data as string
-      const str = Buffer.from(pubSubMessage, 'base64').toString().trim()
-      const obj = JSON.parse(str) as unknown
-      if (isStorageEvent(obj)) {
+      const obj = getStorageEvent(pubSubMessage)
+      if (obj) {
         await handleEvent(obj)
       }
     } else {
