@@ -15,7 +15,7 @@ const signToken = promisify(jwt.sign);
 const os = require('os');
 const { Storage } = require('@google-cloud/storage');
 const { parseHTML } = require('linkedom');
-const { preHandleContent } = require("@omnivore/content-handler");
+const { preHandleContent, preParseContent } = require("@omnivore/content-handler");
 const { Readability } = require("@omnivore/readability");
 
 const puppeteer = require('puppeteer-extra');
@@ -314,7 +314,18 @@ async function fetchContent(req, res) {
 
       logRecord.fetchContentTime = Date.now() - functionStartTime;
 
-      const readabilityResult = content ? (await getReadabilityResult(url, content)) : null;
+      let readabilityResult = null;
+      if (content) {
+        let document = parseHTML(content).document;
+
+        // preParse content
+        const preParsedDom = await preParseContent(url, document)
+        if (preParsedDom) {
+          document = preParsedDom
+        }
+
+        readabilityResult = await getReadabilityResult(url, document);
+      }
 
       const apiResponse = await sendSavePageMutation(userId, {
         url: finalUrl,
@@ -337,7 +348,18 @@ async function fetchContent(req, res) {
     const content = sbResult.domContent;
     logRecord.fetchContentTime = Date.now() - functionStartTime;
 
-    const readabilityResult = content ? (await getReadabilityResult(url, content)) : null;
+    let readabilityResult = null;
+    if (content) {
+      let document = parseHTML(content).document;
+
+      // preParse content
+      const preParsedDom = await preParseContent(sbUrl, document)
+      if (preParsedDom) {
+        document = preParsedDom
+      }
+
+      readabilityResult = await getReadabilityResult(url, document);
+    }
 
     const apiResponse = await sendSavePageMutation(userId, {
       url: finalUrl,

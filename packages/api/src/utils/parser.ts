@@ -184,7 +184,8 @@ export const parsePreparedContent = async (
     labels: { source: 'parsePreparedContent' },
   }
 
-  let article = null
+  // If we have a parse result, use it
+  let article = parseResult || null
   let highlightData = undefined
   const { document, pageInfo } = preparedDocument
 
@@ -205,14 +206,16 @@ export const parsePreparedContent = async (
 
   let dom = parseHTML(document).document
 
-  // preParse content
-  const preParsedDom = await preParseContent(url, dom)
-  preParsedDom && (dom = preParsedDom)
-
   try {
-    article =
-      parseResult ||
-      (await getReadabilityResult(url, document, dom, isNewsletter))
+    if (!article) {
+      // Attempt to parse the article
+      // preParse content
+      const preParsedDom = await preParseContent(url, dom)
+      preParsedDom && (dom = preParsedDom)
+
+      article = await getReadabilityResult(url, document, dom, isNewsletter)
+    }
+
     if (!article?.textContent && allowRetry) {
       const newDocument = {
         ...preparedDocument,

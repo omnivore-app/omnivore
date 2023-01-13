@@ -274,7 +274,7 @@ const getTweetIds = async (
         }
 
         window.scrollBy(0, distance)
-        await waitFor(100)
+        await waitFor(500)
         currentHeight += distance
       }
 
@@ -364,6 +364,7 @@ export class TwitterHandler extends ContentHandler {
     `
 
     const content = `
+<html>
     <head>
       <meta property="og:image" content="${authorImage}" />
       <meta property="og:image:secure_url" content="${authorImage}" />
@@ -375,7 +376,8 @@ export class TwitterHandler extends ContentHandler {
         ${tweetsContent}
         ${tweetUrl}
       </div>
-    </body>`
+    </body>
+</html>`
 
     return { content, url, title }
   }
