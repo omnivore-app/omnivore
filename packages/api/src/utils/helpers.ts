@@ -9,7 +9,6 @@ import {
 import { Claims, WithDataSourcesContext } from '../resolvers/types'
 import { RegistrationType, UserData } from '../datalayer/user/model'
 import crypto from 'crypto'
-import slugify from 'voca/slugify'
 import { Merge } from '../util'
 import { CreateArticlesSuccessPartial } from '../resolvers'
 import { ArticleSavingRequestStatus, Page } from '../elastic/types'
@@ -282,4 +281,20 @@ export const generateRandomColor = (): string => {
       .padStart(6, '0')
       .toUpperCase()
   )
+}
+
+export const slugify = (str: string) => {
+  return str
+    .normalize('NFKD') // using NFKD method returns the Unicode Normalization Form of a given string.
+    .replace(/[\u0300-\u036f]/g, '') // remove all previously split accents
+    .trim()
+    .toLowerCase()
+    .replace(
+      /[\u2000-\u206F\u2E00-\u2E7F\\'!"#$%&()*+,./:;<=>?@[\]^`{|}~]/g,
+      ''
+    ) // replace all the symbols with -
+    .replace(/\s+/g, '-') // collapse whitespace and replace by -
+    .replace(/_/g, '-') // replace _ with -
+    .replace(/-+/g, '-') // collapse dashes
+    .replace(/-$/g, '') // remove trailing -
 }
