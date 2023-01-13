@@ -118,7 +118,9 @@ export default function ImportUploader(): JSX.Element {
           style="caption"
           css={{ color: theme.colors.omnivoreGray.toString() }}
         >
-          <a href="https://docs.omnivore.app/">More info</a>
+          <a href="https://docs.omnivore.app/using/importing.html#importing-data-from-matter">
+            More info
+          </a>
         </StyledText>
         <StyledText
           style="caption"
