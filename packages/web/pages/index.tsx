@@ -10,7 +10,7 @@ import { useRouter } from 'next/router'
 import { PageMetaData } from '../components/patterns/PageMetaData'
 import { LoadingView } from '../components/patterns/LoadingView'
 
-const mobileContainerStyles = {
+const containerStyles = {
   alignSelf: 'center',
   marginTop: 80,
   maxWidth: 960,
@@ -76,7 +76,7 @@ export default function LandingPage(): JSX.Element {
         alignment="center"
         css={{ background: '#FEFCF5', color: '#3D3D3D' }}
       >
-        <VStack css={mobileContainerStyles}>
+        <VStack css={containerStyles}>
           <Box css={headingStyles}>
             Omnivore is the free, open source, read-it-later app for serious
             readers.

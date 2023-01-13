@@ -108,13 +108,13 @@ export function LandingSectionsContainer(): JSX.Element {
         }}
       >
         <img
-          srcSet="/static/landing/landingPage-1.png,
-                  /static/landing/landingPage-1@2x.png 2x,
-                  /static/landing/landingPage-1@3x.png 3x"
+          srcSet="/static/landing/landingPage-feature@1x.png,
+                  /static/landing/landingPage-feature@2x.png 2x,
+                  /static/landing/landingPage-feature@3x.png 3x"
           alt="landingHero-1"
           style={{
-            width: '70%',
-            maxWidth: '70%',
+            width: '85%',
+            maxWidth: '85%',
           }}
         />
       </Box>
