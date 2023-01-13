@@ -37,7 +37,7 @@ export default function Login(): JSX.Element {
       <PageMetaData
         title="Welcome to Omnivore"
         path="/login"
-        ogImage="/static/images/og-homepage-02.png"
+        ogImage="/static/images/og-homepage-03.png"
       />
       <LoginLayout {...loginFormProps} />
       <div data-testid="login-page-tag" />
