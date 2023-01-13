@@ -18,7 +18,23 @@ interface SavedItemLabelDao {
   fun insertAll(items: List<SavedItemLabel>)
 }
 
-@Entity(primaryKeys = ["savedItemLabelId", "savedItemId"])
+@Entity(
+  primaryKeys = ["savedItemLabelId", "savedItemId"],
+  foreignKeys = [
+    ForeignKey(
+      entity = SavedItem::class,
+      parentColumns = arrayOf("savedItemId"),
+      childColumns = arrayOf("savedItemId"),
+      onDelete = ForeignKey.CASCADE
+    ),
+    ForeignKey(
+      entity = SavedItemLabel::class,
+      parentColumns = arrayOf("savedItemLabelId"),
+      childColumns = arrayOf("savedItemLabelId"),
+      onDelete = ForeignKey.CASCADE
+    )
+  ]
+)
 data class SavedItemAndSavedItemLabelCrossRef(
   val savedItemLabelId: String,
   val savedItemId: String

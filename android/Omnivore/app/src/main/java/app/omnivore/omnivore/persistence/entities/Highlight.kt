@@ -24,7 +24,23 @@ data class Highlight(
   // has a UserProfile (no inverse)
 )
 
-@Entity(primaryKeys = ["highlightId", "savedItemId"])
+@Entity(
+  primaryKeys = ["highlightId", "savedItemId"],
+  foreignKeys = [
+    ForeignKey(
+      entity = Highlight::class,
+      parentColumns = arrayOf("highlightId"),
+      childColumns = arrayOf("highlightId"),
+      onDelete = ForeignKey.CASCADE
+    ),
+    ForeignKey(
+      entity = SavedItem::class,
+      parentColumns = arrayOf("savedItemId"),
+      childColumns = arrayOf("savedItemId"),
+      onDelete = ForeignKey.CASCADE
+    )
+  ]
+)
 data class SavedItemAndHighlightCrossRef(
   val highlightId: String,
   val savedItemId: String
