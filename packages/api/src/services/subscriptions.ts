@@ -50,7 +50,7 @@ export const saveSubscription = async ({
   const result = await getRepository(Subscription).upsert(
     {
       name,
-      newsletterEmail,
+      newsletterEmail: { id: newsletterEmail.id },
       user: { id: userId },
       status: SubscriptionStatus.Active,
       unsubscribeHttpUrl,

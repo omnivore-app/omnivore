@@ -203,7 +203,7 @@ export const createTestSubscription = async (
     user,
     name,
     status: SubscriptionStatus.Active,
-    newsletterEmail,
+    newsletterEmail: { id: newsletterEmail.id },
   })
 }
 
