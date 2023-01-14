@@ -228,21 +228,6 @@ const getTweetIds = async (
 
       const ids: Set<string> = new Set()
 
-      // Find the first Show thread button and click it
-      const showRepliesButton = Array.from(
-        document.querySelectorAll('div[dir="auto"]')
-      )
-        .filter(
-          (node) => node.children[0] && node.children[0].tagName === 'SPAN'
-        )
-        .find((node) => node.children[0].innerHTML === 'Show replies')
-
-      if (showRepliesButton) {
-        ;(showRepliesButton as HTMLElement).click()
-
-        await waitFor(2000)
-      }
-
       const distance = 1080
       const scrollHeight = document.body.scrollHeight
       let currentHeight = 0
@@ -276,6 +261,21 @@ const getTweetIds = async (
         window.scrollBy(0, distance)
         await waitFor(500)
         currentHeight += distance
+
+        // Find the first Show thread button and click it
+        const showRepliesButton = Array.from(
+          document.querySelectorAll('div[dir="auto"]')
+        )
+          .filter(
+            (node) => node.children[0] && node.children[0].tagName === 'SPAN'
+          )
+          .find((node) => node.children[0].innerHTML === 'Show replies')
+
+        if (showRepliesButton) {
+          ;(showRepliesButton as HTMLElement).click()
+
+          await waitFor(2000)
+        }
       }
 
       return Array.from(ids)
