@@ -35,6 +35,7 @@ const schema = gql`
   enum ContentReader {
     WEB
     PDF
+    VIDEO
   }
 
   input SortParams {

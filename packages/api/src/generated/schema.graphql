@@ -181,6 +181,7 @@ type ArticlesSuccess {
 
 enum ContentReader {
   PDF
+  VIDEO
   WEB
 }
 

@@ -220,6 +220,7 @@ export type ArticlesSuccess = {
 
 export enum ContentReader {
   Pdf = 'PDF',
+  Video = 'VIDEO',
   Web = 'WEB'
 }
 
