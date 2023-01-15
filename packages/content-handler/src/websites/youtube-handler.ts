@@ -128,6 +128,7 @@ const groupTranscriptByChapters = (
     })
     text += `</div>`
   }
+  console.log('<html><body>' + text + '</body></html>')
 
   return text
 }
@@ -191,6 +192,7 @@ export class YoutubeHandler extends ContentHandler {
       <meta property="og:title" content="${title}" />
       <meta property="og:description" content="" />
       <meta property="og:article:author" content="${authorName}" />
+      <meta property="omnivore:page-type" content="youtube" />
       </head>
       <body>
       <iframe width="${width}" height="${height}" src="https://www.youtube.com/embed/${videoId}" title="${title}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>

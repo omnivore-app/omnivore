@@ -1619,7 +1619,8 @@ export enum PageType {
   Highlights = 'HIGHLIGHTS',
   Profile = 'PROFILE',
   Unknown = 'UNKNOWN',
-  Website = 'WEBSITE'
+  Website = 'WEBSITE',
+  YouTube = 'YOU_TUBE'
 }
 
 export type ParseResult = {

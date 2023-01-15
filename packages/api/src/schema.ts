@@ -308,6 +308,7 @@ const schema = gql`
     WEBSITE
     HIGHLIGHTS
     UNKNOWN
+    YOU_TUBE
   }
 
   type Page {

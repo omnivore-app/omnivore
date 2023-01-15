@@ -167,6 +167,7 @@ export enum PageType {
   Unknown = 'UNKNOWN',
   Website = 'WEBSITE',
   Highlights = 'HIGHLIGHTS',
+  YouTube = 'YOU_TUBE',
 }
 
 export enum ArticleSavingRequestStatus {

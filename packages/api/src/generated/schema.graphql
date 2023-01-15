@@ -1171,6 +1171,7 @@ enum PageType {
   PROFILE
   UNKNOWN
   WEBSITE
+  YOU_TUBE
 }
 
 input ParseResult {
