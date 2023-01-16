@@ -29,13 +29,11 @@ export default function PdfArticleContainer(
   props: PdfArticleContainerProps
 ): JSX.Element {
   const containerRef = useRef<HTMLDivElement | null>(null)
-  const [shareTarget, setShareTarget] = useState<Highlight | undefined>(
-    undefined
-  )
+  const [shareTarget, setShareTarget] =
+    useState<Highlight | undefined>(undefined)
   const [noteTarget, setNoteTarget] = useState<Highlight | undefined>(undefined)
-  const [noteTargetPageIndex, setNoteTargetPageIndex] = useState<
-    number | undefined
-  >(undefined)
+  const [noteTargetPageIndex, setNoteTargetPageIndex] =
+    useState<number | undefined>(undefined)
 
   const highlightsRef = useRef<Highlight[]>([])
   const canShareNative = useCanShareNative()
@@ -428,6 +426,8 @@ export default function PdfArticleContainer(
         <HighlightsModal
           highlights={highlightsRef.current}
           onOpenChange={() => props.setShowHighlightsModal(false)}
+          /* eslint-disable @typescript-eslint/no-empty-function */
+          updateHighlight={() => {}}
         />
       )}
     </Box>
