@@ -84,7 +84,6 @@ const callToActionText = {
 }
 
 export function LandingSectionsContainer(): JSX.Element {
-  // const iconColor = 'rgb(255, 210, 52)'
   return (
     <VStack alignment="center" distribution="start" css={containerStyles}>
       <Box
@@ -98,14 +97,15 @@ export function LandingSectionsContainer(): JSX.Element {
         }}
       >
         <img
+          height="647"
+          width="1015"
           srcSet="/static/landing/landingPage-feature@1x.png,
                   /static/landing/landingPage-feature@2x.png 2x,
                   /static/landing/landingPage-feature@3x.png 3x"
           alt="landingHero-1"
           style={{
             width: '85%',
-            maxWidth: '85%',
-            aspectRatio: '2029 : 1293',
+            height: 'auto',
           }}
         />
       </Box>
