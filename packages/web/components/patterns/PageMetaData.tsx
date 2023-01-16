@@ -35,13 +35,23 @@ export function PageMetaData(props: PageMetaDataProps): JSX.Element {
         href={`/static/icons/favicon-${isDarkMode ? 'dark' : 'light'}.ico`}
       />
 
+      <meta property="fb:app_id" content="3584400838451823" />
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:creator:id" content="1372981426199564288" />
+      <meta name="twitter:site:id" content="1372981426199564288" />
+
       <meta property="og:type" content="website" />
       <meta property="og:site_name" content="Omnivore" />
+
+      <meta name="twitter:domain" content="omnivore.app" />
 
       {props.ogImage && (
         <>
           <meta property="og:image" content={props.ogImage} key="og-image" />
-          <meta name="twitter:image" content={props.ogImage} />
+          <meta
+            name="twitter:image"
+            content={`https://omnivore-demo-7hm1ymole-omnivore.vercel.app/${props.ogImage}`}
+          />
         </>
       )}
       {props.ogImage && (
@@ -89,12 +99,6 @@ export function PageMetaData(props: PageMetaDataProps): JSX.Element {
       {props.metaTags?.map((metatag, i) => (
         <meta key={i} {...metatag} />
       ))}
-
-      <meta property="fb:app_id" content="3584400838451823" />
-
-      <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:creator:id" content="1372981426199564288" />
-      <meta name="twitter:site:id" content="1372981426199564288" />
     </Head>
   )
 }
