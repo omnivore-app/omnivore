@@ -4,12 +4,11 @@ import { useGetNewsletterEmailsQuery } from '../../lib/networking/queries/useGet
 import { createNewsletterEmailMutation } from '../../lib/networking/mutations/createNewsletterEmailMutation'
 import { deleteNewsletterEmailMutation } from '../../lib/networking/mutations/deleteNewsletterEmailMutation'
 import { MoreOptionsIcon } from '../../components/elements/images/MoreOptionsIcon'
-import { Info, Plus, Trash, Copy } from 'phosphor-react'
+import { Plus, Trash, Copy } from 'phosphor-react'
 import {
   Dropdown,
   DropdownOption,
 } from '../../components/elements/DropdownElements'
-import { TooltipWrapped } from '../../components/elements/Tooltip'
 import { theme, styled } from '../../components/tokens/stitches.config'
 import {
   Box,
@@ -23,7 +22,6 @@ import { useCallback } from 'react'
 import { StyledText } from '../../components/elements/StyledText'
 import { applyStoredTheme } from '../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
-import Link from 'next/link'
 import { InfoLink } from '../../components/elements/InfoLink'
 
 enum TextType {
@@ -69,7 +67,7 @@ const TableHeading = styled(Box, {
   width: '100%',
   '@md': {
     display: 'flex',
-  }
+  },
 })
 
 const Input = styled('input', {
@@ -83,23 +81,19 @@ const Input = styled('input', {
 })
 
 const CopyTextBtnWrapper = styled(Box, {
-  padding: '1px',
   background: '$grayBgActive',
   borderRadius: '6px',
   border: '1px solid rgba(0, 0, 0, 0.06)',
-})
+  width: '32px',
+  height: '32px',
 
-const InfoIcon = styled(Info, {
-  marginTop: '8px',
-  '&:hover': {
-    cursor: 'pointer',
-  },
-})
+  display: 'flex',
 
-const TooltipStyle = {
-  backgroundColor: '#F9D354',
-  color: '#0A0806',
-}
+  color: '#3D3D3D',
+
+  alignItems: 'center',
+  justifyContent: 'center',
+})
 
 const MoreOptions = ({ onDelete }: { onDelete: () => void }) => (
   <Dropdown
@@ -158,12 +152,20 @@ function CopyTextButton(props: CopyTextButtonProps): JSX.Element {
 
   const copy = useCallback(() => {
     copyLink()
-    showSuccessToast(props.type == TextType.EmailAddress ? 'Email Address Copied' : 'Confirmation Code Copied');
+    showSuccessToast(
+      props.type == TextType.EmailAddress
+        ? 'Email Address Copied'
+        : 'Confirmation Code Copied'
+    )
   }, [])
 
   return (
     <Button style="plainIcon" onClick={copy}>
-      <Copy color={theme.colors.grayTextContrast.toString()} />
+      <Copy
+        width={16}
+        height={16}
+        color={theme.colors.grayTextContrast.toString()}
+      />
     </Button>
   )
 }
@@ -200,220 +202,214 @@ export default function EmailsPage(): JSX.Element {
           top: '5rem',
         }}
       />
-      <VStack
-        distribution="center"
-        css={{
-          mx: '10px',
-          maxWidth: '865px',
-          color: '$grayText',
-          paddingBottom: '5rem',
-          paddingTop: '2rem',
-          '@md': {
-            m: '16px',
+      <HStack css={{ width: '100%' }} alignment="center">
+        <VStack
+          distribution="center"
+          css={{
+            mx: '10px',
+            width: '100%',
+            maxWidth: '865px',
+            color: '$grayText',
+            paddingBottom: '5rem',
+            paddingTop: '2rem',
             alignSelf: 'center',
-            mx: '42px',
-            paddingTop: '0',
-          },
-        }}
-      >
-        <HeaderWrapper>
-          <Box style={{ display: 'flex', alignItems: 'center' }}>
-            <Box>
-              <StyledText
-                style="fixedHeadline"
-              >
-                Email Addresses{' '}
-              </StyledText>
-            </Box>
-            <InfoLink href="/help/newsletters" />
-            <Button
-              onClick={createEmail}
-              style="ctaDarkYellow"
-              css={{
-                display: 'flex',
-                alignItems: 'center',
-                marginLeft: 'auto',
-              }}
-            >
-              <SpanBox css={{
-                display: 'none',
-                '@md': {
+            '@md': {
+              m: '16px',
+              alignSelf: 'center',
+              mx: '42px',
+              paddingTop: '0',
+            },
+          }}
+        >
+          <HeaderWrapper>
+            <Box style={{ display: 'flex', alignItems: 'center' }}>
+              <Box>
+                <StyledText style="fixedHeadline">Email Addresses </StyledText>
+              </Box>
+              <InfoLink href="/help/newsletters" />
+              <Button
+                onClick={createEmail}
+                style="ctaDarkYellow"
+                css={{
                   display: 'flex',
-                },
-              }}>
-                <SpanBox>Create a new email address</SpanBox>
-              </SpanBox>
-              <SpanBox css={{
-                p: '0',
-                display: 'flex',
-                '@md': {
-                  display: 'none',
-                },
-              }}>
-                <Plus size={24} />
-              </SpanBox>
-            </Button>
-          </Box>
-          <TableHeading>
-          <Box
-              css={{
-                flex: '49%',
-              }}
-            >
-              <StyledText
-                style="menuTitle"
-                css={{
-                  color: '$grayTextContrast',
+                  alignItems: 'center',
+                  marginLeft: 'auto',
                 }}
               >
-                EMAIL
-              </StyledText>
-            </Box>
-            <Box style={{ flex: '51%' }}>
-              <StyledText
-                style="menuTitle"
-                css={{
-                  color: '$grayTextContrast',
-                }}
-              >
-                CONFIRMATION CODE
-              </StyledText>
-            </Box>
-          </TableHeading>
-        </HeaderWrapper>
-        {emailAddresses &&
-          emailAddresses.map((email, i) => {
-            const { address, confirmationCode, id } = email
-            const isLastChild = i === emailAddresses.length - 1
-
-            return (
-              <TableCard
-                key={id}
-                css={{
-                  '&:hover': {
-                    background: 'rgba(255, 234, 159, 0.12)',
-                  },
-                  '@mdDown': {
-                    borderTopLeftRadius: i === 0 ? '5px' : '',
-                    borderTopRightRadius: i === 0 ? '5px' : '',
-
-                  },
-                  borderBottomLeftRadius: isLastChild ? '5px' : '',
-                  borderBottomRightRadius: isLastChild ? '5px' : '',
-                }}
-              >
-                <Box
+                <SpanBox
                   css={{
-                    display: 'flex',
-                    width: '100%',
-                    flexDirection: 'column',
+                    display: 'none',
                     '@md': {
-                      flexDirection: 'row',
+                      display: 'flex',
                     },
                   }}
                 >
-                  <HStack
-                    distribution="start"
+                  <SpanBox>Create a new email address</SpanBox>
+                </SpanBox>
+                <SpanBox
+                  css={{
+                    p: '0',
+                    display: 'flex',
+                    '@md': {
+                      display: 'none',
+                    },
+                  }}
+                >
+                  <Plus size={24} />
+                </SpanBox>
+              </Button>
+            </Box>
+            <TableHeading>
+              <Box
+                css={{
+                  flex: '49%',
+                }}
+              >
+                <StyledText
+                  style="menuTitle"
+                  css={{
+                    color: '$grayTextContrast',
+                  }}
+                >
+                  Address
+                </StyledText>
+              </Box>
+              <Box style={{ flex: '51%' }}>
+                <StyledText
+                  style="menuTitle"
+                  css={{
+                    color: '$grayTextContrast',
+                  }}
+                >
+                  Created At
+                </StyledText>
+              </Box>
+            </TableHeading>
+          </HeaderWrapper>
+          {emailAddresses &&
+            emailAddresses.map((email, i) => {
+              const isLastChild = i === emailAddresses.length - 1
+
+              return (
+                <TableCard
+                  key={email.id}
+                  css={{
+                    '&:hover': {
+                      background: 'rgba(255, 234, 159, 0.12)',
+                    },
+                    '@mdDown': {
+                      borderTopLeftRadius: i === 0 ? '5px' : '',
+                      borderTopRightRadius: i === 0 ? '5px' : '',
+                    },
+                    borderBottomLeftRadius: isLastChild ? '5px' : '',
+                    borderBottomRightRadius: isLastChild ? '5px' : '',
+                  }}
+                >
+                  <Box
                     css={{
                       display: 'flex',
-                      padding: '4px 4px 4px 0px',
+                      width: '100%',
+                      flexDirection: 'column',
+                      '@md': {
+                        flexDirection: 'row',
+                      },
                     }}
                   >
-                    <Input
-                      type="text"
-                      value={address}
-                      disabled
-                      css={{
-                        marginLeft: '0',
-                        width: '100%',
-                        '@md': {
-                          marginLeft: '38px',
-                          width: '320px',
-                        },
-                      }}
-                    ></Input>
-                    <CopyTextBtnWrapper
-                      css={{
-                        '@mdDown': {
-                          marginRight: '10px',
-                          marginLeft: '18px',
-                        },
-                      }}
-                    >
-                      <CopyTextButton
-                        text={address}
-                        type={TextType.EmailAddress}
-                      />
-                    </CopyTextBtnWrapper>
-                    <Box
-                      css={{
-                        marginLeft: 'auto',
-                        textAlign: 'right',
-                        display: 'flex',
-                        '@md': {
-                          display: 'none',
-                        },
-                      }}
-                    >
-                      <MoreOptions onDelete={() => deleteEmail(id)} />
-                    </Box>
-                  </HStack>
-                  {confirmationCode && (
                     <HStack
                       distribution="start"
                       css={{
                         display: 'flex',
-                        backgroundColor: '$grayBgActive',
-                        borderRadius: '6px',
-                        padding: '8px 4px 4px 7px',
+                        padding: '4px 4px 4px 0px',
+                      }}
+                    >
+                      <VStack>
+                        <Input
+                          type="text"
+                          value={email.address}
+                          disabled
+                          css={{
+                            marginLeft: '0',
+                            width: '100%',
+                            fontSize: '18px',
+                            '@md': {
+                              marginLeft: '38px',
+                              width: '320px',
+                            },
+                          }}
+                        ></Input>
+                        {email.createdAt}
+                        count: {email.subscriptionCount}
+                      </VStack>
+                      <CopyTextBtnWrapper>
+                        <CopyTextButton
+                          text={email.address}
+                          type={TextType.EmailAddress}
+                        />
+                      </CopyTextBtnWrapper>
+                      <Box
+                        css={{
+                          marginLeft: 'auto',
+                          textAlign: 'right',
+                          display: 'flex',
+                          '@md': {
+                            display: 'none',
+                          },
+                        }}
+                      >
+                        <MoreOptions onDelete={() => deleteEmail(email.id)} />
+                      </Box>
+                    </HStack>
+                    {email.confirmationCode && (
+                      <HStack
+                        distribution="start"
+                        css={{
+                          display: 'flex',
+                          backgroundColor: '$grayBgActive',
+                          borderRadius: '6px',
+                          padding: '8px 4px 4px 7px',
+                          '@md': {
+                            padding: 'unset',
+                            backgroundColor: 'transparent',
+                          },
+                        }}
+                      >
+                        <>
+                          <Input
+                            type="text"
+                            value={email.confirmationCode}
+                            disabled
+                            style={{ flex: '1' }}
+                          ></Input>
+                          <Box>
+                            <CopyTextBtnWrapper>
+                              <CopyTextButton
+                                text={email.confirmationCode}
+                                type={TextType.ConfirmationCode}
+                              />
+                            </CopyTextBtnWrapper>
+                          </Box>
+                        </>
+                      </HStack>
+                    )}
+                  </Box>
+                  <HStack distribution={'start'} css={{ marginLeft: 'auto' }}>
+                    <Box
+                      css={{
+                        textAlign: 'right',
+                        display: 'none',
                         '@md': {
-                          padding: 'unset',
-                          backgroundColor: 'transparent',
+                          display: 'flex',
                         },
                       }}
                     >
-                      <>
-                        <Input
-                          type="text"
-                          value={confirmationCode}
-                          disabled
-                          style={{ flex: '1' }}
-                        ></Input>
-                        <Box>
-                          <CopyTextBtnWrapper
-                            css={{
-                              '@mdDown': {
-                                border: 'none',
-                              }
-                            }}
-                          >
-                            <CopyTextButton
-                              text={confirmationCode}
-                              type={TextType.ConfirmationCode}
-                            />
-                          </CopyTextBtnWrapper>
-                        </Box>
-                      </>
-                    </HStack>
-                  )}
-                </Box>
-                <HStack distribution={'start'} css={{ marginLeft: 'auto' }}>
-                  <Box
-                    css={{
-                      textAlign: 'right',
-                      display: 'none',
-                      '@md': {
-                        display: 'flex',
-                      },
-                    }}
-                  >
-                    <MoreOptions onDelete={() => deleteEmail(id)} />
-                  </Box>
-                </HStack>
-              </TableCard>
-            )
-          })}
-      </VStack>
+                      <MoreOptions onDelete={() => deleteEmail(email.id)} />
+                    </Box>
+                  </HStack>
+                </TableCard>
+              )
+            })}
+        </VStack>
+      </HStack>
       <Box css={{ height: '120px' }} />
     </PrimaryLayout>
   )
