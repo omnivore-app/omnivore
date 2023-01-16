@@ -1,6 +1,7 @@
 import { DetailedHTMLProps, MetaHTMLAttributes } from 'react'
 import Head from 'next/head'
 import { useDarkModeListener } from '../../lib/hooks/useDarkModeListener'
+import { webBaseURL } from '../../lib/appConfig'
 
 type MetaTag = DetailedHTMLProps<
   MetaHTMLAttributes<HTMLMetaElement>,
@@ -50,7 +51,7 @@ export function PageMetaData(props: PageMetaDataProps): JSX.Element {
           <meta property="og:image" content={props.ogImage} key="og-image" />
           <meta
             name="twitter:image"
-            content={`https://omnivore-demo-7hm1ymole-omnivore.vercel.app${props.ogImage}`}
+            content={`${webBaseURL}${props.ogImage}`}
           />
         </>
       )}
