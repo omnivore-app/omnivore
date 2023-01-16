@@ -51,9 +51,7 @@ suspend fun Networker.savedItem(slug: String): SavedItemQueryResponse {
         annotation = it.highlightFields.annotation,
         createdAt = null, // TODO: update gql query to get this
         updatedAt = null, //updatedAtString?.let { str -> LocalDate.parse(str) }, TODO: fix date parsing
-        createdByMe = it.highlightFields.createdByMe,
-        markedForDeletion = false,
-        serverSyncStatus = 0
+        createdByMe = it.highlightFields.createdByMe
       )
     }
 

@@ -1,6 +1,7 @@
 package app.omnivore.omnivore.persistence.entities
 
 import androidx.room.*
+import app.omnivore.omnivore.models.ServerSyncStatus
 import java.time.LocalDate
 import java.util.Date
 
@@ -10,11 +11,11 @@ data class Highlight(
   val annotation: String?,
   val createdAt: String?,
   val createdByMe: Boolean,
-  val markedForDeletion: Boolean, // default false
+  val markedForDeletion: Boolean = false,
   val patch: String,
   val prefix: String?,
   val quote: String,
-  val serverSyncStatus: Int, // default 0
+  val serverSyncStatus: Int = ServerSyncStatus.IS_SYNCED.rawValue,
   val shortId: String,
   val suffix: String?,
   val updatedAt: String?

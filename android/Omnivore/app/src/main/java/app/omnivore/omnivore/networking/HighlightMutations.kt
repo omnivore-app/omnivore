@@ -148,9 +148,7 @@ suspend fun Networker.createHighlight(input: CreateHighlightInput): Highlight? {
         annotation = createdHighlight.highlightFields.annotation,
         createdAt = null, // TODO: update gql query to get this
         updatedAt = null, // TODO: fix updatedAtString?.let { LocalDate.parse(it) },
-        createdByMe = createdHighlight.highlightFields.createdByMe,
-        markedForDeletion = false,
-        serverSyncStatus = 0
+        createdByMe = createdHighlight.highlightFields.createdByMe
       )
     } else {
       return null

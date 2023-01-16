@@ -84,10 +84,10 @@ class LibraryViewModel @Inject constructor(
     dataService.syncOfflineItemsWithServerIfNeeded()
     val result = dataService.sync(since = since, cursor = cursor)
 
-    // TODO: Defer this until later?
-    for (slug in result.savedItemSlugs) {
-      dataService.syncSavedItemContent(slug)
-    }
+    // TODO: Defer this until later? /fix - this results in a 429 server error
+//    for (slug in result.savedItemSlugs) {
+//      dataService.syncSavedItemContent(slug)
+//    }
 
     val totalCount = count + result.count
 
