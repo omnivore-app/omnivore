@@ -1,6 +1,5 @@
 import { useRouter } from 'next/router'
 import Script from 'next/script'
-import Head from 'next/head'
 import { useState, useEffect } from 'react'
 import { LoginLayout } from './../components/templates/LoginLayout'
 import { parseErrorCodes } from '../lib/queryParamParser'
@@ -9,9 +8,8 @@ import { formatMessage } from '../locales/en/messages'
 
 export default function Login(): JSX.Element {
   const router = useRouter()
-  const [errorMessage, setErrorMessage] = useState<string | undefined>(
-    undefined
-  )
+  const [errorMessage, setErrorMessage] =
+    useState<string | undefined>(undefined)
 
   useEffect(() => {
     if (!router.isReady) return
@@ -39,7 +37,7 @@ export default function Login(): JSX.Element {
       <PageMetaData
         title="Welcome to Omnivore"
         path="/login"
-        ogImage="/static/images/og-homepage-02.png"
+        ogImage="/static/images/og-homepage-03.png"
       />
       <LoginLayout {...loginFormProps} />
       <div data-testid="login-page-tag" />
