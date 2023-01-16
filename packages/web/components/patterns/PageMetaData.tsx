@@ -50,7 +50,7 @@ export function PageMetaData(props: PageMetaDataProps): JSX.Element {
           <meta property="og:image" content={props.ogImage} key="og-image" />
           <meta
             name="twitter:image"
-            content={`https://omnivore-demo-7hm1ymole-omnivore.vercel.app/${props.ogImage}`}
+            content={`https://omnivore-demo-7hm1ymole-omnivore.vercel.app${props.ogImage}`}
           />
         </>
       )}
