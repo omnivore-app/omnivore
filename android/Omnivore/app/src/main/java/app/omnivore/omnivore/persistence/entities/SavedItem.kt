@@ -36,7 +36,7 @@ data class SavedItem(
   val onDeviceImageURLString: String? = null,
   val originalHtml: String? = null,
   @ColumnInfo(typeAffinity = ColumnInfo.BLOB) val pdfData: ByteArray? = null,
-  val serverSyncStatus: Int = 0,
+  var serverSyncStatus: Int = 0,
   val tempPDFURL: String? = null
 
 // hasMany highlights
@@ -92,6 +92,9 @@ interface SavedItemDao {
   @Query("SELECT * FROM savedItem")
   fun getAll(): List<SavedItem>
 
+  @Query("SELECT * FROM savedItem WHERE serverSyncStatus != 0")
+  fun getUnSynced(): List<SavedItem>
+
   @Query("SELECT * FROM savedItem WHERE slug = :slug")
   fun getSavedItemWithLabelsAndHighlights(slug: String): SavedItemWithLabelsAndHighlights?
 
@@ -103,6 +106,9 @@ interface SavedItemDao {
 
   @Query("DELETE FROM savedItem WHERE savedItemId = :itemID")
   fun deleteById(itemID: String)
+
+  @Update
+  fun update(savedItem: SavedItem)
 
   @Transaction
   @Query("SELECT savedItemId, slug, publisherURLString, title, author, imageURLString, isArchived, pageURLString, contentReader FROM SavedItem ORDER BY savedAt DESC")

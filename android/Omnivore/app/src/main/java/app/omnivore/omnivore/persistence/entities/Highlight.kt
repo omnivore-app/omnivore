@@ -2,8 +2,7 @@ package app.omnivore.omnivore.persistence.entities
 
 import androidx.room.*
 import app.omnivore.omnivore.models.ServerSyncStatus
-import java.time.LocalDate
-import java.util.Date
+
 
 @Entity
 data class Highlight(
@@ -73,6 +72,12 @@ data class SavedItemWithLabelsAndHighlights(
 
 @Dao
 interface HighlightDao {
+  @Query("SELECT * FROM highlight WHERE serverSyncStatus != 0")
+  fun getUnSynced(): List<Highlight>
+
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   fun insertAll(items: List<Highlight>)
+
+  @Update
+  fun update(highlight: Highlight)
 }

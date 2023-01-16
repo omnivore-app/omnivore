@@ -3,14 +3,10 @@ package app.omnivore.omnivore
 import android.content.Context
 import android.util.Log
 import androidx.room.Room
-import app.omnivore.omnivore.networking.Networker
-import app.omnivore.omnivore.networking.savedItem
-import app.omnivore.omnivore.networking.savedItemUpdates
+import app.omnivore.omnivore.models.ServerSyncStatus
+import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.persistence.AppDatabase
-import app.omnivore.omnivore.persistence.entities.SavedItem
-import app.omnivore.omnivore.persistence.entities.SavedItemAndHighlightCrossRef
-import app.omnivore.omnivore.persistence.entities.SavedItemAndSavedItemLabelCrossRef
-import app.omnivore.omnivore.persistence.entities.SavedItemLabel
+import app.omnivore.omnivore.persistence.entities.*
 import javax.inject.Inject
 
 class DataService @Inject constructor(
@@ -116,7 +112,67 @@ suspend fun DataService.syncSavedItemContent(slug: String) {
 }
 
 suspend fun DataService.syncOfflineItemsWithServerIfNeeded() {
-  // TODO: implement this
+  val unSyncedSavedItems = db.savedItemDao().getUnSynced()
+  val unSyncedHighlights = db.highlightDao().getUnSynced()
+
+  for (savedItem in unSyncedSavedItems) {
+    syncSavedItem(savedItem)
+  }
+
+  for (highlight in unSyncedHighlights) {
+    syncHighlight(highlight)
+  }
+}
+
+private suspend fun DataService.syncSavedItem(item: SavedItem) {
+  fun updateSyncStatus(status: ServerSyncStatus) {
+    item.serverSyncStatus = status.rawValue
+    db.savedItemDao().update(item)
+  }
+
+  when (item.serverSyncStatus) {
+    ServerSyncStatus.NEEDS_DELETION.rawValue -> {
+      updateSyncStatus(ServerSyncStatus.IS_SYNCING)
+
+      val isDeletedOnServer = networker.deleteSavedItem(item.savedItemId)
+
+      if (isDeletedOnServer) {
+        db.savedItemDao().deleteById(item.savedItemId)
+      } else {
+        updateSyncStatus(ServerSyncStatus.NEEDS_DELETION)
+      }
+    }
+    ServerSyncStatus.NEEDS_UPDATE.rawValue -> {
+      updateSyncStatus(ServerSyncStatus.IS_SYNCING)
+
+      val isArchiveServerSynced = networker.updateArchiveStatusSavedItem(itemID = item.savedItemId, setAsArchived = item.isArchived)
+
+      val isReadingProgressSynced = networker.updateReadingProgress(
+        ReadingProgressParams(
+          id = item.savedItemId,
+          readingProgressPercent = item.readingProgress,
+          readingProgressAnchorIndex = item.readingProgressAnchor
+        )
+      )
+
+      if (isArchiveServerSynced && isReadingProgressSynced) {
+        updateSyncStatus(ServerSyncStatus.IS_SYNCED)
+      } else {
+        updateSyncStatus(ServerSyncStatus.NEEDS_UPDATE)
+      }
+    }
+    ServerSyncStatus.NEEDS_CREATION.rawValue -> {
+      // TODO: implement when we are able to create content on device
+      // updateSyncStatus(ServerSyncStatus.IS_SYNCING)
+      // send update to server
+      // update db
+    }
+    else -> return
+  }
+}
+
+private suspend fun DataService.syncHighlight(item: Highlight) {
+  // TODO: update
 }
 
 data class SavedItemSyncResult(
