@@ -2,22 +2,21 @@ import { VStack, Box } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { LandingSection } from './LandingSection'
 
-const buttonStyles = {
-  display: 'flex',
-  borderRadius: 4,
-  background: 'rgb(255, 210, 52)',
-  color: '#3D3D3D',
-  width: '172px',
-  height: '42px',
-  alignItems: 'center',
-  justifyContent: 'center',
-}
-
 export function GetStartedButton(): JSX.Element {
   return (
     <Button
       style="ctaDarkYellow"
-      css={buttonStyles}
+      css={{
+        display: 'flex',
+        borderRadius: 4,
+        background: 'rgb(255, 210, 52)',
+        color: '#3D3D3D',
+        width: '172px',
+        height: '42px',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontWeight: '600',
+      }}
       onClick={(e) => {
         document.location.href = '/login'
         e.preventDefault()
