@@ -31,6 +31,7 @@ import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 type HighlightsModalProps = {
   highlights: Highlight[]
   scrollToHighlight?: (arg: string) => void
+  updateHighlight: (highlight: Highlight) => void
   deleteHighlightAction?: (highlightId: string) => void
   onOpenChange: (open: boolean) => void
 }
@@ -70,6 +71,7 @@ export function HighlightsModal(props: HighlightsModalProps): JSX.Element {
                     props.deleteHighlightAction(highlight.id)
                   }
                 }}
+                updateHighlight={props.updateHighlight}
               />
             ))}
             {props.highlights.length === 0 && (
@@ -127,6 +129,7 @@ type ModalHighlightViewProps = {
   showDelete: boolean
   scrollToHighlight?: (arg: string) => void
   deleteHighlightAction: () => void
+  updateHighlight: (highlight: Highlight) => void
 
   setSetLabelsTarget: (highlight: Highlight) => void
   setShowConfirmDeleteHighlightId: (id: string | undefined) => void
@@ -192,8 +195,9 @@ function ModalHighlightView(props: ModalHighlightViewProps): JSX.Element {
         ) : null}
         {isEditing && (
           <TextEditArea
-            highlight={props.highlight}
             setIsEditing={setIsEditing}
+            highlight={props.highlight}
+            updateHighlight={props.updateHighlight}
           />
         )}
         <SpanBox css={{ mt: '$2', mb: '$4' }} />
@@ -205,6 +209,7 @@ function ModalHighlightView(props: ModalHighlightViewProps): JSX.Element {
 type TextEditAreaProps = {
   setIsEditing: (editing: boolean) => void
   highlight: Highlight
+  updateHighlight: (highlight: Highlight) => void
 }
 
 const TextEditArea = (props: TextEditAreaProps): JSX.Element => {
@@ -254,16 +259,20 @@ const TextEditArea = (props: TextEditAreaProps): JSX.Element => {
           onClick={async (e) => {
             e.preventDefault()
 
+            console.log('updating highlight')
             try {
               const result = await updateHighlightMutation({
                 highlightId: props.highlight.id,
                 annotation: noteContent,
               })
+              console.log('result: ' + result)
+
               if (!result) {
                 showErrorToast('There was an error updating your highlight.')
               } else {
                 showSuccessToast('Note saved')
                 props.highlight.annotation = noteContent
+                props.updateHighlight(props.highlight)
               }
             } catch (err) {
               console.log('error updating annoation', err)

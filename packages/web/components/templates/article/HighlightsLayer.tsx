@@ -69,18 +69,16 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   >([])
   const focusedHighlightMousePos = useRef({ pageX: 0, pageY: 0 })
 
-  const [focusedHighlight, setFocusedHighlight] = useState<
-    Highlight | undefined
-  >(undefined)
+  const [focusedHighlight, setFocusedHighlight] =
+    useState<Highlight | undefined>(undefined)
 
   const [selectionData, setSelectionData] = useSelection(
     highlightLocations,
     false //noteModal.open,
   )
 
-  const [labelsTarget, setLabelsTarget] = useState<Highlight | undefined>(
-    undefined
-  )
+  const [labelsTarget, setLabelsTarget] =
+    useState<Highlight | undefined>(undefined)
 
   const canShareNative = useCanShareNative()
 
@@ -649,6 +647,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         deleteHighlightAction={(highlightId: string) => {
           removeHighlightCallback(highlightId)
         }}
+        updateHighlight={updateHighlightsCallback}
       />
     )
   }
