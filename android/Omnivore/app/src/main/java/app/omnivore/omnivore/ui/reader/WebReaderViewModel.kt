@@ -50,10 +50,10 @@ class WebReaderViewModel @Inject constructor(
       withContext(Dispatchers.IO) {
         val persistedItem = dataService.db.savedItemDao().getSavedItemWithLabelsAndHighlights(slug)
 
-        if (persistedItem?.savedItem != null) {
+        if (persistedItem?.savedItem?.content != null) {
           val articleContent = ArticleContent(
             title = persistedItem.savedItem.title,
-            htmlContent = persistedItem.savedItem.content ?: "",
+            htmlContent = persistedItem.savedItem.content,
             highlights = persistedItem.highlights,
             contentStatus = "SUCCEEDED",
             objectID = "",
