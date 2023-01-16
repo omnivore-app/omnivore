@@ -39,7 +39,10 @@ export function PageMetaData(props: PageMetaDataProps): JSX.Element {
       <meta property="og:site_name" content="Omnivore" />
 
       {props.ogImage && (
-        <meta property="og:image" content={props.ogImage} key="og-image" />
+        <>
+          <meta property="og:image" content={props.ogImage} key="og-image" />
+          <meta name="twitter:image" content={props.ogImage} />
+        </>
       )}
       {props.ogImage && (
         <meta property="og:image:width" content="" key="og-image-width" />
@@ -55,15 +58,21 @@ export function PageMetaData(props: PageMetaDataProps): JSX.Element {
         />
       )}
       {props.title && (
-        <meta property="og:title" content={props.title} key="og-title" />
+        <>
+          <meta property="og:title" content={props.title} key="og-title" />
+          <meta name="twitter:title" content={props.title} />
+        </>
       )}
       {props.title && <title key="title">{props.title}</title>}
       {props.description && (
-        <meta
-          property="og:description"
-          content={props.description}
-          key="og-description"
-        />
+        <>
+          <meta
+            property="og:description"
+            content={props.description}
+            key="og-description"
+          />
+          <meta name="twitter:description" content={props.description} />
+        </>
       )}
       {props.path && (
         <meta
