@@ -69,8 +69,6 @@ export class YoutubeHandler extends ContentHandler {
       </body>
     </html>`
 
-    console.log('got video id', videoId)
-
-    return { content, title: 'Youtube Content' }
+    return { content, title }
   }
 }
