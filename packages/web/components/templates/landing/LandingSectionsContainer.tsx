@@ -1,38 +1,29 @@
-import Link from 'next/link'
 import { VStack, Box } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
-import { ArrowRight } from 'phosphor-react'
 import { LandingSection } from './LandingSection'
 
 const buttonStyles = {
   display: 'flex',
   borderRadius: 4,
-  px: 30,
   background: 'rgb(255, 210, 52)',
   color: '#3D3D3D',
-}
-
-const arrowStyles = {
-  marginLeft: 10,
-  padding: 2,
+  width: '172px',
+  height: '42px',
+  alignItems: 'center',
+  justifyContent: 'center',
 }
 
 export function GetStartedButton(): JSX.Element {
   return (
-    <Button style="ctaDarkYellow" css={buttonStyles}>
-      <Link passHref href="/login">
-        <a style={{ textDecoration: 'none', color: '#3D3D3D' }}>
-          Sign Up for Free
-        </a>
-      </Link>
-      <ArrowRight
-        size={18}
-        width={18}
-        height={18}
-        style={arrowStyles}
-        color="black"
-        fontWeight="800"
-      />
+    <Button
+      style="ctaDarkYellow"
+      css={buttonStyles}
+      onClick={(e) => {
+        document.location.href = '/login'
+        e.preventDefault()
+      }}
+    >
+      Sign Up for Free
     </Button>
   )
 }
@@ -115,6 +106,7 @@ export function LandingSectionsContainer(): JSX.Element {
           style={{
             width: '85%',
             maxWidth: '85%',
+            aspectRatio: '2029 : 1293',
           }}
         />
       </Box>
