@@ -18,7 +18,7 @@ import {
 } from '../../components/elements/LayoutPrimitives'
 import { useCopyLink } from '../../lib/hooks/useCopyLink'
 import { Toaster } from 'react-hot-toast'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { StyledText } from '../../components/elements/StyledText'
 import { applyStoredTheme } from '../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
@@ -68,16 +68,6 @@ const TableHeading = styled(Box, {
   width: '100%',
   '@md': {
     display: 'flex',
-  },
-})
-
-const Input = styled('input', {
-  backgroundColor: 'transparent',
-  color: '$grayTextContrast',
-  marginTop: '5px',
-  marginLeft: '38px',
-  '&[disabled]': {
-    border: 'none',
   },
 })
 
@@ -197,6 +187,16 @@ export default function EmailsPage(): JSX.Element {
     revalidate()
     showSuccessToast('Email Deleted')
   }
+
+  const sortedEmailAddresses = useMemo(() => {
+    return emailAddresses
+      .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+      .map((em) => {
+        em.confirmationCode = '123445'
+        return em
+      })
+  }, [emailAddresses])
+
   return (
     <PrimaryLayout pageTestId="settings-emails-tag">
       <Toaster
@@ -272,9 +272,9 @@ export default function EmailsPage(): JSX.Element {
               </StyledText>
             </TableHeading>
           </HeaderWrapper>
-          {emailAddresses &&
-            emailAddresses.map((email, i) => {
-              const isLastChild = i === emailAddresses.length - 1
+          {sortedEmailAddresses &&
+            sortedEmailAddresses.map((email, i) => {
+              const isLastChild = i === sortedEmailAddresses.length - 1
 
               return (
                 <TableCard
@@ -296,8 +296,8 @@ export default function EmailsPage(): JSX.Element {
                       display: 'flex',
                       width: '100%',
                       flexDirection: 'column',
-                      paddingLeft: '20px',
                       '@md': {
+                        paddingLeft: '20px',
                         flexDirection: 'row',
                       },
                     }}
@@ -333,7 +333,13 @@ export default function EmailsPage(): JSX.Element {
                           } subscriptions`}
                         </StyledText>
                       </VStack>
-                      <CopyTextBtnWrapper>
+                      <CopyTextBtnWrapper
+                        css={{
+                          '@mdDown': {
+                            marginRight: '10px',
+                          },
+                        }}
+                      >
                         <CopyTextButton
                           text={email.address}
                           type={TextType.EmailAddress}
@@ -354,25 +360,31 @@ export default function EmailsPage(): JSX.Element {
                     </HStack>
                     {email.confirmationCode && (
                       <HStack
-                        distribution="start"
+                        alignment="start"
+                        distribution="end"
                         css={{
-                          display: 'flex',
+                          width: '100%',
                           backgroundColor: '$grayBgActive',
                           borderRadius: '6px',
-                          padding: '8px 4px 4px 7px',
+                          padding: '4px 4px 4px 0px',
                           '@md': {
-                            padding: 'unset',
+                            width: 'unset',
+                            marginLeft: '32px',
                             backgroundColor: 'transparent',
                           },
                         }}
                       >
                         <>
-                          <Input
-                            type="text"
-                            value={email.confirmationCode}
-                            disabled
-                            style={{ flex: '1' }}
-                          ></Input>
+                          <StyledText
+                            css={{
+                              fontSize: '11px',
+                              '@md': {
+                                marginTop: '5px',
+                              },
+                            }}
+                          >
+                            {`Gmail: ${email.confirmationCode}`}
+                          </StyledText>
                           <Box>
                             <CopyTextBtnWrapper>
                               <CopyTextButton
@@ -385,7 +397,7 @@ export default function EmailsPage(): JSX.Element {
                       </HStack>
                     )}
                   </Box>
-                  <HStack distribution={'start'} css={{ marginLeft: 'auto' }}>
+                  <HStack distribution="start" css={{ marginLeft: 'auto' }}>
                     <Box
                       css={{
                         textAlign: 'right',

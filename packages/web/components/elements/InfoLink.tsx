@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { Info } from 'phosphor-react'
-import { Box } from '../elements/LayoutPrimitives'
+import { Box, VStack } from '../elements/LayoutPrimitives'
 import { theme } from '../tokens/stitches.config'
 import { TooltipWrapped } from './Tooltip'
 
@@ -15,8 +15,14 @@ const TooltipStyle = {
 
 export function InfoLink(props: InfoLinkProps): JSX.Element {
   return (
-    <Box style={{ flex: '1', marginLeft: '9px' }}>
-    <Link passHref href={props.href}>
+    <VStack
+      css={{
+        marginLeft: '10px',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100%',
+      }}
+    >
       <a style={{ textDecoration: 'none' }}>
         <TooltipWrapped
           tooltipContent="Learn More"
@@ -27,7 +33,6 @@ export function InfoLink(props: InfoLinkProps): JSX.Element {
           <Info size={24} color={theme.colors.grayText.toString()} />
         </TooltipWrapped>
       </a>
-    </Link>
-  </Box>
+    </VStack>
   )
 }
