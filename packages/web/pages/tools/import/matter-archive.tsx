@@ -1,14 +1,7 @@
-import { ChangeEvent, useCallback, useMemo, useState } from 'react'
-import { Toaster } from 'react-hot-toast'
-
-import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
+import { useState } from 'react'
 import { applyStoredTheme } from '../../../lib/themeUpdater'
 
-import {
-  Box,
-  HStack,
-  VStack,
-} from '../../../components/elements/LayoutPrimitives'
+import { Box, VStack } from '../../../components/elements/LayoutPrimitives'
 
 import 'antd/dist/antd.compact.css'
 import { StyledText } from '../../../components/elements/StyledText'
@@ -18,7 +11,7 @@ import {
   UploadImportFileType,
 } from '../../../lib/networking/mutations/uploadImportFileMutation'
 import { Button } from '../../../components/elements/Button'
-import Dropzone, { useDropzone } from 'react-dropzone'
+import Dropzone from 'react-dropzone'
 
 import { SyncLoader } from 'react-spinners'
 import { theme } from '../../../components/tokens/stitches.config'
@@ -30,10 +23,7 @@ export default function ImportUploader(): JSX.Element {
   applyStoredTheme(false)
 
   const [errorMessage, setErrorMessage] = useState<string | undefined>()
-  const [file, setFile] = useState<File>()
-  const [type, setType] = useState<UploadImportFileType>()
   const [uploadState, setUploadState] = useState<UploadState>('none')
-  const { acceptedFiles, getRootProps, getInputProps } = useDropzone()
 
   const onDropAccepted = async (acceptedFiles: File[]) => {
     const contentType = 'application/zip'

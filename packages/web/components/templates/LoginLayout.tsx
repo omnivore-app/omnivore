@@ -2,7 +2,6 @@ import {
   Box,
   HStack,
   MediumBreakpointBox,
-  SpanBox,
   VStack,
 } from '../elements/LayoutPrimitives'
 import { LoginForm } from './LoginForm'
@@ -97,18 +96,17 @@ function OmnivoreIllustration({ isLargeLayout }: OmnivoreIllustrationProps) {
       css={{
         width: '100%',
         height: '100%',
-        marginRight: '57px',
+        marginLeft: 'auto',
         backgroundSize: 'cover',
         backgroundRepeat: 'no-repeat',
-        backgroundPositionY: '70px',
         backgroundImage: `-webkit-image-set(
-        url('/static/images/landing-illustration.png') 1x,
-        url('/static/images/landing-illustration@2x.png') 2x
-      )`,
+          url('/static/images/landingPage-feature@1x.png') 1x,
+          url('/static/landing/landingPage-feature@2x.png') 2x
+        )`,
         'background-image': `image-set(
-        url('/static/images/landing-illustration.png') 1x,
-        url('/static/images/landing-illustration@2x.png') 2x
-      )`,
+          url('/static/images/landingPage-feature@1x.png') 1x,
+          url('/static/landing/landingPage-feature@2x.png') 2x
+        )`,
       }}
     />
   )

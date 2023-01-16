@@ -1,6 +1,7 @@
 import { DetailedHTMLProps, MetaHTMLAttributes } from 'react'
 import Head from 'next/head'
 import { useDarkModeListener } from '../../lib/hooks/useDarkModeListener'
+import { webBaseURL } from '../../lib/appConfig'
 
 type MetaTag = DetailedHTMLProps<
   MetaHTMLAttributes<HTMLMetaElement>,
@@ -35,11 +36,24 @@ export function PageMetaData(props: PageMetaDataProps): JSX.Element {
         href={`/static/icons/favicon-${isDarkMode ? 'dark' : 'light'}.ico`}
       />
 
+      <meta property="fb:app_id" content="3584400838451823" />
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:creator:id" content="1372981426199564288" />
+      <meta name="twitter:site:id" content="1372981426199564288" />
+
       <meta property="og:type" content="website" />
       <meta property="og:site_name" content="Omnivore" />
 
+      <meta name="twitter:domain" content="omnivore.app" />
+
       {props.ogImage && (
-        <meta property="og:image" content={props.ogImage} key="og-image" />
+        <>
+          <meta property="og:image" content={props.ogImage} key="og-image" />
+          <meta
+            name="twitter:image"
+            content={`${webBaseURL}${props.ogImage}`}
+          />
+        </>
       )}
       {props.ogImage && (
         <meta property="og:image:width" content="" key="og-image-width" />
@@ -55,15 +69,21 @@ export function PageMetaData(props: PageMetaDataProps): JSX.Element {
         />
       )}
       {props.title && (
-        <meta property="og:title" content={props.title} key="og-title" />
+        <>
+          <meta property="og:title" content={props.title} key="og-title" />
+          <meta name="twitter:title" content={props.title} />
+        </>
       )}
       {props.title && <title key="title">{props.title}</title>}
       {props.description && (
-        <meta
-          property="og:description"
-          content={props.description}
-          key="og-description"
-        />
+        <>
+          <meta
+            property="og:description"
+            content={props.description}
+            key="og-description"
+          />
+          <meta name="twitter:description" content={props.description} />
+        </>
       )}
       {props.path && (
         <meta
@@ -80,12 +100,6 @@ export function PageMetaData(props: PageMetaDataProps): JSX.Element {
       {props.metaTags?.map((metatag, i) => (
         <meta key={i} {...metatag} />
       ))}
-
-      <meta property="fb:app_id" content="3584400838451823" />
-
-      <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:creator:id" content="1372981426199564288" />
-      <meta name="twitter:site:id" content="1372981426199564288" />
     </Head>
   )
 }

@@ -7,7 +7,7 @@ import { LandingHeader } from '../components/templates/landing/LandingHeader'
 import { LandingFooter } from '../components/templates/landing/LandingFooter'
 import { PageMetaData } from '../components/patterns/PageMetaData'
 
-const mobileContainerStyles = {
+const containerStyles = {
   alignSelf: 'center',
   marginTop: 80,
   maxWidth: 960,
@@ -44,7 +44,7 @@ export default function LandingPage(): JSX.Element {
       <PageMetaData
         title="Omnivore"
         path="/about"
-        ogImage="/static/images/og-homepage-02.png"
+        ogImage="/static/images/og-homepage-03.png"
         description="Omnivore is the free, open source, read-it-later app for serious readers."
       />
 
@@ -53,7 +53,7 @@ export default function LandingPage(): JSX.Element {
         alignment="center"
         css={{ background: '#FEFCF5', color: '#3D3D3D' }}
       >
-        <VStack css={mobileContainerStyles}>
+        <VStack css={containerStyles}>
           <Box css={headingStyles}>
             Omnivore is the free, open source, read-it-later app for serious
             readers.

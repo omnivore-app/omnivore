@@ -1,38 +1,28 @@
-import Link from 'next/link'
 import { VStack, Box } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
-import { ArrowRight } from 'phosphor-react'
 import { LandingSection } from './LandingSection'
-
-const buttonStyles = {
-  display: 'flex',
-  borderRadius: 4,
-  px: 30,
-  background: 'rgb(255, 210, 52)',
-  color: '#3D3D3D',
-}
-
-const arrowStyles = {
-  marginLeft: 10,
-  padding: 2,
-}
 
 export function GetStartedButton(): JSX.Element {
   return (
-    <Button style="ctaDarkYellow" css={buttonStyles}>
-      <Link passHref href="/login">
-        <a style={{ textDecoration: 'none', color: '#3D3D3D' }}>
-          Sign Up for Free
-        </a>
-      </Link>
-      <ArrowRight
-        size={18}
-        width={18}
-        height={18}
-        style={arrowStyles}
-        color="black"
-        fontWeight="800"
-      />
+    <Button
+      style="ctaDarkYellow"
+      css={{
+        display: 'flex',
+        borderRadius: 4,
+        background: 'rgb(255, 210, 52)',
+        color: '#3D3D3D',
+        width: '172px',
+        height: '42px',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontWeight: '600',
+      }}
+      onClick={(e) => {
+        document.location.href = '/login'
+        e.preventDefault()
+      }}
+    >
+      Sign Up for Free
     </Button>
   )
 }
@@ -94,7 +84,6 @@ const callToActionText = {
 }
 
 export function LandingSectionsContainer(): JSX.Element {
-  // const iconColor = 'rgb(255, 210, 52)'
   return (
     <VStack alignment="center" distribution="start" css={containerStyles}>
       <Box
@@ -108,13 +97,15 @@ export function LandingSectionsContainer(): JSX.Element {
         }}
       >
         <img
-          srcSet="/static/landing/landingPage-1.png,
-                  /static/landing/landingPage-1@2x.png 2x,
-                  /static/landing/landingPage-1@3x.png 3x"
+          height="647"
+          width="1015"
+          srcSet="/static/landing/landingPage-feature@1x.png,
+                  /static/landing/landingPage-feature@2x.png 2x,
+                  /static/landing/landingPage-feature@3x.png 3x"
           alt="landingHero-1"
           style={{
-            width: '70%',
-            maxWidth: '70%',
+            width: '85%',
+            height: 'auto',
           }}
         />
       </Box>
