@@ -23,6 +23,7 @@ import { StyledText } from '../../components/elements/StyledText'
 import { applyStoredTheme } from '../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import { InfoLink } from '../../components/elements/InfoLink'
+import { formattedShortDate } from '../../lib/dateFormatting'
 
 enum TextType {
   EmailAddress,
@@ -62,7 +63,7 @@ const TableHeading = styled(Box, {
   border: '1px solid rgba(0, 0, 0, 0.06)',
   display: 'none',
   alignItems: 'center',
-  padding: '14px 0 14px 40px',
+  padding: '10px 0 10px 20px',
   borderRadius: '5px 5px 0px 0px',
   width: '100%',
   '@md': {
@@ -93,6 +94,7 @@ const CopyTextBtnWrapper = styled(Box, {
 
   alignItems: 'center',
   justifyContent: 'center',
+  marginLeft: '10px',
 })
 
 const MoreOptions = ({ onDelete }: { onDelete: () => void }) => (
@@ -260,30 +262,14 @@ export default function EmailsPage(): JSX.Element {
               </Button>
             </Box>
             <TableHeading>
-              <Box
+              <StyledText
+                style="menuTitle"
                 css={{
-                  flex: '49%',
+                  color: '$grayTextContrast',
                 }}
               >
-                <StyledText
-                  style="menuTitle"
-                  css={{
-                    color: '$grayTextContrast',
-                  }}
-                >
-                  Address
-                </StyledText>
-              </Box>
-              <Box style={{ flex: '51%' }}>
-                <StyledText
-                  style="menuTitle"
-                  css={{
-                    color: '$grayTextContrast',
-                  }}
-                >
-                  Created At
-                </StyledText>
-              </Box>
+                Address
+              </StyledText>
             </TableHeading>
           </HeaderWrapper>
           {emailAddresses &&
@@ -310,6 +296,7 @@ export default function EmailsPage(): JSX.Element {
                       display: 'flex',
                       width: '100%',
                       flexDirection: 'column',
+                      paddingLeft: '20px',
                       '@md': {
                         flexDirection: 'row',
                       },
@@ -322,23 +309,29 @@ export default function EmailsPage(): JSX.Element {
                         padding: '4px 4px 4px 0px',
                       }}
                     >
-                      <VStack>
-                        <Input
-                          type="text"
-                          value={email.address}
-                          disabled
+                      <VStack css={{}}>
+                        <StyledText
                           css={{
-                            marginLeft: '0',
-                            width: '100%',
+                            m: '0px',
                             fontSize: '18px',
-                            '@md': {
-                              marginLeft: '38px',
-                              width: '320px',
+                            '@mdDown': {
+                              fontSize: '12px',
+                              fontWeight: 'bold',
                             },
                           }}
-                        ></Input>
-                        {email.createdAt}
-                        count: {email.subscriptionCount}
+                        >
+                          {email.address}
+                        </StyledText>
+                        <StyledText
+                          css={{
+                            my: '5px',
+                            fontSize: '11px',
+                          }}
+                        >
+                          {`created ${formattedShortDate(email.createdAt)}, ${
+                            email.subscriptionCount
+                          } subscriptions`}
+                        </StyledText>
                       </VStack>
                       <CopyTextBtnWrapper>
                         <CopyTextButton

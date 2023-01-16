@@ -8,6 +8,12 @@ export function formattedLongDate(rawDate: string): string {
   }).format(new Date(rawDate))
 }
 
+export function formattedShortDate(rawDate: string): string {
+  return new Intl.DateTimeFormat(locale, {
+    dateStyle: 'short',
+  }).format(new Date(rawDate))
+}
+
 export function readableUpdatedAtMessage(
   rawDate: string,
   customPrefix?: string

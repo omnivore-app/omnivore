@@ -19,7 +19,7 @@ type NewsletterEmailsData = {
 export type NewsletterEmail = {
   id: string
   address: string
-  createdAt: Date
+  createdAt: string
   subscriptionCount: number
   confirmationCode?: string
 }
