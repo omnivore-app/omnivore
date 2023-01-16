@@ -14,7 +14,7 @@ data class Highlight(
   val patch: String,
   val prefix: String?,
   val quote: String,
-  val serverSyncStatus: Int = ServerSyncStatus.IS_SYNCED.rawValue,
+  var serverSyncStatus: Int = ServerSyncStatus.IS_SYNCED.rawValue,
   val shortId: String,
   val suffix: String?,
   val updatedAt: String?
@@ -50,6 +50,9 @@ data class SavedItemAndHighlightCrossRef(
 interface SavedItemAndHighlightCrossRefDao {
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   fun insertAll(items: List<SavedItemAndHighlightCrossRef>)
+
+  @Query("SELECT savedItemId FROM savedItemAndHighlightCrossRef WHERE highlightId = :highlightId")
+  fun associatedSavedItemID(highlightId: String): String?
 }
 
 data class SavedItemWithLabelsAndHighlights(
@@ -77,6 +80,9 @@ interface HighlightDao {
 
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   fun insertAll(items: List<Highlight>)
+
+  @Query("DELETE FROM highlight WHERE highlightId = :highlightId")
+  fun deleteById(highlightId: String)
 
   @Update
   fun update(highlight: Highlight)

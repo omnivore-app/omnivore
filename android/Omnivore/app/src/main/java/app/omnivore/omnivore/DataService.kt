@@ -3,10 +3,13 @@ package app.omnivore.omnivore
 import android.content.Context
 import android.util.Log
 import androidx.room.Room
+import app.omnivore.omnivore.graphql.generated.type.CreateHighlightInput
+import app.omnivore.omnivore.graphql.generated.type.UpdateHighlightInput
 import app.omnivore.omnivore.models.ServerSyncStatus
 import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.persistence.AppDatabase
 import app.omnivore.omnivore.persistence.entities.*
+import com.apollographql.apollo3.api.Optional
 import javax.inject.Inject
 
 class DataService @Inject constructor(
@@ -171,8 +174,66 @@ private suspend fun DataService.syncSavedItem(item: SavedItem) {
   }
 }
 
-private suspend fun DataService.syncHighlight(item: Highlight) {
-  // TODO: update
+private suspend fun DataService.syncHighlight(highlight: Highlight) {
+  fun updateSyncStatus(status: ServerSyncStatus) {
+    highlight.serverSyncStatus = status.rawValue
+    db.highlightDao().update(highlight)
+  }
+
+  when (highlight.serverSyncStatus) {
+    ServerSyncStatus.NEEDS_DELETION.rawValue -> {
+      updateSyncStatus(ServerSyncStatus.IS_SYNCING)
+
+      val isDeletedOnServer = networker.deleteHighlights(listOf(highlight.highlightId))
+
+      if (isDeletedOnServer) {
+        db.highlightDao().deleteById(highlight.highlightId)
+      } else {
+        updateSyncStatus(ServerSyncStatus.NEEDS_DELETION)
+      }
+    }
+    ServerSyncStatus.NEEDS_UPDATE.rawValue -> {
+      updateSyncStatus(ServerSyncStatus.IS_SYNCING)
+
+      val isUpdatedOnServer = networker.updateHighlight(
+        UpdateHighlightInput(
+          annotation = Optional.presentIfNotNull(highlight.annotation),
+          highlightId = highlight.highlightId ?: "",
+          sharedAt = Optional.absent()
+        )
+      )
+
+      if (isUpdatedOnServer) {
+        updateSyncStatus(ServerSyncStatus.IS_SYNCED)
+      } else {
+        updateSyncStatus(ServerSyncStatus.NEEDS_UPDATE)
+      }
+    }
+    ServerSyncStatus.NEEDS_CREATION.rawValue -> {
+      updateSyncStatus(ServerSyncStatus.IS_SYNCING)
+
+      val savedItemID = db.savedItemAndHighlightCrossRefDao()
+        .associatedSavedItemID(highlightId = highlight.highlightId)
+
+      val isCreatedOnServer = networker.createHighlight(
+        CreateHighlightInput(
+          annotation = Optional.presentIfNotNull(highlight.annotation),
+          articleId = savedItemID ?: "",
+          id = highlight.highlightId,
+          patch = highlight.patch ?: "",
+          quote = highlight.quote ?: "",
+          shortId = highlight.shortId ?: ""
+        )
+      )
+
+      if (isCreatedOnServer != null) {
+        updateSyncStatus(ServerSyncStatus.IS_SYNCED)
+      } else {
+        updateSyncStatus(ServerSyncStatus.NEEDS_UPDATE)
+      }
+    }
+    else -> return
+  }
 }
 
 data class SavedItemSyncResult(
