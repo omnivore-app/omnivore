@@ -5,9 +5,9 @@ import androidx.compose.foundation.ScrollState
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.omnivore.omnivore.DataService
 import app.omnivore.omnivore.DatastoreKeys
 import app.omnivore.omnivore.DatastoreRepository
+import app.omnivore.omnivore.dataService.DataService
 import app.omnivore.omnivore.persistence.entities.SavedItem
 import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.ui.library.SavedItemAction

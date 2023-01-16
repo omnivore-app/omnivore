@@ -8,6 +8,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.*
+import app.omnivore.omnivore.dataService.DataService
+import app.omnivore.omnivore.dataService.sync
+import app.omnivore.omnivore.dataService.syncOfflineItemsWithServerIfNeeded
 import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.persistence.entities.SavedItemCardData
 import app.omnivore.omnivore.persistence.entities.SavedItemCardDataWithLabels

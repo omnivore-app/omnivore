@@ -2,6 +2,7 @@ package app.omnivore.omnivore
 
 import android.content.Context
 import androidx.room.Room
+import app.omnivore.omnivore.dataService.DataService
 import app.omnivore.omnivore.networking.Networker
 import app.omnivore.omnivore.persistence.AppDatabase
 import dagger.Module
