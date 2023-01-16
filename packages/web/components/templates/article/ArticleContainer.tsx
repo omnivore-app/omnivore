@@ -102,18 +102,16 @@ const RecommendationComments = (
 }
 
 export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
+  console.log('using content reader: ', props.article.contentReader)
   const [showReportIssuesModal, setShowReportIssuesModal] = useState(false)
   const [fontSize, setFontSize] = useState(props.fontSize ?? 20)
   // iOS app embed can overide the original margin and line height
-  const [maxWidthPercentageOverride, setMaxWidthPercentageOverride] = useState<
-    number | null
-  >(null)
-  const [lineHeightOverride, setLineHeightOverride] = useState<number | null>(
-    null
-  )
-  const [fontFamilyOverride, setFontFamilyOverride] = useState<string | null>(
-    null
-  )
+  const [maxWidthPercentageOverride, setMaxWidthPercentageOverride] =
+    useState<number | null>(null)
+  const [lineHeightOverride, setLineHeightOverride] =
+    useState<number | null>(null)
+  const [fontFamilyOverride, setFontFamilyOverride] =
+    useState<string | null>(null)
   const [highContrastFont, setHighContrastFont] = useState(
     props.highContrastFont ?? false
   )

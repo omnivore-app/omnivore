@@ -462,9 +462,15 @@ export const functionResolvers = {
       return !!page?.archivedAt || false
     },
     contentReader(article: { pageType: PageType }) {
-      return article.pageType === PageType.File
-        ? ContentReader.Pdf
-        : ContentReader.Web
+      console.log('getting page type: ', article.pageType)
+      switch (article.pageType) {
+        case PageType.File:
+          return ContentReader.Pdf
+        case PageType.YouTube:
+          return ContentReader.Video
+        default:
+          return ContentReader.Web
+      }
     },
     async highlights(
       article: { id: string; userId?: string; highlights?: Highlight[] },

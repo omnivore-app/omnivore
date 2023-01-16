@@ -117,17 +117,16 @@ const groupTranscriptByChapters = (
     }
   }
 
-  var text = ''
+  var text = `<div class='_omnivore-video-transcript'>`
   for (var tchapter of tchapters) {
     console.log(tchapter.title)
     text += `<h3 class='_omnivore-video-transcript-chapter'>${tchapter.title}</h3>`
-    text += `<div class='_omnivore-video-transcript>`
     tchapter.phrases.forEach((ph) => {
       console.log(' - ', ph)
-      text += `<span class='_omnivore-video-transcript-phrase'>${ph} </span>`
+      text += `<div class='_omnivore-video-transcript-phrase'><a href=''>00:00</a>${ph} </div>`
     })
-    text += `</div>`
   }
+  text += `</div>`
   console.log('<html><body>' + text + '</body></html>')
 
   return text

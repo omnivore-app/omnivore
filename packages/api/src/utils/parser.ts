@@ -99,6 +99,14 @@ const DEBUG_MODE = process.env.DEBUG === 'true' || false
 
 const parseOriginalContent = (document: Document): PageType => {
   try {
+    const o = document.querySelector("head meta[property='omnivore:page-type']")
+    console.log('original content type: ', o, o?.getAttribute('content'))
+    if (o) {
+      switch (o?.getAttribute('content')) {
+        case 'youtube':
+          return PageType.YouTube
+      }
+    }
     const e = document.querySelector("head meta[property='og:type']")
     const content = e?.getAttribute('content')
     if (!content) {

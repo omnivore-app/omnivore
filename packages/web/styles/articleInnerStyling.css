@@ -541,3 +541,12 @@ on smaller screens we display the note icon
   -webkit-line-clamp: 2;
   overflow: hidden;
 }
+
+div ._omnivore-video-transcript {
+  max-height: 480px;
+  overflow-y: scroll;
+}
+
+._omnivore-video-transcript-phrase {
+  display: block;
+}
