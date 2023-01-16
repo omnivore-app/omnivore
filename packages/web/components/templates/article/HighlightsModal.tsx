@@ -25,6 +25,8 @@ import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
 import { SetLabelsModal } from './SetLabelsModal'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { setLabelsForHighlight } from '../../../lib/networking/mutations/setLabelsForHighlight'
+import { updateHighlightMutation } from '../../../lib/networking/mutations/updateHighlightMutation'
+import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 
 type HighlightsModalProps = {
   highlights: Highlight[]
@@ -36,9 +38,8 @@ type HighlightsModalProps = {
 export function HighlightsModal(props: HighlightsModalProps): JSX.Element {
   const [showConfirmDeleteHighlightId, setShowConfirmDeleteHighlightId] =
     useState<undefined | string>(undefined)
-  const [labelsTarget, setLabelsTarget] = useState<Highlight | undefined>(
-    undefined
-  )
+  const [labelsTarget, setLabelsTarget] =
+    useState<Highlight | undefined>(undefined)
   const [, updateState] = useState({})
 
   return (
@@ -248,7 +249,32 @@ const TextEditArea = (props: TextEditAreaProps): JSX.Element => {
         >
           Cancel
         </Button>
-        <Button style="ctaDarkYellow">Save</Button>
+        <Button
+          style="ctaDarkYellow"
+          onClick={async (e) => {
+            e.preventDefault()
+
+            try {
+              const result = await updateHighlightMutation({
+                highlightId: props.highlight.id,
+                annotation: noteContent,
+              })
+              if (!result) {
+                showErrorToast('There was an error updating your highlight.')
+              } else {
+                showSuccessToast('Note saved')
+                props.highlight.annotation = noteContent
+              }
+            } catch (err) {
+              console.log('error updating annoation', err)
+              showErrorToast('There was an error updating your highlight.')
+            }
+
+            props.setIsEditing(false)
+          }}
+        >
+          Save
+        </Button>
       </HStack>
     </VStack>
   )
