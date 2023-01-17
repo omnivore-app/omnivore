@@ -45,7 +45,7 @@ export default function SubscriptionsPage(): JSX.Element {
                 key={subscription.id}
                 title={subscription.name}
                 isLast={i === subscriptions.length - 1}
-                onDelete={() => onUnsubscribe(subscription.name)}
+                onDelete={() => setConfirmUnsubscribeName(subscription.name)}
                 deleteTitle="Unsubscribe"
                 sublineElement={
                   <StyledText
