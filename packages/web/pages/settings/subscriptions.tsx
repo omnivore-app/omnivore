@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { applyStoredTheme } from '../../lib/themeUpdater'
 import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
 import { useGetSubscriptionsQuery } from '../../lib/networking/queries/useGetSubscriptionsQuery'
@@ -30,6 +30,10 @@ export default function SubscriptionsPage(): JSX.Element {
     revalidate()
   }
 
+  const sortedSubscriptions = useMemo(() => {
+    return subscriptions.sort((a, b) => a.updatedAt.localeCompare(b.updatedAt))
+  }, [subscriptions])
+
   return (
     <SettingsTable
       pageId="settings-subscriptions-tag"
@@ -38,13 +42,13 @@ export default function SubscriptionsPage(): JSX.Element {
       headerTitle="Subscriptions"
     >
       <>
-        {subscriptions.length > 0 ? (
-          subscriptions.map((subscription, i) => {
+        {sortedSubscriptions.length > 0 ? (
+          sortedSubscriptions.map((subscription, i) => {
             return (
               <SettingsTableRow
                 key={subscription.id}
                 title={subscription.name}
-                isLast={i === subscriptions.length - 1}
+                isLast={i === sortedSubscriptions.length - 1}
                 onDelete={() => setConfirmUnsubscribeName(subscription.name)}
                 deleteTitle="Unsubscribe"
                 sublineElement={
