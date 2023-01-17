@@ -12,7 +12,6 @@ import {
 import { StyledText } from '../../components/elements/StyledText'
 import Link from 'next/link'
 import { formattedShortDate } from '../../lib/dateFormatting'
-import { Box } from '../../components/elements/LayoutPrimitives'
 
 export default function SubscriptionsPage(): JSX.Element {
   const { subscriptions, revalidate, isValidating } = useGetSubscriptionsQuery()
