@@ -134,6 +134,9 @@ export default function EmailsPage(): JSX.Element {
                     css={{
                       my: '5px',
                       fontSize: '11px',
+                      a: {
+                        color: '$omnivoreCtaYellow',
+                      },
                     }}
                   >
                     {`created ${formattedShortDate(email.createdAt)}, `}

@@ -56,6 +56,9 @@ export default function SubscriptionsPage(): JSX.Element {
                     css={{
                       my: '5px',
                       fontSize: '11px',
+                      a: {
+                        color: '$omnivoreCtaYellow',
+                      },
                     }}
                   >
                     {`Last received ${formattedShortDate(
