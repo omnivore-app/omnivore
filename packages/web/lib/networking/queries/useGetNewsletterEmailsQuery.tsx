@@ -64,7 +64,7 @@ export function useGetNewsletterEmailsQuery(): NewsletterEmailsQueryResponse {
     console.log('error', error)
   }
   return {
-    isValidating: false,
+    isValidating: true,
     emailAddresses: [],
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     revalidate: () => {},
