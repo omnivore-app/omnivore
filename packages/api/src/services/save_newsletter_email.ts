@@ -13,8 +13,10 @@ import { NewsletterEmail } from '../entity/newsletter_email'
 import { fetchFavicon } from '../utils/parser'
 import { updatePage } from '../elastic/pages'
 import { isBase64Image } from '../utils/helpers'
+import { saveReceivedEmail } from './received_emails'
 
 export interface NewsletterMessage {
+  from: string
   email: string
   content: string
   url: string
@@ -23,6 +25,7 @@ export interface NewsletterMessage {
   unsubMailTo?: string
   unsubHttpUrl?: string
   newsletterEmail?: NewsletterEmail
+  text: string
 }
 
 // Returns true if the link was created successfully. Can still fail to
@@ -65,8 +68,28 @@ export const saveNewsletterEmail = async (
   const page = await saveEmail(saveCtx, input)
   if (!page) {
     console.log('newsletter not created:', input)
+
+    await saveReceivedEmail(
+      data.from,
+      data.email,
+      data.title,
+      data.text,
+      data.content,
+      newsletterEmail.user.id
+    )
+
     return false
   }
+
+  await saveReceivedEmail(
+    data.from,
+    data.email,
+    data.title,
+    data.text,
+    data.content,
+    newsletterEmail.user.id,
+    'article'
+  )
 
   if (!page.siteIcon || isBase64Image(page.siteIcon)) {
     // fetch favicon if not already set or is a base64 image

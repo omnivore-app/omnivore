@@ -7,7 +7,8 @@ export const saveReceivedEmail = async (
   subject: string,
   text: string,
   html: string,
-  userId: string
+  userId: string,
+  type: 'article' | 'non-article' = 'non-article'
 ): Promise<ReceivedEmail> => {
   return getRepository(ReceivedEmail).save({
     from,
@@ -15,6 +16,7 @@ export const saveReceivedEmail = async (
     subject,
     text,
     html,
+    type,
     user: { id: userId },
   })
 }

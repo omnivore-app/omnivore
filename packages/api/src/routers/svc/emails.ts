@@ -15,6 +15,7 @@ import {
 } from '../../utils/parser'
 import { saveEmail } from '../../services/save_email'
 import { buildLogger } from '../../utils/logger'
+import { saveReceivedEmail } from '../../services/received_emails'
 
 interface ForwardEmailMessage {
   from: string
@@ -91,6 +92,17 @@ export function emailsServiceRouter() {
           url: generateUniqueUrl(),
           originalContent: data.html || data.text,
         })
+
+        await saveReceivedEmail(
+          data.from,
+          data.to,
+          data.subject,
+          data.text,
+          data.html,
+          user.id,
+          'article'
+        )
+
         res.status(200).send('Article')
         return
       }
@@ -102,6 +114,15 @@ export function emailsServiceRouter() {
           env: env.server.apiEnv,
         },
       })
+
+      await saveReceivedEmail(
+        data.from,
+        data.to,
+        data.subject,
+        data.text,
+        data.html,
+        user.id
+      )
 
       // forward non-newsletter emails to the registered email address
       const result = await sendEmail({

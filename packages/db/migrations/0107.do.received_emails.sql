@@ -12,6 +12,7 @@ CREATE TABLE omnivore.received_emails (
     subject text NOT NULL DEFAULT '',
     "text" text NOT NULL,
     html text NOT NULL DEFAULT '',
+    "type" text NOT NULL,
     created_at timestamptz NOT NULL DEFAULT current_timestamp,
     updated_at timestamptz NOT NULL DEFAULT current_timestamp
 );
