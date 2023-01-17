@@ -18,14 +18,6 @@ export default function SubscriptionsPage(): JSX.Element {
   const [confirmUnsubscribeName, setConfirmUnsubscribeName] =
     useState<string | null>(null)
 
-  console.log(
-    'subscriptions',
-    subscriptions,
-    subscriptions.length,
-    'isValidating',
-    isValidating
-  )
-
   applyStoredTheme(false)
 
   async function onUnsubscribe(name: string): Promise<void> {

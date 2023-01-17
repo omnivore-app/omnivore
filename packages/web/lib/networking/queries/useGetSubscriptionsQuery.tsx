@@ -57,7 +57,6 @@ export function useGetSubscriptionsQuery(): SubscriptionsQueryResponse {
   `
 
   const { data, mutate, error, isValidating } = useSWR(query, publicGqlFetcher)
-  console.log('subscriptions data', data)
 
   try {
     if (data) {
@@ -75,7 +74,7 @@ export function useGetSubscriptionsQuery(): SubscriptionsQueryResponse {
     console.log('error', error)
   }
   return {
-    isValidating: false,
+    isValidating: true,
     subscriptions: [],
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     revalidate: () => {},
