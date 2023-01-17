@@ -1,6 +1,6 @@
 //https://github.com/you-dont-need/You-Dont-Need-Momentjs
 
-const locale = 'en-US' //navigator?.language ?? 'en-US'
+const locale = Intl.DateTimeFormat().resolvedOptions().locale || 'en-US'
 
 export function formattedLongDate(rawDate: string): string {
   return new Intl.DateTimeFormat(locale, {
