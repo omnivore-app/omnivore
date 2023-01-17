@@ -9,9 +9,9 @@ CREATE TABLE omnivore.received_emails (
     user_id uuid NOT NULL REFERENCES omnivore.user ON DELETE CASCADE,
     "from" text NOT NULL,
     "to" text NOT NULL,
-    subject text,
+    subject text NOT NULL DEFAULT '',
     "text" text NOT NULL,
-    html text,
+    html text NOT NULL DEFAULT '',
     created_at timestamptz NOT NULL DEFAULT current_timestamp,
     updated_at timestamptz NOT NULL DEFAULT current_timestamp
 );
