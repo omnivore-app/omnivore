@@ -117,7 +117,7 @@ import { getPageByParam } from '../elastic/pages'
 import { recentSearchesResolver } from './recent_searches'
 import { optInFeatureResolver } from './features'
 import { uploadImportFileResolver } from './importers/uploadImportFileResolver'
-import { recentEmailsResolver } from './recent_emails'
+import { markEmailAsItemResolver, recentEmailsResolver } from './recent_emails'
 
 /* eslint-disable @typescript-eslint/naming-convention */
 type ResultResolveType = {
@@ -200,6 +200,7 @@ export const functionResolvers = {
     recommendHighlights: recommendHighlightsResolver,
     leaveGroup: leaveGroupResolver,
     uploadImportFile: uploadImportFileResolver,
+    markEmailAsItem: markEmailAsItemResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -662,4 +663,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('LeaveGroup'),
   ...resultResolveTypeResolver('UploadImportFile'),
   ...resultResolveTypeResolver('RecentEmails'),
+  ...resultResolveTypeResolver('MarkEmailAsItemResolver'),
 }

@@ -1,10 +1,14 @@
 import express from 'express'
 import { readPushSubscription } from '../../datalayer/pubsub'
-import { updateConfirmationCode } from '../../services/newsletters'
+import {
+  getNewsletterEmail,
+  updateConfirmationCode,
+} from '../../services/newsletters'
 import {
   NewsletterMessage,
   saveNewsletterEmail,
 } from '../../services/save_newsletter_email'
+import { saveReceivedEmail } from '../../services/received_emails'
 
 interface SetConfirmationCodeMessage {
   emailAddress: string
@@ -96,7 +100,14 @@ export function newsletterServiceRouter() {
         return
       }
 
-      const result = await saveNewsletterEmail(data)
+      // get user from newsletter email
+      const newsletterEmail = await getNewsletterEmail(data.email)
+      if (!newsletterEmail) {
+        console.log('newsletter email not found', data.email)
+        return false
+      }
+
+      const result = await saveNewsletterEmail(data, newsletterEmail)
       if (!result) {
         console.log(
           'Error creating newsletter link from data',
@@ -104,9 +115,29 @@ export function newsletterServiceRouter() {
           data.title,
           data.author
         )
+
+        await saveReceivedEmail(
+          data.from,
+          data.email,
+          data.title,
+          data.text,
+          data.content,
+          newsletterEmail.user.id
+        )
+
         res.status(500).send('Error creating newsletter link')
         return
       }
+
+      await saveReceivedEmail(
+        data.from,
+        data.email,
+        data.title,
+        data.text,
+        data.content,
+        newsletterEmail.user.id,
+        'article'
+      )
 
       // We always send 200 if it was a valid message
       // because we don't want the

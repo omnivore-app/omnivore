@@ -1062,6 +1062,24 @@ export type LoginSuccess = {
   me: User;
 };
 
+export type MarkEmailAsItemError = {
+  __typename?: 'MarkEmailAsItemError';
+  errorCodes: Array<MarkEmailAsItemErrorCode>;
+};
+
+export enum MarkEmailAsItemErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type MarkEmailAsItemResult = MarkEmailAsItemError | MarkEmailAsItemSuccess;
+
+export type MarkEmailAsItemSuccess = {
+  __typename?: 'MarkEmailAsItemSuccess';
+  success: Scalars['Boolean'];
+};
+
 export type MergeHighlightError = {
   __typename?: 'MergeHighlightError';
   errorCodes: Array<MergeHighlightErrorCode>;
@@ -1172,6 +1190,7 @@ export type Mutation = {
   joinGroup: JoinGroupResult;
   leaveGroup: LeaveGroupResult;
   logOut: LogOutResult;
+  markEmailAsItem: MarkEmailAsItemResult;
   mergeHighlight: MergeHighlightResult;
   moveFilter: MoveFilterResult;
   moveLabel: MoveLabelResult;
@@ -1335,6 +1354,11 @@ export type MutationJoinGroupArgs = {
 
 export type MutationLeaveGroupArgs = {
   groupId: Scalars['ID'];
+};
+
+
+export type MutationMarkEmailAsItemArgs = {
+  recentEmailId: Scalars['ID'];
 };
 
 
@@ -3346,6 +3370,10 @@ export type ResolversTypes = {
   LoginErrorCode: LoginErrorCode;
   LoginResult: ResolversTypes['LoginError'] | ResolversTypes['LoginSuccess'];
   LoginSuccess: ResolverTypeWrapper<LoginSuccess>;
+  MarkEmailAsItemError: ResolverTypeWrapper<MarkEmailAsItemError>;
+  MarkEmailAsItemErrorCode: MarkEmailAsItemErrorCode;
+  MarkEmailAsItemResult: ResolversTypes['MarkEmailAsItemError'] | ResolversTypes['MarkEmailAsItemSuccess'];
+  MarkEmailAsItemSuccess: ResolverTypeWrapper<MarkEmailAsItemSuccess>;
   MergeHighlightError: ResolverTypeWrapper<MergeHighlightError>;
   MergeHighlightErrorCode: MergeHighlightErrorCode;
   MergeHighlightInput: MergeHighlightInput;
@@ -3776,6 +3804,9 @@ export type ResolversParentTypes = {
   LoginError: LoginError;
   LoginResult: ResolversParentTypes['LoginError'] | ResolversParentTypes['LoginSuccess'];
   LoginSuccess: LoginSuccess;
+  MarkEmailAsItemError: MarkEmailAsItemError;
+  MarkEmailAsItemResult: ResolversParentTypes['MarkEmailAsItemError'] | ResolversParentTypes['MarkEmailAsItemSuccess'];
+  MarkEmailAsItemSuccess: MarkEmailAsItemSuccess;
   MergeHighlightError: MergeHighlightError;
   MergeHighlightInput: MergeHighlightInput;
   MergeHighlightResult: ResolversParentTypes['MergeHighlightError'] | ResolversParentTypes['MergeHighlightSuccess'];
@@ -4781,6 +4812,20 @@ export type LoginSuccessResolvers<ContextType = ResolverContext, ParentType exte
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type MarkEmailAsItemErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['MarkEmailAsItemError'] = ResolversParentTypes['MarkEmailAsItemError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['MarkEmailAsItemErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type MarkEmailAsItemResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['MarkEmailAsItemResult'] = ResolversParentTypes['MarkEmailAsItemResult']> = {
+  __resolveType: TypeResolveFn<'MarkEmailAsItemError' | 'MarkEmailAsItemSuccess', ParentType, ContextType>;
+};
+
+export type MarkEmailAsItemSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['MarkEmailAsItemSuccess'] = ResolversParentTypes['MarkEmailAsItemSuccess']> = {
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type MergeHighlightErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['MergeHighlightError'] = ResolversParentTypes['MergeHighlightError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['MergeHighlightErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -4852,6 +4897,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   joinGroup?: Resolver<ResolversTypes['JoinGroupResult'], ParentType, ContextType, RequireFields<MutationJoinGroupArgs, 'inviteCode'>>;
   leaveGroup?: Resolver<ResolversTypes['LeaveGroupResult'], ParentType, ContextType, RequireFields<MutationLeaveGroupArgs, 'groupId'>>;
   logOut?: Resolver<ResolversTypes['LogOutResult'], ParentType, ContextType>;
+  markEmailAsItem?: Resolver<ResolversTypes['MarkEmailAsItemResult'], ParentType, ContextType, RequireFields<MutationMarkEmailAsItemArgs, 'recentEmailId'>>;
   mergeHighlight?: Resolver<ResolversTypes['MergeHighlightResult'], ParentType, ContextType, RequireFields<MutationMergeHighlightArgs, 'input'>>;
   moveFilter?: Resolver<ResolversTypes['MoveFilterResult'], ParentType, ContextType, RequireFields<MutationMoveFilterArgs, 'input'>>;
   moveLabel?: Resolver<ResolversTypes['MoveLabelResult'], ParentType, ContextType, RequireFields<MutationMoveLabelArgs, 'input'>>;
@@ -5977,6 +6023,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   LoginError?: LoginErrorResolvers<ContextType>;
   LoginResult?: LoginResultResolvers<ContextType>;
   LoginSuccess?: LoginSuccessResolvers<ContextType>;
+  MarkEmailAsItemError?: MarkEmailAsItemErrorResolvers<ContextType>;
+  MarkEmailAsItemResult?: MarkEmailAsItemResultResolvers<ContextType>;
+  MarkEmailAsItemSuccess?: MarkEmailAsItemSuccessResolvers<ContextType>;
   MergeHighlightError?: MergeHighlightErrorResolvers<ContextType>;
   MergeHighlightResult?: MergeHighlightResultResolvers<ContextType>;
   MergeHighlightSuccess?: MergeHighlightSuccessResolvers<ContextType>;

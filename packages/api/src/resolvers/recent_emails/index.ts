@@ -1,4 +1,8 @@
 import {
+  MarkEmailAsItemError,
+  MarkEmailAsItemErrorCode,
+  MarkEmailAsItemSuccess,
+  MutationMarkEmailAsItemArgs,
   RecentEmailsError,
   RecentEmailsErrorCode,
   RecentEmailsSuccess,
@@ -6,6 +10,12 @@ import {
 import { authorized } from '../../utils/helpers'
 import { getRepository } from '../../entity/utils'
 import { ReceivedEmail } from '../../entity/received_email'
+import { saveNewsletterEmail } from '../../services/save_newsletter_email'
+import { NewsletterEmail } from '../../entity/newsletter_email'
+import { v4 as uuid } from 'uuid'
+
+const FAKE_URL_PREFIX = 'https://omnivore.app/no_url?q='
+const generateUniqueUrl = () => FAKE_URL_PREFIX + uuid()
 
 export const recentEmailsResolver = authorized<
   RecentEmailsSuccess,
@@ -41,6 +51,73 @@ export const recentEmailsResolver = authorized<
 
     return {
       errorCodes: [RecentEmailsErrorCode.BadRequest],
+    }
+  }
+})
+
+export const markEmailAsItemResolver = authorized<
+  MarkEmailAsItemSuccess,
+  MarkEmailAsItemError,
+  MutationMarkEmailAsItemArgs
+>(async (_, { recentEmailId }, { claims, log }) => {
+  log.info('Marking email as item', {
+    recentEmailId,
+    labels: {
+      source: 'resolver',
+      resolver: 'markEmailAsItemResolver',
+      uid: claims.uid,
+    },
+  })
+
+  try {
+    const recentEmail = await getRepository(ReceivedEmail).findOneBy({
+      id: recentEmailId,
+      user: { id: claims.uid },
+    })
+    if (!recentEmail) {
+      return {
+        errorCodes: [MarkEmailAsItemErrorCode.Unauthorized],
+      }
+    }
+
+    const newsletterEmail = await getRepository(NewsletterEmail).findOneBy({
+      address: recentEmail.to,
+      user: { id: claims.uid },
+    })
+    if (!newsletterEmail) {
+      return {
+        errorCodes: [MarkEmailAsItemErrorCode.NotFound],
+      }
+    }
+
+    const success = await saveNewsletterEmail(
+      {
+        from: recentEmail.from,
+        email: recentEmail.to,
+        title: recentEmail.subject,
+        text: recentEmail.text,
+        content: recentEmail.html,
+        url: generateUniqueUrl(),
+        author: '',
+      },
+      newsletterEmail
+    )
+
+    return {
+      success,
+    }
+  } catch (error) {
+    log.error('Error marking email as item', {
+      error,
+      labels: {
+        source: 'resolver',
+        resolver: 'markEmailAsItemResolver',
+        uid: claims.uid,
+      },
+    })
+
+    return {
+      errorCodes: [MarkEmailAsItemErrorCode.BadRequest],
     }
   }
 })

@@ -943,6 +943,22 @@ type LoginSuccess {
   me: User!
 }
 
+type MarkEmailAsItemError {
+  errorCodes: [MarkEmailAsItemErrorCode!]!
+}
+
+enum MarkEmailAsItemErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+union MarkEmailAsItemResult = MarkEmailAsItemError | MarkEmailAsItemSuccess
+
+type MarkEmailAsItemSuccess {
+  success: Boolean!
+}
+
 type MergeHighlightError {
   errorCodes: [MergeHighlightErrorCode!]!
 }
@@ -1046,6 +1062,7 @@ type Mutation {
   joinGroup(inviteCode: String!): JoinGroupResult!
   leaveGroup(groupId: ID!): LeaveGroupResult!
   logOut: LogOutResult!
+  markEmailAsItem(recentEmailId: ID!): MarkEmailAsItemResult!
   mergeHighlight(input: MergeHighlightInput!): MergeHighlightResult!
   moveFilter(input: MoveFilterInput!): MoveFilterResult!
   moveLabel(input: MoveLabelInput!): MoveLabelResult!
