@@ -196,7 +196,7 @@ export default function EmailsPage(): JSX.Element {
         })
       ) : (
         <EmptySettingsRow
-          text={isValidating ? '' : 'No Email Addresses Found'}
+          text={isValidating ? '-' : 'No Email Addresses Found'}
         />
       )}
     </SettingsTable>

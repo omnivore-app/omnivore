@@ -69,7 +69,7 @@ export default function SubscriptionsPage(): JSX.Element {
           })
         ) : (
           <EmptySettingsRow
-            text={isValidating ? '' : 'No Email Subscriptions Found'}
+            text={isValidating ? '-' : 'No Email Subscriptions Found'}
           />
         )}
 
@@ -88,33 +88,4 @@ export default function SubscriptionsPage(): JSX.Element {
       </>
     </SettingsTable>
   )
-
-  // return (
-  //   <PrimaryLayout pageTestId="settings-subscriptions-tag">
-  //     <Toaster
-  //       containerStyle={{
-  //         top: '5rem',
-  //       }}
-  //     />
-
-  //     {confirmUnsubscribeName ? (
-  //       <ConfirmationModal
-  //         message={
-  //           'Are you sure? You will stop receiving newsletters from this subscription.'
-  //         }
-  //         onAccept={async () => {
-  //           await onUnsubscribe(confirmUnsubscribeName)
-  //           setConfirmUnsubscribeName(null)
-  //         }}
-  //         onOpenChange={() => setConfirmUnsubscribeName(null)}
-  //       />
-  //     ) : null}
-  //     <Table
-  //       heading={'Subscriptions'}
-  //       headers={headers}
-  //       rows={rows}
-  //       onDelete={setConfirmUnsubscribeName}
-  //     />
-  //   </PrimaryLayout>
-  // )
 }
