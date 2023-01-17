@@ -31,7 +31,7 @@ export default function SubscriptionsPage(): JSX.Element {
   }
 
   const sortedSubscriptions = useMemo(() => {
-    return subscriptions.sort((a, b) => a.updatedAt.localeCompare(b.updatedAt))
+    return subscriptions.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
   }, [subscriptions])
 
   return (
