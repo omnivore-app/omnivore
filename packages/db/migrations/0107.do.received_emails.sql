@@ -19,6 +19,25 @@ CREATE TABLE omnivore.received_emails (
 CREATE TRIGGER received_emails_modtime BEFORE UPDATE ON omnivore.received_emails
     FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
 
-GRANT SELECT, INSERT, UPDATE ON omnivore.received_emails TO omnivore_user;
+GRANT SELECT, INSERT, UPDATE, DELETE ON omnivore.received_emails TO omnivore_user;
+
+-- Create a trigger to keep the most recent 20 emails for each user
+CREATE OR REPLACE FUNCTION omnivore.delete_old_received_emails()
+    RETURNS trigger AS $$
+    BEGIN
+        DELETE FROM omnivore.received_emails
+        WHERE id NOT IN (
+            SELECT id FROM omnivore.received_emails
+            WHERE user_id = NEW.user_id
+            ORDER BY created_at DESC
+            LIMIT 20
+        );
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER delete_old_received_emails
+    AFTER INSERT ON omnivore.received_emails
+    FOR EACH ROW EXECUTE PROCEDURE omnivore.delete_old_received_emails();
 
 COMMIT;

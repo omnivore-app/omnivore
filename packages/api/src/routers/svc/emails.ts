@@ -27,6 +27,15 @@ interface ForwardEmailMessage {
   forwardedFrom?: string
 }
 
+function isForwardEmailMessage(data: any): data is ForwardEmailMessage {
+  return (
+    'from' in data &&
+    'to' in data &&
+    'subject' in data &&
+    ('html' in data || 'text' in data)
+  )
+}
+
 const logger = buildLogger('app.dispatch')
 
 export function emailsServiceRouter() {
@@ -37,7 +46,6 @@ export function emailsServiceRouter() {
     logger.info('email forward router')
 
     const { message, expired } = readPushSubscription(req)
-    logger.info('pubsub message:', { message, expired })
 
     if (!message) {
       res.status(400).send('Bad Request')
@@ -51,15 +59,8 @@ export function emailsServiceRouter() {
     }
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const data: ForwardEmailMessage = JSON.parse(message)
-
-      if (
-        !('from' in data) ||
-        !('to' in data) ||
-        !('subject' in data) ||
-        (!('html' in data) && !('text' in data))
-      ) {
+      const data = JSON.parse(message) as unknown
+      if (!isForwardEmailMessage(data)) {
         logger.error('Invalid message')
         res.status(400).send('Bad Request')
         return
