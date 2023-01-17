@@ -1,29 +1,26 @@
-import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
 import { Button } from '../../components/elements/Button'
 import { useGetNewsletterEmailsQuery } from '../../lib/networking/queries/useGetNewsletterEmailsQuery'
 import { createNewsletterEmailMutation } from '../../lib/networking/mutations/createNewsletterEmailMutation'
 import { deleteNewsletterEmailMutation } from '../../lib/networking/mutations/deleteNewsletterEmailMutation'
 import { MoreOptionsIcon } from '../../components/elements/images/MoreOptionsIcon'
-import { Plus, Trash, Copy } from 'phosphor-react'
+import { Trash, Copy } from 'phosphor-react'
 import {
   Dropdown,
   DropdownOption,
 } from '../../components/elements/DropdownElements'
 import { theme, styled } from '../../components/tokens/stitches.config'
-import {
-  Box,
-  SpanBox,
-  HStack,
-  VStack,
-} from '../../components/elements/LayoutPrimitives'
+import { Box, HStack } from '../../components/elements/LayoutPrimitives'
 import { useCopyLink } from '../../lib/hooks/useCopyLink'
-import { Toaster } from 'react-hot-toast'
 import { useCallback, useMemo } from 'react'
 import { StyledText } from '../../components/elements/StyledText'
 import { applyStoredTheme } from '../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
-import { InfoLink } from '../../components/elements/InfoLink'
 import { formattedShortDate } from '../../lib/dateFormatting'
+import Link from 'next/link'
+import {
+  SettingsTable,
+  SettingsTableRow,
+} from '../../components/templates/settings/SettingsTable'
 
 enum TextType {
   EmailAddress,
@@ -34,42 +31,6 @@ type CopyTextButtonProps = {
   text: string
   type: TextType
 }
-
-const HeaderWrapper = styled(Box, {
-  width: '100%',
-  '@md': {
-    display: 'block',
-  },
-})
-
-const TableCard = styled(Box, {
-  backgroundColor: '$grayBg',
-  display: 'flex',
-  alignItems: 'center',
-  padding: '10px 12px',
-  border: '0.5px solid $grayBgActive',
-  width: '100%',
-
-  '&:hover': {
-    border: '0.5px solid #FFD234',
-  },
-  '@md': {
-    paddingLeft: '0',
-  },
-})
-
-const TableHeading = styled(Box, {
-  backgroundColor: '$grayBgActive',
-  border: '1px solid rgba(0, 0, 0, 0.06)',
-  display: 'none',
-  alignItems: 'center',
-  padding: '10px 0 10px 20px',
-  borderRadius: '5px 5px 0px 0px',
-  width: '100%',
-  '@md': {
-    display: 'flex',
-  },
-})
 
 const CopyTextBtnWrapper = styled(Box, {
   background: '$grayBgActive',
@@ -86,52 +47,6 @@ const CopyTextBtnWrapper = styled(Box, {
   justifyContent: 'center',
   marginLeft: '10px',
 })
-
-const MoreOptions = ({ onDelete }: { onDelete: () => void }) => (
-  <Dropdown
-    align={'end'}
-    triggerElement={
-      <Box
-        css={{
-          '&:hover': {
-            cursor: 'pointer',
-          },
-        }}
-      >
-        <MoreOptionsIcon
-          size={24}
-          strokeColor={theme.colors.grayTextContrast.toString()}
-          orientation="horizontal"
-        />
-      </Box>
-    }
-  >
-    <DropdownOption
-      onSelect={() => {
-        return true
-      }}
-    >
-      <HStack alignment={'center'} distribution={'start'}>
-        <Trash size={24} color={theme.colors.omnivoreRed.toString()} />
-        <Button
-          css={{
-            color: theme.colors.omnivoreRed.toString(),
-            marginLeft: '8px',
-            border: 'none',
-            backgroundColor: 'transparent',
-            '&:hover': {
-              border: 'none',
-              backgroundColor: 'transparent',
-            },
-          }}
-          onClick={onDelete}
-        >
-          Delete
-        </Button>
-      </HStack>
-    </DropdownOption>
-  </Dropdown>
-)
 
 function CopyTextButton(props: CopyTextButtonProps): JSX.Element {
   const { copyLink, isLinkCopied } = useCopyLink(
@@ -198,224 +113,89 @@ export default function EmailsPage(): JSX.Element {
   }, [emailAddresses])
 
   return (
-    <PrimaryLayout pageTestId="settings-emails-tag">
-      <Toaster
-        containerStyle={{
-          top: '5rem',
-        }}
-      />
-      <HStack css={{ width: '100%' }} alignment="center">
-        <VStack
-          distribution="center"
-          css={{
-            mx: '10px',
-            width: '100%',
-            maxWidth: '865px',
-            color: '$grayText',
-            paddingBottom: '5rem',
-            paddingTop: '2rem',
-            alignSelf: 'center',
-            '@md': {
-              m: '16px',
-              alignSelf: 'center',
-              mx: '42px',
-              paddingTop: '0',
-            },
-          }}
-        >
-          <HeaderWrapper>
-            <Box style={{ display: 'flex', alignItems: 'center' }}>
-              <Box>
-                <StyledText style="fixedHeadline">Email Addresses </StyledText>
-              </Box>
-              <InfoLink href="/help/newsletters" />
-              <Button
-                onClick={createEmail}
-                style="ctaDarkYellow"
-                css={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  marginLeft: 'auto',
-                }}
-              >
-                <SpanBox
+    <SettingsTable
+      pageId="settings-emails-tag"
+      pageHeadline="Email Addresses"
+      pageInfoLink="/help/newsletters"
+      headerTitle="Address"
+      createTitle="Create a new email address"
+      createAction={createEmail}
+    >
+      {sortedEmailAddresses &&
+        sortedEmailAddresses.map((email, i) => {
+          return (
+            <SettingsTableRow
+              key={email.address}
+              title={email.address}
+              isFirst={i === 0}
+              isLast={i === sortedEmailAddresses.length - 1}
+              onDelete={() => deleteEmail(email.id)}
+              deleteTitle="Delete"
+              sublineElement={
+                <StyledText
                   css={{
-                    display: 'none',
-                    '@md': {
-                      display: 'flex',
-                    },
+                    my: '5px',
+                    fontSize: '11px',
                   }}
                 >
-                  <SpanBox>Create a new email address</SpanBox>
-                </SpanBox>
-                <SpanBox
+                  {`created ${formattedShortDate(email.createdAt)}, `}
+                  <Link href="/settings/subscriptions">{`${email.subscriptionCount} subscriptions`}</Link>
+                </StyledText>
+              }
+              titleElement={
+                <CopyTextBtnWrapper
                   css={{
-                    p: '0',
-                    display: 'flex',
-                    '@md': {
-                      display: 'none',
-                    },
-                  }}
-                >
-                  <Plus size={24} />
-                </SpanBox>
-              </Button>
-            </Box>
-            <TableHeading>
-              <StyledText
-                style="menuTitle"
-                css={{
-                  color: '$grayTextContrast',
-                }}
-              >
-                Address
-              </StyledText>
-            </TableHeading>
-          </HeaderWrapper>
-          {sortedEmailAddresses &&
-            sortedEmailAddresses.map((email, i) => {
-              const isLastChild = i === sortedEmailAddresses.length - 1
-
-              return (
-                <TableCard
-                  key={email.id}
-                  css={{
-                    '&:hover': {
-                      background: 'rgba(255, 234, 159, 0.12)',
-                    },
                     '@mdDown': {
-                      borderTopLeftRadius: i === 0 ? '5px' : '',
-                      borderTopRightRadius: i === 0 ? '5px' : '',
+                      marginRight: '10px',
                     },
-                    borderBottomLeftRadius: isLastChild ? '5px' : '',
-                    borderBottomRightRadius: isLastChild ? '5px' : '',
                   }}
                 >
-                  <Box
-                    css={{
-                      display: 'flex',
-                      width: '100%',
-                      flexDirection: 'column',
-                      '@md': {
-                        paddingLeft: '20px',
-                        flexDirection: 'row',
-                      },
-                    }}
-                  >
-                    <HStack
-                      distribution="start"
+                  <CopyTextButton
+                    text={email.address}
+                    type={TextType.EmailAddress}
+                  />
+                </CopyTextBtnWrapper>
+              }
+              extraElement={
+                <HStack
+                  alignment="start"
+                  distribution="center"
+                  css={{
+                    width: '100%',
+                    backgroundColor: '$grayBgActive',
+                    borderRadius: '6px',
+                    padding: '4px 4px 4px 0px',
+                    '@md': {
+                      width: '30%',
+                      backgroundColor: 'transparent',
+                    },
+                  }}
+                >
+                  <>
+                    <StyledText
                       css={{
-                        display: 'flex',
-                        padding: '4px 4px 4px 0px',
-                      }}
-                    >
-                      <VStack css={{}}>
-                        <StyledText
-                          css={{
-                            m: '0px',
-                            fontSize: '18px',
-                            '@mdDown': {
-                              fontSize: '12px',
-                              fontWeight: 'bold',
-                            },
-                          }}
-                        >
-                          {email.address}
-                        </StyledText>
-                        <StyledText
-                          css={{
-                            my: '5px',
-                            fontSize: '11px',
-                          }}
-                        >
-                          {`created ${formattedShortDate(email.createdAt)}, ${
-                            email.subscriptionCount
-                          } subscriptions`}
-                        </StyledText>
-                      </VStack>
-                      <CopyTextBtnWrapper
-                        css={{
-                          '@mdDown': {
-                            marginRight: '10px',
-                          },
-                        }}
-                      >
-                        <CopyTextButton
-                          text={email.address}
-                          type={TextType.EmailAddress}
-                        />
-                      </CopyTextBtnWrapper>
-                      <Box
-                        css={{
-                          marginLeft: 'auto',
-                          textAlign: 'right',
-                          display: 'flex',
-                          '@md': {
-                            display: 'none',
-                          },
-                        }}
-                      >
-                        <MoreOptions onDelete={() => deleteEmail(email.id)} />
-                      </Box>
-                    </HStack>
-                    {email.confirmationCode && (
-                      <HStack
-                        alignment="start"
-                        distribution="end"
-                        css={{
-                          width: '100%',
-                          backgroundColor: '$grayBgActive',
-                          borderRadius: '6px',
-                          padding: '4px 4px 4px 0px',
-                          '@md': {
-                            width: 'unset',
-                            marginLeft: '32px',
-                            backgroundColor: 'transparent',
-                          },
-                        }}
-                      >
-                        <>
-                          <StyledText
-                            css={{
-                              fontSize: '11px',
-                              '@md': {
-                                marginTop: '5px',
-                              },
-                            }}
-                          >
-                            {`Gmail: ${email.confirmationCode}`}
-                          </StyledText>
-                          <Box>
-                            <CopyTextBtnWrapper>
-                              <CopyTextButton
-                                text={email.confirmationCode}
-                                type={TextType.ConfirmationCode}
-                              />
-                            </CopyTextBtnWrapper>
-                          </Box>
-                        </>
-                      </HStack>
-                    )}
-                  </Box>
-                  <HStack distribution="start" css={{ marginLeft: 'auto' }}>
-                    <Box
-                      css={{
-                        textAlign: 'right',
-                        display: 'none',
+                        fontSize: '11px',
                         '@md': {
-                          display: 'flex',
+                          marginTop: '5px',
                         },
                       }}
                     >
-                      <MoreOptions onDelete={() => deleteEmail(email.id)} />
+                      {`Gmail: ${email.confirmationCode}`}
+                    </StyledText>
+                    <Box>
+                      <CopyTextBtnWrapper>
+                        <CopyTextButton
+                          text={email.confirmationCode || ''}
+                          type={TextType.ConfirmationCode}
+                        />
+                      </CopyTextBtnWrapper>
                     </Box>
-                  </HStack>
-                </TableCard>
-              )
-            })}
-        </VStack>
-      </HStack>
-      <Box css={{ height: '120px' }} />
-    </PrimaryLayout>
+                  </>
+                </HStack>
+              }
+            />
+          )
+        })}
+    </SettingsTable>
   )
 }
