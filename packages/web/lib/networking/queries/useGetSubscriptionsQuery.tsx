@@ -13,8 +13,8 @@ export type Subscription = {
   description?: string
 
   status: SubscriptionStatus
-  createdAt: Date
-  updatedAt: Date
+  createdAt: string
+  updatedAt: string
 }
 
 type SubscriptionsQueryResponse = {

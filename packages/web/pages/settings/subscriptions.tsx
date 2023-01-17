@@ -10,6 +10,7 @@ import {
 } from '../../components/templates/settings/SettingsTable'
 import { StyledText } from '../../components/elements/StyledText'
 import Link from 'next/link'
+import { formattedShortDate } from '../../lib/dateFormatting'
 
 export default function SubscriptionsPage(): JSX.Element {
   const { subscriptions, revalidate } = useGetSubscriptionsQuery()
@@ -26,12 +27,6 @@ export default function SubscriptionsPage(): JSX.Element {
       showErrorToast('Failed to unsubscribe', { position: 'bottom-right' })
     }
     revalidate()
-  }
-
-  function formattedShortDate(date: Date): string {
-    return new Intl.DateTimeFormat('en-US', {
-      dateStyle: 'short',
-    }).format(date)
   }
 
   return (
