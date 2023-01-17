@@ -56,7 +56,7 @@ export default function SubscriptionsPage(): JSX.Element {
                   >
                     {`Last received ${formattedShortDate(
                       subscription.updatedAt
-                    )}, `}
+                    )} at `}
                     <Link
                       href={`/settings/emails?address=${subscription.newsletterEmail}`}
                     >
