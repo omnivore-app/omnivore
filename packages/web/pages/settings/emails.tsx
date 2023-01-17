@@ -104,12 +104,7 @@ export default function EmailsPage(): JSX.Element {
   }
 
   const sortedEmailAddresses = useMemo(() => {
-    return emailAddresses
-      .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
-      .map((em) => {
-        em.confirmationCode = '123445'
-        return em
-      })
+    return emailAddresses.sort((a, b) => a.createdAt.localeCompare(b.createdAt))
   }, [emailAddresses])
 
   return (
