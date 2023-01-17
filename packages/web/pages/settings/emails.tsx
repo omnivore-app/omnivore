@@ -18,6 +18,7 @@ import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import { formattedShortDate } from '../../lib/dateFormatting'
 import Link from 'next/link'
 import {
+  EmptySettingsRow,
   SettingsTable,
   SettingsTableRow,
 } from '../../components/templates/settings/SettingsTable'
@@ -45,7 +46,6 @@ const CopyTextBtnWrapper = styled(Box, {
 
   alignItems: 'center',
   justifyContent: 'center',
-  marginLeft: '10px',
 })
 
 function CopyTextButton(props: CopyTextButtonProps): JSX.Element {
@@ -121,13 +121,12 @@ export default function EmailsPage(): JSX.Element {
       createTitle="Create a new email address"
       createAction={createEmail}
     >
-      {sortedEmailAddresses &&
+      {sortedEmailAddresses ? (
         sortedEmailAddresses.map((email, i) => {
           return (
             <SettingsTableRow
               key={email.address}
               title={email.address}
-              isFirst={i === 0}
               isLast={i === sortedEmailAddresses.length - 1}
               onDelete={() => deleteEmail(email.id)}
               deleteTitle="Delete"
@@ -178,6 +177,10 @@ export default function EmailsPage(): JSX.Element {
                         '@md': {
                           marginTop: '5px',
                         },
+                        '@mdDown': {
+                          marginLeft: 'auto',
+                        },
+                        marginRight: '10px',
                       }}
                     >
                       {`Gmail: ${email.confirmationCode}`}
@@ -195,7 +198,10 @@ export default function EmailsPage(): JSX.Element {
               }
             />
           )
-        })}
+        })
+      ) : (
+        <EmptySettingsRow text="No Email Addresses Found" />
+      )}
     </SettingsTable>
   )
 }

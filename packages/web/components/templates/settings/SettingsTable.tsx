@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { Plus, Trash } from 'phosphor-react'
 import { Toaster } from 'react-hot-toast'
 import { Button } from '../../elements/Button'
@@ -29,7 +30,6 @@ type CreateButtonProps = {
 type SettingsTableRowProps = {
   key: string
   title: string
-  isFirst: boolean
   isLast: boolean
 
   sublineElement: JSX.Element
@@ -91,6 +91,33 @@ const MoreOptions = (props: MoreOptionsProps) => (
   </Dropdown>
 )
 
+type EmptySettingsRowProps = {
+  text: string
+}
+
+export const EmptySettingsRow = (props: EmptySettingsRowProps): JSX.Element => {
+  return (
+    <Box
+      css={{
+        backgroundColor: '$grayBg',
+        display: 'flex',
+        alignItems: 'center',
+        padding: '10px 12px',
+        border: '0.5px solid $grayBgActive',
+        width: '100%',
+        borderBottomLeftRadius: '5px',
+        borderBottomRightRadius: '5px',
+        '@md': {
+          paddingLeft: '0',
+        },
+        justifyContent: 'center',
+      }}
+    >
+      {props.text}
+    </Box>
+  )
+}
+
 export const SettingsTableRow = (props: SettingsTableRowProps): JSX.Element => {
   return (
     <Box
@@ -104,10 +131,6 @@ export const SettingsTableRow = (props: SettingsTableRowProps): JSX.Element => {
         width: '100%',
         '&:hover': {
           background: 'rgba(255, 234, 159, 0.12)',
-        },
-        '@mdDown': {
-          borderTopLeftRadius: props.isFirst ? '5px' : '',
-          borderTopRightRadius: props.isFirst ? '5px' : '',
         },
         borderBottomLeftRadius: props.isLast ? '5px' : '',
         borderBottomRightRadius: props.isLast ? '5px' : '',
@@ -134,7 +157,7 @@ export const SettingsTableRow = (props: SettingsTableRowProps): JSX.Element => {
             padding: '4px 4px 4px 0px',
           }}
         >
-          <VStack css={{}}>
+          <VStack>
             <StyledText
               css={{
                 m: '0px',
@@ -150,15 +173,6 @@ export const SettingsTableRow = (props: SettingsTableRowProps): JSX.Element => {
             {props.sublineElement}
           </VStack>
           {props.titleElement}
-          {/* <CopyTextBtnWrapper
-            css={{
-              '@mdDown': {
-                marginRight: '10px',
-              },
-            }}
-          >
-            <CopyTextButton text={email.address} type={TextType.EmailAddress} />
-          </CopyTextBtnWrapper> */}
           <Box
             css={{
               marginLeft: 'auto',
@@ -202,27 +216,7 @@ const CreateButton = (props: CreateButtonProps): JSX.Element => {
         marginLeft: 'auto',
       }}
     >
-      <SpanBox
-        css={{
-          display: 'none',
-          '@md': {
-            display: 'flex',
-          },
-        }}
-      >
-        <SpanBox>{props.title}</SpanBox>
-      </SpanBox>
-      <SpanBox
-        css={{
-          p: '0',
-          display: 'flex',
-          '@md': {
-            display: 'none',
-          },
-        }}
-      >
-        <Plus size={24} />
-      </SpanBox>
+      <SpanBox>{props.title}</SpanBox>
     </Button>
   )
 }
@@ -262,13 +256,13 @@ export const SettingsTable = (props: SettingsTableProps): JSX.Element => {
               },
             }}
           >
-            <Box style={{ display: 'flex', alignItems: 'center' }}>
-              <Box>
-                <StyledText style="fixedHeadline">
-                  {props.pageHeadline}{' '}
-                </StyledText>
-              </Box>
-              <InfoLink href={props.pageInfoLink} />
+            <Box
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                marginBottom: '10px',
+              }}
+            >
               {props.createAction && props.createTitle && (
                 <CreateButton
                   action={props.createAction}
@@ -280,24 +274,24 @@ export const SettingsTable = (props: SettingsTableProps): JSX.Element => {
               css={{
                 backgroundColor: '$grayBgActive',
                 border: '1px solid rgba(0, 0, 0, 0.06)',
-                display: 'none',
+                borderBottom: 'unset',
                 alignItems: 'center',
                 padding: '10px 0 10px 20px',
                 borderRadius: '5px 5px 0px 0px',
                 width: '100%',
-                '@md': {
-                  display: 'flex',
-                },
               }}
             >
-              <StyledText
-                style="menuTitle"
-                css={{
-                  color: '$grayTextContrast',
-                }}
-              >
-                {props.headerTitle}
-              </StyledText>
+              <HStack alignment="start" distribution="start">
+                <StyledText
+                  style="menuTitle"
+                  css={{
+                    color: '$grayTextContrast',
+                  }}
+                >
+                  {props.headerTitle}
+                </StyledText>
+                <InfoLink href={props.pageInfoLink}></InfoLink>
+              </HStack>
             </Box>
           </Box>
           {props.children}

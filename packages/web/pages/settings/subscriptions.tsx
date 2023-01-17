@@ -5,12 +5,14 @@ import { useGetSubscriptionsQuery } from '../../lib/networking/queries/useGetSub
 import { unsubscribeMutation } from '../../lib/networking/mutations/unsubscribeMutation'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import {
+  EmptySettingsRow,
   SettingsTable,
   SettingsTableRow,
 } from '../../components/templates/settings/SettingsTable'
 import { StyledText } from '../../components/elements/StyledText'
 import Link from 'next/link'
 import { formattedShortDate } from '../../lib/dateFormatting'
+import { Box } from '../../components/elements/LayoutPrimitives'
 
 export default function SubscriptionsPage(): JSX.Element {
   const { subscriptions, revalidate } = useGetSubscriptionsQuery()
@@ -37,13 +39,12 @@ export default function SubscriptionsPage(): JSX.Element {
       headerTitle="Subscriptions"
     >
       <>
-        {subscriptions &&
+        {subscriptions.length > 0 ? (
           subscriptions.map((subscription, i) => {
             return (
               <SettingsTableRow
                 key={subscription.id}
                 title={subscription.name}
-                isFirst={i === 0}
                 isLast={i === subscriptions.length - 1}
                 onDelete={() => onUnsubscribe(subscription.name)}
                 deleteTitle="Unsubscribe"
@@ -66,7 +67,10 @@ export default function SubscriptionsPage(): JSX.Element {
                 }
               />
             )
-          })}
+          })
+        ) : (
+          <EmptySettingsRow text="No Email Subscriptions Found" />
+        )}
 
         {confirmUnsubscribeName ? (
           <ConfirmationModal

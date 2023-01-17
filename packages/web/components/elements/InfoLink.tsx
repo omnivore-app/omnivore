@@ -18,12 +18,9 @@ export function InfoLink(props: InfoLinkProps): JSX.Element {
     <VStack
       css={{
         marginLeft: '10px',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '100%',
       }}
     >
-      <a style={{ textDecoration: 'none' }}>
+      <a href={props.href} style={{ textDecoration: 'none' }}>
         <TooltipWrapped
           tooltipContent="Learn More"
           tooltipSide={'top'}
