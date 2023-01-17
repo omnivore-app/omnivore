@@ -15,7 +15,7 @@ import { formattedShortDate } from '../../lib/dateFormatting'
 import { Box } from '../../components/elements/LayoutPrimitives'
 
 export default function SubscriptionsPage(): JSX.Element {
-  const { subscriptions, revalidate } = useGetSubscriptionsQuery()
+  const { subscriptions, revalidate, isValidating } = useGetSubscriptionsQuery()
   const [confirmUnsubscribeName, setConfirmUnsubscribeName] =
     useState<string | null>(null)
 
@@ -69,7 +69,9 @@ export default function SubscriptionsPage(): JSX.Element {
             )
           })
         ) : (
-          <EmptySettingsRow text="No Email Subscriptions Found" />
+          <EmptySettingsRow
+            text={isValidating ? '' : 'No Email Subscriptions Found'}
+          />
         )}
 
         {confirmUnsubscribeName ? (
