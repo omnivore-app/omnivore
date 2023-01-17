@@ -10,9 +10,11 @@ import android.view.*
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
@@ -30,6 +32,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import app.omnivore.omnivore.R
+import app.omnivore.omnivore.ui.save.SaveSheetActivityBase
 import app.omnivore.omnivore.ui.savedItemViews.SavedItemContextMenu
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
@@ -41,11 +44,14 @@ import kotlin.math.roundToInt
 
 @Composable
 fun WebReaderLoadingContainer(slug: String, webReaderViewModel: WebReaderViewModel) {
+  val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+
   var isMenuExpanded by remember { mutableStateOf(false) }
   var showWebPreferencesDialog by remember { mutableStateOf(false ) }
 
   val webReaderParams: WebReaderParams? by webReaderViewModel.webReaderParamsLiveData.observeAsState(null)
   val annotation: String? by webReaderViewModel.annotationLiveData.observeAsState(null)
+  val shouldPopView: Boolean by webReaderViewModel.shouldPopViewLiveData.observeAsState(false)
 
   val maxToolbarHeight = 48.dp
   val maxToolbarHeightPx = with(LocalDensity.current) { maxToolbarHeight.roundToPx().toFloat() }
@@ -138,6 +144,12 @@ fun WebReaderLoadingContainer(slug: String, webReaderViewModel: WebReaderViewMod
             webReaderViewModel.cancelAnnotationEdit()
           }
         )
+      }
+    }
+
+    LaunchedEffect(shouldPopView) {
+      if (shouldPopView) {
+        onBackPressedDispatcher?.onBackPressed()
       }
     }
   } else {

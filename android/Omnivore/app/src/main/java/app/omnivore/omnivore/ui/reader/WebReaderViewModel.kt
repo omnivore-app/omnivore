@@ -43,6 +43,7 @@ class WebReaderViewModel @Inject constructor(
   val webReaderParamsLiveData = MutableLiveData<WebReaderParams?>(null)
   val annotationLiveData = MutableLiveData<String?>(null)
   val javascriptActionLoopUUIDLiveData = MutableLiveData(lastJavascriptActionLoopUUID)
+  val shouldPopViewLiveData = MutableLiveData<Boolean>(false)
 
   var hasTappedExistingHighlight = false
   var lastTapCoordinates: TapCoordinates? = null
@@ -95,28 +96,27 @@ class WebReaderViewModel @Inject constructor(
       SavedItemAction.Delete -> {
         viewModelScope.launch {
           dataService.deleteSavedItem(itemID)
-          popToLibraryView(itemID)
+          popToLibraryView()
         }
       }
       SavedItemAction.Archive -> {
         viewModelScope.launch {
           dataService.archiveSavedItem(itemID)
-          popToLibraryView(itemID)
+          popToLibraryView()
         }
       }
       SavedItemAction.Unarchive -> {
         viewModelScope.launch {
           dataService.unarchiveSavedItem(itemID)
-          popToLibraryView(itemID)
+          popToLibraryView()
         }
       }
     }
   }
 
-  private fun popToLibraryView(itemID: String) {
+  private fun popToLibraryView() {
     CoroutineScope(Dispatchers.Main).launch {
-      // TODO: pop to library
-      Log.d("maxx", "should pop to library and remove item with ID: $itemID")
+      shouldPopViewLiveData.postValue(true)
     }
   }
 
@@ -172,6 +172,7 @@ class WebReaderViewModel @Inject constructor(
   }
 
   fun reset() {
+    shouldPopViewLiveData.postValue(false)
     webReaderParamsLiveData.value = null
     annotationLiveData.value = null
     scrollState = ScrollState(0)
