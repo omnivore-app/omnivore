@@ -155,6 +155,9 @@ export const SettingsTableRow = (props: SettingsTableRowProps): JSX.Element => {
           css={{
             display: 'flex',
             padding: '4px 4px 4px 0px',
+            '@md': {
+              width: '70%',
+            },
           }}
         >
           <VStack>
@@ -172,7 +175,7 @@ export const SettingsTableRow = (props: SettingsTableRowProps): JSX.Element => {
             </StyledText>
             {props.sublineElement}
           </VStack>
-          {props.titleElement}
+          <SpanBox css={{ marginLeft: 'auto' }}>{props.titleElement}</SpanBox>
           <Box
             css={{
               marginLeft: 'auto',

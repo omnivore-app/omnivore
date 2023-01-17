@@ -11,7 +11,7 @@ import {
 import { theme, styled } from '../../components/tokens/stitches.config'
 import { Box, HStack } from '../../components/elements/LayoutPrimitives'
 import { useCopyLink } from '../../lib/hooks/useCopyLink'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { StyledText } from '../../components/elements/StyledText'
 import { applyStoredTheme } from '../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
@@ -22,6 +22,7 @@ import {
   SettingsTable,
   SettingsTableRow,
 } from '../../components/templates/settings/SettingsTable'
+import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
 
 enum TextType {
   EmailAddress,
@@ -80,6 +81,8 @@ function CopyTextButton(props: CopyTextButtonProps): JSX.Element {
 export default function EmailsPage(): JSX.Element {
   const { emailAddresses, revalidate, isValidating } =
     useGetNewsletterEmailsQuery()
+  const [confirmDeleteEmailId, setConfirmDeleteEmailId] =
+    useState<undefined | string>(undefined)
 
   applyStoredTheme(false)
 
@@ -108,97 +111,117 @@ export default function EmailsPage(): JSX.Element {
   }, [emailAddresses])
 
   return (
-    <SettingsTable
-      pageId="settings-emails-tag"
-      pageHeadline="Email Addresses"
-      pageInfoLink="/help/newsletters"
-      headerTitle="Address"
-      createTitle="Create a new email address"
-      createAction={createEmail}
-    >
-      {sortedEmailAddresses ? (
-        sortedEmailAddresses.map((email, i) => {
-          return (
-            <SettingsTableRow
-              key={email.address}
-              title={email.address}
-              isLast={i === sortedEmailAddresses.length - 1}
-              onDelete={() => deleteEmail(email.id)}
-              deleteTitle="Delete"
-              sublineElement={
-                <StyledText
-                  css={{
-                    my: '5px',
-                    fontSize: '11px',
-                  }}
-                >
-                  {`created ${formattedShortDate(email.createdAt)}, `}
-                  <Link href="/settings/subscriptions">{`${email.subscriptionCount} subscriptions`}</Link>
-                </StyledText>
-              }
-              titleElement={
-                <CopyTextBtnWrapper
-                  css={{
-                    '@mdDown': {
-                      marginRight: '10px',
-                    },
-                  }}
-                >
-                  <CopyTextButton
-                    text={email.address}
-                    type={TextType.EmailAddress}
-                  />
-                </CopyTextBtnWrapper>
-              }
-              extraElement={
-                <HStack
-                  alignment="start"
-                  distribution="center"
-                  css={{
-                    width: '100%',
-                    backgroundColor: '$grayBgActive',
-                    borderRadius: '6px',
-                    padding: '4px 4px 4px 0px',
-                    '@md': {
-                      width: '30%',
-                      backgroundColor: 'transparent',
-                    },
-                  }}
-                >
-                  <>
-                    <StyledText
-                      css={{
-                        fontSize: '11px',
-                        '@md': {
-                          marginTop: '5px',
-                        },
-                        '@mdDown': {
-                          marginLeft: 'auto',
-                        },
+    <>
+      <SettingsTable
+        pageId="settings-emails-tag"
+        pageHeadline="Email Addresses"
+        pageInfoLink="/help/newsletters"
+        headerTitle="Address"
+        createTitle="Create a new email address"
+        createAction={createEmail}
+      >
+        {sortedEmailAddresses.length > 0 ? (
+          sortedEmailAddresses.map((email, i) => {
+            return (
+              <SettingsTableRow
+                key={email.address}
+                title={email.address}
+                isLast={i === sortedEmailAddresses.length - 1}
+                onDelete={() => setConfirmDeleteEmailId(email.id)}
+                deleteTitle="Delete"
+                sublineElement={
+                  <StyledText
+                    css={{
+                      my: '5px',
+                      fontSize: '11px',
+                    }}
+                  >
+                    {`created ${formattedShortDate(email.createdAt)}, `}
+                    <Link href="/settings/subscriptions">{`${email.subscriptionCount} subscriptions`}</Link>
+                  </StyledText>
+                }
+                titleElement={
+                  <CopyTextBtnWrapper
+                    css={{
+                      marginLeft: '20px',
+                      '@mdDown': {
                         marginRight: '10px',
+                      },
+                    }}
+                  >
+                    <CopyTextButton
+                      text={email.address}
+                      type={TextType.EmailAddress}
+                    />
+                  </CopyTextBtnWrapper>
+                }
+                extraElement={
+                  email.confirmationCode ? (
+                    <HStack
+                      alignment="start"
+                      distribution="center"
+                      css={{
+                        width: '100%',
+                        backgroundColor: '$grayBgActive',
+                        borderRadius: '6px',
+                        padding: '4px 4px 4px 0px',
+                        '@md': {
+                          width: '30%',
+                          backgroundColor: 'transparent',
+                        },
                       }}
                     >
-                      {`Gmail: ${email.confirmationCode}`}
-                    </StyledText>
-                    <Box>
-                      <CopyTextBtnWrapper>
-                        <CopyTextButton
-                          text={email.confirmationCode || ''}
-                          type={TextType.ConfirmationCode}
-                        />
-                      </CopyTextBtnWrapper>
-                    </Box>
-                  </>
-                </HStack>
-              }
-            />
-          )
-        })
-      ) : (
-        <EmptySettingsRow
-          text={isValidating ? '-' : 'No Email Addresses Found'}
+                      <>
+                        <StyledText
+                          css={{
+                            fontSize: '11px',
+                            '@md': {
+                              marginTop: '5px',
+                            },
+                            '@mdDown': {
+                              marginLeft: 'auto',
+                            },
+                            marginRight: '10px',
+                          }}
+                        >
+                          {`Gmail: ${email.confirmationCode}`}
+                        </StyledText>
+                        <Box>
+                          <CopyTextBtnWrapper>
+                            <CopyTextButton
+                              text={email.confirmationCode || ''}
+                              type={TextType.ConfirmationCode}
+                            />
+                          </CopyTextBtnWrapper>
+                        </Box>
+                      </>
+                    </HStack>
+                  ) : (
+                    <></>
+                  )
+                }
+              />
+            )
+          })
+        ) : (
+          <EmptySettingsRow
+            text={isValidating ? '-' : 'No Email Addresses Found'}
+          />
+        )}
+      </SettingsTable>
+
+      {confirmDeleteEmailId ? (
+        <ConfirmationModal
+          message={
+            'Are you sure? You will stop receiving emails sent to this address.'
+          }
+          onAccept={async () => {
+            await deleteEmail(confirmDeleteEmailId)
+            setConfirmDeleteEmailId(undefined)
+          }}
+          onOpenChange={() => setConfirmDeleteEmailId(undefined)}
         />
-      )}
-    </SettingsTable>
+      ) : null}
+    </>
   )
 }
