@@ -107,6 +107,9 @@ export default function EmailsPage(): JSX.Element {
   }
 
   const sortedEmailAddresses = useMemo(() => {
+    if (!emailAddresses) {
+      return []
+    }
     return emailAddresses.sort((a, b) => a.createdAt.localeCompare(b.createdAt))
   }, [emailAddresses])
 
