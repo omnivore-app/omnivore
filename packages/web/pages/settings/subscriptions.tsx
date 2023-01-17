@@ -1,18 +1,22 @@
-import { useState } from 'react'
-import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
-import { Toaster } from 'react-hot-toast'
+import { useMemo, useState } from 'react'
 import { applyStoredTheme } from '../../lib/themeUpdater'
 import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
 import { useGetSubscriptionsQuery } from '../../lib/networking/queries/useGetSubscriptionsQuery'
 import { unsubscribeMutation } from '../../lib/networking/mutations/unsubscribeMutation'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
-import { Table } from '../../components/elements/Table'
+import {
+  EmptySettingsRow,
+  SettingsTable,
+  SettingsTableRow,
+} from '../../components/templates/settings/SettingsTable'
+import { StyledText } from '../../components/elements/StyledText'
+import Link from 'next/link'
+import { formattedShortDate } from '../../lib/dateFormatting'
 
 export default function SubscriptionsPage(): JSX.Element {
-  const { subscriptions, revalidate } = useGetSubscriptionsQuery()
-  const [confirmUnsubscribeName, setConfirmUnsubscribeName] = useState<
-    string | null
-  >(null)
+  const { subscriptions, revalidate, isValidating } = useGetSubscriptionsQuery()
+  const [confirmUnsubscribeName, setConfirmUnsubscribeName] =
+    useState<string | null>(null)
 
   applyStoredTheme(false)
 
@@ -26,42 +30,66 @@ export default function SubscriptionsPage(): JSX.Element {
     revalidate()
   }
 
-  const headers = ['Name', 'Email', 'Updated Time']
-  const rows = new Map<string, string[]>()
-  subscriptions.forEach((subscription) =>
-    rows.set(subscription.name, [
-      subscription.name,
-      subscription.newsletterEmail,
-      subscription.updatedAt.toString(),
-    ])
-  )
+  const sortedSubscriptions = useMemo(() => {
+    return subscriptions.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+  }, [subscriptions])
 
   return (
-    <PrimaryLayout pageTestId="settings-subscriptions-tag">
-      <Toaster
-        containerStyle={{
-          top: '5rem',
-        }}
-      />
+    <SettingsTable
+      pageId="settings-subscriptions-tag"
+      pageHeadline="Subscriptions"
+      pageInfoLink="/help/newsletters"
+      headerTitle="Subscriptions"
+    >
+      <>
+        {sortedSubscriptions.length > 0 ? (
+          sortedSubscriptions.map((subscription, i) => {
+            return (
+              <SettingsTableRow
+                key={subscription.id}
+                title={subscription.name}
+                isLast={i === sortedSubscriptions.length - 1}
+                onDelete={() => setConfirmUnsubscribeName(subscription.name)}
+                deleteTitle="Unsubscribe"
+                sublineElement={
+                  <StyledText
+                    css={{
+                      my: '5px',
+                      fontSize: '11px',
+                    }}
+                  >
+                    {`Last received ${formattedShortDate(
+                      subscription.updatedAt
+                    )} at `}
+                    <Link
+                      href={`/settings/emails?address=${subscription.newsletterEmail}`}
+                    >
+                      {subscription.newsletterEmail}
+                    </Link>
+                  </StyledText>
+                }
+              />
+            )
+          })
+        ) : (
+          <EmptySettingsRow
+            text={isValidating ? '-' : 'No Email Subscriptions Found'}
+          />
+        )}
 
-      {confirmUnsubscribeName ? (
-        <ConfirmationModal
-          message={
-            'Are you sure? You will stop receiving newsletters from this subscription.'
-          }
-          onAccept={async () => {
-            await onUnsubscribe(confirmUnsubscribeName)
-            setConfirmUnsubscribeName(null)
-          }}
-          onOpenChange={() => setConfirmUnsubscribeName(null)}
-        />
-      ) : null}
-      <Table
-        heading={'Subscriptions'}
-        headers={headers}
-        rows={rows}
-        onDelete={setConfirmUnsubscribeName}
-      />
-    </PrimaryLayout>
+        {confirmUnsubscribeName ? (
+          <ConfirmationModal
+            message={
+              'Are you sure? You will stop receiving newsletters from this subscription.'
+            }
+            onAccept={async () => {
+              await onUnsubscribe(confirmUnsubscribeName)
+              setConfirmUnsubscribeName(null)
+            }}
+            onOpenChange={() => setConfirmUnsubscribeName(null)}
+          />
+        ) : null}
+      </>
+    </SettingsTable>
   )
 }

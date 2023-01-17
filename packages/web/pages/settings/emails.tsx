@@ -1,30 +1,28 @@
-import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
 import { Button } from '../../components/elements/Button'
 import { useGetNewsletterEmailsQuery } from '../../lib/networking/queries/useGetNewsletterEmailsQuery'
 import { createNewsletterEmailMutation } from '../../lib/networking/mutations/createNewsletterEmailMutation'
 import { deleteNewsletterEmailMutation } from '../../lib/networking/mutations/deleteNewsletterEmailMutation'
 import { MoreOptionsIcon } from '../../components/elements/images/MoreOptionsIcon'
-import { Info, Plus, Trash, Copy } from 'phosphor-react'
+import { Trash, Copy } from 'phosphor-react'
 import {
   Dropdown,
   DropdownOption,
 } from '../../components/elements/DropdownElements'
-import { TooltipWrapped } from '../../components/elements/Tooltip'
 import { theme, styled } from '../../components/tokens/stitches.config'
-import {
-  Box,
-  SpanBox,
-  HStack,
-  VStack,
-} from '../../components/elements/LayoutPrimitives'
+import { Box, HStack } from '../../components/elements/LayoutPrimitives'
 import { useCopyLink } from '../../lib/hooks/useCopyLink'
-import { Toaster } from 'react-hot-toast'
-import { useCallback } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { StyledText } from '../../components/elements/StyledText'
 import { applyStoredTheme } from '../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
+import { formattedShortDate } from '../../lib/dateFormatting'
 import Link from 'next/link'
-import { InfoLink } from '../../components/elements/InfoLink'
+import {
+  EmptySettingsRow,
+  SettingsTable,
+  SettingsTableRow,
+} from '../../components/templates/settings/SettingsTable'
+import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
 
 enum TextType {
   EmailAddress,
@@ -36,116 +34,20 @@ type CopyTextButtonProps = {
   type: TextType
 }
 
-const HeaderWrapper = styled(Box, {
-  width: '100%',
-  '@md': {
-    display: 'block',
-  },
-})
-
-const TableCard = styled(Box, {
-  backgroundColor: '$grayBg',
-  display: 'flex',
-  alignItems: 'center',
-  padding: '10px 12px',
-  border: '0.5px solid $grayBgActive',
-  width: '100%',
-
-  '&:hover': {
-    border: '0.5px solid #FFD234',
-  },
-  '@md': {
-    paddingLeft: '0',
-  },
-})
-
-const TableHeading = styled(Box, {
-  backgroundColor: '$grayBgActive',
-  border: '1px solid rgba(0, 0, 0, 0.06)',
-  display: 'none',
-  alignItems: 'center',
-  padding: '14px 0 14px 40px',
-  borderRadius: '5px 5px 0px 0px',
-  width: '100%',
-  '@md': {
-    display: 'flex',
-  }
-})
-
-const Input = styled('input', {
-  backgroundColor: 'transparent',
-  color: '$grayTextContrast',
-  marginTop: '5px',
-  marginLeft: '38px',
-  '&[disabled]': {
-    border: 'none',
-  },
-})
-
 const CopyTextBtnWrapper = styled(Box, {
-  padding: '1px',
   background: '$grayBgActive',
   borderRadius: '6px',
   border: '1px solid rgba(0, 0, 0, 0.06)',
+  width: '32px',
+  height: '32px',
+
+  display: 'flex',
+
+  color: '#3D3D3D',
+
+  alignItems: 'center',
+  justifyContent: 'center',
 })
-
-const InfoIcon = styled(Info, {
-  marginTop: '8px',
-  '&:hover': {
-    cursor: 'pointer',
-  },
-})
-
-const TooltipStyle = {
-  backgroundColor: '#F9D354',
-  color: '#0A0806',
-}
-
-const MoreOptions = ({ onDelete }: { onDelete: () => void }) => (
-  <Dropdown
-    align={'end'}
-    triggerElement={
-      <Box
-        css={{
-          '&:hover': {
-            cursor: 'pointer',
-          },
-        }}
-      >
-        <MoreOptionsIcon
-          size={24}
-          strokeColor={theme.colors.grayTextContrast.toString()}
-          orientation="horizontal"
-        />
-      </Box>
-    }
-  >
-    <DropdownOption
-      onSelect={() => {
-        return true
-      }}
-    >
-      <HStack alignment={'center'} distribution={'start'}>
-        <Trash size={24} color={theme.colors.omnivoreRed.toString()} />
-        <Button
-          css={{
-            color: theme.colors.omnivoreRed.toString(),
-            marginLeft: '8px',
-            border: 'none',
-            backgroundColor: 'transparent',
-            '&:hover': {
-              border: 'none',
-              backgroundColor: 'transparent',
-            },
-          }}
-          onClick={onDelete}
-        >
-          Delete
-        </Button>
-      </HStack>
-    </DropdownOption>
-  </Dropdown>
-)
 
 function CopyTextButton(props: CopyTextButtonProps): JSX.Element {
   const { copyLink, isLinkCopied } = useCopyLink(
@@ -158,12 +60,20 @@ function CopyTextButton(props: CopyTextButtonProps): JSX.Element {
 
   const copy = useCallback(() => {
     copyLink()
-    showSuccessToast(props.type == TextType.EmailAddress ? 'Email Address Copied' : 'Confirmation Code Copied');
+    showSuccessToast(
+      props.type == TextType.EmailAddress
+        ? 'Email Address Copied'
+        : 'Confirmation Code Copied'
+    )
   }, [])
 
   return (
     <Button style="plainIcon" onClick={copy}>
-      <Copy color={theme.colors.grayTextContrast.toString()} />
+      <Copy
+        width={16}
+        height={16}
+        color={theme.colors.grayTextContrast.toString()}
+      />
     </Button>
   )
 }
@@ -171,6 +81,8 @@ function CopyTextButton(props: CopyTextButtonProps): JSX.Element {
 export default function EmailsPage(): JSX.Element {
   const { emailAddresses, revalidate, isValidating } =
     useGetNewsletterEmailsQuery()
+  const [confirmDeleteEmailId, setConfirmDeleteEmailId] =
+    useState<undefined | string>(undefined)
 
   applyStoredTheme(false)
 
@@ -193,228 +105,123 @@ export default function EmailsPage(): JSX.Element {
     revalidate()
     showSuccessToast('Email Deleted')
   }
+
+  const sortedEmailAddresses = useMemo(() => {
+    return emailAddresses.sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+  }, [emailAddresses])
+
   return (
-    <PrimaryLayout pageTestId="settings-emails-tag">
-      <Toaster
-        containerStyle={{
-          top: '5rem',
-        }}
-      />
-      <VStack
-        distribution="center"
-        css={{
-          mx: '10px',
-          maxWidth: '865px',
-          color: '$grayText',
-          paddingBottom: '5rem',
-          paddingTop: '2rem',
-          '@md': {
-            m: '16px',
-            alignSelf: 'center',
-            mx: '42px',
-            paddingTop: '0',
-          },
-        }}
+    <>
+      <SettingsTable
+        pageId="settings-emails-tag"
+        pageHeadline="Email Addresses"
+        pageInfoLink="/help/newsletters"
+        headerTitle="Address"
+        createTitle="Create a new email address"
+        createAction={createEmail}
       >
-        <HeaderWrapper>
-          <Box style={{ display: 'flex', alignItems: 'center' }}>
-            <Box>
-              <StyledText
-                style="fixedHeadline"
-              >
-                Email Addresses{' '}
-              </StyledText>
-            </Box>
-            <InfoLink href="/help/newsletters" />
-            <Button
-              onClick={createEmail}
-              style="ctaDarkYellow"
-              css={{
-                display: 'flex',
-                alignItems: 'center',
-                marginLeft: 'auto',
-              }}
-            >
-              <SpanBox css={{
-                display: 'none',
-                '@md': {
-                  display: 'flex',
-                },
-              }}>
-                <SpanBox>Create a new email address</SpanBox>
-              </SpanBox>
-              <SpanBox css={{
-                p: '0',
-                display: 'flex',
-                '@md': {
-                  display: 'none',
-                },
-              }}>
-                <Plus size={24} />
-              </SpanBox>
-            </Button>
-          </Box>
-          <TableHeading>
-          <Box
-              css={{
-                flex: '49%',
-              }}
-            >
-              <StyledText
-                style="menuTitle"
-                css={{
-                  color: '$grayTextContrast',
-                }}
-              >
-                EMAIL
-              </StyledText>
-            </Box>
-            <Box style={{ flex: '51%' }}>
-              <StyledText
-                style="menuTitle"
-                css={{
-                  color: '$grayTextContrast',
-                }}
-              >
-                CONFIRMATION CODE
-              </StyledText>
-            </Box>
-          </TableHeading>
-        </HeaderWrapper>
-        {emailAddresses &&
-          emailAddresses.map((email, i) => {
-            const { address, confirmationCode, id } = email
-            const isLastChild = i === emailAddresses.length - 1
-
+        {sortedEmailAddresses.length > 0 ? (
+          sortedEmailAddresses.map((email, i) => {
             return (
-              <TableCard
-                key={id}
-                css={{
-                  '&:hover': {
-                    background: 'rgba(255, 234, 159, 0.12)',
-                  },
-                  '@mdDown': {
-                    borderTopLeftRadius: i === 0 ? '5px' : '',
-                    borderTopRightRadius: i === 0 ? '5px' : '',
-
-                  },
-                  borderBottomLeftRadius: isLastChild ? '5px' : '',
-                  borderBottomRightRadius: isLastChild ? '5px' : '',
-                }}
-              >
-                <Box
-                  css={{
-                    display: 'flex',
-                    width: '100%',
-                    flexDirection: 'column',
-                    '@md': {
-                      flexDirection: 'row',
-                    },
-                  }}
-                >
-                  <HStack
-                    distribution="start"
+              <SettingsTableRow
+                key={email.address}
+                title={email.address}
+                isLast={i === sortedEmailAddresses.length - 1}
+                onDelete={() => setConfirmDeleteEmailId(email.id)}
+                deleteTitle="Delete"
+                sublineElement={
+                  <StyledText
                     css={{
-                      display: 'flex',
-                      padding: '4px 4px 4px 0px',
+                      my: '5px',
+                      fontSize: '11px',
                     }}
                   >
-                    <Input
-                      type="text"
-                      value={address}
-                      disabled
-                      css={{
-                        marginLeft: '0',
-                        width: '100%',
-                        '@md': {
-                          marginLeft: '38px',
-                          width: '320px',
-                        },
-                      }}
-                    ></Input>
-                    <CopyTextBtnWrapper
-                      css={{
-                        '@mdDown': {
-                          marginRight: '10px',
-                          marginLeft: '18px',
-                        },
-                      }}
-                    >
-                      <CopyTextButton
-                        text={address}
-                        type={TextType.EmailAddress}
-                      />
-                    </CopyTextBtnWrapper>
-                    <Box
-                      css={{
-                        marginLeft: 'auto',
-                        textAlign: 'right',
-                        display: 'flex',
-                        '@md': {
-                          display: 'none',
-                        },
-                      }}
-                    >
-                      <MoreOptions onDelete={() => deleteEmail(id)} />
-                    </Box>
-                  </HStack>
-                  {confirmationCode && (
+                    {`created ${formattedShortDate(email.createdAt)}, `}
+                    <Link href="/settings/subscriptions">{`${email.subscriptionCount} subscriptions`}</Link>
+                  </StyledText>
+                }
+                titleElement={
+                  <CopyTextBtnWrapper
+                    css={{
+                      marginLeft: '20px',
+                      '@mdDown': {
+                        marginRight: '10px',
+                      },
+                    }}
+                  >
+                    <CopyTextButton
+                      text={email.address}
+                      type={TextType.EmailAddress}
+                    />
+                  </CopyTextBtnWrapper>
+                }
+                extraElement={
+                  email.confirmationCode ? (
                     <HStack
-                      distribution="start"
+                      alignment="start"
+                      distribution="center"
                       css={{
-                        display: 'flex',
+                        width: '100%',
                         backgroundColor: '$grayBgActive',
                         borderRadius: '6px',
-                        padding: '8px 4px 4px 7px',
+                        padding: '4px 4px 4px 0px',
                         '@md': {
-                          padding: 'unset',
+                          width: '30%',
                           backgroundColor: 'transparent',
                         },
                       }}
                     >
                       <>
-                        <Input
-                          type="text"
-                          value={confirmationCode}
-                          disabled
-                          style={{ flex: '1' }}
-                        ></Input>
+                        <StyledText
+                          css={{
+                            fontSize: '11px',
+                            '@md': {
+                              marginTop: '5px',
+                            },
+                            '@mdDown': {
+                              marginLeft: 'auto',
+                            },
+                            marginRight: '10px',
+                          }}
+                        >
+                          {`Gmail: ${email.confirmationCode}`}
+                        </StyledText>
                         <Box>
-                          <CopyTextBtnWrapper
-                            css={{
-                              '@mdDown': {
-                                border: 'none',
-                              }
-                            }}
-                          >
+                          <CopyTextBtnWrapper>
                             <CopyTextButton
-                              text={confirmationCode}
+                              text={email.confirmationCode || ''}
                               type={TextType.ConfirmationCode}
                             />
                           </CopyTextBtnWrapper>
                         </Box>
                       </>
                     </HStack>
-                  )}
-                </Box>
-                <HStack distribution={'start'} css={{ marginLeft: 'auto' }}>
-                  <Box
-                    css={{
-                      textAlign: 'right',
-                      display: 'none',
-                      '@md': {
-                        display: 'flex',
-                      },
-                    }}
-                  >
-                    <MoreOptions onDelete={() => deleteEmail(id)} />
-                  </Box>
-                </HStack>
-              </TableCard>
+                  ) : (
+                    <></>
+                  )
+                }
+              />
             )
-          })}
-      </VStack>
-      <Box css={{ height: '120px' }} />
-    </PrimaryLayout>
+          })
+        ) : (
+          <EmptySettingsRow
+            text={isValidating ? '-' : 'No Email Addresses Found'}
+          />
+        )}
+      </SettingsTable>
+
+      {confirmDeleteEmailId ? (
+        <ConfirmationModal
+          message={
+            'Are you sure? You will stop receiving emails sent to this address.'
+          }
+          onAccept={async () => {
+            await deleteEmail(confirmDeleteEmailId)
+            setConfirmDeleteEmailId(undefined)
+          }}
+          onOpenChange={() => setConfirmDeleteEmailId(undefined)}
+        />
+      ) : null}
+    </>
   )
 }
