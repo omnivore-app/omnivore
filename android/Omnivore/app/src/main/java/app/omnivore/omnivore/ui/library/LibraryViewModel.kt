@@ -8,9 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.*
-import app.omnivore.omnivore.dataService.DataService
-import app.omnivore.omnivore.dataService.sync
-import app.omnivore.omnivore.dataService.syncOfflineItemsWithServerIfNeeded
+import app.omnivore.omnivore.dataService.*
 import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.persistence.entities.SavedItemCardData
 import app.omnivore.omnivore.persistence.entities.SavedItemCardDataWithLabels
@@ -137,43 +135,21 @@ class LibraryViewModel @Inject constructor(
   fun handleSavedItemAction(itemID: String, action: SavedItemAction) {
     when (action) {
       SavedItemAction.Delete -> {
-        removeItemFromList(itemID)
-
         viewModelScope.launch {
-          networker.deleteSavedItem(itemID)
+          dataService.deleteSavedItem(itemID)
         }
       }
       SavedItemAction.Archive -> {
-        removeItemFromList(itemID)
         viewModelScope.launch {
-          networker.archiveSavedItem(itemID)
+          dataService.archiveSavedItem(itemID)
         }
       }
       SavedItemAction.Unarchive -> {
-        removeItemFromList(itemID)
         viewModelScope.launch {
-          networker.unarchiveSavedItem(itemID)
+          dataService.unarchiveSavedItem(itemID)
         }
       }
     }
-  }
-
-  private fun removeItemFromList(itemID: String) {
-    viewModelScope.launch {
-      withContext(Dispatchers.IO) {
-        dataService.db.savedItemDao().deleteById(itemID)
-      }
-    }
-  }
-
-  private fun searchQuery(): String {
-      var query = "in:inbox sort:saved"
-
-      if (searchTextLiveData.value != "") {
-        query = query.plus(" ${searchTextLiveData.value}")
-      }
-
-      return query
   }
 }
 
