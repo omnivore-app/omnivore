@@ -8,6 +8,9 @@ import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.DatastoreKeys
 import app.omnivore.omnivore.DatastoreRepository
 import app.omnivore.omnivore.dataService.DataService
+import app.omnivore.omnivore.dataService.archiveSavedItem
+import app.omnivore.omnivore.dataService.deleteSavedItem
+import app.omnivore.omnivore.dataService.unarchiveSavedItem
 import app.omnivore.omnivore.persistence.entities.SavedItem
 import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.ui.library.SavedItemAction
@@ -91,19 +94,19 @@ class WebReaderViewModel @Inject constructor(
     when (action) {
       SavedItemAction.Delete -> {
         viewModelScope.launch {
-          networker.deleteSavedItem(itemID)
+          dataService.deleteSavedItem(itemID)
           popToLibraryView(itemID)
         }
       }
       SavedItemAction.Archive -> {
         viewModelScope.launch {
-          networker.archiveSavedItem(itemID)
+          dataService.archiveSavedItem(itemID)
           popToLibraryView(itemID)
         }
       }
       SavedItemAction.Unarchive -> {
         viewModelScope.launch {
-          networker.unarchiveSavedItem(itemID)
+          dataService.unarchiveSavedItem(itemID)
           popToLibraryView(itemID)
         }
       }

@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -97,12 +98,12 @@ fun WebReaderLoadingContainer(slug: String, webReaderViewModel: WebReaderViewMod
         title = {},
         actions = {
           // Disabling menu until we implement local persistence
-//          IconButton(onClick = { isMenuExpanded = true }) {
-//            Icon(
-//              imageVector = Icons.Filled.Menu,
-//              contentDescription = null
-//            )
-//          }
+          IconButton(onClick = { isMenuExpanded = true }) {
+            Icon(
+              imageVector = Icons.Filled.Menu,
+              contentDescription = null
+            )
+          }
           IconButton(onClick = { showWebPreferencesDialog = true }) {
             Icon(
               imageVector = Icons.Filled.Settings, // TODO: set a better icon

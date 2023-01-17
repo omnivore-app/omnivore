@@ -23,7 +23,7 @@ data class SavedItem(
   val author: String?,
   val publishDate: String?,
   val slug: String,
-  val isArchived: Boolean,
+  var isArchived: Boolean,
   val contentReader: String? = null,
   val content: String? = null,
   val createdId: String? = null,
@@ -91,6 +91,9 @@ interface SavedItemDao {
 
   @Query("SELECT * FROM savedItem")
   fun getAll(): List<SavedItem>
+
+  @Query("SELECT * FROM savedItem WHERE savedItemId = :itemID")
+  fun findById(itemID: String): SavedItem?
 
   @Query("SELECT * FROM savedItem WHERE serverSyncStatus != 0")
   fun getUnSynced(): List<SavedItem>
