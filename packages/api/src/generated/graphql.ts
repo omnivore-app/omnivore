@@ -1669,6 +1669,7 @@ export type Query = {
   labels: LabelsResult;
   me?: Maybe<User>;
   newsletterEmails: NewsletterEmailsResult;
+  recentEmails: RecentEmailsResult;
   recentSearches: RecentSearchesResult;
   reminder: ReminderResult;
   rules: RulesResult;
@@ -1810,6 +1811,35 @@ export type ReadState = {
   progressPercent: Scalars['Float'];
   reading?: Maybe<Scalars['Boolean']>;
   readingTime?: Maybe<Scalars['Int']>;
+};
+
+export type RecentEmail = {
+  __typename?: 'RecentEmail';
+  createdAt: Scalars['Date'];
+  from: Scalars['String'];
+  html?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  subject: Scalars['String'];
+  text: Scalars['String'];
+  to: Scalars['String'];
+  type: Scalars['String'];
+};
+
+export type RecentEmailsError = {
+  __typename?: 'RecentEmailsError';
+  errorCodes: Array<RecentEmailsErrorCode>;
+};
+
+export enum RecentEmailsErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type RecentEmailsResult = RecentEmailsError | RecentEmailsSuccess;
+
+export type RecentEmailsSuccess = {
+  __typename?: 'RecentEmailsSuccess';
+  recentEmails: Array<RecentEmail>;
 };
 
 export type RecentSearch = {
@@ -3353,6 +3383,11 @@ export type ResolversTypes = {
   Reaction: ResolverTypeWrapper<Reaction>;
   ReactionType: ReactionType;
   ReadState: ResolverTypeWrapper<ReadState>;
+  RecentEmail: ResolverTypeWrapper<RecentEmail>;
+  RecentEmailsError: ResolverTypeWrapper<RecentEmailsError>;
+  RecentEmailsErrorCode: RecentEmailsErrorCode;
+  RecentEmailsResult: ResolversTypes['RecentEmailsError'] | ResolversTypes['RecentEmailsSuccess'];
+  RecentEmailsSuccess: ResolverTypeWrapper<RecentEmailsSuccess>;
   RecentSearch: ResolverTypeWrapper<RecentSearch>;
   RecentSearchesError: ResolverTypeWrapper<RecentSearchesError>;
   RecentSearchesErrorCode: RecentSearchesErrorCode;
@@ -3771,6 +3806,10 @@ export type ResolversParentTypes = {
   Query: {};
   Reaction: Reaction;
   ReadState: ReadState;
+  RecentEmail: RecentEmail;
+  RecentEmailsError: RecentEmailsError;
+  RecentEmailsResult: ResolversParentTypes['RecentEmailsError'] | ResolversParentTypes['RecentEmailsSuccess'];
+  RecentEmailsSuccess: RecentEmailsSuccess;
   RecentSearch: RecentSearch;
   RecentSearchesError: RecentSearchesError;
   RecentSearchesResult: ResolversParentTypes['RecentSearchesError'] | ResolversParentTypes['RecentSearchesSuccess'];
@@ -4943,6 +4982,7 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   labels?: Resolver<ResolversTypes['LabelsResult'], ParentType, ContextType>;
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   newsletterEmails?: Resolver<ResolversTypes['NewsletterEmailsResult'], ParentType, ContextType>;
+  recentEmails?: Resolver<ResolversTypes['RecentEmailsResult'], ParentType, ContextType>;
   recentSearches?: Resolver<ResolversTypes['RecentSearchesResult'], ParentType, ContextType>;
   reminder?: Resolver<ResolversTypes['ReminderResult'], ParentType, ContextType, RequireFields<QueryReminderArgs, 'linkId'>>;
   rules?: Resolver<ResolversTypes['RulesResult'], ParentType, ContextType, Partial<QueryRulesArgs>>;
@@ -4973,6 +5013,32 @@ export type ReadStateResolvers<ContextType = ResolverContext, ParentType extends
   progressPercent?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   reading?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   readingTime?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type RecentEmailResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RecentEmail'] = ResolversParentTypes['RecentEmail']> = {
+  createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  from?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  html?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  subject?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  text?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  to?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type RecentEmailsErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RecentEmailsError'] = ResolversParentTypes['RecentEmailsError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['RecentEmailsErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type RecentEmailsResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RecentEmailsResult'] = ResolversParentTypes['RecentEmailsResult']> = {
+  __resolveType: TypeResolveFn<'RecentEmailsError' | 'RecentEmailsSuccess', ParentType, ContextType>;
+};
+
+export type RecentEmailsSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RecentEmailsSuccess'] = ResolversParentTypes['RecentEmailsSuccess']> = {
+  recentEmails?: Resolver<Array<ResolversTypes['RecentEmail']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -5934,6 +6000,10 @@ export type Resolvers<ContextType = ResolverContext> = {
   Query?: QueryResolvers<ContextType>;
   Reaction?: ReactionResolvers<ContextType>;
   ReadState?: ReadStateResolvers<ContextType>;
+  RecentEmail?: RecentEmailResolvers<ContextType>;
+  RecentEmailsError?: RecentEmailsErrorResolvers<ContextType>;
+  RecentEmailsResult?: RecentEmailsResultResolvers<ContextType>;
+  RecentEmailsSuccess?: RecentEmailsSuccessResolvers<ContextType>;
   RecentSearch?: RecentSearchResolvers<ContextType>;
   RecentSearchesError?: RecentSearchesErrorResolvers<ContextType>;
   RecentSearchesResult?: RecentSearchesResultResolvers<ContextType>;

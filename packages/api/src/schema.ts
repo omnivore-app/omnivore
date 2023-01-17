@@ -2331,6 +2331,32 @@ const schema = gql`
     uploadSignedUrl: String
   }
 
+  union RecentEmailsResult = RecentEmailsSuccess | RecentEmailsError
+
+  type RecentEmailsSuccess {
+    recentEmails: [RecentEmail!]!
+  }
+
+  type RecentEmailsError {
+    errorCodes: [RecentEmailsErrorCode!]!
+  }
+
+  enum RecentEmailsErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+  }
+
+  type RecentEmail {
+    id: ID!
+    from: String!
+    to: String!
+    subject: String!
+    type: String!
+    text: String!
+    html: String
+    createdAt: Date!
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -2481,6 +2507,7 @@ const schema = gql`
     deviceTokens: DeviceTokensResult!
     filters: FiltersResult!
     groups: GroupsResult!
+    recentEmails: RecentEmailsResult!
   }
 `
 

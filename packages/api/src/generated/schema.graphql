@@ -1218,6 +1218,7 @@ type Query {
   labels: LabelsResult!
   me: User
   newsletterEmails: NewsletterEmailsResult!
+  recentEmails: RecentEmailsResult!
   recentSearches: RecentSearchesResult!
   reminder(linkId: ID!): ReminderResult!
   rules(enabled: Boolean): RulesResult!
@@ -1256,6 +1257,32 @@ type ReadState {
   progressPercent: Float!
   reading: Boolean
   readingTime: Int
+}
+
+type RecentEmail {
+  createdAt: Date!
+  from: String!
+  html: String
+  id: ID!
+  subject: String!
+  text: String!
+  to: String!
+  type: String!
+}
+
+type RecentEmailsError {
+  errorCodes: [RecentEmailsErrorCode!]!
+}
+
+enum RecentEmailsErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+union RecentEmailsResult = RecentEmailsError | RecentEmailsSuccess
+
+type RecentEmailsSuccess {
+  recentEmails: [RecentEmail!]!
 }
 
 type RecentSearch {
