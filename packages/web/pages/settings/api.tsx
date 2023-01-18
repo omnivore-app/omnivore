@@ -14,6 +14,14 @@ import { Table } from '../../components/elements/Table'
 import { FormInputProps } from '../../components/elements/FormElements'
 import { FormModal } from '../../components/patterns/FormModal'
 import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
+import {
+  EmptySettingsRow,
+  SettingsTable,
+  SettingsTableRow,
+} from '../../components/templates/settings/SettingsTable'
+import { StyledText } from '../../components/elements/StyledText'
+import { formattedShortDate } from '../../lib/dateFormatting'
+import Link from 'next/link'
 
 interface ApiKey {
   name: string
@@ -23,7 +31,7 @@ interface ApiKey {
 }
 
 export default function Api(): JSX.Element {
-  const { apiKeys, revalidate } = useGetApiKeysQuery()
+  const { apiKeys, revalidate, isValidating } = useGetApiKeysQuery()
   const [onDeleteId, setOnDeleteId] = useState<string>('')
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [name, setName] = useState<string>('')
@@ -47,25 +55,6 @@ export default function Api(): JSX.Element {
       setAddModalOpen(true)
     }
   }, [router.query])
-
-  const headers = ['Name', 'Scopes', 'Used at', 'Expires on']
-  const rows = useMemo(() => {
-    const rows = new Map<string, ApiKey>()
-    apiKeys.forEach((apiKey) =>
-      rows.set(apiKey.id, {
-        name: apiKey.name,
-        scopes: apiKey.scopes.join(', ') || 'All',
-        usedAt: apiKey.usedAt
-          ? new Date(apiKey.usedAt).toISOString()
-          : 'Never used',
-        expiresAt:
-          new Date(apiKey.expiresAt).getTime() != neverExpiresDate.getTime()
-            ? new Date(apiKey.expiresAt).toDateString()
-            : 'Never',
-      })
-    )
-    return rows
-  }, [apiKeys])
 
   applyStoredTheme(false)
 
@@ -135,66 +124,101 @@ export default function Api(): JSX.Element {
           'in 1 year',
           'Never',
         ],
-        value: defaultExpiresAt,
+        value: neverExpiresDate,
       },
     ])
   }
 
   return (
-    <PrimaryLayout pageTestId={'api-keys'}>
-      <Toaster
-        containerStyle={{
-          top: '5rem',
-        }}
-      />
+    <SettingsTable
+      pageId="api-keys"
+      pageHeadline="API Keys"
+      pageInfoLink="https://docs.omnivore.app/integrations/api.html"
+      headerTitle="API Keys"
+      createTitle="Generate API Key"
+      createAction={() => {
+        onAdd()
+        setName('')
+        setExpiresAt(new Date(neverExpiresDate))
+        setAddModalOpen(true)
+      }}
+      children={
+        <>
+          {apiKeys.length > 0 ? (
+            apiKeys.map((apiKey, i) => {
+              return (
+                <SettingsTableRow
+                  key={apiKey.id}
+                  title={apiKey.name}
+                  isLast={i === apiKeys.length - 1}
+                  onDelete={() => setOnDeleteId(apiKey.id)}
+                  deleteTitle="Delete"
+                  sublineElement={
+                    <StyledText
+                      css={{
+                        my: '5px',
+                        fontSize: '11px',
+                        a: {
+                          color: '$omnivoreCtaYellow',
+                        },
+                      }}
+                    >
+                      {`Last used: ${
+                        apiKey.usedAt
+                          ? formattedShortDate(apiKey.usedAt)
+                          : 'Never'
+                      }, `}
+                      {apiKey.expiresAt &&
+                      apiKey.expiresAt != neverExpiresDate.toISOString()
+                        ? `expires: ${formattedShortDate(apiKey.expiresAt)}`
+                        : 'never expires'}
+                    </StyledText>
+                  }
+                  titleElement={<></>}
+                  extraElement={<></>}
+                />
+              )
+            })
+          ) : (
+            <EmptySettingsRow text={isValidating ? '-' : 'No API Keys Found'} />
+          )}
 
-      {addModalOpen && (
-        <FormModal
-          title={'Generate API Key'}
-          onSubmit={onCreate}
-          onOpenChange={setAddModalOpen}
-          inputs={formInputs}
-          acceptButtonLabel={'Generate'}
-        />
-      )}
+          {addModalOpen && (
+            <FormModal
+              title={'Generate API Key'}
+              onSubmit={onCreate}
+              onOpenChange={setAddModalOpen}
+              inputs={formInputs}
+              acceptButtonLabel={'Generate'}
+            />
+          )}
 
-      {apiKeyGenerated && (
-        <ConfirmationModal
-          message={`API key generated. Copy the key and use it in your application.
+          {apiKeyGenerated && (
+            <ConfirmationModal
+              message={`API key generated. Copy the key and use it in your application.
                     You won’t be able to see it again!
                     Key: ${apiKeyGenerated}`}
-          acceptButtonLabel={'Copy'}
-          onAccept={async () => {
-            await navigator.clipboard.writeText(apiKeyGenerated)
-            setApiKeyGenerated('')
-          }}
-          onOpenChange={() => setApiKeyGenerated('')}
-        />
-      )}
+              acceptButtonLabel={'Copy'}
+              onAccept={async () => {
+                await navigator.clipboard.writeText(apiKeyGenerated)
+                setApiKeyGenerated('')
+              }}
+              onOpenChange={() => setApiKeyGenerated('')}
+            />
+          )}
 
-      {onDeleteId && (
-        <ConfirmationModal
-          message={'API key would be revoked. This action cannot be undone.'}
-          onAccept={async () => {
-            await onDelete(onDeleteId)
-            setOnDeleteId('')
-          }}
-          onOpenChange={() => setOnDeleteId('')}
-        />
-      )}
-
-      <Table
-        heading={'API Keys'}
-        headers={headers}
-        rows={rows}
-        onDelete={setOnDeleteId}
-        onAdd={() => {
-          onAdd()
-          setName('')
-          setExpiresAt(new Date(defaultExpiresAt))
-          setAddModalOpen(true)
-        }}
-      />
-    </PrimaryLayout>
+          {onDeleteId && (
+            <ConfirmationModal
+              message={'API key will be revoked. This action cannot be undone.'}
+              onAccept={async () => {
+                await onDelete(onDeleteId)
+                setOnDeleteId('')
+              }}
+              onOpenChange={() => setOnDeleteId('')}
+            />
+          )}
+        </>
+      }
+    />
   )
 }
