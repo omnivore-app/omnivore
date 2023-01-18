@@ -30,16 +30,6 @@ export default function Api(): JSX.Element {
   const neverExpiresDate = new Date(8640000000000000)
   const defaultExpiresAt = 'Never'
 
-  const router = useRouter()
-  useEffect(() => {
-    if (Object.keys(router.query).length) {
-      setValue(`${router.query?.create}`)
-      setExpiresAt(new Date(defaultExpiresAt))
-      onAdd()
-      setAddModalOpen(true)
-    }
-  }, [router.query])
-
   applyStoredTheme(false)
 
   async function onDelete(id: string): Promise<void> {
@@ -69,7 +59,7 @@ export default function Api(): JSX.Element {
         label: 'Name',
         onChange: setName,
         name: 'name',
-        value: `${router.query?.create ? router.query?.create : value}`,
+        value: value,
         required: true,
       },
       {
@@ -131,7 +121,7 @@ export default function Api(): JSX.Element {
       createAction={() => {
         onAdd()
         setName('')
-        setExpiresAt(new Date(defaultExpiresAt))
+        setExpiresAt(neverExpiresDate)
         setAddModalOpen(true)
       }}
     >
@@ -160,10 +150,11 @@ export default function Api(): JSX.Element {
                   {`Last used: ${
                     apiKey.usedAt ? formattedShortDate(apiKey.usedAt) : 'Never'
                   }, `}
+                  {`Created: ${formattedShortDate(apiKey.createdAt)}, `}
                   {apiKey.expiresAt &&
                   apiKey.expiresAt != neverExpiresDate.toISOString()
-                    ? `expires: ${formattedShortDate(apiKey.expiresAt)}`
-                    : 'never expires'}
+                    ? `Expires: ${formattedShortDate(apiKey.expiresAt)}`
+                    : 'Never expires'}
                 </StyledText>
               }
             />
