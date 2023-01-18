@@ -111,7 +111,7 @@ export const unsubscribeResolver = authorized<
       }
     }
 
-    const unsubscribed = await unsubscribe(subscription)
+    await unsubscribe(subscription)
 
     analytics.track({
       userId: uid,
@@ -124,8 +124,8 @@ export const unsubscribeResolver = authorized<
 
     return {
       subscription: {
-        ...unsubscribed,
-        newsletterEmail: unsubscribed.newsletterEmail.address,
+        ...subscription,
+        newsletterEmail: subscription.newsletterEmail.address,
       },
     }
   } catch (error) {

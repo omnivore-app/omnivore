@@ -52,7 +52,6 @@ export const saveSubscription = async ({
       name,
       newsletterEmail: { id: newsletterEmail.id },
       user: { id: userId },
-      status: SubscriptionStatus.Active,
       unsubscribeHttpUrl,
       unsubscribeMailTo,
       icon,
@@ -63,9 +62,7 @@ export const saveSubscription = async ({
   return result.identifiers[0].id as string
 }
 
-export const unsubscribe = async (
-  subscription: Subscription
-): Promise<Subscription> => {
+export const unsubscribe = async (subscription: Subscription) => {
   if (subscription.unsubscribeMailTo) {
     // unsubscribe by sending email first
     await sendUnsubscribeEmail(
@@ -79,9 +76,8 @@ export const unsubscribe = async (
     throw new Error('No unsubscribe method defined')
   }
 
-  // set status to unsubscribed
-  subscription.status = SubscriptionStatus.Unsubscribed
-  return getRepository(Subscription).save(subscription)
+  // delete the subscription
+  await getRepository(Subscription).delete(subscription.id)
 }
 
 export const unsubscribeAll = async (
@@ -91,7 +87,6 @@ export const unsubscribeAll = async (
     const subscriptions = await getRepository(Subscription).find({
       where: {
         user: { id: newsletterEmail.user.id },
-        status: SubscriptionStatus.Active,
         newsletterEmail: { id: newsletterEmail.id },
       },
       relations: ['newsletterEmail'],
