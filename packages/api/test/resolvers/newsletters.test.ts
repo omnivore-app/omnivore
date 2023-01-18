@@ -9,7 +9,10 @@ import { generateFakeUuid, graphqlRequest, request } from '../util'
 import { NewsletterEmail } from '../../src/entity/newsletter_email'
 import { User } from '../../src/entity/user'
 import { expect } from 'chai'
-import { DeleteNewsletterEmailErrorCode } from '../../src/generated/graphql'
+import {
+  DeleteNewsletterEmailErrorCode,
+  SubscriptionStatus,
+} from '../../src/generated/graphql'
 import 'mocha'
 
 describe('Newsletters API', () => {
@@ -39,6 +42,12 @@ describe('Newsletters API', () => {
 
     //  create testing subscriptions
     await createTestSubscription(user, 'sub', newsletterEmail2)
+    await createTestSubscription(
+      user,
+      'inactive-sub',
+      newsletterEmail2,
+      SubscriptionStatus.Unsubscribed
+    )
   })
 
   after(async () => {

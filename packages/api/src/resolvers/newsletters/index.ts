@@ -10,6 +10,7 @@ import {
   NewsletterEmailsError,
   NewsletterEmailsErrorCode,
   NewsletterEmailsSuccess,
+  SubscriptionStatus,
 } from '../../generated/graphql'
 import {
   createNewsletterEmail,
@@ -75,7 +76,9 @@ export const newsletterEmailsResolver = authorized<
     return {
       newsletterEmails: newsletterEmails.map((newsletterEmail) => ({
         ...newsletterEmail,
-        subscriptionCount: newsletterEmail.subscriptions.length,
+        subscriptionCount: newsletterEmail.subscriptions.filter(
+          (s) => s.status == SubscriptionStatus.Active
+        ).length,
       })),
     }
   } catch (e) {
