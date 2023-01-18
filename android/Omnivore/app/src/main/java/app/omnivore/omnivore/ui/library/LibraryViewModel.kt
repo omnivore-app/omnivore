@@ -81,9 +81,16 @@ class LibraryViewModel @Inject constructor(
     }
   }
 
-  private suspend fun performItemSync(cursor: String?, since: String, count: Int, startTime: String, fetchContentSlugs: List<String> = listOf()) {
+  private suspend fun performItemSync(cursor: String?, since: String, count: Int, startTime: String, isInitialBatch: Boolean = true) {
     dataService.syncOfflineItemsWithServerIfNeeded()
-    val result = dataService.sync(since = since, cursor = cursor)
+    val result = dataService.sync(since = since, cursor = cursor, limit = 20)
+
+    // Fetch content for the initial batch only
+    if (isInitialBatch) {
+      for (slug in result.savedItemSlugs) {
+        dataService.syncSavedItemContent(slug)
+      }
+    }
 
     val totalCount = count + result.count
 
@@ -95,15 +102,10 @@ class LibraryViewModel @Inject constructor(
         since = since,
         count = totalCount,
         startTime = startTime,
-        fetchContentSlugs = fetchContentSlugs.ifEmpty { result.savedItemSlugs }
-
+        isInitialBatch = false
       )
     } else {
       datastoreRepo.putString(DatastoreKeys.libraryLastSyncTimestamp, startTime)
-
-      for (slug in result.savedItemSlugs) {
-        dataService.syncSavedItemContent(slug)
-      }
     }
   }
 

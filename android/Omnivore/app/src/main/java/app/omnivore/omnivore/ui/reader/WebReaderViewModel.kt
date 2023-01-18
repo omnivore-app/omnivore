@@ -44,36 +44,44 @@ class WebReaderViewModel @Inject constructor(
 
   var hasTappedExistingHighlight = false
   var lastTapCoordinates: TapCoordinates? = null
-
+  
   fun loadItem(slug: String) {
     viewModelScope.launch {
-      // Attempt to load from db first
-      withContext(Dispatchers.IO) {
-        val persistedItem = dataService.db.savedItemDao().getSavedItemWithLabelsAndHighlights(slug)
+      val webReaderParams = loadItemFromServer(slug)
 
-        if (persistedItem?.savedItem?.content != null) {
-          val articleContent = ArticleContent(
-            title = persistedItem.savedItem.title,
-            htmlContent = persistedItem.savedItem.content,
-            highlights = persistedItem.highlights,
-            contentStatus = "SUCCEEDED",
-            objectID = "",
-            labelsJSONString = Gson().toJson(persistedItem.labels)
-          )
-
-          Log.d("sync", "data loaded from db")
-          webReaderParamsLiveData.postValue(WebReaderParams(persistedItem.savedItem, articleContent))
-        } else {
-          loadItemFromServer(slug)
-        }
+      if (webReaderParams != null) {
+        Log.d("sync", "data loaded from server")
+        webReaderParamsLiveData.postValue(webReaderParams)
+      } else {
+        loadItemFromDB(slug)
       }
     }
   }
 
-  private suspend fun loadItemFromServer(slug: String) {
+  private suspend fun loadItemFromDB(slug: String) {
+    withContext(Dispatchers.IO) {
+      val persistedItem = dataService.db.savedItemDao().getSavedItemWithLabelsAndHighlights(slug)
+
+      if (persistedItem?.savedItem?.content != null) {
+        val articleContent = ArticleContent(
+          title = persistedItem.savedItem.title,
+          htmlContent = persistedItem.savedItem.content,
+          highlights = persistedItem.highlights,
+          contentStatus = "SUCCEEDED",
+          objectID = "",
+          labelsJSONString = Gson().toJson(persistedItem.labels)
+        )
+
+        Log.d("sync", "data loaded from db")
+        webReaderParamsLiveData.postValue(WebReaderParams(persistedItem.savedItem, articleContent))
+      }
+    }
+  }
+
+  private suspend fun loadItemFromServer(slug: String): WebReaderParams? {
     val articleQueryResult = networker.savedItem(slug)
 
-    val article = articleQueryResult.item ?: return
+    val article = articleQueryResult.item ?: return null
 
     val articleContent = ArticleContent(
       title = article.title,
@@ -84,8 +92,7 @@ class WebReaderViewModel @Inject constructor(
       labelsJSONString = Gson().toJson(articleQueryResult.labels)
     )
 
-    Log.d("sync", "data loaded from server")
-    webReaderParamsLiveData.postValue(WebReaderParams(article, articleContent))
+    return WebReaderParams(article, articleContent)
   }
 
   fun handleSavedItemAction(itemID: String, action: SavedItemAction) {
