@@ -6,6 +6,7 @@ import 'mocha'
 import { User } from '../../src/entity/user'
 import { getRepository } from '../../src/entity/utils'
 import { NewsletterEmail } from '../../src/entity/newsletter_email'
+import { SubscriptionStatus } from '../../src/generated/graphql'
 
 describe('Subscriptions API', () => {
   let user: User
@@ -31,6 +32,12 @@ describe('Subscriptions API', () => {
     //  create testing subscriptions
     const sub1 = await createTestSubscription(user, 'sub_1', newsletterEmail)
     const sub2 = await createTestSubscription(user, 'sub_2', newsletterEmail)
+    await createTestSubscription(
+      user,
+      'sub_3',
+      newsletterEmail,
+      SubscriptionStatus.Unsubscribed
+    )
     subscriptions = [sub2, sub1]
   })
 
