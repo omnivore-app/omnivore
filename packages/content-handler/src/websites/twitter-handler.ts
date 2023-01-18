@@ -316,7 +316,8 @@ export class TwitterHandler extends ContentHandler {
     const authorId = tweetData.author_id
     const author = tweet.includes.users.filter((u) => (u.id = authorId))[0]
     // escape html entities in title
-    const title = _.escape(titleForAuthor(author))
+    const title = titleForAuthor(author)
+    const escapedTitle = _.escape(title)
     const authorImage = author.profile_image_url.replace('_normal', '_400x400')
     const description = _.escape(tweetData.text)
 
@@ -368,7 +369,7 @@ export class TwitterHandler extends ContentHandler {
     <head>
       <meta property="og:image" content="${authorImage}" />
       <meta property="og:image:secure_url" content="${authorImage}" />
-      <meta property="og:title" content="${title}" />
+      <meta property="og:title" content="${escapedTitle}" />
       <meta property="og:description" content="${description}" />
     </head>
     <body>
