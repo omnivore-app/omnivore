@@ -31,6 +31,9 @@ export default function SubscriptionsPage(): JSX.Element {
   }
 
   const sortedSubscriptions = useMemo(() => {
+    if (!subscriptions) {
+      return []
+    }
     return subscriptions.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
   }, [subscriptions])
 
@@ -56,6 +59,9 @@ export default function SubscriptionsPage(): JSX.Element {
                     css={{
                       my: '5px',
                       fontSize: '11px',
+                      a: {
+                        color: '$omnivoreCtaYellow',
+                      },
                     }}
                   >
                     {`Last received ${formattedShortDate(
