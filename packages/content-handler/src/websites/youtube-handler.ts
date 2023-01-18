@@ -18,6 +18,10 @@ export const getYoutubeVideoId = (url: string) => {
   return videoId
 }
 
+export const escapeTitle = (title: string) => {
+  return _.escape(title)
+}
+
 export class YoutubeHandler extends ContentHandler {
   constructor() {
     super()
@@ -46,7 +50,8 @@ export class YoutubeHandler extends ContentHandler {
       author_url: string
     }
     // escape html entities in title
-    const title = _.escape(oembed.title)
+    const title = oembed.title
+    const escapedTitle = escapeTitle(title)
     const ratio = oembed.width / oembed.height
     const thumbnail = oembed.thumbnail_url
     const height = 350
@@ -55,16 +60,16 @@ export class YoutubeHandler extends ContentHandler {
 
     const content = `
     <html>
-      <head><title>${title}</title>
+      <head><title>${escapedTitle}</title>
       <meta property="og:image" content="${thumbnail}" />
       <meta property="og:image:secure_url" content="${thumbnail}" />
-      <meta property="og:title" content="${title}" />
+      <meta property="og:title" content="${escapedTitle}" />
       <meta property="og:description" content="" />
       <meta property="og:article:author" content="${authorName}" />
       </head>
       <body>
-      <iframe width="${width}" height="${height}" src="https://www.youtube.com/embed/${videoId}" title="${title}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-        <p><a href="${url}" target="_blank">${title}</a></p>
+      <iframe width="${width}" height="${height}" src="https://www.youtube.com/embed/${videoId}" title="${escapedTitle}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        <p><a href="${url}" target="_blank">${escapedTitle}</a></p>
         <p itemscope="" itemprop="author" itemtype="http://schema.org/Person">By <a href="${oembed.author_url}" target="_blank">${authorName}</a></p>
       </body>
     </html>`
