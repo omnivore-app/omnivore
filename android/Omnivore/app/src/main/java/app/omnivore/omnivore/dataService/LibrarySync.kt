@@ -4,7 +4,7 @@ import android.util.Log
 import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.persistence.entities.*
 
-suspend fun DataService.sync(since: String, cursor: String?, limit: Int = 15): SavedItemSyncResult {
+suspend fun DataService.sync(since: String, cursor: String?, limit: Int = 20): SavedItemSyncResult {
   val syncResult = networker.savedItemUpdates(cursor = cursor, limit = limit, since = since) ?: return SavedItemSyncResult.errorResult
 
   val savedItems = syncResult.items.map {

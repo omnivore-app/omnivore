@@ -81,23 +81,29 @@ class LibraryViewModel @Inject constructor(
     }
   }
 
-  private suspend fun performItemSync(cursor: String?, since: String, count: Int, startTime: String) {
+  private suspend fun performItemSync(cursor: String?, since: String, count: Int, startTime: String, fetchContentSlugs: List<String> = listOf()) {
     dataService.syncOfflineItemsWithServerIfNeeded()
     val result = dataService.sync(since = since, cursor = cursor)
-
-    // TODO: Defer this until later? /fix - this results in a 429 server error
-//    for (slug in result.savedItemSlugs) {
-//      dataService.syncSavedItemContent(slug)
-//    }
 
     val totalCount = count + result.count
 
     Log.d("sync", "fetched ${result.count} items")
 
-    if (totalCount < 180 && !result.hasError && result.hasMoreItems && result.cursor != null) {
-      performItemSync(cursor = result.cursor, since = since, count = totalCount, startTime = startTime)
+    if (!result.hasError && result.hasMoreItems && result.cursor != null) {
+      performItemSync(
+        cursor = result.cursor,
+        since = since,
+        count = totalCount,
+        startTime = startTime,
+        fetchContentSlugs = fetchContentSlugs.ifEmpty { result.savedItemSlugs }
+
+      )
     } else {
       datastoreRepo.putString(DatastoreKeys.libraryLastSyncTimestamp, startTime)
+
+      for (slug in result.savedItemSlugs) {
+        dataService.syncSavedItemContent(slug)
+      }
     }
   }
 
