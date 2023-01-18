@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/router'
 
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
@@ -28,7 +28,7 @@ export default function Api(): JSX.Element {
   const [formInputs, setFormInputs] = useState<FormInputProps[]>([])
   const [apiKeyGenerated, setApiKeyGenerated] = useState('')
   const neverExpiresDate = new Date(8640000000000000)
-  const defaultExpiresAt = neverExpiresDate.toISOString().split('T')[0]
+  const defaultExpiresAt = 'Never'
 
   const router = useRouter()
   useEffect(() => {
@@ -114,6 +114,13 @@ export default function Api(): JSX.Element {
     ])
   }
 
+  const sortedApiKeys = useMemo(() => {
+    if (!apiKeys) {
+      return []
+    }
+    return apiKeys.sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+  }, [apiKeys])
+
   return (
     <SettingsTable
       pageId="api-keys"
@@ -128,14 +135,17 @@ export default function Api(): JSX.Element {
         setAddModalOpen(true)
       }}
     >
-      {apiKeys.length > 0 ? (
-        apiKeys.map((apiKey, i) => {
+      {sortedApiKeys.length > 0 ? (
+        sortedApiKeys.map((apiKey, i) => {
           return (
             <SettingsTableRow
               key={apiKey.id}
               title={apiKey.name}
               isLast={i === apiKeys.length - 1}
-              onDelete={() => setOnDeleteId(apiKey.id)}
+              onDelete={() => {
+                console.log('onDelete triggered: ', apiKey.id)
+                setOnDeleteId(apiKey.id)
+              }}
               deleteTitle="Delete"
               sublineElement={
                 <StyledText
@@ -156,8 +166,6 @@ export default function Api(): JSX.Element {
                     : 'never expires'}
                 </StyledText>
               }
-              titleElement={<></>}
-              extraElement={<></>}
             />
           )
         })

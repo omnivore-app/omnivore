@@ -92,6 +92,7 @@ export function GeneralFormInput(props: FormInputProps): JSX.Element {
     return (
       <select
         onChange={input.onChange}
+        defaultValue={props.value}
         style={{
           padding: '8px',
           height: '38px',
