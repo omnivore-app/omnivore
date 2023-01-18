@@ -1,5 +1,5 @@
 -- Type: DO
--- Name: add_delete_permission_to_subscription
+-- Name: grant_delete_permission_to_subscription
 -- Description: Add delete permission to subscription table
 
 BEGIN;
