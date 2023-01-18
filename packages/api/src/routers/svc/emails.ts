@@ -15,9 +15,12 @@ import {
 } from '../../utils/parser'
 import { saveEmail } from '../../services/save_email'
 import { buildLogger } from '../../utils/logger'
-import { saveReceivedEmail } from '../../services/received_emails'
+import {
+  saveReceivedEmail,
+  updateReceivedEmail,
+} from '../../services/received_emails'
 
-interface ForwardEmailMessage {
+interface EmailMessage {
   from: string
   to: string
   subject: string
@@ -28,12 +31,13 @@ interface ForwardEmailMessage {
   forwardedFrom?: string
 }
 
-function isForwardEmailMessage(data: any): data is ForwardEmailMessage {
+function isEmailMessage(data: any): data is EmailMessage {
   return (
     'from' in data &&
     'to' in data &&
     'subject' in data &&
-    ('html' in data || 'text' in data)
+    'html' in data &&
+    'text' in data
   )
 }
 
@@ -61,7 +65,7 @@ export function emailsServiceRouter() {
 
     try {
       const data = JSON.parse(message) as unknown
-      if (!isForwardEmailMessage(data)) {
+      if (!isEmailMessage(data)) {
         logger.error('Invalid message')
         res.status(400).send('Bad Request')
         return
@@ -93,13 +97,12 @@ export function emailsServiceRouter() {
           originalContent: data.html || data.text,
         })
 
-        await saveReceivedEmail(
+        // update received email type
+        await updateReceivedEmail(
+          user.id,
           data.from,
           data.to,
           data.subject,
-          data.text,
-          data.html,
-          user.id,
           'article'
         )
 
@@ -114,15 +117,6 @@ export function emailsServiceRouter() {
           env: env.server.apiEnv,
         },
       })
-
-      await saveReceivedEmail(
-        data.from,
-        data.to,
-        data.subject,
-        data.text,
-        data.html,
-        user.id
-      )
 
       // forward non-newsletter emails to the registered email address
       const result = await sendEmail({
@@ -141,6 +135,70 @@ export function emailsServiceRouter() {
       }
 
       res.status(200).send('Email forwarded')
+    } catch (e) {
+      logger.info(e)
+      if (e instanceof SyntaxError) {
+        // when message is not a valid json string
+        res.status(400).send(e)
+      } else {
+        res.status(500).send(e)
+      }
+    }
+  })
+
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  router.post('/save', async (req, res) => {
+    logger.info('save received email router')
+
+    const { message, expired } = readPushSubscription(req)
+
+    if (!message) {
+      res.status(400).send('Bad Request')
+      return
+    }
+
+    if (expired) {
+      logger.info('discards expired message.')
+      res.status(200).send('Expired')
+      return
+    }
+
+    try {
+      const data = JSON.parse(message) as unknown
+      if (!isEmailMessage(data)) {
+        logger.error('Invalid message')
+        res.status(400).send('Bad Request')
+        return
+      }
+
+      // get user from newsletter email
+      const newsletterEmail = await getNewsletterEmail(data.to)
+
+      if (!newsletterEmail) {
+        logger.info('newsletter email not found', { email: data.to })
+        res.status(200).send('Not Found')
+        return
+      }
+
+      const user = newsletterEmail.user
+      await saveReceivedEmail(
+        data.from,
+        data.to,
+        data.subject,
+        data.text,
+        data.html,
+        user.id
+      )
+
+      analytics.track({
+        userId: user.id,
+        event: 'received_email_saved',
+        properties: {
+          env: env.server.apiEnv,
+        },
+      })
+
+      res.status(200).send('Received email saved')
     } catch (e) {
       logger.info(e)
       if (e instanceof SyntaxError) {

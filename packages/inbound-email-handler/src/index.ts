@@ -17,6 +17,7 @@ import { handleNewsletter } from '@omnivore/content-handler'
 
 const NEWSLETTER_EMAIL_RECEIVED_TOPIC = 'newsletterEmailReceived'
 const NON_NEWSLETTER_EMAIL_TOPIC = 'nonNewsletterEmailReceived'
+const RECEIVED_EMAIL_TOPIC = 'receivedEmail'
 const pubsub = new PubSub()
 
 export const publishMessage = async (
@@ -30,6 +31,10 @@ export const publishMessage = async (
       console.log('error publishing message:', err)
       return undefined
     })
+}
+
+const publishReceivedEmail = async (email: any): Promise<void> => {
+  await publishMessage(RECEIVED_EMAIL_TOPIC, email)
 }
 
 export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
@@ -77,6 +82,14 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
       const unSubHeader = headers['list-unsubscribe']?.toString()
 
       try {
+        await publishReceivedEmail({
+          from,
+          to,
+          subject,
+          html,
+          text,
+        })
+
         // check if it is a confirmation email or forwarding newsletter
         const newsletterMessage = await handleNewsletter({
           from,
@@ -109,7 +122,8 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
             to,
             pdfAttachmentName,
             pdfAttachment,
-            subject
+            subject,
+            from
           )
           return res.send('ok')
         }

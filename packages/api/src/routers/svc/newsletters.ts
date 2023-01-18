@@ -8,7 +8,7 @@ import {
   NewsletterMessage,
   saveNewsletterEmail,
 } from '../../services/save_newsletter_email'
-import { saveReceivedEmail } from '../../services/received_emails'
+import { updateReceivedEmail } from '../../services/received_emails'
 
 interface SetConfirmationCodeMessage {
   emailAddress: string
@@ -116,26 +116,16 @@ export function newsletterServiceRouter() {
           data.author
         )
 
-        await saveReceivedEmail(
-          data.from,
-          data.email,
-          data.title,
-          data.text,
-          data.content,
-          newsletterEmail.user.id
-        )
-
         res.status(500).send('Error creating newsletter link')
         return
       }
 
-      await saveReceivedEmail(
+      // update received email type
+      await updateReceivedEmail(
+        newsletterEmail.user.id,
         data.from,
         data.email,
         data.title,
-        data.text,
-        data.content,
-        newsletterEmail.user.id,
         'article'
       )
 
