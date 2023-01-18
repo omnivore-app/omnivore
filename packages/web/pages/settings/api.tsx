@@ -27,11 +27,8 @@ export default function Api(): JSX.Element {
   const [expiresAt, setExpiresAt] = useState<Date>(new Date())
   const [formInputs, setFormInputs] = useState<FormInputProps[]>([])
   const [apiKeyGenerated, setApiKeyGenerated] = useState('')
-  // default expiry date is 1 year from now
-  const defaultExpiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7)
-    .toISOString()
-    .split('T')[0]
   const neverExpiresDate = new Date(8640000000000000)
+  const defaultExpiresAt = neverExpiresDate.toISOString().split('T')[0]
 
   const router = useRouter()
   useEffect(() => {
@@ -80,6 +77,7 @@ export default function Api(): JSX.Element {
         name: 'expiredAt',
         required: true,
         onChange: (e) => {
+          console.log('onChange: ', e)
           let additionalDays = 0
           switch (e.target.value) {
             case 'in 7 days':

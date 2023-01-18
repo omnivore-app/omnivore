@@ -28,7 +28,6 @@ type CreateButtonProps = {
 }
 
 type SettingsTableRowProps = {
-  key: string
   title: string
   isLast: boolean
 
@@ -121,7 +120,6 @@ export const EmptySettingsRow = (props: EmptySettingsRowProps): JSX.Element => {
 export const SettingsTableRow = (props: SettingsTableRowProps): JSX.Element => {
   return (
     <Box
-      key={props.key}
       css={{
         backgroundColor: '$grayBg',
         display: 'flex',
