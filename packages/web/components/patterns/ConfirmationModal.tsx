@@ -6,14 +6,13 @@ import {
 import { VStack, HStack } from '../elements/LayoutPrimitives'
 import { Button } from '../elements/Button'
 import { StyledText } from '../elements/StyledText'
-import { useConfirmListener } from '../../lib/keyboardShortcuts/useKeyboardShortcuts'
-import { useEffect, useRef } from 'react'
 
 type ConfirmationModalProps = {
   message?: string
   richMessage?: React.ReactNode
   icon?: React.ReactNode
   acceptButtonLabel?: string
+  cancelButtonLabel?: string
   onAccept: () => void
   onOpenChange: (open: boolean) => void
 }
@@ -42,7 +41,7 @@ export function ConfirmationModal(props: ConfirmationModalProps): JSX.Element {
                 }
               }}
             >
-              Cancel
+              {props.cancelButtonLabel ? props.cancelButtonLabel : 'Cancel'}
             </Button>
             <Button
               style="ctaDarkYellow"

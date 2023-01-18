@@ -28,7 +28,6 @@ type CreateButtonProps = {
 }
 
 type SettingsTableRowProps = {
-  key: string
   title: string
   isLast: boolean
 
@@ -66,12 +65,12 @@ const MoreOptions = (props: MoreOptionsProps) => (
   >
     <DropdownOption
       onSelect={() => {
-        return true
+        props.onDelete()
       }}
     >
       <HStack alignment={'center'} distribution={'start'}>
         <Trash size={24} color={theme.colors.omnivoreRed.toString()} />
-        <Button
+        <SpanBox
           css={{
             color: theme.colors.omnivoreRed.toString(),
             marginLeft: '8px',
@@ -82,10 +81,9 @@ const MoreOptions = (props: MoreOptionsProps) => (
               backgroundColor: 'transparent',
             },
           }}
-          onClick={props.onDelete}
         >
           {props.title}
-        </Button>
+        </SpanBox>
       </HStack>
     </DropdownOption>
   </Dropdown>
@@ -121,7 +119,6 @@ export const EmptySettingsRow = (props: EmptySettingsRowProps): JSX.Element => {
 export const SettingsTableRow = (props: SettingsTableRowProps): JSX.Element => {
   return (
     <Box
-      key={props.key}
       css={{
         backgroundColor: '$grayBg',
         display: 'flex',
