@@ -65,12 +65,12 @@ const MoreOptions = (props: MoreOptionsProps) => (
   >
     <DropdownOption
       onSelect={() => {
-        return true
+        props.onDelete()
       }}
     >
       <HStack alignment={'center'} distribution={'start'}>
         <Trash size={24} color={theme.colors.omnivoreRed.toString()} />
-        <Button
+        <SpanBox
           css={{
             color: theme.colors.omnivoreRed.toString(),
             marginLeft: '8px',
@@ -81,10 +81,9 @@ const MoreOptions = (props: MoreOptionsProps) => (
               backgroundColor: 'transparent',
             },
           }}
-          onClick={props.onDelete}
         >
           {props.title}
-        </Button>
+        </SpanBox>
       </HStack>
     </DropdownOption>
   </Dropdown>
