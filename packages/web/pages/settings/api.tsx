@@ -1,15 +1,11 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
-import { Toaster } from 'react-hot-toast'
 
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import { applyStoredTheme } from '../../lib/themeUpdater'
 import { useGetApiKeysQuery } from '../../lib/networking/queries/useGetApiKeysQuery'
 import { generateApiKeyMutation } from '../../lib/networking/mutations/generateApiKeyMutation'
 import { revokeApiKeyMutation } from '../../lib/networking/mutations/revokeApiKeyMutation'
-
-import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
-import { Table } from '../../components/elements/Table'
 
 import { FormInputProps } from '../../components/elements/FormElements'
 import { FormModal } from '../../components/patterns/FormModal'
@@ -21,14 +17,6 @@ import {
 } from '../../components/templates/settings/SettingsTable'
 import { StyledText } from '../../components/elements/StyledText'
 import { formattedShortDate } from '../../lib/dateFormatting'
-import Link from 'next/link'
-
-interface ApiKey {
-  name: string
-  scopes: string
-  expiresAt: string
-  usedAt: string
-}
 
 export default function Api(): JSX.Element {
   const { apiKeys, revalidate, isValidating } = useGetApiKeysQuery()
@@ -36,12 +24,11 @@ export default function Api(): JSX.Element {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [name, setName] = useState<string>('')
   const [value, setValue] = useState<string>('')
-  // const [scopes, setScopes] = useState<string[] | undefined>(undefined)
   const [expiresAt, setExpiresAt] = useState<Date>(new Date())
   const [formInputs, setFormInputs] = useState<FormInputProps[]>([])
   const [apiKeyGenerated, setApiKeyGenerated] = useState('')
   // default expiry date is 1 year from now
-  const defaultExpiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 365)
+  const defaultExpiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7)
     .toISOString()
     .split('T')[0]
   const neverExpiresDate = new Date(8640000000000000)
@@ -195,7 +182,8 @@ export default function Api(): JSX.Element {
           message={`API key generated. Copy the key and use it in your application.
                     You won’t be able to see it again!
                     Key: ${apiKeyGenerated}`}
-          acceptButtonLabel={'Copy'}
+          acceptButtonLabel="Copy"
+          cancelButtonLabel="Close"
           onAccept={async () => {
             await navigator.clipboard.writeText(apiKeyGenerated)
             setApiKeyGenerated('')
