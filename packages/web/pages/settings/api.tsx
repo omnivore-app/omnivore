@@ -124,7 +124,7 @@ export default function Api(): JSX.Element {
           'in 1 year',
           'Never',
         ],
-        value: neverExpiresDate,
+        value: defaultExpiresAt,
       },
     ])
   }
@@ -139,7 +139,7 @@ export default function Api(): JSX.Element {
       createAction={() => {
         onAdd()
         setName('')
-        setExpiresAt(new Date(neverExpiresDate))
+        setExpiresAt(new Date(defaultExpiresAt))
         setAddModalOpen(true)
       }}
     >
