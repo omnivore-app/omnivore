@@ -49,6 +49,7 @@ describe('saveNewsletterEmail', () => {
         url,
         title,
         author,
+        receivedEmailId: '',
       },
       newsletterEmail,
       ctx
@@ -83,6 +84,7 @@ describe('saveNewsletterEmail', () => {
         author,
         from: 'fake from',
         text: 'fake text',
+        receivedEmailId: '',
       },
       newsletterEmail,
       ctx

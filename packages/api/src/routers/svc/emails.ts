@@ -19,6 +19,9 @@ import {
   saveReceivedEmail,
   updateReceivedEmail,
 } from '../../services/received_emails'
+import cors from 'cors'
+import { corsConfig } from '../../utils/corsConfig'
+import { getClaimsByToken } from '../../utils/auth'
 
 interface EmailMessage {
   from: string
@@ -29,6 +32,7 @@ interface EmailMessage {
   unsubHttpUrl?: string
   text: string
   forwardedFrom?: string
+  receivedEmailId: string
 }
 
 function isEmailMessage(data: any): data is EmailMessage {
@@ -37,7 +41,8 @@ function isEmailMessage(data: any): data is EmailMessage {
     'to' in data &&
     'subject' in data &&
     'html' in data &&
-    'text' in data
+    'text' in data &&
+    'receivedEmailId' in data
   )
 }
 
@@ -98,13 +103,7 @@ export function emailsServiceRouter() {
         })
 
         // update received email type
-        await updateReceivedEmail(
-          user.id,
-          data.from,
-          data.to,
-          data.subject,
-          'article'
-        )
+        await updateReceivedEmail(data.receivedEmailId, 'article')
 
         res.status(200).send('Article')
         return
@@ -146,47 +145,36 @@ export function emailsServiceRouter() {
     }
   })
 
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  router.post('/save', async (req, res) => {
+  router.post('/save', cors<express.Request>(corsConfig), async (req, res) => {
     logger.info('save received email router')
 
-    const { message, expired } = readPushSubscription(req)
-
-    if (!message) {
-      res.status(400).send('Bad Request')
-      return
+    const token = req?.headers?.authorization
+    if (!(await getClaimsByToken(token))) {
+      return res.status(401).send('UNAUTHORIZED')
     }
 
-    if (expired) {
-      logger.info('discards expired message.')
-      res.status(200).send('Expired')
-      return
+    if (!isEmailMessage(req.body)) {
+      logger.error('Invalid message')
+      return res.status(400).send('Bad Request')
     }
 
     try {
-      const data = JSON.parse(message) as unknown
-      if (!isEmailMessage(data)) {
-        logger.error('Invalid message')
-        res.status(400).send('Bad Request')
-        return
-      }
-
       // get user from newsletter email
-      const newsletterEmail = await getNewsletterEmail(data.to)
+      const newsletterEmail = await getNewsletterEmail(req.body.to)
 
       if (!newsletterEmail) {
-        logger.info('newsletter email not found', { email: data.to })
+        logger.info('newsletter email not found', { email: req.body.to })
         res.status(200).send('Not Found')
         return
       }
 
       const user = newsletterEmail.user
-      await saveReceivedEmail(
-        data.from,
-        data.to,
-        data.subject,
-        data.text,
-        data.html,
+      const receivedEmail = await saveReceivedEmail(
+        req.body.from,
+        req.body.to,
+        req.body.subject,
+        req.body.text,
+        req.body.html,
         user.id
       )
 
@@ -198,15 +186,11 @@ export function emailsServiceRouter() {
         },
       })
 
-      res.status(200).send('Received email saved')
+      res.status(200).send({ id: receivedEmail.id })
     } catch (e) {
       logger.info(e)
-      if (e instanceof SyntaxError) {
-        // when message is not a valid json string
-        res.status(400).send(e)
-      } else {
-        res.status(500).send(e)
-      }
+
+      res.status(500).send(e)
     }
   })
 

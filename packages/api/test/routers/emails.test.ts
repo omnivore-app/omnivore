@@ -36,7 +36,7 @@ describe('Emails Router', () => {
     const from = 'from@omnivore.app'
     const to = newsletterEmail
     const subject = 'test subject'
-    const html = 'test html'
+    const html = '<html>test html</html>'
     const text = 'test text'
 
     beforeEach(async () => {

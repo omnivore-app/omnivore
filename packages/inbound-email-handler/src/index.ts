@@ -14,10 +14,18 @@ import {
 import { PubSub } from '@google-cloud/pubsub'
 import { handlePdfAttachment } from './pdf'
 import { handleNewsletter } from '@omnivore/content-handler'
+import axios from 'axios'
+import { promisify } from 'util'
+import * as jwt from 'jsonwebtoken'
+
+interface SaveReceivedEmailResponse {
+  id: string
+}
+
+const signToken = promisify(jwt.sign)
 
 const NEWSLETTER_EMAIL_RECEIVED_TOPIC = 'newsletterEmailReceived'
 const NON_NEWSLETTER_EMAIL_TOPIC = 'nonNewsletterEmailReceived'
-const RECEIVED_EMAIL_TOPIC = 'receivedEmail'
 const pubsub = new PubSub()
 
 export const publishMessage = async (
@@ -33,8 +41,31 @@ export const publishMessage = async (
     })
 }
 
-const publishReceivedEmail = async (email: any): Promise<void> => {
-  await publishMessage(RECEIVED_EMAIL_TOPIC, email)
+const saveReceivedEmail = async (
+  email: string,
+  data: any
+): Promise<SaveReceivedEmailResponse> => {
+  if (process.env.JWT_SECRET === undefined) {
+    throw new Error('JWT_SECRET is not defined')
+  }
+  const auth = await signToken(email, process.env.JWT_SECRET)
+
+  if (process.env.INTERNAL_SVC_ENDPOINT === undefined) {
+    throw new Error('REST_BACKEND_ENDPOINT is not defined')
+  }
+
+  const response = await axios.post(
+    `${process.env.INTERNAL_SVC_ENDPOINT}svc/pubsub/emails/save`,
+    data,
+    {
+      headers: {
+        Authorization: `${auth as string}`,
+        'Content-Type': 'application/json',
+      },
+    }
+  )
+
+  return response.data as SaveReceivedEmailResponse
 }
 
 export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
@@ -81,15 +112,15 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
       const postHeader = headers['list-post']?.toString()
       const unSubHeader = headers['list-unsubscribe']?.toString()
 
-      try {
-        await publishReceivedEmail({
-          from,
-          to,
-          subject,
-          html,
-          text,
-        })
+      const { id: receivedEmailId } = await saveReceivedEmail(to, {
+        from,
+        to,
+        subject,
+        html,
+        text,
+      })
 
+      try {
         // check if it is a confirmation email or forwarding newsletter
         const newsletterMessage = await handleNewsletter({
           from,
@@ -104,6 +135,7 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
             ...newsletterMessage,
             text,
             from,
+            receivedEmailId,
           })
           return res.status(200).send('newsletter received')
         }
@@ -123,7 +155,7 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
             pdfAttachmentName,
             pdfAttachment,
             subject,
-            from
+            receivedEmailId
           )
           return res.send('ok')
         }
@@ -140,6 +172,7 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
             unsubMailTo: unsubscribe.mailTo,
             unsubHttpUrl: unsubscribe.httpUrl,
             forwardedFrom,
+            receivedEmailId,
           },
         })
 
@@ -155,6 +188,7 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
             html,
             text,
             forwardedFrom,
+            receivedEmailId,
           },
         })
       }

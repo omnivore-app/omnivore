@@ -22,27 +22,8 @@ export const saveReceivedEmail = async (
 }
 
 export const updateReceivedEmail = async (
-  userId: string,
-  from: string,
-  to: string,
-  subject: string,
+  id: string,
   type: 'article' | 'non-article'
 ) => {
-  await getRepository(ReceivedEmail)
-    .createQueryBuilder()
-    .update()
-    .set({ type })
-    // .where('user_id = :userId', { userId })
-    // .andWhere('from = :from', { from })
-    // .andWhere('to = :to', { to })
-    // .andWhere('subject = :subject', { subject })
-    .where({
-      user: { id: userId },
-      from,
-      to,
-      subject,
-    })
-    .orderBy('created_at', 'DESC')
-    .limit(1)
-    .execute()
+  await getRepository(ReceivedEmail).update(id, { type })
 }

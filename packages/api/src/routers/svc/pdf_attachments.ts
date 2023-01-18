@@ -88,11 +88,11 @@ export function pdfAttachmentsRouter() {
   router.post('/create-article', async (req, res) => {
     console.log('pdf-attachments/create-article')
 
-    const { email, uploadFileId, subject, from } = req.body as {
+    const { email, uploadFileId, subject, receivedEmailId } = req.body as {
       email: string
       uploadFileId: string
       subject: string
-      from: string
+      receivedEmailId: string
     }
 
     const token = req?.headers?.authorization
@@ -169,13 +169,7 @@ export function pdfAttachmentsRouter() {
       })
 
       // update received email type
-      await updateReceivedEmail(
-        newsletterEmail.user.id,
-        from,
-        email,
-        subject,
-        'article'
-      )
+      await updateReceivedEmail(receivedEmailId, 'article')
 
       res.send({ id: pageId })
     } catch (err) {

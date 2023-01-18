@@ -121,13 +121,7 @@ export function newsletterServiceRouter() {
       }
 
       // update received email type
-      await updateReceivedEmail(
-        newsletterEmail.user.id,
-        data.from,
-        data.email,
-        data.title,
-        'article'
-      )
+      await updateReceivedEmail(data.receivedEmailId, 'article')
 
       // We always send 200 if it was a valid message
       // because we don't want the

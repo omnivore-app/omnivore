@@ -23,6 +23,7 @@ export interface NewsletterMessage {
   unsubMailTo?: string
   unsubHttpUrl?: string
   text: string
+  receivedEmailId: string
 }
 
 // Returns true if the link was created successfully. Can still fail to

@@ -99,6 +99,7 @@ export const markEmailAsItemResolver = authorized<
         content: recentEmail.html,
         url: generateUniqueUrl(),
         author: '',
+        receivedEmailId: recentEmail.id,
       },
       newsletterEmail
     )
