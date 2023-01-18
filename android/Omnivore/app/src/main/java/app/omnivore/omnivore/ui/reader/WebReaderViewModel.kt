@@ -7,10 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.DatastoreKeys
 import app.omnivore.omnivore.DatastoreRepository
-import app.omnivore.omnivore.dataService.DataService
-import app.omnivore.omnivore.dataService.archiveSavedItem
-import app.omnivore.omnivore.dataService.deleteSavedItem
-import app.omnivore.omnivore.dataService.unarchiveSavedItem
+import app.omnivore.omnivore.dataService.*
 import app.omnivore.omnivore.persistence.entities.SavedItem
 import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.ui.library.SavedItemAction
@@ -124,28 +121,24 @@ class WebReaderViewModel @Inject constructor(
     when (actionID) {
       "createHighlight" -> {
         viewModelScope.launch {
-          val isHighlightSynced = networker.createWebHighlight(jsonString)
-          Log.d("Network", "isHighlightSynced = $isHighlightSynced")
+          dataService.createWebHighlight(jsonString)
         }
       }
       "deleteHighlight" -> {
         Log.d("Loggo", "receive delete highlight action: $jsonString")
         viewModelScope.launch {
-          val isHighlightDeletionSynced = networker.deleteHighlight(jsonString)
-          Log.d("Network", "isHighlightDeletionSynced = $isHighlightDeletionSynced")
+          dataService.deleteHighlights(jsonString)
         }
       }
       "updateHighlight" -> {
         Log.d("Loggo", "receive update highlight action: $jsonString")
         viewModelScope.launch {
-          val isHighlightUpdateSynced = networker.updateWebHighlight(jsonString)
-          Log.d("Network", "isHighlightUpdateSynced = $isHighlightUpdateSynced")
+          dataService.updateWebHighlight(jsonString)
         }
       }
       "articleReadingProgress" -> {
         viewModelScope.launch {
-          val isReadingProgressSynced = networker.updateWebReadingProgress(jsonString)
-          Log.d("Network", "isReadingProgressSynced = $isReadingProgressSynced")
+          dataService.updateWebReadingProgress(jsonString)
         }
       }
       "annotate" -> {
@@ -161,8 +154,7 @@ class WebReaderViewModel @Inject constructor(
       }
       "mergeHighlight" -> {
         viewModelScope.launch {
-          val isHighlightSynced = networker.mergeWebHighlights(jsonString)
-          Log.d("Network", "isMergedHighlightSynced = $isHighlightSynced")
+          dataService.mergeWebHighlights(jsonString)
         }
       }
       else -> {

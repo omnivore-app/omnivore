@@ -7,15 +7,15 @@ import app.omnivore.omnivore.models.ServerSyncStatus
 @Entity
 data class Highlight(
   @PrimaryKey val highlightId: String,
-  val annotation: String?,
+  var annotation: String?,
   val createdAt: String?,
   val createdByMe: Boolean,
   val markedForDeletion: Boolean = false,
-  val patch: String,
-  val prefix: String?,
-  val quote: String,
+  var patch: String,
+  var prefix: String?,
+  var quote: String,
   var serverSyncStatus: Int = ServerSyncStatus.IS_SYNCED.rawValue,
-  val shortId: String,
+  var shortId: String,
   val suffix: String?,
   val updatedAt: String?
 
@@ -83,6 +83,9 @@ interface HighlightDao {
 
   @Query("DELETE FROM highlight WHERE highlightId = :highlightId")
   fun deleteById(highlightId: String)
+
+  @Query("SELECT * FROM highlight WHERE highlightId = :highlightId")
+  fun findById(highlightId: String): Highlight?
 
   @Update
   fun update(highlight: Highlight)
