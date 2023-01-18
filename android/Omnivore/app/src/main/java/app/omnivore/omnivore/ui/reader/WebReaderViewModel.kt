@@ -137,6 +137,7 @@ class WebReaderViewModel @Inject constructor(
         }
       }
       "articleReadingProgress" -> {
+        Log.d("sync", "articleReadingProgressMesssageReceived")
         viewModelScope.launch {
           dataService.updateWebReadingProgress(jsonString)
         }

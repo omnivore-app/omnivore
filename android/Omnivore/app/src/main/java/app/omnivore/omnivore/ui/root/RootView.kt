@@ -79,14 +79,6 @@ fun PrimaryNavigator(
       )
     }
 
-    // TODO: delete this route and views
-    composable("WebAppReader/{slug}") {
-      ArticleWebView(
-        it.arguments?.getString("slug") ?: "",
-        authCookieString = loginViewModel.getAuthCookieString() ?: ""
-      )
-    }
-
     composable("WebReader/{slug}") {
       webReaderViewModel.reset() // clear previously loaded item
 
