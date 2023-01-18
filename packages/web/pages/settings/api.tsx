@@ -142,83 +142,78 @@ export default function Api(): JSX.Element {
         setExpiresAt(new Date(neverExpiresDate))
         setAddModalOpen(true)
       }}
-      children={
-        <>
-          {apiKeys.length > 0 ? (
-            apiKeys.map((apiKey, i) => {
-              return (
-                <SettingsTableRow
-                  key={apiKey.id}
-                  title={apiKey.name}
-                  isLast={i === apiKeys.length - 1}
-                  onDelete={() => setOnDeleteId(apiKey.id)}
-                  deleteTitle="Delete"
-                  sublineElement={
-                    <StyledText
-                      css={{
-                        my: '5px',
-                        fontSize: '11px',
-                        a: {
-                          color: '$omnivoreCtaYellow',
-                        },
-                      }}
-                    >
-                      {`Last used: ${
-                        apiKey.usedAt
-                          ? formattedShortDate(apiKey.usedAt)
-                          : 'Never'
-                      }, `}
-                      {apiKey.expiresAt &&
-                      apiKey.expiresAt != neverExpiresDate.toISOString()
-                        ? `expires: ${formattedShortDate(apiKey.expiresAt)}`
-                        : 'never expires'}
-                    </StyledText>
-                  }
-                  titleElement={<></>}
-                  extraElement={<></>}
-                />
-              )
-            })
-          ) : (
-            <EmptySettingsRow text={isValidating ? '-' : 'No API Keys Found'} />
-          )}
-
-          {addModalOpen && (
-            <FormModal
-              title={'Generate API Key'}
-              onSubmit={onCreate}
-              onOpenChange={setAddModalOpen}
-              inputs={formInputs}
-              acceptButtonLabel={'Generate'}
+    >
+      {apiKeys.length > 0 ? (
+        apiKeys.map((apiKey, i) => {
+          return (
+            <SettingsTableRow
+              key={apiKey.id}
+              title={apiKey.name}
+              isLast={i === apiKeys.length - 1}
+              onDelete={() => setOnDeleteId(apiKey.id)}
+              deleteTitle="Delete"
+              sublineElement={
+                <StyledText
+                  css={{
+                    my: '5px',
+                    fontSize: '11px',
+                    a: {
+                      color: '$omnivoreCtaYellow',
+                    },
+                  }}
+                >
+                  {`Last used: ${
+                    apiKey.usedAt ? formattedShortDate(apiKey.usedAt) : 'Never'
+                  }, `}
+                  {apiKey.expiresAt &&
+                  apiKey.expiresAt != neverExpiresDate.toISOString()
+                    ? `expires: ${formattedShortDate(apiKey.expiresAt)}`
+                    : 'never expires'}
+                </StyledText>
+              }
+              titleElement={<></>}
+              extraElement={<></>}
             />
-          )}
+          )
+        })
+      ) : (
+        <EmptySettingsRow text={isValidating ? '-' : 'No API Keys Found'} />
+      )}
 
-          {apiKeyGenerated && (
-            <ConfirmationModal
-              message={`API key generated. Copy the key and use it in your application.
+      {addModalOpen && (
+        <FormModal
+          title={'Generate API Key'}
+          onSubmit={onCreate}
+          onOpenChange={setAddModalOpen}
+          inputs={formInputs}
+          acceptButtonLabel={'Generate'}
+        />
+      )}
+
+      {apiKeyGenerated && (
+        <ConfirmationModal
+          message={`API key generated. Copy the key and use it in your application.
                     You won’t be able to see it again!
                     Key: ${apiKeyGenerated}`}
-              acceptButtonLabel={'Copy'}
-              onAccept={async () => {
-                await navigator.clipboard.writeText(apiKeyGenerated)
-                setApiKeyGenerated('')
-              }}
-              onOpenChange={() => setApiKeyGenerated('')}
-            />
-          )}
+          acceptButtonLabel={'Copy'}
+          onAccept={async () => {
+            await navigator.clipboard.writeText(apiKeyGenerated)
+            setApiKeyGenerated('')
+          }}
+          onOpenChange={() => setApiKeyGenerated('')}
+        />
+      )}
 
-          {onDeleteId && (
-            <ConfirmationModal
-              message={'API key will be revoked. This action cannot be undone.'}
-              onAccept={async () => {
-                await onDelete(onDeleteId)
-                setOnDeleteId('')
-              }}
-              onOpenChange={() => setOnDeleteId('')}
-            />
-          )}
-        </>
-      }
-    />
+      {onDeleteId && (
+        <ConfirmationModal
+          message={'API key will be revoked. This action cannot be undone.'}
+          onAccept={async () => {
+            await onDelete(onDeleteId)
+            setOnDeleteId('')
+          }}
+          onOpenChange={() => setOnDeleteId('')}
+        />
+      )}
+    </SettingsTable>
   )
 }
