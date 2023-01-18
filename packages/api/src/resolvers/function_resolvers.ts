@@ -663,5 +663,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('LeaveGroup'),
   ...resultResolveTypeResolver('UploadImportFile'),
   ...resultResolveTypeResolver('RecentEmails'),
-  ...resultResolveTypeResolver('MarkEmailAsItemResolver'),
+  ...resultResolveTypeResolver('MarkEmailAsItem'),
 }
