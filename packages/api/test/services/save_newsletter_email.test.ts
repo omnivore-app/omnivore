@@ -19,12 +19,12 @@ describe('saveNewsletterEmail', () => {
   const author = 'fake author'
 
   let user: User
-  let email: NewsletterEmail
+  let newsletterEmail: NewsletterEmail
   let ctx: SaveContext
 
   before(async () => {
     user = await createTestUser('fakeUser')
-    email = await createNewsletterEmail(user.id)
+    newsletterEmail = await createNewsletterEmail(user.id)
     ctx = {
       pubsub: createPubSubClient(),
       refresh: true,
@@ -42,12 +42,15 @@ describe('saveNewsletterEmail', () => {
 
     await saveNewsletterEmail(
       {
-        email: email.address,
+        from: 'fake from',
+        text: 'fake text',
+        email: newsletterEmail.address,
         content: `<html><body>${fakeContent}</body></html>`,
         url,
         title,
         author,
       },
+      newsletterEmail,
       ctx
     )
 
@@ -59,7 +62,7 @@ describe('saveNewsletterEmail', () => {
     expect(page?.content).to.contain(fakeContent)
 
     const subscriptions = await getRepository(Subscription).findBy({
-      newsletterEmail: { id: email.id },
+      newsletterEmail: { id: newsletterEmail.id },
     })
     expect(subscriptions).not.to.be.empty
   })
@@ -73,12 +76,15 @@ describe('saveNewsletterEmail', () => {
 
     await saveNewsletterEmail(
       {
-        email: email.address,
+        email: newsletterEmail.address,
         content: `<html><body>fake content 2</body></html>`,
         url,
         title,
         author,
+        from: 'fake from',
+        text: 'fake text',
       },
+      newsletterEmail,
       ctx
     )
 
