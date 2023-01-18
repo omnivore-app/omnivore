@@ -1,7 +1,10 @@
 import { NewsletterEmail } from '../entity/newsletter_email'
 import { nanoid } from 'nanoid'
 import { User } from '../entity/user'
-import { CreateNewsletterEmailErrorCode } from '../generated/graphql'
+import {
+  CreateNewsletterEmailErrorCode,
+  SubscriptionStatus,
+} from '../generated/graphql'
 import { env } from '../env'
 import { getRepository } from '../entity/utils'
 import addressparser = require('nodemailer/lib/addressparser')
@@ -38,11 +41,20 @@ export const createNewsletterEmail = async (
 export const getNewsletterEmails = async (
   userId: string
 ): Promise<NewsletterEmail[]> => {
-  return getRepository(NewsletterEmail).find({
-    where: { user: { id: userId } },
-    order: { createdAt: 'DESC' },
-    relations: ['user', 'subscriptions'],
-  })
+  return getRepository(NewsletterEmail)
+    .createQueryBuilder('newsletter_email')
+    .leftJoinAndSelect('newsletter_email.user', 'user')
+    .leftJoinAndSelect(
+      'newsletter_email.subscriptions',
+      'subscriptions',
+      'subscriptions.status = :status',
+      {
+        status: SubscriptionStatus.Active,
+      }
+    )
+    .where('newsletter_email.user_id = :userId', { userId })
+    .orderBy('newsletter_email.createdAt', 'DESC')
+    .getMany()
 }
 
 export const deleteNewsletterEmail = async (id: string): Promise<boolean> => {
