@@ -19,6 +19,8 @@ type NewsletterEmailsData = {
 export type NewsletterEmail = {
   id: string
   address: string
+  createdAt: string
+  subscriptionCount: number
   confirmationCode?: string
 }
 
@@ -30,6 +32,8 @@ export function useGetNewsletterEmailsQuery(): NewsletterEmailsQueryResponse {
           newsletterEmails {
             id
             address
+            createdAt
+            subscriptionCount
             confirmationCode
           }
         }
@@ -46,22 +50,23 @@ export function useGetNewsletterEmailsQuery(): NewsletterEmailsQueryResponse {
   try {
     if (data) {
       const result = data as NewsletterEmailsResponseData
-      const emailAddresses = result.newsletterEmails?.newsletterEmails as NewsletterEmail[]
+      const emailAddresses = result.newsletterEmails
+        ?.newsletterEmails as NewsletterEmail[]
       return {
         isValidating,
         emailAddresses,
         revalidate: () => {
           mutate(undefined, true)
-        }
+        },
       }
     }
   } catch (error) {
     console.log('error', error)
   }
   return {
-    isValidating: false,
+    isValidating: true,
     emailAddresses: [],
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    revalidate: () => {}
+    revalidate: () => {},
   }
 }

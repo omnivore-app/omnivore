@@ -15,7 +15,6 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
 import { SubscriptionStatus } from '../src/generated/graphql'
 import { Integration } from '../src/entity/integration'
 import { FindOptionsWhere } from 'typeorm'
-import { ContentDisplayReport } from '../src/entity/reports/content_display_report'
 
 const runMigrations = async () => {
   const migrationDirectory = __dirname + '/../../db/migrations'
@@ -198,12 +197,13 @@ export const createTestLabel = async (
 export const createTestSubscription = async (
   user: User,
   name: string,
-  newsletterEmail: NewsletterEmail
+  newsletterEmail: NewsletterEmail,
+  status = SubscriptionStatus.Active
 ): Promise<Subscription> => {
   return getRepository(Subscription).save({
     user,
     name,
-    status: SubscriptionStatus.Active,
+    status,
     newsletterEmail: { id: newsletterEmail.id },
   })
 }
