@@ -50,13 +50,15 @@ export const subscriptionsResolver = authorized<
       }
     }
 
-    const subscriptions = await getRepository(Subscription).find({
-      where: { user: { id: uid }, status: SubscriptionStatus.Active },
-      order: {
-        [sortBy]: sortOrder,
-      },
-      relations: ['newsletterEmail'],
-    })
+    const subscriptions = await getRepository(Subscription)
+      .createQueryBuilder('subscription')
+      .innerJoinAndSelect('subscription.newsletterEmail', 'newsletterEmail')
+      .where({
+        user: { id: uid },
+        status: SubscriptionStatus.Active,
+      })
+      .orderBy('subscription.' + sortBy, sortOrder)
+      .getMany()
 
     return {
       subscriptions: subscriptions.map((s) => ({
