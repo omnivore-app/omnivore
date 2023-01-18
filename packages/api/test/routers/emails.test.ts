@@ -37,6 +37,7 @@ describe('Emails Router', () => {
     const to = newsletterEmail
     const subject = 'test subject'
     const html = 'test html'
+    const text = 'test text'
 
     beforeEach(async () => {
       sinon.replace(
@@ -60,7 +61,7 @@ describe('Emails Router', () => {
         const data = {
           message: {
             data: Buffer.from(
-              JSON.stringify({ from, to, subject, html })
+              JSON.stringify({ from, to, subject, html, text })
             ).toString('base64'),
             publishTime: new Date().toISOString(),
           },
@@ -82,7 +83,7 @@ describe('Emails Router', () => {
         const data = {
           message: {
             data: Buffer.from(
-              JSON.stringify({ from, to, subject, html })
+              JSON.stringify({ from, to, subject, html, text })
             ).toString('base64'),
             publishTime: new Date().toISOString(),
           },
