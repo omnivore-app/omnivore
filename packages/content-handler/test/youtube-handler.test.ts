@@ -1,6 +1,6 @@
 import { expect } from 'chai'
 import 'mocha'
-import { getYoutubeVideoId } from '../src/websites/youtube-handler'
+import { escapeTitle, getYoutubeVideoId } from '../src/websites/youtube-handler'
 
 describe('getYoutubeVideoId', () => {
   it('should parse video id out of a URL', async () => {
@@ -20,6 +20,14 @@ describe('getYoutubeVideoId', () => {
     )
     expect('cg9b4RC87LI').to.eq(
       getYoutubeVideoId('https://youtu.be/cg9b4RC87LI?t=116')
+    )
+  })
+})
+
+describe('escapeTitle', () => {
+  it('escapes the special characters in the title', async () => {
+    expect(escapeTitle("The Stanley's Parable")).to.eq(
+      'The Stanley&#x27;s Parable'
     )
   })
 })

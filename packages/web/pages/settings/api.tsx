@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/router'
-import { Toaster } from 'react-hot-toast'
 
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import { applyStoredTheme } from '../../lib/themeUpdater'
@@ -8,64 +7,28 @@ import { useGetApiKeysQuery } from '../../lib/networking/queries/useGetApiKeysQu
 import { generateApiKeyMutation } from '../../lib/networking/mutations/generateApiKeyMutation'
 import { revokeApiKeyMutation } from '../../lib/networking/mutations/revokeApiKeyMutation'
 
-import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
-import { Table } from '../../components/elements/Table'
-
 import { FormInputProps } from '../../components/elements/FormElements'
 import { FormModal } from '../../components/patterns/FormModal'
 import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
-
-interface ApiKey {
-  name: string
-  scopes: string
-  expiresAt: string
-  usedAt: string
-}
+import {
+  EmptySettingsRow,
+  SettingsTable,
+  SettingsTableRow,
+} from '../../components/templates/settings/SettingsTable'
+import { StyledText } from '../../components/elements/StyledText'
+import { formattedShortDate } from '../../lib/dateFormatting'
 
 export default function Api(): JSX.Element {
-  const { apiKeys, revalidate } = useGetApiKeysQuery()
+  const { apiKeys, revalidate, isValidating } = useGetApiKeysQuery()
   const [onDeleteId, setOnDeleteId] = useState<string>('')
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [name, setName] = useState<string>('')
   const [value, setValue] = useState<string>('')
-  // const [scopes, setScopes] = useState<string[] | undefined>(undefined)
   const [expiresAt, setExpiresAt] = useState<Date>(new Date())
   const [formInputs, setFormInputs] = useState<FormInputProps[]>([])
   const [apiKeyGenerated, setApiKeyGenerated] = useState('')
-  // default expiry date is 1 year from now
-  const defaultExpiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 365)
-    .toISOString()
-    .split('T')[0]
   const neverExpiresDate = new Date(8640000000000000)
-
-  const router = useRouter()
-  useEffect(() => {
-    if (Object.keys(router.query).length) {
-      setValue(`${router.query?.create}`)
-      setExpiresAt(new Date(defaultExpiresAt))
-      onAdd()
-      setAddModalOpen(true)
-    }
-  }, [router.query])
-
-  const headers = ['Name', 'Scopes', 'Used at', 'Expires on']
-  const rows = useMemo(() => {
-    const rows = new Map<string, ApiKey>()
-    apiKeys.forEach((apiKey) =>
-      rows.set(apiKey.id, {
-        name: apiKey.name,
-        scopes: apiKey.scopes.join(', ') || 'All',
-        usedAt: apiKey.usedAt
-          ? new Date(apiKey.usedAt).toISOString()
-          : 'Never used',
-        expiresAt:
-          new Date(apiKey.expiresAt).getTime() != neverExpiresDate.getTime()
-            ? new Date(apiKey.expiresAt).toDateString()
-            : 'Never',
-      })
-    )
-    return rows
-  }, [apiKeys])
+  const defaultExpiresAt = 'Never'
 
   applyStoredTheme(false)
 
@@ -96,7 +59,7 @@ export default function Api(): JSX.Element {
         label: 'Name',
         onChange: setName,
         name: 'name',
-        value: `${router.query?.create ? router.query?.create : value}`,
+        value: value,
         required: true,
       },
       {
@@ -104,6 +67,7 @@ export default function Api(): JSX.Element {
         name: 'expiredAt',
         required: true,
         onChange: (e) => {
+          console.log('onChange: ', e)
           let additionalDays = 0
           switch (e.target.value) {
             case 'in 7 days':
@@ -140,13 +104,65 @@ export default function Api(): JSX.Element {
     ])
   }
 
+  const sortedApiKeys = useMemo(() => {
+    if (!apiKeys) {
+      return []
+    }
+    return apiKeys.sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+  }, [apiKeys])
+
   return (
-    <PrimaryLayout pageTestId={'api-keys'}>
-      <Toaster
-        containerStyle={{
-          top: '5rem',
-        }}
-      />
+    <SettingsTable
+      pageId="api-keys"
+      pageHeadline="API Keys"
+      pageInfoLink="https://docs.omnivore.app/integrations/api.html"
+      headerTitle="API Keys"
+      createTitle="Generate API Key"
+      createAction={() => {
+        onAdd()
+        setName('')
+        setExpiresAt(neverExpiresDate)
+        setAddModalOpen(true)
+      }}
+    >
+      {sortedApiKeys.length > 0 ? (
+        sortedApiKeys.map((apiKey, i) => {
+          return (
+            <SettingsTableRow
+              key={apiKey.id}
+              title={apiKey.name}
+              isLast={i === apiKeys.length - 1}
+              onDelete={() => {
+                console.log('onDelete triggered: ', apiKey.id)
+                setOnDeleteId(apiKey.id)
+              }}
+              deleteTitle="Delete"
+              sublineElement={
+                <StyledText
+                  css={{
+                    my: '5px',
+                    fontSize: '11px',
+                    a: {
+                      color: '$omnivoreCtaYellow',
+                    },
+                  }}
+                >
+                  {`Last used: ${
+                    apiKey.usedAt ? formattedShortDate(apiKey.usedAt) : 'Never'
+                  }, `}
+                  {`Created: ${formattedShortDate(apiKey.createdAt)}, `}
+                  {apiKey.expiresAt &&
+                  apiKey.expiresAt != neverExpiresDate.toISOString()
+                    ? `Expires: ${formattedShortDate(apiKey.expiresAt)}`
+                    : 'Never expires'}
+                </StyledText>
+              }
+            />
+          )
+        })
+      ) : (
+        <EmptySettingsRow text={isValidating ? '-' : 'No API Keys Found'} />
+      )}
 
       {addModalOpen && (
         <FormModal
@@ -163,7 +179,8 @@ export default function Api(): JSX.Element {
           message={`API key generated. Copy the key and use it in your application.
                     You won’t be able to see it again!
                     Key: ${apiKeyGenerated}`}
-          acceptButtonLabel={'Copy'}
+          acceptButtonLabel="Copy"
+          cancelButtonLabel="Close"
           onAccept={async () => {
             await navigator.clipboard.writeText(apiKeyGenerated)
             setApiKeyGenerated('')
@@ -174,7 +191,7 @@ export default function Api(): JSX.Element {
 
       {onDeleteId && (
         <ConfirmationModal
-          message={'API key would be revoked. This action cannot be undone.'}
+          message={'API key will be revoked. This action cannot be undone.'}
           onAccept={async () => {
             await onDelete(onDeleteId)
             setOnDeleteId('')
@@ -182,19 +199,6 @@ export default function Api(): JSX.Element {
           onOpenChange={() => setOnDeleteId('')}
         />
       )}
-
-      <Table
-        heading={'API Keys'}
-        headers={headers}
-        rows={rows}
-        onDelete={setOnDeleteId}
-        onAdd={() => {
-          onAdd()
-          setName('')
-          setExpiresAt(new Date(defaultExpiresAt))
-          setAddModalOpen(true)
-        }}
-      />
-    </PrimaryLayout>
+    </SettingsTable>
   )
 }

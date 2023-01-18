@@ -20,7 +20,10 @@ export function InfoLink(props: InfoLinkProps): JSX.Element {
         marginLeft: '10px',
       }}
     >
-      <a href={props.href} style={{ textDecoration: 'none' }}>
+      <a
+        href={props.href}
+        style={{ textDecoration: 'none', width: '24px', height: '24px' }}
+      >
         <TooltipWrapped
           tooltipContent="Learn More"
           tooltipSide={'top'}

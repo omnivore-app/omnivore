@@ -7,9 +7,9 @@ export interface ApiKey {
   name: string
   key?: string
   scopes: string[]
-  createdAt: Date
-  expiresAt: Date
-  usedAt?: Date
+  createdAt: string
+  expiresAt: string
+  usedAt?: string
 }
 
 interface ApiKeysQueryResponse {
@@ -66,7 +66,7 @@ export function useGetApiKeysQuery(): ApiKeysQueryResponse {
     console.log('error', error)
   }
   return {
-    isValidating: false,
+    isValidating: true,
     apiKeys: [],
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     revalidate: () => {},
