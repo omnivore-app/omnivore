@@ -32,8 +32,8 @@ suspend fun DataService.createWebHighlight(jsonString: String) {
       savedItemId = createHighlightInput.articleId
     )
 
+    db.highlightDao().insertAll(listOf(highlight))
     db.savedItemAndHighlightCrossRefDao().insertAll(listOf(crossRef))
-    db.highlightDao().update(highlight)
 
     val newHighlight = networker.createHighlight(createHighlightInput)
 
