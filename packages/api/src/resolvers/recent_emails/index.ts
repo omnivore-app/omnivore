@@ -13,6 +13,8 @@ import { ReceivedEmail } from '../../entity/received_email'
 import { saveNewsletterEmail } from '../../services/save_newsletter_email'
 import { NewsletterEmail } from '../../entity/newsletter_email'
 import { generateUniqueUrl, parseEmailAddress } from '../../utils/parser'
+import { sendEmail } from '../../utils/sendEmail'
+import { env } from '../../env'
 
 export const recentEmailsResolver = authorized<
   RecentEmailsSuccess,
@@ -100,6 +102,19 @@ export const markEmailAsItemResolver = authorized<
       },
       newsletterEmail
     )
+
+    const text = `A recent email marked as a library item
+                    by: ${claims.uid}
+                    from: ${recentEmail.from}
+                    subject: ${recentEmail.subject}`
+
+    // email us to let us know that an email failed to parse as an article
+    await sendEmail({
+      to: env.sender.feedback,
+      subject: 'A recent email marked as a library item',
+      text,
+      from: env.sender.message,
+    })
 
     return {
       success,
