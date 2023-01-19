@@ -94,7 +94,6 @@ export const markEmailAsItemResolver = authorized<
         from: recentEmail.from,
         email: recentEmail.to,
         title: recentEmail.subject,
-        text: recentEmail.text,
         content: recentEmail.html,
         url: generateUniqueUrl(),
         author: parseEmailAddress(recentEmail.from).name,

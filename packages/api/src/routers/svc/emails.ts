@@ -41,8 +41,7 @@ function isEmailMessage(data: any): data is EmailMessage {
     'to' in data &&
     'subject' in data &&
     'html' in data &&
-    'text' in data &&
-    'receivedEmailId' in data
+    'text' in data
   )
 }
 

@@ -23,7 +23,6 @@ export interface NewsletterMessage {
   author: string
   unsubMailTo?: string
   unsubHttpUrl?: string
-  text: string
   receivedEmailId: string
 }
 

@@ -13,6 +13,7 @@ import * as sendNotification from '../../src/utils/sendNotification'
 import * as sendEmail from '../../src/utils/sendEmail'
 import { getRepository } from '../../src/entity/utils'
 import { ReceivedEmail } from '../../src/entity/received_email'
+import * as jwt from 'jsonwebtoken'
 
 describe('Emails Router', () => {
   const newsletterEmail = 'fakeUser@omnivore.app'
@@ -120,6 +121,32 @@ describe('Emails Router', () => {
           .expect(200)
         expect(res.text).to.eql('Email forwarded')
       })
+    })
+  })
+
+  describe('create', () => {
+    const html = '<html>test html</html>'
+    const text = 'test text'
+    const from = 'fake from'
+    const subject = 'fake subject'
+    const authToken = jwt.sign(newsletterEmail, process.env.JWT_SECRET || '')
+
+    it('saves the email in the database', async () => {
+      const data = {
+        html,
+        text,
+        from,
+        to: newsletterEmail,
+        subject,
+      }
+      const res = await request
+        .post('/svc/pubsub/emails/save')
+        .set('Authorization', `${authToken}`)
+        .send(data)
+        .expect(200)
+
+      console.log(res.body)
+      expect(res.body.id).not.to.be.undefined
     })
   })
 })

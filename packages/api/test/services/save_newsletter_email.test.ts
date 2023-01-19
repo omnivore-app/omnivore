@@ -56,7 +56,6 @@ describe('saveNewsletterEmail', () => {
     await saveNewsletterEmail(
       {
         from,
-        text,
         email: newsletterEmail.address,
         content: `<html><body>${fakeContent}</body></html>`,
         url,
@@ -102,7 +101,6 @@ describe('saveNewsletterEmail', () => {
         title,
         author,
         from,
-        text,
         receivedEmailId: receivedEmail.id,
       },
       newsletterEmail,
