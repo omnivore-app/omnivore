@@ -11,12 +11,19 @@ import { request } from '../util'
 import * as parser from '../../src/utils/parser'
 import * as sendNotification from '../../src/utils/sendNotification'
 import * as sendEmail from '../../src/utils/sendEmail'
+import { getRepository } from '../../src/entity/utils'
+import { ReceivedEmail } from '../../src/entity/received_email'
 
 describe('Emails Router', () => {
   const newsletterEmail = 'fakeUser@omnivore.app'
+  const from = 'fake from'
+  const subject = 'fake subject'
+  const text = 'fake text'
+  const to = newsletterEmail
 
   let user: User
   let token: string
+  let receivedEmail: ReceivedEmail
 
   before(async () => {
     // create test user and login
@@ -24,6 +31,15 @@ describe('Emails Router', () => {
 
     await createTestNewsletterEmail(user, newsletterEmail)
     token = process.env.PUBSUB_VERIFICATION_TOKEN!
+    receivedEmail = await getRepository(ReceivedEmail).save({
+      user: { id: user.id },
+      from,
+      to,
+      subject,
+      text,
+      html: '',
+      type: 'non-article',
+    })
   })
 
   after(async () => {
@@ -33,11 +49,7 @@ describe('Emails Router', () => {
   })
 
   describe('forward', () => {
-    const from = 'from@omnivore.app'
-    const to = newsletterEmail
-    const subject = 'test subject'
     const html = '<html>test html</html>'
-    const text = 'test text'
 
     beforeEach(async () => {
       sinon.replace(
@@ -61,7 +73,14 @@ describe('Emails Router', () => {
         const data = {
           message: {
             data: Buffer.from(
-              JSON.stringify({ from, to, subject, html, text })
+              JSON.stringify({
+                from,
+                to,
+                subject,
+                html,
+                text,
+                receivedEmailId: receivedEmail.id,
+              })
             ).toString('base64'),
             publishTime: new Date().toISOString(),
           },
@@ -83,7 +102,14 @@ describe('Emails Router', () => {
         const data = {
           message: {
             data: Buffer.from(
-              JSON.stringify({ from, to, subject, html, text })
+              JSON.stringify({
+                from,
+                to,
+                subject,
+                html,
+                text,
+                receivedEmailId: receivedEmail.id,
+              })
             ).toString('base64'),
             publishTime: new Date().toISOString(),
           },

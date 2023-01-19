@@ -133,8 +133,6 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
         if (newsletterMessage) {
           await publishMessage(NEWSLETTER_EMAIL_RECEIVED_TOPIC, {
             ...newsletterMessage,
-            text,
-            from,
             receivedEmailId,
           })
           return res.status(200).send('newsletter received')

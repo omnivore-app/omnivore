@@ -12,10 +12,7 @@ import { getRepository } from '../../entity/utils'
 import { ReceivedEmail } from '../../entity/received_email'
 import { saveNewsletterEmail } from '../../services/save_newsletter_email'
 import { NewsletterEmail } from '../../entity/newsletter_email'
-import { v4 as uuid } from 'uuid'
-
-const FAKE_URL_PREFIX = 'https://omnivore.app/no_url?q='
-const generateUniqueUrl = () => FAKE_URL_PREFIX + uuid()
+import { generateUniqueUrl, parseEmailAddress } from '../../utils/parser'
 
 export const recentEmailsResolver = authorized<
   RecentEmailsSuccess,
@@ -98,7 +95,7 @@ export const markEmailAsItemResolver = authorized<
         text: recentEmail.text,
         content: recentEmail.html,
         url: generateUniqueUrl(),
-        author: '',
+        author: parseEmailAddress(recentEmail.from).name,
         receivedEmailId: recentEmail.id,
       },
       newsletterEmail

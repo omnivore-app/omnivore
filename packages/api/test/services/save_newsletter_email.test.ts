@@ -12,15 +12,19 @@ import { getPageByParam } from '../../src/elastic/pages'
 import nock from 'nock'
 import { getRepository } from '../../src/entity/utils'
 import { Subscription } from '../../src/entity/subscription'
+import { ReceivedEmail } from '../../src/entity/received_email'
 
 describe('saveNewsletterEmail', () => {
   const fakeContent = 'fake content'
   const title = 'fake title'
   const author = 'fake author'
+  const from = 'fake from'
+  const text = 'fake text'
 
   let user: User
   let newsletterEmail: NewsletterEmail
   let ctx: SaveContext
+  let receivedEmail: ReceivedEmail
 
   before(async () => {
     user = await createTestUser('fakeUser')
@@ -30,6 +34,15 @@ describe('saveNewsletterEmail', () => {
       refresh: true,
       uid: user.id,
     }
+    receivedEmail = await getRepository(ReceivedEmail).save({
+      user: { id: user.id },
+      from,
+      to: newsletterEmail.address,
+      subject: title,
+      text,
+      html: '',
+      type: 'non-article',
+    })
   })
 
   after(async () => {
@@ -42,14 +55,14 @@ describe('saveNewsletterEmail', () => {
 
     await saveNewsletterEmail(
       {
-        from: 'fake from',
-        text: 'fake text',
+        from,
+        text,
         email: newsletterEmail.address,
         content: `<html><body>${fakeContent}</body></html>`,
         url,
         title,
         author,
-        receivedEmailId: '',
+        receivedEmailId: receivedEmail.id,
       },
       newsletterEmail,
       ctx
@@ -66,6 +79,12 @@ describe('saveNewsletterEmail', () => {
       newsletterEmail: { id: newsletterEmail.id },
     })
     expect(subscriptions).not.to.be.empty
+
+    // check if the received email was updated
+    const updatedReceivedEmail = await getRepository(ReceivedEmail).findOneBy({
+      id: receivedEmail.id,
+    })
+    expect(updatedReceivedEmail?.type).to.equal('article')
   })
 
   it('should adds a Newsletter label to that page', async () => {
@@ -82,9 +101,9 @@ describe('saveNewsletterEmail', () => {
         url,
         title,
         author,
-        from: 'fake from',
-        text: 'fake text',
-        receivedEmailId: '',
+        from,
+        text,
+        receivedEmailId: receivedEmail.id,
       },
       newsletterEmail,
       ctx
