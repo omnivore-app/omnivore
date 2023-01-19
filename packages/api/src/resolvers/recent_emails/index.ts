@@ -72,18 +72,26 @@ export const markEmailAsItemResolver = authorized<
     const recentEmail = await getRepository(ReceivedEmail).findOneBy({
       id: recentEmailId,
       user: { id: claims.uid },
+      type: 'non-article',
     })
     if (!recentEmail) {
+      log.info('no recent email', recentEmailId)
+
       return {
         errorCodes: [MarkEmailAsItemErrorCode.Unauthorized],
       }
     }
 
-    const newsletterEmail = await getRepository(NewsletterEmail).findOneBy({
-      address: recentEmail.to,
-      user: { id: claims.uid },
+    const newsletterEmail = await getRepository(NewsletterEmail).findOne({
+      where: {
+        address: recentEmail.to,
+        user: { id: claims.uid },
+      },
+      relations: ['user'],
     })
     if (!newsletterEmail) {
+      log.info('no newsletter email', recentEmail.to)
+
       return {
         errorCodes: [MarkEmailAsItemErrorCode.NotFound],
       }
