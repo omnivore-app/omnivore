@@ -8,7 +8,7 @@ struct DebugMenuView: View {
   @EnvironmentObject var dataService: DataService
   @Binding var selectedEnvironment: AppEnvironment
 
-  let appEnvironments: [AppEnvironment] = [.local, .demo, .dev, .prod]
+  let appEnvironments: [AppEnvironment] = [.local, .demo, .prod]
 
   var body: some View {
     VStack {

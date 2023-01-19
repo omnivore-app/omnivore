@@ -18,6 +18,7 @@ struct WelcomeView: View {
   @State private var showTermsModal = false
   @State private var showPrivacyModal = false
   @State private var showEmailLoginModal = false
+  @State private var showAdvancedLogin = false
   @State private var showAboutPage = false
   @State private var selectedEnvironment = AppEnvironment.initialAppEnvironment
   @State private var containerSize: CGSize = .zero
@@ -83,6 +84,8 @@ struct WelcomeView: View {
       Button("View Privacy Policy") {
         showPrivacyModal = true
       }
+
+      Spacer()
     }
     .sheet(isPresented: $showPrivacyModal) {
       VStack {
@@ -235,6 +238,18 @@ struct WelcomeView: View {
           }
           footerView
           Spacer()
+
+          Button(
+            action: { showAdvancedLogin = true },
+            label: {
+              Text("Self-hosting options")
+                .font(Font.appCaption)
+                .foregroundColor(.appGrayTextContrast)
+                .underline()
+                .frame(maxWidth: .infinity, alignment: .center)
+            }
+          )
+          .padding(.vertical)
         }
         .padding()
         .sheet(isPresented: $showEmailLoginModal) {
@@ -242,6 +257,11 @@ struct WelcomeView: View {
         }
         .sheet(isPresented: $showDebugModal) {
           DebugMenuView(selectedEnvironment: $selectedEnvironment)
+        }
+        .sheet(isPresented: $showAdvancedLogin) {
+          NavigationView {
+            SelfHostSettingsView()
+          }
         }
         .alert(deletedAccountConfirmationMessage, isPresented: $authenticator.showAppleRevokeTokenAlert) {
           Button("View Details") {
