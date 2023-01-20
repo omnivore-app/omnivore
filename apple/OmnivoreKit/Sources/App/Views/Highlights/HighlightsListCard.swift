@@ -38,7 +38,7 @@ struct HighlightsListCard: View {
         action: {
           onSetLabels(highlightParams.highlightID)
         },
-        label: { Label("Labels", systemImage: "tag") }
+        label: { Label(LocalText.labelsGeneric, systemImage: "tag") }
       )
       Button(
         action: onDeleteHighlight,

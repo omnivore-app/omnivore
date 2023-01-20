@@ -79,7 +79,7 @@ struct ProfileView: View {
   private var accountSection: some View {
     Section {
       NavigationLink(destination: LabelsView()) {
-        Text("Labels")
+        Text(LocalText.labelsGeneric)
       }
 
       NavigationLink(destination: NewsletterEmailsView()) {

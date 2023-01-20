@@ -62,7 +62,7 @@ struct LabelsView: View {
       }
 
       if !viewModel.labels.isEmpty {
-        Section(header: Text("Labels")) {
+        Section(header: Text(LocalText.labelsGeneric)) {
           ForEach(viewModel.labels, id: \.id) { label in
             HStack {
               TextChip(feedItemLabel: label)
@@ -79,7 +79,7 @@ struct LabelsView: View {
         }
       }
     }
-    .navigationTitle("Labels")
+    .navigationTitle(LocalText.labelsGeneric)
   }
 }
 

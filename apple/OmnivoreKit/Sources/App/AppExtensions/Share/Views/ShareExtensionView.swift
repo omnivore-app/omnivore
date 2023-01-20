@@ -154,7 +154,7 @@ public struct ShareExtensionView: View {
         .padding(.trailing, 8)
 
         VStack {
-          Text("Labels")
+          Text(LocalText.labelsGeneric)
             .font(.appSubheadline)
             .foregroundColor(Color.appGrayTextContrast)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -346,7 +346,7 @@ public struct ShareExtensionView: View {
     case .editingTitle:
       return "Edit Title"
     case .editingLabels:
-      return "Labels"
+      return LocalText.labelsGeneric
     case .viewingHighlight:
       return "Highlight"
     default:
@@ -546,7 +546,7 @@ struct ApplyLabelsListView: View {
 
         },
         header: {
-          Text("Labels")
+          Text(LocalText.labelsGeneric)
             .font(.appFootnote)
             .foregroundColor(.appGrayText)
         }
