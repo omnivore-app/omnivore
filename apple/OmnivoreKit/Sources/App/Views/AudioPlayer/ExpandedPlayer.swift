@@ -88,7 +88,7 @@
         Button(action: { showVoiceSheet = true }, label: { Label("Change Voice", systemImage: "person.wave.2") })
         Button(action: { viewArticle() }, label: { Label("View Article", systemImage: "book") })
         Button(action: { audioController.stop() }, label: { Label("Stop", systemImage: "xmark.circle") })
-        Button(action: { dismiss() }, label: { Label("Dismiss", systemImage: "arrow.down.to.line") })
+        Button(action: { dismiss() }, label: { Label(LocalText.dismissButton, systemImage: "arrow.down.to.line") })
       } label: {
         ZStack {
           Circle()
@@ -348,7 +348,7 @@
           .tint(.appGrayTextContrast)
           .alert("There was an error playing back your audio.",
                  isPresented: $audioController.playbackError) {
-            Button("Dismiss", role: .none) {}
+            Button(LocalText.dismissButton, role: .none) {}
           }
       } else {
         EmptyView()

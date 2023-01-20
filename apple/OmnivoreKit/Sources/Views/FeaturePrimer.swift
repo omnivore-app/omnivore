@@ -45,7 +45,7 @@ public struct FeaturePrimer: View {
 
       Button(action: {
         dismiss()
-      }, label: { Text("Dismiss") })
+      }, label: { Text(LocalText.dismissButton) })
         .buttonStyle(PlainButtonStyle())
     }.padding()
   }

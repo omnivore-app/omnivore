@@ -247,7 +247,7 @@ struct WelcomeView: View {
           Button("View Details") {
             openURL(URL(string: "https://support.apple.com/en-us/HT210426")!)
           }
-          Button("Dismiss") { self.authenticator.showAppleRevokeTokenAlert = false }
+          Button(LocalText.dismissButton) { self.authenticator.showAppleRevokeTokenAlert = false }
         }
       }
     }

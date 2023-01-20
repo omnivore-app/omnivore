@@ -5,21 +5,15 @@ public enum LocalText {
     NSLocalizedString(key, bundle: .module, comment: comment ?? "no comment provided by developer")
   }
 
-  public static let signInScreenHeadline = localText(key: "signInScreenHeadline")
   public static let googleAuthButton = localText(key: "googleAuthButton")
-  public static let registrationViewSignInHeadline = localText(key: "registrationViewSignInHeadline")
-  public static let registrationViewSignUpHeadline = localText(key: "registrationViewSignUpHeadline")
-  public static let registrationViewHeadline = localText(key: "registrationViewHeadline")
   public static let networkError = localText(key: "error.network")
+  public static let registrationViewSignUpHeadline = localText(key: "registrationViewSignUpHeadline")
   public static let genericError = localText(key: "error.generic")
   public static let invalidCredsLoginError = localText(key: "loginError.invalidCreds")
   public static let saveArticleSavedState = localText(key: "saveArticleSavedState")
   public static let saveArticleProcessingState = localText(key: "saveArticleProcessingState")
   public static let extensionAppUnauthorized = localText(key: "extensionAppUnauthorized")
   public static let dismissButton = localText(key: "dismissButton")
-  public static let usernameValidationErrorInvalid = localText(key: "username.validation.error.invalidPattern")
-  public static let usernameValidationErrorTooShort = localText(key: "username.validation.error.tooshort")
-  public static let usernameValidationErrorTooLong = localText(key: "username.validation.error.toolong")
 
   public static let labelsGeneric = localText(key: "labels.generic")
   public static let emailsGeneric = localText(key: "emails.generic")

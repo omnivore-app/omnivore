@@ -298,7 +298,7 @@ public struct ShareExtensionView: View {
       Button(
         action: {},
         label: {
-          Button("Dismiss", role: .cancel, action: {})
+          Button(LocalText.dismissButton, role: .cancel, action: {})
         }
       )
       Button(action: {
