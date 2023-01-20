@@ -35,3 +35,5 @@
 "newsletters.description" = "Add PDFs to your library, or subscribe to newsletters using an Omnivore email address.";
 "labels.purpose.description" = "Use labels to create curated collections of links.";
 "no.current.subscriptions.message" = "You have no current Subscriptions.";
+"clubs.generic" = "Clubs";
+"pushNotifications.generic" = "Push Notifications";

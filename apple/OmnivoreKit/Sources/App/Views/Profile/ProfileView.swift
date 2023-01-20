@@ -91,7 +91,7 @@ struct ProfileView: View {
       }
 
       NavigationLink(destination: GroupsView()) {
-        Text("Clubs")
+        Text(LocalText.clubsGeneric)
       }
     }
   }
@@ -110,7 +110,7 @@ struct ProfileView: View {
       #if os(iOS)
         Section {
           NavigationLink(destination: PushNotificationSettingsView()) {
-            Text("Push Notifications")
+            Text(LocalText.pushNotificationsGeneric)
           }
           NavigationLink(destination: TextToSpeechView()) {
             Text(LocalText.textToSpeechGeneric)

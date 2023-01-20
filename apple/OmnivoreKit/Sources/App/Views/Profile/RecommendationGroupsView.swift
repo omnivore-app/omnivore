@@ -132,7 +132,7 @@ struct GroupsView: View {
       }
     }
     .task { await viewModel.loadGroups(dataService: dataService) }
-    .navigationTitle("Clubs")
+    .navigationTitle(LocalText.clubsGeneric)
   }
 
   private var innerBody: some View {

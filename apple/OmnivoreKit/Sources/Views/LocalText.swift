@@ -42,4 +42,6 @@ public enum LocalText {
   public static let newslettersDescription = localText(key: "newsletters.description")
   public static let labelsPurposeDescription = localText(key: "labels.purpose.description")
   public static let noCurrentSubscriptionsMessage = localText(key: "no.current.subscriptions.message")
+  public static let clubsGeneric = localText(key: "clubs.generic")
+  public static let pushNotificationsGeneric = localText(key: "pushNotifications.generic")
 }

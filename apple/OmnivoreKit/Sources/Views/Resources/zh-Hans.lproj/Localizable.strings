@@ -35,3 +35,5 @@
 "newsletters.description" = "将 PDF 添加到您的资料库，或使用 Omnivore 电子邮件地址订阅新闻稿件。";
 "labels.purpose.description" = "使用标签创建精选的链接集合。";
 "no.current.subscriptions.message" = "您当前没有任何订阅。";
+"clubs.generic" = "读书俱乐部";
+"pushNotifications.generic" = "推送通知";
