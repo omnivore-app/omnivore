@@ -37,8 +37,8 @@ struct LabelsMasonaryView: View {
       GeometryReader { geometry in
         self.generateContent(in: geometry)
       }
-    }
-    .frame(height: totalHeight)
+    }.padding(5)
+      .frame(height: totalHeight)
   }
 
   private func generateContent(in geom: GeometryProxy) -> some View {
@@ -48,7 +48,7 @@ struct LabelsMasonaryView: View {
     return ZStack(alignment: .topLeading) {
       ForEach(self.labelItems, id: \.label.self) { label in
         self.item(for: label)
-          .padding(.horizontal, 10)
+          .padding(.horizontal, 5)
           .padding(.vertical, 5)
           .alignmentGuide(.leading, computeValue: { dim in
             if abs(width - dim.width) > geom.size.width {
@@ -76,7 +76,7 @@ struct LabelsMasonaryView: View {
   }
 
   private func item(for item: (label: LinkedItemLabel, selected: Bool)) -> some View {
-    let chip = TextChip(feedItemLabel: item.label, negated: false, checked: item.selected) { chip in
+    let chip = TextChip(feedItemLabel: item.label, negated: false, checked: item.selected, padded: true) { chip in
       onLabelTap(item.label, chip)
     }
     return chip

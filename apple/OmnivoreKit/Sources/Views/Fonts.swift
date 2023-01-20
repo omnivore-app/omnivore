@@ -66,8 +66,8 @@ public extension Font {
   }
 
   /// 12pt, Inter-Regular
-  static var appCaptionBold: Font {
-    .customFont(InterFont.bold.rawValue, size: 12, relativeTo: .caption)
+  static var appCaptionMedium: Font {
+    .customFont(InterFont.medium.rawValue, size: 12, relativeTo: .caption)
   }
 
   /// 11pt, Inter-Regular

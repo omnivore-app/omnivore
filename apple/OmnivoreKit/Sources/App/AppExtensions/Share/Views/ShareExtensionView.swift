@@ -200,12 +200,13 @@ public struct ShareExtensionView: View {
           searchButton
             .onTapGesture { showSearchLabels = true }
 
-          VStack {
+          ScrollView {
             LabelsMasonaryView(labels: labelsViewModel.labels,
                                selectedLabels: labelsViewModel.selectedLabels,
                                onLabelTap: onLabelTap)
             Spacer()
           }
+          .padding(.bottom, 16)
           .background(Color.appButtonBackground)
           .cornerRadius(8)
         }
