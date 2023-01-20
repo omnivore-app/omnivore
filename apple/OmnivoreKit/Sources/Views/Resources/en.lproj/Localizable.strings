@@ -10,8 +10,8 @@
 
 "labels.generic" = "Labels";
 "emails.generic" = "Emails";
-"subscriptions.generic" = "Text to Speech";
-"textToSpeech.generic" = "Subscriptions";
+"subscriptions.generic" = "Subscriptions";
+"textToSpeech.generic" = "Text to Speech";
 "privacy.policy.generic" = "Privacy Policy";
 "termsAndConditions.generic" = "Terms and Conditions";
 "feedback.generic" = "Feedback";
