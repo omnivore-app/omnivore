@@ -211,7 +211,7 @@ struct RecommendToView: View {
     .navigationViewStyle(.stack)
     .navigationBarItems(leading: Button(action: {
       dismiss()
-    }, label: { Text("Cancel") }),
+    }, label: { Text(LocalText.cancelGeneric) }),
     trailing: nextButton)
     .task {
       await viewModel.loadGroups(dataService: dataService)

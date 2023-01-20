@@ -8,19 +8,6 @@ public enum LinkedItemSort: String, CaseIterable {
 }
 
 public extension LinkedItemSort {
-  var displayName: String {
-    switch self {
-    case .newest:
-      return "Newest"
-    case .oldest:
-      return "Oldest"
-    case .recentlyRead:
-      return "Recently Read"
-    case .recentlyPublished:
-      return "Recently Published"
-    }
-  }
-
   var queryString: String {
     switch self {
     case .newest:

@@ -72,7 +72,7 @@ struct WelcomeView: View {
       Text("By signing up, you agree to Omnivore’s\n")
         + Text("Terms of Service").underline()
         + Text(" and ")
-        + Text("Privacy Policy").underline()
+        + Text(LocalText.privacyPolicyGeneric).underline()
     }
     .font(.appSubheadline)
     .confirmationDialog("", isPresented: $showTermsLinks, titleVisibility: .hidden) {
@@ -247,7 +247,7 @@ struct WelcomeView: View {
           Button("View Details") {
             openURL(URL(string: "https://support.apple.com/en-us/HT210426")!)
           }
-          Button("Dismiss") { self.authenticator.showAppleRevokeTokenAlert = false }
+          Button(LocalText.dismissButton) { self.authenticator.showAppleRevokeTokenAlert = false }
         }
       }
     }

@@ -26,7 +26,7 @@ public struct HighlightAnnotationSheet: View {
   public var body: some View {
     VStack {
       HStack {
-        Button("Cancel", action: onCancel)
+        Button(LocalText.cancelGeneric, action: onCancel)
         Spacer()
         Label("Note", systemImage: "note.text")
         Spacer()

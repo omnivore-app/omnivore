@@ -91,6 +91,6 @@ struct PushNotificationSettingsView: View {
         }
       }
     }
-    .navigationTitle("Push Notifications")
+    .navigationTitle(LocalText.pushNotificationsGeneric)
   }
 }

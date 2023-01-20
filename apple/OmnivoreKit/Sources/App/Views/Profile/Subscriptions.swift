@@ -115,7 +115,7 @@ struct SubscriptionsView: View {
         viewModel.subscriptionNameToCancel = nil
       }
     }
-    .navigationTitle("Subscriptions")
+    .navigationTitle(LocalText.subscriptionsGeneric)
   }
 }
 

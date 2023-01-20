@@ -184,7 +184,7 @@ struct LinkItemDetailView: View {
       Button("Remove Link", role: .destructive) {
         viewModel.handleDeleteAction(dataService: dataService)
       }
-      Button("Cancel", role: .cancel, action: {})
+      Button(LocalText.cancelGeneric, role: .cancel, action: {})
     }
     .sheet(isPresented: $showTitleEdit) {
       if let item = viewModel.item {

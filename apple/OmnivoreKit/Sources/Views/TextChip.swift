@@ -106,7 +106,7 @@ public struct TextChip: View {
 
 public struct TextChipButton: View {
   public static func makeAddLabelButton(onTap: @escaping () -> Void) -> TextChipButton {
-    TextChipButton(title: "Labels", color: .systemGray6, actionType: .show, negated: false, onTap: onTap)
+    TextChipButton(title: LocalText.labelsGeneric, color: .systemGray6, actionType: .show, negated: false, onTap: onTap)
   }
 
   public static func makeMenuButton(title: String) -> TextChipButton {

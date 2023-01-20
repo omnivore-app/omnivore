@@ -208,7 +208,7 @@ public final class OmnivoreWebView: WKWebView {
         // on iOS16 we use menuBuilder to create these items
         currentMenu = .defaultMenu
         let annotate = UIMenuItem(title: "Annotate", action: #selector(annotateSelection))
-        let labels = UIMenuItem(title: "Labels", action: #selector(setLabels))
+        let labels = UIMenuItem(title: LocalText.labelsGeneric, action: #selector(setLabels))
 
         let remove = UIMenuItem(title: "Remove", action: #selector(removeSelection))
         //     let share = UIMenuItem(title: "Share", action: #selector(shareSelection))
@@ -309,7 +309,7 @@ public final class OmnivoreWebView: WKWebView {
         let annotate = UICommand(title: "Note", action: #selector(annotateSelection))
         let highlight = UICommand(title: "Highlight", action: #selector(highlightSelection))
         let remove = UICommand(title: "Remove", action: #selector(removeSelection))
-        let setLabels = UICommand(title: "Labels", action: #selector(setLabels))
+        let setLabels = UICommand(title: LocalText.labelsGeneric, action: #selector(setLabels))
 
         let omnivore = UIMenu(title: "",
                               options: .displayInline,
