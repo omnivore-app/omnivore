@@ -4,9 +4,9 @@ import SwiftUI
 import Utils
 import Views
 
+// swiftlint:disable:next type_body_length
 public struct ShareExtensionView: View {
   let extensionContext: NSExtensionContext?
-  @EnvironmentObject var dataService: DataService
   @StateObject var labelsViewModel = LabelsViewModel()
   @StateObject private var viewModel = ShareExtensionViewModel()
 
@@ -14,7 +14,7 @@ public struct ShareExtensionView: View {
   @State var hideUntilReminded = false
   @State var previousLabels: [LinkedItemLabel]?
   @State var messageText: String?
-  @State var searchTerm: String = ""
+  @State var showSearchLabels = false
 
   @State var viewState = ViewState.mainView
   @State var showHighlightInstructionAlert = false
@@ -129,7 +129,7 @@ public struct ShareExtensionView: View {
             .font(.appFootnote)
             .foregroundColor(.appGrayText)
             .frame(maxWidth: .infinity, alignment: .leading)
-        } else {}
+        }
       }
       .frame(maxWidth: .infinity, maxHeight: 60)
       .padding()
@@ -138,6 +138,28 @@ public struct ShareExtensionView: View {
           .stroke(Color.appGrayBorder, lineWidth: 1)
       )
     }
+  }
+
+  var searchButton: some View {
+    HStack {
+      Image(systemName: "magnifyingglass")
+        .resizable()
+        .frame(width: 15, height: 15)
+        .foregroundColor(.appGrayText)
+        .padding(.leading, 10)
+
+      Text("Search labels")
+        .font(Font.system(size: 15))
+        .foregroundColor(.appGrayText)
+
+      Spacer()
+    }
+    .frame(height: 36)
+    .frame(maxWidth: .infinity)
+    .background(
+      Color.appButtonBackground
+        .cornerRadius(8)
+    )
   }
 
   var labelsSection: some View {
@@ -174,32 +196,24 @@ public struct ShareExtensionView: View {
         Image(systemName: "chevron.right")
           .font(.appCallout)
       } else {
-        VStack {
-          ScrollView {
-            SearchBar(searchTerm: $searchTerm)
+        VStack(spacing: 15) {
+          searchButton
+            .onTapGesture { showSearchLabels = true }
+
+          VStack {
             LabelsMasonaryView(labels: labelsViewModel.labels,
                                selectedLabels: labelsViewModel.selectedLabels,
                                onLabelTap: onLabelTap)
-          }.background(Color.appButtonBackground)
-            .cornerRadius(8)
-
-          Button(
-            action: { labelsViewModel.showCreateLabelModal = true },
-            label: {
-              HStack {
-                Spacer()
-                Image(systemName: "plus")
-                Text("Create label")
-                Spacer()
-              }
-            }
-          ).buttonStyle(RoundedRectButtonStyle(color: .blue, textColor: .white))
+            Spacer()
+          }
+          .background(Color.appButtonBackground)
+          .cornerRadius(8)
         }
       }
     }
-    .padding(16)
+    .padding(viewState == .editingLabels ? 0 : 16)
+    .background(viewState == .editingLabels ? Color.clear : Color.appButtonBackground)
     .frame(maxWidth: .infinity, maxHeight: viewState == .editingLabels ? .infinity : 60)
-    .background(Color.appButtonBackground)
     .cornerRadius(8)
   }
 
@@ -492,89 +506,17 @@ public struct ShareExtensionView: View {
            isPresented: $showHighlightInstructionAlert) {
       Button("Ok", role: .cancel) { showHighlightInstructionAlert = false }
     }
-    .environmentObject(viewModel.services.dataService)
     .task {
       await labelsViewModel.loadLabelsFromStore(dataService: viewModel.services.dataService)
     }
-  }
-}
-
-struct ApplyLabelsListView: View {
-  @EnvironmentObject var dataService: DataService
-  @StateObject var viewModel = LabelsViewModel()
-
-  let linkedItem: LinkedItem?
-
-  func isSelected(_ label: LinkedItemLabel) -> Bool {
-    viewModel.selectedLabels.contains(where: { $0.id == label.id })
-  }
-
-  var body: some View {
-    List {
-      Section(
-        content: {
-          ForEach(viewModel.labels.applySearchFilter(viewModel.labelSearchFilter), id: \.self) { label in
-            Button(
-              action: {
-                if isSelected(label) {
-                  viewModel.selectedLabels.removeAll(where: { $0.id == label.id })
-                } else {
-                  viewModel.selectedLabels.append(label)
-                }
-                if let linkedItem = linkedItem {
-                  viewModel.saveItemLabelChanges(itemID: linkedItem.unwrappedID, dataService: dataService)
-                }
-              },
-              label: {
-                HStack {
-                  TextChip(feedItemLabel: label)
-                  Spacer()
-                  if isSelected(label) {
-                    Image(systemName: "checkmark.circle.fill")
-                      .foregroundColor(.checkmarkBlue)
-                  } else {
-                    Image(systemName: "circle")
-                      .foregroundColor(.appGraySolid)
-                  }
-                }
-                .contentShape(Rectangle())
-              }
-            )
-            #if os(iOS)
-              .listRowSeparator(.hidden)
-            #endif
-            .buttonStyle(PlainButtonStyle())
-          }
-
-        },
-        header: {
-          Text(LocalText.labelsGeneric)
-            .font(.appFootnote)
-            .foregroundColor(.appGrayText)
+    .sheet(isPresented: $showSearchLabels) {
+      ApplyLabelsView(mode: .list(self.labelsViewModel.selectedLabels), isSearchFocused: true) { labels in
+        self.labelsViewModel.selectedLabels = labels
+        if let itemID = self.viewModel.linkedItem?.unwrappedID {
+          self.labelsViewModel.saveItemLabelChanges(itemID: itemID, dataService: self.viewModel.services.dataService)
         }
-      )
-      #if os(iOS)
-        .listRowSeparator(.hidden)
-      #endif
-      Button(
-        action: { viewModel.showCreateLabelModal = true },
-        label: {
-          HStack {
-            Image(systemName: "plus.circle.fill").foregroundColor(.green)
-            Text(LocalText.createLabelMessage).foregroundColor(.appGrayTextContrast)
-            Spacer()
-          }
-        }
-      )
-      .disabled(viewModel.isLoading)
+      }
     }
-    .listStyle(PlainListStyle())
-    .padding(.vertical, 0)
-    .task {
-      await viewModel.loadLabelsFromStore(dataService: dataService)
-    }
-    .sheet(isPresented: $viewModel.showCreateLabelModal) {
-      CreateLabelView(viewModel: viewModel)
-    }
+    .environmentObject(viewModel.services.dataService)
   }
 }

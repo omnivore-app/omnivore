@@ -12,9 +12,9 @@ struct ApplyLabelsView: View {
     var navTitle: String {
       switch self {
       case .item, .highlight:
-        return "Assign Labels"
+        return "Set Labels"
       case .list:
-        return "Apply Label Filters"
+        return "Set Labels"
       }
     }
 
@@ -23,17 +23,25 @@ struct ApplyLabelsView: View {
       case .item, .highlight:
         return "Save"
       case .list:
-        return "Apply"
+        return "Done"
       }
     }
   }
 
   let mode: Mode
+  let isSearchFocused: Bool
   let onSave: (([LinkedItemLabel]) -> Void)?
 
   @EnvironmentObject var dataService: DataService
   @Environment(\.presentationMode) private var presentationMode
   @StateObject var viewModel = LabelsViewModel()
+
+  enum ViewState {
+    case mainView
+    case editingTitle
+    case editingLabels
+    case viewingHighlight
+  }
 
   func isSelected(_ label: LinkedItemLabel) -> Bool {
     viewModel.selectedLabels.contains(where: { $0.id == label.id })
@@ -41,6 +49,9 @@ struct ApplyLabelsView: View {
 
   var innerBody: some View {
     List {
+      Section(header: Spacer(minLength: 0)) {
+        SearchBar(searchTerm: $viewModel.labelSearchFilter, initialFocus: isSearchFocused)
+      }
       Section {
         Button(
           action: { viewModel.showCreateLabelModal = true },
@@ -80,6 +91,7 @@ struct ApplyLabelsView: View {
         }
       }
     }
+    .padding(.top, 0)
     .navigationTitle(mode.navTitle)
     #if os(iOS)
       .navigationBarTitleDisplayMode(.inline)
@@ -136,10 +148,7 @@ struct ApplyLabelsView: View {
             EmptyView()
           } else {
             innerBody
-              .searchable(
-                text: $viewModel.labelSearchFilter,
-                placement: .navigationBarDrawer(displayMode: .always)
-              )
+              .padding(.top, -20) // This is a hack to give us a bit more room on the page
           }
         }
       #elseif os(macOS)

@@ -1,48 +1,38 @@
 import SwiftUI
 
 public struct SearchBar: View {
-  private let horizontalPadding: Double
   @Binding var searchTerm: String
   @FocusState private var isFocused: Bool
+  @State private var initialFocus: Bool
 
   public init(
     searchTerm: Binding<String>,
-    horizontalPadding: Double = 10
+    initialFocus: Bool
   ) {
     self._searchTerm = searchTerm
-    self.horizontalPadding = horizontalPadding
+    self.initialFocus = initialFocus
   }
 
   public var body: some View {
     HStack(spacing: 0) {
       TextField("Search", text: $searchTerm)
-        .padding(7)
-        .padding(.horizontal, 25)
-        .background(Color.systemGray6)
+        .frame(height: 36)
+        .frame(maxWidth: .infinity)
+        .background(Color.appButtonBackground)
         .cornerRadius(8)
         .focused($isFocused)
+        .padding(.leading, 24)
         .overlay(
           HStack {
             Image(systemName: "magnifyingglass")
-              .foregroundColor(.gray)
-              .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
-              .padding(.leading, 10)
+              .resizable()
+              .frame(width: 15, height: 15)
+              .foregroundColor(.appGrayText)
+              .padding(.leading, 2)
 
-            if self.searchTerm != "" {
-              Button(
-                action: {
-                  self.searchTerm = ""
-                },
-                label: {
-                  Image(systemName: "multiply.circle.fill")
-                    .foregroundColor(.gray)
-                    .padding(.trailing, 8)
-                }
-              )
-            }
+            Spacer()
           }
         )
-        .padding(.horizontal, horizontalPadding)
 
       if isFocused {
         Button(
@@ -51,12 +41,15 @@ public struct SearchBar: View {
             self.isFocused = false
           },
           label: {
-            Text(LocalText.cancelGeneric)
+            Image(systemName: "multiply.circle.fill")
+              .foregroundColor(.gray)
           }
         )
-        .padding(.trailing, 10)
+        .padding(.trailing, 0)
         .transition(.move(edge: .trailing))
       }
+    }.onAppear {
+      self.isFocused = initialFocus
     }
   }
 }

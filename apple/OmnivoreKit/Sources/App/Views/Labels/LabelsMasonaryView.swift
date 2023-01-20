@@ -12,11 +12,7 @@ import Models
 import Views
 
 struct LabelsMasonaryView: View {
-  // var allLabels: [LinkedItemLabel]
-  // var selectedLabels: [LinkedItemLabel]
   var onLabelTap: (LinkedItemLabel, TextChip) -> Void
-
-  var iteration = UUID().uuidString
 
   @State private var totalHeight = CGFloat.zero
   private var labelItems: [(label: LinkedItemLabel, selected: Bool)]
@@ -52,7 +48,8 @@ struct LabelsMasonaryView: View {
     return ZStack(alignment: .topLeading) {
       ForEach(self.labelItems, id: \.label.self) { label in
         self.item(for: label)
-          .padding([.horizontal, .vertical], 6)
+          .padding(.horizontal, 10)
+          .padding(.vertical, 5)
           .alignmentGuide(.leading, computeValue: { dim in
             if abs(width - dim.width) > geom.size.width {
               width = 0
