@@ -14,6 +14,7 @@ public struct ShareExtensionView: View {
   @State var hideUntilReminded = false
   @State var previousLabels: [LinkedItemLabel]?
   @State var messageText: String?
+  @State var searchTerm: String = ""
 
   @State var viewState = ViewState.mainView
   @State var showHighlightInstructionAlert = false
@@ -175,6 +176,7 @@ public struct ShareExtensionView: View {
       } else {
         VStack {
           ScrollView {
+            SearchBar(searchTerm: $searchTerm)
             LabelsMasonaryView(labels: labelsViewModel.labels,
                                selectedLabels: labelsViewModel.selectedLabels,
                                onLabelTap: onLabelTap)

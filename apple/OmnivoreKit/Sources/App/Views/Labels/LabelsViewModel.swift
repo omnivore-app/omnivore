@@ -13,7 +13,11 @@ import Views
   @Published var labelSearchFilter = ""
 
   func setLabels(_ labels: [LinkedItemLabel]) {
-    self.labels = labels.sorted { $0.unwrappedName.trimmingCharacters(in: .whitespaces) < $1.unwrappedName.trimmingCharacters(in: .whitespaces) }
+    self.labels = labels.sorted { left, right in
+      let aTrimmed = left.unwrappedName.trimmingCharacters(in: .whitespaces)
+      let bTrimmed = right.unwrappedName.trimmingCharacters(in: .whitespaces)
+      return aTrimmed.caseInsensitiveCompare(bTrimmed) == .orderedAscending
+    }
   }
 
   func loadLabels(

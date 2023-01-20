@@ -30,7 +30,9 @@ struct LabelsMasonaryView: View {
     let selected = selectedLabels.map { (label: $0, selected: true) }
     let unselected = allLabels.filter { !selectedLabels.contains($0) }.map { (label: $0, selected: false) }
     labelItems = (selected + unselected).sorted(by: { left, right in
-      (left.label.name ?? "") < (right.label.name ?? "")
+      let aTrimmed = left.label.unwrappedName.trimmingCharacters(in: .whitespaces)
+      let bTrimmed = right.label.unwrappedName.trimmingCharacters(in: .whitespaces)
+      return aTrimmed.caseInsensitiveCompare(bTrimmed) == .orderedAscending
     })
   }
 
