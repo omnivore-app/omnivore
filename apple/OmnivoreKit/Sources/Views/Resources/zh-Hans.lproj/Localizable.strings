@@ -18,7 +18,7 @@
 "labels.generic" = "标签";
 "emails.generic" = "电子邮件";
 "subscriptions.generic" = "订阅";
-"textToSpeech.generic" = "文本转语音";
+"textToSpeech.generic" = "文章转语音";
 "privacy.policy.generic" = "隐私策略";
 "termsAndConditions.generic" = "条款与条件";
 "feedback.generic" = "反馈";
@@ -31,7 +31,7 @@
 "newsletters.generic" = "新闻稿件";
 "all.generic" = "全部";
 "archived.generic" = "存档";
-"highlighted.generic" = "高亮";
+"highlighted.generic" = "荧光笔";
 "files.generic" = "文件";
 "newest.generic" = "最新";
 "oldest.generic" = "最早";
