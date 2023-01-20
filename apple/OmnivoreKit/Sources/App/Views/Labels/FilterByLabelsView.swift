@@ -22,7 +22,7 @@ struct FilterByLabelsView: View {
 
   var innerBody: some View {
     List {
-      ForEach(viewModel.labels, id: \.self) { label in
+      ForEach(viewModel.labels.applySearchFilter(viewModel.labelSearchFilter), id: \.self) { label in
         HStack {
           TextChip(feedItemLabel: label, negated: isNegated(label))
           Spacer()
