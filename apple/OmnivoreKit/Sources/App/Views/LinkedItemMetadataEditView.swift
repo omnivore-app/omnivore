@@ -104,7 +104,7 @@ struct LinkedItemMetadataEditView: View {
             ToolbarItem(placement: .barLeading) {
               Button(
                 action: { presentationMode.wrappedValue.dismiss() },
-                label: { Text("Cancel").foregroundColor(.appGrayTextContrast) }
+                label: { Text(LocalText.cancelGeneric).foregroundColor(.appGrayTextContrast) }
               )
             }
           }
@@ -125,7 +125,7 @@ struct LinkedItemMetadataEditView: View {
 
             Button(
               action: { presentationMode.wrappedValue.dismiss() },
-              label: { Text("Cancel").foregroundColor(.appGrayTextContrast) }
+              label: { Text(LocalText.cancelGeneric).foregroundColor(.appGrayTextContrast) }
             )
           }
         }

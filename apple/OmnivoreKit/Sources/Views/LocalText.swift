@@ -49,30 +49,3 @@ public enum LocalText {
   public static let labelsPurposeDescription = localText(key: "labels.purpose.description")
   public static let noCurrentSubscriptionsMessage = localText(key: "no.current.subscriptions.message")
 }
-
-// "emails.generic" = "Emails";
-// "subscriptions.generic" = "Subscriptions";
-// "textToSpeech.generic" = "Subscriptions";
-// "privacy.policy.generic" = "Privacy Policy";
-// "termsAndConditions.generic" = "Terms and Conditions";
-// "feedback.generic" = "Feedback";
-// "manageAccount.generic" = "Manage Account";
-// "logout.generic" = "Logout";
-// "done.generic" = "Done";
-// "cancel.generic" = "Cancel";
-// "inbox.generic" = "Inbox";
-// "readLater.generic" = "Read Later";
-// "newsletters.generic" = "Newsletters";
-// "all.generic" = "All";
-// "archived.generic" = "Archived";
-// "highlighted.generic" = "Highlighted";
-// "files.generic" = "Files";
-// "newest.generic" = "Newest";
-// "oldest.generic" = "Oldest";
-// "recentlyRead.generic" = "Recently Read";
-// "recentlyPublished.generic" = "Recently Published";
-// "create.label.message" = "Create a new Label";
-// "create.new.email.message" = "Create a new email address";
-// "newsletters.description" = "Add PDFs to your library, or subscribe to newsletters using an Omnivore email address.";
-// "labels.purpose.description" = "Use labels to create curated collections of links.";
-// "no.current.subscriptions.message" = "You have no current Subscriptions.";

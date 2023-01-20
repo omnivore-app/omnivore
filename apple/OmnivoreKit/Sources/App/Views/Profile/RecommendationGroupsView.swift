@@ -104,7 +104,7 @@ struct CreateRecommendationGroupView: View {
     .navigationBarItems(leading:
       Button(action: {
         viewModel.showCreateSheet = false
-      }, label: { Text("Cancel") }),
+      }, label: { Text(LocalText.cancelGeneric) }),
       trailing: nextButton)
   }
 }

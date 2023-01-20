@@ -12,27 +12,6 @@ public enum LinkedItemFilter: String, CaseIterable {
 }
 
 public extension LinkedItemFilter {
-  var displayName: String {
-    switch self {
-    case .inbox:
-      return "Inbox"
-    case .readlater:
-      return "Read Later"
-    case .newsletters:
-      return "Newsletters"
-    case .recommended:
-      return "Recommended"
-    case .all:
-      return "All"
-    case .archived:
-      return "Archived"
-    case .hasHighlights:
-      return "Highlighted"
-    case .files:
-      return "Files"
-    }
-  }
-
   var queryString: String {
     switch self {
     case .inbox:

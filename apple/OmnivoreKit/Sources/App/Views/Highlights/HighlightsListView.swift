@@ -84,7 +84,7 @@ struct HighlightsListView: View {
   var dismissButton: some View {
     Button(
       action: { presentationMode.wrappedValue.dismiss() },
-      label: { Text("Done").foregroundColor(.appGrayTextContrast) }
+      label: { Text(LocalText.doneGeneric).foregroundColor(.appGrayTextContrast) }
     )
   }
 

@@ -47,7 +47,7 @@ struct ApplyLabelsView: View {
           label: {
             HStack {
               Image(systemName: "plus.circle.fill").foregroundColor(.green)
-              Text("Create a new Label").foregroundColor(.appGrayTextContrast)
+              Text(LocalText.createLabelMessage).foregroundColor(.appGrayTextContrast)
               Spacer()
             }
           }
@@ -124,7 +124,7 @@ struct ApplyLabelsView: View {
   var cancelButton: some View {
     Button(
       action: { presentationMode.wrappedValue.dismiss() },
-      label: { Text("Cancel").foregroundColor(.appGrayTextContrast) }
+      label: { Text(LocalText.cancelGeneric).foregroundColor(.appGrayTextContrast) }
     )
   }
 

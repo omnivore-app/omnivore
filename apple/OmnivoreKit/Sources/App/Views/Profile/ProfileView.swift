@@ -83,11 +83,11 @@ struct ProfileView: View {
       }
 
       NavigationLink(destination: NewsletterEmailsView()) {
-        Text("Emails")
+        Text(LocalText.emailsGeneric)
       }
 
       NavigationLink(destination: SubscriptionsView()) {
-        Text("Subscriptions")
+        Text(LocalText.subscriptionsGeneric)
       }
 
       NavigationLink(destination: GroupsView()) {
@@ -113,7 +113,7 @@ struct ProfileView: View {
             Text("Push Notifications")
           }
           NavigationLink(destination: TextToSpeechView()) {
-            Text("Text to Speech")
+            Text(LocalText.textToSpeechGeneric)
           }
         }
       #endif
@@ -122,19 +122,19 @@ struct ProfileView: View {
         NavigationLink(
           destination: BasicWebAppView.privacyPolicyWebView(baseURL: dataService.appEnvironment.webAppBaseURL)
         ) {
-          Text("Privacy Policy")
+          Text(LocalText.privacyPolicyGeneric)
         }
 
         NavigationLink(
           destination: BasicWebAppView.termsConditionsWebView(baseURL: dataService.appEnvironment.webAppBaseURL)
         ) {
-          Text("Terms and Conditions")
+          Text(LocalText.termsAndConditionsGeneric)
         }
 
         #if os(iOS)
           Button(
             action: { DataService.showIntercomMessenger?() },
-            label: { Text("Feedback") }
+            label: { Text(LocalText.feedbackGeneric) }
           )
         #endif
       }
@@ -143,10 +143,10 @@ struct ProfileView: View {
         NavigationLink(
           destination: ManageAccountView()
         ) {
-          Text("Manage Account")
+          Text(LocalText.manageAccountGeneric)
         }
 
-        Text("Logout")
+        Text(LocalText.logoutGeneric)
           .onTapGesture {
             showLogoutConfirmation = true
           }

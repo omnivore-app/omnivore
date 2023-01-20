@@ -292,7 +292,7 @@ struct WebReaderContainerView: View {
           presentationMode.wrappedValue.dismiss()
         #endif
       }
-      Button("Cancel", role: .cancel, action: {})
+      Button(LocalText.cancelGeneric, role: .cancel, action: {})
     }
     .sheet(isPresented: $showLabelsModal) {
       ApplyLabelsView(mode: .item(item), onSave: { _ in showLabelsModal = false })

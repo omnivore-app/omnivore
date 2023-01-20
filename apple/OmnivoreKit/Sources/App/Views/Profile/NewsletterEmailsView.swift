@@ -37,7 +37,6 @@ import Views
 struct NewsletterEmailsView: View {
   @EnvironmentObject var dataService: DataService
   @StateObject var viewModel = NewsletterEmailsViewModel()
-  let footerText = "Add PDFs to your library, or subscribe to newsletters using an Omnivore email address."
 
   var body: some View {
     Group {
@@ -57,7 +56,7 @@ struct NewsletterEmailsView: View {
 
   private var innerBody: some View {
     Group {
-      Section(footer: Text(footerText)) {
+      Section(footer: Text(LocalText.newslettersDescription)) {
         Button(
           action: {
             Task { await viewModel.createEmail(dataService: dataService) }
@@ -65,7 +64,7 @@ struct NewsletterEmailsView: View {
           label: {
             HStack {
               Image(systemName: "plus.circle.fill").foregroundColor(.green)
-              Text("Create a new email address")
+              Text(LocalText.createNewEmailMessage)
               Spacer()
             }
           }
@@ -96,6 +95,6 @@ struct NewsletterEmailsView: View {
         }
       }
     }
-    .navigationTitle("Emails")
+    .navigationTitle(LocalText.emailsGeneric)
   }
 }

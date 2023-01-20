@@ -72,7 +72,7 @@ struct WelcomeView: View {
       Text("By signing up, you agree to Omnivore’s\n")
         + Text("Terms of Service").underline()
         + Text(" and ")
-        + Text("Privacy Policy").underline()
+        + Text(LocalText.privacyPolicyGeneric).underline()
     }
     .font(.appSubheadline)
     .confirmationDialog("", isPresented: $showTermsLinks, titleVisibility: .hidden) {

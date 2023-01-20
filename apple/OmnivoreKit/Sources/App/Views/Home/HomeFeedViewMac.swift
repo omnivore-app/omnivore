@@ -96,10 +96,10 @@ import Views
           placement: .toolbar
         ) {
           if viewModel.searchTerm.isEmpty {
-            Text("Inbox").searchCompletion("in:inbox ")
-            Text("All").searchCompletion("in:all ")
-            Text("Archived").searchCompletion("in:archive ")
-            Text("Files").searchCompletion("type:file ")
+            Text(LocalText.inboxGeneric).searchCompletion("in:inbox ")
+            Text(LocalText.allGeneric).searchCompletion("in:all ")
+            Text(LocalText.archivedGeneric).searchCompletion("in:archive ")
+            Text(LocalText.filesGeneric).searchCompletion("type:file ")
           }
         }
         .onChange(of: viewModel.searchTerm) { _ in
@@ -137,7 +137,7 @@ import Views
             }
           }
         }
-        Button("Cancel", role: .cancel) { self.itemToRemove = nil }
+        Button(LocalText.cancelGeneric, role: .cancel) { self.itemToRemove = nil }
       }
       .sheet(item: $viewModel.itemUnderLabelEdit) { item in
         ApplyLabelsView(mode: .item(item), onSave: nil)

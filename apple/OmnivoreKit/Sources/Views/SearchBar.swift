@@ -51,7 +51,7 @@ public struct SearchBar: View {
             self.isFocused = false
           },
           label: {
-            Text("Cancel")
+            Text(LocalText.cancelGeneric)
           }
         )
         .padding(.trailing, 10)

@@ -10,8 +10,6 @@ struct LabelsView: View {
   @State private var showDeleteConfirmation = false
   @State private var labelToRemove: LinkedItemLabel?
 
-  let footerText = "Use labels to create curated collections of links."
-
   var body: some View {
     Group {
       #if os(iOS)
@@ -37,7 +35,7 @@ struct LabelsView: View {
         }
         self.labelToRemove = nil
       }
-      Button("Cancel", role: .cancel) { self.labelToRemove = nil }
+      Button(LocalText.cancelGeneric, role: .cancel) { self.labelToRemove = nil }
     }
     .sheet(isPresented: $viewModel.showCreateLabelModal) {
       CreateLabelView(viewModel: viewModel)
@@ -47,13 +45,13 @@ struct LabelsView: View {
 
   private var innerBody: some View {
     Group {
-      Section(footer: Text(footerText)) {
+      Section(footer: Text(LocalText.labelsPurposeDescription)) {
         Button(
           action: { viewModel.showCreateLabelModal = true },
           label: {
             HStack {
               Image(systemName: "plus.circle.fill").foregroundColor(.green)
-              Text("Create a new Label").foregroundColor(.appGrayTextContrast)
+              Text(LocalText.createLabelMessage).foregroundColor(.appGrayTextContrast)
               Spacer()
             }
           }
@@ -169,7 +167,7 @@ struct CreateLabelView: View {
   var cancelCreateLabelButton: some View {
     Button(
       action: { viewModel.showCreateLabelModal = false },
-      label: { Text("Cancel").foregroundColor(.appGrayTextContrast) }
+      label: { Text(LocalText.cancelGeneric).foregroundColor(.appGrayTextContrast) }
     )
   }
 
