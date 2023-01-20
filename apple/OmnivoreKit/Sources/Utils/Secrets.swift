@@ -7,6 +7,7 @@ public struct AppKeys: Decodable {
   public let firebaseProdKeys: FirebaseKeys?
   public let iosClientGoogleId: String?
   public let segmentClientKey: String?
+  public let posthogClientKey: String?
   public static let sharedInstance = AppKeys.make()
 
   private init() {
@@ -16,6 +17,7 @@ public struct AppKeys: Decodable {
     self.firebaseProdKeys = nil
     self.iosClientGoogleId = nil
     self.segmentClientKey = nil
+    self.posthogClientKey = nil
   }
 }
 

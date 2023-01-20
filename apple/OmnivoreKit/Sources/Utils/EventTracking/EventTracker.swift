@@ -1,10 +1,14 @@
 import Foundation
+import PostHog
 import Segment
 
 public enum EventTracker {
   public static func start() {
     // invoke the closure that creates the segment instance
     _ = segment?.version()
+    _ = posthog?.enable()
+    print("POSTHOG: ", posthog)
+    print("got posthog")
   }
 
   public static func trackForDebugging(_ message: String) {
@@ -15,14 +19,12 @@ public enum EventTracker {
 
   public static func track(_ event: TrackableEvent) {
     segment?.track(name: event.name, properties: event.properties)
+    posthog?.capture(event.name, properties: event.properties)
   }
 
   public static func registerUser(userID: String) {
     segment?.identify(userId: userID)
-  }
-
-  public static func recordUserTraits(userID: String, traits: [String: String]) {
-    segment?.identify(userId: userID, traits: traits)
+    posthog?.identify(userID)
   }
 }
 
@@ -39,4 +41,15 @@ private let segment: Analytics? = {
     .trackDeeplinks(true) // default is true
 
   return Analytics(configuration: config)
+}()
+
+private let posthog: PHGPostHog? = {
+  guard let apiKey = AppKeys.sharedInstance?.posthogClientKey else {
+    return nil
+  }
+
+  let configuration = PHGPostHogConfiguration(apiKey: apiKey)
+
+  PHGPostHog.setup(with: configuration)
+  return PHGPostHog.shared()
 }()
