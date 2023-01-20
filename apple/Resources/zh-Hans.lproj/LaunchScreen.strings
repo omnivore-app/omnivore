@@ -1,1 +1,76 @@
+"Labels" = "标签";
+
+"Emails" = "电子邮件";
+
+"Subscriptions" = "订阅";
+
+"Text to Speech" = "文本转语音";
+
+"Privacy Policy" = "隐私策略";
+
+"Terms and Conditions" = "条款与条件";
+
+"Feedback" = "反馈";
+
+"Manage Account" = "管理帐户";
+
+"Logout" = "退出登陆";
+
+"Done" = "完成";
+
+"Cancel" = "取消";
+
+"Inbox" = "收集箱";
+
+"Read Later" = "稍后阅读";
+
+"Newsletters" = "新闻稿件";
+
+"All" = "全部";
+
+"Archived" = "存档";
+
+"Highlighted" = "高亮";
+
+"Files" = "文件";
+
+"Newest" = "最新";
+
+"Oldest" = "最早";
+
+"Recently Read" = "最近阅读";
+
+"Recently Published" = "最近发布";
+
+"Create a new Label" = "创建新标签";
+
+"Create a new email address" = "创建新的电子邮件地址";
+
+"Add PDFs to your library, or subscribe to newsletters using an Omnivore email address." = "将 PDF 添加到您的资料库，或使用 Omnivore 电子邮件地址订阅新闻稿件。";
+
+"Use labels to create curated collections of links." = "使用标签创建精选的链接集合。";
+
+"You have no current Subscriptions." = "您当前没有任何订阅。";
+
+"AUDIO SETTINGS" = "";
+
+"Enable audio prefetch" = " 启用音频预读";
+
+"Default Language" = "默认语言";
+
+"VOICES" = "声音";
+
+"English" = "英语";
+
+"Chinese" = "中文";
+
+"German" = "德语";
+
+"Hindi" = "印地语";
+
+"Japanese" = "日语";
+
+"Spanish" = "西班牙语";
+
+"Tamil" = "泰米尔语";
 
