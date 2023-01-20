@@ -1,11 +1,7 @@
-"saveArticleSavedState" = "保存到 Omnivore 中";
-"saveArticleProcessingState" = "保存到 Omnivore 中";
-"dismissButton" = "撤回";
-
 "labels.generic" = "标签";
 "emails.generic" = "电子邮件";
 "subscriptions.generic" = "订阅";
-"textToSpeech.generic" = "文本转语音";
+"textToSpeech.generic" = "文章转语音";
 "privacy.policy.generic" = "隐私策略";
 "termsAndConditions.generic" = "条款与条件";
 "feedback.generic" = "反馈";
@@ -18,7 +14,7 @@
 "newsletters.generic" = "新闻通讯";
 "all.generic" = "全部";
 "archived.generic" = "存档";
-"highlighted.generic" = "高亮显示";
+"highlighted.generic" = "荧光笔";
 "files.generic" = "文件";
 "newest.generic" = "最新";
 "oldest.generic" = "最早";
@@ -29,9 +25,8 @@
 "newsletters.description" = "将 PDF 添加到您的书库，或使用 Omnivore 电子邮件地址订阅新闻通讯.";
 "labels.purpose.description" = "使用标签创建精选的链接集合.";
 "no.current.subscriptions.message" = "您当前没有订阅.";
-
-"signInScreenHeadline" = "保存并分享最好的网页.";
-"googleAuthButton" = "继续使用谷歌账号";
+"signInScreenHeadline" = "保存并分享喜爱的网页.";
+"googleAuthButton" = "使用Google账号";
 "registrationViewSignInHeadline" = "登录";
 "registrationViewSignUpHeadline" = "注册";
 "registrationViewHeadline" = "青衿之志，履践致远。";
@@ -39,10 +34,10 @@
 "username.validation.error.tooshort" = "用户名应至少包含三个英文字符.";
 "username.validation.error.toolong" = "用户名不能超过 15 个英文字符.";
 "error.network" = "我们在连接到互联网时遇到问题.";
-"error.generic" = "出现了小问题，请您重试.";
+"error.generic" = "噢！出现了小问题，请您重试.";
 "extensionAppUnauthorized" = "请在保存您的第一个链接之前从应用程序登录 Omnivore.";
 "loginError.invalidCreds" = "提供的登录凭据无效.";
 "saveArticleSavingState" = "保存中...";
-"saveArticleSavedState" = "保存到 Omnivore 中";
-"saveArticleProcessingState" = "保存到 Omnivore 中";
+"saveArticleSavedState" = "已保存到 Omnivore 中";
+"saveArticleProcessingState" = "正在保存到 Omnivore 中";
 "dismissButton" = "撤回";
