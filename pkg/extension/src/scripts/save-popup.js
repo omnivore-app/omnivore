@@ -6,9 +6,8 @@
   ])
 
   const articleLinkEl = document.getElementById('get-article-link')
-  console.log(articleLinkEl)
   const titleEl = document.getElementById('article-title')
 
   articleLinkEl.href = payload.linkReadNow
-  titleEl.innerText = payload.title
+  titleEl.innerText = payload.title + 'sdfhsdf skljdfh ksdhf ;)';
 })()
