@@ -52,5 +52,8 @@ public struct SearchBar: View {
         searchTerm = ""
       }
     }
+    .onTapGesture {
+      isFocused = true
+    }
   }
 }

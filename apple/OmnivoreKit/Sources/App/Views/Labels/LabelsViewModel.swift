@@ -114,7 +114,7 @@ import Views
 
     if let label = dataService.viewContext.object(with: labelObjectID) as? LinkedItemLabel {
       labels.insert(label, at: 0)
-      unselectedLabels.insert(label, at: 0)
+      selectedLabels.insert(label, at: 0)
     }
 
     isLoading = false

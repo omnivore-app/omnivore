@@ -38,7 +38,7 @@ struct LabelsView: View {
       Button(LocalText.cancelGeneric, role: .cancel) { self.labelToRemove = nil }
     }
     .sheet(isPresented: $viewModel.showCreateLabelModal) {
-      CreateLabelView(viewModel: viewModel)
+      CreateLabelView(viewModel: viewModel, newLabelName: viewModel.labelSearchFilter)
     }
     .task { await viewModel.loadLabels(dataService: dataService, item: nil) }
   }
@@ -85,8 +85,13 @@ struct CreateLabelView: View {
   @EnvironmentObject var dataService: DataService
   @ObservedObject var viewModel: LabelsViewModel
 
-  @State private var newLabelName = ""
+  @State private var newLabelName: String
   @State private var newLabelColor = Color.clear
+
+  init(viewModel: LabelsViewModel, newLabelName: String = "") {
+    self.viewModel = viewModel
+    self.newLabelName = newLabelName
+  }
 
   var shouldDisableCreateButton: Bool {
     viewModel.isLoading || newLabelName.isEmpty || newLabelColor == .clear

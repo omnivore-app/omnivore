@@ -48,75 +48,87 @@ struct ApplyLabelsView: View {
   }
 
   var innerBody: some View {
-    List {
-      Section(header: Spacer(minLength: 0)) {
-        SearchBar(searchTerm: $viewModel.labelSearchFilter)
-          .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-          .listRowBackground(Color.clear)
-      }
-      Section {
-        Button(
-          action: { viewModel.showCreateLabelModal = true },
-          label: {
-            HStack {
-              Image(systemName: "plus.circle.fill").foregroundColor(.green)
-              Text(LocalText.createLabelMessage).foregroundColor(.appGrayTextContrast)
-              Spacer()
-            }
-          }
-        )
-        .disabled(viewModel.isLoading)
-      }
-      Section {
-        ForEach(viewModel.labels.applySearchFilter(viewModel.labelSearchFilter), id: \.self) { label in
-          Button(
-            action: {
-              if isSelected(label) {
-                viewModel.selectedLabels.removeAll(where: { $0.id == label.id })
-              } else {
-                viewModel.selectedLabels.append(label)
-              }
-            },
-            label: {
-              HStack {
-                TextChip(feedItemLabel: label)
-                Spacer()
+    VStack {
+      SearchBar(searchTerm: $viewModel.labelSearchFilter)
+        .padding(.vertical, 8)
+        .padding(.horizontal, 16)
+
+      List {
+        Section {
+          ForEach(viewModel.labels.applySearchFilter(viewModel.labelSearchFilter), id: \.self) { label in
+            Button(
+              action: {
                 if isSelected(label) {
-                  Image(systemName: "checkmark")
+                  viewModel.selectedLabels.removeAll(where: { $0.id == label.id })
+                } else {
+                  viewModel.selectedLabels.append(label)
+                }
+              },
+              label: {
+                HStack {
+                  TextChip(feedItemLabel: label)
+                  Spacer()
+                  if isSelected(label) {
+                    Image(systemName: "checkmark")
+                  }
                 }
               }
-            }
-          )
-          .listRowInsets(EdgeInsets(top: 0, leading: 8, bottom: 0, trailing: 8))
-          #if os(macOS)
-            .buttonStyle(PlainButtonStyle())
-          #endif
+            )
+            .padding(.vertical, 5)
+            #if os(macOS)
+              .buttonStyle(PlainButtonStyle())
+            #endif
+          }
+          createLabelButton
         }
+        Spacer()
+      }
+      .listStyle(PlainListStyle())
+      .navigationTitle(mode.navTitle)
+      #if os(iOS)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+          ToolbarItem(placement: .navigationBarLeading) {
+            cancelButton
+          }
+          ToolbarItem(placement: .navigationBarTrailing) {
+            saveItemChangesButton
+          }
+        }
+      #else
+        .toolbar {
+          ToolbarItemGroup {
+            cancelButton
+            saveItemChangesButton
+          }
+        }
+      #endif
+      .sheet(isPresented: $viewModel.showCreateLabelModal) {
+        CreateLabelView(viewModel: viewModel, newLabelName: viewModel.labelSearchFilter)
       }
     }
-    .padding(.top, 0)
-    .navigationTitle(mode.navTitle)
-    #if os(iOS)
-      .navigationBarTitleDisplayMode(.inline)
-      .toolbar {
-        ToolbarItem(placement: .navigationBarLeading) {
-          cancelButton
-        }
-        ToolbarItem(placement: .navigationBarTrailing) {
-          saveItemChangesButton
-        }
-      }
-    #else
-      .toolbar {
-        ToolbarItemGroup {
-          cancelButton
-          saveItemChangesButton
+  }
+
+  var createLabelButton: some View {
+    Button(
+      action: { viewModel.showCreateLabelModal = true },
+      label: {
+        HStack {
+          Image(systemName: "tag").foregroundColor(.blue)
+          Text(
+            viewModel.labelSearchFilter.count > 0 ?
+              "Create: \"\(viewModel.labelSearchFilter)\" label" :
+              LocalText.createLabelMessage
+          ).foregroundColor(.blue)
+            .font(Font.system(size: 14))
+          Spacer()
         }
       }
-    #endif
-    .sheet(isPresented: $viewModel.showCreateLabelModal) {
-      CreateLabelView(viewModel: viewModel)
-    }
+    )
+    .buttonStyle(PlainButtonStyle())
+    .disabled(viewModel.isLoading)
+    .listRowSeparator(.hidden, edges: .bottom)
+    .padding(.vertical, 10)
   }
 
   var saveItemChangesButton: some View {
@@ -151,7 +163,6 @@ struct ApplyLabelsView: View {
             EmptyView()
           } else {
             innerBody
-              .padding(.top, -20) // This is a hack to give us a bit more room on the page
           }
         }
       #elseif os(macOS)

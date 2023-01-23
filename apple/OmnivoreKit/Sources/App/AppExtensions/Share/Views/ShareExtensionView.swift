@@ -181,11 +181,24 @@ public struct ShareExtensionView: View {
             LabelsMasonaryView(labels: labelsViewModel.labels.applySearchFilter(labelsViewModel.labelSearchFilter),
                                selectedLabels: labelsViewModel.selectedLabels.applySearchFilter(labelsViewModel.labelSearchFilter),
                                onLabelTap: onLabelTap)
-            Spacer()
-          }
-          .padding(.bottom, 16)
-          .background(Color.appButtonBackground)
-          .cornerRadius(8)
+            Button(
+              action: { labelsViewModel.showCreateLabelModal = true },
+              label: {
+                HStack {
+                  Image(systemName: "tag").foregroundColor(.blue)
+                  Text(
+                    labelsViewModel.labelSearchFilter.count > 0 ?
+                      "Create: \"\(labelsViewModel.labelSearchFilter)\" label" :
+                      LocalText.createLabelMessage
+                  ).foregroundColor(.blue)
+                    .font(Font.system(size: 14))
+                  Spacer()
+                }
+              }
+            )
+            .buttonStyle(PlainButtonStyle())
+            .padding(10)
+          }.background(Color.appButtonBackground)
         }
       }
     }
@@ -462,7 +475,7 @@ public struct ShareExtensionView: View {
       viewModel.savePage(extensionContext: extensionContext)
     }
     .sheet(isPresented: $labelsViewModel.showCreateLabelModal) {
-      CreateLabelView(viewModel: labelsViewModel)
+      CreateLabelView(viewModel: labelsViewModel, newLabelName: labelsViewModel.labelSearchFilter)
     }
     .alert("Before saving an article select text in Safari to create a highlight on save.",
            isPresented: $showHighlightInstructionAlert) {
@@ -470,15 +483,6 @@ public struct ShareExtensionView: View {
     }
     .task {
       await labelsViewModel.loadLabelsFromStore(dataService: viewModel.services.dataService)
-    }
-    .sheet(isPresented: $showSearchLabels) {
-      ApplyLabelsView(mode: .list(self.labelsViewModel.selectedLabels), isSearchFocused: true) { labels in
-        self.labelsViewModel.selectedLabels = labels
-        if let itemID = self.viewModel.linkedItem?.unwrappedID {
-          self.labelsViewModel.saveItemLabelChanges(itemID: itemID, dataService: self.viewModel.services.dataService)
-        }
-      }
-    }
-    .environmentObject(viewModel.services.dataService)
+    }.environmentObject(viewModel.services.dataService)
   }
 }
