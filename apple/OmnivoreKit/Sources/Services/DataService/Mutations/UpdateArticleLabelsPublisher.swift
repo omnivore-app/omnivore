@@ -54,7 +54,6 @@ extension DataService {
     send(mutation, to: path, headers: headers) { result in
       let data = try? result.get()
       let syncStatus: ServerSyncStatus = data == nil ? .needsUpdate : .isNSync
-      print("DATA: ", data)
 
       context.perform {
         guard let linkedItem = LinkedItem.lookup(byID: itemID, inContext: context) else { return }
