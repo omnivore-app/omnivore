@@ -2,7 +2,7 @@
  * Fonts
  */
 
-@font-face {
+ @font-face {
     font-style: normal;
     font-weight: 400;
     font-family: Inter;
@@ -58,13 +58,15 @@ body {
 }
 
 .save-notification {
-    width: 400px;
+    width: 170px;
     vertical-align: auto;
     float: left;
     position: relative;
+
 }
 
 .read-now {
+ 
     margin-top: 2px;
     margin-right: 10px;
     cursor: pointer;
@@ -125,4 +127,190 @@ body {
 .icon-read-now {
     height: 15px;
     width: 15px;
+}
+.action-delete-button1 {
+    background: none;
+	color: inherit;
+	border: none;
+	padding: 0;
+	font: inherit;
+	cursor: pointer;
+	outline: inherit;
+  }
+  
+  .action-delete-button1:hover {
+    outline: rgb(255, 0, 0) 5px auto;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 5px;
+    padding-top: 5px;
+  }
+
+  .action-archive-button1{
+    background: none;
+	color: inherit;
+	border: none;
+	padding: 0;
+	font: inherit;
+	cursor: pointer;
+	outline: inherit;
+  }
+  
+  .action-archive-button1:hover {
+    outline: rgb(143, 139, 139) 5px auto;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 5px;
+    padding-top: 5px;
+  }
+  .action-edit1-button1{
+    background: none;
+	color: inherit;
+	border: none;
+	padding: 0;
+	font: inherit;
+	cursor: pointer;
+	outline: inherit;
+
+  }
+  .tab-non-Selected {
+    color: green;
+    font-weight: normal;
+    stroke: green;
+  }
+  .tab-Selected {
+    color: royalblue;
+    font-weight: bold;
+    stroke: royalblue;
+
+  }
+
+  .baseFeatures {
+   
+    height:   100px;
+    width:  90%;
+    margin: auto;
+    margin-top: 10px;
+  }
+
+  .action-edit1-button1:hover {
+    outline: rgb(7, 252, 31) 5px auto;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 5px;
+    padding-top: 5px;
+  }
+  .edit-Title-container {
+    width: 90% ;
+   
+    display:  none;
+   
+  }
+  #edit-Title-container-id{
+    display:  none;
+  }
+  .article-title-edit-class{
+    max-height: 200px;
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+     margin-right: 5px;
+     width: 87%;
+    overflow: auto;
+  }
+
+  .edit-Title-Saved-Button {
+    width: 7%;
+    height: 30px;
+ 
+    background-color: yellow;
+    margin-right: 10px;
+    border-radius: 5px;
+    margin-top: 60px;
+    float: right;
+  }
+
+
+.flag-container {
+    width: 90% ;
+    border: 1px solid gray;
+    height: 50px;
+}
+  .input-flag{
+    width: 90%;
+    margin-right: 10px;
+    margin-top: 7.5px;
+    margin-bottom: 10px;
+    height: 30px;
+    border: none;
+    float: right;
+
+  
+  }
+
+  .imageFlag{
+    margin-top: 15px;
+    margin-left: 18px;
+    
+  }
+
+
+
+
+  .AfterSavedContainerClass{
+    text-align: center;
+    margin-top: 50px
+  }
+
+
+  .checkboxStyle{
+
+     background-color: #8de18d;
+     position: relative;
+     float: right;
+     margin-right: 20px;
+     height: 20px;
+     width: 20px;
+  }
+  .labelStyle{
+
+    background-color: yellow;
+  }
+  .cellDev{
+  
+    height: 30px;
+    display: block;
+  }
+  
+  .titleLabelLeft{
+  
+     width: 200px;
+     float: left;
+     padding-top: 0px;
+     margin: 0px;
+  }
+
+  li.hide {
+    display: none;
+}
+
+.baseFeaturesTab3{
+  height: auto;
+  max-height:250px;
+
+   overflow:auto; 
+}
+
+.RoundLabel{
+  height: 5px;
+  width: 5px;
+  margin-top: 5px;
+  margin-right: 10px;
+  background-color: red;
+  border-radius: 2.5px;
+  float: left;
+}
+.labelUL{
+  list-style:none;
 }
