@@ -18,7 +18,7 @@
           }
           innerBody
         }
-      }.navigationTitle("Text to Speech")
+      }.navigationTitle(LocalText.textToSpeechGeneric)
     }
 
     private var innerBody: some View {

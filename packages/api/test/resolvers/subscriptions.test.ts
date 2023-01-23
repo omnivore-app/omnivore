@@ -32,12 +32,15 @@ describe('Subscriptions API', () => {
     //  create testing subscriptions
     const sub1 = await createTestSubscription(user, 'sub_1', newsletterEmail)
     const sub2 = await createTestSubscription(user, 'sub_2', newsletterEmail)
+    // create a unsubscribed subscription
     await createTestSubscription(
       user,
       'sub_3',
       newsletterEmail,
       SubscriptionStatus.Unsubscribed
     )
+    // create a subscription without a newsletter email
+    await createTestSubscription(user, 'sub_4')
     subscriptions = [sub2, sub1]
   })
 

@@ -79,19 +79,19 @@ struct ProfileView: View {
   private var accountSection: some View {
     Section {
       NavigationLink(destination: LabelsView()) {
-        Text("Labels")
+        Text(LocalText.labelsGeneric)
       }
 
       NavigationLink(destination: NewsletterEmailsView()) {
-        Text("Emails")
+        Text(LocalText.emailsGeneric)
       }
 
       NavigationLink(destination: SubscriptionsView()) {
-        Text("Subscriptions")
+        Text(LocalText.subscriptionsGeneric)
       }
 
       NavigationLink(destination: GroupsView()) {
-        Text("Clubs")
+        Text(LocalText.clubsGeneric)
       }
     }
   }
@@ -110,10 +110,10 @@ struct ProfileView: View {
       #if os(iOS)
         Section {
           NavigationLink(destination: PushNotificationSettingsView()) {
-            Text("Push Notifications")
+            Text(LocalText.pushNotificationsGeneric)
           }
           NavigationLink(destination: TextToSpeechView()) {
-            Text("Text to Speech")
+            Text(LocalText.textToSpeechGeneric)
           }
         }
       #endif
@@ -122,19 +122,19 @@ struct ProfileView: View {
         NavigationLink(
           destination: BasicWebAppView.privacyPolicyWebView(baseURL: dataService.appEnvironment.webAppBaseURL)
         ) {
-          Text("Privacy Policy")
+          Text(LocalText.privacyPolicyGeneric)
         }
 
         NavigationLink(
           destination: BasicWebAppView.termsConditionsWebView(baseURL: dataService.appEnvironment.webAppBaseURL)
         ) {
-          Text("Terms and Conditions")
+          Text(LocalText.termsAndConditionsGeneric)
         }
 
         #if os(iOS)
           Button(
             action: { DataService.showIntercomMessenger?() },
-            label: { Text("Feedback") }
+            label: { Text(LocalText.feedbackGeneric) }
           )
         #endif
       }
@@ -143,10 +143,10 @@ struct ProfileView: View {
         NavigationLink(
           destination: ManageAccountView()
         ) {
-          Text("Manage Account")
+          Text(LocalText.manageAccountGeneric)
         }
 
-        Text("Logout")
+        Text(LocalText.logoutGeneric)
           .onTapGesture {
             showLogoutConfirmation = true
           }

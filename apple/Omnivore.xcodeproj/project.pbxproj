@@ -195,6 +195,7 @@
 		046C5CD426A3F89A00AC5349 /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = icon.icns; sourceTree = "<group>"; };
 		046C5CDB26A3F89A00AC5349 /* ShareExtensionMac.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = ShareExtensionMac.plist; sourceTree = "<group>"; };
 		046C5CDC26A3F89A00AC5349 /* ShareExtensionMac.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ShareExtensionMac.entitlements; sourceTree = "<group>"; };
+		047AA41F297A17FB00F0BEBF /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
 		047AD6F52724CF8A004FD5CF /* SafariExtension (iOS).entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "SafariExtension (iOS).entitlements"; sourceTree = "<group>"; };
 		047AD6F62724E513004FD5CF /* SafariExtension (iOS)Release.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "SafariExtension (iOS)Release.entitlements"; sourceTree = "<group>"; };
 		0480E70B26D8A07A006CAE2F /* Omnivore-Mac.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Omnivore-Mac.xctestplan"; sourceTree = "<group>"; };
@@ -834,6 +835,7 @@
 			knownRegions = (
 				Base,
 				en,
+				"zh-Hans",
 			);
 			mainGroup = 2EE5B57B588CF4ADBA39A106;
 			packageReferences = (
@@ -1192,6 +1194,7 @@
 			children = (
 				082449FB9F5F3730EE0D8D3F /* Base */,
 				A25B2B310A2800932EECD5FD /* en */,
+				047AA41F297A17FB00F0BEBF /* zh-Hans */,
 			);
 			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";

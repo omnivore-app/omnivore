@@ -170,7 +170,7 @@
         }
       }.alert("There was an error playing back your audio.",
               isPresented: $audioController.playbackError) {
-        Button("Dismiss", role: .none) {}
+        Button(LocalText.dismissButton, role: .none) {}
       }
     }
   }

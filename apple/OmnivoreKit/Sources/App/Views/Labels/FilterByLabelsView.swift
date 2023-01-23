@@ -54,7 +54,7 @@ struct FilterByLabelsView: View {
         ToolbarItem(placement: .navigationBarLeading) {
           Button(
             action: { presentationMode.wrappedValue.dismiss() },
-            label: { Text("Cancel").foregroundColor(.appGrayTextContrast) }
+            label: { Text(LocalText.cancelGeneric).foregroundColor(.appGrayTextContrast) }
           )
         }
         ToolbarItem(placement: .navigationBarTrailing) {
@@ -63,7 +63,7 @@ struct FilterByLabelsView: View {
               onSave?(viewModel.selectedLabels, viewModel.negatedLabels)
               presentationMode.wrappedValue.dismiss()
             },
-            label: { Text("Done").foregroundColor(.appGrayTextContrast) }
+            label: { Text(LocalText.doneGeneric).foregroundColor(.appGrayTextContrast) }
           )
         }
       }

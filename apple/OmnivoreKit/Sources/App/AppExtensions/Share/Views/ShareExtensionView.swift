@@ -154,7 +154,7 @@ public struct ShareExtensionView: View {
         .padding(.trailing, 8)
 
         VStack {
-          Text("Labels")
+          Text(LocalText.labelsGeneric)
             .font(.appSubheadline)
             .foregroundColor(Color.appGrayTextContrast)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -281,7 +281,7 @@ public struct ShareExtensionView: View {
           extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
         },
         label: {
-          Label("Read Later", systemImage: "text.book.closed.fill")
+          Label(LocalText.readLaterGeneric, systemImage: "text.book.closed.fill")
             .padding(16)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
@@ -298,7 +298,7 @@ public struct ShareExtensionView: View {
       Button(
         action: {},
         label: {
-          Button("Dismiss", role: .cancel, action: {})
+          Button(LocalText.dismissButton, role: .cancel, action: {})
         }
       )
       Button(action: {
@@ -346,7 +346,7 @@ public struct ShareExtensionView: View {
     case .editingTitle:
       return "Edit Title"
     case .editingLabels:
-      return "Labels"
+      return LocalText.labelsGeneric
     case .viewingHighlight:
       return "Highlight"
     default:
@@ -378,7 +378,7 @@ public struct ShareExtensionView: View {
               }
               viewState = .mainView
             }
-          }, label: { Text("Cancel") })
+          }, label: { Text(LocalText.cancelGeneric) })
             .frame(maxWidth: .infinity, alignment: .leading)
             .opacity(viewState == .viewingHighlight ? 0.0 : 1.0)
           // Don't show viewState when viewing the highlight
@@ -399,7 +399,7 @@ public struct ShareExtensionView: View {
                 }
               }
             }
-          }, label: { Text("Done").bold() })
+          }, label: { Text(LocalText.doneGeneric).bold() })
             .frame(maxWidth: .infinity, alignment: .trailing)
         }
         .padding(8)
@@ -546,7 +546,7 @@ struct ApplyLabelsListView: View {
 
         },
         header: {
-          Text("Labels")
+          Text(LocalText.labelsGeneric)
             .font(.appFootnote)
             .foregroundColor(.appGrayText)
         }
@@ -559,7 +559,7 @@ struct ApplyLabelsListView: View {
         label: {
           HStack {
             Image(systemName: "plus.circle.fill").foregroundColor(.green)
-            Text("Create a new Label").foregroundColor(.appGrayTextContrast)
+            Text(LocalText.createLabelMessage).foregroundColor(.appGrayTextContrast)
             Spacer()
           }
         }

@@ -201,7 +201,7 @@ public enum WebFont: String, CaseIterable {
 //          ToolbarItem(placement: .barTrailing) {
 //            Button(
 //              action: dismissAction,
-//              label: { Text("Done").foregroundColor(.appGrayTextContrast).padding() }
+//              label: { Text(LocalText.doneGeneric).foregroundColor(.appGrayTextContrast).padding() }
 //            )
 //          }
 //        }

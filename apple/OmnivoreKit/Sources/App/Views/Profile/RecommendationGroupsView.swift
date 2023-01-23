@@ -104,7 +104,7 @@ struct CreateRecommendationGroupView: View {
     .navigationBarItems(leading:
       Button(action: {
         viewModel.showCreateSheet = false
-      }, label: { Text("Cancel") }),
+      }, label: { Text(LocalText.cancelGeneric) }),
       trailing: nextButton)
   }
 }
@@ -132,7 +132,7 @@ struct GroupsView: View {
       }
     }
     .task { await viewModel.loadGroups(dataService: dataService) }
-    .navigationTitle("Clubs")
+    .navigationTitle(LocalText.clubsGeneric)
   }
 
   private var innerBody: some View {
