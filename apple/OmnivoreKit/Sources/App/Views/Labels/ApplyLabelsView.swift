@@ -66,7 +66,7 @@ struct ApplyLabelsView: View {
               },
               label: {
                 HStack {
-                  TextChip(feedItemLabel: label)
+                  TextChip(feedItemLabel: label).allowsHitTesting(false)
                   Spacer()
                   if isSelected(label) {
                     Image(systemName: "checkmark")
@@ -81,31 +81,32 @@ struct ApplyLabelsView: View {
           }
           createLabelButton
         }
-        Spacer()
       }
       .listStyle(PlainListStyle())
-      .navigationTitle(mode.navTitle)
-      #if os(iOS)
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-          ToolbarItem(placement: .navigationBarLeading) {
-            cancelButton
-          }
-          ToolbarItem(placement: .navigationBarTrailing) {
-            saveItemChangesButton
-          }
+
+      Spacer()
+    }
+    .navigationTitle(mode.navTitle)
+    #if os(iOS)
+      .navigationBarTitleDisplayMode(.inline)
+      .toolbar {
+        ToolbarItem(placement: .navigationBarLeading) {
+          cancelButton
         }
-      #else
-        .toolbar {
-          ToolbarItemGroup {
-            cancelButton
-            saveItemChangesButton
-          }
+        ToolbarItem(placement: .navigationBarTrailing) {
+          saveItemChangesButton
         }
-      #endif
-      .sheet(isPresented: $viewModel.showCreateLabelModal) {
-        CreateLabelView(viewModel: viewModel, newLabelName: viewModel.labelSearchFilter)
       }
+    #else
+      .toolbar {
+        ToolbarItemGroup {
+          cancelButton
+          saveItemChangesButton
+        }
+      }
+    #endif
+    .sheet(isPresented: $viewModel.showCreateLabelModal) {
+      CreateLabelView(viewModel: viewModel, newLabelName: viewModel.labelSearchFilter)
     }
   }
 

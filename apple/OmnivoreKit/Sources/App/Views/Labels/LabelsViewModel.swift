@@ -28,6 +28,14 @@ import Views
     isLoading = true
 
     await loadLabelsFromStore(dataService: dataService)
+    let selLabels = initiallySelectedLabels ?? item?.sortedLabels ?? []
+    for label in labels {
+      if selLabels.contains(label) {
+        selectedLabels.append(label)
+      } else {
+        unselectedLabels.append(label)
+      }
+    }
 
     Task.detached(priority: .userInitiated) {
       if let labelIDs = try? await dataService.labels() {
@@ -80,12 +88,8 @@ import Views
       try? fetchRequest.execute()
     }
 
-    if fetchedLabels?.count == 0 {
-      await fetchLabelsFromNetwork(dataService: dataService)
-    } else {
-      setLabels(fetchedLabels ?? [])
-      unselectedLabels = fetchedLabels ?? []
-    }
+    setLabels(fetchedLabels ?? [])
+    unselectedLabels = fetchedLabels ?? []
   }
 
   func fetchLabelsFromNetwork(dataService: DataService) async {

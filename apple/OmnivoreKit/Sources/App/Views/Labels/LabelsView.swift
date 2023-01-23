@@ -63,7 +63,7 @@ struct LabelsView: View {
         Section(header: Text(LocalText.labelsGeneric)) {
           ForEach(viewModel.labels, id: \.id) { label in
             HStack {
-              TextChip(feedItemLabel: label)
+              TextChip(feedItemLabel: label).allowsHitTesting(false)
               Spacer()
               Button(
                 action: {

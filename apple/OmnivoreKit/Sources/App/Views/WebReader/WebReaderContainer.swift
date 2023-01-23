@@ -181,7 +181,7 @@ struct WebReaderContainerView: View {
   }
 
   func menuItems(for item: LinkedItem) -> some View {
-    let hasLabels = item.labels?.count == 0
+    let hasLabels = item.labels?.count != 0
     return Group {
       Button(
         action: { showHighlightsView = true },
