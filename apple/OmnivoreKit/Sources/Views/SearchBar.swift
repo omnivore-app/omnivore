@@ -3,14 +3,11 @@ import SwiftUI
 public struct SearchBar: View {
   @Binding var searchTerm: String
   @FocusState private var isFocused: Bool
-  @State private var initialFocus: Bool
 
   public init(
-    searchTerm: Binding<String>,
-    initialFocus: Bool
+    searchTerm: Binding<String>
   ) {
     self._searchTerm = searchTerm
-    self.initialFocus = initialFocus
   }
 
   public var body: some View {
@@ -18,17 +15,16 @@ public struct SearchBar: View {
       TextField("Search", text: $searchTerm)
         .frame(height: 36)
         .frame(maxWidth: .infinity)
-        .background(Color.appButtonBackground)
-        .cornerRadius(8)
+        .padding(.leading, 28)
+        .padding(.trailing, 28)
         .focused($isFocused)
-        .padding(.leading, 24)
         .overlay(
           HStack {
             Image(systemName: "magnifyingglass")
               .resizable()
-              .frame(width: 15, height: 15)
+              .frame(width: 14, height: 14)
               .foregroundColor(.appGrayText)
-              .padding(.leading, 2)
+              .padding(.leading, 8)
 
             Spacer()
           }
@@ -37,7 +33,6 @@ public struct SearchBar: View {
       if isFocused {
         Button(
           action: {
-            self.searchTerm = ""
             self.isFocused = false
           },
           label: {
@@ -45,11 +40,17 @@ public struct SearchBar: View {
               .foregroundColor(.gray)
           }
         )
-        .padding(.trailing, 0)
+        .padding(.trailing, 8)
         .transition(.move(edge: .trailing))
       }
-    }.onAppear {
-      self.isFocused = initialFocus
+    }
+    .background(Color.appButtonBackground)
+    .cornerRadius(8)
+    .frame(height: 36)
+    .onChange(of: isFocused) { isFocused in
+      if !isFocused {
+        searchTerm = ""
+      }
     }
   }
 }

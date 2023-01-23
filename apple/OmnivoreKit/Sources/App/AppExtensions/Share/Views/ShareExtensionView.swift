@@ -140,28 +140,6 @@ public struct ShareExtensionView: View {
     }
   }
 
-  var searchButton: some View {
-    HStack {
-      Image(systemName: "magnifyingglass")
-        .resizable()
-        .frame(width: 15, height: 15)
-        .foregroundColor(.appGrayText)
-        .padding(.leading, 10)
-
-      Text("Search labels")
-        .font(Font.system(size: 15))
-        .foregroundColor(.appGrayText)
-
-      Spacer()
-    }
-    .frame(height: 36)
-    .frame(maxWidth: .infinity)
-    .background(
-      Color.appButtonBackground
-        .cornerRadius(8)
-    )
-  }
-
   var labelsSection: some View {
     HStack {
       if viewState != .editingLabels {
@@ -197,12 +175,11 @@ public struct ShareExtensionView: View {
           .font(.appCallout)
       } else {
         VStack(spacing: 15) {
-          searchButton
-            .onTapGesture { showSearchLabels = true }
+          SearchBar(searchTerm: $labelsViewModel.labelSearchFilter)
 
           ScrollView {
-            LabelsMasonaryView(labels: labelsViewModel.labels,
-                               selectedLabels: labelsViewModel.selectedLabels,
+            LabelsMasonaryView(labels: labelsViewModel.labels.applySearchFilter(labelsViewModel.labelSearchFilter),
+                               selectedLabels: labelsViewModel.selectedLabels.applySearchFilter(labelsViewModel.labelSearchFilter),
                                onLabelTap: onLabelTap)
             Spacer()
           }
@@ -384,22 +361,6 @@ public struct ShareExtensionView: View {
           .padding(.bottom, 12)
       } else {
         ZStack {
-          Button(action: {
-            withAnimation {
-              if viewState == .editingLabels {
-                if let linkedItem = self.viewModel.linkedItem {
-                  self.labelsViewModel.selectedLabels = previousLabels ?? []
-                  self.labelsViewModel.saveItemLabelChanges(itemID: linkedItem.unwrappedID,
-                                                            dataService: self.viewModel.services.dataService)
-                }
-              }
-              viewState = .mainView
-            }
-          }, label: { Text(LocalText.cancelGeneric) })
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .opacity(viewState == .viewingHighlight ? 0.0 : 1.0)
-          // Don't show viewState when viewing the highlight
-
           Text(editingViewTitle).bold()
             .frame(maxWidth: .infinity, alignment: .center)
 

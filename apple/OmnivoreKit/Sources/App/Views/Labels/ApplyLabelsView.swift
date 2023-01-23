@@ -50,7 +50,9 @@ struct ApplyLabelsView: View {
   var innerBody: some View {
     List {
       Section(header: Spacer(minLength: 0)) {
-        SearchBar(searchTerm: $viewModel.labelSearchFilter, initialFocus: isSearchFocused)
+        SearchBar(searchTerm: $viewModel.labelSearchFilter)
+          .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+          .listRowBackground(Color.clear)
       }
       Section {
         Button(
@@ -85,6 +87,7 @@ struct ApplyLabelsView: View {
               }
             }
           )
+          .listRowInsets(EdgeInsets(top: 0, leading: 8, bottom: 0, trailing: 8))
           #if os(macOS)
             .buttonStyle(PlainButtonStyle())
           #endif
