@@ -23,12 +23,13 @@ import Views
   func loadLabels(
     dataService: DataService,
     item: LinkedItem? = nil,
+    highlight: Highlight? = nil,
     initiallySelectedLabels: [LinkedItemLabel]? = nil
   ) async {
     isLoading = true
+    let selLabels = initiallySelectedLabels ?? item?.sortedLabels ?? highlight?.sortedLabels ?? []
 
     await loadLabelsFromStore(dataService: dataService)
-    let selLabels = initiallySelectedLabels ?? item?.sortedLabels ?? []
     for label in labels {
       if selLabels.contains(label) {
         selectedLabels.insert(label)
@@ -43,7 +44,6 @@ import Views
           dataService.viewContext.performAndWait {
             self.setLabels(labelIDs.compactMap { dataService.viewContext.object(with: $0) as? LinkedItemLabel })
           }
-          let selLabels = initiallySelectedLabels ?? item?.sortedLabels ?? []
           for label in self.labels {
             if selLabels.contains(label) {
               self.selectedLabels.insert(label)
@@ -51,29 +51,6 @@ import Views
               self.unselectedLabels.insert(label)
             }
           }
-        }
-      }
-    }
-
-    isLoading = false
-  }
-
-  func loadLabels(
-    dataService: DataService,
-    highlight: Highlight
-  ) async {
-    isLoading = true
-
-    if let labelIDs = try? await dataService.labels() {
-      dataService.viewContext.performAndWait {
-        setLabels(labelIDs.compactMap { dataService.viewContext.object(with: $0) as? LinkedItemLabel })
-      }
-      let selLabels = highlight.labels ?? []
-      for label in labels {
-        if selLabels.contains(label) {
-          selectedLabels.insert(label)
-        } else {
-          unselectedLabels.insert(label)
         }
       }
     }
