@@ -57,7 +57,7 @@ public struct TextChip: View {
   }
 
   var checkedBorderColor: Color {
-    colorScheme == .dark ? Color.appCtaYellow : Color.black
+    colorScheme == .dark ? Color.white : Color.black
   }
 
   var borderColor: Color {
