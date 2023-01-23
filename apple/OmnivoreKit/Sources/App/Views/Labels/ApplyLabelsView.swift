@@ -59,9 +59,9 @@ struct ApplyLabelsView: View {
             Button(
               action: {
                 if isSelected(label) {
-                  viewModel.selectedLabels.removeAll(where: { $0.id == label.id })
+                  viewModel.selectedLabels.remove(label)
                 } else {
-                  viewModel.selectedLabels.append(label)
+                  viewModel.selectedLabels.insert(label)
                 }
               },
               label: {
@@ -138,10 +138,11 @@ struct ApplyLabelsView: View {
         switch mode {
         case let .item(feedItem):
           viewModel.saveItemLabelChanges(itemID: feedItem.unwrappedID, dataService: dataService)
+          onSave?(Array(viewModel.selectedLabels))
         case .highlight:
-          onSave?(viewModel.selectedLabels)
+          onSave?(Array(viewModel.selectedLabels))
         case .list:
-          onSave?(viewModel.selectedLabels)
+          onSave?(Array(viewModel.selectedLabels))
         }
         presentationMode.wrappedValue.dismiss()
       },

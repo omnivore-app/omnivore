@@ -105,6 +105,14 @@ public final class OmnivoreWebView: WKWebView {
     }
   }
 
+  public func updateLabels(labelsJSON: String) {
+    do {
+      try dispatchEvent(.updateLabels(labels: labelsJSON))
+    } catch {
+      showErrorInSnackbar("Error updating labels")
+    }
+  }
+
   public func shareOriginalItem() {
     do {
       try dispatchEvent(.share)
@@ -379,6 +387,7 @@ public enum WebViewDispatchEvent {
   case copyHighlight
   case dismissHighlight
   case speakingSection(anchorIdx: String)
+  case updateLabels(labels: String)
 
   var script: String {
     get throws {
@@ -421,6 +430,8 @@ public enum WebViewDispatchEvent {
       return "dismissHighlight"
     case .speakingSection:
       return "speakingSection"
+    case .updateLabels:
+      return "updateLabels"
     }
   }
 
@@ -441,6 +452,8 @@ public enum WebViewDispatchEvent {
         return "event.isDark = '\(isDark)';"
       case let .updateFontFamily(family: family):
         return "event.fontFamily = '\(family)';"
+      case let .updateLabels(labels):
+        return "event.labels = \(labels);"
       case let .saveAnnotation(annotation: annotation):
         let encoder = JSONEncoder()
         if let encoded = try? encoder.encode(annotation) {

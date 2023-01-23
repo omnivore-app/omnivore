@@ -255,10 +255,10 @@ public struct ShareExtensionView: View {
   }
 
   func onLabelTap(label: LinkedItemLabel, textChip _: TextChip) {
-    if let selectedIndex = labelsViewModel.selectedLabels.firstIndex(of: label) {
-      labelsViewModel.selectedLabels.remove(at: selectedIndex)
+    if labelsViewModel.selectedLabels.contains(label) {
+      labelsViewModel.selectedLabels.remove(label)
     } else {
-      labelsViewModel.selectedLabels.append(label)
+      labelsViewModel.selectedLabels.insert(label)
     }
 
     if let linkedItem = viewModel.linkedItem {
@@ -435,7 +435,7 @@ public struct ShareExtensionView: View {
           labelsSection
             .onTapGesture {
               withAnimation {
-                previousLabels = self.labelsViewModel.selectedLabels
+                previousLabels = Array(self.labelsViewModel.selectedLabels)
                 viewState = .editingLabels
               }
             }

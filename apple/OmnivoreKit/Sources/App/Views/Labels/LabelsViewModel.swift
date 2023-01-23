@@ -6,8 +6,8 @@ import Views
 
 @MainActor final class LabelsViewModel: ObservableObject {
   @Published var isLoading = false
-  @Published var selectedLabels = [LinkedItemLabel]()
-  @Published var unselectedLabels = [LinkedItemLabel]()
+  @Published var selectedLabels = Set<LinkedItemLabel>()
+  @Published var unselectedLabels = Set<LinkedItemLabel>()
   @Published var labels = [LinkedItemLabel]()
   @Published var showCreateLabelModal = false
   @Published var labelSearchFilter = ""
@@ -31,9 +31,9 @@ import Views
     let selLabels = initiallySelectedLabels ?? item?.sortedLabels ?? []
     for label in labels {
       if selLabels.contains(label) {
-        selectedLabels.append(label)
+        selectedLabels.insert(label)
       } else {
-        unselectedLabels.append(label)
+        unselectedLabels.insert(label)
       }
     }
 
@@ -46,9 +46,9 @@ import Views
           let selLabels = initiallySelectedLabels ?? item?.sortedLabels ?? []
           for label in self.labels {
             if selLabels.contains(label) {
-              self.selectedLabels.append(label)
+              self.selectedLabels.insert(label)
             } else {
-              self.unselectedLabels.append(label)
+              self.unselectedLabels.insert(label)
             }
           }
         }
@@ -71,9 +71,9 @@ import Views
       let selLabels = highlight.labels ?? []
       for label in labels {
         if selLabels.contains(label) {
-          selectedLabels.append(label)
+          selectedLabels.insert(label)
         } else {
-          unselectedLabels.append(label)
+          unselectedLabels.insert(label)
         }
       }
     }
@@ -89,7 +89,7 @@ import Views
     }
 
     setLabels(fetchedLabels ?? [])
-    unselectedLabels = fetchedLabels ?? []
+    unselectedLabels = Set(fetchedLabels ?? [])
   }
 
   func fetchLabelsFromNetwork(dataService: DataService) async {
@@ -101,7 +101,7 @@ import Views
     }
 
     setLabels(fetchedLabels)
-    unselectedLabels = fetchedLabels
+    unselectedLabels = Set(fetchedLabels)
   }
 
   func createLabel(dataService: DataService, name: String, color: Color, description: String?) {
@@ -118,7 +118,7 @@ import Views
 
     if let label = dataService.viewContext.object(with: labelObjectID) as? LinkedItemLabel {
       labels.insert(label, at: 0)
-      selectedLabels.insert(label, at: 0)
+      selectedLabels.insert(label)
     }
 
     isLoading = false
@@ -128,8 +128,6 @@ import Views
   func deleteLabel(dataService: DataService, labelID: String, name: String) {
     dataService.removeLabel(labelID: labelID, name: name)
     labels.removeAll { $0.name == name }
-    selectedLabels.removeAll { $0.name == name }
-    unselectedLabels.removeAll { $0.name == name }
   }
 
   func saveItemLabelChanges(itemID: String, dataService: DataService) {
@@ -138,15 +136,5 @@ import Views
 
   func saveHighlightLabelChanges(highlightID: String, dataService: DataService) {
     dataService.setLabelsForHighlight(highlightID: highlightID, labelIDs: selectedLabels.map(\.unwrappedID))
-  }
-
-  func addLabelToItem(_ label: LinkedItemLabel) {
-    selectedLabels.insert(label, at: 0)
-    unselectedLabels.removeAll { $0.name == label.name }
-  }
-
-  func removeLabelFromItem(_ label: LinkedItemLabel) {
-    unselectedLabels.insert(label, at: 0)
-    selectedLabels.removeAll { $0.name == label.name }
   }
 }

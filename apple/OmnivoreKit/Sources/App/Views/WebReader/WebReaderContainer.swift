@@ -295,7 +295,11 @@ struct WebReaderContainerView: View {
       Button(LocalText.cancelGeneric, role: .cancel, action: {})
     }
     .sheet(isPresented: $showLabelsModal) {
-      ApplyLabelsView(mode: .item(item), isSearchFocused: false, onSave: { _ in showLabelsModal = false })
+      ApplyLabelsView(mode: .item(item), isSearchFocused: false, onSave: { labels in
+        showLabelsModal = false
+        item.labels = NSSet(array: labels)
+        readerSettingsChangedTransactionID = UUID()
+      })
     }
     .sheet(isPresented: $showTitleEdit) {
       LinkedItemMetadataEditView(item: item)
