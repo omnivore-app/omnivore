@@ -8152,6 +8152,14 @@
     "@types/minimatch" "*"
     "@types/node" "*"
 
+"@types/glob@^8.0.1":
+  version "8.0.1"
+  resolved "https://registry.yarnpkg.com/@types/glob/-/glob-8.0.1.tgz#6e3041640148b7764adf21ce5c7138ad454725b0"
+  integrity sha512-8bVUjXZvJacUFkJXHdyZ9iH1Eaj5V7I8c4NdH5sQJsdXkqT4CA5Dhb4yb4VE/3asyx4L9ayZr1NIhTsWHczmMw==
+  dependencies:
+    "@types/minimatch" "^5.1.2"
+    "@types/node" "*"
+
 "@types/graceful-fs@^4.1.2":
   version "4.1.5"
   resolved "https://registry.yarnpkg.com/@types/graceful-fs/-/graceful-fs-4.1.5.tgz#21ffba0d98da4350db64891f92a9e5db3cdb4e15"
@@ -8392,6 +8400,11 @@
   version "3.0.5"
   resolved "https://registry.yarnpkg.com/@types/minimatch/-/minimatch-3.0.5.tgz#1001cc5e6a3704b83c236027e77f2f58ea010f40"
   integrity sha512-Klz949h02Gz2uZCMGwDUSDS1YBlTdDDgbWHi+81l29tQALUtvz4rAYi5uoVhE5Lagoq6DeqAUlbrHvW/mXDgdQ==
+
+"@types/minimatch@^5.1.2":
+  version "5.1.2"
+  resolved "https://registry.yarnpkg.com/@types/minimatch/-/minimatch-5.1.2.tgz#07508b45797cb81ec3f273011b054cd0755eddca"
+  integrity sha512-K0VQKziLUWkVKiRVrx4a40iPaxTUefQmjtkQofBkYRcoaaL/8rhwDWww9qWbrgicNOgnpIsMxyNIUM4+n6dUIA==
 
 "@types/minimist@^1.2.0":
   version "1.2.2"

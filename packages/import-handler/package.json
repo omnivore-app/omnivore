@@ -21,6 +21,7 @@
     "@types/chai-string": "^1.4.2",
     "@types/dompurify": "^2.4.0",
     "@types/fs-extra": "^11.0.1",
+    "@types/glob": "^8.0.1",
     "@types/jsonwebtoken": "^8.5.0",
     "@types/mocha": "^10.0.1",
     "@types/node": "^14.11.2",
