@@ -5,11 +5,6 @@ public enum LocalText {
     NSLocalizedString(key, bundle: .module, comment: comment ?? "no comment provided by developer")
   }
 
-  // Replace these three
-  public static let networkError = localText(key: "errorNetwork")
-  public static let genericError = localText(key: "errorGeneric")
-  public static let invalidCredsLoginError = localText(key: "loginErrorInvalidCreds")
-
   // share extension
   public static let shareExtensionCreateLabel = localText(key: "shareExtensionCreateLabel")
   public static let shareExtensionMoreActions = localText(key: "shareExtensionMoreActions")
