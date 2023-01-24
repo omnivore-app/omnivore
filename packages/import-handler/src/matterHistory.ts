@@ -9,6 +9,7 @@ import unzip from 'unzip-stream'
 import fs from 'fs'
 import path from 'path'
 import * as fsExtra from 'fs-extra'
+import glob from 'glob'
 
 import { parseHTML } from 'linkedom'
 import { Readability } from '@omnivore/readability'
@@ -19,6 +20,8 @@ import crypto from 'crypto'
 import { ImportContext } from '.'
 
 export type UrlHandler = (url: URL) => Promise<void>
+
+const HISTORY_FILE = '_matter_history.csv'
 
 export const importMatterHistoryCsv = async (
   ctx: ImportContext,
@@ -132,7 +135,28 @@ const unarchive = async (stream: Stream): Promise<string> => {
     stream
       .pipe(unzip.Extract({ path: archiveDir }))
       .on('close', () => {
-        resolve(archiveDir)
+        glob(`${archiveDir}/**/_matter_history.csv`, function (err, files) {
+          console.log('files: ', files)
+
+          if (err) {
+            reject(err)
+            return
+          }
+
+          const first = files.find((f) => true)
+          console.log('first: ', first)
+          if (!first) {
+            reject('No files found')
+            return
+          }
+
+          if (first.length < HISTORY_FILE.length) {
+            reject('Invalid file: ' + first)
+            return
+          }
+
+          resolve(first.substring(0, first.length - HISTORY_FILE.length))
+        })
       })
       .on('error', reject)
   })
