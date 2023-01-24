@@ -46,14 +46,6 @@ const containerStyles = {
   },
 }
 
-const reversedSectionStyles = {
-  flexDirection: 'row-reverse',
-  marginBottom: 20,
-  '@mdDown': {
-    width: '100%',
-  },
-}
-
 const callToActionStyles = {
   background: 'white',
   borderRadius: '24px',
@@ -78,9 +70,12 @@ const callToActionText = {
   color: '#3D3D3D',
   fontWeight: '700',
   fontSize: 64,
-  lineHeight: '70px',
+  lineHeight: '1.25',
   textAlign: 'center',
-  padding: '20px',
+  paddingBottom: '20px',
+  '@mdDown': {
+    fontSize: '32px',
+  },
 }
 
 export function LandingSectionsContainer(): JSX.Element {
@@ -111,66 +106,41 @@ export function LandingSectionsContainer(): JSX.Element {
       </Box>
 
       <LandingSection
-        titleText="Unclutter your reading."
-        descriptionText={
-          <p>
-            Omnivore strips away the ads, trackers, and clutter and formats
-            pages for easy reading without distractions. The text-focused view
-            also makes articles smaller and quicker to load.
-          </p>
-        }
-        image={
-          <img
-            srcSet="/static/landing/landingPage-2.png,
-                      /static/landing/landingPage-2@2x.png 2x,
-                      /static/landing/landingPage-2@3x.png 3x"
-            alt="landing-2"
-            style={{ maxWidth: '100%' }}
-          />
-        }
-      />
-
-      <LandingSection
-        titleText="Save links from anywhere. Forever."
+        titleText="Save it now. Read it later."
         descriptionText={
           <>
             <p>
-              With the Omnivore app for iOS and Android and extensions for all
-              major web browsers, you can add to your reading list any time.
-            </p>
-            <p>
-              Saved articles remain in your Omnivore library forever — even if
-              the site where you found them goes away. Access them any time in
-              our reader view or in their original format.
+              Save articles, PDFs, and Twitter threads as you come across them
+              using Omnivore's mobile apps and browser extensions. Read them
+              later using our distraction free reader.
             </p>
           </>
         }
         image={
           <img
-            srcSet="/static/landing/landingPage-3.png,
-                      /static/landing/landingPage-3@2x.png,
-                      /static/landing/landingPage-3@3x.png 3x"
+            srcSet="/static/landing/landingPage-03@1x.png,
+                      /static/landing/landingPage-03@2x.png,
+                      /static/landing/landingPage-03@3x.png 3x"
             alt="landing-3"
             style={{ maxWidth: '100%' }}
           />
         }
-        containerStyles={reversedSectionStyles}
       />
 
       <LandingSection
-        titleText="All your newsletters in one place."
+        titleText="Get all your newsletters in one place."
         descriptionText={
           <p>
-            Send subscriptions directly to your Omnivore library, and read them
-            on your own time, away from the constant distractions and
-            interruptions of your email inbox.
+            Send newsletters directly to your Omnivore library rather than
+            scattered across multiple inboxes. Read them on your own time, away
+            from the constant distractions and interruptions of your email.
           </p>
         }
         image={
           <img
-            srcSet="/static/landing/landingPage-4.png,
-                      /static/landing/landingPage-4@2x.png 2x,
-                      /static/landing/landingPage-4@3x.png 3x"
+            srcSet="/static/landing/landingPage-04.png,
+                      /static/landing/landingPage-04@2x.png 2x,
+                      /static/landing/landingPage-04@3x.png 3x"
             alt="landing-4"
             style={{ maxWidth: '100%' }}
           />
@@ -178,67 +148,87 @@ export function LandingSectionsContainer(): JSX.Element {
       />
 
       <LandingSection
-        titleText="Stay organized and in control."
+        titleText="Keep your reading organized, whatever that means to you."
         descriptionText={
           <p>
-            Read what you want, not what some algorithm says you should. Keep
-            your reading organized and easily available with labels, filters,
-            and fully indexed text searches.
+            Keep your reading organized and easily available with labels,
+            filters, rules, and fully indexed text searches. We&aposre not here
+            to tell you how to stay organized — our job is to give you the tools
+            to build a system that works for you.
           </p>
         }
         image={
           <img
-            srcSet="/static/landing/landingPage-5.png,
-                      /static/landing/landingPage-5@2x.png 2x,
-                      /static/landing/landingPage-5@3x.png 3x"
+            srcSet="/static/landing/landingPage-05@1x.png,
+                      /static/landing/landingPage-05@2x.png 2x,
+                      /static/landing/landingPage-05@3x.png 3x"
             alt="landing-5"
             style={{ maxWidth: '100%' }}
           />
         }
-        containerStyles={reversedSectionStyles}
       />
 
       <LandingSection
-        titleText="Built for advanced users."
+        titleText="Add highlights and notes."
         descriptionText={
           <p>
-            The intuitive command palette puts basic and advanced functionality
-            at your fingertips. Keyboard shortcuts for all features mean your
-            hands never have to leave the keyboard. Our open-source app allows
-            integrations with knowledge bases and note-taking apps, using
-            plug-ins or by triggering webhooks.
+            Become a better reader — engage your brain and improve retention by
+            reading actively, not passively. Highlight key sections and add
+            notes as you read. You can access your highlights and notes any time
+            — they stay with your articles forever.
           </p>
         }
         image={
           <img
-            srcSet="/static/landing/landingPage-6.png,
-                    /static/landing/landingPage-6@2x.png 2x,
-                    /static/landing/landingPage-6@3x.png 3x"
+            srcSet="/static/landing/landingPage-06@1x.png,
+                      /static/landing/landingPage-06@2x.png 2x,
+                      /static/landing/landingPage-06@3x.png 3x"
+            alt="landing-5"
+            style={{ maxWidth: '100%' }}
+          />
+        }
+      />
+
+      <LandingSection
+        titleText="Sync with your second brain."
+        descriptionText={
+          <p>
+            Omnivore syncs with popular Personal Knowledge Management systems
+            including Logseq and Obsidian, so you can pull all your saved
+            reading, highlights, and notes into your second brain.
+          </p>
+        }
+        image={
+          <img
+            srcSet="/static/landing/landingPage-07.png,
+                    /static/landing/landingPage-07@2x.png 2x,
+                    /static/landing/landingPage-07@3x.png 3x"
             alt="landing-6"
             style={{ maxWidth: '100%' }}
           />
         }
       />
+
       <LandingSection
-        titleText="Listen to what you're reading."
+        titleText="Listen to your reading with text-to-speech."
         descriptionText={
           <p>
-            Omnivore for iOS features realistic humanlike text-to-speech. So you
-            can give your eyes a break and listen to any article saved to your
-            library.
+            Work through your to-be-read list and give your eyes a break with
+            TTS, exclusively in the Omnivore app for iOS. Realistic,
+            natural-sounding AI voices will read any saved article aloud.
           </p>
         }
         image={
           <img
-            srcSet="/static/landing/landingPage-7.png,
-            /static/landing/landingPage-7@2x.png 2x,
-            /static/landing/landingPage-7@3x.png 3x"
+            srcSet="/static/landing/landingPage-08.png,
+            /static/landing/landingPage-08@2x.png 2x,
+            /static/landing/landingPage-08@3x.png 3x"
             alt="landing-7"
-            style={{ maxWidth: '100%' }}
+            style={{ maxWidth: '85%' }}
           />
         }
-        containerStyles={reversedSectionStyles}
       />
+
       <VStack alignment="center" css={callToActionStyles}>
         <Box css={callToActionText}>Get Started With Omnivore Today</Box>
         <GetStartedButton />
