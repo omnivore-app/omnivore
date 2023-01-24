@@ -29,15 +29,6 @@ export const createCloudTask = async (
   const serviceAccountEmail = `${project}@appspot.gserviceaccount.com`
 
   const parent = cloudTask.queuePath(project, location, queue)
-  console.log(`Task creation options: `, {
-    project,
-    location,
-    queue,
-    taskHandlerUrl,
-    serviceAccountEmail,
-    payload,
-  })
-
   const convertedPayload = JSON.stringify(payload)
   const body = Buffer.from(convertedPayload).toString('base64')
   const task: protos.google.cloud.tasks.v2.ITask = {
