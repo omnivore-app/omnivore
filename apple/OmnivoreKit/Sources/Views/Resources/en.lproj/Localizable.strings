@@ -1,45 +1,17 @@
 "googleAuthButton" = "Continue with Google";
 "registrationViewSignUpHeadline" = "Sign Up";
 "error.network" = "We are having trouble connecting to the internet.";
-"error.generic" = "Something went wrong, please try again.";
 "extensionAppUnauthorized" = "Please login to Omnivore from the app before saving your first link.";
 "loginError.invalidCreds" = "The login credentials provided are invalid.";
 "saveArticleSavedState" = "Saved to Omnivore";
 "saveArticleProcessingState" = "Saved to Omnivore";
 "dismissButton" = "Dismiss";
 
-"labels.generic" = "Labels";
-"emails.generic" = "Emails";
-"subscriptions.generic" = "Subscriptions";
-"textToSpeech.generic" = "Text to Speech";
-"privacy.policy.generic" = "Privacy Policy";
-"termsAndConditions.generic" = "Terms and Conditions";
-"feedback.generic" = "Feedback";
-"manageAccount.generic" = "Manage Account";
-"logout.generic" = "Logout";
-"done.generic" = "Done";
-"cancel.generic" = "Cancel";
-"inbox.generic" = "Inbox";
-"readLater.generic" = "Read Later";
-"newsletters.generic" = "Newsletters";
-"all.generic" = "All";
-"archived.generic" = "Archived";
-"highlighted.generic" = "Highlighted";
-"files.generic" = "Files";
-"newest.generic" = "Newest";
-"oldest.generic" = "Oldest";
-"recentlyRead.generic" = "Recently Read";
-"recentlyPublished.generic" = "Recently Published";
 "create.label.message" = "Create a new Label";
 "create.new.email.message" = "Create a new email address";
 "newsletters.description" = "Add PDFs to your library, or subscribe to newsletters using an Omnivore email address.";
 "labels.purpose.description" = "Use labels to create curated collections of links.";
 "no.current.subscriptions.message" = "You have no current Subscriptions.";
-"clubs.generic" = "Clubs";
-"pushNotifications.generic" = "Push Notifications";
-
-// Add strings below to chinese file
-
 
 // share extension
 "shareExtension.createLabel" = "Create Label";
@@ -196,6 +168,31 @@
 "generic.high.contrast.text" = "High Contrast Text";
 "generic.font" = "Font";
 "generic.highlight" = "Highlight";
+"labels.generic" = "Labels";
+"emails.generic" = "Emails";
+"subscriptions.generic" = "Subscriptions";
+"textToSpeech.generic" = "Text to Speech";
+"privacy.policy.generic" = "Privacy Policy";
+"termsAndConditions.generic" = "Terms and Conditions";
+"feedback.generic" = "Feedback";
+"manageAccount.generic" = "Manage Account";
+"logout.generic" = "Logout";
+"done.generic" = "Done";
+"cancel.generic" = "Cancel";
+"inbox.generic" = "Inbox";
+"readLater.generic" = "Read Later";
+"newsletters.generic" = "Newsletters";
+"all.generic" = "All";
+"archived.generic" = "Archived";
+"highlighted.generic" = "Highlighted";
+"files.generic" = "Files";
+"newest.generic" = "Newest";
+"oldest.generic" = "Oldest";
+"recentlyRead.generic" = "Recently Read";
+"recentlyPublished.generic" = "Recently Published";
+"clubs.generic" = "Clubs";
+"error.generic" = "Something went wrong, please try again.";
+"pushNotifications.generic" = "Push Notifications";
 
 // TODO: search navigationTitle, toggle, section, button, Label
 
