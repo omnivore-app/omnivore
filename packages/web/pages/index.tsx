@@ -9,7 +9,7 @@ import { useGetViewerQuery } from '../lib/networking/queries/useGetViewerQuery'
 import { useRouter } from 'next/router'
 import { PageMetaData } from '../components/patterns/PageMetaData'
 import { LoadingView } from '../components/patterns/LoadingView'
-import { About } from '../components/templates/about'
+import { About } from '../components/templates/About'
 
 const containerStyles = {
   alignSelf: 'center',

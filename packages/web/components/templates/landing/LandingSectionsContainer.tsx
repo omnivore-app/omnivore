@@ -111,7 +111,7 @@ export function LandingSectionsContainer(): JSX.Element {
           <>
             <p>
               Save articles, PDFs, and Twitter threads as you come across them
-              using Omnivore's mobile apps and browser extensions. Read them
+              using Omnivore&aposs mobile apps and browser extensions. Read them
               later using our distraction free reader.
             </p>
           </>

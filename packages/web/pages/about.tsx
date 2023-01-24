@@ -6,7 +6,7 @@ import {
 import { LandingHeader } from '../components/templates/landing/LandingHeader'
 import { LandingFooter } from '../components/templates/landing/LandingFooter'
 import { PageMetaData } from '../components/patterns/PageMetaData'
-import { About } from '../components/templates/about'
+import { About } from '../components/templates/About'
 
 const containerStyles = {
   alignSelf: 'center',
