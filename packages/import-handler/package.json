@@ -41,6 +41,7 @@
     "csv-parser": "^3.0.0",
     "dompurify": "^2.4.3",
     "fs-extra": "^11.1.0",
+    "glob": "^8.1.0",
     "jsonwebtoken": "^8.5.1",
     "linkedom": "^0.14.21",
     "nodemon": "^2.0.15",
