@@ -1,7 +1,8 @@
 import Link from 'next/link'
-import { Box, HStack } from '../../elements/LayoutPrimitives'
+import { Box, HStack, VStack } from '../../elements/LayoutPrimitives'
 import { GithubLogo, DiscordLogo, TwitterLogo } from 'phosphor-react'
-import { theme } from '../../tokens/stitches.config'
+import { styled, theme } from '../../tokens/stitches.config'
+import { StyledText } from '../../elements/StyledText'
 
 const containerStyles = {
   padding: '5vw',
@@ -17,131 +18,90 @@ const containerStyles = {
   },
 }
 
-const titleStyles = {
-  maxWidth: 330,
-  fontWeight: 'normal',
-  fontSize: 18,
-  lineHeight: '27px',
-  color: '#FFFFFF',
-  mb: 45,
-  '@mdDown': {
-    fontSize: '3vw',
-  },
-}
-
-const socialsContainerStyles = {
-  maxWidth: 140,
-  marginBottom: 79,
-}
-
-const copyrightStyles = {
-  maxWidth: 330,
-  fontWeight: 'normal',
-  fontSize: 18,
-  lineHeight: '27px',
-  color: '#5F5E58',
-}
-
-const sectionOne = {
-  width: '60%',
-}
-const sectionTwo = {
-  width: '40%',
-  pt: 10,
-}
-
-const contactStyles = {
-  fontWeight: '700',
-  fontSize: 36,
-  lineHeight: '39px',
-  color: 'white',
-  '@mdDown': {
-    fontSize: 26,
-  },
-}
-const supportStyles = {
-  fontSize: 24,
-  lineHeight: '36px',
-  color: 'white',
-  '@mdDown': {
-    fontSize: '3vw',
-  },
-  a: {
-    color: theme.colors.omnivoreCtaYellow.toString(),
-  },
-}
-
-const imageStyles = {
-  maxWidth: 190,
-  width: '100%',
-}
-
-const socialIconContainerStyles = {
-  maxWidth: 32,
-  maxHeight: 32,
-}
-
 export function LandingFooter(): JSX.Element {
+  const FooterList = styled('ul', {
+    listStyle: 'none',
+    paddingLeft: '0',
+    li: {
+      pt: '15px',
+    },
+    a: {
+      color: '$omnivoreCtaYellow',
+      textDecoration: 'none',
+      '&:hover': {
+        textDecoration: 'underline',
+      },
+    },
+  })
+
   return (
     <HStack css={containerStyles}>
-      <Box css={sectionOne}>
-        <Box css={titleStyles}>
-          Everything you read. Safe, organized, and easy to share.
-        </Box>
-        <HStack distribution="between" css={socialsContainerStyles}>
-          <Box style={socialIconContainerStyles}>
-            <Link passHref href="https://twitter.com/OmnivoreApp">
-              <a>
-                <TwitterLogo width={32} height={32} color="white" />
+      <HStack css={{ width: '100%', maxWidth: '1224px' }}>
+        <VStack>
+          <StyledText style="aboutFooter">Install</StyledText>
+          <FooterList>
+            <li>
+              <a href="https://omnivore.app/install/ios">iOS</a>
+            </li>
+            <li>
+              <a href="https://omnivore.app/install/macos">macOS</a>
+            </li>
+            <li>
+              <a href="https://omnivore.app/install/android">
+                Android (preview release)
               </a>
-            </Link>
-          </Box>
-          <Box style={socialIconContainerStyles}>
-            <Link passHref href="https://github.com/omnivore-app/omnivore">
-              <a>
-                <GithubLogo width={32} height={32} color="white" />
+            </li>
+            <li>
+              <a href="https://omnivore.app/install/chrome">Chrome Extension</a>
+            </li>
+            <li>
+              <a href="https://omnivore.app/install/firefox">
+                Firefox Extension
               </a>
-            </Link>
-          </Box>
-          <Box style={socialIconContainerStyles}>
-            <Link passHref href="https://discord.gg/h2z5rppzz9">
-              <a>
-                <DiscordLogo width={32} height={32} color="white" />
+            </li>
+            <li>
+              <a href="https://omnivore.app/install/safari">Safari Extension</a>
+            </li>
+            <li>
+              <a href="https://omnivore.app/install/edge">Edge Extension</a>
+            </li>
+          </FooterList>
+        </VStack>
+        <VStack>
+          <StyledText style="aboutFooter">Get Help</StyledText>
+          <FooterList>
+            <li>
+              <a href="mailto:feedback@omnivore.app">Contact us via email</a>
+            </li>
+            <li>
+              <a href="https://discord.gg/h2z5rppzz9">
+                Join our community on Discord
               </a>
-            </Link>
-          </Box>
-        </HStack>
-        <Box css={copyrightStyles}>© 2023 Omnivore</Box>
-      </Box>
-      <Box css={sectionTwo}>
-        <Box css={{ height: 215 }}>
-          <Box style={{ marginBottom: 5, ...imageStyles }}>
-            <a
-              href="https://omnivore.app/install/ios"
-              target="_blank"
-              rel="noreferrer"
-              style={{ display: 'inlineBlock', overflow: 'hidden' }}
-            >
-              <img
-                src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=90x37&amp;releaseDate=1628121600&h=2bbc629b0455dbea136257c9f518e4b3"
-                alt="Download on the App Store"
-                style={{}}
-              />
-            </a>
-          </Box>
-          {/* <Box style={imageStyles}>
-            <Link passHref href="https://play.google.com/store/apps/details?id=app.omnivore.omnivore">
-              <a>
-                <Image src='/static/media/googlePlayBadge.png' alt='app-store' width={120} height={40} layout='intrinsic'/>
-              </a>
-            </Link>
-          </Box> */}
-        </Box>
-        <Box css={contactStyles}>Contact</Box>
-        <Box css={supportStyles}>
-          <a href="mailto:support@omnivore.app">support@omnivore.app</a>
-        </Box>
-      </Box>
+            </li>
+            <li>
+              <a href="https://docs.omnivore.app">Read our Docs</a>
+            </li>
+          </FooterList>
+        </VStack>
+
+        <VStack>
+          <StyledText style="aboutFooter">Follow</StyledText>
+          <FooterList>
+            <li>
+              <a href="https://twitter.com/OmnivoreApp">Twitter</a>
+            </li>
+            <li>
+              <a href="https://pkm.social/@omnivore">Mastodon</a>
+            </li>
+            <li>
+              <a href="https://blog.omnivore.app">Blog</a>
+            </li>
+            <li>
+              <a href="https://github.com/omnivore-app/omnivore">GitHub</a>
+            </li>
+          </FooterList>
+        </VStack>
+      </HStack>
     </HStack>
   )
 }

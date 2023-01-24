@@ -6,6 +6,7 @@ import {
 import { LandingHeader } from '../../components/templates/landing/LandingHeader'
 import { LandingFooter } from '../../components/templates/landing/LandingFooter'
 import { PageMetaData } from '../../components/patterns/PageMetaData'
+import { About } from '../../components/templates/About'
 
 const containerStyles = {
   alignSelf: 'center',
@@ -48,47 +49,7 @@ export default function LandingPage(): JSX.Element {
         description="Omnivore is the free, open source, read-it-later app for serious readers."
       />
 
-      <LandingHeader />
-      <VStack
-        alignment="center"
-        css={{ background: '#FEFCF5', color: '#3D3D3D' }}
-      >
-        <VStack css={containerStyles}>
-          <Box css={headingStyles}>
-            Omnivore is the free, open source, read-it-later app for serious
-            readers.
-          </Box>
-          <Box css={subHeadingStyles}>
-            Distraction free. Privacy focused. Open source.
-          </Box>
-
-          <Box
-            css={{
-              color: 'rgb(125, 125, 125)',
-              padding: '10px',
-              textAlign: 'center',
-            }}
-          >
-            Save interesting articles, newsletter subscriptions, and documents
-            and read them later — focused and distraction free. Add notes and
-            highlights. Organize your reading list the way you want and sync it
-            across all your devices.
-          </Box>
-          <Box
-            css={{
-              mb: 40,
-              padding: '10px',
-              width: '100%',
-              display: 'flex',
-              justifyContent: 'center',
-            }}
-          >
-            <GetStartedButton />
-          </Box>
-        </VStack>
-        <LandingSectionsContainer />
-      </VStack>
-      <LandingFooter />
+      <About />
     </>
   )
 }
