@@ -4,9 +4,9 @@ import SwiftUI
 import Utils
 import Views
 
+// swiftlint:disable:next type_body_length
 public struct ShareExtensionView: View {
   let extensionContext: NSExtensionContext?
-  @EnvironmentObject var dataService: DataService
   @StateObject var labelsViewModel = LabelsViewModel()
   @StateObject private var viewModel = ShareExtensionViewModel()
 
@@ -14,6 +14,7 @@ public struct ShareExtensionView: View {
   @State var hideUntilReminded = false
   @State var previousLabels: [LinkedItemLabel]?
   @State var messageText: String?
+  @State var showSearchLabels = false
 
   @State var viewState = ViewState.mainView
   @State var showHighlightInstructionAlert = false
@@ -128,7 +129,7 @@ public struct ShareExtensionView: View {
             .font(.appFootnote)
             .foregroundColor(.appGrayText)
             .frame(maxWidth: .infinity, alignment: .leading)
-        } else {}
+        }
       }
       .frame(maxWidth: .infinity, maxHeight: 60)
       .padding()
@@ -173,31 +174,37 @@ public struct ShareExtensionView: View {
         Image(systemName: "chevron.right")
           .font(.appCallout)
       } else {
-        VStack {
-          ScrollView {
-            LabelsMasonaryView(labels: labelsViewModel.labels,
-                               selectedLabels: labelsViewModel.selectedLabels,
-                               onLabelTap: onLabelTap)
-          }.background(Color.appButtonBackground)
-            .cornerRadius(8)
+        VStack(spacing: 15) {
+          SearchBar(searchTerm: $labelsViewModel.labelSearchFilter)
 
-          Button(
-            action: { labelsViewModel.showCreateLabelModal = true },
-            label: {
-              HStack {
-                Spacer()
-                Image(systemName: "plus")
-                Text("Create label")
-                Spacer()
+          ScrollView {
+            LabelsMasonaryView(labels: labelsViewModel.labels.applySearchFilter(labelsViewModel.labelSearchFilter),
+                               selectedLabels: labelsViewModel.selectedLabels.applySearchFilter(labelsViewModel.labelSearchFilter),
+                               onLabelTap: onLabelTap)
+            Button(
+              action: { labelsViewModel.showCreateLabelModal = true },
+              label: {
+                HStack {
+                  Image(systemName: "tag").foregroundColor(.blue)
+                  Text(
+                    labelsViewModel.labelSearchFilter.count > 0 ?
+                      "Create: \"\(labelsViewModel.labelSearchFilter)\" label" :
+                      LocalText.createLabelMessage
+                  ).foregroundColor(.blue)
+                    .font(Font.system(size: 14))
+                  Spacer()
+                }
               }
-            }
-          ).buttonStyle(RoundedRectButtonStyle(color: .blue, textColor: .white))
+            )
+            .buttonStyle(PlainButtonStyle())
+            .padding(10)
+          }.background(Color.appButtonBackground)
         }
       }
     }
-    .padding(16)
+    .padding(viewState == .editingLabels ? 0 : 16)
+    .background(viewState == .editingLabels ? Color.clear : Color.appButtonBackground)
     .frame(maxWidth: .infinity, maxHeight: viewState == .editingLabels ? .infinity : 60)
-    .background(Color.appButtonBackground)
     .cornerRadius(8)
   }
 
@@ -248,10 +255,10 @@ public struct ShareExtensionView: View {
   }
 
   func onLabelTap(label: LinkedItemLabel, textChip _: TextChip) {
-    if let selectedIndex = labelsViewModel.selectedLabels.firstIndex(of: label) {
-      labelsViewModel.selectedLabels.remove(at: selectedIndex)
+    if labelsViewModel.selectedLabels.contains(label) {
+      labelsViewModel.selectedLabels.remove(label)
     } else {
-      labelsViewModel.selectedLabels.append(label)
+      labelsViewModel.selectedLabels.insert(label)
     }
 
     if let linkedItem = viewModel.linkedItem {
@@ -367,22 +374,6 @@ public struct ShareExtensionView: View {
           .padding(.bottom, 12)
       } else {
         ZStack {
-          Button(action: {
-            withAnimation {
-              if viewState == .editingLabels {
-                if let linkedItem = self.viewModel.linkedItem {
-                  self.labelsViewModel.selectedLabels = previousLabels ?? []
-                  self.labelsViewModel.saveItemLabelChanges(itemID: linkedItem.unwrappedID,
-                                                            dataService: self.viewModel.services.dataService)
-                }
-              }
-              viewState = .mainView
-            }
-          }, label: { Text(LocalText.cancelGeneric) })
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .opacity(viewState == .viewingHighlight ? 0.0 : 1.0)
-          // Don't show viewState when viewing the highlight
-
           Text(editingViewTitle).bold()
             .frame(maxWidth: .infinity, alignment: .center)
 
@@ -444,7 +435,7 @@ public struct ShareExtensionView: View {
           labelsSection
             .onTapGesture {
               withAnimation {
-                previousLabels = self.labelsViewModel.selectedLabels
+                previousLabels = Array(self.labelsViewModel.selectedLabels)
                 viewState = .editingLabels
               }
             }
@@ -484,95 +475,14 @@ public struct ShareExtensionView: View {
       viewModel.savePage(extensionContext: extensionContext)
     }
     .sheet(isPresented: $labelsViewModel.showCreateLabelModal) {
-      CreateLabelView(viewModel: labelsViewModel)
+      CreateLabelView(viewModel: labelsViewModel, newLabelName: labelsViewModel.labelSearchFilter)
     }
     .alert("Before saving an article select text in Safari to create a highlight on save.",
            isPresented: $showHighlightInstructionAlert) {
       Button("Ok", role: .cancel) { showHighlightInstructionAlert = false }
     }
-    .environmentObject(viewModel.services.dataService)
     .task {
       await labelsViewModel.loadLabelsFromStore(dataService: viewModel.services.dataService)
-    }
-  }
-}
-
-struct ApplyLabelsListView: View {
-  @EnvironmentObject var dataService: DataService
-  @StateObject var viewModel = LabelsViewModel()
-
-  let linkedItem: LinkedItem?
-
-  func isSelected(_ label: LinkedItemLabel) -> Bool {
-    viewModel.selectedLabels.contains(where: { $0.id == label.id })
-  }
-
-  var body: some View {
-    List {
-      Section(
-        content: {
-          ForEach(viewModel.labels.applySearchFilter(viewModel.labelSearchFilter), id: \.self) { label in
-            Button(
-              action: {
-                if isSelected(label) {
-                  viewModel.selectedLabels.removeAll(where: { $0.id == label.id })
-                } else {
-                  viewModel.selectedLabels.append(label)
-                }
-                if let linkedItem = linkedItem {
-                  viewModel.saveItemLabelChanges(itemID: linkedItem.unwrappedID, dataService: dataService)
-                }
-              },
-              label: {
-                HStack {
-                  TextChip(feedItemLabel: label)
-                  Spacer()
-                  if isSelected(label) {
-                    Image(systemName: "checkmark.circle.fill")
-                      .foregroundColor(.checkmarkBlue)
-                  } else {
-                    Image(systemName: "circle")
-                      .foregroundColor(.appGraySolid)
-                  }
-                }
-                .contentShape(Rectangle())
-              }
-            )
-            #if os(iOS)
-              .listRowSeparator(.hidden)
-            #endif
-            .buttonStyle(PlainButtonStyle())
-          }
-
-        },
-        header: {
-          Text(LocalText.labelsGeneric)
-            .font(.appFootnote)
-            .foregroundColor(.appGrayText)
-        }
-      )
-      #if os(iOS)
-        .listRowSeparator(.hidden)
-      #endif
-      Button(
-        action: { viewModel.showCreateLabelModal = true },
-        label: {
-          HStack {
-            Image(systemName: "plus.circle.fill").foregroundColor(.green)
-            Text(LocalText.createLabelMessage).foregroundColor(.appGrayTextContrast)
-            Spacer()
-          }
-        }
-      )
-      .disabled(viewModel.isLoading)
-    }
-    .listStyle(PlainListStyle())
-    .padding(.vertical, 0)
-    .task {
-      await viewModel.loadLabelsFromStore(dataService: dataService)
-    }
-    .sheet(isPresented: $viewModel.showCreateLabelModal) {
-      CreateLabelView(viewModel: viewModel)
-    }
+    }.environmentObject(viewModel.services.dataService)
   }
 }

@@ -19,6 +19,12 @@ public extension Highlight {
     return highlight
   }
 
+  var sortedLabels: [LinkedItemLabel] {
+    labels.asArray(of: LinkedItemLabel.self).sorted {
+      ($0.name ?? "").lowercased() < ($1.name ?? "").lowercased()
+    }
+  }
+
   func update(
     inContext context: NSManagedObjectContext,
     newAnnotation: String

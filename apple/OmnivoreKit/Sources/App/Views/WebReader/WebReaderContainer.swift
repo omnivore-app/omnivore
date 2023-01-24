@@ -181,7 +181,7 @@ struct WebReaderContainerView: View {
   }
 
   func menuItems(for item: LinkedItem) -> some View {
-    let hasLabels = item.labels?.count == 0
+    let hasLabels = item.labels?.count != 0
     return Group {
       Button(
         action: { showHighlightsView = true },
@@ -295,7 +295,11 @@ struct WebReaderContainerView: View {
       Button(LocalText.cancelGeneric, role: .cancel, action: {})
     }
     .sheet(isPresented: $showLabelsModal) {
-      ApplyLabelsView(mode: .item(item), onSave: { _ in showLabelsModal = false })
+      ApplyLabelsView(mode: .item(item), isSearchFocused: false, onSave: { labels in
+        showLabelsModal = false
+        item.labels = NSSet(array: labels)
+        readerSettingsChangedTransactionID = UUID()
+      })
     }
     .sheet(isPresented: $showTitleEdit) {
       LinkedItemMetadataEditView(item: item)
@@ -410,7 +414,7 @@ struct WebReaderContainerView: View {
         }
         .sheet(isPresented: $showHighlightLabelsModal) {
           if let highlight = Highlight.lookup(byID: self.annotation, inContext: self.dataService.viewContext) {
-            ApplyLabelsView(mode: .highlight(highlight)) { selectedLabels in
+            ApplyLabelsView(mode: .highlight(highlight), isSearchFocused: false) { selectedLabels in
               viewModel.setLabelsForHighlight(highlightID: highlight.unwrappedID,
                                               labelIDs: selectedLabels.map(\.unwrappedID),
                                               dataService: dataService)

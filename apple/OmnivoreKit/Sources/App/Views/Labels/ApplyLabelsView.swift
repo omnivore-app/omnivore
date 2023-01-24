@@ -12,9 +12,9 @@ struct ApplyLabelsView: View {
     var navTitle: String {
       switch self {
       case .item, .highlight:
-        return "Assign Labels"
+        return "Set Labels"
       case .list:
-        return "Apply Label Filters"
+        return "Set Labels"
       }
     }
 
@@ -23,62 +23,68 @@ struct ApplyLabelsView: View {
       case .item, .highlight:
         return "Save"
       case .list:
-        return "Apply"
+        return "Done"
       }
     }
   }
 
   let mode: Mode
+  let isSearchFocused: Bool
   let onSave: (([LinkedItemLabel]) -> Void)?
 
   @EnvironmentObject var dataService: DataService
   @Environment(\.presentationMode) private var presentationMode
   @StateObject var viewModel = LabelsViewModel()
 
+  enum ViewState {
+    case mainView
+    case editingTitle
+    case editingLabels
+    case viewingHighlight
+  }
+
   func isSelected(_ label: LinkedItemLabel) -> Bool {
     viewModel.selectedLabels.contains(where: { $0.id == label.id })
   }
 
   var innerBody: some View {
-    List {
-      Section {
-        Button(
-          action: { viewModel.showCreateLabelModal = true },
-          label: {
-            HStack {
-              Image(systemName: "plus.circle.fill").foregroundColor(.green)
-              Text(LocalText.createLabelMessage).foregroundColor(.appGrayTextContrast)
-              Spacer()
-            }
-          }
-        )
-        .disabled(viewModel.isLoading)
-      }
-      Section {
-        ForEach(viewModel.labels.applySearchFilter(viewModel.labelSearchFilter), id: \.self) { label in
-          Button(
-            action: {
-              if isSelected(label) {
-                viewModel.selectedLabels.removeAll(where: { $0.id == label.id })
-              } else {
-                viewModel.selectedLabels.append(label)
-              }
-            },
-            label: {
-              HStack {
-                TextChip(feedItemLabel: label)
-                Spacer()
+    VStack {
+      SearchBar(searchTerm: $viewModel.labelSearchFilter)
+        .padding(.vertical, 8)
+        .padding(.horizontal, 16)
+
+      List {
+        Section {
+          ForEach(viewModel.labels.applySearchFilter(viewModel.labelSearchFilter), id: \.self) { label in
+            Button(
+              action: {
                 if isSelected(label) {
-                  Image(systemName: "checkmark")
+                  viewModel.selectedLabels.remove(label)
+                } else {
+                  viewModel.selectedLabels.insert(label)
+                }
+              },
+              label: {
+                HStack {
+                  TextChip(feedItemLabel: label).allowsHitTesting(false)
+                  Spacer()
+                  if isSelected(label) {
+                    Image(systemName: "checkmark")
+                  }
                 }
               }
-            }
-          )
-          #if os(macOS)
-            .buttonStyle(PlainButtonStyle())
-          #endif
+            )
+            .padding(.vertical, 5)
+            #if os(macOS)
+              .buttonStyle(PlainButtonStyle())
+            #endif
+          }
+          createLabelButton
         }
       }
+      .listStyle(PlainListStyle())
+
+      Spacer()
     }
     .navigationTitle(mode.navTitle)
     #if os(iOS)
@@ -100,8 +106,30 @@ struct ApplyLabelsView: View {
       }
     #endif
     .sheet(isPresented: $viewModel.showCreateLabelModal) {
-      CreateLabelView(viewModel: viewModel)
+      CreateLabelView(viewModel: viewModel, newLabelName: viewModel.labelSearchFilter)
     }
+  }
+
+  var createLabelButton: some View {
+    Button(
+      action: { viewModel.showCreateLabelModal = true },
+      label: {
+        HStack {
+          Image(systemName: "tag").foregroundColor(.blue)
+          Text(
+            viewModel.labelSearchFilter.count > 0 ?
+              "Create: \"\(viewModel.labelSearchFilter)\" label" :
+              LocalText.createLabelMessage
+          ).foregroundColor(.blue)
+            .font(Font.system(size: 14))
+          Spacer()
+        }
+      }
+    )
+    .buttonStyle(PlainButtonStyle())
+    .disabled(viewModel.isLoading)
+    .listRowSeparator(.hidden, edges: .bottom)
+    .padding(.vertical, 10)
   }
 
   var saveItemChangesButton: some View {
@@ -110,10 +138,11 @@ struct ApplyLabelsView: View {
         switch mode {
         case let .item(feedItem):
           viewModel.saveItemLabelChanges(itemID: feedItem.unwrappedID, dataService: dataService)
+          onSave?(Array(viewModel.selectedLabels))
         case .highlight:
-          onSave?(viewModel.selectedLabels)
+          onSave?(Array(viewModel.selectedLabels))
         case .list:
-          onSave?(viewModel.selectedLabels)
+          onSave?(Array(viewModel.selectedLabels))
         }
         presentationMode.wrappedValue.dismiss()
       },
@@ -136,10 +165,6 @@ struct ApplyLabelsView: View {
             EmptyView()
           } else {
             innerBody
-              .searchable(
-                text: $viewModel.labelSearchFilter,
-                placement: .navigationBarDrawer(displayMode: .always)
-              )
           }
         }
       #elseif os(macOS)

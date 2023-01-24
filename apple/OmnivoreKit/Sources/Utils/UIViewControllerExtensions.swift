@@ -15,7 +15,30 @@
       ]
 
       if let heightRatio = heightRatio {
-        constraints.append(child.view.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: heightRatio))
+        let constraint = child.view.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: heightRatio)
+        constraints.append(constraint)
+
+        NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: OperationQueue.main) { _ in
+
+          UIView.animate(withDuration: 0.2) {
+            if let parent = self.parent, let frame = constraint.firstItem?.frame {
+              constraint.constant = parent.view.frame.height - frame.height - 10
+            }
+
+            child.view.setNeedsLayout()
+            child.view.layoutIfNeeded()
+          }
+        }
+
+        NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: OperationQueue.main) { _ in
+
+          UIView.animate(withDuration: 0.2) {
+            constraint.constant = 0
+            child.view.setNeedsLayout()
+            child.view.layoutIfNeeded()
+          }
+        }
+
       } else {
         constraints.append(child.view.topAnchor.constraint(equalTo: view.topAnchor))
       }
@@ -24,6 +47,23 @@
 
       child.didMove(toParent: self)
     }
+//
+//    @objc func keyboardWillShow(notification: Notification) {
+//        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
+//            if self.view.frame.origin.y == 0{
+//                self.view.frame.origin.y -= keyboardSize.height
+//            }
+//        }
+//
+//    }
+//
+//    @objc func keyboardWillHide(notification: Notification) {
+//        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
+//            if self.view.frame.origin.y != 0 {
+//                self.view.frame.origin.y += keyboardSize.height
+//            }
+//        }
+//    }
   }
 #endif
 

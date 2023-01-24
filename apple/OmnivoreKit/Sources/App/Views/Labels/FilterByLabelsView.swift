@@ -22,31 +22,32 @@ struct FilterByLabelsView: View {
 
   var innerBody: some View {
     List {
-      ForEach(viewModel.labels, id: \.self) { label in
-        HStack {
-          TextChip(feedItemLabel: label, negated: isNegated(label))
-          Spacer()
-          Button(action: {
+      ForEach(viewModel.labels.applySearchFilter(viewModel.labelSearchFilter), id: \.self) { label in
+        Button(
+          action: {
             if isSelected(label) {
-              viewModel.negatedLabels.append(label)
               viewModel.selectedLabels.removeAll(where: { $0.id == label.id })
-            } else if isNegated(label) {
-              viewModel.negatedLabels.removeAll(where: { $0.id == label.id })
             } else {
               viewModel.selectedLabels.append(label)
             }
-          }, label: {
-            if isNegated(label) {
-              Image(systemName: "circle.slash")
+          },
+          label: {
+            HStack {
+              TextChip(feedItemLabel: label).allowsHitTesting(false)
+              Spacer()
+              if isSelected(label) {
+                Image(systemName: "checkmark")
+              }
             }
-            if isSelected(label) {
-              Image(systemName: "checkmark")
-            }
-          })
-        }
+          }
+        )
+        .padding(.vertical, 5)
+        #if os(macOS)
+          .buttonStyle(PlainButtonStyle())
+        #endif
       }
     }
-    .listStyle(.plain)
+    .listStyle(PlainListStyle())
     .navigationTitle("Filter by Label")
     #if os(iOS)
       .navigationBarTitleDisplayMode(.inline)

@@ -71,7 +71,7 @@ struct HighlightsListView: View {
         }
       }
     }.sheet(item: $setLabelsHighlight) { highlight in
-      ApplyLabelsView(mode: .highlight(highlight), onSave: { selectedLabels in
+      ApplyLabelsView(mode: .highlight(highlight), isSearchFocused: false, onSave: { selectedLabels in
         hasHighlightMutations = true
 
         viewModel.setLabelsForHighlight(highlightID: highlight.unwrappedID,

@@ -12,11 +12,7 @@ import Models
 import Views
 
 struct LabelsMasonaryView: View {
-  // var allLabels: [LinkedItemLabel]
-  // var selectedLabels: [LinkedItemLabel]
   var onLabelTap: (LinkedItemLabel, TextChip) -> Void
-
-  var iteration = UUID().uuidString
 
   @State private var totalHeight = CGFloat.zero
   private var labelItems: [(label: LinkedItemLabel, selected: Bool)]
@@ -30,7 +26,9 @@ struct LabelsMasonaryView: View {
     let selected = selectedLabels.map { (label: $0, selected: true) }
     let unselected = allLabels.filter { !selectedLabels.contains($0) }.map { (label: $0, selected: false) }
     labelItems = (selected + unselected).sorted(by: { left, right in
-      (left.label.name ?? "") < (right.label.name ?? "")
+      let aTrimmed = left.label.unwrappedName.trimmingCharacters(in: .whitespaces)
+      let bTrimmed = right.label.unwrappedName.trimmingCharacters(in: .whitespaces)
+      return aTrimmed.caseInsensitiveCompare(bTrimmed) == .orderedAscending
     })
   }
 
@@ -39,8 +37,8 @@ struct LabelsMasonaryView: View {
       GeometryReader { geometry in
         self.generateContent(in: geometry)
       }
-    }
-    .frame(height: totalHeight)
+    }.padding(5)
+      .frame(height: totalHeight)
   }
 
   private func generateContent(in geom: GeometryProxy) -> some View {
@@ -50,7 +48,8 @@ struct LabelsMasonaryView: View {
     return ZStack(alignment: .topLeading) {
       ForEach(self.labelItems, id: \.label.self) { label in
         self.item(for: label)
-          .padding([.horizontal, .vertical], 6)
+          .padding(.horizontal, 5)
+          .padding(.vertical, 5)
           .alignmentGuide(.leading, computeValue: { dim in
             if abs(width - dim.width) > geom.size.width {
               width = 0
@@ -77,7 +76,7 @@ struct LabelsMasonaryView: View {
   }
 
   private func item(for item: (label: LinkedItemLabel, selected: Bool)) -> some View {
-    let chip = TextChip(feedItemLabel: item.label, negated: false, checked: item.selected) { chip in
+    let chip = TextChip(feedItemLabel: item.label, negated: false, checked: item.selected, padded: true) { chip in
       onLabelTap(item.label, chip)
     }
     return chip

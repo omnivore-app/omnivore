@@ -50,7 +50,13 @@ const mutation = async (name, input) => {
 }
 
 const App = () => {
+  const [labels, setLabels] = React.useState(window.omnivoreArticle.labels)
   applyStoredTheme(false)
+
+  document.addEventListener('updateLabels', (event) => {
+    console.log("updating labels: ", event.labels)
+    setLabels(event.labels)
+  })
 
   return (
     <>
@@ -68,7 +74,7 @@ const App = () => {
         >
           <ArticleContainer
             article={window.omnivoreArticle}
-            labels={window.omnivoreArticle.labels}
+            labels={labels}
             isAppleAppEmbed={true}
             highlightBarDisabled={!window.enableHighlightBar}
             highlightsBaseURL="https://example.com"
