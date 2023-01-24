@@ -57,7 +57,7 @@
 "clubs.learn.title" = "Learn more about clubs";
 "clubs.name" = "Club Name";
 "clubs.create" = "Create a new club";
-"clubs.create" = "Your clubs";
+"clubsYours" = "Your clubs";
 "clubs.not.a.member.message" = "You are not a member of any clubs.\nCreate a new club and send the invite link to your friends get started.\n\nDuring the beta you are limited to creating three clubs, and each club\ncan have a maximum of twelve users."
 "clubs.error.copying" = "Error copying invite URL";
 "clubs.admin.deny.viewing" = "The admin of this club does not allow viewing all members.";
