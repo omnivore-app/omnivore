@@ -1,6 +1,4 @@
 // share extension
-"shareExtensionCreateLabel" = "Create Label";
-"shareExtensionMoreActions" = "More Actions";
 "saveArticleSavedState" = "正在保存到 Omnivore 中";
 "saveArticleProcessingState" = "已经保存到 Omnivore 中";
 "extensionAppUnauthorized" = "请在保存您的第一个链接之前从应用程序登录 Omnivore.";
@@ -9,7 +7,6 @@
 "audioPlayerReplay" = "Replay";
 
 // Highlights List Card
-"highlightCardHighlightByYou" = "Highlight by you";
 "highlightCardHighlightByOther" = "Highlight by ";
 "highlightCardNoHighlightsOnPage" = "You have not added any highlights or notes to this page.";
 

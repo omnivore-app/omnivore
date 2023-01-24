@@ -5,9 +5,7 @@ public enum LocalText {
     NSLocalizedString(key, bundle: .module, comment: comment ?? "no comment provided by developer")
   }
 
-  // share extension
-  public static let shareExtensionCreateLabel = localText(key: "shareExtensionCreateLabel")
-  public static let shareExtensionMoreActions = localText(key: "shareExtensionMoreActions")
+  // Share extension
   public static let saveArticleSavedState = localText(key: "saveArticleSavedState")
   public static let saveArticleProcessingState = localText(key: "saveArticleProcessingState")
   public static let extensionAppUnauthorized = localText(key: "extensionAppUnauthorized")
@@ -16,7 +14,6 @@ public enum LocalText {
   public static let audioPlayerReplay = localText(key: "audioPlayerReplay")
 
   // Highlights List Card
-  public static let highlightCardHighlightByYou = localText(key: "highlightCardHighlightByYou")
   public static let highlightCardHighlightByOther = localText(key: "highlightCardHighlightByOther")
   public static let highlightCardNoHighlightsOnPage = localText(key: "highlightCardNoHighlightsOnPage")
 
@@ -192,3 +189,178 @@ public enum LocalText {
   public static let dismissButton = localText(key: "dismissButton")
   public static let errorNetwork = localText(key: "errorNetwork")
 }
+
+//// Manage Account View
+// "manageAccountDelete" = "Delete Account";
+// "manageAccountResetCache" = "Reset Data Cache";
+// "manageAccountConfirmDeleteMessage" = "Are you sure you want to delete your account? This action can't be undone.";
+//
+//// Newsletter Emails View
+// "newsletterEmailsExisting" = "Existing Emails (Tap to copy)";
+// "createNewEmailMessage" = "创建新的电子邮件地址";
+// "newslettersDescription" = "将 PDF 添加到您的资料库，或使用 Omnivore 电子邮件地址订阅新闻稿件。";
+// "noCurrentSubscriptionsMessage" = "您当前没有任何订阅。";
+//
+//// Profile View
+// "profileConfirmLogoutMessage" = "Are you sure you want to logout?";
+//
+//// Devices View
+// "devicesTokensTitle" = "Registered device tokens (swipe to remove)";
+// "devicesCreated" = "Created: ";
+//
+//// Push Notification Settings
+// "notificationsEnabled" = "Notifications Enabled";
+// "notificationsExplainer" = "Enabling push notifications gives Omnivore device permission to send notifications,\nbut you are in charge of which notifications are sent.";
+// "notificationsTriggerExplainer" = "Push notifications are triggered using your \n[account rules](https://omnivore.app/settings/rules) which you can edit online.";
+// "notificationsEnable" = "Enable Push Notifications?";
+// "notificationsGeneralExplainer" = "Get notified when newsletter links reach your inbox. Or receive reminders that you set from our share extension.";
+// "notificationsOptionDeny" = "No Thanks";
+// "notificationsOptionEnable" = "Yes Please";
+//
+//// Community Modal
+// "communityHeadline" = "Help build the Omnivore Community";
+// "communityAppstoreReview" = "Review on the AppStore";
+// "communityTweet" = "Tweet about Omnivore";
+// "communityFollowTwitter" = "Follow us on Twitter";
+// "communityJoinDiscord" = "Join us on Discord";
+// "communityStarGithub" = "Star on GitHub";
+//
+//// Clubs View
+// "clubsLearnTitle" = "Learn more about clubs";
+// "clubsName" = "Club Name";
+// "clubsCreate" = "Create a new club";
+// "clubsYours" = "Your clubs";
+// "clubsNotAMemberMessage" = "You are not a member of any clubs.\nCreate
+// a new club and send the invite link to your friends get started.\n\nDuring the beta you are limited to creating three clubs, and each club\ncan have a maximum of twelve users."
+// "clubsErrorCopying" = "Error copying invite URL";
+// "clubsAdminDenyViewing" = "The admin of this club does not allow viewing all members.";
+// "clubsNoMembers" = "This club does not have any members. Add users to your club by sending\nthem the invite link.";
+// "clubsLeave" = "Leave Club";
+// "clubsLeaveConfirm" = "Are you sure you want to leave this club? No data will be deleted, but you will stop receiving recommendations from the club.";
+// "clubsNoneJoined" = "You do not have any clubs you can post to.\nJoin a club or create your own to start recommending articles.";
+//
+//// Subscriptions
+// "subscriptionsErrorRetrieving" = "Sorry, we were unable to retrieve your subscriptions.";
+// "subscriptionsNone" = "You have no current subscriptions.";
+////"subscriptions.error.retrieving" = "Last received: \(updatedDate.formatted())"; // unused for now
+//
+//// Text to Speech
+// "texttospeechLanguageDefault" = "Default Language";
+// "texttospeechSettingsAudio" = "Audio Settings";
+// "texttospeechSettingsEnablePrefetch" = "Enable audio prefetch";
+// "texttospeechBetaSignupInProcess" = "Signing up for beta";
+// "texttospeechBetaRealisticVoiceLimit" = "You are in the ultra realistic voices beta. During the beta you can listen to 10,000 words of audio per day.";
+// "texttospeechBetaRequestReceived" = "Your request to join the ultra realistic voices demo has been received. You will be informed by email when a spot is available.";
+// "texttospeechBetaWaitlist" = "Ultra realistic voices are currently in limited beta. Enabling the feature will add you to the beta queue.";
+//
+//// Sign in/up
+// "registrationNoAccount" = "Don't have an account?";
+// "registrationForgotPassword" = "Forgot your password?";
+// "registrationStatusCheck" = "Check Status";
+// "registrationUseDifferentEmail" = "Use a different email?";
+// "registrationFullName" = "Full Name";
+// "registrationUsername" = "Username";
+// "registrationAlreadyHaveAccount" = "Already have an account?";
+// "registrationBio" = "Bio (optional)";
+// "registrationWelcome" = "Welcome to Omnivore!";
+// "registrationUsernameAssignedPrefix" = "Your username is:";
+// "registrationChangeUsername" = "Change Username";
+// "registrationEdit" = "Edit";
+// "googleAuthButton" = "使用 Google 账号";
+// "registrationViewSignUpHeadline" = "注册";
+// "loginErrorInvalidCreds" = "提供的登录凭据无效.";
+//
+//// Recommendation
+// "recommendationToPrefix" = "To:";
+// "recommendationAddNote" = "Add a note (optional)";
+////"recommendationToPrefix" = "Include your \(viewModel.highlightCount) highlight\(viewModel.highlightCount > 1 ? "s" : """; // unused for now
+// "recommendationError" = "Error recommending this page";
+//
+//// Web Reader
+// "readerCopyLink" = "Copy Link";
+// "readerSave" = "Save to Omnivore";
+// "readerError" = "An error occurred";
+//
+//// Debug Menu
+// "menuDebugTitle" = "Debug Menu";
+// "menuDebugApiEnv" = "API Environment:";
+//
+//// Navigation
+// "navigationSelectLink" = "Select a link from the feed";
+// "navigationSelectSidebarToggle" = "Toggle sidebar";
+//
+//// Welcome View
+// "welcomeTitle" = "Read-it-later for serious readers.";
+// "welcomeLearnMore" = "Learn more";
+// "welcomeSignupAgreement" = "By signing up, you agree to Omnivore’s\n";
+// "welcomeTitleTermsOfService" = "Terms of Service";
+// "welcomeTitleAndJoiner" = " and ";
+// "welcomeTitleEmailContinue" = "Continue with Email";
+//
+//// Keyboard Commands
+// "keyboardCommandDecreaseFont" = "Decrease Font Size";
+// "keyboardCommandIncreaseFont" = "Increase Font Size";
+// "keyboardCommandDecreaseMargin" = "Decrease Margin";
+// "keyboardCommandIncreaseMargin" = "Increase Margin";
+// "keyboardCommandDecreaseLineSpacing" = "Decrease Line Spacing";
+// "keyboardCommandIncreaseLineSpacing" = "Increase Line Spacing";
+//
+//// Library
+////"library.by.author.suffix" = "by \(author)" // unused
+////"Recommended by \(byStr) in \(inStr)" // unused
+//
+//
+//// Generic
+// "genericSnooze" = "Snooze";
+// "genericClose" = "Close";
+// "genericCreate" = "Create";
+// "genericConfirm" = "Confirm";
+// "genericProfile" = "Profile";
+// "genericNext" = "Next";
+// "genericName" = "Name";
+// "genericOk" = "Ok";
+// "genericRetry" = "Retry";
+// "genericEmail" = "Email";
+// "genericPassword" = "Password";
+// "genericSubmit" = "Submit";
+// "genericContinue" = "Continue";
+// "genericSend" = "Send";
+// "genericOptions" = "Options";
+// "genericOpen" = "Open";
+// "genericChangeApply" = "Apply Changes";
+// "genericTitle" = "Title";
+// "genericAuthor" = "Author";
+// "genericDescription" = "Description";
+// "genericSave" = "Save";
+// "genericLoading" = "Loading...";
+// "genericFontFamily" = "Font Family";
+// "genericHighContrastText" = "High Contrast Text";
+// "genericFont" = "Font";
+// "genericHighlight" = "Highlight";
+// "labelsGeneric" = "标签";
+// "emailsGeneric" = "电子邮件";
+// "subscriptionsGeneric" = "订阅";
+// "textToSpeechGeneric" = "文章转语音";
+// "privacyPolicyGeneric" = "隐私策略";
+// "termsAndConditionsGeneric" = "条款与条件";
+// "feedbackGeneric" = "反馈";
+// "manageAccountGeneric" = "管理帐户";
+// "logoutGeneric" = "退出登陆";
+// "doneGeneric" = "完成";
+// "cancelGeneric" = "取消";
+// "inboxGeneric" = "收集箱";
+// "readLaterGeneric" = "稍后阅读";
+// "newslettersGeneric" = "新闻稿件";
+// "allGeneric" = "全部";
+// "archivedGeneric" = "存档";
+// "highlightedGeneric" = "荧光笔";
+// "filesGeneric" = "文件";
+// "newestGeneric" = "最新";
+// "oldestGeneric" = "最早";
+// "recentlyReadGeneric" = "最近阅读";
+// "recentlyPublishedGeneric" = "最近发布";
+// "clubsGeneric" = "读书俱乐部";
+// "errorGeneric" = "哦！出现了小问题，请您重试.";
+// "pushNotificationsGeneric" = "推送通知";
+// "dismissButton" = "撤回";
+// "errorNetwork" = "我们在连接到互联网时遇到问题.";

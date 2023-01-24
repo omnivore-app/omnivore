@@ -1,6 +1,4 @@
 // share extension
-"shareExtensionCreateLabel" = "Create Label";
-"shareExtensionMoreActions" = "More Actions";
 "saveArticleSavedState" = "Saved to Omnivore";
 "saveArticleProcessingState" = "Saved to Omnivore";
 "extensionAppUnauthorized" = "Please login to Omnivore from the app before saving your first link.";
@@ -9,7 +7,6 @@
 "audioPlayerReplay" = "Replay";
 
 // Highlights List Card
-"highlightCardHighlightByYou" = "Highlight by you";
 "highlightCardHighlightByOther" = "Highlight by ";
 "highlightCardNoHighlightsOnPage" = "You have not added any highlights or notes to this page.";
 
