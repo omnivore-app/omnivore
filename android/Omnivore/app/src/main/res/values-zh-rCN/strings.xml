@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Omnivore</string>
+    <string name="welcome_title">不要错过任何精彩读物</string>
+    <string name="learn_more">了解更多</string>
+    <string name="welcome_subtitle">保存文章，稍后在我们的简洁、无干扰阅读器中阅读.</string>
+    <string name="highlight_menu_action">荧光笔</string>
+    <string name="copy_menu_action">复制</string>
+    <string name="annotate_menu_action">注解</string>
+    <string name="pdf_remove_highlight">删除</string>
+    <string name="pdf_highlight_menu_action">荧光笔</string>
+    <string name="pdf_highlight_copy">复制</string>
+    <string name="highlight_note">注解</string>
+    <string name="copyTextSelection">复制</string>
+    <string name="pdf_highlight_menu_note">注解</string>
+</resources>
