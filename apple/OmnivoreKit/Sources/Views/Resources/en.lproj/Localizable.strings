@@ -1,21 +1,9 @@
-"googleAuthButton" = "Continue with Google";
-"registrationViewSignUpHeadline" = "Sign Up";
-"error.network" = "We are having trouble connecting to the internet.";
-"extensionAppUnauthorized" = "Please login to Omnivore from the app before saving your first link.";
-"loginError.invalidCreds" = "The login credentials provided are invalid.";
-"saveArticleSavedState" = "Saved to Omnivore";
-"saveArticleProcessingState" = "Saved to Omnivore";
-"dismissButton" = "Dismiss";
-
-"create.label.message" = "Create a new Label";
-"create.new.email.message" = "Create a new email address";
-"newsletters.description" = "Add PDFs to your library, or subscribe to newsletters using an Omnivore email address.";
-"labels.purpose.description" = "Use labels to create curated collections of links.";
-"no.current.subscriptions.message" = "You have no current Subscriptions.";
-
 // share extension
 "shareExtension.createLabel" = "Create Label";
 "shareExtension.moreActions" = "More Actions";
+"saveArticleSavedState" = "Saved to Omnivore";
+"saveArticleProcessingState" = "Saved to Omnivore";
+"extensionAppUnauthorized" = "Please login to Omnivore from the app before saving your first link.";
 
 // audio player
 "audioPlayer.replay" = "Replay";
@@ -27,6 +15,8 @@
 
 // Labels View
 "labelsView.assignNameColor" = "Assign a name and color.";
+"create.label.message" = "Create a new Label";
+"labels.purpose.description" = "Use labels to create curated collections of links.";
 
 // Manage Account View
 "manageAccount.delete" = "Delete Account";
@@ -35,6 +25,9 @@
 
 // Newsletter Emails View
 "newsletterEmails.existing" = "Existing Emails (Tap to copy)";
+"create.new.email.message" = "Create a new email address";
+"newsletters.description" = "Add PDFs to your library, or subscribe to newsletters using an Omnivore email address.";
+"no.current.subscriptions.message" = "You have no current Subscriptions.";
 
 // Profile View
 "profile.confirmLogoutMessage" = "Are you sure you want to logout?";
@@ -100,6 +93,9 @@
 "registration.username.assigned.prefix" = "Your username is:";
 "registration.change.username" = "Change Username";
 "registration.edit" = "Edit";
+"googleAuthButton" = "Continue with Google";
+"registrationViewSignUpHeadline" = "Sign Up";
+"loginError.invalidCreds" = "The login credentials provided are invalid.";
 
 // Recommendation
 "recommendation.to.prefix" = "To:";
@@ -193,7 +189,7 @@
 "clubs.generic" = "Clubs";
 "error.generic" = "Something went wrong, please try again.";
 "pushNotifications.generic" = "Push Notifications";
+"dismissButton" = "Dismiss";
+"error.network" = "We are having trouble connecting to the internet.";
 
 // TODO: search navigationTitle, toggle, section, button, Label
-
-

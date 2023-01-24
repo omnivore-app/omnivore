@@ -1,21 +1,9 @@
-"googleAuthButton" = "使用 Google 账号";
-"registrationViewSignUpHeadline" = "注册";
-"error.network" = "我们在连接到互联网时遇到问题.";
-"extensionAppUnauthorized" = "请在保存您的第一个链接之前从应用程序登录 Omnivore.";
-"loginError.invalidCreds" = "提供的登录凭据无效.";
-"saveArticleSavedState" = "正在保存到 Omnivore 中";
-"saveArticleProcessingState" = "已经保存到 Omnivore 中";
-"dismissButton" = "撤回";
-
-"create.label.message" = "创建新标签";
-"create.new.email.message" = "创建新的电子邮件地址";
-"newsletters.description" = "将 PDF 添加到您的资料库，或使用 Omnivore 电子邮件地址订阅新闻稿件。";
-"labels.purpose.description" = "使用标签创建精选的链接集合。";
-"no.current.subscriptions.message" = "您当前没有任何订阅。";
-
 // share extension
 "shareExtension.createLabel" = "Create Label";
 "shareExtension.moreActions" = "More Actions";
+"saveArticleSavedState" = "正在保存到 Omnivore 中";
+"saveArticleProcessingState" = "已经保存到 Omnivore 中";
+"extensionAppUnauthorized" = "请在保存您的第一个链接之前从应用程序登录 Omnivore.";
 
 // audio player
 "audioPlayer.replay" = "Replay";
@@ -27,6 +15,8 @@
 
 // Labels View
 "labelsView.assignNameColor" = "Assign a name and color.";
+"create.label.message" = "创建新标签";
+"labels.purpose.description" = "使用标签创建精选的链接集合。";
 
 // Manage Account View
 "manageAccount.delete" = "Delete Account";
@@ -35,6 +25,9 @@
 
 // Newsletter Emails View
 "newsletterEmails.existing" = "Existing Emails (Tap to copy)";
+"create.new.email.message" = "创建新的电子邮件地址";
+"newsletters.description" = "将 PDF 添加到您的资料库，或使用 Omnivore 电子邮件地址订阅新闻稿件。";
+"no.current.subscriptions.message" = "您当前没有任何订阅。";
 
 // Profile View
 "profile.confirmLogoutMessage" = "Are you sure you want to logout?";
@@ -100,6 +93,9 @@
 "registration.username.assigned.prefix" = "Your username is:";
 "registration.change.username" = "Change Username";
 "registration.edit" = "Edit";
+"googleAuthButton" = "使用 Google 账号";
+"registrationViewSignUpHeadline" = "注册";
+"loginError.invalidCreds" = "提供的登录凭据无效.";
 
 // Recommendation
 "recommendation.to.prefix" = "To:";
@@ -193,6 +189,8 @@
 "clubs.generic" = "读书俱乐部";
 "error.generic" = "哦！出现了小问题，请您重试.";
 "pushNotifications.generic" = "推送通知";
+"dismissButton" = "撤回";
+"error.network" = "我们在连接到互联网时遇到问题.";
 
 // Unreferenced
 "signInScreenHeadline" = "保存并分享喜爱的网页.";
