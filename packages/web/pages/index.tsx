@@ -73,8 +73,6 @@ export default function LandingPage(): JSX.Element {
       />
 
       <About />
-
-      <LandingFooter />
     </>
   )
 }
