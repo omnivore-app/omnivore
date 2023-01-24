@@ -200,7 +200,7 @@ export function LandingSectionsContainer(): JSX.Element {
         }
         image={
           <img
-            srcSet="/static/landing/landingPage-07.png,
+            srcSet="/static/landing/landingPage-07@1x.png,
                     /static/landing/landingPage-07@2x.png 2x,
                     /static/landing/landingPage-07@3x.png 3x"
             alt="landing-7"
@@ -220,9 +220,9 @@ export function LandingSectionsContainer(): JSX.Element {
         }
         image={
           <img
-            srcSet="/static/landing/landingPage-08.png,
-            /static/landing/landingPage-08@2x.png 2x,
-            /static/landing/landingPage-08@3x.png 3x"
+            srcSet="/static/landing/landingPage-08@1x.png,
+                    /static/landing/landingPage-08@2x.png 2x,
+                    /static/landing/landingPage-08@3x.png 3x"
             alt="landing-8"
             style={{ maxWidth: '85%' }}
           />
@@ -241,8 +241,8 @@ export function LandingSectionsContainer(): JSX.Element {
         }
         image={
           <img
-            srcSet="/static/landing/landingPage-09.png,
-            /static/landing/landingPage-09@2x.png 2x"
+            srcSet="/static/landing/landingPage-09@1x.png,
+                    /static/landing/landingPage-09@2x.png 2x"
             alt="landing-9"
             style={{ maxWidth: '100%' }}
           />
