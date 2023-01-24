@@ -166,7 +166,6 @@ const sendSavePageMutation = async (userId: string, input: unknown) => {
       'Content-Type': 'application/json',
     },
   })
-  console.log('save page response: ', response)
 
   /* eslint-disable @typescript-eslint/no-unsafe-member-access */
   return !!response.data.data.savePage
@@ -256,7 +255,12 @@ export const importHandler = Sentry.GCPFunction.wrapHttpFunction(
       const pubSubMessage = req.body.message.data as string
       const obj = getStorageEvent(pubSubMessage)
       if (obj) {
-        await handleEvent(obj)
+        try {
+          await handleEvent(obj)
+        } catch (err) {
+          console.log('error handling event', { err, obj })
+          throw err
+        }
       }
     } else {
       console.log('no pubsub message')
