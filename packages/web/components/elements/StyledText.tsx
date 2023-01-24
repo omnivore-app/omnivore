@@ -169,6 +169,15 @@ const textVariants = {
       fontWeight: 'bold',
       color: '$textSubtle',
     },
+    aboutFooter: {
+      pt: '0px',
+      m: '0px',
+      fontSize: 24,
+      fontFamily: 'inter',
+      lineHeight: 'unset',
+      fontWeight: 'bold',
+      color: 'white',
+    },
     error: {
       color: '$error',
       fontSize: '$2',
