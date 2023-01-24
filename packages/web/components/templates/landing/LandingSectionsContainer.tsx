@@ -183,7 +183,7 @@ export function LandingSectionsContainer(): JSX.Element {
             srcSet="/static/landing/landingPage-06@1x.png,
                       /static/landing/landingPage-06@2x.png 2x,
                       /static/landing/landingPage-06@3x.png 3x"
-            alt="landing-5"
+            alt="landing-6"
             style={{ maxWidth: '100%' }}
           />
         }
@@ -203,7 +203,7 @@ export function LandingSectionsContainer(): JSX.Element {
             srcSet="/static/landing/landingPage-07.png,
                     /static/landing/landingPage-07@2x.png 2x,
                     /static/landing/landingPage-07@3x.png 3x"
-            alt="landing-6"
+            alt="landing-7"
             style={{ maxWidth: '100%' }}
           />
         }
@@ -223,8 +223,28 @@ export function LandingSectionsContainer(): JSX.Element {
             srcSet="/static/landing/landingPage-08.png,
             /static/landing/landingPage-08@2x.png 2x,
             /static/landing/landingPage-08@3x.png 3x"
-            alt="landing-7"
+            alt="landing-8"
             style={{ maxWidth: '85%' }}
+          />
+        }
+      />
+
+      <LandingSection
+        titleText="Open source means you're in control."
+        descriptionText={
+          <p>
+            Reading is a lifetime activity, and you shouldn&apos;t have to worry
+            you&apos;ll lose your library after you&apos;ve spent years building
+            it. Our open-source platform ensures your reading won&apos;t be held
+            prisoner in a proprietary system.
+          </p>
+        }
+        image={
+          <img
+            srcSet="/static/landing/landingPage-09.png,
+            /static/landing/landingPage-09@2x.png 2x"
+            alt="landing-9"
+            style={{ maxWidth: '100%' }}
           />
         }
       />
