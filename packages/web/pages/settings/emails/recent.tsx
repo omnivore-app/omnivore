@@ -28,6 +28,8 @@ import {
 } from '../../../components/elements/ModalPrimitives'
 import TextArea from 'antd/lib/input/TextArea'
 import { StyledTextArea } from '../../../components/elements/StyledTextArea'
+import { markEmailAsItemMutation } from '../../../lib/networking/mutations/markEmailAsItemMutation'
+import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 
 type TypeChipProps = {
   type: string
@@ -202,8 +204,17 @@ export default function RecentEmails(): JSX.Element {
                   />
                   <MoreOptionItem
                     text="Mark as article"
-                    action={() => {
+                    action={async () => {
                       console.log('marking as email', recentEmail)
+                      showSuccessToast('Marking email as article')
+                      try {
+                        await markEmailAsItemMutation(recentEmail.id)
+                      } catch (err) {
+                        console.log('error marking as article: ', err)
+                        showErrorToast('Error marking item as article')
+                        return
+                      }
+                      showSuccessToast('Email added to library')
                     }}
                   />
                 </>

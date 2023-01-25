@@ -118,7 +118,6 @@ export default function EmailsPage(): JSX.Element {
     <>
       <SettingsTable
         pageId="settings-emails-tag"
-        pageHeadline="Email Addresses"
         pageInfoLink="/help/newsletters"
         headerTitle="Address"
         createTitle="Create a new email address"
