@@ -193,12 +193,3 @@
 "pushNotifications.generic" = "推送通知";
 "dismissButton" = "撤回";
 "error.network" = "我们在连接到互联网时遇到问题.";
-
-// Unreferenced
-"signInScreenHeadline" = "保存并分享喜爱的网页.";
-"registrationViewSignInHeadline" = "登录";
-"registrationViewHeadline" = "青衿之志，履践致远。";
-"username.validation.error.invalidPattern" = "用户名中间只能包含字母、数字和下划线.";
-"username.validation.error.tooshort" = "用户名应至少包含 3 个英文字符.";
-"username.validation.error.toolong" = "用户名不能超过 15 个英文字符.";
-"saveArticleSavingState" = "保存中...";
