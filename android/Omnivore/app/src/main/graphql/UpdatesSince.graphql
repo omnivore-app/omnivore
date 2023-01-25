@@ -1,0 +1,56 @@
+query UpdatesSince($after: String, $first: Int, $since: Date!) {
+  updatesSince(after: $after, first: $first, since: $since) {
+    ... on UpdatesSinceSuccess {
+      edges {
+        cursor
+        itemID
+        updateReason
+        node {
+          id
+          title
+          slug
+          url
+          pageType
+          contentReader
+          createdAt
+          isArchived
+          readingProgressPercent
+          readingProgressAnchorIndex
+          author
+          image
+          description
+          publishedAt
+          ownedByViewer
+          originalArticleUrl
+          uploadFileId
+          labels {
+            id
+            name
+            color
+          }
+          pageId
+          shortId
+          quote
+          annotation
+          state
+          siteName
+          subscription
+          readAt
+          savedAt
+          updatedAt
+          language
+        }
+      }
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+        totalCount
+      }
+    }
+    ... on UpdatesSinceError {
+      errorCodes
+    }
+  }
+}

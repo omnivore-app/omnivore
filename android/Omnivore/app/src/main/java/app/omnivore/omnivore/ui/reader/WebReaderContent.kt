@@ -77,8 +77,8 @@ data class WebReaderContent(
                 }
 
                 window.omnivoreArticle = {
-                  id: "${item.id}",
-                  linkId: "${item.id}",
+                  id: "${item.savedItemId}",
+                  linkId: "${item.savedItemId}",
                   slug: "${item.slug}",
                   createdAt: new Date(1662571290735.0).toISOString(),
                   savedAt: new Date(1662571290981.0).toISOString(),

@@ -1,19 +1,20 @@
 package app.omnivore.omnivore.persistence.entities
 
 import androidx.core.net.toUri
+import androidx.lifecycle.LiveData
 import androidx.room.*
-import app.omnivore.omnivore.persistence.BaseDao
+import java.util.*
 
 @Entity
 data class SavedItem(
-  @PrimaryKey val id: String,
+  @PrimaryKey val savedItemId: String,
   val title: String,
   val createdAt: String,
   val savedAt: String,
   val readAt: String?,
   val updatedAt: String?,
-  val readingProgress: Double,
-  val readingProgressAnchor: Int,
+  var readingProgress: Double,
+  var readingProgressAnchor: Int,
   val imageURLString: String?,
   val pageURLString: String,
   val descriptionText: String?,
@@ -22,7 +23,7 @@ data class SavedItem(
   val author: String?,
   val publishDate: String?,
   val slug: String,
-  val isArchived: Boolean,
+  var isArchived: Boolean,
   val contentReader: String? = null,
   val content: String? = null,
   val createdId: String? = null,
@@ -35,7 +36,7 @@ data class SavedItem(
   val onDeviceImageURLString: String? = null,
   val originalHtml: String? = null,
   @ColumnInfo(typeAffinity = ColumnInfo.BLOB) val pdfData: ByteArray? = null,
-  val serverSyncStatus: Int = 0, // TODO: implement,
+  var serverSyncStatus: Int = 0,
   val tempPDFURL: String? = null
 
 // hasMany highlights
@@ -46,43 +47,24 @@ data class SavedItem(
     return publisherURLString?.toUri()?.host
   }
 
-  fun isPDF(): Boolean {
-    val hasPDFSuffix = pageURLString.endsWith("pdf")
-    return contentReader == "PDF" || hasPDFSuffix
-  }
-
-  fun asSavedItemCardData(): SavedItemCardData {
-    return SavedItemCardData(
-      id = id,
-      slug = slug,
-      publisherURLString = publisherURLString,
-      title = title,
-      author = author,
-      imageURLString = imageURLString,
-      isArchived = isArchived,
-      pageURLString = pageURLString,
-      contentReader = contentReader,
-    )
-  }
-
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (javaClass != other?.javaClass) return false
 
     other as SavedItem
 
-    if (id != other.id) return false
+    if (savedItemId != other.savedItemId) return false
 
     return true
   }
 
   override fun hashCode(): Int {
-    return id.hashCode()
+    return savedItemId.hashCode()
   }
 }
 
 data class SavedItemCardData(
-  val id: String,
+  val savedItemId: String,
   val slug: String,
   val publisherURLString: String?,
   val title: String,
@@ -104,12 +86,34 @@ data class SavedItemCardData(
 
 @Dao
 interface SavedItemDao {
-  @Query("SELECT id, slug, publisherURLString, title, author, imageURLString, isArchived, pageURLString, contentReader FROM SavedItem")
-  fun getLibraryData(): List<SavedItemCardData>
+  @Query("SELECT savedItemId, slug, publisherURLString, title, author, imageURLString, isArchived, pageURLString, contentReader FROM SavedItem ORDER BY savedAt DESC")
+  fun getLibraryLiveData(): LiveData<List<SavedItemCardData>>
 
   @Query("SELECT * FROM savedItem")
   fun getAll(): List<SavedItem>
 
+  @Query("SELECT * FROM savedItem WHERE savedItemId = :itemID")
+  fun findById(itemID: String): SavedItem?
+
+  @Query("SELECT * FROM savedItem WHERE serverSyncStatus != 0")
+  fun getUnSynced(): List<SavedItem>
+
+  @Query("SELECT * FROM savedItem WHERE slug = :slug")
+  fun getSavedItemWithLabelsAndHighlights(slug: String): SavedItemWithLabelsAndHighlights?
+
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   fun insertAll(items: List<SavedItem>)
+
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  fun insert(item: SavedItem)
+
+  @Query("DELETE FROM savedItem WHERE savedItemId = :itemID")
+  fun deleteById(itemID: String)
+
+  @Update
+  fun update(savedItem: SavedItem)
+
+  @Transaction
+  @Query("SELECT savedItemId, slug, publisherURLString, title, author, imageURLString, isArchived, pageURLString, contentReader FROM SavedItem ORDER BY savedAt DESC")
+  fun getLibraryLiveDataWithLabels(): LiveData<List<SavedItemCardDataWithLabels>>
 }
