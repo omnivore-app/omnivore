@@ -105,12 +105,6 @@ fun LibraryViewContent(
           },
           actionHandler = { libraryViewModel.handleSavedItemAction(cardDataWithLabels.cardData.savedItemId, it) }
         )
-
-        Text(
-          text = "${cardDataWithLabels.labels.size.toString()} labels",
-          style = MaterialTheme.typography.titleMedium,
-          lineHeight = 20.sp
-        )
       }
     }
 
