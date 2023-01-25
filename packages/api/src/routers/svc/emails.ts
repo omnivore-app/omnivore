@@ -70,7 +70,7 @@ export function emailsServiceRouter() {
     try {
       const data = JSON.parse(message) as unknown
       if (!isEmailMessage(data)) {
-        logger.error('Invalid message')
+        logger.error('Invalid message', data)
         res.status(400).send('Bad Request')
         return
       }
@@ -153,7 +153,7 @@ export function emailsServiceRouter() {
     }
 
     if (!isEmailMessage(req.body)) {
-      logger.error('Invalid message')
+      logger.error('Invalid message', req.body)
       return res.status(400).send('Bad Request')
     }
 
