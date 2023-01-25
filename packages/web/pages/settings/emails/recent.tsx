@@ -17,7 +17,7 @@ import {
   useGetRecentEmailsQuery,
 } from '../../../lib/networking/queries/useGetRecentEmails'
 import Link from 'next/link'
-import { HStack } from '../../../components/elements/LayoutPrimitives'
+import { HStack, VStack } from '../../../components/elements/LayoutPrimitives'
 
 export default function RecentEmails(): JSX.Element {
   const { recentEmails, revalidate, isValidating } = useGetRecentEmailsQuery()
@@ -133,7 +133,7 @@ export default function RecentEmails(): JSX.Element {
               }}
               deleteTitle="Delete"
               sublineElement={
-                <HStack>
+                <VStack>
                   <StyledText
                     css={{
                       my: '5px',
@@ -165,7 +165,7 @@ export default function RecentEmails(): JSX.Element {
                       recentEmail.createdAt
                     )}, classfied as: ${recentEmail.type}`}
                   </StyledText>
-                </HStack>
+                </VStack>
               }
             />
           )
