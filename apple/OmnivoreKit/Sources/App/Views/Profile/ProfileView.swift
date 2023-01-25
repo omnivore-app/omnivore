@@ -152,7 +152,7 @@ struct ProfileView: View {
           }
           .alert(isPresented: $showLogoutConfirmation) {
             Alert(
-              title: Text("Are you sure you want to logout?"),
+              title: Text(LocalText.profileConfirmLogoutMessage),
               primaryButton: .destructive(Text("Confirm")) {
                 authenticator.logout(dataService: dataService)
               },

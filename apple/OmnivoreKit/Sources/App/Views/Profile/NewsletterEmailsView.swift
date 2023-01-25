@@ -73,7 +73,7 @@ struct NewsletterEmailsView: View {
       }
 
       if !viewModel.emails.isEmpty {
-        Section(header: Text("Existing Emails (Tap to copy)")) {
+        Section(header: Text(LocalText.newsletterEmailsExisting)) {
           ForEach(viewModel.emails) { newsletterEmail in
             Button(
               action: {

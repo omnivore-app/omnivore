@@ -109,7 +109,7 @@ struct RecommendationGroupView: View {
     if let shareLink = URL(string: viewModel.recommendationGroup.inviteUrl) {
       return AnyView(ShareSheet(activityItems: [shareLink]))
     } else {
-      return AnyView(Text("Error copying invite URL"))
+      return AnyView(Text(LocalText.clubsErrorCopying))
     }
   }
 
@@ -127,9 +127,9 @@ struct RecommendationGroupView: View {
 
   private var membersSection: some View {
     Section("Members") {
-      if !viewModel.recommendationGroup.canSeeMembers {
+      if !viewModel.recommendationGroup.canSeeMembers { // TODO: might need to fix text here
         Text("""
-        The admin of this club does not allow viewing all members.
+        \(LocalText.clubsAdminDenyViewing)
 
         [Learn more about clubs](https://blog.omnivore.app/p/dca38ba4-8a74-42cc-90ca-d5ffa5d075cc)
         """)
@@ -142,10 +142,9 @@ struct RecommendationGroupView: View {
             imageURL: member.profileImageURL != nil ? URL(string: member.profileImageURL!) : nil
           ))
         }
-      } else {
+      } else { // TODO: fix link text to use translation
         Text("""
-        This club does not have any members. Add users to your club by sending
-        them the invite link.
+        \(LocalText.clubsNoMembers)
 
         [Learn more about clubs](https://blog.omnivore.app/p/dca38ba4-8a74-42cc-90ca-d5ffa5d075cc)
         """)
@@ -160,7 +159,7 @@ struct RecommendationGroupView: View {
     }
     return AnyView(Button(action: {
       viewModel.showLeaveGroup = true
-    }, label: { Text("Leave Club") })
+    }, label: { Text(LocalText.clubsLeave) })
       .accentColor(.red))
   }
 
@@ -196,8 +195,8 @@ struct RecommendationGroupView: View {
     }
     .alert(isPresented: $viewModel.showLeaveGroup) {
       Alert(
-        title: Text("Are you sure you want to leave this club? No data will be deleted, but you will stop receiving recommendations from the club."),
-        primaryButton: .destructive(Text("Leave Club")) {
+        title: Text(Localtext.clubsLeaveConfirm),
+        primaryButton: .destructive(Text(LocalText.clubsLeave)) {
           Task {
             let success = await viewModel.leaveGroup(dataService: dataService)
             if success {

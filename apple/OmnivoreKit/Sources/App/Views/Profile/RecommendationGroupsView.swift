@@ -72,7 +72,7 @@ struct CreateRecommendationGroupView: View {
   var body: some View {
     NavigationView {
       Form {
-        TextField("Name", text: $name, prompt: Text("Club Name"))
+        TextField("Name", text: $name, prompt: Text(Localtext.clubsName))
 
         Section("Club Rules") {
           Toggle("Only admins can post", isOn: $viewModel.onlyAdminCanPost)
@@ -143,7 +143,7 @@ struct GroupsView: View {
           label: {
             HStack {
               Image(systemName: "plus.circle.fill").foregroundColor(.green)
-              Text("Create a new club")
+              Text(LocalText.clubsCreate)
               Spacer()
             }
           }
@@ -152,7 +152,7 @@ struct GroupsView: View {
 
       if !viewModel.isLoading {
         if viewModel.recommendationGroups.count > 0 {
-          Section(header: Text("Your clubs")) {
+          Section(header: Text(LocalText.clubsYours)) {
             ForEach(viewModel.recommendationGroups) { recommendationGroup in
               let vm = RecommendationsGroupViewModel(recommendationGroup: recommendationGroup)
               NavigationLink(
@@ -164,15 +164,7 @@ struct GroupsView: View {
           }
         } else {
           Section {
-            Text("""
-            You are not a member of any clubs.
-            Create a new club and send the invite link to your friends get started.
-
-            During the beta you are limited to creating three clubs, and each club
-            can have a maximum of twelve users.
-
-            [Learn more about clubs](https://blog.omnivore.app/p/dca38ba4-8a74-42cc-90ca-d5ffa5d075cc)
-            """)
+            Text(LocalText.clubsNotAMemberMessage)
               .accentColor(.blue)
           }
         }

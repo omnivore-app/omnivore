@@ -163,9 +163,7 @@ struct RecommendToView: View {
       List {
         if !viewModel.isLoading, viewModel.recommendationGroups.count < 1 {
           Text("""
-          You do not have any clubs you can post to.
-
-          Join a club or create your own to start recommending articles.
+          \(LocalText.clubsNoneJoined)
 
           [Learn more about clubs](https://blog.omnivore.app/p/dca38ba4-8a74-42cc-90ca-d5ffa5d075cc)
           """)

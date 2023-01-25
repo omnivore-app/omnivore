@@ -54,7 +54,7 @@ public struct CommunityModal: View {
 
   public var header: some View {
     VStack(spacing: 0) {
-      Text("Help build the Omnivore Community")
+      Text(LocalText.communityHeadline)
         .font(.textToSpeechRead)
         .foregroundColor(Color.appGrayTextContrast)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -71,10 +71,10 @@ public struct CommunityModal: View {
   }
 
   let links = [
-    (title: "Tweet about Omnivore", url: tweetUrl),
-    (title: "Follow us on Twitter", url: "https://twitter.com/omnivoreapp"),
-    (title: "Join us on Discord", url: "https://discord.gg/h2z5rppzz9"),
-    (title: "Star on GitHub", url: "https://github.com/omnivore-app/omnivore")
+    (title: LocalText.communityTweet, url: tweetUrl),
+    (title: LocalText.communityFollowTwitter, url: "https://twitter.com/omnivoreapp"),
+    (title: LocalText.communityJoinDiscord, url: "https://discord.gg/h2z5rppzz9"),
+    (title: LocalText.communityStarGithub, url: "https://github.com/omnivore-app/omnivore")
   ]
 
   var buttonLinks: some View {
@@ -83,7 +83,7 @@ public struct CommunityModal: View {
         if let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
           SKStoreReviewController.requestReview(in: scene)
         }
-      }, label: { Text("Review on the AppStore") })
+      }, label: { Text(LocalText.communityAppstoreReview) })
         .frame(maxWidth: .infinity, alignment: .leading)
 
       ForEach(links, id: \.url) { link in
