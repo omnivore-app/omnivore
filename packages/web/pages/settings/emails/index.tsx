@@ -2,14 +2,13 @@ import { Button } from '../../../components/elements/Button'
 import { useGetNewsletterEmailsQuery } from '../../../lib/networking/queries/useGetNewsletterEmailsQuery'
 import { createNewsletterEmailMutation } from '../../../lib/networking/mutations/createNewsletterEmailMutation'
 import { deleteNewsletterEmailMutation } from '../../../lib/networking/mutations/deleteNewsletterEmailMutation'
-import { MoreOptionsIcon } from '../../../components/elements/images/MoreOptionsIcon'
-import { Trash, Copy } from 'phosphor-react'
-import {
-  Dropdown,
-  DropdownOption,
-} from '../../../components/elements/DropdownElements'
+import { Copy } from 'phosphor-react'
 import { theme, styled } from '../../../components/tokens/stitches.config'
-import { Box, HStack } from '../../../components/elements/LayoutPrimitives'
+import {
+  Box,
+  HStack,
+  SpanBox,
+} from '../../../components/elements/LayoutPrimitives'
 import { useCopyLink } from '../../../lib/hooks/useCopyLink'
 import { useCallback, useMemo, useState } from 'react'
 import { StyledText } from '../../../components/elements/StyledText'
@@ -214,9 +213,19 @@ export default function EmailsPage(): JSX.Element {
             text={isValidating ? '-' : 'No Email Addresses Found'}
           />
         )}
-        <Link href="/settings/emails/recent">
-          View recently received emails
-        </Link>
+        <SpanBox
+          css={{
+            pt: '15px',
+            marginLeft: 'auto',
+            a: {
+              color: '$omnivoreCtaYellow',
+            },
+          }}
+        >
+          <Link href="/settings/emails/recent">
+            View recently received emails
+          </Link>
+        </SpanBox>
       </SettingsTable>
 
       {confirmDeleteEmailId ? (
