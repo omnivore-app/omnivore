@@ -216,6 +216,7 @@ export default function EmailsPage(): JSX.Element {
         <SpanBox
           css={{
             pt: '15px',
+            fontSize: '12px',
             marginLeft: 'auto',
             a: {
               color: '$omnivoreCtaYellow',
