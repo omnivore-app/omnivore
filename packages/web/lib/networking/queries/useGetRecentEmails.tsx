@@ -70,7 +70,7 @@ export function useGetRecentEmailsQuery(): RecentEmailsResponse {
     console.log('error', error)
   }
   return {
-    isValidating: false,
+    isValidating: true,
     recentEmails: [],
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     revalidate: () => {},
