@@ -118,7 +118,7 @@ const ViewRecentEmailModal = (
             css={{
               width: '100%',
               height: '100%',
-              py: '16px',
+              fontSize: '12px',
               overflowY: 'scroll',
             }}
           >
