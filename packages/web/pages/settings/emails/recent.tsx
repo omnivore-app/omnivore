@@ -105,6 +105,7 @@ const ViewRecentEmailModal = (
           overflowY: 'auto',
           height: '100%',
           width: '100%',
+          maxWidth: '650px',
         }}
         onInteractOutside={() => {
           // remove focus from modal
