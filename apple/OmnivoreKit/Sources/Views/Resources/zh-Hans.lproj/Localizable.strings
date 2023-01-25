@@ -55,7 +55,7 @@
 "clubsName" = "读书俱乐部名称";
 "clubsCreate" = "创建新读书俱乐部";
 "clubsYours" = "您的读书俱乐部";
-"clubsNotAMemberMessage" = "您不是任何读书俱乐部的成员.\n创建新读书俱乐部并将邀请链接发送给您的朋友开始使用.\n\n在测试期间您只能创建三个读书俱乐部, 且每个读书俱乐部\n最多可以有 12 个用户."
+"clubsNotAMemberMessage" = "您不是任何读书俱乐部的成员.\n创建新读书俱乐部并将邀请链接发送给您的朋友开始使用.\n\n在测试期间您只能创建三个读书俱乐部, 且每个读书俱乐部\n最多可以有 12 个用户.";
 "clubsErrorCopying" = "复制邀请 URL 时出错";
 "clubsAdminDenyViewing" = "此读书俱乐部的管理员不允许查看所有成员.";
 "clubsNoMembers" = "此读书俱乐部没有任何成员. 通过向用户发送邀请链接\n将用户添加到您的读书俱乐部.";

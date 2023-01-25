@@ -2,7 +2,9 @@ import Foundation
 
 public enum LocalText {
   public static func localText(key: String, comment: String? = nil) -> String {
-    NSLocalizedString(key, bundle: .module, comment: comment ?? "no comment provided by developer")
+    let string = NSLocalizedString(key, bundle: .module, comment: comment ?? "no comment provided by developer")
+    print(string)
+    return string
   }
 
   // Share extension

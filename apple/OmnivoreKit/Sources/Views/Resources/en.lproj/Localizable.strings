@@ -55,7 +55,7 @@
 "clubsName" = "Club Name";
 "clubsCreate" = "Create a new club";
 "clubsYours" = "Your clubs";
-"clubsNotAMemberMessage" = "You are not a member of any clubs.\nCreate a new club and send the invite link to your friends get started.\n\nDuring the beta you are limited to creating three clubs, and each club\ncan have a maximum of twelve users."
+"clubsNotAMemberMessage" = "You are not a member of any clubs.\nCreate a new club and send the invite link to your friends get started.\n\nDuring the beta you are limited to creating three clubs, and each club\ncan have a maximum of twelve users.";
 "clubsErrorCopying" = "Error copying invite URL";
 "clubsAdminDenyViewing" = "The admin of this club does not allow viewing all members.";
 "clubsNoMembers" = "This club does not have any members. Add users to your club by sending\nthem the invite link.";
