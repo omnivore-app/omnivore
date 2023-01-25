@@ -110,7 +110,7 @@ struct RecommendToView: View {
   var noteView: some View {
     VStack {
       HStack {
-        Text("To:")
+        Text(LocalText.recommendationToPrefix)
           .font(.appCaption)
           .foregroundColor(.appGrayText)
         Text(InternalRecommendationGroup.readable(list: viewModel.selectedGroups))
@@ -131,7 +131,7 @@ struct RecommendToView: View {
             .background(RoundedRectangle(cornerRadius: 8).fill(Color.systemBackground))
         )
         .overlay(
-          Text("Add a note (optional)")
+          Text(LocalText.recommendationAddNote)
             .allowsHitTesting(false)
             .opacity(viewModel.note.isEmpty ? 0.4 : 0.0)
             .font(.appBody)
@@ -199,7 +199,7 @@ struct RecommendToView: View {
     }
     .alert(isPresented: $viewModel.showError) {
       Alert(
-        title: Text("Error recommending this page"),
+        title: Text(LocalText.recommendationError),
         dismissButton: .cancel(Text("Ok")) {
           viewModel.showError = false
         }

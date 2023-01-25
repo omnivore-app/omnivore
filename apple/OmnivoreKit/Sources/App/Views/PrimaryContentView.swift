@@ -32,7 +32,7 @@ public struct PrimaryContentView: View {
         PrimaryContentCategory.feed.destinationView
 
         // Third column is the detail view
-        Text("Select a link from the feed")
+        Text(LocalText.navigationSelectLink)
       }
       .accentColor(.appGrayTextContrast)
     }
@@ -95,7 +95,7 @@ struct PrimaryContentSidebar: View {
                   #selector(NSSplitViewController.toggleSidebar(_:)), with: nil
                 )
               },
-              label: { Label("Toggle sidebar", systemImage: "sidebar.left") }
+              label: { Label(LocalText.navigationSelectSidebarToggle, systemImage: "sidebar.left") }
             )
           }
         }

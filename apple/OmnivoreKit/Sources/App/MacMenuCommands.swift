@@ -20,7 +20,7 @@ import Views
             storedFontSize = max(storedFontSize - 2, 10)
             NSNotification.readerSettingsChanged()
           },
-          label: { Text("Decrease Font Size")
+          label: { Text(LocalText.keyboardCommandDecreaseFont)
           }
         )
         .keyboardShortcut("-")
@@ -30,7 +30,7 @@ import Views
             storedFontSize = min(storedFontSize + 2, 28)
             NSNotification.readerSettingsChanged()
           },
-          label: { Text("Increase Font Size") }
+          label: { Text(LocalText.keyboardCommandIncreaseFont) }
         )
         .keyboardShortcut("+")
       }
@@ -43,7 +43,7 @@ import Views
             storedMaxWidthPercentage = min(storedMaxWidthPercentage + 10, 100)
             NSNotification.readerSettingsChanged()
           },
-          label: { Text("Decrease Margin")
+          label: { Text(LocalText.keyboardCommandDecreaseMargin)
           }
         )
         .keyboardShortcut("[")
@@ -53,7 +53,7 @@ import Views
             storedMaxWidthPercentage = max(storedMaxWidthPercentage - 10, 40)
             NSNotification.readerSettingsChanged()
           },
-          label: { Text("Increase Margin")
+          label: { Text(LocalText.keyboardCommandIncreaseMargin)
           }
         )
         .keyboardShortcut("]")
@@ -67,7 +67,7 @@ import Views
             storedLineSpacing = max(storedLineSpacing - 25, 100)
             NSNotification.readerSettingsChanged()
           },
-          label: { Text("Decrease Line Spacing") }
+          label: { Text(LocalText.keyboardCommandDecreaseLineSpacing) }
         )
         .keyboardShortcut("k")
 
@@ -76,7 +76,7 @@ import Views
             storedLineSpacing = min(storedLineSpacing + 25, 300)
             NSNotification.readerSettingsChanged()
           },
-          label: { Text("Increase Line Spacing") }
+          label: { Text(LocalText.keyboardCommandIncreaseLineSpacing) }
         )
         .keyboardShortcut("l")
       }

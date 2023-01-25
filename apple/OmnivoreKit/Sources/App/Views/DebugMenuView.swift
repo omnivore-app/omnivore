@@ -12,11 +12,11 @@ struct DebugMenuView: View {
 
   var body: some View {
     VStack {
-      Text("Debug Menu")
+      Text(LocalText.menuDebugTitle)
         .font(.appTitle)
       Form {
-        Text("API Environment:")
-        Picker(selection: $selectedEnvironment, label: Text("API Environment:")) {
+        Text(LocalText.menuDebugApiEnv)
+        Picker(selection: $selectedEnvironment, label: Text(LocalText.menuDebugApiEnv)) {
           ForEach(appEnvironments, id: \.self) {
             Text($0.rawValue)
           }

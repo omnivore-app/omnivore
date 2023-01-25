@@ -369,19 +369,19 @@ struct WebReaderContainerView: View {
           Button(action: {
             UIPasteboard.general.string = item.unwrappedPageURLString
             showInSnackbar("Link Copied")
-          }, label: { Text("Copy Link") })
+          }, label: { Text(LocalText.readerCopyLink) })
           Button(action: {
             if let linkToOpen = linkToOpen {
               viewModel.saveLink(dataService: dataService, url: linkToOpen)
             }
-          }, label: { Text("Save to Omnivore") })
+          }, label: { Text(LocalText.readerSave) })
         }
         #if os(iOS)
           .fullScreenCover(item: $safariWebLink) {
             SafariView(url: $0.url)
           }
         #endif
-        .alert(errorAlertMessage ?? "An error occurred", isPresented: $showErrorAlertMessage) {
+          .alert(errorAlertMessage ?? LocalText.readerError, isPresented: $showErrorAlertMessage) {
           Button("Ok", role: .cancel, action: {
             errorAlertMessage = nil
             showErrorAlertMessage = false

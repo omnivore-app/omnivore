@@ -57,7 +57,7 @@ struct SubscriptionsView: View {
         .task { await viewModel.loadSubscriptions(dataService: dataService) }
     } else if viewModel.hasNetworkError {
       VStack {
-        Text("Sorry, we were unable to retrieve your subscriptions.").multilineTextAlignment(.center)
+        Text(LocalText.subscriptionsErrorRetrieving).multilineTextAlignment(.center)
         Button(
           action: { Task { await viewModel.loadSubscriptions(dataService: dataService) } },
           label: { Text("Retry") }
@@ -67,7 +67,7 @@ struct SubscriptionsView: View {
     } else if viewModel.subscriptions.isEmpty {
       VStack(alignment: .center) {
         Spacer()
-        Text("You have no current subscriptions.")
+        Text(LocalText.subscriptionsNone)
         Spacer()
       }
     } else {

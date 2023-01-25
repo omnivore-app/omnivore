@@ -101,7 +101,7 @@ struct EmailLoginFormView: View {
                 Button(
                   action: { viewModel.emailAuthState = .signUp },
                   label: {
-                    Text("Don't have an account?")
+                    Text(Localtext.registrationNoAccount)
                       .foregroundColor(.appGrayTextContrast)
                       .underline()
                   }
@@ -121,7 +121,7 @@ struct EmailLoginFormView: View {
                     openURL(url)
                   },
                   label: {
-                    Text("Forgot your password?")
+                    Text(LocalText.registrationForgotPassword)
                       .foregroundColor(.appGrayTextContrast)
                       .underline()
                   }
@@ -175,7 +175,7 @@ struct EmailPendingVerificationView: View {
             )
           }
         },
-        label: { Text("Check Status") }
+        label: { Text(LocalText.registrationStatusCheck) }
       )
       .buttonStyle(SolidCapsuleButtonStyle(color: .appDeepBackground, width: 300))
 
@@ -183,7 +183,7 @@ struct EmailPendingVerificationView: View {
         Button(
           action: { viewModel.emailAuthState = .signUp },
           label: {
-            Text("Use a different email?")
+            Text(LocalText.registrationUseDifferentEmail)
               .foregroundColor(.appGrayTextContrast)
               .underline()
           }

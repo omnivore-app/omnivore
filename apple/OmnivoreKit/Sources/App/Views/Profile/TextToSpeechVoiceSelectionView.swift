@@ -25,7 +25,7 @@
           if FeatureFlag.enableUltraRealisticVoices, language.key == "en" {
             if viewModel.waitingForRealisticVoices {
               HStack {
-                Text("Signing up for beta")
+                Text(LocalText.texttospeechBetaSignupInProcess)
                 Spacer()
                 ProgressView()
               }
@@ -35,13 +35,13 @@
             }
 
             if !viewModel.waitingForRealisticVoices, !audioController.ultraRealisticFeatureKey.isEmpty {
-              Text("You are in the ultra realistic voices beta. During the beta you can listen to 10,000 words of audio per day.")
+              Text(LocalText.texttospeechBetaRealisticVoiceLimit)
                 .multilineTextAlignment(.leading)
             } else if audioController.ultraRealisticFeatureRequested {
-              Text("Your request to join the ultra realistic voices demo has been received. You will be informed by email when a spot is available.")
+              Text(LocalText.texttospeechBetaRequestReceived)
                 .multilineTextAlignment(.leading)
             } else {
-              Text("Ultra realistic voices are currently in limited beta. Enabling the feature will add you to the beta queue.")
+              Text(LocalText.texttospeechBetaWaitlist)
                 .multilineTextAlignment(.leading)
             }
           }

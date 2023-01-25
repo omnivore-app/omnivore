@@ -49,7 +49,7 @@ public struct HighlightAnnotationSheet: View {
       Spacer()
     }
     .padding()
-    .alert(errorAlertMessage ?? "An error occurred", isPresented: $showErrorAlertMessage) {
+    .alert(errorAlertMessage ?? LocalText.readerError, isPresented: $showErrorAlertMessage) {
       Button("Ok", role: .cancel, action: {
         errorAlertMessage = nil
         showErrorAlertMessage = false
