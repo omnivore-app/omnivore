@@ -1,7 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
-import { useRouter } from 'next/router'
-
-import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
+import { useMemo, useState } from 'react'
 import { applyStoredTheme } from '../../../lib/themeUpdater'
 
 import { FormInputProps } from '../../../components/elements/FormElements'
@@ -11,101 +8,147 @@ import {
   SettingsTableRow,
 } from '../../../components/templates/settings/SettingsTable'
 import { StyledText } from '../../../components/elements/StyledText'
-import { formattedShortDate } from '../../../lib/dateFormatting'
 import {
   RecentEmail,
   useGetRecentEmailsQuery,
 } from '../../../lib/networking/queries/useGetRecentEmails'
-import Link from 'next/link'
-import { HStack, VStack } from '../../../components/elements/LayoutPrimitives'
+import {
+  Box,
+  HStack,
+  SpanBox,
+  VStack,
+} from '../../../components/elements/LayoutPrimitives'
+import { DropdownOption } from '../../../components/elements/DropdownElements'
+import { theme } from '../../../components/tokens/stitches.config'
+import {
+  ModalContent,
+  ModalOverlay,
+  ModalRoot,
+  ModalTitleBar,
+} from '../../../components/elements/ModalPrimitives'
+import TextArea from 'antd/lib/input/TextArea'
+import { StyledTextArea } from '../../../components/elements/StyledTextArea'
+
+type TypeChipProps = {
+  type: string
+}
+
+const TypeChip = (props: TypeChipProps): JSX.Element => {
+  const backgroundColor = props.type == 'article' ? '$omnivoreCtaYellow' : 'red'
+  return (
+    <SpanBox
+      css={{
+        color: 'black',
+        display: 'inline-table',
+        marginTop: '5px',
+        borderRadius: '4px',
+        fontSize: '14px',
+        fontWeight: 'bold',
+        padding: '5px 10px 5px 10px',
+        whiteSpace: 'nowrap',
+        cursor: 'pointer',
+        backgroundClip: 'padding-box',
+        backgroundColor,
+      }}
+    >
+      {props.type}
+    </SpanBox>
+  )
+}
+
+type MoreOptionItemProps = {
+  text: string
+  action: () => void
+}
+
+const MoreOptionItem = (props: MoreOptionItemProps): JSX.Element => {
+  return (
+    <DropdownOption
+      onSelect={() => {
+        props.action()
+      }}
+    >
+      <HStack alignment={'center'} distribution={'start'}>
+        <SpanBox
+          css={{
+            color: theme.colors.grayTextContrast.toString(),
+            marginLeft: '8px',
+            border: 'none',
+            backgroundColor: 'transparent',
+            '&:hover': {
+              border: 'none',
+              backgroundColor: 'transparent',
+            },
+          }}
+        >
+          {props.text}
+        </SpanBox>
+      </HStack>
+    </DropdownOption>
+  )
+}
+
+type ViewRecentEmailModalProps = {
+  recentEmail: RecentEmail
+  onOpenChange: (open: boolean) => void
+}
+
+const ViewRecentEmailModal = (
+  props: ViewRecentEmailModalProps
+): JSX.Element => {
+  return (
+    <ModalRoot defaultOpen onOpenChange={props.onOpenChange}>
+      <ModalOverlay />
+      <ModalContent
+        css={{
+          bg: '$grayBg',
+          px: '24px',
+          overflowY: 'auto',
+          height: '100%',
+          width: '100%',
+        }}
+        onInteractOutside={() => {
+          // remove focus from modal
+          ;(document.activeElement as HTMLElement).blur()
+        }}
+      >
+        <VStack distribution="start">
+          <ModalTitleBar title="View Email" onOpenChange={props.onOpenChange} />
+          <Box
+            css={{
+              width: '100%',
+              height: '100%',
+              py: '16px',
+              overflowY: 'scroll',
+            }}
+          >
+            {props.recentEmail.text}
+          </Box>
+        </VStack>
+      </ModalContent>
+    </ModalRoot>
+  )
+}
 
 export default function RecentEmails(): JSX.Element {
-  const { recentEmails, revalidate, isValidating } = useGetRecentEmailsQuery()
-  const [onDeleteId, setOnDeleteId] = useState<string>('')
-  const [addModalOpen, setAddModalOpen] = useState(false)
-  const [name, setName] = useState<string>('')
-  const [value, setValue] = useState<string>('')
-  const [expiresAt, setExpiresAt] = useState<Date>(new Date())
-  const [formInputs, setFormInputs] = useState<FormInputProps[]>([])
-  const [apiKeyGenerated, setApiKeyGenerated] = useState('')
-  const neverExpiresDate = new Date(8640000000000000)
-  const defaultExpiresAt = 'Never'
+  const { recentEmails, isValidating } = useGetRecentEmailsQuery()
+  const [viewingEmail, setViewingEmail] = useState<RecentEmail | undefined>(
+    undefined
+  )
 
   applyStoredTheme(false)
 
-  // async function onDelete(id: string): Promise<void> {
-  //   const result = await revokeApiKeyMutation(id)
-  //   if (result) {
-  //     showSuccessToast('API Key deleted', { position: 'bottom-right' })
-  //   } else {
-  //     showErrorToast('Failed to delete', { position: 'bottom-right' })
-  //   }
-  //   revalidate()
-  // }
-
-  // async function onCreate(): Promise<void> {
-  //   const result = await generateApiKeyMutation({ name, expiresAt })
-  //   if (result) {
-  //     setApiKeyGenerated(result)
-  //     showSuccessToast('API key generated', { position: 'bottom-right' })
-  //   } else {
-  //     showErrorToast('Failed to add', { position: 'bottom-right' })
-  //   }
-  //   revalidate()
-  // }
-
-  // function onAdd() {
-  //   return setFormInputs([
-  //     {
-  //       label: 'Name',
-  //       onChange: setName,
-  //       name: 'name',
-  //       value: value,
-  //       required: true,
-  //     },
-  //     {
-  //       label: 'Expires',
-  //       name: 'expiredAt',
-  //       required: true,
-  //       onChange: (e) => {
-  //         console.log('onChange: ', e)
-  //         let additionalDays = 0
-  //         switch (e.target.value) {
-  //           case 'in 7 days':
-  //             additionalDays = 7
-  //             break
-  //           case 'in 30 days':
-  //             additionalDays = 30
-  //             break
-  //           case 'in 90 days':
-  //             additionalDays = 90
-  //             break
-  //           case 'in 1 year':
-  //             additionalDays = 365
-  //             break
-  //           case 'Never':
-  //             break
-  //         }
-  //         const newExpires = additionalDays ? new Date() : neverExpiresDate
-  //         if (additionalDays) {
-  //           newExpires.setDate(newExpires.getDate() + additionalDays)
-  //         }
-  //         setExpiresAt(newExpires)
-  //       },
-  //       type: 'select',
-  //       options: [
-  //         'in 7 days',
-  //         'in 30 days',
-  //         'in 90 days',
-  //         'in 1 year',
-  //         'Never',
-  //       ],
-  //       value: defaultExpiresAt,
-  //     },
-  //   ])
-  // }
-
   const sortedRecentEmails = useMemo(() => {
+    const stub = {
+      createdAt: '2023-01-25T09:00:02.000Z',
+      from: 'Jackson Harper from 😜 Jackson’s Newsletter <jacksonharper@substack.com>',
+      id: 'a7210b62-9c8e-11ed-bac2-7321761ada92',
+      subject: 'This is a test post i just created',
+      text: 'View this post on the web at https://jacksonharper.substack.com/p/this-is-a-test-post-i-just-created\n\nThis is a test post created on substack. You can read it in your recent emails.\n\nUnsubscribe https://substack.com/redirect/2/eyJlIjoiaHR0cHM6Ly9qYWNrc29uaGFycGVyLnN1YnN0YWNrLmNvbS9hY3Rpb24vZGlzYWJsZV9lbWFpbD90b2tlbj1leUoxYzJWeVgybGtJam8zTWpVMU16RXlNQ3dpY0c5emRGOXBaQ0k2T1RnNE5EYzFNRE1zSW1saGRDSTZNVFkzTkRZek56RTVOU3dpWlhod0lqb3hOamMzTWpJNU1UazFMQ0pwYzNNaU9pSndkV0l0Tmpnek1Ea3hJaXdpYzNWaUlqb2laR2x6WVdKc1pWOWxiV0ZwYkNKOS5SenJLc1RUcXQ5VTlXbFliY250ZmR1anFjeW80Mk5mUDFSNjRLMXBoRVJZIiwicCI6OTg4NDc1MDMsInMiOjY4MzA5MSwiZiI6dHJ1ZSwidSI6NzI1NTMxMjAsImlhdCI6MTY3NDYzNzE5NSwiZXhwIjoxNjc3MjI5MTk1LCJpc3MiOiJwdWItMCIsInN1YiI6ImxpbmstcmVkaXJlY3QifQ.bQzDxlIPeV1K2lMXAFkBrFkSiAxEJWOC-9VLw372kME?',
+      to: 'jacksonh-eEMfQepve@inbox-demo.omnivore.app',
+      type: 'article',
+    }
+    return [stub]
     if (!recentEmails) {
       return []
     }
@@ -115,23 +158,16 @@ export default function RecentEmails(): JSX.Element {
   return (
     <SettingsTable
       pageId="api-keys"
-      pageHeadline="Recently Received Emails"
       pageInfoLink="https://docs.omnivore.app/using/inbox.html"
       headerTitle="Recently Received Emails"
     >
       {sortedRecentEmails.length > 0 ? (
         sortedRecentEmails.map((recentEmail: RecentEmail, i) => {
-          console.log('recent email: ', recentEmail)
           return (
             <SettingsTableRow
               key={recentEmail.id}
               title={recentEmail.from}
               isLast={i === sortedRecentEmails.length - 1}
-              onDelete={() => {
-                console.log('onDelete triggered: ', recentEmail.id)
-                setOnDeleteId(recentEmail.id)
-              }}
-              deleteTitle="Delete"
               sublineElement={
                 <VStack>
                   <StyledText
@@ -144,28 +180,33 @@ export default function RecentEmails(): JSX.Element {
                   </StyledText>
                   <StyledText
                     css={{
-                      my: '5px',
-                      fontSize: '11px',
-                    }}
-                  >
-                    <Link href={`/settings/emails?address=${recentEmail.to}`}>
-                      {recentEmail.to}
-                    </Link>
-                  </StyledText>
-                  <StyledText
-                    css={{
-                      my: '5px',
+                      my: '0px',
                       fontSize: '11px',
                       a: {
                         color: '$omnivoreCtaYellow',
                       },
                     }}
                   >
-                    {`${formattedShortDate(
-                      recentEmail.createdAt
-                    )}, classfied as: ${recentEmail.type}`}
+                    <TypeChip type={recentEmail.type} />
                   </StyledText>
                 </VStack>
+              }
+              dropdownItems={
+                <>
+                  <MoreOptionItem
+                    text="View Text"
+                    action={() => {
+                      console.log('viewing text: ', recentEmail)
+                      setViewingEmail(recentEmail)
+                    }}
+                  />
+                  <MoreOptionItem
+                    text="Mark as article"
+                    action={() => {
+                      console.log('marking as email', recentEmail)
+                    }}
+                  />
+                </>
               }
             />
           )
@@ -175,42 +216,13 @@ export default function RecentEmails(): JSX.Element {
           text={isValidating ? '-' : 'No recent emails Found'}
         />
       )}
-      {/* 
-      {addModalOpen && (
-        <FormModal
-          title={'Generate API Key'}
-          onSubmit={onCreate}
-          onOpenChange={setAddModalOpen}
-          inputs={formInputs}
-          acceptButtonLabel={'Generate'}
+
+      {viewingEmail && (
+        <ViewRecentEmailModal
+          recentEmail={viewingEmail}
+          onOpenChange={() => setViewingEmail(undefined)}
         />
       )}
-
-      {apiKeyGenerated && (
-        <ConfirmationModal
-          message={`API key generated. Copy the key and use it in your application.
-                    You won’t be able to see it again!
-                    Key: ${apiKeyGenerated}`}
-          acceptButtonLabel="Copy"
-          cancelButtonLabel="Close"
-          onAccept={async () => {
-            await navigator.clipboard.writeText(apiKeyGenerated)
-            setApiKeyGenerated('')
-          }}
-          onOpenChange={() => setApiKeyGenerated('')}
-        />
-      )}
-
-      {onDeleteId && (
-        <ConfirmationModal
-          message={'API key will be revoked. This action cannot be undone.'}
-          onAccept={async () => {
-            await onDelete(onDeleteId)
-            setOnDeleteId('')
-          }}
-          onOpenChange={() => setOnDeleteId('')}
-        />
-      )} */}
     </SettingsTable>
   )
 }
