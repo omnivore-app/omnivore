@@ -4,130 +4,130 @@
 "extensionAppUnauthorized" = "请在保存您的第一个链接之前从应用程序登录 Omnivore.";
 
 // audio player
-"audioPlayerReplay" = "Replay";
+"audioPlayerReplay" = "重播";
 
 // Highlights List Card
-"highlightCardHighlightByOther" = "Highlight by ";
-"highlightCardNoHighlightsOnPage" = "You have not added any highlights or notes to this page.";
+"highlightCardHighlightByOther" = "荧光笔高亮显示于 ";
+"highlightCardNoHighlightsOnPage" = "您尚未在此页面添加任荧光笔高亮显示或注解.";
 
 // Labels View
-"labelsViewAssignNameColor" = "Assign a name and color.";
+"labelsViewAssignNameColor" = "指定名称和颜色.";
 "createLabelMessage" = "创建新标签";
 "labelsPurposeDescription" = "使用标签创建精选的链接集合。";
 
 // Manage Account View
-"manageAccountDelete" = "Delete Account";
-"manageAccountResetCache" = "Reset Data Cache";
-"manageAccountConfirmDeleteMessage" = "Are you sure you want to delete your account? This action can't be undone.";
+"manageAccountDelete" = "删除帐户";
+"manageAccountResetCache" = "重置数据缓存";
+"manageAccountConfirmDeleteMessage" = "您确定要删除您的帐户吗? 此操作无法撤消.";
 
 // Newsletter Emails View
-"newsletterEmailsExisting" = "Existing Emails (Tap to copy)";
+"newsletterEmailsExisting" = "现有电子邮箱 (点击复制)";
 "createNewEmailMessage" = "创建新的电子邮件地址";
 "newslettersDescription" = "将 PDF 添加到您的资料库，或使用 Omnivore 电子邮件地址订阅新闻稿件。";
 "noCurrentSubscriptionsMessage" = "您当前没有任何订阅。";
 
 // Profile View
-"profileConfirmLogoutMessage" = "Are you sure you want to logout?";
+"profileConfirmLogoutMessage" = "您确定要注销吗?";
 
 // Devices View
-"devicesTokensTitle" = "Registered device tokens (swipe to remove)";
-"devicesCreated" = "Created: ";
+"devicesTokensTitle" = "已注册的设备令牌 (滑动以删除)";
+"devicesCreated" = "创建: ";
 
 // Push Notification Settings
-"notificationsEnabled" = "Notifications Enabled";
-"notificationsExplainer" = "Enabling push notifications gives Omnivore device permission to send notifications,\nbut you are in charge of which notifications are sent.";
-"notificationsTriggerExplainer" = "Push notifications are triggered using your \n[account rules](https://omnivore.app/settings/rules) which you can edit online.";
-"notificationsEnable" = "Enable Push Notifications?";
- "notificationsGeneralExplainer" = "Get notified when newsletter links reach your inbox. Or receive reminders that you set from our share extension.";
-"notificationsOptionDeny" = "No Thanks";
-"notificationsOptionEnable" = "Yes Please";
+"notificationsEnabled" = "启用通知";
+"notificationsExplainer" = "启用推送通知将授予 Omnivore 设备发送通知的权限,\n但由您负责发送哪些通知.";
+"notificationsTriggerExplainer" = "推送通知使用您的 \n[account rules](https://omnivore.app/settings/rules) 您可以在线编辑.";
+"notificationsEnable" = "确定启用推送通知?";
+ "notificationsGeneralExplainer" = "当新闻通讯链接到达您的收集箱时收到通知. 或者接收您从我们的分享扩展中设置的提醒.";
+"notificationsOptionDeny" = "不了,谢谢";
+"notificationsOptionEnable" = "好的,谢谢";
 
 // Community Modal
-"communityHeadline" = "Help build the Omnivore Community";
-"communityAppstoreReview" = "Review on the AppStore";
-"communityTweet" = "Tweet about Omnivore";
-"communityFollowTwitter" = "Follow us on Twitter";
-"communityJoinDiscord" = "Join us on Discord";
-"communityStarGithub" = "Star on GitHub";
+"communityHeadline" = "帮助建立 Omnivore 社区";
+"communityAppstoreReview" = "在 AppStore 上评论";
+"communityTweet" = "关于 Omnivore 的推文";
+"communityFollowTwitter" = "在 Twitter 上关注我们";
+"communityJoinDiscord" = "加入我们的 Discord";
+"communityStarGithub" = "点亮我们的 GitHub 星星";
 
 // Clubs View
-"clubsLearnTitle" = "Learn more about clubs";
-"clubsName" = "Club Name";
-"clubsCreate" = "Create a new club";
-"clubsYours" = "Your clubs";
-"clubsNotAMemberMessage" = "You are not a member of any clubs.\nCreate a new club and send the invite link to your friends get started.\n\nDuring the beta you are limited to creating three clubs, and each club\ncan have a maximum of twelve users."
-"clubsErrorCopying" = "Error copying invite URL";
-"clubsAdminDenyViewing" = "The admin of this club does not allow viewing all members.";
-"clubsNoMembers" = "This club does not have any members. Add users to your club by sending\nthem the invite link.";
-"clubsLeave" = "Leave Club";
-"clubsLeaveConfirm" = "Are you sure you want to leave this club? No data will be deleted, but you will stop receiving recommendations from the club.";
-"clubsNoneJoined" = "You do not have any clubs you can post to.\nJoin a club or create your own to start recommending articles.";
+"clubsLearnTitle" = "了解有关读书俱乐部的更多信息";
+"clubsName" = "读书俱乐部名称";
+"clubsCreate" = "创建新读书俱乐部";
+"clubsYours" = "您的读书俱乐部";
+"clubsNotAMemberMessage" = "您不是任何读书俱乐部的成员.\n创建新读书俱乐部并将邀请链接发送给您的朋友开始使用.\n\n在测试期间您只能创建三个读书俱乐部, 且每个读书俱乐部\n最多可以有 12 个用户."
+"clubsErrorCopying" = "复制邀请 URL 时出错";
+"clubsAdminDenyViewing" = "此读书俱乐部的管理员不允许查看所有成员.";
+"clubsNoMembers" = "此读书俱乐部没有任何成员. 通过向用户发送邀请链接\n将用户添加到您的读书俱乐部.";
+"clubsLeave" = "退出读书俱乐部";
+"clubsLeaveConfirm" = "你确定要退出此读书俱乐部吗? 不会删除任何数据, 但您将停止收到读书俱乐部的推荐.";
+"clubsNoneJoined" = "您没有任何可以发帖的读书俱乐部.\n加入俱乐部或创建自己的俱乐部以开始推荐文章.";
 
 // Subscriptions
-"subscriptionsErrorRetrieving" = "Sorry, we were unable to retrieve your subscriptions.";
-"subscriptionsNone" = "You have no current subscriptions.";
-//"subscriptions.error.retrieving" = "Last received: \(updatedDate.formatted())"; // unused for now
+"subscriptionsErrorRetrieving" = "抱歉, 我们无法检索您的订阅.";
+"subscriptionsNone" = "您当前没有订阅.";
+//"subscriptions.error.retrieving" = "上次接收时间: \(updatedDate.formatted())"; // unused for now
 
 // Text to Speech
-"texttospeechLanguageDefault" = "Default Language";
-"texttospeechSettingsAudio" = "Audio Settings";
-"texttospeechSettingsEnablePrefetch" = "Enable audio prefetch";
-"texttospeechBetaSignupInProcess" = "Signing up for beta";
-"texttospeechBetaRealisticVoiceLimit" = "You are in the ultra realistic voices beta. During the beta you can listen to 10,000 words of audio per day.";
-"texttospeechBetaRequestReceived" = "Your request to join the ultra realistic voices demo has been received. You will be informed by email when a spot is available.";
-"texttospeechBetaWaitlist" = "Ultra realistic voices are currently in limited beta. Enabling the feature will add you to the beta queue.";
+"texttospeechLanguageDefault" = "默认语言";
+"texttospeechSettingsAudio" = "音频设置";
+"texttospeechSettingsEnablePrefetch" = "启用音频读取";
+"texttospeechBetaSignupInProcess" = "注册测试版";
+"texttospeechBetaRealisticVoiceLimit" = "您处于超逼真的语音测试版中. 在测试期间您每天可以收听 10,000 字的音频.";
+"texttospeechBetaRequestReceived" = "已收到您加入超逼真语音演示的请求. 当有空位时您将收到电子邮箱通知.";
+"texttospeechBetaWaitlist" = "超逼真的声音目前处于有限测试阶段. 启用该功能会将您添加到测试队列中.";
 
 // Sign in/up
-"registrationNoAccount" = "Don't have an account?";
-"registrationForgotPassword" = "Forgot your password?";
-"registrationStatusCheck" = "Check Status";
-"registrationUseDifferentEmail" = "Use a different email?";
-"registrationFullName" = "Full Name";
-"registrationUsername" = "Username";
-"registrationAlreadyHaveAccount" = "Already have an account?";
-"registrationBio" = "Bio (optional)";
-"registrationWelcome" = "Welcome to Omnivore!";
-"registrationUsernameAssignedPrefix" = "Your username is:";
-"registrationChangeUsername" = "Change Username";
-"registrationEdit" = "Edit";
+"registrationNoAccount" = "还没有账号?";
+"registrationForgotPassword" = "忘记密码了?";
+"registrationStatusCheck" = "检查状态";
+"registrationUseDifferentEmail" = "使用其他电子邮箱?";
+"registrationFullName" = "姓名";
+"registrationUsername" = "用户名";
+"registrationAlreadyHaveAccount" = "已有帐户?";
+"registrationBio" = "个人简介 (可选)";
+"registrationWelcome" = "读万卷书,行万里路.";
+"registrationUsernameAssignedPrefix" = "您的用户名是:";
+"registrationChangeUsername" = "更改用户名";
+"registrationEdit" = "编辑";
 "googleAuthButton" = "使用 Google 账号";
 "registrationViewSignUpHeadline" = "注册";
 "loginErrorInvalidCreds" = "提供的登录凭据无效.";
 
 // Recommendation
-"recommendationToPrefix" = "To:";
-"recommendationAddNote" = "Add a note (optional)";
-//"recommendationToPrefix" = "Include your \(viewModel.highlightCount) highlight\(viewModel.highlightCount > 1 ? "s" : """; // unused for now
-"recommendationError" = "Error recommending this page";
+"recommendationToPrefix" = "致:";
+"recommendationAddNote" = "添加注解 (可选)";
+//"recommendationToPrefix" = "包括您的 \(viewModel.highlightCount) highlight\(viewModel.highlightCount > 1 ? "s" : """; // unused for now
+"recommendationError" = "推荐此页面时出错";
 
 // Web Reader
-"readerCopyLink" = "Copy Link";
-"readerSave" = "Save to Omnivore";
-"readerError" = "An error occurred";
+"readerCopyLink" = "复制链接";
+"readerSave" = "保存到 Omnivore";
+"readerError" = "发生错误";
 
 // Debug Menu
-"menuDebugTitle" = "Debug Menu";
-"menuDebugApiEnv" = "API Environment:";
+"menuDebugTitle" = "调试菜单";
+"menuDebugApiEnv" = "API接口环境:";
 
 // Navigation
-"navigationSelectLink" = "Select a link from the feed";
-"navigationSelectSidebarToggle" = "Toggle sidebar";
+"navigationSelectLink" = "从源中选择链接";
+"navigationSelectSidebarToggle" = "切换侧边栏";
 
 // Welcome View
-"welcomeTitle" = "Read-it-later for serious readers.";
-"welcomeLearnMore" = "Learn more";
-"welcomeSignupAgreement" = "By signing up, you agree to Omnivore’s\n";
-"welcomeTitleTermsOfService" = "Terms of Service";
-"welcomeTitleAndJoiner" = " and ";
-"welcomeTitleEmailContinue" = "Continue with Email";
+"welcomeTitle" = "认真读者喜爱的稍后阅读.";
+"welcomeLearnMore" = "了解更多";
+"welcomeSignupAgreement" = "通过注册, 您同意 Omnivore’s\n";
+"welcomeTitleTermsOfService" = "服务条款";
+"welcomeTitleAndJoiner" = " 和 ";
+"welcomeTitleEmailContinue" = "继续发送电子邮箱";
 
 // Keyboard Commands
-"keyboardCommandDecreaseFont" = "Decrease Font Size";
-"keyboardCommandIncreaseFont" = "Increase Font Size";
-"keyboardCommandDecreaseMargin" = "Decrease Margin";
-"keyboardCommandIncreaseMargin" = "Increase Margin";
-"keyboardCommandDecreaseLineSpacing" = "Decrease Line Spacing";
-"keyboardCommandIncreaseLineSpacing" = "Increase Line Spacing";
+"keyboardCommandDecreaseFont" = "减小字体大小";
+"keyboardCommandIncreaseFont" = "增加字体大小";
+"keyboardCommandDecreaseMargin" = "减少边距";
+"keyboardCommandIncreaseMargin" = "增加边距";
+"keyboardCommandDecreaseLineSpacing" = "减小行距";
+"keyboardCommandIncreaseLineSpacing" = "增加行距";
 
 // Library
 //"library.by.author.suffix" = "by \(author)" // unused
@@ -135,32 +135,32 @@
 
 
 // Generic
-"genericSnooze" = "Snooze";
-"genericClose" = "Close";
-"genericCreate" = "Create";
-"genericConfirm" = "Confirm";
-"genericProfile" = "Profile";
-"genericNext" = "Next";
-"genericName" = "Name";
-"genericOk" = "Ok";
-"genericRetry" = "Retry";
-"genericEmail" = "Email";
-"genericPassword" = "Password";
-"genericSubmit" = "Submit";
-"genericContinue" = "Continue";
-"genericSend" = "Send";
-"genericOptions" = "Options";
-"genericOpen" = "Open";
-"genericChangeApply" = "Apply Changes";
-"genericTitle" = "Title";
-"genericAuthor" = "Author";
-"genericDescription" = "Description";
-"genericSave" = "Save";
-"genericLoading" = "Loading...";
-"genericFontFamily" = "Font Family";
-"genericHighContrastText" = "High Contrast Text";
-"genericFont" = "Font";
-"genericHighlight" = "Highlight";
+"genericSnooze" = "小休眠";
+"genericClose" = "关闭";
+"genericCreate" = "创建";
+"genericConfirm" = "确认";
+"genericProfile" = "概要";
+"genericNext" = "下一页";
+"genericName" = "名字";
+"genericOk" = "好";
+"genericRetry" = "重试";
+"genericEmail" = "电子邮箱";
+"genericPassword" = "密码";
+"genericSubmit" = "提交";
+"genericContinue" = "继续";
+"genericSend" = "发送";
+"genericOptions" = "选项";
+"genericOpen" = "打开";
+"genericChangeApply" = "应用更改";
+"genericTitle" = "标题";
+"genericAuthor" = "作者";
+"genericDescription" = "描述";
+"genericSave" = "保存";
+"genericLoading" = "加载中...";
+"genericFontFamily" = "字体册";
+"genericHighContrastText" = "高对比度文本";
+"genericFont" = "字体";
+"genericHighlight" = "荧光笔";
 "labelsGeneric" = "标签";
 "emailsGeneric" = "电子邮件";
 "subscriptionsGeneric" = "订阅";
@@ -188,3 +188,13 @@
 "pushNotificationsGeneric" = "推送通知";
 "dismissButton" = "撤回";
 "errorNetwork" = "我们在连接到互联网时遇到问题.";
+
+
+// Unreferenced
+// "signInScreenHeadline" = "保存并分享喜爱的网页.";
+// "registrationViewSignInHeadline" = "登录";
+// "registrationViewHeadline" = "青衿之志，履践致远。";
+// "username.validation.error.invalidPattern" = "用户名中间只能包含字母、数字和下划线.";
+// "username.validation.error.tooshort" = "用户名应至少包含 3 个英文字符.";
+// "username.validation.error.toolong" = "用户名不能超过 15 个英文字符.";
+// "saveArticleSavingState" = "保存中...";
