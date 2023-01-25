@@ -274,6 +274,7 @@ export const SettingsTable = (props: SettingsTableProps): JSX.Element => {
                 display: 'flex',
                 alignItems: 'center',
                 marginBottom: '10px',
+                height: '60px',
               }}
             >
               {props.createAction && props.createTitle && (
