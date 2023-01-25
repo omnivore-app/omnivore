@@ -21,9 +21,9 @@ struct ApplyLabelsView: View {
     var confirmButtonText: String {
       switch self {
       case .item, .highlight:
-        return "Save"
+        return LocalText.genericSave
       case .list:
-        return "Done"
+        return LocalText.doneGeneric
       }
     }
   }

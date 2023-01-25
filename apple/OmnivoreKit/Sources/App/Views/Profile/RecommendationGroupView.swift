@@ -165,7 +165,7 @@ struct RecommendationGroupView: View {
 
   private var innerBody: some View {
     Group {
-      Section("Name") {
+      Section(LocalText.genericName) {
         Text(viewModel.recommendationGroup.name)
       }
 
@@ -195,7 +195,7 @@ struct RecommendationGroupView: View {
     }
     .alert(isPresented: $viewModel.showLeaveGroup) {
       Alert(
-        title: Text(Localtext.clubsLeaveConfirm),
+        title: Text(LocalText.clubsLeaveConfirm),
         primaryButton: .destructive(Text(LocalText.clubsLeave)) {
           Task {
             let success = await viewModel.leaveGroup(dataService: dataService)

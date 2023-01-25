@@ -48,7 +48,7 @@ struct EmailLoginFormView: View {
           }
           VStack {
             VStack(alignment: .leading, spacing: 6) {
-              Text("Email")
+              Text(LocalText.genericEmail)
                 .font(.appFootnote)
                 .foregroundColor(.appGrayText)
               TextField("", text: $email)
@@ -64,7 +64,7 @@ struct EmailLoginFormView: View {
             .padding(.bottom, 8)
 
             VStack(alignment: .leading, spacing: 6) {
-              Text("Password")
+              Text(LocalText.genericPassword)
                 .font(.appFootnote)
                 .foregroundColor(.appGrayText)
               SecureField("", text: $password)
@@ -88,7 +88,7 @@ struct EmailLoginFormView: View {
                   )
                 }
               },
-              label: { Text("Submit") }
+              label: { Text(LocalText.genericSubmit) }
             )
             .buttonStyle(SolidCapsuleButtonStyle(color: .appCtaYellow, width: 300))
 
@@ -101,7 +101,7 @@ struct EmailLoginFormView: View {
                 Button(
                   action: { viewModel.emailAuthState = .signUp },
                   label: {
-                    Text(Localtext.registrationNoAccount)
+                    Text(LocalText.registrationNoAccount)
                       .foregroundColor(.appGrayTextContrast)
                       .underline()
                   }

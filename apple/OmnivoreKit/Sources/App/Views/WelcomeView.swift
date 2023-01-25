@@ -71,9 +71,9 @@ struct WelcomeView: View {
   var footerView: some View {
     Group {
       Text(LocalText.welcomeSignupAgreement)
-      + Text(LocalText.welcomeTitleTermsOfService).underline()
-      + Text(LocalText.welcomeTitleAndJoiner)
-      + Text(LocalText.privacyPolicyGeneric).underline()
+        + Text(LocalText.welcomeTitleTermsOfService).underline()
+        + Text(LocalText.welcomeTitleAndJoiner)
+        + Text(LocalText.privacyPolicyGeneric).underline()
     }
     .font(.appSubheadline)
     .confirmationDialog("", isPresented: $showTermsLinks, titleVisibility: .hidden) {

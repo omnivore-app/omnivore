@@ -48,7 +48,7 @@ struct NewAppleSignupView: View {
               await viewModel.submitProfile(userProfile: userProfile, authenticator: authenticator)
             }
           },
-          label: { Text("Continue") }
+          label: { Text(LocalText.genericContinue) }
         )
         .buttonStyle(SolidCapsuleButtonStyle(color: .appDeepBackground, width: 300))
 

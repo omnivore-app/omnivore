@@ -78,7 +78,7 @@ import Views
                     viewModel.itemToSnoozeID = item.id
                     viewModel.snoozePresented = true
                   } label: {
-                    Label { Text("Snooze") } icon: { Image.moon }
+                    Label { Text(LocalText.genericSnooze) } icon: { Image.moon }
                   }
                 }
               }

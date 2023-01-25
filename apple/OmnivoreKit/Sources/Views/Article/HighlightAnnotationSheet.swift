@@ -30,7 +30,7 @@ public struct HighlightAnnotationSheet: View {
         Spacer()
         Label("Note", systemImage: "note.text")
         Spacer()
-        Button("Save") {
+        Button(LocalText.genericSave) {
           onSave()
         }
       }
@@ -50,7 +50,7 @@ public struct HighlightAnnotationSheet: View {
     }
     .padding()
     .alert(errorAlertMessage ?? LocalText.readerError, isPresented: $showErrorAlertMessage) {
-      Button("Ok", role: .cancel, action: {
+      Button(LocalText.genericOk, role: .cancel, action: {
         errorAlertMessage = nil
         showErrorAlertMessage = false
       })

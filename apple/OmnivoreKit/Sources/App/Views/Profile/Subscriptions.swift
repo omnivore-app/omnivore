@@ -60,7 +60,7 @@ struct SubscriptionsView: View {
         Text(LocalText.subscriptionsErrorRetrieving).multilineTextAlignment(.center)
         Button(
           action: { Task { await viewModel.loadSubscriptions(dataService: dataService) } },
-          label: { Text("Retry") }
+          label: { Text(LocalText.genericRetry) }
         )
         .buttonStyle(RoundedRectButtonStyle())
       }

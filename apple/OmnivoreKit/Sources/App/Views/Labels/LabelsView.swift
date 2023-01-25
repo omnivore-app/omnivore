@@ -186,7 +186,7 @@ struct CreateLabelView: View {
           description: nil
         )
       },
-      label: { Text("Create").foregroundColor(.appGrayTextContrast) }
+      label: { Text(LocalText.genericCreate).foregroundColor(.appGrayTextContrast) }
     )
     .opacity(shouldDisableCreateButton ? 0.2 : 1)
     .disabled(shouldDisableCreateButton)

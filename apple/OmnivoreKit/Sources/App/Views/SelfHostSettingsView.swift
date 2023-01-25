@@ -28,7 +28,7 @@ struct SelfHostSettingsView: View {
     Button(action: {
       showConfirmAlert = true
     }, label: {
-      Text("Save")
+      Text(LocalText.genericSave)
     })
       .disabled(!allFieldsSet)
   }
@@ -68,7 +68,7 @@ struct SelfHostSettingsView: View {
     .alert(isPresented: $showConfirmAlert) {
       Alert(
         title: Text("Changing your environment settings will close the app."),
-        dismissButton: .cancel(Text("Ok")) {
+        dismissButton: .cancel(Text(LocalText.genericOk)) {
           AppEnvironment.setCustom(serverBaseURL: apiServerAddress, webAppBaseURL: webServerAddress, ttsBaseURL: ttsServerAddress)
           dataService.switchAppEnvironment(appEnvironment: AppEnvironment.custom)
         }
@@ -80,7 +80,7 @@ struct SelfHostSettingsView: View {
     .navigationBarItems(leading:
       Button(action: {
         dismiss()
-      }, label: { Text("Cancel") }),
+      }, label: { Text(LocalText.cancelGeneric) }),
       trailing: saveButton)
   }
 }

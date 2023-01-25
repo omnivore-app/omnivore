@@ -104,7 +104,7 @@ import Views
 
         Divider()
 
-        Picker(selection: $preferredFont, label: Text("Font Family")) {
+        Picker(selection: $preferredFont, label: Text(LocalText.genericFontFamily)) {
           ForEach(WebFont.allCases, id: \.self) { font in
             Text(font.displayValue).tag(font.rawValue)
           }
@@ -112,7 +112,7 @@ import Views
 
         Toggle(
           isOn: $prefersHighContrastText,
-          label: { Text("High Contrast Text") }
+          label: { Text(LocalText.genericHighContrastText) }
         )
       }
     }

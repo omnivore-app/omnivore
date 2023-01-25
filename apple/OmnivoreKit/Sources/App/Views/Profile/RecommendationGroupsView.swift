@@ -62,7 +62,7 @@ struct CreateRecommendationGroupView: View {
           await viewModel.createGroup(dataService: dataService, name: self.name)
         }
       }, label: {
-        Text("Next")
+        Text(LocalText.genericNext)
       })
         .disabled(name.isEmpty)
       )
@@ -72,7 +72,7 @@ struct CreateRecommendationGroupView: View {
   var body: some View {
     NavigationView {
       Form {
-        TextField("Name", text: $name, prompt: Text(Localtext.clubsName))
+        TextField(LocalText.genericName, text: $name, prompt: Text(LocalText.clubsName))
 
         Section("Club Rules") {
           Toggle("Only admins can post", isOn: $viewModel.onlyAdminCanPost)
@@ -91,7 +91,7 @@ struct CreateRecommendationGroupView: View {
       .alert(isPresented: $viewModel.showCreateError) {
         Alert(
           title: Text(viewModel.createGroupError ?? "Error creating group"),
-          dismissButton: .cancel(Text("Ok")) {
+          dismissButton: .cancel(Text(LocalText.genericOk)) {
             viewModel.createGroupError = nil
             viewModel.showCreateError = false
           }

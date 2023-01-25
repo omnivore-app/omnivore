@@ -29,7 +29,7 @@ struct DebugMenuView: View {
           authenticator.logout(dataService: dataService)
           dataService.switchAppEnvironment(appEnvironment: selectedEnvironment)
         },
-        label: { Text("Apply Changes") }
+        label: { Text(LocalText.genericChangeApply) }
       )
       .buttonStyle(SolidCapsuleButtonStyle(width: 220))
     }

@@ -271,7 +271,7 @@ struct WebReaderContainerView: View {
               .padding(.horizontal)
               .scaleEffect(navBarVisibilityRatio)
           #else
-            Text("Options")
+            Text(LocalText.genericOptions)
           #endif
         }
       )
@@ -365,7 +365,7 @@ struct WebReaderContainerView: View {
             if let linkToOpen = linkToOpen {
               safariWebLink = SafariWebLink(id: UUID(), url: linkToOpen)
             }
-          }, label: { Text("Open") })
+          }, label: { Text(LocalText.genericOpen) })
           Button(action: {
             UIPasteboard.general.string = item.unwrappedPageURLString
             showInSnackbar("Link Copied")
@@ -381,8 +381,8 @@ struct WebReaderContainerView: View {
             SafariView(url: $0.url)
           }
         #endif
-          .alert(errorAlertMessage ?? LocalText.readerError, isPresented: $showErrorAlertMessage) {
-          Button("Ok", role: .cancel, action: {
+        .alert(errorAlertMessage ?? LocalText.readerError, isPresented: $showErrorAlertMessage) {
+          Button(LocalText.genericOk, role: .cancel, action: {
             errorAlertMessage = nil
             showErrorAlertMessage = false
           })

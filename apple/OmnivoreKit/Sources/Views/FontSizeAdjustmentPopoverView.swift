@@ -175,7 +175,7 @@ public enum WebFont: String, CaseIterable {
 
           NavigationLink(destination: fontList) {
             HStack {
-              Text("Font")
+              Text(LocalText.genericFont)
               Spacer()
               Image(systemName: "chevron.right")
 //              Button(action: {}, label: { Text("Crimson Text").frame(width: 91) })

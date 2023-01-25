@@ -18,7 +18,7 @@ import Views
   }
 
   var submitButtonText: String {
-    hasSuggestedProfile ? "Confirm" : "Submit"
+    hasSuggestedProfile ? LocalText.genericConfirm : LocalText.genericSubmit
   }
 
   @Published var loginError: LoginError?
@@ -134,7 +134,7 @@ struct CreateProfileView: View {
 
             VStack(spacing: 16) {
               VStack(alignment: .leading, spacing: 6) {
-                Text("Name")
+                Text(LocalText.genericName)
                   .font(.appFootnote)
                   .foregroundColor(.appGrayText)
                 #if os(iOS)

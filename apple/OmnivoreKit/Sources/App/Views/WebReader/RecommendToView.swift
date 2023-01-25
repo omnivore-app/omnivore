@@ -81,7 +81,7 @@ struct RecommendToView: View {
     Button(action: {
       self.viewModel.showNoteView = true
     }, label: {
-      Text("Next")
+      Text(LocalText.genericNext)
         .bold()
     })
       .disabled(viewModel.selectedGroups.isEmpty)
@@ -99,7 +99,7 @@ struct RecommendToView: View {
           }
         }
       }, label: {
-        Text("Send")
+        Text(LocalText.genericSend)
           .bold()
       })
         .disabled(viewModel.selectedGroups.isEmpty)
@@ -200,7 +200,7 @@ struct RecommendToView: View {
     .alert(isPresented: $viewModel.showError) {
       Alert(
         title: Text(LocalText.recommendationError),
-        dismissButton: .cancel(Text("Ok")) {
+        dismissButton: .cancel(Text(LocalText.genericOk)) {
           viewModel.showError = false
         }
       )

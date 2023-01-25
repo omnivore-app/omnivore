@@ -91,7 +91,7 @@
         }
         listBody
           .navigationTitle("Search")
-          .navigationBarItems(trailing: Button(action: { dismiss() }, label: { Text("Close") }))
+          .navigationBarItems(trailing: Button(action: { dismiss() }, label: { Text(LocalText.genericClose) }))
           .navigationBarTitleDisplayMode(NavigationBarItem.TitleDisplayMode.inline)
           .searchable(text: $viewModel.searchTerm, placement: .navigationBarDrawer(displayMode: .always)) {
             ForEach(viewModel.items) { item in

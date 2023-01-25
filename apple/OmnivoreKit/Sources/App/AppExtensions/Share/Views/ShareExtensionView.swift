@@ -224,7 +224,7 @@ public struct ShareExtensionView: View {
         .padding(.trailing, 8)
 
         VStack {
-          Text("Highlight")
+          Text(LocalText.genericHighlight)
             .font(.appSubheadline)
             .foregroundColor(Color.appGrayTextContrast)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -355,7 +355,7 @@ public struct ShareExtensionView: View {
     case .editingLabels:
       return LocalText.labelsGeneric
     case .viewingHighlight:
-      return "Highlight"
+      return LocalText.genericHighlight
     default:
       return ""
     }
@@ -479,7 +479,7 @@ public struct ShareExtensionView: View {
     }
     .alert("Before saving an article select text in Safari to create a highlight on save.",
            isPresented: $showHighlightInstructionAlert) {
-      Button("Ok", role: .cancel) { showHighlightInstructionAlert = false }
+      Button(LocalText.genericOk, role: .cancel) { showHighlightInstructionAlert = false }
     }
     .task {
       await labelsViewModel.loadLabelsFromStore(dataService: viewModel.services.dataService)
