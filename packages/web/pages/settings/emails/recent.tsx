@@ -17,6 +17,7 @@ import {
   useGetRecentEmailsQuery,
 } from '../../../lib/networking/queries/useGetRecentEmails'
 import Link from 'next/link'
+import { HStack } from '../../../components/elements/LayoutPrimitives'
 
 export default function RecentEmails(): JSX.Element {
   const { recentEmails, revalidate, isValidating } = useGetRecentEmailsQuery()
@@ -132,23 +133,37 @@ export default function RecentEmails(): JSX.Element {
               }}
               deleteTitle="Delete"
               sublineElement={
-                <StyledText
-                  css={{
-                    my: '5px',
-                    fontSize: '11px',
-                    a: {
-                      color: '$omnivoreCtaYellow',
-                    },
-                  }}
-                >
-                  {recentEmail.subject}
-                  {`, Received ${formattedShortDate(
-                    recentEmail.createdAt
-                  )} at `}
-                  <Link href={`/settings/emails?address=${recentEmail.to}`}>
-                    {recentEmail.to}
-                  </Link>
-                </StyledText>
+                <HStack>
+                  <StyledText
+                    css={{
+                      my: '5px',
+                      fontSize: '14px',
+                    }}
+                  >
+                    {recentEmail.subject}
+                  </StyledText>
+                  <StyledText
+                    css={{
+                      my: '5px',
+                      fontSize: '11px',
+                    }}
+                  >
+                    <Link href={`/settings/emails?address=${recentEmail.to}`}>
+                      {recentEmail.to}
+                    </Link>
+                  </StyledText>
+                  <StyledText
+                    css={{
+                      my: '5px',
+                      fontSize: '11px',
+                      a: {
+                        color: '$omnivoreCtaYellow',
+                      },
+                    }}
+                  >
+                    {formattedShortDate(recentEmail.createdAt)}
+                  </StyledText>
+                </HStack>
               }
             />
           )
