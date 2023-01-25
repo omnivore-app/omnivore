@@ -1,3 +1,7 @@
+// Unit test Entry -- Do not remove this or add entries before this one.
+// This allows us to check for syntax errors in this file with a unit test
+"unitTestLeadingEntry" = "For testing purposes only.";
+
 // share extension
 "saveArticleSavedState" = "Saved to Omnivore";
 "saveArticleProcessingState" = "Saved to Omnivore";
@@ -190,3 +194,7 @@
 "errorNetwork" = "We are having trouble connecting to the internet.";
 
 // TODO: search navigationTitle, toggle, section, button, Label
+
+// Unit test Entry -- Do not remove this or add entries after this one.
+// This allows us to check for syntax errors in this file with a unit test
+"unitTestTrailingEntry" = "For testing purposes only.";

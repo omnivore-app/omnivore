@@ -1,3 +1,7 @@
+// Unit test Entry -- Do not remove this or add entries before this one.
+// This allows us to check for syntax errors in this file with a unit test
+"unitTestLeadingEntry" = "For testing purposes only.";
+
 // share extension
 "saveArticleSavedState" = "正在保存到 Omnivore 中";
 "saveArticleProcessingState" = "已经保存到 Omnivore 中";
@@ -198,3 +202,7 @@
 // "username.validation.error.tooshort" = "用户名应至少包含 3 个英文字符.";
 // "username.validation.error.toolong" = "用户名不能超过 15 个英文字符.";
 // "saveArticleSavingState" = "保存中...";
+
+// Unit test Entry -- Do not remove this or add entries after this one.
+// This allows us to check for syntax errors in this file with a unit test
+"unitTestTrailingEntry" = "For testing purposes only.";

@@ -1,7 +1,7 @@
 import Foundation
 
 public enum LocalText {
-  public static func localText(key: String, comment: String? = nil) -> String {
+  private static func localText(key: String, comment: String? = nil) -> String {
     NSLocalizedString(key, bundle: .module, comment: comment ?? "no comment provided by developer")
   }
 
