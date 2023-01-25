@@ -34,6 +34,41 @@
         "identifier" : "042F48D826DFD10E00BF98FC",
         "name" : "UITests-iOS"
       }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:OmnivoreKit",
+        "identifier" : "AppTests",
+        "name" : "AppTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:OmnivoreKit",
+        "identifier" : "ModelsTests",
+        "name" : "ModelsTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:OmnivoreKit",
+        "identifier" : "ServicesTests",
+        "name" : "ServicesTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:OmnivoreKit",
+        "identifier" : "UtilsTests",
+        "name" : "UtilsTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:OmnivoreKit",
+        "identifier" : "ViewsTests",
+        "name" : "ViewsTests"
+      }
     }
   ],
   "version" : 1

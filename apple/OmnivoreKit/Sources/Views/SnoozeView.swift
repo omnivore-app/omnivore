@@ -87,7 +87,7 @@ private struct SnoozeIconButtonView: View {
   }
 }
 
-private struct Snooze {
+struct Snooze {
   let until: Date
   let icon: Image
   let title: String
