@@ -214,6 +214,9 @@ export default function EmailsPage(): JSX.Element {
             text={isValidating ? '-' : 'No Email Addresses Found'}
           />
         )}
+        <Link href="/settings/emails/recent">
+          View recently received emails
+        </Link>
       </SettingsTable>
 
       {confirmDeleteEmailId ? (
