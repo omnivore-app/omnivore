@@ -15,8 +15,15 @@ import {
 } from '../../utils/parser'
 import { saveEmail } from '../../services/save_email'
 import { buildLogger } from '../../utils/logger'
+import {
+  saveReceivedEmail,
+  updateReceivedEmail,
+} from '../../services/received_emails'
+import cors from 'cors'
+import { corsConfig } from '../../utils/corsConfig'
+import { getClaimsByToken } from '../../utils/auth'
 
-interface ForwardEmailMessage {
+interface EmailMessage {
   from: string
   to: string
   subject: string
@@ -25,6 +32,17 @@ interface ForwardEmailMessage {
   unsubHttpUrl?: string
   text: string
   forwardedFrom?: string
+  receivedEmailId: string
+}
+
+function isEmailMessage(data: any): data is EmailMessage {
+  return (
+    'from' in data &&
+    'to' in data &&
+    'subject' in data &&
+    'html' in data &&
+    'text' in data
+  )
 }
 
 const logger = buildLogger('app.dispatch')
@@ -37,7 +55,6 @@ export function emailsServiceRouter() {
     logger.info('email forward router')
 
     const { message, expired } = readPushSubscription(req)
-    logger.info('pubsub message:', { message, expired })
 
     if (!message) {
       res.status(400).send('Bad Request')
@@ -51,15 +68,8 @@ export function emailsServiceRouter() {
     }
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const data: ForwardEmailMessage = JSON.parse(message)
-
-      if (
-        !('from' in data) ||
-        !('to' in data) ||
-        !('subject' in data) ||
-        (!('html' in data) && !('text' in data))
-      ) {
+      const data = JSON.parse(message) as unknown
+      if (!isEmailMessage(data)) {
         logger.error('Invalid message')
         res.status(400).send('Bad Request')
         return
@@ -90,6 +100,10 @@ export function emailsServiceRouter() {
           url: generateUniqueUrl(),
           originalContent: data.html || data.text,
         })
+
+        // update received email type
+        await updateReceivedEmail(data.receivedEmailId, 'article')
+
         res.status(200).send('Article')
         return
       }
@@ -127,6 +141,55 @@ export function emailsServiceRouter() {
       } else {
         res.status(500).send(e)
       }
+    }
+  })
+
+  router.post('/save', cors<express.Request>(corsConfig), async (req, res) => {
+    logger.info('save received email router')
+
+    const token = req?.headers?.authorization
+    if (!(await getClaimsByToken(token))) {
+      return res.status(401).send('UNAUTHORIZED')
+    }
+
+    if (!isEmailMessage(req.body)) {
+      logger.error('Invalid message')
+      return res.status(400).send('Bad Request')
+    }
+
+    try {
+      // get user from newsletter email
+      const newsletterEmail = await getNewsletterEmail(req.body.to)
+
+      if (!newsletterEmail) {
+        logger.info('newsletter email not found', { email: req.body.to })
+        res.status(200).send('Not Found')
+        return
+      }
+
+      const user = newsletterEmail.user
+      const receivedEmail = await saveReceivedEmail(
+        req.body.from,
+        req.body.to,
+        req.body.subject,
+        req.body.text,
+        req.body.html,
+        user.id
+      )
+
+      analytics.track({
+        userId: user.id,
+        event: 'received_email_saved',
+        properties: {
+          env: env.server.apiEnv,
+        },
+      })
+
+      res.status(200).send({ id: receivedEmail.id })
+    } catch (e) {
+      logger.info(e)
+
+      res.status(500).send(e)
     }
   })
 

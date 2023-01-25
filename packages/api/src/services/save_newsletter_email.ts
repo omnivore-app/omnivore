@@ -4,7 +4,6 @@ import { UserDeviceToken } from '../entity/user_device_tokens'
 import { env } from '../env'
 import { ContentReader } from '../generated/graphql'
 import { analytics } from '../utils/analytics'
-import { getNewsletterEmail } from './newsletters'
 import { SaveContext, saveEmail, SaveEmailInput } from './save_email'
 import { Page } from '../elastic/types'
 import { addLabelToPage } from './labels'
@@ -13,8 +12,10 @@ import { NewsletterEmail } from '../entity/newsletter_email'
 import { fetchFavicon } from '../utils/parser'
 import { updatePage } from '../elastic/pages'
 import { isBase64Image } from '../utils/helpers'
+import { updateReceivedEmail } from './received_emails'
 
 export interface NewsletterMessage {
+  from: string
   email: string
   content: string
   url: string
@@ -22,23 +23,16 @@ export interface NewsletterMessage {
   author: string
   unsubMailTo?: string
   unsubHttpUrl?: string
-  newsletterEmail?: NewsletterEmail
+  receivedEmailId: string
 }
 
 // Returns true if the link was created successfully. Can still fail to
 // send the push but that is ok and we wont retry in that case.
 export const saveNewsletterEmail = async (
   data: NewsletterMessage,
+  newsletterEmail: NewsletterEmail,
   ctx?: SaveContext
 ): Promise<boolean> => {
-  // get user from newsletter email
-  const newsletterEmail =
-    data.newsletterEmail || (await getNewsletterEmail(data.email))
-  if (!newsletterEmail) {
-    console.log('newsletter email not found', data.email)
-    return false
-  }
-
   analytics.track({
     userId: newsletterEmail.user.id,
     event: 'newsletter_email_received',
@@ -64,9 +58,13 @@ export const saveNewsletterEmail = async (
   }
   const page = await saveEmail(saveCtx, input)
   if (!page) {
-    console.log('newsletter not created:', input)
+    console.log('newsletter not created:', input.title)
+
     return false
   }
+
+  // update received email type
+  await updateReceivedEmail(data.receivedEmailId, 'article')
 
   if (!page.siteIcon || isBase64Image(page.siteIcon)) {
     // fetch favicon if not already set or is a base64 image

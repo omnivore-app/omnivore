@@ -13,7 +13,8 @@ export const handlePdfAttachment = async (
   email: string,
   fileName: string | undefined,
   data: Buffer,
-  subject: string
+  subject: string,
+  receivedEmailId: string
 ): Promise<void> => {
   console.log('handlePdfAttachment', email, fileName)
 
@@ -26,7 +27,7 @@ export const handlePdfAttachment = async (
       return
     }
     await uploadToSignedUrl(uploadResult.url, data)
-    await createArticle(email, uploadResult.id, subject)
+    await createArticle(email, uploadResult.id, subject, receivedEmailId)
   } catch (error) {
     console.error('handlePdfAttachment error', error)
   }
@@ -77,12 +78,14 @@ const uploadToSignedUrl = async (
 const createArticle = async (
   email: string,
   uploadFileId: string,
-  subject: string
+  subject: string,
+  receivedEmailId: string
 ): Promise<AxiosResponse> => {
   const data = {
     email,
     uploadFileId,
     subject,
+    receivedEmailId,
   }
 
   if (process.env.JWT_SECRET === undefined) {
