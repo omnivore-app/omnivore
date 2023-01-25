@@ -1,133 +1,138 @@
-// share extension
+// Chinese Simplified translations.
+
+/ share extension
+"shareExtension.createLabel" = "创建标签";
+"shareExtension.moreActions" = "更多操作";
 "saveArticleSavedState" = "正在保存到 Omnivore 中";
 "saveArticleProcessingState" = "已经保存到 Omnivore 中";
 "extensionAppUnauthorized" = "请在保存您的第一个链接之前从应用程序登录 Omnivore.";
 
 // audio player
-"audioPlayerReplay" = "Replay";
+"audioPlayer.replay" = "重播";
 
 // Highlights List Card
-"highlightCardHighlightByOther" = "Highlight by ";
-"highlightCardNoHighlightsOnPage" = "You have not added any highlights or notes to this page.";
+"highlightCard.highlightByYou" = "由你的荧光笔高亮显示";
+"highlightCard.highlightByOther" = "荧光笔高亮显示于 ";
+"highlightCard.noHighlightsOnPage" = "您尚未在此页面添加任荧光笔高亮显示或注解.";
 
 // Labels View
-"labelsViewAssignNameColor" = "Assign a name and color.";
-"createLabelMessage" = "创建新标签";
-"labelsPurposeDescription" = "使用标签创建精选的链接集合。";
+"labelsView.assignNameColor" = "指定名称和颜色.";
+"create.label.message" = "创建新标签";
+"labels.purpose.description" = "使用标签创建精选的链接集合。";
 
 // Manage Account View
-"manageAccountDelete" = "Delete Account";
-"manageAccountResetCache" = "Reset Data Cache";
-"manageAccountConfirmDeleteMessage" = "Are you sure you want to delete your account? This action can't be undone.";
+"manageAccount.delete" = "删除帐户";
+"manageAccount.resetCache" = "重置数据缓存";
+"manageAccount.confirmDeleteMessage" = "您确定要删除您的帐户吗？此操作无法撤消.";
 
 // Newsletter Emails View
-"newsletterEmailsExisting" = "Existing Emails (Tap to copy)";
-"createNewEmailMessage" = "创建新的电子邮件地址";
-"newslettersDescription" = "将 PDF 添加到您的资料库，或使用 Omnivore 电子邮件地址订阅新闻稿件。";
-"noCurrentSubscriptionsMessage" = "您当前没有任何订阅。";
+"newsletterEmails.existing" = "现有电子邮箱(点击复制)";
+"create.new.email.message" = "创建新的电子邮箱地址";
+"newsletters.description" = "将 PDF 添加到您的资料库，或使用 Omnivore 电子邮箱地址订阅新闻稿件。";
+"no.current.subscriptions.message" = "您当前没有任何订阅。";
 
 // Profile View
-"profileConfirmLogoutMessage" = "Are you sure you want to logout?";
+"profile.confirmLogoutMessage" = "您确定要注销吗?";
 
 // Devices View
-"devicesTokensTitle" = "Registered device tokens (swipe to remove)";
-"devicesCreated" = "Created: ";
+"devices.tokensTitle" = "已注册的设备令牌(滑动以删除)";
+"devices.created" = "创建: ";
 
 // Push Notification Settings
-"notificationsEnabled" = "Notifications Enabled";
-"notificationsExplainer" = "Enabling push notifications gives Omnivore device permission to send notifications,\nbut you are in charge of which notifications are sent.";
-"notificationsTriggerExplainer" = "Push notifications are triggered using your \n[account rules](https://omnivore.app/settings/rules) which you can edit online.";
-"notificationsEnable" = "Enable Push Notifications?";
- "notificationsGeneralExplainer" = "Get notified when newsletter links reach your inbox. Or receive reminders that you set from our share extension.";
-"notificationsOptionDeny" = "No Thanks";
-"notificationsOptionEnable" = "Yes Please";
+"notifications.enabled" = "启用通知";
+"notifications.explainer" = "启用推送通知将授予 Omnivore 设备发送通知的权限,\n但由您负责发送哪些通知.";
+"notifications.trigger.explainer" = "推送通知使用您的 \n[account rules](https://omnivore.app/settings/rules) 您可以在线编辑.";
+"notifications.enable" = "确定启用推送通知?";
+ "notifications.general.explainer" = "当新闻通讯链接到达您的收集箱时收到通知. 或者接收您从我们的分享扩展中设置的提醒.";
+"notifications.option.deny" = "不了,谢谢";
+"notifications.option.enable" = "好的,谢谢";
 
 // Community Modal
-"communityHeadline" = "Help build the Omnivore Community";
-"communityAppstoreReview" = "Review on the AppStore";
-"communityTweet" = "Tweet about Omnivore";
-"communityFollowTwitter" = "Follow us on Twitter";
-"communityJoinDiscord" = "Join us on Discord";
-"communityStarGithub" = "Star on GitHub";
+"community.headline" = "帮助建立 Omnivore 社区";
+"community.appstore.review" = "在 App Store 上评论";
+"community.tweet" = "关于 Omnivore 的推文";
+"community.follow.twitter" = "在 Twitter 上关注我们";
+"community.join.discord" = "加入我们的 Discord";
+"community.star.github" = "点亮我们的 GitHub 星级";
 
 // Clubs View
-"clubsLearnTitle" = "Learn more about clubs";
-"clubsName" = "Club Name";
-"clubsCreate" = "Create a new club";
-"clubsYours" = "Your clubs";
-"clubsNotAMemberMessage" = "You are not a member of any clubs.\nCreate a new club and send the invite link to your friends get started.\n\nDuring the beta you are limited to creating three clubs, and each club\ncan have a maximum of twelve users."
-"clubsErrorCopying" = "Error copying invite URL";
-"clubsAdminDenyViewing" = "The admin of this club does not allow viewing all members.";
-"clubsNoMembers" = "This club does not have any members. Add users to your club by sending\nthem the invite link.";
-"clubsLeave" = "Leave Club";
-"clubsLeaveConfirm" = "Are you sure you want to leave this club? No data will be deleted, but you will stop receiving recommendations from the club.";
-"clubsNoneJoined" = "You do not have any clubs you can post to.\nJoin a club or create your own to start recommending articles.";
+"clubs.learn.title" = "了解有关读书俱乐部的更多信息";
+"clubs.name" = "读书俱乐部名称";
+"clubs.create" = "创建新读书俱乐部";
+"clubsYours" = "您的读书俱乐部";
+"clubs.not.a.member.message" = "您不是任何读书俱乐部的成员.\n创建新读书俱乐部并将邀请链接发送给您的朋友开始使用.\n\n在测试期间,您只能创建三个读书俱乐部, 且每个读书俱乐部\n最多可以有 12 个用户."
+"clubs.error.copying" = "复制邀请 URL 时出错";
+"clubs.admin.deny.viewing" = "此读书俱乐部的管理员不允许查看所有成员.";
+"clubs.no.members" = "此读书俱乐部没有任何成员. 通过向用户发送邀请链接\n将用户添加到您的读书俱乐部.";
+"clubs.leave" = "退出读书俱乐部";
+"clubs.leave.confirm" = "你确定要退出此读书俱乐部吗?不会删除任何数据? 不会删除任何数据, 但您将停止收到读书俱乐部的推荐.";
+"clubs.none.joined" = "您没有任何可以发帖的读书俱乐部.\n加入俱乐部或创建自己的俱乐部以开始推荐文章.";
 
 // Subscriptions
-"subscriptionsErrorRetrieving" = "Sorry, we were unable to retrieve your subscriptions.";
-"subscriptionsNone" = "You have no current subscriptions.";
-//"subscriptions.error.retrieving" = "Last received: \(updatedDate.formatted())"; // unused for now
+"subscriptions.error.retrieving" = "抱歉,我们无法检索您的订阅.";
+"subscriptions.none" = "您当前没有订阅.";
+//"subscriptions.error.retrieving" = "上次接收时间: \(updatedDate.formatted())"; // unused for now
 
 // Text to Speech
-"texttospeechLanguageDefault" = "Default Language";
-"texttospeechSettingsAudio" = "Audio Settings";
-"texttospeechSettingsEnablePrefetch" = "Enable audio prefetch";
-"texttospeechBetaSignupInProcess" = "Signing up for beta";
-"texttospeechBetaRealisticVoiceLimit" = "You are in the ultra realistic voices beta. During the beta you can listen to 10,000 words of audio per day.";
-"texttospeechBetaRequestReceived" = "Your request to join the ultra realistic voices demo has been received. You will be informed by email when a spot is available.";
-"texttospeechBetaWaitlist" = "Ultra realistic voices are currently in limited beta. Enabling the feature will add you to the beta queue.";
+"texttospeech.language.default" = "默认语言";
+"texttospeech.settings.audio" = "音频设置";
+"texttospeech.settings.enable.prefetch" = "启用音频读取";
+"texttospeech.beta.signup.in.process" = "注册测试版";
+"texttospeech.beta.realistic.voice.limit" = "您处于超逼真的语音测试版中. 在测试期间,您每天可以收听 10,000 字的音频.";
+"texttospeech.beta.request.received" = "已收到您加入超逼真语音演示的请求. 当有空位时,您将收到电子邮箱通知.";
+"texttospeech.beta.waitlist" = "超逼真的声音目前处于有限测试阶段. 启用该功能会将您添加到测试队列中.";
 
 // Sign in/up
-"registrationNoAccount" = "Don't have an account?";
-"registrationForgotPassword" = "Forgot your password?";
-"registrationStatusCheck" = "Check Status";
-"registrationUseDifferentEmail" = "Use a different email?";
-"registrationFullName" = "Full Name";
-"registrationUsername" = "Username";
-"registrationAlreadyHaveAccount" = "Already have an account?";
-"registrationBio" = "Bio (optional)";
-"registrationWelcome" = "Welcome to Omnivore!";
-"registrationUsernameAssignedPrefix" = "Your username is:";
-"registrationChangeUsername" = "Change Username";
-"registrationEdit" = "Edit";
+"registration.no.account" = "没有帐户?";
+"registration.forgot.password" = "忘记密码?";
+"registration.status.check" = "检查状态";
+"registration.use.different.email" = "使用其他电子邮箱?";
+"registration.full.name" = "姓名";
+"registration.username" = "用户名";
+"registration.already.have.account" = "已有帐户?";
+"registration.bio" = "个人简介 (可选)";
+"registration.welcome" = "读万卷书,行万里路.";
+"registration.username.assigned.prefix" = "您的用户名是:";
+"registration.change.username" = "更改用户名";
+"registration.edit" = "编辑";
 "googleAuthButton" = "使用 Google 账号";
 "registrationViewSignUpHeadline" = "注册";
-"loginErrorInvalidCreds" = "提供的登录凭据无效.";
+"loginError.invalidCreds" = "提供的登录凭据无效.";
 
 // Recommendation
-"recommendationToPrefix" = "To:";
-"recommendationAddNote" = "Add a note (optional)";
-//"recommendationToPrefix" = "Include your \(viewModel.highlightCount) highlight\(viewModel.highlightCount > 1 ? "s" : """; // unused for now
-"recommendationError" = "Error recommending this page";
+"recommendation.to.prefix" = "致:";
+"recommendation.add.note" = "添加注解 (可选)";
+//"recommendation.to.prefix" = "包括您的 \(viewModel.highlightCount) highlight\(viewModel.highlightCount > 1 ? "s" : """; // unused for now
+"recommendation.error" = "推荐此页面时出错";
 
 // Web Reader
-"readerCopyLink" = "Copy Link";
-"readerSave" = "Save to Omnivore";
-"readerError" = "An error occurred";
+"reader.copy.link" = "复制链接";
+"reader.save" = "保存到 Omnivore";
+"reader.error" = "发生错误";
 
 // Debug Menu
-"menuDebugTitle" = "Debug Menu";
-"menuDebugApiEnv" = "API Environment:";
+"menu.debug.title" = "调试菜单";
+"menu.debug.api.env" = "API接口环境:";
 
 // Navigation
-"navigationSelectLink" = "Select a link from the feed";
-"navigationSelectSidebarToggle" = "Toggle sidebar";
+"navigation.select.link" = "从源中选择链接";
+"navigation.select.sidebar.toggle" = "切换侧边栏";
 
 // Welcome View
-"welcomeTitle" = "Read-it-later for serious readers.";
-"welcomeLearnMore" = "Learn more";
-"welcomeSignupAgreement" = "By signing up, you agree to Omnivore’s\n";
-"welcomeTitleTermsOfService" = "Terms of Service";
-"welcomeTitleAndJoiner" = " and ";
-"welcomeTitleEmailContinue" = "Continue with Email";
+"welcome.title" = "认真的读者的稍后阅读.";
+"welcome.learn.more" = "了解更多";
+"welcome.signup.agreement" = "通过注册, 您同意 Omnivore’s\n";
+"welcome.title.terms.of.service" = "服务条款";
+"welcome.title.and.joiner" = " 和 ";
+"welcome.title.email.continue" = "继续发送电子邮件";
 
 // Keyboard Commands
-"keyboardCommandDecreaseFont" = "Decrease Font Size";
-"keyboardCommandIncreaseFont" = "Increase Font Size";
-"keyboardCommandDecreaseMargin" = "Decrease Margin";
-"keyboardCommandIncreaseMargin" = "Increase Margin";
-"keyboardCommandDecreaseLineSpacing" = "Decrease Line Spacing";
-"keyboardCommandIncreaseLineSpacing" = "Increase Line Spacing";
+"keyboard.command.decrease.font" = "减小字体大小";
+"keyboard.command.increase.font" = "增加字体大小";
+"keyboard.command.decrease.font" = "减少边距";
+"keyboard.command.increase.margin" = "增加边距";
+"keyboard.command.decrease.line.spacing" = "减小行距";
+"keyboard.command.increase.line.spacing" = "增加行距";
 
 // Library
 //"library.by.author.suffix" = "by \(author)" // unused
@@ -135,56 +140,65 @@
 
 
 // Generic
-"genericSnooze" = "Snooze";
-"genericClose" = "Close";
-"genericCreate" = "Create";
-"genericConfirm" = "Confirm";
-"genericProfile" = "Profile";
-"genericNext" = "Next";
-"genericName" = "Name";
-"genericOk" = "Ok";
-"genericRetry" = "Retry";
-"genericEmail" = "Email";
-"genericPassword" = "Password";
-"genericSubmit" = "Submit";
-"genericContinue" = "Continue";
-"genericSend" = "Send";
-"genericOptions" = "Options";
-"genericOpen" = "Open";
-"genericChangeApply" = "Apply Changes";
-"genericTitle" = "Title";
-"genericAuthor" = "Author";
-"genericDescription" = "Description";
-"genericSave" = "Save";
-"genericLoading" = "Loading...";
-"genericFontFamily" = "Font Family";
-"genericHighContrastText" = "High Contrast Text";
-"genericFont" = "Font";
-"genericHighlight" = "Highlight";
-"labelsGeneric" = "标签";
-"emailsGeneric" = "电子邮件";
-"subscriptionsGeneric" = "订阅";
-"textToSpeechGeneric" = "文章转语音";
-"privacyPolicyGeneric" = "隐私策略";
-"termsAndConditionsGeneric" = "条款与条件";
-"feedbackGeneric" = "反馈";
-"manageAccountGeneric" = "管理帐户";
-"logoutGeneric" = "退出登陆";
-"doneGeneric" = "完成";
-"cancelGeneric" = "取消";
-"inboxGeneric" = "收集箱";
-"readLaterGeneric" = "稍后阅读";
-"newslettersGeneric" = "新闻稿件";
-"allGeneric" = "全部";
-"archivedGeneric" = "存档";
-"highlightedGeneric" = "荧光笔";
-"filesGeneric" = "文件";
-"newestGeneric" = "最新";
-"oldestGeneric" = "最早";
-"recentlyReadGeneric" = "最近阅读";
-"recentlyPublishedGeneric" = "最近发布";
-"clubsGeneric" = "读书俱乐部";
-"errorGeneric" = "哦！出现了小问题，请您重试.";
-"pushNotificationsGeneric" = "推送通知";
+"generic.snooze" = "小休眠";
+"generic.close" = "关闭";
+"generic.create" = "创建";
+"generic.confirm" = "确认";
+"generic.profile" = "概要";
+"generic.next" = "下一页";
+"generic.name" = "名字";
+"generic.ok" = "好";
+"generic.retry" = "重试";
+"generic.email" = "电子邮箱";
+"generic.password" = "密码";
+"generic.submit" = "提交";
+"generic.continue" = "继续";
+"generic.send" = "发送";
+"generic.options" = "选项";
+"generic.open" = "打开";
+"generic.changes.apply" = "应用更改";
+"generic.title" = "标题";
+"generic.author" = "作者";
+"generic.description" = "描述";
+"generic.save" = "保存";
+"generic.loading" = "加载中...";
+"generic.font.family" = "字体册";
+"generic.high.contrast.text" = "高对比度文本";
+"generic.font" = "字体";
+"generic.highlight" = "荧光笔";
+"labels.generic" = "标签";
+"emails.generic" = "电子邮件";
+"subscriptions.generic" = "订阅";
+"textToSpeech.generic" = "文章转语音";
+"privacy.policy.generic" = "隐私策略";
+"termsAndConditions.generic" = "条款与条件";
+"feedback.generic" = "反馈";
+"manageAccount.generic" = "管理帐户";
+"logout.generic" = "退出登陆";
+"done.generic" = "完成";
+"cancel.generic" = "取消";
+"inbox.generic" = "收集箱";
+"readLater.generic" = "稍后阅读";
+"newsletters.generic" = "新闻稿件";
+"all.generic" = "全部";
+"archived.generic" = "存档";
+"highlighted.generic" = "荧光笔";
+"files.generic" = "文件";
+"newest.generic" = "最新";
+"oldest.generic" = "最早";
+"recentlyRead.generic" = "最近阅读";
+"recentlyPublished.generic" = "最近发布";
+"clubs.generic" = "读书俱乐部";
+"error.generic" = "哦！出现了小问题，请您重试.";
+"pushNotifications.generic" = "推送通知";
 "dismissButton" = "撤回";
-"errorNetwork" = "我们在连接到互联网时遇到问题.";
+"error.network" = "我们在连接到互联网时遇到问题.";
+
+// Unreferenced
+"signInScreenHeadline" = "保存并分享喜爱的网页.";
+"registrationViewSignInHeadline" = "登录";
+"registrationViewHeadline" = "青衿之志，履践致远。";
+"username.validation.error.invalidPattern" = "用户名中间只能包含字母、数字和下划线.";
+"username.validation.error.tooshort" = "用户名应至少包含 3 个英文字符.";
+"username.validation.error.toolong" = "用户名不能超过 15 个英文字符.";
+"saveArticleSavingState" = "保存中...";
