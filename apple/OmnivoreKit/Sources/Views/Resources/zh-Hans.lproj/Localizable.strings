@@ -86,6 +86,7 @@
 "registrationUsername" = "用户名";
 "registrationAlreadyHaveAccount" = "已有帐户?";
 "registrationBio" = "个人简介 (可选)";
+// 读万卷书,行万里路. From Chinese verse, Similar to the old saying: study, every day.
 "registrationWelcome" = "读万卷书,行万里路.";
 "registrationUsernameAssignedPrefix" = "您的用户名是:";
 "registrationChangeUsername" = "更改用户名";
