@@ -138,7 +138,7 @@ export default function RecentEmails(): JSX.Element {
   applyStoredTheme(false)
 
   const sortedRecentEmails = useMemo(() => {
-    return recentEmails.sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+    return recentEmails.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
   }, [recentEmails])
 
   return (
