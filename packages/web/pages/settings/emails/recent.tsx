@@ -120,10 +120,11 @@ export default function RecentEmails(): JSX.Element {
     >
       {sortedRecentEmails.length > 0 ? (
         sortedRecentEmails.map((recentEmail: RecentEmail, i) => {
+          console.log('recent email: ', recentEmail)
           return (
             <SettingsTableRow
               key={recentEmail.id}
-              title={recentEmail.subject}
+              title={recentEmail.from}
               isLast={i === sortedRecentEmails.length - 1}
               onDelete={() => {
                 console.log('onDelete triggered: ', recentEmail.id)
@@ -140,8 +141,10 @@ export default function RecentEmails(): JSX.Element {
                     },
                   }}
                 >
-                  {`From ${formattedShortDate(recentEmail.from)},`}
-                  {`Received ${formattedShortDate(recentEmail.createdAt)} at `}
+                  {recentEmail.subject}
+                  {`, Received ${formattedShortDate(
+                    recentEmail.createdAt
+                  )} at `}
                   <Link href={`/settings/emails?address=${recentEmail.to}`}>
                     {recentEmail.to}
                   </Link>
