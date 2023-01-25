@@ -161,7 +161,9 @@ export default function RecentEmails(): JSX.Element {
                       },
                     }}
                   >
-                    {formattedShortDate(recentEmail.createdAt)}
+                    {`${formattedShortDate(
+                      recentEmail.createdAt
+                    )}, classfied as: ${recentEmail.type}`}
                   </StyledText>
                 </HStack>
               }
