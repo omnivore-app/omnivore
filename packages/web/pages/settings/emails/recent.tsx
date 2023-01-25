@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react'
 import { applyStoredTheme } from '../../../lib/themeUpdater'
 
-import { FormInputProps } from '../../../components/elements/FormElements'
 import {
   EmptySettingsRow,
   SettingsTable,
@@ -26,8 +25,6 @@ import {
   ModalRoot,
   ModalTitleBar,
 } from '../../../components/elements/ModalPrimitives'
-import TextArea from 'antd/lib/input/TextArea'
-import { StyledTextArea } from '../../../components/elements/StyledTextArea'
 import { markEmailAsItemMutation } from '../../../lib/networking/mutations/markEmailAsItemMutation'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 
@@ -141,19 +138,6 @@ export default function RecentEmails(): JSX.Element {
   applyStoredTheme(false)
 
   const sortedRecentEmails = useMemo(() => {
-    const stub = {
-      createdAt: '2023-01-25T09:00:02.000Z',
-      from: 'Jackson Harper from 😜 Jackson’s Newsletter <jacksonharper@substack.com>',
-      id: 'a7210b62-9c8e-11ed-bac2-7321761ada92',
-      subject: 'This is a test post i just created',
-      text: 'View this post on the web at https://jacksonharper.substack.com/p/this-is-a-test-post-i-just-created\n\nThis is a test post created on substack. You can read it in your recent emails.\n\nUnsubscribe https://substack.com/redirect/2/eyJlIjoiaHR0cHM6Ly9qYWNrc29uaGFycGVyLnN1YnN0YWNrLmNvbS9hY3Rpb24vZGlzYWJsZV9lbWFpbD90b2tlbj1leUoxYzJWeVgybGtJam8zTWpVMU16RXlNQ3dpY0c5emRGOXBaQ0k2T1RnNE5EYzFNRE1zSW1saGRDSTZNVFkzTkRZek56RTVOU3dpWlhod0lqb3hOamMzTWpJNU1UazFMQ0pwYzNNaU9pSndkV0l0Tmpnek1Ea3hJaXdpYzNWaUlqb2laR2x6WVdKc1pWOWxiV0ZwYkNKOS5SenJLc1RUcXQ5VTlXbFliY250ZmR1anFjeW80Mk5mUDFSNjRLMXBoRVJZIiwicCI6OTg4NDc1MDMsInMiOjY4MzA5MSwiZiI6dHJ1ZSwidSI6NzI1NTMxMjAsImlhdCI6MTY3NDYzNzE5NSwiZXhwIjoxNjc3MjI5MTk1LCJpc3MiOiJwdWItMCIsInN1YiI6ImxpbmstcmVkaXJlY3QifQ.bQzDxlIPeV1K2lMXAFkBrFkSiAxEJWOC-9VLw372kME?',
-      to: 'jacksonh-eEMfQepve@inbox-demo.omnivore.app',
-      type: 'article',
-    }
-    return [stub]
-    if (!recentEmails) {
-      return []
-    }
     return recentEmails.sort((a, b) => a.createdAt.localeCompare(b.createdAt))
   }, [recentEmails])
 
