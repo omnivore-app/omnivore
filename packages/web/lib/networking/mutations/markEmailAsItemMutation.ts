@@ -5,12 +5,12 @@ type MarkEmailAsItemDataResponseData = {
 }
 
 type MarkEmailAsItemData = {
-  success: Boolean
+  success: boolean
   errorCodes?: unknown[]
 }
 
 export async function markEmailAsItemMutation(
-  recentEmailId: String
+  recentEmailId: string
 ): Promise<void> {
   const mutation = `
     mutation MarkRecentEmailAsItem($recentEmailId: ID!) {
