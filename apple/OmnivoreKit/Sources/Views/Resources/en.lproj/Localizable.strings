@@ -1,39 +1,192 @@
-"googleAuthButton" = "Continue with Google";
-"registrationViewSignUpHeadline" = "Sign Up";
-"error.network" = "We are having trouble connecting to the internet.";
-"error.generic" = "Something went wrong, please try again.";
-"extensionAppUnauthorized" = "Please login to Omnivore from the app before saving your first link.";
-"loginError.invalidCreds" = "The login credentials provided are invalid.";
+// share extension
 "saveArticleSavedState" = "Saved to Omnivore";
 "saveArticleProcessingState" = "Saved to Omnivore";
-"dismissButton" = "Dismiss";
+"extensionAppUnauthorized" = "Please login to Omnivore from the app before saving your first link.";
 
-"labels.generic" = "Labels";
-"emails.generic" = "Emails";
-"subscriptions.generic" = "Subscriptions";
-"textToSpeech.generic" = "Text to Speech";
-"privacy.policy.generic" = "Privacy Policy";
-"termsAndConditions.generic" = "Terms and Conditions";
-"feedback.generic" = "Feedback";
-"manageAccount.generic" = "Manage Account";
-"logout.generic" = "Logout";
-"done.generic" = "Done";
-"cancel.generic" = "Cancel";
-"inbox.generic" = "Inbox";
-"readLater.generic" = "Read Later";
-"newsletters.generic" = "Newsletters";
-"all.generic" = "All";
-"archived.generic" = "Archived";
-"highlighted.generic" = "Highlighted";
-"files.generic" = "Files";
-"newest.generic" = "Newest";
-"oldest.generic" = "Oldest";
-"recentlyRead.generic" = "Recently Read";
-"recentlyPublished.generic" = "Recently Published";
-"create.label.message" = "Create a new Label";
-"create.new.email.message" = "Create a new email address";
-"newsletters.description" = "Add PDFs to your library, or subscribe to newsletters using an Omnivore email address.";
-"labels.purpose.description" = "Use labels to create curated collections of links.";
-"no.current.subscriptions.message" = "You have no current Subscriptions.";
-"clubs.generic" = "Clubs";
-"pushNotifications.generic" = "Push Notifications";
+// audio player
+"audioPlayerReplay" = "Replay";
+
+// Highlights List Card
+"highlightCardHighlightByOther" = "Highlight by ";
+"highlightCardNoHighlightsOnPage" = "You have not added any highlights or notes to this page.";
+
+// Labels View
+"labelsViewAssignNameColor" = "Assign a name and color.";
+"createLabelMessage" = "Create a new Label";
+"labelsPurposeDescription" = "Use labels to create curated collections of links.";
+
+// Manage Account View
+"manageAccountDelete" = "Delete Account";
+"manageAccountResetCache" = "Reset Data Cache";
+"manageAccountConfirmDeleteMessage" = "Are you sure you want to delete your account? This action can't be undone.";
+
+// Newsletter Emails View
+"newsletterEmailsExisting" = "Existing Emails (Tap to copy)";
+"createNewEmailMessage" = "Create a new email address";
+"newslettersDescription" = "Add PDFs to your library, or subscribe to newsletters using an Omnivore email address.";
+"noCurrentSubscriptionsMessage" = "You have no current Subscriptions.";
+
+// Profile View
+"profileConfirmLogoutMessage" = "Are you sure you want to logout?";
+
+// Devices View
+"devicesTokensTitle" = "Registered device tokens (swipe to remove)";
+"devicesCreated" = "Created: ";
+
+// Push Notification Settings
+"notificationsEnabled" = "Notifications Enabled";
+"notificationsExplainer" = "Enabling push notifications gives Omnivore device permission to send notifications,\nbut you are in charge of which notifications are sent.";
+"notificationsTriggerExplainer" = "Push notifications are triggered using your \n[account rules](https://omnivore.app/settings/rules) which you can edit online.";
+"notificationsEnable" = "Enable Push Notifications?";
+ "notificationsGeneralExplainer" = "Get notified when newsletter links reach your inbox. Or receive reminders that you set from our share extension.";
+"notificationsOptionDeny" = "No Thanks";
+"notificationsOptionEnable" = "Yes Please";
+
+// Community Modal
+"communityHeadline" = "Help build the Omnivore Community";
+"communityAppstoreReview" = "Review on the AppStore";
+"communityTweet" = "Tweet about Omnivore";
+"communityFollowTwitter" = "Follow us on Twitter";
+"communityJoinDiscord" = "Join us on Discord";
+"communityStarGithub" = "Star on GitHub";
+
+// Clubs View
+"clubsLearnTitle" = "Learn more about clubs";
+"clubsName" = "Club Name";
+"clubsCreate" = "Create a new club";
+"clubsYours" = "Your clubs";
+"clubsNotAMemberMessage" = "You are not a member of any clubs.\nCreate a new club and send the invite link to your friends get started.\n\nDuring the beta you are limited to creating three clubs, and each club\ncan have a maximum of twelve users."
+"clubsErrorCopying" = "Error copying invite URL";
+"clubsAdminDenyViewing" = "The admin of this club does not allow viewing all members.";
+"clubsNoMembers" = "This club does not have any members. Add users to your club by sending\nthem the invite link.";
+"clubsLeave" = "Leave Club";
+"clubsLeaveConfirm" = "Are you sure you want to leave this club? No data will be deleted, but you will stop receiving recommendations from the club.";
+"clubsNoneJoined" = "You do not have any clubs you can post to.\nJoin a club or create your own to start recommending articles.";
+
+// Subscriptions
+"subscriptionsErrorRetrieving" = "Sorry, we were unable to retrieve your subscriptions.";
+"subscriptionsNone" = "You have no current subscriptions.";
+//"subscriptions.error.retrieving" = "Last received: \(updatedDate.formatted())"; // unused for now
+
+// Text to Speech
+"texttospeechLanguageDefault" = "Default Language";
+"texttospeechSettingsAudio" = "Audio Settings";
+"texttospeechSettingsEnablePrefetch" = "Enable audio prefetch";
+"texttospeechBetaSignupInProcess" = "Signing up for beta";
+"texttospeechBetaRealisticVoiceLimit" = "You are in the ultra realistic voices beta. During the beta you can listen to 10,000 words of audio per day.";
+"texttospeechBetaRequestReceived" = "Your request to join the ultra realistic voices demo has been received. You will be informed by email when a spot is available.";
+"texttospeechBetaWaitlist" = "Ultra realistic voices are currently in limited beta. Enabling the feature will add you to the beta queue.";
+
+// Sign in/up
+"registrationNoAccount" = "Don't have an account?";
+"registrationForgotPassword" = "Forgot your password?";
+"registrationStatusCheck" = "Check Status";
+"registrationUseDifferentEmail" = "Use a different email?";
+"registrationFullName" = "Full Name";
+"registrationUsername" = "Username";
+"registrationAlreadyHaveAccount" = "Already have an account?";
+"registrationBio" = "Bio (optional)";
+"registrationWelcome" = "Welcome to Omnivore!";
+"registrationUsernameAssignedPrefix" = "Your username is:";
+"registrationChangeUsername" = "Change Username";
+"registrationEdit" = "Edit";
+"googleAuthButton" = "Continue with Google";
+"registrationViewSignUpHeadline" = "Sign Up";
+"loginErrorInvalidCreds" = "The login credentials provided are invalid.";
+
+// Recommendation
+"recommendationToPrefix" = "To:";
+"recommendationAddNote" = "Add a note (optional)";
+//"recommendationToPrefix" = "Include your \(viewModel.highlightCount) highlight\(viewModel.highlightCount > 1 ? "s" : """; // unused for now
+"recommendationError" = "Error recommending this page";
+
+// Web Reader
+"readerCopyLink" = "Copy Link";
+"readerSave" = "Save to Omnivore";
+"readerError" = "An error occurred";
+
+// Debug Menu
+"menuDebugTitle" = "Debug Menu";
+"menuDebugApiEnv" = "API Environment:";
+
+// Navigation
+"navigationSelectLink" = "Select a link from the feed";
+"navigationSelectSidebarToggle" = "Toggle sidebar";
+
+// Welcome View
+"welcomeTitle" = "Read-it-later for serious readers.";
+"welcomeLearnMore" = "Learn more";
+"welcomeSignupAgreement" = "By signing up, you agree to Omnivore’s\n";
+"welcomeTitleTermsOfService" = "Terms of Service";
+"welcomeTitleAndJoiner" = " and ";
+"welcomeTitleEmailContinue" = "Continue with Email";
+
+// Keyboard Commands
+"keyboardCommandDecreaseFont" = "Decrease Font Size";
+"keyboardCommandIncreaseFont" = "Increase Font Size";
+"keyboardCommandDecreaseMargin" = "Decrease Margin";
+"keyboardCommandIncreaseMargin" = "Increase Margin";
+"keyboardCommandDecreaseLineSpacing" = "Decrease Line Spacing";
+"keyboardCommandIncreaseLineSpacing" = "Increase Line Spacing";
+
+// Library
+//"library.by.author.suffix" = "by \(author)" // unused
+//"Recommended by \(byStr) in \(inStr)" // unused
+
+
+// Generic
+"genericSnooze" = "Snooze";
+"genericClose" = "Close";
+"genericCreate" = "Create";
+"genericConfirm" = "Confirm";
+"genericProfile" = "Profile";
+"genericNext" = "Next";
+"genericName" = "Name";
+"genericOk" = "Ok";
+"genericRetry" = "Retry";
+"genericEmail" = "Email";
+"genericPassword" = "Password";
+"genericSubmit" = "Submit";
+"genericContinue" = "Continue";
+"genericSend" = "Send";
+"genericOptions" = "Options";
+"genericOpen" = "Open";
+"genericChangeApply" = "Apply Changes";
+"genericTitle" = "Title";
+"genericAuthor" = "Author";
+"genericDescription" = "Description";
+"genericSave" = "Save";
+"genericLoading" = "Loading...";
+"genericFontFamily" = "Font Family";
+"genericHighContrastText" = "High Contrast Text";
+"genericFont" = "Font";
+"genericHighlight" = "Highlight";
+"labelsGeneric" = "Labels";
+"emailsGeneric" = "Emails";
+"subscriptionsGeneric" = "Subscriptions";
+"textToSpeechGeneric" = "Text to Speech";
+"privacyPolicyGeneric" = "Privacy Policy";
+"termsAndConditionsGeneric" = "Terms and Conditions";
+"feedbackGeneric" = "Feedback";
+"manageAccountGeneric" = "Manage Account";
+"logoutGeneric" = "Logout";
+"doneGeneric" = "Done";
+"cancelGeneric" = "Cancel";
+"inboxGeneric" = "Inbox";
+"readLaterGeneric" = "Read Later";
+"newslettersGeneric" = "Newsletters";
+"allGeneric" = "All";
+"archivedGeneric" = "Archived";
+"highlightedGeneric" = "Highlighted";
+"filesGeneric" = "Files";
+"newestGeneric" = "Newest";
+"oldestGeneric" = "Oldest";
+"recentlyReadGeneric" = "Recently Read";
+"recentlyPublishedGeneric" = "Recently Published";
+"clubsGeneric" = "Clubs";
+"errorGeneric" = "Something went wrong, please try again.";
+"pushNotificationsGeneric" = "Push Notifications";
+"dismissButton" = "Dismiss";
+"errorNetwork" = "We are having trouble connecting to the internet.";
+
+// TODO: search navigationTitle, toggle, section, button, Label

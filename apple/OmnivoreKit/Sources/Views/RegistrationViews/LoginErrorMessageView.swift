@@ -20,11 +20,11 @@ private extension LoginError {
   var message: String {
     switch self {
     case .unauthorized:
-      return LocalText.invalidCredsLoginError
+      return LocalText.loginErrorInvalidCreds
     case .network:
-      return LocalText.networkError
+      return LocalText.errorNetwork
     case .unknown:
-      return LocalText.genericError
+      return LocalText.errorGeneric
     case .pendingEmailVerification:
       return "Please check your email for a verification message."
     }

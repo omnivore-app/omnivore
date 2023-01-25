@@ -116,7 +116,7 @@ struct CreateLabelView: View {
         if !newLabelName.isEmpty, newLabelColor != .clear {
           TextChip(text: newLabelName, color: newLabelColor)
         } else {
-          Text("Assign a name and color.").font(.appBody)
+          Text(LocalText.labelsViewAssignNameColor).font(.appBody)
         }
         Spacer()
       }

@@ -14,9 +14,7 @@ struct HighlightsListView: View {
   @State var setLabelsHighlight: Highlight?
 
   var emptyView: some View {
-    Text("""
-    You have not added any highlights or notes to this page.
-    """)
+    Text(LocalText.highlightCardNoHighlightsOnPage)
       .multilineTextAlignment(.center)
       .padding(16)
   }
