@@ -10,6 +10,8 @@ import {
   saveAbuseReport,
   saveContentDisplayReport,
 } from '../../services/reports'
+import { analytics } from '../../utils/analytics'
+import { env } from '../../env'
 
 const SUCCESS_MESSAGE = `Your report has been submitted. Thank you.`
 const FAILURE_MESSAGE =
@@ -40,6 +42,15 @@ export const reportItemResolver: ResolverFn<
   const { sharedBy, reportTypes } = args.input
 
   if (sharedBy && isAbuseReport(reportTypes)) {
+    analytics.track({
+      userId: sharedBy,
+      event: 'report_created',
+      properties: {
+        type: 'abuse',
+        env: env.server.apiEnv,
+      },
+    })
+
     // SharedBy is nullable for some report types, but not for abuse reports
     // So we force it
     const uid = ctx.claims?.uid || ''
@@ -58,6 +69,17 @@ export const reportItemResolver: ResolverFn<
         message: FAILURE_MESSAGE,
       }
     }
+
+    analytics.track({
+      userId: uid,
+      event: 'report_created',
+      properties: {
+        type: 'content',
+        url: args.input.itemUrl,
+        env: env.server.apiEnv,
+      },
+    })
+
     const report = await saveContentDisplayReport(uid, args.input)
     const message = report ? SUCCESS_MESSAGE : FAILURE_MESSAGE
     return {
