@@ -6,7 +6,11 @@ import {
 } from './landing/LandingSectionsContainer'
 import { LandingFooter } from './landing/LandingFooter'
 
-export function About(): JSX.Element {
+type AboutProps = {
+  lang: 'en' | 'zh'
+}
+
+export function About(props: AboutProps): JSX.Element {
   return (
     <>
       <LandingHeader />
@@ -39,8 +43,10 @@ export function About(): JSX.Element {
               textAlign: 'center',
             }}
           >
-            Omnivore is the free, open source, read-it-later app for serious
-            readers.
+            {props.lang == 'zh'
+              ? `Omnivore 为认真读者提供免付费read-it-later应用程序`
+              : `Omnivore is the free, open source, read-it-later app for serious
+            readers.`}
           </Box>
           <Box
             css={{
@@ -51,8 +57,10 @@ export function About(): JSX.Element {
               fontWeight: '600',
             }}
           >
-            Distraction free. Privacy focused. Open source. Designed for
-            knowledge workers and lifelong learners.
+            {props.lang == 'zh'
+              ? `休闲阅读。保护隐私。Open source。专为知识工作者和终身学习者设计。`
+              : `Distraction free. Privacy focused. Open source. Designed for
+            knowledge workers and lifelong learners.`}
           </Box>
 
           <Box
@@ -62,10 +70,12 @@ export function About(): JSX.Element {
               textAlign: 'center',
             }}
           >
-            Save articles, newsletters, and documents and read them later —
+            {props.lang == 'zh'
+              ? `为您保存文章、邮件订阅或文件，等休闲时再去阅读。可以随意添加注释和高亮。按自己喜好设定阅读列表。还可与其他个人电子设备同步。`
+              : `Save articles, newsletters, and documents and read them later —
             focused and distraction free. Add notes and highlights. Organize
             your reading list the way you want and sync it across all your
-            devices.
+            devices.`}
           </Box>
           <Box
             css={{
@@ -76,10 +86,10 @@ export function About(): JSX.Element {
               justifyContent: 'center',
             }}
           >
-            <GetStartedButton />
+            <GetStartedButton lang={props.lang} />
           </Box>
         </VStack>
-        <LandingSectionsContainer />
+        <LandingSectionsContainer lang={props.lang} />
       </VStack>
       <LandingFooter />
     </>
