@@ -37,6 +37,7 @@
     "express-formidable": "^1.2.0",
     "express-session": "^1.17.2",
     "pg": "^8.6.0",
+    "read-yaml-file": "^2.1.0",
     "reflect-metadata": "^0.1.13",
     "typeorm": "^0.2.34"
   },
