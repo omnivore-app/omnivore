@@ -10,11 +10,11 @@
     var body: some View {
       Group {
         Form {
-          Section("Audio Settings") {
-            Toggle("Enable audio prefetch", isOn: $audioController.preloadEnabled)
+          Section(LocalText.texttospeechSettingsAudio) {
+            Toggle(LocalText.texttospeechSettingsEnablePrefetch, isOn: $audioController.preloadEnabled)
           }
-          NavigationLink(destination: TextToSpeechLanguageView().navigationTitle("Default Language")) {
-            Text("Default Language")
+          NavigationLink(destination: TextToSpeechLanguageView().navigationTitle(LocalText.texttospeechLanguageDefault)) {
+            Text(LocalText.texttospeechLanguageDefault)
           }
           innerBody
         }

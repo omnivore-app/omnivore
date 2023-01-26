@@ -91,7 +91,7 @@ struct EmailSignupFormView: View {
           VStack {
             // Email
             VStack(alignment: .leading, spacing: 6) {
-              Text("Email")
+              Text(LocalText.genericEmail)
                 .font(.appFootnote)
                 .foregroundColor(.appGrayText)
               TextField("", text: $email)
@@ -108,7 +108,7 @@ struct EmailSignupFormView: View {
 
             // Password
             VStack(alignment: .leading, spacing: 6) {
-              Text("Password")
+              Text(LocalText.genericPassword)
                 .font(.appFootnote)
                 .foregroundColor(.appGrayText)
               SecureField("", text: $password)
@@ -124,7 +124,7 @@ struct EmailSignupFormView: View {
 
             // Full Name
             VStack(alignment: .leading, spacing: 6) {
-              Text("Full Name")
+              Text(LocalText.registrationFullName)
                 .font(.appFootnote)
                 .foregroundColor(.appGrayText)
               TextField("", text: $name)
@@ -142,7 +142,7 @@ struct EmailSignupFormView: View {
             VStack(alignment: .leading, spacing: 6) {
               HStack {
                 VStack(alignment: .leading, spacing: 6) {
-                  Text("Username")
+                  Text(LocalText.registrationUsername)
                     .font(.appFootnote)
                     .foregroundColor(.appGrayText)
                   TextField("", text: $viewModel.potentialUsername)
@@ -182,7 +182,7 @@ struct EmailSignupFormView: View {
                   )
                 }
               },
-              label: { Text("Submit") }
+              label: { Text(LocalText.genericSubmit) }
             )
             .buttonStyle(SolidCapsuleButtonStyle(color: .appCtaYellow, width: 300))
 
@@ -194,7 +194,7 @@ struct EmailSignupFormView: View {
               Button(
                 action: { viewModel.emailAuthState = .signIn },
                 label: {
-                  Text("Already have an account?")
+                  Text(LocalText.registrationAlreadyHaveAccount)
                     .foregroundColor(.appGrayTextContrast)
                     .underline()
                 }
@@ -221,7 +221,7 @@ struct EmailSignupFormView: View {
         Spacer()
       }
     }
-    .navigationTitle(focusedField == nil ? "Sign Up" : "")
+    .navigationTitle(focusedField == nil ? LocalText.registrationViewSignUpHeadline : "")
     .task {
       viewModel.configureUsernameValidation(dataService: dataService)
     }

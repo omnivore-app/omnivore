@@ -7,6 +7,7 @@ import Utils
   import PSPDFKit
   import PSPDFKitUI
   import Services
+  import Views
 
   struct PDFViewer: View {
     enum SettingsKeys: String {
@@ -134,7 +135,7 @@ import Utils
           .onShouldShowMenuItemsForSelectedText(perform: { pageView, menuItems, selectedText in
             let copy = menuItems.first(where: { $0.identifier == "Copy" })
             let define = menuItems.first(where: { $0.identifier == "Define" })
-            let highlight = MenuItem(title: "Highlight", block: {
+            let highlight = MenuItem(title: LocalText.genericHighlight, block: {
               _ = coordinator.highlightSelection(
                 pageView: pageView,
                 selectedText: selectedText,

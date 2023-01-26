@@ -18,7 +18,7 @@ enum PrimaryContentCategory: Identifiable, Hashable, Equatable {
     case .feed:
       return "Home"
     case .profile:
-      return "Profile"
+      return LocalText.genericProfile
     }
   }
 

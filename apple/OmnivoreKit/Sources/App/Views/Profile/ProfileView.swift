@@ -152,8 +152,8 @@ struct ProfileView: View {
           }
           .alert(isPresented: $showLogoutConfirmation) {
             Alert(
-              title: Text("Are you sure you want to logout?"),
-              primaryButton: .destructive(Text("Confirm")) {
+              title: Text(LocalText.profileConfirmLogoutMessage),
+              primaryButton: .destructive(Text(LocalText.genericConfirm)) {
                 authenticator.logout(dataService: dataService)
               },
               secondaryButton: .cancel()
@@ -161,7 +161,7 @@ struct ProfileView: View {
           }
       }
     }
-    .navigationTitle("Profile")
+    .navigationTitle(LocalText.genericProfile)
   }
 }
 

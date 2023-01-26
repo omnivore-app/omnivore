@@ -1,3 +1,7 @@
+// Unit test Entry -- Do not remove this or add entries before this one.
+// This allows us to check for syntax errors in this file with a unit test
+"unitTestLeadingEntry" = "For testing purposes only.";
+
 // share extension
 "saveArticleSavedState" = "Saved to Omnivore";
 "saveArticleProcessingState" = "Saved to Omnivore";
@@ -55,7 +59,7 @@
 "clubsName" = "Club Name";
 "clubsCreate" = "Create a new club";
 "clubsYours" = "Your clubs";
-"clubsNotAMemberMessage" = "You are not a member of any clubs.\nCreate a new club and send the invite link to your friends get started.\n\nDuring the beta you are limited to creating three clubs, and each club\ncan have a maximum of twelve users."
+"clubsNotAMemberMessage" = "You are not a member of any clubs.\nCreate a new club and send the invite link to your friends get started.\n\nDuring the beta you are limited to creating three clubs, and each club\ncan have a maximum of twelve users.";
 "clubsErrorCopying" = "Error copying invite URL";
 "clubsAdminDenyViewing" = "The admin of this club does not allow viewing all members.";
 "clubsNoMembers" = "This club does not have any members. Add users to your club by sending\nthem the invite link.";
@@ -189,4 +193,8 @@
 "dismissButton" = "Dismiss";
 "errorNetwork" = "We are having trouble connecting to the internet.";
 
-// TODO: search navigationTitle, toggle, section, button, Label
+// TODO: search navigationTitle, toggle, section, button, Label, title: ", CreateProfileViewModel, TextField, .keyboardShortcut
+
+// Unit test Entry -- Do not remove this or add entries after this one.
+// This allows us to check for syntax errors in this file with a unit test
+"unitTestTrailingEntry" = "For testing purposes only.";

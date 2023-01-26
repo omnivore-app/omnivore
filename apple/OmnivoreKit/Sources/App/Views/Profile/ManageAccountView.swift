@@ -35,18 +35,18 @@ struct ManageAccountView: View {
           action: {
             showDeleteAccountConfirmation = true
           },
-          label: { Text("Delete Account") }
+          label: { Text(LocalText.manageAccountDelete) }
         )
         Button(
           action: {
             dataService.resetCoreData()
           },
-          label: { Text("Reset Data Cache") }
+          label: { Text(LocalText.manageAccountResetCache) }
         )
         .alert(isPresented: $showDeleteAccountConfirmation) {
           Alert(
-            title: Text("Are you sure you want to delete your account? This action can't be undone."),
-            primaryButton: .destructive(Text("Delete Account")) {
+            title: Text(LocalText.manageAccountConfirmDeleteMessage),
+            primaryButton: .destructive(Text(LocalText.manageAccountDelete)) {
               Task {
                 await viewModel.deleteAccount(dataService: dataService, authenticator: authenticator)
               }
