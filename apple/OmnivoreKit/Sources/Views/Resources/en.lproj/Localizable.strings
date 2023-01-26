@@ -192,6 +192,7 @@
 "pushNotificationsGeneric" = "Push Notifications";
 "dismissButton" = "Dismiss";
 "errorNetwork" = "We are having trouble connecting to the internet.";
+"documentationGeneric" = "Documentation";
 
 // TODO: search navigationTitle, toggle, section, button, Label, title: ", CreateProfileViewModel, TextField, .keyboardShortcut
 
