@@ -188,4 +188,5 @@ public enum LocalText {
   public static let pushNotificationsGeneric = localText(key: "pushNotificationsGeneric")
   public static let dismissButton = localText(key: "dismissButton")
   public static let errorNetwork = localText(key: "errorNetwork")
+  public static let documentationGeneric = localText(key: "documentationGeneric")
 }
