@@ -215,6 +215,7 @@ export function LandingSectionsContainer(
       {sections.map((section) => {
         return (
           <LandingSection
+            key={section.imageIdx}
             titleText={section[props.lang].titleText}
             descriptionText={<p>{section[props.lang].descriptionText}</p>}
             image={
