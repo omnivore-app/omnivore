@@ -95,7 +95,8 @@
   }
 
   function savePopUp(payload) {
-    const fragment = document.createDocumentFragment()
+    console.log('payloaddddddd', payload);
+   const fragment = document.createDocumentFragment()
 
     const closeButtonEl = createToastCloseButton()
     fragment.appendChild(closeButtonEl)
@@ -107,11 +108,11 @@
     const iframeUrl = ENV_EXTENSION_ORIGIN + iframePath
     iframeEl.src = iframeUrl
     iframeEl.style.cssText = `all: initial !important;
-      width: 310px !important;
-      height: 310px !important;
+      width: 380px !important;
+      height:200px !important;
   `
-    fragment.appendChild(iframeEl)
-    return fragment
+   fragment.appendChild(iframeEl)
+   return fragment
   }
 
   function updateToastText(payload) {
@@ -170,12 +171,12 @@
     currentToastEl.appendChild(textEl)
   }
 
-  function hideToastAfter(timeInMs) {
-    if (hideToastTimeout) clearTimeout(hideToastTimeout)
-    hideToastTimeout = setTimeout(function () {
-      currentToastEl.remove()
-    }, timeInMs)
-  }
+  // function hideToastAfter(timeInMs) {
+  //   if (hideToastTimeout) clearTimeout(hideToastTimeout)
+  //   hideToastTimeout = setTimeout(function () {
+  //     currentToastEl.remove()
+  //   }, timeInMs)
+  // }
 
   function showMessageToast(payload) {
     const bodyEl = document.body
@@ -200,13 +201,13 @@
     } else if (payload.type !== 'error') {
 
       currentToastEl.textContent = ''
-      currentToastEl.style.setProperty('width', '310px', 'important')
+      currentToastEl.style.setProperty('width', 'auto', 'important')
       currentToastEl.style.setProperty('height', 'auto', 'important')
       currentIconEl = null
       currentTextEl = null
       const savePopUpEl = savePopUp(payload)
       currentToastEl.appendChild(savePopUpEl)
-      duration = 8e3
+      duration = 99e3
 
       // updateToastText(payload);
     } else if (payload.errorCode && payload.errorCode === 401) {
@@ -237,7 +238,7 @@
       bodyEl.appendChild(currentToastEl)
     }
 
-    hideToastAfter(duration)
+    //hideToastAfter(duration)
 
     // remove any existing toasts not created by current content script
     const presentToastsCol = document.querySelectorAll('.webext-omnivore-toast')

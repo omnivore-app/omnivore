@@ -1,42 +1,21 @@
-// HTML CSS JSResult Skip Results Iframe
-// EDIT ON
-/* global
-  ACTIONS
-  CREATE_ARTICLE_QUERY
-  CREATE_ARTICLE_SAVING_REQUEST_QUERY
-  ENV_IS_FIREFOX
-  ENV_IS_EDGE
-  browserApi
-  browserActionApi
-  browserScriptingApi
-  fetch
-  XMLHttpRequest
-*/
-
 'use strict'
 
-let authToken = undefined
-
+// HTML CSS JSResult Skip Results Iframe
+// EDIT ON
 const result = document.getElementById('result')
 const filter = document.getElementById('filter')
 const pushData = document?.getElementById('pushData')
+var actionSavedLabel = document.getElementById('action-Saved-Button-Label')
 const listItems = []
 getData()
 
-console.log('this is vijayr file in ran ')
-
-console.log('authToken', authToken)
-// async function getAuthToken() {
-//     if (typeof browser !== 'undefined' && browser.runtime && browser.runtime.sendNativeMessage) {
-//         const response = await browser.runtime.sendNativeMessage("omnivore", {message: ACTIONS.GetAuthToken})
-//         if (response.authToken) {
-//           authToken = response.authToken;
-//           console.log('authToken', authToken)
-//         }
-//       }
-// }
-
-// getAuthToken()
+actionSavedLabel.addEventListener(
+  'click',
+  function (e) {
+    console.log('here it taps saved 🧑‍🎨 ')
+  },
+  false
+)
 
 filter.addEventListener('input', (e) => filterData(e.target.value))
 pushData?.addEventListener('input', (e) => console.log(e.target.value))
@@ -51,22 +30,13 @@ async function getData() {
         '\n    query GetLabels {\n      labels {\n        ... on LabelsSuccess {\n          labels {\n            ...LabelFields\n          }\n        }\n        ... on LabelsError {\n          errorCodes\n        }\n      }\n    }\n    \n  fragment LabelFields on Label {\n    id\n    name\n    color\n    description\n    createdAt\n  }\n\n  ',
     }),
     headers: {
-      'x-rapidapi-key': 'your_api_key',
+      //'x-rapidapi-key': 'your_api_key',
       'Content-Type': 'application/json',
     },
   })
 
-  // const res = await fetch('http://localhost:4000/api/graphql', {
-  //     method: 'POST',
-  //     body: JSON.stringify({
-  //       query: "query { __typename }",
-  //     }),
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //     },
-  //   })
-
   const { results } = await res.json()
+
   // Clear result
   testArray = results
   result.innerHTML = ''
@@ -81,11 +51,10 @@ async function getData() {
     listItems.push(li)
     li.innerHTML = `
 <div class="cellDev">
-<div class="RoundLabel" style="background-color: red;">
-
+<div class="RoundLabel" style="background-color: black;">
 </div>
-<h4 class="titleLabelLeft" style="color: red;" > ${user.name.first} ${user.name.last} </h2>
-<input type="checkbox"   onclick="addArray(${index}) class="checkboxStyle" />
+<h4 class="titleLabelLeft" style="color: black;" > ${user.name.first} ${user.name.last} </h2>
+<input type="checkbox"   onclick="addArray(${index})" class="checkboxStyle" />
 </div>
 
  `
@@ -93,6 +62,8 @@ async function getData() {
   })
 }
 function addArray(index) {
+  console.log('🤪', actionSavedLabel)
+
   let obj = testArray[index]
   if (
     selectedArray.length &&
@@ -102,8 +73,15 @@ function addArray(index) {
     //    console.log("Removed Object ",selectedArray)
   } else {
     selectedArray.push(obj)
+  }
+  console.log('selected Array 😗', selectedArray.length)
 
-    console.log('selected Array', selectedArray)
+  if (selectedArray.length > 0) {
+    actionSavedLabel.style.backgroundColor = 'yellow'
+    actionSavedLabel.disabled = false
+  } else {
+    actionSavedLabel.style.backgroundColor = 'lightgray'
+    actionSavedLabel.disabled = true
   }
 }
 function filterData(searchTerm) {

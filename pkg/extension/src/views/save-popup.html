@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- <html lang="en">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <title>Omnivore</title>
@@ -8,511 +8,236 @@
   </head>
 
   <body>
-    <section class="save-container">
-      <div class="save-header">
-        <div class="save-notification">
-          <div class="save-content">
+    <section class="action-container">
+      <div class="action-buttons">
+        <button id="action-Edit-Title" class="action-button-layout">
+          <span id="edit-button">
             <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 20 20"
+              width="17"
+              height="16"
+              viewBox="0 0 17 16"
               fill="none"
+              xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                d="M13.4375 8.125L8.85414 12.5L6.5625 10.3125"
-                stroke="#55B938"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M10 17.5C14.1421 17.5 17.5 14.1421 17.5 10C17.5 5.85786 14.1421 2.5 10 2.5C5.85786 2.5 2.5 5.85786 2.5 10C2.5 14.1421 5.85786 17.5 10 17.5Z"
-                stroke="#55B938"
-                stroke-width="1.5"
+                d="M8.90771 3.04413L13.2827 7.41913M5.74278 14.8792L1.44746 10.5839M5.52383 14.9191H2.03271C1.86695 14.9191 1.70798 14.8533 1.59077 14.7361C1.47356 14.6189 1.40771 14.4599 1.40771 14.2941V10.803C1.40771 10.7209 1.42388 10.6397 1.45529 10.5638C1.4867 10.488 1.53274 10.4191 1.59077 10.3611L10.9658 0.986067C11.083 0.868857 11.242 0.803009 11.4077 0.803009C11.5735 0.803009 11.7324 0.868857 11.8497 0.986067L15.3408 4.47718C15.458 4.59439 15.5238 4.75337 15.5238 4.91913C15.5238 5.08489 15.458 5.24386 15.3408 5.36107L5.96577 14.7361C5.90774 14.7941 5.83884 14.8401 5.76301 14.8716C5.68718 14.903 5.60591 14.9191 5.52383 14.9191Z"
+                stroke="#6A6968"
+                stroke-width="1.4"
                 stroke-linecap="round"
                 stroke-linejoin="round"
               />
             </svg>
-            Saved to Omnivore
-          </div>
+            Edit Title
+          </span>
+        </button>   
+        <button id="action-Set-Labels" class="action-button-layout">
+          <span id="archive-button" class="archive-button-class">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8.74983 15.2278L15.0657 8.91949C15.1352 8.8494 15.1902 8.76628 15.2275 8.67489C15.2648 8.5835 15.2838 8.48564 15.2832 8.38692L15.2832 1.63604C15.2832 1.4371 15.2042 1.24631 15.0635 1.10564C14.9228 0.964966 14.732 0.885938 14.5331 0.885938L7.78221 0.885938C7.68349 0.885367 7.58563 0.904288 7.49424 0.941617C7.40285 0.978945 7.31973 1.03395 7.24964 1.10347L0.941308 7.41929C0.519901 7.84123 0.283202 8.41317 0.283202 9.0095C0.283202 9.60583 0.519901 10.1778 0.941308 10.5997L5.53191 15.2278C5.95384 15.6492 6.52579 15.8859 7.12212 15.8859C7.71845 15.8859 8.2904 15.6492 8.71233 15.2278L8.74983 15.2278ZM6.63456 14.1702L2.00645 9.53457C1.86674 9.39403 1.78832 9.20392 1.78832 9.00575C1.78832 8.80759 1.86674 8.61747 2.00645 8.47693L8.08975 2.38613L13.783 2.38613L13.783 8.07938L7.69219 14.1702C7.6221 14.2397 7.53898 14.2947 7.44759 14.332C7.3562 14.3694 7.25834 14.3883 7.15962 14.3877C6.96284 14.3869 6.77427 14.3088 6.63456 14.1702Z"
+                fill="#6A6968"
+              />
+              <circle cx="10.6413" cy="5.7299" r="1.24925" fill="#6A6968" />
+            </svg>
+            Set Labels
+          </span>
+        </button>  
+        <button id="action-Read-Now" class="action-button-layout">
+          <span id="archive-button" class="archive-button-class">
+            <svg
+              width="18"
+              height="14"
+              viewBox="0 0 18 14"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M16.8867 0.18866H12.418C11.459 0.18866 10.5215 0.464051 9.71484 0.983582L8.76172 1.59491L7.80859 0.983582C7.00276 0.464151 6.06421 0.188148 5.10547 0.18866H0.636719C0.291016 0.18866 0.0117188 0.467957 0.0117188 0.81366V11.9074C0.0117188 12.2531 0.291016 12.5324 0.636719 12.5324H5.10547C6.06445 12.5324 7.00195 12.8078 7.80859 13.3273L8.67578 13.8859C8.70117 13.9016 8.73047 13.9113 8.75977 13.9113C8.78906 13.9113 8.81836 13.9035 8.84375 13.8859L9.71094 13.3273C10.5195 12.8078 11.459 12.5324 12.418 12.5324H16.8867C17.2324 12.5324 17.5117 12.2531 17.5117 11.9074V0.81366C17.5117 0.467957 17.2324 0.18866 16.8867 0.18866ZM5.10547 11.1262H1.41797V1.59491H5.10547C5.79687 1.59491 6.46875 1.79218 7.04883 2.16522L8.00195 2.77655L8.13672 2.86444V11.8879C7.20703 11.3879 6.16797 11.1262 5.10547 11.1262ZM16.1055 11.1262H12.418C11.3555 11.1262 10.3164 11.3879 9.38672 11.8879V2.86444L9.52148 2.77655L10.4746 2.16522C11.0547 1.79218 11.7266 1.59491 12.418 1.59491H16.1055V11.1262ZM6.51367 4.09491H2.88477C2.80859 4.09491 2.74609 4.16132 2.74609 4.24139V5.1203C2.74609 5.20038 2.80859 5.26679 2.88477 5.26679H6.51172C6.58789 5.26679 6.65039 5.20038 6.65039 5.1203V4.24139C6.65234 4.16132 6.58984 4.09491 6.51367 4.09491ZM10.8711 4.24139V5.1203C10.8711 5.20038 10.9336 5.26679 11.0098 5.26679H14.6367C14.7129 5.26679 14.7754 5.20038 14.7754 5.1203V4.24139C14.7754 4.16132 14.7129 4.09491 14.6367 4.09491H11.0098C10.9336 4.09491 10.8711 4.16132 10.8711 4.24139ZM6.51367 6.82929H2.88477C2.80859 6.82929 2.74609 6.89569 2.74609 6.97577V7.85468C2.74609 7.93475 2.80859 8.00116 2.88477 8.00116H6.51172C6.58789 8.00116 6.65039 7.93475 6.65039 7.85468V6.97577C6.65234 6.89569 6.58984 6.82929 6.51367 6.82929ZM14.6387 6.82929H11.0098C10.9336 6.82929 10.8711 6.89569 10.8711 6.97577V7.85468C10.8711 7.93475 10.9336 8.00116 11.0098 8.00116H14.6367C14.7129 8.00116 14.7754 7.93475 14.7754 7.85468V6.97577C14.7773 6.89569 14.7148 6.82929 14.6387 6.82929Z"
+                fill="#6A6968"
+              />
+            </svg>
+            Read Now
+          </span>
+        </button>
+        <button id="action-Options" class="action-button-layout">
+          <svg
+            width="15"
+            height="4"
+            viewBox="0 0 15 4"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <ellipse
+              cx="2.24631"
+              cy="2.04413"
+              rx="1.4846"
+              ry="1.5"
+              fill="#6A6968"
+            />
+            <ellipse
+              cx="7.76194"
+              cy="2.04413"
+              rx="1.4846"
+              ry="1.5"
+              fill="#6A6968"
+            />
+            <ellipse
+              cx="13.2771"
+              cy="2.04413"
+              rx="1.4846"
+              ry="1.5"
+              fill="#6A6968"
+            />
+          </svg>
+
+          <span id="archive-button" class="archive-button-class">
+          </span>
+        </button>
+      </div>
+
+      <div id="SelectedTab"></div>
+
+      <div id="tab-1-container" class="baseFeatures baseTab11">
+        <div id="BeforeSavedContainer">
+          <textarea
+            id="article-title-edit"
+            class="article-title-edit-class"
+            name="Text1"
+            rows="5"
+          ></textarea>
+
+          <button class="edit-Title-Saved-Button" id="action-Saved-Button">
+            Saved.
+          </button>
         </div>
-        <div class="read-now">
-          <a id="get-article-link" href="" target="_blank"
-            ><b>
-              Read now
+        <div id="AfterSavedContainer" class="AfterSavedContainerClass">
+          Title Saved.
+        </div>
+      </div>
+      <div id="tab-2-container" class="baseFeatures baseFeaturesTab3">
+        <div class="ButtonLabelDic">
+          <button
+            disabled
+            class="Label-Saved-Button"
+            id="action-Saved-Button-Label"
+          >
+            Saved
+          </button>
+        </div>
+
+        <div class="tableView">
+          <div class="containerTable">
+            <div class="flag-container">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
-              >
-                <path
-                  d="M2.5 8H13.5"
-                  stroke="#3B3A38"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-                <path
-                  d="M9 3.5L13.5 8L9 12.5"
-                  stroke="#3B3A38"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                /></svg></b
-          ></a>
-        </div>
-      </div>
-
-      <div class="title" id="title-container">
-        <h4 id="article-title"></h4>
-      </div>
-      <div class="edit-Title-container" id="edit-Title-container-id">
-        <textarea
-          id="article-title-edit"
-          class="article-title-edit-class"
-          name="Text1"
-          rows="5"
-        ></textarea>
-      </div>
-      <div class="flag-container">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="imageFlag"
-          width="17"
-          height="17"
-          viewBox="0 0 17 17"
-          fill="none"
-        >
-          <path
-            d="M8.9873 15.1387L15.707 8.41211C16.2607 7.8584 16.3223 7.53027 16.3223 6.7168V4.12598C16.3223 3.35352 16.1377 3.06641 15.5635 2.49219L14.0049 0.933594C13.4238 0.352539 13.1436 0.167969 12.3711 0.167969H9.78027C8.9668 0.167969 8.64551 0.243164 8.0918 0.796875L1.36523 7.5166C0.3125 8.5625 0.298828 9.69727 1.36523 10.7637L5.74707 15.1387C6.81348 16.1982 7.94141 16.1914 8.9873 15.1387ZM8.02344 13.9492C7.59277 14.3799 7.15527 14.3867 6.71094 13.9492L2.55469 9.79297C2.11035 9.34863 2.12402 8.9043 2.54785 8.48047L9.17871 1.86328C9.31543 1.72656 9.43848 1.65137 9.65039 1.65137H12.3232C12.5215 1.65137 12.665 1.72656 12.7949 1.85645L14.6406 3.70215C14.7705 3.83203 14.8389 3.96875 14.8389 4.16699V6.84668C14.8389 7.07227 14.7773 7.19531 14.6406 7.3252L8.02344 13.9492ZM11.4893 6.01953C12.0635 6.01953 12.501 5.5752 12.501 5.00781C12.501 4.44043 12.0635 3.99609 11.4893 3.99609C10.9082 3.99609 10.4775 4.44043 10.4775 5.00781C10.4775 5.5752 10.9082 6.01953 11.4893 6.01953Z"
-            fill="#0A0806"
-            fill-opacity="0.65"
-          />
-        </svg>
-
-        <input list="brow" class="input-flag" placeholder="Add a label..." />
-        <datalist id="brow">
-          <option value="None">
-            <!-- <option value="Firefox">
-        <option value="Chrome">
-        <option value="Opera">
-        <option value="Safari"> 
-          </option>
-        </datalist>
-
-        <br /><br />
-      </div>
-
-      <div class="save-footer">
-        <div class="save-footer-buttons">
-          <button id="action-edit1-button" class="action-edit1-button1">
-            <span id="edit-button">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
+                class="imageFlag"
                 width="17"
                 height="17"
                 viewBox="0 0 17 17"
                 fill="none"
               >
                 <path
-                  d="M5.24112 15.875H1.75C1.58424 15.875 1.42527 15.8092 1.30806 15.692C1.19085 15.5748 1.125 15.4158 1.125 15.25V11.7589C1.125 11.6768 1.14117 11.5956 1.17258 11.5197C1.20398 11.4439 1.25002 11.375 1.30806 11.317L10.6831 1.94197C10.8003 1.82476 10.9592 1.75891 11.125 1.75891C11.2908 1.75891 11.4497 1.82476 11.5669 1.94197L15.0581 5.43309C15.1753 5.5503 15.2411 5.70927 15.2411 5.87503C15.2411 6.04079 15.1753 6.19976 15.0581 6.31697L5.68306 15.692C5.62502 15.75 5.55612 15.796 5.48029 15.8275C5.40447 15.8589 5.32319 15.875 5.24112 15.875Z"
-                  stroke="black"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-              <!-- <i class="fas fa-pen"></i> 
-              Edit</span
-            >
-          </button>
-        </div>
-
-        <div class="save-footer-buttons">
-          <button id="action-archive-button" class="action-archive-button1">
-            <span id="archive-button">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="21"
-                height="20"
-                viewBox="0 0 21 20"
-                fill="none"
-              >
-                <path
-                  d="M16.75 16.875H4.25C4.08424 16.875 3.92527 16.8092 3.80806 16.6919C3.69085 16.5747 3.625 16.4158 3.625 16.25V5.625L4.875 3.125H16.125L17.375 5.625V16.25C17.375 16.4158 17.3092 16.5747 17.1919 16.6919C17.0747 16.8092 16.9158 16.875 16.75 16.875Z"
-                  stroke="#0A0806"
-                  stroke-opacity="0.65"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-                <path
-                  d="M7.84839 11.7234L10.5 14.375L13.1517 11.7234"
-                  stroke="#0A0806"
-                  stroke-opacity="0.65"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-                <path
-                  d="M10.5 8.125V14.375"
-                  stroke="#0A0806"
-                  stroke-opacity="0.65"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-                <path
-                  d="M3.625 5.625H17.375"
-                  stroke="#0A0806"
-                  stroke-opacity="0.65"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-              Archive</span
-            >
-          </button>
-        </div>
-        <div class="save-footer-buttons">
-          <button id="action-delete-button" class="action-delete-button1">
-            <!-- <span id="delete-button"> 
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="21"
-              height="20"
-              viewBox="0 0 21 20"
-              fill="none"
-            >
-              <path
-                d="M17.3748 4.375L3.62476 4.37501"
-                stroke="#0A0806"
-                stroke-opacity="0.65"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M8.625 8.125V13.125"
-                stroke="#0A0806"
-                stroke-opacity="0.65"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M12.375 8.125V13.125"
-                stroke="#0A0806"
-                stroke-opacity="0.65"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M7.375 1.875H13.625"
-                stroke="#0A0806"
-                stroke-opacity="0.65"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M16.1248 4.375V16.25C16.1248 16.4158 16.0589 16.5747 15.9417 16.6919C15.8245 16.8092 15.6655 16.875 15.4998 16.875H5.49976C5.334 16.875 5.17502 16.8092 5.05781 16.6919C4.9406 16.5747 4.87476 16.4158 4.87476 16.25V4.375"
-                stroke="#0A0806"
-                stroke-opacity="0.65"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-            Delete
-          </button>
-        </div>
-      </div>
-    </section>
-    <script src="../scripts/save-popup.js"></script>
- 
-  </body>
-</html> -->
-
-
-<html lang="en">
-
-<head>
-  <meta charset="utf-8" />
-  <title>Omnivore</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <link rel="stylesheet" href="/styles/save-popup.css" />
-
-  <!-- <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script> -->
-
-</head>
-
-<body>
-  <section class="save-container">
-
-
-
-    <div class="save-footer">
-        <!-- // tab-1  Edit Title    action-Edit-Title  [ action-edit1-button1 ]
-        //tab-2    Set Labels   action-Set-Labels [ action-edit1-button1 ] 
-        // tab-3   Read Now     action-Read-Now [action-edit1-button1] 
-        // tab-4    Options     action-Options  [action-edit1-button1 ]  
-       
-         tab-non-Selected
-         tab-Selected
-    -->
-    
-        
-
-
-      <div class="save-footer-buttons">
-        <button id='action-Edit-Title' class="action-edit1-button1">
-
-          <span id="edit-button">
-            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 17 17" fill="none">
-              <path
-                d="M5.24112 15.875H1.75C1.58424 15.875 1.42527 15.8092 1.30806 15.692C1.19085 15.5748 1.125 15.4158 1.125 15.25V11.7589C1.125 11.6768 1.14117 11.5956 1.17258 11.5197C1.20398 11.4439 1.25002 11.375 1.30806 11.317L10.6831 1.94197C10.8003 1.82476 10.9592 1.75891 11.125 1.75891C11.2908 1.75891 11.4497 1.82476 11.5669 1.94197L15.0581 5.43309C15.1753 5.5503 15.2411 5.70927 15.2411 5.87503C15.2411 6.04079 15.1753 6.19976 15.0581 6.31697L5.68306 15.692C5.62502 15.75 5.55612 15.796 5.48029 15.8275C5.40447 15.8589 5.32319 15.875 5.24112 15.875Z"
-                stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-            <!-- <i class="fas fa-pen"></i> -->
-            Edit Title </span>
-        </button>
-
-      </div>
-
-      <div class="save-footer-buttons">
-        <!-- //tab-2    Set Labels   action-Set-Labels -->
-        <button id='action-Set-Labels' class="action-edit1-button1 ">
-          <span id="archive-button">
-            <svg xmlns="http://www.w3.org/2000/svg"
-            class="tab-Selected"
-            width="21" height="20" viewBox="0 0 21 20" fill="none">
-              <path
-               class="tab-Selected"
-                 d="M16.75 16.875H4.25C4.08424 16.875 3.92527 16.8092 3.80806 16.6919C3.69085 16.5747 3.625 16.4158 3.625 16.25V5.625L4.875 3.125H16.125L17.375 5.625V16.25C17.375 16.4158 17.3092 16.5747 17.1919 16.6919C17.0747 16.8092 16.9158 16.875 16.75 16.875Z"
-                stroke="#0A0806" stroke-opacity="1.65" stroke-width="1.5" stroke-linecap="round"
-                stroke-linejoin="round" />
-              <path 
-              class="tab-Selected"
-              d="M7.84839 11.7234L10.5 14.375L13.1517 11.7234" stroke="#0A0806" stroke-opacity="0.65"
-                stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-              <path 
-              class="tab-Selected"
-              d="M10.5 8.125V14.375" stroke="#0A0806" stroke-opacity="0.65" stroke-width="1.5"
-                stroke-linecap="round" stroke-linejoin="round" />
-              <path
-              class="tab-Selected"
-               d="M3.625 5.625H17.375" stroke="#0A0806" stroke-opacity="0.65" stroke-width="1.5"
-                stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-            Set Labels 
-        </span>
-        </button>
-
-      </div>
-      <div class="save-footer-buttons">
-        <!-- tab-3   Read Now     action-Read-Now -->
-        <button id='action-Read-Now' class="action-edit1-button1">
-
-          <!-- <span id="delete-button"> -->
-          <svg xmlns="http://www.w3.org/2000/svg" width="21" height="20" viewBox="0 0 21 20" fill="none">
-            <path d="M17.3748 4.375L3.62476 4.37501" stroke="#0A0806" stroke-opacity="0.65" stroke-width="1.5"
-              stroke-linecap="round" stroke-linejoin="round" />
-            <path d="M8.625 8.125V13.125" stroke="#0A0806" stroke-opacity="0.65" stroke-width="1.5"
-              stroke-linecap="round" stroke-linejoin="round" />
-            <path d="M12.375 8.125V13.125" stroke="#0A0806" stroke-opacity="0.65" stroke-width="1.5"
-              stroke-linecap="round" stroke-linejoin="round" />
-            <path d="M7.375 1.875H13.625" stroke="#0A0806" stroke-opacity="0.65" stroke-width="1.5"
-              stroke-linecap="round" stroke-linejoin="round" />
-            <path
-              d="M16.1248 4.375V16.25C16.1248 16.4158 16.0589 16.5747 15.9417 16.6919C15.8245 16.8092 15.6655 16.875 15.4998 16.875H5.49976C5.334 16.875 5.17502 16.8092 5.05781 16.6919C4.9406 16.5747 4.87476 16.4158 4.87476 16.25V4.375"
-              stroke="#0A0806" stroke-opacity="0.65" stroke-width="1.5" stroke-linecap="round"
-              stroke-linejoin="round" />
-          </svg>
-          Read Now
-
-        </button>
-
-
-      </div>
-
-
-    
-      <div class="save-footer-buttons">
-      
-        <button id='action-Options' class="action-edit1-button1 ">
-         <!-- // tab-4    Options     action-Options --> 
-          <!-- <span id="delete-button"> -->
-          <svg xmlns="http://www.w3.org/2000/svg" width="21" height="20" viewBox="0 0 21 20" fill="none">
-            <path d="M17.3748 4.375L3.62476 4.37501" stroke="#0A0806" stroke-opacity="0.65" stroke-width="1.5"
-              stroke-linecap="round" stroke-linejoin="round" />
-            <path d="M8.625 8.125V13.125" stroke="#0A0806" stroke-opacity="0.65" stroke-width="1.5"
-              stroke-linecap="round" stroke-linejoin="round" />
-            <path d="M12.375 8.125V13.125" stroke="#0A0806" stroke-opacity="0.65" stroke-width="1.5"
-              stroke-linecap="round" stroke-linejoin="round" />
-            <path d="M7.375 1.875H13.625" stroke="#0A0806" stroke-opacity="0.65" stroke-width="1.5"
-              stroke-linecap="round" stroke-linejoin="round" />
-            <path
-              d="M16.1248 4.375V16.25C16.1248 16.4158 16.0589 16.5747 15.9417 16.6919C15.8245 16.8092 15.6655 16.875 15.4998 16.875H5.49976C5.334 16.875 5.17502 16.8092 5.05781 16.6919C4.9406 16.5747 4.87476 16.4158 4.87476 16.25V4.375"
-              stroke="#0A0806" stroke-opacity="0.65" stroke-width="1.5" stroke-linecap="round"
-              stroke-linejoin="round" />
-          </svg>
-          Options
-
-        </button>
-
-
-      </div>
-    </div>
-
-    <div id="SelectedTab">
-      
-    </div>
-  
-
-    <div>
-        <!-- tab-1-container
-        tab-2-container
-        tab-3-container
-        tab-4-container -->
-        <div id="tab-1-container" class="baseFeatures">
-
-         
-           <div id="BeforeSavedContainer">
-
-            <textarea id="article-title-edit"
-            class="article-title-edit-class"
-             name="Text1" 
-             rows="5"></textarea>
-
-             <button class="edit-Title-Saved-Button" id = "action-Saved-Button">
-
-              Saved 
-             </button>
-
-           </div>
-           <div id="AfterSavedContainer" class="AfterSavedContainerClass"> 
-
-              Title Saved.
-
-           </div>
-         
-
-
-          
-        </div>
-    
-        <div id="tab-2-container" class="baseFeatures baseFeaturesTab3">
-          <div class="container">
-         
-            <div class="flag-container">
-              <svg xmlns="http://www.w3.org/2000/svg" class="imageFlag" width="17" height="17" viewBox="0 0 17 17" fill="none">
-                <path
                   d="M8.9873 15.1387L15.707 8.41211C16.2607 7.8584 16.3223 7.53027 16.3223 6.7168V4.12598C16.3223 3.35352 16.1377 3.06641 15.5635 2.49219L14.0049 0.933594C13.4238 0.352539 13.1436 0.167969 12.3711 0.167969H9.78027C8.9668 0.167969 8.64551 0.243164 8.0918 0.796875L1.36523 7.5166C0.3125 8.5625 0.298828 9.69727 1.36523 10.7637L5.74707 15.1387C6.81348 16.1982 7.94141 16.1914 8.9873 15.1387ZM8.02344 13.9492C7.59277 14.3799 7.15527 14.3867 6.71094 13.9492L2.55469 9.79297C2.11035 9.34863 2.12402 8.9043 2.54785 8.48047L9.17871 1.86328C9.31543 1.72656 9.43848 1.65137 9.65039 1.65137H12.3232C12.5215 1.65137 12.665 1.72656 12.7949 1.85645L14.6406 3.70215C14.7705 3.83203 14.8389 3.96875 14.8389 4.16699V6.84668C14.8389 7.07227 14.7773 7.19531 14.6406 7.3252L8.02344 13.9492ZM11.4893 6.01953C12.0635 6.01953 12.501 5.5752 12.501 5.00781C12.501 4.44043 12.0635 3.99609 11.4893 3.99609C10.9082 3.99609 10.4775 4.44043 10.4775 5.00781C10.4775 5.5752 10.9082 6.01953 11.4893 6.01953Z"
-                  fill="#0A0806" fill-opacity="0.65" />
+                  fill="#0A0806"
+                  fill-opacity="0.65"
+                />
               </svg>
-        
-        
-            
-              <input  class="input-flag" id="filter" placeholder="Add adss label..." >
-           
-              
-              <br><br>
-            
-            
+
+              <input
+                class="input-flag"
+                id="filter"
+                placeholder="Filter for label"
+              />
+
+              <br /><br />
             </div>
 
-            <!-- <div class="cellDev">
-              <h4 class="titleLabelLeft"> this is some new things </h2>
-              <input type="checkbox"   class="checkboxStyle" />
-            </div> -->
-
-
-            
-            <ul id="result"  class= "labelUL" >
-                <li><h3>Loading...</h3></li>
+            <ul id="result" class="labelUL">
+              <li><h3>Loading...</h3></li>
             </ul>
+          </div>
         </div>
-
-            
+      </div>
+      <div id="tab-3-container" class="baseFeatures">
+        <div>
+          <h4 id="article-title"></h4>
         </div>
-    
-        <div id="tab-3-container" class="baseFeatures">
-    
-           <div>
-            <h4 id="article-title"> </h4>
-           </div>
-            
-        </div>
-    
-        <div id="tab-4-container" class="baseFeatures">
-    
-           <div>
-          
-            <button id='action-Archive-Now' class="action-edit1-button1">
+      </div>
+      <div id="tab-4-container" class="baseFeatures">
+        <button id="action-Archive-Now" class="action-button-layout">
+          <!-- <span id="delete-button"> -->
+          <svg
+            width="18"
+            height="16"
+            viewBox="0 0 18 16"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M16.2738 0.377686H2.19107C1.41652 0.377686 0.782715 1.01145 0.782715 1.78604V4.13316C0.782715 4.83733 1.29908 5.40052 1.95627 5.51792V14.2257C1.95627 15.0003 2.59004 15.6341 3.36463 15.6341H15.1002C15.8748 15.6341 16.5086 15.0003 16.5086 14.2257V5.51792C17.1658 5.40053 17.6821 4.83733 17.6821 4.13316V1.78604C17.6821 1.01149 17.0484 0.377686 16.2738 0.377686ZM2.19107 1.78604H16.2738V4.13316H2.19107V1.78604ZM15.1002 14.2258H3.36463V5.54143H15.1002V14.2258Z"
+              fill="#6A6968"
+            />
+            <path
+              d="M8.08259 8.47525H10.4297C10.8287 8.47525 11.1339 8.17007 11.1339 7.77107C11.1339 7.37208 10.8287 7.06689 10.4297 7.06689H8.08259C7.68361 7.06689 7.37842 7.37207 7.37842 7.77107C7.37842 8.17006 7.70701 8.47525 8.08259 8.47525Z"
+              fill="#6A6968"
+            />
+          </svg>
+          Archive
+        </button>
 
-                <!-- <span id="delete-button"> -->
-                <svg xmlns="http://www.w3.org/2000/svg" width="21" height="20" viewBox="0 0 21 20" fill="none">
-                  <path d="M17.3748 4.375L3.62476 4.37501" stroke="#0A0806" stroke-opacity="0.65" stroke-width="1.5"
-                    stroke-linecap="round" stroke-linejoin="round" />
-                  <path d="M8.625 8.125V13.125" stroke="#0A0806" stroke-opacity="0.65" stroke-width="1.5"
-                    stroke-linecap="round" stroke-linejoin="round" />
-                  <path d="M12.375 8.125V13.125" stroke="#0A0806" stroke-opacity="0.65" stroke-width="1.5"
-                    stroke-linecap="round" stroke-linejoin="round" />
-                  <path d="M7.375 1.875H13.625" stroke="#0A0806" stroke-opacity="0.65" stroke-width="1.5"
-                    stroke-linecap="round" stroke-linejoin="round" />
-                  <path
-                    d="M16.1248 4.375V16.25C16.1248 16.4158 16.0589 16.5747 15.9417 16.6919C15.8245 16.8092 15.6655 16.875 15.4998 16.875H5.49976C5.334 16.875 5.17502 16.8092 5.05781 16.6919C4.9406 16.5747 4.87476 16.4158 4.87476 16.25V4.375"
-                    stroke="#0A0806" stroke-opacity="0.65" stroke-width="1.5" stroke-linecap="round"
-                    stroke-linejoin="round" />
-                </svg>
-               Archive
-      
-              </button>
+        <br />
+        <hr />
 
-              <br>
-              <hr>
+        <button id="action-Delete-Now" class="action-button-layout">
+          <!-- <span id="delete-button"> -->
+          <svg
+            width="13"
+            height="17"
+            viewBox="0 0 13 17"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M4.55225 7.13086V12.1309"
+              stroke="#6A6968"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M8.13818 7.13086V12.1309"
+              stroke="#6A6968"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M3.35693 0.880859H9.33361"
+              stroke="#6A6968"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M11.7243 3.38086V15.2559C11.7243 15.4216 11.6614 15.5806 11.5493 15.6978C11.4372 15.815 11.2852 15.8809 11.1267 15.8809H1.56398C1.40546 15.8809 1.25345 15.815 1.14136 15.6978C1.02928 15.5806 0.966309 15.4216 0.966309 15.2559V3.38086"
+              stroke="#6A6968"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          Delete
+        </button>
+      </div>
+    </section>
 
-              <button id='action-Delete-Now' class="action-edit1-button1">
-
-                <!-- <span id="delete-button"> -->
-                <svg xmlns="http://www.w3.org/2000/svg" width="21" height="20" viewBox="0 0 21 20" fill="none">
-                  <path d="M17.3748 4.375L3.62476 4.37501" stroke="#0A0806" stroke-opacity="0.65" stroke-width="1.5"
-                    stroke-linecap="round" stroke-linejoin="round" />
-                  <path d="M8.625 8.125V13.125" stroke="#0A0806" stroke-opacity="0.65" stroke-width="1.5"
-                    stroke-linecap="round" stroke-linejoin="round" />
-                  <path d="M12.375 8.125V13.125" stroke="#0A0806" stroke-opacity="0.65" stroke-width="1.5"
-                    stroke-linecap="round" stroke-linejoin="round" />
-                  <path d="M7.375 1.875H13.625" stroke="#0A0806" stroke-opacity="0.65" stroke-width="1.5"
-                    stroke-linecap="round" stroke-linejoin="round" />
-                  <path
-                    d="M16.1248 4.375V16.25C16.1248 16.4158 16.0589 16.5747 15.9417 16.6919C15.8245 16.8092 15.6655 16.875 15.4998 16.875H5.49976C5.334 16.875 5.17502 16.8092 5.05781 16.6919C4.9406 16.5747 4.87476 16.4158 4.87476 16.25V4.375"
-                    stroke="#0A0806" stroke-opacity="0.65" stroke-width="1.5" stroke-linecap="round"
-                    stroke-linejoin="round" />
-                </svg>
-                Delete
-      
-              </button>
-
-
-
-           </div>
-            
-        </div>
-    </div>
-
-
-
-  </section>
-  <script src="../scripts/save-popup.js"></script>
-  
-  <script src="../scripts/save-popup2.js" ></script>
-</body>
-
+    <script src="../scripts/save-popup.js"></script>
+    <script src="../scripts/save-popup2.js"></script>
+  </body>
 </html>

@@ -1,135 +1,3 @@
-// 'use strict'
-// ;(function () {
-  // This gets the link of the iframe -> then it returns [key, values] -> fromEntries method will return the object
-  // const payload = Object.fromEntries([
-  //   ...new URL(window.location.href).searchParams.entries(),
-  // ])
-
-  // const articleLinkEl = document.getElementById('get-article-link')
-  // const titleEl = document.getElementById('article-title')
-
-  // // articleLinkEl.href = payload.linkReadNow
-  // // titleEl.innerText = payload.title + 'sdfhsdf skljdfh ksdhf ;)';
-  // var titleInputEdit = document.getElementById('article-title-edit')
-
-  // articleLinkEl.href = payload.linkReadNow
-
-  // titleEl.innerText = payload.title
-  // titleInputEdit.value = payload.title
-
-  // fetch('https://api-prod.omnivore.app/api/graphql', {
-  //   method: 'POST',
-  //   data: JSON.stringify({
-  //     query: `query GetLabels {
-  //     labels {
-  //       ... on LabelsSuccess {
-  //         labels {
-  //           ...LabelFields
-  //         }
-  //       }
-  //       ... on LabelsError {
-  //         errorCodes
-  //       }
-  //     }
-  //   }`,
-  //   }),
-  //   headers: {
-  //     'x-rapidapi-key': 'your_api_key',
-  //   },
-  // }).then((response) => {
-  //   console.log('response', response)
-  // })
-
-  // (async function () {
-  // const data = JSON.stringify({
-  //   query: `query GetLabels {
-  //   labels {
-  //     ... on LabelsSuccess {
-  //       labels {
-  //         ...LabelFields
-  //       }
-  //     }
-  //     ... on LabelsError {
-  //       errorCodes
-  //     }
-  //   }
-  // }`,
-  // })()
-
-  // const response = await fetch('https://api-prod.omnivore.app/api/graphql', {
-  //   method: 'post',
-  //   body: data,
-  //   headers: {
-  //     'Content-Type': 'application/json',
-  //     'Content-Length': data.length,
-  //   },
-  // })
-  // console.log('it is compiling.....')
-  // const json =  await response.json()
-
-  // console.log(JSON.stringify('fffffffffff', json.data))
-
-  // TO DO: to replace with the API call for getLabels
-  // var mycars = ['Herr', 'Frau']
-  // var list = document.getElementById('brow')
-
-  // mycars.forEach(function (item) {
-  //   var option = document.createElement('option')
-  //   option.value = item
-  //   list.appendChild(option)
-  // })
-
-  // // Delete
-  // var button = document.getElementById('action-delete-button')
-  // button.addEventListener(
-  //   'click',
-  //   function (e) {
-  //     console.log('here it taps ')
-  //     titleEl.style.color = 'red'
-  //   },
-  //   false
-  // )
-
-  // // Archive
-  // var buttonArchive = document.getElementById('action-archive-button')
-  // buttonArchive.addEventListener(
-  //   'click',
-  //   function (e) {
-  //     console.log('here it taps ')
-  //     titleEl.style.color = 'gray'
-  //   },
-  //   false
-  // )
-
-  // // Edit
-  // var buttonEdit = document.getElementById('action-edit1-button')
-  // buttonEdit.addEventListener(
-  //   'click',
-  //   function (e) {
-  //     console.log('here it taps ')
-  //     titleEl.style.color = 'green'
-
-  //     var x = document.getElementById('title-container')
-  //     var y = document.getElementById('edit-Title-container-id')
-
-  //     if (x.style.display === 'none') {
-  //       x.style.display = 'block'
-  //       y.style.display = 'none'
-  //     } else {
-  //       x.style.display = 'none'
-  //       y.style.display = 'block'
-  //     }
-  //   },
-  //   false
-  // )
-
-  //  action-edit1-button
-  //  action-delete-button
-  //  action-archive-button
-// })()
-
-
-
 'use strict'
   ; (function () {
     // This gets the link of the iframe -> then it returns [key, values] -> fromEntries method will return the object
@@ -137,34 +5,16 @@
       ...new URL(window.location.href).searchParams.entries(),
     ])
 
-
-    // const articleLinkEl = document.getElementById('get-article-link')
-
      const titleEl = document.getElementById('article-title')
-
      var titleInputEdit = document.getElementById("article-title-edit");
 
-     var buttonState = "tab-3"
-
-
-    // var mycars = ['Herr', 'Frau'];
-    // var list = document.getElementById('brow');
-
-    // mycars.forEach(function (item) {
-    //   var option = document.createElement('option');
-    //   option.value = item;
-    //   list.appendChild(option);
-    // });
-
-
-    // articleLinkEl.href = payload.linkReadNow
-     titleEl.innerText = payload.title + ' this is random text we are showing by appeding the original one.  ;)';
+     titleEl.innerText = payload.title
     titleInputEdit.value = payload.title + "here it comes prevous value "
 
-    // tab-1  Edit Title    action-Edit-Title  [ action-edit1-button1 ]
-    //tab-2    Set Labels   action-Set-Labels [ action-edit1-button1 ] 
-    // tab-3   Read Now     action-Read-Now [action-edit1-button1] 
-    // tab-4    Options     action-Options  [action-edit1-button1 ]  
+    // tab-1  Edit Title    action-Edit-Title  [ action-button-layout ]
+    //tab-2    Set Labels   action-Set-Labels [ action-button-layout ] 
+    // tab-3   Read Now     action-Read-Now [action-button-layout] 
+    // tab-4    Options     action-Options  [action-button-layout ]  
 
     //tab-non-Selected
     // tab-Selected
@@ -172,7 +22,7 @@
 
 
     const labelSelectedTab = document.getElementById('SelectedTab')
-    labelSelectedTab.innerText = buttonState
+    
 
     // tab-1  Edit Title     action-Edit-Title
 
@@ -204,11 +54,11 @@
   
 
 
-    actionReadNow.className = 'action-edit1-button1 tab-Selected';
-    actionSetLabels .className = 'action-edit1-button1  tab-non-Selected';
+    actionReadNow.className = 'action-button-layout tab-Selected';
+    actionSetLabels .className = 'action-button-layout  tab-non-Selected';
     
-    actionEditTitle.className = 'action-edit1-button1 tab-non-Selected';
-    actionOptions.className = 'action-edit1-button1 tab-non-Selected';
+    actionEditTitle.className = 'action-button-layout tab-non-Selected';
+    actionOptions.className = 'action-button-layout tab-non-Selected';
 
     continerTab1.style.display = "none";
     continerTab2.style.display = "none";
@@ -219,13 +69,12 @@
     actionEditTitle.addEventListener("click", function (e) {
 
       console.log("here it taps ")
-      buttonState = "tab-1"
-      labelSelectedTab.innerText = buttonState
+  
 
-      actionEditTitle.className = 'action-edit1-button1 tab-Selected';
-      actionSetLabels.className = 'action-edit1-button1  tab-non-Selected';
-      actionReadNow.className = 'action-edit1-button1 tab-non-Selected';
-      actionOptions.className = 'action-edit1-button1 tab-non-Selected';
+      actionEditTitle.className = 'action-button-layout tab-Selected';
+      actionSetLabels.className = 'action-button-layout  tab-non-Selected';
+      actionReadNow.className = 'action-button-layout tab-non-Selected';
+      actionOptions.className = 'action-button-layout tab-non-Selected';
 
       continerTab1.style.display = "block";
       continerTab2.style.display = "none";
@@ -239,14 +88,11 @@
 
     actionSetLabels.addEventListener("click", function (e) {
       // console.log("here it taps ")
-      // titleEl.style.color = "red";
-      buttonState = "tab-2"
-      labelSelectedTab.innerText = buttonState
-
-      actionEditTitle.className = 'action-edit1-button1 tab-non-Selected';
-      actionSetLabels.className = 'action-edit1-button1 tab-Selected';
-      actionReadNow.className = 'action-edit1-button1 tab-non-Selected';
-      actionOptions.className = 'action-edit1-button1 tab-non-Selected';
+ 
+      actionEditTitle.className = 'action-button-layout tab-non-Selected';
+      actionSetLabels.className = 'action-button-layout tab-Selected';
+      actionReadNow.className = 'action-button-layout tab-non-Selected';
+      actionOptions.className = 'action-button-layout tab-non-Selected';
 
 
 
@@ -260,14 +106,12 @@
     // tab-3   Read Now     action-Read-Now actionReadNow
 
     actionReadNow.addEventListener("click", function (e) {
-      buttonState = "tab-3"
-      //  titleEl.style.color = "red";
-      labelSelectedTab.innerText = buttonState
+    
 
-      actionEditTitle.className = 'action-edit1-button1 tab-non-Selected';
-      actionSetLabels.className = 'action-edit1-button1 tab-non-Selected';
-      actionReadNow.className = 'action-edit1-button1 tab-Selected';
-      actionOptions.className = 'action-edit1-button1 tab-non-Selected';
+      actionEditTitle.className = 'action-button-layout tab-non-Selected';
+      actionSetLabels.className = 'action-button-layout tab-non-Selected';
+      actionReadNow.className = 'action-button-layout tab-Selected';
+      actionOptions.className = 'action-button-layout tab-non-Selected';
 
 
       continerTab1.style.display = "none";
@@ -279,13 +123,11 @@
 
     // tab-4    Options     action-Options  actionOptions
     actionOptions.addEventListener("click", function (e) {
-      buttonState = "tab-4"
-      // titleEl.style.color = "red";
-      labelSelectedTab.innerText = buttonState
-      actionEditTitle.className = 'action-edit1-button1 tab-non-Selected';
-      actionSetLabels.className = 'action-edit1-button1 tab-non-Selected';
-      actionReadNow.className = 'action-edit1-button1 tab-non-Selected';
-      actionOptions.className = 'action-edit1-button1 tab-Selected';
+
+      actionEditTitle.className = 'action-button-layout tab-non-Selected';
+      actionSetLabels.className = 'action-button-layout tab-non-Selected';
+      actionReadNow.className = 'action-button-layout tab-non-Selected';
+      actionOptions.className = 'action-button-layout tab-Selected';
 
       continerTab1.style.display = "none";
       continerTab2.style.display = "none";
