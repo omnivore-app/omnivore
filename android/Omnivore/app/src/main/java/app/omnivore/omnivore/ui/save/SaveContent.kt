@@ -29,17 +29,37 @@ fun SaveContent(viewModel: SaveViewModel, modalBottomSheetState: ModalBottomShee
         .padding(top = 48.dp, bottom = 32.dp)
     ) {
       Text(text = viewModel.message ?: "Saving")
-      Button(onClick = {
-        coroutineScope.launch {
-            modalBottomSheetState.hide()
+      Row {
+        Button(
+          onClick = {
+            coroutineScope.launch {
+              modalBottomSheetState.hide()
+              // TODO: open app
+            }
+          },
+          colors = ButtonDefaults.buttonColors(
+            contentColor = Color(0xFF3D3D3D),
+            backgroundColor = Color.White
+          )
+        ) {
+          Text(text = "Read Now")
         }
-      },
-        colors = ButtonDefaults.buttonColors(
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        Button(
+          onClick = {
+            coroutineScope.launch {
+              modalBottomSheetState.hide()
+            }
+          },
+          colors = ButtonDefaults.buttonColors(
             contentColor = Color(0xFF3D3D3D),
             backgroundColor = Color(0xffffd234)
-        )
-      ) {
-        Text(text = "Dismiss")
+          )
+        ) {
+          Text(text = "Read Later")
+        }
       }
     }
   }
