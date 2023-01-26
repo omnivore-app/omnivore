@@ -27,7 +27,6 @@ struct LabelsView: View {
       }
       createLabelButton
     }
-    .listStyle(PlainListStyle())
     .navigationTitle(LocalText.labelsGeneric)
     .alert("Are you sure you want to delete this label?", isPresented: $showDeleteConfirmation) {
       Button("Delete Label", role: .destructive) {
