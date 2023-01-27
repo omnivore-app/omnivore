@@ -187,21 +187,23 @@ export default function RecentEmails(): JSX.Element {
                       setViewingEmail(recentEmail)
                     }}
                   />
-                  <MoreOptionItem
-                    text="Mark as article"
-                    action={async () => {
-                      console.log('marking as email', recentEmail)
-                      showSuccessToast('Marking email as article')
-                      try {
-                        await markEmailAsItemMutation(recentEmail.id)
-                      } catch (err) {
-                        console.log('error marking as article: ', err)
-                        showErrorToast('Error marking item as article')
-                        return
-                      }
-                      showSuccessToast('Email added to library')
-                    }}
-                  />
+                  {recentEmail.type != 'article' && (
+                    <MoreOptionItem
+                      text="Mark as article"
+                      action={async () => {
+                        console.log('marking as email', recentEmail)
+                        showSuccessToast('Marking email as article')
+                        try {
+                          await markEmailAsItemMutation(recentEmail.id)
+                        } catch (err) {
+                          console.log('error marking as article: ', err)
+                          showErrorToast('Error marking item as article')
+                          return
+                        }
+                        showSuccessToast('Email added to library')
+                      }}
+                    />
+                  )}
                 </>
               }
             />
