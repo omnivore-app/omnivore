@@ -145,17 +145,27 @@ describe('Recent Emails Resolver', () => {
 
   describe('old recentEmails are cleared', () => {
     let user2: User
+    let user3: User
+    let user2Auth: string
+
     before(async () => {
       user2 = await createTestUser('fake_02')
+      user3 = await createTestUser('fake_03')
+      const res = await request
+        .post('/local/debug/fake-user-login')
+        .send({ fakeEmail: user2.email })
+
+      user2Auth = res.body.authToken
     })
     after(async () => {
       await deleteTestUser(user2.id)
+      await deleteTestUser(user3.id)
     })
 
     before(async () => {
       // create fake emails
       const recentEmail = await getRepository(ReceivedEmail).save({
-        user: { id: user.id },
+        user: { id: user2.id },
         from: 'fake from',
         subject: 'fake subject',
         text: 'fake text',
@@ -164,7 +174,7 @@ describe('Recent Emails Resolver', () => {
         type: 'article',
       })
       const recentEmail2 = await getRepository(ReceivedEmail).save({
-        user: { id: user.id },
+        user: { id: user2.id },
         from: 'fake from 2',
         subject: 'fake subject 2',
         text: 'fake text 2',
@@ -176,7 +186,7 @@ describe('Recent Emails Resolver', () => {
     })
 
     it('when a second user receives an email the firsts are not deleted', async () => {
-      const res = await graphqlRequest(recentEmailsQuery, authToken).expect(200)
+      const res = await graphqlRequest(recentEmailsQuery, user2Auth).expect(200)
       const { recentEmails: results } = res.body.data.recentEmails
 
       expect(results).to.have.lengthOf(2)
@@ -184,7 +194,7 @@ describe('Recent Emails Resolver', () => {
       expect(results[1].id).to.eql(recentEmails[0].id)
 
       await getRepository(ReceivedEmail).save({
-        user: { id: user2.id },
+        user: { id: user3.id },
         from: 'fake from',
         subject: 'fake subject',
         text: 'fake text',
@@ -193,7 +203,7 @@ describe('Recent Emails Resolver', () => {
         type: 'article',
       })
 
-      const res2 = await graphqlRequest(recentEmailsQuery, authToken).expect(
+      const res2 = await graphqlRequest(recentEmailsQuery, user2Auth).expect(
         200
       )
       const { recentEmails: results2 } = res2.body.data.recentEmails
