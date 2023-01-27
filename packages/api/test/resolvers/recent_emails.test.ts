@@ -8,6 +8,26 @@ import { ReceivedEmail } from '../../src/entity/received_email'
 import { NewsletterEmail } from '../../src/entity/newsletter_email'
 
 describe('Recent Emails Resolver', () => {
+  const recentEmailsQuery = `
+  query {
+    recentEmails {
+      ... on RecentEmailsSuccess {
+        recentEmails {
+          id
+          from
+          to
+          subject
+          text
+          html
+        }
+      }
+      ... on RecentEmailsError {
+        errorCodes
+      }
+    }
+  }
+`
+  let recentEmails: ReceivedEmail[]
   const username = 'fakeUser'
 
   let user: User
@@ -41,27 +61,6 @@ describe('Recent Emails Resolver', () => {
   })
 
   describe('recentEmails', () => {
-    const recentEmailsQuery = `
-      query {
-        recentEmails {
-          ... on RecentEmailsSuccess {
-            recentEmails {
-              id
-              from
-              to
-              subject
-              text
-              html
-            }
-          }
-          ... on RecentEmailsError {
-            errorCodes
-          }
-        }
-      }
-    `
-    let recentEmails: ReceivedEmail[]
-
     before(async () => {
       // create fake emails
       const recentEmail = await getRepository(ReceivedEmail).save({
@@ -141,6 +140,67 @@ describe('Recent Emails Resolver', () => {
         id: recentEmail.id,
       })
       expect(updatedRecentEmail?.type).to.eql('article')
+    })
+  })
+
+  describe('old recentEmails are cleared', () => {
+    let user2: User
+    before(async () => {
+      user2 = await createTestUser('fake_02')
+    })
+    after(async () => {
+      await deleteTestUser(user2.id)
+    })
+
+    before(async () => {
+      // create fake emails
+      const recentEmail = await getRepository(ReceivedEmail).save({
+        user: { id: user.id },
+        from: 'fake from',
+        subject: 'fake subject',
+        text: 'fake text',
+        html: 'fake html',
+        to: newsletterEmail.address,
+        type: 'article',
+      })
+      const recentEmail2 = await getRepository(ReceivedEmail).save({
+        user: { id: user.id },
+        from: 'fake from 2',
+        subject: 'fake subject 2',
+        text: 'fake text 2',
+        html: 'fake html 2',
+        to: newsletterEmail2.address,
+        type: 'non-article',
+      })
+      recentEmails = [recentEmail, recentEmail2]
+    })
+
+    it('when a second user receives an email the firsts are not deleted', async () => {
+      const res = await graphqlRequest(recentEmailsQuery, authToken).expect(200)
+      const { recentEmails: results } = res.body.data.recentEmails
+
+      expect(results).to.have.lengthOf(2)
+      expect(results[0].id).to.eql(recentEmails[1].id)
+      expect(results[1].id).to.eql(recentEmails[0].id)
+
+      await getRepository(ReceivedEmail).save({
+        user: { id: user2.id },
+        from: 'fake from',
+        subject: 'fake subject',
+        text: 'fake text',
+        html: 'fake html',
+        to: newsletterEmail.address,
+        type: 'article',
+      })
+
+      const res2 = await graphqlRequest(recentEmailsQuery, authToken).expect(
+        200
+      )
+      const { recentEmails: results2 } = res2.body.data.recentEmails
+
+      expect(results2).to.have.lengthOf(2)
+      expect(results2[0].id).to.eql(recentEmails[1].id)
+      expect(results2[1].id).to.eql(recentEmails[0].id)
     })
   })
 })
