@@ -49,7 +49,7 @@ export default function LandingPage(): JSX.Element {
         description="Omnivore is the free, open source, read-it-later app for serious readers."
       />
 
-      <About />
+      <About lang="en" />
     </>
   )
 }
