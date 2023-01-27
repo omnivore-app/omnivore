@@ -84,7 +84,7 @@ public extension LinkedItemFilter {
         format: "highlights.@count > 0"
       )
       return NSCompoundPredicate(andPredicateWithSubpredicates: [
-        hasHighlightsPredicate, notInArchivePredicate
+        hasHighlightsPredicate
       ])
     }
   }
