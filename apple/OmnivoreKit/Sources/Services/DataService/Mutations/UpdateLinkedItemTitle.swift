@@ -21,6 +21,7 @@ extension DataService {
         itemID: itemID,
         objectID: linkedItem.objectID,
         title: title,
+        author: author,
         description: description
       )
     }
@@ -30,6 +31,7 @@ extension DataService {
     itemID: String,
     objectID: NSManagedObjectID,
     title: String,
+    author: String?,
     description: String
   ) {
     enum MutationResult {
@@ -48,7 +50,7 @@ extension DataService {
 
     let mutation = Selection.Mutation {
       try $0.updatePage(
-        input: .init(description: OptionalArgument(description), pageId: itemID, title: OptionalArgument(title)),
+        input: .init(byline: OptionalArgument(author), description: OptionalArgument(description), pageId: itemID, title: OptionalArgument(title)),
         selection: selection
       )
     }
