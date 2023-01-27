@@ -23,7 +23,7 @@ suspend fun Networker.unarchiveSavedItem(itemID: String): Boolean {
   return updateArchiveStatusSavedItem(itemID, false)
 }
 
-private suspend fun Networker.updateArchiveStatusSavedItem(itemID: String, setAsArchived: Boolean): Boolean {
+suspend fun Networker.updateArchiveStatusSavedItem(itemID: String, setAsArchived: Boolean): Boolean {
   return try {
     val input = ArchiveLinkInput(setAsArchived, itemID)
     val result = authenticatedApolloClient().mutation(SetLinkArchivedMutation(input)).execute()

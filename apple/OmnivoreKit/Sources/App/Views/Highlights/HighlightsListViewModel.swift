@@ -68,7 +68,7 @@ struct HighlightListItemParams: Identifiable {
     highlightItems = highlights.map {
       HighlightListItemParams(
         highlightID: $0.unwrappedID,
-        title: "Highlight",
+        title: LocalText.genericHighlight,
         annotation: $0.annotation ?? "",
         quote: $0.quote ?? "",
         labels: $0.labels.asArray(of: LinkedItemLabel.self),

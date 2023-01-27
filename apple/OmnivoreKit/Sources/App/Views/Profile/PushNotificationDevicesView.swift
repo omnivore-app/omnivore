@@ -60,9 +60,9 @@ struct PushNotificationDevicesView: View {
 
   private var innerBody: some View {
     List {
-      Section(header: Text("Registered device tokens (swipe to remove)")) {
+      Section(header: Text(LocalText.devicesTokensTitle)) {
         ForEach(viewModel.devices) { device in
-          Text("Created: \(createdStr(device))")
+          Text("\(LocalText.devicesCreated)\(createdStr(device))")
             .swipeActions(edge: .trailing) {
               Button(
                 role: .destructive,

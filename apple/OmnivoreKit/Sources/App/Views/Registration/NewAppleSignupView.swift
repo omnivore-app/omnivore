@@ -28,12 +28,12 @@ struct NewAppleSignupView: View {
 
   var body: some View {
     VStack(spacing: 28) {
-      Text("Welcome to Omnivore!")
+      Text(LocalText.registrationWelcome)
         .font(.appTitle)
         .multilineTextAlignment(.center)
 
       VStack(alignment: .center, spacing: 12) {
-        Text("Your username is:")
+        Text(LocalText.registrationUsernameAssignedPrefix)
           .font(.appBody)
           .foregroundColor(.appGrayText)
         Text("@\(userProfile.username)")
@@ -48,13 +48,13 @@ struct NewAppleSignupView: View {
               await viewModel.submitProfile(userProfile: userProfile, authenticator: authenticator)
             }
           },
-          label: { Text("Continue") }
+          label: { Text(LocalText.genericContinue) }
         )
         .buttonStyle(SolidCapsuleButtonStyle(color: .appDeepBackground, width: 300))
 
         Button(
           action: showProfileEditView,
-          label: { Text("Change Username") }
+          label: { Text(LocalText.registrationChangeUsername) }
         )
         .buttonStyle(SolidCapsuleButtonStyle(color: .appDeepBackground, width: 300))
 

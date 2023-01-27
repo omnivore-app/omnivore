@@ -1,8 +1,11 @@
 import SwiftUI
 import Utils
+import Views
 
 public extension PlatformViewController {
   static func makeShareExtensionController(extensionContext: NSExtensionContext?) -> PlatformViewController {
+    registerFonts()
+
     let hostingController = PlatformHostingController(
       rootView: ShareExtensionView(extensionContext: extensionContext)
     )

@@ -12,24 +12,37 @@ import { getPageByParam } from '../../src/elastic/pages'
 import nock from 'nock'
 import { getRepository } from '../../src/entity/utils'
 import { Subscription } from '../../src/entity/subscription'
+import { ReceivedEmail } from '../../src/entity/received_email'
 
 describe('saveNewsletterEmail', () => {
   const fakeContent = 'fake content'
   const title = 'fake title'
   const author = 'fake author'
+  const from = 'fake from'
+  const text = 'fake text'
 
   let user: User
-  let email: NewsletterEmail
+  let newsletterEmail: NewsletterEmail
   let ctx: SaveContext
+  let receivedEmail: ReceivedEmail
 
   before(async () => {
     user = await createTestUser('fakeUser')
-    email = await createNewsletterEmail(user.id)
+    newsletterEmail = await createNewsletterEmail(user.id)
     ctx = {
       pubsub: createPubSubClient(),
       refresh: true,
       uid: user.id,
     }
+    receivedEmail = await getRepository(ReceivedEmail).save({
+      user: { id: user.id },
+      from,
+      to: newsletterEmail.address,
+      subject: title,
+      text,
+      html: '',
+      type: 'non-article',
+    })
   })
 
   after(async () => {
@@ -42,12 +55,15 @@ describe('saveNewsletterEmail', () => {
 
     await saveNewsletterEmail(
       {
-        email: email.address,
+        from,
+        email: newsletterEmail.address,
         content: `<html><body>${fakeContent}</body></html>`,
         url,
         title,
         author,
+        receivedEmailId: receivedEmail.id,
       },
+      newsletterEmail,
       ctx
     )
 
@@ -59,9 +75,15 @@ describe('saveNewsletterEmail', () => {
     expect(page?.content).to.contain(fakeContent)
 
     const subscriptions = await getRepository(Subscription).findBy({
-      newsletterEmail: { id: email.id },
+      newsletterEmail: { id: newsletterEmail.id },
     })
     expect(subscriptions).not.to.be.empty
+
+    // check if the received email was updated
+    const updatedReceivedEmail = await getRepository(ReceivedEmail).findOneBy({
+      id: receivedEmail.id,
+    })
+    expect(updatedReceivedEmail?.type).to.equal('article')
   })
 
   it('should adds a Newsletter label to that page', async () => {
@@ -73,12 +95,15 @@ describe('saveNewsletterEmail', () => {
 
     await saveNewsletterEmail(
       {
-        email: email.address,
+        email: newsletterEmail.address,
         content: `<html><body>fake content 2</body></html>`,
         url,
         title,
         author,
+        from,
+        receivedEmailId: receivedEmail.id,
       },
+      newsletterEmail,
       ctx
     )
 

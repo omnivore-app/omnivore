@@ -60,7 +60,7 @@ import Views
           loadItems(isRefresh: true)
         }
         .sheet(item: $viewModel.itemUnderLabelEdit) { item in
-          ApplyLabelsView(mode: .item(item), onSave: nil)
+          ApplyLabelsView(mode: .item(item), isSearchFocused: false, onSave: nil)
         }
         .sheet(item: $viewModel.itemUnderTitleEdit) { item in
           LinkedItemMetadataEditView(item: item)
@@ -146,7 +146,7 @@ import Views
         }
       }
       .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
-        loadItems(isRefresh: true)
+        loadItems(isRefresh: false)
       }
       .onReceive(NotificationCenter.default.publisher(for: Notification.Name("PushJSONArticle"))) { notification in
         guard let jsonArticle = notification.userInfo?["article"] as? JSONArticle else { return }
@@ -191,7 +191,7 @@ import Views
       }
       .task {
         if viewModel.items.isEmpty {
-          loadItems(isRefresh: true)
+          loadItems(isRefresh: false)
         }
       }
     }
@@ -324,7 +324,7 @@ import Views
             viewModel.itemToSnoozeID = item.id
             viewModel.snoozePresented = true
           } label: {
-            Label { Text("Snooze") } icon: { Image.moon }
+            Label { Text(LocalText.genericSnooze) } icon: { Image.moon }
           }
         }
         if let author = item.author {
@@ -401,7 +401,7 @@ import Views
                     viewModel.itemToSnoozeID = item.id
                     viewModel.snoozePresented = true
                   } label: {
-                    Label { Text("Snooze") } icon: { Image.moon }
+                    Label { Text(LocalText.genericSnooze) } icon: { Image.moon }
                   }.tint(.appYellow48)
                 }
               }

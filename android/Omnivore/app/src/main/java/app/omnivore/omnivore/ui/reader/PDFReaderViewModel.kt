@@ -92,7 +92,7 @@ class PDFReaderViewModel @Inject constructor(
       currentReadingProgress = percent
       viewModelScope.launch {
         val params = ReadingProgressParams(
-          id = pdfReaderParamsLiveData.value?.item?.id,
+          id = pdfReaderParamsLiveData.value?.item?.savedItemId,
           readingProgressPercent = percent,
           readingProgressAnchorIndex = currentPageIndex
         )
@@ -102,7 +102,7 @@ class PDFReaderViewModel @Inject constructor(
   }
 
   fun syncHighlightUpdates(newAnnotation: Annotation, quote: String, overlapIds: List<String>, note: String? = null) {
-    val itemID = pdfReaderParamsLiveData.value?.item?.id ?: return
+    val itemID = pdfReaderParamsLiveData.value?.item?.savedItemId ?: return
     val highlightID = UUID.randomUUID().toString()
     val shortID = UUID.randomUUID().toString().replace("-","").substring(0,8)
 

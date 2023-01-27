@@ -48,7 +48,7 @@ struct EmailLoginFormView: View {
           }
           VStack {
             VStack(alignment: .leading, spacing: 6) {
-              Text("Email")
+              Text(LocalText.genericEmail)
                 .font(.appFootnote)
                 .foregroundColor(.appGrayText)
               TextField("", text: $email)
@@ -64,7 +64,7 @@ struct EmailLoginFormView: View {
             .padding(.bottom, 8)
 
             VStack(alignment: .leading, spacing: 6) {
-              Text("Password")
+              Text(LocalText.genericPassword)
                 .font(.appFootnote)
                 .foregroundColor(.appGrayText)
               SecureField("", text: $password)
@@ -88,7 +88,7 @@ struct EmailLoginFormView: View {
                   )
                 }
               },
-              label: { Text("Submit") }
+              label: { Text(LocalText.genericSubmit) }
             )
             .buttonStyle(SolidCapsuleButtonStyle(color: .appCtaYellow, width: 300))
 
@@ -101,7 +101,7 @@ struct EmailLoginFormView: View {
                 Button(
                   action: { viewModel.emailAuthState = .signUp },
                   label: {
-                    Text("Don't have an account?")
+                    Text(LocalText.registrationNoAccount)
                       .foregroundColor(.appGrayTextContrast)
                       .underline()
                   }
@@ -121,7 +121,7 @@ struct EmailLoginFormView: View {
                     openURL(url)
                   },
                   label: {
-                    Text("Forgot your password?")
+                    Text(LocalText.registrationForgotPassword)
                       .foregroundColor(.appGrayTextContrast)
                       .underline()
                   }
@@ -175,7 +175,7 @@ struct EmailPendingVerificationView: View {
             )
           }
         },
-        label: { Text("Check Status") }
+        label: { Text(LocalText.registrationStatusCheck) }
       )
       .buttonStyle(SolidCapsuleButtonStyle(color: .appDeepBackground, width: 300))
 
@@ -183,7 +183,7 @@ struct EmailPendingVerificationView: View {
         Button(
           action: { viewModel.emailAuthState = .signUp },
           label: {
-            Text("Use a different email?")
+            Text(LocalText.registrationUseDifferentEmail)
               .foregroundColor(.appGrayTextContrast)
               .underline()
           }

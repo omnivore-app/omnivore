@@ -205,7 +205,7 @@
                 Image(systemName: "gobackward")
                   .font(.appCallout)
                   .tint(.appGrayTextContrast)
-                Text("Replay")
+                Text(LocalText.audioPlayerReplay)
               }
             }
           ).buttonStyle(RoundedRectButtonStyle())

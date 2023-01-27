@@ -69,19 +69,13 @@ struct PushNotificationSettingsView: View {
   private var innerBody: some View {
     Group {
       Section {
-        Toggle(isOn: $viewModel.desiredNotificationsEnabled, label: { Text("Notifications Enabled") })
+        Toggle(isOn: $viewModel.desiredNotificationsEnabled, label: { Text(LocalText.notificationsEnabled) })
       }.onChange(of: viewModel.desiredNotificationsEnabled) { _ in
         viewModel.tryUpdateToDesired(dataService: dataService)
       }
 
-      Section {
-        Text("""
-        Enabling push notifications gives Omnivore device permission to send notifications, \
-        but you are in charge of which notifications are sent.
-
-        Push notifications are triggered using your \
-        [account rules](https://omnivore.app/settings/rules) which you can edit online.
-        """)
+      Section { // TODO: double check this text
+        Text("\(LocalText.notificationsExplainer)\n\(LocalText.notificationsTriggerExplainer)")
           .accentColor(.blue)
       }
 

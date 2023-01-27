@@ -14,9 +14,7 @@ struct HighlightsListView: View {
   @State var setLabelsHighlight: Highlight?
 
   var emptyView: some View {
-    Text("""
-    You have not added any highlights or notes to this page.
-    """)
+    Text(LocalText.highlightCardNoHighlightsOnPage)
       .multilineTextAlignment(.center)
       .padding(16)
   }
@@ -71,7 +69,7 @@ struct HighlightsListView: View {
         }
       }
     }.sheet(item: $setLabelsHighlight) { highlight in
-      ApplyLabelsView(mode: .highlight(highlight), onSave: { selectedLabels in
+      ApplyLabelsView(mode: .highlight(highlight), isSearchFocused: false, onSave: { selectedLabels in
         hasHighlightMutations = true
 
         viewModel.setLabelsForHighlight(highlightID: highlight.unwrappedID,

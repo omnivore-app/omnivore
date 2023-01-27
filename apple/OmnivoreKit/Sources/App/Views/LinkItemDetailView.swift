@@ -204,7 +204,7 @@ struct LinkItemDetailView: View {
     } else {
       HStack(alignment: .center) {
         Spacer()
-        Text("Loading...")
+        Text(LocalText.genericLoading)
         Spacer()
       }
     }

@@ -58,6 +58,7 @@ import Views
 struct ProfileView: View {
   @EnvironmentObject var authenticator: Authenticator
   @EnvironmentObject var dataService: DataService
+  @Environment(\.openURL) var openURL
 
   @StateObject private var viewModel = ProfileContainerViewModel()
 
@@ -119,6 +120,22 @@ struct ProfileView: View {
       #endif
 
       Section {
+        Button(
+          action: {
+            if let url = URL(string: "https://docs.omnivore.app") {
+              openURL(url)
+            }
+          },
+          label: { Text(LocalText.documentationGeneric) }
+        )
+
+        #if os(iOS)
+          Button(
+            action: { DataService.showIntercomMessenger?() },
+            label: { Text(LocalText.feedbackGeneric) }
+          )
+        #endif
+
         NavigationLink(
           destination: BasicWebAppView.privacyPolicyWebView(baseURL: dataService.appEnvironment.webAppBaseURL)
         ) {
@@ -130,13 +147,6 @@ struct ProfileView: View {
         ) {
           Text(LocalText.termsAndConditionsGeneric)
         }
-
-        #if os(iOS)
-          Button(
-            action: { DataService.showIntercomMessenger?() },
-            label: { Text(LocalText.feedbackGeneric) }
-          )
-        #endif
       }
 
       Section(footer: Text(viewModel.appVersionString)) {
@@ -152,8 +162,8 @@ struct ProfileView: View {
           }
           .alert(isPresented: $showLogoutConfirmation) {
             Alert(
-              title: Text("Are you sure you want to logout?"),
-              primaryButton: .destructive(Text("Confirm")) {
+              title: Text(LocalText.profileConfirmLogoutMessage),
+              primaryButton: .destructive(Text(LocalText.genericConfirm)) {
                 authenticator.logout(dataService: dataService)
               },
               secondaryButton: .cancel()
@@ -161,7 +171,7 @@ struct ProfileView: View {
           }
       }
     }
-    .navigationTitle("Profile")
+    .navigationTitle(LocalText.genericProfile)
   }
 }
 

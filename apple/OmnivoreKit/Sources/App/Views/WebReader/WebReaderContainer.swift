@@ -181,7 +181,7 @@ struct WebReaderContainerView: View {
   }
 
   func menuItems(for item: LinkedItem) -> some View {
-    let hasLabels = item.labels?.count == 0
+    let hasLabels = item.labels?.count != 0
     return Group {
       Button(
         action: { showHighlightsView = true },
@@ -271,7 +271,7 @@ struct WebReaderContainerView: View {
               .padding(.horizontal)
               .scaleEffect(navBarVisibilityRatio)
           #else
-            Text("Options")
+            Text(LocalText.genericOptions)
           #endif
         }
       )
@@ -295,7 +295,11 @@ struct WebReaderContainerView: View {
       Button(LocalText.cancelGeneric, role: .cancel, action: {})
     }
     .sheet(isPresented: $showLabelsModal) {
-      ApplyLabelsView(mode: .item(item), onSave: { _ in showLabelsModal = false })
+      ApplyLabelsView(mode: .item(item), isSearchFocused: false, onSave: { labels in
+        showLabelsModal = false
+        item.labels = NSSet(array: labels)
+        readerSettingsChangedTransactionID = UUID()
+      })
     }
     .sheet(isPresented: $showTitleEdit) {
       LinkedItemMetadataEditView(item: item)
@@ -361,24 +365,24 @@ struct WebReaderContainerView: View {
             if let linkToOpen = linkToOpen {
               safariWebLink = SafariWebLink(id: UUID(), url: linkToOpen)
             }
-          }, label: { Text("Open") })
+          }, label: { Text(LocalText.genericOpen) })
           Button(action: {
             UIPasteboard.general.string = item.unwrappedPageURLString
             showInSnackbar("Link Copied")
-          }, label: { Text("Copy Link") })
+          }, label: { Text(LocalText.readerCopyLink) })
           Button(action: {
             if let linkToOpen = linkToOpen {
               viewModel.saveLink(dataService: dataService, url: linkToOpen)
             }
-          }, label: { Text("Save to Omnivore") })
+          }, label: { Text(LocalText.readerSave) })
         }
         #if os(iOS)
           .fullScreenCover(item: $safariWebLink) {
             SafariView(url: $0.url)
           }
         #endif
-        .alert(errorAlertMessage ?? "An error occurred", isPresented: $showErrorAlertMessage) {
-          Button("Ok", role: .cancel, action: {
+        .alert(errorAlertMessage ?? LocalText.readerError, isPresented: $showErrorAlertMessage) {
+          Button(LocalText.genericOk, role: .cancel, action: {
             errorAlertMessage = nil
             showErrorAlertMessage = false
           })
@@ -410,7 +414,7 @@ struct WebReaderContainerView: View {
         }
         .sheet(isPresented: $showHighlightLabelsModal) {
           if let highlight = Highlight.lookup(byID: self.annotation, inContext: self.dataService.viewContext) {
-            ApplyLabelsView(mode: .highlight(highlight)) { selectedLabels in
+            ApplyLabelsView(mode: .highlight(highlight), isSearchFocused: false) { selectedLabels in
               viewModel.setLabelsForHighlight(highlightID: highlight.unwrappedID,
                                               labelIDs: selectedLabels.map(\.unwrappedID),
                                               dataService: dataService)

@@ -100,6 +100,7 @@ struct WebReader: PlatformViewRepresentable {
       (webView as? OmnivoreWebView)?.updateTextContrast()
       (webView as? OmnivoreWebView)?.updateMaxWidthPercentage()
       (webView as? OmnivoreWebView)?.updateLineHeight()
+      (webView as? OmnivoreWebView)?.updateLabels(labelsJSON: item.labelsJSONString)
     }
 
     if showNavBarActionID != context.coordinator.previousShowNavBarActionID {

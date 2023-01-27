@@ -2,19 +2,24 @@ package app.omnivore.omnivore.persistence
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import app.omnivore.omnivore.persistence.entities.SavedItem
-import app.omnivore.omnivore.persistence.entities.SavedItemDao
-import app.omnivore.omnivore.persistence.entities.Viewer
-import app.omnivore.omnivore.persistence.entities.ViewerDao
+import app.omnivore.omnivore.persistence.entities.*
 
 @Database(
   entities = [
     Viewer::class,
-    SavedItem::class
+    SavedItem::class,
+    SavedItemLabel::class,
+    Highlight::class,
+    SavedItemAndSavedItemLabelCrossRef::class,
+    SavedItemAndHighlightCrossRef::class
   ],
-  version = 1
+  version = 2
 )
 abstract class AppDatabase : RoomDatabase() {
   abstract fun viewerDao(): ViewerDao
   abstract fun savedItemDao(): SavedItemDao
+  abstract fun highlightDao(): HighlightDao
+  abstract fun savedItemLabelDao(): SavedItemLabelDao
+  abstract fun savedItemAndSavedItemLabelCrossRefDao(): SavedItemAndSavedItemLabelCrossRefDao
+  abstract fun savedItemAndHighlightCrossRefDao(): SavedItemAndHighlightCrossRefDao
 }

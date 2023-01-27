@@ -6,6 +6,7 @@ public struct TextChip: View {
   @Environment(\.colorScheme) var colorScheme
 
   let checked: Bool
+  let padded: Bool
   var onTap: ((TextChip) -> Void)?
 
   public init(text: String, color: Color, negated: Bool = false) {
@@ -13,6 +14,7 @@ public struct TextChip: View {
     self.color = color
     self.negated = negated
     self.checked = false
+    self.padded = false
   }
 
   public init?(feedItemLabel: LinkedItemLabel, negated: Bool = false) {
@@ -22,9 +24,10 @@ public struct TextChip: View {
     self.color = color
     self.negated = negated
     self.checked = false
+    self.padded = false
   }
 
-  public init?(feedItemLabel: LinkedItemLabel, negated: Bool = false, checked: Bool = false, onTap: ((TextChip) -> Void)?) {
+  public init?(feedItemLabel: LinkedItemLabel, negated: Bool = false, checked: Bool = false, padded: Bool = false, onTap: ((TextChip) -> Void)?) {
     guard let color = Color(hex: feedItemLabel.color ?? "") else {
       return nil
     }
@@ -34,6 +37,7 @@ public struct TextChip: View {
     self.negated = negated
     self.onTap = onTap
     self.checked = checked
+    self.padded = padded
   }
 
   public let text: String
@@ -45,37 +49,28 @@ public struct TextChip: View {
       return .white
     }
 
-    if colorScheme == .light {
-      return luminance > 0.5 ? .black : .white
-    }
-
-    if luminance > 0.2 {
-      return color
-    }
-
-    // lighten the color by 20%
-    return Color.lighten(color: color, by: 20)
+    return luminance > 0.5 ? .black : .white
   }
 
   var backgroundColor: Color {
-    color.opacity(colorScheme == .dark ? 0.2 : 1)
+    color.opacity(0.9)
+  }
+
+  var checkedBorderColor: Color {
+    colorScheme == .dark ? Color.white : Color.black
   }
 
   var borderColor: Color {
-    if colorScheme == .dark {
-      return textColor
-    } else {
-      return color.opacity(0.7)
-    }
+    checked ? checkedBorderColor : Color.clear
   }
 
   public var body: some View {
     ZStack(alignment: .topTrailing) {
       Text(text)
         .strikethrough(color: negated ? textColor : .clear)
-        .padding(.horizontal, 8)
-        .padding(.vertical, 5)
-        .font(.appCaptionBold)
+        .padding(.horizontal, padded ? 10 : 8)
+        .padding(.vertical, padded ? 8 : 5)
+        .font(.appCaptionMedium)
         .foregroundColor(textColor)
         .lineLimit(1)
         .background(
@@ -84,18 +79,9 @@ public struct TextChip: View {
         )
         .overlay(
           RoundedRectangle(cornerRadius: 4)
-            .stroke(borderColor, lineWidth: 1)
+            .stroke(borderColor, lineWidth: 2)
         )
         .padding(1)
-        .overlay(alignment: .topTrailing) {
-          if checked {
-            Image(systemName: "checkmark.circle.fill")
-              .font(.appBody)
-              .symbolVariant(.circle.fill)
-              .foregroundStyle(Color.appBackground, Color.appGreenSuccess)
-              .padding([.top, .trailing], -6)
-          }
-        }
     }.onTapGesture {
       if let onTap = onTap {
         onTap(self)

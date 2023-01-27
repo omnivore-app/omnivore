@@ -5,8 +5,7 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class NewsletterEmail(
-  @PrimaryKey val userID: String,
+  @PrimaryKey val newsletterEmailId: String?,
   val confirmationCode: String?,
-  val email: String?,
-  val emailID: String?
+  val email: String?
 )

@@ -36,7 +36,7 @@ struct LinkedItemMetadataEditView: View {
     ScrollView(showsIndicators: false) {
       VStack(alignment: .center, spacing: 16) {
         VStack(alignment: .leading, spacing: 6) {
-          Text("Title")
+          Text(LocalText.genericTitle)
             .font(.appFootnote)
             .foregroundColor(.appGrayTextContrast)
           TextField("", text: $viewModel.title)
@@ -44,7 +44,7 @@ struct LinkedItemMetadataEditView: View {
         }
 
         VStack(alignment: .leading, spacing: 6) {
-          Text("Author")
+          Text(LocalText.genericAuthor)
             .font(.appFootnote)
             .foregroundColor(.appGrayTextContrast)
           TextField("", text: $viewModel.author)
@@ -52,7 +52,7 @@ struct LinkedItemMetadataEditView: View {
         }
 
         VStack(alignment: .leading, spacing: 6) {
-          Text("Description")
+          Text(LocalText.genericDescription)
             .font(.appFootnote)
             .foregroundColor(.appGrayTextContrast)
           TextEditor(text: $viewModel.description)
@@ -98,7 +98,7 @@ struct LinkedItemMetadataEditView: View {
                   viewModel.submit(dataService: dataService, item: item)
                   presentationMode.wrappedValue.dismiss()
                 },
-                label: { Text("Save").foregroundColor(.appGrayTextContrast) }
+                label: { Text(LocalText.genericSave).foregroundColor(.appGrayTextContrast) }
               )
             }
             ToolbarItem(placement: .barLeading) {
@@ -120,7 +120,7 @@ struct LinkedItemMetadataEditView: View {
                 viewModel.submit(dataService: dataService, item: item)
                 presentationMode.wrappedValue.dismiss()
               },
-              label: { Text("Save").foregroundColor(.appGrayTextContrast) }
+              label: { Text(LocalText.genericSave).foregroundColor(.appGrayTextContrast) }
             )
 
             Button(

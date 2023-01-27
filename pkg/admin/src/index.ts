@@ -1,15 +1,26 @@
-import express from 'express';
-import AdminJs from 'adminjs';
-import AdminJsExpress from '@adminjs/express';
-import { registerDatabase, AdminUser, User, UserArticle, UserProfile } from './db';
-import { compare, hashSync } from 'bcryptjs';
+import express from 'express'
+import AdminJs from 'adminjs'
+import AdminJsExpress from '@adminjs/express'
+import {
+  registerDatabase,
+  AdminUser,
+  User,
+  UserArticle,
+  UserProfile,
+  ReceivedEmail,
+  ContentDisplayReport,
+} from './db'
+import { compare, hashSync } from 'bcryptjs'
+const readYamlFile = require('read-yaml-file')
 
-const app = express();
-const port = process.env.PORT || '8000';
-const ADMIN_USER_EMAIL = process.env.ADMIN_USER_EMAIL || 'admin-user@omnivore.app';
+const app = express()
+const port = process.env.PORT || '8000'
+const ADMIN_USER_EMAIL =
+  process.env.ADMIN_USER_EMAIL || 'admin-user@omnivore.app'
 
-(async () => {
-  const db = await registerDatabase();
+;(async () => {
+  const secrets = await readYamlFile(process.env.SECRETS_FILE)
+  const db = await registerDatabase(secrets)
 
   const adminBro = new AdminJs({
     databases: [db],
@@ -23,36 +34,45 @@ const ADMIN_USER_EMAIL = process.env.ADMIN_USER_EMAIL || 'admin-user@omnivore.ap
       },
       { resource: UserProfile, options: { parent: { name: 'Users' } } },
       { resource: UserArticle, options: { parent: { name: 'Users' } } },
+      { resource: ReceivedEmail, options: { parent: { name: 'Users' } } },
+      {
+        resource: ContentDisplayReport,
+      },
     ],
-  });
+  })
 
   const router = AdminJsExpress.buildAuthenticatedRouter(adminBro, {
     authenticate: async (email, password) => {
-      const user = await AdminUser.findOne({ email });
+      const user = await AdminUser.findOne({ email })
+      console.log('looked up user: ', user)
       if (user) {
-        const matched = await compare(password, user.password);
-        return matched ? user : false;
+        const matched = await compare(password, user.password)
+        console.log(' -- failed match')
+        return matched ? user : false
       } else if (email === ADMIN_USER_EMAIL) {
+        console.log('user is admin user, creating account')
         // If no admin user has been created yet, create one
         // from the environment variables. This is only done
         // once, and then the admin user should create a user
         // for each user.
-        if (!process.env.ADMIN_USER_PASSWORD) {
-          throw new Error('ADMIN_USER_PASSWORD is not set');
+        if (!secrets.ADMIN_USER_PASSWORD) {
+          throw new Error('ADMIN_USER_PASSWORD is not set')
         }
         return AdminUser.create({
           email: ADMIN_USER_EMAIL,
-          password: hashSync(process.env.ADMIN_USER_PASSWORD, 10),
-        });
+          password: hashSync(secrets.ADMIN_USER_PASSWORD, 10),
+        })
       }
-      return false;
+      return false
     },
-    cookiePassword: process.env.ADMIN_COOKIE_SECRET || 'some-secret-password-used-to-secure-cookie',
-  });
+    cookiePassword:
+      secrets.ADMIN_USER_PASSWORD ||
+      'some-secret-password-used-to-secure-cookie',
+  })
 
-  app.use(adminBro.options.rootPath, router);
+  app.use(adminBro.options.rootPath, router)
 
   app.listen(port, () => {
-    return console.log(`Server is listening on ${port}`);
-  });
-})();
+    return console.log(`Server is listening on ${port}`)
+  })
+})()

@@ -191,6 +191,7 @@ import Views
       group.addTask { await self.loadCurrentViewer(dataService: dataService) }
       group.addTask { await self.loadLabels(dataService: dataService) }
       group.addTask { await self.syncItems(dataService: dataService) }
+      group.addTask { await self.updateFetchController(dataService: dataService) }
       await group.waitForAll()
     }
 
@@ -199,9 +200,6 @@ import Views
       await loadSearchQuery(dataService: dataService, isRefresh: isRefresh)
     } else {
       updateFetchController(dataService: dataService)
-      Task.detached(priority: .background) {
-        await self.loadSearchQuery(dataService: dataService, isRefresh: isRefresh)
-      }
     }
 
     isLoading = false

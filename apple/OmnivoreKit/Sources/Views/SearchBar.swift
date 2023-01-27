@@ -1,62 +1,59 @@
 import SwiftUI
 
 public struct SearchBar: View {
-  private let horizontalPadding: Double
   @Binding var searchTerm: String
   @FocusState private var isFocused: Bool
 
   public init(
-    searchTerm: Binding<String>,
-    horizontalPadding: Double = 10
+    searchTerm: Binding<String>
   ) {
     self._searchTerm = searchTerm
-    self.horizontalPadding = horizontalPadding
   }
 
   public var body: some View {
     HStack(spacing: 0) {
       TextField("Search", text: $searchTerm)
-        .padding(7)
-        .padding(.horizontal, 25)
-        .background(Color.systemGray6)
-        .cornerRadius(8)
+        .frame(height: 36)
+        .frame(maxWidth: .infinity)
+        .padding(.leading, 28)
+        .padding(.trailing, 28)
         .focused($isFocused)
         .overlay(
           HStack {
             Image(systemName: "magnifyingglass")
-              .foregroundColor(.gray)
-              .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
-              .padding(.leading, 10)
+              .resizable()
+              .frame(width: 14, height: 14)
+              .foregroundColor(.appGrayText)
+              .padding(.leading, 8)
 
-            if self.searchTerm != "" {
-              Button(
-                action: {
-                  self.searchTerm = ""
-                },
-                label: {
-                  Image(systemName: "multiply.circle.fill")
-                    .foregroundColor(.gray)
-                    .padding(.trailing, 8)
-                }
-              )
-            }
+            Spacer()
           }
         )
-        .padding(.horizontal, horizontalPadding)
 
       if isFocused {
         Button(
           action: {
-            self.searchTerm = ""
             self.isFocused = false
           },
           label: {
-            Text(LocalText.cancelGeneric)
+            Image(systemName: "multiply.circle.fill")
+              .foregroundColor(.gray)
           }
         )
-        .padding(.trailing, 10)
+        .padding(.trailing, 8)
         .transition(.move(edge: .trailing))
       }
+    }
+    .background(Color.appButtonBackground)
+    .cornerRadius(8)
+    .frame(height: 36)
+    .onChange(of: isFocused) { isFocused in
+      if !isFocused {
+        searchTerm = ""
+      }
+    }
+    .onTapGesture {
+      isFocused = true
     }
   }
 }

@@ -1062,6 +1062,24 @@ export type LoginSuccess = {
   me: User;
 };
 
+export type MarkEmailAsItemError = {
+  __typename?: 'MarkEmailAsItemError';
+  errorCodes: Array<MarkEmailAsItemErrorCode>;
+};
+
+export enum MarkEmailAsItemErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type MarkEmailAsItemResult = MarkEmailAsItemError | MarkEmailAsItemSuccess;
+
+export type MarkEmailAsItemSuccess = {
+  __typename?: 'MarkEmailAsItemSuccess';
+  success: Scalars['Boolean'];
+};
+
 export type MergeHighlightError = {
   __typename?: 'MergeHighlightError';
   errorCodes: Array<MergeHighlightErrorCode>;
@@ -1172,6 +1190,7 @@ export type Mutation = {
   joinGroup: JoinGroupResult;
   leaveGroup: LeaveGroupResult;
   logOut: LogOutResult;
+  markEmailAsItem: MarkEmailAsItemResult;
   mergeHighlight: MergeHighlightResult;
   moveFilter: MoveFilterResult;
   moveLabel: MoveLabelResult;
@@ -1335,6 +1354,11 @@ export type MutationJoinGroupArgs = {
 
 export type MutationLeaveGroupArgs = {
   groupId: Scalars['ID'];
+};
+
+
+export type MutationMarkEmailAsItemArgs = {
+  recentEmailId: Scalars['ID'];
 };
 
 
@@ -1669,6 +1693,7 @@ export type Query = {
   labels: LabelsResult;
   me?: Maybe<User>;
   newsletterEmails: NewsletterEmailsResult;
+  recentEmails: RecentEmailsResult;
   recentSearches: RecentSearchesResult;
   reminder: ReminderResult;
   rules: RulesResult;
@@ -1810,6 +1835,35 @@ export type ReadState = {
   progressPercent: Scalars['Float'];
   reading?: Maybe<Scalars['Boolean']>;
   readingTime?: Maybe<Scalars['Int']>;
+};
+
+export type RecentEmail = {
+  __typename?: 'RecentEmail';
+  createdAt: Scalars['Date'];
+  from: Scalars['String'];
+  html?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  subject: Scalars['String'];
+  text: Scalars['String'];
+  to: Scalars['String'];
+  type: Scalars['String'];
+};
+
+export type RecentEmailsError = {
+  __typename?: 'RecentEmailsError';
+  errorCodes: Array<RecentEmailsErrorCode>;
+};
+
+export enum RecentEmailsErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type RecentEmailsResult = RecentEmailsError | RecentEmailsSuccess;
+
+export type RecentEmailsSuccess = {
+  __typename?: 'RecentEmailsSuccess';
+  recentEmails: Array<RecentEmail>;
 };
 
 export type RecentSearch = {
@@ -3316,6 +3370,10 @@ export type ResolversTypes = {
   LoginErrorCode: LoginErrorCode;
   LoginResult: ResolversTypes['LoginError'] | ResolversTypes['LoginSuccess'];
   LoginSuccess: ResolverTypeWrapper<LoginSuccess>;
+  MarkEmailAsItemError: ResolverTypeWrapper<MarkEmailAsItemError>;
+  MarkEmailAsItemErrorCode: MarkEmailAsItemErrorCode;
+  MarkEmailAsItemResult: ResolversTypes['MarkEmailAsItemError'] | ResolversTypes['MarkEmailAsItemSuccess'];
+  MarkEmailAsItemSuccess: ResolverTypeWrapper<MarkEmailAsItemSuccess>;
   MergeHighlightError: ResolverTypeWrapper<MergeHighlightError>;
   MergeHighlightErrorCode: MergeHighlightErrorCode;
   MergeHighlightInput: MergeHighlightInput;
@@ -3353,6 +3411,11 @@ export type ResolversTypes = {
   Reaction: ResolverTypeWrapper<Reaction>;
   ReactionType: ReactionType;
   ReadState: ResolverTypeWrapper<ReadState>;
+  RecentEmail: ResolverTypeWrapper<RecentEmail>;
+  RecentEmailsError: ResolverTypeWrapper<RecentEmailsError>;
+  RecentEmailsErrorCode: RecentEmailsErrorCode;
+  RecentEmailsResult: ResolversTypes['RecentEmailsError'] | ResolversTypes['RecentEmailsSuccess'];
+  RecentEmailsSuccess: ResolverTypeWrapper<RecentEmailsSuccess>;
   RecentSearch: ResolverTypeWrapper<RecentSearch>;
   RecentSearchesError: ResolverTypeWrapper<RecentSearchesError>;
   RecentSearchesErrorCode: RecentSearchesErrorCode;
@@ -3741,6 +3804,9 @@ export type ResolversParentTypes = {
   LoginError: LoginError;
   LoginResult: ResolversParentTypes['LoginError'] | ResolversParentTypes['LoginSuccess'];
   LoginSuccess: LoginSuccess;
+  MarkEmailAsItemError: MarkEmailAsItemError;
+  MarkEmailAsItemResult: ResolversParentTypes['MarkEmailAsItemError'] | ResolversParentTypes['MarkEmailAsItemSuccess'];
+  MarkEmailAsItemSuccess: MarkEmailAsItemSuccess;
   MergeHighlightError: MergeHighlightError;
   MergeHighlightInput: MergeHighlightInput;
   MergeHighlightResult: ResolversParentTypes['MergeHighlightError'] | ResolversParentTypes['MergeHighlightSuccess'];
@@ -3771,6 +3837,10 @@ export type ResolversParentTypes = {
   Query: {};
   Reaction: Reaction;
   ReadState: ReadState;
+  RecentEmail: RecentEmail;
+  RecentEmailsError: RecentEmailsError;
+  RecentEmailsResult: ResolversParentTypes['RecentEmailsError'] | ResolversParentTypes['RecentEmailsSuccess'];
+  RecentEmailsSuccess: RecentEmailsSuccess;
   RecentSearch: RecentSearch;
   RecentSearchesError: RecentSearchesError;
   RecentSearchesResult: ResolversParentTypes['RecentSearchesError'] | ResolversParentTypes['RecentSearchesSuccess'];
@@ -4742,6 +4812,20 @@ export type LoginSuccessResolvers<ContextType = ResolverContext, ParentType exte
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type MarkEmailAsItemErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['MarkEmailAsItemError'] = ResolversParentTypes['MarkEmailAsItemError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['MarkEmailAsItemErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type MarkEmailAsItemResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['MarkEmailAsItemResult'] = ResolversParentTypes['MarkEmailAsItemResult']> = {
+  __resolveType: TypeResolveFn<'MarkEmailAsItemError' | 'MarkEmailAsItemSuccess', ParentType, ContextType>;
+};
+
+export type MarkEmailAsItemSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['MarkEmailAsItemSuccess'] = ResolversParentTypes['MarkEmailAsItemSuccess']> = {
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type MergeHighlightErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['MergeHighlightError'] = ResolversParentTypes['MergeHighlightError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['MergeHighlightErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -4813,6 +4897,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   joinGroup?: Resolver<ResolversTypes['JoinGroupResult'], ParentType, ContextType, RequireFields<MutationJoinGroupArgs, 'inviteCode'>>;
   leaveGroup?: Resolver<ResolversTypes['LeaveGroupResult'], ParentType, ContextType, RequireFields<MutationLeaveGroupArgs, 'groupId'>>;
   logOut?: Resolver<ResolversTypes['LogOutResult'], ParentType, ContextType>;
+  markEmailAsItem?: Resolver<ResolversTypes['MarkEmailAsItemResult'], ParentType, ContextType, RequireFields<MutationMarkEmailAsItemArgs, 'recentEmailId'>>;
   mergeHighlight?: Resolver<ResolversTypes['MergeHighlightResult'], ParentType, ContextType, RequireFields<MutationMergeHighlightArgs, 'input'>>;
   moveFilter?: Resolver<ResolversTypes['MoveFilterResult'], ParentType, ContextType, RequireFields<MutationMoveFilterArgs, 'input'>>;
   moveLabel?: Resolver<ResolversTypes['MoveLabelResult'], ParentType, ContextType, RequireFields<MutationMoveLabelArgs, 'input'>>;
@@ -4943,6 +5028,7 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   labels?: Resolver<ResolversTypes['LabelsResult'], ParentType, ContextType>;
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   newsletterEmails?: Resolver<ResolversTypes['NewsletterEmailsResult'], ParentType, ContextType>;
+  recentEmails?: Resolver<ResolversTypes['RecentEmailsResult'], ParentType, ContextType>;
   recentSearches?: Resolver<ResolversTypes['RecentSearchesResult'], ParentType, ContextType>;
   reminder?: Resolver<ResolversTypes['ReminderResult'], ParentType, ContextType, RequireFields<QueryReminderArgs, 'linkId'>>;
   rules?: Resolver<ResolversTypes['RulesResult'], ParentType, ContextType, Partial<QueryRulesArgs>>;
@@ -4973,6 +5059,32 @@ export type ReadStateResolvers<ContextType = ResolverContext, ParentType extends
   progressPercent?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   reading?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   readingTime?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type RecentEmailResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RecentEmail'] = ResolversParentTypes['RecentEmail']> = {
+  createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  from?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  html?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  subject?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  text?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  to?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type RecentEmailsErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RecentEmailsError'] = ResolversParentTypes['RecentEmailsError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['RecentEmailsErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type RecentEmailsResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RecentEmailsResult'] = ResolversParentTypes['RecentEmailsResult']> = {
+  __resolveType: TypeResolveFn<'RecentEmailsError' | 'RecentEmailsSuccess', ParentType, ContextType>;
+};
+
+export type RecentEmailsSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RecentEmailsSuccess'] = ResolversParentTypes['RecentEmailsSuccess']> = {
+  recentEmails?: Resolver<Array<ResolversTypes['RecentEmail']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -5911,6 +6023,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   LoginError?: LoginErrorResolvers<ContextType>;
   LoginResult?: LoginResultResolvers<ContextType>;
   LoginSuccess?: LoginSuccessResolvers<ContextType>;
+  MarkEmailAsItemError?: MarkEmailAsItemErrorResolvers<ContextType>;
+  MarkEmailAsItemResult?: MarkEmailAsItemResultResolvers<ContextType>;
+  MarkEmailAsItemSuccess?: MarkEmailAsItemSuccessResolvers<ContextType>;
   MergeHighlightError?: MergeHighlightErrorResolvers<ContextType>;
   MergeHighlightResult?: MergeHighlightResultResolvers<ContextType>;
   MergeHighlightSuccess?: MergeHighlightSuccessResolvers<ContextType>;
@@ -5934,6 +6049,10 @@ export type Resolvers<ContextType = ResolverContext> = {
   Query?: QueryResolvers<ContextType>;
   Reaction?: ReactionResolvers<ContextType>;
   ReadState?: ReadStateResolvers<ContextType>;
+  RecentEmail?: RecentEmailResolvers<ContextType>;
+  RecentEmailsError?: RecentEmailsErrorResolvers<ContextType>;
+  RecentEmailsResult?: RecentEmailsResultResolvers<ContextType>;
+  RecentEmailsSuccess?: RecentEmailsSuccessResolvers<ContextType>;
   RecentSearch?: RecentSearchResolvers<ContextType>;
   RecentSearchesError?: RecentSearchesErrorResolvers<ContextType>;
   RecentSearchesResult?: RecentSearchesResultResolvers<ContextType>;

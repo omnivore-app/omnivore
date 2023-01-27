@@ -225,9 +225,9 @@ private extension SaveArticleError {
     case .unauthorized:
       return LocalText.extensionAppUnauthorized
     case .network:
-      return LocalText.networkError
+      return LocalText.errorNetwork
     case .badData, .unknown:
-      return LocalText.genericError
+      return LocalText.errorGeneric
     }
   }
 }

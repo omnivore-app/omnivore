@@ -2,7 +2,6 @@ package app.omnivore.omnivore.networking
 
 import app.omnivore.omnivore.graphql.generated.SearchQuery
 import app.omnivore.omnivore.graphql.generated.TypeaheadSearchQuery
-import app.omnivore.omnivore.persistence.entities.SavedItem
 import app.omnivore.omnivore.persistence.entities.SavedItemCardData
 import com.apollographql.apollo3.api.Optional
 
@@ -23,7 +22,7 @@ suspend fun Networker.typeaheadSearch(
 
     val cardsData = itemList.map {
       SavedItemCardData(
-        id = it.id,
+        savedItemId = it.id,
         slug = it.slug,
         publisherURLString = "",
         title = it.title,
@@ -55,13 +54,12 @@ suspend fun Networker.search(
       )
     ).execute()
 
-
     val newCursor = result.data?.search?.onSearchSuccess?.pageInfo?.endCursor
     val itemList = result.data?.search?.onSearchSuccess?.edges ?: listOf()
 
     val cardsData = itemList.map {
       SavedItemCardData(
-        id = it.node.id,
+        savedItemId = it.node.id,
         slug = it.node.slug,
         publisherURLString = it.node.originalArticleUrl,
         title = it.node.title,

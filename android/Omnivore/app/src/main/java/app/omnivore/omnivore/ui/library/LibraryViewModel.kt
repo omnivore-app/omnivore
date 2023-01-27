@@ -7,24 +7,23 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.omnivore.omnivore.DataService
+import app.omnivore.omnivore.*
+import app.omnivore.omnivore.dataService.*
 import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.persistence.entities.SavedItemCardData
+import app.omnivore.omnivore.persistence.entities.SavedItemCardDataWithLabels
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
 class LibraryViewModel @Inject constructor(
   private val networker: Networker,
-  private val dataService: DataService
+  private val dataService: DataService,
+  private val datastoreRepo: DatastoreRepository
 ): ViewModel() {
   private var cursor: String? = null
-  private var items: List<SavedItemCardData> = listOf()
-  private var searchedItems: List<SavedItemCardData> = listOf()
 
   // These are used to make sure we handle search result
   // responses in the right order
@@ -33,14 +32,16 @@ class LibraryViewModel @Inject constructor(
 
   // Live Data
   val searchTextLiveData = MutableLiveData("")
-  val itemsLiveData = MutableLiveData<List<SavedItemCardData>>(listOf())
+  val searchItemsLiveData = MutableLiveData<List<SavedItemCardDataWithLabels>>(listOf())
+  val itemsLiveData = dataService.db.savedItemDao().getLibraryLiveDataWithLabels()
+
   var isRefreshing by mutableStateOf(false)
 
   fun updateSearchText(text: String) {
     searchTextLiveData.value = text
 
     if (text == "") {
-      itemsLiveData.value = items
+      searchItemsLiveData.value = listOf()
     } else {
       load(clearPreviousSearch = true)
     }
@@ -51,95 +52,112 @@ class LibraryViewModel @Inject constructor(
     load(true)
   }
 
+  fun getLastSyncTime(): LocalDateTime? = runBlocking {
+    datastoreRepo.getString(DatastoreKeys.libraryLastSyncTimestamp)?.let {
+      LocalDateTime.parse(it)
+    }
+  }
+
   fun load(clearPreviousSearch: Boolean = false) {
+    viewModelScope.launch {
+      if (searchTextLiveData.value != "") {
+        performSearch(clearPreviousSearch)
+      } else {
+        syncItems()
+      }
+    }
+  }
+
+  private suspend fun syncItems() {
+    val syncStart = LocalDateTime.now()
+    val lastSyncDate = getLastSyncTime() ?: LocalDateTime.MIN
+
+    CoroutineScope(Dispatchers.Main).launch {
+      isRefreshing = false
+    }
+
+    withContext(Dispatchers.IO) {
+      performItemSync(cursor = null, since = lastSyncDate.toString(), count = 0, startTime = syncStart.toString())
+    }
+  }
+
+  private suspend fun performItemSync(cursor: String?, since: String, count: Int, startTime: String, isInitialBatch: Boolean = true) {
+    dataService.syncOfflineItemsWithServerIfNeeded()
+    val result = dataService.sync(since = since, cursor = cursor, limit = 20)
+
+    // Fetch content for the initial batch only
+    if (isInitialBatch) {
+      for (slug in result.savedItemSlugs) {
+        dataService.syncSavedItemContent(slug)
+      }
+    }
+
+    val totalCount = count + result.count
+
+    Log.d("sync", "fetched ${result.count} items")
+
+    if (!result.hasError && result.hasMoreItems && result.cursor != null) {
+      performItemSync(
+        cursor = result.cursor,
+        since = since,
+        count = totalCount,
+        startTime = startTime,
+        isInitialBatch = false
+      )
+    } else {
+      datastoreRepo.putString(DatastoreKeys.libraryLastSyncTimestamp, startTime)
+    }
+  }
+
+  private suspend fun performSearch(clearPreviousSearch: Boolean) {
     if (clearPreviousSearch) {
       cursor = null
     }
 
-    viewModelScope.launch {
-      val thisSearchIdx = searchIdx
-      searchIdx += 1
+    val thisSearchIdx = searchIdx
+    searchIdx += 1
 
-      // Execute the search
-      val searchResult =
-        if (searchTextLiveData.value != "") {
-          networker.typeaheadSearch(searchTextLiveData.value ?: "")
-        } else {
-          networker.search(cursor = cursor, query = searchQuery())
-        }
+    // Execute the search
+    val searchResult = networker.typeaheadSearch(searchTextLiveData.value ?: "")
 
-      // Search results aren't guaranteed to return in order so this
-      // will discard old results that are returned while a user is typing.
-      // For example if a user types 'Canucks', often the search results
-      // for 'C' are returned after 'Canucks' because it takes the backend
-      // much longer to compute.
-      if (thisSearchIdx in 1..receivedIdx) {
-        return@launch
-      }
+    // Search results aren't guaranteed to return in order so this
+    // will discard old results that are returned while a user is typing.
+    // For example if a user types 'Canucks', often the search results
+    // for 'C' are returned after 'Canucks' because it takes the backend
+    // much longer to compute.
+    if (thisSearchIdx in 1..receivedIdx) {
+      return
+    }
 
-      receivedIdx = thisSearchIdx
-      cursor = searchResult.cursor
+    val cardsDataWithLabels = searchResult.cardsData.map {
+      SavedItemCardDataWithLabels(cardData = it, labels = listOf())
+    }
 
-      if (searchTextLiveData.value != "" || clearPreviousSearch) {
-        val previousItems = if (clearPreviousSearch) listOf() else searchedItems
-        searchedItems = previousItems.plus(searchResult.cardsData)
-        itemsLiveData.postValue(searchedItems)
-      } else {
-        items = items.plus(searchResult.cardsData)
-        itemsLiveData.postValue(items)
-      }
+    searchItemsLiveData.postValue(cardsDataWithLabels)
 
-//      withContext(Dispatchers.IO) {
-//        dataService.db.savedItemDao().insertAll(items)
-//        val items = dataService.db.savedItemDao().getLibraryData()
-//        Log.d("appDatabase", "libraryData: $items")
-//      }
-
-      CoroutineScope(Dispatchers.Main).launch {
-        isRefreshing = false
-      }
+    CoroutineScope(Dispatchers.Main).launch {
+      isRefreshing = false
     }
   }
 
   fun handleSavedItemAction(itemID: String, action: SavedItemAction) {
     when (action) {
       SavedItemAction.Delete -> {
-        removeItemFromList(itemID)
-
         viewModelScope.launch {
-          networker.deleteSavedItem(itemID)
+          dataService.deleteSavedItem(itemID)
         }
       }
       SavedItemAction.Archive -> {
-        removeItemFromList(itemID)
         viewModelScope.launch {
-          networker.archiveSavedItem(itemID)
+          dataService.archiveSavedItem(itemID)
         }
       }
       SavedItemAction.Unarchive -> {
-        removeItemFromList(itemID)
         viewModelScope.launch {
-          networker.unarchiveSavedItem(itemID)
+          dataService.unarchiveSavedItem(itemID)
         }
       }
     }
-  }
-
-  private fun removeItemFromList(itemID: String) {
-    itemsLiveData.value?.let {
-      val newList = it.filter { item -> item.id != itemID }
-      itemsLiveData.postValue(newList)
-    }
-  }
-
-  private fun searchQuery(): String {
-      var query = "in:inbox sort:saved"
-
-      if (searchTextLiveData.value != "") {
-        query = query.plus(" ${searchTextLiveData.value}")
-      }
-
-      return query
   }
 }
 

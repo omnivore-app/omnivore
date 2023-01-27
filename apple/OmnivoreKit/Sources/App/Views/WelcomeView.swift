@@ -34,7 +34,7 @@ struct WelcomeView: View {
 
   var headlineText: some View {
     Group {
-      Text("Read-it-later for serious readers.")
+      Text(LocalText.welcomeTitle)
     }
     .font(.appLargeTitle)
   }
@@ -55,7 +55,7 @@ struct WelcomeView: View {
         },
         label: {
           HStack(spacing: 4) {
-            Text("Learn more")
+            Text(LocalText.welcomeLearnMore)
             Image(systemName: "arrow.right")
           }
           .font(.appTitleThree)
@@ -70,9 +70,9 @@ struct WelcomeView: View {
 
   var footerView: some View {
     Group {
-      Text("By signing up, you agree to Omnivore’s\n")
-        + Text("Terms of Service").underline()
-        + Text(" and ")
+      Text(LocalText.welcomeSignupAgreement)
+        + Text(LocalText.welcomeTitleTermsOfService).underline()
+        + Text(LocalText.welcomeTitleAndJoiner)
         + Text(LocalText.privacyPolicyGeneric).underline()
     }
     .font(.appSubheadline)
@@ -163,7 +163,7 @@ struct WelcomeView: View {
     let emailButton = Button(
       action: { showEmailLoginModal = true },
       label: {
-        Text("Continue with Email")
+        Text(LocalText.welcomeTitleEmailContinue)
           .font(.appHeadline)
           .foregroundColor(.appGrayTextContrast)
           .underline()

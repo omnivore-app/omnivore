@@ -7,15 +7,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.DatastoreKeys
 import app.omnivore.omnivore.DatastoreRepository
+import app.omnivore.omnivore.dataService.*
 import app.omnivore.omnivore.persistence.entities.SavedItem
 import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.ui.library.SavedItemAction
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import java.util.*
 import javax.inject.Inject
 
@@ -31,6 +29,7 @@ data class AnnotationWebViewMessage(
 @HiltViewModel
 class WebReaderViewModel @Inject constructor(
   private val datastoreRepo: DatastoreRepository,
+  private val dataService: DataService,
   private val networker: Networker
 ): ViewModel() {
   var lastJavascriptActionLoopUUID: UUID = UUID.randomUUID()
@@ -41,56 +40,87 @@ class WebReaderViewModel @Inject constructor(
   val webReaderParamsLiveData = MutableLiveData<WebReaderParams?>(null)
   val annotationLiveData = MutableLiveData<String?>(null)
   val javascriptActionLoopUUIDLiveData = MutableLiveData(lastJavascriptActionLoopUUID)
+  val shouldPopViewLiveData = MutableLiveData<Boolean>(false)
 
   var hasTappedExistingHighlight = false
   var lastTapCoordinates: TapCoordinates? = null
-
+  
   fun loadItem(slug: String) {
     viewModelScope.launch {
-      val articleQueryResult = networker.savedItem(slug)
+      val webReaderParams = loadItemFromServer(slug)
 
-      val article = articleQueryResult.item ?: return@launch
-
-      val articleContent = ArticleContent(
-        title = article.title,
-        htmlContent = article.content ?: "",
-        highlights = articleQueryResult.highlights,
-        contentStatus = "SUCCEEDED",
-        objectID = "",
-        labelsJSONString = Gson().toJson(articleQueryResult.labels)
-      )
-
-      webReaderParamsLiveData.value = WebReaderParams(article, articleContent)
+      if (webReaderParams != null) {
+        Log.d("sync", "data loaded from server")
+        webReaderParamsLiveData.postValue(webReaderParams)
+      } else {
+        loadItemFromDB(slug)
+      }
     }
+  }
+
+  private suspend fun loadItemFromDB(slug: String) {
+    withContext(Dispatchers.IO) {
+      val persistedItem = dataService.db.savedItemDao().getSavedItemWithLabelsAndHighlights(slug)
+
+      if (persistedItem?.savedItem?.content != null) {
+        val articleContent = ArticleContent(
+          title = persistedItem.savedItem.title,
+          htmlContent = persistedItem.savedItem.content,
+          highlights = persistedItem.highlights,
+          contentStatus = "SUCCEEDED",
+          objectID = "",
+          labelsJSONString = Gson().toJson(persistedItem.labels)
+        )
+
+        Log.d("sync", "data loaded from db")
+        webReaderParamsLiveData.postValue(WebReaderParams(persistedItem.savedItem, articleContent))
+      }
+    }
+  }
+
+  private suspend fun loadItemFromServer(slug: String): WebReaderParams? {
+    val articleQueryResult = networker.savedItem(slug)
+
+    val article = articleQueryResult.item ?: return null
+
+    val articleContent = ArticleContent(
+      title = article.title,
+      htmlContent = article.content ?: "",
+      highlights = articleQueryResult.highlights,
+      contentStatus = "SUCCEEDED",
+      objectID = "",
+      labelsJSONString = Gson().toJson(articleQueryResult.labels)
+    )
+
+    return WebReaderParams(article, articleContent)
   }
 
   fun handleSavedItemAction(itemID: String, action: SavedItemAction) {
     when (action) {
       SavedItemAction.Delete -> {
         viewModelScope.launch {
-          networker.deleteSavedItem(itemID)
-          popToLibraryView(itemID)
+          dataService.deleteSavedItem(itemID)
+          popToLibraryView()
         }
       }
       SavedItemAction.Archive -> {
         viewModelScope.launch {
-          networker.archiveSavedItem(itemID)
-          popToLibraryView(itemID)
+          dataService.archiveSavedItem(itemID)
+          popToLibraryView()
         }
       }
       SavedItemAction.Unarchive -> {
         viewModelScope.launch {
-          networker.unarchiveSavedItem(itemID)
-          popToLibraryView(itemID)
+          dataService.unarchiveSavedItem(itemID)
+          popToLibraryView()
         }
       }
     }
   }
 
-  private fun popToLibraryView(itemID: String) {
+  private fun popToLibraryView() {
     CoroutineScope(Dispatchers.Main).launch {
-      // TODO: pop to library
-      Log.d("maxx", "should pop to library and remove item with ID: $itemID")
+      shouldPopViewLiveData.postValue(true)
     }
   }
 
@@ -98,28 +128,24 @@ class WebReaderViewModel @Inject constructor(
     when (actionID) {
       "createHighlight" -> {
         viewModelScope.launch {
-          val isHighlightSynced = networker.createWebHighlight(jsonString)
-          Log.d("Network", "isHighlightSynced = $isHighlightSynced")
+          dataService.createWebHighlight(jsonString)
         }
       }
       "deleteHighlight" -> {
         Log.d("Loggo", "receive delete highlight action: $jsonString")
         viewModelScope.launch {
-          val isHighlightDeletionSynced = networker.deleteHighlight(jsonString)
-          Log.d("Network", "isHighlightDeletionSynced = $isHighlightDeletionSynced")
+          dataService.deleteHighlights(jsonString)
         }
       }
       "updateHighlight" -> {
         Log.d("Loggo", "receive update highlight action: $jsonString")
         viewModelScope.launch {
-          val isHighlightUpdateSynced = networker.updateWebHighlight(jsonString)
-          Log.d("Network", "isHighlightUpdateSynced = $isHighlightUpdateSynced")
+          dataService.updateWebHighlight(jsonString)
         }
       }
       "articleReadingProgress" -> {
         viewModelScope.launch {
-          val isReadingProgressSynced = networker.updateWebReadingProgress(jsonString)
-          Log.d("Network", "isReadingProgressSynced = $isReadingProgressSynced")
+          dataService.updateWebReadingProgress(jsonString)
         }
       }
       "annotate" -> {
@@ -135,8 +161,7 @@ class WebReaderViewModel @Inject constructor(
       }
       "mergeHighlight" -> {
         viewModelScope.launch {
-          val isHighlightSynced = networker.mergeWebHighlights(jsonString)
-          Log.d("Network", "isMergedHighlightSynced = $isHighlightSynced")
+          dataService.mergeWebHighlights(jsonString)
         }
       }
       else -> {
@@ -146,6 +171,7 @@ class WebReaderViewModel @Inject constructor(
   }
 
   fun reset() {
+    shouldPopViewLiveData.postValue(false)
     webReaderParamsLiveData.value = null
     annotationLiveData.value = null
     scrollState = ScrollState(0)

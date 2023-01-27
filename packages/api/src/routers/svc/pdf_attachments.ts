@@ -17,6 +17,7 @@ import { createPubSubClient } from '../../datalayer/pubsub'
 import { ArticleSavingRequestStatus, Page } from '../../elastic/types'
 import { createPage } from '../../elastic/pages'
 import { getClaimsByToken } from '../../utils/auth'
+import { updateReceivedEmail } from '../../services/received_emails'
 
 export function pdfAttachmentsRouter() {
   const router = express.Router()
@@ -87,10 +88,11 @@ export function pdfAttachmentsRouter() {
   router.post('/create-article', async (req, res) => {
     console.log('pdf-attachments/create-article')
 
-    const { email, uploadFileId, subject } = req.body as {
+    const { email, uploadFileId, subject, receivedEmailId } = req.body as {
       email: string
       uploadFileId: string
       subject: string
+      receivedEmailId: string
     }
 
     const token = req?.headers?.authorization
@@ -149,7 +151,7 @@ export function pdfAttachmentsRouter() {
         pageType: pageType,
         hash: uploadFileHash,
         uploadFileId: uploadFileId,
-        title: title,
+        title,
         content: '',
         userId: user.id,
         slug: generateSlug(title),
@@ -165,6 +167,9 @@ export function pdfAttachmentsRouter() {
         pubsub: createPubSubClient(),
         uid: user.id,
       })
+
+      // update received email type
+      await updateReceivedEmail(receivedEmailId, 'article')
 
       res.send({ id: pageId })
     } catch (err) {

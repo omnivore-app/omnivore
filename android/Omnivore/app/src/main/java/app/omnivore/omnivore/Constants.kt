@@ -12,6 +12,7 @@ object DatastoreKeys {
   const val omnivoreAuthToken =  "omnivoreAuthToken"
   const val omnivoreAuthCookieString =  "omnivoreAuthCookieString"
   const val omnivorePendingUserToken =  "omnivorePendingUserToken"
+  const val libraryLastSyncTimestamp = "libraryLastSyncTimestamp"
   const val preferredWebFontSize = "preferredWebFontSize"
   const val preferredWebLineHeight = "preferredWebLineHeight"
   const val preferredWebMaxWidthPercentage = "preferredWebMaxWidthPercentage"

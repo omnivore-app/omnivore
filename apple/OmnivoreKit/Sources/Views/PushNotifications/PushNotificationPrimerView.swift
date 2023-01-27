@@ -21,12 +21,12 @@ import SwiftUI
             .smallOmnivoreLogo
             .resizable()
             .frame(width: 30, height: 30)
-          Text("Enable Push Notifications?")
+          Text(LocalText.notificationsEnable)
             .font(.appHeadline)
         }
 
         // swiftlint:disable:next line_length
-        Text("Get notified when newsletter links reach your inbox. Or receive reminders that you set from our share extension.")
+        Text(LocalText.notificationsGeneralExplainer)
           .font(.appBody)
           .multilineTextAlignment(.leading)
           .lineLimit(nil)
@@ -35,8 +35,8 @@ import SwiftUI
 
         HStack {
           Spacer()
-          Button(action: denyAction, label: { Text("No Thanks") })
-          Button(action: acceptAction, label: { Text("Yes Please") })
+          Button(action: denyAction, label: { Text(LocalText.notificationsOptionDeny) })
+          Button(action: acceptAction, label: { Text(LocalText.notificationsOptionEnable) })
         }
         .buttonStyle(BorderedButtonStyle(color: .appTextDefault))
       }

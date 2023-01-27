@@ -11,17 +11,23 @@ struct LabelsView: View {
   @State private var labelToRemove: LinkedItemLabel?
 
   var body: some View {
-    Group {
-      #if os(iOS)
-        Form {
-          innerBody
+    List {
+      ForEach(viewModel.labels, id: \.id) { label in
+        HStack {
+          TextChip(feedItemLabel: label).allowsHitTesting(false)
+          Spacer()
+          Button(
+            action: {
+              labelToRemove = label
+              showDeleteConfirmation = true
+            },
+            label: { Image(systemName: "trash") }
+          )
         }
-      #elseif os(macOS)
-        List {
-          innerBody
-        }
-      #endif
+      }
+      createLabelButton
     }
+    .navigationTitle(LocalText.labelsGeneric)
     .alert("Are you sure you want to delete this label?", isPresented: $showDeleteConfirmation) {
       Button("Delete Label", role: .destructive) {
         if let label = labelToRemove {
@@ -38,46 +44,31 @@ struct LabelsView: View {
       Button(LocalText.cancelGeneric, role: .cancel) { self.labelToRemove = nil }
     }
     .sheet(isPresented: $viewModel.showCreateLabelModal) {
-      CreateLabelView(viewModel: viewModel)
+      CreateLabelView(viewModel: viewModel, newLabelName: viewModel.labelSearchFilter)
     }
     .task { await viewModel.loadLabels(dataService: dataService, item: nil) }
   }
 
-  private var innerBody: some View {
-    Group {
-      Section(footer: Text(LocalText.labelsPurposeDescription)) {
-        Button(
-          action: { viewModel.showCreateLabelModal = true },
-          label: {
-            HStack {
-              Image(systemName: "plus.circle.fill").foregroundColor(.green)
-              Text(LocalText.createLabelMessage).foregroundColor(.appGrayTextContrast)
-              Spacer()
-            }
-          }
-        )
-        .disabled(viewModel.isLoading)
-      }
-
-      if !viewModel.labels.isEmpty {
-        Section(header: Text(LocalText.labelsGeneric)) {
-          ForEach(viewModel.labels, id: \.id) { label in
-            HStack {
-              TextChip(feedItemLabel: label)
-              Spacer()
-              Button(
-                action: {
-                  labelToRemove = label
-                  showDeleteConfirmation = true
-                },
-                label: { Image(systemName: "trash") }
-              )
-            }
-          }
+  var createLabelButton: some View {
+    Button(
+      action: { viewModel.showCreateLabelModal = true },
+      label: {
+        HStack {
+          Image(systemName: "tag").foregroundColor(.blue)
+          Text(
+            viewModel.labelSearchFilter.count > 0 ?
+              "Create: \"\(viewModel.labelSearchFilter)\" label" :
+              LocalText.createLabelMessage
+          ).foregroundColor(.blue)
+            .font(Font.system(size: 14))
+          Spacer()
         }
       }
-    }
-    .navigationTitle(LocalText.labelsGeneric)
+    )
+    .buttonStyle(PlainButtonStyle())
+    .disabled(viewModel.isLoading)
+    .listRowSeparator(.hidden, edges: .bottom)
+    .padding(.vertical, 10)
   }
 }
 
@@ -85,8 +76,13 @@ struct CreateLabelView: View {
   @EnvironmentObject var dataService: DataService
   @ObservedObject var viewModel: LabelsViewModel
 
-  @State private var newLabelName = ""
+  @State private var newLabelName: String
   @State private var newLabelColor = Color.clear
+
+  init(viewModel: LabelsViewModel, newLabelName: String = "") {
+    self.viewModel = viewModel
+    self.newLabelName = newLabelName
+  }
 
   var shouldDisableCreateButton: Bool {
     viewModel.isLoading || newLabelName.isEmpty || newLabelColor == .clear
@@ -111,7 +107,7 @@ struct CreateLabelView: View {
         if !newLabelName.isEmpty, newLabelColor != .clear {
           TextChip(text: newLabelName, color: newLabelColor)
         } else {
-          Text("Assign a name and color.").font(.appBody)
+          Text(LocalText.labelsViewAssignNameColor).font(.appBody)
         }
         Spacer()
       }
@@ -181,7 +177,7 @@ struct CreateLabelView: View {
           description: nil
         )
       },
-      label: { Text("Create").foregroundColor(.appGrayTextContrast) }
+      label: { Text(LocalText.genericCreate).foregroundColor(.appGrayTextContrast) }
     )
     .opacity(shouldDisableCreateButton ? 0.2 : 1)
     .disabled(shouldDisableCreateButton)

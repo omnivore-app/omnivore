@@ -18,7 +18,7 @@ import Views
   }
 
   var submitButtonText: String {
-    hasSuggestedProfile ? "Confirm" : "Submit"
+    hasSuggestedProfile ? LocalText.genericConfirm : LocalText.genericSubmit
   }
 
   @Published var loginError: LoginError?
@@ -134,7 +134,7 @@ struct CreateProfileView: View {
 
             VStack(spacing: 16) {
               VStack(alignment: .leading, spacing: 6) {
-                Text("Name")
+                Text(LocalText.genericName)
                   .font(.appFootnote)
                   .foregroundColor(.appGrayText)
                 #if os(iOS)
@@ -149,7 +149,7 @@ struct CreateProfileView: View {
               VStack(alignment: .leading, spacing: 6) {
                 HStack {
                   VStack(alignment: .leading, spacing: 6) {
-                    Text("Username")
+                    Text(LocalText.registrationUsername)
                       .font(.appFootnote)
                       .foregroundColor(.appGrayText)
                     TextField("", text: $viewModel.potentialUsername)
@@ -173,7 +173,7 @@ struct CreateProfileView: View {
               .animation(.default, value: 0.35)
 
               VStack(alignment: .leading, spacing: 6) {
-                Text("Bio (optional)")
+                Text(LocalText.registrationBio)
                   .font(.appFootnote)
                   .foregroundColor(.appGrayText)
                 TextEditor(text: $bio)

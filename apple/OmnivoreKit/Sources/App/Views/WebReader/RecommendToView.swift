@@ -81,7 +81,7 @@ struct RecommendToView: View {
     Button(action: {
       self.viewModel.showNoteView = true
     }, label: {
-      Text("Next")
+      Text(LocalText.genericNext)
         .bold()
     })
       .disabled(viewModel.selectedGroups.isEmpty)
@@ -99,7 +99,7 @@ struct RecommendToView: View {
           }
         }
       }, label: {
-        Text("Send")
+        Text(LocalText.genericSend)
           .bold()
       })
         .disabled(viewModel.selectedGroups.isEmpty)
@@ -110,7 +110,7 @@ struct RecommendToView: View {
   var noteView: some View {
     VStack {
       HStack {
-        Text("To:")
+        Text(LocalText.recommendationToPrefix)
           .font(.appCaption)
           .foregroundColor(.appGrayText)
         Text(InternalRecommendationGroup.readable(list: viewModel.selectedGroups))
@@ -131,7 +131,7 @@ struct RecommendToView: View {
             .background(RoundedRectangle(cornerRadius: 8).fill(Color.systemBackground))
         )
         .overlay(
-          Text("Add a note (optional)")
+          Text(LocalText.recommendationAddNote)
             .allowsHitTesting(false)
             .opacity(viewModel.note.isEmpty ? 0.4 : 0.0)
             .font(.appBody)
@@ -163,9 +163,7 @@ struct RecommendToView: View {
       List {
         if !viewModel.isLoading, viewModel.recommendationGroups.count < 1 {
           Text("""
-          You do not have any clubs you can post to.
-
-          Join a club or create your own to start recommending articles.
+          \(LocalText.clubsNoneJoined)
 
           [Learn more about clubs](https://blog.omnivore.app/p/dca38ba4-8a74-42cc-90ca-d5ffa5d075cc)
           """)
@@ -201,8 +199,8 @@ struct RecommendToView: View {
     }
     .alert(isPresented: $viewModel.showError) {
       Alert(
-        title: Text("Error recommending this page"),
-        dismissButton: .cancel(Text("Ok")) {
+        title: Text(LocalText.recommendationError),
+        dismissButton: .cancel(Text(LocalText.genericOk)) {
           viewModel.showError = false
         }
       )

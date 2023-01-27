@@ -12,29 +12,41 @@ import {
 import AdminJs from 'adminjs'
 import { Database, Resource } from '@adminjs/typeorm'
 
-export const registerDatabase = async (): Promise<Connection> => {
+export const registerDatabase = async (secrets: any): Promise<Connection> => {
   AdminJs.registerAdapter({ Database, Resource })
 
   let host = 'localhost'
   if (process.env.K_SERVICE) {
     console.log(
       'connecting to database via Cloud Run connection',
-      process.env.CLOUD_SQL_CONNECTION_NAME,
-      process.env.DB_NAME
+      process.env.CLOUD_SQL_CONNECTION_NAME
     )
     const dbSocketPath = process.env.DB_SOCKET_PATH || '/cloudsql'
     host = `${dbSocketPath}/${process.env.CLOUD_SQL_CONNECTION_NAME}`
   }
 
-  console.log('connecting to database:', host)
+  console.log('connecting to database:', {
+    type: 'postgres',
+    host: host,
+    schema: 'omnivore',
+    database: secrets.DB_DATABASE,
+  })
+
   const connection = await createConnection({
     type: 'postgres',
     host: host,
     schema: 'omnivore',
-    username: process.env.DB_USER,
-    password: process.env.DB_PASS,
-    database: process.env.DB_DATABASE,
-    entities: [AdminUser, User, UserProfile, UserArticle],
+    username: secrets.DB_USER,
+    password: secrets.DB_PASS,
+    database: secrets.DB_DATABASE,
+    entities: [
+      AdminUser,
+      User,
+      UserProfile,
+      UserArticle,
+      ReceivedEmail,
+      ContentDisplayReport,
+    ],
   })
 
   return connection
@@ -117,4 +129,60 @@ export class UserArticle extends BaseEntity {
 
   @Column({ type: 'timestamp', name: 'saved_at' })
   savedAt!: Date
+}
+
+@Entity({ name: 'content_display_report' })
+export class ContentDisplayReport extends BaseEntity {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string
+
+  @JoinColumn({ name: 'user_id' })
+  @ManyToOne(() => User, (user) => user.articles, { eager: true })
+  user!: User
+
+  @Column({ type: 'text', name: 'original_url' })
+  originalUrl!: string
+
+  @Column({ type: 'text', name: 'report_comment' })
+  reportComment!: string
+
+  @Column({ type: 'timestamp', name: 'created_at' })
+  createdAt!: Date
+
+  @Column({ type: 'timestamp', name: 'updated_at' })
+  updatedAt!: Date
+}
+
+@Entity({ name: 'received_emails' })
+export class ReceivedEmail extends BaseEntity {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string
+
+  @JoinColumn({ name: 'user_id' })
+  @ManyToOne(() => User, (user) => user.articles, { eager: true })
+  user!: User
+
+  @Column('text')
+  from!: string
+
+  @Column('text')
+  to!: string
+
+  @Column('text')
+  subject!: string
+
+  @Column('text')
+  text!: string
+
+  @Column('text')
+  html!: string
+
+  @Column('text')
+  type!: 'article' | 'non-article'
+
+  @Column({ type: 'timestamp', name: 'created_at' })
+  createdAt!: Date
+
+  @Column({ type: 'timestamp', name: 'updated_at' })
+  updatedAt!: Date
 }

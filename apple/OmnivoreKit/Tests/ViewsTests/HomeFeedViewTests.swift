@@ -11,7 +11,7 @@ final class HomeFeedViewTests: XCTestCase {
 
   func test_weekdayBefore8PM() {
     let now = parse("2022-01-31T10:11:12-08:00")
-    let snoozes = HomeFeedView.snoozeValuesForDate(now: now)
+    let snoozes = Snooze.snoozeValuesForDate(now: now)
 
     XCTAssertEqual(snoozes[0].until, parse("2022-01-31T20:00:00-08:00"))
     XCTAssertEqual(snoozes[1].until, parse("2022-02-01T08:00:00-08:00"))
@@ -21,7 +21,7 @@ final class HomeFeedViewTests: XCTestCase {
 
   func test_weekdayAfter8PM() {
     let now = parse("2022-01-31T20:11:12-08:00")
-    let snoozes = HomeFeedView.snoozeValuesForDate(now: now)
+    let snoozes = Snooze.snoozeValuesForDate(now: now)
 
     XCTAssertEqual(snoozes[0].until, parse("2022-02-01T08:00:00-08:00"))
     XCTAssertEqual(snoozes[1].until, parse("2022-02-01T20:00:00-08:00"))
