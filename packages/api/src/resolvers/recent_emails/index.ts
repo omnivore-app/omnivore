@@ -90,7 +90,11 @@ export const markEmailAsItemResolver = authorized<
       relations: ['user'],
     })
     if (!newsletterEmail) {
-      log.info('no newsletter email', recentEmail.to)
+      log.info('no newsletter email for', {
+        id: recentEmail.id,
+        to: recentEmail.to,
+        from: recentEmail.from,
+      })
 
       return {
         errorCodes: [MarkEmailAsItemErrorCode.NotFound],
