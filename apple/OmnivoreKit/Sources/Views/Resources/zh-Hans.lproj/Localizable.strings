@@ -40,7 +40,7 @@
 // Push Notification Settings
 "notificationsEnabled" = "启用通知";
 "notificationsExplainer" = "启用推送通知将授予 Omnivore 设备发送通知的权限，\n但由您负责发送哪些通知。";
-"notificationsTriggerExplainer" = "推送通知使用您的 \n[账户规则](https://omnivore.app/settings/rules) 您可以在线编辑。";
+"notificationsTriggerExplainer" = "推送通知使用您的 \n[account rules](https://omnivore.app/settings/rules) 您可以在线编辑。";
 "notificationsEnable" = "确定启用推送通知?";
  "notificationsGeneralExplainer" = "当新闻通讯链接到达您的收集箱时收到通知。或者接收您从我们的分享扩展中设置的提醒。";
 "notificationsOptionDeny" = "不了,谢谢";
@@ -118,9 +118,9 @@
 "navigationSelectSidebarToggle" = "切换侧边栏";
 
 // Welcome View
-"welcomeTitle" = "认真的读者喜爱的稍后阅读。";
+"welcomeTitle" = "认真的读者所喜爱的稍后阅读。";
 "welcomeLearnMore" = "了解更多";
-"welcomeSignupAgreement" = "通过注册, 您同意 Omnivore’s\n";
+"welcomeSignupAgreement" = "注册即表示您同意 Omnivore’s\n";
 "welcomeTitleTermsOfService" = "服务条款";
 "welcomeTitleAndJoiner" = " 和 ";
 "welcomeTitleEmailContinue" = "继续发送电子邮件";
@@ -173,7 +173,7 @@
 "termsAndConditionsGeneric" = "条款与条件";
 "feedbackGeneric" = "反馈";
 "manageAccountGeneric" = "管理帐户";
-"logoutGeneric" = "退出登陆";
+"logoutGeneric" = "退出登录";
 "doneGeneric" = "完成";
 "cancelGeneric" = "取消";
 "inboxGeneric" = "收集箱";
