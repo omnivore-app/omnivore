@@ -170,7 +170,7 @@ export function emailsServiceRouter() {
       const user = newsletterEmail.user
       const receivedEmail = await saveReceivedEmail(
         req.body.from,
-        req.body.to,
+        newsletterEmail.address,
         req.body.subject,
         req.body.text,
         req.body.html,
