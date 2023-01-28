@@ -1,6 +1,6 @@
 // Unit test Entry -- Do not remove this or add entries before this one.
 // This allows us to check for syntax errors in this file with a unit test
-"unitTestLeadingEntry" = "For testing purposes only.";
+"unitTestLeadingEntry" = "仅用于测试目的。";
 
 // share extension
 "saveArticleSavedState" = "正在保存到 Omnivore 中";
@@ -11,18 +11,18 @@
 "audioPlayerReplay" = "重播";
 
 // Highlights List Card
-"highlightCardHighlightByOther" = "荧光笔高亮显示于 ";
-"highlightCardNoHighlightsOnPage" = "您尚未在此页面添加任荧光笔高亮显示或注解.";
+"highlightCardHighlightByOther" = "由荧光笔高亮显示 ";
+"highlightCardNoHighlightsOnPage" = "您尚未在此页面添加任荧光笔高亮显示或备注。";
 
 // Labels View
-"labelsViewAssignNameColor" = "指定名称和颜色.";
+"labelsViewAssignNameColor" = "指定名称和颜色。";
 "createLabelMessage" = "创建新标签";
 "labelsPurposeDescription" = "使用标签创建精选的链接集合。";
 
 // Manage Account View
 "manageAccountDelete" = "删除帐户";
 "manageAccountResetCache" = "重置数据缓存";
-"manageAccountConfirmDeleteMessage" = "您确定要删除您的帐户吗? 此操作无法撤消.";
+"manageAccountConfirmDeleteMessage" = "您确定要删除您的帐户吗? 此操作无法撤消。";
 
 // Newsletter Emails View
 "newsletterEmailsExisting" = "现有电子邮箱 (点击复制)";
@@ -39,10 +39,10 @@
 
 // Push Notification Settings
 "notificationsEnabled" = "启用通知";
-"notificationsExplainer" = "启用推送通知将授予 Omnivore 设备发送通知的权限,\n但由您负责发送哪些通知.";
-"notificationsTriggerExplainer" = "推送通知使用您的 \n[account rules](https://omnivore.app/settings/rules) 您可以在线编辑.";
+"notificationsExplainer" = "启用推送通知将授予 Omnivore 设备发送通知的权限，\n但由您负责发送哪些通知。";
+"notificationsTriggerExplainer" = "推送通知使用您的 \n[账户规则](https://omnivore.app/settings/rules) 您可以在线编辑。";
 "notificationsEnable" = "确定启用推送通知?";
- "notificationsGeneralExplainer" = "当新闻通讯链接到达您的收集箱时收到通知. 或者接收您从我们的分享扩展中设置的提醒.";
+ "notificationsGeneralExplainer" = "当新闻通讯链接到达您的收集箱时收到通知。或者接收您从我们的分享扩展中设置的提醒。";
 "notificationsOptionDeny" = "不了,谢谢";
 "notificationsOptionEnable" = "好的,谢谢";
 
@@ -59,17 +59,17 @@
 "clubsName" = "读书俱乐部名称";
 "clubsCreate" = "创建新读书俱乐部";
 "clubsYours" = "您的读书俱乐部";
-"clubsNotAMemberMessage" = "您不是任何读书俱乐部的成员.\n创建新读书俱乐部并将邀请链接发送给您的朋友开始使用.\n\n在测试期间您只能创建三个读书俱乐部, 且每个读书俱乐部\n最多可以有 12 个用户.";
+"clubsNotAMemberMessage" = "您不是任何读书俱乐部的成员。\n创建新读书俱乐部并将邀请链接发送给您的朋友开始使用。\n\n在测试期间您只能创建三个读书俱乐部，且每个读书俱乐部最多可以\n有 12 个用户。";
 "clubsErrorCopying" = "复制邀请 URL 时出错";
 "clubsAdminDenyViewing" = "此读书俱乐部的管理员不允许查看所有成员.";
-"clubsNoMembers" = "此读书俱乐部没有任何成员. 通过向用户发送邀请链接\n将用户添加到您的读书俱乐部.";
+"clubsNoMembers" = "此读书俱乐部没有任何成员。通过向用户发送邀请链接将用户添加到\n您的读书俱乐部。";
 "clubsLeave" = "退出读书俱乐部";
-"clubsLeaveConfirm" = "你确定要退出此读书俱乐部吗? 不会删除任何数据, 但您将停止收到读书俱乐部的推荐.";
-"clubsNoneJoined" = "您没有任何可以发帖的读书俱乐部.\n加入俱乐部或创建自己的俱乐部以开始推荐文章.";
+"clubsLeaveConfirm" = "你确定要退出此读书俱乐部吗? 不会删除任何数据，但您将停止收到此读书俱乐部的推荐。";
+"clubsNoneJoined" = "您没有任何可以发帖的读书俱乐部。\n加入俱乐部或创建自己的俱乐部以开始推荐文章。";
 
 // Subscriptions
-"subscriptionsErrorRetrieving" = "抱歉, 我们无法检索您的订阅.";
-"subscriptionsNone" = "您当前没有订阅.";
+"subscriptionsErrorRetrieving" = "抱歉，我们无法检索您的订阅。";
+"subscriptionsNone" = "您当前没有订阅。";
 //"subscriptions.error.retrieving" = "上次接收时间: \(updatedDate.formatted())"; // unused for now
 
 // Text to Speech
@@ -77,9 +77,9 @@
 "texttospeechSettingsAudio" = "音频设置";
 "texttospeechSettingsEnablePrefetch" = "启用音频读取";
 "texttospeechBetaSignupInProcess" = "注册测试版";
-"texttospeechBetaRealisticVoiceLimit" = "您处于超逼真的语音测试版中. 在测试期间您每天可以收听 10,000 字的音频.";
-"texttospeechBetaRequestReceived" = "已收到您加入超逼真语音演示的请求. 当有空位时您将收到电子邮箱通知.";
-"texttospeechBetaWaitlist" = "超逼真的声音目前处于有限测试阶段. 启用该功能会将您添加到测试队列中.";
+"texttospeechBetaRealisticVoiceLimit" = "您处于超逼真的语音测试版中。在测试期间您每天可以收听 10,000 字的音频。";
+"texttospeechBetaRequestReceived" = "已收到您加入超逼真语音演示的请求。当有空位时您将收到电子邮箱通知。";
+"texttospeechBetaWaitlist" = "超逼真的声音目前处于有限测试阶段。启用该功能会将您添加到测试队列中。";
 
 // Sign in/up
 "registrationNoAccount" = "还没有账号?";
@@ -90,7 +90,7 @@
 "registrationUsername" = "用户名";
 "registrationAlreadyHaveAccount" = "已有帐户?";
 "registrationBio" = "个人简介 (可选)";
-"registrationWelcome" = "读万卷书,行万里路."; // From Chinese verse, Similar to the old saying: study, every day.
+"registrationWelcome" = "读万卷书，行万里路。"; // From Chinese verse, Similar to the old saying: study, every day.
 "registrationUsernameAssignedPrefix" = "您的用户名是:";
 "registrationChangeUsername" = "更改用户名";
 "registrationEdit" = "编辑";
@@ -98,10 +98,10 @@
 "registrationViewSignUpHeadline" = "注册";
 "loginErrorInvalidCreds" = "提供的登录凭据无效.";
 
-// Recommendation
+// Recommendation 推荐
 "recommendationToPrefix" = "致:";
-"recommendationAddNote" = "添加注解 (可选)";
-//"recommendationToPrefix" = "包括您的 \(viewModel.highlightCount) highlight\(viewModel.highlightCount > 1 ? "s" : """; // unused for now
+"recommendationAddNote" = "添加备注 (可选)";
+//"recommendationToPrefix" = "包括您的 \(viewModel.highlightCount) 荧光笔高亮显示\(viewModel.highlightCount > 1 ? "s" : """; // unused for now
 "recommendationError" = "推荐此页面时出错";
 
 // Web Reader
@@ -118,12 +118,12 @@
 "navigationSelectSidebarToggle" = "切换侧边栏";
 
 // Welcome View
-"welcomeTitle" = "认真读者喜爱的稍后阅读.";
+"welcomeTitle" = "认真的读者喜爱的稍后阅读。";
 "welcomeLearnMore" = "了解更多";
 "welcomeSignupAgreement" = "通过注册, 您同意 Omnivore’s\n";
 "welcomeTitleTermsOfService" = "服务条款";
 "welcomeTitleAndJoiner" = " 和 ";
-"welcomeTitleEmailContinue" = "继续发送电子邮箱";
+"welcomeTitleEmailContinue" = "继续发送电子邮件";
 
 // Keyboard Commands
 "keyboardCommandDecreaseFont" = "减小字体大小";
@@ -134,8 +134,8 @@
 "keyboardCommandIncreaseLineSpacing" = "增加行距";
 
 // Library
-//"library.by.author.suffix" = "by \(author)" // unused
-//"Recommended by \(byStr) in \(inStr)" // unused
+//"library.by.author.suffix" = "由 \(author)" // unused
+//"推荐者 \(byStr) 在 \(inStr)" // unused
 
 
 // Generic
@@ -188,11 +188,11 @@
 "recentlyReadGeneric" = "最近阅读";
 "recentlyPublishedGeneric" = "最近发布";
 "clubsGeneric" = "读书俱乐部";
-"errorGeneric" = "哦！出现了小问题，请您重试.";
+"errorGeneric" = "哦！出现了小问题，请您重试。";
 "pushNotificationsGeneric" = "推送通知";
-"dismissButton" = "撤回";
-"errorNetwork" = "我们在连接到互联网时遇到问题.";
-"documentationGeneric" = "文档";
+"dismissButton" = "返回";
+"errorNetwork" = "我们在连接到互联网时遇到问题。";
+"documentationGeneric" = "使用文档";
 
 // Unreferenced
 // "signInScreenHeadline" = "保存并分享喜爱的网页.";
@@ -205,4 +205,4 @@
 
 // Unit test Entry -- Do not remove this or add entries after this one.
 // This allows us to check for syntax errors in this file with a unit test
-"unitTestTrailingEntry" = "For testing purposes only.";
+"unitTestTrailingEntry" = "仅用于测试目的。";
