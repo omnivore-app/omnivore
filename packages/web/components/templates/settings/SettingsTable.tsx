@@ -12,7 +12,6 @@ import { PrimaryLayout } from '../PrimaryLayout'
 
 type SettingsTableProps = {
   pageId: string
-  pageHeadline: string
   pageInfoLink: string
   headerTitle: string
 
@@ -35,13 +34,16 @@ type SettingsTableRowProps = {
   titleElement?: JSX.Element
   extraElement?: JSX.Element
 
-  deleteTitle: string
-  onDelete: () => void
+  deleteTitle?: string
+  onDelete?: () => void
+
+  dropdownItems?: JSX.Element
 }
 
 type MoreOptionsProps = {
-  title: string
-  onDelete: () => void
+  title?: string
+  onDelete?: () => void
+  dropdownItems?: JSX.Element
 }
 
 const MoreOptions = (props: MoreOptionsProps) => (
@@ -63,29 +65,32 @@ const MoreOptions = (props: MoreOptionsProps) => (
       </Box>
     }
   >
-    <DropdownOption
-      onSelect={() => {
-        props.onDelete()
-      }}
-    >
-      <HStack alignment={'center'} distribution={'start'}>
-        <Trash size={24} color={theme.colors.omnivoreRed.toString()} />
-        <SpanBox
-          css={{
-            color: theme.colors.omnivoreRed.toString(),
-            marginLeft: '8px',
-            border: 'none',
-            backgroundColor: 'transparent',
-            '&:hover': {
+    {props.onDelete && props.title && (
+      <DropdownOption
+        onSelect={() => {
+          props.onDelete && props.onDelete()
+        }}
+      >
+        <HStack alignment={'center'} distribution={'start'}>
+          <Trash size={24} color={theme.colors.omnivoreRed.toString()} />
+          <SpanBox
+            css={{
+              color: theme.colors.omnivoreRed.toString(),
+              marginLeft: '8px',
               border: 'none',
               backgroundColor: 'transparent',
-            },
-          }}
-        >
-          {props.title}
-        </SpanBox>
-      </HStack>
-    </DropdownOption>
+              '&:hover': {
+                border: 'none',
+                backgroundColor: 'transparent',
+              },
+            }}
+          >
+            {props.title}
+          </SpanBox>
+        </HStack>
+      </DropdownOption>
+    )}
+    {props.dropdownItems && props.dropdownItems}
   </Dropdown>
 )
 
@@ -183,7 +188,11 @@ export const SettingsTableRow = (props: SettingsTableRowProps): JSX.Element => {
               },
             }}
           >
-            <MoreOptions title={props.deleteTitle} onDelete={props.onDelete} />
+            <MoreOptions
+              title={props.deleteTitle}
+              onDelete={props.onDelete}
+              dropdownItems={props.dropdownItems}
+            />
           </Box>
         </HStack>
         {props.extraElement}
@@ -198,7 +207,11 @@ export const SettingsTableRow = (props: SettingsTableRowProps): JSX.Element => {
             },
           }}
         >
-          <MoreOptions title={props.deleteTitle} onDelete={props.onDelete} />
+          <MoreOptions
+            title={props.deleteTitle}
+            onDelete={props.onDelete}
+            dropdownItems={props.dropdownItems}
+          />
         </Box>
       </HStack>
     </Box>
@@ -261,6 +274,7 @@ export const SettingsTable = (props: SettingsTableProps): JSX.Element => {
                 display: 'flex',
                 alignItems: 'center',
                 marginBottom: '10px',
+                height: '60px',
               }}
             >
               {props.createAction && props.createTitle && (

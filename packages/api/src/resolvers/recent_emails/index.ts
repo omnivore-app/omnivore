@@ -15,6 +15,7 @@ import { NewsletterEmail } from '../../entity/newsletter_email'
 import { generateUniqueUrl, parseEmailAddress } from '../../utils/parser'
 import { sendEmail } from '../../utils/sendEmail'
 import { env } from '../../env'
+import { ILike } from 'typeorm'
 
 export const recentEmailsResolver = authorized<
   RecentEmailsSuccess,
@@ -84,13 +85,17 @@ export const markEmailAsItemResolver = authorized<
 
     const newsletterEmail = await getRepository(NewsletterEmail).findOne({
       where: {
-        address: recentEmail.to,
+        address: ILike(recentEmail.to),
         user: { id: claims.uid },
       },
       relations: ['user'],
     })
     if (!newsletterEmail) {
-      log.info('no newsletter email', recentEmail.to)
+      log.info('no newsletter email for', {
+        id: recentEmail.id,
+        to: recentEmail.to,
+        from: recentEmail.from,
+      })
 
       return {
         errorCodes: [MarkEmailAsItemErrorCode.NotFound],

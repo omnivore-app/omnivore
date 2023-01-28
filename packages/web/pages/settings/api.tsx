@@ -114,7 +114,6 @@ export default function Api(): JSX.Element {
   return (
     <SettingsTable
       pageId="api-keys"
-      pageHeadline="API Keys"
       pageInfoLink="https://docs.omnivore.app/integrations/api.html"
       headerTitle="API Keys"
       createTitle="Generate API Key"
