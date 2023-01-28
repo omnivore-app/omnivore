@@ -1,28 +1,27 @@
-import { Button } from '../../components/elements/Button'
-import { useGetNewsletterEmailsQuery } from '../../lib/networking/queries/useGetNewsletterEmailsQuery'
-import { createNewsletterEmailMutation } from '../../lib/networking/mutations/createNewsletterEmailMutation'
-import { deleteNewsletterEmailMutation } from '../../lib/networking/mutations/deleteNewsletterEmailMutation'
-import { MoreOptionsIcon } from '../../components/elements/images/MoreOptionsIcon'
-import { Trash, Copy } from 'phosphor-react'
+import { Button } from '../../../components/elements/Button'
+import { useGetNewsletterEmailsQuery } from '../../../lib/networking/queries/useGetNewsletterEmailsQuery'
+import { createNewsletterEmailMutation } from '../../../lib/networking/mutations/createNewsletterEmailMutation'
+import { deleteNewsletterEmailMutation } from '../../../lib/networking/mutations/deleteNewsletterEmailMutation'
+import { Copy } from 'phosphor-react'
+import { theme, styled } from '../../../components/tokens/stitches.config'
 import {
-  Dropdown,
-  DropdownOption,
-} from '../../components/elements/DropdownElements'
-import { theme, styled } from '../../components/tokens/stitches.config'
-import { Box, HStack } from '../../components/elements/LayoutPrimitives'
-import { useCopyLink } from '../../lib/hooks/useCopyLink'
+  Box,
+  HStack,
+  SpanBox,
+} from '../../../components/elements/LayoutPrimitives'
+import { useCopyLink } from '../../../lib/hooks/useCopyLink'
 import { useCallback, useMemo, useState } from 'react'
-import { StyledText } from '../../components/elements/StyledText'
-import { applyStoredTheme } from '../../lib/themeUpdater'
-import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
-import { formattedShortDate } from '../../lib/dateFormatting'
+import { StyledText } from '../../../components/elements/StyledText'
+import { applyStoredTheme } from '../../../lib/themeUpdater'
+import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
+import { formattedShortDate } from '../../../lib/dateFormatting'
 import Link from 'next/link'
 import {
   EmptySettingsRow,
   SettingsTable,
   SettingsTableRow,
-} from '../../components/templates/settings/SettingsTable'
-import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
+} from '../../../components/templates/settings/SettingsTable'
+import { ConfirmationModal } from '../../../components/patterns/ConfirmationModal'
 
 enum TextType {
   EmailAddress,
@@ -81,8 +80,9 @@ function CopyTextButton(props: CopyTextButtonProps): JSX.Element {
 export default function EmailsPage(): JSX.Element {
   const { emailAddresses, revalidate, isValidating } =
     useGetNewsletterEmailsQuery()
-  const [confirmDeleteEmailId, setConfirmDeleteEmailId] =
-    useState<undefined | string>(undefined)
+  const [confirmDeleteEmailId, setConfirmDeleteEmailId] = useState<
+    undefined | string
+  >(undefined)
 
   applyStoredTheme(false)
 
@@ -117,7 +117,6 @@ export default function EmailsPage(): JSX.Element {
     <>
       <SettingsTable
         pageId="settings-emails-tag"
-        pageHeadline="Email Addresses"
         pageInfoLink="/help/newsletters"
         headerTitle="Address"
         createTitle="Create a new email address"
@@ -214,6 +213,20 @@ export default function EmailsPage(): JSX.Element {
             text={isValidating ? '-' : 'No Email Addresses Found'}
           />
         )}
+        <SpanBox
+          css={{
+            pt: '15px',
+            fontSize: '12px',
+            marginLeft: 'auto',
+            a: {
+              color: '$omnivoreCtaYellow',
+            },
+          }}
+        >
+          <Link href="/settings/emails/recent">
+            View recently received emails
+          </Link>
+        </SpanBox>
       </SettingsTable>
 
       {confirmDeleteEmailId ? (

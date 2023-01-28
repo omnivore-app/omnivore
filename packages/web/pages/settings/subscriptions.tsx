@@ -15,8 +15,9 @@ import { formattedShortDate } from '../../lib/dateFormatting'
 
 export default function SubscriptionsPage(): JSX.Element {
   const { subscriptions, revalidate, isValidating } = useGetSubscriptionsQuery()
-  const [confirmUnsubscribeName, setConfirmUnsubscribeName] =
-    useState<string | null>(null)
+  const [confirmUnsubscribeName, setConfirmUnsubscribeName] = useState<
+    string | null
+  >(null)
 
   applyStoredTheme(false)
 
@@ -40,7 +41,6 @@ export default function SubscriptionsPage(): JSX.Element {
   return (
     <SettingsTable
       pageId="settings-subscriptions-tag"
-      pageHeadline="Subscriptions"
       pageInfoLink="/help/newsletters"
       headerTitle="Subscriptions"
     >
