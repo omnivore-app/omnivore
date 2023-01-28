@@ -131,7 +131,7 @@ const ViewRecentEmailModal = (
 }
 
 export default function RecentEmails(): JSX.Element {
-  const { recentEmails, isValidating } = useGetRecentEmailsQuery()
+  const { recentEmails, revalidate, isValidating } = useGetRecentEmailsQuery()
   const [viewingEmail, setViewingEmail] = useState<RecentEmail | undefined>(
     undefined
   )
@@ -195,6 +195,7 @@ export default function RecentEmails(): JSX.Element {
                         showSuccessToast('Marking email as article')
                         try {
                           await markEmailAsItemMutation(recentEmail.id)
+                          revalidate()
                         } catch (err) {
                           console.log('error marking as article: ', err)
                           showErrorToast('Error marking item as article')
