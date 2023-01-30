@@ -38,6 +38,7 @@ struct WebReaderContainerView: View {
   @EnvironmentObject var dataService: DataService
   @EnvironmentObject var audioController: AudioController
   @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+  @Environment(\.openURL) var openURL
   @StateObject var viewModel = WebReaderViewModel()
 
   func webViewActionHandler(message: WKScriptMessage, replyHandler: WKScriptMessageReplyHandler?) {
@@ -215,6 +216,12 @@ struct WebReaderContainerView: View {
       audioMenuItem()
 
       if viewModel.hasOriginalUrl(item) {
+        Button(
+          action: {
+            openOriginalURL(urlString: item.pageURLString)
+          },
+          label: { Label("Open Original", systemImage: "safari") }
+        )
         Button(
           action: share,
           label: { Label("Share Original", systemImage: "square.and.arrow.up") }
@@ -505,4 +512,12 @@ struct WebReaderContainerView: View {
   }
 
   func scrollToTop() {}
+
+  func openOriginalURL(urlString: String?) {
+    if let urlString = urlString,
+       let url = URL(string: urlString)
+    {
+      openURL(url)
+    }
+  }
 }
