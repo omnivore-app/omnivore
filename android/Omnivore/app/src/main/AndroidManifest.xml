@@ -51,5 +51,11 @@
             android:name=".ui.reader.PDFReaderActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar"
             android:windowSoftInputMode="adjustNothing" />
+
+        <activity
+            android:name=".ui.reader.WebReaderLoadingContainerActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar"
+            android:windowSoftInputMode="adjustNothing" />
+
     </application>
 </manifest>

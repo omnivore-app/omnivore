@@ -45,7 +45,12 @@ class WebReaderViewModel @Inject constructor(
   var hasTappedExistingHighlight = false
   var lastTapCoordinates: TapCoordinates? = null
   
-  fun loadItem(slug: String) {
+  fun loadItem(slug: String?, requestID: String?) {
+    slug?.let { loadItemUsingSlug(it) }
+    requestID?.let { loadItemUsingRequestID(it) }
+  }
+
+  private fun loadItemUsingSlug(slug: String) {
     viewModelScope.launch {
       val webReaderParams = loadItemFromServer(slug)
 
@@ -56,6 +61,10 @@ class WebReaderViewModel @Inject constructor(
         loadItemFromDB(slug)
       }
     }
+  }
+
+  private fun loadItemUsingRequestID(requestID: String) {
+    // TODO: implement
   }
 
   private suspend fun loadItemFromDB(slug: String) {
