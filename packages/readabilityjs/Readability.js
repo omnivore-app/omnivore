@@ -526,7 +526,8 @@ Readability.prototype = {
       // replace all images' href source
       const images = articleContent.getElementsByTagName('img');
       Array.from(images).forEach(image => {
-        const src = image.getAttribute("src");
+        // for some reason, some images have no src attribute, so we need to use data-src
+        const src = image.getAttribute("data-src") || image.getAttribute("src");
 
         // do not proxy data uri
         if (src && !dataUriRegex.test(src)) {
@@ -545,6 +546,9 @@ Readability.prototype = {
           const proxySrc = this.createImageProxyUrl(absoluteSrc, width, height);
           image.setAttribute('src', proxySrc);
         }
+
+        // remove crossorigin attribute to avoid CORS errors
+        image.removeAttribute('crossorigin');
       });
 
       // replace all srcset's
