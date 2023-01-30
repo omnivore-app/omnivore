@@ -526,7 +526,7 @@ Readability.prototype = {
       // replace all images' href source
       const images = articleContent.getElementsByTagName('img');
       Array.from(images).forEach(image => {
-        // for some reason, some images have no src attribute, so we need to use data-src
+        // use data-src if lazy loading
         const src = image.getAttribute("data-src") || image.getAttribute("src");
 
         // do not proxy data uri
