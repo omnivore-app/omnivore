@@ -18,6 +18,11 @@ export const getYoutubeVideoId = (url: string) => {
   return videoId
 }
 
+const getYoutubePlaylistId = (url: string) => {
+  const u = new URL(url)
+  return u.searchParams.get('list')
+}
+
 export const escapeTitle = (title: string) => {
   return _.escape(title)
 }
@@ -33,14 +38,24 @@ export class YoutubeHandler extends ContentHandler {
   }
 
   async preHandle(url: string): Promise<PreHandleResult> {
-    const videoId = getYoutubeVideoId(url)
-    if (!videoId) {
-      return {}
+    let urlToEncode: string
+    let src: string
+    const playlistId = getYoutubePlaylistId(url)
+    if (playlistId) {
+      urlToEncode = `https://www.youtube.com/playlist?list=${playlistId}`
+      src = `https://www.youtube.com/embed/videoseries?list=${playlistId}`
+    } else {
+      const videoId = getYoutubeVideoId(url)
+      if (!videoId) {
+        return {}
+      }
+      urlToEncode = `https://www.youtube.com/watch?v=${videoId}`
+      src = `https://www.youtube.com/embed/${videoId}`
     }
 
     const oembedUrl =
       `https://www.youtube.com/oembed?format=json&url=` +
-      encodeURIComponent(`https://www.youtube.com/watch?v=${videoId}`)
+      encodeURIComponent(urlToEncode)
     const oembed = (await axios.get(oembedUrl.toString())).data as {
       title: string
       width: number
@@ -68,7 +83,7 @@ export class YoutubeHandler extends ContentHandler {
       <meta property="og:article:author" content="${authorName}" />
       </head>
       <body>
-      <iframe width="${width}" height="${height}" src="https://www.youtube.com/embed/${videoId}" title="${escapedTitle}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      <iframe width="${width}" height="${height}" src="${src}" title="${escapedTitle}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         <p><a href="${url}" target="_blank">${escapedTitle}</a></p>
         <p itemscope="" itemprop="author" itemtype="http://schema.org/Person">By <a href="${oembed.author_url}" target="_blank">${authorName}</a></p>
       </body>
