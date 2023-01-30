@@ -170,21 +170,13 @@ describe('Newsletter email test', () => {
     })
 
     it('returns BeehiivHandler for beehiiv.com newsletter', async () => {
-      const html = load('./test/data/beehiiv-newsletter.html')
       const handler = await getNewsletterHandler({
-        html,
+        html: '',
         from: '',
-        headers: {},
-      })
-      expect(handler).to.be.instanceOf(BeehiivHandler)
-    })
-
-    it('returns BeehiivHandler for milkroad newsletter', async () => {
-      const html = load('./test/data/milkroad-newsletter.html')
-      const handler = await getNewsletterHandler({
-        html,
-        from: '',
-        headers: {},
+        headers: {
+          'x-newsletter': 'https://www.milkroad.com/p/bored-ape-amazon',
+          'x-beehiiv-type': 'newsletter'
+        },
       })
       expect(handler).to.be.instanceOf(BeehiivHandler)
     })
@@ -277,24 +269,12 @@ describe('Newsletter email test', () => {
     })
 
     context('when email is from beehiiv', () => {
-      before(() => {
-        nock('https://u23463625.ct.sendgrid.net')
-          .head(
-            '/ss/c/AX1lEgEQaxtvFxLaVo0GBo_geajNrlI1TGeIcmMViR3pL3fEDZnbbkoeKcaY62QZk0KPFudUiUXc_uMLerV4nA/3k5/3TFZmreTR0qKSCgowABnVg/h30/zzLik7UXd1H_n4oyd5W8Xu639AYQQB2UXz-CsssSnno'
-          )
-          .reply(301, undefined, {
-            Location: 'https://www.milkroad.com/p/talked-guy-spent-30m-beeple',
-          })
-        nock('https://www.milkroad.com')
-          .head('/p/talked-guy-spent-30m-beeple')
-          .reply(200, '')
-      })
-
       it('gets the URL from the header', async () => {
-        const html = load('./test/data/beehiiv-newsletter.html')
-        const url = await new BeehiivHandler().findNewsletterUrl(html)
+        const url = await new BeehiivHandler().parseNewsletterUrl({
+          'x-newsletter': 'https://www.milkroad.com/p/bored-ape-amazon',
+        }, '')
         expect(url).to.startWith(
-          'https://www.milkroad.com/p/talked-guy-spent-30m-beeple'
+          'https://www.milkroad.com/p/bored-ape-amazon'
         )
       })
     })
