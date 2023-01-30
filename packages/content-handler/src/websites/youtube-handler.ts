@@ -18,7 +18,7 @@ export const getYoutubeVideoId = (url: string) => {
   return videoId
 }
 
-const getYoutubePlaylistId = (url: string) => {
+export const getYoutubePlaylistId = (url: string) => {
   const u = new URL(url)
   return u.searchParams.get('list')
 }
