@@ -131,10 +131,9 @@ export const preParseContent = async (
 }
 
 export const getNewsletterHandler = async (input: {
-  postHeader: string
   from: string
-  unSubHeader: string
   html: string
+  headers: Record<string, string | string[]>
 }): Promise<ContentHandler | undefined> => {
   const dom = parseHTML(input.html).document
   for (const handler of newsletterHandlers) {
@@ -151,7 +150,7 @@ export const handleNewsletter = async (
 ): Promise<NewsletterResult | undefined> => {
   const handler = await getNewsletterHandler(input)
   if (handler) {
-    console.log('handleNewsletter', handler.name, input.title)
+    console.log('handleNewsletter', handler.name, input.subject)
     return handler.handleNewsletter(input)
   }
 

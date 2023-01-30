@@ -11,12 +11,11 @@ interface Unsubscribe {
 }
 
 export interface NewsletterInput {
-  postHeader: string
   from: string
-  unSubHeader: string
-  email: string
+  to: string
+  subject: string
   html: string
-  title: string
+  headers: Record<string, string | string[]>
 }
 
 export interface NewsletterResult {
@@ -76,15 +75,16 @@ export abstract class ContentHandler {
   }
 
   async isNewsletter(input: {
-    postHeader: string
     from: string
-    unSubHeader: string
     html: string
+    headers: Record<string, string | string[]>
     dom: Document
   }): Promise<boolean> {
     const re = new RegExp(this.senderRegex)
+    const postHeader = input.headers['list-post']
+    const unSubHeader = input.headers['list-unsubscribe']
     return Promise.resolve(
-      re.test(input.from) && (!!input.postHeader || !!input.unSubHeader)
+      re.test(input.from) && (!!postHeader || !!unSubHeader)
     )
   }
 
@@ -118,7 +118,7 @@ export abstract class ContentHandler {
   }
 
   async parseNewsletterUrl(
-    _postHeader: string,
+    headers: Record<string, string | string[]>,
     html: string
   ): Promise<string | undefined> {
     // get newsletter url from html
@@ -151,16 +151,15 @@ export abstract class ContentHandler {
   }
 
   async handleNewsletter({
-    email,
-    html,
-    postHeader,
-    title,
     from,
-    unSubHeader,
+    to,
+    subject,
+    html,
+    headers,
   }: NewsletterInput): Promise<NewsletterResult> {
-    console.log('handleNewsletter', email, postHeader, title, from)
+    console.log('handleNewsletter', from, to, subject, headers, from)
 
-    if (!email || !html || !title || !from) {
+    if (!from || !html || !subject || !to) {
       console.log('invalid newsletter email')
       throw new Error('invalid newsletter email')
     }
@@ -168,15 +167,17 @@ export abstract class ContentHandler {
     // fallback to default url if newsletter url does not exist
     // assign a random uuid to the default url to avoid duplicate url
     const url =
-      (await this.parseNewsletterUrl(postHeader, html)) || generateUniqueUrl()
+      (await this.parseNewsletterUrl(headers, html)) || generateUniqueUrl()
     const author = this.parseAuthor(from)
-    const unsubscribe = this.parseUnsubscribe(unSubHeader)
+    const unsubscribe = this.parseUnsubscribe(
+      headers['list-unsubscribe']?.toString()
+    )
 
     return {
-      email,
+      email: to,
       content: html,
       url,
-      title,
+      title: subject,
       author,
       unsubMailTo: unsubscribe.mailTo || '',
       unsubHttpUrl: unsubscribe.httpUrl || '',

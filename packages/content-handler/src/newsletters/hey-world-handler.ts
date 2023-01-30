@@ -19,7 +19,7 @@ export class HeyWorldHandler extends ContentHandler {
   }
 
   async parseNewsletterUrl(
-    postHeader: string,
+    headers: Record<string, string | string[]>,
     html: string
   ): Promise<string | undefined> {
     return this.findNewsletterUrl(html)

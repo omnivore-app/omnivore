@@ -18,9 +18,8 @@ export class BeehiivHandler extends ContentHandler {
   }
 
   async isNewsletter(input: {
-    postHeader: string
     from: string
-    unSubHeader: string
+    headers: Record<string, string | string[]>
     dom: Document
   }): Promise<boolean> {
     const dom = input.dom
@@ -34,7 +33,7 @@ export class BeehiivHandler extends ContentHandler {
   }
 
   async parseNewsletterUrl(
-    postHeader: string,
+    headers: Record<string, string | string[]>,
     html: string
   ): Promise<string | undefined> {
     return this.findNewsletterUrl(html)
