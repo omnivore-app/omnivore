@@ -6,7 +6,7 @@
   function getDocumentTitle () {
     const opengraphTitleEl = document.querySelector(SELECTORS.TITLE);
     const openGraphTitle = opengraphTitleEl && opengraphTitleEl.content;
-    return openGraphTitle || document.title || '';
+    return document.title || openGraphTitle || '';
   }
 
   function getCanonicalUrl () {
