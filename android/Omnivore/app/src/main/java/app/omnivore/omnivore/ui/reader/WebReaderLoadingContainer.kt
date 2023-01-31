@@ -1,5 +1,6 @@
 package app.omnivore.omnivore.ui.reader
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.activity.ComponentActivity
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
@@ -33,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import app.omnivore.omnivore.MainActivity
 import app.omnivore.omnivore.ui.savedItemViews.SavedItemContextMenu
 import app.omnivore.omnivore.ui.theme.OmnivoreTheme
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -62,7 +65,11 @@ class WebReaderLoadingContainerActivity: ComponentActivity() {
           if (viewModel.hasFetchError.value == true) {
             Text("We were unable to fetch your content.")
           } else {
-            WebReaderLoadingContainer(requestID = requestID, webReaderViewModel = viewModel)
+            WebReaderLoadingContainer(
+              requestID = requestID,
+              onLibraryIconTap = { startMainActivity() },
+              webReaderViewModel = viewModel
+            )
           }
         }
       }
@@ -86,10 +93,15 @@ class WebReaderLoadingContainerActivity: ComponentActivity() {
       insets
     }
   }
+
+  private fun startMainActivity() {
+    val intent = Intent(this, MainActivity::class.java)
+    this.startActivity(intent)
+  }
 }
 
 @Composable
-fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, webReaderViewModel: WebReaderViewModel) {
+fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, onLibraryIconTap: (() -> Unit)? = null, webReaderViewModel: WebReaderViewModel) {
   val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
 
   var isMenuExpanded by remember { mutableStateOf(false) }
@@ -149,7 +161,14 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, w
         backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
         title = {},
         actions = {
-          // Disabling menu until we implement local persistence
+          if (onLibraryIconTap != null) {
+            IconButton(onClick = { onLibraryIconTap() }) {
+              Icon(
+                imageVector = Icons.Filled.List,
+                contentDescription = null
+              )
+            }
+          }
           IconButton(onClick = { isMenuExpanded = true }) {
             Icon(
               imageVector = Icons.Filled.Menu,
