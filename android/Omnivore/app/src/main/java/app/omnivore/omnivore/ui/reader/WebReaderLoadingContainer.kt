@@ -1,14 +1,13 @@
 package app.omnivore.omnivore.ui.reader
 
-import android.graphics.PointF
 import android.os.Bundle
-import android.util.Log
 import android.view.View
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.verticalScroll
@@ -22,6 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -33,27 +33,15 @@ import androidx.compose.ui.unit.dp
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
-import app.omnivore.omnivore.R
-import app.omnivore.omnivore.ui.root.RootView
 import app.omnivore.omnivore.ui.savedItemViews.SavedItemContextMenu
 import app.omnivore.omnivore.ui.theme.OmnivoreTheme
-import com.pspdfkit.annotations.Annotation
-import com.pspdfkit.annotations.HighlightAnnotation
-import com.pspdfkit.configuration.PdfConfiguration
-import com.pspdfkit.configuration.page.PageScrollDirection
-import com.pspdfkit.listeners.DocumentListener
-import com.pspdfkit.listeners.OnPreparePopupToolbarListener
-import com.pspdfkit.ui.PdfFragment
-import com.pspdfkit.ui.PdfThumbnailBar
-import com.pspdfkit.ui.search.PdfSearchViewModular
-import com.pspdfkit.ui.special_mode.controller.TextSelectionController
-import com.pspdfkit.ui.special_mode.manager.TextSelectionManager
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlin.math.roundToInt
 
 
 @AndroidEntryPoint
-class WebReaderLoadingContainerActivity: AppCompatActivity() {
+class WebReaderLoadingContainerActivity: ComponentActivity() {
   val viewModel: WebReaderViewModel by viewModels()
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,14 +49,31 @@ class WebReaderLoadingContainerActivity: AppCompatActivity() {
     val requestID = intent.getStringExtra("SAVED_ITEM_REQUEST_ID") ?: ""
 
     setContent {
+      val systemUiController = rememberSystemUiController()
+      val useDarkIcons = !isSystemInDarkTheme()
+
       OmnivoreTheme {
         Box(
           modifier = Modifier
             .fillMaxSize()
             .background(color = Color.Black)
+            .systemBarsPadding()
         ) {
-          WebReaderLoadingContainer(requestID = requestID, webReaderViewModel = viewModel)
+          if (viewModel.hasFetchError.value == true) {
+            Text("We were unable to fetch your content.")
+          } else {
+            WebReaderLoadingContainer(requestID = requestID, webReaderViewModel = viewModel)
+          }
         }
+      }
+
+      DisposableEffect(systemUiController, useDarkIcons) {
+        systemUiController.setSystemBarsColor(
+          color = Color.Black,
+          darkIcons = false
+        )
+
+        onDispose {}
       }
     }
 
@@ -194,7 +199,14 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, w
       }
     }
   } else {
-    // TODO: add a proper loading view
-    Text("Loading...")
+    Column(
+      verticalArrangement = Arrangement.SpaceAround,
+      horizontalAlignment = Alignment.CenterHorizontally,
+      modifier = Modifier
+        .fillMaxSize()
+        .padding(horizontal = 16.dp)
+    ) {
+      Text("Loading...", color = Color.White)
+    }
   }
 }

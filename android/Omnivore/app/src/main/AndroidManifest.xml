@@ -54,8 +54,9 @@
 
         <activity
             android:name=".ui.reader.WebReaderLoadingContainerActivity"
-            android:theme="@style/Theme.AppCompat.NoActionBar"
-            android:windowSoftInputMode="adjustNothing" />
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.Omnivore"/>
 
     </application>
 </manifest>
