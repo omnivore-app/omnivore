@@ -98,7 +98,7 @@ struct HighlightsListView: View {
       content: {
         Button(
           action: { showShareView = true },
-          label: { Label("Export", systemImage: "square.and.arrow.up") }
+          label: { Label(LocalText.exportGeneric, systemImage: "square.and.arrow.up") }
         )
       },
       label: {

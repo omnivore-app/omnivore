@@ -176,6 +176,7 @@
 "logoutGeneric" = "Logout";
 "doneGeneric" = "Done";
 "cancelGeneric" = "Cancel";
+"exportGeneric" = "Export";
 "inboxGeneric" = "Inbox";
 "readLaterGeneric" = "Read Later";
 "newslettersGeneric" = "Newsletters";

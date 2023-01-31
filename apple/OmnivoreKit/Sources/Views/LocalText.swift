@@ -172,6 +172,7 @@ public enum LocalText {
   public static let logoutGeneric = localText(key: "logoutGeneric")
   public static let doneGeneric = localText(key: "doneGeneric")
   public static let cancelGeneric = localText(key: "cancelGeneric")
+  public static let exportGeneric = localText(key: "exportGeneric")
   public static let inboxGeneric = localText(key: "inboxGeneric")
   public static let readLaterGeneric = localText(key: "readLaterGeneric")
   public static let newslettersGeneric = localText(key: "newslettersGeneric")

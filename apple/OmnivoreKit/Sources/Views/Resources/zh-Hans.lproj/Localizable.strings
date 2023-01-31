@@ -176,6 +176,7 @@
 "logoutGeneric" = "退出登录";
 "doneGeneric" = "完成";
 "cancelGeneric" = "取消";
+"exportGeneric" = "导出"
 "inboxGeneric" = "收集箱";
 "readLaterGeneric" = "稍后阅读";
 "newslettersGeneric" = "新闻稿件";
