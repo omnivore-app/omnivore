@@ -58,6 +58,19 @@ struct HighlightListItemParams: Identifiable {
     }
   }
 
+  func highlightAsMarkdown(item: HighlightListItemParams) -> String {
+    var buffer = "> \(item.quote)"
+    if !item.annotation.isEmpty {
+      buffer += "\n\n\(item.annotation)"
+    }
+    buffer += "\n"
+    return buffer
+  }
+
+  func highlightsAsMarkdown() -> String {
+    highlightItems.map { highlightAsMarkdown(item: $0) }.lazy.joined(separator: "\n\n")
+  }
+
   private func loadHighlights(item: LinkedItem) {
     let unsortedHighlights = item.highlights.asArray(of: Highlight.self)
 

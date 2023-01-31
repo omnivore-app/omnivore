@@ -12,6 +12,7 @@ struct HighlightsListView: View {
   let itemObjectID: NSManagedObjectID
   @Binding var hasHighlightMutations: Bool
   @State var setLabelsHighlight: Highlight?
+  @State var showShareView: Bool = false
 
   var emptyView: some View {
     Text(LocalText.highlightCardNoHighlightsOnPage)
@@ -26,9 +27,14 @@ struct HighlightsListView: View {
     #if os(iOS)
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
-        ToolbarItem(placement: .navigationBarTrailing) {
+        ToolbarItem(placement: .navigationBarLeading) {
           dismissButton
         }
+        ToolbarItem(placement: .navigationBarTrailing) {
+          actionsMenu
+        }
+      }.formSheet(isPresented: $showShareView) {
+        ShareSheet(activityItems: [viewModel.highlightsAsMarkdown()])
       }
     #else
       .toolbar {
@@ -44,6 +50,7 @@ struct HighlightsListView: View {
       Section {
         ForEach(viewModel.highlightItems) { highlightParams in
           HighlightsListCard(
+            viewModel: self.viewModel,
             highlightParams: highlightParams,
             hasHighlightMutations: $hasHighlightMutations,
             onSaveAnnotation: {
@@ -82,7 +89,22 @@ struct HighlightsListView: View {
   var dismissButton: some View {
     Button(
       action: { presentationMode.wrappedValue.dismiss() },
-      label: { Text(LocalText.doneGeneric).foregroundColor(.appGrayTextContrast) }
+      label: { Text(LocalText.genericClose) }
+    )
+  }
+
+  var actionsMenu: some View {
+    Menu(
+      content: {
+        Button(
+          action: { showShareView = true },
+          label: { Label("Export", systemImage: "square.and.arrow.up") }
+        )
+      },
+      label: {
+        Image(systemName: "ellipsis")
+          .foregroundColor(.appGrayTextContrast)
+      }
     )
   }
 

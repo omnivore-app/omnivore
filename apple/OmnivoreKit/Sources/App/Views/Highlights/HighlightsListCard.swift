@@ -7,6 +7,7 @@ struct HighlightsListCard: View {
   @State var annotation = String()
   @State var showAnnotationModal = false
 
+  let viewModel: HighlightsListViewModel
   let highlightParams: HighlightListItemParams
   @Binding var hasHighlightMutations: Bool
   let onSaveAnnotation: (String) -> Void
@@ -15,6 +16,7 @@ struct HighlightsListCard: View {
 
   @State var errorAlertMessage: String?
   @State var showErrorAlertMessage = false
+  @State var showShareView = false
 
   var contextMenuView: some View {
     Group {
@@ -39,6 +41,10 @@ struct HighlightsListCard: View {
           onSetLabels(highlightParams.highlightID)
         },
         label: { Label(LocalText.labelsGeneric, systemImage: "tag") }
+      )
+      Button(
+        action: { showShareView = true },
+        label: { Label("Export", systemImage: "square.and.arrow.up") }
       )
       Button(
         action: onDeleteHighlight,
@@ -165,6 +171,9 @@ struct HighlightsListCard: View {
         errorAlertMessage: $errorAlertMessage,
         showErrorAlertMessage: $showErrorAlertMessage
       )
+    }
+    .formSheet(isPresented: $showShareView) {
+      ShareSheet(activityItems: [viewModel.highlightAsMarkdown(item: self.highlightParams)])
     }
   }
 }
