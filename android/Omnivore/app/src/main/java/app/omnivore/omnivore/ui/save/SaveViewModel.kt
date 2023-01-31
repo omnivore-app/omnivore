@@ -29,6 +29,9 @@ class SaveViewModel @Inject constructor(
   var message by mutableStateOf<String?>(null)
     private set
 
+  var clientRequestID by mutableStateOf<String?>(null)
+    private set
+
   private fun getAuthToken(): String? = runBlocking {
     datastoreRepo.getString(DatastoreKeys.omnivoreAuthToken)
   }
@@ -52,10 +55,12 @@ class SaveViewModel @Inject constructor(
         .build()
 
       try {
+        clientRequestID = UUID.randomUUID().toString()
+
         val response = apolloClient.mutation(
           SaveUrlMutation(
             SaveUrlInput(
-              clientRequestId = UUID.randomUUID().toString(),
+              clientRequestId = clientRequestID!!,
               source = "android",
               url = url
             )

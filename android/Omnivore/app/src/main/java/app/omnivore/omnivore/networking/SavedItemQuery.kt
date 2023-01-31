@@ -8,11 +8,12 @@ import app.omnivore.omnivore.persistence.entities.Highlight
 data class SavedItemQueryResponse(
   val item: SavedItem?,
   val highlights: List<Highlight>,
-  val labels: List<SavedItemLabel>
+  val labels: List<SavedItemLabel>,
+  val state: String
 ) {
   companion object {
     fun emptyResponse(): SavedItemQueryResponse {
-      return SavedItemQueryResponse(null, listOf(), listOf())
+      return SavedItemQueryResponse(null, listOf(), listOf(), state = "")
     }
   }
 }
@@ -79,8 +80,8 @@ suspend fun Networker.savedItem(slug: String): SavedItemQueryResponse {
       content = article.articleFields.content
     )
 
-    return SavedItemQueryResponse(item = savedItem, highlights, labels = savedItemLabels)
+    return SavedItemQueryResponse(item = savedItem, highlights, labels = savedItemLabels, state = article.articleFields.state?.rawValue ?: "")
   } catch (e: java.lang.Exception) {
-    return SavedItemQueryResponse(item = null, listOf(), labels = listOf())
+    return SavedItemQueryResponse(item = null, listOf(), labels = listOf(), state = "")
   }
 }
