@@ -105,6 +105,14 @@ public final class OmnivoreWebView: WKWebView {
     }
   }
 
+  public func updateTitle(title: String) {
+    do {
+      try dispatchEvent(.updateTitle(title: title))
+    } catch {
+      showErrorInSnackbar("Error updating title")
+    }
+  }
+
   public func updateLabels(labelsJSON: String) {
     do {
       try dispatchEvent(.updateLabels(labels: labelsJSON))
@@ -388,6 +396,7 @@ public enum WebViewDispatchEvent {
   case dismissHighlight
   case speakingSection(anchorIdx: String)
   case updateLabels(labels: String)
+  case updateTitle(title: String)
 
   var script: String {
     get throws {
@@ -432,6 +441,8 @@ public enum WebViewDispatchEvent {
       return "speakingSection"
     case .updateLabels:
       return "updateLabels"
+    case .updateTitle:
+      return "updateTitle"
     }
   }
 
@@ -454,6 +465,14 @@ public enum WebViewDispatchEvent {
         return "event.fontFamily = '\(family)';"
       case let .updateLabels(labels):
         return "event.labels = \(labels);"
+      case let .updateTitle(title):
+        let encoder = JSONEncoder()
+        if let encoded = try? encoder.encode(title) {
+          let str = String(decoding: encoded, as: UTF8.self)
+          return "event.title = \(str);"
+        } else {
+          throw BasicError.message(messageText: "Unable to serialize title.")
+        }
       case let .saveAnnotation(annotation: annotation):
         let encoder = JSONEncoder()
         if let encoded = try? encoder.encode(annotation) {

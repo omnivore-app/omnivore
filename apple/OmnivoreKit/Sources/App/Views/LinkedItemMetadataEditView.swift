@@ -3,7 +3,7 @@ import Services
 import SwiftUI
 import Views
 
-@MainActor final class LinkedItemTitleEditViewModel: ObservableObject {
+@MainActor final class LinkedItemMetadataEditViewModel: ObservableObject {
   @Published var title = ""
   @Published var description = ""
   @Published var author = ""
@@ -28,9 +28,15 @@ import Views
 struct LinkedItemMetadataEditView: View {
   @EnvironmentObject var dataService: DataService
   @Environment(\.presentationMode) private var presentationMode
-  @StateObject var viewModel = LinkedItemTitleEditViewModel()
+  @StateObject var viewModel = LinkedItemMetadataEditViewModel()
 
   let item: LinkedItem
+  let onSave: ((String, String) -> Void)?
+
+  init(item: LinkedItem, onSave: ((String, String) -> Void)? = nil) {
+    self.item = item
+    self.onSave = onSave
+  }
 
   var editForm: some View {
     ScrollView(showsIndicators: false) {
@@ -96,6 +102,9 @@ struct LinkedItemMetadataEditView: View {
               Button(
                 action: {
                   viewModel.submit(dataService: dataService, item: item)
+                  if let onSave = self.onSave {
+                    onSave(viewModel.title, viewModel.description)
+                  }
                   presentationMode.wrappedValue.dismiss()
                 },
                 label: { Text(LocalText.genericSave).foregroundColor(.appGrayTextContrast) }

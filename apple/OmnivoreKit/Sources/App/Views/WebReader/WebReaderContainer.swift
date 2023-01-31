@@ -309,7 +309,11 @@ struct WebReaderContainerView: View {
       })
     }
     .sheet(isPresented: $showTitleEdit) {
-      LinkedItemMetadataEditView(item: item)
+      LinkedItemMetadataEditView(item: item, onSave: { title, _ in
+        item.title = title
+        // We dont need to update description because its never rendered in this view
+        readerSettingsChangedTransactionID = UUID()
+      })
     }
     .sheet(isPresented: $showHighlightsView, onDismiss: onHighlightListViewDismissal) {
       HighlightsListView(

@@ -50,12 +50,29 @@ const mutation = async (name, input) => {
 }
 
 const App = () => {
-  const [labels, setLabels] = React.useState(window.omnivoreArticle.labels)
   applyStoredTheme(false)
 
+  const useForceUpdate = () => {
+    const [, setState] = React.useState();
+    return () => setState({});
+  }
+  
+  const forceUpdate = useForceUpdate();
+  
   document.addEventListener('updateLabels', (event) => {
     console.log("updating labels: ", event.labels)
-    setLabels(event.labels)
+    const updated = window.omnivoreArticle
+    updated.labels = event.labels
+    window.omnivoreArticle = updated
+    forceUpdate();
+  })
+
+  document.addEventListener('updateTitle', (event) => {
+    console.log("updating title: ", event.title)
+    const updated = window.omnivoreArticle
+    updated.title = event.title
+    window.omnivoreArticle = updated
+    forceUpdate();
   })
 
   return (
@@ -74,7 +91,7 @@ const App = () => {
         >
           <ArticleContainer
             article={window.omnivoreArticle}
-            labels={labels}
+            labels={window.omnivoreArticle.labels}
             isAppleAppEmbed={true}
             highlightBarDisabled={!window.enableHighlightBar}
             highlightsBaseURL="https://example.com"
