@@ -140,7 +140,6 @@ struct CreateProfileView: View {
                 #if os(iOS)
                   TextField("", text: $name)
                     .textContentType(.name)
-                    .keyboardType(.alphabet)
                 #elseif os(macOS)
                   TextField("", text: $name)
                 #endif
