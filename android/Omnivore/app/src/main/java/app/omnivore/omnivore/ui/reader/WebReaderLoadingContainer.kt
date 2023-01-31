@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
@@ -164,7 +165,7 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, o
           if (onLibraryIconTap != null) {
             IconButton(onClick = { onLibraryIconTap() }) {
               Icon(
-                imageVector = Icons.Filled.List,
+                imageVector = Icons.Default.Home,
                 contentDescription = null
               )
             }
