@@ -114,10 +114,7 @@ struct CreateLabelView: View {
       .padding(.bottom, 8)
 
       TextField("Label Name", text: $newLabelName)
-      #if os(iOS)
-        .keyboardType(.alphabet)
-      #endif
-      .textFieldStyle(StandardTextFieldStyle())
+        .textFieldStyle(StandardTextFieldStyle())
 
       ScrollView(.horizontal, showsIndicators: false) {
         LazyHGrid(rows: rows, alignment: .top, spacing: 20) {

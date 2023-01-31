@@ -131,7 +131,6 @@ struct EmailSignupFormView: View {
                 .focused($focusedField, equals: .fullName)
               #if os(iOS)
                 .textContentType(.name)
-                .keyboardType(.alphabet)
               #endif
               .disableAutocorrection(true)
                 .submitLabel(.next)
@@ -150,7 +149,6 @@ struct EmailSignupFormView: View {
                   #if os(iOS)
                     .textInputAutocapitalization(.never)
                     .textContentType(.username)
-                    .keyboardType(.alphabet)
                   #endif
                   .disableAutocorrection(true)
                     .submitLabel(.done)
