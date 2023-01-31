@@ -15,7 +15,7 @@ import { ShareHighlightModal } from './ShareHighlightModal'
 import { useCanShareNative } from '../../../lib/hooks/useCanShareNative'
 import { webBaseURL } from '../../../lib/appConfig'
 import { pspdfKitKey } from '../../../lib/appConfig'
-import { HighlightsModal } from './HighlightsModal'
+import { NotebookModal } from './NotebookModal'
 import { HighlightNoteModal } from './HighlightNoteModal'
 
 export type PdfArticleContainerProps = {
@@ -29,11 +29,13 @@ export default function PdfArticleContainer(
   props: PdfArticleContainerProps
 ): JSX.Element {
   const containerRef = useRef<HTMLDivElement | null>(null)
-  const [shareTarget, setShareTarget] =
-    useState<Highlight | undefined>(undefined)
+  const [shareTarget, setShareTarget] = useState<Highlight | undefined>(
+    undefined
+  )
   const [noteTarget, setNoteTarget] = useState<Highlight | undefined>(undefined)
-  const [noteTargetPageIndex, setNoteTargetPageIndex] =
-    useState<number | undefined>(undefined)
+  const [noteTargetPageIndex, setNoteTargetPageIndex] = useState<
+    number | undefined
+  >(undefined)
 
   const highlightsRef = useRef<Highlight[]>([])
   const canShareNative = useCanShareNative()
@@ -423,7 +425,7 @@ export default function PdfArticleContainer(
         />
       )}
       {props.showHighlightsModal && (
-        <HighlightsModal
+        <NotebookModal
           highlights={highlightsRef.current}
           onOpenChange={() => props.setShowHighlightsModal(false)}
           /* eslint-disable @typescript-eslint/no-empty-function */

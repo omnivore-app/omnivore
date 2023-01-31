@@ -19,7 +19,7 @@ import { removeHighlights } from '../../../lib/highlights/deleteHighlight'
 import { createHighlight } from '../../../lib/highlights/createHighlight'
 import { HighlightNoteModal } from './HighlightNoteModal'
 import { ShareHighlightModal } from './ShareHighlightModal'
-import { HighlightsModal } from './HighlightsModal'
+import { NotebookModal } from './NotebookModal'
 import { useCanShareNative } from '../../../lib/hooks/useCanShareNative'
 import { showErrorToast } from '../../../lib/toastHelpers'
 import { ArticleMutations } from '../../../lib/articleActions'
@@ -69,16 +69,18 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   >([])
   const focusedHighlightMousePos = useRef({ pageX: 0, pageY: 0 })
 
-  const [focusedHighlight, setFocusedHighlight] =
-    useState<Highlight | undefined>(undefined)
+  const [focusedHighlight, setFocusedHighlight] = useState<
+    Highlight | undefined
+  >(undefined)
 
   const [selectionData, setSelectionData] = useSelection(
     highlightLocations,
     false //noteModal.open,
   )
 
-  const [labelsTarget, setLabelsTarget] =
-    useState<Highlight | undefined>(undefined)
+  const [labelsTarget, setLabelsTarget] = useState<Highlight | undefined>(
+    undefined
+  )
 
   const canShareNative = useCanShareNative()
 
@@ -641,7 +643,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
 
   if (props.showHighlightsModal) {
     return (
-      <HighlightsModal
+      <NotebookModal
         highlights={highlights}
         onOpenChange={() => props.setShowHighlightsModal(false)}
         deleteHighlightAction={(highlightId: string) => {

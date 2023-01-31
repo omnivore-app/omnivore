@@ -28,7 +28,7 @@ import { setLabelsForHighlight } from '../../../lib/networking/mutations/setLabe
 import { updateHighlightMutation } from '../../../lib/networking/mutations/updateHighlightMutation'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 
-type HighlightsModalProps = {
+type NotebookModalProps = {
   highlights: Highlight[]
   scrollToHighlight?: (arg: string) => void
   updateHighlight: (highlight: Highlight) => void
@@ -36,11 +36,12 @@ type HighlightsModalProps = {
   onOpenChange: (open: boolean) => void
 }
 
-export function HighlightsModal(props: HighlightsModalProps): JSX.Element {
+export function NotebookModal(props: NotebookModalProps): JSX.Element {
   const [showConfirmDeleteHighlightId, setShowConfirmDeleteHighlightId] =
     useState<undefined | string>(undefined)
-  const [labelsTarget, setLabelsTarget] =
-    useState<Highlight | undefined>(undefined)
+  const [labelsTarget, setLabelsTarget] = useState<Highlight | undefined>(
+    undefined
+  )
   const [, updateState] = useState({})
 
   return (
