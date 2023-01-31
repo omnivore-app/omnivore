@@ -115,7 +115,7 @@ struct CreateLabelView: View {
 
       TextField("Label Name", text: $newLabelName)
       #if os(iOS)
-        .keyboardType(.alphabet)
+        .keyboardType(.default)
       #endif
       .textFieldStyle(StandardTextFieldStyle())
 
