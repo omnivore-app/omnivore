@@ -51,15 +51,14 @@ export class SubstackHandler extends ContentHandler {
   }
 
   async isNewsletter({
-    postHeader,
+    headers,
     dom,
   }: {
-    postHeader: string
     from: string
-    unSubHeader: string
+    headers: Record<string, string | string[]>
     dom: Document
   }): Promise<boolean> {
-    if (postHeader) {
+    if (headers['list-post']) {
       return Promise.resolve(true)
     }
     // substack newsletter emails have tables with a *post-meta class
@@ -85,11 +84,12 @@ export class SubstackHandler extends ContentHandler {
   }
 
   async parseNewsletterUrl(
-    postHeader: string,
+    headers: Record<string, string | string[]>,
     html: string
   ): Promise<string | undefined> {
     // raw SubStack newsletter url is like <https://hongbo130.substack.com/p/tldr>
     // we need to get the real url from the raw url
+    const postHeader = headers['list-post']?.toString()
     if (postHeader && addressparser(postHeader).length > 0) {
       return Promise.resolve(addressparser(postHeader)[0].name)
     }

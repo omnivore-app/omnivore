@@ -6,37 +6,19 @@ export class BeehiivHandler extends ContentHandler {
     this.name = 'beehiiv'
   }
 
-  findNewsletterHeaderHref(dom: Document): string | undefined {
-    const readOnline = dom.querySelectorAll('table tr td a')
-    let res: string | undefined = undefined
-    readOnline.forEach((e) => {
-      if (e.textContent === 'Read Online') {
-        res = e.getAttribute('href') || undefined
-      }
-    })
-    return res
-  }
-
   async isNewsletter(input: {
-    postHeader: string
     from: string
-    unSubHeader: string
-    dom: Document
+    headers: Record<string, string | string[]>
   }): Promise<boolean> {
-    const dom = input.dom
-    if (dom.querySelectorAll('img[src*="beehiiv.net"]').length > 0) {
-      const beehiivUrl = this.findNewsletterHeaderHref(dom)
-      if (beehiivUrl) {
-        return Promise.resolve(true)
-      }
-    }
-    return false
+    return Promise.resolve(
+      input.headers['x-beehiiv-type']?.toString() === 'newsletter'
+    )
   }
 
   async parseNewsletterUrl(
-    postHeader: string,
+    headers: Record<string, string | string[]>,
     html: string
   ): Promise<string | undefined> {
-    return this.findNewsletterUrl(html)
+    return Promise.resolve(headers['x-newsletter']?.toString())
   }
 }
