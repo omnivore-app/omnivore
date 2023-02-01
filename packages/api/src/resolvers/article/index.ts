@@ -92,7 +92,7 @@ import {
   SearchItem as SearchItemData,
 } from '../../elastic/types'
 import {
-  archiveAll,
+  archiveAllAsync,
   createPage,
   getPageById,
   getPageByParam,
@@ -1070,7 +1070,10 @@ export const archiveAllResolver = authorized<
     },
   })
 
-  return { success: await archiveAll(uid, ctx) }
+  // start a task to archive all pages
+  const taskId = await archiveAllAsync(uid, ctx)
+
+  return { success: !!taskId }
 })
 
 const getUpdateReason = (page: Page, since: Date) => {

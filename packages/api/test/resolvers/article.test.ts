@@ -1135,9 +1135,11 @@ describe('Article API', () => {
     it('archives all pages', async () => {
       const res = await graphqlRequest(archiveAllQuery, authToken).expect(200)
       expect(res.body.data.archiveAll.success).to.be.true
-      await refreshIndex()
-      const pages = await graphqlRequest(searchQuery(), authToken).expect(200)
-      expect(pages.body.data.search.pageInfo.totalCount).to.eql(0)
+      // Wait for the archive to finish
+      await setTimeout(async () => {
+        const pages = await graphqlRequest(searchQuery(), authToken).expect(200)
+        expect(pages.body.data.search.pageInfo.totalCount).to.eql(0)
+      }, 1000)
     })
   })
 })

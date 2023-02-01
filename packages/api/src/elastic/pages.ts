@@ -645,15 +645,16 @@ export const searchAsYouType = async (
   }
 }
 
-export const archiveAll = async (
+export const archiveAllAsync = async (
   userId: string,
   ctx: PageContext
-): Promise<boolean> => {
+): Promise<string | null> => {
   const archivedAt = new Date()
   try {
     const { body } = await client.updateByQuery({
       index: INDEX_ALIAS,
       conflicts: 'proceed',
+      wait_for_completion: false,
       body: {
         query: {
           bool: {
@@ -694,15 +695,15 @@ export const archiveAll = async (
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (body.failures?.length > 0) {
       console.log('failed to archive pages in elastic', body.failures)
-      return false
+      return null
     }
 
     await ctx.pubsub.entityUpdated(EntityType.PAGE, { archivedAt }, ctx.uid)
 
-    console.log('archived pages in elastic', body.updated)
-    return true
+    console.log('archived all task started', body.task)
+    return body.task as string
   } catch (e) {
-    console.log('failed to archive pages in elastic', e)
-    return false
+    console.log('failed to archive all in elastic', e)
+    return null
   }
 }
