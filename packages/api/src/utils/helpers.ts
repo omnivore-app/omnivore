@@ -17,6 +17,7 @@ import { updatePage } from '../elastic/pages'
 import path from 'path'
 import normalizeUrl from 'normalize-url'
 import wordsCounter from 'word-counting'
+import _ from 'underscore'
 
 interface InputObject {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -282,4 +283,8 @@ export const generateRandomColor = (): string => {
       .padStart(6, '0')
       .toUpperCase()
   )
+}
+
+export const unescapeHtml = (html: string): string => {
+  return _.unescape(html)
 }
