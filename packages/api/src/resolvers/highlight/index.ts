@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/require-await */
 /* eslint-disable @typescript-eslint/no-floating-promises */
-import { authorized } from '../../utils/helpers'
+import { authorized, unescapeHtml } from '../../utils/helpers'
 import {
   CreateHighlightError,
   CreateHighlightErrorCode,
@@ -219,9 +219,14 @@ export const updateHighlightResolver = authorized<
     }
   }
 
+  // unescape HTML entities
+  const annotation = input.annotation
+    ? unescapeHtml(input.annotation)
+    : undefined
+
   const updatedHighlight: HighlightData = {
     ...highlight,
-    annotation: input.annotation,
+    annotation,
     updatedAt: new Date(),
   }
 
