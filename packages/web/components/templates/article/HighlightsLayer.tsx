@@ -444,23 +444,6 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
     ]
   )
 
-  useEffect(() => {
-    ;(async () => {
-      if (
-        'enableSelectToHighlight' in window &&
-        window.enableSelectToHighlight &&
-        selectionData
-      ) {
-        // console.log('auto highlight: ', selectionData.selection.toString())
-        await createHighlightCallback('none', undefined)
-        selectionData.selection.collapseToStart()
-        // handleClickHighlight(selectionData.mouseEvent)
-        // setSelectionData(null)
-        // window.getSelection()?.removeAllRanges()
-      }
-    })()
-  }, [selectionData, setSelectionData])
-
   const dispatchHighlightError = (action: string, error: unknown) => {
     if (props.isAppleAppEmbed) {
       window?.webkit?.messageHandlers.highlightAction?.postMessage({
