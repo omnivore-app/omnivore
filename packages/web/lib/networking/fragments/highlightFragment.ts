@@ -13,6 +13,8 @@ export const highlightFragment = gql`
     createdByMe
     updatedAt
     sharedAt
+    highlightPositionPercent
+    highlightPositionAnchorIndex
     labels {
       id
       name
@@ -34,6 +36,8 @@ export type Highlight = {
   updatedAt: string
   sharedAt: string
   labels?: Label[]
+  highlightPositionPercent?: number
+  highlightPositionAnchorIndex?: number
 }
 
 export type User = {

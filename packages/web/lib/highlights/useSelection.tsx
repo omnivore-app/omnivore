@@ -7,10 +7,8 @@ import {
 import type { SelectionAttributes } from './highlightHelpers'
 
 export function useSelection(
-  highlightLocations: HighlightLocation[],
-  isDisabled: boolean
+  highlightLocations: HighlightLocation[]
 ): [SelectionAttributes | null, (x: SelectionAttributes | null) => void] {
-  const disabled = isDisabled
   const [selectionAttributes, setSelectionAttributes] =
     useState<SelectionAttributes | null>(null)
 
@@ -142,10 +140,6 @@ export function useSelection(
   }, [selectionAttributes?.selection])
 
   useEffect(() => {
-    if (disabled) {
-      return
-    }
-
     document.addEventListener('mouseup', handleFinishTouch)
     document.addEventListener('touchend', handleFinishTouch)
     document.addEventListener('contextmenu', handleFinishTouch)
@@ -157,7 +151,7 @@ export function useSelection(
       document.removeEventListener('contextmenu', handleFinishTouch)
       document.removeEventListener('copyTextSelection', copyTextSelection)
     }
-  }, [highlightLocations, handleFinishTouch, disabled, copyTextSelection])
+  }, [highlightLocations, handleFinishTouch, copyTextSelection])
 
   return [selectionAttributes, setSelectionAttributes]
 }

@@ -88,6 +88,7 @@ struct WebReaderContent {
           window.localStorage.setItem("theme", "\(themeKey)")
           window.prefersHighContrastFont = \(prefersHighContrastText)
           window.enableHighlightBar = \(isMacApp)
+          window.enableSelectToHighlight = true
         </script>
         <script src="bundle.js"></script>
         <script src="mathJaxConfiguration.js" id="MathJax-script"></script>
