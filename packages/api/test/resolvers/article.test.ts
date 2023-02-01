@@ -1084,4 +1084,60 @@ describe('Article API', () => {
       )
     })
   })
+
+  describe('ArchiveAll API', () => {
+    const archiveAllQuery = `
+      mutation {
+        archiveAll {
+          ... on ArchiveAllSuccess {
+            success
+          }
+          ... on ArchiveAllError {
+            errorCodes
+          }
+        }
+      }
+    `
+
+    before(async () => {
+      // Create some test pages
+      for (let i = 0; i < 5; i++) {
+        await createPage(
+          {
+            id: '',
+            hash: '',
+            userId: user.id,
+            pageType: PageType.Article,
+            title: 'test page',
+            content: '',
+            slug: '',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            readingProgressPercent: 0,
+            readingProgressAnchorIndex: 0,
+            url: '',
+            savedAt: new Date(),
+            state:
+              i == 0
+                ? ArticleSavingRequestStatus.Failed
+                : ArticleSavingRequestStatus.Succeeded,
+          },
+          ctx
+        )
+      }
+    })
+
+    after(async () => {
+      // Delete all pages
+      await deletePagesByParam({ userId: user.id }, ctx)
+    })
+
+    it('archives all pages', async () => {
+      const res = await graphqlRequest(archiveAllQuery, authToken).expect(200)
+      expect(res.body.data.archiveAll.success).to.be.true
+      await refreshIndex()
+      const pages = await graphqlRequest(searchQuery(), authToken).expect(200)
+      expect(pages.body.data.search.pageInfo.totalCount).to.eql(0)
+    })
+  })
 })

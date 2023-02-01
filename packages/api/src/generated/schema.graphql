@@ -41,6 +41,21 @@ type ApiKeysSuccess {
   apiKeys: [ApiKey!]!
 }
 
+type ArchiveAllError {
+  errorCodes: [ArchiveAllErrorCode!]!
+}
+
+enum ArchiveAllErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+union ArchiveAllResult = ArchiveAllError | ArchiveAllSuccess
+
+type ArchiveAllSuccess {
+  success: Boolean!
+}
+
 type ArchiveLinkError {
   errorCodes: [ArchiveLinkErrorCode!]!
   message: String!
@@ -1036,6 +1051,7 @@ type MoveLabelSuccess {
 
 type Mutation {
   addPopularRead(name: String!): AddPopularReadResult!
+  archiveAll: ArchiveAllResult!
   createArticle(input: CreateArticleInput!): CreateArticleResult!
   createArticleSavingRequest(input: CreateArticleSavingRequestInput!): CreateArticleSavingRequestResult!
   createGroup(input: CreateGroupInput!): CreateGroupResult!

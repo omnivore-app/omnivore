@@ -62,6 +62,23 @@ export type ApiKeysSuccess = {
   apiKeys: Array<ApiKey>;
 };
 
+export type ArchiveAllError = {
+  __typename?: 'ArchiveAllError';
+  errorCodes: Array<ArchiveAllErrorCode>;
+};
+
+export enum ArchiveAllErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type ArchiveAllResult = ArchiveAllError | ArchiveAllSuccess;
+
+export type ArchiveAllSuccess = {
+  __typename?: 'ArchiveAllSuccess';
+  success: Scalars['Boolean'];
+};
+
 export type ArchiveLinkError = {
   __typename?: 'ArchiveLinkError';
   errorCodes: Array<ArchiveLinkErrorCode>;
@@ -1164,6 +1181,7 @@ export type MoveLabelSuccess = {
 export type Mutation = {
   __typename?: 'Mutation';
   addPopularRead: AddPopularReadResult;
+  archiveAll: ArchiveAllResult;
   createArticle: CreateArticleResult;
   createArticleSavingRequest: CreateArticleSavingRequestResult;
   createGroup: CreateGroupResult;
@@ -3179,6 +3197,10 @@ export type ResolversTypes = {
   ApiKeysErrorCode: ApiKeysErrorCode;
   ApiKeysResult: ResolversTypes['ApiKeysError'] | ResolversTypes['ApiKeysSuccess'];
   ApiKeysSuccess: ResolverTypeWrapper<ApiKeysSuccess>;
+  ArchiveAllError: ResolverTypeWrapper<ArchiveAllError>;
+  ArchiveAllErrorCode: ArchiveAllErrorCode;
+  ArchiveAllResult: ResolversTypes['ArchiveAllError'] | ResolversTypes['ArchiveAllSuccess'];
+  ArchiveAllSuccess: ResolverTypeWrapper<ArchiveAllSuccess>;
   ArchiveLinkError: ResolverTypeWrapper<ArchiveLinkError>;
   ArchiveLinkErrorCode: ArchiveLinkErrorCode;
   ArchiveLinkInput: ArchiveLinkInput;
@@ -3654,6 +3676,9 @@ export type ResolversParentTypes = {
   ApiKeysError: ApiKeysError;
   ApiKeysResult: ResolversParentTypes['ApiKeysError'] | ResolversParentTypes['ApiKeysSuccess'];
   ApiKeysSuccess: ApiKeysSuccess;
+  ArchiveAllError: ArchiveAllError;
+  ArchiveAllResult: ResolversParentTypes['ArchiveAllError'] | ResolversParentTypes['ArchiveAllSuccess'];
+  ArchiveAllSuccess: ArchiveAllSuccess;
   ArchiveLinkError: ArchiveLinkError;
   ArchiveLinkInput: ArchiveLinkInput;
   ArchiveLinkResult: ResolversParentTypes['ArchiveLinkError'] | ResolversParentTypes['ArchiveLinkSuccess'];
@@ -4062,6 +4087,20 @@ export type ApiKeysResultResolvers<ContextType = ResolverContext, ParentType ext
 
 export type ApiKeysSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ApiKeysSuccess'] = ResolversParentTypes['ApiKeysSuccess']> = {
   apiKeys?: Resolver<Array<ResolversTypes['ApiKey']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ArchiveAllErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ArchiveAllError'] = ResolversParentTypes['ArchiveAllError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['ArchiveAllErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ArchiveAllResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ArchiveAllResult'] = ResolversParentTypes['ArchiveAllResult']> = {
+  __resolveType: TypeResolveFn<'ArchiveAllError' | 'ArchiveAllSuccess', ParentType, ContextType>;
+};
+
+export type ArchiveAllSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ArchiveAllSuccess'] = ResolversParentTypes['ArchiveAllSuccess']> = {
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -4871,6 +4910,7 @@ export type MoveLabelSuccessResolvers<ContextType = ResolverContext, ParentType 
 
 export type MutationResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   addPopularRead?: Resolver<ResolversTypes['AddPopularReadResult'], ParentType, ContextType, RequireFields<MutationAddPopularReadArgs, 'name'>>;
+  archiveAll?: Resolver<ResolversTypes['ArchiveAllResult'], ParentType, ContextType>;
   createArticle?: Resolver<ResolversTypes['CreateArticleResult'], ParentType, ContextType, RequireFields<MutationCreateArticleArgs, 'input'>>;
   createArticleSavingRequest?: Resolver<ResolversTypes['CreateArticleSavingRequestResult'], ParentType, ContextType, RequireFields<MutationCreateArticleSavingRequestArgs, 'input'>>;
   createGroup?: Resolver<ResolversTypes['CreateGroupResult'], ParentType, ContextType, RequireFields<MutationCreateGroupArgs, 'input'>>;
@@ -5890,6 +5930,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   ApiKeysError?: ApiKeysErrorResolvers<ContextType>;
   ApiKeysResult?: ApiKeysResultResolvers<ContextType>;
   ApiKeysSuccess?: ApiKeysSuccessResolvers<ContextType>;
+  ArchiveAllError?: ArchiveAllErrorResolvers<ContextType>;
+  ArchiveAllResult?: ArchiveAllResultResolvers<ContextType>;
+  ArchiveAllSuccess?: ArchiveAllSuccessResolvers<ContextType>;
   ArchiveLinkError?: ArchiveLinkErrorResolvers<ContextType>;
   ArchiveLinkResult?: ArchiveLinkResultResolvers<ContextType>;
   ArchiveLinkSuccess?: ArchiveLinkSuccessResolvers<ContextType>;

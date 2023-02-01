@@ -4,6 +4,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import {
+  ArchiveAllError,
+  ArchiveAllErrorCode,
+  ArchiveAllSuccess,
   Article,
   ArticleError,
   ArticleErrorCode,
@@ -89,6 +92,7 @@ import {
   SearchItem as SearchItemData,
 } from '../../elastic/types'
 import {
+  archiveAll,
   createPage,
   getPageById,
   getPageByParam,
@@ -1042,6 +1046,32 @@ export const updatesSinceResolver = authorized<
     }
   }
 )
+
+export const archiveAllResolver = authorized<
+  ArchiveAllSuccess,
+  ArchiveAllError
+>(async (_parent, _input, ctx) => {
+  const {
+    claims: { uid },
+    log,
+  } = ctx
+  log.info('archiveAllResolver')
+
+  if (!uid) {
+    log.error('archiveAllResolver', { error: 'Unauthorized' })
+    return { errorCodes: [ArchiveAllErrorCode.Unauthorized] }
+  }
+
+  analytics.track({
+    userId: uid,
+    event: 'archiveAll',
+    properties: {
+      env: env.server.apiEnv,
+    },
+  })
+
+  return { success: await archiveAll(uid, ctx) }
+})
 
 const getUpdateReason = (page: Page, since: Date) => {
   if (page.state === ArticleSavingRequestStatus.Deleted) {

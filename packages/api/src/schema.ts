@@ -2373,6 +2373,20 @@ const schema = gql`
     NOT_FOUND
   }
 
+  union ArchiveAllResult = ArchiveAllSuccess | ArchiveAllError
+
+  type ArchiveAllSuccess {
+    success: Boolean!
+  }
+
+  type ArchiveAllError {
+    errorCodes: [ArchiveAllErrorCode!]!
+  }
+
+  enum ArchiveAllErrorCode {
+    UNAUTHORIZED
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -2462,6 +2476,7 @@ const schema = gql`
       contentType: String!
     ): UploadImportFileResult!
     markEmailAsItem(recentEmailId: ID!): MarkEmailAsItemResult!
+    archiveAll: ArchiveAllResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed

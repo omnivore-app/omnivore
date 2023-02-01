@@ -644,3 +644,65 @@ export const searchAsYouType = async (
     return []
   }
 }
+
+export const archiveAll = async (
+  userId: string,
+  ctx: PageContext
+): Promise<boolean> => {
+  const archivedAt = new Date()
+  try {
+    const { body } = await client.updateByQuery({
+      index: INDEX_ALIAS,
+      conflicts: 'proceed',
+      body: {
+        query: {
+          bool: {
+            filter: [
+              {
+                term: {
+                  userId,
+                },
+              },
+              {
+                terms: {
+                  state: [
+                    ArticleSavingRequestStatus.Succeeded,
+                    ArticleSavingRequestStatus.Failed,
+                  ],
+                },
+              },
+            ],
+            must_not: [
+              {
+                exists: {
+                  field: 'archivedAt',
+                },
+              },
+            ],
+          },
+        },
+        script: {
+          source: 'ctx._source.archivedAt = params.archivedAt',
+          lang: 'painless',
+          params: {
+            archivedAt,
+          },
+        },
+      },
+    })
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    if (body.failures?.length > 0) {
+      console.log('failed to archive pages in elastic', body.failures)
+      return false
+    }
+
+    await ctx.pubsub.entityUpdated(EntityType.PAGE, { archivedAt }, ctx.uid)
+
+    console.log('archived pages in elastic', body.updated)
+    return true
+  } catch (e) {
+    console.log('failed to archive pages in elastic', e)
+    return false
+  }
+}
