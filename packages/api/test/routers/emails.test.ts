@@ -163,5 +163,20 @@ describe('Emails Router', () => {
 
       expect(res.body.id).not.to.be.undefined
     })
+
+    it('saves the email if subject is empty', async () => {
+      const data = {
+        from,
+        to: newsletterEmail,
+        html,
+      }
+      const res = await request
+        .post(url)
+        .set('Authorization', `${authToken}`)
+        .send(data)
+        .expect(200)
+
+      expect(res.body.id).not.to.be.undefined
+    })
   })
 })

@@ -36,7 +36,7 @@ interface EmailMessage {
 }
 
 function isEmailMessage(data: any): data is EmailMessage {
-  return 'from' in data && 'to' in data && 'subject' in data
+  return 'from' in data && 'to' in data
 }
 
 const logger = buildLogger('app.dispatch')
