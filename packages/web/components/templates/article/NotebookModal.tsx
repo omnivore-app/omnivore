@@ -17,7 +17,7 @@ import { TrashIcon } from '../../elements/images/TrashIcon'
 import { theme } from '../../tokens/stitches.config'
 import type { Highlight } from '../../../lib/networking/fragments/highlightFragment'
 import { HighlightView } from '../../patterns/HighlightView'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { StyledTextArea } from '../../elements/StyledTextArea'
 import { ConfirmationModal } from '../../patterns/ConfirmationModal'
 import { DotsThree } from 'phosphor-react'
@@ -27,6 +27,7 @@ import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { setLabelsForHighlight } from '../../../lib/networking/mutations/setLabelsForHighlight'
 import { updateHighlightMutation } from '../../../lib/networking/mutations/updateHighlightMutation'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
+import { diff_match_patch } from 'diff-match-patch'
 
 type NotebookModalProps = {
   highlights: Highlight[]
@@ -36,6 +37,12 @@ type NotebookModalProps = {
   onOpenChange: (open: boolean) => void
 }
 
+export const getHighlightLocation = (patch: string): number | undefined => {
+  const dmp = new diff_match_patch()
+  const patches = dmp.patch_fromText(patch)
+  return patches[0].start1 || undefined
+}
+
 export function NotebookModal(props: NotebookModalProps): JSX.Element {
   const [showConfirmDeleteHighlightId, setShowConfirmDeleteHighlightId] =
     useState<undefined | string>(undefined)
@@ -43,6 +50,30 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
     undefined
   )
   const [, updateState] = useState({})
+
+  const sortedHighlights = useMemo(() => {
+    const sorted = (a: number, b: number) => {
+      if (a < b) {
+        return -1
+      }
+      if (a > b) {
+        return 1
+      }
+      return 0
+    }
+
+    return props.highlights.sort((a: Highlight, b: Highlight) => {
+      if (a.highlightPositionPercent && b.highlightPositionPercent) {
+        return sorted(a.highlightPositionPercent, b.highlightPositionPercent)
+      }
+      const aPos = getHighlightLocation(a.patch)
+      const bPos = getHighlightLocation(b.patch)
+      if (aPos && bPos) {
+        return sorted(aPos, bPos)
+      }
+      return a.createdAt.localeCompare(b.createdAt)
+    })
+  }, [props.highlights])
 
   return (
     <ModalRoot defaultOpen onOpenChange={props.onOpenChange}>
@@ -57,7 +88,7 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
         <VStack distribution="start" css={{ height: '100%' }}>
           <ModalTitleBar title="Notebook" onOpenChange={props.onOpenChange} />
           <Box css={{ overflow: 'auto', width: '100%' }}>
-            {props.highlights.map((highlight) => (
+            {sortedHighlights.map((highlight) => (
               <ModalHighlightView
                 key={highlight.id}
                 highlight={highlight}
@@ -75,7 +106,7 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
                 updateHighlight={props.updateHighlight}
               />
             ))}
-            {props.highlights.length === 0 && (
+            {sortedHighlights.length === 0 && (
               <SpanBox css={{ textAlign: 'center', width: '100%' }}>
                 <StyledText css={{ mb: '40px' }}>
                   You have not added any highlights or notes to this document

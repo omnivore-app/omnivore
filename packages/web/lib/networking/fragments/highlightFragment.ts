@@ -11,6 +11,7 @@ export const highlightFragment = gql`
     patch
     annotation
     createdByMe
+    createdAt
     updatedAt
     sharedAt
     highlightPositionPercent
@@ -33,6 +34,7 @@ export type Highlight = {
   patch: string
   annotation?: string
   createdByMe: boolean
+  createdAt: string
   updatedAt: string
   sharedAt: string
   labels?: Label[]
