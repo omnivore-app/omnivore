@@ -1107,7 +1107,7 @@ describe('Article API', () => {
             id: '',
             hash: '',
             userId: user.id,
-            pageType: PageType.Article,
+            pageType: i == 0 ? PageType.Article : PageType.File,
             title: 'test page',
             content: '',
             slug: '',
