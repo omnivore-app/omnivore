@@ -36,6 +36,7 @@ type HighlightsLayerProps = {
   isAppleAppEmbed: boolean
   highlightBarDisabled: boolean
   showHighlightsModal: boolean
+  highlightOnRelease?: boolean
   scrollToHighlight: MutableRefObject<string | null>
   setShowHighlightsModal: React.Dispatch<React.SetStateAction<boolean>>
   articleMutations: ArticleMutations
@@ -262,7 +263,6 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       }
     },
     [
-      handleNativeShare,
       highlights,
       openNoteModal,
       props.articleId,
@@ -386,14 +386,14 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           )
 
           if (focusedHighlight) {
-            if (canShareNative) {
-              handleNativeShare(focusedHighlight.shortId)
-            } else {
-              setHighlightModalAction({
-                highlight: focusedHighlight,
-                highlightModalAction: 'share',
-              })
-            }
+            // if (canShareNative) {
+            //   handleNativeShare(focusedHighlight.shortId)
+            // } else {
+            //   setHighlightModalAction({
+            //     highlight: focusedHighlight,
+            //     highlightModalAction: 'share',
+            //   })
+            // }
           } else {
             await createHighlightCallback('share')
           }
@@ -416,7 +416,6 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
     [
       createHighlightCallback,
       focusedHighlight,
-      handleNativeShare,
       openNoteModal,
       props.highlightBarDisabled,
       props.isAppleAppEmbed,
@@ -424,6 +423,12 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       canShareNative,
     ]
   )
+
+  useEffect(() => {
+    if (props.highlightOnRelease && selectionData?.wasDragEvent) {
+      handleAction('create')
+    }
+  }, [selectionData])
 
   const dispatchHighlightError = (action: string, error: unknown) => {
     if (props.isAppleAppEmbed) {

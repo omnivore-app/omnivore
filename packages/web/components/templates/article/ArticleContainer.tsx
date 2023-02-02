@@ -30,6 +30,7 @@ type ArticleContainerProps = {
   maxWidthPercentage?: number
   highContrastFont?: boolean
   showHighlightsModal: boolean
+  highlightOnRelease?: boolean
   setShowHighlightsModal: React.Dispatch<React.SetStateAction<boolean>>
 }
 
@@ -380,6 +381,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         highlightBarDisabled={props.highlightBarDisabled}
         showHighlightsModal={props.showHighlightsModal}
         setShowHighlightsModal={props.setShowHighlightsModal}
+        highlightOnRelease={props.highlightOnRelease}
         articleMutations={props.articleMutations}
       />
       {showReportIssuesModal ? (

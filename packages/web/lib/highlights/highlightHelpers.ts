@@ -1,6 +1,5 @@
 export type SelectionAttributes = {
   selection: Selection
-  mouseEvent: React.MouseEvent
   range: Range
   focusPosition: {
     x: number
@@ -8,6 +7,7 @@ export type SelectionAttributes = {
     isReverseSelected: boolean
   }
   overlapHighlights: string[]
+  wasDragEvent: boolean
 }
 
 export const highlightIdAttribute = 'omnivore-highlight-id'

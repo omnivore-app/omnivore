@@ -9,14 +9,37 @@ import type { SelectionAttributes } from './highlightHelpers'
 export function useSelection(
   highlightLocations: HighlightLocation[]
 ): [SelectionAttributes | null, (x: SelectionAttributes | null) => void] {
+  const [touchStartPos, setTouchStartPos] = useState<
+    { x: number; y: number } | undefined
+  >(undefined)
   const [selectionAttributes, setSelectionAttributes] =
     useState<SelectionAttributes | null>(null)
 
+  const handleTouchStart = useCallback(
+    (event: TouchEvent) => {
+      setTouchStartPos({
+        x: event.touches[0].pageX,
+        y: event.touches[0].pageY,
+      })
+    },
+    [touchStartPos, setTouchStartPos]
+  )
+
   const handleFinishTouch = useCallback(
     async (mouseEvent) => {
+      var wasDragEvent = false
       const tapAttributes = {
         tapX: mouseEvent.screenX,
         tapY: mouseEvent.screenY,
+      }
+
+      if (touchStartPos) {
+        if (
+          Math.abs(touchStartPos.x - mouseEvent.pageX) > 10 ||
+          Math.abs(touchStartPos.y - mouseEvent.pageY) > 10
+        ) {
+          wasDragEvent = true
+        }
       }
 
       window?.AndroidWebKitMessenger?.handleIdentifiableMessage(
@@ -117,7 +140,7 @@ export function useSelection(
 
       return setSelectionAttributes({
         selection,
-        mouseEvent,
+        wasDragEvent,
         range: mergedRange ?? range,
         focusPosition: {
           x: rangeRect[isReverseSelected ? 'left' : 'right'],
@@ -127,7 +150,7 @@ export function useSelection(
         overlapHighlights: overlapHighlights.map(({ id }) => id),
       })
     },
-    [highlightLocations]
+    [highlightLocations, touchStartPos, setTouchStartPos]
   )
 
   const copyTextSelection = useCallback(async () => {
@@ -141,17 +164,25 @@ export function useSelection(
 
   useEffect(() => {
     document.addEventListener('mouseup', handleFinishTouch)
+    document.addEventListener('touchstart', handleTouchStart)
     document.addEventListener('touchend', handleFinishTouch)
     document.addEventListener('contextmenu', handleFinishTouch)
     document.addEventListener('copyTextSelection', copyTextSelection)
 
     return () => {
       document.removeEventListener('mouseup', handleFinishTouch)
+      document.removeEventListener('touchstart', handleTouchStart)
       document.removeEventListener('touchend', handleFinishTouch)
       document.removeEventListener('contextmenu', handleFinishTouch)
       document.removeEventListener('copyTextSelection', copyTextSelection)
     }
-  }, [highlightLocations, handleFinishTouch, copyTextSelection])
+  }, [
+    highlightLocations,
+    handleFinishTouch,
+    copyTextSelection,
+    touchStartPos,
+    setTouchStartPos,
+  ])
 
   return [selectionAttributes, setSelectionAttributes]
 }

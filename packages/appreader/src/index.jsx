@@ -99,6 +99,7 @@ const App = () => {
             margin={window.margin}
             maxWidthPercentage={window.maxWidthPercentage}
             lineHeight={window.lineHeight}
+            highlightOnRelease={true}
             highContrastFont={window.prefersHighContrastFont ?? true}
             articleMutations={{
               createHighlightMutation: (input) =>
