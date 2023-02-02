@@ -74,8 +74,11 @@ struct HighlightListItemParams: Identifiable {
   private func loadHighlights(item: LinkedItem) {
     let unsortedHighlights = item.highlights.asArray(of: Highlight.self)
 
-    let highlights = unsortedHighlights.sorted {
-      ($0.createdAt ?? Date()) < ($1.createdAt ?? Date())
+    let highlights = unsortedHighlights.sorted { left, right in
+      if left.positionPercent > 0, right.positionPercent > 0 {
+        return left.positionPercent < right.positionPercent
+      }
+      return (left.createdAt ?? Date()) < (right.createdAt ?? Date())
     }
 
     highlightItems = highlights.map {
