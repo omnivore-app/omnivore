@@ -296,7 +296,10 @@ import Utils
               shortId: shortId,
               highlightID: highlightID,
               quote: quote,
-              patch: patch
+              patch: patch,
+              // TODO
+              positionPercent: nil,
+              positionAnchorIndex: Int(pageView.pageIndex)
             )
           } else {
             let overlappingRects = overlapping.map(\.rects).compactMap { $0 }.flatMap { $0 }
@@ -317,6 +320,9 @@ import Utils
                 highlightID: highlightID,
                 quote: quote,
                 patch: patch,
+                // TODO:
+                positionPercent: nil,
+                positionAnchorIndex: Int(pageView.pageIndex),
                 overlapHighlightIdList: highlightIds(overlapping)
               )
             }

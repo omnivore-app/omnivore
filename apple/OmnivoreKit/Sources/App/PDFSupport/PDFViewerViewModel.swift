@@ -22,7 +22,9 @@ final class PDFViewerViewModel: ObservableObject {
     shortId: String,
     highlightID: String,
     quote: String,
-    patch: String
+    patch: String,
+    positionPercent: Double?,
+    positionAnchorIndex: Int?
   ) {
     _ = dataService.createHighlight(
       shortId: shortId,
@@ -30,9 +32,8 @@ final class PDFViewerViewModel: ObservableObject {
       quote: quote,
       patch: patch,
       articleId: pdfItem.itemID,
-      // TODO:
-      positionPercent: nil,
-      positionAnchorIndex: nil
+      positionPercent: positionPercent,
+      positionAnchorIndex: positionAnchorIndex
     )
   }
 
@@ -43,6 +44,8 @@ final class PDFViewerViewModel: ObservableObject {
     highlightID: String,
     quote: String,
     patch: String,
+    positionPercent: Double?,
+    positionAnchorIndex: Int?,
     overlapHighlightIdList: [String]
   ) {
     _ = dataService.mergeHighlights(
@@ -51,9 +54,8 @@ final class PDFViewerViewModel: ObservableObject {
       quote: quote,
       patch: patch,
       articleId: pdfItem.itemID,
-      // TODO:
-      positionPercent: nil,
-      positionAnchorIndex: nil,
+      positionPercent: positionPercent,
+      positionAnchorIndex: positionAnchorIndex,
       overlapHighlightIdList: overlapHighlightIdList
     )
   }
