@@ -29,7 +29,6 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
 
   return (
     <VStack css={{ width: '100%', boxSizing: 'border-box' }}>
-      {props.highlight.highlightPositionPercent}%
       <StyledQuote
         onClick={() => {
           if (props.scrollToHighlight) {
