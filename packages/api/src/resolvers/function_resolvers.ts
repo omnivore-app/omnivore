@@ -23,8 +23,8 @@ import {
 import {
   addPopularReadResolver,
   apiKeysResolver,
-  archiveAllResolver,
   articleSavingRequestResolver,
+  bulkActionResolver,
   createArticleResolver,
   createArticleSavingRequestResolver,
   createGroupResolver,
@@ -202,7 +202,7 @@ export const functionResolvers = {
     leaveGroup: leaveGroupResolver,
     uploadImportFile: uploadImportFileResolver,
     markEmailAsItem: markEmailAsItemResolver,
-    archiveAll: archiveAllResolver,
+    bulkAction: bulkActionResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -666,5 +666,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('UploadImportFile'),
   ...resultResolveTypeResolver('RecentEmails'),
   ...resultResolveTypeResolver('MarkEmailAsItem'),
-  ...resultResolveTypeResolver('ArchiveAll'),
+  ...resultResolveTypeResolver('BulkAction'),
 }

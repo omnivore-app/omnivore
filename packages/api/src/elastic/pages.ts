@@ -22,6 +22,7 @@ import {
 import { client, INDEX_ALIAS } from './index'
 import { EntityType } from '../datalayer/pubsub'
 import { ResponseError } from '@elastic/elasticsearch/lib/errors'
+import { BulkActionType } from '../generated/graphql'
 
 const appendQuery = (body: SearchBody, query: string): void => {
   body.query.bool.should.push({
@@ -645,11 +646,27 @@ export const searchAsYouType = async (
   }
 }
 
-export const archiveAllAsync = async (
+export const updatePagesAsync = async (
   userId: string,
-  ctx: PageContext
+  action: BulkActionType,
+  args?: PageSearchArgs
 ): Promise<string | null> => {
-  const archivedAt = new Date()
+  // default action is archive
+  let must_not = [
+    {
+      exists: {
+        field: 'archivedAt',
+      },
+    },
+  ]
+  let params: Record<string, any> = { archivedAt: new Date() }
+  if (action === BulkActionType.Delete) {
+    must_not = []
+    params = { state: ArticleSavingRequestStatus.Deleted }
+  }
+  // get update field
+  const field = Object.keys(params)[0]
+
   try {
     const { body } = await client.updateByQuery({
       index: INDEX_ALIAS,
@@ -673,37 +690,27 @@ export const archiveAllAsync = async (
                 },
               },
             ],
-            must_not: [
-              {
-                exists: {
-                  field: 'archivedAt',
-                },
-              },
-            ],
+            must_not,
           },
         },
         script: {
-          source: 'ctx._source.archivedAt = params.archivedAt',
+          source: `ctx._source.${field} = params.${field}`,
           lang: 'painless',
-          params: {
-            archivedAt,
-          },
+          params,
         },
       },
     })
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (body.failures?.length > 0) {
-      console.log('failed to archive pages in elastic', body.failures)
+      console.log('failed to update pages in elastic', body.failures)
       return null
     }
 
-    await ctx.pubsub.entityUpdated(EntityType.PAGE, { archivedAt }, ctx.uid)
-
-    console.log('archived all task started', body.task)
+    console.log('update pages task started', body.task)
     return body.task as string
   } catch (e) {
-    console.log('failed to archive all in elastic', e)
+    console.log('failed to update pages in elastic', e)
     return null
   }
 }

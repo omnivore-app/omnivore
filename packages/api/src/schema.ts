@@ -2373,17 +2373,22 @@ const schema = gql`
     NOT_FOUND
   }
 
-  union ArchiveAllResult = ArchiveAllSuccess | ArchiveAllError
+  enum BulkActionType {
+    DELETE
+    ARCHIVE
+  }
 
-  type ArchiveAllSuccess {
+  union BulkActionResult = BulkActionSuccess | BulkActionError
+
+  type BulkActionSuccess {
     success: Boolean!
   }
 
-  type ArchiveAllError {
-    errorCodes: [ArchiveAllErrorCode!]!
+  type BulkActionError {
+    errorCodes: [BulkActionErrorCode!]!
   }
 
-  enum ArchiveAllErrorCode {
+  enum BulkActionErrorCode {
     UNAUTHORIZED
   }
 
@@ -2476,7 +2481,7 @@ const schema = gql`
       contentType: String!
     ): UploadImportFileResult!
     markEmailAsItem(recentEmailId: ID!): MarkEmailAsItemResult!
-    archiveAll: ArchiveAllResult!
+    bulkAction(query: String, action: BulkActionType!): BulkActionResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed

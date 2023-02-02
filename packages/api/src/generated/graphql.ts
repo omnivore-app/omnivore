@@ -62,23 +62,6 @@ export type ApiKeysSuccess = {
   apiKeys: Array<ApiKey>;
 };
 
-export type ArchiveAllError = {
-  __typename?: 'ArchiveAllError';
-  errorCodes: Array<ArchiveAllErrorCode>;
-};
-
-export enum ArchiveAllErrorCode {
-  BadRequest = 'BAD_REQUEST',
-  Unauthorized = 'UNAUTHORIZED'
-}
-
-export type ArchiveAllResult = ArchiveAllError | ArchiveAllSuccess;
-
-export type ArchiveAllSuccess = {
-  __typename?: 'ArchiveAllSuccess';
-  success: Scalars['Boolean'];
-};
-
 export type ArchiveLinkError = {
   __typename?: 'ArchiveLinkError';
   errorCodes: Array<ArchiveLinkErrorCode>;
@@ -234,6 +217,27 @@ export type ArticlesSuccess = {
   edges: Array<ArticleEdge>;
   pageInfo: PageInfo;
 };
+
+export type BulkActionError = {
+  __typename?: 'BulkActionError';
+  errorCodes: Array<BulkActionErrorCode>;
+};
+
+export enum BulkActionErrorCode {
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type BulkActionResult = BulkActionError | BulkActionSuccess;
+
+export type BulkActionSuccess = {
+  __typename?: 'BulkActionSuccess';
+  success: Scalars['Boolean'];
+};
+
+export enum BulkActionType {
+  Archive = 'ARCHIVE',
+  Delete = 'DELETE'
+}
 
 export enum ContentReader {
   Pdf = 'PDF',
@@ -1181,7 +1185,7 @@ export type MoveLabelSuccess = {
 export type Mutation = {
   __typename?: 'Mutation';
   addPopularRead: AddPopularReadResult;
-  archiveAll: ArchiveAllResult;
+  bulkAction: BulkActionResult;
   createArticle: CreateArticleResult;
   createArticleSavingRequest: CreateArticleSavingRequestResult;
   createGroup: CreateGroupResult;
@@ -1252,6 +1256,12 @@ export type Mutation = {
 
 export type MutationAddPopularReadArgs = {
   name: Scalars['String'];
+};
+
+
+export type MutationBulkActionArgs = {
+  action: BulkActionType;
+  query?: InputMaybe<Scalars['String']>;
 };
 
 
@@ -3197,10 +3207,6 @@ export type ResolversTypes = {
   ApiKeysErrorCode: ApiKeysErrorCode;
   ApiKeysResult: ResolversTypes['ApiKeysError'] | ResolversTypes['ApiKeysSuccess'];
   ApiKeysSuccess: ResolverTypeWrapper<ApiKeysSuccess>;
-  ArchiveAllError: ResolverTypeWrapper<ArchiveAllError>;
-  ArchiveAllErrorCode: ArchiveAllErrorCode;
-  ArchiveAllResult: ResolversTypes['ArchiveAllError'] | ResolversTypes['ArchiveAllSuccess'];
-  ArchiveAllSuccess: ResolverTypeWrapper<ArchiveAllSuccess>;
   ArchiveLinkError: ResolverTypeWrapper<ArchiveLinkError>;
   ArchiveLinkErrorCode: ArchiveLinkErrorCode;
   ArchiveLinkInput: ArchiveLinkInput;
@@ -3224,6 +3230,11 @@ export type ResolversTypes = {
   ArticlesResult: ResolversTypes['ArticlesError'] | ResolversTypes['ArticlesSuccess'];
   ArticlesSuccess: ResolverTypeWrapper<ArticlesSuccess>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
+  BulkActionError: ResolverTypeWrapper<BulkActionError>;
+  BulkActionErrorCode: BulkActionErrorCode;
+  BulkActionResult: ResolversTypes['BulkActionError'] | ResolversTypes['BulkActionSuccess'];
+  BulkActionSuccess: ResolverTypeWrapper<BulkActionSuccess>;
+  BulkActionType: BulkActionType;
   ContentReader: ContentReader;
   CreateArticleError: ResolverTypeWrapper<CreateArticleError>;
   CreateArticleErrorCode: CreateArticleErrorCode;
@@ -3676,9 +3687,6 @@ export type ResolversParentTypes = {
   ApiKeysError: ApiKeysError;
   ApiKeysResult: ResolversParentTypes['ApiKeysError'] | ResolversParentTypes['ApiKeysSuccess'];
   ApiKeysSuccess: ApiKeysSuccess;
-  ArchiveAllError: ArchiveAllError;
-  ArchiveAllResult: ResolversParentTypes['ArchiveAllError'] | ResolversParentTypes['ArchiveAllSuccess'];
-  ArchiveAllSuccess: ArchiveAllSuccess;
   ArchiveLinkError: ArchiveLinkError;
   ArchiveLinkInput: ArchiveLinkInput;
   ArchiveLinkResult: ResolversParentTypes['ArchiveLinkError'] | ResolversParentTypes['ArchiveLinkSuccess'];
@@ -3697,6 +3705,9 @@ export type ResolversParentTypes = {
   ArticlesResult: ResolversParentTypes['ArticlesError'] | ResolversParentTypes['ArticlesSuccess'];
   ArticlesSuccess: ArticlesSuccess;
   Boolean: Scalars['Boolean'];
+  BulkActionError: BulkActionError;
+  BulkActionResult: ResolversParentTypes['BulkActionError'] | ResolversParentTypes['BulkActionSuccess'];
+  BulkActionSuccess: BulkActionSuccess;
   CreateArticleError: CreateArticleError;
   CreateArticleInput: CreateArticleInput;
   CreateArticleResult: ResolversParentTypes['CreateArticleError'] | ResolversParentTypes['CreateArticleSuccess'];
@@ -4090,20 +4101,6 @@ export type ApiKeysSuccessResolvers<ContextType = ResolverContext, ParentType ex
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type ArchiveAllErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ArchiveAllError'] = ResolversParentTypes['ArchiveAllError']> = {
-  errorCodes?: Resolver<Array<ResolversTypes['ArchiveAllErrorCode']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
-export type ArchiveAllResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ArchiveAllResult'] = ResolversParentTypes['ArchiveAllResult']> = {
-  __resolveType: TypeResolveFn<'ArchiveAllError' | 'ArchiveAllSuccess', ParentType, ContextType>;
-};
-
-export type ArchiveAllSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ArchiveAllSuccess'] = ResolversParentTypes['ArchiveAllSuccess']> = {
-  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
 export type ArchiveLinkErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ArchiveLinkError'] = ResolversParentTypes['ArchiveLinkError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['ArchiveLinkErrorCode']>, ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -4222,6 +4219,20 @@ export type ArticlesResultResolvers<ContextType = ResolverContext, ParentType ex
 export type ArticlesSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ArticlesSuccess'] = ResolversParentTypes['ArticlesSuccess']> = {
   edges?: Resolver<Array<ResolversTypes['ArticleEdge']>, ParentType, ContextType>;
   pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type BulkActionErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['BulkActionError'] = ResolversParentTypes['BulkActionError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['BulkActionErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type BulkActionResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['BulkActionResult'] = ResolversParentTypes['BulkActionResult']> = {
+  __resolveType: TypeResolveFn<'BulkActionError' | 'BulkActionSuccess', ParentType, ContextType>;
+};
+
+export type BulkActionSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['BulkActionSuccess'] = ResolversParentTypes['BulkActionSuccess']> = {
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -4910,7 +4921,7 @@ export type MoveLabelSuccessResolvers<ContextType = ResolverContext, ParentType 
 
 export type MutationResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   addPopularRead?: Resolver<ResolversTypes['AddPopularReadResult'], ParentType, ContextType, RequireFields<MutationAddPopularReadArgs, 'name'>>;
-  archiveAll?: Resolver<ResolversTypes['ArchiveAllResult'], ParentType, ContextType>;
+  bulkAction?: Resolver<ResolversTypes['BulkActionResult'], ParentType, ContextType, RequireFields<MutationBulkActionArgs, 'action'>>;
   createArticle?: Resolver<ResolversTypes['CreateArticleResult'], ParentType, ContextType, RequireFields<MutationCreateArticleArgs, 'input'>>;
   createArticleSavingRequest?: Resolver<ResolversTypes['CreateArticleSavingRequestResult'], ParentType, ContextType, RequireFields<MutationCreateArticleSavingRequestArgs, 'input'>>;
   createGroup?: Resolver<ResolversTypes['CreateGroupResult'], ParentType, ContextType, RequireFields<MutationCreateGroupArgs, 'input'>>;
@@ -5930,9 +5941,6 @@ export type Resolvers<ContextType = ResolverContext> = {
   ApiKeysError?: ApiKeysErrorResolvers<ContextType>;
   ApiKeysResult?: ApiKeysResultResolvers<ContextType>;
   ApiKeysSuccess?: ApiKeysSuccessResolvers<ContextType>;
-  ArchiveAllError?: ArchiveAllErrorResolvers<ContextType>;
-  ArchiveAllResult?: ArchiveAllResultResolvers<ContextType>;
-  ArchiveAllSuccess?: ArchiveAllSuccessResolvers<ContextType>;
   ArchiveLinkError?: ArchiveLinkErrorResolvers<ContextType>;
   ArchiveLinkResult?: ArchiveLinkResultResolvers<ContextType>;
   ArchiveLinkSuccess?: ArchiveLinkSuccessResolvers<ContextType>;
@@ -5948,6 +5956,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   ArticlesError?: ArticlesErrorResolvers<ContextType>;
   ArticlesResult?: ArticlesResultResolvers<ContextType>;
   ArticlesSuccess?: ArticlesSuccessResolvers<ContextType>;
+  BulkActionError?: BulkActionErrorResolvers<ContextType>;
+  BulkActionResult?: BulkActionResultResolvers<ContextType>;
+  BulkActionSuccess?: BulkActionSuccessResolvers<ContextType>;
   CreateArticleError?: CreateArticleErrorResolvers<ContextType>;
   CreateArticleResult?: CreateArticleResultResolvers<ContextType>;
   CreateArticleSavingRequestError?: CreateArticleSavingRequestErrorResolvers<ContextType>;

@@ -41,21 +41,6 @@ type ApiKeysSuccess {
   apiKeys: [ApiKey!]!
 }
 
-type ArchiveAllError {
-  errorCodes: [ArchiveAllErrorCode!]!
-}
-
-enum ArchiveAllErrorCode {
-  BAD_REQUEST
-  UNAUTHORIZED
-}
-
-union ArchiveAllResult = ArchiveAllError | ArchiveAllSuccess
-
-type ArchiveAllSuccess {
-  success: Boolean!
-}
-
 type ArchiveLinkError {
   errorCodes: [ArchiveLinkErrorCode!]!
   message: String!
@@ -192,6 +177,25 @@ union ArticlesResult = ArticlesError | ArticlesSuccess
 type ArticlesSuccess {
   edges: [ArticleEdge!]!
   pageInfo: PageInfo!
+}
+
+type BulkActionError {
+  errorCodes: [BulkActionErrorCode!]!
+}
+
+enum BulkActionErrorCode {
+  UNAUTHORIZED
+}
+
+union BulkActionResult = BulkActionError | BulkActionSuccess
+
+type BulkActionSuccess {
+  success: Boolean!
+}
+
+enum BulkActionType {
+  ARCHIVE
+  DELETE
 }
 
 enum ContentReader {
@@ -1051,7 +1055,7 @@ type MoveLabelSuccess {
 
 type Mutation {
   addPopularRead(name: String!): AddPopularReadResult!
-  archiveAll: ArchiveAllResult!
+  bulkAction(action: BulkActionType!, query: String): BulkActionResult!
   createArticle(input: CreateArticleInput!): CreateArticleResult!
   createArticleSavingRequest(input: CreateArticleSavingRequestInput!): CreateArticleSavingRequestResult!
   createGroup(input: CreateGroupInput!): CreateGroupResult!
