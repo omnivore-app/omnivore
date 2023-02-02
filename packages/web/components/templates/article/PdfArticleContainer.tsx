@@ -136,12 +136,23 @@ export default function PdfArticleContainer(
           id: 'tooltip-remove-annotation',
           className: 'TooltipItem-Remove',
           onPress: () => {
+            const annotationId = annotationOmnivoreId(annotation)
+
             instance
               .delete(annotation)
               .then(() => {
-                const annotationId = annotationOmnivoreId(annotation)
                 if (annotationId) {
                   return deleteHighlightMutation(annotationId)
+                }
+              })
+              .then(() => {
+                const highlightIdx = highlightsRef.current.findIndex(
+                  (value) => {
+                    return value.id == annotationId
+                  }
+                )
+                if (highlightIdx > -1) {
+                  highlightsRef.current.splice(highlightIdx, 1)
                 }
               })
               .catch((err) => {
