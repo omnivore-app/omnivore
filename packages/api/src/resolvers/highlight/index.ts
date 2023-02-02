@@ -74,12 +74,18 @@ export const createHighlightResolver = authorized<
     }
   }
 
+  // unescape HTML entities
+  const annotation = input.annotation
+    ? unescapeHtml(input.annotation)
+    : undefined
+
   try {
     const highlight: HighlightData = {
+      ...input,
       updatedAt: new Date(),
       createdAt: new Date(),
       userId: claims.uid,
-      ...input,
+      annotation,
     }
 
     if (
