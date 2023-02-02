@@ -10,6 +10,8 @@ export type CreateHighlightInput = {
   shortId: string
   patch: string
   articleId: string
+  highlightPositionPercent?: number
+  highlightPositionAnchorIndex?: number
 }
 
 type CreateHighlightOutput = {
