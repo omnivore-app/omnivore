@@ -74,6 +74,18 @@ export default function PdfArticleContainer(
     [nativeShare, canShareNative, props.article.title]
   )
 
+  const annotationOmnivoreId = (annotation: Annotation): string | undefined => {
+    if (
+      annotation &&
+      annotation.customData &&
+      annotation.customData.omnivoreHighlight &&
+      (annotation.customData.omnivoreHighlight as Highlight).id
+    ) {
+      return (annotation.customData.omnivoreHighlight as Highlight).id
+    }
+    return undefined
+  }
+
   useEffect(() => {
     let instance: Instance
     const container = containerRef.current
@@ -127,14 +139,9 @@ export default function PdfArticleContainer(
             instance
               .delete(annotation)
               .then(() => {
-                if (
-                  annotation.customData &&
-                  annotation.customData.omnivoreHighlight &&
-                  (annotation.customData.omnivoreHighlight as Highlight).id
-                ) {
-                  const data = annotation.customData
-                    .omnivoreHighlight as Highlight
-                  return deleteHighlightMutation(data.id)
+                const annotationId = annotationOmnivoreId(annotation)
+                if (annotationId) {
+                  return deleteHighlightMutation(annotationId)
                 }
               })
               .catch((err) => {
@@ -211,17 +218,15 @@ export default function PdfArticleContainer(
 
       instance.addEventListener('annotations.willChange', async (event) => {
         const annotation = event.annotations.get(0)
-        if (event.reason !== PSPDFKit.AnnotationsWillChangeReason.DELETE_END) {
+        if (
+          !annotation ||
+          event.reason !== PSPDFKit.AnnotationsWillChangeReason.DELETE_END
+        ) {
           return
         }
-        if (
-          annotation &&
-          annotation.customData &&
-          annotation.customData.omnivoreHighlight &&
-          (annotation.customData.omnivoreHighlight as Highlight).id
-        ) {
-          const data = annotation.customData.omnivoreHighlight as Highlight
-          await deleteHighlightMutation(data.id)
+        const annotationId = annotationOmnivoreId(annotation)
+        if (annotationId) {
+          await deleteHighlightMutation(annotationId)
         }
       })
 
@@ -416,13 +421,11 @@ export default function PdfArticleContainer(
         const annotations = await instance.getAnnotations(pageIdx)
         for (let annIdx = 0; annIdx < annotations.size; annIdx++) {
           const annotation = annotations.get(annIdx)
-          if (
-            annotation &&
-            annotation.customData &&
-            annotation.customData.omnivoreHighlight &&
-            (annotation.customData.omnivoreHighlight as Highlight).id ==
-              annotationId
-          ) {
+          if (!annotation) {
+            continue
+          }
+          const storedId = annotationOmnivoreId(annotation)
+          if (storedId == annotationId) {
             await instance.delete(annotation)
             await deleteHighlightMutation(annotationId)
 
