@@ -11,6 +11,7 @@ import 'mocha'
 import { User } from '../../src/entity/user'
 import chaiString from 'chai-string'
 import {
+  BulkActionType,
   SyncUpdatedItemEdge,
   UpdateReason,
   UploadFileStatus,
@@ -1082,6 +1083,89 @@ describe('Article API', () => {
       expect(res.body.data.updatesSince.edges[0].updateReason).to.eq(
         UpdateReason.Deleted
       )
+    })
+  })
+
+  describe('BulkAction API', () => {
+    const bulkActionQuery = (action: BulkActionType) => `
+      mutation {
+        bulkAction (action: ${action}) {
+          ... on BulkActionSuccess {
+            success
+          }
+          ... on BulkActionError {
+            errorCodes
+          }
+        }
+      }
+    `
+
+    before(async () => {
+      // Create some test pages
+      for (let i = 0; i < 5; i++) {
+        await createPage(
+          {
+            id: '',
+            hash: '',
+            userId: user.id,
+            pageType: i == 0 ? PageType.Article : PageType.File,
+            title: 'test page',
+            content: '',
+            slug: '',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            readingProgressPercent: 0,
+            readingProgressAnchorIndex: 0,
+            url: '',
+            savedAt: new Date(),
+            state:
+              i == 0
+                ? ArticleSavingRequestStatus.Failed
+                : ArticleSavingRequestStatus.Succeeded,
+          },
+          ctx
+        )
+      }
+    })
+
+    after(async () => {
+      // Delete all pages
+      await deletePagesByParam({ userId: user.id }, ctx)
+    })
+
+    context('when action is Archive', () => {
+      it('archives all pages', async () => {
+        const res = await graphqlRequest(
+          bulkActionQuery(BulkActionType.Archive),
+          authToken
+        ).expect(200)
+        expect(res.body.data.bulkAction.success).to.be.true
+        // Wait for the archive to finish
+        await setTimeout(async () => {
+          const pages = await graphqlRequest(searchQuery(), authToken).expect(
+            200
+          )
+          expect(pages.body.data.search.pageInfo.totalCount).to.eql(0)
+        }, 1000)
+      })
+    })
+
+    context('when action is Delete', () => {
+      it('deletes all pages', async () => {
+        const res = await graphqlRequest(
+          bulkActionQuery(BulkActionType.Delete),
+          authToken
+        ).expect(200)
+        expect(res.body.data.bulkAction.success).to.be.true
+        // Wait for the delete to finish
+        await setTimeout(async () => {
+          const pages = await graphqlRequest(
+            searchQuery('in:all'),
+            authToken
+          ).expect(200)
+          expect(pages.body.data.search.pageInfo.totalCount).to.eql(0)
+        }, 1000)
+      })
     })
   })
 })
