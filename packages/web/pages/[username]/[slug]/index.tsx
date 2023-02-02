@@ -339,7 +339,6 @@ export default function Home(): JSX.Element {
               article={article}
               isAppleAppEmbed={false}
               highlightBarDisabled={false}
-              highlightsBaseURL={`${webBaseURL}/${viewerData.me?.profile?.username}/${slug}/highlights`}
               fontSize={readerSettings.fontSize}
               margin={readerSettings.marginWidth}
               lineHeight={readerSettings.lineHeight}

@@ -23,7 +23,6 @@ type ArticleContainerProps = {
   articleMutations: ArticleMutations
   isAppleAppEmbed: boolean
   highlightBarDisabled: boolean
-  highlightsBaseURL: string
   margin?: number
   fontSize?: number
   fontFamily?: string
@@ -378,7 +377,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         articleAuthor={props.article.author ?? ''}
         articleId={props.article.id}
         isAppleAppEmbed={props.isAppleAppEmbed}
-        highlightsBaseURL={props.highlightsBaseURL}
         highlightBarDisabled={props.highlightBarDisabled}
         showHighlightsModal={props.showHighlightsModal}
         setShowHighlightsModal={props.setShowHighlightsModal}

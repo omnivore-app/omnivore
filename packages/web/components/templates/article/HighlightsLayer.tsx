@@ -36,7 +36,6 @@ type HighlightsLayerProps = {
   isAppleAppEmbed: boolean
   highlightBarDisabled: boolean
   showHighlightsModal: boolean
-  highlightsBaseURL: string
   scrollToHighlight: MutableRefObject<string | null>
   setShowHighlightsModal: React.Dispatch<React.SetStateAction<boolean>>
   articleMutations: ArticleMutations
@@ -140,24 +139,6 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       setHighlights([...keptHighlights, highlight])
     },
     [highlights, highlightLocations]
-  )
-
-  const handleNativeShare = useCallback(
-    (highlightID: string) => {
-      navigator
-        ?.share({
-          title: props.articleTitle,
-          url: `${props.highlightsBaseURL}/${highlightID}`,
-        })
-        .then(() => {
-          setFocusedHighlight(undefined)
-        })
-        .catch((error) => {
-          console.log(error)
-          setFocusedHighlight(undefined)
-        })
-    },
-    [props.articleTitle, props.highlightsBaseURL]
   )
 
   const openNoteModal = useCallback(
@@ -610,23 +591,6 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
             labels.map((label) => label.id)
           )
           return result
-        }}
-      />
-    )
-  }
-
-  if (
-    highlightModalAction?.highlightModalAction == 'share' &&
-    highlightModalAction.highlight
-  ) {
-    return (
-      <ShareHighlightModal
-        url={`${props.highlightsBaseURL}/${highlightModalAction.highlight.shortId}`}
-        title={props.articleTitle}
-        author={props.articleAuthor}
-        highlight={highlightModalAction.highlight}
-        onOpenChange={() => {
-          setHighlightModalAction({ highlightModalAction: 'none' })
         }}
       />
     )

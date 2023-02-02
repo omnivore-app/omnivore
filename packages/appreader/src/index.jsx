@@ -94,7 +94,6 @@ const App = () => {
             labels={window.omnivoreArticle.labels}
             isAppleAppEmbed={true}
             highlightBarDisabled={!window.enableHighlightBar}
-            highlightsBaseURL="https://example.com"
             fontSize={window.fontSize ?? 18}
             fontFamily={window.fontFamily ?? 'inter'}
             margin={window.margin}

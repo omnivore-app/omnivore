@@ -95,7 +95,6 @@ function AppArticleEmbedContent(
             article={articleData.article.article}
             isAppleAppEmbed={true}
             highlightBarDisabled={props.highlightBarDisabled}
-            highlightsBaseURL={`${webBaseURL}/${props.username}/${props.slug}/highlights`}
             fontSize={props.fontSize}
             margin={props.margin}
             fontFamily={props.fontFamily}
