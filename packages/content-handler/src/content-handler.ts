@@ -39,12 +39,16 @@ export interface PreHandleResult {
 export const FAKE_URL_PREFIX = 'https://omnivore.app/no_url?q='
 export const generateUniqueUrl = () => FAKE_URL_PREFIX + uuid()
 
-export abstract class ContentHandler {
+export class ContentHandler {
   protected senderRegex: RegExp
   protected urlRegex: RegExp
   name: string
 
-  protected constructor() {
+  // newsletter url text regex for newsletters that don't have a newsletter header
+  NEWSLETTER_URL_TEXT_REGEX =
+    /((View|Read)(.*)(email|post)?(.*)(in your browser|online|on (FS|the Web))|Lire en ligne)/i
+
+  constructor() {
     this.senderRegex = new RegExp(/NEWSLETTER_SENDER_REGEX/)
     this.urlRegex = new RegExp(/NEWSLETTER_URL_REGEX/)
     this.name = 'Handler name'
@@ -80,16 +84,20 @@ export abstract class ContentHandler {
     headers: Record<string, string | string[]>
     dom: Document
   }): Promise<boolean> {
-    const re = new RegExp(this.senderRegex)
-    const postHeader = input.headers['list-post']
+    const postHeader = input.headers['list-post'] || input.headers['list-id']
     const unSubHeader = input.headers['list-unsubscribe']
-    return Promise.resolve(
-      re.test(input.from) && (!!postHeader || !!unSubHeader)
-    )
+    return Promise.resolve(!!postHeader || !!unSubHeader)
   }
 
   findNewsletterHeaderHref(dom: Document): string | undefined {
-    return undefined
+    const readOnline = dom.querySelectorAll('a')
+    let res: string | undefined = undefined
+    readOnline.forEach((e) => {
+      if (e.textContent && this.NEWSLETTER_URL_TEXT_REGEX.test(e.textContent)) {
+        res = e.getAttribute('href') || undefined
+      }
+    })
+    return res
   }
 
   // Given an HTML blob tries to find a URL to use for
@@ -121,11 +129,24 @@ export abstract class ContentHandler {
     headers: Record<string, string | string[]>,
     html: string
   ): Promise<string | undefined> {
+    // raw SubStack newsletter url is like <https://hongbo130.substack.com/p/tldr>
+    // we need to get the real url from the raw url
+    const postHeader = headers['list-post']?.toString()
+    if (postHeader && addressparser(postHeader).length > 0) {
+      return addressparser(postHeader)[0].name
+    }
+
+    const url = await this.findNewsletterUrl(html)
+    if (url) {
+      return url
+    }
+
     // get newsletter url from html
     const matches = html.match(this.urlRegex)
     if (matches) {
       return Promise.resolve(matches[1])
     }
+
     return Promise.resolve(undefined)
   }
 

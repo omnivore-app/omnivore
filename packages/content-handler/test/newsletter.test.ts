@@ -1,23 +1,23 @@
-import "mocha";
-import * as chai from "chai";
-import { expect } from "chai";
-import chaiAsPromised from "chai-as-promised";
-import chaiString from "chai-string";
-import { SubstackHandler } from "../src/newsletters/substack-handler";
-import { AxiosHandler } from "../src/newsletters/axios-handler";
-import { BloombergNewsletterHandler } from "../src/newsletters/bloomberg-newsletter-handler";
-import { GolangHandler } from "../src/newsletters/golang-handler";
-import { MorningBrewHandler } from "../src/newsletters/morning-brew-handler";
-import nock from "nock";
-import { generateUniqueUrl } from "../src/content-handler";
-import fs from "fs";
-import { BeehiivHandler } from "../src/newsletters/beehiiv-handler";
-import { ConvertkitHandler } from "../src/newsletters/convertkit-handler";
-import { GhostHandler } from "../src/newsletters/ghost-handler";
-import { CooperPressHandler } from "../src/newsletters/cooper-press-handler";
-import { getNewsletterHandler } from "../src";
-import { parseHTML } from "linkedom";
-import { HeyWorldHandler } from "../src/newsletters/hey-world-handler";
+import 'mocha'
+import * as chai from 'chai'
+import { expect } from 'chai'
+import chaiAsPromised from 'chai-as-promised'
+import chaiString from 'chai-string'
+import { SubstackHandler } from '../src/newsletters/substack-handler'
+import { AxiosHandler } from '../src/newsletters/axios-handler'
+import { BloombergNewsletterHandler } from '../src/newsletters/bloomberg-newsletter-handler'
+import { GolangHandler } from '../src/newsletters/golang-handler'
+import { MorningBrewHandler } from '../src/newsletters/morning-brew-handler'
+import nock from 'nock'
+import { ContentHandler, generateUniqueUrl } from '../src/content-handler'
+import fs from 'fs'
+import { BeehiivHandler } from '../src/newsletters/beehiiv-handler'
+import { ConvertkitHandler } from '../src/newsletters/convertkit-handler'
+import { GhostHandler } from '../src/newsletters/ghost-handler'
+import { CooperPressHandler } from '../src/newsletters/cooper-press-handler'
+import { getNewsletterHandler } from '../src'
+import { parseHTML } from 'linkedom'
+import { HeyWorldHandler } from '../src/newsletters/hey-world-handler'
 
 chai.use(chaiAsPromised)
 chai.use(chaiString)
@@ -78,6 +78,28 @@ describe('Newsletter email test', () => {
       await expect(
         new MorningBrewHandler().parseNewsletterUrl({}, html)
       ).to.eventually.equal(url)
+    })
+
+    context('when email is from TTSO', () => {
+      before(() => {
+        nock('https://u25184427.ct.sendgrid.net')
+          .head(
+            '/ls/click?upn=P3-2FaBQ7M-2FNDUahrImPzjb5IJ1HxwpoWueibAnkVYsE7-2BEheb6ET732gFDDPaU3kbVi8SbYJ1qrmirIU-2Bv-2FXI7ATVIKLxbniavLprvKAI4D4MF3x-2BTrsmTPADymnqAAcraWiuQsupuWZBun933pm6WZqKUKSxVYJzstKQf99AKNWeVPVRJp6JB2iY2FYSMsK-2BuUvZxdKXxO6ulSVynglWjqVN-2BoymZZUGgPSZyaxhVOPaGh3Zm8XAjQ-2Bg-2Bj5lJv2d7V5T_vVXscVLXlj5UtQe3aqo5RMTdTq2PepdZjP86UOmA8nxwv9liJXSvQhGKaieq5BGLFF1BYI-2FiEnfr1neeqi6jXSQvOWKGt9lxEPSLVP3ON5ZlNo-2FabdBl0c-2BV7Fivi1b3NGRcnoPsSyWZVXcYqCHaabltMz0-2Bw3U3rmfSIGPyDyyRcrmT81QUw6CrIx55zcwJlPbX7eL0Y2Gp9y7AymwAgw-3D-3D'
+          )
+          .reply(301, undefined, {
+            Location: 'https://ttso.paris/2023-01-31',
+          })
+        nock('https://ttso.paris').head('/2023-01-31').reply(200, '')
+      })
+
+      it('returns url when email is from TTSO', async () => {
+        const url = 'https://ttso.paris/2023-01-31'
+        const html = load('./test/data/ttso-newsletter.html')
+
+        await expect(
+          new ContentHandler().parseNewsletterUrl({}, html)
+        ).to.eventually.equal(url)
+      })
     })
   })
 
@@ -175,7 +197,7 @@ describe('Newsletter email test', () => {
         from: '',
         headers: {
           'x-newsletter': 'https://www.milkroad.com/p/bored-ape-amazon',
-          'x-beehiiv-type': 'newsletter'
+          'x-beehiiv-type': 'newsletter',
         },
       })
       expect(handler).to.be.instanceOf(BeehiivHandler)
@@ -211,14 +233,17 @@ describe('Newsletter email test', () => {
       expect(handler).to.be.instanceOf(CooperPressHandler)
     })
 
-    it('returns HeyWorldHandler for hey world newsletter', async () => {
+    it('returns ContentHandler for hey world newsletter', async () => {
       const html = load('./test/data/hey-world-newsletter.html')
       const handler = await getNewsletterHandler({
         html,
         from: 'Hongbo Wu <hw@world.hey.com>',
-        headers: {'list-unsubscribe': '<https://world.hey.com/dhh/subscribers/MtuoW9TvSJK9o5c7ohB72V2s/unsubscribe>'},
+        headers: {
+          'list-unsubscribe':
+            '<https://world.hey.com/dhh/subscribers/MtuoW9TvSJK9o5c7ohB72V2s/unsubscribe>',
+        },
       })
-      expect(handler).to.be.instanceOf(HeyWorldHandler)
+      expect(handler).to.be.instanceOf(ContentHandler)
     })
 
     it('returns ConvertkitHandler for Tomasz Tunguz newsletter', async () => {
@@ -239,6 +264,20 @@ describe('Newsletter email test', () => {
         headers: {},
       })
       expect(handler).to.be.undefined
+    })
+
+    it('returns ContentHandler for TTSO newsletter', async () => {
+      const html = load('./test/data/ttso-newsletter.html')
+      const handler = await getNewsletterHandler({
+        html,
+        from: 'Time To Sign Off <daily@timetosignoff.fr>',
+        headers: {
+          'list-id': '<daily.timetosignoff.fr.k5yx-uok.mj>',
+          'list-unsubscribe':
+            '<mailto:unsub-e86467ca.k5yx.x15515@bnc3.mailjet.com>, <https://k5yx.mjt.lu/unsub2?m=AAAAADHYIIAActfCvIAALdDY50AAAAAtZ4AAC8UAAk9yQBj2U4KUkToWXqgR9OqHSm_LHvyrQAIwzU&b=e86467ca&e=7132d286&x=FUkLKVFH4r_0f--3tAm2RPnjzf5a0IVmKjTWv1nE-GAaJXzXvZHIKiojmrtWYhDE>',
+        },
+      })
+      expect(handler).to.be.instanceOf(ContentHandler)
     })
   })
 
@@ -270,12 +309,13 @@ describe('Newsletter email test', () => {
 
     context('when email is from beehiiv', () => {
       it('gets the URL from the header', async () => {
-        const url = await new BeehiivHandler().parseNewsletterUrl({
-          'x-newsletter': 'https://www.milkroad.com/p/bored-ape-amazon',
-        }, '')
-        expect(url).to.startWith(
-          'https://www.milkroad.com/p/bored-ape-amazon'
+        const url = await new BeehiivHandler().parseNewsletterUrl(
+          {
+            'x-newsletter': 'https://www.milkroad.com/p/bored-ape-amazon',
+          },
+          ''
         )
+        expect(url).to.startWith('https://www.milkroad.com/p/bored-ape-amazon')
       })
     })
 
@@ -357,6 +397,25 @@ describe('Newsletter email test', () => {
         expect(url).to.startWith(
           'https://world.hey.com/dhh/here-s-how-to-fix-twitter-79632ecb'
         )
+      })
+    })
+
+    context('when email is from TTSO', () => {
+      before(() => {
+        nock('https://u25184427.ct.sendgrid.net')
+          .head(
+            '/ls/click?upn=P3-2FaBQ7M-2FNDUahrImPzjb5IJ1HxwpoWueibAnkVYsE7-2BEheb6ET732gFDDPaU3kbVi8SbYJ1qrmirIU-2Bv-2FXI7ATVIKLxbniavLprvKAI4D4MF3x-2BTrsmTPADymnqAAcraWiuQsupuWZBun933pm6WZqKUKSxVYJzstKQf99AKNWeVPVRJp6JB2iY2FYSMsK-2BuUvZxdKXxO6ulSVynglWjqVN-2BoymZZUGgPSZyaxhVOPaGh3Zm8XAjQ-2Bg-2Bj5lJv2d7V5T_vVXscVLXlj5UtQe3aqo5RMTdTq2PepdZjP86UOmA8nxwv9liJXSvQhGKaieq5BGLFF1BYI-2FiEnfr1neeqi6jXSQvOWKGt9lxEPSLVP3ON5ZlNo-2FabdBl0c-2BV7Fivi1b3NGRcnoPsSyWZVXcYqCHaabltMz0-2Bw3U3rmfSIGPyDyyRcrmT81QUw6CrIx55zcwJlPbX7eL0Y2Gp9y7AymwAgw-3D-3D'
+          )
+          .reply(301, undefined, {
+            Location: 'https://ttso.paris/2023-01-31',
+          })
+        nock('https://ttso.paris').head('/2023-01-31').reply(200, '')
+      })
+
+      it('gets the URL from the header', async () => {
+        const html = load('./test/data/ttso-newsletter.html')
+        const url = await new ContentHandler().findNewsletterUrl(html)
+        expect(url).to.startWith('https://ttso.paris/2023-01-31')
       })
     })
   })
