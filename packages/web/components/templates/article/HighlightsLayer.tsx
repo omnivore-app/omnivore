@@ -427,6 +427,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   useEffect(() => {
     if (props.highlightOnRelease && selectionData?.wasDragEvent) {
       handleAction('create')
+      setSelectionData(null)
     }
   }, [selectionData])
 
