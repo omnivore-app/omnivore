@@ -29,7 +29,10 @@ final class PDFViewerViewModel: ObservableObject {
       highlightID: highlightID,
       quote: quote,
       patch: patch,
-      articleId: pdfItem.itemID
+      articleId: pdfItem.itemID,
+      // TODO:
+      positionPercent: nil,
+      positionAnchorIndex: nil
     )
   }
 
@@ -48,6 +51,9 @@ final class PDFViewerViewModel: ObservableObject {
       quote: quote,
       patch: patch,
       articleId: pdfItem.itemID,
+      // TODO:
+      positionPercent: nil,
+      positionAnchorIndex: nil,
       overlapHighlightIdList: overlapHighlightIdList
     )
   }

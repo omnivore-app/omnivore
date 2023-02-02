@@ -83,6 +83,8 @@ struct SafariWebLink: Identifiable {
       quote: messageBody["quote"] as? String ?? "",
       patch: messageBody["patch"] as? String ?? "",
       articleId: messageBody["articleId"] as? String ?? "",
+      positionPercent: messageBody["highlightPositionPercent"] as? Double,
+      positionAnchorIndex: messageBody["highlightPositionAnchorIndex"] as? Int,
       annotation: messageBody["annotation"] as? String ?? ""
     )
 
@@ -113,7 +115,9 @@ struct SafariWebLink: Identifiable {
       let quote = messageBody["quote"] as? String,
       let patch = messageBody["patch"] as? String,
       let articleId = messageBody["articleId"] as? String,
-      let overlapHighlightIdList = messageBody["overlapHighlightIdList"] as? [String]
+      let overlapHighlightIdList = messageBody["overlapHighlightIdList"] as? [String],
+      let positionPercent = messageBody["highlightPositionPercent"] as? Double,
+      let positionAnchorIndex = messageBody["highlightPositionAnchorIndex"] as? Int
     else {
       replyHandler([], "createHighlight: Error encoding response")
       return
@@ -125,6 +129,8 @@ struct SafariWebLink: Identifiable {
       quote: quote,
       patch: patch,
       articleId: articleId,
+      positionPercent: positionPercent,
+      positionAnchorIndex: positionAnchorIndex,
       overlapHighlightIdList: overlapHighlightIdList
     )
 
