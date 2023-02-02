@@ -269,6 +269,34 @@ import Utils
         return result
       }
 
+      func heightBefore(pageIndex: PageIndex) -> Double {
+        var totalHeight = 0.0
+        for idx in 0 ..< pageIndex {
+          if let page = document.pageInfoForPage(at: idx) {
+            totalHeight += page.size.height
+          }
+        }
+        return totalHeight
+      }
+
+      func documentTotalHeight() -> Double {
+        var totalHeight = 0.0
+        for idx in 0 ..< document.pageCount {
+          if let page = document.pageInfoForPage(at: idx) {
+            totalHeight += page.size.height
+          }
+        }
+        return totalHeight
+      }
+
+      func highlightTop(pageView: PDFPageView, highlight: HighlightAnnotation) -> Double {
+        if let pageInfo = pageView.pageInfo {
+          return pageInfo.size.height - highlight.boundingBox.minY
+        }
+
+        return 0.0
+      }
+
       // swiftlint:disable:next function_body_length
       func highlightSelection(pageView: PDFPageView, selectedText: String, dataService: DataService) -> String {
         let highlightID = UUID().uuidString.lowercased()
@@ -290,13 +318,18 @@ import Utils
         let overlapping = overlappingHighlights(pageView: pageView, highlight: highlight)
 
         if let patchData = try? highlight.generateInstantJSON(), let patch = String(data: patchData, encoding: .utf8) {
+          let top = highlightTop(pageView: pageView, highlight: highlight)
+          let positionPercent = (heightBefore(pageIndex: pageView.pageIndex) + top) / documentTotalHeight()
+
           if overlapping.isEmpty {
             viewModel.createHighlight(
               dataService: dataService,
               shortId: shortId,
               highlightID: highlightID,
               quote: quote,
-              patch: patch
+              patch: patch,
+              positionPercent: positionPercent,
+              positionAnchorIndex: Int(pageView.pageIndex)
             )
           } else {
             let overlappingRects = overlapping.map(\.rects).compactMap { $0 }.flatMap { $0 }
@@ -307,6 +340,9 @@ import Utils
               boundingBox: boundingBox,
               pageIndex: Int(pageView.pageIndex)
             ) {
+              let top = boundingBox.minY
+              let positionPercent = (heightBefore(pageIndex: pageView.pageIndex) + top) / documentTotalHeight()
+
               mergedHighlight.customData = highlight.customData
               document.add(annotations: [mergedHighlight])
               document.remove(annotations: overlapping + [highlight])
@@ -317,6 +353,8 @@ import Utils
                 highlightID: highlightID,
                 quote: quote,
                 patch: patch,
+                positionPercent: positionPercent,
+                positionAnchorIndex: Int(pageView.pageIndex),
                 overlapHighlightIdList: highlightIds(overlapping)
               )
             }

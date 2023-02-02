@@ -19,7 +19,7 @@ import { removeHighlights } from '../../../lib/highlights/deleteHighlight'
 import { createHighlight } from '../../../lib/highlights/createHighlight'
 import { HighlightNoteModal } from './HighlightNoteModal'
 import { ShareHighlightModal } from './ShareHighlightModal'
-import { HighlightsModal } from './HighlightsModal'
+import { NotebookModal } from './NotebookModal'
 import { useCanShareNative } from '../../../lib/hooks/useCanShareNative'
 import { showErrorToast } from '../../../lib/toastHelpers'
 import { ArticleMutations } from '../../../lib/articleActions'
@@ -69,16 +69,15 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   >([])
   const focusedHighlightMousePos = useRef({ pageX: 0, pageY: 0 })
 
-  const [focusedHighlight, setFocusedHighlight] =
-    useState<Highlight | undefined>(undefined)
+  const [focusedHighlight, setFocusedHighlight] = useState<
+    Highlight | undefined
+  >(undefined)
 
-  const [selectionData, setSelectionData] = useSelection(
-    highlightLocations,
-    false //noteModal.open,
+  const [selectionData, setSelectionData] = useSelection(highlightLocations)
+
+  const [labelsTarget, setLabelsTarget] = useState<Highlight | undefined>(
+    undefined
   )
-
-  const [labelsTarget, setLabelsTarget] =
-    useState<Highlight | undefined>(undefined)
 
   const canShareNative = useCanShareNative()
 
@@ -190,6 +189,41 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
     [props.highlightBarDisabled]
   )
 
+  const selectionPercentPos = (selection: Selection): number | undefined => {
+    if (
+      selection.rangeCount > 0 &&
+      window &&
+      window.document.scrollingElement
+    ) {
+      const percent =
+        (selection.getRangeAt(0).getBoundingClientRect().y + window.scrollY) /
+        window.document.scrollingElement.scrollHeight
+      return Math.min(Math.max(0, percent * 100), 100)
+    }
+    return undefined
+  }
+
+  const selectionAnchorIndex = (selection: Selection): number | undefined => {
+    if (selection.rangeCount > 0) {
+      const containerElement = () => {
+        const node = selection.getRangeAt(0).startContainer
+        if (node.nodeType == Node.ELEMENT_NODE) {
+          return node as HTMLElement
+        }
+        return node.parentElement
+      }
+      let walk = containerElement()
+      while (walk) {
+        const idx = Number(walk.getAttribute('data-omnivore-anchor-idx'))
+        if (idx > 0) {
+          return idx
+        }
+        walk = walk.parentElement
+      }
+    }
+    return undefined
+  }
+
   const createHighlightFromSelection = async (
     selection: SelectionAttributes,
     note?: string
@@ -201,6 +235,8 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         existingHighlights: highlights,
         highlightStartEndOffsets: highlightLocations,
         annotation: note,
+        highlightPositionPercent: selectionPercentPos(selection.selection),
+        highlightPositionAnchorIndex: selectionAnchorIndex(selection.selection),
       },
       props.articleMutations
     )
@@ -255,20 +291,6 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       highlightLocations,
     ]
   )
-
-  const scrollToHighlight = (id: string) => {
-    const foundElement = document.querySelector(
-      `[omnivore-highlight-id="${id}"]`
-    )
-    if (foundElement) {
-      foundElement.scrollIntoView({
-        block: 'center',
-        behavior: 'smooth',
-      })
-      window.location.hash = `#${id}`
-      props.setShowHighlightsModal(false)
-    }
-  }
 
   // Detect mouseclick on a highlight -- call `setFocusedHighlight` when highlight detected
   const handleClickHighlight = useCallback(
@@ -641,7 +663,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
 
   if (props.showHighlightsModal) {
     return (
-      <HighlightsModal
+      <NotebookModal
         highlights={highlights}
         onOpenChange={() => props.setShowHighlightsModal(false)}
         deleteHighlightAction={(highlightId: string) => {

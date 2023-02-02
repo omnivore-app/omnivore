@@ -18,6 +18,8 @@ type CreateHighlightInput = {
   annotation?: string
   existingHighlights: Highlight[]
   highlightStartEndOffsets: HighlightLocation[]
+  highlightPositionPercent?: number
+  highlightPositionAnchorIndex?: number
 }
 
 type CreateHighlightOutput = {
@@ -30,7 +32,6 @@ export async function createHighlight(
   input: CreateHighlightInput,
   articleMutations: ArticleMutations
 ): Promise<CreateHighlightOutput> {
-
   if (!input.selection.selection) {
     return {}
   }
@@ -65,7 +66,10 @@ export async function createHighlight(
         annotations.push(annotation)
       }
     })
-    removeHighlights(input.selection.overlapHighlights, input.highlightStartEndOffsets)
+    removeHighlights(
+      input.selection.overlapHighlights,
+      input.highlightStartEndOffsets
+    )
   }
 
   const highlightAttributes = makeHighlightNodeAttributes(
@@ -83,6 +87,8 @@ export async function createHighlight(
     patch,
     annotation: annotations.length > 0 ? annotations.join('\n') : undefined,
     articleId: input.articleId,
+    highlightPositionPercent: input.highlightPositionPercent,
+    highlightPositionAnchorIndex: input.highlightPositionAnchorIndex,
   }
 
   let highlight: Highlight | undefined
@@ -98,7 +104,9 @@ export async function createHighlight(
       ($0) => !input.selection.overlapHighlights.includes($0.id)
     )
   } else {
-    highlight = await articleMutations.createHighlightMutation(newHighlightAttributes)
+    highlight = await articleMutations.createHighlightMutation(
+      newHighlightAttributes
+    )
   }
 
   if (highlight) {

@@ -12,6 +12,8 @@ export type MergeHighlightInput = {
   suffix?: string
   annotation?: string
   overlapHighlightIdList: string[]
+  highlightPositionPercent?: number
+  highlightPositionAnchorIndex?: number
 }
 
 export type MergeHighlightOutput = {

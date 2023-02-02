@@ -11,6 +11,8 @@ extension DataService {
     quote: String,
     patch: String,
     articleId: String,
+    positionPercent: Double?,
+    positionAnchorIndex: Int?,
     overlapHighlightIdList: [String]
   ) -> [String: Any]? {
     let internalHighlight = InternalHighlight(
@@ -25,6 +27,8 @@ extension DataService {
       updatedAt: nil,
       createdByMe: true,
       createdBy: nil,
+      positionPercent: positionPercent,
+      positionAnchorIndex: positionAnchorIndex,
       labels: []
     )
 

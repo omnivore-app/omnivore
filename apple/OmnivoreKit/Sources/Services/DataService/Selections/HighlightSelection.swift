@@ -24,6 +24,8 @@ let highlightSelection = Selection.Highlight {
     updatedAt: try $0.updatedAt().value,
     createdByMe: try $0.createdByMe(),
     createdBy: try $0.user(selection: userProfileSelection),
+    positionPercent: try $0.highlightPositionPercent(),
+    positionAnchorIndex: try $0.highlightPositionAnchorIndex(),
     labels: try $0.labels(selection: highlightLabelSelection.list.nullable) ?? []
   )
 }
