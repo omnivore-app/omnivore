@@ -23,6 +23,7 @@ const createHighlightQuery = (
   shortHighlightId: string,
   highlightPositionPercent = 0.0,
   highlightPositionAnchorIndex = 0,
+  annotation = '_annotation',
   prefix = '_prefix',
   suffix = '_suffix',
   quote = '_quote',
@@ -41,6 +42,7 @@ const createHighlightQuery = (
         articleId: "${linkId}",
         highlightPositionPercent: ${highlightPositionPercent},
         highlightPositionAnchorIndex: ${highlightPositionAnchorIndex}
+        annotation: "${annotation}"
       }
     ) {
       ... on CreateHighlightSuccess {
@@ -48,6 +50,7 @@ const createHighlightQuery = (
           id
           highlightPositionPercent
           highlightPositionAnchorIndex
+          annotation
         }
       }
       ... on CreateHighlightError {
@@ -176,6 +179,28 @@ describe('Highlights API', () => {
       expect(
         res.body.data.createHighlight.highlight.highlightPositionAnchorIndex
       ).to.eq(highlightPositionAnchorIndex)
+    })
+
+    context('when the annotation has HTML reserved characters', () => {
+      it('unescapes the annotation and creates', async () => {
+        const newHighlightId = generateFakeUuid()
+        const newShortHighlightId = '_short_id_4'
+        const highlightPositionPercent = 50.0
+        const highlightPositionAnchorIndex = 25
+        const query = createHighlightQuery(
+          authToken,
+          pageId,
+          newHighlightId,
+          newShortHighlightId,
+          highlightPositionPercent,
+          highlightPositionAnchorIndex,
+          '-> <-'
+        )
+        const res = await graphqlRequest(query, authToken).expect(200)
+        expect(res.body.data.createHighlight.highlight.annotation).to.eql(
+          '-> <-'
+        )
+      })
     })
   })
 
