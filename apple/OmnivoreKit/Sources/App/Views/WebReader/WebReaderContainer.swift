@@ -274,7 +274,7 @@ struct WebReaderContainerView: View {
         },
         label: {
           #if os(iOS)
-            Image.profile
+            Image(systemName: "ellipsis")
               .padding(.horizontal)
               .scaleEffect(navBarVisibilityRatio)
           #else
