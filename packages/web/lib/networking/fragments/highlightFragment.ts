@@ -11,8 +11,11 @@ export const highlightFragment = gql`
     patch
     annotation
     createdByMe
+    createdAt
     updatedAt
     sharedAt
+    highlightPositionPercent
+    highlightPositionAnchorIndex
     labels {
       id
       name
@@ -31,9 +34,12 @@ export type Highlight = {
   patch: string
   annotation?: string
   createdByMe: boolean
+  createdAt: string
   updatedAt: string
   sharedAt: string
   labels?: Label[]
+  highlightPositionPercent?: number
+  highlightPositionAnchorIndex?: number
 }
 
 export type User = {

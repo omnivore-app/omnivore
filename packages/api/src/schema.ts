@@ -2373,6 +2373,25 @@ const schema = gql`
     NOT_FOUND
   }
 
+  enum BulkActionType {
+    DELETE
+    ARCHIVE
+  }
+
+  union BulkActionResult = BulkActionSuccess | BulkActionError
+
+  type BulkActionSuccess {
+    success: Boolean!
+  }
+
+  type BulkActionError {
+    errorCodes: [BulkActionErrorCode!]!
+  }
+
+  enum BulkActionErrorCode {
+    UNAUTHORIZED
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -2462,6 +2481,7 @@ const schema = gql`
       contentType: String!
     ): UploadImportFileResult!
     markEmailAsItem(recentEmailId: ID!): MarkEmailAsItemResult!
+    bulkAction(query: String, action: BulkActionType!): BulkActionResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed

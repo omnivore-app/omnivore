@@ -21,10 +21,9 @@ export class ConvertkitHandler extends ContentHandler {
   }
 
   async isNewsletter(input: {
-    postHeader: string
     from: string
-    unSubHeader: string
     dom: Document
+    headers: Record<string, string | string[]>
   }): Promise<boolean> {
     const dom = input.dom
     const icons = dom.querySelectorAll(
@@ -45,7 +44,7 @@ export class ConvertkitHandler extends ContentHandler {
   }
 
   async parseNewsletterUrl(
-    postHeader: string,
+    headers: Record<string, string | string[]>,
     html: string
   ): Promise<string | undefined> {
     return this.findNewsletterUrl(html)

@@ -11,12 +11,11 @@ interface Unsubscribe {
 }
 
 export interface NewsletterInput {
-  postHeader: string
   from: string
-  unSubHeader: string
-  email: string
+  to: string
+  subject: string
   html: string
-  title: string
+  headers: Record<string, string | string[]>
 }
 
 export interface NewsletterResult {
@@ -40,12 +39,16 @@ export interface PreHandleResult {
 export const FAKE_URL_PREFIX = 'https://omnivore.app/no_url?q='
 export const generateUniqueUrl = () => FAKE_URL_PREFIX + uuid()
 
-export abstract class ContentHandler {
+export class ContentHandler {
   protected senderRegex: RegExp
   protected urlRegex: RegExp
   name: string
 
-  protected constructor() {
+  // newsletter url text regex for newsletters that don't have a newsletter header
+  NEWSLETTER_URL_TEXT_REGEX =
+    /((View|Read)(.*)(email|post)?(.*)(in your browser|online|on (FS|the Web))|Lire en ligne)/i
+
+  constructor() {
     this.senderRegex = new RegExp(/NEWSLETTER_SENDER_REGEX/)
     this.urlRegex = new RegExp(/NEWSLETTER_URL_REGEX/)
     this.name = 'Handler name'
@@ -76,20 +79,25 @@ export abstract class ContentHandler {
   }
 
   async isNewsletter(input: {
-    postHeader: string
     from: string
-    unSubHeader: string
     html: string
+    headers: Record<string, string | string[]>
     dom: Document
   }): Promise<boolean> {
-    const re = new RegExp(this.senderRegex)
-    return Promise.resolve(
-      re.test(input.from) && (!!input.postHeader || !!input.unSubHeader)
-    )
+    const postHeader = input.headers['list-post'] || input.headers['list-id']
+    const unSubHeader = input.headers['list-unsubscribe']
+    return Promise.resolve(!!postHeader || !!unSubHeader)
   }
 
   findNewsletterHeaderHref(dom: Document): string | undefined {
-    return undefined
+    const readOnline = dom.querySelectorAll('a')
+    let res: string | undefined = undefined
+    readOnline.forEach((e) => {
+      if (e.textContent && this.NEWSLETTER_URL_TEXT_REGEX.test(e.textContent)) {
+        res = e.getAttribute('href') || undefined
+      }
+    })
+    return res
   }
 
   // Given an HTML blob tries to find a URL to use for
@@ -118,14 +126,27 @@ export abstract class ContentHandler {
   }
 
   async parseNewsletterUrl(
-    _postHeader: string,
+    headers: Record<string, string | string[]>,
     html: string
   ): Promise<string | undefined> {
+    // raw SubStack newsletter url is like <https://hongbo130.substack.com/p/tldr>
+    // we need to get the real url from the raw url
+    const postHeader = headers['list-post']?.toString()
+    if (postHeader && addressparser(postHeader).length > 0) {
+      return addressparser(postHeader)[0].name
+    }
+
+    const url = await this.findNewsletterUrl(html)
+    if (url) {
+      return url
+    }
+
     // get newsletter url from html
     const matches = html.match(this.urlRegex)
     if (matches) {
       return Promise.resolve(matches[1])
     }
+
     return Promise.resolve(undefined)
   }
 
@@ -151,16 +172,15 @@ export abstract class ContentHandler {
   }
 
   async handleNewsletter({
-    email,
-    html,
-    postHeader,
-    title,
     from,
-    unSubHeader,
+    to,
+    subject,
+    html,
+    headers,
   }: NewsletterInput): Promise<NewsletterResult> {
-    console.log('handleNewsletter', email, postHeader, title, from)
+    console.log('handleNewsletter', from, to, subject, headers, from)
 
-    if (!email || !html || !title || !from) {
+    if (!from || !html || !subject || !to) {
       console.log('invalid newsletter email')
       throw new Error('invalid newsletter email')
     }
@@ -168,15 +188,17 @@ export abstract class ContentHandler {
     // fallback to default url if newsletter url does not exist
     // assign a random uuid to the default url to avoid duplicate url
     const url =
-      (await this.parseNewsletterUrl(postHeader, html)) || generateUniqueUrl()
+      (await this.parseNewsletterUrl(headers, html)) || generateUniqueUrl()
     const author = this.parseAuthor(from)
-    const unsubscribe = this.parseUnsubscribe(unSubHeader)
+    const unsubscribe = this.parseUnsubscribe(
+      headers['list-unsubscribe']?.toString()
+    )
 
     return {
-      email,
+      email: to,
       content: html,
       url,
-      title,
+      title: subject,
       author,
       unsubMailTo: unsubscribe.mailTo || '',
       unsubHttpUrl: unsubscribe.httpUrl || '',

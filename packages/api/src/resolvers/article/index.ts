@@ -9,12 +9,16 @@ import {
   ArticleErrorCode,
   ArticlesError,
   ArticleSuccess,
+  BulkActionError,
+  BulkActionErrorCode,
+  BulkActionSuccess,
   ContentReader,
   CreateArticleError,
   CreateArticleErrorCode,
   CreateArticleSuccess,
   FeedArticle,
   InputMaybe,
+  MutationBulkActionArgs,
   MutationCreateArticleArgs,
   MutationSaveArticleReadingProgressArgs,
   MutationSetBookmarkArticleArgs,
@@ -95,6 +99,7 @@ import {
   searchAsYouType,
   searchPages,
   updatePage,
+  updatePagesAsync,
 } from '../../elastic/pages'
 import { searchHighlights } from '../../elastic/highlights'
 import { saveSearchHistory } from '../../services/search_history'
@@ -1042,6 +1047,34 @@ export const updatesSinceResolver = authorized<
     }
   }
 )
+
+export const bulkActionResolver = authorized<
+  BulkActionSuccess,
+  BulkActionError,
+  MutationBulkActionArgs
+>(async (_parent, { action }, { claims: { uid }, log }) => {
+  log.info('bulkActionResolver')
+
+  if (!uid) {
+    log.error('bulkActionResolver', { error: 'Unauthorized' })
+    return { errorCodes: [BulkActionErrorCode.Unauthorized] }
+  }
+
+  analytics.track({
+    userId: uid,
+    event: 'BulkAction',
+    properties: {
+      env: env.server.apiEnv,
+    },
+  })
+
+  // TODO: get search filters from query
+
+  // start a task to update pages
+  const taskId = await updatePagesAsync(uid, action)
+
+  return { success: !!taskId }
+})
 
 const getUpdateReason = (page: Page, since: Date) => {
   if (page.state === ArticleSavingRequestStatus.Deleted) {

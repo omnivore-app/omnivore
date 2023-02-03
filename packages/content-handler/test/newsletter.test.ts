@@ -9,7 +9,7 @@ import { BloombergNewsletterHandler } from '../src/newsletters/bloomberg-newslet
 import { GolangHandler } from '../src/newsletters/golang-handler'
 import { MorningBrewHandler } from '../src/newsletters/morning-brew-handler'
 import nock from 'nock'
-import { generateUniqueUrl } from '../src/content-handler'
+import { ContentHandler, generateUniqueUrl } from '../src/content-handler'
 import fs from 'fs'
 import { BeehiivHandler } from '../src/newsletters/beehiiv-handler'
 import { ConvertkitHandler } from '../src/newsletters/convertkit-handler'
@@ -29,10 +29,10 @@ const load = (path: string): string => {
 describe('Newsletter email test', () => {
   describe('#getNewsletterUrl()', () => {
     it('returns url when email is from SubStack', async () => {
-      const rawUrl = '<https://hongbo130.substack.com/p/tldr>'
+      const headers = { 'list-post': '<https://hongbo130.substack.com/p/tldr>' }
 
       await expect(
-        new SubstackHandler().parseNewsletterUrl(rawUrl, '')
+        new SubstackHandler().parseNewsletterUrl(headers, '')
       ).to.eventually.equal('https://hongbo130.substack.com/p/tldr')
     })
 
@@ -41,7 +41,7 @@ describe('Newsletter email test', () => {
       const html = `View in browser at <a>${url}</a>`
 
       await expect(
-        new AxiosHandler().parseNewsletterUrl('', html)
+        new AxiosHandler().parseNewsletterUrl({}, html)
       ).to.eventually.equal(url)
     })
 
@@ -54,7 +54,7 @@ describe('Newsletter email test', () => {
       `
 
       await expect(
-        new BloombergNewsletterHandler().parseNewsletterUrl('', html)
+        new BloombergNewsletterHandler().parseNewsletterUrl({}, html)
       ).to.eventually.equal(url)
     })
 
@@ -65,7 +65,7 @@ describe('Newsletter email test', () => {
       `
 
       await expect(
-        new GolangHandler().parseNewsletterUrl('', html)
+        new GolangHandler().parseNewsletterUrl({}, html)
       ).to.eventually.equal(url)
     })
 
@@ -76,8 +76,30 @@ describe('Newsletter email test', () => {
       `
 
       await expect(
-        new MorningBrewHandler().parseNewsletterUrl('', html)
+        new MorningBrewHandler().parseNewsletterUrl({}, html)
       ).to.eventually.equal(url)
+    })
+
+    context('when email is from TTSO', () => {
+      before(() => {
+        nock('https://u25184427.ct.sendgrid.net')
+          .head(
+            '/ls/click?upn=P3-2FaBQ7M-2FNDUahrImPzjb5IJ1HxwpoWueibAnkVYsE7-2BEheb6ET732gFDDPaU3kbVi8SbYJ1qrmirIU-2Bv-2FXI7ATVIKLxbniavLprvKAI4D4MF3x-2BTrsmTPADymnqAAcraWiuQsupuWZBun933pm6WZqKUKSxVYJzstKQf99AKNWeVPVRJp6JB2iY2FYSMsK-2BuUvZxdKXxO6ulSVynglWjqVN-2BoymZZUGgPSZyaxhVOPaGh3Zm8XAjQ-2Bg-2Bj5lJv2d7V5T_vVXscVLXlj5UtQe3aqo5RMTdTq2PepdZjP86UOmA8nxwv9liJXSvQhGKaieq5BGLFF1BYI-2FiEnfr1neeqi6jXSQvOWKGt9lxEPSLVP3ON5ZlNo-2FabdBl0c-2BV7Fivi1b3NGRcnoPsSyWZVXcYqCHaabltMz0-2Bw3U3rmfSIGPyDyyRcrmT81QUw6CrIx55zcwJlPbX7eL0Y2Gp9y7AymwAgw-3D-3D'
+          )
+          .reply(301, undefined, {
+            Location: 'https://ttso.paris/2023-01-31',
+          })
+        nock('https://ttso.paris').head('/2023-01-31').reply(200, '')
+      })
+
+      it('returns url when email is from TTSO', async () => {
+        const url = 'https://ttso.paris/2023-01-31'
+        const html = load('./test/data/ttso-newsletter.html')
+
+        await expect(
+          new ContentHandler().parseNewsletterUrl({}, html)
+        ).to.eventually.equal(url)
+      })
     })
   })
 
@@ -105,9 +127,8 @@ describe('Newsletter email test', () => {
       const html = load('./test/data/substack-forwarded-newsletter.html')
       const handler = await getNewsletterHandler({
         html,
-        postHeader: '',
         from: '',
-        unSubHeader: '',
+        headers: {},
       })
       expect(handler).to.be.instanceOf(SubstackHandler)
     })
@@ -118,9 +139,8 @@ describe('Newsletter email test', () => {
       )
       const handler = await getNewsletterHandler({
         html,
-        postHeader: '',
         from: '',
-        unSubHeader: '',
+        headers: {},
       })
       expect(handler).to.be.instanceOf(SubstackHandler)
     })
@@ -129,9 +149,8 @@ describe('Newsletter email test', () => {
       const html = load('./test/data/substack-forwarded-welcome-email.html')
       const handler = await getNewsletterHandler({
         html,
-        postHeader: '',
         from: '',
-        unSubHeader: '',
+        headers: {},
       })
       expect(handler).to.be.undefined
     })
@@ -142,9 +161,8 @@ describe('Newsletter email test', () => {
       )
       const handler = await getNewsletterHandler({
         html,
-        postHeader: '',
         from: '',
-        unSubHeader: '',
+        headers: {},
       })
       expect(handler).to.be.instanceOf(SubstackHandler)
     })
@@ -157,9 +175,8 @@ describe('Newsletter email test', () => {
       )
       const handler = await getNewsletterHandler({
         html,
-        postHeader: '',
         from: '',
-        unSubHeader: '',
+        headers: {},
       })
       expect(handler).to.be.instanceOf(SubstackHandler)
 
@@ -175,23 +192,13 @@ describe('Newsletter email test', () => {
     })
 
     it('returns BeehiivHandler for beehiiv.com newsletter', async () => {
-      const html = load('./test/data/beehiiv-newsletter.html')
       const handler = await getNewsletterHandler({
-        html,
-        postHeader: '',
+        html: '',
         from: '',
-        unSubHeader: '',
-      })
-      expect(handler).to.be.instanceOf(BeehiivHandler)
-    })
-
-    it('returns BeehiivHandler for milkroad newsletter', async () => {
-      const html = load('./test/data/milkroad-newsletter.html')
-      const handler = await getNewsletterHandler({
-        html,
-        postHeader: '',
-        from: '',
-        unSubHeader: '',
+        headers: {
+          'x-newsletter': 'https://www.milkroad.com/p/bored-ape-amazon',
+          'x-beehiiv-type': 'newsletter',
+        },
       })
       expect(handler).to.be.instanceOf(BeehiivHandler)
     })
@@ -200,9 +207,8 @@ describe('Newsletter email test', () => {
       const html = load('./test/data/ghost-newsletter.html')
       const handler = await getNewsletterHandler({
         html,
-        postHeader: '',
         from: '',
-        unSubHeader: '',
+        headers: {},
       })
       expect(handler).to.be.instanceOf(GhostHandler)
     })
@@ -211,9 +217,8 @@ describe('Newsletter email test', () => {
       const html = load('./test/data/convertkit-newsletter.html')
       const handler = await getNewsletterHandler({
         html,
-        postHeader: '',
         from: '',
-        unSubHeader: '',
+        headers: {},
       })
       expect(handler).to.be.instanceOf(ConvertkitHandler)
     })
@@ -222,32 +227,31 @@ describe('Newsletter email test', () => {
       const html = load('./test/data/node-weekly-newsletter.html')
       const handler = await getNewsletterHandler({
         html,
-        postHeader: '',
         from: '',
-        unSubHeader: '',
+        headers: {},
       })
       expect(handler).to.be.instanceOf(CooperPressHandler)
     })
 
-    it('returns HeyWorldHandler for hey world newsletter', async () => {
+    it('returns ContentHandler for hey world newsletter', async () => {
       const html = load('./test/data/hey-world-newsletter.html')
       const handler = await getNewsletterHandler({
         html,
-        postHeader: '',
         from: 'Hongbo Wu <hw@world.hey.com>',
-        unSubHeader:
-          '<https://world.hey.com/dhh/subscribers/MtuoW9TvSJK9o5c7ohB72V2s/unsubscribe>',
+        headers: {
+          'list-unsubscribe':
+            '<https://world.hey.com/dhh/subscribers/MtuoW9TvSJK9o5c7ohB72V2s/unsubscribe>',
+        },
       })
-      expect(handler).to.be.instanceOf(HeyWorldHandler)
+      expect(handler).to.be.instanceOf(ContentHandler)
     })
 
     it('returns ConvertkitHandler for Tomasz Tunguz newsletter', async () => {
       const html = load('./test/data/tomasz-tunguz-newsletter.html')
       const handler = await getNewsletterHandler({
         html,
-        postHeader: '',
         from: '',
-        unSubHeader: '',
+        headers: {},
       })
       expect(handler).to.be.instanceOf(ConvertkitHandler)
     })
@@ -256,11 +260,24 @@ describe('Newsletter email test', () => {
       const html = load('./test/data/convertkit-confirmation.html')
       const handler = await getNewsletterHandler({
         html,
-        postHeader: '',
         from: '',
-        unSubHeader: '',
+        headers: {},
       })
       expect(handler).to.be.undefined
+    })
+
+    it('returns ContentHandler for TTSO newsletter', async () => {
+      const html = load('./test/data/ttso-newsletter.html')
+      const handler = await getNewsletterHandler({
+        html,
+        from: 'Time To Sign Off <daily@timetosignoff.fr>',
+        headers: {
+          'list-id': '<daily.timetosignoff.fr.k5yx-uok.mj>',
+          'list-unsubscribe':
+            '<mailto:unsub-e86467ca.k5yx.x15515@bnc3.mailjet.com>, <https://k5yx.mjt.lu/unsub2?m=AAAAADHYIIAActfCvIAALdDY50AAAAAtZ4AAC8UAAk9yQBj2U4KUkToWXqgR9OqHSm_LHvyrQAIwzU&b=e86467ca&e=7132d286&x=FUkLKVFH4r_0f--3tAm2RPnjzf5a0IVmKjTWv1nE-GAaJXzXvZHIKiojmrtWYhDE>',
+        },
+      })
+      expect(handler).to.be.instanceOf(ContentHandler)
     })
   })
 
@@ -291,25 +308,14 @@ describe('Newsletter email test', () => {
     })
 
     context('when email is from beehiiv', () => {
-      before(() => {
-        nock('https://u23463625.ct.sendgrid.net')
-          .head(
-            '/ss/c/AX1lEgEQaxtvFxLaVo0GBo_geajNrlI1TGeIcmMViR3pL3fEDZnbbkoeKcaY62QZk0KPFudUiUXc_uMLerV4nA/3k5/3TFZmreTR0qKSCgowABnVg/h30/zzLik7UXd1H_n4oyd5W8Xu639AYQQB2UXz-CsssSnno'
-          )
-          .reply(301, undefined, {
-            Location: 'https://www.milkroad.com/p/talked-guy-spent-30m-beeple',
-          })
-        nock('https://www.milkroad.com')
-          .head('/p/talked-guy-spent-30m-beeple')
-          .reply(200, '')
-      })
-
       it('gets the URL from the header', async () => {
-        const html = load('./test/data/beehiiv-newsletter.html')
-        const url = await new BeehiivHandler().findNewsletterUrl(html)
-        expect(url).to.startWith(
-          'https://www.milkroad.com/p/talked-guy-spent-30m-beeple'
+        const url = await new BeehiivHandler().parseNewsletterUrl(
+          {
+            'x-newsletter': 'https://www.milkroad.com/p/bored-ape-amazon',
+          },
+          ''
         )
+        expect(url).to.startWith('https://www.milkroad.com/p/bored-ape-amazon')
       })
     })
 
@@ -391,6 +397,25 @@ describe('Newsletter email test', () => {
         expect(url).to.startWith(
           'https://world.hey.com/dhh/here-s-how-to-fix-twitter-79632ecb'
         )
+      })
+    })
+
+    context('when email is from TTSO', () => {
+      before(() => {
+        nock('https://u25184427.ct.sendgrid.net')
+          .head(
+            '/ls/click?upn=P3-2FaBQ7M-2FNDUahrImPzjb5IJ1HxwpoWueibAnkVYsE7-2BEheb6ET732gFDDPaU3kbVi8SbYJ1qrmirIU-2Bv-2FXI7ATVIKLxbniavLprvKAI4D4MF3x-2BTrsmTPADymnqAAcraWiuQsupuWZBun933pm6WZqKUKSxVYJzstKQf99AKNWeVPVRJp6JB2iY2FYSMsK-2BuUvZxdKXxO6ulSVynglWjqVN-2BoymZZUGgPSZyaxhVOPaGh3Zm8XAjQ-2Bg-2Bj5lJv2d7V5T_vVXscVLXlj5UtQe3aqo5RMTdTq2PepdZjP86UOmA8nxwv9liJXSvQhGKaieq5BGLFF1BYI-2FiEnfr1neeqi6jXSQvOWKGt9lxEPSLVP3ON5ZlNo-2FabdBl0c-2BV7Fivi1b3NGRcnoPsSyWZVXcYqCHaabltMz0-2Bw3U3rmfSIGPyDyyRcrmT81QUw6CrIx55zcwJlPbX7eL0Y2Gp9y7AymwAgw-3D-3D'
+          )
+          .reply(301, undefined, {
+            Location: 'https://ttso.paris/2023-01-31',
+          })
+        nock('https://ttso.paris').head('/2023-01-31').reply(200, '')
+      })
+
+      it('gets the URL from the header', async () => {
+        const html = load('./test/data/ttso-newsletter.html')
+        const url = await new ContentHandler().findNewsletterUrl(html)
+        expect(url).to.startWith('https://ttso.paris/2023-01-31')
       })
     })
   })

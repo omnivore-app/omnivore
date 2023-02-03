@@ -41,20 +41,41 @@ class WebReaderViewModel @Inject constructor(
   val annotationLiveData = MutableLiveData<String?>(null)
   val javascriptActionLoopUUIDLiveData = MutableLiveData(lastJavascriptActionLoopUUID)
   val shouldPopViewLiveData = MutableLiveData<Boolean>(false)
+  val hasFetchError = MutableLiveData<Boolean>(false)
 
   var hasTappedExistingHighlight = false
   var lastTapCoordinates: TapCoordinates? = null
   
-  fun loadItem(slug: String) {
+  fun loadItem(slug: String?, requestID: String?) {
     viewModelScope.launch {
-      val webReaderParams = loadItemFromServer(slug)
+      slug?.let { loadItemUsingSlug(it) }
+      requestID?.let { loadItemUsingRequestID(it) }
+    }
+  }
 
-      if (webReaderParams != null) {
-        Log.d("sync", "data loaded from server")
-        webReaderParamsLiveData.postValue(webReaderParams)
-      } else {
-        loadItemFromDB(slug)
-      }
+  private suspend fun loadItemUsingSlug(slug: String) {
+    val webReaderParams = loadItemFromServer(slug)
+
+    if (webReaderParams != null) {
+      Log.d("sync", "data loaded from server")
+      webReaderParamsLiveData.postValue(webReaderParams)
+    } else {
+      loadItemFromDB(slug)
+    }
+  }
+
+  private suspend fun loadItemUsingRequestID(requestID: String, requestCount: Int = 0) {
+    val webReaderParams = loadItemFromServer(requestID)
+    val isSuccessful = webReaderParams?.articleContent?.contentStatus == "SUCCEEDED"
+
+    if (webReaderParams != null && isSuccessful) {
+      webReaderParamsLiveData.postValue(webReaderParams)
+    } else if (requestCount < 7) {
+      // delay then try again
+      delay(2000L)
+      loadItemUsingRequestID(requestID = requestID, requestCount = requestCount + 1)
+    } else {
+      hasFetchError.postValue(true)
     }
   }
 
@@ -87,7 +108,7 @@ class WebReaderViewModel @Inject constructor(
       title = article.title,
       htmlContent = article.content ?: "",
       highlights = articleQueryResult.highlights,
-      contentStatus = "SUCCEEDED",
+      contentStatus = articleQueryResult.state,
       objectID = "",
       labelsJSONString = Gson().toJson(articleQueryResult.labels)
     )

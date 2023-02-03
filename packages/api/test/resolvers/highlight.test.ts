@@ -12,7 +12,7 @@ import { User } from '../../src/entity/user'
 import chaiString from 'chai-string'
 import { createPubSubClient } from '../../src/datalayer/pubsub'
 import { PageContext } from '../../src/elastic/types'
-import { deletePage } from '../../src/elastic/pages'
+import { deletePage, updatePage } from '../../src/elastic/pages'
 
 chai.use(chaiString)
 
@@ -23,6 +23,7 @@ const createHighlightQuery = (
   shortHighlightId: string,
   highlightPositionPercent = 0.0,
   highlightPositionAnchorIndex = 0,
+  annotation = '_annotation',
   prefix = '_prefix',
   suffix = '_suffix',
   quote = '_quote',
@@ -41,6 +42,7 @@ const createHighlightQuery = (
         articleId: "${linkId}",
         highlightPositionPercent: ${highlightPositionPercent},
         highlightPositionAnchorIndex: ${highlightPositionAnchorIndex}
+        annotation: "${annotation}"
       }
     ) {
       ... on CreateHighlightSuccess {
@@ -48,6 +50,7 @@ const createHighlightQuery = (
           id
           highlightPositionPercent
           highlightPositionAnchorIndex
+          annotation
         }
       }
       ... on CreateHighlightError {
@@ -101,6 +104,33 @@ const mergeHighlightQuery = (
   `
 }
 
+const updateHighlightQuery = (
+  authToken: string,
+  highlightId: string,
+  annotation = '_annotation'
+) => {
+  return `
+  mutation {
+    updateHighlight(
+      input: {
+        annotation: "${annotation}",
+        highlightId: "${highlightId}",
+      }
+    ) {
+      ... on UpdateHighlightSuccess {
+        highlight {
+          id
+          annotation
+        }
+      }
+      ... on UpdateHighlightError {
+        errorCodes
+      }
+    }
+  }
+  `
+}
+
 describe('Highlights API', () => {
   let authToken: string
   let user: User
@@ -116,7 +146,7 @@ describe('Highlights API', () => {
 
     authToken = res.body.authToken
     pageId = (await createTestElasticPage(user.id)).id
-    ctx = { pubsub: createPubSubClient(), uid: user.id }
+    ctx = { pubsub: createPubSubClient(), uid: user.id, refresh: true }
   })
 
   after(async () => {
@@ -149,6 +179,28 @@ describe('Highlights API', () => {
       expect(
         res.body.data.createHighlight.highlight.highlightPositionAnchorIndex
       ).to.eq(highlightPositionAnchorIndex)
+    })
+
+    context('when the annotation has HTML reserved characters', () => {
+      it('unescapes the annotation and creates', async () => {
+        const newHighlightId = generateFakeUuid()
+        const newShortHighlightId = '_short_id_4'
+        const highlightPositionPercent = 50.0
+        const highlightPositionAnchorIndex = 25
+        const query = createHighlightQuery(
+          authToken,
+          pageId,
+          newHighlightId,
+          newShortHighlightId,
+          highlightPositionPercent,
+          highlightPositionAnchorIndex,
+          '-> <-'
+        )
+        const res = await graphqlRequest(query, authToken).expect(200)
+        expect(res.body.data.createHighlight.highlight.annotation).to.eql(
+          '-> <-'
+        )
+      })
     })
   })
 
@@ -190,6 +242,44 @@ describe('Highlights API', () => {
       expect(
         res.body.data.mergeHighlight.highlight.highlightPositionAnchorIndex
       ).to.eq(highlightPositionAnchorIndex)
+    })
+  })
+
+  describe('updateHighlightMutation', () => {
+    let highlightId: string
+
+    before(async () => {
+      // create test highlight
+      highlightId = generateFakeUuid()
+      await updatePage(
+        pageId,
+        {
+          highlights: [
+            {
+              id: highlightId,
+              shortId: '_short_id_3',
+              annotation: '',
+              userId: user.id,
+              patch: '',
+              quote: '',
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            },
+          ],
+        },
+        ctx
+      )
+    })
+
+    context('when the annotation has HTML reserved characters', () => {
+      it('unescapes the annotation and updates', async () => {
+        const annotation = '> This is a test'
+        const query = updateHighlightQuery(authToken, highlightId, annotation)
+        const res = await graphqlRequest(query, authToken).expect(200)
+        expect(res.body.data.updateHighlight.highlight.annotation).to.eql(
+          '> This is a test'
+        )
+      })
     })
   })
 })

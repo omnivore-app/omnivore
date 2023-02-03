@@ -109,7 +109,6 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
 
       // if an email is forwarded to the inbox, the to is the forwarding email recipient
       const to = forwardedTo || parsed['to']
-      const postHeader = headers['list-post']?.toString()
       const unSubHeader = headers['list-unsubscribe']?.toString()
 
       const { id: receivedEmailId } = await saveReceivedEmail(to, {
@@ -124,11 +123,10 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
         // check if it is a confirmation email or forwarding newsletter
         const newsletterMessage = await handleNewsletter({
           from,
+          to,
+          subject,
           html,
-          postHeader,
-          unSubHeader,
-          email: to,
-          title: subject,
+          headers,
         })
         if (newsletterMessage) {
           await publishMessage(NEWSLETTER_EMAIL_RECEIVED_TOPIC, {

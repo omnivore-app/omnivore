@@ -10,6 +10,8 @@ extension DataService {
     quote: String,
     patch: String,
     articleId: String,
+    positionPercent: Double?,
+    positionAnchorIndex: Int?,
     annotation: String? = nil
   ) -> [String: Any]? {
     let internalHighlight = InternalHighlight(
@@ -23,6 +25,8 @@ extension DataService {
       updatedAt: nil,
       createdByMe: true,
       createdBy: nil,
+      positionPercent: positionPercent,
+      positionAnchorIndex: positionAnchorIndex,
       labels: []
     )
 
@@ -54,7 +58,8 @@ extension DataService {
         input: InputObjects.CreateHighlightInput(
           annotation: OptionalArgument(highlight.annotation),
           articleId: articleId,
-          id: highlight.id,
+          highlightPositionAnchorIndex: OptionalArgument(highlight.positionAnchorIndex),
+          highlightPositionPercent: OptionalArgument(highlight.positionPercent), id: highlight.id,
           patch: highlight.patch,
           quote: highlight.quote,
           shortId: highlight.shortId

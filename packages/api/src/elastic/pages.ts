@@ -22,6 +22,7 @@ import {
 import { client, INDEX_ALIAS } from './index'
 import { EntityType } from '../datalayer/pubsub'
 import { ResponseError } from '@elastic/elasticsearch/lib/errors'
+import { BulkActionType } from '../generated/graphql'
 
 const appendQuery = (body: SearchBody, query: string): void => {
   body.query.bool.should.push({
@@ -642,5 +643,74 @@ export const searchAsYouType = async (
     console.error('failed to search as you type in elastic', e)
 
     return []
+  }
+}
+
+export const updatePagesAsync = async (
+  userId: string,
+  action: BulkActionType,
+  args?: PageSearchArgs
+): Promise<string | null> => {
+  // default action is archive
+  let must_not = [
+    {
+      exists: {
+        field: 'archivedAt',
+      },
+    },
+  ]
+  let params: Record<string, any> = { archivedAt: new Date() }
+  if (action === BulkActionType.Delete) {
+    must_not = []
+    params = { state: ArticleSavingRequestStatus.Deleted }
+  }
+  // get update field
+  const field = Object.keys(params)[0]
+
+  try {
+    const { body } = await client.updateByQuery({
+      index: INDEX_ALIAS,
+      conflicts: 'proceed',
+      wait_for_completion: false,
+      body: {
+        query: {
+          bool: {
+            filter: [
+              {
+                term: {
+                  userId,
+                },
+              },
+              {
+                terms: {
+                  state: [
+                    ArticleSavingRequestStatus.Succeeded,
+                    ArticleSavingRequestStatus.Failed,
+                  ],
+                },
+              },
+            ],
+            must_not,
+          },
+        },
+        script: {
+          source: `ctx._source.${field} = params.${field}`,
+          lang: 'painless',
+          params,
+        },
+      },
+    })
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    if (body.failures?.length > 0) {
+      console.log('failed to update pages in elastic', body.failures)
+      return null
+    }
+
+    console.log('update pages task started', body.task)
+    return body.task as string
+  } catch (e) {
+    console.log('failed to update pages in elastic', e)
+    return null
   }
 }

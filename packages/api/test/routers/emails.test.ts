@@ -125,6 +125,7 @@ describe('Emails Router', () => {
   })
 
   describe('create', () => {
+    const url = '/svc/pubsub/emails/save'
     const html = '<html>test html</html>'
     const text = 'test text'
     const from = 'fake from'
@@ -140,12 +141,41 @@ describe('Emails Router', () => {
         subject,
       }
       const res = await request
-        .post('/svc/pubsub/emails/save')
+        .post(url)
         .set('Authorization', `${authToken}`)
         .send(data)
         .expect(200)
 
-      console.log(res.body)
+      expect(res.body.id).not.to.be.undefined
+    })
+
+    it('saves the email if body is empty', async () => {
+      const data = {
+        from,
+        to: newsletterEmail,
+        subject,
+      }
+      const res = await request
+        .post(url)
+        .set('Authorization', `${authToken}`)
+        .send(data)
+        .expect(200)
+
+      expect(res.body.id).not.to.be.undefined
+    })
+
+    it('saves the email if subject is empty', async () => {
+      const data = {
+        from,
+        to: newsletterEmail,
+        html,
+      }
+      const res = await request
+        .post(url)
+        .set('Authorization', `${authToken}`)
+        .send(data)
+        .expect(200)
+
       expect(res.body.id).not.to.be.undefined
     })
   })
