@@ -19,6 +19,7 @@ import { getNewsletterHandler } from '../src'
 import { parseHTML } from 'linkedom'
 import { HeyWorldHandler } from '../src/newsletters/hey-world-handler'
 import { GenericHandler } from '../src/newsletters/generic-handler'
+import { EveryIoHandler } from '../src/newsletters/every-io-handler'
 
 chai.use(chaiAsPromised)
 chai.use(chaiString)
@@ -99,6 +100,32 @@ describe('Newsletter email test', () => {
 
         await expect(
           new GenericHandler().parseNewsletterUrl({}, html)
+        ).to.eventually.equal(url)
+      })
+    })
+
+    context('when email is from Every.io', () => {
+      before(() => {
+        nock('https://u25184427.ct.sendgrid.net')
+          .head(
+            '/ls/click?upn=MnmHBiCwIPe9TmIJeskmAzMyFAOgfmWxTSMhUO2y3cX7SH8TU8fE7Bob959Q5SX8kPrOyAS87mVlVX7RClBX5O3kASzJW2uCz02hYzOF2YQ0jOrkqrBElBIkfeLl7ZERdDGVCD8VSijl4E0Tqgyrzl2vhAQyRsnJuYNo38k-2FROTfvWd85434dJ5Ajc284NO0JH4cM9g-2BdWlh0bID30oroznIHSP8Lg4qTxIVRNMq8zYyOtmR3fanZTexF5IrLPDqQMXmm0Wz0QK23ojkpC8yL3gexm2dDFZNOtKvgYlprJoR6QhevN9bulX1wI8ht5dtNccOAcexw3K4a3WMuoJp4thIKz0hIzOup38HTJPLtjRojXWKOyRBqE-2FdX17d4wY3lSqAN80IHqCic3WUBTenbU6Uo0Qi0FEVj0Iar7TuplOEENppNCZVJ5vpWMlMmQ8Wio7L_vVXscVLXlj5UtQe3aqo5RMTdTq2PepdZjP86UOmA8nyAZZ0kujTWt86aLf2utm1bD-2FSj2DcbTCh3O3HD32SBIzeJdlXzKUs-2FRqjzbupd0J1Y8z5xnvQV5k1D5zyWOAHSxLv0Ezts-2FF2V2Y974g-2FABq5B151S2LbhNv8zTY6syz-2B1z-2BrGm8iNYGAPN1C9KbPpr0x08ptebSaNu86Stmdovg-3D-3D'
+          )
+          .reply(301, undefined, {
+            Location:
+              'https://every.to/divinations/the-endgame-for-ai-generated-writing',
+          })
+        nock('https://every.to/divinations')
+          .head('/the-endgame-for-ai-generated-writing')
+          .reply(200, '')
+      })
+
+      it('returns url when email is from Every.io', async () => {
+        const url =
+          'https://every.to/divinations/the-endgame-for-ai-generated-writing'
+        const html = load('./test/data/every-io-newsletter.html')
+
+        await expect(
+          new EveryIoHandler().parseNewsletterUrl({}, html)
         ).to.eventually.equal(url)
       })
     })
@@ -267,7 +294,7 @@ describe('Newsletter email test', () => {
       expect(handler).to.be.undefined
     })
 
-    it('returns ContentHandler for TTSO newsletter', async () => {
+    it('returns GenericHandler for TTSO newsletter', async () => {
       const html = load('./test/data/ttso-newsletter.html')
       const handler = await getNewsletterHandler({
         html,
@@ -278,7 +305,17 @@ describe('Newsletter email test', () => {
             '<mailto:unsub-e86467ca.k5yx.x15515@bnc3.mailjet.com>, <https://k5yx.mjt.lu/unsub2?m=AAAAADHYIIAActfCvIAALdDY50AAAAAtZ4AAC8UAAk9yQBj2U4KUkToWXqgR9OqHSm_LHvyrQAIwzU&b=e86467ca&e=7132d286&x=FUkLKVFH4r_0f--3tAm2RPnjzf5a0IVmKjTWv1nE-GAaJXzXvZHIKiojmrtWYhDE>',
         },
       })
-      expect(handler).to.be.instanceOf(ContentHandler)
+      expect(handler).to.be.instanceOf(GenericHandler)
+    })
+
+    it('returns EveryIoHandler for every.io newsletter', async () => {
+      const html = load('./test/data/every-io-newsletter.html')
+      const handler = await getNewsletterHandler({
+        html,
+        from: 'Every <hello@every.to>',
+        headers: {},
+      })
+      expect(handler).to.be.instanceOf(EveryIoHandler)
     })
   })
 

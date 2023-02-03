@@ -121,12 +121,17 @@ export abstract class ContentHandler {
     headers: Record<string, string | string[]>,
     html: string
   ): Promise<string | undefined> {
+    // get url from dom
+    const url = await this.findNewsletterUrl(html)
+    if (url) {
+      return url
+    }
     // get newsletter url from html
     const matches = html.match(this.urlRegex)
     if (matches) {
-      return Promise.resolve(matches[1])
+      return matches[1]
     }
-    return Promise.resolve(undefined)
+    return undefined
   }
 
   parseAuthor(from: string): string {
