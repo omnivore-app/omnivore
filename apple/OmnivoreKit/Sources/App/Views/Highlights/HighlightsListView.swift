@@ -62,7 +62,6 @@ struct HighlightsListView: View {
             },
             onDeleteHighlight: {
               hasHighlightMutations = true
-
               viewModel.deleteHighlight(
                 highlightID: highlightParams.highlightID,
                 dataService: dataService

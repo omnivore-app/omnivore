@@ -18,7 +18,6 @@ import { HighlightBar, HighlightAction } from '../../patterns/HighlightBar'
 import { removeHighlights } from '../../../lib/highlights/deleteHighlight'
 import { createHighlight } from '../../../lib/highlights/createHighlight'
 import { HighlightNoteModal } from './HighlightNoteModal'
-import { ShareHighlightModal } from './ShareHighlightModal'
 import { NotebookModal } from './NotebookModal'
 import { useCanShareNative } from '../../../lib/hooks/useCanShareNative'
 import { showErrorToast } from '../../../lib/toastHelpers'
@@ -112,7 +111,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       const highlightId = id || focusedHighlight?.id
 
       if (!highlightId) {
-        console.error('Failed to identify highlight to be removed')
+        console.trace('Failed to identify highlight to be removed')
         return
       }
 
@@ -274,7 +273,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   )
 
   // Detect mouseclick on a highlight -- call `setFocusedHighlight` when highlight detected
-  const handleClickHighlight = useCallback(
+  const handleSingleClick = useCallback(
     (event: MouseEvent) => {
       const { target, pageX, pageY } = event
 
@@ -327,6 +326,8 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           highlightNoteIdAttribute
         )
         const highlight = highlights.find(($0) => $0.id === id)
+        setFocusedHighlight(highlight)
+
         openNoteModal({
           highlight: highlight,
           highlightModalAction: 'addComment',
@@ -335,17 +336,82 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         setFocusedHighlight(undefined)
       }
     },
-    [highlights, highlightLocations]
+    [
+      openNoteModal,
+      highlights,
+      highlightLocations,
+      focusedHighlight,
+      setFocusedHighlight,
+    ]
+  )
+
+  const handleDoubleClick = useCallback(
+    (event: MouseEvent) => {
+      const { target } = event
+
+      if (!target || (target as Node)?.nodeType !== Node.ELEMENT_NODE) {
+        return
+      }
+
+      if ((target as Element).hasAttribute(highlightIdAttribute)) {
+        const id = (target as HTMLSpanElement).getAttribute(
+          highlightIdAttribute
+        )
+        const highlight = highlights.find(($0) => $0.id === id)
+        console.log('double tapped highlight: ', highlight)
+        setFocusedHighlight(highlight)
+
+        openNoteModal({
+          highlight: highlight,
+          highlightModalAction: 'addComment',
+        })
+      } else if ((target as Element).hasAttribute(highlightNoteIdAttribute)) {
+        const id = (target as HTMLSpanElement).getAttribute(
+          highlightNoteIdAttribute
+        )
+        const highlight = highlights.find(($0) => $0.id === id)
+        console.log('double tapped highlight with note: ', highlight)
+
+        setFocusedHighlight(highlight)
+
+        openNoteModal({
+          highlight: highlight,
+          highlightModalAction: 'addComment',
+        })
+      } else {
+        setFocusedHighlight(undefined)
+      }
+    },
+    [
+      openNoteModal,
+      highlights,
+      highlightLocations,
+      focusedHighlight,
+      setFocusedHighlight,
+    ]
   )
 
   useEffect(() => {
-    if (typeof window === 'undefined') {
-      return
-    }
-    document.addEventListener('click', handleClickHighlight)
+    let clickCount = 0
+    const handleClick = (e: MouseEvent) => {
+      clickCount += 1
 
-    return () => document.removeEventListener('click', handleClickHighlight)
-  }, [handleClickHighlight])
+      setTimeout(() => {
+        if (clickCount === 1) handleSingleClick(e)
+        else if (clickCount === 2) handleDoubleClick(e)
+
+        clickCount = 0
+      }, 250)
+    }
+
+    // Add event listener for click events
+    document.addEventListener('click', handleClick)
+
+    // Remove event listener
+    return () => {
+      document.removeEventListener('click', handleClick)
+    }
+  }, [handleSingleClick, handleDoubleClick])
 
   const handleAction = useCallback(
     async (action: HighlightAction) => {
@@ -429,7 +495,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       handleAction('create')
       setSelectionData(null)
     }
-  }, [selectionData])
+  }, [selectionData, setSelectionData])
 
   const dispatchHighlightError = (action: string, error: unknown) => {
     if (props.isAppleAppEmbed) {
