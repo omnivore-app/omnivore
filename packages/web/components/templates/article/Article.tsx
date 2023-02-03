@@ -77,15 +77,15 @@ export function Article(props: ArticleProps): JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.articleId, readingProgress])
 
-  // Post message to webkit so apple app embeds get progress updates
-  // TODO: verify if ios still needs this code...seeems to be duplicated
-  useEffect(() => {
-    if (typeof window?.webkit != 'undefined') {
-      window.webkit.messageHandlers.readingProgressUpdate?.postMessage({
-        progress: readingProgress,
-      })
-    }
-  }, [readingProgress])
+  // // Post message to webkit so apple app embeds get progress updates
+  // // TODO: verify if ios still needs this code...seeems to be duplicated
+  // useEffect(() => {
+  //   if (typeof window?.webkit != 'undefined') {
+  //     window.webkit.messageHandlers.readingProgressUpdate?.postMessage({
+  //       progress: readingProgress,
+  //     })
+  //   }
+  // }, [readingProgress])
 
   useScrollWatcher((changeset: ScrollOffsetChangeset) => {
     if (window && window.document.scrollingElement) {
@@ -121,12 +121,26 @@ export function Article(props: ArticleProps): JSX.Element {
 
   // Scroll to initial anchor position
   useEffect(() => {
+    console.log(
+      'scroll',
+      'calling effect',
+      'shouldScrollToInitialPosition: ',
+      shouldScrollToInitialPosition
+    )
     if (typeof window === 'undefined') {
       return
     }
     if (!shouldScrollToInitialPosition) {
       return
     }
+
+    console.log(
+      'scroll',
+      'props.initialReadingProgress: ',
+      props.initialReadingProgress,
+      'initialAnchorIndex: ',
+      props.initialAnchorIndex
+    )
 
     setShouldScrollToInitialPosition(false)
 
@@ -139,6 +153,8 @@ export function Article(props: ArticleProps): JSX.Element {
       return
     }
 
+    console.log('scroll', 'looking up anchor element')
+
     const anchorElement = props.highlightHref.current
       ? document.querySelector(
           `[omnivore-highlight-id="${props.highlightHref.current}"]`
@@ -146,6 +162,8 @@ export function Article(props: ArticleProps): JSX.Element {
       : document.querySelector(
           `[data-omnivore-anchor-idx='${props.initialAnchorIndex.toString()}']`
         )
+
+    console.log('scroll', 'anchor element: ', anchorElement)
 
     if (anchorElement) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -162,7 +180,17 @@ export function Article(props: ArticleProps): JSX.Element {
       }
 
       const calculatedOffset = calculateOffset(anchorElement)
+      console.log('scroll', 'calculatedOffset: ', calculatedOffset)
+
       window.document.documentElement.scroll(0, calculatedOffset - 100)
+      if (typeof window?.AndroidWebKitMessenger != 'undefined') {
+        window.AndroidWebKitMessenger.handleIdentifiableMessage(
+          'autoScrollTo',
+          JSON.stringify({ scrollY: calculatedOffset - 100 })
+        )
+      } else {
+        // window.document.documentElement.scroll(0, calculatedOffset - 100)
+      }
     }
   }, [
     props.initialAnchorIndex,
@@ -203,6 +231,15 @@ export function Article(props: ArticleProps): JSX.Element {
 
   useEffect(() => {
     window.addEventListener('load', onLoadImageHandler)
+
+    window.addEventListener(
+      'androidWebViewLoaded',
+      () => {
+        console.log('scroll', 'android loaded')
+        setShouldScrollToInitialPosition(true)
+      },
+      { once: true }
+    )
 
     return () => {
       window.removeEventListener('load', onLoadImageHandler)

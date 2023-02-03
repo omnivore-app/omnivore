@@ -62,6 +62,7 @@ fun WebReader(
 
   val styledContent = webReaderContent.styledContent()
   val isInDarkMode = isSystemInDarkTheme()
+  var initialScrollYValue: Int? = null
 
   Box {
     AndroidView(factory = {
@@ -82,6 +83,16 @@ fun WebReader(
         settings.domStorageEnabled = true
 
         webViewClient = object : WebViewClient() {
+          override fun onPageFinished(view: WebView?, url: String?) {
+            super.onPageFinished(view, url)
+            val script = "var event = new Event('androidWebViewLoaded');document.dispatchEvent(event);console.log('scroll', 'onPageFinished')"
+            evaluateJavascript(script, null)
+
+            Log.d("scroll", "initial y value scroll: $initialScrollYValue")
+            initialScrollYValue?.let { yValue ->
+              view?.scrollTo(0, yValue)
+            }
+          }
         }
 
         val javascriptInterface = AndroidWebKitMessenger { actionID, json ->
@@ -113,6 +124,14 @@ fun WebReader(
                 val clip = ClipData.newPlainText(unwrappedQuote, unwrappedQuote)
                 clipboard.setPrimaryClip(clip)
               }
+            }
+            "autoScrollTo" -> {
+              val scrollY = Gson().fromJson(json, ScrollToYValue::class.java).scrollY
+              Log.d("scroll", "scrollY value: $scrollY")
+              initialScrollYValue = scrollY?.toInt()
+//              scrollY?.let { unwrappedYValue ->
+//                scrollTo(0, unwrappedYValue.toInt())
+//              }
             }
             else -> {
               webReaderViewModel.handleIncomingWebMessage(actionID, json)
@@ -277,3 +296,5 @@ data class TapCoordinates(
 )
 
 data class HighlightQuote(val quote: String?)
+
+data class ScrollToYValue(val scrollY: Double?)
