@@ -59,14 +59,14 @@ public extension DataService {
           highlight.remove(inContext: context)
         } else {
           highlight.serverSyncStatus = Int64(ServerSyncStatus.needsDeletion.rawValue)
-        }
 
-        do {
-          try context.save()
-          logger.debug("Highlight deleted succesfully")
-        } catch {
-          context.rollback()
-          logger.debug("Failed to delete Highlight: \(error.localizedDescription)")
+          do {
+            try context.save()
+            logger.debug("Highlight deleted succesfully")
+          } catch {
+            context.rollback()
+            logger.debug("Failed to delete Highlight: \(error.localizedDescription)")
+          }
         }
       }
     }

@@ -100,6 +100,7 @@ extension DataService {
           if let highlightObject = (try? context.fetch(fetchRequest))?.first {
             if isSyncSuccess {
               highlightObject.remove(inContext: context)
+              return
             } else {
               highlightObject.serverSyncStatus = Int64(ServerSyncStatus.needsDeletion.rawValue)
             }
