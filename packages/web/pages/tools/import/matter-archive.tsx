@@ -67,7 +67,7 @@ export default function ImportUploader(): JSX.Element {
   }
 
   return (
-    <ProfileLayout>
+    <ProfileLayout logoDestination="/home">
       <VStack
         alignment="start"
         css={{
