@@ -3,6 +3,7 @@ import { OmnivoreNameLogo } from '../elements/images/OmnivoreNameLogo'
 import { theme } from '../tokens/stitches.config'
 
 type ProfileLayoutProps = {
+  logoDestination?: string
   children: React.ReactNode
 }
 
@@ -46,7 +47,7 @@ export function ProfileLayout(props: ProfileLayoutProps): JSX.Element {
         >
           <OmnivoreNameLogo
             color={theme.colors.omnivoreGray.toString()}
-            href="/login"
+            href={props.logoDestination ?? '/login'}
           />
         </HStack>
       </Box>
