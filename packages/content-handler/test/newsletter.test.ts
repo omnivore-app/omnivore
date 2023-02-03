@@ -21,6 +21,7 @@ import { HeyWorldHandler } from '../src/newsletters/hey-world-handler'
 import { GenericHandler } from '../src/newsletters/generic-handler'
 import { EveryIoHandler } from '../src/newsletters/every-io-handler'
 import { EnergyWorldHandler } from '../src/newsletters/energy-world'
+import { IndiaTimesHandler } from '../src/newsletters/india-times-handler'
 
 chai.use(chaiAsPromised)
 chai.use(chaiString)
@@ -127,6 +128,34 @@ describe('Newsletter email test', () => {
 
         await expect(
           new EveryIoHandler().parseNewsletterUrl({}, html)
+        ).to.eventually.equal(url)
+      })
+    })
+
+    context('when email is from India Times', () => {
+      before(() => {
+        nock('https://u25184427.ct.sendgrid.net')
+          .head(
+            '/ls/click?upn=MnmHBiCwIPe9TmIJeskmA7k-2Fanl2A7JeTmz43mx4p6-2BbVKhpGtIfBa3Xxod6WoctYT6-2Fb-2Bpetp731F11WSOEvlcPaxSxNySmqMmLO-2FGO4lhOZ8XXhedQfJte-2Fg9Ewne7DNoRsb8wlAx1UfaFvu3zO5SbuXaneYjBP1ABV0l-2FgsuTKWa1VFEpWvU9c98b-2Bik7ghrWCOBmq7UH-2F1uQeI4CYGZyfZgdgPuxXS7wDDMtbcwK94jgZu9qNnmZxrZvlkd4-2Fa0S7JscNs5hMMvSItOpEhBkg-2FJ0kYEQl5BH7URUVHCsSVOWjkNvi6zR-2FCee4d8N9rdlB-2B-2BNQmKTCmAUkpaN1rUCo-2FmHpxPBegoAXAq7xhUhVsrwB5ZMiE016PcvZVtmPOpQ6JUgEsOPmlwgqpiBBdS72F0MBAaHJ4UlwO0M08c-3D3scO_vVXscVLXlj5UtQe3aqo5RMTdTq2PepdZjP86UOmA8nw5KA5beJqibyCtKjs9B8ujlcJz2XyMv0igaenerEPZCi-2BBaSRMwy51CLX95xCACWKNyJ0D4Uw5yeEIBGgS1xQt-2FDDxs9on7jJAO1iusiJLC-2FIwban22f-2FXbBPIc9TY9KlGymfoYNWMw-2BbFxypix9BZb8hDCEIqaFfjNphExgkdPw-3D-3D'
+          )
+          .reply(301, undefined, {
+            Location:
+              'https://timesofindia.indiatimes.com/india/timestopten/msid-97559156.cms?utm_source=newsletter&utm_medium=email&utm_campaign=timestop10_daily_newsletter',
+          })
+        nock('https://timesofindia.indiatimes.com')
+          .head(
+            '/india/timestopten/msid-97559156.cms?utm_source=newsletter&utm_medium=email&utm_campaign=timestop10_daily_newsletter'
+          )
+          .reply(200, '')
+      })
+
+      it('returns url when email is from India Times', async () => {
+        const url =
+          'https://timesofindia.indiatimes.com/india/timestopten/msid-97559156.cms?utm_source=newsletter&utm_medium=email&utm_campaign=timestop10_daily_newsletter'
+        const html = load('./test/data/india-times-newsletter.html')
+
+        await expect(
+          new IndiaTimesHandler().parseNewsletterUrl({}, html)
         ).to.eventually.equal(url)
       })
     })
@@ -327,6 +356,16 @@ describe('Newsletter email test', () => {
         headers: {},
       })
       expect(handler).to.be.instanceOf(EnergyWorldHandler)
+    })
+
+    it('returns IndiaTimesHandler for india times newsletter', async () => {
+      const html = load('./test/data/india-times-newsletter.html')
+      const handler = await getNewsletterHandler({
+        html,
+        from: 'The Times of India <newsletters@timesofindia.com>',
+        headers: {},
+      })
+      expect(handler).to.be.instanceOf(IndiaTimesHandler)
     })
   })
 
