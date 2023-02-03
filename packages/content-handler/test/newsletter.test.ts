@@ -9,7 +9,7 @@ import { BloombergNewsletterHandler } from '../src/newsletters/bloomberg-newslet
 import { GolangHandler } from '../src/newsletters/golang-handler'
 import { MorningBrewHandler } from '../src/newsletters/morning-brew-handler'
 import nock from 'nock'
-import { ContentHandler, generateUniqueUrl } from '../src/content-handler'
+import { generateUniqueUrl } from '../src/content-handler'
 import fs from 'fs'
 import { BeehiivHandler } from '../src/newsletters/beehiiv-handler'
 import { ConvertkitHandler } from '../src/newsletters/convertkit-handler'
@@ -20,6 +20,7 @@ import { parseHTML } from 'linkedom'
 import { HeyWorldHandler } from '../src/newsletters/hey-world-handler'
 import { GenericHandler } from '../src/newsletters/generic-handler'
 import { EveryIoHandler } from '../src/newsletters/every-io-handler'
+import { EnergyWorldHandler } from '../src/newsletters/energy-world'
 
 chai.use(chaiAsPromised)
 chai.use(chaiString)
@@ -261,7 +262,7 @@ describe('Newsletter email test', () => {
       expect(handler).to.be.instanceOf(CooperPressHandler)
     })
 
-    it('returns ContentHandler for hey world newsletter', async () => {
+    it('returns HeyWorldHandler for hey world newsletter', async () => {
       const html = load('./test/data/hey-world-newsletter.html')
       const handler = await getNewsletterHandler({
         html,
@@ -271,7 +272,7 @@ describe('Newsletter email test', () => {
             '<https://world.hey.com/dhh/subscribers/MtuoW9TvSJK9o5c7ohB72V2s/unsubscribe>',
         },
       })
-      expect(handler).to.be.instanceOf(ContentHandler)
+      expect(handler).to.be.instanceOf(HeyWorldHandler)
     })
 
     it('returns ConvertkitHandler for Tomasz Tunguz newsletter', async () => {
@@ -316,6 +317,16 @@ describe('Newsletter email test', () => {
         headers: {},
       })
       expect(handler).to.be.instanceOf(EveryIoHandler)
+    })
+
+    it('returns EnergyWorldHandler for energy world newsletter', async () => {
+      const html = load('./test/data/energy-world-newsletter.html')
+      const handler = await getNewsletterHandler({
+        html,
+        from: 'ETEnergyworld Latest News<newsletter@etenergyworld.com>',
+        headers: {},
+      })
+      expect(handler).to.be.instanceOf(EnergyWorldHandler)
     })
   })
 
