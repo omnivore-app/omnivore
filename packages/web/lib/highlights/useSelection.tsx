@@ -27,7 +27,7 @@ export function useSelection(
 
   const handleFinishTouch = useCallback(
     async (mouseEvent) => {
-      var wasDragEvent = false
+      let wasDragEvent = false
       const tapAttributes = {
         tapX: mouseEvent.screenX,
         tapY: mouseEvent.screenY,
