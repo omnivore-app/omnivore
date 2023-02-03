@@ -30,6 +30,7 @@ import { CooperPressHandler } from './newsletters/cooper-press-handler'
 import { HeyWorldHandler } from './newsletters/hey-world-handler'
 import { Browser } from 'puppeteer-core'
 import { StackOverflowHandler } from './websites/stack-overflow-handler'
+import { GenericHandler } from './newsletters/generic-handler'
 
 const validateUrlString = (url: string) => {
   const u = new URL(url)
@@ -80,6 +81,7 @@ const newsletterHandlers: ContentHandler[] = [
   new GhostHandler(),
   new CooperPressHandler(),
   new HeyWorldHandler(),
+  new GenericHandler(),
 ]
 
 export const preHandleContent = async (

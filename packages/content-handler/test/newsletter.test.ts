@@ -18,6 +18,7 @@ import { CooperPressHandler } from '../src/newsletters/cooper-press-handler'
 import { getNewsletterHandler } from '../src'
 import { parseHTML } from 'linkedom'
 import { HeyWorldHandler } from '../src/newsletters/hey-world-handler'
+import { GenericHandler } from '../src/newsletters/generic-handler'
 
 chai.use(chaiAsPromised)
 chai.use(chaiString)
@@ -97,7 +98,7 @@ describe('Newsletter email test', () => {
         const html = load('./test/data/ttso-newsletter.html')
 
         await expect(
-          new ContentHandler().parseNewsletterUrl({}, html)
+          new GenericHandler().parseNewsletterUrl({}, html)
         ).to.eventually.equal(url)
       })
     })
@@ -414,7 +415,7 @@ describe('Newsletter email test', () => {
 
       it('gets the URL from the header', async () => {
         const html = load('./test/data/ttso-newsletter.html')
-        const url = await new ContentHandler().findNewsletterUrl(html)
+        const url = await new GenericHandler().findNewsletterUrl(html)
         expect(url).to.startWith('https://ttso.paris/2023-01-31')
       })
     })
