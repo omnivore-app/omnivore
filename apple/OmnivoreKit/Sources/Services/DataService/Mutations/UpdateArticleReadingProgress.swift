@@ -5,24 +5,23 @@ import SwiftGraphQL
 
 extension DataService {
   public func updateLinkReadingProgress(itemID: String, readingProgress: Double, anchorIndex: Int) {
-    guard let linkedItem = LinkedItem.lookup(byID: itemID, inContext: backgroundContext) else { return }
-
-    backgroundContext.performAndWait { [weak self] in
+    backgroundContext.perform { [weak self] in
       guard let self = self else { return }
+      guard let linkedItem = LinkedItem.lookup(byID: itemID, inContext: self.backgroundContext) else { return }
 
       linkedItem.update(
         inContext: self.backgroundContext,
         newReadingProgress: readingProgress,
         newAnchorIndex: anchorIndex
       )
-    }
 
-    // Send update to server
-    syncLinkReadingProgress(
-      itemID: linkedItem.unwrappedID,
-      readingProgress: readingProgress,
-      anchorIndex: anchorIndex
-    )
+      // Send update to server
+      self.syncLinkReadingProgress(
+        itemID: linkedItem.unwrappedID,
+        readingProgress: readingProgress,
+        anchorIndex: anchorIndex
+      )
+    }
   }
 
   func syncLinkReadingProgress(itemID: String, readingProgress: Double, anchorIndex: Int) {

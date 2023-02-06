@@ -5,16 +5,15 @@ import SwiftGraphQL
 
 extension DataService {
   public func archiveLink(objectID: NSManagedObjectID, archived: Bool) {
-    guard let linkedItem = backgroundContext.object(with: objectID) as? LinkedItem else { return }
-
     // Update CoreData
-    backgroundContext.performAndWait { [weak self] in
+    backgroundContext.perform { [weak self] in
       guard let self = self else { return }
+      guard let linkedItem = self.backgroundContext.object(with: objectID) as? LinkedItem else { return }
       linkedItem.update(inContext: self.backgroundContext, newIsArchivedValue: archived)
-    }
 
-    // Send update to server
-    syncLinkArchiveStatus(itemID: linkedItem.unwrappedID, archived: archived)
+      // Send update to server
+      self.syncLinkArchiveStatus(itemID: linkedItem.unwrappedID, archived: archived)
+    }
   }
 
   func syncLinkArchiveStatus(itemID: String, archived: Bool) {
