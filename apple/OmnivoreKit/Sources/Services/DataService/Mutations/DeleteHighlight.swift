@@ -5,15 +5,10 @@ import SwiftGraphQL
 
 public extension DataService {
   func deleteHighlight(highlightID: String) {
-    if let highlight = Highlight.lookup(byID: highlightID, inContext: viewContext) {
-      deleteHighlight(objectID: highlight.objectID)
-    }
-  }
+    guard let highlight = Highlight.lookup(byID: highlightID, inContext: viewContext) else { return }
 
-  private func deleteHighlight(objectID: NSManagedObjectID) {
-    // Update CoreData
+    // Update CoreData so view updates immediately
     viewContext.performAndWait {
-      guard let highlight = viewContext.object(with: objectID) as? Highlight else { return }
       highlight.serverSyncStatus = Int64(ServerSyncStatus.needsDeletion.rawValue)
 
       do {
@@ -25,14 +20,10 @@ public extension DataService {
       }
     }
 
-    // Send update to server
-    backgroundContext.perform { [weak self] in
-      guard let highlight = self?.backgroundContext.object(with: objectID) as? Highlight else { return }
-      self?.syncHighlightDeletion(highlightID: highlight.unwrappedID, objectID: objectID)
-    }
+    syncHighlightDeletion(highlightID: highlightID)
   }
 
-  internal func syncHighlightDeletion(highlightID: String, objectID: NSManagedObjectID) {
+  func syncHighlightDeletion(highlightID: String) {
     enum MutationResult {
       case saved(id: String)
       case error(errorCode: Enums.DeleteHighlightErrorCode)
@@ -63,7 +54,7 @@ public extension DataService {
       let isSyncSuccess = data != nil
 
       context.perform {
-        guard let highlight = context.object(with: objectID) as? Highlight else { return }
+        guard let highlight = Highlight.lookup(byID: highlightID, inContext: context) else { return }
 
         if isSyncSuccess {
           highlight.remove(inContext: context)

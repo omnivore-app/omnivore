@@ -176,7 +176,7 @@ public extension DataService {
         )
       case .needsDeletion:
         highlight.serverSyncStatus = Int64(ServerSyncStatus.isSyncing.rawValue)
-        syncHighlightDeletion(highlightID: highlight.unwrappedID, objectID: highlight.objectID)
+        syncHighlightDeletion(highlightID: highlight.unwrappedID)
       case .needsUpdate:
         if let annotation = highlight.annotation {
           highlight.serverSyncStatus = Int64(ServerSyncStatus.isSyncing.rawValue)
