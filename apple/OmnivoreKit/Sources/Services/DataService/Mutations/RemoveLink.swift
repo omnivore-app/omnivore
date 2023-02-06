@@ -5,9 +5,10 @@ import SwiftGraphQL
 
 public extension DataService {
   func removeLink(objectID: NSManagedObjectID) {
+    guard let linkedItem = viewContext.object(with: objectID) as? LinkedItem else { return }
+
     // Update CoreData
     viewContext.performAndWait {
-      guard let linkedItem = viewContext.object(with: objectID) as? LinkedItem else { return }
       linkedItem.serverSyncStatus = Int64(ServerSyncStatus.needsDeletion.rawValue)
 
       do {
@@ -20,13 +21,10 @@ public extension DataService {
     }
 
     // Send update to server
-    backgroundContext.perform { [weak self] in
-      guard let linkedItem = self?.backgroundContext.object(with: objectID) as? LinkedItem else { return }
-      self?.syncLinkDeletion(itemID: linkedItem.unwrappedID, objectID: objectID)
-    }
+    syncLinkDeletion(itemID: linkedItem.unwrappedID)
   }
 
-  func syncLinkDeletion(itemID: String, objectID: NSManagedObjectID) {
+  func syncLinkDeletion(itemID: String) {
     enum MutationResult {
       case success(linkId: String)
       case error(errorCode: Enums.SetBookmarkArticleErrorCode)
@@ -64,7 +62,7 @@ public extension DataService {
       let isSyncSuccess = data != nil
 
       context.perform {
-        guard let linkedItem = context.object(with: objectID) as? LinkedItem else { return }
+        guard let linkedItem = LinkedItem.lookup(byID: itemID, inContext: context) else { return }
 
         if isSyncSuccess {
           linkedItem.remove(inContext: context)

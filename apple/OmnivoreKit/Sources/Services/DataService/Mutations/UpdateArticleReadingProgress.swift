@@ -5,27 +5,27 @@ import SwiftGraphQL
 
 extension DataService {
   public func updateLinkReadingProgress(itemID: String, readingProgress: Double, anchorIndex: Int) {
-    backgroundContext.perform { [weak self] in
+    guard let linkedItem = LinkedItem.lookup(byID: itemID, inContext: backgroundContext) else { return }
+
+    backgroundContext.performAndWait { [weak self] in
       guard let self = self else { return }
-      guard let linkedItem = LinkedItem.lookup(byID: itemID, inContext: self.backgroundContext) else { return }
 
       linkedItem.update(
         inContext: self.backgroundContext,
         newReadingProgress: readingProgress,
         newAnchorIndex: anchorIndex
       )
-
-      // Send update to server
-      self.syncLinkReadingProgress(
-        itemID: linkedItem.unwrappedID,
-        objectID: linkedItem.objectID,
-        readingProgress: readingProgress,
-        anchorIndex: anchorIndex
-      )
     }
+
+    // Send update to server
+    syncLinkReadingProgress(
+      itemID: linkedItem.unwrappedID,
+      readingProgress: readingProgress,
+      anchorIndex: anchorIndex
+    )
   }
 
-  func syncLinkReadingProgress(itemID: String, objectID: NSManagedObjectID, readingProgress: Double, anchorIndex: Int) {
+  func syncLinkReadingProgress(itemID: String, readingProgress: Double, anchorIndex: Int) {
     enum MutationResult {
       case saved(readAt: Date?)
       case error(errorCode: Enums.SaveArticleReadingProgressErrorCode)
@@ -62,7 +62,7 @@ extension DataService {
       let syncStatus: ServerSyncStatus = data == nil ? .needsUpdate : .isNSync
 
       context.perform {
-        guard let linkedItem = context.object(with: objectID) as? LinkedItem else { return }
+        guard let linkedItem = LinkedItem.lookup(byID: itemID, inContext: context) else { return }
         linkedItem.serverSyncStatus = Int64(syncStatus.rawValue)
         if let mutationResult = data?.data, case let MutationResult.saved(readAt) = mutationResult {
           linkedItem.readAt = readAt

@@ -5,9 +5,10 @@ import SwiftGraphQL
 
 extension DataService {
   public func updateLinkedItemTitleAndDescription(itemID: String, title: String, description: String, author: String?) {
-    backgroundContext.perform { [weak self] in
+    guard let linkedItem = LinkedItem.lookup(byID: itemID, inContext: backgroundContext) else { return }
+
+    backgroundContext.performAndWait { [weak self] in
       guard let self = self else { return }
-      guard let linkedItem = LinkedItem.lookup(byID: itemID, inContext: self.backgroundContext) else { return }
 
       linkedItem.update(
         inContext: self.backgroundContext,
@@ -15,21 +16,19 @@ extension DataService {
         newDescription: description,
         newAuthor: author
       )
-
-      // Send update to server
-      self.syncLinkedItemTitleAndDescription(
-        itemID: itemID,
-        objectID: linkedItem.objectID,
-        title: title,
-        author: author,
-        description: description
-      )
     }
+
+    // Send update to server
+    syncLinkedItemTitleAndDescription(
+      itemID: itemID,
+      title: title,
+      author: author,
+      description: description
+    )
   }
 
   func syncLinkedItemTitleAndDescription(
     itemID: String,
-    objectID: NSManagedObjectID,
     title: String,
     author: String?,
     description: String
@@ -64,7 +63,7 @@ extension DataService {
       let syncStatus: ServerSyncStatus = data == nil ? .needsUpdate : .isNSync
 
       context.perform {
-        guard let linkedItem = context.object(with: objectID) as? LinkedItem else { return }
+        guard let linkedItem = LinkedItem.lookup(byID: itemID, inContext: context) else { return }
         linkedItem.serverSyncStatus = Int64(syncStatus.rawValue)
 
         do {

@@ -5,18 +5,19 @@ import SwiftGraphQL
 
 extension DataService {
   public func archiveLink(objectID: NSManagedObjectID, archived: Bool) {
-    // Update CoreData
-    backgroundContext.perform { [weak self] in
-      guard let self = self else { return }
-      guard let linkedItem = self.backgroundContext.object(with: objectID) as? LinkedItem else { return }
-      linkedItem.update(inContext: self.backgroundContext, newIsArchivedValue: archived)
+    guard let linkedItem = backgroundContext.object(with: objectID) as? LinkedItem else { return }
 
-      // Send update to server
-      self.syncLinkArchiveStatus(itemID: linkedItem.unwrappedID, objectID: objectID, archived: archived)
+    // Update CoreData
+    backgroundContext.performAndWait { [weak self] in
+      guard let self = self else { return }
+      linkedItem.update(inContext: self.backgroundContext, newIsArchivedValue: archived)
     }
+
+    // Send update to server
+    syncLinkArchiveStatus(itemID: linkedItem.unwrappedID, archived: archived)
   }
 
-  func syncLinkArchiveStatus(itemID: String, objectID: NSManagedObjectID, archived: Bool) {
+  func syncLinkArchiveStatus(itemID: String, archived: Bool) {
     enum MutationResult {
       case success(linkId: String)
       case error(errorCode: Enums.ArchiveLinkErrorCode)
@@ -48,7 +49,7 @@ extension DataService {
       let syncStatus: ServerSyncStatus = data == nil ? .needsUpdate : .isNSync
 
       context.perform {
-        guard let linkedItem = context.object(with: objectID) as? LinkedItem else { return }
+        guard let linkedItem = LinkedItem.lookup(byID: itemID, inContext: context) else { return }
         linkedItem.serverSyncStatus = Int64(syncStatus.rawValue)
 
         do {
