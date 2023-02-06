@@ -300,37 +300,42 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
       const speechMarksFileName = `speech/${cacheKey}.json`
       const audioFile = createGCSFile(bucket, audioFileName)
       const speechMarksFile = createGCSFile(bucket, speechMarksFileName)
+
+      let audioData: Buffer | undefined
+      let speechMarks: SpeechMark[] = []
       // check if audio file already exists
       const [exists] = await audioFile.exists()
       if (exists) {
         console.debug('Audio file already exists')
-        const [audioData] = await audioFile.download()
+        ;[audioData] = await audioFile.download()
         const [speechMarksExists] = await speechMarksFile.exists()
-
-        return {
-          audioData,
-          speechMarks: speechMarksExists
-            ? JSON.parse((await speechMarksFile.download()).toString())
-            : [],
+        if (speechMarksExists) {
+          speechMarks = JSON.parse(
+            (await speechMarksFile.download()).toString()
+          )
         }
-      }
+      } else {
+        // audio file does not exist, synthesize text to speech
+        const input: TextToSpeechInput = {
+          ...utteranceInput,
+          textType: 'ssml',
+          key: cacheKey,
+        }
+        // synthesize text to speech if cache miss
+        const output = await synthesizeTextToSpeech(input)
+        audioData = output.audioData
+        speechMarks = output.speechMarks
+        if (!audioData || audioData.length === 0) {
+          return res.status(500).send({ errorCode: 'SYNTHESIZER_ERROR' })
+        }
 
-      const input: TextToSpeechInput = {
-        ...utteranceInput,
-        textType: 'ssml',
-        key: cacheKey,
-      }
-      // synthesize text to speech if cache miss
-      const { audioData, speechMarks } = await synthesizeTextToSpeech(input)
-      if (!audioData || audioData.length === 0) {
-        return res.status(500).send({ errorCode: 'SYNTHESIZER_ERROR' })
-      }
-
-      // upload audio data to GCS
-      await audioFile.save(audioData)
-      // upload speech marks to GCS
-      if (speechMarks.length > 0) {
-        await speechMarksFile.save(JSON.stringify(speechMarks))
+        console.debug('saving audio file')
+        // upload audio data to GCS
+        await audioFile.save(audioData)
+        // upload speech marks to GCS
+        if (speechMarks.length > 0) {
+          await speechMarksFile.save(JSON.stringify(speechMarks))
+        }
       }
 
       const audioDataString = audioData.toString('hex')
