@@ -79,6 +79,10 @@ export async function createMobileEmailSignInResponse(
       json: mobileAuthPayload,
     }
   } catch (e) {
+    console.log('createMobileEmailSignInResponse failed for user', {
+      email,
+      error: e,
+    })
     return authFailedPayload
   }
 }
@@ -118,7 +122,10 @@ async function createAuthResponsePayload(
       json: mobileAuthPayload,
     }
   } catch (e) {
-    console.log('createAuthResponsePayload error', e)
+    console.log('createAuthResponsePayload error', {
+      error: e,
+      email: decodedTokenResult.email,
+    })
     return authFailedPayload
   }
 }
