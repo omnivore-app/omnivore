@@ -303,10 +303,21 @@ import Views
     isLoading = false
   }
 
+  private var queryContainsFilter: Bool {
+    if searchTerm.contains("in:inbox") || searchTerm.contains("in:all") || searchTerm.contains("in:archive") {
+      return true
+    }
+
+    return false
+  }
+
   private var searchQuery: String {
-    let filter = LinkedItemFilter(rawValue: appliedFilter) ?? .inbox
     let sort = LinkedItemSort(rawValue: appliedSort) ?? .newest
-    var query = "\(filter.queryString) \(sort.queryString)"
+    var query = sort.queryString
+
+    if !queryContainsFilter, let filter = LinkedItemFilter(rawValue: appliedFilter) {
+      query = "\(filter.queryString) \(sort.queryString)"
+    }
 
     if !searchTerm.isEmpty {
       query.append(" \(searchTerm)")
@@ -321,6 +332,8 @@ import Views
       query.append(" !label:")
       query.append(negatedLabels.map { $0.name ?? "" }.joined(separator: ","))
     }
+
+    print("QUERY: `\(query)`")
 
     return query
   }
