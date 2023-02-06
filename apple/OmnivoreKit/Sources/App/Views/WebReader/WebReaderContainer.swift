@@ -277,6 +277,7 @@ struct WebReaderContainerView: View {
             Image(systemName: "ellipsis")
               .padding(.horizontal)
               .scaleEffect(navBarVisibilityRatio)
+              .frame(width: 36, height: 36)
           #else
             Text(LocalText.genericOptions)
           #endif
