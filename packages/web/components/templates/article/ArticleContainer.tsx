@@ -102,6 +102,8 @@ const RecommendationComments = (
 }
 
 export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
+  const [labels, setLabels] = useState(props.labels)
+  const [title, setTitle] = useState(props.article.title)
   const [showReportIssuesModal, setShowReportIssuesModal] = useState(false)
   const [fontSize, setFontSize] = useState(props.fontSize ?? 20)
   // iOS app embed can overide the original margin and line height
@@ -208,10 +210,28 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
       updateThemeLocally(isDark === 'true' ? ThemeId.Dark : ThemeId.Light)
     }
 
+    interface UpdateLabelsEvent extends Event {
+      labels?: Label[]
+    }
+
+    const handleUpdateLabels = (event: UpdateLabelsEvent) => {
+      setLabels(event.labels ?? [])
+    }
+
+    interface UpdateTitleEvent extends Event {
+      title?: string
+    }
+
+    const handleUpdateTitle = (event: UpdateTitleEvent) => {
+      if (event.title) {
+        setTitle(event.title)
+      }
+    }
+
     const share = () => {
       if (navigator.share) {
         navigator.share({
-          title: props.article.title,
+          title: title,
           url: props.article.originalArticleUrl,
         })
       }
@@ -230,6 +250,9 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
       'handleFontContrastChange',
       handleFontContrastChange
     )
+    document.addEventListener('updateTitle', handleUpdateTitle)
+    document.addEventListener('updateLabels', handleUpdateLabels)
+
     document.addEventListener('share', share)
 
     return () => {
@@ -246,6 +269,8 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         'handleFontContrastChange',
         handleFontContrastChange
       )
+      document.removeEventListener('updateTitle', handleUpdateTitle)
+      document.removeEventListener('updateLabels', handleUpdateLabels)
       document.removeEventListener('share', share)
     }
   })
@@ -315,7 +340,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
               wordWrap: 'break-word',
             }}
           >
-            {props.article.title}
+            {title}
           </StyledText>
           <ArticleSubtitle
             rawDisplayDate={
@@ -324,7 +349,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
             author={props.article.author}
             href={props.article.url}
           />
-          {props.labels ? (
+          {labels ? (
             <SpanBox
               css={{
                 pb: '16px',
@@ -332,7 +357,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
                 '&:empty': { display: 'none' },
               }}
             >
-              {props.labels?.map((label) => (
+              {labels?.map((label) => (
                 <LabelChip
                   key={label.id}
                   text={label.name}
@@ -374,7 +399,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
       <HighlightsLayer
         scrollToHighlight={highlightHref}
         highlights={props.article.highlights}
-        articleTitle={props.article.title}
+        articleTitle={title}
         articleAuthor={props.article.author ?? ''}
         articleId={props.article.id}
         isAppleAppEmbed={props.isAppleAppEmbed}

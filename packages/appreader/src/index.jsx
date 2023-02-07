@@ -52,29 +52,6 @@ const mutation = async (name, input) => {
 const App = () => {
   applyStoredTheme(false)
 
-  const useForceUpdate = () => {
-    const [, setState] = React.useState();
-    return () => setState({});
-  }
-  
-  const forceUpdate = useForceUpdate();
-  
-  document.addEventListener('updateLabels', (event) => {
-    console.log("updating labels: ", event.labels)
-    const updated = window.omnivoreArticle
-    updated.labels = event.labels
-    window.omnivoreArticle = updated
-    forceUpdate();
-  })
-
-  document.addEventListener('updateTitle', (event) => {
-    console.log("updating title: ", event.title)
-    const updated = window.omnivoreArticle
-    updated.title = event.title
-    window.omnivoreArticle = updated
-    forceUpdate();
-  })
-
   return (
     <>
       <Box
