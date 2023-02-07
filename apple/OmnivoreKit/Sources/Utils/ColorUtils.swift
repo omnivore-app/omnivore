@@ -87,7 +87,11 @@ public extension Color {
       }
     #endif
 
-    return 0.2126 * Float(components[0]) + 0.7152 * Float(components[1]) + 0.0722 * Float(components[2])
+    let colorR = Double(Int(components[0] * 255)) * 0.2126
+    let colorG = Double(Int(components[1] * 255)) * 0.7152
+    let colorB = Double(Int(components[2] * 255)) * 0.0722
+
+    return Float(colorR + colorG + colorB)
   }
 
   static var isDarkMode: Bool {
