@@ -57,6 +57,10 @@ class WebReaderViewModel @Inject constructor(
     }
   }
 
+  fun showNavBar() {
+    onScrollChange(maxToolbarHeightPx)
+  }
+
   fun onScrollChange(delta: Float) {
     val newHeight = (currentToolbarHeightLiveData.value ?: 0.0f) + delta
     currentToolbarHeightLiveData.value = newHeight.coerceIn(0f, maxToolbarHeightPx)

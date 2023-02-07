@@ -70,6 +70,7 @@ fun WebReader(
           override fun onPageFinished(view: WebView?, url: String?) {
             super.onPageFinished(view, url)
             // Add padding to top so TopAppBar doesn't cover content
+            viewModel?.showNavBar()
             view?.loadUrl("javascript:(function(){ document.body.style.paddingTop = '48px'})();");
           }
         }
