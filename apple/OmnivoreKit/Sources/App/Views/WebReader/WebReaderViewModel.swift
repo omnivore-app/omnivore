@@ -15,10 +15,6 @@ struct SafariWebLink: Identifiable {
   @Published var isDownloadingAudio: Bool = false
   @Published var audioDownloadTask: Task<Void, Error>?
 
-  deinit {
-    print("deinit WebReaderViewModel")
-  }
-
   func hasOriginalUrl(_ item: LinkedItem) -> Bool {
     if let pageURLString = item.pageURLString, let host = URL(string: pageURLString)?.host {
       if host == "omnivore.app" {
