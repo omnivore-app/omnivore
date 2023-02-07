@@ -368,8 +368,8 @@ struct WebReaderContainerView: View {
         )
         .onTapGesture {
           withAnimation {
-            showBottomBar = !showBottomBar
             navBarVisibilityRatio = navBarVisibilityRatio == 1 ? 0 : 1
+            showBottomBar = navBarVisibilityRatio == 1
             showNavBarActionID = UUID()
           }
         }
