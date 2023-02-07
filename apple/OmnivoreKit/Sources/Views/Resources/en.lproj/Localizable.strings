@@ -6,6 +6,7 @@
 "saveArticleSavedState" = "Saved to Omnivore";
 "saveArticleProcessingState" = "Saved to Omnivore";
 "extensionAppUnauthorized" = "Please login to Omnivore from the app before saving your first link.";
+"saveToOmnivore" = "Save to Omnivore";
 
 // audio player
 "audioPlayerReplay" = "Replay";

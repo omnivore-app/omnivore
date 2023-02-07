@@ -7,6 +7,8 @@
 "saveArticleProcessingState" = "已经保存到 Omnivore 中";
 "extensionAppUnauthorized" = "请在保存您的第一个链接之前从应用程序登录 Omnivore.";
 
+"saveToOmnivore" = "Save to Omnivore";
+
 // audio player
 "audioPlayerReplay" = "重播";
 
