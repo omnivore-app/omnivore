@@ -285,7 +285,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
       ? theme.colors.readerFontHighContrast.toString()
       : theme.colors.readerFont.toString(),
     readerTableHeaderColor: theme.colors.readerTableHeader.toString(),
-    readerHeadersColor: theme.colors.readerHeader.toString(),
   }
 
   const recommendationsWithNotes = useMemo(() => {
@@ -334,6 +333,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
             style="articleTitle"
             data-testid="article-headline"
             css={{
+              color: styles.readerFontColor,
               fontFamily: styles.fontFamily,
               width: '100%',
               wordWrap: 'break-word',

@@ -151,7 +151,6 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         readerFont: '#3D3D3D',
         readerFontHighContrast: 'black',
         readerFontTransparent: 'rgba(61,61,61,0.65)',
-        readerHeader: '3D3D3D',
         readerTableHeader: '#FFFFFF',
 
         // Avatar Fallback color
@@ -214,7 +213,6 @@ const darkThemeSpec = {
     readerBg: '#303030',
     readerFont: '#b9b9b9',
     readerFontHighContrast: 'white',
-    readerHeader: '#b9b9b9',
     readerTableHeader: '#FFFFFF',
     tooltipIcons: '#5F5E58',
     avatarBg: '#000000',
@@ -244,7 +242,6 @@ const sepiaThemeSpec = {
     readerBg: '#F9F1DC',
     readerFont: '#554A34',
     readerFontHighContrast: 'black',
-    readerHeader: '554A34',
     readerTableHeader: '#FFFFFF',
   },
 }
@@ -255,7 +252,6 @@ const charcoalThemeSpec = {
     readerBg: '#303030',
     readerFont: '#b9b9b9',
     readerFontHighContrast: 'white',
-    readerHeader: '#b9b9b9',
     readerTableHeader: '#FFFFFF',
   },
 }

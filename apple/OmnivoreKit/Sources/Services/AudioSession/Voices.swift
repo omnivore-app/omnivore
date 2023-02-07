@@ -33,6 +33,7 @@ public enum VoiceCategory: String, CaseIterable {
   case hiIN = "Hindi (India)"
   case esES = "Spanish (Spain)"
   case jaJP = "Japanese (Japan)"
+  case ptBR = "Portuguese (Brazil)"
   case taIN = "Tamil (India)"
   case taLK = "Tamil (Sri Lanka)"
   case taMY = "Tamil (Malaysia)"
@@ -70,6 +71,7 @@ public enum Voices {
     VoiceLanguage(key: "hi", name: "Hindi", defaultVoice: "hi-IN-MadhurNeural", categories: [.hiIN]),
     VoiceLanguage(key: "ja", name: "Japanese", defaultVoice: "ja-JP-NanamiNeural", categories: [.jaJP]),
     VoiceLanguage(key: "es", name: "Spanish", defaultVoice: "es-ES-AlvaroNeural", categories: [.esES]),
+    VoiceLanguage(key: "pt", name: "Portuguese", defaultVoice: "pt-BR-AntonioNeural", categories: [.ptBR]),
     VoiceLanguage(key: "ta", name: "Tamil", defaultVoice: "ta-IN-PallaviNeural", categories: [.taIN, .taLK, .taMY, .taSG])
   ]
 
@@ -92,6 +94,7 @@ public enum Voices {
     VoicePair(firstKey: "de-DE-ChristophNeural", secondKey: "de-DE-LouisaNeural", firstName: "Christoph", secondName: "Louisa", language: "de-DE", category: .deDE),
     VoicePair(firstKey: "ja-JP-NanamiNeural", secondKey: "ja-JP-KeitaNeural", firstName: "Nanami", secondName: "Keita", language: "ja-JP", category: .jaJP),
     VoicePair(firstKey: "hi-IN-MadhurNeural", secondKey: "hi-IN-SwaraNeural", firstName: "Madhur", secondName: "Swara", language: "hi-IN", category: .hiIN),
+    VoicePair(firstKey: "pt-BR-AntonioNeural", secondKey: "pt-BR-BrendaNeural", firstName: "Antonio", secondName: "Brenda", language: "pt-BR", category: .ptBR),
     VoicePair(firstKey: "ta-IN-PallaviNeural", secondKey: "ta-IN-ValluvarNeural", firstName: "Pallavi", secondName: "Valluvar", language: "ta-IN", category: .taIN),
     VoicePair(firstKey: "ta-LK-KumarNeural", secondKey: "ta-LK-SaranyaNeural", firstName: "Kumar", secondName: "Saranya", language: "ta-LK", category: .taLK),
     VoicePair(firstKey: "ta-MY-KaniNeural", secondKey: "ta-MY-SuryaNeural", firstName: "Kani", secondName: "Surya", language: "ta-MY", category: .taMY),
