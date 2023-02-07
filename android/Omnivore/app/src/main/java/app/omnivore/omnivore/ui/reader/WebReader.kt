@@ -67,6 +67,11 @@ fun WebReader(
         settings.domStorageEnabled = true
 
         webViewClient = object : WebViewClient() {
+          override fun onPageFinished(view: WebView?, url: String?) {
+            super.onPageFinished(view, url)
+            // Add padding to top so TopAppBar doesn't cover content
+            view?.loadUrl("javascript:(function(){ document.body.style.paddingTop = '48px'})();");
+          }
         }
 
         val javascriptInterface = AndroidWebKitMessenger { actionID, json ->
@@ -219,10 +224,9 @@ class OmnivoreWebView(context: Context) : WebView(context), OnScrollChangeListen
       Log.d("wv", "outRect: $outRect, View: $view")
       if (viewModel?.lastTapCoordinates != null) {
         val xValue = viewModel!!.lastTapCoordinates!!.tapX.toInt()
-        val yValue = viewModel!!.lastTapCoordinates!!.tapY.toInt() + (viewModel?.currentToolbarHeight ?: 0)
+        val yValue = viewModel!!.lastTapCoordinates!!.tapY.toInt()
         val rect = Rect(xValue, yValue, xValue, yValue)
 
-        Log.d("wvt", "bar height: ${viewModel?.currentToolbarHeight}")
         Log.d("wvt", "setting rect based on last tapped rect: ${viewModel?.lastTapCoordinates.toString()}")
         Log.d("wvt", "rect: $rect")
 
@@ -253,6 +257,7 @@ class OmnivoreWebView(context: Context) : WebView(context), OnScrollChangeListen
 
   override fun onScrollChange(view: View?, x: Int, y: Int, oldX: Int, oldY: Int) {
     viewModel?.scrollY = y
+    viewModel?.onScrollChange((oldY - y).toFloat())
   }
 }
 

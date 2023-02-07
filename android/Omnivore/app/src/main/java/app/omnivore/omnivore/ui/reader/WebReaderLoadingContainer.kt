@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
 import app.omnivore.omnivore.MainActivity
 import app.omnivore.omnivore.ui.savedItemViews.SavedItemContextMenu
 import app.omnivore.omnivore.ui.theme.OmnivoreTheme
@@ -111,24 +112,12 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, o
   val webReaderParams: WebReaderParams? by webReaderViewModel.webReaderParamsLiveData.observeAsState(null)
   val annotation: String? by webReaderViewModel.annotationLiveData.observeAsState(null)
   val shouldPopView: Boolean by webReaderViewModel.shouldPopViewLiveData.observeAsState(false)
+  val toolbarHeightPx: Float by webReaderViewModel.currentToolbarHeightLiveData.observeAsState(0.0f)
 
   val maxToolbarHeight = 48.dp
-  val maxToolbarHeightPx = with(LocalDensity.current) { maxToolbarHeight.roundToPx().toFloat() }
-  val toolbarHeightPx = remember { mutableStateOf(maxToolbarHeightPx) }
-
-  // Create a connection to the nested scroll system and listen to the scroll happening inside child Column
-  val nestedScrollConnection = remember {
-    object : NestedScrollConnection {
-      override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-        val delta = available.y
-        val newHeight = toolbarHeightPx.value + delta
-        toolbarHeightPx.value = newHeight.coerceIn(0f, maxToolbarHeightPx)
-        return Offset.Zero
-      }
-    }
-  }
 
   if (webReaderParams == null) {
+    webReaderViewModel.maxToolbarHeightPx = with(LocalDensity.current) { maxToolbarHeight.roundToPx().toFloat() }
     webReaderViewModel.loadItem(slug = slug, requestID = requestID)
   }
 
@@ -136,27 +125,14 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, o
     Box(
       modifier = Modifier
         .fillMaxSize()
-        .nestedScroll(nestedScrollConnection)
     ) {
-      Column(
-        modifier = Modifier
-          .fillMaxSize()
-      ) {
-        Row(
-          modifier = Modifier
-            .fillMaxWidth()
-            .requiredHeight(height = maxToolbarHeight)
-        ) {
-        }
         WebReader(webReaderParams!!, webReaderViewModel.storedWebPreferences(isSystemInDarkTheme()), webReaderViewModel)
-      }
 
       TopAppBar(
         modifier = Modifier
           .height(height = with(LocalDensity.current) {
-            webReaderViewModel.currentToolbarHeight = toolbarHeightPx.value.toInt()
-            toolbarHeightPx.value.roundToInt().toDp()
-          } ),
+            toolbarHeightPx.roundToInt().toDp()
+          }),
         backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
         title = {},
         actions = {

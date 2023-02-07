@@ -2,6 +2,10 @@ package app.omnivore.omnivore.ui.reader
 
 import android.util.Log
 import androidx.compose.foundation.ScrollState
+import androidx.compose.runtime.remember
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -35,13 +39,14 @@ class WebReaderViewModel @Inject constructor(
   var lastJavascriptActionLoopUUID: UUID = UUID.randomUUID()
   var javascriptDispatchQueue: MutableList<String> = mutableListOf()
   var scrollY = 0
-  var currentToolbarHeight = 0
+  var maxToolbarHeightPx = 0.0f
 
   val webReaderParamsLiveData = MutableLiveData<WebReaderParams?>(null)
   val annotationLiveData = MutableLiveData<String?>(null)
   val javascriptActionLoopUUIDLiveData = MutableLiveData(lastJavascriptActionLoopUUID)
-  val shouldPopViewLiveData = MutableLiveData<Boolean>(false)
-  val hasFetchError = MutableLiveData<Boolean>(false)
+  val shouldPopViewLiveData = MutableLiveData(false)
+  val hasFetchError = MutableLiveData(false)
+  val currentToolbarHeightLiveData = MutableLiveData(0.0f)
 
   var hasTappedExistingHighlight = false
   var lastTapCoordinates: TapCoordinates? = null
@@ -51,6 +56,11 @@ class WebReaderViewModel @Inject constructor(
       slug?.let { loadItemUsingSlug(it) }
       requestID?.let { loadItemUsingRequestID(it) }
     }
+  }
+
+  fun onScrollChange(delta: Float) {
+    val newHeight = (currentToolbarHeightLiveData.value ?: 0.0f) + delta
+    currentToolbarHeightLiveData.value = newHeight.coerceIn(0f, maxToolbarHeightPx)
   }
 
   private suspend fun loadItemUsingSlug(slug: String) {
