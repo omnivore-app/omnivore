@@ -49,7 +49,7 @@ public struct TextChip: View {
       return .white
     }
 
-    return luminance > 0.5 ? .black : .white
+    return luminance > 0.3 ? .black : .white
   }
 
   var backgroundColor: Color {
