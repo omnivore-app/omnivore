@@ -141,8 +141,6 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, o
       Column(
         modifier = Modifier
           .fillMaxSize()
-          .verticalScroll(webReaderViewModel.scrollState)
-
       ) {
         Row(
           modifier = Modifier
