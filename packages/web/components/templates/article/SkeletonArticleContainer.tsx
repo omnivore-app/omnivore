@@ -10,7 +10,9 @@ type SkeletonArticleContainerProps = {
   children?: React.ReactNode
 }
 
-export function SkeletonArticleContainer(props: SkeletonArticleContainerProps): JSX.Element {
+export function SkeletonArticleContainer(
+  props: SkeletonArticleContainerProps
+): JSX.Element {
   const styles = {
     margin: props.margin ?? 360,
     fontSize: props.fontSize ?? 20,
@@ -40,7 +42,6 @@ export function SkeletonArticleContainer(props: SkeletonArticleContainerProps): 
           '--hr-margin': '1em',
           '--font-color': styles.readerFontColor,
           '--table-header-color': styles.readerTableHeaderColor,
-          '--headers-color': styles.readerHeadersColor,
           '@sm': {
             '--blockquote-padding': '1em 2em',
             '--blockquote-icon-font-size': '1.7rem',
@@ -49,11 +50,11 @@ export function SkeletonArticleContainer(props: SkeletonArticleContainerProps): 
             margin: `30px 0px`,
           },
           '@md': {
-            maxWidth: 1024 - (styles.margin),
+            maxWidth: 1024 - styles.margin,
           },
           '@lg': {
             margin: `30px 0`,
-            maxWidth: 1024 - (styles.margin),
+            maxWidth: 1024 - styles.margin,
           },
         }}
       >

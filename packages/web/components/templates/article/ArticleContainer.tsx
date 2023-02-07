@@ -315,7 +315,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           '--hr-margin': '1em',
           '--font-color': styles.readerFontColor,
           '--table-header-color': styles.readerTableHeaderColor,
-          '--headers-color': styles.readerHeadersColor,
           '@sm': {
             '--blockquote-padding': '1em 2em',
             '--blockquote-icon-font-size': '1.7rem',
@@ -332,7 +331,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
       >
         <VStack alignment="start" distribution="start">
           <StyledText
-            style="boldHeadline"
+            style="articleTitle"
             data-testid="article-headline"
             css={{
               fontFamily: styles.fontFamily,

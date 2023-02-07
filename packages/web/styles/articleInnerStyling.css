@@ -25,6 +25,10 @@
   cursor: pointer;
 }
 
+.article-inner-css {
+  font-family: var(--text-font-family);
+}
+
 .article-inner-css .highlight_with_note .highlight_note_button {
   display: unset !important;
   margin: 0px !important;
@@ -55,7 +59,6 @@ on smaller screens we display the note icon
   margin-inline-end: 0px;
   line-height: var(--line-height);
   font-size: var(--text-font-size);
-  color: var(--headers-color);
   font-weight: bold;
 }
 .article-inner-css h1 {
@@ -86,7 +89,6 @@ on smaller screens we display the note icon
 }
 
 .article-inner-css p {
-  font-family: var(--text-font-family);
   font-style: normal;
   font-weight: normal;
 
