@@ -14,6 +14,7 @@ public enum WebFont: String, CaseIterable {
   case georgia = "Georgia"
   case montserrat = "Montserrat"
   case newsreader = "Newsreader"
+  case atkinsonHyperlegible = "AtkinsonHyperlegible"
 
   static var sorted: [WebFont] {
     allCases.sorted { left, right in
@@ -34,8 +35,19 @@ public enum WebFont: String, CaseIterable {
 
   public var displayValue: String {
     switch self {
-    case .inter, .merriweather, .lora, .opensans, .roboto, .crimsontext, .sourceserifpro, .georgia, .montserrat, .newsreader:
+    case .inter,
+         .merriweather,
+         .lora,
+         .opensans,
+         .roboto,
+         .crimsontext,
+         .sourceserifpro,
+         .georgia,
+         .montserrat,
+         .newsreader:
       return rawValue
+    case .atkinsonHyperlegible:
+      return "Atkinson Hyperlegible"
     case .openDyslexic:
       return "Open Dyslexic"
     case .system:
@@ -178,8 +190,6 @@ public enum WebFont: String, CaseIterable {
               Text(LocalText.genericFont)
               Spacer()
               Image(systemName: "chevron.right")
-//              Button(action: {}, label: { Text("Crimson Text").frame(width: 91) })
-//                .buttonStyle(RoundedRectButtonStyle())
             }
           }
           .foregroundColor(.appGrayTextContrast)

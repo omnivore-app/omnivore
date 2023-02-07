@@ -232,63 +232,84 @@ div#appleid-signin {
   font-family: 'Montserrat';
   font-weight: 400;
   font-style: normal;
-  src: url('/static/fonts/Source_Serif_Pro/Montserrat-Regular.ttf');
+  src: url('/static/fonts/Montserrat/Montserrat-Regular.ttf');
 }
 
 @font-face {
   font-family: 'Montserrat';
   font-weight: 700;
   font-style: normal;
-  src: url('/static/fonts/Source_Serif_Pro/Montserrat-Bold.ttf');
+  src: url('/static/fonts/Montserrat/Montserrat-Bold.ttf');
 }
 
 @font-face {
   font-family: 'Montserrat';
   font-weight: 400;
   font-style: italic;
-  src: url('/static/fonts/Source_Serif_Pro/Montserrat-Italic.ttf');
+  src: url('/static/fonts/Montserrat/Montserrat-Italic.ttf');
 }
 
 @font-face {
   font-family: 'Georgia';
   font-weight: 400;
   font-style: normal;
-  src: url('/static/fonts/Source_Serif_Pro/Georgia-Regular.ttf');
+  src: url('/static/fonts/Georgia/Georgia-Regular.ttf');
 }
 
 @font-face {
   font-family: 'Georgia';
   font-weight: 700;
   font-style: normal;
-  src: url('/static/fonts/Source_Serif_Pro/Georgia-Bold.ttf');
+  src: url('/static/fonts/Georgia/Georgia-Bold.ttf');
 }
 
 @font-face {
   font-family: 'Georgia';
   font-weight: 400;
   font-style: italic;
-  src: url('/static/fonts/Source_Serif_Pro/Georgia-Italic.ttf');
+  src: url('/static/fonts/Georgia/Georgia-Italic.ttf');
 }
 
 @font-face {
   font-family: 'Newsreader';
   font-weight: 400;
   font-style: normal;
-  src: url('/static/fonts/Source_Serif_Pro/Newsreader-Regular.ttf');
+  src: url('/static/fonts/Newsreader/Newsreader-Regular.ttf');
 }
 
 @font-face {
   font-family: 'Newsreader';
   font-weight: 700;
   font-style: normal;
-  src: url('/static/fonts/Source_Serif_Pro/Newsreader-Bold.ttf');
+  src: url('/static/fonts/Newsreader/Newsreader-Bold.ttf');
 }
 
 @font-face {
   font-family: 'Newsreader';
   font-weight: 400;
   font-style: italic;
-  src: url('/static/fonts/Source_Serif_Pro/Newsreader-Italic.ttf');
+  src: url('/static/fonts/Newsreader/Newsreader-Italic.ttf');
+}
+
+@font-face {
+  font-family: 'AtkinsonHyperlegible';
+  font-weight: 400;
+  font-style: normal;
+  src: url('/static/fonts/AtkinsonHyperlegible/AtkinsonHyperlegible-Regular.ttf');
+}
+
+@font-face {
+  font-family: 'AtkinsonHyperlegible';
+  font-weight: 700;
+  font-style: normal;
+  src: url('/static/fonts/AtkinsonHyperlegible/AtkinsonHyperlegible-Bold.ttf');
+}
+
+@font-face {
+  font-family: 'AtkinsonHyperlegible';
+  font-weight: 400;
+  font-style: italic;
+  src: url('/static/fonts/AtkinsonHyperlegible/AtkinsonHyperlegible-Italic.ttf');
 }
 
 @font-face {
