@@ -38,7 +38,6 @@ class WebReaderViewModel @Inject constructor(
 ): ViewModel() {
   var lastJavascriptActionLoopUUID: UUID = UUID.randomUUID()
   var javascriptDispatchQueue: MutableList<String> = mutableListOf()
-  var scrollY = 0
   var maxToolbarHeightPx = 0.0f
 
   val webReaderParamsLiveData = MutableLiveData<WebReaderParams?>(null)
@@ -205,7 +204,6 @@ class WebReaderViewModel @Inject constructor(
     shouldPopViewLiveData.postValue(false)
     webReaderParamsLiveData.value = null
     annotationLiveData.value = null
-    scrollY = 0
     javascriptDispatchQueue = mutableListOf()
     hasTappedExistingHighlight = false
     lastTapCoordinates = null

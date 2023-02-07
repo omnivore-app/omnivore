@@ -89,7 +89,6 @@ fun WebReader(
             }
             "existingHighlightTap" -> {
               val tapCoordinates = Gson().fromJson(json, TapCoordinates::class.java)
-              Log.d("wv", "receive existing highlight tap action: $tapCoordinates")
               CoroutineScope(Dispatchers.Main).launch {
                 webReaderViewModel.hasTappedExistingHighlight = true
                 webReaderViewModel.lastTapCoordinates = tapCoordinates
@@ -135,6 +134,7 @@ fun WebReader(
 class OmnivoreWebView(context: Context) : WebView(context), OnScrollChangeListener {
   var viewModel: WebReaderViewModel? = null
   var actionMode: ActionMode? = null
+  val density = resources.displayMetrics.density
 
   init {
     setOnScrollChangeListener(this)
@@ -223,8 +223,8 @@ class OmnivoreWebView(context: Context) : WebView(context), OnScrollChangeListen
     override fun onGetContentRect(mode: ActionMode?, view: View?, outRect: Rect?) {
       Log.d("wv", "outRect: $outRect, View: $view")
       if (viewModel?.lastTapCoordinates != null) {
-        val xValue = viewModel!!.lastTapCoordinates!!.tapX.toInt()
-        val yValue = viewModel!!.lastTapCoordinates!!.tapY.toInt()
+        val xValue = (viewModel!!.lastTapCoordinates!!.tapX * density).toInt()
+        val yValue = (viewModel!!.lastTapCoordinates!!.tapY * density).toInt()
         val rect = Rect(xValue, yValue, xValue, yValue)
 
         Log.d("wvt", "setting rect based on last tapped rect: ${viewModel?.lastTapCoordinates.toString()}")
@@ -256,7 +256,6 @@ class OmnivoreWebView(context: Context) : WebView(context), OnScrollChangeListen
   }
 
   override fun onScrollChange(view: View?, x: Int, y: Int, oldX: Int, oldY: Int) {
-    viewModel?.scrollY = y
     viewModel?.onScrollChange((oldY - y).toFloat())
   }
 }
