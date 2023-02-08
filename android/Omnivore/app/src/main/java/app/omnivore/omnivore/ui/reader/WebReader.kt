@@ -67,13 +67,13 @@ fun WebReader(
         settings.allowFileAccess = true
         settings.domStorageEnabled = true
 
-        visibility = View.INVISIBLE
+        alpha = 0.0f
 
         webViewClient = object : WebViewClient() {
           override fun onPageFinished(view: WebView?, url: String?) {
             super.onPageFinished(view, url)
             viewModel?.showNavBar()
-            visibility = View.VISIBLE
+            view?.animate()?.alpha(1.0f)?.duration = 200
           }
         }
 
