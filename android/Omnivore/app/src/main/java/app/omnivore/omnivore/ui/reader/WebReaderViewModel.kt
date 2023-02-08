@@ -49,8 +49,13 @@ class WebReaderViewModel @Inject constructor(
 
   var hasTappedExistingHighlight = false
   var lastTapCoordinates: TapCoordinates? = null
+  private var isLoading = false
   
   fun loadItem(slug: String?, requestID: String?) {
+    if (isLoading || webReaderParamsLiveData.value != null) { return }
+    isLoading = true
+    Log.d("reader", "load item called")
+
     viewModelScope.launch {
       slug?.let { loadItemUsingSlug(it) }
       requestID?.let { loadItemUsingRequestID(it) }
@@ -72,6 +77,7 @@ class WebReaderViewModel @Inject constructor(
     if (webReaderParams != null) {
       Log.d("reader", "data loaded from server")
       webReaderParamsLiveData.postValue(webReaderParams)
+      isLoading = false
     } else {
       loadItemFromDB(slug)
     }
@@ -83,6 +89,7 @@ class WebReaderViewModel @Inject constructor(
 
     if (webReaderParams != null && isSuccessful) {
       webReaderParamsLiveData.postValue(webReaderParams)
+      isLoading = false
     } else if (requestCount < 7) {
       // delay then try again
       delay(2000L)
@@ -109,6 +116,7 @@ class WebReaderViewModel @Inject constructor(
         Log.d("sync", "data loaded from db")
         webReaderParamsLiveData.postValue(WebReaderParams(persistedItem.savedItem, articleContent))
       }
+      isLoading = false
     }
   }
 

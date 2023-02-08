@@ -9,14 +9,11 @@ import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
@@ -27,17 +24,12 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.viewmodel.compose.viewModel
 import app.omnivore.omnivore.MainActivity
 import app.omnivore.omnivore.ui.savedItemViews.SavedItemContextMenu
 import app.omnivore.omnivore.ui.theme.OmnivoreTheme
@@ -59,12 +51,20 @@ class WebReaderLoadingContainerActivity: ComponentActivity() {
       val systemUiController = rememberSystemUiController()
       val useDarkIcons = !isSystemInDarkTheme()
 
+      DisposableEffect(systemUiController, useDarkIcons) {
+        systemUiController.setSystemBarsColor(
+          color = Color.Black,
+          darkIcons = false
+        )
+
+        onDispose {}
+      }
+
       OmnivoreTheme {
         Box(
           modifier = Modifier
             .fillMaxSize()
             .background(color = Color.Black)
-            .systemBarsPadding()
         ) {
           if (viewModel.hasFetchError.value == true) {
             Text("We were unable to fetch your content.")
@@ -77,15 +77,6 @@ class WebReaderLoadingContainerActivity: ComponentActivity() {
             )
           }
         }
-      }
-
-      DisposableEffect(systemUiController, useDarkIcons) {
-        systemUiController.setSystemBarsColor(
-          color = Color.Black,
-          darkIcons = false
-        )
-
-        onDispose {}
       }
     }
 
@@ -107,7 +98,6 @@ class WebReaderLoadingContainerActivity: ComponentActivity() {
 
 @Composable
 fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, onLibraryIconTap: (() -> Unit)? = null, webReaderViewModel: WebReaderViewModel) {
-  Log.d("reader", "loading web reader")
   val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
 
   var isMenuExpanded by remember { mutableStateOf(false) }
@@ -119,28 +109,20 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, o
   val toolbarHeightPx: Float by webReaderViewModel.currentToolbarHeightLiveData.observeAsState(0.0f)
 
   val maxToolbarHeight = 48.dp
+  webReaderViewModel.maxToolbarHeightPx = with(LocalDensity.current) { maxToolbarHeight.roundToPx().toFloat() }
+  webReaderViewModel.loadItem(slug = slug, requestID = requestID)
 
-  if (webReaderParams == null) {
-    webReaderViewModel.maxToolbarHeightPx = with(LocalDensity.current) { maxToolbarHeight.roundToPx().toFloat() }
-    webReaderViewModel.loadItem(slug = slug, requestID = requestID)
-
-    Column(
-      verticalArrangement = Arrangement.SpaceAround,
-      horizontalAlignment = Alignment.CenterHorizontally,
-      modifier = Modifier
-        .fillMaxSize()
-        .padding(horizontal = 16.dp)
-    ) {
-      Text("Loading...", color = Color.White)
-    }
-  }
-
-  if (webReaderParams != null) {
-    Box(
-      modifier = Modifier
-        .fillMaxSize()
-    ) {
-        WebReader(webReaderParams!!, webReaderViewModel.storedWebPreferences(isSystemInDarkTheme()), webReaderViewModel)
+  Box(
+    modifier = Modifier
+      .fillMaxSize()
+      .systemBarsPadding()
+  ) {
+    if (webReaderParams != null) {
+      WebReader(
+        webReaderParams!!,
+        webReaderViewModel.storedWebPreferences(isSystemInDarkTheme()),
+        webReaderViewModel
+      )
 
       TopAppBar(
         modifier = Modifier
@@ -174,7 +156,12 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, o
             isExpanded = isMenuExpanded,
             isArchived = webReaderParams!!.item.isArchived,
             onDismiss = { isMenuExpanded = false },
-            actionHandler = { webReaderViewModel.handleSavedItemAction(webReaderParams!!.item.savedItemId, it) }
+            actionHandler = {
+              webReaderViewModel.handleSavedItemAction(
+                webReaderParams!!.item.savedItemId,
+                it
+              )
+            }
           )
         }
       )

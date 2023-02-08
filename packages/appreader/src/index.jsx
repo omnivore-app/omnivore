@@ -54,7 +54,7 @@ const App = () => {
   applyStoredTheme(false)
 
   document.addEventListener('updateLabels', (event) => {
-    console.log("updating labels: ", event.labels)
+    console.log('updating labels: ', event.labels)
     setLabels(event.labels)
   })
 
@@ -65,6 +65,7 @@ const App = () => {
           overflowY: 'auto',
           height: '100%',
           width: '100vw',
+          paddingTop: window.webkit ? 0 : '48px', // add 48px to android only
         }}
       >
         <VStack

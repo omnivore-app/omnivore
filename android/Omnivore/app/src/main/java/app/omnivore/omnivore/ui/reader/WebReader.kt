@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Rect
 import android.util.Log
 import android.view.*
@@ -66,12 +67,13 @@ fun WebReader(
         settings.allowFileAccess = true
         settings.domStorageEnabled = true
 
+        visibility = View.INVISIBLE
+
         webViewClient = object : WebViewClient() {
           override fun onPageFinished(view: WebView?, url: String?) {
             super.onPageFinished(view, url)
-            // Add padding to top so TopAppBar doesn't cover content
             viewModel?.showNavBar()
-            view?.loadUrl("javascript:(function(){ document.body.style.paddingTop = '48px'})();");
+            visibility = View.VISIBLE
           }
         }
 
