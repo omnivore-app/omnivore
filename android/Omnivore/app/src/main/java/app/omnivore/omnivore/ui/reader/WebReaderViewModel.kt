@@ -70,7 +70,7 @@ class WebReaderViewModel @Inject constructor(
     val webReaderParams = loadItemFromServer(slug)
 
     if (webReaderParams != null) {
-      Log.d("sync", "data loaded from server")
+      Log.d("reader", "data loaded from server")
       webReaderParamsLiveData.postValue(webReaderParams)
     } else {
       loadItemFromDB(slug)
@@ -202,15 +202,6 @@ class WebReaderViewModel @Inject constructor(
         Log.d("Loggo", "receive unrecognized action of $actionID with json: $jsonString")
       }
     }
-  }
-
-  fun reset() {
-    shouldPopViewLiveData.postValue(false)
-    webReaderParamsLiveData.value = null
-    annotationLiveData.value = null
-    javascriptDispatchQueue = mutableListOf()
-    hasTappedExistingHighlight = false
-    lastTapCoordinates = null
   }
 
   fun resetJavascriptDispatchQueue() {

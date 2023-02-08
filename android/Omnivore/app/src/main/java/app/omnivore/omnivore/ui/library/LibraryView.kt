@@ -18,14 +18,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import app.omnivore.omnivore.Routes
-import app.omnivore.omnivore.persistence.entities.SavedItemAndSavedItemLabelCrossRef
-import app.omnivore.omnivore.persistence.entities.SavedItemCardData
 import app.omnivore.omnivore.persistence.entities.SavedItemCardDataWithLabels
 import app.omnivore.omnivore.ui.savedItemViews.SavedItemCard
 import app.omnivore.omnivore.ui.reader.PDFReaderActivity
+import app.omnivore.omnivore.ui.reader.WebReaderLoadingContainerActivity
 import kotlinx.coroutines.flow.distinctUntilChanged
 
 
@@ -48,7 +46,6 @@ fun LibraryView(
   ) { paddingValues ->
     LibraryViewContent(
       libraryViewModel,
-      navController,
       modifier = Modifier
         .padding(
           top = paddingValues.calculateTopPadding(),
@@ -60,11 +57,7 @@ fun LibraryView(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun LibraryViewContent(
-  libraryViewModel: LibraryViewModel,
-  navController: NavHostController,
-  modifier: Modifier
-) {
+fun LibraryViewContent(libraryViewModel: LibraryViewModel, modifier: Modifier) {
   val context = LocalContext.current
   val listState = rememberLazyListState()
 
@@ -95,13 +88,10 @@ fun LibraryViewContent(
         SavedItemCard(
           cardData = cardDataWithLabels.cardData,
           onClickHandler = {
-            if (cardDataWithLabels.cardData.isPDF()) {
-              val intent = Intent(context, PDFReaderActivity::class.java)
-              intent.putExtra("SAVED_ITEM_SLUG", cardDataWithLabels.cardData.slug)
-              context.startActivity(intent)
-            } else {
-              navController.navigate("WebReader/${cardDataWithLabels.cardData.slug}")
-            }
+            val activityClass = if (cardDataWithLabels.cardData.isPDF()) PDFReaderActivity::class.java else WebReaderLoadingContainerActivity::class.java
+            val intent = Intent(context, activityClass)
+            intent.putExtra("SAVED_ITEM_SLUG", cardDataWithLabels.cardData.slug)
+            context.startActivity(intent)
           },
           actionHandler = { libraryViewModel.handleSavedItemAction(cardDataWithLabels.cardData.savedItemId, it) }
         )

@@ -2,6 +2,7 @@ package app.omnivore.omnivore.ui.reader
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
@@ -51,7 +52,8 @@ class WebReaderLoadingContainerActivity: ComponentActivity() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    val requestID = intent.getStringExtra("SAVED_ITEM_REQUEST_ID") ?: ""
+    val requestID = intent.getStringExtra("SAVED_ITEM_REQUEST_ID")
+    val slug = intent.getStringExtra("SAVED_ITEM_SLUG")
 
     setContent {
       val systemUiController = rememberSystemUiController()
@@ -69,7 +71,8 @@ class WebReaderLoadingContainerActivity: ComponentActivity() {
           } else {
             WebReaderLoadingContainer(
               requestID = requestID,
-              onLibraryIconTap = { startMainActivity() },
+              slug = slug,
+              onLibraryIconTap = if (requestID != null) { { startMainActivity() } } else null,
               webReaderViewModel = viewModel
             )
           }
@@ -104,6 +107,7 @@ class WebReaderLoadingContainerActivity: ComponentActivity() {
 
 @Composable
 fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, onLibraryIconTap: (() -> Unit)? = null, webReaderViewModel: WebReaderViewModel) {
+  Log.d("reader", "loading web reader")
   val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
 
   var isMenuExpanded by remember { mutableStateOf(false) }
@@ -119,6 +123,16 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, o
   if (webReaderParams == null) {
     webReaderViewModel.maxToolbarHeightPx = with(LocalDensity.current) { maxToolbarHeight.roundToPx().toFloat() }
     webReaderViewModel.loadItem(slug = slug, requestID = requestID)
+
+    Column(
+      verticalArrangement = Arrangement.SpaceAround,
+      horizontalAlignment = Alignment.CenterHorizontally,
+      modifier = Modifier
+        .fillMaxSize()
+        .padding(horizontal = 16.dp)
+    ) {
+      Text("Loading...", color = Color.White)
+    }
   }
 
   if (webReaderParams != null) {
@@ -191,16 +205,6 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, o
       if (shouldPopView) {
         onBackPressedDispatcher?.onBackPressed()
       }
-    }
-  } else {
-    Column(
-      verticalArrangement = Arrangement.SpaceAround,
-      horizontalAlignment = Alignment.CenterHorizontally,
-      modifier = Modifier
-        .fillMaxSize()
-        .padding(horizontal = 16.dp)
-    ) {
-      Text("Loading...", color = Color.White)
     }
   }
 }
