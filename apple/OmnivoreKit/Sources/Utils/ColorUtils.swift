@@ -87,11 +87,17 @@ public extension Color {
       }
     #endif
 
-    let colorR = Double(Int(components[0] * 255)) * 0.2126
-    let colorG = Double(Int(components[1] * 255)) * 0.7152
-    let colorB = Double(Int(components[2] * 255)) * 0.0722
+    let colorR = channelColor(components[0]) * 0.2126
+    let colorG = channelColor(components[1]) * 0.7152
+    let colorB = channelColor(components[2]) * 0.0722
 
     return Float(colorR + colorG + colorB)
+  }
+
+  private func channelColor(_ channel: CGFloat) -> Double {
+    channel <= 0.03928
+      ? channel / 12.92
+      : pow((channel + 0.055) / 1.055, 2.4)
   }
 
   static var isDarkMode: Bool {
