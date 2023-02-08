@@ -109,6 +109,7 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, o
   val toolbarHeightPx: Float by webReaderViewModel.currentToolbarHeightLiveData.observeAsState(0.0f)
 
   val maxToolbarHeight = 48.dp
+  val backgroundColor = if (isSystemInDarkTheme()) Color.Black else Color.White
   webReaderViewModel.maxToolbarHeightPx = with(LocalDensity.current) { maxToolbarHeight.roundToPx().toFloat() }
   webReaderViewModel.loadItem(slug = slug, requestID = requestID)
 
@@ -116,6 +117,7 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, o
     modifier = Modifier
       .fillMaxSize()
       .systemBarsPadding()
+      .background(color = backgroundColor)
   ) {
     if (webReaderParams != null) {
       WebReader(
