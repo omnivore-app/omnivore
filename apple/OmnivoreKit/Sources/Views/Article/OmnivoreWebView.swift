@@ -16,9 +16,11 @@ enum ContextMenu {
 
 public final class OmnivoreWebView: WKWebView {
   #if os(iOS)
+    private var menuDisplayed = false
     private var panGestureRecognizer: UIPanGestureRecognizer?
-    private var tapGestureRecognizer: UITapGestureRecognizer?
   #endif
+
+  public var tapHandler: (() -> Void)?
 
   private var currentMenu: ContextMenu = .defaultMenu
 
@@ -196,6 +198,17 @@ public final class OmnivoreWebView: WKWebView {
         { // swiftlint:disable:this opening_brace
           showHighlightMenu(CGRect(x: rectX, y: rectY, width: rectWidth, height: rectHeight))
         }
+
+      case "pageTapped":
+        print("currentMenu: ", currentMenu, "menuDisplayed", menuDisplayed)
+        if menuDisplayed {
+          hideMenuAndDismissHighlight()
+          break
+        }
+        if let tapHandler = self.tapHandler {
+          tapHandler()
+        }
+
       default:
         break
       }
@@ -338,14 +351,11 @@ public final class OmnivoreWebView: WKWebView {
 
     private func hideMenu() {
       UIMenuController.shared.hideMenu()
-      if let tapGestureRecognizer = tapGestureRecognizer {
-        removeGestureRecognizer(tapGestureRecognizer)
-        self.tapGestureRecognizer = nil
-      }
       if let panGestureRecognizer = panGestureRecognizer {
         removeGestureRecognizer(panGestureRecognizer)
         self.panGestureRecognizer = nil
       }
+      menuDisplayed = false
       setDefaultMenu()
     }
 
@@ -357,21 +367,13 @@ public final class OmnivoreWebView: WKWebView {
     private func showHighlightMenu(_ rect: CGRect) {
       setHighlightMenu()
 
-      // When the highlight menu is displayed we set up gesture recognizers so it
-      // can be dismissed if the user interacts with another part of the view.
-      // This isn't needed for the default menu as the system will handle that.
-      if tapGestureRecognizer == nil {
-        let tap = UITapGestureRecognizer(target: self, action: #selector(gestureHandled))
-        tap.delegate = self
-        addGestureRecognizer(tap)
-        tapGestureRecognizer = tap
-      }
       if panGestureRecognizer == nil {
         let pan = UIPanGestureRecognizer(target: self, action: #selector(gestureHandled))
         pan.delegate = self
         addGestureRecognizer(pan)
         panGestureRecognizer = pan
       }
+      menuDisplayed = true
 
       UIMenuController.shared.showMenu(from: self, rect: rect)
     }

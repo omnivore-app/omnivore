@@ -73,6 +73,14 @@ struct WebReaderContainerView: View {
     }
   }
 
+  private func tapHandler() {
+    withAnimation(.easeIn(duration: 0.08)) {
+      navBarVisibilityRatio = navBarVisibilityRatio == 1 ? 0 : 1
+      showBottomBar = navBarVisibilityRatio == 1
+      showNavBarActionID = UUID()
+    }
+  }
+
   private func handleHighlightAction(message: WKScriptMessage) {
     guard let messageBody = message.body as? [String: String] else { return }
     guard let actionID = messageBody["actionID"] else { return }
@@ -89,6 +97,12 @@ struct WebReaderContainerView: View {
     case "setHighlightLabels":
       annotation = messageBody["highlightID"] ?? ""
       showHighlightLabelsModal = true
+    case "pageTapped":
+      withAnimation {
+        navBarVisibilityRatio = navBarVisibilityRatio == 1 ? 0 : 1
+        showBottomBar = navBarVisibilityRatio == 1
+        showNavBarActionID = UUID()
+      }
     default:
       break
     }
@@ -354,6 +368,7 @@ struct WebReaderContainerView: View {
               }
             #endif
           },
+          tapHandler: tapHandler,
           webViewActionHandler: webViewActionHandler,
           navBarVisibilityRatioUpdater: {
             navBarVisibilityRatio = $0
@@ -366,13 +381,6 @@ struct WebReaderContainerView: View {
           showBottomBar: $showBottomBar,
           showHighlightAnnotationModal: $showHighlightAnnotationModal
         )
-        .onTapGesture {
-          withAnimation {
-            navBarVisibilityRatio = navBarVisibilityRatio == 1 ? 0 : 1
-            showBottomBar = navBarVisibilityRatio == 1
-            showNavBarActionID = UUID()
-          }
-        }
         .confirmationDialog(linkToOpen?.absoluteString ?? "", isPresented: $displayLinkSheet) {
           Button(action: {
             if let linkToOpen = linkToOpen {

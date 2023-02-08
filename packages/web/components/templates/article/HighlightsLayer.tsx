@@ -278,6 +278,8 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       const { target, pageX, pageY } = event
 
       if (!target || (target as Node)?.nodeType !== Node.ELEMENT_NODE) {
+        console.log(' -- returning early from page tap')
+
         return
       }
 
@@ -333,6 +335,10 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           highlightModalAction: 'addComment',
         })
       } else {
+        console.log('sending page tapped')
+        window?.webkit?.messageHandlers.viewerAction?.postMessage({
+          actionID: 'pageTapped',
+        })
         setFocusedHighlight(undefined)
       }
     },
