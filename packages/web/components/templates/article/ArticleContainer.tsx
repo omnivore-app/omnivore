@@ -106,6 +106,9 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   const [title, setTitle] = useState(props.article.title)
   const [showReportIssuesModal, setShowReportIssuesModal] = useState(false)
   const [fontSize, setFontSize] = useState(props.fontSize ?? 20)
+  const [highlightOnRelease, setHighlightOnRelease] = useState(
+    props.highlightOnRelease
+  )
   // iOS app embed can overide the original margin and line height
   const [maxWidthPercentageOverride, setMaxWidthPercentageOverride] = useState<
     number | null
@@ -145,6 +148,18 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
       if (newLineHeight >= 100 && newLineHeight <= 300) {
         setLineHeightOverride(newLineHeight)
       }
+    }
+
+    interface UpdateHighlightModeEvent extends Event {
+      enableHighlightOnRelease?: boolean
+    }
+
+    const updateHighlightMode = (event: UpdateHighlightModeEvent) => {
+      const isEnabled =
+        event.enableHighlightOnRelease !== undefined
+          ? event.enableHighlightOnRelease
+          : false
+      setHighlightOnRelease(isEnabled)
     }
 
     interface UpdateMaxWidthPercentageEvent extends Event {
@@ -254,6 +269,10 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     document.addEventListener('updateLabels', handleUpdateLabels)
 
     document.addEventListener('share', share)
+    document.addEventListener(
+      'handleAutoHighlightModeChange',
+      updateHighlightMode
+    )
 
     return () => {
       document.removeEventListener('updateFontFamily', updateFontFamily)
@@ -272,6 +291,10 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
       document.removeEventListener('updateTitle', handleUpdateTitle)
       document.removeEventListener('updateLabels', handleUpdateLabels)
       document.removeEventListener('share', share)
+      document.removeEventListener(
+        'handleAutoHighlightModeChange',
+        updateHighlightMode
+      )
     }
   })
 
@@ -405,7 +428,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         highlightBarDisabled={props.highlightBarDisabled}
         showHighlightsModal={props.showHighlightsModal}
         setShowHighlightsModal={props.setShowHighlightsModal}
-        highlightOnRelease={props.highlightOnRelease}
+        highlightOnRelease={highlightOnRelease}
         articleMutations={props.articleMutations}
       />
       {showReportIssuesModal ? (

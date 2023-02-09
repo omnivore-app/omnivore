@@ -72,6 +72,7 @@ public enum WebFont: String, CaseIterable {
       UITraitCollection.current.preferredWebFontSize
     @AppStorage(UserDefaultKey.preferredWebLineSpacing.rawValue) var storedLineSpacing = 150
     @AppStorage(UserDefaultKey.preferredWebMaxWidthPercentage.rawValue) var storedMaxWidthPercentage = 100
+    @AppStorage(UserDefaultKey.enableHighlightOnRelease.rawValue) var enableHighlightOnRelease = false
     @AppStorage(UserDefaultKey.preferredWebFont.rawValue) var preferredFont = WebFont.inter.rawValue
     @AppStorage(UserDefaultKey.prefersHighContrastWebFont.rawValue) var prefersHighContrastText = true
 
@@ -199,6 +200,13 @@ public enum WebFont: String, CaseIterable {
             .frame(height: 40)
             .padding(.trailing, 6)
             .onChange(of: prefersHighContrastText) { _ in
+              updateReaderPreferences()
+            }
+
+          Toggle(LocalText.enableHighlightOnReleaseText, isOn: $enableHighlightOnRelease)
+            .frame(height: 40)
+            .padding(.trailing, 6)
+            .onChange(of: enableHighlightOnRelease) { _ in
               updateReaderPreferences()
             }
 
