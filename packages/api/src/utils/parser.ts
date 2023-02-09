@@ -23,6 +23,7 @@ import {
 import { NodeHtmlMarkdown } from 'node-html-markdown'
 import { promisify } from 'util'
 import * as jwt from 'jsonwebtoken'
+import { env } from '../env'
 
 const logger = buildLogger('utils.parse')
 const signToken = promisify(jwt.sign)
@@ -500,12 +501,13 @@ export const getDistillerResult = async (
       return undefined
     }
 
-    const token = await signToken({ uid }, '1h')
+    const exp = Math.floor(Date.now() / 1000) + 60 * 60 // 1 hour
+    const auth = (await signToken({ uid, exp }, env.server.jwtSecret)) as string
 
     console.debug('Parsing by distiller', url)
     const response = await axios.post<string>(url, html, {
       headers: {
-        Authorization: token as string,
+        Authorization: auth,
       },
       timeout: 5000,
     })

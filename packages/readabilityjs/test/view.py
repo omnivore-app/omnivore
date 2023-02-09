@@ -3,7 +3,8 @@
 from os import listdir
 from os.path import isfile, join
 
-testdirs = [f for f in listdir(".") if not isfile(join(".", f))]
+testdirs = [f for f in listdir(
+    "test-pages") if not isfile(join("test-pages", f))]
 
 print("""
 <!DOCTYPE html>
@@ -25,9 +26,9 @@ print("""
 for testdir in testdirs:
     print(f"""
       <li>{testdir}<br />
-        <a href="./{testdir}/source.html" target="iframe_b">[source]</a>
-        <a href="./{testdir}/expected.html" target="iframe_b">[readability]</a>
-        <a href="./{testdir}/distiller.html" target="iframe_b">[dom-distiller]</a>
+        <a href="./test-pages/{testdir}/source.html" target="iframe_b">[source]</a>
+        <a href="./test-pages/{testdir}/expected.html" target="iframe_b">[readability]</a>
+        <a href="./test-pages/{testdir}/distiller.html" target="iframe_b">[dom-distiller]</a>
       </li>
   """)
 
