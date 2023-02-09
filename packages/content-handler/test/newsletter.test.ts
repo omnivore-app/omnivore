@@ -9,7 +9,7 @@ import { BloombergNewsletterHandler } from '../src/newsletters/bloomberg-newslet
 import { GolangHandler } from '../src/newsletters/golang-handler'
 import { MorningBrewHandler } from '../src/newsletters/morning-brew-handler'
 import nock from 'nock'
-import { ContentHandler, generateUniqueUrl } from '../src/content-handler'
+import { generateUniqueUrl } from '../src/content-handler'
 import fs from 'fs'
 import { BeehiivHandler } from '../src/newsletters/beehiiv-handler'
 import { ConvertkitHandler } from '../src/newsletters/convertkit-handler'
@@ -18,6 +18,10 @@ import { CooperPressHandler } from '../src/newsletters/cooper-press-handler'
 import { getNewsletterHandler } from '../src'
 import { parseHTML } from 'linkedom'
 import { HeyWorldHandler } from '../src/newsletters/hey-world-handler'
+import { GenericHandler } from '../src/newsletters/generic-handler'
+import { EveryIoHandler } from '../src/newsletters/every-io-handler'
+import { EnergyWorldHandler } from '../src/newsletters/energy-world'
+import { IndiaTimesHandler } from '../src/newsletters/india-times-handler'
 
 chai.use(chaiAsPromised)
 chai.use(chaiString)
@@ -97,7 +101,61 @@ describe('Newsletter email test', () => {
         const html = load('./test/data/ttso-newsletter.html')
 
         await expect(
-          new ContentHandler().parseNewsletterUrl({}, html)
+          new GenericHandler().parseNewsletterUrl({}, html)
+        ).to.eventually.equal(url)
+      })
+    })
+
+    context('when email is from Every.io', () => {
+      before(() => {
+        nock('https://u25184427.ct.sendgrid.net')
+          .head(
+            '/ls/click?upn=MnmHBiCwIPe9TmIJeskmAzMyFAOgfmWxTSMhUO2y3cX7SH8TU8fE7Bob959Q5SX8kPrOyAS87mVlVX7RClBX5O3kASzJW2uCz02hYzOF2YQ0jOrkqrBElBIkfeLl7ZERdDGVCD8VSijl4E0Tqgyrzl2vhAQyRsnJuYNo38k-2FROTfvWd85434dJ5Ajc284NO0JH4cM9g-2BdWlh0bID30oroznIHSP8Lg4qTxIVRNMq8zYyOtmR3fanZTexF5IrLPDqQMXmm0Wz0QK23ojkpC8yL3gexm2dDFZNOtKvgYlprJoR6QhevN9bulX1wI8ht5dtNccOAcexw3K4a3WMuoJp4thIKz0hIzOup38HTJPLtjRojXWKOyRBqE-2FdX17d4wY3lSqAN80IHqCic3WUBTenbU6Uo0Qi0FEVj0Iar7TuplOEENppNCZVJ5vpWMlMmQ8Wio7L_vVXscVLXlj5UtQe3aqo5RMTdTq2PepdZjP86UOmA8nyAZZ0kujTWt86aLf2utm1bD-2FSj2DcbTCh3O3HD32SBIzeJdlXzKUs-2FRqjzbupd0J1Y8z5xnvQV5k1D5zyWOAHSxLv0Ezts-2FF2V2Y974g-2FABq5B151S2LbhNv8zTY6syz-2B1z-2BrGm8iNYGAPN1C9KbPpr0x08ptebSaNu86Stmdovg-3D-3D'
+          )
+          .reply(301, undefined, {
+            Location:
+              'https://every.to/divinations/the-endgame-for-ai-generated-writing',
+          })
+        nock('https://every.to/divinations')
+          .head('/the-endgame-for-ai-generated-writing')
+          .reply(200, '')
+      })
+
+      it('returns url when email is from Every.io', async () => {
+        const url =
+          'https://every.to/divinations/the-endgame-for-ai-generated-writing'
+        const html = load('./test/data/every-io-newsletter.html')
+
+        await expect(
+          new EveryIoHandler().parseNewsletterUrl({}, html)
+        ).to.eventually.equal(url)
+      })
+    })
+
+    context('when email is from India Times', () => {
+      before(() => {
+        nock('https://u25184427.ct.sendgrid.net')
+          .head(
+            '/ls/click?upn=MnmHBiCwIPe9TmIJeskmA7k-2Fanl2A7JeTmz43mx4p6-2BbVKhpGtIfBa3Xxod6WoctYT6-2Fb-2Bpetp731F11WSOEvlcPaxSxNySmqMmLO-2FGO4lhOZ8XXhedQfJte-2Fg9Ewne7DNoRsb8wlAx1UfaFvu3zO5SbuXaneYjBP1ABV0l-2FgsuTKWa1VFEpWvU9c98b-2Bik7ghrWCOBmq7UH-2F1uQeI4CYGZyfZgdgPuxXS7wDDMtbcwK94jgZu9qNnmZxrZvlkd4-2Fa0S7JscNs5hMMvSItOpEhBkg-2FJ0kYEQl5BH7URUVHCsSVOWjkNvi6zR-2FCee4d8N9rdlB-2B-2BNQmKTCmAUkpaN1rUCo-2FmHpxPBegoAXAq7xhUhVsrwB5ZMiE016PcvZVtmPOpQ6JUgEsOPmlwgqpiBBdS72F0MBAaHJ4UlwO0M08c-3D3scO_vVXscVLXlj5UtQe3aqo5RMTdTq2PepdZjP86UOmA8nw5KA5beJqibyCtKjs9B8ujlcJz2XyMv0igaenerEPZCi-2BBaSRMwy51CLX95xCACWKNyJ0D4Uw5yeEIBGgS1xQt-2FDDxs9on7jJAO1iusiJLC-2FIwban22f-2FXbBPIc9TY9KlGymfoYNWMw-2BbFxypix9BZb8hDCEIqaFfjNphExgkdPw-3D-3D'
+          )
+          .reply(301, undefined, {
+            Location:
+              'https://timesofindia.indiatimes.com/india/timestopten/msid-97559156.cms?utm_source=newsletter&utm_medium=email&utm_campaign=timestop10_daily_newsletter',
+          })
+        nock('https://timesofindia.indiatimes.com')
+          .head(
+            '/india/timestopten/msid-97559156.cms?utm_source=newsletter&utm_medium=email&utm_campaign=timestop10_daily_newsletter'
+          )
+          .reply(200, '')
+      })
+
+      it('returns url when email is from India Times', async () => {
+        const url =
+          'https://timesofindia.indiatimes.com/india/timestopten/msid-97559156.cms?utm_source=newsletter&utm_medium=email&utm_campaign=timestop10_daily_newsletter'
+        const html = load('./test/data/india-times-newsletter.html')
+
+        await expect(
+          new IndiaTimesHandler().parseNewsletterUrl({}, html)
         ).to.eventually.equal(url)
       })
     })
@@ -233,7 +291,7 @@ describe('Newsletter email test', () => {
       expect(handler).to.be.instanceOf(CooperPressHandler)
     })
 
-    it('returns ContentHandler for hey world newsletter', async () => {
+    it('returns HeyWorldHandler for hey world newsletter', async () => {
       const html = load('./test/data/hey-world-newsletter.html')
       const handler = await getNewsletterHandler({
         html,
@@ -243,7 +301,7 @@ describe('Newsletter email test', () => {
             '<https://world.hey.com/dhh/subscribers/MtuoW9TvSJK9o5c7ohB72V2s/unsubscribe>',
         },
       })
-      expect(handler).to.be.instanceOf(ContentHandler)
+      expect(handler).to.be.instanceOf(HeyWorldHandler)
     })
 
     it('returns ConvertkitHandler for Tomasz Tunguz newsletter', async () => {
@@ -266,7 +324,7 @@ describe('Newsletter email test', () => {
       expect(handler).to.be.undefined
     })
 
-    it('returns ContentHandler for TTSO newsletter', async () => {
+    it('returns GenericHandler for TTSO newsletter', async () => {
       const html = load('./test/data/ttso-newsletter.html')
       const handler = await getNewsletterHandler({
         html,
@@ -277,7 +335,37 @@ describe('Newsletter email test', () => {
             '<mailto:unsub-e86467ca.k5yx.x15515@bnc3.mailjet.com>, <https://k5yx.mjt.lu/unsub2?m=AAAAADHYIIAActfCvIAALdDY50AAAAAtZ4AAC8UAAk9yQBj2U4KUkToWXqgR9OqHSm_LHvyrQAIwzU&b=e86467ca&e=7132d286&x=FUkLKVFH4r_0f--3tAm2RPnjzf5a0IVmKjTWv1nE-GAaJXzXvZHIKiojmrtWYhDE>',
         },
       })
-      expect(handler).to.be.instanceOf(ContentHandler)
+      expect(handler).to.be.instanceOf(GenericHandler)
+    })
+
+    it('returns EveryIoHandler for every.io newsletter', async () => {
+      const html = load('./test/data/every-io-newsletter.html')
+      const handler = await getNewsletterHandler({
+        html,
+        from: 'Every <hello@every.to>',
+        headers: {},
+      })
+      expect(handler).to.be.instanceOf(EveryIoHandler)
+    })
+
+    it('returns EnergyWorldHandler for energy world newsletter', async () => {
+      const html = load('./test/data/energy-world-newsletter.html')
+      const handler = await getNewsletterHandler({
+        html,
+        from: 'ETEnergyworld Latest News<newsletter@etenergyworld.com>',
+        headers: {},
+      })
+      expect(handler).to.be.instanceOf(EnergyWorldHandler)
+    })
+
+    it('returns IndiaTimesHandler for india times newsletter', async () => {
+      const html = load('./test/data/india-times-newsletter.html')
+      const handler = await getNewsletterHandler({
+        html,
+        from: 'The Times of India <newsletters@timesofindia.com>',
+        headers: {},
+      })
+      expect(handler).to.be.instanceOf(IndiaTimesHandler)
     })
   })
 
@@ -414,7 +502,7 @@ describe('Newsletter email test', () => {
 
       it('gets the URL from the header', async () => {
         const html = load('./test/data/ttso-newsletter.html')
-        const url = await new ContentHandler().findNewsletterUrl(html)
+        const url = await new GenericHandler().findNewsletterUrl(html)
         expect(url).to.startWith('https://ttso.paris/2023-01-31')
       })
     })

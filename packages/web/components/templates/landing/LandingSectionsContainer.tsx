@@ -91,7 +91,7 @@ const sections = [
     en: {
       titleText: `Save it now. Read it later.`,
       descriptionText: `Save articles, PDFs, and Twitter threads as you come across them
-      using Omnivore&aposs mobile apps and browser extensions. Read them
+      using Omnivore's mobile apps and browser extensions. Read them
       later using our distraction free reader.`,
     },
     zh: {
@@ -117,7 +117,7 @@ const sections = [
     en: {
       titleText: `Keep your reading organized, whatever that means to you.`,
       descriptionText: `Keep your reading organized and easily available with labels,
-      filters, rules, and fully indexed text searches. We&aposre not here
+      filters, rules, and fully indexed text searches. We're not here
       to tell you how to stay organized — our job is to give you the tools
       to build a system that works for you.`,
     },
@@ -171,9 +171,9 @@ const sections = [
   {
     en: {
       titleText: `Open source means you're in control.`,
-      descriptionText: `Reading is a lifetime activity, and you shouldn&apos;t have to worry
-      you&apos;ll lose your library after you&apos;ve spent years building
-      it. Our open-source platform ensures your reading won&apos;t be held
+      descriptionText: `Reading is a lifetime activity, and you shouldn't have to worry
+      you'll lose your library after you've spent years building
+      it. Our open-source platform ensures your reading won't be held
       prisoner in a proprietary system.`,
     },
     zh: {

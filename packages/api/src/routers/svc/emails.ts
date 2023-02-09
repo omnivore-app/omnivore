@@ -121,7 +121,7 @@ export function emailsServiceRouter() {
       })
 
       if (!result) {
-        logger.error('Email not forwarded')
+        logger.error('Email not forwarded: ', { to: user.email })
         res.status(500).send('Failed to send email')
         return
       }
