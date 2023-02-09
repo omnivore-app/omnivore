@@ -33,10 +33,9 @@ struct WelcomeView: View {
   }
 
   var headlineText: some View {
-    Group {
-      Text(LocalText.welcomeTitle)
-    }
-    .font(.appLargeTitle)
+    Text(LocalText.welcomeTitle)
+      .font(.appLargeTitle)
+      .fixedSize(horizontal: false, vertical: true)
   }
 
   var headlineView: some View {
@@ -76,6 +75,7 @@ struct WelcomeView: View {
         + Text(LocalText.privacyPolicyGeneric).underline()
     }
     .font(.appSubheadline)
+    .fixedSize(horizontal: false, vertical: true)
     .confirmationDialog("", isPresented: $showTermsLinks, titleVisibility: .hidden) {
       Button("View Terms of Service") {
         showTermsModal = true
@@ -237,7 +237,7 @@ struct WelcomeView: View {
             }
           }
           footerView
-          Spacer()
+          Spacer(minLength: 1)
 
           Button(
             action: { showAdvancedLogin = true },
@@ -249,7 +249,7 @@ struct WelcomeView: View {
                 .frame(maxWidth: .infinity, alignment: .center)
             }
           )
-          .padding(.vertical)
+          .padding(.bottom)
         }
         .padding()
         .sheet(isPresented: $showEmailLoginModal) {
