@@ -72,12 +72,11 @@ class LibraryViewModel @Inject constructor(
     val syncStart = LocalDateTime.now()
     val lastSyncDate = getLastSyncTime() ?: LocalDateTime.MIN
 
-    CoroutineScope(Dispatchers.Main).launch {
-      isRefreshing = false
-    }
-
     withContext(Dispatchers.IO) {
       performItemSync(cursor = null, since = lastSyncDate.toString(), count = 0, startTime = syncStart.toString())
+      CoroutineScope(Dispatchers.Main).launch {
+        isRefreshing = false
+      }
     }
   }
 
