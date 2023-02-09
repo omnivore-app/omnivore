@@ -464,7 +464,10 @@ export const getArticleResolver: ResolverFn<
       if (!page.originalHtml) {
         return { errorCodes: [ArticleErrorCode.BadData] }
       }
-      const distillerResult = await getDistillerResult(page.originalHtml)
+      const distillerResult = await getDistillerResult(
+        claims.uid,
+        page.originalHtml
+      )
       if (!distillerResult) {
         return { errorCodes: [ArticleErrorCode.BadData] }
       }
