@@ -68,6 +68,7 @@ import {
   validatedDate,
 } from '../../utils/helpers'
 import {
+  getDistillerResult,
   htmlToMarkdown,
   ParsedContentPuppeteer,
   parsePreparedContent,
@@ -105,6 +106,12 @@ import { searchHighlights } from '../../elastic/highlights'
 import { saveSearchHistory } from '../../services/search_history'
 import { parsedContentToPage } from '../../services/save_page'
 import * as httpContext from 'express-http-context'
+
+enum ArticleFormat {
+  Markdown = 'markdown',
+  Html = 'html',
+  Distiller = 'distiller',
+}
 
 export type PartialArticle = Omit<
   Article,
@@ -413,7 +420,9 @@ export const getArticleResolver: ResolverFn<
       return { errorCodes: [ArticleErrorCode.Unauthorized] }
     }
 
-    const includeOriginalHtml = !!graphqlFields(info).article.originalHtml
+    const includeOriginalHtml =
+      format === ArticleFormat.Distiller ||
+      !!graphqlFields(info).article.originalHtml
 
     analytics.track({
       userId: claims?.uid,
@@ -449,8 +458,17 @@ export const getArticleResolver: ResolverFn<
       page.content = UNPARSEABLE_CONTENT
     }
 
-    if (format === 'markdown') {
+    if (format === ArticleFormat.Markdown) {
       page.content = htmlToMarkdown(page.content)
+    } else if (format === ArticleFormat.Distiller) {
+      if (!page.originalHtml) {
+        return { errorCodes: [ArticleErrorCode.BadData] }
+      }
+      const distillerResult = await getDistillerResult(page.originalHtml)
+      if (!distillerResult) {
+        return { errorCodes: [ArticleErrorCode.BadData] }
+      }
+      page.content = distillerResult
     }
 
     return {

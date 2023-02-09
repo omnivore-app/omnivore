@@ -485,3 +485,23 @@ const nhm = new NodeHtmlMarkdown(
 export const htmlToMarkdown = (html: string) => {
   return nhm.translate(/* html */ html)
 }
+
+export const getDistillerResult = async (
+  html: string
+): Promise<string | undefined> => {
+  try {
+    const url = process.env.DISTILLER_URL
+    if (!url) {
+      console.log('No distiller url')
+      return undefined
+    }
+
+    const response = await axios.post<string>(url, html, {
+      timeout: 5000,
+    })
+    return response.data
+  } catch (e) {
+    console.log('Error parsing by distiller', e)
+    return undefined
+  }
+}
