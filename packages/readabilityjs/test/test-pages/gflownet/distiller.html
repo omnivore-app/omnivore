@@ -1,0 +1,110 @@
+<div><div><br/>
+            <i>What follows is a high-level overview of this work, for more details refer to our paper.</i> Given a reward </div><mi>
+                        R
+                    </mi><mo>
+                        (
+                    </mo><mi>
+                        x
+                    </mi><mo>
+                        )
+                    </mo><div> and a deterministic episodic environment where episodes end with a ``generate </div><mi>
+                        x
+                    </mi><annotation>
+                    x
+                </annotation><div>&#39;&#39; action, how do we generate diverse and high-reward </div><mi>
+                        x
+                    </mi><annotation>
+                    x
+                </annotation><div>s?<br/>
+            We propose to use <i>Flow Networks</i> to model discrete </div><mi>
+                        p
+                    </mi><mo>
+                        (
+                    </mo><mi>
+                        x
+                    </mi><mo>
+                        )
+                    </mo><mo>
+                        ∝
+                    </mo><mi>
+                        R
+                    </mi><mo>
+                        (
+                    </mo><mi>
+                        x
+                    </mi><mo>
+                        )
+                    </mo><annotation>
+                    p(x) \propto R(x)
+                </annotation><div> from which we can sample sequentially (like episodic RL, rather than iteratively as MCMC methods would). We show that our method, <b>GFlowNet</b>, is very useful on a combinatorial domain, drug molecule synthesis, because unlike RL methods it generates diverse </div><mi>
+                        x
+                    </mi><annotation>
+                    x
+                </annotation><div>s by design.<br/>
+            
+            </div><h3>
+                Flow Networks
+            </h3><div>A flow network is a directed graph with <i>sources</i> and <i>sinks</i>, and edges carrying some amount of flow between them through intermediate nodes -- think of pipes of water. For our purposes, we define a flow network with a single source, the root or </div><mi>
+                            s
+                        </mi><mn>
+                            0
+                        </mn><div>; the sinks of the network correspond to the terminal states. We&#39;ll assign to each sink </div><mi>
+                        x
+                    </mi><annotation>
+                    x
+                </annotation><div> an ``out-flow&#39;&#39; </div><annotation>
+                    R(x)=e^{-energy(x)}
+                </annotation><div>.<br/>
+            Like MCMC methods, GFlowNet can turn a given energy function into samples but it does it in an amortized way, converting the cost a lot of very expensive MCMC trajectories (to obtain each sample) into the cost training a generative model (in our case a generative policy which sequentially builds up </div><mi>
+                        x
+                    </mi><annotation>
+                    x
+                </annotation><div>). Sampling from the generative model is then very cheap (e.g. adding one component at a time to a molecule) compared to an MCMC. But the most important gain may not be just computational, but in terms of the ability to discover new modes of the reward function.<br/>
+            MCMC methods are iterative, making many small noisy steps, which can converge in the neighborhood of a mode, and with some probability jump from one mode to a nearby one. However, if two modes are far from each other, MCMC can require <i>exponential</i> time to mix between the two. If in addition the modes occupy a tiny volume of the state space, the chances of initializing a chain near one of the unknown modes is also tiny, and the MCMC approach becomes unsatisfactory. Whereas such a situation seems hopeless with MCMC, GFlowNet has the potential to discover modes and jump there directly, if there is structure that relates the modes that it already knows, and if its inductive biases and training procedure make it possible to generalize there.<br/>
+            GFlowNet does not need to perfectly know where the modes are: it is sufficient to make guesses which occasionally work well. Like for MCMC methods, once a point in the region of new mode is discovered, further training of GFlowNet will sculpt that mode and zoom in on its peak.<br/>
+            Note that we can put </div><mi>
+                        R
+                    </mi><mo>
+                        (
+                    </mo><mi>
+                        x
+                    </mi><mo>
+                        )
+                    </mo><div> to some power </div><annotation>
+                    R(x)^\beta = e^{-\beta\; energy(x)}
+                </annotation><div>, making it possible to focus more or less on the highest modes (versus spreading probability mass more uniformly).<br/>
+            
+            </div><h3>
+                Generating molecule graphs
+            </h3><div>The motivation for this work is to be able to generate diverse molecules from a proxy reward </div><mi>
+                        R
+                    </mi><annotation>
+                    R
+                </annotation><div> that is imprecise because it comes from biochemical simulations that have a high uncertainty. As such, we do not care about the maximizer as RL methods would, but rather about a set of ``good enough&#39;&#39; candidates to send to a true biochemical assay.<br/>
+            Another motivation is to have diversity: by fitting the distribution of rewards rather than trying to maximize the expected reward, we&#39;re likely to find more modes than if we were being greedy after having found a good enough mode, which again and again we&#39;ve found RL methods such as PPO to do.<br/>
+            Here we generate molecule graphs via a sequence of additive edits, i.e. we progressively build the graph by adding new leaf nodes to it. We also create molecules block-by-block rather than atom-by-atom.<br/>
+            We find experimentally that we get both good molecules, and diverse ones. We compare ourselves to PPO and MARS (an MCMC-based method).<br/>
+            Figure 3 shows that we&#39;re fitting a distribution that makes sense. If we change the reward by exponentiating it as </div><mi>
+                            R
+                        </mi><mi>
+                            β
+                        </mi><div> with </div><div>, this shifts the reward distribution to the right.<br/>
+            Figure 4 shows the top-</div><mi>
+                        k
+                    </mi><annotation>
+                    k
+                </annotation><div> found as a function of the number of episodes.<br/>
+            </div><img src="gfn_fig34.png"/><div><br/>
+            Finally, Figure 5 shows that using a biochemical measure of diversity to estimate the number of distinct modes found, GFlowNet finds much more varied candidates.<br/>
+            </div><img src="gfn_fig5.png"/><h4>
+                Active Learning experiments
+            </h4><div>The above experiments assume access to a reward </div><mi>
+                        R
+                    </mi><annotation>
+                    R
+                </annotation><div> that is cheap to evaluate. In fact it uses a neural network <i>proxy</i> trained from a large dataset of molecules. This setup isn&#39;t quite what we would get when interacting with biochemical assays, where we&#39;d have access to much fewer data. To emulate such a setting, we consider our oracle to be a <i>docking simulation</i> (which is relatively expensive to run, ~30 cpu seconds).<br/>
+            In this setting, there is a limited budget for calls to the true oracle </div><mi>
+                        O
+                    </mi><annotation>
+                    O
+                </annotation><div>. We use a proxy </div></div>
