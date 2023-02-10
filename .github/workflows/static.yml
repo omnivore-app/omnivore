@@ -7,11 +7,6 @@ on:
       - main
     paths-ignore:
       - 'apple/**'
-  pull_request:
-    branches:
-      - main
-    paths-ignore:
-      - 'apple/**'
 
   workflow_dispatch:
 
