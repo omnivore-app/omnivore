@@ -25,7 +25,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  generate-distiller-output:
+  generate-static:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -45,10 +45,6 @@ jobs:
             fi
             go-domdistiller file -i $f/source.html -o $f/distiller.html
           done
-  generate-static:
-    needs: generate-distiller-output
-    runs-on: ubuntu-latest
-    steps:
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
@@ -64,6 +60,8 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
       - name: Setup Pages
         uses: actions/configure-pages@v3
       - name: Upload artifact
