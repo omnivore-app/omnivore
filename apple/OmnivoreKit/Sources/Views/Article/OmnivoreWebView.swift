@@ -107,6 +107,20 @@ public final class OmnivoreWebView: WKWebView {
     }
   }
 
+  public func updateAutoHighlightMode() {
+    let isEnabled = UserDefaults.standard.value(
+      forKey: UserDefaultKey.enableHighlightOnRelease.rawValue
+    ) as? Bool
+
+    if let isEnabled = isEnabled {
+      do {
+        try dispatchEvent(.handleAutoHighlightModeChange(isEnabled: isEnabled))
+      } catch {
+        showErrorInSnackbar("Error updating text contrast")
+      }
+    }
+  }
+
   public func updateTitle(title: String) {
     do {
       try dispatchEvent(.updateTitle(title: title))
@@ -382,6 +396,7 @@ public final class OmnivoreWebView: WKWebView {
 
 public enum WebViewDispatchEvent {
   case handleFontContrastChange(isHighContrast: Bool)
+  case handleAutoHighlightModeChange(isEnabled: Bool)
   case updateLineHeight(height: Int)
   case updateMaxWidthPercentage(maxWidthPercentage: Int)
   case updateFontSize(size: Int)
@@ -445,6 +460,8 @@ public enum WebViewDispatchEvent {
       return "updateLabels"
     case .updateTitle:
       return "updateTitle"
+    case .handleAutoHighlightModeChange:
+      return "handleAutoHighlightModeChange"
     }
   }
 
@@ -487,6 +504,8 @@ public enum WebViewDispatchEvent {
         return "event.anchorIdx = '\(anchorIdx)';"
       case .annotate, .highlight, .setHighlightLabels, .share, .remove, .copyHighlight, .dismissHighlight:
         return ""
+      case let .handleAutoHighlightModeChange(isEnabled: isEnabled):
+        return "event.enableHighlightOnRelease = '\(isEnabled ? "on" : "off")';"
       }
     }
   }

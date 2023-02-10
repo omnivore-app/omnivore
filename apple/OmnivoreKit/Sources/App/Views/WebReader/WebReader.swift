@@ -100,6 +100,7 @@ struct WebReader: PlatformViewRepresentable {
       (webView as? OmnivoreWebView)?.updateFontFamily()
       (webView as? OmnivoreWebView)?.updateFontSize()
       (webView as? OmnivoreWebView)?.updateTextContrast()
+      (webView as? OmnivoreWebView)?.updateAutoHighlightMode()
       (webView as? OmnivoreWebView)?.updateMaxWidthPercentage()
       (webView as? OmnivoreWebView)?.updateLineHeight()
       (webView as? OmnivoreWebView)?.updateLabels(labelsJSON: item.labelsJSONString)
@@ -152,6 +153,15 @@ struct WebReader: PlatformViewRepresentable {
       }
     }()
 
+    let enableHighlightOnRelease: Bool = {
+      let key = UserDefaultKey.enableHighlightOnRelease.rawValue
+      if UserDefaults.standard.object(forKey: key) != nil {
+        return UserDefaults.standard.bool(forKey: key)
+      } else {
+        return false
+      }
+    }()
+
     let fontFamily = fontFamilyValue.flatMap { WebFont(rawValue: $0) } ?? .system
 
     let htmlString = WebReaderContent(
@@ -162,7 +172,8 @@ struct WebReader: PlatformViewRepresentable {
       lineHeight: lineHeight(),
       maxWidthPercentage: maxWidthPercentage(),
       fontFamily: fontFamily,
-      prefersHighContrastText: prefersHighContrastText
+      prefersHighContrastText: prefersHighContrastText,
+      enableHighlightOnRelease: enableHighlightOnRelease
     )
     .styledContent
 

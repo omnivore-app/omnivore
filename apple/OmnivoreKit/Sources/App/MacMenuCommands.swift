@@ -9,6 +9,7 @@ import Views
     )
     @AppStorage(UserDefaultKey.preferredWebLineSpacing.rawValue) var storedLineSpacing = 150
     @AppStorage(UserDefaultKey.preferredWebMaxWidthPercentage.rawValue) var storedMaxWidthPercentage = 100
+    @AppStorage(UserDefaultKey.enableHighlightOnRelease.rawValue) var enableHighlightOnRelease = false
 
     @Binding var preferredFont: String
     @Binding var prefersHighContrastText: Bool
@@ -112,6 +113,11 @@ import Views
 
         Toggle(
           isOn: $prefersHighContrastText,
+          label: { Text(LocalText.genericHighContrastText) }
+        )
+
+        Toggle(
+          isOn: $enableHighlightOnRelease,
           label: { Text(LocalText.genericHighContrastText) }
         )
       }

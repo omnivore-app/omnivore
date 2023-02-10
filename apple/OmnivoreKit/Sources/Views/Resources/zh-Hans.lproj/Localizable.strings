@@ -165,6 +165,7 @@
 "genericLoading" = "加载中...";
 "genericFontFamily" = "字体册";
 "genericHighContrastText" = "高对比度文本";
+"enableHighlightOnReleaseText" = "Auto Highlight Mode:";
 "genericFont" = "字体";
 "genericHighlight" = "荧光笔";
 "labelsGeneric" = "标签";

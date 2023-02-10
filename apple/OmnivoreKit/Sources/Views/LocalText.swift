@@ -159,6 +159,7 @@ public enum LocalText {
   public static let genericLoading = localText(key: "genericLoading")
   public static let genericFontFamily = localText(key: "genericFontFamily")
   public static let genericHighContrastText = localText(key: "genericHighContrastText")
+  public static let enableHighlightOnReleaseText = localText(key: "enableHighlightOnReleaseText")
   public static let genericFont = localText(key: "genericFont")
   public static let genericHighlight = localText(key: "genericHighlight")
   public static let labelsGeneric = localText(key: "labelsGeneric")
