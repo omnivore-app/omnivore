@@ -505,7 +505,7 @@ public enum WebViewDispatchEvent {
       case .annotate, .highlight, .setHighlightLabels, .share, .remove, .copyHighlight, .dismissHighlight:
         return ""
       case let .handleAutoHighlightModeChange(isEnabled: isEnabled):
-        return "event.enableHighlightOnRelease = '\(isEnabled)';"
+        return "event.enableHighlightOnRelease = '\(isEnabled ? "on" : "off")';"
       }
     }
   }

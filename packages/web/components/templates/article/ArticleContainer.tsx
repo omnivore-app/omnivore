@@ -151,14 +151,11 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     }
 
     interface UpdateHighlightModeEvent extends Event {
-      enableHighlightOnRelease?: boolean
+      enableHighlightOnRelease?: string
     }
 
     const updateHighlightMode = (event: UpdateHighlightModeEvent) => {
-      const isEnabled =
-        event.enableHighlightOnRelease !== undefined
-          ? event.enableHighlightOnRelease
-          : false
+      const isEnabled = event.enableHighlightOnRelease === 'on'
       setHighlightOnRelease(isEnabled)
     }
 
