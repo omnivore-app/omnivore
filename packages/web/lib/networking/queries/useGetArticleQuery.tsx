@@ -100,16 +100,19 @@ const query = gql`
 export function useGetArticleQuery({
   username,
   slug,
+  format,
   includeFriendsHighlights,
 }: ArticleQueryInput): ArticleQueryOutput {
+  console.log('useGetArticleQuery: ', format)
   const variables = {
     username,
     slug,
+    format,
     includeFriendsHighlights,
   }
 
   const { data, error, mutate } = useSWRImmutable(
-    slug ? [query, username, slug, includeFriendsHighlights] : null,
+    slug ? [query, username, slug, format, includeFriendsHighlights] : null,
     makeGqlFetcher(variables)
   )
 
