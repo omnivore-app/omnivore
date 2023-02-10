@@ -1,0 +1,64 @@
+# Simple workflow for generating and deploying static html in readability folder to GitHub Pages
+name: Deploy static content to Pages
+
+on:
+  push:
+    branches: ["main"]
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  generate-distiller-output:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+      - name: Generate distiller output for readability
+        run: |
+          go get github.com/omnivore-app/go-domdistiller
+          for f in packages/readabilityjs/test/test-pages/*/source.html; do
+            echo "Processing $f file..."
+            go-domdistiller -input $f -output $f.distiller.html
+          done
+  generate-static:
+    needs: generate-distiller-output
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+      - name: Generate static html
+        run: |
+          cd packages/readabilityjs/test
+          python generate_static.py
+  deploy:
+    needs: generate-static
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: 'packages/readabilityjs/test/index.html'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
+
