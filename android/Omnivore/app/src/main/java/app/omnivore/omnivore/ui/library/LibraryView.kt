@@ -34,13 +34,17 @@ fun LibraryView(
   navController: NavHostController
 ) {
   val searchText: String by libraryViewModel.searchTextLiveData.observeAsState("")
+  val isRefreshing: Boolean by libraryViewModel.isRefreshingLiveData.observeAsState(false)
+
 
   Scaffold(
     topBar = {
       SearchBar(
         searchText = searchText,
         onSearchTextChanged = { libraryViewModel.updateSearchText(it) },
-        onSettingsIconClick = { navController.navigate(Routes.Settings.route) }
+        onSettingsIconClick = { navController.navigate(Routes.Settings.route) },
+        onRefreshButtonTap = { libraryViewModel.refresh() },
+        isRefreshing = isRefreshing
       )
     }
   ) { paddingValues ->
