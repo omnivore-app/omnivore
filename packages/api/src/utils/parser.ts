@@ -21,8 +21,12 @@ import {
   findEmbeddedHighlight,
 } from './highlightGenerator'
 import { NodeHtmlMarkdown } from 'node-html-markdown'
+import { promisify } from 'util'
+import * as jwt from 'jsonwebtoken'
+import { env } from '../env'
 
 const logger = buildLogger('utils.parse')
+const signToken = promisify(jwt.sign)
 
 export const ALLOWED_CONTENT_TYPES = [
   'text/html',
@@ -484,4 +488,32 @@ const nhm = new NodeHtmlMarkdown(
 
 export const htmlToMarkdown = (html: string) => {
   return nhm.translate(/* html */ html)
+}
+
+export const getDistillerResult = async (
+  uid: string,
+  html: string
+): Promise<string | undefined> => {
+  try {
+    const url = process.env.DISTILLER_URL
+    if (!url) {
+      console.log('No distiller url')
+      return undefined
+    }
+
+    const exp = Math.floor(Date.now() / 1000) + 60 * 60 // 1 hour
+    const auth = (await signToken({ uid, exp }, env.server.jwtSecret)) as string
+
+    console.debug('Parsing by distiller', url)
+    const response = await axios.post<string>(url, html, {
+      headers: {
+        Authorization: auth,
+      },
+      timeout: 5000,
+    })
+    return response.data
+  } catch (e) {
+    console.log('Error parsing by distiller', e)
+    return undefined
+  }
 }
