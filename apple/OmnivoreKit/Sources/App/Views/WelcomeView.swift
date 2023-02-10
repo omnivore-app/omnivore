@@ -225,19 +225,11 @@ struct WelcomeView: View {
       } else {
         VStack(alignment: .leading, spacing: containerSize.height < 500 ? 12 : 50) {
           logoView
-            .padding(.bottom, 20)
           headlineView
-          if containerSize.width > 500 {
-            authProviderButtonStack
-          } else {
-            HStack {
-              Spacer()
-              authProviderButtonStack
-              Spacer()
-            }
-          }
+          authProviderButtonStack
           footerView
-          Spacer(minLength: 1)
+
+          Spacer()
 
           Button(
             action: { showAdvancedLogin = true },
@@ -249,7 +241,6 @@ struct WelcomeView: View {
                 .frame(maxWidth: .infinity, alignment: .center)
             }
           )
-          .padding(.bottom)
         }
         .padding()
         .sheet(isPresented: $showEmailLoginModal) {
