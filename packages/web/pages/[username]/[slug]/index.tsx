@@ -364,9 +364,15 @@ export default function Home(): JSX.Element {
               fontSize={readerSettings.fontSize}
             />
           )}
-          <Button onClick={() => setFormat('distiller')} css={{ mb: '64px' }}>
-            Render with Distiller
-          </Button>
+          {format == 'html' ? (
+            <Button onClick={() => setFormat('distiller')} css={{ mb: '64px' }}>
+              Render with Distiller
+            </Button>
+          ) : (
+            <Button onClick={() => setFormat('html')} css={{ mb: '64px' }}>
+              Render with Readability
+            </Button>
+          )}
         </VStack>
       )}
 
