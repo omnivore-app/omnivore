@@ -281,9 +281,10 @@ public final class OmnivoreWebView: WKWebView {
       case #selector(removeSelection): return true
       case #selector(copy(_:)): return true
       case #selector(setLabels(_:)): return true
-      case Selector(("_lookup:")): return true
-      case Selector(("_define:")): return true
-      case Selector(("_findSelected:")): return true
+      case Selector(("_lookup:")): return (currentMenu == .defaultMenu)
+      case Selector(("_define:")): return (currentMenu == .defaultMenu)
+      case Selector(("_translate:")): return (currentMenu == .defaultMenu)
+      case Selector(("_findSelected:")): return (currentMenu == .defaultMenu)
       default: return false
       }
     }
