@@ -2975,8 +2975,6 @@ Readability.prototype = {
     const byline = metadata.byline || this._articleByline;
     const [author, publishedAt] = extractPublishedDateFromAuthor(byline);
 
-    this.log("Grabbed: " + articleContent.innerHTML);
-
     this._postProcessContent(articleContent);
 
     // If we haven't found an excerpt in the article's metadata, use the article's
