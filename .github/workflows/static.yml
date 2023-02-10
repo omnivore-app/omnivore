@@ -39,6 +39,10 @@ jobs:
           go install github.com/omnivore-app/go-domdistiller@latest
           for f in packages/readabilityjs/test/test-pages/*; do
             echo "Processing $f file..."
+            # skip newsletters for now
+            if [ "$f" = "packages/readabilityjs/test/test-pages/newsletters" ]; then
+              continue
+            fi
             go-domdistiller file -i $f/source.html -o $f/distiller.html
           done
   generate-static:
