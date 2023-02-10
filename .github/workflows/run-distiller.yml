@@ -15,6 +15,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
@@ -41,7 +43,6 @@ jobs:
       - name: Commit changes and push
         uses: EndBug/add-and-commit@v9
         with:
-          push: true
-          branch: ${{ github.ref }}
-          message: 'Update generated html'
           add: '.'
+          message: 'Update generated html'
+          push: true
