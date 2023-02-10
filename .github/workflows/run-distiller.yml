@@ -1,0 +1,49 @@
+name: Run DomDistiller on test pages
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'packages/readabilityjs/test/test-pages/**'
+
+  workflow_dispatch:
+
+jobs:
+  run-distiller:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+      - name: Generate distiller output for readability
+        run: |
+          go install github.com/omnivore-app/go-domdistiller@latest
+          for f in packages/readabilityjs/test/test-pages/*; do
+            echo "Processing $f file..."
+            # skip newsletters for now
+            if [ "$f" = "packages/readabilityjs/test/test-pages/newsletters" ]; then
+              continue
+            fi
+            go-domdistiller file -i $f/source.html -o $f/distiller.html
+          done
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+      - name: Generate static html
+        run: |
+          cd packages/readabilityjs/test
+          python generate_static.py
+      - name: Commit changes and push
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: '.'
+          message: 'Update generated html'
+          push: true
