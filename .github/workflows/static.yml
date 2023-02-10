@@ -5,8 +5,8 @@ on:
   push:
     branches:
       - main
-    paths-ignore:
-      - 'apple/**'
+    paths:
+      - 'packages/readabilityjs/**'
 
   workflow_dispatch:
 
