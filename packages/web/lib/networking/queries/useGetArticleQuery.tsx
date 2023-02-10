@@ -68,9 +68,10 @@ const query = gql`
   query GetArticle(
     $username: String!
     $slug: String!
+    $format: String!
     $includeFriendsHighlights: Boolean
   ) {
-    article(username: $username, slug: $slug) {
+    article(username: $username, slug: $slug, format: $format) {
       ... on ArticleSuccess {
         article {
           ...ArticleFields
