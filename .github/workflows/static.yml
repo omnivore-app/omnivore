@@ -48,6 +48,15 @@ jobs:
         run: |
           cd packages/readabilityjs/test
           python generate_static.py
+      - name: Commit changes and push
+        uses: EndBug/add-and-commit@v9
+        with:
+          push: true
+          branch: ${{ github.ref }}
+          message: 'Update generated html'
+          add: '.'
+          author_name: 'GitHub Actions'
+          author_email: 'github-actions[bot]@users.noreply.github.com'
   deploy:
     needs: generate-static
     environment:
