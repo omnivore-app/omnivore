@@ -38,6 +38,7 @@ import { useRegisterActions } from 'kbar'
 import { deleteLinkMutation } from '../../../lib/networking/mutations/deleteLinkMutation'
 import { ConfirmationModal } from '../../../components/patterns/ConfirmationModal'
 import { setLabelsMutation } from '../../../lib/networking/mutations/setLabelsMutation'
+import { Button } from '../../../components/elements/Button'
 
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
   () => import('./../../../components/templates/article/PdfArticleContainer'),
@@ -46,6 +47,7 @@ const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
 
 export default function Home(): JSX.Element {
   const router = useRouter()
+  const [format, setFormat] = useState<ArticleFormat>('html')
   const { cache, mutate } = useSWRConfig()
   const scrollRef = useRef<HTMLDivElement | null>(null)
   const { slug } = router.query
@@ -54,6 +56,7 @@ export default function Home(): JSX.Element {
   const readerSettings = useReaderSettings()
 
   const { articleData, articleFetchError } = useGetArticleQuery({
+    format: format,
     username: router.query.username as string,
     slug: router.query.slug as string,
     includeFriendsHighlights: false,
@@ -70,8 +73,6 @@ export default function Home(): JSX.Element {
 
   const actionHandler = useCallback(
     async (action: string, arg?: unknown) => {
-      console.log('handling action: ', action, article)
-
       switch (action) {
         case 'unarchive':
           if (article) {
@@ -362,6 +363,9 @@ export default function Home(): JSX.Element {
               fontSize={readerSettings.fontSize}
             />
           )}
+          <Button onClick={() => setFormat('distiller')} css={{ mb: '64px' }}>
+            Render with Distiller
+          </Button>
         </VStack>
       )}
 

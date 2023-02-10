@@ -15,9 +15,12 @@ import {
   recommendationFragment,
 } from './useGetLibraryItemsQuery'
 
+export type ArticleFormat = 'html' | 'distiller'
+
 type ArticleQueryInput = {
   username?: string
   slug?: string
+  format?: ArticleFormat
   includeFriendsHighlights?: boolean
 }
 
