@@ -7,7 +7,6 @@ const { encode } = require("urlsafe-base64");
 const crypto = require("crypto");
 
 const Url = require('url');
-// const puppeteer = require('puppeteer-extra');
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
@@ -26,8 +25,9 @@ puppeteer.use(StealthPlugin());
 
 // Add adblocker plugin to block all ads and trackers (saves bandwidth)
 const AdblockerPlugin = require('puppeteer-extra-plugin-adblocker');
-const createDOMPurify = require("dompurify");
 puppeteer.use(AdblockerPlugin({ blockTrackers: true }));
+
+const createDOMPurify = require("dompurify");
 
 const storage = new Storage();
 const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [];
@@ -296,7 +296,7 @@ async function fetchContent(req, res) {
 
     if (contentType === 'application/pdf') {
       const uploadedFileId = await uploadPdf(finalUrl, userId, articleSavingRequestId);
-      const l = await saveUploadedPdf(userId, finalUrl, uploadedFileId, articleSavingRequestId);
+      await saveUploadedPdf(userId, finalUrl, uploadedFileId, articleSavingRequestId);
     } else {
       if (!content || !title) {
         const result = await retrieveHtml(page, logRecord);
@@ -557,7 +557,7 @@ async function retrieveHtml(page, logRecord) {
           }
         })();
       }),
-      await page.waitForTimeout(5000),
+      page.waitForTimeout(5000),
     ]);
     logRecord.timing = { ...logRecord.timing, pageScrolled: Date.now() - pageScrollingStart };
 
