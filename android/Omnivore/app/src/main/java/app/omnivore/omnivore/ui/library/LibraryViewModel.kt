@@ -10,11 +10,10 @@ import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.*
 import app.omnivore.omnivore.dataService.*
 import app.omnivore.omnivore.networking.*
-import app.omnivore.omnivore.persistence.entities.SavedItemCardData
 import app.omnivore.omnivore.persistence.entities.SavedItemCardDataWithLabels
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
-import java.time.LocalDateTime
+import java.time.Instant
 import javax.inject.Inject
 
 @HiltViewModel
@@ -54,9 +53,13 @@ class LibraryViewModel @Inject constructor(
     load(true)
   }
 
-  fun getLastSyncTime(): LocalDateTime? = runBlocking {
+  fun getLastSyncTime(): Instant? = runBlocking {
     datastoreRepo.getString(DatastoreKeys.libraryLastSyncTimestamp)?.let {
-      LocalDateTime.parse(it)
+      try {
+        return@let Instant.parse(it)
+      } catch (e: Exception) {
+        return@let null
+      }
     }
   }
 
@@ -71,8 +74,8 @@ class LibraryViewModel @Inject constructor(
   }
 
   private suspend fun syncItems() {
-    val syncStart = LocalDateTime.now()
-    val lastSyncDate = getLastSyncTime() ?: LocalDateTime.MIN
+    val syncStart = java.time.Instant.now()
+    val lastSyncDate = getLastSyncTime() ?: java.time.Instant.MIN
 
     withContext(Dispatchers.IO) {
       performItemSync(cursor = null, since = lastSyncDate.toString(), count = 0, startTime = syncStart.toString())
