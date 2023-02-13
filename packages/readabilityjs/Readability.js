@@ -545,6 +545,7 @@ Readability.prototype = {
 
           const proxySrc = this.createImageProxyUrl(absoluteSrc, width, height);
           image.setAttribute('src', proxySrc);
+          image.setAttribute('data-omnivore-original-src', absoluteSrc)
         }
 
         // remove crossorigin attribute to avoid CORS errors
