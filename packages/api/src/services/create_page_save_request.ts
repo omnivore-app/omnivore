@@ -93,7 +93,7 @@ export const createPageSaveRequest = async (
     url: normalizedUrl,
   })
   if (page) {
-    console.log('Page already exists', page)
+    console.log('Page already exists', page.id, page.url)
     articleSavingRequestId = page.id
   } else {
     page = {

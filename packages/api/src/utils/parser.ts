@@ -203,7 +203,7 @@ export const parsePreparedContent = async (
     return {
       canonicalUrl: url,
       parsedContent: null,
-      domContent: preparedDocument.document,
+      domContent: document,
       pageType: PageType.Unknown,
     }
   }
@@ -223,7 +223,7 @@ export const parsePreparedContent = async (
     if (!article?.textContent && allowRetry) {
       const newDocument = {
         ...preparedDocument,
-        document: '<html>' + preparedDocument.document + '</html>',
+        document: '<html>' + document + '</html>',
       }
       return parsePreparedContent(
         url,
@@ -337,7 +337,7 @@ export const parsePreparedContent = async (
   logger.info('parse-article completed')
 
   return {
-    domContent: preparedDocument.document,
+    domContent: document,
     parsedContent: article,
     canonicalUrl,
     pageType: parseOriginalContent(dom),

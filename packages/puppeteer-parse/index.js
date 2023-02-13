@@ -409,32 +409,6 @@ function getUrl(req) {
   return parsed.href;
 }
 
-async function blockResources(client) {
-  const blockedResources = [
-    // Assets
-    // '*/favicon.ico',
-    // '.css',
-    // '.jpg',
-    // '.jpeg',
-    // '.png',
-    // '.svg',
-    // '.woff',
-
-    // Analytics and other fluff
-    '*.optimizely.com',
-    'everesttech.net',
-    'userzoom.com',
-    'doubleclick.net',
-    'googleadservices.com',
-    'adservice.google.com/*',
-    'connect.facebook.com',
-    'connect.facebook.net',
-    'sp.analytics.yahoo.com',
-  ]
-
-  await client.send('Network.setBlockedURLs', { urls: blockedResources });
-}
-
 async function retrievePage(url, logRecord, functionStartTime) {
   validateUrlString(url);
 
@@ -494,8 +468,6 @@ async function retrievePage(url, logRecord, functionStartTime) {
     } catch {}
   });
 
-  await blockResources(client);
-
   /*
     * Disallow MathJax from running in Puppeteer and modifying the document,
     * we shall instead run it in our frontend application to transform any
@@ -504,7 +476,8 @@ async function retrievePage(url, logRecord, functionStartTime) {
   await page.setRequestInterception(true);
   let requestCount = 0;
   page.on('request', request => {
-    if (['font', 'image', 'media'].includes(request.resourceType())) {
+    if (request.resourceType() === 'font') {
+      // Disallow fonts from loading
       request.abort();
       return;
     }
