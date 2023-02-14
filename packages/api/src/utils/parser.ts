@@ -239,7 +239,9 @@ export const parsePreparedContent = async (
     // to the handlers, and have some concept of postHandle
     if (article?.content) {
       const articleDom = parseHTML(article.content).document
-      const codeBlocks = articleDom.querySelectorAll('code')
+      const codeBlocks = articleDom.querySelectorAll(
+        'code, pre[class^="prism-"], pre[class^="language-"]'
+      )
       if (codeBlocks.length > 0) {
         codeBlocks.forEach((e) => {
           if (e.textContent) {

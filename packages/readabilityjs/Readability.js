@@ -226,7 +226,7 @@ Readability.prototype = {
 
   // These are the classes that readability sets itself.
   CLASSES_TO_PRESERVE: [
-    "page", "twitter-tweet", "tweet-placeholder", "instagram-placeholder", "morning-brew-markets"
+    "page", "twitter-tweet", "tweet-placeholder", "instagram-placeholder", "morning-brew-markets", "prism-code"
   ],
 
   // Classes of placeholder elements that can be empty but shouldn't be removed
