@@ -11,14 +11,12 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -31,9 +29,7 @@ import androidx.compose.ui.unit.dp
 fun SearchBar(
   searchText: String,
   onSearchTextChanged: (String) -> Unit,
-  onSettingsIconClick: () -> Unit,
-  onRefreshButtonTap: () -> Unit,
-  isRefreshing: Boolean
+  onSettingsIconClick: () -> Unit
 ) {
   var showSearchField by remember { mutableStateOf(searchText != "") }
 
@@ -60,15 +56,6 @@ fun SearchBar(
             .padding(horizontal = 6.dp)
         )
       } else {
-        IconButton(onClick = { onRefreshButtonTap() }) {
-          Icon(
-            imageVector = Icons.Default.Refresh,
-            contentDescription = null,
-            modifier = Modifier
-              .alpha(if (isRefreshing) 0.3f else 1.0f)
-          )
-        }
-
         IconButton(onClick = { showSearchField = true }) {
           Icon(
             imageVector = Icons.Filled.Search,

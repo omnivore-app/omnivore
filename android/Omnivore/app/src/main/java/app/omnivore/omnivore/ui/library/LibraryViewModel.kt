@@ -35,7 +35,6 @@ class LibraryViewModel @Inject constructor(
   val itemsLiveData = dataService.db.savedItemDao().getLibraryLiveDataWithLabels()
 
   var isRefreshing by mutableStateOf(false)
-  val isRefreshingLiveData = MutableLiveData(false)
 
   fun updateSearchText(text: String) {
     searchTextLiveData.value = text
@@ -49,7 +48,6 @@ class LibraryViewModel @Inject constructor(
 
   fun refresh() {
     isRefreshing = true
-    isRefreshingLiveData.postValue(true)
     load(true)
   }
 
@@ -74,14 +72,13 @@ class LibraryViewModel @Inject constructor(
   }
 
   private suspend fun syncItems() {
-    val syncStart = java.time.Instant.now()
-    val lastSyncDate = getLastSyncTime() ?: java.time.Instant.MIN
+    val syncStart = Instant.now()
+    val lastSyncDate = getLastSyncTime() ?: Instant.MIN
 
     withContext(Dispatchers.IO) {
       performItemSync(cursor = null, since = lastSyncDate.toString(), count = 0, startTime = syncStart.toString())
       CoroutineScope(Dispatchers.Main).launch {
         isRefreshing = false
-        isRefreshingLiveData.postValue(false)
       }
     }
   }
