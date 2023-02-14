@@ -4,37 +4,16 @@
             <section itemscope="itemscope" itemtype="http://schema.org/Article">
                 <meta itemprop="mainEntityOfPage" content="https://www.robinwieruch.de/react-hooks-fetch-data/">
                 <article itemprop="articleBody">
-                    <p> In this tutorial, I want to show you
-                        <!-- --><strong>how to fetch data in React with Hooks</strong> by using the
-                        <!-- --><a href="https://reactjs.org/docs/hooks-state.html" target="_blank" rel="noopener noreferrer">state</a> and
-                        <!-- --><a href="https://reactjs.org/docs/hooks-effect.html" target="_blank" rel="noopener noreferrer">effect</a> hooks. We will use the widely known
-                        <!-- --><a href="https://hn.algolia.com/api" target="_blank" rel="noopener noreferrer">Hacker News API</a> to fetch popular articles from the tech world. You will also implement your custom hook for the data fetching that can be reused anywhere in your application or published on npm as standalone node package.
-                        <!-- -->
-                    </p>
-                    <p> If you don't know anything about this new React feature, checkout this
-                        <!-- --><a itemprop="url" href="http://fakehost/react-hooks/">introduction to React Hooks</a>. If you want to checkout the finished project for the showcased examples that show how to fetch data in React with Hooks, checkout this
-                        <!-- --><a href="https://github.com/the-road-to-learn-react/react-hooks-introduction" target="_blank" rel="noopener noreferrer">GitHub repository</a>.
-                        <!-- -->
-                    </p>
-                    <p> If you just want to have a ready to go React Hook for data fetching:
-                        <!-- --><code>npm install use-data-api</code> and follow the
-                        <!-- --><a href="https://github.com/the-road-to-learn-react/use-data-api" target="_blank" rel="noopener noreferrer">documentation</a>. Don't forget to star it if you use it :-)
-                        <!-- -->
-                    </p>
+                    <p> In this tutorial, I want to show you <strong>how to fetch data in React with Hooks</strong> by using the <a href="https://reactjs.org/docs/hooks-state.html" target="_blank" rel="noopener noreferrer">state</a> and <a href="https://reactjs.org/docs/hooks-effect.html" target="_blank" rel="noopener noreferrer">effect</a> hooks. We will use the widely known <a href="https://hn.algolia.com/api" target="_blank" rel="noopener noreferrer">Hacker News API</a> to fetch popular articles from the tech world. You will also implement your custom hook for the data fetching that can be reused anywhere in your application or published on npm as standalone node package. </p>
+                    <p> If you don't know anything about this new React feature, checkout this <a itemprop="url" href="http://fakehost/react-hooks/">introduction to React Hooks</a>. If you want to checkout the finished project for the showcased examples that show how to fetch data in React with Hooks, checkout this <a href="https://github.com/the-road-to-learn-react/react-hooks-introduction" target="_blank" rel="noopener noreferrer">GitHub repository</a>. </p>
+                    <p> If you just want to have a ready to go React Hook for data fetching: <code>npm install use-data-api</code> and follow the <a href="https://github.com/the-road-to-learn-react/use-data-api" target="_blank" rel="noopener noreferrer">documentation</a>. Don't forget to star it if you use it :-) </p>
                     <p>
                         <strong>Note:</strong> In the future, React Hooks are not be intended for data fetching in React. Instead, a feature called Suspense will be in charge for it. The following walkthrough is nonetheless a great way to learn more about state and effect hooks in React.
-                        <!-- -->
                     </p>
                     <h2 id="data-fetching-with-react-hooks">
                         <a href="#data-fetching-with-react-hooks" target="_blank" rel="noopener noreferrer" aria-label="data fetching with react hooks permalink"><svg height="0" width="0" /></a>Data Fetching with React Hooks
-                        <!-- -->
                     </h2>
-                    <p> If you are not familiar with data fetching in React, checkout my
-                        <!-- --><a itemprop="url" href="http://fakehost/react-fetching-data/">extensive data fetching in React article</a>. It walks you through data fetching with React class components, how it can be made reusable with
-                        <!-- --><a itemprop="url" href="http://fakehost/react-render-props/">Render Prop Components</a> and
-                        <!-- --><a itemprop="url" href="http://fakehost/react-higher-order-components/">Higher-Order Components</a>, and how it deals with error handling and loading spinners. In this article, I want to show you all of it with React Hooks in function components.
-                        <!-- -->
-                    </p>
+                    <p> If you are not familiar with data fetching in React, checkout my <a itemprop="url" href="http://fakehost/react-fetching-data/">extensive data fetching in React article</a>. It walks you through data fetching with React class components, how it can be made reusable with <a itemprop="url" href="http://fakehost/react-render-props/">Render Prop Components</a> and <a itemprop="url" href="http://fakehost/react-higher-order-components/">Higher-Order Components</a>, and how it deals with error handling and loading spinners. In this article, I want to show you all of it with React Hooks in function components. </p>
                     <pre class="prism-code"></pre>
                     <p><span>import</span> <span>React</span><span>,</span> <span>{</span> <span>useState</span> <span>}</span> <span>from</span> <span>'react'</span><span>;</span>
                     </p>
@@ -64,15 +43,8 @@
                     </p>
                     <p><span>export</span> <span>default</span> <span>App</span><span>;</span>
                     </p>
-                    <p> The App component shows a list of items (hits = Hacker News articles). The state and state update function come from the state hook called
-                        <!-- --><code>useState</code> that is responsible to manage the local state for the data that we are going to fetch for the App component. The initial state is an empty list of hits in an object that represents the data. No one is setting any state for this data yet.
-                        <!-- -->
-                    </p>
-                    <p> We are going to use
-                        <!-- --><a href="https://github.com/axios/axios" target="_blank" rel="noopener noreferrer">axios</a> to fetch data, but it is up to you to use another data fetching library or the native fetch API of the browser. If you haven't installed axios yet, you can do so by on the command line with
-                        <!-- --><code>npm install axios</code>. Then implement your effect hook for the data fetching:
-                        <!-- -->
-                    </p>
+                    <p> The App component shows a list of items (hits = Hacker News articles). The state and state update function come from the state hook called <code>useState</code> that is responsible to manage the local state for the data that we are going to fetch for the App component. The initial state is an empty list of hits in an object that represents the data. No one is setting any state for this data yet. </p>
+                    <p> We are going to use <a href="https://github.com/axios/axios" target="_blank" rel="noopener noreferrer">axios</a> to fetch data, but it is up to you to use another data fetching library or the native fetch API of the browser. If you haven't installed axios yet, you can do so by on the command line with <code>npm install axios</code>. Then implement your effect hook for the data fetching: </p>
                     <pre class="prism-code"></pre>
                     <p><span>import</span> <span>React</span><span>,</span> <span>{</span> <span>useState</span><span>,</span> <span>useEffect</span> <span>}</span> <span>from</span> <span>'react'</span><span>;</span>
                     </p>
@@ -117,10 +89,7 @@
                     <p><span>export</span> <span>default</span> <span>App</span><span>;</span>
                     </p>
                     <p> The effect hook called useEffect is used to fetch the data with axios from the API and to set the data in the local state of the component with the state hook's update function. The promise resolving happens with async/await. </p>
-                    <p> However, when you run your application, you should stumble into a nasty loop. The effect hook runs when the component mounts but also when the component updates. Because we are setting the state after every data fetch, the component updates and the effect runs again. It fetches the data again and again. That's a bug and needs to be avoided.
-                        <!-- --><strong>We only want to fetch data when the component mounts.</strong> That's why you can provide an empty array as second argument to the effect hook to avoid activating it on component updates but only for the mounting of the component.
-                        <!-- -->
-                    </p>
+                    <p> However, when you run your application, you should stumble into a nasty loop. The effect hook runs when the component mounts but also when the component updates. Because we are setting the state after every data fetch, the component updates and the effect runs again. It fetches the data again and again. That's a bug and needs to be avoided. <strong>We only want to fetch data when the component mounts.</strong> That's why you can provide an empty array as second argument to the effect hook to avoid activating it on component updates but only for the mounting of the component. </p>
                     <pre class="prism-code"></pre>
                     <p><span>import</span> <span>React</span><span>,</span> <span>{</span> <span>useState</span><span>,</span> <span>useEffect</span> <span>}</span> <span>from</span> <span>'react'</span><span>;</span>
                     </p>
@@ -165,12 +134,7 @@
                     <p><span>export</span> <span>default</span> <span>App</span><span>;</span>
                     </p>
                     <p> The second argument can be used to define all the variables (allocated in this array) on which the hook depends. If one of the variables changes, the hook runs again. If the array with the variables is empty, the hook doesn't run when updating the component at all, because it doesn't have to watch any variables. </p>
-                    <p> There is one last catch. In the code, we are using async/await to fetch data from a third-party API. According to the documentation every function annotated with async returns an implicit promise:
-                        <!-- --><em>"The async function declaration defines an asynchronous function, which returns an AsyncFunction object. An asynchronous function is a function which operates asynchronously via the event loop, using an implicit Promise to return its result. "</em>. However, an effect hook should return nothing or a clean up function. That's why you may see the following warning in your developer console log:
-                        <!-- --><strong>07:41:22.910 index.js:1452 Warning: useEffect function must return a cleanup function or nothing. Promises and useEffect(async () =&gt; ...) are not supported, but you can call an async function inside an effect.</strong>. That's why using async directly in the
-                        <!-- --><code>useEffect</code> function isn't allowed. Let's implement a workaround for it, by using the async function inside the effect.
-                        <!-- -->
-                    </p>
+                    <p> There is one last catch. In the code, we are using async/await to fetch data from a third-party API. According to the documentation every function annotated with async returns an implicit promise: <em>"The async function declaration defines an asynchronous function, which returns an AsyncFunction object. An asynchronous function is a function which operates asynchronously via the event loop, using an implicit Promise to return its result. "</em>. However, an effect hook should return nothing or a clean up function. That's why you may see the following warning in your developer console log: <strong>07:41:22.910 index.js:1452 Warning: useEffect function must return a cleanup function or nothing. Promises and useEffect(async () =&gt; ...) are not supported, but you can call an async function inside an effect.</strong>. That's why using async directly in the <code>useEffect</code> function isn't allowed. Let's implement a workaround for it, by using the async function inside the effect. </p>
                     <pre class="prism-code"></pre>
                     <p><span>import</span> <span>React</span><span>,</span> <span>{</span> <span>useState</span><span>,</span> <span>useEffect</span> <span>}</span> <span>from</span> <span>'react'</span><span>;</span>
                     </p>
@@ -223,7 +187,6 @@
                     <p> That's data fetching with React hooks in a nutshell. But continue reading if you are interested about error handling, loading indicators, how to trigger the data fetching from a form, and how to implement a reusable data fetching hook. </p>
                     <h2 id="how-to-trigger-a-hook-programmatically--manually">
                         <a href="#how-to-trigger-a-hook-programmatically--manually" target="_blank" rel="noopener noreferrer" aria-label="how to trigger a hook programmatically manually permalink"><svg height="0" width="0" /></a>How to trigger a hook programmatically / manually?
-                        <!-- -->
                     </h2>
                     <p> Great, we are fetching data once the component mounts. But what about using an input field to tell the API in which topic we are interested in? "Redux" is taken as default query. But what about topics about "React"? Let's implement an input element to enable someone to fetch other stories than "Redux" stories. Therefore, introduce a new state for the input element. </p>
                     <pre class="prism-code"></pre>
@@ -556,7 +519,6 @@
                     <p> That's if for the implicit programmatic data fetching with the effect hook. You can decide on which state the effect depends. Once you set this state on a click or in another side-effect, this effect will run again. In this case, if the URL state changes, the effect runs again to fetch stories from the API. </p>
                     <h2 id="loading-indicator-with-react-hooks">
                         <a href="#loading-indicator-with-react-hooks" target="_blank" rel="noopener noreferrer" aria-label="loading indicator with react hooks permalink"><svg height="0" width="0" /></a>Loading Indicator with React Hooks
-                        <!-- -->
                     </h2>
                     <p> Let's introduce a loading indicator to the data fetching. It's just another state that is managed by a state hook. The loading flag is used to render a loading indicator in the App component. </p>
                     <pre class="prism-code"></pre>
@@ -659,7 +621,6 @@
                     <p> Once the effect is called for data fetching, which happens when the component mounts or the URL state changes, the loading state is set to true. Once the request resolves, the loading state is set to false again. </p>
                     <h2 id="error-handling-with-react-hooks">
                         <a href="#error-handling-with-react-hooks" target="_blank" rel="noopener noreferrer" aria-label="error handling with react hooks permalink"><svg height="0" width="0" /></a>Error Handling with React Hooks
-                        <!-- -->
                     </h2>
                     <p> What about error handling for data fetching with a React hook? The error is just another state initialized with a state hook. Once there is an error state, the App component can render feedback for the user. When using async/await, it is common to use try/catch blocks for error handling. You can do it within the effect: </p>
                     <pre class="prism-code"></pre>
@@ -776,7 +737,6 @@
                     <p> The error state is reset every time the hook runs again. That's useful because after a failed request the user may want to try it again which should reset the error. In order to enforce an error yourself, you can alter the URL into something invalid. Then check whether the error message shows up. </p>
                     <h2 id="fetching-data-with-forms-and-react">
                         <a href="#fetching-data-with-forms-and-react" target="_blank" rel="noopener noreferrer" aria-label="fetching data with forms and react permalink"><svg height="0" width="0" /></a>Fetching Data with Forms and React
-                        <!-- -->
                     </h2>
                     <p> What about a proper form to fetch data? So far, we have only a combination of input field and button. Once you introduce more input elements, you may want to wrap them with a form element. In addition, a form makes it possible to trigger the button with "Enter" on the keyboard too. </p>
                     <pre class="prism-code"></pre>
@@ -867,7 +827,6 @@
                     <p> Now the browser shouldn't reload anymore when you click the submit button. It works as before, but this time with a form instead of the naive input field and button combination. You can press the "Enter" key on your keyboard too. </p>
                     <h2 id="custom-data-fetching-hook">
                         <a href="#custom-data-fetching-hook" target="_blank" rel="noopener noreferrer" aria-label="custom data fetching hook permalink"><svg height="0" width="0" /></a>Custom Data Fetching Hook
-                        <!-- -->
                     </h2>
                     <p> In order to extract a custom hook for data fetching, move everything that belongs to the data fetching, except for the query state that belongs to the input field, but including the loading indicator and error handling, to its own function. Also make sure you return all the necessary variables from the function that are used in the App component. </p>
                     <pre class="prism-code"></pre>
@@ -1088,15 +1047,8 @@
                     <p> That's it for the data fetching with a custom hook. The hook itself doesn't know anything about the API. It receives all parameters from the outside and only manages necessary states such as the data, loading and error state. It executes the request and returns the data to the component using it as custom data fetching hook. </p>
                     <h2 id="reducer-hook-for-data-fetching">
                         <a href="#reducer-hook-for-data-fetching" target="_blank" rel="noopener noreferrer" aria-label="reducer hook for data fetching permalink"><svg height="0" width="0" /></a>Reducer Hook for Data Fetching
-                        <!-- -->
                     </h2>
-                    <p> So far, we have used various state hooks to manage our data fetching state for the data, loading and error state. However, somehow all these states,
-                        <!-- --><a itemprop="url" href="http://fakehost/react-usereducer-vs-usestate/">managed with their own state hook, belong together because they care about the same cause</a>. As you can see, they are all used within the data fetching function. A good indicator that they belong together is that they are used one after another (e.g.
-                        <!-- --><code>setIsError</code>,
-                        <!-- --><code>setIsLoading</code>). Let's combine all three of them with a
-                        <!-- --><a itemprop="url" href="http://fakehost/react-usereducer-hook/">Reducer Hook</a> instead.
-                        <!-- -->
-                    </p>
+                    <p> So far, we have used various state hooks to manage our data fetching state for the data, loading and error state. However, somehow all these states, <a itemprop="url" href="http://fakehost/react-usereducer-vs-usestate/">managed with their own state hook, belong together because they care about the same cause</a>. As you can see, they are all used within the data fetching function. A good indicator that they belong together is that they are used one after another (e.g. <code>setIsError</code>, <code>setIsLoading</code>). Let's combine all three of them with a <a itemprop="url" href="http://fakehost/react-usereducer-hook/">Reducer Hook</a> instead. </p>
                     <p> A Reducer Hook returns us a state object and a function to alter the state object. The function -- called dispatch function -- takes an action which has a type and an optional payload. All this information is used in the actual reducer function to distill a new state from the previous state, the action's optional payload and type. Let's see how this works in code: </p>
                     <pre class="prism-code"></pre>
                     <p><span>import</span> <span>React</span><span>,</span> <span>{</span>
@@ -1187,18 +1139,8 @@
                     </p>
                     <p><span>}</span><span>;</span>
                     </p>
-                    <p> Now, when fetching data, the dispatch function can be used to send information to the reducer function. The object being send with the dispatch function has a mandatory
-                        <!-- --><code>type</code> property and an optional
-                        <!-- --><code>payload</code> property. The type tells the reducer function which state transition needs to be applied and the payload can additionally be used by the reducer to distill the new state. After all, we only have three state transitions: initializing the fetching process, notifying about a successful data fetching result, and notifying about an erroneous data fetching result.
-                        <!-- -->
-                    </p>
-                    <p> In the end of the custom hook, the state is returned as before, but because we have a state object and not the standalone states anymore. This way, the one who calls the
-                        <!-- --><code>useDataApi</code> custom hook still gets access to
-                        <!-- --><code>data</code>,
-                        <!-- --><code>isLoading</code> and
-                        <!-- --><code>isError</code>:
-                        <!-- -->
-                    </p>
+                    <p> Now, when fetching data, the dispatch function can be used to send information to the reducer function. The object being send with the dispatch function has a mandatory <code>type</code> property and an optional <code>payload</code> property. The type tells the reducer function which state transition needs to be applied and the payload can additionally be used by the reducer to distill the new state. After all, we only have three state transitions: initializing the fetching process, notifying about a successful data fetching result, and notifying about an erroneous data fetching result. </p>
+                    <p> In the end of the custom hook, the state is returned as before, but because we have a state object and not the standalone states anymore. This way, the one who calls the <code>useDataApi</code> custom hook still gets access to <code>data</code>, <code>isLoading</code> and <code>isError</code>: </p>
                     <pre class="prism-code"></pre>
                     <p><span>const</span> <span>useDataApi</span> <span>=</span> <span>(</span><span>initialUrl</span><span>,</span> <span>initialData</span><span>)</span> <span>=&gt;</span> <span>{</span>
                     </p>
@@ -1220,12 +1162,7 @@
                     </p>
                     <p><span>}</span><span>;</span>
                     </p>
-                    <p> Last but not least, the implementation of the reducer function is missing. It needs to act on three different state transitions called
-                        <!-- --><code>FETCH_INIT</code>,
-                        <!-- --><code>FETCH_SUCCESS</code> and
-                        <!-- --><code>FETCH_FAILURE</code>. Each state transition needs to return a new state object. Let's see how this can be implemented with a switch case statement:
-                        <!-- -->
-                    </p>
+                    <p> Last but not least, the implementation of the reducer function is missing. It needs to act on three different state transitions called <code>FETCH_INIT</code>, <code>FETCH_SUCCESS</code> and <code>FETCH_FAILURE</code>. Each state transition needs to return a new state object. Let's see how this can be implemented with a switch case statement: </p>
                     <pre class="prism-code"></pre>
                     <p><span>const</span> <span>dataFetchReducer</span> <span>=</span> <span>(</span><span>state</span><span>,</span> <span>action</span><span>)</span> <span>=&gt;</span> <span>{</span>
                     </p>
@@ -1304,19 +1241,11 @@
                     <p><span>}</span><span>;</span>
                     </p>
                     <p> Now every state transition, decided by the action's type, returns a new state based on the previous state and the optional payload. For instance, in the case of a successful request, the payload is used to set the data of the new state object. </p>
-                    <p> In conclusion, the Reducer Hook makes sure that this portion of the state management is encapsulated with its own logic. By providing action types and optional payloads, you will always end up with a predicatbale state change. In addition, you will never run into invalid states. For instance, previously it would have been possible to accidently set the
-                        <!-- --><code>isLoading</code> and
-                        <!-- --><code>isError</code> states to true. What should be displayed in the UI for this case? Now, each state transition defined by the reducer function leads to a valid state object.
-                        <!-- -->
-                    </p>
+                    <p> In conclusion, the Reducer Hook makes sure that this portion of the state management is encapsulated with its own logic. By providing action types and optional payloads, you will always end up with a predicatbale state change. In addition, you will never run into invalid states. For instance, previously it would have been possible to accidently set the <code>isLoading</code> and <code>isError</code> states to true. What should be displayed in the UI for this case? Now, each state transition defined by the reducer function leads to a valid state object. </p>
                     <h2 id="abort-data-fetching-in-effect-hook">
                         <a href="#abort-data-fetching-in-effect-hook" target="_blank" rel="noopener noreferrer" aria-label="abort data fetching in effect hook permalink"><svg height="0" width="0" /></a>Abort Data Fetching in Effect Hook
-                        <!-- -->
                     </h2>
-                    <p> It's a common problem in React that component state is set even though the component got already unmounted (e.g. due to navigating away with React Router). I have written about this issue previously over here which describes
-                        <!-- --><a itemprop="url" href="http://fakehost/react-warning-cant-call-setstate-on-an-unmounted-component/">how to prevent setting state for unmounted components</a> in various scenarios. Let's see how we can prevent to set state in our custom hook for the data fetching:
-                        <!-- -->
-                    </p>
+                    <p> It's a common problem in React that component state is set even though the component got already unmounted (e.g. due to navigating away with React Router). I have written about this issue previously over here which describes <a itemprop="url" href="http://fakehost/react-warning-cant-call-setstate-on-an-unmounted-component/">how to prevent setting state for unmounted components</a> in various scenarios. Let's see how we can prevent to set state in our custom hook for the data fetching: </p>
                     <pre class="prism-code"></pre>
                     <p><span>const</span> <span>useDataApi</span> <span>=</span> <span>(</span><span>initialUrl</span><span>,</span> <span>initialData</span><span>)</span> <span>=&gt;</span> <span>{</span>
                     </p>
@@ -1376,16 +1305,9 @@
                     </p>
                     <p><span>}</span><span>;</span>
                     </p>
-                    <p> Every Effect Hook comes with a clean up function which runs when a component unmounts. The clean up function is the one function returned from the hook. In our case, we use a boolean flag called
-                        <!-- --><code>didCancel</code> to let our data fetching logic know about the state (mounted/unmounted) of the component. If the component did unmount, the flag should be set to
-                        <!-- --><code>true</code> which results in preventing to set the component state after the data fetching has been asynchronously resolved eventually.
-                        <!-- -->
-                    </p>
+                    <p> Every Effect Hook comes with a clean up function which runs when a component unmounts. The clean up function is the one function returned from the hook. In our case, we use a boolean flag called <code>didCancel</code> to let our data fetching logic know about the state (mounted/unmounted) of the component. If the component did unmount, the flag should be set to <code>true</code> which results in preventing to set the component state after the data fetching has been asynchronously resolved eventually. </p>
                     <p>
-                        <em>Note: Actually not the data fetching is aborted -- which could be achieved with
-                            <!-- --><a href="https://github.com/axios/axios#cancellation" target="_blank" rel="noopener noreferrer">Axios Cancellation</a> -- but the state transition is not performed anymore for the unmounted component. Since Axios Cancellation has not the best API in my eyes, this boolean flag to prevent setting state does the job as well.
-                            <!-- -->
-                        </em>
+                        <em>Note: Actually not the data fetching is aborted -- which could be achieved with <a href="https://github.com/axios/axios#cancellation" target="_blank" rel="noopener noreferrer">Axios Cancellation</a> -- but the state transition is not performed anymore for the unmounted component. Since Axios Cancellation has not the best API in my eyes, this boolean flag to prevent setting state does the job as well.</em>
                     </p>
                     <hr>
                     <p> You have learned how the React hooks for state and effects can be used in React for data fetching. If you are curious about data fetching in class components (and function components) with render props and higher-order components, checkout out my other article from the beginning. Otherwise, I hope this article was useful to you for learning about React Hooks and how to use them in a real world scenario. </p>
@@ -1394,15 +1316,15 @@
         </main>
         <section itemscope="itemscope" itemtype="http://schema.org/Blog">
             <h2>
-                <span>Keep reading about
-                    <!-- -->&nbsp;
-                    <!-- -->
-                </span><a itemprop="url" href="http://fakehost/categories/react-hooks/"><span>React Hooks
-                        <!-- -->
-                    </span></a>
+                <span>Keep reading about&nbsp;</span><a itemprop="url" href="http://fakehost/categories/react/"><span>React</span></a>
             </h2>
             <div>
                 <article>
+                    <div>
+                        <picture>
+                            <source srcset="/static/1daf8df66101e85a2309c8efe1292af8/25b50/banner.jpg 75w, /static/1daf8df66101e85a2309c8efe1292af8/aabdf/banner.jpg 150w, /static/1daf8df66101e85a2309c8efe1292af8/9dc27/banner.jpg 300w, /static/1daf8df66101e85a2309c8efe1292af8/32fd5/banner.jpg 450w, /static/1daf8df66101e85a2309c8efe1292af8/4fe8c/banner.jpg 600w, /static/1daf8df66101e85a2309c8efe1292af8/16310/banner.jpg 1024w" sizes="(max-width: 300px) 100vw, 300px"><img sizes="(max-width: 300px) 100vw, 300px" srcset="/static/1daf8df66101e85a2309c8efe1292af8/25b50/banner.jpg 75w, /static/1daf8df66101e85a2309c8efe1292af8/aabdf/banner.jpg 150w, /static/1daf8df66101e85a2309c8efe1292af8/9dc27/banner.jpg 300w, /static/1daf8df66101e85a2309c8efe1292af8/32fd5/banner.jpg 450w, /static/1daf8df66101e85a2309c8efe1292af8/4fe8c/banner.jpg 600w, /static/1daf8df66101e85a2309c8efe1292af8/16310/banner.jpg 1024w" src="http://fakehost/static/1daf8df66101e85a2309c8efe1292af8/9dc27/banner.jpg" alt="" loading="lazy">
+                        </picture>
+                    </div>
                     <div>
                         <header>
                             <h2 itemprop="name headline">
@@ -1413,6 +1335,11 @@
                     </div>
                 </article>
                 <article>
+                    <div>
+                        <picture>
+                            <source srcset="/static/4f248ba8d9c5833fb4449d3114ff0c28/25b50/banner.jpg 75w, /static/4f248ba8d9c5833fb4449d3114ff0c28/aabdf/banner.jpg 150w, /static/4f248ba8d9c5833fb4449d3114ff0c28/9dc27/banner.jpg 300w, /static/4f248ba8d9c5833fb4449d3114ff0c28/32fd5/banner.jpg 450w, /static/4f248ba8d9c5833fb4449d3114ff0c28/4fe8c/banner.jpg 600w, /static/4f248ba8d9c5833fb4449d3114ff0c28/16310/banner.jpg 1024w" sizes="(max-width: 300px) 100vw, 300px"><img sizes="(max-width: 300px) 100vw, 300px" srcset="/static/4f248ba8d9c5833fb4449d3114ff0c28/25b50/banner.jpg 75w, /static/4f248ba8d9c5833fb4449d3114ff0c28/aabdf/banner.jpg 150w, /static/4f248ba8d9c5833fb4449d3114ff0c28/9dc27/banner.jpg 300w, /static/4f248ba8d9c5833fb4449d3114ff0c28/32fd5/banner.jpg 450w, /static/4f248ba8d9c5833fb4449d3114ff0c28/4fe8c/banner.jpg 600w, /static/4f248ba8d9c5833fb4449d3114ff0c28/16310/banner.jpg 1024w" src="http://fakehost/static/4f248ba8d9c5833fb4449d3114ff0c28/9dc27/banner.jpg" alt="" loading="lazy">
+                        </picture>
+                    </div>
                     <div>
                         <header>
                             <h2 itemprop="name headline">
@@ -1425,44 +1352,36 @@
             </div>
         </section>
         <div>
-            <h2> The Road to React </h2>
-            <p> Learn React by building real world applications. No setup configuration. No tooling. Plain React in 200+ pages of learning material. Learn React like <strong>50.000+ readers</strong>. </p>
-            <p><small><a href="https://amzn.to/2LHjxRB" target="_blank" rel="noopener noreferrer">Get it on Amazon.</a></small>
-            </p>
+            <div>
+                <picture>
+                    <source srcset="/static/f7a0c2570cccee16ab8d54ade3e1f474/61fd6/goodie.png 256w, /static/f7a0c2570cccee16ab8d54ade3e1f474/dd5bb/goodie.png 320w" sizes="(max-width: 320px) 100vw, 320px"><img sizes="(max-width: 320px) 100vw, 320px" srcset="/static/f7a0c2570cccee16ab8d54ade3e1f474/61fd6/goodie.png 256w, /static/f7a0c2570cccee16ab8d54ade3e1f474/dd5bb/goodie.png 320w" src="http://fakehost/static/f7a0c2570cccee16ab8d54ade3e1f474/dd5bb/goodie.png" alt="" loading="lazy">
+                </picture>
+            </div>
+            <div>
+                <h2> The Road to React </h2>
+                <p> Learn React by building real world applications. No setup configuration. No tooling. Plain React in 200+ pages of learning material. Learn React like <strong>50.000+ readers</strong>. </p>
+                <p><small><a href="https://amzn.to/2LHjxRB" target="_blank" rel="noopener noreferrer">Get it on Amazon.</a></small>
+                </p>
+            </div>
         </div>
         <div>
             <p>
-                <label for="newsletter">Join 50.000+ Developers
-                    <!-- -->
-                </label>
+                <label for="newsletter">Join 50.000+ Developers</label>
             </p>
             <p>
-                <label for="newsletter">Learn Web Development
-                    <!-- -->
-                </label>
+                <label for="newsletter">Learn Web Development</label>
             </p>
             <p>
-                <label for="newsletter">Learn JavaScript
-                    <!-- -->
-                </label>
+                <label for="newsletter">Learn JavaScript</label>
             </p>
             <p>
-                <label for="newsletter">Access Tutorials, eBooks and Courses
-                    <!-- -->
-                </label>
+                <label for="newsletter">Access Tutorials, eBooks and Courses</label>
             </p>
             <p>
-                <label for="newsletter">Personal Development as a Software Engineer
-                    <!-- -->
-                </label>
+                <label for="newsletter">Personal Development as a Software Engineer</label>
             </p>
-            <p><label for="newsletter"><a href="https://rwieruch.substack.com/" target="_blank" rel="noopener noreferrer" role="link">Subscribe &nbsp;
-                        <!-- -->
-                    </a></label></p>
-            <p><label for="newsletter"><small><small>View our&nbsp;
-                            <!-- --><a itemprop="url" href="http://fakehost/legal/">Privacy Policy</a>.
-                            <!-- -->
-                        </small></small></label>
+            <p><label for="newsletter"><a href="https://rwieruch.substack.com/" target="_blank" rel="noopener noreferrer" role="link">Subscribe &nbsp;</a></label></p>
+            <p><label for="newsletter"><small><small>View our&nbsp;<a itemprop="url" href="http://fakehost/legal/">Privacy Policy</a>.</small></small></label>
             </p>
         </div>
     </div>
