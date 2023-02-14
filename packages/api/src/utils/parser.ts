@@ -203,7 +203,7 @@ export const parsePreparedContent = async (
     return {
       canonicalUrl: url,
       parsedContent: null,
-      domContent: preparedDocument.document,
+      domContent: document,
       pageType: PageType.Unknown,
     }
   }
@@ -223,7 +223,7 @@ export const parsePreparedContent = async (
     if (!article?.textContent && allowRetry) {
       const newDocument = {
         ...preparedDocument,
-        document: '<html>' + preparedDocument.document + '</html>',
+        document: '<html>' + document + '</html>',
       }
       return parsePreparedContent(
         url,
@@ -239,7 +239,9 @@ export const parsePreparedContent = async (
     // to the handlers, and have some concept of postHandle
     if (article?.content) {
       const articleDom = parseHTML(article.content).document
-      const codeBlocks = articleDom.querySelectorAll('code')
+      const codeBlocks = articleDom.querySelectorAll(
+        'code, pre[class^="prism-"], pre[class^="language-"]'
+      )
       if (codeBlocks.length > 0) {
         codeBlocks.forEach((e) => {
           if (e.textContent) {
@@ -337,7 +339,7 @@ export const parsePreparedContent = async (
   logger.info('parse-article completed')
 
   return {
-    domContent: preparedDocument.document,
+    domContent: document,
     parsedContent: article,
     canonicalUrl,
     pageType: parseOriginalContent(dom),
