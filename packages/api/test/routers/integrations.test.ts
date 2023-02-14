@@ -8,7 +8,7 @@ import {
 } from '../../src/datalayer/pubsub'
 import { User } from '../../src/entity/user'
 import { createTestUser, deleteTestIntegrations, deleteTestUser } from '../db'
-import { Integration, IntegrationType } from '../../src/entity/integration'
+import { Integration } from '../../src/entity/integration'
 import { getRepository } from '../../src/entity/utils'
 import {
   Highlight,
@@ -95,7 +95,7 @@ describe('Integrations routers', () => {
 
         context('when integration not found', () => {
           before(() => {
-            integrationType = IntegrationType.Readwise
+            integrationType = 'READWISE'
             data = {
               message: {
                 data: Buffer.from(
@@ -125,7 +125,7 @@ describe('Integrations routers', () => {
           before(async () => {
             integration = await getRepository(Integration).save({
               user: { id: user.id },
-              type: IntegrationType.Readwise,
+              type: 'READWISE',
               token: 'token',
             })
             integrationType = integration.type

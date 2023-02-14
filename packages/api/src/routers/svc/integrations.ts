@@ -54,7 +54,7 @@ export function integrationsServiceRouter() {
 
       const integration = await getRepository(Integration).findOneBy({
         user: { id: userId },
-        type: req.params.integrationType.toUpperCase() as IntegrationType,
+        type: req.params.integrationType.toUpperCase(),
         enabled: true,
       })
       if (!integration) {
@@ -125,7 +125,7 @@ export function integrationsServiceRouter() {
           ;[pages, count] = (await searchPages(
             { from: after, size, dateFilters },
             userId
-          ))!
+          )) as [Page[], number]
           const pageIds = pages.map((p) => p.id)
 
           logger.info('syncing pages', { pageIds })

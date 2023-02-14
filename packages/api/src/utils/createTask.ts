@@ -8,7 +8,6 @@ import { CreateTaskError } from './errors'
 import { buildLogger } from './logger'
 import { nanoid } from 'nanoid'
 import { google } from '@google-cloud/tasks/build/protos/protos'
-import { IntegrationType } from '../entity/integration'
 import { signFeatureToken } from '../services/features'
 import { Recommendation } from '../elastic/types'
 import View = google.cloud.tasks.v2.Task.View
@@ -280,7 +279,7 @@ export const enqueueReminder = async (
 
 export const enqueueSyncWithIntegration = async (
   userId: string,
-  integrationType: IntegrationType
+  integrationType: string
 ): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT, PUBSUB_VERIFICATION_TOKEN } = process.env
   // use pubsub data format to send the userId to the task handler

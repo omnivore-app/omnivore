@@ -8,10 +8,7 @@ import {
 } from '../../src/generated/graphql'
 import { expect } from 'chai'
 import { getRepository } from '../../src/entity/utils'
-import {
-  Integration,
-  IntegrationType as DataIntegrationType,
-} from '../../src/entity/integration'
+import { Integration } from '../../src/entity/integration'
 import nock from 'nock'
 import { READWISE_API_URL } from '../../src/services/integrations'
 
@@ -91,10 +88,10 @@ describe('Integrations resolvers', () => {
         before(async () => {
           existingIntegration = await getRepository(Integration).save({
             user: { id: loginUser.id },
-            type: DataIntegrationType.Readwise,
+            type: 'READWISE',
             token: 'fakeToken',
           })
-          integrationType = existingIntegration.type
+          integrationType = existingIntegration.type as IntegrationType
         })
 
         after(async () => {
@@ -190,7 +187,7 @@ describe('Integrations resolvers', () => {
             otherUser = await createTestUser('otherUser')
             existingIntegration = await getRepository(Integration).save({
               user: { id: otherUser.id },
-              type: DataIntegrationType.Readwise,
+              type: 'READWISE',
               token: 'fakeToken',
             })
             integrationId = existingIntegration.id
@@ -216,7 +213,7 @@ describe('Integrations resolvers', () => {
           before(async () => {
             existingIntegration = await getRepository(Integration).save({
               user: { id: loginUser.id },
-              type: DataIntegrationType.Readwise,
+              type: 'READWISE',
               token: 'fakeToken',
             })
             integrationId = existingIntegration.id
@@ -316,7 +313,7 @@ describe('Integrations resolvers', () => {
     before(async () => {
       existingIntegration = await getRepository(Integration).save({
         user: { id: loginUser.id },
-        type: DataIntegrationType.Readwise,
+        type: 'READWISE',
         token: 'fakeToken',
       })
     })
@@ -362,7 +359,7 @@ describe('Integrations resolvers', () => {
       beforeEach(async () => {
         existingIntegration = await getRepository(Integration).save({
           user: { id: loginUser.id },
-          type: DataIntegrationType.Readwise,
+          type: 'READWISE',
           token: 'fakeToken',
           taskName: 'some task name',
         })

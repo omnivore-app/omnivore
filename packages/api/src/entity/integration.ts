@@ -9,10 +9,6 @@ import {
 } from 'typeorm'
 import { User } from './user'
 
-export enum IntegrationType {
-  Readwise = 'READWISE',
-}
-
 @Entity({ name: 'integrations' })
 export class Integration {
   @PrimaryGeneratedColumn('uuid')
@@ -22,8 +18,8 @@ export class Integration {
   @JoinColumn({ name: 'user_id' })
   user!: User
 
-  @Column('enum', { enum: IntegrationType })
-  type!: IntegrationType
+  @Column('text')
+  type!: string
 
   @Column('varchar', { length: 255 })
   token!: string

@@ -6,6 +6,7 @@ import {
   IntegrationsError,
   IntegrationsErrorCode,
   IntegrationsSuccess,
+  IntegrationType,
   MutationDeleteIntegrationArgs,
   MutationSetIntegrationArgs,
   SetIntegrationError,
@@ -94,7 +95,10 @@ export const setIntegrationResolver = authorized<
 
     if (!integrationToSave.id || integrationToSave.enabled) {
       // create a task to sync all the pages if new integration or enable integration
-      const taskName = await enqueueSyncWithIntegration(user.id, input.type)
+      const taskName = await enqueueSyncWithIntegration(
+        user.id,
+        input.type as string
+      )
       log.info('enqueued task', taskName)
 
       // update task name in integration
@@ -122,7 +126,10 @@ export const setIntegrationResolver = authorized<
     })
 
     return {
-      integration,
+      integration: {
+        ...integration,
+        type: integration.type as IntegrationType,
+      },
     }
   } catch (error) {
     log.error(error)
@@ -151,7 +158,10 @@ export const integrationsResolver = authorized<
     })
 
     return {
-      integrations,
+      integrations: integrations.map((integration) => ({
+        ...integration,
+        type: integration.type as IntegrationType,
+      })),
     }
   } catch (error) {
     log.error(error)
@@ -215,7 +225,10 @@ export const deleteIntegrationResolver = authorized<
     })
 
     return {
-      integration: deletedIntegration,
+      integration: {
+        ...deletedIntegration,
+        type: deletedIntegration.type as IntegrationType,
+      },
     }
   } catch (error) {
     log.error(error)

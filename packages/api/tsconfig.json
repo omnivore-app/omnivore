@@ -7,5 +7,5 @@
     "outDir": "dist"
   },
   "include": ["src", "test"],
-  "exclude": ["./src/generated", "./test"]
+  "exclude": ["./src/generated"]
 }
