@@ -246,7 +246,11 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
     try {
       const utteranceInput = req.body as UtteranceInput
       if (!utteranceInput.text) {
-        return res.send({ idx: utteranceInput.idx, audioData: '', speechMarks: [] })
+        return res.send({
+          idx: utteranceInput.idx,
+          audioData: '',
+          speechMarks: [],
+        })
       }
 
       // validate if user has opted in to use ultra realistic voice feature
@@ -307,7 +311,7 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
       const [exists] = await audioFile.exists()
       if (exists) {
         console.debug('Audio file already exists')
-          ;[audioData] = await audioFile.download()
+        ;[audioData] = await audioFile.download()
         const [speechMarksExists] = await speechMarksFile.exists()
         if (speechMarksExists) {
           speechMarks = JSON.parse(
@@ -326,7 +330,11 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
         audioData = output.audioData
         speechMarks = output.speechMarks
         if (!audioData || audioData.length === 0) {
-          return res.send({ idx: utteranceInput.idx, audioData: '', speechMarks: [] })
+          return res.send({
+            idx: utteranceInput.idx,
+            audioData: '',
+            speechMarks: [],
+          })
         }
 
         console.debug('saving audio file')
