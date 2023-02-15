@@ -313,6 +313,20 @@ div#appleid-signin {
 }
 
 @font-face {
+  font-family: 'LXGWWenKai';
+  font-weight: 400;
+  font-style: normal;
+  src: url('/static/fonts/LXGWWenKai/LXGWWenKai-Regular.ttf');
+}
+
+@font-face {
+  font-family: 'LXGWWenKai';
+  font-weight: 700;
+  font-style: normal;
+  src: url('/static/fonts/LXGWWenKai/LXGWWenKai-Bold.ttf');
+}
+
+@font-face {
   font-family: 'SF Mono';
   font-weight: 400;
   font-style: normal;

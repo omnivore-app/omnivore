@@ -15,6 +15,7 @@ public enum WebFont: String, CaseIterable {
   case montserrat = "Montserrat"
   case newsreader = "Newsreader"
   case atkinsonHyperlegible = "AtkinsonHyperlegible"
+  case lxgWWenKai = "LXGWWenKai"
 
   static var sorted: [WebFont] {
     allCases.sorted { left, right in
@@ -44,7 +45,8 @@ public enum WebFont: String, CaseIterable {
          .sourceserifpro,
          .georgia,
          .montserrat,
-         .newsreader:
+         .newsreader,
+         .lxgWWenKai:
       return rawValue
     case .atkinsonHyperlegible:
       return "Atkinson Hyperlegible"
