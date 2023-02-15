@@ -138,7 +138,6 @@
 //"library.by.author.suffix" = "by \(author)" // unused
 //"Recommended by \(byStr) in \(inStr)" // unused
 
-
 // Generic
 "genericSnooze" = "Snooze";
 "genericClose" = "Close";

@@ -90,7 +90,8 @@ export function Article(props: ArticleProps): JSX.Element {
   useScrollWatcher((changeset: ScrollOffsetChangeset) => {
     if (window && window.document.scrollingElement) {
       const newReadingProgress =
-        window.scrollY / window.document.scrollingElement.scrollHeight
+        (window.scrollY + window.innerHeight) /
+        window.document.scrollingElement.scrollHeight
       const adjustedReadingProgress =
         newReadingProgress > 0.92 ? 1 : newReadingProgress
       debouncedSetReadingProgress(adjustedReadingProgress * 100)
@@ -118,6 +119,22 @@ export function Article(props: ArticleProps): JSX.Element {
     },
     []
   )
+
+  useEffect(() => {
+    const saveReadPosition = () => {
+      console.log(
+        'saving read position from article: ',
+        readingProgress,
+        readingAnchorIndex
+      )
+    }
+
+    document.addEventListener('saveReadPosition', saveReadPosition)
+
+    return () => {
+      document.removeEventListener('saveReadPosition', saveReadPosition)
+    }
+  }, [readingProgress, readingAnchorIndex])
 
   // Scroll to initial anchor position
   useEffect(() => {

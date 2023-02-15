@@ -275,6 +275,7 @@ private let libraryArticleSelection = Selection.Article {
     contentReader: try $0.contentReader().rawValue,
     originalHtml: nil,
     language: try $0.language(),
+    wordsCount: try $0.wordsCount(),
     recommendations: try $0.recommendations(selection: recommendationSelection.list.nullable) ?? [],
     labels: try $0.labels(selection: feedItemLabelSelection.list.nullable) ?? []
   )
@@ -313,6 +314,7 @@ private let searchItemSelection = Selection.SearchItem {
     contentReader: try $0.contentReader().rawValue,
     originalHtml: nil,
     language: try $0.language(),
+    wordsCount: try $0.wordsCount(),
     recommendations: try $0.recommendations(selection: recommendationSelection.list.nullable) ?? [],
     labels: try $0.labels(selection: feedItemLabelSelection.list.nullable) ?? []
   )

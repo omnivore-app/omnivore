@@ -56,6 +56,7 @@
         <attribute name="tempPDFURL" optional="YES" attributeType="URI"/>
         <attribute name="title" attributeType="String"/>
         <attribute name="updatedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="wordsCount" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <relationship name="highlights" toMany="YES" deletionRule="Cascade" destinationEntity="Highlight" inverseName="linkedItem" inverseEntity="Highlight"/>
         <relationship name="labels" toMany="YES" deletionRule="Nullify" destinationEntity="LinkedItemLabel" inverseName="linkedItems" inverseEntity="LinkedItemLabel"/>
         <relationship name="recommendations" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Recommendation" inverseName="linkeditem" inverseEntity="Recommendation"/>

@@ -26,6 +26,7 @@ struct InternalLinkedItem {
   let contentReader: String?
   let originalHtml: String?
   let language: String?
+  let wordsCount: Int?
   let recommendations: [InternalRecommendation]
   var labels: [InternalLinkedItemLabel]
 
@@ -63,6 +64,7 @@ struct InternalLinkedItem {
     linkedItem.contentReader = contentReader
     linkedItem.originalHtml = originalHtml
     linkedItem.language = language
+    linkedItem.wordsCount = Int64(wordsCount ?? 0)
 
     // Remove existing labels in case a label had been deleted
     if let existingLabels = linkedItem.labels {
@@ -142,6 +144,7 @@ extension JSONArticle {
       contentReader: contentReader,
       originalHtml: nil,
       language: language,
+      wordsCount: wordsCount,
       recommendations: [], // TODO:
       labels: []
     )

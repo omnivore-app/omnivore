@@ -14,7 +14,7 @@ const mutation = async (name, input) => {
         actionID: name,
         ...input,
       })
-    console.log('action result', result, result.result)
+    console.log('action result', name, result, result.result)
     return result.result
   } else {
     // Send android a message

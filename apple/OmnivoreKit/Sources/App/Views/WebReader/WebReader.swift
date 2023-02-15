@@ -9,6 +9,7 @@ struct WebReader: PlatformViewRepresentable {
   let articleContent: ArticleContent
   let openLinkAction: (URL) -> Void
   let tapHandler: () -> Void
+  let scrollPercentHandler: (Int) -> Void
   let webViewActionHandler: (WKScriptMessage, WKScriptMessageReplyHandler?) -> Void
   let navBarVisibilityRatioUpdater: (Double) -> Void
 
@@ -52,6 +53,7 @@ struct WebReader: PlatformViewRepresentable {
     webView.configuration.userContentController = contentController
     webView.configuration.userContentController.removeAllScriptMessageHandlers()
 
+    webView.uiDelegate
     #if os(iOS)
       webView.isOpaque = false
       webView.backgroundColor = .clear
@@ -74,6 +76,7 @@ struct WebReader: PlatformViewRepresentable {
     context.coordinator.linkHandler = openLinkAction
     context.coordinator.webViewActionHandler = webViewActionHandler
     context.coordinator.updateNavBarVisibilityRatio = navBarVisibilityRatioUpdater
+    context.coordinator.scrollPercentHandler = scrollPercentHandler
     context.coordinator.updateShowBottomBar = { newValue in
       self.showBottomBar = newValue
     }

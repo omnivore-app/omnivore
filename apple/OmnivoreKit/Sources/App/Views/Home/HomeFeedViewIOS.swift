@@ -13,6 +13,8 @@ import Views
   struct HomeFeedContainerView: View {
     @State var hasHighlightMutations = false
     @State var searchPresented = false
+    @State var addLinkPresented = false
+    @State var settingsPresented = false
     @EnvironmentObject var dataService: DataService
     @EnvironmentObject var audioController: AudioController
 
@@ -129,16 +131,18 @@ import Views
           }
           ToolbarItem(placement: .barTrailing) {
             if UIDevice.isIPhone {
-              NavigationLink(
-                destination: { ProfileView() },
-                label: {
-                  Image(systemName: "person.circle")
-                    .resizable()
-                    .frame(width: 22, height: 22)
-                    .padding(.vertical, 16)
-                    .foregroundColor(.appGrayTextContrast)
-                }
-              )
+              Menu(content: {
+                Button(action: { settingsPresented = true }, label: {
+                  Label(LocalText.genericProfile, systemImage: "person.circle")
+                })
+                Button(action: { addLinkPresented = true }, label: {
+                  Label("Add Link", systemImage: "plus.square")
+                })
+              }, label: {
+                Image(systemName: "ellipsis")
+                  .foregroundColor(.appGrayTextContrast)
+                  .frame(width: 24, height: 24)
+              })
             } else {
               EmptyView()
             }
@@ -188,6 +192,16 @@ import Views
       }
       .fullScreenCover(isPresented: $searchPresented) {
         LibrarySearchView(homeFeedViewModel: self.viewModel)
+      }
+      .sheet(isPresented: $addLinkPresented) {
+        NavigationView {
+          LibraryAddLinkView()
+        }
+      }
+      .sheet(isPresented: $settingsPresented) {
+        NavigationView {
+          ProfileView()
+        }
       }
       .task {
         if viewModel.items.isEmpty {
@@ -364,6 +378,7 @@ import Views
                 item: item,
                 viewModel: viewModel
               )
+              .listRowInsets(.init(top: 0, leading: 8, bottom: 8, trailing: 8))
               .contextMenu {
                 menuItems(for: item)
               }
@@ -407,8 +422,9 @@ import Views
               }
             }
           }
-          .padding(.top, 0)
+          .padding(0)
           .listStyle(PlainListStyle())
+          .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
           .alert("Are you sure you want to delete this item? All associated notes and highlights will be deleted.",
                  isPresented: $confirmationShown) {
             Button("Remove Item", role: .destructive) {

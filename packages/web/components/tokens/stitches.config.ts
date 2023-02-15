@@ -131,7 +131,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         grayProgressBackground: '#FFFFFF',
 
         // Semantic Colors
-        highlightBackground: '255, 255, 0',
+        highlightBackground: '255, 210, 52',
         recommendedHighlightBackground: '#E5FFE5',
         highlight: '#FFD234',
         highlightText: '#3D3D3D',

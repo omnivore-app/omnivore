@@ -49,7 +49,6 @@ public struct TextChip: View {
       return .white
     }
 
-    print(" Luminance: ", luminance, "for color", color.hex)
     return luminance > 0.35 ? .black : .white
   }
 

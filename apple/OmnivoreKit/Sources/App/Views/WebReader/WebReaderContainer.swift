@@ -30,6 +30,7 @@ struct WebReaderContainerView: View {
   @State private var errorAlertMessage: String?
   @State private var showErrorAlertMessage = false
   @State private var showRecommendSheet = false
+  @State private var lastScrollPercentage: Int?
 
   @State var safariWebLink: SafariWebLink?
   @State var displayLinkSheet = false
@@ -54,6 +55,10 @@ struct WebReaderContainerView: View {
     if message.name == WebViewAction.highlightAction.rawValue {
       handleHighlightAction(message: message)
     }
+  }
+
+  func scrollPercentHandler(percent: Int) {
+    lastScrollPercentage = percent
   }
 
   func onHighlightListViewDismissal() {
@@ -369,6 +374,7 @@ struct WebReaderContainerView: View {
             #endif
           },
           tapHandler: tapHandler,
+          scrollPercentHandler: scrollPercentHandler,
           webViewActionHandler: webViewActionHandler,
           navBarVisibilityRatioUpdater: {
             navBarVisibilityRatio = $0
@@ -381,6 +387,20 @@ struct WebReaderContainerView: View {
           showBottomBar: $showBottomBar,
           showHighlightAnnotationModal: $showHighlightAnnotationModal
         )
+        .onAppear {
+          if item.isUnread {
+            dataService.updateLinkReadingProgress(itemID: item.unwrappedID, readingProgress: 0.1, anchorIndex: 0)
+          }
+        }
+        .onDisappear {
+//          if let lastScrollPercentage = self.lastScrollPercentage {
+//            dataService.updateLinkReadingProgress(
+//              itemID: item.unwrappedID,
+//              readingProgress: Double(lastScrollPercentage),
+//              anchorIndex: 0
+//            )
+//          }
+        }
         .confirmationDialog(linkToOpen?.absoluteString ?? "", isPresented: $displayLinkSheet) {
           Button(action: {
             if let linkToOpen = linkToOpen {
@@ -495,9 +515,13 @@ struct WebReaderContainerView: View {
         readerSettingsChangedTransactionID = UUID()
       }
     #endif
+    .onAppear {
+      try? WebViewManager.shared().dispatchEvent(.saveReadPosition)
+    }
     .onDisappear {
+      try? WebViewManager.shared().dispatchEvent(.saveReadPosition)
       // Clear the shared webview content when exiting
-      WebViewManager.shared().loadHTMLString("<html></html>", baseURL: nil)
+      // WebViewManager.shared().loadHTMLString("<html></html>", baseURL: nil)
     }
   }
 

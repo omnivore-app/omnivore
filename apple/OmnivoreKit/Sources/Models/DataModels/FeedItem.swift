@@ -55,6 +55,7 @@ public struct JSONArticle: Decodable {
   public let url: String
   public let isArchived: Bool
   public let language: String?
+  public let wordsCount: Int?
 }
 
 public extension LinkedItem {
@@ -67,6 +68,10 @@ public extension LinkedItem {
 
   var hasLabels: Bool {
     (labels?.count ?? 0) > 0
+  }
+
+  var isUnread: Bool {
+    readingProgress <= 0
   }
 
   var isRead: Bool {

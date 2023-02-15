@@ -5,6 +5,12 @@ public enum LocalText {
     NSLocalizedString(key, bundle: .module, comment: comment ?? "no comment provided by developer")
   }
 
+  public static func pluralizedText(key: String, count: Int) -> String {
+    let format = NSLocalizedString(key, bundle: .module, comment: "")
+    print("key", key, "format", format)
+    return String.localizedStringWithFormat(format, count)
+  }
+
   // Share extension
   public static let saveArticleSavedState = localText(key: "saveArticleSavedState")
   public static let saveArticleProcessingState = localText(key: "saveArticleProcessingState")

@@ -17,23 +17,18 @@ export function LabelChip(props: LabelChipProps): JSX.Element {
     const g = (bigint >> 8) & 255
     const b = bigint & 255
 
-    console.log(' -- ', r, g, b, 'for', hex)
     return [r, g, b]
   }
 
-  const parsed = parseToRgba(props.color)
-  console.log(' -- parsed: ', parsed, 'for', props.color)
   function f(x: number) {
     const channel = x / 255
     return channel <= 0.03928
       ? channel / 12.92
       : Math.pow((channel + 0.055) / 1.055, 2.4)
   }
-  console.log(' -- parts: ', f(parsed[0]), f(parsed[1]), f(parsed[2]))
 
   const luminance = getLuminance(props.color)
   const backgroundColor = hexToRgb(props.color)
-  console.log('luminance', luminance, 'for color: ', props.color)
   const textColor = luminance > 0.5 ? '#000000' : '#ffffff'
 
   return (

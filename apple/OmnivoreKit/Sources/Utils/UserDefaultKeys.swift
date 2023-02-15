@@ -28,4 +28,5 @@ public enum UserDefaultKey: String {
   case notificationsEnabled
   case deviceTokenID
   case shouldPromptCommunityModal
+  case userWordsPerMinute
 }

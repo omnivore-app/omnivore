@@ -59,6 +59,7 @@ struct ProfileView: View {
   @EnvironmentObject var authenticator: Authenticator
   @EnvironmentObject var dataService: DataService
   @Environment(\.openURL) var openURL
+  @Environment(\.dismiss) var dismiss
 
   @StateObject private var viewModel = ProfileContainerViewModel()
 
@@ -69,12 +70,26 @@ struct ProfileView: View {
       Form {
         innerBody
       }
+      .navigationTitle(LocalText.genericProfile)
+      .navigationBarTitleDisplayMode(.inline)
+      .toolbar {
+        ToolbarItem(placement: .navigationBarTrailing) {
+          dismissButton
+        }
+      }
     #elseif os(macOS)
       List {
         innerBody
       }
       .listStyle(InsetListStyle())
     #endif
+  }
+
+  var dismissButton: some View {
+    Button(
+      action: { dismiss() },
+      label: { Text(LocalText.genericClose) }
+    )
   }
 
   private var accountSection: some View {
@@ -171,7 +186,6 @@ struct ProfileView: View {
           }
       }
     }
-    .navigationTitle(LocalText.genericProfile)
   }
 }
 

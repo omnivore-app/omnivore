@@ -415,6 +415,7 @@ public enum WebViewDispatchEvent {
   case speakingSection(anchorIdx: String)
   case updateLabels(labels: String)
   case updateTitle(title: String)
+  case saveReadPosition
 
   var script: String {
     get throws {
@@ -463,6 +464,8 @@ public enum WebViewDispatchEvent {
       return "updateTitle"
     case .handleAutoHighlightModeChange:
       return "handleAutoHighlightModeChange"
+    case .saveReadPosition:
+      return "saveReadPosition"
     }
   }
 
@@ -503,10 +506,17 @@ public enum WebViewDispatchEvent {
         }
       case let .speakingSection(anchorIdx: anchorIdx):
         return "event.anchorIdx = '\(anchorIdx)';"
-      case .annotate, .highlight, .setHighlightLabels, .share, .remove, .copyHighlight, .dismissHighlight:
-        return ""
       case let .handleAutoHighlightModeChange(isEnabled: isEnabled):
         return "event.enableHighlightOnRelease = '\(isEnabled ? "on" : "off")';"
+      case .annotate,
+           .highlight,
+           .setHighlightLabels,
+           .share,
+           .remove,
+           .copyHighlight,
+           .dismissHighlight,
+           .saveReadPosition:
+        return ""
       }
     }
   }

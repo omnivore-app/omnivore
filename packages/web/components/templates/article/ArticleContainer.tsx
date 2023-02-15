@@ -249,6 +249,12 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
       }
     }
 
+    const saveReadPosition = () => {
+      console.log('saving read position')
+    }
+
+    document.addEventListener('saveReadPosition', saveReadPosition)
+
     document.addEventListener('updateFontFamily', updateFontFamily)
     document.addEventListener('updateLineHeight', updateLineHeight)
     document.addEventListener(
@@ -292,6 +298,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         'handleAutoHighlightModeChange',
         updateHighlightMode
       )
+      document.removeEventListener('saveReadPosition', saveReadPosition)
     }
   })
 
