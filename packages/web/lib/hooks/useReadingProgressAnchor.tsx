@@ -6,6 +6,35 @@ const ANCHOR_ELEMENTS_BLOCKED_ATTRIBUTES = [
   'data-instagram-id',
 ]
 
+// We search in reverse so we can find the last element
+// that is visible on the page
+export const getTopOmnivoreAnchorElement = (
+  articleContentElement: HTMLDivElement
+): string | undefined => {
+  var lastVisibleAnchor: Element | undefined = undefined
+  const anchors = Array.from(
+    articleContentElement.querySelectorAll(`[data-omnivore-anchor-idx]`)
+  ).reverse()
+
+  for (const anchor of anchors) {
+    const rect = anchor.getBoundingClientRect()
+    if (
+      rect.top >= 0 &&
+      rect.left >= 0 &&
+      rect.bottom <= articleContentElement.clientHeight
+    ) {
+      lastVisibleAnchor = anchor
+    } else if (lastVisibleAnchor) {
+      break
+    }
+  }
+
+  console.log('last', lastVisibleAnchor)
+  return (
+    lastVisibleAnchor?.getAttribute(`data-omnivore-anchor-idx`) ?? undefined
+  )
+}
+
 export const useReadingProgressAnchor = (
   articleContentRef: React.MutableRefObject<HTMLDivElement | null>,
   setReadingAnchorIndex: React.Dispatch<React.SetStateAction<number>>

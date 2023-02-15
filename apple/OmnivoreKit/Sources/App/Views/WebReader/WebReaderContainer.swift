@@ -519,9 +519,7 @@ struct WebReaderContainerView: View {
       try? WebViewManager.shared().dispatchEvent(.saveReadPosition)
     }
     .onDisappear {
-      try? WebViewManager.shared().dispatchEvent(.saveReadPosition)
-      // Clear the shared webview content when exiting
-      // WebViewManager.shared().loadHTMLString("<html></html>", baseURL: nil)
+      WebViewManager.shared().loadHTMLString("<html></html>", baseURL: nil)
     }
   }
 
