@@ -17,10 +17,10 @@ import {
   PageContext,
 } from '../../src/elastic/types'
 import nock from 'nock'
-import { READWISE_API_URL } from '../../src/services/integrations'
 import { addHighlightToPage } from '../../src/elastic/highlights'
 import { getHighlightUrl } from '../../src/services/highlights'
 import { deletePage } from '../../src/elastic/pages'
+import { READWISE_API_URL } from '../../src/services/integrations/readwise'
 
 describe('Integrations routers', () => {
   let token: string

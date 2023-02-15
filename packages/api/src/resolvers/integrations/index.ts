@@ -17,7 +17,7 @@ import { User } from '../../entity/user'
 import { Integration } from '../../entity/integration'
 import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
-import { validateToken } from '../../services/integrations'
+import { getIntegrationService } from '../../services/integrations'
 import { deleteTask, enqueueSyncWithIntegration } from '../../utils/createTask'
 
 export const setIntegrationResolver = authorized<
@@ -64,8 +64,9 @@ export const setIntegrationResolver = authorized<
       }
     } else {
       // Create
+      const integrationService = getIntegrationService(input.name)
       // validate token
-      if (!(await validateToken(input.token, input.name))) {
+      if (!(await integrationService.validateToken(input.token))) {
         return {
           errorCodes: [SetIntegrationErrorCode.InvalidToken],
         }

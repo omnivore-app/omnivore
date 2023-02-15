@@ -65,6 +65,7 @@ export function integrationsServiceRouter() {
       }
 
       const action = req.params.action.toUpperCase()
+      const integrationService = getIntegrationService(integration.name)
       if (action === 'SYNC_UPDATED') {
         // get updated page by id
         let id: string | undefined
@@ -100,7 +101,7 @@ export function integrationsServiceRouter() {
           pageId: page.id,
         })
 
-        const synced = await syncWithIntegration(integration, [page])
+        const synced = await integrationService.exportPages(integration, [page])
         if (!synced) {
           logger.info('failed to sync page', {
             integrationId: integration.id,
@@ -131,7 +132,10 @@ export function integrationsServiceRouter() {
 
           logger.info('syncing pages', { pageIds })
 
-          const synced = await syncWithIntegration(integration, pages)
+          const synced = await integrationService.exportPages(
+            integration,
+            pages
+          )
           if (!synced) {
             logger.info('failed to sync pages', {
               pageIds,

@@ -279,7 +279,7 @@ export const enqueueReminder = async (
 
 export const enqueueSyncWithIntegration = async (
   userId: string,
-  integrationType: string
+  integrationName: string
 ): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT, PUBSUB_VERIFICATION_TOKEN } = process.env
   // use pubsub data format to send the userId to the task handler
@@ -304,7 +304,7 @@ export const enqueueSyncWithIntegration = async (
     payload,
     taskHandlerUrl: `${
       env.queue.integrationTaskHandlerUrl
-    }/${integrationType.toLowerCase()}/sync_all?token=${PUBSUB_VERIFICATION_TOKEN}`,
+    }/${integrationName.toLowerCase()}/sync_all?token=${PUBSUB_VERIFICATION_TOKEN}`,
     priority: 'low',
   })
 
