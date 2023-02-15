@@ -940,18 +940,37 @@ export enum HighlightType {
   Redaction = 'REDACTION'
 }
 
+export type ImportFromIntegrationError = {
+  __typename?: 'ImportFromIntegrationError';
+  errorCodes: Array<ImportFromIntegrationErrorCode>;
+};
+
+export enum ImportFromIntegrationErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type ImportFromIntegrationResult = ImportFromIntegrationError | ImportFromIntegrationSuccess;
+
+export type ImportFromIntegrationSuccess = {
+  __typename?: 'ImportFromIntegrationSuccess';
+  success: Scalars['Boolean'];
+};
+
 export type Integration = {
   __typename?: 'Integration';
   createdAt: Scalars['Date'];
   enabled: Scalars['Boolean'];
   id: Scalars['ID'];
+  name: Scalars['String'];
   token: Scalars['String'];
   type: IntegrationType;
   updatedAt: Scalars['Date'];
 };
 
 export enum IntegrationType {
-  Readwise = 'READWISE'
+  Export = 'EXPORT',
+  Import = 'IMPORT'
 }
 
 export type IntegrationsError = {
@@ -1223,6 +1242,7 @@ export type Mutation = {
   generateApiKey: GenerateApiKeyResult;
   googleLogin: LoginResult;
   googleSignup: GoogleSignupResult;
+  importFromIntegration: ImportFromIntegrationResult;
   joinGroup: JoinGroupResult;
   leaveGroup: LeaveGroupResult;
   logOut: LogOutResult;
@@ -1386,6 +1406,11 @@ export type MutationGoogleLoginArgs = {
 
 export type MutationGoogleSignupArgs = {
   input: GoogleSignupInput;
+};
+
+
+export type MutationImportFromIntegrationArgs = {
+  integrationId: Scalars['ID'];
 };
 
 
@@ -2387,8 +2412,9 @@ export enum SetIntegrationErrorCode {
 export type SetIntegrationInput = {
   enabled: Scalars['Boolean'];
   id?: InputMaybe<Scalars['ID']>;
+  name: Scalars['String'];
   token: Scalars['String'];
-  type: IntegrationType;
+  type?: InputMaybe<IntegrationType>;
 };
 
 export type SetIntegrationResult = SetIntegrationError | SetIntegrationSuccess;
@@ -3398,6 +3424,10 @@ export type ResolversTypes = {
   HighlightStats: ResolverTypeWrapper<HighlightStats>;
   HighlightType: HighlightType;
   ID: ResolverTypeWrapper<Scalars['ID']>;
+  ImportFromIntegrationError: ResolverTypeWrapper<ImportFromIntegrationError>;
+  ImportFromIntegrationErrorCode: ImportFromIntegrationErrorCode;
+  ImportFromIntegrationResult: ResolversTypes['ImportFromIntegrationError'] | ResolversTypes['ImportFromIntegrationSuccess'];
+  ImportFromIntegrationSuccess: ResolverTypeWrapper<ImportFromIntegrationSuccess>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
   Integration: ResolverTypeWrapper<Integration>;
   IntegrationType: IntegrationType;
@@ -3842,6 +3872,9 @@ export type ResolversParentTypes = {
   HighlightReply: HighlightReply;
   HighlightStats: HighlightStats;
   ID: Scalars['ID'];
+  ImportFromIntegrationError: ImportFromIntegrationError;
+  ImportFromIntegrationResult: ResolversParentTypes['ImportFromIntegrationError'] | ResolversParentTypes['ImportFromIntegrationSuccess'];
+  ImportFromIntegrationSuccess: ImportFromIntegrationSuccess;
   Int: Scalars['Int'];
   Integration: Integration;
   IntegrationsError: IntegrationsError;
@@ -4764,10 +4797,25 @@ export type HighlightStatsResolvers<ContextType = ResolverContext, ParentType ex
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type ImportFromIntegrationErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ImportFromIntegrationError'] = ResolversParentTypes['ImportFromIntegrationError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['ImportFromIntegrationErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ImportFromIntegrationResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ImportFromIntegrationResult'] = ResolversParentTypes['ImportFromIntegrationResult']> = {
+  __resolveType: TypeResolveFn<'ImportFromIntegrationError' | 'ImportFromIntegrationSuccess', ParentType, ContextType>;
+};
+
+export type ImportFromIntegrationSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ImportFromIntegrationSuccess'] = ResolversParentTypes['ImportFromIntegrationSuccess']> = {
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type IntegrationResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Integration'] = ResolversParentTypes['Integration']> = {
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   enabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   token?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['IntegrationType'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
@@ -4975,6 +5023,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   generateApiKey?: Resolver<ResolversTypes['GenerateApiKeyResult'], ParentType, ContextType, RequireFields<MutationGenerateApiKeyArgs, 'input'>>;
   googleLogin?: Resolver<ResolversTypes['LoginResult'], ParentType, ContextType, RequireFields<MutationGoogleLoginArgs, 'input'>>;
   googleSignup?: Resolver<ResolversTypes['GoogleSignupResult'], ParentType, ContextType, RequireFields<MutationGoogleSignupArgs, 'input'>>;
+  importFromIntegration?: Resolver<ResolversTypes['ImportFromIntegrationResult'], ParentType, ContextType, RequireFields<MutationImportFromIntegrationArgs, 'integrationId'>>;
   joinGroup?: Resolver<ResolversTypes['JoinGroupResult'], ParentType, ContextType, RequireFields<MutationJoinGroupArgs, 'inviteCode'>>;
   leaveGroup?: Resolver<ResolversTypes['LeaveGroupResult'], ParentType, ContextType, RequireFields<MutationLeaveGroupArgs, 'groupId'>>;
   logOut?: Resolver<ResolversTypes['LogOutResult'], ParentType, ContextType>;
@@ -6086,6 +6135,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   Highlight?: HighlightResolvers<ContextType>;
   HighlightReply?: HighlightReplyResolvers<ContextType>;
   HighlightStats?: HighlightStatsResolvers<ContextType>;
+  ImportFromIntegrationError?: ImportFromIntegrationErrorResolvers<ContextType>;
+  ImportFromIntegrationResult?: ImportFromIntegrationResultResolvers<ContextType>;
+  ImportFromIntegrationSuccess?: ImportFromIntegrationSuccessResolvers<ContextType>;
   Integration?: IntegrationResolvers<ContextType>;
   IntegrationsError?: IntegrationsErrorResolvers<ContextType>;
   IntegrationsResult?: IntegrationsResultResolvers<ContextType>;

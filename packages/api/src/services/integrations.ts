@@ -1,4 +1,3 @@
-import { IntegrationType } from '../generated/graphql'
 import { env } from '../env'
 import axios from 'axios'
 import { wait } from '../utils/helpers'
@@ -38,10 +37,10 @@ export const READWISE_API_URL = 'https://readwise.io/api/v2'
 
 export const validateToken = async (
   token: string,
-  type: IntegrationType
+  name: string
 ): Promise<boolean> => {
-  switch (type) {
-    case IntegrationType.Readwise:
+  switch (name) {
+    case 'READWISE':
       return validateReadwiseToken(token)
     default:
       return false
@@ -97,8 +96,8 @@ export const syncWithIntegration = async (
   pages: Page[]
 ): Promise<boolean> => {
   let result = true
-  switch (integration.type) {
-    case IntegrationType.Readwise: {
+  switch (integration.name) {
+    case 'READWISE': {
       const highlights = pages.flatMap(pageToReadwiseHighlight)
       // If there are no highlights, we will skip the sync
       if (highlights.length > 0) {

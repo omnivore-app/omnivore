@@ -4,6 +4,12 @@
 
 BEGIN;
 
-ALTER TABLE omnivore.integrations ALTER COLUMN "type" TYPE omnivore.integration_type USING "type"::omnivore.integration_type;
+ALTER TABLE omnivore.integrations DROP COLUMN "type";
+DROP TYPE omnivore.integration_type;
+CREATE TYPE omnivore.integration_type AS ENUM ('READWISE', 'POCKET');
+ALTER TABLE omnivore.integrations
+    ALTER COLUMN "name" TYPE omnivore.integration_type USING "name"::omnivore.integration_type,
+    ADD CONSTRAINT integrations_user_id_type_key UNIQUE (user_id, "name");
+ALTER TABLE omnivore.integrations RENAME COLUMN "name" TO "type";
 
 COMMIT;

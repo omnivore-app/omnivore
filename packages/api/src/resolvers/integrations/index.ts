@@ -6,7 +6,6 @@ import {
   IntegrationsError,
   IntegrationsErrorCode,
   IntegrationsSuccess,
-  IntegrationType,
   MutationDeleteIntegrationArgs,
   MutationSetIntegrationArgs,
   SetIntegrationError,
@@ -65,27 +64,17 @@ export const setIntegrationResolver = authorized<
       }
     } else {
       // Create
-      const existingIntegration = await getRepository(Integration).findOneBy({
-        user: { id: uid },
-        type: input.type,
-      })
-
-      if (existingIntegration) {
-        return {
-          errorCodes: [SetIntegrationErrorCode.AlreadyExists],
-        }
-      }
-
       // validate token
-      if (!(await validateToken(input.token, input.type))) {
+      if (!(await validateToken(input.token, input.name))) {
         return {
           errorCodes: [SetIntegrationErrorCode.InvalidToken],
         }
       }
       integrationToSave = {
         ...integrationToSave,
+        name: input.name,
+        type: input.type ?? undefined,
         token: input.token,
-        type: input.type,
         enabled: true,
       }
     }
@@ -126,10 +115,7 @@ export const setIntegrationResolver = authorized<
     })
 
     return {
-      integration: {
-        ...integration,
-        type: integration.type as IntegrationType,
-      },
+      integration,
     }
   } catch (error) {
     log.error(error)
@@ -158,10 +144,7 @@ export const integrationsResolver = authorized<
     })
 
     return {
-      integrations: integrations.map((integration) => ({
-        ...integration,
-        type: integration.type as IntegrationType,
-      })),
+      integrations,
     }
   } catch (error) {
     log.error(error)
@@ -225,10 +208,7 @@ export const deleteIntegrationResolver = authorized<
     })
 
     return {
-      integration: {
-        ...deletedIntegration,
-        type: deletedIntegration.type as IntegrationType,
-      },
+      integration,
     }
   } catch (error) {
     log.error(error)

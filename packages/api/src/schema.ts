@@ -1903,6 +1903,7 @@ const schema = gql`
 
   type Integration {
     id: ID!
+    name: String!
     type: IntegrationType!
     token: String!
     enabled: Boolean!
@@ -1911,7 +1912,8 @@ const schema = gql`
   }
 
   enum IntegrationType {
-    READWISE
+    EXPORT
+    IMPORT
   }
 
   type SetIntegrationError {
@@ -1928,7 +1930,8 @@ const schema = gql`
 
   input SetIntegrationInput {
     id: ID
-    type: IntegrationType!
+    name: String!
+    type: IntegrationType
     token: String!
     enabled: Boolean!
   }
@@ -2416,6 +2419,23 @@ const schema = gql`
     UNAUTHORIZED
   }
 
+  union ImportFromIntegrationResult =
+      ImportFromIntegrationSuccess
+    | ImportFromIntegrationError
+
+  type ImportFromIntegrationSuccess {
+    success: Boolean!
+  }
+
+  type ImportFromIntegrationError {
+    errorCodes: [ImportFromIntegrationErrorCode!]!
+  }
+
+  enum ImportFromIntegrationErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -2506,6 +2526,7 @@ const schema = gql`
     ): UploadImportFileResult!
     markEmailAsItem(recentEmailId: ID!): MarkEmailAsItemResult!
     bulkAction(query: String, action: BulkActionType!): BulkActionResult!
+    importFromIntegration(integrationId: ID!): ImportFromIntegrationResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed

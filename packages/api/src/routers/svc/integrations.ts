@@ -24,10 +24,10 @@ const logger = buildLogger('app.dispatch')
 export function integrationsServiceRouter() {
   const router = express.Router()
 
-  router.post('/:integrationType/:action', async (req, res) => {
+  router.post('/:integrationName/:action', async (req, res) => {
     logger.info('start to sync with integration', {
       action: req.params.action,
-      integrationType: req.params.integrationType,
+      integrationName: req.params.integrationName,
     })
     const { message: msgStr, expired } = readPushSubscription(req)
 
@@ -54,7 +54,8 @@ export function integrationsServiceRouter() {
 
       const integration = await getRepository(Integration).findOneBy({
         user: { id: userId },
-        type: req.params.integrationType.toUpperCase(),
+        name: req.params.integrationName.toUpperCase(),
+        type: IntegrationType.Export,
         enabled: true,
       })
       if (!integration) {

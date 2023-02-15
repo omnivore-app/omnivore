@@ -9,6 +9,11 @@ import {
 } from 'typeorm'
 import { User } from './user'
 
+export enum IntegrationType {
+  Export = 'EXPORT',
+  Import = 'IMPORT',
+}
+
 @Entity({ name: 'integrations' })
 export class Integration {
   @PrimaryGeneratedColumn('uuid')
@@ -18,8 +23,14 @@ export class Integration {
   @JoinColumn({ name: 'user_id' })
   user!: User
 
-  @Column('text')
-  type!: string
+  @Column('varchar', { length: 40 })
+  name!: string
+
+  @Column('enum', {
+    enum: IntegrationType,
+    default: IntegrationType.Export,
+  })
+  type!: IntegrationType
 
   @Column('varchar', { length: 255 })
   token!: string

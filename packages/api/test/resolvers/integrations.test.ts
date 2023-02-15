@@ -2,10 +2,7 @@ import 'mocha'
 import { User } from '../../src/entity/user'
 import { createTestUser, deleteTestIntegrations, deleteTestUser } from '../db'
 import { generateFakeUuid, graphqlRequest, request } from '../util'
-import {
-  IntegrationType,
-  SetIntegrationErrorCode,
-} from '../../src/generated/graphql'
+import { SetIntegrationErrorCode } from '../../src/generated/graphql'
 import { expect } from 'chai'
 import { getRepository } from '../../src/entity/utils'
 import { Integration } from '../../src/entity/integration'
@@ -34,14 +31,14 @@ describe('Integrations resolvers', () => {
     const validToken = 'valid-token'
     const query = (
       id = '',
-      type: IntegrationType = IntegrationType.Readwise,
+      name = 'READWISE',
       token: string = 'test token',
       enabled = true
     ) => `
       mutation {
         setIntegration(input: {
           id: "${id}",
-          type: ${type},
+          name: ${name},
           token: "${token}",
           enabled: ${enabled},
         }) {
@@ -59,7 +56,7 @@ describe('Integrations resolvers', () => {
     `
     let integrationId: string
     let token: string
-    let integrationType: IntegrationType
+    let integrationName: string
     let enabled: boolean
     let scope: nock.Scope
 
@@ -88,10 +85,10 @@ describe('Integrations resolvers', () => {
         before(async () => {
           existingIntegration = await getRepository(Integration).save({
             user: { id: loginUser.id },
-            type: 'READWISE',
+            name: 'READWISE',
             token: 'fakeToken',
           })
-          integrationType = existingIntegration.type as IntegrationType
+          integrationName = existingIntegration.name
         })
 
         after(async () => {
@@ -100,7 +97,7 @@ describe('Integrations resolvers', () => {
 
         it('returns AlreadyExists error code', async () => {
           const res = await graphqlRequest(
-            query(integrationId, integrationType),
+            query(integrationId, integrationName),
             authToken
           )
           expect(res.body.data.setIntegration.errorCodes).to.eql([
@@ -117,7 +114,7 @@ describe('Integrations resolvers', () => {
 
           it('returns InvalidToken error code', async () => {
             const res = await graphqlRequest(
-              query(integrationId, integrationType, token),
+              query(integrationId, integrationName, token),
               authToken
             )
             expect(res.body.data.setIntegration.errorCodes).to.eql([
@@ -134,13 +131,13 @@ describe('Integrations resolvers', () => {
           afterEach(async () => {
             await deleteTestIntegrations(loginUser.id, {
               user: { id: loginUser.id },
-              type: integrationType,
+              name: integrationName,
             })
           })
 
           it('creates new integration', async () => {
             const res = await graphqlRequest(
-              query(integrationId, integrationType, token),
+              query(integrationId, integrationName, token),
               authToken
             )
             expect(res.body.data.setIntegration.integration.enabled).to.be.true
@@ -148,7 +145,7 @@ describe('Integrations resolvers', () => {
 
           it('creates new cloud task to sync all existing articles and highlights', async () => {
             const res = await graphqlRequest(
-              query(integrationId, integrationType, token),
+              query(integrationId, integrationName, token),
               authToken
             )
             const integration = await getRepository(Integration).findOneBy({
@@ -170,7 +167,7 @@ describe('Integrations resolvers', () => {
 
         it('returns NotFound error code', async () => {
           const res = await graphqlRequest(
-            query(integrationId, integrationType),
+            query(integrationId, integrationName),
             authToken
           )
           expect(res.body.data.setIntegration.errorCodes).to.eql([
@@ -187,7 +184,7 @@ describe('Integrations resolvers', () => {
             otherUser = await createTestUser('otherUser')
             existingIntegration = await getRepository(Integration).save({
               user: { id: otherUser.id },
-              type: 'READWISE',
+              name: 'READWISE',
               token: 'fakeToken',
             })
             integrationId = existingIntegration.id
@@ -200,7 +197,7 @@ describe('Integrations resolvers', () => {
 
           it('returns Unauthorized error code', async () => {
             const res = await graphqlRequest(
-              query(integrationId, integrationType),
+              query(integrationId, integrationName),
               authToken
             )
             expect(res.body.data.setIntegration.errorCodes).to.eql([
@@ -213,7 +210,7 @@ describe('Integrations resolvers', () => {
           before(async () => {
             existingIntegration = await getRepository(Integration).save({
               user: { id: loginUser.id },
-              type: 'READWISE',
+              name: 'READWISE',
               token: 'fakeToken',
             })
             integrationId = existingIntegration.id
@@ -237,7 +234,7 @@ describe('Integrations resolvers', () => {
 
             it('disables integration', async () => {
               const res = await graphqlRequest(
-                query(integrationId, integrationType, token, enabled),
+                query(integrationId, integrationName, token, enabled),
                 authToken
               )
               expect(res.body.data.setIntegration.integration.enabled).to.be
@@ -246,7 +243,7 @@ describe('Integrations resolvers', () => {
 
             it('deletes cloud task', async () => {
               const res = await graphqlRequest(
-                query(integrationId, integrationType, token, enabled),
+                query(integrationId, integrationName, token, enabled),
                 authToken
               )
               const integration = await getRepository(Integration).findOneBy({
@@ -270,7 +267,7 @@ describe('Integrations resolvers', () => {
 
             it('enables integration', async () => {
               const res = await graphqlRequest(
-                query(integrationId, integrationType, token, enabled),
+                query(integrationId, integrationName, token, enabled),
                 authToken
               )
               expect(res.body.data.setIntegration.integration.enabled).to.be
@@ -279,7 +276,7 @@ describe('Integrations resolvers', () => {
 
             it('creates new cloud task to sync all existing articles and highlights', async () => {
               const res = await graphqlRequest(
-                query(integrationId, integrationType, token, enabled),
+                query(integrationId, integrationName, token, enabled),
                 authToken
               )
               const integration = await getRepository(Integration).findOneBy({
@@ -313,7 +310,7 @@ describe('Integrations resolvers', () => {
     before(async () => {
       existingIntegration = await getRepository(Integration).save({
         user: { id: loginUser.id },
-        type: 'READWISE',
+        name: 'READWISE',
         token: 'fakeToken',
       })
     })
@@ -359,7 +356,7 @@ describe('Integrations resolvers', () => {
       beforeEach(async () => {
         existingIntegration = await getRepository(Integration).save({
           user: { id: loginUser.id },
-          type: 'READWISE',
+          name: 'READWISE',
           token: 'fakeToken',
           taskName: 'some task name',
         })

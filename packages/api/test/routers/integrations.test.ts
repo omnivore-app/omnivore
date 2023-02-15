@@ -26,11 +26,11 @@ describe('Integrations routers', () => {
   let token: string
 
   describe('sync with integrations', () => {
-    const endpoint = (token: string, type = 'type', action = 'action') =>
-      `/svc/pubsub/integrations/${type}/${action}?token=${token}`
+    const endpoint = (token: string, name = 'name', action = 'action') =>
+      `/svc/pubsub/integrations/${name}/${action}?token=${token}`
     let action: string
     let data: PubSubRequestBody
-    let integrationType: string
+    let integrationName: string
 
     context('when token is invalid', () => {
       before(() => {
@@ -95,7 +95,7 @@ describe('Integrations routers', () => {
 
         context('when integration not found', () => {
           before(() => {
-            integrationType = 'READWISE'
+            integrationName = 'READWISE'
             data = {
               message: {
                 data: Buffer.from(
@@ -108,7 +108,7 @@ describe('Integrations routers', () => {
 
           it('returns 200 with No integration found', async () => {
             const res = await request
-              .post(endpoint(token, integrationType))
+              .post(endpoint(token, integrationName))
               .send(data)
               .expect(200)
             expect(res.text).to.eql('No integration found')
@@ -125,10 +125,10 @@ describe('Integrations routers', () => {
           before(async () => {
             integration = await getRepository(Integration).save({
               user: { id: user.id },
-              type: 'READWISE',
+              name: 'READWISE',
               token: 'token',
             })
-            integrationType = integration.type
+            integrationName = integration.name
             // create page
             page = await createTestElasticPage(user.id)
             ctx = {
@@ -177,7 +177,7 @@ describe('Integrations routers', () => {
           })
 
           context('when action is sync_updated', () => {
-            before(async () => {
+            before(() => {
               action = 'sync_updated'
             })
 
@@ -208,7 +208,7 @@ describe('Integrations routers', () => {
 
               it('returns 200 with OK', async () => {
                 const res = await request
-                  .post(endpoint(token, integrationType, action))
+                  .post(endpoint(token, integrationName, action))
                   .send(data)
                   .expect(200)
                 expect(res.text).to.eql('OK')
@@ -240,7 +240,7 @@ describe('Integrations routers', () => {
 
                 it('returns 200 with OK', async () => {
                   const res = await request
-                    .post(endpoint(token, integrationType, action))
+                    .post(endpoint(token, integrationName, action))
                     .send(data)
                     .expect(200)
                   expect(res.text).to.eql('OK')
@@ -275,7 +275,7 @@ describe('Integrations routers', () => {
 
               it('returns 200 with OK', async () => {
                 const res = await request
-                  .post(endpoint(token, integrationType, action))
+                  .post(endpoint(token, integrationName, action))
                   .send(data)
                   .expect(200)
                 expect(res.text).to.eql('OK')
@@ -313,7 +313,7 @@ describe('Integrations routers', () => {
 
             it('returns 200 with OK', async () => {
               const res = await request
-                .post(endpoint(token, integrationType, action))
+                .post(endpoint(token, integrationName, action))
                 .send(data)
                 .expect(200)
               expect(res.text).to.eql('OK')
