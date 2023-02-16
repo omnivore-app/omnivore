@@ -1,10 +1,7 @@
 package app.omnivore.omnivore
 
-import app.omnivore.omnivore.ui.reader.WebFont
-
 object Constants {
   const val apiURL = BuildConfig.OMNIVORE_API_URL
-  const val webURL = BuildConfig.OMNIVORE_WEB_URL
   const val dataStoreName = "omnivore-datastore"
 }
 
@@ -18,6 +15,7 @@ object DatastoreKeys {
   const val preferredWebMaxWidthPercentage = "preferredWebMaxWidthPercentage"
   const val preferredWebFontFamily = "preferredWebFontFamily"
   const val prefersWebHighContrastText = "prefersWebHighContrastText"
+  const val lastUsedSavedItemFilter = "lastUsedSavedItemFilter"
 }
 
 object AppleConstants {

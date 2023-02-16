@@ -1,51 +1,33 @@
 package app.omnivore.omnivore.ui.savedItemViews
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.List
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import app.omnivore.omnivore.ui.library.SavedItemAction
+import app.omnivore.omnivore.ui.library.SavedItemFilter
 
 @Composable
 fun SavedItemContextMenu(
   isExpanded: Boolean,
-  isArchived: Boolean,
   onDismiss: () -> Unit,
-  actionHandler: (SavedItemAction) -> Unit
+  actionHandler: (SavedItemFilter) -> Unit
 ) {
   DropdownMenu(
     expanded = isExpanded,
     onDismissRequest = onDismiss
   ) {
     DropdownMenuItem(
-      text = { Text(if (isArchived) "Unarchive" else "Archive") },
+      text = { Text("One") },
       onClick = {
-        val action = if (isArchived) SavedItemAction.Unarchive else SavedItemAction.Archive
-        actionHandler(action)
+        actionHandler(SavedItemFilter.INBOX)
         onDismiss()
-      },
-      leadingIcon = {
-        Icon(
-          Icons.Outlined.List, // TODO: use more appropriate icon
-          contentDescription = null
-        )
       }
     )
     DropdownMenuItem(
-      text = { Text("Remove Item") },
+      text = { Text("Two") },
       onClick = {
-        actionHandler(SavedItemAction.Delete)
+        actionHandler(SavedItemFilter.INBOX)
         onDismiss()
-      },
-      leadingIcon = {
-        Icon(
-          Icons.Outlined.Delete,
-          contentDescription = null
-        )
       }
     )
   }

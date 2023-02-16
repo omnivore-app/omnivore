@@ -10,7 +10,9 @@ import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.*
 import app.omnivore.omnivore.dataService.*
 import app.omnivore.omnivore.networking.*
+import app.omnivore.omnivore.persistence.entities.SavedItem
 import app.omnivore.omnivore.persistence.entities.SavedItemCardDataWithLabels
+import app.omnivore.omnivore.ui.reader.WebFont
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import java.time.Instant
@@ -22,6 +24,21 @@ class LibraryViewModel @Inject constructor(
   private val dataService: DataService,
   private val datastoreRepo: DatastoreRepository
 ): ViewModel() {
+
+  init {
+    // Load the last saved library filter
+    runBlocking {
+      datastoreRepo.getString(DatastoreKeys.lastUsedSavedItemFilter)?.let { str ->
+        try {
+          val filter = SavedItemFilter.values().first { it.rawValue == str }
+          appliedFilterLiveData.postValue(filter)
+        } catch (e: Exception) {
+          Log.d("error", "invalid filter value store in datastore repo: $e")
+        }
+      }
+    }
+  }
+
   private var cursor: String? = null
 
   // These are used to make sure we handle search result
@@ -33,6 +50,7 @@ class LibraryViewModel @Inject constructor(
   val searchTextLiveData = MutableLiveData("")
   val searchItemsLiveData = MutableLiveData<List<SavedItemCardDataWithLabels>>(listOf())
   val itemsLiveData = dataService.db.savedItemDao().getLibraryLiveDataWithLabels()
+  val appliedFilterLiveData = MutableLiveData<SavedItemFilter>(SavedItemFilter.INBOX)
 
   var isRefreshing by mutableStateOf(false)
 

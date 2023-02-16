@@ -84,6 +84,9 @@ fun LibraryViewContent(libraryViewModel: LibraryViewModel, modifier: Modifier) {
         .fillMaxSize()
         .padding(horizontal = 6.dp)
     ) {
+      item {
+        LibraryFilterBar(libraryViewModel)
+      }
       items(if (searchText.isNotEmpty()) searchedCardsData else cardsData) { cardDataWithLabels ->
         SavedItemCard(
           cardData = cardDataWithLabels.cardData,
