@@ -11,7 +11,7 @@ export class RealisticTextToSpeech implements TextToSpeech {
   ): Promise<TextToSpeechOutput> => {
     const voiceId = process.env.REALISTIC_VOICE_ID
     const apiKey = process.env.REALISTIC_VOICE_API_KEY
-    const apiEndpoint = process.env.REALISTIC_API_ENDPOINT
+    const apiEndpoint = process.env.REALISTIC_VOICE_API_ENDPOINT
 
     if (!apiEndpoint || !apiKey || !voiceId) {
       throw new Error('API credentials not set')
