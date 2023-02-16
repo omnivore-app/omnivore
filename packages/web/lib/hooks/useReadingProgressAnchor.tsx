@@ -11,7 +11,7 @@ const ANCHOR_ELEMENTS_BLOCKED_ATTRIBUTES = [
 export const getTopOmnivoreAnchorElement = (
   articleContentElement: HTMLDivElement
 ): string | undefined => {
-  var lastVisibleAnchor: Element | undefined = undefined
+  let lastVisibleAnchor: Element | undefined = undefined
   const anchors = Array.from(
     articleContentElement.querySelectorAll(`[data-omnivore-anchor-idx]`)
   ).reverse()
