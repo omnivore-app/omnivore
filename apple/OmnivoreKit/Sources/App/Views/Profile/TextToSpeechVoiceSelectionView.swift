@@ -92,7 +92,7 @@
     }
 
     private var ultraRealisticVoices: some View {
-      ForEach([VoiceCategory.enUS, VoiceCategory.enCA, VoiceCategory.enUK], id: \.self) { category in
+      ForEach([VoiceCategory.enUS], id: \.self) { category in
         Section(category.rawValue) {
           ForEach(audioController.realisticVoiceList?.filter { $0.category == category } ?? [], id: \.key.self) { voice in
             voiceRow(for: voice)

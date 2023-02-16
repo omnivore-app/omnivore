@@ -102,18 +102,8 @@ public enum Voices {
   ]
 
   public static let UltraPairs = [
-    VoicePair(firstKey: "Larry", secondKey: "Susan", firstName: "Larry", secondName: "Susan", language: "en-US", category: .enUS),
-    VoicePair(firstKey: "Jordan", secondKey: "William", firstName: "Jordan", secondName: "William", language: "en-US", category: .enUS),
-    VoicePair(firstKey: "Evelyn", secondKey: "Axel", firstName: "Evelyn", secondName: "Axel", language: "en-US", category: .enUS),
-    VoicePair(firstKey: "Nova", secondKey: "Owen", firstName: "Nova", secondName: "Owen", language: "en-US", category: .enUS),
-    VoicePair(firstKey: "Frankie", secondKey: "Natalie", firstName: "Frankie", secondName: "Natalie", language: "en-US", category: .enUS),
-
-    VoicePair(firstKey: "Daniel", secondKey: "Charlotte", firstName: "Daniel", secondName: "Charlotte", language: "en-CA", category: .enCA),
-    VoicePair(firstKey: "Lillian", secondKey: "Aurora", firstName: "Lillian", secondName: "Aurora", language: "en-UK", category: .enUK),
-
-    VoicePair(firstKey: "Oliver", secondKey: "Arthur", firstName: "Oliver", secondName: "Arthur", language: "en-UK", category: .enUK),
-    VoicePair(firstKey: "Frederick", secondKey: "Hunter", firstName: "Frederick", secondName: "Hunter", language: "en-UK", category: .enUK),
-    VoicePair(firstKey: "Nolan", secondKey: "Phoebe", firstName: "Nolan", secondName: "Phoebe", language: "en-UK", category: .enUK),
-    VoicePair(firstKey: "Daisy", secondKey: "Stella", firstName: "Daisy", secondName: "Stella", language: "en-UK", category: .enUK)
+    VoicePair(firstKey: "Josh", secondKey: "Rachel", firstName: "Josh", secondName: "Rachel", language: "en-US", category: .enUS),
+    VoicePair(firstKey: "Arnold", secondKey: "Bella", firstName: "Arnold", secondName: "Bella", language: "en-US", category: .enUS),
+    VoicePair(firstKey: "Adam", secondKey: "Elli", firstName: "Adam", secondName: "Elli", language: "en-US", category: .enUS)
   ]
 }
