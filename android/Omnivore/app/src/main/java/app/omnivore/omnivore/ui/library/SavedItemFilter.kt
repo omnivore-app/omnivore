@@ -1,11 +1,7 @@
 package app.omnivore.omnivore.ui.library
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.List
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 
@@ -30,19 +26,14 @@ fun SavedItemFilterContextMenu(
     expanded = isExpanded,
     onDismissRequest = onDismiss
   ) {
-    DropdownMenuItem(
-      text = { Text("One") },
-      onClick = {
-        actionHandler(SavedItemFilter.INBOX)
-        onDismiss()
-      }
-    )
-    DropdownMenuItem(
-      text = { Text("Two") },
-      onClick = {
-        actionHandler(SavedItemFilter.INBOX)
-        onDismiss()
-      }
-    )
+    SavedItemFilter.values().forEach {
+      DropdownMenuItem(
+        text = { Text(it.displayText) },
+        onClick = {
+          actionHandler(it)
+          onDismiss()
+        }
+      )
+    }
   }
 }

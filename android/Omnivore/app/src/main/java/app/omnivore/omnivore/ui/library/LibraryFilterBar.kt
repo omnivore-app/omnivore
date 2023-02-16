@@ -6,6 +6,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -14,6 +15,8 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun LibraryFilterBar(viewModel: LibraryViewModel) {
   var isSavedItemFilterMenuExpanded by remember { mutableStateOf(false) }
+  val activeSavedItemFilter: SavedItemFilter by viewModel.appliedFilterLiveData.observeAsState(SavedItemFilter.INBOX)
+
   Column {
     Row(
       horizontalArrangement = Arrangement.Start,
@@ -23,7 +26,7 @@ fun LibraryFilterBar(viewModel: LibraryViewModel) {
     ) {
       AssistChip(
         onClick = { isSavedItemFilterMenuExpanded = true },
-        label = { Text("Inbox") },
+        label = { Text(activeSavedItemFilter.displayText) },
         trailingIcon = {
           Icon(
             Icons.Default.ArrowDropDown,
@@ -48,7 +51,7 @@ fun LibraryFilterBar(viewModel: LibraryViewModel) {
     SavedItemFilterContextMenu(
       isExpanded = isSavedItemFilterMenuExpanded,
       onDismiss = { isSavedItemFilterMenuExpanded = false },
-      actionHandler = { it -> Log.d("ss", "$it")}
+      actionHandler = { viewModel.updateSavedItemFilter(it) }
     )
   }
 }

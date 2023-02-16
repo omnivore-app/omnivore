@@ -89,6 +89,14 @@ class LibraryViewModel @Inject constructor(
     }
   }
 
+  fun updateSavedItemFilter(filter: SavedItemFilter) {
+    viewModelScope.launch {
+      datastoreRepo.putString(DatastoreKeys.lastUsedSavedItemFilter, filter.rawValue)
+      appliedFilterLiveData.postValue(filter)
+      // TODO: update Room query
+    }
+  }
+
   private suspend fun syncItems() {
     val syncStart = Instant.now()
     val lastSyncDate = getLastSyncTime() ?: Instant.MIN
