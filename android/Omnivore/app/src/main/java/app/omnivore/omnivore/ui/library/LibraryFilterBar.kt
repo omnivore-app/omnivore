@@ -17,6 +17,9 @@ fun LibraryFilterBar(viewModel: LibraryViewModel) {
   var isSavedItemFilterMenuExpanded by remember { mutableStateOf(false) }
   val activeSavedItemFilter: SavedItemFilter by viewModel.appliedFilterLiveData.observeAsState(SavedItemFilter.INBOX)
 
+  var isSavedItemSortFilterMenuExpanded by remember { mutableStateOf(false) }
+  val activeSavedItemSortFilter: SavedItemSortFilter by viewModel.appliedSortFilterLiveData.observeAsState(SavedItemSortFilter.NEWEST)
+
   Column {
     Row(
       horizontalArrangement = Arrangement.Start,
@@ -36,8 +39,8 @@ fun LibraryFilterBar(viewModel: LibraryViewModel) {
         modifier = Modifier.padding(end = 6.dp)
       )
       AssistChip(
-        onClick = { /* Do something! */ },
-        label = { Text("Newest") },
+        onClick = { isSavedItemSortFilterMenuExpanded = true },
+        label = { Text(activeSavedItemSortFilter.displayText) },
         trailingIcon = {
           Icon(
             Icons.Default.ArrowDropDown,
@@ -52,6 +55,12 @@ fun LibraryFilterBar(viewModel: LibraryViewModel) {
       isExpanded = isSavedItemFilterMenuExpanded,
       onDismiss = { isSavedItemFilterMenuExpanded = false },
       actionHandler = { viewModel.updateSavedItemFilter(it) }
+    )
+
+    SavedItemSortFilterContextMenu(
+      isExpanded = isSavedItemSortFilterMenuExpanded,
+      onDismiss = { isSavedItemSortFilterMenuExpanded = false },
+      actionHandler = { viewModel.updateSavedItemSortFilter(it) }
     )
   }
 }

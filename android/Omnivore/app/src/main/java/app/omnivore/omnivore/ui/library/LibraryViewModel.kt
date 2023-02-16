@@ -24,21 +24,6 @@ class LibraryViewModel @Inject constructor(
   private val dataService: DataService,
   private val datastoreRepo: DatastoreRepository
 ): ViewModel() {
-
-  init {
-    // Load the last saved library filter
-    runBlocking {
-      datastoreRepo.getString(DatastoreKeys.lastUsedSavedItemFilter)?.let { str ->
-        try {
-          val filter = SavedItemFilter.values().first { it.rawValue == str }
-          appliedFilterLiveData.postValue(filter)
-        } catch (e: Exception) {
-          Log.d("error", "invalid filter value store in datastore repo: $e")
-        }
-      }
-    }
-  }
-
   private var cursor: String? = null
 
   // These are used to make sure we handle search result
@@ -51,8 +36,35 @@ class LibraryViewModel @Inject constructor(
   val searchItemsLiveData = MutableLiveData<List<SavedItemCardDataWithLabels>>(listOf())
   val itemsLiveData = dataService.db.savedItemDao().getLibraryLiveDataWithLabels()
   val appliedFilterLiveData = MutableLiveData<SavedItemFilter>(SavedItemFilter.INBOX)
+  val appliedSortFilterLiveData = MutableLiveData<SavedItemSortFilter>(SavedItemSortFilter.NEWEST)
 
   var isRefreshing by mutableStateOf(false)
+  var hasLoadedInitialFilters = false
+
+  fun loadInitialFilterValues() {
+    if (hasLoadedInitialFilters) { return }
+    hasLoadedInitialFilters = false
+
+    runBlocking {
+      datastoreRepo.getString(DatastoreKeys.lastUsedSavedItemFilter)?.let { str ->
+        try {
+          val filter = SavedItemFilter.values().first { it.rawValue == str }
+          appliedFilterLiveData.postValue(filter)
+        } catch (e: Exception) {
+          Log.d("error", "invalid filter value stored in datastore repo: $e")
+        }
+      }
+
+      datastoreRepo.getString(DatastoreKeys.lastUsedSavedItemSortFilter)?.let { str ->
+        try {
+          val filter = SavedItemSortFilter.values().first { it.rawValue == str }
+          appliedSortFilterLiveData.postValue(filter)
+        } catch (e: Exception) {
+          Log.d("error", "invalid sort filter value stored in datastore repo: $e")
+        }
+      }
+    }
+  }
 
   fun updateSearchText(text: String) {
     searchTextLiveData.value = text
@@ -80,6 +92,8 @@ class LibraryViewModel @Inject constructor(
   }
 
   fun load(clearPreviousSearch: Boolean = false) {
+    loadInitialFilterValues()
+
     viewModelScope.launch {
       if (searchTextLiveData.value != "") {
         performSearch(clearPreviousSearch)
@@ -93,6 +107,14 @@ class LibraryViewModel @Inject constructor(
     viewModelScope.launch {
       datastoreRepo.putString(DatastoreKeys.lastUsedSavedItemFilter, filter.rawValue)
       appliedFilterLiveData.postValue(filter)
+      // TODO: update Room query
+    }
+  }
+
+  fun updateSavedItemSortFilter(filter: SavedItemSortFilter) {
+    viewModelScope.launch {
+      datastoreRepo.putString(DatastoreKeys.lastUsedSavedItemSortFilter, filter.rawValue)
+      appliedSortFilterLiveData.postValue(filter)
       // TODO: update Room query
     }
   }

@@ -16,6 +16,7 @@ object DatastoreKeys {
   const val preferredWebFontFamily = "preferredWebFontFamily"
   const val prefersWebHighContrastText = "prefersWebHighContrastText"
   const val lastUsedSavedItemFilter = "lastUsedSavedItemFilter"
+  const val lastUsedSavedItemSortFilter = "lastUsedSavedItemSortFilter"
 }
 
 object AppleConstants {
