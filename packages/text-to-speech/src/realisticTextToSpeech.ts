@@ -4,126 +4,75 @@ import {
   TextToSpeechOutput,
 } from './textToSpeech'
 import axios from 'axios'
-import ffmpegPath from '@ffmpeg-installer/ffmpeg'
-import ffmpeg from 'fluent-ffmpeg'
-import { PassThrough } from 'stream'
 
-ffmpeg.setFfmpegPath(ffmpegPath.path)
-
-interface PlayHtConvertResponse {
-  message: string
-  payload: string[]
-}
-
-const convertWavToMp3AndUpload = async (
-  inputStream: PassThrough,
-  outputStream: PassThrough
-) => {
-  return new Promise<void>((resolve, reject) => {
-    ffmpeg(inputStream)
-      .audioCodec('libmp3lame')
-      .format('mp3')
-      .on('error', (err) => {
-        reject(err)
-      })
-      .on('end', () => {
-        console.debug('Finished processing')
-        resolve()
-      })
-      .pipe(outputStream, { end: true })
-  })
+const getRealisticVoiceId = (name: string | undefined) => {
+  const voiceList = [
+    {
+      voiceId: '21m00Tcm4TlvDq8ikWAM',
+      name: 'Rachel',
+    },
+    {
+      voiceId: 'EXAVITQu4vr4xnSDxMaL',
+      name: 'Bella',
+    },
+    {
+      voiceId: 'MF3mGyEYCl7XYWbV9V6O',
+      name: 'Elli',
+    },
+    {
+      voiceId: 'TxGEqnHWrfWFTfGW9XjX',
+      name: 'Josh',
+    },
+    {
+      voiceId: 'VR6AewLTigWG4xSOukaG',
+      name: 'Arnold',
+    },
+    {
+      voiceId: 'pNInz6obpgDQGcFmaJgB',
+      name: 'Adam',
+    },
+  ]
+  return voiceList.find((voice) => voice.name === name)?.voiceId
 }
 
 export class RealisticTextToSpeech implements TextToSpeech {
   synthesizeTextToSpeech = async (
     input: TextToSpeechInput
   ): Promise<TextToSpeechOutput> => {
-    const apiEndpoint = process.env.REALISTIC_VOICE_API_ENDPOINT
+    const voiceId = getRealisticVoiceId(input.voice)
     const apiKey = process.env.REALISTIC_VOICE_API_KEY
-    const userId = process.env.REALISTIC_VOICE_USER_ID
-    if (!apiEndpoint || !apiKey || !userId) {
-      throw new Error('PlayHT API credentials not set')
+    const apiEndpoint = process.env.REALISTIC_VOICE_API_ENDPOINT
+
+    if (!apiEndpoint || !apiKey || !voiceId) {
+      throw new Error('API credentials not set')
     }
 
-    const inputStream = new PassThrough()
-
     const HEADERS = {
-      Authorization: apiKey,
-      'X-User-ID': userId,
+      'xi-api-key': apiKey,
+      voice_id: voiceId,
       'Content-Type': 'application/json',
     }
 
-    const data = {
-      voice: input.voice,
-      content: [input.text],
-    }
-
-    // get the download url first
-    const response = await axios.post<PlayHtConvertResponse>(
-      apiEndpoint,
-      data,
+    const requestUrl = `${apiEndpoint}${voiceId}`
+    const response = await axios.post<Buffer>(
+      requestUrl,
+      {
+        text: input.text,
+      },
       {
         headers: HEADERS,
+        responseType: 'arraybuffer',
       }
     )
 
-    if (response.data.payload.length === 0) {
+    if (response.data.length === 0) {
+      console.log('No payload returned: ', response)
       throw new Error('No payload returned')
     }
 
-    const downloadUrl = response.data.payload[0]
-
-    // polling the download url until the file is ready
-    // timeout after 1 hour
-    const timeout = 60 * 60 * 1000
-    const startTime = Date.now()
-    let isReady = false
-    while (!isReady) {
-      if (Date.now() - startTime > timeout) {
-        throw new Error('Timeout when polling the download url')
-      }
-
-      // download the audio file
-      try {
-        const downloadResponse = await axios.get(downloadUrl, {
-          responseType: 'arraybuffer',
-          headers: {
-            'Content-Type': 'audio/wav',
-          },
-        })
-
-        // write the audio file to the input stream
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        inputStream.end(Buffer.from(downloadResponse.data, 'binary'))
-        isReady = true
-      } catch (e) {
-        // ignore error
-        console.debug('checking status of audio file', downloadUrl)
-      }
-    }
-
-    const outputStream = new PassThrough()
-    // transcode the audio file to mp3
-    await convertWavToMp3AndUpload(inputStream, outputStream)
-
-    // convert the buffer stream to a buffer
-    const audioData = await new Promise<Buffer>((resolve, reject) => {
-      const chunks: Buffer[] = []
-      outputStream.on('data', (chunk) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        chunks.push(chunk)
-      })
-      outputStream.on('end', () => {
-        resolve(Buffer.concat(chunks))
-      })
-      outputStream.on('error', (err) => {
-        reject(err)
-      })
-    })
-
     return {
-      audioData,
       speechMarks: [],
+      audioData: response.data,
     }
   }
 
