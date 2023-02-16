@@ -54,8 +54,6 @@ export class RealisticTextToSpeech implements TextToSpeech {
     }
 
     const requestUrl = `${apiEndpoint}${voiceId}`
-    console.log('using voice id', voiceId, requestUrl)
-
     const response = await axios.post<Buffer>(
       requestUrl,
       {
@@ -68,6 +66,7 @@ export class RealisticTextToSpeech implements TextToSpeech {
     )
 
     if (response.data.length === 0) {
+      console.log('No payload returned: ', response)
       throw new Error('No payload returned')
     }
 
