@@ -246,7 +246,11 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
     try {
       const utteranceInput = req.body as UtteranceInput
       if (!utteranceInput.text) {
-        return res.status(400).send('INVALID_INPUT')
+        return res.send({
+          idx: utteranceInput.idx,
+          audioData: '',
+          speechMarks: [],
+        })
       }
 
       // validate if user has opted in to use ultra realistic voice feature
@@ -326,7 +330,11 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
         audioData = output.audioData
         speechMarks = output.speechMarks
         if (!audioData || audioData.length === 0) {
-          return res.status(500).send({ errorCode: 'SYNTHESIZER_ERROR' })
+          return res.send({
+            idx: utteranceInput.idx,
+            audioData: '',
+            speechMarks: [],
+          })
         }
 
         console.debug('saving audio file')
