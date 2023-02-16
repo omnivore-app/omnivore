@@ -2,7 +2,10 @@ import { IntegrationService } from './integration'
 import { Integration } from '../../entity/integration'
 import axios from 'axios'
 import { env } from '../../env'
-import { PubSub } from '@google-cloud/pubsub'
+import { DateTime } from 'luxon'
+import { uploadToBucket } from '../../utils/uploads'
+import { v4 as uuidv4 } from 'uuid'
+import { getRepository } from '../../entity/utils'
 
 interface PocketResponse {
   list: {
@@ -17,7 +20,6 @@ interface PocketItem {
 export class PocketIntegration extends IntegrationService {
   name = 'POCKET'
   POCKET_API_URL = 'https://getpocket.com/v3'
-  IMPORT_TOPIC = 'importURL'
 
   retrievePocketData = async (
     accessToken: string,
@@ -39,28 +41,25 @@ export class PocketIntegration extends IntegrationService {
     }
   }
 
-  import = async (integration: Integration): Promise<void> => {
+  import = async (integration: Integration): Promise<number> => {
     const syncAt = integration.syncedAt
       ? integration.syncedAt.getTime() / 1000
       : 0
     const pocketData = await this.retrievePocketData(integration.token, syncAt)
     const pocketItems = Object.values(pocketData.list)
-    // publish pocket items to queue
-    const client = new PubSub()
-    await Promise.all(
-      pocketItems.map((item) => {
-        return client
-          .topic(this.IMPORT_TOPIC)
-          .publishMessage({
-            data: JSON.stringify({
-              url: item.given_url,
-            }),
-          })
-          .catch((err) => {
-            console.log('error publishing to pubsub', err)
-            return undefined
-          })
-      })
-    )
+    // write the list of urls to a csv file and upload it to gcs
+    // path style: imports/<uid>/<date>/<type>-<uuid>.csv
+    const dateStr = DateTime.now().toISODate()
+    const fileUuid = uuidv4()
+    const fullPath = `imports/${integration.user.id}/${dateStr}/URL_LIST-${fileUuid}.csv`
+    const data = pocketItems.map((item) => item.given_url).join('\n')
+    await uploadToBucket(fullPath, Buffer.from(data, 'utf-8'), {
+      contentType: 'text/csv',
+    })
+    // update the integration's syncedAt
+    await getRepository(Integration).update(integration.id, {
+      syncedAt: new Date(),
+    })
+    return pocketItems.length
   }
 }

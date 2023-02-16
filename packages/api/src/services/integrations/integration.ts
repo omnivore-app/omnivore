@@ -13,7 +13,7 @@ export abstract class IntegrationService {
   ): Promise<boolean> => {
     return Promise.resolve(true)
   }
-  import = async (integration: Integration): Promise<void> => {
-    return Promise.resolve()
+  import = async (integration: Integration): Promise<number> => {
+    return Promise.resolve(0)
   }
 }
