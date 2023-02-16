@@ -101,7 +101,7 @@ export function integrationsServiceRouter() {
           pageId: page.id,
         })
 
-        const synced = await integrationService.exportPages(integration, [page])
+        const synced = await integrationService.export(integration, [page])
         if (!synced) {
           logger.info('failed to sync page', {
             integrationId: integration.id,
@@ -132,10 +132,7 @@ export function integrationsServiceRouter() {
 
           logger.info('syncing pages', { pageIds })
 
-          const synced = await integrationService.exportPages(
-            integration,
-            pages
-          )
+          const synced = await integrationService.export(integration, pages)
           if (!synced) {
             logger.info('failed to sync pages', {
               pageIds,

@@ -14,7 +14,7 @@ import {
 } from '../../generated/graphql'
 import { getRepository } from '../../entity/utils'
 import { User } from '../../entity/user'
-import { Integration } from '../../entity/integration'
+import { Integration, IntegrationType } from '../../entity/integration'
 import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
 import { getIntegrationService } from '../../services/integrations'
@@ -83,8 +83,11 @@ export const setIntegrationResolver = authorized<
     // save integration
     const integration = await getRepository(Integration).save(integrationToSave)
 
-    if (!integrationToSave.id || integrationToSave.enabled) {
-      // create a task to sync all the pages if new integration or enable integration
+    if (
+      integration.type === IntegrationType.Export &&
+      (!integrationToSave.id || integrationToSave.enabled)
+    ) {
+      // create a task to sync all the pages if new integration or enable integration (export type)
       const taskName = await enqueueSyncWithIntegration(
         user.id,
         input.type as string

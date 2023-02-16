@@ -98,6 +98,10 @@ interface BackendEnv {
   gcp: {
     location: string
   }
+
+  pocket: {
+    consumerKey: string
+  }
 }
 
 /***
@@ -154,6 +158,7 @@ const nullableEnvVars = [
   'AZURE_SPEECH_REGION',
   'GCP_LOCATION',
   'RECOMMENDATION_TASK_HANDLER_URL',
+  'POCKET_CONSUMER_KEY',
 ] // Allow some vars to be null/empty
 
 /* If not in GAE and Prod/QA/Demo env (f.e. on localhost/dev env), allow following env vars to be null */
@@ -284,6 +289,10 @@ export function getEnv(): BackendEnv {
     location: parse('GCP_LOCATION'),
   }
 
+  const pocket = {
+    consumerKey: parse('POCKET_CONSUMER_KEY'),
+  }
+
   return {
     pg,
     client,
@@ -304,6 +313,7 @@ export function getEnv(): BackendEnv {
     readwise,
     azure,
     gcp,
+    pocket,
   }
 }
 

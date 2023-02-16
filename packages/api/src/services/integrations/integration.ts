@@ -7,16 +7,13 @@ export abstract class IntegrationService {
   validateToken = async (token: string): Promise<boolean> => {
     return Promise.resolve(true)
   }
-  exportPages = async (
+  export = async (
     integration: Integration,
     pages: Page[]
   ): Promise<boolean> => {
     return Promise.resolve(true)
   }
-  importPages = async (
-    integration: Integration,
-    pages: Page[]
-  ): Promise<boolean> => {
-    return Promise.resolve(true)
+  import = async (integration: Integration): Promise<void> => {
+    return Promise.resolve()
   }
 }

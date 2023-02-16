@@ -52,7 +52,7 @@ export class ReadwiseIntegration extends IntegrationService {
       return false
     }
   }
-  exportPages = async (
+  export = async (
     integration: Integration,
     pages: Page[]
   ): Promise<boolean> => {
