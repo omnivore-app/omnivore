@@ -39,8 +39,11 @@ export const setIntegrationResolver = authorized<
       }
     }
 
-    let integrationToSave: Partial<Integration> = {
+    const integrationToSave: Partial<Integration> = {
+      ...input,
       user,
+      id: input.id || undefined,
+      type: input.type || IntegrationType.Export,
     }
     if (input.id) {
       // Update
@@ -59,13 +62,8 @@ export const setIntegrationResolver = authorized<
         }
       }
 
-      integrationToSave = {
-        ...integrationToSave,
-        id: existingIntegration.id,
-        enabled: input.enabled,
-        token: input.token,
-        taskName: existingIntegration.taskName,
-      }
+      integrationToSave.id = existingIntegration.id
+      integrationToSave.taskName = existingIntegration.taskName
     } else {
       // Create
       const integrationService = getIntegrationService(input.name)
@@ -75,20 +73,13 @@ export const setIntegrationResolver = authorized<
           errorCodes: [SetIntegrationErrorCode.InvalidToken],
         }
       }
-      integrationToSave = {
-        ...integrationToSave,
-        name: input.name,
-        type: input.type ?? undefined,
-        token: input.token,
-        enabled: true,
-      }
     }
 
     // save integration
     const integration = await getRepository(Integration).save(integrationToSave)
 
     if (
-      integration.type === IntegrationType.Export &&
+      integrationToSave.type === IntegrationType.Export &&
       (!integrationToSave.id || integrationToSave.enabled)
     ) {
       // create a task to sync all the pages if new integration or enable integration (export type)
