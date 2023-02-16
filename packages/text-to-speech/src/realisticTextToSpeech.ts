@@ -4,6 +4,7 @@ import {
   TextToSpeechOutput,
 } from './textToSpeech'
 import axios from 'axios'
+import { stripEmojis } from './htmlToSsml'
 
 const getRealisticVoiceId = (name: string | undefined) => {
   const voiceList = [
@@ -57,7 +58,7 @@ export class RealisticTextToSpeech implements TextToSpeech {
     const response = await axios.post<Buffer>(
       requestUrl,
       {
-        text: input.text,
+        text: stripEmojis(input.text),
       },
       {
         headers: HEADERS,
