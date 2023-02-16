@@ -1,7 +1,11 @@
 import { ReadwiseIntegration } from './readwise'
 import { IntegrationService } from './integration'
+import { PocketIntegration } from './pocket'
 
-const integrations: IntegrationService[] = [new ReadwiseIntegration()]
+const integrations: IntegrationService[] = [
+  new ReadwiseIntegration(),
+  new PocketIntegration(),
+]
 
 export const getIntegrationService = (name: string): IntegrationService => {
   const service = integrations.find((s) => s.name === name)
