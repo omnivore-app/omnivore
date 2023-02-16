@@ -847,7 +847,7 @@ enum ImportFromIntegrationErrorCode {
 union ImportFromIntegrationResult = ImportFromIntegrationError | ImportFromIntegrationSuccess
 
 type ImportFromIntegrationSuccess {
-  success: Boolean!
+  count: Int!
 }
 
 type Integration {

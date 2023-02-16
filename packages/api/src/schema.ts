@@ -2424,7 +2424,7 @@ const schema = gql`
     | ImportFromIntegrationError
 
   type ImportFromIntegrationSuccess {
-    success: Boolean!
+    count: Int!
   }
 
   type ImportFromIntegrationError {

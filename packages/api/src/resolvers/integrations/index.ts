@@ -3,10 +3,14 @@ import {
   DeleteIntegrationError,
   DeleteIntegrationErrorCode,
   DeleteIntegrationSuccess,
+  ImportFromIntegrationError,
+  ImportFromIntegrationErrorCode,
+  ImportFromIntegrationSuccess,
   IntegrationsError,
   IntegrationsErrorCode,
   IntegrationsSuccess,
   MutationDeleteIntegrationArgs,
+  MutationImportFromIntegrationArgs,
   MutationSetIntegrationArgs,
   SetIntegrationError,
   SetIntegrationErrorCode,
@@ -219,6 +223,48 @@ export const deleteIntegrationResolver = authorized<
 
     return {
       errorCodes: [DeleteIntegrationErrorCode.BadRequest],
+    }
+  }
+})
+
+export const importFromIntegrationResolver = authorized<
+  ImportFromIntegrationSuccess,
+  ImportFromIntegrationError,
+  MutationImportFromIntegrationArgs
+>(async (_, { integrationId }, { claims: { uid }, log }) => {
+  log.info('importFromIntegrationResolver')
+
+  try {
+    const integration = await getRepository(Integration).findOne({
+      where: { id: integrationId, user: { id: uid } },
+      relations: ['user'],
+    })
+
+    if (!integration) {
+      return {
+        errorCodes: [ImportFromIntegrationErrorCode.Unauthorized],
+      }
+    }
+
+    const integrationService = getIntegrationService(integration.name)
+    const count = await integrationService.import(integration)
+
+    analytics.track({
+      userId: uid,
+      event: 'integration_import',
+      properties: {
+        integrationId,
+      },
+    })
+
+    return {
+      count,
+    }
+  } catch (error) {
+    log.error(error)
+
+    return {
+      errorCodes: [ImportFromIntegrationErrorCode.BadRequest],
     }
   }
 })
