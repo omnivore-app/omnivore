@@ -69,6 +69,10 @@ public extension LinkedItem {
     (labels?.count ?? 0) > 0
   }
 
+  var isUnread: Bool {
+    readAt == nil
+  }
+
   var isRead: Bool {
     readingProgress >= 0.98
   }
