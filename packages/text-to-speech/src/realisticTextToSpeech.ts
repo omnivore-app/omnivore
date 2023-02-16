@@ -5,11 +5,41 @@ import {
 } from './textToSpeech'
 import axios from 'axios'
 
+const getRealisticVoiceId = (name: string | undefined) => {
+  const voiceList = [
+    {
+      voiceId: '21m00Tcm4TlvDq8ikWAM',
+      name: 'Rachel',
+    },
+    {
+      voiceId: 'EXAVITQu4vr4xnSDxMaL',
+      name: 'Bella',
+    },
+    {
+      voiceId: 'MF3mGyEYCl7XYWbV9V6O',
+      name: 'Elli',
+    },
+    {
+      voiceId: 'TxGEqnHWrfWFTfGW9XjX',
+      name: 'Josh',
+    },
+    {
+      voiceId: 'VR6AewLTigWG4xSOukaG',
+      name: 'Arnold',
+    },
+    {
+      voiceId: 'pNInz6obpgDQGcFmaJgB',
+      name: 'Adam',
+    },
+  ]
+  return voiceList.find((voice) => voice.name === name)?.voiceId
+}
+
 export class RealisticTextToSpeech implements TextToSpeech {
   synthesizeTextToSpeech = async (
     input: TextToSpeechInput
   ): Promise<TextToSpeechOutput> => {
-    const voiceId = process.env.REALISTIC_VOICE_ID
+    const voiceId = getRealisticVoiceId(input.voice)
     const apiKey = process.env.REALISTIC_VOICE_API_KEY
     const apiEndpoint = process.env.REALISTIC_VOICE_API_ENDPOINT
 
