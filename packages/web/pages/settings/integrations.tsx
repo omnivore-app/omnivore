@@ -65,7 +65,7 @@ export default function Integrations(): JSX.Element {
   const router = useRouter()
 
   const readwiseConnected = useMemo(() => {
-    return integrations.find((i) => i.type == 'READWISE')
+    return integrations.find((i) => i.name == 'READWISE' && i.type == 'EXPORT')
   }, [integrations])
 
   const deleteIntegration = async (id: string) => {
