@@ -54,6 +54,8 @@ export class RealisticTextToSpeech implements TextToSpeech {
     }
 
     const requestUrl = `${apiEndpoint}${voiceId}`
+    console.log('using voice id', voiceId, requestUrl)
+
     const response = await axios.post<Buffer>(
       requestUrl,
       {
