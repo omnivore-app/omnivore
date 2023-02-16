@@ -23,7 +23,7 @@ export class RealisticTextToSpeech implements TextToSpeech {
       'Content-Type': 'application/json',
     }
 
-    const requestUrl = `${apiEndpoint}/${voiceId}`
+    const requestUrl = `${apiEndpoint}${voiceId}`
     const response = await axios.post<Buffer>(
       requestUrl,
       {
@@ -31,6 +31,7 @@ export class RealisticTextToSpeech implements TextToSpeech {
       },
       {
         headers: HEADERS,
+        responseType: 'arraybuffer',
       }
     )
 
