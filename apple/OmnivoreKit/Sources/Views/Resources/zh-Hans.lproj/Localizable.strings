@@ -204,10 +204,6 @@
 // "saveArticleSavingState" = "保存中...";
 // "Confirm Your Profile" = "确认您的个人资料";
 
-// Unit test Entry -- Do not remove this or add entries after this one.
-// This allows us to check for syntax errors in this file with a unit test
-"unitTestTrailingEntry" = "仅用于测试目的。";
-
 // Views/Home/HomeFeedViewIOS.swift file
 "Archive" = "存档";
 "Unarchive" = "取消存档";
@@ -277,11 +273,11 @@
 
 // Views/Profile/RecommendationGroupView.swift
 "Admins" = "管理员";
-"Members"" = "成员";
+"Members" = "成员";
 "Invite link copied" = "已复制邀请链接";
 
 // Views/Profile/RecommendationGroupsView.swift
-"Error creating club"
+"Error creating club" = "Error creating club";
 "Club Rules" = "已复制邀请链接";
 "Only admins can post" = "只有管理员可以发帖";
 "Only admins can see members" = "只有管理员才能看到成员";
@@ -324,3 +320,7 @@
 "View Privacy Policy" = "查看隐私策略";
 "Self-hosting options" = "自我管选项";
 "View Details" = "查看详情";
+
+// Unit test Entry -- Do not remove this or add entries after this one.
+// This allows us to check for syntax errors in this file with a unit test
+"unitTestTrailingEntry" = "仅用于测试目的。";

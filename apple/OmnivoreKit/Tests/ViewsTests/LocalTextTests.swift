@@ -4,12 +4,14 @@ import XCTest
 final class LocalTextTests: XCTestCase {
   func testThatLocalTextFindsStrings() {
     // Make sure that the same key is not returned when looking up a localized string by key
-    // Testing the first and last entry in teh strings file is adequate for finding syntax errors.
+    // Testing the first and last entry in the strings file is adequate for finding syntax errors.
     // If any entry is not proper than the key will be returned and the test will fail.
 
     for languageCode in LanguageCode.allCases {
-      XCTAssertNotEqual(languageCode.translation(key: "unitTestLeadingEntry"), "unitTestLeadingEntry")
-      XCTAssertNotEqual(languageCode.translation(key: "unitTestTrailingEntry"), "unitTestTrailingEntry")
+      // swiftlint:disable line_length
+      XCTAssertNotEqual(languageCode.translation(key: "unitTestLeadingEntry"), "unitTestLeadingEntry", "Got untranslated value for unitTestLeadingEntry in \(languageCode)")
+      XCTAssertNotEqual(languageCode.translation(key: "unitTestTrailingEntry"), "unitTestTrailingEntry", "Got untranslated value for unitTestTrailingEntry in \(languageCode)")
+      // swiftlint:enable line_length
     }
   }
 
