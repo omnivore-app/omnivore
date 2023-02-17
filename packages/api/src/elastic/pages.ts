@@ -114,16 +114,15 @@ const appendExcludeLabelFilter = (
   body: SearchBody,
   filters: LabelFilter[]
 ): void => {
+  const labels = filters.map((filter) => filter.labels).flat()
   body.query.bool.must_not.push({
     nested: {
       path: 'labels',
-      query: filters.map((filter) => {
-        return {
-          terms: {
-            'labels.name': filter.labels,
-          },
-        }
-      }),
+      query: {
+        terms: {
+          'labels.name': labels,
+        },
+      },
     },
   })
 }

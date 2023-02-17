@@ -103,7 +103,7 @@ export interface SearchBody {
                 terms: {
                   'labels.name': string[]
                 }
-              }[]
+              }
             }
           }
       )[]
