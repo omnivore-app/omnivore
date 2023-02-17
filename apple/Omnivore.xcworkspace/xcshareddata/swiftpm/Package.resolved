@@ -12,7 +12,7 @@
     {
       "identity" : "analytics-swift",
       "kind" : "remoteSourceControl",
-      "location" : "git@github.com:segmentio/analytics-swift.git",
+      "location" : "https://github.com/segmentio/analytics-swift.git",
       "state" : {
         "revision" : "92cc824211160ab98c28c7d40c1e6d27645c2bf1",
         "version" : "1.2.3"
