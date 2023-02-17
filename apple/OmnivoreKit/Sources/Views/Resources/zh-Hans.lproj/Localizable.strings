@@ -277,11 +277,11 @@
 
 // Views/Profile/RecommendationGroupView.swift
 "Admins" = "管理员";
-"Members"" = "成员";
+"Members" = "成员";
 "Invite link copied" = "已复制邀请链接";
 
 // Views/Profile/RecommendationGroupsView.swift
-"Error creating club"
+"Error creating club" = "Error creating club";
 "Club Rules" = "已复制邀请链接";
 "Only admins can post" = "只有管理员可以发帖";
 "Only admins can see members" = "只有管理员才能看到成员";
