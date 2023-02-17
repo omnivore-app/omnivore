@@ -1,4 +1,5 @@
 import { ContentHandler } from '../content-handler'
+import addressparser from 'addressparser'
 
 export class IndiaTimesHandler extends ContentHandler {
   constructor() {
@@ -13,7 +14,9 @@ export class IndiaTimesHandler extends ContentHandler {
     dom: Document
   }): Promise<boolean> {
     return Promise.resolve(
-      input.from === 'The Times of India <newsletters@timesofindia.com>'
+      addressparser(input.from).some(
+        (e) => e.address === 'newsletters@timesofindia.com'
+      )
     )
   }
 
