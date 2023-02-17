@@ -31,12 +31,11 @@ fun SearchBar(
   libraryViewModel: LibraryViewModel,
   onSettingsIconClick: () -> Unit
 ) {
-  var showSearchField by remember { mutableStateOf(false) }
   val searchText: String by libraryViewModel.searchTextLiveData.observeAsState("")
 
   SmallTopAppBar(
     title = {
-      if (showSearchField) {
+      if (libraryViewModel.showSearchField) {
         SearchField(searchText) { libraryViewModel.updateSearchText(it) }
       } else {
         Text("Library")
@@ -46,18 +45,18 @@ fun SearchBar(
       containerColor = MaterialTheme.colorScheme.surfaceVariant
     ),
     actions = {
-      if (showSearchField) {
+      if (libraryViewModel.showSearchField) {
         Text(
           text = "Cancel",
           modifier = Modifier
             .clickable {
               libraryViewModel.updateSearchText("")
-              showSearchField = false
+              libraryViewModel.showSearchField = false
             }
             .padding(horizontal = 6.dp)
         )
       } else {
-        IconButton(onClick = { showSearchField = true }) {
+        IconButton(onClick = { libraryViewModel.showSearchField = true }) {
           Icon(
             imageVector = Icons.Filled.Search,
             contentDescription = null

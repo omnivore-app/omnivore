@@ -40,6 +40,7 @@ class LibraryViewModel @Inject constructor(
   val appliedSortFilterLiveData = MutableLiveData(SavedItemSortFilter.NEWEST)
 
   var isRefreshing by mutableStateOf(false)
+  var showSearchField by mutableStateOf(false)
   var hasLoadedInitialFilters = false
 
   fun loadInitialFilterValues() {
@@ -220,15 +221,16 @@ class LibraryViewModel @Inject constructor(
   }
 
   private fun searchQueryString(): String {
-    var query = "${appliedFilterLiveData.value?.queryString} ${appliedSortFilterLiveData.value?.queryString}"
-    val searchText = searchTextLiveData.value ?: ""
-
-    if (searchText.isNotEmpty()) {
-      query += " $searchText"
-    }
-
-    Log.d("sefi", "search query: $query")
-    return query
+    return searchTextLiveData.value ?: ""
+    // Unused code for typeahead search
+//    var query = "${appliedFilterLiveData.value?.queryString} ${appliedSortFilterLiveData.value?.queryString}"
+//    val searchText = searchTextLiveData.value ?: ""
+//
+//    if (searchText.isNotEmpty()) {
+//      query += " $searchText"
+//    }
+//
+//    return query
   }
 }
 
