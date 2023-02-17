@@ -362,7 +362,7 @@ describe('Newsletter email test', () => {
       const html = load('./test/data/india-times-newsletter.html')
       const handler = await getNewsletterHandler({
         html,
-        from: 'The Times of India <newsletters@timesofindia.com>',
+        from: 'The Times of India  <newsletters@timesofindia.com>',
         headers: {},
       })
       expect(handler).to.be.instanceOf(IndiaTimesHandler)
