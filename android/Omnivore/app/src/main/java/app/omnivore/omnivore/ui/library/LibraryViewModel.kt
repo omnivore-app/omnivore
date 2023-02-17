@@ -3,6 +3,7 @@ package app.omnivore.omnivore.ui.library
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -35,8 +36,8 @@ class LibraryViewModel @Inject constructor(
   val searchTextLiveData = MutableLiveData("")
   val searchItemsLiveData = MutableLiveData<List<SavedItemCardDataWithLabels>>(listOf())
   val itemsLiveData = dataService.db.savedItemDao().getLibraryLiveDataWithLabels()
-  val appliedFilterLiveData = MutableLiveData<SavedItemFilter>(SavedItemFilter.INBOX)
-  val appliedSortFilterLiveData = MutableLiveData<SavedItemSortFilter>(SavedItemSortFilter.NEWEST)
+  val appliedFilterLiveData = MutableLiveData(SavedItemFilter.INBOX)
+  val appliedSortFilterLiveData = MutableLiveData(SavedItemSortFilter.NEWEST)
 
   var isRefreshing by mutableStateOf(false)
   var hasLoadedInitialFilters = false
@@ -106,16 +107,24 @@ class LibraryViewModel @Inject constructor(
   fun updateSavedItemFilter(filter: SavedItemFilter) {
     viewModelScope.launch {
       datastoreRepo.putString(DatastoreKeys.lastUsedSavedItemFilter, filter.rawValue)
-      appliedFilterLiveData.postValue(filter)
-      // TODO: update Room query
+      appliedFilterLiveData.value = filter
+      handleFilterChanges()
     }
   }
 
   fun updateSavedItemSortFilter(filter: SavedItemSortFilter) {
     viewModelScope.launch {
       datastoreRepo.putString(DatastoreKeys.lastUsedSavedItemSortFilter, filter.rawValue)
-      appliedSortFilterLiveData.postValue(filter)
-      // TODO: update Room query
+      appliedSortFilterLiveData.value = filter
+      handleFilterChanges()
+    }
+  }
+
+  suspend fun handleFilterChanges() { // TODO: implement
+    if (searchTextLiveData.value != "") {
+      performSearch(true)
+    } else {
+      // TODO: implement
     }
   }
 
@@ -168,7 +177,7 @@ class LibraryViewModel @Inject constructor(
     searchIdx += 1
 
     // Execute the search
-    val searchResult = networker.typeaheadSearch(searchTextLiveData.value ?: "")
+    val searchResult = networker.typeaheadSearch(searchQueryString())
 
     // Search results aren't guaranteed to return in order so this
     // will discard old results that are returned while a user is typing.
@@ -208,6 +217,18 @@ class LibraryViewModel @Inject constructor(
         }
       }
     }
+  }
+
+  private fun searchQueryString(): String {
+    var query = "${appliedFilterLiveData.value?.queryString} ${appliedSortFilterLiveData.value?.queryString}"
+    val searchText = searchTextLiveData.value ?: ""
+
+    if (searchText.isNotEmpty()) {
+      query += " $searchText"
+    }
+
+    Log.d("sefi", "search query: $query")
+    return query
   }
 }
 

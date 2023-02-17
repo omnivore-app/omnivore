@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -27,16 +28,16 @@ import androidx.compose.ui.unit.dp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchBar(
-  searchText: String,
-  onSearchTextChanged: (String) -> Unit,
+  libraryViewModel: LibraryViewModel,
   onSettingsIconClick: () -> Unit
 ) {
-  var showSearchField by remember { mutableStateOf(searchText != "") }
+  var showSearchField by remember { mutableStateOf(false) }
+  val searchText: String by libraryViewModel.searchTextLiveData.observeAsState("")
 
   SmallTopAppBar(
     title = {
       if (showSearchField) {
-        SearchField(searchText, onSearchTextChanged)
+        SearchField(searchText) { libraryViewModel.updateSearchText(it) }
       } else {
         Text("Library")
       }
@@ -50,7 +51,7 @@ fun SearchBar(
           text = "Cancel",
           modifier = Modifier
             .clickable {
-              onSearchTextChanged("")
+              libraryViewModel.updateSearchText("")
               showSearchField = false
             }
             .padding(horizontal = 6.dp)

@@ -1,6 +1,5 @@
 package app.omnivore.omnivore.ui.library
 
-import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown

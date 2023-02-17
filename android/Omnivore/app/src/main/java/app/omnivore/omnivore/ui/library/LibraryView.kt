@@ -33,13 +33,10 @@ fun LibraryView(
   libraryViewModel: LibraryViewModel,
   navController: NavHostController
 ) {
-  val searchText: String by libraryViewModel.searchTextLiveData.observeAsState("")
-
   Scaffold(
     topBar = {
       SearchBar(
-        searchText = searchText,
-        onSearchTextChanged = { libraryViewModel.updateSearchText(it) },
+        libraryViewModel = libraryViewModel,
         onSettingsIconClick = { navController.navigate(Routes.Settings.route) }
       )
     }
@@ -84,8 +81,10 @@ fun LibraryViewContent(libraryViewModel: LibraryViewModel, modifier: Modifier) {
         .fillMaxSize()
         .padding(horizontal = 6.dp)
     ) {
-      item {
-        LibraryFilterBar(libraryViewModel)
+      if (searchText.isEmpty()) {
+        item {
+          LibraryFilterBar(libraryViewModel)
+        }
       }
       items(if (searchText.isNotEmpty()) searchedCardsData else cardsData) { cardDataWithLabels ->
         SavedItemCard(
