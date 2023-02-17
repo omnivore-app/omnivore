@@ -175,13 +175,13 @@ struct SpeechSynthesizer {
 
   static func downloadData(session: URLSession, request: URLRequest) async throws -> Data {
     do {
-      let result: (Data, URLResponse)? = try await session.data(for: request)
-      guard let httpResponse = result?.1 as? HTTPURLResponse, 200 ..< 300 ~= httpResponse.statusCode else {
-        print("error: ", result?.1)
+      let (data, response) = try await session.data(for: request)
+      guard let httpResponse = response as? HTTPURLResponse, 200 ..< 300 ~= httpResponse.statusCode else {
+        print("error: ", response)
         throw BasicError.message(messageText: "audioFetch failed. no response or bad status code.")
       }
 
-      guard let data = result?.0 else {
+      guard !data.isEmpty else {
         throw BasicError.message(messageText: "audioFetch failed. no data received.")
       }
 
