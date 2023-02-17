@@ -72,6 +72,7 @@ const contentHandlers: ContentHandler[] = [
   new BloombergNewsletterHandler(),
   new SubstackHandler(),
   new StackOverflowHandler(),
+  new EnergyWorldHandler(),
 ]
 
 const newsletterHandlers: ContentHandler[] = [

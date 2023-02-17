@@ -466,6 +466,8 @@ export const parseEmailAddress = (from: string): addressparser.EmailAddress => {
 export const fetchFavicon = async (
   url: string
 ): Promise<string | undefined> => {
+  // don't fetch favicon for fake urls
+  if (url.startsWith(FAKE_URL_PREFIX)) return undefined
   try {
     // get the correct url if it's a redirect
     const response = await axios.head(url, { timeout: 5000 })
