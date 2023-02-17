@@ -15,6 +15,7 @@ import {
   InFilter,
   LabelFilter,
   LabelFilterType,
+  NoFilter,
   ReadFilter,
   SortBy,
   SortOrder,
@@ -208,6 +209,21 @@ const appendRecommendedBy = (body: SearchBody, recommendedBy: string): void => {
   })
 }
 
+const appendNoFilters = (body: SearchBody, noFilters: NoFilter[]): void => {
+  noFilters.forEach((filter) => {
+    body.query.bool.must_not.push({
+      nested: {
+        path: filter.field,
+        query: {
+          exists: {
+            field: filter.field,
+          },
+        },
+      },
+    })
+  })
+}
+
 export const createPage = async (
   page: Page,
   ctx: PageContext
@@ -389,6 +405,7 @@ export const searchPages = async (
       matchFilters,
       ids,
       includeContent,
+      noFilters,
     } = args
     // default order is descending
     const sortOrder = sort?.order || SortOrder.DESCENDING
@@ -482,6 +499,10 @@ export const searchPages = async (
           state: ArticleSavingRequestStatus.Deleted,
         },
       })
+    }
+
+    if (noFilters) {
+      appendNoFilters(body, noFilters)
     }
 
     console.log('searching pages in elastic', JSON.stringify(body))
