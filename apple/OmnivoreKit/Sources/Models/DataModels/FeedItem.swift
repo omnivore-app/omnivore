@@ -151,7 +151,7 @@ public extension LinkedItem {
           "userID": NSString(string: recommendation.user?.userID ?? ""),
           "name": NSString(string: recommendation.user?.name ?? ""),
           "username": NSString(string: recommendation.user?.username ?? ""),
-          "profileImageURL": recommendation.user?.profileImageURL == nil ? nil : NSString(string: recommendation.user?.profileImageURL ?? "")
+          "profileImageURL": recommendation.user?.profileImageURL as NSString? as Any
         ]),
         "recommendedAt": recommendedAt == nil ? nil : NSString(string: recommendedAt!)
       ]
