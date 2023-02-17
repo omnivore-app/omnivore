@@ -154,9 +154,9 @@ struct GroupsView: View {
         if viewModel.recommendationGroups.count > 0 {
           Section(header: Text(LocalText.clubsYours)) {
             ForEach(viewModel.recommendationGroups) { recommendationGroup in
-              let vm = RecommendationsGroupViewModel(recommendationGroup: recommendationGroup)
+              let viewModel = RecommendationsGroupViewModel(recommendationGroup: recommendationGroup)
               NavigationLink(
-                destination: RecommendationGroupView(viewModel: vm)
+                destination: RecommendationGroupView(viewModel: viewModel)
               ) {
                 Text(recommendationGroup.name)
               }
