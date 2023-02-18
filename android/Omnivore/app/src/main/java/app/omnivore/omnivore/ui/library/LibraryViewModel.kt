@@ -5,6 +5,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -35,7 +37,8 @@ class LibraryViewModel @Inject constructor(
   // Live Data
   val searchTextLiveData = MutableLiveData("")
   val searchItemsLiveData = MutableLiveData<List<SavedItemCardDataWithLabels>>(listOf())
-  val itemsLiveData = dataService.db.savedItemDao().getLibraryLiveDataWithLabels()
+  private var itemsLiveDataInternal = dataService.db.savedItemDao().getLibraryLiveData()
+  val itemsLiveData = MediatorLiveData<List<SavedItemCardDataWithLabels>>()
   val appliedFilterLiveData = MutableLiveData(SavedItemFilter.INBOX)
   val appliedSortFilterLiveData = MutableLiveData(SavedItemSortFilter.NEWEST)
 
@@ -65,6 +68,10 @@ class LibraryViewModel @Inject constructor(
           Log.d("error", "invalid sort filter value stored in datastore repo: $e")
         }
       }
+    }
+
+    viewModelScope.launch {
+      handleFilterChanges()
     }
   }
 
@@ -125,7 +132,14 @@ class LibraryViewModel @Inject constructor(
     if (searchTextLiveData.value != "") {
       performSearch(true)
     } else {
-      // TODO: implement
+      itemsLiveData.removeSource(itemsLiveDataInternal)
+      itemsLiveDataInternal = when (appliedSortFilterLiveData.value ?: SavedItemSortFilter.NEWEST) {
+        SavedItemSortFilter.NEWEST -> dataService.db.savedItemDao().getLibraryLiveData()
+        SavedItemSortFilter.OLDEST -> dataService.db.savedItemDao().getLibraryLiveDataSortedByOldest()
+        SavedItemSortFilter.RECENTLY_READ -> dataService.db.savedItemDao().getLibraryLiveDataSortedByRecentlyRead()
+        SavedItemSortFilter.RECENTLY_PUBLISHED -> dataService.db.savedItemDao().getLibraryLiveDataSortedByRecentlyPublished()
+      }
+      itemsLiveData.addSource(itemsLiveDataInternal, itemsLiveData::setValue)
     }
   }
 
