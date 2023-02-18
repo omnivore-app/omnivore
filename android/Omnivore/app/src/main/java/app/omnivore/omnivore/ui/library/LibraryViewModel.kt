@@ -128,17 +128,12 @@ class LibraryViewModel @Inject constructor(
     }
   }
 
-  suspend fun handleFilterChanges() { // TODO: implement
+  suspend fun handleFilterChanges() {
     if (searchTextLiveData.value != "") {
       performSearch(true)
-    } else {
+    } else if (appliedSortFilterLiveData.value != null && appliedFilterLiveData.value != null) {
+      itemsLiveDataInternal = dataService.libraryLiveData(appliedFilterLiveData.value!!, appliedSortFilterLiveData.value!!, listOf())
       itemsLiveData.removeSource(itemsLiveDataInternal)
-      itemsLiveDataInternal = when (appliedSortFilterLiveData.value ?: SavedItemSortFilter.NEWEST) {
-        SavedItemSortFilter.NEWEST -> dataService.db.savedItemDao().getLibraryLiveData()
-        SavedItemSortFilter.OLDEST -> dataService.db.savedItemDao().getLibraryLiveDataSortedByOldest()
-        SavedItemSortFilter.RECENTLY_READ -> dataService.db.savedItemDao().getLibraryLiveDataSortedByRecentlyRead()
-        SavedItemSortFilter.RECENTLY_PUBLISHED -> dataService.db.savedItemDao().getLibraryLiveDataSortedByRecentlyPublished()
-      }
       itemsLiveData.addSource(itemsLiveDataInternal, itemsLiveData::setValue)
     }
   }
