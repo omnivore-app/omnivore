@@ -1,7 +1,7 @@
 @testable import Views
 import XCTest
 
-final class HomeFeedViewTests: XCTestCase {
+final class SnoozeTests: XCTestCase {
   func parse(_ str: String) -> Date {
     let dateFormatter = DateFormatter()
     dateFormatter.locale = Locale(identifier: "en_US_POSIX") // set locale to reliable US_POSIX
