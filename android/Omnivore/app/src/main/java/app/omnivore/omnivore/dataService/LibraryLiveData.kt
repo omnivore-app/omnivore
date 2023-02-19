@@ -82,3 +82,53 @@ private data class LibraryLiveDataQueryParams(
     }
   }
 }
+
+//switch self {
+//  case .inbox:
+//  // non-archived items
+//  return NSCompoundPredicate(andPredicateWithSubpredicates: [undeletedPredicate, notInArchivePredicate])
+
+//  case .readlater:
+//  // non-archived or deleted items without the Newsletter label
+//  let nonNewsletterLabelPredicate = NSPredicate(
+//    format: "NOT SUBQUERY(labels, $label, $label.name == \"Newsletter\") .@count > 0"
+//  )
+//  return NSCompoundPredicate(andPredicateWithSubpredicates: [
+//    undeletedPredicate, notInArchivePredicate, nonNewsletterLabelPredicate
+//  ])
+//  case .newsletters:
+//  // non-archived or deleted items with the Newsletter label
+//  let newsletterLabelPredicate = NSPredicate(
+//    format: "SUBQUERY(labels, $label, $label.name == \"Newsletter\").@count > 0"
+//  )
+//  return NSCompoundPredicate(andPredicateWithSubpredicates: [notInArchivePredicate, newsletterLabelPredicate])
+//  case .recommended:
+//  // non-archived or deleted items with the Newsletter label
+//  let recommendedPredicate = NSPredicate(
+//    format: "recommendations.@count > 0"
+//  )
+//  return NSCompoundPredicate(andPredicateWithSubpredicates: [notInArchivePredicate, recommendedPredicate])
+//  case .all:
+//  // include everything undeleted
+//  return undeletedPredicate
+//  case .archived:
+//  let inArchivePredicate = NSPredicate(
+//    format: "%K == %@", #keyPath(LinkedItem.isArchived), Int(truncating: true) as NSNumber
+//  )
+//  return NSCompoundPredicate(andPredicateWithSubpredicates: [undeletedPredicate, inArchivePredicate])
+//  case .files:
+//  // include pdf only
+//  let isPDFPredicate = NSPredicate(
+//    format: "%K == %@", #keyPath(LinkedItem.contentReader), "PDF"
+//  )
+//  return NSCompoundPredicate(andPredicateWithSubpredicates: [undeletedPredicate, isPDFPredicate])
+//  case .hasHighlights:
+//  let hasHighlightsPredicate = NSPredicate(
+//    format: "highlights.@count > 0"
+//  )
+//  return NSCompoundPredicate(andPredicateWithSubpredicates: [
+//    hasHighlightsPredicate
+//  ])
+//}
+//}
+//}
