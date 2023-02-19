@@ -28,7 +28,14 @@ fun SavedItemFilterContextMenu(
   ) {
     // Displaying only a subset of filters until we figure out the Room DB queries (and labels)
 //    SavedItemFilter.values().forEach {
-      listOf(SavedItemFilter.INBOX, SavedItemFilter.ARCHIVED, SavedItemFilter.ALL).forEach {
+      listOf(
+        SavedItemFilter.INBOX,
+        SavedItemFilter.READ_LATER,
+        SavedItemFilter.NEWSLETTERS,
+        SavedItemFilter.ALL,
+        SavedItemFilter.ARCHIVED,
+        SavedItemFilter.FILES
+      ).forEach {
       DropdownMenuItem(
         text = { Text(it.displayText) },
         onClick = {

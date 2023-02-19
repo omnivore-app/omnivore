@@ -1,7 +1,7 @@
 package app.omnivore.omnivore.dataService
 
-import android.util.Log
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import app.omnivore.omnivore.persistence.entities.SavedItemCardDataWithLabels
 import app.omnivore.omnivore.persistence.entities.SavedItemLabel
 import app.omnivore.omnivore.ui.library.SavedItemFilter
@@ -12,11 +12,10 @@ fun DataService.libraryLiveData(
   sortFilter: SavedItemSortFilter,
   labels: List<SavedItemLabel>
 ): LiveData<List<SavedItemCardDataWithLabels>> {
-  Log.d("lld", "primaryFilter: $primaryFilter, labels: $labels")
-
+  val mediatorLiveData = MediatorLiveData<List<SavedItemCardDataWithLabels>>()
   val queryParams = LibraryLiveDataQueryParams.make(primaryFilter)
 
-  return when (sortFilter) {
+  val libraryLiveData = when (sortFilter) {
     SavedItemSortFilter.NEWEST -> db.savedItemDao().getLibraryLiveData(
       archiveFilter = queryParams.archiveFilter
     )
@@ -30,6 +29,43 @@ fun DataService.libraryLiveData(
       archiveFilter = queryParams.archiveFilter
     )
   }
+
+  mediatorLiveData.addSource(libraryLiveData) { result ->
+    when (primaryFilter) {
+      SavedItemFilter.INBOX -> {
+        mediatorLiveData.value = result
+      }
+      SavedItemFilter.READ_LATER -> {
+        mediatorLiveData.value = result.filter { item ->
+          !item.labels.any { it.name.lowercase() == "newsletter" }
+        }
+      }
+      SavedItemFilter.NEWSLETTERS -> {
+        mediatorLiveData.value = result.filter { item ->
+          item.labels.any { it.name.lowercase() == "newsletter" }
+        }
+      }
+      SavedItemFilter.RECOMMENDED -> {
+        mediatorLiveData.value = result // TODO: "recommendations.@count > 0"
+      }
+      SavedItemFilter.ALL -> {
+        mediatorLiveData.value = result
+      }
+      SavedItemFilter.ARCHIVED -> {
+        mediatorLiveData.value = result
+      }
+      SavedItemFilter.HAS_HIGHLIGHTS -> {
+        mediatorLiveData.value = result // TODO: "highlights.@count > 0"
+      }
+      SavedItemFilter.FILES -> {
+        mediatorLiveData.value = result.filter { item ->
+          item.cardData.contentReader == "PDF"
+        }
+      }
+    }
+  }
+
+  return mediatorLiveData
 }
 
 private data class LibraryLiveDataQueryParams(
@@ -82,53 +118,3 @@ private data class LibraryLiveDataQueryParams(
     }
   }
 }
-
-//switch self {
-//  case .inbox:
-//  // non-archived items
-//  return NSCompoundPredicate(andPredicateWithSubpredicates: [undeletedPredicate, notInArchivePredicate])
-
-//  case .readlater:
-//  // non-archived or deleted items without the Newsletter label
-//  let nonNewsletterLabelPredicate = NSPredicate(
-//    format: "NOT SUBQUERY(labels, $label, $label.name == \"Newsletter\") .@count > 0"
-//  )
-//  return NSCompoundPredicate(andPredicateWithSubpredicates: [
-//    undeletedPredicate, notInArchivePredicate, nonNewsletterLabelPredicate
-//  ])
-//  case .newsletters:
-//  // non-archived or deleted items with the Newsletter label
-//  let newsletterLabelPredicate = NSPredicate(
-//    format: "SUBQUERY(labels, $label, $label.name == \"Newsletter\").@count > 0"
-//  )
-//  return NSCompoundPredicate(andPredicateWithSubpredicates: [notInArchivePredicate, newsletterLabelPredicate])
-//  case .recommended:
-//  // non-archived or deleted items with the Newsletter label
-//  let recommendedPredicate = NSPredicate(
-//    format: "recommendations.@count > 0"
-//  )
-//  return NSCompoundPredicate(andPredicateWithSubpredicates: [notInArchivePredicate, recommendedPredicate])
-//  case .all:
-//  // include everything undeleted
-//  return undeletedPredicate
-//  case .archived:
-//  let inArchivePredicate = NSPredicate(
-//    format: "%K == %@", #keyPath(LinkedItem.isArchived), Int(truncating: true) as NSNumber
-//  )
-//  return NSCompoundPredicate(andPredicateWithSubpredicates: [undeletedPredicate, inArchivePredicate])
-//  case .files:
-//  // include pdf only
-//  let isPDFPredicate = NSPredicate(
-//    format: "%K == %@", #keyPath(LinkedItem.contentReader), "PDF"
-//  )
-//  return NSCompoundPredicate(andPredicateWithSubpredicates: [undeletedPredicate, isPDFPredicate])
-//  case .hasHighlights:
-//  let hasHighlightsPredicate = NSPredicate(
-//    format: "highlights.@count > 0"
-//  )
-//  return NSCompoundPredicate(andPredicateWithSubpredicates: [
-//    hasHighlightsPredicate
-//  ])
-//}
-//}
-//}
