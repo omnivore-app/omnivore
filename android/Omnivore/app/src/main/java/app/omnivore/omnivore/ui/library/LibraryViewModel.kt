@@ -37,7 +37,7 @@ class LibraryViewModel @Inject constructor(
   // Live Data
   val searchTextLiveData = MutableLiveData("")
   val searchItemsLiveData = MutableLiveData<List<SavedItemCardDataWithLabels>>(listOf())
-  private var itemsLiveDataInternal = dataService.db.savedItemDao().getLibraryLiveData()
+  private var itemsLiveDataInternal = dataService.libraryLiveData(SavedItemFilter.INBOX, SavedItemSortFilter.NEWEST, listOf())
   val itemsLiveData = MediatorLiveData<List<SavedItemCardDataWithLabels>>()
   val appliedFilterLiveData = MutableLiveData(SavedItemFilter.INBOX)
   val appliedSortFilterLiveData = MutableLiveData(SavedItemSortFilter.NEWEST)

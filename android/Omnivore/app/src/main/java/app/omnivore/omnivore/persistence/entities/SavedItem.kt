@@ -4,6 +4,7 @@ import androidx.core.net.toUri
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import app.omnivore.omnivore.BuildConfig
+import app.omnivore.omnivore.models.ServerSyncStatus
 import app.omnivore.omnivore.ui.library.SavedItemSortFilter
 import java.util.*
 
@@ -113,23 +114,109 @@ interface SavedItemDao {
   fun update(savedItem: SavedItem)
 
   @Transaction
-  @Query("SELECT ${SavedItemQueryConstants.columns} FROM SavedItem ORDER BY savedAt DESC")
-  fun getLibraryLiveData(): LiveData<List<SavedItemCardDataWithLabels>>
+  @Query(
+    "SELECT ${SavedItemQueryConstants.columns} " +
+      "FROM SavedItem " +
+      "WHERE serverSyncStatus != 2 AND isArchived != :archiveFilter " +
+      "ORDER BY savedAt DESC"
+  )
+  fun getLibraryLiveData(archiveFilter: Int): LiveData<List<SavedItemCardDataWithLabels>>
 
   @Transaction
-  @Query("SELECT ${SavedItemQueryConstants.columns} FROM SavedItem ORDER BY savedAt ASC")
-  fun getLibraryLiveDataSortedByOldest(): LiveData<List<SavedItemCardDataWithLabels>>
+  @Query(
+    "SELECT ${SavedItemQueryConstants.columns} " +
+      "FROM SavedItem " +
+      "WHERE serverSyncStatus != 2 AND isArchived != :archiveFilter " +
+      "ORDER BY savedAt ASC"
+  )
+  fun getLibraryLiveDataSortedByOldest(archiveFilter: Int): LiveData<List<SavedItemCardDataWithLabels>>
 
   @Transaction
-  @Query("SELECT ${SavedItemQueryConstants.columns} FROM SavedItem ORDER BY readAt DESC, savedAt DESC")
-  fun getLibraryLiveDataSortedByRecentlyRead(): LiveData<List<SavedItemCardDataWithLabels>>
+  @Query(
+    "SELECT ${SavedItemQueryConstants.columns} " +
+      "FROM SavedItem " +
+      "WHERE serverSyncStatus != 2 AND isArchived != :archiveFilter " +
+      "ORDER BY readAt DESC, savedAt DESC"
+  )
+  fun getLibraryLiveDataSortedByRecentlyRead(archiveFilter: Int): LiveData<List<SavedItemCardDataWithLabels>>
 
   @Transaction
-  @Query("SELECT ${SavedItemQueryConstants.columns} FROM SavedItem ORDER BY publishDate DESC")
-  fun getLibraryLiveDataSortedByRecentlyPublished(): LiveData<List<SavedItemCardDataWithLabels>>
+  @Query(
+    "SELECT ${SavedItemQueryConstants.columns} " +
+      "FROM SavedItem " +
+      "WHERE serverSyncStatus != 2 AND isArchived != :archiveFilter " +
+      "ORDER BY publishDate DESC"
+  )
+  fun getLibraryLiveDataSortedByRecentlyPublished(archiveFilter: Int): LiveData<List<SavedItemCardDataWithLabels>>
 }
 
 
 object SavedItemQueryConstants {
   const val columns = "savedItemId, slug, publisherURLString, title, author, imageURLString, isArchived, pageURLString, contentReader "
 }
+
+// Archive Status:
+
+//INBOX("Inbox", rawValue = "inbox", "in:inbox"),
+//READ_LATER("Read Later", "readlater", "in:inbox -label:Newsletter"),
+//NEWSLETTERS("Newsletters", "newsletters", "in:inbox label:Newsletter"),
+//RECOMMENDED("Recommended", "recommended", "recommendedBy:*"),
+//ALL("All", "all", "in:all"),
+//ARCHIVED("Archived", "archived", "in:archive"),
+//HAS_HIGHLIGHTS("Highlighted", "hasHighlights", "has:highlights"),
+//FILES("Files", "files", "type:file"),
+
+
+//let notInArchivePredicate = NSPredicate(
+//format: "%K == %@", #keyPath(LinkedItem.isArchived), Int(truncating: false) as NSNumber
+//)
+
+//switch self {
+//  case .inbox:
+//  // non-archived items
+//  return NSCompoundPredicate(andPredicateWithSubpredicates: [undeletedPredicate, notInArchivePredicate])
+
+//  case .readlater:
+//  // non-archived or deleted items without the Newsletter label
+//  let nonNewsletterLabelPredicate = NSPredicate(
+//    format: "NOT SUBQUERY(labels, $label, $label.name == \"Newsletter\") .@count > 0"
+//  )
+//  return NSCompoundPredicate(andPredicateWithSubpredicates: [
+//    undeletedPredicate, notInArchivePredicate, nonNewsletterLabelPredicate
+//  ])
+//  case .newsletters:
+//  // non-archived or deleted items with the Newsletter label
+//  let newsletterLabelPredicate = NSPredicate(
+//    format: "SUBQUERY(labels, $label, $label.name == \"Newsletter\").@count > 0"
+//  )
+//  return NSCompoundPredicate(andPredicateWithSubpredicates: [notInArchivePredicate, newsletterLabelPredicate])
+//  case .recommended:
+//  // non-archived or deleted items with the Newsletter label
+//  let recommendedPredicate = NSPredicate(
+//    format: "recommendations.@count > 0"
+//  )
+//  return NSCompoundPredicate(andPredicateWithSubpredicates: [notInArchivePredicate, recommendedPredicate])
+//  case .all:
+//  // include everything undeleted
+//  return undeletedPredicate
+//  case .archived:
+//  let inArchivePredicate = NSPredicate(
+//    format: "%K == %@", #keyPath(LinkedItem.isArchived), Int(truncating: true) as NSNumber
+//  )
+//  return NSCompoundPredicate(andPredicateWithSubpredicates: [undeletedPredicate, inArchivePredicate])
+//  case .files:
+//  // include pdf only
+//  let isPDFPredicate = NSPredicate(
+//    format: "%K == %@", #keyPath(LinkedItem.contentReader), "PDF"
+//  )
+//  return NSCompoundPredicate(andPredicateWithSubpredicates: [undeletedPredicate, isPDFPredicate])
+//  case .hasHighlights:
+//  let hasHighlightsPredicate = NSPredicate(
+//    format: "highlights.@count > 0"
+//  )
+//  return NSCompoundPredicate(andPredicateWithSubpredicates: [
+//    hasHighlightsPredicate
+//  ])
+//}
+//}
+//}
