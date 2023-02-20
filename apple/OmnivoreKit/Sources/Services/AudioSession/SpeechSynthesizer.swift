@@ -56,8 +56,7 @@ struct SpeechDocument: Decodable {
   }
 
   static func audioDirectory(pageId: String) -> URL {
-    FileManager.default
-      .urls(for: .documentDirectory, in: .userDomainMask)[0]
+    URL.om_documentsDirectory
       .appendingPathComponent("audio-\(pageId)")
   }
 }
@@ -213,12 +212,10 @@ struct SpeechSynthesizer {
 
     let data = try await downloadData(session: session, request: speechItem.urlRequest)
 
-    let tempPath = FileManager.default
-      .urls(for: .cachesDirectory, in: .userDomainMask)[0]
+    let tempPath = URL.om_cachesDirectory
       .appendingPathComponent(UUID().uuidString + ".mp3")
 
-    let tempSMPath = FileManager.default
-      .urls(for: .cachesDirectory, in: .userDomainMask)[0]
+    let tempSMPath = URL.om_cachesDirectory
       .appendingPathComponent(UUID().uuidString + ".speechMarks")
 
     do {
