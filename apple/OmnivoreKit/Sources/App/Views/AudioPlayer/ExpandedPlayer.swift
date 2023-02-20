@@ -213,11 +213,11 @@
               }
             })
 //            .simultaneousGesture(
-            ////              DragGesture().onChanged {
-            ////                let isScrollDown = $0.translation.height > 0
-            ////                print(isScrollDown)
-            ////              }
-            ////            )
+//              DragGesture().onChanged {
+//                let isScrollDown = $0.translation.height > 0
+//                print(isScrollDown)
+//              }
+//            )
           }
           .background(Color.themeDisabledBG)
         }

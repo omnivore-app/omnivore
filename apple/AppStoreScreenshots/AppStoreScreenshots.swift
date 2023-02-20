@@ -64,8 +64,8 @@ final class AppStoreScreenshots: XCTestCase {
 //
     snapshot("ReaderTTSPlayer")
 
-    /// app.children(matching: .window).element(boundBy: 0).tap()
-    //  XCUIApplication().buttons["Back"].tap()
+//    app.children(matching: .window).element(boundBy: 0).tap()
+//    XCUIApplication().buttons["Back"].tap()
   }
 
   func testScreenshotReaderActions() throws {
