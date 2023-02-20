@@ -21,7 +21,10 @@ public extension DataService {
 
     let mutation = Selection.Mutation {
       try $0.recommend(
-        input: .init(groupIds: groupIDs, note: OptionalArgument(note), pageId: pageID, recommendedWithHighlights: OptionalArgument(withHighlights)),
+        input: .init(groupIds: groupIDs,
+                     note: OptionalArgument(note),
+                     pageId: pageID,
+                     recommendedWithHighlights: OptionalArgument(withHighlights)),
         selection: selection
       )
     }

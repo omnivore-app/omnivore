@@ -69,7 +69,9 @@ struct SelfHostSettingsView: View {
       Alert(
         title: Text("Changing your environment settings will close the app."),
         dismissButton: .cancel(Text(LocalText.genericOk)) {
-          AppEnvironment.setCustom(serverBaseURL: apiServerAddress, webAppBaseURL: webServerAddress, ttsBaseURL: ttsServerAddress)
+          AppEnvironment.setCustom(serverBaseURL: apiServerAddress,
+                                   webAppBaseURL: webServerAddress,
+                                   ttsBaseURL: ttsServerAddress)
           dataService.switchAppEnvironment(appEnvironment: AppEnvironment.custom)
         }
       )

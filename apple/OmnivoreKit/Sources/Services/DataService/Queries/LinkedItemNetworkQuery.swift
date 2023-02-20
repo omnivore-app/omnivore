@@ -68,7 +68,8 @@ extension DataService {
       )
     }
 
-    let sort = InputObjects.SortParams(by: Enums.SortBy.updatedTime, order: OptionalArgument(descending ? Enums.SortOrder.descending : Enums.SortOrder.ascending))
+    let sort = InputObjects.SortParams(by: .updatedTime,
+                                       order: OptionalArgument(descending ? .descending : .ascending))
 
     let query = Selection.Query {
       try $0.updatesSince(

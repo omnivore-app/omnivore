@@ -29,9 +29,9 @@ public final class DataService: ObservableObject {
     persistentContainer.viewContext
   }
 
-  @AppStorage(UserDefaultKey.lastItemSyncTime.rawValue) public var lastItemSyncTime = DateFormatter.formatterISO8601.string(
-    from: Date(timeIntervalSinceReferenceDate: 0)
-  )
+  @AppStorage(UserDefaultKey.lastItemSyncTime.rawValue) public var lastItemSyncTime: String = {
+    DateFormatter.formatterISO8601.string(from: Date(timeIntervalSinceReferenceDate: 0))
+  }()
 
   public init(appEnvironment: AppEnvironment, networker: Networker) {
     self.appEnvironment = appEnvironment

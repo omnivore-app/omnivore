@@ -353,13 +353,18 @@ public final class OmnivoreWebView: WKWebView {
     override public func buildMenu(with builder: UIMenuBuilder) {
       if #available(iOS 16.0, *) {
         let annotate = UICommand(title: "Note", action: #selector(annotateSelection))
-        let highlight = UICommand(title: LocalText.genericHighlight, action: #selector(highlightSelection))
-        let remove = UICommand(title: "Remove", action: #selector(removeSelection))
-        let setLabels = UICommand(title: LocalText.labelsGeneric, action: #selector(setLabels))
 
-        let omnivore = UIMenu(title: "",
-                              options: .displayInline,
-                              children: currentMenu == .defaultMenu ? [highlight, annotate] : [annotate, setLabels, remove])
+        let items: [UIMenuElement]
+        if currentMenu == .defaultMenu {
+          let highlight = UICommand(title: LocalText.genericHighlight, action: #selector(highlightSelection))
+          items = [highlight, annotate]
+        } else {
+          let remove = UICommand(title: "Remove", action: #selector(removeSelection))
+          let setLabels = UICommand(title: LocalText.labelsGeneric, action: #selector(setLabels))
+          items = [annotate, setLabels, remove]
+        }
+
+        let omnivore = UIMenu(title: "", options: .displayInline, children: items)
         builder.insertSibling(omnivore, beforeMenu: .lookup)
       }
 

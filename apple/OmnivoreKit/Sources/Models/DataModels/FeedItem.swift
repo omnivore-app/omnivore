@@ -156,7 +156,9 @@ public extension LinkedItem {
         "recommendedAt": recommendedAt == nil ? nil : NSString(string: recommendedAt!)
       ]
     }
-    guard let JSON = (try? JSONSerialization.data(withJSONObject: recommendations, options: .prettyPrinted)) else { return "[]" }
+    guard let JSON = try? JSONSerialization.data(withJSONObject: recommendations, options: .prettyPrinted) else {
+      return "[]"
+    }
     return String(data: JSON, encoding: .utf8) ?? "[]"
   }
 

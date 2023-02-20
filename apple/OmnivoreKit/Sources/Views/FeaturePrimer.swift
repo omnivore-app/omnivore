@@ -33,8 +33,9 @@ public struct FeaturePrimer: View {
       }
 
       ScrollView {
-        Text((try? AttributedString(markdown: message,
-                                    options: AttributedString.MarkdownParsingOptions(interpretedSyntax: .inlineOnlyPreservingWhitespace))) ?? "")
+        let parsedMessage = try? AttributedString(markdown: message,
+                                                  options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace))
+        Text(parsedMessage ?? "")
           .foregroundColor(Color.appGrayText)
           .accentColor(.blue)
           .padding(.bottom, 16)

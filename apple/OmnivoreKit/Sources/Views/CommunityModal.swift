@@ -101,8 +101,9 @@ public struct CommunityModal: View {
     VStack(spacing: 0) {
       header
 
-      Text((try? AttributedString(markdown: message,
-                                  options: AttributedString.MarkdownParsingOptions(interpretedSyntax: .inlineOnlyPreservingWhitespace))) ?? "")
+      let parsedMessage = try? AttributedString(markdown: message,
+                                                options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace))
+      Text(parsedMessage ?? "")
         .multilineTextAlignment(.leading)
         .foregroundColor(Color.appGrayTextContrast)
         .accentColor(.blue)
