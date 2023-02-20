@@ -53,7 +53,9 @@
           },
           label: {
             Image(systemName: playPauseButtonImage)
-              .font(.appTitleTwo)
+              .resizable(resizingMode: Image.ResizingMode.stretch)
+              .aspectRatio(contentMode: .fit)
+              .font(Font.title.weight(.light))
           }
         ))
       }
@@ -65,10 +67,21 @@
           audioController.stop()
         },
         label: {
-          Image(systemName: "xmark")
-            .font(.appTitleTwo)
+          ZStack {
+            Circle()
+              .foregroundColor(Color(hex: "#3D3D3D"))
+
+            Image(systemName: "xmark")
+              .resizable(resizingMode: Image.ResizingMode.stretch)
+              .foregroundColor(Color(hex: "#D9D9D9"))
+              .aspectRatio(contentMode: .fit)
+              .font(Font.title.weight(.medium))
+              .frame(width: 14, height: 14)
+          }
         }
       )
+      .background(Color.clear)
+      .buttonStyle(PlainButtonStyle())
     }
 
     func artwork(_ itemAudioProperties: LinkedItemAudioProperties, forDimensions dim: Double) -> some View {
@@ -107,31 +120,25 @@
 
     func playerContent(_ itemAudioProperties: LinkedItemAudioProperties) -> some View {
       VStack(spacing: 0) {
-        HStack(alignment: .center, spacing: 8) {
-          artwork(itemAudioProperties, forDimensions: 64)
+        HStack(alignment: .center, spacing: 15) {
+          artwork(itemAudioProperties, forDimensions: 50)
 
-          VStack {
-            Text(itemAudioProperties.title)
-              .font(.appCallout)
-              .foregroundColor(.appGrayTextContrast)
-              .fixedSize(horizontal: false, vertical: false)
-              .frame(maxWidth: .infinity, alignment: .leading)
+          Text(itemAudioProperties.title)
+            .font(Font.system(size: 17, weight: .medium))
+            .fixedSize(horizontal: false, vertical: true)
+            .lineLimit(2)
+            .foregroundColor(.appGrayTextContrast)
+            .frame(maxHeight: 40, alignment: .leading)
 
-            if let byline = itemAudioProperties.byline {
-              Text(byline)
-                .font(.appCaption)
-                .lineSpacing(1.25)
-                .foregroundColor(.appGrayText)
-                .fixedSize(horizontal: false, vertical: false)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-          }
+          Spacer(minLength: 0)
 
           playPauseButtonItem
-            .frame(width: 28, height: 28)
+            .frame(width: 40, height: 40)
+            .foregroundColor(.themeDarkGray)
 
           stopButton
-            .frame(width: 28, height: 28)
+            .frame(width: 40, height: 40)
+            .foregroundColor(.themeDarkGray)
         }
         .padding(16)
         .frame(maxHeight: .infinity)
@@ -144,11 +151,10 @@
       )
       .onTapGesture {
         withAnimation(.easeIn(duration: 0.08)) { expanded = true }
-      }.sheet(isPresented: $expanded) {
+      }.fullScreenCover(isPresented: $expanded) {
         ExpandedPlayer()
       }
-      .offset(y: expanded ? 88 : 0)
-      .opacity(expanded ? 0.0 : 1.0)
+      .offset(y: expanded ? 110 : 0)
     }
 
     public var body: some View {
@@ -157,14 +163,14 @@
         if let itemAudioProperties = self.audioController.itemAudioProperties {
           ZStack(alignment: .bottom) {
             Color.systemBackground.edgesIgnoringSafeArea(.bottom)
-              .frame(height: expanded ? 0 : 88, alignment: .bottom)
+              .frame(height: expanded ? 0 : 110, alignment: .bottom)
 
             VStack {
               Spacer(minLength: 0)
               playerContent(itemAudioProperties)
-                .frame(maxHeight: expanded ? 0 : 88)
-                .tint(.appGrayTextContrast)
-                .background(Color.systemBackground)
+                .frame(maxHeight: expanded ? 0 : 110)
+              //    .tint(.appGrayTextContrast)
+              // .background(Color.systemBackground)
             }
           }
         }

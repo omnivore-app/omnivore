@@ -22,6 +22,16 @@ public extension Color {
   static var indicatorBlue: Color { Color("_indicatorBlue", bundle: .module) }
   static var webControlButtonBackground: Color { Color("_webControlButtonBackground", bundle: .module) }
 
+  // New theme colors
+  static var themeLightGray: Color { Color("_lightGray", bundle: .module) }
+  static var themeMediumGray: Color { Color("_mediumGray", bundle: .module) }
+  static var themeDarkGray: Color { Color("_darkGray", bundle: .module) }
+  static var themeGrayBg01: Color { Color("_themeGrayBg01", bundle: .module) }
+  static var themeHighlightColor: Color { Color("_highlightColor", bundle: .module) }
+  static var themeTTSReadingText: Color { Color("_themeTTSReadingText", bundle: .module) }
+  static var themeDisabledBG: Color { Color("_themeDisabledBG", bundle: .module) }
+  static var themeSolidBackground: Color { Color("_themeSolidBackground", bundle: .module) }
+
   // Apple system UIColor equivalents
   #if os(iOS)
     static var systemBackground: Color { Color(.systemBackground) }

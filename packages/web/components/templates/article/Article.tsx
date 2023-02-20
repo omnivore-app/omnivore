@@ -1,8 +1,5 @@
 import { Box } from '../../elements/LayoutPrimitives'
-import {
-  getTopOmnivoreAnchorElement,
-  useReadingProgressAnchor,
-} from '../../../lib/hooks/useReadingProgressAnchor'
+import { useReadingProgressAnchor } from '../../../lib/hooks/useReadingProgressAnchor'
 import {
   ScrollOffsetChangeset,
   useScrollWatcher,
@@ -18,9 +15,8 @@ import {
 import { Tweet } from 'react-twitter-widgets'
 import { render } from 'react-dom'
 import { isDarkTheme } from '../../../lib/themeUpdater'
-import throttle from 'lodash/throttle'
+import debounce from 'lodash/debounce'
 import { ArticleMutations } from '../../../lib/articleActions'
-import { ArticleReadingProgressMutationInput } from '../../../lib/networking/mutations/articleReadingProgressMutation'
 
 export type ArticleProps = {
   articleId: string
@@ -33,71 +29,53 @@ export type ArticleProps = {
 
 export function Article(props: ArticleProps): JSX.Element {
   const highlightTheme = isDarkTheme() ? 'dark' : 'default'
-  const articleContentRef = useRef<HTMLDivElement | null>(null)
 
   const [readingProgress, setReadingProgress] = useState(
     props.initialReadingProgress
   )
+
+  const [readingAnchorIndex, setReadingAnchorIndex] = useState(
+    props.initialAnchorIndex
+  )
+
   const [shouldScrollToInitialPosition, setShouldScrollToInitialPosition] =
     useState(true)
 
-  const throttledSetReadingProgress = useMemo(
+  const articleContentRef = useRef<HTMLDivElement | null>(null)
+
+  useReadingProgressAnchor(articleContentRef, setReadingAnchorIndex)
+
+  const debouncedSetReadingProgress = useMemo(
     () =>
-      throttle(
-        (readingProgress: number) => {
-          syncReadingProgress(
-            props.articleId,
-            readingProgress,
-            props.articleMutations.articleReadingProgressMutation
-          )
-          setReadingProgress(readingProgress)
-        },
-        2000,
-        { leading: true }
-      ),
-    [
-      props.articleId,
-      props.articleMutations.articleReadingProgressMutation,
-      readingProgress,
-      setReadingProgress,
-    ]
+      debounce((readingProgress: number) => {
+        setReadingProgress(readingProgress)
+      }, 2000),
+    []
   )
 
-  // Flush the invocation of the throttled function when unmounting
+  // Stop the invocation of the debounced function
+  // after unmounting
   useEffect(() => {
     return () => {
-      throttledSetReadingProgress.flush()
+      debouncedSetReadingProgress.cancel()
     }
-  }, [readingProgress, setReadingProgress])
+  }, [])
 
-  const syncReadingProgress = (
-    articleId: string,
-    readingProgress: number,
-    mutation: (input: ArticleReadingProgressMutationInput) => Promise<boolean>
-  ) => {
+  useEffect(() => {
     ;(async () => {
       if (!readingProgress) return
-
-      const newAnchorIndex = articleContentRef.current
-        ? getTopOmnivoreAnchorElement(articleContentRef.current)
-        : undefined
-
-      const adjustedReadingProgress = Math.min(
-        100,
-        (readingProgress > 0.92 ? 1 : readingProgress) * 100
-      )
-
-      console.log('reading progress: ', readingProgress, newAnchorIndex)
-
-      if (newAnchorIndex && !Number.isNaN(Number(newAnchorIndex)))
-        await mutation({
-          id: articleId,
-          // round reading progress to 100% if more than that
-          readingProgressPercent: adjustedReadingProgress,
-          readingProgressAnchorIndex: Number(newAnchorIndex),
-        })
+      await props.articleMutations.articleReadingProgressMutation({
+        id: props.articleId,
+        // round reading progress to 100% if more than that
+        readingProgressPercent: readingProgress > 100 ? 100 : readingProgress,
+        readingProgressAnchorIndex: readingAnchorIndex,
+      })
     })()
-  }
+
+    // We don't react to changes to readingAnchorIndex we
+    // only care about the progress (scroll position) changed.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.articleId, readingProgress])
 
   // Post message to webkit so apple app embeds get progress updates
   // TODO: verify if ios still needs this code...seeems to be duplicated
@@ -112,10 +90,10 @@ export function Article(props: ArticleProps): JSX.Element {
   useScrollWatcher((changeset: ScrollOffsetChangeset) => {
     if (window && window.document.scrollingElement) {
       const newReadingProgress =
-        (window.scrollY + window.innerHeight) /
-        window.document.scrollingElement.scrollHeight
-
-      throttledSetReadingProgress(newReadingProgress)
+        window.scrollY / window.document.scrollingElement.scrollHeight
+      const adjustedReadingProgress =
+        newReadingProgress > 0.92 ? 1 : newReadingProgress
+      debouncedSetReadingProgress(adjustedReadingProgress * 100)
     }
   }, 1000)
 

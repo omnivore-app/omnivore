@@ -82,6 +82,17 @@
       )
     }
 
+    public var offsets: [Double]? {
+      if let durations = durations {
+        var currentSum = 0.0
+        return durations.map {
+          currentSum += $0
+          return currentSum
+        }
+      }
+      return nil
+    }
+
     public func stop() {
       let stoppedId = itemAudioProperties?.itemID
       let stoppedTimeElapsed = timeElapsed
@@ -143,20 +154,8 @@
     }
 
     public func preload(itemIDs: [String], retryCount _: Int = 0) async -> Bool {
-      if !preloadEnabled {
-        return true
-      }
-
       for itemID in itemIDs {
-        if let document = try? await downloadSpeechFile(itemID: itemID, priority: .low) {
-          let synthesizer = SpeechSynthesizer(appEnvironment: dataService.appEnvironment, networker: dataService.networker, document: document, speechAuthHeader: speechAuthHeader)
-          do {
-            try await synthesizer.preload()
-            return true
-          } catch {
-            print("error preloading audio file", error)
-          }
-        }
+        _ = try? await downloadSpeechFile(itemID: itemID, priority: .low)
       }
       return false
     }
@@ -175,6 +174,17 @@
         return true
       }
       return false
+    }
+
+    public static func removeAudioFiles(itemID: String) {
+      do {
+        let audioDirectory = pathForAudioDirectory(itemID: itemID)
+        try FileManager.default.removeItem(at: audioDirectory)
+      } catch {
+        // We don't need to throw here, as its likely the
+        // directory just doesn't exist
+        print("Error removing audio files", error)
+      }
     }
 
     public var scrubState: PlayerScrubState = .reset {
@@ -531,14 +541,14 @@
       itemID + "-" + currentVoice + ".mp3"
     }
 
-    public func pathForAudioDirectory(itemID: String) -> URL {
+    public static func pathForAudioDirectory(itemID: String) -> URL {
       FileManager.default
         .urls(for: .documentDirectory, in: .userDomainMask)[0]
         .appendingPathComponent("audio-\(itemID)/")
     }
 
     public func pathForSpeechFile(itemID: String) -> URL {
-      pathForAudioDirectory(itemID: itemID)
+      Self.pathForAudioDirectory(itemID: itemID)
         .appendingPathComponent("speech-\(currentVoice).json")
     }
 

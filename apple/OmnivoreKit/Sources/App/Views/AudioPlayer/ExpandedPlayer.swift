@@ -47,7 +47,9 @@
           },
           label: {
             Image(systemName: playPauseButtonImage)
-              .font(.appIconLarge)
+              .resizable(resizingMode: Image.ResizingMode.stretch)
+              .aspectRatio(contentMode: .fit)
+              .font(Font.title.weight(.light))
           }
         ))
       }
@@ -113,42 +115,55 @@
       }
     }
 
-    func defaultArtwork(forDimensions dim: Double) -> some View {
-      ZStack(alignment: .center) {
-        Color.appButtonBackground
-          .frame(width: dim, height: dim)
-          .cornerRadius(6)
-
-        Image(systemName: "headphones")
-          .resizable()
-          .aspectRatio(contentMode: .fit)
-          .frame(width: dim / 2, height: dim / 2)
-      }
-    }
-
     struct SpeechCard: View {
       let id: Int
       @EnvironmentObject var audioController: AudioController
 
+      var intervalFormatter: DateComponentsFormatter {
+        let formatter = DateComponentsFormatter()
+        formatter.allowedUnits = [.minute, .second]
+        formatter.zeroFormattingBehavior = .pad
+        return formatter
+      }
+
       var body: some View {
-        Group {
+        let isCurrent = id == self.audioController.currentAudioIndex
+
+        ZStack(alignment: .top) {
+          Text(intervalFormatter.string(from: self.audioController.offsets?[id] ?? 0.0) ?? "")
+            .font(Font.system(size: 11, weight: isCurrent ? .medium : .regular))
+            .foregroundColor(isCurrent ? Color.themeTTSReadingText : Color(hex: "#898989"))
+            .padding(.leading, 8)
+            .padding(.top, 2)
+            .frame(maxWidth: .infinity, alignment: .leading)
+
           if id != self.audioController.currentAudioIndex || self.audioController.isLoading {
             Text(self.audioController.textItems?[id] ?? "\(id)")
-              .font(.textToSpeechRead.leading(.loose))
-              .foregroundColor(Color.appGrayTextContrast)
+              .font(.appCallout)
+              .foregroundColor(Color(hex: "#898989"))
+              .padding(.leading, 48 + 8)
+              .padding(.trailing, 16)
+              .frame(maxWidth: .infinity, alignment: .leading)
+
           } else {
             Group {
               Text(audioController.readText)
-                .font(.textToSpeechRead.leading(.loose))
-                .foregroundColor(Color.appGrayTextContrast)
+                .font(.appTextToSpeechCurrent)
+                .foregroundColor(Color.themeTTSReadingText)
                 +
                 Text(audioController.unreadText)
-                .font(.textToSpeechRead.leading(.loose))
-                .foregroundColor(audioController.useUltraRealisticVoices ? Color.appGrayTextContrast : Color.appGrayText)
+                .font(.appTextToSpeechCurrent)
+                .foregroundColor(Color.themeTTSReadingText)
             }
+            .padding(.leading, 48 + 8)
+            .padding(.trailing, 16)
+            .frame(maxWidth: .infinity, alignment: .leading)
           }
         }
-        .padding(16)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 15)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(isCurrent ? Color.themeHighlightColor : Color.themeDisabledBG)
       }
 
       init(id: Int) {
@@ -160,27 +175,51 @@
       ZStack {
         let textItems = self.audioController.textItems ?? []
         if textItems.count > 0 {
-          TabView(selection: $tabIndex) {
-            ForEach(0 ..< textItems.count, id: \.self) { id in
-              SpeechCard(id: id)
-                .tag(id)
+          ScrollViewReader { scroller in
+            List {
+              ForEach(0 ..< textItems.count, id: \.self) { id in
+                SpeechCard(id: id)
+                  .tag(id)
+                  .onTapGesture {
+                    audioController.seek(toUtterance: id)
+                  }
+                  .listRowSeparator(.hidden)
+                  .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+              }
+              // Extra bottom padding, so the controls appear to be over the list
+              Color.themeDisabledBG
+                .frame(maxWidth: .infinity)
+                .frame(height: 150)
+                .listRowSeparator(.hidden)
+                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
             }
-          }
-          .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-          .onChange(of: tabIndex, perform: { index in
-            if index != audioController.currentAudioIndex, index < (audioController.textItems?.count ?? 0) {
-              audioController.seek(toUtterance: index)
+            .listStyle(.plain)
+            .onAppear {
+              if audioController.currentAudioIndex < textItems.count {
+                withAnimation {
+                  scroller.scrollTo(audioController.currentAudioIndex, anchor: .center)
+                }
+              }
             }
-          })
-          .onChange(of: audioController.currentAudioIndex, perform: { index in
-            if index >= textItems.count {
-              return
-            }
+            .onChange(of: audioController.currentAudioIndex, perform: { index in
+              if index >= textItems.count {
+                return
+              }
 
-            if self.audioController.state != .reachedEnd {
-              tabIndex = index
-            }
-          })
+              if self.audioController.state != .reachedEnd {
+                withAnimation {
+                  scroller.scrollTo(index, anchor: .center)
+                }
+              }
+            })
+//            .simultaneousGesture(
+            ////              DragGesture().onChanged {
+            ////                let isScrollDown = $0.translation.height > 0
+            ////                print(isScrollDown)
+            ////              }
+            ////            )
+          }
+          .background(Color.themeDisabledBG)
         }
 
         if audioController.state == .reachedEnd {
@@ -208,29 +247,12 @@
                 Text(LocalText.audioPlayerReplay)
               }
             }
-          ).buttonStyle(RoundedRectButtonStyle())
+          )
+          .padding(.bottom, 138)
+          .buttonStyle(RoundedRectButtonStyle())
         }
       }
-    }
-
-    var header: some View {
-      ZStack {
-        closeButton
-          .padding(.top, 24)
-          .padding(.leading, 16)
-          .frame(maxWidth: .infinity, alignment: .leading)
-
-        Capsule()
-          .fill(.gray)
-          .frame(width: 60, height: 4)
-          .padding(.top, 8)
-          .transition(.opacity)
-
-        menuButton
-          .padding(.top, 24)
-          .padding(.trailing, 16)
-          .frame(maxWidth: .infinity, alignment: .trailing)
-      }
+      .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     var scrubber: some View {
@@ -244,65 +266,103 @@
                          self.audioController.scrubState = .scrubEnded(self.audioController.timeElapsed)
                        }
                      })
+          .padding(.top, 26)
 
         HStack {
           Text(audioController.timeElapsedString ?? "0:00")
-            .font(.appCaptionTwo)
-            .foregroundColor(.appGrayText)
+            .font(Font.system(size: 10))
+            .foregroundColor(Color(hex: "#9D9D9B"))
           Spacer()
           Text(audioController.durationString ?? "0:00")
-            .font(.appCaptionTwo)
-            .foregroundColor(.appGrayText)
+            .font(Font.system(size: 10))
+            .foregroundColor(Color(hex: "#9D9D9B"))
         }
       }
-      .padding(.leading, 16)
-      .padding(.trailing, 16)
+      .padding(.leading, 42)
+      .padding(.trailing, 42)
     }
 
     var audioButtons: some View {
       HStack(alignment: .center) {
         Spacer()
 
+        Button(action: { showVoiceSheet = true }, label: {
+          Image(systemName: "person.wave.2")
+            .resizable()
+            .frame(width: 18, height: 18)
+        })
+          .padding(.trailing, 32)
+
         Button(
           action: { self.audioController.skipBackwards(seconds: 30) },
           label: {
             Image(systemName: "gobackward.30")
-              .font(.appTitleTwo)
+              .resizable()
+              .font(Font.title.weight(.light))
           }
         )
-
-        Spacer()
+        .frame(width: 16, height: 16)
+        .padding(.trailing, 16)
+        .foregroundColor(.themeDarkGray)
 
         playPauseButtonItem
-          .frame(width: 56, height: 56)
-
-        Spacer()
+          .frame(width: 45, height: 45)
+          .padding(.trailing, 16)
+          .foregroundColor(.themeDarkGray)
 
         Button(
           action: { self.audioController.skipForward(seconds: 30) },
           label: {
             Image(systemName: "goforward.30")
-              .font(.appTitleTwo)
+              .resizable()
+              .font(Font.title.weight(.light))
           }
         )
-        Spacer()
+        .frame(width: 16, height: 16)
+        .padding(.trailing, 32 - 4) // -4 to account for the menu touch padding
+        .foregroundColor(.themeDarkGray)
 
-      }.padding(.bottom, 16)
+        Menu(content: {
+          playbackRateButton(rate: 0.8, title: "0.8×", selected: audioController.playbackRate == 0.8)
+          playbackRateButton(rate: 0.9, title: "0.9×", selected: audioController.playbackRate == 0.9)
+          playbackRateButton(rate: 1.0, title: "1.0×", selected: audioController.playbackRate == 1.0)
+          playbackRateButton(rate: 1.1, title: "1.1×", selected: audioController.playbackRate == 1.1)
+          playbackRateButton(rate: 1.2, title: "1.2×", selected: audioController.playbackRate == 1.2)
+          playbackRateButton(rate: 1.5, title: "1.5×", selected: audioController.playbackRate == 1.5)
+          playbackRateButton(rate: 1.7, title: "1.7×", selected: audioController.playbackRate == 1.7)
+          playbackRateButton(rate: 2.0, title: "2.0×", selected: audioController.playbackRate == 2.0)
+        }, label: {
+          Text("\(String(format: "%.1f", audioController.playbackRate))×")
+            .font(.appCaption)
+        })
+          .padding(4)
+
+        Spacer()
+      }
+      .foregroundColor(Color.themeMediumGray)
+      .padding(.bottom, 16)
     }
 
     func playerContent(_: LinkedItemAudioProperties) -> some View {
-      VStack(spacing: 0) {
-        header
-
+      ZStack {
         audioCards
+          .frame(maxHeight: .infinity)
 
-        Spacer()
+        VStack {
+          Spacer()
 
-        scrubber
-
-        audioButtons
+          VStack {
+            scrubber
+            audioButtons
+          }
+          .frame(height: 138)
+          .background(Color.themeSolidBackground)
+          .padding(.bottom, 8)
+          .cornerRadius(8)
+          .padding(.bottom, -8)
+        }
       }
-      .padding(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+      .padding(0)
       .onAppear {
         self.tabIndex = audioController.currentAudioIndex
       }
@@ -317,10 +377,8 @@
           TextToSpeechVoiceSelectionView(forLanguage: audioController.currentVoiceLanguage, showLanguageChanger: true)
             .navigationBarTitle("Voice")
             .navigationBarTitleDisplayMode(.inline)
-            .navigationBarItems(leading: Button(action: { self.showVoiceSheet = false }, label: {
-              Image(systemName: "chevron.backward")
-                .font(.appNavbarIcon)
-                .tint(.appGrayTextContrast)
+            .navigationBarItems(trailing: Button(action: { self.showVoiceSheet = false }, label: {
+              Text("Done").bold()
             }))
         }
       }
@@ -342,16 +400,33 @@
         .buttonStyle(PlainButtonStyle())
     }
 
+    @State var queryString: String = ""
+
     public var body: some View {
+      NavigationView {
+        innerBody
+          .background(Color.themeDisabledBG)
+          .navigationTitle(LocalText.textToSpeechGeneric)
+          .navigationBarItems(trailing: Button(action: { dismiss() }, label: { Text("Hide") }))
+          .navigationBarTitleDisplayMode(NavigationBarItem.TitleDisplayMode.inline)
+        //          .searchable(text: $queryString, placement: .navigationBarDrawer(displayMode: .always)) {
+        //            // print("searching: ", queryString)
+        //            Text("content")
+        //          }
+        //          }
+      }
+    }
+
+    public var innerBody: some View {
       if let itemAudioProperties = self.audioController.itemAudioProperties {
-        playerContent(itemAudioProperties)
+        return AnyView(playerContent(itemAudioProperties)
           .tint(.appGrayTextContrast)
           .alert("There was an error playing back your audio.",
                  isPresented: $audioController.playbackError) {
             Button(LocalText.dismissButton, role: .none) {}
-          }
+          })
       } else {
-        EmptyView()
+        return AnyView(EmptyView())
       }
     }
 

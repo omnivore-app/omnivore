@@ -3,6 +3,15 @@
   import Foundation
   import SwiftUI
 
+  extension UIColor {
+    func image(_ size: CGSize = CGSize(width: 1, height: 1)) -> UIImage {
+      UIGraphicsImageRenderer(size: size).image { rendererContext in
+        self.setFill()
+        rendererContext.fill(CGRect(origin: .zero, size: size))
+      }
+    }
+  }
+
   struct ScrubberView: UIViewRepresentable {
     typealias UIViewType = UISlider
 
@@ -22,19 +31,24 @@
       slider.maximumValue = Float(maxValue)
 
       let tintColor = UIColor(Color.appCtaYellow)
-
-      let image = UIImage(systemName: "circle.fill",
-                          withConfiguration: UIImage.SymbolConfiguration(scale: .small))?
+      let thumbImage = UIImage(systemName: "circle.fill",
+                               withConfiguration: UIImage.SymbolConfiguration(scale: .medium))?
         .withTintColor(tintColor)
         .withRenderingMode(.alwaysOriginal)
 
-      slider.setThumbImage(image, for: .selected)
-      slider.setThumbImage(image, for: .normal)
+      slider.setThumbImage(thumbImage, for: .selected)
+      slider.setThumbImage(thumbImage, for: .normal)
 
       slider.minimumTrackTintColor = tintColor
       slider.addTarget(context.coordinator,
                        action: #selector(Coordinator.valueChanged(_:)),
                        for: .valueChanged)
+
+//      let minImage = UIColor(Color.themeMediumGray).image(CGSize(width: 1, height: 5))
+//      let maxImage = UIColor(Color.themeLightGray).image(CGSize(width: 1, height: 5))
+//
+//      slider.setMinimumTrackImage(minImage, for: .normal)
+//      slider.setMaximumTrackImage(maxImage, for: .normal)
 
       return slider
     }

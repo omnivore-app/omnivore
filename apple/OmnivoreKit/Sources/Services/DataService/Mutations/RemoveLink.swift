@@ -5,10 +5,20 @@ import SwiftGraphQL
 
 public extension DataService {
   func removeLink(objectID: NSManagedObjectID) {
-    // Update CoreData
+    // First try to get the item synchronously, this is used later to delete files
+    // Then we can async update core data and make the API call to sync the deletion
+
+    var linkedItemID: String?
+    viewContext.performAndWait {
+      guard let linkedItem = self.viewContext.object(with: objectID) as? LinkedItem else { return }
+      linkedItem.serverSyncStatus = Int64(ServerSyncStatus.needsDeletion.rawValue)
+      linkedItemID = linkedItem.id
+    }
+
     viewContext.perform {
       guard let linkedItem = self.viewContext.object(with: objectID) as? LinkedItem else { return }
       linkedItem.serverSyncStatus = Int64(ServerSyncStatus.needsDeletion.rawValue)
+      linkedItemID = linkedItem.id
 
       do {
         try self.viewContext.save()
@@ -20,6 +30,12 @@ public extension DataService {
 
       // Send update to server
       self.syncLinkDeletion(itemID: linkedItem.unwrappedID)
+    }
+
+    if let linkedItemID = linkedItemID {
+      Task {
+        AudioController.removeAudioFiles(itemID: linkedItemID)
+      }
     }
   }
 

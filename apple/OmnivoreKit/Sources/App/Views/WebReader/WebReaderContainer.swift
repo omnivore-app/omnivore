@@ -268,7 +268,7 @@ struct WebReaderContainerView: View {
             Image(systemName: "chevron.backward")
               .font(.appNavbarIcon)
               .foregroundColor(.appGrayTextContrast)
-              .padding(.horizontal)
+              .padding()
           }
         )
         .scaleEffect(navBarVisibilityRatio)
@@ -390,6 +390,9 @@ struct WebReaderContainerView: View {
         .onAppear {
           if item.isUnread {
             dataService.updateLinkReadingProgress(itemID: item.unwrappedID, readingProgress: 0.1, anchorIndex: 0)
+          }
+          Task {
+            await audioController.preload(itemIDs: [item.unwrappedID])
           }
         }
         .onDisappear {
@@ -519,7 +522,8 @@ struct WebReaderContainerView: View {
       try? WebViewManager.shared().dispatchEvent(.saveReadPosition)
     }
     .onDisappear {
-      WebViewManager.shared().loadHTMLString("<html></html>", baseURL: nil)
+      // WebViewManager.shared().loadHTMLString("<html></html>", baseURL: nil)
+      WebViewManager.shared().loadHTMLString(WebReaderContent.emptyContent(isDark: Color.isDarkMode), baseURL: nil)
     }
   }
 

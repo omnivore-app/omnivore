@@ -35,6 +35,7 @@ public struct WebReaderLoadingContainer: View {
   let requestID: String
 
   @EnvironmentObject var dataService: DataService
+  @EnvironmentObject var audioController: AudioController
   @StateObject var viewModel = WebReaderLoadingContainerViewModel()
 
   public var body: some View {

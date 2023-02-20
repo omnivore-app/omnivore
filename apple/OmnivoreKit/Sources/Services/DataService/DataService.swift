@@ -38,6 +38,7 @@ public final class DataService: ObservableObject {
     self.networker = networker
     self.persistentContainer = PersistentContainer.make()
     self.backgroundContext = persistentContainer.newBackgroundContext()
+
     backgroundContext.automaticallyMergesChangesFromParent = true
     backgroundContext.mergePolicy = NSMergePolicy.mergeByPropertyObjectTrump
 

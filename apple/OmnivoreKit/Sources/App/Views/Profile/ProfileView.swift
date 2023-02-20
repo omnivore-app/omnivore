@@ -179,7 +179,10 @@ struct ProfileView: View {
             Alert(
               title: Text(LocalText.profileConfirmLogoutMessage),
               primaryButton: .destructive(Text(LocalText.genericConfirm)) {
-                authenticator.logout(dataService: dataService)
+                dismiss()
+                DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
+                  authenticator.logout(dataService: dataService)
+                }
               },
               secondaryButton: .cancel()
             )

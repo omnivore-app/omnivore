@@ -107,21 +107,21 @@ public struct LibraryItemCard: View {
     AnyView(HStack {
       Text("\(estimatedReadingTime)")
         .font(Font.system(size: 11, weight: .medium))
-        .foregroundColor(Color(hex: "#898989"))
+        .foregroundColor(Color.themeMediumGray)
         +
         Text("\(readingProgress)")
         .font(Font.system(size: 11, weight: .medium))
-        .foregroundColor(isPartiallyRead ? Color.appGreenSuccess : Color(hex: "#898989"))
+        .foregroundColor(isPartiallyRead ? Color.appGreenSuccess : Color.themeMediumGray)
 
         +
         Text("\(highlightsText)")
         .font(Font.system(size: 11, weight: .medium))
-        .foregroundColor(Color(hex: "#898989"))
+        .foregroundColor(Color.themeMediumGray)
 
         +
         Text("\(notesText)")
         .font(Font.system(size: 11, weight: .medium))
-        .foregroundColor(Color(hex: "#898989"))
+        .foregroundColor(Color.themeMediumGray)
     }
     .frame(maxWidth: .infinity, alignment: .leading))
   }
@@ -178,7 +178,7 @@ public struct LibraryItemCard: View {
   var byLine: some View {
     Text(bylineStr)
       .font(Font.system(size: 15, weight: .regular))
-      .foregroundColor(Color(hex: "#898989"))
+      .foregroundColor(Color.themeMediumGray)
       .frame(maxWidth: .infinity, alignment: .leading)
       .lineLimit(1)
   }
@@ -190,7 +190,7 @@ public struct LibraryItemCard: View {
       Text(item.unwrappedTitle)
         .font(Font.system(size: 18, weight: .semibold))
         .lineSpacing(1.25)
-        .foregroundColor(isFullyRead ? Color(hex: "#898989") : .appGrayTextContrast)
+        .foregroundColor(isFullyRead ? Color.themeMediumGray : .appGrayTextContrast)
         .fixedSize(horizontal: false, vertical: true)
 
       byLine

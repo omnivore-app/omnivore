@@ -158,6 +158,7 @@ struct SafariWebLink: Identifiable {
     let readingProgress = messageBody["readingProgressPercent"] as? Double
     let anchorIndex = messageBody["readingProgressAnchorIndex"] as? Int
 
+    print("READING PROGRESS FROM JS: ", messageBody)
     guard let itemID = itemID, let readingProgress = readingProgress, let anchorIndex = anchorIndex else {
       replyHandler(["result": false], nil)
       return

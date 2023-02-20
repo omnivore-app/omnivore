@@ -31,6 +31,7 @@ public enum VoiceCategory: String, CaseIterable {
   case enUK = "English (UK)"
   case deDE = "German (Germany)"
   case hiIN = "Hindi (India)"
+  case itIT = "Italian (Italy)"
   case esES = "Spanish (Spain)"
   case jaJP = "Japanese (Japan)"
   case ptBR = "Portuguese (Brazil)"
@@ -69,6 +70,7 @@ public enum Voices {
     VoiceLanguage(key: "zh", name: "Chinese", defaultVoice: "zh-CN-XiaochenNeural", categories: [.zhCN]),
     VoiceLanguage(key: "de", name: "German", defaultVoice: "de-CH-JanNeural", categories: [.deDE]),
     VoiceLanguage(key: "hi", name: "Hindi", defaultVoice: "hi-IN-MadhurNeural", categories: [.hiIN]),
+    VoiceLanguage(key: "it", name: "Italian", defaultVoice: "it-IT-BenignoNeural", categories: [.itIT]),
     VoiceLanguage(key: "ja", name: "Japanese", defaultVoice: "ja-JP-NanamiNeural", categories: [.jaJP]),
     VoiceLanguage(key: "es", name: "Spanish", defaultVoice: "es-ES-AlvaroNeural", categories: [.esES]),
     VoiceLanguage(key: "pt", name: "Portuguese", defaultVoice: "pt-BR-AntonioNeural", categories: [.ptBR]),
@@ -98,12 +100,13 @@ public enum Voices {
     VoicePair(firstKey: "ta-IN-PallaviNeural", secondKey: "ta-IN-ValluvarNeural", firstName: "Pallavi", secondName: "Valluvar", language: "ta-IN", category: .taIN),
     VoicePair(firstKey: "ta-LK-KumarNeural", secondKey: "ta-LK-SaranyaNeural", firstName: "Kumar", secondName: "Saranya", language: "ta-LK", category: .taLK),
     VoicePair(firstKey: "ta-MY-KaniNeural", secondKey: "ta-MY-SuryaNeural", firstName: "Kani", secondName: "Surya", language: "ta-MY", category: .taMY),
-    VoicePair(firstKey: "ta-SG-AnbuNeural", secondKey: "ta-SG-VenbaNeural", firstName: "Anbu", secondName: "Venba", language: "ta-SG", category: .taSG)
+    VoicePair(firstKey: "ta-SG-AnbuNeural", secondKey: "ta-SG-VenbaNeural", firstName: "Anbu", secondName: "Venba", language: "ta-SG", category: .taSG),
+    VoicePair(firstKey: "it-IT-BenignoNeural", secondKey: "it-IT-IsabellaNeural", firstName: "Benigno", secondName: "Isabella", language: "it-IT", category: .itIT)
   ]
 
   public static let UltraPairs = [
-    VoicePair(firstKey: "Josh", secondKey: "Rachel", firstName: "Josh", secondName: "Rachel", language: "en-US", category: .enUS),
-    VoicePair(firstKey: "Arnold", secondKey: "Bella", firstName: "Arnold", secondName: "Bella", language: "en-US", category: .enUS),
-    VoicePair(firstKey: "Adam", secondKey: "Elli", firstName: "Adam", secondName: "Elli", language: "en-US", category: .enUS)
+    VoicePair(firstKey: "Josh", secondKey: "Bella", firstName: "Josh", secondName: "Bella", language: "en-US", category: .enUS)
+//    VoicePair(firstKey: "Arnold", secondKey: "Bella", firstName: "Arnold", secondName: "Bella", language: "en-US", category: .enUS),
+//    VoicePair(firstKey: "Adam", secondKey: "Elli", firstName: "Adam", secondName: "Elli", language: "en-US", category: .enUS)
   ]
 }

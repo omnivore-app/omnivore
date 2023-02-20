@@ -53,10 +53,9 @@ struct WebReader: PlatformViewRepresentable {
     webView.configuration.userContentController = contentController
     webView.configuration.userContentController.removeAllScriptMessageHandlers()
 
-    webView.uiDelegate
     #if os(iOS)
       webView.isOpaque = false
-      webView.backgroundColor = .clear
+      webView.backgroundColor = Color.isDarkMode ? .systemBackground : .white
       webView.scrollView.delegate = context.coordinator
       webView.scrollView.contentInset.top = readerViewNavBarHeight
       webView.scrollView.verticalScrollIndicatorInsets.top = readerViewNavBarHeight
