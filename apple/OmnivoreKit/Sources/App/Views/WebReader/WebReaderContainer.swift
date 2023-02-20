@@ -554,10 +554,11 @@ struct WebReaderContainerView: View {
   func scrollToTop() {}
 
   func openOriginalURL(urlString: String?) {
-    if let urlString = urlString,
-       let url = URL(string: urlString)
-    {
-      openURL(url)
-    }
+    guard
+      let urlString = urlString,
+      let url = URL(string: urlString)
+    else { return }
+
+    openURL(url)
   }
 }

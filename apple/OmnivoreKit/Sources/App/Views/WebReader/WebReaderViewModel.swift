@@ -192,10 +192,11 @@ struct SafariWebLink: Identifiable {
     }
   }
 
-  func setLabelsForHighlight(highlightID: String,
-                             labelIDs: [String],
-                             dataService: DataService)
-  {
+  func setLabelsForHighlight(
+    highlightID: String,
+    labelIDs: [String],
+    dataService: DataService
+  ) {
     dataService.setLabelsForHighlight(highlightID: highlightID, labelIDs: labelIDs)
   }
 

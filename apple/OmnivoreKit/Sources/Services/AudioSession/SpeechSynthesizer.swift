@@ -195,10 +195,11 @@ struct SpeechSynthesizer {
     }
   }
 
-  static func download(speechItem: SpeechItem,
-                       redownloadCached: Bool = false,
-                       session: URLSession = URLSession.shared) async throws -> SynthesizeData?
-  {
+  static func download(
+    speechItem: SpeechItem,
+    redownloadCached: Bool = false,
+    session: URLSession = URLSession.shared
+  ) async throws -> SynthesizeData? {
     let decoder = JSONDecoder()
 
     if !redownloadCached {

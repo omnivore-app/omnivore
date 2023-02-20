@@ -164,9 +164,10 @@ public class ShareExtensionViewModel: ObservableObject {
     updateStatusOnMain(requestId: newRequestID, newStatus: .synced)
 
     // Prefetch the newly saved content
-    if let itemID = newRequestID,
-       let currentViewer = services.dataService.currentViewer?.username,
-       (try? await services.dataService.loadArticleContentWithRetries(itemID: itemID, username: currentViewer)) != nil
+    if
+      let itemID = newRequestID,
+      let currentViewer = services.dataService.currentViewer?.username,
+      (try? await services.dataService.loadArticleContentWithRetries(itemID: itemID, username: currentViewer)) != nil
     {
       updateStatusOnMain(requestId: requestId, newStatus: .synced, objectID: linkedItemObjectID)
     }

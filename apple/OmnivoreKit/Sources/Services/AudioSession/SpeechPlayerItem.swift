@@ -84,9 +84,10 @@ class SpeechPlayerItem: AVPlayerItem {
     var pendingRequests = Set<AVAssetResourceLoadingRequest>()
     weak var owner: SpeechPlayerItem?
 
-    func resourceLoader(_: AVAssetResourceLoader,
-                        shouldWaitForLoadingOfRequestedResource loadingRequest: AVAssetResourceLoadingRequest) -> Bool
-    {
+    func resourceLoader(
+      _: AVAssetResourceLoader,
+      shouldWaitForLoadingOfRequestedResource loadingRequest: AVAssetResourceLoadingRequest
+    ) -> Bool {
       if owner == nil {
         return true
       }

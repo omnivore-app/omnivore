@@ -22,10 +22,11 @@ public struct InternalRecommendation {
   public static func make(_ recommendations: NSSet?) -> [InternalRecommendation] {
     recommendations?
       .compactMap { recommendation in
-        if let recommendation = recommendation as? Recommendation,
-           let groupID = recommendation.groupID,
-           let name = recommendation.name,
-           let recommendedAt = recommendation.recommendedAt
+        if
+          let recommendation = recommendation as? Recommendation,
+          let groupID = recommendation.groupID,
+          let name = recommendation.name,
+          let recommendedAt = recommendation.recommendedAt
         {
           return InternalRecommendation(
             groupID: groupID,
