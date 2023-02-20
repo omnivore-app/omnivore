@@ -198,10 +198,6 @@
 "errorNetwork" = "我们在连接到互联网时遇到问题。";
 "documentationGeneric" = "使用文档";
 
-// Unit test Entry -- Do not remove this or add entries after this one.
-// This allows us to check for syntax errors in this file with a unit test
-"unitTestTrailingEntry" = "仅用于测试目的。";
-
 // Unreferenced
 // "signInScreenHeadline" = "保存并分享喜爱的网页.";
 // "registrationViewSignInHeadline" = "登录";
@@ -287,7 +283,7 @@
 //"Invite link copied" = "已复制邀请链接";
 //
 //// Views/Profile/RecommendationGroupsView.swift
-//"Error creating club"
+//"Error creating club" = "Error creating club";
 //"Club Rules" = "已复制邀请链接";
 //"Only admins can post" = "只有管理员可以发帖";
 //"Only admins can see members" = "只有管理员才能看到成员";
@@ -330,3 +326,7 @@
 //"View Privacy Policy" = "查看隐私策略";
 //"Self-hosting options" = "自我管选项";
 //"View Details" = "查看详情";
+
+// Unit test Entry -- Do not remove this or add entries after this one.
+// This allows us to check for syntax errors in this file with a unit test
+"unitTestTrailingEntry" = "仅用于测试目的。";

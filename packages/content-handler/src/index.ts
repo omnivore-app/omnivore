@@ -35,7 +35,7 @@ import { EveryIoHandler } from './newsletters/every-io-handler'
 import { EnergyWorldHandler } from './newsletters/energy-world'
 import { IndiaTimesHandler } from './newsletters/india-times-handler'
 
-const validateUrlString = (url: string) => {
+const validateUrlString = (url: string): boolean => {
   const u = new URL(url)
   // Make sure the URL is http or https
   if (u.protocol !== 'http:' && u.protocol !== 'https:') {
@@ -49,6 +49,8 @@ const validateUrlString = (url: string) => {
   if (/^(10|172\.16|192\.168)\..*/.test(u.hostname)) {
     throw new Error('Invalid URL is private ip')
   }
+
+  return true
 }
 
 const contentHandlers: ContentHandler[] = [
@@ -70,6 +72,7 @@ const contentHandlers: ContentHandler[] = [
   new BloombergNewsletterHandler(),
   new SubstackHandler(),
   new StackOverflowHandler(),
+  new EnergyWorldHandler(),
 ]
 
 const newsletterHandlers: ContentHandler[] = [

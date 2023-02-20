@@ -226,7 +226,7 @@ Readability.prototype = {
 
   // These are the classes that readability sets itself.
   CLASSES_TO_PRESERVE: [
-    "page", "twitter-tweet", "tweet-placeholder", "instagram-placeholder", "morning-brew-markets"
+    "page", "twitter-tweet", "tweet-placeholder", "instagram-placeholder", "morning-brew-markets", "prism-code"
   ],
 
   // Classes of placeholder elements that can be empty but shouldn't be removed
@@ -545,6 +545,7 @@ Readability.prototype = {
 
           const proxySrc = this.createImageProxyUrl(absoluteSrc, width, height);
           image.setAttribute('src', proxySrc);
+          image.setAttribute('data-omnivore-original-src', absoluteSrc)
         }
 
         // remove crossorigin attribute to avoid CORS errors
@@ -2974,8 +2975,6 @@ Readability.prototype = {
 
     const byline = metadata.byline || this._articleByline;
     const [author, publishedAt] = extractPublishedDateFromAuthor(byline);
-
-    this.log("Grabbed: " + articleContent.innerHTML);
 
     this._postProcessContent(articleContent);
 

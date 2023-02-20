@@ -21,8 +21,12 @@ import {
   findEmbeddedHighlight,
 } from './highlightGenerator'
 import { NodeHtmlMarkdown } from 'node-html-markdown'
+import { promisify } from 'util'
+import * as jwt from 'jsonwebtoken'
+import { env } from '../env'
 
 const logger = buildLogger('utils.parse')
+const signToken = promisify(jwt.sign)
 
 export const ALLOWED_CONTENT_TYPES = [
   'text/html',
@@ -199,7 +203,7 @@ export const parsePreparedContent = async (
     return {
       canonicalUrl: url,
       parsedContent: null,
-      domContent: preparedDocument.document,
+      domContent: document,
       pageType: PageType.Unknown,
     }
   }
@@ -219,7 +223,7 @@ export const parsePreparedContent = async (
     if (!article?.textContent && allowRetry) {
       const newDocument = {
         ...preparedDocument,
-        document: '<html>' + preparedDocument.document + '</html>',
+        document: '<html>' + document + '</html>',
       }
       return parsePreparedContent(
         url,
@@ -235,7 +239,9 @@ export const parsePreparedContent = async (
     // to the handlers, and have some concept of postHandle
     if (article?.content) {
       const articleDom = parseHTML(article.content).document
-      const codeBlocks = articleDom.querySelectorAll('code')
+      const codeBlocks = articleDom.querySelectorAll(
+        'code, pre[class^="prism-"], pre[class^="language-"]'
+      )
       if (codeBlocks.length > 0) {
         codeBlocks.forEach((e) => {
           if (e.textContent) {
@@ -333,7 +339,7 @@ export const parsePreparedContent = async (
   logger.info('parse-article completed')
 
   return {
-    domContent: preparedDocument.document,
+    domContent: document,
     parsedContent: article,
     canonicalUrl,
     pageType: parseOriginalContent(dom),
@@ -460,6 +466,8 @@ export const parseEmailAddress = (from: string): addressparser.EmailAddress => {
 export const fetchFavicon = async (
   url: string
 ): Promise<string | undefined> => {
+  // don't fetch favicon for fake urls
+  if (url.startsWith(FAKE_URL_PREFIX)) return undefined
   try {
     // get the correct url if it's a redirect
     const response = await axios.head(url, { timeout: 5000 })
@@ -484,4 +492,32 @@ const nhm = new NodeHtmlMarkdown(
 
 export const htmlToMarkdown = (html: string) => {
   return nhm.translate(/* html */ html)
+}
+
+export const getDistillerResult = async (
+  uid: string,
+  html: string
+): Promise<string | undefined> => {
+  try {
+    const url = process.env.DISTILLER_URL
+    if (!url) {
+      console.log('No distiller url')
+      return undefined
+    }
+
+    const exp = Math.floor(Date.now() / 1000) + 60 * 60 // 1 hour
+    const auth = (await signToken({ uid, exp }, env.server.jwtSecret)) as string
+
+    console.debug('Parsing by distiller', url)
+    const response = await axios.post<string>(url, html, {
+      headers: {
+        Authorization: auth,
+      },
+      timeout: 5000,
+    })
+    return response.data
+  } catch (e) {
+    console.log('Error parsing by distiller', e)
+    return undefined
+  }
 }
