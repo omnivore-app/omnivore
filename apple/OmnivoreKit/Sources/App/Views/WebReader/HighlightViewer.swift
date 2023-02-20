@@ -54,6 +54,7 @@ struct HighlightViewer: PlatformViewRepresentable {
   }
 
   private func loadContent(webView: WKWebView) {
+    // swiftlint:disable line_length
     let themeKey = ThemeManager.currentThemeName
     let content = """
     <!DOCTYPE html>
@@ -73,6 +74,7 @@ struct HighlightViewer: PlatformViewRepresentable {
       </body>
     </html>
     """
+    // swiftlint:enable line_length
 
     webView.loadHTMLString(content, baseURL: ViewsPackage.resourceURL)
   }

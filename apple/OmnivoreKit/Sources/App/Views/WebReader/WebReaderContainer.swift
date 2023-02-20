@@ -195,6 +195,7 @@ struct WebReaderContainerView: View {
         viewModel.downloadAudio(audioController: audioController, item: item)
       },
       label: {
+        // swiftlint:disable:next line_length
         Label(viewModel.isDownloadingAudio ? "Downloading Audio" : "Download Audio", systemImage: "icloud.and.arrow.down")
       }
     )

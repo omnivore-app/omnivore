@@ -143,6 +143,7 @@ struct HighlightsListCard: View {
       HStack {
         Divider()
           .frame(width: 2)
+          // swiftlint:disable:next line_length
           .overlay(highlightParams.createdBy != nil ? Color(red: 206 / 255.0, green: 239 / 255.0, blue: 159 / 255.0) : Color.appYellow48)
           .opacity(0.8)
           .padding(.top, 2)

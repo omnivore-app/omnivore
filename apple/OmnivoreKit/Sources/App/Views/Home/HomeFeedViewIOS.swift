@@ -514,6 +514,7 @@ import Views
           }
         }
       }
+      // swiftlint:disable:next line_length
       .alert("Are you sure you want to delete this item? All associated notes and highlights will be deleted.", isPresented: $confirmationShown) {
         Button("Delete Item", role: .destructive) {
           if let itemToRemove = itemToRemove {
