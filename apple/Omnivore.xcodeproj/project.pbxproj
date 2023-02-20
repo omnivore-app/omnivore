@@ -15,7 +15,7 @@
 		045B1681279147E7005047F7 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 045B1680279147E7005047F7 /* FirebaseMessaging */; };
 		0465B9BE26CDD35F005558CD /* MainApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D81BE98F0CB588F5FC577A13 /* MainApp.swift */; };
 		046C5CD526A3F89A00AC5349 /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 046C5CD426A3F89A00AC5349 /* icon.icns */; };
-		046C5CDF26A3F89A00AC5349 /* ShareExtension-Mac.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 046C5CD226A3F89A00AC5349 /* ShareExtension-Mac.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		046C5CDF26A3F89A00AC5349 /* ShareExtension-Mac.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 046C5CD226A3F89A00AC5349 /* ShareExtension-Mac.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		046C5CE626A3FE8C00AC5349 /* App in Frameworks */ = {isa = PBXBuildFile; productRef = 046C5CE526A3FE8C00AC5349 /* App */; };
 		047AD6F22724C934004FD5CF /* App in Frameworks */ = {isa = PBXBuildFile; productRef = 047AD6F12724C934004FD5CF /* App */; };
 		047AD6F42724C941004FD5CF /* App in Frameworks */ = {isa = PBXBuildFile; productRef = 047AD6F32724C941004FD5CF /* App */; };
@@ -30,10 +30,10 @@
 		04E9707226BDE5F1002A523D /* ShareExtension.js in Resources */ = {isa = PBXBuildFile; fileRef = 04E9706E26BDE47D002A523D /* ShareExtension.js */; };
 		04EE742126DFD2EF001B3483 /* ScreenIdentifierHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04EE741F26DFD2CA001B3483 /* ScreenIdentifierHelpers.swift */; };
 		04EE742226DFD2F0001B3483 /* ScreenIdentifierHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04EE741F26DFD2CA001B3483 /* ScreenIdentifierHelpers.swift */; };
-		1BE07906EAA5555B6140B6DB /* ShareExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 95D337DDCEA2007A9705A969 /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		1BE07906EAA5555B6140B6DB /* ShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 95D337DDCEA2007A9705A969 /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		260BBE4168E3C57D6D2E225D /* App in Frameworks */ = {isa = PBXBuildFile; productRef = 7DD0EF4D497D71D248C7B0DF /* App */; };
-		4214F6EF2714D2260096B644 /* SafariExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 42FF1B16271154A700B38C38 /* SafariExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		4214F6F22714D28E0096B644 /* SafariExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 42FF1B20271154A700B38C38 /* SafariExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		4214F6EF2714D2260096B644 /* SafariExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 42FF1B16271154A700B38C38 /* SafariExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		4214F6F22714D28E0096B644 /* SafariExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 42FF1B20271154A700B38C38 /* SafariExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		4225D59227164F82002A680F /* fonts in Resources */ = {isa = PBXBuildFile; fileRef = 4225D59127164F82002A680F /* fonts */; };
 		4225D59327164F82002A680F /* fonts in Resources */ = {isa = PBXBuildFile; fileRef = 4225D59127164F82002A680F /* fonts */; };
 		42321E852714E6B00056429F /* scripts in Resources */ = {isa = PBXBuildFile; fileRef = 42321E822714E6B00056429F /* scripts */; };
@@ -127,16 +127,16 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		046C5CE026A3F89A00AC5349 /* Embed App Extensions */ = {
+		046C5CE026A3F89A00AC5349 /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				046C5CDF26A3F89A00AC5349 /* ShareExtension-Mac.appex in Embed App Extensions */,
-				4214F6F22714D28E0096B644 /* SafariExtension.appex in Embed App Extensions */,
+				046C5CDF26A3F89A00AC5349 /* ShareExtension-Mac.appex in Embed Foundation Extensions */,
+				4214F6F22714D28E0096B644 /* SafariExtension.appex in Embed Foundation Extensions */,
 			);
-			name = "Embed App Extensions";
+			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		089E832985F9DC4E3D727F87 /* Embed Frameworks */ = {
@@ -169,15 +169,15 @@
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		BA17F8C8424E5121F1EE345C /* Embed App Extensions */ = {
+		BA17F8C8424E5121F1EE345C /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstSubfolderSpec = 13;
 			files = (
-				1BE07906EAA5555B6140B6DB /* ShareExtension.appex in Embed App Extensions */,
-				4214F6EF2714D2260096B644 /* SafariExtension.appex in Embed App Extensions */,
+				1BE07906EAA5555B6140B6DB /* ShareExtension.appex in Embed Foundation Extensions */,
+				4214F6EF2714D2260096B644 /* SafariExtension.appex in Embed Foundation Extensions */,
 			);
-			name = "Embed App Extensions";
+			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -641,7 +641,7 @@
 				048ECFF926A0B1CB00469E57 /* Frameworks */,
 				048ECFFA26A0B1CB00469E57 /* Resources */,
 				04B8B00426A0C19900D3ED0C /* ShellScript */,
-				046C5CE026A3F89A00AC5349 /* Embed App Extensions */,
+				046C5CE026A3F89A00AC5349 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
@@ -743,7 +743,7 @@
 			buildPhases = (
 				8E4C1300A69A749FE3B720A3 /* Sources */,
 				ABA2CCAE947C7AFC88C991A5 /* Resources */,
-				BA17F8C8424E5121F1EE345C /* Embed App Extensions */,
+				BA17F8C8424E5121F1EE345C /* Embed Foundation Extensions */,
 				6FD84AF08CA126EA8F6906A4 /* Embed Precompiled Frameworks */,
 				4C02552307C731B3D3F28680 /* Embed Frameworks */,
 				F06D5ADCFDD68AC8775386BB /* Frameworks */,
@@ -793,7 +793,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 1400;
-				LastUpgradeCheck = 1300;
+				LastUpgradeCheck = 1420;
 				TargetAttributes = {
 					0411792626A22860004AE24F = {
 						CreatedOnToolsVersion = 12.5;
@@ -1208,6 +1208,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = QJF2XZ86HB;
 				INFOPLIST_FILE = InfoPlists/MacUnitTests.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1234,6 +1235,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = QJF2XZ86HB;
 				INFOPLIST_FILE = InfoPlists/MacUnitTests.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1311,6 +1313,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 80;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = QJF2XZ86HB;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = InfoPlists/ShareExtensionMac.plist;
@@ -1343,6 +1346,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 80;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = QJF2XZ86HB;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = InfoPlists/ShareExtensionMac.plist;
@@ -1370,6 +1374,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = QJF2XZ86HB;
 				INFOPLIST_FILE = InfoPlists/MacUITests.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1395,6 +1400,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = QJF2XZ86HB;
 				INFOPLIST_FILE = InfoPlists/MacUITests.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1425,6 +1431,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 80;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = QJF2XZ86HB;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -1459,6 +1466,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 80;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = QJF2XZ86HB;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -1669,6 +1677,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 80;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = QJF2XZ86HB;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1708,6 +1717,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 80;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = QJF2XZ86HB;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1773,6 +1783,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -1940,6 +1951,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
