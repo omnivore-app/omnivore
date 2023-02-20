@@ -43,7 +43,7 @@ public final class DataService: ObservableObject {
     backgroundContext.mergePolicy = NSMergePolicy.mergeByPropertyObjectTrump
 
     if isFirstTimeRunningNewAppBuild() {
-      resetCoreData()
+      resetLocalStorage()
     } else {
       persistentContainer.loadPersistentStores { _, error in
         if let error = error {
@@ -102,10 +102,58 @@ public final class DataService: ObservableObject {
     }
   }
 
-  public func resetCoreData() {
+  private func clearDownloadedFiles() {
+    let relevantTypes = ["pdf", "mp3", "speechMarks"]
+    let fileMgr = FileManager()
+    logger.trace("removing cached downloads")
+
+    // clear the temporary files in the caches directory…
+    if let cacheFileURLs = try? fileMgr.contentsOfDirectory(
+      at: URL.om_cachesDirectory,
+      includingPropertiesForKeys: .none,
+      options: .skipsHiddenFiles
+    ) {
+      logger.trace("\(cacheFileURLs.count) file URLs in caches directory")
+      for fileURL in cacheFileURLs where relevantTypes.contains(fileURL.pathExtension) {
+        logger.trace("removing \(fileURL.absoluteString)")
+        try? fileMgr.removeItem(at: fileURL)
+      }
+    }
+
+    // …and also the copies written to Documents
+    let resourceKeys = Set<URLResourceKey>([.nameKey, .isDirectoryKey])
+    if let documentsFileURLs = try? fileMgr.contentsOfDirectory(
+      at: URL.om_documentsDirectory,
+      includingPropertiesForKeys: Array(resourceKeys),
+      options: .skipsHiddenFiles
+    ) {
+      logger.trace("\(documentsFileURLs.count) file URLs in documents directory")
+      for fileURL in documentsFileURLs {
+        guard
+          let resourceValues = try? fileURL.resourceValues(forKeys: resourceKeys),
+          let isDirectory = resourceValues.isDirectory,
+          let name = resourceValues.name
+        else {
+          continue
+        }
+        if isDirectory {
+          if name.hasPrefix("audio-") {
+            logger.trace("removing \(fileURL.absoluteString)")
+            try? fileMgr.removeItem(at: fileURL)
+          }
+        } else if relevantTypes.contains(fileURL.pathExtension) {
+          logger.trace("removing \(fileURL.absoluteString)")
+          try? fileMgr.removeItem(at: fileURL)
+        }
+      }
+    }
+  }
+
+  public func resetLocalStorage() {
     lastItemSyncTime = DateFormatter.formatterISO8601.string(from: Date(timeIntervalSinceReferenceDate: 0))
 
     clearCoreData()
+    clearDownloadedFiles()
 
     persistentContainer = PersistentContainer.make()
     persistentContainer.loadPersistentStores { _, error in
