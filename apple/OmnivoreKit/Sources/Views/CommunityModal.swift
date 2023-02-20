@@ -40,9 +40,9 @@ public struct CommunityModal: View {
     VStack {
       HStack {
         Spacer()
-        Button(action: {
+        Button {
           dismiss()
-        }) {
+        } label: {
           Image(systemName: "xmark.circle")
             .padding(10)
         }
