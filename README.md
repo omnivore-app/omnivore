@@ -19,12 +19,14 @@ We built Omnivore because we love reading and we want it to be more social. Join
 - PDF support
 - [Web app](https://omnivore.app/) written in Node.js and TypeScript
 - [Native iOS app](https://omnivore.app/install/ios)
+- [Android app](https://omnivore.app/install/android) ([source](https://github.com/omnivore-app/omnivore/tree/main/android/Omnivore))
 - Progressive web app for Android users
 - Browser extensions for [Chrome](https://omnivore.app/install/chrome), [Safari](https://omnivore.app/install/safari), [Firefox](https://omnivore.app/install/firefox), and [Edge](https://omnivore.app/install/edge)
 - Labels (aka tagging)
 - Offline support
 - Text to speech (iOS only)
 - [Logseq](https://logseq.com/) support via our [Logseq Plugin](https://github.com/omnivore-app/logseq-omnivore)
+- [Obsidian](https://obsidian.md/) support via our [Obsidian Plugin](https://github.com/omnivore-app/obsidian-omnivore)
 
 Every single part is fully open source! Fork it, extend it, or deploy it to your own server.
 
