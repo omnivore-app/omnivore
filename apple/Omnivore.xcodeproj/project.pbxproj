@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -663,7 +663,6 @@
 			buildPhases = (
 				43512AEB8FEA59E4C1B62535 /* Sources */,
 				B147F11D6548C5B600AC0CBD /* Resources */,
-				AAC826E9061AEBA0BF527814 /* Embed Precompiled Frameworks */,
 				76DAC57C99AFCDF06896A42F /* Embed Frameworks */,
 				3C5F49DFFF5F79D9D0C7412E /* Frameworks */,
 			);
@@ -744,7 +743,6 @@
 				8E4C1300A69A749FE3B720A3 /* Sources */,
 				ABA2CCAE947C7AFC88C991A5 /* Resources */,
 				BA17F8C8424E5121F1EE345C /* Embed Foundation Extensions */,
-				6FD84AF08CA126EA8F6906A4 /* Embed Precompiled Frameworks */,
 				4C02552307C731B3D3F28680 /* Embed Frameworks */,
 				F06D5ADCFDD68AC8775386BB /* Frameworks */,
 				909EF91C2946F26E9123C65F /* Format and Lint */,
@@ -772,7 +770,6 @@
 			buildPhases = (
 				041E0C13E0057CDDC868A4DB /* Sources */,
 				BC2DC89A3D7E1E86540ECA14 /* Resources */,
-				DEA43E9E9C46BFC9EBE0D359 /* Embed Precompiled Frameworks */,
 				089E832985F9DC4E3D727F87 /* Embed Frameworks */,
 				7D03721CA2BD53145181C839 /* Frameworks */,
 			);
@@ -979,20 +976,6 @@
 			shellPath = /bin/sh;
 			shellScript = "\"$SRCROOT\"/Scripts/format_and_lint.sh \n";
 		};
-		6FD84AF08CA126EA8F6906A4 /* Embed Precompiled Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Embed Precompiled Frameworks";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "echo \"Skipping, nothing to be embedded.\"";
-		};
 		909EF91C2946F26E9123C65F /* Format and Lint */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -1010,34 +993,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"$SRCROOT\"/Scripts/format_and_lint.sh \n";
-		};
-		AAC826E9061AEBA0BF527814 /* Embed Precompiled Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Embed Precompiled Frameworks";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "echo \"Skipping, nothing to be embedded.\"";
-		};
-		DEA43E9E9C46BFC9EBE0D359 /* Embed Precompiled Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Embed Precompiled Frameworks";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "echo \"Skipping, nothing to be embedded.\"";
 		};
 /* End PBXShellScriptBuildPhase section */
 
