@@ -1,5 +1,6 @@
 import Foundation
 
+// swiftlint:disable identifier_name
 public enum UserDefaultKey: String {
   case preferredWebFont
   case preferredWebFontSize

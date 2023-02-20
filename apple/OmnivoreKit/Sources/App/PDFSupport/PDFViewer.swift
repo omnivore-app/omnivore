@@ -2,7 +2,7 @@ import Combine
 import SwiftUI
 import Utils
 
-// swiftlint:disable file_length
+// swiftlint:disable file_length type_body_length
 #if os(iOS)
   import PSPDFKit
   import PSPDFKitUI

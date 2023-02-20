@@ -1,6 +1,7 @@
 import Models
 import Utils
 import WebKit
+// swiftlint:disable file_length
 
 /// Describes actions that can be sent from the WebView back to native views.
 /// The names on the javascript side must match for an action to be handled.
@@ -273,6 +274,7 @@ public final class OmnivoreWebView: WKWebView {
       true
     }
 
+    // swiftlint:disable:next cyclomatic_complexity
     override public func canPerformAction(_ action: Selector, withSender _: Any?) -> Bool {
       switch action {
       case #selector(annotateSelection): return true
@@ -418,6 +420,7 @@ public enum WebViewDispatchEvent {
   case saveReadPosition
 
   var script: String {
+    // swiftlint:disable:next implicit_getter
     get throws {
       let propertyLine = try scriptPropertyLine
       return "var event = new Event('\(eventName)');\(propertyLine)document.dispatchEvent(event);"
@@ -470,6 +473,7 @@ public enum WebViewDispatchEvent {
   }
 
   private var scriptPropertyLine: String {
+    // swiftlint:disable:next implicit_getter
     get throws {
       switch self {
       case let .handleFontContrastChange(isHighContrast: isHighContrast):

@@ -203,6 +203,7 @@ public extension LinkedItem {
     return item
   }
 
+  // swiftlint:disable:next cyclomatic_complexity
   func update(
     inContext context: NSManagedObjectContext,
     newReadingProgress: Double? = nil,

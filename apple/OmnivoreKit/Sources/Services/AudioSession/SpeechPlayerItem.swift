@@ -12,7 +12,7 @@ import Models
 
 // Somewhat based on: https://github.com/neekeetab/CachingPlayerItem/blob/master/CachingPlayerItem.swift
 class SpeechPlayerItem: AVPlayerItem {
-  let resourceLoaderDelegate = ResourceLoaderDelegate()
+  let resourceLoaderDelegate = ResourceLoaderDelegate() // swiftlint:disable:this weak_delegate
   let session: AudioController
   let speechItem: SpeechItem
   var speechMarks: [SpeechMark]?

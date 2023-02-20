@@ -4,7 +4,7 @@ import SwiftUI
 import Utils
 import Views
 
-// swiftlint:disable:next type_body_length
+// swiftlint:disable file_length type_body_length
 public struct ShareExtensionView: View {
   let extensionContext: NSExtensionContext?
   @StateObject var labelsViewModel = LabelsViewModel()

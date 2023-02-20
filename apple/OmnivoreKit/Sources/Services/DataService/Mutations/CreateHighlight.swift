@@ -4,6 +4,7 @@ import Models
 import SwiftGraphQL
 
 extension DataService {
+  // swiftlint:disable:next function_parameter_count
   public func createHighlight(
     shortId: String,
     highlightID: String,

@@ -6,7 +6,7 @@ import Utils
 import Views
 import WebKit
 
-// swiftlint:disable:next type_body_length
+// swiftlint:disable file_length type_body_length
 struct WebReaderContainerView: View {
   let item: LinkedItem
 

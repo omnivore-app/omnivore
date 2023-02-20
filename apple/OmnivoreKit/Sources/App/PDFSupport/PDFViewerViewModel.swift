@@ -17,6 +17,7 @@ final class PDFViewerViewModel: ObservableObject {
     onComplete(pdfItem.highlights.map { $0.patch ?? "" })
   }
 
+  // swiftlint:disable:next function_parameter_count
   func createHighlight(
     dataService: DataService,
     shortId: String,
