@@ -640,7 +640,7 @@
 				048ECFF826A0B1CB00469E57 /* Sources */,
 				048ECFF926A0B1CB00469E57 /* Frameworks */,
 				048ECFFA26A0B1CB00469E57 /* Resources */,
-				04B8B00426A0C19900D3ED0C /* ShellScript */,
+				04B8B00426A0C19900D3ED0C /* Format and Lint */,
 				046C5CE026A3F89A00AC5349 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
@@ -959,8 +959,9 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		04B8B00426A0C19900D3ED0C /* ShellScript */ = {
+		04B8B00426A0C19900D3ED0C /* Format and Lint */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -968,6 +969,7 @@
 			);
 			inputPaths = (
 			);
+			name = "Format and Lint";
 			outputFileListPaths = (
 			);
 			outputPaths = (
@@ -978,6 +980,7 @@
 		};
 		909EF91C2946F26E9123C65F /* Format and Lint */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
