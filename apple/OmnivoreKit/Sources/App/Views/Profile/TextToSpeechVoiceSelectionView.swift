@@ -47,6 +47,13 @@
           }
 
           if audioController.useUltraRealisticVoices {
+            if showLanguageChanger {
+              Section("Language") {
+                NavigationLink(destination: TextToSpeechLanguageView().navigationTitle("Language")) {
+                  Text(audioController.currentVoiceLanguage.name)
+                }
+              }
+            }
             ultraRealisticVoices
           } else {
             if showLanguageChanger {
