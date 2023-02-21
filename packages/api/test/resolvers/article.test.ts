@@ -810,7 +810,7 @@ describe('Article API', () => {
           userId: user.id,
           pageType: PageType.Article,
           title: 'test title',
-          content: '<p>search page</p>',
+          content: '<p>test search api</p>',
           slug: 'test slug',
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -849,7 +849,7 @@ describe('Article API', () => {
 
     context('when we search for a keyword', () => {
       before(() => {
-        keyword = 'search'
+        keyword = 'search api'
       })
 
       it('saves the term in search history', async () => {
@@ -875,7 +875,7 @@ describe('Article API', () => {
 
     context('when type:highlights is not in the query', () => {
       before(() => {
-        keyword = 'search'
+        keyword = 'search api'
       })
 
       it('should return pages in descending order', async () => {
@@ -901,7 +901,7 @@ describe('Article API', () => {
 
     context('when type:highlights is in the query', () => {
       before(() => {
-        keyword = 'search type:highlights'
+        keyword = "'search api' type:highlights"
       })
 
       it('should return highlights in descending order', async () => {
@@ -918,7 +918,7 @@ describe('Article API', () => {
 
     context('when is:unread is in the query', () => {
       before(() => {
-        keyword = 'search is:unread'
+        keyword = "'search api' is:unread"
       })
 
       it('should return unread articles in descending order', async () => {
@@ -930,6 +930,30 @@ describe('Article API', () => {
         expect(res.body.data.search.edges[2].node.id).to.eq(pages[2].id)
         expect(res.body.data.search.edges[3].node.id).to.eq(pages[1].id)
         expect(res.body.data.search.edges[4].node.id).to.eq(pages[0].id)
+      })
+    })
+
+    context('when no:label is in the query', () => {
+      before(async () => {
+        keyword = "'search api' no:label"
+      })
+
+      it('returns non-labeled items in descending order', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.search.pageInfo.totalCount).to.eq(5)
+      })
+    })
+
+    context('when no:highlight is in the query', () => {
+      before(async () => {
+        keyword = "'search api' no:highlight"
+      })
+
+      it('returns non-highlighted items in descending order', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.search.pageInfo.totalCount).to.eq(0)
       })
     })
   })

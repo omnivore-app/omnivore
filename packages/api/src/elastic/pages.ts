@@ -15,6 +15,7 @@ import {
   InFilter,
   LabelFilter,
   LabelFilterType,
+  NoFilter,
   ReadFilter,
   SortBy,
   SortOrder,
@@ -114,16 +115,15 @@ const appendExcludeLabelFilter = (
   body: SearchBody,
   filters: LabelFilter[]
 ): void => {
+  const labels = filters.map((filter) => filter.labels).flat()
   body.query.bool.must_not.push({
     nested: {
       path: 'labels',
-      query: filters.map((filter) => {
-        return {
-          terms: {
-            'labels.name': filter.labels,
-          },
-        }
-      }),
+      query: {
+        terms: {
+          'labels.name': labels,
+        },
+      },
     },
   })
 }
@@ -206,6 +206,21 @@ const appendRecommendedBy = (body: SearchBody, recommendedBy: string): void => {
       path: 'recommendations',
       query,
     },
+  })
+}
+
+const appendNoFilters = (body: SearchBody, noFilters: NoFilter[]): void => {
+  noFilters.forEach((filter) => {
+    body.query.bool.must_not.push({
+      nested: {
+        path: filter.field,
+        query: {
+          exists: {
+            field: filter.field,
+          },
+        },
+      },
+    })
   })
 }
 
@@ -390,6 +405,7 @@ export const searchPages = async (
       matchFilters,
       ids,
       includeContent,
+      noFilters,
     } = args
     // default order is descending
     const sortOrder = sort?.order || SortOrder.DESCENDING
@@ -483,6 +499,10 @@ export const searchPages = async (
           state: ArticleSavingRequestStatus.Deleted,
         },
       })
+    }
+
+    if (noFilters) {
+      appendNoFilters(body, noFilters)
     }
 
     console.log('searching pages in elastic', JSON.stringify(body))
