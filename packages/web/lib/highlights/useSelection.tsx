@@ -15,8 +15,8 @@ export function useSelection(
   const handleFinishTouch = useCallback(
     async (mouseEvent) => {
       const tapAttributes = {
-        tapX: mouseEvent.screenX,
-        tapY: mouseEvent.screenY,
+        tapX: mouseEvent.clientX,
+        tapY: mouseEvent.clientY,
       }
 
       window?.AndroidWebKitMessenger?.handleIdentifiableMessage(

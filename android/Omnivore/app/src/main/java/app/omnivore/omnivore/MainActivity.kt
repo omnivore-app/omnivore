@@ -15,7 +15,6 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import app.omnivore.omnivore.ui.auth.LoginViewModel
 import app.omnivore.omnivore.ui.library.LibraryViewModel
-import app.omnivore.omnivore.ui.reader.WebReaderViewModel
 import app.omnivore.omnivore.ui.root.RootView
 import app.omnivore.omnivore.ui.theme.OmnivoreTheme
 import com.pspdfkit.PSPDFKit
@@ -32,7 +31,6 @@ class MainActivity : ComponentActivity() {
 
     val loginViewModel: LoginViewModel by viewModels()
     val libraryViewModel: LibraryViewModel by viewModels()
-    val webReaderViewModel: WebReaderViewModel by viewModels()
 
     val context = this
 
@@ -53,7 +51,7 @@ class MainActivity : ComponentActivity() {
             .fillMaxSize()
             .background(color = Color.Black)
         ) {
-          RootView(loginViewModel, libraryViewModel, webReaderViewModel)
+          RootView(loginViewModel, libraryViewModel)
         }
       }
     }

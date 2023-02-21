@@ -18,14 +18,12 @@ import app.omnivore.omnivore.ui.auth.LoginViewModel
 import app.omnivore.omnivore.ui.auth.WelcomeScreen
 import app.omnivore.omnivore.ui.library.LibraryView
 import app.omnivore.omnivore.ui.library.LibraryViewModel
-import app.omnivore.omnivore.ui.reader.*
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 @Composable
 fun RootView(
   loginViewModel: LoginViewModel,
-  libraryViewModel: LibraryViewModel,
-  webReaderViewModel: WebReaderViewModel
+  libraryViewModel: LibraryViewModel
 ) {
   val hasAuthToken: Boolean by loginViewModel.hasAuthTokenLiveData.observeAsState(false)
   val systemUiController = rememberSystemUiController()
@@ -47,8 +45,7 @@ fun RootView(
     if (hasAuthToken) {
       PrimaryNavigator(
         loginViewModel = loginViewModel,
-        libraryViewModel = libraryViewModel,
-        webReaderViewModel = webReaderViewModel
+        libraryViewModel = libraryViewModel
       )
     } else {
       WelcomeScreen(viewModel = loginViewModel)
@@ -66,8 +63,7 @@ fun RootView(
 @Composable
 fun PrimaryNavigator(
   loginViewModel: LoginViewModel,
-  libraryViewModel: LibraryViewModel,
-  webReaderViewModel: WebReaderViewModel
+  libraryViewModel: LibraryViewModel
 ) {
   val navController = rememberNavController()
 
@@ -76,15 +72,6 @@ fun PrimaryNavigator(
       LibraryView(
         libraryViewModel = libraryViewModel,
         navController = navController
-      )
-    }
-
-    composable("WebReader/{slug}") {
-      webReaderViewModel.reset() // clear previously loaded item
-
-      WebReaderLoadingContainer(
-        it.arguments?.getString("slug") ?: "",
-        webReaderViewModel = webReaderViewModel
       )
     }
 
