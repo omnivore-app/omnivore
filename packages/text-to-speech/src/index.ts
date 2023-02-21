@@ -21,9 +21,9 @@ import { createClient } from 'redis'
 import { RealisticTextToSpeech } from './realisticTextToSpeech'
 
 // explicitly create the return type of RedisClient
-type RedisClient = ReturnType<typeof createClient>
+export type RedisClient = ReturnType<typeof createClient>
 
-interface UtteranceInput {
+export interface UtteranceInput {
   text: string
   idx: string
   isUltraRealisticVoice?: boolean
@@ -42,7 +42,7 @@ interface HTMLInput {
   bucket: string
 }
 
-interface CacheResult {
+export interface CacheResult {
   audioDataString: string
   speechMarks: SpeechMark[]
 }
@@ -67,7 +67,7 @@ const textToSpeechHandlers = [
   new RealisticTextToSpeech(),
 ]
 
-const synthesizeTextToSpeech = async (
+export const synthesizeTextToSpeech = async (
   input: TextToSpeechInput
 ): Promise<TextToSpeechOutput> => {
   const textToSpeechHandler = textToSpeechHandlers.find((handler) =>
@@ -380,4 +380,5 @@ module.exports = {
   htmlToSpeechFile,
   textToSpeechStreamingHandler,
   textToSpeechHandler,
+  synthesizeTextToSpeech,
 }
