@@ -9,6 +9,7 @@ export default async (
   const urlStr = req.query['url']
   const url = new URL(urlStr as string)
   const saveResult = await saveUrlMutation(url.toString())
+  console.log('saveResult: ', saveResult)
   if (saveResult?.jobId) {
     res.redirect(`/sr/${saveResult?.jobId}`)
     return
