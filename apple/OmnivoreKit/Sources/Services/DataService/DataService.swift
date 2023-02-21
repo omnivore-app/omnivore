@@ -29,9 +29,22 @@ public final class DataService: ObservableObject {
     persistentContainer.viewContext
   }
 
-  @AppStorage(UserDefaultKey.lastItemSyncTime.rawValue) public var lastItemSyncTime: String = {
-    DateFormatter.formatterISO8601.string(from: Date(timeIntervalSinceReferenceDate: 0))
-  }()
+  public var lastItemSyncTime: Date {
+    get {
+      guard
+        let str = UserDefaults.standard.string(forKey: UserDefaultKey.lastItemSyncTime.rawValue),
+        let date = DateFormatter.formatterISO8601.date(from: str)
+      else {
+        return Date(timeIntervalSinceReferenceDate: 0)
+      }
+      return date
+    }
+    set {
+      logger.trace("last item sync updated to \(newValue)")
+      let str = DateFormatter.formatterISO8601.string(from: newValue)
+      UserDefaults.standard.set(str, forKey: UserDefaultKey.lastItemSyncTime.rawValue)
+    }
+  }
 
   public init(appEnvironment: AppEnvironment, networker: Networker) {
     self.appEnvironment = appEnvironment
@@ -150,7 +163,7 @@ public final class DataService: ObservableObject {
   }
 
   public func resetLocalStorage() {
-    lastItemSyncTime = DateFormatter.formatterISO8601.string(from: Date(timeIntervalSinceReferenceDate: 0))
+    lastItemSyncTime = Date(timeIntervalSinceReferenceDate: 0)
 
     clearCoreData()
     clearDownloadedFiles()
