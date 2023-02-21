@@ -2,19 +2,17 @@ import { gql } from 'graphql-request'
 import { gqlFetcher } from '../networkHelpers'
 import { v4 as uuidv4 } from 'uuid'
 
-
-
-type SaveLinkOutput = {
+export type SaveLinkOutput = {
   jobId?: string
   url?: string
   clientRequestId?: string
 }
 
-type SaveResponseData = {
+export type SaveResponseData = {
   saveUrl?: SaveUrlData
 }
 
-type SaveUrlData = {
+export type SaveUrlData = {
   id: string
   url: string
   slug: string
@@ -26,9 +24,7 @@ export async function saveUrlMutation(
 ): Promise<SaveLinkOutput | undefined> {
   const clientRequestId = uuidv4()
   const mutation = gql`
-    mutation SaveUrl(
-      $input: SaveUrlInput!
-    ) {
+    mutation SaveUrl($input: SaveUrlInput!) {
       saveUrl(input: $input) {
         ... on SaveSuccess {
           url
@@ -48,7 +44,7 @@ export async function saveUrlMutation(
         url,
         clientRequestId,
         source: 'add-link',
-      }
+      },
     })
     const output = data as SaveResponseData | undefined
     return {
@@ -56,7 +52,8 @@ export async function saveUrlMutation(
       jobId: output?.saveUrl?.clientRequestId,
       clientRequestId: output?.saveUrl?.clientRequestId,
     }
-  } catch {
+  } catch (error) {
+    console.log('error savingUrl', { error })
     return undefined
   }
 }
