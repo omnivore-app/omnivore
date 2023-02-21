@@ -355,14 +355,13 @@
             scrubber
             audioButtons
           }
-          .frame(height: 138)
-          .background(Color.themeSolidBackground)
           .padding(.bottom, 8)
           .cornerRadius(8)
           .padding(.bottom, -8)
+          .frame(maxWidth: .infinity, maxHeight: 138)
+          .background(Color.themeSolidBackground.ignoresSafeArea())
         }
       }
-      .padding(0)
       .onAppear {
         self.tabIndex = audioController.currentAudioIndex
       }
