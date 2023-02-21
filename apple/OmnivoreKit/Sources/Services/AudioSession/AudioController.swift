@@ -162,7 +162,7 @@
     }
 
     public func downloadForOffline(itemID: String) async -> Bool {
-      if let document = try? await downloadSpeechFile(itemID: itemID, priority: .low) {
+      if let document = try? await getSpeechFile(itemID: itemID, priority: .low) {
         let synthesizer = SpeechSynthesizer(appEnvironment: dataService.appEnvironment, networker: dataService.networker, document: document, speechAuthHeader: speechAuthHeader)
         for item in synthesizer.createPlayerItems(from: 0) {
           do {
@@ -434,7 +434,7 @@
 
       if let itemID = itemAudioProperties?.itemID {
         Task {
-          let document = try? await self.downloadSpeechFile(itemID: itemID, priority: .high)
+          let document = try? await self.getSpeechFile(itemID: itemID, priority: .high)
 
           DispatchQueue.main.async {
             if let document = document {
@@ -559,7 +559,7 @@
 
       if let itemID = itemAudioProperties?.itemID {
         Task {
-          let document = try? await downloadSpeechFile(itemID: itemID, priority: .high)
+          let document = try? await getSpeechFile(itemID: itemID, priority: .high)
 
           DispatchQueue.main.async {
             self.setTextItems()
@@ -879,18 +879,21 @@
       let str = String(decoding: data, as: UTF8.self)
       print("result speech file: ", str)
 
-      document = try? JSONDecoder().decode(SpeechDocument.self, from: data)
-
-      // Cache the file - if it exists
-      if let document = document {
+      if let document = try? JSONDecoder().decode(SpeechDocument.self, from: data) {
         do {
           try? FileManager.default.createDirectory(at: document.audioDirectory, withIntermediateDirectories: true)
           try data.write(to: speechFileUrl)
+          return document
         } catch {
           print("error writing file", error)
         }
       }
 
+      return nil
+    }
+
+    func getSpeechFile(itemID: String, priority: DownloadPriority) async throws -> SpeechDocument? {
+      document = try await downloadSpeechFile(itemID: itemID, priority: priority)
       return document
     }
 

@@ -129,7 +129,6 @@ struct SpeechSynthesizer {
   func createPlayerItems(from: Int) -> [SpeechItem] {
     var result: [SpeechItem] = []
 
-    // TODO: JACKSON
     for idx in from ..< document.utterances.count {
       let utterance = document.utterances[idx]
       let voiceStr = utterance.voice ?? document.defaultVoice
