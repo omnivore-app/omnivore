@@ -64,6 +64,7 @@
       super.init()
       self.voiceList = generateVoiceList()
       self.realisticVoiceList = generateRealisticVoiceList()
+      self._currentLanguage = defaultLanguage
     }
 
     deinit {
