@@ -1,8 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import {
-  SaveResponseData,
-  saveUrlMutation,
-} from '../../lib/networking/mutations/saveUrlMutation'
+import { SaveResponseData } from '../../lib/networking/mutations/saveUrlMutation'
 import { ssrFetcher } from '../../lib/networking/networkHelpers'
 import { v4 as uuidv4 } from 'uuid'
 
