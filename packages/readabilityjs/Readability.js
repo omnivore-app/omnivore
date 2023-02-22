@@ -226,7 +226,7 @@ Readability.prototype = {
 
   // These are the classes that readability sets itself.
   CLASSES_TO_PRESERVE: [
-    "page", "twitter-tweet", "tweet-placeholder", "instagram-placeholder", "morning-brew-markets"
+    "page", "twitter-tweet", "tweet-placeholder", "instagram-placeholder", "morning-brew-markets", "prism-code"
   ],
 
   // Classes of placeholder elements that can be empty but shouldn't be removed
@@ -545,6 +545,7 @@ Readability.prototype = {
 
           const proxySrc = this.createImageProxyUrl(absoluteSrc, width, height);
           image.setAttribute('src', proxySrc);
+          image.setAttribute('data-omnivore-original-src', absoluteSrc)
         }
 
         // remove crossorigin attribute to avoid CORS errors
@@ -1320,8 +1321,8 @@ Readability.prototype = {
         // Add a point for the paragraph itself as a base.
         contentScore += 1;
 
-        // Add points for any commas within this paragraph.
-        contentScore += innerText.split(",").length;
+        // Add points for any commas (including those in CJK language) within this paragraph.
+        contentScore += innerText.split(/[,，、]/g).length;
 
         // For every 100 characters in this paragraph, add another point. Up to 3 points.
         contentScore += Math.min(Math.floor(innerText.length / 100), 3);
@@ -2803,6 +2804,22 @@ Readability.prototype = {
           (weight >= 25 && linkDensity > 0.5 && !(node.className === "tweet" && linkDensity === 1)) ||
           ((embedCount === 1 && contentLength < 75) || embedCount > 1))
 
+        // Allow simple lists of images to remain in pages
+        if (isList && haveToRemove) {
+          for (var x = 0; x < node.children.length; x++) {
+            let child = node.children[x];
+            // Don't filter in lists with li's that contain more than one child
+            if (child.children.length > 1) {
+              return haveToRemove;
+            }
+          }
+          var li_count = node.getElementsByTagName("li").length;
+          // Only allow the list to remain if every li contains an image
+          if (img === li_count) {
+            return false;
+          }
+        }
+
         if (haveToRemove) {
           this.log("Cleaning Conditionally", { className: node.className, children: Array.from(node.children).map(ch => ch.tagName) });
         }
@@ -2974,8 +2991,6 @@ Readability.prototype = {
 
     const byline = metadata.byline || this._articleByline;
     const [author, publishedAt] = extractPublishedDateFromAuthor(byline);
-
-    this.log("Grabbed: " + articleContent.innerHTML);
 
     this._postProcessContent(articleContent);
 

@@ -8,6 +8,7 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
 } from 'typeorm'
 import AdminJs from 'adminjs'
 import { Database, Resource } from '@adminjs/typeorm'
@@ -46,6 +47,7 @@ export const registerDatabase = async (secrets: any): Promise<Connection> => {
       UserArticle,
       ReceivedEmail,
       ContentDisplayReport,
+      Group,
     ],
   })
 
@@ -185,4 +187,35 @@ export class ReceivedEmail extends BaseEntity {
 
   @Column({ type: 'timestamp', name: 'updated_at' })
   updatedAt!: Date
+}
+
+@Entity()
+export class Group extends BaseEntity {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string
+
+  @Column('text')
+  name!: string
+
+  @OneToOne(() => User)
+  @JoinColumn({ name: 'created_at' })
+  createdBy!: User
+
+  @Column({ type: 'timestamp', name: 'created_at' })
+  createdAt!: Date
+
+  @Column({ type: 'timestamp', name: 'updated_at' })
+  updatedAt!: Date
+
+  @Column('text', { nullable: true })
+  description?: string | null
+
+  @Column('text', { nullable: true })
+  topics?: string | null
+
+  @Column('boolean', { default: false, name: 'only_admin_can_post' })
+  onlyAdminCanPost!: boolean
+
+  @Column('boolean', { default: false, name: 'only_admin_can_see_members' })
+  onlyAdminCanSeeMembers!: boolean
 }

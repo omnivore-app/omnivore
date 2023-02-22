@@ -36,6 +36,7 @@ export interface SearchFilter {
   matchFilters: FieldFilter[]
   ids: string[]
   recommendedBy?: string
+  noFilters: NoFilter[]
 }
 
 export enum LabelFilterType {
@@ -81,6 +82,10 @@ export interface SortParams {
 export interface FieldFilter {
   field: string
   value: string
+}
+
+export interface NoFilter {
+  field: string
 }
 
 const parseRecommendedBy = (str?: string): string | undefined => {
@@ -263,6 +268,22 @@ const parseIds = (field: string, str?: string): string[] | undefined => {
   return str.split(',')
 }
 
+const parseNoFilter = (str?: string): NoFilter | undefined => {
+  if (str === undefined) {
+    return undefined
+  }
+
+  const strLower = str.toLowerCase()
+  const accepted = ['highlight', 'label']
+  if (accepted.includes(strLower)) {
+    return {
+      field: `${strLower}s`,
+    }
+  }
+
+  return undefined
+}
+
 export const parseSearchQuery = (query: string | undefined): SearchFilter => {
   const searchQuery = query ? query.replace(/\W\s":/g, '') : undefined
   const result: SearchFilter = {
@@ -275,6 +296,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
     termFilters: [],
     matchFilters: [],
     ids: [],
+    noFilters: [],
   }
 
   if (!searchQuery) {
@@ -288,6 +310,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
       termFilters: [],
       matchFilters: [],
       ids: [],
+      noFilters: [],
     }
   }
 
@@ -310,6 +333,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
       'updated',
       'includes',
       'recommendedBy',
+      'no',
     ],
     tokenize: true,
   })
@@ -393,6 +417,11 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
         }
         case 'recommendedBy': {
           result.recommendedBy = parseRecommendedBy(keyword.value)
+          break
+        }
+        case 'no': {
+          const noFilter = parseNoFilter(keyword.value)
+          noFilter && result.noFilters.push(noFilter)
           break
         }
       }

@@ -1,0 +1,277 @@
+<DIV class="page" id="readability-page-1">
+    <article>
+        <!---->
+        <div id="post-content-body" data-gallery-root="" lang="ru" xml:lang="ru" xmlns="http://www.w3.org/1999/xhtml">
+            <a href="https://habr.com/ru/company/ruvds/blog/712386/">
+                <p><img src="https://habrastorage.org/r/w1560/webt/ai/z5/gz/aiz5gztttvvkegk_annvvgtumv8.png" data-src="https://habrastorage.org/webt/ai/z5/gz/aiz5gztttvvkegk_annvvgtumv8.png">
+                </p>
+            </a>
+            <p><i><SPAN color="#999999">Картинка, конечно, стронгли анрилейтед</SPAN></i></p>
+            <p> Разные трюки я тестировал на Google Chrome 107.0.5304.107 и Mozilla Firefox 107.0 на Windows 10.</p>
+            <p> Чтобы результаты всегда были железно воспроизводимыми, я отключил все С-State’ы, ядра зафиксировал на 5 ГГц.</p>
+            <p> У меня 9900К, это Coffee Lake c AVX256, какие оптимизации применит Jit для вашего процессора — я не знаю, результат на вашем компьютере может отличаться от моего, в т.ч. из-за микроархитектуры процессора.</p>
+            <p> Скорость парсинга кода тоже входит в бенчмарк, поэтому браузер с быстрым парсером будет впереди.<br>
+                <a name="habracut" id="habracut"></a>
+            </p>
+            <h2>
+                <SPAN color="#3AC1EF">Есть ли у переменной оверхед?</SPAN>
+            </h2>
+            <p> Есть ли смысл использовать только dot notation? Какова цена выноса лишней переменной?</p>
+            <pre><code><span>var</span> array = <span>new</span> <span>Array</span>(<span>65535</span>).fill()
+
+<span>// 3</span>
+<span>var</span> a = array.map(<span>(<span>x</span>) =&gt;</span> x)
+<span>var</span> b = array.map(<span>(<span>x</span>) =&gt;</span> x)
+<span>var</span> c = array.map(<span>(<span>x</span>) =&gt;</span> x)
+
+<span>// 2</span>
+<span>var</span> a = array.map(<span>(<span>x</span>) =&gt;</span> x)
+<span>var</span> b = array.map(<span>(<span>x</span>) =&gt;</span> x).map(<span>(<span>x</span>) =&gt;</span> x)
+
+<span>// 1</span>
+<span>var</span> a = array.map(<span>(<span>x</span>) =&gt;</span> x).map(<span>(<span>x</span>) =&gt;</span> x).map(<span>(<span>x</span>) =&gt;</span> x)</code></pre>
+            <p> Чтобы узнать, гоняет ли браузер память туда-сюда, делаем мы <code>.map</code> на массив длиной 65535 с нулями внутри. <a href="https://www.measurethat.net/Benchmarks/Show/22097/0/1-var-vs-2-vars-vs-3-vars">Линк</a>.</p>
+            <p><i><SPAN color="#999999">Здесь и далее в качестве единицы измерения на графиках будет указано кол-во выполнений кода в секунду, включая парсинг и компиляцию. Больше — лучше</SPAN></i></p>
+            <p> Хром не заметил разницы, а вот лиса заметила. Применительно к лисе, у лишней переменной есть измеряемый оверхед.</p>
+            <h2>
+                <SPAN color="#3AC1EF">Есть ли разница между var, let, const или их отсутствием?</SPAN>
+            </h2><br>
+            <p> Проверим. Используя разные биндинги — создадим POJO с переменной <code>е</code>. Потом добавим ему функцию <code>о</code> и запустим эту функцию. Бенчмарк простой, но движущихся частей много. <a href="https://www.measurethat.net/Benchmarks/Show/22083/0/const-vs-let-vs-var-vs-sloppy">Линк</a>.</p>
+            <pre><code><span>var</span> g = { <span>e</span>: [] }
+g.o = <span><span>function</span>(<span>x</span>) </span>{ g.e.push(...[<span>1</span>,<span>2</span>,<span>3</span>]) }
+g.o()</code></pre>
+            <p> Код выглядит так, отличаются только биндинги.</p>
+            <p> Результат неожиданный, но железно воспроизводимый. <code>var</code>, быстрее.</p>
+            <h2>
+                <SPAN color="#3AC1EF">Bounce pattern, Switch case, длинная тернарка</SPAN>
+            </h2>
+            <p> Если обе конструкции логически одинаковые, они должны строить одно и то же синтаксическое дерево, верно? Давайте проверим.</p>
+            <pre><code><span>// switch case</span>
+<span><span>function</span> <span>thing</span>(<span>e</span>) </span>{
+    <span>switch</span> (e) {
+      <span>case</span> <span>0</span>:
+        <span>return</span> <span>"0"</span>;
+
+      <span>case</span> <span>1</span>:
+        <span>return</span> <span>"1"</span>;
+
+      <span>case</span> <span>2</span>:
+        <span>return</span> <span>"2"</span>;
+
+      <span>case</span> <span>3</span>:
+        <span>return</span> <span>"3"</span>;
+        
+      <span>default</span>:
+        <span>return</span> <span>""</span>;
+    }
+}
+
+<span>// bounce pattern</span>
+<span><span>function</span> <span>bounce</span>(<span>x</span>)
+</span>{
+   <span>if</span> (x === <span>0</span>) <span>return</span> <span>"0"</span>;
+   <span>if</span> (x === <span>1</span>) <span>return</span> <span>"1"</span>;
+   <span>if</span> (x === <span>2</span>) <span>return</span> <span>"2"</span>;
+   <span>if</span> (x === <span>3</span>) <span>return</span> <span>"3"</span>;
+   
+   <span>return</span> <span>""</span>
+}
+
+<span>// ternary</span>
+<span><span>function</span> <span>bounce</span>(<span>x</span>) </span>{
+  <span>return</span> <span>0</span> === x ? <span>"0"</span> : <span>1</span> === x ? <span>"1"</span> : <span>2</span> === x ? <span>"2"</span> : <span>3</span> === x ? <span>"3"</span> : <span>""</span>;
+}</code></pre>
+            <p> Вот так выглядит код. Для всех вариантов он одинаков, отличаются только вызовы.</p>
+            <h3>
+                <SPAN color="#3AC1EF">▍ 1. Вызов в цикле</SPAN>
+            </h3><br>
+            <pre><code><span>for</span> (<span>let</span> t = <span>0</span>; <span>1e5</span> &gt; t; t++) bounce(<span>0</span>), bounce(<span>2</span>), bounce(<span>6</span>);</code></pre>
+            <p> Вызов выглядит так. <a href="https://www.measurethat.net/Benchmarks/Show/22099/0/no-type-coercion-switch-case-vs-bounce-pattern-vs-terna">Линк</a>.</p><br>
+            <h3>
+                <SPAN color="#3AC1EF">▍ 2. В цикле с другим типом</SPAN>
+            </h3><br>
+            <pre><code><span>for</span> (<span>let</span> t = <span>0</span>; <span>1e5</span> &gt; t; t++) bounce(<span>"0"</span>), bounce(<span>"2"</span>), bounce(<span>""</span>);</code></pre>
+            <p> Тут мы покидываем строку вместо числа. В свитче и <code>if</code> блоках используется строгое равенство, поэтому свитч выходит только через <code>default</code>, а <code>if</code>’ы выходят только последний <code>return</code>. <a href="https://www.measurethat.net/Benchmarks/Show/22098/0/type-coercion-switch-case-vs-bounce-pattern-vs-ternary">Линк</a>.</p><br>
+            <h3>
+                <SPAN color="#3AC1EF">▍ 3. Без цикла</SPAN>
+            </h3><br>
+            <pre><code>bounce(<span>0</span>), bounce(<span>2</span>), bounce(<span>6</span>)</code></pre>
+            <p> Просто три вызова подряд, никаких циклов. <a href="https://www.measurethat.net/Benchmarks/Show/22100/0/no-loop-switch-case-vs-bounce-pattern-vs-ternary">Линк</a>.</p>
+            <p> Похоже, что после первоначальной компиляции лиса не пытается дальше оптимизировать цикл, как это делает хром.</p>
+            <p> Также лиса, похоже, не строит одно и то же AST, как это делает хром. Рекомендую заменить ваши длинные <code>if</code>’ы и bounce паттерны на свитчи, чтобы избежать лисиных тормозов.</p>
+            <h2>
+                <SPAN color="#3AC1EF">Инициализация массива</SPAN>
+            </h2>
+            <p> Для примера возьму из паттернов функционального программирования, когда ты инициализируешь массив, прокидывая лямбду в инициализатор. Просто ради примера, в качестве этой лямбды будет fizzbuzz.</p>
+            <pre><code><span>var</span> times = <span>65535</span>;
+
+<span><span>function</span> <span>initializer</span>(<span>val, z</span>) </span>{
+    <span>const</span> i = z % <span>5</span> | <span>0</span>;
+    <span>return</span> <span>0</span> == (z % <span>3</span> | <span>0</span>) ? <span>0</span> === i ? <span>"fizzbuzz"</span> : <span>"fizz"</span> : <span>0</span> === i ? <span>"buzz"</span> : z;
+}
+
+<span>// for i</span>
+<span>var</span> b = <span>new</span> <span>Array</span>(times);
+<span>for</span> (<span>var</span> i = <span>0</span>; i &lt; times; i++) {
+    b[i] = initializer(b[i], i)
+}
+b
+
+<span>// for push</span>
+<span>var</span> c = [];
+<span>for</span> (<span>var</span> i = <span>0</span>; i &lt; times; i++) {
+    c.push(initializer(c[i], i))
+}
+c
+
+<span>// Fill Map</span>
+<span>new</span> <span>Array</span>(times).fill().map(initializer)
+</code></pre>
+            <p> Это не самый красивый fizzbuzz, но это мой fizzbuzz. <a href="https://www.measurethat.net/Benchmarks/Show/22086/0/array-initialization-for-for-push-fill-map">Линк на бенч</a>.</p>
+            <p> Вариант с <code>fill map</code> создаёт два массива, сначала при вызове конструктора, потом при вызове map. Но такой вариант безальтернативно быстрее на хроме.</p>
+            <h2>
+                <SPAN color="#3AC1EF">Конкатенация массивов</SPAN>
+            </h2><br>
+            <br>
+            <pre><code><span>// reduce</span>
+arr.reduce(<span>(<span>acc, val</span>) =&gt;</span> acc.concat(val), [])
+
+<span>// flatMap</span>
+arr.flatMap(<span><span>x</span> =&gt;</span> x)
+
+<span>// flat</span>
+arr.flat()
+
+<span>// reduce push</span>
+arr.reduce(<span>(<span>acc, val</span>) =&gt;</span> {
+    <span>if</span> (val) val.forEach(<span><span>a</span> =&gt;</span> acc.push(a));
+    <span>return</span> acc;
+}, [])
+
+<span>// forEach push</span>
+<span>let</span> acc = [];
+
+arr.forEach(<span><span>val</span> =&gt;</span> {
+    val &amp;&amp; val.forEach(<span><span>v</span> =&gt;</span> acc.push(v));
+}), acc;
+
+<span>//concat spread</span>
+[].concat(...arr)
+</code></pre>
+            <p> Конкатенация массивов на 1 уровень, поведение идентичное <code>flat(1)</code>. <a href="https://www.measurethat.net/Benchmarks/Show/22085/0/flat-vs-flatmap-vs-reduce-vs-reduce-push-vs-foreach-pus">Линк</a>.</p>
+            <p> Иногда я не понимаю, почему разработчики движков оставили такой потенциал для оптимизации.</p>
+            <h2>
+                <SPAN color="#3AC1EF">Уничтожение хрома</SPAN>
+            </h2>
+            <p> Бенчмарки ниже я перепроверял по нескольку раз, результат одинаковый и верный. Лиса действительно такая быстрая.</p>
+            <h3>
+                <SPAN color="#3AC1EF">▍ Итерация по массиву</SPAN>
+            </h3>
+            <p> Сравнивать будем <code>Array.prototype.forEach vs for...of vs for</code>. На код смотрите <a href="https://www.measurethat.net/Benchmarks/Show/22095/0/side-effect-for-i-vs-for-of-vs-foreach-fix">по линку</a>.</p>
+            <p> Ради производительности, циклы <code>for</code>, лучше переделать в <code>forEach</code>, чтобы хром не отставал.</p>
+            <h3>
+                <SPAN color="#3AC1EF">▍ Содержит ли строка значение</SPAN>
+            </h3><br>
+            <pre><code><span>// text.includes()</span>
+url.includes(<span>'matchthis'</span>)
+
+<span>// text.test()</span>
+/matchthis/.test(url)
+
+<span>// text.match()</span>
+url.match(<span>/matchthis/</span>).length &gt;= <span>0</span>
+
+<span>// text.indexOf()</span>
+url.indexOf(<span>'matchthis'</span>) &gt;= <span>0</span>
+
+<span>// text.search()</span>
+url.search(<span>'matchthis'</span>) &gt;= <span>0</span>
+</code></pre>
+            <p> Трюк с <code>IndexOf</code> быстрее и на лисе, и на хроме. Используйте трюк с <code>IndexOf</code>. <a href="https://www.measurethat.net/Benchmarks/Show/22090/0/includes-vs-test-vs-match-vs-indexof-vs-search-fix">Линк на бенчмарк</a>.</p>
+            <h2>
+                <SPAN color="#3AC1EF">Преобразование строки в число</SPAN>
+            </h2>
+            <p> Тестируем неявное преобразование, парсинг и вызов конструктора.</p>
+            <pre><code><span>// implicit</span>
+<span>var</span> imp = + strNum
+
+<span>// parseFloat</span>
+<span>var</span> toStr = <span>parseFloat</span>(strNum)
+
+<span>//Number</span>
+<span>var</span> num = <span>Number</span>(strNum)
+</code></pre><br>
+            <h3>
+                <SPAN color="#3AC1EF">▍ Int</SPAN>
+            </h3>
+            <p><a href="https://www.measurethat.net/Benchmarks/Show/21897/0/implicit-vs-parseint-vs-number-string-to-num">Линк на бенч</a>.</p>
+            <h3>
+                <SPAN color="#3AC1EF">▍ Float</SPAN>
+            </h3>
+            <p> Я перепроверял, это не ошибка. Неявный каст стринги в инт практически бесплатный у лисы. <a href="https://www.measurethat.net/Benchmarks/Show/22092/0/implicit-vs-parsefloat-vs-number-string-to-num">Линк на бенч</a>.</p>
+            <h2>
+                <SPAN color="#3AC1EF">Выводы</SPAN>
+            </h2><br>
+            <ol>
+                <li>Лисичка похорошела. </li>
+                <li>JS сделан за неделю на коленке. </li>
+                <li>Я не пишу на JS. </li>
+                <li>Вы тоже прекращайте. </li>
+            </ol><br>
+            <blockquote>
+                <b><a href="https://t.me/ruvds_community/130"><SPAN color="#3AC1EF">Играй в нашу новую игру прямо в Telegram!</SPAN></a></b>
+            </blockquote>
+            <p><a href="http://ruvds.com/ru-rub?utm_source=habr&utm_medium=article&utm_campaign=programmerguru&utm_content=js_tryuki_nablyudeniya_benchmarki_i_kak_lisa_unichtozhaet_xrom_ya_protestiroval_vsyo_chto_vam_bylo_len"><img src="https://habrastorage.org/r/w1560/webt/sz/7j/pf/sz7jpfj8i1pa6ocj-eia09dev4q.png" data-src="https://habrastorage.org/webt/sz/7j/pf/sz7jpfj8i1pa6ocj-eia09dev4q.png"></a>
+            </p>
+        </div>
+        <!---->
+        <div>
+            <div>
+                <p><span>Теги:</span></p>
+                <ul>
+                    <li>
+                        <a href="http://fakehost/ru/search/?target_type=posts&order=relevance&q=%5Bjavascript%5D">javascript</a>
+                    </li>
+                    <li>
+                        <a href="http://fakehost/ru/search/?target_type=posts&order=relevance&q=%5Bgoogle%20chrome%5D">google chrome</a>
+                    </li>
+                    <li>
+                        <a href="http://fakehost/ru/search/?target_type=posts&order=relevance&q=%5Bmozilla%20firefox%5D">mozilla firefox</a>
+                    </li>
+                    <li>
+                        <a href="http://fakehost/ru/search/?target_type=posts&order=relevance&q=%5B%D0%B1%D1%80%D0%B0%D1%83%D0%B7%D0%B5%D1%80%D1%8B%5D">браузеры</a>
+                    </li>
+                    <li>
+                        <a href="http://fakehost/ru/search/?target_type=posts&order=relevance&q=%5B%D0%B2%D1%8B%D1%81%D0%BE%D0%BA%D0%B0%D1%8F%20%D0%BF%D1%80%D0%BE%D0%B8%D0%B7%D0%B2%D0%BE%D0%B4%D0%B8%D1%82%D0%B5%D0%BB%D1%8C%D0%BD%D0%BE%D1%81%D1%82%D1%8C%5D">высокая производительность</a>
+                    </li>
+                    <li>
+                        <a href="http://fakehost/ru/search/?target_type=posts&order=relevance&q=%5B%D0%BE%D0%BF%D1%82%D0%B8%D0%BC%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D1%8F%5D">оптимизация</a>
+                    </li>
+                    <li>
+                        <a href="http://fakehost/ru/search/?target_type=posts&order=relevance&q=%5Bruvds_%D1%81%D1%82%D0%B0%D1%82%D1%8C%D0%B8%5D">ruvds_статьи</a>
+                    </li>
+                </ul>
+            </div>
+            <div>
+                <p><span>Хабы:</span></p>
+                <ul>
+                    <li>
+                        <a href="http://fakehost/ru/company/ruvds/blog/">Блог компании RUVDS.com</a>
+                    </li>
+                    <li>
+                        <a href="http://fakehost/ru/hub/hi/">Высокая производительность</a>
+                    </li>
+                    <li>
+                        <a href="http://fakehost/ru/hub/javascript/">JavaScript</a>
+                    </li>
+                    <li>
+                        <a href="http://fakehost/ru/hub/client_side_optimization/">Клиентская оптимизация</a>
+                    </li>
+                    <li>
+                        <a href="http://fakehost/ru/hub/browsers/">Браузеры</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </article>
+</DIV>

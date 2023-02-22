@@ -7,6 +7,7 @@ import {
   HasFilter,
   InFilter,
   LabelFilter,
+  NoFilter,
   ReadFilter,
   SortParams,
 } from '../utils/search'
@@ -103,7 +104,17 @@ export interface SearchBody {
                 terms: {
                   'labels.name': string[]
                 }
-              }[]
+              }
+            }
+          }
+        | {
+            nested: {
+              path: string
+              query: {
+                exists: {
+                  field: string
+                }
+              }
             }
           }
       )[]
@@ -317,4 +328,5 @@ export interface PageSearchArgs {
   ids?: string[]
   recommendedBy?: string
   includeContent?: boolean
+  noFilters?: NoFilter[]
 }

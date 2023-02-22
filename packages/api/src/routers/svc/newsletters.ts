@@ -73,8 +73,6 @@ export function newsletterServiceRouter() {
     console.log('create')
 
     const { message, expired } = readPushSubscription(req)
-    console.log('pubsub message:', message, 'expired:', expired)
-
     if (!message) {
       res.status(400).send('Bad Request')
       return

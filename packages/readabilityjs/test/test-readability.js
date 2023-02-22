@@ -293,7 +293,8 @@ describe("Readability API", function() {
         'https://webkit.org/demos/srcset/image-4x.png 4x">' +
         '</body></html>');
       var expected_xhtml = '<DIV class="page" id="readability-page-1">My image: ' +
-        '<img src="https://webkit.org/demos/srcset/image-src.png" ' +
+        '<img data-omnivore-original-src="https://webkit.org/demos/srcset/image-src.png" ' +
+        'src="https://webkit.org/demos/srcset/image-src.png" ' +
         'srcset="https://webkit.org/demos/srcset/image-1x.png 1x,' +
         'https://webkit.org/demos/srcset/image-2x.png 2x,' +
         'https://webkit.org/demos/srcset/image-3x.png 3x,' +
@@ -309,7 +310,7 @@ describe("Readability API", function() {
     it("should remove srcset elements that are lazy loading placeholders", async function() {
       var dom = parseHTML('<html><body>My image: <img class="shrinkToFit jetpack-lazy-image" src="https://i0.wp.com/cdn-images-1.medium.com/max/2000/1*rPXwIczUJRCE54v8FfAHGw.jpeg?resize=900%2C380&#038;ssl=1" alt width="900" height="380" data-recalc-dims="1" data-lazy-src="https://i0.wp.com/cdn-images-1.medium.com/max/2000/1*rPXwIczUJRCE54v8FfAHGw.jpeg?resize=900%2C380&amp;is-pending-load=1#038;ssl=1" srcset="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"></body></html>');
       var expected_xhtml = '<DIV class="page" id="readability-page-1">' +
-        'My image: <img src="https://i0.wp.com/cdn-images-1.medium.com/max/2000/1*rPXwIczUJRCE54v8FfAHGw.jpeg?resize=900%2C380&is-pending-load=1#038;ssl=1" alt="" width="900" height="380" data-recalc-dims="1" data-lazy-src="https://i0.wp.com/cdn-images-1.medium.com/max/2000/1*rPXwIczUJRCE54v8FfAHGw.jpeg?resize=900%2C380&is-pending-load=1#038;ssl=1">' +
+        'My image: <img data-omnivore-original-src="https://i0.wp.com/cdn-images-1.medium.com/max/2000/1*rPXwIczUJRCE54v8FfAHGw.jpeg?resize=900%2C380&is-pending-load=1#038;ssl=1" src="https://i0.wp.com/cdn-images-1.medium.com/max/2000/1*rPXwIczUJRCE54v8FfAHGw.jpeg?resize=900%2C380&is-pending-load=1#038;ssl=1" alt="" width="900" height="380" data-recalc-dims="1" data-lazy-src="https://i0.wp.com/cdn-images-1.medium.com/max/2000/1*rPXwIczUJRCE54v8FfAHGw.jpeg?resize=900%2C380&is-pending-load=1#038;ssl=1">' +
         '</DIV>';
       var content = (await (new Readability(dom.document, {
         createImageProxyUrl: function(url) {

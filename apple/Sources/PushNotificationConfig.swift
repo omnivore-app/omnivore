@@ -15,7 +15,7 @@ extension AppDelegate {
       return firebaseKeys ?? AppKeys.sharedInstance?.firebaseProdKeys
     }()
 
-    guard let keys = keys else { return }
+    guard let keys = keys, !keys.googleAppID.isEmpty else { return }
 
     let firebaseOpts = FirebaseOptions(googleAppID: keys.googleAppID, gcmSenderID: keys.gcmSenderID)
 

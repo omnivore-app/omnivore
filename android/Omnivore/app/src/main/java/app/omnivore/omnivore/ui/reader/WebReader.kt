@@ -4,42 +4,28 @@ import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Rect
 import android.util.Log
 import android.view.*
+import android.view.View.OnScrollChangeListener
+import android.view.ViewTreeObserver.OnScrollChangedListener
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.TopAppBar
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import app.omnivore.omnivore.R
-import app.omnivore.omnivore.ui.save.SaveSheetActivityBase
-import app.omnivore.omnivore.ui.savedItemViews.SavedItemContextMenu
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
-import kotlin.math.roundToInt
 
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
@@ -81,7 +67,14 @@ fun WebReader(
         settings.allowFileAccess = true
         settings.domStorageEnabled = true
 
+        alpha = 0.0f
+
         webViewClient = object : WebViewClient() {
+          override fun onPageFinished(view: WebView?, url: String?) {
+            super.onPageFinished(view, url)
+            viewModel?.showNavBar()
+            view?.animate()?.alpha(1.0f)?.duration = 200
+          }
         }
 
         val javascriptInterface = AndroidWebKitMessenger { actionID, json ->
@@ -99,7 +92,6 @@ fun WebReader(
             }
             "existingHighlightTap" -> {
               val tapCoordinates = Gson().fromJson(json, TapCoordinates::class.java)
-              Log.d("wv", "receive existing highlight tap action: $tapCoordinates")
               CoroutineScope(Dispatchers.Main).launch {
                 webReaderViewModel.hasTappedExistingHighlight = true
                 webReaderViewModel.lastTapCoordinates = tapCoordinates
@@ -142,9 +134,14 @@ fun WebReader(
   }
 }
 
-class OmnivoreWebView(context: Context) : WebView(context) {
+class OmnivoreWebView(context: Context) : WebView(context), OnScrollChangeListener {
   var viewModel: WebReaderViewModel? = null
   var actionMode: ActionMode? = null
+  val density = resources.displayMetrics.density
+
+  init {
+    setOnScrollChangeListener(this)
+  }
 
   private val actionModeCallback = object : ActionMode.Callback2() {
     // Called when the action mode is created; startActionMode() was called
@@ -229,12 +226,10 @@ class OmnivoreWebView(context: Context) : WebView(context) {
     override fun onGetContentRect(mode: ActionMode?, view: View?, outRect: Rect?) {
       Log.d("wv", "outRect: $outRect, View: $view")
       if (viewModel?.lastTapCoordinates != null) {
-        val scrollYOffset = viewModel?.scrollState?.value ?: 0
-        val xValue = viewModel!!.lastTapCoordinates!!.tapX.toInt()
-        val yValue = viewModel!!.lastTapCoordinates!!.tapY.toInt() + scrollYOffset + (viewModel?.currentToolbarHeight ?: 0)
+        val xValue = (viewModel!!.lastTapCoordinates!!.tapX * density).toInt()
+        val yValue = (viewModel!!.lastTapCoordinates!!.tapY * density).toInt()
         val rect = Rect(xValue, yValue, xValue, yValue)
 
-        Log.d("wvt", "scrollState: ${viewModel?.scrollState?.value}, bar height: ${viewModel?.currentToolbarHeight}")
         Log.d("wvt", "setting rect based on last tapped rect: ${viewModel?.lastTapCoordinates.toString()}")
         Log.d("wvt", "rect: $rect")
 
@@ -261,6 +256,10 @@ class OmnivoreWebView(context: Context) : WebView(context) {
   override fun startActionMode(callback: ActionMode.Callback?, type: Int): ActionMode {
     Log.d("wv", "startActionMode:type called")
     return super.startActionMode(actionModeCallback, type)
+  }
+
+  override fun onScrollChange(view: View?, x: Int, y: Int, oldX: Int, oldY: Int) {
+    viewModel?.onScrollChange((oldY - y).toFloat())
   }
 }
 

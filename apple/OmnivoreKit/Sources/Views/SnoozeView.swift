@@ -21,15 +21,15 @@ public struct SnoozeView: View {
       Spacer()
 
       HStack {
-        SnoozeIconButtonView(snooze: Snooze.snoozeValues[0], action: { snoozeItem($0) })
-        SnoozeIconButtonView(snooze: Snooze.snoozeValues[1], action: { snoozeItem($0) })
+        SnoozeIconButtonView(snooze: Snooze.currentValues[0], action: { snoozeItem($0) })
+        SnoozeIconButtonView(snooze: Snooze.currentValues[1], action: { snoozeItem($0) })
       }
 
       Spacer(minLength: 32)
 
       HStack {
-        SnoozeIconButtonView(snooze: Snooze.snoozeValues[2], action: { snoozeItem($0) })
-        SnoozeIconButtonView(snooze: Snooze.snoozeValues[3], action: { snoozeItem($0) })
+        SnoozeIconButtonView(snooze: Snooze.currentValues[2], action: { snoozeItem($0) })
+        SnoozeIconButtonView(snooze: Snooze.currentValues[3], action: { snoozeItem($0) })
       }
       Spacer()
     }.padding(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
@@ -102,14 +102,12 @@ struct Snooze {
     self.untilStr = formatter.string(from: until)
   }
 
-  static var snoozeValues: [Snooze] {
-    let now = Date()
-    return snoozeValuesForDate(now: now)
+  static var currentValues: [Snooze] {
+    calculateValues(for: Date(), calendar: Calendar.current)
   }
 
-  static func snoozeValuesForDate(now: Date) -> [Snooze] {
+  static func calculateValues(for now: Date, calendar: Calendar) -> [Snooze] {
     var res: [Snooze] = []
-    let calendar = Calendar.current
     let components = calendar.dateComponents([.year, .month, .day, .hour, .timeZone, .weekday], from: now)
 
     var tonightComponent = components

@@ -25,6 +25,7 @@ import kotlinx.coroutines.launch
 fun SaveContent(viewModel: SaveViewModel, modalBottomSheetState: ModalBottomSheetState, modifier: Modifier) {
   val coroutineScope = rememberCoroutineScope()
   val context = LocalContext.current
+  val enableReadNow = false
 
   Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colors.background) {
     Column(
@@ -37,26 +38,28 @@ fun SaveContent(viewModel: SaveViewModel, modalBottomSheetState: ModalBottomShee
     ) {
       Text(text = viewModel.message ?: "Saving")
       Row {
-        Button(
-          onClick = {
-            coroutineScope.launch {
-              modalBottomSheetState.hide()
-              viewModel.clientRequestID?.let {
-                val intent = Intent(context, WebReaderLoadingContainerActivity::class.java)
-                intent.putExtra("SAVED_ITEM_REQUEST_ID", it)
-                context.startActivity(intent)
+        if (enableReadNow) {
+          Button(
+            onClick = {
+              coroutineScope.launch {
+                modalBottomSheetState.hide()
+                viewModel.clientRequestID?.let {
+                  val intent = Intent(context, WebReaderLoadingContainerActivity::class.java)
+                  intent.putExtra("SAVED_ITEM_REQUEST_ID", it)
+                  context.startActivity(intent)
+                }
               }
-            }
-          },
-          colors = ButtonDefaults.buttonColors(
-            contentColor = Color(0xFF3D3D3D),
-            backgroundColor = Color.White
-          )
-        ) {
-          Text(text = "Read Now")
-        }
+            },
+            colors = ButtonDefaults.buttonColors(
+              contentColor = Color(0xFF3D3D3D),
+              backgroundColor = Color.White
+            )
+          ) {
+            Text(text = "Read Now")
+          }
 
-        Spacer(modifier = Modifier.width(8.dp))
+          Spacer(modifier = Modifier.width(8.dp))
+        }
 
         Button(
           onClick = {
@@ -69,10 +72,11 @@ fun SaveContent(viewModel: SaveViewModel, modalBottomSheetState: ModalBottomShee
             backgroundColor = Color(0xffffd234)
           )
         ) {
-          Text(text = "Read Later")
+          Text(text = if (enableReadNow) "Read Later" else "Dismiss")
         }
       }
     }
   }
 }
+
 

@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.persistence.AppDatabase
+import kotlinx.coroutines.*
 import javax.inject.Inject
 
 class DataService @Inject constructor(
@@ -14,4 +15,10 @@ class DataService @Inject constructor(
     context,
     AppDatabase::class.java, "omnivore-database"
   ).build()
+
+  fun clearDatabase() {
+    CoroutineScope(Dispatchers.IO).launch {
+      db.clearAllTables()
+    }
+  }
 }
