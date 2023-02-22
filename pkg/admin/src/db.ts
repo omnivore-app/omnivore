@@ -198,7 +198,7 @@ export class Group extends BaseEntity {
   name!: string
 
   @OneToOne(() => User)
-  @JoinColumn()
+  @JoinColumn({ name: 'created_at' })
   createdBy!: User
 
   @Column({ type: 'timestamp', name: 'created_at' })
