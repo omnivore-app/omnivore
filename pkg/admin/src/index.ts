@@ -8,6 +8,7 @@ import {
   UserArticle,
   UserProfile,
   ReceivedEmail,
+  Group,
   ContentDisplayReport,
 } from './db'
 import { compare, hashSync } from 'bcryptjs'
@@ -35,6 +36,7 @@ const ADMIN_USER_EMAIL =
       { resource: UserProfile, options: { parent: { name: 'Users' } } },
       { resource: UserArticle, options: { parent: { name: 'Users' } } },
       { resource: ReceivedEmail, options: { parent: { name: 'Users' } } },
+      { resource: Group, options: { parent: { name: 'Users' } } },
       {
         resource: ContentDisplayReport,
       },
