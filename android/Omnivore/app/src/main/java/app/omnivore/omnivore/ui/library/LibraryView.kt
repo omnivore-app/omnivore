@@ -65,7 +65,6 @@ fun LibraryViewContent(libraryViewModel: LibraryViewModel, modifier: Modifier) {
 
   val cardsData: List<SavedItemCardDataWithLabels> by libraryViewModel.itemsLiveData.observeAsState(listOf())
   val searchedCardsData: List<SavedItemCardDataWithLabels> by libraryViewModel.searchItemsLiveData.observeAsState(listOf())
-  val searchText: String by libraryViewModel.searchTextLiveData.observeAsState("")
 
   Box(
     modifier = Modifier
@@ -89,6 +88,7 @@ fun LibraryViewContent(libraryViewModel: LibraryViewModel, modifier: Modifier) {
       items(if (libraryViewModel.showSearchField) searchedCardsData else cardsData) { cardDataWithLabels ->
         SavedItemCard(
           cardData = cardDataWithLabels.cardData,
+          labels = cardDataWithLabels.labels,
           onClickHandler = {
             val activityClass = if (cardDataWithLabels.cardData.isPDF()) PDFReaderActivity::class.java else WebReaderLoadingContainerActivity::class.java
             val intent = Intent(context, activityClass)
