@@ -1,6 +1,7 @@
 import { createClient } from 'redis'
+import { RedisClient } from './index'
 
-export const createRedisClient = async (url?: string, cert?: string) => {
+export const createRedisClient = (url?: string, cert?: string): RedisClient => {
   const redisClient = createClient({
     url,
     socket: {
@@ -18,9 +19,6 @@ export const createRedisClient = async (url?: string, cert?: string) => {
   })
 
   redisClient.on('error', (err) => console.error('Redis Client Error', err))
-
-  await redisClient.connect()
-  console.log('Redis Client Connected:', url)
 
   return redisClient
 }

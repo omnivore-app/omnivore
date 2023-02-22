@@ -1,24 +1,44 @@
 import express from 'express'
 import { Server } from 'http'
 import { Server as SocketServer } from 'socket.io'
-import {
-  CacheResult,
-  RedisClient,
-  synthesizeTextToSpeech,
-  UtteranceInput,
-} from './index'
+import { CacheResult, synthesizeTextToSpeech, UtteranceInput } from './index'
 import { endSsml, startSsml } from './htmlToSsml'
 import crypto from 'crypto'
 import { TextToSpeechInput } from './textToSpeech'
 import { createRedisClient } from './redis'
+import * as jwt from 'jsonwebtoken'
 
 const SYNTHESIZE_EVENT = 'synthesize'
 const SYNTHESIZE_RESULT_EVENT = 'synthesizedResult'
 
 const app = express()
 const server = new Server(app)
-const io = new SocketServer(server)
-let redisClient: RedisClient
+const io = new SocketServer(server, {
+  serveClient: false,
+})
+const redisClient = createRedisClient(
+  process.env.REDIS_URL,
+  process.env.REDIS_CERT
+)
+redisClient
+  .connect()
+  .then(() => console.log('Redis Client Connected'))
+  .catch((err) => console.error('Redis Client Connection Error', err))
+
+// middleware to check if the request is valid
+io.use((socket, next) => {
+  if (!process.env.JWT_SECRET) {
+    return next(new Error('No JWT secret provided'))
+  }
+  const token = socket.handshake.auth.token as string
+  try {
+    jwt.verify(token, process.env.JWT_SECRET)
+    next()
+  } catch (err) {
+    console.error('JWT verification error', err)
+    return next(new Error('Unauthorized'))
+  }
+})
 // Listen for new connection
 io.on('connection', (socket) => {
   console.log('New client connected')
@@ -95,20 +115,21 @@ io.on('connection', (socket) => {
 })
 
 const PORT = parseInt(process.env.PORT || '') || 8080
-// eslint-disable-next-line @typescript-eslint/no-misused-promises
-server.listen(PORT, async () => {
-  redisClient = await createRedisClient(
-    process.env.REDIS_URL,
-    process.env.REDIS_CERT
-  )
+server.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`)
-  console.log('Press Ctrl+C to quit.')
 })
 
 // Clean up resources on shutdown
-// eslint-disable-next-line @typescript-eslint/no-misused-promises
-process.on('SIGTERM', async () => {
+process.on('SIGTERM', () => {
   console.log('received SIGTERM')
-  await redisClient.quit()
-  process.exit(0)
+  server.close(() => {
+    console.log('HTTP server closed')
+    redisClient
+      .quit()
+      .then(() => {
+        console.log('Redis Client Disconnected')
+      })
+      .catch((err) => console.error('Redis Client Disconnection Error', err))
+      .finally(() => process.exit(0))
+  })
 })

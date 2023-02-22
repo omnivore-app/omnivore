@@ -47,7 +47,7 @@ export interface CacheResult {
   speechMarks: SpeechMark[]
 }
 
-interface Claim {
+export interface Claim {
   uid: string
   featureName: string | null
   grantedAt: number | null
@@ -126,7 +126,7 @@ const getCharacterCountFromRedis = async (
 // store character count of each text to speech request in redis
 // which will be used to rate limit the request
 // expires after 1 day
-const updateCharacterCountInRedis = async (
+export const updateCharacterCountInRedis = async (
   redisClient: RedisClient,
   uid: string,
   wordCount: number
@@ -238,10 +238,11 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
     }
 
     // create redis client
-    const redisClient = await createRedisClient(
+    const redisClient = createRedisClient(
       process.env.REDIS_URL,
       process.env.REDIS_CERT
     )
+    await redisClient.connect()
 
     try {
       const utteranceInput = req.body as UtteranceInput
