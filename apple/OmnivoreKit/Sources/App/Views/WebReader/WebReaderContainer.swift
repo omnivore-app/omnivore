@@ -295,9 +295,12 @@ struct WebReaderContainerView: View {
         label: {
           #if os(iOS)
             Image(systemName: "ellipsis")
-              .padding(.horizontal)
+              .resizable(resizingMode: Image.ResizingMode.stretch)
+              .aspectRatio(contentMode: .fit)
+              .foregroundColor(.appGrayTextContrast)
+              .frame(width: 20, height: 20)
               .scaleEffect(navBarVisibilityRatio)
-              .frame(width: 36, height: 36)
+              .padding()
           #else
             Text(LocalText.genericOptions)
           #endif
@@ -306,6 +309,9 @@ struct WebReaderContainerView: View {
       #if os(macOS)
         .frame(maxWidth: 100)
         .padding(.trailing, 16)
+      #else
+        .padding(.trailing, 3)
+        .padding(.bottom, 10)
       #endif
     }
     .frame(height: readerViewNavBarHeight * navBarVisibilityRatio)
