@@ -213,9 +213,9 @@ export class Group extends BaseEntity {
   @Column('text', { nullable: true })
   topics?: string | null
 
-  @Column('boolean', { default: false })
+  @Column('boolean', { default: false, name: 'only_admin_can_post' })
   onlyAdminCanPost!: boolean
 
-  @Column('boolean', { default: false })
+  @Column('boolean', { default: false, name: 'only_admin_can_see_members' })
   onlyAdminCanSeeMembers!: boolean
 }
