@@ -12,7 +12,7 @@ import Models
 
 // Somewhat based on: https://github.com/neekeetab/CachingPlayerItem/blob/master/CachingPlayerItem.swift
 class SpeechPlayerItem: AVPlayerItem {
-  let resourceLoaderDelegate = ResourceLoaderDelegate()
+  let resourceLoaderDelegate = ResourceLoaderDelegate() // swiftlint:disable:this weak_delegate
   let session: AudioController
   let speechItem: SpeechItem
   var speechMarks: [SpeechMark]?
@@ -22,6 +22,7 @@ class SpeechPlayerItem: AVPlayerItem {
 
   var observer: Any?
 
+  // swiftlint:disable:next line_length
   init(session: AudioController, prefetchQueue: OperationQueue, speechItem: SpeechItem, completed: @escaping () -> Void) {
     self.speechItem = speechItem
     self.session = session
@@ -84,9 +85,10 @@ class SpeechPlayerItem: AVPlayerItem {
     var pendingRequests = Set<AVAssetResourceLoadingRequest>()
     weak var owner: SpeechPlayerItem?
 
-    func resourceLoader(_: AVAssetResourceLoader,
-                        shouldWaitForLoadingOfRequestedResource loadingRequest: AVAssetResourceLoadingRequest) -> Bool
-    {
+    func resourceLoader(
+      _: AVAssetResourceLoader,
+      shouldWaitForLoadingOfRequestedResource loadingRequest: AVAssetResourceLoadingRequest
+    ) -> Bool {
       if owner == nil {
         return true
       }
@@ -119,6 +121,7 @@ class SpeechPlayerItem: AVPlayerItem {
         }
 
         do {
+          // swiftlint:disable:next line_length
           let speechData = try await SpeechSynthesizer.download(speechItem: speechItem, session: self.session ?? URLSession.shared)
 
           DispatchQueue.main.async {
@@ -172,6 +175,7 @@ class SpeechPlayerItem: AVPlayerItem {
       _ = requestsFulfilled.map { self.pendingRequests.remove($0) }
     }
 
+    // swiftlint:disable:next line_length
     func fillInContentInformationRequest(_ contentInformationRequest: AVAssetResourceLoadingContentInformationRequest?) {
       contentInformationRequest?.contentType = UTType.mp3.identifier
 

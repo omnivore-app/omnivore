@@ -34,7 +34,6 @@ public extension DataService {
 
     let path = appEnvironment.graphqlPath
     let headers = networker.defaultHeaders
-    let context = backgroundContext
 
     return try await withCheckedThrowingContinuation { continuation in
       send(query, to: path, headers: headers) { queryResult in

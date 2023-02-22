@@ -43,37 +43,39 @@ public struct InternalUserProfile: Identifiable, Encodable {
   }
 
   public static func makeSingle(_ user: UserProfile?) -> InternalUserProfile? {
-    if let user = user,
-       let userID = user.userID,
-       let name = user.name,
-       let username = user.username
-    {
-      return InternalUserProfile(
-        userID: userID,
-        name: name,
-        username: username,
-        profileImageURL: user.profileImageURL
-      )
+    guard
+      let user = user,
+      let userID = user.userID,
+      let name = user.name,
+      let username = user.username
+    else {
+      return nil
     }
-    return nil
+    return InternalUserProfile(
+      userID: userID,
+      name: name,
+      username: username,
+      profileImageURL: user.profileImageURL
+    )
   }
 
   public static func make(_ users: NSSet?) -> [InternalUserProfile] {
     users?
       .compactMap { user in
-        if let user = user as? UserProfile,
-           let userID = user.userID,
-           let name = user.name,
-           let username = user.username
-        {
-          return InternalUserProfile(
-            userID: userID,
-            name: name,
-            username: username,
-            profileImageURL: user.profileImageURL
-          )
+        guard
+          let user = user as? UserProfile,
+          let userID = user.userID,
+          let name = user.name,
+          let username = user.username
+        else {
+          return nil
         }
-        return nil
+        return InternalUserProfile(
+          userID: userID,
+          name: name,
+          username: username,
+          profileImageURL: user.profileImageURL
+        )
       } ?? []
   }
 }

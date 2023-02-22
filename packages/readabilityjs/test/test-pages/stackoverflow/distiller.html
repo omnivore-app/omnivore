@@ -1,0 +1,1182 @@
+<div><p>
+                                                What is the use of the <code>yield</code> keyword in Python? What does it do?
+                                            </p><p>
+                                                For example, I&#39;m trying to understand this code<sup><strong>1</strong></sup>:
+                                            </p><pre><code><span>def</span> <span>_get_child_candidates</span>(<span>self, distance, min_dist, max_dist</span>):
+    <span>if</span> self._leftchild <span>and</span> distance - max_dist &lt; self._median:
+        <span>yield</span> self._leftchild
+    <span>if</span> self._rightchild <span>and</span> distance + max_dist &gt;= self._median:
+        <span>yield</span> self._rightchild  
+</code></pre><p>
+                                                And this is the caller:
+                                            </p><pre><code>result, candidates = [], [self]
+<span>while</span> candidates:
+    node = candidates.pop()
+    distance = node._get_dist(obj)
+    <span>if</span> distance &lt;= max_dist <span>and</span> distance &gt;= min_dist:
+        result.extend(node._values)
+    candidates.extend(node._get_child_candidates(distance, min_dist, max_dist))
+<span>return</span> result
+</code></pre><p>
+                                                What happens when the method <code>_get_child_candidates</code> is called? Is a list returned? A single element? Is it called again? When will subsequent calls stop?
+                                            </p><div>
+                                            <sub>1. This piece of code was written by Jochen Schulz (jrschulz), who made a great Python library for metric spaces. This is the link to the complete source: <a href="https://well-adjusted.de/~jrspieker/mspace/" rel="noreferrer">Module mspace</a>.</sub>
+                                        </div><img src="https://i.stack.imgur.com/XmATK.jpg?s=64&amp;g=1" alt="Kai - Kazuya Ito&#39;s user avatar"/><div><span>9</span>
+                                        
+                                    </div><div role="tooltip">
+                                                    This answer is useful
+                                                    
+                                                </div><div>
+                                                    2426
+                                                </div><div role="tooltip">
+                                                    This answer is not useful
+                                                    
+                                                </div><div role="tooltip">
+                                                    Save this answer.
+                                                    
+                                                </div><div role="tooltip">
+                                                    Show activity on this post.
+                                                    
+                                                </div><h2>
+                                                    Shortcut to understanding <code>yield</code>
+                                                </h2><p>
+                                                    When you see a function with <code>yield</code> statements, apply this easy trick to understand what will happen:
+                                                </p><ol><li>Insert a line <code>result = []</code> at the start of the function.</li><li>Replace each <code>yield expr</code> with <code>result.append(expr)</code>.</li><li>Insert a line <code>return result</code> at the bottom of the function.</li><li>Yay - no more <code>yield</code> statements! Read and figure out the code.</li><li>Compare function to the original definition.</li></ol><p>
+                                                    This trick may give you an idea of the logic behind the function, but what actually happens with <code>yield</code> is significantly different than what happens in the list-based approach. In many cases, the yield approach will be a lot more memory efficient and faster too. In other cases, this trick will get you stuck in an infinite loop, even though the original function works just fine. Read on to learn more...
+                                                </p><h2>
+                                                    Don&#39;t confuse your Iterables, Iterators, and Generators
+                                                </h2><p>
+                                                    First, the <strong>iterator protocol</strong> - when you write
+                                                </p><pre><code><span>for</span> x <span>in</span> mylist:
+    ...loop body...
+</code></pre><p>
+                                                    Python performs the following two steps:
+                                                </p><ol><li><p>
+                                                            Gets an iterator for <code>mylist</code>:
+                                                        </p>
+                                                        <p>
+                                                            Call <code>iter(mylist)</code> -&gt; this returns an object with a <code>next()</code> method (or <code>__next__()</code> in Python 3).
+                                                        </p>
+                                                        <p>
+                                                            [This is the step most people forget to tell you about]
+                                                        </p></li><li><p>
+                                                            Uses the iterator to loop over items:
+                                                        </p>
+                                                        <p>
+                                                            Keep calling the <code>next()</code> method on the iterator returned from step 1. The return value from <code>next()</code> is assigned to <code>x</code> and the loop body is executed. If an exception <code>StopIteration</code> is raised from within <code>next()</code>, it means there are no more values in the iterator and the loop is exited.
+                                                        </p></li></ol><p>
+                                                    The truth is Python performs the above two steps anytime it wants to <em>loop over</em> the contents of an object - so it could be a for loop, but it could also be code like <code>otherlist.extend(mylist)</code> (where <code>otherlist</code> is a Python list).
+                                                </p><p>
+                                                    Here <code>mylist</code> is an <em>iterable</em> because it implements the iterator protocol. In a user-defined class, you can implement the <code>__iter__()</code> method to make instances of your class iterable. This method should return an <em>iterator</em>. An iterator is an object with a <code>next()</code> method. It is possible to implement both <code>__iter__()</code> and <code>next()</code> on the same class, and have <code>__iter__()</code> return <code>self</code>. This will work for simple cases, but not when you want two iterators looping over the same object at the same time.
+                                                </p><p>
+                                                    So that&#39;s the iterator protocol, many objects implement this protocol:
+                                                </p><ol><li>Built-in lists, dictionaries, tuples, sets, and files.</li><li>User-defined classes that implement <code>__iter__()</code>.</li><li>Generators.</li></ol><p>
+                                                    Note that a <code>for</code> loop doesn&#39;t know what kind of object it&#39;s dealing with - it just follows the iterator protocol, and is happy to get item after item as it calls <code>next()</code>. Built-in lists return their items one by one, dictionaries return the <em>keys</em> one by one, files return the <em>lines</em> one by one, etc. And generators return... well that&#39;s where <code>yield</code> comes in:
+                                                </p><pre><code><span>def</span> <span>f123</span>():
+    <span>yield</span> <span>1</span>
+    <span>yield</span> <span>2</span>
+    <span>yield</span> <span>3</span>
+
+<span>for</span> item <span>in</span> f123():
+    <span>print</span> item
+</code></pre><p>
+                                                    Instead of <code>yield</code> statements, if you had three <code>return</code> statements in <code>f123()</code> only the first would get executed, and the function would exit. But <code>f123()</code> is no ordinary function. When <code>f123()</code> is called, it <em>does not</em> return any of the values in the yield statements! It returns a generator object. Also, the function does not really exit - it goes into a suspended state. When the <code>for</code> loop tries to loop over the generator object, the function resumes from its suspended state at the very next line after the <code>yield</code> it previously returned from, executes the next line of code, in this case, a <code>yield</code> statement, and returns that as the next item. This happens until the function exits, at which point the generator raises <code>StopIteration</code>, and the loop exits.
+                                                </p><p>
+                                                    So the generator object is sort of like an adapter - at one end it exhibits the iterator protocol, by exposing <code>__iter__()</code> and <code>next()</code> methods to keep the <code>for</code> loop happy. At the other end, however, it runs the function just enough to get the next value out of it, and puts it back in suspended mode.
+                                                </p><h2>
+                                                    Why Use Generators?
+                                                </h2><p>
+                                                    Usually, you can write code that doesn&#39;t use generators but implements the same logic. One option is to use the temporary list &#39;trick&#39; I mentioned before. That will not work in all cases, for e.g. if you have infinite loops, or it may make inefficient use of memory when you have a really long list. The other approach is to implement a new iterable class SomethingIter that keeps the state in instance members and performs the next logical step in its <code>next()</code> (or <code>__next__()</code> in Python 3) method. Depending on the logic, the code inside the <code>next()</code> method may end up looking very complex and prone to bugs. Here generators provide a clean and easy solution.
+                                                </p><div><span>3</span>
+                                        
+                                    </div><div role="tooltip">
+                                                    This answer is useful
+                                                    
+                                                </div><div>
+                                                    720
+                                                </div><div role="tooltip">
+                                                    This answer is not useful
+                                                    
+                                                </div><div role="tooltip">
+                                                    Save this answer.
+                                                    
+                                                </div><div role="tooltip">
+                                                    Show activity on this post.
+                                                    
+                                                </div><p>
+                                                    Think of it this way:
+                                                </p><p>
+                                                    An iterator is just a fancy sounding term for an object that has a <code>next()</code> method. So a yield-ed function ends up being something like this:
+                                                </p><p>
+                                                    Original version:
+                                                </p><pre><code><span>def</span> <span>some_function</span>():
+    <span>for</span> i <span>in</span> xrange(<span>4</span>):
+        <span>yield</span> i
+
+<span>for</span> i <span>in</span> some_function():
+    <span>print</span> i
+</code></pre><p>
+                                                    This is basically what the Python interpreter does with the above code:
+                                                </p><pre><code><span>class</span> <span>it</span>:
+    <span>def</span> <span>__init__</span>(<span>self</span>):
+        
+        self.count = -<span>1</span>
+
+    
+    
+    
+    <span>def</span> <span>__iter__</span>(<span>self</span>):
+        <span>return</span> self
+
+    
+    
+    <span>def</span> <span>next</span>(<span>self</span>):
+        self.count += <span>1</span>
+        <span>if</span> self.count &lt; <span>4</span>:
+            <span>return</span> self.count
+        <span>else</span>:
+            
+            
+            
+            <span>raise</span> StopIteration
+
+<span>def</span> <span>some_func</span>():
+    <span>return</span> it()
+
+<span>for</span> i <span>in</span> some_func():
+    <span>print</span> i
+</code></pre><p>
+                                                    For more insight as to what&#39;s happening behind the scenes, the <code>for</code> loop can be rewritten to this:
+                                                </p><pre><code>iterator = some_func()
+<span>try</span>:
+    <span>while</span> <span>1</span>:
+        <span>print</span> iterator.<span>next</span>()
+<span>except</span> StopIteration:
+    <span>pass</span>
+</code></pre><p>
+                                                    Does that make more sense or just confuse you more? :)
+                                                </p><p>
+                                                    I should note that this <em>is</em> an oversimplification for illustrative purposes. :)
+                                                </p><div><span>4</span>
+                                        
+                                    </div><div role="tooltip">
+                                                    This answer is useful
+                                                    
+                                                </div><div>
+                                                    610
+                                                </div><div role="tooltip">
+                                                    This answer is not useful
+                                                    
+                                                </div><div role="tooltip">
+                                                    Save this answer.
+                                                    
+                                                </div><div role="tooltip">
+                                                    Show activity on this post.
+                                                    
+                                                </div><p>
+                                                    The <code>yield</code> keyword is reduced to two simple facts:
+                                                </p><ol><li>If the compiler detects the <code>yield</code> keyword <em>anywhere</em> inside a function, that function no longer returns via the <code>return</code> statement. <em><strong>Instead</strong></em>, it <strong>immediately</strong> returns a <strong>lazy &#34;pending list&#34; object</strong> called a generator</li><li>A generator is iterable. What is an <em>iterable</em>? It&#39;s anything like a <code>list</code> or <code>set</code> or <code>range</code> or dict-view, with a <em>built-in protocol for visiting each element in a certain order</em>.</li></ol><p>
+                                                    In a nutshell: Most commonly, <strong>a generator is a lazy, incrementally-pending list</strong>, and <strong><code>yield</code> statements allow you to use function notation to program the list values</strong> the generator should incrementally spit out. <strong>Furthermore, advanced usage lets you use generators as coroutines (see below).</strong>
+                                                </p><pre><code>generator = myYieldingFunction(...)  
+x = <span>list</span>(generator)  
+
+   generator
+       v
+[x[<span>0</span>], ..., ???]
+
+         generator
+             v
+[x[<span>0</span>], x[<span>1</span>], ..., ???]
+
+               generator
+                   v
+[x[<span>0</span>], x[<span>1</span>], x[<span>2</span>], ..., ???]
+
+                       StopIteration exception
+[x[<span>0</span>], x[<span>1</span>], x[<span>2</span>]]     done
+</code></pre><p>
+                                                    Basically, whenever the <code>yield</code> statement is encountered, the function pauses and saves its state, then emits &#34;the next return value in the &#39;list&#39;&#34; according to the python iterator protocol (to some syntactic construct like a for-loop that repeatedly calls <code>next()</code> and catches a <code>StopIteration</code> exception, etc.). You might have encountered generators with <a href="https://www.python.org/dev/peps/pep-0289/" rel="noreferrer">generator expressions</a>; generator functions are more powerful because you can pass arguments back into the paused generator function, using them to implement coroutines. More on that later.
+                                                </p><h2>
+                                                    Basic Example (&#39;list&#39;)
+                                                </h2><p>
+                                                    Let&#39;s define a function <code>makeRange</code> that&#39;s just like Python&#39;s <code>range</code>. Calling <code>makeRange(n)</code> RETURNS A GENERATOR:
+                                                </p><pre><code><span>def</span> <span>makeRange</span>(<span>n</span>):
+    
+    i = <span>0</span>
+    <span>while</span> i &lt; n:
+        <span>yield</span> i
+        i += <span>1</span>
+
+<span>&gt;&gt;&gt; </span>makeRange(<span>5</span>)
+&lt;generator <span>object</span> makeRange at <span>0x19e4aa0</span>&gt;
+</code></pre><p>
+                                                    To force the generator to immediately return its pending values, you can pass it into <code>list()</code> (just like you could any iterable):
+                                                </p><pre><code><span>&gt;&gt;&gt; </span><span>list</span>(makeRange(<span>5</span>))
+[<span>0</span>, <span>1</span>, <span>2</span>, <span>3</span>, <span>4</span>]
+</code></pre><h2>
+                                                    Comparing example to &#34;just returning a list&#34;
+                                                </h2><p>
+                                                    The above example can be thought of as merely creating a list which you append to and return:
+                                                </p><pre><code>
+<span>def</span> <span>makeRange</span>(<span>n</span>):                
+    <span>&#34;&#34;&#34;return [0,1,2,...,n-1]&#34;&#34;&#34;</span> 
+    TO_RETURN = []               
+    i = <span>0</span>                        
+    <span>while</span> i &lt; n:                 
+        TO_RETURN += [i]         
+        i += <span>1</span>                   
+    <span>return</span> TO_RETURN             
+
+<span>&gt;&gt;&gt; </span>makeRange(<span>5</span>)
+[<span>0</span>, <span>1</span>, <span>2</span>, <span>3</span>, <span>4</span>]
+</code></pre><p>
+                                                    There is one major difference, though; see the last section.
+                                                </p><h2>
+                                                    How you might use generators
+                                                </h2><p>
+                                                    An iterable is the last part of a list comprehension, and all generators are iterable, so they&#39;re often used like so:
+                                                </p><pre><code>
+<span>&gt;&gt;&gt; </span>[x+<span>10</span> <span>for</span> x <span>in</span> makeRange(<span>5</span>)]
+[<span>10</span>, <span>11</span>, <span>12</span>, <span>13</span>, <span>14</span>]
+</code></pre><p>
+                                                    To get a better feel for generators, you can play around with the <code>itertools</code> module (be sure to use <code>chain.from_iterable</code> rather than <code>chain</code> when warranted). For example, you might even use generators to implement infinitely-long lazy lists like <code>itertools.count()</code>. You could implement your own <code>def enumerate(iterable): zip(count(), iterable)</code>, or alternatively do so with the <code>yield</code> keyword in a while-loop.
+                                                </p><p>
+                                                    Please note: generators can actually be used for many more things, such as <a href="http://www.dabeaz.com/coroutines/index.html" rel="noreferrer">implementing coroutines</a> or non-deterministic programming or other elegant things. However, the &#34;lazy lists&#34; viewpoint I present here is the most common use you will find.
+                                                </p><h2>
+                                                    Behind the scenes
+                                                </h2><p>
+                                                    This is how the &#34;Python iteration protocol&#34; works. That is, what is going on when you do <code>list(makeRange(5))</code>. This is what I describe earlier as a &#34;lazy, incremental list&#34;.
+                                                </p><pre><code><span>&gt;&gt;&gt; </span>x=<span>iter</span>(<span>range</span>(<span>5</span>))
+<span>&gt;&gt;&gt; </span><span>next</span>(x)  
+<span>0</span>
+<span>&gt;&gt;&gt; </span><span>next</span>(x)
+<span>1</span>
+<span>&gt;&gt;&gt; </span><span>next</span>(x)
+<span>2</span>
+<span>&gt;&gt;&gt; </span><span>next</span>(x)
+<span>3</span>
+<span>&gt;&gt;&gt; </span><span>next</span>(x)
+<span>4</span>
+<span>&gt;&gt;&gt; </span><span>next</span>(x)
+Traceback (most recent call last):
+  File <span>&#34;&lt;stdin&gt;&#34;</span>, line <span>1</span>, <span>in</span> &lt;module&gt;
+StopIteration
+</code></pre><p>
+                                                    The built-in function <code>next()</code> just calls the objects <code>.__next__()</code> function, which is a part of the &#34;iteration protocol&#34; and is found on all iterators. You can manually use the <code>next()</code> function (and other parts of the iteration protocol) to implement fancy things, usually at the expense of readability, so try to avoid doing that...
+                                                </p><h2>
+                                                    Coroutines
+                                                </h2><p>
+                                                    <a href="https://www.python.org/dev/peps/pep-0342/" rel="noreferrer">Coroutine</a> example:
+                                                </p><pre><code><span>def</span> <span>interactiveProcedure</span>():
+    userResponse = <span>yield</span> makeQuestionWebpage()
+    <span>print</span>(<span>&#39;user response:&#39;</span>, userResponse)
+    <span>yield</span> <span>&#39;success&#39;</span>
+
+coroutine = interactiveProcedure()
+webFormData = <span>next</span>(coroutine)  
+userResponse = serveWebForm(webFormData)
+
+
+
+successStatus = coroutine.send(userResponse)
+</code></pre><p>
+                                                    A coroutine (generators which generally accept input via the <code>yield</code> keyword e.g. <code>nextInput = yield nextOutput</code>, as a form of two-way communication) is basically a computation which is allowed to pause itself and request input (e.g. to what it should do next). When the coroutine pauses itself (when the running coroutine eventually hits a <code>yield</code> keyword), the computation is paused and control is inverted (yielded) back to the &#39;calling&#39; function (the frame which requested the <code>next</code> value of the computation). The paused generator/coroutine remains paused until another invoking function (possibly a different function/context) requests the next value to unpause it (usually passing input data to direct the paused logic interior to the coroutine&#39;s code).
+                                                </p><p>
+                                                    <strong>You can think of python coroutines as lazy incrementally-pending lists, where the next element doesn&#39;t just depend on the previous computation, but also on input you may opt to inject during the generation process.</strong>
+                                                </p><h2>
+                                                    Minutiae
+                                                </h2><p>
+                                                    Normally, most people would not care about the following distinctions and probably want to stop reading here.
+                                                </p><p>
+                                                    In Python-speak, an <em>iterable</em> is any object which &#34;understands the concept of a for-loop&#34; like a list <code>[1,2,3]</code>, and an <em>iterator</em> is a specific instance of the requested for-loop like <code>[1,2,3].__iter__()</code>. A <em>generator</em> is exactly the same as any iterator, except for the way it was written (with function syntax).
+                                                </p><p>
+                                                    When you request an iterator from a list, it creates a new iterator. However, when you request an iterator from an iterator (which you would rarely do), it just gives you a copy of itself.
+                                                </p><p>
+                                                    Thus, in the unlikely event that you are failing to do something like this...
+                                                </p><pre><code>&gt; x = myRange(<span>5</span>)
+&gt; <span>list</span>(x)
+[<span>0</span>, <span>1</span>, <span>2</span>, <span>3</span>, <span>4</span>]
+&gt; <span>list</span>(x)
+[]
+</code></pre><p>
+                                                    ... then remember that a generator is an <em>iterator</em>; that is, it is one-time-use. If you want to reuse it, you should call <code>myRange(...)</code> again. If you need to use the result twice, convert the result to a list and store it in a variable <code>x = list(myRange(5))</code>. Those who absolutely need to clone a generator (for example, who are doing terrifyingly hackish metaprogramming) can use <a href="https://docs.python.org/2/library/itertools.html#itertools.tee" rel="noreferrer"><code>itertools.tee</code></a> (<a href="https://docs.python.org/3/library/itertools.html#itertools.tee" rel="noreferrer">still works in Python 3</a>) if absolutely necessary, since the <a href="https://www.python.org/dev/peps/pep-0323/" rel="noreferrer">copyable iterator Python PEP standards proposal</a> has been deferred.
+                                                </p><div><span>0</span>
+                                        
+                                    </div><div role="tooltip">
+                                                    This answer is useful
+                                                    
+                                                </div><div>
+                                                    527
+                                                </div><div role="tooltip">
+                                                    This answer is not useful
+                                                    
+                                                </div><div role="tooltip">
+                                                    Save this answer.
+                                                    
+                                                </div><div role="tooltip">
+                                                    Show activity on this post.
+                                                    
+                                                </div><blockquote><p>
+                                                        <strong>What does the <code>yield</code> keyword do in Python?</strong>
+                                                    </p></blockquote><h1>
+                                                    Answer Outline/Summary
+                                                </h1><ul><li>A function with <a href="https://docs.python.org/reference/expressions.html#yieldexpr" rel="nofollow noreferrer"><strong><code>yield</code></strong></a>, when called, <strong>returns a <a href="https://docs.python.org/2/tutorial/classes.html#generators" rel="nofollow noreferrer">Generator</a>.</strong></li><li>Generators are iterators because they implement the <a href="https://docs.python.org/2/library/stdtypes.html#iterator-types" rel="nofollow noreferrer"><strong>iterator protocol</strong></a>, so you can iterate over them.</li><li>A generator can also be <strong>sent information</strong>, making it conceptually a <strong>coroutine</strong>.</li><li>In Python 3, you can <strong>delegate</strong> from one generator to another in both directions with <strong><code>yield from</code></strong>.</li><li>(Appendix critiques a couple of answers, including the top one, and discusses the use of <code>return</code> in a generator.)</li></ul><h1>
+                                                    Generators:
+                                                </h1><p>
+                                                    <strong><code>yield</code></strong> is only legal inside of a function definition, and <strong>the inclusion of <code>yield</code> in a function definition makes it return a generator.</strong>
+                                                </p><p>
+                                                    The idea for generators comes from other languages (see footnote 1) with varying implementations. In Python&#39;s Generators, the execution of the code is <a href="https://docs.python.org/3.5/glossary.html#term-generator-iterator" rel="nofollow noreferrer">frozen</a> at the point of the yield. When the generator is called (methods are discussed below) execution resumes and then freezes at the next yield.
+                                                </p><p>
+                                                    <code>yield</code> provides an easy way of <a href="https://docs.python.org/2/library/stdtypes.html#generator-types" rel="nofollow noreferrer">implementing the iterator protocol</a>, defined by the following two methods: <code>__iter__</code> and <code>__next__</code>. Both of those methods make an object an iterator that you could type-check with the <code>Iterator</code> Abstract Base Class from the <code>collections</code> module.
+                                                </p><pre><code><span>def</span> <span>func</span>():
+    <span>yield</span> <span>&#39;I am&#39;</span>
+    <span>yield</span> <span>&#39;a generator!&#39;</span>
+</code></pre><p>
+                                                    Let&#39;s do some introspection:
+                                                </p><pre><code><span>&gt;&gt;&gt; </span><span>type</span>(func)                 
+&lt;<span>type</span> <span>&#39;function&#39;</span>&gt;
+<span>&gt;&gt;&gt; </span>gen = func()
+<span>&gt;&gt;&gt; </span><span>type</span>(gen)                  
+&lt;<span>type</span> <span>&#39;generator&#39;</span>&gt;
+<span>&gt;&gt;&gt; </span><span>hasattr</span>(gen, <span>&#39;__iter__&#39;</span>)   
+<span>True</span>
+<span>&gt;&gt;&gt; </span><span>hasattr</span>(gen, <span>&#39;__next__&#39;</span>)   
+<span>True</span>                           
+</code></pre><p>
+                                                    The generator type is a sub-type of iterator:
+                                                </p><pre><code><span>from</span> types <span>import</span> GeneratorType
+<span>from</span> collections.abc <span>import</span> Iterator
+
+<span>&gt;&gt;&gt; </span><span>issubclass</span>(GeneratorType, Iterator)
+<span>True</span>
+</code></pre><p>
+                                                    And if necessary, we can type-check like this:
+                                                </p><pre><code><span>&gt;&gt;&gt; </span><span>isinstance</span>(gen, GeneratorType)
+<span>True</span>
+<span>&gt;&gt;&gt; </span><span>isinstance</span>(gen, Iterator)
+<span>True</span>
+</code></pre><p>
+                                                    A feature of an <code>Iterator</code> <a href="https://docs.python.org/2/glossary.html#term-iterator" rel="nofollow noreferrer">is that once exhausted</a>, you can&#39;t reuse or reset it:
+                                                </p><pre><code><span>&gt;&gt;&gt; </span><span>list</span>(gen)
+[<span>&#39;I am&#39;</span>, <span>&#39;a generator!&#39;</span>]
+<span>&gt;&gt;&gt; </span><span>list</span>(gen)
+[]
+</code></pre><p>
+                                                    You&#39;ll have to make another if you want to use its functionality again (see footnote 2):
+                                                </p><pre><code><span>&gt;&gt;&gt; </span><span>list</span>(func())
+[<span>&#39;I am&#39;</span>, <span>&#39;a generator!&#39;</span>]
+</code></pre><p>
+                                                    One can yield data programmatically, for example:
+                                                </p><pre><code><span>def</span> <span>func</span>(<span>an_iterable</span>):
+    <span>for</span> item <span>in</span> an_iterable:
+        <span>yield</span> item
+</code></pre><p>
+                                                    The above simple generator is also equivalent to the below - as of Python 3.3 you can use <a href="https://www.python.org/dev/peps/pep-0380/" rel="nofollow noreferrer"><code>yield from</code></a>:
+                                                </p><pre><code><span>def</span> <span>func</span>(<span>an_iterable</span>):
+    <span>yield</span> <span>from</span> an_iterable
+</code></pre><p>
+                                                    However, <code>yield from</code> also allows for delegation to subgenerators, which will be explained in the following section on cooperative delegation with sub-coroutines.
+                                                </p><h1>
+                                                    Coroutines:
+                                                </h1><p>
+                                                    <code>yield</code> forms an expression that allows data to be sent into the generator (see footnote 3)
+                                                </p><p>
+                                                    Here is an example, take note of the <code>received</code> variable, which will point to the data that is sent to the generator:
+                                                </p><pre><code><span>def</span> <span>bank_account</span>(<span>deposited, interest_rate</span>):
+    <span>while</span> <span>True</span>:
+        calculated_interest = interest_rate * deposited 
+        received = <span>yield</span> calculated_interest
+        <span>if</span> received:
+            deposited += received
+
+
+<span>&gt;&gt;&gt; </span>my_account = bank_account(<span>1000</span>, <span>.05</span>)
+</code></pre><p>
+                                                    First, we must queue up the generator with the builtin function, <a href="https://docs.python.org/2/library/functions.html#next" rel="nofollow noreferrer"><code>next</code></a>. It will call the appropriate <code>next</code> or <code>__next__</code> method, depending on the version of Python you are using:
+                                                </p><pre><code><span>&gt;&gt;&gt; </span>first_year_interest = <span>next</span>(my_account)
+<span>&gt;&gt;&gt; </span>first_year_interest
+<span>50.0</span>
+</code></pre><p>
+                                                    And now we can send data into the generator. (<a href="https://www.python.org/dev/peps/pep-0342/#specification-sending-values-into-generators" rel="nofollow noreferrer">Sending <code>None</code> is the same as calling <code>next</code></a>.) :
+                                                </p><pre><code><span>&gt;&gt;&gt; </span>next_year_interest = my_account.send(first_year_interest + <span>1000</span>)
+<span>&gt;&gt;&gt; </span>next_year_interest
+<span>102.5</span>
+</code></pre><h2>
+                                                    Cooperative Delegation to Sub-Coroutine with <code>yield from</code>
+                                                </h2><p>
+                                                    Now, recall that <code>yield from</code> is available in Python 3. This allows us to delegate coroutines to a subcoroutine:
+                                                </p><pre><code>
+<span>def</span> <span>money_manager</span>(<span>expected_rate</span>):
+    
+    under_management = <span>yield</span>                   
+    <span>while</span> <span>True</span>:
+        <span>try</span>:
+            additional_investment = <span>yield</span> expected_rate * under_management 
+            <span>if</span> additional_investment:
+                under_management += additional_investment
+        <span>except</span> GeneratorExit:
+            <span>&#39;&#39;&#39;TODO: write function to send unclaimed funds to state&#39;&#39;&#39;</span>
+            <span>raise</span>
+        <span>finally</span>:
+            <span>&#39;&#39;&#39;TODO: write function to mail tax info to client&#39;&#39;&#39;</span>
+        
+
+<span>def</span> <span>investment_account</span>(<span>deposited, manager</span>):
+    <span>&#39;&#39;&#39;very simple model of an investment account that delegates to a manager&#39;&#39;&#39;</span>
+    
+    <span>next</span>(manager)      
+    
+    manager.send(deposited)
+    <span>try</span>:
+        <span>yield</span> <span>from</span> manager
+    <span>except</span> GeneratorExit:
+        <span>return</span> manager.close()  
+</code></pre><p>
+                                                    And now we can delegate functionality to a sub-generator and it can be used by a generator just as above:
+                                                </p><pre><code>my_manager = money_manager(<span>.06</span>)
+my_account = investment_account(<span>1000</span>, my_manager)
+first_year_return = <span>next</span>(my_account) 
+</code></pre><p>
+                                                    Now simulate adding another 1,000 to the account plus the return on the account (60.0):
+                                                </p><pre><code>next_year_return = my_account.send(first_year_return + <span>1000</span>)
+next_year_return 
+</code></pre><p>
+                                                    You can read more about the precise semantics of <code>yield from</code> in <a href="https://www.python.org/dev/peps/pep-0380/#formal-semantics" rel="nofollow noreferrer">PEP 380.</a>
+                                                </p><h2>
+                                                    Other Methods: close and throw
+                                                </h2><p>
+                                                    The <code>close</code> method raises <code>GeneratorExit</code> at the point the function execution was frozen. This will also be called by <code>__del__</code> so you can put any cleanup code where you handle the <code>GeneratorExit</code>:
+                                                </p><pre><code>my_account.close()
+</code></pre><p>
+                                                    You can also throw an exception which can be handled in the generator or propagated back to the user:
+                                                </p><pre><code><span>import</span> sys
+<span>try</span>:
+    <span>raise</span> ValueError
+<span>except</span>:
+    my_manager.throw(*sys.exc_info())
+</code></pre><p>
+                                                    Raises:
+                                                </p><pre><code>Traceback (most recent call last):
+  File &#34;&lt;stdin&gt;&#34;, line 4, in &lt;module&gt;
+  File &#34;&lt;stdin&gt;&#34;, line 6, in money_manager
+  File &#34;&lt;stdin&gt;&#34;, line 2, in &lt;module&gt;
+ValueError
+</code></pre><h1>
+                                                    Conclusion
+                                                </h1><p>
+                                                    I believe I have covered all aspects of the following question:
+                                                </p><blockquote><p>
+                                                        <strong>What does the <code>yield</code> keyword do in Python?</strong>
+                                                    </p></blockquote><p>
+                                                    It turns out that <code>yield</code> does a lot. I&#39;m sure I could add even more thorough examples to this. If you want more or have some constructive criticism, let me know by commenting below.
+                                                </p><h1>
+                                                    Appendix:
+                                                </h1><h2>
+                                                    Critique of the Top/Accepted Answer**
+                                                </h2><ul><li>It is confused on what makes an <strong>iterable</strong>, just using a list as an example. See my references above, but in summary: an <strong>iterable</strong> has an <code>__iter__</code> method returning an <strong>iterator</strong>. An <strong>iterator</strong> additionally provides a <code>.__next__</code> method, which is implicitly called by <code>for</code> loops until it raises <code>StopIteration</code>, and once it does raise <code>StopIteration</code>, it will continue to do so.</li><li>It then uses a generator expression to describe what a generator is. Since a generator expression is simply a convenient way to create an <strong>iterator</strong>, it only confuses the matter, and we still have not yet gotten to the <code>yield</code> part.</li><li>In <strong>Controlling a generator exhaustion</strong> he calls the <code>.next</code> method (which only works in Python 2), when instead he should use the builtin function, <code>next</code>. Calling <code>next(obj)</code> would be an appropriate layer of indirection, because his code does not work in Python 3.</li><li>Itertools? This was not relevant to what <code>yield</code> does at all.</li><li>No discussion of the methods that <code>yield</code> provides along with the new functionality <code>yield from</code> in Python 3.</li></ul><p>
+                                                    <strong>The top/accepted answer is a very incomplete answer.</strong>
+                                                </p><h2>
+                                                    Critique of answer suggesting <code>yield</code> in a generator expression or comprehension.
+                                                </h2><p>
+                                                    The grammar currently allows any expression in a list comprehension.
+                                                </p><pre><code>expr_stmt: testlist_star_expr (annassign | augassign (yield_expr|testlist) |
+                     (<span>&#39;=&#39;</span> (yield_expr|testlist_star_expr))*)
+...
+yield_expr: <span>&#39;yield&#39;</span> [yield_arg]
+yield_arg: <span>&#39;from&#39;</span> test | testlist
+</code></pre><p>
+                                                    Since yield is an expression, it has been touted by some as interesting to use it in comprehensions or generator expression - in spite of citing no particularly good use-case.
+                                                </p><p>
+                                                    The CPython core developers are <a href="https://mail.python.org/pipermail/python-dev/2017-January/147301.html" rel="nofollow noreferrer">discussing deprecating its allowance</a>. Here&#39;s a relevant post from the mailing list:
+                                                </p><blockquote><p>
+                                                        On 30 January 2017 at 19:05, Brett Cannon wrote:
+                                                    </p><blockquote><p>
+                                                            On Sun, 29 Jan 2017 at 16:39 Craig Rodrigues wrote:
+                                                        </p><blockquote><p>
+                                                                I&#39;m OK with either approach. Leaving things the way they are in Python 3 is no good, IMHO.
+                                                            </p></blockquote><p>
+                                                            My vote is it be a SyntaxError since you&#39;re not getting what you expect from the syntax.
+                                                        </p></blockquote><p>
+                                                        I&#39;d agree that&#39;s a sensible place for us to end up, as any code relying on the current behaviour is really too clever to be maintainable.
+                                                    </p><p>
+                                                        In terms of getting there, we&#39;ll likely want:
+                                                    </p><ul><li>SyntaxWarning or DeprecationWarning in 3.7</li><li>Py3k warning in 2.7.x</li><li>SyntaxError in 3.8</li></ul><p>
+                                                        Cheers, Nick.
+                                                    </p><p>
+                                                        -- Nick Coghlan | ncoghlan at gmail.com | Brisbane, Australia
+                                                    </p></blockquote><p>
+                                                    Further, there is an <a href="http://bugs.python.org/issue10544" rel="nofollow noreferrer">outstanding issue (10544)</a> which seems to be pointing in the direction of this <em>never</em> being a good idea (PyPy, a Python implementation written in Python, is already raising syntax warnings.)
+                                                </p><p>
+                                                    Bottom line, until the developers of CPython tell us otherwise: <strong>Don&#39;t put <code>yield</code> in a generator expression or comprehension.</strong>
+                                                </p><div>
+                                                                    <span title="reputation score 355,545" dir="ltr">356k</span><span>85 gold badges</span><span>395 silver badges</span><span>329 bronze badges</span>
+                                                                </div><div><span>0</span>
+                                        
+                                    </div><div role="tooltip">
+                                                    This answer is useful
+                                                    
+                                                </div><div>
+                                                    432
+                                                </div><div role="tooltip">
+                                                    This answer is not useful
+                                                    
+                                                </div><div role="tooltip">
+                                                    Save this answer.
+                                                    
+                                                </div><div role="tooltip">
+                                                    Show activity on this post.
+                                                    
+                                                </div><p>
+                                                    <code>yield</code> is just like <code>return</code> - it returns whatever you tell it to (as a generator). The difference is that the next time you call the generator, execution starts from the last call to the <code>yield</code> statement. Unlike return, <strong>the stack frame is not cleaned up when a yield occurs, however control is transferred back to the caller, so its state will resume the next time the function is called.</strong>
+                                                </p><p>
+                                                    In the case of your code, the function <code>get_child_candidates</code> is acting like an iterator so that when you extend your list, it adds one element at a time to the new list.
+                                                </p><p>
+                                                    <code>list.extend</code> calls an iterator until it&#39;s exhausted. In the case of the code sample you posted, it would be much clearer to just return a tuple and append that to the list.
+                                                </p><div><span>0</span>
+                                        
+                                    </div><div role="tooltip">
+                                                    This answer is useful
+                                                    
+                                                </div><div>
+                                                    275
+                                                </div><div role="tooltip">
+                                                    This answer is not useful
+                                                    
+                                                </div><div role="tooltip">
+                                                    Save this answer.
+                                                    
+                                                </div><div role="tooltip">
+                                                    Show activity on this post.
+                                                    
+                                                </div><p>
+                                                    <strong>TL;DR</strong>
+                                                </p><h1>
+                                                    Instead of this:
+                                                </h1><pre><code><span>def</span> <span>square_list</span>(<span>n</span>):
+    the_list = []                         
+    <span>for</span> x <span>in</span> <span>range</span>(n):
+        y = x * x
+        the_list.append(y)                
+    <span>return</span> the_list                       
+</code></pre><h1>
+                                                    do this:
+                                                </h1><pre><code><span>def</span> <span>square_yield</span>(<span>n</span>):
+    <span>for</span> x <span>in</span> <span>range</span>(n):
+        y = x * x
+        <span>yield</span> y                           
+</code></pre><p>
+                                                    Whenever you find yourself building a list from scratch, <code>yield</code> each piece instead.
+                                                </p><p>
+                                                    This was my first &#34;aha&#34; moment with yield.
+                                                </p><p>
+                                                    <code>yield</code> is a <a href="https://en.wikipedia.org/wiki/Syntactic_sugar" rel="noreferrer">sugary</a> way to say
+                                                </p><blockquote><p>
+                                                        build a series of stuff
+                                                    </p></blockquote><p>
+                                                    Same behavior:
+                                                </p><pre><code><span>&gt;&gt;&gt; </span><span>for</span> square <span>in</span> square_list(<span>4</span>):
+<span>... </span>    <span>print</span>(square)
+...
+<span>0</span>
+<span>1</span>
+<span>4</span>
+<span>9</span>
+<span>&gt;&gt;&gt; </span><span>for</span> square <span>in</span> square_yield(<span>4</span>):
+<span>... </span>    <span>print</span>(square)
+...
+<span>0</span>
+<span>1</span>
+<span>4</span>
+<span>9</span>
+</code></pre><p>
+                                                    Different behavior:
+                                                </p><p>
+                                                    Yield is <strong>single-pass</strong>: you can only iterate through once. When a function has a yield in it we call it a <a href="https://stackoverflow.com/a/1756342/673991">generator function</a>. And an <a href="https://stackoverflow.com/a/9884501/673991">iterator</a> is what it returns. Those terms are revealing. We lose the convenience of a container, but gain the power of a series that&#39;s computed as needed, and arbitrarily long.
+                                                </p><p>
+                                                    Yield is <strong>lazy</strong>, it puts off computation. A function with a yield in it <em>doesn&#39;t actually execute at all when you call it.</em> It returns an <a href="https://docs.python.org/3/reference/expressions.html#yieldexpr" rel="noreferrer">iterator object</a> that remembers where it left off. Each time you call <code>next()</code> on the iterator (this happens in a for-loop) execution inches forward to the next yield. <code>return</code> raises StopIteration and ends the series (this is the natural end of a for-loop).
+                                                </p><p>
+                                                    Yield is <strong>versatile</strong>. Data doesn&#39;t have to be stored all together, it can be made available one at a time. It can be infinite.
+                                                </p><pre><code><span>&gt;&gt;&gt; </span><span>def</span> <span>squares_all_of_them</span>():
+<span>... </span>    x = <span>0</span>
+<span>... </span>    <span>while</span> <span>True</span>:
+<span>... </span>        <span>yield</span> x * x
+<span>... </span>        x += <span>1</span>
+...
+<span>&gt;&gt;&gt; </span>squares = squares_all_of_them()
+<span>&gt;&gt;&gt; </span><span>for</span> _ <span>in</span> <span>range</span>(<span>4</span>):
+<span>... </span>    <span>print</span>(<span>next</span>(squares))
+...
+<span>0</span>
+<span>1</span>
+<span>4</span>
+<span>9</span>
+</code></pre><p>
+                                                    If you need <strong>multiple passes</strong> and the series isn&#39;t too long, just call <code>list()</code> on it:
+                                                </p><pre><code><span>&gt;&gt;&gt; </span><span>list</span>(square_yield(<span>4</span>))
+[<span>0</span>, <span>1</span>, <span>4</span>, <span>9</span>]
+</code></pre><p>
+                                                    Brilliant choice of the word <code>yield</code> because <a href="https://www.google.com/search?q=yield+meaning" rel="noreferrer">both meanings</a> apply:
+                                                </p><blockquote><p>
+                                                        <strong>yield</strong> — produce or provide (as in agriculture)
+                                                    </p></blockquote><p>
+                                                    ...provide the next data in the series.
+                                                </p><blockquote><p>
+                                                        <strong>yield</strong> — give way or relinquish (as in political power)
+                                                    </p></blockquote><p>
+                                                    ...relinquish CPU execution until the iterator advances.
+                                                </p><div><span>0</span>
+                                        
+                                    </div><div role="tooltip">
+                                                    This answer is useful
+                                                    
+                                                </div><div>
+                                                    236
+                                                </div><div role="tooltip">
+                                                    This answer is not useful
+                                                    
+                                                </div><div role="tooltip">
+                                                    Save this answer.
+                                                    
+                                                </div><div role="tooltip">
+                                                    Show activity on this post.
+                                                    
+                                                </div><p>
+                                                    Yield gives you a generator.
+                                                </p><pre><code><span>def</span> <span>get_odd_numbers</span>(<span>i</span>):
+    <span>return</span> <span>range</span>(<span>1</span>, i, <span>2</span>)
+<span>def</span> <span>yield_odd_numbers</span>(<span>i</span>):
+    <span>for</span> x <span>in</span> <span>range</span>(<span>1</span>, i, <span>2</span>):
+       <span>yield</span> x
+foo = get_odd_numbers(<span>10</span>)
+bar = yield_odd_numbers(<span>10</span>)
+foo
+[<span>1</span>, <span>3</span>, <span>5</span>, <span>7</span>, <span>9</span>]
+bar
+&lt;generator <span>object</span> yield_odd_numbers at <span>0x1029c6f50</span>&gt;
+bar.<span>next</span>()
+<span>1</span>
+bar.<span>next</span>()
+<span>3</span>
+bar.<span>next</span>()
+<span>5</span>
+</code></pre><p>
+                                                    As you can see, in the first case <code>foo</code> holds the entire list in memory at once. It&#39;s not a big deal for a list with 5 elements, but what if you want a list of 5 million? Not only is this a huge memory eater, it also costs a lot of time to build at the time that the function is called.
+                                                </p><p>
+                                                    In the second case, <code>bar</code> just gives you a generator. A generator is an iterable--which means you can use it in a <code>for</code> loop, etc, but each value can only be accessed once. All the values are also not stored in memory at the same time; the generator object &#34;remembers&#34; where it was in the looping the last time you called it--this way, if you&#39;re using an iterable to (say) count to 50 billion, you don&#39;t have to count to 50 billion all at once and store the 50 billion numbers to count through.
+                                                </p><p>
+                                                    Again, this is a pretty contrived example, you probably would use itertools if you really wanted to count to 50 billion. :)
+                                                </p><p>
+                                                    This is the most simple use case of generators. As you said, it can be used to write efficient permutations, using yield to push things up through the call stack instead of using some sort of stack variable. Generators can also be used for specialized tree traversal, and all manner of other things.
+                                                </p><div><span>1</span>
+                                        
+                                    </div><div role="tooltip">
+                                                    This answer is useful
+                                                    
+                                                </div><div>
+                                                    235
+                                                </div><div role="tooltip">
+                                                    This answer is not useful
+                                                    
+                                                </div><div role="tooltip">
+                                                    Save this answer.
+                                                    
+                                                </div><div role="tooltip">
+                                                    Show activity on this post.
+                                                    
+                                                </div><p>
+                                                    It&#39;s returning a generator. I&#39;m not particularly familiar with Python, but I believe it&#39;s the same kind of thing as <a href="http://csharpindepth.com/Articles/Chapter11/StreamingAndIterators.aspx" rel="noreferrer">C#&#39;s iterator blocks</a> if you&#39;re familiar with those.
+                                                </p><p>
+                                                    The key idea is that the compiler/interpreter/whatever does some trickery so that as far as the caller is concerned, they can keep calling next() and it will keep returning values - <em>as if the generator method was paused</em>. Now obviously you can&#39;t really &#34;pause&#34; a method, so the compiler builds a state machine for you to remember where you currently are and what the local variables etc look like. This is much easier than writing an iterator yourself.
+                                                </p><div><span>0</span>
+                                        
+                                    </div><div role="tooltip">
+                                                    This answer is useful
+                                                    
+                                                </div><div>
+                                                    207
+                                                </div><div role="tooltip">
+                                                    This answer is not useful
+                                                    
+                                                </div><div role="tooltip">
+                                                    Save this answer.
+                                                    
+                                                </div><div role="tooltip">
+                                                    Show activity on this post.
+                                                    
+                                                </div><p>
+                                                    There is one type of answer that I don&#39;t feel has been given yet, among the many great answers that describe how to use generators. Here is the programming language theory answer:
+                                                </p><p>
+                                                    The <code>yield</code> statement in Python returns a generator. A generator in Python is a function that returns <i>continuations</i> (and specifically a type of coroutine, but continuations represent the more general mechanism to understand what is going on).
+                                                </p><p>
+                                                    Continuations in programming languages theory are a much more fundamental kind of computation, but they are not often used, because they are extremely hard to reason about and also very difficult to implement. But the idea of what a continuation is, is straightforward: it is the state of a computation that has not yet finished. In this state, the current values of variables, the operations that have yet to be performed, and so on, are saved. Then at some point later in the program the continuation can be invoked, such that the program&#39;s variables are reset to that state and the operations that were saved are carried out.
+                                                </p><p>
+                                                    Continuations, in this more general form, can be implemented in two ways. In the <code>call/cc</code> way, the program&#39;s stack is literally saved and then when the continuation is invoked, the stack is restored.
+                                                </p><p>
+                                                    In continuation passing style (CPS), continuations are just normal functions (only in languages where functions are first class) which the programmer explicitly manages and passes around to subroutines. In this style, program state is represented by closures (and the variables that happen to be encoded in them) rather than variables that reside somewhere on the stack. Functions that manage control flow accept continuation as arguments (in some variations of CPS, functions may accept multiple continuations) and manipulate control flow by invoking them by simply calling them and returning afterwards. A very simple example of continuation passing style is as follows:
+                                                </p><pre><code><span>def</span> <span>save_file</span>(<span>filename</span>):
+  <span>def</span> <span>write_file_continuation</span>():
+    write_stuff_to_file(filename)
+
+  check_if_file_exists_and_user_wants_to_overwrite(write_file_continuation)
+</code></pre><p>
+                                                    In this (very simplistic) example, the programmer saves the operation of actually writing the file into a continuation (which can potentially be a very complex operation with many details to write out), and then passes that continuation (i.e, as a first-class closure) to another operator which does some more processing, and then calls it if necessary. (I use this design pattern a lot in actual GUI programming, either because it saves me lines of code or, more importantly, to manage control flow after GUI events trigger.)
+                                                </p><p>
+                                                    The rest of this post will, without loss of generality, conceptualize continuations as CPS, because it is a hell of a lot easier to understand and read.
+                                                </p><p>
+                                                    Now let&#39;s talk about generators in Python. Generators are a specific subtype of continuation. Whereas <strong>continuations are able in general to save the state of a <em>computation</em></strong> (i.e., the program&#39;s call stack), <strong>generators are only able to save the state of iteration over an <em>iterator</em></strong>. Although, this definition is slightly misleading for certain use cases of generators. For instance:
+                                                </p><pre><code><span>def</span> <span>f</span>():
+  <span>while</span> <span>True</span>:
+    <span>yield</span> <span>4</span>
+</code></pre><p>
+                                                    This is clearly a reasonable iterable whose behavior is well defined -- each time the generator iterates over it, it returns 4 (and does so forever). But it isn&#39;t probably the prototypical type of iterable that comes to mind when thinking of iterators (i.e., <code>for x in collection: do_something(x)</code>). This example illustrates the power of generators: if anything is an iterator, a generator can save the state of its iteration.
+                                                </p><p>
+                                                    To reiterate: Continuations can save the state of a program&#39;s stack and generators can save the state of iteration. This means that continuations are more a lot powerful than generators, but also that generators are a lot, lot easier. They are easier for the language designer to implement, and they are easier for the programmer to use (if you have some time to burn, try to read and understand <a href="http://www.madore.org/~david/computers/callcc.html" rel="noreferrer">this page about continuations and call/cc</a>).
+                                                </p><p>
+                                                    But you could easily implement (and conceptualize) generators as a simple, specific case of continuation passing style:
+                                                </p><p>
+                                                    Whenever <code>yield</code> is called, it tells the function to return a continuation. When the function is called again, it starts from wherever it left off. So, in pseudo-pseudocode (i.e., not pseudocode, but not code) the generator&#39;s <code>next</code> method is basically as follows:
+                                                </p><pre><code><span>class</span> <span>Generator</span>():
+  <span>def</span> <span>__init__</span>(<span>self,iterable,generatorfun</span>):
+    self.next_continuation = <span>lambda</span>:generatorfun(iterable)
+
+  <span>def</span> <span>next</span>(<span>self</span>):
+    value, next_continuation = self.next_continuation()
+    self.next_continuation = next_continuation
+    <span>return</span> value
+</code></pre><p>
+                                                    where the <code>yield</code> keyword is actually syntactic sugar for the real generator function, basically something like:
+                                                </p><pre><code><span>def</span> <span>generatorfun</span>(<span>iterable</span>):
+  <span>if</span> <span>len</span>(iterable) == <span>0</span>:
+    <span>raise</span> StopIteration
+  <span>else</span>:
+    <span>return</span> (iterable[<span>0</span>], <span>lambda</span>:generatorfun(iterable[<span>1</span>:]))
+</code></pre><p>
+                                                    Remember that this is just pseudocode and the actual implementation of generators in Python is more complex. But as an exercise to understand what is going on, try to use continuation passing style to implement generator objects without use of the <code>yield</code> keyword.
+                                                </p><div><span>0</span>
+                                        
+                                    </div><div role="tooltip">
+                                                    This answer is useful
+                                                    
+                                                </div><div>
+                                                    207
+                                                </div><div role="tooltip">
+                                                    This answer is not useful
+                                                    
+                                                </div><div role="tooltip">
+                                                    Save this answer.
+                                                    
+                                                </div><div role="tooltip">
+                                                    Show activity on this post.
+                                                    
+                                                </div><p>
+                                                    Here is an example in plain language. I will provide a correspondence between high-level human concepts to low-level Python concepts.
+                                                </p><p>
+                                                    I want to operate on a sequence of numbers, but I don&#39;t want to bother my self with the creation of that sequence, I want only to focus on the operation I want to do. So, I do the following:
+                                                </p><ul><li>I call you and tell you that I want a sequence of numbers which are calculated in a specific way, and I let you know what the algorithm is.<br/>
+                                                        <b>This step corresponds to <code>def</code>ining the generator function, i.e. the function containing a <code>yield</code>.</b></li><li>Sometime later, I tell you, &#34;OK, get ready to tell me the sequence of numbers&#34;.<br/>
+                                                        <b>This step corresponds to calling the generator function which returns a generator object.</b> Note that you don&#39;t tell me any numbers yet; you just grab your paper and pencil.</li><li>I ask you, &#34;tell me the next number&#34;, and you tell me the first number; after that, you wait for me to ask you for the next number. It&#39;s your job to remember where you were, what numbers you have already said, and what is the next number. I don&#39;t care about the details.<br/>
+                                                        <b>This step corresponds to calling <code>next(generator)</code> on the generator object.</b><br/>
+                                                        (In Python 2, <code>.next</code> was a method of the generator object; in Python 3, it is named <code>.__next__</code>, but the proper way to call it is using the builtin <code>next()</code> function just like <code>len()</code> and <code>.__len__</code>)</li><li>… repeat previous step, until…</li><li>eventually, you might come to an end. You don&#39;t tell me a number; you just shout, &#34;hold your horses! I&#39;m done! No more numbers!&#34;<br/>
+                                                        <b>This step corresponds to the generator object ending its job, and raising a <code>StopIteration</code> exception.</b><br/>
+                                                        The generator function does not need to raise the exception. It&#39;s raised automatically when the function ends or issues a <code>return</code>.</li></ul><p>
+                                                    This is what a generator does (a function that contains a <code>yield</code>); it starts executing on the first <code>next()</code>, pauses whenever it does a <code>yield</code>, and when asked for the <code>next()</code> value it continues from the point it was last. It fits perfectly by design with the iterator protocol of Python, which describes how to sequentially request values.
+                                                </p><p>
+                                                    The most famous user of the iterator protocol is the <code>for</code> command in Python. So, whenever you do a:
+                                                </p><pre><code><span>for</span> item <span>in</span> sequence:
+</code></pre><p>
+                                                    it doesn&#39;t matter if <code>sequence</code> is a list, a string, a dictionary or a generator <em>object</em> like described above; the result is the same: you read items off a sequence one by one.
+                                                </p><p>
+                                                    Note that <code>def</code>ining a function which contains a <code>yield</code> keyword is not the only way to create a generator; it&#39;s just the easiest way to create one.
+                                                </p><p>
+                                                    For more accurate information, read about <a href="http://docs.python.org/library/stdtypes.html#iterator-types" rel="noreferrer">iterator types</a>, the <a href="http://docs.python.org/reference/simple_stmts.html#yield" rel="noreferrer">yield statement</a> and <a href="http://docs.python.org/glossary.html#term-generator" rel="noreferrer">generators</a> in the Python documentation.
+                                                </p><div><span>0</span>
+                                        
+                                    </div><div role="tooltip">
+                                                    This answer is useful
+                                                    
+                                                </div><div>
+                                                    162
+                                                </div><div role="tooltip">
+                                                    This answer is not useful
+                                                    
+                                                </div><div role="tooltip">
+                                                    Save this answer.
+                                                    
+                                                </div><div role="tooltip">
+                                                    Show activity on this post.
+                                                    
+                                                </div><p>
+                                                    While a lot of answers show why you&#39;d use a <code>yield</code> to create a generator, there are more uses for <code>yield</code>. It&#39;s quite easy to make a coroutine, which enables the passing of information between two blocks of code. I won&#39;t repeat any of the fine examples that have already been given about using <code>yield</code> to create a generator.
+                                                </p><p>
+                                                    To help understand what a <code>yield</code> does in the following code, you can use your finger to trace the cycle through any code that has a <code>yield</code>. Every time your finger hits the <code>yield</code>, you have to wait for a <code>next</code> or a <code>send</code> to be entered. When a <code>next</code> is called, you trace through the code until you hit the <code>yield</code>… the code on the right of the <code>yield</code> is evaluated and returned to the caller… then you wait. When <code>next</code> is called again, you perform another loop through the code. However, you&#39;ll note that in a coroutine, <code>yield</code> can also be used with a <code>send</code>… which will send a value from the caller <em>into</em> the yielding function. If a <code>send</code> is given, then <code>yield</code> receives the value sent, and spits it out the left hand side… then the trace through the code progresses until you hit the <code>yield</code> again (returning the value at the end, as if <code>next</code> was called).
+                                                </p><p>
+                                                    For example:
+                                                </p><pre><code><span>&gt;&gt;&gt; </span><span>def</span> <span>coroutine</span>():
+<span>... </span>    i = -<span>1</span>
+<span>... </span>    <span>while</span> <span>True</span>:
+<span>... </span>        i += <span>1</span>
+<span>... </span>        val = (<span>yield</span> i)
+<span>... </span>        <span>print</span>(<span>&#34;Received %s&#34;</span> % val)
+...
+<span>&gt;&gt;&gt; </span>sequence = coroutine()
+<span>&gt;&gt;&gt; </span>sequence.<span>next</span>()
+<span>0</span>
+<span>&gt;&gt;&gt; </span>sequence.<span>next</span>()
+Received <span>None</span>
+<span>1</span>
+<span>&gt;&gt;&gt; </span>sequence.send(<span>&#39;hello&#39;</span>)
+Received hello
+<span>2</span>
+<span>&gt;&gt;&gt; </span>sequence.close()
+</code></pre><div>
+                                                                answered <span title="2014-02-04 02:27:35Z">Feb 4, 2014 at 2:27</span>
+                                                            </div><img src="https://www.gravatar.com/avatar/197d2417f199b0b6f951ee62e627a1d8?s=64&amp;d=identicon&amp;r=PG" alt="Mike McKerns&#39;s user avatar"/><div><span>1</span>
+                                        
+                                    </div><div role="tooltip">
+                                                    This answer is useful
+                                                    
+                                                </div><div>
+                                                    133
+                                                </div><div role="tooltip">
+                                                    This answer is not useful
+                                                    
+                                                </div><div role="tooltip">
+                                                    Save this answer.
+                                                    
+                                                </div><div role="tooltip">
+                                                    Show activity on this post.
+                                                    
+                                                </div><p>
+                                                    From a programming viewpoint, the iterators are implemented as <a href="http://en.wikipedia.org/wiki/Thunk_(functional_programming)" rel="noreferrer">thunks</a>.
+                                                </p><p>
+                                                    To implement iterators, generators, and thread pools for concurrent execution, etc. as thunks, one uses <a href="https://wiki.c2.com/?ClosuresAndObjectsAreEquivalent" rel="noreferrer">messages sent to a closure object</a>, which has a dispatcher, and the <a href="http://en.wikipedia.org/wiki/Message_passing" rel="noreferrer">dispatcher answers to &#34;messages&#34;</a>.
+                                                </p><p>
+                                                    <a href="https://docs.python.org/3/library/functions.html#next" rel="noreferrer">&#34;<em>next</em>&#34;</a> is a message sent to a closure, created by the &#34;<em>iter</em>&#34; call.
+                                                </p><p>
+                                                    There are lots of ways to implement this computation. I used mutation, but it is possible to do this kind of computation without mutation, by returning the current value and the next yielder (making it <a href="https://en.wikipedia.org/wiki/Referential_transparency" rel="noreferrer">referential transparent</a>). Racket uses a sequence of transformations of the initial program in some intermediary languages, one of such rewriting making the yield operator to be transformed in some language with simpler operators.
+                                                </p><p>
+                                                    Here is a demonstration of how yield could be rewritten, which uses the structure of R6RS, but the semantics is identical to Python&#39;s. It&#39;s the same model of computation, and only a change in syntax is required to rewrite it using yield of Python.
+                                                </p><blockquote><pre><code>Welcome to Racket v6<span>.5</span><span>.0</span><span>.3</span>.
+
+-&gt; (define gen
+     (<span>lambda</span> (l)
+       (define <span>yield</span>
+         (<span>lambda</span> ()
+           (<span>if</span> (null? l)
+               <span>&#39;END
+               (let ((v (car l)))
+                 (set! l (cdr l))
+                 v))))
+       (lambda(m)
+         (case m
+           (&#39;</span><span>yield</span> (<span>yield</span>))
+           (<span>&#39;init  (lambda (data)
+                     (set! l data)
+                     &#39;</span>OK))))))
+-&gt; (define stream (gen <span>&#39;(1 2 3)))
+-&gt; (stream &#39;</span><span>yield</span>)
+<span>1</span>
+-&gt; (stream <span>&#39;yield)
+2
+-&gt; (stream &#39;</span><span>yield</span>)
+<span>3</span>
+-&gt; (stream <span>&#39;yield)
+&#39;</span>END
+-&gt; ((stream <span>&#39;init) &#39;</span>(a b))
+<span>&#39;OK
+-&gt; (stream &#39;</span><span>yield</span>)
+<span>&#39;a
+-&gt; (stream &#39;</span><span>yield</span>)
+<span>&#39;b
+-&gt; (stream &#39;</span><span>yield</span>)
+<span>&#39;END
+-&gt; (stream &#39;</span><span>yield</span>)
+<span>&#39;END
+-&gt;
+</span></code></pre></blockquote><div><span>0</span>
+                                        
+                                    </div><div role="tooltip">
+                                                    This answer is useful
+                                                    
+                                                </div><div>
+                                                    116
+                                                </div><div role="tooltip">
+                                                    This answer is not useful
+                                                    
+                                                </div><div role="tooltip">
+                                                    Save this answer.
+                                                    
+                                                </div><div role="tooltip">
+                                                    Show activity on this post.
+                                                    
+                                                </div><p>
+                                                    I was going to post &#34;read page 19 of Beazley&#39;s &#39;Python: Essential Reference&#39; for a quick description of generators&#34;, but so many others have posted good descriptions already.
+                                                </p><p>
+                                                    Also, note that <code>yield</code> can be used in coroutines as the dual of their use in generator functions. Although it isn&#39;t the same use as your code snippet, <code>(yield)</code> can be used as an expression in a function. When a caller sends a value to the method using the <code>send()</code> method, then the coroutine will execute until the next <code>(yield)</code> statement is encountered.
+                                                </p><p>
+                                                    Generators and coroutines are a cool way to set up data-flow type applications. I thought it would be worthwhile knowing about the other use of the <code>yield</code> statement in functions.
+                                                </p><div>
+                                                                answered <span title="2013-01-28 01:37:10Z">Jan 28, 2013 at 1:37</span>
+                                                            </div><img src="https://www.gravatar.com/avatar/fb5e966ed938c254a8846613fa110030?s=64&amp;d=identicon&amp;r=PG" alt="johnzachary&#39;s user avatar"/><div><span>0</span>
+                                        
+                                    </div><div role="tooltip">
+                                                    This answer is useful
+                                                    
+                                                </div><div>
+                                                    100
+                                                </div><div role="tooltip">
+                                                    This answer is not useful
+                                                    
+                                                </div><div role="tooltip">
+                                                    Save this answer.
+                                                    
+                                                </div><div role="tooltip">
+                                                    Show activity on this post.
+                                                    
+                                                </div><p>
+                                                    Here is a simple example:
+                                                </p><pre><code><span>def</span> <span>isPrimeNumber</span>(<span>n</span>):
+    <span>print</span> <span>&#34;isPrimeNumber({}) call&#34;</span>.<span>format</span>(n)
+    <span>if</span> n==<span>1</span>:
+        <span>return</span> <span>False</span>
+    <span>for</span> x <span>in</span> <span>range</span>(<span>2</span>,n):
+        <span>if</span> n % x == <span>0</span>:
+            <span>return</span> <span>False</span>
+    <span>return</span> <span>True</span>
+
+<span>def</span> <span>primes</span> (n=<span>1</span>):
+    <span>while</span>(<span>True</span>):
+        <span>print</span> <span>&#34;loop step ---------------- {}&#34;</span>.<span>format</span>(n)
+        <span>if</span> isPrimeNumber(n): <span>yield</span> n
+        n += <span>1</span>
+
+<span>for</span> n <span>in</span> primes():
+    <span>if</span> n&gt; <span>10</span>:<span>break</span>
+    <span>print</span> <span>&#34;wiriting result {}&#34;</span>.<span>format</span>(n)
+</code></pre><p>
+                                                    Output:
+                                                </p><pre><code>loop step ---------------- <span>1</span>
+isPrimeNumber(<span>1</span>) call
+loop step ---------------- <span>2</span>
+isPrimeNumber(<span>2</span>) call
+loop step ---------------- <span>3</span>
+isPrimeNumber(<span>3</span>) call
+wiriting result <span>3</span>
+loop step ---------------- <span>4</span>
+isPrimeNumber(<span>4</span>) call
+loop step ---------------- <span>5</span>
+isPrimeNumber(<span>5</span>) call
+wiriting result <span>5</span>
+loop step ---------------- <span>6</span>
+isPrimeNumber(<span>6</span>) call
+loop step ---------------- <span>7</span>
+isPrimeNumber(<span>7</span>) call
+wiriting result <span>7</span>
+loop step ---------------- <span>8</span>
+isPrimeNumber(<span>8</span>) call
+loop step ---------------- <span>9</span>
+isPrimeNumber(<span>9</span>) call
+loop step ---------------- <span>10</span>
+isPrimeNumber(<span>10</span>) call
+loop step ---------------- <span>11</span>
+isPrimeNumber(<span>11</span>) call
+</code></pre><p>
+                                                    I am not a Python developer, but it looks to me <code>yield</code> holds the position of program flow and the next loop start from &#34;yield&#34; position. It seems like it is waiting at that position, and just before that, returning a value outside, and next time continues to work.
+                                                </p><p>
+                                                    It seems to be an interesting and nice ability :D
+                                                </p><div><span>1</span>
+                                        
+                                    </div><div role="tooltip">
+                                                    This answer is useful
+                                                    
+                                                </div><div>
+                                                    86
+                                                </div><div role="tooltip">
+                                                    This answer is not useful
+                                                    
+                                                </div><div role="tooltip">
+                                                    Save this answer.
+                                                    
+                                                </div><div role="tooltip">
+                                                    Show activity on this post.
+                                                    
+                                                </div><p>
+                                                    Here is a mental image of what <code>yield</code> does.
+                                                </p><p>
+                                                    I like to think of a thread as having a stack (even when it&#39;s not implemented that way).
+                                                </p><p>
+                                                    When a normal function is called, it puts its local variables on the stack, does some computation, then clears the stack and returns. The values of its local variables are never seen again.
+                                                </p><p>
+                                                    With a <code>yield</code> function, when its code begins to run (i.e. after the function is called, returning a generator object, whose <code>next()</code> method is then invoked), it similarly puts its local variables onto the stack and computes for a while. But then, when it hits the <code>yield</code> statement, before clearing its part of the stack and returning, it takes a snapshot of its local variables and stores them in the generator object. It also writes down the place where it&#39;s currently up to in its code (i.e. the particular <code>yield</code> statement).
+                                                </p><p>
+                                                    So it&#39;s a kind of a frozen function that the generator is hanging onto.
+                                                </p><p>
+                                                    When <code>next()</code> is called subsequently, it retrieves the function&#39;s belongings onto the stack and re-animates it. The function continues to compute from where it left off, oblivious to the fact that it had just spent an eternity in cold storage.
+                                                </p><p>
+                                                    Compare the following examples:
+                                                </p><pre><code><span>def</span> <span>normalFunction</span>():
+    <span>return</span>
+    <span>if</span> <span>False</span>:
+        <span>pass</span>
+
+<span>def</span> <span>yielderFunction</span>():
+    <span>return</span>
+    <span>if</span> <span>False</span>:
+        <span>yield</span> <span>12</span>
+</code></pre><p>
+                                                    When we call the second function, it behaves very differently to the first. The <code>yield</code> statement might be unreachable, but if it&#39;s present anywhere, it changes the nature of what we&#39;re dealing with.
+                                                </p><pre><code><span>&gt;&gt;&gt; </span>yielderFunction()
+&lt;generator <span>object</span> yielderFunction at <span>0x07742D28</span>&gt;
+</code></pre><p>
+                                                    Calling <code>yielderFunction()</code> doesn&#39;t run its code, but makes a generator out of the code. (Maybe it&#39;s a good idea to name such things with the <code>yielder</code> prefix for readability.)
+                                                </p><pre><code><span>&gt;&gt;&gt; </span>gen = yielderFunction()
+<span>&gt;&gt;&gt; </span><span>dir</span>(gen)
+[<span>&#39;__class__&#39;</span>,
+ ...
+ <span>&#39;__iter__&#39;</span>,    
+ ...            
+ <span>&#39;close&#39;</span>,
+ <span>&#39;gi_code&#39;</span>,
+ <span>&#39;gi_frame&#39;</span>,
+ <span>&#39;gi_running&#39;</span>,
+ <span>&#39;next&#39;</span>,        
+ <span>&#39;send&#39;</span>,
+ <span>&#39;throw&#39;</span>]
+</code></pre><p>
+                                                    The <code>gi_code</code> and <code>gi_frame</code> fields are where the frozen state is stored. Exploring them with <code>dir(..)</code>, we can confirm that our mental model above is credible.
+                                                </p><div><span>2</span>
+                                        
+                                    </div><div role="tooltip">
+                                                    This answer is useful
+                                                    
+                                                </div><div>
+                                                    74
+                                                </div><div role="tooltip">
+                                                    This answer is not useful
+                                                    
+                                                </div><div role="tooltip">
+                                                    Save this answer.
+                                                    
+                                                </div><div role="tooltip">
+                                                    Show activity on this post.
+                                                    
+                                                </div><p>
+                                                    Like every answer suggests, <code>yield</code> is used for creating a sequence generator. It&#39;s used for generating some sequence dynamically. For example, while reading a file line by line on a network, you can use the <code>yield</code> function as follows:
+                                                </p><pre><code><span>def</span> <span>getNextLines</span>():
+   <span>while</span> con.isOpen():
+       <span>yield</span> con.read()
+</code></pre><p>
+                                                    You can use it in your code as follows:
+                                                </p><pre><code><span>for</span> line <span>in</span> getNextLines():
+    doSomeThing(line)
+</code></pre><p>
+                                                    <strong><em>Execution Control Transfer gotcha</em></strong>
+                                                </p><p>
+                                                    The execution control will be transferred from getNextLines() to the <code>for</code> loop when yield is executed. Thus, every time getNextLines() is invoked, execution begins from the point where it was paused last time.
+                                                </p><p>
+                                                    Thus in short, a function with the following code
+                                                </p><pre><code><span>def</span> <span>simpleYield</span>():
+    <span>yield</span> <span>&#34;first time&#34;</span>
+    <span>yield</span> <span>&#34;second time&#34;</span>
+    <span>yield</span> <span>&#34;third time&#34;</span>
+    <span>yield</span> <span>&#34;Now some useful value {}&#34;</span>.<span>format</span>(<span>12</span>)
+
+<span>for</span> i <span>in</span> simpleYield():
+    <span>print</span> i
+</code></pre><p>
+                                                    will print
+                                                </p><pre><code><span>&#34;first time&#34;</span>
+<span>&#34;second time&#34;</span>
+<span>&#34;third time&#34;</span>
+<span>&#34;Now some useful value 12&#34;</span>
+</code></pre><div>
+                                                                    <span title="reputation score 10,190" dir="ltr">10.2k</span><span>4 gold badges</span><span>61 silver badges</span><span>94 bronze badges</span>
+                                                                </div><div><span>0</span>
+                                        
+                                    </div><div role="tooltip">
+                                                    This answer is useful
+                                                    
+                                                </div><div>
+                                                    72
+                                                </div><div role="tooltip">
+                                                    This answer is not useful
+                                                    
+                                                </div><div role="tooltip">
+                                                    Save this answer.
+                                                    
+                                                </div><div role="tooltip">
+                                                    Show activity on this post.
+                                                    
+                                                </div><p>
+                                                    (My below answer only speaks from the perspective of using Python generator, not the <a href="https://stackoverflow.com/questions/8389812/how-are-generators-and-coroutines-implemented-in-cpython">underlying implementation of generator mechanism</a>, which involves some tricks of stack and heap manipulation.)
+                                                </p><p>
+                                                    When <code>yield</code> is used instead of a <code>return</code> in a python function, that function is turned into something special called <code>generator function</code>. That function will return an object of <code>generator</code> type. <strong>The <code>yield</code> keyword is a flag to notify the python compiler to treat such function specially.</strong> Normal functions will terminate once some value is returned from it. But with the help of the compiler, the generator function <strong>can be thought of</strong> as resumable. That is, the execution context will be restored and the execution will continue from last run. Until you explicitly call return, which will raise a <code>StopIteration</code> exception (which is also part of the iterator protocol), or reach the end of the function. I found a lot of references about <code>generator</code> but this <a href="https://docs.python.org/dev/howto/functional.html#generators" rel="noreferrer">one</a> from the <code>functional programming perspective</code> is the most digestable.
+                                                </p><p>
+                                                    (Now I want to talk about the rationale behind <code>generator</code>, and the <code>iterator</code> based on my own understanding. I hope this can help you grasp the <strong><em>essential motivation</em></strong> of iterator and generator. Such concept shows up in other languages as well such as C#.)
+                                                </p><p>
+                                                    As I understand, when we want to process a bunch of data, we usually first store the data somewhere and then process it one by one. But this <em>naive</em> approach is problematic. If the data volume is huge, it&#39;s expensive to store them as a whole beforehand. <strong>So instead of storing the <code>data</code> itself directly, why not store some kind of <code>metadata</code> indirectly, i.e. <code>the logic how the data is computed</code></strong>.
+                                                </p><p>
+                                                    There are 2 approaches to wrap such metadata.
+                                                </p><ol><li>The OO approach, we wrap the metadata <code>as a class</code>. This is the so-called <code>iterator</code> who implements the iterator protocol (i.e. the <code>__next__()</code>, and <code>__iter__()</code> methods). This is also the commonly seen <a href="https://en.wikipedia.org/wiki/Iterator_pattern#Python" rel="noreferrer">iterator design pattern</a>.</li><li>The functional approach, we wrap the metadata <code>as a function</code>. This is the so-called <code>generator function</code>. But under the hood, the returned <code>generator object</code> still <code>IS-A</code> iterator because it also implements the iterator protocol.</li></ol><p>
+                                                    Either way, an iterator is created, i.e. some object that can give you the data you want. The OO approach may be a bit complex. Anyway, which one to use is up to you.
+                                                </p><div><span>0</span>
+                                        
+                                    </div><div role="tooltip">
+                                                    This answer is useful
+                                                    
+                                                </div><div>
+                                                    71
+                                                </div><div role="tooltip">
+                                                    This answer is not useful
+                                                    
+                                                </div><div role="tooltip">
+                                                    Save this answer.
+                                                    
+                                                </div><div role="tooltip">
+                                                    Show activity on this post.
+                                                    
+                                                </div><p>
+                                                    In summary, the <code>yield</code> statement transforms your function into a factory that produces a special object called a <code>generator</code> which wraps around the body of your original function. When the <code>generator</code> is iterated, it executes your function until it reaches the next <code>yield</code> then suspends execution and evaluates to the value passed to <code>yield</code>. It repeats this process on each iteration until the path of execution exits the function. For instance,
+                                                </p><pre><code><span>def</span> <span>simple_generator</span>():
+    <span>yield</span> <span>&#39;one&#39;</span>
+    <span>yield</span> <span>&#39;two&#39;</span>
+    <span>yield</span> <span>&#39;three&#39;</span>
+
+<span>for</span> i <span>in</span> simple_generator():
+    <span>print</span> i
+</code></pre><p>
+                                                    simply outputs
+                                                </p><pre><code>one
+two
+three
+</code></pre><p>
+                                                    The power comes from using the generator with a loop that calculates a sequence, the generator executes the loop stopping each time to &#39;yield&#39; the next result of the calculation, in this way it calculates a list on the fly, the benefit being the memory saved for especially large calculations
+                                                </p><p>
+                                                    Say you wanted to create a your own <code>range</code> function that produces an iterable range of numbers, you could do it like so,
+                                                </p><pre><code><span>def</span> <span>myRangeNaive</span>(<span>i</span>):
+    n = <span>0</span>
+    <span>range</span> = []
+    <span>while</span> n &lt; i:
+        <span>range</span>.append(n)
+        n = n + <span>1</span>
+    <span>return</span> <span>range</span>
+</code></pre><p>
+                                                    and use it like this;
+                                                </p><pre><code><span>for</span> i <span>in</span> myRangeNaive(<span>10</span>):
+    <span>print</span> i
+</code></pre><p>
+                                                    But this is inefficient because
+                                                </p><ul><li>You create an array that you only use once (this wastes memory)</li><li>This code actually loops over that array twice! :(</li></ul><p>
+                                                    Luckily Guido and his team were generous enough to develop generators so we could just do this;
+                                                </p><pre><code><span>def</span> <span>myRangeSmart</span>(<span>i</span>):
+    n = <span>0</span>
+    <span>while</span> n &lt; i:
+       <span>yield</span> n
+       n = n + <span>1</span>
+    <span>return</span>
+
+<span>for</span> i <span>in</span> myRangeSmart(<span>10</span>):
+    <span>print</span> i
+</code></pre><p>
+                                                    Now upon each iteration a function on the generator called <code>next()</code> executes the function until it either reaches a &#39;yield&#39; statement in which it stops and &#39;yields&#39; the value or reaches the end of the function. In this case on the first call, <code>next()</code> executes up to the yield statement and yield &#39;n&#39;, on the next call it will execute the increment statement, jump back to the &#39;while&#39;, evaluate it, and if true, it will stop and yield &#39;n&#39; again, it will continue that way until the while condition returns false and the generator jumps to the end of the function.
+                                                </p></div>

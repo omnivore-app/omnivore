@@ -36,9 +36,10 @@ public struct InternalRecommendationGroup: Identifiable {
   }
 
   public static func make(from recommendationGroup: RecommendationGroup) -> InternalRecommendationGroup? {
-    if let id = recommendationGroup.id,
-       let name = recommendationGroup.name,
-       let inviteUrl = recommendationGroup.inviteUrl
+    if
+      let id = recommendationGroup.id,
+      let name = recommendationGroup.name,
+      let inviteUrl = recommendationGroup.inviteUrl
     {
       return InternalRecommendationGroup(
         id: id,

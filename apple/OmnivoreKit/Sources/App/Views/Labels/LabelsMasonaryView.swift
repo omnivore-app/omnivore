@@ -17,10 +17,11 @@ struct LabelsMasonaryView: View {
   @State private var totalHeight = CGFloat.zero
   private var labelItems: [(label: LinkedItemLabel, selected: Bool)]
 
-  init(labels allLabels: [LinkedItemLabel],
-       selectedLabels: [LinkedItemLabel],
-       onLabelTap: @escaping (LinkedItemLabel, TextChip) -> Void)
-  {
+  init(
+    labels allLabels: [LinkedItemLabel],
+    selectedLabels: [LinkedItemLabel],
+    onLabelTap: @escaping (LinkedItemLabel, TextChip) -> Void
+  ) {
     self.onLabelTap = onLabelTap
 
     let selected = selectedLabels.map { (label: $0, selected: true) }

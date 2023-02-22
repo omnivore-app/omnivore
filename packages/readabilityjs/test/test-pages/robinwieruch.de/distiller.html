@@ -1,0 +1,1315 @@
+<div><p>
+                                    In this tutorial, I want to show you <strong>how to fetch data in React with Hooks</strong> by using the <a href="https://reactjs.org/docs/hooks-state.html" target="_blank" rel="noopener noreferrer">state</a> and <a href="https://reactjs.org/docs/hooks-effect.html" target="_blank" rel="noopener noreferrer">effect</a> hooks. We will use the widely known <a href="https://hn.algolia.com/api" target="_blank" rel="noopener noreferrer">Hacker News API</a> to fetch popular articles from the tech world. You will also implement your custom hook for the data fetching that can be reused anywhere in your application or published on npm as standalone node package.
+                                </p><p>
+                                    If you don&#39;t know anything about this new React feature, checkout this <a href="/react-hooks/">introduction to React Hooks</a>. If you want to checkout the finished project for the showcased examples that show how to fetch data in React with Hooks, checkout this <a href="https://github.com/the-road-to-learn-react/react-hooks-introduction" target="_blank" rel="noopener noreferrer">GitHub repository</a>.
+                                </p><p>
+                                    If you just want to have a ready to go React Hook for data fetching: <code>npm install use-data-api</code> and follow the <a href="https://github.com/the-road-to-learn-react/use-data-api" target="_blank" rel="noopener noreferrer">documentation</a>. Don&#39;t forget to star it if you use it :-)
+                                </p><p>
+                                    <strong>Note:</strong> In the future, React Hooks are not be intended for data fetching in React. Instead, a feature called Suspense will be in charge for it. The following walkthrough is nonetheless a great way to learn more about state and effect hooks in React.
+                                </p><h2>
+                                    Data Fetching with React Hooks
+                                </h2><p>
+                                    If you are not familiar with data fetching in React, checkout my <a href="/react-fetching-data/">extensive data fetching in React article</a>. It walks you through data fetching with React class components, how it can be made reusable with <a href="/react-render-props/">Render Prop Components</a> and <a href="/react-higher-order-components/">Higher-Order Components</a>, and how it deals with error handling and loading spinners. In this article, I want to show you all of it with React Hooks in function components.
+                                </p><div>
+                                    <span>import</span> <span>React</span><span>,</span> <span>{</span> <span>useState</span> <span>}</span> <span>from</span> <span>&#39;react&#39;</span><span>;</span>
+                                </div><div>
+                                    <span>function</span> <span>App</span><span>(</span><span>)</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>data</span><span>,</span> <span>setData</span><span>]</span> <span>=</span> <span>useState</span><span>(</span><span>{</span> <span>hits</span><span>:</span> <span>[</span><span>]</span> <span>}</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>return</span> <span>(</span>
+                                </div><div>
+                                    <span>&lt;</span><span>ul</span><span>&gt;</span>
+                                </div><div>
+                                    <span>{</span><span>data</span><span>.</span><span>hits</span><span>.</span><span>map</span><span>(</span><span>item</span> <span>=&gt;</span> <span>(</span>
+                                </div><div>
+                                    <span>&lt;</span><span>li</span> <span>key</span><span>=</span><span>{</span><span>item</span><span>.</span><span>objectID</span><span>}</span><span>&gt;</span>
+                                </div><div>
+                                    <span>&lt;</span><span>a</span> <span>href</span><span>=</span><span>{</span><span>item</span><span>.</span><span>url</span><span>}</span><span>&gt;</span><span>{</span><span>item</span><span>.</span><span>title</span><span>}</span><span>&lt;/</span><span>a</span><span>&gt;</span>
+                                </div><div>
+                                    <span>&lt;/</span><span>li</span><span>&gt;</span>
+                                </div><div>
+                                    <span>)</span><span>)</span><span>}</span>
+                                </div><div>
+                                    <span>&lt;/</span><span>ul</span><span>&gt;</span>
+                                </div><div>
+                                    <span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span>
+                                </div><div>
+                                    <span>export</span> <span>default</span> <span>App</span><span>;</span>
+                                </div><p>
+                                    The App component shows a list of items (hits = Hacker News articles). The state and state update function come from the state hook called <code>useState</code> that is responsible to manage the local state for the data that we are going to fetch for the App component. The initial state is an empty list of hits in an object that represents the data. No one is setting any state for this data yet.
+                                </p><p>
+                                    We are going to use <a href="https://github.com/axios/axios" target="_blank" rel="noopener noreferrer">axios</a> to fetch data, but it is up to you to use another data fetching library or the native fetch API of the browser. If you haven&#39;t installed axios yet, you can do so by on the command line with <code>npm install axios</code>. Then implement your effect hook for the data fetching:
+                                </p><div>
+                                    <span>import</span> <span>React</span><span>,</span> <span>{</span> <span>useState</span><span>,</span> <span>useEffect</span> <span>}</span> <span>from</span> <span>&#39;react&#39;</span><span>;</span>
+                                </div><div>
+                                    <span>import</span> <span>axios</span> <span>from</span> <span>&#39;axios&#39;</span><span>;</span>
+                                </div><div>
+                                    <span>function</span> <span>App</span><span>(</span><span>)</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>data</span><span>,</span> <span>setData</span><span>]</span> <span>=</span> <span>useState</span><span>(</span><span>{</span> <span>hits</span><span>:</span> <span>[</span><span>]</span> <span>}</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>useEffect</span><span>(</span><span>async</span> <span>(</span><span>)</span> <span>=&gt;</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>result</span> <span>=</span> <span>await</span> <span>axios</span><span>(</span>
+                                </div><div>
+                                    <span>&#39;https://hn.algolia.com/api/v1/search?query=redux&#39;</span><span>,</span>
+                                </div><div>
+                                    <span>)</span><span>;</span>
+                                </div><div>
+                                    <span>setData</span><span>(</span><span>result</span><span>.</span><span>data</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>return</span> <span>(</span>
+                                </div><div>
+                                    <span>&lt;</span><span>ul</span><span>&gt;</span>
+                                </div><div>
+                                    <span>{</span><span>data</span><span>.</span><span>hits</span><span>.</span><span>map</span><span>(</span><span>item</span> <span>=&gt;</span> <span>(</span>
+                                </div><div>
+                                    <span>&lt;</span><span>li</span> <span>key</span><span>=</span><span>{</span><span>item</span><span>.</span><span>objectID</span><span>}</span><span>&gt;</span>
+                                </div><div>
+                                    <span>&lt;</span><span>a</span> <span>href</span><span>=</span><span>{</span><span>item</span><span>.</span><span>url</span><span>}</span><span>&gt;</span><span>{</span><span>item</span><span>.</span><span>title</span><span>}</span><span>&lt;/</span><span>a</span><span>&gt;</span>
+                                </div><div>
+                                    <span>&lt;/</span><span>li</span><span>&gt;</span>
+                                </div><div>
+                                    <span>)</span><span>)</span><span>}</span>
+                                </div><div>
+                                    <span>&lt;/</span><span>ul</span><span>&gt;</span>
+                                </div><div>
+                                    <span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span>
+                                </div><div>
+                                    <span>export</span> <span>default</span> <span>App</span><span>;</span>
+                                </div><p>
+                                    The effect hook called useEffect is used to fetch the data with axios from the API and to set the data in the local state of the component with the state hook&#39;s update function. The promise resolving happens with async/await.
+                                </p><p>
+                                    However, when you run your application, you should stumble into a nasty loop. The effect hook runs when the component mounts but also when the component updates. Because we are setting the state after every data fetch, the component updates and the effect runs again. It fetches the data again and again. That&#39;s a bug and needs to be avoided. <strong>We only want to fetch data when the component mounts.</strong> That&#39;s why you can provide an empty array as second argument to the effect hook to avoid activating it on component updates but only for the mounting of the component.
+                                </p><div>
+                                    <span>import</span> <span>React</span><span>,</span> <span>{</span> <span>useState</span><span>,</span> <span>useEffect</span> <span>}</span> <span>from</span> <span>&#39;react&#39;</span><span>;</span>
+                                </div><div>
+                                    <span>import</span> <span>axios</span> <span>from</span> <span>&#39;axios&#39;</span><span>;</span>
+                                </div><div>
+                                    <span>function</span> <span>App</span><span>(</span><span>)</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>data</span><span>,</span> <span>setData</span><span>]</span> <span>=</span> <span>useState</span><span>(</span><span>{</span> <span>hits</span><span>:</span> <span>[</span><span>]</span> <span>}</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>useEffect</span><span>(</span><span>async</span> <span>(</span><span>)</span> <span>=&gt;</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>result</span> <span>=</span> <span>await</span> <span>axios</span><span>(</span>
+                                </div><div>
+                                    <span>&#39;https://hn.algolia.com/api/v1/search?query=redux&#39;</span><span>,</span>
+                                </div><div>
+                                    <span>)</span><span>;</span>
+                                </div><div>
+                                    <span>setData</span><span>(</span><span>result</span><span>.</span><span>data</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span><span>,</span> <span>[</span><span>]</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>return</span> <span>(</span>
+                                </div><div>
+                                    <span>&lt;</span><span>ul</span><span>&gt;</span>
+                                </div><div>
+                                    <span>{</span><span>data</span><span>.</span><span>hits</span><span>.</span><span>map</span><span>(</span><span>item</span> <span>=&gt;</span> <span>(</span>
+                                </div><div>
+                                    <span>&lt;</span><span>li</span> <span>key</span><span>=</span><span>{</span><span>item</span><span>.</span><span>objectID</span><span>}</span><span>&gt;</span>
+                                </div><div>
+                                    <span>&lt;</span><span>a</span> <span>href</span><span>=</span><span>{</span><span>item</span><span>.</span><span>url</span><span>}</span><span>&gt;</span><span>{</span><span>item</span><span>.</span><span>title</span><span>}</span><span>&lt;/</span><span>a</span><span>&gt;</span>
+                                </div><div>
+                                    <span>&lt;/</span><span>li</span><span>&gt;</span>
+                                </div><div>
+                                    <span>)</span><span>)</span><span>}</span>
+                                </div><div>
+                                    <span>&lt;/</span><span>ul</span><span>&gt;</span>
+                                </div><div>
+                                    <span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span>
+                                </div><div>
+                                    <span>export</span> <span>default</span> <span>App</span><span>;</span>
+                                </div><p>
+                                    The second argument can be used to define all the variables (allocated in this array) on which the hook depends. If one of the variables changes, the hook runs again. If the array with the variables is empty, the hook doesn&#39;t run when updating the component at all, because it doesn&#39;t have to watch any variables.
+                                </p><p>
+                                    There is one last catch. In the code, we are using async/await to fetch data from a third-party API. According to the documentation every function annotated with async returns an implicit promise: <em>&#34;The async function declaration defines an asynchronous function, which returns an AsyncFunction object. An asynchronous function is a function which operates asynchronously via the event loop, using an implicit Promise to return its result. &#34;</em>. However, an effect hook should return nothing or a clean up function. That&#39;s why you may see the following warning in your developer console log: <strong>07:41:22.910 index.js:1452 Warning: useEffect function must return a cleanup function or nothing. Promises and useEffect(async () =&gt; ...) are not supported, but you can call an async function inside an effect.</strong>. That&#39;s why using async directly in the <code>useEffect</code> function isn&#39;t allowed. Let&#39;s implement a workaround for it, by using the async function inside the effect.
+                                </p><div>
+                                    <span>import</span> <span>React</span><span>,</span> <span>{</span> <span>useState</span><span>,</span> <span>useEffect</span> <span>}</span> <span>from</span> <span>&#39;react&#39;</span><span>;</span>
+                                </div><div>
+                                    <span>import</span> <span>axios</span> <span>from</span> <span>&#39;axios&#39;</span><span>;</span>
+                                </div><div>
+                                    <span>function</span> <span>App</span><span>(</span><span>)</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>data</span><span>,</span> <span>setData</span><span>]</span> <span>=</span> <span>useState</span><span>(</span><span>{</span> <span>hits</span><span>:</span> <span>[</span><span>]</span> <span>}</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>useEffect</span><span>(</span><span>(</span><span>)</span> <span>=&gt;</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>fetchData</span> <span>=</span> <span>async</span> <span>(</span><span>)</span> <span>=&gt;</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>result</span> <span>=</span> <span>await</span> <span>axios</span><span>(</span>
+                                </div><div>
+                                    <span>&#39;https://hn.algolia.com/api/v1/search?query=redux&#39;</span><span>,</span>
+                                </div><div>
+                                    <span>)</span><span>;</span>
+                                </div><div>
+                                    <span>setData</span><span>(</span><span>result</span><span>.</span><span>data</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span><span>;</span>
+                                </div><div>
+                                    <span>fetchData</span><span>(</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span><span>,</span> <span>[</span><span>]</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>return</span> <span>(</span>
+                                </div><div>
+                                    <span>&lt;</span><span>ul</span><span>&gt;</span>
+                                </div><div>
+                                    <span>{</span><span>data</span><span>.</span><span>hits</span><span>.</span><span>map</span><span>(</span><span>item</span> <span>=&gt;</span> <span>(</span>
+                                </div><div>
+                                    <span>&lt;</span><span>li</span> <span>key</span><span>=</span><span>{</span><span>item</span><span>.</span><span>objectID</span><span>}</span><span>&gt;</span>
+                                </div><div>
+                                    <span>&lt;</span><span>a</span> <span>href</span><span>=</span><span>{</span><span>item</span><span>.</span><span>url</span><span>}</span><span>&gt;</span><span>{</span><span>item</span><span>.</span><span>title</span><span>}</span><span>&lt;/</span><span>a</span><span>&gt;</span>
+                                </div><div>
+                                    <span>&lt;/</span><span>li</span><span>&gt;</span>
+                                </div><div>
+                                    <span>)</span><span>)</span><span>}</span>
+                                </div><div>
+                                    <span>&lt;/</span><span>ul</span><span>&gt;</span>
+                                </div><div>
+                                    <span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span>
+                                </div><div>
+                                    <span>export</span> <span>default</span> <span>App</span><span>;</span>
+                                </div><p>
+                                    That&#39;s data fetching with React hooks in a nutshell. But continue reading if you are interested about error handling, loading indicators, how to trigger the data fetching from a form, and how to implement a reusable data fetching hook.
+                                </p><h2>
+                                    How to trigger a hook programmatically / manually?
+                                </h2><p>
+                                    Great, we are fetching data once the component mounts. But what about using an input field to tell the API in which topic we are interested in? &#34;Redux&#34; is taken as default query. But what about topics about &#34;React&#34;? Let&#39;s implement an input element to enable someone to fetch other stories than &#34;Redux&#34; stories. Therefore, introduce a new state for the input element.
+                                </p><div>
+                                    <span>import</span> <span>React</span><span>,</span> <span>{</span> <span>Fragment</span><span>,</span> <span>useState</span><span>,</span> <span>useEffect</span> <span>}</span> <span>from</span> <span>&#39;react&#39;</span><span>;</span>
+                                </div><div>
+                                    <span>import</span> <span>axios</span> <span>from</span> <span>&#39;axios&#39;</span><span>;</span>
+                                </div><div>
+                                    <span>function</span> <span>App</span><span>(</span><span>)</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>data</span><span>,</span> <span>setData</span><span>]</span> <span>=</span> <span>useState</span><span>(</span><span>{</span> <span>hits</span><span>:</span> <span>[</span><span>]</span> <span>}</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>query</span><span>,</span> <span>setQuery</span><span>]</span> <span>=</span> <span>useState</span><span>(</span><span>&#39;redux&#39;</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>useEffect</span><span>(</span><span>(</span><span>)</span> <span>=&gt;</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>fetchData</span> <span>=</span> <span>async</span> <span>(</span><span>)</span> <span>=&gt;</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>result</span> <span>=</span> <span>await</span> <span>axios</span><span>(</span>
+                                </div><div>
+                                    <span>&#39;https://hn.algolia.com/api/v1/search?query=redux&#39;</span><span>,</span>
+                                </div><div>
+                                    <span>)</span><span>;</span>
+                                </div><div>
+                                    <span>setData</span><span>(</span><span>result</span><span>.</span><span>data</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span><span>;</span>
+                                </div><div>
+                                    <span>fetchData</span><span>(</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span><span>,</span> <span>[</span><span>]</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>return</span> <span>(</span>
+                                </div><div>
+                                    <span>&lt;</span><span>Fragment</span><span>&gt;</span>
+                                </div><div>
+                                    <span>&lt;</span><span>input</span>
+                                </div><div>
+                                    <span>type</span><span>=</span><span>&#34;</span><span>text</span><span>&#34;</span>
+                                </div><div>
+                                    <span>value</span><span>=</span><span>{</span><span>query</span><span>}</span>
+                                </div><div>
+                                    <span>onChange</span><span>=</span><span>{</span><span>event</span> <span>=&gt;</span> <span>setQuery</span><span>(</span><span>event</span><span>.</span><span>target</span><span>.</span><span>value</span><span>)</span><span>}</span>
+                                </div><div>
+                                    <span>/&gt;</span>
+                                </div><div>
+                                    <span>&lt;</span><span>ul</span><span>&gt;</span>
+                                </div><div>
+                                    <span>{</span><span>data</span><span>.</span><span>hits</span><span>.</span><span>map</span><span>(</span><span>item</span> <span>=&gt;</span> <span>(</span>
+                                </div><div>
+                                    <span>&lt;</span><span>li</span> <span>key</span><span>=</span><span>{</span><span>item</span><span>.</span><span>objectID</span><span>}</span><span>&gt;</span>
+                                </div><div>
+                                    <span>&lt;</span><span>a</span> <span>href</span><span>=</span><span>{</span><span>item</span><span>.</span><span>url</span><span>}</span><span>&gt;</span><span>{</span><span>item</span><span>.</span><span>title</span><span>}</span><span>&lt;/</span><span>a</span><span>&gt;</span>
+                                </div><div>
+                                    <span>&lt;/</span><span>li</span><span>&gt;</span>
+                                </div><div>
+                                    <span>)</span><span>)</span><span>}</span>
+                                </div><div>
+                                    <span>&lt;/</span><span>ul</span><span>&gt;</span>
+                                </div><div>
+                                    <span>&lt;/</span><span>Fragment</span><span>&gt;</span>
+                                </div><div>
+                                    <span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span>
+                                </div><div>
+                                    <span>export</span> <span>default</span> <span>App</span><span>;</span>
+                                </div><p>
+                                    At the moment, both states are independent from each other, but now you want to couple them to only fetch articles that are specified by the query in the input field. With the following change, the component should fetch all articles by query term once it mounted.
+                                </p><div>
+                                    <span>...</span>
+                                </div><div>
+                                    <span>function</span> <span>App</span><span>(</span><span>)</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>data</span><span>,</span> <span>setData</span><span>]</span> <span>=</span> <span>useState</span><span>(</span><span>{</span> <span>hits</span><span>:</span> <span>[</span><span>]</span> <span>}</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>query</span><span>,</span> <span>setQuery</span><span>]</span> <span>=</span> <span>useState</span><span>(</span><span>&#39;redux&#39;</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>useEffect</span><span>(</span><span>(</span><span>)</span> <span>=&gt;</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>fetchData</span> <span>=</span> <span>async</span> <span>(</span><span>)</span> <span>=&gt;</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>result</span> <span>=</span> <span>await</span> <span>axios</span><span>(</span>
+                                </div><div>
+                                    <span>`</span><span>http://hn.algolia.com/api/v1/search?query=</span><span>${</span><span>query</span><span>}</span><span>`</span><span>,</span>
+                                </div><div>
+                                    <span>)</span><span>;</span>
+                                </div><div>
+                                    <span>setData</span><span>(</span><span>result</span><span>.</span><span>data</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span><span>;</span>
+                                </div><div>
+                                    <span>fetchData</span><span>(</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span><span>,</span> <span>[</span><span>]</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>return</span> <span>(</span>
+                                </div><div>
+                                    <span>...</span>
+                                </div><div>
+                                    <span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span>
+                                </div><div>
+                                    <span>export</span> <span>default</span> <span>App</span><span>;</span>
+                                </div><p>
+                                    One piece is missing: When you try to type something into the input field, there is no other data fetching after the mounting triggered from the effect. That&#39;s because you have provided the empty array as second argument to the effect. The effect depends on no variables, so it is only triggered when the component mounts. However, now the effect should depend on the query. Once the query changes, the data request should fire again.
+                                </p><div>
+                                    <span>...</span>
+                                </div><div>
+                                    <span>function</span> <span>App</span><span>(</span><span>)</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>data</span><span>,</span> <span>setData</span><span>]</span> <span>=</span> <span>useState</span><span>(</span><span>{</span> <span>hits</span><span>:</span> <span>[</span><span>]</span> <span>}</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>query</span><span>,</span> <span>setQuery</span><span>]</span> <span>=</span> <span>useState</span><span>(</span><span>&#39;redux&#39;</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>useEffect</span><span>(</span><span>(</span><span>)</span> <span>=&gt;</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>fetchData</span> <span>=</span> <span>async</span> <span>(</span><span>)</span> <span>=&gt;</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>result</span> <span>=</span> <span>await</span> <span>axios</span><span>(</span>
+                                </div><div>
+                                    <span>`</span><span>http://hn.algolia.com/api/v1/search?query=</span><span>${</span><span>query</span><span>}</span><span>`</span><span>,</span>
+                                </div><div>
+                                    <span>)</span><span>;</span>
+                                </div><div>
+                                    <span>setData</span><span>(</span><span>result</span><span>.</span><span>data</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span><span>;</span>
+                                </div><div>
+                                    <span>fetchData</span><span>(</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span><span>,</span> <span>[</span><span>query</span><span>]</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>return</span> <span>(</span>
+                                </div><div>
+                                    <span>...</span>
+                                </div><div>
+                                    <span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span>
+                                </div><div>
+                                    <span>export</span> <span>default</span> <span>App</span><span>;</span>
+                                </div><p>
+                                    The refetching of the data should work once you change the value in the input field. But that opens up another problem: On every character you type into the input field, the effect is triggered and executes another data fetching request. How about providing a button that triggers the request and therefore the hook manually?
+                                </p><div>
+                                    <span>function</span> <span>App</span><span>(</span><span>)</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>data</span><span>,</span> <span>setData</span><span>]</span> <span>=</span> <span>useState</span><span>(</span><span>{</span> <span>hits</span><span>:</span> <span>[</span><span>]</span> <span>}</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>query</span><span>,</span> <span>setQuery</span><span>]</span> <span>=</span> <span>useState</span><span>(</span><span>&#39;redux&#39;</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>search</span><span>,</span> <span>setSearch</span><span>]</span> <span>=</span> <span>useState</span><span>(</span><span>&#39;&#39;</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>useEffect</span><span>(</span><span>(</span><span>)</span> <span>=&gt;</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>fetchData</span> <span>=</span> <span>async</span> <span>(</span><span>)</span> <span>=&gt;</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>result</span> <span>=</span> <span>await</span> <span>axios</span><span>(</span>
+                                </div><div>
+                                    <span>`</span><span>http://hn.algolia.com/api/v1/search?query=</span><span>${</span><span>query</span><span>}</span><span>`</span><span>,</span>
+                                </div><div>
+                                    <span>)</span><span>;</span>
+                                </div><div>
+                                    <span>setData</span><span>(</span><span>result</span><span>.</span><span>data</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span><span>;</span>
+                                </div><div>
+                                    <span>fetchData</span><span>(</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span><span>,</span> <span>[</span><span>query</span><span>]</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>return</span> <span>(</span>
+                                </div><div>
+                                    <span>&lt;</span><span>Fragment</span><span>&gt;</span>
+                                </div><div>
+                                    <span>&lt;</span><span>input</span>
+                                </div><div>
+                                    <span>type</span><span>=</span><span>&#34;</span><span>text</span><span>&#34;</span>
+                                </div><div>
+                                    <span>value</span><span>=</span><span>{</span><span>query</span><span>}</span>
+                                </div><div>
+                                    <span>onChange</span><span>=</span><span>{</span><span>event</span> <span>=&gt;</span> <span>setQuery</span><span>(</span><span>event</span><span>.</span><span>target</span><span>.</span><span>value</span><span>)</span><span>}</span>
+                                </div><div>
+                                    <span>/&gt;</span>
+                                </div><div>
+                                    <span>&lt;</span><span>button</span> <span>type</span><span>=</span><span>&#34;</span><span>button</span><span>&#34;</span> <span>onClick</span><span>=</span><span>{</span><span>(</span><span>)</span> <span>=&gt;</span> <span>setSearch</span><span>(</span><span>query</span><span>)</span><span>}</span><span>&gt;</span>
+                                </div><div>
+                                    <span>Search</span>
+                                </div><div>
+                                    <span>&lt;/</span><span>button</span><span>&gt;</span>
+                                </div><div>
+                                    <span>&lt;</span><span>ul</span><span>&gt;</span>
+                                </div><div>
+                                    <span>{</span><span>data</span><span>.</span><span>hits</span><span>.</span><span>map</span><span>(</span><span>item</span> <span>=&gt;</span> <span>(</span>
+                                </div><div>
+                                    <span>&lt;</span><span>li</span> <span>key</span><span>=</span><span>{</span><span>item</span><span>.</span><span>objectID</span><span>}</span><span>&gt;</span>
+                                </div><div>
+                                    <span>&lt;</span><span>a</span> <span>href</span><span>=</span><span>{</span><span>item</span><span>.</span><span>url</span><span>}</span><span>&gt;</span><span>{</span><span>item</span><span>.</span><span>title</span><span>}</span><span>&lt;/</span><span>a</span><span>&gt;</span>
+                                </div><div>
+                                    <span>&lt;/</span><span>li</span><span>&gt;</span>
+                                </div><div>
+                                    <span>)</span><span>)</span><span>}</span>
+                                </div><div>
+                                    <span>&lt;/</span><span>ul</span><span>&gt;</span>
+                                </div><div>
+                                    <span>&lt;/</span><span>Fragment</span><span>&gt;</span>
+                                </div><div>
+                                    <span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span>
+                                </div><p>
+                                    Now, make the effect dependant on the search state rather than the fluctuant query state that changes with every key stroke in the input field. Once the user clicks the button, the new search state is set and should trigger the effect hook kinda manually.
+                                </p><div>
+                                    <span>...</span>
+                                </div><div>
+                                    <span>function</span> <span>App</span><span>(</span><span>)</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>data</span><span>,</span> <span>setData</span><span>]</span> <span>=</span> <span>useState</span><span>(</span><span>{</span> <span>hits</span><span>:</span> <span>[</span><span>]</span> <span>}</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>query</span><span>,</span> <span>setQuery</span><span>]</span> <span>=</span> <span>useState</span><span>(</span><span>&#39;redux&#39;</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>search</span><span>,</span> <span>setSearch</span><span>]</span> <span>=</span> <span>useState</span><span>(</span><span>&#39;redux&#39;</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>useEffect</span><span>(</span><span>(</span><span>)</span> <span>=&gt;</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>fetchData</span> <span>=</span> <span>async</span> <span>(</span><span>)</span> <span>=&gt;</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>result</span> <span>=</span> <span>await</span> <span>axios</span><span>(</span>
+                                </div><div>
+                                    <span>`</span><span>http://hn.algolia.com/api/v1/search?query=</span><span>${</span><span>search</span><span>}</span><span>`</span><span>,</span>
+                                </div><div>
+                                    <span>)</span><span>;</span>
+                                </div><div>
+                                    <span>setData</span><span>(</span><span>result</span><span>.</span><span>data</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span><span>;</span>
+                                </div><div>
+                                    <span>fetchData</span><span>(</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span><span>,</span> <span>[</span><span>search</span><span>]</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>return</span> <span>(</span>
+                                </div><div>
+                                    <span>...</span>
+                                </div><div>
+                                    <span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span>
+                                </div><div>
+                                    <span>export</span> <span>default</span> <span>App</span><span>;</span>
+                                </div><p>
+                                    Also the initial state of the search state is set to the same state as the query state, because the component fetches data also on mount and therefore the result should mirror the value in the input field. However, having a similar query and search state is kinda confusing. Why not set the actual URL as state instead of the search state?
+                                </p><div>
+                                    <span>function</span> <span>App</span><span>(</span><span>)</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>data</span><span>,</span> <span>setData</span><span>]</span> <span>=</span> <span>useState</span><span>(</span><span>{</span> <span>hits</span><span>:</span> <span>[</span><span>]</span> <span>}</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>query</span><span>,</span> <span>setQuery</span><span>]</span> <span>=</span> <span>useState</span><span>(</span><span>&#39;redux&#39;</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>url</span><span>,</span> <span>setUrl</span><span>]</span> <span>=</span> <span>useState</span><span>(</span>
+                                </div><div>
+                                    <span>&#39;https://hn.algolia.com/api/v1/search?query=redux&#39;</span><span>,</span>
+                                </div><div>
+                                    <span>)</span><span>;</span>
+                                </div><div>
+                                    <span>useEffect</span><span>(</span><span>(</span><span>)</span> <span>=&gt;</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>fetchData</span> <span>=</span> <span>async</span> <span>(</span><span>)</span> <span>=&gt;</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>result</span> <span>=</span> <span>await</span> <span>axios</span><span>(</span><span>url</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>setData</span><span>(</span><span>result</span><span>.</span><span>data</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span><span>;</span>
+                                </div><div>
+                                    <span>fetchData</span><span>(</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span><span>,</span> <span>[</span><span>url</span><span>]</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>return</span> <span>(</span>
+                                </div><div>
+                                    <span>&lt;</span><span>Fragment</span><span>&gt;</span>
+                                </div><div>
+                                    <span>&lt;</span><span>input</span>
+                                </div><div>
+                                    <span>type</span><span>=</span><span>&#34;</span><span>text</span><span>&#34;</span>
+                                </div><div>
+                                    <span>value</span><span>=</span><span>{</span><span>query</span><span>}</span>
+                                </div><div>
+                                    <span>onChange</span><span>=</span><span>{</span><span>event</span> <span>=&gt;</span> <span>setQuery</span><span>(</span><span>event</span><span>.</span><span>target</span><span>.</span><span>value</span><span>)</span><span>}</span>
+                                </div><div>
+                                    <span>/&gt;</span>
+                                </div><div>
+                                    <span>&lt;</span><span>button</span>
+                                </div><div>
+                                    <span>type</span><span>=</span><span>&#34;</span><span>button</span><span>&#34;</span>
+                                </div><div>
+                                    <span>onClick</span><span>=</span><span>{</span><span>(</span><span>)</span> <span>=&gt;</span>
+                                </div><div>
+                                    <span>setUrl</span><span>(</span><span>`</span><span>http://hn.algolia.com/api/v1/search?query=</span><span>${</span><span>query</span><span>}</span><span>`</span><span>)</span>
+                                </div><div>
+                                    <span>}</span>
+                                </div><div>
+                                    <span>&gt;</span>
+                                </div><div>
+                                    <span>Search</span>
+                                </div><div>
+                                    <span>&lt;/</span><span>button</span><span>&gt;</span>
+                                </div><div>
+                                    <span>&lt;</span><span>ul</span><span>&gt;</span>
+                                </div><div>
+                                    <span>{</span><span>data</span><span>.</span><span>hits</span><span>.</span><span>map</span><span>(</span><span>item</span> <span>=&gt;</span> <span>(</span>
+                                </div><div>
+                                    <span>&lt;</span><span>li</span> <span>key</span><span>=</span><span>{</span><span>item</span><span>.</span><span>objectID</span><span>}</span><span>&gt;</span>
+                                </div><div>
+                                    <span>&lt;</span><span>a</span> <span>href</span><span>=</span><span>{</span><span>item</span><span>.</span><span>url</span><span>}</span><span>&gt;</span><span>{</span><span>item</span><span>.</span><span>title</span><span>}</span><span>&lt;/</span><span>a</span><span>&gt;</span>
+                                </div><div>
+                                    <span>&lt;/</span><span>li</span><span>&gt;</span>
+                                </div><div>
+                                    <span>)</span><span>)</span><span>}</span>
+                                </div><div>
+                                    <span>&lt;/</span><span>ul</span><span>&gt;</span>
+                                </div><div>
+                                    <span>&lt;/</span><span>Fragment</span><span>&gt;</span>
+                                </div><div>
+                                    <span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span>
+                                </div><p>
+                                    That&#39;s if for the implicit programmatic data fetching with the effect hook. You can decide on which state the effect depends. Once you set this state on a click or in another side-effect, this effect will run again. In this case, if the URL state changes, the effect runs again to fetch stories from the API.
+                                </p><h2>
+                                    Loading Indicator with React Hooks
+                                </h2><p>
+                                    Let&#39;s introduce a loading indicator to the data fetching. It&#39;s just another state that is managed by a state hook. The loading flag is used to render a loading indicator in the App component.
+                                </p><div>
+                                    <span>import</span> <span>React</span><span>,</span> <span>{</span> <span>Fragment</span><span>,</span> <span>useState</span><span>,</span> <span>useEffect</span> <span>}</span> <span>from</span> <span>&#39;react&#39;</span><span>;</span>
+                                </div><div>
+                                    <span>import</span> <span>axios</span> <span>from</span> <span>&#39;axios&#39;</span><span>;</span>
+                                </div><div>
+                                    <span>function</span> <span>App</span><span>(</span><span>)</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>data</span><span>,</span> <span>setData</span><span>]</span> <span>=</span> <span>useState</span><span>(</span><span>{</span> <span>hits</span><span>:</span> <span>[</span><span>]</span> <span>}</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>query</span><span>,</span> <span>setQuery</span><span>]</span> <span>=</span> <span>useState</span><span>(</span><span>&#39;redux&#39;</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>url</span><span>,</span> <span>setUrl</span><span>]</span> <span>=</span> <span>useState</span><span>(</span>
+                                </div><div>
+                                    <span>&#39;https://hn.algolia.com/api/v1/search?query=redux&#39;</span><span>,</span>
+                                </div><div>
+                                    <span>)</span><span>;</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>isLoading</span><span>,</span> <span>setIsLoading</span><span>]</span> <span>=</span> <span>useState</span><span>(</span><span>false</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>useEffect</span><span>(</span><span>(</span><span>)</span> <span>=&gt;</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>fetchData</span> <span>=</span> <span>async</span> <span>(</span><span>)</span> <span>=&gt;</span> <span>{</span>
+                                </div><div>
+                                    <span>setIsLoading</span><span>(</span><span>true</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>const</span> <span>result</span> <span>=</span> <span>await</span> <span>axios</span><span>(</span><span>url</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>setData</span><span>(</span><span>result</span><span>.</span><span>data</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>setIsLoading</span><span>(</span><span>false</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span><span>;</span>
+                                </div><div>
+                                    <span>fetchData</span><span>(</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span><span>,</span> <span>[</span><span>url</span><span>]</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>return</span> <span>(</span>
+                                </div><div>
+                                    <span>&lt;</span><span>Fragment</span><span>&gt;</span>
+                                </div><div>
+                                    <span>&lt;</span><span>input</span>
+                                </div><div>
+                                    <span>type</span><span>=</span><span>&#34;</span><span>text</span><span>&#34;</span>
+                                </div><div>
+                                    <span>value</span><span>=</span><span>{</span><span>query</span><span>}</span>
+                                </div><div>
+                                    <span>onChange</span><span>=</span><span>{</span><span>event</span> <span>=&gt;</span> <span>setQuery</span><span>(</span><span>event</span><span>.</span><span>target</span><span>.</span><span>value</span><span>)</span><span>}</span>
+                                </div><div>
+                                    <span>/&gt;</span>
+                                </div><div>
+                                    <span>&lt;</span><span>button</span>
+                                </div><div>
+                                    <span>type</span><span>=</span><span>&#34;</span><span>button</span><span>&#34;</span>
+                                </div><div>
+                                    <span>onClick</span><span>=</span><span>{</span><span>(</span><span>)</span> <span>=&gt;</span>
+                                </div><div>
+                                    <span>setUrl</span><span>(</span><span>`</span><span>http://hn.algolia.com/api/v1/search?query=</span><span>${</span><span>query</span><span>}</span><span>`</span><span>)</span>
+                                </div><div>
+                                    <span>}</span>
+                                </div><div>
+                                    <span>&gt;</span>
+                                </div><div>
+                                    <span>Search</span>
+                                </div><div>
+                                    <span>&lt;/</span><span>button</span><span>&gt;</span>
+                                </div><div>
+                                    <span>{</span><span>isLoading</span> <span>?</span> <span>(</span>
+                                </div><div>
+                                    <span>&lt;</span><span>div</span><span>&gt;</span><span>Loading ...</span><span>&lt;/</span><span>div</span><span>&gt;</span>
+                                </div><div>
+                                    <span>)</span> <span>:</span> <span>(</span>
+                                </div><div>
+                                    <span>&lt;</span><span>ul</span><span>&gt;</span>
+                                </div><div>
+                                    <span>{</span><span>data</span><span>.</span><span>hits</span><span>.</span><span>map</span><span>(</span><span>item</span> <span>=&gt;</span> <span>(</span>
+                                </div><div>
+                                    <span>&lt;</span><span>li</span> <span>key</span><span>=</span><span>{</span><span>item</span><span>.</span><span>objectID</span><span>}</span><span>&gt;</span>
+                                </div><div>
+                                    <span>&lt;</span><span>a</span> <span>href</span><span>=</span><span>{</span><span>item</span><span>.</span><span>url</span><span>}</span><span>&gt;</span><span>{</span><span>item</span><span>.</span><span>title</span><span>}</span><span>&lt;/</span><span>a</span><span>&gt;</span>
+                                </div><div>
+                                    <span>&lt;/</span><span>li</span><span>&gt;</span>
+                                </div><div>
+                                    <span>)</span><span>)</span><span>}</span>
+                                </div><div>
+                                    <span>&lt;/</span><span>ul</span><span>&gt;</span>
+                                </div><div>
+                                    <span>)</span><span>}</span>
+                                </div><div>
+                                    <span>&lt;/</span><span>Fragment</span><span>&gt;</span>
+                                </div><div>
+                                    <span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span>
+                                </div><div>
+                                    <span>export</span> <span>default</span> <span>App</span><span>;</span>
+                                </div><p>
+                                    Once the effect is called for data fetching, which happens when the component mounts or the URL state changes, the loading state is set to true. Once the request resolves, the loading state is set to false again.
+                                </p><h2>
+                                    Error Handling with React Hooks
+                                </h2><p>
+                                    What about error handling for data fetching with a React hook? The error is just another state initialized with a state hook. Once there is an error state, the App component can render feedback for the user. When using async/await, it is common to use try/catch blocks for error handling. You can do it within the effect:
+                                </p><div>
+                                    <span>import</span> <span>React</span><span>,</span> <span>{</span> <span>Fragment</span><span>,</span> <span>useState</span><span>,</span> <span>useEffect</span> <span>}</span> <span>from</span> <span>&#39;react&#39;</span><span>;</span>
+                                </div><div>
+                                    <span>import</span> <span>axios</span> <span>from</span> <span>&#39;axios&#39;</span><span>;</span>
+                                </div><div>
+                                    <span>function</span> <span>App</span><span>(</span><span>)</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>data</span><span>,</span> <span>setData</span><span>]</span> <span>=</span> <span>useState</span><span>(</span><span>{</span> <span>hits</span><span>:</span> <span>[</span><span>]</span> <span>}</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>query</span><span>,</span> <span>setQuery</span><span>]</span> <span>=</span> <span>useState</span><span>(</span><span>&#39;redux&#39;</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>url</span><span>,</span> <span>setUrl</span><span>]</span> <span>=</span> <span>useState</span><span>(</span>
+                                </div><div>
+                                    <span>&#39;https://hn.algolia.com/api/v1/search?query=redux&#39;</span><span>,</span>
+                                </div><div>
+                                    <span>)</span><span>;</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>isLoading</span><span>,</span> <span>setIsLoading</span><span>]</span> <span>=</span> <span>useState</span><span>(</span><span>false</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>isError</span><span>,</span> <span>setIsError</span><span>]</span> <span>=</span> <span>useState</span><span>(</span><span>false</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>useEffect</span><span>(</span><span>(</span><span>)</span> <span>=&gt;</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>fetchData</span> <span>=</span> <span>async</span> <span>(</span><span>)</span> <span>=&gt;</span> <span>{</span>
+                                </div><div>
+                                    <span>setIsError</span><span>(</span><span>false</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>setIsLoading</span><span>(</span><span>true</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>try</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>result</span> <span>=</span> <span>await</span> <span>axios</span><span>(</span><span>url</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>setData</span><span>(</span><span>result</span><span>.</span><span>data</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span> <span>catch</span> <span>(</span><span>error</span><span>)</span> <span>{</span>
+                                </div><div>
+                                    <span>setIsError</span><span>(</span><span>true</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span>
+                                </div><div>
+                                    <span>setIsLoading</span><span>(</span><span>false</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span><span>;</span>
+                                </div><div>
+                                    <span>fetchData</span><span>(</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span><span>,</span> <span>[</span><span>url</span><span>]</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>return</span> <span>(</span>
+                                </div><div>
+                                    <span>&lt;</span><span>Fragment</span><span>&gt;</span>
+                                </div><div>
+                                    <span>&lt;</span><span>input</span>
+                                </div><div>
+                                    <span>type</span><span>=</span><span>&#34;</span><span>text</span><span>&#34;</span>
+                                </div><div>
+                                    <span>value</span><span>=</span><span>{</span><span>query</span><span>}</span>
+                                </div><div>
+                                    <span>onChange</span><span>=</span><span>{</span><span>event</span> <span>=&gt;</span> <span>setQuery</span><span>(</span><span>event</span><span>.</span><span>target</span><span>.</span><span>value</span><span>)</span><span>}</span>
+                                </div><div>
+                                    <span>/&gt;</span>
+                                </div><div>
+                                    <span>&lt;</span><span>button</span>
+                                </div><div>
+                                    <span>type</span><span>=</span><span>&#34;</span><span>button</span><span>&#34;</span>
+                                </div><div>
+                                    <span>onClick</span><span>=</span><span>{</span><span>(</span><span>)</span> <span>=&gt;</span>
+                                </div><div>
+                                    <span>setUrl</span><span>(</span><span>`</span><span>http://hn.algolia.com/api/v1/search?query=</span><span>${</span><span>query</span><span>}</span><span>`</span><span>)</span>
+                                </div><div>
+                                    <span>}</span>
+                                </div><div>
+                                    <span>&gt;</span>
+                                </div><div>
+                                    <span>Search</span>
+                                </div><div>
+                                    <span>&lt;/</span><span>button</span><span>&gt;</span>
+                                </div><div>
+                                    <span>{</span><span>isError</span> <span>&amp;&amp;</span> <span>&lt;</span><span>div</span><span>&gt;</span><span>Something went wrong ...</span><span>&lt;/</span><span>div</span><span>&gt;</span><span>}</span>
+                                </div><div>
+                                    <span>{</span><span>isLoading</span> <span>?</span> <span>(</span>
+                                </div><div>
+                                    <span>&lt;</span><span>div</span><span>&gt;</span><span>Loading ...</span><span>&lt;/</span><span>div</span><span>&gt;</span>
+                                </div><div>
+                                    <span>)</span> <span>:</span> <span>(</span>
+                                </div><div>
+                                    <span>&lt;</span><span>ul</span><span>&gt;</span>
+                                </div><div>
+                                    <span>{</span><span>data</span><span>.</span><span>hits</span><span>.</span><span>map</span><span>(</span><span>item</span> <span>=&gt;</span> <span>(</span>
+                                </div><div>
+                                    <span>&lt;</span><span>li</span> <span>key</span><span>=</span><span>{</span><span>item</span><span>.</span><span>objectID</span><span>}</span><span>&gt;</span>
+                                </div><div>
+                                    <span>&lt;</span><span>a</span> <span>href</span><span>=</span><span>{</span><span>item</span><span>.</span><span>url</span><span>}</span><span>&gt;</span><span>{</span><span>item</span><span>.</span><span>title</span><span>}</span><span>&lt;/</span><span>a</span><span>&gt;</span>
+                                </div><div>
+                                    <span>&lt;/</span><span>li</span><span>&gt;</span>
+                                </div><div>
+                                    <span>)</span><span>)</span><span>}</span>
+                                </div><div>
+                                    <span>&lt;/</span><span>ul</span><span>&gt;</span>
+                                </div><div>
+                                    <span>)</span><span>}</span>
+                                </div><div>
+                                    <span>&lt;/</span><span>Fragment</span><span>&gt;</span>
+                                </div><div>
+                                    <span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span>
+                                </div><div>
+                                    <span>export</span> <span>default</span> <span>App</span><span>;</span>
+                                </div><p>
+                                    The error state is reset every time the hook runs again. That&#39;s useful because after a failed request the user may want to try it again which should reset the error. In order to enforce an error yourself, you can alter the URL into something invalid. Then check whether the error message shows up.
+                                </p><h2>
+                                    Fetching Data with Forms and React
+                                </h2><p>
+                                    What about a proper form to fetch data? So far, we have only a combination of input field and button. Once you introduce more input elements, you may want to wrap them with a form element. In addition, a form makes it possible to trigger the button with &#34;Enter&#34; on the keyboard too.
+                                </p><div>
+                                    <span>function</span> <span>App</span><span>(</span><span>)</span> <span>{</span>
+                                </div><div>
+                                    <span>...</span>
+                                </div><div>
+                                    <span>return</span> <span>(</span>
+                                </div><div>
+                                    <span>&lt;</span><span>Fragment</span><span>&gt;</span>
+                                </div><div>
+                                    <span>&lt;</span><span>form</span>
+                                </div><div>
+                                    <span>onSubmit</span><span>=</span><span>{</span><span>(</span><span>)</span> <span>=&gt;</span>
+                                </div><div>
+                                    <span>setUrl</span><span>(</span><span>`</span><span>http://hn.algolia.com/api/v1/search?query=</span><span>${</span><span>query</span><span>}</span><span>`</span><span>)</span>
+                                </div><div>
+                                    <span>}</span>
+                                </div><div>
+                                    <span>&gt;</span>
+                                </div><div>
+                                    <span>&lt;</span><span>input</span>
+                                </div><div>
+                                    <span>type</span><span>=</span><span>&#34;</span><span>text</span><span>&#34;</span>
+                                </div><div>
+                                    <span>value</span><span>=</span><span>{</span><span>query</span><span>}</span>
+                                </div><div>
+                                    <span>onChange</span><span>=</span><span>{</span><span>event</span> <span>=&gt;</span> <span>setQuery</span><span>(</span><span>event</span><span>.</span><span>target</span><span>.</span><span>value</span><span>)</span><span>}</span>
+                                </div><div>
+                                    <span>/&gt;</span>
+                                </div><div>
+                                    <span>&lt;</span><span>button</span> <span>type</span><span>=</span><span>&#34;</span><span>submit</span><span>&#34;</span><span>&gt;</span><span>Search</span><span>&lt;/</span><span>button</span><span>&gt;</span>
+                                </div><div>
+                                    <span>&lt;/</span><span>form</span><span>&gt;</span>
+                                </div><div>
+                                    <span>{</span><span>isError</span> <span>&amp;&amp;</span> <span>&lt;</span><span>div</span><span>&gt;</span><span>Something went wrong ...</span><span>&lt;/</span><span>div</span><span>&gt;</span><span>}</span>
+                                </div><div>
+                                    <span>...</span>
+                                </div><div>
+                                    <span>&lt;/</span><span>Fragment</span><span>&gt;</span>
+                                </div><div>
+                                    <span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span>
+                                </div><p>
+                                    But now the browser reloads when clicking the submit button, because that&#39;s the native behavior of the browser when submitting a form. In order to prevent the default behavior, we can invoke a function on the React event. That&#39;s how you do it in React class components too.
+                                </p><div>
+                                    <span>function</span> <span>App</span><span>(</span><span>)</span> <span>{</span>
+                                </div><div>
+                                    <span>...</span>
+                                </div><div>
+                                    <span>return</span> <span>(</span>
+                                </div><div>
+                                    <span>&lt;</span><span>Fragment</span><span>&gt;</span>
+                                </div><div>
+                                    <span>&lt;</span><span>form</span> <span>onSubmit</span><span>=</span><span>{</span><span>event</span> <span>=&gt;</span> <span>{</span>
+                                </div><div>
+                                    <span>setUrl</span><span>(</span><span>`</span><span>http://hn.algolia.com/api/v1/search?query=</span><span>${</span><span>query</span><span>}</span><span>`</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>event</span><span>.</span><span>preventDefault</span><span>(</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span><span>}</span><span>&gt;</span>
+                                </div><div>
+                                    <span>&lt;</span><span>input</span>
+                                </div><div>
+                                    <span>type</span><span>=</span><span>&#34;</span><span>text</span><span>&#34;</span>
+                                </div><div>
+                                    <span>value</span><span>=</span><span>{</span><span>query</span><span>}</span>
+                                </div><div>
+                                    <span>onChange</span><span>=</span><span>{</span><span>event</span> <span>=&gt;</span> <span>setQuery</span><span>(</span><span>event</span><span>.</span><span>target</span><span>.</span><span>value</span><span>)</span><span>}</span>
+                                </div><div>
+                                    <span>/&gt;</span>
+                                </div><div>
+                                    <span>&lt;</span><span>button</span> <span>type</span><span>=</span><span>&#34;</span><span>submit</span><span>&#34;</span><span>&gt;</span><span>Search</span><span>&lt;/</span><span>button</span><span>&gt;</span>
+                                </div><div>
+                                    <span>&lt;/</span><span>form</span><span>&gt;</span>
+                                </div><div>
+                                    <span>{</span><span>isError</span> <span>&amp;&amp;</span> <span>&lt;</span><span>div</span><span>&gt;</span><span>Something went wrong ...</span><span>&lt;/</span><span>div</span><span>&gt;</span><span>}</span>
+                                </div><div>
+                                    <span>...</span>
+                                </div><div>
+                                    <span>&lt;/</span><span>Fragment</span><span>&gt;</span>
+                                </div><div>
+                                    <span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span>
+                                </div><p>
+                                    Now the browser shouldn&#39;t reload anymore when you click the submit button. It works as before, but this time with a form instead of the naive input field and button combination. You can press the &#34;Enter&#34; key on your keyboard too.
+                                </p><h2>
+                                    Custom Data Fetching Hook
+                                </h2><p>
+                                    In order to extract a custom hook for data fetching, move everything that belongs to the data fetching, except for the query state that belongs to the input field, but including the loading indicator and error handling, to its own function. Also make sure you return all the necessary variables from the function that are used in the App component.
+                                </p><div>
+                                    <span>const</span> <span>useHackerNewsApi</span> <span>=</span> <span>(</span><span>)</span> <span>=&gt;</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>data</span><span>,</span> <span>setData</span><span>]</span> <span>=</span> <span>useState</span><span>(</span><span>{</span> <span>hits</span><span>:</span> <span>[</span><span>]</span> <span>}</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>url</span><span>,</span> <span>setUrl</span><span>]</span> <span>=</span> <span>useState</span><span>(</span>
+                                </div><div>
+                                    <span>&#39;https://hn.algolia.com/api/v1/search?query=redux&#39;</span><span>,</span>
+                                </div><div>
+                                    <span>)</span><span>;</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>isLoading</span><span>,</span> <span>setIsLoading</span><span>]</span> <span>=</span> <span>useState</span><span>(</span><span>false</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>isError</span><span>,</span> <span>setIsError</span><span>]</span> <span>=</span> <span>useState</span><span>(</span><span>false</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>useEffect</span><span>(</span><span>(</span><span>)</span> <span>=&gt;</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>fetchData</span> <span>=</span> <span>async</span> <span>(</span><span>)</span> <span>=&gt;</span> <span>{</span>
+                                </div><div>
+                                    <span>setIsError</span><span>(</span><span>false</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>setIsLoading</span><span>(</span><span>true</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>try</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>result</span> <span>=</span> <span>await</span> <span>axios</span><span>(</span><span>url</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>setData</span><span>(</span><span>result</span><span>.</span><span>data</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span> <span>catch</span> <span>(</span><span>error</span><span>)</span> <span>{</span>
+                                </div><div>
+                                    <span>setIsError</span><span>(</span><span>true</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span>
+                                </div><div>
+                                    <span>setIsLoading</span><span>(</span><span>false</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span><span>;</span>
+                                </div><div>
+                                    <span>fetchData</span><span>(</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span><span>,</span> <span>[</span><span>url</span><span>]</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>return</span> <span>[</span><span>{</span> <span>data</span><span>,</span> <span>isLoading</span><span>,</span> <span>isError</span> <span>}</span><span>,</span> <span>setUrl</span><span>]</span><span>;</span>
+                                </div><div>
+                                    <span>}</span>
+                                </div><p>
+                                    Now, your new hook can be used in the App component again:
+                                </p><div>
+                                    <span>function</span> <span>App</span><span>(</span><span>)</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>query</span><span>,</span> <span>setQuery</span><span>]</span> <span>=</span> <span>useState</span><span>(</span><span>&#39;redux&#39;</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>{</span> <span>data</span><span>,</span> <span>isLoading</span><span>,</span> <span>isError</span> <span>}</span><span>,</span> <span>doFetch</span><span>]</span> <span>=</span> <span>useHackerNewsApi</span><span>(</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>return</span> <span>(</span>
+                                </div><div>
+                                    <span>&lt;</span><span>Fragment</span><span>&gt;</span>
+                                </div><div>
+                                    <span>&lt;</span><span>form</span> <span>onSubmit</span><span>=</span><span>{</span><span>event</span> <span>=&gt;</span> <span>{</span>
+                                </div><div>
+                                    <span>doFetch</span><span>(</span><span>`</span><span>http://hn.algolia.com/api/v1/search?query=</span><span>${</span><span>query</span><span>}</span><span>`</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>event</span><span>.</span><span>preventDefault</span><span>(</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span><span>}</span><span>&gt;</span>
+                                </div><div>
+                                    <span>&lt;</span><span>input</span>
+                                </div><div>
+                                    <span>type</span><span>=</span><span>&#34;</span><span>text</span><span>&#34;</span>
+                                </div><div>
+                                    <span>value</span><span>=</span><span>{</span><span>query</span><span>}</span>
+                                </div><div>
+                                    <span>onChange</span><span>=</span><span>{</span><span>event</span> <span>=&gt;</span> <span>setQuery</span><span>(</span><span>event</span><span>.</span><span>target</span><span>.</span><span>value</span><span>)</span><span>}</span>
+                                </div><div>
+                                    <span>/&gt;</span>
+                                </div><div>
+                                    <span>&lt;</span><span>button</span> <span>type</span><span>=</span><span>&#34;</span><span>submit</span><span>&#34;</span><span>&gt;</span><span>Search</span><span>&lt;/</span><span>button</span><span>&gt;</span>
+                                </div><div>
+                                    <span>&lt;/</span><span>form</span><span>&gt;</span>
+                                </div><div>
+                                    <span>...</span>
+                                </div><div>
+                                    <span>&lt;/</span><span>Fragment</span><span>&gt;</span>
+                                </div><div>
+                                    <span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span>
+                                </div><p>
+                                    The initial state can be made generic too. Pass it simply to the new custom hook:
+                                </p><div>
+                                    <span>import</span> <span>React</span><span>,</span> <span>{</span> <span>Fragment</span><span>,</span> <span>useState</span><span>,</span> <span>useEffect</span> <span>}</span> <span>from</span> <span>&#39;react&#39;</span><span>;</span>
+                                </div><div>
+                                    <span>import</span> <span>axios</span> <span>from</span> <span>&#39;axios&#39;</span><span>;</span>
+                                </div><div>
+                                    <span>const</span> <span>useDataApi</span> <span>=</span> <span>(</span><span>initialUrl</span><span>,</span> <span>initialData</span><span>)</span> <span>=&gt;</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>data</span><span>,</span> <span>setData</span><span>]</span> <span>=</span> <span>useState</span><span>(</span><span>initialData</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>url</span><span>,</span> <span>setUrl</span><span>]</span> <span>=</span> <span>useState</span><span>(</span><span>initialUrl</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>isLoading</span><span>,</span> <span>setIsLoading</span><span>]</span> <span>=</span> <span>useState</span><span>(</span><span>false</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>isError</span><span>,</span> <span>setIsError</span><span>]</span> <span>=</span> <span>useState</span><span>(</span><span>false</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>useEffect</span><span>(</span><span>(</span><span>)</span> <span>=&gt;</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>fetchData</span> <span>=</span> <span>async</span> <span>(</span><span>)</span> <span>=&gt;</span> <span>{</span>
+                                </div><div>
+                                    <span>setIsError</span><span>(</span><span>false</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>setIsLoading</span><span>(</span><span>true</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>try</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>result</span> <span>=</span> <span>await</span> <span>axios</span><span>(</span><span>url</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>setData</span><span>(</span><span>result</span><span>.</span><span>data</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span> <span>catch</span> <span>(</span><span>error</span><span>)</span> <span>{</span>
+                                </div><div>
+                                    <span>setIsError</span><span>(</span><span>true</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span>
+                                </div><div>
+                                    <span>setIsLoading</span><span>(</span><span>false</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span><span>;</span>
+                                </div><div>
+                                    <span>fetchData</span><span>(</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span><span>,</span> <span>[</span><span>url</span><span>]</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>return</span> <span>[</span><span>{</span> <span>data</span><span>,</span> <span>isLoading</span><span>,</span> <span>isError</span> <span>}</span><span>,</span> <span>setUrl</span><span>]</span><span>;</span>
+                                </div><div>
+                                    <span>}</span><span>;</span>
+                                </div><div>
+                                    <span>function</span> <span>App</span><span>(</span><span>)</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>query</span><span>,</span> <span>setQuery</span><span>]</span> <span>=</span> <span>useState</span><span>(</span><span>&#39;redux&#39;</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>{</span> <span>data</span><span>,</span> <span>isLoading</span><span>,</span> <span>isError</span> <span>}</span><span>,</span> <span>doFetch</span><span>]</span> <span>=</span> <span>useDataApi</span><span>(</span>
+                                </div><div>
+                                    <span>&#39;https://hn.algolia.com/api/v1/search?query=redux&#39;</span><span>,</span>
+                                </div><div>
+                                    <span>{</span> <span>hits</span><span>:</span> <span>[</span><span>]</span> <span>}</span><span>,</span>
+                                </div><div>
+                                    <span>)</span><span>;</span>
+                                </div><div>
+                                    <span>return</span> <span>(</span>
+                                </div><div>
+                                    <span>&lt;</span><span>Fragment</span><span>&gt;</span>
+                                </div><div>
+                                    <span>&lt;</span><span>form</span>
+                                </div><div>
+                                    <span>onSubmit</span><span>=</span><span>{</span><span>event</span> <span>=&gt;</span> <span>{</span>
+                                </div><div>
+                                    <span>doFetch</span><span>(</span>
+                                </div><div>
+                                    <span>`</span><span>http://hn.algolia.com/api/v1/search?query=</span><span>${</span><span>query</span><span>}</span><span>`</span><span>,</span>
+                                </div><div>
+                                    <span>)</span><span>;</span>
+                                </div><div>
+                                    <span>event</span><span>.</span><span>preventDefault</span><span>(</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span><span>}</span>
+                                </div><div>
+                                    <span>&gt;</span>
+                                </div><div>
+                                    <span>&lt;</span><span>input</span>
+                                </div><div>
+                                    <span>type</span><span>=</span><span>&#34;</span><span>text</span><span>&#34;</span>
+                                </div><div>
+                                    <span>value</span><span>=</span><span>{</span><span>query</span><span>}</span>
+                                </div><div>
+                                    <span>onChange</span><span>=</span><span>{</span><span>event</span> <span>=&gt;</span> <span>setQuery</span><span>(</span><span>event</span><span>.</span><span>target</span><span>.</span><span>value</span><span>)</span><span>}</span>
+                                </div><div>
+                                    <span>/&gt;</span>
+                                </div><div>
+                                    <span>&lt;</span><span>button</span> <span>type</span><span>=</span><span>&#34;</span><span>submit</span><span>&#34;</span><span>&gt;</span><span>Search</span><span>&lt;/</span><span>button</span><span>&gt;</span>
+                                </div><div>
+                                    <span>&lt;/</span><span>form</span><span>&gt;</span>
+                                </div><div>
+                                    <span>{</span><span>isError</span> <span>&amp;&amp;</span> <span>&lt;</span><span>div</span><span>&gt;</span><span>Something went wrong ...</span><span>&lt;/</span><span>div</span><span>&gt;</span><span>}</span>
+                                </div><div>
+                                    <span>{</span><span>isLoading</span> <span>?</span> <span>(</span>
+                                </div><div>
+                                    <span>&lt;</span><span>div</span><span>&gt;</span><span>Loading ...</span><span>&lt;/</span><span>div</span><span>&gt;</span>
+                                </div><div>
+                                    <span>)</span> <span>:</span> <span>(</span>
+                                </div><div>
+                                    <span>&lt;</span><span>ul</span><span>&gt;</span>
+                                </div><div>
+                                    <span>{</span><span>data</span><span>.</span><span>hits</span><span>.</span><span>map</span><span>(</span><span>item</span> <span>=&gt;</span> <span>(</span>
+                                </div><div>
+                                    <span>&lt;</span><span>li</span> <span>key</span><span>=</span><span>{</span><span>item</span><span>.</span><span>objectID</span><span>}</span><span>&gt;</span>
+                                </div><div>
+                                    <span>&lt;</span><span>a</span> <span>href</span><span>=</span><span>{</span><span>item</span><span>.</span><span>url</span><span>}</span><span>&gt;</span><span>{</span><span>item</span><span>.</span><span>title</span><span>}</span><span>&lt;/</span><span>a</span><span>&gt;</span>
+                                </div><div>
+                                    <span>&lt;/</span><span>li</span><span>&gt;</span>
+                                </div><div>
+                                    <span>)</span><span>)</span><span>}</span>
+                                </div><div>
+                                    <span>&lt;/</span><span>ul</span><span>&gt;</span>
+                                </div><div>
+                                    <span>)</span><span>}</span>
+                                </div><div>
+                                    <span>&lt;/</span><span>Fragment</span><span>&gt;</span>
+                                </div><div>
+                                    <span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span>
+                                </div><div>
+                                    <span>export</span> <span>default</span> <span>App</span><span>;</span>
+                                </div><p>
+                                    That&#39;s it for the data fetching with a custom hook. The hook itself doesn&#39;t know anything about the API. It receives all parameters from the outside and only manages necessary states such as the data, loading and error state. It executes the request and returns the data to the component using it as custom data fetching hook.
+                                </p><h2>
+                                    Reducer Hook for Data Fetching
+                                </h2><p>
+                                    So far, we have used various state hooks to manage our data fetching state for the data, loading and error state. However, somehow all these states, <a href="/react-usereducer-vs-usestate/">managed with their own state hook, belong together because they care about the same cause</a>. As you can see, they are all used within the data fetching function. A good indicator that they belong together is that they are used one after another (e.g. <code>setIsError</code>, <code>setIsLoading</code>). Let&#39;s combine all three of them with a <a href="/react-usereducer-hook/">Reducer Hook</a> instead.
+                                </p><p>
+                                    A Reducer Hook returns us a state object and a function to alter the state object. The function -- called dispatch function -- takes an action which has a type and an optional payload. All this information is used in the actual reducer function to distill a new state from the previous state, the action&#39;s optional payload and type. Let&#39;s see how this works in code:
+                                </p><div>
+                                    <span>import</span> <span>React</span><span>,</span> <span>{</span>
+                                </div><div>
+                                    <span>Fragment</span><span>,</span>
+                                </div><div>
+                                    <span>useState</span><span>,</span>
+                                </div><div>
+                                    <span>useEffect</span><span>,</span>
+                                </div><div>
+                                    <span>useReducer</span><span>,</span>
+                                </div><div>
+                                    <span>}</span> <span>from</span> <span>&#39;react&#39;</span><span>;</span>
+                                </div><div>
+                                    <span>import</span> <span>axios</span> <span>from</span> <span>&#39;axios&#39;</span><span>;</span>
+                                </div><div>
+                                    <span>const</span> <span>dataFetchReducer</span> <span>=</span> <span>(</span><span>state</span><span>,</span> <span>action</span><span>)</span> <span>=&gt;</span> <span>{</span>
+                                </div><div>
+                                    <span>...</span>
+                                </div><div>
+                                    <span>}</span><span>;</span>
+                                </div><div>
+                                    <span>const</span> <span>useDataApi</span> <span>=</span> <span>(</span><span>initialUrl</span><span>,</span> <span>initialData</span><span>)</span> <span>=&gt;</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>url</span><span>,</span> <span>setUrl</span><span>]</span> <span>=</span> <span>useState</span><span>(</span><span>initialUrl</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>state</span><span>,</span> <span>dispatch</span><span>]</span> <span>=</span> <span>useReducer</span><span>(</span><span>dataFetchReducer</span><span>,</span> <span>{</span>
+                                </div><div>
+                                    <span>isLoading</span><span>:</span> <span>false</span><span>,</span>
+                                </div><div>
+                                    <span>isError</span><span>:</span> <span>false</span><span>,</span>
+                                </div><div>
+                                    <span>data</span><span>:</span> <span>initialData</span><span>,</span>
+                                </div><div>
+                                    <span>}</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>...</span>
+                                </div><div>
+                                    <span>}</span><span>;</span>
+                                </div><p>
+                                    The Reducer Hook takes the reducer function and an initial state object as parameters. In our case, the arguments of the initial states for the data, loading and error state didn&#39;t change, but they have been aggregated to one state object managed by one reducer hook instead of single state hooks.
+                                </p><div>
+                                    <span>const</span> <span>dataFetchReducer</span> <span>=</span> <span>(</span><span>state</span><span>,</span> <span>action</span><span>)</span> <span>=&gt;</span> <span>{</span>
+                                </div><div>
+                                    <span>...</span>
+                                </div><div>
+                                    <span>}</span><span>;</span>
+                                </div><div>
+                                    <span>const</span> <span>useDataApi</span> <span>=</span> <span>(</span><span>initialUrl</span><span>,</span> <span>initialData</span><span>)</span> <span>=&gt;</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>url</span><span>,</span> <span>setUrl</span><span>]</span> <span>=</span> <span>useState</span><span>(</span><span>initialUrl</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>state</span><span>,</span> <span>dispatch</span><span>]</span> <span>=</span> <span>useReducer</span><span>(</span><span>dataFetchReducer</span><span>,</span> <span>{</span>
+                                </div><div>
+                                    <span>isLoading</span><span>:</span> <span>false</span><span>,</span>
+                                </div><div>
+                                    <span>isError</span><span>:</span> <span>false</span><span>,</span>
+                                </div><div>
+                                    <span>data</span><span>:</span> <span>initialData</span><span>,</span>
+                                </div><div>
+                                    <span>}</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>useEffect</span><span>(</span><span>(</span><span>)</span> <span>=&gt;</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>fetchData</span> <span>=</span> <span>async</span> <span>(</span><span>)</span> <span>=&gt;</span> <span>{</span>
+                                </div><div>
+                                    <span>dispatch</span><span>(</span><span>{</span> <span>type</span><span>:</span> <span>&#39;FETCH_INIT&#39;</span> <span>}</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>try</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>result</span> <span>=</span> <span>await</span> <span>axios</span><span>(</span><span>url</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>dispatch</span><span>(</span><span>{</span> <span>type</span><span>:</span> <span>&#39;FETCH_SUCCESS&#39;</span><span>,</span> <span>payload</span><span>:</span> <span>result</span><span>.</span><span>data</span> <span>}</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span> <span>catch</span> <span>(</span><span>error</span><span>)</span> <span>{</span>
+                                </div><div>
+                                    <span>dispatch</span><span>(</span><span>{</span> <span>type</span><span>:</span> <span>&#39;FETCH_FAILURE&#39;</span> <span>}</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span>
+                                </div><div>
+                                    <span>}</span><span>;</span>
+                                </div><div>
+                                    <span>fetchData</span><span>(</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span><span>,</span> <span>[</span><span>url</span><span>]</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>...</span>
+                                </div><div>
+                                    <span>}</span><span>;</span>
+                                </div><p>
+                                    Now, when fetching data, the dispatch function can be used to send information to the reducer function. The object being send with the dispatch function has a mandatory <code>type</code> property and an optional <code>payload</code> property. The type tells the reducer function which state transition needs to be applied and the payload can additionally be used by the reducer to distill the new state. After all, we only have three state transitions: initializing the fetching process, notifying about a successful data fetching result, and notifying about an erroneous data fetching result.
+                                </p><p>
+                                    In the end of the custom hook, the state is returned as before, but because we have a state object and not the standalone states anymore. This way, the one who calls the <code>useDataApi</code> custom hook still gets access to <code>data</code>, <code>isLoading</code> and <code>isError</code>:
+                                </p><div>
+                                    <span>const</span> <span>useDataApi</span> <span>=</span> <span>(</span><span>initialUrl</span><span>,</span> <span>initialData</span><span>)</span> <span>=&gt;</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>url</span><span>,</span> <span>setUrl</span><span>]</span> <span>=</span> <span>useState</span><span>(</span><span>initialUrl</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>state</span><span>,</span> <span>dispatch</span><span>]</span> <span>=</span> <span>useReducer</span><span>(</span><span>dataFetchReducer</span><span>,</span> <span>{</span>
+                                </div><div>
+                                    <span>isLoading</span><span>:</span> <span>false</span><span>,</span>
+                                </div><div>
+                                    <span>isError</span><span>:</span> <span>false</span><span>,</span>
+                                </div><div>
+                                    <span>data</span><span>:</span> <span>initialData</span><span>,</span>
+                                </div><div>
+                                    <span>}</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>...</span>
+                                </div><div>
+                                    <span>return</span> <span>[</span><span>state</span><span>,</span> <span>setUrl</span><span>]</span><span>;</span>
+                                </div><div>
+                                    <span>}</span><span>;</span>
+                                </div><p>
+                                    Last but not least, the implementation of the reducer function is missing. It needs to act on three different state transitions called <code>FETCH_INIT</code>, <code>FETCH_SUCCESS</code> and <code>FETCH_FAILURE</code>. Each state transition needs to return a new state object. Let&#39;s see how this can be implemented with a switch case statement:
+                                </p><div>
+                                    <span>const</span> <span>dataFetchReducer</span> <span>=</span> <span>(</span><span>state</span><span>,</span> <span>action</span><span>)</span> <span>=&gt;</span> <span>{</span>
+                                </div><div>
+                                    <span>switch</span> <span>(</span><span>action</span><span>.</span><span>type</span><span>)</span> <span>{</span>
+                                </div><div>
+                                    <span>case</span> <span>&#39;FETCH_INIT&#39;</span><span>:</span>
+                                </div><div>
+                                    <span>return</span> <span>{</span> <span>...</span><span>state</span> <span>}</span><span>;</span>
+                                </div><div>
+                                    <span>case</span> <span>&#39;FETCH_SUCCESS&#39;</span><span>:</span>
+                                </div><div>
+                                    <span>return</span> <span>{</span> <span>...</span><span>state</span> <span>}</span><span>;</span>
+                                </div><div>
+                                    <span>case</span> <span>&#39;FETCH_FAILURE&#39;</span><span>:</span>
+                                </div><div>
+                                    <span>return</span> <span>{</span> <span>...</span><span>state</span> <span>}</span><span>;</span>
+                                </div><div>
+                                    <span>default</span><span>:</span>
+                                </div><div>
+                                    <span>throw</span> <span>new</span> <span>Error</span><span>(</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span>
+                                </div><div>
+                                    <span>}</span><span>;</span>
+                                </div><p>
+                                    A reducer function has access to the current state and the incoming action via its arguments. So far, in out switch case statement each state transition only returns the previous state. A destructuring statement is used to keep the state object immutable -- meaning the state is never directly mutated -- to enforce best practices. Now let&#39;s override a few of the current&#39;s state returned properties to alter the state with each state transition:
+                                </p><div>
+                                    <span>const</span> <span>dataFetchReducer</span> <span>=</span> <span>(</span><span>state</span><span>,</span> <span>action</span><span>)</span> <span>=&gt;</span> <span>{</span>
+                                </div><div>
+                                    <span>switch</span> <span>(</span><span>action</span><span>.</span><span>type</span><span>)</span> <span>{</span>
+                                </div><div>
+                                    <span>case</span> <span>&#39;FETCH_INIT&#39;</span><span>:</span>
+                                </div><div>
+                                    <span>return</span> <span>{</span>
+                                </div><div>
+                                    <span>...</span><span>state</span><span>,</span>
+                                </div><div>
+                                    <span>isLoading</span><span>:</span> <span>true</span><span>,</span>
+                                </div><div>
+                                    <span>isError</span><span>:</span> <span>false</span>
+                                </div><div>
+                                    <span>}</span><span>;</span>
+                                </div><div>
+                                    <span>case</span> <span>&#39;FETCH_SUCCESS&#39;</span><span>:</span>
+                                </div><div>
+                                    <span>return</span> <span>{</span>
+                                </div><div>
+                                    <span>...</span><span>state</span><span>,</span>
+                                </div><div>
+                                    <span>isLoading</span><span>:</span> <span>false</span><span>,</span>
+                                </div><div>
+                                    <span>isError</span><span>:</span> <span>false</span><span>,</span>
+                                </div><div>
+                                    <span>data</span><span>:</span> <span>action</span><span>.</span><span>payload</span><span>,</span>
+                                </div><div>
+                                    <span>}</span><span>;</span>
+                                </div><div>
+                                    <span>case</span> <span>&#39;FETCH_FAILURE&#39;</span><span>:</span>
+                                </div><div>
+                                    <span>return</span> <span>{</span>
+                                </div><div>
+                                    <span>...</span><span>state</span><span>,</span>
+                                </div><div>
+                                    <span>isLoading</span><span>:</span> <span>false</span><span>,</span>
+                                </div><div>
+                                    <span>isError</span><span>:</span> <span>true</span><span>,</span>
+                                </div><div>
+                                    <span>}</span><span>;</span>
+                                </div><div>
+                                    <span>default</span><span>:</span>
+                                </div><div>
+                                    <span>throw</span> <span>new</span> <span>Error</span><span>(</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span>
+                                </div><div>
+                                    <span>}</span><span>;</span>
+                                </div><p>
+                                    Now every state transition, decided by the action&#39;s type, returns a new state based on the previous state and the optional payload. For instance, in the case of a successful request, the payload is used to set the data of the new state object.
+                                </p><p>
+                                    In conclusion, the Reducer Hook makes sure that this portion of the state management is encapsulated with its own logic. By providing action types and optional payloads, you will always end up with a predicatbale state change. In addition, you will never run into invalid states. For instance, previously it would have been possible to accidently set the <code>isLoading</code> and <code>isError</code> states to true. What should be displayed in the UI for this case? Now, each state transition defined by the reducer function leads to a valid state object.
+                                </p><h2>
+                                    Abort Data Fetching in Effect Hook
+                                </h2><p>
+                                    It&#39;s a common problem in React that component state is set even though the component got already unmounted (e.g. due to navigating away with React Router). I have written about this issue previously over here which describes <a href="/react-warning-cant-call-setstate-on-an-unmounted-component/">how to prevent setting state for unmounted components</a> in various scenarios. Let&#39;s see how we can prevent to set state in our custom hook for the data fetching:
+                                </p><div>
+                                    <span>const</span> <span>useDataApi</span> <span>=</span> <span>(</span><span>initialUrl</span><span>,</span> <span>initialData</span><span>)</span> <span>=&gt;</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>url</span><span>,</span> <span>setUrl</span><span>]</span> <span>=</span> <span>useState</span><span>(</span><span>initialUrl</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>const</span> <span>[</span><span>state</span><span>,</span> <span>dispatch</span><span>]</span> <span>=</span> <span>useReducer</span><span>(</span><span>dataFetchReducer</span><span>,</span> <span>{</span>
+                                </div><div>
+                                    <span>isLoading</span><span>:</span> <span>false</span><span>,</span>
+                                </div><div>
+                                    <span>isError</span><span>:</span> <span>false</span><span>,</span>
+                                </div><div>
+                                    <span>data</span><span>:</span> <span>initialData</span><span>,</span>
+                                </div><div>
+                                    <span>}</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>useEffect</span><span>(</span><span>(</span><span>)</span> <span>=&gt;</span> <span>{</span>
+                                </div><div>
+                                    <span>let</span> <span>didCancel</span> <span>=</span> <span>false</span><span>;</span>
+                                </div><div>
+                                    <span>const</span> <span>fetchData</span> <span>=</span> <span>async</span> <span>(</span><span>)</span> <span>=&gt;</span> <span>{</span>
+                                </div><div>
+                                    <span>dispatch</span><span>(</span><span>{</span> <span>type</span><span>:</span> <span>&#39;FETCH_INIT&#39;</span> <span>}</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>try</span> <span>{</span>
+                                </div><div>
+                                    <span>const</span> <span>result</span> <span>=</span> <span>await</span> <span>axios</span><span>(</span><span>url</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>if</span> <span>(</span><span>!</span><span>didCancel</span><span>)</span> <span>{</span>
+                                </div><div>
+                                    <span>dispatch</span><span>(</span><span>{</span> <span>type</span><span>:</span> <span>&#39;FETCH_SUCCESS&#39;</span><span>,</span> <span>payload</span><span>:</span> <span>result</span><span>.</span><span>data</span> <span>}</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span>
+                                </div><div>
+                                    <span>}</span> <span>catch</span> <span>(</span><span>error</span><span>)</span> <span>{</span>
+                                </div><div>
+                                    <span>if</span> <span>(</span><span>!</span><span>didCancel</span><span>)</span> <span>{</span>
+                                </div><div>
+                                    <span>dispatch</span><span>(</span><span>{</span> <span>type</span><span>:</span> <span>&#39;FETCH_FAILURE&#39;</span> <span>}</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>}</span>
+                                </div><div>
+                                    <span>}</span>
+                                </div><div>
+                                    <span>}</span><span>;</span>
+                                </div><div>
+                                    <span>fetchData</span><span>(</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>return</span> <span>(</span><span>)</span> <span>=&gt;</span> <span>{</span>
+                                </div><div>
+                                    <span>didCancel</span> <span>=</span> <span>true</span><span>;</span>
+                                </div><div>
+                                    <span>}</span><span>;</span>
+                                </div><div>
+                                    <span>}</span><span>,</span> <span>[</span><span>url</span><span>]</span><span>)</span><span>;</span>
+                                </div><div>
+                                    <span>return</span> <span>[</span><span>state</span><span>,</span> <span>setUrl</span><span>]</span><span>;</span>
+                                </div><div>
+                                    <span>}</span><span>;</span>
+                                </div><p>
+                                    Every Effect Hook comes with a clean up function which runs when a component unmounts. The clean up function is the one function returned from the hook. In our case, we use a boolean flag called <code>didCancel</code> to let our data fetching logic know about the state (mounted/unmounted) of the component. If the component did unmount, the flag should be set to <code>true</code> which results in preventing to set the component state after the data fetching has been asynchronously resolved eventually.
+                                </p><p>
+                                    <em>Note: Actually not the data fetching is aborted -- which could be achieved with <a href="https://github.com/axios/axios#cancellation" target="_blank" rel="noopener noreferrer">Axios Cancellation</a> -- but the state transition is not performed anymore for the unmounted component. Since Axios Cancellation has not the best API in my eyes, this boolean flag to prevent setting state does the job as well.</em>
+                                </p><p>
+                                    You have learned how the React hooks for state and effects can be used in React for data fetching. If you are curious about data fetching in class components (and function components) with render props and higher-order components, checkout out my other article from the beginning. Otherwise, I hope this article was useful to you for learning about React Hooks and how to use them in a real world scenario.
+                                </p></div>

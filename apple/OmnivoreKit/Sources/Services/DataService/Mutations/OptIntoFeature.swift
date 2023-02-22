@@ -22,7 +22,9 @@ public extension DataService {
       case error(errorCode: Enums.OptInFeatureErrorCode)
     }
 
-    let featureSelection = Selection.Feature { Feature(name: try $0.name(), token: try $0.token(), granted: try $0.grantedAt() != nil) }
+    let featureSelection = Selection.Feature {
+      Feature(name: try $0.name(), token: try $0.token(), granted: try $0.grantedAt() != nil)
+    }
     let selection = Selection<MutationResult, Unions.OptInFeatureResult> {
       try $0.on(
         optInFeatureError: .init { .error(errorCode: try $0.errorCodes().first ?? .badRequest) },

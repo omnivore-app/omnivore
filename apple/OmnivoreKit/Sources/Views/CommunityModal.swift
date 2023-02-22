@@ -9,6 +9,7 @@ import Foundation
 import StoreKit
 import SwiftUI
 
+// swiftlint:disable:next line_length
 let tweetUrl = "https://twitter.com/intent/tweet?text=I%20recently%20started%20using%20@OmnivoreApp%20as%20a%20free,%20open-source%20read-it-later%20app.%20Check%20it%20out:%20https://omnivore.app"
 
 public struct CommunityModal: View {
@@ -40,9 +41,9 @@ public struct CommunityModal: View {
     VStack {
       HStack {
         Spacer()
-        Button(action: {
+        Button {
           dismiss()
-        }) {
+        } label: {
           Image(systemName: "xmark.circle")
             .padding(10)
         }
@@ -80,6 +81,7 @@ public struct CommunityModal: View {
   var buttonLinks: some View {
     VStack(spacing: 15) {
       Button(action: {
+        // swiftlint:disable:next line_length
         if let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
           SKStoreReviewController.requestReview(in: scene)
         }
@@ -99,8 +101,9 @@ public struct CommunityModal: View {
     VStack(spacing: 0) {
       header
 
-      Text((try? AttributedString(markdown: message,
-                                  options: AttributedString.MarkdownParsingOptions(interpretedSyntax: .inlineOnlyPreservingWhitespace))) ?? "")
+      let parsedMessage = try? AttributedString(markdown: message,
+                                                options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace))
+      Text(parsedMessage ?? "")
         .multilineTextAlignment(.leading)
         .foregroundColor(Color.appGrayTextContrast)
         .accentColor(.blue)

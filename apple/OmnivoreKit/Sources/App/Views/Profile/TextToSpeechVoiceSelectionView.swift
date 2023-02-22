@@ -69,8 +69,10 @@
       }
       .navigationTitle("Choose a Voice")
       .onAppear {
+        // swiftlint:disable:next line_length
         viewModel.realisticVoicesToggle = (audioController.useUltraRealisticVoices && !audioController.ultraRealisticFeatureKey.isEmpty)
-      }.onChange(of: viewModel.realisticVoicesToggle) { value in
+      }
+      .onChange(of: viewModel.realisticVoicesToggle) { value in
         if value, audioController.ultraRealisticFeatureKey.isEmpty {
           // User wants to sign up
           viewModel.waitingForRealisticVoices = true
@@ -101,6 +103,7 @@
     private var ultraRealisticVoices: some View {
       ForEach([VoiceCategory.enUS], id: \.self) { category in
         Section(category.rawValue) {
+          // swiftlint:disable:next line_length
           ForEach(audioController.realisticVoiceList?.filter { $0.category == category } ?? [], id: \.key.self) { voice in
             voiceRow(for: voice)
           }

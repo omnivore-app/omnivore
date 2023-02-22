@@ -686,6 +686,7 @@ export const updatePagesAsync = async (
                   state: [
                     ArticleSavingRequestStatus.Succeeded,
                     ArticleSavingRequestStatus.Failed,
+                    ArticleSavingRequestStatus.Processing,
                   ],
                 },
               },

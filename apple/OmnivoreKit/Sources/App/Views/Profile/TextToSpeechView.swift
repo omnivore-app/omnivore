@@ -4,6 +4,7 @@
   import SwiftUI
   import Views
 
+  // swiftlint:disable line_length
   struct TextToSpeechView: View {
     @EnvironmentObject var audioController: AudioController
 

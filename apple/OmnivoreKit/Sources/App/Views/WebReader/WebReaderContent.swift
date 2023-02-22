@@ -101,7 +101,7 @@ struct WebReaderContent {
     """
   }
 
-  // swiftlint:disable line_length
+  // swiftlint:disable line_length function_body_length
   static func emptyContent(isDark: Bool) -> String {
     let themeKey = isDark ? "Gray" : "LightGray"
 //    let savedAt = "new Date(\(item.unwrappedSavedAt.timeIntervalSince1970 * 1000)).toISOString()"

@@ -25,7 +25,6 @@ import SwiftUI
             .font(.appHeadline)
         }
 
-        // swiftlint:disable:next line_length
         Text(LocalText.notificationsGeneralExplainer)
           .font(.appBody)
           .multilineTextAlignment(.leading)

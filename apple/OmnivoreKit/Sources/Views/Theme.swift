@@ -40,12 +40,7 @@ public enum Theme: String, CaseIterable {
   }
 
   public static func fromName(themeName: String) -> Theme? {
-    for theme in Theme.allCases {
-      if theme.rawValue == themeName {
-        return theme
-      }
-    }
-    return nil
+    Theme.allCases.first(where: { $0.rawValue == themeName })
   }
 }
 

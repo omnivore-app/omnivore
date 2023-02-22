@@ -1,11 +1,11 @@
 #if os(iOS)
-
   import Foundation
   import Models
   import Services
   import SwiftUI
   import Views
 
+  // swiftlint:disable file_length type_body_length
   public struct ExpandedPlayer: View {
     @EnvironmentObject var audioController: AudioController
     @Environment(\.colorScheme) private var colorScheme: ColorScheme
@@ -213,11 +213,11 @@
               }
             })
 //            .simultaneousGesture(
-            ////              DragGesture().onChanged {
-            ////                let isScrollDown = $0.translation.height > 0
-            ////                print(isScrollDown)
-            ////              }
-            ////            )
+//              DragGesture().onChanged {
+//                let isScrollDown = $0.translation.height > 0
+//                print(isScrollDown)
+//              }
+//            )
           }
           .background(Color.themeDisabledBG)
         }

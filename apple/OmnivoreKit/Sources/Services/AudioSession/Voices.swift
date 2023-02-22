@@ -53,6 +53,7 @@ public struct VoicePair {
   let category: VoiceCategory
 }
 
+// swiftlint:disable line_length
 public enum Voices {
   public static func isUltraRealisticVoice(_ voiceKey: String) -> Bool {
     UltraPairs.contains(where: { voice in
@@ -77,7 +78,6 @@ public enum Voices {
     VoiceLanguage(key: "ta", name: "Tamil", defaultVoice: "ta-IN-PallaviNeural", categories: [.taIN, .taLK, .taMY, .taSG])
   ]
 
-  // swiftlint:disable all
   public static let Pairs = [
     VoicePair(firstKey: "en-US-JennyNeural", secondKey: "en-US-BrandonNeural", firstName: "Jenny", secondName: "Brandon", language: "en-US", category: .enUS),
     VoicePair(firstKey: "en-US-CoraNeural", secondKey: "en-US-ChristopherNeural", firstName: "Cora", secondName: "Christopher", language: "en-US", category: .enUS),

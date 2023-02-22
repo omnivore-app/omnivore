@@ -44,7 +44,12 @@ import Views
     let fetchRequest: NSFetchRequest<Models.RecentSearchItem> = RecentSearchItem.fetchRequest()
     fetchRequest.predicate = NSPredicate(format: "term == %@", searchTerm)
 
-    let item = ((try? dataService.viewContext.fetch(fetchRequest))?.first) ?? RecentSearchItem(context: dataService.viewContext)
+    let item: RecentSearchItem
+    if let fetchedItem = (try? dataService.viewContext.fetch(fetchRequest))?.first {
+      item = fetchedItem
+    } else {
+      item = RecentSearchItem(context: dataService.viewContext)
+    }
     item.term = searchTerm
     item.savedAt = Date()
 

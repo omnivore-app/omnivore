@@ -1,4 +1,3 @@
-
 import Models
 import Services
 import SwiftUI
@@ -28,7 +27,7 @@ import Views
           self.desiredNotificationsEnabled = granted
           Task {
             if let savedToken = UserDefaults.standard.string(forKey: UserDefaultKey.firebasePushToken.rawValue) {
-              try? await dataService.syncDeviceToken(
+              _ = try? await dataService.syncDeviceToken(
                 deviceTokenOperation: DeviceTokenOperation.addToken(token: savedToken))
             }
             NotificationCenter.default.post(name: Notification.Name("ReconfigurePushNotifications"), object: nil)

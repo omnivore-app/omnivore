@@ -48,7 +48,10 @@ extension DataService {
 
     let mutation = Selection.Mutation {
       try $0.updatePage(
-        input: .init(byline: OptionalArgument(author), description: OptionalArgument(description), pageId: itemID, title: OptionalArgument(title)),
+        input: .init(byline: OptionalArgument(author),
+                     description: OptionalArgument(description),
+                     pageId: itemID,
+                     title: OptionalArgument(title)),
         selection: selection
       )
     }

@@ -24,9 +24,9 @@
 
     private var innerBody: some View {
       ForEach(Voices.Languages, id: \.key.self) { language in
-        Button(action: {
+        Button {
           audioController.defaultLanguage = language.key
-        }) {
+        } label: {
           HStack {
             Text(language.name)
 

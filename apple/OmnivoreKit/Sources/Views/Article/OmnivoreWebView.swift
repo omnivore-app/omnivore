@@ -1,6 +1,7 @@
 import Models
 import Utils
 import WebKit
+// swiftlint:disable file_length
 
 /// Describes actions that can be sent from the WebView back to native views.
 /// The names on the javascript side must match for an action to be handled.
@@ -273,6 +274,7 @@ public final class OmnivoreWebView: WKWebView {
       true
     }
 
+    // swiftlint:disable:next cyclomatic_complexity
     override public func canPerformAction(_ action: Selector, withSender _: Any?) -> Bool {
       switch action {
       case #selector(annotateSelection): return true
@@ -351,13 +353,18 @@ public final class OmnivoreWebView: WKWebView {
     override public func buildMenu(with builder: UIMenuBuilder) {
       if #available(iOS 16.0, *) {
         let annotate = UICommand(title: "Note", action: #selector(annotateSelection))
-        let highlight = UICommand(title: LocalText.genericHighlight, action: #selector(highlightSelection))
-        let remove = UICommand(title: "Remove", action: #selector(removeSelection))
-        let setLabels = UICommand(title: LocalText.labelsGeneric, action: #selector(setLabels))
 
-        let omnivore = UIMenu(title: "",
-                              options: .displayInline,
-                              children: currentMenu == .defaultMenu ? [highlight, annotate] : [annotate, setLabels, remove])
+        let items: [UIMenuElement]
+        if currentMenu == .defaultMenu {
+          let highlight = UICommand(title: LocalText.genericHighlight, action: #selector(highlightSelection))
+          items = [highlight, annotate]
+        } else {
+          let remove = UICommand(title: "Remove", action: #selector(removeSelection))
+          let setLabels = UICommand(title: LocalText.labelsGeneric, action: #selector(setLabels))
+          items = [annotate, setLabels, remove]
+        }
+
+        let omnivore = UIMenu(title: "", options: .displayInline, children: items)
         builder.insertSibling(omnivore, beforeMenu: .lookup)
       }
 
@@ -418,6 +425,7 @@ public enum WebViewDispatchEvent {
   case saveReadPosition
 
   var script: String {
+    // swiftlint:disable:next implicit_getter
     get throws {
       let propertyLine = try scriptPropertyLine
       return "var event = new Event('\(eventName)');\(propertyLine)document.dispatchEvent(event);"
@@ -470,6 +478,7 @@ public enum WebViewDispatchEvent {
   }
 
   private var scriptPropertyLine: String {
+    // swiftlint:disable:next implicit_getter
     get throws {
       switch self {
       case let .handleFontContrastChange(isHighContrast: isHighContrast):

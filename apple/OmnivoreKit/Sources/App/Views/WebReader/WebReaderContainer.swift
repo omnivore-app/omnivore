@@ -6,7 +6,7 @@ import Utils
 import Views
 import WebKit
 
-// swiftlint:disable:next type_body_length
+// swiftlint:disable file_length type_body_length
 struct WebReaderContainerView: View {
   let item: LinkedItem
 
@@ -195,6 +195,7 @@ struct WebReaderContainerView: View {
         viewModel.downloadAudio(audioController: audioController, item: item)
       },
       label: {
+        // swiftlint:disable:next line_length
         Label(viewModel.isDownloadingAudio ? "Downloading Audio" : "Download Audio", systemImage: "icloud.and.arrow.down")
       }
     )
@@ -554,10 +555,11 @@ struct WebReaderContainerView: View {
   func scrollToTop() {}
 
   func openOriginalURL(urlString: String?) {
-    if let urlString = urlString,
-       let url = URL(string: urlString)
-    {
-      openURL(url)
-    }
+    guard
+      let urlString = urlString,
+      let url = URL(string: urlString)
+    else { return }
+
+    openURL(url)
   }
 }

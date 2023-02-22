@@ -1,0 +1,12 @@
+{
+  "title": "How to fetch data with React Hooks",
+  "byline": "Robin Wieruch",
+  "dir": null,
+  "excerpt": "A tutorial on how to fetch data in React with Hooks from third-party APIs. You will use state and effect hooks for the data request from a real API ...",
+  "siteName": null,
+  "siteIcon": "http://fakehost/favicon-32x32.png?v=9db82c76a9aaf54925ac42d41f3d384c",
+  "previewImage": "https://www.robinwieruch.de/static/9b13b3546c675d6f1a1e565f5185cab6/9842e/banner.jpg",
+  "publishedDate": null,
+  "language": "English",
+  "readerable": true
+}

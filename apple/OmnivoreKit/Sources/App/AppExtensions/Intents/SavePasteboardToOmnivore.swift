@@ -25,7 +25,7 @@ struct SaveLinkToOmnivoreIntent: AppIntent {
     do {
       let services = Services()
       let requestId = UUID().uuidString.lowercased()
-      let saveResult = try await services.dataService.saveURL(id: requestId, url: link.absoluteString)
+      _ = try await services.dataService.saveURL(id: requestId, url: link.absoluteString)
 
       return .result(dialog: "Link saved to Omnivore")
     } catch {
