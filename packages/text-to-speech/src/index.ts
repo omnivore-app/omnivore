@@ -354,4 +354,8 @@ module.exports = {
   textToSpeechStreamingHandler,
   textToSpeechHandler,
   synthesizeTextToSpeech,
+  optedInAndGranted,
+  validCharacterCount,
+  assembledSsml,
+  hash,
 }
