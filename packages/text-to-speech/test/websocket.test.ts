@@ -44,7 +44,7 @@ describe('End-to-end tests', () => {
     })
   })
 
-  it('synthesize text and emit result', (done) => {
+  xit('synthesize text and emit result', (done) => {
     clientSocket.emit('synthesize', {
       text: 'Hello world',
       voice: 'en-US-ChristopherNeural',

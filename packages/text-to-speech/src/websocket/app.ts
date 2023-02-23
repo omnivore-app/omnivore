@@ -46,8 +46,9 @@ io.on('connection', (socket) => {
   })
   socket.on(SYNTHESIZE_EVENT, async (utteranceInput: UtteranceInput) => {
     console.log('utterance input received: ', utteranceInput)
+    const synthesizedResultEvent = `${SYNTHESIZE_RESULT_EVENT}:${utteranceInput.idx}`
     if (!utteranceInput.text || utteranceInput.text === '') {
-      return socket.emit(SYNTHESIZE_RESULT_EVENT, {
+      return socket.emit(synthesizedResultEvent, {
         idx: utteranceInput.idx,
         audioData: '',
         speechMarks: [],
@@ -55,13 +56,13 @@ io.on('connection', (socket) => {
     }
     // validate if user can use ultra realistic voice feature
     if (utteranceInput.isUltraRealisticVoice && !optedInAndGranted(claim)) {
-      return socket.emit(SYNTHESIZE_RESULT_EVENT, {
+      return socket.emit(synthesizedResultEvent, {
         error: 'NOT_OPTED_IN',
       })
     }
     // validate character count
     if (!(await validCharacterCount(utteranceInput.text, claim.uid))) {
-      return socket.emit(SYNTHESIZE_RESULT_EVENT, {
+      return socket.emit(synthesizedResultEvent, {
         error: 'CHARACTER_COUNT_EXCEEDED',
       })
     }
@@ -72,7 +73,7 @@ io.on('connection', (socket) => {
     // find audio data in cache
     const cachedResult = await getCachedAudio(cacheKey)
     if (cachedResult) {
-      return socket.emit(SYNTHESIZE_RESULT_EVENT, {
+      return socket.emit(synthesizedResultEvent, {
         idx: utteranceInput.idx,
         audioData: cachedResult.audioDataString,
         speechMarks: cachedResult.speechMarks,
@@ -90,7 +91,7 @@ io.on('connection', (socket) => {
     const audioData = output.audioData
     const speechMarks = output.speechMarks
     if (!audioData || audioData.length === 0) {
-      return socket.emit(SYNTHESIZE_RESULT_EVENT, {
+      return socket.emit(synthesizedResultEvent, {
         idx: utteranceInput.idx,
         audioData: '',
         speechMarks: [],
@@ -99,7 +100,7 @@ io.on('connection', (socket) => {
     // save audio data to cache for 24 hours for mainly the newsletters
     const result = await saveAudioToRedis(cacheKey, audioData, speechMarks)
 
-    socket.emit(SYNTHESIZE_RESULT_EVENT, {
+    socket.emit(synthesizedResultEvent, {
       idx: utteranceInput.idx,
       audioData: result.audioDataString,
       speechMarks,
