@@ -47,7 +47,7 @@ io.on('connection', (socket) => {
   socket.on(SYNTHESIZE_EVENT, async (utteranceInput: UtteranceInput) => {
     console.log('utterance input received: ', utteranceInput)
     if (!utteranceInput.text || utteranceInput.text === '') {
-      return socket.emit('message', {
+      return socket.emit(SYNTHESIZE_RESULT_EVENT, {
         idx: utteranceInput.idx,
         audioData: '',
         speechMarks: [],
