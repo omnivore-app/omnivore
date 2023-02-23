@@ -29,7 +29,8 @@
     "@types/underscore": "^1.11.4",
     "chai": "^4.3.6",
     "eslint-plugin-prettier": "^4.0.0",
-    "mocha": "^10.0.0"
+    "mocha": "^10.0.0",
+    "socket.io-client": "^4.6.1"
   },
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",

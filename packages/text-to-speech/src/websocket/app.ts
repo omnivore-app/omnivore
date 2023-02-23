@@ -9,16 +9,16 @@ import {
   synthesizeTextToSpeech,
   UtteranceInput,
   validCharacterCount,
-} from './index'
-import { TextToSpeechInput } from './textToSpeech'
+} from '../index'
+import { TextToSpeechInput } from '../textToSpeech'
 import * as jwt from 'jsonwebtoken'
-import { getCachedAudio, redisClient, saveAudioToRedis } from './redis'
+import { getCachedAudio, saveAudioToRedis } from '../redis'
 
 const SYNTHESIZE_EVENT = 'synthesize'
 const SYNTHESIZE_RESULT_EVENT = 'synthesizedResult'
 
 const app = express()
-const server = new Server(app)
+export const server = new Server(app)
 const io = new SocketServer(server, {
   serveClient: false,
 })
@@ -104,25 +104,5 @@ io.on('connection', (socket) => {
       audioData: result.audioDataString,
       speechMarks,
     })
-  })
-})
-
-const PORT = parseInt(process.env.PORT || '') || 8080
-server.listen(PORT, () => {
-  console.log(`App listening on port ${PORT}`)
-})
-
-// Clean up resources on shutdown
-process.on('SIGTERM', () => {
-  console.log('received SIGTERM')
-  server.close(() => {
-    console.log('HTTP server closed')
-    redisClient
-      .quit()
-      .then(() => {
-        console.log('Redis Client Disconnected')
-      })
-      .catch((err) => console.error('Redis Client Disconnection Error', err))
-      .finally(() => process.exit(0))
   })
 })
