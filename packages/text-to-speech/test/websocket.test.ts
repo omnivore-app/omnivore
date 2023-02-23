@@ -4,6 +4,9 @@ import { server } from '../src/websocket/app'
 import { redisClient } from '../src/redis'
 import { io, Socket } from 'socket.io-client'
 import * as jwt from 'jsonwebtoken'
+import sinon from 'sinon'
+import * as myModule from '../src/index'
+import { expect } from 'chai'
 
 describe('End-to-end tests', () => {
   const port = 8080
@@ -12,6 +15,11 @@ describe('End-to-end tests', () => {
   let clientSocket: Socket
 
   before((done) => {
+    sinon.replace(
+      myModule,
+      'synthesizeTextToSpeech',
+      sinon.fake.resolves({ audioData: Buffer.from('test'), speechMarks: [] })
+    )
     // start the server
     server.listen(port, () => {
       console.log(`Websocket server listening on port ${port}`)
@@ -25,6 +33,7 @@ describe('End-to-end tests', () => {
   })
 
   after(async () => {
+    sinon.restore()
     await redisClient.quit()
     console.log('Redis Client Disconnected')
     clientSocket.close()
@@ -35,5 +44,16 @@ describe('End-to-end tests', () => {
     })
   })
 
-  it('connects websocket clients', () => {})
+  it('synthesize text and emit result', (done) => {
+    clientSocket.emit('synthesize', {
+      text: 'Hello world',
+      voice: 'en-US-ChristopherNeural',
+      idx: 0,
+      isUltraRealisticVoice: false,
+    })
+    clientSocket.on('synthesizedResult', (result) => {
+      expect(result.audioData).to.eql('test')
+      done()
+    })
+  })
 })
