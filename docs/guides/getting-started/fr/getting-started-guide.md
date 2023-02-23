@@ -28,8 +28,8 @@ Il existe cinq façons de sauvegarder des liens vers des pages ou des articles q
 
 
 ### Sauvegarde depuis votre bibliothèque Omnivore
-1. Dans le coin supérieur droit de votre bibliothèque, appuyez sur le bouton **Ajouter un lien**.
-2. Entrez l'URL que vous souhaitez enregistrer et appuyez sur **Ajouter un lien**.
+1. Dans le coin supérieur droit de votre bibliothèque, appuyez sur le bouton **Add Link**.
+2. Entrez l'URL que vous souhaitez enregistrer et appuyez sur **Add Link**.
 3. Le lien apparaîtra dans votre bibliothèque la prochaine fois que vous la rafraîchissez.
 
 
