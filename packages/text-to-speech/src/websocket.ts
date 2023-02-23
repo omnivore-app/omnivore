@@ -29,7 +29,6 @@ io.use((socket, next) => {
   if (!process.env.JWT_SECRET) {
     return next(new Error('No JWT secret provided'))
   }
-  console.debug('headers', socket.handshake.headers)
   const token = socket.handshake.headers['authorization'] as string
   try {
     claim = jwt.verify(token, process.env.JWT_SECRET) as Claim
