@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
@@ -16,8 +17,10 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
 import app.omnivore.omnivore.Routes
 import app.omnivore.omnivore.persistence.entities.SavedItemCardDataWithLabels
@@ -109,6 +112,8 @@ fun LibraryViewContent(libraryViewModel: LibraryViewModel, modifier: Modifier) {
       state = pullRefreshState,
       modifier = Modifier.align(Alignment.TopCenter)
     )
+
+    LabelsSelectionSheet(viewModel = libraryViewModel)
   }
 }
 
@@ -134,5 +139,30 @@ fun InfiniteListHandler(
       .collect {
         onLoadMore()
       }
+  }
+}
+
+@Composable
+fun LabelsSelectionSheet(viewModel: LibraryViewModel) {
+  val isActive: Boolean by viewModel.showLabelsSelectionSheetLiveData.observeAsState(false)
+
+  if (isActive) {
+    Dialog(onDismissRequest = { viewModel.showLabelsSelectionSheetLiveData.value = false } ) {
+      Surface(
+        modifier = Modifier.fillMaxSize(),
+        shape = RoundedCornerShape(16.dp)
+      ) {
+        Box(
+          contentAlignment = Alignment.Center
+        ) {
+          Text(modifier = Modifier.align(Alignment.TopCenter),
+            text = "top")
+          Text("center")
+          Text(
+            modifier = Modifier.align(Alignment.BottomCenter),
+            text = "bottom")
+        }
+      }
+    }
   }
 }

@@ -48,6 +48,17 @@ fun LibraryFilterBar(viewModel: LibraryViewModel) {
         },
         modifier = Modifier.padding(end = 6.dp)
       )
+      AssistChip(
+        onClick = { viewModel.showLabelsSelectionSheetLiveData.value = true },
+        label = { Text("Labels") },
+        trailingIcon = {
+          Icon(
+            Icons.Default.ArrowDropDown,
+            contentDescription = "drop down button to open label selection sheet"
+          )
+        },
+        modifier = Modifier.padding(end = 6.dp)
+      )
     }
 
     SavedItemFilterContextMenu(

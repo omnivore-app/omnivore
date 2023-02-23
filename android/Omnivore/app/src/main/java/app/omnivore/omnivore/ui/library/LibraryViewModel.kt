@@ -1,6 +1,8 @@
 package app.omnivore.omnivore.ui.library
 
 import android.util.Log
+import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,6 +43,7 @@ class LibraryViewModel @Inject constructor(
   val itemsLiveData = MediatorLiveData<List<SavedItemCardDataWithLabels>>()
   val appliedFilterLiveData = MutableLiveData(SavedItemFilter.INBOX)
   val appliedSortFilterLiveData = MutableLiveData(SavedItemSortFilter.NEWEST)
+  val showLabelsSelectionSheetLiveData = MutableLiveData(false)
 
   var isRefreshing by mutableStateOf(false)
   var showSearchField by mutableStateOf(false)
