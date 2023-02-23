@@ -11,17 +11,19 @@ import { AzureTextToSpeech } from './azureTextToSpeech'
 import { File, Storage } from '@google-cloud/storage'
 import { endSsml, htmlToSpeechFile, startSsml } from './htmlToSsml'
 import crypto from 'crypto'
-import { createRedisClient } from './redis'
+import {
+  getCachedAudio,
+  getCharacterCountFromRedis,
+  redisClient,
+  saveAudioToRedis,
+  updateCharacterCountInRedis,
+} from './redis'
 import {
   SpeechMark,
   TextToSpeechInput,
   TextToSpeechOutput,
 } from './textToSpeech'
-import { createClient } from 'redis'
 import { RealisticTextToSpeech } from './realisticTextToSpeech'
-
-// explicitly create the return type of RedisClient
-export type RedisClient = ReturnType<typeof createClient>
 
 export interface UtteranceInput {
   text: string
@@ -115,26 +117,36 @@ const updateSpeech = async (
   return response.status === 200
 }
 
-const getCharacterCountFromRedis = async (
-  redisClient: RedisClient,
-  uid: string
-): Promise<number> => {
-  const wordCount = await redisClient.get(`tts:charCount:${uid}`)
-  return wordCount ? parseInt(wordCount) : 0
+export const optedInAndGranted = (claim: Claim): boolean => {
+  // validate if user has opted in to use ultra realistic voice feature and has been granted
+  return claim.featureName === 'ultra-realistic-voice' && !!claim.grantedAt
 }
 
-// store character count of each text to speech request in redis
-// which will be used to rate limit the request
-// expires after 1 day
-export const updateCharacterCountInRedis = async (
-  redisClient: RedisClient,
-  uid: string,
-  wordCount: number
-): Promise<void> => {
-  await redisClient.set(`tts:charCount:${uid}`, wordCount.toString(), {
-    EX: 3600 * 24, // in seconds
-    NX: true,
-  })
+export const validCharacterCount = async (
+  text: string,
+  uid: string
+): Promise<boolean> => {
+  const characterCount = await getCharacterCountFromRedis(uid)
+  const newCharacterCount = characterCount + text.length
+  if (newCharacterCount > MAX_CHARACTER_COUNT) {
+    return false
+  }
+  await updateCharacterCountInRedis(uid, newCharacterCount)
+  return true
+}
+
+export const assembledSsml = (utteranceInput: UtteranceInput): string => {
+  const ssmlOptions = {
+    primaryVoice: utteranceInput.voice,
+    secondaryVoice: utteranceInput.voice,
+    language: utteranceInput.language,
+    rate: utteranceInput.rate,
+  }
+  return `${startSsml(ssmlOptions)}${utteranceInput.text}${endSsml()}`
+}
+
+export const hash = (text: string): string => {
+  return crypto.createHash('md5').update(text).digest('hex')
 }
 
 export const textToSpeechHandler = Sentry.GCPFunction.wrapHttpFunction(
@@ -230,19 +242,11 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
 
     let claim: Claim
     try {
-      jwt.verify(token, process.env.JWT_SECRET)
-      claim = jwt.decode(token) as Claim
+      claim = jwt.verify(token, process.env.JWT_SECRET) as Claim
     } catch (e) {
       console.error('Authentication error:', e)
       return res.status(401).send({ errorCode: 'UNAUTHENTICATED' })
     }
-
-    // create redis client
-    const redisClient = createRedisClient(
-      process.env.REDIS_URL,
-      process.env.REDIS_CERT
-    )
-    await redisClient.connect()
 
     try {
       const utteranceInput = req.body as UtteranceInput
@@ -253,47 +257,28 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
           speechMarks: [],
         })
       }
-
-      // validate if user has opted in to use ultra realistic voice feature
-      if (
-        utteranceInput.isUltraRealisticVoice &&
-        (claim.featureName !== 'ultra-realistic-voice' || !claim.grantedAt)
-      ) {
+      // validate if user can use ultra realistic voice feature
+      if (utteranceInput.isUltraRealisticVoice && !optedInAndGranted(claim)) {
         return res.status(403).send('UNAUTHORIZED')
       }
-
       // validate character count
-      const characterCount =
-        (await getCharacterCountFromRedis(redisClient, claim.uid)) +
-        utteranceInput.text.length
-      if (characterCount > MAX_CHARACTER_COUNT) {
+      if (!(await validCharacterCount(utteranceInput.text, claim.uid))) {
         return res.status(429).send('RATE_LIMITED')
       }
-
-      const ssmlOptions = {
-        primaryVoice: utteranceInput.voice,
-        secondaryVoice: utteranceInput.voice,
-        language: utteranceInput.language,
-        rate: utteranceInput.rate,
-      }
       // for utterance, assemble the ssml and pass it through
-      const ssml = `${startSsml(ssmlOptions)}${utteranceInput.text}${endSsml()}`
+      const ssml = assembledSsml(utteranceInput)
       // hash ssml to get the cache key
-      const cacheKey = crypto.createHash('md5').update(ssml).digest('hex')
+      const cacheKey = hash(ssml)
       // find audio data in cache
-      const cacheResult = await redisClient.get(cacheKey)
-      if (cacheResult) {
-        console.log('Cache hit')
-        const { audioDataString, speechMarks }: CacheResult =
-          JSON.parse(cacheResult)
+      const cachedResult = await getCachedAudio(cacheKey)
+      if (cachedResult) {
         res.send({
           idx: utteranceInput.idx,
-          audioData: audioDataString,
-          speechMarks,
+          audioData: cachedResult.audioDataString,
+          speechMarks: cachedResult.speechMarks,
         })
         return
       }
-      console.log('Cache miss')
 
       const bucket = process.env.GCS_UPLOAD_BUCKET
       if (!bucket) {
@@ -346,25 +331,12 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
           await speechMarksFile.save(JSON.stringify(speechMarks))
         }
       }
-
-      const audioDataString = audioData.toString('hex')
       // save audio data to cache for 24 hours for mainly the newsletters
-      await redisClient.set(
-        cacheKey,
-        JSON.stringify({ audioDataString, speechMarks }),
-        {
-          EX: 3600 * 24, // in seconds
-          NX: true,
-        }
-      )
-      console.log('Cache saved')
-
-      // update character count
-      await updateCharacterCountInRedis(redisClient, claim.uid, characterCount)
+      const result = await saveAudioToRedis(cacheKey, audioData, speechMarks)
 
       res.send({
         idx: utteranceInput.idx,
-        audioData: audioDataString,
+        audioData: result.audioDataString,
         speechMarks,
       })
     } catch (e) {

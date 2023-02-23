@@ -1,12 +1,18 @@
 import express from 'express'
 import { Server } from 'http'
 import { Server as SocketServer } from 'socket.io'
-import { CacheResult, synthesizeTextToSpeech, UtteranceInput } from './index'
-import { endSsml, startSsml } from './htmlToSsml'
-import crypto from 'crypto'
+import {
+  assembledSsml,
+  Claim,
+  hash,
+  optedInAndGranted,
+  synthesizeTextToSpeech,
+  UtteranceInput,
+  validCharacterCount,
+} from './index'
 import { TextToSpeechInput } from './textToSpeech'
-import { createRedisClient } from './redis'
 import * as jwt from 'jsonwebtoken'
+import { getCachedAudio, redisClient, saveAudioToRedis } from './redis'
 
 const SYNTHESIZE_EVENT = 'synthesize'
 const SYNTHESIZE_RESULT_EVENT = 'synthesizedResult'
@@ -16,14 +22,7 @@ const server = new Server(app)
 const io = new SocketServer(server, {
   serveClient: false,
 })
-const redisClient = createRedisClient(
-  process.env.REDIS_URL,
-  process.env.REDIS_CERT
-)
-redisClient
-  .connect()
-  .then(() => console.log('Redis Client Connected'))
-  .catch((err) => console.error('Redis Client Connection Error', err))
+let claim: Claim
 
 // middleware to check if the request is valid
 io.use((socket, next) => {
@@ -33,7 +32,7 @@ io.use((socket, next) => {
   console.debug('headers', socket.handshake.headers)
   const token = socket.handshake.headers['authorization'] as string
   try {
-    jwt.verify(token, process.env.JWT_SECRET)
+    claim = jwt.verify(token, process.env.JWT_SECRET) as Claim
     next()
   } catch (err) {
     console.error('JWT verification error', err)
@@ -55,27 +54,29 @@ io.on('connection', (socket) => {
         speechMarks: [],
       })
     }
-    const ssmlOptions = {
-      primaryVoice: utteranceInput.voice,
-      secondaryVoice: utteranceInput.voice,
-      language: utteranceInput.language,
-      rate: utteranceInput.rate,
+    // validate if user can use ultra realistic voice feature
+    if (utteranceInput.isUltraRealisticVoice && !optedInAndGranted(claim)) {
+      return socket.emit(SYNTHESIZE_RESULT_EVENT, {
+        error: 'NOT_OPTED_IN',
+      })
+    }
+    // validate character count
+    if (!(await validCharacterCount(utteranceInput.text, claim.uid))) {
+      return socket.emit(SYNTHESIZE_RESULT_EVENT, {
+        error: 'CHARACTER_COUNT_EXCEEDED',
+      })
     }
     // for utterance, assemble the ssml and pass it through
-    const ssml = `${startSsml(ssmlOptions)}${utteranceInput.text}${endSsml()}`
+    const ssml = assembledSsml(utteranceInput)
     // hash ssml to get the cache key
-    const cacheKey = crypto.createHash('md5').update(ssml).digest('hex')
+    const cacheKey = hash(ssml)
     // find audio data in cache
-    const cacheResult = await redisClient.get(cacheKey)
-    if (cacheResult) {
-      console.debug('Cache hit')
-      const { audioDataString, speechMarks } = JSON.parse(
-        cacheResult
-      ) as CacheResult
+    const cachedResult = await getCachedAudio(cacheKey)
+    if (cachedResult) {
       return socket.emit(SYNTHESIZE_RESULT_EVENT, {
         idx: utteranceInput.idx,
-        audioData: audioDataString,
-        speechMarks,
+        audioData: cachedResult.audioDataString,
+        speechMarks: cachedResult.speechMarks,
       })
     }
 
@@ -96,20 +97,12 @@ io.on('connection', (socket) => {
         speechMarks: [],
       })
     }
-
-    const audioDataString = audioData.toString('hex')
     // save audio data to cache for 24 hours for mainly the newsletters
-    await redisClient.set(
-      cacheKey,
-      JSON.stringify({ audioDataString, speechMarks }),
-      {
-        EX: 3600 * 24, // in seconds
-        NX: true,
-      }
-    )
+    const result = await saveAudioToRedis(cacheKey, audioData, speechMarks)
+
     socket.emit(SYNTHESIZE_RESULT_EVENT, {
       idx: utteranceInput.idx,
-      audioData: audioDataString,
+      audioData: result.audioDataString,
       speechMarks,
     })
   })
