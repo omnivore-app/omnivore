@@ -213,7 +213,7 @@ export default function Integrations(): JSX.Element {
         css={{
           width: '80%',
           margin: '0 auto',
-          height: '100%',
+          height: '800px',
           '@smDown': {
             width: '100%',
           },
