@@ -1,11 +1,6 @@
 import { PageMetaData, PageMetaDataProps } from '../patterns/PageMetaData'
 import { Box } from '../elements/LayoutPrimitives'
-import {
-  ReactNode,
-  MutableRefObject,
-  useEffect,
-  useState,
-} from 'react'
+import { ReactNode, MutableRefObject, useEffect, useState } from 'react'
 import { PrimaryHeader } from './../patterns/PrimaryHeader'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
 import { navigationCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
@@ -61,15 +56,17 @@ export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
       {props.pageMetaDataProps ? (
         <PageMetaData {...props.pageMetaDataProps} />
       ) : null}
-      <Box css={{
-        width: '100vw',
-        height: '100vh',
-        bg: 'transparent',
-        '@smDown': {
-          bg: '$grayBase',
-        }
-      }}>
-        <PrimaryHeader
+      <Box
+        css={{
+          width: '100vw',
+          height: '100vh',
+          bg: 'transparent',
+          '@smDown': {
+            bg: '$grayBase',
+          },
+        }}
+      >
+        {/* <PrimaryHeader
           user={viewerData?.me}
           hideHeader={props.hideHeader}
           userInitials={viewerData?.me?.name.charAt(0) ?? ''}
@@ -79,7 +76,7 @@ export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
           alwaysDisplayToolbar={props.alwaysDisplayToolbar}
           setShowLogoutConfirmation={setShowLogoutConfirmation}
           setShowKeyboardCommandsModal={setShowKeyboardCommandsModal}
-        />
+        /> */}
         <Box
           css={{
             height: '100%',
@@ -87,12 +84,12 @@ export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
             bg: '$grayBase',
           }}
         >
-          <Box
-          css={{
-            height: '48px',
-            bg: '$grayBase',
-          }}
-        ></Box>
+          {/* <Box
+            css={{
+              height: '48px',
+              bg: '$grayBase',
+            }}
+          ></Box> */}
           {props.children}
           {showLogoutConfirmation ? (
             <ConfirmationModal
