@@ -18,6 +18,9 @@ import { useGetIntegrationsQuery } from '../../lib/networking/queries/useGetInte
 import { useGetWebhooksQuery } from '../../lib/networking/queries/useGetWebhooksQuery'
 import { deleteIntegrationMutation } from '../../lib/networking/mutations/deleteIntegrationMutation'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
+import { fetchEndpoint } from '../../lib/appConfig'
+import { setIntegrationMutation } from '../../lib/networking/mutations/setIntegrationMutation'
+import { cookieValue } from '../../lib/cookieHelpers'
 
 // Styles
 const Header = styled(Box, {
@@ -78,6 +81,45 @@ export default function Integrations(): JSX.Element {
     }
   }
 
+  const redirectToPocket = () => {
+    // create a form and submit it to the backend
+    const form = document.createElement('form')
+    form.method = 'POST'
+    form.action = `${fetchEndpoint}/integration/pocket/auth`
+    document.body.appendChild(form)
+    form.submit()
+  }
+
+  useEffect(() => {
+    const connectToPocket = async () => {
+      try {
+        // get the token from cookies
+        const token = cookieValue('pocketRequestToken', document.cookie)
+        if (!token) {
+          showErrorToast('There was an error connecting to Pocket.')
+          return
+        }
+        const result = await setIntegrationMutation({
+          token,
+          name: 'POCKET',
+          type: 'IMPORT',
+          enabled: true,
+        })
+        if (result) {
+          showSuccessToast('Connected with Pocket.')
+        } else {
+          showErrorToast('There was an error connecting to Pocket.')
+        }
+      } catch (err) {
+        showErrorToast('Error: ' + err)
+      }
+    }
+    if (!router.isReady) return
+    if (router.query.state == 'pocketAuthorizationFinished') {
+      connectToPocket()
+    }
+  }, [router])
+
   useEffect(() => {
     setIntegrationsArray([
       {
@@ -119,6 +161,19 @@ export default function Integrations(): JSX.Element {
           icon: <Eye size={16} weight={'bold'} />,
           style: 'ctaWhite',
           action: () => router.push('/settings/webhooks'),
+        },
+      },
+      {
+        icon: '/static/icons/pocket.svg',
+        title: 'Pocket',
+        subText: 'Pocket is a place to save articles, videos, and more.',
+        button: {
+          text: 'Connect to Pocket',
+          icon: <Link size={16} weight={'bold'} />,
+          style: 'ctaDarkYellow',
+          action: () => {
+            redirectToPocket()
+          },
         },
       },
     ])
