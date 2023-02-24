@@ -70,6 +70,9 @@ export default function Integrations(): JSX.Element {
   const readwiseConnected = useMemo(() => {
     return integrations.find((i) => i.name == 'READWISE' && i.type == 'EXPORT')
   }, [integrations])
+  const isConnected = (name: string, type: string) => {
+    return integrations.find((i) => i.name === name && i.type === type)
+  }
 
   const deleteIntegration = async (id: string) => {
     try {
@@ -121,6 +124,7 @@ export default function Integrations(): JSX.Element {
   }, [router])
 
   useEffect(() => {
+    const pocketConnected = isConnected('POCKET', 'IMPORT')
     setIntegrationsArray([
       {
         icon: '/static/icons/logseq.svg',
@@ -168,16 +172,18 @@ export default function Integrations(): JSX.Element {
         title: 'Pocket',
         subText: 'Pocket is a place to save articles, videos, and more.',
         button: {
-          text: 'Connect to Pocket',
+          text: pocketConnected ? 'Remove' : 'Connect to Pocket',
           icon: <Link size={16} weight={'bold'} />,
-          style: 'ctaDarkYellow',
+          style: pocketConnected ? 'ctaWhite' : 'ctaDarkYellow',
           action: () => {
-            redirectToPocket()
+            pocketConnected
+              ? deleteIntegration(pocketConnected.id)
+              : redirectToPocket()
           },
         },
       },
     ])
-  }, [readwiseConnected, router, webhooks])
+  }, [integrations])
 
   return (
     <SettingsLayout>

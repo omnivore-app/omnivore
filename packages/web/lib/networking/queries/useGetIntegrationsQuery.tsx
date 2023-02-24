@@ -35,6 +35,7 @@ export function useGetIntegrationsQuery(): IntegrationsQueryResponse {
         ... on IntegrationsSuccess {
           integrations {
             id
+            name
             type
             token
             enabled
