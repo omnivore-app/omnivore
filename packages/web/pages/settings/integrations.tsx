@@ -71,9 +71,9 @@ export default function Integrations(): JSX.Element {
   const readwiseConnected = useMemo(() => {
     return integrations.find((i) => i.name == 'READWISE' && i.type == 'EXPORT')
   }, [integrations])
-  const isConnected = (name: string, type: string) => {
-    return integrations.find((i) => i.name === name && i.type === type)
-  }
+  const pocketConnected = useMemo(() => {
+    return integrations.find((i) => i.name == 'POCKET' && i.type == 'IMPORT')
+  }, [integrations])
 
   const deleteIntegration = async (id: string) => {
     try {
@@ -120,6 +120,7 @@ export default function Integrations(): JSX.Element {
         })
         if (result) {
           showSuccessToast('Connected with Pocket.')
+          await router.push('/settings/integrations')
         } else {
           showErrorToast('There was an error connecting to Pocket.')
         }
@@ -134,7 +135,6 @@ export default function Integrations(): JSX.Element {
   }, [router])
 
   useEffect(() => {
-    const pocketConnected = isConnected('POCKET', 'IMPORT')
     setIntegrationsArray([
       {
         icon: '/static/icons/logseq.svg',
