@@ -21,6 +21,20 @@ export class PocketIntegration extends IntegrationService {
   name = 'POCKET'
   POCKET_API_URL = 'https://getpocket.com/v3'
 
+  accessToken = async (token: string): Promise<string | null> => {
+    const url = `${this.POCKET_API_URL}/oauth/authorize`
+    try {
+      const response = await axios.post<{ access_token: string }>(url, {
+        consumer_key: env.pocket.consumerKey,
+        code: token,
+      })
+      return response.data.access_token
+    } catch (error) {
+      console.log('error validating pocket token', error)
+      return null
+    }
+  }
+
   retrievePocketData = async (
     accessToken: string,
     since: number

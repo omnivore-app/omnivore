@@ -38,7 +38,7 @@ export const READWISE_API_URL = 'https://readwise.io/api/v2'
 
 export class ReadwiseIntegration extends IntegrationService {
   name = 'READWISE'
-  validateToken = async (token: string): Promise<boolean> => {
+  accessToken = async (token: string): Promise<string | null> => {
     const authUrl = `${env.readwise.apiUrl || READWISE_API_URL}/auth`
     try {
       const response = await axios.get(authUrl, {
@@ -46,10 +46,10 @@ export class ReadwiseIntegration extends IntegrationService {
           Authorization: `Token ${token}`,
         },
       })
-      return response.status === 204
+      return response.status === 204 ? token : null
     } catch (error) {
       console.log('error validating readwise token', error)
-      return false
+      return null
     }
   }
   export = async (

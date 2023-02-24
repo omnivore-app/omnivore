@@ -4,8 +4,8 @@ import { Page } from '../../elastic/types'
 export abstract class IntegrationService {
   abstract name: string
 
-  validateToken = async (token: string): Promise<boolean> => {
-    return Promise.resolve(true)
+  accessToken = async (token: string): Promise<string | null> => {
+    return Promise.resolve('')
   }
   export = async (
     integration: Integration,

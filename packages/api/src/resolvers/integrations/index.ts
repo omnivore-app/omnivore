@@ -67,12 +67,14 @@ export const setIntegrationResolver = authorized<
     } else {
       // Create
       const integrationService = getIntegrationService(input.name)
-      // validate token
-      if (!(await integrationService.validateToken(input.token))) {
+      // authorize and get access token
+      const token = await integrationService.accessToken(input.token)
+      if (!token) {
         return {
           errorCodes: [SetIntegrationErrorCode.InvalidToken],
         }
       }
+      integrationToSave.token = token
     }
 
     // save integration
