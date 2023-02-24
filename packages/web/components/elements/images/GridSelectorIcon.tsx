@@ -15,7 +15,7 @@ export function GridSelectorIcon(props: GridSelectorIconProps): JSX.Element {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <g clip-path="url(#clip0_1646_7379)">
+      <g clipPath="url(#clip0_1646_7379)">
         <path
           d="M8.32487 0.170105H1.6582C0.967847 0.170105 0.408203 0.729749 0.408203 1.4201V8.08677C0.408203 8.77713 0.967847 9.33677 1.6582 9.33677H8.32487C9.01523 9.33677 9.57487 8.77713 9.57487 8.08677V1.4201C9.57487 0.729749 9.01523 0.170105 8.32487 0.170105Z"
           fill="#FFEA9F"

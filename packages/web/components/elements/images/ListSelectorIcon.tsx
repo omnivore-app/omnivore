@@ -15,7 +15,7 @@ export function ListSelectorIcon(props: ListSelectorIconProps): JSX.Element {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <g clip-path="url(#clip0_1646_7375)">
+      <g clipPath="url(#clip0_1646_7375)">
         <path
           d="M19.1582 0.795105H1.6582C0.967847 0.795105 0.408203 1.35475 0.408203 2.0451V4.12844C0.408203 4.81879 0.967847 5.37844 1.6582 5.37844H19.1582C19.8486 5.37844 20.4082 4.81879 20.4082 4.12844V2.0451C20.4082 1.35475 19.8486 0.795105 19.1582 0.795105Z"
           fill="#6A6968"
