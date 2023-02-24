@@ -77,6 +77,9 @@ export class PocketIntegration extends IntegrationService {
       : 0
     const pocketData = await this.retrievePocketData(integration.token, syncAt)
     const pocketItems = Object.values(pocketData.list)
+    if (pocketItems.length === 0) {
+      return 0
+    }
     // write the list of urls to a csv file and upload it to gcs
     // path style: imports/<uid>/<date>/<type>-<uuid>.csv
     const dateStr = DateTime.now().toISODate()

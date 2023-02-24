@@ -21,6 +21,7 @@ import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import { fetchEndpoint } from '../../lib/appConfig'
 import { setIntegrationMutation } from '../../lib/networking/mutations/setIntegrationMutation'
 import { cookieValue } from '../../lib/cookieHelpers'
+import { importFromIntegrationMutation } from '../../lib/networking/mutations/importFromIntegrationMutation'
 
 // Styles
 const Header = styled(Box, {
@@ -79,6 +80,15 @@ export default function Integrations(): JSX.Element {
       await deleteIntegrationMutation(id)
       revalidate()
       showSuccessToast('Integration Removed')
+    } catch (err) {
+      showErrorToast('Error: ' + err)
+    }
+  }
+
+  const importFromIntegration = async (id: string) => {
+    try {
+      await importFromIntegrationMutation(id)
+      showSuccessToast('Import started')
     } catch (err) {
       showErrorToast('Error: ' + err)
     }
@@ -172,12 +182,12 @@ export default function Integrations(): JSX.Element {
         title: 'Pocket',
         subText: 'Pocket is a place to save articles, videos, and more.',
         button: {
-          text: pocketConnected ? 'Remove' : 'Connect to Pocket',
+          text: pocketConnected ? 'Import' : 'Connect to Pocket',
           icon: <Link size={16} weight={'bold'} />,
-          style: pocketConnected ? 'ctaWhite' : 'ctaDarkYellow',
+          style: 'ctaDarkYellow',
           action: () => {
             pocketConnected
-              ? deleteIntegration(pocketConnected.id)
+              ? importFromIntegration(pocketConnected.id)
               : redirectToPocket()
           },
         },
