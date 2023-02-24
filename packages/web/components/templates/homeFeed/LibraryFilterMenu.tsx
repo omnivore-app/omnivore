@@ -14,7 +14,14 @@ import { FormInput } from '../../elements/FormElements'
 import { searchBarCommands } from '../../../lib/keyboardShortcuts/navigationShortcuts'
 import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { Button, IconButton } from '../../elements/Button'
-import { Circle, MagnifyingGlass, Plus, Textbox, X } from 'phosphor-react'
+import {
+  Circle,
+  DotsThree,
+  MagnifyingGlass,
+  Plus,
+  Textbox,
+  X,
+} from 'phosphor-react'
 import { OmnivoreNameLogo } from '../../elements/images/OmnivoreNameLogo'
 import { OmnivoreFullLogo } from '../../elements/images/OmnivoreFullLogo'
 import { AvatarDropdown } from '../../elements/AvatarDropdown'
@@ -27,24 +34,36 @@ import { Checkbox } from '@radix-ui/react-checkbox'
 
 export function LibraryFilterMenu(): JSX.Element {
   return (
-    <Box
-      css={{
-        left: '0px',
-        top: '105px',
-        position: 'fixed',
-        bg: 'white',
-        width: '233px',
-        height: '100%',
-        borderRight: '1px solid #E1E1E1',
-        pr: '15px',
-      }}
-    >
-      <SavedSearches />
-      <Subscriptions />
-      <Labels />
+    <>
+      <Box
+        css={{
+          left: '0px',
+          top: '105px',
+          position: 'fixed',
+          bg: 'white',
+          width: '233px',
+          height: '100%',
+          borderRight: '1px solid #E1E1E1',
+          pr: '15px',
+        }}
+      >
+        <SavedSearches />
+        <Subscriptions />
+        <Labels />
 
-      <AddLinkButton />
-    </Box>
+        <AddLinkButton />
+      </Box>
+      {/* This spacer pushes library content to the right of 
+      the fixed left side menu. */}
+      <Box
+        css={{
+          width: '233px',
+          minWidth: '233px',
+          height: '100%',
+          bg: '$grayBase',
+        }}
+      ></Box>
+    </>
   )
 }
 
@@ -62,32 +81,40 @@ function SavedSearches(): JSX.Element {
 
 function Subscriptions(): JSX.Element {
   const { subscriptions } = useGetSubscriptionsQuery()
-  console.log('subscriptions: ', subscriptions)
+  const [viewAll, setViewAll] = useState(false)
 
   return (
-    <MenuPanel title="Subscriptions">
-      {subscriptions.slice(0, 4).map((item) => {
+    <MenuPanel
+      title="Subscriptions"
+      editTitle="Edit Subscriptions"
+      editFunc={() => {
+        window.location.href = '/settings/subscriptions'
+      }}
+    >
+      {subscriptions.slice(0, viewAll ? undefined : 4).map((item) => {
         return <FilterButton key={item.id} text={item.name} selected={false} />
       })}
-      <StyledText css={{ pl: '10px', color: '#BEBEBE', fontWeight: '600' }}>
-        View All
-      </StyledText>
+      <ViewAllButton state={viewAll} setState={setViewAll} />
     </MenuPanel>
   )
 }
 
 function Labels(): JSX.Element {
   const { labels } = useGetLabelsQuery()
-  console.log('labels: ', labels)
+  const [viewAll, setViewAll] = useState(false)
 
   return (
-    <MenuPanel title="Labels">
-      {labels.slice(0, 4).map((item) => {
+    <MenuPanel
+      title="Labels"
+      editTitle="Edit Labels"
+      editFunc={() => {
+        window.location.href = '/settings/labels'
+      }}
+    >
+      {labels.slice(0, viewAll ? undefined : 4).map((item) => {
         return <LabelButton key={item.id} label={item} state="off" />
       })}
-      <StyledText css={{ pl: '10px', color: '#BEBEBE', fontWeight: '600' }}>
-        View All
-      </StyledText>
+      <ViewAllButton state={viewAll} setState={setViewAll} />
     </MenuPanel>
   )
 }
@@ -95,6 +122,8 @@ function Labels(): JSX.Element {
 type MenuPanelProps = {
   title: string
   children: ReactNode
+  editFunc?: () => void
+  editTitle?: string
 }
 
 function MenuPanel(props: MenuPanelProps): JSX.Element {
@@ -108,19 +137,46 @@ function MenuPanel(props: MenuPanelProps): JSX.Element {
       alignment="start"
       distribution="start"
     >
-      <StyledText
-        css={{
-          fontFamily: 'Inter',
-          fontWeight: '600',
-          fontSize: '16px',
-          lineHeight: '125%',
-          color: '#1E1E1E',
-          pl: '10px',
-          my: '20px',
-        }}
-      >
-        {props.title}
-      </StyledText>
+      <HStack css={{ width: '100%' }} distribution="start" alignment="start">
+        <StyledText
+          css={{
+            fontFamily: 'Inter',
+            fontWeight: '600',
+            fontSize: '16px',
+            lineHeight: '125%',
+            color: '#1E1E1E',
+            pl: '10px',
+            my: '20px',
+          }}
+        >
+          {props.title}
+        </StyledText>
+        <SpanBox
+          css={{
+            my: '15px',
+            marginLeft: 'auto',
+            height: '100%',
+            verticalAlign: 'middle',
+          }}
+        >
+          {props.editTitle && props.editFunc && (
+            <Dropdown
+              triggerElement={
+                <DotsThree width={20} weight="bold" color="#BEBEBE" />
+              }
+            >
+              <DropdownOption
+                title={props.editTitle}
+                onSelect={() => {
+                  if (props.editFunc) {
+                    props.editFunc()
+                  }
+                }}
+              />
+            </Dropdown>
+          )}
+        </SpanBox>
+      </HStack>
       {props.children}
     </VStack>
   )
@@ -215,5 +271,31 @@ function AddLinkButton(): JSX.Element {
         <SpanBox css={{ width: '10px' }}></SpanBox>Add Link
       </Button>
     </VStack>
+  )
+}
+
+type ViewAllButtonProps = {
+  state: boolean
+  setState: (state: boolean) => void
+}
+
+function ViewAllButton(props: ViewAllButtonProps): JSX.Element {
+  return (
+    <Button
+      style="ghost"
+      css={{
+        pl: '10px',
+        color: '#BEBEBE',
+        fontWeight: '600',
+        fontSize: '12px',
+        py: '20px',
+      }}
+      onClick={(e) => {
+        props.setState(!props.state)
+        e.preventDefault()
+      }}
+    >
+      {props.state ? 'Hide' : 'View All'}
+    </Button>
   )
 }

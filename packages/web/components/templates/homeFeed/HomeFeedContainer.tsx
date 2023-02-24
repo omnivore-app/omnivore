@@ -1,4 +1,4 @@
-import { Box, HStack, VStack } from './../../elements/LayoutPrimitives'
+import { Box, HStack, SpanBox, VStack } from './../../elements/LayoutPrimitives'
 import Dropzone from 'react-dropzone'
 import * as Progress from '@radix-ui/react-progress'
 import type {
@@ -6,7 +6,10 @@ import type {
   LibraryItemsQueryInput,
 } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { useGetLibraryItemsQuery } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
-import { useGetViewerQuery } from '../../../lib/networking/queries/useGetViewerQuery'
+import {
+  useGetViewerQuery,
+  UserBasicData,
+} from '../../../lib/networking/queries/useGetViewerQuery'
 import { LinkedItemCardAction } from '../../patterns/LibraryCards/CardTypes'
 import { LinkedItemCard } from '../../patterns/LibraryCards/LinkedItemCard'
 import { useRouter } from 'next/router'
@@ -679,25 +682,6 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
 
   const [, updateState] = useState({})
 
-  const StyledToggleButton = styled('button', {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    p: '0px',
-    backgroundColor: 'transparent',
-    border: 'none',
-    cursor: 'pointer',
-    width: '32px',
-    height: '32px',
-    borderRadius: '4px',
-    '&:hover': {
-      opacity: 0.8,
-    },
-    '&[data-state="on"]': {
-      bg: 'rgb(43, 43, 43)',
-    },
-  })
-
   const DragnDropContainer = styled('div', {
     width: '100%',
     height: '80%',
@@ -800,22 +784,16 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
         searchTerm={props.searchTerm}
         applySearchQuery={props.applySearchQuery}
       />
-      <Box
-        css={{
-          height: '105px',
-          bg: '$grayBase',
-        }}
-      ></Box>
       <HStack css={{ width: '100%', height: '100%' }}>
-        <LibraryFilterMenu />
-        <Box
+        <SpanBox
           css={{
-            width: '233px',
-            minWidth: '233px',
-            height: '100%',
-            bg: '$grayBase',
+            '@mdDown': {
+              display: 'none',
+            },
           }}
-        ></Box>
+        >
+          <LibraryFilterMenu />
+        </SpanBox>
 
         <VStack
           alignment="center"
@@ -830,104 +808,25 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
           <Toaster />
 
           {props.isValidating && props.items.length == 0 && <TopBarProgress />}
-          {/* <HStack alignment="center" distribution="start" css={{ width: '100%' }}>
-          <StyledText
-            style="subHeadline"
+
+          <SpanBox
             css={{
-              mr: '32px',
-              '@smDown': {
-                mr: '16px',
+              width: '100%',
+              '@md': {
+                display: 'none',
               },
             }}
           >
-            Library
-          </StyledText>
-          <Box
-            css={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <StyledToggleButton
-              data-state={layout === 'GRID_LAYOUT' ? 'on' : 'off'}
-              onClick={() => {
-                updateLayout('GRID_LAYOUT')
-              }}
-            >
-              <GridLayoutIcon color={'rgb(211, 211, 213)'} />
-            </StyledToggleButton>
-            <StyledToggleButton
-              data-state={layout === 'LIST_LAYOUT' ? 'on' : 'off'}
-              onClick={() => {
-                updateLayout('LIST_LAYOUT')
-              }}
-            >
-              <ListLayoutIcon color={'rgb(211, 211, 213)'} />
-            </StyledToggleButton>
-          </Box>
-          <Button
-            style="ctaDarkYellow"
-            css={{ marginLeft: 'auto' }}
-            onClick={() => {
-              props.setShowAddLinkModal(true)
-            }}
-          >
-            Add Link
-          </Button>
-        </HStack>
-        <LibrarySearchBar
-          searchTerm={props.searchTerm}
-          applySearchQuery={props.applySearchQuery}
-        /> */}
+            <LegacyMobileTopNav
+              viewer={viewerData?.me}
+              searchTerm={props.searchTerm}
+              applySearchQuery={props.applySearchQuery}
+              layout={layout}
+              updateLayout={updateLayout}
+              setShowAddLinkModal={props.setShowAddLinkModal}
+            />
+          </SpanBox>
 
-          {/* {viewerData?.me && (
-            <Box
-              css={{
-                display: 'flex',
-                width: '100%',
-                height: '44px',
-                marginTop: '16px',
-                gap: '8px',
-                flexDirection: 'row',
-                overflowY: 'scroll',
-                scrollbarWidth: 'none',
-                '&::-webkit-scrollbar': {
-                  display: 'none',
-                },
-              }}
-            >
-              {Object.keys(SAVED_SEARCHES).map((key) => {
-                const isInboxTerm = (term: string) => {
-                  return !term || term === 'in:inbox'
-                }
-
-                const searchQuery = SAVED_SEARCHES[key]
-                const style =
-                  searchQuery === props.searchTerm ||
-                  (!props.searchTerm && isInboxTerm(searchQuery))
-                    ? 'ctaDarkYellow'
-                    : 'ctaLightGray'
-                return (
-                  <Button
-                    key={key}
-                    style={style}
-                    onClick={() => {
-                      props.applySearchQuery(searchQuery)
-                    }}
-                    css={{
-                      p: '10px 12px',
-                      height: '37.5px',
-                      borderRadius: '6px',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {key}
-                  </Button>
-                )
-              })}
-            </Box>
-          )} */}
           <Dropzone
             onDrop={handleDrop}
             onDragEnter={() => {
@@ -1261,5 +1160,144 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
         )}
       </HStack>
     </VStack>
+  )
+}
+
+type LegacyMobileTopNavProps = {
+  viewer?: UserBasicData
+  searchTerm?: string
+  applySearchQuery: (searchQuery: string) => void
+
+  layout: LayoutType
+  updateLayout: (layout: LayoutType) => void
+
+  setShowAddLinkModal: (show: boolean) => void
+}
+
+function LegacyMobileTopNav(props: LegacyMobileTopNavProps): JSX.Element {
+  const StyledToggleButton = styled('button', {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    p: '0px',
+    backgroundColor: 'transparent',
+    border: 'none',
+    cursor: 'pointer',
+    width: '32px',
+    height: '32px',
+    borderRadius: '4px',
+    '&:hover': {
+      opacity: 0.8,
+    },
+    '&[data-state="on"]': {
+      bg: 'rgb(43, 43, 43)',
+    },
+  })
+
+  return (
+    <>
+      <HStack
+        alignment="center"
+        distribution="start"
+        css={{ width: '100%', '@md': { display: 'none' } }}
+      >
+        <StyledText
+          style="subHeadline"
+          css={{
+            mr: '32px',
+            '@smDown': {
+              mr: '16px',
+            },
+          }}
+        >
+          Library
+        </StyledText>
+        <Box
+          css={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <StyledToggleButton
+            data-state={props.layout === 'GRID_LAYOUT' ? 'on' : 'off'}
+            onClick={() => {
+              props.updateLayout('GRID_LAYOUT')
+            }}
+          >
+            <GridLayoutIcon color={'rgb(211, 211, 213)'} />
+          </StyledToggleButton>
+          <StyledToggleButton
+            data-state={props.layout === 'LIST_LAYOUT' ? 'on' : 'off'}
+            onClick={() => {
+              props.updateLayout('LIST_LAYOUT')
+            }}
+          >
+            <ListLayoutIcon color={'rgb(211, 211, 213)'} />
+          </StyledToggleButton>
+        </Box>
+        <Button
+          style="ctaDarkYellow"
+          css={{ marginLeft: 'auto' }}
+          onClick={() => {
+            props.setShowAddLinkModal(true)
+          }}
+        >
+          Add Link
+        </Button>
+      </HStack>
+      <LibrarySearchBar
+        searchTerm={props.searchTerm}
+        applySearchQuery={props.applySearchQuery}
+      />
+
+      {props.viewer && (
+        <Box
+          css={{
+            display: 'flex',
+            width: '100%',
+            height: '44px',
+            marginTop: '16px',
+            gap: '8px',
+            flexDirection: 'row',
+            overflowY: 'scroll',
+            scrollbarWidth: 'none',
+            '&::-webkit-scrollbar': {
+              display: 'none',
+            },
+          }}
+        >
+          {Object.keys(SAVED_SEARCHES).map((key) => {
+            const isInboxTerm = (term: string) => {
+              return !term || term === 'in:inbox'
+            }
+
+            const searchQuery = SAVED_SEARCHES[key]
+            const style =
+              searchQuery === props.searchTerm ||
+              (!props.searchTerm && isInboxTerm(searchQuery))
+                ? 'ctaDarkYellow'
+                : 'ctaLightGray'
+            return (
+              <Button
+                key={key}
+                style={style}
+                onClick={() => {
+                  props.applySearchQuery(searchQuery)
+                }}
+                css={{
+                  p: '10px 12px',
+                  height: '37.5px',
+                  borderRadius: '6px',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {key}
+              </Button>
+            )
+          })}
+        </Box>
+      )}
+    </>
   )
 }

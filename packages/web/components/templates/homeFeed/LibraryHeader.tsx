@@ -42,6 +42,9 @@ const recentlySavedStartDate = new Date(
 
 const FOCUSED_BOXSHADOW = '0px 0px 2px 2px rgba(255, 234, 159, 0.56)'
 
+const HEADER_HEIGHT = '105px'
+const MOBILE_HEIGHT = '44px'
+
 export function LibraryHeader(props: LibrarySearchBarProps): JSX.Element {
   const [focused, setFocused] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -60,38 +63,51 @@ export function LibraryHeader(props: LibrarySearchBarProps): JSX.Element {
   )
 
   return (
-    <VStack
-      alignment="center"
-      distribution="start"
-      css={{
-        top: '0',
-        left: '0',
-        zIndex: 100,
-        position: 'fixed',
-        width: '100%',
-        height: '105px',
-        bg: 'white',
-        pt: '50px',
-        borderBottom: '1px solid #E1E1E1',
-        '@mdDown': {
-          height: '40px',
-          pt: '0px',
-        },
-      }}
-    >
-      <HStack
+    <>
+      <VStack
         alignment="center"
         distribution="start"
         css={{
+          top: '0',
+          left: '0',
+          zIndex: 100,
+          position: 'fixed',
           width: '100%',
-          height: '100%',
+          height: HEADER_HEIGHT,
+          bg: 'white',
+          pt: '35px',
+          borderBottom: '1px solid #E1E1E1',
+          '@mdDown': {
+            height: MOBILE_HEIGHT,
+            pt: '0px',
+          },
         }}
       >
-        <LogoBox />
-        <SearchBox {...props} />
-        <ControlButtonBox />
-      </HStack>
-    </VStack>
+        <HStack
+          alignment="center"
+          distribution="start"
+          css={{
+            width: '100%',
+            height: '100%',
+          }}
+        >
+          <LogoBox />
+          <SearchBox {...props} />
+          <ControlButtonBox />
+        </HStack>
+      </VStack>
+      {/* This spacer is put in to push library content down 
+      below the fixed header height. */}
+      <Box
+        css={{
+          height: HEADER_HEIGHT,
+          bg: '$grayBase',
+          '@mdDown': {
+            height: MOBILE_HEIGHT,
+          },
+        }}
+      ></Box>
+    </>
   )
 }
 
