@@ -20,14 +20,24 @@ interface PocketItem {
 export class PocketIntegration extends IntegrationService {
   name = 'POCKET'
   POCKET_API_URL = 'https://getpocket.com/v3'
+  headers = {
+    'Content-Type': 'application/json',
+    'X-Accept': 'application/json',
+  }
 
   accessToken = async (token: string): Promise<string | null> => {
     const url = `${this.POCKET_API_URL}/oauth/authorize`
     try {
-      const response = await axios.post<{ access_token: string }>(url, {
-        consumer_key: env.pocket.consumerKey,
-        code: token,
-      })
+      const response = await axios.post<{ access_token: string }>(
+        url,
+        {
+          consumer_key: env.pocket.consumerKey,
+          code: token,
+        },
+        {
+          headers: this.headers,
+        }
+      )
       return response.data.access_token
     } catch (error) {
       console.log('error validating pocket token', error)
@@ -41,13 +51,19 @@ export class PocketIntegration extends IntegrationService {
   ): Promise<PocketResponse> => {
     const url = `${this.POCKET_API_URL}/get`
     try {
-      const response = await axios.post<PocketResponse>(url, {
-        consumer_key: env.pocket.consumerKey,
-        access_token: accessToken,
-        state: 'all',
-        detailType: 'simple',
-        since,
-      })
+      const response = await axios.post<PocketResponse>(
+        url,
+        {
+          consumer_key: env.pocket.consumerKey,
+          access_token: accessToken,
+          state: 'all',
+          detailType: 'simple',
+          since,
+        },
+        {
+          headers: this.headers,
+        }
+      )
       return response.data
     } catch (error) {
       console.log('error retrieving pocket data', error)
