@@ -1,6 +1,7 @@
 import {
   InputHTMLAttributes,
   ReactNode,
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -8,7 +9,7 @@ import {
 import { StyledText } from '../../elements/StyledText'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { SearchIcon } from '../../elements/images/SearchIcon'
-import { theme } from '../../tokens/stitches.config'
+import { theme, ThemeId } from '../../tokens/stitches.config'
 import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
 import { FormInput } from '../../elements/FormElements'
 import { searchBarCommands } from '../../../lib/keyboardShortcuts/navigationShortcuts'
@@ -20,48 +21,25 @@ import { OmnivoreFullLogo } from '../../elements/images/OmnivoreFullLogo'
 import { AvatarDropdown } from '../../elements/AvatarDropdown'
 import { ListSelectorIcon } from '../../elements/images/ListSelectorIcon'
 import { GridSelectorIcon } from '../../elements/images/GridSelectorIcon'
+import { LayoutType } from './HomeFeedContainer'
+import { DropdownMenu, HeaderDropdownAction } from '../../patterns/DropdownMenu'
+import { updateTheme } from '../../../lib/themeUpdater'
+import { useRouter } from 'next/router'
 
-type LibrarySearchBarProps = {
-  searchTerm?: string
+type LibraryHeaderProps = {
+  layout: LayoutType
+  updateLayout: (layout: LayoutType) => void
+
+  searchTerm: string | undefined
   applySearchQuery: (searchQuery: string) => void
 }
-
-type LibraryFilter =
-  | 'in:inbox'
-  | 'in:all'
-  | 'in:archive'
-  | 'type:file'
-  | 'type:highlights'
-  | `saved:${string}`
-  | `sort:read`
-
-// get last week's date
-const recentlySavedStartDate = new Date(
-  new Date().getTime() - 7 * 24 * 60 * 60 * 1000
-).toLocaleDateString('en-US')
 
 const FOCUSED_BOXSHADOW = '0px 0px 2px 2px rgba(255, 234, 159, 0.56)'
 
 const HEADER_HEIGHT = '105px'
-const MOBILE_HEIGHT = '44px'
+const MOBILE_HEIGHT = '48px'
 
-export function LibraryHeader(props: LibrarySearchBarProps): JSX.Element {
-  const [focused, setFocused] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
-  const [searchTerm, setSearchTerm] = useState(props.searchTerm || '')
-
-  useEffect(() => {
-    setSearchTerm(props.searchTerm || '')
-  }, [props.searchTerm])
-
-  useKeyboardShortcuts(
-    searchBarCommands((action) => {
-      if (action === 'focusSearchBar' && inputRef.current) {
-        inputRef.current.select()
-      }
-    })
-  )
-
+export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
   return (
     <>
       <VStack
@@ -93,7 +71,10 @@ export function LibraryHeader(props: LibrarySearchBarProps): JSX.Element {
         >
           <LogoBox />
           <SearchBox {...props} />
-          <ControlButtonBox />
+          <ControlButtonBox
+            layout={props.layout}
+            updateLayout={props.updateLayout}
+          />
         </HStack>
       </VStack>
       {/* This spacer is put in to push library content down 
@@ -111,10 +92,23 @@ export function LibraryHeader(props: LibrarySearchBarProps): JSX.Element {
   )
 }
 
-function SearchBox(props: LibrarySearchBarProps): JSX.Element {
+type SearchBoxProps = {
+  searchTerm: string | undefined
+  applySearchQuery: (searchQuery: string) => void
+}
+
+function SearchBox(props: SearchBoxProps): JSX.Element {
   const inputRef = useRef<HTMLInputElement | null>(null)
   const [focused, setFocused] = useState(false)
-  const [searchTerm, setSearchTerm] = useState('')
+  const [searchTerm, setSearchTerm] = useState(props.searchTerm ?? '')
+
+  useKeyboardShortcuts(
+    searchBarCommands((action) => {
+      if (action === 'focusSearchBar' && inputRef.current) {
+        inputRef.current.select()
+      }
+    })
+  )
 
   return (
     <Box
@@ -128,6 +122,7 @@ function SearchBox(props: LibrarySearchBarProps): JSX.Element {
         '@mdDown': {
           display: 'none',
         },
+        boxShadow: focused ? FOCUSED_BOXSHADOW : 'unset',
       }}
     >
       <HStack
@@ -139,6 +134,10 @@ function SearchBox(props: LibrarySearchBarProps): JSX.Element {
           alignment="center"
           distribution="start"
           css={{ height: '100%', px: '15px' }}
+          onClick={(e) => {
+            inputRef.current?.focus()
+            e.preventDefault()
+          }}
         >
           <MagnifyingGlass
             size={20}
@@ -151,6 +150,7 @@ function SearchBox(props: LibrarySearchBarProps): JSX.Element {
             props.applySearchQuery(searchTerm || '')
             inputRef.current?.blur()
           }}
+          style={{ width: '100%' }}
         >
           <FormInput
             ref={inputRef}
@@ -169,7 +169,7 @@ function SearchBox(props: LibrarySearchBarProps): JSX.Element {
             }}
           />
         </form>
-        {searchTerm ? (
+        {props.searchTerm ? (
           <Button
             style="plainIcon"
             onClick={(event) => {
@@ -206,7 +206,9 @@ function SearchBox(props: LibrarySearchBarProps): JSX.Element {
                 height: '28px',
                 color: '#898989',
               }}
-              // onClick={() => requestAnimationFrame(() => inputRef.current.focus())}
+              onClick={() =>
+                requestAnimationFrame(() => inputRef?.current?.focus())
+              }
               // we can make it unreachable via keyboard as we have the same message for the SR label
               tabIndex={-1}
             >
@@ -240,8 +242,6 @@ function LogoBox(): JSX.Element {
         css={{
           ml: '20px',
           mr: '20px',
-          height: '22px',
-          width: '22px',
           '@md': {
             display: 'none',
           },
@@ -253,7 +253,57 @@ function LogoBox(): JSX.Element {
   )
 }
 
-function ControlButtonBox(): JSX.Element {
+type ControlButtonBoxProps = {
+  layout: LayoutType
+  updateLayout: (layout: LayoutType) => void
+}
+
+function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
+  const router = useRouter()
+
+  const headerDropdownActionHandler = useCallback(
+    (action: HeaderDropdownAction) => {
+      switch (action) {
+        case 'apply-darker-theme':
+          updateTheme(ThemeId.Darker)
+          break
+        case 'apply-dark-theme':
+          updateTheme(ThemeId.Dark)
+          break
+        case 'apply-lighter-theme':
+          updateTheme(ThemeId.Lighter)
+          break
+        case 'apply-light-theme':
+          updateTheme(ThemeId.Light)
+          break
+        case 'navigate-to-install':
+          router.push('/settings/installation')
+          break
+        case 'navigate-to-emails':
+          router.push('/settings/emails')
+          break
+        case 'navigate-to-labels':
+          router.push('/settings/labels')
+          break
+        case 'navigate-to-subscriptions':
+          router.push('/settings/subscriptions')
+          break
+        case 'navigate-to-api':
+          router.push('/settings/api')
+          break
+        case 'navigate-to-integrations':
+          router.push('/settings/integrations')
+          break
+        case 'logout':
+          // props.setShowLogoutConfirmation(true)
+          break
+        default:
+          break
+      }
+    },
+    [updateTheme, router]
+  )
+
   return (
     <>
       <HStack
@@ -271,9 +321,36 @@ function ControlButtonBox(): JSX.Element {
           },
         }}
       >
-        <ListSelectorIcon />
-        <GridSelectorIcon />
-        <AvatarDropdown userInitials="JH" />
+        <Button
+          style="plainIcon"
+          css={{ display: 'flex' }}
+          onClick={(e) => {
+            props.updateLayout('LIST_LAYOUT')
+            e.preventDefault()
+          }}
+        >
+          <ListSelectorIcon
+            color={props.layout == 'GRID_LAYOUT' ? '#6A6968' : '#FFEA9F'}
+          />
+        </Button>
+
+        <Button
+          style="plainIcon"
+          css={{ display: 'flex' }}
+          onClick={(e) => {
+            props.updateLayout('GRID_LAYOUT')
+            e.preventDefault()
+          }}
+        >
+          <GridSelectorIcon
+            color={props.layout == 'LIST_LAYOUT' ? '#6A6968' : '#FFEA9F'}
+          />
+        </Button>
+        <DropdownMenu
+          username={'props.username'}
+          triggerElement={<AvatarDropdown userInitials="JH" />}
+          actionHandler={headerDropdownActionHandler}
+        />
       </HStack>
 
       <HStack

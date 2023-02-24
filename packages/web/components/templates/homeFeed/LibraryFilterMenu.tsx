@@ -2,6 +2,7 @@ import {
   InputHTMLAttributes,
   ReactNode,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react'
@@ -31,8 +32,16 @@ import { useGetSubscriptionsQuery } from '../../../lib/networking/queries/useGet
 import { useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQuery'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { Checkbox } from '@radix-ui/react-checkbox'
+import { LayoutType } from './HomeFeedContainer'
 
-export function LibraryFilterMenu(): JSX.Element {
+type LibraryFilterMenuProps = {
+  setShowAddLinkModal: (show: boolean) => void
+
+  searchTerm: string | undefined
+  applySearchQuery: (searchTerm: string) => void
+}
+
+export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
   return (
     <>
       <Box
@@ -47,11 +56,13 @@ export function LibraryFilterMenu(): JSX.Element {
           pr: '15px',
         }}
       >
-        <SavedSearches />
-        <Subscriptions />
-        <Labels />
+        <SavedSearches {...props} />
+        <Subscriptions {...props} />
+        <Labels {...props} />
 
-        <AddLinkButton />
+        <AddLinkButton
+          showAddLinkModal={() => props.setShowAddLinkModal(true)}
+        />
       </Box>
       {/* This spacer pushes library content to the right of 
       the fixed left side menu. */}
@@ -67,19 +78,45 @@ export function LibraryFilterMenu(): JSX.Element {
   )
 }
 
-function SavedSearches(): JSX.Element {
+function SavedSearches(props: LibraryFilterMenuProps): JSX.Element {
   return (
     <MenuPanel title="Saved Searches">
-      <FilterButton text="Inbox" selected={true} spaced={true} />
-      <FilterButton text="Read Later" selected={false} spaced={true} />
-      <FilterButton text="Today" selected={false} spaced={true} />
-      <FilterButton text="Archived" selected={false} spaced={true} />
+      <FilterButton
+        text="Inbox"
+        filterTerm="in:inbox"
+        spaced={true}
+        {...props}
+      />
+      <FilterButton
+        text="Read Later"
+        filterTerm="in:inbox -label:Newsletter"
+        spaced={true}
+        {...props}
+      />
+      <FilterButton
+        text="Highlights"
+        filterTerm="type:highlights"
+        spaced={true}
+        {...props}
+      />
+      <FilterButton
+        text="Files"
+        filterTerm="type:file"
+        spaced={true}
+        {...props}
+      />
+      <FilterButton
+        text="Archived"
+        filterTerm="in:archive"
+        spaced={true}
+        {...props}
+      />
       <Box css={{ height: '10px' }}></Box>
     </MenuPanel>
   )
 }
 
-function Subscriptions(): JSX.Element {
+function Subscriptions(props: LibraryFilterMenuProps): JSX.Element {
   const { subscriptions } = useGetSubscriptionsQuery()
   const [viewAll, setViewAll] = useState(false)
 
@@ -92,14 +129,21 @@ function Subscriptions(): JSX.Element {
       }}
     >
       {subscriptions.slice(0, viewAll ? undefined : 4).map((item) => {
-        return <FilterButton key={item.id} text={item.name} selected={false} />
+        return (
+          <FilterButton
+            key={item.id}
+            filterTerm={`subscription:\"${item.name}\"`}
+            text={item.name}
+            {...props}
+          />
+        )
       })}
       <ViewAllButton state={viewAll} setState={setViewAll} />
     </MenuPanel>
   )
 }
 
-function Labels(): JSX.Element {
+function Labels(props: LibraryFilterMenuProps): JSX.Element {
   const { labels } = useGetLabelsQuery()
   const [viewAll, setViewAll] = useState(false)
 
@@ -112,7 +156,7 @@ function Labels(): JSX.Element {
       }}
     >
       {labels.slice(0, viewAll ? undefined : 4).map((item) => {
-        return <LabelButton key={item.id} label={item} state="off" />
+        return <LabelButton key={item.id} label={item} {...props} />
       })}
       <ViewAllButton state={viewAll} setState={setViewAll} />
     </MenuPanel>
@@ -185,10 +229,20 @@ function MenuPanel(props: MenuPanelProps): JSX.Element {
 type FilterButtonProps = {
   text: string
   spaced?: boolean
-  selected: boolean
+
+  filterTerm: string
+  searchTerm: string | undefined
+  applySearchQuery: (searchTerm: string) => void
 }
 
 function FilterButton(props: FilterButtonProps): JSX.Element {
+  const selected = useMemo(() => {
+    if (props.filterTerm === '' && !props.searchTerm) {
+      return true
+    }
+    return props.searchTerm === props.filterTerm
+  }, [props.searchTerm, props.filterTerm])
+
   return (
     <Box
       css={{
@@ -197,12 +251,23 @@ function FilterButton(props: FilterButtonProps): JSX.Element {
         mb: props.spaced ? '10px' : '0px',
         width: '100%',
         height: '30px',
-        backgroundColor: props.selected ? '#FFEA9F' : 'unset',
+        backgroundColor: selected ? '#FFEA9F' : 'unset',
         fontSize: '16px',
         fontWeight: 'regular',
         color: '#3D3D3D',
         verticalAlign: 'middle',
         borderRadius: '3px',
+        cursor: 'pointer',
+        '&:hover': {
+          backgroundColor: selected ? '#FFEA9F' : '#EBEBEB',
+        },
+        '&:active': {
+          backgroundColor: '#FFEA9F',
+        },
+      }}
+      onClick={(e) => {
+        props.applySearchQuery(props.filterTerm)
+        e.preventDefault()
       }}
     >
       {props.text}
@@ -212,10 +277,21 @@ function FilterButton(props: FilterButtonProps): JSX.Element {
 
 type LabelButtonProps = {
   label: Label
-  state: 'on' | 'off' | 'unset'
+  searchTerm: string | undefined
+  applySearchQuery: (searchTerm: string) => void
 }
 
 function LabelButton(props: LabelButtonProps): JSX.Element {
+  const state = useMemo(() => {
+    const term = props.searchTerm ?? ''
+    if (term.indexOf(`label:\"${props.label.name}\"`) >= 0) {
+      console.log('returning true for: ', term)
+      return 'on'
+    }
+    console.log('returning off for: ', term)
+    return 'off'
+  }, [props.searchTerm, props.label])
+
   return (
     <HStack
       css={{
@@ -229,6 +305,9 @@ function LabelButton(props: LabelButtonProps): JSX.Element {
         verticalAlign: 'middle',
         borderRadius: '3px',
         m: '0px',
+        '&:hover': {
+          backgroundColor: '#EBEBEB',
+        },
       }}
       alignment="center"
       distribution="start"
@@ -236,13 +315,36 @@ function LabelButton(props: LabelButtonProps): JSX.Element {
       <Circle size={9} color={props.label.color} weight="fill" />
       <SpanBox css={{ pl: '10px' }}>{props.label.name}</SpanBox>
       <SpanBox css={{ ml: 'auto' }}>
-        <input type="checkbox" />
+        <input
+          type="checkbox"
+          checked={state === 'on'}
+          onChange={(e) => {
+            console.log('changing check state')
+            if (e.target.checked) {
+              props.applySearchQuery
+              props.applySearchQuery(
+                `${props.searchTerm} label:\"${props.label.name}\"`
+              )
+            } else {
+              const query =
+                props.searchTerm?.replace(
+                  `label:\"${props.label.name}\"`,
+                  ''
+                ) ?? ''
+              props.applySearchQuery(query)
+            }
+          }}
+        />
       </SpanBox>
     </HStack>
   )
 }
 
-function AddLinkButton(): JSX.Element {
+type AddLinkButtonProps = {
+  showAddLinkModal: () => void
+}
+
+function AddLinkButton(props: AddLinkButtonProps): JSX.Element {
   return (
     <VStack
       css={{
@@ -265,6 +367,10 @@ function AddLinkButton(): JSX.Element {
           display: 'flex',
           alignItems: 'center',
           fontWeight: '600',
+        }}
+        onClick={(e) => {
+          props.showAddLinkModal()
+          e.preventDefault()
         }}
       >
         <Plus size={16} weight="bold" />

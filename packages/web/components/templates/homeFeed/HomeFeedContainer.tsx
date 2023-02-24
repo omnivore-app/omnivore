@@ -578,6 +578,7 @@ export function HomeFeedContainer(): JSX.Element {
       searchTerm={queryInputs.searchQuery}
       gridContainerRef={gridContainerRef}
       applySearchQuery={(searchQuery: string) => {
+        console.log('TOP LEVEL SETTING QUERY INPUTS: ', searchQuery)
         setQueryInputs({
           ...queryInputs,
           searchQuery,
@@ -781,8 +782,13 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
   return (
     <VStack css={{ width: '100%', height: '100%' }}>
       <LibraryHeader
+        layout={layout}
+        updateLayout={updateLayout}
         searchTerm={props.searchTerm}
-        applySearchQuery={props.applySearchQuery}
+        applySearchQuery={(searchQuery: string) => {
+          console.log('searching with searchQuery: ', searchQuery)
+          props.applySearchQuery(searchQuery)
+        }}
       />
       <HStack css={{ width: '100%', height: '100%' }}>
         <SpanBox
@@ -792,7 +798,14 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
             },
           }}
         >
-          <LibraryFilterMenu />
+          <LibraryFilterMenu
+            setShowAddLinkModal={props.setShowAddLinkModal}
+            searchTerm={props.searchTerm}
+            applySearchQuery={(searchQuery: string) => {
+              console.log('searching with searchQuery: ', searchQuery)
+              props.applySearchQuery(searchQuery)
+            }}
+          />
         </SpanBox>
 
         <VStack
