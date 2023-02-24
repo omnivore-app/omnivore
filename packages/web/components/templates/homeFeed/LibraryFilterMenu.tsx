@@ -54,6 +54,7 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
           height: '100%',
           borderRight: '1px solid #E1E1E1',
           pr: '15px',
+          overflow: 'auto',
         }}
       >
         <SavedSearches {...props} />
@@ -346,37 +347,40 @@ type AddLinkButtonProps = {
 
 function AddLinkButton(props: AddLinkButtonProps): JSX.Element {
   return (
-    <VStack
-      css={{
-        position: 'fixed',
-        bottom: '0',
-        width: '233px',
-        height: '80px',
-        pl: '25px',
-      }}
-      distribution="center"
-    >
-      <Button
+    <>
+      <VStack
         css={{
-          height: '40px',
-          p: '15px',
-          pr: '20px',
-          fontSize: '14px',
-          verticalAlign: 'center',
-          color: '#3D3D3D',
-          display: 'flex',
-          alignItems: 'center',
-          fontWeight: '600',
+          position: 'fixed',
+          bottom: '0',
+          width: '233px',
+          height: '80px',
+          pl: '25px',
         }}
-        onClick={(e) => {
-          props.showAddLinkModal()
-          e.preventDefault()
-        }}
+        distribution="center"
       >
-        <Plus size={16} weight="bold" />
-        <SpanBox css={{ width: '10px' }}></SpanBox>Add Link
-      </Button>
-    </VStack>
+        <Button
+          css={{
+            height: '40px',
+            p: '15px',
+            pr: '20px',
+            fontSize: '14px',
+            verticalAlign: 'center',
+            color: '#3D3D3D',
+            display: 'flex',
+            alignItems: 'center',
+            fontWeight: '600',
+          }}
+          onClick={(e) => {
+            props.showAddLinkModal()
+            e.preventDefault()
+          }}
+        >
+          <Plus size={16} weight="bold" />
+          <SpanBox css={{ width: '10px' }}></SpanBox>Add Link
+        </Button>
+      </VStack>
+      <Box css={{ height: '180px ' }} />
+    </>
   )
 }
 

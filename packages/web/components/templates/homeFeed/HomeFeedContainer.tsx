@@ -807,7 +807,6 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
             }}
           />
         </SpanBox>
-
         <VStack
           alignment="center"
           css={{
