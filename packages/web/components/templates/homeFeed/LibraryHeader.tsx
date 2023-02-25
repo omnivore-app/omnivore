@@ -319,7 +319,7 @@ function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
           },
         }}
       >
-        <AvatarDropdown userInitials="JH" />
+        <PrimaryDropdown />
       </HStack>
     </>
   )

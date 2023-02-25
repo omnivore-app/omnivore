@@ -91,24 +91,6 @@ export function ArticleActionsMenu(
           paddingTop: '6px',
         }}
       >
-        {props.showReaderDisplaySettings && (
-          <>
-            <Button
-              style="articleActionIcon"
-              onClick={() =>
-                readerSettings.setShowEditDisplaySettingsModal(true)
-              }
-            >
-              <TooltipWrapped
-                tooltipContent="Adjust Display Settings"
-                tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
-              >
-                <TextAa size={24} color={theme.colors.readerFont.toString()} />
-              </TooltipWrapped>
-            </Button>
-            <MenuSeparator layout={props.layout} />
-          </>
-        )}
         <SpanBox
           css={{
             display: 'flex',

@@ -2,7 +2,11 @@ import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticle
 import { Article } from './../../../components/templates/article/Article'
 import { Box, HStack, SpanBox, VStack } from './../../elements/LayoutPrimitives'
 import { StyledText } from './../../elements/StyledText'
-import { ArticleSubtitle } from './../../patterns/ArticleSubtitle'
+import {
+  ArticleSavedInfo,
+  ArticleSubtitle,
+  ReaderSavedInfo,
+} from './../../patterns/ArticleSubtitle'
 import { theme, ThemeId } from './../../tokens/stitches.config'
 import { HighlightsLayer } from '../../templates/article/HighlightsLayer'
 import { Button } from '../../elements/Button'
@@ -277,6 +281,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         id="article-container"
         css={{
           padding: '16px',
+          paddingTop: '52px',
           maxWidth: `${styles.maxWidthPercentage ?? 100}%`,
           background: props.isAppleAppEmbed
             ? 'unset'
@@ -296,7 +301,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
             '--blockquote-icon-font-size': '1.7rem',
             '--figure-margin': '2.6875rem auto',
             '--hr-margin': '2em',
-            margin: `30px 0px`,
+            margin: `0px 0px`,
           },
           '@md': {
             maxWidth: styles.maxWidthPercentage
@@ -306,6 +311,11 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         }}
       >
         <VStack alignment="start" distribution="start">
+          <ReaderSavedInfo
+            rawDisplayDate={
+              props.article.publishedAt ?? props.article.createdAt
+            }
+          />
           <StyledText
             style="boldHeadline"
             data-testid="article-headline"
@@ -318,9 +328,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
             {props.article.title}
           </StyledText>
           <ArticleSubtitle
-            rawDisplayDate={
-              props.article.publishedAt ?? props.article.createdAt
-            }
             author={props.article.author}
             href={props.article.url}
           />

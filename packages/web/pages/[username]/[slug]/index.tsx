@@ -38,6 +38,7 @@ import { useRegisterActions } from 'kbar'
 import { deleteLinkMutation } from '../../../lib/networking/mutations/deleteLinkMutation'
 import { ConfirmationModal } from '../../../components/patterns/ConfirmationModal'
 import { setLabelsMutation } from '../../../lib/networking/mutations/setLabelsMutation'
+import { ReaderHeader } from '../../../components/templates/reader/ReaderHeader'
 
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
   () => import('./../../../components/templates/article/PdfArticleContainer'),
@@ -290,6 +291,8 @@ export default function Home(): JSX.Element {
         src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
       />
       <Toaster />
+
+      <ReaderHeader />
 
       <VStack
         distribution="between"
