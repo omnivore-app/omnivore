@@ -1,6 +1,12 @@
 import { PageMetaData, PageMetaDataProps } from '../patterns/PageMetaData'
 import { Box } from '../elements/LayoutPrimitives'
-import { ReactNode, MutableRefObject, useEffect, useState } from 'react'
+import {
+  ReactNode,
+  MutableRefObject,
+  useEffect,
+  useState,
+  useCallback,
+} from 'react'
 import { PrimaryHeader } from './../patterns/PrimaryHeader'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
 import { navigationCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
@@ -64,6 +70,18 @@ export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
       router.push('/')
     }
   }
+
+  const showLogout = useCallback(() => {
+    setShowLogoutConfirmation(true)
+  }, [showLogoutConfirmation, setShowLogoutConfirmation, logoutMutation])
+
+  useEffect(() => {
+    document.addEventListener('logout', showLogout)
+
+    return () => {
+      document.removeEventListener('logout', showLogout)
+    }
+  }, [showLogout])
 
   return (
     <>

@@ -25,6 +25,7 @@ import { LayoutType } from './HomeFeedContainer'
 import { DropdownMenu, HeaderDropdownAction } from '../../patterns/DropdownMenu'
 import { updateTheme } from '../../../lib/themeUpdater'
 import { useRouter } from 'next/router'
+import { PrimaryDropdown } from '../PrimaryDropdown'
 
 type LibraryHeaderProps = {
   layout: LayoutType
@@ -259,51 +260,6 @@ type ControlButtonBoxProps = {
 }
 
 function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
-  const router = useRouter()
-
-  const headerDropdownActionHandler = useCallback(
-    (action: HeaderDropdownAction) => {
-      switch (action) {
-        case 'apply-darker-theme':
-          updateTheme(ThemeId.Darker)
-          break
-        case 'apply-dark-theme':
-          updateTheme(ThemeId.Dark)
-          break
-        case 'apply-lighter-theme':
-          updateTheme(ThemeId.Lighter)
-          break
-        case 'apply-light-theme':
-          updateTheme(ThemeId.Light)
-          break
-        case 'navigate-to-install':
-          router.push('/settings/installation')
-          break
-        case 'navigate-to-emails':
-          router.push('/settings/emails')
-          break
-        case 'navigate-to-labels':
-          router.push('/settings/labels')
-          break
-        case 'navigate-to-subscriptions':
-          router.push('/settings/subscriptions')
-          break
-        case 'navigate-to-api':
-          router.push('/settings/api')
-          break
-        case 'navigate-to-integrations':
-          router.push('/settings/integrations')
-          break
-        case 'logout':
-          // props.setShowLogoutConfirmation(true)
-          break
-        default:
-          break
-      }
-    },
-    [updateTheme, router]
-  )
-
   return (
     <>
       <HStack
@@ -346,11 +302,7 @@ function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
             color={props.layout == 'LIST_LAYOUT' ? '#6A6968' : '#FFEA9F'}
           />
         </Button>
-        <DropdownMenu
-          username={'props.username'}
-          triggerElement={<AvatarDropdown userInitials="JH" />}
-          actionHandler={headerDropdownActionHandler}
-        />
+        <PrimaryDropdown />
       </HStack>
 
       <HStack
