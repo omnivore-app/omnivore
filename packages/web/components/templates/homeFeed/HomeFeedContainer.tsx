@@ -1025,16 +1025,6 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
             )}
           </Dropzone>
         </VStack>
-        {/* Temporary code */}
-        {/* <div>
-        <strong>Files:</strong>
-        <ul>
-          {uploadingFiles.map((fileName) => (
-            <li key={fileName}>{fileName}</li>
-          ))}
-        </ul>
-      </div> */}
-        {/* Temporary code */}
         {props.showAddLinkModal && (
           <AddLinkModal onOpenChange={() => props.setShowAddLinkModal(false)} />
         )}

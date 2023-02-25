@@ -27,34 +27,6 @@ export function PrimaryHeader(props: HeaderProps): JSX.Element {
   const router = useRouter()
   const [isScrolled, setIsScrolled] = useState(false)
 
-  useKeyboardShortcuts(
-    primaryCommands((action) => {
-      switch (action) {
-        // case 'themeDarker':
-        //   darkenTheme()
-        //   break
-        // case 'themeLighter':
-        //   lightenTheme()
-        //   break
-        case 'toggleShortcutHelpModalDisplay':
-          props.setShowKeyboardCommandsModal(true)
-          break
-      }
-    })
-  )
-
-  const initAnalytics = useCallback(() => {
-    setupAnalytics(props.user)
-  }, [props.user])
-
-  useEffect(() => {
-    initAnalytics()
-    window.addEventListener('load', initAnalytics)
-    return () => {
-      window.removeEventListener('load', initAnalytics)
-    }
-  }, [initAnalytics])
-
   function headerDropdownActionHandler(action: HeaderDropdownAction): void {
     switch (action) {
       case 'apply-darker-theme':
@@ -108,12 +80,14 @@ export function PrimaryHeader(props: HeaderProps): JSX.Element {
 
   return (
     <>
-      <SpanBox css={{
-        display: props.alwaysDisplayToolbar ? 'none' : 'flex',
-        '@lgDown': {
-          display: 'none',
-        }
-      }}>
+      <SpanBox
+        css={{
+          display: props.alwaysDisplayToolbar ? 'none' : 'flex',
+          '@lgDown': {
+            display: 'none',
+          },
+        }}
+      >
         <FloatingNavHeader
           {...props}
           isVisible={true}
@@ -124,11 +98,13 @@ export function PrimaryHeader(props: HeaderProps): JSX.Element {
           alwaysDisplayToolbar={props.alwaysDisplayToolbar}
         />
       </SpanBox>
-      <SpanBox css={{
-        '@lg': {
-          display: props.alwaysDisplayToolbar ? 'flex' : 'none',
-        }
-      }}>
+      <SpanBox
+        css={{
+          '@lg': {
+            display: props.alwaysDisplayToolbar ? 'flex' : 'none',
+          },
+        }}
+      >
         <NavHeader
           {...props}
           isVisible={true}
@@ -241,7 +217,7 @@ function FloatingNavHeader(props: NavHeaderProps): JSX.Element {
             position: 'fixed',
             display: 'flex',
             alignItems: 'center',
-            zIndex: 100,
+            zIndex: 5,
           }}
         >
           <OmnivoreNameLogo href={props.username ? '/home' : '/login'} />
@@ -256,7 +232,7 @@ function FloatingNavHeader(props: NavHeaderProps): JSX.Element {
             right: '18px',
             position: 'fixed',
             display: 'flex',
-            alignItems: 'center'
+            alignItems: 'center',
           }}
         >
           <DropdownMenu
@@ -274,4 +250,3 @@ function FloatingNavHeader(props: NavHeaderProps): JSX.Element {
     </>
   )
 }
-

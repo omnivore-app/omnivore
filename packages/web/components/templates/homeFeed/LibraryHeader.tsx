@@ -48,7 +48,7 @@ export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
         css={{
           top: '0',
           left: '0',
-          zIndex: 100,
+          zIndex: 5,
           position: 'fixed',
           width: '100%',
           height: HEADER_HEIGHT,
