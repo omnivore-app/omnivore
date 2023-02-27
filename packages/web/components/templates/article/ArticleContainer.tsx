@@ -404,18 +404,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           onOpenChange={(open: boolean) => setShowReportIssuesModal(open)}
         />
       ) : null}
-      {/* {showShareModal && (
-        <ShareArticleModal
-          url={`${webBaseURL}/${props.viewerUsername}/${props.article.slug}/highlights?r=true`}
-          title={props.article.title}
-          imageURL={props.article.image}
-          author={props.article.author}
-          publishedAt={props.article.publishedAt ?? props.article.createdAt}
-          description={props.article.description}
-          originalArticleUrl={props.article.originalArticleUrl}
-          onOpenChange={(open: boolean) => setShowShareModal(open)}
-        />
-      )} */}
     </>
   )
 }

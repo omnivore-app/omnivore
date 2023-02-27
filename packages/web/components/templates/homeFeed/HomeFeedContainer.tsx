@@ -26,8 +26,6 @@ import {
   searchBarCommands,
 } from '../../../lib/keyboardShortcuts/navigationShortcuts'
 import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
-import { ShareArticleModal } from '../article/ShareArticleModal'
-import { webBaseURL } from '../../../lib/appConfig'
 import { Toaster } from 'react-hot-toast'
 import { SnoozeLinkModal } from '../article/SnoozeLinkModal'
 import {
@@ -105,10 +103,6 @@ export function HomeFeedContainer(): JSX.Element {
   }
 
   const gridContainerRef = useRef<HTMLDivElement>(null)
-
-  const [shareTarget, setShareTarget] = useState<LibraryItem | undefined>(
-    undefined
-  )
 
   const [snoozeTarget, setSnoozeTarget] = useState<LibraryItem | undefined>(
     undefined
@@ -365,19 +359,11 @@ export function HomeFeedContainer(): JSX.Element {
     return (
       labelsTarget ||
       snoozeTarget ||
-      shareTarget ||
       linkToEdit ||
       linkToRemove ||
       linkToUnsubscribe
     )
-  }, [
-    labelsTarget,
-    snoozeTarget,
-    shareTarget,
-    linkToEdit,
-    linkToRemove,
-    linkToUnsubscribe,
-  ])
+  }, [labelsTarget, snoozeTarget, linkToEdit, linkToRemove, linkToUnsubscribe])
 
   useKeyboardShortcuts(
     libraryListCommands((action) => {
@@ -603,8 +589,6 @@ export function HomeFeedContainer(): JSX.Element {
       hasData={!!itemsPages}
       totalItems={itemsPages?.[0].search.pageInfo.totalCount || 0}
       isValidating={isValidating}
-      shareTarget={shareTarget}
-      setShareTarget={setShareTarget}
       snoozeTarget={snoozeTarget}
       setSnoozeTarget={setSnoozeTarget}
       labelsTarget={labelsTarget}
@@ -637,8 +621,6 @@ type HomeFeedContentProps = {
   totalItems: number
   isValidating: boolean
   loadMore: () => void
-  shareTarget: LibraryItem | undefined
-  setShareTarget: (target: LibraryItem | undefined) => void
   snoozeTarget: LibraryItem | undefined
   setSnoozeTarget: (target: LibraryItem | undefined) => void
   labelsTarget: LibraryItem | undefined
@@ -1035,29 +1017,6 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
             }
             onOpenChange={() => props.setShowEditTitleModal(false)}
             item={props.linkToEdit as LibraryItem}
-          />
-        )}
-        {props.shareTarget && viewerData?.me?.profile.username && (
-          <ShareArticleModal
-            url={`${webBaseURL}${viewerData?.me?.profile.username}/${props.shareTarget.node.slug}/highlights?r=true`}
-            title={props.shareTarget.node.title}
-            imageURL={props.shareTarget.node.image}
-            author={props.shareTarget.node.author}
-            publishedAt={
-              props.shareTarget.node.publishedAt ??
-              props.shareTarget.node.createdAt
-            }
-            description={props.shareTarget.node.description}
-            originalArticleUrl={props.shareTarget.node.originalArticleUrl}
-            onOpenChange={() => {
-              if (props.shareTarget) {
-                const item = document.getElementById(props.shareTarget.node.id)
-                if (item) {
-                  item.focus()
-                }
-                props.setShareTarget(undefined)
-              }
-            }}
           />
         )}
         {props.snoozeTarget && (

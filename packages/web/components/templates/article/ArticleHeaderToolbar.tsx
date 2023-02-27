@@ -15,34 +15,11 @@ type ArticleHeaderToolbarProps = {
   articleShareURL: string
   hasHighlights: boolean
   setShowHighlightsModal: React.Dispatch<React.SetStateAction<boolean>>
-  setShowShareArticleModal: (showShareModal: boolean) => void
 }
 
 export function ArticleHeaderToolbar(
   props: ArticleHeaderToolbarProps
 ): JSX.Element {
-  const enablePostAction = false // disable for now
-  const { copyLink, isLinkCopied } = useCopyLink(props.articleShareURL, 'link')
-  const canShareNative = useCanShareNative()
-
-  const shareAction = useCallback(() => {
-    if (canShareNative) {
-      navigator
-        ?.share({
-          title: props.articleTitle,
-          url: props.articleShareURL,
-        })
-        .then(() => {
-          return
-        })
-        .catch(() => {
-          return
-        })
-    } else {
-      props.setShowShareArticleModal(true)
-    }
-  }, [props, canShareNative])
-
   return (
     <HStack distribution="between" alignment="center" css={{ gap: '$2' }}>
       {props.hasHighlights && (
