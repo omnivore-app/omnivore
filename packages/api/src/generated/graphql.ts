@@ -954,7 +954,7 @@ export type ImportFromIntegrationResult = ImportFromIntegrationError | ImportFro
 
 export type ImportFromIntegrationSuccess = {
   __typename?: 'ImportFromIntegrationSuccess';
-  count: Scalars['Int'];
+  success: Scalars['Boolean'];
 };
 
 export type Integration = {
@@ -4807,7 +4807,7 @@ export type ImportFromIntegrationResultResolvers<ContextType = ResolverContext, 
 };
 
 export type ImportFromIntegrationSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ImportFromIntegrationSuccess'] = ResolversParentTypes['ImportFromIntegrationSuccess']> = {
-  count?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 

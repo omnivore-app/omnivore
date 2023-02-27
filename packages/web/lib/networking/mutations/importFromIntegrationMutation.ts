@@ -5,7 +5,7 @@ interface ImportFromIntegrationDataResponseData {
 }
 
 interface ImportFromIntegrationData {
-  count: number
+  success: boolean
   errorCodes?: unknown[]
 }
 
@@ -19,7 +19,7 @@ export async function importFromIntegrationMutation(
           errorCodes
         }
         ... on ImportFromIntegrationSuccess {
-          count
+          success
         }
       }
     }`
