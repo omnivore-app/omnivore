@@ -10,6 +10,9 @@ import { getRepository } from '../../entity/utils'
 import { syncWithIntegration } from '../../services/integrations'
 import { buildLogger } from '../../utils/logger'
 import { DateFilter } from '../../utils/search'
+import { DateTime } from 'luxon'
+import { createGCSFile } from '../../utils/uploads'
+import { v4 as uuidv4 } from 'uuid'
 
 export interface Message {
   type?: EntityType
@@ -18,6 +21,14 @@ export interface Message {
   pageId?: string
   articleId?: string
 }
+
+interface ImportEvent {
+  userId: string
+  integrationId: string
+}
+
+const isImportEvent = (event: any): event is ImportEvent =>
+  'userId' in event && 'integrationId' in event
 
 const logger = buildLogger('app.dispatch')
 
@@ -156,6 +167,94 @@ export function integrationsServiceRouter() {
     } catch (err) {
       logger.error('sync with integrations failed', err)
       res.status(500).send(err)
+    }
+  })
+  // import pages from integration
+  router.post('/import', async (req, res) => {
+    logger.info('start to import pages from integration')
+    const { message: msgStr, expired } = readPushSubscription(req)
+
+    if (!msgStr) {
+      return res.status(400).send('Bad Request')
+    }
+
+    if (expired) {
+      logger.info('discarding expired message')
+      return res.status(200).send('Expired')
+    }
+
+    const data = JSON.parse(msgStr)
+    if (!isImportEvent(data)) {
+      logger.info('Invalid message')
+      return res.status(400).send('Bad Request')
+    }
+
+    const userId = data.userId
+    const integration = await getRepository(Integration).findOneBy({
+      user: { id: userId },
+      id: data.integrationId,
+      enabled: true,
+      type: IntegrationType.Import,
+    })
+    if (!integration) {
+      logger.info('No active integration found for user', { userId })
+      return res.status(200).send('No integration found')
+    }
+
+    const integrationService = getIntegrationService(integration.name)
+    // import pages from integration
+    logger.info('importing pages from integration', {
+      integrationId: integration.id,
+    })
+
+    // write the list of urls to a csv file and upload it to gcs
+    // path style: imports/<uid>/<date>/<type>-<uuid>.csv
+    const dateStr = DateTime.now().toISODate()
+    const fileUuid = uuidv4()
+    const fullPath = `imports/${integration.user.id}/${dateStr}/URL_LIST-${fileUuid}.csv`
+    // open a write_stream to the file
+    const file = createGCSFile(fullPath)
+    const writeStream = file.createWriteStream({
+      contentType: 'text/csv',
+    })
+
+    try {
+      let hasMore = true
+      let offset = 0
+      let since = integration.syncedAt?.getTime() || 0
+      while (hasMore) {
+        // get pages from integration
+        const retrieved = await integrationService.retrieve({
+          token: integration.token,
+          since,
+          offset: offset,
+        })
+        const retrievedData = retrieved.data
+        if (retrievedData.length === 0) {
+          break
+        }
+        // write the list of urls, state and labels to the stream
+        const csvData = retrievedData.map((page) => {
+          const { url, state, labels } = page
+          return [url, state, labels?.join(',')].join(',')
+        })
+        writeStream.write(csvData.join('\n'))
+
+        hasMore = !!retrieved.hasMore
+        offset += retrievedData.length
+        since = retrieved.since || Date.now()
+      }
+      // update the integration's syncedAt
+      await getRepository(Integration).update(integration.id, {
+        syncedAt: since,
+      })
+
+      res.status(200).send('OK')
+    } catch (err) {
+      logger.error('import pages from integration failed', err)
+      res.status(500).send(err)
+    } finally {
+      writeStream.end()
     }
   })
 

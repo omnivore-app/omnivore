@@ -2,6 +2,7 @@ import {
   IntegrationService,
   RetrievedDataState,
   RetrievedResult,
+  RetrieveRequest,
 } from './integration'
 import axios from 'axios'
 import { env } from '../../env'
@@ -109,18 +110,15 @@ export class PocketIntegration extends IntegrationService {
     }
   }
 
-  retrieve = async (
-    token: string,
+  retrieve = async ({
+    token,
     since = 0,
     count = 100,
-    offset = 0
-  ): Promise<RetrievedResult> => {
-    // const syncAt = integration.syncedAt
-    //   ? integration.syncedAt.getTime() / 1000
-    //   : 0
+    offset = 0,
+  }: RetrieveRequest): Promise<RetrievedResult> => {
     const pocketData = await this.retrievePocketData(
       token,
-      since,
+      since / 1000,
       count,
       offset
     )
@@ -138,19 +136,7 @@ export class PocketIntegration extends IntegrationService {
     return {
       data,
       hasMore: pocketData.complete !== 1,
+      since: pocketData.since * 1000,
     }
-    // // write the list of urls to a csv file and upload it to gcs
-    // // path style: imports/<uid>/<date>/<type>-<uuid>.csv
-    // const dateStr = DateTime.now().toISODate()
-    // const fileUuid = uuidv4()
-    // const fullPath = `imports/${integration.user.id}/${dateStr}/URL_LIST-${fileUuid}.csv`
-    // const data = pocketItems.map((item) => item.given_url).join('\n')
-    // await uploadToBucket(fullPath, Buffer.from(data, 'utf-8'), {
-    //   contentType: 'text/csv',
-    // })
-    // // update the integration's syncedAt
-    // await getRepository(Integration).update(integration.id, {
-    //   syncedAt: new Date(),
-    // })
   }
 }
