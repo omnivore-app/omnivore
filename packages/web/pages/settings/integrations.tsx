@@ -129,7 +129,10 @@ export default function Integrations(): JSX.Element {
       }
     }
     if (!router.isReady) return
-    if (router.query.state == 'pocketAuthorizationFinished') {
+    if (
+      router.query.state == 'pocketAuthorizationFinished' &&
+      !pocketConnected
+    ) {
       connectToPocket()
     }
   }, [router])

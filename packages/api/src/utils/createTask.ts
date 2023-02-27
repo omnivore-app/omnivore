@@ -441,4 +441,37 @@ export const enqueueRecommendation = async (
   return createdTasks[0].name
 }
 
+export const enqueueImportFromIntegration = async (
+  userId: string,
+  integrationId: string
+): Promise<string> => {
+  const { GOOGLE_CLOUD_PROJECT } = process.env
+  // use pubsub data format to send the userId to the task handler
+  const payload = {
+    userId,
+    integrationId,
+  }
+
+  // If there is no Google Cloud Project Id exposed, it means that we are in local environment
+  if (env.dev.isLocal || !GOOGLE_CLOUD_PROJECT) {
+    return nanoid()
+  }
+
+  const createdTasks = await createHttpTaskWithToken({
+    project: GOOGLE_CLOUD_PROJECT,
+    payload,
+    taskHandlerUrl: `${env.queue.integrationTaskHandlerUrl}/import`,
+    priority: 'low',
+  })
+
+  if (!createdTasks || !createdTasks[0].name) {
+    logger.error(`Unable to get the name of the task`, {
+      payload,
+      createdTasks,
+    })
+    throw new CreateTaskError(`Unable to get the name of the task`)
+  }
+  return createdTasks[0].name
+}
+
 export default createHttpTaskWithToken

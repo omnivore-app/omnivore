@@ -22,7 +22,11 @@ import { Integration, IntegrationType } from '../../entity/integration'
 import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
 import { getIntegrationService } from '../../services/integrations'
-import { deleteTask, enqueueSyncWithIntegration } from '../../utils/createTask'
+import {
+  deleteTask,
+  enqueueImportFromIntegration,
+  enqueueSyncWithIntegration,
+} from '../../utils/createTask'
 
 export const setIntegrationResolver = authorized<
   SetIntegrationSuccess,
@@ -239,8 +243,8 @@ export const importFromIntegrationResolver = authorized<
       }
     }
 
-    const integrationService = getIntegrationService(integration.name)
-    const count = await integrationService.import(integration)
+    // create a task to import all the pages
+    await enqueueImportFromIntegration(uid, integration.id)
 
     analytics.track({
       userId: uid,
@@ -251,7 +255,7 @@ export const importFromIntegrationResolver = authorized<
     })
 
     return {
-      count,
+      success: true,
     }
   } catch (error) {
     log.error(error)
