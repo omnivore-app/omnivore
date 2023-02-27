@@ -392,8 +392,6 @@ export function useGetLibraryItemsQuery({
     }
   }
 
-  console.log('responsePages', responsePages)
-
   return {
     isValidating,
     itemsPages: responsePages || undefined,

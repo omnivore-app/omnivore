@@ -236,6 +236,9 @@ function FilterButton(props: FilterButtonProps): JSX.Element {
         verticalAlign: 'middle',
         borderRadius: '3px',
         cursor: 'pointer',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
         '&:hover': {
           backgroundColor: selected ? '#FFEA9F' : '#EBEBEB',
         },
