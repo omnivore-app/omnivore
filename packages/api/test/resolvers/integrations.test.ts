@@ -9,8 +9,6 @@ import { Integration } from '../../src/entity/integration'
 import nock from 'nock'
 import { READWISE_API_URL } from '../../src/services/integrations/readwise'
 import sinonChai from 'sinon-chai'
-import sinon from 'sinon'
-import * as uploads from '../../src/utils/uploads'
 
 chai.use(sinonChai)
 
@@ -357,7 +355,7 @@ describe('Integrations resolvers', () => {
     })
   })
 
-  xdescribe('importFromIntegration API', () => {
+  describe('importFromIntegration API', () => {
     const query = (integrationId: string) => `
       mutation {
         importFromIntegration(integrationId: "${integrationId}") {
@@ -380,56 +378,59 @@ describe('Integrations resolvers', () => {
           token: 'fakeToken',
         })
 
-        nock('https://getpocket.com', {
-          reqheaders: {
-            'content-type': 'application/json',
-          },
-        })
-          .post('/v3/get', {
-            access_token: existingIntegration.token,
-            consumer_key: '',
-            state: 'all',
-            detailType: 'complete',
-            since: 0,
-            sort: 'oldest',
-            count: 100,
-            offset: 0,
-          })
-          .reply(200, {
-            list: {
-              '123': {
-                given_url: 'https://omnivore.app/pocket-import-test',
-              },
-            },
-          })
-
-        sinon.replace(uploads, 'uploadToBucket', () => {
-          return Promise.resolve()
-        })
+        // nock('https://getpocket.com', {
+        //   reqheaders: {
+        //     'content-type': 'application/json',
+        //   },
+        // })
+        //   .post('/v3/get', {
+        //     access_token: existingIntegration.token,
+        //     consumer_key: '',
+        //     state: 'all',
+        //     detailType: 'complete',
+        //     since: 0,
+        //     sort: 'oldest',
+        //     count: 100,
+        //     offset: 0,
+        //   })
+        //   .reply(200, {
+        //     list: {
+        //       '123': {
+        //         given_url: 'https://omnivore.app/pocket-import-test',
+        //       },
+        //     },
+        //   })
+        //
+        // sinon.replace(uploads, 'uploadToBucket', () => {
+        //   return Promise.resolve()
+        // })
       })
 
       after(async () => {
         await deleteTestIntegrations(loginUser.id, [existingIntegration.id])
-        sinon.restore()
+        // sinon.restore()
       })
 
-      it('returns count and updates syncAt', async () => {
+      it('returns success and starts cloud task', async () => {
         const res = await graphqlRequest(
           query(existingIntegration.id),
           authToken
-        )
-        expect(res.body.data.importFromIntegration.count).to.eql(1)
+        ).expect(200)
+        expect(res.body.data.importFromIntegration.success).to.be.true
         const integration = await getRepository(Integration).findOneBy({
           id: existingIntegration.id,
         })
-        expect(integration?.syncedAt).not.to.be.null
+        expect(integration?.taskName).not.to.be.null
       })
     })
 
     context('when integration does not exist', () => {
       it('returns error', async () => {
         const invalidIntegrationId = generateFakeUuid()
-        const res = await graphqlRequest(query(invalidIntegrationId), authToken)
+        const res = await graphqlRequest(
+          query(invalidIntegrationId),
+          authToken
+        ).expect(200)
         expect(res.body.data.importFromIntegration.errorCodes).to.eql([
           'UNAUTHORIZED',
         ])
