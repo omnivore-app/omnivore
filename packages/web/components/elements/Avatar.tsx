@@ -19,10 +19,6 @@ export function Avatar(props: AvatarProps): JSX.Element {
         borderRadius: '50%',
       }}
     >
-      <StyledImage
-        src={props.imageURL}
-        css={{ opacity: props.noFade ? 'unset' : '48%' }}
-      />
       <StyledFallback>{props.fallbackText}</StyledFallback>
     </StyledAvatar>
   )
@@ -35,17 +31,6 @@ const StyledAvatar = styled(Root, {
   verticalAlign: 'middle',
   overflow: 'hidden',
   userSelect: 'none',
-  border: '1px solid $grayBorder',
-})
-
-const StyledImage = styled(Image, {
-  width: '100%',
-  height: '100%',
-  objectFit: 'cover',
-
-  '&:hover': {
-    opacity: '100%',
-  },
 })
 
 const StyledFallback = styled(Fallback, {
@@ -54,8 +39,9 @@ const StyledFallback = styled(Fallback, {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  fontSize: '$2',
-  fontWeight: 700,
-  backgroundColor: '$avatarBg',
+  fontSize: '15px',
+  fontWeight: 600,
+  fontFamily: 'Inter',
   color: '$avatarFont',
+  backgroundColor: '$avatarBg',
 })

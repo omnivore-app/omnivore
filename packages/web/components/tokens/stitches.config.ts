@@ -155,8 +155,8 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         readerTableHeader: '#FFFFFF',
 
         // Avatar Fallback color
-        avatarBg: '#FFFFFF',
-        avatarFont: '#0A0806',
+        avatarBg: '#FFEA9F',
+        avatarFont: '#9C7C0A',
 
         labelButtonsBg: '#F5F5F4',
         tooltipIcons: '#FDFAEC',
@@ -217,8 +217,8 @@ const darkThemeSpec = {
     readerHeader: '#b9b9b9',
     readerTableHeader: '#FFFFFF',
     tooltipIcons: '#5F5E58',
-    avatarBg: '#000000',
-    avatarFont: 'rgba(255, 255, 255, 0.8)',
+    avatarBg: '#7B5C3E',
+    avatarFont: '#D9D9D9',
 
     textSubtle: '#AAAAAA',
     libraryBackground: '#252525',
