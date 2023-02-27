@@ -1,5 +1,6 @@
 package app.omnivore.omnivore.persistence.entities
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
 
 @Entity
@@ -16,6 +17,10 @@ data class SavedItemLabel(
 interface SavedItemLabelDao {
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   fun insertAll(items: List<SavedItemLabel>)
+
+  @Transaction
+  @Query("SELECT * FROM SavedItemLabel WHERE serverSyncStatus != 2 ORDER BY name ASC")
+  fun getSavedItemLabelsLiveData(): LiveData<List<SavedItemLabel>>
 }
 
 @Entity(

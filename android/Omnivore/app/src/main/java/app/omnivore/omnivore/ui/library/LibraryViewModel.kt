@@ -1,13 +1,9 @@
 package app.omnivore.omnivore.ui.library
 
 import android.util.Log
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -15,9 +11,8 @@ import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.*
 import app.omnivore.omnivore.dataService.*
 import app.omnivore.omnivore.networking.*
-import app.omnivore.omnivore.persistence.entities.SavedItem
 import app.omnivore.omnivore.persistence.entities.SavedItemCardDataWithLabels
-import app.omnivore.omnivore.ui.reader.WebFont
+import app.omnivore.omnivore.persistence.entities.SavedItemLabel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import java.time.Instant
@@ -44,10 +39,13 @@ class LibraryViewModel @Inject constructor(
   val appliedFilterLiveData = MutableLiveData(SavedItemFilter.INBOX)
   val appliedSortFilterLiveData = MutableLiveData(SavedItemSortFilter.NEWEST)
   val showLabelsSelectionSheetLiveData = MutableLiveData(false)
+  val savedItemLabelsLiveData = dataService.db.savedItemLabelDao().getSavedItemLabelsLiveData()
 
   var isRefreshing by mutableStateOf(false)
   var showSearchField by mutableStateOf(false)
   var hasLoadedInitialFilters = false
+
+  var activeLabelsLiveData = MutableLiveData<List<SavedItemLabel>>(listOf())
 
   fun loadInitialFilterValues() {
     if (hasLoadedInitialFilters) { return }

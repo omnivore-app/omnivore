@@ -2,6 +2,7 @@ package app.omnivore.omnivore.ui.library
 
 import android.content.Intent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -9,6 +10,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
@@ -17,13 +20,15 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
 import app.omnivore.omnivore.Routes
 import app.omnivore.omnivore.persistence.entities.SavedItemCardDataWithLabels
+import app.omnivore.omnivore.persistence.entities.SavedItemLabel
+import app.omnivore.omnivore.ui.components.LabelChipColors
 import app.omnivore.omnivore.ui.savedItemViews.SavedItemCard
 import app.omnivore.omnivore.ui.reader.PDFReaderActivity
 import app.omnivore.omnivore.ui.reader.WebReaderLoadingContainerActivity
@@ -142,25 +147,93 @@ fun InfiniteListHandler(
   }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LabelsSelectionSheet(viewModel: LibraryViewModel) {
+  val listState = rememberLazyListState()
   val isActive: Boolean by viewModel.showLabelsSelectionSheetLiveData.observeAsState(false)
+  val labels: List<SavedItemLabel> by viewModel.savedItemLabelsLiveData.observeAsState(listOf())
+  val selectedLabels = remember { mutableStateOf(viewModel.activeLabelsLiveData.value) }
 
   if (isActive) {
     Dialog(onDismissRequest = { viewModel.showLabelsSelectionSheetLiveData.value = false } ) {
       Surface(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+          .fillMaxSize()
+          .background(MaterialTheme.colorScheme.background),
         shape = RoundedCornerShape(16.dp)
       ) {
-        Box(
-          contentAlignment = Alignment.Center
+        LazyColumn(
+          state = listState,
+          verticalArrangement = Arrangement.Top,
+          horizontalAlignment = Alignment.CenterHorizontally,
+          modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 6.dp)
         ) {
-          Text(modifier = Modifier.align(Alignment.TopCenter),
-            text = "top")
-          Text("center")
-          Text(
-            modifier = Modifier.align(Alignment.BottomCenter),
-            text = "bottom")
+          item {
+            Row(
+              horizontalArrangement = Arrangement.SpaceBetween,
+              verticalAlignment = Alignment.CenterVertically,
+              modifier = Modifier
+                .fillMaxWidth()
+            ) {
+              TextButton(onClick = { viewModel.showLabelsSelectionSheetLiveData.value = false }) {
+                Text(text = "Cancel")
+              }
+
+              Text("Filter by Label", fontWeight = FontWeight.ExtraBold)
+
+              TextButton(
+                onClick = {
+                  selectedLabels.value?.let {
+                    viewModel.activeLabelsLiveData.value = it
+                  }
+                  viewModel.showLabelsSelectionSheetLiveData.value = false
+                }
+              ) {
+                Text(text = "Done")
+              }
+            }
+          }
+          items(labels) { label ->
+            val isLabelSelected = (selectedLabels.value ?: listOf()).contains(label)
+
+            Row(
+              horizontalArrangement = Arrangement.SpaceBetween,
+              verticalAlignment = Alignment.CenterVertically,
+              modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                  if (isLabelSelected) {
+                    selectedLabels.value = (selectedLabels.value ?: listOf()).filter { it.savedItemLabelId != label.savedItemLabelId }
+                  } else {
+                    selectedLabels.value = (selectedLabels.value ?: listOf()) + listOf(label)
+                  }
+                }
+                .padding(horizontal = 6.dp)
+            ) {
+              val chipColors = LabelChipColors.fromHex(label.color)
+
+              SuggestionChip(
+                onClick = {},
+                label = { Text(label.name) },
+                border = null,
+                colors = SuggestionChipDefaults.elevatedSuggestionChipColors(
+                  containerColor = chipColors.containerColor,
+                  labelColor = chipColors.textColor,
+                  iconContentColor = chipColors.textColor
+                )
+              )
+              if (isLabelSelected) {
+                Icon(
+                  imageVector = Icons.Default.Check,
+                  contentDescription = null
+                )
+              }
+            }
+            Divider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 1.dp)
+          }
         }
       }
     }
