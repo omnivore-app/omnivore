@@ -11,7 +11,6 @@ import { createHighlightMutation } from '../../../lib/networking/mutations/creat
 import { deleteHighlightMutation } from '../../../lib/networking/mutations/deleteHighlightMutation'
 import { articleReadingProgressMutation } from '../../../lib/networking/mutations/articleReadingProgressMutation'
 import { mergeHighlightMutation } from '../../../lib/networking/mutations/mergeHighlightMutation'
-import { ShareHighlightModal } from './ShareHighlightModal'
 import { useCanShareNative } from '../../../lib/hooks/useCanShareNative'
 import { webBaseURL } from '../../../lib/appConfig'
 import { pspdfKitKey } from '../../../lib/appConfig'
@@ -30,14 +29,12 @@ export default function PdfArticleContainer(
   props: PdfArticleContainerProps
 ): JSX.Element {
   const containerRef = useRef<HTMLDivElement | null>(null)
-  const [shareTarget, setShareTarget] = useState<Highlight | undefined>(
-    undefined
-  )
+  const [shareTarget, setShareTarget] =
+    useState<Highlight | undefined>(undefined)
   const [notebookKey, setNotebookKey] = useState<string>(uuidv4())
   const [noteTarget, setNoteTarget] = useState<Highlight | undefined>(undefined)
-  const [noteTargetPageIndex, setNoteTargetPageIndex] = useState<
-    number | undefined
-  >(undefined)
+  const [noteTargetPageIndex, setNoteTargetPageIndex] =
+    useState<number | undefined>(undefined)
   const highlightsRef = useRef<Highlight[]>([])
   const canShareNative = useCanShareNative()
 
@@ -459,17 +456,6 @@ export default function PdfArticleContainer(
   return (
     <Box css={{ width: '100%', height: '100%' }}>
       <div ref={containerRef} style={{ width: '100%', height: '100%' }} />
-      {shareTarget && (
-        <ShareHighlightModal
-          url={getHighlightURL(shareTarget.shortId)}
-          title={props.article.title}
-          author={props.article.author}
-          highlight={shareTarget}
-          onOpenChange={() => {
-            setShareTarget(undefined)
-          }}
-        />
-      )}
       {noteTarget && (
         <HighlightNoteModal
           highlight={noteTarget}
