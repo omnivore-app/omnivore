@@ -14,7 +14,33 @@ interface PocketResponse {
 }
 
 interface PocketItem {
+  item_id: string
+  resolved_id: string
   given_url: string
+  resolved_url: string
+  given_title: string
+  resolved_title: string
+  favorite: string
+  status: string
+  excerpt: string
+  word_count: string
+  tags: {
+    [key: string]: Tag
+  }
+  authors: {
+    [key: string]: Author
+  }
+}
+
+interface Tag {
+  item_id: string
+  tag: string
+}
+
+interface Author {
+  item_id: string
+  author_id: string
+  name: string
 }
 
 export class PocketIntegration extends IntegrationService {
@@ -47,7 +73,9 @@ export class PocketIntegration extends IntegrationService {
 
   retrievePocketData = async (
     accessToken: string,
-    since: number
+    since: number,
+    count = 100,
+    offset = 0
   ): Promise<PocketResponse> => {
     const url = `${this.POCKET_API_URL}/get`
     try {
@@ -57,13 +85,17 @@ export class PocketIntegration extends IntegrationService {
           consumer_key: env.pocket.consumerKey,
           access_token: accessToken,
           state: 'all',
-          detailType: 'simple',
+          detailType: 'complete',
           since,
+          sort: 'oldest',
+          count,
+          offset,
         },
         {
           headers: this.headers,
         }
       )
+      console.debug('pocket data', response.data)
       return response.data
     } catch (error) {
       console.log('error retrieving pocket data', error)
