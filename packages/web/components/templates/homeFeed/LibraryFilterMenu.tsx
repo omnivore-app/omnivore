@@ -309,8 +309,7 @@ function AddLinkButton(props: AddLinkButtonProps): JSX.Element {
     <>
       <VStack
         css={{
-          position: 'fixed',
-          bottom: '0',
+          marginTop: 'auto',
           width: '233px',
           height: '80px',
           pl: '25px',
