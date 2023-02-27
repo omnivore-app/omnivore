@@ -1,17 +1,11 @@
 /* eslint-disable @next/next/no-img-element */
 import { Box } from '../../components/elements/LayoutPrimitives'
-import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
+import { SettingsLayout } from '../../components/templates/SettingsLayout'
 import Link from 'next/link'
 
 export default function Labels(): JSX.Element {
   return (
-    <PrimaryLayout
-      pageMetaDataProps={{
-        title: 'Labels',
-        path: '/help/labels',
-      }}
-      pageTestId="help-labels-tag"
-    >
+    <SettingsLayout>
       <Box
         css={{
           m: '42px',
@@ -108,6 +102,6 @@ export default function Labels(): JSX.Element {
         </p>
       </Box>
       <Box css={{ height: '120px' }} />
-    </PrimaryLayout>
+    </SettingsLayout>
   )
 }

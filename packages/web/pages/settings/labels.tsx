@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
+import { SettingsLayout } from '../../components/templates/SettingsLayout'
 import { Button } from '../../components/elements/Button'
 import { styled } from '../../components/tokens/stitches.config'
 import {
@@ -155,9 +155,8 @@ export default function LabelsPage(): JSX.Element {
   const [descriptionInputText, setDescriptionInputText] = useState<string>('')
   const [isCreateMode, setIsCreateMode] = useState<boolean>(false)
   const [windowWidth, setWindowWidth] = useState<number>(0)
-  const [confirmRemoveLabelId, setConfirmRemoveLabelId] = useState<
-    string | null
-  >(null)
+  const [confirmRemoveLabelId, setConfirmRemoveLabelId] =
+    useState<string | null>(null)
   const breakpoint = 768
 
   applyStoredTheme(false)
@@ -252,7 +251,7 @@ export default function LabelsPage(): JSX.Element {
   }
 
   return (
-    <PrimaryLayout pageTestId="settings-labels-tag">
+    <SettingsLayout>
       <Toaster
         containerStyle={{
           top: '5rem',
@@ -412,7 +411,7 @@ export default function LabelsPage(): JSX.Element {
           : null}
       </VStack>
       <Box css={{ height: '120px' }} />
-    </PrimaryLayout>
+    </SettingsLayout>
   )
 }
 

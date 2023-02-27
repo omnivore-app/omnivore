@@ -1,4 +1,4 @@
-import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
+import { SettingsLayout } from '../../components/templates/SettingsLayout'
 import { Toaster } from 'react-hot-toast'
 import { Table } from '../../components/elements/Table'
 import { applyStoredTheme } from '../../lib/themeUpdater'
@@ -88,7 +88,7 @@ export default function Webhooks(): JSX.Element {
   }
 
   return (
-    <PrimaryLayout pageTestId={'webhooks'}>
+    <SettingsLayout pageTestId={'webhooks'}>
       <Toaster
         containerStyle={{
           top: '5rem',
@@ -203,6 +203,6 @@ export default function Webhooks(): JSX.Element {
           setOnEditWebhook(webhook)
         }}
       />
-    </PrimaryLayout>
+    </SettingsLayout>
   )
 }

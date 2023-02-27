@@ -7,7 +7,7 @@ import { InfoLink } from '../../elements/InfoLink'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { StyledText } from '../../elements/StyledText'
 import { theme } from '../../tokens/stitches.config'
-import { PrimaryLayout } from '../PrimaryLayout'
+import { SettingsLayout } from '../SettingsLayout'
 
 type SettingsTableProps = {
   pageId: string
@@ -235,7 +235,7 @@ const CreateButton = (props: CreateButtonProps): JSX.Element => {
 
 export const SettingsTable = (props: SettingsTableProps): JSX.Element => {
   return (
-    <PrimaryLayout pageTestId={props.pageId}>
+    <SettingsLayout pageTestId={props.pageId}>
       <Toaster
         containerStyle={{
           top: '5rem',
@@ -311,6 +311,6 @@ export const SettingsTable = (props: SettingsTableProps): JSX.Element => {
         </VStack>
       </HStack>
       <Box css={{ height: '120px' }} />
-    </PrimaryLayout>
+    </SettingsLayout>
   )
 }

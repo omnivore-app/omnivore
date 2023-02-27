@@ -5,7 +5,7 @@ import { Toaster } from 'react-hot-toast'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import { applyStoredTheme } from '../../lib/themeUpdater'
 
-import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
+import { SettingsLayout } from '../../components/templates/SettingsLayout'
 
 import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
 import { Button } from '../../components/elements/Button'
@@ -46,7 +46,7 @@ export default function DeleteMyAccount(): JSX.Element {
   }
 
   return (
-    <PrimaryLayout pageTestId={'api-keys'}>
+    <SettingsLayout>
       <Toaster
         containerStyle={{
           top: '5rem',
@@ -72,6 +72,6 @@ export default function DeleteMyAccount(): JSX.Element {
           <Loader />
         )}
       </HStack>
-    </PrimaryLayout>
+    </SettingsLayout>
   )
 }

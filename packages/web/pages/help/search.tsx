@@ -1,10 +1,10 @@
 /* eslint-disable @next/next/no-img-element */
 import { Box } from '../../components/elements/LayoutPrimitives'
-import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
+import { SettingsLayout } from '../../components/templates/SettingsLayout'
 
 export default function Search(): JSX.Element {
   return (
-    <PrimaryLayout
+    <SettingsLayout
       pageMetaDataProps={{
         title: 'Search',
         path: '/help/search',
@@ -201,6 +201,6 @@ export default function Search(): JSX.Element {
         </ul>
       </Box>
       <Box css={{ height: '120px' }} />
-    </PrimaryLayout>
+    </SettingsLayout>
   )
 }
