@@ -88,7 +88,7 @@ export default function Webhooks(): JSX.Element {
   }
 
   return (
-    <SettingsLayout pageTestId={'webhooks'}>
+    <SettingsLayout>
       <Toaster
         containerStyle={{
           top: '5rem',

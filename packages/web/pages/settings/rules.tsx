@@ -299,7 +299,7 @@ export default function Rules(): JSX.Element {
   ]
 
   return (
-    <SettingsLayout pageTestId={'api-keys'}>
+    <SettingsLayout>
       <Toaster
         containerStyle={{
           top: '5rem',

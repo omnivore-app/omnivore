@@ -235,7 +235,7 @@ const CreateButton = (props: CreateButtonProps): JSX.Element => {
 
 export const SettingsTable = (props: SettingsTableProps): JSX.Element => {
   return (
-    <SettingsLayout pageTestId={props.pageId}>
+    <SettingsLayout>
       <Toaster
         containerStyle={{
           top: '5rem',

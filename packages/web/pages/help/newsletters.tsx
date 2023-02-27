@@ -44,13 +44,7 @@ const CopyButton = () => {
 
 export default function Newsletters(): JSX.Element {
   return (
-    <SettingsLayout
-      pageMetaDataProps={{
-        title: 'Reading Newsletters in Omnivore',
-        path: '/help/newsletters',
-      }}
-      pageTestId="help-newsletters-tag"
-    >
+    <SettingsLayout>
       <Box
         css={{
           m: '42px',
