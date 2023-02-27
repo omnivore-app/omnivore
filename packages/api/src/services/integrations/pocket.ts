@@ -1,16 +1,22 @@
-import { IntegrationService } from './integration'
-import { Integration } from '../../entity/integration'
+import {
+  IntegrationService,
+  RetrievedDataState,
+  RetrievedResult,
+} from './integration'
 import axios from 'axios'
 import { env } from '../../env'
-import { DateTime } from 'luxon'
-import { uploadToBucket } from '../../utils/uploads'
-import { v4 as uuidv4 } from 'uuid'
-import { getRepository } from '../../entity/utils'
 
 interface PocketResponse {
+  status: number
+  complete: number
   list: {
     [key: string]: PocketItem
   }
+  since: number
+  search_meta: {
+    search_type: string
+  }
+  error: string
 }
 
 interface PocketItem {
@@ -103,28 +109,48 @@ export class PocketIntegration extends IntegrationService {
     }
   }
 
-  import = async (integration: Integration): Promise<number> => {
-    const syncAt = integration.syncedAt
-      ? integration.syncedAt.getTime() / 1000
-      : 0
-    const pocketData = await this.retrievePocketData(integration.token, syncAt)
+  retrieve = async (
+    token: string,
+    since = 0,
+    count = 100,
+    offset = 0
+  ): Promise<RetrievedResult> => {
+    // const syncAt = integration.syncedAt
+    //   ? integration.syncedAt.getTime() / 1000
+    //   : 0
+    const pocketData = await this.retrievePocketData(
+      token,
+      since,
+      count,
+      offset
+    )
     const pocketItems = Object.values(pocketData.list)
-    if (pocketItems.length === 0) {
-      return 0
+    const statusToState: Record<string, RetrievedDataState> = {
+      '0': 'saved',
+      '1': 'archived',
+      '2': 'deleted',
     }
-    // write the list of urls to a csv file and upload it to gcs
-    // path style: imports/<uid>/<date>/<type>-<uuid>.csv
-    const dateStr = DateTime.now().toISODate()
-    const fileUuid = uuidv4()
-    const fullPath = `imports/${integration.user.id}/${dateStr}/URL_LIST-${fileUuid}.csv`
-    const data = pocketItems.map((item) => item.given_url).join('\n')
-    await uploadToBucket(fullPath, Buffer.from(data, 'utf-8'), {
-      contentType: 'text/csv',
-    })
-    // update the integration's syncedAt
-    await getRepository(Integration).update(integration.id, {
-      syncedAt: new Date(),
-    })
-    return pocketItems.length
+    const data = pocketItems.map((item) => ({
+      url: item.given_url,
+      labels: Object.values(item.tags).map((tag) => tag.tag),
+      state: statusToState[item.status],
+    }))
+    return {
+      data,
+      hasMore: pocketData.complete !== 1,
+    }
+    // // write the list of urls to a csv file and upload it to gcs
+    // // path style: imports/<uid>/<date>/<type>-<uuid>.csv
+    // const dateStr = DateTime.now().toISODate()
+    // const fileUuid = uuidv4()
+    // const fullPath = `imports/${integration.user.id}/${dateStr}/URL_LIST-${fileUuid}.csv`
+    // const data = pocketItems.map((item) => item.given_url).join('\n')
+    // await uploadToBucket(fullPath, Buffer.from(data, 'utf-8'), {
+    //   contentType: 'text/csv',
+    // })
+    // // update the integration's syncedAt
+    // await getRepository(Integration).update(integration.id, {
+    //   syncedAt: new Date(),
+    // })
   }
 }
