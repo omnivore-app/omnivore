@@ -4,20 +4,14 @@ import {
   ModalContent,
   ModalTitleBar,
 } from '../../elements/ModalPrimitives'
-import {
-  Box,
-  HStack,
-  VStack,
-  Separator,
-  SpanBox,
-} from '../../elements/LayoutPrimitives'
+import { Box, HStack, VStack, SpanBox } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { StyledText } from '../../elements/StyledText'
 import { TrashIcon } from '../../elements/images/TrashIcon'
 import { theme } from '../../tokens/stitches.config'
 import type { Highlight } from '../../../lib/networking/fragments/highlightFragment'
 import { HighlightView } from '../../patterns/HighlightView'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { StyledTextArea } from '../../elements/StyledTextArea'
 import { ConfirmationModal } from '../../patterns/ConfirmationModal'
 import { DotsThree } from 'phosphor-react'

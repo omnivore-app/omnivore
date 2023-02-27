@@ -158,8 +158,8 @@ export const removeItemFromCache = (
 ) => {
   try {
     const mappedCache = cache as Map<string, unknown>
-    mappedCache.forEach((value: unknown, key) => {
-      if (typeof value == 'object' && 'search' in value) {
+    mappedCache.forEach((value: any, key) => {
+      if (value && typeof value == 'object' && 'search' in value) {
         const search = value.search as LibraryItems
         const idx = search.edges.findIndex((edge) => edge.node.id == itemId)
         if (idx > -1) {

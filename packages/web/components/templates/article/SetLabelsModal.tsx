@@ -56,7 +56,7 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
 
       props.onOpenChange(open)
     },
-    [props, selectedLabels, previousSelectedLabels, setSelectedLabels]
+    [props, selectedLabels, previousSelectedLabels]
   )
 
   useEffect(() => {
@@ -72,7 +72,7 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
       .catch((err) => {
         console.log('error saving labels: ', err)
       })
-  }, [selectedLabels, setPreviousSelectedLabels])
+  }, [props, selectedLabels, previousSelectedLabels, setPreviousSelectedLabels])
 
   return (
     <ModalRoot defaultOpen onOpenChange={onOpenChange}>

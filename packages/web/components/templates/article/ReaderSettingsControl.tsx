@@ -1,14 +1,13 @@
-import { HStack, VStack, SpanBox, Box } from '../../elements/LayoutPrimitives'
+import { HStack, VStack, SpanBox } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { StyledText } from '../../elements/StyledText'
 import { styled, theme } from '../../tokens/stitches.config'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import {
   AlignCenterHorizontalSimple,
   ArrowsInLineHorizontal,
   ArrowsOutLineHorizontal,
   CaretRight,
-  Cursor,
 } from 'phosphor-react'
 import { TickedRangeSlider } from '../../elements/TickedRangeSlider'
 import { showSuccessToast } from '../../../lib/toastHelpers'

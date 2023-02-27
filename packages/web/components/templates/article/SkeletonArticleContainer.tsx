@@ -1,5 +1,4 @@
 import { Box } from '../../elements/LayoutPrimitives'
-import { StyledText } from '../../elements/StyledText'
 import { theme } from '../../tokens/stitches.config'
 
 type SkeletonArticleContainerProps = {

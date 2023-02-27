@@ -8,7 +8,6 @@ import {
 } from 'phosphor-react'
 import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
 import { Button } from '../../elements/Button'
-import { Dropdown } from '../../elements/DropdownElements'
 import { Box, SpanBox } from '../../elements/LayoutPrimitives'
 import { TooltipWrapped } from '../../elements/Tooltip'
 import { styled, theme } from '../../tokens/stitches.config'
@@ -40,12 +39,6 @@ const MenuSeparator = (props: MenuSeparatorProps): JSX.Element => {
     my: '8px',
   })
   return props.layout == 'side' ? <LineSeparator /> : <></>
-}
-
-type ActionDropdownProps = {
-  layout: ArticleActionsMenuLayout
-  triggerElement: JSX.Element
-  children: JSX.Element
 }
 
 export function ArticleActionsMenu(

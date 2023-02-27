@@ -441,9 +441,6 @@ export function HomeFeedContainer(): JSX.Element {
         case 'showEditLabelsModal':
           handleCardAction('set-labels', activeItem)
           break
-        case 'shareItem':
-          setShareTarget(activeItem)
-          break
         case 'sortDescending':
           setQueryInputs({ ...queryInputs, sortDescending: true })
           break

@@ -47,7 +47,7 @@ export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
     if (!user && viewerData?.me?.id) {
       window.analytics?.identify({ userId: viewerData?.me?.id })
     }
-  }, [viewerData?.me?.id])
+  }, [viewerData?.me])
 
   async function logout(): Promise<void> {
     await logoutMutation()
@@ -65,7 +65,7 @@ export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
 
   const showLogout = useCallback(() => {
     setShowLogoutConfirmation(true)
-  }, [showLogoutConfirmation, setShowLogoutConfirmation, logoutMutation])
+  }, [setShowLogoutConfirmation])
 
   useEffect(() => {
     document.addEventListener('logout', showLogout)

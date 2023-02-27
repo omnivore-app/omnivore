@@ -3,8 +3,6 @@ import {
   lighterTheme,
   darkTheme,
   darkerTheme,
-  sepiaTheme,
-  charcoalTheme,
 } from '../components/tokens/stitches.config'
 import { userPersonalizationMutation } from './networking/mutations/userPersonalizationMutation'
 

@@ -2,13 +2,7 @@ import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticle
 import { Box } from '../../elements/LayoutPrimitives'
 import { v4 as uuidv4 } from 'uuid'
 import { nanoid } from 'nanoid'
-import {
-  useState,
-  useEffect,
-  useCallback,
-  useRef,
-  ReactComponentElement,
-} from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { isDarkTheme } from '../../../lib/themeUpdater'
 import PSPDFKit from 'pspdfkit'
 import { Instance, HighlightAnnotation, List, Annotation, Rect } from 'pspdfkit'

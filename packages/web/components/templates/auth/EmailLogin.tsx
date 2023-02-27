@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react'
 import { BorderedFormInput, FormLabel } from '../../elements/FormElements'
 import { fetchEndpoint } from '../../../lib/appConfig'
 import { logoutMutation } from '../../../lib/networking/mutations/logoutMutation'
-import { styled } from '@stitches/react'
 import { useRouter } from 'next/router'
 import { parseErrorCodes } from '../../../lib/queryParamParser'
 import { formatMessage } from '../../../locales/en/messages'
@@ -15,8 +14,9 @@ export function EmailLogin(): JSX.Element {
   const router = useRouter()
   const [email, setEmail] = useState<string | undefined>(undefined)
   const [password, setPassword] = useState<string | undefined>(undefined)
-  const [errorMessage, setErrorMessage] =
-    useState<string | undefined>(undefined)
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(
+    undefined
+  )
 
   useEffect(() => {
     if (!router.isReady) return

@@ -50,7 +50,7 @@ export function PrimaryDropdown(): JSX.Element {
           break
       }
     },
-    [updateTheme, router]
+    [router]
   )
 
   if (!viewerData?.me) {

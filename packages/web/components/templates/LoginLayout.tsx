@@ -81,16 +81,12 @@ function MediumLoginLayout(props: LoginFormProps) {
       >
         <LoginForm {...props} />
       </Box>
-      <OmnivoreIllustration isLargeLayout={true} />
+      <OmnivoreIllustration />
     </HStack>
   )
 }
 
-type OmnivoreIllustrationProps = {
-  isLargeLayout?: boolean
-}
-
-function OmnivoreIllustration({ isLargeLayout }: OmnivoreIllustrationProps) {
+function OmnivoreIllustration() {
   return (
     <Box
       css={{

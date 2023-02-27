@@ -3,7 +3,6 @@ import { Article } from './../../../components/templates/article/Article'
 import { Box, HStack, SpanBox, VStack } from './../../elements/LayoutPrimitives'
 import { StyledText } from './../../elements/StyledText'
 import {
-  ArticleSavedInfo,
   ArticleSubtitle,
   ReaderSavedInfo,
 } from './../../patterns/ArticleSubtitle'
