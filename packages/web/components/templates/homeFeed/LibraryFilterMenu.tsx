@@ -56,36 +56,15 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
 function SavedSearches(props: LibraryFilterMenuProps): JSX.Element {
   return (
     <MenuPanel title="Saved Searches">
-      <FilterButton
-        text="Inbox"
-        filterTerm="in:inbox"
-        spaced={true}
-        {...props}
-      />
+      <FilterButton text="Inbox" filterTerm="in:inbox" {...props} />
       <FilterButton
         text="Read Later"
         filterTerm="in:inbox -label:Newsletter"
-        spaced={true}
         {...props}
       />
-      <FilterButton
-        text="Highlights"
-        filterTerm="type:highlights"
-        spaced={true}
-        {...props}
-      />
-      <FilterButton
-        text="Files"
-        filterTerm="type:file"
-        spaced={true}
-        {...props}
-      />
-      <FilterButton
-        text="Archived"
-        filterTerm="in:archive"
-        spaced={true}
-        {...props}
-      />
+      <FilterButton text="Highlights" filterTerm="type:highlights" {...props} />
+      <FilterButton text="Files" filterTerm="type:file" {...props} />
+      <FilterButton text="Archived" filterTerm="in:archive" {...props} />
       <Box css={{ height: '10px' }}></Box>
     </MenuPanel>
   )
@@ -203,7 +182,6 @@ function MenuPanel(props: MenuPanelProps): JSX.Element {
 
 type FilterButtonProps = {
   text: string
-  spaced?: boolean
 
   filterTerm: string
   searchTerm: string | undefined
@@ -226,12 +204,13 @@ function FilterButton(props: FilterButtonProps): JSX.Element {
       css={{
         pl: '10px',
         pt: '2px', // TODO: hack to middle align
-        mb: props.spaced ? '10px' : '0px',
+        mb: '10px',
         width: '100%',
         height: '30px',
         backgroundColor: selected ? '#FFEA9F' : 'unset',
         fontSize: '16px',
         fontWeight: 'regular',
+        fontFamily: 'Inter',
         color: '#3D3D3D',
         verticalAlign: 'middle',
         borderRadius: '3px',
