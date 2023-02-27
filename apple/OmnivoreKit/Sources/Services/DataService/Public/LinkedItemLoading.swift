@@ -93,7 +93,7 @@ public extension DataService {
         }
       }
       DispatchQueue.main.sync {
-        self.lastItemSyncTime = DateFormatter.formatterISO8601.string(from: Date.now)
+        self.lastItemSyncTime = Date.now
         onComplete()
       }
     }

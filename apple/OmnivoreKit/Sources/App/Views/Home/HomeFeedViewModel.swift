@@ -6,8 +6,6 @@ import Utils
 import Views
 
 @MainActor final class HomeFeedViewModel: NSObject, ObservableObject {
-  let dateFormatter = DateFormatter.formatterISO8601
-
   var currentDetailViewModel: LinkItemDetailViewModel?
 
   private var fetchedResultsController: NSFetchedResultsController<LinkedItem>?
@@ -110,7 +108,7 @@ import Views
 
   func syncItems(dataService: DataService) async {
     let syncStart = Date.now
-    let lastSyncDate = dateFormatter.date(from: dataService.lastItemSyncTime) ?? Date(timeIntervalSinceReferenceDate: 0)
+    let lastSyncDate = dataService.lastItemSyncTime
 
     try? await dataService.syncOfflineItemsWithServerIfNeeded()
 
@@ -124,7 +122,7 @@ import Views
         self.isLoading = false
       }
     } else {
-      dataService.lastItemSyncTime = DateFormatter.formatterISO8601.string(from: syncStart)
+      dataService.lastItemSyncTime = syncStart
     }
 
     // If possible start prefetching new pages in the background

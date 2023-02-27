@@ -29,9 +29,22 @@ public final class DataService: ObservableObject {
     persistentContainer.viewContext
   }
 
-  @AppStorage(UserDefaultKey.lastItemSyncTime.rawValue) public var lastItemSyncTime: String = {
-    DateFormatter.formatterISO8601.string(from: Date(timeIntervalSinceReferenceDate: 0))
-  }()
+  public var lastItemSyncTime: Date {
+    get {
+      guard
+        let str = UserDefaults.standard.string(forKey: UserDefaultKey.lastItemSyncTime.rawValue),
+        let date = DateFormatter.formatterISO8601.date(from: str)
+      else {
+        return Date(timeIntervalSinceReferenceDate: 0)
+      }
+      return date
+    }
+    set {
+      logger.trace("last item sync updated to \(newValue)")
+      let str = DateFormatter.formatterISO8601.string(from: newValue)
+      UserDefaults.standard.set(str, forKey: UserDefaultKey.lastItemSyncTime.rawValue)
+    }
+  }
 
   public init(appEnvironment: AppEnvironment, networker: Networker) {
     self.appEnvironment = appEnvironment
@@ -43,7 +56,7 @@ public final class DataService: ObservableObject {
     backgroundContext.mergePolicy = NSMergePolicy.mergeByPropertyObjectTrump
 
     if isFirstTimeRunningNewAppBuild() {
-      resetCoreData()
+      resetLocalStorage()
     } else {
       persistentContainer.loadPersistentStores { _, error in
         if let error = error {
@@ -102,10 +115,58 @@ public final class DataService: ObservableObject {
     }
   }
 
-  public func resetCoreData() {
-    lastItemSyncTime = DateFormatter.formatterISO8601.string(from: Date(timeIntervalSinceReferenceDate: 0))
+  private func clearDownloadedFiles() {
+    let relevantTypes = ["pdf", "mp3", "speechMarks"]
+    let fileMgr = FileManager()
+    logger.trace("removing cached downloads")
+
+    // clear the temporary files in the caches directory…
+    if let cacheFileURLs = try? fileMgr.contentsOfDirectory(
+      at: URL.om_cachesDirectory,
+      includingPropertiesForKeys: .none,
+      options: .skipsHiddenFiles
+    ) {
+      logger.trace("\(cacheFileURLs.count) file URLs in caches directory")
+      for fileURL in cacheFileURLs where relevantTypes.contains(fileURL.pathExtension) {
+        logger.trace("removing \(fileURL.absoluteString)")
+        try? fileMgr.removeItem(at: fileURL)
+      }
+    }
+
+    // …and also the copies written to Documents
+    let resourceKeys = Set<URLResourceKey>([.nameKey, .isDirectoryKey])
+    if let documentsFileURLs = try? fileMgr.contentsOfDirectory(
+      at: URL.om_documentsDirectory,
+      includingPropertiesForKeys: Array(resourceKeys),
+      options: .skipsHiddenFiles
+    ) {
+      logger.trace("\(documentsFileURLs.count) file URLs in documents directory")
+      for fileURL in documentsFileURLs {
+        guard
+          let resourceValues = try? fileURL.resourceValues(forKeys: resourceKeys),
+          let isDirectory = resourceValues.isDirectory,
+          let name = resourceValues.name
+        else {
+          continue
+        }
+        if isDirectory {
+          if name.hasPrefix("audio-") {
+            logger.trace("removing \(fileURL.absoluteString)")
+            try? fileMgr.removeItem(at: fileURL)
+          }
+        } else if relevantTypes.contains(fileURL.pathExtension) {
+          logger.trace("removing \(fileURL.absoluteString)")
+          try? fileMgr.removeItem(at: fileURL)
+        }
+      }
+    }
+  }
+
+  public func resetLocalStorage() {
+    lastItemSyncTime = Date(timeIntervalSinceReferenceDate: 0)
 
     clearCoreData()
+    clearDownloadedFiles()
 
     persistentContainer = PersistentContainer.make()
     persistentContainer.loadPersistentStores { _, error in

@@ -39,7 +39,7 @@ struct ManageAccountView: View {
         )
         Button(
           action: {
-            dataService.resetCoreData()
+            dataService.resetLocalStorage()
           },
           label: { Text(LocalText.manageAccountResetCache) }
         )

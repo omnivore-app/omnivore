@@ -543,8 +543,7 @@
     }
 
     public static func pathForAudioDirectory(itemID: String) -> URL {
-      FileManager.default
-        .urls(for: .documentDirectory, in: .userDomainMask)[0]
+      URL.om_documentsDirectory
         .appendingPathComponent("audio-\(itemID)/")
     }
 
