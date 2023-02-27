@@ -9,7 +9,11 @@ import { TooltipWrapped } from '../../elements/Tooltip'
 const HEADER_HEIGHT = '105px'
 const MOBILE_HEIGHT = '48px'
 
-export function ReaderHeader(): JSX.Element {
+type ReaderHeaderProps = {
+  showDisplaySettingsModal: (show: boolean) => void
+}
+
+export function ReaderHeader(props: ReaderHeaderProps): JSX.Element {
   return (
     <>
       <VStack
@@ -39,7 +43,7 @@ export function ReaderHeader(): JSX.Element {
           }}
         >
           <LogoBox />
-          <ControlButtonBox />
+          <ControlButtonBox {...props} />
         </HStack>
       </VStack>
     </>
@@ -78,7 +82,7 @@ function LogoBox(): JSX.Element {
   )
 }
 
-function ControlButtonBox(): JSX.Element {
+function ControlButtonBox(props: ReaderHeaderProps): JSX.Element {
   return (
     <>
       <HStack
@@ -98,9 +102,9 @@ function ControlButtonBox(): JSX.Element {
       >
         <Button
           style="articleActionIcon"
-          onClick={() =>
-            console.log('readerSettings.setShowEditDisplaySettingsModal(true)')
-          }
+          onClick={() => {
+            props.showDisplaySettingsModal(true)
+          }}
         >
           <TooltipWrapped tooltipContent="Adjust Display Settings">
             <TextAa size={25} color="#6A6968" />

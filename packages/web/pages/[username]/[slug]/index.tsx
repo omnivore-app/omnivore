@@ -292,7 +292,11 @@ export default function Home(): JSX.Element {
       />
       <Toaster />
 
-      <ReaderHeader />
+      <ReaderHeader
+        showDisplaySettingsModal={
+          readerSettings.setShowEditDisplaySettingsModal
+        }
+      />
 
       <VStack
         distribution="between"
