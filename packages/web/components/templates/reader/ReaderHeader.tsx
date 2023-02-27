@@ -106,7 +106,9 @@ function ControlButtonBox(): JSX.Element {
             <TextAa size={25} color="#6A6968" />
           </TooltipWrapped>
         </Button>
-        <DotsThreeOutline size={25} color="#6A6968" />
+        <PrimaryDropdown>
+          <DotsThreeOutline size={25} color="#6A6968" />
+        </PrimaryDropdown>
       </HStack>
 
       <HStack

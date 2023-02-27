@@ -1,12 +1,16 @@
 import { useRouter } from 'next/router'
-import { useCallback } from 'react'
+import { ReactNode, useCallback } from 'react'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
 import { updateTheme } from '../../lib/themeUpdater'
 import { AvatarDropdown } from '../elements/AvatarDropdown'
 import { DropdownMenu, HeaderDropdownAction } from '../patterns/DropdownMenu'
 import { ThemeId } from '../tokens/stitches.config'
 
-export function PrimaryDropdown(): JSX.Element {
+type PrimaryDropdownProps = {
+  children?: ReactNode
+}
+
+export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
   const { viewerData } = useGetViewerQuery()
   const router = useRouter()
 
@@ -61,7 +65,9 @@ export function PrimaryDropdown(): JSX.Element {
     <DropdownMenu
       username={viewerData?.me.profile.username}
       triggerElement={
-        <AvatarDropdown userInitials={viewerData?.me?.name.charAt(0) ?? ''} />
+        props.children ?? (
+          <AvatarDropdown userInitials={viewerData?.me?.name.charAt(0) ?? ''} />
+        )
       }
       actionHandler={headerDropdownActionHandler}
     />
