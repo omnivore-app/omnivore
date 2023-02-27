@@ -3,6 +3,7 @@ import { ListLinkedItemCard } from './ListLinkedItemCard'
 import type { LinkedItemCardProps } from './CardTypes'
 import { HighlightItemCard } from './HighlightItemCard'
 import { PageType } from '../../../lib/networking/fragments/articleFragment'
+import { LibraryGridCard } from './LibraryGridCard'
 
 const shouldHideUrl = (url: string): boolean => {
   try {
@@ -41,6 +42,6 @@ export function LinkedItemCard(props: LinkedItemCardProps): JSX.Element {
   if (props.layout == 'LIST_LAYOUT') {
     return <ListLinkedItemCard {...props} originText={originText} />
   } else {
-    return <GridLinkedItemCard {...props} originText={originText} />
+    return <LibraryGridCard {...props} originText={originText} />
   }
 }

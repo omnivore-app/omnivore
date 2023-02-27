@@ -98,9 +98,8 @@ export function HomeFeedContainer(): JSX.Element {
 
   const gridContainerRef = useRef<HTMLDivElement>(null)
 
-  const [labelsTarget, setLabelsTarget] = useState<LibraryItem | undefined>(
-    undefined
-  )
+  const [labelsTarget, setLabelsTarget] =
+    useState<LibraryItem | undefined>(undefined)
 
   const [showAddLinkModal, setShowAddLinkModal] = useState(false)
   const [showEditTitleModal, setShowEditTitleModal] = useState(false)
@@ -814,7 +813,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
             }) => (
               <div
                 {...getRootProps({ className: 'dropzone' })}
-                style={{ width: '100%', height: '100%' }}
+                style={{ height: '100%' }}
               >
                 {inDragOperation && uploadingFiles.length < 1 && (
                   <DragnDropContainer>
@@ -883,7 +882,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
                       width: '100%',
                       gridAutoRows: 'auto',
                       borderRadius: '8px',
-                      gridGap: layout == 'LIST_LAYOUT' ? '0' : '$3',
+                      gridGap: layout == 'LIST_LAYOUT' ? '0' : '20px',
                       marginTop: layout == 'LIST_LAYOUT' ? '21px' : '0',
                       marginBottom: '0px',
                       paddingTop: layout == 'LIST_LAYOUT' ? '0' : '21px',
