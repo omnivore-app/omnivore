@@ -1,38 +1,12 @@
-import {
-  InputHTMLAttributes,
-  ReactNode,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import { ReactNode, useMemo, useState } from 'react'
 import { StyledText } from '../../elements/StyledText'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
-import { SearchIcon } from '../../elements/images/SearchIcon'
-import { theme } from '../../tokens/stitches.config'
 import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
-import { FormInput } from '../../elements/FormElements'
-import { searchBarCommands } from '../../../lib/keyboardShortcuts/navigationShortcuts'
-import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
-import { Button, IconButton } from '../../elements/Button'
-import {
-  Circle,
-  DotsThree,
-  MagnifyingGlass,
-  Plus,
-  Textbox,
-  X,
-} from 'phosphor-react'
-import { OmnivoreNameLogo } from '../../elements/images/OmnivoreNameLogo'
-import { OmnivoreFullLogo } from '../../elements/images/OmnivoreFullLogo'
-import { AvatarDropdown } from '../../elements/AvatarDropdown'
-import { ListSelectorIcon } from '../../elements/images/ListSelectorIcon'
-import { GridSelectorIcon } from '../../elements/images/GridSelectorIcon'
+import { Button } from '../../elements/Button'
+import { Circle, DotsThree, Plus } from 'phosphor-react'
 import { useGetSubscriptionsQuery } from '../../../lib/networking/queries/useGetSubscriptionsQuery'
 import { useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQuery'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
-import { Checkbox } from '@radix-ui/react-checkbox'
-import { LayoutType } from './HomeFeedContainer'
 
 type LibraryFilterMenuProps = {
   setShowAddLinkModal: (show: boolean) => void
@@ -237,8 +211,11 @@ type FilterButtonProps = {
 }
 
 function FilterButton(props: FilterButtonProps): JSX.Element {
+  const isInboxFilter = (filter: string) => {
+    return filter === '' || filter === 'in:inbox'
+  }
   const selected = useMemo(() => {
-    if (props.filterTerm === '' && !props.searchTerm) {
+    if (isInboxFilter(props.filterTerm) && !props.searchTerm) {
       return true
     }
     return props.searchTerm === props.filterTerm

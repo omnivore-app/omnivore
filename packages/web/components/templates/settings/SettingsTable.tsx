@@ -1,5 +1,4 @@
-import Link from 'next/link'
-import { Plus, Trash } from 'phosphor-react'
+import { Trash } from 'phosphor-react'
 import { Toaster } from 'react-hot-toast'
 import { Button } from '../../elements/Button'
 import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
@@ -7,7 +6,7 @@ import { MoreOptionsIcon } from '../../elements/images/MoreOptionsIcon'
 import { InfoLink } from '../../elements/InfoLink'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { StyledText } from '../../elements/StyledText'
-import { styled, theme } from '../../tokens/stitches.config'
+import { theme } from '../../tokens/stitches.config'
 import { PrimaryLayout } from '../PrimaryLayout'
 
 type SettingsTableProps = {

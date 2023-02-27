@@ -10,8 +10,6 @@ export type CardMenuDropdownAction =
   | 'archive'
   | 'unarchive'
   | 'delete'
-  | 'share'
-  | 'snooze'
   | 'set-labels'
   | 'showOriginal'
   | 'unsubscribe'
@@ -52,20 +50,6 @@ export function CardMenu(props: CardMenuProps): JSX.Element {
         onSelect={() => props.actionHandler('editTitle')}
         title="Edit Metadata"
       />
-      {isVipUser(props.viewer) && (
-        <DropdownOption
-          onSelect={() => {
-            props.actionHandler('snooze')
-          }}
-          title="Snooze"
-        />
-      )}
-      {/* <DropdownOption
-        onSelect={() => {
-          props.actionHandler('share')
-        }}
-        title="Share"
-      /> */}
       {props.item.readingProgressPercent < 98 ? (
         <DropdownOption
           onSelect={() => {

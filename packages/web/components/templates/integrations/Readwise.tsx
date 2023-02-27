@@ -1,6 +1,5 @@
 import { useCallback, useMemo, useState } from 'react'
 import { styled } from '@stitches/react'
-import Link from 'next/link'
 import Image from 'next/image'
 
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
@@ -9,7 +8,10 @@ import { StyledText } from '../../elements/StyledText'
 import { FormInput } from '../../elements/FormElements'
 
 import { setIntegrationMutation } from '../../../lib/networking/mutations/setIntegrationMutation'
-import { Integration, useGetIntegrationsQuery } from '../../../lib/networking/queries/useGetIntegrationsQuery'
+import {
+  Integration,
+  useGetIntegrationsQuery,
+} from '../../../lib/networking/queries/useGetIntegrationsQuery'
 import { useRouter } from 'next/router'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { deleteIntegrationMutation } from '../../../lib/networking/mutations/deleteIntegrationMutation'
@@ -22,7 +24,7 @@ const Header = styled(Box, {
 })
 
 export function Readwise(): JSX.Element {
-  const { integrations, isValidating, revalidate } = useGetIntegrationsQuery()
+  const { integrations, revalidate } = useGetIntegrationsQuery()
   const readwiseIntegration = useMemo(() => {
     return integrations.find((i) => i.type == 'READWISE')
   }, [integrations])
@@ -57,23 +59,23 @@ export function Readwise(): JSX.Element {
       </HStack>
 
       {readwiseIntegration && (
-        <RemoveReadwiseForm integration={readwiseIntegration} revalidate={revalidate} />
+        <RemoveReadwiseForm
+          integration={readwiseIntegration}
+          revalidate={revalidate}
+        />
       )}
 
-      {!readwiseIntegration && (
-        <AddReadwiseForm />
-      )}
-
+      {!readwiseIntegration && <AddReadwiseForm />}
     </VStack>
   )
 }
 
-
 function AddReadwiseForm(): JSX.Element {
   const router = useRouter()
 
-  const [errorMessage, setErrorMessage] =
-  useState<string | undefined>(undefined)
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(
+    undefined
+  )
   const [token, setToken] = useState<string>('')
 
   const setReadwiseToken = useCallback(async () => {
@@ -94,64 +96,64 @@ function AddReadwiseForm(): JSX.Element {
     }
   }, [token, router])
 
-  return (<>
-    <HStack
-      css={{
-        fontSize: '18px',
-        color: '$utilityTextDefault',
-        my: '20px',
-        whiteSpace: 'pre-wrap'
-      }}
-    >
-      <SpanBox>Enter your API key from Readwise below. You can get your token{' '}
-      <a
-        target='_blank'
-        rel="noreferrer"
-        referrerPolicy='no-referrer'
-        style={{ color: '$utilityTextDefault' }}
-        href="https://readwise.io/access_token"
+  return (
+    <>
+      <HStack
+        css={{
+          fontSize: '18px',
+          color: '$utilityTextDefault',
+          my: '20px',
+          whiteSpace: 'pre-wrap',
+        }}
       >
-        here
-      </a>.</SpanBox>
-    </HStack>
+        <SpanBox>
+          Enter your API key from Readwise below. You can get your token{' '}
+          <a
+            target="_blank"
+            rel="noreferrer"
+            referrerPolicy="no-referrer"
+            style={{ color: '$utilityTextDefault' }}
+            href="https://readwise.io/access_token"
+          >
+            here
+          </a>
+          .
+        </SpanBox>
+      </HStack>
 
-    <FormInput
-      type="token"
-      key="token"
-      value={token}
-      placeholder={'Readwise Token'}
-      onChange={(e) => {
-        e.preventDefault()
-        setToken(e.target.value)
-      }}
-      disabled={false}
-      hidden={false}
-      required={true}
-      css={{
-        border: '1px solid $textNonessential',
-        borderRadius: '8px',
-        width: '80%',
-        bg: 'transparent',
-        fontSize: '16px',
-        textIndent: '8px',
-        my: '20px',
-        height: '38px',
-        color: '$grayTextContrast',
-        '&:focus': {
-          outline: 'none',
-          boxShadow: '0px 0px 2px 2px rgba(255, 234, 159, 0.56)',
-        },
-      }}
-      min={200}
-    />
-    {errorMessage && <StyledText style="error">{errorMessage}</StyledText>}
-    <Button
-      style="ctaDarkYellow"
-      css={{  }}
-      onClick={setReadwiseToken}
-    >
-      Set Token
-    </Button>
+      <FormInput
+        type="token"
+        key="token"
+        value={token}
+        placeholder={'Readwise Token'}
+        onChange={(e) => {
+          e.preventDefault()
+          setToken(e.target.value)
+        }}
+        disabled={false}
+        hidden={false}
+        required={true}
+        css={{
+          border: '1px solid $textNonessential',
+          borderRadius: '8px',
+          width: '80%',
+          bg: 'transparent',
+          fontSize: '16px',
+          textIndent: '8px',
+          my: '20px',
+          height: '38px',
+          color: '$grayTextContrast',
+          '&:focus': {
+            outline: 'none',
+            boxShadow: '0px 0px 2px 2px rgba(255, 234, 159, 0.56)',
+          },
+        }}
+        min={200}
+      />
+      {errorMessage && <StyledText style="error">{errorMessage}</StyledText>}
+      <Button style="ctaDarkYellow" css={{}} onClick={setReadwiseToken}>
+        Set Token
+      </Button>
     </>
   )
 }
@@ -179,19 +181,23 @@ function RemoveReadwiseForm(props: RemoveReadwiseFormProps): JSX.Element {
   }, [props])
 
   return (
-  <>
-    <HStack
-      css={{
-        fontSize: '18px',
-        color: '$utilityTextDefault',
-        my: '20px',
-        whiteSpace: 'pre-wrap'
-      }}
-    >
-      <SpanBox>Omnivore is configured to send all your highlights to Readwise.</SpanBox>
-    </HStack>
+    <>
+      <HStack
+        css={{
+          fontSize: '18px',
+          color: '$utilityTextDefault',
+          my: '20px',
+          whiteSpace: 'pre-wrap',
+        }}
+      >
+        <SpanBox>
+          Omnivore is configured to send all your highlights to Readwise.
+        </SpanBox>
+      </HStack>
 
-    <Button style="ctaDarkYellow" onClick={deleteIntegration}>Remove Readwise Integration</Button>
-  </>
+      <Button style="ctaDarkYellow" onClick={deleteIntegration}>
+        Remove Readwise Integration
+      </Button>
+    </>
   )
 }

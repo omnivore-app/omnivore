@@ -1,10 +1,8 @@
 import { Separator } from '@radix-ui/react-separator'
 import {
   ArchiveBox,
-  DotsThree,
   HighlighterCircle,
   TagSimple,
-  TextAa,
   Trash,
   Tray,
 } from 'phosphor-react'
@@ -14,7 +12,6 @@ import { Dropdown } from '../../elements/DropdownElements'
 import { Box, SpanBox } from '../../elements/LayoutPrimitives'
 import { TooltipWrapped } from '../../elements/Tooltip'
 import { styled, theme } from '../../tokens/stitches.config'
-import { SetLabelsControl } from './SetLabelsControl'
 import { DisplaySettingsModal } from './DisplaySettingsModal'
 import { useReaderSettings } from '../../../lib/hooks/useReaderSettings'
 import { useRef } from 'react'

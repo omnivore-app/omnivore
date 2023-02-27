@@ -11,8 +11,6 @@ export type LinkedItemCardAction =
   | 'delete'
   | 'mark-read'
   | 'mark-unread'
-  | 'share'
-  | 'snooze'
   | 'set-labels'
   | 'unsubscribe'
   | 'update-item'

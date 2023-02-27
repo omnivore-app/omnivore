@@ -27,14 +27,8 @@ import {
 } from '../../../lib/keyboardShortcuts/navigationShortcuts'
 import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { Toaster } from 'react-hot-toast'
-import { SnoozeLinkModal } from '../article/SnoozeLinkModal'
-import {
-  createReminderMutation,
-  ReminderType,
-} from '../../../lib/networking/mutations/createReminderMutation'
 import { useFetchMore } from '../../../lib/hooks/useFetchMoreScroll'
 import { usePersistedState } from '../../../lib/hooks/usePersistedState'
-import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { ConfirmationModal } from '../../patterns/ConfirmationModal'
 import { SetLabelsModal } from '../article/SetLabelsModal'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
@@ -103,10 +97,6 @@ export function HomeFeedContainer(): JSX.Element {
   }
 
   const gridContainerRef = useRef<HTMLDivElement>(null)
-
-  const [snoozeTarget, setSnoozeTarget] = useState<LibraryItem | undefined>(
-    undefined
-  )
 
   const [labelsTarget, setLabelsTarget] = useState<LibraryItem | undefined>(
     undefined
@@ -338,12 +328,6 @@ export function HomeFeedContainer(): JSX.Element {
       case 'mark-unread':
         performActionOnItem('mark-unread', item)
         break
-      case 'share':
-        setShareTarget(item)
-        break
-      case 'snooze':
-        setSnoozeTarget(item)
-        break
       case 'set-labels':
         setLabelsTarget(item)
         break
@@ -356,14 +340,8 @@ export function HomeFeedContainer(): JSX.Element {
   }
 
   const modalTargetItem = useMemo(() => {
-    return (
-      labelsTarget ||
-      snoozeTarget ||
-      linkToEdit ||
-      linkToRemove ||
-      linkToUnsubscribe
-    )
-  }, [labelsTarget, snoozeTarget, linkToEdit, linkToRemove, linkToUnsubscribe])
+    return labelsTarget || linkToEdit || linkToRemove || linkToUnsubscribe
+  }, [labelsTarget, linkToEdit, linkToRemove, linkToUnsubscribe])
 
   useKeyboardShortcuts(
     libraryListCommands((action) => {
@@ -589,8 +567,6 @@ export function HomeFeedContainer(): JSX.Element {
       hasData={!!itemsPages}
       totalItems={itemsPages?.[0].search.pageInfo.totalCount || 0}
       isValidating={isValidating}
-      snoozeTarget={snoozeTarget}
-      setSnoozeTarget={setSnoozeTarget}
       labelsTarget={labelsTarget}
       setLabelsTarget={setLabelsTarget}
       showAddLinkModal={showAddLinkModal}
@@ -621,8 +597,6 @@ type HomeFeedContentProps = {
   totalItems: number
   isValidating: boolean
   loadMore: () => void
-  snoozeTarget: LibraryItem | undefined
-  setSnoozeTarget: (target: LibraryItem | undefined) => void
   labelsTarget: LibraryItem | undefined
   setLabelsTarget: (target: LibraryItem | undefined) => void
   showAddLinkModal: boolean
@@ -1017,39 +991,6 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
             }
             onOpenChange={() => props.setShowEditTitleModal(false)}
             item={props.linkToEdit as LibraryItem}
-          />
-        )}
-        {props.snoozeTarget && (
-          <SnoozeLinkModal
-            submit={(option: string, sendReminder: boolean, msg: string) => {
-              if (!props.snoozeTarget) return
-              createReminderMutation(
-                props.snoozeTarget?.node.id,
-                ReminderType.Tonight,
-                true,
-                sendReminder
-              )
-                .then(() => {
-                  return props.actionHandler('archive', props.snoozeTarget)
-                })
-                .then(() => {
-                  showSuccessToast(msg, { position: 'bottom-right' })
-                })
-                .catch((error) => {
-                  showErrorToast('There was an error snoozing your link.', {
-                    position: 'bottom-right',
-                  })
-                })
-            }}
-            onOpenChange={() => {
-              if (props.snoozeTarget) {
-                const item = document.getElementById(props.snoozeTarget.node.id)
-                if (item) {
-                  item.focus()
-                }
-                props.setSnoozeTarget(undefined)
-              }
-            }}
           />
         )}
         {showRemoveLinkConfirmation && (

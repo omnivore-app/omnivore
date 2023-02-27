@@ -1,36 +1,8 @@
-import {
-  InputHTMLAttributes,
-  ReactNode,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react'
-import { StyledText } from '../../elements/StyledText'
-import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
-import { SearchIcon } from '../../elements/images/SearchIcon'
-import { theme, ThemeId } from '../../tokens/stitches.config'
-import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
-import { FormInput } from '../../elements/FormElements'
-import { searchBarCommands } from '../../../lib/keyboardShortcuts/navigationShortcuts'
-import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
-import { Button, IconButton } from '../../elements/Button'
-import {
-  DotsThree,
-  DotsThreeOutline,
-  MagnifyingGlass,
-  TextAa,
-  Textbox,
-  X,
-} from 'phosphor-react'
+import { HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
+import { Button } from '../../elements/Button'
+import { DotsThreeOutline, TextAa } from 'phosphor-react'
 import { OmnivoreNameLogo } from '../../elements/images/OmnivoreNameLogo'
 import { OmnivoreFullLogo } from '../../elements/images/OmnivoreFullLogo'
-import { AvatarDropdown } from '../../elements/AvatarDropdown'
-import { ListSelectorIcon } from '../../elements/images/ListSelectorIcon'
-import { GridSelectorIcon } from '../../elements/images/GridSelectorIcon'
-import { DropdownMenu, HeaderDropdownAction } from '../../patterns/DropdownMenu'
-import { updateTheme } from '../../../lib/themeUpdater'
-import { useRouter } from 'next/router'
 import { PrimaryDropdown } from '../PrimaryDropdown'
 import { TooltipWrapped } from '../../elements/Tooltip'
 

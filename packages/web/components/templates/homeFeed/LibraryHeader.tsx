@@ -1,30 +1,16 @@
-import {
-  InputHTMLAttributes,
-  ReactNode,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react'
-import { StyledText } from '../../elements/StyledText'
+import { useRef, useState } from 'react'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
-import { SearchIcon } from '../../elements/images/SearchIcon'
-import { theme, ThemeId } from '../../tokens/stitches.config'
-import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
+import { theme } from '../../tokens/stitches.config'
 import { FormInput } from '../../elements/FormElements'
 import { searchBarCommands } from '../../../lib/keyboardShortcuts/navigationShortcuts'
 import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { Button, IconButton } from '../../elements/Button'
-import { MagnifyingGlass, Textbox, X } from 'phosphor-react'
+import { MagnifyingGlass, X } from 'phosphor-react'
 import { OmnivoreNameLogo } from '../../elements/images/OmnivoreNameLogo'
 import { OmnivoreFullLogo } from '../../elements/images/OmnivoreFullLogo'
-import { AvatarDropdown } from '../../elements/AvatarDropdown'
 import { ListSelectorIcon } from '../../elements/images/ListSelectorIcon'
 import { GridSelectorIcon } from '../../elements/images/GridSelectorIcon'
 import { LayoutType } from './HomeFeedContainer'
-import { DropdownMenu, HeaderDropdownAction } from '../../patterns/DropdownMenu'
-import { updateTheme } from '../../../lib/themeUpdater'
-import { useRouter } from 'next/router'
 import { PrimaryDropdown } from '../PrimaryDropdown'
 
 type LibraryHeaderProps = {
@@ -170,7 +156,7 @@ function SearchBox(props: SearchBoxProps): JSX.Element {
             }}
           />
         </form>
-        {props.searchTerm ? (
+        {searchTerm && searchTerm.length > 0 ? (
           <Button
             style="plainIcon"
             onClick={(event) => {

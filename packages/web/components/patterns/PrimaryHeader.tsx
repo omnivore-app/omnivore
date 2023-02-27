@@ -4,12 +4,9 @@ import { DropdownMenu, HeaderDropdownAction } from './../patterns/DropdownMenu'
 import { updateTheme } from '../../lib/themeUpdater'
 import { AvatarDropdown } from './../elements/AvatarDropdown'
 import { ThemeId } from './../tokens/stitches.config'
-import { useCallback, useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/router'
-import { useKeyboardShortcuts } from '../../lib/keyboardShortcuts/useKeyboardShortcuts'
-import { primaryCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
 import { UserBasicData } from '../../lib/networking/queries/useGetViewerQuery'
-import { setupAnalytics } from '../../lib/analytics'
 
 type HeaderProps = {
   user?: UserBasicData
