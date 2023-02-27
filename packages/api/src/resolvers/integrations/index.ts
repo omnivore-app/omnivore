@@ -244,7 +244,9 @@ export const importFromIntegrationResolver = authorized<
     }
 
     // create a task to import all the pages
-    await enqueueImportFromIntegration(uid, integration.id)
+    const taskName = await enqueueImportFromIntegration(uid, integration.id)
+    // update task name in integration
+    await getRepository(Integration).update(integration.id, { taskName })
 
     analytics.track({
       userId: uid,
