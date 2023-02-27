@@ -189,10 +189,7 @@ function NavHeader(props: NavHeaderProps): JSX.Element {
             <DropdownMenu
               username={props.username}
               triggerElement={
-                <AvatarDropdown
-                  userInitials={props.userInitials}
-                  profileImageURL={props.profileImageURL}
-                />
+                <AvatarDropdown userInitials={props.userInitials} />
               }
               actionHandler={props.actionHandler}
             />
@@ -235,10 +232,7 @@ function FloatingNavHeader(props: NavHeaderProps): JSX.Element {
           <DropdownMenu
             username={props.username}
             triggerElement={
-              <AvatarDropdown
-                userInitials={props.userInitials}
-                profileImageURL={props.profileImageURL}
-              />
+              <AvatarDropdown userInitials={props.userInitials} />
             }
             actionHandler={props.actionHandler}
           />
