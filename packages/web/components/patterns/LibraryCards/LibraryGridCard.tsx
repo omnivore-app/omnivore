@@ -164,7 +164,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
             {props.item.wordsCount ?? 0 > 0
               ? `${Math.max(
                   1,
-                  Math.round(props.item.wordsCount / 235)
+                  Math.round(props.item.wordsCount ?? 0 / 235)
                 )} min read`
               : null}
           </Box>
