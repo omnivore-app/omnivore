@@ -40,12 +40,11 @@ class LibraryViewModel @Inject constructor(
   val appliedSortFilterLiveData = MutableLiveData(SavedItemSortFilter.NEWEST)
   val showLabelsSelectionSheetLiveData = MutableLiveData(false)
   val savedItemLabelsLiveData = dataService.db.savedItemLabelDao().getSavedItemLabelsLiveData()
+  val activeLabelsLiveData = MutableLiveData<List<SavedItemLabel>>(listOf())
 
   var isRefreshing by mutableStateOf(false)
   var showSearchField by mutableStateOf(false)
   var hasLoadedInitialFilters = false
-
-  var activeLabelsLiveData = MutableLiveData<List<SavedItemLabel>>(listOf())
 
   fun loadInitialFilterValues() {
     if (hasLoadedInitialFilters) { return }
@@ -129,11 +128,18 @@ class LibraryViewModel @Inject constructor(
     }
   }
 
+  fun updateAppliedLabels(labels: List<SavedItemLabel>) {
+    viewModelScope.launch {
+      activeLabelsLiveData.value = labels
+      handleFilterChanges()
+    }
+  }
+
   suspend fun handleFilterChanges() {
     if (searchTextLiveData.value != "") {
       performSearch(true)
     } else if (appliedSortFilterLiveData.value != null && appliedFilterLiveData.value != null) {
-      itemsLiveDataInternal = dataService.libraryLiveData(appliedFilterLiveData.value!!, appliedSortFilterLiveData.value!!, listOf())
+      itemsLiveDataInternal = dataService.libraryLiveData(appliedFilterLiveData.value!!, appliedSortFilterLiveData.value!!, activeLabelsLiveData.value ?: listOf())
       itemsLiveData.removeSource(itemsLiveDataInternal)
       itemsLiveData.addSource(itemsLiveDataInternal, itemsLiveData::setValue)
     }
