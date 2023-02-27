@@ -4,13 +4,7 @@ import { SettingsLayout } from '../../components/templates/SettingsLayout'
 
 export default function Search(): JSX.Element {
   return (
-    <SettingsLayout
-      pageMetaDataProps={{
-        title: 'Search',
-        path: '/help/search',
-      }}
-      pageTestId="help-search-tag"
-    >
+    <SettingsLayout>
       <Box
         css={{
           m: '42px',
