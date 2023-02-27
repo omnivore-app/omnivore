@@ -48,28 +48,6 @@ type ActionDropdownProps = {
   children: JSX.Element
 }
 
-const ActionDropdown = (props: ActionDropdownProps): JSX.Element => {
-  return (
-    <Dropdown
-      css={{
-        m: '0px',
-        p: '0px',
-        overflow: 'hidden',
-        width: '265px',
-        maxWidth: '265px',
-        '@smDown': { width: '230px' },
-      }}
-      side={props.layout == 'side' ? 'right' : 'bottom'}
-      sideOffset={props.layout == 'side' ? 8 : 0}
-      align={props.layout == 'side' ? 'start' : 'center'}
-      alignOffset={props.layout == 'side' ? -18 : undefined}
-      triggerElement={props.triggerElement}
-    >
-      {props.children}
-    </Dropdown>
-  )
-}
-
 export function ArticleActionsMenu(
   props: ArticleActionsMenuProps
 ): JSX.Element {

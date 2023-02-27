@@ -9,7 +9,7 @@ import { useRouter } from 'next/router'
 import { VStack } from './../../../components/elements/LayoutPrimitives'
 import { ArticleContainer } from './../../../components/templates/article/ArticleContainer'
 import { PdfArticleContainerProps } from './../../../components/templates/article/PdfArticleContainer'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import {
   articleKeyboardCommands,
@@ -192,7 +192,7 @@ export default function Home(): JSX.Element {
       })
       router.push(`/home`)
     }
-  }, [article])
+  }, [article, cache, mutate, router])
 
   useRegisterActions(
     [

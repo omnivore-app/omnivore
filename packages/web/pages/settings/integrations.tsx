@@ -122,7 +122,7 @@ export default function Integrations(): JSX.Element {
         },
       },
     ])
-  }, [])
+  }, [deleteIntegration, readwiseConnected, router, webhooks])
 
   return (
     <PrimaryLayout pageTestId={'integrations'}>

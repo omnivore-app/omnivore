@@ -1,5 +1,4 @@
 import { Avatar } from './../elements/Avatar'
-import { AngleDownIcon } from './../tokens/icons/AngleDownIcon'
 import { HStack } from '../elements/LayoutPrimitives'
 
 type AvatarDropdownProps = {
@@ -12,7 +11,7 @@ export function AvatarDropdown(props: AvatarDropdownProps): JSX.Element {
     <HStack alignment="center" css={{ gap: '6px' }}>
       <Avatar
         imageURL={props.profileImageURL}
-        height='32px'
+        height="32px"
         fallbackText={props.userInitials}
       />
     </HStack>

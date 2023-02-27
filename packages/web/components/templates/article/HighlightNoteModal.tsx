@@ -30,18 +30,6 @@ export function HighlightNoteModal(
     props.highlight?.annotation ?? ''
   )
 
-  useConfirmListener(
-    () => {
-      saveNoteChanges()
-    },
-    undefined,
-    true
-  )
-
-  const updatedAtMessage = props.highlight
-    ? readableUpdatedAtMessage(props.highlight?.updatedAt)
-    : undefined
-
   const handleNoteContentChange = useCallback(
     (event: React.ChangeEvent<HTMLTextAreaElement>): void => {
       setNoteContent(event.target.value)

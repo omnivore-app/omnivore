@@ -1,18 +1,10 @@
 import { PageMetaData, PageMetaDataProps } from '../patterns/PageMetaData'
 import { Box } from '../elements/LayoutPrimitives'
-import {
-  ReactNode,
-  MutableRefObject,
-  useEffect,
-  useState,
-  useCallback,
-} from 'react'
-import { PrimaryHeader } from './../patterns/PrimaryHeader'
+import { ReactNode, useEffect, useState, useCallback } from 'react'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
 import { navigationCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
 import { useKeyboardShortcuts } from '../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { useRouter } from 'next/router'
-import { Analytics } from '@segment/analytics-next'
 import { ConfirmationModal } from '../patterns/ConfirmationModal'
 import { KeyboardShortcutListModal } from './KeyboardShortcutListModal'
 import { logoutMutation } from '../../lib/networking/mutations/logoutMutation'

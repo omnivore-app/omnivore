@@ -58,7 +58,7 @@ export function useGetWebhooksQuery(): WebhooksQueryResponse {
     }
   `
 
-  const { data, mutate, error, isValidating } = useSWR(query, publicGqlFetcher)
+  const { data, mutate, isValidating } = useSWR(query, publicGqlFetcher)
   console.log('webhooks data', data)
 
   try {

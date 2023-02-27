@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
 import { Button } from '../../components/elements/Button'
-import { styled, theme } from '../../components/tokens/stitches.config'
+import { styled } from '../../components/tokens/stitches.config'
 import {
   Box,
   SpanBox,

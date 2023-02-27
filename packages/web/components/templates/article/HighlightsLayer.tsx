@@ -224,7 +224,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         setHighlightModalAction(inputs)
       }
     },
-    [props.highlightBarDisabled, createHighlightFromSelection]
+    [props.highlightBarDisabled]
   )
 
   const selectionPercentPos = (selection: Selection): number | undefined => {
@@ -289,7 +289,6 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       setSelectionData,
       canShareNative,
       highlightLocations,
-      createHighlightFromSelection,
     ]
   )
 

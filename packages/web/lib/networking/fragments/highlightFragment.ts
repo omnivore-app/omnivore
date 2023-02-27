@@ -1,5 +1,5 @@
 import { gql } from 'graphql-request'
-import { Label, labelFragment } from './labelFragment'
+import { Label } from './labelFragment'
 
 export const highlightFragment = gql`
   fragment HighlightFields on Highlight {

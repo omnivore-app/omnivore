@@ -105,7 +105,7 @@ export function useGetArticleQuery({
     includeFriendsHighlights,
   }
 
-  const { data, error, mutate } = useSWRImmutable(
+  const { data, error } = useSWRImmutable(
     slug ? [query, username, slug, includeFriendsHighlights] : null,
     makeGqlFetcher(variables)
   )
@@ -158,7 +158,7 @@ export const removeItemFromCache = (
 ) => {
   try {
     const mappedCache = cache as Map<string, unknown>
-    mappedCache.forEach((value: any, key) => {
+    mappedCache.forEach((value: unknown, key) => {
       if (typeof value == 'object' && 'search' in value) {
         const search = value.search as LibraryItems
         const idx = search.edges.findIndex((edge) => edge.node.id == itemId)

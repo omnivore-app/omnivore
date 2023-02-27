@@ -8,8 +8,8 @@ import {
   Arrow,
   Label,
 } from '@radix-ui/react-dropdown-menu'
-import { PopperContentProps } from '@radix-ui/react-popover';
-import { CSS } from '@stitches/react';
+import { PopperContentProps } from '@radix-ui/react-popover'
+import { CSS } from '@stitches/react'
 import { styled } from './../tokens/stitches.config'
 
 const itemStyles = {
@@ -148,7 +148,9 @@ export function DropdownOption(props: DropdownOptionProps): JSX.Element {
   )
 }
 
-export function Dropdown(props: DropdownProps & PopperContentProps): JSX.Element {
+export function Dropdown(
+  props: DropdownProps & PopperContentProps
+): JSX.Element {
   const {
     children,
     align,
@@ -159,14 +161,14 @@ export function Dropdown(props: DropdownProps & PopperContentProps): JSX.Element
     sideOffset = 0,
     alignOffset = 0,
     css,
-    modal
+    modal,
   } = props
   return (
     <Root modal={modal}>
       <DropdownTrigger disabled={disabled}>{triggerElement}</DropdownTrigger>
       <DropdownContent
         css={css}
-        onInteractOutside={(event) => {
+        onInteractOutside={() => {
           // remove focus from dropdown
           ;(document.activeElement as HTMLElement).blur()
         }}

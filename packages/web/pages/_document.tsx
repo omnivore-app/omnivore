@@ -1,9 +1,7 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable functional/no-class */
 import NextDocument, { Html, Head, Main, NextScript } from 'next/document'
-import { useCallback } from 'react'
 import { getCssText, globalStyles } from '../components/tokens/stitches.config'
-import { setupAnalytics } from '../lib/analytics'
 
 export default class Document extends NextDocument {
   render() {
@@ -119,7 +117,4 @@ export default class Document extends NextDocument {
       </Html>
     )
   }
-}
-function useEffect(arg0: () => () => void, arg1: (() => void)[]) {
-  throw new Error('Function not implemented.')
 }

@@ -1,6 +1,5 @@
-import Link from 'next/link'
 import { Info } from 'phosphor-react'
-import { Box, VStack } from '../elements/LayoutPrimitives'
+import { VStack } from '../elements/LayoutPrimitives'
 import { theme } from '../tokens/stitches.config'
 import { TooltipWrapped } from './Tooltip'
 
