@@ -83,6 +83,7 @@ export type LibraryItemNode = {
   subscription?: string
   readAt?: string
   savedAt?: string
+  wordsCount?: number
   recommendations?: Recommendation[]
 }
 
@@ -168,6 +169,7 @@ export function useGetLibraryItemsQuery({
               subscription
               readAt
               savedAt
+              wordsCount
               recommendations {
                 id
                 name

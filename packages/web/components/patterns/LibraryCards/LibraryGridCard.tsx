@@ -161,7 +161,12 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
               fontFamily: 'SF Pro Display',
             }}
           >
-            15 min read
+            {props.item.wordsCount ?? 0 > 0
+              ? `${Math.max(
+                  1,
+                  Math.round(props.item.wordsCount / 235)
+                )} min read`
+              : null}
           </Box>
         )}
       </HStack>
