@@ -27,7 +27,7 @@ export function AddLinkModal(props: AddLinkModalProps): JSX.Element {
       if (result && result.jobId) {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         toast(
-          (t) => (
+          () => (
             <Box>
               Link Saved
               <span style={{ padding: '16px' }} />
