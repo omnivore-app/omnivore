@@ -119,8 +119,8 @@ export default function Integrations(): JSX.Element {
           enabled: true,
         })
         if (result) {
+          revalidate()
           showSuccessToast('Connected with Pocket.')
-          await router.push('/settings/integrations')
         } else {
           showErrorToast('There was an error connecting to Pocket.')
         }
@@ -193,7 +193,7 @@ export default function Integrations(): JSX.Element {
         },
       },
     ])
-  }, [integrations])
+  }, [pocketConnected, readwiseConnected, webhooks])
 
   return (
     <SettingsLayout>
