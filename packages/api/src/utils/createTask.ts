@@ -446,7 +446,6 @@ export const enqueueImportFromIntegration = async (
   integrationId: string
 ): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT } = process.env
-  // use pubsub data format to send the userId to the task handler
   const payload = {
     userId,
     integrationId,
