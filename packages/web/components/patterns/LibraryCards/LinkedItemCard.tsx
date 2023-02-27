@@ -42,6 +42,6 @@ export function LinkedItemCard(props: LinkedItemCardProps): JSX.Element {
   if (props.layout == 'LIST_LAYOUT') {
     return <ListLinkedItemCard {...props} originText={originText} />
   } else {
-    return <LibraryGridCard {...props} originText={originText} />
+    return <GridLinkedItemCard {...props} originText={originText} />
   }
 }
