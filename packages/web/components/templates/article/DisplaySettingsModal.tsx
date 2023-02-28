@@ -1,6 +1,10 @@
 import { ReaderSettings } from '../../../lib/hooks/useReaderSettings'
 import { VStack } from '../../elements/LayoutPrimitives'
-import { ModalRoot, ModalContent } from '../../elements/ModalPrimitives'
+import {
+  ModalRoot,
+  ModalContent,
+  ModalOverlay,
+} from '../../elements/ModalPrimitives'
 import { ReaderSettingsControl } from './ReaderSettingsControl'
 
 type DisplaySettingsModalProps = {
@@ -20,17 +24,17 @@ export function DisplaySettingsModal(
 
   return (
     <ModalRoot defaultOpen onOpenChange={props.onOpenChange}>
+      <ModalOverlay />
       <ModalContent
         css={{
           width: '345px',
           padding: '0px',
-          top: props.triggerElementRef?.current ? top : '50%',
-          left: props.triggerElementRef?.current
-            ? left - (props.centerX ? 265 / 2 : 0)
-            : '50%',
-          transform: props.triggerElementRef?.current
-            ? 'unset'
-            : 'translate(-50%, -50%)',
+          top: '300px',
+          left: 'calc(100% - 250px)',
+          '@lgDown': {
+            top: '300px',
+            left: '50%',
+          },
         }}
         onPointerDownOutside={(event) => {
           event.preventDefault()

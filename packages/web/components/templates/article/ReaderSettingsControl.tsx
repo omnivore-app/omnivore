@@ -203,9 +203,6 @@ function LayoutControls(props: LayoutControlsProps): JSX.Element {
           pb: '10px',
           width: '100%',
           height: '100%',
-          '@smDown': {
-            display: 'none',
-          },
         }}
       >
         <StyledText style="displaySettingsLabel" css={{ pl: '20px' }}>

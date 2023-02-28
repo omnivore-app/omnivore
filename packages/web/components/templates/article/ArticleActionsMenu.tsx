@@ -212,8 +212,8 @@ export function ArticleActionsMenu(
       {readerSettings.showEditDisplaySettingsModal && (
         <DisplaySettingsModal
           centerX={props.layout != 'side'}
+          readerSettings={readerSettings}
           triggerElementRef={displaySettingsButtonRef}
-          articleActionHandler={props.articleActionHandler}
           onOpenChange={() =>
             readerSettings.setShowEditDisplaySettingsModal(false)
           }

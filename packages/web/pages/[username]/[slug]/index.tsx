@@ -390,7 +390,6 @@ export default function Home(): JSX.Element {
         <DisplaySettingsModal
           centerX={true}
           readerSettings={readerSettings}
-          articleActionHandler={actionHandler}
           onOpenChange={() =>
             readerSettings.setShowEditDisplaySettingsModal(false)
           }
