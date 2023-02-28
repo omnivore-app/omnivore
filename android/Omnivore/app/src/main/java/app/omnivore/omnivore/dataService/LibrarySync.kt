@@ -4,6 +4,39 @@ import android.util.Log
 import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.persistence.entities.*
 
+suspend fun DataService.librarySearch(cursor: String?, query: String): SavedItemSyncResult {
+  val searchResult = networker.search(cursor = cursor, limit = 10, query = query)
+
+  val savedItems = searchResult.items.map { it.item }
+
+  db.savedItemDao().insertAll(savedItems)
+
+  val labels: MutableList<SavedItemLabel> = mutableListOf()
+  val crossRefs: MutableList<SavedItemAndSavedItemLabelCrossRef> = mutableListOf()
+
+  // save labels
+  for (searchItem in searchResult.items) {
+    labels.addAll(searchItem.labels)
+
+    val newCrossRefs = searchItem.labels.map {
+      SavedItemAndSavedItemLabelCrossRef(savedItemLabelId = it.savedItemLabelId, savedItemId = searchItem.item.savedItemId)
+    }
+
+    crossRefs.addAll(newCrossRefs)
+  }
+
+  db.savedItemLabelDao().insertAll(labels)
+  db.savedItemAndSavedItemLabelCrossRefDao().insertAll(crossRefs)
+
+  return SavedItemSyncResult(
+    hasError = false,
+    hasMoreItems = false,
+    cursor = searchResult.cursor,
+    count = searchResult.items.size,
+    savedItemSlugs = savedItems.map { it.slug }
+  )
+}
+
 suspend fun DataService.sync(since: String, cursor: String?, limit: Int = 20): SavedItemSyncResult {
   val syncResult = networker.savedItemUpdates(cursor = cursor, limit = limit, since = since) ?: return SavedItemSyncResult.errorResult
 

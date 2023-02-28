@@ -25,6 +25,7 @@ class LibraryViewModel @Inject constructor(
   private val datastoreRepo: DatastoreRepository
 ): ViewModel() {
   private var cursor: String? = null
+  private var librarySearchCursor: String? = null
 
   // These are used to make sure we handle search result
   // responses in the right order
@@ -108,6 +109,21 @@ class LibraryViewModel @Inject constructor(
         performSearch(clearPreviousSearch)
       } else {
         syncItems()
+        loadUsingSearchAPI()
+      }
+    }
+  }
+
+  fun loadUsingSearchAPI() {
+    viewModelScope.launch {
+      withContext(Dispatchers.IO) {
+        val result = dataService.librarySearch(cursor = librarySearchCursor, query = searchQueryString())
+        result.cursor?.let {
+          librarySearchCursor = it
+        }
+        CoroutineScope(Dispatchers.Main).launch {
+          isRefreshing = false
+        }
       }
     }
   }
@@ -136,6 +152,7 @@ class LibraryViewModel @Inject constructor(
   }
 
   suspend fun handleFilterChanges() {
+    librarySearchCursor = null
     if (searchTextLiveData.value != "") {
       performSearch(true)
     } else if (appliedSortFilterLiveData.value != null && appliedFilterLiveData.value != null) {
@@ -194,7 +211,7 @@ class LibraryViewModel @Inject constructor(
     searchIdx += 1
 
     // Execute the search
-    val searchResult = networker.typeaheadSearch(searchQueryString())
+    val searchResult = networker.typeaheadSearch(searchTextLiveData.value ?: "")
 
     // Search results aren't guaranteed to return in order so this
     // will discard old results that are returned while a user is typing.
@@ -237,16 +254,14 @@ class LibraryViewModel @Inject constructor(
   }
 
   private fun searchQueryString(): String {
-    return searchTextLiveData.value ?: ""
-    // Unused code for typeahead search
-//    var query = "${appliedFilterLiveData.value?.queryString} ${appliedSortFilterLiveData.value?.queryString}"
-//    val searchText = searchTextLiveData.value ?: ""
-//
-//    if (searchText.isNotEmpty()) {
-//      query += " $searchText"
-//    }
-//
-//    return query
+    var query = "${appliedFilterLiveData.value?.queryString} ${appliedSortFilterLiveData.value?.queryString}"
+    val searchText = searchTextLiveData.value ?: ""
+
+    if (searchText.isNotEmpty()) {
+      query += " $searchText"
+    }
+
+    return query
   }
 }
 

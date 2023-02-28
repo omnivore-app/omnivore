@@ -109,7 +109,11 @@ fun LibraryViewContent(libraryViewModel: LibraryViewModel, modifier: Modifier) {
     }
 
     InfiniteListHandler(listState = listState) {
-      libraryViewModel.load()
+      if (cardsData.isEmpty()) {
+        libraryViewModel.load()
+      } else {
+        libraryViewModel.loadUsingSearchAPI()
+      }
     }
     
     PullRefreshIndicator(
