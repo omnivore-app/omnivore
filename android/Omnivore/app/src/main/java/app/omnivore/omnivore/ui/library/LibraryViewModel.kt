@@ -261,6 +261,11 @@ class LibraryViewModel @Inject constructor(
       query += " $searchText"
     }
 
+    activeLabelsLiveData.value?.let {
+      query += " label:"
+      query += it.joinToString { label -> label.name }
+    }
+
     return query
   }
 }
