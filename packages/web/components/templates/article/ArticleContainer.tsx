@@ -108,15 +108,12 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   const [showReportIssuesModal, setShowReportIssuesModal] = useState(false)
   const [fontSize, setFontSize] = useState(props.fontSize ?? 20)
   // iOS app embed can overide the original margin and line height
-  const [maxWidthPercentageOverride, setMaxWidthPercentageOverride] = useState<
-    number | null
-  >(null)
-  const [lineHeightOverride, setLineHeightOverride] = useState<number | null>(
-    null
-  )
-  const [fontFamilyOverride, setFontFamilyOverride] = useState<string | null>(
-    null
-  )
+  const [maxWidthPercentageOverride, setMaxWidthPercentageOverride] =
+    useState<number | null>(null)
+  const [lineHeightOverride, setLineHeightOverride] =
+    useState<number | null>(null)
+  const [fontFamilyOverride, setFontFamilyOverride] =
+    useState<string | null>(null)
   const [highContrastFont, setHighContrastFont] = useState(
     props.highContrastFont ?? false
   )
@@ -167,7 +164,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     const updateFontFamily = (event: UpdateFontFamilyEvent) => {
       const newFontFamily =
         event.fontFamily ?? fontFamilyOverride ?? props.fontFamily ?? 'inter'
-      console.log('setting font fam to', event.fontFamily)
       setFontFamilyOverride(newFontFamily)
     }
 

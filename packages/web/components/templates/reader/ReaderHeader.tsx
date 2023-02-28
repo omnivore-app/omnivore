@@ -5,6 +5,7 @@ import { OmnivoreNameLogo } from '../../elements/images/OmnivoreNameLogo'
 import { OmnivoreFullLogo } from '../../elements/images/OmnivoreFullLogo'
 import { PrimaryDropdown } from '../PrimaryDropdown'
 import { TooltipWrapped } from '../../elements/Tooltip'
+import { ReaderSettings } from '../../../lib/hooks/useReaderSettings'
 
 const HEADER_HEIGHT = '105px'
 const MOBILE_HEIGHT = '48px'

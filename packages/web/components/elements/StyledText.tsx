@@ -178,6 +178,13 @@ const textVariants = {
       fontWeight: 'bold',
       color: 'white',
     },
+    displaySettingsLabel: {
+      fontFamily: 'SF Pro Display',
+      fontWeight: '500',
+      fontSize: '12px',
+      lineHeight: '20px',
+      color: '#6A6968',
+    },
     error: {
       color: '$error',
       fontSize: '$2',

@@ -304,7 +304,6 @@ export default function Home(): JSX.Element {
         css={{
           position: 'fixed',
           flexDirection: 'row-reverse',
-          top: '-120px',
           left: 8,
           height: '100%',
           width: '35px',
@@ -390,6 +389,7 @@ export default function Home(): JSX.Element {
       {readerSettings.showEditDisplaySettingsModal && (
         <DisplaySettingsModal
           centerX={true}
+          readerSettings={readerSettings}
           articleActionHandler={actionHandler}
           onOpenChange={() =>
             readerSettings.setShowEditDisplaySettingsModal(false)
