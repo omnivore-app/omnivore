@@ -73,7 +73,7 @@ struct PushNotificationSettingsView: View {
         viewModel.tryUpdateToDesired(dataService: dataService)
       }
 
-      Section { // TODO: double check this text
+      Section {
         Text("\(LocalText.notificationsExplainer)\n\(LocalText.notificationsTriggerExplainer)")
           .accentColor(.blue)
       }

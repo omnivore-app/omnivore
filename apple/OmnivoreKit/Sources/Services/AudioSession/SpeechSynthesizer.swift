@@ -144,7 +144,7 @@ struct SpeechSynthesizer {
                               text: utterance.text)
         result.append(item)
       } else {
-        // TODO: How do we want to handle completely skipped paragraphs?
+        // How do we want to handle completely skipped paragraphs?
       }
     }
 

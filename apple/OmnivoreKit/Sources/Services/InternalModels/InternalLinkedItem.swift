@@ -145,7 +145,7 @@ extension JSONArticle {
       originalHtml: nil,
       language: language,
       wordsCount: wordsCount,
-      recommendations: [], // TODO:
+      recommendations: [],
       labels: []
     )
 

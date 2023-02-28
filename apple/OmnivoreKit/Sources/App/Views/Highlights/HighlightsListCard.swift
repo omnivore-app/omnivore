@@ -134,7 +134,8 @@ struct HighlightsListCard: View {
               .foregroundColor(.appGrayText)
               .frame(width: 14, height: 14)
           }
-          Text("\(LocalText.highlightCardHighlightByOther)\(highlightParams.createdBy?.name ?? "you")") // TODO: fix translation...add other/you
+          // fix translation...add other/you
+          Text("\(LocalText.highlightCardHighlightByOther)\(highlightParams.createdBy?.name ?? "you")")
             .font(.appFootnote)
             .foregroundColor(.appGrayText)
         }

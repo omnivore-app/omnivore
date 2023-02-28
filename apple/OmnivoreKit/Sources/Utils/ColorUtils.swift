@@ -68,7 +68,6 @@ public extension Color {
     )
   }
 
-  // TODO: remove this?
   var isDark: Bool {
     guard let lum = luminance else { return false }
     return lum < 0.50

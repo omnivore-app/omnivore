@@ -127,7 +127,7 @@ struct RecommendationGroupView: View {
 
   private var membersSection: some View {
     Section("Members") {
-      if !viewModel.recommendationGroup.canSeeMembers { // TODO: might need to fix text here
+      if !viewModel.recommendationGroup.canSeeMembers {
         Text("""
         \(LocalText.clubsAdminDenyViewing)
 
@@ -142,7 +142,7 @@ struct RecommendationGroupView: View {
             imageURL: member.profileImageURL != nil ? URL(string: member.profileImageURL!) : nil
           ))
         }
-      } else { // TODO: fix link text to use translation
+      } else {
         Text("""
         \(LocalText.clubsNoMembers)
 

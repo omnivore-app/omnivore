@@ -179,7 +179,7 @@ struct WebReaderContainerView: View {
         Image(systemName: "sparkles")
       }).frame(width: 48, height: 48)
 
-        // TODO: We don't have a single note function yet
+        // We don't have a single note function yet
 //      Divider()
 //
 //      Button(action: addNote, label: {
