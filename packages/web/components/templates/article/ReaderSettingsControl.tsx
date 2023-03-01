@@ -173,6 +173,7 @@ function FontControls(props: FontControlsProps): JSX.Element {
 
             color: '#969696',
             width: '60px',
+            pl: '16px',
           }}
         >
           A
