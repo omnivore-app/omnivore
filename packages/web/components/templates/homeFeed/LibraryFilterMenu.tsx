@@ -208,7 +208,7 @@ function FilterButton(props: FilterButtonProps): JSX.Element {
         pl: '10px',
         mb: '2px',
         display: 'flex',
-        width: '100%',
+        maxWidth: '100%',
         height: '32px',
         backgroundColor: selected ? '#FFEA9F' : 'unset',
         fontSize: '14px',
