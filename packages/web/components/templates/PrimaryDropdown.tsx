@@ -81,9 +81,11 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
         )
       }
     >
-      <VStack css={{ py: '12px', px: '24px' }}>
-        {props.showThemeSection && <ThemeSection />}
-      </VStack>
+      {props.showThemeSection && (
+        <VStack css={{ py: '12px', px: '24px' }}>
+          <ThemeSection />
+        </VStack>
+      )}
       <DropdownOption
         onSelect={() => headerDropdownActionHandler('navigate-to-install')}
         title="Install"
