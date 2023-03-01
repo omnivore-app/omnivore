@@ -1,49 +1,15 @@
 import { Box, VStack, HStack, SpanBox } from '../../elements/LayoutPrimitives'
-import { StyledText } from '../../elements/StyledText'
 import { LabelChip } from '../../elements/LabelChip'
 import type { LinkedItemCardProps } from './CardTypes'
 import { CoverImage } from '../../elements/CoverImage'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useState } from 'react'
-import { DotsThree, DotsThreeVertical } from 'phosphor-react'
+import { DotsThreeVertical } from 'phosphor-react'
 import Link from 'next/link'
 import { CardMenu } from '../CardMenu'
-import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
 
 dayjs.extend(relativeTime)
-
-//Styles
-const ellipsisText = {
-  overflow: 'hidden',
-  display: '-webkit-box',
-  WebkitLineClamp: 1,
-  WebkitBoxOrient: 'vertical',
-  margin: 'auto 0',
-  pr: '10px',
-}
-
-const cardTitleStyle = {
-  ...ellipsisText,
-  width: '100%',
-  fontSize: '14px',
-  fontWeight: '600',
-  textAlign: 'left',
-}
-
-// Props
-type CardTitleProps = {
-  title: string
-}
-
-// Functions
-function CardTitle(props: CardTitleProps): JSX.Element {
-  return (
-    <StyledText style="listTitle" data-testid="listTitle" css={cardTitleStyle}>
-      {props.title}
-    </StyledText>
-  )
-}
 
 type ProgressBarProps = {
   fillPercentage: number
@@ -133,6 +99,11 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
       alignment="start"
       distribution="start"
       onMouseEnter={() => {
+        const element = document.getElementById(props.item.id)
+        if (!element) {
+          return
+        }
+        element.focus()
         setIsHovered(true)
       }}
       onMouseLeave={() => {
@@ -170,12 +141,14 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
             </Box>
             <Box
               css={{
-                display: isHovered ? 'flex' : 'none',
+                display: 'flex',
+                visibility: isHovered ? 'unset' : 'hidden',
                 marginLeft: 'auto',
                 height: '30px',
                 width: '30px',
                 mt: '-5px',
                 mr: '-5px',
+                pt: '2px',
                 alignItems: 'center',
                 justifyContent: 'center',
                 borderRadius: '1000px',
