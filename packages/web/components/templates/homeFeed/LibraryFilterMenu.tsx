@@ -288,7 +288,7 @@ function LabelButton(props: LabelButtonProps): JSX.Element {
             if (e.target.checked) {
               props.applySearchQuery
               props.applySearchQuery(
-                `${props.searchTerm} label:\"${props.label.name}\"`
+                `${props.searchTerm ?? ''} label:\"${props.label.name}\"`
               )
             } else {
               const query =
