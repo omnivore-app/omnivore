@@ -180,6 +180,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
       md: '(min-width: 768px)',
       lg: '(min-width: 992px)',
       xl: '(min-width: 1200px)',
+      xxl: '(min-width: 1700px)',
     },
   })
 

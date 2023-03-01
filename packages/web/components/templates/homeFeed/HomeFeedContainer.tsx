@@ -901,9 +901,13 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
                       },
                       '@lg': {
                         gridTemplateColumns:
-                          layout == 'LIST_LAYOUT' ? 'none' : 'repeat(3, 1fr)',
+                          layout == 'LIST_LAYOUT' ? 'none' : 'repeat(2, 1fr)',
                       },
                       '@xl': {
+                        gridTemplateColumns:
+                          layout == 'LIST_LAYOUT' ? 'none' : 'repeat(3, 1fr)',
+                      },
+                      '@xxl': {
                         gridTemplateColumns:
                           layout == 'LIST_LAYOUT' ? 'none' : 'repeat(4, 1fr)',
                       },
