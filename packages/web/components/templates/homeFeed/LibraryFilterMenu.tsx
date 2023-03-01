@@ -3,7 +3,7 @@ import { StyledText } from '../../elements/StyledText'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
 import { Button } from '../../elements/Button'
-import { Circle, DotsThree, Plus } from 'phosphor-react'
+import { CaretRight, Circle, DotsThree, Plus } from 'phosphor-react'
 import { useGetSubscriptionsQuery } from '../../../lib/networking/queries/useGetSubscriptionsQuery'
 import { useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQuery'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
@@ -205,14 +205,14 @@ function FilterButton(props: FilterButtonProps): JSX.Element {
     <Box
       css={{
         pl: '10px',
-        pt: '2px', // TODO: hack to middle align
         mb: '10px',
+        display: 'flex',
         width: '100%',
-        height: '30px',
+        height: '32px',
         backgroundColor: selected ? '#FFEA9F' : 'unset',
-        fontSize: '16px',
+        fontSize: '14px',
         fontWeight: 'regular',
-        fontFamily: 'Inter',
+        fontFamily: 'SF Pro Text',
         color: '#3D3D3D',
         verticalAlign: 'middle',
         borderRadius: '3px',
@@ -220,6 +220,7 @@ function FilterButton(props: FilterButtonProps): JSX.Element {
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap',
+        alignItems: 'center',
         '&:hover': {
           backgroundColor: selected ? '#FFEA9F' : '#EBEBEB',
         },
@@ -354,11 +355,14 @@ function ViewAllButton(props: ViewAllButtonProps): JSX.Element {
     <Button
       style="ghost"
       css={{
+        display: 'flex',
         pl: '10px',
-        color: '#BEBEBE',
+        color: '#898989',
         fontWeight: '600',
         fontSize: '12px',
         py: '20px',
+        gap: '2px',
+        alignItems: 'center',
       }}
       onClick={(e) => {
         props.setState(!props.state)
@@ -366,6 +370,9 @@ function ViewAllButton(props: ViewAllButtonProps): JSX.Element {
       }}
     >
       {props.state ? 'Hide' : 'View All'}
+      {props.state ? null : (
+        <CaretRight size={12} color="#898989" weight="bold" />
+      )}
     </Button>
   )
 }
