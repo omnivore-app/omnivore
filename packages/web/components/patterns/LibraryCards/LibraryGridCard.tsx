@@ -6,7 +6,7 @@ import { CoverImage } from '../../elements/CoverImage'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useState } from 'react'
-import { DotsThree } from 'phosphor-react'
+import { DotsThree, DotsThreeVertical } from 'phosphor-react'
 import Link from 'next/link'
 
 dayjs.extend(relativeTime)
@@ -160,9 +160,23 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
               : null}
           </Box>
           {isHovered ? (
-            <SpanBox css={{ marginLeft: 'auto', mt: '-5px' }}>
-              <DotsThree size={25} color="#ADADAD" />
-            </SpanBox>
+            <Box
+              css={{
+                display: 'flex',
+                marginLeft: 'auto',
+                height: '30px',
+                width: '30px',
+                mt: '-5px',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '1000px',
+                '&:hover': {
+                  bg: '#EBEBEB',
+                },
+              }}
+            >
+              <DotsThreeVertical size={25} weight="bold" color="#ADADAD" />
+            </Box>
           ) : (
             <Box
               css={{
