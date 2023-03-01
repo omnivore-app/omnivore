@@ -35,8 +35,7 @@ interface SavedItemLabelDao {
     ForeignKey(
       entity = SavedItemLabel::class,
       parentColumns = arrayOf("savedItemLabelId"),
-      childColumns = arrayOf("savedItemLabelId"),
-      onDelete = ForeignKey.CASCADE
+      childColumns = arrayOf("savedItemLabelId")
     )
   ]
 )

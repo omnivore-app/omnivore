@@ -14,7 +14,9 @@ class DataService @Inject constructor(
   val db = Room.databaseBuilder(
     context,
     AppDatabase::class.java, "omnivore-database"
-  ).build()
+  )
+  .fallbackToDestructiveMigration()
+  .build()
 
   fun clearDatabase() {
     CoroutineScope(Dispatchers.IO).launch {

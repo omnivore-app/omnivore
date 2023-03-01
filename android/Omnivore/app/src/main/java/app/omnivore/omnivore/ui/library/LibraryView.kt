@@ -1,6 +1,7 @@
 package app.omnivore.omnivore.ui.library
 
 import android.content.Intent
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -110,8 +111,10 @@ fun LibraryViewContent(libraryViewModel: LibraryViewModel, modifier: Modifier) {
 
     InfiniteListHandler(listState = listState) {
       if (cardsData.isEmpty()) {
-        libraryViewModel.load()
+        Log.d("sync", "loading with load func")
+        libraryViewModel.initialLoad()
       } else {
+        Log.d("sync", "loading with search api")
         libraryViewModel.loadUsingSearchAPI()
       }
     }

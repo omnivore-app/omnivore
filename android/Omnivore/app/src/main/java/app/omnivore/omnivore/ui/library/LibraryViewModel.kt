@@ -107,6 +107,11 @@ class LibraryViewModel @Inject constructor(
     }
   }
 
+  fun initialLoad() {
+    if (hasLoadedInitialFilters) { return }
+    load()
+  }
+
   fun load(clearPreviousSearch: Boolean = false) {
     loadInitialFilterValues()
 
