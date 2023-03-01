@@ -145,7 +145,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
             fontSize: '13px',
             fontWeight: '400',
             fontFamily: 'SF Pro Display',
-            height: '35px',
+            minHeight: '35px',
           }}
           distribution="start"
         >
@@ -174,7 +174,11 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
             ></Box>
           )}
         </HStack>
-        <VStack css={{ height: '100%', width: '100%' }}>
+        <VStack
+          alignment="start"
+          distribution="start"
+          css={{ height: '100%', width: '100%' }}
+        >
           <Box
             css={{
               color: 'rgba(61, 61, 61, 1)',
@@ -207,9 +211,10 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
               '-webkit-line-clamp': '2',
               '-webkit-box-orient': 'vertical',
               height: '45px',
+              alignItems: 'start',
             }}
           >
-            {props.item.description}
+            test{props.item.description}
           </Box>
           <HStack
             css={{
@@ -222,6 +227,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
           >
             <SpanBox
               css={{
+                m: '0px',
                 maxLines: '1',
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap',
@@ -237,7 +243,15 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
               </SpanBox>
             </SpanBox>
           </HStack>
-          <SpanBox css={{ pt: '20px', pr: '10px', pb: '20px', width: '100%' }}>
+          <SpanBox
+            css={{
+              pt: '20px',
+              pr: '10px',
+              pb: '20px',
+              width: '100%',
+              m: '0px',
+            }}
+          >
             <ProgressBar
               fillPercentage={props.item.readingProgressPercent}
               fillColor="#FFD234"
@@ -266,6 +280,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
                 width: '80px',
                 height: '100%',
                 marginLeft: 'auto',
+                flexGrow: '1',
               }}
               alignment="end"
               distribution="end"
