@@ -7,6 +7,7 @@ import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useState } from 'react'
 import { DotsThree } from 'phosphor-react'
+import Link from 'next/link'
 
 dayjs.extend(relativeTime)
 
@@ -113,174 +114,179 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
     siteName(props.item.originalArticleUrl, props.item.url)
 
   return (
-    <VStack
-      css={{
-        pl: '20px',
-        padding: '15px',
-        width: '320px',
-        height: '100%',
-        minHeight: '270px',
-        background: 'white',
-        borderRadius: '5px',
-        borderWidth: '1px',
-        borderStyle: 'solid',
-        borderColor: '#E1E1E1',
-      }}
-      alignment="start"
-      distribution="start"
-      onMouseEnter={() => {
-        setIsHovered(true)
-      }}
-      onMouseLeave={() => {
-        setIsHovered(false)
-      }}
-    >
-      <HStack
+    <Link href={`${props.viewer.profile.username}/${props.item.slug}`}>
+      <VStack
         css={{
-          width: '100%',
-          color: '#6A6968',
-          fontSize: '13px',
-          fontWeight: '400',
-          fontFamily: 'SF Pro Display',
-          height: '35px',
+          pl: '20px',
+          padding: '15px',
+          width: '320px',
+          height: '100%',
+          minHeight: '270px',
+          background: 'white',
+          borderRadius: '5px',
+          borderWidth: '1px',
+          borderStyle: 'solid',
+          borderColor: '#E1E1E1',
+          cursor: 'pointer',
         }}
+        alignment="start"
         distribution="start"
+        onMouseEnter={() => {
+          setIsHovered(true)
+        }}
+        onMouseLeave={() => {
+          setIsHovered(false)
+        }}
       >
-        <Box>
-          {timeAgo(props.item.savedAt)}
-          {` `}
-          {props.item.wordsCount ?? 0 > 0
-            ? `  • ${Math.max(
-                1,
-                Math.round((props.item.wordsCount ?? 0) / 235)
-              )} min read`
-            : null}
-        </Box>
-        {isHovered ? (
-          <SpanBox css={{ marginLeft: 'auto', mt: '-5px' }}>
-            <DotsThree size={25} color="#ADADAD" />
-          </SpanBox>
-        ) : (
-          <Box
-            css={{
-              color: '#ADADAD',
-              fontSize: '13px',
-              fontWeight: '400',
-              fontFamily: 'SF Pro Display',
-            }}
-          ></Box>
-        )}
-      </HStack>
-      <HStack css={{ height: '100%', width: '100%' }}>
-        <VStack css={{ height: '100%', width: '100%' }}>
-          <Box
-            css={{
-              color: 'rgba(61, 61, 61, 1)',
-              fontSize: '20px',
-              fontWeight: '700',
-              lineHeight: '1.25',
-              fontFamily: 'SF Pro Display',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              wordBreak: 'break-word',
-              display: '-webkit-box',
-              '-webkit-line-clamp': '2',
-              '-webkit-box-orient': 'vertical',
-              height: '50px',
-            }}
-          >
-            {props.item.title}
+        <HStack
+          css={{
+            width: '100%',
+            color: '#6A6968',
+            fontSize: '13px',
+            fontWeight: '400',
+            fontFamily: 'SF Pro Display',
+            height: '35px',
+          }}
+          distribution="start"
+        >
+          <Box>
+            {timeAgo(props.item.savedAt)}
+            {` `}
+            {props.item.wordsCount ?? 0 > 0
+              ? `  • ${Math.max(
+                  1,
+                  Math.round((props.item.wordsCount ?? 0) / 235)
+                )} min read`
+              : null}
           </Box>
-          <Box
-            css={{
-              color: '#3D3D3D',
-              pt: '10px',
-              fontSize: '13px',
-              fontWeight: '400',
-              lineHeight: '140%',
-              fontFamily: 'SF Pro Display',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              display: '-webkit-box',
-              '-webkit-line-clamp': '2',
-              '-webkit-box-orient': 'vertical',
-              height: '45px',
-            }}
-          >
-            {props.item.description}
-          </Box>
-          <HStack
-            css={{
-              pt: '10px',
-              color: '#898989',
-              fontSize: '13px',
-              fontWeight: '400',
-              fontFamily: 'SF Pro Display',
-            }}
-          >
-            <SpanBox
+          {isHovered ? (
+            <SpanBox css={{ marginLeft: 'auto', mt: '-5px' }}>
+              <DotsThree size={25} color="#ADADAD" />
+            </SpanBox>
+          ) : (
+            <Box
               css={{
-                maxLines: '1',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                maxWidth: '240px',
+                color: '#ADADAD',
+                fontSize: '13px',
+                fontWeight: '400',
+                fontFamily: 'SF Pro Display',
+              }}
+            ></Box>
+          )}
+        </HStack>
+        <HStack css={{ height: '100%', width: '100%' }}>
+          <VStack css={{ height: '100%', width: '100%' }}>
+            <Box
+              css={{
+                color: 'rgba(61, 61, 61, 1)',
+                fontSize: '20px',
+                fontWeight: '700',
+                lineHeight: '1.25',
+                fontFamily: 'SF Pro Display',
                 overflow: 'hidden',
-                height: '21px',
+                textOverflow: 'ellipsis',
+                wordBreak: 'break-word',
+                display: '-webkit-box',
+                '-webkit-line-clamp': '2',
+                '-webkit-box-orient': 'vertical',
+                height: '50px',
               }}
             >
-              {props.item.author}
-              {props.item.author && originText && ' | '}
-              <SpanBox css={{ textDecoration: 'underline' }}>
-                {originText}
-              </SpanBox>
-            </SpanBox>
-          </HStack>
-          <SpanBox css={{ pt: '20px', pr: '10px', pb: '30px', width: '100%' }}>
-            <ProgressBar
-              fillPercentage={props.item.readingProgressPercent}
-              fillColor="#FFD234"
-              backgroundColor="#EEEEEE"
-              borderRadius="5px"
-            />
-          </SpanBox>
-
-          <Box
-            css={{
-              marginTop: 'auto',
-              display: 'block',
-              pt: '10px',
-              minHeight: '35px',
-            }}
-          >
-            {props.item.labels?.map(({ name, color }, index) => (
-              <LabelChip key={index} text={name || ''} color={color} />
-            ))}
-          </Box>
-        </VStack>
-        <VStack
-          css={{
-            width: '80px',
-            height: '100%',
-            marginLeft: 'auto',
-          }}
-          alignment="end"
-          distribution="end"
-        >
-          {props.item.image && (
-            <CoverImage
-              src={props.item.image}
-              alt="Link Preview Image"
-              width={50}
-              height={50}
-              css={{ borderRadius: '8px' }}
-              onError={(e) => {
-                ;(e.target as HTMLElement).style.display = 'none'
+              {props.item.title}
+            </Box>
+            <Box
+              css={{
+                color: '#3D3D3D',
+                pt: '10px',
+                fontSize: '13px',
+                fontWeight: '400',
+                lineHeight: '140%',
+                fontFamily: 'SF Pro Display',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                display: '-webkit-box',
+                '-webkit-line-clamp': '2',
+                '-webkit-box-orient': 'vertical',
+                height: '45px',
               }}
-            />
-          )}
-        </VStack>
-      </HStack>
-    </VStack>
+            >
+              {props.item.description}
+            </Box>
+            <HStack
+              css={{
+                pt: '10px',
+                color: '#898989',
+                fontSize: '13px',
+                fontWeight: '400',
+                fontFamily: 'SF Pro Display',
+              }}
+            >
+              <SpanBox
+                css={{
+                  maxLines: '1',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  maxWidth: '240px',
+                  overflow: 'hidden',
+                  height: '21px',
+                }}
+              >
+                {props.item.author}
+                {props.item.author && originText && ' | '}
+                <SpanBox css={{ textDecoration: 'underline' }}>
+                  {originText}
+                </SpanBox>
+              </SpanBox>
+            </HStack>
+            <SpanBox
+              css={{ pt: '20px', pr: '10px', pb: '30px', width: '100%' }}
+            >
+              <ProgressBar
+                fillPercentage={props.item.readingProgressPercent}
+                fillColor="#FFD234"
+                backgroundColor="#EEEEEE"
+                borderRadius="5px"
+              />
+            </SpanBox>
+
+            <Box
+              css={{
+                marginTop: 'auto',
+                display: 'block',
+                pt: '10px',
+                minHeight: '35px',
+              }}
+            >
+              {props.item.labels?.map(({ name, color }, index) => (
+                <LabelChip key={index} text={name || ''} color={color} />
+              ))}
+            </Box>
+          </VStack>
+          <VStack
+            css={{
+              width: '80px',
+              height: '100%',
+              marginLeft: 'auto',
+            }}
+            alignment="end"
+            distribution="end"
+          >
+            {props.item.image && (
+              <CoverImage
+                src={props.item.image}
+                alt="Link Preview Image"
+                width={50}
+                height={50}
+                css={{ borderRadius: '8px' }}
+                onError={(e) => {
+                  ;(e.target as HTMLElement).style.display = 'none'
+                }}
+              />
+            )}
+          </VStack>
+        </HStack>
+      </VStack>
+    </Link>
   )
 }
 
