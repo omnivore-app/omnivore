@@ -8,6 +8,8 @@ import { useGetSubscriptionsQuery } from '../../../lib/networking/queries/useGet
 import { useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQuery'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 
+const MENU_WIDTH = '300px'
+
 type LibraryFilterMenuProps = {
   setShowAddLinkModal: (show: boolean) => void
 
@@ -24,8 +26,8 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
           top: '105px',
           position: 'fixed',
           bg: 'white',
-          width: '233px',
           height: '100%',
+          width: MENU_WIDTH,
           borderRight: '1px solid #E1E1E1',
           pr: '15px',
           overflow: 'auto',
@@ -43,8 +45,7 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
       the fixed left side menu. */}
       <Box
         css={{
-          width: '233px',
-          minWidth: '233px',
+          minWidth: MENU_WIDTH,
           height: '100%',
           bg: '$grayBase',
         }}
@@ -310,7 +311,7 @@ function AddLinkButton(props: AddLinkButtonProps): JSX.Element {
       <VStack
         css={{
           marginTop: 'auto',
-          width: '233px',
+          width: MENU_WIDTH,
           height: '80px',
           pl: '25px',
         }}

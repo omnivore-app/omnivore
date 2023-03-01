@@ -112,6 +112,8 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
     props.item.siteName ||
     siteName(props.item.originalArticleUrl, props.item.url)
 
+  console.log('word count:', props.item.wordsCount)
+
   return (
     <VStack
       css={{
@@ -164,7 +166,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
             {props.item.wordsCount ?? 0 > 0
               ? `${Math.max(
                   1,
-                  Math.round(props.item.wordsCount ?? 0 / 235)
+                  Math.round((props.item.wordsCount ?? 0) / 235)
                 )} min read`
               : null}
           </Box>

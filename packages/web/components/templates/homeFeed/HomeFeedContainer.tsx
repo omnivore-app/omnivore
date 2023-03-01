@@ -903,6 +903,10 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
                         gridTemplateColumns:
                           layout == 'LIST_LAYOUT' ? 'none' : 'repeat(3, 1fr)',
                       },
+                      '@xl': {
+                        gridTemplateColumns:
+                          layout == 'LIST_LAYOUT' ? 'none' : 'repeat(4, 1fr)',
+                      },
                     }}
                   >
                     {props.items.map((linkedItem) => (
