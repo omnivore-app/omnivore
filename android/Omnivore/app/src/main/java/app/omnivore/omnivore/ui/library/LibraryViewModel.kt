@@ -51,6 +51,9 @@ class LibraryViewModel @Inject constructor(
     if (hasLoadedInitialFilters) { return }
     hasLoadedInitialFilters = false
 
+    // TODO: Fetch all labels
+
+
     runBlocking {
       datastoreRepo.getString(DatastoreKeys.lastUsedSavedItemFilter)?.let { str ->
         try {
@@ -152,7 +155,6 @@ class LibraryViewModel @Inject constructor(
   }
 
   suspend fun handleFilterChanges() {
-    librarySearchCursor = null
     if (searchTextLiveData.value != "") {
       performSearch(true)
     } else if (appliedSortFilterLiveData.value != null && appliedFilterLiveData.value != null) {
