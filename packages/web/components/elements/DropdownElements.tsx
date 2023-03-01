@@ -141,7 +141,10 @@ type DropdownOptionProps = {
 export function DropdownOption(props: DropdownOptionProps): JSX.Element {
   return (
     <>
-      <StyledItem onSelect={props.onSelect}>
+      <StyledItem
+        onSelect={props.onSelect}
+        onClick={(event) => event.stopPropagation()}
+      >
         {props.title ?? props.children}
       </StyledItem>
     </>
