@@ -45,16 +45,11 @@ export function LabelChip(props: LabelChipProps): JSX.Element {
           color: isDarkMode ? darkThemeTextColor : lightThemeTextColor,
           fontSize: '13px',
           fontWeight: '500',
-          padding: '4px 8px 4px 8px',
+          padding: '3px 6px',
           whiteSpace: 'nowrap',
           cursor: 'pointer',
           backgroundClip: 'padding-box',
-          // border: isDarkMode
-          //   ? `1px solid ${darkThemeTextColor}`
-          //   : `1px solid rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.7)`,
-          backgroundColor: isDarkMode
-            ? `rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.08)`
-            : props.color,
+          backgroundColor: props.color,
         }}
       >
         {props.text}
