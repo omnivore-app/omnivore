@@ -77,9 +77,13 @@ const siteName = (originalArticleUrl: string, itemUrl: string): string => {
 // Component
 export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
   const [isHovered, setIsHovered] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
+
   const originText =
     props.item.siteName ||
     siteName(props.item.originalArticleUrl, props.item.url)
+
+  console.log(props.item.title, 'menuOpen: ', menuOpen, 'isHovered', isHovered)
 
   return (
     <VStack
@@ -99,11 +103,6 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
       alignment="start"
       distribution="start"
       onMouseEnter={() => {
-        const element = document.getElementById(props.item.id)
-        if (!element) {
-          return
-        }
-        element.focus()
         setIsHovered(true)
       }}
       onMouseLeave={() => {
@@ -142,7 +141,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
             <Box
               css={{
                 display: 'flex',
-                visibility: isHovered ? 'unset' : 'hidden',
+                visibility: isHovered || menuOpen ? 'unset' : 'hidden',
                 marginLeft: 'auto',
                 height: '30px',
                 width: '30px',
@@ -160,6 +159,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
               <CardMenu
                 item={props.item}
                 viewer={props.viewer}
+                onOpenChange={(open) => setMenuOpen(open)}
                 actionHandler={props.handleAction}
                 triggerElement={
                   <DotsThreeVertical size={25} weight="bold" color="#ADADAD" />

@@ -20,11 +20,15 @@ type CardMenuProps = {
   viewer: UserBasicData
   triggerElement: ReactNode
   actionHandler: (action: CardMenuDropdownAction) => void
+  onOpenChange?: (open: boolean) => void
 }
 
 export function CardMenu(props: CardMenuProps): JSX.Element {
   return (
-    <Dropdown triggerElement={props.triggerElement}>
+    <Dropdown
+      triggerElement={props.triggerElement}
+      onOpenChange={props.onOpenChange}
+    >
       {!props.item.isArchived ? (
         <DropdownOption
           onSelect={() => props.actionHandler('archive')}

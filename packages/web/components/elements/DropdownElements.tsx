@@ -123,6 +123,7 @@ type DropdownProps = {
   disabled?: boolean
   css?: CSS
   modal?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
 export const DropdownSeparator = styled(Separator, {
@@ -142,7 +143,9 @@ export function DropdownOption(props: DropdownOptionProps): JSX.Element {
   return (
     <>
       <StyledItem
-        onSelect={props.onSelect}
+        onSelect={() => {
+          props.onSelect()
+        }}
         onClick={(event) => event.stopPropagation()}
       >
         {props.title ?? props.children}
@@ -165,9 +168,10 @@ export function Dropdown(
     alignOffset = 0,
     css,
     modal,
+    onOpenChange,
   } = props
   return (
-    <Root modal={modal}>
+    <Root modal={modal} onOpenChange={props.onOpenChange}>
       <DropdownTrigger disabled={disabled}>{triggerElement}</DropdownTrigger>
       <DropdownContent
         css={css}
