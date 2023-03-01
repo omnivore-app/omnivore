@@ -138,7 +138,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
       <HStack
         css={{
           width: '100%',
-          color: '#ADADAD',
+          color: '#6A6968',
           fontSize: '13px',
           fontWeight: '400',
           fontFamily: 'SF Pro Display',
