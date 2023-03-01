@@ -51,8 +51,11 @@ class LibraryViewModel @Inject constructor(
     if (hasLoadedInitialFilters) { return }
     hasLoadedInitialFilters = false
 
-    // TODO: Fetch all labels
-
+    viewModelScope.launch {
+      withContext(Dispatchers.IO) {
+        dataService.syncLabels()
+      }
+    }
 
     runBlocking {
       datastoreRepo.getString(DatastoreKeys.lastUsedSavedItemFilter)?.let { str ->
