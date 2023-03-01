@@ -12,6 +12,7 @@ import { ListSelectorIcon } from '../../elements/images/ListSelectorIcon'
 import { GridSelectorIcon } from '../../elements/images/GridSelectorIcon'
 import { LayoutType } from './HomeFeedContainer'
 import { PrimaryDropdown } from '../PrimaryDropdown'
+import { LIBRARY_LEFT_MENU_WIDTH } from './LibraryFilterMenu'
 
 type LibraryHeaderProps = {
   layout: LayoutType
@@ -214,10 +215,10 @@ function LogoBox(): JSX.Element {
     <>
       <SpanBox
         css={{
-          ml: '25px',
+          pl: '25px',
           height: '24px',
-          width: '232px',
-          minWidth: '232px',
+          width: LIBRARY_LEFT_MENU_WIDTH,
+          minWidth: LIBRARY_LEFT_MENU_WIDTH,
           '@mdDown': {
             display: 'none',
           },
