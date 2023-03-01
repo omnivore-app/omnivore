@@ -249,7 +249,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
               marginTop: 'auto',
               display: 'block',
               pt: '10px',
-              height: '35px',
+              minHeight: '35px',
             }}
           >
             {props.item.labels?.map(({ name, color }, index) => (

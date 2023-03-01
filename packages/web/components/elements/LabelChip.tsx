@@ -40,7 +40,7 @@ export function LabelChip(props: LabelChipProps): JSX.Element {
       <SpanBox
         css={{
           display: 'inline-table',
-          margin: '5px',
+          margin: '2px',
           borderRadius: '4px',
           color: isDarkMode ? darkThemeTextColor : lightThemeTextColor,
           fontSize: '13px',
