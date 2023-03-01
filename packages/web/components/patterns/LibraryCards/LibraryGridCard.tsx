@@ -174,117 +174,117 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
             ></Box>
           )}
         </HStack>
-        <HStack css={{ height: '100%', width: '100%' }}>
-          <VStack css={{ height: '100%', width: '100%' }}>
-            <Box
+        <VStack css={{ height: '100%', width: '100%' }}>
+          <Box
+            css={{
+              color: 'rgba(61, 61, 61, 1)',
+              fontSize: '20px',
+              fontWeight: '700',
+              lineHeight: '1.25',
+              fontFamily: 'SF Pro Display',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              wordBreak: 'break-word',
+              display: '-webkit-box',
+              '-webkit-line-clamp': '2',
+              '-webkit-box-orient': 'vertical',
+              height: '50px',
+            }}
+          >
+            {props.item.title}
+          </Box>
+          <Box
+            css={{
+              color: '#3D3D3D',
+              pt: '10px',
+              fontSize: '13px',
+              fontWeight: '400',
+              lineHeight: '140%',
+              fontFamily: 'SF Pro Display',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              display: '-webkit-box',
+              '-webkit-line-clamp': '2',
+              '-webkit-box-orient': 'vertical',
+              height: '45px',
+            }}
+          >
+            {props.item.description}
+          </Box>
+          <HStack
+            css={{
+              pt: '10px',
+              color: '#898989',
+              fontSize: '13px',
+              fontWeight: '400',
+              fontFamily: 'SF Pro Display',
+            }}
+          >
+            <SpanBox
               css={{
-                color: 'rgba(61, 61, 61, 1)',
-                fontSize: '20px',
-                fontWeight: '700',
-                lineHeight: '1.25',
-                fontFamily: 'SF Pro Display',
-                overflow: 'hidden',
+                maxLines: '1',
                 textOverflow: 'ellipsis',
-                wordBreak: 'break-word',
-                display: '-webkit-box',
-                '-webkit-line-clamp': '2',
-                '-webkit-box-orient': 'vertical',
-                height: '50px',
+                whiteSpace: 'nowrap',
+                maxWidth: '240px',
+                overflow: 'hidden',
+                height: '21px',
               }}
             >
-              {props.item.title}
-            </Box>
-            <Box
-              css={{
-                color: '#3D3D3D',
-                pt: '10px',
-                fontSize: '13px',
-                fontWeight: '400',
-                lineHeight: '140%',
-                fontFamily: 'SF Pro Display',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                display: '-webkit-box',
-                '-webkit-line-clamp': '2',
-                '-webkit-box-orient': 'vertical',
-                height: '45px',
-              }}
-            >
-              {props.item.description}
-            </Box>
+              {props.item.author}
+              {props.item.author && originText && ' | '}
+              <SpanBox css={{ textDecoration: 'underline' }}>
+                {originText}
+              </SpanBox>
+            </SpanBox>
+          </HStack>
+          <SpanBox css={{ pt: '20px', pr: '10px', pb: '20px', width: '100%' }}>
+            <ProgressBar
+              fillPercentage={props.item.readingProgressPercent}
+              fillColor="#FFD234"
+              backgroundColor="#EEEEEE"
+              borderRadius="5px"
+            />
+          </SpanBox>
+
+          <HStack
+            distribution="start"
+            alignment="start"
+            css={{ width: '100%', minHeight: '50px' }}
+          >
             <HStack
               css={{
-                pt: '10px',
-                color: '#898989',
-                fontSize: '13px',
-                fontWeight: '400',
-                fontFamily: 'SF Pro Display',
-              }}
-            >
-              <SpanBox
-                css={{
-                  maxLines: '1',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                  maxWidth: '240px',
-                  overflow: 'hidden',
-                  height: '21px',
-                }}
-              >
-                {props.item.author}
-                {props.item.author && originText && ' | '}
-                <SpanBox css={{ textDecoration: 'underline' }}>
-                  {originText}
-                </SpanBox>
-              </SpanBox>
-            </HStack>
-            <SpanBox
-              css={{ pt: '20px', pr: '10px', pb: '30px', width: '100%' }}
-            >
-              <ProgressBar
-                fillPercentage={props.item.readingProgressPercent}
-                fillColor="#FFD234"
-                backgroundColor="#EEEEEE"
-                borderRadius="5px"
-              />
-            </SpanBox>
-
-            <Box
-              css={{
-                marginTop: 'auto',
                 display: 'block',
-                pt: '10px',
                 minHeight: '35px',
               }}
             >
               {props.item.labels?.map(({ name, color }, index) => (
                 <LabelChip key={index} text={name || ''} color={color} />
               ))}
-            </Box>
-          </VStack>
-          <VStack
-            css={{
-              width: '80px',
-              height: '100%',
-              marginLeft: 'auto',
-            }}
-            alignment="end"
-            distribution="end"
-          >
-            {props.item.image && (
-              <CoverImage
-                src={props.item.image}
-                alt="Link Preview Image"
-                width={50}
-                height={50}
-                css={{ borderRadius: '8px' }}
-                onError={(e) => {
-                  ;(e.target as HTMLElement).style.display = 'none'
-                }}
-              />
-            )}
-          </VStack>
-        </HStack>
+            </HStack>
+            <VStack
+              css={{
+                width: '80px',
+                height: '100%',
+                marginLeft: 'auto',
+              }}
+              alignment="end"
+              distribution="end"
+            >
+              {props.item.image && (
+                <CoverImage
+                  src={props.item.image}
+                  alt="Link Preview Image"
+                  width={50}
+                  height={50}
+                  css={{ borderRadius: '8px' }}
+                  onError={(e) => {
+                    ;(e.target as HTMLElement).style.display = 'none'
+                  }}
+                />
+              )}
+            </VStack>
+          </HStack>
+        </VStack>
       </VStack>
     </Link>
   )
