@@ -111,7 +111,7 @@ function ControlButtonBox(props: ReaderHeaderProps): JSX.Element {
             <TextAa size={25} color="#6A6968" />
           </TooltipWrapped>
         </Button>
-        <PrimaryDropdown>
+        <PrimaryDropdown showThemeSection={false}>
           <DotsThreeOutline size={25} color="#6A6968" />
         </PrimaryDropdown>
       </HStack>
@@ -130,7 +130,7 @@ function ControlButtonBox(props: ReaderHeaderProps): JSX.Element {
           },
         }}
       >
-        <PrimaryDropdown />
+        <PrimaryDropdown showThemeSection={false} />
       </HStack>
     </>
   )

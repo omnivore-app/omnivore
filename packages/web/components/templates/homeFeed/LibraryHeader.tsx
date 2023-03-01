@@ -289,7 +289,7 @@ function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
             color={props.layout == 'LIST_LAYOUT' ? '#6A6968' : '#FFEA9F'}
           />
         </Button>
-        <PrimaryDropdown />
+        <PrimaryDropdown showThemeSection={true} />
       </HStack>
 
       <HStack
@@ -306,7 +306,7 @@ function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
           },
         }}
       >
-        <PrimaryDropdown />
+        <PrimaryDropdown showThemeSection={true} />
       </HStack>
     </>
   )

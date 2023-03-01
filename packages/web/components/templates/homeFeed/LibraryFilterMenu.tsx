@@ -31,6 +31,9 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
           borderRight: '1px solid #E1E1E1',
           overflowY: 'auto',
           overflowX: 'hidden',
+          '&::-webkit-scrollbar': {
+            display: 'none',
+          },
         }}
       >
         <SavedSearches {...props} />
