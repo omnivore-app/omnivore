@@ -166,7 +166,21 @@ function MenuPanel(props: MenuPanelProps): JSX.Element {
           {props.editTitle && props.editFunc && (
             <Dropdown
               triggerElement={
-                <DotsThree size={25} weight="bold" color="#BEBEBE" />
+                <Box
+                  css={{
+                    display: 'flex',
+                    height: '30px',
+                    width: '30px',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: '1000px',
+                    '&:hover': {
+                      bg: '#EBEBEB',
+                    },
+                  }}
+                >
+                  <DotsThree size={25} weight="bold" color="#BEBEBE" />
+                </Box>
               }
             >
               <DropdownOption
