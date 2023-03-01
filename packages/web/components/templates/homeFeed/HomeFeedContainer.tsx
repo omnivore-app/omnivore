@@ -934,6 +934,9 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
                             '> div': {
                               bg: '$grayBgActive',
                             },
+                            '> a': {
+                              bg: '$grayBgActive',
+                            },
                           },
                         }}
                       >
