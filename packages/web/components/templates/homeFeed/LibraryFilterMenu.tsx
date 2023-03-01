@@ -29,8 +29,8 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
           height: '100%',
           width: LIBRARY_LEFT_MENU_WIDTH,
           borderRight: '1px solid #E1E1E1',
-          pr: '15px',
-          overflow: 'auto',
+          overflowY: 'auto',
+          overflowX: 'hidden',
         }}
       >
         <SavedSearches {...props} />
@@ -130,9 +130,10 @@ function MenuPanel(props: MenuPanelProps): JSX.Element {
   return (
     <VStack
       css={{
+        m: '0px',
         width: '100%',
         borderBottom: '1px solid #E1E1E1',
-        pl: '15px',
+        px: '15px',
       }}
       alignment="start"
       distribution="start"
@@ -162,7 +163,7 @@ function MenuPanel(props: MenuPanelProps): JSX.Element {
           {props.editTitle && props.editFunc && (
             <Dropdown
               triggerElement={
-                <DotsThree width={20} weight="bold" color="#BEBEBE" />
+                <DotsThree size={25} weight="bold" color="#BEBEBE" />
               }
             >
               <DropdownOption
