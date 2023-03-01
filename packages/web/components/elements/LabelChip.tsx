@@ -40,18 +40,18 @@ export function LabelChip(props: LabelChipProps): JSX.Element {
       <SpanBox
         css={{
           display: 'inline-table',
-          margin: '4px',
+          margin: '5px',
           borderRadius: '4px',
           color: isDarkMode ? darkThemeTextColor : lightThemeTextColor,
-          fontSize: '12px',
-          fontWeight: 'bold',
-          padding: '2px 5px 2px 5px',
+          fontSize: '13px',
+          fontWeight: '500',
+          padding: '4px 8px 4px 8px',
           whiteSpace: 'nowrap',
           cursor: 'pointer',
           backgroundClip: 'padding-box',
-          border: isDarkMode
-            ? `1px solid ${darkThemeTextColor}`
-            : `1px solid rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.7)`,
+          // border: isDarkMode
+          //   ? `1px solid ${darkThemeTextColor}`
+          //   : `1px solid rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.7)`,
           backgroundColor: isDarkMode
             ? `rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.08)`
             : props.color,

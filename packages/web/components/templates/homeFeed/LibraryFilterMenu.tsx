@@ -64,6 +64,7 @@ function SavedSearches(props: LibraryFilterMenuProps): JSX.Element {
         {...props}
       />
       <FilterButton text="Highlights" filterTerm="type:highlights" {...props} />
+      <FilterButton text="Unlabeled" filterTerm="no:label" {...props} />
       <FilterButton text="Files" filterTerm="type:file" {...props} />
       <FilterButton text="Archived" filterTerm="in:archive" {...props} />
       <Box css={{ height: '10px' }}></Box>

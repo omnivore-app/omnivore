@@ -112,8 +112,6 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
     props.item.siteName ||
     siteName(props.item.originalArticleUrl, props.item.url)
 
-  console.log('word count:', props.item.wordsCount)
-
   return (
     <VStack
       css={{
@@ -141,14 +139,23 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
         css={{
           width: '100%',
           color: '#ADADAD',
-          fontSize: '9px',
+          fontSize: '13px',
           fontWeight: '400',
           fontFamily: 'SF Pro Display',
           height: '35px',
         }}
-        distribution="evenly"
+        distribution="start"
       >
-        <Box>{timeAgo(props.item.savedAt)}</Box>
+        <Box>
+          {timeAgo(props.item.savedAt)}
+          {` `}
+          {props.item.wordsCount ?? 0 > 0
+            ? `  • ${Math.max(
+                1,
+                Math.round((props.item.wordsCount ?? 0) / 235)
+              )} min read`
+            : null}
+        </Box>
         {isHovered ? (
           <SpanBox css={{ marginLeft: 'auto', mt: '-5px' }}>
             <DotsThree size={25} color="#ADADAD" />
@@ -156,30 +163,22 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
         ) : (
           <Box
             css={{
-              marginLeft: 'auto',
-              color: '#C1C1C1',
-              fontSize: '9px',
-              fontWeight: '700',
+              color: '#ADADAD',
+              fontSize: '13px',
+              fontWeight: '400',
               fontFamily: 'SF Pro Display',
             }}
-          >
-            {props.item.wordsCount ?? 0 > 0
-              ? `${Math.max(
-                  1,
-                  Math.round((props.item.wordsCount ?? 0) / 235)
-                )} min read`
-              : null}
-          </Box>
+          ></Box>
         )}
       </HStack>
-      <HStack css={{ pt: '10px', height: '100%', width: '100%' }}>
-        <VStack css={{ height: '100%' }}>
+      <HStack css={{ height: '100%', width: '100%' }}>
+        <VStack css={{ height: '100%', width: '100%' }}>
           <Box
             css={{
               color: 'rgba(61, 61, 61, 1)',
-              fontSize: '18px',
+              fontSize: '20px',
               fontWeight: '700',
-              lineHeight: '22.5px',
+              lineHeight: '1.25',
               fontFamily: 'SF Pro Display',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
@@ -187,25 +186,25 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
               display: '-webkit-box',
               '-webkit-line-clamp': '2',
               '-webkit-box-orient': 'vertical',
-              height: '45px',
+              height: '50px',
             }}
           >
             {props.item.title}
           </Box>
           <Box
             css={{
-              color: 'rgba(106, 105, 104, 1)',
+              color: '#3D3D3D',
               pt: '10px',
-              fontSize: '11px',
+              fontSize: '13px',
               fontWeight: '400',
               lineHeight: '140%',
-              fontFamily: 'Inter',
+              fontFamily: 'SF Pro Display',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               display: '-webkit-box',
               '-webkit-line-clamp': '2',
               '-webkit-box-orient': 'vertical',
-              height: '40px',
+              height: '45px',
             }}
           >
             {props.item.description}
@@ -213,8 +212,8 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
           <HStack
             css={{
               pt: '10px',
-              color: 'rgba(173, 173, 173, 1)',
-              fontSize: '9px',
+              color: '#898989',
+              fontSize: '13px',
               fontWeight: '400',
               fontFamily: 'SF Pro Display',
             }}
@@ -226,14 +225,17 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
                 whiteSpace: 'nowrap',
                 maxWidth: '240px',
                 overflow: 'hidden',
+                height: '21px',
               }}
             >
               {props.item.author}
               {props.item.author && originText && ' | '}
-              {originText}
+              <SpanBox css={{ textDecoration: 'underline' }}>
+                {originText}
+              </SpanBox>
             </SpanBox>
           </HStack>
-          <SpanBox css={{ pt: '20px', pr: '10px', width: '100%' }}>
+          <SpanBox css={{ pt: '20px', pr: '10px', pb: '30px', width: '100%' }}>
             <ProgressBar
               fillPercentage={props.item.readingProgressPercent}
               fillColor="#FFD234"
@@ -242,7 +244,14 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
             />
           </SpanBox>
 
-          <Box css={{ marginTop: 'auto', display: 'block', pt: '10px' }}>
+          <Box
+            css={{
+              marginTop: 'auto',
+              display: 'block',
+              pt: '10px',
+              height: '35px',
+            }}
+          >
             {props.item.labels?.map(({ name, color }, index) => (
               <LabelChip key={index} text={name || ''} color={color} />
             ))}
