@@ -10,12 +10,12 @@ export interface RetrievedData {
 export interface RetrievedResult {
   data: RetrievedData[]
   hasMore?: boolean
-  since?: number
+  since?: number // unix timestamp in milliseconds
 }
 
 export interface RetrieveRequest {
   token: string
-  since?: number
+  since?: number // unix timestamp in milliseconds
   count?: number
   offset?: number
 }

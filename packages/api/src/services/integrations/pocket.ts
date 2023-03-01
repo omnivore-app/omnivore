@@ -8,12 +8,12 @@ import axios from 'axios'
 import { env } from '../../env'
 
 interface PocketResponse {
-  status: number
-  complete: number
+  status: number // 1 if success
+  complete: number // 1 if all items have been returned
   list: {
     [key: string]: PocketItem
   }
-  since: number
+  since: number // unix timestamp in seconds
   search_meta: {
     search_type: string
   }
@@ -31,10 +31,10 @@ interface PocketItem {
   status: string
   excerpt: string
   word_count: string
-  tags: {
+  tags?: {
     [key: string]: Tag
   }
-  authors: {
+  authors?: {
     [key: string]: Author
   }
 }
@@ -80,7 +80,7 @@ export class PocketIntegration extends IntegrationService {
 
   retrievePocketData = async (
     accessToken: string,
-    since: number,
+    since: number, // unix timestamp in seconds
     count = 100,
     offset = 0
   ): Promise<PocketResponse> => {
@@ -106,7 +106,7 @@ export class PocketIntegration extends IntegrationService {
       return response.data
     } catch (error) {
       console.log('error retrieving pocket data', error)
-      throw error
+      throw new Error('Error retrieving pocket data')
     }
   }
 
@@ -130,7 +130,7 @@ export class PocketIntegration extends IntegrationService {
     }
     const data = pocketItems.map((item) => ({
       url: item.given_url,
-      labels: Object.values(item.tags).map((tag) => tag.tag),
+      labels: Object.values(item.tags ?? {}).map((tag) => tag.tag),
       state: statusToState[item.status],
     }))
     return {

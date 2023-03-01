@@ -377,38 +377,10 @@ describe('Integrations resolvers', () => {
           name: 'POCKET',
           token: 'fakeToken',
         })
-
-        // nock('https://getpocket.com', {
-        //   reqheaders: {
-        //     'content-type': 'application/json',
-        //   },
-        // })
-        //   .post('/v3/get', {
-        //     access_token: existingIntegration.token,
-        //     consumer_key: '',
-        //     state: 'all',
-        //     detailType: 'complete',
-        //     since: 0,
-        //     sort: 'oldest',
-        //     count: 100,
-        //     offset: 0,
-        //   })
-        //   .reply(200, {
-        //     list: {
-        //       '123': {
-        //         given_url: 'https://omnivore.app/pocket-import-test',
-        //       },
-        //     },
-        //   })
-        //
-        // sinon.replace(uploads, 'uploadToBucket', () => {
-        //   return Promise.resolve()
-        // })
       })
 
       after(async () => {
         await deleteTestIntegrations(loginUser.id, [existingIntegration.id])
-        // sinon.restore()
       })
 
       it('returns success and starts cloud task', async () => {

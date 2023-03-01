@@ -443,14 +443,17 @@ export const enqueueRecommendation = async (
 
 export const enqueueImportFromIntegration = async (
   userId: string,
-  integrationId: string
+  integrationId: string,
+  authToken: string
 ): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT } = process.env
   const payload = {
-    userId,
     integrationId,
   }
 
+  const headers = {
+    Cookie: `auth=${authToken}`,
+  }
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment
   if (env.dev.isLocal || !GOOGLE_CLOUD_PROJECT) {
     return nanoid()
@@ -461,6 +464,7 @@ export const enqueueImportFromIntegration = async (
     payload,
     taskHandlerUrl: `${env.queue.integrationTaskHandlerUrl}/import`,
     priority: 'low',
+    requestHeaders: headers,
   })
 
   if (!createdTasks || !createdTasks[0].name) {

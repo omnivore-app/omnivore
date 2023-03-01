@@ -228,7 +228,7 @@ export const importFromIntegrationResolver = authorized<
   ImportFromIntegrationSuccess,
   ImportFromIntegrationError,
   MutationImportFromIntegrationArgs
->(async (_, { integrationId }, { claims: { uid }, log }) => {
+>(async (_, { integrationId }, { claims: { uid }, log, signToken }) => {
   log.info('importFromIntegrationResolver')
 
   try {
@@ -243,8 +243,17 @@ export const importFromIntegrationResolver = authorized<
       }
     }
 
+    const exp = Math.floor(Date.now() / 1000) + 60 * 60 * 24 // 1 day
+    const authToken = (await signToken(
+      { uid, exp },
+      env.server.jwtSecret
+    )) as string
     // create a task to import all the pages
-    const taskName = await enqueueImportFromIntegration(uid, integration.id)
+    const taskName = await enqueueImportFromIntegration(
+      uid,
+      integration.id,
+      authToken
+    )
     // update task name in integration
     await getRepository(Integration).update(integration.id, { taskName })
 
