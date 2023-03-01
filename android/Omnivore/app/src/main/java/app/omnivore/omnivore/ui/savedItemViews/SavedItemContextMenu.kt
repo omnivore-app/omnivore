@@ -1,6 +1,7 @@
 package app.omnivore.omnivore.ui.savedItemViews
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.List
 import androidx.compose.material3.DropdownMenu
@@ -21,6 +22,19 @@ fun SavedItemContextMenu(
     expanded = isExpanded,
     onDismissRequest = onDismiss
   ) {
+    DropdownMenuItem(
+      text = { Text("Edit Labels") },
+      onClick = {
+        actionHandler(SavedItemAction.EditLabels)
+        onDismiss()
+      },
+      leadingIcon = {
+        Icon(
+          Icons.Outlined.CheckCircle, // TODO: use more appropriate icon
+          contentDescription = null
+        )
+      }
+    )
     DropdownMenuItem(
       text = { Text(if (isArchived) "Unarchive" else "Archive") },
       onClick = {

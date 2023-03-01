@@ -157,6 +157,9 @@ class WebReaderViewModel @Inject constructor(
           popToLibraryView()
         }
       }
+      SavedItemAction.EditLabels -> {
+        Log.d("label", "itemID")
+      }
     }
   }
 

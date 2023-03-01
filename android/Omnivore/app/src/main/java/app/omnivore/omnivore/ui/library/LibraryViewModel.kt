@@ -260,6 +260,9 @@ class LibraryViewModel @Inject constructor(
           dataService.unarchiveSavedItem(itemID)
         }
       }
+      SavedItemAction.EditLabels -> {
+        Log.d("label", "itemID")
+      }
     }
   }
 
@@ -283,5 +286,6 @@ class LibraryViewModel @Inject constructor(
 enum class SavedItemAction {
   Delete,
   Archive,
-  Unarchive
+  Unarchive,
+  EditLabels
 }
