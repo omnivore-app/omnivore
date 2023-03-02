@@ -7,6 +7,9 @@ import { CaretRight, Circle, DotsThree, Plus } from 'phosphor-react'
 import { useGetSubscriptionsQuery } from '../../../lib/networking/queries/useGetSubscriptionsQuery'
 import { useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQuery'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
+import { CloseButton } from '../../elements/CloseButton'
+import { MenuHeaderButton } from './LibraryHeader'
+import { LayoutType } from './HomeFeedContainer'
 
 export const LIBRARY_LEFT_MENU_WIDTH = '300px'
 
@@ -15,6 +18,8 @@ type LibraryFilterMenuProps = {
 
   searchTerm: string | undefined
   applySearchQuery: (searchTerm: string) => void
+
+  setShowFilterMenu: (show: boolean) => void
 }
 
 export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
@@ -34,8 +39,28 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
           '&::-webkit-scrollbar': {
             display: 'none',
           },
+          '@mdDown': {
+            top: '50px',
+            width: '100%',
+            zIndex: 6, // Above the header
+          },
+          transform: 'translateX(0)',
         }}
       >
+        {/* <Box
+          css={{
+            width: '100%',
+            height: '30px',
+            py: '15px',
+            px: '15px',
+            '@md': {
+              display: 'none',
+            },
+          }}
+        >
+          <MenuHeaderButton setShowFilterMenu={props.setShowFilterMenu} />
+          <CloseButton close={() => props.setShowFilterMenu(false)} />
+        </Box> */}
         <SavedSearches {...props} />
         <Subscriptions {...props} />
         <Labels {...props} />
@@ -51,6 +76,9 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
           minWidth: LIBRARY_LEFT_MENU_WIDTH,
           height: '100%',
           bg: '$grayBase',
+          '@mdDown': {
+            display: 'none',
+          },
         }}
       ></Box>
     </>
@@ -206,6 +234,8 @@ type FilterButtonProps = {
   filterTerm: string
   searchTerm: string | undefined
   applySearchQuery: (searchTerm: string) => void
+
+  setShowFilterMenu: (show: boolean) => void
 }
 
 function FilterButton(props: FilterButtonProps): JSX.Element {
@@ -249,6 +279,7 @@ function FilterButton(props: FilterButtonProps): JSX.Element {
       }}
       onClick={(e) => {
         props.applySearchQuery(props.filterTerm)
+        props.setShowFilterMenu(false)
         e.preventDefault()
       }}
     >

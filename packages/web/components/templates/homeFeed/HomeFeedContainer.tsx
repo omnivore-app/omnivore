@@ -732,6 +732,8 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
     props.reloadItems()
   }
 
+  const [showFilterMenu, setShowFilterMenu] = useState(false)
+
   return (
     <VStack css={{ width: '100%', height: '100%' }}>
       <LibraryHeader
@@ -742,13 +744,19 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
           console.log('searching with searchQuery: ', searchQuery)
           props.applySearchQuery(searchQuery)
         }}
+        showFilterMenu={showFilterMenu}
+        setShowFilterMenu={setShowFilterMenu}
       />
       <HStack css={{ width: '100%', height: '100%' }}>
         <SpanBox
           css={{
+            display: 'block',
+            bg: 'red',
             '@mdDown': {
-              display: 'none',
+              opacity: showFilterMenu ? '1.0' : '0.0',
+              visibility: showFilterMenu ? 'visible' : 'hidden',
             },
+            transition: 'visibility 0s, opacity 0.3s',
           }}
         >
           <LibraryFilterMenu
@@ -758,16 +766,13 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
               console.log('searching with searchQuery: ', searchQuery)
               props.applySearchQuery(searchQuery)
             }}
+            setShowFilterMenu={setShowFilterMenu}
           />
         </SpanBox>
         <VStack
           alignment="center"
           css={{
-            px: '$3',
             width: '100%',
-            '@smDown': {
-              px: '$2',
-            },
           }}
         >
           <Toaster />

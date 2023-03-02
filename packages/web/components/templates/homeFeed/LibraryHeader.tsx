@@ -11,11 +11,7 @@ import { GridSelectorIcon } from '../../elements/images/GridSelectorIcon'
 import { LayoutType } from './HomeFeedContainer'
 import { PrimaryDropdown } from '../PrimaryDropdown'
 import { LogoBox } from '../../elements/LogoBox'
-import {
-  OmnivoreLogoIcon,
-  OmnivoreNameLogo,
-  OmnivoreSmallLogo,
-} from '../../elements/images/OmnivoreNameLogo'
+import { OmnivoreSmallLogo } from '../../elements/images/OmnivoreNameLogo'
 
 type LibraryHeaderProps = {
   layout: LayoutType
@@ -23,6 +19,9 @@ type LibraryHeaderProps = {
 
   searchTerm: string | undefined
   applySearchQuery: (searchQuery: string) => void
+
+  showFilterMenu: boolean
+  setShowFilterMenu: (show: boolean) => void
 }
 
 const FOCUSED_BOXSHADOW = '0px 0px 2px 2px rgba(255, 234, 159, 0.56)'
@@ -108,7 +107,7 @@ function SmallHeaderLayout(props: LibraryHeaderProps): JSX.Element {
         },
       }}
     >
-      <MenuHeaderButton />
+      <MenuHeaderButton {...props} />
       <ControlButtonBox
         layout={props.layout}
         updateLayout={props.updateLayout}
@@ -117,19 +116,30 @@ function SmallHeaderLayout(props: LibraryHeaderProps): JSX.Element {
   )
 }
 
-function MenuHeaderButton(): JSX.Element {
+type MenuHeaderButtonProps = {
+  showFilterMenu: boolean
+  setShowFilterMenu: (show: boolean) => void
+}
+
+export function MenuHeaderButton(props: MenuHeaderButtonProps): JSX.Element {
   return (
     <HStack
       css={{
         ml: '10px',
-        minWidth: '60px',
-        minHeight: '30px',
-        bg: '#F0F0F0',
+        width: '60px',
+        height: '30px',
+        // minWidth: '60px',
+        // minHeight: '30px',
+        bg: props.showFilterMenu ? '#898989' : '#F0F0F0',
         borderRadius: '5px',
         px: '5px',
+        cursor: 'pointer',
       }}
       alignment="center"
       distribution="around"
+      onClick={() => {
+        props.setShowFilterMenu(!props.showFilterMenu)
+      }}
     >
       <OmnivoreSmallLogo size={15} strokeColor="black" />
       <FunnelSimple size={16} color="#6A6968" />
