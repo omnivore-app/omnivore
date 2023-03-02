@@ -118,9 +118,12 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
                   )} min read`
                 : null}
               {props.item.readingProgressPercent ?? 0 > 0 ? (
-                <SpanBox css={{ color: '#55B938' }}>
-                  {`  • ${Math.round(props.item.readingProgressPercent)}%`}
-                </SpanBox>
+                <>
+                  {`  • `}
+                  <SpanBox css={{ color: '#55B938' }}>
+                    {`${Math.round(props.item.readingProgressPercent)}%`}
+                  </SpanBox>
+                </>
               ) : null}
             </Box>
             <Box
