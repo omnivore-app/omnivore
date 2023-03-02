@@ -13,6 +13,7 @@ import { GridSelectorIcon } from '../../elements/images/GridSelectorIcon'
 import { LayoutType } from './HomeFeedContainer'
 import { PrimaryDropdown } from '../PrimaryDropdown'
 import { LIBRARY_LEFT_MENU_WIDTH } from './LibraryFilterMenu'
+import { LogoBox } from '../../elements/LogoBox'
 
 type LibraryHeaderProps = {
   layout: LayoutType
@@ -206,38 +207,6 @@ function SearchBox(props: SearchBoxProps): JSX.Element {
         )}
       </HStack>
     </Box>
-  )
-}
-
-// Displays the full logo on larger screens, small logo on mobile
-function LogoBox(): JSX.Element {
-  return (
-    <>
-      <SpanBox
-        css={{
-          pl: '25px',
-          height: '24px',
-          width: LIBRARY_LEFT_MENU_WIDTH,
-          minWidth: LIBRARY_LEFT_MENU_WIDTH,
-          '@mdDown': {
-            display: 'none',
-          },
-        }}
-      >
-        <OmnivoreFullLogo showTitle={true} />
-      </SpanBox>
-      <SpanBox
-        css={{
-          ml: '20px',
-          mr: '20px',
-          '@md': {
-            display: 'none',
-          },
-        }}
-      >
-        <OmnivoreNameLogo />
-      </SpanBox>
-    </>
   )
 }
 

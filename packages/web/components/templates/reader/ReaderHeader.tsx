@@ -5,7 +5,8 @@ import { OmnivoreNameLogo } from '../../elements/images/OmnivoreNameLogo'
 import { OmnivoreFullLogo } from '../../elements/images/OmnivoreFullLogo'
 import { PrimaryDropdown } from '../PrimaryDropdown'
 import { TooltipWrapped } from '../../elements/Tooltip'
-import { ReaderSettings } from '../../../lib/hooks/useReaderSettings'
+import { LIBRARY_LEFT_MENU_WIDTH } from '../homeFeed/LibraryFilterMenu'
+import { LogoBox } from '../../elements/LogoBox'
 
 const HEADER_HEIGHT = '105px'
 const MOBILE_HEIGHT = '48px'
@@ -29,6 +30,7 @@ export function ReaderHeader(props: ReaderHeaderProps): JSX.Element {
           height: HEADER_HEIGHT,
           bg: 'transparent',
           pt: '35px',
+          borderBottom: '1px solid transparent',
           '@mdDown': {
             height: MOBILE_HEIGHT,
             pt: '0px',
@@ -47,38 +49,6 @@ export function ReaderHeader(props: ReaderHeaderProps): JSX.Element {
           <ControlButtonBox {...props} />
         </HStack>
       </VStack>
-    </>
-  )
-}
-
-// Displays the full logo on larger screens, small logo on mobile
-function LogoBox(): JSX.Element {
-  return (
-    <>
-      <SpanBox
-        css={{
-          ml: '25px',
-          height: '24px',
-          width: '232px',
-          minWidth: '232px',
-          '@mdDown': {
-            display: 'none',
-          },
-        }}
-      >
-        <OmnivoreFullLogo showTitle={true} />
-      </SpanBox>
-      <SpanBox
-        css={{
-          ml: '20px',
-          mr: '20px',
-          '@md': {
-            display: 'none',
-          },
-        }}
-      >
-        <OmnivoreNameLogo />
-      </SpanBox>
     </>
   )
 }
