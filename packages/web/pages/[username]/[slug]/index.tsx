@@ -312,7 +312,14 @@ export default function Home(): JSX.Element {
         showDisplaySettingsModal={
           readerSettings.setShowEditDisplaySettingsModal
         }
-      />
+      >
+        <ArticleActionsMenu
+          article={article}
+          layout="top"
+          showReaderDisplaySettings={article?.contentReader != 'PDF'}
+          articleActionHandler={actionHandler}
+        />
+      </ReaderHeader>
 
       <VStack
         distribution="between"

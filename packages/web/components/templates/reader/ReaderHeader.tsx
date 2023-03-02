@@ -1,15 +1,17 @@
-import { HStack, VStack } from '../../elements/LayoutPrimitives'
+import { HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { DotsThreeOutline, TextAa } from 'phosphor-react'
 import { PrimaryDropdown } from '../PrimaryDropdown'
 import { TooltipWrapped } from '../../elements/Tooltip'
 import { LogoBox } from '../../elements/LogoBox'
+import { ReactNode } from 'react'
 
 const HEADER_HEIGHT = '105px'
 const MOBILE_HEIGHT = '48px'
 
 type ReaderHeaderProps = {
   showDisplaySettingsModal: (show: boolean) => void
+  children?: ReactNode
 }
 
 export function ReaderHeader(props: ReaderHeaderProps): JSX.Element {
@@ -45,6 +47,8 @@ export function ReaderHeader(props: ReaderHeaderProps): JSX.Element {
           }}
         >
           <LogoBox />
+          {/* <SpanBox css={{ marginLeft: 'auto' }}>{props.children}</SpanBox> */}
+
           <ControlButtonBox {...props} />
         </HStack>
       </VStack>
@@ -65,9 +69,9 @@ function ControlButtonBox(props: ReaderHeaderProps): JSX.Element {
           height: '100%',
           gap: '20px',
           minWidth: '121px',
-          '@mdDown': {
-            display: 'none',
-          },
+          // '@mdDown': {
+          //   display: 'none',
+          // },
         }}
       >
         <Button
@@ -85,7 +89,7 @@ function ControlButtonBox(props: ReaderHeaderProps): JSX.Element {
         </PrimaryDropdown>
       </HStack>
 
-      <HStack
+      {/* <HStack
         alignment="center"
         distribution="end"
         css={{
@@ -100,7 +104,7 @@ function ControlButtonBox(props: ReaderHeaderProps): JSX.Element {
         }}
       >
         <PrimaryDropdown showThemeSection={false} />
-      </HStack>
+      </HStack> */}
     </>
   )
 }
