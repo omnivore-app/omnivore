@@ -19,16 +19,40 @@ export const Button = styled('button', {
         },
       },
       ctaDarkYellow: {
-        border: 0,
-        fontSize: '14px',
+        border: '1px solid transparent',
+        fontSize: '10px',
         fontWeight: 500,
-        fontStyle: 'normal',
         fontFamily: 'Inter',
-        borderRadius: '8px',
+        borderRadius: '5px',
         cursor: 'pointer',
-        color: '$omnivoreGray',
-        bg: '$omnivoreCtaYellow',
-        p: '10px 13px',
+        color: '#3D3D3D',
+        bg: '#FFEA9F',
+        p: '10px 15px',
+        '&:hover': {
+          bg: '$omnivoreCtaYellow',
+        },
+        '&:focus': {
+          outline: 'none !important',
+          border: '1px solid $omnivoreCtaYellow',
+        },
+      },
+      cancelGeneric: {
+        fontSize: '10px',
+        fontWeight: 500,
+        fontFamily: 'Inter',
+        cursor: 'pointer',
+        color: '#6A6968',
+        borderRadius: '5px',
+        border: '1px solid transparent',
+        p: '10px 15px',
+        bg: '$grayBg',
+        '&:hover': {
+          bg: '#EBEBEB',
+        },
+        '&:focus': {
+          outline: 'none !important',
+          border: '1px solid $omnivoreCtaYellow',
+        },
       },
       ctaOutlineYellow: {
         boxSizing: 'border-box',
@@ -65,7 +89,7 @@ export const Button = styled('button', {
         },
         '.ctaButtonIcon': {
           visibility: 'hidden',
-        }
+        },
       },
       ctaGray: {
         border: 0,
@@ -211,7 +235,7 @@ export const Button = styled('button', {
         },
         '&[data-state="selected"]': {
           border: '2px solid #F9D354',
-        }
+        },
       },
     },
   },

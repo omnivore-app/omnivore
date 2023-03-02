@@ -83,8 +83,6 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
     props.item.siteName ||
     siteName(props.item.originalArticleUrl, props.item.url)
 
-  console.log(props.item.title, 'menuOpen: ', menuOpen, 'isHovered', isHovered)
-
   return (
     <VStack
       css={{

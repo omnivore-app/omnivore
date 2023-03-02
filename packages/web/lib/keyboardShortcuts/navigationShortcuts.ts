@@ -183,7 +183,7 @@ export function libraryListCommands(
       actionDescription: 'Move cursor to the previous row',
       shortcutKeyDescription: 'Arrow Up',
       callback: () => actionHandler('moveFocusToPreviousRowItem'),
-    }
+    },
   ]
 }
 
@@ -267,12 +267,12 @@ export function articleKeyboardCommands(
     //   shortcutKeyDescription: '[',
     //   callback: () => actionHandler('decrementMarginWidth'),
     // },
-    {
-      shortcutKeys: ['d'],
-      actionDescription: 'Edit Display Settings',
-      shortcutKeyDescription: 'd',
-      callback: () => actionHandler('editDisplaySettings'),
-    },
+    // {
+    //   shortcutKeys: ['d'],
+    //   actionDescription: 'Edit Display Settings',
+    //   shortcutKeyDescription: 'd',
+    //   callback: () => actionHandler('editDisplaySettings'),
+    // },
     // {
     //   shortcutKeys: ['l'],
     //   actionDescription: 'Edit labels',

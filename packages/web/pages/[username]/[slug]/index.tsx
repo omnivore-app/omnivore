@@ -39,7 +39,10 @@ import { deleteLinkMutation } from '../../../lib/networking/mutations/deleteLink
 import { ConfirmationModal } from '../../../components/patterns/ConfirmationModal'
 import { setLabelsMutation } from '../../../lib/networking/mutations/setLabelsMutation'
 import { ReaderHeader } from '../../../components/templates/reader/ReaderHeader'
-import { EditLibraryItemModal } from '../../../components/templates/homeFeed/EditItemModals'
+import {
+  EditArticleModal,
+  EditLibraryItemModal,
+} from '../../../components/templates/homeFeed/EditItemModals'
 
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
   () => import('./../../../components/templates/article/PdfArticleContainer'),
@@ -51,6 +54,8 @@ export default function Home(): JSX.Element {
   const { cache, mutate } = useSWRConfig()
   const scrollRef = useRef<HTMLDivElement | null>(null)
   const { slug } = router.query
+
+  const [showEditModal, setShowEditModal] = useState(false)
   const [showHighlightsModal, setShowHighlightsModal] = useState(false)
   const { viewerData } = useGetViewerQuery()
   const readerSettings = useReaderSettings()
@@ -133,6 +138,9 @@ export default function Home(): JSX.Element {
           break
         case 'showHighlights':
           setShowHighlightsModal(true)
+          break
+        case 'showEditModal':
+          setShowEditModal(true)
           break
         default:
           readerSettings.actionHandler(action, arg)
@@ -257,6 +265,13 @@ export default function Home(): JSX.Element {
         perform: () => {
           setShowHighlightsModal(true)
         },
+      },
+      {
+        id: 'edit_title',
+        section: 'Article',
+        name: 'Edit title and description',
+        shortcut: ['i'],
+        perform: () => setShowEditModal(true),
       },
     ],
     []
@@ -403,13 +418,19 @@ export default function Home(): JSX.Element {
           onOpenChange={() => readerSettings.setShowDeleteConfirmation(false)}
         />
       )}
-      {/* {article && readerSettings.showDeleteConfirmation && (
-        <EditTitleModal
-          item={article}
-          updateItem={async (item) => {}}
-          onOpenChange={() => readerSettings.setShowDeleteConfirmation(false)}
+      {article && showEditModal && (
+        <EditArticleModal
+          article={article}
+          onOpenChange={() => setShowEditModal(false)}
+          updateArticle={(title, author, description, savedAt, publishedAt) => {
+            article.title = title
+            article.author = author
+            article.description = description
+            article.savedAt = savedAt
+            article.publishedAt = publishedAt
+          }}
         />
-      )} */}
+      )}
     </PrimaryLayout>
   )
 }

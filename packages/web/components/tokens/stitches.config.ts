@@ -126,7 +126,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         grayBgHover: 'hsl(0 0% 93.0%)',
         grayLine: 'hsl(0 0% 88.7%)',
         grayBorderHover: 'hsl(0 0% 78.0%)',
-        grayText: '#3B3938',
+        grayText: '#6A6968',
         graySeparator: '#DADADA',
         grayProgressBackground: '#FFFFFF',
 

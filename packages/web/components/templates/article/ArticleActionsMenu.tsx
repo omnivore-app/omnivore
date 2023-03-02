@@ -2,6 +2,7 @@ import { Separator } from '@radix-ui/react-separator'
 import {
   ArchiveBox,
   HighlighterCircle,
+  Info,
   TagSimple,
   Trash,
   Tray,
@@ -156,6 +157,18 @@ export function ArticleActionsMenu(
               size={24}
               color={theme.colors.readerFont.toString()}
             />
+          </TooltipWrapped>
+        </Button>
+
+        <Button
+          style="articleActionIcon"
+          onClick={() => props.articleActionHandler('showEditModal')}
+        >
+          <TooltipWrapped
+            tooltipContent="Edit title & description"
+            tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
+          >
+            <Info size={24} color={theme.colors.readerFont.toString()} />
           </TooltipWrapped>
         </Button>
 

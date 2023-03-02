@@ -165,11 +165,18 @@ export const useReaderSettings = (): ReaderSettings => {
         perform: () => actionHandler('decrementMarginWidth'),
       },
       {
-        id: 'edit_a',
+        id: 'edit_labels',
         section: 'Article',
         name: 'Edit labels',
         shortcut: ['l'],
         perform: () => setShowSetLabelsModal(true),
+      },
+      {
+        id: 'display_settings',
+        section: 'Article',
+        name: 'Display settings',
+        shortcut: ['d'],
+        perform: () => setShowEditDisplaySettingsModal(true),
       },
     ],
     [actionHandler]
