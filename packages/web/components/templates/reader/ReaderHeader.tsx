@@ -28,7 +28,7 @@ export function ReaderHeader(props: ReaderHeaderProps): JSX.Element {
           bg: 'transparent',
           pt: '35px',
           borderBottom: '1px solid transparent',
-          '@mdDown': {
+          '@lgDown': {
             height: MOBILE_HEIGHT,
             pt: '0px',
             bg: '$grayBg',
