@@ -31,6 +31,8 @@ export function ReaderHeader(props: ReaderHeaderProps): JSX.Element {
           '@mdDown': {
             height: MOBILE_HEIGHT,
             pt: '0px',
+            bg: '$grayBg',
+            borderBottom: '1px solid #E1E1E1',
           },
         }}
       >
