@@ -39,6 +39,7 @@ import { deleteLinkMutation } from '../../../lib/networking/mutations/deleteLink
 import { ConfirmationModal } from '../../../components/patterns/ConfirmationModal'
 import { setLabelsMutation } from '../../../lib/networking/mutations/setLabelsMutation'
 import { ReaderHeader } from '../../../components/templates/reader/ReaderHeader'
+import { EditLibraryItemModal } from '../../../components/templates/homeFeed/EditItemModals'
 
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
   () => import('./../../../components/templates/article/PdfArticleContainer'),
@@ -402,6 +403,13 @@ export default function Home(): JSX.Element {
           onOpenChange={() => readerSettings.setShowDeleteConfirmation(false)}
         />
       )}
+      {/* {article && readerSettings.showDeleteConfirmation && (
+        <EditTitleModal
+          item={article}
+          updateItem={async (item) => {}}
+          onOpenChange={() => readerSettings.setShowDeleteConfirmation(false)}
+        />
+      )} */}
     </PrimaryLayout>
   )
 }

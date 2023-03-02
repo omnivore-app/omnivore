@@ -39,7 +39,7 @@ import {
   State,
 } from '../../../lib/networking/fragments/articleFragment'
 import { Action, createAction, useKBar, useRegisterActions } from 'kbar'
-import { EditTitleModal } from './EditTitleModal'
+import { EditLibraryItemModal } from './EditItemModals'
 import { useGetUserPreferences } from '../../../lib/networking/queries/useGetUserPreferences'
 import debounce from 'lodash/debounce'
 import {
@@ -992,7 +992,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
           <AddLinkModal onOpenChange={() => props.setShowAddLinkModal(false)} />
         )}
         {props.showEditTitleModal && (
-          <EditTitleModal
+          <EditLibraryItemModal
             updateItem={(item: LibraryItem) =>
               props.actionHandler('update-item', item)
             }
