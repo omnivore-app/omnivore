@@ -19,6 +19,7 @@ type LibraryFilterMenuProps = {
   searchTerm: string | undefined
   applySearchQuery: (searchTerm: string) => void
 
+  showFilterMenu: boolean
   setShowFilterMenu: (show: boolean) => void
 }
 
@@ -40,27 +41,29 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
             display: 'none',
           },
           '@mdDown': {
-            top: '50px',
+            top: props.showFilterMenu ? '0px' : '100%',
             width: '100%',
             zIndex: 6, // Above the header
+            transform: 'translateY(0)',
+            transitionDuration: '200ms',
           },
-          transform: 'translateX(0)',
         }}
       >
-        {/* <Box
+        <HStack
           css={{
             width: '100%',
             height: '30px',
             py: '15px',
             px: '15px',
+            marginLeft: 'auto',
             '@md': {
               display: 'none',
             },
           }}
+          distribution="start"
         >
-          <MenuHeaderButton setShowFilterMenu={props.setShowFilterMenu} />
           <CloseButton close={() => props.setShowFilterMenu(false)} />
-        </Box> */}
+        </HStack>
         <SavedSearches {...props} />
         <Subscriptions {...props} />
         <Labels {...props} />

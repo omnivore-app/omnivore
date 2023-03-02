@@ -748,27 +748,16 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
         setShowFilterMenu={setShowFilterMenu}
       />
       <HStack css={{ width: '100%', height: '100%' }}>
-        <SpanBox
-          css={{
-            display: 'block',
-            bg: 'red',
-            '@mdDown': {
-              opacity: showFilterMenu ? '1.0' : '0.0',
-              visibility: showFilterMenu ? 'visible' : 'hidden',
-            },
-            transition: 'visibility 0s, opacity 0.3s',
+        <LibraryFilterMenu
+          setShowAddLinkModal={props.setShowAddLinkModal}
+          searchTerm={props.searchTerm}
+          applySearchQuery={(searchQuery: string) => {
+            console.log('searching with searchQuery: ', searchQuery)
+            props.applySearchQuery(searchQuery)
           }}
-        >
-          <LibraryFilterMenu
-            setShowAddLinkModal={props.setShowAddLinkModal}
-            searchTerm={props.searchTerm}
-            applySearchQuery={(searchQuery: string) => {
-              console.log('searching with searchQuery: ', searchQuery)
-              props.applySearchQuery(searchQuery)
-            }}
-            setShowFilterMenu={setShowFilterMenu}
-          />
-        </SpanBox>
+          showFilterMenu={showFilterMenu}
+          setShowFilterMenu={setShowFilterMenu}
+        />
         <VStack
           alignment="center"
           css={{

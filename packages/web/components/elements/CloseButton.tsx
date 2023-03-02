@@ -14,7 +14,6 @@ export function CloseButton(props: CloseButtonProps): JSX.Element {
     <Box
       css={{
         display: 'flex',
-        marginLeft: 'auto',
         height: '20px',
         width: '20px',
         alignItems: 'center',
