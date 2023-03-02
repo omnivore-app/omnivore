@@ -565,6 +565,7 @@ const schema = gql`
     description: String
     byline: String
     savedAt: Date
+    publishedAt: Date
   }
 
   type UpdatePageSuccess {
