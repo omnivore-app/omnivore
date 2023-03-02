@@ -7,9 +7,6 @@ import { CaretRight, Circle, DotsThree, Plus } from 'phosphor-react'
 import { useGetSubscriptionsQuery } from '../../../lib/networking/queries/useGetSubscriptionsQuery'
 import { useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQuery'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
-import { CloseButton } from '../../elements/CloseButton'
-import { MenuHeaderButton } from './LibraryHeader'
-import { LayoutType } from './HomeFeedContainer'
 
 export const LIBRARY_LEFT_MENU_WIDTH = '300px'
 

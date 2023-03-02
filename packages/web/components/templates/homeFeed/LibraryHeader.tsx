@@ -174,9 +174,6 @@ function SearchBox(props: SearchBoxProps): JSX.Element {
         mr: '15px',
         bg: '#F3F3F3',
         borderRadius: '6px',
-        '@mdDown': {
-          display: 'none',
-        },
         boxShadow: focused ? FOCUSED_BOXSHADOW : 'unset',
       }}
     >
@@ -282,6 +279,8 @@ type ControlButtonBoxProps = {
 }
 
 function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
+  const [showInlineSearch, setShowInlineSearch] = useState(false)
+
   return (
     <>
       <HStack
@@ -341,7 +340,33 @@ function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
           },
         }}
       >
-        <MagnifyingGlass size={20} color={theme.colors.graySolid.toString()} />
+        {showInlineSearch && (
+          <SpanBox
+            css={{
+              position: 'absolute',
+              width: '100%',
+              height: '100%',
+              bg: 'red',
+              top: '0px',
+              left: '0px',
+              p: '10px',
+            }}
+            onClick={() => setShowInlineSearch(false)}
+          >
+            {/* <SearchBox {...props} /> */}
+          </SpanBox>
+        )}
+        <Button
+          style="ghost"
+          onClick={() => {
+            setShowInlineSearch(true)
+          }}
+        >
+          <MagnifyingGlass
+            size={20}
+            color={theme.colors.graySolid.toString()}
+          />
+        </Button>
         <PrimaryDropdown showThemeSection={true} />
       </HStack>
     </>
