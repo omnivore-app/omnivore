@@ -41,7 +41,7 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
             display: 'none',
           },
           '@mdDown': {
-            top: props.showFilterMenu ? '0px' : '100%',
+            top: props.showFilterMenu ? '48px' : '100%',
             width: '100%',
             zIndex: 6, // Above the header
             transform: 'translateY(0)',
@@ -49,7 +49,7 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
           },
         }}
       >
-        <HStack
+        {/* <HStack
           css={{
             width: '100%',
             height: '30px',
@@ -63,7 +63,7 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
           distribution="start"
         >
           <CloseButton close={() => props.setShowFilterMenu(false)} />
-        </HStack>
+        </HStack> */}
         <SavedSearches {...props} />
         <Subscriptions {...props} />
         <Labels {...props} />
