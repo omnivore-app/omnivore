@@ -207,7 +207,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
                 alignItems: 'start',
               }}
             >
-              test{props.item.description}
+              {props.item.description}
             </Box>
             <HStack
               css={{
