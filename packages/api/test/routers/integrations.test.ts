@@ -22,8 +22,8 @@ import { getHighlightUrl } from '../../src/services/highlights'
 import { deletePage } from '../../src/elastic/pages'
 import { READWISE_API_URL } from '../../src/services/integrations/readwise'
 import sinon from 'sinon'
-import { Storage } from '@google-cloud/storage'
-import { MockBucket } from '../mock_storage'
+import { MockStorage } from '../mock_storage'
+import * as uploads from '../../src/utils/uploads'
 
 describe('Integrations routers', () => {
   const baseUrl = '/svc/pubsub/integrations'
@@ -347,7 +347,8 @@ describe('Integrations routers', () => {
         type: IntegrationType.Import,
       })
       // mock cloud storage bucket
-      sinon.stub(Storage, 'Bucket').returns(MockBucket)
+      // @ts-ignore
+      sinon.replace(uploads, 'storage', new MockStorage('test-bucket'))
       // mock Pocket API
       nock('https://getpocket.com', {
         reqheaders: {
