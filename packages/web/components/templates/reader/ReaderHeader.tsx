@@ -1,11 +1,8 @@
-import { HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
+import { HStack, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { DotsThreeOutline, TextAa } from 'phosphor-react'
-import { OmnivoreNameLogo } from '../../elements/images/OmnivoreNameLogo'
-import { OmnivoreFullLogo } from '../../elements/images/OmnivoreFullLogo'
 import { PrimaryDropdown } from '../PrimaryDropdown'
 import { TooltipWrapped } from '../../elements/Tooltip'
-import { LIBRARY_LEFT_MENU_WIDTH } from '../homeFeed/LibraryFilterMenu'
 import { LogoBox } from '../../elements/LogoBox'
 
 const HEADER_HEIGHT = '105px'

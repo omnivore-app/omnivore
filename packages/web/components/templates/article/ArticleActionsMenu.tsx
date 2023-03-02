@@ -56,7 +56,7 @@ export function ArticleActionsMenu(
           alignItems: 'center',
           flexDirection: props.layout == 'side' ? 'column' : 'row',
           justifyContent: props.layout == 'side' ? 'center' : 'flex-end',
-          gap: props.layout == 'side' ? '8px' : '24px',
+          gap: props.layout == 'side' ? '8px' : '25px',
           paddingTop: '6px',
         }}
       >
@@ -79,10 +79,7 @@ export function ArticleActionsMenu(
                   tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
                 >
                   <SpanBox ref={displaySettingsButtonRef}>
-                    <TagSimple
-                      size={24}
-                      color={theme.colors.readerFont.toString()}
-                    />
+                    <TagSimple size={24} color="#3D3D3D" />
                   </SpanBox>
                 </TooltipWrapped>
               </Button>
@@ -127,7 +124,7 @@ export function ArticleActionsMenu(
                 },
               }}
             >
-              <TagSimple size={24} color={theme.colors.readerFont.toString()} />
+              <TagSimple size={24} color="#3D3D3D" />
             </Button>
           )}
         </SpanBox>
@@ -142,7 +139,7 @@ export function ArticleActionsMenu(
             },
           }}
         >
-          <TagSimple size={24} color={theme.colors.readerFont.toString()} />
+          <TagSimple size={24} color="#3D3D3D" />
         </Button>
 
         <Button
@@ -153,10 +150,7 @@ export function ArticleActionsMenu(
             tooltipContent="View Highlights"
             tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
           >
-            <HighlighterCircle
-              size={24}
-              color={theme.colors.readerFont.toString()}
-            />
+            <HighlighterCircle size={24} color="#3D3D3D" />
           </TooltipWrapped>
         </Button>
 
@@ -168,7 +162,7 @@ export function ArticleActionsMenu(
             tooltipContent="Edit title & description"
             tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
           >
-            <Info size={24} color={theme.colors.readerFont.toString()} />
+            <Info size={24} color="#3D3D3D" />
           </TooltipWrapped>
         </Button>
 
@@ -184,7 +178,7 @@ export function ArticleActionsMenu(
             tooltipContent="Delete"
             tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
           >
-            <Trash size={24} color={theme.colors.readerFont.toString()} />
+            <Trash size={24} color="#3D3D3D" />
           </TooltipWrapped>
         </Button>
 
@@ -197,10 +191,7 @@ export function ArticleActionsMenu(
               tooltipContent="Archive"
               tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
             >
-              <ArchiveBox
-                size={24}
-                color={theme.colors.readerFont.toString()}
-              />
+              <ArchiveBox size={24} color="#3D3D3D" />
             </TooltipWrapped>
           </Button>
         ) : (
@@ -212,7 +203,7 @@ export function ArticleActionsMenu(
               tooltipContent="Unarchive"
               tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
             >
-              <Tray size={24} color={theme.colors.readerFont.toString()} />
+              <Tray size={24} color="#3D3D3D" />
             </TooltipWrapped>
           </Button>
         )}
