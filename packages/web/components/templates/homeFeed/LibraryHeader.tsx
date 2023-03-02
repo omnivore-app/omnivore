@@ -1,16 +1,21 @@
 import { useRef, useState } from 'react'
-import { Box, HStack, VStack } from '../../elements/LayoutPrimitives'
+import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { theme } from '../../tokens/stitches.config'
 import { FormInput } from '../../elements/FormElements'
 import { searchBarCommands } from '../../../lib/keyboardShortcuts/navigationShortcuts'
 import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { Button, IconButton } from '../../elements/Button'
-import { MagnifyingGlass, X } from 'phosphor-react'
+import { FunnelSimple, MagnifyingGlass, X } from 'phosphor-react'
 import { ListSelectorIcon } from '../../elements/images/ListSelectorIcon'
 import { GridSelectorIcon } from '../../elements/images/GridSelectorIcon'
 import { LayoutType } from './HomeFeedContainer'
 import { PrimaryDropdown } from '../PrimaryDropdown'
 import { LogoBox } from '../../elements/LogoBox'
+import {
+  OmnivoreLogoIcon,
+  OmnivoreNameLogo,
+  OmnivoreSmallLogo,
+} from '../../elements/images/OmnivoreNameLogo'
 
 type LibraryHeaderProps = {
   layout: LayoutType
@@ -47,22 +52,11 @@ export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
           },
         }}
       >
-        <HStack
-          alignment="center"
-          distribution="start"
-          css={{
-            width: '100%',
-            height: '100%',
-          }}
-        >
-          <LogoBox />
-          <SearchBox {...props} />
-          <ControlButtonBox
-            layout={props.layout}
-            updateLayout={props.updateLayout}
-          />
-        </HStack>
+        {/* These will display/hide depending on breakpoints */}
+        <LargeHeaderLayout {...props} />
+        <SmallHeaderLayout {...props} />
       </VStack>
+
       {/* This spacer is put in to push library content down 
       below the fixed header height. */}
       <Box
@@ -75,6 +69,71 @@ export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
         }}
       ></Box>
     </>
+  )
+}
+
+function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
+  return (
+    <HStack
+      alignment="center"
+      distribution="start"
+      css={{
+        width: '100%',
+        height: '100%',
+        '@mdDown': {
+          display: 'none',
+        },
+      }}
+    >
+      <LogoBox />
+      <SearchBox {...props} />
+      <ControlButtonBox
+        layout={props.layout}
+        updateLayout={props.updateLayout}
+      />
+    </HStack>
+  )
+}
+
+function SmallHeaderLayout(props: LibraryHeaderProps): JSX.Element {
+  return (
+    <HStack
+      alignment="center"
+      distribution="start"
+      css={{
+        width: '100%',
+        height: '100%',
+        '@md': {
+          display: 'none',
+        },
+      }}
+    >
+      <MenuHeaderButton />
+      <ControlButtonBox
+        layout={props.layout}
+        updateLayout={props.updateLayout}
+      />
+    </HStack>
+  )
+}
+
+function MenuHeaderButton(): JSX.Element {
+  return (
+    <HStack
+      css={{
+        ml: '10px',
+        minWidth: '60px',
+        minHeight: '30px',
+        bg: '#F0F0F0',
+        borderRadius: '5px',
+        px: '5px',
+      }}
+      alignment="center"
+      distribution="around"
+    >
+      <OmnivoreSmallLogo size={15} strokeColor="black" />
+      <FunnelSimple size={16} color="#6A6968" />
+    </HStack>
   )
 }
 
@@ -272,6 +331,7 @@ function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
           },
         }}
       >
+        <MagnifyingGlass size={20} color={theme.colors.graySolid.toString()} />
         <PrimaryDropdown showThemeSection={true} />
       </HStack>
     </>

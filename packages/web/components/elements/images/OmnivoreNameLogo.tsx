@@ -20,6 +20,26 @@ type OmnivoreLogoProps = {
   strokeColor: string
 }
 
+export function OmnivoreSmallLogo(props: OmnivoreLogoProps): JSX.Element {
+  return (
+    <svg
+      width="18"
+      height="19"
+      viewBox="0 0 18 19"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M5.82329 12.9213V7.47867C5.82329 7.01332 6.36957 6.75029 6.73377 7.07402L8.4131 9.5222C8.75706 9.80546 9.24265 9.80546 9.58661 9.5222L11.2255 7.09425C11.5897 6.79075 12.136 7.03355 12.136 7.49891V10.372C12.136 11.768 13.0667 12.9011 14.4627 12.9011H14.5032C15.6969 12.9011 16.7288 12.0918 17.0121 10.9385C17.1537 10.3315 17.2751 9.70429 17.2751 9.2187C17.2549 4.46397 13.2285 0.862512 8.4131 1.18624C4.32605 1.4695 1.02808 4.76746 0.744823 8.85451C0.421097 13.6699 4.22489 17.6963 8.99985 17.6963"
+        stroke="#0A0806"
+        strokeOpacity="0.4"
+        strokeWidth="1.4"
+        strokeMiterlimit="10"
+      />
+    </svg>
+  )
+}
+
 export function OmnivoreLogoIcon(props: OmnivoreLogoProps): JSX.Element {
   return (
     <svg

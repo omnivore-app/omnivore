@@ -98,8 +98,9 @@ export function HomeFeedContainer(): JSX.Element {
 
   const gridContainerRef = useRef<HTMLDivElement>(null)
 
-  const [labelsTarget, setLabelsTarget] =
-    useState<LibraryItem | undefined>(undefined)
+  const [labelsTarget, setLabelsTarget] = useState<LibraryItem | undefined>(
+    undefined
+  )
 
   const [showAddLinkModal, setShowAddLinkModal] = useState(false)
   const [showEditTitleModal, setShowEditTitleModal] = useState(false)
@@ -772,7 +773,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
           <Toaster />
 
           {props.isValidating && props.items.length == 0 && <TopBarProgress />}
-
+          {/* 
           <SpanBox
             css={{
               width: '100%',
@@ -789,7 +790,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
               updateLayout={updateLayout}
               setShowAddLinkModal={props.setShowAddLinkModal}
             />
-          </SpanBox>
+          </SpanBox> */}
 
           <Dropzone
             onDrop={handleDrop}
