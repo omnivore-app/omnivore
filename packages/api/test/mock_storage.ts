@@ -1,6 +1,6 @@
 import { Writable } from 'stream'
 
-export class MockStorage {
+class MockStorage {
   buckets: { [name: string]: MockBucket }
 
   constructor() {
@@ -12,7 +12,7 @@ export class MockStorage {
   }
 }
 
-class MockBucket {
+export class MockBucket {
   name: string
   files: { [path: string]: MockFile }
 

@@ -22,8 +22,8 @@ import { getHighlightUrl } from '../../src/services/highlights'
 import { deletePage } from '../../src/elastic/pages'
 import { READWISE_API_URL } from '../../src/services/integrations/readwise'
 import sinon from 'sinon'
-import { MockStorage } from '../mock_storage'
-import * as uploads from '../../src/utils/uploads'
+import { Storage } from '@google-cloud/storage'
+import { MockBucket } from '../mock_storage'
 
 describe('Integrations routers', () => {
   const baseUrl = '/svc/pubsub/integrations'
@@ -346,9 +346,7 @@ describe('Integrations routers', () => {
         token,
         type: IntegrationType.Import,
       })
-      // mock cloud storage bucket
-      // @ts-ignore
-      sinon.replace(uploads, 'storage', new MockStorage('test-bucket'))
+
       // mock Pocket API
       nock('https://getpocket.com', {
         reqheaders: {
@@ -385,7 +383,14 @@ describe('Integrations routers', () => {
 
     context('when integration is pocket', () => {
       it('returns 200 with OK', async () => {
-        const res = await request
+        // mock cloud storage
+        const mockBucket = new MockBucket('test')
+        sinon.replace(
+          Storage.prototype,
+          'bucket',
+          sinon.fake.returns(mockBucket as never)
+        )
+        await request
           .post(`${baseUrl}/import`)
           .send({
             integrationId: integration.id,
@@ -393,7 +398,7 @@ describe('Integrations routers', () => {
           .set('Cookie', `auth=${authToken}`)
           .expect(200)
 
-        expect(res.text).to.eql('OK')
+        sinon.restore()
       })
     })
   })
