@@ -36,7 +36,7 @@ const MenuSeparator = (props: MenuSeparatorProps): JSX.Element => {
   const LineSeparator = styled(Separator, {
     width: '100%',
     margin: 0,
-    borderBottom: `1px solid ${theme.colors.grayLine.toString()}`,
+    borderBottom: `1px solid ${theme.colors.thHighContrast.toString()}`,
     my: '8px',
   })
   return props.layout == 'side' ? <LineSeparator /> : <></>
@@ -79,7 +79,10 @@ export function ArticleActionsMenu(
                   tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
                 >
                   <SpanBox ref={displaySettingsButtonRef}>
-                    <TagSimple size={24} color="#3D3D3D" />
+                    <TagSimple
+                      size={24}
+                      color={theme.colors.thHighContrast.toString()}
+                    />
                   </SpanBox>
                 </TooltipWrapped>
               </Button>
@@ -124,7 +127,10 @@ export function ArticleActionsMenu(
                 },
               }}
             >
-              <TagSimple size={24} color="#3D3D3D" />
+              <TagSimple
+                size={24}
+                color={theme.colors.thHighContrast.toString()}
+              />
             </Button>
           )}
         </SpanBox>
@@ -139,7 +145,7 @@ export function ArticleActionsMenu(
             },
           }}
         >
-          <TagSimple size={24} color="#3D3D3D" />
+          <TagSimple size={24} color={theme.colors.thHighContrast.toString()} />
         </Button>
 
         <Button
@@ -150,7 +156,10 @@ export function ArticleActionsMenu(
             tooltipContent="View Highlights"
             tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
           >
-            <HighlighterCircle size={24} color="#3D3D3D" />
+            <HighlighterCircle
+              size={24}
+              color={theme.colors.thHighContrast.toString()}
+            />
           </TooltipWrapped>
         </Button>
 
@@ -162,7 +171,7 @@ export function ArticleActionsMenu(
             tooltipContent="Edit title & description"
             tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
           >
-            <Info size={24} color="#3D3D3D" />
+            <Info size={24} color={theme.colors.thHighContrast.toString()} />
           </TooltipWrapped>
         </Button>
 
@@ -178,7 +187,7 @@ export function ArticleActionsMenu(
             tooltipContent="Delete"
             tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
           >
-            <Trash size={24} color="#3D3D3D" />
+            <Trash size={24} color={theme.colors.thHighContrast.toString()} />
           </TooltipWrapped>
         </Button>
 
@@ -191,7 +200,10 @@ export function ArticleActionsMenu(
               tooltipContent="Archive"
               tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
             >
-              <ArchiveBox size={24} color="#3D3D3D" />
+              <ArchiveBox
+                size={24}
+                color={theme.colors.thHighContrast.toString()}
+              />
             </TooltipWrapped>
           </Button>
         ) : (
@@ -203,7 +215,7 @@ export function ArticleActionsMenu(
               tooltipContent="Unarchive"
               tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
             >
-              <Tray size={24} color="#3D3D3D" />
+              <Tray size={24} color={theme.colors.thHighContrast.toString()} />
             </TooltipWrapped>
           </Button>
         )}

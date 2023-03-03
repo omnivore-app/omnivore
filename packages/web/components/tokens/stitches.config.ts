@@ -109,8 +109,12 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
       },
       zIndices: {},
       transitions: {},
+
+      colorScheme: {
+        colorScheme: 'light',
+      },
+
       colors: {
-        // Grayscale
         grayBase: '#F8F8F8',
         grayBg: '#FFFFFF',
         grayBgActive: '#e6e6e6',
@@ -191,7 +195,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
 
         thProgressFg: '#FFD234',
 
-        thHighContrast: '#D9D9D9',
+        thHighContrast: '#3D3D3D',
       },
     },
     media: {
@@ -209,6 +213,9 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
   })
 
 const darkThemeSpec = {
+  colorScheme: {
+    colorScheme: 'dark',
+  },
   colors: {
     grayBase: '#252525',
     grayBg: '#3B3938',
@@ -260,6 +267,7 @@ const darkThemeSpec = {
     // New theme, special naming to keep things straigh
     // once all switch over, we will rename
     // DARK
+    colorScheme: 'dark',
     thBackground: '#2A2A2A',
     thBackground2: '#3D3D3D',
     thBackground3: '#242424',
@@ -329,6 +337,7 @@ export const lighterTheme = createTheme(ThemeId.Lighter, {})
 // Apply global styles in here
 export const globalStyles = globalCss({
   body: {
+    colorScheme: 'var(--colorScheme-colorScheme)',
     backgroundColor: '$thBackground2',
   },
   '*': {

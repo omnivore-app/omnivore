@@ -6,6 +6,7 @@ import { TooltipWrapped } from '../../elements/Tooltip'
 import { LogoBox } from '../../elements/LogoBox'
 import { ReactNode } from 'react'
 import { LIBRARY_HEADER_MOBILE_HEIGHT } from '../homeFeed/LibraryHeader'
+import { theme } from '../../tokens/stitches.config'
 
 const HEADER_HEIGHT = '105px'
 
@@ -81,30 +82,16 @@ function ControlButtonBox(props: ReaderHeaderProps): JSX.Element {
           }}
         >
           <TooltipWrapped tooltipContent="Adjust Display Settings">
-            <TextAa size={25} color="#6A6968" />
+            <TextAa size={25} color={theme.colors.thHighContrast.toString()} />
           </TooltipWrapped>
         </Button>
         <PrimaryDropdown showThemeSection={false}>
-          <DotsThreeOutline size={25} color="#6A6968" />
+          <DotsThreeOutline
+            size={25}
+            color={theme.colors.thHighContrast.toString()}
+          />
         </PrimaryDropdown>
       </HStack>
-
-      {/* <HStack
-        alignment="center"
-        distribution="end"
-        css={{
-          marginLeft: 'auto',
-          marginRight: '20px',
-          width: '100px',
-          height: '100%',
-          gap: '20px',
-          '@md': {
-            display: 'none',
-          },
-        }}
-      >
-        <PrimaryDropdown showThemeSection={false} />
-      </HStack> */}
     </>
   )
 }

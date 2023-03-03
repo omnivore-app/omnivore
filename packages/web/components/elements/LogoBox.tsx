@@ -1,4 +1,5 @@
 import { LIBRARY_LEFT_MENU_WIDTH } from '../templates/homeFeed/LibraryFilterMenu'
+import { theme } from '../tokens/stitches.config'
 import { OmnivoreFullLogo } from './images/OmnivoreFullLogo'
 import { OmnivoreNameLogo } from './images/OmnivoreNameLogo'
 import { SpanBox } from './LayoutPrimitives'
@@ -17,7 +18,10 @@ export function LogoBox(): JSX.Element {
           },
         }}
       >
-        <OmnivoreFullLogo showTitle={true} />
+        <OmnivoreFullLogo
+          showTitle={true}
+          color={theme.colors.thHighContrast.toString()}
+        />
       </SpanBox>
       <SpanBox
         css={{

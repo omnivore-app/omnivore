@@ -318,7 +318,11 @@ function LabelButton(props: LabelButtonProps): JSX.Element {
     >
       <Circle size={9} color={props.label.color} weight="fill" />
       <SpanBox css={{ pl: '10px' }}>{props.label.name}</SpanBox>
-      <SpanBox css={{ ml: 'auto' }}>
+      <SpanBox
+        css={{
+          ml: 'auto',
+        }}
+      >
         <input
           type="checkbox"
           checked={state === 'on'}
