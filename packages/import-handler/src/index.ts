@@ -73,13 +73,17 @@ const shouldHandle = (data: StorageEvent) => {
 const importURL = async (
   userId: string,
   url: URL,
-  source: string
+  source: string,
+  state?: RetrievedDataState,
+  labels?: string[]
 ): Promise<string | undefined> => {
   return createCloudTask(CONTENT_FETCH_URL, {
     userId,
     source,
     url: url.toString(),
     saveRequestId: uuid(),
+    state,
+    labels,
   })
 }
 
@@ -129,10 +133,21 @@ const handlerForFile = (name: string): importHandlerFunc | undefined => {
   return undefined
 }
 
-const urlHandler = async (ctx: ImportContext, url: URL): Promise<void> => {
+const urlHandler = async (
+  ctx: ImportContext,
+  url: URL,
+  state?: RetrievedDataState,
+  labels?: string[]
+): Promise<void> => {
   try {
     // Imports are stored in the format imports/<user id>/<type>-<uuid>.csv
-    const result = await importURL(ctx.userId, url, 'csv-importer')
+    const result = await importURL(
+      ctx.userId,
+      url,
+      'csv-importer',
+      state,
+      labels
+    )
     if (result) {
       ctx.countImported += 1
     }
