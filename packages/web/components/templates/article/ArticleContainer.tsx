@@ -279,7 +279,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         id="article-container"
         css={{
           padding: '16px',
-          paddingTop: '70px',
+          paddingTop: '80px',
           maxWidth: `${styles.maxWidthPercentage ?? 100}%`,
           background: props.isAppleAppEmbed
             ? 'unset'

@@ -85,9 +85,6 @@ export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
           width: '100vw',
           height: '100vh',
           bg: 'transparent',
-          '@smDown': {
-            bg: '$thBackground2',
-          },
         }}
       >
         <Box

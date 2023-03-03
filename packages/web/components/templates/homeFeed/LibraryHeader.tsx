@@ -25,7 +25,7 @@ type LibraryHeaderProps = {
 }
 
 const HEADER_HEIGHT = '105px'
-export const LIBRARY_HEADER_MOBILE_HEIGHT = '60px'
+export const LIBRARY_HEADER_MOBILE_HEIGHT = '70px'
 
 export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
   return (
@@ -102,6 +102,7 @@ function SmallHeaderLayout(props: LibraryHeaderProps): JSX.Element {
       css={{
         width: '100%',
         height: '100%',
+        bg: '$thBackground3',
         '@md': {
           display: 'none',
         },
@@ -146,7 +147,7 @@ export function MenuHeaderButton(props: MenuHeaderButtonProps): JSX.Element {
         ml: '10px',
         width: '67px',
         height: '40px',
-        bg: props.showFilterMenu ? '#898989' : '#F0F0F0',
+        bg: props.showFilterMenu ? '$thTextContrast2' : '$thBackground2',
         borderRadius: '5px',
         px: '5px',
         cursor: 'pointer',
@@ -157,8 +158,22 @@ export function MenuHeaderButton(props: MenuHeaderButtonProps): JSX.Element {
         props.setShowFilterMenu(!props.showFilterMenu)
       }}
     >
-      <OmnivoreSmallLogo size={20} strokeColor="black" />
-      <FunnelSimple size={20} color="#6A6968" />
+      <OmnivoreSmallLogo
+        size={20}
+        strokeColor={
+          props.showFilterMenu
+            ? theme.colors.thBackground.toString()
+            : theme.colors.thTextContrast2.toString()
+        }
+      />
+      <FunnelSimple
+        size={20}
+        color={
+          props.showFilterMenu
+            ? theme.colors.thBackground.toString()
+            : theme.colors.thTextContrast2.toString()
+        }
+      />
     </HStack>
   )
 }
