@@ -6,7 +6,6 @@ type AvatarProps = {
   height: string
   fallbackText: string
   tooltip?: string
-  noFade?: boolean
 }
 
 export function Avatar(props: AvatarProps): JSX.Element {

@@ -89,7 +89,6 @@ const RecommendationComments = (
               <Avatar
                 imageURL={item.user?.profileImageURL}
                 height="28px"
-                noFade={true}
                 tooltip={item.user?.name}
                 fallbackText={item.user?.username[0] ?? 'U'}
               />

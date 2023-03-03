@@ -100,7 +100,6 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
           imageURL={viewerData.me.profile.pictureUrl}
           height="40px"
           fallbackText={viewerData?.me?.name.charAt(0) ?? ''}
-          noFade={true}
         />
         <VStack
           css={{ height: '40px', maxWidth: '240px' }}
