@@ -94,7 +94,7 @@ function FontControls(props: FontControlsProps): JSX.Element {
     alignItems: 'center',
     fontSize: '12px',
     background: '$thBackground',
-    border: '1px sold $thBorderColor',
+    border: '1px solid $thBorderColor',
     fontFamily: props.readerSettings.fontFamily,
     textTransform: 'capitalize',
     borderRadius: '4px',
@@ -142,13 +142,7 @@ function FontControls(props: FontControlsProps): JSX.Element {
           style="plainIcon"
           css={{ py: '0px', width: '60px' }}
           onClick={() => {
-            // props.readerSettings.actionHandler('de')
-            // props.readerSettings
-            // const newMarginWith = Math.max(
-            //   props.readerSettings.marginWidth - 45,
-            //   200
-            // )
-            // props.readerSettings.setMarginWidth(newMarginWith)
+            props.readerSettings.actionHandler('decrementFontSize')
           }}
         >
           <SpanBox
@@ -179,13 +173,7 @@ function FontControls(props: FontControlsProps): JSX.Element {
           style="plainIcon"
           css={{ py: '0px', width: '60px' }}
           onClick={() => {
-            // props.readerSettings.actionHandler('de')
-            // props.readerSettings
-            // const newMarginWith = Math.max(
-            //   props.readerSettings.marginWidth - 45,
-            //   200
-            // )
-            // props.readerSettings.setMarginWidth(newMarginWith)
+            props.readerSettings.actionHandler('incrementFontSize')
           }}
         >
           <SpanBox
