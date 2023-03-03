@@ -10,9 +10,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.*
 import app.omnivore.omnivore.dataService.*
+import app.omnivore.omnivore.graphql.generated.type.SetLabelsInput
 import app.omnivore.omnivore.networking.*
-import app.omnivore.omnivore.persistence.entities.SavedItemCardDataWithLabels
-import app.omnivore.omnivore.persistence.entities.SavedItemLabel
+import app.omnivore.omnivore.persistence.entities.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import java.time.Instant
@@ -40,6 +40,7 @@ class LibraryViewModel @Inject constructor(
   val appliedFilterLiveData = MutableLiveData(SavedItemFilter.INBOX)
   val appliedSortFilterLiveData = MutableLiveData(SavedItemSortFilter.NEWEST)
   val showLabelsSelectionSheetLiveData = MutableLiveData(false)
+  val labelsSelectionCurrentItemLiveData = MutableLiveData<String?>(null)
   val savedItemLabelsLiveData = dataService.db.savedItemLabelDao().getSavedItemLabelsLiveData()
   val activeLabelsLiveData = MutableLiveData<List<SavedItemLabel>>(listOf())
 
@@ -261,9 +262,37 @@ class LibraryViewModel @Inject constructor(
         }
       }
       SavedItemAction.EditLabels -> {
-        Log.d("label", "itemID")
+        labelsSelectionCurrentItemLiveData.value = itemID
+        showLabelsSelectionSheetLiveData.value = true
       }
     }
+  }
+
+  fun updateSavedItemLabels(savedItemID: String, labels: List<SavedItemLabel>) {
+    viewModelScope.launch {
+      withContext(Dispatchers.IO) {
+        val input = SetLabelsInput(labelIds = labels.map { it.savedItemLabelId }, pageId = savedItemID)
+        val networkResult = networker.updateLabelsForSavedItem(input)
+
+        // TODO: assign a server sync status to these
+        val crossRefs = labels.map {
+          SavedItemAndSavedItemLabelCrossRef(
+            savedItemLabelId = it.savedItemLabelId,
+            savedItemId = savedItemID
+          )
+        }
+
+        dataService.db.savedItemAndSavedItemLabelCrossRefDao().insertAll(crossRefs)
+      }
+    }
+  }
+
+  fun currentSavedItemUnderEdit(): SavedItemCardDataWithLabels? {
+    labelsSelectionCurrentItemLiveData.value?.let { itemID ->
+      return itemsLiveData.value?.first { it.cardData.savedItemId == itemID }
+    }
+
+    return null
   }
 
   private fun searchQueryString(): String {

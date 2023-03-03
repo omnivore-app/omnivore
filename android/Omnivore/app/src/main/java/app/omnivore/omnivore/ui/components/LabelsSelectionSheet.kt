@@ -26,19 +26,55 @@ import app.omnivore.omnivore.ui.library.LibraryViewModel
 @Composable
 fun LabelsSelectionSheet(viewModel: LibraryViewModel) {
   val isActive: Boolean by viewModel.showLabelsSelectionSheetLiveData.observeAsState(false)
+  val labels: List<SavedItemLabel> by viewModel.savedItemLabelsLiveData.observeAsState(listOf())
+  val currentSavedItemData = viewModel.currentSavedItemUnderEdit()
 
   if (isActive) {
-    Dialog(onDismissRequest = { viewModel.showLabelsSelectionSheetLiveData.value = false } ) {
-      LabelsSelectionSheetContent(viewModel = viewModel, initialSelectedLabels = viewModel.activeLabelsLiveData.value ?: listOf())
+    Dialog(onDismissRequest = {
+      viewModel.labelsSelectionCurrentItemLiveData.value = null
+      viewModel.showLabelsSelectionSheetLiveData.value = false
+    } ) {
+      if (currentSavedItemData != null) {
+        LabelsSelectionSheetContent(
+          labels = labels,
+          initialSelectedLabels = currentSavedItemData.labels,
+          onCancel = {
+            viewModel.showLabelsSelectionSheetLiveData.value = false
+            viewModel.labelsSelectionCurrentItemLiveData.value = null
+          },
+          onSave = {
+            if (it != labels) {
+              viewModel.updateSavedItemLabels(savedItemID = currentSavedItemData.cardData.savedItemId, labels = it)
+            }
+            viewModel.labelsSelectionCurrentItemLiveData.value = null
+            viewModel.showLabelsSelectionSheetLiveData.value = false
+          }
+        )
+      } else {
+        LabelsSelectionSheetContent(
+          labels = labels,
+          initialSelectedLabels = viewModel.activeLabelsLiveData.value ?: listOf(),
+          onCancel = { viewModel.showLabelsSelectionSheetLiveData.value = false },
+          onSave = {
+            viewModel.updateAppliedLabels(it)
+            viewModel.labelsSelectionCurrentItemLiveData.value = null
+            viewModel.showLabelsSelectionSheetLiveData.value = false
+          }
+        )
+      }
     }
   }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LabelsSelectionSheetContent(viewModel: LibraryViewModel, initialSelectedLabels: List<SavedItemLabel>) {
+fun LabelsSelectionSheetContent(
+  labels: List<SavedItemLabel>,
+  initialSelectedLabels: List<SavedItemLabel>,
+  onCancel: () -> Unit,
+  onSave: (List<SavedItemLabel>) -> Unit
+) {
   val listState = rememberLazyListState()
-  val labels: List<SavedItemLabel> by viewModel.savedItemLabelsLiveData.observeAsState(listOf())
   val selectedLabels = remember { mutableStateOf(initialSelectedLabels) }
 
   Surface(
@@ -62,26 +98,19 @@ fun LabelsSelectionSheetContent(viewModel: LibraryViewModel, initialSelectedLabe
           modifier = Modifier
             .fillMaxWidth()
         ) {
-          TextButton(onClick = { viewModel.showLabelsSelectionSheetLiveData.value = false }) {
+          TextButton(onClick = onCancel) {
             Text(text = "Cancel")
           }
 
           Text("Filter by Label", fontWeight = FontWeight.ExtraBold)
 
-          TextButton(
-            onClick = {
-              selectedLabels.value?.let {
-                viewModel.updateAppliedLabels(it)
-              }
-              viewModel.showLabelsSelectionSheetLiveData.value = false
-            }
-          ) {
+          TextButton(onClick = { onSave(selectedLabels.value) }) {
             Text(text = "Done")
           }
         }
       }
       items(labels) { label ->
-        val isLabelSelected = (selectedLabels.value ?: listOf()).contains(label)
+        val isLabelSelected = selectedLabels.value.contains(label)
 
         Row(
           horizontalArrangement = Arrangement.SpaceBetween,
