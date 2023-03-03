@@ -68,6 +68,9 @@ data class SavedItemCardDataWithLabels(
 interface SavedItemAndSavedItemLabelCrossRefDao {
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   fun insertAll(items: List<SavedItemAndSavedItemLabelCrossRef>)
+
+  @Query("DELETE FROM savedItemAndSavedItemLabelCrossRef WHERE savedItemId = :savedItemId")
+  fun deleteRefsBySavedItemId(savedItemId: String)
 }
 
 // has many highlights

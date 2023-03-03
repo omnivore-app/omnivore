@@ -282,7 +282,15 @@ class LibraryViewModel @Inject constructor(
           )
         }
 
+        // Remove all labels first
+        dataService.db.savedItemAndSavedItemLabelCrossRefDao().deleteRefsBySavedItemId(savedItemID)
+
+        // Add back the current labels
         dataService.db.savedItemAndSavedItemLabelCrossRefDao().insertAll(crossRefs)
+
+        CoroutineScope(Dispatchers.Main).launch {
+          handleFilterChanges()
+        }
       }
     }
   }
