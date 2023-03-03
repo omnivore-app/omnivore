@@ -238,7 +238,7 @@ export function integrationsServiceRouter() {
         // write the list of urls, state and labels to the stream
         const csvData = retrievedData.map((page) => {
           const { url, state, labels } = page
-          return [url, state, labels?.join(',')].join(',')
+          return [url, state, `[${labels?.join(',') || ''}]`].join(',')
         })
         writeStream.write(csvData.join('\n'))
 
