@@ -1,12 +1,17 @@
 import { Readability } from '@omnivore/readability'
-import { ImportContext } from '../src'
+import { ImportContext, RetrievedDataState } from '../src'
 
 export const stubImportCtx = () => {
   return {
     userId: '',
     countImported: 0,
     countFailed: 0,
-    urlHandler: (ctx: ImportContext, url: URL): Promise<void> => {
+    urlHandler: (
+      ctx: ImportContext,
+      url: URL,
+      state?: RetrievedDataState,
+      labels?: string[]
+    ): Promise<void> => {
       return Promise.resolve()
     },
     contentHandler: (

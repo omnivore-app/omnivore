@@ -1,7 +1,7 @@
 import { Storage } from '@google-cloud/storage'
 import { importCsv } from './csv'
 import * as path from 'path'
-import { importMatterArchive, importMatterHistoryCsv } from './matterHistory'
+import { importMatterArchive } from './matterHistory'
 import { Stream } from 'node:stream'
 import { v4 as uuid } from 'uuid'
 import { CONTENT_FETCH_URL, createCloudTask, emailUserUrl } from './task'
@@ -12,6 +12,8 @@ import * as jwt from 'jsonwebtoken'
 import { Readability } from '@omnivore/readability'
 
 import * as Sentry from '@sentry/serverless'
+
+export type RetrievedDataState = 'archived' | 'saved' | 'deleted'
 
 Sentry.GCPFunction.init({
   dsn: process.env.SENTRY_DSN,
@@ -24,7 +26,12 @@ const storage = new Storage()
 
 const CONTENT_TYPES = ['text/csv', 'application/zip']
 
-export type UrlHandler = (ctx: ImportContext, url: URL) => Promise<void>
+export type UrlHandler = (
+  ctx: ImportContext,
+  url: URL,
+  state?: RetrievedDataState,
+  labels?: string[]
+) => Promise<void>
 export type ContentHandler = (
   ctx: ImportContext,
   url: URL,
