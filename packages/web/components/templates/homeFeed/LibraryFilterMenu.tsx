@@ -197,7 +197,7 @@ function MenuPanel(props: MenuPanelProps): JSX.Element {
                   <DotsThree
                     size={25}
                     weight="bold"
-                    color={theme.colors.thTextSubtle.toString()}
+                    color={theme.colors.thTextSubtle2.toString()}
                   />
                 </Box>
               }

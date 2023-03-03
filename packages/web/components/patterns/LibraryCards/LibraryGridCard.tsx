@@ -173,7 +173,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
             <Box
               css={{
                 color: '$thTextContrast2',
-                fontSize: '20px',
+                fontSize: '16px',
                 fontWeight: '700',
                 lineHeight: '1.25',
                 fontFamily: '$display',
@@ -183,7 +183,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
                 display: '-webkit-box',
                 '-webkit-line-clamp': '2',
                 '-webkit-box-orient': 'vertical',
-                height: '50px',
+                height: '42px',
               }}
             >
               {props.item.title}

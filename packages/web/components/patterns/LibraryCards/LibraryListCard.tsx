@@ -155,7 +155,7 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
                 fontSize: '16px',
                 fontWeight: '700',
                 lineHeight: '1.25',
-                maxWidth: '1200px',
+                maxWidth: '80%',
                 fontFamily: '$display',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',

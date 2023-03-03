@@ -908,15 +908,15 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
                           },
                           '&:focus': {
                             '> div': {
-                              bg: '$grayBgActive',
+                              bg: '$thBackgroundActive',
                             },
                           },
                           '&:hover': {
                             '> div': {
-                              bg: '$grayBgActive',
+                              bg: '$thBackgroundActive',
                             },
                             '> a': {
-                              bg: '$grayBgActive',
+                              bg: '$thBackgroundActive',
                             },
                           },
                         }}

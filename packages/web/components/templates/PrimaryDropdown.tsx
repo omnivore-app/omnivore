@@ -1,16 +1,23 @@
 import { useRouter } from 'next/router'
-import { Check } from 'phosphor-react'
-import { ReactNode, useCallback, useMemo, useState } from 'react'
+import { Check, Moon, Sun, UserSwitch } from 'phosphor-react'
+import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
 import { currentThemeName, updateTheme } from '../../lib/themeUpdater'
+import { Avatar } from '../elements/Avatar'
 import { AvatarDropdown } from '../elements/AvatarDropdown'
 import { Button } from '../elements/Button'
-import { Dropdown, DropdownOption } from '../elements/DropdownElements'
-import { Box, HStack, VStack } from '../elements/LayoutPrimitives'
+import {
+  Dropdown,
+  DropdownOption,
+  DropdownSeparator,
+} from '../elements/DropdownElements'
+import GridLayoutIcon from '../elements/images/GridLayoutIcon'
+import ListLayoutIcon from '../elements/images/ListLayoutIcon'
+import { Box, HStack, SpanBox, VStack } from '../elements/LayoutPrimitives'
 import { Separator } from '../elements/Separator'
 import { StyledText } from '../elements/StyledText'
 import { DropdownMenu } from '../patterns/DropdownMenu'
-import { ThemeId } from '../tokens/stitches.config'
+import { styled, theme, ThemeId } from '../tokens/stitches.config'
 import { LayoutType } from './homeFeed/HomeFeedContainer'
 
 type PrimaryDropdownProps = {
@@ -79,13 +86,64 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
           <AvatarDropdown userInitials={viewerData?.me?.name.charAt(0) ?? ''} />
         )
       }
+      css={{ width: '240px' }}
     >
-      {props.showThemeSection && (
-        <VStack css={{ py: '12px', px: '24px' }}>
-          <ThemeSection />
+      <HStack
+        alignment="center"
+        distribution="start"
+        css={{
+          width: '100%',
+          height: '64px',
+          p: '15px',
+          gap: '15px',
+        }}
+      >
+        <Avatar
+          imageURL={viewerData.me.profile.pictureUrl}
+          height="40px"
+          fallbackText={viewerData?.me?.name.charAt(0) ?? ''}
+          noFade={true}
+        />
+        <VStack
+          css={{ height: '40px', maxWidth: '240px' }}
+          alignment="start"
+          distribution="around"
+        >
+          {viewerData.me && (
+            <>
+              <StyledText
+                css={{
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: '$thTextContrast2',
+                  m: '0px',
+                  p: '0px',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {viewerData.me.name}
+              </StyledText>
+              <StyledText
+                css={{
+                  fontSize: '14px',
+                  fontWeight: '400',
+                  color: '#898989',
+                  m: '0px',
+                  p: '0px',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {`@${viewerData.me.profile.username}`}
+              </StyledText>
+            </>
+          )}
         </VStack>
-      )}
-      {props.layout == 'LIST_LAYOUT' && (
+      </HStack>
+      <DropdownSeparator />
+      {props.showThemeSection && <ThemeSection {...props} />}
+      {/* {props.layout == 'LIST_LAYOUT' && (
         <DropdownOption
           onSelect={() =>
             props.updateLayout && props.updateLayout('GRID_LAYOUT')
@@ -103,7 +161,8 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
           />
           <Box css={{ height: '10px' }}></Box>
         </>
-      )}
+      )} */}
+      <DropdownSeparator />
       <DropdownOption
         onSelect={() => headerDropdownActionHandler('navigate-to-install')}
         title="Install"
@@ -132,6 +191,7 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
         onSelect={() => window.Intercom('show')}
         title="Feedback"
       />
+      <DropdownSeparator />
       <DropdownOption
         onSelect={() => headerDropdownActionHandler('logout')}
         title="Logout"
@@ -140,40 +200,136 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
   )
 }
 
-function ThemeSection(): JSX.Element {
+const StyledToggleButton = styled('button', {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  color: '$thTextContrast2',
+  backgroundColor: 'transparent',
+  border: 'none',
+  cursor: 'pointer',
+  width: '70px',
+  height: '100%',
+  borderRadius: '5px',
+  fontSize: '12px',
+  fontFamily: '$inter',
+  gap: '5px',
+  m: '2px',
+  '&:hover': {
+    opacity: 0.8,
+  },
+  '&[data-state="on"]': {
+    bg: '$thBackground',
+  },
+})
+
+function ThemeSection(props: PrimaryDropdownProps): JSX.Element {
   const [currentTheme, setCurrentTheme] = useState(currentThemeName())
 
-  const isDark = useMemo(() => {
-    return currentTheme === 'Dark' || currentTheme === 'Darker'
-  }, [currentTheme])
-
   return (
-    <>
-      <StyledText style="menuTitle">Theme</StyledText>
-      <HStack css={{ py: '8px', width: '100%', gap: '25px' }}>
-        <Button
-          style="themeSwitch"
-          css={{ background: '#FFFFFF' }}
-          data-state={isDark ? 'unselected' : 'selected'}
-          onClick={() => {
-            updateTheme(ThemeId.Lighter)
-            setCurrentTheme(currentThemeName())
+    <VStack>
+      <HStack
+        alignment="center"
+        css={{
+          width: '100%',
+          px: '15px',
+          justifyContent: 'space-between',
+        }}
+      >
+        <StyledText
+          css={{
+            fontSize: '14px',
+            fontWeight: '400',
+            cursor: 'default',
+            color: '$utilityTextDefault',
           }}
         >
-          {!isDark && <Check color="#F9D354" size={32} />}
-        </Button>
-        <Button
-          style="themeSwitch"
-          css={{ background: '#3D3D3D' }}
-          data-state={isDark ? 'selected' : 'unselected'}
-          onClick={() => {
-            updateTheme(ThemeId.Dark)
-            setCurrentTheme(currentThemeName())
+          Mode
+        </StyledText>
+        <Box
+          css={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            bg: '$thBackground4',
+            borderRadius: '5px',
+            height: '34px',
+            p: '3px',
+            px: '1px',
           }}
         >
-          {isDark && <Check color="#F9D354" size={32} />}
-        </Button>
+          <StyledToggleButton
+            data-state={currentTheme != ThemeId.Dark ? 'on' : 'off'}
+            onClick={() => {
+              updateTheme(ThemeId.Light)
+              setCurrentTheme(ThemeId.Light)
+            }}
+          >
+            Light
+            <Sun size={15} color={theme.colors.thTextContrast2.toString()} />
+          </StyledToggleButton>
+          <StyledToggleButton
+            data-state={currentTheme == ThemeId.Dark ? 'on' : 'off'}
+            onClick={() => {
+              updateTheme(ThemeId.Dark)
+              setCurrentTheme(ThemeId.Dark)
+            }}
+          >
+            Dark
+            <Moon size={15} color={theme.colors.thTextContrast2.toString()} />
+          </StyledToggleButton>
+        </Box>
       </HStack>
-    </>
+      {props.layout && (
+        <HStack
+          alignment="center"
+          css={{
+            width: '100%',
+            px: '15px',
+            justifyContent: 'space-between',
+          }}
+        >
+          <StyledText
+            css={{
+              fontSize: '14px',
+              fontWeight: '400',
+              cursor: 'default',
+              color: '$utilityTextDefault',
+            }}
+          >
+            Layout
+          </StyledText>
+          <Box
+            css={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              bg: '$thBackground4',
+              borderRadius: '5px',
+              height: '34px',
+              p: '3px',
+              px: '1px',
+            }}
+          >
+            <StyledToggleButton
+              data-state={props.layout == 'LIST_LAYOUT' ? 'on' : 'off'}
+              onClick={() => {
+                props.updateLayout && props.updateLayout('LIST_LAYOUT')
+              }}
+            >
+              <ListLayoutIcon color={theme.colors.thTextContrast2.toString()} />
+            </StyledToggleButton>
+            <StyledToggleButton
+              data-state={props.layout == 'GRID_LAYOUT' ? 'on' : 'off'}
+              onClick={() => {
+                props.updateLayout && props.updateLayout('GRID_LAYOUT')
+              }}
+            >
+              <GridLayoutIcon color={theme.colors.thTextContrast2.toString()} />
+            </StyledToggleButton>
+          </Box>
+        </HStack>
+      )}
+    </VStack>
   )
 }

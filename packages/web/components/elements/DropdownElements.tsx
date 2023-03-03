@@ -12,11 +12,11 @@ import { PopperContentProps } from '@radix-ui/react-popover'
 import { CSS } from '@stitches/react'
 import { styled } from './../tokens/stitches.config'
 
-const itemStyles = {
-  fontSize: '16px',
-  fontWeight: '500',
-  py: '12px',
-  px: '24px',
+const StyledItem = styled(Item, {
+  fontSize: '14px',
+  fontWeight: '400',
+  py: '10px',
+  px: '15px',
   borderRadius: 3,
   cursor: 'default',
   color: '$utilityTextDefault',
@@ -25,9 +25,7 @@ const itemStyles = {
     outline: 'none',
     backgroundColor: '$grayBgHover',
   },
-}
-
-const StyledItem = styled(Item, itemStyles)
+})
 
 const DropdownTrigger = styled(Trigger, {
   fontSize: '100%',
@@ -44,7 +42,6 @@ const StyledTriggerItem = styled(TriggerItem, {
     outline: 'none',
     backgroundColor: '$grayBgHover',
   },
-  ...itemStyles,
 })
 
 export const DropdownContent = styled(Content, {
