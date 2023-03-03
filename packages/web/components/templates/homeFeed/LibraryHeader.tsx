@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
+import { Box, HStack, VStack } from '../../elements/LayoutPrimitives'
 import { theme } from '../../tokens/stitches.config'
 import { FormInput } from '../../elements/FormElements'
 import { searchBarCommands } from '../../../lib/keyboardShortcuts/navigationShortcuts'

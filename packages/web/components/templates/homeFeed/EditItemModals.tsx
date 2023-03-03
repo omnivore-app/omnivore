@@ -41,7 +41,8 @@ export function EditLibraryItemModal(
             title,
             description,
             byline: author,
-            // savedAt: savedAt.toISOString(),
+            savedAt: savedAt.toISOString(),
+            publishedAt: publishedAt ? publishedAt.toISOString() : undefined,
           })
 
           if (res) {
@@ -118,7 +119,8 @@ export function EditArticleModal(props: EditArticleModalProps): JSX.Element {
             title,
             description,
             byline: author,
-            // savedAt: savedAt.toISOString(),
+            savedAt: savedAt.toISOString(),
+            publishedAt: publishedAt ? publishedAt.toISOString() : undefined,
           })
           if (res) {
             props.updateArticle(
