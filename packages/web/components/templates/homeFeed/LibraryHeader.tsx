@@ -418,6 +418,9 @@ function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
             onClick={() => {
               props.setShowInlineSearch && props.setShowInlineSearch(true)
             }}
+            css={{
+              display: 'flex',
+            }}
           >
             <MagnifyingGlass
               size={20}
