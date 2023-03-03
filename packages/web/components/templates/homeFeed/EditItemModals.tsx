@@ -190,7 +190,7 @@ function EditItemModal(props: EditItemModalProps): JSX.Element {
   const titleStyle = {
     mt: '22px',
     mb: '2px',
-    fontFamily: 'SF Pro Display',
+    fontFamily: 'SF Pro',
     fontWeight: '600',
     fontSize: '9px',
     color: '#898989',

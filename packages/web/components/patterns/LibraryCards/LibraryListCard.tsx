@@ -104,7 +104,7 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
               color: '#6A6968',
               fontSize: '10px',
               fontWeight: '500',
-              fontFamily: 'SF Pro Display',
+              fontFamily: 'SF Pro',
             }}
             distribution="start"
           >
@@ -167,7 +167,7 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
                 fontWeight: '700',
                 lineHeight: '1.25',
                 maxWidth: '1200px',
-                fontFamily: 'SF Pro Display',
+                fontFamily: 'SF Pro',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 wordBreak: 'break-word',
@@ -183,7 +183,7 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
                 color: '#898989',
                 fontSize: '11px',
                 fontWeight: '400',
-                fontFamily: 'SF Pro Display',
+                fontFamily: 'SF Pro',
               }}
             >
               <SpanBox
