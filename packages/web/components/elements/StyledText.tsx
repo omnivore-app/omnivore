@@ -67,8 +67,8 @@ const textVariants = {
       margin: 0,
     },
     modalHeadline: {
-      fontFamily: 'SF Pro',
       fontWeight: '600',
+      fontFamily: '$display',
       fontSize: '16px',
       lineHeight: '20px',
       color: '$grayText',
@@ -180,7 +180,7 @@ const textVariants = {
       color: 'white',
     },
     displaySettingsLabel: {
-      fontFamily: 'SF Pro',
+      fontFamily: '$display',
       fontWeight: '500',
       fontSize: '12px',
       lineHeight: '20px',

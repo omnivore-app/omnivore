@@ -267,7 +267,7 @@ function FilterButton(props: FilterButtonProps): JSX.Element {
         backgroundColor: selected ? '$thBackground2' : 'unset',
         fontSize: '14px',
         fontWeight: 'regular',
-        fontFamily: 'SF Pro Text',
+        fontFamily: '$display Text',
         color: '$thTextSubtle',
         verticalAlign: 'middle',
         borderRadius: '3px',

@@ -59,7 +59,7 @@ export function ReaderSettingsControl(props: ReaderSettingsProps): JSX.Element {
             display: 'flex',
             fontSize: '12px',
             fontWeight: '600',
-            fontFamily: 'SF Pro',
+            fontFamily: '$display',
             '&:hover': {
               textDecoration: 'underline',
             },
@@ -140,7 +140,7 @@ function FontControls(props: FontControlsProps): JSX.Element {
       >
         <SpanBox
           css={{
-            fontFamily: 'SF Pro',
+            fontFamily: '$display',
             fontStyle: 'normal',
             fontWeight: '400',
             fontSize: '20px',
@@ -163,7 +163,7 @@ function FontControls(props: FontControlsProps): JSX.Element {
         />
         <SpanBox
           css={{
-            fontFamily: 'SF Pro',
+            fontFamily: '$display',
             fontStyle: 'normal',
             fontWeight: '400',
             fontSize: '20px',

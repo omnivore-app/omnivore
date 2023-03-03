@@ -66,6 +66,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
     theme: {
       fonts: {
         inter: 'Inter, sans-serif',
+        display: '-apple-system, BlinkMacSystemFont, sans-serif',
       },
       fontSizes: {
         1: '0.75em',

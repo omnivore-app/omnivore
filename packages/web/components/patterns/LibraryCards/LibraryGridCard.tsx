@@ -121,7 +121,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
               color: '$thTextSubtle2',
               fontSize: '13px',
               fontWeight: '400',
-              fontFamily: 'SF Pro',
+              fontFamily: '$display',
               minHeight: '35px',
             }}
             distribution="start"
@@ -176,7 +176,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
                 fontSize: '20px',
                 fontWeight: '700',
                 lineHeight: '1.25',
-                fontFamily: 'SF Pro',
+                fontFamily: '$display',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 wordBreak: 'break-word',
@@ -195,7 +195,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
                 fontSize: '13px',
                 fontWeight: '400',
                 lineHeight: '140%',
-                fontFamily: 'SF Pro',
+                fontFamily: '$display',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 display: '-webkit-box',
@@ -213,7 +213,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
                 color: '$thTextSubtle3',
                 fontSize: '13px',
                 fontWeight: '400',
-                fontFamily: 'SF Pro',
+                fontFamily: '$display',
               }}
             >
               <SpanBox
