@@ -17,6 +17,7 @@ export const ModalOverlay = styled(Overlay, {
   width: '100vw',
   height: '100vh',
   position: 'fixed',
+  zIndex: 10,
   inset: 0,
   '@media (prefers-reduced-motion: no-preference)': {
     animation: `${overlayShow} 150ms cubic-bezier(0.16, 1, 0.3, 1)`,
@@ -29,7 +30,6 @@ const Modal = styled(Content, {
   boxShadow: theme.shadows.cardBoxShadow.toString(),
   position: 'fixed',
   '&:focus': { outline: 'none' },
-  zIndex: '1',
 })
 
 export const ModalContent = styled(Modal, {

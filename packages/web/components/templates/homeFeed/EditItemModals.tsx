@@ -231,13 +231,13 @@ function EditItemModal(props: EditItemModalProps): JSX.Element {
                     css={{
                       mt: '1px',
                       borderRadius: '5px',
-                      border: '1px solid #D9D9D9',
+                      border: '1px solid $thBorderColor',
                       fontFamily: 'Inter',
                       fontWeight: '500',
                       fontSize: '12px',
                       height: '30px',
                       p: '5px',
-                      color: '#3D3D3D',
+                      color: '$thTextContrast2',
                       '&:focus': {
                         outline: 'none !important',
                         border: '1px solid $omnivoreCtaYellow',
@@ -263,13 +263,13 @@ function EditItemModal(props: EditItemModalProps): JSX.Element {
                     css={{
                       mt: '1px',
                       borderRadius: '5px',
-                      border: '1px solid #D9D9D9',
+                      border: '1px solid $thBorderColor',
                       fontFamily: 'Inter',
                       fontWeight: '500',
                       fontSize: '12px',
                       height: '30px',
                       p: '5px',
-                      color: '#3D3D3D',
+                      color: '$thTextContrast2',
                       '&:focus': {
                         outline: 'none !important',
                         border: '1px solid $omnivoreCtaYellow',
@@ -287,14 +287,14 @@ function EditItemModal(props: EditItemModalProps): JSX.Element {
                 onChange={(event) => setTitle(event.target.value)}
                 css={{
                   borderRadius: '5px',
-                  border: '1px solid #D9D9D9',
+                  border: '1px solid $thBorderColor',
                   width: '100%',
                   fontFamily: 'Inter',
                   fontWeight: '500',
                   fontSize: '12px',
                   height: '30px',
                   p: '5px',
-                  color: '#3D3D3D',
+                  color: '$thTextContrast2',
                   '&:focus': {
                     outline: 'none !important',
                     border: '1px solid $omnivoreCtaYellow',
@@ -310,14 +310,14 @@ function EditItemModal(props: EditItemModalProps): JSX.Element {
                 onChange={(event) => setAuthor(event.target.value)}
                 css={{
                   borderRadius: '5px',
-                  border: '1px solid #D9D9D9',
+                  border: '1px solid $thBorderColor',
                   width: '100%',
                   fontFamily: 'Inter',
                   fontWeight: '500',
                   fontSize: '12px',
                   height: '30px',
                   p: '5px',
-                  color: '#3D3D3D',
+                  color: '$thTextContrast2',
                   '&:focus': {
                     outline: 'none !important',
                     border: '1px solid $omnivoreCtaYellow',
@@ -329,14 +329,14 @@ function EditItemModal(props: EditItemModalProps): JSX.Element {
               <StyledTextArea
                 css={{
                   borderRadius: '5px',
-                  border: '1px solid #D9D9D9',
+                  border: '1px solid $thBorderColor',
                   width: '100%',
                   fontFamily: 'Inter',
                   fontWeight: '500',
                   fontSize: '12px',
                   height: '120px',
                   p: '5px',
-                  color: '#3D3D3D',
+                  color: '$thTextContrast2',
                   mt: '2px',
                   '&:focus': {
                     outline: 'none !important',
