@@ -24,6 +24,7 @@ import { READWISE_API_URL } from '../../src/services/integrations/readwise'
 import sinon from 'sinon'
 import { Storage } from '@google-cloud/storage'
 import { MockBucket } from '../mock_storage'
+import { env } from '../../src/env'
 
 describe('Integrations routers', () => {
   const baseUrl = '/svc/pubsub/integrations'
@@ -356,7 +357,7 @@ describe('Integrations routers', () => {
       })
         .post('/v3/get', {
           access_token: token,
-          consumer_key: process.env.POCKET_CONSUMER_KEY,
+          consumer_key: env.pocket.consumerKey,
           state: 'all',
           detailType: 'complete',
           since: 0,
@@ -374,6 +375,14 @@ describe('Integrations routers', () => {
           },
           since: Date.now() / 1000,
         })
+
+      // mock cloud storage
+      const mockBucket = new MockBucket('test')
+      sinon.replace(
+        Storage.prototype,
+        'bucket',
+        sinon.fake.returns(mockBucket as never)
+      )
     })
 
     after(async () => {
@@ -383,22 +392,13 @@ describe('Integrations routers', () => {
 
     context('when integration is pocket', () => {
       it('returns 200 with OK', async () => {
-        // mock cloud storage
-        const mockBucket = new MockBucket('test')
-        sinon.replace(
-          Storage.prototype,
-          'bucket',
-          sinon.fake.returns(mockBucket as never)
-        )
-        await request
+        return request
           .post(`${baseUrl}/import`)
           .send({
             integrationId: integration.id,
           })
           .set('Cookie', `auth=${authToken}`)
           .expect(200)
-
-        sinon.restore()
       })
     })
   })
