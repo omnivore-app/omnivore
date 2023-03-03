@@ -1,5 +1,6 @@
 package app.omnivore.omnivore.ui.components
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -8,7 +9,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -42,6 +45,7 @@ fun LabelsSelectionSheet(viewModel: LibraryViewModel) {
             viewModel.showLabelsSelectionSheetLiveData.value = false
             viewModel.labelsSelectionCurrentItemLiveData.value = null
           },
+          isLibraryMode = false,
           onSave = {
             if (it != labels) {
               viewModel.updateSavedItemLabels(savedItemID = currentSavedItemData.cardData.savedItemId, labels = it)
@@ -55,6 +59,7 @@ fun LabelsSelectionSheet(viewModel: LibraryViewModel) {
           labels = labels,
           initialSelectedLabels = viewModel.activeLabelsLiveData.value ?: listOf(),
           onCancel = { viewModel.showLabelsSelectionSheetLiveData.value = false },
+          isLibraryMode = true,
           onSave = {
             viewModel.updateAppliedLabels(it)
             viewModel.labelsSelectionCurrentItemLiveData.value = null
@@ -69,6 +74,7 @@ fun LabelsSelectionSheet(viewModel: LibraryViewModel) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LabelsSelectionSheetContent(
+  isLibraryMode: Boolean,
   labels: List<SavedItemLabel>,
   initialSelectedLabels: List<SavedItemLabel>,
   onCancel: () -> Unit,
@@ -76,6 +82,7 @@ fun LabelsSelectionSheetContent(
 ) {
   val listState = rememberLazyListState()
   val selectedLabels = remember { mutableStateOf(initialSelectedLabels) }
+  val titleText = if (isLibraryMode) "Filter by Label" else "Set Labels"
 
   Surface(
     modifier = Modifier
@@ -102,7 +109,7 @@ fun LabelsSelectionSheetContent(
             Text(text = "Cancel")
           }
 
-          Text("Filter by Label", fontWeight = FontWeight.ExtraBold)
+          Text(titleText, fontWeight = FontWeight.ExtraBold)
 
           TextButton(onClick = { onSave(selectedLabels.value) }) {
             Text(text = "Done")
@@ -147,6 +154,30 @@ fun LabelsSelectionSheetContent(
           }
         }
         Divider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 1.dp)
+      }
+
+      if (!isLibraryMode) {
+        item {
+          Row(
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+              .fillMaxWidth()
+              .clickable {
+                Log.d("label", "add new label button tapped")
+              }
+              .padding(horizontal = 6.dp)
+              .padding(vertical = 12.dp)
+          )
+          {
+            Icon(
+              imageVector = Icons.Filled.AddCircle,
+              contentDescription = null,
+              modifier = Modifier.padding(end = 8.dp)
+            )
+            Text(text = "Create a new Label")
+          }
+        }
       }
     }
   }
