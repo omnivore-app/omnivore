@@ -12,6 +12,7 @@ import { LayoutType } from './HomeFeedContainer'
 import { PrimaryDropdown } from '../PrimaryDropdown'
 import { LogoBox } from '../../elements/LogoBox'
 import { OmnivoreSmallLogo } from '../../elements/images/OmnivoreNameLogo'
+import { SearchModal } from '../../patterns/LibraryCards/SearchModal'
 
 type LibraryHeaderProps = {
   layout: LayoutType
@@ -22,9 +23,9 @@ type LibraryHeaderProps = {
 
   showFilterMenu: boolean
   setShowFilterMenu: (show: boolean) => void
-}
 
-const FOCUSED_BOXSHADOW = '0px 0px 2px 2px rgba(255, 234, 159, 0.56)'
+  setShowSearchModal: (show: boolean) => void
+}
 
 const HEADER_HEIGHT = '105px'
 const MOBILE_HEIGHT = '48px'
@@ -89,6 +90,7 @@ function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
       <ControlButtonBox
         layout={props.layout}
         updateLayout={props.updateLayout}
+        setShowSearchModal={props.setShowSearchModal}
       />
     </HStack>
   )
@@ -111,6 +113,7 @@ function SmallHeaderLayout(props: LibraryHeaderProps): JSX.Element {
       <ControlButtonBox
         layout={props.layout}
         updateLayout={props.updateLayout}
+        setShowSearchModal={props.setShowSearchModal}
       />
     </HStack>
   )
@@ -147,12 +150,15 @@ export function MenuHeaderButton(props: MenuHeaderButtonProps): JSX.Element {
   )
 }
 
-type SearchBoxProps = {
+export type SearchBoxProps = {
   searchTerm: string | undefined
   applySearchQuery: (searchQuery: string) => void
+
+  compact?: boolean
+  onClose?: () => void
 }
 
-function SearchBox(props: SearchBoxProps): JSX.Element {
+export function SearchBox(props: SearchBoxProps): JSX.Element {
   const inputRef = useRef<HTMLInputElement | null>(null)
   const [focused, setFocused] = useState(false)
   const [searchTerm, setSearchTerm] = useState(props.searchTerm ?? '')
@@ -174,7 +180,7 @@ function SearchBox(props: SearchBoxProps): JSX.Element {
         mr: '15px',
         bg: '#F3F3F3',
         borderRadius: '6px',
-        boxShadow: focused ? FOCUSED_BOXSHADOW : 'unset',
+        border: focused ? '1px solid $omnivoreCtaYellow' : '1px solid #D9D9D9',
       }}
     >
       <HStack
@@ -185,14 +191,18 @@ function SearchBox(props: SearchBoxProps): JSX.Element {
         <HStack
           alignment="center"
           distribution="start"
-          css={{ height: '100%', px: '15px' }}
+          css={{
+            height: '100%',
+            pl: props.compact ? '10px' : '15px',
+            pr: props.compact ? '5px' : '10px',
+          }}
           onClick={(e) => {
             inputRef.current?.focus()
             e.preventDefault()
           }}
         >
           <MagnifyingGlass
-            size={20}
+            size={props.compact ? 15 : 20}
             color={theme.colors.graySolid.toString()}
           />
         </HStack>
@@ -201,6 +211,9 @@ function SearchBox(props: SearchBoxProps): JSX.Element {
             event.preventDefault()
             props.applySearchQuery(searchTerm || '')
             inputRef.current?.blur()
+            if (props.onClose) {
+              props.onClose()
+            }
           }}
           style={{ width: '100%' }}
         >
@@ -221,7 +234,7 @@ function SearchBox(props: SearchBoxProps): JSX.Element {
             }}
           />
         </form>
-        {searchTerm && searchTerm.length > 0 ? (
+        {searchTerm && searchTerm.length && props.compact && (
           <Button
             style="plainIcon"
             onClick={(event) => {
@@ -233,17 +246,74 @@ function SearchBox(props: SearchBoxProps): JSX.Element {
             css={{
               display: 'flex',
               flexDirection: 'row',
-              mr: '8px',
-              height: '100%',
+              p: '4px',
+              mx: '4px',
+              fontSize: '12px',
               alignItems: 'center',
+              // bg: '#E1E1E1',
             }}
           >
-            <X
-              width={16}
-              height={16}
-              color={theme.colors.grayTextContrast.toString()}
-            />
+            clear
           </Button>
+        )}
+        {focused || props.compact ? (
+          // <Button
+          //   style="plainIcon"
+          //   onClick={(event) => {
+          //     event.preventDefault()
+          //     setSearchTerm('')
+          //     props.applySearchQuery('')
+          //     inputRef.current?.blur()
+          //   }}
+          //   css={{
+          //     display: 'flex',
+          //     flexDirection: 'row',
+          //     mr: '8px',
+          //     height: '100%',
+          //     alignItems: 'center',
+          //     minWidth: '28px',
+          //   }}
+          // >
+          //   <X
+          //     width={16}
+          //     height={16}
+          //     color={theme.colors.grayTextContrast.toString()}
+          //   />
+          // </Button>
+          <Box
+            css={{
+              py: '15px',
+              marginLeft: 'auto',
+            }}
+          >
+            <IconButton
+              css={{
+                p: '0px',
+                mr: '5px',
+                width: '28px',
+                height: '28px',
+                color: '#898989',
+              }}
+              onClick={(event) => {
+                // In compact mode this closes the search, in fullscreen mode it clears the search
+                if (props.compact) {
+                  props.onClose && props.onClose()
+                } else {
+                  event.preventDefault()
+                  setSearchTerm('')
+                  props.applySearchQuery('')
+                  inputRef.current?.blur()
+                }
+              }}
+              tabIndex={-1}
+            >
+              <X
+                width={16}
+                height={16}
+                color={theme.colors.grayTextContrast.toString()}
+              />
+            </IconButton>
+          </Box>
         ) : (
           <Box
             css={{
@@ -258,9 +328,9 @@ function SearchBox(props: SearchBoxProps): JSX.Element {
                 height: '28px',
                 color: '#898989',
               }}
-              onClick={() =>
-                requestAnimationFrame(() => inputRef?.current?.focus())
-              }
+              // onClick={() =>
+              //   requestAnimationFrame(() => inputRef?.current?.focus())
+              // }
               // we can make it unreachable via keyboard as we have the same message for the SR label
               tabIndex={-1}
             >
@@ -276,6 +346,7 @@ function SearchBox(props: SearchBoxProps): JSX.Element {
 type ControlButtonBoxProps = {
   layout: LayoutType
   updateLayout: (layout: LayoutType) => void
+  setShowSearchModal: (show: boolean) => void
 }
 
 function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
@@ -340,26 +411,11 @@ function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
           },
         }}
       >
-        {showInlineSearch && (
-          <SpanBox
-            css={{
-              position: 'absolute',
-              width: '100%',
-              height: '100%',
-              bg: 'red',
-              top: '0px',
-              left: '0px',
-              p: '10px',
-            }}
-            onClick={() => setShowInlineSearch(false)}
-          >
-            {/* <SearchBox {...props} /> */}
-          </SpanBox>
-        )}
         <Button
           style="ghost"
           onClick={() => {
-            setShowInlineSearch(true)
+            console.log('showing search modal')
+            props.setShowSearchModal(true)
           }}
         >
           <MagnifyingGlass
