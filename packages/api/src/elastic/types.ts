@@ -72,6 +72,8 @@ export enum ArticleSavingRequestStatus {
   Processing = 'PROCESSING',
   Succeeded = 'SUCCEEDED',
   Deleted = 'DELETED',
+
+  Archived = 'ARCHIVED',
 }
 
 export enum HighlightType {

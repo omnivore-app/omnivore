@@ -1,5 +1,5 @@
 import { Readability } from '@omnivore/readability'
-import { ImportContext, RetrievedDataState } from '../src'
+import { ArticleSavingRequestStatus, ImportContext } from '../src'
 
 export const stubImportCtx = () => {
   return {
@@ -9,7 +9,7 @@ export const stubImportCtx = () => {
     urlHandler: (
       ctx: ImportContext,
       url: URL,
-      state?: RetrievedDataState,
+      state?: ArticleSavingRequestStatus,
       labels?: string[]
     ): Promise<void> => {
       return Promise.resolve()

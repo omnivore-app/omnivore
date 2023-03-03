@@ -13,7 +13,14 @@ import { Readability } from '@omnivore/readability'
 
 import * as Sentry from '@sentry/serverless'
 
-export type RetrievedDataState = 'archived' | 'saved' | 'deleted'
+export enum ArticleSavingRequestStatus {
+  Failed = 'FAILED',
+  Processing = 'PROCESSING',
+  Succeeded = 'SUCCEEDED',
+  Deleted = 'DELETED',
+
+  Archived = 'ARCHIVED',
+}
 
 Sentry.GCPFunction.init({
   dsn: process.env.SENTRY_DSN,
@@ -29,7 +36,7 @@ const CONTENT_TYPES = ['text/csv', 'application/zip']
 export type UrlHandler = (
   ctx: ImportContext,
   url: URL,
-  state?: RetrievedDataState,
+  state?: ArticleSavingRequestStatus,
   labels?: string[]
 ) => Promise<void>
 export type ContentHandler = (
@@ -74,7 +81,7 @@ const importURL = async (
   userId: string,
   url: URL,
   source: string,
-  state?: RetrievedDataState,
+  state?: ArticleSavingRequestStatus,
   labels?: string[]
 ): Promise<string | undefined> => {
   return createCloudTask(CONTENT_FETCH_URL, {
@@ -136,7 +143,7 @@ const handlerForFile = (name: string): importHandlerFunc | undefined => {
 const urlHandler = async (
   ctx: ImportContext,
   url: URL,
-  state?: RetrievedDataState,
+  state?: ArticleSavingRequestStatus,
   labels?: string[]
 ): Promise<void> => {
   try {

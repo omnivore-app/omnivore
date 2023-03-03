@@ -554,6 +554,8 @@ const schema = gql`
     title: String
     originalContent: String!
     parseResult: ParseResult
+    state: ArticleSavingRequestStatus
+    labels: [String]
   }
 
   input SaveUrlInput {
@@ -1073,6 +1075,7 @@ const schema = gql`
     SUCCEEDED
     FAILED
     DELETED
+    ARCHIVED
   }
 
   type ArticleSavingRequest {

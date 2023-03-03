@@ -1,11 +1,11 @@
 import {
   IntegrationService,
-  RetrievedDataState,
   RetrievedResult,
   RetrieveRequest,
 } from './integration'
 import axios from 'axios'
 import { env } from '../../env'
+import { ArticleSavingRequestStatus } from '../../elastic/types'
 
 interface PocketResponse {
   status: number // 1 if success
@@ -123,10 +123,10 @@ export class PocketIntegration extends IntegrationService {
       offset
     )
     const pocketItems = Object.values(pocketData.list)
-    const statusToState: Record<string, RetrievedDataState> = {
-      '0': 'saved',
-      '1': 'archived',
-      '2': 'deleted',
+    const statusToState: Record<string, ArticleSavingRequestStatus> = {
+      '0': ArticleSavingRequestStatus.Succeeded,
+      '1': ArticleSavingRequestStatus.Archived,
+      '2': ArticleSavingRequestStatus.Deleted,
     }
     const data = pocketItems.map((item) => ({
       url: item.given_url,

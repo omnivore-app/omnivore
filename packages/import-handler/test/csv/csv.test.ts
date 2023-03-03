@@ -4,7 +4,7 @@ import { expect } from 'chai'
 import chaiString from 'chai-string'
 import * as fs from 'fs'
 import { importCsv } from '../../src/csv'
-import { ImportContext, RetrievedDataState } from '../../src'
+import { ArticleSavingRequestStatus, ImportContext } from '../../src'
 import { stubImportCtx } from '../util'
 
 chai.use(chaiString)
@@ -33,7 +33,7 @@ describe('Load a complex CSV file', () => {
   it('should call the handler for each URL, state and labels', async () => {
     const results: {
       url: URL
-      state?: RetrievedDataState
+      state?: ArticleSavingRequestStatus
       labels?: string[]
     }[] = []
     const stream = fs.createReadStream('./test/csv/data/complex.csv')
@@ -58,12 +58,12 @@ describe('Load a complex CSV file', () => {
     expect(results).to.eql([
       {
         url: new URL('https://omnivore.app'),
-        state: 'archived',
+        state: 'ARCHIVED',
         labels: ['test'],
       },
       {
         url: new URL('https://google.com'),
-        state: 'saved',
+        state: 'SUCCEEDED',
         labels: ['test', 'development'],
       },
     ])

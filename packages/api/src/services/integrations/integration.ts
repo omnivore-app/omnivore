@@ -1,11 +1,10 @@
 import { Integration } from '../../entity/integration'
-import { Page } from '../../elastic/types'
+import { ArticleSavingRequestStatus, Page } from '../../elastic/types'
 
-export type RetrievedDataState = 'archived' | 'saved' | 'deleted'
 export interface RetrievedData {
   url: string
   labels?: string[]
-  state?: RetrievedDataState
+  state?: ArticleSavingRequestStatus
 }
 export interface RetrievedResult {
   data: RetrievedData[]

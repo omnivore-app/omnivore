@@ -188,6 +188,7 @@ export enum ArticleSavingRequestErrorCode {
 export type ArticleSavingRequestResult = ArticleSavingRequestError | ArticleSavingRequestSuccess;
 
 export enum ArticleSavingRequestStatus {
+  Archived = 'ARCHIVED',
   Deleted = 'DELETED',
   Failed = 'FAILED',
   Processing = 'PROCESSING',
@@ -2224,9 +2225,11 @@ export type SaveFilterSuccess = {
 
 export type SavePageInput = {
   clientRequestId: Scalars['ID'];
+  labels?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
   originalContent: Scalars['String'];
   parseResult?: InputMaybe<ParseResult>;
   source: Scalars['String'];
+  state?: InputMaybe<ArticleSavingRequestStatus>;
   title?: InputMaybe<Scalars['String']>;
   url: Scalars['String'];
 };

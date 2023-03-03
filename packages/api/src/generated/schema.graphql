@@ -153,6 +153,7 @@ enum ArticleSavingRequestErrorCode {
 union ArticleSavingRequestResult = ArticleSavingRequestError | ArticleSavingRequestSuccess
 
 enum ArticleSavingRequestStatus {
+  ARCHIVED
   DELETED
   FAILED
   PROCESSING
@@ -1619,9 +1620,11 @@ type SaveFilterSuccess {
 
 input SavePageInput {
   clientRequestId: ID!
+  labels: [String]
   originalContent: String!
   parseResult: ParseResult
   source: String!
+  state: ArticleSavingRequestStatus
   title: String
   url: String!
 }
