@@ -108,7 +108,18 @@ function SmallHeaderLayout(props: LibraryHeaderProps): JSX.Element {
       }}
     >
       {showInlineSearch ? (
-        <SearchBox {...props} compact={true} />
+        <HStack css={{ pl: '10px', pr: '0px', width: '100%' }}>
+          <SearchBox {...props} compact={true} />
+          <Button
+            style="cancelGeneric"
+            onClick={(event) => {
+              setShowInlineSearch(false)
+              event.preventDefault()
+            }}
+          >
+            Cancel
+          </Button>
+        </HStack>
       ) : (
         <>
           <MenuHeaderButton {...props} />
@@ -165,6 +176,14 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
   const [focused, setFocused] = useState(false)
   const [searchTerm, setSearchTerm] = useState(props.searchTerm ?? '')
 
+  const border = props.compact
+    ? focused
+      ? '1px solid $omnivoreCtaYellow'
+      : '1px solid black'
+    : focused
+    ? '1px solid $omnivoreCtaYellow'
+    : '1px solid $thBorderColor'
+
   useKeyboardShortcuts(
     searchBarCommands((action) => {
       if (action === 'focusSearchBar' && inputRef.current) {
@@ -179,11 +198,9 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
         height: '38px',
         width: '100%',
         maxWidth: '521px',
-        bg: '$thBackground2',
+        bg: props.compact ? 'white' : '$thBackground2',
         borderRadius: '6px',
-        border: focused
-          ? '1px solid $omnivoreCtaYellow'
-          : '1px solid $thBorderColor',
+        border: border,
       }}
     >
       <HStack

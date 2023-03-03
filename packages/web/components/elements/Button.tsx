@@ -20,7 +20,7 @@ export const Button = styled('button', {
       },
       ctaDarkYellow: {
         border: '1px solid transparent',
-        fontSize: '10px',
+        fontSize: '13px',
         fontWeight: 500,
         fontFamily: 'Inter',
         borderRadius: '5px',
@@ -37,7 +37,7 @@ export const Button = styled('button', {
         },
       },
       cancelGeneric: {
-        fontSize: '10px',
+        fontSize: '13px',
         fontWeight: 500,
         fontFamily: 'Inter',
         cursor: 'pointer',
@@ -45,7 +45,7 @@ export const Button = styled('button', {
         borderRadius: '5px',
         border: '1px solid transparent',
         p: '10px 15px',
-        bg: '$grayBg',
+        bg: 'transparent',
         '&:hover': {
           bg: '#EBEBEB',
         },
