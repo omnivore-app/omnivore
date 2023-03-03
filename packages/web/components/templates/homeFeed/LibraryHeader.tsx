@@ -256,7 +256,8 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
             ref={inputRef}
             type="text"
             value={searchTerm}
-            placeholder="Search"
+            autoFocus={!!props.compact}
+            placeholder="Search keywords or labels"
             onFocus={(event) => {
               event.target.select()
               setFocused(true)
@@ -269,52 +270,7 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
             }}
           />
         </form>
-        {searchTerm && searchTerm.length && props.compact && (
-          <Button
-            style="plainIcon"
-            onClick={(event) => {
-              event.preventDefault()
-              setSearchTerm('')
-              props.applySearchQuery('')
-              inputRef.current?.blur()
-            }}
-            css={{
-              display: 'flex',
-              flexDirection: 'row',
-              p: '4px',
-              mx: '4px',
-              fontSize: '12px',
-              alignItems: 'center',
-              // bg: '#E1E1E1',
-            }}
-          >
-            clear
-          </Button>
-        )}
-        {focused || props.compact ? (
-          // <Button
-          //   style="plainIcon"
-          //   onClick={(event) => {
-          //     event.preventDefault()
-          //     setSearchTerm('')
-          //     props.applySearchQuery('')
-          //     inputRef.current?.blur()
-          //   }}
-          //   css={{
-          //     display: 'flex',
-          //     flexDirection: 'row',
-          //     mr: '8px',
-          //     height: '100%',
-          //     alignItems: 'center',
-          //     minWidth: '28px',
-          //   }}
-          // >
-          //   <X
-          //     width={16}
-          //     height={16}
-          //     color={theme.colors.grayTextContrast.toString()}
-          //   />
-          // </Button>
+        {searchTerm && searchTerm.length ? (
           <Box
             css={{
               py: '15px',
@@ -330,15 +286,10 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
                 color: '#898989',
               }}
               onClick={(event) => {
-                // In compact mode this closes the search, in fullscreen mode it clears the search
-                if (props.compact) {
-                  props.onClose && props.onClose()
-                } else {
-                  event.preventDefault()
-                  setSearchTerm('')
-                  props.applySearchQuery('')
-                  inputRef.current?.blur()
-                }
+                event.preventDefault()
+                setSearchTerm('')
+                props.applySearchQuery('')
+                inputRef.current?.blur()
               }}
               tabIndex={-1}
             >
@@ -363,10 +314,9 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
                 height: '28px',
                 color: '#898989',
               }}
-              // onClick={() =>
-              //   requestAnimationFrame(() => inputRef?.current?.focus())
-              // }
-              // we can make it unreachable via keyboard as we have the same message for the SR label
+              onClick={() =>
+                requestAnimationFrame(() => inputRef?.current?.focus())
+              }
               tabIndex={-1}
             >
               <kbd aria-hidden>/</kbd>
