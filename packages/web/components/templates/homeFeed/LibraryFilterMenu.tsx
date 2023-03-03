@@ -351,7 +351,6 @@ type AddLinkButtonProps = {
 function AddLinkButton(props: AddLinkButtonProps): JSX.Element {
   const currentTheme = currentThemeName()
   const isDark = currentTheme == 'Dark'
-  console.log('current theme: ', isDark)
 
   return (
     <>

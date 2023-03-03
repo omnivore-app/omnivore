@@ -245,7 +245,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
             >
               <ProgressBar
                 fillPercentage={props.item.readingProgressPercent}
-                fillColor="#FFD234"
+                fillColor="$thProgressFg"
                 backgroundColor="$thBorderSubtle"
                 borderRadius="5px"
               />

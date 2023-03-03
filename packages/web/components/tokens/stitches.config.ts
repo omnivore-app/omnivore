@@ -189,6 +189,8 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         thBorderColor: '#E1E1E1',
         thBorderSubtle: '#EEEEEE',
 
+        thProgressFg: '#FFD234',
+
         thHighContrast: '#D9D9D9',
       },
     },
@@ -274,6 +276,8 @@ const darkThemeSpec = {
 
     thBorderColor: '#4F4F4F',
     thBorderSubtle: '#6A6968',
+
+    thProgressFg: '#FFEA9F',
 
     thHighContrast: '#D9D9D9',
   },
