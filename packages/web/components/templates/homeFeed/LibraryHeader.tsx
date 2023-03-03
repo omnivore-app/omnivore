@@ -117,7 +117,7 @@ function SmallHeaderLayout(props: LibraryHeaderProps): JSX.Element {
               event.preventDefault()
             }}
           >
-            Cancel
+            Close
           </Button>
         </HStack>
       ) : (
