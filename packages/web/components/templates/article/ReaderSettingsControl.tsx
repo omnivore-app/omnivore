@@ -93,7 +93,7 @@ function FontControls(props: FontControlsProps): JSX.Element {
     display: 'flex',
     alignItems: 'center',
     fontSize: '12px',
-    background: '#FFFFFF',
+    background: '$thBackground',
     border: '1px sold $thBorderColor',
     fontFamily: props.readerSettings.fontFamily,
     textTransform: 'capitalize',
@@ -138,22 +138,36 @@ function FontControls(props: FontControlsProps): JSX.Element {
         distribution="start"
         alignment="center"
       >
-        <SpanBox
-          css={{
-            fontFamily: '$display',
-            fontStyle: 'normal',
-            fontWeight: '400',
-            fontSize: '20px',
-            lineHeight: '20px',
-            textAlign: 'center',
-            color: '#969696',
-            width: '50px',
-            pr: '5px',
-            pb: '5px',
+        <Button
+          style="plainIcon"
+          css={{ py: '0px', width: '60px' }}
+          onClick={() => {
+            // props.readerSettings.actionHandler('de')
+            // props.readerSettings
+            // const newMarginWith = Math.max(
+            //   props.readerSettings.marginWidth - 45,
+            //   200
+            // )
+            // props.readerSettings.setMarginWidth(newMarginWith)
           }}
         >
-          a
-        </SpanBox>
+          <SpanBox
+            css={{
+              fontFamily: '$display',
+              fontStyle: 'normal',
+              fontWeight: '400',
+              fontSize: '20px',
+              lineHeight: '20px',
+              textAlign: 'center',
+              color: '#969696',
+              width: '50px',
+              pr: '5px',
+              pb: '5px',
+            }}
+          >
+            a
+          </SpanBox>
+        </Button>
         <TickedRangeSlider
           min={10}
           max={34}
@@ -161,23 +175,37 @@ function FontControls(props: FontControlsProps): JSX.Element {
           value={props.readerSettings.fontSize}
           onChange={handleFontSizeChange}
         />
-        <SpanBox
-          css={{
-            fontFamily: '$display',
-            fontStyle: 'normal',
-            fontWeight: '400',
-            fontSize: '20px',
-            lineHeight: '20px',
-
-            textAlign: 'center',
-
-            color: '#969696',
-            width: '60px',
-            pl: '16px',
+        <Button
+          style="plainIcon"
+          css={{ py: '0px', width: '60px' }}
+          onClick={() => {
+            // props.readerSettings.actionHandler('de')
+            // props.readerSettings
+            // const newMarginWith = Math.max(
+            //   props.readerSettings.marginWidth - 45,
+            //   200
+            // )
+            // props.readerSettings.setMarginWidth(newMarginWith)
           }}
         >
-          A
-        </SpanBox>
+          <SpanBox
+            css={{
+              fontFamily: '$display',
+              fontStyle: 'normal',
+              fontWeight: '400',
+              fontSize: '20px',
+              lineHeight: '20px',
+
+              textAlign: 'center',
+
+              color: '#969696',
+              width: '60px',
+              pl: '16px',
+            }}
+          >
+            A
+          </SpanBox>
+        </Button>
       </HStack>
     </VStack>
   )
