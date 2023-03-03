@@ -90,92 +90,97 @@ fun LabelsSelectionSheetContent(
       .background(MaterialTheme.colorScheme.background),
     shape = RoundedCornerShape(16.dp)
   ) {
-    LazyColumn(
-      state = listState,
+    Column(
       verticalArrangement = Arrangement.Top,
       horizontalAlignment = Alignment.CenterHorizontally,
       modifier = Modifier
         .fillMaxSize()
         .padding(horizontal = 6.dp)
     ) {
-      item {
-        Row(
-          horizontalArrangement = Arrangement.SpaceBetween,
-          verticalAlignment = Alignment.CenterVertically,
-          modifier = Modifier
-            .fillMaxWidth()
-        ) {
-          TextButton(onClick = onCancel) {
-            Text(text = "Cancel")
-          }
+      Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+          .fillMaxWidth()
+      ) {
+        TextButton(onClick = onCancel) {
+          Text(text = "Cancel")
+        }
 
-          Text(titleText, fontWeight = FontWeight.ExtraBold)
+        Text(titleText, fontWeight = FontWeight.ExtraBold)
 
-          TextButton(onClick = { onSave(selectedLabels.value) }) {
-            Text(text = "Done")
-          }
+        TextButton(onClick = { onSave(selectedLabels.value) }) {
+          Text(text = "Done")
         }
       }
-      items(labels) { label ->
-        val isLabelSelected = selectedLabels.value.contains(label)
+      LazyColumn(
+        state = listState,
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+          .fillMaxSize()
+      ) {
+        items(labels) { label ->
+          val isLabelSelected = selectedLabels.value.contains(label)
 
-        Row(
-          horizontalArrangement = Arrangement.SpaceBetween,
-          verticalAlignment = Alignment.CenterVertically,
-          modifier = Modifier
-            .fillMaxWidth()
-            .clickable {
-              if (isLabelSelected) {
-                selectedLabels.value = (selectedLabels.value
-                  ?: listOf()).filter { it.savedItemLabelId != label.savedItemLabelId }
-              } else {
-                selectedLabels.value = (selectedLabels.value ?: listOf()) + listOf(label)
-              }
-            }
-            .padding(horizontal = 6.dp)
-        ) {
-          val chipColors = LabelChipColors.fromHex(label.color)
-
-          SuggestionChip(
-            onClick = {},
-            label = { Text(label.name) },
-            border = null,
-            colors = SuggestionChipDefaults.elevatedSuggestionChipColors(
-              containerColor = chipColors.containerColor,
-              labelColor = chipColors.textColor,
-              iconContentColor = chipColors.textColor
-            )
-          )
-          if (isLabelSelected) {
-            Icon(
-              imageVector = Icons.Default.Check,
-              contentDescription = null
-            )
-          }
-        }
-        Divider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 1.dp)
-      }
-
-      if (!isLibraryMode) {
-        item {
           Row(
-            horizontalArrangement = Arrangement.Start,
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
               .fillMaxWidth()
               .clickable {
-                Log.d("label", "add new label button tapped")
+                if (isLabelSelected) {
+                  selectedLabels.value = (selectedLabels.value
+                    ?: listOf()).filter { it.savedItemLabelId != label.savedItemLabelId }
+                } else {
+                  selectedLabels.value = (selectedLabels.value ?: listOf()) + listOf(label)
+                }
               }
               .padding(horizontal = 6.dp)
-              .padding(vertical = 12.dp)
-          )
-          {
-            Icon(
-              imageVector = Icons.Filled.AddCircle,
-              contentDescription = null,
-              modifier = Modifier.padding(end = 8.dp)
+          ) {
+            val chipColors = LabelChipColors.fromHex(label.color)
+
+            SuggestionChip(
+              onClick = {},
+              label = { Text(label.name) },
+              border = null,
+              colors = SuggestionChipDefaults.elevatedSuggestionChipColors(
+                containerColor = chipColors.containerColor,
+                labelColor = chipColors.textColor,
+                iconContentColor = chipColors.textColor
+              )
             )
-            Text(text = "Create a new Label")
+            if (isLabelSelected) {
+              Icon(
+                imageVector = Icons.Default.Check,
+                contentDescription = null
+              )
+            }
+          }
+          Divider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 1.dp)
+        }
+
+        if (!isLibraryMode) {
+          item {
+            Row(
+              horizontalArrangement = Arrangement.Start,
+              verticalAlignment = Alignment.CenterVertically,
+              modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                  Log.d("label", "add new label button tapped")
+                }
+                .padding(horizontal = 6.dp)
+                .padding(vertical = 12.dp)
+            )
+            {
+              Icon(
+                imageVector = Icons.Filled.AddCircle,
+                contentDescription = null,
+                modifier = Modifier.padding(end = 8.dp)
+              )
+              Text(text = "Create a new Label")
+            }
           }
         }
       }
