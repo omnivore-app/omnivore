@@ -6,14 +6,19 @@ import { currentThemeName, updateTheme } from '../../lib/themeUpdater'
 import { AvatarDropdown } from '../elements/AvatarDropdown'
 import { Button } from '../elements/Button'
 import { Dropdown, DropdownOption } from '../elements/DropdownElements'
-import { HStack, VStack } from '../elements/LayoutPrimitives'
+import { Box, HStack, VStack } from '../elements/LayoutPrimitives'
+import { Separator } from '../elements/Separator'
 import { StyledText } from '../elements/StyledText'
 import { DropdownMenu } from '../patterns/DropdownMenu'
 import { ThemeId } from '../tokens/stitches.config'
+import { LayoutType } from './homeFeed/HomeFeedContainer'
 
 type PrimaryDropdownProps = {
   children?: ReactNode
   showThemeSection: boolean
+
+  layout?: LayoutType
+  updateLayout?: (layout: LayoutType) => void
 }
 
 export type HeaderDropdownAction =
@@ -31,12 +36,6 @@ export type HeaderDropdownAction =
 export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
   const { viewerData } = useGetViewerQuery()
   const router = useRouter()
-
-  const [currentTheme, setCurrentTheme] = useState(currentThemeName())
-
-  const isDark = useMemo(() => {
-    return currentTheme === 'Dark' || currentTheme === 'Darker'
-  }, [currentTheme])
 
   const headerDropdownActionHandler = useCallback(
     (action: HeaderDropdownAction) => {
@@ -85,6 +84,25 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
         <VStack css={{ py: '12px', px: '24px' }}>
           <ThemeSection />
         </VStack>
+      )}
+      {props.layout == 'LIST_LAYOUT' && (
+        <DropdownOption
+          onSelect={() =>
+            props.updateLayout && props.updateLayout('GRID_LAYOUT')
+          }
+          title="Switch to Grid"
+        />
+      )}
+      {props.layout == 'GRID_LAYOUT' && (
+        <>
+          <DropdownOption
+            onSelect={() =>
+              props.updateLayout && props.updateLayout('LIST_LAYOUT')
+            }
+            title="Switch to List"
+          />
+          <Box css={{ height: '10px' }}></Box>
+        </>
       )}
       <DropdownOption
         onSelect={() => headerDropdownActionHandler('navigate-to-install')}

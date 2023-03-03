@@ -423,7 +423,11 @@ function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
             color={theme.colors.graySolid.toString()}
           />
         </Button>
-        <PrimaryDropdown showThemeSection={true} />
+        <PrimaryDropdown
+          showThemeSection={true}
+          layout={props.layout}
+          updateLayout={props.updateLayout}
+        />
       </HStack>
     </>
   )
