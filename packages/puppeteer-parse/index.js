@@ -248,6 +248,8 @@ async function fetchContent(req, res) {
   let url = getUrl(req);
   const userId = (req.query ? req.query.userId : undefined) || (req.body ? req.body.userId : undefined);
   const articleSavingRequestId = (req.query ? req.query.saveRequestId : undefined) || (req.body ? req.body.saveRequestId : undefined);
+  const state = req.body.state
+  const labels = req.body.labels
 
   let logRecord = {
     url,
@@ -256,6 +258,8 @@ async function fetchContent(req, res) {
     labels: {
       source: 'parseContent',
     },
+    state,
+    labelsToAdd: labels
   };
 
   console.info(`Article parsing request`, logRecord);
@@ -367,6 +371,8 @@ async function fetchContent(req, res) {
       title,
       originalContent: content,
       parseResult: readabilityResult,
+      state,
+      labels,
     });
 
     logRecord.totalTime = Date.now() - functionStartTime;
