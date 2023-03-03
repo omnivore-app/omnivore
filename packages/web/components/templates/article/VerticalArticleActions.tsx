@@ -20,6 +20,8 @@ import { useRef } from 'react'
 import { setLabelsMutation } from '../../../lib/networking/mutations/setLabelsMutation'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { SetLabelsModal } from './SetLabelsModal'
+import { DropdownMenu } from '../../patterns/DropdownMenu'
+import { ReaderDropdownMenu } from '../../patterns/ReaderDropdownMenu'
 
 export type ArticleActionsMenuLayout = 'top' | 'side'
 
@@ -151,7 +153,7 @@ export function VerticalArticleActionsMenu(
         )}
         <Button
           style="articleActionIcon"
-          onClick={() => props.articleActionHandler('showDisplaySettings')}
+          onClick={() => props.articleActionHandler('editDisplaySettings')}
           css={{
             display: 'flex',
             alignItems: 'center',
@@ -165,24 +167,15 @@ export function VerticalArticleActionsMenu(
           </TooltipWrapped>
         </Button>
 
-        <Button
-          style="articleActionIcon"
-          onClick={() => props.articleActionHandler('showDisplaySettings')}
-          css={{
-            display: 'flex',
-            alignItems: 'center',
-          }}
-        >
-          <TooltipWrapped
-            tooltipContent="Edit title & description"
-            tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
-          >
+        <ReaderDropdownMenu
+          triggerElement={
             <DotsThreeOutline
               size={24}
               color={theme.colors.thHighContrast.toString()}
             />
-          </TooltipWrapped>
-        </Button>
+          }
+          articleActionHandler={props.articleActionHandler}
+        />
       </HStack>
     </>
   )

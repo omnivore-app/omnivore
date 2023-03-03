@@ -43,6 +43,7 @@ import {
   EditArticleModal,
   EditLibraryItemModal,
 } from '../../../components/templates/homeFeed/EditItemModals'
+import { VerticalArticleActionsMenu } from '../../../components/templates/article/VerticalArticleActions'
 
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
   () => import('./../../../components/templates/article/PdfArticleContainer'),
@@ -313,7 +314,7 @@ export default function Home(): JSX.Element {
           readerSettings.setShowEditDisplaySettingsModal
         }
       >
-        <ArticleActionsMenu
+        <VerticalArticleActionsMenu
           article={article}
           layout="top"
           showReaderDisplaySettings={article?.contentReader != 'PDF'}

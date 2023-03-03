@@ -12,7 +12,6 @@ import { Button } from '../../elements/Button'
 import { Box, SpanBox } from '../../elements/LayoutPrimitives'
 import { TooltipWrapped } from '../../elements/Tooltip'
 import { styled, theme } from '../../tokens/stitches.config'
-import { DisplaySettingsModal } from './DisplaySettingsModal'
 import { useReaderSettings } from '../../../lib/hooks/useReaderSettings'
 import { useRef } from 'react'
 import { setLabelsMutation } from '../../../lib/networking/mutations/setLabelsMutation'
@@ -63,7 +62,8 @@ export function ArticleActionsMenu(
         <SpanBox
           css={{
             display: 'flex',
-            '@smDown': {
+            alignItems: 'center',
+            '@mdDown': {
               display: 'none',
             },
           }}
@@ -89,36 +89,6 @@ export function ArticleActionsMenu(
               <MenuSeparator layout={props.layout} />
             </>
           ) : (
-            // <ActionDropdown
-            //   layout={props.layout}
-            //   triggerElement={
-            //     <TooltipWrapped
-            //       tooltipContent="Edit labels"
-            //       tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
-            //     >
-            //       <TagSimple
-            //         size={24}
-            //         color={theme.colors.readerFont.toString()}
-            //       />
-            //     </TooltipWrapped>
-            //   }
-            // >
-            //   <SetLabelsControl
-            //     provider={props.article}
-            //     save={(labels: Label[]) => {
-            //       if (props.article?.id) {
-            //         return setLabelsMutation(
-            //           props.article?.id,
-            //           labels.map((label) => label.id)
-            //         )
-            //       }
-            //       return Promise.resolve(undefined)
-            //     }}
-            //     onLabelsChanged={(labels) => {
-            //       props.articleActionHandler('refreshLabels', labels)
-            //     }}
-            //   />
-            // </ActionDropdown>
             <Button
               style="articleActionIcon"
               css={{
@@ -140,8 +110,9 @@ export function ArticleActionsMenu(
           onClick={() => props.articleActionHandler('setLabels')}
           css={{
             display: 'none',
-            '@smDown': {
+            '@mdDown': {
               display: 'flex',
+              alignItems: 'center',
             },
           }}
         >
@@ -151,6 +122,10 @@ export function ArticleActionsMenu(
         <Button
           style="articleActionIcon"
           onClick={() => props.articleActionHandler('showHighlights')}
+          css={{
+            display: 'flex',
+            alignItems: 'center',
+          }}
         >
           <TooltipWrapped
             tooltipContent="View Highlights"
@@ -166,6 +141,13 @@ export function ArticleActionsMenu(
         <Button
           style="articleActionIcon"
           onClick={() => props.articleActionHandler('showEditModal')}
+          css={{
+            display: 'flex',
+            alignItems: 'center',
+            '@mdDown': {
+              display: 'none',
+            },
+          }}
         >
           <TooltipWrapped
             tooltipContent="Edit title & description"
@@ -182,6 +164,13 @@ export function ArticleActionsMenu(
           onClick={() => {
             props.articleActionHandler('delete')
           }}
+          css={{
+            display: 'flex',
+            alignItems: 'center',
+            '@mdDown': {
+              display: 'none',
+            },
+          }}
         >
           <TooltipWrapped
             tooltipContent="Delete"
@@ -195,6 +184,10 @@ export function ArticleActionsMenu(
           <Button
             style="articleActionIcon"
             onClick={() => props.articleActionHandler('archive')}
+            css={{
+              display: 'flex',
+              alignItems: 'center',
+            }}
           >
             <TooltipWrapped
               tooltipContent="Archive"
@@ -225,16 +218,6 @@ export function ArticleActionsMenu(
         <DotsThree size={24} color={theme.colors.readerFont.toString()} />
       </Button> */}
       </Box>
-      {readerSettings.showEditDisplaySettingsModal && (
-        <DisplaySettingsModal
-          centerX={props.layout != 'side'}
-          readerSettings={readerSettings}
-          triggerElementRef={displaySettingsButtonRef}
-          onOpenChange={() =>
-            readerSettings.setShowEditDisplaySettingsModal(false)
-          }
-        />
-      )}
 
       {props.article && readerSettings.showSetLabelsModal && (
         <SetLabelsModal

@@ -48,9 +48,26 @@ export function ReaderHeader(props: ReaderHeaderProps): JSX.Element {
           }}
         >
           <LogoBox />
-          {/* <SpanBox css={{ marginLeft: 'auto' }}>{props.children}</SpanBox> */}
-
-          <ControlButtonBox {...props} />
+          <SpanBox
+            css={{
+              width: '100%',
+              px: '25px',
+              '@lg': { display: 'none' },
+              '@mdDown': { px: '15px' },
+            }}
+          >
+            {props.children}
+          </SpanBox>
+          <SpanBox
+            css={{
+              width: '100%',
+              '@lgDown': {
+                display: 'none',
+              },
+            }}
+          >
+            <ControlButtonBox {...props} />
+          </SpanBox>
         </HStack>
       </VStack>
     </>
@@ -70,9 +87,6 @@ function ControlButtonBox(props: ReaderHeaderProps): JSX.Element {
           height: '100%',
           gap: '20px',
           minWidth: '121px',
-          // '@mdDown': {
-          //   display: 'none',
-          // },
         }}
       >
         <Button

@@ -25,8 +25,8 @@ export function LogoBox(): JSX.Element {
       </SpanBox>
       <SpanBox
         css={{
-          ml: '20px',
-          mr: '20px',
+          ml: '15px',
+          mr: '15px',
           '@md': {
             display: 'none',
           },
