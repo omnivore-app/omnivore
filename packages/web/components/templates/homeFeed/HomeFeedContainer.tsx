@@ -52,7 +52,6 @@ import { uploadFileRequestMutation } from '../../../lib/networking/mutations/upl
 import { setLabelsMutation } from '../../../lib/networking/mutations/setLabelsMutation'
 import { LibraryHeader } from './LibraryHeader'
 import { LibraryFilterMenu } from './LibraryFilterMenu'
-import { SearchModal } from '../../patterns/LibraryCards/SearchModal'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 
@@ -734,7 +733,6 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
   }
 
   const [showFilterMenu, setShowFilterMenu] = useState(false)
-  const [showSearchModal, setShowSearchModal] = useState(false)
 
   return (
     <VStack css={{ width: '100%', height: '100%' }}>
@@ -748,7 +746,6 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
         }}
         showFilterMenu={showFilterMenu}
         setShowFilterMenu={setShowFilterMenu}
-        setShowSearchModal={setShowSearchModal}
       />
       <HStack css={{ width: '100%', height: '100%' }}>
         <LibraryFilterMenu
@@ -1045,13 +1042,6 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
                 props.setLabelsTarget(undefined)
               }
             }}
-          />
-        )}
-        {showSearchModal && (
-          <SearchModal
-            searchTerm={props.searchTerm}
-            applySearchQuery={props.applySearchQuery}
-            onOpenChange={(open) => setShowSearchModal(open)}
           />
         )}
       </HStack>

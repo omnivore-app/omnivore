@@ -9,6 +9,7 @@ import { useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQ
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { theme } from '../../tokens/stitches.config'
 import { currentThemeName } from '../../../lib/themeUpdater'
+import { LIBRARY_HEADER_MOBILE_HEIGHT } from './LibraryHeader'
 
 export const LIBRARY_LEFT_MENU_WIDTH = '300px'
 
@@ -40,29 +41,13 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
             display: 'none',
           },
           '@mdDown': {
-            top: props.showFilterMenu ? '48px' : '100%',
+            visibility: props.showFilterMenu ? 'visible' : 'hidden',
+            top: props.showFilterMenu ? LIBRARY_HEADER_MOBILE_HEIGHT : '100%',
             width: '100%',
-            zIndex: 6, // Above the header
-            transform: 'translateY(0)',
-            transitionDuration: '200ms',
+            transition: 'visibility 0s, top 150ms',
           },
         }}
       >
-        {/* <HStack
-          css={{
-            width: '100%',
-            height: '30px',
-            py: '15px',
-            px: '15px',
-            marginLeft: 'auto',
-            '@md': {
-              display: 'none',
-            },
-          }}
-          distribution="start"
-        >
-          <CloseButton close={() => props.setShowFilterMenu(false)} />
-        </HStack> */}
         <SavedSearches {...props} />
         <Subscriptions {...props} />
         <Labels {...props} />
@@ -267,7 +252,7 @@ function FilterButton(props: FilterButtonProps): JSX.Element {
         backgroundColor: selected ? '$thBackground2' : 'unset',
         fontSize: '14px',
         fontWeight: 'regular',
-        fontFamily: '$display Text',
+        fontFamily: '$display',
         color: '$thTextSubtle',
         verticalAlign: 'middle',
         borderRadius: '3px',

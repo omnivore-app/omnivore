@@ -5,9 +5,9 @@ import { PrimaryDropdown } from '../PrimaryDropdown'
 import { TooltipWrapped } from '../../elements/Tooltip'
 import { LogoBox } from '../../elements/LogoBox'
 import { ReactNode } from 'react'
+import { LIBRARY_HEADER_MOBILE_HEIGHT } from '../homeFeed/LibraryHeader'
 
 const HEADER_HEIGHT = '105px'
-const MOBILE_HEIGHT = '48px'
 
 type ReaderHeaderProps = {
   showDisplaySettingsModal: (show: boolean) => void
@@ -31,7 +31,7 @@ export function ReaderHeader(props: ReaderHeaderProps): JSX.Element {
           pt: '35px',
           borderBottom: '1px solid transparent',
           '@lgDown': {
-            height: MOBILE_HEIGHT,
+            height: LIBRARY_HEADER_MOBILE_HEIGHT,
             pt: '0px',
             bg: '$thBackground',
             borderBottom: '1px solid $thBorderColor',

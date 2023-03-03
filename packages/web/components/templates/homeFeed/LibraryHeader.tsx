@@ -12,7 +12,6 @@ import { LayoutType } from './HomeFeedContainer'
 import { PrimaryDropdown } from '../PrimaryDropdown'
 import { LogoBox } from '../../elements/LogoBox'
 import { OmnivoreSmallLogo } from '../../elements/images/OmnivoreNameLogo'
-import { SearchModal } from '../../patterns/LibraryCards/SearchModal'
 
 type LibraryHeaderProps = {
   layout: LayoutType
@@ -23,12 +22,10 @@ type LibraryHeaderProps = {
 
   showFilterMenu: boolean
   setShowFilterMenu: (show: boolean) => void
-
-  setShowSearchModal: (show: boolean) => void
 }
 
 const HEADER_HEIGHT = '105px'
-const MOBILE_HEIGHT = '48px'
+export const LIBRARY_HEADER_MOBILE_HEIGHT = '60px'
 
 export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
   return (
@@ -47,7 +44,7 @@ export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
           pt: '35px',
           borderBottom: '1px solid $thBorderColor',
           '@mdDown': {
-            height: MOBILE_HEIGHT,
+            height: LIBRARY_HEADER_MOBILE_HEIGHT,
             pt: '0px',
           },
         }}
@@ -64,7 +61,7 @@ export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
           height: HEADER_HEIGHT,
           bg: '$grayBase',
           '@mdDown': {
-            height: MOBILE_HEIGHT,
+            height: LIBRARY_HEADER_MOBILE_HEIGHT,
           },
         }}
       ></Box>
@@ -90,13 +87,14 @@ function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
       <ControlButtonBox
         layout={props.layout}
         updateLayout={props.updateLayout}
-        setShowSearchModal={props.setShowSearchModal}
       />
     </HStack>
   )
 }
 
 function SmallHeaderLayout(props: LibraryHeaderProps): JSX.Element {
+  const [showInlineSearch, setShowInlineSearch] = useState(false)
+
   return (
     <HStack
       alignment="center"
@@ -109,12 +107,18 @@ function SmallHeaderLayout(props: LibraryHeaderProps): JSX.Element {
         },
       }}
     >
-      <MenuHeaderButton {...props} />
-      <ControlButtonBox
-        layout={props.layout}
-        updateLayout={props.updateLayout}
-        setShowSearchModal={props.setShowSearchModal}
-      />
+      {showInlineSearch ? (
+        <SearchBox {...props} compact={true} />
+      ) : (
+        <>
+          <MenuHeaderButton {...props} />
+          <ControlButtonBox
+            layout={props.layout}
+            updateLayout={props.updateLayout}
+            setShowInlineSearch={setShowInlineSearch}
+          />
+        </>
+      )}
     </HStack>
   )
 }
@@ -129,10 +133,8 @@ export function MenuHeaderButton(props: MenuHeaderButtonProps): JSX.Element {
     <HStack
       css={{
         ml: '10px',
-        width: '60px',
-        height: '30px',
-        // minWidth: '60px',
-        // minHeight: '30px',
+        width: '67px',
+        height: '40px',
         bg: props.showFilterMenu ? '#898989' : '#F0F0F0',
         borderRadius: '5px',
         px: '5px',
@@ -144,8 +146,8 @@ export function MenuHeaderButton(props: MenuHeaderButtonProps): JSX.Element {
         props.setShowFilterMenu(!props.showFilterMenu)
       }}
     >
-      <OmnivoreSmallLogo size={15} strokeColor="black" />
-      <FunnelSimple size={16} color="#6A6968" />
+      <OmnivoreSmallLogo size={20} strokeColor="black" />
+      <FunnelSimple size={20} color="#6A6968" />
     </HStack>
   )
 }
@@ -177,7 +179,6 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
         height: '38px',
         width: '100%',
         maxWidth: '521px',
-        mr: '15px',
         bg: '$thBackground2',
         borderRadius: '6px',
         border: focused
@@ -348,12 +349,10 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
 type ControlButtonBoxProps = {
   layout: LayoutType
   updateLayout: (layout: LayoutType) => void
-  setShowSearchModal: (show: boolean) => void
+  setShowInlineSearch?: (show: boolean) => void
 }
 
 function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
-  const [showInlineSearch, setShowInlineSearch] = useState(false)
-
   return (
     <>
       <HStack
@@ -399,38 +398,39 @@ function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
         <PrimaryDropdown showThemeSection={true} />
       </HStack>
 
-      <HStack
-        alignment="center"
-        distribution="end"
-        css={{
-          marginLeft: 'auto',
-          marginRight: '20px',
-          width: '100px',
-          height: '100%',
-          gap: '20px',
-          '@md': {
-            display: 'none',
-          },
-        }}
-      >
-        <Button
-          style="ghost"
-          onClick={() => {
-            console.log('showing search modal')
-            props.setShowSearchModal(true)
+      {props.setShowInlineSearch && (
+        <HStack
+          alignment="center"
+          distribution="end"
+          css={{
+            marginLeft: 'auto',
+            marginRight: '20px',
+            width: '100px',
+            height: '100%',
+            gap: '20px',
+            '@md': {
+              display: 'none',
+            },
           }}
         >
-          <MagnifyingGlass
-            size={20}
-            color={theme.colors.graySolid.toString()}
+          <Button
+            style="ghost"
+            onClick={() => {
+              props.setShowInlineSearch && props.setShowInlineSearch(true)
+            }}
+          >
+            <MagnifyingGlass
+              size={20}
+              color={theme.colors.graySolid.toString()}
+            />
+          </Button>
+          <PrimaryDropdown
+            showThemeSection={true}
+            layout={props.layout}
+            updateLayout={props.updateLayout}
           />
-        </Button>
-        <PrimaryDropdown
-          showThemeSection={true}
-          layout={props.layout}
-          updateLayout={props.updateLayout}
-        />
-      </HStack>
+        </HStack>
+      )}
     </>
   )
 }
