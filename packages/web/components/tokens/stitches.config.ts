@@ -169,6 +169,24 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         //utility
         textNonEssential: 'rgba(10, 8, 6, 0.4)',
         overlay: 'rgba(63, 62, 60, 0.2)',
+
+        // New theme, special naming to keep things straigh
+        // once all switch over, we will rename
+        thBackground: '#FFFFFF',
+        thBackground2: '#F3F3F3',
+        thBackground3: '#FFFFFF',
+
+        thTextContrast: '#1E1E1E',
+        thTextContrast2: '#3D3D3D',
+
+        thTextSubtle: '#1E1E1E',
+        thTextSubtle2: '#6A6968',
+        thTextSubtle3: '#ADADAD',
+
+        thBorderColor: '#E1E1E1',
+        thBorderSubtle: '#EEEEEE',
+
+        thHighContrast: '#D9D9D9',
       },
     },
     media: {
@@ -232,6 +250,24 @@ const darkThemeSpec = {
     overlay: 'rgba(10, 8, 6, 0.65)',
 
     labelButtonsBg: '#5F5E58',
+
+    // New theme, special naming to keep things straigh
+    // once all switch over, we will rename
+    // DARK
+    thBackground: '#2A2A2A',
+    thBackground2: '#3D3D3D',
+    thBackground3: '#242424',
+    thTextContrast: '#FFFFFF',
+    thTextContrast2: '#EBEBEB',
+
+    thTextSubtle: '#D9D9D9',
+    thTextSubtle2: '#D9D9D9',
+    thTextSubtle3: '#ADADAD',
+
+    thBorderColor: '#4F4F4F',
+    thBorderSubtle: '#6A6968',
+
+    thHighContrast: '#D9D9D9',
   },
   shadows: {
     cardBoxShadow:
@@ -281,7 +317,7 @@ export const lighterTheme = createTheme(ThemeId.Lighter, {})
 // Apply global styles in here
 export const globalStyles = globalCss({
   body: {
-    backgroundColor: '$grayBase',
+    backgroundColor: '$thBackground2',
   },
   '*': {
     '&:focus': {

@@ -94,7 +94,7 @@ function FontControls(props: FontControlsProps): JSX.Element {
     alignItems: 'center',
     fontSize: '12px',
     background: '#FFFFFF',
-    border: '1px sold #E1E1E1',
+    border: '1px sold $thBorderColor',
     fontFamily: props.readerSettings.fontFamily,
     textTransform: 'capitalize',
     borderRadius: '4px',

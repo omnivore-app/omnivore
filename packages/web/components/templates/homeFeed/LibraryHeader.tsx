@@ -43,9 +43,9 @@ export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
           position: 'fixed',
           width: '100%',
           height: HEADER_HEIGHT,
-          bg: 'white',
+          bg: '$thBackground',
           pt: '35px',
-          borderBottom: '1px solid #E1E1E1',
+          borderBottom: '1px solid $thBorderColor',
           '@mdDown': {
             height: MOBILE_HEIGHT,
             pt: '0px',
@@ -178,9 +178,11 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
         width: '100%',
         maxWidth: '521px',
         mr: '15px',
-        bg: '#F3F3F3',
+        bg: '$thBackground2',
         borderRadius: '6px',
-        border: focused ? '1px solid $omnivoreCtaYellow' : '1px solid #D9D9D9',
+        border: focused
+          ? '1px solid $omnivoreCtaYellow'
+          : '1px solid $thBorderColor',
       }}
     >
       <HStack

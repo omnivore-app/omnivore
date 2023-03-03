@@ -184,7 +184,7 @@ const textVariants = {
       fontWeight: '500',
       fontSize: '12px',
       lineHeight: '20px',
-      color: '#6A6968',
+      color: '$thTextSubtle2',
     },
     error: {
       color: '$error',

@@ -7,6 +7,8 @@ import { CaretRight, Circle, DotsThree, Plus } from 'phosphor-react'
 import { useGetSubscriptionsQuery } from '../../../lib/networking/queries/useGetSubscriptionsQuery'
 import { useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQuery'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
+import { theme } from '../../tokens/stitches.config'
+import { currentThemeName } from '../../../lib/themeUpdater'
 
 export const LIBRARY_LEFT_MENU_WIDTH = '300px'
 
@@ -28,10 +30,10 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
           left: '0px',
           top: '105px',
           position: 'fixed',
-          bg: 'white',
+          bg: '$thBackground',
           height: '100%',
           width: LIBRARY_LEFT_MENU_WIDTH,
-          borderRight: '1px solid #E1E1E1',
+          borderRight: '1px solid $thBorderColor',
           overflowY: 'auto',
           overflowX: 'hidden',
           '&::-webkit-scrollbar': {
@@ -75,7 +77,7 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
         css={{
           minWidth: LIBRARY_LEFT_MENU_WIDTH,
           height: '100%',
-          bg: '$grayBase',
+          bg: '$thBackground',
           '@mdDown': {
             display: 'none',
           },
@@ -163,7 +165,7 @@ function MenuPanel(props: MenuPanelProps): JSX.Element {
       css={{
         m: '0px',
         width: '100%',
-        borderBottom: '1px solid #E1E1E1',
+        borderBottom: '1px solid $thBorderColor',
         px: '15px',
       }}
       alignment="start"
@@ -176,7 +178,7 @@ function MenuPanel(props: MenuPanelProps): JSX.Element {
             fontWeight: '600',
             fontSize: '16px',
             lineHeight: '125%',
-            color: '#1E1E1E',
+            color: '$thTextContrast',
             pl: '10px',
             my: '20px',
           }}
@@ -207,7 +209,11 @@ function MenuPanel(props: MenuPanelProps): JSX.Element {
                     },
                   }}
                 >
-                  <DotsThree size={25} weight="bold" color="#BEBEBE" />
+                  <DotsThree
+                    size={25}
+                    weight="bold"
+                    color={theme.colors.thTextSubtle.toString()}
+                  />
                 </Box>
               }
             >
@@ -258,11 +264,11 @@ function FilterButton(props: FilterButtonProps): JSX.Element {
         width: '100%',
         maxWidth: '100%',
         height: '32px',
-        backgroundColor: selected ? '#FFEA9F' : 'unset',
+        backgroundColor: selected ? '$thBackground2' : 'unset',
         fontSize: '14px',
         fontWeight: 'regular',
         fontFamily: 'SF Pro Text',
-        color: '#3D3D3D',
+        color: '$thTextSubtle',
         verticalAlign: 'middle',
         borderRadius: '3px',
         cursor: 'pointer',
@@ -314,7 +320,7 @@ function LabelButton(props: LabelButtonProps): JSX.Element {
         height: '30px',
         fontSize: '16px',
         fontWeight: 'regular',
-        color: '#3D3D3D',
+        color: '$thTextSubtle',
         verticalAlign: 'middle',
         borderRadius: '3px',
         m: '0px',
@@ -358,6 +364,10 @@ type AddLinkButtonProps = {
 }
 
 function AddLinkButton(props: AddLinkButtonProps): JSX.Element {
+  const currentTheme = currentThemeName()
+  const isDark = currentTheme == 'Dark'
+  console.log('current theme: ', isDark)
+
   return (
     <>
       <VStack
@@ -376,10 +386,16 @@ function AddLinkButton(props: AddLinkButtonProps): JSX.Element {
             pr: '20px',
             fontSize: '14px',
             verticalAlign: 'center',
-            color: '#3D3D3D',
+            color: isDark
+              ? theme.colors.thHighContrast.toString()
+              : theme.colors.thTextContrast2.toString(),
             display: 'flex',
             alignItems: 'center',
             fontWeight: '600',
+            bg: isDark ? 'transparent' : theme.colors.thBackground2.toString(),
+            border: `1px solid ${
+              isDark ? theme.colors.thHighContrast.toString() : 'transparent'
+            }`,
           }}
           onClick={(e) => {
             props.showAddLinkModal()

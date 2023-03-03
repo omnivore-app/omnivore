@@ -33,8 +33,8 @@ export function ReaderHeader(props: ReaderHeaderProps): JSX.Element {
           '@lgDown': {
             height: MOBILE_HEIGHT,
             pt: '0px',
-            bg: '$grayBg',
-            borderBottom: '1px solid #E1E1E1',
+            bg: '$thBackground',
+            borderBottom: '1px solid $thBorderColor',
           },
         }}
       >

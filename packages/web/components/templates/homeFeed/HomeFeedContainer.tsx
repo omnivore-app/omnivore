@@ -770,24 +770,6 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
           <Toaster />
 
           {props.isValidating && props.items.length == 0 && <TopBarProgress />}
-          {/* 
-          <SpanBox
-            css={{
-              width: '100%',
-              '@md': {
-                display: 'none',
-              },
-            }}
-          >
-            <LegacyMobileTopNav
-              viewer={viewerData?.me}
-              searchTerm={props.searchTerm}
-              applySearchQuery={props.applySearchQuery}
-              layout={layout}
-              updateLayout={updateLayout}
-              setShowAddLinkModal={props.setShowAddLinkModal}
-            />
-          </SpanBox> */}
 
           <Dropzone
             onDrop={handleDrop}
@@ -921,7 +903,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
                         css={{
                           width: '100%',
                           '&> div': {
-                            bg: '$grayBg',
+                            bg: '$thBackground3',
                           },
                           '&:focus': {
                             '> div': {

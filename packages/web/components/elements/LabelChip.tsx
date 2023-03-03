@@ -42,7 +42,7 @@ export function LabelChip(props: LabelChipProps): JSX.Element {
           display: 'inline-table',
           margin: '2px',
           borderRadius: '4px',
-          color: isDarkMode ? darkThemeTextColor : lightThemeTextColor,
+          color: lightThemeTextColor,
           fontSize: '13px',
           fontWeight: '500',
           padding: '3px 6px',

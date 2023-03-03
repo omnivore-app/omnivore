@@ -101,7 +101,7 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
           <HStack
             css={{
               width: '100%',
-              color: '#6A6968',
+              color: '$thTextSubtle2',
               fontSize: '10px',
               fontWeight: '500',
               fontFamily: 'SF Pro',
@@ -162,7 +162,7 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
           >
             <Box
               css={{
-                color: 'rgba(61, 61, 61, 1)',
+                color: '$thTextContrast2',
                 fontSize: '16px',
                 fontWeight: '700',
                 lineHeight: '1.25',
@@ -180,7 +180,7 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
             </Box>
             <HStack
               css={{
-                color: '#898989',
+                color: '$thTextSubtle3',
                 fontSize: '11px',
                 fontWeight: '400',
                 fontFamily: 'SF Pro',

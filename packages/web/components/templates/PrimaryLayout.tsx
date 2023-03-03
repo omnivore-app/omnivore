@@ -86,7 +86,7 @@ export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
           height: '100vh',
           bg: 'transparent',
           '@smDown': {
-            bg: '$grayBase',
+            bg: '$thBackground2',
           },
         }}
       >
@@ -94,7 +94,7 @@ export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
           css={{
             height: '100%',
             width: '100vw',
-            bg: '$grayBase',
+            bg: '$thBackground2',
           }}
         >
           {props.children}

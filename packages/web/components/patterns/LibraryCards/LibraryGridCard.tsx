@@ -95,7 +95,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
         borderRadius: '5px',
         borderWidth: '1px',
         borderStyle: 'solid',
-        borderColor: '#E1E1E1',
+        borderColor: '$thBorderColor',
         cursor: 'pointer',
       }}
       alignment="start"
@@ -118,7 +118,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
           <HStack
             css={{
               width: '100%',
-              color: '#6A6968',
+              color: '$thTextSubtle2',
               fontSize: '13px',
               fontWeight: '400',
               fontFamily: 'SF Pro',
@@ -172,7 +172,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
           >
             <Box
               css={{
-                color: 'rgba(61, 61, 61, 1)',
+                color: '$thTextContrast2',
                 fontSize: '20px',
                 fontWeight: '700',
                 lineHeight: '1.25',
@@ -190,7 +190,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
             </Box>
             <Box
               css={{
-                color: '#3D3D3D',
+                color: '$thTextSubtle',
                 pt: '10px',
                 fontSize: '13px',
                 fontWeight: '400',
@@ -210,7 +210,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
             <HStack
               css={{
                 pt: '10px',
-                color: '#898989',
+                color: '$thTextSubtle3',
                 fontSize: '13px',
                 fontWeight: '400',
                 fontFamily: 'SF Pro',
@@ -246,7 +246,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
               <ProgressBar
                 fillPercentage={props.item.readingProgressPercent}
                 fillColor="#FFD234"
-                backgroundColor="#EEEEEE"
+                backgroundColor="$thBorderSubtle"
                 borderRadius="5px"
               />
             </SpanBox>
