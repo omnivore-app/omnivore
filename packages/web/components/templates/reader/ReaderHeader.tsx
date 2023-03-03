@@ -34,7 +34,7 @@ export function ReaderHeader(props: ReaderHeaderProps): JSX.Element {
           '@lgDown': {
             height: LIBRARY_HEADER_MOBILE_HEIGHT,
             pt: '0px',
-            bg: '$thBackground',
+            bg: '$thBackground3',
             borderBottom: '1px solid $thBorderColor',
           },
         }}
