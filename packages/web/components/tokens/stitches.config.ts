@@ -195,6 +195,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
       smDown: '(max-width: 575px)',
       mdDown: '(max-width: 768px)',
       lgDown: '(max-width: 992px)',
+      xlgDown: '(max-width: 1200px)',
       sm: '(min-width: 576px)',
       md: '(min-width: 768px)',
       lg: '(min-width: 992px)',

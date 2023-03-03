@@ -865,6 +865,10 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
                       paddingTop: layout == 'LIST_LAYOUT' ? '0' : '21px',
                       paddingBottom: layout == 'LIST_LAYOUT' ? '0px' : '21px',
                       overflow: 'hidden',
+                      '@xlgDown': {
+                        border: 'unset',
+                        borderRadius: layout == 'LIST_LAYOUT' ? 0 : undefined,
+                      },
                       '@smDown': {
                         border: 'unset',
                         width: layout == 'LIST_LAYOUT' ? '100vw' : undefined,

@@ -57,29 +57,18 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
     <VStack
       css={{
         p: '20px',
-        // padding: '15px',
         width: '100%',
         height: '100%',
-        // minHeight: '270px',
-        // background: 'white',
-        // borderWidth: '1px',
-        // borderStyle: 'solid',
-        // borderColor: '#E1E1E1',
         cursor: 'pointer',
         gap: '10px',
-
-        // p: '20px',
-        // height: '100%',
-        // width: '100%',
-        // maxWidth: '100%',
-        // borderRadius: 0,
-        // wordBreak: 'break-word',
         border: '1px solid $grayBorder',
         borderBottom: 'none',
-        // alignItems: 'center',
-        // display: 'grid',
-        // gridTemplateColumns: '1fr 24px',
-        // gridTemplateRows: '1fr',
+
+        '@xlgDown': {
+          borderRadius: 'unset',
+          borderLeft: 'unset',
+          borderRight: 'unset',
+        },
       }}
       alignment="start"
       distribution="start"
