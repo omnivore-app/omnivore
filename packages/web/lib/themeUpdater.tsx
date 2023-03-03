@@ -55,7 +55,7 @@ export function currentThemeName(): string {
   }
 }
 
-function currentTheme(): ThemeId | undefined {
+export function currentTheme(): ThemeId | undefined {
   if (typeof window === 'undefined') {
     return undefined
   }

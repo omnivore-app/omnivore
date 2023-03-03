@@ -2,7 +2,11 @@ import { useRouter } from 'next/router'
 import { Moon, Sun } from 'phosphor-react'
 import { ReactNode, useCallback, useState } from 'react'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
-import { currentThemeName, updateTheme } from '../../lib/themeUpdater'
+import {
+  currentTheme,
+  currentThemeName,
+  updateTheme,
+} from '../../lib/themeUpdater'
 import { Avatar } from '../elements/Avatar'
 import { AvatarDropdown } from '../elements/AvatarDropdown'
 import { Button } from '../elements/Button'
@@ -221,8 +225,6 @@ const StyledToggleButton = styled('button', {
 })
 
 function ThemeSection(props: PrimaryDropdownProps): JSX.Element {
-  const [currentTheme, setCurrentTheme] = useState(currentThemeName())
-
   return (
     <VStack>
       <HStack
@@ -256,20 +258,18 @@ function ThemeSection(props: PrimaryDropdownProps): JSX.Element {
           }}
         >
           <StyledToggleButton
-            data-state={currentTheme != ThemeId.Dark ? 'on' : 'off'}
+            data-state={currentTheme() != ThemeId.Darker ? 'on' : 'off'}
             onClick={() => {
               updateTheme(ThemeId.Light)
-              setCurrentTheme(ThemeId.Light)
             }}
           >
             Light
             <Sun size={15} color={theme.colors.thTextContrast2.toString()} />
           </StyledToggleButton>
           <StyledToggleButton
-            data-state={currentTheme == ThemeId.Dark ? 'on' : 'off'}
+            data-state={currentTheme() == ThemeId.Darker ? 'on' : 'off'}
             onClick={() => {
-              updateTheme(ThemeId.Dark)
-              setCurrentTheme(ThemeId.Dark)
+              updateTheme(ThemeId.Darker)
             }}
           >
             Dark
