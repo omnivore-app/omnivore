@@ -1,18 +1,18 @@
-import Knex from 'knex'
+import { Knex } from 'knex'
 import { UserData } from '../../datalayer/user/model'
 import {
-  User,
-  ResolverFn,
-  SetFollowSuccess,
-  SetFollowError,
-  MutationSetFollowArgs,
-  SetFollowErrorCode,
   GetFollowersResult,
   GetFollowingResult,
+  MutationSetFollowArgs,
   QueryGetFollowersArgs,
   QueryGetFollowingArgs,
+  ResolverFn,
+  SetFollowError,
+  SetFollowErrorCode,
+  SetFollowSuccess,
+  User,
 } from '../../generated/graphql'
-import { userDataToUser, authorized } from '../../utils/helpers'
+import { authorized, userDataToUser } from '../../utils/helpers'
 import { DataModels, WithDataSourcesContext } from '../types'
 
 export const setFollowResolver = authorized<
