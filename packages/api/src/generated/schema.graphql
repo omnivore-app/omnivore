@@ -350,7 +350,7 @@ enum CreateLabelErrorCode {
 }
 
 input CreateLabelInput {
-  color: String!
+  color: String
   description: String
   name: String!
 }
@@ -1584,6 +1584,7 @@ type SaveError {
 
 enum SaveErrorCode {
   EMBEDDED_HIGHLIGHT_FAILED
+  EMBEDDED_LABEL_FAILED
   UNAUTHORIZED
   UNKNOWN
 }
@@ -1620,7 +1621,7 @@ type SaveFilterSuccess {
 
 input SavePageInput {
   clientRequestId: ID!
-  labels: [String]
+  labels: [CreateLabelInput!]
   originalContent: String!
   parseResult: ParseResult
   source: String!

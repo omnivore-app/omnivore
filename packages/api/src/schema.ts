@@ -513,6 +513,7 @@ const schema = gql`
     UNKNOWN
     UNAUTHORIZED
     EMBEDDED_HIGHLIGHT_FAILED
+    EMBEDDED_LABEL_FAILED
   }
 
   type SaveError {
@@ -555,7 +556,7 @@ const schema = gql`
     originalContent: String!
     parseResult: ParseResult
     state: ArticleSavingRequestStatus
-    labels: [String]
+    labels: [CreateLabelInput!]
   }
 
   input SaveUrlInput {
@@ -1430,7 +1431,7 @@ const schema = gql`
 
   input CreateLabelInput {
     name: String! @sanitize(maxLength: 64)
-    color: String! @sanitize(pattern: "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$")
+    color: String @sanitize(pattern: "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$")
     description: String @sanitize(maxLength: 100)
   }
 

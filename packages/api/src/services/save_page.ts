@@ -22,6 +22,7 @@ import {
 } from '../utils/helpers'
 import { parsePreparedContent } from '../utils/parser'
 import { createPageSaveRequest } from './create_page_save_request'
+import { addLabelsToNewPage } from './labels'
 
 type SaveContext = {
   pubsub: PubsubClient
@@ -174,21 +175,22 @@ export const savePage = async (
       type: HighlightType.Highlight,
     }
 
-    if (
-      !(await addHighlightToPage(pageId, highlight, {
-        pubsub: ctx.pubsub,
-        uid: ctx.uid,
-      }))
-    ) {
+    if (!(await addHighlightToPage(pageId, highlight, ctx))) {
       return {
         errorCodes: [SaveErrorCode.EmbeddedHighlightFailed],
         message: 'Failed to save highlight',
       }
     }
   }
-  // TODO: add labels to page
-  // if (pageId && input.labels) {
-  // }
+  // add labels to page
+  if (pageId && input.labels) {
+    if (!(await addLabelsToNewPage(ctx, pageId, input.labels))) {
+      return {
+        errorCodes: [SaveErrorCode.EmbeddedLabelFailed],
+        message: 'Failed to save labels',
+      }
+    }
+  }
 
   return {
     clientRequestId: pageId,

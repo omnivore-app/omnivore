@@ -402,7 +402,7 @@ export enum CreateLabelErrorCode {
 }
 
 export type CreateLabelInput = {
-  color: Scalars['String'];
+  color?: InputMaybe<Scalars['String']>;
   description?: InputMaybe<Scalars['String']>;
   name: Scalars['String'];
 };
@@ -2187,6 +2187,7 @@ export type SaveError = {
 
 export enum SaveErrorCode {
   EmbeddedHighlightFailed = 'EMBEDDED_HIGHLIGHT_FAILED',
+  EmbeddedLabelFailed = 'EMBEDDED_LABEL_FAILED',
   Unauthorized = 'UNAUTHORIZED',
   Unknown = 'UNKNOWN'
 }
@@ -2225,7 +2226,7 @@ export type SaveFilterSuccess = {
 
 export type SavePageInput = {
   clientRequestId: Scalars['ID'];
-  labels?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
+  labels?: InputMaybe<Array<CreateLabelInput>>;
   originalContent: Scalars['String'];
   parseResult?: InputMaybe<ParseResult>;
   source: Scalars['String'];

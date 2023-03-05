@@ -1,4 +1,4 @@
-import { authorized } from '../../utils/helpers'
+import { authorized, generateRandomColor } from '../../utils/helpers'
 import {
   CreateLabelError,
   CreateLabelErrorCode,
@@ -114,7 +114,7 @@ export const createLabelResolver = authorized<
     const label = await getRepository(Label).save({
       user,
       name,
-      color,
+      color: color || generateRandomColor(),
       description: description || '',
     })
 

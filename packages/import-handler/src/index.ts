@@ -90,7 +90,9 @@ const importURL = async (
     url: url.toString(),
     saveRequestId: uuid(),
     state,
-    labels,
+    labels: labels?.map((l) => {
+      return { name: l }
+    }),
   })
 }
 

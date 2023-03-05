@@ -2,7 +2,7 @@ import { Label } from '../entity/label'
 import { ILike, In } from 'typeorm'
 import { PageContext } from '../elastic/types'
 import { User } from '../entity/user'
-import { addLabelInPage } from '../elastic/labels'
+import { addLabelInPage, updateLabelsInPage } from '../elastic/labels'
 import { getRepository } from '../entity/utils'
 import { Link } from '../entity/link'
 import DataLoader from 'dataloader'
@@ -102,4 +102,44 @@ export const createLabel = async (
     ...label,
     user: { id: userId },
   })
+}
+
+export const addLabelsToNewPage = async (
+  ctx: PageContext,
+  pageId: string,
+  labels: {
+    name: string
+    color?: string | null
+    description?: string | null
+  }[]
+): Promise<boolean> => {
+  const user = await getRepository(User).findOneBy({
+    id: ctx.uid,
+  })
+  if (!user) {
+    console.log('user not found')
+    return false
+  }
+
+  const labelEntities = await getRepository(Label).findBy({
+    user: { id: user.id },
+    name: In(labels.map((l) => l.name)),
+  })
+
+  const existingLabels = labelEntities.map((l) => l.name)
+  const newLabels = labels.filter((l) => !existingLabels.includes(l.name))
+  // create new labels
+  const newLabelEntities = await getRepository(Label).save(
+    newLabels.map((l) => ({
+      ...l,
+      color: l.color || generateRandomColor(),
+      user,
+    }))
+  )
+  // add all labels to page
+  return updateLabelsInPage(
+    pageId,
+    [...newLabelEntities, ...labelEntities],
+    ctx
+  )
 }
