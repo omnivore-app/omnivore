@@ -31,7 +31,7 @@ export function ReaderHeader(props: ReaderHeaderProps): JSX.Element {
           bg: 'transparent',
           pt: '35px',
           borderBottom: '1px solid transparent',
-          '@lgDown': {
+          '@xlgDown': {
             height: LIBRARY_HEADER_MOBILE_HEIGHT,
             pt: '0px',
             bg: '$thBackground3',
@@ -82,7 +82,7 @@ function ControlButtonBox(props: ReaderHeaderProps): JSX.Element {
         distribution="end"
         css={{
           marginLeft: 'auto',
-          marginRight: '45px',
+          marginRight: '25px',
           width: '100px',
           height: '100%',
           gap: '20px',
