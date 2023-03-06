@@ -116,6 +116,9 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
               css={{
                 ...MenuStyle,
                 visibility: isHovered || menuOpen ? 'unset' : 'hidden',
+                '@media (hover: none)': {
+                  visibility: 'unset',
+                },
               }}
             >
               <CardMenu
