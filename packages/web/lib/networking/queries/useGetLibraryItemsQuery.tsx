@@ -9,6 +9,7 @@ import { unsubscribeMutation } from '../mutations/unsubscribeMutation'
 import { articleReadingProgressMutation } from '../mutations/articleReadingProgressMutation'
 import { Label } from './../fragments/labelFragment'
 import { showErrorToast, showSuccessToast } from '../../toastHelpers'
+import { Highlight, highlightFragment } from '../fragments/highlightFragment'
 
 export type LibraryItemsQueryInput = {
   limit: number
@@ -85,6 +86,7 @@ export type LibraryItemNode = {
   savedAt?: string
   wordsCount?: number
   recommendations?: Recommendation[]
+  highlights?: Highlight[]
 }
 
 export type Recommendation = {
@@ -182,6 +184,9 @@ export function useGetLibraryItemsQuery({
                 }
                 recommendedAt
               }
+              highlights {
+                ...HighlightFields
+              }
             }
           }
           pageInfo {
@@ -197,6 +202,7 @@ export function useGetLibraryItemsQuery({
         }
       }
     }
+    ${highlightFragment}
   `
 
   const variables = {

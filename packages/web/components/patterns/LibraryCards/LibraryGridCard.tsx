@@ -138,6 +138,9 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
                     Math.round((props.item.wordsCount ?? 0) / 235)
                   )} min read`
                 : null}
+              {props.item.highlights?.length ?? 0 > 0
+                ? `  • ${props.item.highlights?.length} highlights`
+                : null}
             </Box>
             <Box
               css={{

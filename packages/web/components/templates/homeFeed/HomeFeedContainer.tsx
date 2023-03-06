@@ -604,6 +604,33 @@ type HomeFeedContentProps = {
   ) => Promise<void>
 }
 
+const DragnDropContainer = styled('div', {
+  width: '100%',
+  height: '80%',
+  position: 'absolute',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  zIndex: '1',
+  alignSelf: 'center',
+  left: 0,
+})
+
+const DragnDropStyle = styled('div', {
+  border: '3px dashed gray',
+  backgroundColor: 'aliceblue',
+  borderRadius: '5px',
+  width: '100%',
+  height: '100%',
+  opacity: '0.9',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  alignSelf: 'center',
+  left: 0,
+  margin: '16px',
+})
+
 function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
   const { viewerData } = useGetViewerQuery()
   const [layout, setLayout] = usePersistedState<LayoutType>({
@@ -624,33 +651,6 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
   )
 
   const [, updateState] = useState({})
-
-  const DragnDropContainer = styled('div', {
-    width: '100%',
-    height: '80%',
-    position: 'absolute',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: '1',
-    alignSelf: 'center',
-    left: 0,
-  })
-
-  const DragnDropStyle = styled('div', {
-    border: '3px dashed gray',
-    backgroundColor: 'aliceblue',
-    borderRadius: '5px',
-    width: '100%',
-    height: '100%',
-    opacity: '0.9',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    alignSelf: 'center',
-    left: 0,
-    margin: '16px',
-  })
 
   const removeItem = () => {
     if (!props.linkToRemove) {
@@ -840,100 +840,24 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
                     }}
                   />
                 ) : (
-                  <Box
-                    ref={props.gridContainerRef}
-                    css={{
-                      py: '$3',
-                      display: 'grid',
-                      width: '100%',
-                      gridAutoRows: 'auto',
-                      borderRadius: '8px',
-                      gridGap: layout == 'LIST_LAYOUT' ? '0' : '20px',
-                      marginTop: layout == 'LIST_LAYOUT' ? '21px' : '0',
-                      marginBottom: '0px',
-                      paddingTop: layout == 'LIST_LAYOUT' ? '0' : '21px',
-                      paddingBottom: layout == 'LIST_LAYOUT' ? '0px' : '21px',
-                      overflow: 'hidden',
-                      '@xlgDown': {
-                        border: 'unset',
-                        borderRadius: layout == 'LIST_LAYOUT' ? 0 : undefined,
-                      },
-                      '@smDown': {
-                        border: 'unset',
-                        width: layout == 'LIST_LAYOUT' ? '100vw' : undefined,
-                        margin:
-                          layout == 'LIST_LAYOUT' ? '16px -16px' : undefined,
-                        borderRadius: layout == 'LIST_LAYOUT' ? 0 : undefined,
-                      },
-                      '@md': {
-                        gridTemplateColumns:
-                          layout == 'LIST_LAYOUT' ? 'none' : '1fr 1fr',
-                      },
-                      '@lg': {
-                        gridTemplateColumns:
-                          layout == 'LIST_LAYOUT' ? 'none' : 'repeat(2, 1fr)',
-                      },
-                      '@xl': {
-                        gridTemplateColumns:
-                          layout == 'LIST_LAYOUT' ? 'none' : 'repeat(3, 1fr)',
-                      },
-                      '@xxl': {
-                        gridTemplateColumns:
-                          layout == 'LIST_LAYOUT' ? 'none' : 'repeat(4, 1fr)',
-                      },
-                    }}
-                  >
-                    {props.items.map((linkedItem) => (
-                      <Box
-                        className="linkedItemCard"
-                        data-testid="linkedItemCard"
-                        id={linkedItem.node.id}
-                        tabIndex={0}
-                        key={linkedItem.node.id}
-                        css={{
-                          width: '100%',
-                          '&> div': {
-                            bg: '$thBackground3',
-                          },
-                          '&:focus': {
-                            '> div': {
-                              bg: '$thBackgroundActive',
-                            },
-                          },
-                          '&:hover': {
-                            '> div': {
-                              bg: '$thBackgroundActive',
-                            },
-                            '> a': {
-                              bg: '$thBackgroundActive',
-                            },
-                          },
-                        }}
-                      >
-                        {viewerData?.me && (
-                          <LinkedItemCard
-                            layout={layout}
-                            item={linkedItem.node}
-                            viewer={viewerData.me}
-                            handleAction={(action: LinkedItemCardAction) => {
-                              if (action === 'delete') {
-                                setShowRemoveLinkConfirmation(true)
-                                props.setLinkToRemove(linkedItem)
-                              } else if (action === 'editTitle') {
-                                props.setShowEditTitleModal(true)
-                                props.setLinkToEdit(linkedItem)
-                              } else if (action == 'unsubscribe') {
-                                setShowUnsubscribeConfirmation(true)
-                                props.setLinkToUnsubscribe(linkedItem)
-                              } else {
-                                props.actionHandler(action, linkedItem)
-                              }
-                            }}
-                          />
-                        )}
-                      </Box>
-                    ))}
-                  </Box>
+                  <LibraryItems
+                    items={props.items}
+                    layout={layout}
+                    viewer={viewerData?.me}
+                    gridContainerRef={props.gridContainerRef}
+                    showEditTitleModal={props.showEditTitleModal}
+                    setShowEditTitleModal={props.setShowEditTitleModal}
+                    setLinkToEdit={props.setLinkToEdit}
+                    setShowUnsubscribeConfirmation={
+                      setShowUnsubscribeConfirmation
+                    }
+                    setLinkToRemove={props.setLinkToRemove}
+                    setLinkToUnsubscribe={props.setLinkToUnsubscribe}
+                    setShowRemoveLinkConfirmation={
+                      setShowRemoveLinkConfirmation
+                    }
+                    actionHandler={props.actionHandler}
+                  />
                 )}
                 <HStack
                   distribution="center"
@@ -1042,141 +966,120 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
   )
 }
 
-type LegacyMobileTopNavProps = {
-  viewer?: UserBasicData
-  searchTerm?: string
-  applySearchQuery: (searchQuery: string) => void
-
+type LibraryItemsProps = {
+  items: LibraryItem[]
   layout: LayoutType
-  updateLayout: (layout: LayoutType) => void
+  viewer: UserBasicData | undefined
 
-  setShowAddLinkModal: (show: boolean) => void
+  gridContainerRef: React.RefObject<HTMLDivElement>
+
+  setShowEditTitleModal: (show: boolean) => void
+  setLinkToEdit: (set: LibraryItem | undefined) => void
+  setShowUnsubscribeConfirmation: (show: true) => void
+  setLinkToRemove: (set: LibraryItem | undefined) => void
+  setLinkToUnsubscribe: (set: LibraryItem | undefined) => void
+  setShowRemoveLinkConfirmation: (show: true) => void
+
+  actionHandler: (
+    action: LinkedItemCardAction,
+    item: LibraryItem | undefined
+  ) => Promise<void>
 }
 
-function LegacyMobileTopNav(props: LegacyMobileTopNavProps): JSX.Element {
-  const StyledToggleButton = styled('button', {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    p: '0px',
-    backgroundColor: 'transparent',
-    border: 'none',
-    cursor: 'pointer',
-    width: '32px',
-    height: '32px',
-    borderRadius: '4px',
-    '&:hover': {
-      opacity: 0.8,
-    },
-    '&[data-state="on"]': {
-      bg: 'rgb(43, 43, 43)',
-    },
-  })
-
+function LibraryItems(props: LibraryItemsProps): JSX.Element {
   return (
-    <>
-      <HStack
-        alignment="center"
-        distribution="start"
-        css={{ width: '100%', '@md': { display: 'none' } }}
-      >
-        <StyledText
-          style="subHeadline"
-          css={{
-            mr: '32px',
-            '@smDown': {
-              mr: '16px',
-            },
-          }}
-        >
-          Library
-        </StyledText>
+    <Box
+      ref={props.gridContainerRef}
+      css={{
+        py: '$3',
+        display: 'grid',
+        width: '100%',
+        gridAutoRows: 'auto',
+        borderRadius: '8px',
+        gridGap: props.layout == 'LIST_LAYOUT' ? '0' : '20px',
+        marginTop: props.layout == 'LIST_LAYOUT' ? '21px' : '0',
+        marginBottom: '0px',
+        paddingTop: props.layout == 'LIST_LAYOUT' ? '0' : '21px',
+        paddingBottom: props.layout == 'LIST_LAYOUT' ? '0px' : '21px',
+        overflow: 'hidden',
+        '@xlgDown': {
+          border: 'unset',
+          borderRadius: props.layout == 'LIST_LAYOUT' ? 0 : undefined,
+        },
+        '@smDown': {
+          border: 'unset',
+          width: props.layout == 'LIST_LAYOUT' ? '100vw' : undefined,
+          margin: props.layout == 'LIST_LAYOUT' ? '16px -16px' : undefined,
+          borderRadius: props.layout == 'LIST_LAYOUT' ? 0 : undefined,
+        },
+        '@md': {
+          gridTemplateColumns:
+            props.layout == 'LIST_LAYOUT' ? 'none' : '1fr 1fr',
+        },
+        '@lg': {
+          gridTemplateColumns:
+            props.layout == 'LIST_LAYOUT' ? 'none' : 'repeat(2, 1fr)',
+        },
+        '@xl': {
+          gridTemplateColumns:
+            props.layout == 'LIST_LAYOUT' ? 'none' : 'repeat(3, 1fr)',
+        },
+        '@xxl': {
+          gridTemplateColumns:
+            props.layout == 'LIST_LAYOUT' ? 'none' : 'repeat(4, 1fr)',
+        },
+      }}
+    >
+      {props.items.map((linkedItem) => (
         <Box
+          className="linkedItemCard"
+          data-testid="linkedItemCard"
+          id={linkedItem.node.id}
+          tabIndex={0}
+          key={linkedItem.node.id}
           css={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <StyledToggleButton
-            data-state={props.layout === 'GRID_LAYOUT' ? 'on' : 'off'}
-            onClick={() => {
-              props.updateLayout('GRID_LAYOUT')
-            }}
-          >
-            <GridLayoutIcon color={'rgb(211, 211, 213)'} />
-          </StyledToggleButton>
-          <StyledToggleButton
-            data-state={props.layout === 'LIST_LAYOUT' ? 'on' : 'off'}
-            onClick={() => {
-              props.updateLayout('LIST_LAYOUT')
-            }}
-          >
-            <ListLayoutIcon color={'rgb(211, 211, 213)'} />
-          </StyledToggleButton>
-        </Box>
-        <Button
-          style="ctaDarkYellow"
-          css={{ marginLeft: 'auto' }}
-          onClick={() => {
-            props.setShowAddLinkModal(true)
-          }}
-        >
-          Add Link
-        </Button>
-      </HStack>
-      <LibrarySearchBar
-        searchTerm={props.searchTerm}
-        applySearchQuery={props.applySearchQuery}
-      />
-
-      {props.viewer && (
-        <Box
-          css={{
-            display: 'flex',
             width: '100%',
-            height: '44px',
-            marginTop: '16px',
-            gap: '8px',
-            flexDirection: 'row',
-            overflowY: 'scroll',
-            scrollbarWidth: 'none',
-            '&::-webkit-scrollbar': {
-              display: 'none',
+            '&> div': {
+              bg: '$thBackground3',
+            },
+            '&:focus': {
+              '> div': {
+                bg: '$thBackgroundActive',
+              },
+            },
+            '&:hover': {
+              '> div': {
+                bg: '$thBackgroundActive',
+              },
+              '> a': {
+                bg: '$thBackgroundActive',
+              },
             },
           }}
         >
-          {Object.keys(SAVED_SEARCHES).map((key) => {
-            const isInboxTerm = (term: string) => {
-              return !term || term === 'in:inbox'
-            }
-
-            const searchQuery = SAVED_SEARCHES[key]
-            const style =
-              searchQuery === props.searchTerm ||
-              (!props.searchTerm && isInboxTerm(searchQuery))
-                ? 'ctaDarkYellow'
-                : 'ctaLightGray'
-            return (
-              <Button
-                key={key}
-                style={style}
-                onClick={() => {
-                  props.applySearchQuery(searchQuery)
-                }}
-                css={{
-                  p: '10px 12px',
-                  height: '37.5px',
-                  borderRadius: '6px',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                {key}
-              </Button>
-            )
-          })}
+          {props.viewer && (
+            <LinkedItemCard
+              layout={props.layout}
+              item={linkedItem.node}
+              viewer={props.viewer}
+              handleAction={(action: LinkedItemCardAction) => {
+                if (action === 'delete') {
+                  props.setShowRemoveLinkConfirmation(true)
+                  props.setLinkToRemove(linkedItem)
+                } else if (action === 'editTitle') {
+                  props.setShowEditTitleModal(true)
+                  props.setLinkToEdit(linkedItem)
+                } else if (action == 'unsubscribe') {
+                  props.setShowUnsubscribeConfirmation(true)
+                  props.setLinkToUnsubscribe(linkedItem)
+                } else {
+                  props.actionHandler(action, linkedItem)
+                }
+              }}
+            />
+          )}
         </Box>
-      )}
-    </>
+      ))}
+    </Box>
   )
 }

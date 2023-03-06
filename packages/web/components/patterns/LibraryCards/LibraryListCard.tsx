@@ -116,6 +116,9 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
                   </SpanBox>
                 </>
               ) : null}
+              {props.item.highlights?.length ?? 0 > 0
+                ? `  • ${props.item.highlights?.length} highlights`
+                : null}
             </Box>
             <Box
               css={{
