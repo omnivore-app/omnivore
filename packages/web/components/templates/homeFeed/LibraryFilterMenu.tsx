@@ -286,6 +286,7 @@ type LabelButtonProps = {
 }
 
 function LabelButton(props: LabelButtonProps): JSX.Element {
+  const labelId = `checkbox-label-${props.label.id}`
   const state = useMemo(() => {
     const term = props.searchTerm ?? ''
     if (term.indexOf(`label:\"${props.label.name}\"`) >= 0) {
@@ -316,14 +317,17 @@ function LabelButton(props: LabelButtonProps): JSX.Element {
       alignment="center"
       distribution="start"
     >
-      <Circle size={9} color={props.label.color} weight="fill" />
-      <SpanBox css={{ pl: '10px' }}>{props.label.name}</SpanBox>
+      <label htmlFor={labelId} style={{ width: '100%' }}>
+        <Circle size={9} color={props.label.color} weight="fill" />
+        <SpanBox css={{ pl: '10px' }}>{props.label.name}</SpanBox>
+      </label>
       <SpanBox
         css={{
           ml: 'auto',
         }}
       >
         <input
+          id={labelId}
           type="checkbox"
           checked={state === 'on'}
           onChange={(e) => {
