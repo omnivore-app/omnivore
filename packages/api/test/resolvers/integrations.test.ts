@@ -86,6 +86,11 @@ describe('Integrations resolvers', () => {
       context('when token is invalid', () => {
         before(() => {
           token = 'invalid token'
+          nock(READWISE_API_URL, {
+            reqheaders: { Authorization: `Token ${token}` },
+          })
+            .get('/auth')
+            .reply(401)
         })
 
         it('returns InvalidToken error code', async () => {

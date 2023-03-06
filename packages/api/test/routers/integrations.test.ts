@@ -65,7 +65,7 @@ describe('Integrations routers', () => {
 
     context('when token is valid', () => {
       before(() => {
-        token = process.env.PUBSUB_VERIFICATION_TOKEN!
+        token = process.env.PUBSUB_VERIFICATION_TOKEN as string
       })
 
       context('when data is expired', () => {

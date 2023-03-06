@@ -15,6 +15,8 @@ import {
 import * as createTask from '../../src/utils/createTask'
 import { createTestUser, deleteTestUser } from '../db'
 import { graphqlRequest, request } from '../util'
+import sinon from 'sinon'
+import * as createTask from '../../src/utils/createTask'
 
 const articleSavingRequestQuery = ({
   id,
@@ -89,6 +91,14 @@ describe('ArticleSavingRequest API', () => {
   })
 
   describe('createArticleSavingRequest', () => {
+    before(() => {
+      sinon.replace(createTask, 'enqueueParseRequest', sinon.fake.resolves(''))
+    })
+
+    after(() => {
+      sinon.restore()
+    })
+
     it('returns the article saving request', async () => {
       const res = await graphqlRequest(
         createArticleSavingRequestMutation('https://blog.omnivore.app'),
