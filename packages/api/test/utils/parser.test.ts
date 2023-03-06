@@ -21,7 +21,7 @@ const load = (path: string): string => {
   return fs.readFileSync(path, 'utf8')
 }
 
-describe('parseMetadata', async () => {
+describe('parseMetadata', () => {
   it('gets author, title, image, description', async () => {
     const html = load('./test/utils/data/substack-post.html')
     const metadata = await parsePageMetadata(html)
@@ -36,7 +36,7 @@ describe('parseMetadata', async () => {
   })
 })
 
-describe('parsePreparedContent', async () => {
+describe('parsePreparedContent', () => {
   it('gets published date when JSONLD fails to load', async () => {
     nock('https://stratechery.com:443', { encodedQueryParams: true })
       .get('/wp-json/oembed/1.0/embed')
@@ -78,7 +78,7 @@ describe('parsePreparedContent', async () => {
   })
 })
 
-describe('parsePreparedContent', async () => {
+describe('parsePreparedContent', () => {
   nock('https://oembeddata').get('/').reply(200, {
     version: '1.0',
     provider_name: 'Hippocratic Adventures',

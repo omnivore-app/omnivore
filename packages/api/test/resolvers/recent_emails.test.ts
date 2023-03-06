@@ -6,6 +6,8 @@ import { graphqlRequest, request } from '../util'
 import { getRepository } from '../../src/entity/utils'
 import { ReceivedEmail } from '../../src/entity/received_email'
 import { NewsletterEmail } from '../../src/entity/newsletter_email'
+import sinon from 'sinon'
+import * as sendEmail from '../../src/utils/sendEmail'
 
 describe('Recent Emails Resolver', () => {
   const recentEmailsQuery = `
@@ -121,11 +123,13 @@ describe('Recent Emails Resolver', () => {
         to: newsletterEmail.address,
         type: 'non-article',
       })
+      sinon.replace(sendEmail, 'sendEmail', sinon.fake.resolves(true))
     })
 
     after(async () => {
       // clean up
       await getRepository(ReceivedEmail).delete(recentEmail.id)
+      sinon.restore()
     })
 
     it('marks email as item', async () => {
