@@ -69,7 +69,7 @@ const textVariants = {
     modalHeadline: {
       fontWeight: '600',
       fontFamily: '$display',
-      fontSize: '16px',
+      fontSize: '20px',
       lineHeight: '20px',
       color: '$grayText',
       margin: 0,

@@ -194,7 +194,7 @@ function EditItemModal(props: EditItemModalProps): JSX.Element {
     mb: '2px',
     fontFamily: '$display',
     fontWeight: '600',
-    fontSize: '9px',
+    fontSize: '11px',
     color: '#898989',
   }
 
@@ -234,8 +234,8 @@ function EditItemModal(props: EditItemModalProps): JSX.Element {
                       border: '1px solid $thBorderColor',
                       fontFamily: 'Inter',
                       fontWeight: '500',
-                      fontSize: '12px',
-                      height: '30px',
+                      fontSize: '16px',
+                      height: '38px',
                       p: '5px',
                       color: '$thTextContrast2',
                       '&:focus': {
@@ -266,8 +266,8 @@ function EditItemModal(props: EditItemModalProps): JSX.Element {
                       border: '1px solid $thBorderColor',
                       fontFamily: 'Inter',
                       fontWeight: '500',
-                      fontSize: '12px',
-                      height: '30px',
+                      fontSize: '16px',
+                      height: '38px',
                       p: '5px',
                       color: '$thTextContrast2',
                       '&:focus': {
@@ -291,8 +291,8 @@ function EditItemModal(props: EditItemModalProps): JSX.Element {
                   width: '100%',
                   fontFamily: 'Inter',
                   fontWeight: '500',
-                  fontSize: '12px',
-                  height: '30px',
+                  fontSize: '16px',
+                  height: '38px',
                   p: '5px',
                   color: '$thTextContrast2',
                   '&:focus': {
@@ -314,8 +314,8 @@ function EditItemModal(props: EditItemModalProps): JSX.Element {
                   width: '100%',
                   fontFamily: 'Inter',
                   fontWeight: '500',
-                  fontSize: '12px',
-                  height: '30px',
+                  fontSize: '16px',
+                  height: '38px',
                   p: '5px',
                   color: '$thTextContrast2',
                   '&:focus': {
@@ -333,7 +333,7 @@ function EditItemModal(props: EditItemModalProps): JSX.Element {
                   width: '100%',
                   fontFamily: 'Inter',
                   fontWeight: '500',
-                  fontSize: '12px',
+                  fontSize: '16px',
                   height: '120px',
                   p: '5px',
                   color: '$thTextContrast2',
@@ -399,8 +399,9 @@ function Header(props: HeaderProps): JSX.Element {
           alignItems: 'center',
           justifyContent: 'center',
           borderRadius: '1000px',
+          bg: '#EBEBEB',
           '&:hover': {
-            bg: '#EBEBEB',
+            bg: '#898989',
           },
         }}
       >
