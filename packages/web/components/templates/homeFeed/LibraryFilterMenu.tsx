@@ -9,7 +9,7 @@ import { useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQ
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { theme } from '../../tokens/stitches.config'
 import { currentThemeName } from '../../../lib/themeUpdater'
-import { HEADER_MOBILE_HEIGHT } from './HeaderSpacer'
+import { MOBILE_HEADER_HEIGHT } from './HeaderSpacer'
 
 export const LIBRARY_LEFT_MENU_WIDTH = '300px'
 
@@ -42,7 +42,7 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
           },
           '@mdDown': {
             visibility: props.showFilterMenu ? 'visible' : 'hidden',
-            top: props.showFilterMenu ? HEADER_MOBILE_HEIGHT : '100%',
+            top: props.showFilterMenu ? MOBILE_HEADER_HEIGHT : '100%',
             width: '100%',
             transition: 'visibility 0s, top 150ms',
           },
