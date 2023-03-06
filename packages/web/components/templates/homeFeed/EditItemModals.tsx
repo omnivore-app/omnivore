@@ -219,7 +219,7 @@ function EditItemModal(props: EditItemModalProps): JSX.Element {
     <ModalRoot defaultOpen onOpenChange={props.onOpenChange} css={{}}>
       <ModalOverlay />
       <ModalContent
-        css={{ bg: '$grayBg', p: '20px', maxWidth: '400px' }}
+        css={{ bg: '$grayBg', p: '20px', maxWidth: '420px' }}
         onInteractOutside={() => {
           // remove focus from modal
           ;(document.activeElement as HTMLElement).blur()
