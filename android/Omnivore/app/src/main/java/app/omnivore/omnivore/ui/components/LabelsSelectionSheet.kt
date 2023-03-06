@@ -13,18 +13,18 @@ import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import app.omnivore.omnivore.persistence.entities.SavedItemLabel
 import app.omnivore.omnivore.ui.library.LibraryViewModel
+import app.omnivore.omnivore.ui.reader.WebPreferencesView
+import app.omnivore.omnivore.ui.reader.WebReaderViewModel
 
 @Composable
 fun LabelsSelectionSheet(viewModel: LibraryViewModel) {
@@ -82,6 +82,8 @@ fun LabelsSelectionSheetContent(
 ) {
   val listState = rememberLazyListState()
   val selectedLabels = remember { mutableStateOf(initialSelectedLabels) }
+  var showCreateLabelDialog by remember { mutableStateOf(false ) }
+
   val titleText = if (isLibraryMode) "Filter by Label" else "Set Labels"
 
   Surface(
@@ -90,6 +92,14 @@ fun LabelsSelectionSheetContent(
       .background(MaterialTheme.colorScheme.background),
     shape = RoundedCornerShape(16.dp)
   ) {
+
+    if (showCreateLabelDialog) {
+      LabelCreationDialog(
+        onDismiss = { showCreateLabelDialog = false },
+        onSave = { showCreateLabelDialog = false }
+      )
+    }
+
     Column(
       verticalArrangement = Arrangement.Top,
       horizontalAlignment = Alignment.CenterHorizontally,
@@ -169,6 +179,7 @@ fun LabelsSelectionSheetContent(
                 .fillMaxWidth()
                 .clickable {
                   Log.d("label", "add new label button tapped")
+                  showCreateLabelDialog = true
                 }
                 .padding(horizontal = 6.dp)
                 .padding(vertical = 12.dp)
