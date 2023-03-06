@@ -190,7 +190,7 @@ function MenuPanel(props: MenuPanelProps): JSX.Element {
                     justifyContent: 'center',
                     borderRadius: '1000px',
                     '&:hover': {
-                      bg: '#EBEBEB',
+                      bg: '$thBackground4',
                     },
                   }}
                 >
@@ -249,11 +249,11 @@ function FilterButton(props: FilterButtonProps): JSX.Element {
         width: '100%',
         maxWidth: '100%',
         height: '32px',
-        backgroundColor: selected ? '$thBackground2' : 'unset',
+        backgroundColor: selected ? '#FFEA9F' : 'unset',
         fontSize: '14px',
         fontWeight: 'regular',
         fontFamily: '$display',
-        color: '$thTextSubtle',
+        color: selected ? '#3D3D3D' : '$thTextSubtle',
         verticalAlign: 'middle',
         borderRadius: '3px',
         cursor: 'pointer',
@@ -262,10 +262,10 @@ function FilterButton(props: FilterButtonProps): JSX.Element {
         whiteSpace: 'nowrap',
         alignItems: 'center',
         '&:hover': {
-          backgroundColor: selected ? '#FFEA9F' : '#EBEBEB',
+          backgroundColor: selected ? '#FFEA9F' : '$thBackground4',
         },
         '&:active': {
-          backgroundColor: '#FFEA9F',
+          backgroundColor: selected ? '#FFEA9F' : '$thBackground4',
         },
       }}
       onClick={(e) => {
