@@ -397,15 +397,33 @@ function validateUrlString(url) {
   }
 }
 
+function tryParseUrl(urlStr) {
+  if (!urlStr) {
+    return null;
+  }
+  
+  // a regular expression to match URLs
+  var regex = /(https?:\/\/[^\s]+)/g;
+  
+  var match = regex.exec(urlStr);
+  
+  if (match) {
+    return match[1];
+  } else {
+    return null;
+  }
+}
+
 function getUrl(req) {
   const urlStr = (req.query ? req.query.url : undefined) || (req.body ? req.body.url : undefined);
-  if (!urlStr) {
+  const url = tryParseUrl(urlStr)
+  if (!url) {
     throw new Error('No URL specified');
   }
 
-  validateUrlString(urlStr);
+  validateUrlString(url);
 
-  const parsed = Url.parse(urlStr);
+  const parsed = Url.parse(url);
   return parsed.href;
 }
 
