@@ -55,7 +55,7 @@ export function ArticleActionsMenu(
           alignItems: 'center',
           flexDirection: props.layout == 'side' ? 'column' : 'row',
           justifyContent: props.layout == 'side' ? 'center' : 'flex-end',
-          gap: props.layout == 'side' ? '8px' : '25px',
+          gap: props.layout == 'side' ? '15px' : '25px',
           paddingTop: '6px',
         }}
       >
