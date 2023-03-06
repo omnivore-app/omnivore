@@ -117,6 +117,7 @@ function FontControls(props: FontControlsProps): JSX.Element {
         <StyledText style="displaySettingsLabel">Font</StyledText>
         <FontSelect
           css={{ marginLeft: 'auto' }}
+          tabIndex={-1}
           defaultValue={props.readerSettings.fontFamily}
           onChange={(e: React.FormEvent<HTMLSelectElement>) => {
             const font = e.currentTarget.value
