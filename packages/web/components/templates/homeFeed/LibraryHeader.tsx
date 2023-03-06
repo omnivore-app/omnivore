@@ -276,13 +276,7 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
             }}
           >
             <IconButton
-              css={{
-                p: '0px',
-                mr: '5px',
-                width: '28px',
-                height: '28px',
-                color: '#898989',
-              }}
+              style="searchButton"
               onClick={(event) => {
                 event.preventDefault()
                 setSearchTerm('')
@@ -306,12 +300,7 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
             }}
           >
             <IconButton
-              css={{
-                mr: '5px',
-                width: '28px',
-                height: '28px',
-                color: '#898989',
-              }}
+              style="searchButton"
               onClick={() =>
                 requestAnimationFrame(() => inputRef?.current?.focus())
               }
