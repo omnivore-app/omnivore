@@ -90,6 +90,7 @@ describe('saveNewsletterEmail', () => {
 
   it('adds a Newsletter label to that page', async () => {
     nock('https://blog.omnivore.app').get('/new-fake-url').reply(200)
+    nock('https://blog.omnivore.app').head('/new-fake-url').reply(200)
     const url = 'https://blog.omnivore.app/new-fake-url'
     const newLabel = {
       name: 'Newsletter',

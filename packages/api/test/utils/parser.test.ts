@@ -22,9 +22,9 @@ const load = (path: string): string => {
 }
 
 describe('parseMetadata', () => {
-  it('gets author, title, image, description', async () => {
+  it('gets author, title, image, description', () => {
     const html = load('./test/utils/data/substack-post.html')
-    const metadata = await parsePageMetadata(html)
+    const metadata = parsePageMetadata(html)
     expect(metadata?.author).to.deep.equal('Omnivore')
     expect(metadata?.title).to.deep.equal('Code Block Syntax Highlighting')
     expect(metadata?.previewImage).to.deep.equal(
