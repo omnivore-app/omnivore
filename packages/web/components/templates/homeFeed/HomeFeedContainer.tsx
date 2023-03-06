@@ -111,14 +111,6 @@ export function HomeFeedContainer(): JSX.Element {
   const [queryInputs, setQueryInputs] =
     useState<LibraryItemsQueryInput>(defaultQuery)
 
-  useKeyboardShortcuts(
-    searchBarCommands((action) => {
-      if (action === 'clearSearch') {
-        setQueryInputs(defaultQuery)
-      }
-    })
-  )
-
   const {
     itemsPages,
     size,
