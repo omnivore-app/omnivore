@@ -61,16 +61,18 @@ export function ReaderHeader(props: ReaderHeaderProps): JSX.Element {
           >
             {props.children}
           </SpanBox>
-          <SpanBox
-            css={{
-              width: '100%',
-              '@lgDown': {
-                display: props.alwaysDisplayToolbar ? 'flex' : 'none',
-              },
-            }}
-          >
-            <ControlButtonBox {...props} />
-          </SpanBox>
+          {!props.alwaysDisplayToolbar && (
+            <SpanBox
+              css={{
+                width: '100%',
+                '@lgDown': {
+                  display: 'none',
+                },
+              }}
+            >
+              <ControlButtonBox {...props} />
+            </SpanBox>
+          )}
         </HStack>
       </VStack>
     </>
