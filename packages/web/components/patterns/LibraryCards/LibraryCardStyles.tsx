@@ -18,7 +18,7 @@ export const MenuStyle = {
   justifyContent: 'center',
   borderRadius: '1000px',
   '&:hover': {
-    bg: '#EBEBEB',
+    bg: '$thBackground4',
   },
 }
 
