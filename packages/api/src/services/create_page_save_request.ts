@@ -64,6 +64,7 @@ export const createPageSaveRequest = async (
   models: DataModels,
   pubsub: PubsubClient = createPubSubClient(),
   articleSavingRequestId = uuidv4(),
+  archivedAt?: Date | null,
   priority?: 'low' | 'high'
 ): Promise<ArticleSavingRequest> => {
   try {
@@ -116,6 +117,7 @@ export const createPageSaveRequest = async (
       state: ArticleSavingRequestStatus.Processing,
       createdAt: new Date(),
       savedAt: new Date(),
+      archivedAt,
     }
 
     // create processing page

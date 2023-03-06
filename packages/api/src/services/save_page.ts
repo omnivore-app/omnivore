@@ -140,7 +140,8 @@ export const savePage = async (
         articleToSave.url,
         ctx.models,
         ctx.pubsub,
-        input.clientRequestId
+        input.clientRequestId,
+        archivedAt
       )
     } catch (e) {
       return {

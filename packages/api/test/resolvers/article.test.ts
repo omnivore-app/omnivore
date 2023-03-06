@@ -10,6 +10,7 @@ import {
   deletePage,
   deletePagesByParam,
   getPageById,
+  getPageByParam,
   updatePage,
 } from '../../src/elastic/pages'
 import {
@@ -208,7 +209,13 @@ const searchQuery = (keyword = '') => {
   `
 }
 
-const savePageQuery = (url: string, title: string, originalContent: string) => {
+const savePageQuery = (
+  url: string,
+  title: string,
+  originalContent: string,
+  state: ArticleSavingRequestStatus | null = null,
+  labels: string[] | null = null
+) => {
   return `
     mutation {
       savePage(
@@ -218,6 +225,12 @@ const savePageQuery = (url: string, title: string, originalContent: string) => {
           clientRequestId: "${generateFakeUuid()}",
           title: "${title}",
           originalContent: "${originalContent}"
+          state: ${state}
+          labels: ${
+            labels
+              ? '[' + labels.map((label) => `{ name: "${label}" }`) + ']'
+              : null
+          }
         }
       ) {
         ... on SaveSuccess {
@@ -609,6 +622,26 @@ describe('Article API', () => {
           200
         )
         expect(allLinks.body.data.articles.edges[0].node.url).to.eq(url)
+      })
+    })
+
+    context('when we also want to save labels and archives the page', () => {
+      after(async () => {
+        await deletePagesByParam({ url }, ctx)
+      })
+
+      it('saves the labels and archives the page', async () => {
+        const state = ArticleSavingRequestStatus.Archived
+        const labels = ['test name', 'test name 2']
+        await graphqlRequest(
+          savePageQuery(url, title, originalContent, state, labels),
+          authToken
+        ).expect(200)
+        await refreshIndex()
+
+        const savedPage = await getPageByParam({ url })
+        expect(savedPage?.archivedAt).to.not.be.null
+        expect(savedPage?.labels?.map((l) => l.name)).to.eql(labels)
       })
     })
   })
