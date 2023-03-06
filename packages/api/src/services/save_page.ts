@@ -22,7 +22,7 @@ import {
 } from '../utils/helpers'
 import { parsePreparedContent } from '../utils/parser'
 import { createPageSaveRequest } from './create_page_save_request'
-import { addLabelsToNewPage } from './labels'
+import { createLabels } from './labels'
 
 type SaveContext = {
   pubsub: PubsubClient
@@ -108,8 +108,13 @@ export const savePage = async (
     userId: saver.userId,
     url: articleToSave.url,
   })
+  // save state
   const archivedAt =
     input.state === ArticleSavingRequestStatus.Archived ? new Date() : null
+  // add labels to page
+  const labels = input.labels
+    ? await createLabels(ctx, input.labels)
+    : undefined
 
   if (existingPage) {
     pageId = existingPage.id
@@ -124,6 +129,7 @@ export const savePage = async (
           id: pageId, // we don't want to update the id
           slug, // we don't want to update the slug
           createdAt: existingPage.createdAt, // we don't want to update the createdAt
+          labels,
         },
         ctx
       ))
@@ -135,14 +141,14 @@ export const savePage = async (
     }
   } else if (shouldParseInBackend(input)) {
     try {
-      await createPageSaveRequest(
-        saver.userId,
-        articleToSave.url,
-        ctx.models,
-        ctx.pubsub,
-        input.clientRequestId,
-        archivedAt
-      )
+      await createPageSaveRequest({
+        userId: saver.userId,
+        url: articleToSave.url,
+        pubsub: ctx.pubsub,
+        articleSavingRequestId: input.clientRequestId,
+        archivedAt,
+        labels,
+      })
     } catch (e) {
       return {
         errorCodes: [SaveErrorCode.Unknown],
@@ -154,6 +160,7 @@ export const savePage = async (
       {
         ...articleToSave,
         archivedAt,
+        labels,
       },
       ctx
     )
@@ -180,15 +187,6 @@ export const savePage = async (
       return {
         errorCodes: [SaveErrorCode.EmbeddedHighlightFailed],
         message: 'Failed to save highlight',
-      }
-    }
-  }
-  // add labels to page
-  if (pageId && input.labels) {
-    if (!(await addLabelsToNewPage(ctx, pageId, input.labels))) {
-      return {
-        errorCodes: [SaveErrorCode.EmbeddedLabelFailed],
-        message: 'Failed to save labels',
       }
     }
   }

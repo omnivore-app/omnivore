@@ -248,7 +248,7 @@ export const createArticleResolver = authorized<
         source !== 'puppeteer-parse' &&
         FORCE_PUPPETEER_URLS.some((regex) => regex.test(url))
       ) {
-        await createPageSaveRequest(uid, url, models)
+        await createPageSaveRequest({ userId: uid, url })
         return DUMMY_RESPONSE
       } else if (!skipParsing && preparedDocument?.document) {
         const parseResults = await traceAs<Promise<ParsedContentPuppeteer>>(
@@ -264,7 +264,7 @@ export const createArticleResolver = authorized<
       } else if (!preparedDocument?.document) {
         // We have a URL but no document, so we try to send this to puppeteer
         // and return a dummy response.
-        await createPageSaveRequest(uid, url, models)
+        await createPageSaveRequest({ userId: uid, url })
         return DUMMY_RESPONSE
       }
 

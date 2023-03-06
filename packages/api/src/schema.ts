@@ -513,7 +513,6 @@ const schema = gql`
     UNKNOWN
     UNAUTHORIZED
     EMBEDDED_HIGHLIGHT_FAILED
-    EMBEDDED_LABEL_FAILED
   }
 
   type SaveError {
@@ -531,6 +530,8 @@ const schema = gql`
     source: String!
     clientRequestId: ID!
     uploadFileId: ID!
+    state: ArticleSavingRequestStatus
+    labels: [CreateLabelInput!]
   }
 
   input ParseResult {
@@ -563,6 +564,8 @@ const schema = gql`
     url: String!
     source: String!
     clientRequestId: ID!
+    state: ArticleSavingRequestStatus
+    labels: [CreateLabelInput!]
   }
 
   union SaveResult = SaveSuccess | SaveError

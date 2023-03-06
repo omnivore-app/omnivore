@@ -59,8 +59,7 @@ export function articleRouter() {
       return res.status(400).send({ errorCode: 'BAD_DATA' })
     }
 
-    const models = initModels(kx, false)
-    const result = await createPageSaveRequest(uid, url, models)
+    const result = await createPageSaveRequest({ userId: uid, url })
 
     if (isSiteBlockedForParse(url)) {
       return res

@@ -36,9 +36,17 @@ export const saveFile = async (
 
   await getStorageFileDetails(input.uploadFileId, uploadFile.fileName)
 
-  await ctx.authTrx(async (tx) => {
+  const uploadFileData = await ctx.authTrx(async (tx) => {
     return ctx.models.uploadFile.setFileUploadComplete(input.uploadFileId, tx)
   })
+
+  if (!uploadFileData) {
+    return {
+      errorCodes: [SaveErrorCode.Unknown],
+    }
+  }
+
+  // TODO: save labels and archive state
 
   return {
     clientRequestId: input.clientRequestId,

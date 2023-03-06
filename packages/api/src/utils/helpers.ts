@@ -18,6 +18,7 @@ import path from 'path'
 import normalizeUrl from 'normalize-url'
 import wordsCounter from 'word-counting'
 import _ from 'underscore'
+import { User } from '../entity/user'
 
 interface InputObject {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -187,7 +188,7 @@ export const pageError = async (
 }
 
 export const pageToArticleSavingRequest = (
-  user: UserData,
+  user: User,
   page: Page
 ): ArticleSavingRequest => ({
   ...page,

@@ -2187,14 +2187,15 @@ export type SaveError = {
 
 export enum SaveErrorCode {
   EmbeddedHighlightFailed = 'EMBEDDED_HIGHLIGHT_FAILED',
-  EmbeddedLabelFailed = 'EMBEDDED_LABEL_FAILED',
   Unauthorized = 'UNAUTHORIZED',
   Unknown = 'UNKNOWN'
 }
 
 export type SaveFileInput = {
   clientRequestId: Scalars['ID'];
+  labels?: InputMaybe<Array<CreateLabelInput>>;
   source: Scalars['String'];
+  state?: InputMaybe<ArticleSavingRequestStatus>;
   uploadFileId: Scalars['ID'];
   url: Scalars['String'];
 };
@@ -2245,7 +2246,9 @@ export type SaveSuccess = {
 
 export type SaveUrlInput = {
   clientRequestId: Scalars['ID'];
+  labels?: InputMaybe<Array<CreateLabelInput>>;
   source: Scalars['String'];
+  state?: InputMaybe<ArticleSavingRequestStatus>;
   url: Scalars['String'];
 };
 

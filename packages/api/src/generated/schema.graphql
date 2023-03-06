@@ -1584,14 +1584,15 @@ type SaveError {
 
 enum SaveErrorCode {
   EMBEDDED_HIGHLIGHT_FAILED
-  EMBEDDED_LABEL_FAILED
   UNAUTHORIZED
   UNKNOWN
 }
 
 input SaveFileInput {
   clientRequestId: ID!
+  labels: [CreateLabelInput!]
   source: String!
+  state: ArticleSavingRequestStatus
   uploadFileId: ID!
   url: String!
 }
@@ -1639,7 +1640,9 @@ type SaveSuccess {
 
 input SaveUrlInput {
   clientRequestId: ID!
+  labels: [CreateLabelInput!]
   source: String!
+  state: ArticleSavingRequestStatus
   url: String!
 }
 

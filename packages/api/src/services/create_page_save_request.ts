@@ -8,7 +8,7 @@ import {
   getPageByParam,
   updatePage,
 } from '../elastic/pages'
-import { ArticleSavingRequestStatus, PageType } from '../elastic/types'
+import { ArticleSavingRequestStatus, Label, PageType } from '../elastic/types'
 import {
   ArticleSavingRequest,
   CreateArticleSavingRequestErrorCode,
@@ -17,6 +17,19 @@ import {
 import { DataModels } from '../resolvers/types'
 import { enqueueParseRequest } from '../utils/createTask'
 import { generateSlug, pageToArticleSavingRequest } from '../utils/helpers'
+import * as privateIpLib from 'private-ip'
+import { getRepository } from '../entity/utils'
+import { User } from '../entity/user'
+
+interface PageSaveRequest {
+  userId: string
+  url: string
+  pubsub?: PubsubClient
+  articleSavingRequestId?: string
+  archivedAt?: Date | null
+  labels?: Label[]
+  priority?: 'low' | 'high'
+}
 
 const SAVING_CONTENT = 'Your link is being saved...'
 
@@ -58,15 +71,15 @@ export const validateUrl = (url: string): URL => {
   return u
 }
 
-export const createPageSaveRequest = async (
-  userId: string,
-  url: string,
-  models: DataModels,
-  pubsub: PubsubClient = createPubSubClient(),
+export const createPageSaveRequest = async ({
+  userId,
+  url,
+  pubsub = createPubSubClient(),
   articleSavingRequestId = uuidv4(),
-  archivedAt?: Date | null,
-  priority?: 'low' | 'high'
-): Promise<ArticleSavingRequest> => {
+  archivedAt,
+  priority,
+  labels,
+}: PageSaveRequest): Promise<ArticleSavingRequest> => {
   try {
     validateUrl(url)
   } catch (error) {
@@ -76,7 +89,10 @@ export const createPageSaveRequest = async (
     })
   }
 
-  const user = await models.user.get(userId)
+  const user = await getRepository(User).findOne({
+    where: { id: userId },
+    relations: ['profile'],
+  })
   if (!user) {
     console.log('User not found', userId)
     return Promise.reject({
@@ -118,6 +134,7 @@ export const createPageSaveRequest = async (
       createdAt: new Date(),
       savedAt: new Date(),
       archivedAt,
+      labels,
     }
 
     // create processing page

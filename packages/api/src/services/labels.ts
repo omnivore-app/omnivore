@@ -2,11 +2,12 @@ import { Label } from '../entity/label'
 import { ILike, In } from 'typeorm'
 import { PageContext } from '../elastic/types'
 import { User } from '../entity/user'
-import { addLabelInPage, updateLabelsInPage } from '../elastic/labels'
+import { addLabelInPage } from '../elastic/labels'
 import { getRepository } from '../entity/utils'
 import { Link } from '../entity/link'
 import DataLoader from 'dataloader'
 import { generateRandomColor } from '../utils/helpers'
+import { CreateLabelInput } from '../generated/graphql'
 
 const batchGetLabelsFromLinkIds = async (
   linkIds: readonly string[]
@@ -104,21 +105,16 @@ export const createLabel = async (
   })
 }
 
-export const addLabelsToNewPage = async (
+export const createLabels = async (
   ctx: PageContext,
-  pageId: string,
-  labels: {
-    name: string
-    color?: string | null
-    description?: string | null
-  }[]
-): Promise<boolean> => {
+  labels: CreateLabelInput[]
+): Promise<Label[]> => {
   const user = await getRepository(User).findOneBy({
     id: ctx.uid,
   })
   if (!user) {
-    console.log('user not found')
-    return false
+    console.error('user not found')
+    return []
   }
 
   const labelEntities = await getRepository(Label).findBy({
@@ -136,10 +132,5 @@ export const addLabelsToNewPage = async (
       user,
     }))
   )
-  // add all labels to page
-  return updateLabelsInPage(
-    pageId,
-    [...newLabelEntities, ...labelEntities],
-    ctx
-  )
+  return [...labelEntities, ...newLabelEntities]
 }
