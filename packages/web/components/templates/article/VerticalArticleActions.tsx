@@ -1,7 +1,5 @@
-import { Separator } from '@radix-ui/react-separator'
 import {
   ArchiveBox,
-  DotsThree,
   DotsThreeOutline,
   HighlighterCircle,
   Info,
@@ -12,15 +10,9 @@ import {
 } from 'phosphor-react'
 import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
 import { Button } from '../../elements/Button'
-import { Box, HStack, SpanBox } from '../../elements/LayoutPrimitives'
+import { HStack } from '../../elements/LayoutPrimitives'
 import { TooltipWrapped } from '../../elements/Tooltip'
-import { styled, theme } from '../../tokens/stitches.config'
-import { useReaderSettings } from '../../../lib/hooks/useReaderSettings'
-import { useRef } from 'react'
-import { setLabelsMutation } from '../../../lib/networking/mutations/setLabelsMutation'
-import { Label } from '../../../lib/networking/fragments/labelFragment'
-import { SetLabelsModal } from './SetLabelsModal'
-import { DropdownMenu } from '../../patterns/DropdownMenu'
+import { theme } from '../../tokens/stitches.config'
 import { ReaderDropdownMenu } from '../../patterns/ReaderDropdownMenu'
 
 export type ArticleActionsMenuLayout = 'top' | 'side'

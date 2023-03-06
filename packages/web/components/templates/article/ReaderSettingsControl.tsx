@@ -1,14 +1,11 @@
-import { HStack, VStack, SpanBox, Box } from '../../elements/LayoutPrimitives'
+import { HStack, VStack, SpanBox } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { StyledText } from '../../elements/StyledText'
 import { styled, theme, ThemeId } from '../../tokens/stitches.config'
 import { ArrowsHorizontal, ArrowsInLineHorizontal, Check } from 'phosphor-react'
 import { TickedRangeSlider } from '../../elements/TickedRangeSlider'
 import { showSuccessToast } from '../../../lib/toastHelpers'
-import {
-  ReaderSettings,
-  useReaderSettings,
-} from '../../../lib/hooks/useReaderSettings'
+import { ReaderSettings } from '../../../lib/hooks/useReaderSettings'
 import { useCallback, useMemo, useState } from 'react'
 import { currentThemeName, updateTheme } from '../../../lib/themeUpdater'
 import { LineHeightIncreaseIcon } from '../../elements/images/LineHeightIncreaseIconProps'

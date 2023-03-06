@@ -14,7 +14,6 @@ import { StyledTextArea } from '../../elements/StyledTextArea'
 import { updatePageMutation } from '../../../lib/networking/mutations/updatePageMutation'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import dayjs, { Dayjs } from 'dayjs'
-import { X } from 'phosphor-react'
 import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
 import { CloseButton } from '../../elements/CloseButton'
 
@@ -72,7 +71,7 @@ export function EditLibraryItemModal(
         }
       })()
     },
-    []
+    [props]
   )
 
   return (
@@ -147,7 +146,7 @@ export function EditArticleModal(props: EditArticleModalProps): JSX.Element {
         }
       })()
     },
-    []
+    [props]
   )
 
   return (

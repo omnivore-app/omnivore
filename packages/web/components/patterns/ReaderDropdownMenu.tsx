@@ -1,14 +1,9 @@
-import { ReactNode, useMemo, useState } from 'react'
-import { HStack, VStack } from './../elements/LayoutPrimitives'
+import { ReactNode } from 'react'
 import {
   Dropdown,
   DropdownOption,
   DropdownSeparator,
 } from '../elements/DropdownElements'
-import { StyledText } from '../elements/StyledText'
-import { Button } from '../elements/Button'
-import { currentThemeName } from '../../lib/themeUpdater'
-import { Check } from 'phosphor-react'
 
 type DropdownMenuProps = {
   triggerElement: ReactNode

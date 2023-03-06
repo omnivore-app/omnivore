@@ -1,4 +1,4 @@
-import { Box, HStack, SpanBox, VStack } from './../../elements/LayoutPrimitives'
+import { Box, HStack, VStack } from './../../elements/LayoutPrimitives'
 import Dropzone from 'react-dropzone'
 import * as Progress from '@radix-ui/react-progress'
 import type {
@@ -21,10 +21,7 @@ import { AddLinkModal } from './AddLinkModal'
 import { styled, theme } from '../../tokens/stitches.config'
 import { ListLayoutIcon } from '../../elements/images/ListLayoutIcon'
 import { GridLayoutIcon } from '../../elements/images/GridLayoutIcon'
-import {
-  libraryListCommands,
-  searchBarCommands,
-} from '../../../lib/keyboardShortcuts/navigationShortcuts'
+import { libraryListCommands } from '../../../lib/keyboardShortcuts/navigationShortcuts'
 import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { Toaster } from 'react-hot-toast'
 import { useFetchMore } from '../../../lib/hooks/useFetchMoreScroll'

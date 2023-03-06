@@ -71,7 +71,7 @@ const RecommendationComments = (
         </StyledText>
       </HStack>
 
-      {props.recommendationsWithNotes.map((item, idx) => (
+      {props.recommendationsWithNotes.map((item) => (
         <VStack
           key={item.id}
           alignment="start"
