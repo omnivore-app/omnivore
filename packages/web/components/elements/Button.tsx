@@ -260,6 +260,7 @@ export const IconButton = styled(Button, {
         height: 40,
       },
       searchButton: {
+        cursor: 'pointer',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
