@@ -105,7 +105,7 @@ import {
 import { searchHighlights } from '../../elastic/highlights'
 import { saveSearchHistory } from '../../services/search_history'
 import { parsedContentToPage } from '../../services/save_page'
-import * as httpContext from 'express-http-context'
+import * as httpContext from 'express-http-context2'
 
 enum ArticleFormat {
   Markdown = 'markdown',
@@ -946,7 +946,7 @@ export const searchResolver = authorized<
 
   // save query, including advanced search terms, in search history
   if (params.query) {
-    const client = httpContext.get('client') as string | undefined
+    const client = httpContext.get('client')
     // don't save search history for rule based queries
     client !== 'rule-handler' &&
       (await saveSearchHistory(claims.uid, params.query))

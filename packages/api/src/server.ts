@@ -46,7 +46,7 @@ import rateLimit from 'express-rate-limit'
 import { webhooksServiceRouter } from './routers/svc/webhooks'
 import { integrationsServiceRouter } from './routers/svc/integrations'
 import { textToSpeechRouter } from './routers/text_to_speech'
-import * as httpContext from 'express-http-context'
+import * as httpContext from 'express-http-context2'
 import { notificationRouter } from './routers/notification_router'
 import { userRouter } from './routers/user_router'
 
