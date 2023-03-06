@@ -310,7 +310,7 @@ function LabelButton(props: LabelButtonProps): JSX.Element {
         borderRadius: '3px',
         m: '0px',
         '&:hover': {
-          backgroundColor: '#EBEBEB',
+          backgroundColor: '$thBackground4',
         },
       }}
       alignment="center"
