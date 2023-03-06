@@ -1,16 +1,15 @@
-import { HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
+import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { DotsThreeOutline, TextAa } from 'phosphor-react'
 import { PrimaryDropdown } from '../PrimaryDropdown'
 import { TooltipWrapped } from '../../elements/Tooltip'
 import { LogoBox } from '../../elements/LogoBox'
 import { ReactNode } from 'react'
-import { LIBRARY_HEADER_MOBILE_HEIGHT } from '../homeFeed/LibraryHeader'
+import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from '../homeFeed/HeaderSpacer'
 import { theme } from '../../tokens/stitches.config'
 
-const HEADER_HEIGHT = '105px'
-
 type ReaderHeaderProps = {
+  alwaysDisplayToolbar: boolean
   showDisplaySettingsModal: (show: boolean) => void
   children?: ReactNode
 }
@@ -28,11 +27,13 @@ export function ReaderHeader(props: ReaderHeaderProps): JSX.Element {
           position: 'fixed',
           width: '100%',
           height: HEADER_HEIGHT,
-          bg: 'transparent',
+          display: props.alwaysDisplayToolbar ? 'flex' : 'transparent',
           pt: '35px',
-          borderBottom: '1px solid transparent',
+          borderBottom: props.alwaysDisplayToolbar
+            ? '1px solid $thBorderColor'
+            : '1px solid transparent',
           '@xlgDown': {
-            height: LIBRARY_HEADER_MOBILE_HEIGHT,
+            height: MOBILE_HEADER_HEIGHT,
             pt: '0px',
             bg: '$thBackground3',
             borderBottom: '1px solid $thBorderColor',
@@ -52,7 +53,9 @@ export function ReaderHeader(props: ReaderHeaderProps): JSX.Element {
             css={{
               width: '100%',
               px: '25px',
-              '@lg': { display: 'none' },
+              '@lg': {
+                display: props.alwaysDisplayToolbar ? 'flex' : 'none',
+              },
               '@mdDown': { px: '15px' },
             }}
           >
@@ -62,7 +65,7 @@ export function ReaderHeader(props: ReaderHeaderProps): JSX.Element {
             css={{
               width: '100%',
               '@lgDown': {
-                display: 'none',
+                display: props.alwaysDisplayToolbar ? 'flex' : 'none',
               },
             }}
           >

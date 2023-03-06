@@ -6,7 +6,7 @@ import {
   useGetArticleQuery,
 } from '../../../lib/networking/queries/useGetArticleQuery'
 import { useRouter } from 'next/router'
-import { VStack } from './../../../components/elements/LayoutPrimitives'
+import { Box, VStack } from './../../../components/elements/LayoutPrimitives'
 import { ArticleContainer } from './../../../components/templates/article/ArticleContainer'
 import { PdfArticleContainerProps } from './../../../components/templates/article/PdfArticleContainer'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -39,11 +39,9 @@ import { deleteLinkMutation } from '../../../lib/networking/mutations/deleteLink
 import { ConfirmationModal } from '../../../components/patterns/ConfirmationModal'
 import { setLabelsMutation } from '../../../lib/networking/mutations/setLabelsMutation'
 import { ReaderHeader } from '../../../components/templates/reader/ReaderHeader'
-import {
-  EditArticleModal,
-  EditLibraryItemModal,
-} from '../../../components/templates/homeFeed/EditItemModals'
+import { EditArticleModal } from '../../../components/templates/homeFeed/EditItemModals'
 import { VerticalArticleActionsMenu } from '../../../components/templates/article/VerticalArticleActions'
+import { HeaderSpacer } from '../../../components/templates/homeFeed/HeaderSpacer'
 
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
   () => import('./../../../components/templates/article/PdfArticleContainer'),
@@ -313,6 +311,7 @@ export default function Home(): JSX.Element {
         showDisplaySettingsModal={
           readerSettings.setShowEditDisplaySettingsModal
         }
+        alwaysDisplayToolbar={article?.contentReader == 'PDF'}
       >
         <VerticalArticleActionsMenu
           article={article}
@@ -321,6 +320,8 @@ export default function Home(): JSX.Element {
           articleActionHandler={actionHandler}
         />
       </ReaderHeader>
+
+      {article?.contentReader == 'PDF' && <HeaderSpacer />}
 
       <VStack
         distribution="between"
@@ -355,13 +356,13 @@ export default function Home(): JSX.Element {
       ) : (
         <VStack
           alignment="center"
-          distribution="center"
+          distribution="start"
           ref={scrollRef}
           className="disable-webkit-callout"
           css={{
-            '@smDown': {
-              background: theme.colors.grayBg.toString(),
-            },
+            width: '100%',
+            height: '100%',
+            background: '$thBackground',
           }}
         >
           {article && viewerData?.me ? (

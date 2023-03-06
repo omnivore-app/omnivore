@@ -12,6 +12,11 @@ import { LayoutType } from './HomeFeedContainer'
 import { PrimaryDropdown } from '../PrimaryDropdown'
 import { LogoBox } from '../../elements/LogoBox'
 import { OmnivoreSmallLogo } from '../../elements/images/OmnivoreNameLogo'
+import {
+  HeaderSpacer,
+  HEADER_HEIGHT,
+  MOBILE_HEADER_HEIGHT,
+} from './HeaderSpacer'
 
 type LibraryHeaderProps = {
   layout: LayoutType
@@ -23,9 +28,6 @@ type LibraryHeaderProps = {
   showFilterMenu: boolean
   setShowFilterMenu: (show: boolean) => void
 }
-
-const HEADER_HEIGHT = '105px'
-export const LIBRARY_HEADER_MOBILE_HEIGHT = '70px'
 
 export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
   return (
@@ -44,7 +46,7 @@ export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
           pt: '35px',
           borderBottom: '1px solid $thBorderColor',
           '@mdDown': {
-            height: LIBRARY_HEADER_MOBILE_HEIGHT,
+            height: MOBILE_HEADER_HEIGHT,
             pt: '0px',
           },
         }}
@@ -56,15 +58,7 @@ export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
 
       {/* This spacer is put in to push library content down 
       below the fixed header height. */}
-      <Box
-        css={{
-          height: HEADER_HEIGHT,
-          bg: '$grayBase',
-          '@mdDown': {
-            height: LIBRARY_HEADER_MOBILE_HEIGHT,
-          },
-        }}
-      ></Box>
+      <HeaderSpacer />
     </>
   )
 }

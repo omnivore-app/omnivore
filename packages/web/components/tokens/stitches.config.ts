@@ -338,7 +338,7 @@ export const lighterTheme = createTheme(ThemeId.Lighter, {})
 export const globalStyles = globalCss({
   body: {
     colorScheme: 'var(--colorScheme-colorScheme)',
-    backgroundColor: '$thBackground2',
+    backgroundColor: '$thBackground',
   },
   '*': {
     '&:focus': {
