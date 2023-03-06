@@ -1,6 +1,6 @@
 export const MetaStyle = {
   width: '100%',
-  color: '$thTextSubtle2',
+  color: '$thTextSubtle3',
   fontSize: '13px',
   fontWeight: '400',
   fontFamily: '$display',

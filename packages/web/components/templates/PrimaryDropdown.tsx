@@ -1,15 +1,10 @@
 import { useRouter } from 'next/router'
 import { Moon, Sun } from 'phosphor-react'
-import { ReactNode, useCallback, useState } from 'react'
+import { ReactNode, useCallback } from 'react'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
-import {
-  currentTheme,
-  currentThemeName,
-  updateTheme,
-} from '../../lib/themeUpdater'
+import { currentTheme, updateTheme } from '../../lib/themeUpdater'
 import { Avatar } from '../elements/Avatar'
 import { AvatarDropdown } from '../elements/AvatarDropdown'
-import { Button } from '../elements/Button'
 import {
   Dropdown,
   DropdownOption,
