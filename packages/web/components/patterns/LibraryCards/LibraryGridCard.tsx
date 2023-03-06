@@ -8,6 +8,13 @@ import { useState } from 'react'
 import { DotsThreeVertical } from 'phosphor-react'
 import Link from 'next/link'
 import { CardMenu } from '../CardMenu'
+import {
+  AuthorInfoStyle,
+  DescriptionStyle,
+  MenuStyle,
+  MetaStyle,
+  TitleStyle,
+} from './LibraryCardStyles'
 
 dayjs.extend(relativeTime)
 
@@ -117,11 +124,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
         >
           <HStack
             css={{
-              width: '100%',
-              color: '$thTextSubtle2',
-              fontSize: '13px',
-              fontWeight: '400',
-              fontFamily: '$display',
+              ...MetaStyle,
               minHeight: '35px',
             }}
             distribution="start"
@@ -138,20 +141,8 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
             </Box>
             <Box
               css={{
-                display: 'flex',
+                ...MenuStyle,
                 visibility: isHovered || menuOpen ? 'unset' : 'hidden',
-                marginLeft: 'auto',
-                height: '30px',
-                width: '30px',
-                mt: '-5px',
-                mr: '-5px',
-                pt: '2px',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: '1000px',
-                '&:hover': {
-                  bg: '#EBEBEB',
-                },
               }}
             >
               <CardMenu
@@ -172,68 +163,25 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
           >
             <Box
               css={{
-                color: '$thTextContrast2',
-                fontSize: '16px',
-                fontWeight: '700',
-                lineHeight: '1.25',
-                fontFamily: '$display',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                wordBreak: 'break-word',
-                display: '-webkit-box',
-                '-webkit-line-clamp': '2',
-                '-webkit-box-orient': 'vertical',
+                ...TitleStyle,
                 height: '42px',
               }}
             >
               {props.item.title}
             </Box>
-            <Box
+            <Box css={DescriptionStyle}>{props.item.description}</Box>
+            <SpanBox
               css={{
-                color: '$thTextSubtle',
-                pt: '10px',
-                fontSize: '13px',
-                fontWeight: '400',
-                lineHeight: '140%',
-                fontFamily: '$display',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                display: '-webkit-box',
-                '-webkit-line-clamp': '2',
-                '-webkit-box-orient': 'vertical',
-                height: '45px',
-                alignItems: 'start',
+                ...AuthorInfoStyle,
+                m: '0px',
               }}
             >
-              {props.item.description}
-            </Box>
-            <HStack
-              css={{
-                pt: '10px',
-                color: '$thTextSubtle3',
-                fontSize: '13px',
-                fontWeight: '400',
-                fontFamily: '$display',
-              }}
-            >
-              <SpanBox
-                css={{
-                  m: '0px',
-                  maxLines: '1',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                  maxWidth: '240px',
-                  overflow: 'hidden',
-                  height: '21px',
-                }}
-              >
-                {props.item.author}
-                {props.item.author && originText && ' | '}
-                <SpanBox css={{ textDecoration: 'underline' }}>
-                  {originText}
-                </SpanBox>
+              {props.item.author}
+              {props.item.author && originText && ' | '}
+              <SpanBox css={{ textDecoration: 'underline' }}>
+                {originText}
               </SpanBox>
-            </HStack>
+            </SpanBox>
             <SpanBox
               css={{
                 pt: '20px',

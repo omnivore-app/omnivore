@@ -8,6 +8,12 @@ import { useState } from 'react'
 import { DotsThree, DotsThreeVertical } from 'phosphor-react'
 import Link from 'next/link'
 import { CardMenu } from '../CardMenu'
+import {
+  AuthorInfoStyle,
+  MenuStyle,
+  MetaStyle,
+  TitleStyle,
+} from './LibraryCardStyles'
 
 dayjs.extend(relativeTime)
 
@@ -87,16 +93,7 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
           href={`${props.viewer.profile.username}/${props.item.slug}`}
           style={{ textDecoration: 'unset', width: '100%', height: '100%' }}
         >
-          <HStack
-            css={{
-              width: '100%',
-              color: '$thTextSubtle2',
-              fontSize: '10px',
-              fontWeight: '500',
-              fontFamily: '$display',
-            }}
-            distribution="start"
-          >
+          <HStack css={MetaStyle} distribution="start">
             <Box>
               {timeAgo(props.item.savedAt)}
               {` `}
@@ -117,20 +114,8 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
             </Box>
             <Box
               css={{
-                display: 'flex',
+                ...MenuStyle,
                 visibility: isHovered || menuOpen ? 'unset' : 'hidden',
-                marginLeft: 'auto',
-                height: '30px',
-                width: '30px',
-                mt: '-5px',
-                mr: '-5px',
-                pt: '2px',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: '1000px',
-                '&:hover': {
-                  bg: '#EBEBEB',
-                },
               }}
             >
               <CardMenu
@@ -149,56 +134,25 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
             distribution="start"
             css={{ height: '100%', width: '100%' }}
           >
-            <Box
+            <Box css={{ ...TitleStyle, width: '80%' }}>{props.item.title}</Box>
+            <SpanBox
               css={{
-                color: '$thTextContrast2',
-                fontSize: '16px',
-                fontWeight: '700',
-                lineHeight: '1.25',
-                maxWidth: '80%',
-                fontFamily: '$display',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                wordBreak: 'break-word',
-                display: '-webkit-box',
-                '-webkit-line-clamp': '2',
-                '-webkit-box-orient': 'vertical',
+                mt: '5px',
+                ...AuthorInfoStyle,
               }}
             >
-              {props.item.title}
-            </Box>
-            <HStack
-              css={{
-                color: '$thTextSubtle3',
-                fontSize: '11px',
-                fontWeight: '400',
-                fontFamily: '$display',
-              }}
-            >
-              <SpanBox
-                css={{
-                  mt: '5px',
-                  maxLines: '1',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                  maxWidth: '240px',
-                  overflow: 'hidden',
-                  height: '21px',
-                }}
-              >
-                {props.item.author}
-                {props.item.author && originText && ' | '}
-                <SpanBox css={{ textDecoration: 'underline' }}>
-                  {originText}
-                </SpanBox>
+              {props.item.author}
+              {props.item.author && originText && ' | '}
+              <SpanBox css={{ textDecoration: 'underline' }}>
+                {originText}
               </SpanBox>
-            </HStack>
+            </SpanBox>
 
             <HStack
               distribution="start"
               alignment="start"
               // The two pixels here are to account for the label margin
-              css={{ width: '100%', ml: '-2px' }}
+              css={{ width: '100%', ml: '-2px', mt: '5px' }}
             >
               <HStack
                 css={{
