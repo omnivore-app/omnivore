@@ -845,7 +845,6 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
                     layout={layout}
                     viewer={viewerData?.me}
                     gridContainerRef={props.gridContainerRef}
-                    showEditTitleModal={props.showEditTitleModal}
                     setShowEditTitleModal={props.setShowEditTitleModal}
                     setLinkToEdit={props.setLinkToEdit}
                     setShowUnsubscribeConfirmation={
