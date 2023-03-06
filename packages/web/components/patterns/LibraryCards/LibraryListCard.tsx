@@ -63,14 +63,19 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
     <VStack
       css={{
         p: '20px',
-        width: '100%',
         height: '100%',
         cursor: 'pointer',
         gap: '10px',
         border: '1px solid $grayBorder',
         borderBottom: 'none',
+        width: '900px',
+
+        '@xxl': {
+          width: '1200px',
+        },
 
         '@xlgDown': {
+          width: 'unset',
           borderRadius: 'unset',
           borderLeft: 'unset',
           borderRight: 'unset',
