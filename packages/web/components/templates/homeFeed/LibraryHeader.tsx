@@ -266,6 +266,12 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
             onChange={(event) => {
               setSearchTerm(event.target.value)
             }}
+            onKeyDown={(event) => {
+              const key = event.key.toLowerCase()
+              if (key == 'escape') {
+                event.currentTarget.blur()
+              }
+            }}
           />
         </form>
         {searchTerm && searchTerm.length ? (
