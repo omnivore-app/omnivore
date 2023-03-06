@@ -4,7 +4,7 @@
 import DataModel, { DataModelError, MAX_RECORDS_LIMIT } from '../model'
 import { CreateSet, HighlightData, keys as modelKeys, UpdateSet } from './model'
 import { Table } from '../../utils/dictionary'
-import Knex from 'knex'
+import { Knex } from 'knex'
 import { ENABLE_DB_REQUEST_LOGGING, globalCounter } from '../helpers'
 import DataLoader from 'dataloader'
 
@@ -26,7 +26,8 @@ class HighlightModel extends DataModel<HighlightData, CreateSet, UpdateSet> {
         }
 
         try {
-          const rows: HighlightData[] = await kx(this.tableName)
+          const rows: HighlightData[] = await kx
+            .table(this.tableName)
             .select(this.modelKeys)
             .whereIn('id', keys)
             .andWhere('deleted', false)
@@ -60,7 +61,8 @@ class HighlightModel extends DataModel<HighlightData, CreateSet, UpdateSet> {
         )
       }
 
-      const result = await this.kx(Table.HIGHLIGHT)
+      const result = await this.kx
+        .table(Table.HIGHLIGHT)
         .select(modelKeys)
         .whereIn('elasticPageId', articleIds)
         .andWhere('deleted', false)
@@ -153,7 +155,8 @@ class HighlightModel extends DataModel<HighlightData, CreateSet, UpdateSet> {
     userId: string,
     articleId: string
   ): Promise<HighlightData[]> {
-    const highlights = await this.kx(Table.HIGHLIGHT)
+    const highlights: HighlightData[] = await this.kx
+      .table(Table.HIGHLIGHT)
       .select(modelKeys)
       .where('user_id', userId)
       .andWhere('elastic_page_id', articleId)

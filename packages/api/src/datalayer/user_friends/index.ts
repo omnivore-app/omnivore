@@ -6,7 +6,7 @@ import {
   UserFriendData,
 } from './model'
 import DataModel, { MAX_RECORDS_LIMIT } from '../model'
-import Knex from 'knex'
+import { Knex } from 'knex'
 import { Table } from '../../utils/dictionary'
 import { ENABLE_DB_REQUEST_LOGGING, globalCounter, logMethod } from '../helpers'
 import DataLoader from 'dataloader'

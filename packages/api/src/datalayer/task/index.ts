@@ -1,6 +1,6 @@
-import { CreateSet, keys as modelKeys, UpdateSet, TaskData } from './model'
+import { CreateSet, keys as modelKeys, TaskData, UpdateSet } from './model'
 import DataModel from '../model'
-import Knex from 'knex'
+import { Knex } from 'knex'
 import { logMethod } from '../helpers'
 
 class TaskModel extends DataModel<TaskData, CreateSet, UpdateSet> {

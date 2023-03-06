@@ -1,4 +1,4 @@
-import Knex from 'knex'
+import { Knex } from 'knex'
 import { PubsubClient } from '../datalayer/pubsub'
 import { UserData } from '../datalayer/user/model'
 import { homePageURL } from '../env'
