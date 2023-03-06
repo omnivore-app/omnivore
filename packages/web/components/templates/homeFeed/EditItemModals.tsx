@@ -349,9 +349,7 @@ type HeaderProps = {
 function Header(props: HeaderProps): JSX.Element {
   return (
     <HStack distribution="start" alignment="center" css={{ width: '100%' }}>
-      <StyledText css={{}} style="modalHeadline">
-        Edit Title & Description
-      </StyledText>
+      <StyledText style="modalHeadline">Edit Title & Description</StyledText>
       <SpanBox css={{ marginLeft: 'auto' }}>
         <CloseButton close={() => props.onOpenChange(false)} />
       </SpanBox>
