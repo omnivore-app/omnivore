@@ -198,11 +198,27 @@ function EditItemModal(props: EditItemModalProps): JSX.Element {
     color: '#898989',
   }
 
+  const inputStyle = {
+    mt: '1px',
+    borderRadius: '5px',
+    border: '1px solid $thBorderColor',
+    fontFamily: 'Inter',
+    fontWeight: '500',
+    fontSize: '16px',
+    height: '38px',
+    p: '5px',
+    color: '$thTextContrast2',
+    '&:focus': {
+      outline: 'none !important',
+      border: '1px solid $omnivoreCtaYellow',
+    },
+  }
+
   return (
     <ModalRoot defaultOpen onOpenChange={props.onOpenChange} css={{}}>
       <ModalOverlay />
       <ModalContent
-        css={{ bg: '$grayBg', p: '20px', maxWidth: '400px' }}
+        css={{ bg: '$grayBg', p: '20px', maxWidth: '440px' }}
         onInteractOutside={() => {
           // remove focus from modal
           ;(document.activeElement as HTMLElement).blur()
@@ -222,27 +238,12 @@ function EditItemModal(props: EditItemModalProps): JSX.Element {
                   <FormInput
                     type="datetime-local"
                     value={props.savedAt.format('YYYY-MM-DDThh:mm')}
-                    autoFocus
                     placeholder="Edit Date"
                     onChange={(event) => {
                       const dateStr = event.target.value
                       setSavedAt(dayjs(dateStr))
                     }}
-                    css={{
-                      mt: '1px',
-                      borderRadius: '5px',
-                      border: '1px solid $thBorderColor',
-                      fontFamily: 'Inter',
-                      fontWeight: '500',
-                      fontSize: '16px',
-                      height: '38px',
-                      p: '5px',
-                      color: '$thTextContrast2',
-                      '&:focus': {
-                        outline: 'none !important',
-                        border: '1px solid $omnivoreCtaYellow',
-                      },
-                    }}
+                    css={inputStyle}
                   />
                 </VStack>
                 <VStack css={{ width: '45%', marginLeft: 'auto' }}>
@@ -254,27 +255,12 @@ function EditItemModal(props: EditItemModalProps): JSX.Element {
                         ? props.publishedAt.format('YYYY-MM-DDThh:mm')
                         : undefined
                     }
-                    autoFocus
                     placeholder="Edit Published Date"
                     onChange={(event) => {
                       const dateStr = event.target.value
                       setPublishedAt(dayjs(dateStr))
                     }}
-                    css={{
-                      mt: '1px',
-                      borderRadius: '5px',
-                      border: '1px solid $thBorderColor',
-                      fontFamily: 'Inter',
-                      fontWeight: '500',
-                      fontSize: '16px',
-                      height: '38px',
-                      p: '5px',
-                      color: '$thTextContrast2',
-                      '&:focus': {
-                        outline: 'none !important',
-                        border: '1px solid $omnivoreCtaYellow',
-                      },
-                    }}
+                    css={inputStyle}
                   />
                 </VStack>
               </HStack>
@@ -285,67 +271,36 @@ function EditItemModal(props: EditItemModalProps): JSX.Element {
                 autoFocus
                 placeholder="Edit Title"
                 onChange={(event) => setTitle(event.target.value)}
-                css={{
-                  borderRadius: '5px',
-                  border: '1px solid $thBorderColor',
-                  width: '100%',
-                  fontFamily: 'Inter',
-                  fontWeight: '500',
-                  fontSize: '16px',
-                  height: '38px',
-                  p: '5px',
-                  color: '$thTextContrast2',
-                  '&:focus': {
-                    outline: 'none !important',
-                    border: '1px solid $omnivoreCtaYellow',
-                  },
+                onFocus={(event) => {
+                  event.target.select()
                 }}
+                css={inputStyle}
               />
               <StyledText css={titleStyle}>AUTHOR</StyledText>
               <FormInput
                 type="author"
                 value={author}
-                autoFocus
                 placeholder="Edit Author"
                 onChange={(event) => setAuthor(event.target.value)}
-                css={{
-                  borderRadius: '5px',
-                  border: '1px solid $thBorderColor',
-                  width: '100%',
-                  fontFamily: 'Inter',
-                  fontWeight: '500',
-                  fontSize: '16px',
-                  height: '38px',
-                  p: '5px',
-                  color: '$thTextContrast2',
-                  '&:focus': {
-                    outline: 'none !important',
-                    border: '1px solid $omnivoreCtaYellow',
-                  },
+                onFocus={(event) => {
+                  event.target.select()
                 }}
+                css={inputStyle}
               />
               <StyledText css={titleStyle}>DESCRIPTION</StyledText>
-
               <StyledTextArea
                 css={{
-                  borderRadius: '5px',
-                  border: '1px solid $thBorderColor',
-                  width: '100%',
-                  fontFamily: 'Inter',
-                  fontWeight: '500',
-                  fontSize: '16px',
-                  height: '120px',
-                  p: '5px',
-                  color: '$thTextContrast2',
+                  ...inputStyle,
                   mt: '2px',
-                  '&:focus': {
-                    outline: 'none !important',
-                    border: '1px solid $omnivoreCtaYellow',
-                  },
+                  width: '100%',
+                  height: '120px',
                 }}
                 placeholder="Edit Description"
                 value={description}
                 onChange={(event) => setDescription(event.target.value)}
+                onFocus={(event) => {
+                  event.target.select()
+                }}
                 maxLength={4000}
               />
               <HStack distribution="end" css={{ mt: '12px', width: '100%' }}>
