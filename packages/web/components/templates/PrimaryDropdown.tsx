@@ -144,26 +144,6 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
       </HStack>
       <DropdownSeparator />
       {props.showThemeSection && <ThemeSection {...props} />}
-      {/* {props.layout == 'LIST_LAYOUT' && (
-        <DropdownOption
-          onSelect={() =>
-            props.updateLayout && props.updateLayout('GRID_LAYOUT')
-          }
-          title="Switch to Grid"
-        />
-      )}
-      {props.layout == 'GRID_LAYOUT' && (
-        <>
-          <DropdownOption
-            onSelect={() =>
-              props.updateLayout && props.updateLayout('LIST_LAYOUT')
-            }
-            title="Switch to List"
-          />
-          <Box css={{ height: '10px' }}></Box>
-        </>
-      )} */}
-      <DropdownSeparator />
       <DropdownOption
         onSelect={() => headerDropdownActionHandler('navigate-to-install')}
         title="Install"
@@ -226,58 +206,8 @@ const StyledToggleButton = styled('button', {
 
 function ThemeSection(props: PrimaryDropdownProps): JSX.Element {
   return (
-    <VStack>
-      <HStack
-        alignment="center"
-        css={{
-          width: '100%',
-          px: '15px',
-          justifyContent: 'space-between',
-        }}
-      >
-        <StyledText
-          css={{
-            fontSize: '14px',
-            fontWeight: '400',
-            cursor: 'default',
-            color: '$utilityTextDefault',
-          }}
-        >
-          Mode
-        </StyledText>
-        <Box
-          css={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            bg: '$thBackground4',
-            borderRadius: '5px',
-            height: '34px',
-            p: '3px',
-            px: '1px',
-          }}
-        >
-          <StyledToggleButton
-            data-state={currentTheme() != ThemeId.Darker ? 'on' : 'off'}
-            onClick={() => {
-              updateTheme(ThemeId.Light)
-            }}
-          >
-            Light
-            <Sun size={15} color={theme.colors.thTextContrast2.toString()} />
-          </StyledToggleButton>
-          <StyledToggleButton
-            data-state={currentTheme() == ThemeId.Darker ? 'on' : 'off'}
-            onClick={() => {
-              updateTheme(ThemeId.Darker)
-            }}
-          >
-            Dark
-            <Moon size={15} color={theme.colors.thTextContrast2.toString()} />
-          </StyledToggleButton>
-        </Box>
-      </HStack>
-      {props.layout && (
+    <>
+      <VStack>
         <HStack
           alignment="center"
           css={{
@@ -294,7 +224,7 @@ function ThemeSection(props: PrimaryDropdownProps): JSX.Element {
               color: '$utilityTextDefault',
             }}
           >
-            Layout
+            Mode
           </StyledText>
           <Box
             css={{
@@ -309,24 +239,81 @@ function ThemeSection(props: PrimaryDropdownProps): JSX.Element {
             }}
           >
             <StyledToggleButton
-              data-state={props.layout == 'LIST_LAYOUT' ? 'on' : 'off'}
+              data-state={currentTheme() != ThemeId.Darker ? 'on' : 'off'}
               onClick={() => {
-                props.updateLayout && props.updateLayout('LIST_LAYOUT')
+                updateTheme(ThemeId.Light)
               }}
             >
-              <ListLayoutIcon color={theme.colors.thTextContrast2.toString()} />
+              Light
+              <Sun size={15} color={theme.colors.thTextContrast2.toString()} />
             </StyledToggleButton>
             <StyledToggleButton
-              data-state={props.layout == 'GRID_LAYOUT' ? 'on' : 'off'}
+              data-state={currentTheme() == ThemeId.Darker ? 'on' : 'off'}
               onClick={() => {
-                props.updateLayout && props.updateLayout('GRID_LAYOUT')
+                updateTheme(ThemeId.Darker)
               }}
             >
-              <GridLayoutIcon color={theme.colors.thTextContrast2.toString()} />
+              Dark
+              <Moon size={15} color={theme.colors.thTextContrast2.toString()} />
             </StyledToggleButton>
           </Box>
         </HStack>
-      )}
-    </VStack>
+        {props.layout && (
+          <HStack
+            alignment="center"
+            css={{
+              width: '100%',
+              px: '15px',
+              justifyContent: 'space-between',
+            }}
+          >
+            <StyledText
+              css={{
+                fontSize: '14px',
+                fontWeight: '400',
+                cursor: 'default',
+                color: '$utilityTextDefault',
+              }}
+            >
+              Layout
+            </StyledText>
+            <Box
+              css={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                bg: '$thBackground4',
+                borderRadius: '5px',
+                height: '34px',
+                p: '3px',
+                px: '1px',
+              }}
+            >
+              <StyledToggleButton
+                data-state={props.layout == 'LIST_LAYOUT' ? 'on' : 'off'}
+                onClick={() => {
+                  props.updateLayout && props.updateLayout('LIST_LAYOUT')
+                }}
+              >
+                <ListLayoutIcon
+                  color={theme.colors.thTextContrast2.toString()}
+                />
+              </StyledToggleButton>
+              <StyledToggleButton
+                data-state={props.layout == 'GRID_LAYOUT' ? 'on' : 'off'}
+                onClick={() => {
+                  props.updateLayout && props.updateLayout('GRID_LAYOUT')
+                }}
+              >
+                <GridLayoutIcon
+                  color={theme.colors.thTextContrast2.toString()}
+                />
+              </StyledToggleButton>
+            </Box>
+          </HStack>
+        )}
+      </VStack>
+      <DropdownSeparator />
+    </>
   )
 }
