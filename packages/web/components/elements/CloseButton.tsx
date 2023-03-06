@@ -19,7 +19,7 @@ export function CloseButton(props: CloseButtonProps): JSX.Element {
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: '1000px',
-        background: '#EBEBEB',
+        background: '$thBackground2',
         '&:hover': {
           bg: '#898989',
         },

@@ -3,7 +3,7 @@ import {
   ModalContent,
   ModalOverlay,
 } from '../../elements/ModalPrimitives'
-import { VStack, HStack, Box } from '../../elements/LayoutPrimitives'
+import { VStack, HStack, Box, SpanBox } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { StyledText } from '../../elements/StyledText'
 
@@ -16,6 +16,7 @@ import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import dayjs, { Dayjs } from 'dayjs'
 import { X } from 'phosphor-react'
 import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
+import { CloseButton } from '../../elements/CloseButton'
 
 type EditLibraryItemModalProps = {
   onOpenChange: (open: boolean) => void
@@ -218,7 +219,7 @@ function EditItemModal(props: EditItemModalProps): JSX.Element {
     <ModalRoot defaultOpen onOpenChange={props.onOpenChange} css={{}}>
       <ModalOverlay />
       <ModalContent
-        css={{ bg: '$grayBg', p: '20px', maxWidth: '440px' }}
+        css={{ bg: '$grayBg', p: '20px', maxWidth: '400px' }}
         onInteractOutside={() => {
           // remove focus from modal
           ;(document.activeElement as HTMLElement).blur()
@@ -243,7 +244,10 @@ function EditItemModal(props: EditItemModalProps): JSX.Element {
                       const dateStr = event.target.value
                       setSavedAt(dayjs(dateStr))
                     }}
-                    css={inputStyle}
+                    css={{
+                      ...inputStyle,
+                      fontSize: '14px',
+                    }}
                   />
                 </VStack>
                 <VStack css={{ width: '45%', marginLeft: 'auto' }}>
@@ -260,7 +264,10 @@ function EditItemModal(props: EditItemModalProps): JSX.Element {
                       const dateStr = event.target.value
                       setPublishedAt(dayjs(dateStr))
                     }}
-                    css={inputStyle}
+                    css={{
+                      ...inputStyle,
+                      fontSize: '14px',
+                    }}
                   />
                 </VStack>
               </HStack>
@@ -345,39 +352,9 @@ function Header(props: HeaderProps): JSX.Element {
       <StyledText css={{}} style="modalHeadline">
         Edit Title & Description
       </StyledText>
-      <Box
-        css={{
-          display: 'flex',
-          marginLeft: 'auto',
-          height: '20px',
-          width: '20px',
-          alignItems: 'center',
-          justifyContent: 'center',
-          borderRadius: '1000px',
-          bg: '#EBEBEB',
-          '&:hover': {
-            bg: '#898989',
-          },
-        }}
-      >
-        <Button
-          css={{
-            cursor: 'pointer',
-            marginLeft: 'auto',
-            width: '100%',
-            height: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-          style="ghost"
-          onClick={() => {
-            props.onOpenChange(false)
-          }}
-        >
-          <X width={10} height={10} weight="bold" color="#898989" />
-        </Button>
-      </Box>
+      <SpanBox css={{ marginLeft: 'auto' }}>
+        <CloseButton close={() => props.onOpenChange(false)} />
+      </SpanBox>
     </HStack>
   )
 }
