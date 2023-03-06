@@ -198,6 +198,10 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
       if (action === 'focusSearchBar' && inputRef.current) {
         inputRef.current.select()
       }
+      if (action == 'clearSearch' && inputRef.current) {
+        setSearchTerm('')
+        props.applySearchQuery('')
+      }
     })
   )
 
