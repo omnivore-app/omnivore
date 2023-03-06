@@ -16,7 +16,6 @@ import {
   primaryCommands,
   libraryListCommands,
   highlightBarKeyboardCommands,
-  articleKeyboardCommands,
 } from '../../lib/keyboardShortcuts/navigationShortcuts'
 import { useRouter } from 'next/router'
 
@@ -71,10 +70,6 @@ export function KeyboardShortcutListModal(
             commands={searchBarCommands(() => {}).concat(
               libraryListCommands(() => {})
             )}
-          />
-          <ShortcutListSection
-            title="Article"
-            commands={articleKeyboardCommands(router, () => {})}
           />
           <ShortcutListSection
             title="Highlight Bar"
