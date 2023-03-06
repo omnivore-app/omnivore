@@ -22,7 +22,7 @@ describe('saveEmail', () => {
   })
 
   it('doesnt fail if saved twice', async () => {
-    nock('https://blog.omnivore.app').get('/fake-url').reply(404)
+    nock('https://blog.omnivore.app').get('/fake-url').reply(200)
 
     const url = 'https://blog.omnivore.app/fake-url'
     const title = 'fake title'

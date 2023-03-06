@@ -39,6 +39,7 @@ import {
 } from '../util'
 import sinon from 'sinon'
 import * as createTask from '../../src/utils/createTask'
+import * as uploads from '../../src/utils/uploads'
 
 chai.use(chaiString)
 
@@ -643,6 +644,7 @@ describe('Article API', () => {
       })
 
       it('saves the labels and archives the page', async () => {
+        url = 'https://blog.omnivore.app/new-url-2'
         const state = ArticleSavingRequestStatus.Archived
         const labels = ['test name', 'test name 2']
         await graphqlRequest(
@@ -849,13 +851,25 @@ describe('Article API', () => {
     })
   })
 
-  xdescribe('SaveFile', () => {
+  describe('SaveFile', () => {
     let query = ''
     let url = ''
     let uploadFileId = ''
 
+    before(() => {
+      sinon.replace(
+        uploads,
+        'getStorageFileDetails',
+        sinon.fake.resolves({ fileUrl: 'fake url', md5Hash: 'fake hash' })
+      )
+    })
+
     beforeEach(() => {
       query = saveFileQuery(url, uploadFileId)
+    })
+
+    after(() => {
+      sinon.restore()
     })
 
     context('when the file is not uploaded', () => {

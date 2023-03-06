@@ -223,9 +223,11 @@ enum CreateArticleErrorCode {
 
 input CreateArticleInput {
   articleSavingRequestId: ID
+  labels: [CreateLabelInput!]
   preparedDocument: PreparedDocumentInput
   skipParsing: Boolean
   source: String
+  state: ArticleSavingRequestStatus
   uploadFileId: ID
   url: String!
 }

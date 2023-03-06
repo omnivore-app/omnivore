@@ -265,9 +265,11 @@ export enum CreateArticleErrorCode {
 
 export type CreateArticleInput = {
   articleSavingRequestId?: InputMaybe<Scalars['ID']>;
+  labels?: InputMaybe<Array<CreateLabelInput>>;
   preparedDocument?: InputMaybe<PreparedDocumentInput>;
   skipParsing?: InputMaybe<Scalars['Boolean']>;
   source?: InputMaybe<Scalars['String']>;
+  state?: InputMaybe<ArticleSavingRequestStatus>;
   uploadFileId?: InputMaybe<Scalars['ID']>;
   url: Scalars['String'];
 };

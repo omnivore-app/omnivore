@@ -101,6 +101,7 @@ import {
   makeStorageFilePublic,
 } from '../../utils/uploads'
 import { WithDataSourcesContext } from '../types'
+import { createLabels } from '../../services/labels'
 
 enum ArticleFormat {
   Markdown = 'markdown',
@@ -146,6 +147,8 @@ export const createArticleResolver = authorized<
         uploadFileId,
         skipParsing,
         source,
+        state,
+        labels: inputLabels,
       },
     },
     ctx
@@ -219,6 +222,19 @@ export const createArticleResolver = authorized<
           isArchived: false,
         },
       }
+      // save state
+      let archivedAt =
+        state === ArticleSavingRequestStatus.Archived ? new Date() : null
+      if (pageId) {
+        const reminder = await models.reminder.getByRequestId(uid, pageId)
+        if (reminder && reminder.archiveUntil) {
+          archivedAt = new Date()
+        }
+      }
+      // add labels to page
+      const labels = inputLabels
+        ? await createLabels(ctx, inputLabels)
+        : undefined
 
       if (uploadFileId) {
         /* We do not trust the values from client, lookup upload file by querying
@@ -248,7 +264,7 @@ export const createArticleResolver = authorized<
         source !== 'puppeteer-parse' &&
         FORCE_PUPPETEER_URLS.some((regex) => regex.test(url))
       ) {
-        await createPageSaveRequest({ userId: uid, url })
+        await createPageSaveRequest({ userId: uid, url, archivedAt, labels })
         return DUMMY_RESPONSE
       } else if (!skipParsing && preparedDocument?.document) {
         const parseResults = await traceAs<Promise<ParsedContentPuppeteer>>(
@@ -264,7 +280,7 @@ export const createArticleResolver = authorized<
       } else if (!preparedDocument?.document) {
         // We have a URL but no document, so we try to send this to puppeteer
         // and return a dummy response.
-        await createPageSaveRequest({ userId: uid, url })
+        await createPageSaveRequest({ userId: uid, url, archivedAt, labels })
         return DUMMY_RESPONSE
       }
 
@@ -287,14 +303,6 @@ export const createArticleResolver = authorized<
         saveTime,
       })
 
-      let archive = false
-      if (pageId) {
-        const reminder = await models.reminder.getByRequestId(uid, pageId)
-        if (reminder) {
-          archive = reminder.archiveUntil || false
-        }
-      }
-
       log.info('New article saving', {
         parsedArticle: Object.assign({}, articleToSave, {
           content: undefined,
@@ -308,7 +316,6 @@ export const createArticleResolver = authorized<
         },
       })
 
-      let uploadFileUrlOverride = ''
       if (uploadFileId) {
         const uploadFileData = await authTrx(async (tx) => {
           return models.uploadFile.setFileUploadComplete(uploadFileId, tx)
@@ -322,12 +329,11 @@ export const createArticleResolver = authorized<
             pageId
           )
         }
-        uploadFileUrlOverride = await makeStorageFilePublic(
-          uploadFileData.id,
-          uploadFileData.fileName
-        )
+        await makeStorageFilePublic(uploadFileData.id, uploadFileData.fileName)
       }
-
+      // save page's state and labels
+      articleToSave.archivedAt = archivedAt
+      articleToSave.labels = labels
       if (
         pageId ||
         (pageId = (
@@ -338,7 +344,6 @@ export const createArticleResolver = authorized<
         )?.id)
       ) {
         // update existing page's state from processing to succeeded
-        articleToSave.archivedAt = archive ? saveTime : null
         const updated = await updatePage(pageId, articleToSave, {
           ...ctx,
           uid,

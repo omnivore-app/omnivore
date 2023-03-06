@@ -2,8 +2,15 @@ import { Knex } from 'knex'
 import { PubsubClient } from '../datalayer/pubsub'
 import { UserData } from '../datalayer/user/model'
 import { homePageURL } from '../env'
-import { SaveErrorCode, SaveFileInput, SaveResult } from '../generated/graphql'
+import {
+  ArticleSavingRequestStatus,
+  SaveErrorCode,
+  SaveFileInput,
+  SaveResult,
+} from '../generated/graphql'
 import { DataModels } from '../resolvers/types'
+import { createLabels } from './labels'
+import { updatePage } from '../elastic/pages'
 import { getStorageFileDetails } from '../utils/uploads'
 
 type SaveContext = {
@@ -22,7 +29,7 @@ export const saveFile = async (
   input: SaveFileInput
 ): Promise<SaveResult> => {
   console.log('saving file with input', input)
-
+  const pageId = input.clientRequestId
   const uploadFile = await ctx.models.uploadFile.getWhere({
     id: input.uploadFileId,
     userId: saver.id,
@@ -46,7 +53,29 @@ export const saveFile = async (
     }
   }
 
-  // TODO: save labels and archive state
+  // save state
+  const archivedAt =
+    input.state === ArticleSavingRequestStatus.Archived ? new Date() : null
+  // add labels to page
+  const labels = input.labels
+    ? await createLabels({ ...ctx, uid: saver.id }, input.labels)
+    : undefined
+  if (input.state || input.labels) {
+    const updated = await updatePage(
+      pageId,
+      {
+        archivedAt,
+        labels,
+      },
+      ctx
+    )
+    if (!updated) {
+      console.log('error updating page', pageId)
+      return {
+        errorCodes: [SaveErrorCode.Unknown],
+      }
+    }
+  }
 
   return {
     clientRequestId: input.clientRequestId,

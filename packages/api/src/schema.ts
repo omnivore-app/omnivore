@@ -488,6 +488,8 @@ const schema = gql`
     uploadFileId: ID
     skipParsing: Boolean
     source: String
+    state: ArticleSavingRequestStatus
+    labels: [CreateLabelInput!]
   }
   enum CreateArticleErrorCode {
     UNABLE_TO_FETCH
