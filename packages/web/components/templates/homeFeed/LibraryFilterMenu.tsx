@@ -10,6 +10,7 @@ import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { theme } from '../../tokens/stitches.config'
 import { currentThemeName } from '../../../lib/themeUpdater'
 import { MOBILE_HEADER_HEIGHT } from './HeaderSpacer'
+import { useRegisterActions } from 'kbar'
 
 export const LIBRARY_LEFT_MENU_WIDTH = '300px'
 
@@ -73,18 +74,60 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
 }
 
 function SavedSearches(props: LibraryFilterMenuProps): JSX.Element {
+  const items = [
+    {
+      name: 'Inbox',
+      term: 'in:inbox',
+    },
+    {
+      name: 'Read Later',
+      term: 'in:inbox -label:Newsletter',
+    },
+    {
+      name: 'Highlights',
+      term: 'has:highlights',
+    },
+    {
+      name: 'Unlabeled',
+      term: 'no:label',
+    },
+    {
+      name: 'Files',
+      term: 'type:file',
+    },
+    {
+      name: 'Archived',
+      term: 'in:archive',
+    },
+  ]
+
+  useRegisterActions(
+    items.map((item, idx) => {
+      const key = String(idx + 1)
+      return {
+        id: `saved_search_${key}`,
+        section: 'Saved Searches',
+        name: item.name,
+        keywords: '?' + item.name,
+        perform: () => {
+          props.applySearchQuery(item.term)
+        },
+      }
+    }),
+    [props]
+  )
+
   return (
     <MenuPanel title="Saved Searches">
-      <FilterButton text="Inbox" filterTerm="in:inbox" {...props} />
-      <FilterButton
-        text="Read Later"
-        filterTerm="in:inbox -label:Newsletter"
-        {...props}
-      />
-      <FilterButton text="Highlights" filterTerm="type:highlights" {...props} />
-      <FilterButton text="Unlabeled" filterTerm="no:label" {...props} />
-      <FilterButton text="Files" filterTerm="type:file" {...props} />
-      <FilterButton text="Archived" filterTerm="in:archive" {...props} />
+      {items.map((item) => (
+        <FilterButton
+          key={item.name}
+          text={item.name}
+          filterTerm={item.term}
+          {...props}
+        />
+      ))}
+
       <Box css={{ height: '10px' }}></Box>
     </MenuPanel>
   )
