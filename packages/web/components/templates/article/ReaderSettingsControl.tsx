@@ -17,7 +17,6 @@ import { currentThemeName, updateTheme } from '../../../lib/themeUpdater'
 import { LineHeightIncreaseIcon } from '../../elements/images/LineHeightIncreaseIconProps'
 import { LineHeightDecreaseIcon } from '../../elements/images/LineHeightDecreaseIcon'
 import * as Switch from '@radix-ui/react-switch'
-import { usePersistedState } from '../../../lib/hooks/usePersistedState'
 
 type ReaderSettingsProps = {
   readerSettings: ReaderSettings
