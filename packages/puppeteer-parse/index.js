@@ -402,13 +402,13 @@ function tryParseUrl(urlStr) {
     return null;
   }
   
-  // a regular expression to match URLs
-  var regex = /(https?:\/\/[^\s]+)/g;
+  // a regular expression to match all URLs
+  const regex = /(https?:\/\/[^\s]+)/g;
   
-  var match = regex.exec(urlStr);
+  const matches = urlStr.match(regex);
   
-  if (match) {
-    return match[1];
+  if (matches) {
+    return matches[0]; // only return first match
   } else {
     return null;
   }
