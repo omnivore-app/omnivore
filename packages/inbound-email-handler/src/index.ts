@@ -141,7 +141,6 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
         if (isConfirmationEmail(from, subject)) {
           console.log('handleConfirmation', from)
           await handleConfirmation(to, subject)
-          return res.send('ok')
         }
 
         if (pdfAttachment) {
@@ -187,6 +186,7 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
             receivedEmailId,
           },
         })
+        res.send('ok')
       }
     } catch (e) {
       console.log(e)
