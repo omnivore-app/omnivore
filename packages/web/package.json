@@ -27,6 +27,7 @@
     "@radix-ui/react-progress": "^1.0.1",
     "@radix-ui/react-separator": "^0.1.0",
     "@radix-ui/react-slider": "^1.1.0",
+    "@radix-ui/react-switch": "^1.0.1",
     "@radix-ui/react-tooltip": "^0.1.7",
     "@segment/analytics-next": "^1.33.5",
     "@sentry/nextjs": "^6.16.1",
