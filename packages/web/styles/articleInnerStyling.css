@@ -324,7 +324,6 @@ on smaller screens we display the note icon
 }
 
 .article-inner-css .page {
-  text-align: start;
   word-wrap: break-word;
 
   font-size: var(--text-font-size);

@@ -17,11 +17,6 @@ type DisplaySettingsModalProps = {
 export function DisplaySettingsModal(
   props: DisplaySettingsModalProps
 ): JSX.Element {
-  const top =
-    props.triggerElementRef?.current?.getBoundingClientRect().bottom ?? 0
-  const left =
-    props.triggerElementRef?.current?.getBoundingClientRect().left ?? 0
-
   return (
     <ModalRoot defaultOpen onOpenChange={props.onOpenChange}>
       <ModalOverlay />

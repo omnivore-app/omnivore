@@ -376,6 +376,8 @@ export default function Home(): JSX.Element {
               labels={labels}
               showHighlightsModal={showHighlightsModal}
               setShowHighlightsModal={setShowHighlightsModal}
+              justifyText={readerSettings.justifyText ?? undefined}
+              highContrastText={readerSettings.highContrastText ?? undefined}
               articleMutations={{
                 createHighlightMutation,
                 deleteHighlightMutation,
@@ -413,9 +415,9 @@ export default function Home(): JSX.Element {
         <DisplaySettingsModal
           centerX={true}
           readerSettings={readerSettings}
-          onOpenChange={() =>
+          onOpenChange={() => {
             readerSettings.setShowEditDisplaySettingsModal(false)
-          }
+          }}
         />
       )}
       {readerSettings.showDeleteConfirmation && (

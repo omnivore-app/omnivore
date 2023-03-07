@@ -33,10 +33,17 @@ export type ReaderSettings = {
 
   fontFamily: string
   setFontFamily: (newStyle: string) => void
+
+  justifyText: boolean | undefined
+  setJustifyText: (set: boolean) => void
+  highContrastText: boolean | undefined
+  setHighContrastText: (set: boolean) => void
 }
 
 export const useReaderSettings = (): ReaderSettings => {
   const { preferencesData } = useGetUserPreferences()
+  const [, updateState] = useState({})
+
   const [fontSize, setFontSize] = usePersistedState({
     key: 'fontSize',
     initialValue: preferencesData?.fontSize ?? 20,
@@ -53,6 +60,17 @@ export const useReaderSettings = (): ReaderSettings => {
     key: 'fontFamily',
     initialValue: DEFAULT_FONT,
   })
+  const [highContrastText, setHighContrastText] = usePersistedState<
+    boolean | undefined
+  >({
+    key: `--display-high-contrast-text`,
+    initialValue: false,
+  })
+
+  const [justifyText, setJustifyText] = usePersistedState<boolean | undefined>({
+    key: `--display-justify-text`,
+    initialValue: false,
+  })
   const [showSetLabelsModal, setShowSetLabelsModal] = useState(false)
   const [showEditDisplaySettingsModal, setShowEditDisplaySettingsModal] =
     useState(false)
@@ -64,6 +82,12 @@ export const useReaderSettings = (): ReaderSettings => {
       await userPersonalizationMutation({ fontSize: newFontSize })
     })()
   }
+
+  // const [hideMargins, setHideMargins] = usePersistedState<boolean | undefined>({
+  //   key: `--display-hide-margins`,
+  //   initialValue: false,
+  //   isSessionStorage: false,
+  // })
 
   const actionHandler = useCallback(
     (action: string, arg?: unknown) => {
@@ -199,5 +223,9 @@ export const useReaderSettings = (): ReaderSettings => {
     actionHandler,
     setFontFamily,
     fontFamily,
+    justifyText,
+    setJustifyText,
+    highContrastText,
+    setHighContrastText,
   }
 }

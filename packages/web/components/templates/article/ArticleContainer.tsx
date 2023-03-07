@@ -19,6 +19,7 @@ import { LabelChip } from '../../elements/LabelChip'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { Recommendation } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { Avatar } from '../../elements/Avatar'
+import { usePersistedState } from '../../../lib/hooks/usePersistedState'
 
 type ArticleContainerProps = {
   article: ArticleAttributes
@@ -32,8 +33,9 @@ type ArticleContainerProps = {
   fontFamily?: string
   lineHeight?: number
   maxWidthPercentage?: number
-  highContrastFont?: boolean
+  highContrastText?: boolean
   showHighlightsModal: boolean
+  justifyText?: boolean
   setShowHighlightsModal: React.Dispatch<React.SetStateAction<boolean>>
 }
 
@@ -116,8 +118,8 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   const [fontFamilyOverride, setFontFamilyOverride] = useState<string | null>(
     null
   )
-  const [highContrastFont, setHighContrastFont] = useState(
-    props.highContrastFont ?? false
+  const [highContrastText, setHighContrastText] = useState(
+    props.highContrastText ?? false
   )
   const highlightHref = useRef(
     window.location.hash ? window.location.hash.split('#')[1] : null
@@ -175,7 +177,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
 
     const handleFontContrastChange = async (event: UpdateFontContrastEvent) => {
       const highContrast = event.fontContrast == 'high'
-      setHighContrastFont(highContrast)
+      setHighContrastText(highContrast)
     }
 
     interface UpdateFontSizeEvent extends Event {
@@ -257,7 +259,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     maxWidthPercentage: maxWidthPercentageOverride ?? props.maxWidthPercentage,
     lineHeight: lineHeightOverride ?? props.lineHeight ?? 150,
     fontFamily: fontFamilyOverride ?? props.fontFamily ?? 'inter',
-    readerFontColor: highContrastFont
+    readerFontColor: highContrastText
       ? theme.colors.readerFontHighContrast.toString()
       : theme.colors.readerFont.toString(),
     readerTableHeaderColor: theme.colors.readerTableHeader.toString(),
@@ -283,6 +285,9 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           background: props.isAppleAppEmbed
             ? 'unset'
             : theme.colors.readerBg.toString(),
+          '.article-inner-css': {
+            textAlign: props.justifyText ? 'justify' : 'start',
+          },
           '--text-font-family': styles.fontFamily,
           '--text-font-size': `${styles.fontSize}px`,
           '--line-height': `${styles.lineHeight}%`,

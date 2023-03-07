@@ -2,7 +2,13 @@ import { HStack, VStack, SpanBox } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { StyledText } from '../../elements/StyledText'
 import { styled, theme, ThemeId } from '../../tokens/stitches.config'
-import { ArrowsHorizontal, ArrowsInLineHorizontal, Check } from 'phosphor-react'
+import {
+  ArrowsHorizontal,
+  ArrowsInLineHorizontal,
+  CaretLeft,
+  CaretRight,
+  Check,
+} from 'phosphor-react'
 import { TickedRangeSlider } from '../../elements/TickedRangeSlider'
 import { showSuccessToast } from '../../../lib/toastHelpers'
 import { ReaderSettings } from '../../../lib/hooks/useReaderSettings'
@@ -10,6 +16,8 @@ import { useCallback, useMemo, useState } from 'react'
 import { currentThemeName, updateTheme } from '../../../lib/themeUpdater'
 import { LineHeightIncreaseIcon } from '../../elements/images/LineHeightIncreaseIconProps'
 import { LineHeightDecreaseIcon } from '../../elements/images/LineHeightDecreaseIcon'
+import * as Switch from '@radix-ui/react-switch'
+import { usePersistedState } from '../../../lib/hooks/usePersistedState'
 
 type ReaderSettingsProps = {
   readerSettings: ReaderSettings
@@ -33,7 +41,158 @@ const FONT_FAMILIES = [
   'Source Serif Pro',
 ]
 
+type SettingsProps = {
+  readerSettings: ReaderSettings
+  setShowAdvanced: (show: boolean) => void
+}
+
 export function ReaderSettingsControl(props: ReaderSettingsProps): JSX.Element {
+  const [showAdvanced, setShowAdvanced] = useState(false)
+
+  return (
+    <>
+      {showAdvanced ? (
+        <AdvancedSettings
+          readerSettings={props.readerSettings}
+          setShowAdvanced={setShowAdvanced}
+        />
+      ) : (
+        <BasicSettings
+          readerSettings={props.readerSettings}
+          setShowAdvanced={setShowAdvanced}
+        />
+      )}
+    </>
+  )
+}
+
+function AdvancedSettings(props: SettingsProps): JSX.Element {
+  return (
+    <VStack
+      css={{ width: '100%', minHeight: '320px', p: '10px' }}
+      alignment="start"
+      distribution="start"
+    >
+      <Button
+        style="plainIcon"
+        css={{
+          m: '10px',
+          mb: '20px',
+          display: 'flex',
+          fontSize: '12px',
+          fontWeight: '400',
+          fontFamily: '$display',
+          alignItems: 'center',
+          borderRadius: '6px',
+          gap: '5px',
+          '&:hover': {
+            textDecoration: 'underline',
+          },
+        }}
+        onClick={() => {
+          props.setShowAdvanced(false)
+        }}
+      >
+        <CaretLeft size={12} color="#969696" weight="bold" />
+        Back
+      </Button>
+
+      <HStack
+        css={{
+          width: '100%',
+          pr: '30px',
+          alignItems: 'center',
+          '&:hover': {
+            opacity: 0.8,
+          },
+          '&[data-state="on"]': {
+            bg: '$thBackground',
+          },
+        }}
+        alignment="start"
+        distribution="between"
+      >
+        <Label htmlFor="justify-text" css={{ width: '100%' }}>
+          <StyledText style="displaySettingsLabel" css={{ pl: '20px' }}>
+            Justify Text
+          </StyledText>
+        </Label>
+        <SwitchRoot
+          id="justify-text"
+          checked={props.readerSettings.justifyText ?? false}
+          onCheckedChange={(checked) => {
+            props.readerSettings.setJustifyText(checked)
+          }}
+        >
+          <SwitchThumb />
+        </SwitchRoot>
+      </HStack>
+
+      <HStack
+        css={{
+          width: '100%',
+          pr: '30px',
+          alignItems: 'center',
+          '&:hover': {
+            opacity: 0.8,
+          },
+          '&[data-state="on"]': {
+            bg: '$thBackground',
+          },
+        }}
+        alignment="start"
+        distribution="between"
+      >
+        <Label htmlFor="high-contrast-text" css={{ width: '100%' }}>
+          <StyledText style="displaySettingsLabel" css={{ pl: '20px' }}>
+            High Contrast Text
+          </StyledText>
+        </Label>
+        <SwitchRoot
+          id="high-contrast-text"
+          checked={props.readerSettings.highContrastText ?? false}
+          onCheckedChange={(checked) => {
+            props.readerSettings.setHighContrastText(checked)
+          }}
+        >
+          <SwitchThumb />
+        </SwitchRoot>
+      </HStack>
+    </VStack>
+  )
+}
+
+const SwitchRoot = styled(Switch.Root, {
+  all: 'unset',
+  width: 42,
+  height: 25,
+  backgroundColor: '$thBorderColor',
+  borderRadius: '9999px',
+  position: 'relative',
+  WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)',
+  '&:focus': { boxShadow: `0 0 0 2px $thBorderColor` },
+  '&[data-state="checked"]': { backgroundColor: '$thBorderColor' },
+})
+
+const SwitchThumb = styled(Switch.Thumb, {
+  display: 'block',
+  width: 21,
+  height: 21,
+  backgroundColor: '$thTextContrast2',
+  borderRadius: '9999px',
+  transition: 'transform 100ms',
+  transform: 'translateX(2px)',
+  willChange: 'transform',
+  '&[data-state="checked"]': { transform: 'translateX(19px)' },
+})
+
+const Label = styled('label', {
+  color: 'white',
+  fontSize: 15,
+  lineHeight: 1,
+})
+
+function BasicSettings(props: SettingsProps): JSX.Element {
   return (
     <VStack css={{ width: '100%' }}>
       <FontControls readerSettings={props.readerSettings} />
@@ -48,11 +207,15 @@ export function ReaderSettingsControl(props: ReaderSettingsProps): JSX.Element {
 
       <HorizontalDivider />
 
-      <HStack distribution="start" css={{ width: '100%', p: '20px' }}>
+      <HStack
+        distribution="start"
+        alignment="center"
+        css={{ width: '100%', p: '10px' }}
+      >
         <Button
           style="plainIcon"
           css={{
-            p: '0px',
+            pl: '10px',
             display: 'flex',
             fontSize: '12px',
             fontWeight: '600',
@@ -72,6 +235,29 @@ export function ReaderSettingsControl(props: ReaderSettingsProps): JSX.Element {
           }}
         >
           Reset
+        </Button>
+        <Button
+          style="plainIcon"
+          css={{
+            p: '5px',
+            display: 'flex',
+            fontSize: '12px',
+            fontWeight: '400',
+            fontFamily: '$display',
+            marginLeft: 'auto',
+            alignItems: 'center',
+            borderRadius: '6px',
+            gap: '5px',
+            '&:hover': {
+              textDecoration: 'underline',
+            },
+          }}
+          onClick={() => {
+            props.setShowAdvanced(true)
+          }}
+        >
+          Advanced Settings
+          <CaretRight size={12} color="#969696" weight="bold" />
         </Button>
       </HStack>
     </VStack>
