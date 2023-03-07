@@ -137,6 +137,23 @@ function Subscriptions(props: LibraryFilterMenuProps): JSX.Element {
   const { subscriptions } = useGetSubscriptionsQuery()
   const [viewAll, setViewAll] = useState(false)
 
+  useRegisterActions(
+    subscriptions.map((subscription, idx) => {
+      const key = String(idx + 1)
+      const name = subscription.name
+      return {
+        id: `subscription_${key}`,
+        section: 'Subscriptions',
+        name: name,
+        keywords: '*' + name,
+        perform: () => {
+          props.applySearchQuery(`subscription:\"${name}\"`)
+        },
+      }
+    }),
+    [subscriptions, props]
+  )
+
   return (
     <MenuPanel
       title="Subscriptions"
