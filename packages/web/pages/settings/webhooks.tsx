@@ -31,7 +31,11 @@ export default function Webhooks(): JSX.Element {
   const [addModelOpen, setAddModelOpen] = useState(false)
   const [onEditWebhook, setOnEditWebhook] = useState<Webhook | null>(null)
   const [url, setUrl] = useState('')
-  const eventTypeOptions = ['PAGE_CREATED', 'HIGHLIGHT_CREATED']
+  const eventTypeOptions = [
+    'PAGE_CREATED',
+    'HIGHLIGHT_CREATED',
+    'LABEL_CREATED',
+  ]
   const [eventTypes, setEventTypes] = useState<WebhookEvent[]>([])
   const [contentType, setContentType] = useState('application/json')
   const [method, setMethod] = useState('POST')

@@ -9,6 +9,9 @@ export type WebhookEvent =
   | 'HIGHLIGHT_CREATED'
   | 'HIGHLIGHT_UPDATED'
   | 'HIGHLIGHT_DELETED'
+  | 'LABEL_CREATED'
+  | 'LABEL_UPDATED'
+  | 'LABEL_DELETED'
 
 export interface Webhook {
   id: string
