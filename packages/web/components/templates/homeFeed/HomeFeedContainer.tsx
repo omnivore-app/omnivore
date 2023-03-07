@@ -541,6 +541,7 @@ export function HomeFeedContainer(): JSX.Element {
         }
         const href = `${window.location.pathname}?${qp.toString()}`
         router.push(href, href, { shallow: true })
+        window.sessionStorage.setItem('q', qp.toString())
         performActionOnItem('refresh', undefined as unknown as any)
       }}
       loadMore={() => {

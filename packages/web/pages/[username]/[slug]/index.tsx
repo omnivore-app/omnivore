@@ -208,7 +208,15 @@ export default function Home(): JSX.Element {
         section: 'Article',
         name: 'Return to library',
         shortcut: ['u'],
-        perform: () => router.push(`/home`),
+        perform: () => {
+          const query = window.sessionStorage.getItem('q')
+          if (query) {
+            router.push(`/home?${query}`)
+            return
+          } else {
+            router.push(`/home`)
+          }
+        },
       },
       {
         id: 'archive',
