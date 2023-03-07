@@ -106,8 +106,9 @@ function SavedSearches(props: LibraryFilterMenuProps): JSX.Element {
       const key = String(idx + 1)
       return {
         id: `saved_search_${key}`,
-        section: 'Saved Searches',
         name: item.name,
+        shortcut: [key],
+        section: 'Saved Searches',
         keywords: '?' + item.name,
         perform: () => {
           props.applySearchQuery(item.term)
