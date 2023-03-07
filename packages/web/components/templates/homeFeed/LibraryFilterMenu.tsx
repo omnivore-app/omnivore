@@ -114,7 +114,7 @@ function SavedSearches(props: LibraryFilterMenuProps): JSX.Element {
         },
       }
     }),
-    [props]
+    []
   )
 
   return (
@@ -151,7 +151,7 @@ function Subscriptions(props: LibraryFilterMenuProps): JSX.Element {
         },
       }
     }),
-    [subscriptions, props]
+    [subscriptions]
   )
 
   return (
