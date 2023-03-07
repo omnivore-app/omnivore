@@ -89,7 +89,7 @@ function SavedSearches(props: LibraryFilterMenuProps): JSX.Element {
     {
       name: 'Highlights',
       term: 'has:highlights',
-      mode: 'highlights',
+      mode: 'highlights' as LibraryMode,
     },
     {
       name: 'Unlabeled',

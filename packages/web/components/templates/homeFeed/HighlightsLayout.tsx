@@ -1,6 +1,7 @@
 import dayjs from 'dayjs'
 import { DotsThreeVertical, HighlighterCircle } from 'phosphor-react'
 import { Fragment, useEffect, useMemo, useState } from 'react'
+import { Highlight } from '../../../lib/networking/fragments/highlightFragment'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { LibraryItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
@@ -348,30 +349,21 @@ function HighlightItemCard(props: HighlightItemCardProps): JSX.Element {
           </Box>
         </StyledQuote>
 
-        {!isEditing ? (
-          <StyledText
-            css={{
-              borderRadius: '6px',
-              bg: '#3D3D3D',
-              p: '10px',
-              width: '100%',
-              marginTop: '5px',
-              color: '$grayText',
-            }}
-            onClick={() => setIsEditing(true)}
-          >
-            {props.highlight.annotation
-              ? props.highlight.annotation
-              : 'Add your notes...'}
-          </StyledText>
-        ) : null}
-        {isEditing && (
-          <TextEditArea
-            setIsEditing={setIsEditing}
-            highlight={props.highlight}
-            updateHighlight={() => {}}
-          />
-        )}
+        <StyledText
+          css={{
+            borderRadius: '6px',
+            bg: '#3D3D3D',
+            p: '10px',
+            width: '100%',
+            marginTop: '5px',
+            color: '$grayText',
+          }}
+          onClick={() => setIsEditing(true)}
+        >
+          {props.highlight.annotation
+            ? props.highlight.annotation
+            : 'Add your notes...'}
+        </StyledText>
       </VStack>
       <SpanBox
         css={{
