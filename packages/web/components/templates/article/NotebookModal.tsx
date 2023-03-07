@@ -242,7 +242,7 @@ type TextEditAreaProps = {
   updateHighlight: (highlight: Highlight) => void
 }
 
-const TextEditArea = (props: TextEditAreaProps): JSX.Element => {
+export const TextEditArea = (props: TextEditAreaProps): JSX.Element => {
   const [noteContent, setNoteContent] = useState(
     props.highlight.annotation ?? ''
   )

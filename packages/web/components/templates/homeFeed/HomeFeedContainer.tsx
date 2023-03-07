@@ -15,12 +15,9 @@ import { LinkedItemCard } from '../../patterns/LibraryCards/LinkedItemCard'
 import { useRouter } from 'next/router'
 import { Button } from '../../elements/Button'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { LibrarySearchBar } from './LibrarySearchBar'
 import { StyledText } from '../../elements/StyledText'
 import { AddLinkModal } from './AddLinkModal'
 import { styled, theme } from '../../tokens/stitches.config'
-import { ListLayoutIcon } from '../../elements/images/ListLayoutIcon'
-import { GridLayoutIcon } from '../../elements/images/GridLayoutIcon'
 import { libraryListCommands } from '../../../lib/keyboardShortcuts/navigationShortcuts'
 import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { Toaster } from 'react-hot-toast'
@@ -49,22 +46,10 @@ import { uploadFileRequestMutation } from '../../../lib/networking/mutations/upl
 import { setLabelsMutation } from '../../../lib/networking/mutations/setLabelsMutation'
 import { LibraryHeader } from './LibraryHeader'
 import { LibraryFilterMenu } from './LibraryFilterMenu'
+import { HighlightItemsLayout } from './HighlightsLayout'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
-
-const timeZoneHourDiff = -new Date().getTimezoneOffset() / 60
-
-const SAVED_SEARCHES: Record<string, string> = {
-  Inbox: `in:inbox`,
-  'Read Later': `in:inbox -label:Newsletter`,
-  Highlights: `type:highlights`,
-  Today: `in:inbox saved:${
-    new Date(new Date().getTime() - 24 * 3600000).toISOString().split('T')[0]
-  }Z${timeZoneHourDiff.toLocaleString('en-US', {
-    signDisplay: 'always',
-  })}..*`,
-  Newsletters: `in:inbox label:Newsletter`,
-}
+export type LibraryMode = 'reads' | 'highlights'
 
 const fetchSearchResults = async (query: string, cb: any) => {
   if (!query.startsWith('#')) return
@@ -634,14 +619,11 @@ const DragnDropStyle = styled('div', {
 
 function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
   const { viewerData } = useGetViewerQuery()
+  const [mode, setMode] = useState<LibraryMode>('reads')
   const [layout, setLayout] = usePersistedState<LayoutType>({
     key: 'libraryLayout',
     initialValue: 'GRID_LAYOUT',
   })
-  const [showRemoveLinkConfirmation, setShowRemoveLinkConfirmation] =
-    useState(false)
-  const [showUnsubscribeConfirmation, setShowUnsubscribeConfirmation] =
-    useState(false)
 
   const updateLayout = useCallback(
     async (newLayout: LayoutType) => {
@@ -651,6 +633,68 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
     [layout, setLayout]
   )
 
+  const [showFilterMenu, setShowFilterMenu] = useState(false)
+
+  return (
+    <VStack css={{ width: '100%', height: '100%' }}>
+      <LibraryHeader
+        layout={layout}
+        updateLayout={updateLayout}
+        searchTerm={props.searchTerm}
+        applySearchQuery={(searchQuery: string) => {
+          console.log('searching with searchQuery: ', searchQuery)
+          props.applySearchQuery(searchQuery)
+        }}
+        showFilterMenu={showFilterMenu}
+        setShowFilterMenu={setShowFilterMenu}
+      />
+      <HStack css={{ width: '100%', height: '100%' }}>
+        <LibraryFilterMenu
+          setShowAddLinkModal={props.setShowAddLinkModal}
+          searchTerm={props.searchTerm}
+          applySearchQuery={(searchQuery: string) => {
+            console.log('searching with searchQuery: ', searchQuery)
+            props.applySearchQuery(searchQuery)
+          }}
+          showFilterMenu={showFilterMenu}
+          setShowFilterMenu={setShowFilterMenu}
+          setMode={setMode}
+        />
+
+        {mode == 'highlights' && (
+          <HighlightItemsLayout
+            gridContainerRef={props.gridContainerRef}
+            items={props.items}
+            viewer={viewerData?.me}
+          />
+        )}
+
+        {mode == 'reads' && (
+          <LibraryItemsLayout
+            viewer={viewerData?.me}
+            layout={layout}
+            {...props}
+          />
+        )}
+      </HStack>
+    </VStack>
+  )
+}
+
+type LibraryItemsLayoutProps = {
+  layout: LayoutType
+  viewer?: UserBasicData
+} & HomeFeedContentProps
+
+function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element {
+  const [uploadingFiles, setUploadingFiles] = useState([])
+  const [inDragOperation, setInDragOperation] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
+
+  const [showRemoveLinkConfirmation, setShowRemoveLinkConfirmation] =
+    useState(false)
+  const [showUnsubscribeConfirmation, setShowUnsubscribeConfirmation] =
+    useState(false)
   const [, updateState] = useState({})
 
   const removeItem = () => {
@@ -671,10 +715,6 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
     props.setLinkToUnsubscribe(undefined)
     setShowUnsubscribeConfirmation(false)
   }
-
-  const [uploadingFiles, setUploadingFiles] = useState([])
-  const [inDragOperation, setInDragOperation] = useState(false)
-  const [uploadProgress, setUploadProgress] = useState(0)
 
   const handleDrop = async (acceptedFiles: any) => {
     setInDragOperation(false)
@@ -722,247 +762,215 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
     props.reloadItems()
   }
 
-  const [showFilterMenu, setShowFilterMenu] = useState(false)
-
   return (
-    <VStack css={{ width: '100%', height: '100%' }}>
-      <LibraryHeader
-        layout={layout}
-        updateLayout={updateLayout}
-        searchTerm={props.searchTerm}
-        applySearchQuery={(searchQuery: string) => {
-          console.log('searching with searchQuery: ', searchQuery)
-          props.applySearchQuery(searchQuery)
+    <>
+      <VStack
+        alignment="start"
+        distribution="start"
+        css={{
+          height: '100%',
         }}
-        showFilterMenu={showFilterMenu}
-        setShowFilterMenu={setShowFilterMenu}
-      />
-      <HStack css={{ width: '100%', height: '100%' }}>
-        <LibraryFilterMenu
-          setShowAddLinkModal={props.setShowAddLinkModal}
-          searchTerm={props.searchTerm}
-          applySearchQuery={(searchQuery: string) => {
-            console.log('searching with searchQuery: ', searchQuery)
-            props.applySearchQuery(searchQuery)
+      >
+        <Toaster />
+
+        {props.isValidating && props.items.length == 0 && <TopBarProgress />}
+
+        <Dropzone
+          onDrop={handleDrop}
+          onDragEnter={() => {
+            setInDragOperation(true)
           }}
-          showFilterMenu={showFilterMenu}
-          setShowFilterMenu={setShowFilterMenu}
-        />
-        <VStack
-          alignment="center"
-          css={{
-            width: '100%',
+          onDragLeave={() => {
+            setInDragOperation(false)
+          }}
+          preventDropOnDocument={true}
+          noClick={true}
+          accept={{
+            'application/pdf': ['.pdf'],
           }}
         >
-          <Toaster />
-
-          {props.isValidating && props.items.length == 0 && <TopBarProgress />}
-
-          <Dropzone
-            onDrop={handleDrop}
-            onDragEnter={() => {
-              setInDragOperation(true)
-            }}
-            onDragLeave={() => {
-              setInDragOperation(false)
-            }}
-            preventDropOnDocument={true}
-            noClick={true}
-            accept={{
-              'application/pdf': ['.pdf'],
-            }}
-          >
-            {({
-              getRootProps,
-              getInputProps,
-              acceptedFiles,
-              fileRejections,
-            }) => (
-              <div
-                {...getRootProps({ className: 'dropzone' })}
-                style={{ height: '100%' }}
-              >
-                {inDragOperation && uploadingFiles.length < 1 && (
-                  <DragnDropContainer>
-                    <DragnDropStyle>
-                      <Box
-                        css={{
-                          color: '$utilityTextDefault',
-                          fontWeight: '800',
-                          fontSize: '$4',
-                        }}
-                      >
-                        Drop PDF document to to upload and add to your library
-                      </Box>
-                    </DragnDropStyle>
-                  </DragnDropContainer>
-                )}
-                {uploadingFiles.length > 0 && (
-                  <DragnDropContainer>
-                    <DragnDropStyle>
-                      <Box
-                        css={{
-                          color: '$utilityTextDefault',
-                          fontWeight: '800',
-                          fontSize: '$4',
-                          width: '80%',
-                        }}
-                      >
-                        <Progress.Root
-                          className="ProgressRoot"
-                          value={uploadProgress}
-                        >
-                          <Progress.Indicator
-                            className="ProgressIndicator"
-                            style={{
-                              transform: `translateX(-${
-                                100 - uploadProgress
-                              }%)`,
-                            }}
-                          />
-                        </Progress.Root>
-                        <StyledText
-                          style="boldText"
-                          css={{
-                            color: theme.colors.omnivoreGray.toString(),
-                          }}
-                        >
-                          Uploading file
-                        </StyledText>
-                      </Box>
-                    </DragnDropStyle>
-                  </DragnDropContainer>
-                )}
-                <input {...getInputProps()} />
-                {!props.isValidating && props.items.length == 0 ? (
-                  <EmptyLibrary
-                    onAddLinkClicked={() => {
-                      props.setShowAddLinkModal(true)
-                    }}
-                  />
-                ) : (
-                  <LibraryItems
-                    items={props.items}
-                    layout={layout}
-                    viewer={viewerData?.me}
-                    gridContainerRef={props.gridContainerRef}
-                    setShowEditTitleModal={props.setShowEditTitleModal}
-                    setLinkToEdit={props.setLinkToEdit}
-                    setShowUnsubscribeConfirmation={
-                      setShowUnsubscribeConfirmation
-                    }
-                    setLinkToRemove={props.setLinkToRemove}
-                    setLinkToUnsubscribe={props.setLinkToUnsubscribe}
-                    setShowRemoveLinkConfirmation={
-                      setShowRemoveLinkConfirmation
-                    }
-                    actionHandler={props.actionHandler}
-                  />
-                )}
-                <HStack
-                  distribution="center"
-                  css={{ width: '100%', mt: '$2', mb: '$4' }}
-                >
-                  {props.hasMore ? (
-                    <Button
-                      style="ctaGray"
+          {({ getRootProps, getInputProps, acceptedFiles, fileRejections }) => (
+            <div
+              {...getRootProps({ className: 'dropzone' })}
+              style={{ height: '100%', width: '100%' }}
+            >
+              {inDragOperation && uploadingFiles.length < 1 && (
+                <DragnDropContainer>
+                  <DragnDropStyle>
+                    <Box
                       css={{
-                        cursor: props.isValidating ? 'not-allowed' : 'pointer',
+                        color: '$utilityTextDefault',
+                        fontWeight: '800',
+                        fontSize: '$4',
                       }}
-                      onClick={props.loadMore}
-                      disabled={props.isValidating}
                     >
-                      {props.isValidating ? 'Loading' : 'Load More'}
-                    </Button>
-                  ) : (
-                    <StyledText style="caption"></StyledText>
-                  )}
-                </HStack>
-              </div>
-            )}
-          </Dropzone>
-        </VStack>
-        {props.showAddLinkModal && (
-          <AddLinkModal onOpenChange={() => props.setShowAddLinkModal(false)} />
-        )}
-        {props.showEditTitleModal && (
-          <EditLibraryItemModal
-            updateItem={(item: LibraryItem) =>
-              props.actionHandler('update-item', item)
-            }
-            onOpenChange={() => props.setShowEditTitleModal(false)}
-            item={props.linkToEdit as LibraryItem}
-          />
-        )}
-        {showRemoveLinkConfirmation && (
-          <ConfirmationModal
-            richMessage={
-              <VStack alignment="center" distribution="center">
-                <StyledText style="modalTitle" css={{ margin: '0px 8px' }}>
-                  Are you sure you want to delete this item? All associated
-                  notes and highlights will be deleted.
-                </StyledText>
-                {props.linkToRemove?.node && viewerData?.me && (
-                  <Box
+                      Drop PDF document to to upload and add to your library
+                    </Box>
+                  </DragnDropStyle>
+                </DragnDropContainer>
+              )}
+              {uploadingFiles.length > 0 && (
+                <DragnDropContainer>
+                  <DragnDropStyle>
+                    <Box
+                      css={{
+                        color: '$utilityTextDefault',
+                        fontWeight: '800',
+                        fontSize: '$4',
+                        width: '80%',
+                      }}
+                    >
+                      <Progress.Root
+                        className="ProgressRoot"
+                        value={uploadProgress}
+                      >
+                        <Progress.Indicator
+                          className="ProgressIndicator"
+                          style={{
+                            transform: `translateX(-${100 - uploadProgress}%)`,
+                          }}
+                        />
+                      </Progress.Root>
+                      <StyledText
+                        style="boldText"
+                        css={{
+                          color: theme.colors.omnivoreGray.toString(),
+                        }}
+                      >
+                        Uploading file
+                      </StyledText>
+                    </Box>
+                  </DragnDropStyle>
+                </DragnDropContainer>
+              )}
+              <input {...getInputProps()} />
+              {!props.isValidating && props.items.length == 0 ? (
+                <EmptyLibrary
+                  onAddLinkClicked={() => {
+                    props.setShowAddLinkModal(true)
+                  }}
+                />
+              ) : (
+                <LibraryItems
+                  items={props.items}
+                  layout={props.layout}
+                  viewer={props.viewer}
+                  gridContainerRef={props.gridContainerRef}
+                  setShowEditTitleModal={props.setShowEditTitleModal}
+                  setLinkToEdit={props.setLinkToEdit}
+                  setShowUnsubscribeConfirmation={
+                    setShowUnsubscribeConfirmation
+                  }
+                  setLinkToRemove={props.setLinkToRemove}
+                  setLinkToUnsubscribe={props.setLinkToUnsubscribe}
+                  setShowRemoveLinkConfirmation={setShowRemoveLinkConfirmation}
+                  actionHandler={props.actionHandler}
+                />
+              )}
+              <HStack
+                distribution="center"
+                css={{ width: '100%', mt: '$2', mb: '$4' }}
+              >
+                {props.hasMore ? (
+                  <Button
+                    style="ctaGray"
                     css={{
-                      transform: 'scale(0.6)',
-                      opacity: 0.8,
-                      pointerEvents: 'none',
-                      filter: 'grayscale(1)',
+                      cursor: props.isValidating ? 'not-allowed' : 'pointer',
                     }}
+                    onClick={props.loadMore}
+                    disabled={props.isValidating}
                   >
-                    <LinkedItemCard
-                      item={props.linkToRemove?.node}
-                      viewer={viewerData.me}
-                      layout="GRID_LAYOUT"
-                      // eslint-disable-next-line @typescript-eslint/no-empty-function
-                      handleAction={() => {}}
-                    />
-                  </Box>
+                    {props.isValidating ? 'Loading' : 'Load More'}
+                  </Button>
+                ) : (
+                  <StyledText style="caption"></StyledText>
                 )}
-              </VStack>
+              </HStack>
+            </div>
+          )}
+        </Dropzone>
+      </VStack>
+
+      {props.showAddLinkModal && (
+        <AddLinkModal onOpenChange={() => props.setShowAddLinkModal(false)} />
+      )}
+      {props.showEditTitleModal && (
+        <EditLibraryItemModal
+          updateItem={(item: LibraryItem) =>
+            props.actionHandler('update-item', item)
+          }
+          onOpenChange={() => props.setShowEditTitleModal(false)}
+          item={props.linkToEdit as LibraryItem}
+        />
+      )}
+      {showRemoveLinkConfirmation && (
+        <ConfirmationModal
+          richMessage={
+            <VStack alignment="center" distribution="center">
+              <StyledText style="modalTitle" css={{ margin: '0px 8px' }}>
+                Are you sure you want to delete this item? All associated notes
+                and highlights will be deleted.
+              </StyledText>
+              {props.linkToRemove?.node && props.viewer && (
+                <Box
+                  css={{
+                    transform: 'scale(0.6)',
+                    opacity: 0.8,
+                    pointerEvents: 'none',
+                    filter: 'grayscale(1)',
+                  }}
+                >
+                  <LinkedItemCard
+                    item={props.linkToRemove?.node}
+                    viewer={props.viewer}
+                    layout="GRID_LAYOUT"
+                    // eslint-disable-next-line @typescript-eslint/no-empty-function
+                    handleAction={() => {}}
+                  />
+                </Box>
+              )}
+            </VStack>
+          }
+          onAccept={removeItem}
+          acceptButtonLabel="Delete Item"
+          onOpenChange={() => setShowRemoveLinkConfirmation(false)}
+        />
+      )}
+      {showUnsubscribeConfirmation && (
+        <ConfirmationModal
+          message={'Are you sure you want to unsubscribe?'}
+          onAccept={unsubscribe}
+          onOpenChange={() => setShowUnsubscribeConfirmation(false)}
+        />
+      )}
+      {props.labelsTarget?.node.id && (
+        <SetLabelsModal
+          provider={props.labelsTarget.node}
+          onLabelsUpdated={(labels: Label[]) => {
+            if (props.labelsTarget) {
+              props.labelsTarget.node.labels = labels
+              updateState({})
             }
-            onAccept={removeItem}
-            acceptButtonLabel="Delete Item"
-            onOpenChange={() => setShowRemoveLinkConfirmation(false)}
-          />
-        )}
-        {showUnsubscribeConfirmation && (
-          <ConfirmationModal
-            message={'Are you sure you want to unsubscribe?'}
-            onAccept={unsubscribe}
-            onOpenChange={() => setShowUnsubscribeConfirmation(false)}
-          />
-        )}
-        {props.labelsTarget?.node.id && (
-          <SetLabelsModal
-            provider={props.labelsTarget.node}
-            onLabelsUpdated={(labels: Label[]) => {
-              if (props.labelsTarget) {
-                props.labelsTarget.node.labels = labels
-                updateState({})
-              }
-            }}
-            save={(labels: Label[]) => {
-              if (props.labelsTarget?.node.id) {
-                return setLabelsMutation(
-                  props.labelsTarget.node.id,
-                  labels.map((label) => label.id)
-                )
-              }
-              return Promise.resolve(undefined)
-            }}
-            onOpenChange={() => {
-              if (props.labelsTarget) {
-                const activate = props.labelsTarget
-                props.setActiveItem(activate)
-                props.setLabelsTarget(undefined)
-              }
-            }}
-          />
-        )}
-      </HStack>
-    </VStack>
+          }}
+          save={(labels: Label[]) => {
+            if (props.labelsTarget?.node.id) {
+              return setLabelsMutation(
+                props.labelsTarget.node.id,
+                labels.map((label) => label.id)
+              )
+            }
+            return Promise.resolve(undefined)
+          }}
+          onOpenChange={() => {
+            if (props.labelsTarget) {
+              const activate = props.labelsTarget
+              props.setActiveItem(activate)
+              props.setLabelsTarget(undefined)
+            }
+          }}
+        />
+      )}
+    </>
   )
 }
 
