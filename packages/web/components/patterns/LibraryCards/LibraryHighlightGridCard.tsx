@@ -9,6 +9,7 @@ import { Button } from '../../elements/Button'
 import { theme } from '../../tokens/stitches.config'
 import { HighlightItem } from '../../templates/homeFeed/HighlightItem'
 import { getHighlightLocation } from '../../templates/article/NotebookModal'
+import { Highlight } from '../../../lib/networking/fragments/highlightFragment'
 
 export const GridSeparator = styled(Box, {
   height: '1px',
