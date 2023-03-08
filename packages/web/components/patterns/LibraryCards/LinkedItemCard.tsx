@@ -5,6 +5,7 @@ import { HighlightItemCard } from './HighlightItemCard'
 import { PageType } from '../../../lib/networking/fragments/articleFragment'
 import { LibraryGridCard } from './LibraryGridCard'
 import { LibraryListCard } from './LibraryListCard'
+import { LibraryHighlightGridCard } from './LibraryHighlightGridCard'
 
 const shouldHideUrl = (url: string): boolean => {
   try {
@@ -37,9 +38,6 @@ export function LinkedItemCard(props: LinkedItemCardProps): JSX.Element {
     props.item.siteName ||
     siteName(props.item.originalArticleUrl, props.item.url)
 
-  if (props.item.pageType === PageType.HIGHLIGHTS) {
-    return <HighlightItemCard {...props} />
-  }
   if (props.layout == 'LIST_LAYOUT') {
     return <LibraryListCard {...props} originText={originText} />
     // return <ListLinkedItemCard {...props} originText={originText} />

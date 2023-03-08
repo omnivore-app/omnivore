@@ -24,6 +24,7 @@ import {
 } from '../../elements/ModalPrimitives'
 import { StyledText } from '../../elements/StyledText'
 import { MetaStyle } from '../../patterns/LibraryCards/LibraryCardStyles'
+import { LibraryHighlightGridCard } from '../../patterns/LibraryCards/LibraryHighlightGridCard'
 import { styled, theme } from '../../tokens/stitches.config'
 
 type HighlightItemsLayoutProps = {
@@ -64,7 +65,7 @@ export function HighlightItemsLayout(
           css={{
             width: '430px',
             height: '100%',
-            bg: '#2A2A2A',
+            bg: '$thBackground',
             '@lgDown': {
               width: '100%',
             },
@@ -82,7 +83,24 @@ export function HighlightItemsLayout(
             alignment="center"
             distribution="start"
           >
-            <SideBarIcon strokeColor={theme.colors.thTextContrast.toString()} />
+            {/* <SideBarIcon strokeColor={theme.colors.thTextContrast.toString()} />
+            <DotsThreeVertical color={theme.colors.thTextContrast.toString()} /> */}
+            <Box
+              css={{
+                display: 'flex',
+                height: '20px',
+                width: '20px',
+                marginLeft: 'auto',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '1000px',
+                '&:hover': {
+                  bg: '#898989',
+                },
+              }}
+            >
+              <DotsThreeVertical size={200} color="#898989" weight="bold" />
+            </Box>
           </HStack>
           {props.items.map((linkedItem) => (
             <Box
@@ -102,7 +120,7 @@ export function HighlightItemsLayout(
               }}
             >
               {props.viewer && (
-                <HighlightTitleCard
+                <LibraryItemCard
                   item={linkedItem}
                   viewer={props.viewer}
                   selected={currentItem?.node.id == linkedItem.node.id}
@@ -146,6 +164,22 @@ const timeAgo = (date: string | undefined): string => {
   return dayjs(date).fromNow()
 }
 
+function LibraryItemCard(props: HighlightTitleCardProps): JSX.Element {
+  return (
+    <>
+      <SpanBox css={{ display: 'none', '@lgDown': { display: 'flex' } }}>
+        <LibraryHighlightGridCard
+          item={props.item.node}
+          viewer={props.viewer}
+        />
+      </SpanBox>
+      <SpanBox css={{ display: 'none', '@lg': { display: 'flex' } }}>
+        <HighlightTitleCard {...props} />
+      </SpanBox>
+    </>
+  )
+}
+
 function HighlightTitleCard(props: HighlightTitleCardProps): JSX.Element {
   return (
     <HStack
@@ -164,7 +198,7 @@ function HighlightTitleCard(props: HighlightTitleCardProps): JSX.Element {
           py: '15px',
           px: '15px',
           borderRadius: '10px',
-          bg: props.selected ? '#3D3D3D' : 'unset',
+          bg: props.selected ? '$thBackground2' : 'unset',
         }}
       >
         <VStack
@@ -260,6 +294,7 @@ function HighlightItemsCard(props: HighlightItemsCardProps): JSX.Element {
               fontSize: '15px',
               fontFamily: '$display',
               width: '100%',
+              color: '$thTextContrast2',
             }}
           >
             HIGHLIGHTS
@@ -284,7 +319,7 @@ const StyledQuote = styled(Blockquote, {
   margin: '0px 0px 0px 0px',
   fontSize: '16px',
   lineHeight: '1.50',
-  color: '#D9D9D9',
+  color: '$thHighContrast',
   paddingLeft: '15px',
   borderLeft: '2px solid $omnivoreCtaYellow',
 })
@@ -358,11 +393,11 @@ function HighlightItemCard(props: HighlightItemCardProps): JSX.Element {
         <StyledText
           css={{
             borderRadius: '6px',
-            bg: '#3D3D3D',
+            bg: '$thBackground4',
             p: '10px',
             width: '100%',
             marginTop: '5px',
-            color: '$grayText',
+            color: '$thTextSubtle',
           }}
           onClick={() => setIsEditing(true)}
         >
@@ -403,7 +438,7 @@ function HighlightCountChip(props: HighlightCountChipProps): JSX.Element {
         minHeight: '25px',
         width: '47px',
         color: props.selected ? '#3D3D3D' : '#898989',
-        bg: props.selected ? '#D9D9D9' : '#3D3D3D',
+        bg: props.selected ? '#D9D9D9' : '$thBackground2',
         fontFamily: '$inter',
         fontSize: '14px',
         fontWeight: '500',
