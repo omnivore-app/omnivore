@@ -56,7 +56,7 @@ export function HighlightItemsLayout(
         css={{
           width: '100%',
           height: '100%',
-          bg: '#333333',
+          bg: '$thBackground2',
         }}
         distribution="start"
         alignment="start"
