@@ -1,8 +1,10 @@
 import { DotsThreeVertical, HighlighterCircle } from 'phosphor-react'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { LibraryItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
+import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
+import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
 
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { StyledText } from '../../elements/StyledText'
@@ -11,7 +13,7 @@ import {
   timeAgo,
 } from '../../patterns/LibraryCards/LibraryCardStyles'
 import { LibraryHighlightGridCard } from '../../patterns/LibraryCards/LibraryHighlightGridCard'
-import { HighlightItem } from './HighlightItem'
+import { HighlightItem, highlightsAsMarkdown } from './HighlightItem'
 
 type HighlightItemsLayoutProps = {
   items: LibraryItem[]
@@ -238,6 +240,18 @@ type HighlightListProps = {
 }
 
 function HighlightList(props: HighlightListProps): JSX.Element {
+  const exportHighlights = useCallback(() => {
+    ;(async () => {
+      if (!props.item.node.highlights) {
+        showErrorToast('No highlights to export')
+        return
+      }
+      const markdown = highlightsAsMarkdown(props.item.node.highlights)
+      await navigator.clipboard.writeText(markdown)
+      showSuccessToast('Highlight copied')
+    })()
+  }, [props.item.node.highlights])
+
   return (
     <HStack
       css={{
@@ -263,7 +277,7 @@ function HighlightList(props: HighlightListProps): JSX.Element {
             pt: '25px',
             borderBottom: '1px solid $thBorderColor',
           }}
-          alignment="start"
+          alignment="center"
           distribution="start"
         >
           <StyledText
@@ -277,6 +291,32 @@ function HighlightList(props: HighlightListProps): JSX.Element {
           >
             HIGHLIGHTS
           </StyledText>
+          <Dropdown
+            triggerElement={
+              <Box
+                css={{
+                  display: 'flex',
+                  height: '20px',
+                  width: '20px',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: '1000px',
+                  '&:hover': {
+                    bg: '#898989',
+                  },
+                }}
+              >
+                <DotsThreeVertical size={20} color="#EBEBEB" weight="bold" />
+              </Box>
+            }
+          >
+            <DropdownOption
+              onSelect={() => {
+                exportHighlights()
+              }}
+              title="Export"
+            />
+          </Dropdown>
         </HStack>
         <VStack css={{ height: '100%', width: '100%' }} distribution="start">
           {(props.item.node.highlights ?? []).map((highlight) => (

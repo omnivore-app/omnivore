@@ -206,6 +206,14 @@ function HighlightsMenu(props: HighlightsMenuProps): JSX.Element {
     })()
   }, [props.highlight])
 
+  const exportHighlight = useCallback(() => {
+    ;(async () => {
+      const markdown = highlightAsMarkdown(props.highlight)
+      await navigator.clipboard.writeText(markdown)
+      showSuccessToast('Highlight copied')
+    })()
+  }, [props.highlight])
+
   return (
     <Dropdown
       triggerElement={
@@ -238,12 +246,29 @@ function HighlightsMenu(props: HighlightsMenuProps): JSX.Element {
         }}
         title="Labels"
       />
-      {/* <DropdownOption
+      <DropdownOption
         onSelect={() => {
-          props.setShowConfirmDeleteHighlightId(props.highlight.id)
+          exportHighlight()
         }}
         title="Delete"
-      /> */}
+      />
     </Dropdown>
   )
+}
+
+export function highlightAsMarkdown(highlight: Highlight) {
+  var buffer = `> ${highlight.quote}`
+  if (highlight.annotation) {
+    buffer += `\n\n${highlight.annotation}`
+  }
+  buffer += '\n'
+  return buffer
+}
+
+export function highlightsAsMarkdown(highlights: Highlight[]) {
+  return highlights
+    .map((highlight) => {
+      return highlightAsMarkdown(highlight)
+    })
+    .join('\n\n')
 }
