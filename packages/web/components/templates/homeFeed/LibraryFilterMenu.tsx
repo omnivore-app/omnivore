@@ -402,9 +402,7 @@ function LabelButton(props: LabelButtonProps): JSX.Element {
           type="checkbox"
           checked={state === 'on'}
           onChange={(e) => {
-            console.log('changing check state')
             if (e.target.checked) {
-              props.applySearchQuery
               props.applySearchQuery(
                 `${props.searchTerm ?? ''} label:\"${props.label.name}\"`
               )

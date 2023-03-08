@@ -71,6 +71,7 @@ export function HomeFeedContainer(): JSX.Element {
   const router = useRouter()
   const { queryValue } = useKBar((state) => ({ queryValue: state.searchQuery }))
   const [searchResults, setSearchResults] = useState<SearchItem[]>([])
+  const [mode, setMode] = useState<LibraryMode>('reads')
 
   const defaultQuery = {
     limit: 10,
@@ -116,17 +117,33 @@ export function HomeFeedContainer(): JSX.Element {
   useEffect(() => {
     if (!router.isReady) return
     const q = router.query['q']
+    const mode = router.query['mode']
     let qs = ''
     if (q && typeof q === 'string') {
       qs = q
     }
+    // if (
+    //   mode &&
+    //   typeof mode == 'string' &&
+    //   (mode == 'reads' || mode == 'highlights')
+    // ) {
+    //   setMode(mode)
+    // }
+
     if (qs !== (queryInputs.searchQuery || '')) {
       setQueryInputs({ ...queryInputs, searchQuery: qs })
       performActionOnItem('refresh', undefined as unknown as any)
     }
+
     // intentionally not watching queryInputs here to prevent infinite looping
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setQueryInputs, router.isReady, router.query, performActionOnItem])
+  }, [
+    setMode,
+    setQueryInputs,
+    router.isReady,
+    router.query,
+    performActionOnItem,
+  ])
 
   const hasMore = useMemo(() => {
     if (!itemsPages) {
@@ -512,8 +529,9 @@ export function HomeFeedContainer(): JSX.Element {
       reloadItems={mutate}
       searchTerm={queryInputs.searchQuery}
       gridContainerRef={gridContainerRef}
+      mode={mode}
+      setMode={setMode}
       applySearchQuery={(searchQuery: string) => {
-        console.log('TOP LEVEL SETTING QUERY INPUTS: ', searchQuery)
         setQueryInputs({
           ...queryInputs,
           searchQuery,
@@ -523,6 +541,11 @@ export function HomeFeedContainer(): JSX.Element {
           qp.set('q', searchQuery)
         } else {
           qp.delete('q')
+        }
+        if (mode == 'highlights') {
+          qp.set('mode', mode)
+        } else {
+          qp.delete('mode')
         }
         const href = `${window.location.pathname}?${qp.toString()}`
         router.push(href, href, { shallow: true })
@@ -584,6 +607,9 @@ type HomeFeedContentProps = {
   linkToUnsubscribe: LibraryItem | undefined
   setLinkToUnsubscribe: (set: LibraryItem | undefined) => void
 
+  mode: LibraryMode
+  setMode: (set: LibraryMode) => void
+
   actionHandler: (
     action: LinkedItemCardAction,
     item: LibraryItem | undefined
@@ -619,7 +645,6 @@ const DragnDropStyle = styled('div', {
 
 function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
   const { viewerData } = useGetViewerQuery()
-  const [mode, setMode] = useState<LibraryMode>('reads')
   const [layout, setLayout] = usePersistedState<LayoutType>({
     key: 'libraryLayout',
     initialValue: 'GRID_LAYOUT',
@@ -658,10 +683,10 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
           }}
           showFilterMenu={showFilterMenu}
           setShowFilterMenu={setShowFilterMenu}
-          setMode={setMode}
+          setMode={props.setMode}
         />
 
-        {mode == 'highlights' && (
+        {props.mode == 'highlights' && (
           <HighlightItemsLayout
             gridContainerRef={props.gridContainerRef}
             items={props.items}
@@ -669,7 +694,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
           />
         )}
 
-        {mode == 'reads' && (
+        {props.mode == 'reads' && (
           <LibraryItemsLayout
             viewer={viewerData?.me}
             layout={layout}

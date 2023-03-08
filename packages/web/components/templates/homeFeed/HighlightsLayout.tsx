@@ -442,9 +442,24 @@ function HighlightsMenu(): JSX.Element {
         </Box>
       }
     >
-      <DropdownOption onSelect={() => {}} title="Copy" />
-      <DropdownOption onSelect={() => {}} title="Labels" />
-      <DropdownOption onSelect={() => {}} title="Delete" />
+      <DropdownOption
+        onSelect={() => {
+          console.log('copy')
+        }}
+        title="Copy"
+      />
+      <DropdownOption
+        onSelect={() => {
+          console.log('labels')
+        }}
+        title="Labels"
+      />
+      <DropdownOption
+        onSelect={() => {
+          console.log('delete')
+        }}
+        title="Delete"
+      />
     </Dropdown>
   )
 }
