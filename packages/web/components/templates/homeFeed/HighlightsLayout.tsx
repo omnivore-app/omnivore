@@ -1,31 +1,16 @@
-import dayjs from 'dayjs'
-import { useRouter } from 'next/router'
 import { DotsThreeVertical, HighlighterCircle } from 'phosphor-react'
-import { Fragment, useEffect, useMemo, useState } from 'react'
-import { Highlight } from '../../../lib/networking/fragments/highlightFragment'
-import { Label } from '../../../lib/networking/fragments/labelFragment'
+import { useEffect, useState } from 'react'
 import { LibraryItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
-import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
-import { SideBarIcon } from '../../elements/images/SideBarIcon'
-import { LabelChip } from '../../elements/LabelChip'
-import {
-  Blockquote,
-  Box,
-  HStack,
-  SpanBox,
-  VStack,
-} from '../../elements/LayoutPrimitives'
-import {
-  ModalContent,
-  ModalOverlay,
-  ModalRoot,
-  ModalTitleBar,
-} from '../../elements/ModalPrimitives'
+
+import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { StyledText } from '../../elements/StyledText'
-import { MetaStyle } from '../../patterns/LibraryCards/LibraryCardStyles'
+import {
+  MetaStyle,
+  timeAgo,
+} from '../../patterns/LibraryCards/LibraryCardStyles'
 import { LibraryHighlightGridCard } from '../../patterns/LibraryCards/LibraryHighlightGridCard'
-import { styled, theme } from '../../tokens/stitches.config'
+import { HighlightItem } from './HighlightItem'
 
 type HighlightItemsLayoutProps = {
   items: LibraryItem[]
@@ -83,8 +68,6 @@ export function HighlightItemsLayout(
             alignment="center"
             distribution="start"
           >
-            {/* <SideBarIcon strokeColor={theme.colors.thTextContrast.toString()} />
-            <DotsThreeVertical color={theme.colors.thTextContrast.toString()} /> */}
             <Box
               css={{
                 display: 'flex',
@@ -142,7 +125,7 @@ export function HighlightItemsLayout(
                 },
               }}
             >
-              <HighlightItemsCard item={currentItem} viewer={props.viewer} />
+              <HighlightList item={currentItem} viewer={props.viewer} />
             </SpanBox>
           </>
         )}
@@ -155,13 +138,6 @@ type HighlightTitleCardProps = {
   item: LibraryItem
   viewer: UserBasicData
   selected: boolean
-}
-
-const timeAgo = (date: string | undefined): string => {
-  if (!date) {
-    return ''
-  }
-  return dayjs(date).fromNow()
 }
 
 function LibraryItemCard(props: HighlightTitleCardProps): JSX.Element {
@@ -254,12 +230,12 @@ function HighlightTitleCard(props: HighlightTitleCardProps): JSX.Element {
   )
 }
 
-type HighlightItemsCardProps = {
+type HighlightListProps = {
   item: LibraryItem
   viewer: UserBasicData | undefined
 }
 
-function HighlightItemsCard(props: HighlightItemsCardProps): JSX.Element {
+function HighlightList(props: HighlightListProps): JSX.Element {
   return (
     <HStack
       css={{
@@ -302,7 +278,7 @@ function HighlightItemsCard(props: HighlightItemsCardProps): JSX.Element {
         </HStack>
         <VStack css={{ height: '100%', width: '100%' }} distribution="start">
           {(props.item.node.highlights ?? []).map((highlight) => (
-            <HighlightItemCard
+            <HighlightItem
               key={highlight.id}
               viewer={props.viewer}
               item={props.item}
@@ -315,112 +291,114 @@ function HighlightItemsCard(props: HighlightItemsCardProps): JSX.Element {
   )
 }
 
-const StyledQuote = styled(Blockquote, {
-  margin: '0px 0px 0px 0px',
-  fontSize: '16px',
-  lineHeight: '1.50',
-  color: '$thHighContrast',
-  paddingLeft: '15px',
-  borderLeft: '2px solid $omnivoreCtaYellow',
-})
+// const StyledQuote = styled(Blockquote, {
+//   margin: '0px',
+//   fontSize: '16px',
+//   fontFamily: '$inter',
+//   fontWeight: '500',
+//   lineHeight: '1.50',
+//   color: '$thHighContrast',
+//   paddingLeft: '15px',
+//   borderLeft: '2px solid $omnivoreCtaYellow',
+// })
 
-type HighlightItemCardProps = {
-  highlight: Highlight
-  viewer: UserBasicData | undefined
-  item: LibraryItem
-}
+// type HighlightItemCardProps = {
+//   highlight: Highlight
+//   viewer: UserBasicData | undefined
+//   item: LibraryItem
+// }
 
-function HighlightItemCard(props: HighlightItemCardProps): JSX.Element {
-  const router = useRouter()
-  const [hover, setHover] = useState(false)
-  const [isEditing, setIsEditing] = useState(false)
+// function HighlightItemCard(props: HighlightItemCardProps): JSX.Element {
+//   const router = useRouter()
+//   const [hover, setHover] = useState(false)
+//   const [isEditing, setIsEditing] = useState(false)
 
-  const lines = useMemo(
-    () => props.highlight.quote.split('\n'),
-    [props.highlight.quote]
-  )
+//   const lines = useMemo(
+//     () => props.highlight.quote.split('\n'),
+//     [props.highlight.quote]
+//   )
 
-  return (
-    <HStack
-      css={{ width: '100%', py: '20px', cursor: 'pointer' }}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-    >
-      <VStack
-        css={{
-          gap: '10px',
-          height: '100%',
-          width: '100%',
+//   return (
+//     <HStack
+//       css={{ width: '100%', py: '20px', cursor: 'pointer' }}
+//       onMouseEnter={() => setHover(true)}
+//       onMouseLeave={() => setHover(false)}
+//     >
+//       <VStack
+//         css={{
+//           gap: '10px',
+//           height: '100%',
+//           width: '100%',
 
-          wordBreak: 'break-word',
-          overflow: 'clip',
-        }}
-        alignment="start"
-        distribution="start"
-        onClick={(event) => {
-          if (router && props.viewer) {
-            const dest = `/${props.viewer}/${props.item.node.slug}#${props.highlight.id}`
-            router.push(dest)
-          }
-          event.preventDefault()
-        }}
-      >
-        <StyledQuote>
-          <SpanBox css={{ p: '1px', borderRadius: '2px' }}>
-            {lines.map((line: string, index: number) => (
-              <Fragment key={index}>
-                {line}
-                {index !== lines.length - 1 && (
-                  <>
-                    <br />
-                    <br />
-                  </>
-                )}
-              </Fragment>
-            ))}
-          </SpanBox>
-          <Box css={{ display: 'block', pt: '16px' }}>
-            {props.highlight.labels?.map((label: Label, index: number) => (
-              <LabelChip
-                key={index}
-                text={label.name || ''}
-                color={label.color}
-              />
-            ))}
-          </Box>
-        </StyledQuote>
+//           wordBreak: 'break-word',
+//           overflow: 'clip',
+//         }}
+//         alignment="start"
+//         distribution="start"
+//         onClick={(event) => {
+//           if (router && props.viewer) {
+//             const dest = `/${props.viewer}/${props.item.node.slug}#${props.highlight.id}`
+//             router.push(dest)
+//           }
+//           event.preventDefault()
+//         }}
+//       >
+//         <StyledQuote>
+//           <SpanBox css={{ p: '1px', borderRadius: '2px' }}>
+//             {lines.map((line: string, index: number) => (
+//               <Fragment key={index}>
+//                 {line}
+//                 {index !== lines.length - 1 && (
+//                   <>
+//                     <br />
+//                     <br />
+//                   </>
+//                 )}
+//               </Fragment>
+//             ))}
+//           </SpanBox>
+//           <Box css={{ display: 'block', pt: '16px' }}>
+//             {props.highlight.labels?.map((label: Label, index: number) => (
+//               <LabelChip
+//                 key={index}
+//                 text={label.name || ''}
+//                 color={label.color}
+//               />
+//             ))}
+//           </Box>
+//         </StyledQuote>
 
-        <StyledText
-          css={{
-            borderRadius: '6px',
-            bg: '$thBackground4',
-            p: '10px',
-            width: '100%',
-            marginTop: '5px',
-            color: '$thTextSubtle',
-          }}
-          onClick={() => setIsEditing(true)}
-        >
-          {props.highlight.annotation
-            ? props.highlight.annotation
-            : 'Add your notes...'}
-        </StyledText>
-      </VStack>
-      <SpanBox
-        css={{
-          marginLeft: 'auto',
-          width: '20px',
-          visibility: hover ? 'unset' : 'hidden',
-          '@media (hover: none)': {
-            visibility: 'unset',
-          },
-        }}
-      >
-        <HighlightsMenu />
-      </SpanBox>
-    </HStack>
-  )
-}
+//         <StyledText
+//           css={{
+//             borderRadius: '6px',
+//             bg: '#EBEBEB',
+//             p: '10px',
+//             width: '100%',
+//             marginTop: '5px',
+//             color: '#3D3D3D',
+//           }}
+//           onClick={() => setIsEditing(true)}
+//         >
+//           {props.highlight.annotation
+//             ? props.highlight.annotation
+//             : 'Add your notes...'}
+//         </StyledText>
+//       </VStack>
+//       <SpanBox
+//         css={{
+//           marginLeft: 'auto',
+//           width: '20px',
+//           visibility: hover ? 'unset' : 'hidden',
+//           '@media (hover: none)': {
+//             visibility: 'unset',
+//           },
+//         }}
+//       >
+//         <HighlightsMenu />
+//       </SpanBox>
+//     </HStack>
+//   )
+// }
 
 type HighlightCountChipProps = {
   count: number
@@ -456,45 +434,45 @@ function HighlightCountChip(props: HighlightCountChipProps): JSX.Element {
   )
 }
 
-function HighlightsMenu(): JSX.Element {
-  return (
-    <Dropdown
-      triggerElement={
-        <Box
-          css={{
-            display: 'flex',
-            height: '20px',
-            width: '20px',
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderRadius: '1000px',
-            '&:hover': {
-              bg: '#898989',
-            },
-          }}
-        >
-          <DotsThreeVertical size={20} color="#EBEBEB" weight="bold" />
-        </Box>
-      }
-    >
-      <DropdownOption
-        onSelect={() => {
-          console.log('copy')
-        }}
-        title="Copy"
-      />
-      <DropdownOption
-        onSelect={() => {
-          console.log('labels')
-        }}
-        title="Labels"
-      />
-      <DropdownOption
-        onSelect={() => {
-          console.log('delete')
-        }}
-        title="Delete"
-      />
-    </Dropdown>
-  )
-}
+// function HighlightsMenu(): JSX.Element {
+//   return (
+//     <Dropdown
+//       triggerElement={
+//         <Box
+//           css={{
+//             display: 'flex',
+//             height: '20px',
+//             width: '20px',
+//             alignItems: 'center',
+//             justifyContent: 'center',
+//             borderRadius: '1000px',
+//             '&:hover': {
+//               bg: '#898989',
+//             },
+//           }}
+//         >
+//           <DotsThreeVertical size={20} color="#EBEBEB" weight="bold" />
+//         </Box>
+//       }
+//     >
+//       <DropdownOption
+//         onSelect={() => {
+//           console.log('copy')
+//         }}
+//         title="Copy"
+//       />
+//       <DropdownOption
+//         onSelect={() => {
+//           console.log('labels')
+//         }}
+//         title="Labels"
+//       />
+//       <DropdownOption
+//         onSelect={() => {
+//           console.log('delete')
+//         }}
+//         title="Delete"
+//       />
+//     </Dropdown>
+//   )
+// }

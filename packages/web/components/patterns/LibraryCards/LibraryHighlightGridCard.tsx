@@ -6,17 +6,8 @@ import {
   Blockquote,
 } from '../../elements/LayoutPrimitives'
 import { LabelChip } from '../../elements/LabelChip'
-import type { LinkedItemCardProps } from './CardTypes'
-import { CoverImage } from '../../elements/CoverImage'
-import dayjs from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
 import { Fragment, useMemo, useState } from 'react'
-import {
-  CaretCircleDown,
-  CaretDown,
-  CaretUp,
-  DotsThreeVertical,
-} from 'phosphor-react'
+import { CaretDown, CaretUp, DotsThreeVertical } from 'phosphor-react'
 import Link from 'next/link'
 import { CardMenu } from '../CardMenu'
 import {
@@ -24,6 +15,7 @@ import {
   DescriptionStyle,
   MenuStyle,
   MetaStyle,
+  timeAgo,
   TitleStyle,
 } from './LibraryCardStyles'
 import { Separator } from '../../elements/Separator'
@@ -40,15 +32,6 @@ import { useRouter } from 'next/router'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { Button } from '../../elements/Button'
 import { theme } from '../../tokens/stitches.config'
-
-dayjs.extend(relativeTime)
-
-const timeAgo = (date: string | undefined): string => {
-  if (!date) {
-    return ''
-  }
-  return dayjs(date).fromNow()
-}
 
 export const GridSeparator = styled(Box, {
   height: '1px',
@@ -211,6 +194,7 @@ const StyledQuote = styled(Blockquote, {
   margin: '0px',
   fontSize: '16px',
   fontFamily: '$inter',
+  fontWeight: '500',
   lineHeight: '1.50',
   color: '$thHighContrast',
   paddingLeft: '15px',
@@ -281,11 +265,11 @@ function HighlightItemCard(props: HighlightItemCardProps): JSX.Element {
         <StyledText
           css={{
             borderRadius: '6px',
-            bg: '$thBackground4',
+            bg: '#EBEBEB',
             p: '10px',
             width: '100%',
             marginTop: '5px',
-            color: '$grayText',
+            color: '#3D3D3D',
           }}
           onClick={() => setIsEditing(true)}
         >

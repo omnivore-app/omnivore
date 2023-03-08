@@ -1,54 +1,18 @@
 import { Box, VStack, HStack, SpanBox } from '../../elements/LayoutPrimitives'
 import { LabelChip } from '../../elements/LabelChip'
 import type { LinkedItemCardProps } from './CardTypes'
-import { CoverImage } from '../../elements/CoverImage'
-import dayjs from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
 import { useState } from 'react'
-import { DotsThree, DotsThreeVertical } from 'phosphor-react'
+import { DotsThree } from 'phosphor-react'
 import Link from 'next/link'
 import { CardMenu } from '../CardMenu'
 import {
   AuthorInfoStyle,
   MenuStyle,
   MetaStyle,
+  siteName,
+  timeAgo,
   TitleStyle,
 } from './LibraryCardStyles'
-
-dayjs.extend(relativeTime)
-
-const timeAgo = (date: string | undefined): string => {
-  if (!date) {
-    return ''
-  }
-  return dayjs(date).fromNow()
-}
-
-const shouldHideUrl = (url: string): boolean => {
-  try {
-    const origin = new URL(url).origin
-    const hideHosts = ['https://storage.googleapis.com', 'https://omnivore.app']
-    if (hideHosts.indexOf(origin) != -1) {
-      return true
-    }
-  } catch {
-    console.log('invalid url item', url)
-  }
-  return false
-}
-
-const siteName = (originalArticleUrl: string, itemUrl: string): string => {
-  if (shouldHideUrl(originalArticleUrl)) {
-    return ''
-  }
-  try {
-    return new URL(originalArticleUrl).hostname.replace(/^www\./, '')
-  } catch {}
-  try {
-    return new URL(itemUrl).hostname.replace(/^www\./, '')
-  } catch {}
-  return ''
-}
 
 // Component
 export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
