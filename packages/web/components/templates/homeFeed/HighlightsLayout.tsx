@@ -72,7 +72,7 @@ export function HighlightItemsLayout(
             alignment="center"
             distribution="start"
           >
-            <Box
+            {/* <Box
               css={{
                 display: 'flex',
                 height: '20px',
@@ -87,7 +87,7 @@ export function HighlightItemsLayout(
               }}
             >
               <DotsThreeVertical size={200} color="#898989" weight="bold" />
-            </Box>
+            </Box> */}
           </HStack>
           {props.items.map((linkedItem) => (
             <Box
