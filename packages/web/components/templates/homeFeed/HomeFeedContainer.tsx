@@ -122,14 +122,6 @@ export function HomeFeedContainer(): JSX.Element {
     if (q && typeof q === 'string') {
       qs = q
     }
-    // if (
-    //   mode &&
-    //   typeof mode == 'string' &&
-    //   (mode == 'reads' || mode == 'highlights')
-    // ) {
-    //   setMode(mode)
-    // }
-
     if (qs !== (queryInputs.searchQuery || '')) {
       setQueryInputs({ ...queryInputs, searchQuery: qs })
       performActionOnItem('refresh', undefined as unknown as any)
@@ -542,11 +534,13 @@ export function HomeFeedContainer(): JSX.Element {
         } else {
           qp.delete('q')
         }
-        if (mode == 'highlights') {
-          qp.set('mode', mode)
+
+        if (searchQuery.indexOf('has:highlights') > -1) {
+          setMode('highlights')
         } else {
-          qp.delete('mode')
+          setMode('reads')
         }
+
         const href = `${window.location.pathname}?${qp.toString()}`
         router.push(href, href, { shallow: true })
         window.sessionStorage.setItem('q', qp.toString())
