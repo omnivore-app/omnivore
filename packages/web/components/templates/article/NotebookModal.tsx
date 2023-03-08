@@ -210,7 +210,7 @@ function ModalHighlightView(props: ModalHighlightViewProps): JSX.Element {
         {!isEditing ? (
           <StyledText
             css={{
-              borderRadius: '6px',
+              borderRadius: '5px',
               p: '16px',
               width: '100%',
               marginTop: '24px',
