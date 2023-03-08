@@ -6,6 +6,7 @@ import { Highlight } from '../../../lib/networking/fragments/highlightFragment'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { LibraryItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
+import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
 import { SideBarIcon } from '../../elements/images/SideBarIcon'
 import { LabelChip } from '../../elements/LabelChip'
 import {
@@ -309,13 +310,6 @@ function HighlightItemCard(props: HighlightItemCardProps): JSX.Element {
       css={{ width: '100%', py: '20px', cursor: 'pointer' }}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
-      onClick={(event) => {
-        if (router && props.viewer) {
-          const dest = `/${props.viewer}/${props.item.node.slug}#${props.highlight.id}`
-          router.push(dest)
-        }
-        event.preventDefault()
-      }}
     >
       <VStack
         css={{
@@ -328,6 +322,13 @@ function HighlightItemCard(props: HighlightItemCardProps): JSX.Element {
         }}
         alignment="start"
         distribution="start"
+        onClick={(event) => {
+          if (router && props.viewer) {
+            const dest = `/${props.viewer}/${props.item.node.slug}#${props.highlight.id}`
+            router.push(dest)
+          }
+          event.preventDefault()
+        }}
       >
         <StyledQuote>
           <SpanBox css={{ p: '1px', borderRadius: '2px' }}>
@@ -380,7 +381,7 @@ function HighlightItemCard(props: HighlightItemCardProps): JSX.Element {
           },
         }}
       >
-        <DotsThreeVertical size={20} color="#EBEBEB" weight="bold" />
+        <HighlightsMenu />
       </SpanBox>
     </HStack>
   )
@@ -417,5 +418,33 @@ function HighlightCountChip(props: HighlightCountChipProps): JSX.Element {
         color={props.selected ? '#3D3D3D' : '#898989'}
       />
     </HStack>
+  )
+}
+
+function HighlightsMenu(): JSX.Element {
+  return (
+    <Dropdown
+      triggerElement={
+        <Box
+          css={{
+            display: 'flex',
+            height: '20px',
+            width: '20px',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: '1000px',
+            '&:hover': {
+              bg: '#898989',
+            },
+          }}
+        >
+          <DotsThreeVertical size={20} color="#EBEBEB" weight="bold" />
+        </Box>
+      }
+    >
+      <DropdownOption onSelect={() => {}} title="Copy" />
+      <DropdownOption onSelect={() => {}} title="Labels" />
+      <DropdownOption onSelect={() => {}} title="Delete" />
+    </Dropdown>
   )
 }
