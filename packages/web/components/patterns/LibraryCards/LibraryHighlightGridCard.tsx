@@ -1,35 +1,10 @@
-import {
-  Box,
-  VStack,
-  HStack,
-  SpanBox,
-  Blockquote,
-} from '../../elements/LayoutPrimitives'
-import { LabelChip } from '../../elements/LabelChip'
-import { Fragment, useMemo, useState } from 'react'
-import { CaretDown, CaretUp, DotsThreeVertical } from 'phosphor-react'
-import Link from 'next/link'
-import { CardMenu } from '../CardMenu'
-import {
-  AuthorInfoStyle,
-  DescriptionStyle,
-  MenuStyle,
-  MetaStyle,
-  timeAgo,
-  TitleStyle,
-} from './LibraryCardStyles'
-import { Separator } from '../../elements/Separator'
+import { Box, VStack, HStack } from '../../elements/LayoutPrimitives'
+import { useState } from 'react'
+import { CaretDown, CaretUp } from 'phosphor-react'
+import { MetaStyle, timeAgo, TitleStyle } from './LibraryCardStyles'
 import { styled } from '@stitches/react'
-import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
-import { StyledText } from '../../elements/StyledText'
-import { Highlight } from '../../../lib/networking/fragments/highlightFragment'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
-import {
-  LibraryItem,
-  LibraryItemNode,
-} from '../../../lib/networking/queries/useGetLibraryItemsQuery'
-import { useRouter } from 'next/router'
-import { Label } from '../../../lib/networking/fragments/labelFragment'
+import { LibraryItemNode } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { Button } from '../../elements/Button'
 import { theme } from '../../tokens/stitches.config'
 import { HighlightItem } from '../../templates/homeFeed/HighlightItem'
@@ -45,7 +20,6 @@ type LibraryHighlightGridCardProps = {
   item: LibraryItemNode
 }
 
-// Component
 export function LibraryHighlightGridCard(
   props: LibraryHighlightGridCardProps
 ): JSX.Element {

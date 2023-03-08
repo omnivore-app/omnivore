@@ -14,7 +14,6 @@ import {
   TitleStyle,
 } from './LibraryCardStyles'
 
-// Component
 export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
   const [isHovered, setIsHovered] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)

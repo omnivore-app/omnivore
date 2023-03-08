@@ -19,6 +19,5 @@ export type LinkedItemCardProps = {
   item: LibraryItemNode
   layout: LayoutType
   viewer: UserBasicData
-  originText?: string
   handleAction: (action: LinkedItemCardAction) => void
 }
