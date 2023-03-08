@@ -184,7 +184,7 @@ export default function LabelsPage(): JSX.Element {
     setEditingLabelId('')
     setNameInputText('')
     setDescriptionInputText('')
-    setLabelColorHex({ rowId: '', value: 'custom color' })
+    setLabelColorHex({ rowId: '', value: '#000000' })
   }
 
   async function createLabel(): Promise<void> {
