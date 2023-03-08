@@ -1,12 +1,16 @@
 import { styled } from '@stitches/react'
 import { useRouter } from 'next/router'
 import { DotsThreeVertical } from 'phosphor-react'
-import { Fragment, useMemo, useState } from 'react'
+import { Fragment, useCallback, useMemo, useState } from 'react'
 import { Highlight } from '../../../lib/networking/fragments/highlightFragment'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
+import { deleteHighlightMutation } from '../../../lib/networking/mutations/deleteHighlightMutation'
+import { setLabelsForHighlight } from '../../../lib/networking/mutations/setLabelsForHighlight'
 import { LibraryItemNode } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
+import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
+import { HighlightNoteTextEditArea } from '../../elements/HighlightNoteTextEditArea'
 import { LabelChip } from '../../elements/LabelChip'
 import {
   Blockquote,
@@ -16,6 +20,8 @@ import {
   VStack,
 } from '../../elements/LayoutPrimitives'
 import { StyledText } from '../../elements/StyledText'
+import { ConfirmationModal } from '../../patterns/ConfirmationModal'
+import { SetLabelsModal } from '../article/SetLabelsModal'
 
 type HighlightItemProps = {
   highlight: Highlight
@@ -44,89 +50,162 @@ export function HighlightItem(props: HighlightItemProps): JSX.Element {
     [props.highlight.quote]
   )
 
+  const [showConfirmDeleteHighlightId, setShowConfirmDeleteHighlightId] =
+    useState<undefined | string>(undefined)
+  const [labelsTarget, setLabelsTarget] = useState<Highlight | undefined>(
+    undefined
+  )
+  const [, updateState] = useState({})
+
   return (
-    <HStack
-      css={{ width: '100%', py: '20px', cursor: 'pointer' }}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-    >
-      <VStack
-        css={{
-          gap: '10px',
-          height: '100%',
-          width: '100%',
-
-          wordBreak: 'break-word',
-          overflow: 'clip',
-        }}
-        alignment="start"
-        distribution="start"
-        onClick={(event) => {
-          if (router && props.viewer) {
-            const dest = `/${props.viewer}/${props.item.slug}#${props.highlight.id}`
-            router.push(dest)
-          }
-          event.preventDefault()
-        }}
+    <>
+      <HStack
+        css={{ width: '100%', py: '20px', cursor: 'pointer' }}
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
       >
-        <StyledQuote>
-          <SpanBox css={{ p: '1px', borderRadius: '2px' }}>
-            {lines.map((line: string, index: number) => (
-              <Fragment key={index}>
-                {line}
-                {index !== lines.length - 1 && (
-                  <>
-                    <br />
-                    <br />
-                  </>
-                )}
-              </Fragment>
-            ))}
-          </SpanBox>
-          <Box css={{ display: 'block', pt: '16px' }}>
-            {props.highlight.labels?.map((label: Label, index: number) => (
-              <LabelChip
-                key={index}
-                text={label.name || ''}
-                color={label.color}
-              />
-            ))}
-          </Box>
-        </StyledQuote>
-
-        <StyledText
+        <VStack
           css={{
-            borderRadius: '6px',
-            bg: '#EBEBEB',
-            p: '10px',
+            gap: '10px',
+            height: '100%',
             width: '100%',
-            marginTop: '5px',
-            color: '#3D3D3D',
+
+            wordBreak: 'break-word',
+            overflow: 'clip',
           }}
-          onClick={() => setIsEditing(true)}
+          alignment="start"
+          distribution="start"
         >
-          {props.highlight.annotation
-            ? props.highlight.annotation
-            : 'Add your notes...'}
-        </StyledText>
-      </VStack>
-      <SpanBox
-        css={{
-          marginLeft: 'auto',
-          width: '20px',
-          visibility: hover ? 'unset' : 'hidden',
-          '@media (hover: none)': {
-            visibility: 'unset',
-          },
-        }}
-      >
-        <HighlightsMenu />
-      </SpanBox>
-    </HStack>
+          <StyledQuote
+            onClick={(event) => {
+              if (router && props.viewer) {
+                const dest = `/${props.viewer}/${props.item.slug}#${props.highlight.id}`
+                router.push(dest)
+              }
+              event.preventDefault()
+            }}
+          >
+            <SpanBox css={{ p: '1px', borderRadius: '2px' }}>
+              {lines.map((line: string, index: number) => (
+                <Fragment key={index}>
+                  {line}
+                  {index !== lines.length - 1 && (
+                    <>
+                      <br />
+                      <br />
+                    </>
+                  )}
+                </Fragment>
+              ))}
+            </SpanBox>
+            <Box css={{ display: 'block', pt: '16px' }}>
+              {props.highlight.labels?.map((label: Label, index: number) => (
+                <LabelChip
+                  key={index}
+                  text={label.name || ''}
+                  color={label.color}
+                />
+              ))}
+            </Box>
+          </StyledQuote>
+
+          {!isEditing && (
+            <StyledText
+              css={{
+                borderRadius: '6px',
+                bg: '#EBEBEB',
+                p: '10px',
+                width: '100%',
+                marginTop: '5px',
+                color: '#3D3D3D',
+              }}
+              onClick={() => setIsEditing(true)}
+            >
+              {props.highlight.annotation
+                ? props.highlight.annotation
+                : 'Add your notes...'}
+            </StyledText>
+          )}
+          {isEditing && (
+            <HighlightNoteTextEditArea
+              setIsEditing={setIsEditing}
+              highlight={props.highlight}
+              // eslint-disable-next-line @typescript-eslint/no-empty-function
+              updateHighlight={() => {}}
+            />
+          )}
+        </VStack>
+        <SpanBox
+          css={{
+            marginLeft: 'auto',
+            width: '20px',
+            visibility: hover ? 'unset' : 'hidden',
+            '@media (hover: none)': {
+              visibility: 'unset',
+            },
+          }}
+        >
+          <HighlightsMenu
+            highlight={props.highlight}
+            setLabelsTarget={setLabelsTarget}
+            setShowConfirmDeleteHighlightId={setShowConfirmDeleteHighlightId}
+          />
+        </SpanBox>
+      </HStack>
+      {showConfirmDeleteHighlightId && (
+        <ConfirmationModal
+          message={'Are you sure you want to delete this highlight?'}
+          onAccept={async () => {
+            setShowConfirmDeleteHighlightId(undefined)
+            const result = await deleteHighlightMutation(
+              showConfirmDeleteHighlightId
+            )
+            if (result) {
+              showSuccessToast('Highlight deleted')
+            } else {
+              showErrorToast('Error deleting highlight')
+            }
+          }}
+          onOpenChange={() => setShowConfirmDeleteHighlightId(undefined)}
+        />
+      )}
+      {labelsTarget && (
+        <SetLabelsModal
+          provider={labelsTarget}
+          onOpenChange={function (open: boolean): void {
+            setLabelsTarget(undefined)
+          }}
+          onLabelsUpdated={function (labels: Label[]): void {
+            updateState({})
+          }}
+          save={function (labels: Label[]): Promise<Label[] | undefined> {
+            const result = setLabelsForHighlight(
+              labelsTarget.id,
+              labels.map((label) => label.id)
+            )
+            return result
+          }}
+        />
+      )}
+    </>
   )
 }
 
-function HighlightsMenu(): JSX.Element {
+type HighlightsMenuProps = {
+  highlight: Highlight
+
+  setLabelsTarget: (target: Highlight) => void
+  setShowConfirmDeleteHighlightId: (set: string) => void
+}
+
+function HighlightsMenu(props: HighlightsMenuProps): JSX.Element {
+  const copyHighlight = useCallback(() => {
+    ;(async () => {
+      await navigator.clipboard.writeText(props.highlight.quote)
+      showSuccessToast('Highlight copied')
+    })()
+  }, [props.highlight])
+
   return (
     <Dropdown
       triggerElement={
@@ -148,23 +227,23 @@ function HighlightsMenu(): JSX.Element {
       }
     >
       <DropdownOption
-        onSelect={() => {
-          console.log('copy')
+        onSelect={async () => {
+          copyHighlight()
         }}
         title="Copy"
       />
       <DropdownOption
         onSelect={() => {
-          console.log('labels')
+          props.setLabelsTarget(props.highlight)
         }}
         title="Labels"
       />
-      <DropdownOption
+      {/* <DropdownOption
         onSelect={() => {
-          console.log('delete')
+          props.setShowConfirmDeleteHighlightId(props.highlight.id)
         }}
         title="Delete"
-      />
+      /> */}
     </Dropdown>
   )
 }

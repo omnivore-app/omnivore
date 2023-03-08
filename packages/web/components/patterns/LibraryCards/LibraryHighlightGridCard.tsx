@@ -1,5 +1,5 @@
 import { Box, VStack, HStack } from '../../elements/LayoutPrimitives'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { CaretDown, CaretUp } from 'phosphor-react'
 import { MetaStyle, timeAgo, TitleStyle } from './LibraryCardStyles'
 import { styled } from '@stitches/react'
@@ -8,6 +8,7 @@ import { LibraryItemNode } from '../../../lib/networking/queries/useGetLibraryIt
 import { Button } from '../../elements/Button'
 import { theme } from '../../tokens/stitches.config'
 import { HighlightItem } from '../../templates/homeFeed/HighlightItem'
+import { getHighlightLocation } from '../../templates/article/NotebookModal'
 
 export const GridSeparator = styled(Box, {
   height: '1px',
@@ -23,10 +24,41 @@ type LibraryHighlightGridCardProps = {
 export function LibraryHighlightGridCard(
   props: LibraryHighlightGridCardProps
 ): JSX.Element {
-  const [isHovered, setIsHovered] = useState(false)
   const [expanded, setExpanded] = useState(false)
 
   const higlightCount = props.item.highlights?.length ?? 0
+
+  const sortedHighlights = useMemo(() => {
+    const sorted = (a: number, b: number) => {
+      if (a < b) {
+        return -1
+      }
+      if (a > b) {
+        return 1
+      }
+      return 0
+    }
+
+    if (!props.item.highlights) {
+      return []
+    }
+
+    return props.item.highlights.sort((a: Highlight, b: Highlight) => {
+      if (a.highlightPositionPercent && b.highlightPositionPercent) {
+        return sorted(a.highlightPositionPercent, b.highlightPositionPercent)
+      }
+      // We do this in a try/catch because it might be an invalid diff
+      // With PDF it will definitely be an invalid diff.
+      try {
+        const aPos = getHighlightLocation(a.patch)
+        const bPos = getHighlightLocation(b.patch)
+        if (aPos && bPos) {
+          return sorted(aPos, bPos)
+        }
+      } catch {}
+      return a.createdAt.localeCompare(b.createdAt)
+    })
+  }, [props.item.highlights])
 
   return (
     <VStack
@@ -46,12 +78,6 @@ export function LibraryHighlightGridCard(
       }}
       alignment="start"
       distribution="start"
-      onMouseEnter={() => {
-        setIsHovered(true)
-      }}
-      onMouseLeave={() => {
-        setIsHovered(false)
-      }}
     >
       {!expanded && (
         <HStack
@@ -95,7 +121,7 @@ export function LibraryHighlightGridCard(
               css={{ height: '100%', width: '100%' }}
               distribution="start"
             >
-              {(props.item.highlights ?? []).map((highlight) => (
+              {sortedHighlights.map((highlight) => (
                 <HighlightItem
                   key={highlight.id}
                   viewer={props.viewer}

@@ -1,5 +1,6 @@
 import { DotsThreeVertical, HighlighterCircle } from 'phosphor-react'
 import { useEffect, useState } from 'react'
+import { Toaster } from 'react-hot-toast'
 import { LibraryItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 
@@ -46,6 +47,7 @@ export function HighlightItemsLayout(
         distribution="start"
         alignment="start"
       >
+        <Toaster />
         <VStack
           css={{
             width: '430px',
