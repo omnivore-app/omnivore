@@ -4,10 +4,7 @@ import { DotsThreeVertical } from 'phosphor-react'
 import { Fragment, useMemo, useState } from 'react'
 import { Highlight } from '../../../lib/networking/fragments/highlightFragment'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
-import {
-  LibraryItem,
-  LibraryItemNode,
-} from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+import { LibraryItemNode } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
 import { LabelChip } from '../../elements/LabelChip'
