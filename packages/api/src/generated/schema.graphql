@@ -2075,6 +2075,7 @@ enum UpdateHighlightErrorCode {
 input UpdateHighlightInput {
   annotation: String
   highlightId: ID!
+  quote: String
   sharedAt: Date
 }
 
