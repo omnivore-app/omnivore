@@ -281,7 +281,7 @@ function HighlightList(props: HighlightListProps): JSX.Element {
             <HighlightItem
               key={highlight.id}
               viewer={props.viewer}
-              item={props.item}
+              item={props.item.node}
               highlight={highlight}
             />
           ))}
