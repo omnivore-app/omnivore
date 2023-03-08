@@ -14,10 +14,15 @@ import {
   SpanBox,
   VStack,
 } from '../../elements/LayoutPrimitives'
+import {
+  ModalContent,
+  ModalOverlay,
+  ModalRoot,
+  ModalTitleBar,
+} from '../../elements/ModalPrimitives'
 import { StyledText } from '../../elements/StyledText'
 import { MetaStyle } from '../../patterns/LibraryCards/LibraryCardStyles'
 import { styled, theme } from '../../tokens/stitches.config'
-import { TextEditArea } from '../article/NotebookModal'
 
 type HighlightItemsLayoutProps = {
   items: LibraryItem[]
@@ -34,74 +39,95 @@ export function HighlightItemsLayout(
   )
 
   useEffect(() => {
-    if (!currentItem && props.items.length > 0) {
-      setCurrentItem(props.items[0])
+    // Only set the current item on larger screens
+    if (window.innerWidth >= 992 /* lgDown */) {
+      if (!currentItem && props.items.length > 0) {
+        setCurrentItem(props.items[0])
+      }
     }
   }, [currentItem, setCurrentItem, props.items])
 
   return (
-    <HStack
-      css={{
-        width: '100%',
-        height: '100%',
-        bg: '#333333',
-      }}
-      distribution="start"
-      alignment="start"
-    >
-      <VStack
+    <>
+      <HStack
         css={{
-          width: '430px',
+          width: '100%',
           height: '100%',
-          bg: '#2A2A2A',
-          overflowY: 'scroll',
+          bg: '#333333',
         }}
         distribution="start"
         alignment="start"
       >
-        <HStack
+        <VStack
           css={{
-            width: 'calc(100% - 35px)',
-            height: '55px',
-            mx: '20px',
-            borderBottom: '1px solid $thBorderColor',
-          }}
-          alignment="center"
-          distribution="start"
-        >
-          <SideBarIcon strokeColor={theme.colors.thTextContrast.toString()} />
-        </HStack>
-        {props.items.map((linkedItem) => (
-          <Box
-            className="linkedItemCard"
-            data-testid="linkedItemCard"
-            id={linkedItem.node.id}
-            tabIndex={0}
-            key={linkedItem.node.id}
-            css={{
+            width: '430px',
+            height: '100%',
+            bg: '#2A2A2A',
+            '@lgDown': {
               width: '100%',
-              height: '100%',
-              px: '15px',
+            },
+          }}
+          distribution="start"
+          alignment="start"
+        >
+          <HStack
+            css={{
+              width: 'calc(100% - 35px)',
+              height: '55px',
+              mx: '20px',
+              borderBottom: '1px solid $thBorderColor',
             }}
-            onClick={(event) => {
-              setCurrentItem(linkedItem)
-              event.preventDefault()
-            }}
+            alignment="center"
+            distribution="start"
           >
-            {props.viewer && (
-              <HighlightTitleCard
-                item={linkedItem}
-                viewer={props.viewer}
-                selected={currentItem?.node.id == linkedItem.node.id}
-              />
-            )}
-          </Box>
-        ))}
-      </VStack>
-      {currentItem && (
-        <HighlightItemsCard item={currentItem} viewer={props.viewer} />
-      )}
-    </HStack>
+            <SideBarIcon strokeColor={theme.colors.thTextContrast.toString()} />
+          </HStack>
+          {props.items.map((linkedItem) => (
+            <Box
+              className="linkedItemCard"
+              data-testid="linkedItemCard"
+              id={linkedItem.node.id}
+              tabIndex={0}
+              key={linkedItem.node.id}
+              css={{
+                width: '100%',
+                height: '100%',
+                px: '15px',
+              }}
+              onClick={(event) => {
+                setCurrentItem(linkedItem)
+                event.preventDefault()
+              }}
+            >
+              {props.viewer && (
+                <HighlightTitleCard
+                  item={linkedItem}
+                  viewer={props.viewer}
+                  selected={currentItem?.node.id == linkedItem.node.id}
+                />
+              )}
+            </Box>
+          ))}
+        </VStack>
+        {currentItem && (
+          <>
+            <SpanBox
+              css={{
+                display: 'flex',
+                height: '100%',
+                flexGrow: '1',
+                '@lgDown': {
+                  display: 'none',
+                  flexGrow: 'unset',
+                },
+              }}
+            >
+              <HighlightItemsCard item={currentItem} viewer={props.viewer} />
+            </SpanBox>
+          </>
+        )}
+      </HStack>
+    </>
   )
 }
 
@@ -125,7 +151,6 @@ function HighlightTitleCard(props: HighlightTitleCardProps): JSX.Element {
         height: '100%',
         width: '100%',
         py: '10px',
-
         borderBottom: '1px solid $thBorderColor',
       }}
       distribution="start"
@@ -144,7 +169,6 @@ function HighlightTitleCard(props: HighlightTitleCardProps): JSX.Element {
           css={{
             width: '100%',
             height: '100%',
-
             borderRadius: '5px',
           }}
         >
@@ -194,40 +218,6 @@ function HighlightTitleCard(props: HighlightTitleCardProps): JSX.Element {
   )
 }
 
-type HighlightCountChipProps = {
-  count: number
-  selected: boolean
-}
-
-function HighlightCountChip(props: HighlightCountChipProps): JSX.Element {
-  return (
-    <HStack
-      css={{
-        gap: '5px',
-        borderRadius: '12px',
-        marginLeft: 'auto',
-        minWidth: '50px',
-        minHeight: '25px',
-        width: '47px',
-        color: props.selected ? '#3D3D3D' : '#898989',
-        bg: props.selected ? '#D9D9D9' : '#3D3D3D',
-        fontFamily: '$inter',
-        fontSize: '14px',
-        fontWeight: '500',
-        ml: '30px',
-      }}
-      alignment="center"
-      distribution="center"
-    >
-      {props.count}
-      <HighlighterCircle
-        size={15}
-        color={props.selected ? '#3D3D3D' : '#898989'}
-      />
-    </HStack>
-  )
-}
-
 type HighlightItemsCardProps = {
   item: LibraryItem
   viewer: UserBasicData | undefined
@@ -236,7 +226,10 @@ type HighlightItemsCardProps = {
 function HighlightItemsCard(props: HighlightItemsCardProps): JSX.Element {
   return (
     <HStack
-      css={{ height: '100%', flexGrow: '1' }}
+      css={{
+        height: '100%',
+        flexGrow: '1',
+      }}
       distribution="center"
       alignment="start"
     >
@@ -244,10 +237,7 @@ function HighlightItemsCard(props: HighlightItemsCardProps): JSX.Element {
         css={{
           width: '425px',
           height: '100%',
-          // mt: '20px',
-          //border: '1px solid $thBorderColor',
           borderRadius: '6px',
-          // bg: '#2A2A2A',
         }}
         alignment="start"
         distribution="start"
@@ -267,6 +257,7 @@ function HighlightItemsCard(props: HighlightItemsCardProps): JSX.Element {
               fontWeight: '600',
               fontSize: '15px',
               fontFamily: '$display',
+              width: '100%',
             }}
           >
             HIGHLIGHTS
@@ -296,15 +287,13 @@ type HighlightItemCardProps = {
 }
 
 function HighlightItemCard(props: HighlightItemCardProps): JSX.Element {
-  const [isEditing, setIsEditing] = useState(false)
   const [hover, setHover] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
 
   const lines = useMemo(
     () => props.highlight.quote.split('\n'),
     [props.highlight.quote]
   )
-
-  console.log('hover: ', hover)
 
   return (
     <HStack
@@ -316,6 +305,7 @@ function HighlightItemCard(props: HighlightItemCardProps): JSX.Element {
         css={{
           gap: '10px',
           height: '100%',
+          width: '100%',
 
           cursor: 'pointer',
           wordBreak: 'break-word',
@@ -377,6 +367,40 @@ function HighlightItemCard(props: HighlightItemCardProps): JSX.Element {
       >
         <DotsThreeVertical size={20} color="#EBEBEB" weight="bold" />
       </SpanBox>
+    </HStack>
+  )
+}
+
+type HighlightCountChipProps = {
+  count: number
+  selected: boolean
+}
+
+function HighlightCountChip(props: HighlightCountChipProps): JSX.Element {
+  return (
+    <HStack
+      css={{
+        gap: '5px',
+        borderRadius: '12px',
+        marginLeft: 'auto',
+        minWidth: '50px',
+        minHeight: '25px',
+        width: '47px',
+        color: props.selected ? '#3D3D3D' : '#898989',
+        bg: props.selected ? '#D9D9D9' : '#3D3D3D',
+        fontFamily: '$inter',
+        fontSize: '14px',
+        fontWeight: '500',
+        ml: '30px',
+      }}
+      alignment="center"
+      distribution="center"
+    >
+      {props.count}
+      <HighlighterCircle
+        size={15}
+        color={props.selected ? '#3D3D3D' : '#898989'}
+      />
     </HStack>
   )
 }
