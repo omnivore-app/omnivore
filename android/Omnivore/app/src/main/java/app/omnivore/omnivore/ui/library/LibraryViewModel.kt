@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.*
 import app.omnivore.omnivore.dataService.*
+import app.omnivore.omnivore.graphql.generated.type.CreateLabelInput
 import app.omnivore.omnivore.graphql.generated.type.SetLabelsInput
 import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.persistence.entities.*
@@ -296,7 +297,23 @@ class LibraryViewModel @Inject constructor(
   }
 
   fun createNewSavedItemLabel(labelName: String, hexColorValue: String) {
-    Log.d("labels", "creating label with name: $labelName and hex: $hexColorValue")
+    viewModelScope.launch {
+      withContext(Dispatchers.IO) {
+        val newLabel = networker.createNewLabel(CreateLabelInput(color = hexColorValue, name = labelName))
+
+        newLabel?.let {
+          val savedItemLabel = SavedItemLabel(
+            savedItemLabelId = it.id,
+            name = it.name,
+            color = it.color,
+            createdAt = it.createdAt as String?,
+            labelDescription = it.description
+          )
+
+          dataService.db.savedItemLabelDao().insertAll(listOf(savedItemLabel))
+        }
+      }
+    }
   }
 
   fun currentSavedItemUnderEdit(): SavedItemCardDataWithLabels? {
