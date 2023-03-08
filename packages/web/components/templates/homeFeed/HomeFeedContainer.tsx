@@ -661,7 +661,12 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
   const [showFilterMenu, setShowFilterMenu] = useState(false)
 
   return (
-    <VStack css={{ height: '100%' }}>
+    <VStack
+      css={{
+        height: '100%',
+        width: props.mode == 'highlights' ? '100%' : 'unset',
+      }}
+    >
       <LibraryHeader
         layout={layout}
         updateLayout={updateLayout}
