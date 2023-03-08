@@ -361,10 +361,8 @@ function LabelButton(props: LabelButtonProps): JSX.Element {
   const state = useMemo(() => {
     const term = props.searchTerm ?? ''
     if (term.indexOf(`label:\"${props.label.name}\"`) >= 0) {
-      console.log('returning true for: ', term)
       return 'on'
     }
-    console.log('returning off for: ', term)
     return 'off'
   }, [props.searchTerm, props.label])
 
