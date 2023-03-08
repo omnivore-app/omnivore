@@ -73,6 +73,10 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
         borderStyle: 'solid',
         borderColor: '$thBorderColor',
         cursor: 'pointer',
+        '@smDown': {
+          m: '15px',
+          width: 'calc(100% - 30px)',
+        },
       }}
       alignment="start"
       distribution="start"
