@@ -257,7 +257,7 @@ function HighlightsMenu(props: HighlightsMenuProps): JSX.Element {
 }
 
 export function highlightAsMarkdown(highlight: Highlight) {
-  var buffer = `> ${highlight.quote}`
+  let buffer = `> ${highlight.quote}`
   if (highlight.annotation) {
     buffer += `\n\n${highlight.annotation}`
   }
