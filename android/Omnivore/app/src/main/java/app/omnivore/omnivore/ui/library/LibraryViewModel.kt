@@ -295,6 +295,10 @@ class LibraryViewModel @Inject constructor(
     }
   }
 
+  fun createNewSavedItemLabel(labelName: String, hexColorValue: String) {
+    Log.d("labels", "creating label with name: $labelName and hex: $hexColorValue")
+  }
+
   fun currentSavedItemUnderEdit(): SavedItemCardDataWithLabels? {
     labelsSelectionCurrentItemLiveData.value?.let { itemID ->
       return itemsLiveData.value?.first { it.cardData.savedItemId == itemID }

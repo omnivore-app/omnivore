@@ -52,9 +52,12 @@ fun LabelsSelectionSheet(viewModel: LibraryViewModel) {
             }
             viewModel.labelsSelectionCurrentItemLiveData.value = null
             viewModel.showLabelsSelectionSheetLiveData.value = false
+          },
+          onCreateLabel = { newLabelName, labelHexValue ->
+            viewModel.createNewSavedItemLabel(newLabelName, labelHexValue)
           }
         )
-      } else {
+      } else { // Is used in library mode
         LabelsSelectionSheetContent(
           labels = labels,
           initialSelectedLabels = viewModel.activeLabelsLiveData.value ?: listOf(),
@@ -64,6 +67,9 @@ fun LabelsSelectionSheet(viewModel: LibraryViewModel) {
             viewModel.updateAppliedLabels(it)
             viewModel.labelsSelectionCurrentItemLiveData.value = null
             viewModel.showLabelsSelectionSheetLiveData.value = false
+          },
+          onCreateLabel = { newLabelName, labelHexValue ->
+            viewModel.createNewSavedItemLabel(newLabelName, labelHexValue)
           }
         )
       }
@@ -78,7 +84,8 @@ fun LabelsSelectionSheetContent(
   labels: List<SavedItemLabel>,
   initialSelectedLabels: List<SavedItemLabel>,
   onCancel: () -> Unit,
-  onSave: (List<SavedItemLabel>) -> Unit
+  onSave: (List<SavedItemLabel>) -> Unit,
+  onCreateLabel: (String, String) -> Unit
 ) {
   val listState = rememberLazyListState()
   val selectedLabels = remember { mutableStateOf(initialSelectedLabels) }
@@ -97,7 +104,7 @@ fun LabelsSelectionSheetContent(
       LabelCreationDialog(
         onDismiss = { showCreateLabelDialog = false },
         onSave = { labelName, hexColor ->
-          Log.d("label", "creating label with name: $labelName and hex: $hexColor")
+          onCreateLabel(labelName, hexColor)
           showCreateLabelDialog = false
         }
       )
@@ -143,10 +150,9 @@ fun LabelsSelectionSheetContent(
               .fillMaxWidth()
               .clickable {
                 if (isLabelSelected) {
-                  selectedLabels.value = (selectedLabels.value
-                    ?: listOf()).filter { it.savedItemLabelId != label.savedItemLabelId }
+                  selectedLabels.value = selectedLabels.value.filter { it.savedItemLabelId != label.savedItemLabelId }
                 } else {
-                  selectedLabels.value = (selectedLabels.value ?: listOf()) + listOf(label)
+                  selectedLabels.value = selectedLabels.value + listOf(label)
                 }
               }
               .padding(horizontal = 6.dp)
@@ -180,10 +186,7 @@ fun LabelsSelectionSheetContent(
               verticalAlignment = Alignment.CenterVertically,
               modifier = Modifier
                 .fillMaxWidth()
-                .clickable {
-                  Log.d("label", "add new label button tapped")
-                  showCreateLabelDialog = true
-                }
+                .clickable { showCreateLabelDialog = true }
                 .padding(horizontal = 6.dp)
                 .padding(vertical = 12.dp)
             )
