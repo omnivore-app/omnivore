@@ -204,8 +204,7 @@ export const updateHighlightResolver = authorized<
   UpdateHighlightError,
   MutationUpdateHighlightArgs
 >(async (_, { input }, { pubsub, claims, log }) => {
-  const { highlightId } = input
-  const highlight = await getHighlightById(highlightId)
+  const highlight = await getHighlightById(input.highlightId)
 
   if (!highlight?.id) {
     return {
@@ -219,20 +218,16 @@ export const updateHighlightResolver = authorized<
     }
   }
 
-  if (input.annotation && input.annotation.length > 4000) {
-    return {
-      errorCodes: [UpdateHighlightErrorCode.BadData],
-    }
-  }
-
   // unescape HTML entities
   const annotation = input.annotation
     ? unescapeHtml(input.annotation)
     : undefined
+  const quote = input.quote ? unescapeHtml(input.quote) : highlight.quote
 
   const updatedHighlight: HighlightData = {
     ...highlight,
     annotation,
+    quote,
     updatedAt: new Date(),
   }
 

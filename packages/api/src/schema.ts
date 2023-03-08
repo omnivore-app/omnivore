@@ -748,8 +748,9 @@ const schema = gql`
 
   input UpdateHighlightInput {
     highlightId: ID!
-    annotation: String @sanitize
+    annotation: String @sanitize(maxLength: 4000)
     sharedAt: Date
+    quote: String @sanitize(maxLength: 6000)
   }
 
   type UpdateHighlightSuccess {

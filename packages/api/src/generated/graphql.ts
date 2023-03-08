@@ -2714,6 +2714,7 @@ export enum UpdateHighlightErrorCode {
 export type UpdateHighlightInput = {
   annotation?: InputMaybe<Scalars['String']>;
   highlightId: Scalars['ID'];
+  quote?: InputMaybe<Scalars['String']>;
   sharedAt?: InputMaybe<Scalars['Date']>;
 };
 

@@ -104,23 +104,29 @@ const mergeHighlightQuery = (
   `
 }
 
-const updateHighlightQuery = (
-  authToken: string,
-  highlightId: string,
-  annotation = '_annotation'
-) => {
+const updateHighlightQuery = ({
+  highlightId,
+  annotation = null,
+  quote = null,
+}: {
+  highlightId: string
+  annotation?: string | null
+  quote?: string | null
+}) => {
   return `
   mutation {
     updateHighlight(
       input: {
         annotation: "${annotation}",
         highlightId: "${highlightId}",
+        quote: "${quote}"
       }
     ) {
       ... on UpdateHighlightSuccess {
         highlight {
           id
           annotation
+          quote
         }
       }
       ... on UpdateHighlightError {
@@ -271,15 +277,30 @@ describe('Highlights API', () => {
       )
     })
 
-    context('when the annotation has HTML reserved characters', () => {
-      it('unescapes the annotation and updates', async () => {
-        const annotation = '> This is a test'
-        const query = updateHighlightQuery(authToken, highlightId, annotation)
-        const res = await graphqlRequest(query, authToken).expect(200)
-        expect(res.body.data.updateHighlight.highlight.annotation).to.eql(
-          '> This is a test'
-        )
+    it('updates the quote when the quote is in HTML format when the annotation has HTML reserved characters', async () => {
+      const quote = '> This is a test'
+      const query = updateHighlightQuery({ highlightId, quote })
+      const res = await graphqlRequest(query, authToken).expect(200)
+      expect(res.body.data.updateHighlight.highlight.quote).to.eql(quote)
+    })
+
+    it('updates the quote when the quote is in plain text format', async () => {
+      const quote = 'This is a test'
+      const query = updateHighlightQuery({ highlightId, quote })
+      const res = await graphqlRequest(query, authToken).expect(200)
+      expect(res.body.data.updateHighlight.highlight.quote).to.eql(quote)
+    })
+
+    it('unescapes the annotation and updates the annotation when the annotation has HTML reserved characters', async () => {
+      const annotation = '> This is a test'
+      const query = updateHighlightQuery({
+        highlightId,
+        annotation,
       })
+      const res = await graphqlRequest(query, authToken).expect(200)
+      expect(res.body.data.updateHighlight.highlight.annotation).to.eql(
+        annotation
+      )
     })
   })
 })
