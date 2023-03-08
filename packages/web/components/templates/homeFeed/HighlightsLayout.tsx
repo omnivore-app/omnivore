@@ -1,4 +1,5 @@
 import dayjs from 'dayjs'
+import { useRouter } from 'next/router'
 import { DotsThreeVertical, HighlighterCircle } from 'phosphor-react'
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import { Highlight } from '../../../lib/networking/fragments/highlightFragment'
@@ -265,7 +266,12 @@ function HighlightItemsCard(props: HighlightItemsCardProps): JSX.Element {
         </HStack>
         <VStack css={{ height: '100%', width: '100%' }} distribution="start">
           {(props.item.node.highlights ?? []).map((highlight) => (
-            <HighlightItemCard key={highlight.id} highlight={highlight} />
+            <HighlightItemCard
+              key={highlight.id}
+              viewer={props.viewer}
+              item={props.item}
+              highlight={highlight}
+            />
           ))}
         </VStack>
       </VStack>
@@ -284,9 +290,12 @@ const StyledQuote = styled(Blockquote, {
 
 type HighlightItemCardProps = {
   highlight: Highlight
+  viewer: UserBasicData | undefined
+  item: LibraryItem
 }
 
 function HighlightItemCard(props: HighlightItemCardProps): JSX.Element {
+  const router = useRouter()
   const [hover, setHover] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
 
@@ -297,9 +306,16 @@ function HighlightItemCard(props: HighlightItemCardProps): JSX.Element {
 
   return (
     <HStack
-      css={{ width: '100%', py: '20px' }}
+      css={{ width: '100%', py: '20px', cursor: 'pointer' }}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
+      onClick={(event) => {
+        if (router && props.viewer) {
+          const dest = `/${props.viewer}/${props.item.node.slug}#${props.highlight.id}`
+          router.push(dest)
+        }
+        event.preventDefault()
+      }}
     >
       <VStack
         css={{
@@ -307,7 +323,6 @@ function HighlightItemCard(props: HighlightItemCardProps): JSX.Element {
           height: '100%',
           width: '100%',
 
-          cursor: 'pointer',
           wordBreak: 'break-word',
           overflow: 'clip',
         }}
