@@ -1,17 +1,15 @@
 package app.omnivore.omnivore.ui.components
 
-import android.util.Log
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -20,6 +18,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -28,9 +27,11 @@ import androidx.compose.ui.window.Dialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LabelCreationDialog(onDismiss: () -> Unit, onSave: () -> Unit) {
+fun LabelCreationDialog(onDismiss: () -> Unit, onSave: (String, String) -> Unit) {
   var labelName by rememberSaveable { mutableStateOf("") }
   val focusManager = LocalFocusManager.current
+  val swatchHexes = LabelSwatchHelper.allHexes()
+  var selectedHex by rememberSaveable { mutableStateOf(swatchHexes.first()) }
 
   Dialog(onDismissRequest = { onDismiss() }) {
     Surface(
@@ -63,7 +64,7 @@ fun LabelCreationDialog(onDismiss: () -> Unit, onSave: () -> Unit) {
 
             Text("Create New Label", fontWeight = FontWeight.ExtraBold)
 
-            TextButton(onClick = { onSave() }) {
+            TextButton(onClick = { onSave(labelName, selectedHex) }) {
               Text(text = "Create")
             }
           }
@@ -73,6 +74,7 @@ fun LabelCreationDialog(onDismiss: () -> Unit, onSave: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
               .fillMaxWidth()
+              .padding(vertical = 10.dp)
           ) {
             Text("Assign a name and color.")
           }
@@ -82,6 +84,7 @@ fun LabelCreationDialog(onDismiss: () -> Unit, onSave: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
               .fillMaxWidth()
+              .padding(bottom = 10.dp)
           ) {
             OutlinedTextField(
               value = labelName,
@@ -94,14 +97,86 @@ fun LabelCreationDialog(onDismiss: () -> Unit, onSave: () -> Unit) {
 
           Row(
             horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.Top,
             modifier = Modifier
-              .fillMaxWidth()
+              .height(130.dp)
+              .padding(10.dp)
           ) {
-            Text("Add a color grid here.")
+            LazyHorizontalGrid(
+              rows = GridCells.Fixed(2),
+              horizontalArrangement = Arrangement.spacedBy(10.dp),
+              verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+              items(swatchHexes) { hex ->
+                val labelChipColors = LabelChipColors.fromHex(hex)
+                val borderThickness = if (selectedHex == hex) 2.dp else 0.dp
+                OutlinedButton(
+                  onClick = { selectedHex = hex },
+                  modifier= Modifier
+                    .size(50.dp),
+                  shape = CircleShape,
+                  border= BorderStroke(borderThickness, Color.Black),
+                  contentPadding = PaddingValues(0.dp),
+                  colors = ButtonDefaults.outlinedButtonColors(containerColor = labelChipColors.containerColor),
+                  content = {}
+                )
+              }
+            }
           }
         }
       }
     }
   }
+}
+
+object LabelSwatchHelper {
+  fun allHexes(): List<String> {
+    val shuffledSwatches = swatchHexes.shuffled()
+    return listOf(shuffledSwatches.last()) + webSwatchHexes + shuffledSwatches.dropLast(1)
+  }
+
+  private val webSwatchHexes = listOf(
+    "#FF5D99",
+    "#7CFF7B",
+    "#FFD234",
+    "#7BE4FF",
+    "#CE88EF",
+    "#EF8C43"
+  )
+
+  private val swatchHexes = listOf(
+    "#fff034",
+    "#efff34",
+    "#d1ff34",
+    "#b2ff34",
+    "#94ff34",
+    "#75ff34",
+    "#57ff34",
+    "#38ff34",
+    "#34ff4e",
+    "#34ff6d",
+    "#34ff8b",
+    "#34ffa9",
+    "#34ffc8",
+    "#34ffe6",
+    "#34f9ff",
+    "#34dbff",
+    "#34bcff",
+    "#349eff",
+    "#347fff",
+    "#3461ff",
+    "#3443ff",
+    "#4434ff",
+    "#6234ff",
+    "#8134ff",
+    "#9f34ff",
+    "#be34ff",
+    "#dc34ff",
+    "#fb34ff",
+    "#ff34e5",
+    "#ff34c7",
+    "#ff34a8",
+    "#ff348a",
+    "#ff346b"
+  )
 }

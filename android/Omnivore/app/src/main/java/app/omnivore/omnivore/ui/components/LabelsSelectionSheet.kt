@@ -96,7 +96,10 @@ fun LabelsSelectionSheetContent(
     if (showCreateLabelDialog) {
       LabelCreationDialog(
         onDismiss = { showCreateLabelDialog = false },
-        onSave = { showCreateLabelDialog = false }
+        onSave = { labelName, hexColor ->
+          Log.d("label", "creating label with name: $labelName and hex: $hexColor")
+          showCreateLabelDialog = false
+        }
       )
     }
 
