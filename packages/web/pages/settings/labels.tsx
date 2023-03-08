@@ -148,15 +148,16 @@ export default function LabelsPage(): JSX.Element {
   const { labels, revalidate } = useGetLabelsQuery()
   const [labelColorHex, setLabelColorHex] = useState<LabelColorHex>({
     rowId: '',
-    value: 'custom color',
+    value: '#000000',
   })
   const [editingLabelId, setEditingLabelId] = useState<string | null>(null)
   const [nameInputText, setNameInputText] = useState<string>('')
   const [descriptionInputText, setDescriptionInputText] = useState<string>('')
   const [isCreateMode, setIsCreateMode] = useState<boolean>(false)
   const [windowWidth, setWindowWidth] = useState<number>(0)
-  const [confirmRemoveLabelId, setConfirmRemoveLabelId] =
-    useState<string | null>(null)
+  const [confirmRemoveLabelId, setConfirmRemoveLabelId] = useState<
+    string | null
+  >(null)
   const breakpoint = 768
 
   applyStoredTheme(false)
@@ -559,7 +560,10 @@ function GenericTableCard(
               alignment="center"
               css={{ ml: '16px', '@smDown': { ml: '0px' } }}
             >
-              <LabelChip color={labelColor || ''} text={label?.name || ''} />
+              <LabelChip
+                color={labelColor || '#000000'}
+                text={label?.name || ''}
+              />
             </HStack>
           )}
           {showInput && !label ? (
@@ -632,7 +636,7 @@ function GenericTableCard(
               labelColorHexRowId={labelColorHex.rowId}
               labelColorHexValue={labelColorHex.value}
               labelId={label?.id || ''}
-              labelColor={label?.color || 'custom color'}
+              labelColor={label?.color || '#000000'}
               setLabelColorHex={setLabelColorHex}
             />
           )}
@@ -804,7 +808,7 @@ function MobileEditCard(props: any) {
           labelColorHexRowId={labelColorHex.rowId}
           labelColorHexValue={labelColorHex.value}
           labelId={label?.id || ''}
-          labelColor={label?.color || 'custom color'}
+          labelColor={label?.color || '#000000'}
           setLabelColorHex={setLabelColorHex}
         />
         <TextArea
@@ -900,7 +904,7 @@ function DesktopEditCard(props: any) {
             labelColorHexRowId={labelColorHex.rowId}
             labelColorHexValue={labelColorHex.value}
             labelId={label?.id || ''}
-            labelColor={label?.color || 'custom color'}
+            labelColor={label?.color || '#000000'}
             setLabelColorHex={setLabelColorHex}
           />
           <Input
