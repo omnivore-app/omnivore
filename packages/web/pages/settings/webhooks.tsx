@@ -25,16 +25,21 @@ interface Webhook {
   updatedAt?: Date
 }
 
+interface EventTypeOption {
+  label: string
+  value: WebhookEvent
+}
+
 export default function Webhooks(): JSX.Element {
   const { webhooks, revalidate } = useGetWebhooksQuery()
   const [onDeleteId, setOnDeleteId] = useState<string | null>(null)
   const [addModelOpen, setAddModelOpen] = useState(false)
   const [onEditWebhook, setOnEditWebhook] = useState<Webhook | null>(null)
   const [url, setUrl] = useState('')
-  const eventTypeOptions = [
-    'PAGE_CREATED',
-    'HIGHLIGHT_CREATED',
-    'LABEL_CREATED',
+  const eventTypeOptions: EventTypeOption[] = [
+    { label: 'PAGE_CREATED', value: 'PAGE_CREATED' },
+    { label: 'HIGHLIGHT_CREATED', value: 'HIGHLIGHT_CREATED' },
+    { label: 'LABEL_ADDED', value: 'LABEL_CREATED' },
   ]
   const [eventTypes, setEventTypes] = useState<WebhookEvent[]>([])
   const [contentType, setContentType] = useState('application/json')
@@ -57,6 +62,14 @@ export default function Webhooks(): JSX.Element {
 
   applyStoredTheme(false)
 
+  function validateEventTypes(eventTypes: WebhookEvent[]): boolean {
+    if (eventTypes.length > 0) return true
+    showErrorToast('Please select at least one event type', {
+      position: 'bottom-right',
+    })
+    return false
+  }
+
   async function onDelete(id: string): Promise<void> {
     const result = await deleteWebhookMutation(id)
     if (result) {
@@ -68,6 +81,7 @@ export default function Webhooks(): JSX.Element {
   }
 
   async function onCreate(): Promise<void> {
+    if (!validateEventTypes(eventTypes)) return
     const result = await setWebhookMutation({ url, eventTypes })
     if (result) {
       showSuccessToast('Webhook created', { position: 'bottom-right' })
@@ -78,6 +92,7 @@ export default function Webhooks(): JSX.Element {
   }
 
   async function onUpdate(): Promise<void> {
+    if (!validateEventTypes(eventTypes)) return
     const result = await setWebhookMutation({
       id: onEditWebhook?.id,
       url,
@@ -167,7 +182,7 @@ export default function Webhooks(): JSX.Element {
             },
           ])
           setUrl('')
-          setEventTypes(eventTypeOptions as WebhookEvent[])
+          setEventTypes(['PAGE_CREATED', 'HIGHLIGHT_CREATED'])
           setAddModelOpen(true)
         }}
         onEdit={(webhook) => {
@@ -183,7 +198,7 @@ export default function Webhooks(): JSX.Element {
               label: 'Event Types',
               name: 'eventTypes',
               value: eventTypeOptions.map((option) =>
-                webhook?.eventTypes.includes(option)
+                webhook?.eventTypes.includes(option.value)
               ),
               onChange: setEventTypes,
               options: eventTypeOptions,
