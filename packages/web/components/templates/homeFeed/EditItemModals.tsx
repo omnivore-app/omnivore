@@ -237,7 +237,7 @@ function EditItemModal(props: EditItemModalProps): JSX.Element {
                   <StyledText css={titleStyle}>SAVED AT:</StyledText>
                   <FormInput
                     type="datetime-local"
-                    value={props.savedAt.format('YYYY-MM-DDTHH:mm:ss')}
+                    value={props.savedAt.format('YYYY-MM-DDTHH:mm')}
                     placeholder="Edit Date"
                     onChange={(event) => {
                       const dateStr = event.target.value
