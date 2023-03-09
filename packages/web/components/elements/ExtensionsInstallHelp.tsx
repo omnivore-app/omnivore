@@ -9,7 +9,6 @@ import { EdgeIcon } from './images/EdgeIcon'
 import { FirefoxIcon } from './images/FirefoxIcon'
 import { SafariIcon } from './images/SafariIcon'
 import Link from 'next/link'
-import { SaveArticleIcon } from './images/SaveArticleIcon'
 
 const icons = {
   'Google Chrome': <ChromeIcon />,

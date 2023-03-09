@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import DataLoader from 'dataloader'
-import Knex from 'knex'
+import { Knex } from 'knex'
 import { ENABLE_DB_REQUEST_LOGGING, globalCounter } from './helpers'
 
 export enum DataModelError {
@@ -113,7 +113,7 @@ abstract class DataModel<
     tx: Knex.Transaction
   ): Promise<ModelData[]> {
     const rows: ModelData[] = await tx
-      .batchInsert(this.tableName, data)
+      .batchInsert(this.tableName, data as never)
       .returning('*')
     for (const row of rows) {
       this.loader.prime(row.id, row)

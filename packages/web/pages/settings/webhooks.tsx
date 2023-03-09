@@ -1,4 +1,4 @@
-import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
+import { SettingsLayout } from '../../components/templates/SettingsLayout'
 import { Toaster } from 'react-hot-toast'
 import { Table } from '../../components/elements/Table'
 import { applyStoredTheme } from '../../lib/themeUpdater'
@@ -31,7 +31,11 @@ export default function Webhooks(): JSX.Element {
   const [addModelOpen, setAddModelOpen] = useState(false)
   const [onEditWebhook, setOnEditWebhook] = useState<Webhook | null>(null)
   const [url, setUrl] = useState('')
-  const eventTypeOptions = ['PAGE_CREATED', 'HIGHLIGHT_CREATED']
+  const eventTypeOptions = [
+    'PAGE_CREATED',
+    'HIGHLIGHT_CREATED',
+    'LABEL_CREATED',
+  ]
   const [eventTypes, setEventTypes] = useState<WebhookEvent[]>([])
   const [contentType, setContentType] = useState('application/json')
   const [method, setMethod] = useState('POST')
@@ -88,7 +92,7 @@ export default function Webhooks(): JSX.Element {
   }
 
   return (
-    <PrimaryLayout pageTestId={'webhooks'}>
+    <SettingsLayout>
       <Toaster
         containerStyle={{
           top: '5rem',
@@ -203,6 +207,6 @@ export default function Webhooks(): JSX.Element {
           setOnEditWebhook(webhook)
         }}
       />
-    </PrimaryLayout>
+    </SettingsLayout>
   )
 }

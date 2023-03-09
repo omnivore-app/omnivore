@@ -66,6 +66,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
     theme: {
       fonts: {
         inter: 'Inter, sans-serif',
+        display: '-apple-system, BlinkMacSystemFont, sans-serif',
       },
       fontSizes: {
         1: '0.75em',
@@ -108,8 +109,12 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
       },
       zIndices: {},
       transitions: {},
+
+      colorScheme: {
+        colorScheme: 'light',
+      },
+
       colors: {
-        // Grayscale
         grayBase: '#F8F8F8',
         grayBg: '#FFFFFF',
         grayBgActive: '#e6e6e6',
@@ -126,7 +131,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         grayBgHover: 'hsl(0 0% 93.0%)',
         grayLine: 'hsl(0 0% 88.7%)',
         grayBorderHover: 'hsl(0 0% 78.0%)',
-        grayText: '#3B3938',
+        grayText: '#6A6968',
         graySeparator: '#DADADA',
         grayProgressBackground: '#FFFFFF',
 
@@ -155,8 +160,8 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         readerTableHeader: '#FFFFFF',
 
         // Avatar Fallback color
-        avatarBg: '#FFFFFF',
-        avatarFont: '#0A0806',
+        avatarBg: '#FFEA9F',
+        avatarFont: '#9C7C0A',
 
         labelButtonsBg: '#F5F5F4',
         tooltipIcons: '#FDFAEC',
@@ -169,6 +174,28 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         //utility
         textNonEssential: 'rgba(10, 8, 6, 0.4)',
         overlay: 'rgba(63, 62, 60, 0.2)',
+
+        // New theme, special naming to keep things straigh
+        // once all switch over, we will rename
+        thBackground: '#FFFFFF',
+        thBackground2: '#F3F3F3',
+        thBackground3: '#FFFFFF',
+        thBackground4: '#EBEBEB',
+        thBackgroundContrast: '#FFFFFF',
+
+        thTextContrast: '#1E1E1E',
+        thTextContrast2: '#3D3D3D',
+
+        thTextSubtle: '#1E1E1E',
+        thTextSubtle2: '#6A6968',
+        thTextSubtle3: '#ADADAD',
+
+        thBorderColor: '#E1E1E1',
+        thBorderSubtle: '#EEEEEE',
+
+        thProgressFg: '#FFD234',
+
+        thHighContrast: '#3D3D3D',
       },
     },
     media: {
@@ -176,14 +203,19 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
       smDown: '(max-width: 575px)',
       mdDown: '(max-width: 768px)',
       lgDown: '(max-width: 992px)',
+      xlgDown: '(max-width: 1200px)',
       sm: '(min-width: 576px)',
       md: '(min-width: 768px)',
       lg: '(min-width: 992px)',
       xl: '(min-width: 1200px)',
+      xxl: '(min-width: 1700px)',
     },
   })
 
 const darkThemeSpec = {
+  colorScheme: {
+    colorScheme: 'dark',
+  },
   colors: {
     grayBase: '#252525',
     grayBg: '#3B3938',
@@ -217,8 +249,8 @@ const darkThemeSpec = {
     readerHeader: '#b9b9b9',
     readerTableHeader: '#FFFFFF',
     tooltipIcons: '#5F5E58',
-    avatarBg: '#000000',
-    avatarFont: 'rgba(255, 255, 255, 0.8)',
+    avatarBg: '#7B5C3E',
+    avatarFont: '#D9D9D9',
 
     textSubtle: '#AAAAAA',
     libraryBackground: '#252525',
@@ -231,6 +263,31 @@ const darkThemeSpec = {
     overlay: 'rgba(10, 8, 6, 0.65)',
 
     labelButtonsBg: '#5F5E58',
+
+    // New theme, special naming to keep things straigh
+    // once all switch over, we will rename
+    // DARK
+    colorScheme: 'dark',
+    thBackground: '#2A2A2A',
+    thBackground2: '#3D3D3D',
+    thBackground3: '#242424',
+    thBackground4: '#3D3D3D',
+    thBackgroundActive: '#2A2A2B',
+    thBackgroundContrast: '#000000',
+
+    thTextContrast: '#FFFFFF',
+    thTextContrast2: '#EBEBEB',
+
+    thTextSubtle: '#D9D9D9',
+    thTextSubtle2: '#D9D9D9',
+    thTextSubtle3: '#ADADAD',
+
+    thBorderColor: '#4F4F4F',
+    thBorderSubtle: '#6A6968',
+
+    thProgressFg: '#FFEA9F',
+
+    thHighContrast: '#D9D9D9',
   },
   shadows: {
     cardBoxShadow:
@@ -280,7 +337,8 @@ export const lighterTheme = createTheme(ThemeId.Lighter, {})
 // Apply global styles in here
 export const globalStyles = globalCss({
   body: {
-    backgroundColor: '$grayBase',
+    colorScheme: 'var(--colorScheme-colorScheme)',
+    backgroundColor: '$thBackground',
   },
   '*': {
     '&:focus': {

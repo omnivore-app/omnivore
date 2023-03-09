@@ -9,7 +9,7 @@ import {
   UserPersonalizationData,
 } from './model'
 import DataModel from '../model'
-import Knex from 'knex'
+import { Knex } from 'knex'
 import { Table } from '../../utils/dictionary'
 import { camelCase } from 'voca'
 import { logMethod } from '../helpers'

@@ -1,7 +1,6 @@
 import { Box, HStack } from '../../elements/LayoutPrimitives'
-import type { LoginFormProps } from '../LoginForm'
 
-export function VerifyEmail(props: LoginFormProps): JSX.Element {
+export function VerifyEmail(): JSX.Element {
   return (
     <>
       <HStack

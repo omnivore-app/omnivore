@@ -1,7 +1,6 @@
 import { Box, HStack } from '../../elements/LayoutPrimitives'
-import type { LoginFormProps } from '../LoginForm'
 
-export function ResetSent(props: LoginFormProps): JSX.Element {
+export function ResetSent(): JSX.Element {
   return (
     <>
       <HStack

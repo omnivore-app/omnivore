@@ -1,5 +1,4 @@
-import Link from 'next/link'
-import { Plus, Trash } from 'phosphor-react'
+import { Trash } from 'phosphor-react'
 import { Toaster } from 'react-hot-toast'
 import { Button } from '../../elements/Button'
 import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
@@ -7,8 +6,8 @@ import { MoreOptionsIcon } from '../../elements/images/MoreOptionsIcon'
 import { InfoLink } from '../../elements/InfoLink'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { StyledText } from '../../elements/StyledText'
-import { styled, theme } from '../../tokens/stitches.config'
-import { PrimaryLayout } from '../PrimaryLayout'
+import { theme } from '../../tokens/stitches.config'
+import { SettingsLayout } from '../SettingsLayout'
 
 type SettingsTableProps = {
   pageId: string
@@ -236,7 +235,7 @@ const CreateButton = (props: CreateButtonProps): JSX.Element => {
 
 export const SettingsTable = (props: SettingsTableProps): JSX.Element => {
   return (
-    <PrimaryLayout pageTestId={props.pageId}>
+    <SettingsLayout>
       <Toaster
         containerStyle={{
           top: '5rem',
@@ -312,6 +311,6 @@ export const SettingsTable = (props: SettingsTableProps): JSX.Element => {
         </VStack>
       </HStack>
       <Box css={{ height: '120px' }} />
-    </PrimaryLayout>
+    </SettingsLayout>
   )
 }

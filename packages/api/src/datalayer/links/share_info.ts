@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import Knex from 'knex'
+import { Knex } from 'knex'
 import { LinkShareInfo } from '../../generated/graphql'
 import { DataModels } from '../../resolvers/types'
 import { getPageByParam } from '../../elastic/pages'

@@ -9,6 +9,9 @@ export type WebhookEvent =
   | 'HIGHLIGHT_CREATED'
   | 'HIGHLIGHT_UPDATED'
   | 'HIGHLIGHT_DELETED'
+  | 'LABEL_CREATED'
+  | 'LABEL_UPDATED'
+  | 'LABEL_DELETED'
 
 export interface Webhook {
   id: string
@@ -58,7 +61,7 @@ export function useGetWebhooksQuery(): WebhooksQueryResponse {
     }
   `
 
-  const { data, mutate, error, isValidating } = useSWR(query, publicGqlFetcher)
+  const { data, mutate, isValidating } = useSWR(query, publicGqlFetcher)
   console.log('webhooks data', data)
 
   try {

@@ -17,12 +17,12 @@
     "deploy:web": "vercel --prod"
   },
   "devDependencies": {
+    "@ardatan/aggregate-error": "^0.0.6",
     "@graphql-codegen/cli": "^2.6.2",
     "@graphql-codegen/introspection": "^2.1.1",
     "@graphql-codegen/schema-ast": "^2.1.1",
     "@graphql-codegen/typescript": "^2.1.1",
     "@graphql-codegen/typescript-resolvers": "^2.1.1",
-    "@ardatan/aggregate-error": "^0.0.6",
     "@tsconfig/node14": "^1.0.1",
     "@typescript-eslint/eslint-plugin": "^5.9.0",
     "@typescript-eslint/parser": "^5.9.0",
@@ -38,5 +38,6 @@
   "volta": {
     "node": "14.18.1",
     "yarn": "1.22.19"
-  }
+  },
+  "dependencies": {}
 }

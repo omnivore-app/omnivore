@@ -183,7 +183,7 @@ export function libraryListCommands(
       actionDescription: 'Move cursor to the previous row',
       shortcutKeyDescription: 'Arrow Up',
       callback: () => actionHandler('moveFocusToPreviousRowItem'),
-    }
+    },
   ]
 }
 
@@ -213,71 +213,6 @@ export function highlightBarKeyboardCommands(
     //   actionDescription: 'Highlight selected text',
     //   shortcutKeyDescription: 'shift + h',
     //   callback: () => actionHandler('openPostModal'),
-    // },
-  ]
-}
-
-type ArticleKeyboardAction =
-  | 'openOriginalArticle'
-  | 'incrementFontSize'
-  | 'decrementFontSize'
-  | 'incrementMarginWidth'
-  | 'decrementMarginWidth'
-  | 'editDisplaySettings'
-  | 'setLabels'
-
-export function articleKeyboardCommands(
-  router: NextRouter | undefined,
-  actionHandler: (action: ArticleKeyboardAction) => void
-): KeyboardCommand[] {
-  return [
-    // {
-    //   shortcutKeys: ['o'],
-    //   actionDescription: 'Open original article page',
-    //   shortcutKeyDescription: 'o',
-    //   callback: () => actionHandler('openOriginalArticle'),
-    // },
-    // {
-    //   shortcutKeys: ['u'],
-    //   actionDescription: 'Back to library',
-    //   shortcutKeyDescription: 'u',
-    //   callback: () => router?.push('/home'),
-    // },
-    // {
-    //   shortcutKeys: ['+'],
-    //   actionDescription: 'Increase font size',
-    //   shortcutKeyDescription: '+',
-    //   callback: () => actionHandler('incrementFontSize'),
-    // },
-    // {
-    //   shortcutKeys: ['-'],
-    //   actionDescription: 'Decrease font size',
-    //   shortcutKeyDescription: '-',
-    //   callback: () => actionHandler('decrementFontSize'),
-    // },
-    // {
-    //   shortcutKeys: [']'],
-    //   actionDescription: 'Increase margin width',
-    //   shortcutKeyDescription: ']',
-    //   callback: () => actionHandler('incrementMarginWidth'),
-    // },
-    // {
-    //   shortcutKeys: ['['],
-    //   actionDescription: 'Decrease margin width',
-    //   shortcutKeyDescription: '[',
-    //   callback: () => actionHandler('decrementMarginWidth'),
-    // },
-    {
-      shortcutKeys: ['d'],
-      actionDescription: 'Edit Display Settings',
-      shortcutKeyDescription: 'd',
-      callback: () => actionHandler('editDisplaySettings'),
-    },
-    // {
-    //   shortcutKeys: ['l'],
-    //   actionDescription: 'Edit labels',
-    //   shortcutKeyDescription: 'l',
-    //   callback: () => actionHandler('setLabels'),
     // },
   ]
 }

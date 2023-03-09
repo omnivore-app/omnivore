@@ -6,7 +6,7 @@ import {
   UpdateSet,
 } from './model'
 import DataModel, { DataModelError } from '../model'
-import Knex from 'knex'
+import { Knex } from 'knex'
 import { Table } from '../../utils/dictionary'
 import { logMethod } from '../helpers'
 import { ArticleData } from '../article/model'

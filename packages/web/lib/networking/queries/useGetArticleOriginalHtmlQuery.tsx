@@ -1,8 +1,6 @@
 import { gql } from 'graphql-request'
-import useSWRImmutable, { Cache } from 'swr'
+import useSWRImmutable from 'swr'
 import { makeGqlFetcher, RequestContext, ssrFetcher } from '../networkHelpers'
-import { ScopedMutator } from 'swr/dist/types'
-import { LibraryItems } from './useGetLibraryItemsQuery'
 
 type ArticleQueryInput = {
   username?: string
@@ -25,10 +23,7 @@ export type ArticleAttributes = {
 }
 
 const query = gql`
-  query GetArticle(
-    $username: String!
-    $slug: String!
-  ) {
+  query GetArticle($username: String!, $slug: String!) {
     article(username: $username, slug: $slug) {
       ... on ArticleSuccess {
         article {
@@ -58,7 +53,7 @@ export function useGetArticleOriginalHtmlQuery({
   )
 
   const resultData: ArticleData | undefined = data as ArticleData
-  console.log("RESULT", JSON.stringify(data))
+  console.log('RESULT', JSON.stringify(data))
 
   return resultData?.article.article.originalHtml
 }
@@ -67,7 +62,12 @@ export async function originalHtmlQuery(
   context: RequestContext,
   input: ArticleQueryInput
 ): Promise<string | undefined> {
-  const resultData = (await ssrFetcher(context, query, input, false)) as ArticleData
+  const resultData = (await ssrFetcher(
+    context,
+    query,
+    input,
+    false
+  )) as ArticleData
   console.log(JSON.stringify(resultData))
   // if (resultData?.article.article.originalHtml) {
   //   return resultData?.article.article.originalHtml

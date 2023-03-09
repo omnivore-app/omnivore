@@ -2,7 +2,10 @@ import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticle
 import { Article } from './../../../components/templates/article/Article'
 import { Box, HStack, SpanBox, VStack } from './../../elements/LayoutPrimitives'
 import { StyledText } from './../../elements/StyledText'
-import { ArticleSubtitle } from './../../patterns/ArticleSubtitle'
+import {
+  ArticleSubtitle,
+  ReaderSavedInfo,
+} from './../../patterns/ArticleSubtitle'
 import { theme, ThemeId } from './../../tokens/stitches.config'
 import { HighlightsLayer } from '../../templates/article/HighlightsLayer'
 import { Button } from '../../elements/Button'
@@ -16,6 +19,7 @@ import { LabelChip } from '../../elements/LabelChip'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { Recommendation } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { Avatar } from '../../elements/Avatar'
+import { usePersistedState } from '../../../lib/hooks/usePersistedState'
 
 type ArticleContainerProps = {
   article: ArticleAttributes
@@ -29,8 +33,9 @@ type ArticleContainerProps = {
   fontFamily?: string
   lineHeight?: number
   maxWidthPercentage?: number
-  highContrastFont?: boolean
+  highContrastText?: boolean
   showHighlightsModal: boolean
+  justifyText?: boolean
   setShowHighlightsModal: React.Dispatch<React.SetStateAction<boolean>>
 }
 
@@ -68,7 +73,7 @@ const RecommendationComments = (
         </StyledText>
       </HStack>
 
-      {props.recommendationsWithNotes.map((item, idx) => (
+      {props.recommendationsWithNotes.map((item) => (
         <VStack
           key={item.id}
           alignment="start"
@@ -86,7 +91,6 @@ const RecommendationComments = (
               <Avatar
                 imageURL={item.user?.profileImageURL}
                 height="28px"
-                noFade={true}
                 tooltip={item.user?.name}
                 fallbackText={item.user?.username[0] ?? 'U'}
               />
@@ -114,8 +118,8 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   const [fontFamilyOverride, setFontFamilyOverride] = useState<string | null>(
     null
   )
-  const [highContrastFont, setHighContrastFont] = useState(
-    props.highContrastFont ?? false
+  const [highContrastText, setHighContrastText] = useState(
+    props.highContrastText ?? false
   )
   const highlightHref = useRef(
     window.location.hash ? window.location.hash.split('#')[1] : null
@@ -164,7 +168,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     const updateFontFamily = (event: UpdateFontFamilyEvent) => {
       const newFontFamily =
         event.fontFamily ?? fontFamilyOverride ?? props.fontFamily ?? 'inter'
-      console.log('setting font fam to', event.fontFamily)
       setFontFamilyOverride(newFontFamily)
     }
 
@@ -174,7 +177,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
 
     const handleFontContrastChange = async (event: UpdateFontContrastEvent) => {
       const highContrast = event.fontContrast == 'high'
-      setHighContrastFont(highContrast)
+      setHighContrastText(highContrast)
     }
 
     interface UpdateFontSizeEvent extends Event {
@@ -256,7 +259,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     maxWidthPercentage: maxWidthPercentageOverride ?? props.maxWidthPercentage,
     lineHeight: lineHeightOverride ?? props.lineHeight ?? 150,
     fontFamily: fontFamilyOverride ?? props.fontFamily ?? 'inter',
-    readerFontColor: highContrastFont
+    readerFontColor: highContrastText
       ? theme.colors.readerFontHighContrast.toString()
       : theme.colors.readerFont.toString(),
     readerTableHeaderColor: theme.colors.readerTableHeader.toString(),
@@ -277,10 +280,14 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         id="article-container"
         css={{
           padding: '16px',
+          paddingTop: '80px',
           maxWidth: `${styles.maxWidthPercentage ?? 100}%`,
           background: props.isAppleAppEmbed
             ? 'unset'
             : theme.colors.readerBg.toString(),
+          '.article-inner-css': {
+            textAlign: props.justifyText ? 'justify' : 'start',
+          },
           '--text-font-family': styles.fontFamily,
           '--text-font-size': `${styles.fontSize}px`,
           '--line-height': `${styles.lineHeight}%`,
@@ -296,7 +303,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
             '--blockquote-icon-font-size': '1.7rem',
             '--figure-margin': '2.6875rem auto',
             '--hr-margin': '2em',
-            margin: `30px 0px`,
+            margin: `0px 0px`,
           },
           '@md': {
             maxWidth: styles.maxWidthPercentage
@@ -306,6 +313,11 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         }}
       >
         <VStack alignment="start" distribution="start">
+          <ReaderSavedInfo
+            rawDisplayDate={
+              props.article.publishedAt ?? props.article.createdAt
+            }
+          />
           <StyledText
             style="boldHeadline"
             data-testid="article-headline"
@@ -318,9 +330,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
             {props.article.title}
           </StyledText>
           <ArticleSubtitle
-            rawDisplayDate={
-              props.article.publishedAt ?? props.article.createdAt
-            }
             author={props.article.author}
             href={props.article.url}
           />
@@ -397,18 +406,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           onOpenChange={(open: boolean) => setShowReportIssuesModal(open)}
         />
       ) : null}
-      {/* {showShareModal && (
-        <ShareArticleModal
-          url={`${webBaseURL}/${props.viewerUsername}/${props.article.slug}/highlights?r=true`}
-          title={props.article.title}
-          imageURL={props.article.image}
-          author={props.article.author}
-          publishedAt={props.article.publishedAt ?? props.article.createdAt}
-          description={props.article.description}
-          originalArticleUrl={props.article.originalArticleUrl}
-          onOpenChange={(open: boolean) => setShowShareModal(open)}
-        />
-      )} */}
     </>
   )
 }

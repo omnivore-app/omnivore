@@ -4,12 +4,9 @@ import { DropdownMenu, HeaderDropdownAction } from './../patterns/DropdownMenu'
 import { updateTheme } from '../../lib/themeUpdater'
 import { AvatarDropdown } from './../elements/AvatarDropdown'
 import { ThemeId } from './../tokens/stitches.config'
-import { useCallback, useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/router'
-import { useKeyboardShortcuts } from '../../lib/keyboardShortcuts/useKeyboardShortcuts'
-import { primaryCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
 import { UserBasicData } from '../../lib/networking/queries/useGetViewerQuery'
-import { setupAnalytics } from '../../lib/analytics'
 
 type HeaderProps = {
   user?: UserBasicData
@@ -26,34 +23,6 @@ type HeaderProps = {
 export function PrimaryHeader(props: HeaderProps): JSX.Element {
   const router = useRouter()
   const [isScrolled, setIsScrolled] = useState(false)
-
-  useKeyboardShortcuts(
-    primaryCommands((action) => {
-      switch (action) {
-        // case 'themeDarker':
-        //   darkenTheme()
-        //   break
-        // case 'themeLighter':
-        //   lightenTheme()
-        //   break
-        case 'toggleShortcutHelpModalDisplay':
-          props.setShowKeyboardCommandsModal(true)
-          break
-      }
-    })
-  )
-
-  const initAnalytics = useCallback(() => {
-    setupAnalytics(props.user)
-  }, [props.user])
-
-  useEffect(() => {
-    initAnalytics()
-    window.addEventListener('load', initAnalytics)
-    return () => {
-      window.removeEventListener('load', initAnalytics)
-    }
-  }, [initAnalytics])
 
   function headerDropdownActionHandler(action: HeaderDropdownAction): void {
     switch (action) {
@@ -108,12 +77,14 @@ export function PrimaryHeader(props: HeaderProps): JSX.Element {
 
   return (
     <>
-      <SpanBox css={{
-        display: props.alwaysDisplayToolbar ? 'none' : 'flex',
-        '@lgDown': {
-          display: 'none',
-        }
-      }}>
+      <SpanBox
+        css={{
+          display: props.alwaysDisplayToolbar ? 'none' : 'flex',
+          '@lgDown': {
+            display: 'none',
+          },
+        }}
+      >
         <FloatingNavHeader
           {...props}
           isVisible={true}
@@ -124,11 +95,13 @@ export function PrimaryHeader(props: HeaderProps): JSX.Element {
           alwaysDisplayToolbar={props.alwaysDisplayToolbar}
         />
       </SpanBox>
-      <SpanBox css={{
-        '@lg': {
-          display: props.alwaysDisplayToolbar ? 'flex' : 'none',
-        }
-      }}>
+      <SpanBox
+        css={{
+          '@lg': {
+            display: props.alwaysDisplayToolbar ? 'flex' : 'none',
+          },
+        }}
+      >
         <NavHeader
           {...props}
           isVisible={true}
@@ -216,10 +189,7 @@ function NavHeader(props: NavHeaderProps): JSX.Element {
             <DropdownMenu
               username={props.username}
               triggerElement={
-                <AvatarDropdown
-                  userInitials={props.userInitials}
-                  profileImageURL={props.profileImageURL}
-                />
+                <AvatarDropdown userInitials={props.userInitials} />
               }
               actionHandler={props.actionHandler}
             />
@@ -241,7 +211,7 @@ function FloatingNavHeader(props: NavHeaderProps): JSX.Element {
             position: 'fixed',
             display: 'flex',
             alignItems: 'center',
-            zIndex: 100,
+            zIndex: 5,
           }}
         >
           <OmnivoreNameLogo href={props.username ? '/home' : '/login'} />
@@ -256,16 +226,13 @@ function FloatingNavHeader(props: NavHeaderProps): JSX.Element {
             right: '18px',
             position: 'fixed',
             display: 'flex',
-            alignItems: 'center'
+            alignItems: 'center',
           }}
         >
           <DropdownMenu
             username={props.username}
             triggerElement={
-              <AvatarDropdown
-                userInitials={props.userInitials}
-                profileImageURL={props.profileImageURL}
-              />
+              <AvatarDropdown userInitials={props.userInitials} />
             }
             actionHandler={props.actionHandler}
           />
@@ -274,4 +241,3 @@ function FloatingNavHeader(props: NavHeaderProps): JSX.Element {
     </>
   )
 }
-

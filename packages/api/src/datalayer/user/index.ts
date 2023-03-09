@@ -11,7 +11,7 @@ import {
   UserData,
 } from './model'
 import DataModel, { DataModelError, MAX_RECORDS_LIMIT } from '../model'
-import Knex from 'knex'
+import { Knex } from 'knex'
 import { ENABLE_DB_REQUEST_LOGGING, globalCounter, logMethod } from '../helpers'
 import { Table } from '../../utils/dictionary'
 import DataLoader from 'dataloader'

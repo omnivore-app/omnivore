@@ -8,7 +8,7 @@ declare module '*.graphql' {
 }
 
 declare module 'knex-stringcase' {
-  import * as Knex from 'knex'
+  import { Knex } from 'knex'
 
   type StringCase =
     | 'camelcase'

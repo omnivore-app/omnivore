@@ -1,7 +1,6 @@
 import { isAndroid } from '../../lib/deviceType'
 
 import { styled, theme } from '../tokens/stitches.config'
-import { AnchoredPopover } from '../patterns/AnchoredPopover'
 
 import { StyledText } from '../elements/StyledText'
 import { Button } from '../elements/Button'

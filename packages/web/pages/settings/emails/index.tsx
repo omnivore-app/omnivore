@@ -49,7 +49,7 @@ const CopyTextBtnWrapper = styled(Box, {
 })
 
 function CopyTextButton(props: CopyTextButtonProps): JSX.Element {
-  const { copyLink, isLinkCopied } = useCopyLink(
+  const { copyLink } = useCopyLink(
     props.text,
     'newsletter_' +
       (props.type == TextType.EmailAddress
@@ -64,7 +64,7 @@ function CopyTextButton(props: CopyTextButtonProps): JSX.Element {
         ? 'Email Address Copied'
         : 'Confirmation Code Copied'
     )
-  }, [])
+  }, [copyLink, props.type])
 
   return (
     <Button style="plainIcon" onClick={copy}>

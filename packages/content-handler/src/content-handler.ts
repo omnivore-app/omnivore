@@ -150,8 +150,8 @@ export abstract class ContentHandler {
     // e.g. List-Unsubscribe: <https://omnivore.com/unsub>, <mailto:unsub@omnivore.com>
     const decoded = rfc2047.decode(unSubHeader)
     return {
-      mailTo: decoded.match(/<(https?:\/\/[^>]*)>/)?.[1],
-      httpUrl: decoded.match(/<mailto:([^>]*)>/)?.[1],
+      httpUrl: decoded.match(/<(https?:\/\/[^>]*)>/)?.[1],
+      mailTo: decoded.match(/<mailto:([^>]*)>/)?.[1],
     }
   }
 

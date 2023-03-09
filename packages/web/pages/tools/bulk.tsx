@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 import { applyStoredTheme } from '../../lib/themeUpdater'
 
-import { Box, VStack } from '../../components/elements/LayoutPrimitives'
+import { VStack } from '../../components/elements/LayoutPrimitives'
 
 import { StyledText } from '../../components/elements/StyledText'
 import { ProfileLayout } from '../../components/templates/ProfileLayout'

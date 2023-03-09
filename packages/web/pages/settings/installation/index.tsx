@@ -11,6 +11,7 @@ export default function Installation(): JSX.Element {
         css={{
           maxWidth: '50rem',
           margin: 'auto',
+          marginTop: '40px',
           marginBottom: '100px',
           padding: '10px',
           borderRadius: '6px',

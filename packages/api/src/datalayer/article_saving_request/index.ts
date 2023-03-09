@@ -1,11 +1,11 @@
 import {
+  ArticleSavingRequestData,
   CreateSet,
   keys as modelKeys,
   UpdateSet,
-  ArticleSavingRequestData,
 } from './model'
 import DataModel from '../model'
-import Knex from 'knex'
+import { Knex } from 'knex'
 import { Table } from '../../utils/dictionary'
 import { logMethod } from '../helpers'
 
