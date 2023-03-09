@@ -243,12 +243,20 @@ export const setLabelsResolver = authorized<
         errorCodes: [SetLabelsErrorCode.NotFound],
       }
     }
-
+    // filter out labels that are already set
+    const labelsToAdd = labels.filter(
+      (label) => !page.labels?.some((pageLabel) => pageLabel.id === label.id)
+    )
     // update labels in the page
-    const updated = await updateLabelsInPage(pageId, labels, {
-      pubsub,
-      uid,
-    })
+    const updated = await updateLabelsInPage(
+      pageId,
+      labels,
+      {
+        pubsub,
+        uid,
+      },
+      labelsToAdd
+    )
     if (!updated) {
       return {
         errorCodes: [SetLabelsErrorCode.NotFound],
