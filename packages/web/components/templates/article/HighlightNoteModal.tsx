@@ -5,19 +5,12 @@ import {
   ModalTitleBar,
   ModalButtonBar,
 } from './../../elements/ModalPrimitives'
-import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
-import { Button } from '../../elements/Button'
-import { StyledText } from '../../elements/StyledText'
-import { CommentIcon } from '../../elements/images/CommentIcon'
-import { theme } from '../../tokens/stitches.config'
+import { VStack } from '../../elements/LayoutPrimitives'
 import { Highlight } from '../../../lib/networking/fragments/highlightFragment'
 import { useCallback, useState } from 'react'
 import { StyledTextArea } from '../../elements/StyledTextArea'
 import { updateHighlightMutation } from '../../../lib/networking/mutations/updateHighlightMutation'
-import { readableUpdatedAtMessage } from './../../../lib/dateFormatting'
-import { useConfirmListener } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { showErrorToast } from '../../../lib/toastHelpers'
-import { CrossIcon } from '../../elements/images/CrossIcon'
 
 type HighlightNoteModalProps = {
   author: string
@@ -34,18 +27,6 @@ export function HighlightNoteModal(
   const [noteContent, setNoteContent] = useState(
     props.highlight?.annotation ?? ''
   )
-
-  useConfirmListener(
-    () => {
-      saveNoteChanges()
-    },
-    undefined,
-    true
-  )
-
-  const updatedAtMessage = props.highlight
-    ? readableUpdatedAtMessage(props.highlight?.updatedAt)
-    : undefined
 
   const handleNoteContentChange = useCallback(
     (event: React.ChangeEvent<HTMLTextAreaElement>): void => {

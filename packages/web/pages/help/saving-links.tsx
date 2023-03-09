@@ -3,16 +3,11 @@ import { Box, HStack } from '../../components/elements/LayoutPrimitives'
 import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
 import { Button } from '../../components/elements/Button'
 import Link from 'next/link'
+import { SettingsLayout } from '../../components/templates/SettingsLayout'
 
 export default function Colors(): JSX.Element {
   return (
-    <PrimaryLayout
-      pageMetaDataProps={{
-        title: 'Saving Links to Omnivore',
-        path: '/help/saving-links',
-      }}
-      pageTestId="help-saving-links-page-tag"
-    >
+    <SettingsLayout>
       <Box
         css={{
           m: '42px',
@@ -163,6 +158,6 @@ export default function Colors(): JSX.Element {
         </HStack>
       </Box>
       <Box css={{ height: '120px' }} />
-    </PrimaryLayout>
+    </SettingsLayout>
   )
 }

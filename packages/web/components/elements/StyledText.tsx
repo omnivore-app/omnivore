@@ -67,9 +67,10 @@ const textVariants = {
       margin: 0,
     },
     modalHeadline: {
-      fontWeight: '500',
-      fontSize: '24px',
-      lineHeight: '1',
+      fontWeight: '600',
+      fontFamily: '$display',
+      fontSize: '20px',
+      lineHeight: '20px',
       color: '$grayText',
       margin: 0,
     },
@@ -177,6 +178,13 @@ const textVariants = {
       lineHeight: 'unset',
       fontWeight: 'bold',
       color: 'white',
+    },
+    displaySettingsLabel: {
+      fontFamily: '$display',
+      fontWeight: '500',
+      fontSize: '12px',
+      lineHeight: '20px',
+      color: '$thTextSubtle2',
     },
     error: {
       color: '$error',

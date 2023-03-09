@@ -1,5 +1,4 @@
-import React, { useEffect } from 'react'
-import Router from 'next/router'
+import React from 'react'
 import ExtensionInstallHelp from '../../../components/elements/ExtensionsInstallHelp'
 import { SettingsLayout } from '../../../components/templates/SettingsLayout'
 import { VStack } from '../../../components/elements/LayoutPrimitives'

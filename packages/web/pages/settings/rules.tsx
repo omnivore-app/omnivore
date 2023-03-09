@@ -10,7 +10,7 @@ import {
   useGetRulesQuery,
 } from '../../lib/networking/queries/useGetRulesQuery'
 
-import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
+import { SettingsLayout } from '../../components/templates/SettingsLayout'
 import { Button, Space, Table, Form, Input, Modal, Tag, Select } from 'antd'
 
 // import 'antd/dist/antd.dark.css'
@@ -123,9 +123,8 @@ const CreateActionModal = (props: CreateActionModalProps): JSX.Element => {
     }
   }
 
-  const [actionType, setActionType] = useState<RuleActionType | undefined>(
-    undefined
-  )
+  const [actionType, setActionType] =
+    useState<RuleActionType | undefined>(undefined)
 
   return (
     <Modal
@@ -192,9 +191,8 @@ export default function Rules(): JSX.Element {
   const { rules, revalidate } = useGetRulesQuery()
   const { labels } = useGetLabelsQuery()
   const [isCreateRuleModalOpen, setIsCreateRuleModalOpen] = useState(false)
-  const [createActionRule, setCreateActionRule] = useState<Rule | undefined>(
-    undefined
-  )
+  const [createActionRule, setCreateActionRule] =
+    useState<Rule | undefined>(undefined)
 
   const dataSource = useMemo(() => {
     return rules.map((rule: Rule) => {
@@ -301,7 +299,7 @@ export default function Rules(): JSX.Element {
   ]
 
   return (
-    <PrimaryLayout pageTestId={'api-keys'}>
+    <SettingsLayout>
       <Toaster
         containerStyle={{
           top: '5rem',
@@ -342,6 +340,6 @@ export default function Rules(): JSX.Element {
           // expandable={{ expandedRowRender, indentSize: 30 }}
         />
       </Box>
-    </PrimaryLayout>
+    </SettingsLayout>
   )
 }

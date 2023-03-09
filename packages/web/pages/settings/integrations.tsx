@@ -11,7 +11,7 @@ import {
   SpanBox,
   VStack,
 } from '../../components/elements/LayoutPrimitives'
-import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
+import { SettingsLayout } from '../../components/templates/SettingsLayout'
 import { applyStoredTheme } from '../../lib/themeUpdater'
 import { Button } from '../../components/elements/Button'
 import { useGetIntegrationsQuery } from '../../lib/networking/queries/useGetIntegrationsQuery'
@@ -122,10 +122,10 @@ export default function Integrations(): JSX.Element {
         },
       },
     ])
-  }, [])
+  }, [readwiseConnected, router, webhooks])
 
   return (
-    <PrimaryLayout pageTestId={'integrations'}>
+    <SettingsLayout>
       <Toaster
         containerStyle={{
           top: '5rem',
@@ -217,6 +217,6 @@ export default function Integrations(): JSX.Element {
           )
         })}
       </VStack>
-    </PrimaryLayout>
+    </SettingsLayout>
   )
 }

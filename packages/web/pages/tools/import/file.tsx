@@ -69,6 +69,12 @@ export default function ImportUploader(): JSX.Element {
             'content-length': `${file.size}`,
           },
         })
+        if (!uploadRes) {
+          setErrorMessage(
+            'Unable to create file upload. Please ensure you are logged in.'
+          )
+          setUploadState('none')
+        }
         setUploadState('completed')
       } else {
         setErrorMessage(

@@ -7,7 +7,6 @@ import {
   gauthRedirectURI,
   appleAuthRedirectURI,
 } from '../../lib/appConfig'
-import AppleLogin from 'react-apple-login'
 import { AppleIdButton } from './auth/AppleIdButton'
 
 export type LoginFormProps = {

@@ -1,7 +1,5 @@
-import Link from 'next/link'
-import { Box, HStack, VStack } from '../../elements/LayoutPrimitives'
-import { GithubLogo, DiscordLogo, TwitterLogo } from 'phosphor-react'
-import { styled, theme } from '../../tokens/stitches.config'
+import { HStack, VStack } from '../../elements/LayoutPrimitives'
+import { styled } from '../../tokens/stitches.config'
 import { StyledText } from '../../elements/StyledText'
 
 const containerStyles = {

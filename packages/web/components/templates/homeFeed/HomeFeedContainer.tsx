@@ -6,34 +6,23 @@ import type {
   LibraryItemsQueryInput,
 } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { useGetLibraryItemsQuery } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
-import { useGetViewerQuery } from '../../../lib/networking/queries/useGetViewerQuery'
+import {
+  useGetViewerQuery,
+  UserBasicData,
+} from '../../../lib/networking/queries/useGetViewerQuery'
 import { LinkedItemCardAction } from '../../patterns/LibraryCards/CardTypes'
 import { LinkedItemCard } from '../../patterns/LibraryCards/LinkedItemCard'
 import { useRouter } from 'next/router'
 import { Button } from '../../elements/Button'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { LibrarySearchBar } from './LibrarySearchBar'
 import { StyledText } from '../../elements/StyledText'
 import { AddLinkModal } from './AddLinkModal'
 import { styled, theme } from '../../tokens/stitches.config'
-import { ListLayoutIcon } from '../../elements/images/ListLayoutIcon'
-import { GridLayoutIcon } from '../../elements/images/GridLayoutIcon'
-import {
-  libraryListCommands,
-  searchBarCommands,
-} from '../../../lib/keyboardShortcuts/navigationShortcuts'
+import { libraryListCommands } from '../../../lib/keyboardShortcuts/navigationShortcuts'
 import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
-import { ShareArticleModal } from '../article/ShareArticleModal'
-import { webBaseURL } from '../../../lib/appConfig'
 import { Toaster } from 'react-hot-toast'
-import { SnoozeLinkModal } from '../article/SnoozeLinkModal'
-import {
-  createReminderMutation,
-  ReminderType,
-} from '../../../lib/networking/mutations/createReminderMutation'
 import { useFetchMore } from '../../../lib/hooks/useFetchMoreScroll'
 import { usePersistedState } from '../../../lib/hooks/usePersistedState'
-import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { ConfirmationModal } from '../../patterns/ConfirmationModal'
 import { SetLabelsModal } from '../article/SetLabelsModal'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
@@ -44,7 +33,7 @@ import {
   State,
 } from '../../../lib/networking/fragments/articleFragment'
 import { Action, createAction, useKBar, useRegisterActions } from 'kbar'
-import { EditTitleModal } from './EditTitleModal'
+import { EditLibraryItemModal } from './EditItemModals'
 import { useGetUserPreferences } from '../../../lib/networking/queries/useGetUserPreferences'
 import debounce from 'lodash/debounce'
 import {
@@ -55,22 +44,12 @@ import {
 import axios from 'axios'
 import { uploadFileRequestMutation } from '../../../lib/networking/mutations/uploadFileMutation'
 import { setLabelsMutation } from '../../../lib/networking/mutations/setLabelsMutation'
+import { LibraryHeader } from './LibraryHeader'
+import { LibraryFilterMenu } from './LibraryFilterMenu'
+import { HighlightItemsLayout } from './HighlightsLayout'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
-
-const timeZoneHourDiff = -new Date().getTimezoneOffset() / 60
-
-const SAVED_SEARCHES: Record<string, string> = {
-  Inbox: `in:inbox`,
-  'Read Later': `in:inbox -label:Newsletter`,
-  Highlights: `type:highlights`,
-  Today: `in:inbox saved:${
-    new Date(new Date().getTime() - 24 * 3600000).toISOString().split('T')[0]
-  }Z${timeZoneHourDiff.toLocaleString('en-US', {
-    signDisplay: 'always',
-  })}..*`,
-  Newsletters: `in:inbox label:Newsletter`,
-}
+export type LibraryMode = 'reads' | 'highlights'
 
 const fetchSearchResults = async (query: string, cb: any) => {
   if (!query.startsWith('#')) return
@@ -92,6 +71,7 @@ export function HomeFeedContainer(): JSX.Element {
   const router = useRouter()
   const { queryValue } = useKBar((state) => ({ queryValue: state.searchQuery }))
   const [searchResults, setSearchResults] = useState<SearchItem[]>([])
+  const [mode, setMode] = useState<LibraryMode>('reads')
 
   const defaultQuery = {
     limit: 10,
@@ -100,14 +80,6 @@ export function HomeFeedContainer(): JSX.Element {
   }
 
   const gridContainerRef = useRef<HTMLDivElement>(null)
-
-  const [shareTarget, setShareTarget] = useState<LibraryItem | undefined>(
-    undefined
-  )
-
-  const [snoozeTarget, setSnoozeTarget] = useState<LibraryItem | undefined>(
-    undefined
-  )
 
   const [labelsTarget, setLabelsTarget] = useState<LibraryItem | undefined>(
     undefined
@@ -121,14 +93,6 @@ export function HomeFeedContainer(): JSX.Element {
 
   const [queryInputs, setQueryInputs] =
     useState<LibraryItemsQueryInput>(defaultQuery)
-
-  useKeyboardShortcuts(
-    searchBarCommands((action) => {
-      if (action === 'clearSearch') {
-        setQueryInputs(defaultQuery)
-      }
-    })
-  )
 
   const {
     itemsPages,
@@ -151,6 +115,17 @@ export function HomeFeedContainer(): JSX.Element {
   }, [queryValue])
 
   useEffect(() => {
+    if (
+      queryInputs.searchQuery &&
+      queryInputs.searchQuery?.indexOf('mode:highlights') > -1
+    ) {
+      setMode('highlights')
+    } else {
+      setMode('reads')
+    }
+  }, [queryInputs])
+
+  useEffect(() => {
     if (!router.isReady) return
     const q = router.query['q']
     let qs = ''
@@ -161,9 +136,17 @@ export function HomeFeedContainer(): JSX.Element {
       setQueryInputs({ ...queryInputs, searchQuery: qs })
       performActionOnItem('refresh', undefined as unknown as any)
     }
+    const mode = router.query['mode']
+
     // intentionally not watching queryInputs here to prevent infinite looping
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setQueryInputs, router.isReady, router.query, performActionOnItem])
+  }, [
+    setMode,
+    setQueryInputs,
+    router.isReady,
+    router.query,
+    performActionOnItem,
+  ])
 
   const hasMore = useMemo(() => {
     if (!itemsPages) {
@@ -339,12 +322,6 @@ export function HomeFeedContainer(): JSX.Element {
       case 'mark-unread':
         performActionOnItem('mark-unread', item)
         break
-      case 'share':
-        setShareTarget(item)
-        break
-      case 'snooze':
-        setSnoozeTarget(item)
-        break
       case 'set-labels':
         setLabelsTarget(item)
         break
@@ -357,22 +334,8 @@ export function HomeFeedContainer(): JSX.Element {
   }
 
   const modalTargetItem = useMemo(() => {
-    return (
-      labelsTarget ||
-      snoozeTarget ||
-      shareTarget ||
-      linkToEdit ||
-      linkToRemove ||
-      linkToUnsubscribe
-    )
-  }, [
-    labelsTarget,
-    snoozeTarget,
-    shareTarget,
-    linkToEdit,
-    linkToRemove,
-    linkToUnsubscribe,
-  ])
+    return labelsTarget || linkToEdit || linkToRemove || linkToUnsubscribe
+  }, [labelsTarget, linkToEdit, linkToRemove, linkToUnsubscribe])
 
   useKeyboardShortcuts(
     libraryListCommands((action) => {
@@ -472,9 +435,6 @@ export function HomeFeedContainer(): JSX.Element {
         case 'showEditLabelsModal':
           handleCardAction('set-labels', activeItem)
           break
-        case 'shareItem':
-          setShareTarget(activeItem)
-          break
         case 'sortDescending':
           setQueryInputs({ ...queryInputs, sortDescending: true })
           break
@@ -572,6 +532,8 @@ export function HomeFeedContainer(): JSX.Element {
       reloadItems={mutate}
       searchTerm={queryInputs.searchQuery}
       gridContainerRef={gridContainerRef}
+      mode={mode}
+      setMode={setMode}
       applySearchQuery={(searchQuery: string) => {
         setQueryInputs({
           ...queryInputs,
@@ -583,8 +545,10 @@ export function HomeFeedContainer(): JSX.Element {
         } else {
           qp.delete('q')
         }
+
         const href = `${window.location.pathname}?${qp.toString()}`
         router.push(href, href, { shallow: true })
+        window.sessionStorage.setItem('q', qp.toString())
         performActionOnItem('refresh', undefined as unknown as any)
       }}
       loadMore={() => {
@@ -597,10 +561,6 @@ export function HomeFeedContainer(): JSX.Element {
       hasData={!!itemsPages}
       totalItems={itemsPages?.[0].search.pageInfo.totalCount || 0}
       isValidating={isValidating}
-      shareTarget={shareTarget}
-      setShareTarget={setShareTarget}
-      snoozeTarget={snoozeTarget}
-      setSnoozeTarget={setSnoozeTarget}
       labelsTarget={labelsTarget}
       setLabelsTarget={setLabelsTarget}
       showAddLinkModal={showAddLinkModal}
@@ -631,10 +591,6 @@ type HomeFeedContentProps = {
   totalItems: number
   isValidating: boolean
   loadMore: () => void
-  shareTarget: LibraryItem | undefined
-  setShareTarget: (target: LibraryItem | undefined) => void
-  snoozeTarget: LibraryItem | undefined
-  setSnoozeTarget: (target: LibraryItem | undefined) => void
   labelsTarget: LibraryItem | undefined
   setLabelsTarget: (target: LibraryItem | undefined) => void
   showAddLinkModal: boolean
@@ -650,11 +606,41 @@ type HomeFeedContentProps = {
   linkToUnsubscribe: LibraryItem | undefined
   setLinkToUnsubscribe: (set: LibraryItem | undefined) => void
 
+  mode: LibraryMode
+  setMode: (set: LibraryMode) => void
+
   actionHandler: (
     action: LinkedItemCardAction,
     item: LibraryItem | undefined
   ) => Promise<void>
 }
+
+const DragnDropContainer = styled('div', {
+  width: '100%',
+  height: '80%',
+  position: 'absolute',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  zIndex: '1',
+  alignSelf: 'center',
+  left: 0,
+})
+
+const DragnDropStyle = styled('div', {
+  border: '3px dashed gray',
+  backgroundColor: 'aliceblue',
+  borderRadius: '5px',
+  width: '100%',
+  height: '100%',
+  opacity: '0.9',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  alignSelf: 'center',
+  left: 0,
+  margin: '16px',
+})
 
 function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
   const { viewerData } = useGetViewerQuery()
@@ -662,10 +648,6 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
     key: 'libraryLayout',
     initialValue: 'GRID_LAYOUT',
   })
-  const [showRemoveLinkConfirmation, setShowRemoveLinkConfirmation] =
-    useState(false)
-  const [showUnsubscribeConfirmation, setShowUnsubscribeConfirmation] =
-    useState(false)
 
   const updateLayout = useCallback(
     async (newLayout: LayoutType) => {
@@ -675,53 +657,73 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
     [layout, setLayout]
   )
 
+  const [showFilterMenu, setShowFilterMenu] = useState(false)
+
+  return (
+    <VStack
+      css={{
+        height: '100%',
+        width: props.mode == 'highlights' ? '100%' : 'unset',
+      }}
+    >
+      <LibraryHeader
+        layout={layout}
+        updateLayout={updateLayout}
+        searchTerm={props.searchTerm}
+        applySearchQuery={(searchQuery: string) => {
+          console.log('searching with searchQuery: ', searchQuery)
+          props.applySearchQuery(searchQuery)
+        }}
+        showFilterMenu={showFilterMenu}
+        setShowFilterMenu={setShowFilterMenu}
+      />
+      <HStack css={{ width: '100%', height: '100%' }}>
+        <LibraryFilterMenu
+          setShowAddLinkModal={props.setShowAddLinkModal}
+          searchTerm={props.searchTerm}
+          applySearchQuery={(searchQuery: string) => {
+            console.log('searching with searchQuery: ', searchQuery)
+            props.applySearchQuery(searchQuery)
+          }}
+          showFilterMenu={showFilterMenu}
+          setShowFilterMenu={setShowFilterMenu}
+        />
+
+        {props.mode == 'highlights' && (
+          <HighlightItemsLayout
+            gridContainerRef={props.gridContainerRef}
+            items={props.items}
+            viewer={viewerData?.me}
+          />
+        )}
+
+        {props.mode == 'reads' && (
+          <LibraryItemsLayout
+            viewer={viewerData?.me}
+            layout={layout}
+            {...props}
+          />
+        )}
+      </HStack>
+    </VStack>
+  )
+}
+
+type LibraryItemsLayoutProps = {
+  layout: LayoutType
+  viewer?: UserBasicData
+} & HomeFeedContentProps
+
+function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element {
+  const [uploadingFiles, setUploadingFiles] = useState([])
+  const [inDragOperation, setInDragOperation] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
+
+  const [showRemoveLinkConfirmation, setShowRemoveLinkConfirmation] =
+    useState(false)
+  const [showUnsubscribeConfirmation, setShowUnsubscribeConfirmation] =
+    useState(false)
   const [, updateState] = useState({})
-
-  const StyledToggleButton = styled('button', {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    p: '0px',
-    backgroundColor: 'transparent',
-    border: 'none',
-    cursor: 'pointer',
-    width: '32px',
-    height: '32px',
-    borderRadius: '4px',
-    '&:hover': {
-      opacity: 0.8,
-    },
-    '&[data-state="on"]': {
-      bg: 'rgb(43, 43, 43)',
-    },
-  })
-
-  const DragnDropContainer = styled('div', {
-    width: '100%',
-    height: '80%',
-    position: 'absolute',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: '1',
-    alignSelf: 'center',
-    left: 0,
-  })
-
-  const DragnDropStyle = styled('div', {
-    border: '3px dashed gray',
-    backgroundColor: 'aliceblue',
-    borderRadius: '5px',
-    width: '100%',
-    height: '100%',
-    opacity: '0.9',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    alignSelf: 'center',
-    left: 0,
-    margin: '16px',
-  })
 
   const removeItem = () => {
     if (!props.linkToRemove) {
@@ -741,10 +743,6 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
     props.setLinkToUnsubscribe(undefined)
     setShowUnsubscribeConfirmation(false)
   }
-
-  const [uploadingFiles, setUploadingFiles] = useState([])
-  const [inDragOperation, setInDragOperation] = useState(false)
-  const [uploadProgress, setUploadProgress] = useState(0)
 
   const handleDrop = async (acceptedFiles: any) => {
     setInDragOperation(false)
@@ -795,116 +793,16 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
   return (
     <>
       <VStack
-        alignment="center"
+        alignment="start"
+        distribution="start"
         css={{
-          px: '$3',
-          width: '100%',
-          '@smDown': {
-            px: '$2',
-          },
+          height: '100%',
         }}
       >
         <Toaster />
 
         {props.isValidating && props.items.length == 0 && <TopBarProgress />}
-        <HStack alignment="center" distribution="start" css={{ width: '100%' }}>
-          <StyledText
-            style="subHeadline"
-            css={{
-              mr: '32px',
-              '@smDown': {
-                mr: '16px',
-              },
-            }}
-          >
-            Library
-          </StyledText>
-          <Box
-            css={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <StyledToggleButton
-              data-state={layout === 'GRID_LAYOUT' ? 'on' : 'off'}
-              onClick={() => {
-                updateLayout('GRID_LAYOUT')
-              }}
-            >
-              <GridLayoutIcon color={'rgb(211, 211, 213)'} />
-            </StyledToggleButton>
-            <StyledToggleButton
-              data-state={layout === 'LIST_LAYOUT' ? 'on' : 'off'}
-              onClick={() => {
-                updateLayout('LIST_LAYOUT')
-              }}
-            >
-              <ListLayoutIcon color={'rgb(211, 211, 213)'} />
-            </StyledToggleButton>
-          </Box>
-          <Button
-            style="ctaDarkYellow"
-            css={{ marginLeft: 'auto' }}
-            onClick={() => {
-              props.setShowAddLinkModal(true)
-            }}
-          >
-            Add Link
-          </Button>
-        </HStack>
-        <LibrarySearchBar
-          searchTerm={props.searchTerm}
-          applySearchQuery={props.applySearchQuery}
-        />
 
-        {viewerData?.me && (
-          <Box
-            css={{
-              display: 'flex',
-              width: '100%',
-              height: '44px',
-              marginTop: '16px',
-              gap: '8px',
-              flexDirection: 'row',
-              overflowY: 'scroll',
-              scrollbarWidth: 'none',
-              '&::-webkit-scrollbar': {
-                display: 'none',
-              },
-            }}
-          >
-            {Object.keys(SAVED_SEARCHES).map((key) => {
-              const isInboxTerm = (term: string) => {
-                return !term || term === 'in:inbox'
-              }
-
-              const searchQuery = SAVED_SEARCHES[key]
-              const style =
-                searchQuery === props.searchTerm ||
-                (!props.searchTerm && isInboxTerm(searchQuery))
-                  ? 'ctaDarkYellow'
-                  : 'ctaLightGray'
-              return (
-                <Button
-                  key={key}
-                  style={style}
-                  onClick={() => {
-                    props.applySearchQuery(searchQuery)
-                  }}
-                  css={{
-                    p: '10px 12px',
-                    height: '37.5px',
-                    borderRadius: '6px',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  {key}
-                </Button>
-              )
-            })}
-          </Box>
-        )}
         <Dropzone
           onDrop={handleDrop}
           onDragEnter={() => {
@@ -922,7 +820,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
           {({ getRootProps, getInputProps, acceptedFiles, fileRejections }) => (
             <div
               {...getRootProps({ className: 'dropzone' })}
-              style={{ width: '100%', height: '100%' }}
+              style={{ height: '100%', width: '100%' }}
             >
               {inDragOperation && uploadingFiles.length < 1 && (
                 <DragnDropContainer>
@@ -981,85 +879,21 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
                   }}
                 />
               ) : (
-                <Box
-                  ref={props.gridContainerRef}
-                  css={{
-                    py: '$3',
-                    display: 'grid',
-                    width: '100%',
-                    gridAutoRows: 'auto',
-                    borderRadius: '8px',
-                    gridGap: layout == 'LIST_LAYOUT' ? '0' : '$3',
-                    marginTop: layout == 'LIST_LAYOUT' ? '21px' : '0',
-                    marginBottom: '0px',
-                    paddingTop: layout == 'LIST_LAYOUT' ? '0' : '21px',
-                    paddingBottom: layout == 'LIST_LAYOUT' ? '0px' : '21px',
-                    overflow: 'hidden',
-                    '@smDown': {
-                      border: 'unset',
-                      width: layout == 'LIST_LAYOUT' ? '100vw' : undefined,
-                      margin:
-                        layout == 'LIST_LAYOUT' ? '16px -16px' : undefined,
-                      borderRadius: layout == 'LIST_LAYOUT' ? 0 : undefined,
-                    },
-                    '@md': {
-                      gridTemplateColumns:
-                        layout == 'LIST_LAYOUT' ? 'none' : '1fr 1fr',
-                    },
-                    '@lg': {
-                      gridTemplateColumns:
-                        layout == 'LIST_LAYOUT' ? 'none' : 'repeat(3, 1fr)',
-                    },
-                  }}
-                >
-                  {props.items.map((linkedItem) => (
-                    <Box
-                      className="linkedItemCard"
-                      data-testid="linkedItemCard"
-                      id={linkedItem.node.id}
-                      tabIndex={0}
-                      key={linkedItem.node.id}
-                      css={{
-                        width: '100%',
-                        '&> div': {
-                          bg: '$grayBg',
-                        },
-                        '&:focus': {
-                          '> div': {
-                            bg: '$grayBgActive',
-                          },
-                        },
-                        '&:hover': {
-                          '> div': {
-                            bg: '$grayBgActive',
-                          },
-                        },
-                      }}
-                    >
-                      {viewerData?.me && (
-                        <LinkedItemCard
-                          layout={layout}
-                          item={linkedItem.node}
-                          viewer={viewerData.me}
-                          handleAction={(action: LinkedItemCardAction) => {
-                            if (action === 'delete') {
-                              setShowRemoveLinkConfirmation(true)
-                              props.setLinkToRemove(linkedItem)
-                            } else if (action === 'editTitle') {
-                              props.setShowEditTitleModal(true)
-                              props.setLinkToEdit(linkedItem)
-                            } else if (action == 'unsubscribe') {
-                              setShowUnsubscribeConfirmation(true)
-                              props.setLinkToUnsubscribe(linkedItem)
-                            } else {
-                              props.actionHandler(action, linkedItem)
-                            }
-                          }}
-                        />
-                      )}
-                    </Box>
-                  ))}
-                </Box>
+                <LibraryItems
+                  items={props.items}
+                  layout={props.layout}
+                  viewer={props.viewer}
+                  gridContainerRef={props.gridContainerRef}
+                  setShowEditTitleModal={props.setShowEditTitleModal}
+                  setLinkToEdit={props.setLinkToEdit}
+                  setShowUnsubscribeConfirmation={
+                    setShowUnsubscribeConfirmation
+                  }
+                  setLinkToRemove={props.setLinkToRemove}
+                  setLinkToUnsubscribe={props.setLinkToUnsubscribe}
+                  setShowRemoveLinkConfirmation={setShowRemoveLinkConfirmation}
+                  actionHandler={props.actionHandler}
+                />
               )}
               <HStack
                 distribution="center"
@@ -1084,82 +918,17 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
           )}
         </Dropzone>
       </VStack>
-      {/* Temporary code */}
-      {/* <div>
-        <strong>Files:</strong>
-        <ul>
-          {uploadingFiles.map((fileName) => (
-            <li key={fileName}>{fileName}</li>
-          ))}
-        </ul>
-      </div> */}
-      {/* Temporary code */}
+
       {props.showAddLinkModal && (
         <AddLinkModal onOpenChange={() => props.setShowAddLinkModal(false)} />
       )}
       {props.showEditTitleModal && (
-        <EditTitleModal
+        <EditLibraryItemModal
           updateItem={(item: LibraryItem) =>
             props.actionHandler('update-item', item)
           }
           onOpenChange={() => props.setShowEditTitleModal(false)}
           item={props.linkToEdit as LibraryItem}
-        />
-      )}
-      {props.shareTarget && viewerData?.me?.profile.username && (
-        <ShareArticleModal
-          url={`${webBaseURL}${viewerData?.me?.profile.username}/${props.shareTarget.node.slug}/highlights?r=true`}
-          title={props.shareTarget.node.title}
-          imageURL={props.shareTarget.node.image}
-          author={props.shareTarget.node.author}
-          publishedAt={
-            props.shareTarget.node.publishedAt ??
-            props.shareTarget.node.createdAt
-          }
-          description={props.shareTarget.node.description}
-          originalArticleUrl={props.shareTarget.node.originalArticleUrl}
-          onOpenChange={() => {
-            if (props.shareTarget) {
-              const item = document.getElementById(props.shareTarget.node.id)
-              if (item) {
-                item.focus()
-              }
-              props.setShareTarget(undefined)
-            }
-          }}
-        />
-      )}
-      {props.snoozeTarget && (
-        <SnoozeLinkModal
-          submit={(option: string, sendReminder: boolean, msg: string) => {
-            if (!props.snoozeTarget) return
-            createReminderMutation(
-              props.snoozeTarget?.node.id,
-              ReminderType.Tonight,
-              true,
-              sendReminder
-            )
-              .then(() => {
-                return props.actionHandler('archive', props.snoozeTarget)
-              })
-              .then(() => {
-                showSuccessToast(msg, { position: 'bottom-right' })
-              })
-              .catch((error) => {
-                showErrorToast('There was an error snoozing your link.', {
-                  position: 'bottom-right',
-                })
-              })
-          }}
-          onOpenChange={() => {
-            if (props.snoozeTarget) {
-              const item = document.getElementById(props.snoozeTarget.node.id)
-              if (item) {
-                item.focus()
-              }
-              props.setSnoozeTarget(undefined)
-            }
-          }}
         />
       )}
       {showRemoveLinkConfirmation && (
@@ -1170,7 +939,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
                 Are you sure you want to delete this item? All associated notes
                 and highlights will be deleted.
               </StyledText>
-              {props.linkToRemove?.node && viewerData?.me && (
+              {props.linkToRemove?.node && props.viewer && (
                 <Box
                   css={{
                     transform: 'scale(0.6)',
@@ -1181,7 +950,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
                 >
                   <LinkedItemCard
                     item={props.linkToRemove?.node}
-                    viewer={viewerData.me}
+                    viewer={props.viewer}
                     layout="GRID_LAYOUT"
                     // eslint-disable-next-line @typescript-eslint/no-empty-function
                     handleAction={() => {}}
@@ -1230,5 +999,123 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
         />
       )}
     </>
+  )
+}
+
+type LibraryItemsProps = {
+  items: LibraryItem[]
+  layout: LayoutType
+  viewer: UserBasicData | undefined
+
+  gridContainerRef: React.RefObject<HTMLDivElement>
+
+  setShowEditTitleModal: (show: boolean) => void
+  setLinkToEdit: (set: LibraryItem | undefined) => void
+  setShowUnsubscribeConfirmation: (show: true) => void
+  setLinkToRemove: (set: LibraryItem | undefined) => void
+  setLinkToUnsubscribe: (set: LibraryItem | undefined) => void
+  setShowRemoveLinkConfirmation: (show: true) => void
+
+  actionHandler: (
+    action: LinkedItemCardAction,
+    item: LibraryItem | undefined
+  ) => Promise<void>
+}
+
+function LibraryItems(props: LibraryItemsProps): JSX.Element {
+  return (
+    <Box
+      ref={props.gridContainerRef}
+      css={{
+        py: '$3',
+        display: 'grid',
+        width: '100%',
+        gridAutoRows: 'auto',
+        borderRadius: '8px',
+        gridGap: props.layout == 'LIST_LAYOUT' ? '0' : '20px',
+        marginTop: props.layout == 'LIST_LAYOUT' ? '21px' : '0',
+        marginBottom: '0px',
+        paddingTop: props.layout == 'LIST_LAYOUT' ? '0' : '21px',
+        paddingBottom: props.layout == 'LIST_LAYOUT' ? '0px' : '21px',
+        overflow: 'hidden',
+        '@xlgDown': {
+          border: 'unset',
+          borderRadius: props.layout == 'LIST_LAYOUT' ? 0 : undefined,
+        },
+        '@smDown': {
+          border: 'unset',
+          width: props.layout == 'LIST_LAYOUT' ? '100vw' : undefined,
+          margin: props.layout == 'LIST_LAYOUT' ? '16px -16px' : undefined,
+          borderRadius: props.layout == 'LIST_LAYOUT' ? 0 : undefined,
+        },
+        '@md': {
+          gridTemplateColumns:
+            props.layout == 'LIST_LAYOUT' ? 'none' : '1fr 1fr',
+        },
+        '@lg': {
+          gridTemplateColumns:
+            props.layout == 'LIST_LAYOUT' ? 'none' : 'repeat(2, 1fr)',
+        },
+        '@xl': {
+          gridTemplateColumns:
+            props.layout == 'LIST_LAYOUT' ? 'none' : 'repeat(3, 1fr)',
+        },
+        '@xxl': {
+          gridTemplateColumns:
+            props.layout == 'LIST_LAYOUT' ? 'none' : 'repeat(4, 1fr)',
+        },
+      }}
+    >
+      {props.items.map((linkedItem) => (
+        <Box
+          className="linkedItemCard"
+          data-testid="linkedItemCard"
+          id={linkedItem.node.id}
+          tabIndex={0}
+          key={linkedItem.node.id}
+          css={{
+            width: '100%',
+            '&> div': {
+              bg: '$thBackground3',
+            },
+            '&:focus': {
+              '> div': {
+                bg: '$thBackgroundActive',
+              },
+            },
+            '&:hover': {
+              '> div': {
+                bg: '$thBackgroundActive',
+              },
+              '> a': {
+                bg: '$thBackgroundActive',
+              },
+            },
+          }}
+        >
+          {props.viewer && (
+            <LinkedItemCard
+              layout={props.layout}
+              item={linkedItem.node}
+              viewer={props.viewer}
+              handleAction={(action: LinkedItemCardAction) => {
+                if (action === 'delete') {
+                  props.setShowRemoveLinkConfirmation(true)
+                  props.setLinkToRemove(linkedItem)
+                } else if (action === 'editTitle') {
+                  props.setShowEditTitleModal(true)
+                  props.setLinkToEdit(linkedItem)
+                } else if (action == 'unsubscribe') {
+                  props.setShowUnsubscribeConfirmation(true)
+                  props.setLinkToUnsubscribe(linkedItem)
+                } else {
+                  props.actionHandler(action, linkedItem)
+                }
+              }}
+            />
+          )}
+        </Box>
+      ))}
+    </Box>
   )
 }

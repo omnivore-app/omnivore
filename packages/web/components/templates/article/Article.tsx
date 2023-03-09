@@ -4,14 +4,7 @@ import {
   ScrollOffsetChangeset,
   useScrollWatcher,
 } from '../../../lib/hooks/useScrollWatcher'
-import {
-  MutableRefObject,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import { MutableRefObject, useEffect, useMemo, useRef, useState } from 'react'
 import { Tweet } from 'react-twitter-widgets'
 import { render } from 'react-dom'
 import { isDarkTheme } from '../../../lib/themeUpdater'
@@ -97,28 +90,6 @@ export function Article(props: ArticleProps): JSX.Element {
     }
   }, 1000)
 
-  const layoutImages = useCallback(
-    (image: HTMLImageElement, container: HTMLDivElement | null) => {
-      if (!container) return
-      const containerWidth = container.clientWidth + 140
-
-      if (!image.closest('blockquote, table')) {
-        let imageWidth = parseFloat(image.getAttribute('width') || '')
-        imageWidth = isNaN(imageWidth) ? image.naturalWidth : imageWidth
-
-        if (imageWidth > containerWidth) {
-          image.style.setProperty(
-            'width',
-            `${Math.min(imageWidth, containerWidth)}px`
-          )
-          image.style.setProperty('max-width', 'unset')
-          image.style.setProperty('margin-left', `-${Math.round(140 / 2)}px`)
-        }
-      }
-    },
-    []
-  )
-
   // Scroll to initial anchor position
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -192,22 +163,6 @@ export function Article(props: ArticleProps): JSX.Element {
       )
     })
   }, [])
-
-  const onLoadImageHandler = useCallback(() => {
-    const images = articleContentRef.current?.querySelectorAll('img')
-
-    images?.forEach((image) => {
-      layoutImages(image, articleContentRef.current)
-    })
-  }, [layoutImages])
-
-  useEffect(() => {
-    window.addEventListener('load', onLoadImageHandler)
-
-    return () => {
-      window.removeEventListener('load', onLoadImageHandler)
-    }
-  }, [onLoadImageHandler])
 
   return (
     <>

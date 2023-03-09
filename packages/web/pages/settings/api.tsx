@@ -1,6 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
-import { useRouter } from 'next/router'
-
+import { useMemo, useState } from 'react'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import { applyStoredTheme } from '../../lib/themeUpdater'
 import { useGetApiKeysQuery } from '../../lib/networking/queries/useGetApiKeysQuery'

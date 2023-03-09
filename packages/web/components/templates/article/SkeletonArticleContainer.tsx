@@ -1,5 +1,4 @@
 import { Box } from '../../elements/LayoutPrimitives'
-import { StyledText } from '../../elements/StyledText'
 import { theme } from '../../tokens/stitches.config'
 
 type SkeletonArticleContainerProps = {
@@ -10,7 +9,9 @@ type SkeletonArticleContainerProps = {
   children?: React.ReactNode
 }
 
-export function SkeletonArticleContainer(props: SkeletonArticleContainerProps): JSX.Element {
+export function SkeletonArticleContainer(
+  props: SkeletonArticleContainerProps
+): JSX.Element {
   const styles = {
     margin: props.margin ?? 360,
     fontSize: props.fontSize ?? 20,
@@ -46,14 +47,14 @@ export function SkeletonArticleContainer(props: SkeletonArticleContainerProps): 
             '--blockquote-icon-font-size': '1.7rem',
             '--figure-margin': '2.6875rem auto',
             '--hr-margin': '2em',
-            margin: `30px 0px`,
+            margin: `0px`,
           },
           '@md': {
-            maxWidth: 1024 - (styles.margin),
+            maxWidth: 1024 - styles.margin,
           },
           '@lg': {
-            margin: `30px 0`,
-            maxWidth: 1024 - (styles.margin),
+            margin: `0`,
+            maxWidth: 1024 - styles.margin,
           },
         }}
       >

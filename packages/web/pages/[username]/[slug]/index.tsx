@@ -9,12 +9,9 @@ import { useRouter } from 'next/router'
 import { VStack } from './../../../components/elements/LayoutPrimitives'
 import { ArticleContainer } from './../../../components/templates/article/ArticleContainer'
 import { PdfArticleContainerProps } from './../../../components/templates/article/PdfArticleContainer'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
-import {
-  articleKeyboardCommands,
-  navigationCommands,
-} from '../../../lib/keyboardShortcuts/navigationShortcuts'
+import { navigationCommands } from '../../../lib/keyboardShortcuts/navigationShortcuts'
 import dynamic from 'next/dynamic'
 import { webBaseURL } from '../../../lib/appConfig'
 import { Toaster } from 'react-hot-toast'
@@ -24,7 +21,6 @@ import { mergeHighlightMutation } from '../../../lib/networking/mutations/mergeH
 import { articleReadingProgressMutation } from '../../../lib/networking/mutations/articleReadingProgressMutation'
 import { updateHighlightMutation } from '../../../lib/networking/mutations/updateHighlightMutation'
 import Script from 'next/script'
-import { theme } from '../../../components/tokens/stitches.config'
 import { ArticleActionsMenu } from '../../../components/templates/article/ArticleActionsMenu'
 import { setLinkArchivedMutation } from '../../../lib/networking/mutations/setLinkArchivedMutation'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
@@ -38,6 +34,10 @@ import { useRegisterActions } from 'kbar'
 import { deleteLinkMutation } from '../../../lib/networking/mutations/deleteLinkMutation'
 import { ConfirmationModal } from '../../../components/patterns/ConfirmationModal'
 import { setLabelsMutation } from '../../../lib/networking/mutations/setLabelsMutation'
+import { ReaderHeader } from '../../../components/templates/reader/ReaderHeader'
+import { EditArticleModal } from '../../../components/templates/homeFeed/EditItemModals'
+import { VerticalArticleActionsMenu } from '../../../components/templates/article/VerticalArticleActions'
+import { HeaderSpacer } from '../../../components/templates/homeFeed/HeaderSpacer'
 
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
   () => import('./../../../components/templates/article/PdfArticleContainer'),
@@ -49,6 +49,8 @@ export default function Home(): JSX.Element {
   const { cache, mutate } = useSWRConfig()
   const scrollRef = useRef<HTMLDivElement | null>(null)
   const { slug } = router.query
+
+  const [showEditModal, setShowEditModal] = useState(false)
   const [showHighlightsModal, setShowHighlightsModal] = useState(false)
   const { viewerData } = useGetViewerQuery()
   const readerSettings = useReaderSettings()
@@ -132,6 +134,9 @@ export default function Home(): JSX.Element {
         case 'showHighlights':
           setShowHighlightsModal(true)
           break
+        case 'showEditModal':
+          setShowEditModal(true)
+          break
         default:
           readerSettings.actionHandler(action, arg)
           break
@@ -161,12 +166,6 @@ export default function Home(): JSX.Element {
     }
   }, [actionHandler])
 
-  useKeyboardShortcuts(
-    articleKeyboardCommands(router, async (action) => {
-      actionHandler(action)
-    })
-  )
-
   useEffect(() => {
     if (article && viewerData?.me) {
       window.analytics?.track('link_read', {
@@ -191,7 +190,7 @@ export default function Home(): JSX.Element {
       })
       router.push(`/home`)
     }
-  }, [article])
+  }, [article, cache, mutate, router])
 
   useRegisterActions(
     [
@@ -209,7 +208,15 @@ export default function Home(): JSX.Element {
         section: 'Article',
         name: 'Return to library',
         shortcut: ['u'],
-        perform: () => router.push(`/home`),
+        perform: () => {
+          const query = window.sessionStorage.getItem('q')
+          if (query) {
+            router.push(`/home?${query}`)
+            return
+          } else {
+            router.push(`/home`)
+          }
+        },
       },
       {
         id: 'archive',
@@ -256,6 +263,13 @@ export default function Home(): JSX.Element {
           setShowHighlightsModal(true)
         },
       },
+      {
+        id: 'edit_title',
+        section: 'Article',
+        name: 'Edit title and description',
+        shortcut: ['i'],
+        perform: () => setShowEditModal(true),
+      },
     ],
     []
   )
@@ -291,13 +305,28 @@ export default function Home(): JSX.Element {
       />
       <Toaster />
 
+      <ReaderHeader
+        showDisplaySettingsModal={
+          readerSettings.setShowEditDisplaySettingsModal
+        }
+        alwaysDisplayToolbar={article?.contentReader == 'PDF'}
+      >
+        <VerticalArticleActionsMenu
+          article={article}
+          layout="top"
+          showReaderDisplaySettings={article?.contentReader != 'PDF'}
+          articleActionHandler={actionHandler}
+        />
+      </ReaderHeader>
+
+      {article?.contentReader == 'PDF' && <HeaderSpacer />}
+
       <VStack
         distribution="between"
         alignment="center"
         css={{
           position: 'fixed',
           flexDirection: 'row-reverse',
-          top: '-120px',
           left: 8,
           height: '100%',
           width: '35px',
@@ -325,13 +354,13 @@ export default function Home(): JSX.Element {
       ) : (
         <VStack
           alignment="center"
-          distribution="center"
+          distribution="start"
           ref={scrollRef}
           className="disable-webkit-callout"
           css={{
-            '@smDown': {
-              background: theme.colors.grayBg.toString(),
-            },
+            width: '100%',
+            height: '100%',
+            background: '$thBackground',
           }}
         >
           {article && viewerData?.me ? (
@@ -347,6 +376,8 @@ export default function Home(): JSX.Element {
               labels={labels}
               showHighlightsModal={showHighlightsModal}
               setShowHighlightsModal={setShowHighlightsModal}
+              justifyText={readerSettings.justifyText ?? undefined}
+              highContrastText={readerSettings.highContrastText ?? undefined}
               articleMutations={{
                 createHighlightMutation,
                 deleteHighlightMutation,
@@ -383,10 +414,10 @@ export default function Home(): JSX.Element {
       {readerSettings.showEditDisplaySettingsModal && (
         <DisplaySettingsModal
           centerX={true}
-          articleActionHandler={actionHandler}
-          onOpenChange={() =>
+          readerSettings={readerSettings}
+          onOpenChange={() => {
             readerSettings.setShowEditDisplaySettingsModal(false)
-          }
+          }}
         />
       )}
       {readerSettings.showDeleteConfirmation && (
@@ -394,6 +425,19 @@ export default function Home(): JSX.Element {
           message={'Are you sure you want to delete this page?'}
           onAccept={deleteCurrentItem}
           onOpenChange={() => readerSettings.setShowDeleteConfirmation(false)}
+        />
+      )}
+      {article && showEditModal && (
+        <EditArticleModal
+          article={article}
+          onOpenChange={() => setShowEditModal(false)}
+          updateArticle={(title, author, description, savedAt, publishedAt) => {
+            article.title = title
+            article.author = author
+            article.description = description
+            article.savedAt = savedAt
+            article.publishedAt = publishedAt
+          }}
         />
       )}
     </PrimaryLayout>

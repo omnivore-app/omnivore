@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/router'
 import { Toaster } from 'react-hot-toast'
 
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import { applyStoredTheme } from '../../lib/themeUpdater'
 
-import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
+import { SettingsLayout } from '../../components/templates/SettingsLayout'
 
 import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
 import { Button } from '../../components/elements/Button'
@@ -24,13 +24,13 @@ export default function DeleteMyAccount(): JSX.Element {
   async function deleteAccount(): Promise<void> {
     const viewerId = viewer.viewerData?.me?.id
     if (!viewerId) {
-      showErrorToast("Error deleting user, no user id found.")
+      showErrorToast('Error deleting user, no user id found.')
       return
     }
 
     const result = await deleteAccountMutation(viewerId)
     if (result) {
-      showSuccessToast('Account deleted',)
+      showSuccessToast('Account deleted')
       setTimeout(() => {
         window.location.href = '/login'
       }, 2000)
@@ -46,7 +46,7 @@ export default function DeleteMyAccount(): JSX.Element {
   }
 
   return (
-    <PrimaryLayout pageTestId={'api-keys'}>
+    <SettingsLayout>
       <Toaster
         containerStyle={{
           top: '5rem',
@@ -55,22 +55,23 @@ export default function DeleteMyAccount(): JSX.Element {
 
       {showConfirm ? (
         <ConfirmationModal
-          message={'Are you sure you want to delete your account? This can not be reversed and all your data (saved articles, highlights, and notes) will be deleted.'}
+          message={
+            'Are you sure you want to delete your account? This can not be reversed and all your data (saved articles, highlights, and notes) will be deleted.'
+          }
           onAccept={deleteAccount}
           onOpenChange={() => setShowConfirm(false)}
         />
       ) : null}
 
-      <HStack css={{ padding: '24px', width: '100%', height: '100%'}}>
+      <HStack css={{ padding: '24px', width: '100%', height: '100%' }}>
         {viewer && router ? (
-          <Button
-            style="ctaDarkYellow"
-            onClick={() => setShowConfirm(true)}
-          >
+          <Button style="ctaDarkYellow" onClick={() => setShowConfirm(true)}>
             Delete my Account
           </Button>
-        ) : <Loader />}
+        ) : (
+          <Loader />
+        )}
       </HStack>
-    </PrimaryLayout>
+    </SettingsLayout>
   )
 }

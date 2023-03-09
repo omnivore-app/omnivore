@@ -3,8 +3,6 @@ import {
   lighterTheme,
   darkTheme,
   darkerTheme,
-  sepiaTheme,
-  charcoalTheme,
 } from '../components/tokens/stitches.config'
 import { userPersonalizationMutation } from './networking/mutations/userPersonalizationMutation'
 
@@ -57,7 +55,7 @@ export function currentThemeName(): string {
   }
 }
 
-function currentTheme(): ThemeId | undefined {
+export function currentTheme(): ThemeId | undefined {
   if (typeof window === 'undefined') {
     return undefined
   }

@@ -19,13 +19,17 @@ import {
   KBarSearch,
   Priority,
 } from 'kbar'
-import { animatorStyle, KBarResultsComponents, searchStyle } from '../components/elements/KBar'
+import {
+  animatorStyle,
+  KBarResultsComponents,
+  searchStyle,
+} from '../components/elements/KBar'
 import { darkenTheme, lightenTheme } from '../lib/themeUpdater'
 
 TopBarProgress.config({
   barColors: {
-    "0": '#FFD234',
-    "1.0": '#FFD234',
+    '0': '#FFD234',
+    '1.0': '#FFD234',
   },
   shadowBlur: 0,
   barThickness: 2,
@@ -99,7 +103,7 @@ function OmnivoreApp({ Component, pageProps }: AppProps): JSX.Element {
   return (
     <KBarProvider actions={generateActions(router)}>
       <KBarPortal>
-        <KBarPositioner>
+        <KBarPositioner style={{ zIndex: 100 }}>
           <KBarAnimator style={animatorStyle}>
             <KBarSearch style={searchStyle} />
             <KBarResultsComponents />

@@ -1,16 +1,4 @@
-import { config } from '../../tokens/stitches.config'
-
-type PenWithColorProps = {
-  color?: string
-  width?: number
-  height?: number
-}
-
-export function PenWithColorIcon({
-  color,
-  height,
-  width,
-}: PenWithColorProps): JSX.Element {
+export function PenWithColorIcon(): JSX.Element {
   return (
     <svg
       width="24"

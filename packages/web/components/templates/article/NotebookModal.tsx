@@ -4,20 +4,14 @@ import {
   ModalContent,
   ModalTitleBar,
 } from '../../elements/ModalPrimitives'
-import {
-  Box,
-  HStack,
-  VStack,
-  Separator,
-  SpanBox,
-} from '../../elements/LayoutPrimitives'
+import { Box, HStack, VStack, SpanBox } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { StyledText } from '../../elements/StyledText'
 import { TrashIcon } from '../../elements/images/TrashIcon'
 import { theme } from '../../tokens/stitches.config'
 import type { Highlight } from '../../../lib/networking/fragments/highlightFragment'
 import { HighlightView } from '../../patterns/HighlightView'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { StyledTextArea } from '../../elements/StyledTextArea'
 import { ConfirmationModal } from '../../patterns/ConfirmationModal'
 import { DotsThree } from 'phosphor-react'
@@ -28,6 +22,7 @@ import { setLabelsForHighlight } from '../../../lib/networking/mutations/setLabe
 import { updateHighlightMutation } from '../../../lib/networking/mutations/updateHighlightMutation'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { diff_match_patch } from 'diff-match-patch'
+import { HighlightNoteTextEditArea } from '../../elements/HighlightNoteTextEditArea'
 
 type NotebookModalProps = {
   highlights: Highlight[]
@@ -215,12 +210,12 @@ function ModalHighlightView(props: ModalHighlightViewProps): JSX.Element {
         {!isEditing ? (
           <StyledText
             css={{
-              borderRadius: '6px',
-              bg: '$grayBase',
+              borderRadius: '5px',
               p: '16px',
               width: '100%',
               marginTop: '24px',
-              color: '$grayText',
+              bg: '#EBEBEB',
+              color: '#3D3D3D',
             }}
             onClick={() => setIsEditing(true)}
           >
@@ -230,7 +225,7 @@ function ModalHighlightView(props: ModalHighlightViewProps): JSX.Element {
           </StyledText>
         ) : null}
         {isEditing && (
-          <TextEditArea
+          <HighlightNoteTextEditArea
             setIsEditing={setIsEditing}
             highlight={props.highlight}
             updateHighlight={props.updateHighlight}
@@ -239,88 +234,5 @@ function ModalHighlightView(props: ModalHighlightViewProps): JSX.Element {
         <SpanBox css={{ mt: '$2', mb: '$4' }} />
       </VStack>
     </>
-  )
-}
-
-type TextEditAreaProps = {
-  setIsEditing: (editing: boolean) => void
-  highlight: Highlight
-  updateHighlight: (highlight: Highlight) => void
-}
-
-const TextEditArea = (props: TextEditAreaProps): JSX.Element => {
-  const [noteContent, setNoteContent] = useState(
-    props.highlight.annotation ?? ''
-  )
-
-  const handleNoteContentChange = useCallback(
-    (event: React.ChangeEvent<HTMLTextAreaElement>): void => {
-      setNoteContent(event.target.value)
-    },
-    [setNoteContent]
-  )
-
-  return (
-    <VStack css={{ width: '100%' }} key="textEditor">
-      <StyledTextArea
-        css={{
-          my: '$3',
-          minHeight: '$6',
-          borderRadius: '6px',
-          bg: '$grayBase',
-          p: '16px',
-          width: '100%',
-          marginTop: '16px',
-          resize: 'vertical',
-        }}
-        autoFocus
-        maxLength={4000}
-        value={noteContent}
-        placeholder={'Add your notes...'}
-        onChange={handleNoteContentChange}
-      />
-      <HStack alignment="center" distribution="end" css={{ width: '100%' }}>
-        <Button
-          style="ctaPill"
-          css={{ mr: '$2' }}
-          onClick={() => {
-            props.setIsEditing(false)
-            setNoteContent(props.highlight.annotation ?? '')
-          }}
-        >
-          Cancel
-        </Button>
-        <Button
-          style="ctaDarkYellow"
-          onClick={async (e) => {
-            e.preventDefault()
-
-            console.log('updating highlight')
-            try {
-              const result = await updateHighlightMutation({
-                highlightId: props.highlight.id,
-                annotation: noteContent,
-              })
-              console.log('result: ' + result)
-
-              if (!result) {
-                showErrorToast('There was an error updating your highlight.')
-              } else {
-                showSuccessToast('Note saved')
-                props.highlight.annotation = noteContent
-                props.updateHighlight(props.highlight)
-              }
-            } catch (err) {
-              console.log('error updating annoation', err)
-              showErrorToast('There was an error updating your highlight.')
-            }
-
-            props.setIsEditing(false)
-          }}
-        >
-          Save
-        </Button>
-      </HStack>
-    </VStack>
   )
 }

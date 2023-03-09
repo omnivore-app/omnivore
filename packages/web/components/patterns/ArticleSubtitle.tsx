@@ -5,14 +5,13 @@ import { formattedLongDate } from './../../lib/dateFormatting'
 type SubtitleStyle = 'footnote' | 'shareSubtitle'
 
 type ArticleSubtitleProps = {
-  rawDisplayDate: string
   href: string
   author?: string
   style?: SubtitleStyle
   hideButton?: boolean
 }
 
-export function ArticleSubtitle(props: ArticleSubtitleProps): JSX.Element {  
+export function ArticleSubtitle(props: ArticleSubtitleProps): JSX.Element {
   const textStyle = props.style || 'footnote'
   const subtitle = articleSubtitle(props.href, props.author)
 
@@ -20,11 +19,11 @@ export function ArticleSubtitle(props: ArticleSubtitleProps): JSX.Element {
     <Box>
       <StyledText style={textStyle} css={{ wordBreak: 'break-word' }}>
         {subtitle}{' '}
-        {subtitle && (<span style={{ position: 'relative', bottom: 1 }}>• </span>)}{' '}
-        {formattedLongDate(props.rawDisplayDate)}{' '}
+        {subtitle && (
+          <span style={{ position: 'relative', bottom: 1 }}>• </span>
+        )}{' '}
         {!props.hideButton && !shouldHideUrl(props.href) && (
           <>
-            <span style={{ position: 'relative', bottom: 1 }}>• </span>{' '}
             <StyledLink
               href={props.href}
               target="_blank"
@@ -38,6 +37,20 @@ export function ArticleSubtitle(props: ArticleSubtitleProps): JSX.Element {
             </StyledLink>
           </>
         )}
+      </StyledText>
+    </Box>
+  )
+}
+
+type ReaderSavedInfoProps = {
+  rawDisplayDate: string
+}
+
+export function ReaderSavedInfo(props: ReaderSavedInfoProps): JSX.Element {
+  return (
+    <Box>
+      <StyledText css={{ wordBreak: 'break-word', fontSize: '15' }}>
+        {formattedLongDate(props.rawDisplayDate)}{' '}
       </StyledText>
     </Box>
   )
