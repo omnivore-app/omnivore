@@ -199,7 +199,7 @@ type HighlightsMenuProps = {
   setShowConfirmDeleteHighlightId: (set: string) => void
 }
 
-function HighlightsMenu(props: HighlightsMenuProps): JSX.Element {
+export function HighlightsMenu(props: HighlightsMenuProps): JSX.Element {
   const copyHighlight = useCallback(() => {
     ;(async () => {
       await navigator.clipboard.writeText(props.highlight.quote)
