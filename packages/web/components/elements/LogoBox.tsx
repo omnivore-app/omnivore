@@ -32,7 +32,7 @@ export function LogoBox(): JSX.Element {
           },
         }}
       >
-        <OmnivoreNameLogo />
+        <OmnivoreNameLogo color={theme.colors.thHighContrast.toString()} />
       </SpanBox>
     </>
   )

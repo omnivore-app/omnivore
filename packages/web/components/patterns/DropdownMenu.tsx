@@ -11,10 +11,8 @@ import { currentThemeName } from '../../lib/themeUpdater'
 import { Check } from 'phosphor-react'
 
 export type HeaderDropdownAction =
-  | 'apply-darker-theme'
   | 'apply-dark-theme'
   | 'apply-light-theme'
-  | 'apply-lighter-theme'
   | 'navigate-to-install'
   | 'navigate-to-emails'
   | 'navigate-to-labels'
@@ -49,7 +47,7 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
             css={{ background: '#FFFFFF' }}
             data-state={isDark ? 'unselected' : 'selected'}
             onClick={() => {
-              props.actionHandler('apply-lighter-theme')
+              props.actionHandler('apply-light-theme')
               setCurrentTheme(currentThemeName())
             }}
           >

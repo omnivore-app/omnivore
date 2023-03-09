@@ -2,12 +2,10 @@ import type * as Stitches from '@stitches/react'
 import { createStitches, createTheme } from '@stitches/react'
 
 export enum ThemeId {
-  Lighter = 'White',
-  Light = 'LightGray',
-  Dark = 'Gray',
-  Darker = 'Dark',
+  Light = 'Light',
+  Dark = 'Dark',
   Sepia = 'Sepia',
-  Charcoal = 'Charcoal',
+  Apollo = 'Apollo',
 }
 
 export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
@@ -150,6 +148,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         readerFont: '#3D3D3D',
         readerFontHighContrast: 'black',
         readerTableHeader: '#FFFFFF',
+        readerMargin: 'white',
 
         // Avatar Fallback color
         avatarBg: '#FFEA9F',
@@ -232,6 +231,8 @@ const darkThemeSpec = {
     readerFont: '#b9b9b9',
     readerFontHighContrast: 'white',
     readerTableHeader: '#FFFFFF',
+    readerMargin: '#2A2A2A',
+
     avatarBg: '#7B5C3E',
     avatarFont: '#D9D9D9',
 
@@ -277,42 +278,37 @@ const darkThemeSpec = {
 
 const sepiaThemeSpec = {
   colors: {
-    // Reader Colors
-    readerBg: '#F9F1DC',
-    readerFont: '#554A34',
-    readerFontHighContrast: 'black',
-    readerHeader: '554A34',
+    BACKING: 'red',
+    readerBg: '#FBF0D9',
+    readerFont: '#5F4B32',
+    readerMargin: '#F3F3F3',
+    readerFontHighContrast: '#0A0806',
     readerTableHeader: '#FFFFFF',
   },
 }
 
-const charcoalThemeSpec = {
+const apolloThemeSpec = {
   colors: {
-    // Reader Colors
-    readerBg: '#303030',
-    readerFont: '#b9b9b9',
+    readerBg: '#6A6968',
+    readerFont: '#F3F3F3',
+    readerMargin: '#474747',
     readerFontHighContrast: 'white',
-    readerHeader: '#b9b9b9',
     readerTableHeader: '#FFFFFF',
   },
 }
 
-// Dark and Darker theme now match each other.
-// Use the darkThemeSpec object to make updates.
 export const darkTheme = createTheme(ThemeId.Dark, darkThemeSpec)
-export const darkerTheme = createTheme(ThemeId.Darker, darkThemeSpec)
 export const sepiaTheme = createTheme(ThemeId.Sepia, {
   ...darkThemeSpec,
   ...sepiaThemeSpec,
 })
-export const charcoalTheme = createTheme(ThemeId.Charcoal, {
+export const apolloTheme = createTheme(ThemeId.Apollo, {
   ...darkThemeSpec,
-  ...charcoalThemeSpec,
+  colors: {
+    ...darkThemeSpec.colors,
+    ...apolloThemeSpec.colors,
+  },
 })
-
-// Lighter theme now matches the default theme.
-// This only exists for users that might still have a lighter theme set
-export const lighterTheme = createTheme(ThemeId.Lighter, {})
 
 // Apply global styles in here
 export const globalStyles = globalCss({

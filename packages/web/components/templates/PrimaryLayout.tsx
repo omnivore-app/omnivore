@@ -10,6 +10,7 @@ import { KeyboardShortcutListModal } from './KeyboardShortcutListModal'
 import { logoutMutation } from '../../lib/networking/mutations/logoutMutation'
 import { setupAnalytics } from '../../lib/analytics'
 import { primaryCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
+import { applyStoredTheme } from '../../lib/themeUpdater'
 
 type PrimaryLayoutProps = {
   children: ReactNode
@@ -21,6 +22,8 @@ type PrimaryLayoutProps = {
 }
 
 export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
+  applyStoredTheme(false)
+
   const { viewerData } = useGetViewerQuery()
   const router = useRouter()
   const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false)

@@ -47,7 +47,6 @@ const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
 export default function Home(): JSX.Element {
   const router = useRouter()
   const { cache, mutate } = useSWRConfig()
-  const scrollRef = useRef<HTMLDivElement | null>(null)
   const { slug } = router.query
 
   const [showEditModal, setShowEditModal] = useState(false)
@@ -355,12 +354,12 @@ export default function Home(): JSX.Element {
         <VStack
           alignment="center"
           distribution="start"
-          ref={scrollRef}
           className="disable-webkit-callout"
           css={{
             width: '100%',
             height: '100%',
-            background: '$thBackground',
+            background: '$readerMargin',
+            overflow: 'scroll',
           }}
         >
           {article && viewerData?.me ? (
