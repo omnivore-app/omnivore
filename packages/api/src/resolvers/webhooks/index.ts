@@ -194,20 +194,7 @@ export const setWebhookResolver = authorized<
       }
 
       webhookToSave.id = input.id
-    } else {
-      // Create
-      const existingWebhook = await getRepository(Webhook).findOneBy({
-        user: { id: uid },
-        eventTypes: `{${input.eventTypes.join(',')}}`,
-      })
-
-      if (existingWebhook) {
-        return {
-          errorCodes: [SetWebhookErrorCode.AlreadyExists],
-        }
-      }
     }
-
     const webhook = await getRepository(Webhook).save({
       user,
       ...webhookToSave,

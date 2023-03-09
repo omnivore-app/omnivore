@@ -4,6 +4,11 @@ import Checkbox from './Checkbox'
 import { HStack, VStack } from './LayoutPrimitives'
 import { Label } from '@radix-ui/react-dropdown-menu'
 
+interface FormInputPropsOption {
+  label: string
+  value: string
+}
+
 export interface FormInputProps {
   name: string
   label: string
@@ -15,7 +20,7 @@ export interface FormInputProps {
   hidden?: boolean
   required?: boolean
   css?: any
-  options?: string[]
+  options?: string[] | FormInputPropsOption[]
   min?: any
 }
 
@@ -69,23 +74,49 @@ export function GeneralFormInput(props: FormInputProps): JSX.Element {
 
     return (
       <VStack>
-        {input.options?.map((label, index) => (
-          <HStack key={index} alignment="center">
-            <Checkbox
-              key={index}
-              checked={input.value[index]}
-              setChecked={(arg) => {
-                input.value[index] = arg
-                setInput(input)
-                props.onChange &&
-                  props.onChange(
-                    input.options?.filter((_, i) => input.value[i])
-                  )
-              }}
-            ></Checkbox>
-            <StyledLabel>{label}</StyledLabel>
-          </HStack>
-        ))}
+        {input.options?.map((option, index) => {
+          if (typeof option === 'string') {
+            return (
+              <HStack key={index} alignment="center">
+                <Checkbox
+                  key={index}
+                  checked={input.value[index]}
+                  setChecked={(arg) => {
+                    input.value[index] = arg
+                    setInput(input)
+                    props.onChange &&
+                      props.onChange(
+                        (input.options as string[]).filter(
+                          (_, i) => input.value[i]
+                        )
+                      )
+                  }}
+                ></Checkbox>
+                <StyledLabel>{option}</StyledLabel>
+              </HStack>
+            )
+          } else {
+            return (
+              <HStack key={index} alignment="center">
+                <Checkbox
+                  key={index}
+                  checked={input.value[index]}
+                  setChecked={(arg) => {
+                    input.value[index] = arg
+                    setInput(input)
+                    props.onChange &&
+                      props.onChange(
+                        (input.options as FormInputPropsOption[])
+                          .filter((_, i) => input.value[i])
+                          .map((option) => option.value)
+                      )
+                  }}
+                ></Checkbox>
+                <StyledLabel>{option.label}</StyledLabel>
+              </HStack>
+            )
+          }
+        })}
       </VStack>
     )
   } else if (props.type === 'select') {
@@ -100,11 +131,21 @@ export function GeneralFormInput(props: FormInputProps): JSX.Element {
           minWidth: '196px',
         }}
       >
-        {input.options?.map((label, index) => (
-          <option key={index} value={label}>
-            {label}
-          </option>
-        ))}
+        {input.options?.map((option, index) => {
+          if (typeof option === 'string') {
+            return (
+              <option key={index} value={option}>
+                {option}
+              </option>
+            )
+          } else {
+            return (
+              <option key={index} value={option.value}>
+                {option.label}
+              </option>
+            )
+          }
+        })}
       </select>
     )
   } else {
