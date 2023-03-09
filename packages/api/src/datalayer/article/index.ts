@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { ArticleData, CreateSet, keys as modelKeys, UpdateSet } from './model'
 import DataModel from '../model'
-import Knex from 'knex'
+import { Knex } from 'knex'
 import { Table } from '../../utils/dictionary'
 import { logMethod } from '../helpers'
 

@@ -41,6 +41,7 @@ export const updatePageResolver = authorized<
     description: input.description ?? undefined,
     author: input.byline ?? undefined,
     savedAt: input.savedAt ? new Date(input.savedAt) : undefined,
+    publishedAt: input.publishedAt ? new Date(input.publishedAt) : undefined,
   }
 
   const updateResult = await updatePage(input.pageId, pageData, { ...ctx, uid })

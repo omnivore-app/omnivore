@@ -5,7 +5,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import DataModel from './model'
-import Knex, { Transaction } from 'knex'
+import { Knex } from 'knex'
 import DataLoader from 'dataloader'
 import { snakeCase } from 'snake-case'
 import { buildLogger } from '../utils/logger'
@@ -14,7 +14,7 @@ import { SetClaimsRole } from '../utils/dictionary'
 const logger = buildLogger('datalayer')
 
 export const setClaims = async (
-  tx: Transaction,
+  tx: Knex.Transaction,
   uuid?: string,
   userRole?: string
 ): Promise<void> => {

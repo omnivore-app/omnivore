@@ -2075,6 +2075,7 @@ enum UpdateHighlightErrorCode {
 input UpdateHighlightInput {
   annotation: String
   highlightId: ID!
+  quote: String
   sharedAt: Date
 }
 
@@ -2166,6 +2167,7 @@ input UpdatePageInput {
   byline: String
   description: String
   pageId: ID!
+  publishedAt: Date
   savedAt: Date
   title: String
 }

@@ -7,7 +7,7 @@
 import { ContextFunction } from 'apollo-server-core'
 import { ClaimsToSet, ResolverContext } from './resolvers/types'
 import { SetClaimsRole } from './utils/dictionary'
-import Knex, { Transaction } from 'knex'
+import { Knex } from 'knex'
 import { ExpressContext } from 'apollo-server-express/dist/ApolloServer'
 import * as jwt from 'jsonwebtoken'
 import { kx } from './datalayer/knex_config'
@@ -48,7 +48,7 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
   const claims = await getClaimsByToken(token)
 
   async function setClaims(
-    tx: Transaction,
+    tx: Knex.Transaction,
     uuid?: string,
     userRole?: string
   ): Promise<void> {
