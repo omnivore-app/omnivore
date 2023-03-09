@@ -334,6 +334,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
       'includes',
       'recommendedBy',
       'no',
+      'mode',
     ],
     tokenize: true,
   })
@@ -424,6 +425,9 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
           noFilter && result.noFilters.push(noFilter)
           break
         }
+        case 'mode':
+          // mode is ignored and used only by the frontend
+          break
       }
     }
   }

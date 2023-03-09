@@ -11,7 +11,6 @@ import { theme } from '../../tokens/stitches.config'
 import { currentThemeName } from '../../../lib/themeUpdater'
 import { MOBILE_HEADER_HEIGHT } from './HeaderSpacer'
 import { useRegisterActions } from 'kbar'
-import { LibraryMode } from './HomeFeedContainer'
 
 export const LIBRARY_LEFT_MENU_WIDTH = '300px'
 
@@ -23,8 +22,6 @@ type LibraryFilterMenuProps = {
 
   showFilterMenu: boolean
   setShowFilterMenu: (show: boolean) => void
-
-  setMode: (mode: LibraryMode) => void
 }
 
 export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
@@ -88,8 +85,7 @@ function SavedSearches(props: LibraryFilterMenuProps): JSX.Element {
     },
     {
       name: 'Highlights',
-      term: 'has:highlights',
-      mode: 'highlights' as LibraryMode,
+      term: 'has:highlights mode:highlights',
     },
     {
       name: 'Unlabeled',
@@ -115,7 +111,6 @@ function SavedSearches(props: LibraryFilterMenuProps): JSX.Element {
         section: 'Saved Searches',
         keywords: '?' + item.name,
         perform: () => {
-          props.setMode(item.mode ?? 'reads')
           props.applySearchQuery(item.term)
         },
       }
@@ -130,7 +125,6 @@ function SavedSearches(props: LibraryFilterMenuProps): JSX.Element {
           key={item.name}
           text={item.name}
           filterTerm={item.term}
-          mode={item.mode}
           {...props}
         />
       ))}
@@ -292,10 +286,8 @@ type FilterButtonProps = {
   filterTerm: string
   searchTerm: string | undefined
 
-  mode?: LibraryMode
   applySearchQuery: (searchTerm: string) => void
 
-  setMode: (mode: LibraryMode) => void
   setShowFilterMenu: (show: boolean) => void
 }
 
@@ -339,7 +331,6 @@ function FilterButton(props: FilterButtonProps): JSX.Element {
         },
       }}
       onClick={(e) => {
-        props.setMode(props.mode ?? 'reads')
         props.applySearchQuery(props.filterTerm)
         props.setShowFilterMenu(false)
         e.preventDefault()

@@ -115,9 +115,19 @@ export function HomeFeedContainer(): JSX.Element {
   }, [queryValue])
 
   useEffect(() => {
+    if (
+      queryInputs.searchQuery &&
+      queryInputs.searchQuery?.indexOf('mode:highlights') > -1
+    ) {
+      setMode('highlights')
+    } else {
+      setMode('reads')
+    }
+  }, [queryInputs])
+
+  useEffect(() => {
     if (!router.isReady) return
     const q = router.query['q']
-    const mode = router.query['mode']
     let qs = ''
     if (q && typeof q === 'string') {
       qs = q
@@ -126,6 +136,7 @@ export function HomeFeedContainer(): JSX.Element {
       setQueryInputs({ ...queryInputs, searchQuery: qs })
       performActionOnItem('refresh', undefined as unknown as any)
     }
+    const mode = router.query['mode']
 
     // intentionally not watching queryInputs here to prevent infinite looping
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -535,12 +546,6 @@ export function HomeFeedContainer(): JSX.Element {
           qp.delete('q')
         }
 
-        if (searchQuery.indexOf('has:highlights') > -1) {
-          setMode('highlights')
-        } else {
-          setMode('reads')
-        }
-
         const href = `${window.location.pathname}?${qp.toString()}`
         router.push(href, href, { shallow: true })
         window.sessionStorage.setItem('q', qp.toString())
@@ -682,7 +687,6 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
           }}
           showFilterMenu={showFilterMenu}
           setShowFilterMenu={setShowFilterMenu}
-          setMode={props.setMode}
         />
 
         {props.mode == 'highlights' && (
