@@ -1,9 +1,9 @@
 import {
-  ModalRoot,
   ModalContent,
   ModalOverlay,
+  ModalRoot,
 } from '../../elements/ModalPrimitives'
-import { VStack, HStack, Box, SpanBox } from '../../elements/LayoutPrimitives'
+import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { StyledText } from '../../elements/StyledText'
 
@@ -237,7 +237,7 @@ function EditItemModal(props: EditItemModalProps): JSX.Element {
                   <StyledText css={titleStyle}>SAVED AT:</StyledText>
                   <FormInput
                     type="datetime-local"
-                    value={props.savedAt.format('YYYY-MM-DDThh:mm')}
+                    value={props.savedAt.format('YYYY-MM-DDTHH:mm')}
                     placeholder="Edit Date"
                     onChange={(event) => {
                       const dateStr = event.target.value
@@ -255,7 +255,7 @@ function EditItemModal(props: EditItemModalProps): JSX.Element {
                     type="datetime-local"
                     value={
                       props.publishedAt
-                        ? props.publishedAt.format('YYYY-MM-DDThh:mm')
+                        ? props.publishedAt.format('YYYY-MM-DDTHH:mm')
                         : undefined
                     }
                     placeholder="Edit Published Date"
