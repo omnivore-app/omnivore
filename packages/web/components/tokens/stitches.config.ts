@@ -119,10 +119,8 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         grayBg: '#FFFFFF',
         grayBgActive: '#e6e6e6',
         grayBorder: '#F0F0F0',
-        lightBorder: '#F0F0F0',
         grayTextContrast: '#3A3939',
         graySolid: '#9C9B9A',
-        textDefault: 'rgba(255, 255, 255, 0.8)',
         utilityTextDefault: '#3B3938',
         utilityTextSubtle: 'rgba(255, 255, 255, 0.65)',
         textNonessential: 'rgba(10, 8, 6, 0.4)',
@@ -132,8 +130,6 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         grayLine: 'hsl(0 0% 88.7%)',
         grayBorderHover: 'hsl(0 0% 78.0%)',
         grayText: '#6A6968',
-        graySeparator: '#DADADA',
-        grayProgressBackground: '#FFFFFF',
 
         // Semantic Colors
         highlightBackground: '250, 227, 146',
@@ -145,8 +141,6 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         // Brand Colors
         omnivoreRed: '#FA5E4A;',
         omnivoreGray: '#3D3D3D',
-        omnivoreOrange: '#FF9B3E',
-        omnivorePeach: 'rgb(255, 212, 146)',
         omnivoreYellow: 'rgb(255, 234, 159)',
         omnivoreLightGray: 'rgb(125, 125, 125)',
         omnivoreCtaYellow: 'rgb(255, 210, 52)',
@@ -155,8 +149,6 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         readerBg: 'white',
         readerFont: '#3D3D3D',
         readerFontHighContrast: 'black',
-        readerFontTransparent: 'rgba(61,61,61,0.65)',
-        readerHeader: '3D3D3D',
         readerTableHeader: '#FFFFFF',
 
         // Avatar Fallback color
@@ -164,15 +156,11 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         avatarFont: '#9C7C0A',
 
         labelButtonsBg: '#F5F5F4',
-        tooltipIcons: '#FDFAEC',
 
         textSubtle: '#605F5D',
-        libraryBackground: '#FFFFFF',
-        libraryActiveMenuItem: '#F8F8F8',
         border: '#F0F0F0',
 
         //utility
-        textNonEssential: 'rgba(10, 8, 6, 0.4)',
         overlay: 'rgba(63, 62, 60, 0.2)',
 
         // New theme, special naming to keep things straigh
@@ -223,7 +211,6 @@ const darkThemeSpec = {
     grayTextContrast: '#D8D7D7',
     grayBorder: '#323232',
     graySolid: '#9C9B9A',
-    textDefault: 'rgba(10, 8, 6, 0.8)',
     utilityTextDefault: '#CDCDCD',
     textNonessential: 'rgba(97, 97, 97, 1)',
 
@@ -232,8 +219,6 @@ const darkThemeSpec = {
     grayLine: 'hsl(0 0% 19.9%)',
     grayBorderHover: 'hsl(0 0% 31.2%)',
     grayText: '#CDCDCD',
-    graySeparator: '#323232',
-    grayProgressBackground: '#616161',
 
     // Semantic Colors
     highlightBackground: '134, 119, 64',
@@ -246,20 +231,15 @@ const darkThemeSpec = {
     readerBg: '#303030',
     readerFont: '#b9b9b9',
     readerFontHighContrast: 'white',
-    readerHeader: '#b9b9b9',
     readerTableHeader: '#FFFFFF',
-    tooltipIcons: '#5F5E58',
     avatarBg: '#7B5C3E',
     avatarFont: '#D9D9D9',
 
     textSubtle: '#AAAAAA',
-    libraryBackground: '#252525',
-    libraryActiveMenuItem: '#3B3938',
     border: '#323232',
 
     //utility
     utilityTextSubtle: 'rgba(255, 255, 255, 0.65)',
-    textNonEssential: 'rgba(10, 8, 6, 0.4)',
     overlay: 'rgba(10, 8, 6, 0.65)',
 
     labelButtonsBg: '#5F5E58',

@@ -257,7 +257,7 @@ export default function MobileInstallHelp({
                     height: 35,
                     width: 35,
                     cursor: 'pointer',
-                    backgroundColor: '$tooltipIcons',
+                    backgroundColor: '$labelButtonsBg',
                     ...(selectedTooltip !== item.label && {
                       filter: 'grayscale(1)',
                     }),

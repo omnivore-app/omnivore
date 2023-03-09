@@ -130,7 +130,7 @@ export const Button = styled('button', {
       ctaModal: {
         height: '32px',
         verticalAlign: 'middle',
-        color: '$textDefault',
+        color: '$thTextContrast',
         backgroundColor: '$grayBase',
         fontWeight: '600',
         padding: '0px 12px',

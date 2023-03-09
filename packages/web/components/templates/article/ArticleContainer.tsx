@@ -263,7 +263,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
       ? theme.colors.readerFontHighContrast.toString()
       : theme.colors.readerFont.toString(),
     readerTableHeaderColor: theme.colors.readerTableHeader.toString(),
-    readerHeadersColor: theme.colors.readerHeader.toString(),
+    readerHeadersColor: theme.colors.readerFont.toString(),
   }
 
   const recommendationsWithNotes = useMemo(() => {
