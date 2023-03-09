@@ -560,7 +560,7 @@ function ThemeSelector(props: ReaderSettingsProps): JSX.Element {
               border: '2px solid #6A6968',
             },
           }}
-          data-state={currentTheme == ThemeId.Light ? 'unselected' : 'selected'}
+          data-state={currentTheme == ThemeId.Light ? 'selected' : 'unselected'}
           onClick={() => {
             updateTheme(ThemeId.Light)
             setCurrentTheme(currentThemeName())
@@ -624,7 +624,7 @@ function ThemeSelector(props: ReaderSettingsProps): JSX.Element {
             setCurrentTheme(currentThemeName())
           }}
         >
-          {currentTheme == ThemeId.Sepia && <Check color="#F9D354" size={20} />}
+          {currentTheme == ThemeId.Sepia && <Check color="#6A6968" size={20} />}
         </Button>
         <Button
           style="themeSwitch"
@@ -655,7 +655,7 @@ function ThemeSelector(props: ReaderSettingsProps): JSX.Element {
           }}
         >
           {currentTheme == ThemeId.Apollo && (
-            <Check color="#F9D354" size={20} />
+            <Check color="#6A6968" size={20} />
           )}
         </Button>
       </HStack>
