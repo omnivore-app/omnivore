@@ -79,7 +79,7 @@ export function HighlightItem(props: HighlightItemProps): JSX.Element {
           <StyledQuote
             onClick={(event) => {
               if (router && props.viewer) {
-                const dest = `/${props.viewer}/${props.item.slug}#${props.highlight.id}`
+                const dest = `/${props.viewer.profile.username}/${props.item.slug}#${props.highlight.id}`
                 router.push(dest)
               }
               event.preventDefault()
