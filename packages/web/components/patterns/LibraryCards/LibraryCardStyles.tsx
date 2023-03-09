@@ -1,5 +1,8 @@
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
+import { useMemo } from 'react'
+import { LibraryItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+import { Box, HStack, SpanBox } from '../../elements/LayoutPrimitives'
 
 dayjs.extend(relativeTime)
 
@@ -104,4 +107,41 @@ export const siteName = (
     return new URL(itemUrl).hostname.replace(/^www\./, '')
   } catch {}
   return ''
+}
+
+type LibraryItemMetadataProps = {
+  item: LibraryItemNode
+  showProgress?: boolean
+}
+
+export function LibraryItemMetadata(
+  props: LibraryItemMetadataProps
+): JSX.Element {
+  const highlightCount = useMemo(() => {
+    return props.item.highlights?.length ?? 0
+  }, [props.item.highlights])
+
+  return (
+    <Box>
+      {timeAgo(props.item.savedAt)}
+      {` `}
+      {props.item.wordsCount ?? 0 > 0
+        ? `  • ${Math.max(
+            1,
+            Math.round((props.item.wordsCount ?? 0) / 235)
+          )} min read`
+        : null}
+      {(props.showProgress && props.item.readingProgressPercent) ?? 0 > 0 ? (
+        <>
+          {`  • `}
+          <SpanBox css={{ color: '#55B938' }}>
+            {`${Math.round(props.item.readingProgressPercent)}%`}
+          </SpanBox>
+        </>
+      ) : null}
+      {highlightCount > 0
+        ? `  • ${highlightCount} highlight${highlightCount > 1 ? 's' : ''}`
+        : null}
+    </Box>
+  )
 }

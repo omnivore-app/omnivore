@@ -1,12 +1,13 @@
 import { Box, VStack, HStack, SpanBox } from '../../elements/LayoutPrimitives'
 import { LabelChip } from '../../elements/LabelChip'
 import type { LinkedItemCardProps } from './CardTypes'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { DotsThree } from 'phosphor-react'
 import Link from 'next/link'
 import { CardMenu } from '../CardMenu'
 import {
   AuthorInfoStyle,
+  LibraryItemMetadata,
   MenuStyle,
   MetaStyle,
   siteName,
@@ -21,6 +22,10 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
   const originText =
     props.item.siteName ||
     siteName(props.item.originalArticleUrl, props.item.url)
+
+  const highlightCount = useMemo(() => {
+    return props.item.highlights?.length ?? 0
+  }, [props.item.highlights])
 
   return (
     <VStack
@@ -62,27 +67,7 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
           style={{ textDecoration: 'unset', width: '100%', height: '100%' }}
         >
           <HStack css={MetaStyle} distribution="start">
-            <Box>
-              {timeAgo(props.item.savedAt)}
-              {` `}
-              {props.item.wordsCount ?? 0 > 0
-                ? `  • ${Math.max(
-                    1,
-                    Math.round((props.item.wordsCount ?? 0) / 235)
-                  )} min read`
-                : null}
-              {props.item.readingProgressPercent ?? 0 > 0 ? (
-                <>
-                  {`  • `}
-                  <SpanBox css={{ color: '#55B938' }}>
-                    {`${Math.round(props.item.readingProgressPercent)}%`}
-                  </SpanBox>
-                </>
-              ) : null}
-              {props.item.highlights?.length ?? 0 > 0
-                ? `  • ${props.item.highlights?.length} highlights`
-                : null}
-            </Box>
+            <LibraryItemMetadata item={props.item} showProgress={true} />
             <Box
               css={{
                 ...MenuStyle,
