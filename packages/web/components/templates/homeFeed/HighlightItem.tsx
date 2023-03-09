@@ -98,16 +98,17 @@ export function HighlightItem(props: HighlightItemProps): JSX.Element {
                 </Fragment>
               ))}
             </SpanBox>
-            <Box css={{ display: 'block', pt: '16px' }}>
-              {props.highlight.labels?.map((label: Label, index: number) => (
-                <LabelChip
-                  key={index}
-                  text={label.name || ''}
-                  color={label.color}
-                />
-              ))}
-            </Box>
           </StyledQuote>
+
+          <Box css={{ display: 'block' }}>
+            {props.highlight.labels?.map((label: Label, index: number) => (
+              <LabelChip
+                key={index}
+                text={label.name || ''}
+                color={label.color}
+              />
+            ))}
+          </Box>
 
           {!isEditing && (
             <StyledText

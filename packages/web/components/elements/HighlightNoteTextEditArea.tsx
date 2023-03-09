@@ -30,10 +30,10 @@ export const HighlightNoteTextEditArea = (
     <VStack css={{ width: '100%' }} key="textEditor">
       <StyledTextArea
         css={{
-          my: '$3',
-          minHeight: '$6',
+          my: '10px',
+          minHeight: '200px',
           borderRadius: '5px',
-          p: '16px',
+          p: '10px',
           width: '100%',
           marginTop: '16px',
           resize: 'vertical',
@@ -48,7 +48,7 @@ export const HighlightNoteTextEditArea = (
       />
       <HStack alignment="center" distribution="end" css={{ width: '100%' }}>
         <Button
-          style="ctaPill"
+          style="cancelGeneric"
           css={{ mr: '$2' }}
           onClick={() => {
             props.setIsEditing(false)

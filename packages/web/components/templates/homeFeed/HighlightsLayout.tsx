@@ -255,6 +255,7 @@ function HighlightList(props: HighlightListProps): JSX.Element {
   return (
     <HStack
       css={{
+        m: '20px',
         height: '100%',
         flexGrow: '1',
       }}

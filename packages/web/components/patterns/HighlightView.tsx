@@ -49,12 +49,12 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
             </Fragment>
           ))}
         </SpanBox>
-        <Box css={{ display: 'block', pt: '16px' }}>
-          {props.highlight.labels?.map(({ name, color }, index) => (
-            <LabelChip key={index} text={name || ''} color={color} />
-          ))}
-        </Box>
       </StyledQuote>
+      <Box css={{ display: 'block', pt: '16px' }}>
+        {props.highlight.labels?.map(({ name, color }, index) => (
+          <LabelChip key={index} text={name || ''} color={color} />
+        ))}
+      </Box>
     </VStack>
   )
 }
