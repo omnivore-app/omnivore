@@ -1,8 +1,7 @@
 import { config } from '../../tokens/stitches.config'
 import Image from 'next/image'
 import { StyledText } from '../../elements/StyledText'
-import Link from 'next/link'
-import { SpanBox } from '../LayoutPrimitives'
+import { OmnivoreLogoBase } from './OmnivoreLogoBase'
 
 export function OmnivoreNameLogoImage(): JSX.Element {
   return (
@@ -66,27 +65,18 @@ export type OmnivoreNameLogoProps = {
 
 export function OmnivoreNameLogo(props: OmnivoreNameLogoProps): JSX.Element {
   const fillColor = props.color || config.theme.colors.graySolid
-  const href = props.href || '/home'
 
   return (
-    <Link passHref href={href}>
-      <a
-        style={{
-          textDecoration: 'none',
-          display: 'flex',
-          alignItems: 'center',
-        }}
-      >
-        <OmnivoreLogoIcon size={27} strokeColor={fillColor}></OmnivoreLogoIcon>
-        {props.showTitle && (
-          <StyledText
-            style="logoTitle"
-            css={{ color: fillColor, paddingLeft: '12px' }}
-          >
-            Omnivore
-          </StyledText>
-        )}
-      </a>
-    </Link>
+    <OmnivoreLogoBase {...props}>
+      <OmnivoreLogoIcon size={27} strokeColor={fillColor}></OmnivoreLogoIcon>
+      {props.showTitle && (
+        <StyledText
+          style="logoTitle"
+          css={{ color: fillColor, paddingLeft: '12px' }}
+        >
+          Omnivore
+        </StyledText>
+      )}
+    </OmnivoreLogoBase>
   )
 }
