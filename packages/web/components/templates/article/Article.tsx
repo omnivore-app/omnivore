@@ -34,17 +34,25 @@ export function Article(props: ArticleProps): JSX.Element {
 
   const articleContentRef = useRef<HTMLDivElement | null>(null)
 
+  const clampToPercent = (float: number) => {
+    return Math.floor(Math.max(0, Math.min(100, float)))
+  }
+
   useEffect(() => {
     ;(async () => {
       if (!readingProgress) return
       if (!articleContentRef.current) return
+      if (!window.document.scrollingElement) return
       const anchor = getTopOmnivoreAnchorElement(articleContentRef.current)
+      const topPositionPercent =
+        window.scrollY / window.document.scrollingElement.scrollHeight
       const anchorIndex = Number(anchor)
 
       await props.articleMutations.articleReadingProgressMutation({
         id: props.articleId,
-        // round reading progress to 100% if more than that
-        readingProgressPercent: readingProgress > 100 ? 100 : readingProgress,
+        //   // round reading progress to 100% if more than that
+        readingProgressPercent: clampToPercent(readingProgress),
+        readingProgressTopPercent: clampToPercent(topPositionPercent),
         readingProgressAnchorIndex:
           anchorIndex == Number.NaN ? undefined : anchorIndex,
       })
@@ -67,8 +75,6 @@ export function Article(props: ArticleProps): JSX.Element {
 
   useScrollWatcher((changeset: ScrollOffsetChangeset) => {
     if (window && window.document.scrollingElement) {
-      const topProgress =
-        window.scrollY / window.document.scrollingElement.scrollHeight
       const bottomProgress =
         (window.scrollY + window.document.scrollingElement.clientHeight) /
         window.document.scrollingElement.scrollHeight
