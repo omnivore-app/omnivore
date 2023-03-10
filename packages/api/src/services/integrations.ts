@@ -65,22 +65,27 @@ const validateReadwiseToken = async (token: string): Promise<boolean> => {
 
 const pageToReadwiseHighlight = (page: Page): ReadwiseHighlight[] => {
   if (!page.highlights) return []
-  return page.highlights.map((highlight) => {
-    return {
-      text: highlight.quote,
-      title: page.title,
-      author: page.author || undefined,
-      highlight_url: getHighlightUrl(page.slug, highlight.id),
-      highlighted_at: new Date(highlight.createdAt).toISOString(),
-      category: 'articles',
-      image_url: page.image || undefined,
-      location: highlight.highlightPositionPercent || undefined,
-      location_type: 'order',
-      note: highlight.annotation || undefined,
-      source_type: 'omnivore',
-      source_url: page.url,
-    }
-  })
+  return (
+    page.highlights
+      // filter out highlights with no quote
+      .filter((highlight) => highlight.quote.length === 0)
+      .map((highlight) => {
+        return {
+          text: highlight.quote,
+          title: page.title,
+          author: page.author || undefined,
+          highlight_url: getHighlightUrl(page.slug, highlight.id),
+          highlighted_at: new Date(highlight.createdAt).toISOString(),
+          category: 'articles',
+          image_url: page.image || undefined,
+          location: highlight.highlightPositionPercent || undefined,
+          location_type: 'order',
+          note: highlight.annotation || undefined,
+          source_type: 'omnivore',
+          source_url: page.url,
+        }
+      })
+  )
 }
 
 export const syncWithIntegration = async (
