@@ -1,6 +1,6 @@
-import { Box } from '../elements/LayoutPrimitives'
+import { Box, VStack } from '../elements/LayoutPrimitives'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
-import { PrimaryHeader } from '../patterns/PrimaryHeader'
+import { SettingsHeader } from '../patterns/SettingsHeader'
 import { navigationCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
 import { useKeyboardShortcuts } from '../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { useRouter } from 'next/router'
@@ -10,6 +10,7 @@ import { useState } from 'react'
 import { ConfirmationModal } from '../patterns/ConfirmationModal'
 import { KeyboardShortcutListModal } from './KeyboardShortcutListModal'
 import { PageMetaData } from '../patterns/PageMetaData'
+import { HeaderSpacer, MOBILE_HEADER_HEIGHT } from './homeFeed/HeaderSpacer'
 
 type SettingsLayoutProps = {
   title?: string
@@ -20,7 +21,8 @@ export function SettingsLayout(props: SettingsLayoutProps): JSX.Element {
   const { viewerData } = useGetViewerQuery()
   const router = useRouter()
   const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false)
-  const [showKeyboardCommandsModal, setShowKeyboardCommandsModal] = useState(false)
+  const [showKeyboardCommandsModal, setShowKeyboardCommandsModal] =
+    useState(false)
 
   useKeyboardShortcuts(navigationCommands(router))
   applyStoredTheme(false)
@@ -41,39 +43,30 @@ export function SettingsLayout(props: SettingsLayoutProps): JSX.Element {
 
   return (
     <>
-      <PageMetaData path='settings' title='Settings' />
-        <PrimaryHeader
-          user={viewerData?.me}
-          isTransparent={false}
-          userInitials={viewerData?.me?.name.charAt(0) ?? ''}
-          profileImageURL={viewerData?.me?.profile.pictureUrl}
-          setShowLogoutConfirmation={setShowLogoutConfirmation}
-          setShowKeyboardCommandsModal={setShowKeyboardCommandsModal}
-        />
+      <PageMetaData path="settings" title="Settings" />
+      <SettingsHeader user={viewerData?.me} />
+      <VStack css={{ width: '100%', height: '100%' }}>
         <Box
           css={{
-            top: '48px',
-            position: 'fixed',
-            overflowY: 'auto',
-            height: '100%',
-            width: '100vw',
+            height: MOBILE_HEADER_HEIGHT,
             bg: '$grayBase',
           }}
-        >
-          {props.children}
-          {showLogoutConfirmation ? (
-            <ConfirmationModal
-              message={'Are you sure you want to log out?'}
-              onAccept={logout}
-              onOpenChange={() => setShowLogoutConfirmation(false)}
-            />
-          ) : null}
-          {showKeyboardCommandsModal ? (
-            <KeyboardShortcutListModal
-              onOpenChange={() => setShowKeyboardCommandsModal(false)}
-            />
-          ) : null}
-        </Box>
+        ></Box>
+        {props.children}
+        <Box css={{ height: '120px', width: '100%' }} />
+      </VStack>
+      {showLogoutConfirmation ? (
+        <ConfirmationModal
+          message={'Are you sure you want to log out?'}
+          onAccept={logout}
+          onOpenChange={() => setShowLogoutConfirmation(false)}
+        />
+      ) : null}
+      {showKeyboardCommandsModal ? (
+        <KeyboardShortcutListModal
+          onOpenChange={() => setShowKeyboardCommandsModal(false)}
+        />
+      ) : null}
     </>
   )
 }
