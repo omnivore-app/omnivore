@@ -50,9 +50,8 @@ export function Article(props: ArticleProps): JSX.Element {
 
       await props.articleMutations.articleReadingProgressMutation({
         id: props.articleId,
-        //   // round reading progress to 100% if more than that
         readingProgressPercent: clampToPercent(readingProgress),
-        readingProgressTopPercent: clampToPercent(topPositionPercent),
+        readingProgressTopPercent: clampToPercent(topPositionPercent * 100),
         readingProgressAnchorIndex:
           anchorIndex == Number.NaN ? undefined : anchorIndex,
       })
