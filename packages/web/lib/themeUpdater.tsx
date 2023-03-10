@@ -37,7 +37,6 @@ function getTheme(themeId: string) {
 
 export function updateThemeLocally(themeId: string): void {
   if (typeof window !== 'undefined') {
-    console.trace('storing theme: ', themeId)
     window.localStorage.setItem(themeKey, themeId)
   }
 
@@ -91,7 +90,6 @@ export function applyStoredTheme(syncWithServer = true): ThemeId | undefined {
     | ThemeId
     | undefined
   if (theme && Object.values(ThemeId).includes(theme)) {
-    console.log('applying stored theme: ', theme)
     updateThemeLocally(theme)
   }
   return theme

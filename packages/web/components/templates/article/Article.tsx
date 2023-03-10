@@ -86,9 +86,22 @@ export function Article(props: ArticleProps): JSX.Element {
         window.scrollY / window.document.scrollingElement.scrollHeight
       const adjustedReadingProgress =
         newReadingProgress > 0.92 ? 1 : newReadingProgress
+
+      const bottomProgress =
+        (window.scrollY + window.document.scrollingElement.clientHeight) /
+        window.document.scrollingElement.scrollHeight
+
+      console.log(
+        'newOffset Top: ',
+        newReadingProgress,
+        'newOffset Bottom: ',
+        bottomProgress,
+        window.scrollY,
+        window.document.scrollingElement.scrollHeight
+      )
       debouncedSetReadingProgress(adjustedReadingProgress * 100)
     }
-  }, 1000)
+  }, 2500)
 
   // Scroll to initial anchor position
   useEffect(() => {
