@@ -242,6 +242,7 @@ export interface Page {
   originalHtml?: string | null
   slug: string
   labels?: Label[]
+  readingProgressTopPercent?: number
   readingProgressPercent: number
   readingProgressAnchorIndex: number
   createdAt: Date
@@ -283,6 +284,7 @@ export interface SearchItem {
   uploadFileId?: string | null
   url: string
   archivedAt?: Date | null
+  readingProgressTopPercent?: number
   readingProgressPercent: number
   readingProgressAnchorIndex: number
   userId: string

@@ -298,7 +298,8 @@ const setBookmarkQuery = (articleId: string, bookmark: boolean) => {
 
 const saveArticleReadingProgressQuery = (
   articleId: string,
-  progress: number
+  progress: number,
+  topPercent: number | null = null
 ) => {
   return `
     mutation {
@@ -307,6 +308,7 @@ const saveArticleReadingProgressQuery = (
           id: "${articleId}",
           readingProgressPercent: ${progress}
           readingProgressAnchorIndex: 0
+          readingProgressTopPercent: ${topPercent}
         }
       ) {
         ... on SaveArticleReadingProgressSuccess {
@@ -314,6 +316,7 @@ const saveArticleReadingProgressQuery = (
             id
             readingProgressPercent
             readAt
+            readingProgressTopPercent
           }
         }
         ... on SaveArticleReadingProgressError {
@@ -695,9 +698,9 @@ describe('Article API', () => {
 
   describe('saveArticleReadingProgressResolver', () => {
     let query = ''
-    let articleId = ''
-    let progress = 0.5
     let pageId = ''
+    let progress = 0.5
+    let topPercent: number | null = null
 
     before(async () => {
       pageId = (await createTestElasticPage(user.id)).id!
@@ -707,46 +710,53 @@ describe('Article API', () => {
       await deletePage(pageId, ctx)
     })
 
-    beforeEach(() => {
-      query = saveArticleReadingProgressQuery(articleId, progress)
+    it('saves a reading progress on an article', async () => {
+      query = saveArticleReadingProgressQuery(pageId, progress, topPercent)
+      const res = await graphqlRequest(query, authToken).expect(200)
+      expect(
+        res.body.data.saveArticleReadingProgress.updatedArticle
+          .readingProgressPercent
+      ).to.eq(progress)
+      expect(res.body.data.saveArticleReadingProgress.updatedArticle.readAt).not
+        .null
     })
 
-    context('when we save a reading progress on an article', () => {
-      before(async () => {
-        articleId = pageId
-        progress = 0.5
-      })
+    it('should not allow setting the reading progress lower than current progress', async () => {
+      const firstQuery = saveArticleReadingProgressQuery(pageId, 75)
+      const firstRes = await graphqlRequest(firstQuery, authToken).expect(200)
+      expect(
+        firstRes.body.data.saveArticleReadingProgress.updatedArticle
+          .readingProgressPercent
+      ).to.eq(75)
+      await refreshIndex()
 
-      it('should save a reading progress on an article', async () => {
-        const res = await graphqlRequest(query, authToken).expect(200)
-        expect(
-          res.body.data.saveArticleReadingProgress.updatedArticle
-            .readingProgressPercent
-        ).to.eq(progress)
-        expect(res.body.data.saveArticleReadingProgress.updatedArticle.readAt)
-          .not.null
-      })
+      // Now try to set to a lower value (50), value should not be updated
+      // refresh index to ensure the reading progress is updated
+      const secondQuery = saveArticleReadingProgressQuery(pageId, 50)
+      const secondRes = await graphqlRequest(secondQuery, authToken).expect(200)
+      expect(
+        secondRes.body.data.saveArticleReadingProgress.updatedArticle
+          .readingProgressPercent
+      ).to.eq(75)
+    })
 
-      it('should not allow setting the reading progress lower than current progress', async () => {
-        const firstQuery = saveArticleReadingProgressQuery(articleId, 75)
-        const firstRes = await graphqlRequest(firstQuery, authToken).expect(200)
-        expect(
-          firstRes.body.data.saveArticleReadingProgress.updatedArticle
-            .readingProgressPercent
-        ).to.eq(75)
-        await refreshIndex()
+    it('does not save topPercent if not undefined', async () => {
+      query = saveArticleReadingProgressQuery(pageId, progress, null)
+      const res = await graphqlRequest(query, authToken).expect(200)
+      expect(
+        res.body.data.saveArticleReadingProgress.updatedArticle
+          .readingProgressTopPercent
+      ).to.be.null
+    })
 
-        // Now try to set to a lower value (50), value should not be updated
-        // refresh index to ensure the reading progress is updated
-        const secondQuery = saveArticleReadingProgressQuery(articleId, 50)
-        const secondRes = await graphqlRequest(secondQuery, authToken).expect(
-          200
-        )
-        expect(
-          secondRes.body.data.saveArticleReadingProgress.updatedArticle
-            .readingProgressPercent
-        ).to.eq(75)
-      })
+    it('saves topPercent if defined', async () => {
+      const topPercent = 0.2
+      query = saveArticleReadingProgressQuery(pageId, progress, topPercent)
+      const res = await graphqlRequest(query, authToken).expect(200)
+      expect(
+        res.body.data.saveArticleReadingProgress.updatedArticle
+          .readingProgressTopPercent
+      ).to.eql(topPercent)
     })
   })
 
