@@ -78,7 +78,7 @@ const pageToReadwiseHighlight = (page: Page): ReadwiseHighlight[] => {
           highlighted_at: new Date(highlight.createdAt).toISOString(),
           category: 'articles',
           image_url: page.image || undefined,
-          location: highlight.highlightPositionPercent || undefined,
+          // location: highlight.highlightPositionAnchorIndex || undefined,
           location_type: 'order',
           note: highlight.annotation || undefined,
           source_type: 'omnivore',
@@ -148,18 +148,18 @@ export const syncWithReadwise = async (
         }
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
-        console.log(error.response.data)
+        console.log('Readwise error, response data', error.response.data)
       } else if (error.request) {
         // The request was made but no response was received
         // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
         // http.ClientRequest in node.js
-        console.log(error.request)
+        console.log('Readwise error, request', error.request)
       } else {
         // Something happened in setting up the request that triggered an Error
         console.log('Error', error.message)
       }
     } else {
-      console.log('error syncing with readwise', error)
+      console.log('Error syncing with readwise', error)
     }
     return false
   }
