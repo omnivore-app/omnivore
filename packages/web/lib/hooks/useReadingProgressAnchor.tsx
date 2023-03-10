@@ -11,27 +11,30 @@ const ANCHOR_ELEMENTS_BLOCKED_ATTRIBUTES = [
 export const getTopOmnivoreAnchorElement = (
   articleContentElement: HTMLElement
 ): string | undefined => {
-  let lastVisibleAnchor: Element | undefined = undefined
+  let topVisibleRect: Element | undefined = undefined
   const anchors = Array.from(
     document.querySelectorAll(`[data-omnivore-anchor-idx]`)
   ).reverse()
 
   for (const anchor of anchors) {
     const rect = anchor.getBoundingClientRect()
-    if (
-      rect.top >= 0 &&
-      rect.left >= 0 &&
-      rect.bottom <= articleContentElement.clientHeight
-    ) {
-      lastVisibleAnchor = anchor
-    } else if (lastVisibleAnchor) {
-      break
+    if (rect.top >= 0 && rect.bottom <= articleContentElement.clientHeight) {
+      if (
+        topVisibleRect &&
+        topVisibleRect.getBoundingClientRect().top < rect.top
+      ) {
+        continue
+      }
+      topVisibleRect = anchor
     }
   }
 
-  return (
-    lastVisibleAnchor?.getAttribute(`data-omnivore-anchor-idx`) ?? undefined
+  console.log(
+    ' top visible rect:',
+    topVisibleRect?.getBoundingClientRect().top,
+    topVisibleRect?.getAttribute(`data-omnivore-anchor-idx`)
   )
+  return topVisibleRect?.getAttribute(`data-omnivore-anchor-idx`) ?? undefined
 }
 
 export const useReadingProgressAnchor = (
