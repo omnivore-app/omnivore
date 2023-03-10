@@ -1,8 +1,8 @@
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useMemo } from 'react'
-import { LibraryItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
-import { Box, HStack, SpanBox } from '../../elements/LayoutPrimitives'
+import { LibraryItemNode } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+import { Box, SpanBox } from '../../elements/LayoutPrimitives'
 
 dayjs.extend(relativeTime)
 
