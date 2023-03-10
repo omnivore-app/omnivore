@@ -65,6 +65,7 @@ const validateReadwiseToken = async (token: string): Promise<boolean> => {
 
 const pageToReadwiseHighlight = (page: Page): ReadwiseHighlight[] => {
   if (!page.highlights) return []
+  const category = page.siteName === 'Twitter' ? 'tweets' : 'articles'
   return (
     page.highlights
       // filter out highlights with no quote
@@ -76,7 +77,7 @@ const pageToReadwiseHighlight = (page: Page): ReadwiseHighlight[] => {
           author: page.author || undefined,
           highlight_url: getHighlightUrl(page.slug, highlight.id),
           highlighted_at: new Date(highlight.createdAt).toISOString(),
-          category: 'articles',
+          category,
           image_url: page.image || undefined,
           // location: highlight.highlightPositionAnchorIndex || undefined,
           location_type: 'order',
