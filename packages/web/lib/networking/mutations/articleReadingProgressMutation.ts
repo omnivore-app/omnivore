@@ -3,8 +3,8 @@ import { gqlFetcher } from '../networkHelpers'
 
 export type ArticleReadingProgressMutationInput = {
   id: string
-  readingProgressPercent: number
-  readingProgressAnchorIndex: number
+  readingProgressPercent?: number
+  readingProgressAnchorIndex?: number
 }
 
 export async function articleReadingProgressMutation(

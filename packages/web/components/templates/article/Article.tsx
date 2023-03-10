@@ -1,5 +1,8 @@
 import { Box } from '../../elements/LayoutPrimitives'
-import { useReadingProgressAnchor } from '../../../lib/hooks/useReadingProgressAnchor'
+import {
+  getTopOmnivoreAnchorElement,
+  useReadingProgressAnchor,
+} from '../../../lib/hooks/useReadingProgressAnchor'
 import {
   ScrollOffsetChangeset,
   useScrollWatcher,
@@ -26,25 +29,24 @@ export function Article(props: ArticleProps): JSX.Element {
     props.initialReadingProgress
   )
 
-  const [readingAnchorIndex, setReadingAnchorIndex] = useState(
-    props.initialAnchorIndex
-  )
-
   const [shouldScrollToInitialPosition, setShouldScrollToInitialPosition] =
     useState(true)
 
   const articleContentRef = useRef<HTMLDivElement | null>(null)
 
-  useReadingProgressAnchor(articleContentRef, setReadingAnchorIndex)
-
   useEffect(() => {
     ;(async () => {
       if (!readingProgress) return
+      if (!articleContentRef.current) return
+      const anchor = getTopOmnivoreAnchorElement(articleContentRef.current)
+      const anchorIndex = Number(anchor)
+
       await props.articleMutations.articleReadingProgressMutation({
         id: props.articleId,
         // round reading progress to 100% if more than that
         readingProgressPercent: readingProgress > 100 ? 100 : readingProgress,
-        readingProgressAnchorIndex: readingAnchorIndex,
+        readingProgressAnchorIndex:
+          anchorIndex == Number.NaN ? undefined : anchorIndex,
       })
     })()
 
@@ -65,24 +67,13 @@ export function Article(props: ArticleProps): JSX.Element {
 
   useScrollWatcher((changeset: ScrollOffsetChangeset) => {
     if (window && window.document.scrollingElement) {
-      const newReadingProgress =
+      const topProgress =
         window.scrollY / window.document.scrollingElement.scrollHeight
-      const adjustedReadingProgress =
-        newReadingProgress > 0.92 ? 1 : newReadingProgress
-
       const bottomProgress =
         (window.scrollY + window.document.scrollingElement.clientHeight) /
         window.document.scrollingElement.scrollHeight
 
-      console.log(
-        'newOffset Top: ',
-        newReadingProgress,
-        'newOffset Bottom: ',
-        bottomProgress,
-        window.scrollY,
-        window.document.scrollingElement.scrollHeight
-      )
-      setReadingProgress(adjustedReadingProgress * 100)
+      setReadingProgress(bottomProgress * 100)
     }
   }, 2500)
 
