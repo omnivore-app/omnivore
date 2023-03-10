@@ -8,7 +8,6 @@ import { MutableRefObject, useEffect, useMemo, useRef, useState } from 'react'
 import { Tweet } from 'react-twitter-widgets'
 import { render } from 'react-dom'
 import { isDarkTheme } from '../../../lib/themeUpdater'
-import debounce from 'lodash/debounce'
 import { ArticleMutations } from '../../../lib/articleActions'
 
 export type ArticleProps = {
@@ -37,22 +36,6 @@ export function Article(props: ArticleProps): JSX.Element {
   const articleContentRef = useRef<HTMLDivElement | null>(null)
 
   useReadingProgressAnchor(articleContentRef, setReadingAnchorIndex)
-
-  const debouncedSetReadingProgress = useMemo(
-    () =>
-      debounce((readingProgress: number) => {
-        setReadingProgress(readingProgress)
-      }, 2000),
-    []
-  )
-
-  // Stop the invocation of the debounced function
-  // after unmounting
-  useEffect(() => {
-    return () => {
-      debouncedSetReadingProgress.cancel()
-    }
-  }, [])
 
   useEffect(() => {
     ;(async () => {
@@ -99,7 +82,7 @@ export function Article(props: ArticleProps): JSX.Element {
         window.scrollY,
         window.document.scrollingElement.scrollHeight
       )
-      debouncedSetReadingProgress(adjustedReadingProgress * 100)
+      setReadingProgress(adjustedReadingProgress * 100)
     }
   }, 2500)
 
