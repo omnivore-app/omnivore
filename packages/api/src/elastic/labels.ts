@@ -57,7 +57,8 @@ export const addLabelInPage = async (
 export const updateLabelsInPage = async (
   pageId: string,
   labels: Label[],
-  ctx: PageContext
+  ctx: PageContext,
+  labelsToAdd?: Label[]
 ): Promise<boolean> => {
   try {
     const { body } = await client.update({
@@ -74,12 +75,16 @@ export const updateLabelsInPage = async (
     })
 
     if (body.result !== 'updated') return false
-
-    for (const label of labels) {
-      await ctx.pubsub.entityCreated<Label & { pageId: string }>(
-        EntityType.LABEL,
-        { pageId, ...label },
-        ctx.uid
+    if (labelsToAdd) {
+      // publish labels to be added
+      await Promise.all(
+        labelsToAdd.map((label) =>
+          ctx.pubsub.entityCreated<Label & { pageId: string }>(
+            EntityType.LABEL,
+            { pageId, ...label },
+            ctx.uid
+          )
+        )
       )
     }
 

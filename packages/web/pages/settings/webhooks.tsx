@@ -52,7 +52,10 @@ export default function Webhooks(): JSX.Element {
     webhooks.forEach((webhook) =>
       rows.set(webhook.id, {
         url: webhook.url,
-        eventTypes: webhook.eventTypes.join(', '),
+        eventTypes: eventTypeOptions
+          .filter((option) => webhook.eventTypes.includes(option.value))
+          .map((option) => option.label)
+          .join(', '),
         method: webhook.method,
         contentType: webhook.contentType,
       })
@@ -198,7 +201,7 @@ export default function Webhooks(): JSX.Element {
               label: 'Event Types',
               name: 'eventTypes',
               value: eventTypeOptions.map((option) =>
-                webhook?.eventTypes.includes(option.value)
+                webhook?.eventTypes.includes(option.label)
               ),
               onChange: setEventTypes,
               options: eventTypeOptions,
