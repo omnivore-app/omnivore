@@ -28,7 +28,6 @@ export const escapeTitle = (title: string) => {
 }
 
 export class YoutubeHandler extends ContentHandler {
-  static apiKey = process.env.YOUTUBE_API_KEY
   constructor() {
     super()
     this.name = 'Youtube'
@@ -41,15 +40,12 @@ export class YoutubeHandler extends ContentHandler {
   async preHandle(url: string): Promise<PreHandleResult> {
     const BaseUrl = 'https://www.youtube.com'
     const embedBaseUrl = 'https://www.youtube.com/embed'
-    const dataApiBaseUrl = 'https://www.googleapis.com/youtube/v3'
     let urlToEncode: string
     let src: string
-    let dataUrl: string
     const playlistId = getYoutubePlaylistId(url)
     if (playlistId) {
       urlToEncode = `${BaseUrl}/playlist?list=${playlistId}`
       src = `${embedBaseUrl}/videoseries?list=${playlistId}`
-      dataUrl = `${dataApiBaseUrl}/playlists?part=snippet&id=${playlistId}`
     } else {
       const videoId = getYoutubeVideoId(url)
       if (!videoId) {
@@ -57,7 +53,6 @@ export class YoutubeHandler extends ContentHandler {
       }
       urlToEncode = `${BaseUrl}/watch?v=${videoId}`
       src = `${embedBaseUrl}/embed/${videoId}`
-      dataUrl = `${dataApiBaseUrl}/videos?part=snippet&id=${videoId}`
     }
 
     const oembedUrl =
@@ -80,33 +75,6 @@ export class YoutubeHandler extends ContentHandler {
     const height = 350
     const width = height * ratio
     const authorName = _.escape(oembed.author_name)
-    let publishedAt = ''
-    if (YoutubeHandler.apiKey) {
-      // Make a GET request to the YouTube Data API and parse the response
-      try {
-        const response = (
-          await axios.get(`${dataUrl}&key=${YoutubeHandler.apiKey}`)
-        ).data as {
-          items: {
-            snippet: {
-              publishedAt: string
-            }
-          }[]
-        }
-        if (response.items.length > 0) {
-          publishedAt = response.items[0].snippet.publishedAt
-        }
-      } catch (error) {
-        if (axios.isAxiosError(error)) {
-          console.error(
-            'Error getting video/playlist publishedAt',
-            error.response?.data
-          )
-        } else {
-          console.error('Error getting video/playlist publishedAt', error)
-        }
-      }
-    }
     const content = `
     <html>
       <head><title>${escapedTitle}</title>
@@ -115,7 +83,6 @@ export class YoutubeHandler extends ContentHandler {
       <meta property="og:title" content="${escapedTitle}" />
       <meta property="og:description" content="" />
       <meta property="og:article:author" content="${authorName}" />
-      <meta property="og:article:published_time" content="${publishedAt}" />
       <meta property="og:site_name" content="${oembed.provider_name}" />
       </head>
       <body>
