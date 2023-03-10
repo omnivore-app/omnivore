@@ -366,6 +366,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           content={props.article.content}
           highlightHref={highlightHref}
           initialAnchorIndex={props.article.readingProgressAnchorIndex}
+          initialReadingProgressTop={props.article.readingProgressTopPercent}
           articleMutations={props.articleMutations}
         />
         <Button

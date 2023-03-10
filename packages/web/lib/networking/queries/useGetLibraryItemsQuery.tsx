@@ -67,6 +67,7 @@ export type LibraryItemNode = {
   contentReader?: ContentReader
   originalArticleUrl: string
   readingProgressPercent: number
+  readingProgressTopPercent?: number
   readingProgressAnchorIndex: number
   slug: string
   isArchived: boolean

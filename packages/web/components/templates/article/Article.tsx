@@ -1,6 +1,7 @@
 import { Box } from '../../elements/LayoutPrimitives'
 import {
   getTopOmnivoreAnchorElement,
+  parseDomTree,
   useReadingProgressAnchor,
 } from '../../../lib/hooks/useReadingProgressAnchor'
 import {
@@ -18,6 +19,7 @@ export type ArticleProps = {
   content: string
   initialAnchorIndex: number
   initialReadingProgress?: number
+  initialReadingProgressTop?: number
   highlightHref: MutableRefObject<string | null>
   articleMutations: ArticleMutations
 }
@@ -92,6 +94,8 @@ export function Article(props: ArticleProps): JSX.Element {
     }
 
     setShouldScrollToInitialPosition(false)
+
+    parseDomTree(articleContentRef.current)
 
     // If we are scrolling to a highlight, dont scroll to read position
     if (props.highlightHref.current) {

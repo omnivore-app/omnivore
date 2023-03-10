@@ -13,7 +13,7 @@ export const getTopOmnivoreAnchorElement = (
 ): string | undefined => {
   let lastVisibleAnchor: Element | undefined = undefined
   const anchors = Array.from(
-    articleContentElement.querySelectorAll(`[data-omnivore-anchor-idx]`)
+    document.querySelectorAll(`[data-omnivore-anchor-idx]`)
   ).reverse()
 
   for (const anchor of anchors) {
@@ -35,87 +35,16 @@ export const getTopOmnivoreAnchorElement = (
 }
 
 export const useReadingProgressAnchor = (
-  articleContentRef: React.MutableRefObject<HTMLDivElement | null>,
-  setReadingAnchorIndex: React.Dispatch<React.SetStateAction<number>>
+  articleContentRef: React.MutableRefObject<HTMLDivElement | null>
 ): void => {
   useEffect(() => {
-    const visitedNodeList = parseDomTree(articleContentRef.current)
-    const observerOptions = {
-      root: null,
-      rootMargin: '0px',
-      // we only track elements on becoming completely visible.
-      threshold: [1],
-    }
-
-    function intersectionCallback(entries: IntersectionObserverEntry[]): void {
-      let topIntersectingElemId = 0
-      let minTopElem = 100000
-      entries.forEach(function (entry: IntersectionObserverEntry) {
-        const elem = entry.target
-        const elemId = elem.getAttribute('data-omnivore-anchor-idx') || '0'
-
-        if (entry.isIntersecting && entry.intersectionRatio === 1) {
-          // Among all intersecting elements, find the topmost element.
-          if (entry.boundingClientRect.top < minTopElem) {
-            minTopElem = entry.boundingClientRect.top
-            topIntersectingElemId = parseInt(elemId)
-          }
-        }
-      })
-
-      if (topIntersectingElemId > 0) {
-        /*
-         * Intersection observer is great in finding us the last element on the
-         * page that becomes visible on scroll. But for better user experience
-         * we are interested in the topmost element visible on the page that we
-         * can scroll to at the top on the next article page reader view. We
-         * iterate in reverse over anchor elements here us to find the topmost
-         * visible element.
-         */
-        let topVisibleElemId = topIntersectingElemId
-        while (topVisibleElemId - 1 > 0) {
-          const elem = document.querySelector(
-            `[data-omnivore-anchor-idx='${(topVisibleElemId - 1).toString()}']`
-          )
-          if (elem) {
-            const rect = elem.getBoundingClientRect()
-            if (
-              rect.top >= 0 &&
-              rect.left >= 0 &&
-              rect.bottom <=
-                (window.innerHeight || document.documentElement.clientHeight) &&
-              rect.right <=
-                (window.innerWidth || document.documentElement.clientWidth)
-            ) {
-              /* Is Visible */
-              topVisibleElemId = topVisibleElemId - 1
-            } else {
-              break
-            }
-          } else {
-            // Prevents the Event loop from the eternal blocking
-            throw new Error('Unable to find previous intersection element!')
-          }
-        }
-        setReadingAnchorIndex(topVisibleElemId)
-      }
-    }
-
-    const nodeObserver = new IntersectionObserver(
-      intersectionCallback,
-      observerOptions
-    )
-    visitedNodeList?.forEach((elem) => {
-      nodeObserver.observe(elem)
-    })
-
-    return () => {
-      nodeObserver.disconnect()
-    }
-  }, [articleContentRef, setReadingAnchorIndex])
+    parseDomTree(articleContentRef.current)
+  }, [articleContentRef])
 }
 
-function parseDomTree(pageNode: HTMLDivElement | null): HTMLDivElement[] {
+export function parseDomTree(
+  pageNode: HTMLDivElement | null
+): HTMLDivElement[] {
   if (!pageNode || pageNode.childNodes.length == 0) {
     return []
   }
