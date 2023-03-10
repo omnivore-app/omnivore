@@ -4062,6 +4062,7 @@ export type ResolversParentTypes = {
 export type SanitizeDirectiveArgs = {
   allowedTags?: Maybe<Array<Maybe<Scalars['String']>>>;
   maxLength?: Maybe<Scalars['Int']>;
+  minLength?: Maybe<Scalars['Int']>;
   pattern?: Maybe<Scalars['String']>;
 };
 
