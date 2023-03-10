@@ -131,19 +131,31 @@ export const syncWithReadwise = async (
     )
     return response.status === 200
   } catch (error) {
-    if (
-      axios.isAxiosError(error) &&
-      error.response?.status === 429 &&
-      retryCount < 3
-    ) {
-      console.log('Readwise API rate limit exceeded, retrying...')
-      // wait for Retry-After seconds in the header if rate limited
-      // max retry count is 3
-      const retryAfter = error.response?.headers['retry-after'] || '10' // default to 10 seconds
-      await wait(parseInt(retryAfter, 10) * 1000)
-      return syncWithReadwise(token, highlights, retryCount + 1)
+    if (axios.isAxiosError(error)) {
+      if (error.response) {
+        if (error.response.status === 429 && retryCount < 3) {
+          console.log('Readwise API rate limit exceeded, retrying...')
+          // wait for Retry-After seconds in the header if rate limited
+          // max retry count is 3
+          const retryAfter = error.response?.headers['retry-after'] || '10' // default to 10 seconds
+          await wait(parseInt(retryAfter, 10) * 1000)
+          return syncWithReadwise(token, highlights, retryCount + 1)
+        }
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        console.log(error.response.data)
+      } else if (error.request) {
+        // The request was made but no response was received
+        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+        // http.ClientRequest in node.js
+        console.log(error.request)
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log('Error', error.message)
+      }
+    } else {
+      console.log('error syncing with readwise', error)
     }
-    console.log('Error creating highlights in Readwise', error)
     return false
   }
 }
