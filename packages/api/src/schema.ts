@@ -363,6 +363,7 @@ const schema = gql`
     savedAt: Date!
     updatedAt: Date!
     publishedAt: Date
+    readingProgressTopPercent: Float
     readingProgressPercent: Float!
     readingProgressAnchorIndex: Int!
     sharedComment: String
@@ -609,6 +610,7 @@ const schema = gql`
     | SaveArticleReadingProgressError
   input SaveArticleReadingProgressInput {
     id: ID!
+    readingProgressTopPercent: Float
     readingProgressPercent: Float!
     readingProgressAnchorIndex: Int!
   }
@@ -1526,6 +1528,7 @@ const schema = gql`
     createdAt: Date!
     updatedAt: Date
     isArchived: Boolean!
+    readingProgressTopPercent: Float
     readingProgressPercent: Float!
     readingProgressAnchorIndex: Int!
     author: String

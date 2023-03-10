@@ -256,7 +256,7 @@ export const updatePage = async (
   ctx: PageContext
 ): Promise<boolean> => {
   try {
-    const { body } = await client.update({
+    await client.update({
       index: INDEX_ALIAS,
       id,
       body: {
@@ -268,8 +268,6 @@ export const updatePage = async (
       refresh: ctx.refresh,
       retry_on_conflict: 3,
     })
-
-    if (body.result !== 'updated') return false
 
     if (page.state === ArticleSavingRequestStatus.Deleted) {
       await ctx.pubsub.entityDeleted(EntityType.PAGE, id, ctx.uid)
