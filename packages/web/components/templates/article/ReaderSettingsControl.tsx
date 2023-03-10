@@ -579,7 +579,7 @@ function ThemeSelector(props: ReaderSettingsProps): JSX.Element {
             justifyContent: 'center',
             width: '30px',
             height: '30px',
-            background: '#3B3938',
+            background: '#2A2A2A',
             borderRadius: '50%',
             border: 'unset',
             '&:hover': {
@@ -635,7 +635,7 @@ function ThemeSelector(props: ReaderSettingsProps): JSX.Element {
             justifyContent: 'center',
             width: '30px',
             height: '30px',
-            background: '#F3F3F3',
+            background: '#6A6968',
             borderRadius: '50%',
             border: 'unset',
             '&:hover': {
@@ -655,7 +655,7 @@ function ThemeSelector(props: ReaderSettingsProps): JSX.Element {
           }}
         >
           {currentTheme == ThemeId.Apollo && (
-            <Check color="#6A6968" size={20} />
+            <Check color="#F9D354" size={20} />
           )}
         </Button>
       </HStack>
