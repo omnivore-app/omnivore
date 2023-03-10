@@ -792,13 +792,14 @@ export const saveArticleReadingProgressResolver = authorized<
     // If we have a top percent, we only save it if it's greater than the current top percent
     // or set to zero if the top percent is zero.
     const readingProgressTopPercentToSave = readingProgressTopPercent
-      ? readingProgressTopPercent === 0
-        ? 0
-        : Math.max(
-            readingProgressTopPercent,
-            page.readingProgressTopPercent || 0
-          )
+      ? Math.max(readingProgressTopPercent, page.readingProgressTopPercent || 0)
+      : readingProgressTopPercent === 0
+      ? 0
       : undefined
+    console.log(
+      'readingProgressTopPercentToSave',
+      readingProgressTopPercentToSave
+    )
     // If setting to zero we accept the update, otherwise we require it
     // be greater than the current reading progress.
     const updatedPart = {
