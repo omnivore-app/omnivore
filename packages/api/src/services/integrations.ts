@@ -69,7 +69,7 @@ const pageToReadwiseHighlight = (page: Page): ReadwiseHighlight[] => {
   return (
     page.highlights
       // filter out highlights with no quote
-      .filter((highlight) => highlight.quote.length === 0)
+      .filter((highlight) => highlight.quote.length > 0)
       .map((highlight) => {
         return {
           text: highlight.quote,
@@ -149,18 +149,18 @@ export const syncWithReadwise = async (
         }
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
-        console.log('Readwise error, response data', error.response.data)
+        console.error('Readwise error, response data', error.response.data)
       } else if (error.request) {
         // The request was made but no response was received
         // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
         // http.ClientRequest in node.js
-        console.log('Readwise error, request', error.request)
+        console.error('Readwise error, request', error.request)
       } else {
         // Something happened in setting up the request that triggered an Error
-        console.log('Error', error.message)
+        console.error('Error', error.message)
       }
     } else {
-      console.log('Error syncing with readwise', error)
+      console.error('Error syncing with readwise', error)
     }
     return false
   }
