@@ -1,4 +1,4 @@
-import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
+import { HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { DotsThreeOutline, TextAa } from 'phosphor-react'
 import { PrimaryDropdown } from '../PrimaryDropdown'

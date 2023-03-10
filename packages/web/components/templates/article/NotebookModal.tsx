@@ -23,6 +23,9 @@ import { updateHighlightMutation } from '../../../lib/networking/mutations/updat
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { diff_match_patch } from 'diff-match-patch'
 import { HighlightNoteTextEditArea } from '../../elements/HighlightNoteTextEditArea'
+import { CloseButton } from '../../elements/CloseButton'
+import { MenuTrigger } from '../../elements/MenuTrigger'
+import { highlightsAsMarkdown, HighlightsMenu } from '../homeFeed/HighlightItem'
 
 type NotebookModalProps = {
   highlights: Highlight[]
@@ -45,6 +48,18 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
     undefined
   )
   const [, updateState] = useState({})
+
+  const exportHighlights = useCallback(() => {
+    ;(async () => {
+      if (!props.highlights) {
+        showErrorToast('No highlights to export')
+        return
+      }
+      const markdown = highlightsAsMarkdown(props.highlights)
+      await navigator.clipboard.writeText(markdown)
+      showSuccessToast('Highlight copied')
+    })()
+  }, [props.highlights])
 
   const sortedHighlights = useMemo(() => {
     const sorted = (a: number, b: number) => {
@@ -85,7 +100,24 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
         css={{ overflow: 'auto', px: '24px' }}
       >
         <VStack distribution="start" css={{ height: '100%' }}>
-          <ModalTitleBar title="Notebook" onOpenChange={props.onOpenChange} />
+          <HStack
+            distribution="between"
+            alignment="center"
+            css={{ height: '50px', width: '100%' }}
+          >
+            <StyledText style="modalHeadline">Notebook</StyledText>
+            <HStack css={{ ml: 'auto', gap: '10px' }}>
+              <Dropdown triggerElement={<MenuTrigger />}>
+                <DropdownOption
+                  onSelect={() => {
+                    exportHighlights()
+                  }}
+                  title="Export"
+                />
+              </Dropdown>
+              <CloseButton close={() => props.onOpenChange(false)} />
+            </HStack>
+          </HStack>
           <Box css={{ overflow: 'auto', width: '100%' }}>
             {sortedHighlights.map((highlight) => (
               <ModalHighlightView
@@ -167,6 +199,7 @@ type ModalHighlightViewProps = {
 }
 
 function ModalHighlightView(props: ModalHighlightViewProps): JSX.Element {
+  const [hover, setHover] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
 
   const copyHighlight = useCallback(async () => {
@@ -174,9 +207,13 @@ function ModalHighlightView(props: ModalHighlightViewProps): JSX.Element {
   }, [props.highlight])
 
   return (
-    <>
+    <HStack
+      css={{ width: '100%', py: '20px', cursor: 'pointer' }}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
       <VStack>
-        <SpanBox css={{ marginLeft: 'auto' }}>
+        {/* <SpanBox css={{ marginLeft: 'auto' }}>
           <Dropdown
             triggerElement={
               <DotsThree size={24} color={theme.colors.readerFont.toString()} />
@@ -201,7 +238,7 @@ function ModalHighlightView(props: ModalHighlightViewProps): JSX.Element {
               title="Delete"
             />
           </Dropdown>
-        </SpanBox>
+        </SpanBox> */}
 
         <HighlightView
           scrollToHighlight={props.scrollToHighlight}
@@ -233,6 +270,24 @@ function ModalHighlightView(props: ModalHighlightViewProps): JSX.Element {
         )}
         <SpanBox css={{ mt: '$2', mb: '$4' }} />
       </VStack>
-    </>
+      <SpanBox
+        css={{
+          marginLeft: 'auto',
+          width: '20px',
+          visibility: hover ? 'unset' : 'hidden',
+          '@media (hover: none)': {
+            visibility: 'unset',
+          },
+        }}
+      >
+        <HighlightsMenu
+          highlight={props.highlight}
+          setLabelsTarget={props.setSetLabelsTarget}
+          setShowConfirmDeleteHighlightId={
+            props.setShowConfirmDeleteHighlightId
+          }
+        />
+      </SpanBox>
+    </HStack>
   )
 }

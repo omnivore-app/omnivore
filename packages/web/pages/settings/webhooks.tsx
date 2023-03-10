@@ -13,6 +13,7 @@ import { deleteWebhookMutation } from '../../lib/networking/mutations/deleteWebh
 import { FormModal } from '../../components/patterns/FormModal'
 import { setWebhookMutation } from '../../lib/networking/mutations/setWebhookMutation'
 import { FormInputProps } from '../../components/elements/FormElements'
+import { Box } from '../../components/elements/LayoutPrimitives'
 
 interface Webhook {
   id?: string
@@ -225,6 +226,7 @@ export default function Webhooks(): JSX.Element {
           setOnEditWebhook(webhook)
         }}
       />
+      <Box css={{ height: '120px' }} />
     </SettingsLayout>
   )
 }
