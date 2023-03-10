@@ -312,6 +312,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           },
           '@mdDown': {
             padding: '15px',
+            paddingTop: '80px',
           },
         }}
       >
