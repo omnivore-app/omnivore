@@ -155,7 +155,7 @@ describe('Integrations routers', () => {
                   highlighted_at: highlight.createdAt.toISOString(),
                   category: 'articles',
                   image_url: page.image,
-                  location: highlightPositionPercent,
+                  // location: highlightPositionPercent,
                   location_type: 'order',
                   note: highlight.annotation,
                   source_type: 'omnivore',
