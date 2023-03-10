@@ -65,22 +65,28 @@ const validateReadwiseToken = async (token: string): Promise<boolean> => {
 
 const pageToReadwiseHighlight = (page: Page): ReadwiseHighlight[] => {
   if (!page.highlights) return []
-  return page.highlights.map((highlight) => {
-    return {
-      text: highlight.quote,
-      title: page.title,
-      author: page.author || undefined,
-      highlight_url: getHighlightUrl(page.slug, highlight.id),
-      highlighted_at: new Date(highlight.createdAt).toISOString(),
-      category: 'articles',
-      image_url: page.image || undefined,
-      location: highlight.highlightPositionPercent || undefined,
-      location_type: 'order',
-      note: highlight.annotation || undefined,
-      source_type: 'omnivore',
-      source_url: page.url,
-    }
-  })
+  const category = page.siteName === 'Twitter' ? 'tweets' : 'articles'
+  return (
+    page.highlights
+      // filter out highlights with no quote
+      .filter((highlight) => highlight.quote.length === 0)
+      .map((highlight) => {
+        return {
+          text: highlight.quote,
+          title: page.title,
+          author: page.author || undefined,
+          highlight_url: getHighlightUrl(page.slug, highlight.id),
+          highlighted_at: new Date(highlight.createdAt).toISOString(),
+          category,
+          image_url: page.image || undefined,
+          // location: highlight.highlightPositionAnchorIndex || undefined,
+          location_type: 'order',
+          note: highlight.annotation || undefined,
+          source_type: 'omnivore',
+          source_url: page.url,
+        }
+      })
+  )
 }
 
 export const syncWithIntegration = async (
@@ -131,19 +137,31 @@ export const syncWithReadwise = async (
     )
     return response.status === 200
   } catch (error) {
-    if (
-      axios.isAxiosError(error) &&
-      error.response?.status === 429 &&
-      retryCount < 3
-    ) {
-      console.log('Readwise API rate limit exceeded, retrying...')
-      // wait for Retry-After seconds in the header if rate limited
-      // max retry count is 3
-      const retryAfter = error.response?.headers['retry-after'] || '10' // default to 10 seconds
-      await wait(parseInt(retryAfter, 10) * 1000)
-      return syncWithReadwise(token, highlights, retryCount + 1)
+    if (axios.isAxiosError(error)) {
+      if (error.response) {
+        if (error.response.status === 429 && retryCount < 3) {
+          console.log('Readwise API rate limit exceeded, retrying...')
+          // wait for Retry-After seconds in the header if rate limited
+          // max retry count is 3
+          const retryAfter = error.response?.headers['retry-after'] || '10' // default to 10 seconds
+          await wait(parseInt(retryAfter, 10) * 1000)
+          return syncWithReadwise(token, highlights, retryCount + 1)
+        }
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        console.log('Readwise error, response data', error.response.data)
+      } else if (error.request) {
+        // The request was made but no response was received
+        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+        // http.ClientRequest in node.js
+        console.log('Readwise error, request', error.request)
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log('Error', error.message)
+      }
+    } else {
+      console.log('Error syncing with readwise', error)
     }
-    console.log('Error creating highlights in Readwise', error)
     return false
   }
 }

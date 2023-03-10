@@ -228,23 +228,8 @@ const getTweetIds = async (
 
       const ids: Set<string> = new Set()
 
-      // Find the first Show thread button and click it
-      const showRepliesButton = Array.from(
-        document.querySelectorAll('div[dir="auto"]')
-      )
-        .filter(
-          (node) => node.children[0] && node.children[0].tagName === 'SPAN'
-        )
-        .find((node) => node.children[0].innerHTML === 'Show replies')
-
-      if (showRepliesButton) {
-        ;(showRepliesButton as HTMLElement).click()
-
-        await waitFor(2000)
-      }
-
       const distance = 1080
-      const scrollHeight = document.body.scrollHeight
+      let scrollHeight = document.body.scrollHeight
       let currentHeight = 0
       // keep scrolling until there are no more elements
       while (currentHeight < scrollHeight) {
@@ -269,13 +254,31 @@ const getTweetIds = async (
           const id = match[2]
           const username = match[1]
 
-          // skip non-author replies
-          username === author && ids.add(id)
+          // stop at non-author replies
+          if (username !== author) return Array.from(ids)
+          ids.add(id)
         }
 
         window.scrollBy(0, distance)
         await waitFor(500)
         currentHeight += distance
+
+        // Find the show replies button and click it
+        if (currentHeight >= scrollHeight) {
+          const showRepliesButton = Array.from(
+            document.querySelectorAll('div[dir]')
+          )
+            .filter(
+              (node) => node.children[0] && node.children[0].tagName === 'SPAN'
+            )
+            .find((node) => node.children[0].innerHTML === 'Show replies')
+
+          if (showRepliesButton) {
+            ;(showRepliesButton as HTMLElement).click()
+            await waitFor(1000)
+            scrollHeight = document.body.scrollHeight
+          }
+        }
       }
 
       return Array.from(ids)
@@ -371,6 +374,8 @@ export class TwitterHandler extends ContentHandler {
       <meta property="og:image:secure_url" content="${authorImage}" />
       <meta property="og:title" content="${escapedTitle}" />
       <meta property="og:description" content="${description}" />
+      <meta property="article:published_time" content="${tweetData.created_at}" />
+      <meta property="og:site_name" content="Twitter" />
     </head>
     <body>
       <div>
