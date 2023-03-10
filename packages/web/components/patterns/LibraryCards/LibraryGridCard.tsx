@@ -141,7 +141,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
             <SpanBox
               css={{
                 ...AuthorInfoStyle,
-                m: '0px',
+                mt: '10px',
               }}
             >
               {props.item.author}
