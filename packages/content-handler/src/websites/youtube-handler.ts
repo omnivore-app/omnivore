@@ -52,7 +52,7 @@ export class YoutubeHandler extends ContentHandler {
         return {}
       }
       urlToEncode = `${BaseUrl}/watch?v=${videoId}`
-      src = `${embedBaseUrl}/embed/${videoId}`
+      src = `${embedBaseUrl}/${videoId}`
     }
 
     const oembedUrl =
@@ -65,7 +65,6 @@ export class YoutubeHandler extends ContentHandler {
       thumbnail_url: string
       author_name: string
       author_url: string
-      provider_name: string
     }
     // escape html entities in title
     const title = oembed.title
