@@ -758,6 +758,16 @@ describe('Article API', () => {
           .readingProgressTopPercent
       ).to.eql(topPercent)
     })
+
+    it('saves topPercent as 0 if defined as 0', async () => {
+      const topPercent = 0
+      query = saveArticleReadingProgressQuery(pageId, progress, topPercent)
+      const res = await graphqlRequest(query, authToken).expect(200)
+      expect(
+        res.body.data.saveArticleReadingProgress.updatedArticle
+          .readingProgressTopPercent
+      ).to.eql(topPercent)
+    })
   })
 
   xdescribe('SaveFile', () => {
