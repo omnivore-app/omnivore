@@ -768,6 +768,14 @@ describe('Article API', () => {
           .readingProgressTopPercent
       ).to.eql(topPercent)
     })
+
+    it('returns BAD_DATA error if top position is greater than bottom position', async () => {
+      query = saveArticleReadingProgressQuery(pageId, 0.5, 0.8)
+      const res = await graphqlRequest(query, authToken).expect(200)
+      expect(res.body.data.saveArticleReadingProgress.errorCodes).to.eql([
+        'BAD_DATA',
+      ])
+    })
   })
 
   xdescribe('SaveFile', () => {
