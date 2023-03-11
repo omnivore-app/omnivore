@@ -365,6 +365,7 @@ export function useGetLibraryItemsQuery({
           node: {
             ...item.node,
             readingProgressPercent: 0,
+            readingProgressAnchorIndex: 0,
           },
         })
         articleReadingProgressMutation({
