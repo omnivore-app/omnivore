@@ -785,7 +785,8 @@ export const saveArticleReadingProgressResolver = authorized<
       readingProgressPercent > 100 ||
       (readingProgressTopPercent &&
         (readingProgressTopPercent < 0 ||
-          readingProgressTopPercent > readingProgressPercent))
+          readingProgressTopPercent > readingProgressPercent)) ||
+      readingProgressAnchorIndex < 0
     ) {
       return { errorCodes: [SaveArticleReadingProgressErrorCode.BadData] }
     }
@@ -796,10 +797,6 @@ export const saveArticleReadingProgressResolver = authorized<
       : readingProgressTopPercent === 0
       ? 0
       : undefined
-    console.log(
-      'readingProgressTopPercentToSave',
-      readingProgressTopPercentToSave
-    )
     // If setting to zero we accept the update, otherwise we require it
     // be greater than the current reading progress.
     const updatedPart = {
@@ -807,10 +804,13 @@ export const saveArticleReadingProgressResolver = authorized<
         readingProgressPercent === 0
           ? 0
           : Math.max(readingProgressPercent, page.readingProgressPercent),
-      readingProgressAnchorIndex: Math.max(
-        readingProgressAnchorIndex,
-        page.readingProgressAnchorIndex
-      ),
+      readingProgressAnchorIndex:
+        readingProgressAnchorIndex === 0
+          ? 0
+          : Math.max(
+              readingProgressAnchorIndex,
+              page.readingProgressAnchorIndex
+            ),
       readingProgressTopPercent: readingProgressTopPercentToSave,
       readAt: new Date(),
     }
