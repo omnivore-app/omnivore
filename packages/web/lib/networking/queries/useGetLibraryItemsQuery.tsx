@@ -150,6 +150,7 @@ export function useGetLibraryItemsQuery({
               createdAt
               isArchived
               readingProgressPercent
+              readingProgressTopPercent
               readingProgressAnchorIndex
               author
               image
