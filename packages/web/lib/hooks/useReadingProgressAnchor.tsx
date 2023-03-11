@@ -29,11 +29,6 @@ export const getTopOmnivoreAnchorElement = (
     }
   }
 
-  console.log(
-    ' top visible rect:',
-    topVisibleRect?.getBoundingClientRect().top,
-    topVisibleRect?.getAttribute(`data-omnivore-anchor-idx`)
-  )
   return topVisibleRect?.getAttribute(`data-omnivore-anchor-idx`) ?? undefined
 }
 

@@ -45,7 +45,6 @@ export function Article(props: ArticleProps): JSX.Element {
       if (!articleContentRef.current) return
       if (!window.document.scrollingElement) return
       const anchor = getTopOmnivoreAnchorElement(articleContentRef.current)
-      console.log(' -- getTopOmnivoreAnchorElement: ', anchor)
       const topPositionPercent =
         window.scrollY / window.document.scrollingElement.scrollHeight
       const anchorIndex = Number(anchor)
@@ -106,7 +105,6 @@ export function Article(props: ArticleProps): JSX.Element {
       return
     }
 
-    console.log('props.initialAnchorIndex: ', props.initialAnchorIndex)
     const anchorElement = props.highlightHref.current
       ? document.querySelector(
           `[omnivore-highlight-id="${props.highlightHref.current}"]`
