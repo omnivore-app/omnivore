@@ -351,11 +351,13 @@ export function useGetLibraryItemsQuery({
           node: {
             ...item.node,
             readingProgressPercent: 100,
+            readingProgressTopPercent: 100,
           },
         })
         articleReadingProgressMutation({
           id: item.node.id,
           readingProgressPercent: 100,
+          readingProgressTopPercent: 100,
           readingProgressAnchorIndex: 0,
         })
         break
@@ -365,12 +367,14 @@ export function useGetLibraryItemsQuery({
           node: {
             ...item.node,
             readingProgressPercent: 0,
+            readingProgressTopPercent: 0,
             readingProgressAnchorIndex: 0,
           },
         })
         articleReadingProgressMutation({
           id: item.node.id,
           readingProgressPercent: 0,
+          readingProgressTopPercent: 0,
           readingProgressAnchorIndex: 0,
         })
         break
