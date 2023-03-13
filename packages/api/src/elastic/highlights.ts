@@ -136,9 +136,12 @@ export const deleteHighlight = async (
       refresh: ctx.refresh,
     })
 
-    if (body.updated === 0) return false
-
-    await ctx.pubsub.entityDeleted(EntityType.HIGHLIGHT, highlightId, ctx.uid)
+    body.updated > 0 &&
+      (await ctx.pubsub.entityDeleted(
+        EntityType.HIGHLIGHT,
+        highlightId,
+        ctx.uid
+      ))
 
     return true
   } catch (e) {
@@ -292,11 +295,12 @@ export const updateHighlight = async (
       conflicts: 'proceed',
     })
 
-    await ctx.pubsub.entityUpdated<Highlight>(
-      EntityType.HIGHLIGHT,
-      highlight,
-      ctx.uid
-    )
+    body.updated > 0 &&
+      (await ctx.pubsub.entityUpdated<Highlight>(
+        EntityType.HIGHLIGHT,
+        highlight,
+        ctx.uid
+      ))
 
     return true
   } catch (e) {
