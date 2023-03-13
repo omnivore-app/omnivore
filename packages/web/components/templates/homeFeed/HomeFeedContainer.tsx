@@ -794,6 +794,7 @@ function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element {
         distribution="start"
         css={{
           height: '100%',
+          minHeight: '100vh',
         }}
       >
         <Toaster />
@@ -914,6 +915,7 @@ function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element {
             </div>
           )}
         </Dropzone>
+        {/* <Box css={{ width: '10px', height: '100vh' }} /> */}
       </VStack>
 
       {props.showAddLinkModal && (
