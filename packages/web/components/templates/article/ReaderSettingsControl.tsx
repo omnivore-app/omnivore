@@ -520,8 +520,6 @@ function LayoutControls(props: LayoutControlsProps): JSX.Element {
 
 function ThemeSelector(props: ReaderSettingsProps): JSX.Element {
   const [currentTheme, setCurrentTheme] = useState(currentThemeName())
-  console.log('currentTheme: ', currentTheme)
-
   return (
     <VStack
       css={{
