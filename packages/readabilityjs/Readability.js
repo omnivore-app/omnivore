@@ -1055,7 +1055,10 @@ Readability.prototype = {
   _checkPublishedDate: function (node, matchString) {
     // Skipping meta tags
     if (node.tagName.toLowerCase() === 'meta') return
-
+    // return published date if the class name is 'omnivore-published-date' which we added when we scraped the article
+    if (node.className === 'omnivore-published-date' && this._isValidPublishedDate(node.textContent)) {
+      return new Date(node.textContent);
+    }
     // Searching for the real date in the text content
     let dateRegExpFound = this.REGEXPS.DATES_REGEXPS.find(regexp => regexp.test(node.textContent.trim()))
     dateRegExpFound && (dateRegExpFound = dateRegExpFound.exec(node.textContent.trim()))
