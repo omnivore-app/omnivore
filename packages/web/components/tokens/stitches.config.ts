@@ -279,7 +279,6 @@ const darkThemeSpec = {
 
 const sepiaThemeSpec = {
   colors: {
-    BACKING: 'red',
     readerBg: '#FBF0D9',
     readerFont: '#5F4B32',
     readerMargin: '#F3F3F3',
