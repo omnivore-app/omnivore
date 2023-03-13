@@ -2,12 +2,12 @@ import { Box } from '../../elements/LayoutPrimitives'
 import {
   getTopOmnivoreAnchorElement,
   parseDomTree,
-} from '../../../lib/hooks/useReadingProgressAnchor'
+} from '../../../lib/anchorElements'
 import {
   ScrollOffsetChangeset,
   useScrollWatcher,
 } from '../../../lib/hooks/useScrollWatcher'
-import { MutableRefObject, useEffect, useMemo, useRef, useState } from 'react'
+import { MutableRefObject, useEffect, useRef, useState } from 'react'
 import { Tweet } from 'react-twitter-widgets'
 import { render } from 'react-dom'
 import { isDarkTheme } from '../../../lib/themeUpdater'
