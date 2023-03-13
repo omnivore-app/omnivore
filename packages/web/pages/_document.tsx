@@ -5,40 +5,6 @@ import { getCssText, globalStyles } from '../components/tokens/stitches.config'
 
 export default class Document extends NextDocument {
   render() {
-    const setUserPreferences = `
-      function getCookie(cname) {
-        let name = cname + "=";
-        let ca = document.cookie.split(';');
-        for(let i = 0; i < ca.length; i++) {
-          let c = ca[i];
-          while (c.charAt(0) == ' ') {
-            c = c.substring(1);
-          }
-          if (c.indexOf(name) == 0) {
-            return c.substring(name.length, c.length);
-          }
-        }
-        return "";
-      }
-
-      function storeCookieInLocalStorage(key) {
-        let value = getCookie(key);
-        if (value != "") {
-          window.localStorage.setItem(key, value)
-        }
-      }
-
-      storeCookieInLocalStorage("authToken")
-      storeCookieInLocalStorage("theme")
-
-      var themeId = window.localStorage.getItem('theme')
-
-      if (themeId) {
-        document.body.classList.remove('theme-default', 'White', 'Gray', 'LightGray', 'Dark', 'Sepia', 'Charcoal')
-        document.body.classList.add(themeId)
-      }
-    `
-
     globalStyles()
 
     return (
@@ -112,7 +78,6 @@ export default class Document extends NextDocument {
         <body>
           <Main />
           <NextScript />
-          <script dangerouslySetInnerHTML={{ __html: setUserPreferences }} />
         </body>
       </Html>
     )

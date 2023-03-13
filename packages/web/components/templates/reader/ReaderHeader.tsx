@@ -35,8 +35,11 @@ export function ReaderHeader(props: ReaderHeaderProps): JSX.Element {
           '@xlgDown': {
             height: MOBILE_HEADER_HEIGHT,
             pt: '0px',
-            bg: '$thBackground3',
+            bg: '$readerMargin',
             borderBottom: '1px solid $thBorderColor',
+          },
+          '@mdDown': {
+            bg: '$readerBg',
           },
         }}
       >

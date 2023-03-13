@@ -234,7 +234,7 @@ function ThemeSection(props: PrimaryDropdownProps): JSX.Element {
             }}
           >
             <StyledToggleButton
-              data-state={currentTheme() != ThemeId.Darker ? 'on' : 'off'}
+              data-state={currentTheme() != ThemeId.Dark ? 'on' : 'off'}
               onClick={() => {
                 updateTheme(ThemeId.Light)
               }}
@@ -243,9 +243,9 @@ function ThemeSection(props: PrimaryDropdownProps): JSX.Element {
               <Sun size={15} color={theme.colors.thTextContrast2.toString()} />
             </StyledToggleButton>
             <StyledToggleButton
-              data-state={currentTheme() == ThemeId.Darker ? 'on' : 'off'}
+              data-state={currentTheme() == ThemeId.Dark ? 'on' : 'off'}
               onClick={() => {
-                updateTheme(ThemeId.Darker)
+                updateTheme(ThemeId.Dark)
               }}
             >
               Dark

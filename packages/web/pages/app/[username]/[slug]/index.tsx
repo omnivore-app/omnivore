@@ -73,13 +73,7 @@ function AppArticleEmbedContent(
 
   if (articleData) {
     return (
-      <Box
-        css={{
-          overflowY: 'auto',
-          height: '100%',
-          width: '100vw',
-        }}
-      >
+      <Box>
         <Script async src="/static/scripts/mathJaxConfiguration.js" />
         <Script
           async

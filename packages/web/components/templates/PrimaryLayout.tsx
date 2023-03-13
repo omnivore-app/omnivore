@@ -10,6 +10,7 @@ import { KeyboardShortcutListModal } from './KeyboardShortcutListModal'
 import { logoutMutation } from '../../lib/networking/mutations/logoutMutation'
 import { setupAnalytics } from '../../lib/analytics'
 import { primaryCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
+import { applyStoredTheme } from '../../lib/themeUpdater'
 
 type PrimaryLayoutProps = {
   children: ReactNode
@@ -21,6 +22,8 @@ type PrimaryLayoutProps = {
 }
 
 export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
+  applyStoredTheme(false)
+
   const { viewerData } = useGetViewerQuery()
   const router = useRouter()
   const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false)
@@ -82,32 +85,24 @@ export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
       ) : null}
       <Box
         css={{
+          height: '100%',
           width: '100vw',
-          height: '100vh',
-          bg: 'transparent',
+          bg: '$thBackground2',
         }}
       >
-        <Box
-          css={{
-            height: '100%',
-            width: '100vw',
-            bg: '$thBackground2',
-          }}
-        >
-          {props.children}
-          {showLogoutConfirmation ? (
-            <ConfirmationModal
-              message={'Are you sure you want to log out?'}
-              onAccept={logout}
-              onOpenChange={() => setShowLogoutConfirmation(false)}
-            />
-          ) : null}
-          {showKeyboardCommandsModal ? (
-            <KeyboardShortcutListModal
-              onOpenChange={() => setShowKeyboardCommandsModal(false)}
-            />
-          ) : null}
-        </Box>
+        {props.children}
+        {showLogoutConfirmation ? (
+          <ConfirmationModal
+            message={'Are you sure you want to log out?'}
+            onAccept={logout}
+            onOpenChange={() => setShowLogoutConfirmation(false)}
+          />
+        ) : null}
+        {showKeyboardCommandsModal ? (
+          <KeyboardShortcutListModal
+            onOpenChange={() => setShowKeyboardCommandsModal(false)}
+          />
+        ) : null}
       </Box>
       <div data-testid={props.pageTestId} />
     </>

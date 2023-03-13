@@ -9,17 +9,15 @@ import {
 import { theme, ThemeId } from './../../tokens/stitches.config'
 import { HighlightsLayer } from '../../templates/article/HighlightsLayer'
 import { Button } from '../../elements/Button'
-import { useEffect, useState, useRef, useMemo } from 'react'
+import { useEffect, useState, useRef, useMemo, useCallback } from 'react'
 import { ReportIssuesModal } from './ReportIssuesModal'
 import { reportIssueMutation } from '../../../lib/networking/mutations/reportIssueMutation'
-import { userPersonalizationMutation } from '../../../lib/networking/mutations/userPersonalizationMutation'
 import { updateTheme, updateThemeLocally } from '../../../lib/themeUpdater'
 import { ArticleMutations } from '../../../lib/articleActions'
 import { LabelChip } from '../../elements/LabelChip'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { Recommendation } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { Avatar } from '../../elements/Avatar'
-import { usePersistedState } from '../../../lib/hooks/usePersistedState'
 
 type ArticleContainerProps = {
   article: ArticleAttributes
@@ -125,12 +123,14 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     window.location.hash ? window.location.hash.split('#')[1] : null
   )
 
-  const updateFontSize = async (newFontSize: number) => {
-    if (fontSize !== newFontSize) {
-      setFontSize(newFontSize)
-      await userPersonalizationMutation({ fontSize: newFontSize })
-    }
-  }
+  const updateFontSize = useCallback(
+    (newFontSize: number) => {
+      if (fontSize !== newFontSize) {
+        setFontSize(newFontSize)
+      }
+    },
+    [setFontSize]
+  )
 
   useEffect(() => {
     updateFontSize(props.fontSize ?? 20)
@@ -263,7 +263,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
       ? theme.colors.readerFontHighContrast.toString()
       : theme.colors.readerFont.toString(),
     readerTableHeaderColor: theme.colors.readerTableHeader.toString(),
-    readerHeadersColor: theme.colors.readerHeader.toString(),
+    readerHeadersColor: theme.colors.readerFont.toString(),
   }
 
   const recommendationsWithNotes = useMemo(() => {
@@ -279,7 +279,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
       <Box
         id="article-container"
         css={{
-          padding: '16px',
+          padding: '30px',
           paddingTop: '80px',
           maxWidth: `${styles.maxWidthPercentage ?? 100}%`,
           background: props.isAppleAppEmbed
@@ -310,6 +310,10 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
               ? `${styles.maxWidthPercentage}%`
               : 1024 - styles.margin,
           },
+          '@mdDown': {
+            padding: '15px',
+            paddingTop: '80px',
+          },
         }}
       >
         <VStack alignment="start" distribution="start">
@@ -325,6 +329,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
               fontFamily: styles.fontFamily,
               width: '100%',
               wordWrap: 'break-word',
+              color: styles.readerFontColor,
             }}
           >
             {props.article.title}
@@ -361,6 +366,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           content={props.article.content}
           highlightHref={highlightHref}
           initialAnchorIndex={props.article.readingProgressAnchorIndex}
+          initialReadingProgressTop={props.article.readingProgressTopPercent}
           articleMutations={props.articleMutations}
         />
         <Button

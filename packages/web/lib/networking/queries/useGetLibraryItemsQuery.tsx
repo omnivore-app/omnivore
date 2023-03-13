@@ -67,6 +67,7 @@ export type LibraryItemNode = {
   contentReader?: ContentReader
   originalArticleUrl: string
   readingProgressPercent: number
+  readingProgressTopPercent?: number
   readingProgressAnchorIndex: number
   slug: string
   isArchived: boolean
@@ -149,6 +150,7 @@ export function useGetLibraryItemsQuery({
               createdAt
               isArchived
               readingProgressPercent
+              readingProgressTopPercent
               readingProgressAnchorIndex
               author
               image
@@ -349,11 +351,13 @@ export function useGetLibraryItemsQuery({
           node: {
             ...item.node,
             readingProgressPercent: 100,
+            readingProgressTopPercent: 100,
           },
         })
         articleReadingProgressMutation({
           id: item.node.id,
           readingProgressPercent: 100,
+          readingProgressTopPercent: 100,
           readingProgressAnchorIndex: 0,
         })
         break
@@ -363,11 +367,14 @@ export function useGetLibraryItemsQuery({
           node: {
             ...item.node,
             readingProgressPercent: 0,
+            readingProgressTopPercent: 0,
+            readingProgressAnchorIndex: 0,
           },
         })
         articleReadingProgressMutation({
           id: item.node.id,
           readingProgressPercent: 0,
+          readingProgressTopPercent: 0,
           readingProgressAnchorIndex: 0,
         })
         break

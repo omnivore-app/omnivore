@@ -1,16 +1,11 @@
 import { useRegisterActions } from 'kbar'
 import { useCallback, useState } from 'react'
-import { userPersonalizationMutation } from '../networking/mutations/userPersonalizationMutation'
-import {
-  useGetUserPreferences,
-  UserPreferences,
-} from '../networking/queries/useGetUserPreferences'
+import { applyStoredTheme } from '../themeUpdater'
 import { usePersistedState } from './usePersistedState'
 
 const DEFAULT_FONT = 'Inter'
 
 export type ReaderSettings = {
-  preferencesData: UserPreferences | undefined
   fontSize: number
   lineHeight: number
   marginWidth: number
@@ -41,12 +36,13 @@ export type ReaderSettings = {
 }
 
 export const useReaderSettings = (): ReaderSettings => {
-  const { preferencesData } = useGetUserPreferences()
+  applyStoredTheme(false)
+
   const [, updateState] = useState({})
 
   const [fontSize, setFontSize] = usePersistedState({
     key: 'fontSize',
-    initialValue: preferencesData?.fontSize ?? 20,
+    initialValue: 20,
   })
   const [lineHeight, setLineHeight] = usePersistedState({
     key: 'lineHeight',
@@ -76,12 +72,12 @@ export const useReaderSettings = (): ReaderSettings => {
     useState(false)
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
 
-  const updateFontSize = async (newFontSize: number) => {
-    setFontSize(newFontSize)
-    ;(async () => {
-      await userPersonalizationMutation({ fontSize: newFontSize })
-    })()
-  }
+  const updateFontSize = useCallback(
+    (newFontSize: number) => {
+      setFontSize(newFontSize)
+    },
+    [setFontSize]
+  )
 
   // const [hideMargins, setHideMargins] = usePersistedState<boolean | undefined>({
   //   key: `--display-hide-margins`,
@@ -207,7 +203,6 @@ export const useReaderSettings = (): ReaderSettings => {
   )
 
   return {
-    preferencesData,
     fontSize,
     lineHeight,
     marginWidth,

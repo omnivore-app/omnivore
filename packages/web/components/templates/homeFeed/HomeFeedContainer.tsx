@@ -34,7 +34,6 @@ import {
 } from '../../../lib/networking/fragments/articleFragment'
 import { Action, createAction, useKBar, useRegisterActions } from 'kbar'
 import { EditLibraryItemModal } from './EditItemModals'
-import { useGetUserPreferences } from '../../../lib/networking/queries/useGetUserPreferences'
 import debounce from 'lodash/debounce'
 import {
   SearchItem,
@@ -65,8 +64,6 @@ const debouncedFetchSearchResults = debounce((query, cb) => {
 }, 300)
 
 export function HomeFeedContainer(): JSX.Element {
-  useGetUserPreferences()
-
   const { viewerData } = useGetViewerQuery()
   const router = useRouter()
   const { queryValue } = useKBar((state) => ({ queryValue: state.searchQuery }))
