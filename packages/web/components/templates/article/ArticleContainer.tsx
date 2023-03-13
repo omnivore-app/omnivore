@@ -281,6 +281,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         css={{
           padding: '30px',
           paddingTop: '80px',
+          minHeight: '100vh',
           maxWidth: `${styles.maxWidthPercentage ?? 100}%`,
           background: props.isAppleAppEmbed
             ? 'unset'
