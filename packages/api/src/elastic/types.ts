@@ -88,8 +88,8 @@ export interface Label {
 export interface Highlight {
   id: string
   shortId: string
-  patch: string
-  quote: string
+  patch?: string | null
+  quote?: string | null
   userId: string
   createdAt: Date
   prefix?: string | null

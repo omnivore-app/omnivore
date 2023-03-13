@@ -348,12 +348,13 @@ export type CreateHighlightInput = {
   highlightPositionPercent?: InputMaybe<Scalars['Float']>;
   html?: InputMaybe<Scalars['String']>;
   id: Scalars['ID'];
-  patch: Scalars['String'];
+  patch?: InputMaybe<Scalars['String']>;
   prefix?: InputMaybe<Scalars['String']>;
-  quote: Scalars['String'];
+  quote?: InputMaybe<Scalars['String']>;
   sharedAt?: InputMaybe<Scalars['Date']>;
   shortId: Scalars['String'];
   suffix?: InputMaybe<Scalars['String']>;
+  type?: InputMaybe<HighlightType>;
 };
 
 export type CreateHighlightReplyError = {
@@ -905,14 +906,15 @@ export type Highlight = {
   html?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   labels?: Maybe<Array<Label>>;
-  patch: Scalars['String'];
+  patch?: Maybe<Scalars['String']>;
   prefix?: Maybe<Scalars['String']>;
-  quote: Scalars['String'];
+  quote?: Maybe<Scalars['String']>;
   reactions: Array<Reaction>;
   replies: Array<HighlightReply>;
   sharedAt?: Maybe<Scalars['Date']>;
   shortId: Scalars['String'];
   suffix?: Maybe<Scalars['String']>;
+  type: HighlightType;
   updatedAt: Scalars['Date'];
   user: User;
 };
@@ -931,6 +933,12 @@ export type HighlightStats = {
   __typename?: 'HighlightStats';
   highlightCount: Scalars['Int'];
 };
+
+export enum HighlightType {
+  Highlight = 'HIGHLIGHT',
+  Note = 'NOTE',
+  Redaction = 'REDACTION'
+}
 
 export type Integration = {
   __typename?: 'Integration';
@@ -3384,6 +3392,7 @@ export type ResolversTypes = {
   Highlight: ResolverTypeWrapper<Highlight>;
   HighlightReply: ResolverTypeWrapper<HighlightReply>;
   HighlightStats: ResolverTypeWrapper<HighlightStats>;
+  HighlightType: HighlightType;
   ID: ResolverTypeWrapper<Scalars['ID']>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
   Integration: ResolverTypeWrapper<Integration>;
@@ -4722,14 +4731,15 @@ export type HighlightResolvers<ContextType = ResolverContext, ParentType extends
   html?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   labels?: Resolver<Maybe<Array<ResolversTypes['Label']>>, ParentType, ContextType>;
-  patch?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  patch?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   prefix?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  quote?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  quote?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   reactions?: Resolver<Array<ResolversTypes['Reaction']>, ParentType, ContextType>;
   replies?: Resolver<Array<ResolversTypes['HighlightReply']>, ParentType, ContextType>;
   sharedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   shortId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   suffix?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['HighlightType'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;

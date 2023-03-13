@@ -29,7 +29,7 @@ export const addHighlightToPage = async (
                   ctx._source.updatedAt = params.highlight.updatedAt`,
           lang: 'painless',
           params: {
-            highlight: highlight,
+            highlight,
           },
         },
       },
@@ -254,7 +254,7 @@ export const updateHighlight = async (
   ctx: PageContext
 ): Promise<boolean> => {
   try {
-    await client.updateByQuery({
+    const { body } = await client.updateByQuery({
       index: INDEX_ALIAS,
       body: {
         script: {
@@ -291,6 +291,8 @@ export const updateHighlight = async (
       refresh: ctx.refresh,
       conflicts: 'proceed',
     })
+
+    if (body.updated === 0) return false
 
     await ctx.pubsub.entityUpdated<Highlight>(
       EntityType.HIGHLIGHT,
