@@ -1,11 +1,3 @@
-import * as chai from 'chai'
-import { expect } from 'chai'
-import chaiString from 'chai-string'
-import 'mocha'
-import { createPubSubClient } from '../../src/datalayer/pubsub'
-import { deletePage, updatePage } from '../../src/elastic/pages'
-import { PageContext } from '../../src/elastic/types'
-import { User } from '../../src/entity/user'
 import { createTestUser, deleteTestUser } from '../db'
 import {
   createTestElasticPage,
@@ -13,6 +5,14 @@ import {
   graphqlRequest,
   request,
 } from '../util'
+import * as chai from 'chai'
+import { expect } from 'chai'
+import 'mocha'
+import { User } from '../../src/entity/user'
+import chaiString from 'chai-string'
+import { createPubSubClient } from '../../src/datalayer/pubsub'
+import { HighlightType, PageContext } from '../../src/elastic/types'
+import { deletePage, updatePage } from '../../src/elastic/pages'
 
 chai.use(chaiString)
 
@@ -269,6 +269,7 @@ describe('Highlights API', () => {
               quote: '',
               createdAt: new Date(),
               updatedAt: new Date(),
+              type: HighlightType.Highlight,
             },
           ],
         },

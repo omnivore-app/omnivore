@@ -14,7 +14,12 @@ import { Label } from '../../src/entity/label'
 import { expect } from 'chai'
 import 'mocha'
 import { User } from '../../src/entity/user'
-import { Highlight, Page, PageContext } from '../../src/elastic/types'
+import {
+  Highlight,
+  HighlightType,
+  Page,
+  PageContext,
+} from '../../src/elastic/types'
 import { getRepository } from '../../src/entity/utils'
 import { deletePage, getPageById } from '../../src/elastic/pages'
 import { createPubSubClient } from '../../src/datalayer/pubsub'
@@ -287,6 +292,7 @@ describe('Labels API', () => {
             createdAt: new Date(),
             labels: [toDeleteLabel],
             updatedAt: new Date(),
+            type: HighlightType.Highlight,
           }
           await addHighlightToPage(page.id, highlight, ctx)
         })
@@ -596,6 +602,7 @@ describe('Labels API', () => {
           shortId: 'test shortId',
           userId: user.id,
           updatedAt: new Date(),
+          type: HighlightType.Highlight,
         }
         await addHighlightToPage(page.id, highlight, ctx)
         labelIds = [labels[0].id, labels[1].id]
@@ -620,6 +627,7 @@ describe('Labels API', () => {
           shortId: 'test shortId',
           userId: user.id,
           updatedAt: new Date(),
+          type: HighlightType.Highlight,
         }
         await addHighlightToPage(page.id, highlight, ctx)
         labelIds = [generateFakeUuid(), generateFakeUuid()]

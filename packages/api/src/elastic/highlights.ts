@@ -292,8 +292,6 @@ export const updateHighlight = async (
       conflicts: 'proceed',
     })
 
-    if (body.updated === 0) return false
-
     await ctx.pubsub.entityUpdated<Highlight>(
       EntityType.HIGHLIGHT,
       highlight,

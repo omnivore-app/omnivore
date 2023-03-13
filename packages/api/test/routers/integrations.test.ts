@@ -10,7 +10,12 @@ import { User } from '../../src/entity/user'
 import { createTestUser, deleteTestIntegrations, deleteTestUser } from '../db'
 import { Integration, IntegrationType } from '../../src/entity/integration'
 import { getRepository } from '../../src/entity/utils'
-import { Highlight, Page, PageContext } from '../../src/elastic/types'
+import {
+  Highlight,
+  HighlightType,
+  Page,
+  PageContext,
+} from '../../src/elastic/types'
 import nock from 'nock'
 import { READWISE_API_URL } from '../../src/services/integrations'
 import { addHighlightToPage } from '../../src/elastic/highlights'
@@ -142,6 +147,7 @@ describe('Integrations routers', () => {
               updatedAt: new Date(),
               userId: user.id,
               highlightPositionPercent,
+              type: HighlightType.Highlight,
             }
             await addHighlightToPage(page.id, highlight, ctx)
             // create highlights data for integration request

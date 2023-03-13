@@ -147,38 +147,32 @@ export const mergeHighlightResolver = authorized<
   const articleHighlights = page.highlights
 
   /* Compute merged annotation form the order of highlights appearing on page */
-  const overlappings: { annotation?: string | null; labels?: Label[] }[] = []
-  articleHighlights.forEach((highlight, index) => {
-    // only consider highlights that are in the overlap list
+  const mergedAnnotations: string[] = []
+  const mergedLabels: Label[] = []
+  const pageHighlights = page.highlights.filter((highlight) => {
+    // filter out highlights that are in the overlap list
     // and are of type highlight (not annotation or note)
     if (
       overlapHighlightIdList.includes(highlight.id) &&
       highlight.type === HighlightType.Highlight
     ) {
-      articleHighlights.splice(index, 1)
-      overlappings.push({
-        annotation: highlight.annotation,
-        labels: highlight.labels,
-      })
+      if (highlight.annotation) {
+        mergedAnnotations.push(highlight.annotation)
+      }
+      if (highlight.labels) {
+        // remove duplicates from labels by checking id
+        highlight.labels.forEach((label) => {
+          if (
+            !mergedLabels.find((mergedLabel) => mergedLabel.id === label.id)
+          ) {
+            mergedLabels.push(label)
+          }
+        })
+      }
+      return false
     }
+    return true
   })
-  console.log(overlapHighlightIdList)
-  const mergedAnnotation: string[] = []
-  const mergedLabels: Label[] = []
-  overlappings.forEach((highlight) => {
-    if (highlight.annotation) {
-      mergedAnnotation.push(highlight.annotation)
-    }
-    if (highlight.labels) {
-      // remove duplicates from labels by checking id
-      highlight.labels.forEach((label) => {
-        if (!mergedLabels.find((mergedLabel) => mergedLabel.id === label.id)) {
-          mergedLabels.push(label)
-        }
-      })
-    }
-  })
-
   try {
     const highlight: HighlightData = {
       ...newHighlightInput,
@@ -186,14 +180,14 @@ export const mergeHighlightResolver = authorized<
       createdAt: new Date(),
       userId: claims.uid,
       annotation:
-        mergedAnnotation.length > 0 ? mergedAnnotation.join('\n') : null,
+        mergedAnnotations.length > 0 ? mergedAnnotations.join('\n') : null,
       type: HighlightType.Highlight,
       labels: mergedLabels,
     }
 
     const merged = await updatePage(
       pageId,
-      { highlights: articleHighlights.concat(highlight) },
+      { highlights: pageHighlights.concat(highlight) },
       { pubsub, uid: claims.uid }
     )
     if (!merged) {

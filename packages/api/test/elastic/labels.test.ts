@@ -3,6 +3,7 @@ import { expect } from 'chai'
 import {
   ArticleSavingRequestStatus,
   Highlight,
+  HighlightType,
   Label,
   Page,
   PageContext,
@@ -123,6 +124,7 @@ describe('labels in elastic', () => {
         userId: page.userId,
         createdAt: new Date(),
         updatedAt: new Date(),
+        type: HighlightType.Highlight,
       }
 
       await addHighlightToPage(page.id, highlightData, ctx)
