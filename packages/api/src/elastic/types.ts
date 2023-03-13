@@ -71,6 +71,12 @@ export enum ArticleSavingRequestStatus {
   Deleted = 'DELETED',
 }
 
+export enum HighlightType {
+  Highlight = 'HIGHLIGHT',
+  Redaction = 'REDACTION', // allowing people to remove text from the page
+  Note = 'NOTE', // allowing people to add a note at the document level
+}
+
 export interface Label {
   id: string
   name: string
@@ -94,6 +100,7 @@ export interface Highlight {
   labels?: Label[]
   highlightPositionPercent?: number | null
   highlightPositionAnchorIndex?: number | null
+  type: HighlightType
   html?: string | null
 }
 
