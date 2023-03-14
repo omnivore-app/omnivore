@@ -44,7 +44,7 @@ import {
 } from '../../utils/auth'
 import { createUser } from '../../services/create_user'
 import { isErrorWithCode } from '../../resolvers'
-import { AppDataSource, initModels } from '../../server'
+import { AppDataSource } from '../../server'
 import { getRepository, setClaims } from '../../entity/utils'
 import { User } from '../../entity/user'
 import {
@@ -53,6 +53,7 @@ import {
 } from '../../services/send_emails'
 import { createWebAuthToken } from './jwt_helpers'
 import { createSsoToken, ssoRedirectURL } from '../../utils/sso'
+import { ILike } from 'typeorm'
 
 const logger = buildLogger('app.dispatch')
 const signToken = promisify(jwt.sign)
@@ -373,18 +374,27 @@ export function authRouter() {
     '/email-login',
     cors<express.Request>(corsConfig),
     async (req: express.Request, res: express.Response) => {
-      const { email, password } = req.body
-
-      if (!email || !password) {
+      interface LoginRequest {
+        email: string
+        password: string
+      }
+      function isValidLoginRequest(obj: any): obj is LoginRequest {
+        return (
+          'email' in obj &&
+          obj.email.trim().length > 0 && // email must not be empty
+          'password' in obj &&
+          obj.password.length >= 8 // password must be at least 8 characters
+        )
+      }
+      if (!isValidLoginRequest(req.body)) {
         return res.redirect(
           `${env.client.url}/auth/email-login?errorCodes=${LoginErrorCode.InvalidCredentials}`
         )
       }
-
+      const { email, password } = req.body
       try {
-        const models = initModels(kx, false)
-        const user = await models.user.getWhere({
-          email,
+        const user = await getRepository(User).findOneBy({
+          email: ILike(email.trim()), // case insensitive
         })
         if (!user?.id) {
           return res.redirect(
@@ -409,7 +419,6 @@ export function authRouter() {
             `${env.client.url}/auth/email-login?errorCodes=${LoginErrorCode.WrongSource}`
           )
         }
-
         // check if password is correct
         const validPassword = await comparePassword(password, user.password)
         if (!validPassword) {
@@ -437,25 +446,43 @@ export function authRouter() {
     '/email-signup',
     cors<express.Request>(corsConfig),
     async (req: express.Request, res: express.Response) => {
-      const { email, password, name, username, bio, pictureUrl } = req.body
-
-      if (!email || !password || !name || !username) {
+      interface SignupRequest {
+        email: string
+        password: string
+        name: string
+        username: string
+        bio?: string
+        pictureUrl?: string
+      }
+      function isValidSignupRequest(obj: any): obj is SignupRequest {
+        return (
+          'email' in obj &&
+          obj.email.trim().length > 0 && // email must not be empty
+          'password' in obj &&
+          obj.password.length >= 8 && // password must be at least 8 characters
+          'name' in obj &&
+          obj.name.trim().length > 0 && // name must not be empty
+          'username' in obj &&
+          obj.username.trim().length > 0 // username must not be empty
+        )
+      }
+      if (!isValidSignupRequest(req.body)) {
         return res.redirect(
           `${env.client.url}/auth/email-signup?errorCodes=INVALID_CREDENTIALS`
         )
       }
-      const lowerCasedUsername = username.toLowerCase()
-
+      const { email, password, name, username, bio, pictureUrl } = req.body
+      // trim whitespace in email address
+      const trimmedEmail = email.trim()
       try {
         // hash password
         const hashedPassword = await hashPassword(password)
-
         await createUser({
-          email,
+          email: trimmedEmail,
           provider: 'EMAIL',
-          sourceUserId: email,
-          name,
-          username: lowerCasedUsername,
+          sourceUserId: trimmedEmail,
+          name: name.trim(),
+          username: username.trim().toLowerCase(), // lowercase username
           pictureUrl,
           bio,
           password: hashedPassword,
@@ -547,7 +574,7 @@ export function authRouter() {
     '/forgot-password',
     cors<express.Request>(corsConfig),
     async (req: express.Request, res: express.Response) => {
-      const email = req.body.email
+      const email = req.body.email?.trim() as string // trim whitespace
       if (!email) {
         return res.redirect(
           `${env.client.url}/auth/forgot-password?errorCodes=INVALID_EMAIL`
@@ -556,7 +583,7 @@ export function authRouter() {
 
       try {
         const user = await getRepository(User).findOneBy({
-          email,
+          email: ILike(email), // case insensitive
         })
         if (!user) {
           return res.redirect(`${env.client.url}/auth/reset-sent`)

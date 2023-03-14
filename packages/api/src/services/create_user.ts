@@ -1,6 +1,6 @@
 import { AuthProvider } from '../routers/auth/auth_types'
 import { StatusType } from '../datalayer/user/model'
-import { EntityManager } from 'typeorm'
+import { EntityManager, ILike } from 'typeorm'
 import { User } from '../entity/user'
 import { Profile } from '../entity/profile'
 import { SignupErrorCode } from '../generated/graphql'
@@ -118,7 +118,7 @@ const getUser = async (email: string): Promise<User | null> => {
   const userRepo = getRepository(User)
 
   return userRepo.findOne({
-    where: { email: email },
+    where: { email: ILike(email) },
     relations: ['profile'],
   })
 }
