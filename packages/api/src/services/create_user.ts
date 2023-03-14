@@ -24,7 +24,7 @@ export const createUser = async (input: {
   password?: string
   pendingConfirmation?: boolean
 }): Promise<[User, Profile]> => {
-  const existingUser = await getUser(input.email)
+  const existingUser = await getUserByEmail(input.email)
   if (existingUser) {
     if (existingUser.profile) {
       return Promise.reject({ errorCode: SignupErrorCode.UserExists })
@@ -114,11 +114,10 @@ const validateInvite = async (
   return true
 }
 
-const getUser = async (email: string): Promise<User | null> => {
-  const userRepo = getRepository(User)
-
-  return userRepo.findOne({
-    where: { email: ILike(email) },
-    relations: ['profile'],
-  })
+export const getUserByEmail = async (email: string): Promise<User | null> => {
+  return getRepository(User)
+    .createQueryBuilder('user')
+    .leftJoinAndSelect('user.profile', 'profile')
+    .where('LOWER(email) = LOWER(:email)', { email })
+    .getOne()
 }

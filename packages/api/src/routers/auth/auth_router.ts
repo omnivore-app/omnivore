@@ -42,7 +42,7 @@ import {
   hashPassword,
   setAuthInCookie,
 } from '../../utils/auth'
-import { createUser } from '../../services/create_user'
+import { createUser, getUserByEmail } from '../../services/create_user'
 import { isErrorWithCode } from '../../resolvers'
 import { AppDataSource } from '../../server'
 import { getRepository, setClaims } from '../../entity/utils'
@@ -53,7 +53,6 @@ import {
 } from '../../services/send_emails'
 import { createWebAuthToken } from './jwt_helpers'
 import { createSsoToken, ssoRedirectURL } from '../../utils/sso'
-import { ILike } from 'typeorm'
 
 const logger = buildLogger('app.dispatch')
 const signToken = promisify(jwt.sign)
@@ -393,9 +392,7 @@ export function authRouter() {
       }
       const { email, password } = req.body
       try {
-        const user = await getRepository(User).findOneBy({
-          email: ILike(email.trim()), // case insensitive
-        })
+        const user = await getUserByEmail(email.trim())
         if (!user?.id) {
           return res.redirect(
             `${env.client.url}/auth/email-login?errorCodes=${LoginErrorCode.UserNotFound}`
@@ -582,9 +579,7 @@ export function authRouter() {
       }
 
       try {
-        const user = await getRepository(User).findOneBy({
-          email: ILike(email), // case insensitive
-        })
+        const user = await getUserByEmail(email)
         if (!user) {
           return res.redirect(`${env.client.url}/auth/reset-sent`)
         }
