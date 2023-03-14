@@ -9,6 +9,8 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.painterResource
+import app.omnivore.omnivore.R
 import app.omnivore.omnivore.ui.library.SavedItemAction
 
 @Composable
@@ -30,7 +32,7 @@ fun SavedItemContextMenu(
       },
       leadingIcon = {
         Icon(
-          Icons.Outlined.CheckCircle, // TODO: use more appropriate icon
+          painter = painterResource(id = R.drawable.tag),
           contentDescription = null
         )
       }
@@ -44,7 +46,7 @@ fun SavedItemContextMenu(
       },
       leadingIcon = {
         Icon(
-          Icons.Outlined.List, // TODO: use more appropriate icon
+          painter = painterResource(id = R.drawable.archive_outline),
           contentDescription = null
         )
       }
