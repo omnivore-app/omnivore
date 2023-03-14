@@ -357,6 +357,12 @@ class WebReaderViewModel @Inject constructor(
         slug?.let {
           loadItemFromDB(it)
         }
+
+        // Send labels to webview
+        val script = "var event = new Event('updateLabels');event.labels = ${Gson().toJson(labels)};document.dispatchEvent(event);"
+        CoroutineScope(Dispatchers.Main).launch {
+          enqueueScript(script)
+        }
       }
     }
   }
