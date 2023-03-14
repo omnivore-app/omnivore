@@ -50,6 +50,7 @@ export type ArticleAttributes = {
   description?: string
   contentReader: ContentReader
   readingProgressPercent: number
+  readingProgressTopPercent?: number
   readingProgressAnchorIndex: number
   slug: string
   savedByViewer?: boolean

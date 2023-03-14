@@ -13,6 +13,7 @@ export const articleFragment = gql`
     contentReader
     originalArticleUrl
     readingProgressPercent
+    readingProgressTopPercent
     readingProgressAnchorIndex
     slug
     isArchived
@@ -52,6 +53,7 @@ export type ArticleFragmentData = {
   contentReader?: ContentReader
   originalArticleUrl: string
   readingProgressPercent: number
+  readingProgressTopPercent?: number
   readingProgressAnchorIndex: number
   slug: string
   isArchived: boolean

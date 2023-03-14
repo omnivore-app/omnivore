@@ -4,13 +4,14 @@ import type { LinkedItemCardProps } from './CardTypes'
 import { CoverImage } from '../../elements/CoverImage'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { DotsThreeVertical } from 'phosphor-react'
 import Link from 'next/link'
 import { CardMenu } from '../CardMenu'
 import {
   AuthorInfoStyle,
   DescriptionStyle,
+  LibraryItemMetadata,
   MenuStyle,
   MetaStyle,
   siteName,
@@ -102,19 +103,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
             }}
             distribution="start"
           >
-            <Box>
-              {timeAgo(props.item.savedAt)}
-              {` `}
-              {props.item.wordsCount ?? 0 > 0
-                ? `  • ${Math.max(
-                    1,
-                    Math.round((props.item.wordsCount ?? 0) / 235)
-                  )} min read`
-                : null}
-              {props.item.highlights?.length ?? 0 > 0
-                ? `  • ${props.item.highlights?.length} highlights`
-                : null}
-            </Box>
+            <LibraryItemMetadata item={props.item} />
             <Box
               css={{
                 ...MenuStyle,
@@ -152,7 +141,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
             <SpanBox
               css={{
                 ...AuthorInfoStyle,
-                m: '0px',
+                mt: '10px',
               }}
             >
               {props.item.author}

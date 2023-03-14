@@ -85,7 +85,7 @@ const textVariants = {
       fontWeight: '600',
       fontSize: '16px',
       lineHeight: '1',
-      color: '$textDefault',
+      color: '$thTextContrast',
     },
     shareHighlightModalAnnotation: {
       fontSize: '18px',

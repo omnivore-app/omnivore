@@ -56,6 +56,7 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
         <AddLinkButton
           showAddLinkModal={() => props.setShowAddLinkModal(true)}
         />
+        <Box css={{ height: '250px ' }} />
       </Box>
       {/* This spacer pushes library content to the right of 
       the fixed left side menu. */}
@@ -186,6 +187,7 @@ function Labels(props: LibraryFilterMenuProps): JSX.Element {
     <MenuPanel
       title="Labels"
       editTitle="Edit Labels"
+      hideBottomBorder={true}
       editFunc={() => {
         window.location.href = '/settings/labels'
       }}
@@ -203,6 +205,7 @@ type MenuPanelProps = {
   children: ReactNode
   editFunc?: () => void
   editTitle?: string
+  hideBottomBorder?: boolean
 }
 
 function MenuPanel(props: MenuPanelProps): JSX.Element {
@@ -211,7 +214,9 @@ function MenuPanel(props: MenuPanelProps): JSX.Element {
       css={{
         m: '0px',
         width: '100%',
-        borderBottom: '1px solid $thBorderColor',
+        borderBottom: props.hideBottomBorder
+          ? '1px solid transparent'
+          : '1px solid $thBorderColor',
         px: '15px',
       }}
       alignment="start"
@@ -422,10 +427,19 @@ function AddLinkButton(props: AddLinkButtonProps): JSX.Element {
     <>
       <VStack
         css={{
-          marginTop: 'auto',
-          width: LIBRARY_LEFT_MENU_WIDTH,
-          height: '80px',
+          position: 'fixed',
+          bottom: '0px',
+
           pl: '25px',
+          height: '80px',
+          bg: '$thBackground',
+          width: LIBRARY_LEFT_MENU_WIDTH,
+          borderTop: '1px solid $thBorderColor',
+          borderRight: '1px solid $thBorderColor',
+
+          '@mdDown': {
+            width: '100%',
+          },
         }}
         distribution="center"
       >
@@ -436,6 +450,7 @@ function AddLinkButton(props: AddLinkButtonProps): JSX.Element {
             pr: '20px',
             fontSize: '14px',
             verticalAlign: 'center',
+
             color: isDark
               ? theme.colors.thHighContrast.toString()
               : theme.colors.thTextContrast2.toString(),
@@ -456,7 +471,6 @@ function AddLinkButton(props: AddLinkButtonProps): JSX.Element {
           <SpanBox css={{ width: '10px' }}></SpanBox>Add Link
         </Button>
       </VStack>
-      <Box css={{ height: '180px ' }} />
     </>
   )
 }

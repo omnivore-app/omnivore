@@ -8,6 +8,7 @@ const schema = gql`
   directive @sanitize(
     allowedTags: [String]
     maxLength: Int
+    minLength: Int
     pattern: String
   ) on INPUT_FIELD_DEFINITION
 
@@ -363,6 +364,7 @@ const schema = gql`
     savedAt: Date!
     updatedAt: Date!
     publishedAt: Date
+    readingProgressTopPercent: Float
     readingProgressPercent: Float!
     readingProgressAnchorIndex: Int!
     sharedComment: String
@@ -609,6 +611,7 @@ const schema = gql`
     | SaveArticleReadingProgressError
   input SaveArticleReadingProgressInput {
     id: ID!
+    readingProgressTopPercent: Float
     readingProgressPercent: Float!
     readingProgressAnchorIndex: Int!
   }
@@ -686,7 +689,7 @@ const schema = gql`
     shortId: String!
     articleId: ID!
     patch: String!
-    quote: String! @sanitize(maxLength: 6000)
+    quote: String! @sanitize(maxLength: 6000, minLength: 1)
     prefix: String @sanitize
     suffix: String @sanitize
     annotation: String @sanitize(maxLength: 4000)
@@ -718,7 +721,7 @@ const schema = gql`
     shortId: ID!
     articleId: ID!
     patch: String!
-    quote: String! @sanitize(maxLength: 6000)
+    quote: String! @sanitize(maxLength: 6000, minLength: 1)
     prefix: String @sanitize
     suffix: String @sanitize
     annotation: String @sanitize(maxLength: 8000)
@@ -750,7 +753,7 @@ const schema = gql`
     highlightId: ID!
     annotation: String @sanitize(maxLength: 4000)
     sharedAt: Date
-    quote: String @sanitize(maxLength: 6000)
+    quote: String @sanitize(maxLength: 6000, minLength: 1)
   }
 
   type UpdateHighlightSuccess {
@@ -1526,6 +1529,7 @@ const schema = gql`
     createdAt: Date!
     updatedAt: Date
     isArchived: Boolean!
+    readingProgressTopPercent: Float
     readingProgressPercent: Float!
     readingProgressAnchorIndex: Int!
     author: String

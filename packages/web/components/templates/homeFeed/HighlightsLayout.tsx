@@ -1,4 +1,4 @@
-import { DotsThreeVertical, HighlighterCircle } from 'phosphor-react'
+import { HighlighterCircle } from 'phosphor-react'
 import { useCallback, useEffect, useState } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { LibraryItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
@@ -7,6 +7,7 @@ import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
 
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
+import { MenuTrigger } from '../../elements/MenuTrigger'
 import { StyledText } from '../../elements/StyledText'
 import {
   MetaStyle,
@@ -292,25 +293,7 @@ function HighlightList(props: HighlightListProps): JSX.Element {
           >
             HIGHLIGHTS
           </StyledText>
-          <Dropdown
-            triggerElement={
-              <Box
-                css={{
-                  display: 'flex',
-                  height: '20px',
-                  width: '20px',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderRadius: '1000px',
-                  '&:hover': {
-                    bg: '#898989',
-                  },
-                }}
-              >
-                <DotsThreeVertical size={20} color="#EBEBEB" weight="bold" />
-              </Box>
-            }
-          >
+          <Dropdown triggerElement={<MenuTrigger />}>
             <DropdownOption
               onSelect={() => {
                 exportHighlights()

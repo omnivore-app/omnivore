@@ -11,7 +11,7 @@ export default function LandingPage(): JSX.Element {
   if (!isLoading && router.isReady && viewerData?.me) {
     router.push('/home')
     return <></>
-  } else if (isLoading) {
+  } else if (isLoading || !router.isReady) {
     return (
       <>
         <PageMetaData

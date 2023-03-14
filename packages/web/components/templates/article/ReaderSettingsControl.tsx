@@ -520,11 +520,6 @@ function LayoutControls(props: LayoutControlsProps): JSX.Element {
 
 function ThemeSelector(props: ReaderSettingsProps): JSX.Element {
   const [currentTheme, setCurrentTheme] = useState(currentThemeName())
-
-  const isDark = useMemo(() => {
-    return currentTheme === 'Dark' || currentTheme === 'Darker'
-  }, [currentTheme])
-
   return (
     <VStack
       css={{
@@ -563,13 +558,15 @@ function ThemeSelector(props: ReaderSettingsProps): JSX.Element {
               border: '2px solid #6A6968',
             },
           }}
-          data-state={isDark ? 'unselected' : 'selected'}
+          data-state={currentTheme == ThemeId.Light ? 'selected' : 'unselected'}
           onClick={() => {
             updateTheme(ThemeId.Light)
             setCurrentTheme(currentThemeName())
           }}
         >
-          {!isDark && <Check color="#6A6968" size={15} weight="bold" />}
+          {currentTheme == ThemeId.Light && (
+            <Check color="#6A6968" size={15} weight="bold" />
+          )}
         </Button>
         <Button
           style="themeSwitch"
@@ -580,7 +577,7 @@ function ThemeSelector(props: ReaderSettingsProps): JSX.Element {
             justifyContent: 'center',
             width: '30px',
             height: '30px',
-            background: '#3B3938',
+            background: '#2A2A2A',
             borderRadius: '50%',
             border: 'unset',
             '&:hover': {
@@ -591,13 +588,73 @@ function ThemeSelector(props: ReaderSettingsProps): JSX.Element {
               border: '2px solid #6A6968',
             },
           }}
-          data-state={isDark ? 'selected' : 'unselected'}
+          data-state={currentTheme == ThemeId.Dark ? 'selected' : 'unselected'}
           onClick={() => {
             updateTheme(ThemeId.Dark)
             setCurrentTheme(currentThemeName())
           }}
         >
-          {isDark && <Check color="#F9D354" size={20} />}
+          {currentTheme == ThemeId.Dark && <Check color="#F9D354" size={20} />}
+        </Button>
+        <Button
+          style="themeSwitch"
+          css={{
+            display: 'flex',
+            alignItems: 'center',
+            alignContent: 'center',
+            justifyContent: 'center',
+            width: '30px',
+            height: '30px',
+            background: '#FBF0D9',
+            borderRadius: '50%',
+            border: 'unset',
+            '&:hover': {
+              transform: 'scale(1.1)',
+              border: '2px solid #6A6968',
+            },
+            '&[data-state="selected"]': {
+              border: '2px solid #6A6968',
+            },
+          }}
+          data-state={currentTheme == ThemeId.Sepia ? 'selected' : 'unselected'}
+          onClick={() => {
+            updateTheme(ThemeId.Sepia)
+            setCurrentTheme(currentThemeName())
+          }}
+        >
+          {currentTheme == ThemeId.Sepia && <Check color="#6A6968" size={20} />}
+        </Button>
+        <Button
+          style="themeSwitch"
+          css={{
+            display: 'flex',
+            alignItems: 'center',
+            alignContent: 'center',
+            justifyContent: 'center',
+            width: '30px',
+            height: '30px',
+            background: '#6A6968',
+            borderRadius: '50%',
+            border: 'unset',
+            '&:hover': {
+              transform: 'scale(1.1)',
+              border: '2px solid #6A6968',
+            },
+            '&[data-state="selected"]': {
+              border: '2px solid #6A6968',
+            },
+          }}
+          data-state={
+            currentTheme == ThemeId.Apollo ? 'selected' : 'unselected'
+          }
+          onClick={() => {
+            updateTheme(ThemeId.Apollo)
+            setCurrentTheme(currentThemeName())
+          }}
+        >
+          {currentTheme == ThemeId.Apollo && (
+            <Check color="#F9D354" size={20} />
+          )}
         </Button>
       </HStack>
     </VStack>

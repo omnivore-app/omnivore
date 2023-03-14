@@ -1,4 +1,4 @@
-import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
+import { HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { DotsThreeOutline, TextAa } from 'phosphor-react'
 import { PrimaryDropdown } from '../PrimaryDropdown'
@@ -35,8 +35,11 @@ export function ReaderHeader(props: ReaderHeaderProps): JSX.Element {
           '@xlgDown': {
             height: MOBILE_HEADER_HEIGHT,
             pt: '0px',
-            bg: '$thBackground3',
+            bg: '$readerMargin',
             borderBottom: '1px solid $thBorderColor',
+          },
+          '@mdDown': {
+            bg: '$readerBg',
           },
         }}
       >

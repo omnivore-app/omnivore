@@ -38,19 +38,21 @@ export class YoutubeHandler extends ContentHandler {
   }
 
   async preHandle(url: string): Promise<PreHandleResult> {
+    const BaseUrl = 'https://www.youtube.com'
+    const embedBaseUrl = 'https://www.youtube.com/embed'
     let urlToEncode: string
     let src: string
     const playlistId = getYoutubePlaylistId(url)
     if (playlistId) {
-      urlToEncode = `https://www.youtube.com/playlist?list=${playlistId}`
-      src = `https://www.youtube.com/embed/videoseries?list=${playlistId}`
+      urlToEncode = `${BaseUrl}/playlist?list=${playlistId}`
+      src = `${embedBaseUrl}/videoseries?list=${playlistId}`
     } else {
       const videoId = getYoutubeVideoId(url)
       if (!videoId) {
         return {}
       }
-      urlToEncode = `https://www.youtube.com/watch?v=${videoId}`
-      src = `https://www.youtube.com/embed/${videoId}`
+      urlToEncode = `${BaseUrl}/watch?v=${videoId}`
+      src = `${embedBaseUrl}/${videoId}`
     }
 
     const oembedUrl =
@@ -72,7 +74,6 @@ export class YoutubeHandler extends ContentHandler {
     const height = 350
     const width = height * ratio
     const authorName = _.escape(oembed.author_name)
-
     const content = `
     <html>
       <head><title>${escapedTitle}</title>
@@ -81,6 +82,7 @@ export class YoutubeHandler extends ContentHandler {
       <meta property="og:title" content="${escapedTitle}" />
       <meta property="og:description" content="" />
       <meta property="og:article:author" content="${authorName}" />
+      <meta property="og:site_name" content="YouTube" />
       </head>
       <body>
       <iframe width="${width}" height="${height}" src="${src}" title="${escapedTitle}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>

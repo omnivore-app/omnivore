@@ -1,4 +1,4 @@
-directive @sanitize(allowedTags: [String], maxLength: Int, pattern: String) on INPUT_FIELD_DEFINITION
+directive @sanitize(allowedTags: [String], maxLength: Int, minLength: Int, pattern: String) on INPUT_FIELD_DEFINITION
 
 type AddPopularReadError {
   errorCodes: [AddPopularReadErrorCode!]!
@@ -86,6 +86,7 @@ type Article {
   readAt: Date
   readingProgressAnchorIndex: Int!
   readingProgressPercent: Float!
+  readingProgressTopPercent: Float
   recommendations: [Recommendation!]
   savedAt: Date!
   savedByViewer: Boolean
@@ -1532,6 +1533,7 @@ input SaveArticleReadingProgressInput {
   id: ID!
   readingProgressAnchorIndex: Int!
   readingProgressPercent: Float!
+  readingProgressTopPercent: Float
 }
 
 union SaveArticleReadingProgressResult = SaveArticleReadingProgressError | SaveArticleReadingProgressSuccess
@@ -1633,6 +1635,7 @@ type SearchItem {
   readAt: Date
   readingProgressAnchorIndex: Int!
   readingProgressPercent: Float!
+  readingProgressTopPercent: Float
   recommendations: [Recommendation!]
   savedAt: Date!
   shortId: String

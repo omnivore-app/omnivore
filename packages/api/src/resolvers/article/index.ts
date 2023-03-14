@@ -764,7 +764,14 @@ export const saveArticleReadingProgressResolver = authorized<
 >(
   async (
     _,
-    { input: { id, readingProgressPercent, readingProgressAnchorIndex } },
+    {
+      input: {
+        id,
+        readingProgressPercent,
+        readingProgressAnchorIndex,
+        readingProgressTopPercent,
+      },
+    },
     { claims: { uid }, pubsub }
   ) => {
     const page = await getPageByParam({ userId: uid, _id: id })
@@ -774,31 +781,43 @@ export const saveArticleReadingProgressResolver = authorized<
     }
 
     if (
-      (!readingProgressPercent && readingProgressPercent !== 0) ||
       readingProgressPercent < 0 ||
-      readingProgressPercent > 100
+      readingProgressPercent > 100 ||
+      (readingProgressTopPercent &&
+        (readingProgressTopPercent < 0 ||
+          readingProgressTopPercent > readingProgressPercent)) ||
+      readingProgressAnchorIndex < 0
     ) {
       return { errorCodes: [SaveArticleReadingProgressErrorCode.BadData] }
     }
-
+    // If we have a top percent, we only save it if it's greater than the current top percent
+    // or set to zero if the top percent is zero.
+    const readingProgressTopPercentToSave = readingProgressTopPercent
+      ? Math.max(readingProgressTopPercent, page.readingProgressTopPercent || 0)
+      : readingProgressTopPercent === 0
+      ? 0
+      : undefined
     // If setting to zero we accept the update, otherwise we require it
     // be greater than the current reading progress.
-    const shouldUpdate =
-      readingProgressPercent === 0 ||
-      page.readingProgressPercent < readingProgressPercent ||
-      page.readingProgressAnchorIndex < readingProgressAnchorIndex
-
     const updatedPart = {
-      readingProgressPercent: shouldUpdate
-        ? readingProgressPercent
-        : page.readingProgressPercent,
-      readingProgressAnchorIndex: shouldUpdate
-        ? readingProgressAnchorIndex
-        : page.readingProgressAnchorIndex,
+      readingProgressPercent:
+        readingProgressPercent === 0
+          ? 0
+          : Math.max(readingProgressPercent, page.readingProgressPercent),
+      readingProgressAnchorIndex:
+        readingProgressAnchorIndex === 0
+          ? 0
+          : Math.max(
+              readingProgressAnchorIndex,
+              page.readingProgressAnchorIndex
+            ),
+      readingProgressTopPercent: readingProgressTopPercentToSave,
       readAt: new Date(),
     }
-
-    await updatePage(id, updatedPart, { pubsub, uid })
+    const updated = await updatePage(id, updatedPart, { pubsub, uid })
+    if (!updated) {
+      return { errorCodes: [SaveArticleReadingProgressErrorCode.NotFound] }
+    }
 
     return {
       updatedArticle: {

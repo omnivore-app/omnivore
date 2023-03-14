@@ -126,6 +126,9 @@
           }
         }
       },
+      "readingProgressTopPercent": {
+        "type": "float"
+      },
       "readingProgressPercent": {
         "type": "float"
       },

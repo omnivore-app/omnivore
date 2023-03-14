@@ -131,7 +131,7 @@ export default function Integrations(): JSX.Element {
           top: '5rem',
         }}
       />
-      <Header css={{ textAlign: 'center' }}>Integrations</Header>
+      <Header css={{ textAlign: 'center', width: '100%' }}>Integrations</Header>
       <Subheader>
         Connect with other applications can help enhance and streamline your
         experience with Omnivore, below are some useful apps to connect your
@@ -142,7 +142,7 @@ export default function Integrations(): JSX.Element {
         css={{
           width: '80%',
           margin: '0 auto',
-          height: '500px',
+          height: '100%',
           '@smDown': {
             width: '100%',
           },

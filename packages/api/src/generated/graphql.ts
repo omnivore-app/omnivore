@@ -110,6 +110,7 @@ export type Article = {
   readAt?: Maybe<Scalars['Date']>;
   readingProgressAnchorIndex: Scalars['Int'];
   readingProgressPercent: Scalars['Float'];
+  readingProgressTopPercent?: Maybe<Scalars['Float']>;
   recommendations?: Maybe<Array<Recommendation>>;
   savedAt: Scalars['Date'];
   savedByViewer?: Maybe<Scalars['Boolean']>;
@@ -2125,6 +2126,7 @@ export type SaveArticleReadingProgressInput = {
   id: Scalars['ID'];
   readingProgressAnchorIndex: Scalars['Int'];
   readingProgressPercent: Scalars['Float'];
+  readingProgressTopPercent?: InputMaybe<Scalars['Float']>;
 };
 
 export type SaveArticleReadingProgressResult = SaveArticleReadingProgressError | SaveArticleReadingProgressSuccess;
@@ -2233,6 +2235,7 @@ export type SearchItem = {
   readAt?: Maybe<Scalars['Date']>;
   readingProgressAnchorIndex: Scalars['Int'];
   readingProgressPercent: Scalars['Float'];
+  readingProgressTopPercent?: Maybe<Scalars['Float']>;
   recommendations?: Maybe<Array<Recommendation>>;
   savedAt: Scalars['Date'];
   shortId?: Maybe<Scalars['String']>;
@@ -4059,6 +4062,7 @@ export type ResolversParentTypes = {
 export type SanitizeDirectiveArgs = {
   allowedTags?: Maybe<Array<Maybe<Scalars['String']>>>;
   maxLength?: Maybe<Scalars['Int']>;
+  minLength?: Maybe<Scalars['Int']>;
   pattern?: Maybe<Scalars['String']>;
 };
 
@@ -4142,6 +4146,7 @@ export type ArticleResolvers<ContextType = ResolverContext, ParentType extends R
   readAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   readingProgressAnchorIndex?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   readingProgressPercent?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  readingProgressTopPercent?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   recommendations?: Resolver<Maybe<Array<ResolversTypes['Recommendation']>>, ParentType, ContextType>;
   savedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   savedByViewer?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
@@ -5365,6 +5370,7 @@ export type SearchItemResolvers<ContextType = ResolverContext, ParentType extend
   readAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   readingProgressAnchorIndex?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   readingProgressPercent?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  readingProgressTopPercent?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   recommendations?: Resolver<Maybe<Array<ResolversTypes['Recommendation']>>, ParentType, ContextType>;
   savedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   shortId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;

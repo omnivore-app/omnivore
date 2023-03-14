@@ -15,6 +15,7 @@ export const sanitizeDirectiveTransformer = (schema: GraphQLSchema) => {
       }
 
       const maxLength = sanitizeDirective.maxLength as number | undefined
+      const minLength = sanitizeDirective.minLength as number | undefined
       const allowedTags = sanitizeDirective.allowedTags as string[] | undefined
       const pattern = sanitizeDirective.pattern as string | undefined
 
@@ -27,6 +28,7 @@ export const sanitizeDirectiveTransformer = (schema: GraphQLSchema) => {
             fieldConfig.type.ofType,
             allowedTags,
             maxLength,
+            minLength,
             pattern
           )
         )
@@ -35,6 +37,7 @@ export const sanitizeDirectiveTransformer = (schema: GraphQLSchema) => {
           fieldConfig.type,
           allowedTags,
           maxLength,
+          minLength,
           pattern
         )
       } else {
