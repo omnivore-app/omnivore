@@ -30,7 +30,9 @@ import androidx.compose.ui.unit.dp
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
 import app.omnivore.omnivore.MainActivity
+import app.omnivore.omnivore.ui.components.WebReaderLabelsSelectionSheet
 import app.omnivore.omnivore.ui.savedItemViews.SavedItemContextMenu
 import app.omnivore.omnivore.ui.theme.OmnivoreTheme
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -188,6 +190,8 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, o
           }
         )
       }
+
+      WebReaderLabelsSelectionSheet(webReaderViewModel)
     }
 
     LaunchedEffect(shouldPopView) {

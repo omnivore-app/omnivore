@@ -12,8 +12,12 @@ import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.DatastoreKeys
 import app.omnivore.omnivore.DatastoreRepository
 import app.omnivore.omnivore.dataService.*
+import app.omnivore.omnivore.graphql.generated.type.CreateLabelInput
+import app.omnivore.omnivore.graphql.generated.type.SetLabelsInput
 import app.omnivore.omnivore.persistence.entities.SavedItem
 import app.omnivore.omnivore.networking.*
+import app.omnivore.omnivore.persistence.entities.SavedItemAndSavedItemLabelCrossRef
+import app.omnivore.omnivore.persistence.entities.SavedItemLabel
 import app.omnivore.omnivore.ui.library.SavedItemAction
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,7 +27,8 @@ import javax.inject.Inject
 
 data class WebReaderParams(
   val item: SavedItem,
-  val articleContent: ArticleContent
+  val articleContent: ArticleContent,
+  val labels: List<SavedItemLabel>
 )
 
 data class AnnotationWebViewMessage(
@@ -46,12 +51,16 @@ class WebReaderViewModel @Inject constructor(
   val shouldPopViewLiveData = MutableLiveData(false)
   val hasFetchError = MutableLiveData(false)
   val currentToolbarHeightLiveData = MutableLiveData(0.0f)
+  val showLabelsSelectionSheetLiveData = MutableLiveData(false)
+  val savedItemLabelsLiveData = dataService.db.savedItemLabelDao().getSavedItemLabelsLiveData()
 
   var hasTappedExistingHighlight = false
   var lastTapCoordinates: TapCoordinates? = null
   private var isLoading = false
+  private var slug: String? = null
   
   fun loadItem(slug: String?, requestID: String?) {
+    this.slug = slug
     if (isLoading || webReaderParamsLiveData.value != null) { return }
     isLoading = true
     Log.d("reader", "load item called")
@@ -88,6 +97,7 @@ class WebReaderViewModel @Inject constructor(
     val isSuccessful = webReaderParams?.articleContent?.contentStatus == "SUCCEEDED"
 
     if (webReaderParams != null && isSuccessful) {
+      this.slug = webReaderParams.item.slug
       webReaderParamsLiveData.postValue(webReaderParams)
       isLoading = false
     } else if (requestCount < 7) {
@@ -114,7 +124,13 @@ class WebReaderViewModel @Inject constructor(
         )
 
         Log.d("sync", "data loaded from db")
-        webReaderParamsLiveData.postValue(WebReaderParams(persistedItem.savedItem, articleContent))
+        webReaderParamsLiveData.postValue(
+          WebReaderParams(
+            persistedItem.savedItem,
+            articleContent,
+            persistedItem.labels
+          )
+        )
       }
       isLoading = false
     }
@@ -134,7 +150,7 @@ class WebReaderViewModel @Inject constructor(
       labelsJSONString = Gson().toJson(articleQueryResult.labels)
     )
 
-    return WebReaderParams(article, articleContent)
+    return WebReaderParams(article, articleContent, articleQueryResult.labels)
   }
 
   fun handleSavedItemAction(itemID: String, action: SavedItemAction) {
@@ -158,7 +174,7 @@ class WebReaderViewModel @Inject constructor(
         }
       }
       SavedItemAction.EditLabels -> {
-        Log.d("label", "itemID")
+        showLabelsSelectionSheetLiveData.value = true
       }
     }
   }
@@ -316,5 +332,52 @@ class WebReaderViewModel @Inject constructor(
 
     val script = "var event = new Event('updateFontFamily');event.fontFamily = '${font.rawValue}';document.dispatchEvent(event);"
     enqueueScript(script)
+  }
+
+  fun updateSavedItemLabels(savedItemID: String, labels: List<SavedItemLabel>) {
+    viewModelScope.launch {
+      withContext(Dispatchers.IO) {
+        val input = SetLabelsInput(labelIds = labels.map { it.savedItemLabelId }, pageId = savedItemID)
+        val networkResult = networker.updateLabelsForSavedItem(input)
+
+        // TODO: assign a server sync status to these
+        val crossRefs = labels.map {
+          SavedItemAndSavedItemLabelCrossRef(
+            savedItemLabelId = it.savedItemLabelId,
+            savedItemId = savedItemID
+          )
+        }
+
+        // Remove all labels first
+        dataService.db.savedItemAndSavedItemLabelCrossRefDao().deleteRefsBySavedItemId(savedItemID)
+
+        // Add back the current labels
+        dataService.db.savedItemAndSavedItemLabelCrossRefDao().insertAll(crossRefs)
+
+        slug?.let {
+          loadItemFromDB(it)
+        }
+      }
+    }
+  }
+
+  fun createNewSavedItemLabel(labelName: String, hexColorValue: String) {
+    viewModelScope.launch {
+      withContext(Dispatchers.IO) {
+        val newLabel = networker.createNewLabel(CreateLabelInput(color = hexColorValue, name = labelName))
+
+        newLabel?.let {
+          val savedItemLabel = SavedItemLabel(
+            savedItemLabelId = it.id,
+            name = it.name,
+            color = it.color,
+            createdAt = it.createdAt as String?,
+            labelDescription = it.description
+          )
+
+          dataService.db.savedItemLabelDao().insertAll(listOf(savedItemLabel))
+        }
+      }
+    }
   }
 }

@@ -1,6 +1,5 @@
 package app.omnivore.omnivore.ui.components
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -11,20 +10,49 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import app.omnivore.omnivore.persistence.entities.SavedItemLabel
 import app.omnivore.omnivore.ui.library.LibraryViewModel
-import app.omnivore.omnivore.ui.reader.WebPreferencesView
+import app.omnivore.omnivore.ui.reader.WebReaderParams
 import app.omnivore.omnivore.ui.reader.WebReaderViewModel
+
+@Composable
+fun WebReaderLabelsSelectionSheet(viewModel: WebReaderViewModel) {
+  val isActive: Boolean by viewModel.showLabelsSelectionSheetLiveData.observeAsState(false)
+  val labels: List<SavedItemLabel> by viewModel.savedItemLabelsLiveData.observeAsState(listOf())
+  val webReaderParams: WebReaderParams? by viewModel.webReaderParamsLiveData.observeAsState(null)
+
+  if (isActive) {
+    Dialog(onDismissRequest = {
+      viewModel.showLabelsSelectionSheetLiveData.value = false
+    } ) {
+      LabelsSelectionSheetContent(
+        labels = labels,
+        initialSelectedLabels = webReaderParams?.labels ?: listOf(),
+        onCancel = {
+          viewModel.showLabelsSelectionSheetLiveData.value = false
+        },
+        isLibraryMode = false,
+        onSave = {
+          if (it != labels) {
+            viewModel.updateSavedItemLabels(savedItemID = webReaderParams?.item?.savedItemId ?: "", labels = it)
+          }
+          viewModel.showLabelsSelectionSheetLiveData.value = false
+        },
+        onCreateLabel = { newLabelName, labelHexValue ->
+          viewModel.createNewSavedItemLabel(newLabelName, labelHexValue)
+        }
+      )
+    }
+  }
+}
 
 @Composable
 fun LabelsSelectionSheet(viewModel: LibraryViewModel) {
@@ -150,7 +178,8 @@ fun LabelsSelectionSheetContent(
               .fillMaxWidth()
               .clickable {
                 if (isLabelSelected) {
-                  selectedLabels.value = selectedLabels.value.filter { it.savedItemLabelId != label.savedItemLabelId }
+                  selectedLabels.value =
+                    selectedLabels.value.filter { it.savedItemLabelId != label.savedItemLabelId }
                 } else {
                   selectedLabels.value = selectedLabels.value + listOf(label)
                 }
