@@ -50,7 +50,7 @@ describe('auth router', () => {
       before(() => {
         password = validPassword
         username = 'Some_username'
-        email = `${username}@omnivore.app`
+        email = `${username}@omnivore.app ` // space at the end is intentional
         name = 'Some name'
       })
 
