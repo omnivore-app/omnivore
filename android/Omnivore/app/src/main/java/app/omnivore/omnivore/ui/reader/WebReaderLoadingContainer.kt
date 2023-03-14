@@ -26,12 +26,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import app.omnivore.omnivore.MainActivity
+import app.omnivore.omnivore.R
 import app.omnivore.omnivore.ui.components.WebReaderLabelsSelectionSheet
 import app.omnivore.omnivore.ui.savedItemViews.SavedItemContextMenu
 import app.omnivore.omnivore.ui.theme.OmnivoreTheme
@@ -144,15 +146,15 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, o
               )
             }
           }
-          IconButton(onClick = { isMenuExpanded = true }) {
+          IconButton(onClick = { showWebPreferencesDialog = true }) {
             Icon(
-              imageVector = Icons.Filled.Menu,
+              painter = painterResource(id = R.drawable.format_letter_case),
               contentDescription = null
             )
           }
-          IconButton(onClick = { showWebPreferencesDialog = true }) {
+          IconButton(onClick = { isMenuExpanded = true }) {
             Icon(
-              imageVector = Icons.Filled.Settings, // TODO: set a better icon
+              painter = painterResource(id = R.drawable.dots_horizontal),
               contentDescription = null
             )
           }

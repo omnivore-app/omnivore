@@ -22,8 +22,10 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import app.omnivore.omnivore.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,7 +67,7 @@ fun SearchBar(
 
         IconButton(onClick = onSettingsIconClick) {
           Icon(
-            imageVector = Icons.Filled.Settings,
+            painter = painterResource(id = R.drawable.account_outline),
             contentDescription = null
           )
         }
