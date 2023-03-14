@@ -118,6 +118,6 @@ export const getUserByEmail = async (email: string): Promise<User | null> => {
   return getRepository(User)
     .createQueryBuilder('user')
     .leftJoinAndSelect('user.profile', 'profile')
-    .where('LOWER(email) = LOWER(:email)', { email })
+    .where('LOWER(email) = LOWER(:email)', { email }) // case insensitive
     .getOne()
 }
