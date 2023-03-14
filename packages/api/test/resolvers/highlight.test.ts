@@ -1,3 +1,11 @@
+import * as chai from 'chai'
+import { expect } from 'chai'
+import chaiString from 'chai-string'
+import 'mocha'
+import { createPubSubClient } from '../../src/datalayer/pubsub'
+import { deletePage, updatePage } from '../../src/elastic/pages'
+import { PageContext } from '../../src/elastic/types'
+import { User } from '../../src/entity/user'
 import { createTestUser, deleteTestUser } from '../db'
 import {
   createTestElasticPage,
@@ -5,25 +13,17 @@ import {
   graphqlRequest,
   request,
 } from '../util'
-import * as chai from 'chai'
-import { expect } from 'chai'
-import 'mocha'
-import { User } from '../../src/entity/user'
-import chaiString from 'chai-string'
-import { createPubSubClient } from '../../src/datalayer/pubsub'
-import { PageContext } from '../../src/elastic/types'
-import { deletePage, updatePage } from '../../src/elastic/pages'
 
 chai.use(chaiString)
 
 const createHighlightQuery = (
-  authToken: string,
   linkId: string,
   highlightId: string,
   shortHighlightId: string,
   highlightPositionPercent = 0.0,
   highlightPositionAnchorIndex = 0,
   annotation = '_annotation',
+  html: string | null = null,
   prefix = '_prefix',
   suffix = '_suffix',
   quote = '_quote',
@@ -43,6 +43,7 @@ const createHighlightQuery = (
         highlightPositionPercent: ${highlightPositionPercent},
         highlightPositionAnchorIndex: ${highlightPositionAnchorIndex}
         annotation: "${annotation}"
+        html: "${html}"
       }
     ) {
       ... on CreateHighlightSuccess {
@@ -51,6 +52,7 @@ const createHighlightQuery = (
           highlightPositionPercent
           highlightPositionAnchorIndex
           annotation
+          html
         }
       }
       ... on CreateHighlightError {
@@ -163,18 +165,20 @@ describe('Highlights API', () => {
   })
 
   context('createHighlightMutation', () => {
-    it('should not fail', async () => {
+    it('does not fail', async () => {
       const highlightId = generateFakeUuid()
       const shortHighlightId = '_short_id'
       const highlightPositionPercent = 35.0
       const highlightPositionAnchorIndex = 15
+      const html = '<p>test</p>'
       const query = createHighlightQuery(
-        authToken,
         pageId,
         highlightId,
         shortHighlightId,
         highlightPositionPercent,
-        highlightPositionAnchorIndex
+        highlightPositionAnchorIndex,
+        '_annotation',
+        html
       )
       const res = await graphqlRequest(query, authToken).expect(200)
 
@@ -185,6 +189,7 @@ describe('Highlights API', () => {
       expect(
         res.body.data.createHighlight.highlight.highlightPositionAnchorIndex
       ).to.eq(highlightPositionAnchorIndex)
+      expect(res.body.data.createHighlight.highlight.html).to.eq(html)
     })
 
     context('when the annotation has HTML reserved characters', () => {
@@ -194,7 +199,6 @@ describe('Highlights API', () => {
         const highlightPositionPercent = 50.0
         const highlightPositionAnchorIndex = 25
         const query = createHighlightQuery(
-          authToken,
           pageId,
           newHighlightId,
           newShortHighlightId,
@@ -217,12 +221,7 @@ describe('Highlights API', () => {
       // create test highlight
       highlightId = generateFakeUuid()
       const shortHighlightId = '_short_id_1'
-      const query = createHighlightQuery(
-        authToken,
-        pageId,
-        highlightId,
-        shortHighlightId
-      )
+      const query = createHighlightQuery(pageId, highlightId, shortHighlightId)
       await graphqlRequest(query, authToken).expect(200)
     })
 
