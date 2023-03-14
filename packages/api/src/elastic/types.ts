@@ -1,6 +1,6 @@
 // Define the type of the body for the Search request
-import { PickTuple } from '../util'
 import { PubsubClient } from '../datalayer/pubsub'
+import { PickTuple } from '../util'
 import {
   DateFilter,
   FieldFilter,
@@ -80,13 +80,15 @@ export interface SearchBody {
         multi_match: {
           query: string
           fields: string[]
-          operator: 'and' | 'or'
-          type:
+          operator?: 'and' | 'or'
+          type?:
             | 'best_fields'
             | 'most_fields'
             | 'cross_fields'
             | 'phrase'
             | 'phrase_prefix'
+            | 'bool_prefix'
+          analyzer?: string
         }
       }[]
       minimum_should_match?: number
@@ -331,4 +333,5 @@ export interface PageSearchArgs {
   recommendedBy?: string
   includeContent?: boolean
   noFilters?: NoFilter[]
+  siteName?: string
 }

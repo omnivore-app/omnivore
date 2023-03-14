@@ -1,13 +1,6 @@
-import {
-  ArticleSavingRequestStatus,
-  Page,
-  PageContext,
-  PageSearchArgs,
-  PageType,
-  ParamSet,
-  SearchBody,
-  SearchResponse,
-} from './types'
+import { ResponseError } from '@elastic/elasticsearch/lib/errors'
+import { EntityType } from '../datalayer/pubsub'
+import { BulkActionType } from '../generated/graphql'
 import {
   DateFilter,
   FieldFilter,
@@ -21,9 +14,16 @@ import {
   SortOrder,
 } from '../utils/search'
 import { client, INDEX_ALIAS } from './index'
-import { EntityType } from '../datalayer/pubsub'
-import { ResponseError } from '@elastic/elasticsearch/lib/errors'
-import { BulkActionType } from '../generated/graphql'
+import {
+  ArticleSavingRequestStatus,
+  Page,
+  PageContext,
+  PageSearchArgs,
+  PageType,
+  ParamSet,
+  SearchBody,
+  SearchResponse,
+} from './types'
 
 const appendQuery = (body: SearchBody, query: string): void => {
   body.query.bool.should.push({
@@ -224,6 +224,17 @@ const appendNoFilters = (body: SearchBody, noFilters: NoFilter[]): void => {
   })
 }
 
+const appendSiteNameFilter = (body: SearchBody, siteName: string): void => {
+  body.query.bool.should.push({
+    multi_match: {
+      query: siteName,
+      fields: ['siteName', 'url'],
+      analyzer: 'simple',
+    },
+  })
+  body.query.bool.minimum_should_match = 1
+}
+
 export const createPage = async (
   page: Page,
   ctx: PageContext
@@ -404,6 +415,7 @@ export const searchPages = async (
       ids,
       includeContent,
       noFilters,
+      siteName,
     } = args
     // default order is descending
     const sortOrder = sort?.order || SortOrder.DESCENDING
@@ -499,11 +511,10 @@ export const searchPages = async (
       })
     }
 
-    if (noFilters) {
-      appendNoFilters(body, noFilters)
-    }
+    noFilters && appendNoFilters(body, noFilters)
+    siteName && appendSiteNameFilter(body, siteName)
 
-    console.log('searching pages in elastic', JSON.stringify(body))
+    console.debug('searching pages in elastic', JSON.stringify(body))
 
     const response = await client.search<SearchResponse<Page>, SearchBody>({
       index: INDEX_ALIAS,
@@ -523,6 +534,10 @@ export const searchPages = async (
       response.body.hits.total.value,
     ]
   } catch (e) {
+    if (e instanceof ResponseError) {
+      console.error('failed to search pages in elastic', e.meta.body.error)
+      return undefined
+    }
     console.error('failed to search pages in elastic', e)
     return undefined
   }
