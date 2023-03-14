@@ -535,6 +535,7 @@ export const searchPages = async (
     ]
   } catch (e) {
     if (e instanceof ResponseError) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       console.error('failed to search pages in elastic', e.meta.body.error)
       return undefined
     }
