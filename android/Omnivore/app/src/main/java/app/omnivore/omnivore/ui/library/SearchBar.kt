@@ -35,7 +35,7 @@ fun SearchBar(
 ) {
   val searchText: String by libraryViewModel.searchTextLiveData.observeAsState("")
 
-  SmallTopAppBar(
+  TopAppBar(
     title = {
       if (libraryViewModel.showSearchField) {
         SearchField(searchText) { libraryViewModel.updateSearchText(it) }
@@ -43,7 +43,7 @@ fun SearchBar(
         Text("Library")
       }
     },
-    colors = TopAppBarDefaults.smallTopAppBarColors(
+    colors = TopAppBarDefaults.topAppBarColors(
       containerColor = MaterialTheme.colorScheme.surfaceVariant
     ),
     actions = {
