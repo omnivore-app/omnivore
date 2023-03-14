@@ -1,6 +1,6 @@
 // Define the type of the body for the Search request
-import { PickTuple } from '../util'
 import { PubsubClient } from '../datalayer/pubsub'
+import { PickTuple } from '../util'
 import {
   DateFilter,
   FieldFilter,
@@ -210,6 +210,7 @@ export interface Highlight {
   labels?: Label[]
   highlightPositionPercent?: number | null
   highlightPositionAnchorIndex?: number | null
+  html?: string | null
 }
 
 export interface RecommendingUser {
