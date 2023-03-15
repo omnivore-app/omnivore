@@ -3009,6 +3009,15 @@ Readability.prototype = {
         metadata.excerpt = paragraphs[0].textContent.trim();
       }
     }
+    if (!metadata.siteName) {
+      // Fallback to hostname
+      try {
+        const host = new URL(this._baseURI).hostname;
+        metadata.siteName = host.replace(/^www\./, "");
+      } catch (e) {
+        // Ignore
+      }
+    }
 
     var textContent = articleContent.textContent;
     return {
@@ -3019,7 +3028,7 @@ Readability.prototype = {
       textContent: textContent,
       length: textContent.length,
       excerpt: metadata.excerpt,
-      siteName: metadata.siteName || new URL(this._baseURI).hostname, // Fallback to hostname
+      siteName: metadata.siteName,
       siteIcon: metadata.siteIcon,
       previewImage: metadata.previewImage,
       publishedDate: metadata.publishedDate || publishedAt || this._articlePublishedDate,
