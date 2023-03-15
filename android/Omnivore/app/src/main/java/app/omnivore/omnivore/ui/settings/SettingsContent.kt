@@ -1,10 +1,14 @@
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material3.*
@@ -75,16 +79,22 @@ fun SettingsViewContent(loginViewModel: LoginViewModel, modifier: Modifier) {
         .padding(horizontal = 6.dp)
     ) {
       item {
-        LogoutButton { loginViewModel.logout() }
+        SettingRow(text = "Logout") { Log.d("settings", "logout button tapped") }
       }
 
+      item { SectionDivider() }
+      item { Spacer(Modifier.height(60.dp)) }
+      item { SectionDivider() }
+
       item {
-        Button(onClick = {
-          Intercom.client().present(space = IntercomSpace.Messages)
-        }) {
-          Text(text = "Open Help Center")
-        }
+        SettingRow(text = "Feedback") { Intercom.client().present(space = IntercomSpace.Messages) }
       }
+
+      item { SectionDivider() }
+
+//      item {
+//        LogoutButton { loginViewModel.logout() }
+//      }
     }
   }
 }
@@ -106,3 +116,55 @@ fun LogoutButton(actionHandler: () -> Unit) {
     Text(text = "Logout")
   }
 }
+
+@Composable
+private fun SectionDivider() {
+  Divider(
+    modifier = Modifier.padding(horizontal = 12.dp),
+    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
+  )
+}
+
+@Composable
+private fun SettingRow(text: String, includeIcon: Boolean = true, tapAction: () -> Unit) {
+  Row(
+    horizontalArrangement = Arrangement.SpaceBetween,
+    verticalAlignment = Alignment.CenterVertically,
+    modifier = Modifier
+      .fillMaxWidth()
+      .clickable { tapAction() }
+  ) {
+    Text(
+      text = text,
+      modifier = Modifier
+        .align(Alignment.CenterVertically)
+        .padding(16.dp),
+      style = MaterialTheme.typography.titleMedium
+    )
+
+    if (includeIcon) {
+      Icon(
+        imageVector = Icons.Filled.ArrowForward,
+        contentDescription = null
+      )
+    }
+  }
+}
+
+// profile pic and name
+
+// labels
+// emails
+// subscriptions
+// clubs
+
+// push notifications
+// text to speech
+
+// documentation
+// feedback
+// privacy policy
+// terms and conditions
+
+// manage account
+// logout
