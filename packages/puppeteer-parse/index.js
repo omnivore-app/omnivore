@@ -652,7 +652,8 @@ async function retrieveHtml(page, logRecord) {
         document.getElementById('px-block-form-wrapper')) {
         return 'IS_BLOCKED'
       }
-      if (create_time) {
+      // check if create_time is defined
+      if (typeof create_time !== 'undefined' && create_time) {
         // create_time is a global variable set by WeChat when rendering the page
         const date = new Date(create_time * 1000);
         const dateNode = document.createElement('div');
