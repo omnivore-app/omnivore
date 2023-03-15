@@ -10,6 +10,8 @@ import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -58,7 +60,7 @@ fun SettingsView(
 
 @Composable
 fun SettingsViewContent(loginViewModel: LoginViewModel, modifier: Modifier) {
-  val listState = rememberLazyListState()
+  val showLogoutDialog = remember { mutableStateOf(false)  }
 
   Box(
     modifier = modifier.fillMaxSize()
@@ -103,33 +105,51 @@ fun SettingsViewContent(loginViewModel: LoginViewModel, modifier: Modifier) {
 
       SettingRow(text = "Manage Account") { Log.d("settings", "logout button tapped") }
       RowDivider()
-      SettingRow(text = "Logout", includeIcon = false) { Log.d("settings", "logout button tapped") }
+      SettingRow(text = "Logout", includeIcon = false) { showLogoutDialog.value = true }
       RowDivider()
+    }
 
-
-//      item {
-//        LogoutButton { loginViewModel.logout() }
-//      }
+    if (showLogoutDialog.value) {
+      LogoutDialog { performLogout ->
+        if (performLogout) {
+          loginViewModel.logout()
+        }
+        showLogoutDialog.value = false
+      }
     }
   }
 }
 
+
 @Composable
-fun LogoutButton(actionHandler: () -> Unit) {
+fun LogoutDialog(onClose: (Boolean) -> Unit) {
   val context = LocalContext.current
 
-  Button(onClick = {
-    // Sign out google users
-    val signInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-      .build()
+  AlertDialog(
+    onDismissRequest = { onClose(false) },
+    title = { Text(text = "Logout") },
+    text = {
+      Text("Are you sure you want to logout?")
+    },
+    confirmButton = {
+      Button(onClick = {
+        // Sign out google users
+        val signInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+          .build()
 
-    val googleSignIn = GoogleSignIn.getClient(context, signInOptions)
-    googleSignIn.signOut()
-
-    actionHandler()
-  }) {
-    Text(text = "Logout")
-  }
+        val googleSignIn = GoogleSignIn.getClient(context, signInOptions)
+        googleSignIn.signOut()
+        onClose(true)
+      }) {
+        Text("Confirm")
+      }
+    },
+    dismissButton = {
+      Button(onClick = { onClose(false) }) {
+        Text("Cancel")
+      }
+    }
+  )
 }
 
 @Composable
