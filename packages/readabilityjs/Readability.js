@@ -1935,7 +1935,10 @@ Readability.prototype = {
 
     // get site name
     metadata.siteName = jsonld.siteName ||
-      values["og:site_name"] || null;
+      values["og:site_name"] || 
+      values["twitter:site"] ||
+      values["site_name"] ||
+      values["twitter:domain"];
 
     // get website icon
     const siteIcon = this._doc.querySelector(
@@ -3016,7 +3019,7 @@ Readability.prototype = {
       textContent: textContent,
       length: textContent.length,
       excerpt: metadata.excerpt,
-      siteName: metadata.siteName,
+      siteName: metadata.siteName || new URL(this._baseURI).hostname, // Fallback to hostname
       siteIcon: metadata.siteIcon,
       previewImage: metadata.previewImage,
       publishedDate: metadata.publishedDate || publishedAt || this._articlePublishedDate,
