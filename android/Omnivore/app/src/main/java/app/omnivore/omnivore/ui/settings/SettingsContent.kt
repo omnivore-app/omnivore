@@ -1,16 +1,13 @@
-import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -20,9 +17,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import app.omnivore.omnivore.Routes
 import app.omnivore.omnivore.ui.auth.LoginViewModel
-import app.omnivore.omnivore.ui.library.LibraryViewContent
-import app.omnivore.omnivore.ui.library.LibraryViewModel
-import app.omnivore.omnivore.ui.library.SearchBar
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import io.intercom.android.sdk.Intercom
@@ -69,28 +63,49 @@ fun SettingsViewContent(loginViewModel: LoginViewModel, modifier: Modifier) {
   Box(
     modifier = modifier.fillMaxSize()
   ) {
-    LazyColumn(
-      state = listState,
+    Column(
       verticalArrangement = Arrangement.Top,
       horizontalAlignment = Alignment.CenterHorizontally,
       modifier = Modifier
         .background(MaterialTheme.colorScheme.background)
         .fillMaxSize()
         .padding(horizontal = 6.dp)
+        .verticalScroll(rememberScrollState())
     ) {
-      item {
-        SettingRow(text = "Logout") { Log.d("settings", "logout button tapped") }
-      }
 
-      item { SectionDivider() }
-      item { Spacer(Modifier.height(60.dp)) }
-      item { SectionDivider() }
+      // profile pic and name
 
-      item {
-        SettingRow(text = "Feedback") { Intercom.client().present(space = IntercomSpace.Messages) }
-      }
+      SettingRow(text = "Labels") { Log.d("settings", "labels button tapped") }
+      RowDivider()
+      SettingRow(text = "Emails") { Log.d("settings", "emails button tapped") }
+      RowDivider()
+      SettingRow(text = "Subscriptions") { Log.d("settings", "subscriptions button tapped") }
+      RowDivider()
+      SettingRow(text = "Clubs") { Log.d("settings", "clubs button tapped") }
 
-      item { SectionDivider() }
+      SectionSpacer()
+
+      SettingRow(text = "Push Notifications") { Log.d("settings", "pn button tapped") }
+      RowDivider()
+      SettingRow(text = "Text to Speech") { Log.d("settings", "tts button tapped") }
+
+      SectionSpacer()
+
+      SettingRow(text = "Documentation") { Log.d("settings", "docs button tapped") }
+      RowDivider()
+      SettingRow(text = "Feedback") { Intercom.client().present(space = IntercomSpace.Messages) }
+      RowDivider()
+      SettingRow(text = "Privacy Policy") { Log.d("settings", "privacy button tapped") }
+      RowDivider()
+      SettingRow(text = "Terms and Conditions") { Log.d("settings", "t&c button tapped") }
+
+      SectionSpacer()
+
+      SettingRow(text = "Manage Account") { Log.d("settings", "logout button tapped") }
+      RowDivider()
+      SettingRow(text = "Logout", includeIcon = false) { Log.d("settings", "logout button tapped") }
+      RowDivider()
+
 
 //      item {
 //        LogoutButton { loginViewModel.logout() }
@@ -118,11 +133,18 @@ fun LogoutButton(actionHandler: () -> Unit) {
 }
 
 @Composable
-private fun SectionDivider() {
+private fun RowDivider() {
   Divider(
     modifier = Modifier.padding(horizontal = 12.dp),
     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
   )
+}
+
+@Composable
+private fun SectionSpacer() {
+  RowDivider()
+  Spacer(Modifier.height(60.dp))
+  RowDivider()
 }
 
 @Composable
@@ -150,21 +172,3 @@ private fun SettingRow(text: String, includeIcon: Boolean = true, tapAction: () 
     }
   }
 }
-
-// profile pic and name
-
-// labels
-// emails
-// subscriptions
-// clubs
-
-// push notifications
-// text to speech
-
-// documentation
-// feedback
-// privacy policy
-// terms and conditions
-
-// manage account
-// logout
