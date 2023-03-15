@@ -225,14 +225,11 @@ const appendNoFilters = (body: SearchBody, noFilters: NoFilter[]): void => {
 }
 
 const appendSiteNameFilter = (body: SearchBody, siteName: string): void => {
-  body.query.bool.should.push({
-    multi_match: {
-      query: siteName,
-      fields: ['siteName', 'url'],
-      analyzer: 'simple',
+  body.query.bool.must.push({
+    match: {
+      siteName,
     },
   })
-  body.query.bool.minimum_should_match = 1
 }
 
 export const createPage = async (
@@ -682,8 +679,7 @@ export const searchAsYouType = async (
 
 export const updatePagesAsync = async (
   userId: string,
-  action: BulkActionType,
-  args?: PageSearchArgs
+  action: BulkActionType
 ): Promise<string | null> => {
   // default action is archive
   let must_not = [
@@ -693,7 +689,7 @@ export const updatePagesAsync = async (
       },
     },
   ]
-  let params: Record<string, any> = { archivedAt: new Date() }
+  let params: Record<string, unknown> = { archivedAt: new Date() }
   if (action === BulkActionType.Delete) {
     must_not = []
     params = { state: ArticleSavingRequestStatus.Deleted }
