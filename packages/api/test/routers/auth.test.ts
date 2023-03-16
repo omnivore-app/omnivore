@@ -1,22 +1,22 @@
-import { createTestUser, deleteTestUser, updateTestUser } from '../db'
-import { generateFakeUuid, request } from '../util'
-import { StatusType } from '../../src/datalayer/user/model'
-import { getRepository } from '../../src/entity/utils'
-import { User } from '../../src/entity/user'
 import { MailDataRequired } from '@sendgrid/helpers/classes/mail'
+import chai, { expect } from 'chai'
 import sinon from 'sinon'
-import * as util from '../../src/utils/sendEmail'
+import sinonChai from 'sinon-chai'
 import supertest from 'supertest'
+import { StatusType } from '../../src/datalayer/user/model'
+import { searchPages } from '../../src/elastic/pages'
+import { User } from '../../src/entity/user'
+import { getRepository } from '../../src/entity/utils'
+import { AuthProvider } from '../../src/routers/auth/auth_types'
+import { createPendingUserToken } from '../../src/routers/auth/jwt_helpers'
 import {
   comparePassword,
   generateVerificationToken,
   hashPassword,
 } from '../../src/utils/auth'
-import sinonChai from 'sinon-chai'
-import chai, { expect } from 'chai'
-import { searchPages } from '../../src/elastic/pages'
-import { createPendingUserToken } from '../../src/routers/auth/jwt_helpers'
-import { AuthProvider } from '../../src/routers/auth/auth_types'
+import * as util from '../../src/utils/sendEmail'
+import { createTestUser, deleteTestUser, updateTestUser } from '../db'
+import { generateFakeUuid, request } from '../util'
 
 chai.use(sinonChai)
 
@@ -50,7 +50,7 @@ describe('auth router', () => {
       before(() => {
         password = validPassword
         username = 'Some_username'
-        email = `${username}@omnivore.app`
+        email = `${username}@omnivore.app ` // space at the end is intentional
         name = 'Some name'
       })
 
@@ -178,7 +178,7 @@ describe('auth router', () => {
 
     context('when email and password are valid', () => {
       before(() => {
-        email = user.email
+        email = user.email + ' ' // space at the end is intentional
         password = correctPassword
       })
 

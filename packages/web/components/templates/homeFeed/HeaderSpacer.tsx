@@ -9,7 +9,7 @@ export function HeaderSpacer(): JSX.Element {
       css={{
         height: HEADER_HEIGHT,
         bg: '$grayBase',
-        '@mdDown': {
+        '@xlgDown': {
           height: MOBILE_HEADER_HEIGHT,
         },
       }}

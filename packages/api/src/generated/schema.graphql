@@ -296,6 +296,7 @@ input CreateHighlightInput {
   articleId: ID!
   highlightPositionAnchorIndex: Int
   highlightPositionPercent: Float
+  html: String
   id: ID!
   patch: String!
   prefix: String
@@ -796,6 +797,7 @@ type Highlight {
   createdByMe: Boolean!
   highlightPositionAnchorIndex: Int
   highlightPositionPercent: Float
+  html: String
   id: ID!
   labels: [Label!]
   patch: String!
@@ -996,6 +998,7 @@ input MergeHighlightInput {
   articleId: ID!
   highlightPositionAnchorIndex: Int
   highlightPositionPercent: Float
+  html: String
   id: ID!
   overlapHighlightIdList: [String!]!
   patch: String!
@@ -2078,6 +2081,7 @@ enum UpdateHighlightErrorCode {
 input UpdateHighlightInput {
   annotation: String
   highlightId: ID!
+  html: String
   quote: String
   sharedAt: Date
 }
