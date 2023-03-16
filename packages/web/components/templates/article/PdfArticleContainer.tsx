@@ -17,6 +17,7 @@ import { pspdfKitKey } from '../../../lib/appConfig'
 import { NotebookModal } from './NotebookModal'
 import { HighlightNoteModal } from './HighlightNoteModal'
 import { showErrorToast } from '../../../lib/toastHelpers'
+import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from '../homeFeed/HeaderSpacer'
 
 export type PdfArticleContainerProps = {
   viewerUsername: string
@@ -29,12 +30,14 @@ export default function PdfArticleContainer(
   props: PdfArticleContainerProps
 ): JSX.Element {
   const containerRef = useRef<HTMLDivElement | null>(null)
-  const [shareTarget, setShareTarget] =
-    useState<Highlight | undefined>(undefined)
+  const [shareTarget, setShareTarget] = useState<Highlight | undefined>(
+    undefined
+  )
   const [notebookKey, setNotebookKey] = useState<string>(uuidv4())
   const [noteTarget, setNoteTarget] = useState<Highlight | undefined>(undefined)
-  const [noteTargetPageIndex, setNoteTargetPageIndex] =
-    useState<number | undefined>(undefined)
+  const [noteTargetPageIndex, setNoteTargetPageIndex] = useState<
+    number | undefined
+  >(undefined)
   const highlightsRef = useRef<Highlight[]>([])
   const canShareNative = useCanShareNative()
 
@@ -454,7 +457,15 @@ export default function PdfArticleContainer(
   // should be handled by the PSPDFKit instance callbacks.
 
   return (
-    <Box css={{ width: '100%', height: '100%' }}>
+    <Box
+      css={{
+        width: '100%',
+        height: `calc(100vh - ${HEADER_HEIGHT})`,
+        '@xlgDown': {
+          height: `calc(100vh - ${MOBILE_HEADER_HEIGHT})`,
+        },
+      }}
+    >
       <div ref={containerRef} style={{ width: '100%', height: '100%' }} />
       {noteTarget && (
         <HighlightNoteModal
