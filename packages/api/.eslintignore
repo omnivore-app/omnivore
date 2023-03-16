@@ -3,4 +3,3 @@ dist/
 readabilityjs/
 src/generated/
 test/resolvers/
-apollo.config.js
