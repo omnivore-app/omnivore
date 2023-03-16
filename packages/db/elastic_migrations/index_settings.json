@@ -123,6 +123,10 @@
           },
           "highlightPositionAnchorIndex": {
             "type": "integer"
+          },
+          "html": {
+            "type": "text",
+            "analyzer": "strip_html_analyzer"
           }
         }
       },

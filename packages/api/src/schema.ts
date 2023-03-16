@@ -682,6 +682,7 @@ const schema = gql`
     highlightPositionPercent: Float
     highlightPositionAnchorIndex: Int
     labels: [Label!]
+    html: String
   }
 
   input CreateHighlightInput {
@@ -696,6 +697,7 @@ const schema = gql`
     sharedAt: Date
     highlightPositionPercent: Float
     highlightPositionAnchorIndex: Int
+    html: String
   }
 
   type CreateHighlightSuccess {
@@ -728,6 +730,7 @@ const schema = gql`
     overlapHighlightIdList: [String!]!
     highlightPositionPercent: Float
     highlightPositionAnchorIndex: Int
+    html: String
   }
 
   type MergeHighlightSuccess {
@@ -754,6 +757,7 @@ const schema = gql`
     annotation: String @sanitize(maxLength: 4000)
     sharedAt: Date
     quote: String @sanitize(maxLength: 6000, minLength: 1)
+    html: String
   }
 
   type UpdateHighlightSuccess {

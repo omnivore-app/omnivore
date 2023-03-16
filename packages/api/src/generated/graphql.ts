@@ -344,6 +344,7 @@ export type CreateHighlightInput = {
   articleId: Scalars['ID'];
   highlightPositionAnchorIndex?: InputMaybe<Scalars['Int']>;
   highlightPositionPercent?: InputMaybe<Scalars['Float']>;
+  html?: InputMaybe<Scalars['String']>;
   id: Scalars['ID'];
   patch: Scalars['String'];
   prefix?: InputMaybe<Scalars['String']>;
@@ -899,6 +900,7 @@ export type Highlight = {
   createdByMe: Scalars['Boolean'];
   highlightPositionAnchorIndex?: Maybe<Scalars['Int']>;
   highlightPositionPercent?: Maybe<Scalars['Float']>;
+  html?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   labels?: Maybe<Array<Label>>;
   patch: Scalars['String'];
@@ -1120,6 +1122,7 @@ export type MergeHighlightInput = {
   articleId: Scalars['ID'];
   highlightPositionAnchorIndex?: InputMaybe<Scalars['Int']>;
   highlightPositionPercent?: InputMaybe<Scalars['Float']>;
+  html?: InputMaybe<Scalars['String']>;
   id: Scalars['ID'];
   overlapHighlightIdList: Array<Scalars['String']>;
   patch: Scalars['String'];
@@ -2717,6 +2720,7 @@ export enum UpdateHighlightErrorCode {
 export type UpdateHighlightInput = {
   annotation?: InputMaybe<Scalars['String']>;
   highlightId: Scalars['ID'];
+  html?: InputMaybe<Scalars['String']>;
   quote?: InputMaybe<Scalars['String']>;
   sharedAt?: InputMaybe<Scalars['Date']>;
 };
@@ -4711,6 +4715,7 @@ export type HighlightResolvers<ContextType = ResolverContext, ParentType extends
   createdByMe?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   highlightPositionAnchorIndex?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   highlightPositionPercent?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  html?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   labels?: Resolver<Maybe<Array<ResolversTypes['Label']>>, ParentType, ContextType>;
   patch?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
