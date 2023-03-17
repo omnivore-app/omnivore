@@ -84,7 +84,9 @@ export function HighlightItemsLayout(
   useEffect(() => {
     dispatchList({
       type: 'RESET',
-      items: props.items,
+      items: props.items.filter(
+        (item) => item.node.highlights && item.node.highlights.length > 0
+      ),
     })
   }, [props.items])
 
