@@ -1,22 +1,32 @@
-import { User } from '../../src/entity/user'
+import { expect } from 'chai'
+import 'mocha'
+import sinon from 'sinon'
+import { createPubSubClient } from '../../src/datalayer/pubsub'
+import { deletePagesByParam, getPageByParam } from '../../src/elastic/pages'
 import {
   ArticleSavingRequestStatus,
   PageContext,
 } from '../../src/elastic/types'
-import { createTestUser, deleteTestUser } from '../db'
-import { graphqlRequest, request } from '../util'
-import { createPubSubClient } from '../../src/datalayer/pubsub'
-import { expect } from 'chai'
-import { getPageById } from '../../src/elastic/pages'
+import { User } from '../../src/entity/user'
 import {
   ArticleSavingRequestErrorCode,
   CreateArticleSavingRequestErrorCode,
 } from '../../src/generated/graphql'
-import 'mocha'
+import * as createTask from '../../src/utils/createTask'
+import { createTestUser, deleteTestUser } from '../db'
+import { graphqlRequest, request } from '../util'
 
-const articleSavingRequestQuery = (id: string) => `
+const articleSavingRequestQuery = ({
+  id,
+  url,
+}: {
+  id?: string
+  url?: string
+}) => `
   query {
-    articleSavingRequest(id: "${id}") {
+    articleSavingRequest(id: ${id ? `"${id}"` : null}, url: ${
+  url ? `"${url}"` : null
+}) {
       ... on ArticleSavingRequestSuccess {
         articleSavingRequest {
           id
@@ -39,6 +49,7 @@ const createArticleSavingRequestMutation = (url: string) => `
         articleSavingRequest {
           id
           status
+          url
         }
       }
       ... on CreateArticleSavingRequestError {
@@ -67,11 +78,14 @@ describe('ArticleSavingRequest API', () => {
       refresh: true,
       uid: user.id,
     }
+    sinon.replace(createTask, 'enqueueParseRequest', sinon.fake.resolves(''))
   })
 
   after(async () => {
     // clean up
+    await deletePagesByParam({ userId: user.id }, ctx)
     await deleteTestUser(user.id)
+    sinon.restore()
   })
 
   describe('createArticleSavingRequest', () => {
@@ -87,15 +101,14 @@ describe('ArticleSavingRequest API', () => {
     })
 
     it('creates a page in elastic', async () => {
-      const res = await graphqlRequest(
+      const url = 'https://blog.omnivore.app/1'
+      await graphqlRequest(
         createArticleSavingRequestMutation('https://blog.omnivore.app/1'),
         authToken
       ).expect(200)
 
-      const page = await getPageById(
-        res.body.data.createArticleSavingRequest.articleSavingRequest.id
-      )
-      expect(page?.content).to.eq('Your link is being saved...')
+      const page = await getPageByParam({ url })
+      expect(page?.content).to.eql('Your link is being saved...')
     })
 
     it('returns an error if the url is invalid', async () => {
@@ -111,32 +124,44 @@ describe('ArticleSavingRequest API', () => {
   })
 
   describe('articleSavingRequest', () => {
-    let articleSavingRequestId: string
+    let url: string
+    let id: string
 
     before(async () => {
+      url = 'https://blog.omnivore.app/2'
       // create article saving request
       const res = await graphqlRequest(
-        createArticleSavingRequestMutation('https://blog.omnivore.app/2'),
+        createArticleSavingRequestMutation(url),
         authToken
       ).expect(200)
-      articleSavingRequestId =
-        res.body.data.createArticleSavingRequest.articleSavingRequest.id
+      id = res.body.data.createArticleSavingRequest.articleSavingRequest.id
     })
 
     it('returns the article saving request if exists', async () => {
       const res = await graphqlRequest(
-        articleSavingRequestQuery(articleSavingRequestId),
+        articleSavingRequestQuery({ url }),
         authToken
       ).expect(200)
 
-      expect(res.body.data.articleSavingRequest.articleSavingRequest.id).to.eql(
-        articleSavingRequestId
-      )
+      expect(
+        res.body.data.articleSavingRequest.articleSavingRequest.status
+      ).to.eql(ArticleSavingRequestStatus.Processing)
+    })
+
+    it('returns the article saving request by id', async () => {
+      const res = await graphqlRequest(
+        articleSavingRequestQuery({ id }),
+        authToken
+      ).expect(200)
+
+      expect(
+        res.body.data.articleSavingRequest.articleSavingRequest.status
+      ).to.eql(ArticleSavingRequestStatus.Processing)
     })
 
     it('returns not_found if not exists', async () => {
       const res = await graphqlRequest(
-        articleSavingRequestQuery('invalid-id'),
+        articleSavingRequestQuery({ id: 'invalid-id' }),
         authToken
       ).expect(200)
 

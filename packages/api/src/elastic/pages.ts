@@ -1,13 +1,7 @@
-import {
-  ArticleSavingRequestStatus,
-  Page,
-  PageContext,
-  PageSearchArgs,
-  PageType,
-  ParamSet,
-  SearchBody,
-  SearchResponse,
-} from './types'
+import { ResponseError } from '@elastic/elasticsearch/lib/errors'
+import { BuiltQuery, ESBuilder, esBuilder } from 'elastic-ts'
+import { EntityType } from '../datalayer/pubsub'
+import { BulkActionType } from '../generated/graphql'
 import {
   DateFilter,
   FieldFilter,
@@ -21,173 +15,167 @@ import {
   SortOrder,
 } from '../utils/search'
 import { client, INDEX_ALIAS } from './index'
-import { EntityType } from '../datalayer/pubsub'
-import { ResponseError } from '@elastic/elasticsearch/lib/errors'
-import { BulkActionType } from '../generated/graphql'
+import {
+  ArticleSavingRequestStatus,
+  Page,
+  PageContext,
+  PageSearchArgs,
+  PageType,
+  ParamSet,
+  SearchResponse,
+} from './types'
 
-const appendQuery = (body: SearchBody, query: string): void => {
-  body.query.bool.should.push({
-    multi_match: {
+const appendQuery = (builder: ESBuilder, query: string): ESBuilder => {
+  return builder
+    .orQuery('multi_match', {
       query,
       fields: ['title', 'content', 'author', 'description', 'siteName'],
       operator: 'and',
       type: 'cross_fields',
-    },
-  })
-  body.query.bool.minimum_should_match = 1
+    })
+    .queryMinimumShouldMatch(1)
 }
 
-const appendTypeFilter = (body: SearchBody, filter: PageType): void => {
-  body.query.bool.must.push({
-    term: {
-      pageType: filter,
-    },
-  })
+const appendTypeFilter = (builder: ESBuilder, filter: PageType): ESBuilder => {
+  return builder.query('term', { pageType: filter })
 }
 
-const appendReadFilter = (body: SearchBody, filter: ReadFilter): void => {
+const appendReadFilter = (
+  builder: ESBuilder,
+  filter: ReadFilter
+): ESBuilder => {
   switch (filter) {
     case ReadFilter.UNREAD:
-      body.query.bool.must.push({
-        range: {
-          readingProgressPercent: {
-            lt: 98,
-          },
+      return builder.query('range', {
+        readingProgressPercent: {
+          lt: 98,
         },
       })
-      break
     case ReadFilter.READ:
-      body.query.bool.must.push({
-        range: {
-          readingProgressPercent: {
-            gte: 98,
-          },
+      return builder.query('range', {
+        readingProgressPercent: {
+          gte: 98,
         },
       })
   }
+  return builder
 }
 
-const appendInFilter = (body: SearchBody, filter: InFilter): void => {
+const appendInFilter = (builder: ESBuilder, filter: InFilter): ESBuilder => {
   switch (filter) {
     case InFilter.ARCHIVE:
-      body.query.bool.must.push({
-        exists: {
-          field: 'archivedAt',
-        },
-      })
-      break
+      return builder.query('exists', { field: 'archivedAt' })
     case InFilter.INBOX:
-      body.query.bool.must_not.push({
-        exists: {
-          field: 'archivedAt',
-        },
-      })
+      return builder.notQuery('exists', { field: 'archivedAt' })
   }
+  return builder
 }
 
-const appendHasFilters = (body: SearchBody, filters: HasFilter[]): void => {
+const appendHasFilters = (
+  builder: ESBuilder,
+  filters: HasFilter[]
+): ESBuilder => {
   filters.forEach((filter) => {
     switch (filter) {
       case HasFilter.HIGHLIGHTS:
-        body.query.bool.must.push({
-          nested: {
-            path: 'highlights',
-            query: {
-              exists: {
-                field: 'highlights',
-              },
+        builder = builder.query('nested', {
+          path: 'highlights',
+          query: {
+            exists: {
+              field: 'highlights',
             },
           },
         })
         break
       case HasFilter.SHARED_AT:
-        body.query.bool.must.push({
-          exists: {
-            field: 'sharedAt',
-          },
-        })
+        builder = builder.query('exists', { field: 'sharedAt' })
         break
     }
   })
+  return builder
 }
 
 const appendExcludeLabelFilter = (
-  body: SearchBody,
+  builder: ESBuilder,
   filters: LabelFilter[]
-): void => {
+): ESBuilder => {
   const labels = filters.map((filter) => filter.labels).flat()
-  body.query.bool.must_not.push({
-    nested: {
-      path: 'labels',
-      query: {
-        terms: {
-          'labels.name': labels,
-        },
+  return builder.notQuery('nested', {
+    path: 'labels',
+    query: {
+      terms: {
+        'labels.name': labels,
       },
     },
   })
 }
 
 const appendIncludeLabelFilter = (
-  body: SearchBody,
+  builder: ESBuilder,
   filters: LabelFilter[]
-): void => {
+): ESBuilder => {
   filters.forEach((filter) => {
-    body.query.bool.must.push({
-      nested: {
-        path: 'labels',
-        query: {
-          terms: {
-            'labels.name': filter.labels,
-          },
+    builder = builder.query('nested', {
+      path: 'labels',
+      query: {
+        terms: {
+          'labels.name': filter.labels,
         },
       },
     })
   })
+  return builder
 }
 
-const appendDateFilters = (body: SearchBody, filters: DateFilter[]): void => {
+const appendDateFilters = (
+  builder: ESBuilder,
+  filters: DateFilter[]
+): ESBuilder => {
   filters.forEach((filter) => {
-    body.query.bool.must.push({
-      range: {
-        [filter.field]: {
-          gt: filter.startDate,
-          lt: filter.endDate,
-        },
+    builder = builder.query('range', {
+      [filter.field]: {
+        gt: filter.startDate?.toISOString(),
+        lt: filter.endDate?.toISOString(),
       },
     })
   })
+  return builder
 }
 
-const appendTermFilters = (body: SearchBody, filters: FieldFilter[]): void => {
+const appendTermFilters = (
+  builder: ESBuilder,
+  filters: FieldFilter[]
+): ESBuilder => {
   filters.forEach((filter) => {
-    body.query.bool.must.push({
-      term: {
-        [filter.field]: filter.value,
-      },
+    builder = builder.query('term', {
+      [filter.field]: filter.value,
     })
   })
+  return builder
 }
 
-const appendMatchFilters = (body: SearchBody, filters: FieldFilter[]): void => {
+const appendMatchFilters = (
+  builder: ESBuilder,
+  filters: FieldFilter[]
+): ESBuilder => {
   filters.forEach((filter) => {
-    body.query.bool.must.push({
-      match: {
-        [filter.field]: filter.value,
-      },
+    builder = builder.query('match', {
+      [filter.field]: filter.value,
     })
   })
+  return builder
 }
 
-const appendIdsFilter = (body: SearchBody, ids: string[]): void => {
-  body.query.bool.must.push({
-    terms: {
-      _id: ids,
-    },
+const appendIdsFilter = (builder: ESBuilder, ids: string[]): ESBuilder => {
+  return builder.query('terms', {
+    _id: ids,
   })
 }
 
-const appendRecommendedBy = (body: SearchBody, recommendedBy: string): void => {
+const appendRecommendedBy = (
+  builder: ESBuilder,
+  recommendedBy: string
+): ESBuilder => {
   const query =
     recommendedBy === '*'
       ? {
@@ -200,27 +188,48 @@ const appendRecommendedBy = (body: SearchBody, recommendedBy: string): void => {
             'recommendations.name': recommendedBy,
           },
         }
-
-  body.query.bool.must.push({
-    nested: {
-      path: 'recommendations',
-      query,
-    },
+  return builder.query('nested', {
+    path: 'recommendations',
+    query,
   })
 }
 
-const appendNoFilters = (body: SearchBody, noFilters: NoFilter[]): void => {
+const appendNoFilters = (
+  builder: ESBuilder,
+  noFilters: NoFilter[]
+): ESBuilder => {
   noFilters.forEach((filter) => {
-    body.query.bool.must_not.push({
-      nested: {
-        path: filter.field,
-        query: {
-          exists: {
-            field: filter.field,
-          },
+    builder = builder.notQuery('nested', {
+      path: filter.field,
+      query: {
+        exists: {
+          field: filter.field,
         },
       },
     })
+  })
+  return builder
+}
+
+const appendSiteNameFilter = (
+  builder: ESBuilder,
+  siteName: string
+): ESBuilder => {
+  return builder.query('bool', {
+    should: [
+      {
+        match: {
+          siteName,
+        },
+      },
+      {
+        wildcard: {
+          // siteName is a domain name, so we need to wildcard the end
+          url: `*${siteName}*`,
+        },
+      },
+    ],
+    minimum_should_match: 1,
   })
 }
 
@@ -326,13 +335,15 @@ export const getPageByParam = async <K extends keyof ParamSet>(
     const params = {
       query: {
         bool: {
-          filter: Object.keys(param).map((key) => {
-            return {
+          filter: Object.keys(param)
+            .filter(
+              (key) => param[key as K] !== undefined && param[key as K] !== null
+            ) // filter out undefined and null values
+            .map((key) => ({
               term: {
                 [key]: param[key as K],
               },
-            }
-          }),
+            })),
         },
       },
       size: 1,
@@ -404,6 +415,7 @@ export const searchPages = async (
       ids,
       includeContent,
       noFilters,
+      siteName,
     } = args
     // default order is descending
     const sortOrder = sort?.order || SortOrder.DESCENDING
@@ -415,101 +427,76 @@ export const searchPages = async (
     const excludeLabels = labelFilters?.filter(
       (filter) => filter.type === LabelFilterType.EXCLUDE
     )
-
-    const body: SearchBody = {
-      query: {
-        bool: {
-          must: [
-            {
-              term: {
-                userId,
-              },
-            },
-          ],
-          should: [],
-          must_not: [],
-        },
-      },
-      sort: [
-        {
-          [sortField]: {
-            order: sortOrder,
-          },
-        },
-      ],
-      from,
-      size,
-      _source: {
+    // start building the query
+    let builder = esBuilder()
+      .query('term', { userId })
+      .sort(sortField, sortOrder)
+      .from(from)
+      .size(size)
+      .rawOption('_source', {
         excludes: includeContent ? [] : ['originalHtml', 'content'],
-      },
-    }
-
+      })
     // append filters
     if (query) {
-      appendQuery(body, query)
+      builder = appendQuery(builder, query)
     }
     if (typeFilter) {
-      appendTypeFilter(body, typeFilter)
+      builder = appendTypeFilter(builder, typeFilter)
     }
     if (inFilter !== InFilter.ALL) {
-      appendInFilter(body, inFilter)
+      builder = appendInFilter(builder, inFilter)
     }
     if (readFilter !== ReadFilter.ALL) {
-      appendReadFilter(body, readFilter)
+      builder = appendReadFilter(builder, readFilter)
     }
     if (hasFilters && hasFilters.length > 0) {
-      appendHasFilters(body, hasFilters)
+      builder = appendHasFilters(builder, hasFilters)
     }
     if (includeLabels && includeLabels.length > 0) {
-      appendIncludeLabelFilter(body, includeLabels)
+      builder = appendIncludeLabelFilter(builder, includeLabels)
     }
     if (excludeLabels && excludeLabels.length > 0) {
-      appendExcludeLabelFilter(body, excludeLabels)
+      builder = appendExcludeLabelFilter(builder, excludeLabels)
     }
     if (dateFilters && dateFilters.length > 0) {
-      appendDateFilters(body, dateFilters)
+      builder = appendDateFilters(builder, dateFilters)
     }
     if (termFilters) {
-      appendTermFilters(body, termFilters)
+      builder = appendTermFilters(builder, termFilters)
     }
     if (matchFilters) {
-      appendMatchFilters(body, matchFilters)
+      builder = appendMatchFilters(builder, matchFilters)
     }
     if (ids && ids.length > 0) {
-      appendIdsFilter(body, ids)
+      builder = appendIdsFilter(builder, ids)
     }
-
     if (args.recommendedBy) {
-      appendRecommendedBy(body, args.recommendedBy)
+      builder = appendRecommendedBy(builder, args.recommendedBy)
     }
-
     if (!args.includePending) {
-      body.query.bool.must_not.push({
-        term: {
-          state: ArticleSavingRequestStatus.Processing,
-        },
+      builder = builder.notQuery('term', {
+        state: ArticleSavingRequestStatus.Processing,
       })
     }
-
     if (!args.includeDeleted) {
-      body.query.bool.must_not.push({
-        term: {
-          state: ArticleSavingRequestStatus.Deleted,
-        },
+      builder = builder.notQuery('term', {
+        state: ArticleSavingRequestStatus.Deleted,
       })
     }
-
     if (noFilters) {
-      appendNoFilters(body, noFilters)
+      builder = appendNoFilters(builder, noFilters)
     }
+    if (siteName) {
+      builder = appendSiteNameFilter(builder, siteName)
+    }
+    // build the query
+    const body = builder.build()
 
-    console.log('searching pages in elastic', JSON.stringify(body))
-
-    const response = await client.search<SearchResponse<Page>, SearchBody>({
+    console.debug('searching pages in elastic', JSON.stringify(body))
+    const response = await client.search<SearchResponse<Page>, BuiltQuery>({
       index: INDEX_ALIAS,
       body,
     })
-
     if (response.body.hits.total.value === 0) {
       return [[], 0]
     }
@@ -523,6 +510,11 @@ export const searchPages = async (
       response.body.hits.total.value,
     ]
   } catch (e) {
+    if (e instanceof ResponseError) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      console.error('failed to search pages in elastic', e.meta.body.error)
+      return undefined
+    }
     console.error('failed to search pages in elastic', e)
     return undefined
   }
@@ -666,8 +658,7 @@ export const searchAsYouType = async (
 
 export const updatePagesAsync = async (
   userId: string,
-  action: BulkActionType,
-  args?: PageSearchArgs
+  action: BulkActionType
 ): Promise<string | null> => {
   // default action is archive
   let must_not = [
@@ -677,7 +668,7 @@ export const updatePagesAsync = async (
       },
     },
   ]
-  let params: Record<string, any> = { archivedAt: new Date() }
+  let params: Record<string, unknown> = { archivedAt: new Date() }
   if (action === BulkActionType.Delete) {
     must_not = []
     params = { state: ArticleSavingRequestStatus.Deleted }

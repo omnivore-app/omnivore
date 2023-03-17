@@ -12,122 +12,6 @@ import {
   SortParams,
 } from '../utils/search'
 
-export interface SearchBody {
-  query: {
-    bool: {
-      must: (
-        | {
-            term: {
-              [K: string]: string
-            }
-          }
-        | { exists: { field: string } }
-        | {
-            range: {
-              readingProgressPercent: { gte: number } | { lt: number }
-            }
-          }
-        | {
-            range: {
-              [K: string]: { gt: Date | undefined } | { lt: Date | undefined }
-            }
-          }
-        | {
-            nested: {
-              path: 'labels'
-              query: {
-                terms: {
-                  'labels.name': string[]
-                }
-              }
-            }
-          }
-        | {
-            nested: {
-              path: 'highlights'
-              query: {
-                exists: {
-                  field: 'highlights'
-                }
-              }
-            }
-          }
-        | {
-            nested: {
-              path: 'recommendations'
-              query: {
-                exists?: {
-                  field: string
-                }
-                term?: {
-                  'recommendations.name': string
-                }
-              }
-            }
-          }
-        | {
-            match: {
-              [K: string]: string
-            }
-          }
-        | {
-            terms: {
-              [K: string]: string[]
-            }
-          }
-      )[]
-      should: {
-        multi_match: {
-          query: string
-          fields: string[]
-          operator: 'and' | 'or'
-          type:
-            | 'best_fields'
-            | 'most_fields'
-            | 'cross_fields'
-            | 'phrase'
-            | 'phrase_prefix'
-        }
-      }[]
-      minimum_should_match?: number
-      must_not: (
-        | { term: { state: ArticleSavingRequestStatus } }
-        | {
-            exists: {
-              field: string
-            }
-          }
-        | {
-            nested: {
-              path: 'labels'
-              query: {
-                terms: {
-                  'labels.name': string[]
-                }
-              }
-            }
-          }
-        | {
-            nested: {
-              path: string
-              query: {
-                exists: {
-                  field: string
-                }
-              }
-            }
-          }
-      )[]
-    }
-  }
-  sort: [Record<string, { order: string }>]
-  from: number
-  size: number
-  _source: {
-    excludes: string[]
-  }
-}
-
 // Complete definition of the Search response
 export interface ShardsResponse {
   total: number
@@ -162,7 +46,7 @@ export interface SearchResponse<T> {
       _explanation?: Explanation
       fields?: never
       highlight?: never
-      inner_hits?: any
+      inner_hits?: unknown
       matched_queries?: string[]
       sort?: string[]
     }>
@@ -332,4 +216,5 @@ export interface PageSearchArgs {
   recommendedBy?: string
   includeContent?: boolean
   noFilters?: NoFilter[]
+  siteName?: string
 }

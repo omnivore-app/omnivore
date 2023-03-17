@@ -1935,7 +1935,10 @@ Readability.prototype = {
 
     // get site name
     metadata.siteName = jsonld.siteName ||
-      values["og:site_name"] || null;
+      values["og:site_name"] || 
+      values["twitter:site"] ||
+      values["site_name"] ||
+      values["twitter:domain"];
 
     // get website icon
     const siteIcon = this._doc.querySelector(
@@ -3004,6 +3007,15 @@ Readability.prototype = {
       var paragraphs = articleContent.getElementsByTagName("p");
       if (paragraphs.length > 0) {
         metadata.excerpt = paragraphs[0].textContent.trim();
+      }
+    }
+    if (!metadata.siteName) {
+      // Fallback to hostname
+      try {
+        const host = new URL(this._baseURI).hostname;
+        metadata.siteName = host.replace(/^www\./, "");
+      } catch (e) {
+        // Ignore
       }
     }
 
