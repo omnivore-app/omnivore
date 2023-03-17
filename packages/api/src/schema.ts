@@ -2526,7 +2526,7 @@ const schema = gql`
     getFollowers(userId: ID): GetFollowersResult!
     getFollowing(userId: ID): GetFollowingResult!
     getUserPersonalization: GetUserPersonalizationResult!
-    articleSavingRequest(url: String!): ArticleSavingRequestResult!
+    articleSavingRequest(id: ID, url: String): ArticleSavingRequestResult!
     newsletterEmails: NewsletterEmailsResult!
     reminder(linkId: ID!): ReminderResult!
     labels: LabelsResult!

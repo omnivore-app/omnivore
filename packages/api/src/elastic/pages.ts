@@ -335,13 +335,15 @@ export const getPageByParam = async <K extends keyof ParamSet>(
     const params = {
       query: {
         bool: {
-          filter: Object.keys(param).map((key) => {
-            return {
+          filter: Object.keys(param)
+            .filter(
+              (key) => param[key as K] !== undefined && param[key as K] !== null
+            ) // filter out undefined and null values
+            .map((key) => ({
               term: {
                 [key]: param[key as K],
               },
-            }
-          }),
+            })),
         },
       },
       size: 1,

@@ -1752,7 +1752,8 @@ export type QueryArticleArgs = {
 
 
 export type QueryArticleSavingRequestArgs = {
-  url: Scalars['String'];
+  id?: InputMaybe<Scalars['ID']>;
+  url?: InputMaybe<Scalars['String']>;
 };
 
 
@@ -5079,7 +5080,7 @@ export type ProfileResolvers<ContextType = ResolverContext, ParentType extends R
 export type QueryResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   apiKeys?: Resolver<ResolversTypes['ApiKeysResult'], ParentType, ContextType>;
   article?: Resolver<ResolversTypes['ArticleResult'], ParentType, ContextType, RequireFields<QueryArticleArgs, 'slug' | 'username'>>;
-  articleSavingRequest?: Resolver<ResolversTypes['ArticleSavingRequestResult'], ParentType, ContextType, RequireFields<QueryArticleSavingRequestArgs, 'url'>>;
+  articleSavingRequest?: Resolver<ResolversTypes['ArticleSavingRequestResult'], ParentType, ContextType, Partial<QueryArticleSavingRequestArgs>>;
   articles?: Resolver<ResolversTypes['ArticlesResult'], ParentType, ContextType, Partial<QueryArticlesArgs>>;
   deviceTokens?: Resolver<ResolversTypes['DeviceTokensResult'], ParentType, ContextType>;
   feedArticles?: Resolver<ResolversTypes['FeedArticlesResult'], ParentType, ContextType, Partial<QueryFeedArticlesArgs>>;

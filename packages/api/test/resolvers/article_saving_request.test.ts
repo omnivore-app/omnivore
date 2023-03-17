@@ -16,9 +16,17 @@ import * as createTask from '../../src/utils/createTask'
 import { createTestUser, deleteTestUser } from '../db'
 import { graphqlRequest, request } from '../util'
 
-const articleSavingRequestQuery = (url: string) => `
+const articleSavingRequestQuery = ({
+  id,
+  url,
+}: {
+  id?: string
+  url?: string
+}) => `
   query {
-    articleSavingRequest(url: "${url}") {
+    articleSavingRequest(id: ${id ? `"${id}"` : null}, url: ${
+  url ? `"${url}"` : null
+}) {
       ... on ArticleSavingRequestSuccess {
         articleSavingRequest {
           id
@@ -117,19 +125,32 @@ describe('ArticleSavingRequest API', () => {
 
   describe('articleSavingRequest', () => {
     let url: string
+    let id: string
 
     before(async () => {
       url = 'https://blog.omnivore.app/2'
       // create article saving request
-      await graphqlRequest(
+      const res = await graphqlRequest(
         createArticleSavingRequestMutation(url),
         authToken
       ).expect(200)
+      id = res.body.data.createArticleSavingRequest.articleSavingRequest.id
     })
 
     it('returns the article saving request if exists', async () => {
       const res = await graphqlRequest(
-        articleSavingRequestQuery(url),
+        articleSavingRequestQuery({ url }),
+        authToken
+      ).expect(200)
+
+      expect(
+        res.body.data.articleSavingRequest.articleSavingRequest.status
+      ).to.eql(ArticleSavingRequestStatus.Processing)
+    })
+
+    it('returns the article saving request by id', async () => {
+      const res = await graphqlRequest(
+        articleSavingRequestQuery({ id }),
         authToken
       ).expect(200)
 
@@ -140,7 +161,7 @@ describe('ArticleSavingRequest API', () => {
 
     it('returns not_found if not exists', async () => {
       const res = await graphqlRequest(
-        articleSavingRequestQuery('invalid-id'),
+        articleSavingRequestQuery({ id: 'invalid-id' }),
         authToken
       ).expect(200)
 
