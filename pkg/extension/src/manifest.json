@@ -21,14 +21,17 @@
     "128": "/images/extension/icon-128.png",
     "256": "/images/extension/icon-256.png"
   },
-
-  "permissions": ["activeTab", "storage", "contextMenus", "https://*/**", "http://*/**"],
-
+  "permissions": [
+    "activeTab",
+    "storage",
+    "contextMenus",
+    "https://*/**",
+    "http://*/**"
+  ],
   "background": {
     "page": "/views/background.html",
     "persistent": true
   },
-
   "minimum_chrome_version": "21",
   "minimum_opera_version": "15",
   "applications": {
@@ -41,25 +44,31 @@
       "id": "save-extension@omnivore.app"
     }
   },
-
   "content_scripts": [
     {
-      "matches": ["https://*/**", "http://*/**"],
+      "matches": [
+        "https://*/**",
+        "http://*/**"
+      ],
       "js": [
-        "/scripts/constants.js",
+        "/scripts/common.js",
+        "/scripts/content/toast.js",
         "/scripts/content/page-info.js",
         "/scripts/content/prepare-content.js",
-        "/scripts/content/toast.js",
         "/scripts/content/content-listener-script.js"
       ]
     },
     {
-      "matches": ["https://*/**", "http://*/**"],
-      "js": ["/scripts/content/grab-iframe-content.js"],
+      "matches": [
+        "https://*/**",
+        "http://*/**"
+      ],
+      "js": [
+        "/scripts/content/grab-iframe-content.js"
+      ],
       "all_frames": true
     }
   ],
-
   "browser_action": {
     "default_icon": {
       "16": "/images/toolbar/icon-16.png",
@@ -71,15 +80,16 @@
     },
     "default_title": "Omnivore Save Article"
   },
-
   "commands": {
     "_execute_browser_action": {
-        "suggested_key": {
-          "default": "Alt + O"
-        },
-        "description": "Save the current tab to Omnivore"
+      "suggested_key": {
+        "default": "Alt + O"
+      },
+      "description": "Save the current tab to Omnivore"
     }
   },
-
-  "web_accessible_resources": ["views/cta-popup.html"]
+  "web_accessible_resources": [
+    "views/toast.html",
+    "views/cta-popup.html"
+  ]
 }

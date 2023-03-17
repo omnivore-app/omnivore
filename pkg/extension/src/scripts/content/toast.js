@@ -1,216 +1,453 @@
 /* global ENV_EXTENSION_ORIGIN */
-
-'use strict';
-
-(function () {
-  let currentToastEl;
-  let currentIconEl;
-  let currentTextEl;
-  let hideToastTimeout;
+;('use strict')
+;(function () {
+  let currentToastEl
+  let hideToastTimeout
+  let labels = []
+  let requestId
+  let finalURL
 
   const systemIcons = {
-    spinner: '<path d="M8.25.004a8 8 0 0 1 0 15.992L8 16a.5.5 0 0 1-.09-.992L8 15a7 7 0 0 0 .24-13.996L8 1a.5.5 0 0 1-.09-.992L8 0l.25.004z"><animateTransform attributeName="transform" attributeType="XML" dur="800ms" from="0 8 8" repeatCount="indefinite" to="360 8 8" type="rotate"/></path>',
-    success: '<path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zm0 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm3.043 4.502.085.015.063.02.076.04.055.04.032.03.037.041.042.062.03.06.02.062.015.082.002.067-.008.068-.03.102-.05.093-.047.057-4.011 4.013a.5.5 0 0 1-.638.057l-.07-.057-2-2-.037-.042-.042-.062-.03-.06-.02-.062-.012-.06-.004-.053v-.057l.016-.086.02-.063.04-.076.04-.055.03-.032.041-.037.062-.042.06-.03.062-.02.059-.012.054-.004h.058l.085.016.063.02.093.052.057.046L7 9.293l3.646-3.647.042-.037.062-.042.06-.03.062-.02.059-.012.054-.004h.058z"/>',
-    failed: '<path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zm0 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 10.5a.5.5 0 1 1 0 1 .5.5 0 0 1 0-1zm0-8a.5.5 0 0 1 .5.5v6a.5.5 0 1 1-1 0V4a.5.5 0 0 1 .5-.5z"/>',
-    close: '<path d="M3.646 3.646a.5.5 0 0 1 .708 0L8 7.293l3.646-3.647a.5.5 0 0 1 .708.708L8.707 8l3.647 3.646a.5.5 0 0 1-.708.708L8 8.707l-3.646 3.647a.5.5 0 0 1-.708-.708L7.293 8 3.646 4.354a.5.5 0 0 1 0-.708z"/>'
-  };
-
-  function createToastContainer () {
-    const toastEl = document.createElement('div');
-    toastEl.className = 'webext-omnivore-toast';
-    toastEl.style.cssText = `all: initial !important;
-      position: fixed !important;
-      top: 20px !important;
-      right: 45px !important;
-      z-index: 9999999 !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      overflow: hidden !important;
-      width: 240px !important;
-      height: 80px !important;
-      border-radius: 10px !important;
-      background: #fff !important;
-      color: #3d3d3d !important;
-      fill: currentColor !important;
-      font: 700 13px Inter, sans-serif !important;
-      box-shadow: 0 1px 89px rgba(57, 59, 67, 0.25) !important;
-      user-select: none !important;
-      transition: all 300ms ease !important;
-  `;
-    return toastEl;
+    spinner: `
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M9.5835 17.7729C14.5541 17.7729 18.5835 13.9674 18.5835 9.27295C18.5835 4.57853 14.5541 0.772949 9.5835 0.772949C4.61293 0.772949 0.583496 4.57853 0.583496 9.27295C0.583496 13.9674 4.61293 17.7729 9.5835 17.7729ZM9.5835 16.3563C13.7256 16.3563 17.0835 13.185 17.0835 9.27295C17.0835 5.36093 13.7256 2.18962 9.5835 2.18962C5.44136 2.18962 2.0835 5.36093 2.0835 9.27295C2.0835 13.185 5.44136 16.3563 9.5835 16.3563Z" fill="url(#paint0_angular_980_6213)"/>
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M17.6697 7.57353C18.0805 7.52347 18.4565 7.79742 18.5095 8.1854C18.5588 8.54608 18.5835 8.90937 18.5835 9.27303C18.5835 9.66424 18.2477 9.98137 17.8335 9.98137C17.4193 9.98137 17.0835 9.66424 17.0835 9.27303C17.0835 8.96998 17.0629 8.66724 17.0219 8.36667C16.9689 7.97869 17.2589 7.62359 17.6697 7.57353Z" fill="#FFD234"/>
+    <defs>
+    <radialGradient id="paint0_angular_980_6213" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(9.5835 9.27295) scale(9 8.5)">
+    <stop stop-color="#FFD234"/>
+    <stop offset="0.0001" stop-color="white"/>
+    <stop offset="1" stop-color="#FFD234"/>
+    </radialGradient>
+    </defs>
+      `,
+    success: `
+      <svg width="19" height="19" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M9.91626 18.6047C14.8868 18.6047 18.9163 14.5752 18.9163 9.60468C18.9163 4.63411 14.8868 0.604675 9.91626 0.604675C4.9457 0.604675 0.91626 4.63411 0.91626 9.60468C0.91626 14.5752 4.9457 18.6047 9.91626 18.6047ZM9.91626 17.1046C14.0584 17.1046 17.4163 13.7468 17.4163 9.60463C17.4163 5.4625 14.0584 2.10463 9.91626 2.10463C5.77412 2.10463 2.41626 5.4625 2.41626 9.60463C2.41626 13.7468 5.77412 17.1046 9.91626 17.1046Z" fill="#32D74B"/>
+        <path d="M13.3538 7.28851L8.7704 11.9209L6.47876 9.60469" stroke="#32D74B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>`,
+    failed:
+      '<path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zm0 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 10.5a.5.5 0 1 1 0 1 .5.5 0 0 1 0-1zm0-8a.5.5 0 0 1 .5.5v6a.5.5 0 1 1-1 0V4a.5.5 0 0 1 .5-.5z"/>',
+    close:
+      '<path d="M3.646 3.646a.5.5 0 0 1 .708 0L8 7.293l3.646-3.647a.5.5 0 0 1 .708.708L8.707 8l3.647 3.646a.5.5 0 0 1-.708.708L8 8.707l-3.646 3.647a.5.5 0 0 1-.708-.708L7.293 8 3.646 4.354a.5.5 0 0 1 0-.708z"/>',
+    animatedLoader: `
+    <style>
+    .loading-spinner {  
+      /*  control spinner size with setting font-size  */
+      font-size: 3rem;
+      border: 2px solid #FFD234;
+      border-top-color: transparent;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      animation: loading-spinner 1.5s linear infinite;
+      margin: 0 auto;
+      box-sizing: border-box;
+    }
+    
+    @keyframes loading-spinner {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }    
+    </style>
+    <div class="loading-spinner"></div>
+    `,
   }
 
-  function createToastCloseButton () {
-    const buttonEl = document.createElement('button');
-    buttonEl.style.cssText = `all: initial !important;
-      position: absolute !important;
-      top: 8px !important;
-      right: 8px !important;
-      border: none !important;
-      background: none !important;
-      color: inherit !important;
-      fill: inherit !important;
-      outline: none !important;
-      cursor: pointer !important;
-    `;
+  async function createToastContainer() {
+    const file = await fetch(browserApi.runtime.getURL('views/toast.html'))
+    const html = await file.text()
 
-    const iconEl = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    iconEl.setAttribute('viewBox', '0 0 16 16');
-    iconEl.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-    iconEl.style.cssText = `all: initial !important;
-      width: 16px !important;
-      height: 16px !important;
-      color: inherit !important;
-      fill: inherit !important;
-    `;
-    iconEl.addEventListener('click', function () {
-      currentToastEl.remove();
-    });
-    iconEl.innerHTML = systemIcons.close;
-    buttonEl.appendChild(iconEl);
+    const toastEl = document.createElement('div')
+    toastEl.id = '#omnivore-toast'
+    toastEl.innerHTML = html
 
-    return buttonEl;
+    return toastEl
   }
 
-  function createCtaModal (url) {
-    const fragment = document.createDocumentFragment();
+  function createCtaModal(url) {
+    const fragment = document.createDocumentFragment()
 
-    const closeButtonEl = createToastCloseButton();
-    fragment.appendChild(closeButtonEl);
-
-    const iframeEl = document.createElement('iframe');
-    const iframePath = '/views/cta-popup.html?url=' + encodeURIComponent(url);
-    const iframeUrl = ENV_EXTENSION_ORIGIN + iframePath;
-    iframeEl.src = iframeUrl;
+    const iframeEl = document.createElement('iframe')
+    const iframePath = '/views/cta-popup.html?url=' + encodeURIComponent(url)
+    const iframeUrl = ENV_EXTENSION_ORIGIN + iframePath
+    iframeEl.src = iframeUrl
     iframeEl.style.cssText = `all: initial !important;
       width: 310px !important;
       height: 360px !important;
-  `;
-    fragment.appendChild(iframeEl);
-    return fragment;
+  `
+    fragment.appendChild(iframeEl)
+    return fragment
   }
 
-  function updateToastText (payload) {
-    if (!currentTextEl) return;
-
-    if (!payload) {
-      currentTextEl.textContent = '';
-      return;
-    }
-
-    currentTextEl.textContent = payload.text || '';
-
-    const potentialLink = payload.link;
-    if (!potentialLink) return;
-
-    const linkEl = document.createElement('a');
-    if (potentialLink.startsWith('http')) {
-      linkEl.href = potentialLink;
-    }
-    linkEl.target = '_blank';
-    linkEl.rel = 'external nofollow noopener noreferrer';
-    linkEl.textContent = payload.linkText || 'link';
-    linkEl.style.cssText = `all: initial !important;
-      margin-left: 1rem !important;
-      color: #0645ad !important;
-      font: inherit !important;
-      cursor: pointer !important;
-    `;
-    currentTextEl.appendChild(linkEl);
-  }
-
-  function loadInitialToastContent () {
-    currentToastEl.textContent = '';
-
-    const iconEl = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    iconEl.setAttribute('viewBox', '0 0 16 16');
-    iconEl.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-    iconEl.style.cssText = `all: initial !important;
-      height: 20px !important;
-      width: 20px !important;
-      margin-left: 24px !important;
-      fill: inherit !important;
-      color: inherit !important;
-    `;
-    currentIconEl = iconEl;
-    currentToastEl.appendChild(iconEl);
-
-    const textEl = document.createElement('div');
-    textEl.style.cssText = `all: initial !important;
-      flex: 1 !important;
-      padding: 0 24px !important;
-      color: inherit !important;
-      font: inherit !important;
-    `;
-    currentTextEl = textEl;
-    currentToastEl.appendChild(textEl);
-  }
-
-  function hideToastAfter (timeInMs) {
-    if (hideToastTimeout) clearTimeout(hideToastTimeout);
+  function hideToastAfter(timeInMs) {
+    console.log('hiding toast in: ', timeInMs)
+    if (hideToastTimeout) clearTimeout(hideToastTimeout)
     hideToastTimeout = setTimeout(function () {
-      currentToastEl.remove();
-    }, timeInMs);
+      console.log('clearing currentToastEl:', currentToastEl)
+      currentToastEl.remove()
+    }, timeInMs)
   }
 
-  function showMessageToast (payload) {
-    const bodyEl = document.body;
-    if (!bodyEl) return;
+  function cancelAutoDismiss() {
+    console.log('canceling auto dismiss')
+    if (hideToastTimeout) clearTimeout(hideToastTimeout)
+  }
 
-    let duration = 5e3;
+  function updateStatus(payload) {
+    if (!currentToastEl) {
+      console.log('no statusBox to update')
+      return
+    }
+
+    const statusBox = currentToastEl.querySelector('.omnivore-toast-statusBox')
+    switch (payload.status) {
+      case 'loading':
+        statusBox.innerHTML = systemIcons.animatedLoader
+        break
+      case 'success':
+        statusBox.innerHTML = systemIcons.success
+        break
+    }
+  }
+
+  // Called for all messages
+  function handleMessage(action, payload) {
+    if (payload && 'requestId' in payload && payload.requestId) {
+      requestId = payload.requestId ?? requestId
+    }
+    if (payload && 'link' in payload && payload.link) {
+      finalURL = payload.link
+    }
+  }
+
+  function showToolbar(payload) {
+    showToolbarAsync(payload).catch((err) =>
+      console.log('error showing toast', err)
+    )
+  }
+
+  function updateLabelsFromCache(payload) {
+    ;(async () => {
+      await getStorageItem('labels').then((cachedLabels) => {
+        labels = cachedLabels
+        console.log(' == updated labels', cachedLabels)
+      })
+    })()
+  }
+
+  async function showToolbarAsync(payload) {
+    const bodyEl = document.body
+    if (!bodyEl) return
+
+    let duration = 5e3
 
     if (!currentToastEl) {
-      currentToastEl = createToastContainer();
+      currentToastEl = await createToastContainer()
     }
 
-    if (!currentIconEl || !currentTextEl) {
-      loadInitialToastContent();
-    }
-
-    let styleAsError = false;
+    // let styleAsError = false
     if (payload.type === 'loading') {
-      duration = 20e3;
-      currentIconEl.innerHTML = systemIcons.spinner;
-      updateToastText(payload);
-    } else if (payload.type !== 'error') {
-      currentIconEl.innerHTML = systemIcons.success;
-      updateToastText(payload);
-    } else if (payload.errorCode && payload.errorCode === 401) {
-      currentToastEl.textContent = '';
-      currentToastEl.style.setProperty('width', '310px', 'important');
-      currentToastEl.style.setProperty('height', 'auto', 'important');
-      currentIconEl = null;
-      currentTextEl = null;
-      const ctaModalEl = createCtaModal(payload.url);
-      currentToastEl.appendChild(ctaModalEl);
-      duration = 8e3;
-    } else {
-      styleAsError = true;
-      currentIconEl.innerHTML = systemIcons.failed;
-      updateToastText(payload);
+      duration = 5000
+      const image = currentToastEl.querySelector('.omnivore-toast-statusBox')
+      image.innerHTML = systemIcons.animatedLoader
     }
-
-    const newBackgroundColor = styleAsError ? '#808080' : '#fff';
-    const newTextColor = styleAsError ? '#fff' : '#3d3d3d';
-    currentToastEl.style.setProperty('background', newBackgroundColor, 'important');
-    currentToastEl.style.setProperty('color', newTextColor, 'important');
+    // } else if (payload.type !== 'error') {
+    //   currentIconEl.innerHTML = systemIcons.success
+    //   updateToastText(payload)
+    // } else if (payload.errorCode && payload.errorCode === 401) {
+    //   currentToastEl.textContent = ''
+    //   currentIconEl = null
+    //   currentTextEl = null
+    //   const ctaModalEl = createCtaModal(payload.url)
+    //   currentToastEl.appendChild(ctaModalEl)
+    //   duration = 8e3
+    // } else {
+    //   styleAsError = true
+    //   currentIconEl.innerHTML = systemIcons.failed
+    //   updateToastText(payload)
+    // }
 
     if (currentToastEl.parentNode !== bodyEl) {
-      bodyEl.appendChild(currentToastEl);
+      bodyEl.appendChild(currentToastEl)
+      connectButtons()
     }
 
-    hideToastAfter(duration);
+    hideToastAfter(duration)
 
     // remove any existing toasts not created by current content script
-    const presentToastsCol = document.querySelectorAll('.webext-omnivore-toast');
-    for (let i = 0; i < presentToastsCol.length; i++) {
-      const toastEl = presentToastsCol[i];
+    document.querySelectorAll('#omnivore-toast').forEach((toastEl) => {
       if (toastEl !== currentToastEl) {
-        toastEl.remove();
+        console.log('removing current toast el: ', currentToastEl)
+        toastEl.remove()
+      }
+    })
+  }
+
+  function toggleRow(rowId) {
+    const container = document.getElementById(rowId)
+    const initialState = container?.getAttribute('data-state')
+    const rows = document.querySelectorAll('.omnivore-toast-func-row')
+
+    rows.forEach((r) => {
+      r.setAttribute('data-state', 'closed')
+    })
+
+    if (container && initialState) {
+      const newState = initialState === 'open' ? 'closed' : 'open'
+      container.setAttribute('data-state', newState)
+    }
+  }
+
+  function connectButtons() {
+    const btns = [
+      { id: 'omnivore-toast-edit-title-btn', func: editTitle },
+      { id: 'omnivore-toast-edit-labels-btn', func: editLabels },
+      { id: 'omnivore-toast-read-now-btn', func: readNow },
+      { id: 'omnivore-open-menu-btn', func: openMenu },
+      { id: 'omnivore-toast-close-button', func: closeToast },
+    ]
+
+    for (const btnInfo of btns) {
+      const btn = document.getElementById(btnInfo.id)
+      if (btn) {
+        btn.addEventListener('click', btnInfo.func)
       }
     }
   }
 
-  window.showMessage = showMessageToast;
-})();
+  function createLabelRow(label, idx) {
+    console.log('createLabelRow, ', label, idx)
+    const element = document.createElement('button')
+    const dot = document.createElement('span')
+    dot.style = 'width:10px;height:10px;border-radius:1000px;'
+    dot.style.setProperty('background-color', label.color)
+    const title = document.createElement('span')
+    title.style = 'margin-left: 10px;pointer-events: none;'
+    title.innerText = label.name
+
+    const check = document.createElement('span')
+    check.style = 'margin-left: auto;pointer-events: none;'
+    check.className = 'checkbox'
+    check.innerHTML = `
+          <svg width="14" height="11" viewBox="0 0 14 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M13.7411 1.75864L4.79692 10.7028L0.69751 6.60341L1.74845 5.55246L4.79692 8.59348L12.6902 0.707703L13.7411 1.75864Z" fill="#888888"/>
+          </svg>
+        `
+
+    element.appendChild(dot)
+    element.appendChild(title)
+    element.appendChild(check)
+
+    element.onclick = labelClick
+    element.onkeydown = labelKeyDown
+    element.setAttribute('data-label-idx', idx)
+    element.setAttribute('data-label-selected', 'off')
+    element.setAttribute('tabIndex', '-1')
+
+    return element
+  }
+
+  function labelClick(event) {
+    event.preventDefault()
+
+    const labelSelected = event.target.getAttribute('data-label-selected')
+    if (!labelSelected) {
+      return
+    }
+    event.target.setAttribute(
+      'data-label-selected',
+      labelSelected == 'on' ? 'off' : 'on'
+    )
+  }
+
+  function labelKeyDown(event) {
+    console.log('event.key.toLowerCase(): ', event.key.toLowerCase())
+    switch (event.key.toLowerCase()) {
+      case 'arrowup': {
+        if (
+          event.target ==
+          event.target.form.querySelector('#omnivore-edit-label-text')
+        ) {
+          return
+        }
+
+        const idx = event.target.getAttribute('data-label-idx')
+        let prevIdx = idx && Number(idx) != NaN ? Number(idx) - 1 : 0
+        console.log(
+          ' prevIdx: ',
+          prevIdx,
+          'is save',
+          event.target ==
+            event.target.form.querySelector('#omnivore-save-button')
+        )
+        if (
+          event.target ==
+          event.target.form.querySelector('#omnivore-save-button')
+        ) {
+          // Focus the last label index
+          const maxItemIdx = Math.max(
+            ...Array.from(
+              document.querySelectorAll(`button[data-label-idx]`)
+            ).map((b) => Number(b.getAttribute('data-label-idx')))
+          )
+          if (maxItemIdx != NaN) {
+            prevIdx = maxItemIdx
+          }
+        }
+
+        const prev = document.querySelector(
+          `button[data-label-idx='${prevIdx}']`
+        )
+        if (prev) {
+          prev.focus()
+        } else {
+          // Focus the text area
+          event.target.form.querySelector('#omnivore-edit-label-text')?.focus()
+        }
+        event.preventDefault()
+        break
+      }
+      case 'arrowdown': {
+        const idx = event.target.getAttribute('data-label-idx')
+        const nextIdx = idx && Number(idx) != NaN ? Number(idx) + 1 : 0
+        const next = document.querySelector(
+          `button[data-label-idx='${nextIdx}']`
+        )
+        if (next) {
+          next.focus()
+        } else {
+          // Focus the save button
+          event.target.form.querySelector('.omnivore-save-button')?.focus()
+        }
+        event.preventDefault()
+        break
+      }
+      case 'enter': {
+        const labelSelected = event.target.getAttribute('data-label-selected')
+        if (!labelSelected) {
+          return
+        }
+        event.target.setAttribute(
+          'data-label-selected',
+          labelSelected == 'on' ? 'off' : 'on'
+        )
+        console.log(
+          'data-label-selected:',
+          event.target.getAttribute('data-label-selected')
+        )
+        event.preventDefault()
+        break
+      }
+    }
+  }
+
+  function editTitle() {
+    cancelAutoDismiss()
+    toggleRow('omnivore-edit-title-row')
+    document.getElementById('omnivore-edit-title-textarea')?.focus()
+
+    document.getElementById('omnivore-edit-title-form').onsubmit = (event) => {
+      event.preventDefault()
+      browserApi.runtime.sendMessage({
+        action: ACTIONS.EditTitle,
+        payload: {
+          pageId: requestId,
+          title: document.getElementById('omnivore-edit-title-textarea').value,
+        },
+      })
+    }
+  }
+
+  async function editLabels() {
+    cancelAutoDismiss()
+
+    await getStorageItem('labels').then((cachedLabels) => {
+      labels = cachedLabels
+    })
+
+    toggleRow('omnivore-edit-labels-row')
+    document.getElementById('omnivore-edit-label-text')?.focus()
+    const list = document.getElementById('omnivore-edit-labels-list')
+    document
+      .getElementById('omnivore-edit-label-text')
+      .addEventListener('input', function () {
+        updateLabels(this.value)
+      })
+
+    document.getElementById('omnivore-edit-label-text').onkeydown = labelKeyDown
+
+    if (list) {
+      list.innerHTML = ''
+      labels.forEach(function (label, idx) {
+        const rowHtml = createLabelRow(label, idx)
+        list.appendChild(rowHtml)
+      })
+    }
+
+    document.getElementById('omnivore-edit-labels-form').onsubmit = (event) => {
+      event.preventDefault()
+      browserApi.runtime.sendMessage({
+        action: ACTIONS.EditTitle,
+        payload: {
+          labels: [],
+        },
+      })
+    }
+  }
+
+  async function updateLabels(filterValue) {
+    const list = document.getElementById('omnivore-edit-labels-list')
+    if (list) {
+      list.innerHTML = ''
+      if (filterValue) {
+        labels
+          .filter(
+            (l) => l.name.toLowerCase().indexOf(filterValue.toLowerCase()) > -1
+          )
+          .forEach(function (label, idx) {
+            const rowHtml = createLabelRow(label, idx)
+            list.appendChild(rowHtml)
+          })
+      } else {
+        labels.forEach(function (label, idx) {
+          const rowHtml = createLabelRow(label, idx)
+          list.appendChild(rowHtml)
+        })
+      }
+    }
+  }
+
+  function readNow() {
+    cancelAutoDismiss()
+    const container = document.getElementById('omnivore-toast-container')
+    container.setAttribute('data-state', 'open')
+
+    if (finalURL) {
+      window.open(finalURL)
+    } else {
+      window.open(`https://demo.omnivore.app/article/sr/${requestId}`)
+    }
+
+    setTimeout(() => {
+      closeToast()
+    }, 1000)
+  }
+
+  function openMenu() {
+    cancelAutoDismiss()
+    toggleRow('omnivore-extra-buttons-row')
+  }
+
+  function closeToast() {
+    console.log('closing toast')
+    currentToastEl.remove()
+  }
+
+  window.showToolbar = showToolbar
+  window.updateStatus = updateStatus
+  window.handleMessage = handleMessage
+  window.updateLabelsFromCache = updateLabelsFromCache
+})()
