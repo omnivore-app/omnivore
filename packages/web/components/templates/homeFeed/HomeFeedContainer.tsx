@@ -288,7 +288,7 @@ export function HomeFeedContainer(): JSX.Element {
         if (username) {
           setActiveCardId(item.node.id)
           if (item.node.state === State.PROCESSING) {
-            router.push(`/${username}/links/${item.node.id}`)
+            router.push(`/${username}/links/${item.node.url}`)
           } else {
             const dl =
               item.node.pageType === PageType.HIGHLIGHTS
