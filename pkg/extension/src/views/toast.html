@@ -1,0 +1,284 @@
+<style>
+  #omnivore-toast-container {
+    display: flex !important;
+    position: fixed !important;
+    flex-direction: row;
+    flex-wrap: wrap;
+    top: 20px !important;
+    right: 30px !important;
+    align-items: flex-start !important;
+    justify-content: flex-end !important;
+    overflow: hidden !important;
+    border-radius: 4px !important;
+    background: #fff !important;
+    font: 400 12px Inter, sans-serif !important;
+    line-height: 20px;
+    box-shadow: 0px 5px 20px rgba(32, 31, 29, 0.12) !important;
+    transition: all 300ms ease !important;
+    z-index: 9999999 !important;
+    width: 455px;
+  }
+
+  #omnivore-toast-container .omnivore-toast-func-row {
+    display: flex;
+    width: 100%;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-bottom: 10px;
+  }
+
+  #omnivore-toast-container .omnivore-toast-func-row[data-state="open"] {
+    display: flex;
+  }
+  #omnivore-toast-container .omnivore-toast-func-row[data-state="closed"] {
+    display: none;
+  }
+ #omnivore-toast-button-row {
+    gap: 5px;
+    align-items: center;
+    padding-top: 7px; 
+    padding-bottom: 7px; 
+    display: flex;
+    width: 100%;
+    padding-left: 15px;
+    padding-right: 10px;
+  }
+  #omnivore-toast-container button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #6A6968;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    border-radius: 5px;
+    height: 30px;
+    margin-left: auto;
+  }
+  #omnivore-toast-container button:hover {
+    background-color: #EBEBEB;
+  }
+  #omnivore-toast-container #omnivore-toast-close-button:hover {
+    background-color: unset;
+  }
+  #omnivore-toast-container #omnivore-toast-close-button svg {
+    fill: #3D3D3D;
+  }
+  #omnivore-toast-container #omnivore-toast-close-button svg:hover {
+    fill: #D9D9D9;
+    stroke: white;
+  }
+  .omnivore-toast-divider {
+    height:20px;
+    border-right: 1px solid #D9D9D9;
+  }
+  .omnivore-toast-statusBox {
+    width: 20px;
+    margin-left: 0px;
+    margin-right: 7px;
+  }
+
+  #omnivore-edit-title-row {
+    flex-direction: column;
+    visibility: unset;
+    padding-top: 20px;
+    height: 100%;
+    gap: 10px;
+  }
+
+  #omnivore-edit-title-row textarea {
+    width: 100%;
+    height: 100px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    resize: none;
+    border: 1px solid #8E8E93;
+    border-radius: 4px;
+  }
+
+  #omnivore-toast-container .omnivore-toast-func-row button {
+    height: 30px;
+    padding: 15px;
+    margin-left: auto;
+    background-color: #FFEA9F;
+  }
+
+  #omnivore-edit-labels-row {
+    flex-direction: column;
+    visibility: unset;
+    padding-top: 20px;
+    height: 100%;
+    gap: 10px;
+  }
+
+  #omnivore-edit-labels-row input {
+    width: 100%;
+    height: 34px;
+    padding: 10px;
+    border: 1px solid #8E8E93;
+    border-radius: 4px;
+  }
+
+  #omnivore-extra-buttons-row {
+    flex-direction: column;
+    padding-top: 5px;
+    padding-bottom: 10px;
+    gap: 5px;
+  }
+
+  #omnivore-toast-container #omnivore-extra-buttons-row button {
+    width: 80%;
+    align-self: flex-start;
+    padding: 10px;
+    margin: 0px;
+    background-color: transparent;
+    border-radius: 5px;
+  }
+
+  #omnivore-toast-container #omnivore-extra-buttons-row button:hover {
+    background-color: #EBEBEB;
+  }
+
+  #omnivore-edit-labels-list {
+    overflow-y: scroll;
+    max-height: 200px;
+    gap: 5px;
+    color: #3B3A38;
+    margin-top: 15px;
+    margin-bottom: 10px;
+  }
+
+  #omnivore-toast-container #omnivore-edit-labels-list button {
+    height: 35px;
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-bottom: 1px solid #EEEEEE;
+    border-radius: 0px;
+    width: 100%;
+    background: unset;
+  }
+
+  #omnivore-toast-container #omnivore-edit-labels-list button[data-label-selected="on"] .checkbox {
+    visibility: visible;
+  }
+
+  #omnivore-toast-container #omnivore-edit-labels-list button[data-label-selected="off"] .checkbox {
+    visibility: hidden;
+  }
+  
+
+  #omnivore-toast-container #omnivore-edit-labels-list button:focus-visible {
+    outline: unset;
+    border-radius: 5px;
+    background-color: #EBEBEB;
+  }
+
+  #omnivore-edit-labels-list div:hover {
+    background-color: #EBEBEB;
+  }
+  #omnivore-edit-labels-row form {
+    margin-bottom: unset;
+  }
+</style>
+<div id="omnivore-toast-container"> 
+  <div id="omnivore-toast-button-row">
+    <span class="omnivore-toast-statusBox">
+      <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M9.74048 17.2104C14.711 17.2104 18.7405 13.4049 18.7405 8.71045C18.7405 4.01603 14.711 0.210449 9.74048 0.210449C4.76992 0.210449 0.740479 4.01603 0.740479 8.71045C0.740479 13.4049 4.76992 17.2104 9.74048 17.2104ZM9.74048 15.7938C13.8826 15.7938 17.2405 12.6225 17.2405 8.71045C17.2405 4.79843 13.8826 1.62712 9.74048 1.62712C5.59834 1.62712 2.24048 4.79843 2.24048 8.71045C2.24048 12.6225 5.59834 15.7938 9.74048 15.7938Z" fill="#32D74B"/>
+        <path d="M13.178 6.52295L8.59462 10.8979L6.30298 8.71045" stroke="#32D74B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <animateTransform
+          from="0 0 0"
+          to="360 0 0"
+          attributeName="transform"
+          type="rotate"
+          repeatCount="indefinite"
+          dur="1300ms"
+        />
+      </svg>
+    </span>
+    <span class="omnivore-toast-divider"></span>
+
+    <button id="omnivore-toast-edit-title-btn">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M9.5625 4.50004L13.5 8.43754M6.71406 15.1516L2.84828 11.2858M6.517 15.1875H3.375C3.22582 15.1875 3.08274 15.1283 2.97725 15.0228C2.87176 14.9173 2.8125 14.7742 2.8125 14.625V11.483C2.8125 11.4092 2.82705 11.336 2.85532 11.2678C2.88359 11.1995 2.92502 11.1375 2.97725 11.0853L11.4148 2.64778C11.5202 2.5423 11.6633 2.48303 11.8125 2.48303C11.9617 2.48303 12.1048 2.5423 12.2102 2.64778L15.3523 5.78979C15.4577 5.89528 15.517 6.03835 15.517 6.18754C15.517 6.33672 15.4577 6.4798 15.3523 6.58528L6.91475 15.0228C6.86252 15.075 6.80051 15.1165 6.73226 15.1447C6.66402 15.173 6.59087 15.1875 6.517 15.1875Z" stroke="#6A6968" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>           
+      Edit Title
+    </button>
+    <span class="omnivore-toast-divider"></span>
+    
+    <button id="omnivore-toast-edit-labels-btn">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M8.99031 14.9786L15.3061 8.67029C15.3757 8.6002 15.4307 8.51707 15.468 8.42568C15.5053 8.33429 15.5242 8.23643 15.5237 8.13772L15.5237 1.38683C15.5237 1.18789 15.4446 0.997101 15.304 0.85643C15.1633 0.715759 14.9725 0.636731 14.7736 0.636731L8.02269 0.636731C7.92397 0.63616 7.82611 0.655082 7.73472 0.69241C7.64333 0.729738 7.5602 0.784739 7.49012 0.85426L1.18179 7.17009C0.76038 7.59202 0.523681 8.16397 0.523681 8.7603C0.523681 9.35663 0.76038 9.92857 1.18179 10.3505L5.77239 14.9786C6.19432 15.4 6.76627 15.6367 7.3626 15.6367C7.95893 15.6367 8.53087 15.4 8.95281 14.9786L8.99031 14.9786ZM6.87503 13.921L2.24693 9.28536C2.10722 9.14482 2.0288 8.95471 2.0288 8.75655C2.0288 8.55838 2.10722 8.36827 2.24693 8.22773L8.33022 2.13693L14.0235 2.13693L14.0235 7.83018L7.93267 13.921C7.86258 13.9905 7.77946 14.0455 7.68807 14.0828C7.59668 14.1202 7.49882 14.1391 7.4001 14.1385C7.20332 14.1377 7.01475 14.0595 6.87503 13.921Z" fill="#6A6968"/>
+        <circle cx="10.8818" cy="5.48069" r="1.24925" fill="#6A6968"/>
+        </svg>
+      Set Labels
+    </button>
+    <span class="omnivore-toast-divider"></span>
+
+    <button id="omnivore-toast-read-now-btn">
+      <svg width="18" height="15" viewBox="0 0 18 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M17.1272 0.939454H12.6584C11.6995 0.939454 10.762 1.21484 9.95532 1.73438L9.0022 2.3457L8.04907 1.73438C7.24323 1.21494 6.30469 0.938941 5.34595 0.939454H0.877197C0.531494 0.939454 0.252197 1.21875 0.252197 1.56445V12.6582C0.252197 13.0039 0.531494 13.2832 0.877197 13.2832H5.34595C6.30493 13.2832 7.24243 13.5586 8.04907 14.0781L8.91626 14.6367C8.94165 14.6523 8.97095 14.6621 9.00024 14.6621C9.02954 14.6621 9.05884 14.6543 9.08423 14.6367L9.95142 14.0781C10.76 13.5586 11.6995 13.2832 12.6584 13.2832H17.1272C17.4729 13.2832 17.7522 13.0039 17.7522 12.6582V1.56445C17.7522 1.21875 17.4729 0.939454 17.1272 0.939454ZM5.34595 11.877H1.65845V2.3457H5.34595C6.03735 2.3457 6.70923 2.54297 7.28931 2.91602L8.24243 3.52734L8.3772 3.61523V12.6387C7.44751 12.1387 6.40845 11.877 5.34595 11.877ZM16.3459 11.877H12.6584C11.5959 11.877 10.5569 12.1387 9.6272 12.6387V3.61523L9.76196 3.52734L10.7151 2.91602C11.2952 2.54297 11.967 2.3457 12.6584 2.3457H16.3459V11.877ZM6.75415 4.8457H3.12524C3.04907 4.8457 2.98657 4.91211 2.98657 4.99219V5.87109C2.98657 5.95117 3.04907 6.01758 3.12524 6.01758H6.7522C6.82837 6.01758 6.89087 5.95117 6.89087 5.87109V4.99219C6.89282 4.91211 6.83032 4.8457 6.75415 4.8457ZM11.1116 4.99219V5.87109C11.1116 5.95117 11.1741 6.01758 11.2502 6.01758H14.8772C14.9534 6.01758 15.0159 5.95117 15.0159 5.87109V4.99219C15.0159 4.91211 14.9534 4.8457 14.8772 4.8457H11.2502C11.1741 4.8457 11.1116 4.91211 11.1116 4.99219ZM6.75415 7.58008H3.12524C3.04907 7.58008 2.98657 7.64648 2.98657 7.72656V8.60547C2.98657 8.68555 3.04907 8.75195 3.12524 8.75195H6.7522C6.82837 8.75195 6.89087 8.68555 6.89087 8.60547V7.72656C6.89282 7.64648 6.83032 7.58008 6.75415 7.58008ZM14.8792 7.58008H11.2502C11.1741 7.58008 11.1116 7.64648 11.1116 7.72656V8.60547C11.1116 8.68555 11.1741 8.75195 11.2502 8.75195H14.8772C14.9534 8.75195 15.0159 8.68555 15.0159 8.60547V7.72656C15.0178 7.64648 14.9553 7.58008 14.8792 7.58008Z" fill="#6A6968"/>
+      </svg>
+      Read Now
+    </button>
+    <span class="omnivore-toast-divider"></span>
+
+    <button id="omnivore-open-menu-btn">
+      <svg width="15" height="4" viewBox="0 0 15 4" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="1.48679" cy="1.79492" rx="1.4846" ry="1.5" fill="#6A6968"/>
+        <ellipse cx="7.00217" cy="1.79492" rx="1.4846" ry="1.5" fill="#6A6968"/>
+        <ellipse cx="7.00217" cy="1.79492" rx="1.4846" ry="1.5" fill="#6A6968"/>
+        <ellipse cx="12.5176" cy="1.79492" rx="1.4846" ry="1.5" fill="#6A6968"/>
+      </svg>          
+    </button>
+    <span class="omnivore-toast-divider"></span>
+
+    <button id="omnivore-toast-close-button">
+      <svg width="19" height="19" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="9.50049" cy="9.52783" r="9" />
+        <path d="M12.554 11.874L12.554 11.874L10.2075 9.52783L12.554 7.18165L12.554 7.18164C12.6478 7.08785 12.7005 6.96063 12.7005 6.82798C12.7005 6.69533 12.6478 6.56812 12.554 6.47432C12.4602 6.38053 12.333 6.32783 12.2003 6.32783C12.0677 6.32783 11.9405 6.38053 11.8467 6.47432L11.8467 6.47433L9.50049 8.82087L7.15431 6.47433L7.1543 6.47432C7.0605 6.38053 6.93329 6.32783 6.80064 6.32783C6.66799 6.32783 6.54078 6.38053 6.44698 6.47432C6.35318 6.56812 6.30049 6.69533 6.30049 6.82798C6.30049 6.96063 6.35318 7.08785 6.44698 7.18164L6.44699 7.18165L8.79352 9.52783L6.44699 11.874L6.44698 11.874C6.35318 11.9678 6.30049 12.095 6.30049 12.2277C6.30049 12.3603 6.35318 12.4875 6.44698 12.5813C6.54078 12.6751 6.66799 12.7278 6.80064 12.7278C6.93329 12.7278 7.0605 12.6751 7.1543 12.5813L7.15431 12.5813L9.50049 10.2348L11.8467 12.5813L11.8467 12.5813C11.8931 12.6278 11.9483 12.6646 12.0089 12.6898C12.0696 12.7149 12.1347 12.7278 12.2003 12.7278C12.266 12.7278 12.3311 12.7149 12.3917 12.6898C12.4524 12.6646 12.5076 12.6278 12.554 12.5813C12.6004 12.5349 12.6373 12.4798 12.6624 12.4191C12.6876 12.3584 12.7005 12.2934 12.7005 12.2277C12.7005 12.162 12.6876 12.097 12.6624 12.0363C12.6373 11.9756 12.6004 11.9205 12.554 11.874Z" fill="#EBEBEB" stroke="#EBEBEB" stroke-width="0.4"/>
+      </svg>
+    </button>
+
+  </div>
+
+  <div id="omnivore-edit-title-row" class="omnivore-toast-func-row" data-state="closed">
+    <form id="omnivore-edit-title-form">
+      <textarea id="omnivore-edit-title-textarea"> </textarea>
+      <button>Save</button>
+    </form>
+  </div>
+  <div id="omnivore-edit-labels-row" class="omnivore-toast-func-row" data-state="closed">
+    <form id="omnivore-edit-labels-form">
+      <input type="text" id="omnivore-edit-label-text" placeholder="Filter for labels" tabindex="0"> </input>
+      <div id="omnivore-edit-labels-list">
+
+      </div>
+      <button class="omnivore-save-button">Save</button>
+    </form>
+  </div>
+
+  <div id="omnivore-extra-buttons-row" class="omnivore-toast-func-row" data-state="closed">
+    <button>
+      <svg width="18" height="16" viewBox="0 0 18 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M16.0143 0.166748H1.93155C1.157 0.166748 0.523193 0.800512 0.523193 1.5751V3.92222C0.523193 4.6264 1.03956 5.18958 1.69675 5.30698V14.0148C1.69675 14.7893 2.33052 15.4231 3.10511 15.4231H14.8407C15.6152 15.4231 16.249 14.7894 16.249 14.0148V5.30698C16.9062 5.18959 17.4226 4.6264 17.4226 3.92222V1.5751C17.4226 0.800554 16.7888 0.166748 16.0143 0.166748ZM1.93155 1.5751H16.0143V3.92222H1.93155V1.5751ZM14.8407 14.0148H3.10511V5.33049H14.8407V14.0148Z" fill="#6A6968"/>
+        <path d="M7.82307 8.26431H10.1702C10.5692 8.26431 10.8744 7.95914 10.8744 7.56013C10.8744 7.16114 10.5692 6.85596 10.1702 6.85596H7.82307C7.42408 6.85596 7.1189 7.16113 7.1189 7.56013C7.1189 7.95912 7.44748 8.26431 7.82307 8.26431Z" fill="#6A6968"/>
+      </svg>  
+      Archive
+    </button>
+    <span style="border-bottom: 1px solid #D9D9D9;width:80%"></span>
+    <button>
+      <svg width="20" height="21" viewBox="0 0 20 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M16.6602 5.16992L3.51147 5.16993" stroke="#6A6968" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M8.29272 8.91992V13.9199" stroke="#6A6968" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M11.8787 8.91992V13.9199" stroke="#6A6968" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M7.09741 2.66992H13.0741" stroke="#6A6968" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M15.4648 5.16993V17.0449C15.4648 17.2107 15.4018 17.3697 15.2897 17.4869C15.1777 17.6041 15.0256 17.6699 14.8671 17.6699H5.30445C5.14594 17.6699 4.99392 17.6041 4.88184 17.4869C4.76976 17.3697 4.70679 17.2107 4.70679 17.0449V5.16992" stroke="#6A6968" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>   
+      Delete
+    </button>
+
+  </div>
+</div>
