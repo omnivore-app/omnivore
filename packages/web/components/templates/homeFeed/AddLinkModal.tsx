@@ -1,17 +1,14 @@
-import {
-  ModalRoot,
-  ModalContent,
-  ModalOverlay,
-  ModalTitleBar,
-  ModalButtonBar,
-} from '../../elements/ModalPrimitives'
-import { VStack, Box } from '../../elements/LayoutPrimitives'
+import { useCallback, useState } from 'react'
+import toast from 'react-hot-toast'
+import { saveUrlMutation } from '../../../lib/networking/mutations/saveUrlMutation'
+import { showErrorToast } from '../../../lib/toastHelpers'
 import { Button } from '../../elements/Button'
 import { FormInput } from '../../elements/FormElements'
-import { useState, useCallback } from 'react'
-import { saveUrlMutation } from '../../../lib/networking/mutations/saveUrlMutation'
-import toast from 'react-hot-toast'
-import { showErrorToast } from '../../../lib/toastHelpers'
+import { Box, VStack } from '../../elements/LayoutPrimitives'
+import {
+  ModalButtonBar, ModalContent,
+  ModalOverlay, ModalRoot, ModalTitleBar
+} from '../../elements/ModalPrimitives'
 
 type AddLinkModalProps = {
   onOpenChange: (open: boolean) => void
@@ -24,7 +21,7 @@ export function AddLinkModal(props: AddLinkModalProps): JSX.Element {
     async (link: string) => {
       const result = await saveUrlMutation(link)
       // const result = await saveUrlMutation(link)
-      if (result && result.jobId) {
+      if (result) {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         toast(
           () => (
@@ -35,7 +32,7 @@ export function AddLinkModal(props: AddLinkModalProps): JSX.Element {
                 style="ctaDarkYellow"
                 autoFocus
                 onClick={() => {
-                  window.location.href = `/article/sr/${result.jobId}`
+                  window.location.href = `/article/sr/${encodeURIComponent(link)}` // encode url
                 }}
               >
                 Read Now
