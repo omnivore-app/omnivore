@@ -1,4 +1,6 @@
 /* eslint-disable prefer-const */
+import { getPageByParam } from '../../elastic/pages'
+import { env } from '../../env'
 import {
   ArticleSavingRequestError,
   ArticleSavingRequestErrorCode,
@@ -10,16 +12,14 @@ import {
   MutationCreateArticleSavingRequestArgs,
   QueryArticleSavingRequestArgs,
 } from '../../generated/graphql'
+import { createPageSaveRequest } from '../../services/create_page_save_request'
+import { analytics } from '../../utils/analytics'
 import {
   authorized,
   isParsingTimeout,
   pageToArticleSavingRequest,
 } from '../../utils/helpers'
-import { createPageSaveRequest } from '../../services/create_page_save_request'
-import { getPageById } from '../../elastic/pages'
 import { isErrorWithCode } from '../user'
-import { analytics } from '../../utils/analytics'
-import { env } from '../../env'
 
 export const createArticleSavingRequestResolver = authorized<
   CreateArticleSavingRequestSuccess,
@@ -56,17 +56,12 @@ export const articleSavingRequestResolver = authorized<
   ArticleSavingRequestSuccess,
   ArticleSavingRequestError,
   QueryArticleSavingRequestArgs
->(async (_, { id }, { models }) => {
-  let page
-  let user
-  try {
-    page = await getPageById(id)
-    if (!page) {
-      return { errorCodes: [ArticleSavingRequestErrorCode.NotFound] }
-    }
-    user = await models.user.get(page.userId)
-    // eslint-disable-next-line no-empty
-  } catch (error) {}
+>(async (_, { url }, { models, claims }) => {
+  const page = await getPageByParam({ url, userId: claims.uid })
+  if (!page) {
+    return { errorCodes: [ArticleSavingRequestErrorCode.NotFound] }
+  }
+  const user = await models.user.get(page.userId)
   if (user && page) {
     if (isParsingTimeout(page)) {
       page.state = ArticleSavingRequestStatus.Succeeded

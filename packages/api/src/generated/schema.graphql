@@ -135,6 +135,7 @@ type ArticleSavingRequest {
   slug: String!
   status: ArticleSavingRequestStatus!
   updatedAt: Date!
+  url: String!
   user: User!
   userId: ID! @deprecated(reason: "userId has been replaced with user")
 }
@@ -1245,7 +1246,7 @@ type Profile {
 type Query {
   apiKeys: ApiKeysResult!
   article(format: String, slug: String!, username: String!): ArticleResult!
-  articleSavingRequest(id: ID!): ArticleSavingRequestResult!
+  articleSavingRequest(url: String!): ArticleSavingRequestResult!
   articles(after: String, first: Int, includePending: Boolean, query: String, sharedOnly: Boolean, sort: SortParams): ArticlesResult!
   deviceTokens: DeviceTokensResult!
   feedArticles(after: String, first: Int, sharedByUser: ID, sort: SortParams): FeedArticlesResult!
