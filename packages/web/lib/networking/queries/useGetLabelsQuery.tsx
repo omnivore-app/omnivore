@@ -31,13 +31,7 @@ export function useGetLabelsQuery(): LabelsQueryResponse {
         }
       }
     }
-    fragment LabelFields on Label {
-      id
-      name
-      color
-      description
-      createdAt
-    }
+    ${labelFragment}
   `
 
   const { data, mutate, isValidating } = useSWR(query, publicGqlFetcher)
