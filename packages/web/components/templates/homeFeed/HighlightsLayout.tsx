@@ -136,22 +136,21 @@ export function HighlightItemsLayout(
             minWidth: '430px',
             overflowY: 'scroll',
             height: '100%',
+            '@lgDown': {
+              width: '100%',
+              minWidth: 'unset',
+            },
           }}
           distribution="start"
           alignment="start"
         >
           <VStack
             css={{
-              width: '430px',
-              minWidth: '430px',
               minHeight: `calc(100vh - ${HEADER_HEIGHT})`,
               '@xlgDown': {
                 minHeight: `calc(100vh - ${MOBILE_HEADER_HEIGHT})`,
               },
               bg: '$thBackground',
-              '@lgDown': {
-                width: '100%',
-              },
             }}
             distribution="start"
             alignment="start"
@@ -171,6 +170,7 @@ export function HighlightItemsLayout(
               viewer={props.viewer}
               currentItem={currentItem}
               setCurrentItem={setCurrentItem}
+              deleteHighlight={handleDelete}
             />
             <Box css={{ height: '100px' }} />
           </VStack>
@@ -219,6 +219,8 @@ type LibraryItemsListProps = {
 
   currentItem: LibraryItem | undefined
   setCurrentItem: (item: LibraryItem | undefined) => void
+
+  deleteHighlight: (item: LibraryItemNode, highlight: Highlight) => void
 }
 
 function LibraryItemsList(props: LibraryItemsListProps): JSX.Element {
@@ -247,6 +249,7 @@ function LibraryItemsList(props: LibraryItemsListProps): JSX.Element {
               item={linkedItem}
               viewer={props.viewer}
               selected={props.currentItem?.node.id == linkedItem.node.id}
+              deleteHighlight={props.deleteHighlight}
             />
           )}
         </Box>
@@ -259,6 +262,7 @@ type HighlightTitleCardProps = {
   item: LibraryItem
   viewer: UserBasicData
   selected: boolean
+  deleteHighlight: (item: LibraryItemNode, highlight: Highlight) => void
 }
 
 function LibraryItemCard(props: HighlightTitleCardProps): JSX.Element {
@@ -268,6 +272,7 @@ function LibraryItemCard(props: HighlightTitleCardProps): JSX.Element {
         <LibraryHighlightGridCard
           item={props.item.node}
           viewer={props.viewer}
+          deleteHighlight={props.deleteHighlight}
         />
       </SpanBox>
       <SpanBox css={{ display: 'none', '@lg': { display: 'flex' } }}>
@@ -354,6 +359,8 @@ function HighlightTitleCard(props: HighlightTitleCardProps): JSX.Element {
 type HighlightListProps = {
   item: LibraryItem
   viewer: UserBasicData | undefined
+
+  deleteHighlight: (item: LibraryItemNode, highlight: Highlight) => void
 }
 
 function HighlightList(props: HighlightListProps): JSX.Element {

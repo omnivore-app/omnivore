@@ -1,5 +1,5 @@
 import { Box, VStack, HStack } from '../../elements/LayoutPrimitives'
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { CaretDown, CaretUp } from 'phosphor-react'
 import { MetaStyle, timeAgo, TitleStyle } from './LibraryCardStyles'
 import { styled } from '@stitches/react'
@@ -20,6 +20,8 @@ export const GridSeparator = styled(Box, {
 type LibraryHighlightGridCardProps = {
   viewer: UserBasicData
   item: LibraryItemNode
+
+  deleteHighlight: (item: LibraryItemNode, highlight: Highlight) => void
 }
 
 export function LibraryHighlightGridCard(
@@ -128,6 +130,7 @@ export function LibraryHighlightGridCard(
                   viewer={props.viewer}
                   item={props.item}
                   highlight={highlight}
+                  deleteHighlight={props.deleteHighlight}
                 />
               ))}
             </VStack>
