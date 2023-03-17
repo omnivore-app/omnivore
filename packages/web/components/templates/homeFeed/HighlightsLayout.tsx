@@ -110,57 +110,70 @@ export function HighlightItemsLayout(
       <HStack
         css={{
           width: '100%',
-          height: '100%',
-          position: 'relative',
+          height: `calc(100vh - ${HEADER_HEIGHT})`,
+          '@xlgDown': {
+            height: `calc(100vh - ${MOBILE_HEADER_HEIGHT})`,
+          },
           bg: '$thBackground2',
+          overflow: 'hidden',
         }}
         distribution="start"
         alignment="start"
       >
         <Toaster />
-        <VStack
+        <HStack
           css={{
+            flexGrow: '0',
             width: '430px',
+            minWidth: '430px',
+            overflowY: 'scroll',
             height: '100%',
-            bg: '$thBackground',
-            '@lgDown': {
-              width: '100%',
-            },
           }}
           distribution="start"
           alignment="start"
         >
-          {items.length > 0 ? (
-            <>
-              <HStack
-                css={{
-                  width: 'calc(100% - 35px)',
-                  height: '55px',
-                  mx: '20px',
-                  borderBottom: '1px solid $thBorderColor',
-                }}
-                alignment="center"
-                distribution="start"
-              ></HStack>
-              <LibraryItemsList
-                items={items}
-                viewer={props.viewer}
-                currentItem={currentItem}
-                setCurrentItem={setCurrentItem}
-              />
-            </>
-          ) : (
-            <Box css={{ width: '100%', height: '200px' }}>
-              No highlights found
-            </Box>
-          )}
-        </VStack>
+          <VStack
+            css={{
+              width: '430px',
+              minWidth: '430px',
+              minHeight: `calc(100vh - ${HEADER_HEIGHT})`,
+              '@xlgDown': {
+                minHeight: `calc(100vh - ${MOBILE_HEADER_HEIGHT})`,
+              },
+              bg: '$thBackground',
+              '@lgDown': {
+                width: '100%',
+              },
+            }}
+            distribution="start"
+            alignment="start"
+          >
+            <HStack
+              css={{
+                width: 'calc(100% - 35px)',
+                height: '55px',
+                mx: '20px',
+                borderBottom: '1px solid $thBorderColor',
+              }}
+              alignment="center"
+              distribution="start"
+            ></HStack>
+            <LibraryItemsList
+              items={items}
+              viewer={props.viewer}
+              currentItem={currentItem}
+              setCurrentItem={setCurrentItem}
+            />
+            <Box css={{ height: '100px' }} />
+          </VStack>
+        </HStack>
         {currentItem && (
           <>
             <SpanBox
               css={{
                 display: 'flex',
                 height: '100%',
+                width: '100%',
                 flexGrow: '1',
                 '@lgDown': {
                   display: 'none',
@@ -168,11 +181,22 @@ export function HighlightItemsLayout(
                 },
               }}
             >
-              <HighlightList
-                item={currentItem}
-                viewer={props.viewer}
-                deleteHighlight={handleDelete}
-              />
+              <HStack
+                css={{
+                  flexGrow: '1',
+                  overflowY: 'scroll',
+                  height: '100%',
+                  width: '100%',
+                }}
+                distribution="start"
+                alignment="start"
+              >
+                <HighlightList
+                  item={currentItem}
+                  viewer={props.viewer}
+                  deleteHighlight={handleDelete}
+                />
+              </HStack>
             </SpanBox>
           </>
         )}
@@ -203,6 +227,7 @@ function LibraryItemsList(props: LibraryItemsListProps): JSX.Element {
             width: '100%',
             height: '100%',
             px: '15px',
+            cursor: 'pointer',
           }}
           onClick={(event) => {
             props.setCurrentItem(linkedItem)
@@ -351,7 +376,6 @@ function HighlightList(props: HighlightListProps): JSX.Element {
       <VStack
         css={{
           width: '425px',
-          height: '100%',
           borderRadius: '6px',
         }}
         alignment="start"
@@ -360,11 +384,10 @@ function HighlightList(props: HighlightListProps): JSX.Element {
         <HStack
           css={{
             width: '100%',
-            height: '100%',
             pt: '25px',
             borderBottom: '1px solid $thBorderColor',
           }}
-          alignment="center"
+          alignment="start"
           distribution="start"
         >
           <StyledText
@@ -387,7 +410,7 @@ function HighlightList(props: HighlightListProps): JSX.Element {
             />
           </Dropdown>
         </HStack>
-        <VStack css={{ height: '100%', width: '100%' }} distribution="start">
+        <VStack css={{ width: '100%' }} distribution="start" alignment="start">
           {(props.item.node.highlights ?? []).map((highlight) => (
             <HighlightItem
               key={highlight.id}
@@ -397,6 +420,7 @@ function HighlightList(props: HighlightListProps): JSX.Element {
               deleteHighlight={props.deleteHighlight}
             />
           ))}
+          <Box css={{ height: '100px' }} />
         </VStack>
       </VStack>
     </HStack>
