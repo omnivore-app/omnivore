@@ -346,8 +346,6 @@ function HighlightTitleCard(props: HighlightTitleCardProps): JSX.Element {
 type HighlightListProps = {
   item: LibraryItem
   viewer: UserBasicData | undefined
-
-  deleteHighlight: (item: LibraryItemNode, highlight: Highlight) => void
 }
 
 function HighlightList(props: HighlightListProps): JSX.Element {
