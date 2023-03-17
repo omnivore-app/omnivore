@@ -1,18 +1,17 @@
+import normalizeUrl from 'normalize-url'
+import * as privateIpLib from 'private-ip'
 import { v4 as uuidv4 } from 'uuid'
-import { enqueueParseRequest } from '../utils/createTask'
-
-// TODO: switch to a proper Entity instead of using the old data models.
-import { DataModels } from '../resolvers/types'
+import { createPubSubClient, PubsubClient } from '../datalayer/pubsub'
+import { countByCreatedAt, createPage, getPageByParam } from '../elastic/pages'
+import { ArticleSavingRequestStatus, PageType } from '../elastic/types'
 import {
   ArticleSavingRequest,
   CreateArticleSavingRequestErrorCode,
 } from '../generated/graphql'
+// TODO: switch to a proper Entity instead of using the old data models.
+import { DataModels } from '../resolvers/types'
+import { enqueueParseRequest } from '../utils/createTask'
 import { generateSlug, pageToArticleSavingRequest } from '../utils/helpers'
-import * as privateIpLib from 'private-ip'
-import { countByCreatedAt, createPage, getPageByParam } from '../elastic/pages'
-import { ArticleSavingRequestStatus, PageType } from '../elastic/types'
-import { createPubSubClient, PubsubClient } from '../datalayer/pubsub'
-import normalizeUrl from 'normalize-url'
 
 const SAVING_CONTENT = 'Your link is being saved...'
 
@@ -92,10 +91,8 @@ export const createPageSaveRequest = async (
     userId,
     url: normalizedUrl,
   })
-  if (page) {
-    console.log('Page already exists', page.id, page.url)
-    articleSavingRequestId = page.id
-  } else {
+  if (!page) {
+    console.log('Page not exists', normalizedUrl)
     page = {
       id: articleSavingRequestId,
       userId,
@@ -106,7 +103,7 @@ export const createPageSaveRequest = async (
       readingProgressPercent: 0,
       slug: generateSlug(url),
       title: url,
-      url,
+      url: normalizedUrl,
       state: ArticleSavingRequestStatus.Processing,
       createdAt: new Date(),
       savedAt: new Date(),
@@ -123,7 +120,7 @@ export const createPageSaveRequest = async (
   }
 
   // enqueue task to parse page
-  await enqueueParseRequest(url, userId, articleSavingRequestId, priority)
+  await enqueueParseRequest(url, userId, page.id, priority)
 
   return pageToArticleSavingRequest(user, page)
 }
