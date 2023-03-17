@@ -1,31 +1,10 @@
-import { createTestUser, deleteTestUser } from '../db'
-import {
-  createTestElasticPage,
-  generateFakeUuid,
-  graphqlRequest,
-  request,
-} from '../util'
 import * as chai from 'chai'
 import { expect } from 'chai'
-import 'mocha'
-import { User } from '../../src/entity/user'
 import chaiString from 'chai-string'
-import {
-  BulkActionType,
-  SyncUpdatedItemEdge,
-  UpdateReason,
-  UploadFileStatus,
-} from '../../src/generated/graphql'
-import {
-  ArticleSavingRequestStatus,
-  Highlight,
-  Page,
-  PageContext,
-  PageType,
-} from '../../src/elastic/types'
-import { UploadFile } from '../../src/entity/upload_file'
+import 'mocha'
 import { createPubSubClient } from '../../src/datalayer/pubsub'
-import { getRepository } from '../../src/entity/utils'
+import { refreshIndex } from '../../src/elastic'
+import { addHighlightToPage } from '../../src/elastic/highlights'
 import {
   createPage,
   deletePage,
@@ -33,9 +12,30 @@ import {
   getPageById,
   updatePage,
 } from '../../src/elastic/pages'
-import { addHighlightToPage } from '../../src/elastic/highlights'
-import { refreshIndex } from '../../src/elastic'
+import {
+  ArticleSavingRequestStatus,
+  Highlight,
+  Page,
+  PageContext,
+  PageType,
+} from '../../src/elastic/types'
 import { SearchHistory } from '../../src/entity/search_history'
+import { UploadFile } from '../../src/entity/upload_file'
+import { User } from '../../src/entity/user'
+import { getRepository } from '../../src/entity/utils'
+import {
+  BulkActionType,
+  SyncUpdatedItemEdge,
+  UpdateReason,
+  UploadFileStatus,
+} from '../../src/generated/graphql'
+import { createTestUser, deleteTestUser } from '../db'
+import {
+  createTestElasticPage,
+  generateFakeUuid,
+  graphqlRequest,
+  request,
+} from '../util'
 
 chai.use(chaiString)
 
@@ -847,6 +847,7 @@ describe('Article API', () => {
           url: url,
           savedAt: new Date(),
           state: ArticleSavingRequestStatus.Succeeded,
+          siteName: 'Example',
         }
         page.id = (await createPage(page, ctx))!
         pages.push(page)
@@ -982,6 +983,18 @@ describe('Article API', () => {
         const res = await graphqlRequest(query, authToken).expect(200)
 
         expect(res.body.data.search.pageInfo.totalCount).to.eq(0)
+      })
+    })
+
+    context('when site:${site_name} is in the query', () => {
+      before(async () => {
+        keyword = "'search api' site:example"
+      })
+
+      it('returns items from the site', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.search.pageInfo.totalCount).to.eq(5)
       })
     })
   })

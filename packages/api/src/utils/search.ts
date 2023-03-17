@@ -37,6 +37,7 @@ export interface SearchFilter {
   ids: string[]
   recommendedBy?: string
   noFilters: NoFilter[]
+  siteName?: string
 }
 
 export enum LabelFilterType {
@@ -335,6 +336,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
       'recommendedBy',
       'no',
       'mode',
+      'site',
     ],
     tokenize: true,
   })
@@ -427,6 +429,9 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
         }
         case 'mode':
           // mode is ignored and used only by the frontend
+          break
+        case 'site':
+          result.siteName = keyword.value
           break
       }
     }
