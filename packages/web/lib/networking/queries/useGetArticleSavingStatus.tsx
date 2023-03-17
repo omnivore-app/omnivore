@@ -6,7 +6,7 @@ import { makeGqlFetcher } from '../networkHelpers'
 import { ArticleAttributes } from './useGetArticleQuery'
 
 type ArticleSavingStatusInput = {
-  url: string
+  id: string
 }
 
 type ArticleSavingStatusResponse = {
@@ -48,11 +48,11 @@ type ArticleSavingStatusError =
   | 'unauthorized'
 
 export function useGetArticleSavingStatus({
-  url,
+  id,
 }: ArticleSavingStatusInput): ArticleSavingStatusResponse {
   const query = gql`
-    query ArticleSavingRequest($url: String!) {
-      articleSavingRequest(url: $url) {
+    query ArticleSavingRequest($id: ID!) {
+      articleSavingRequest(id: $id) {
         ... on ArticleSavingRequestSuccess {
           articleSavingRequest {
             id
@@ -85,7 +85,7 @@ export function useGetArticleSavingStatus({
   `
 
   // poll twice a second
-  const { data, error } = useSWR([query, url], makeGqlFetcher({ url }), {
+  const { data, error } = useSWR([query, id], makeGqlFetcher({ id }), {
     refreshInterval: 500,
   })
 

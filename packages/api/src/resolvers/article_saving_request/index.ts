@@ -56,8 +56,13 @@ export const articleSavingRequestResolver = authorized<
   ArticleSavingRequestSuccess,
   ArticleSavingRequestError,
   QueryArticleSavingRequestArgs
->(async (_, { url }, { models, claims }) => {
-  const page = await getPageByParam({ url, userId: claims.uid })
+>(async (_, { id, url }, { models, claims }) => {
+  const params = {
+    _id: id || undefined,
+    url: url || undefined,
+    userId: claims.uid,
+  }
+  const page = await getPageByParam(params)
   if (!page) {
     return { errorCodes: [ArticleSavingRequestErrorCode.NotFound] }
   }
