@@ -55,9 +55,17 @@ export function HighlightItemsLayout(
             (h) => h.id !== action.highlightId
           )
         }
-        return state.filter(
+        const result = state.filter(
           (item) => item.node.highlights && item.node.highlights.length > 0
         )
+        if (
+          item &&
+          item == currentItem &&
+          (item.node.highlights?.length ?? 0) < 1
+        ) {
+          setCurrentItem(result.length > 0 ? result[0] : undefined)
+        }
+        return result
       default:
         throw new Error()
     }
