@@ -21,12 +21,15 @@ import {
 } from '../../elements/LayoutPrimitives'
 import { StyledText } from '../../elements/StyledText'
 import { ConfirmationModal } from '../../patterns/ConfirmationModal'
+import { theme } from '../../tokens/stitches.config'
 import { SetLabelsModal } from '../article/SetLabelsModal'
 
 type HighlightItemProps = {
   highlight: Highlight
   viewer: UserBasicData | undefined
   item: LibraryItemNode
+
+  deleteHighlight: (item: LibraryItemNode, highlight: Highlight) => void
 }
 
 const StyledQuote = styled(Blockquote, {
@@ -140,10 +143,6 @@ export function HighlightItem(props: HighlightItemProps): JSX.Element {
           css={{
             marginLeft: 'auto',
             width: '20px',
-            visibility: hover ? 'unset' : 'hidden',
-            '@media (hover: none)': {
-              visibility: 'unset',
-            },
           }}
         >
           <HighlightsMenu
@@ -163,6 +162,7 @@ export function HighlightItem(props: HighlightItemProps): JSX.Element {
             )
             if (result) {
               showSuccessToast('Highlight deleted')
+              props.deleteHighlight(props.item, props.highlight)
             } else {
               showErrorToast('Error deleting highlight')
             }
@@ -207,14 +207,6 @@ export function HighlightsMenu(props: HighlightsMenuProps): JSX.Element {
     })()
   }, [props.highlight])
 
-  const exportHighlight = useCallback(() => {
-    ;(async () => {
-      const markdown = highlightAsMarkdown(props.highlight)
-      await navigator.clipboard.writeText(markdown)
-      showSuccessToast('Highlight copied')
-    })()
-  }, [props.highlight])
-
   return (
     <Dropdown
       triggerElement={
@@ -231,7 +223,11 @@ export function HighlightsMenu(props: HighlightsMenuProps): JSX.Element {
             },
           }}
         >
-          <DotsThreeVertical size={20} color="#EBEBEB" weight="bold" />
+          <DotsThreeVertical
+            size={20}
+            color={theme.colors.thTextContrast2.toString()}
+            weight="bold"
+          />
         </Box>
       }
     >
@@ -249,7 +245,7 @@ export function HighlightsMenu(props: HighlightsMenuProps): JSX.Element {
       />
       <DropdownOption
         onSelect={() => {
-          exportHighlight()
+          props.setShowConfirmDeleteHighlightId(props.highlight.id)
         }}
         title="Delete"
       />

@@ -686,7 +686,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
           setShowFilterMenu={setShowFilterMenu}
         />
 
-        {props.mode == 'highlights' && (
+        {!props.isValidating && props.mode == 'highlights' && (
           <HighlightItemsLayout
             gridContainerRef={props.gridContainerRef}
             items={props.items}

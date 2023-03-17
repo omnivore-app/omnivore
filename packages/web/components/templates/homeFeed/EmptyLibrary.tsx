@@ -18,6 +18,7 @@ export function EmptyLibrary(props: EmptyLibraryProps): JSX.Element {
         color: '$grayTextContrast',
         textAlign: 'center',
         paddingTop: '88px',
+        flex: '1',
       }}
     >
       <Book size={44} color={theme.colors.grayTextContrast.toString()} />
