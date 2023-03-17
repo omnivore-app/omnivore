@@ -1,25 +1,25 @@
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
-import { Box } from '../../../../components/elements/LayoutPrimitives'
-import { useGetArticleSavingStatus } from '../../../../lib/networking/queries/useGetArticleSavingStatus'
-import { ErrorComponent } from '../../../../components/templates/SavingRequest'
 import { useSWRConfig } from 'swr'
-import { cacheArticle } from '../../../../lib/networking/queries/useGetArticleQuery'
+import { Box } from '../../../../components/elements/LayoutPrimitives'
 import { PrimaryLayout } from '../../../../components/templates/PrimaryLayout'
+import { ErrorComponent } from '../../../../components/templates/SavingRequest'
+import { cacheArticle } from '../../../../lib/networking/queries/useGetArticleQuery'
+import { useGetArticleSavingStatus } from '../../../../lib/networking/queries/useGetArticleSavingStatus'
 import { applyStoredTheme } from '../../../../lib/themeUpdater'
 
 export default function LinkRequestPage(): JSX.Element {
   applyStoredTheme(false) // false to skip server sync
 
   const router = useRouter()
-  const [requestID, setRequestID] = useState<string | undefined>(undefined)
+  const [url, setUrl] = useState<string | undefined>(undefined)
   const [username, setUsername] = useState<string | undefined>(undefined)
 
   useEffect(() => {
     if (!router.isReady) return
-    setRequestID(router.query.id as string)
+    setUrl(router.query.url as string)
     setUsername(router.query.username as string)
-  }, [router.isReady, router.query.id, router.query.username])
+  }, [router.isReady, router.query.url, router.query.username])
 
   return (
     <PrimaryLayout
@@ -33,8 +33,8 @@ export default function LinkRequestPage(): JSX.Element {
       <Box
         css={{ bg: '$grayBase', height: '100vh', width: '100vw', px: '16px' }}
       >
-        {requestID && username ? (
-          <PrimaryContent requestID={requestID} username={username} />
+        {url && username ? (
+          <PrimaryContent url={url} username={username} />
         ) : (
           <Loader />
         )}
@@ -48,7 +48,7 @@ function Loader(): JSX.Element {
 }
 
 type PrimaryContentProps = {
-  requestID: string
+  url: string
   username: string
 }
 
@@ -58,7 +58,7 @@ function PrimaryContent(props: PrimaryContentProps): JSX.Element {
   const [timedOut, setTimedOut] = useState(false)
 
   const { successRedirectPath, article, error } = useGetArticleSavingStatus({
-    id: props.requestID,
+    url: props.url,
   })
 
   useEffect(() => {
