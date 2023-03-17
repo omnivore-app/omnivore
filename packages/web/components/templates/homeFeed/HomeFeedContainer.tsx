@@ -1,51 +1,51 @@
-import * as Progress from '@radix-ui/react-progress'
-import axios from 'axios'
-import { Action, createAction, useKBar, useRegisterActions } from 'kbar'
-import debounce from 'lodash/debounce'
-import { useRouter } from 'next/router'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Box, HStack, VStack } from './../../elements/LayoutPrimitives'
 import Dropzone from 'react-dropzone'
-import { Toaster } from 'react-hot-toast'
-import TopBarProgress from 'react-topbar-progress-indicator'
-import { useFetchMore } from '../../../lib/hooks/useFetchMoreScroll'
-import { usePersistedState } from '../../../lib/hooks/usePersistedState'
-import { libraryListCommands } from '../../../lib/keyboardShortcuts/navigationShortcuts'
-import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
-import {
-  PageType,
-  State
-} from '../../../lib/networking/fragments/articleFragment'
-import { Label } from '../../../lib/networking/fragments/labelFragment'
-import { setLabelsMutation } from '../../../lib/networking/mutations/setLabelsMutation'
-import { uploadFileRequestMutation } from '../../../lib/networking/mutations/uploadFileMutation'
-import {
-  SearchItem,
-  TypeaheadSearchItemsData,
-  typeaheadSearchQuery
-} from '../../../lib/networking/queries/typeaheadSearch'
+import * as Progress from '@radix-ui/react-progress'
 import type {
   LibraryItem,
-  LibraryItemsQueryInput
+  LibraryItemsQueryInput,
 } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { useGetLibraryItemsQuery } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import {
   useGetViewerQuery,
-  UserBasicData
+  UserBasicData,
 } from '../../../lib/networking/queries/useGetViewerQuery'
-import { Button } from '../../elements/Button'
-import { StyledText } from '../../elements/StyledText'
-import { ConfirmationModal } from '../../patterns/ConfirmationModal'
 import { LinkedItemCardAction } from '../../patterns/LibraryCards/CardTypes'
 import { LinkedItemCard } from '../../patterns/LibraryCards/LinkedItemCard'
-import { styled, theme } from '../../tokens/stitches.config'
-import { SetLabelsModal } from '../article/SetLabelsModal'
-import { Box, HStack, VStack } from './../../elements/LayoutPrimitives'
+import { useRouter } from 'next/router'
+import { Button } from '../../elements/Button'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { StyledText } from '../../elements/StyledText'
 import { AddLinkModal } from './AddLinkModal'
-import { EditLibraryItemModal } from './EditItemModals'
+import { styled, theme } from '../../tokens/stitches.config'
+import { libraryListCommands } from '../../../lib/keyboardShortcuts/navigationShortcuts'
+import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
+import { Toaster } from 'react-hot-toast'
+import { useFetchMore } from '../../../lib/hooks/useFetchMoreScroll'
+import { usePersistedState } from '../../../lib/hooks/usePersistedState'
+import { ConfirmationModal } from '../../patterns/ConfirmationModal'
+import { SetLabelsModal } from '../article/SetLabelsModal'
+import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { EmptyLibrary } from './EmptyLibrary'
-import { HighlightItemsLayout } from './HighlightsLayout'
-import { LibraryFilterMenu } from './LibraryFilterMenu'
+import TopBarProgress from 'react-topbar-progress-indicator'
+import {
+  PageType,
+  State,
+} from '../../../lib/networking/fragments/articleFragment'
+import { Action, createAction, useKBar, useRegisterActions } from 'kbar'
+import { EditLibraryItemModal } from './EditItemModals'
+import debounce from 'lodash/debounce'
+import {
+  SearchItem,
+  TypeaheadSearchItemsData,
+  typeaheadSearchQuery,
+} from '../../../lib/networking/queries/typeaheadSearch'
+import axios from 'axios'
+import { uploadFileRequestMutation } from '../../../lib/networking/mutations/uploadFileMutation'
+import { setLabelsMutation } from '../../../lib/networking/mutations/setLabelsMutation'
 import { LibraryHeader } from './LibraryHeader'
+import { LibraryFilterMenu } from './LibraryFilterMenu'
+import { HighlightItemsLayout } from './HighlightsLayout'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 export type LibraryMode = 'reads' | 'highlights'
@@ -288,7 +288,7 @@ export function HomeFeedContainer(): JSX.Element {
         if (username) {
           setActiveCardId(item.node.id)
           if (item.node.state === State.PROCESSING) {
-            router.push(`/${username}/links/${encodeURIComponent(item.node.url)}`)
+            router.push(`/${username}/links/${item.node.url}`)
           } else {
             const dl =
               item.node.pageType === PageType.HIGHLIGHTS
