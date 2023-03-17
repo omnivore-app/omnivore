@@ -1,7 +1,11 @@
 import { HighlighterCircle } from 'phosphor-react'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useReducer, useState } from 'react'
 import { Toaster } from 'react-hot-toast'
-import { LibraryItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+import { Highlight } from '../../../lib/networking/fragments/highlightFragment'
+import {
+  LibraryItem,
+  LibraryItemNode,
+} from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
@@ -14,6 +18,8 @@ import {
   timeAgo,
 } from '../../patterns/LibraryCards/LibraryCardStyles'
 import { LibraryHighlightGridCard } from '../../patterns/LibraryCards/LibraryHighlightGridCard'
+import { EmptyHighlights } from './EmptyHighlights'
+import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from './HeaderSpacer'
 import { HighlightItem, highlightsAsMarkdown } from './HighlightItem'
 
 type HighlightItemsLayoutProps = {
@@ -30,99 +36,152 @@ export function HighlightItemsLayout(
     undefined
   )
 
+  const listReducer = (
+    state: LibraryItem[],
+    action: {
+      type: string
+      itemId?: string
+      highlightId?: string
+      items?: LibraryItem[]
+    }
+  ) => {
+    switch (action.type) {
+      case 'RESET':
+        return action.items ?? []
+      case 'REMOVE_HIGHLIGHT':
+        const item = state.find((li) => li.node.id === action.itemId)
+        if (item && item.node.highlights) {
+          item.node.highlights = item.node.highlights.filter(
+            (h) => h.id !== action.highlightId
+          )
+        }
+        const result = state.filter(
+          (item) => item.node.highlights && item.node.highlights.length > 0
+        )
+        if (
+          item &&
+          item == currentItem &&
+          (item.node.highlights?.length ?? 0) < 1
+        ) {
+          setCurrentItem(result.length > 0 ? result[0] : undefined)
+        }
+        return result
+      default:
+        throw new Error()
+    }
+  }
+
+  const [items, dispatchList] = useReducer(listReducer, [])
+
+  function handleDelete(item: LibraryItemNode, highlight: Highlight) {
+    dispatchList({
+      type: 'REMOVE_HIGHLIGHT',
+      itemId: item.id,
+      highlightId: highlight.id,
+    })
+  }
+
+  useEffect(() => {
+    dispatchList({
+      type: 'RESET',
+      items: props.items,
+    })
+  }, [props.items])
+
   useEffect(() => {
     // Only set the current item on larger screens
     if (window.innerWidth >= 992 /* lgDown */) {
-      if (!currentItem && props.items.length > 0) {
-        setCurrentItem(props.items[0])
+      if (!currentItem && items.length > 0) {
+        setCurrentItem(items[0])
       }
     }
-  }, [currentItem, setCurrentItem, props.items])
+  }, [currentItem, setCurrentItem, items])
+
+  if (items.length < 1) {
+    return (
+      <Box
+        css={{
+          width: '100%',
+          height: `calc(100vh - ${HEADER_HEIGHT})`,
+          '@xlgDown': {
+            height: `calc(100vh - ${MOBILE_HEADER_HEIGHT})`,
+          },
+        }}
+      >
+        <EmptyHighlights />
+      </Box>
+    )
+  }
 
   return (
     <>
       <HStack
         css={{
           width: '100%',
-          height: '100%',
+          height: `calc(100vh - ${HEADER_HEIGHT})`,
+          '@xlgDown': {
+            height: `calc(100vh - ${MOBILE_HEADER_HEIGHT})`,
+          },
           bg: '$thBackground2',
+          overflow: 'hidden',
         }}
         distribution="start"
         alignment="start"
       >
         <Toaster />
-        <VStack
+        <HStack
           css={{
+            flexGrow: '0',
             width: '430px',
+            minWidth: '430px',
+            overflowY: 'scroll',
             height: '100%',
-            bg: '$thBackground',
             '@lgDown': {
               width: '100%',
+              minWidth: 'unset',
             },
           }}
           distribution="start"
           alignment="start"
         >
-          <HStack
+          <VStack
             css={{
-              width: 'calc(100% - 35px)',
-              height: '55px',
-              mx: '20px',
-              borderBottom: '1px solid $thBorderColor',
+              minHeight: `calc(100vh - ${HEADER_HEIGHT})`,
+              '@xlgDown': {
+                minHeight: `calc(100vh - ${MOBILE_HEADER_HEIGHT})`,
+              },
+              bg: '$thBackground',
             }}
-            alignment="center"
             distribution="start"
+            alignment="start"
           >
-            {/* <Box
+            <HStack
               css={{
-                display: 'flex',
-                height: '20px',
-                width: '20px',
-                marginLeft: 'auto',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: '1000px',
-                '&:hover': {
-                  bg: '#898989',
-                },
+                width: 'calc(100% - 35px)',
+                height: '55px',
+                mx: '20px',
+                borderBottom: '1px solid $thBorderColor',
               }}
-            >
-              <DotsThreeVertical size={200} color="#898989" weight="bold" />
-            </Box> */}
-          </HStack>
-          {props.items.map((linkedItem) => (
-            <Box
-              className="linkedItemCard"
-              data-testid="linkedItemCard"
-              id={linkedItem.node.id}
-              tabIndex={0}
-              key={linkedItem.node.id}
-              css={{
-                width: '100%',
-                height: '100%',
-                px: '15px',
-              }}
-              onClick={(event) => {
-                setCurrentItem(linkedItem)
-                event.preventDefault()
-              }}
-            >
-              {props.viewer && (
-                <LibraryItemCard
-                  item={linkedItem}
-                  viewer={props.viewer}
-                  selected={currentItem?.node.id == linkedItem.node.id}
-                />
-              )}
-            </Box>
-          ))}
-        </VStack>
+              alignment="center"
+              distribution="start"
+            ></HStack>
+            <LibraryItemsList
+              items={items}
+              viewer={props.viewer}
+              currentItem={currentItem}
+              setCurrentItem={setCurrentItem}
+              deleteHighlight={handleDelete}
+            />
+            <Box css={{ height: '100px' }} />
+          </VStack>
+        </HStack>
         {currentItem && (
           <>
             <SpanBox
               css={{
                 display: 'flex',
                 height: '100%',
+                width: '100%',
                 flexGrow: '1',
                 '@lgDown': {
                   display: 'none',
@@ -130,7 +189,22 @@ export function HighlightItemsLayout(
                 },
               }}
             >
-              <HighlightList item={currentItem} viewer={props.viewer} />
+              <HStack
+                css={{
+                  flexGrow: '1',
+                  overflowY: 'scroll',
+                  height: '100%',
+                  width: '100%',
+                }}
+                distribution="start"
+                alignment="start"
+              >
+                <HighlightList
+                  item={currentItem}
+                  viewer={props.viewer}
+                  deleteHighlight={handleDelete}
+                />
+              </HStack>
             </SpanBox>
           </>
         )}
@@ -139,10 +213,56 @@ export function HighlightItemsLayout(
   )
 }
 
+type LibraryItemsListProps = {
+  items: LibraryItem[]
+  viewer: UserBasicData | undefined
+
+  currentItem: LibraryItem | undefined
+  setCurrentItem: (item: LibraryItem | undefined) => void
+
+  deleteHighlight: (item: LibraryItemNode, highlight: Highlight) => void
+}
+
+function LibraryItemsList(props: LibraryItemsListProps): JSX.Element {
+  return (
+    <>
+      {props.items.map((linkedItem) => (
+        <Box
+          className="linkedItemCard"
+          data-testid="linkedItemCard"
+          id={linkedItem.node.id}
+          tabIndex={0}
+          key={linkedItem.node.id}
+          css={{
+            width: '100%',
+            height: '100%',
+            px: '15px',
+            cursor: 'pointer',
+          }}
+          onClick={(event) => {
+            props.setCurrentItem(linkedItem)
+            event.preventDefault()
+          }}
+        >
+          {props.viewer && (
+            <LibraryItemCard
+              item={linkedItem}
+              viewer={props.viewer}
+              selected={props.currentItem?.node.id == linkedItem.node.id}
+              deleteHighlight={props.deleteHighlight}
+            />
+          )}
+        </Box>
+      ))}
+    </>
+  )
+}
+
 type HighlightTitleCardProps = {
   item: LibraryItem
   viewer: UserBasicData
   selected: boolean
+  deleteHighlight: (item: LibraryItemNode, highlight: Highlight) => void
 }
 
 function LibraryItemCard(props: HighlightTitleCardProps): JSX.Element {
@@ -152,6 +272,7 @@ function LibraryItemCard(props: HighlightTitleCardProps): JSX.Element {
         <LibraryHighlightGridCard
           item={props.item.node}
           viewer={props.viewer}
+          deleteHighlight={props.deleteHighlight}
         />
       </SpanBox>
       <SpanBox css={{ display: 'none', '@lg': { display: 'flex' } }}>
@@ -238,6 +359,8 @@ function HighlightTitleCard(props: HighlightTitleCardProps): JSX.Element {
 type HighlightListProps = {
   item: LibraryItem
   viewer: UserBasicData | undefined
+
+  deleteHighlight: (item: LibraryItemNode, highlight: Highlight) => void
 }
 
 function HighlightList(props: HighlightListProps): JSX.Element {
@@ -266,7 +389,6 @@ function HighlightList(props: HighlightListProps): JSX.Element {
       <VStack
         css={{
           width: '425px',
-          height: '100%',
           borderRadius: '6px',
         }}
         alignment="start"
@@ -275,11 +397,10 @@ function HighlightList(props: HighlightListProps): JSX.Element {
         <HStack
           css={{
             width: '100%',
-            height: '100%',
             pt: '25px',
             borderBottom: '1px solid $thBorderColor',
           }}
-          alignment="center"
+          alignment="start"
           distribution="start"
         >
           <StyledText
@@ -288,7 +409,7 @@ function HighlightList(props: HighlightListProps): JSX.Element {
               fontSize: '15px',
               fontFamily: '$display',
               width: '100%',
-              color: '$thTextContrast2',
+              color: 'thTextContrast2',
             }}
           >
             HIGHLIGHTS
@@ -302,15 +423,17 @@ function HighlightList(props: HighlightListProps): JSX.Element {
             />
           </Dropdown>
         </HStack>
-        <VStack css={{ height: '100%', width: '100%' }} distribution="start">
+        <VStack css={{ width: '100%' }} distribution="start" alignment="start">
           {(props.item.node.highlights ?? []).map((highlight) => (
             <HighlightItem
               key={highlight.id}
               viewer={props.viewer}
               item={props.item.node}
               highlight={highlight}
+              deleteHighlight={props.deleteHighlight}
             />
           ))}
+          <Box css={{ height: '100px' }} />
         </VStack>
       </VStack>
     </HStack>
