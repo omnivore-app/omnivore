@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import app.omnivore.omnivore.Routes
 import app.omnivore.omnivore.ui.auth.LoginViewModel
+import app.omnivore.omnivore.ui.settings.LogoutDialog
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import io.intercom.android.sdk.Intercom
@@ -49,6 +50,7 @@ fun SettingsView(
   ) { paddingValues ->
     SettingsViewContent(
       loginViewModel = loginViewModel,
+      navController = navController,
       modifier = Modifier
         .padding(
           top = paddingValues.calculateTopPadding(),
@@ -59,7 +61,7 @@ fun SettingsView(
 }
 
 @Composable
-fun SettingsViewContent(loginViewModel: LoginViewModel, modifier: Modifier) {
+fun SettingsViewContent(loginViewModel: LoginViewModel, navController: NavHostController, modifier: Modifier) {
   val showLogoutDialog = remember { mutableStateOf(false)  }
 
   Box(
@@ -82,24 +84,24 @@ fun SettingsViewContent(loginViewModel: LoginViewModel, modifier: Modifier) {
       SettingRow(text = "Emails") { Log.d("settings", "emails button tapped") }
       RowDivider()
       SettingRow(text = "Subscriptions") { Log.d("settings", "subscriptions button tapped") }
-      RowDivider()
-      SettingRow(text = "Clubs") { Log.d("settings", "clubs button tapped") }
+//      RowDivider()
+//      SettingRow(text = "Clubs") { Log.d("settings", "clubs button tapped") }
 
       SectionSpacer()
 
-      SettingRow(text = "Push Notifications") { Log.d("settings", "pn button tapped") }
-      RowDivider()
-      SettingRow(text = "Text to Speech") { Log.d("settings", "tts button tapped") }
+//      SettingRow(text = "Push Notifications") { Log.d("settings", "pn button tapped") }
+//      RowDivider()
+//      SettingRow(text = "Text to Speech") { Log.d("settings", "tts button tapped") }
+//
+//      SectionSpacer()
 
-      SectionSpacer()
-
-      SettingRow(text = "Documentation") { Log.d("settings", "docs button tapped") }
+      SettingRow(text = "Documentation") { navController.navigate(Routes.Documentation.route) }
       RowDivider()
       SettingRow(text = "Feedback") { Intercom.client().present(space = IntercomSpace.Messages) }
       RowDivider()
-      SettingRow(text = "Privacy Policy") { Log.d("settings", "privacy button tapped") }
+      SettingRow(text = "Privacy Policy") { navController.navigate(Routes.PrivacyPolicy.route) }
       RowDivider()
-      SettingRow(text = "Terms and Conditions") { Log.d("settings", "t&c button tapped") }
+      SettingRow(text = "Terms and Conditions") { navController.navigate(Routes.TermsAndConditions.route) }
 
       SectionSpacer()
 
@@ -118,38 +120,6 @@ fun SettingsViewContent(loginViewModel: LoginViewModel, modifier: Modifier) {
       }
     }
   }
-}
-
-
-@Composable
-fun LogoutDialog(onClose: (Boolean) -> Unit) {
-  val context = LocalContext.current
-
-  AlertDialog(
-    onDismissRequest = { onClose(false) },
-    title = { Text(text = "Logout") },
-    text = {
-      Text("Are you sure you want to logout?")
-    },
-    confirmButton = {
-      Button(onClick = {
-        // Sign out google users
-        val signInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-          .build()
-
-        val googleSignIn = GoogleSignIn.getClient(context, signInOptions)
-        googleSignIn.signOut()
-        onClose(true)
-      }) {
-        Text("Confirm")
-      }
-    },
-    dismissButton = {
-      Button(onClick = { onClose(false) }) {
-        Text("Cancel")
-      }
-    }
-  )
 }
 
 @Composable

@@ -18,6 +18,7 @@ import app.omnivore.omnivore.ui.auth.LoginViewModel
 import app.omnivore.omnivore.ui.auth.WelcomeScreen
 import app.omnivore.omnivore.ui.library.LibraryView
 import app.omnivore.omnivore.ui.library.LibraryViewModel
+import app.omnivore.omnivore.ui.settings.PolicyWebView
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 @Composable
@@ -77,6 +78,18 @@ fun PrimaryNavigator(
 
     composable(Routes.Settings.route) {
       SettingsView(loginViewModel = loginViewModel, navController = navController)
+    }
+
+    composable(Routes.Documentation.route) {
+      PolicyWebView(navController = navController, url = "https://docs.omnivore.app")
+    }
+
+    composable(Routes.PrivacyPolicy.route) {
+      PolicyWebView(navController = navController, url = "https://omnivore.app/app/privacy")
+    }
+
+    composable(Routes.TermsAndConditions.route) {
+      PolicyWebView(navController = navController, url = "https://omnivore.app/app/terms")
     }
   }
 }
