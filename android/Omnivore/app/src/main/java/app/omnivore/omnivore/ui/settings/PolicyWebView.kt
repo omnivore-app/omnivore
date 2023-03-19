@@ -2,6 +2,7 @@ package app.omnivore.omnivore.ui.settings
 
 import android.annotation.SuppressLint
 import android.view.ViewGroup
+import android.webkit.CookieManager
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -64,7 +65,9 @@ fun PolicyWebView(navController: NavHostController, url: String) {
             }
           }
 
-          loadUrl(url)
+//          val themeID = if (isDarkMode) "Gray" else "LightGray"
+//          loadUrl(url, mutableMapOf("Set-Cookie" to "theme=$themeID; Max-Age=31536000;"))
+          loadUrl(url, mutableMapOf())
         }
       }, update = {}
       )
