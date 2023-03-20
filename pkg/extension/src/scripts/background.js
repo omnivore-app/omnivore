@@ -19,6 +19,9 @@ let authToken = undefined
 const omnivoreURL = process.env.OMNIVORE_URL
 const omnivoreGraphqlURL = process.env.OMNIVORE_GRAPHQL_URL
 
+let pendingRequests = []
+let completedRequests = {}
+
 function getCurrentTab() {
   return new Promise((resolve) => {
     browserApi.tabs.query(
@@ -242,13 +245,97 @@ async function saveUrl(currentTab, url) {
 }
 
 async function saveApiRequest(currentTab, query, field, input) {
+  const toolbarCtx = {
+    requestId: input.clientRequestId,
+  }
+  completedRequests[toolbarCtx.requestId] = undefined
+
+  const requestBody = JSON.stringify({
+    query,
+    variables: {
+      input,
+    },
+  })
+
   browserApi.tabs.sendMessage(currentTab.id, {
     action: ACTIONS.ShowToolbar,
     payload: {
       type: 'loading',
-      requestId: input.clientRequestId,
+      ctx: toolbarCtx,
     },
   })
+
+  const wait = await new Promise((resolve, reject) => {
+    setTimeout(() => {
+      console.log(' -- resolving timeout.')
+      resolve()
+    }, 5000)
+  })
+
+  try {
+    const result = await gqlRequest(omnivoreGraphqlURL + 'graphql', requestBody)
+    if (result[field]['errorCodes']) {
+      if (result[field]['errorCodes'][0] === 'UNAUTHORIZED') {
+        browserApi.tabs.sendMessage(currentTab.id, {
+          action: ACTIONS.UpdateStatus,
+          payload: {
+            status: 'logged_out',
+            message: 'You are not logged in.',
+            ctx: toolbarCtx,
+          },
+        })
+        // messagePayload.errorCode = 401
+        // messagePayload.url = omnivoreURL
+        clearClickCompleteState()
+      } else {
+        browserApi.tabs.sendMessage(currentTab.id, {
+          action: ACTIONS.UpdateStatus,
+          payload: {
+            status: 'failure',
+            message: 'Unable to save page.',
+            ctx: toolbarCtx,
+          },
+        })
+      }
+    }
+
+    const url = result[field] ? result[field]['url'] : undefined
+    const requestId = result[field]
+      ? result[field]['clientRequestId']
+      : undefined
+    console.log(' got requestId', requestId, 'from', result[field])
+    browserApi.tabs.sendMessage(currentTab.id, {
+      action: ACTIONS.UpdateStatus,
+      payload: {
+        status: 'success',
+        target: 'page',
+        ctx: {
+          requestId: toolbarCtx.requestId,
+          responseId: requestId,
+          link: url,
+        },
+      },
+    })
+
+    completedRequests[toolbarCtx.requestId] = {
+      url,
+      requestId,
+    }
+  } catch (err) {
+    console.log('error saving: ', err)
+  }
+
+  processPendingRequests(currentTab.id)
+  // if (pendingRequests) {
+  //   pendingRequests.map((pr) => {
+  //     console.log(
+  //       'pending request: ',
+  //       pr,
+  //       pr.clientRequestId,
+  //       completedRequests[pr.clientRequestId]
+  //     )
+  //   })
+  // }
 
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest()
@@ -290,6 +377,26 @@ async function saveApiRequest(currentTab, query, field, input) {
     })
     return undefined
   })
+}
+
+async function processPendingRequests(tabId) {
+  const tabRequests = pendingRequests.filter((pr) => pr.tabId === tabId)
+
+  tabRequests.forEach((pr) => {
+    console.log('processing: ', pr)
+    console.log(
+      ' -- completed request: ',
+      completedRequests[pr.clientRequestId]
+    )
+    console.log('  ----- all requests', completedRequests)
+    const idx = pendingRequests.findIndex((opr) => pr.id === opr.id)
+    console.log(' -- idx: ', idx)
+    if (idx > -1) {
+      pendingRequests.splice(idx, 1)
+    }
+  })
+
+  console.log('updated pending requests: ', pendingRequests)
 }
 
 async function saveArticle(tab) {
@@ -723,19 +830,31 @@ function init() {
       updateActionIcon(sender.tab.id, request.payload.value)
     }
 
+    console.log('request action: ', request.action, request.payload)
     if (request.action === ACTIONS.EditTitle) {
-      updatePageTitle(
-        omnivoreGraphqlURL + 'graphql',
-        request.payload.pageId,
-        request.payload.title
-      )
-        .then(() => {
-          updateClientStatus('title', 'success', 'Title updated.')
-        })
-        .catch((err) => {
-          console.log('caught error updating title: ', err)
-          updateClientStatus('title', 'failure', 'Error updating title.')
-        })
+      console.log('PUSHING PENDING TITLE: ', pendingRequests)
+      pendingRequests.push({
+        id: uuidv4(),
+        type: 'EDIT_TITLE',
+        tabId: sender.tab.id,
+        title: request.payload.title,
+        clientRequestId: request.payload.ctx.requestId,
+      })
+
+      processPendingRequests(sender.tab.id)
+
+      // updatePageTitle(
+      //   omnivoreGraphqlURL + 'graphql',
+      //   request.payload.pageId,
+      //   request.payload.title
+      // )
+      //   .then(() => {
+      //     updateClientStatus('title', 'success', 'Title updated.')
+      //   })
+      //   .catch((err) => {
+      //     console.log('caught error updating title: ', err)
+      //     updateClientStatus('title', 'failure', 'Error updating title.')
+      //   })
     }
 
     if (request.action === ACTIONS.SetLabels) {

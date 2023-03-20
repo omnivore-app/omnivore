@@ -4,8 +4,7 @@
   let currentToastEl
   let hideToastTimeout
   let labels = []
-  let requestId
-  let finalURL
+  let ctx = undefined
 
   const systemIcons = {
     spinner: `
@@ -150,18 +149,9 @@
     }
   }
 
-  // Called for all messages
-  function handleMessage(action, payload) {
-    console.log('handling message: ', action, payload)
-    if (payload && 'requestId' in payload && payload.requestId) {
-      requestId = payload.requestId ?? requestId
-    }
-    if (payload && 'link' in payload && payload.link) {
-      finalURL = payload.link
-    }
-  }
-
   function showToolbar(payload) {
+    ctx = payload.ctx
+
     showToolbarAsync(payload).catch((err) =>
       console.log('error showing toast', err)
     )
@@ -414,10 +404,11 @@
         'Updating title...'
       )
 
+      console.log('submitting EDIT TITLE')
       browserApi.runtime.sendMessage({
         action: ACTIONS.EditTitle,
         payload: {
-          pageId: requestId,
+          ctx: ctx,
           title: event.target.elements.title.value,
         },
       })
@@ -514,10 +505,12 @@
     )
     container.setAttribute('data-state', 'open')
 
-    if (finalURL) {
+    if (ctx && ctx.finalURL) {
       window.open(finalURL)
+    } else if (ctx) {
+      window.open(`https://demo.omnivore.app/article/sr/${ctx.requestId}`)
     } else {
-      window.open(`https://demo.omnivore.app/article/sr/${requestId}`)
+      alert('Error no URL found.')
     }
 
     setTimeout(() => {
@@ -537,6 +530,5 @@
 
   window.showToolbar = showToolbar
   window.updateStatus = updateStatus
-  window.handleMessage = handleMessage
   window.updateLabelsFromCache = updateLabelsFromCache
 })()

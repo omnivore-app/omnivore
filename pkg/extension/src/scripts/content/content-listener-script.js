@@ -35,8 +35,7 @@
         return true
       }
 
-      window.handleMessage(action, payload)
-
+      console.log('handling ', action, payload)
       if (action === ACTIONS.Ping) {
         sendResponse({ pong: true })
       } else if (action === ACTIONS.ShowToolbar) {
