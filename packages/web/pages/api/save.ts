@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
+import { v4 as uuidv4 } from 'uuid'
 import { SaveResponseData } from '../../lib/networking/mutations/saveUrlMutation'
 import { ssrFetcher } from '../../lib/networking/networkHelpers'
-import { v4 as uuidv4 } from 'uuid'
 
 const saveUrl = async (req: NextApiRequest, url: URL) => {
   const clientRequestId = uuidv4()
@@ -50,8 +50,8 @@ export default async (
   const url = new URL(urlStr as string)
   const saveResult = await saveUrl(req, url)
   console.log('saveResult: ', saveResult)
-  if (saveResult?.jobId) {
-    res.redirect(`/sr/${saveResult?.jobId}`)
+  if (saveResult?.url) {
+    res.redirect(`?url=${encodeURIComponent(saveResult?.url)}`)
     return
   }
 
