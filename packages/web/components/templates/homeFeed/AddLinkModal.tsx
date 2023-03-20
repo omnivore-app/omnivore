@@ -6,8 +6,11 @@ import { Button } from '../../elements/Button'
 import { FormInput } from '../../elements/FormElements'
 import { Box, VStack } from '../../elements/LayoutPrimitives'
 import {
-  ModalButtonBar, ModalContent,
-  ModalOverlay, ModalRoot, ModalTitleBar
+  ModalButtonBar,
+  ModalContent,
+  ModalOverlay,
+  ModalRoot,
+  ModalTitleBar,
 } from '../../elements/ModalPrimitives'
 
 type AddLinkModalProps = {
@@ -20,7 +23,7 @@ export function AddLinkModal(props: AddLinkModalProps): JSX.Element {
   const handleLinkSubmission = useCallback(
     async (link: string) => {
       const result = await saveUrlMutation(link)
-      if (result && result.url) {
+      if (result) {
         toast(
           () => (
             <Box>
@@ -30,7 +33,9 @@ export function AddLinkModal(props: AddLinkModalProps): JSX.Element {
                 style="ctaDarkYellow"
                 autoFocus
                 onClick={() => {
-                  window.location.href = `/article?url=${encodeURIComponent(result.url || link)}`
+                  window.location.href = `/article?url=${encodeURIComponent(
+                    link
+                  )}`
                 }}
               >
                 Read Now

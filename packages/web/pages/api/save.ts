@@ -51,7 +51,7 @@ export default async (
   const saveResult = await saveUrl(req, url)
   console.log('saveResult: ', saveResult)
   if (saveResult?.url) {
-    res.redirect(`?url=${encodeURIComponent(saveResult?.url)}`)
+    res.redirect(`?url=${encodeURIComponent(url.toString())}`)
     return
   }
 
