@@ -13,5 +13,7 @@ class SettingsViewModel @Inject constructor(
   private val dataService: DataService,
   private val datastoreRepo: DatastoreRepository
 ): ViewModel() {
-  fun stubby() {}
+  fun resetDataCache() {
+
+  }
 }

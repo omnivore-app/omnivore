@@ -9,9 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -22,6 +20,7 @@ import app.omnivore.omnivore.R
 import app.omnivore.omnivore.Routes
 import app.omnivore.omnivore.ui.auth.LoginViewModel
 import app.omnivore.omnivore.ui.settings.LogoutDialog
+import app.omnivore.omnivore.ui.settings.ManageAccountDialog
 import app.omnivore.omnivore.ui.settings.SettingsViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -68,6 +67,7 @@ fun SettingsView(
 @Composable
 fun SettingsViewContent(loginViewModel: LoginViewModel, settingsViewModel: SettingsViewModel, navController: NavHostController, modifier: Modifier) {
   val showLogoutDialog = remember { mutableStateOf(false)  }
+  val showManageAccountDialog = remember { mutableStateOf(false ) }
 
   Box(
     modifier = modifier.fillMaxSize()
@@ -110,8 +110,8 @@ fun SettingsViewContent(loginViewModel: LoginViewModel, settingsViewModel: Setti
 
       SectionSpacer()
 
-//      SettingRow(text = "Manage Account") { Log.d("settings", "logout button tapped") }
-//      RowDivider()
+      SettingRow(text = "Manage Account") { showManageAccountDialog.value = true }
+      RowDivider()
       SettingRow(text = "Logout", includeIcon = false) { showLogoutDialog.value = true }
       RowDivider()
     }
@@ -123,6 +123,13 @@ fun SettingsViewContent(loginViewModel: LoginViewModel, settingsViewModel: Setti
         }
         showLogoutDialog.value = false
       }
+    }
+
+    if (showManageAccountDialog.value) {
+      ManageAccountDialog(
+        onDismiss = { showManageAccountDialog.value = false },
+        settingsViewModel = settingsViewModel
+      )
     }
   }
 }
