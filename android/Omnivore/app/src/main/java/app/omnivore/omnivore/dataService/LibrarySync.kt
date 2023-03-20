@@ -28,6 +28,8 @@ suspend fun DataService.librarySearch(cursor: String?, query: String): SavedItem
   db.savedItemLabelDao().insertAll(labels)
   db.savedItemAndSavedItemLabelCrossRefDao().insertAll(crossRefs)
 
+  Log.d("sync", "found ${searchResult.items.size} items with search api. Query: $query")
+
   return SavedItemSyncResult(
     hasError = false,
     hasMoreItems = false,
@@ -92,6 +94,8 @@ suspend fun DataService.sync(since: String, cursor: String?, limit: Int = 20): S
 
   db.savedItemLabelDao().insertAll(labels)
   db.savedItemAndSavedItemLabelCrossRefDao().insertAll(crossRefs)
+
+  Log.d("sync", "found ${syncResult.items.size} items with sync api. Since: $since")
 
   return SavedItemSyncResult(
     hasError = false,

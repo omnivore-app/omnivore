@@ -333,8 +333,10 @@ class LibraryViewModel @Inject constructor(
     }
 
     activeLabelsLiveData.value?.let {
-      query += " label:"
-      query += it.joinToString { label -> label.name }
+      if (it.isNotEmpty()) {
+        query += " label:"
+        query += it.joinToString { label -> label.name }
+      }
     }
 
     return query
