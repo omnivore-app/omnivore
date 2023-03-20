@@ -211,11 +211,20 @@ async function saveApiRequest(currentTab, query, field, input) {
 
   try {
     const result = await gqlRequest(omnivoreGraphqlURL + 'graphql', requestBody)
+    console.log(
+      'result: ',
+      field,
+      result,
+      result[field],
+      result[field]['errorCodes']
+    )
+
     if (result[field]['errorCodes']) {
       if (result[field]['errorCodes'][0] === 'UNAUTHORIZED') {
         browserApi.tabs.sendMessage(currentTab.id, {
           action: ACTIONS.UpdateStatus,
           payload: {
+            target: 'logged_out',
             status: 'logged_out',
             message: 'You are not logged in.',
             ctx: toolbarCtx,
@@ -232,6 +241,7 @@ async function saveApiRequest(currentTab, query, field, input) {
           },
         })
       }
+      return
     }
 
     const url = result[field] ? result[field]['url'] : undefined
@@ -543,6 +553,7 @@ function onExtensionClick(tabId) {
 function checkAuthOnFirstClickPostInstall(tabId) {
   return getStorageItem('postInstallClickComplete').then(
     async (postInstallClickComplete) => {
+      return true
       if (postInstallClickComplete) return true
 
       if (

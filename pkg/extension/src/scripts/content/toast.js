@@ -92,7 +92,14 @@
       height: 360px !important;
   `
     fragment.appendChild(iframeEl)
+    document.body.appendChild(fragment)
+
     return fragment
+  }
+
+  function displayLoggedOutView() {
+    console.log('displaying logged out view')
+    createCtaModal(ctx.omnivoreURL)
   }
 
   function cancelAutoDismiss() {
@@ -112,6 +119,9 @@
     console.log('updated ctx: ', ctx)
 
     switch (payload.target) {
+      case 'logged_out':
+        displayLoggedOutView()
+        break
       case 'page':
         {
           const statusBox = currentToastEl.shadowRoot.querySelector(
