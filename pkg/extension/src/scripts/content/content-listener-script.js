@@ -35,7 +35,7 @@
         return true
       }
 
-      handleMessage(action, payload)
+      window.handleMessage(action, payload)
 
       if (action === ACTIONS.Ping) {
         sendResponse({ pong: true })

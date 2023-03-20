@@ -86,3 +86,44 @@ function updatePageTitle(apiUrl, pageId, title) {
       console.log('updated title: ', data)
     })
 }
+
+function setLabels(apiUrl, pageId, labelIds) {
+  console.log('setting labels: ', apiUrl, pageId, labelIds)
+  const mutation = JSON.stringify({
+    query: `mutation SetLabels($input: SetLabelsInput!) {
+      setLabels(input: $input) {
+        ... on SetLabelsSuccess {
+          labels {
+            id
+          }
+        }
+        ... on SetLabelsError {
+          errorCodes
+        }
+      }
+    }
+  `,
+    variables: {
+      input: {
+        pageId,
+        labelIds,
+      },
+    },
+  })
+
+  return fetch(apiUrl, {
+    method: 'POST',
+    redirect: 'follow',
+    credentials: 'include',
+    mode: 'cors',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: mutation,
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log('updated labels: ', data)
+    })
+}

@@ -60,11 +60,21 @@
     const file = await fetch(browserApi.runtime.getURL('views/toast.html'))
     const html = await file.text()
 
+    const root = document.createElement('div')
+    root.attachShadow({ mode: 'open' })
+    if (root.shadowRoot) {
+      root.shadowRoot.innerHTML = `<style>:host {all initial;}</style>`
+    }
+
     const toastEl = document.createElement('div')
     toastEl.id = '#omnivore-toast'
     toastEl.innerHTML = html
+    root.shadowRoot.appendChild(toastEl)
 
-    return toastEl
+    document.body.appendChild(root)
+    connectButtons(root)
+
+    return root
   }
 
   function createCtaModal(url) {
@@ -83,16 +93,14 @@
   }
 
   function hideToastAfter(timeInMs) {
-    console.log('hiding toast in: ', timeInMs)
     if (hideToastTimeout) clearTimeout(hideToastTimeout)
     hideToastTimeout = setTimeout(function () {
-      console.log('clearing currentToastEl:', currentToastEl)
       currentToastEl.remove()
+      currentToastEl = undefined
     }, timeInMs)
   }
 
   function cancelAutoDismiss() {
-    console.log('canceling auto dismiss')
     if (hideToastTimeout) clearTimeout(hideToastTimeout)
   }
 
@@ -102,19 +110,44 @@
       return
     }
 
-    const statusBox = currentToastEl.querySelector('.omnivore-toast-statusBox')
-    switch (payload.status) {
-      case 'loading':
-        statusBox.innerHTML = systemIcons.animatedLoader
+    switch (payload.target) {
+      case 'page':
+        {
+          const statusBox = currentToastEl.shadowRoot.querySelector(
+            '.omnivore-toast-statusBox'
+          )
+          switch (payload.status) {
+            case 'loading':
+              statusBox.innerHTML = systemIcons.animatedLoader
+              break
+            case 'success':
+              statusBox.innerHTML = systemIcons.success
+              break
+          }
+        }
         break
-      case 'success':
-        statusBox.innerHTML = systemIcons.success
+      case 'title':
+        updateStatusBox(
+          '#omnivore-edit-title-status',
+          payload.status,
+          payload.message,
+          payload.status == 'success' ? 2500 : undefined
+        )
+        break
+      case 'labels':
+        updateStatusBox(
+          '#omnivore-edit-labels-status',
+          payload.status,
+          payload.message,
+          payload.status == 'success' ? 2500 : undefined
+        )
         break
     }
   }
 
   // Called for all messages
   function handleMessage(action, payload) {
+    console.log('handling message: ', action, payload)
     if (payload && 'requestId' in payload && payload.requestId) {
       requestId = payload.requestId ?? requestId
     }
@@ -151,8 +184,10 @@
     // let styleAsError = false
     if (payload.type === 'loading') {
       duration = 5000
-      const image = currentToastEl.querySelector('.omnivore-toast-statusBox')
-      image.innerHTML = systemIcons.animatedLoader
+      updateStatus({
+        status: 'loading',
+        target: 'page',
+      })
     }
     // } else if (payload.type !== 'error') {
     //   currentIconEl.innerHTML = systemIcons.success
@@ -170,11 +205,6 @@
     //   updateToastText(payload)
     // }
 
-    if (currentToastEl.parentNode !== bodyEl) {
-      bodyEl.appendChild(currentToastEl)
-      connectButtons()
-    }
-
     hideToastAfter(duration)
 
     // remove any existing toasts not created by current content script
@@ -186,10 +216,37 @@
     })
   }
 
+  function updateStatusBox(boxId, state, message, dismissAfter) {
+    const statusBox = currentToastEl.shadowRoot.querySelector(boxId)
+    const image = (() => {
+      switch (state) {
+        case 'loading':
+          return systemIcons.animatedLoader
+        case 'success':
+          return systemIcons.success
+        default:
+          return undefined
+      }
+    })()
+    if (image) {
+      statusBox.innerHTML = `<span style='padding-right: 10px'>${image}</span><span style='line-height: 20px'>${message}</span>`
+    } else {
+      statusBox.innerText = message
+    }
+    if (dismissAfter) {
+      setTimeout(() => {
+        statusBox.innerHTML = null
+      }, dismissAfter)
+    }
+  }
+
   function toggleRow(rowId) {
-    const container = document.getElementById(rowId)
+    const container = currentToastEl.shadowRoot.querySelector(rowId)
+    console.log(' toggling', rowId, container)
     const initialState = container?.getAttribute('data-state')
-    const rows = document.querySelectorAll('.omnivore-toast-func-row')
+    const rows = currentToastEl.shadowRoot.querySelectorAll(
+      '.omnivore-toast-func-row'
+    )
 
     rows.forEach((r) => {
       r.setAttribute('data-state', 'closed')
@@ -201,17 +258,19 @@
     }
   }
 
-  function connectButtons() {
+  function connectButtons(root) {
     const btns = [
-      { id: 'omnivore-toast-edit-title-btn', func: editTitle },
-      { id: 'omnivore-toast-edit-labels-btn', func: editLabels },
-      { id: 'omnivore-toast-read-now-btn', func: readNow },
-      { id: 'omnivore-open-menu-btn', func: openMenu },
-      { id: 'omnivore-toast-close-button', func: closeToast },
+      { id: '#omnivore-toast-edit-title-btn', func: editTitle },
+      { id: '#omnivore-toast-edit-labels-btn', func: editLabels },
+      { id: '#omnivore-toast-read-now-btn', func: readNow },
+      { id: '#omnivore-open-menu-btn', func: openMenu },
+      { id: '#omnivore-toast-close-button', func: closeToast },
     ]
 
     for (const btnInfo of btns) {
-      const btn = document.getElementById(btnInfo.id)
+      console.log('root', root, 'shadowRoot', root.shadowRoot)
+      const btn = root.shadowRoot.querySelector(btnInfo.id)
+      console.log(' connecting btn', btn, 'tp', btnInfo.func)
       if (btn) {
         btn.addEventListener('click', btnInfo.func)
       }
@@ -219,7 +278,6 @@
   }
 
   function createLabelRow(label, idx) {
-    console.log('createLabelRow, ', label, idx)
     const element = document.createElement('button')
     const dot = document.createElement('span')
     dot.style = 'width:10px;height:10px;border-radius:1000px;'
@@ -232,10 +290,10 @@
     check.style = 'margin-left: auto;pointer-events: none;'
     check.className = 'checkbox'
     check.innerHTML = `
-          <svg width="14" height="11" viewBox="0 0 14 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M13.7411 1.75864L4.79692 10.7028L0.69751 6.60341L1.74845 5.55246L4.79692 8.59348L12.6902 0.707703L13.7411 1.75864Z" fill="#888888"/>
-          </svg>
-        `
+      <svg width="14" height="11" viewBox="0 0 14 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M13.7411 1.75864L4.79692 10.7028L0.69751 6.60341L1.74845 5.55246L4.79692 8.59348L12.6902 0.707703L13.7411 1.75864Z" fill="#888888"/>
+      </svg>
+    `
 
     element.appendChild(dot)
     element.appendChild(title)
@@ -243,6 +301,7 @@
 
     element.onclick = labelClick
     element.onkeydown = labelKeyDown
+    element.setAttribute('data-label-id', label.id)
     element.setAttribute('data-label-idx', idx)
     element.setAttribute('data-label-selected', 'off')
     element.setAttribute('tabIndex', '-1')
@@ -264,7 +323,6 @@
   }
 
   function labelKeyDown(event) {
-    console.log('event.key.toLowerCase(): ', event.key.toLowerCase())
     switch (event.key.toLowerCase()) {
       case 'arrowup': {
         if (
@@ -276,13 +334,6 @@
 
         const idx = event.target.getAttribute('data-label-idx')
         let prevIdx = idx && Number(idx) != NaN ? Number(idx) - 1 : 0
-        console.log(
-          ' prevIdx: ',
-          prevIdx,
-          'is save',
-          event.target ==
-            event.target.form.querySelector('#omnivore-save-button')
-        )
         if (
           event.target ==
           event.target.form.querySelector('#omnivore-save-button')
@@ -290,7 +341,7 @@
           // Focus the last label index
           const maxItemIdx = Math.max(
             ...Array.from(
-              document.querySelectorAll(`button[data-label-idx]`)
+              event.target.form.querySelectorAll(`button[data-label-idx]`)
             ).map((b) => Number(b.getAttribute('data-label-idx')))
           )
           if (maxItemIdx != NaN) {
@@ -298,7 +349,7 @@
           }
         }
 
-        const prev = document.querySelector(
+        const prev = event.target.form.querySelector(
           `button[data-label-idx='${prevIdx}']`
         )
         if (prev) {
@@ -313,7 +364,7 @@
       case 'arrowdown': {
         const idx = event.target.getAttribute('data-label-idx')
         const nextIdx = idx && Number(idx) != NaN ? Number(idx) + 1 : 0
-        const next = document.querySelector(
+        const next = event.target.form.querySelector(
           `button[data-label-idx='${nextIdx}']`
         )
         if (next) {
@@ -334,10 +385,6 @@
           'data-label-selected',
           labelSelected == 'on' ? 'off' : 'on'
         )
-        console.log(
-          'data-label-selected:',
-          event.target.getAttribute('data-label-selected')
-        )
         event.preventDefault()
         break
       }
@@ -346,18 +393,29 @@
 
   function editTitle() {
     cancelAutoDismiss()
-    toggleRow('omnivore-edit-title-row')
-    document.getElementById('omnivore-edit-title-textarea')?.focus()
+    toggleRow('#omnivore-edit-title-row')
+    currentToastEl.shadowRoot
+      .querySelector('#omnivore-edit-title-textarea')
+      ?.focus()
 
-    document.getElementById('omnivore-edit-title-form').onsubmit = (event) => {
-      event.preventDefault()
+    currentToastEl.shadowRoot.querySelector(
+      '#omnivore-edit-title-form'
+    ).onsubmit = (event) => {
+      updateStatusBox(
+        '#omnivore-edit-title-status',
+        'loading',
+        'Updating title...'
+      )
+
       browserApi.runtime.sendMessage({
         action: ACTIONS.EditTitle,
         payload: {
           pageId: requestId,
-          title: document.getElementById('omnivore-edit-title-textarea').value,
+          title: event.target.elements.title.value,
         },
       })
+
+      event.preventDefault()
     }
   }
 
@@ -368,16 +426,22 @@
       labels = cachedLabels
     })
 
-    toggleRow('omnivore-edit-labels-row')
-    document.getElementById('omnivore-edit-label-text')?.focus()
-    const list = document.getElementById('omnivore-edit-labels-list')
-    document
-      .getElementById('omnivore-edit-label-text')
+    toggleRow('#omnivore-edit-labels-row')
+    currentToastEl.shadowRoot
+      .querySelector('#omnivore-edit-label-text')
+      ?.focus()
+    const list = currentToastEl.shadowRoot.querySelector(
+      '#omnivore-edit-labels-list'
+    )
+    currentToastEl.shadowRoot
+      .querySelector('#omnivore-edit-label-text')
       .addEventListener('input', function () {
         updateLabels(this.value)
       })
 
-    document.getElementById('omnivore-edit-label-text').onkeydown = labelKeyDown
+    currentToastEl.shadowRoot.querySelector(
+      '#omnivore-edit-label-text'
+    ).onkeydown = labelKeyDown
 
     if (list) {
       list.innerHTML = ''
@@ -387,19 +451,35 @@
       })
     }
 
-    document.getElementById('omnivore-edit-labels-form').onsubmit = (event) => {
+    currentToastEl.shadowRoot.querySelector(
+      '#omnivore-edit-labels-form'
+    ).onsubmit = (event) => {
       event.preventDefault()
+      const statusBox = currentToastEl.shadowRoot.querySelector(
+        '#omnivore-edit-labels-status'
+      )
+      statusBox.innerText = 'Updating labels...'
+      const labelIds = Array.from(
+        currentToastEl.shadowRoot.querySelectorAll(
+          `button[data-label-selected="on"]`
+        )
+      ).map((e) => e.getAttribute('data-label-id'))
+      console.log('selected label ids: ', labelIds)
+
       browserApi.runtime.sendMessage({
-        action: ACTIONS.EditTitle,
+        action: ACTIONS.SetLabels,
         payload: {
-          labels: [],
+          pageId: requestId,
+          labelIds: labelIds,
         },
       })
     }
   }
 
   async function updateLabels(filterValue) {
-    const list = document.getElementById('omnivore-edit-labels-list')
+    const list = currentToastEl.shadowRoot.querySelector(
+      '#omnivore-edit-labels-list'
+    )
     if (list) {
       list.innerHTML = ''
       if (filterValue) {
@@ -422,7 +502,9 @@
 
   function readNow() {
     cancelAutoDismiss()
-    const container = document.getElementById('omnivore-toast-container')
+    const container = currentToastEl.shadowRoot.querySelector(
+      '#omnivore-toast-container'
+    )
     container.setAttribute('data-state', 'open')
 
     if (finalURL) {
@@ -442,8 +524,8 @@
   }
 
   function closeToast() {
-    console.log('closing toast')
     currentToastEl.remove()
+    currentToastEl = undefined
   }
 
   window.showToolbar = showToolbar

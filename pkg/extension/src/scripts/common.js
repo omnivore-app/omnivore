@@ -36,6 +36,7 @@ window.ACTIONS = {
   UpdateStatus: 'UPDATE_STATUS',
 
   EditTitle: 'EDIT_TITLE',
+  SetLabels: 'SET_LABELS',
 }
 
 window.DONT_REMOVE_ELEMENTS = ['meta', 'script', 'title']

@@ -118,6 +118,7 @@ function savePdfFile(tab, url, contentType, contentObjUrl) {
               action: ACTIONS.UpdateStatus,
               payload: {
                 status: 'success',
+                target: 'page',
                 requestId: createdPageId,
               },
             })
@@ -212,6 +213,7 @@ function handleSaveResponse(tab, field, xhr) {
         action: ACTIONS.UpdateStatus,
         payload: {
           status: 'success',
+          target: 'page',
           link: url ?? omnivoreURL + '/home',
         },
       })
@@ -770,12 +772,35 @@ function init() {
     }
 
     if (request.action === ACTIONS.EditTitle) {
-      console.log('EDITING TITLE REQUEST: ')
       updatePageTitle(
         omnivoreGraphqlURL + 'graphql',
         request.payload.pageId,
         request.payload.title
-      )
+      ).then(() => {
+        browserApi.tabs.sendMessage(sender.tab.id, {
+          action: ACTIONS.UpdateStatus,
+          payload: {
+            target: 'title',
+            status: 'success',
+          },
+        })
+      })
+    }
+
+    if (request.action === ACTIONS.SetLabels) {
+      setLabels(
+        omnivoreGraphqlURL + 'graphql',
+        request.payload.pageId,
+        request.payload.labelIds
+      ).then(() => {
+        browserApi.tabs.sendMessage(sender.tab.id, {
+          action: ACTIONS.UpdateStatus,
+          payload: {
+            target: 'labels',
+            status: 'success',
+          },
+        })
+      })
     }
   })
 
