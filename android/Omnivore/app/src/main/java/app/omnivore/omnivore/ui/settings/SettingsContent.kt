@@ -81,15 +81,15 @@ fun SettingsViewContent(loginViewModel: LoginViewModel, navController: NavHostCo
 
       // profile pic and name
 
-      SettingRow(text = "Labels") { Log.d("settings", "labels button tapped") }
-      RowDivider()
-      SettingRow(text = "Emails") { Log.d("settings", "emails button tapped") }
-      RowDivider()
-      SettingRow(text = "Subscriptions") { Log.d("settings", "subscriptions button tapped") }
+//      SettingRow(text = "Labels") { Log.d("settings", "labels button tapped") }
+//      RowDivider()
+//      SettingRow(text = "Emails") { Log.d("settings", "emails button tapped") }
+//      RowDivider()
+//      SettingRow(text = "Subscriptions") { Log.d("settings", "subscriptions button tapped") }
 //      RowDivider()
 //      SettingRow(text = "Clubs") { Log.d("settings", "clubs button tapped") }
 
-      SectionSpacer()
+//      SectionSpacer()
 
 //      SettingRow(text = "Push Notifications") { Log.d("settings", "pn button tapped") }
 //      RowDivider()
@@ -107,8 +107,8 @@ fun SettingsViewContent(loginViewModel: LoginViewModel, navController: NavHostCo
 
       SectionSpacer()
 
-      SettingRow(text = "Manage Account") { Log.d("settings", "logout button tapped") }
-      RowDivider()
+//      SettingRow(text = "Manage Account") { Log.d("settings", "logout button tapped") }
+//      RowDivider()
       SettingRow(text = "Logout", includeIcon = false) { showLogoutDialog.value = true }
       RowDivider()
     }
