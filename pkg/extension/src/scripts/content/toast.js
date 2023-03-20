@@ -2,9 +2,10 @@
 ;('use strict')
 ;(function () {
   let currentToastEl
-  let hideToastTimeout
   let labels = []
   let ctx = undefined
+  let doNotHide = false
+  let hideToastTimeout = undefined
 
   const systemIcons = {
     spinner: `
@@ -94,15 +95,8 @@
     return fragment
   }
 
-  function hideToastAfter(timeInMs) {
-    if (hideToastTimeout) clearTimeout(hideToastTimeout)
-    hideToastTimeout = setTimeout(function () {
-      currentToastEl.remove()
-      currentToastEl = undefined
-    }, timeInMs)
-  }
-
   function cancelAutoDismiss() {
+    doNotHide = true
     if (hideToastTimeout) clearTimeout(hideToastTimeout)
   }
 
@@ -111,6 +105,11 @@
       console.log('no statusBox to update')
       return
     }
+
+    if (payload.ctx) {
+      ctx = { ...ctx, ...payload.ctx }
+    }
+    console.log('updated ctx: ', ctx)
 
     switch (payload.target) {
       case 'page':
@@ -123,6 +122,15 @@
               statusBox.innerHTML = systemIcons.animatedLoader
               break
             case 'success':
+              // Auto hide if everything went well and the user
+              // has not initiated any interaction.
+              hideToastTimeout = setTimeout(function () {
+                console.log('hiding: ', currentToastEl, doNotHide)
+                if (!doNotHide) {
+                  currentToastEl.remove()
+                  currentToastEl = undefined
+                }
+              }, 2500)
               statusBox.innerHTML = systemIcons.success
               break
             case 'failure':
@@ -170,39 +178,17 @@
     const bodyEl = document.body
     if (!bodyEl) return
 
-    let duration = 5e3
-
     if (!currentToastEl) {
       currentToastEl = await createToastContainer()
     }
 
-    // let styleAsError = false
     if (payload.type === 'loading') {
-      duration = 5000
       updateStatus({
         status: 'loading',
         target: 'page',
       })
     }
-    // } else if (payload.type !== 'error') {
-    //   currentIconEl.innerHTML = systemIcons.success
-    //   updateToastText(payload)
-    // } else if (payload.errorCode && payload.errorCode === 401) {
-    //   currentToastEl.textContent = ''
-    //   currentIconEl = null
-    //   currentTextEl = null
-    //   const ctaModalEl = createCtaModal(payload.url)
-    //   currentToastEl.appendChild(ctaModalEl)
-    //   duration = 8e3
-    // } else {
-    //   styleAsError = true
-    //   currentIconEl.innerHTML = systemIcons.failed
-    //   updateToastText(payload)
-    // }
 
-    hideToastAfter(duration)
-
-    // remove any existing toasts not created by current content script
     document.querySelectorAll('#omnivore-toast').forEach((toastEl) => {
       if (toastEl !== currentToastEl) {
         console.log('removing current toast el: ', currentToastEl)
@@ -239,7 +225,6 @@
 
   function toggleRow(rowId) {
     const container = currentToastEl.shadowRoot.querySelector(rowId)
-    console.log(' toggling', rowId, container)
     const initialState = container?.getAttribute('data-state')
     const rows = currentToastEl.shadowRoot.querySelectorAll(
       '.omnivore-toast-func-row'
@@ -265,9 +250,7 @@
     ]
 
     for (const btnInfo of btns) {
-      console.log('root', root, 'shadowRoot', root.shadowRoot)
       const btn = root.shadowRoot.querySelector(btnInfo.id)
-      console.log(' connecting btn', btn, 'tp', btnInfo.func)
       if (btn) {
         btn.addEventListener('click', btnInfo.func)
       }
@@ -404,7 +387,6 @@
         'Updating title...'
       )
 
-      console.log('submitting EDIT TITLE')
       browserApi.runtime.sendMessage({
         action: ACTIONS.EditTitle,
         payload: {
@@ -462,7 +444,6 @@
           `button[data-label-selected="on"]`
         )
       ).map((e) => e.getAttribute('data-label-id'))
-      console.log('selected label ids: ', labelIds)
 
       browserApi.runtime.sendMessage({
         action: ACTIONS.SetLabels,
@@ -505,11 +486,12 @@
     )
     container.setAttribute('data-state', 'open')
 
-    if (ctx && ctx.finalURL) {
-      window.open(finalURL)
+    if (ctx && ctx.readerURL) {
+      window.open(ctx.readerURL, '_blank')
     } else if (ctx) {
       window.open(
-        `https://demo.omnivore.app/article?url=${encodeURI(ctx.originalUrl)}`
+        new URL(`/article?url=${encodeURI(ctx.originalURL)}`, ctx.omnivoreURL),
+        '_blank'
       )
     } else {
       alert('Error no URL found.')

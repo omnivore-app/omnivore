@@ -39,8 +39,6 @@ window.ACTIONS = {
   SetLabels: 'SET_LABELS',
 }
 
-window.DONT_REMOVE_ELEMENTS = ['meta', 'script', 'title']
-
 window.SAVE_URL_QUERY = `mutation SaveUrl ($input: SaveUrlInput!) {
   saveUrl(input:$input){
     ... on SaveSuccess {

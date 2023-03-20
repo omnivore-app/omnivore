@@ -177,62 +177,6 @@ function clearClickCompleteState() {
   )
 }
 
-function handleSaveResponse(tab, field, xhr) {
-  if (xhr.readyState === 4) {
-    if (xhr.status === 200) {
-      const { data } = JSON.parse(xhr.response)
-      console.log('response data: ', data)
-      const item = data[field]
-      if (!item) {
-        return undefined
-      }
-
-      if ('errorCodes' in item) {
-        const messagePayload = {
-          text:
-            descriptions[data.createArticle.errorCodes[0]] ||
-            'Unable to save page',
-          type: 'error',
-        }
-
-        if (item.errorCodes[0] === 'UNAUTHORIZED') {
-          messagePayload.errorCode = 401
-          messagePayload.url = omnivoreURL
-          clearClickCompleteState()
-        }
-
-        browserApi.tabs.sendMessage(tab.id, {
-          action: ACTIONS.ShowMessage,
-          payload: messagePayload,
-        })
-
-        return undefined
-      }
-
-      const url = item['url']
-      browserApi.tabs.sendMessage(tab.id, {
-        action: ACTIONS.UpdateStatus,
-        payload: {
-          status: 'success',
-          target: 'page',
-          link: url ?? omnivoreURL + '/home',
-        },
-      })
-
-      return item
-    } else if (xhr.status === 400) {
-      browserApi.tabs.sendMessage(tab.id, {
-        action: ACTIONS.ShowMessage,
-        payload: {
-          text: 'Unable to save page',
-          type: 'error',
-        },
-      })
-      return undefined
-    }
-  }
-}
-
 async function saveUrl(currentTab, url) {
   const requestId = uuidv4()
   await saveApiRequest(currentTab, SAVE_URL_QUERY, 'saveUrl', {
@@ -244,7 +188,8 @@ async function saveUrl(currentTab, url) {
 
 async function saveApiRequest(currentTab, query, field, input) {
   const toolbarCtx = {
-    originalUrl: input.url,
+    omnivoreURL,
+    originalURL: input.url,
     requestId: input.clientRequestId,
   }
   completedRequests[toolbarCtx.requestId] = undefined
@@ -264,13 +209,6 @@ async function saveApiRequest(currentTab, query, field, input) {
     },
   })
 
-  const wait = await new Promise((resolve, reject) => {
-    setTimeout(() => {
-      console.log(' -- resolving timeout.')
-      resolve()
-    }, 5000)
-  })
-
   try {
     const result = await gqlRequest(omnivoreGraphqlURL + 'graphql', requestBody)
     if (result[field]['errorCodes']) {
@@ -283,8 +221,6 @@ async function saveApiRequest(currentTab, query, field, input) {
             ctx: toolbarCtx,
           },
         })
-        // messagePayload.errorCode = 401
-        // messagePayload.url = omnivoreURL
         clearClickCompleteState()
       } else {
         browserApi.tabs.sendMessage(currentTab.id, {
@@ -302,80 +238,29 @@ async function saveApiRequest(currentTab, query, field, input) {
     const requestId = result[field]
       ? result[field]['clientRequestId']
       : undefined
-    console.log(' got requestId', requestId, 'from', result[field])
     browserApi.tabs.sendMessage(currentTab.id, {
       action: ACTIONS.UpdateStatus,
       payload: {
         status: 'success',
         target: 'page',
         ctx: {
-          requestId: toolbarCtx.requestId,
+          readerURL: url,
           responseId: requestId,
-          link: url,
+          requestId: toolbarCtx.requestId,
         },
       },
     })
 
     completedRequests[toolbarCtx.requestId] = {
-      url,
-      requestId,
+      readerURL: url,
+      responseId: requestId,
+      requestId: toolbarCtx.requestId,
     }
   } catch (err) {
     console.log('error saving: ', err)
   }
 
   processPendingRequests(currentTab.id)
-  // if (pendingRequests) {
-  //   pendingRequests.map((pr) => {
-  //     console.log(
-  //       'pending request: ',
-  //       pr,
-  //       pr.clientRequestId,
-  //       completedRequests[pr.clientRequestId]
-  //     )
-  //   })
-  // }
-
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest()
-    xhr.open('POST', omnivoreGraphqlURL + 'graphql', true)
-    setupConnection(xhr)
-
-    xhr.onerror = (err) => {
-      reject(err)
-    }
-
-    xhr.onload = () => {
-      try {
-        const res = handleSaveResponse(currentTab, field, xhr)
-        if (!res) {
-          return reject()
-        }
-        resolve(res)
-      } catch (err) {
-        reject(err)
-      }
-    }
-
-    const data = JSON.stringify({
-      query,
-      variables: {
-        input,
-      },
-    })
-
-    xhr.send(data)
-  }).catch((err) => {
-    console.log('error saving page', err)
-    browserApi.tabs.sendMessage(currentTab.id, {
-      action: ACTIONS.ShowMessage,
-      payload: {
-        text: 'Unable to save page',
-        type: 'error',
-      },
-    })
-    return undefined
-  })
 }
 
 function updateClientStatus(tabId, target, status, message) {
@@ -389,10 +274,10 @@ function updateClientStatus(tabId, target, status, message) {
   })
 }
 
-async function editTitleRequest(tabId, request, compeledResponse) {
+async function editTitleRequest(tabId, request, completedResponse) {
   return updatePageTitle(
     omnivoreGraphqlURL + 'graphql',
-    compeledResponse.requestId,
+    completedResponse.responseId,
     request.title
   )
     .then(() => {
@@ -409,7 +294,7 @@ async function editTitleRequest(tabId, request, compeledResponse) {
 async function setLabelsRequest(tabId, request, completedResponse) {
   return setLabels(
     omnivoreGraphqlURL + 'graphql',
-    completedResponse.requestId,
+    completedResponse.responseId,
     request.labelIds
   )
     .then(() => {
@@ -438,15 +323,9 @@ async function processPendingRequests(tabId) {
           break
       }
     }
-    console.log('processing: ', pr)
-    console.log(
-      ' -- completed request: ',
-      completedRequests[pr.clientRequestId]
-    )
-    console.log('  ----- all requests', completedRequests)
+
     if (handled) {
       const idx = pendingRequests.findIndex((opr) => pr.id === opr.id)
-      console.log(' -- idx: ', idx)
       if (idx > -1) {
         pendingRequests.splice(idx, 1)
       }
@@ -454,6 +333,8 @@ async function processPendingRequests(tabId) {
   })
 
   console.log('updated pending requests: ', pendingRequests)
+
+  // TODO: need to handle clearing completedRequests also
 }
 
 async function saveArticle(tab) {
