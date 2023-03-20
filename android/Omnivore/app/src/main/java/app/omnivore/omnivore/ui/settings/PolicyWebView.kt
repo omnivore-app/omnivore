@@ -2,13 +2,12 @@ package app.omnivore.omnivore.ui.settings
 
 import android.annotation.SuppressLint
 import android.view.ViewGroup
-import android.webkit.CookieManager
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -27,7 +26,7 @@ fun PolicyWebView(navController: NavHostController, url: String) {
         actions = {
           IconButton(onClick = { navController.navigate(Routes.Settings.route) }) {
             Icon(
-              imageVector = Icons.Default.Home,
+              imageVector = Icons.Default.Settings,
               contentDescription = null
             )
           }

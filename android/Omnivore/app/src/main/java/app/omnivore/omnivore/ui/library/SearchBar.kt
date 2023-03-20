@@ -67,7 +67,7 @@ fun SearchBar(
 
         IconButton(onClick = onSettingsIconClick) {
           Icon(
-            painter = painterResource(id = R.drawable.account_outline),
+            imageVector = Icons.Default.Settings,
             contentDescription = null
           )
         }
