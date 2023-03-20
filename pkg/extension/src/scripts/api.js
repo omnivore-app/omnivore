@@ -1,4 +1,25 @@
-function updateLabelsCache(apiUrl, tab) {
+function gqlRequest(apiUrl, query) {
+  return fetch(apiUrl, {
+    method: 'POST',
+    redirect: 'follow',
+    credentials: 'include',
+    mode: 'cors',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: query,
+  })
+    .then((response) => response.json())
+    .then((json) => {
+      if (!json['data']) {
+        throw new Error('No response data')
+      }
+      return json['data']
+    })
+}
+
+async function updateLabelsCache(apiUrl, tab) {
   const query = JSON.stringify({
     query: `query GetLabels {
       labels {
@@ -21,33 +42,22 @@ function updateLabelsCache(apiUrl, tab) {
     }
     `,
   })
-  return fetch(apiUrl, {
-    method: 'POST',
-    redirect: 'follow',
-    credentials: 'include',
-    mode: 'cors',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    },
-    body: query,
+
+  const data = await gqlRequest(apiUrl, query)
+  if (!data.labels || data.labels['errorCodes'] || !data.labels['labels']) {
+    console.log('GQL Error updating label cache response:', data, data)
+    console.log(!data.labels, data.labels['errorCodes'], !data.labels['labels'])
+    return []
+  }
+  await setStorage({
+    labels: data.labels.labels,
+    labelsLastUpdated: new Date().toISOString(),
   })
-    .then((response) => response.json())
-    .then((data) => {
-      const result = data.data.labels.labels
-      return result
-    })
-    .then((labels) => {
-      setStorage({
-        labels: labels,
-        labelsLastUpdated: new Date().toISOString(),
-      })
-      return labels
-    })
+
+  return data.labels.labels
 }
 
-function updatePageTitle(apiUrl, pageId, title) {
-  console.log('updated title: ', apiUrl, pageId, title)
+async function updatePageTitle(apiUrl, pageId, title) {
   const mutation = JSON.stringify({
     query: `mutation UpdatePage($input: UpdatePageInput!) {
       updatePage(input: $input) {
@@ -70,25 +80,19 @@ function updatePageTitle(apiUrl, pageId, title) {
     },
   })
 
-  return fetch(apiUrl, {
-    method: 'POST',
-    redirect: 'follow',
-    credentials: 'include',
-    mode: 'cors',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    },
-    body: mutation,
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      console.log('updated title: ', data)
-    })
+  const data = await gqlRequest(apiUrl, mutation)
+  if (
+    !data.updatePage ||
+    data.updatePage['errorCodes'] ||
+    !data.updatePage['updatedPage']
+  ) {
+    console.log('GQL Error updating page:', data)
+    throw new Error('Error updating title.')
+  }
+  return data.updatePage.updatePage
 }
 
-function setLabels(apiUrl, pageId, labelIds) {
-  console.log('setting labels: ', apiUrl, pageId, labelIds)
+async function setLabels(apiUrl, pageId, labelIds) {
   const mutation = JSON.stringify({
     query: `mutation SetLabels($input: SetLabelsInput!) {
       setLabels(input: $input) {
@@ -111,19 +115,14 @@ function setLabels(apiUrl, pageId, labelIds) {
     },
   })
 
-  return fetch(apiUrl, {
-    method: 'POST',
-    redirect: 'follow',
-    credentials: 'include',
-    mode: 'cors',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    },
-    body: mutation,
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      console.log('updated labels: ', data)
-    })
+  const data = await gqlRequest(apiUrl, mutation)
+  if (
+    !data.setLabels ||
+    data.setLabels['errorCodes'] ||
+    !data.setLabels['labels']
+  ) {
+    console.log('GQL Error setting labels:', data)
+    throw new Error('Error setting labels.')
+  }
+  return data.setLabels.labels
 }

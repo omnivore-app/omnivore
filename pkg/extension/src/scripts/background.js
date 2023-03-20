@@ -670,64 +670,6 @@ function reflectIconState(tab) {
   updateActionIcon(tabId, active)
 }
 
-// function updateLabelsCache(tab) {
-//   const query = JSON.stringify({
-//     query: `query GetLabels {
-//       labels {
-//         ... on LabelsSuccess {
-//           labels {
-//             ...LabelFields
-//           }
-//         }
-//         ... on LabelsError {
-//           errorCodes
-//         }
-//       }
-//     }
-//     fragment LabelFields on Label {
-//       id
-//       name
-//       color
-//       description
-//       createdAt
-//     }
-//     `,
-//   })
-//   return fetch(omnivoreGraphqlURL + 'graphql', {
-//     method: 'POST',
-//     redirect: 'follow',
-//     credentials: 'include',
-//     mode: 'cors',
-//     headers: {
-//       Accept: 'application/json',
-//       'Content-Type': 'application/json',
-//     },
-//     body: query,
-//   })
-//     .then((response) => response.json())
-//     .then((data) => {
-//       const result = data.data.labels.labels
-//       return result
-//     })
-//     .then((labels) => {
-//       setStorage({
-//         labels: labels,
-//         labelsLastUpdated: new Date().toISOString(),
-//       })
-//       return labels
-//     })
-//     .then((labels) => {
-//       browserApi.tabs.sendMessage(tab.id, {
-//         action: ACTIONS.LabelCacheUpdated,
-//         payload: {},
-//       })
-//     })
-//     .catch((err) => {
-//       console.error('error fetching labels', err, omnivoreGraphqlURL)
-//       return undefined
-//     })
-// }
-
 function init() {
   /* Extension icon switcher on page/tab load status */
   browserApi.tabs.onActivated.addListener(({ tabId }) => {
@@ -761,6 +703,16 @@ function init() {
 
   // forward messages from grab-iframe-content.js script to tabs
   browserApi.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    function updateClientStatus(target, status, message) {
+      browserApi.tabs.sendMessage(sender.tab.id, {
+        action: ACTIONS.UpdateStatus,
+        payload: {
+          target,
+          status,
+          message,
+        },
+      })
+    }
     if (request.forwardToTab) {
       delete request.forwardToTab
       browserApi.tabs.sendRequest(sender.tab.id, request)
@@ -776,15 +728,14 @@ function init() {
         omnivoreGraphqlURL + 'graphql',
         request.payload.pageId,
         request.payload.title
-      ).then(() => {
-        browserApi.tabs.sendMessage(sender.tab.id, {
-          action: ACTIONS.UpdateStatus,
-          payload: {
-            target: 'title',
-            status: 'success',
-          },
+      )
+        .then(() => {
+          updateClientStatus('title', 'success', 'Title updated.')
         })
-      })
+        .catch((err) => {
+          console.log('caught error updating title: ', err)
+          updateClientStatus('title', 'failure', 'Error updating title.')
+        })
     }
 
     if (request.action === ACTIONS.SetLabels) {
@@ -792,15 +743,13 @@ function init() {
         omnivoreGraphqlURL + 'graphql',
         request.payload.pageId,
         request.payload.labelIds
-      ).then(() => {
-        browserApi.tabs.sendMessage(sender.tab.id, {
-          action: ACTIONS.UpdateStatus,
-          payload: {
-            target: 'labels',
-            status: 'success',
-          },
+      )
+        .then(() => {
+          updateClientStatus('labels', 'success', 'Labels updated.')
         })
-      })
+        .catch(() => {
+          updateClientStatus('labels', 'failure', 'Error updating labels.')
+        })
     }
   })
 
