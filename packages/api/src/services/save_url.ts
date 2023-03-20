@@ -1,6 +1,5 @@
 import { PubsubClient } from '../datalayer/pubsub'
 import { UserData } from '../datalayer/user/model'
-import { homePageURL } from '../env'
 import { SaveErrorCode, SaveResult, SaveUrlInput } from '../generated/graphql'
 import { DataModels } from '../resolvers/types'
 import { createPageSaveRequest } from './create_page_save_request'
@@ -26,9 +25,7 @@ export const saveUrl = async (
 
     return {
       clientRequestId: pageSaveRequest.id,
-      url: `${homePageURL()}/${saver.profile.username}/links/${
-        pageSaveRequest.id
-      }`,
+      url: pageSaveRequest.url,
     }
   } catch (error) {
     console.log('error enqueuing request', error)
