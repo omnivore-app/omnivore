@@ -19,12 +19,14 @@ import app.omnivore.omnivore.ui.auth.WelcomeScreen
 import app.omnivore.omnivore.ui.library.LibraryView
 import app.omnivore.omnivore.ui.library.LibraryViewModel
 import app.omnivore.omnivore.ui.settings.PolicyWebView
+import app.omnivore.omnivore.ui.settings.SettingsViewModel
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 @Composable
 fun RootView(
   loginViewModel: LoginViewModel,
-  libraryViewModel: LibraryViewModel
+  libraryViewModel: LibraryViewModel,
+  settingsViewModel: SettingsViewModel
 ) {
   val hasAuthToken: Boolean by loginViewModel.hasAuthTokenLiveData.observeAsState(false)
   val systemUiController = rememberSystemUiController()
@@ -46,7 +48,8 @@ fun RootView(
     if (hasAuthToken) {
       PrimaryNavigator(
         loginViewModel = loginViewModel,
-        libraryViewModel = libraryViewModel
+        libraryViewModel = libraryViewModel,
+        settingsViewModel = settingsViewModel
       )
     } else {
       WelcomeScreen(viewModel = loginViewModel)
@@ -64,7 +67,8 @@ fun RootView(
 @Composable
 fun PrimaryNavigator(
   loginViewModel: LoginViewModel,
-  libraryViewModel: LibraryViewModel
+  libraryViewModel: LibraryViewModel,
+  settingsViewModel: SettingsViewModel
 ) {
   val navController = rememberNavController()
 
@@ -77,7 +81,7 @@ fun PrimaryNavigator(
     }
 
     composable(Routes.Settings.route) {
-      SettingsView(loginViewModel = loginViewModel, navController = navController)
+      SettingsView(loginViewModel = loginViewModel, settingsViewModel = settingsViewModel, navController = navController)
     }
 
     composable(Routes.Documentation.route) {

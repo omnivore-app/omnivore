@@ -22,6 +22,7 @@ import app.omnivore.omnivore.R
 import app.omnivore.omnivore.Routes
 import app.omnivore.omnivore.ui.auth.LoginViewModel
 import app.omnivore.omnivore.ui.settings.LogoutDialog
+import app.omnivore.omnivore.ui.settings.SettingsViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import io.intercom.android.sdk.Intercom
@@ -31,6 +32,7 @@ import io.intercom.android.sdk.IntercomSpace
 @Composable
 fun SettingsView(
   loginViewModel: LoginViewModel,
+  settingsViewModel: SettingsViewModel,
   navController: NavHostController,
 ) {
   Scaffold(
@@ -52,6 +54,7 @@ fun SettingsView(
   ) { paddingValues ->
     SettingsViewContent(
       loginViewModel = loginViewModel,
+      settingsViewModel = settingsViewModel,
       navController = navController,
       modifier = Modifier
         .padding(
@@ -63,7 +66,7 @@ fun SettingsView(
 }
 
 @Composable
-fun SettingsViewContent(loginViewModel: LoginViewModel, navController: NavHostController, modifier: Modifier) {
+fun SettingsViewContent(loginViewModel: LoginViewModel, settingsViewModel: SettingsViewModel, navController: NavHostController, modifier: Modifier) {
   val showLogoutDialog = remember { mutableStateOf(false)  }
 
   Box(
