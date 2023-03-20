@@ -99,6 +99,7 @@ export function PrimaryContent(props: PrimaryContentProps): JSX.Element {
 
   const { successRedirectPath, error } = useGetArticleSavingStatus({
     id: props.articleId,
+    url: props.url,
   })
 
   useEffect(() => {
