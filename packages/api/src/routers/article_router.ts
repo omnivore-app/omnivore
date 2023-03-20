@@ -1,25 +1,25 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import express from 'express'
-import { CreateArticleErrorCode } from '../generated/graphql'
-import { isSiteBlockedForParse } from '../utils/blocked'
-import cors from 'cors'
-import { buildLogger } from '../utils/logger'
-import { corsConfig } from '../utils/corsConfig'
-import { createPageSaveRequest } from '../services/create_page_save_request'
-import { initModels } from '../server'
-import { kx } from '../datalayer/knex_config'
-import { getClaimsByToken } from '../utils/auth'
-import * as jwt from 'jsonwebtoken'
-import { env } from '../env'
-import { Claims } from '../resolvers/types'
-import { getRepository } from '../entity/utils'
-import { Speech, SpeechState } from '../entity/speech'
-import { getPageById, updatePage } from '../elastic/pages'
-import { generateDownloadSignedUrl } from '../utils/uploads'
-import { enqueueTextToSpeech } from '../utils/createTask'
-import { createPubSubClient } from '../datalayer/pubsub'
 import { htmlToSpeechFile } from '@omnivore/text-to-speech-handler'
+import cors from 'cors'
+import express from 'express'
+import * as jwt from 'jsonwebtoken'
+import { kx } from '../datalayer/knex_config'
+import { createPubSubClient } from '../datalayer/pubsub'
+import { getPageById, updatePage } from '../elastic/pages'
+import { Speech, SpeechState } from '../entity/speech'
+import { getRepository } from '../entity/utils'
+import { env } from '../env'
+import { CreateArticleErrorCode } from '../generated/graphql'
+import { Claims } from '../resolvers/types'
+import { initModels } from '../server'
+import { createPageSaveRequest } from '../services/create_page_save_request'
+import { getClaimsByToken } from '../utils/auth'
+import { isSiteBlockedForParse } from '../utils/blocked'
+import { corsConfig } from '../utils/corsConfig'
+import { enqueueTextToSpeech } from '../utils/createTask'
+import { buildLogger } from '../utils/logger'
+import { generateDownloadSignedUrl } from '../utils/uploads'
 
 interface SpeechInput {
   voice?: string
@@ -74,6 +74,7 @@ export function articleRouter() {
 
     return res.send({
       articleSavingRequestId: result.id,
+      url: result.url,
     })
   })
 

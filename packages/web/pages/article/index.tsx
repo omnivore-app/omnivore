@@ -1,30 +1,27 @@
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import TopBarProgress from 'react-topbar-progress-indicator'
-import { VStack } from '../../../components/elements/LayoutPrimitives'
-import { ArticleActionsMenu } from '../../../components/templates/article/ArticleActionsMenu'
-import { SkeletonArticleContainer } from '../../../components/templates/article/SkeletonArticleContainer'
-import { PrimaryLayout } from '../../../components/templates/PrimaryLayout'
-import {
-  ErrorComponent,
-  Loader,
-} from '../../../components/templates/SavingRequest'
-import { theme } from '../../../components/tokens/stitches.config'
-import { useReaderSettings } from '../../../lib/hooks/useReaderSettings'
-import { useGetArticleSavingStatus } from '../../../lib/networking/queries/useGetArticleSavingStatus'
-import { applyStoredTheme } from '../../../lib/themeUpdater'
+import { VStack } from '../../components/elements/LayoutPrimitives'
+import { ArticleActionsMenu } from '../../components/templates/article/ArticleActionsMenu'
+import { SkeletonArticleContainer } from '../../components/templates/article/SkeletonArticleContainer'
+import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
+import { Loader } from '../../components/templates/SavingRequest'
+import { theme } from '../../components/tokens/stitches.config'
+import { useReaderSettings } from '../../lib/hooks/useReaderSettings'
+import { applyStoredTheme } from '../../lib/themeUpdater'
+import { PrimaryContent } from '../article/sr/[id]'
 
 export default function ArticleSavingRequestPage(): JSX.Element {
   const router = useRouter()
   const readerSettings = useReaderSettings()
-  const [articleId, setArticleId] = useState<string | undefined>(undefined)
+  const [url, setUrl] = useState<string | undefined>(undefined)
 
   applyStoredTheme(false)
 
   useEffect(() => {
     if (!router.isReady) return
-    setArticleId(router.query.id as string)
-  }, [router.isReady, router.query.id])
+    setUrl(router.query.url as string)
+  }, [router.isReady, router.query.url])
 
   return (
     <PrimaryLayout
@@ -81,49 +78,9 @@ export default function ArticleSavingRequestPage(): JSX.Element {
           fontSize={readerSettings.fontSize}
           lineHeight={readerSettings.lineHeight}
         >
-          {articleId ? <PrimaryContent articleId={articleId} /> : <Loader />}
+          {url ? <PrimaryContent url={url} /> : <Loader />}
         </SkeletonArticleContainer>
       </VStack>
     </PrimaryLayout>
   )
-}
-
-type PrimaryContentProps = {
-  articleId?: string
-  url?: string
-}
-
-export function PrimaryContent(props: PrimaryContentProps): JSX.Element {
-  const router = useRouter()
-  const [timedOut, setTimedOut] = useState(false)
-
-  const { successRedirectPath, error } = useGetArticleSavingStatus({
-    id: props.articleId,
-  })
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setTimedOut(true)
-    }, 30000)
-
-    return () => {
-      clearTimeout(timer)
-    }
-  }, [])
-
-  if (error === 'unauthorized') {
-    router.replace('/login')
-  }
-
-  if (timedOut || error) {
-    return (
-      <ErrorComponent errorMessage="Something went wrong while processing the link, please try again in a moment" />
-    )
-  }
-
-  if (successRedirectPath) {
-    router.replace(successRedirectPath)
-  }
-
-  return <Loader />
 }
