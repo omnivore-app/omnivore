@@ -45,6 +45,7 @@ window.SAVE_URL_QUERY = `mutation SaveUrl ($input: SaveUrlInput!) {
   saveUrl(input:$input){
     ... on SaveSuccess {
       url
+      clientRequestId
     }
     ... on SaveError {
       errorCodes
@@ -56,6 +57,7 @@ window.SAVE_FILE_QUERY = `mutation SaveFile ($input: SaveFileInput!) {
   saveFile(input:$input){
     ... on SaveSuccess {
       url
+      clientRequestId
     }
     ... on SaveError {
       errorCodes
@@ -67,44 +69,9 @@ window.SAVE_PAGE_QUERY = `mutation SavePage ($input: SavePageInput!) {
   savePage(input:$input){
     ... on SaveSuccess {
       url
+      clientRequestId
     }
     ... on SaveError {
-      errorCodes
-    }
-  }
-}`
-
-window.CREATE_ARTICLE_QUERY = `mutation CreateArticle ($input: CreateArticleInput!){
-  createArticle(input:$input){
-    ... on CreateArticleSuccess{
-      createdArticle{
-        id
-        title
-        slug
-        hasContent
-      }
-      user {
-        id
-        profile {
-          id
-          username
-        }
-      }
-}
-  ... on CreateArticleError{
-      errorCodes
-  }
-}
-}`
-
-window.CREATE_ARTICLE_SAVING_REQUEST_QUERY = `mutation CreateArticleSavingRequest ($input: CreateArticleSavingRequestInput!){
-  createArticleSavingRequest(input:$input){
-    ... on CreateArticleSavingRequestSuccess{
-      articleSavingRequest{
-        id
-      }
-    }
-    ... on CreateArticleSavingRequestError{
       errorCodes
     }
   }

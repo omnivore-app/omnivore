@@ -467,7 +467,7 @@
       browserApi.runtime.sendMessage({
         action: ACTIONS.SetLabels,
         payload: {
-          pageId: requestId,
+          ctx: ctx,
           labelIds: labelIds,
         },
       })
@@ -508,7 +508,9 @@
     if (ctx && ctx.finalURL) {
       window.open(finalURL)
     } else if (ctx) {
-      window.open(`https://demo.omnivore.app/article/sr/${ctx.requestId}`)
+      window.open(
+        `https://demo.omnivore.app/article?url=${encodeURI(ctx.originalUrl)}`
+      )
     } else {
       alert('Error no URL found.')
     }
