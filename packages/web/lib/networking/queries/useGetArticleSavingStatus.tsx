@@ -6,7 +6,8 @@ import { makeGqlFetcher } from '../networkHelpers'
 import { ArticleAttributes } from './useGetArticleQuery'
 
 type ArticleSavingStatusInput = {
-  id: string
+  id?: string
+  url?: string
 }
 
 type ArticleSavingStatusResponse = {
@@ -49,10 +50,11 @@ type ArticleSavingStatusError =
 
 export function useGetArticleSavingStatus({
   id,
+  url,
 }: ArticleSavingStatusInput): ArticleSavingStatusResponse {
   const query = gql`
-    query ArticleSavingRequest($id: ID!) {
-      articleSavingRequest(id: $id) {
+    query ArticleSavingRequest($id: ID, $url: String) {
+      articleSavingRequest(id: $id, url: $url) {
         ... on ArticleSavingRequestSuccess {
           articleSavingRequest {
             id
@@ -83,9 +85,9 @@ export function useGetArticleSavingStatus({
     ${articleFragment}
     ${highlightFragment}
   `
-
+  const key = id ? [query, id] : [query, url]
   // poll twice a second
-  const { data, error } = useSWR([query, id], makeGqlFetcher({ id }), {
+  const { data, error } = useSWR(key, makeGqlFetcher({ id, url }), {
     refreshInterval: 500,
   })
 
@@ -129,7 +131,7 @@ export function useGetArticleSavingStatus({
     }
   }
 
-  if (status === 'PROCESSING') {
+  if (status === 'PROCESSING' || status === 'DELETED') {
     return {}
   }
 

@@ -93,8 +93,8 @@
     }).then(function (response) {
       if (response.status === 200) {
         return response.json().then((responseJson) => {
-          const savingRequestId = responseJson.articleSavingRequestId;
-          return currentOrigin + '/article/sr/' + savingRequestId;
+          const url = encodeURIComponent(responseJson.url);
+          return currentOrigin + '/article?url=' + url;
         });
       }
 
