@@ -131,7 +131,7 @@ export function useGetArticleSavingStatus({
     }
   }
 
-  if (status === 'PROCESSING' || status === 'DELETED') {
+  if (status === 'PROCESSING') {
     return {}
   }
 
