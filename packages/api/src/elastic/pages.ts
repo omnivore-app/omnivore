@@ -328,33 +328,30 @@ export const deletePage = async (
 }
 
 export const getPageByParam = async <K extends keyof ParamSet>(
-  param: Record<K, ParamSet[K]>,
+  params: Record<K, ParamSet[K] | ParamSet[K][]>,
   includeOriginalHtml = false
 ): Promise<Page | undefined> => {
   try {
-    const params = {
-      query: {
-        bool: {
-          filter: Object.keys(param)
-            .filter(
-              (key) => param[key as K] !== undefined && param[key as K] !== null
-            ) // filter out undefined and null values
-            .map((key) => ({
-              term: {
-                [key]: param[key as K],
-              },
-            })),
-        },
-      },
-      size: 1,
-      _source: {
+    let builder = esBuilder()
+      .size(1)
+      .rawOption('_source', {
         excludes: includeOriginalHtml ? [] : ['originalHtml'],
-      },
-    }
-
+      })
+    // filter out undefined and null values and empty arrays
+    // and build the query
+    Object.entries<ParamSet[K] | ParamSet[K][]>(params)
+      .filter(
+        ([, value]) =>
+          value != null && !(Array.isArray(value) && value.length === 0)
+      )
+      .forEach(([key, value]) => {
+        Array.isArray(value)
+          ? (builder = builder.query('terms', key, value))
+          : (builder = builder.query('term', key, value))
+      })
     const { body } = await client.search<SearchResponse<Page>>({
       index: INDEX_ALIAS,
-      body: params,
+      body: builder.build(),
     })
 
     if (body.hits.total.value === 0) {

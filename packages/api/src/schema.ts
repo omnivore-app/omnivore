@@ -1084,6 +1084,7 @@ const schema = gql`
   enum ArticleSavingRequestErrorCode {
     UNAUTHORIZED
     NOT_FOUND
+    BAD_DATA
   }
   type ArticleSavingRequestError {
     errorCodes: [ArticleSavingRequestErrorCode!]!
