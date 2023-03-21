@@ -180,6 +180,7 @@ export type ArticleSavingRequestError = {
 };
 
 export enum ArticleSavingRequestErrorCode {
+  BadData = 'BAD_DATA',
   NotFound = 'NOT_FOUND',
   Unauthorized = 'UNAUTHORIZED'
 }

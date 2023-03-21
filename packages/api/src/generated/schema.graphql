@@ -145,6 +145,7 @@ type ArticleSavingRequestError {
 }
 
 enum ArticleSavingRequestErrorCode {
+  BAD_DATA
   NOT_FOUND
   UNAUTHORIZED
 }
