@@ -325,7 +325,10 @@
     element.onkeydown = labelKeyDown
     element.setAttribute('data-label-id', label.id)
     element.setAttribute('data-label-idx', idx)
-    element.setAttribute('data-label-selected', 'off')
+    element.setAttribute(
+      'data-label-selected',
+      label['selected'] ? 'on' : 'off'
+    )
     element.setAttribute('tabIndex', '-1')
 
     return element
@@ -334,14 +337,28 @@
   function labelClick(event) {
     event.preventDefault()
 
+    const labelId = event.target.getAttribute('data-label-id')
+
+    toggleLabel(event, labelId)
+  }
+
+  function toggleLabel(event, labelId) {
     const labelSelected = event.target.getAttribute('data-label-selected')
-    if (!labelSelected) {
+
+    if (!labelId || !labelSelected) {
       return
     }
+
+    const toggledValue = labelSelected == 'on' ? false : true
     event.target.setAttribute(
       'data-label-selected',
-      labelSelected == 'on' ? 'off' : 'on'
+      toggledValue ? 'on' : 'off'
     )
+
+    const label = labels.find((l) => l.id === labelId)
+    if (label) {
+      label.selected = toggledValue
+    }
   }
 
   function labelKeyDown(event) {
@@ -399,14 +416,8 @@
         break
       }
       case 'enter': {
-        const labelSelected = event.target.getAttribute('data-label-selected')
-        if (!labelSelected) {
-          return
-        }
-        event.target.setAttribute(
-          'data-label-selected',
-          labelSelected == 'on' ? 'off' : 'on'
-        )
+        const labelId = event.target.getAttribute('data-label-id')
+        toggleLabel(event, labelId)
         event.preventDefault()
         break
       }
@@ -481,11 +492,7 @@
         '#omnivore-edit-labels-status'
       )
       statusBox.innerText = 'Updating labels...'
-      const labelIds = Array.from(
-        currentToastEl.shadowRoot.querySelectorAll(
-          `button[data-label-selected="on"]`
-        )
-      ).map((e) => e.getAttribute('data-label-id'))
+      const labelIds = labels.filter((l) => l['selected']).map((l) => l.id)
 
       browserApi.runtime.sendMessage({
         action: ACTIONS.SetLabels,
