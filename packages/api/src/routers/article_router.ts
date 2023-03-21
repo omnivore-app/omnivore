@@ -111,6 +111,13 @@ export function articleRouter() {
           if (!page) {
             return res.status(404).send('Page not found')
           }
+          if (page.userId !== uid) {
+            logger.info('User is not allowed to access speech of the article', {
+              userId: uid,
+              articleId,
+            })
+            return res.status(401).send({ errorCode: 'UNAUTHORIZED' })
+          }
           const speechFile = htmlToSpeechFile({
             title: page.title,
             content: page.content,

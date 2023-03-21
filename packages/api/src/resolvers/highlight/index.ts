@@ -1,7 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/require-await */
 /* eslint-disable @typescript-eslint/no-floating-promises */
-import { authorized, unescapeHtml } from '../../utils/helpers'
+import {
+  addHighlightToPage,
+  deleteHighlight,
+  getHighlightById,
+  updateHighlight,
+} from '../../elastic/highlights'
+import { getPageById, updatePage } from '../../elastic/pages'
+import { Highlight as HighlightData } from '../../elastic/types'
+import { env } from '../../env'
 import {
   CreateHighlightError,
   CreateHighlightErrorCode,
@@ -26,16 +34,8 @@ import {
   UpdateHighlightSuccess,
   User,
 } from '../../generated/graphql'
-import { env } from '../../env'
 import { analytics } from '../../utils/analytics'
-import { Highlight as HighlightData } from '../../elastic/types'
-import { getPageById, updatePage } from '../../elastic/pages'
-import {
-  addHighlightToPage,
-  deleteHighlight,
-  getHighlightById,
-  updateHighlight,
-} from '../../elastic/highlights'
+import { authorized, unescapeHtml } from '../../utils/helpers'
 
 const highlightDataToHighlight = (highlight: HighlightData): Highlight => ({
   ...highlight,
@@ -58,16 +58,11 @@ export const createHighlightResolver = authorized<
       errorCodes: [CreateHighlightErrorCode.NotFound],
     }
   }
-
-  analytics.track({
-    userId: claims.uid,
-    event: 'highlight_created',
-    properties: {
-      pageId,
-      env: env.server.apiEnv,
-    },
-  })
-
+  if (page.userId !== claims.uid) {
+    return {
+      errorCodes: [CreateHighlightErrorCode.Unauthorized],
+    }
+  }
   if (input.annotation && input.annotation.length > 4000) {
     return {
       errorCodes: [CreateHighlightErrorCode.BadData],
@@ -108,6 +103,15 @@ export const createHighlightResolver = authorized<
       },
     })
 
+    analytics.track({
+      userId: claims.uid,
+      event: 'highlight_created',
+      properties: {
+        pageId,
+        env: env.server.apiEnv,
+      },
+    })
+
     return { highlight: highlightDataToHighlight(highlight) }
   } catch (err) {
     log.error('Error creating highlight', err)
@@ -130,7 +134,11 @@ export const mergeHighlightResolver = authorized<
       errorCodes: [MergeHighlightErrorCode.NotFound],
     }
   }
-
+  if (page.userId !== claims.uid) {
+    return {
+      errorCodes: [MergeHighlightErrorCode.Unauthorized],
+    }
+  }
   const articleHighlights = page.highlights
 
   /* Compute merged annotation form the order of highlights appearing on page */
