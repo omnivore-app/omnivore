@@ -3,7 +3,7 @@
   "name": "process.env.EXTENSION_NAME",
   "short_name": "process.env.EXTENSION_NAME",
   "version": "2.0.1",
-  "description": "Save articles to your Omnivore library",
+  "description": "Save PDFs and Articles to your Omnivore library",
   "author": "Omnivore Media, Inc",
   "default_locale": "en",
   "developer": {
@@ -89,7 +89,6 @@
     }
   },
   "web_accessible_resources": [
-    "views/toast.html",
-    "views/cta-popup.html"
+    "views/toast.html"
   ]
 }
