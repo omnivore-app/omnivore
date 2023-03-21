@@ -30,6 +30,12 @@
     padding-bottom: 10px;
   }
 
+  #omnivore-toast-container #omnivore-logged-out-row {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
   #omnivore-toast-container .omnivore-toast-func-row[data-state="open"] {
     display: flex;
   }
@@ -77,13 +83,13 @@
   #omnivore-toast-container .omnivore-save-button button {
     background-color: rgb(255, 210, 52)
   }
-  #omnivore-toast-container #omnivore-toast-close-button:hover {
+  #omnivore-toast-container #omnivore-toast-close-btn:hover {
     background-color: unset;
   }
-  #omnivore-toast-container #omnivore-toast-close-button svg {
+  #omnivore-toast-container #omnivore-toast-close-btn svg {
     fill: #3D3D3D;
   }
-  #omnivore-toast-container #omnivore-toast-close-button svg:hover {
+  #omnivore-toast-container #omnivore-toast-close-btn svg:hover {
     fill: #D9D9D9;
     stroke: white;
   }
@@ -275,7 +281,7 @@
     </button>
     <span class="omnivore-toast-divider"></span>
 -->
-    <button id="omnivore-toast-close-button">
+    <button id="omnivore-toast-close-btn">
       <svg width="19" height="19" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="9.50049" cy="9.52783" r="9" />
         <path d="M12.554 11.874L12.554 11.874L10.2075 9.52783L12.554 7.18165L12.554 7.18164C12.6478 7.08785 12.7005 6.96063 12.7005 6.82798C12.7005 6.69533 12.6478 6.56812 12.554 6.47432C12.4602 6.38053 12.333 6.32783 12.2003 6.32783C12.0677 6.32783 11.9405 6.38053 11.8467 6.47432L11.8467 6.47433L9.50049 8.82087L7.15431 6.47433L7.1543 6.47432C7.0605 6.38053 6.93329 6.32783 6.80064 6.32783C6.66799 6.32783 6.54078 6.38053 6.44698 6.47432C6.35318 6.56812 6.30049 6.69533 6.30049 6.82798C6.30049 6.96063 6.35318 7.08785 6.44698 7.18164L6.44699 7.18165L8.79352 9.52783L6.44699 11.874L6.44698 11.874C6.35318 11.9678 6.30049 12.095 6.30049 12.2277C6.30049 12.3603 6.35318 12.4875 6.44698 12.5813C6.54078 12.6751 6.66799 12.7278 6.80064 12.7278C6.93329 12.7278 7.0605 12.6751 7.1543 12.5813L7.15431 12.5813L9.50049 10.2348L11.8467 12.5813L11.8467 12.5813C11.8931 12.6278 11.9483 12.6646 12.0089 12.6898C12.0696 12.7149 12.1347 12.7278 12.2003 12.7278C12.266 12.7278 12.3311 12.7149 12.3917 12.6898C12.4524 12.6646 12.5076 12.6278 12.554 12.5813C12.6004 12.5349 12.6373 12.4798 12.6624 12.4191C12.6876 12.3584 12.7005 12.2934 12.7005 12.2277C12.7005 12.162 12.6876 12.097 12.6624 12.0363C12.6373 11.9756 12.6004 11.9205 12.554 11.874Z" fill="#EBEBEB" stroke="#EBEBEB" stroke-width="0.4"/>
@@ -322,6 +328,10 @@
       </svg>   
       Delete
     </button>
+  </div>
 
+  <div id="omnivore-logged-out-row" class="omnivore-toast-func-row" data-state="closed">
+    <span id="omnivore-logged-out-status" class="omnivore-toast-func-status"></span>
+    <a href="" id="omnivore-toast-login-btn">Login to Omnivore</a>
   </div>
 </div>

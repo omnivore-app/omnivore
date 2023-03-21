@@ -80,26 +80,54 @@
     return root
   }
 
-  function createCtaModal(url) {
-    const fragment = document.createDocumentFragment()
+  async function createCtaModal(url) {
+    if (currentToastEl) {
+      currentToastEl.remove()
+      currentToastEl = undefined
+    }
 
-    const iframeEl = document.createElement('iframe')
-    const iframePath = '/views/cta-popup.html?url=' + encodeURIComponent(url)
-    const iframeUrl = ENV_EXTENSION_ORIGIN + iframePath
-    iframeEl.src = iframeUrl
-    iframeEl.style.cssText = `all: initial !important;
-      width: 310px !important;
-      height: 360px !important;
-  `
-    fragment.appendChild(iframeEl)
-    document.body.appendChild(fragment)
+    const file = await fetch(browserApi.runtime.getURL('/views/cta-popup.html'))
+    const html = await file.text()
 
-    return fragment
+    const root = document.createElement('div')
+    root.attachShadow({ mode: 'open' })
+    if (root.shadowRoot) {
+      root.shadowRoot.innerHTML = `<style>:host {all initial;}</style>`
+    }
+
+    const toastEl = document.createElement('div')
+    toastEl.id = '#omnivore-toast'
+    toastEl.innerHTML = html
+    root.shadowRoot.appendChild(toastEl)
+
+    document.body.appendChild(root)
+    connectButtons(root)
+
+    return root
   }
 
   function displayLoggedOutView() {
-    console.log('displaying logged out view')
-    createCtaModal(ctx.omnivoreURL)
+    cancelAutoDismiss()
+    updatePageStatus('failure')
+    toggleRow('#omnivore-logged-out-row')
+    updateStatusBox(
+      '#omnivore-logged-out-status',
+      'empty',
+      `You are not logged in.`
+    )
+    disableAllButtons()
+  }
+
+  function disableAllButtons() {
+    const actionButtons = [
+      '#omnivore-toast-edit-title-btn',
+      '#omnivore-toast-edit-labels-btn',
+      '#omnivore-toast-read-now-btn',
+    ]
+    actionButtons.forEach((btnId) => {
+      const btn = currentToastEl.shadowRoot.querySelector(btnId)
+      btn.disabled = true
+    })
   }
 
   function cancelAutoDismiss() {
@@ -116,37 +144,13 @@
     if (payload.ctx) {
       ctx = { ...ctx, ...payload.ctx }
     }
-    console.log('updated ctx: ', ctx)
 
     switch (payload.target) {
       case 'logged_out':
         displayLoggedOutView()
         break
       case 'page':
-        {
-          const statusBox = currentToastEl.shadowRoot.querySelector(
-            '.omnivore-toast-statusBox'
-          )
-          switch (payload.status) {
-            case 'loading':
-              statusBox.innerHTML = systemIcons.animatedLoader
-              break
-            case 'success':
-              // Auto hide if everything went well and the user
-              // has not initiated any interaction.
-              hideToastTimeout = setTimeout(function () {
-                console.log('hiding: ', currentToastEl, doNotHide)
-                if (!doNotHide) {
-                  currentToastEl.remove()
-                  currentToastEl = undefined
-                }
-              }, 2500)
-              statusBox.innerHTML = systemIcons.success
-              break
-            case 'failure':
-              statusBox.innerHTML = systemIcons.failure
-          }
-        }
+        updatePageStatus(payload.status)
         break
       case 'title':
         updateStatusBox(
@@ -207,6 +211,31 @@
     })
   }
 
+  function updatePageStatus(status) {
+    const statusBox = currentToastEl.shadowRoot.querySelector(
+      '.omnivore-toast-statusBox'
+    )
+    switch (status) {
+      case 'loading':
+        statusBox.innerHTML = systemIcons.animatedLoader
+        break
+      case 'success':
+        // Auto hide if everything went well and the user
+        // has not initiated any interaction.
+        hideToastTimeout = setTimeout(function () {
+          console.log('hiding: ', currentToastEl, doNotHide)
+          if (!doNotHide) {
+            currentToastEl.remove()
+            currentToastEl = undefined
+          }
+        }, 2500)
+        statusBox.innerHTML = systemIcons.success
+        break
+      case 'failure':
+        statusBox.innerHTML = systemIcons.failure
+    }
+  }
+
   function updateStatusBox(boxId, state, message, dismissAfter) {
     const statusBox = currentToastEl.shadowRoot.querySelector(boxId)
     const image = (() => {
@@ -217,6 +246,8 @@
           return systemIcons.success
         case 'failure':
           return systemIcons.failure
+        case 'none':
+          return ''
         default:
           return undefined
       }
@@ -224,7 +255,7 @@
     if (image) {
       statusBox.innerHTML = `<span style='padding-right: 10px'>${image}</span><span style='line-height: 20px'>${message}</span>`
     } else {
-      statusBox.innerText = message
+      statusBox.innerHTML = message
     }
     if (dismissAfter) {
       setTimeout(() => {
@@ -256,7 +287,8 @@
       { id: '#omnivore-toast-edit-labels-btn', func: editLabels },
       { id: '#omnivore-toast-read-now-btn', func: readNow },
       { id: '#omnivore-open-menu-btn', func: openMenu },
-      { id: '#omnivore-toast-close-button', func: closeToast },
+      { id: '#omnivore-toast-close-btn', func: closeToast },
+      { id: '#omnivore-toast-login-btn', func: login },
     ]
 
     for (const btnInfo of btns) {
@@ -520,6 +552,11 @@
   function closeToast() {
     currentToastEl.remove()
     currentToastEl = undefined
+  }
+
+  function login() {
+    window.open(new URL(`/login`, ctx.omnivoreURL), '_blank')
+    setTimeout(closeToast, 2000)
   }
 
   window.showToolbar = showToolbar

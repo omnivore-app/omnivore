@@ -34,31 +34,16 @@ function getCurrentTab() {
   })
 }
 
-function setupConnection(xhr) {
-  xhr.setRequestHeader('Content-Type', 'application/json')
-  if (authToken) {
-    xhr.setRequestHeader('Authorization', authToken)
-  }
-}
-
-/* other code */
 function uploadFile({ id, uploadSignedUrl }, contentType, contentObjUrl) {
   return fetch(contentObjUrl)
     .then((r) => r.blob())
     .then((blob) => {
-      return new Promise((resolve) => {
-        const xhr = new XMLHttpRequest()
-        xhr.open('PUT', uploadSignedUrl, true)
-        xhr.setRequestHeader('Content-Type', contentType)
-
-        xhr.onerror = () => {
-          resolve(undefined)
-        }
-        xhr.onload = () => {
-          // Uploaded.
-          resolve({ id })
-        }
-        xhr.send(blob)
+      return fetch(uploadSignedUrl, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': contentType,
+        },
+        body: blob,
       })
     })
     .catch((err) => {
@@ -67,104 +52,111 @@ function uploadFile({ id, uploadSignedUrl }, contentType, contentObjUrl) {
     })
 }
 
-function savePdfFile(tab, url, contentType, contentObjUrl) {
-  return new Promise((resolve) => {
-    const xhr = new XMLHttpRequest()
-    xhr.onreadystatechange = async function () {
-      if (xhr.readyState === 4) {
-        if (xhr.status === 200) {
-          const { data } = JSON.parse(xhr.response)
-          if ('errorCodes' in data.uploadFileRequest) {
-            if (data.uploadFileRequest.errorCodes[0] === 'UNAUTHORIZED') {
-              clearClickCompleteState()
-              browserApi.tabs.sendMessage(tab.id, {
-                action: ACTIONS.ShowMessage,
-                payload: {
-                  text: 'Unable to save page',
-                  type: 'error',
-                  errorCode: 401,
-                  url: omnivoreURL,
-                },
-              })
-            }
-          }
-
-          if (
-            !data.uploadFileRequest ||
-            !data.uploadFileRequest.id ||
-            !data.uploadFileRequest.createdPageId ||
-            'errorCodes' in data.uploadFileRequest
-          ) {
-            browserApi.tabs.sendMessage(tab.id, {
-              action: ACTIONS.ShowMessage,
-              payload: {
-                text: 'Unable to save page',
-                type: 'error',
-              },
-            })
-          } else {
-            const result = await uploadFile(
-              data.uploadFileRequest,
-              contentType,
-              contentObjUrl
-            )
-            URL.revokeObjectURL(contentObjUrl)
-
-            if (!result) {
-              return undefined
-            }
-
-            const createdPageId = data.uploadFileRequest.createdPageId
-            browserApi.tabs.sendMessage(tab.id, {
-              action: ACTIONS.UpdateStatus,
-              payload: {
-                status: 'success',
-                target: 'page',
-                requestId: createdPageId,
-              },
-            })
-            return resolve(data.uploadFileRequest)
-          }
-        } else if (xhr.status === 400) {
-          browserApi.tabs.sendMessage(tab.id, {
-            action: ACTIONS.ShowMessage,
-            payload: {
-              text: 'Unable to save page',
-              type: 'error',
-            },
-          })
+async function uploadFileRequest(url, contentType) {
+  const data = JSON.stringify({
+    query: `mutation UploadFileRequest($input: UploadFileRequestInput!) {
+      uploadFileRequest(input:$input) {
+        ... on UploadFileRequestError {
+          errorCodes
         }
-        resolve(false)
+        ... on UploadFileRequestSuccess {
+          id
+          createdPageId
+          uploadSignedUrl
+        }
       }
+    }`,
+    variables: {
+      input: {
+        url,
+        contentType,
+        createPageEntry: true,
+      },
+    },
+  })
+
+  const field = 'uploadFileRequest'
+  const result = await gqlRequest(omnivoreGraphqlURL + 'graphql', data)
+
+  if (result[field]['errorCodes']) {
+    if (result[field]['errorCodes'][0] === 'UNAUTHORIZED') {
+      browserApi.tabs.sendMessage(currentTab.id, {
+        action: ACTIONS.UpdateStatus,
+        payload: {
+          target: 'logged_out',
+          status: 'logged_out',
+          message: 'You are not logged in.',
+          ctx: toolbarCtx,
+        },
+      })
+      clearClickCompleteState()
+    } else {
+      browserApi.tabs.sendMessage(currentTab.id, {
+        action: ACTIONS.UpdateStatus,
+        payload: {
+          status: 'failure',
+          message: 'Unable to save page.',
+          ctx: toolbarCtx,
+        },
+      })
+    }
+    return undefined
+  }
+
+  return result.uploadFileRequest
+}
+
+async function savePdfFile(
+  currentTab,
+  url,
+  requestId,
+  contentType,
+  contentObjUrl
+) {
+  const toolbarCtx = {
+    omnivoreURL,
+    originalURL: url,
+    requestId: requestId,
+  }
+  completedRequests[toolbarCtx.requestId] = undefined
+
+  browserApi.tabs.sendMessage(currentTab.id, {
+    action: ACTIONS.ShowToolbar,
+    payload: {
+      type: 'loading',
+      ctx: toolbarCtx,
+    },
+  })
+  const uploadRequestResult = await uploadFileRequest(url, contentType)
+  console.log('done uploading pdf', uploadRequestResult)
+  const uploadFileResult = await uploadFile(
+    uploadRequestResult,
+    contentType,
+    contentObjUrl
+  )
+  console.log(' uploadFileResult: ', uploadFileResult)
+  URL.revokeObjectURL(contentObjUrl)
+
+  if (uploadFileResult && uploadRequestResult.createdPageId) {
+    completedRequests[toolbarCtx.requestId] = {
+      requestId: toolbarCtx.requestId,
+      responseId: uploadRequestResult.createdPageId,
     }
 
-    const data = JSON.stringify({
-      query: `mutation UploadFileRequest($input: UploadFileRequestInput!) {
-        uploadFileRequest(input:$input) {
-          ... on UploadFileRequestError {
-            errorCodes
-          }
-          ... on UploadFileRequestSuccess {
-            id
-            createdPageId
-            uploadSignedUrl
-          }
-        }
-      }`,
-      variables: {
-        input: {
-          url,
-          contentType,
-          createPageEntry: true,
+    browserApi.tabs.sendMessage(currentTab.id, {
+      action: ACTIONS.UpdateStatus,
+      payload: {
+        status: 'success',
+        target: 'page',
+        ctx: {
+          requestId: toolbarCtx.requestId,
+          responseId: uploadRequestResult.createdPageId,
         },
       },
     })
+  }
 
-    xhr.open('POST', omnivoreGraphqlURL + 'graphql', true)
-    setupConnection(xhr)
-
-    xhr.send(data)
-  })
+  return uploadFileResult
 }
 
 function clearClickCompleteState() {
@@ -211,14 +203,6 @@ async function saveApiRequest(currentTab, query, field, input) {
 
   try {
     const result = await gqlRequest(omnivoreGraphqlURL + 'graphql', requestBody)
-    console.log(
-      'result: ',
-      field,
-      result,
-      result[field],
-      result[field]['errorCodes']
-    )
-
     if (result[field]['errorCodes']) {
       if (result[field]['errorCodes'][0] === 'UNAUTHORIZED') {
         browserApi.tabs.sendMessage(currentTab.id, {
@@ -342,8 +326,6 @@ async function processPendingRequests(tabId) {
     }
   })
 
-  console.log('updated pending requests: ', pendingRequests)
-
   // TODO: need to handle clearing completedRequests also
 }
 
@@ -393,6 +375,7 @@ async function saveArticle(tab) {
           const uploadResult = await savePdfFile(
             tab,
             encodeURI(tab.url),
+            requestId,
             pageInfo.contentType,
             uploadContentObjUrl
           )
@@ -759,7 +742,6 @@ function init() {
 
   // forward messages from grab-iframe-content.js script to tabs
   browserApi.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    console.log(' MESSAGE', request.action, request)
     if (request.forwardToTab) {
       delete request.forwardToTab
       browserApi.tabs.sendRequest(sender.tab.id, request)
@@ -783,7 +765,6 @@ function init() {
     }
 
     if (request.action === ACTIONS.SetLabels) {
-      console.log('pushing setLabels: ', pendingRequests)
       pendingRequests.push({
         id: uuidv4(),
         type: 'SET_LABELS',
