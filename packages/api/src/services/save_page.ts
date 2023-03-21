@@ -118,6 +118,7 @@ export const savePage = async (
           archivedAt: null, // unarchive if it was archived
           id: pageId, // we don't want to update the id
           slug, // we don't want to update the slug
+          createdAt: existingPage.createdAt, // we don't want to update the createdAt
         },
         ctx
       ))
@@ -236,7 +237,7 @@ export const parsedContentToPage = ({
     hash: uploadFileHash || stringToHash(parsedContent?.content || url),
     image: parsedContent?.previewImage ?? undefined,
     publishedAt: validatedDate(parsedContent?.publishedDate ?? undefined),
-    uploadFileId: uploadFileId,
+    uploadFileId,
     readingProgressPercent: 0,
     readingProgressAnchorIndex: 0,
     state: ArticleSavingRequestStatus.Succeeded,
