@@ -37,7 +37,7 @@ import { setLabelsMutation } from '../../../lib/networking/mutations/setLabelsMu
 import { ReaderHeader } from '../../../components/templates/reader/ReaderHeader'
 import { EditArticleModal } from '../../../components/templates/homeFeed/EditItemModals'
 import { VerticalArticleActionsMenu } from '../../../components/templates/article/VerticalArticleActions'
-import { HeaderSpacer } from '../../../components/templates/homeFeed/HeaderSpacer'
+import { PdfHeaderSpacer } from '../../../components/templates/article/PdfHeaderSpacer'
 
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
   () => import('./../../../components/templates/article/PdfArticleContainer'),
@@ -318,7 +318,7 @@ export default function Home(): JSX.Element {
         />
       </ReaderHeader>
 
-      {article?.contentReader == 'PDF' && <HeaderSpacer />}
+      {article?.contentReader == 'PDF' && <PdfHeaderSpacer />}
 
       <VStack
         distribution="between"
