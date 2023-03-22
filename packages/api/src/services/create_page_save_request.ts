@@ -153,14 +153,19 @@ export const createPageSaveRequest = async ({
       ctx
     )
   }
+  const labelsInput = labels?.map((label) => ({
+    name: label.name,
+    color: label.color,
+    description: label.description,
+  }))
   // enqueue task to parse page
   await enqueueParseRequest({
     url,
     userId,
     saveRequestId: page.id,
     priority,
-    archivedAt,
-    labels,
+    state: archivedAt ? ArticleSavingRequestStatus.Archived : undefined,
+    labels: labelsInput,
   })
 
   return pageToArticleSavingRequest(user, page)

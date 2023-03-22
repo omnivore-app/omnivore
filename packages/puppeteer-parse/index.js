@@ -337,6 +337,8 @@ async function fetchContent(req, res) {
         title,
         originalContent: content,
         parseResult: readabilityResult,
+        state,
+        labels,
       });
 
       logRecord.totalTime = Date.now() - functionStartTime;

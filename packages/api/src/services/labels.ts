@@ -1,13 +1,13 @@
-import { Label } from '../entity/label'
-import { ILike, In } from 'typeorm'
-import { PageContext } from '../elastic/types'
-import { User } from '../entity/user'
-import { addLabelInPage } from '../elastic/labels'
-import { getRepository } from '../entity/utils'
-import { Link } from '../entity/link'
 import DataLoader from 'dataloader'
-import { generateRandomColor } from '../utils/helpers'
+import { In } from 'typeorm'
+import { addLabelInPage } from '../elastic/labels'
+import { PageContext } from '../elastic/types'
+import { Label } from '../entity/label'
+import { Link } from '../entity/link'
+import { User } from '../entity/user'
+import { getRepository } from '../entity/utils'
 import { CreateLabelInput } from '../generated/graphql'
+import { generateRandomColor } from '../utils/helpers'
 
 const batchGetLabelsFromLinkIds = async (
   linkIds: readonly string[]
@@ -40,10 +40,11 @@ export const addLabelToPage = async (
     return false
   }
 
-  let labelEntity = await getRepository(Label).findOneBy({
-    user: { id: user.id },
-    name: ILike(label.name),
-  })
+  let labelEntity = await getRepository(Label)
+    .createQueryBuilder()
+    .where({ user: { id: user.id } })
+    .andWhere('LOWER(name) = LOWER(:name)', { name: label.name })
+    .getOne()
 
   if (!labelEntity) {
     console.log('creating new label', label.name)
@@ -87,10 +88,11 @@ export const createLabel = async (
     description?: string
   }
 ): Promise<Label> => {
-  const existingLabel = await getRepository(Label).findOneBy({
-    user: { id: userId },
-    name: ILike(label.name),
-  })
+  const existingLabel = await getRepository(Label)
+    .createQueryBuilder()
+    .where({ user: { id: userId } })
+    .andWhere('LOWER(name) = LOWER(:name)', { name: label.name })
+    .getOne()
 
   if (existingLabel) {
     return existingLabel
@@ -117,17 +119,23 @@ export const createLabels = async (
     return []
   }
 
-  const labelEntities = await getRepository(Label).findBy({
-    user: { id: user.id },
-    name: In(labels.map((l) => l.name)),
-  })
+  const labelEntities = await getRepository(Label)
+    .createQueryBuilder()
+    .where({
+      user: { id: user.id },
+    })
+    .andWhere('LOWER(name) IN (:...names)', {
+      names: labels.map((l) => l.name.toLowerCase()),
+    })
+    .getMany()
 
   const existingLabels = labelEntities.map((l) => l.name)
   const newLabels = labels.filter((l) => !existingLabels.includes(l.name))
   // create new labels
   const newLabelEntities = await getRepository(Label).save(
     newLabels.map((l) => ({
-      ...l,
+      name: l.name,
+      description: l.description,
       color: l.color || generateRandomColor(),
       user,
     }))

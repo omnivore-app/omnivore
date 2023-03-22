@@ -5,8 +5,12 @@ import { CloudTasksClient, protos } from '@google-cloud/tasks'
 import { google } from '@google-cloud/tasks/build/protos/protos'
 import axios from 'axios'
 import { nanoid } from 'nanoid'
-import { Label, Recommendation } from '../elastic/types'
+import { Recommendation } from '../elastic/types'
 import { env } from '../env'
+import {
+  ArticleSavingRequestStatus,
+  CreateLabelInput,
+} from '../generated/graphql'
 import { signFeatureToken } from '../services/features'
 import { CreateTaskError } from './errors'
 import { buildLogger } from './logger'
@@ -200,7 +204,7 @@ export const enqueueParseRequest = async ({
   saveRequestId,
   priority = 'high',
   queue = env.queue.name,
-  archivedAt,
+  state,
   labels,
 }: {
   url: string
@@ -208,15 +212,15 @@ export const enqueueParseRequest = async ({
   saveRequestId: string
   priority?: 'low' | 'high'
   queue?: string
-  archivedAt?: Date | null
-  labels?: Label[]
+  state?: ArticleSavingRequestStatus
+  labels?: CreateLabelInput[]
 }): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT } = process.env
   const payload = {
     url,
     userId,
     saveRequestId,
-    archivedAt,
+    state,
     labels,
   }
 

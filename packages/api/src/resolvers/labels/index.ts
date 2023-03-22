@@ -1,4 +1,17 @@
-import { authorized, generateRandomColor } from '../../utils/helpers'
+import { Between, ILike } from 'typeorm'
+import { createPubSubClient } from '../../datalayer/pubsub'
+import { getHighlightById } from '../../elastic/highlights'
+import {
+  deleteLabel,
+  setLabelsForHighlight,
+  updateLabel,
+  updateLabelsInPage,
+} from '../../elastic/labels'
+import { getPageById } from '../../elastic/pages'
+import { Label } from '../../entity/label'
+import { User } from '../../entity/user'
+import { getRepository, setClaims } from '../../entity/utils'
+import { env } from '../../env'
 import {
   CreateLabelError,
   CreateLabelErrorCode,
@@ -25,23 +38,10 @@ import {
   UpdateLabelErrorCode,
   UpdateLabelSuccess,
 } from '../../generated/graphql'
-import { analytics } from '../../utils/analytics'
-import { env } from '../../env'
-import { User } from '../../entity/user'
-import { Label } from '../../entity/label'
-import { Between, ILike } from 'typeorm'
-import { getRepository, setClaims } from '../../entity/utils'
-import { createPubSubClient } from '../../datalayer/pubsub'
 import { AppDataSource } from '../../server'
-import { getPageById } from '../../elastic/pages'
-import {
-  deleteLabel,
-  setLabelsForHighlight,
-  updateLabel,
-  updateLabelsInPage,
-} from '../../elastic/labels'
-import { getHighlightById } from '../../elastic/highlights'
 import { getLabelsByIds } from '../../services/labels'
+import { analytics } from '../../utils/analytics'
+import { authorized, generateRandomColor } from '../../utils/helpers'
 
 export const labelsResolver = authorized<LabelsSuccess, LabelsError>(
   async (_obj, _params, { claims: { uid }, log }) => {
