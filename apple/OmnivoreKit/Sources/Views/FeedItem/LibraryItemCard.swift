@@ -208,7 +208,9 @@ public struct LibraryItemCard: View {
         Spacer()
       }
     }.introspectScrollView { scrollView in
-      scrollView.bounces = false
+      #if os(iOS)
+        scrollView.bounces = false
+      #endif
     }
     .padding(.top, 0)
     .padding(.leading, 20)

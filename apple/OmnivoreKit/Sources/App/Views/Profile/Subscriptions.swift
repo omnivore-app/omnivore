@@ -87,7 +87,9 @@ struct SubscriptionsView: View {
       }
     }
     .navigationTitle("Subscriptions")
-    .navigationBarTitleDisplayMode(.inline)
+    #if os(iOS)
+      .navigationBarTitleDisplayMode(.inline)
+    #endif
   }
 
   private var innerBody: some View {

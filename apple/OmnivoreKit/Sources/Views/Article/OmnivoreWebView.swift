@@ -178,9 +178,17 @@ public final class OmnivoreWebView: WKWebView {
       super.viewDidChangeEffectiveAppearance()
       switch effectiveAppearance.bestMatch(from: [.aqua, .darkAqua]) {
       case .some(.darkAqua):
-        dispatchEvent(.updateColorMode(isDark: true))
+        do {
+          try dispatchEvent(.updateColorMode(isDark: true))
+        } catch {
+          showErrorInSnackbar("Error updating theme")
+        }
       default:
-        dispatchEvent(.updateColorMode(isDark: false))
+        do {
+          try dispatchEvent(.updateColorMode(isDark: false))
+        } catch {
+          showErrorInSnackbar("Error updating theme")
+        }
       }
     }
   #endif

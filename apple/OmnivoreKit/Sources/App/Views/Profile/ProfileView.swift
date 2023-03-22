@@ -106,9 +106,11 @@ struct ProfileView: View {
         Text(LocalText.subscriptionsGeneric)
       }
 
-      NavigationLink(destination: GroupsView()) {
-        Text(LocalText.clubsGeneric)
-      }
+      #if os(iOS)
+        NavigationLink(destination: GroupsView()) {
+          Text(LocalText.clubsGeneric)
+        }
+      #endif
     }
   }
 

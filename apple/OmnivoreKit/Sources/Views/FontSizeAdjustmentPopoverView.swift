@@ -58,9 +58,15 @@ public enum WebFont: String, CaseIterable {
   }
 
   public func font() -> Font? {
-    if let uiFont = UIFont(name: registeredName, size: 22) {
-      return Font(uiFont as CTFont)
-    }
+    #if os(iOS)
+      if let uiFont = UIFont(name: registeredName, size: 22) {
+        return Font(uiFont as CTFont)
+      }
+    #else
+      if let nsFont = NSFont(name: registeredName, size: 22) {
+        return Font(nsFont as CTFont)
+      }
+    #endif
     return Font.system(size: 22)
   }
 }

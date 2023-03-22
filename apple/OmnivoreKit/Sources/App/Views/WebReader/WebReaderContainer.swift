@@ -342,12 +342,14 @@ struct WebReaderContainerView: View {
         readerSettingsChangedTransactionID = UUID()
       })
     }
-    .sheet(isPresented: $showHighlightsView, onDismiss: onHighlightListViewDismissal) {
-      HighlightsListView(
-        itemObjectID: item.objectID,
-        hasHighlightMutations: $hasPerformedHighlightMutations
-      )
-    }
+    #if os(iOS)
+      .sheet(isPresented: $showHighlightsView, onDismiss: onHighlightListViewDismissal) {
+        HighlightsListView(
+          itemObjectID: item.objectID,
+          hasHighlightMutations: $hasPerformedHighlightMutations
+        )
+      }
+    #endif
     #if os(macOS)
       .buttonStyle(PlainButtonStyle())
     #endif
@@ -418,7 +420,11 @@ struct WebReaderContainerView: View {
             }
           }, label: { Text(LocalText.genericOpen) })
           Button(action: {
-            UIPasteboard.general.string = item.unwrappedPageURLString
+            #if os(iOS)
+              UIPasteboard.general.string = item.unwrappedPageURLString
+            #else
+//            Pasteboard.general.string = item.unwrappedPageURLString TODO: fix for mac
+            #endif
             showInSnackbar("Link Copied")
           }, label: { Text(LocalText.readerCopyLink) })
           Button(action: {
@@ -438,18 +444,21 @@ struct WebReaderContainerView: View {
             showErrorAlertMessage = false
           })
         }
-        .formSheet(isPresented: $showRecommendSheet) {
-          let highlightCount = item.highlights.asArray(of: Highlight.self).filter(\.createdByMe).count
-          NavigationView {
-            RecommendToView(
-              dataService: dataService,
-              viewModel: RecommendToViewModel(pageID: item.unwrappedID,
-                                              highlightCount: highlightCount)
-            )
-          }.onDisappear {
-            showRecommendSheet = false
+        #if os(iOS)
+          .formSheet(isPresented: $showRecommendSheet) {
+            let highlightCount = item.highlights.asArray(of: Highlight.self).filter(\.createdByMe).count
+
+            NavigationView {
+              RecommendToView(
+                dataService: dataService,
+                viewModel: RecommendToViewModel(pageID: item.unwrappedID,
+                                                highlightCount: highlightCount)
+              )
+            }.onDisappear {
+              showRecommendSheet = false
+            }
           }
-        }
+        #endif
         .sheet(isPresented: $showHighlightAnnotationModal) {
           HighlightAnnotationSheet(
             annotation: $annotation,
