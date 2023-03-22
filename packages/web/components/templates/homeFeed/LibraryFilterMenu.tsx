@@ -255,6 +255,7 @@ function MenuPanel(props: MenuPanelProps): JSX.Element {
                     alignItems: 'center',
                     justifyContent: 'center',
                     borderRadius: '1000px',
+                    cursor: 'pointer',
                     '&:hover': {
                       bg: '$thBackground4',
                     },
