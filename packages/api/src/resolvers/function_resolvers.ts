@@ -3,23 +3,28 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import { createReactionResolver, deleteReactionResolver } from './reaction'
-import { Claims, WithDataSourcesContext } from './types'
-import { createImageProxyUrl } from '../utils/imageproxy'
-import { userDataToUser, validatedDate, wordsCount } from '../utils/helpers'
-
+import { getShareInfoForArticle } from '../datalayer/links/share_info'
+import { getPageByParam } from '../elastic/pages'
 import {
   Article,
   ArticleHighlightsInput,
   ContentReader,
   Highlight,
+  HighlightType,
   LinkShareInfo,
   PageType,
   Reaction,
   SearchItem,
   User,
 } from '../generated/graphql'
-
+import { userDataToUser, validatedDate, wordsCount } from '../utils/helpers'
+import { createImageProxyUrl } from '../utils/imageproxy'
+import {
+  generateDownloadSignedUrl,
+  generateUploadFilePathName,
+} from '../utils/uploads'
+import { optInFeatureResolver } from './features'
+import { uploadImportFileResolver } from './importers/uploadImportFileResolver'
 import {
   addPopularReadResolver,
   apiKeysResolver,
@@ -109,16 +114,10 @@ import {
   webhookResolver,
   webhooksResolver,
 } from './index'
-import { getShareInfoForArticle } from '../datalayer/links/share_info'
-import {
-  generateDownloadSignedUrl,
-  generateUploadFilePathName,
-} from '../utils/uploads'
-import { getPageByParam } from '../elastic/pages'
-import { recentSearchesResolver } from './recent_searches'
-import { optInFeatureResolver } from './features'
-import { uploadImportFileResolver } from './importers/uploadImportFileResolver'
+import { createReactionResolver, deleteReactionResolver } from './reaction'
 import { markEmailAsItemResolver, recentEmailsResolver } from './recent_emails'
+import { recentSearchesResolver } from './recent_searches'
+import { Claims, WithDataSourcesContext } from './types'
 
 /* eslint-disable @typescript-eslint/naming-convention */
 type ResultResolveType = {
@@ -476,29 +475,11 @@ export const functionResolvers = {
       _: { input: ArticleHighlightsInput },
       ctx: WithDataSourcesContext
     ) {
-      // const includeFriends = false
-      // // TODO: this is a temporary solution until we figure out how collaborative approach would look like
-      // // article has userId only if it's returned by getSharedArticle resolver
-      // if (article.userId) {
-      //   const result = await ctx.models.highlight.getForUserArticle(
-      //     article.userId,
-      //     article.id
-      //   )
-      //   return result
-      // }
-      //
-      // const friendsIds =
-      //   ctx.claims?.uid && includeFriends
-      //     ? await ctx.models.userFriends.getFriends(ctx.claims?.uid)
-      //     : []
-      //
-      // // FIXME: Move this filtering logic to the datalayer
-      // return (await ctx.models.highlight.batchGet(article.id)).filter((h) =>
-      //   [...(includeFriends ? friendsIds : []), ctx.claims?.uid || ''].some(
-      //     (u) => u === h.userId
-      //   )
-      // )
-      return article.highlights || []
+      const highlights = article.highlights?.map((h) => ({
+        ...h,
+        type: h.type ?? HighlightType.Highlight,
+      }))
+      return highlights || []
     },
     async shareInfo(
       article: { id: string; sharedBy?: User; shareInfo?: LinkShareInfo },
