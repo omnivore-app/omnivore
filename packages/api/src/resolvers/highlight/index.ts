@@ -144,8 +144,6 @@ export const mergeHighlightResolver = authorized<
       errorCodes: [MergeHighlightErrorCode.Unauthorized],
     }
   }
-  const articleHighlights = page.highlights
-
   /* Compute merged annotation form the order of highlights appearing on page */
   const mergedAnnotations: string[] = []
   const mergedLabels: Label[] = []
