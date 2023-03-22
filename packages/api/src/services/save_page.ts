@@ -109,10 +109,10 @@ export const savePage = async (
     url: articleToSave.url,
   })
   // save state
-  const archivedAt =
+  articleToSave.archivedAt =
     input.state === ArticleSavingRequestStatus.Archived ? new Date() : null
   // add labels to page
-  const labels = input.labels
+  articleToSave.labels = input.labels
     ? await createLabels(ctx, input.labels)
     : undefined
 
@@ -125,11 +125,9 @@ export const savePage = async (
         {
           // update the page with the new content
           ...articleToSave,
-          archivedAt, // unarchive if it was archived
           id: pageId, // we don't want to update the id
           slug, // we don't want to update the slug
           createdAt: existingPage.createdAt, // we don't want to update the createdAt
-          labels,
         },
         ctx
       ))
@@ -146,8 +144,8 @@ export const savePage = async (
         url: articleToSave.url,
         pubsub: ctx.pubsub,
         articleSavingRequestId: input.clientRequestId,
-        archivedAt,
-        labels,
+        archivedAt: articleToSave.archivedAt,
+        labels: articleToSave.labels,
       })
     } catch (e) {
       return {
@@ -156,14 +154,7 @@ export const savePage = async (
       }
     }
   } else {
-    const newPageId = await createPage(
-      {
-        ...articleToSave,
-        archivedAt,
-        labels,
-      },
-      ctx
-    )
+    const newPageId = await createPage(articleToSave, ctx)
     if (!newPageId) {
       return {
         errorCodes: [SaveErrorCode.Unknown],

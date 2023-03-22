@@ -9,17 +9,14 @@ import {
   updatePage,
 } from '../elastic/pages'
 import { ArticleSavingRequestStatus, Label, PageType } from '../elastic/types'
+import { User } from '../entity/user'
+import { getRepository } from '../entity/utils'
 import {
   ArticleSavingRequest,
   CreateArticleSavingRequestErrorCode,
 } from '../generated/graphql'
-// TODO: switch to a proper Entity instead of using the old data models.
-import { DataModels } from '../resolvers/types'
 import { enqueueParseRequest } from '../utils/createTask'
 import { generateSlug, pageToArticleSavingRequest } from '../utils/helpers'
-import * as privateIpLib from 'private-ip'
-import { getRepository } from '../entity/utils'
-import { User } from '../entity/user'
 
 interface PageSaveRequest {
   userId: string
@@ -157,7 +154,14 @@ export const createPageSaveRequest = async ({
     )
   }
   // enqueue task to parse page
-  await enqueueParseRequest(url, userId, page.id, priority)
+  await enqueueParseRequest({
+    url,
+    userId,
+    saveRequestId: page.id,
+    priority,
+    archivedAt,
+    labels,
+  })
 
   return pageToArticleSavingRequest(user, page)
 }

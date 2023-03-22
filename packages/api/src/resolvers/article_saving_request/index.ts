@@ -1,5 +1,7 @@
 /* eslint-disable prefer-const */
 import { getPageByParam } from '../../elastic/pages'
+import { User } from '../../entity/user'
+import { getRepository } from '../../entity/utils'
 import { env } from '../../env'
 import {
   ArticleSavingRequestError,
@@ -60,11 +62,14 @@ export const articleSavingRequestResolver = authorized<
   ArticleSavingRequestSuccess,
   ArticleSavingRequestError,
   QueryArticleSavingRequestArgs
->(async (_, { id, url }, { models, claims }) => {
+>(async (_, { id, url }, { claims }) => {
   if (!id && !url) {
     return { errorCodes: [ArticleSavingRequestErrorCode.BadData] }
   }
-  const user = await models.user.get(claims.uid)
+  const user = await getRepository(User).findOne({
+    where: { id: claims.uid },
+    relations: ['profile'],
+  })
   if (!user) {
     return { errorCodes: [ArticleSavingRequestErrorCode.Unauthorized] }
   }

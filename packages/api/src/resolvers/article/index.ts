@@ -72,6 +72,7 @@ import {
   UpdatesSinceSuccess,
 } from '../../generated/graphql'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
+import { createLabels } from '../../services/labels'
 import { parsedContentToPage } from '../../services/save_page'
 import { traceAs } from '../../tracing'
 import { Merge } from '../../util'
@@ -101,7 +102,6 @@ import {
   makeStorageFilePublic,
 } from '../../utils/uploads'
 import { WithDataSourcesContext } from '../types'
-import { createLabels } from '../../services/labels'
 
 enum ArticleFormat {
   Markdown = 'markdown',

@@ -2,19 +2,19 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import express from 'express'
+import { DateTime } from 'luxon'
+import { v4 as uuidv4 } from 'uuid'
 import { EntityType, readPushSubscription } from '../../datalayer/pubsub'
 import { getPageById, searchPages } from '../../elastic/pages'
 import { Page } from '../../elastic/types'
 import { Integration, IntegrationType } from '../../entity/integration'
 import { getRepository } from '../../entity/utils'
-import { syncWithIntegration } from '../../services/integrations'
+import { Claims } from '../../resolvers/types'
+import { getIntegrationService } from '../../services/integrations'
+import { getClaimsByToken } from '../../utils/auth'
 import { buildLogger } from '../../utils/logger'
 import { DateFilter } from '../../utils/search'
-import { DateTime } from 'luxon'
 import { createGCSFile } from '../../utils/uploads'
-import { v4 as uuidv4 } from 'uuid'
-import { getClaimsByToken } from '../../utils/auth'
-import { Claims } from '../../resolvers/types'
 
 export interface Message {
   type?: EntityType
