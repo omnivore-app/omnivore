@@ -134,8 +134,8 @@ const appendDateFilters = (
   filters.forEach((filter) => {
     builder = builder.query('range', {
       [filter.field]: {
-        gt: filter.startDate?.toISOString(),
-        lt: filter.endDate?.toISOString(),
+        gt: filter.startDate?.getTime(),
+        lt: filter.endDate?.getTime(),
       },
     })
   })
