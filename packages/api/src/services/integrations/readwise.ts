@@ -1,10 +1,10 @@
-import { env } from '../../env'
 import axios from 'axios'
-import { Page } from '../../elastic/types'
-import { getHighlightUrl } from '../highlights'
-import { getRepository } from '../../entity/utils'
+import { HighlightType, Page } from '../../elastic/types'
 import { Integration } from '../../entity/integration'
+import { getRepository } from '../../entity/utils'
+import { env } from '../../env'
 import { wait } from '../../utils/helpers'
+import { getHighlightUrl } from '../highlights'
 import { IntegrationService } from './integration'
 
 interface ReadwiseHighlight {
@@ -75,23 +75,32 @@ export class ReadwiseIntegration extends IntegrationService {
   }
 
   pageToReadwiseHighlight = (page: Page): ReadwiseHighlight[] => {
-    if (!page.highlights) return []
-    return page.highlights.map((highlight) => {
-      return {
-        text: highlight.quote,
-        title: page.title,
-        author: page.author || undefined,
-        highlight_url: getHighlightUrl(page.slug, highlight.id),
-        highlighted_at: new Date(highlight.createdAt).toISOString(),
-        category: 'articles',
-        image_url: page.image || undefined,
-        location: highlight.highlightPositionPercent || undefined,
-        location_type: 'order',
-        note: highlight.annotation || undefined,
-        source_type: 'omnivore',
-        source_url: page.url,
-      }
-    })
+    const { highlights } = page
+    if (!highlights) return []
+    const category = page.siteName === 'Twitter' ? 'tweets' : 'articles'
+    return highlights
+      .map((highlight) => {
+        // filter out highlights that are not of type highlight or have no quote
+        if (highlight.type !== HighlightType.Highlight || !highlight.quote) {
+          return undefined
+        }
+
+        return {
+          text: highlight.quote,
+          title: page.title,
+          author: page.author || undefined,
+          highlight_url: getHighlightUrl(page.slug, highlight.id),
+          highlighted_at: new Date(highlight.createdAt).toISOString(),
+          category,
+          image_url: page.image || undefined,
+          // location: highlight.highlightPositionAnchorIndex || undefined,
+          location_type: 'order',
+          note: highlight.annotation || undefined,
+          source_type: 'omnivore',
+          source_url: page.url,
+        }
+      })
+      .filter((highlight) => highlight !== undefined) as ReadwiseHighlight[]
   }
 
   syncWithReadwise = async (

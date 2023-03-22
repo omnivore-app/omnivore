@@ -1,4 +1,7 @@
-import { authorized } from '../../utils/helpers'
+import { Integration, IntegrationType } from '../../entity/integration'
+import { User } from '../../entity/user'
+import { getRepository } from '../../entity/utils'
+import { env } from '../../env'
 import {
   DeleteIntegrationError,
   DeleteIntegrationErrorCode,
@@ -16,17 +19,14 @@ import {
   SetIntegrationErrorCode,
   SetIntegrationSuccess,
 } from '../../generated/graphql'
-import { getRepository } from '../../entity/utils'
-import { User } from '../../entity/user'
-import { Integration, IntegrationType } from '../../entity/integration'
-import { analytics } from '../../utils/analytics'
-import { env } from '../../env'
 import { getIntegrationService } from '../../services/integrations'
+import { analytics } from '../../utils/analytics'
 import {
   deleteTask,
   enqueueImportFromIntegration,
   enqueueSyncWithIntegration,
 } from '../../utils/createTask'
+import { authorized } from '../../utils/helpers'
 
 export const setIntegrationResolver = authorized<
   SetIntegrationSuccess,
@@ -89,10 +89,7 @@ export const setIntegrationResolver = authorized<
       (!integrationToSave.id || integrationToSave.enabled)
     ) {
       // create a task to sync all the pages if new integration or enable integration (export type)
-      const taskName = await enqueueSyncWithIntegration(
-        user.id,
-        input.type as string
-      )
+      const taskName = await enqueueSyncWithIntegration(user.id, input.name)
       log.info('enqueued task', taskName)
 
       // update task name in integration
