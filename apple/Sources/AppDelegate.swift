@@ -15,11 +15,20 @@ private let logger = Logger(subsystem: "app.omnivore", category: "app-delegate")
 #if os(macOS)
   class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_: Notification) {
+      NSApplication.shared.delegate = self
       #if DEBUG
         if CommandLine.arguments.contains("--uitesting") {
           configureForUITests()
         }
       #endif
+    }
+
+    func applicationWillBecomeActive(_ notification: Notification) {
+      (notification.object as? NSApplication)?.windows.first?.makeKeyAndOrderFront(self)
+    }
+
+    func applicationShouldHandleReopen(_: NSApplication, hasVisibleWindows _: Bool) -> Bool {
+      true
     }
   }
 
