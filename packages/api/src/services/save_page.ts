@@ -6,6 +6,7 @@ import { createPage, getPageByParam, updatePage } from '../elastic/pages'
 import { ArticleSavingRequestStatus, Page, PageType } from '../elastic/types'
 import { homePageURL } from '../env'
 import {
+  HighlightType,
   Maybe,
   PreparedDocumentInput,
   SaveErrorCode,
@@ -161,6 +162,7 @@ export const savePage = async (
       userId: ctx.uid,
       elasticPageId: pageId,
       ...parseResult.highlightData,
+      type: HighlightType.Highlight,
     }
 
     if (

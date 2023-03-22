@@ -300,12 +300,13 @@ input CreateHighlightInput {
   highlightPositionPercent: Float
   html: String
   id: ID!
-  patch: String!
+  patch: String
   prefix: String
-  quote: String!
+  quote: String
   sharedAt: Date
   shortId: String!
   suffix: String
+  type: HighlightType
 }
 
 type CreateHighlightReplyError {
@@ -802,14 +803,15 @@ type Highlight {
   html: String
   id: ID!
   labels: [Label!]
-  patch: String!
+  patch: String
   prefix: String
-  quote: String!
+  quote: String
   reactions: [Reaction!]!
   replies: [HighlightReply!]!
   sharedAt: Date
   shortId: String!
   suffix: String
+  type: HighlightType!
   updatedAt: Date!
   user: User!
 }
@@ -825,6 +827,12 @@ type HighlightReply {
 
 type HighlightStats {
   highlightCount: Int!
+}
+
+enum HighlightType {
+  HIGHLIGHT
+  NOTE
+  REDACTION
 }
 
 type Integration {

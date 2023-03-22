@@ -8,7 +8,11 @@ import {
   updateHighlight,
 } from '../../elastic/highlights'
 import { getPageById, updatePage } from '../../elastic/pages'
-import { Highlight as HighlightData } from '../../elastic/types'
+import {
+  Highlight as HighlightData,
+  HighlightType,
+  Label,
+} from '../../elastic/types'
 import { env } from '../../env'
 import {
   CreateHighlightError,
@@ -81,6 +85,7 @@ export const createHighlightResolver = authorized<
       createdAt: new Date(),
       userId: claims.uid,
       annotation,
+      type: input.type || HighlightType.Highlight,
     }
 
     if (
@@ -139,38 +144,48 @@ export const mergeHighlightResolver = authorized<
       errorCodes: [MergeHighlightErrorCode.Unauthorized],
     }
   }
-  const articleHighlights = page.highlights
-
   /* Compute merged annotation form the order of highlights appearing on page */
-  const overlapAnnotations: { [id: string]: string } = {}
-  articleHighlights.forEach((highlight, index) => {
-    if (overlapHighlightIdList.includes(highlight.id)) {
-      articleHighlights.splice(index, 1)
-
+  const mergedAnnotations: string[] = []
+  const mergedLabels: Label[] = []
+  const pageHighlights = page.highlights.filter((highlight) => {
+    // filter out highlights that are in the overlap list
+    // and are of type highlight (not annotation or note)
+    if (
+      overlapHighlightIdList.includes(highlight.id) &&
+      highlight.type === HighlightType.Highlight
+    ) {
       if (highlight.annotation) {
-        overlapAnnotations[highlight.id] = highlight.annotation
+        mergedAnnotations.push(highlight.annotation)
       }
+      if (highlight.labels) {
+        // remove duplicates from labels by checking id
+        highlight.labels.forEach((label) => {
+          if (
+            !mergedLabels.find((mergedLabel) => mergedLabel.id === label.id)
+          ) {
+            mergedLabels.push(label)
+          }
+        })
+      }
+      return false
     }
+    return true
   })
-  const mergedAnnotation: string[] = []
-  overlapHighlightIdList.forEach((highlightId) => {
-    if (overlapAnnotations[highlightId]) {
-      mergedAnnotation.push(overlapAnnotations[highlightId])
-    }
-  })
-
   try {
     const highlight: HighlightData = {
       ...newHighlightInput,
       updatedAt: new Date(),
       createdAt: new Date(),
       userId: claims.uid,
-      annotation: mergedAnnotation ? mergedAnnotation.join('\n') : null,
+      annotation:
+        mergedAnnotations.length > 0 ? mergedAnnotations.join('\n') : null,
+      type: HighlightType.Highlight,
+      labels: mergedLabels,
     }
 
     const merged = await updatePage(
       pageId,
-      { highlights: articleHighlights.concat(highlight) },
+      { highlights: pageHighlights.concat(highlight) },
       { pubsub, uid: claims.uid }
     )
     if (!merged) {

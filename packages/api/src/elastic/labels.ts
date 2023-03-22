@@ -282,7 +282,7 @@ export const setLabelsForHighlight = async (
           lang: 'painless',
           params: {
             highlightId,
-            labels: labels,
+            labels,
             updatedAt: new Date(),
           },
         },

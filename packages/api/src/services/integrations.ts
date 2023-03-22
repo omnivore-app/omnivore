@@ -2,7 +2,7 @@ import { IntegrationType } from '../generated/graphql'
 import { env } from '../env'
 import axios from 'axios'
 import { wait } from '../utils/helpers'
-import { Page } from '../elastic/types'
+import { HighlightType, Page } from '../elastic/types'
 import { getHighlightUrl } from './highlights'
 import { Integration } from '../entity/integration'
 import { getRepository } from '../entity/utils'
@@ -68,11 +68,14 @@ const pageToReadwiseHighlight = (page: Page): ReadwiseHighlight[] => {
   const category = page.siteName === 'Twitter' ? 'tweets' : 'articles'
   return (
     page.highlights
-      // filter out highlights with no quote
-      .filter((highlight) => highlight.quote.length > 0)
+      // filter out highlights with no quote and are not of type Highlight
+      .filter(
+        (highlight) =>
+          highlight.type === HighlightType.Highlight && highlight.quote
+      )
       .map((highlight) => {
         return {
-          text: highlight.quote,
+          text: highlight.quote!,
           title: page.title,
           author: page.author || undefined,
           highlight_url: getHighlightUrl(page.slug, highlight.id),

@@ -84,6 +84,10 @@
           "userId": {
             "type": "keyword"
           },
+          "type": {
+            "type": "keyword",
+            "null_value": "HIGHLIGHT"
+          },
           "quote": {
             "type": "text",
             "analyzer": "strip_html_analyzer"
