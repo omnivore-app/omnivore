@@ -475,11 +475,7 @@ export const functionResolvers = {
       _: { input: ArticleHighlightsInput },
       ctx: WithDataSourcesContext
     ) {
-      const highlights = article.highlights?.map((h) => ({
-        ...h,
-        type: h.type ?? HighlightType.Highlight,
-      }))
-      return highlights || []
+      return article.highlights || []
     },
     async shareInfo(
       article: { id: string; sharedBy?: User; shareInfo?: LinkShareInfo },
@@ -537,6 +533,9 @@ export const functionResolvers = {
       ctx: WithDataSourcesContext
     ) {
       return highlight.createdByMe ?? highlight.userId === ctx.claims?.uid
+    },
+    type(highlight: { type: HighlightType }) {
+      return highlight.type || HighlightType.Highlight
     },
   },
   Reaction: {
