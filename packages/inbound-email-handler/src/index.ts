@@ -22,6 +22,11 @@ interface SaveReceivedEmailResponse {
   id: string
 }
 
+interface Envelope {
+  to: string[]
+  from: string
+}
+
 const signToken = promisify(jwt.sign)
 
 const NEWSLETTER_EMAIL_RECEIVED_TOPIC = 'newsletterEmailReceived'
@@ -71,11 +76,8 @@ const saveReceivedEmail = async (
 export const parsedTo = (parsed: Record<string, string>): string => {
   // envelope to contains the real recipient email address
   try {
-    const envelope = JSON.parse(parsed.envelope) as Record<
-      string,
-      string | string[]
-    >
-    return envelope.to.toString().split(',')[0] || parsed.to
+    const envelope = JSON.parse(parsed.envelope) as Envelope
+    return envelope.to[0]
   } catch (err) {
     return parsed.to
   }
