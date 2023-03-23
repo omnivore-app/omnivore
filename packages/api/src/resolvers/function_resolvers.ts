@@ -470,7 +470,7 @@ export const functionResolvers = {
         ? ContentReader.Pdf
         : ContentReader.Web
     },
-    async highlights(
+    highlights(
       article: { id: string; userId?: string; highlights?: Highlight[] },
       _: { input: ArticleHighlightsInput },
       ctx: WithDataSourcesContext
