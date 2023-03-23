@@ -145,6 +145,10 @@ class LibraryViewModel @Inject constructor(
         CoroutineScope(Dispatchers.Main).launch {
           isRefreshing = false
         }
+
+        result.savedItemSlugs.map {
+          dataService.syncSavedItemContent(it, skipIfStoredInDB = true)
+        }
       }
     }
   }
@@ -201,13 +205,11 @@ class LibraryViewModel @Inject constructor(
     // Fetch content for the initial batch only
     if (isInitialBatch) {
       for (slug in result.savedItemSlugs) {
-        dataService.syncSavedItemContent(slug)
+        dataService.syncSavedItemContent(slug, skipIfStoredInDB = false)
       }
     }
 
     val totalCount = count + result.count
-
-    Log.d("sync", "fetched ${result.count} items")
 
     if (!result.hasError && result.hasMoreItems && result.cursor != null) {
       performItemSync(

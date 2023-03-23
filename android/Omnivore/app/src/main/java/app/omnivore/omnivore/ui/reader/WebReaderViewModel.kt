@@ -81,14 +81,14 @@ class WebReaderViewModel @Inject constructor(
   }
 
   private suspend fun loadItemUsingSlug(slug: String) {
+    loadItemFromDB(slug)
+
     val webReaderParams = loadItemFromServer(slug)
 
     if (webReaderParams != null) {
       Log.d("reader", "data loaded from server")
       webReaderParamsLiveData.postValue(webReaderParams)
       isLoading = false
-    } else {
-      loadItemFromDB(slug)
     }
   }
 
