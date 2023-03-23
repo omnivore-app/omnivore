@@ -12,9 +12,11 @@ import type { Highlight } from '../../../lib/networking/fragments/highlightFragm
 import { HighlightView } from '../../patterns/HighlightView'
 import {
   ChangeEvent,
+  Dispatch,
   useCallback,
   useEffect,
   useMemo,
+  useReducer,
   useRef,
   useState,
 } from 'react'
@@ -39,6 +41,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { nanoid } from 'nanoid'
 import throttle from 'lodash/throttle'
 import { deleteHighlightMutation } from '../../../lib/networking/mutations/deleteHighlightMutation'
+import { LibraryItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 
 const mdParser = new MarkdownIt()
 
@@ -49,6 +52,15 @@ type NotebookModalProps = {
   updateHighlight: (highlight: Highlight) => void
   deleteHighlightAction?: (highlightId: string) => void
   onOpenChange: (open: boolean) => void
+}
+
+type HighlightListReducerAction = {
+  type: string
+  itemId?: string
+  createId?: string
+  removeId?: string
+  highlight?: Highlight
+  highlights?: Highlight[]
 }
 
 export const getHighlightLocation = (patch: string): number | undefined => {
@@ -68,21 +80,60 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
   const [notesEditMode, setNotesEditMode] = useState(true)
   const [, updateState] = useState({})
 
+  const listReducer = (
+    state: Highlight[],
+    action: HighlightListReducerAction
+  ) => {
+    switch (action.type) {
+      case 'RESET':
+        return action.highlights ?? []
+      case 'CREATE_NOTE':
+        if (!action.highlight) {
+          throw new Error('Unable to create note')
+        }
+        return [...(action.highlights ?? []), action.highlight]
+      case 'UPDATE_NOTE':
+        return action.highlights ?? []
+      case 'REMOVE_HIGHLIGHT':
+      // const item = state.find((li) => li.node.id === action.itemId)
+      // if (item && item.node.highlights) {
+      //   item.node.highlights = item.node.highlights.filter(
+      //     (h) => h.id !== action.highlightId
+      //   )
+      // }
+      // const result = state.filter(
+      //   (item) => item.node.highlights && item.node.highlights.length > 0
+      // )
+      // return result
+      default:
+        throw new Error()
+    }
+  }
+
+  const [highlights, dispatchList] = useReducer(listReducer, [])
+
+  useEffect(() => {
+    dispatchList({
+      type: 'RESET',
+      highlights: props.highlights,
+    })
+  }, [props.highlights])
+
   const exportHighlights = useCallback(() => {
     ;(async () => {
-      if (!props.highlights) {
+      if (!highlights) {
         showErrorToast('No highlights to export')
         return
       }
-      const markdown = highlightsAsMarkdown(props.highlights)
+      const markdown = highlightsAsMarkdown(highlights)
       await navigator.clipboard.writeText(markdown)
       showSuccessToast('Highlight copied')
     })()
-  }, [props.highlights])
+  }, [highlights])
 
   const deleteDocumentNote = useCallback(() => {
     ;(async () => {
-      const notes = props.highlights.filter((h) => h.type == 'NOTE')
+      const notes = highlights.filter((h) => h.type == 'NOTE')
 
       notes.forEach(async (n) => {
         try {
@@ -110,7 +161,7 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
       return 0
     }
 
-    return props.highlights
+    return highlights
       .filter((h) => h.type === undefined || h.type === 'HIGHLIGHT')
       .sort((a: Highlight, b: Highlight) => {
         if (a.highlightPositionPercent && b.highlightPositionPercent) {
@@ -127,7 +178,7 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
         } catch {}
         return a.createdAt.localeCompare(b.createdAt)
       })
-  }, [props.highlights])
+  }, [highlights])
 
   return (
     <ModalRoot defaultOpen onOpenChange={props.onOpenChange}>
@@ -188,13 +239,14 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
           />
           <NoteSection
             pageId={props.pageId}
-            highlight={props.highlights.find((h) => h.type == 'NOTE')}
+            highlight={highlights.find((h) => h.type == 'NOTE')}
             sizeMode={sizeMode}
             mode={notesEditMode ? 'edit' : 'read'}
             setEditMode={setNotesEditMode}
+            dispatchList={dispatchList}
           />
           <SpanBox css={{ mt: '10px', mb: '25px' }} />
-          {/* {props.highlights.map((highlight) => (
+          {props.highlights.map((highlight) => (
             <Box key={`hn-${highlight.id}`} css={{ color: 'black' }}>
               {highlight.annotation}
               <Button
@@ -205,7 +257,7 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
                 DELETE
               </Button>
             </Box>
-          ))} */}
+          ))}
           <Box css={{ overflow: 'auto', width: '100%' }}>
             <TitledSection title="HIGHLIGHTS" />
 
@@ -351,9 +403,12 @@ type NoteSectionProps = {
   sizeMode: 'normal' | 'maximized'
   mode: 'edit' | 'read'
   setEditMode: (set: boolean) => void
+
+  dispatchList: Dispatch<HighlightListReducerAction>
 }
 
 function NoteSection(props: NoteSectionProps): JSX.Element {
+  const [noteText, setNoteText] = useState('')
   const [lastSaved, setLastSaved] = useState<Date | undefined>(undefined)
   const [lastChanged, setLastChanged] = useState<Date | undefined>(undefined)
   const [errorSaving, setErrorSaving] = useState<string | undefined>(undefined)
@@ -361,11 +416,13 @@ function NoteSection(props: NoteSectionProps): JSX.Element {
   const [createStartTime, setCreateStartTime] = useState<Date | undefined>(
     undefined
   )
-  const [createdHighlight, setCreatedHighlight] = useState<
-    Highlight | undefined
-  >(undefined)
+
+  useEffect(() => {
+    setNoteText(props.highlight?.annotation ?? '')
+  }, [props.highlight?.annotation])
 
   const highlightId = useMemo(() => {
+    console.log(' -- highlightId: ', props.highlight)
     if (props.highlight) {
       return { id: props.highlight.id, shortId: props.highlight.shortId }
     }
@@ -375,14 +432,11 @@ function NoteSection(props: NoteSectionProps): JSX.Element {
   const saveText = useCallback(
     (text, updateTime) => {
       ;(async () => {
-        console.log('calling save: ', props.highlight, createdHighlight)
-        if (props.highlight || createdHighlight) {
+        console.log('calling save: ', props.highlight)
+        if (props.highlight) {
           const success = await updateHighlightMutation({
             annotation: text,
-            highlightId:
-              props.highlight?.id ??
-              createdHighlight?.id ??
-              '' /* impossible to get to but TS thinks it is */,
+            highlightId: props.highlight?.id,
           })
           if (success) {
             setLastSaved(updateTime)
@@ -405,7 +459,10 @@ function NoteSection(props: NoteSectionProps): JSX.Element {
 
             if (created) {
               setLastSaved(updateTime)
-              setCreatedHighlight(created)
+              props.dispatchList({
+                type: 'CREATE_NOTE',
+                highlight: created,
+              })
             } else {
               console.log('unable to create note highlight')
             }
@@ -413,14 +470,14 @@ function NoteSection(props: NoteSectionProps): JSX.Element {
         }
       })()
     },
-    [lastSaved, lastChanged, createdHighlight, createStartTime]
+    [lastSaved, lastChanged, createStartTime]
   )
 
   const saveRef = useRef(saveText)
 
   useEffect(() => {
     saveRef.current = saveText
-  }, [lastSaved, lastChanged, createdHighlight, createStartTime])
+  }, [lastSaved, lastChanged, createStartTime])
 
   const debouncedSave = useMemo<
     (text: string, updateTime: Date) => void
@@ -440,11 +497,13 @@ function NoteSection(props: NoteSectionProps): JSX.Element {
         event.preventDefault()
       }
 
+      setNoteText(data.text)
+
       const updateTime = new Date()
       setLastChanged(updateTime)
       debouncedSave(data.text, updateTime)
     },
-    [lastSaved, lastChanged, createdHighlight, createStartTime]
+    [lastSaved, lastChanged, createStartTime]
   )
 
   return (
@@ -463,8 +522,8 @@ function NoteSection(props: NoteSectionProps): JSX.Element {
           }}
         >
           <MdEditor
-            defaultValue={props.highlight?.annotation}
             placeholder="Add notes..."
+            value={noteText}
             view={{ menu: true, md: true, html: false }}
             canView={{
               menu: true,
@@ -525,7 +584,7 @@ function NoteSection(props: NoteSectionProps): JSX.Element {
         </VStack>
       ) : (
         <>
-          {props.highlight?.annotation || createdHighlight?.annotation ? (
+          {props.highlight?.annotation ? (
             <Box
               css={{
                 borderRadius: '5px',
@@ -535,13 +594,7 @@ function NoteSection(props: NoteSectionProps): JSX.Element {
                 minHeight: props.sizeMode == 'normal' ? '191px' : '351px',
               }}
             >
-              <ReactMarkdown
-                children={
-                  props.highlight?.annotation ??
-                  createdHighlight?.annotation ??
-                  ''
-                }
-              />
+              <ReactMarkdown children={props.highlight?.annotation} />
             </Box>
           ) : (
             <Box
