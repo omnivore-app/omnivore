@@ -9,7 +9,7 @@ import {
 import { formattedShortTime } from '../../lib/dateFormatting'
 import { createHighlightMutation } from '../../lib/networking/mutations/createHighlightMutation'
 import { updateHighlightMutation } from '../../lib/networking/mutations/updateHighlightMutation'
-import { Box, HStack, SpanBox, VStack } from '../elements/LayoutPrimitives'
+import { HStack, SpanBox, VStack } from '../elements/LayoutPrimitives'
 
 import MarkdownIt from 'markdown-it'
 import MdEditor from 'react-markdown-editor-lite'
@@ -232,7 +232,6 @@ export function HighlightNoteBox(props: NoteSectionProps): JSX.Element {
           distribution="start"
           css={{
             width: '100%',
-            // minHeight: '160px'
           }}
         >
           <StyledText
@@ -260,22 +259,3 @@ export function HighlightNoteBox(props: NoteSectionProps): JSX.Element {
     </>
   )
 }
-
-// {!isEditing ? (
-//   <StyledText
-//     css={{
-//       borderRadius: '5px',
-//       p: '10px',
-//       width: '100%',
-//       marginTop: '15px',
-//       color: '$thHighContrast',
-//       border: '1px solid #EBEBEB',
-//     }}
-//     onClick={() => setIsEditing(true)}
-//   >
-//     {props.highlight.annotation
-//       ? props.highlight.annotation
-//       : 'Add notes to this highlight...'}
-//   </StyledText>
-// ) : null}
-// {isEditing && (

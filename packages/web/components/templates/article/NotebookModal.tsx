@@ -42,6 +42,7 @@ import { nanoid } from 'nanoid'
 import throttle from 'lodash/throttle'
 import { deleteHighlightMutation } from '../../../lib/networking/mutations/deleteHighlightMutation'
 import { LibraryItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+import { HighlightNoteBox } from '../HighlightNoteBox'
 
 const mdParser = new MarkdownIt()
 
@@ -77,7 +78,7 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
   )
   const [sizeMode, setSizeMode] = useState<'normal' | 'maximized'>('normal')
   const [showConfirmDeleteNote, setShowConfirmDeleteNote] = useState(false)
-  const [notesEditMode, setNotesEditMode] = useState(true)
+  const [notesEditMode, setNotesEditMode] = useState<'edit' | 'preview'>('edit')
   const [, updateState] = useState({})
 
   const listReducer = (
@@ -190,63 +191,72 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
         }}
         css={{
           overflow: 'auto',
-          px: '20px',
           height: sizeMode === 'normal' ? 'unset' : '100%',
           maxWidth: sizeMode === 'normal' ? '640px' : '100%',
+          minHeight: '525px',
         }}
       >
-        <VStack distribution="start" css={{ height: '100%' }}>
+        <HStack
+          distribution="between"
+          alignment="center"
+          css={{
+            width: '100%',
+            position: 'sticky',
+            top: '0px',
+            height: '50px',
+            p: '20px',
+            bg: '$thBackground',
+            zIndex: 10,
+          }}
+        >
+          <StyledText style="modalHeadline" css={{ color: '$thTextSubtle2' }}>
+            Notebook
+          </StyledText>
           <HStack
-            distribution="between"
+            css={{
+              ml: 'auto',
+              cursor: 'pointer',
+              gap: '5px',
+              mr: '-5px',
+            }}
+            distribution="center"
             alignment="center"
-            css={{ height: '50px', width: '100%' }}
           >
-            <StyledText style="modalHeadline" css={{ color: '$thTextSubtle2' }}>
-              Notebook
-            </StyledText>
-            <HStack
-              css={{
-                ml: 'auto',
-                cursor: 'pointer',
-                gap: '5px',
-                mr: '-5px',
-              }}
-              distribution="center"
-              alignment="center"
-            >
-              <SizeToggle mode={sizeMode} setMode={setSizeMode} />
-              <Dropdown triggerElement={<MenuTrigger />}>
-                <DropdownOption
-                  onSelect={() => {
-                    exportHighlights()
-                  }}
-                  title="Export Notebook"
-                />
-                <DropdownOption
-                  onSelect={() => {
-                    setShowConfirmDeleteNote(true)
-                  }}
-                  title="Delete Document Note"
-                />
-              </Dropdown>
-              <CloseButton close={() => props.onOpenChange(false)} />
-            </HStack>
+            <SizeToggle mode={sizeMode} setMode={setSizeMode} />
+            <Dropdown triggerElement={<MenuTrigger />}>
+              <DropdownOption
+                onSelect={() => {
+                  exportHighlights()
+                }}
+                title="Export Notebook"
+              />
+              <DropdownOption
+                onSelect={() => {
+                  setShowConfirmDeleteNote(true)
+                }}
+                title="Delete Document Note"
+              />
+            </Dropdown>
+            <CloseButton close={() => props.onOpenChange(false)} />
           </HStack>
+        </HStack>
+        <VStack distribution="start" css={{ height: '100%', p: '20px' }}>
           <TitledSection
             title="ARTICLE NOTES"
-            editMode={notesEditMode}
-            setEditMode={setNotesEditMode}
+            editMode={notesEditMode == 'edit'}
+            setEditMode={(edit) => setNotesEditMode(edit ? 'edit' : 'preview')}
           />
-          <NoteSection
+          <HighlightNoteBox
             pageId={props.pageId}
+            placeHolder="Add notes to this document..."
             highlight={highlights.find((h) => h.type == 'NOTE')}
             sizeMode={sizeMode}
-            mode={notesEditMode ? 'edit' : 'read'}
+            mode={notesEditMode}
             setEditMode={setNotesEditMode}
-            dispatchList={dispatchList}
+            // dispatchList={dispatchList}
           />
           <SpanBox css={{ mt: '10px', mb: '25px' }} />
-          {props.highlights.map((highlight) => (
+          {/* {props.highlights.map((highlight) => (
             <Box key={`hn-${highlight.id}`} css={{ color: 'black' }}>
               {highlight.annotation}
               <Button
@@ -257,8 +267,8 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
                 DELETE
               </Button>
             </Box>
-          ))}
-          <Box css={{ overflow: 'auto', width: '100%' }}>
+          ))} */}
+          <Box css={{ width: '100%' }}>
             <TitledSection title="HIGHLIGHTS" />
 
             {sortedHighlights.map((highlight) => (
@@ -358,7 +368,6 @@ type ModalHighlightViewProps = {
 
 function ModalHighlightView(props: ModalHighlightViewProps): JSX.Element {
   const [hover, setHover] = useState(false)
-  const [isEditing, setIsEditing] = useState(false)
 
   return (
     <HStack
@@ -544,6 +553,7 @@ function NoteSection(props: NoteSectionProps): JSX.Element {
               'block-quote',
               'link',
               'auto-resize',
+              'mode-toggle',
             ]}
             style={{
               width: '100%',

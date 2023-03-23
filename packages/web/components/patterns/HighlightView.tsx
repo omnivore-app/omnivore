@@ -9,8 +9,8 @@ import {
   SpanBox,
   HStack,
 } from '../elements/LayoutPrimitives'
-import { StyledText } from '../elements/StyledText'
 import { styled, theme } from '../tokens/stitches.config'
+import { HighlightViewNote } from './HighlightViewNote'
 
 type HighlightViewProps = {
   highlight: Highlight
@@ -27,6 +27,7 @@ const StyledQuote = styled(Blockquote, {
 })
 
 export function HighlightView(props: HighlightViewProps): JSX.Element {
+  const [noteMode, setNoteMode] = useState<'preview' | 'edit'>('preview')
   const [isEditing, setIsEditing] = useState(false)
 
   const lines = useMemo(
@@ -45,7 +46,7 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
       <VStack css={{ minHeight: '100%', width: '10px' }}>
         <Box
           css={{
-            mt: '5px',
+            mt: '8px',
             width: '10px',
             height: '10px',
             background: '#FFD234',
@@ -71,7 +72,12 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
             }
           }}
         >
-          <SpanBox css={{ p: '1px', borderRadius: '2px' }}>
+          <SpanBox
+            css={{
+              p: '1px',
+              borderRadius: '2px',
+            }}
+          >
             {lines.map((line: string, index: number) => (
               <Fragment key={index}>
                 {line}
@@ -90,30 +96,13 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
             <LabelChip key={index} text={name || ''} color={color} />
           ))}
         </Box>
-        {!isEditing ? (
-          <StyledText
-            css={{
-              borderRadius: '5px',
-              p: '10px',
-              width: '100%',
-              marginTop: '15px',
-              color: '$thHighContrast',
-              border: '1px solid #EBEBEB',
-            }}
-            onClick={() => setIsEditing(true)}
-          >
-            {props.highlight.annotation
-              ? props.highlight.annotation
-              : 'Add notes to this highlight...'}
-          </StyledText>
-        ) : null}
-        {isEditing && (
-          <HighlightNoteTextEditArea
-            setIsEditing={setIsEditing}
-            highlight={props.highlight}
-            updateHighlight={() => {} /* props.updateHighlight */}
-          />
-        )}
+        <HighlightViewNote
+          placeHolder="Add notes to this highlight..."
+          highlight={props.highlight}
+          sizeMode={'normal'}
+          mode={noteMode}
+          setEditMode={setNoteMode}
+        />
       </VStack>
     </HStack>
   )
