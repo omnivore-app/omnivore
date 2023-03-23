@@ -110,6 +110,14 @@ class LibraryViewModel @Inject constructor(
   }
 
   fun initialLoad() {
+    if (getLastSyncTime() == null) {
+      hasLoadedInitialFilters = false
+      cursor = null
+      librarySearchCursor = null
+      searchIdx = 0
+      receivedIdx = 0
+    }
+
     if (hasLoadedInitialFilters) { return }
     load()
   }
