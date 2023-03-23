@@ -237,7 +237,9 @@ export default function PdfArticleContainer(
 
       // Store the highlights in the highlightsRef and apply them to the PDF
       highlightsRef.current = props.article.highlights
-      for (const highlight of props.article.highlights) {
+      for (const highlight of props.article.highlights.filter(
+        (h) => h.type == 'HIGHLIGHT'
+      )) {
         const patch = JSON.parse(highlight.patch)
         if (highlight.annotation && patch.customData.omnivoreHighight) {
           patch.customData.omnivoreHighight.annotation = highlight.annotation
@@ -491,6 +493,7 @@ export default function PdfArticleContainer(
       {props.showHighlightsModal && (
         <NotebookModal
           key={notebookKey}
+          pageId={props.article.id}
           highlights={highlightsRef.current}
           onOpenChange={() => props.setShowHighlightsModal(false)}
           /* eslint-disable @typescript-eslint/no-empty-function */

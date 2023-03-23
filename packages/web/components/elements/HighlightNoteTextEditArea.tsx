@@ -43,7 +43,7 @@ export const HighlightNoteTextEditArea = (
         autoFocus
         maxLength={4000}
         value={noteContent}
-        placeholder={'Add your notes...'}
+        placeholder={'Add notes to this highlight...'}
         onChange={handleNoteContentChange}
       />
       <HStack alignment="center" distribution="end" css={{ width: '100%' }}>

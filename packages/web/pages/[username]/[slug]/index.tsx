@@ -71,8 +71,6 @@ export default function Home(): JSX.Element {
 
   const actionHandler = useCallback(
     async (action: string, arg?: unknown) => {
-      console.log('handling action: ', action, article)
-
       switch (action) {
         case 'unarchive':
           if (article) {

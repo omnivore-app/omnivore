@@ -4,6 +4,7 @@ import { Label } from './labelFragment'
 export const highlightFragment = gql`
   fragment HighlightFields on Highlight {
     id
+    type
     shortId
     quote
     prefix
@@ -24,9 +25,11 @@ export const highlightFragment = gql`
     }
   }
 `
+export type HighlightType = 'HIGHLIGHT' | 'REDACTION' | 'NOTE'
 
 export type Highlight = {
   id: string
+  type: HighlightType
   shortId: string
   quote: string
   prefix?: string

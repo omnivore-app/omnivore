@@ -117,7 +117,7 @@ export function HighlightItem(props: HighlightItemProps): JSX.Element {
             <StyledText
               css={{
                 borderRadius: '6px',
-                bg: '#EBEBEB',
+                bg: '#f6f8fa',
                 p: '10px',
                 width: '100%',
                 marginTop: '5px',
@@ -127,7 +127,7 @@ export function HighlightItem(props: HighlightItemProps): JSX.Element {
             >
               {props.highlight.annotation
                 ? props.highlight.annotation
-                : 'Add your notes...'}
+                : 'Add notes to this highlight...'}
             </StyledText>
           )}
           {isEditing && (
@@ -263,9 +263,17 @@ export function highlightAsMarkdown(highlight: Highlight) {
 }
 
 export function highlightsAsMarkdown(highlights: Highlight[]) {
-  return highlights
+  const noteMD = highlights.find((h) => h.type == 'NOTE')
+
+  const highlightMD = highlights
+    .filter((h) => h.type == 'HIGHLIGHT')
     .map((highlight) => {
       return highlightAsMarkdown(highlight)
     })
     .join('\n\n')
+
+  if (noteMD) {
+    return `${noteMD.annotation}\n\n${highlightMD}`
+  }
+  return highlightMD
 }

@@ -121,14 +121,16 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   // Load the highlights
   useEffect(() => {
     const res: HighlightLocation[] = []
-    highlights.forEach((highlight) => {
-      try {
-        const offset = makeHighlightStartEndOffset(highlight)
-        res.push(offset)
-      } catch (err) {
-        console.error(err)
-      }
-    })
+    highlights
+      .filter((h) => h.type == 'HIGHLIGHT')
+      .forEach((highlight) => {
+        try {
+          const offset = makeHighlightStartEndOffset(highlight)
+          res.push(offset)
+        } catch (err) {
+          console.error(err)
+        }
+      })
     setHighlightLocations(res)
 
     // If we were given an initial highlight to scroll to we do
@@ -648,6 +650,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
     return (
       <NotebookModal
         highlights={highlights}
+        pageId={props.articleId}
         onOpenChange={() => props.setShowHighlightsModal(false)}
         deleteHighlightAction={(highlightId: string) => {
           removeHighlightCallback(highlightId)
