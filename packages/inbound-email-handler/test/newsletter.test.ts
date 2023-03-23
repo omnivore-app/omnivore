@@ -1,5 +1,6 @@
-import 'mocha'
 import { expect } from 'chai'
+import 'mocha'
+import { parsedTo } from '../src'
 import {
   getConfirmationCode,
   isConfirmationEmail,
@@ -88,5 +89,25 @@ describe('Newsletter email test', () => {
         )
       })
     })
+  })
+})
+
+describe('parsedTo', () => {
+  it('returns envelope to if exists', () => {
+    const to = 'receipient@inbox.omnivore.app'
+    expect(
+      parsedTo({
+        envelope: `{"to":["${to}"],"from":"sender@omnivore.app"}`,
+      })
+    ).to.equal(to)
+  })
+
+  it('returns parsed to if envelope does not exists', () => {
+    const to = 'receipient@inbox.omnivore.app'
+    expect(
+      parsedTo({
+        to,
+      })
+    ).to.equal(to)
   })
 })
