@@ -29,17 +29,19 @@ fun SavedItemCard(cardData: SavedItemCardData, labels: List<SavedItemLabel>, onC
   val publisherDisplayName = cardData.publisherDisplayName()
   val listState = rememberLazyListState()
 
-  Column {
+  Column(
+    modifier = Modifier
+      .combinedClickable(
+        onClick = onClickHandler,
+        onLongClick = { isMenuExpanded = true }
+      )
+  ) {
     Row(
       horizontalArrangement = Arrangement.SpaceBetween,
       verticalAlignment = Alignment.Top,
       modifier = Modifier
         .fillMaxWidth()
         .padding(12.dp)
-        .combinedClickable(
-          onClick = onClickHandler,
-          onLongClick = { isMenuExpanded = true }
-        )
         .background(if (isMenuExpanded) Color.LightGray else Color.Transparent)
     ) {
       Column(
@@ -96,7 +98,7 @@ fun SavedItemCard(cardData: SavedItemCardData, labels: List<SavedItemLabel>, onC
         val chipColors = LabelChipColors.fromHex(label.color)
 
         SuggestionChip(
-          onClick = {},
+          onClick = onClickHandler,
           label = { Text(label.name) },
           border = null,
           colors = elevatedSuggestionChipColors(
