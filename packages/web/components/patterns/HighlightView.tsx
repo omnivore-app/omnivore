@@ -9,8 +9,8 @@ import {
   SpanBox,
   HStack,
 } from '../elements/LayoutPrimitives'
-import { styled, theme } from '../tokens/stitches.config'
-import { HighlightViewNote } from './HighlightViewNote'
+import { styled } from '../tokens/stitches.config'
+import { HighlightViewNote } from './HighlightNotes'
 
 type HighlightViewProps = {
   highlight: Highlight

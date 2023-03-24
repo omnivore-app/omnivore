@@ -27,25 +27,13 @@ import { createHighlightMutation } from '../../../lib/networking/mutations/creat
 import { v4 as uuidv4 } from 'uuid'
 import { nanoid } from 'nanoid'
 import { deleteHighlightMutation } from '../../../lib/networking/mutations/deleteHighlightMutation'
-import { HighlightNoteBox } from '../../patterns/HighlightNoteBox'
+import { HighlightNoteBox } from '../../patterns/HighlightNotes'
 
 type NotebookModalProps = {
   pageId: string
   highlights: Highlight[]
   scrollToHighlight?: (arg: string) => void
-  updateHighlight: (highlight: Highlight) => void
-  deleteHighlightAction?: (highlightId: string) => void
-  onOpenChange: (open: boolean) => void
-}
-
-type HighlightListReducerAction = {
-  type: string
-  highlightId?: string
-  createId?: string
-  removeId?: string
-  note?: string
-  highlight?: Highlight
-  highlights?: Highlight[]
+  onClose: (highlights: Highlight[], deletedAnnotations: Highlight[]) => void
 }
 
 export const getHighlightLocation = (patch: string): number | undefined => {
@@ -61,6 +49,7 @@ type AnnotationInfo = {
   noteId: string
 
   allAnnotations: Highlight[]
+  deletedAnnotations: Highlight[]
 }
 
 export function NotebookModal(props: NotebookModalProps): JSX.Element {
@@ -74,6 +63,7 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
   const [notesEditMode, setNotesEditMode] = useState<'edit' | 'preview'>(
     'preview'
   )
+
   const [, updateState] = useState({})
 
   const annotationsReducer = (
@@ -97,7 +87,7 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
           loaded: true,
           note: note,
           noteId: note?.id ?? state.noteId,
-          allAnnotations: action.allHighlights ?? [],
+          allAnnotations: [...(action.allHighlights ?? [])],
         }
       }
       case 'CREATE_NOTE': {
@@ -138,8 +128,12 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
         if (idx < 0) {
           return { ...state }
         }
+        const deleted = state.deletedAnnotations
+        deleted.push(state.allAnnotations[idx])
+
         return {
           ...state,
+          deletedAnnotations: deleted,
           allAnnotations: state.allAnnotations.splice(idx, 1),
         }
       }
@@ -166,6 +160,7 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
     note: undefined,
     noteId: uuidv4(),
     allAnnotations: [],
+    deletedAnnotations: [],
   })
 
   useEffect(() => {
@@ -243,7 +238,6 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
 
   const handleSaveNoteText = useCallback(
     (text, cb: (success: boolean) => void) => {
-      console.log(' handleSaveNoteText: ', text, 'highlights', annotations)
       if (!annotations.loaded) {
         // We haven't loaded the user's annotations yet, so we can't
         // find or create their highlight note.
@@ -295,14 +289,12 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
     [annotations, props.pageId]
   )
 
+  const handleClose = useCallback(() => {
+    props.onClose(annotations.allAnnotations, annotations.deletedAnnotations)
+  }, [annotations])
+
   return (
-    <ModalRoot
-      defaultOpen
-      onOpenChange={() => {
-        console.log('CLOSING DIALOG')
-        props.onOpenChange(false)
-      }}
-    >
+    <ModalRoot defaultOpen onOpenChange={handleClose}>
       <ModalOverlay />
       <ModalContent
         onInteractOutside={(event) => {
@@ -356,7 +348,7 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
                 title="Delete Document Note"
               />
             </Dropdown>
-            <CloseButton close={() => props.onOpenChange(false)} />
+            <CloseButton close={handleClose} />
           </HStack>
         </HStack>
         <VStack distribution="start" css={{ height: '100%', p: '20px' }}>
@@ -393,7 +385,6 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
               <ModalHighlightView
                 key={highlight.id}
                 highlight={highlight}
-                showDelete={!!props.deleteHighlightAction}
                 scrollToHighlight={props.scrollToHighlight}
                 setSetLabelsTarget={setLabelsTarget}
                 setShowConfirmDeleteHighlightId={
@@ -406,7 +397,6 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
                   })
                 }}
                 updateHighlight={() => {
-                  console.log('updating highlight: ', highlight)
                   dispatchAnnotations({
                     type: 'UPDATE_HIGHLIGHT',
                     updateHighlight: highlight,
@@ -436,10 +426,20 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
         <ConfirmationModal
           message={'Are you sure you want to delete this highlight?'}
           onAccept={() => {
-            dispatchAnnotations({
-              type: 'DELETE_HIGHLIGHT',
-              deleteHighlightId: showConfirmDeleteHighlightId,
-            })
+            ;(async () => {
+              const success = await deleteHighlightMutation(
+                showConfirmDeleteHighlightId
+              )
+              if (success) {
+                dispatchAnnotations({
+                  type: 'DELETE_HIGHLIGHT',
+                  deleteHighlightId: showConfirmDeleteHighlightId,
+                })
+                showSuccessToast('Highlight deleted.')
+              } else {
+                showErrorToast('Error deleting highlight')
+              }
+            })()
             setShowConfirmDeleteHighlightId(undefined)
           }}
           onOpenChange={() => setShowConfirmDeleteHighlightId(undefined)}
@@ -486,7 +486,6 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
 
 type ModalHighlightViewProps = {
   highlight: Highlight
-  showDelete: boolean
   scrollToHighlight?: (arg: string) => void
   deleteHighlightAction: () => void
   updateHighlight: (highlight: Highlight) => void
@@ -643,11 +642,6 @@ function SizeToggle(props: SizeToggleProps): JSX.Element {
         },
       }}
       onClick={(event) => {
-        console.log(
-          ' updating size mode: ',
-          props.mode,
-          props.mode == 'normal' ? 'maximized' : 'normal'
-        )
         props.setMode(props.mode == 'normal' ? 'maximized' : 'normal')
         event.preventDefault()
       }}

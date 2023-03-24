@@ -358,6 +358,24 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
     [highlights, highlightLocations, openNoteModal]
   )
 
+  const handleCloseNotebook = useCallback(
+    (updatedHighlights: Highlight[], deletedHighlights: Highlight[]) => {
+      props.setShowHighlightsModal(false)
+
+      setHighlights(updatedHighlights)
+
+      removeHighlights(
+        deletedHighlights.map((h) => h.id),
+        highlightLocations
+      )
+
+      updatedHighlights.forEach((h) => {
+        updateHighlightsCallback(h)
+      })
+    },
+    [highlights, highlightLocations]
+  )
+
   useEffect(() => {
     if (typeof window === 'undefined') {
       return
@@ -651,11 +669,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       <NotebookModal
         highlights={highlights}
         pageId={props.articleId}
-        onOpenChange={() => props.setShowHighlightsModal(false)}
-        deleteHighlightAction={(highlightId: string) => {
-          removeHighlightCallback(highlightId)
-        }}
-        updateHighlight={updateHighlightsCallback}
+        onClose={handleCloseNotebook}
       />
     )
   }
