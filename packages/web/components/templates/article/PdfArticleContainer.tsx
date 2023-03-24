@@ -495,14 +495,9 @@ export default function PdfArticleContainer(
           key={notebookKey}
           pageId={props.article.id}
           highlights={highlightsRef.current}
-          onOpenChange={() => props.setShowHighlightsModal(false)}
-          /* eslint-disable @typescript-eslint/no-empty-function */
-          updateHighlight={() => {}}
-          deleteHighlightAction={(highlightId: string) => {
-            const event = new CustomEvent('deleteHighlightbyId', {
-              detail: highlightId,
-            })
-            document.dispatchEvent(event)
+          onClose={(updatedHighlights, deletedAnnotations) => {
+            console.log('closed PDF notebook: ')
+            props.setShowHighlightsModal(false)
           }}
         />
       )}
