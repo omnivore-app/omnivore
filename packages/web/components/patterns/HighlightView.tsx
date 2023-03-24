@@ -1,6 +1,5 @@
 import { Fragment, useMemo, useState } from 'react'
 import type { Highlight } from '../../lib/networking/fragments/highlightFragment'
-import { HighlightNoteTextEditArea } from '../elements/HighlightNoteTextEditArea'
 import { LabelChip } from '../elements/LabelChip'
 import {
   Box,
