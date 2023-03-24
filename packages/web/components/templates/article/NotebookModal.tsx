@@ -10,16 +10,7 @@ import { TrashIcon } from '../../elements/images/TrashIcon'
 import { theme } from '../../tokens/stitches.config'
 import type { Highlight } from '../../../lib/networking/fragments/highlightFragment'
 import { HighlightView } from '../../patterns/HighlightView'
-import {
-  ChangeEvent,
-  Dispatch,
-  useCallback,
-  useEffect,
-  useMemo,
-  useReducer,
-  useRef,
-  useState,
-} from 'react'
+import { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
 import { ConfirmationModal } from '../../patterns/ConfirmationModal'
 import { ArrowsIn, ArrowsOut, BookOpen, PencilLine, X } from 'phosphor-react'
 import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
@@ -31,20 +22,12 @@ import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { diff_match_patch } from 'diff-match-patch'
 import { MenuTrigger } from '../../elements/MenuTrigger'
 import { highlightsAsMarkdown, HighlightsMenu } from '../homeFeed/HighlightItem'
-import MarkdownIt from 'markdown-it'
-import MdEditor from 'react-markdown-editor-lite'
 import 'react-markdown-editor-lite/lib/index.css'
-import ReactMarkdown from 'react-markdown'
-import { formattedShortTime } from '../../../lib/dateFormatting'
 import { createHighlightMutation } from '../../../lib/networking/mutations/createHighlightMutation'
 import { v4 as uuidv4 } from 'uuid'
 import { nanoid } from 'nanoid'
-import throttle from 'lodash/throttle'
 import { deleteHighlightMutation } from '../../../lib/networking/mutations/deleteHighlightMutation'
-import { LibraryItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
-import { HighlightNoteBox } from '../HighlightNoteBox'
-
-const mdParser = new MarkdownIt()
+import { HighlightNoteBox } from '../../patterns/HighlightNoteBox'
 
 type NotebookModalProps = {
   pageId: string
@@ -57,9 +40,10 @@ type NotebookModalProps = {
 
 type HighlightListReducerAction = {
   type: string
-  itemId?: string
+  highlightId?: string
   createId?: string
   removeId?: string
+  note?: string
   highlight?: Highlight
   highlights?: Highlight[]
 }
@@ -70,6 +54,15 @@ export const getHighlightLocation = (patch: string): number | undefined => {
   return patches[0].start1 || undefined
 }
 
+type AnnotationInfo = {
+  loaded: boolean
+
+  note: Highlight | undefined
+  noteId: string
+
+  allAnnotations: Highlight[]
+}
+
 export function NotebookModal(props: NotebookModalProps): JSX.Element {
   const [showConfirmDeleteHighlightId, setShowConfirmDeleteHighlightId] =
     useState<undefined | string>(undefined)
@@ -78,78 +71,145 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
   )
   const [sizeMode, setSizeMode] = useState<'normal' | 'maximized'>('normal')
   const [showConfirmDeleteNote, setShowConfirmDeleteNote] = useState(false)
-  const [notesEditMode, setNotesEditMode] = useState<'edit' | 'preview'>('edit')
+  const [notesEditMode, setNotesEditMode] = useState<'edit' | 'preview'>(
+    'preview'
+  )
   const [, updateState] = useState({})
 
-  const listReducer = (
-    state: Highlight[],
-    action: HighlightListReducerAction
+  const annotationsReducer = (
+    state: AnnotationInfo,
+    action: {
+      type: string
+      allHighlights?: Highlight[]
+      note?: Highlight | undefined
+
+      updateHighlight?: Highlight | undefined
+      deleteHighlightId?: string | undefined
+    }
   ) => {
+    console.log('annotationsReducer', action.type)
     switch (action.type) {
-      case 'RESET':
-        return action.highlights ?? []
-      case 'CREATE_NOTE':
-        if (!action.highlight) {
-          throw new Error('Unable to create note')
+      case 'RESET': {
+        console.log(' -- reseting highlights: ', action.allHighlights)
+        const note = action.allHighlights?.find((h) => h.type == 'NOTE')
+        return {
+          ...state,
+          loaded: true,
+          note: note,
+          noteId: note?.id ?? state.noteId,
+          allAnnotations: action.allHighlights ?? [],
         }
-        return [...(action.highlights ?? []), action.highlight]
-      case 'UPDATE_NOTE':
-        return action.highlights ?? []
-      case 'REMOVE_HIGHLIGHT':
-      // const item = state.find((li) => li.node.id === action.itemId)
-      // if (item && item.node.highlights) {
-      //   item.node.highlights = item.node.highlights.filter(
-      //     (h) => h.id !== action.highlightId
-      //   )
-      // }
-      // const result = state.filter(
-      //   (item) => item.node.highlights && item.node.highlights.length > 0
-      // )
-      // return result
+      }
+      case 'CREATE_NOTE': {
+        if (!action.note) {
+          throw new Error('No note on CREATE_NOTE action')
+        }
+        return {
+          ...state,
+          note: action.note,
+          noteId: action.note.id,
+          allAnnotations: [...state.allAnnotations, action.note],
+        }
+      }
+      case 'DELETE_NOTE': {
+        // If there is no note to delete, just make sure we have cleared out the note
+        const noteId = action.note?.id
+        if (!action.note?.id) {
+          return {
+            ...state,
+            node: undefined,
+            noteId: uuidv4(),
+          }
+        }
+        const idx = state.allAnnotations.findIndex((h) => h.id === noteId)
+        return {
+          ...state,
+          note: undefined,
+          noteId: uuidv4(),
+          allAnnotations: state.allAnnotations.splice(idx, 1),
+        }
+      }
+      case 'DELETE_HIGHLIGHT': {
+        const highlightId = action.deleteHighlightId
+        if (!highlightId) {
+          throw new Error('No highlightId for delete action.')
+        }
+        const idx = state.allAnnotations.findIndex((h) => h.id === highlightId)
+        if (idx < 0) {
+          return { ...state }
+        }
+        return {
+          ...state,
+          allAnnotations: state.allAnnotations.splice(idx, 1),
+        }
+      }
+      case 'UPDATE_HIGHLIGHT': {
+        const highlight = action.updateHighlight
+        if (!highlight) {
+          throw new Error('No highlightId for delete action.')
+        }
+        const idx = state.allAnnotations.findIndex((h) => h.id === highlight.id)
+        if (idx !== -1) {
+          state.allAnnotations[idx] = highlight
+        }
+        return {
+          ...state,
+        }
+      }
       default:
-        throw new Error()
+        return state
     }
   }
 
-  const [highlights, dispatchList] = useReducer(listReducer, [])
+  const [annotations, dispatchAnnotations] = useReducer(annotationsReducer, {
+    loaded: false,
+    note: undefined,
+    noteId: uuidv4(),
+    allAnnotations: [],
+  })
 
   useEffect(() => {
-    dispatchList({
+    dispatchAnnotations({
       type: 'RESET',
-      highlights: props.highlights,
+      allHighlights: props.highlights,
     })
   }, [props.highlights])
 
   const exportHighlights = useCallback(() => {
     ;(async () => {
-      if (!highlights) {
+      if (!annotations) {
         showErrorToast('No highlights to export')
         return
       }
-      const markdown = highlightsAsMarkdown(highlights)
+      const markdown = highlightsAsMarkdown(annotations.allAnnotations)
       await navigator.clipboard.writeText(markdown)
       showSuccessToast('Highlight copied')
     })()
-  }, [highlights])
+  }, [annotations])
 
   const deleteDocumentNote = useCallback(() => {
+    const note = annotations.note
+    if (!note) {
+      showErrorToast('No note found')
+      return
+    }
     ;(async () => {
-      const notes = highlights.filter((h) => h.type == 'NOTE')
-
-      notes.forEach(async (n) => {
-        try {
-          const result = await deleteHighlightMutation(n.id)
-          if (!result) {
-            throw new Error()
-          }
-          showSuccessToast('Note deleted')
-        } catch (err) {
-          console.log('error deleting note', err)
-          showErrorToast('Error deleting note')
+      try {
+        const result = await deleteHighlightMutation(note.id)
+        if (!result) {
+          throw new Error()
         }
-      })
+        showSuccessToast('Note deleted')
+        dispatchAnnotations({
+          note,
+          type: 'DELETE_NOTE',
+        })
+      } catch (err) {
+        console.log('error deleting note', err)
+        showErrorToast('Error deleting note')
+      }
     })()
-  }, [])
+  }, [annotations])
 
   const sortedHighlights = useMemo(() => {
     const sorted = (a: number, b: number) => {
@@ -162,8 +222,8 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
       return 0
     }
 
-    return highlights
-      .filter((h) => h.type === undefined || h.type === 'HIGHLIGHT')
+    return annotations.allAnnotations
+      .filter((h) => h.type === 'HIGHLIGHT')
       .sort((a: Highlight, b: Highlight) => {
         if (a.highlightPositionPercent && b.highlightPositionPercent) {
           return sorted(a.highlightPositionPercent, b.highlightPositionPercent)
@@ -179,21 +239,80 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
         } catch {}
         return a.createdAt.localeCompare(b.createdAt)
       })
-  }, [highlights])
+  }, [annotations])
+
+  const handleSaveNoteText = useCallback(
+    (text, cb: (success: boolean) => void) => {
+      console.log(' handleSaveNoteText: ', text, 'highlights', annotations)
+      if (!annotations.loaded) {
+        // We haven't loaded the user's annotations yet, so we can't
+        // find or create their highlight note.
+        return
+      }
+
+      if (!annotations.note) {
+        const noteId = annotations.noteId
+        ;(async () => {
+          const success = await createHighlightMutation({
+            id: noteId,
+            shortId: nanoid(8),
+            type: 'NOTE',
+            articleId: props.pageId,
+            annotation: text,
+          })
+          console.log('success creating annotation note: ', success)
+          if (success) {
+            dispatchAnnotations({
+              type: 'CREATE_NOTE',
+              note: success,
+            })
+          }
+          cb(!!success)
+        })()
+        return
+      }
+
+      if (annotations.note) {
+        const note = annotations.note
+        ;(async () => {
+          const success = await updateHighlightMutation({
+            highlightId: note.id,
+            annotation: text,
+          })
+          console.log('success updating annotation note: ', success)
+          if (success) {
+            note.annotation = text
+            dispatchAnnotations({
+              type: 'UPDATE_NOTE',
+              note: note,
+            })
+          }
+          cb(!!success)
+        })()
+        return
+      }
+    },
+    [annotations, props.pageId]
+  )
 
   return (
-    <ModalRoot defaultOpen onOpenChange={props.onOpenChange}>
+    <ModalRoot
+      defaultOpen
+      onOpenChange={() => {
+        console.log('CLOSING DIALOG')
+        props.onOpenChange(false)
+      }}
+    >
       <ModalOverlay />
       <ModalContent
-        onPointerDownOutside={(event) => {
+        onInteractOutside={(event) => {
           event.preventDefault()
-          props.onOpenChange(false)
         }}
         css={{
           overflow: 'auto',
           height: sizeMode === 'normal' ? 'unset' : '100%',
           maxWidth: sizeMode === 'normal' ? '640px' : '100%',
-          minHeight: '525px',
+          minHeight: sizeMode === 'normal' ? '525px' : 'unset',
         }}
       >
         <HStack
@@ -247,16 +366,15 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
             setEditMode={(edit) => setNotesEditMode(edit ? 'edit' : 'preview')}
           />
           <HighlightNoteBox
-            pageId={props.pageId}
-            placeHolder="Add notes to this document..."
-            highlight={highlights.find((h) => h.type == 'NOTE')}
             sizeMode={sizeMode}
             mode={notesEditMode}
             setEditMode={setNotesEditMode}
-            // dispatchList={dispatchList}
+            text={annotations.note?.annotation}
+            placeHolder="Add notes to this document..."
+            saveText={handleSaveNoteText}
           />
           <SpanBox css={{ mt: '10px', mb: '25px' }} />
-          {/* {props.highlights.map((highlight) => (
+          {/* {annotations.allAnnotations.map((highlight) => (
             <Box key={`hn-${highlight.id}`} css={{ color: 'black' }}>
               {highlight.annotation}
               <Button
@@ -282,11 +400,18 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
                   setShowConfirmDeleteHighlightId
                 }
                 deleteHighlightAction={() => {
-                  if (props.deleteHighlightAction) {
-                    props.deleteHighlightAction(highlight.id)
-                  }
+                  dispatchAnnotations({
+                    type: 'DELETE_HIGHLIGHT',
+                    deleteHighlightId: highlight.id,
+                  })
                 }}
-                updateHighlight={props.updateHighlight}
+                updateHighlight={() => {
+                  console.log('updating highlight: ', highlight)
+                  dispatchAnnotations({
+                    type: 'UPDATE_HIGHLIGHT',
+                    updateHighlight: highlight,
+                  })
+                }}
               />
             ))}
             {sortedHighlights.length === 0 && (
@@ -311,9 +436,10 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
         <ConfirmationModal
           message={'Are you sure you want to delete this highlight?'}
           onAccept={() => {
-            if (props.deleteHighlightAction) {
-              props.deleteHighlightAction(showConfirmDeleteHighlightId)
-            }
+            dispatchAnnotations({
+              type: 'DELETE_HIGHLIGHT',
+              deleteHighlightId: showConfirmDeleteHighlightId,
+            })
             setShowConfirmDeleteHighlightId(undefined)
           }}
           onOpenChange={() => setShowConfirmDeleteHighlightId(undefined)}
@@ -347,7 +473,10 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
         <ConfirmationModal
           message="Are you sure you want to delete the note from this document?"
           acceptButtonLabel="Delete"
-          onAccept={() => deleteDocumentNote()}
+          onAccept={() => {
+            deleteDocumentNote()
+            setShowConfirmDeleteNote(false)
+          }}
           onOpenChange={() => setShowConfirmDeleteNote(false)}
         />
       )}
@@ -377,8 +506,9 @@ function ModalHighlightView(props: ModalHighlightViewProps): JSX.Element {
     >
       <VStack css={{ width: '100%' }}>
         <HighlightView
-          scrollToHighlight={props.scrollToHighlight}
           highlight={props.highlight}
+          scrollToHighlight={props.scrollToHighlight}
+          updateHighlight={props.updateHighlight}
         />
 
         <SpanBox css={{ mb: '15px' }} />
@@ -402,229 +532,6 @@ function ModalHighlightView(props: ModalHighlightViewProps): JSX.Element {
         />
       </SpanBox>
     </HStack>
-  )
-}
-
-type NoteSectionProps = {
-  pageId: string
-  highlight?: Highlight
-
-  sizeMode: 'normal' | 'maximized'
-  mode: 'edit' | 'read'
-  setEditMode: (set: boolean) => void
-
-  dispatchList: Dispatch<HighlightListReducerAction>
-}
-
-function NoteSection(props: NoteSectionProps): JSX.Element {
-  const [noteText, setNoteText] = useState('')
-  const [lastSaved, setLastSaved] = useState<Date | undefined>(undefined)
-  const [lastChanged, setLastChanged] = useState<Date | undefined>(undefined)
-  const [errorSaving, setErrorSaving] = useState<string | undefined>(undefined)
-
-  const [createStartTime, setCreateStartTime] = useState<Date | undefined>(
-    undefined
-  )
-
-  useEffect(() => {
-    setNoteText(props.highlight?.annotation ?? '')
-  }, [props.highlight?.annotation])
-
-  const highlightId = useMemo(() => {
-    console.log(' -- highlightId: ', props.highlight)
-    if (props.highlight) {
-      return { id: props.highlight.id, shortId: props.highlight.shortId }
-    }
-    return { id: uuidv4(), shortId: nanoid(8) }
-  }, [props.highlight])
-
-  const saveText = useCallback(
-    (text, updateTime) => {
-      ;(async () => {
-        console.log('calling save: ', props.highlight)
-        if (props.highlight) {
-          const success = await updateHighlightMutation({
-            annotation: text,
-            highlightId: props.highlight?.id,
-          })
-          if (success) {
-            setLastSaved(updateTime)
-          } else {
-            setErrorSaving('Error saving highlight.')
-          }
-        } else {
-          console.log('creating note highlight: ', highlightId)
-          if (!createStartTime) {
-            setCreateStartTime(new Date())
-
-            const created = await createHighlightMutation({
-              type: 'NOTE',
-              id: highlightId.id,
-              articleId: props.pageId,
-              shortId: highlightId.shortId,
-              annotation: text,
-            })
-            console.log('created highlight: ', created)
-
-            if (created) {
-              setLastSaved(updateTime)
-              props.dispatchList({
-                type: 'CREATE_NOTE',
-                highlight: created,
-              })
-            } else {
-              console.log('unable to create note highlight')
-            }
-          }
-        }
-      })()
-    },
-    [lastSaved, lastChanged, createStartTime]
-  )
-
-  const saveRef = useRef(saveText)
-
-  useEffect(() => {
-    saveRef.current = saveText
-  }, [lastSaved, lastChanged, createStartTime])
-
-  const debouncedSave = useMemo<
-    (text: string, updateTime: Date) => void
-  >(() => {
-    const func = (text: string, updateTime: Date) => {
-      saveRef.current?.(text, updateTime)
-    }
-    return throttle(func, 3000)
-  }, [])
-
-  const handleEditorChange = useCallback(
-    (
-      data: { text: string; html: string },
-      event?: ChangeEvent<HTMLTextAreaElement> | undefined
-    ) => {
-      if (event) {
-        event.preventDefault()
-      }
-
-      setNoteText(data.text)
-
-      const updateTime = new Date()
-      setLastChanged(updateTime)
-      debouncedSave(data.text, updateTime)
-    },
-    [lastSaved, lastChanged, createStartTime]
-  )
-
-  return (
-    <>
-      {props.mode == 'edit' ? (
-        <VStack
-          css={{
-            width: '100%',
-            mt: '15px',
-            '.rc-md-editor': {
-              borderRadius: '5px',
-            },
-            '.rc-md-navigation visible': {
-              borderRadius: '5px',
-            },
-          }}
-        >
-          <MdEditor
-            placeholder="Add notes..."
-            value={noteText}
-            view={{ menu: true, md: true, html: false }}
-            canView={{
-              menu: true,
-              md: true,
-              html: true,
-              both: false,
-              fullScreen: false,
-              hideMenu: false,
-            }}
-            plugins={[
-              'header',
-              'font-bold',
-              'font-italic',
-              'font-underline',
-              'font-strikethrough',
-              'list-unordered',
-              'list-ordered',
-              'block-quote',
-              'link',
-              'auto-resize',
-              'mode-toggle',
-            ]}
-            style={{
-              width: '100%',
-              height: props.sizeMode == 'normal' ? '160px' : '320px',
-            }}
-            renderHTML={(text: string) => mdParser.render(text)}
-            onChange={handleEditorChange}
-          />
-          <Box
-            css={{
-              minHeight: '15px',
-              width: '100%',
-              fontSize: '9px',
-              mt: '1px',
-              color: '$thTextSubtle',
-            }}
-          >
-            {errorSaving && (
-              <SpanBox
-                css={{
-                  width: '100%',
-                  fontSize: '9px',
-                  mt: '1px',
-                  color: 'red',
-                }}
-              >
-                {errorSaving}
-              </SpanBox>
-            )}
-            {lastSaved !== undefined ? (
-              <>
-                {lastChanged === lastSaved
-                  ? 'Saved'
-                  : `Last saved ${formattedShortTime(lastSaved.toISOString())}`}
-              </>
-            ) : null}
-          </Box>
-        </VStack>
-      ) : (
-        <>
-          {props.highlight?.annotation ? (
-            <Box
-              css={{
-                borderRadius: '5px',
-                width: '100%',
-                color: '#3D3D3D',
-                fontSize: '16px',
-                minHeight: props.sizeMode == 'normal' ? '191px' : '351px',
-              }}
-            >
-              <ReactMarkdown children={props.highlight?.annotation} />
-            </Box>
-          ) : (
-            <Box
-              css={{
-                mt: '15px',
-                width: '100%',
-                height: props.sizeMode == 'normal' ? '160px' : '320px',
-                fontSize: '9px',
-                color: '$thTextSubtle',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              No note on this document, enter edit mode by clicking the pencil
-              icon above to add a note.
-            </Box>
-          )}
-        </>
-      )}
-    </>
   )
 }
 
@@ -736,6 +643,11 @@ function SizeToggle(props: SizeToggleProps): JSX.Element {
         },
       }}
       onClick={(event) => {
+        console.log(
+          ' updating size mode: ',
+          props.mode,
+          props.mode == 'normal' ? 'maximized' : 'normal'
+        )
         props.setMode(props.mode == 'normal' ? 'maximized' : 'normal')
         event.preventDefault()
       }}

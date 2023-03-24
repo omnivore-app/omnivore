@@ -17,6 +17,7 @@ type HighlightViewProps = {
   author?: string
   title?: string
   scrollToHighlight?: (arg: string) => void
+  updateHighlight: (highlight: Highlight) => void
 }
 
 const StyledQuote = styled(Blockquote, {
@@ -97,11 +98,13 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
           ))}
         </Box>
         <HighlightViewNote
+          text={props.highlight.annotation}
           placeHolder="Add notes to this highlight..."
           highlight={props.highlight}
           sizeMode={'normal'}
           mode={noteMode}
           setEditMode={setNoteMode}
+          updateHighlight={props.updateHighlight}
         />
       </VStack>
     </HStack>

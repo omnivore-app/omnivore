@@ -1,3 +1,4 @@
+/* eslint-disable react/no-children-prop */
 import {
   ChangeEvent,
   useCallback,
@@ -7,19 +8,15 @@ import {
   useState,
 } from 'react'
 import { formattedShortTime } from '../../lib/dateFormatting'
-import { createHighlightMutation } from '../../lib/networking/mutations/createHighlightMutation'
 import { updateHighlightMutation } from '../../lib/networking/mutations/updateHighlightMutation'
-import { Box, HStack, SpanBox, VStack } from '../elements/LayoutPrimitives'
+import { HStack, SpanBox, VStack } from '../elements/LayoutPrimitives'
 
 import MarkdownIt from 'markdown-it'
 import MdEditor from 'react-markdown-editor-lite'
 import 'react-markdown-editor-lite/lib/index.css'
 import ReactMarkdown from 'react-markdown'
-import { v4 as uuidv4 } from 'uuid'
-import { nanoid } from 'nanoid'
 import throttle from 'lodash/throttle'
 import { Highlight } from '../../lib/networking/fragments/highlightFragment'
-import { StyledText } from '../elements/StyledText'
 
 const mdParser = new MarkdownIt()
 
@@ -27,83 +24,44 @@ type HighlightViewNoteProps = {
   placeHolder: string
   mode: 'edit' | 'preview'
 
-  highlight?: Highlight
+  highlight: Highlight
 
   sizeMode: 'normal' | 'maximized'
   setEditMode: (set: 'edit' | 'preview') => void
+
+  text: string | undefined
+  updateHighlight: (highlight: Highlight) => void
 }
 
 export function HighlightViewNote(props: HighlightViewNoteProps): JSX.Element {
-  const [noteText, setNoteText] = useState('')
   const [lastSaved, setLastSaved] = useState<Date | undefined>(undefined)
   const [lastChanged, setLastChanged] = useState<Date | undefined>(undefined)
   const [errorSaving, setErrorSaving] = useState<string | undefined>(undefined)
 
-  const [createStartTime, setCreateStartTime] = useState<Date | undefined>(
-    undefined
-  )
-
-  useEffect(() => {
-    setNoteText(props.highlight?.annotation ?? '')
-  }, [props.highlight?.annotation])
-
-  const highlightId = useMemo(() => {
-    console.log(' -- highlightId: ', props.highlight)
-    if (props.highlight) {
-      return { id: props.highlight.id, shortId: props.highlight.shortId }
-    }
-    return { id: uuidv4(), shortId: nanoid(8) }
-  }, [props.highlight])
-
   const saveText = useCallback(
     (text, updateTime) => {
       ;(async () => {
-        console.log('calling save: ', props.highlight)
-        if (props.highlight) {
-          const success = await updateHighlightMutation({
-            annotation: text,
-            highlightId: props.highlight?.id,
-          })
-          if (success) {
-            setLastSaved(updateTime)
-          } else {
-            setErrorSaving('Error saving highlight.')
-          }
+        const success = await updateHighlightMutation({
+          annotation: text,
+          highlightId: props.highlight?.id,
+        })
+        if (success) {
+          setLastSaved(updateTime)
+          props.highlight.annotation = text
+          props.updateHighlight(props.highlight)
         } else {
-          console.log('creating note highlight: ', highlightId)
-          if (!createStartTime) {
-            setCreateStartTime(new Date())
-
-            const created = await createHighlightMutation({
-              type: 'NOTE',
-              id: highlightId.id,
-              articleId: props.pageId,
-              shortId: highlightId.shortId,
-              annotation: text,
-            })
-            console.log('created highlight: ', created)
-
-            if (created) {
-              setLastSaved(updateTime)
-              // props.dispatchList({
-              //   type: 'CREATE_NOTE',
-              //   highlight: created,
-              // })
-            } else {
-              console.log('unable to create note highlight')
-            }
-          }
+          setErrorSaving('Error saving highlight.')
         }
       })()
     },
-    [lastSaved, lastChanged, createStartTime]
+    [props]
   )
 
   const saveRef = useRef(saveText)
 
   useEffect(() => {
     saveRef.current = saveText
-  }, [lastSaved, lastChanged, createStartTime])
+  }, [lastSaved, lastChanged, saveText])
 
   const debouncedSave = useMemo<
     (text: string, updateTime: Date) => void
@@ -123,16 +81,13 @@ export function HighlightViewNote(props: HighlightViewNoteProps): JSX.Element {
         event.preventDefault()
       }
 
-      setNoteText(data.text)
-
       const updateTime = new Date()
       setLastChanged(updateTime)
       debouncedSave(data.text, updateTime)
     },
-    [lastSaved, lastChanged, createStartTime]
+    [lastSaved, lastChanged, saveText]
   )
 
-  console.log(' props: ', props)
   return (
     <>
       {props.mode == 'edit' ? (
@@ -158,14 +113,10 @@ export function HighlightViewNote(props: HighlightViewNoteProps): JSX.Element {
           }}
         >
           <MdEditor
-            value={noteText}
             autoFocus={true}
+            defaultValue={props.text}
             placeholder={props.placeHolder}
             view={{ menu: true, md: true, html: false }}
-            onBlur={() => {
-              console.log(' BLURRING ')
-              props.setEditMode('preview')
-            }}
             canView={{
               menu: props.mode == 'edit',
               md: true,
@@ -223,31 +174,11 @@ export function HighlightViewNote(props: HighlightViewNoteProps): JSX.Element {
                   : `Last saved ${formattedShortTime(lastSaved.toISOString())}`}
               </>
             ) : null}
-            {/* <SpanBox
-            css={{
-              marginLeft: 'auto',
-              justifyContent: 'end',
-              lineHeight: '1',
-              alignSelf: 'end',
-              padding: '2px',
-              cursor: 'pointer',
-              borderRadius: '1000px',
-              '&:hover': {
-                background: '#EBEBEB',
-              },
-            }}
-            onClick={(event) => {
-              props.setEditMode(!editMode)
-              event.preventDefault()
-            }}
-          >
-            {editMode ? <a href="">Preview</a> : <a href="">Preview</a>}
-          </SpanBox> */}
           </HStack>
         </VStack>
       ) : (
         <>
-          <StyledText
+          <SpanBox
             css={{
               borderRadius: '5px',
               p: '10px',
@@ -266,28 +197,9 @@ export function HighlightViewNote(props: HighlightViewNoteProps): JSX.Element {
                 props.highlight?.annotation ?? 'Add notes to this highlight...'
               }
             />
-          </StyledText>
+          </SpanBox>
         </>
       )}
     </>
   )
 }
-
-// {!isEditing ? (
-//   <StyledText
-//     css={{
-//       borderRadius: '5px',
-//       p: '10px',
-//       width: '100%',
-//       marginTop: '15px',
-//       color: '$thHighContrast',
-//       border: '1px solid #EBEBEB',
-//     }}
-//     onClick={() => setIsEditing(true)}
-//   >
-//     {props.highlight.annotation
-//       ? props.highlight.annotation
-//       : 'Add notes to this highlight...'}
-//   </StyledText>
-// ) : null}
-// {isEditing && (
