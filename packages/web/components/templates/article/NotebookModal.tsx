@@ -146,7 +146,11 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
             <CloseButton close={handleClose} />
           </HStack>
         </HStack>
-        <Notebook {...props} onAnnotationsChanged={handleAnnotationsChange} />
+        <Notebook
+          {...props}
+          sizeMode={sizeMode}
+          onAnnotationsChanged={handleAnnotationsChange}
+        />
       </ModalContent>
     </ModalRoot>
   )
