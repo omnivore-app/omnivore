@@ -13,14 +13,11 @@ import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { MenuTrigger } from '../../elements/MenuTrigger'
 import { StyledText } from '../../elements/StyledText'
-import { HighlightNoteBox } from '../../patterns/HighlightNotes'
-import { HighlightView } from '../../patterns/HighlightView'
 import {
   MetaStyle,
   timeAgo,
 } from '../../patterns/LibraryCards/LibraryCardStyles'
 import { LibraryHighlightGridCard } from '../../patterns/LibraryCards/LibraryHighlightGridCard'
-import { HighlightViewItem } from '../article/HighlightViewItem'
 import { Notebook } from '../article/Notebook'
 import { EmptyHighlights } from './EmptyHighlights'
 import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from './HeaderSpacer'
