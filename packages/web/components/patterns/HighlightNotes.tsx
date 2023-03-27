@@ -17,6 +17,7 @@ import ReactMarkdown from 'react-markdown'
 import throttle from 'lodash/throttle'
 import { updateHighlightMutation } from '../../lib/networking/mutations/updateHighlightMutation'
 import { Highlight } from '../../lib/networking/fragments/highlightFragment'
+import { Button } from '../elements/Button'
 
 const mdParser = new MarkdownIt()
 
@@ -118,6 +119,7 @@ type MarkdownNote = {
 }
 
 export function MarkdownNote(props: MarkdownNote): JSX.Element {
+  const editorRef = useRef<MdEditor | null>(null)
   const [lastChanged, setLastChanged] = useState<Date | undefined>(undefined)
   const [errorSaving, setErrorSaving] = useState<string | undefined>(undefined)
 
@@ -183,6 +185,7 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
           }}
         >
           <MdEditor
+            ref={editorRef}
             autoFocus={true}
             defaultValue={props.text}
             placeholder={props.placeHolder}
@@ -220,7 +223,6 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
               width: '100%',
               fontSize: '9px',
               mt: '1px',
-              bg: 'red',
               color: '$thTextSubtle',
             }}
             alignment="start"
@@ -247,17 +249,37 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
                     )}`}
               </>
             ) : null}
-            <SpanBox
-              css={{
-                width: '100%',
-                fontSize: '9px',
-                mt: '1px',
-                color: 'red',
-                marginLeft: 'auto',
-              }}
-            >
-              Save
-            </SpanBox>
+            {lastChanged !== props.lastSaved && (
+              <SpanBox
+                css={{
+                  fontSize: '9px',
+                  mt: '1px',
+                  color: 'green',
+                  marginLeft: 'auto',
+                }}
+              >
+                <Button
+                  css={{
+                    textDecoration: 'underline',
+                    border: 'unset',
+                    background: 'unset',
+                    '&:hover': {
+                      border: 'unset',
+                      background: 'unset',
+                    },
+                  }}
+                  onClick={(event) => {
+                    const value = editorRef.current?.getMdValue()
+                    if (value) {
+                      props.saveText(value, new Date())
+                    }
+                    event.preventDefault()
+                  }}
+                >
+                  Save
+                </Button>
+              </SpanBox>
+            )}
           </HStack>
         </VStack>
       ) : (

@@ -1,3 +1,4 @@
+import { BookOpen, PencilLine } from 'phosphor-react'
 import { Fragment, useMemo, useState } from 'react'
 import type { Highlight } from '../../lib/networking/fragments/highlightFragment'
 import { LabelChip } from '../elements/LabelChip'
@@ -63,7 +64,7 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
           }}
         />
       </VStack>
-      <VStack css={{ width: '100%', padding: '0px 15px' }}>
+      <VStack css={{ width: '100%', padding: '0px', paddingLeft: '15px' }}>
         <StyledQuote
           onClick={() => {
             if (props.scrollToHighlight) {
@@ -95,15 +96,43 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
             <LabelChip key={index} text={name || ''} color={color} />
           ))}
         </Box>
-        <HighlightViewNote
-          text={props.highlight.annotation}
-          placeHolder="Add notes to this highlight..."
-          highlight={props.highlight}
-          sizeMode={'normal'}
-          mode={noteMode}
-          setEditMode={setNoteMode}
-          updateHighlight={props.updateHighlight}
-        />
+        <HStack
+          css={{ width: '100%', height: '100%' }}
+          alignment="start"
+          distribution="start"
+        >
+          <HighlightViewNote
+            text={props.highlight.annotation}
+            placeHolder="Add notes to this highlight..."
+            highlight={props.highlight}
+            sizeMode={'normal'}
+            mode={noteMode}
+            setEditMode={setNoteMode}
+            updateHighlight={props.updateHighlight}
+          />
+          <SpanBox
+            css={{
+              lineHeight: '1',
+              marginLeft: '20px',
+              marginTop: '20px',
+              cursor: 'pointer',
+              borderRadius: '1000px',
+              '&:hover': {
+                background: '#EBEBEB',
+              },
+            }}
+            onClick={(event) => {
+              setNoteMode(noteMode == 'preview' ? 'edit' : 'preview')
+              event.preventDefault()
+            }}
+          >
+            {noteMode === 'edit' ? (
+              <BookOpen size={15} color="#898989" />
+            ) : (
+              <PencilLine size={15} color="#898989" />
+            )}
+          </SpanBox>
+        </HStack>
       </VStack>
     </HStack>
   )
