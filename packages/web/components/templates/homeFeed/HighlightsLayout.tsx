@@ -403,6 +403,7 @@ function HighlightList(props: HighlightListProps): JSX.Element {
             width: '100%',
             color: 'thTextContrast2',
             m: '0px',
+            pb: '5px',
           }}
         >
           NOTEBOOK
@@ -420,12 +421,6 @@ function HighlightList(props: HighlightListProps): JSX.Element {
         <Notebook
           pageId={props.item.node.id}
           highlights={props.item.node.highlights ?? []}
-          onClose={(
-            highlights: Highlight[],
-            deletedAnnotations: Highlight[]
-          ) => {
-            console.log('closing notebook: ', highlights, deletedAnnotations)
-          }}
         />
       </HStack>
     </VStack>

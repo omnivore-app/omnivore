@@ -424,6 +424,7 @@ export default function PdfArticleContainer(
 
     document.addEventListener('deleteHighlightbyId', async (event) => {
       const annotationId = (event as CustomEvent).detail as string
+      console.log(' DELETING ANNOTATION BY ID: ', annotationId)
       for (let pageIdx = 0; pageIdx < instance.totalPageCount; pageIdx++) {
         const annotations = await instance.getAnnotations(pageIdx)
         for (let annIdx = 0; annIdx < annotations.size; annIdx++) {
@@ -432,6 +433,7 @@ export default function PdfArticleContainer(
             continue
           }
           const storedId = annotationOmnivoreId(annotation)
+          console.log('  --- storedId:', storedId)
           if (storedId == annotationId) {
             await instance.delete(annotation)
             await deleteHighlightMutation(annotationId)
@@ -501,6 +503,12 @@ export default function PdfArticleContainer(
               updatedHighlights,
               deletedAnnotations
             )
+            deletedAnnotations.forEach((highlight) => {
+              const event = new CustomEvent('deleteHighlightbyId', {
+                detail: highlight.id,
+              })
+              document.dispatchEvent(event)
+            })
             props.setShowHighlightsModal(false)
           }}
         />

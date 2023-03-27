@@ -55,244 +55,38 @@ type AnnotationInfo = {
 }
 
 export function NotebookModal(props: NotebookModalProps): JSX.Element {
-  const [showConfirmDeleteHighlightId, setShowConfirmDeleteHighlightId] =
-    useState<undefined | string>(undefined)
-  const [labelsTarget, setLabelsTarget] = useState<Highlight | undefined>(
-    undefined
-  )
   const [sizeMode, setSizeMode] = useState<'normal' | 'maximized'>('normal')
   const [showConfirmDeleteNote, setShowConfirmDeleteNote] = useState(false)
-  const [notesEditMode, setNotesEditMode] = useState<'edit' | 'preview'>(
-    'preview'
+  const [allAnnotations, setAllAnnotations] = useState<Highlight[] | undefined>(
+    undefined
   )
+  const [deletedAnnotations, setDeletedAnnotations] = useState<
+    Highlight[] | undefined
+  >(undefined)
 
-  const [, updateState] = useState({})
+  const handleClose = useCallback(() => {
+    props.onClose(allAnnotations ?? [], deletedAnnotations ?? [])
+  }, [allAnnotations, deletedAnnotations])
 
-  const annotationsReducer = (
-    state: AnnotationInfo,
-    action: {
-      type: string
-      allHighlights?: Highlight[]
-      note?: Highlight | undefined
-
-      updateHighlight?: Highlight | undefined
-      deleteHighlightId?: string | undefined
-    }
-  ) => {
-    switch (action.type) {
-      case 'RESET': {
-        console.log(' -- reseting highlights: ', action.allHighlights)
-        const note = action.allHighlights?.find((h) => h.type == 'NOTE')
-        return {
-          ...state,
-          loaded: true,
-          note: note,
-          noteId: note?.id ?? state.noteId,
-          allAnnotations: [...(action.allHighlights ?? [])],
-        }
-      }
-      case 'CREATE_NOTE': {
-        if (!action.note) {
-          throw new Error('No note on CREATE_NOTE action')
-        }
-        return {
-          ...state,
-          note: action.note,
-          noteId: action.note.id,
-          allAnnotations: [...state.allAnnotations, action.note],
-        }
-      }
-      case 'DELETE_NOTE': {
-        // If there is no note to delete, just make sure we have cleared out the note
-        const noteId = action.note?.id
-        if (!action.note?.id) {
-          return {
-            ...state,
-            node: undefined,
-            noteId: uuidv4(),
-          }
-        }
-        const idx = state.allAnnotations.findIndex((h) => h.id === noteId)
-        return {
-          ...state,
-          note: undefined,
-          noteId: uuidv4(),
-          allAnnotations: state.allAnnotations.splice(idx, 1),
-        }
-      }
-      case 'DELETE_HIGHLIGHT': {
-        const highlightId = action.deleteHighlightId
-        if (!highlightId) {
-          throw new Error('No highlightId for delete action.')
-        }
-        const idx = state.allAnnotations.findIndex((h) => h.id === highlightId)
-        if (idx < 0) {
-          return { ...state }
-        }
-        const deleted = state.deletedAnnotations
-        deleted.push(state.allAnnotations[idx])
-
-        return {
-          ...state,
-          deletedAnnotations: deleted,
-          allAnnotations: state.allAnnotations.splice(idx, 1),
-        }
-      }
-      case 'UPDATE_HIGHLIGHT': {
-        const highlight = action.updateHighlight
-        if (!highlight) {
-          throw new Error('No highlightId for delete action.')
-        }
-        const idx = state.allAnnotations.findIndex((h) => h.id === highlight.id)
-        if (idx !== -1) {
-          state.allAnnotations[idx] = highlight
-        }
-        return {
-          ...state,
-        }
-      }
-      default:
-        return state
-    }
-  }
-
-  const [annotations, dispatchAnnotations] = useReducer(annotationsReducer, {
-    loaded: false,
-    note: undefined,
-    noteId: uuidv4(),
-    allAnnotations: [],
-    deletedAnnotations: [],
-  })
-
-  useEffect(() => {
-    dispatchAnnotations({
-      type: 'RESET',
-      allHighlights: props.highlights,
-    })
-  }, [props.highlights])
+  const handleAnnotationsChange = useCallback(
+    (allAnnotations, deletedAnnotations) => {
+      setAllAnnotations(allAnnotations)
+      setDeletedAnnotations(deletedAnnotations)
+    },
+    []
+  )
 
   const exportHighlights = useCallback(() => {
     ;(async () => {
-      if (!annotations) {
+      if (!allAnnotations) {
         showErrorToast('No highlights to export')
         return
       }
-      const markdown = highlightsAsMarkdown(annotations.allAnnotations)
+      const markdown = highlightsAsMarkdown(allAnnotations)
       await navigator.clipboard.writeText(markdown)
       showSuccessToast('Highlight copied')
     })()
-  }, [annotations])
-
-  const deleteDocumentNote = useCallback(() => {
-    const note = annotations.note
-    if (!note) {
-      showErrorToast('No note found')
-      return
-    }
-    ;(async () => {
-      try {
-        const result = await deleteHighlightMutation(note.id)
-        if (!result) {
-          throw new Error()
-        }
-        showSuccessToast('Note deleted')
-        dispatchAnnotations({
-          note,
-          type: 'DELETE_NOTE',
-        })
-      } catch (err) {
-        console.log('error deleting note', err)
-        showErrorToast('Error deleting note')
-      }
-    })()
-  }, [annotations])
-
-  const sortedHighlights = useMemo(() => {
-    const sorted = (a: number, b: number) => {
-      if (a < b) {
-        return -1
-      }
-      if (a > b) {
-        return 1
-      }
-      return 0
-    }
-
-    return annotations.allAnnotations
-      .filter((h) => h.type === 'HIGHLIGHT')
-      .sort((a: Highlight, b: Highlight) => {
-        if (a.highlightPositionPercent && b.highlightPositionPercent) {
-          return sorted(a.highlightPositionPercent, b.highlightPositionPercent)
-        }
-        // We do this in a try/catch because it might be an invalid diff
-        // With PDF it will definitely be an invalid diff.
-        try {
-          const aPos = getHighlightLocation(a.patch)
-          const bPos = getHighlightLocation(b.patch)
-          if (aPos && bPos) {
-            return sorted(aPos, bPos)
-          }
-        } catch {}
-        return a.createdAt.localeCompare(b.createdAt)
-      })
-  }, [annotations])
-
-  const handleSaveNoteText = useCallback(
-    (text, cb: (success: boolean) => void) => {
-      if (!annotations.loaded) {
-        // We haven't loaded the user's annotations yet, so we can't
-        // find or create their highlight note.
-        return
-      }
-
-      if (!annotations.note) {
-        const noteId = annotations.noteId
-        ;(async () => {
-          const success = await createHighlightMutation({
-            id: noteId,
-            shortId: nanoid(8),
-            type: 'NOTE',
-            articleId: props.pageId,
-            annotation: text,
-          })
-          console.log('success creating annotation note: ', success)
-          if (success) {
-            dispatchAnnotations({
-              type: 'CREATE_NOTE',
-              note: success,
-            })
-          }
-          cb(!!success)
-        })()
-        return
-      }
-
-      if (annotations.note) {
-        const note = annotations.note
-        ;(async () => {
-          const success = await updateHighlightMutation({
-            highlightId: note.id,
-            annotation: text,
-          })
-          console.log('success updating annotation note: ', success)
-          if (success) {
-            note.annotation = text
-            dispatchAnnotations({
-              type: 'UPDATE_NOTE',
-              note: note,
-            })
-          }
-          cb(!!success)
-        })()
-        return
-      }
-    },
-    [annotations, props.pageId]
-  )
-
-  const handleClose = useCallback(() => {
-    props.onClose(annotations.allAnnotations, annotations.deletedAnnotations)
-  }, [annotations])
+  }, [allAnnotations])
 
   return (
     <ModalRoot defaultOpen onOpenChange={handleClose}>
@@ -352,7 +146,7 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
             <CloseButton close={handleClose} />
           </HStack>
         </HStack>
-        <Notebook {...props} />
+        <Notebook {...props} onAnnotationsChanged={handleAnnotationsChange} />
       </ModalContent>
     </ModalRoot>
   )
