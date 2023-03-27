@@ -1,5 +1,5 @@
 import { HighlighterCircle } from 'phosphor-react'
-import { useCallback, useEffect, useReducer, useState } from 'react'
+import { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { Highlight } from '../../../lib/networking/fragments/highlightFragment'
 import {
@@ -13,14 +13,17 @@ import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { MenuTrigger } from '../../elements/MenuTrigger'
 import { StyledText } from '../../elements/StyledText'
+import { HighlightNoteBox } from '../../patterns/HighlightNotes'
+import { HighlightView } from '../../patterns/HighlightView'
 import {
   MetaStyle,
   timeAgo,
 } from '../../patterns/LibraryCards/LibraryCardStyles'
 import { LibraryHighlightGridCard } from '../../patterns/LibraryCards/LibraryHighlightGridCard'
+import { HighlightViewItem } from '../article/HighlightViewItem'
 import { EmptyHighlights } from './EmptyHighlights'
 import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from './HeaderSpacer'
-import { HighlightItem, highlightsAsMarkdown } from './HighlightItem'
+import { highlightsAsMarkdown } from './HighlightItem'
 
 type HighlightItemsLayoutProps = {
   items: LibraryItem[]
@@ -165,7 +168,7 @@ export function HighlightItemsLayout(
                 borderBottom: '1px solid $thBorderColor',
               }}
               alignment="center"
-              distribution="start"
+              distribution="center"
             ></HStack>
             <LibraryItemsList
               items={items}
@@ -366,6 +369,9 @@ type HighlightListProps = {
 }
 
 function HighlightList(props: HighlightListProps): JSX.Element {
+  const [notesEditMode, setNotesEditMode] = useState<'preview' | 'edit'>(
+    'preview'
+  )
   const exportHighlights = useCallback(() => {
     ;(async () => {
       if (!props.item.node.highlights) {
@@ -377,6 +383,20 @@ function HighlightList(props: HighlightListProps): JSX.Element {
       showSuccessToast('Highlight copied')
     })()
   }, [props.item.node.highlights])
+
+  const note = useMemo(() => {
+    const note = (props.item.node.highlights ?? []).find(
+      (h) => h.type === 'NOTE'
+    )
+    console.log('NOTE: ', note)
+    return note
+  }, [props.item])
+
+  const sortedHighlights = useMemo(() => {
+    return (props.item.node.highlights ?? []).filter(
+      (h) => h.type === 'HIGHLIGHT'
+    )
+  }, [props.item])
 
   return (
     <HStack
@@ -402,8 +422,8 @@ function HighlightList(props: HighlightListProps): JSX.Element {
             pt: '25px',
             borderBottom: '1px solid $thBorderColor',
           }}
-          alignment="start"
-          distribution="start"
+          alignment="center"
+          distribution="center"
         >
           <StyledText
             css={{
@@ -414,7 +434,7 @@ function HighlightList(props: HighlightListProps): JSX.Element {
               color: 'thTextContrast2',
             }}
           >
-            HIGHLIGHTS
+            NOTEBOOK
           </StyledText>
           <Dropdown triggerElement={<MenuTrigger />}>
             <DropdownOption
@@ -425,18 +445,85 @@ function HighlightList(props: HighlightListProps): JSX.Element {
             />
           </Dropdown>
         </HStack>
-        <VStack css={{ width: '100%' }} distribution="start" alignment="start">
-          {(props.item.node.highlights ?? []).map((highlight) => (
-            <HighlightItem
-              key={highlight.id}
-              viewer={props.viewer}
-              item={props.item.node}
-              highlight={highlight}
-              deleteHighlight={props.deleteHighlight}
-            />
-          ))}
-          <Box css={{ height: '100px' }} />
-        </VStack>
+
+        <HStack
+          css={{
+            width: '100%',
+            pt: '25px',
+            borderBottom: '1px solid $thBorderColor',
+          }}
+          alignment="center"
+          distribution="center"
+        >
+          <StyledText
+            css={{
+              fontWeight: '600',
+              fontSize: '15px',
+              fontFamily: '$display',
+              width: '100%',
+              color: 'thTextContrast2',
+            }}
+          >
+            NOTE
+          </StyledText>
+        </HStack>
+        <HighlightNoteBox
+          sizeMode="normal"
+          mode={notesEditMode}
+          setEditMode={setNotesEditMode}
+          text={note?.annotation}
+          placeHolder="Add notes to this document..."
+          saveText={(highlight) => {
+            console.log('saving text', highlight)
+          }}
+        />
+        <SpanBox css={{ mt: '10px', mb: '25px' }} />
+
+        {sortedHighlights && (
+          <>
+            <HStack
+              css={{
+                width: '100%',
+                pt: '25px',
+                borderBottom: '1px solid $thBorderColor',
+              }}
+              alignment="center"
+              distribution="center"
+            >
+              <StyledText
+                css={{
+                  fontWeight: '600',
+                  fontSize: '15px',
+                  fontFamily: '$display',
+                  width: '100%',
+                  color: 'thTextContrast2',
+                }}
+              >
+                HIGHLIGHTS
+              </StyledText>
+            </HStack>
+            <VStack
+              css={{ width: '100%', mt: '20px' }}
+              distribution="start"
+              alignment="start"
+            >
+              {sortedHighlights.map((highlight) => (
+                <>
+                  <HighlightViewItem
+                    key={highlight.id}
+                    highlight={highlight}
+                    updateHighlight={(highlight) => {
+                      console.log('updated highlight: ', highlight)
+                    }}
+                  />
+                  <SpanBox css={{ mt: '10px', mb: '25px' }} />
+                </>
+              ))}
+              <Box css={{ height: '100px' }} />
+            </VStack>
+            <SpanBox css={{ mt: '10px', mb: '25px' }} />
+          </>
+        )}
       </VStack>
     </HStack>
   )

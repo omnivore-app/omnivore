@@ -28,7 +28,6 @@ const StyledQuote = styled(Blockquote, {
 
 export function HighlightView(props: HighlightViewProps): JSX.Element {
   const [noteMode, setNoteMode] = useState<'preview' | 'edit'>('preview')
-  const [isEditing, setIsEditing] = useState(false)
 
   const lines = useMemo(
     () => (props.highlight.quote || '').split('\n'),

@@ -220,6 +220,7 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
               width: '100%',
               fontSize: '9px',
               mt: '1px',
+              bg: 'red',
               color: '$thTextSubtle',
             }}
             alignment="start"
@@ -246,6 +247,17 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
                     )}`}
               </>
             ) : null}
+            <SpanBox
+              css={{
+                width: '100%',
+                fontSize: '9px',
+                mt: '1px',
+                color: 'red',
+                marginLeft: 'auto',
+              }}
+            >
+              Save
+            </SpanBox>
           </HStack>
         </VStack>
       ) : (

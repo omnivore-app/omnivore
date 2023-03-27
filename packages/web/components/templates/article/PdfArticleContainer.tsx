@@ -496,7 +496,11 @@ export default function PdfArticleContainer(
           pageId={props.article.id}
           highlights={highlightsRef.current}
           onClose={(updatedHighlights, deletedAnnotations) => {
-            console.log('closed PDF notebook: ')
+            console.log(
+              'closed PDF notebook: ',
+              updatedHighlights,
+              deletedAnnotations
+            )
             props.setShowHighlightsModal(false)
           }}
         />

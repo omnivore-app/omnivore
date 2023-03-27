@@ -28,6 +28,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { nanoid } from 'nanoid'
 import { deleteHighlightMutation } from '../../../lib/networking/mutations/deleteHighlightMutation'
 import { HighlightNoteBox } from '../../patterns/HighlightNotes'
+import { HighlightViewItem } from './HighlightViewItem'
 
 type NotebookModalProps = {
   pageId: string
@@ -77,7 +78,6 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
       deleteHighlightId?: string | undefined
     }
   ) => {
-    console.log('annotationsReducer', action.type)
     switch (action.type) {
       case 'RESET': {
         console.log(' -- reseting highlights: ', action.allHighlights)
@@ -382,7 +382,7 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
             <TitledSection title="HIGHLIGHTS" />
 
             {sortedHighlights.map((highlight) => (
-              <ModalHighlightView
+              <HighlightViewItem
                 key={highlight.id}
                 highlight={highlight}
                 scrollToHighlight={props.scrollToHighlight}
@@ -481,56 +481,6 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
         />
       )}
     </ModalRoot>
-  )
-}
-
-type ModalHighlightViewProps = {
-  highlight: Highlight
-  scrollToHighlight?: (arg: string) => void
-  deleteHighlightAction: () => void
-  updateHighlight: (highlight: Highlight) => void
-
-  setSetLabelsTarget: (highlight: Highlight) => void
-  setShowConfirmDeleteHighlightId: (id: string | undefined) => void
-}
-
-function ModalHighlightView(props: ModalHighlightViewProps): JSX.Element {
-  const [hover, setHover] = useState(false)
-
-  return (
-    <HStack
-      css={{ width: '100%', py: '20px', cursor: 'pointer' }}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-    >
-      <VStack css={{ width: '100%' }}>
-        <HighlightView
-          highlight={props.highlight}
-          scrollToHighlight={props.scrollToHighlight}
-          updateHighlight={props.updateHighlight}
-        />
-
-        <SpanBox css={{ mb: '15px' }} />
-      </VStack>
-      <SpanBox
-        css={{
-          marginLeft: 'auto',
-          width: '20px',
-          visibility: hover ? 'unset' : 'hidden',
-          '@media (hover: none)': {
-            visibility: 'unset',
-          },
-        }}
-      >
-        <HighlightsMenu
-          highlight={props.highlight}
-          setLabelsTarget={props.setSetLabelsTarget}
-          setShowConfirmDeleteHighlightId={
-            props.setShowConfirmDeleteHighlightId
-          }
-        />
-      </SpanBox>
-    </HStack>
   )
 }
 
