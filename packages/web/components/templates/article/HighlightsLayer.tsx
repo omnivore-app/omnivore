@@ -518,7 +518,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
     }
 
     const copy = async () => {
-      if (focusedHighlight) {
+      if (focusedHighlight && focusedHighlight.quote) {
         if (window.AndroidWebKitMessenger) {
           window.AndroidWebKitMessenger.handleIdentifiableMessage(
             'writeToClipboard',

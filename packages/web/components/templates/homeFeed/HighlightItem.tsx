@@ -49,7 +49,7 @@ export function HighlightItem(props: HighlightItemProps): JSX.Element {
   const [isEditing, setIsEditing] = useState(false)
 
   const lines = useMemo(
-    () => props.highlight.quote.split('\n'),
+    () => (props.highlight.quote || '').split('\n'),
     [props.highlight.quote]
   )
 

@@ -316,7 +316,7 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
             top: '0px',
             height: '50px',
             p: '20px',
-            bg: '$thBackground',
+            bg: '$grayBg',
             zIndex: 10,
           }}
         >

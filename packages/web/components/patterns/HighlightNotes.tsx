@@ -256,7 +256,7 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
               p: '10px',
               width: '100%',
               marginTop: '15px',
-              color: '$thHighContrast',
+              color: '#3D3D3D',
               bg: '#F5F5F5',
               '> *': {
                 m: '0px',

@@ -31,7 +31,7 @@ export type Highlight = {
   id: string
   type: HighlightType
   shortId: string
-  quote: string
+  quote?: string
   prefix?: string
   suffix?: string
   patch: string
