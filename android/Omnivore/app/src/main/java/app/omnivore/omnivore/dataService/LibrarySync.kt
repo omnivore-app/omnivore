@@ -106,15 +106,15 @@ suspend fun DataService.sync(since: String, cursor: String?, limit: Int = 20): S
   )
 }
 
-suspend fun DataService.syncSavedItemContent(slug: String, skipIfStoredInDB: Boolean) {
-  if (skipIfStoredInDB) {
-    val existingItem = db.savedItemDao().getSavedItemWithLabelsAndHighlights(slug)
-    if (existingItem?.savedItem?.content != null) {
-      return
-    }
-  }
+fun DataService.isSavedItemContentStoredInDB(slug: String): Boolean {
+  val existingItem = db.savedItemDao().getSavedItemWithLabelsAndHighlights(slug)
+  val content = existingItem?.savedItem?.content ?: ""
+  return content.length > 10
+}
 
+suspend fun DataService.fetchSavedItemContent(slug: String) {
   val syncResult = networker.savedItem(slug)
+  val isSuccess = syncResult.item != null
 
   val savedItem = syncResult.item ?: return
   db.savedItemDao().insert(savedItem)
@@ -137,6 +137,7 @@ suspend fun DataService.syncSavedItemContent(slug: String, skipIfStoredInDB: Boo
 
   db.savedItemAndHighlightCrossRefDao().insertAll(highlightCrossRefs)
 }
+
 
 data class SavedItemSyncResult(
   val hasError: Boolean,

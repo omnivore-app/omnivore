@@ -16,6 +16,7 @@ import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.persistence.entities.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
 import java.time.Instant
 import javax.inject.Inject
 
@@ -25,6 +26,8 @@ class LibraryViewModel @Inject constructor(
   private val dataService: DataService,
   private val datastoreRepo: DatastoreRepository
 ): ViewModel() {
+  private val contentRequestChannel = Channel<String>(capacity = Channel.UNLIMITED)
+
   private var cursor: String? = null
   private var librarySearchCursor: String? = null
 
@@ -81,6 +84,11 @@ class LibraryViewModel @Inject constructor(
 
     viewModelScope.launch {
       handleFilterChanges()
+      for (slug in contentRequestChannel) {
+        CoroutineScope(Dispatchers.IO).launch {
+          dataService.fetchSavedItemContent(slug)
+        }
+      }
     }
   }
 
@@ -147,7 +155,12 @@ class LibraryViewModel @Inject constructor(
         }
 
         result.savedItemSlugs.map {
-          dataService.syncSavedItemContent(it, skipIfStoredInDB = true)
+          val isSavedInDB = dataService.isSavedItemContentStoredInDB(it)
+
+          if (!isSavedInDB) {
+            delay(2000)
+            contentRequestChannel.send(it)
+          }
         }
       }
     }
@@ -205,7 +218,8 @@ class LibraryViewModel @Inject constructor(
     // Fetch content for the initial batch only
     if (isInitialBatch) {
       for (slug in result.savedItemSlugs) {
-        dataService.syncSavedItemContent(slug, skipIfStoredInDB = false)
+        delay(250)
+        contentRequestChannel.send(slug)
       }
     }
 
