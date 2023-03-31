@@ -189,6 +189,7 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
           }}
         >
           <MdEditor
+            key="note-editor"
             ref={editorRef}
             autoFocus={true}
             defaultValue={props.text}
