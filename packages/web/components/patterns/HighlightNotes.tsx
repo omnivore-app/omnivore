@@ -298,13 +298,13 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
               paddingLeft:
                 props.fillBackground && props.text
                   ? '10px'
-                  : props.fillBackground
+                  : !props.text
                   ? '5px'
                   : '0px',
               paddingRight:
                 props.fillBackground && props.text
                   ? '10px'
-                  : props.fillBackground
+                  : !props.text
                   ? '5px'
                   : '0px',
               color: props.text ? '$thHighContrast' : '#898989',
