@@ -286,12 +286,14 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
         <>
           <SpanBox
             css={{
-              borderRadius: '5px',
-              p: '10px',
+              borderRadius: '3px',
+              p: '5px',
               width: '100%',
               marginTop: '15px',
-              color: '#3D3D3D',
-              bg: '#F5F5F5',
+              color: '#898989',
+              fontSize: '11px',
+              border: '1px solid #D9D9D9',
+
               '> *': {
                 m: '0px',
               },

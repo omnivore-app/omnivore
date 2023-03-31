@@ -41,7 +41,7 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
       <VStack css={{ minHeight: '100%', width: '10px' }}>
         <Box
           css={{
-            mt: '8px',
+            mt: '5px',
             width: '10px',
             height: '10px',
             background: '#FFD234',
@@ -55,7 +55,7 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
             background: '#FFD234',
             marginLeft: '4px',
             flex: '1',
-            marginBottom: '32px',
+            marginBottom: '10px',
           }}
         />
       </VStack>
@@ -78,6 +78,8 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
               '> *': {
                 m: '0px',
               },
+              fontSize: '15px',
+              lineHeight: 1.5,
               color: '$grayText',
               img: {
                 display: 'block',

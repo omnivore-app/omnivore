@@ -3,7 +3,7 @@ import {
   ModalOverlay,
   ModalContent,
 } from '../../elements/ModalPrimitives'
-import { Box, HStack } from '../../elements/LayoutPrimitives'
+import { HStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { StyledText } from '../../elements/StyledText'
 import { theme } from '../../tokens/stitches.config'
@@ -114,7 +114,7 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
             css={{
               ml: 'auto',
               cursor: 'pointer',
-              gap: '5px',
+              gap: '15px',
               mr: '-5px',
             }}
             distribution="center"
