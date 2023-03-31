@@ -124,6 +124,9 @@ export function HighlightItemsLayout(
           '@xlgDown': {
             height: `calc(100vh - ${MOBILE_HEADER_HEIGHT})`,
           },
+          '@lgDown': {
+            overflowY: 'scroll',
+          },
           bg: '$thBackground2',
           overflow: 'hidden',
         }}
