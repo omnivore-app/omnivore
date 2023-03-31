@@ -11,6 +11,7 @@ import { extendRangeToWordBoundaries } from './normalizeHighlightRange'
 import type { Highlight } from '../networking/fragments/highlightFragment'
 import { removeHighlights } from './deleteHighlight'
 import { ArticleMutations } from '../articleActions'
+import { NodeHtmlMarkdown } from 'node-html-markdown'
 
 type CreateHighlightInput = {
   selection: SelectionAttributes
@@ -28,6 +29,20 @@ type CreateHighlightOutput = {
   newHighlightIndex?: number
 }
 
+/* ********************************************************* *
+ * Re-use
+ * If using it several times, creating an instance saves time
+ * ********************************************************* */
+const nhm = new NodeHtmlMarkdown(
+  /* options (optional) */ {},
+  /* customTransformers (optional) */ undefined,
+  /* customCodeBlockTranslators (optional) */ undefined
+)
+
+export const htmlToMarkdown = (html: string) => {
+  return nhm.translate(/* html */ html)
+}
+
 export async function createHighlight(
   input: CreateHighlightInput,
   articleMutations: ArticleMutations
@@ -41,6 +56,14 @@ export async function createHighlight(
   const { range, selection } = input.selection
 
   extendRangeToWordBoundaries(range)
+
+  // selection: Selection
+  var container = document.createElement('div')
+  // for (var i = 0, len = input.selection.selection.rangeCount; i < len; ++i) {
+  container.appendChild(range.cloneContents())
+  // }
+  console.log('container HTML: ', container.innerHTML)
+  console.log('container markdown: ', htmlToMarkdown(container.innerHTML))
 
   const id = uuidv4()
   const patch = generateDiffPatch(range)
@@ -81,7 +104,7 @@ export async function createHighlight(
   const newHighlightAttributes = {
     prefix: highlightAttributes.prefix,
     suffix: highlightAttributes.suffix,
-    quote: highlightAttributes.quote,
+    quote: htmlToMarkdown(container.innerHTML),
     id,
     shortId: nanoid(8),
     patch,

@@ -11,6 +11,7 @@ import {
 } from '../elements/LayoutPrimitives'
 import { styled } from '../tokens/stitches.config'
 import { HighlightViewNote } from './HighlightNotes'
+import ReactMarkdown from 'react-markdown'
 
 type HighlightViewProps = {
   highlight: Highlight
@@ -72,7 +73,8 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
             }
           }}
         >
-          <SpanBox
+          <ReactMarkdown children={props.highlight.quote ?? ''} />
+          {/* <SpanBox
             css={{
               p: '1px',
               borderRadius: '2px',
@@ -89,7 +91,7 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
                 )}
               </Fragment>
             ))}
-          </SpanBox>
+          </SpanBox> */}
         </StyledQuote>
         <Box css={{ display: 'block', pt: '5px' }}>
           {props.highlight.labels?.map(({ name, color }, index) => (
