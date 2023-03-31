@@ -416,6 +416,7 @@ function HighlightList(props: HighlightListProps): JSX.Element {
       </HStack>
       <HStack css={{ width: '100%', height: '100%' }}>
         <Notebook
+          sizeMode="normal"
           pageId={props.item.node.id}
           highlights={props.item.node.highlights ?? []}
         />
