@@ -33,9 +33,8 @@ type HighlightItemsLayoutProps = {
 export function HighlightItemsLayout(
   props: HighlightItemsLayoutProps
 ): JSX.Element {
-  const [currentItem, setCurrentItem] = useState<LibraryItem | undefined>(
-    undefined
-  )
+  const [currentItem, setCurrentItem] =
+    useState<LibraryItem | undefined>(undefined)
 
   const listReducer = (
     state: LibraryItem[],
@@ -248,6 +247,7 @@ function LibraryItemsList(props: LibraryItemsListProps): JSX.Element {
           )}
         </Box>
       ))}
+      <Box css={{ height: '240px' }} />
     </>
   )
 }
