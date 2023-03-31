@@ -178,6 +178,7 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
             '.rc-md-editor .editor-container .sec-md .input': {
               padding: '10px',
               borderRadius: '5px',
+              fontSize: '16px',
             },
           }}
           onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
