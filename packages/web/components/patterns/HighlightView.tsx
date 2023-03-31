@@ -1,5 +1,6 @@
+/* eslint-disable react/no-children-prop */
 import { BookOpen, PencilLine } from 'phosphor-react'
-import { Fragment, useMemo, useState } from 'react'
+import { useState } from 'react'
 import type { Highlight } from '../../lib/networking/fragments/highlightFragment'
 import { LabelChip } from '../elements/LabelChip'
 import {
