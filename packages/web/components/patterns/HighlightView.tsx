@@ -98,7 +98,7 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
           ))}
         </Box>
         <HStack
-          css={{ width: '100%', height: '100%' }}
+          css={{ width: '100%', height: '100%', pt: '15px' }}
           alignment="start"
           distribution="start"
         >
@@ -115,7 +115,7 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
             css={{
               lineHeight: '1',
               marginLeft: '20px',
-              marginTop: '20px',
+              marginTop: '15px',
               cursor: 'pointer',
               borderRadius: '1000px',
               '&:hover': {

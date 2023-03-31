@@ -55,6 +55,7 @@ export function HighlightNoteBox(props: NoteSectionProps): JSX.Element {
       text={props.text}
       saveText={saveText}
       lastSaved={lastSaved}
+      fillBackground={false}
     />
   )
 }
@@ -101,6 +102,7 @@ export function HighlightViewNote(props: HighlightViewNoteProps): JSX.Element {
       text={props.text}
       saveText={saveText}
       lastSaved={lastSaved}
+      fillBackground={true}
     />
   )
 }
@@ -113,6 +115,7 @@ type MarkdownNote = {
   setEditMode: (set: 'edit' | 'preview') => void
 
   text: string | undefined
+  fillBackground: boolean | undefined
 
   lastSaved: Date | undefined
   saveText: (text: string, updateTime: Date) => void
@@ -286,14 +289,28 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
         <>
           <SpanBox
             css={{
-              borderRadius: '3px',
               p: '5px',
               width: '100%',
-              marginTop: '15px',
-              color: '#898989',
-              fontSize: '13px',
-              border: '1px solid $thBorderColor',
+              fontSize: '15px',
+              borderRadius: '2px',
+              marginTop: props.fillBackground || !props.text ? '10px' : '0px',
 
+              paddingLeft:
+                props.fillBackground && props.text
+                  ? '10px'
+                  : props.fillBackground
+                  ? '5px'
+                  : '0px',
+              paddingRight:
+                props.fillBackground && props.text
+                  ? '10px'
+                  : props.fillBackground
+                  ? '5px'
+                  : '0px',
+              color: props.text ? '$thHighContrast' : '#898989',
+              border: props.text ? 'unset' : '1px solid $thBorderColor',
+              background:
+                props.text && props.fillBackground ? '$thBackground5' : 'unset',
               '> *': {
                 m: '0px',
               },
