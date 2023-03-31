@@ -298,18 +298,6 @@ export function Notebook(props: NotebookProps): JSX.Element {
         saveText={handleSaveNoteText}
       />
       <SpanBox css={{ mt: '10px', mb: '25px' }} />
-      {/* {annotations.allAnnotations.map((highlight) => (
-            <Box key={`hn-${highlight.id}`} css={{ color: 'black' }}>
-              {highlight.annotation}
-              <Button
-                onClick={() => {
-                  deleteHighlightMutation(highlight.id)
-                }}
-              >
-                DELETE
-              </Button>
-            </Box>
-          ))} */}
       <Box css={{ width: '100%' }}>
         <TitledSection title="HIGHLIGHTS" />
 

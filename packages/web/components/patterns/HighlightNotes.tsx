@@ -291,8 +291,8 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
               width: '100%',
               marginTop: '15px',
               color: '#898989',
-              fontSize: '11px',
-              border: '1px solid #D9D9D9',
+              fontSize: '13px',
+              border: '1px solid $thBorderColor',
 
               '> *': {
                 m: '0px',
