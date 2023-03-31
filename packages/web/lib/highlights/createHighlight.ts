@@ -57,13 +57,9 @@ export async function createHighlight(
 
   extendRangeToWordBoundaries(range)
 
-  // selection: Selection
-  var container = document.createElement('div')
-  // for (var i = 0, len = input.selection.selection.rangeCount; i < len; ++i) {
+  // Create a temp container for copying the range HTML
+  const container = document.createElement('div')
   container.appendChild(range.cloneContents())
-  // }
-  console.log('container HTML: ', container.innerHTML)
-  console.log('container markdown: ', htmlToMarkdown(container.innerHTML))
 
   const id = uuidv4()
   const patch = generateDiffPatch(range)
@@ -102,12 +98,15 @@ export async function createHighlight(
   )
 
   const newHighlightAttributes = {
-    prefix: highlightAttributes.prefix,
-    suffix: highlightAttributes.suffix,
-    quote: htmlToMarkdown(container.innerHTML),
     id,
     shortId: nanoid(8),
     patch,
+
+    prefix: highlightAttributes.prefix,
+    suffix: highlightAttributes.suffix,
+    quote: htmlToMarkdown(container.innerHTML),
+    html: container.innerHTML,
+
     annotation: annotations.length > 0 ? annotations.join('\n') : undefined,
     articleId: input.articleId,
     highlightPositionPercent: input.highlightPositionPercent,

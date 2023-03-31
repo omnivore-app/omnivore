@@ -14,6 +14,7 @@ export type CreateHighlightInput = {
   prefix?: string
   suffix?: string
   quote?: string
+  html?: string
   annotation?: string
 
   patch?: string

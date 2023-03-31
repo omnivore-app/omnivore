@@ -10,6 +10,7 @@ export type MergeHighlightInput = {
   quote: string
   prefix?: string
   suffix?: string
+  html?: string
   annotation?: string
   overlapHighlightIdList: string[]
   highlightPositionPercent?: number
