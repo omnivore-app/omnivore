@@ -25,16 +25,10 @@ const StyledQuote = styled(Blockquote, {
   margin: '0px 0px 0px 0px',
   fontSize: '18px',
   lineHeight: '27px',
-  color: '$grayText',
 })
 
 export function HighlightView(props: HighlightViewProps): JSX.Element {
   const [noteMode, setNoteMode] = useState<'preview' | 'edit'>('preview')
-
-  const lines = useMemo(
-    () => (props.highlight.quote || '').split('\n'),
-    [props.highlight.quote]
-  )
 
   return (
     <HStack
@@ -65,7 +59,13 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
           }}
         />
       </VStack>
-      <VStack css={{ width: '100%', padding: '0px', paddingLeft: '15px' }}>
+      <VStack
+        css={{
+          width: '100%',
+          padding: '0px',
+          paddingLeft: '15px',
+        }}
+      >
         <StyledQuote
           onClick={() => {
             if (props.scrollToHighlight) {
@@ -73,25 +73,22 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
             }
           }}
         >
-          <ReactMarkdown children={props.highlight.quote ?? ''} />
-          {/* <SpanBox
+          <SpanBox
             css={{
-              p: '1px',
-              borderRadius: '2px',
+              '> *': {
+                m: '0px',
+              },
+              color: '$grayText',
+              img: {
+                display: 'block',
+                margin: '0.5em auto !important',
+                maxWidth: '100% !important',
+                height: 'auto',
+              },
             }}
           >
-            {lines.map((line: string, index: number) => (
-              <Fragment key={index}>
-                {line}
-                {index !== lines.length - 1 && (
-                  <>
-                    <br />
-                    <br />
-                  </>
-                )}
-              </Fragment>
-            ))}
-          </SpanBox> */}
+            <ReactMarkdown children={props.highlight.quote ?? ''} />
+          </SpanBox>
         </StyledQuote>
         <Box css={{ display: 'block', pt: '5px' }}>
           {props.highlight.labels?.map(({ name, color }, index) => (
