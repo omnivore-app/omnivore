@@ -3022,7 +3022,8 @@ Readability.prototype = {
     var textContent = articleContent.textContent;
     return {
       title: this._articleTitle,
-      byline: author,
+      // remove \n and extra spaces and trim the string
+      byline: author ? author.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim() : null,
       dir: this._articleDir,
       content: this._serializer(articleContent),
       textContent: textContent,
