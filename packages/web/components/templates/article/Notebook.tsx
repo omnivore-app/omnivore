@@ -53,13 +53,11 @@ type AnnotationInfo = {
 export function Notebook(props: NotebookProps): JSX.Element {
   const [showConfirmDeleteHighlightId, setShowConfirmDeleteHighlightId] =
     useState<undefined | string>(undefined)
-  const [labelsTarget, setLabelsTarget] = useState<Highlight | undefined>(
-    undefined
-  )
+  const [labelsTarget, setLabelsTarget] =
+    useState<Highlight | undefined>(undefined)
   const [showConfirmDeleteNote, setShowConfirmDeleteNote] = useState(false)
-  const [notesEditMode, setNotesEditMode] = useState<'edit' | 'preview'>(
-    'preview'
-  )
+  const [notesEditMode, setNotesEditMode] =
+    useState<'edit' | 'preview'>('preview')
   const [, updateState] = useState({})
 
   const annotationsReducer = (
@@ -351,7 +349,17 @@ export function Notebook(props: NotebookProps): JSX.Element {
             You have not added any highlights to this document.
           </Box>
         )}
+        <Box
+          css={{
+            '@mdDown': {
+              height: '320px',
+              width: '100%',
+              background: 'transparent',
+            },
+          }}
+        />
       </Box>
+
       {showConfirmDeleteHighlightId && (
         <ConfirmationModal
           message={'Are you sure you want to delete this highlight?'}

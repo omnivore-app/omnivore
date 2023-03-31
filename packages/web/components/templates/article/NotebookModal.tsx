@@ -3,32 +3,19 @@ import {
   ModalOverlay,
   ModalContent,
 } from '../../elements/ModalPrimitives'
-import { Box, HStack, VStack, SpanBox } from '../../elements/LayoutPrimitives'
+import { Box, HStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { StyledText } from '../../elements/StyledText'
-import { TrashIcon } from '../../elements/images/TrashIcon'
 import { theme } from '../../tokens/stitches.config'
 import type { Highlight } from '../../../lib/networking/fragments/highlightFragment'
-import { HighlightView } from '../../patterns/HighlightView'
-import { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
-import { ConfirmationModal } from '../../patterns/ConfirmationModal'
-import { ArrowsIn, ArrowsOut, BookOpen, PencilLine, X } from 'phosphor-react'
+import { useCallback, useState } from 'react'
+import { ArrowsIn, ArrowsOut, X } from 'phosphor-react'
 import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
-import { SetLabelsModal } from './SetLabelsModal'
-import { Label } from '../../../lib/networking/fragments/labelFragment'
-import { setLabelsForHighlight } from '../../../lib/networking/mutations/setLabelsForHighlight'
-import { updateHighlightMutation } from '../../../lib/networking/mutations/updateHighlightMutation'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { diff_match_patch } from 'diff-match-patch'
 import { MenuTrigger } from '../../elements/MenuTrigger'
-import { highlightsAsMarkdown, HighlightsMenu } from '../homeFeed/HighlightItem'
+import { highlightsAsMarkdown } from '../homeFeed/HighlightItem'
 import 'react-markdown-editor-lite/lib/index.css'
-import { createHighlightMutation } from '../../../lib/networking/mutations/createHighlightMutation'
-import { v4 as uuidv4 } from 'uuid'
-import { nanoid } from 'nanoid'
-import { deleteHighlightMutation } from '../../../lib/networking/mutations/deleteHighlightMutation'
-import { HighlightNoteBox } from '../../patterns/HighlightNotes'
-import { HighlightViewItem } from './HighlightViewItem'
 import { Notebook } from './Notebook'
 
 type NotebookModalProps = {
@@ -57,12 +44,10 @@ type AnnotationInfo = {
 export function NotebookModal(props: NotebookModalProps): JSX.Element {
   const [sizeMode, setSizeMode] = useState<'normal' | 'maximized'>('normal')
   const [showConfirmDeleteNote, setShowConfirmDeleteNote] = useState(false)
-  const [allAnnotations, setAllAnnotations] = useState<Highlight[] | undefined>(
-    undefined
-  )
-  const [deletedAnnotations, setDeletedAnnotations] = useState<
-    Highlight[] | undefined
-  >(undefined)
+  const [allAnnotations, setAllAnnotations] =
+    useState<Highlight[] | undefined>(undefined)
+  const [deletedAnnotations, setDeletedAnnotations] =
+    useState<Highlight[] | undefined>(undefined)
 
   const handleClose = useCallback(() => {
     props.onClose(allAnnotations ?? [], deletedAnnotations ?? [])
@@ -100,6 +85,13 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
           height: sizeMode === 'normal' ? 'unset' : '100%',
           maxWidth: sizeMode === 'normal' ? '640px' : '100%',
           minHeight: sizeMode === 'normal' ? '525px' : 'unset',
+          '@mdDown': {
+            top: '20px',
+            width: '100%',
+            height: '100%',
+            maxHeight: 'unset',
+            transform: 'translate(-50%)',
+          },
         }}
       >
         <HStack
@@ -172,9 +164,6 @@ function CloseButton(props: { close: () => void }): JSX.Element {
         borderRadius: '9999px',
         '&:hover': {
           bg: '#898989',
-        },
-        '@mdDown': {
-          display: 'none',
         },
       }}
       onClick={(event) => {
