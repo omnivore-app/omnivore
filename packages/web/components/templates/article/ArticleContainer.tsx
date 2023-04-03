@@ -12,7 +12,11 @@ import { Button } from '../../elements/Button'
 import { useEffect, useState, useRef, useMemo, useCallback } from 'react'
 import { ReportIssuesModal } from './ReportIssuesModal'
 import { reportIssueMutation } from '../../../lib/networking/mutations/reportIssueMutation'
-import { updateTheme, updateThemeLocally } from '../../../lib/themeUpdater'
+import {
+  currentTheme,
+  updateTheme,
+  updateThemeLocally,
+} from '../../../lib/themeUpdater'
 import { ArticleMutations } from '../../../lib/articleActions'
 import { LabelChip } from '../../elements/LabelChip'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
@@ -316,6 +320,13 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     readerTableHeaderColor: theme.colors.readerTableHeader.toString(),
     readerHeadersColor: theme.colors.readerFont.toString(),
   }
+  console.log(
+    'currentTheme from iOS: ',
+    highContrastText,
+    currentTheme(),
+    'readerFontColor',
+    styles.readerFontColor
+  )
 
   const recommendationsWithNotes = useMemo(() => {
     return (
@@ -331,7 +342,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         id="article-container"
         css={{
           padding: '30px',
-          paddingTop: '80px',
+          paddingTop: '30px',
           minHeight: '100vh',
           maxWidth: `${styles.maxWidthPercentage ?? 100}%`,
           background: props.isAppleAppEmbed
@@ -363,7 +374,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           },
           '@mdDown': {
             padding: '15px',
-            paddingTop: '80px',
           },
         }}
       >

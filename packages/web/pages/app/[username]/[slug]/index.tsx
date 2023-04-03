@@ -84,6 +84,7 @@ function AppArticleEmbedContent(
           alignment="center"
           distribution="center"
           className="disable-webkit-callout"
+          css={{ paddingTop: '80px' }}
         >
           <ArticleContainer
             viewer={viewerData.me}

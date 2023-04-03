@@ -358,6 +358,7 @@ export default function Home(): JSX.Element {
             height: '100%',
             background: '$readerMargin',
             overflow: 'scroll',
+            paddingTop: '80px',
           }}
         >
           {article && viewerData?.me ? (

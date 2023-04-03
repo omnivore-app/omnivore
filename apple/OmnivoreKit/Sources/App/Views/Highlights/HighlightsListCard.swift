@@ -1,4 +1,5 @@
 #if os(iOS)
+  import MarkdownUI
   import Models
   import SwiftUI
   import Views
@@ -59,15 +60,27 @@
         let isEmpty = highlightParams.annotation.isEmpty
         Spacer(minLength: 6)
 
-        Text(isEmpty ? "Add Notes..." : highlightParams.annotation)
-          .lineSpacing(6)
-          .accentColor(.appGraySolid)
-          .foregroundColor(isEmpty ? .appGrayText : .appGrayTextContrast)
-          .font(.appSubheadline)
-          .padding(12)
-          .frame(maxWidth: .infinity, alignment: .leading)
-          .background(Color.appButtonBackground)
-          .cornerRadius(8)
+        if isEmpty {
+          Text("Add Notes...")
+            .lineSpacing(6)
+            .accentColor(.appGraySolid)
+            .foregroundColor(isEmpty ? .appGrayText : .appGrayTextContrast)
+            .font(.appSubheadline)
+            .padding(12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.appButtonBackground)
+            .cornerRadius(8)
+        } else {
+          Markdown(highlightParams.annotation)
+            .lineSpacing(6)
+            .accentColor(.appGraySolid)
+            .foregroundColor(isEmpty ? .appGrayText : .appGrayTextContrast)
+            .font(.appSubheadline)
+            .padding(12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.appButtonBackground)
+            .cornerRadius(8)
+        }
       }
       .onTapGesture {
         annotation = highlightParams.annotation
@@ -96,6 +109,10 @@
       } else {
         return AnyView(EmptyView())
       }
+    }
+
+    func markdownText(str: String) -> some View {
+      Markdown(str)
     }
 
     var body: some View {
@@ -154,7 +171,7 @@
             .padding(.trailing, 6)
 
           VStack(alignment: .leading, spacing: 16) {
-            Text(highlightParams.quote)
+            Markdown(highlightParams.quote)
             labelsView
           }
         }

@@ -8,6 +8,7 @@ struct WebReaderContent {
   let lineHeight: Int
   let maxWidthPercentage: Int
   let item: LinkedItem
+  let isDark: Bool
   let themeKey: String
   let fontFamily: WebFont
   let articleContent: ArticleContent
@@ -29,7 +30,8 @@ struct WebReaderContent {
     self.lineHeight = lineHeight
     self.maxWidthPercentage = maxWidthPercentage
     self.item = item
-    self.themeKey = isDark ? "Gray" : "LightGray"
+    self.isDark = isDark
+    self.themeKey = isDark ? "Dark" : "Light"
     self.fontFamily = fontFamily
     self.articleContent = articleContent
     self.prefersHighContrastText = prefersHighContrastText
@@ -49,7 +51,7 @@ struct WebReaderContent {
         <meta charset="utf-8" />
         <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no' />
           <style>
-            @import url("highlight\(themeKey == "Gray" ? "-dark" : "").css");
+            @import url("highlight\(isDark ? "-dark" : "").css");
           </style>
       </head>
       <body>
@@ -84,11 +86,11 @@ struct WebReaderContent {
             recommendations: \(item.recommendationsJSONString),
           }
 
+          window.themeKey = "\(themeKey)"
           window.fontSize = \(textFontSize)
           window.fontFamily = "\(fontFamily.rawValue)"
           window.maxWidthPercentage = \(maxWidthPercentage)
           window.lineHeight = \(lineHeight)
-          window.localStorage.setItem("theme", "\(themeKey)")
           window.prefersHighContrastFont = \(prefersHighContrastText)
           window.enableHighlightBar = \(isMacApp)
           window.highlightOnRelease = \(enableHighlightOnRelease)
@@ -103,7 +105,7 @@ struct WebReaderContent {
 
   // swiftlint:disable line_length function_body_length
   static func emptyContent(isDark: Bool) -> String {
-    let themeKey = isDark ? "Gray" : "LightGray"
+    let themeKey = isDark ? "Dark" : "Light"
 //    let savedAt = "new Date(\(item.unwrappedSavedAt.timeIntervalSince1970 * 1000)).toISOString()"
     //   let createdAt = "new Date(\(item.unwrappedCreatedAt.timeIntervalSince1970 * 1000)).toISOString()"
     //   let publishedAt = item.publishDate != nil ? "new Date(\(item.publishDate!.timeIntervalSince1970 * 1000)).toISOString()" : "undefined"
@@ -115,7 +117,7 @@ struct WebReaderContent {
         <meta charset="utf-8" />
         <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no' />
           <style>
-            @import url("highlight\(themeKey == "Gray" ? "-dark" : "").css");
+            @import url("highlight\(isDark ? "-dark" : "").css");
           </style>
       </head>
       <body>
@@ -154,7 +156,7 @@ struct WebReaderContent {
           window.fontFamily = "Inter"
           window.maxWidthPercentage = 0
           window.lineHeight = 1.25
-          window.localStorage.setItem("theme", "\(themeKey)")
+          window.themeKey = "\(themeKey)"
           window.prefersHighContrastFont = true
           window.enableHighlightBar = false
           window.highlightOnRelease = false
