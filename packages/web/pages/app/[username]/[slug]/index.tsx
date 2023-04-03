@@ -13,6 +13,7 @@ import { mergeHighlightMutation } from '../../../../lib/networking/mutations/mer
 import { updateHighlightMutation } from '../../../../lib/networking/mutations/updateHighlightMutation'
 import { articleReadingProgressMutation } from '../../../../lib/networking/mutations/articleReadingProgressMutation'
 import Script from 'next/script'
+import { useGetViewerQuery } from '../../../../lib/networking/queries/useGetViewerQuery'
 
 type AppArticleEmbedContentProps = {
   slug: string
@@ -28,9 +29,8 @@ export default function AppArticleEmbed(): JSX.Element {
 
   const router = useRouter()
 
-  const [contentProps, setContentProps] = useState<
-    AppArticleEmbedContentProps | undefined
-  >(undefined)
+  const [contentProps, setContentProps] =
+    useState<AppArticleEmbedContentProps | undefined>(undefined)
 
   useEffect(() => {
     if (!router.isReady) return
@@ -62,7 +62,7 @@ export default function AppArticleEmbed(): JSX.Element {
 function AppArticleEmbedContent(
   props: AppArticleEmbedContentProps
 ): JSX.Element {
-  const scrollRef = useRef<HTMLDivElement | null>(null)
+  const { viewerData } = useGetViewerQuery()
   const [showHighlightsModal, setShowHighlightsModal] = useState(false)
 
   const { articleData } = useGetArticleQuery({
@@ -71,7 +71,7 @@ function AppArticleEmbedContent(
     includeFriendsHighlights: false,
   })
 
-  if (articleData) {
+  if (articleData && viewerData?.me) {
     return (
       <Box>
         <Script async src="/static/scripts/mathJaxConfiguration.js" />
@@ -86,6 +86,7 @@ function AppArticleEmbedContent(
           className="disable-webkit-callout"
         >
           <ArticleContainer
+            viewer={viewerData.me}
             article={articleData.article.article}
             isAppleAppEmbed={true}
             highlightBarDisabled={props.highlightBarDisabled}

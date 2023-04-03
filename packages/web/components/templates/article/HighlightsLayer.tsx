@@ -26,9 +26,17 @@ import { isTouchScreenDevice } from '../../../lib/deviceType'
 import { SetLabelsModal } from './SetLabelsModal'
 import { setLabelsForHighlight } from '../../../lib/networking/mutations/setLabelsForHighlight'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
+import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
+import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+import { useRouter } from 'next/router'
+import { MarkdownModal } from '../../patterns/HighlightNotes'
 
 type HighlightsLayerProps = {
+  viewer: UserBasicData
+
+  item: ReadableItem
   highlights: Highlight[]
+
   articleId: string
   articleTitle: string
   articleAuthor: string
@@ -37,6 +45,7 @@ type HighlightsLayerProps = {
   showHighlightsModal: boolean
   highlightOnRelease?: boolean
   scrollToHighlight: MutableRefObject<string | null>
+
   setShowHighlightsModal: React.Dispatch<React.SetStateAction<boolean>>
   articleMutations: ArticleMutations
 }
@@ -59,6 +68,7 @@ interface SpeakingSectionEvent extends Event {
 }
 
 export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
+  const router = useRouter()
   const [highlights, setHighlights] = useState(props.highlights)
   const [highlightModalAction, setHighlightModalAction] =
     useState<HighlightActionProps>({ highlightModalAction: 'none' })
@@ -119,14 +129,16 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   // Load the highlights
   useEffect(() => {
     const res: HighlightLocation[] = []
-    highlights.forEach((highlight) => {
-      try {
-        const offset = makeHighlightStartEndOffset(highlight)
-        res.push(offset)
-      } catch (err) {
-        console.error(err)
-      }
-    })
+    highlights
+      .filter((h) => h.type == 'HIGHLIGHT')
+      .forEach((highlight) => {
+        try {
+          const offset = makeHighlightStartEndOffset(highlight)
+          res.push(offset)
+        } catch (err) {
+          console.error(err)
+        }
+      })
     setHighlightLocations(res)
 
     // If we were given an initial highlight to scroll to we do
@@ -137,7 +149,10 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         `[omnivore-highlight-id="${props.scrollToHighlight.current}"]`
       )
       if (anchorElement) {
-        anchorElement.scrollIntoView({ behavior: 'auto' })
+        anchorElement.scrollIntoView({
+          block: 'center',
+          behavior: 'auto',
+        })
       }
     }
   }, [highlights, setHighlightLocations, props.scrollToHighlight])
@@ -389,6 +404,24 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
     [highlights, highlightLocations, focusedHighlight, openNoteModal]
   )
 
+  const handleCloseNotebook = useCallback(
+    (updatedHighlights: Highlight[], deletedHighlights: Highlight[]) => {
+      props.setShowHighlightsModal(false)
+
+      setHighlights(updatedHighlights)
+
+      removeHighlights(
+        deletedHighlights.map((h) => h.id),
+        highlightLocations
+      )
+
+      updatedHighlights.forEach((h) => {
+        updateHighlightsCallback(h)
+      })
+    },
+    [highlights, highlightLocations]
+  )
+
   useEffect(() => {
     let clickCount = 0
     const handleClick = (e: MouseEvent) => {
@@ -434,37 +467,6 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
             })
           }
           break
-        case 'share':
-          if (props.isAppleAppEmbed) {
-            window?.webkit?.messageHandlers.highlightAction?.postMessage({
-              actionID: 'share',
-              highlightID: focusedHighlight?.id,
-            })
-          }
-
-          window?.AndroidWebKitMessenger?.handleIdentifiableMessage(
-            'shareHighlight',
-            JSON.stringify({
-              highlightID: focusedHighlight?.id,
-            })
-          )
-
-          if (focusedHighlight) {
-            // if (canShareNative) {
-            //   handleNativeShare(focusedHighlight.shortId)
-            // } else {
-            //   setHighlightModalAction({
-            //     highlight: focusedHighlight,
-            //     highlightModalAction: 'share',
-            //   })
-            // }
-          } else {
-            await createHighlightCallback('share')
-          }
-          break
-        case 'unshare':
-          console.log('unshare')
-          break // TODO: implement -- need to show confirmation dialog
         case 'setHighlightLabels':
           if (props.isAppleAppEmbed) {
             window?.webkit?.messageHandlers.highlightAction?.postMessage({
@@ -550,7 +552,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
     }
 
     const copy = async () => {
-      if (focusedHighlight) {
+      if (focusedHighlight && focusedHighlight.quote) {
         if (window.AndroidWebKitMessenger) {
           window.AndroidWebKitMessenger.handleIdentifiableMessage(
             'writeToClipboard',
@@ -699,12 +701,28 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   if (props.showHighlightsModal) {
     return (
       <NotebookModal
+        viewer={props.viewer}
+        item={props.item}
         highlights={highlights}
-        onOpenChange={() => props.setShowHighlightsModal(false)}
-        deleteHighlightAction={(highlightId: string) => {
-          removeHighlightCallback(highlightId)
+        onClose={handleCloseNotebook}
+        viewHighlightInReader={(highlightId) => {
+          // The timeout here is a bit of a hack to work around rerendering
+          setTimeout(() => {
+            const target = document.querySelector(
+              `[omnivore-highlight-id="${highlightId}"]`
+            )
+            target?.scrollIntoView({
+              block: 'center',
+              behavior: 'auto',
+            })
+          }, 1)
+          history.replaceState(
+            undefined,
+            window.location.href,
+            `#${highlightId}`
+          )
+          props.setShowHighlightsModal(false)
         }}
-        updateHighlight={updateHighlightsCallback}
       />
     )
   }

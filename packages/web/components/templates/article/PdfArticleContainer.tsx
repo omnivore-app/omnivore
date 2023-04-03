@@ -2,7 +2,7 @@ import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticle
 import { Box } from '../../elements/LayoutPrimitives'
 import { v4 as uuidv4 } from 'uuid'
 import { nanoid } from 'nanoid'
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { isDarkTheme } from '../../../lib/themeUpdater'
 import PSPDFKit from 'pspdfkit'
 import { Instance, HighlightAnnotation, List, Annotation, Rect } from 'pspdfkit'
@@ -12,15 +12,15 @@ import { deleteHighlightMutation } from '../../../lib/networking/mutations/delet
 import { articleReadingProgressMutation } from '../../../lib/networking/mutations/articleReadingProgressMutation'
 import { mergeHighlightMutation } from '../../../lib/networking/mutations/mergeHighlightMutation'
 import { useCanShareNative } from '../../../lib/hooks/useCanShareNative'
-import { webBaseURL } from '../../../lib/appConfig'
 import { pspdfKitKey } from '../../../lib/appConfig'
 import { NotebookModal } from './NotebookModal'
 import { HighlightNoteModal } from './HighlightNoteModal'
 import { showErrorToast } from '../../../lib/toastHelpers'
 import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from '../homeFeed/HeaderSpacer'
+import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 
 export type PdfArticleContainerProps = {
-  viewerUsername: string
+  viewer: UserBasicData
   article: ArticleAttributes
   showHighlightsModal: boolean
   setShowHighlightsModal: React.Dispatch<React.SetStateAction<boolean>>
@@ -30,43 +30,41 @@ export default function PdfArticleContainer(
   props: PdfArticleContainerProps
 ): JSX.Element {
   const containerRef = useRef<HTMLDivElement | null>(null)
-  const [shareTarget, setShareTarget] = useState<Highlight | undefined>(
-    undefined
-  )
+  const [shareTarget, setShareTarget] =
+    useState<Highlight | undefined>(undefined)
   const [notebookKey, setNotebookKey] = useState<string>(uuidv4())
   const [noteTarget, setNoteTarget] = useState<Highlight | undefined>(undefined)
-  const [noteTargetPageIndex, setNoteTargetPageIndex] = useState<
-    number | undefined
-  >(undefined)
+  const [noteTargetPageIndex, setNoteTargetPageIndex] =
+    useState<number | undefined>(undefined)
   const highlightsRef = useRef<Highlight[]>([])
   const canShareNative = useCanShareNative()
 
-  const getHighlightURL = useCallback(
-    (highlightID: string): string =>
-      `${webBaseURL}/${props.viewerUsername}/${props.article.slug}/highlights/${highlightID}`,
-    [props.article.slug, props.viewerUsername]
-  )
+  // const getHighlightURL = useCallback(
+  //   (highlightID: string): string =>
+  //     `${webBaseURL}/${props.viewerUsername}/${props.article.slug}/highlights/${highlightID}`,
+  //   [props.article.slug, props.viewerUsername]
+  // )
 
-  const nativeShare = useCallback(
-    async (highlightID: string, title: string) => {
-      await navigator?.share({
-        title: title,
-        url: getHighlightURL(highlightID),
-      })
-    },
-    [getHighlightURL]
-  )
+  // const nativeShare = useCallback(
+  //   async (highlightID: string, title: string) => {
+  //     await navigator?.share({
+  //       title: title,
+  //       url: getHighlightURL(highlightID),
+  //     })
+  //   },
+  //   [getHighlightURL]
+  // )
 
-  const handleOpenShare = useCallback(
-    (highlight: Highlight) => {
-      if (canShareNative) {
-        nativeShare(highlight.shortId, props.article.title)
-      } else {
-        setShareTarget(highlight)
-      }
-    },
-    [nativeShare, canShareNative, props.article.title]
-  )
+  // const handleOpenShare = useCallback(
+  //   (highlight: Highlight) => {
+  //     if (canShareNative) {
+  //       nativeShare(highlight.shortId, props.article.title)
+  //     } else {
+  //       setShareTarget(highlight)
+  //     }
+  //   },
+  //   [nativeShare, canShareNative, props.article.title]
+  // )
 
   const annotationOmnivoreId = (annotation: Annotation): string | undefined => {
     if (
@@ -178,23 +176,23 @@ export default function PdfArticleContainer(
             instance.setSelectedAnnotation(null)
           },
         }
-        const share = {
-          type: 'custom' as const,
-          title: 'Share',
-          id: 'tooltip-share-annotation',
-          className: 'TooltipItem-Share',
-          onPress: () => {
-            if (
-              annotation.customData &&
-              annotation.customData.omnivoreHighlight &&
-              (annotation.customData.omnivoreHighlight as Highlight).shortId
-            ) {
-              const data = annotation.customData.omnivoreHighlight as Highlight
-              handleOpenShare(data)
-            }
-            instance.setSelectedAnnotation(null)
-          },
-        }
+        // const share = {
+        //   type: 'custom' as const,
+        //   title: 'Share',
+        //   id: 'tooltip-share-annotation',
+        //   className: 'TooltipItem-Share',
+        //   onPress: () => {
+        //     if (
+        //       annotation.customData &&
+        //       annotation.customData.omnivoreHighlight &&
+        //       (annotation.customData.omnivoreHighlight as Highlight).shortId
+        //     ) {
+        //       const data = annotation.customData.omnivoreHighlight as Highlight
+        //       handleOpenShare(data)
+        //     }
+        //     instance.setSelectedAnnotation(null)
+        //   },
+        // }
         return [copy, note, remove]
       }
 
@@ -237,7 +235,9 @@ export default function PdfArticleContainer(
 
       // Store the highlights in the highlightsRef and apply them to the PDF
       highlightsRef.current = props.article.highlights
-      for (const highlight of props.article.highlights) {
+      for (const highlight of props.article.highlights.filter(
+        (h) => h.type == 'HIGHLIGHT'
+      )) {
         const patch = JSON.parse(highlight.patch)
         if (highlight.annotation && patch.customData.omnivoreHighight) {
           patch.customData.omnivoreHighight.annotation = highlight.annotation
@@ -491,15 +491,26 @@ export default function PdfArticleContainer(
       {props.showHighlightsModal && (
         <NotebookModal
           key={notebookKey}
+          viewer={props.viewer}
+          item={props.article}
           highlights={highlightsRef.current}
-          onOpenChange={() => props.setShowHighlightsModal(false)}
-          /* eslint-disable @typescript-eslint/no-empty-function */
-          updateHighlight={() => {}}
-          deleteHighlightAction={(highlightId: string) => {
-            const event = new CustomEvent('deleteHighlightbyId', {
-              detail: highlightId,
+          onClose={(updatedHighlights, deletedAnnotations) => {
+            console.log(
+              'closed PDF notebook: ',
+              updatedHighlights,
+              deletedAnnotations
+            )
+            deletedAnnotations.forEach((highlight) => {
+              const event = new CustomEvent('deleteHighlightbyId', {
+                detail: highlight.id,
+              })
+              document.dispatchEvent(event)
             })
-            document.dispatchEvent(event)
+            props.setShowHighlightsModal(false)
+          }}
+          viewHighlightInReader={(highlightId) => {
+            // TODO: scroll to highlight in PDF
+            props.setShowHighlightsModal(false)
           }}
         />
       )}

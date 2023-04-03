@@ -18,8 +18,10 @@ import { LabelChip } from '../../elements/LabelChip'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { Recommendation } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { Avatar } from '../../elements/Avatar'
+import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 
 type ArticleContainerProps = {
+  viewer: UserBasicData
   article: ArticleAttributes
   labels: Label[]
   articleMutations: ArticleMutations
@@ -437,6 +439,8 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         <Box css={{ height: '100px' }} />
       </Box>
       <HighlightsLayer
+        viewer={props.viewer}
+        item={props.article}
         scrollToHighlight={highlightHref}
         highlights={props.article.highlights}
         articleTitle={title}
