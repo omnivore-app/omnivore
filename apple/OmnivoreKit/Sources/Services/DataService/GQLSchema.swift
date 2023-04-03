@@ -684,6 +684,7 @@ extension Objects {
     let readAt: [String: DateTime]
     let readingProgressAnchorIndex: [String: Int]
     let readingProgressPercent: [String: Double]
+    let readingProgressTopPercent: [String: Double]
     let recommendations: [String: [Objects.Recommendation]]
     let savedAt: [String: DateTime]
     let savedByViewer: [String: Bool]
@@ -808,6 +809,10 @@ extension Objects.Article: Decodable {
         if let value = try container.decode(Double?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
+      case "readingProgressTopPercent":
+        if let value = try container.decode(Double?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
       case "recommendations":
         if let value = try container.decode([Objects.Recommendation]?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
@@ -908,6 +913,7 @@ extension Objects.Article: Decodable {
     readAt = map["readAt"]
     readingProgressAnchorIndex = map["readingProgressAnchorIndex"]
     readingProgressPercent = map["readingProgressPercent"]
+    readingProgressTopPercent = map["readingProgressTopPercent"]
     recommendations = map["recommendations"]
     savedAt = map["savedAt"]
     savedByViewer = map["savedByViewer"]
@@ -1285,6 +1291,21 @@ extension Fields where TypeLock == Objects.Article {
       throw HttpError.badpayload
     case .mocking:
       return Double.mockValue
+    }
+  }
+
+  func readingProgressTopPercent() throws -> Double? {
+    let field = GraphQLField.leaf(
+      name: "readingProgressTopPercent",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      return data.readingProgressTopPercent[field.alias!]
+    case .mocking:
+      return nil
     }
   }
 
@@ -1730,6 +1751,7 @@ extension Objects {
     let slug: [String: String]
     let status: [String: Enums.ArticleSavingRequestStatus]
     let updatedAt: [String: DateTime]
+    let url: [String: String]
     let user: [String: Objects.User]
     let userId: [String: String]
 
@@ -1779,6 +1801,10 @@ extension Objects.ArticleSavingRequest: Decodable {
         if let value = try container.decode(DateTime?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
+      case "url":
+        if let value = try container.decode(String?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
       case "user":
         if let value = try container.decode(Objects.User?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
@@ -1804,6 +1830,7 @@ extension Objects.ArticleSavingRequest: Decodable {
     slug = map["slug"]
     status = map["status"]
     updatedAt = map["updatedAt"]
+    url = map["url"]
     user = map["user"]
     userId = map["userId"]
   }
@@ -1929,6 +1956,24 @@ extension Fields where TypeLock == Objects.ArticleSavingRequest {
       throw HttpError.badpayload
     case .mocking:
       return DateTime.mockValue
+    }
+  }
+
+  func url() throws -> String {
+    let field = GraphQLField.leaf(
+      name: "url",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.url[field.alias!] {
+        return data
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return String.mockValue
     }
   }
 
@@ -7217,6 +7262,7 @@ extension Objects {
     let createdByMe: [String: Bool]
     let highlightPositionAnchorIndex: [String: Int]
     let highlightPositionPercent: [String: Double]
+    let html: [String: String]
     let id: [String: String]
     let labels: [String: [Objects.Label]]
     let patch: [String: String]
@@ -7227,6 +7273,7 @@ extension Objects {
     let sharedAt: [String: DateTime]
     let shortId: [String: String]
     let suffix: [String: String]
+    let type: [String: Enums.HighlightType]
     let updatedAt: [String: DateTime]
     let user: [String: Objects.User]
 
@@ -7266,6 +7313,10 @@ extension Objects.Highlight: Decodable {
         }
       case "highlightPositionPercent":
         if let value = try container.decode(Double?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      case "html":
+        if let value = try container.decode(String?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
       case "id":
@@ -7308,6 +7359,10 @@ extension Objects.Highlight: Decodable {
         if let value = try container.decode(String?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
+      case "type":
+        if let value = try container.decode(Enums.HighlightType?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
       case "updatedAt":
         if let value = try container.decode(DateTime?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
@@ -7331,6 +7386,7 @@ extension Objects.Highlight: Decodable {
     createdByMe = map["createdByMe"]
     highlightPositionAnchorIndex = map["highlightPositionAnchorIndex"]
     highlightPositionPercent = map["highlightPositionPercent"]
+    html = map["html"]
     id = map["id"]
     labels = map["labels"]
     patch = map["patch"]
@@ -7341,6 +7397,7 @@ extension Objects.Highlight: Decodable {
     sharedAt = map["sharedAt"]
     shortId = map["shortId"]
     suffix = map["suffix"]
+    type = map["type"]
     updatedAt = map["updatedAt"]
     user = map["user"]
   }
@@ -7428,6 +7485,21 @@ extension Fields where TypeLock == Objects.Highlight {
     }
   }
 
+  func html() throws -> String? {
+    let field = GraphQLField.leaf(
+      name: "html",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      return data.html[field.alias!]
+    case .mocking:
+      return nil
+    }
+  }
+
   func id() throws -> String {
     let field = GraphQLField.leaf(
       name: "id",
@@ -7462,7 +7534,7 @@ extension Fields where TypeLock == Objects.Highlight {
     }
   }
 
-  func patch() throws -> String {
+  func patch() throws -> String? {
     let field = GraphQLField.leaf(
       name: "patch",
       arguments: []
@@ -7471,12 +7543,9 @@ extension Fields where TypeLock == Objects.Highlight {
 
     switch response {
     case let .decoding(data):
-      if let data = data.patch[field.alias!] {
-        return data
-      }
-      throw HttpError.badpayload
+      return data.patch[field.alias!]
     case .mocking:
-      return String.mockValue
+      return nil
     }
   }
 
@@ -7495,7 +7564,7 @@ extension Fields where TypeLock == Objects.Highlight {
     }
   }
 
-  func quote() throws -> String {
+  func quote() throws -> String? {
     let field = GraphQLField.leaf(
       name: "quote",
       arguments: []
@@ -7504,12 +7573,9 @@ extension Fields where TypeLock == Objects.Highlight {
 
     switch response {
     case let .decoding(data):
-      if let data = data.quote[field.alias!] {
-        return data
-      }
-      throw HttpError.badpayload
+      return data.quote[field.alias!]
     case .mocking:
-      return String.mockValue
+      return nil
     }
   }
 
@@ -7596,6 +7662,24 @@ extension Fields where TypeLock == Objects.Highlight {
       return data.suffix[field.alias!]
     case .mocking:
       return nil
+    }
+  }
+
+  func type() throws -> Enums.HighlightType {
+    let field = GraphQLField.leaf(
+      name: "type",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.type[field.alias!] {
+        return data
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return Enums.HighlightType.allCases.first!
     }
   }
 
@@ -13125,10 +13209,10 @@ extension Fields where TypeLock == Objects.Query {
     }
   }
 
-  func articleSavingRequest<Type>(id: String, selection: Selection<Type, Unions.ArticleSavingRequestResult>) throws -> Type {
+  func articleSavingRequest<Type>(id: OptionalArgument<String> = .absent(), url: OptionalArgument<String> = .absent(), selection: Selection<Type, Unions.ArticleSavingRequestResult>) throws -> Type {
     let field = GraphQLField.composite(
       name: "articleSavingRequest",
-      arguments: [Argument(name: "id", type: "ID!", value: id)],
+      arguments: [Argument(name: "id", type: "ID", value: id), Argument(name: "url", type: "String", value: url)],
       selection: selection.selection
     )
     select(field)
@@ -16839,6 +16923,7 @@ extension Objects {
     let readAt: [String: DateTime]
     let readingProgressAnchorIndex: [String: Int]
     let readingProgressPercent: [String: Double]
+    let readingProgressTopPercent: [String: Double]
     let recommendations: [String: [Objects.Recommendation]]
     let savedAt: [String: DateTime]
     let shortId: [String: String]
@@ -16957,6 +17042,10 @@ extension Objects.SearchItem: Decodable {
         if let value = try container.decode(Double?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
+      case "readingProgressTopPercent":
+        if let value = try container.decode(Double?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
       case "recommendations":
         if let value = try container.decode([Objects.Recommendation]?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
@@ -17048,6 +17137,7 @@ extension Objects.SearchItem: Decodable {
     readAt = map["readAt"]
     readingProgressAnchorIndex = map["readingProgressAnchorIndex"]
     readingProgressPercent = map["readingProgressPercent"]
+    readingProgressTopPercent = map["readingProgressTopPercent"]
     recommendations = map["recommendations"]
     savedAt = map["savedAt"]
     shortId = map["shortId"]
@@ -17402,6 +17492,21 @@ extension Fields where TypeLock == Objects.SearchItem {
       throw HttpError.badpayload
     case .mocking:
       return Double.mockValue
+    }
+  }
+
+  func readingProgressTopPercent() throws -> Double? {
+    let field = GraphQLField.leaf(
+      name: "readingProgressTopPercent",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      return data.readingProgressTopPercent[field.alias!]
+    case .mocking:
+      return nil
     }
   }
 
@@ -30557,6 +30662,8 @@ extension Enums {
 extension Enums {
   /// ArticleSavingRequestErrorCode
   enum ArticleSavingRequestErrorCode: String, CaseIterable, Codable {
+    case badData = "BAD_DATA"
+
     case notFound = "NOT_FOUND"
 
     case unauthorized = "UNAUTHORIZED"
@@ -30905,6 +31012,17 @@ extension Enums {
     case badRequest = "BAD_REQUEST"
 
     case unauthorized = "UNAUTHORIZED"
+  }
+}
+
+extension Enums {
+  /// HighlightType
+  enum HighlightType: String, CaseIterable, Codable {
+    case highlight = "HIGHLIGHT"
+
+    case note = "NOTE"
+
+    case redaction = "REDACTION"
   }
 }
 
@@ -31812,13 +31930,15 @@ extension InputObjects {
 
     var highlightPositionPercent: OptionalArgument<Double> = .absent()
 
+    var html: OptionalArgument<String> = .absent()
+
     var id: String
 
-    var patch: String
+    var patch: OptionalArgument<String> = .absent()
 
     var prefix: OptionalArgument<String> = .absent()
 
-    var quote: String
+    var quote: OptionalArgument<String> = .absent()
 
     var sharedAt: OptionalArgument<DateTime> = .absent()
 
@@ -31826,19 +31946,23 @@ extension InputObjects {
 
     var suffix: OptionalArgument<String> = .absent()
 
+    var type: OptionalArgument<Enums.HighlightType> = .absent()
+
     func encode(to encoder: Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
       if annotation.hasValue { try container.encode(annotation, forKey: .annotation) }
       try container.encode(articleId, forKey: .articleId)
       if highlightPositionAnchorIndex.hasValue { try container.encode(highlightPositionAnchorIndex, forKey: .highlightPositionAnchorIndex) }
       if highlightPositionPercent.hasValue { try container.encode(highlightPositionPercent, forKey: .highlightPositionPercent) }
+      if html.hasValue { try container.encode(html, forKey: .html) }
       try container.encode(id, forKey: .id)
-      try container.encode(patch, forKey: .patch)
+      if patch.hasValue { try container.encode(patch, forKey: .patch) }
       if prefix.hasValue { try container.encode(prefix, forKey: .prefix) }
-      try container.encode(quote, forKey: .quote)
+      if quote.hasValue { try container.encode(quote, forKey: .quote) }
       if sharedAt.hasValue { try container.encode(sharedAt, forKey: .sharedAt) }
       try container.encode(shortId, forKey: .shortId)
       if suffix.hasValue { try container.encode(suffix, forKey: .suffix) }
+      if type.hasValue { try container.encode(type, forKey: .type) }
     }
 
     enum CodingKeys: String, CodingKey {
@@ -31846,6 +31970,7 @@ extension InputObjects {
       case articleId
       case highlightPositionAnchorIndex
       case highlightPositionPercent
+      case html
       case id
       case patch
       case prefix
@@ -31853,6 +31978,7 @@ extension InputObjects {
       case sharedAt
       case shortId
       case suffix
+      case type
     }
   }
 }
@@ -32044,6 +32170,8 @@ extension InputObjects {
 
     var highlightPositionPercent: OptionalArgument<Double> = .absent()
 
+    var html: OptionalArgument<String> = .absent()
+
     var id: String
 
     var overlapHighlightIdList: [String]
@@ -32064,6 +32192,7 @@ extension InputObjects {
       try container.encode(articleId, forKey: .articleId)
       if highlightPositionAnchorIndex.hasValue { try container.encode(highlightPositionAnchorIndex, forKey: .highlightPositionAnchorIndex) }
       if highlightPositionPercent.hasValue { try container.encode(highlightPositionPercent, forKey: .highlightPositionPercent) }
+      if html.hasValue { try container.encode(html, forKey: .html) }
       try container.encode(id, forKey: .id)
       try container.encode(overlapHighlightIdList, forKey: .overlapHighlightIdList)
       try container.encode(patch, forKey: .patch)
@@ -32078,6 +32207,7 @@ extension InputObjects {
       case articleId
       case highlightPositionAnchorIndex
       case highlightPositionPercent
+      case html
       case id
       case overlapHighlightIdList
       case patch
@@ -32371,17 +32501,21 @@ extension InputObjects {
 
     var readingProgressPercent: Double
 
+    var readingProgressTopPercent: OptionalArgument<Double> = .absent()
+
     func encode(to encoder: Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
       try container.encode(id, forKey: .id)
       try container.encode(readingProgressAnchorIndex, forKey: .readingProgressAnchorIndex)
       try container.encode(readingProgressPercent, forKey: .readingProgressPercent)
+      if readingProgressTopPercent.hasValue { try container.encode(readingProgressTopPercent, forKey: .readingProgressTopPercent) }
     }
 
     enum CodingKeys: String, CodingKey {
       case id
       case readingProgressAnchorIndex
       case readingProgressPercent
+      case readingProgressTopPercent
     }
   }
 }
@@ -32812,18 +32946,26 @@ extension InputObjects {
 
     var highlightId: String
 
+    var html: OptionalArgument<String> = .absent()
+
+    var quote: OptionalArgument<String> = .absent()
+
     var sharedAt: OptionalArgument<DateTime> = .absent()
 
     func encode(to encoder: Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
       if annotation.hasValue { try container.encode(annotation, forKey: .annotation) }
       try container.encode(highlightId, forKey: .highlightId)
+      if html.hasValue { try container.encode(html, forKey: .html) }
+      if quote.hasValue { try container.encode(quote, forKey: .quote) }
       if sharedAt.hasValue { try container.encode(sharedAt, forKey: .sharedAt) }
     }
 
     enum CodingKeys: String, CodingKey {
       case annotation
       case highlightId
+      case html
+      case quote
       case sharedAt
     }
   }
@@ -32906,6 +33048,8 @@ extension InputObjects {
 
     var pageId: String
 
+    var publishedAt: OptionalArgument<DateTime> = .absent()
+
     var savedAt: OptionalArgument<DateTime> = .absent()
 
     var title: OptionalArgument<String> = .absent()
@@ -32915,6 +33059,7 @@ extension InputObjects {
       if byline.hasValue { try container.encode(byline, forKey: .byline) }
       if description.hasValue { try container.encode(description, forKey: .description) }
       try container.encode(pageId, forKey: .pageId)
+      if publishedAt.hasValue { try container.encode(publishedAt, forKey: .publishedAt) }
       if savedAt.hasValue { try container.encode(savedAt, forKey: .savedAt) }
       if title.hasValue { try container.encode(title, forKey: .title) }
     }
@@ -32923,6 +33068,7 @@ extension InputObjects {
       case byline
       case description
       case pageId
+      case publishedAt
       case savedAt
       case title
     }

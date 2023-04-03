@@ -17,6 +17,7 @@ extension DataService {
   ) -> [String: Any]? {
     let internalHighlight = InternalHighlight(
       id: highlightID,
+      type: "HIGHLIGHT",
       shortId: shortId,
       quote: quote,
       prefix: nil,
