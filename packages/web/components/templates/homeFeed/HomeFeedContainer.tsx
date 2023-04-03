@@ -78,9 +78,8 @@ export function HomeFeedContainer(): JSX.Element {
 
   const gridContainerRef = useRef<HTMLDivElement>(null)
 
-  const [labelsTarget, setLabelsTarget] = useState<LibraryItem | undefined>(
-    undefined
-  )
+  const [labelsTarget, setLabelsTarget] =
+    useState<LibraryItem | undefined>(undefined)
 
   const [showAddLinkModal, setShowAddLinkModal] = useState(false)
   const [showEditTitleModal, setShowEditTitleModal] = useState(false)
@@ -701,6 +700,10 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
             {...props}
           />
         )}
+
+        {props.showAddLinkModal && (
+          <AddLinkModal onOpenChange={() => props.setShowAddLinkModal(false)} />
+        )}
       </HStack>
     </VStack>
   )
@@ -916,10 +919,6 @@ function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element {
           )}
         </Dropzone>
       </VStack>
-
-      {props.showAddLinkModal && (
-        <AddLinkModal onOpenChange={() => props.setShowAddLinkModal(false)} />
-      )}
       {props.showEditTitleModal && (
         <EditLibraryItemModal
           updateItem={(item: LibraryItem) =>
