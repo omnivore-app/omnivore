@@ -381,7 +381,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
               fontFamily: styles.fontFamily,
               width: '100%',
               wordWrap: 'break-word',
-              color: styles.readerFontColor,
             }}
           >
             {title}
