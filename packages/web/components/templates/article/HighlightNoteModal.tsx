@@ -10,8 +10,6 @@ import { Highlight } from '../../../lib/networking/fragments/highlightFragment'
 import { useCallback, useState } from 'react'
 import { StyledTextArea } from '../../elements/StyledTextArea'
 import { updateHighlightMutation } from '../../../lib/networking/mutations/updateHighlightMutation'
-import { readableUpdatedAtMessage } from './../../../lib/dateFormatting'
-import { useConfirmListener } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { showErrorToast } from '../../../lib/toastHelpers'
 
 type HighlightNoteModalProps = {
@@ -29,18 +27,6 @@ export function HighlightNoteModal(
   const [noteContent, setNoteContent] = useState(
     props.highlight?.annotation ?? ''
   )
-
-  useConfirmListener(
-    () => {
-      saveNoteChanges()
-    },
-    undefined,
-    true
-  )
-
-  const updatedAtMessage = props.highlight
-    ? readableUpdatedAtMessage(props.highlight?.updatedAt)
-    : undefined
 
   const handleNoteContentChange = useCallback(
     (event: React.ChangeEvent<HTMLTextAreaElement>): void => {

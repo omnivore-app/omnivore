@@ -40,14 +40,6 @@ export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
     setSearchTerm(props.searchTerm || '')
   }, [props.searchTerm])
 
-  useKeyboardShortcuts(
-    searchBarCommands((action) => {
-      if (action === 'focusSearchBar' && inputRef.current) {
-        inputRef.current.select()
-      }
-    })
-  )
-
   return (
     <VStack css={{ width: '100%' }}>
       <HStack

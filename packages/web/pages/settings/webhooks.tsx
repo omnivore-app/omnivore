@@ -1,4 +1,4 @@
-import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
+import { SettingsLayout } from '../../components/templates/SettingsLayout'
 import { Toaster } from 'react-hot-toast'
 import { Table } from '../../components/elements/Table'
 import { applyStoredTheme } from '../../lib/themeUpdater'
@@ -13,6 +13,7 @@ import { deleteWebhookMutation } from '../../lib/networking/mutations/deleteWebh
 import { FormModal } from '../../components/patterns/FormModal'
 import { setWebhookMutation } from '../../lib/networking/mutations/setWebhookMutation'
 import { FormInputProps } from '../../components/elements/FormElements'
+import { Box } from '../../components/elements/LayoutPrimitives'
 
 interface Webhook {
   id?: string
@@ -25,13 +26,22 @@ interface Webhook {
   updatedAt?: Date
 }
 
+interface EventTypeOption {
+  label: string
+  value: WebhookEvent
+}
+
 export default function Webhooks(): JSX.Element {
   const { webhooks, revalidate } = useGetWebhooksQuery()
   const [onDeleteId, setOnDeleteId] = useState<string | null>(null)
   const [addModelOpen, setAddModelOpen] = useState(false)
   const [onEditWebhook, setOnEditWebhook] = useState<Webhook | null>(null)
   const [url, setUrl] = useState('')
-  const eventTypeOptions = ['PAGE_CREATED', 'HIGHLIGHT_CREATED']
+  const eventTypeOptions: EventTypeOption[] = [
+    { label: 'PAGE_CREATED', value: 'PAGE_CREATED' },
+    { label: 'HIGHLIGHT_CREATED', value: 'HIGHLIGHT_CREATED' },
+    { label: 'LABEL_ADDED', value: 'LABEL_CREATED' },
+  ]
   const [eventTypes, setEventTypes] = useState<WebhookEvent[]>([])
   const [contentType, setContentType] = useState('application/json')
   const [method, setMethod] = useState('POST')
@@ -43,7 +53,10 @@ export default function Webhooks(): JSX.Element {
     webhooks.forEach((webhook) =>
       rows.set(webhook.id, {
         url: webhook.url,
-        eventTypes: webhook.eventTypes.join(', '),
+        eventTypes: eventTypeOptions
+          .filter((option) => webhook.eventTypes.includes(option.value))
+          .map((option) => option.label)
+          .join(', '),
         method: webhook.method,
         contentType: webhook.contentType,
       })
@@ -52,6 +65,14 @@ export default function Webhooks(): JSX.Element {
   }, [webhooks])
 
   applyStoredTheme(false)
+
+  function validateEventTypes(eventTypes: WebhookEvent[]): boolean {
+    if (eventTypes.length > 0) return true
+    showErrorToast('Please select at least one event type', {
+      position: 'bottom-right',
+    })
+    return false
+  }
 
   async function onDelete(id: string): Promise<void> {
     const result = await deleteWebhookMutation(id)
@@ -64,6 +85,7 @@ export default function Webhooks(): JSX.Element {
   }
 
   async function onCreate(): Promise<void> {
+    if (!validateEventTypes(eventTypes)) return
     const result = await setWebhookMutation({ url, eventTypes })
     if (result) {
       showSuccessToast('Webhook created', { position: 'bottom-right' })
@@ -74,6 +96,7 @@ export default function Webhooks(): JSX.Element {
   }
 
   async function onUpdate(): Promise<void> {
+    if (!validateEventTypes(eventTypes)) return
     const result = await setWebhookMutation({
       id: onEditWebhook?.id,
       url,
@@ -88,7 +111,7 @@ export default function Webhooks(): JSX.Element {
   }
 
   return (
-    <PrimaryLayout pageTestId={'webhooks'}>
+    <SettingsLayout>
       <Toaster
         containerStyle={{
           top: '5rem',
@@ -163,7 +186,7 @@ export default function Webhooks(): JSX.Element {
             },
           ])
           setUrl('')
-          setEventTypes(eventTypeOptions as WebhookEvent[])
+          setEventTypes(['PAGE_CREATED', 'HIGHLIGHT_CREATED'])
           setAddModelOpen(true)
         }}
         onEdit={(webhook) => {
@@ -179,7 +202,7 @@ export default function Webhooks(): JSX.Element {
               label: 'Event Types',
               name: 'eventTypes',
               value: eventTypeOptions.map((option) =>
-                webhook?.eventTypes.includes(option)
+                webhook?.eventTypes.includes(option.label)
               ),
               onChange: setEventTypes,
               options: eventTypeOptions,
@@ -203,6 +226,7 @@ export default function Webhooks(): JSX.Element {
           setOnEditWebhook(webhook)
         }}
       />
-    </PrimaryLayout>
+      <Box css={{ height: '120px' }} />
+    </SettingsLayout>
   )
 }

@@ -68,17 +68,53 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   >([])
   const focusedHighlightMousePos = useRef({ pageX: 0, pageY: 0 })
 
-  const [focusedHighlight, setFocusedHighlight] = useState<
-    Highlight | undefined
-  >(undefined)
+  const [focusedHighlight, setFocusedHighlight] =
+    useState<Highlight | undefined>(undefined)
 
   const [selectionData, setSelectionData] = useSelection(highlightLocations)
 
-  const [labelsTarget, setLabelsTarget] = useState<Highlight | undefined>(
-    undefined
-  )
+  const [labelsTarget, setLabelsTarget] =
+    useState<Highlight | undefined>(undefined)
 
   const canShareNative = useCanShareNative()
+
+  const createHighlightFromSelection = async (
+    selection: SelectionAttributes,
+    note?: string
+  ): Promise<Highlight | undefined> => {
+    const result = await createHighlight(
+      {
+        selection: selection,
+        articleId: props.articleId,
+        existingHighlights: highlights,
+        highlightStartEndOffsets: highlightLocations,
+        annotation: note,
+        highlightPositionPercent: selectionPercentPos(selection.selection),
+        highlightPositionAnchorIndex: selectionAnchorIndex(selection.selection),
+      },
+      props.articleMutations
+    )
+
+    if (result.errorMessage) {
+      throw 'Failed to create highlight: ' + result.errorMessage
+    }
+
+    if (!result.highlights || result.highlights.length == 0) {
+      // TODO: show an error message
+      console.error('Failed to create highlight')
+      return undefined
+    }
+
+    setSelectionData(null)
+    setHighlights(result.highlights)
+
+    if (result.newHighlightIndex === undefined) {
+      setHighlightModalAction({ highlightModalAction: 'none' })
+      return undefined
+    }
+
+    return result.highlights[result.newHighlightIndex]
+  }
 
   // Load the highlights
   useEffect(() => {
@@ -104,7 +140,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         anchorElement.scrollIntoView({ behavior: 'auto' })
       }
     }
-  }, [highlights, setHighlightLocations])
+  }, [highlights, setHighlightLocations, props.scrollToHighlight])
 
   const removeHighlightCallback = useCallback(
     async (id?: string) => {
@@ -129,7 +165,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         console.error('Failed to delete highlight')
       }
     },
-    [focusedHighlight, highlights, highlightLocations]
+    [focusedHighlight, highlights, highlightLocations, props.articleMutations]
   )
 
   const updateHighlightsCallback = useCallback(
@@ -205,44 +241,6 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
     return undefined
   }
 
-  const createHighlightFromSelection = async (
-    selection: SelectionAttributes,
-    note?: string
-  ): Promise<Highlight | undefined> => {
-    const result = await createHighlight(
-      {
-        selection: selection,
-        articleId: props.articleId,
-        existingHighlights: highlights,
-        highlightStartEndOffsets: highlightLocations,
-        annotation: note,
-        highlightPositionPercent: selectionPercentPos(selection.selection),
-        highlightPositionAnchorIndex: selectionAnchorIndex(selection.selection),
-      },
-      props.articleMutations
-    )
-
-    if (result.errorMessage) {
-      throw 'Failed to create highlight: ' + result.errorMessage
-    }
-
-    if (!result.highlights || result.highlights.length == 0) {
-      // TODO: show an error message
-      console.error('Failed to create highlight')
-      return undefined
-    }
-
-    setSelectionData(null)
-    setHighlights(result.highlights)
-
-    if (result.newHighlightIndex === undefined) {
-      setHighlightModalAction({ highlightModalAction: 'none' })
-      return undefined
-    }
-
-    return result.highlights[result.newHighlightIndex]
-  }
-
   const createHighlightCallback = useCallback(
     async (successAction: HighlightModalAction, annotation?: string) => {
       if (!selectionData) {
@@ -284,8 +282,8 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       }
 
       const tapAttributes = {
-        tapX: event.screenX,
-        tapY: event.screenY,
+        tapX: event.clientX,
+        tapY: event.clientY,
       }
 
       window?.AndroidWebKitMessenger?.handleIdentifiableMessage(
@@ -388,13 +386,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         setFocusedHighlight(undefined)
       }
     },
-    [
-      openNoteModal,
-      highlights,
-      highlightLocations,
-      focusedHighlight,
-      setFocusedHighlight,
-    ]
+    [highlights, highlightLocations, focusedHighlight, openNoteModal]
   )
 
   useEffect(() => {
@@ -493,6 +485,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       props.isAppleAppEmbed,
       removeHighlightCallback,
       canShareNative,
+      selectionData,
     ]
   )
 
@@ -660,7 +653,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
     return (
       <SetLabelsModal
         provider={labelsTarget}
-        onOpenChange={function (open: boolean): void {
+        onOpenChange={function (): void {
           setLabelsTarget(undefined)
         }}
         save={function (labels: Label[]): Promise<Label[] | undefined> {

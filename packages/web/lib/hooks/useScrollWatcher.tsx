@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, useCallback } from 'react'
+import { useRef, useEffect, useState } from 'react'
 
 type ScrollOffset = {
   x: number
@@ -12,10 +12,7 @@ export type ScrollOffsetChangeset = {
 
 type Effect = (offset: ScrollOffsetChangeset) => void
 
-export function useScrollWatcher(
-  effect: Effect,
-  delay: number
-): void {
+export function useScrollWatcher(effect: Effect, delay: number): void {
   const throttleTimeout = useRef<NodeJS.Timeout | undefined>(undefined)
   const [currentOffset, setCurrentOffset] = useState<ScrollOffset>({
     x: 0,
@@ -40,7 +37,11 @@ export function useScrollWatcher(
     }
 
     window.addEventListener('scroll', handleScroll)
-    return () =>
+    return () => {
+      if (throttleTimeout.current) {
+        clearTimeout(throttleTimeout.current)
+      }
       window.removeEventListener('scroll', handleScroll)
+    }
   }, [currentOffset, delay, effect])
 }

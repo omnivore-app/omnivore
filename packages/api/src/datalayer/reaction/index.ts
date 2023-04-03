@@ -1,11 +1,11 @@
 import {
-  globalCounter,
   ENABLE_DB_REQUEST_LOGGING,
+  globalCounter,
   logMethod,
 } from './../helpers'
-import { CreateSet, keys as modelKeys, UpdateSet, ReactionData } from './model'
+import { CreateSet, keys as modelKeys, ReactionData, UpdateSet } from './model'
 import DataModel, { DataModelError, MAX_RECORDS_LIMIT } from '../model'
-import Knex from 'knex'
+import { Knex } from 'knex'
 import { Table } from '../../utils/dictionary'
 
 import DataLoader from 'dataloader'

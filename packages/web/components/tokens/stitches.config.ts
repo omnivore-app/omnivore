@@ -2,12 +2,10 @@ import type * as Stitches from '@stitches/react'
 import { createStitches, createTheme } from '@stitches/react'
 
 export enum ThemeId {
-  Lighter = 'White',
-  Light = 'LightGray',
-  Dark = 'Gray',
-  Darker = 'Dark',
+  Light = 'Light',
+  Dark = 'Dark',
   Sepia = 'Sepia',
-  Charcoal = 'Charcoal',
+  Apollo = 'Apollo',
 }
 
 export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
@@ -66,6 +64,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
     theme: {
       fonts: {
         inter: 'Inter, sans-serif',
+        display: '-apple-system, BlinkMacSystemFont, sans-serif',
       },
       fontSizes: {
         1: '0.75em',
@@ -108,16 +107,18 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
       },
       zIndices: {},
       transitions: {},
+
+      colorScheme: {
+        colorScheme: 'light',
+      },
+
       colors: {
-        // Grayscale
         grayBase: '#F8F8F8',
         grayBg: '#FFFFFF',
         grayBgActive: '#e6e6e6',
         grayBorder: '#F0F0F0',
-        lightBorder: '#F0F0F0',
         grayTextContrast: '#3A3939',
         graySolid: '#9C9B9A',
-        textDefault: 'rgba(255, 255, 255, 0.8)',
         utilityTextDefault: '#3B3938',
         utilityTextSubtle: 'rgba(255, 255, 255, 0.65)',
         textNonessential: 'rgba(10, 8, 6, 0.4)',
@@ -126,9 +127,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         grayBgHover: 'hsl(0 0% 93.0%)',
         grayLine: 'hsl(0 0% 88.7%)',
         grayBorderHover: 'hsl(0 0% 78.0%)',
-        grayText: '#3B3938',
-        graySeparator: '#DADADA',
-        grayProgressBackground: '#FFFFFF',
+        grayText: '#6A6968',
 
         // Semantic Colors
         highlightBackground: '255, 210, 52',
@@ -140,8 +139,6 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         // Brand Colors
         omnivoreRed: '#FA5E4A;',
         omnivoreGray: '#3D3D3D',
-        omnivoreOrange: '#FF9B3E',
-        omnivorePeach: 'rgb(255, 212, 146)',
         omnivoreYellow: 'rgb(255, 234, 159)',
         omnivoreLightGray: 'rgb(125, 125, 125)',
         omnivoreCtaYellow: 'rgb(255, 210, 52)',
@@ -150,24 +147,43 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         readerBg: 'white',
         readerFont: '#3D3D3D',
         readerFontHighContrast: 'black',
-        readerFontTransparent: 'rgba(61,61,61,0.65)',
         readerTableHeader: '#FFFFFF',
+        readerMargin: 'white',
 
         // Avatar Fallback color
-        avatarBg: '#FFFFFF',
-        avatarFont: '#0A0806',
+        avatarBg: '#FFEA9F',
+        avatarFont: '#9C7C0A',
 
         labelButtonsBg: '#F5F5F4',
-        tooltipIcons: '#FDFAEC',
 
         textSubtle: '#605F5D',
-        libraryBackground: '#FFFFFF',
-        libraryActiveMenuItem: '#F8F8F8',
         border: '#F0F0F0',
 
         //utility
-        textNonEssential: 'rgba(10, 8, 6, 0.4)',
         overlay: 'rgba(63, 62, 60, 0.2)',
+
+        // New theme, special naming to keep things straigh
+        // once all switch over, we will rename
+        thBackground: '#FFFFFF',
+        thBackground2: '#F3F3F3',
+        thBackground3: '#FFFFFF',
+        thBackground4: '#EBEBEB',
+        thBackgroundActive: '#F9F9F9',
+        thBackgroundContrast: '#FFFFFF',
+
+        thTextContrast: '#1E1E1E',
+        thTextContrast2: '#3D3D3D',
+
+        thTextSubtle: '#1E1E1E',
+        thTextSubtle2: '#6A6968',
+        thTextSubtle3: '#ADADAD',
+
+        thBorderColor: '#E1E1E1',
+        thBorderSubtle: '#EEEEEE',
+
+        thProgressFg: '#FFD234',
+
+        thHighContrast: '#3D3D3D',
       },
     },
     media: {
@@ -175,14 +191,19 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
       smDown: '(max-width: 575px)',
       mdDown: '(max-width: 768px)',
       lgDown: '(max-width: 992px)',
+      xlgDown: '(max-width: 1200px)',
       sm: '(min-width: 576px)',
       md: '(min-width: 768px)',
       lg: '(min-width: 992px)',
       xl: '(min-width: 1200px)',
+      xxl: '(min-width: 1700px)',
     },
   })
 
 const darkThemeSpec = {
+  colorScheme: {
+    colorScheme: 'dark',
+  },
   colors: {
     grayBase: '#252525',
     grayBg: '#3B3938',
@@ -190,7 +211,6 @@ const darkThemeSpec = {
     grayTextContrast: '#D8D7D7',
     grayBorder: '#323232',
     graySolid: '#9C9B9A',
-    textDefault: 'rgba(10, 8, 6, 0.8)',
     utilityTextDefault: '#CDCDCD',
     textNonessential: 'rgba(97, 97, 97, 1)',
 
@@ -199,8 +219,6 @@ const darkThemeSpec = {
     grayLine: 'hsl(0 0% 19.9%)',
     grayBorderHover: 'hsl(0 0% 31.2%)',
     grayText: '#CDCDCD',
-    graySeparator: '#323232',
-    grayProgressBackground: '#616161',
 
     // Semantic Colors
     highlightBackground: '134, 109, 21',
@@ -214,21 +232,44 @@ const darkThemeSpec = {
     readerFont: '#b9b9b9',
     readerFontHighContrast: 'white',
     readerTableHeader: '#FFFFFF',
-    tooltipIcons: '#5F5E58',
-    avatarBg: '#000000',
-    avatarFont: 'rgba(255, 255, 255, 0.8)',
+    readerMargin: '#2A2A2A',
+
+    avatarBg: '#7B5C3E',
+    avatarFont: '#D9D9D9',
 
     textSubtle: '#AAAAAA',
-    libraryBackground: '#252525',
-    libraryActiveMenuItem: '#3B3938',
     border: '#323232',
 
     //utility
     utilityTextSubtle: 'rgba(255, 255, 255, 0.65)',
-    textNonEssential: 'rgba(10, 8, 6, 0.4)',
     overlay: 'rgba(10, 8, 6, 0.65)',
 
     labelButtonsBg: '#5F5E58',
+
+    // New theme, special naming to keep things straigh
+    // once all switch over, we will rename
+    // DARK
+    colorScheme: 'dark',
+    thBackground: '#2A2A2A',
+    thBackground2: '#3D3D3D',
+    thBackground3: '#242424',
+    thBackground4: '#3D3D3D',
+    thBackgroundActive: '#2E2E2E',
+    thBackgroundContrast: '#000000',
+
+    thTextContrast: '#FFFFFF',
+    thTextContrast2: '#EBEBEB',
+
+    thTextSubtle: '#D9D9D9',
+    thTextSubtle2: '#D9D9D9',
+    thTextSubtle3: '#ADADAD',
+
+    thBorderColor: '#4F4F4F',
+    thBorderSubtle: '#6A6968',
+
+    thProgressFg: '#FFEA9F',
+
+    thHighContrast: '#D9D9D9',
   },
   shadows: {
     cardBoxShadow:
@@ -238,45 +279,42 @@ const darkThemeSpec = {
 
 const sepiaThemeSpec = {
   colors: {
-    // Reader Colors
-    readerBg: '#F9F1DC',
-    readerFont: '#554A34',
-    readerFontHighContrast: 'black',
+    readerBg: '#FBF0D9',
+    readerFont: '#5F4B32',
+    readerMargin: '#F3F3F3',
+    readerFontHighContrast: '#0A0806',
     readerTableHeader: '#FFFFFF',
   },
 }
 
-const charcoalThemeSpec = {
+const apolloThemeSpec = {
   colors: {
-    // Reader Colors
-    readerBg: '#303030',
-    readerFont: '#b9b9b9',
+    readerBg: '#6A6968',
+    readerFont: '#F3F3F3',
+    readerMargin: '#474747',
     readerFontHighContrast: 'white',
     readerTableHeader: '#FFFFFF',
   },
 }
 
-// Dark and Darker theme now match each other.
-// Use the darkThemeSpec object to make updates.
 export const darkTheme = createTheme(ThemeId.Dark, darkThemeSpec)
-export const darkerTheme = createTheme(ThemeId.Darker, darkThemeSpec)
 export const sepiaTheme = createTheme(ThemeId.Sepia, {
   ...darkThemeSpec,
   ...sepiaThemeSpec,
 })
-export const charcoalTheme = createTheme(ThemeId.Charcoal, {
+export const apolloTheme = createTheme(ThemeId.Apollo, {
   ...darkThemeSpec,
-  ...charcoalThemeSpec,
+  colors: {
+    ...darkThemeSpec.colors,
+    ...apolloThemeSpec.colors,
+  },
 })
-
-// Lighter theme now matches the default theme.
-// This only exists for users that might still have a lighter theme set
-export const lighterTheme = createTheme(ThemeId.Lighter, {})
 
 // Apply global styles in here
 export const globalStyles = globalCss({
   body: {
-    backgroundColor: '$grayBase',
+    colorScheme: 'var(--colorScheme-colorScheme)',
+    backgroundColor: '$thBackground',
   },
   '*': {
     '&:focus': {

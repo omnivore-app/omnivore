@@ -169,9 +169,9 @@ Readability.prototype = {
     lazyLoadingElements: /\S*loading\S*/i,
     // NOTE: These two regular expressions are duplicated in
     // Readability-readerable.js. Please keep both copies in sync.
-    articleNegativeLookBehindCandidates: /breadcrumbs|breadcrumb|utils|trilist/i,
-    articleNegativeLookAheadCandidates: /outstream(.?)_|sub(.?)_|m_|omeda-promo-|in-article-advert|block-ad-.*/i,
-    unlikelyCandidates: /\bad\b|ai2html|banner|breadcrumbs|breadcrumb|combx|comment|community|cover-wrap|disqus|extra|footer|gdpr|header|legends|menu|related|remark|replies|rss|shoutbox|sidebar|skyscraper|social|sponsor|supplemental|ad-break|agegate|pagination|pager(?!ow)|popup|yom-remote|copyright|keywords|outline|infinite-list|beta|recirculation|site-index|hide-for-print|post-end-share-cta|post-end-cta-full|post-footer|post-head|post-tag|li-date|main-navigation|programtic-ads|outstream_article|hfeed|comment-holder|back-to-top|show-up-next|onward-journey|topic-tracker|list-nav|block-ad-entity|adSpecs|gift-article-button|modal-title|in-story-masthead|share-tools|standard-dock|expanded-dock|margins-h|subscribe-dialog|icon|bumped|dvz-social-media-buttons|post-toc|mobile-menu|mobile-navbar/i,
+    articleNegativeLookBehindCandidates: /breadcrumbs|breadcrumb|utils|trilist|_header/i,
+    articleNegativeLookAheadCandidates: /outstream(.?)_|sub(.?)_|m_|omeda-promo-|in-article-advert|block-ad-.*|tl_/i,
+    unlikelyCandidates: /\bad\b|ai2html|banner|breadcrumbs|breadcrumb|combx|comment|community|cover-wrap|disqus|extra|footer|gdpr|header|legends|menu|related|remark|replies|rss|shoutbox|sidebar|skyscraper|social|sponsor|supplemental|ad-break|agegate|pagination|pager(?!ow)|popup|yom-remote|copyright|keywords|outline|infinite-list|beta|recirculation|site-index|hide-for-print|post-end-share-cta|post-end-cta-full|post-footer|post-head|post-tag|li-date|main-navigation|programtic-ads|outstream_article|hfeed|comment-holder|back-to-top|show-up-next|onward-journey|topic-tracker|list-nav|block-ad-entity|adSpecs|gift-article-button|modal-title|in-story-masthead|share-tools|standard-dock|expanded-dock|margins-h|subscribe-dialog|icon|bumped|dvz-social-media-buttons|post-toc|mobile-menu|mobile-navbar|tl_article_header/i,
     // okMaybeItsACandidate: /and|article(?!-breadcrumb)|body|column|content|main|shadow|post-header/i,
     get okMaybeItsACandidate() {
       return new RegExp(`and|(?<!${this.articleNegativeLookAheadCandidates.source})article(?!-(${this.articleNegativeLookBehindCandidates.source}))|body|column|content|^(?!main-navigation|main-header)main|shadow|post-header|hfeed site|blog-posts hfeed|container-banners|menu-opacity|header-with-anchor-widget`, 'i')
@@ -1055,7 +1055,10 @@ Readability.prototype = {
   _checkPublishedDate: function (node, matchString) {
     // Skipping meta tags
     if (node.tagName.toLowerCase() === 'meta') return
-
+    // return published date if the class name is 'omnivore-published-date' which we added when we scraped the article
+    if (node.className === 'omnivore-published-date' && this._isValidPublishedDate(node.textContent)) {
+      return new Date(node.textContent);
+    }
     // Searching for the real date in the text content
     let dateRegExpFound = this.REGEXPS.DATES_REGEXPS.find(regexp => regexp.test(node.textContent.trim()))
     dateRegExpFound && (dateRegExpFound = dateRegExpFound.exec(node.textContent.trim()))
@@ -1321,8 +1324,8 @@ Readability.prototype = {
         // Add a point for the paragraph itself as a base.
         contentScore += 1;
 
-        // Add points for any commas within this paragraph.
-        contentScore += innerText.split(",").length;
+        // Add points for any commas (including those in CJK language) within this paragraph.
+        contentScore += innerText.split(/[,，、]/g).length;
 
         // For every 100 characters in this paragraph, add another point. Up to 3 points.
         contentScore += Math.min(Math.floor(innerText.length / 100), 3);
@@ -1932,7 +1935,10 @@ Readability.prototype = {
 
     // get site name
     metadata.siteName = jsonld.siteName ||
-      values["og:site_name"] || null;
+      values["og:site_name"] || 
+      values["twitter:site"] ||
+      values["site_name"] ||
+      values["twitter:domain"];
 
     // get website icon
     const siteIcon = this._doc.querySelector(
@@ -2804,6 +2810,22 @@ Readability.prototype = {
           (weight >= 25 && linkDensity > 0.5 && !(node.className === "tweet" && linkDensity === 1)) ||
           ((embedCount === 1 && contentLength < 75) || embedCount > 1))
 
+        // Allow simple lists of images to remain in pages
+        if (isList && haveToRemove) {
+          for (var x = 0; x < node.children.length; x++) {
+            let child = node.children[x];
+            // Don't filter in lists with li's that contain more than one child
+            if (child.children.length > 1) {
+              return haveToRemove;
+            }
+          }
+          var li_count = node.getElementsByTagName("li").length;
+          // Only allow the list to remain if every li contains an image
+          if (img === li_count) {
+            return false;
+          }
+        }
+
         if (haveToRemove) {
           this.log("Cleaning Conditionally", { className: node.className, children: Array.from(node.children).map(ch => ch.tagName) });
         }
@@ -2987,11 +3009,21 @@ Readability.prototype = {
         metadata.excerpt = paragraphs[0].textContent.trim();
       }
     }
+    if (!metadata.siteName) {
+      // Fallback to hostname
+      try {
+        const host = new URL(this._baseURI).hostname;
+        metadata.siteName = host.replace(/^www\./, "");
+      } catch (e) {
+        // Ignore
+      }
+    }
 
     var textContent = articleContent.textContent;
     return {
       title: this._articleTitle,
-      byline: author,
+      // remove \n and extra spaces and trim the string
+      byline: author ? author.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim() : null,
       dir: this._articleDir,
       content: this._serializer(articleContent),
       textContent: textContent,

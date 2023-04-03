@@ -1,121 +1,16 @@
 // Define the type of the body for the Search request
-import { PickTuple } from '../util'
 import { PubsubClient } from '../datalayer/pubsub'
+import { PickTuple } from '../util'
 import {
   DateFilter,
   FieldFilter,
   HasFilter,
   InFilter,
   LabelFilter,
+  NoFilter,
   ReadFilter,
   SortParams,
 } from '../utils/search'
-
-export interface SearchBody {
-  query: {
-    bool: {
-      must: (
-        | {
-            term: {
-              [K: string]: string
-            }
-          }
-        | { exists: { field: string } }
-        | {
-            range: {
-              readingProgressPercent: { gte: number } | { lt: number }
-            }
-          }
-        | {
-            range: {
-              [K: string]: { gt: Date | undefined } | { lt: Date | undefined }
-            }
-          }
-        | {
-            nested: {
-              path: 'labels'
-              query: {
-                terms: {
-                  'labels.name': string[]
-                }
-              }
-            }
-          }
-        | {
-            nested: {
-              path: 'highlights'
-              query: {
-                exists: {
-                  field: 'highlights'
-                }
-              }
-            }
-          }
-        | {
-            nested: {
-              path: 'recommendations'
-              query: {
-                exists?: {
-                  field: string
-                }
-                term?: {
-                  'recommendations.name': string
-                }
-              }
-            }
-          }
-        | {
-            match: {
-              [K: string]: string
-            }
-          }
-        | {
-            terms: {
-              [K: string]: string[]
-            }
-          }
-      )[]
-      should: {
-        multi_match: {
-          query: string
-          fields: string[]
-          operator: 'and' | 'or'
-          type:
-            | 'best_fields'
-            | 'most_fields'
-            | 'cross_fields'
-            | 'phrase'
-            | 'phrase_prefix'
-        }
-      }[]
-      minimum_should_match?: number
-      must_not: (
-        | { term: { state: ArticleSavingRequestStatus } }
-        | {
-            exists: {
-              field: string
-            }
-          }
-        | {
-            nested: {
-              path: 'labels'
-              query: {
-                terms: {
-                  'labels.name': string[]
-                }
-              }[]
-            }
-          }
-      )[]
-    }
-  }
-  sort: [Record<string, { order: string }>]
-  from: number
-  size: number
-  _source: {
-    excludes: string[]
-  }
-}
 
 // Complete definition of the Search response
 export interface ShardsResponse {
@@ -151,7 +46,7 @@ export interface SearchResponse<T> {
       _explanation?: Explanation
       fields?: never
       highlight?: never
-      inner_hits?: any
+      inner_hits?: unknown
       matched_queries?: string[]
       sort?: string[]
     }>
@@ -176,6 +71,12 @@ export enum ArticleSavingRequestStatus {
   Deleted = 'DELETED',
 }
 
+export enum HighlightType {
+  Highlight = 'HIGHLIGHT',
+  Redaction = 'REDACTION', // allowing people to remove text from the page
+  Note = 'NOTE', // allowing people to add a note at the document level
+}
+
 export interface Label {
   id: string
   name: string
@@ -187,8 +88,8 @@ export interface Label {
 export interface Highlight {
   id: string
   shortId: string
-  patch: string
-  quote: string
+  patch?: string | null
+  quote?: string | null
   userId: string
   createdAt: Date
   prefix?: string | null
@@ -199,6 +100,8 @@ export interface Highlight {
   labels?: Label[]
   highlightPositionPercent?: number | null
   highlightPositionAnchorIndex?: number | null
+  type: HighlightType
+  html?: string | null
 }
 
 export interface RecommendingUser {
@@ -231,6 +134,7 @@ export interface Page {
   originalHtml?: string | null
   slug: string
   labels?: Label[]
+  readingProgressTopPercent?: number
   readingProgressPercent: number
   readingProgressAnchorIndex: number
   createdAt: Date
@@ -272,6 +176,7 @@ export interface SearchItem {
   uploadFileId?: string | null
   url: string
   archivedAt?: Date | null
+  readingProgressTopPercent?: number
   readingProgressPercent: number
   readingProgressAnchorIndex: number
   userId: string
@@ -317,4 +222,6 @@ export interface PageSearchArgs {
   ids?: string[]
   recommendedBy?: string
   includeContent?: boolean
+  noFilters?: NoFilter[]
+  siteName?: string
 }

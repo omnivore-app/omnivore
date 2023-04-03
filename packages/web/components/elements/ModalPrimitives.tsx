@@ -2,7 +2,8 @@ import { Root, Overlay, Content } from '@radix-ui/react-dialog'
 import { X } from 'phosphor-react'
 import { styled, keyframes, theme } from '../tokens/stitches.config'
 import { Button } from './Button'
-import { HStack } from './LayoutPrimitives'
+import { CloseButton } from './CloseButton'
+import { HStack, SpanBox } from './LayoutPrimitives'
 import { StyledText } from './StyledText'
 
 export const ModalRoot = styled(Root, {})
@@ -17,6 +18,7 @@ export const ModalOverlay = styled(Overlay, {
   width: '100vw',
   height: '100vh',
   position: 'fixed',
+  zIndex: 10,
   inset: 0,
   '@media (prefers-reduced-motion: no-preference)': {
     animation: `${overlayShow} 150ms cubic-bezier(0.16, 1, 0.3, 1)`,
@@ -29,7 +31,6 @@ const Modal = styled(Content, {
   boxShadow: theme.shadows.cardBoxShadow.toString(),
   position: 'fixed',
   '&:focus': { outline: 'none' },
-  zIndex: '1',
 })
 
 export const ModalContent = styled(Modal, {
@@ -56,18 +57,12 @@ export const ModalTitleBar = (props: ModalTitleBarProps) => {
     <HStack
       distribution="between"
       alignment="center"
-      css={{ height: '68px', width: '100%' }}
+      css={{ height: '50px', width: '100%' }}
     >
       <StyledText style="modalHeadline">{props.title}</StyledText>
-      <Button
-        css={{ ml: 'auto' }}
-        style="ghost"
-        onClick={() => {
-          props.onOpenChange(false)
-        }}
-      >
-        <X size={24} color={theme.colors.textNonessential.toString()} />
-      </Button>
+      <SpanBox css={{ ml: 'auto' }}>
+        <CloseButton close={() => props.onOpenChange(false)} />
+      </SpanBox>
     </HStack>
   )
 }
@@ -95,7 +90,7 @@ export const ModalButtonBar = (props: ModalButtonBarProps) => {
       }}
     >
       <Button
-        style={'ctaOutlineYellow'}
+        style={'cancelGeneric'}
         type="button"
         onClick={(event) => {
           event.preventDefault()

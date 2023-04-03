@@ -42,16 +42,16 @@ export function LabelChip(props: LabelChipProps): JSX.Element {
       <SpanBox
         css={{
           display: 'inline-table',
-          margin: '4px',
+          margin: '2px',
           borderRadius: '4px',
-          fontSize: '12px',
+          color: textColor,
+          fontSize: '13px',
           fontWeight: '500',
-          padding: '5px 8px 5px 8px',
+          padding: '3px 6px',
           whiteSpace: 'nowrap',
           cursor: 'pointer',
           backgroundClip: 'padding-box',
-          color: textColor,
-          backgroundColor: `rgba(${backgroundColor}, 0.9)`,
+          backgroundColor: props.color,
         }}
       >
         {props.text}

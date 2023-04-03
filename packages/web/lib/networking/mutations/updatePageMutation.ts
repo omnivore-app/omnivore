@@ -6,6 +6,8 @@ export type UpdatePageInput = {
   title: string
   byline?: string | undefined
   description: string
+  savedAt?: string
+  publishedAt?: string
 }
 
 export async function updatePageMutation(
@@ -23,6 +25,7 @@ export async function updatePageMutation(
             author
             image
             description
+            savedAt
             publishedAt
           }
         }

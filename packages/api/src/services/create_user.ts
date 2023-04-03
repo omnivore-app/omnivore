@@ -1,14 +1,14 @@
-import { AuthProvider } from '../routers/auth/auth_types'
-import { StatusType } from '../datalayer/user/model'
 import { EntityManager } from 'typeorm'
-import { User } from '../entity/user'
-import { Profile } from '../entity/profile'
-import { SignupErrorCode } from '../generated/graphql'
-import { validateUsername } from '../utils/usernamePolicy'
-import { Invite } from '../entity/groups/invite'
+import { StatusType } from '../datalayer/user/model'
 import { GroupMembership } from '../entity/groups/group_membership'
-import { AppDataSource } from '../server'
+import { Invite } from '../entity/groups/invite'
+import { Profile } from '../entity/profile'
+import { User } from '../entity/user'
 import { getRepository } from '../entity/utils'
+import { SignupErrorCode } from '../generated/graphql'
+import { AuthProvider } from '../routers/auth/auth_types'
+import { AppDataSource } from '../server'
+import { validateUsername } from '../utils/usernamePolicy'
 import { sendConfirmationEmail } from './send_emails'
 
 export const createUser = async (input: {
@@ -24,7 +24,7 @@ export const createUser = async (input: {
   password?: string
   pendingConfirmation?: boolean
 }): Promise<[User, Profile]> => {
-  const existingUser = await getUser(input.email)
+  const existingUser = await getUserByEmail(input.email)
   if (existingUser) {
     if (existingUser.profile) {
       return Promise.reject({ errorCode: SignupErrorCode.UserExists })
@@ -114,11 +114,10 @@ const validateInvite = async (
   return true
 }
 
-const getUser = async (email: string): Promise<User | null> => {
-  const userRepo = getRepository(User)
-
-  return userRepo.findOne({
-    where: { email: email },
-    relations: ['profile'],
-  })
+export const getUserByEmail = async (email: string): Promise<User | null> => {
+  return getRepository(User)
+    .createQueryBuilder('user')
+    .leftJoinAndSelect('user.profile', 'profile')
+    .where('LOWER(email) = LOWER(:email)', { email }) // case insensitive
+    .getOne()
 }

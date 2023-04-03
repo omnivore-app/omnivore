@@ -8,15 +8,15 @@ import {
   Arrow,
   Label,
 } from '@radix-ui/react-dropdown-menu'
-import { PopperContentProps } from '@radix-ui/react-popover';
-import { CSS } from '@stitches/react';
+import { PopperContentProps } from '@radix-ui/react-popover'
+import { CSS } from '@stitches/react'
 import { styled } from './../tokens/stitches.config'
 
-const itemStyles = {
-  fontSize: '16px',
-  fontWeight: '500',
-  py: '12px',
-  px: '24px',
+const StyledItem = styled(Item, {
+  fontSize: '14px',
+  fontWeight: '400',
+  py: '10px',
+  px: '15px',
   borderRadius: 3,
   cursor: 'default',
   color: '$utilityTextDefault',
@@ -25,9 +25,7 @@ const itemStyles = {
     outline: 'none',
     backgroundColor: '$grayBgHover',
   },
-}
-
-const StyledItem = styled(Item, itemStyles)
+})
 
 const DropdownTrigger = styled(Trigger, {
   fontSize: '100%',
@@ -44,7 +42,6 @@ const StyledTriggerItem = styled(TriggerItem, {
     outline: 'none',
     backgroundColor: '$grayBgHover',
   },
-  ...itemStyles,
 })
 
 export const DropdownContent = styled(Content, {
@@ -123,6 +120,7 @@ type DropdownProps = {
   disabled?: boolean
   css?: CSS
   modal?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
 export const DropdownSeparator = styled(Separator, {
@@ -141,14 +139,21 @@ type DropdownOptionProps = {
 export function DropdownOption(props: DropdownOptionProps): JSX.Element {
   return (
     <>
-      <StyledItem onSelect={props.onSelect}>
+      <StyledItem
+        onSelect={() => {
+          props.onSelect()
+        }}
+        onClick={(event) => event.stopPropagation()}
+      >
         {props.title ?? props.children}
       </StyledItem>
     </>
   )
 }
 
-export function Dropdown(props: DropdownProps & PopperContentProps): JSX.Element {
+export function Dropdown(
+  props: DropdownProps & PopperContentProps
+): JSX.Element {
   const {
     children,
     align,
@@ -159,14 +164,15 @@ export function Dropdown(props: DropdownProps & PopperContentProps): JSX.Element
     sideOffset = 0,
     alignOffset = 0,
     css,
-    modal
+    modal,
+    onOpenChange,
   } = props
   return (
-    <Root modal={modal}>
+    <Root modal={modal} onOpenChange={props.onOpenChange}>
       <DropdownTrigger disabled={disabled}>{triggerElement}</DropdownTrigger>
       <DropdownContent
         css={css}
-        onInteractOutside={(event) => {
+        onInteractOutside={() => {
           // remove focus from dropdown
           ;(document.activeElement as HTMLElement).blur()
         }}

@@ -1,8 +1,8 @@
 import { env } from '../env'
-import Knex from 'knex'
+import knex from 'knex'
 import knexStringcase from 'knex-stringcase'
 
-export const kx = Knex(
+export const kx = knex(
   knexStringcase({
     client: 'pg',
     connection: {

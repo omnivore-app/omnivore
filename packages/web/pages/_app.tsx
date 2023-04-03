@@ -19,13 +19,18 @@ import {
   KBarSearch,
   Priority,
 } from 'kbar'
-import { animatorStyle, KBarResultsComponents, searchStyle } from '../components/elements/KBar'
-import { darkenTheme, lightenTheme } from '../lib/themeUpdater'
+import {
+  animatorStyle,
+  KBarResultsComponents,
+  searchStyle,
+} from '../components/elements/KBar'
+import { updateTheme } from '../lib/themeUpdater'
+import { ThemeId } from '../components/tokens/stitches.config'
 
 TopBarProgress.config({
   barColors: {
-    "0": '#FFD234',
-    "1.0": '#FFD234',
+    '0': '#FFD234',
+    '1.0': '#FFD234',
   },
   shadowBlur: 0,
   barThickness: 2,
@@ -48,7 +53,7 @@ const generateActions = (router: NextRouter) => {
       shortcut: ['v', 'l'],
       keywords: 'light theme',
       priority: Priority.LOW,
-      perform: () => lightenTheme(),
+      perform: () => updateTheme(ThemeId.Light),
     },
     {
       id: 'darkTheme',
@@ -57,7 +62,7 @@ const generateActions = (router: NextRouter) => {
       shortcut: ['v', 'd'],
       keywords: 'dark theme',
       priority: Priority.LOW,
-      perform: () => darkenTheme(),
+      perform: () => updateTheme(ThemeId.Dark),
     },
   ]
 
@@ -99,7 +104,7 @@ function OmnivoreApp({ Component, pageProps }: AppProps): JSX.Element {
   return (
     <KBarProvider actions={generateActions(router)}>
       <KBarPortal>
-        <KBarPositioner>
+        <KBarPositioner style={{ zIndex: 100 }}>
           <KBarAnimator style={animatorStyle}>
             <KBarSearch style={searchStyle} />
             <KBarResultsComponents />

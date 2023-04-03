@@ -1,17 +1,10 @@
 import { gqlFetcher } from '../networkHelpers'
 import { v4 as uuidv4 } from 'uuid'
 
-
 type UploadFileInput = {
   url: string
-  contentType: string 
+  contentType: string
   createPageEntry?: boolean
-  clientRequestId?: string
-}
-
-type UploadFileOutput = {
-  jobId?: string
-  url?: string
   clientRequestId?: string
 }
 

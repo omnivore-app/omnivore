@@ -1,6 +1,12 @@
+import { Readability } from '@omnivore/readability'
+import normalizeUrl from 'normalize-url'
 import { PubsubClient } from '../datalayer/pubsub'
+import { addHighlightToPage } from '../elastic/highlights'
+import { createPage, getPageByParam, updatePage } from '../elastic/pages'
+import { ArticleSavingRequestStatus, Page, PageType } from '../elastic/types'
 import { homePageURL } from '../env'
 import {
+  HighlightType,
   Maybe,
   PreparedDocumentInput,
   SaveErrorCode,
@@ -15,13 +21,7 @@ import {
   wordsCount,
 } from '../utils/helpers'
 import { parsePreparedContent } from '../utils/parser'
-
-import normalizeUrl from 'normalize-url'
 import { createPageSaveRequest } from './create_page_save_request'
-import { ArticleSavingRequestStatus, Page, PageType } from '../elastic/types'
-import { createPage, getPageByParam, updatePage } from '../elastic/pages'
-import { addHighlightToPage } from '../elastic/highlights'
-import { Readability } from '@omnivore/readability'
 
 type SaveContext = {
   pubsub: PubsubClient
@@ -76,7 +76,6 @@ export const savePage = async (
   saver: SaverUserData,
   input: SavePageInput
 ): Promise<SaveResult> => {
-  const [slug, croppedPathname] = createSlug(input.url, input.title)
   const parseResult = await parsePreparedContent(
     input.url,
     {
@@ -88,12 +87,14 @@ export const savePage = async (
     },
     input.parseResult
   )
-
+  const [newSlug, croppedPathname] = createSlug(input.url, input.title)
+  let slug = newSlug
+  let pageId = input.clientRequestId
   const articleToSave = parsedContentToPage({
     url: input.url,
     title: input.title,
     userId: saver.userId,
-    pageId: input.clientRequestId,
+    pageId,
     slug,
     croppedPathname,
     parsedContent: parseResult.parsedContent,
@@ -101,22 +102,24 @@ export const savePage = async (
     originalHtml: parseResult.domContent,
     canonicalUrl: parseResult.canonicalUrl,
   })
-
-  let pageId: string | undefined = undefined
+  // check if the page already exists
   const existingPage = await getPageByParam({
     userId: saver.userId,
     url: articleToSave.url,
-    state: ArticleSavingRequestStatus.Succeeded,
   })
-
   if (existingPage) {
     pageId = existingPage.id
+    slug = existingPage.slug
     if (
       !(await updatePage(
         existingPage.id,
         {
-          savedAt: new Date(),
-          archivedAt: null,
+          // update the page with the new content
+          ...articleToSave,
+          archivedAt: null, // unarchive if it was archived
+          id: pageId, // we don't want to update the id
+          slug, // we don't want to update the slug
+          createdAt: existingPage.createdAt, // we don't want to update the createdAt
         },
         ctx
       ))
@@ -126,12 +129,11 @@ export const savePage = async (
         message: 'Failed to update existing page',
       }
     }
-    input.clientRequestId = existingPage.id
   } else if (shouldParseInBackend(input)) {
     try {
       await createPageSaveRequest(
         saver.userId,
-        input.url,
+        articleToSave.url,
         ctx.models,
         ctx.pubsub,
         input.clientRequestId
@@ -143,22 +145,24 @@ export const savePage = async (
       }
     }
   } else {
-    pageId = await createPage(articleToSave, ctx)
-    if (!pageId) {
+    const newPageId = await createPage(articleToSave, ctx)
+    if (!newPageId) {
       return {
         errorCodes: [SaveErrorCode.Unknown],
         message: 'Failed to create new page',
       }
     }
+    pageId = newPageId
   }
 
-  if (pageId && parseResult.highlightData) {
+  if (parseResult.highlightData) {
     const highlight = {
       updatedAt: new Date(),
       createdAt: new Date(),
       userId: ctx.uid,
       elasticPageId: pageId,
       ...parseResult.highlightData,
+      type: HighlightType.Highlight,
     }
 
     if (
@@ -175,7 +179,7 @@ export const savePage = async (
   }
 
   return {
-    clientRequestId: input.clientRequestId,
+    clientRequestId: pageId,
     url: `${homePageURL()}/${saver.username}/${slug}`,
   }
 }
@@ -235,7 +239,7 @@ export const parsedContentToPage = ({
     hash: uploadFileHash || stringToHash(parsedContent?.content || url),
     image: parsedContent?.previewImage ?? undefined,
     publishedAt: validatedDate(parsedContent?.publishedDate ?? undefined),
-    uploadFileId: uploadFileId,
+    uploadFileId,
     readingProgressPercent: 0,
     readingProgressAnchorIndex: 0,
     state: ArticleSavingRequestStatus.Succeeded,

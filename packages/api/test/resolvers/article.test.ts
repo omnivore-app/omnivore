@@ -1,31 +1,10 @@
-import { createTestUser, deleteTestUser } from '../db'
-import {
-  createTestElasticPage,
-  generateFakeUuid,
-  graphqlRequest,
-  request,
-} from '../util'
 import * as chai from 'chai'
 import { expect } from 'chai'
-import 'mocha'
-import { User } from '../../src/entity/user'
 import chaiString from 'chai-string'
-import {
-  BulkActionType,
-  SyncUpdatedItemEdge,
-  UpdateReason,
-  UploadFileStatus,
-} from '../../src/generated/graphql'
-import {
-  ArticleSavingRequestStatus,
-  Highlight,
-  Page,
-  PageContext,
-  PageType,
-} from '../../src/elastic/types'
-import { UploadFile } from '../../src/entity/upload_file'
+import 'mocha'
 import { createPubSubClient } from '../../src/datalayer/pubsub'
-import { getRepository } from '../../src/entity/utils'
+import { refreshIndex } from '../../src/elastic'
+import { addHighlightToPage } from '../../src/elastic/highlights'
 import {
   createPage,
   deletePage,
@@ -33,9 +12,31 @@ import {
   getPageById,
   updatePage,
 } from '../../src/elastic/pages'
-import { addHighlightToPage } from '../../src/elastic/highlights'
-import { refreshIndex } from '../../src/elastic'
+import {
+  ArticleSavingRequestStatus,
+  Highlight,
+  HighlightType,
+  Page,
+  PageContext,
+  PageType,
+} from '../../src/elastic/types'
 import { SearchHistory } from '../../src/entity/search_history'
+import { UploadFile } from '../../src/entity/upload_file'
+import { User } from '../../src/entity/user'
+import { getRepository } from '../../src/entity/utils'
+import {
+  BulkActionType,
+  SyncUpdatedItemEdge,
+  UpdateReason,
+  UploadFileStatus,
+} from '../../src/generated/graphql'
+import { createTestUser, deleteTestUser } from '../db'
+import {
+  createTestElasticPage,
+  generateFakeUuid,
+  graphqlRequest,
+  request,
+} from '../util'
 
 chai.use(chaiString)
 
@@ -298,7 +299,8 @@ const setBookmarkQuery = (articleId: string, bookmark: boolean) => {
 
 const saveArticleReadingProgressQuery = (
   articleId: string,
-  progress: number
+  progress: number,
+  topPercent: number | null = null
 ) => {
   return `
     mutation {
@@ -307,6 +309,7 @@ const saveArticleReadingProgressQuery = (
           id: "${articleId}",
           readingProgressPercent: ${progress}
           readingProgressAnchorIndex: 0
+          readingProgressTopPercent: ${topPercent}
         }
       ) {
         ... on SaveArticleReadingProgressSuccess {
@@ -314,6 +317,7 @@ const saveArticleReadingProgressQuery = (
             id
             readingProgressPercent
             readAt
+            readingProgressTopPercent
           }
         }
         ... on SaveArticleReadingProgressError {
@@ -473,6 +477,7 @@ describe('Article API', () => {
             quote: 'test quote',
             updatedAt: new Date(),
             userId: user.id,
+            type: HighlightType.Highlight,
           },
         ],
       }
@@ -695,9 +700,9 @@ describe('Article API', () => {
 
   describe('saveArticleReadingProgressResolver', () => {
     let query = ''
-    let articleId = ''
-    let progress = 0.5
     let pageId = ''
+    let progress = 0.5
+    let topPercent: number | null = null
 
     before(async () => {
       pageId = (await createTestElasticPage(user.id)).id!
@@ -707,46 +712,71 @@ describe('Article API', () => {
       await deletePage(pageId, ctx)
     })
 
-    beforeEach(() => {
-      query = saveArticleReadingProgressQuery(articleId, progress)
+    it('saves a reading progress on an article', async () => {
+      query = saveArticleReadingProgressQuery(pageId, progress, topPercent)
+      const res = await graphqlRequest(query, authToken).expect(200)
+      expect(
+        res.body.data.saveArticleReadingProgress.updatedArticle
+          .readingProgressPercent
+      ).to.eq(progress)
+      expect(res.body.data.saveArticleReadingProgress.updatedArticle.readAt).not
+        .null
     })
 
-    context('when we save a reading progress on an article', () => {
-      before(async () => {
-        articleId = pageId
-        progress = 0.5
-      })
+    it('should not allow setting the reading progress lower than current progress', async () => {
+      const firstQuery = saveArticleReadingProgressQuery(pageId, 75)
+      const firstRes = await graphqlRequest(firstQuery, authToken).expect(200)
+      expect(
+        firstRes.body.data.saveArticleReadingProgress.updatedArticle
+          .readingProgressPercent
+      ).to.eq(75)
+      await refreshIndex()
 
-      it('should save a reading progress on an article', async () => {
-        const res = await graphqlRequest(query, authToken).expect(200)
-        expect(
-          res.body.data.saveArticleReadingProgress.updatedArticle
-            .readingProgressPercent
-        ).to.eq(progress)
-        expect(res.body.data.saveArticleReadingProgress.updatedArticle.readAt)
-          .not.null
-      })
+      // Now try to set to a lower value (50), value should not be updated
+      // refresh index to ensure the reading progress is updated
+      const secondQuery = saveArticleReadingProgressQuery(pageId, 50)
+      const secondRes = await graphqlRequest(secondQuery, authToken).expect(200)
+      expect(
+        secondRes.body.data.saveArticleReadingProgress.updatedArticle
+          .readingProgressPercent
+      ).to.eq(75)
+    })
 
-      it('should not allow setting the reading progress lower than current progress', async () => {
-        const firstQuery = saveArticleReadingProgressQuery(articleId, 75)
-        const firstRes = await graphqlRequest(firstQuery, authToken).expect(200)
-        expect(
-          firstRes.body.data.saveArticleReadingProgress.updatedArticle
-            .readingProgressPercent
-        ).to.eq(75)
-        await refreshIndex()
+    it('does not save topPercent if not undefined', async () => {
+      query = saveArticleReadingProgressQuery(pageId, progress, null)
+      const res = await graphqlRequest(query, authToken).expect(200)
+      expect(
+        res.body.data.saveArticleReadingProgress.updatedArticle
+          .readingProgressTopPercent
+      ).to.be.null
+    })
 
-        // Now try to set to a lower value (50), value should not be updated
-        // refresh index to ensure the reading progress is updated
-        const secondQuery = saveArticleReadingProgressQuery(articleId, 50)
-        const secondRes = await graphqlRequest(secondQuery, authToken).expect(
-          200
-        )
-        expect(
-          secondRes.body.data.saveArticleReadingProgress.updatedArticle
-            .readingProgressPercent
-        ).to.eq(75)
-      })
+    it('saves topPercent if defined', async () => {
+      const topPercent = 0.2
+      query = saveArticleReadingProgressQuery(pageId, progress, topPercent)
+      const res = await graphqlRequest(query, authToken).expect(200)
+      expect(
+        res.body.data.saveArticleReadingProgress.updatedArticle
+          .readingProgressTopPercent
+      ).to.eql(topPercent)
+    })
+
+    it('saves topPercent as 0 if defined as 0', async () => {
+      const topPercent = 0
+      query = saveArticleReadingProgressQuery(pageId, progress, topPercent)
+      const res = await graphqlRequest(query, authToken).expect(200)
+      expect(
+        res.body.data.saveArticleReadingProgress.updatedArticle
+          .readingProgressTopPercent
+      ).to.eql(topPercent)
+    })
+
+    it('returns BAD_DATA error if top position is greater than bottom position', async () => {
+      query = saveArticleReadingProgressQuery(pageId, 0.5, 0.8)
+      const res = await graphqlRequest(query, authToken).expect(200)
+      expect(res.body.data.saveArticleReadingProgress.errorCodes).to.eql([
+        'BAD_DATA',
+      ])
     })
   })
 
@@ -810,7 +840,7 @@ describe('Article API', () => {
           userId: user.id,
           pageType: PageType.Article,
           title: 'test title',
-          content: '<p>search page</p>',
+          content: '<p>test search api</p>',
           slug: 'test slug',
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -819,6 +849,7 @@ describe('Article API', () => {
           url: url,
           savedAt: new Date(),
           state: ArticleSavingRequestStatus.Succeeded,
+          siteName: 'Example',
         }
         page.id = (await createPage(page, ctx))!
         pages.push(page)
@@ -832,6 +863,7 @@ describe('Article API', () => {
           quote: '<p>search highlight</p>',
           createdAt: new Date(),
           updatedAt: new Date(),
+          type: HighlightType.Highlight,
         }
         await addHighlightToPage(page.id, highlight, ctx)
         highlights.push(highlight)
@@ -849,7 +881,7 @@ describe('Article API', () => {
 
     context('when we search for a keyword', () => {
       before(() => {
-        keyword = 'search'
+        keyword = 'search api'
       })
 
       it('saves the term in search history', async () => {
@@ -875,7 +907,7 @@ describe('Article API', () => {
 
     context('when type:highlights is not in the query', () => {
       before(() => {
-        keyword = 'search'
+        keyword = 'search api'
       })
 
       it('should return pages in descending order', async () => {
@@ -901,7 +933,7 @@ describe('Article API', () => {
 
     context('when type:highlights is in the query', () => {
       before(() => {
-        keyword = 'search type:highlights'
+        keyword = "'search api' type:highlights"
       })
 
       it('should return highlights in descending order', async () => {
@@ -918,7 +950,7 @@ describe('Article API', () => {
 
     context('when is:unread is in the query', () => {
       before(() => {
-        keyword = 'search is:unread'
+        keyword = "'search api' is:unread"
       })
 
       it('should return unread articles in descending order', async () => {
@@ -930,6 +962,42 @@ describe('Article API', () => {
         expect(res.body.data.search.edges[2].node.id).to.eq(pages[2].id)
         expect(res.body.data.search.edges[3].node.id).to.eq(pages[1].id)
         expect(res.body.data.search.edges[4].node.id).to.eq(pages[0].id)
+      })
+    })
+
+    context('when no:label is in the query', () => {
+      before(async () => {
+        keyword = "'search api' no:label"
+      })
+
+      it('returns non-labeled items in descending order', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.search.pageInfo.totalCount).to.eq(5)
+      })
+    })
+
+    context('when no:highlight is in the query', () => {
+      before(async () => {
+        keyword = "'search api' no:highlight"
+      })
+
+      it('returns non-highlighted items in descending order', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.search.pageInfo.totalCount).to.eq(0)
+      })
+    })
+
+    context('when site:${site_name} is in the query', () => {
+      before(async () => {
+        keyword = "'search api' site:example"
+      })
+
+      it('returns items from the site', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.search.pageInfo.totalCount).to.eq(5)
       })
     })
   })

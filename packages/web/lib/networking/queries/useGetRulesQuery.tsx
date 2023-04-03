@@ -63,23 +63,12 @@ export function useGetRulesQuery(): RulesQueryResponse {
     }
   `
 
-  const { data, mutate, error, isValidating } = useSWR(query, publicGqlFetcher)
+  const { data, mutate, isValidating } = useSWR(query, publicGqlFetcher)
 
   try {
     if (data) {
       const result = data as RulesQueryResponseData
       const rules = result.rules.rules as Rule[]
-
-      const actions: RuleAction[] = [
-        {
-          type: RuleActionType.SendNotification,
-          params: [] as string[],
-        },
-        {
-          type: RuleActionType.AddLabel,
-          params: ['2dfd9ce2-cc9f-11ec-b535-3be2782c2107'],
-        },
-      ]
 
       return {
         isValidating,

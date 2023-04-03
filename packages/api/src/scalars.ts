@@ -9,6 +9,7 @@ export class SanitizedString extends GraphQLScalarType {
     type: GraphQLScalarType,
     allowedTags?: string[],
     maxLength?: number,
+    minLength?: number,
     pattern?: string
   ) {
     super({
@@ -25,11 +26,7 @@ export class SanitizedString extends GraphQLScalarType {
 
       // invoked when a query is passed as a JSON object (for example, when Apollo Client makes a request
       parseValue(value) {
-        if (maxLength && maxLength < value.length) {
-          throw new Error(
-            `Specified value cannot be longer than ${maxLength} characters`
-          )
-        }
+        checkLength(value)
         if (pattern && !new RegExp(pattern).test(value)) {
           throw new Error(`Specified value does not match pattern`)
         }
@@ -39,17 +36,26 @@ export class SanitizedString extends GraphQLScalarType {
       // invoked when a query is passed as a string
       parseLiteral(ast) {
         const value = type.parseLiteral(ast, {})
-        if (maxLength && maxLength < value.length) {
-          throw new Error(
-            `Specified value cannot be longer than ${maxLength} characters`
-          )
-        }
+        checkLength(value)
         if (pattern && !new RegExp(pattern).test(value)) {
           throw new Error(`Specified value does not match pattern`)
         }
         return sanitize(value, { allowedTags: allowedTags || [] })
       },
     })
+
+    function checkLength(value: any) {
+      if (maxLength && maxLength < value.length) {
+        throw new Error(
+          `Specified value cannot be longer than ${maxLength} characters`
+        )
+      }
+      if (minLength && minLength > value.length) {
+        throw new Error(
+          `Specified value cannot be shorter than ${minLength} characters`
+        )
+      }
+    }
   }
 }
 

@@ -1,4 +1,4 @@
-import Knex from 'knex'
+import { Knex } from 'knex'
 import { PubsubClient } from '../datalayer/pubsub'
 import { UserData } from '../datalayer/user/model'
 import { homePageURL } from '../env'
@@ -34,12 +34,9 @@ export const saveFile = async (
     }
   }
 
-  const uploadFileDetails = await getStorageFileDetails(
-    input.uploadFileId,
-    uploadFile.fileName
-  )
+  await getStorageFileDetails(input.uploadFileId, uploadFile.fileName)
 
-  const uploadFileData = await ctx.authTrx(async (tx) => {
+  await ctx.authTrx(async (tx) => {
     return ctx.models.uploadFile.setFileUploadComplete(input.uploadFileId, tx)
   })
 

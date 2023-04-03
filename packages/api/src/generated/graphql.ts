@@ -110,6 +110,7 @@ export type Article = {
   readAt?: Maybe<Scalars['Date']>;
   readingProgressAnchorIndex: Scalars['Int'];
   readingProgressPercent: Scalars['Float'];
+  readingProgressTopPercent?: Maybe<Scalars['Float']>;
   recommendations?: Maybe<Array<Recommendation>>;
   savedAt: Scalars['Date'];
   savedByViewer?: Maybe<Scalars['Boolean']>;
@@ -167,6 +168,7 @@ export type ArticleSavingRequest = {
   slug: Scalars['String'];
   status: ArticleSavingRequestStatus;
   updatedAt: Scalars['Date'];
+  url: Scalars['String'];
   user: User;
   /** @deprecated userId has been replaced with user */
   userId: Scalars['ID'];
@@ -178,6 +180,7 @@ export type ArticleSavingRequestError = {
 };
 
 export enum ArticleSavingRequestErrorCode {
+  BadData = 'BAD_DATA',
   NotFound = 'NOT_FOUND',
   Unauthorized = 'UNAUTHORIZED'
 }
@@ -343,13 +346,15 @@ export type CreateHighlightInput = {
   articleId: Scalars['ID'];
   highlightPositionAnchorIndex?: InputMaybe<Scalars['Int']>;
   highlightPositionPercent?: InputMaybe<Scalars['Float']>;
+  html?: InputMaybe<Scalars['String']>;
   id: Scalars['ID'];
-  patch: Scalars['String'];
+  patch?: InputMaybe<Scalars['String']>;
   prefix?: InputMaybe<Scalars['String']>;
-  quote: Scalars['String'];
+  quote?: InputMaybe<Scalars['String']>;
   sharedAt?: InputMaybe<Scalars['Date']>;
   shortId: Scalars['String'];
   suffix?: InputMaybe<Scalars['String']>;
+  type?: InputMaybe<HighlightType>;
 };
 
 export type CreateHighlightReplyError = {
@@ -898,16 +903,18 @@ export type Highlight = {
   createdByMe: Scalars['Boolean'];
   highlightPositionAnchorIndex?: Maybe<Scalars['Int']>;
   highlightPositionPercent?: Maybe<Scalars['Float']>;
+  html?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   labels?: Maybe<Array<Label>>;
-  patch: Scalars['String'];
+  patch?: Maybe<Scalars['String']>;
   prefix?: Maybe<Scalars['String']>;
-  quote: Scalars['String'];
+  quote?: Maybe<Scalars['String']>;
   reactions: Array<Reaction>;
   replies: Array<HighlightReply>;
   sharedAt?: Maybe<Scalars['Date']>;
   shortId: Scalars['String'];
   suffix?: Maybe<Scalars['String']>;
+  type: HighlightType;
   updatedAt: Scalars['Date'];
   user: User;
 };
@@ -926,6 +933,12 @@ export type HighlightStats = {
   __typename?: 'HighlightStats';
   highlightCount: Scalars['Int'];
 };
+
+export enum HighlightType {
+  Highlight = 'HIGHLIGHT',
+  Note = 'NOTE',
+  Redaction = 'REDACTION'
+}
 
 export type Integration = {
   __typename?: 'Integration';
@@ -1119,6 +1132,7 @@ export type MergeHighlightInput = {
   articleId: Scalars['ID'];
   highlightPositionAnchorIndex?: InputMaybe<Scalars['Int']>;
   highlightPositionPercent?: InputMaybe<Scalars['Float']>;
+  html?: InputMaybe<Scalars['String']>;
   id: Scalars['ID'];
   overlapHighlightIdList: Array<Scalars['String']>;
   patch: Scalars['String'];
@@ -1747,7 +1761,8 @@ export type QueryArticleArgs = {
 
 
 export type QueryArticleSavingRequestArgs = {
-  id: Scalars['ID'];
+  id?: InputMaybe<Scalars['ID']>;
+  url?: InputMaybe<Scalars['String']>;
 };
 
 
@@ -2125,6 +2140,7 @@ export type SaveArticleReadingProgressInput = {
   id: Scalars['ID'];
   readingProgressAnchorIndex: Scalars['Int'];
   readingProgressPercent: Scalars['Float'];
+  readingProgressTopPercent?: InputMaybe<Scalars['Float']>;
 };
 
 export type SaveArticleReadingProgressResult = SaveArticleReadingProgressError | SaveArticleReadingProgressSuccess;
@@ -2233,6 +2249,7 @@ export type SearchItem = {
   readAt?: Maybe<Scalars['Date']>;
   readingProgressAnchorIndex: Scalars['Int'];
   readingProgressPercent: Scalars['Float'];
+  readingProgressTopPercent?: Maybe<Scalars['Float']>;
   recommendations?: Maybe<Array<Recommendation>>;
   savedAt: Scalars['Date'];
   shortId?: Maybe<Scalars['String']>;
@@ -2714,6 +2731,8 @@ export enum UpdateHighlightErrorCode {
 export type UpdateHighlightInput = {
   annotation?: InputMaybe<Scalars['String']>;
   highlightId: Scalars['ID'];
+  html?: InputMaybe<Scalars['String']>;
+  quote?: InputMaybe<Scalars['String']>;
   sharedAt?: InputMaybe<Scalars['Date']>;
 };
 
@@ -2813,6 +2832,7 @@ export type UpdatePageInput = {
   byline?: InputMaybe<Scalars['String']>;
   description?: InputMaybe<Scalars['String']>;
   pageId: Scalars['ID'];
+  publishedAt?: InputMaybe<Scalars['Date']>;
   savedAt?: InputMaybe<Scalars['Date']>;
   title?: InputMaybe<Scalars['String']>;
 };
@@ -3372,6 +3392,7 @@ export type ResolversTypes = {
   Highlight: ResolverTypeWrapper<Highlight>;
   HighlightReply: ResolverTypeWrapper<HighlightReply>;
   HighlightStats: ResolverTypeWrapper<HighlightStats>;
+  HighlightType: HighlightType;
   ID: ResolverTypeWrapper<Scalars['ID']>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
   Integration: ResolverTypeWrapper<Integration>;
@@ -4057,6 +4078,7 @@ export type ResolversParentTypes = {
 export type SanitizeDirectiveArgs = {
   allowedTags?: Maybe<Array<Maybe<Scalars['String']>>>;
   maxLength?: Maybe<Scalars['Int']>;
+  minLength?: Maybe<Scalars['Int']>;
   pattern?: Maybe<Scalars['String']>;
 };
 
@@ -4140,6 +4162,7 @@ export type ArticleResolvers<ContextType = ResolverContext, ParentType extends R
   readAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   readingProgressAnchorIndex?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   readingProgressPercent?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  readingProgressTopPercent?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   recommendations?: Resolver<Maybe<Array<ResolversTypes['Recommendation']>>, ParentType, ContextType>;
   savedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   savedByViewer?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
@@ -4183,6 +4206,7 @@ export type ArticleSavingRequestResolvers<ContextType = ResolverContext, ParentT
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['ArticleSavingRequestStatus'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   userId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -4704,16 +4728,18 @@ export type HighlightResolvers<ContextType = ResolverContext, ParentType extends
   createdByMe?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   highlightPositionAnchorIndex?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   highlightPositionPercent?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  html?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   labels?: Resolver<Maybe<Array<ResolversTypes['Label']>>, ParentType, ContextType>;
-  patch?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  patch?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   prefix?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  quote?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  quote?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   reactions?: Resolver<Array<ResolversTypes['Reaction']>, ParentType, ContextType>;
   replies?: Resolver<Array<ResolversTypes['HighlightReply']>, ParentType, ContextType>;
   sharedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   shortId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   suffix?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['HighlightType'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -5065,7 +5091,7 @@ export type ProfileResolvers<ContextType = ResolverContext, ParentType extends R
 export type QueryResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   apiKeys?: Resolver<ResolversTypes['ApiKeysResult'], ParentType, ContextType>;
   article?: Resolver<ResolversTypes['ArticleResult'], ParentType, ContextType, RequireFields<QueryArticleArgs, 'slug' | 'username'>>;
-  articleSavingRequest?: Resolver<ResolversTypes['ArticleSavingRequestResult'], ParentType, ContextType, RequireFields<QueryArticleSavingRequestArgs, 'id'>>;
+  articleSavingRequest?: Resolver<ResolversTypes['ArticleSavingRequestResult'], ParentType, ContextType, Partial<QueryArticleSavingRequestArgs>>;
   articles?: Resolver<ResolversTypes['ArticlesResult'], ParentType, ContextType, Partial<QueryArticlesArgs>>;
   deviceTokens?: Resolver<ResolversTypes['DeviceTokensResult'], ParentType, ContextType>;
   feedArticles?: Resolver<ResolversTypes['FeedArticlesResult'], ParentType, ContextType, Partial<QueryFeedArticlesArgs>>;
@@ -5363,6 +5389,7 @@ export type SearchItemResolvers<ContextType = ResolverContext, ParentType extend
   readAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   readingProgressAnchorIndex?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   readingProgressPercent?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  readingProgressTopPercent?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   recommendations?: Resolver<Maybe<Array<ResolversTypes['Recommendation']>>, ParentType, ContextType>;
   savedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   shortId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;

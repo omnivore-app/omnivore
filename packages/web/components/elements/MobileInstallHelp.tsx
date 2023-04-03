@@ -5,10 +5,9 @@ import {
   DeviceMobileCamera,
 } from 'phosphor-react'
 import { Box, HStack } from '../elements/LayoutPrimitives'
-import { StyledText, StyledImg, StyledAnchor } from '../elements/StyledText'
+import { StyledText, StyledAnchor } from '../elements/StyledText'
 import { TooltipWrapped } from './Tooltip'
 import Link from 'next/link'
-import { InstallationIcon } from './images/InstallationIcon'
 
 const TooltipStyle = {
   backgroundColor: '#F9D354',
@@ -258,7 +257,7 @@ export default function MobileInstallHelp({
                     height: 35,
                     width: 35,
                     cursor: 'pointer',
-                    backgroundColor: '$tooltipIcons',
+                    backgroundColor: '$labelButtonsBg',
                     ...(selectedTooltip !== item.label && {
                       filter: 'grayscale(1)',
                     }),

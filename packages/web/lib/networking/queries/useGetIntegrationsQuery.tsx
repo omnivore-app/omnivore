@@ -11,8 +11,7 @@ export interface Integration {
   updatedAt: Date
 }
 
-export type IntegrationType =
-  | 'READWISE'
+export type IntegrationType = 'READWISE'
 
 interface IntegrationsQueryResponse {
   isValidating: boolean
@@ -49,7 +48,7 @@ export function useGetIntegrationsQuery(): IntegrationsQueryResponse {
     }
   `
 
-  const { data, mutate, error, isValidating } = useSWR(query, publicGqlFetcher)
+  const { data, mutate, isValidating } = useSWR(query, publicGqlFetcher)
   console.log('integrations data', data)
 
   try {

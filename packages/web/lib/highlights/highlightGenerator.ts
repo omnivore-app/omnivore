@@ -468,19 +468,6 @@ const getSurroundingText = ({
   }
 }
 
-function stringToColour(str: string): string {
-  let hash = 0
-  for (let i = 0; i < str.length; i++) {
-    hash = str.charCodeAt(i) + ((hash << 5) - hash)
-  }
-  let colour = '#'
-  for (let i = 0; i < 3; i++) {
-    const value = (hash >> (i * 8)) & 0xff
-    colour += ('00' + value.toString(16)).substr(-2)
-  }
-  return colour
-}
-
 export const isValidLength = (patch: string): boolean => {
   const { highlightTextStart, highlightTextEnd } = getPrefixAndSuffix({ patch })
   return highlightTextEnd - highlightTextStart < maxHighlightLength

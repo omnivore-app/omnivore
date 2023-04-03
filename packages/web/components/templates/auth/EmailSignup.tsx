@@ -7,7 +7,6 @@ import { TermAndConditionsFooter } from '../LoginForm'
 import { fetchEndpoint } from '../../../lib/appConfig'
 import { useValidateUsernameQuery } from '../../../lib/networking/queries/useValidateUsernameQuery'
 import { logoutMutation } from '../../../lib/networking/mutations/logoutMutation'
-import { styled } from '@stitches/react'
 import { useRouter } from 'next/router'
 import { formatMessage } from '../../../locales/en/messages'
 import { parseErrorCodes } from '../../../lib/queryParamParser'
@@ -19,10 +18,12 @@ export function EmailSignup(): JSX.Element {
   const [password, setPassword] = useState<string | undefined>(undefined)
   const [fullname, setFullname] = useState<string | undefined>(undefined)
   const [username, setUsername] = useState<string | undefined>(undefined)
-  const [debouncedUsername, setDebouncedUsername] =
-    useState<string | undefined>(undefined)
-  const [errorMessage, setErrorMessage] =
-    useState<string | undefined>(undefined)
+  const [debouncedUsername, setDebouncedUsername] = useState<
+    string | undefined
+  >(undefined)
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(
+    undefined
+  )
 
   useEffect(() => {
     if (!router.isReady) return
@@ -165,7 +166,7 @@ export function EmailSignup(): JSX.Element {
             style={'ctaOutlineYellow'}
             css={{ color: '$omnivoreGray', borderColor: 'rgba(0, 0, 0, 0.06)' }}
             type="button"
-            onClick={async (event) => {
+            onClick={async () => {
               window.localStorage.removeItem('authVerified')
               window.localStorage.removeItem('authToken')
               try {

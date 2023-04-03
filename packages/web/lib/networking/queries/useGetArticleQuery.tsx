@@ -50,6 +50,7 @@ export type ArticleAttributes = {
   description?: string
   contentReader: ContentReader
   readingProgressPercent: number
+  readingProgressTopPercent?: number
   readingProgressAnchorIndex: number
   slug: string
   savedByViewer?: boolean
@@ -105,7 +106,7 @@ export function useGetArticleQuery({
     includeFriendsHighlights,
   }
 
-  const { data, error, mutate } = useSWRImmutable(
+  const { data, error } = useSWRImmutable(
     slug ? [query, username, slug, includeFriendsHighlights] : null,
     makeGqlFetcher(variables)
   )
@@ -159,7 +160,7 @@ export const removeItemFromCache = (
   try {
     const mappedCache = cache as Map<string, unknown>
     mappedCache.forEach((value: any, key) => {
-      if (typeof value == 'object' && 'search' in value) {
+      if (value && typeof value == 'object' && 'search' in value) {
         const search = value.search as LibraryItems
         const idx = search.edges.findIndex((edge) => edge.node.id == itemId)
         if (idx > -1) {

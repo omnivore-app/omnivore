@@ -1,18 +1,18 @@
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
-import { useGetArticleSavingStatus } from '../../../lib/networking/queries/useGetArticleSavingStatus'
+import TopBarProgress from 'react-topbar-progress-indicator'
+import { VStack } from '../../../components/elements/LayoutPrimitives'
+import { ArticleActionsMenu } from '../../../components/templates/article/ArticleActionsMenu'
+import { SkeletonArticleContainer } from '../../../components/templates/article/SkeletonArticleContainer'
 import { PrimaryLayout } from '../../../components/templates/PrimaryLayout'
 import {
-  Loader,
   ErrorComponent,
+  Loader,
 } from '../../../components/templates/SavingRequest'
-import { ArticleActionsMenu } from '../../../components/templates/article/ArticleActionsMenu'
-import { VStack } from '../../../components/elements/LayoutPrimitives'
 import { theme } from '../../../components/tokens/stitches.config'
-import { applyStoredTheme } from '../../../lib/themeUpdater'
 import { useReaderSettings } from '../../../lib/hooks/useReaderSettings'
-import { SkeletonArticleContainer } from '../../../components/templates/article/SkeletonArticleContainer'
-import TopBarProgress from 'react-topbar-progress-indicator'
+import { useGetArticleSavingStatus } from '../../../lib/networking/queries/useGetArticleSavingStatus'
+import { applyStoredTheme } from '../../../lib/themeUpdater'
 
 export default function ArticleSavingRequestPage(): JSX.Element {
   const router = useRouter()
@@ -32,7 +32,7 @@ export default function ArticleSavingRequestPage(): JSX.Element {
       headerToolbarControl={
         <ArticleActionsMenu
           article={undefined}
-          layout='top'
+          layout="top"
           showReaderDisplaySettings={true}
           articleActionHandler={readerSettings.actionHandler}
         />
@@ -44,57 +44,62 @@ export default function ArticleSavingRequestPage(): JSX.Element {
       }}
     >
       <TopBarProgress />
-      <VStack distribution="between" alignment="center" css={{
-        position: 'fixed',
-        flexDirection: 'row-reverse',
-        top: '-120px',
-        left: 8,
-        height: '100%',
-        width: '35px',
-        '@lgDown': {
-          display: 'none',
-        },
+      <VStack
+        distribution="between"
+        alignment="center"
+        css={{
+          position: 'fixed',
+          flexDirection: 'row-reverse',
+          top: '-120px',
+          left: 8,
+          height: '100%',
+          width: '35px',
+          '@lgDown': {
+            display: 'none',
+          },
         }}
       >
         <ArticleActionsMenu
           article={undefined}
-          layout='side'
+          layout="side"
           showReaderDisplaySettings={true}
           articleActionHandler={readerSettings.actionHandler}
         />
       </VStack>
-        <VStack
-          alignment="center"
-          distribution="center"
-          className="disable-webkit-callout"
-          css={{
-            '@smDown': {
-              background: theme.colors.grayBg.toString(),
-            }
-          }}
+      <VStack
+        alignment="center"
+        distribution="center"
+        className="disable-webkit-callout"
+        css={{
+          '@smDown': {
+            background: theme.colors.grayBg.toString(),
+          },
+        }}
+      >
+        <SkeletonArticleContainer
+          margin={readerSettings.marginWidth}
+          fontSize={readerSettings.fontSize}
+          lineHeight={readerSettings.lineHeight}
         >
-          <SkeletonArticleContainer
-            margin={readerSettings.marginWidth}
-            fontSize={readerSettings.fontSize}
-            lineHeight={readerSettings.lineHeight}
-          >
-            {articleId ? <PrimaryContent articleId={articleId} /> : <Loader />}
-          </SkeletonArticleContainer>
+          {articleId ? <PrimaryContent articleId={articleId} /> : <Loader />}
+        </SkeletonArticleContainer>
       </VStack>
     </PrimaryLayout>
   )
 }
 
 type PrimaryContentProps = {
-  articleId: string
+  articleId?: string
+  url?: string
 }
 
-function PrimaryContent(props: PrimaryContentProps): JSX.Element {
+export function PrimaryContent(props: PrimaryContentProps): JSX.Element {
   const router = useRouter()
   const [timedOut, setTimedOut] = useState(false)
 
   const { successRedirectPath, error } = useGetArticleSavingStatus({
     id: props.articleId,
+    url: props.url,
   })
 
   useEffect(() => {
@@ -121,7 +126,5 @@ function PrimaryContent(props: PrimaryContentProps): JSX.Element {
     router.replace(successRedirectPath)
   }
 
-  return (
-    <Loader />
-  )
+  return <Loader />
 }

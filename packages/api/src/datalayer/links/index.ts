@@ -12,7 +12,7 @@ import {
   UserFeedArticleData,
 } from './model'
 import DataModel, { MAX_RECORDS_LIMIT } from '../model'
-import Knex from 'knex'
+import { Knex } from 'knex'
 import { Table } from '../../utils/dictionary'
 import {
   Article,

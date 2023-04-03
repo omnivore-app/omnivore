@@ -3,18 +3,22 @@ package app.omnivore.omnivore.ui.library
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.*
 import app.omnivore.omnivore.dataService.*
 import app.omnivore.omnivore.networking.*
-import app.omnivore.omnivore.persistence.entities.SavedItemCardData
+import app.omnivore.omnivore.persistence.entities.SavedItem
 import app.omnivore.omnivore.persistence.entities.SavedItemCardDataWithLabels
+import app.omnivore.omnivore.ui.reader.WebFont
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
-import java.time.LocalDateTime
+import java.time.Instant
 import javax.inject.Inject
 
 @HiltViewModel
@@ -33,9 +37,43 @@ class LibraryViewModel @Inject constructor(
   // Live Data
   val searchTextLiveData = MutableLiveData("")
   val searchItemsLiveData = MutableLiveData<List<SavedItemCardDataWithLabels>>(listOf())
-  val itemsLiveData = dataService.db.savedItemDao().getLibraryLiveDataWithLabels()
+  private var itemsLiveDataInternal = dataService.libraryLiveData(SavedItemFilter.INBOX, SavedItemSortFilter.NEWEST, listOf())
+  val itemsLiveData = MediatorLiveData<List<SavedItemCardDataWithLabels>>()
+  val appliedFilterLiveData = MutableLiveData(SavedItemFilter.INBOX)
+  val appliedSortFilterLiveData = MutableLiveData(SavedItemSortFilter.NEWEST)
 
   var isRefreshing by mutableStateOf(false)
+  var showSearchField by mutableStateOf(false)
+  var hasLoadedInitialFilters = false
+
+  fun loadInitialFilterValues() {
+    if (hasLoadedInitialFilters) { return }
+    hasLoadedInitialFilters = false
+
+    runBlocking {
+      datastoreRepo.getString(DatastoreKeys.lastUsedSavedItemFilter)?.let { str ->
+        try {
+          val filter = SavedItemFilter.values().first { it.rawValue == str }
+          appliedFilterLiveData.postValue(filter)
+        } catch (e: Exception) {
+          Log.d("error", "invalid filter value stored in datastore repo: $e")
+        }
+      }
+
+      datastoreRepo.getString(DatastoreKeys.lastUsedSavedItemSortFilter)?.let { str ->
+        try {
+          val filter = SavedItemSortFilter.values().first { it.rawValue == str }
+          appliedSortFilterLiveData.postValue(filter)
+        } catch (e: Exception) {
+          Log.d("error", "invalid sort filter value stored in datastore repo: $e")
+        }
+      }
+    }
+
+    viewModelScope.launch {
+      handleFilterChanges()
+    }
+  }
 
   fun updateSearchText(text: String) {
     searchTextLiveData.value = text
@@ -52,13 +90,19 @@ class LibraryViewModel @Inject constructor(
     load(true)
   }
 
-  fun getLastSyncTime(): LocalDateTime? = runBlocking {
+  fun getLastSyncTime(): Instant? = runBlocking {
     datastoreRepo.getString(DatastoreKeys.libraryLastSyncTimestamp)?.let {
-      LocalDateTime.parse(it)
+      try {
+        return@let Instant.parse(it)
+      } catch (e: Exception) {
+        return@let null
+      }
     }
   }
 
   fun load(clearPreviousSearch: Boolean = false) {
+    loadInitialFilterValues()
+
     viewModelScope.launch {
       if (searchTextLiveData.value != "") {
         performSearch(clearPreviousSearch)
@@ -68,16 +112,41 @@ class LibraryViewModel @Inject constructor(
     }
   }
 
-  private suspend fun syncItems() {
-    val syncStart = LocalDateTime.now()
-    val lastSyncDate = getLastSyncTime() ?: LocalDateTime.MIN
-
-    CoroutineScope(Dispatchers.Main).launch {
-      isRefreshing = false
+  fun updateSavedItemFilter(filter: SavedItemFilter) {
+    viewModelScope.launch {
+      datastoreRepo.putString(DatastoreKeys.lastUsedSavedItemFilter, filter.rawValue)
+      appliedFilterLiveData.value = filter
+      handleFilterChanges()
     }
+  }
+
+  fun updateSavedItemSortFilter(filter: SavedItemSortFilter) {
+    viewModelScope.launch {
+      datastoreRepo.putString(DatastoreKeys.lastUsedSavedItemSortFilter, filter.rawValue)
+      appliedSortFilterLiveData.value = filter
+      handleFilterChanges()
+    }
+  }
+
+  suspend fun handleFilterChanges() {
+    if (searchTextLiveData.value != "") {
+      performSearch(true)
+    } else if (appliedSortFilterLiveData.value != null && appliedFilterLiveData.value != null) {
+      itemsLiveDataInternal = dataService.libraryLiveData(appliedFilterLiveData.value!!, appliedSortFilterLiveData.value!!, listOf())
+      itemsLiveData.removeSource(itemsLiveDataInternal)
+      itemsLiveData.addSource(itemsLiveDataInternal, itemsLiveData::setValue)
+    }
+  }
+
+  private suspend fun syncItems() {
+    val syncStart = Instant.now()
+    val lastSyncDate = getLastSyncTime() ?: Instant.MIN
 
     withContext(Dispatchers.IO) {
       performItemSync(cursor = null, since = lastSyncDate.toString(), count = 0, startTime = syncStart.toString())
+      CoroutineScope(Dispatchers.Main).launch {
+        isRefreshing = false
+      }
     }
   }
 
@@ -118,7 +187,7 @@ class LibraryViewModel @Inject constructor(
     searchIdx += 1
 
     // Execute the search
-    val searchResult = networker.typeaheadSearch(searchTextLiveData.value ?: "")
+    val searchResult = networker.typeaheadSearch(searchQueryString())
 
     // Search results aren't guaranteed to return in order so this
     // will discard old results that are returned while a user is typing.
@@ -158,6 +227,19 @@ class LibraryViewModel @Inject constructor(
         }
       }
     }
+  }
+
+  private fun searchQueryString(): String {
+    return searchTextLiveData.value ?: ""
+    // Unused code for typeahead search
+//    var query = "${appliedFilterLiveData.value?.queryString} ${appliedSortFilterLiveData.value?.queryString}"
+//    val searchText = searchTextLiveData.value ?: ""
+//
+//    if (searchText.isNotEmpty()) {
+//      query += " $searchText"
+//    }
+//
+//    return query
   }
 }
 

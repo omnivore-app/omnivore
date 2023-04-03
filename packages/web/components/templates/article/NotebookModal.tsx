@@ -4,20 +4,14 @@ import {
   ModalContent,
   ModalTitleBar,
 } from '../../elements/ModalPrimitives'
-import {
-  Box,
-  HStack,
-  VStack,
-  Separator,
-  SpanBox,
-} from '../../elements/LayoutPrimitives'
+import { Box, HStack, VStack, SpanBox } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { StyledText } from '../../elements/StyledText'
 import { TrashIcon } from '../../elements/images/TrashIcon'
 import { theme } from '../../tokens/stitches.config'
 import type { Highlight } from '../../../lib/networking/fragments/highlightFragment'
 import { HighlightView } from '../../patterns/HighlightView'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { StyledTextArea } from '../../elements/StyledTextArea'
 import { ConfirmationModal } from '../../patterns/ConfirmationModal'
 import { DotsThree } from 'phosphor-react'
@@ -28,6 +22,10 @@ import { setLabelsForHighlight } from '../../../lib/networking/mutations/setLabe
 import { updateHighlightMutation } from '../../../lib/networking/mutations/updateHighlightMutation'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { diff_match_patch } from 'diff-match-patch'
+import { HighlightNoteTextEditArea } from '../../elements/HighlightNoteTextEditArea'
+import { CloseButton } from '../../elements/CloseButton'
+import { MenuTrigger } from '../../elements/MenuTrigger'
+import { highlightsAsMarkdown, HighlightsMenu } from '../homeFeed/HighlightItem'
 
 type NotebookModalProps = {
   highlights: Highlight[]
@@ -50,6 +48,18 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
     undefined
   )
   const [, updateState] = useState({})
+
+  const exportHighlights = useCallback(() => {
+    ;(async () => {
+      if (!props.highlights) {
+        showErrorToast('No highlights to export')
+        return
+      }
+      const markdown = highlightsAsMarkdown(props.highlights)
+      await navigator.clipboard.writeText(markdown)
+      showSuccessToast('Highlight copied')
+    })()
+  }, [props.highlights])
 
   const sortedHighlights = useMemo(() => {
     const sorted = (a: number, b: number) => {
@@ -90,7 +100,24 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
         css={{ overflow: 'auto', px: '24px' }}
       >
         <VStack distribution="start" css={{ height: '100%' }}>
-          <ModalTitleBar title="Notebook" onOpenChange={props.onOpenChange} />
+          <HStack
+            distribution="between"
+            alignment="center"
+            css={{ height: '50px', width: '100%' }}
+          >
+            <StyledText style="modalHeadline">Notebook</StyledText>
+            <HStack css={{ ml: 'auto', gap: '10px' }}>
+              <Dropdown triggerElement={<MenuTrigger />}>
+                <DropdownOption
+                  onSelect={() => {
+                    exportHighlights()
+                  }}
+                  title="Export"
+                />
+              </Dropdown>
+              <CloseButton close={() => props.onOpenChange(false)} />
+            </HStack>
+          </HStack>
           <Box css={{ overflow: 'auto', width: '100%' }}>
             {sortedHighlights.map((highlight) => (
               <ModalHighlightView
@@ -172,6 +199,7 @@ type ModalHighlightViewProps = {
 }
 
 function ModalHighlightView(props: ModalHighlightViewProps): JSX.Element {
+  const [hover, setHover] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
 
   const copyHighlight = useCallback(async () => {
@@ -179,9 +207,13 @@ function ModalHighlightView(props: ModalHighlightViewProps): JSX.Element {
   }, [props.highlight])
 
   return (
-    <>
+    <HStack
+      css={{ width: '100%', py: '20px', cursor: 'pointer' }}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
       <VStack>
-        <SpanBox css={{ marginLeft: 'auto' }}>
+        {/* <SpanBox css={{ marginLeft: 'auto' }}>
           <Dropdown
             triggerElement={
               <DotsThree size={24} color={theme.colors.readerFont.toString()} />
@@ -206,7 +238,7 @@ function ModalHighlightView(props: ModalHighlightViewProps): JSX.Element {
               title="Delete"
             />
           </Dropdown>
-        </SpanBox>
+        </SpanBox> */}
 
         <HighlightView
           scrollToHighlight={props.scrollToHighlight}
@@ -215,12 +247,12 @@ function ModalHighlightView(props: ModalHighlightViewProps): JSX.Element {
         {!isEditing ? (
           <StyledText
             css={{
-              borderRadius: '6px',
-              bg: '$grayBase',
+              borderRadius: '5px',
               p: '16px',
               width: '100%',
               marginTop: '24px',
-              color: '$grayText',
+              bg: '#EBEBEB',
+              color: '#3D3D3D',
             }}
             onClick={() => setIsEditing(true)}
           >
@@ -230,7 +262,7 @@ function ModalHighlightView(props: ModalHighlightViewProps): JSX.Element {
           </StyledText>
         ) : null}
         {isEditing && (
-          <TextEditArea
+          <HighlightNoteTextEditArea
             setIsEditing={setIsEditing}
             highlight={props.highlight}
             updateHighlight={props.updateHighlight}
@@ -238,89 +270,24 @@ function ModalHighlightView(props: ModalHighlightViewProps): JSX.Element {
         )}
         <SpanBox css={{ mt: '$2', mb: '$4' }} />
       </VStack>
-    </>
-  )
-}
-
-type TextEditAreaProps = {
-  setIsEditing: (editing: boolean) => void
-  highlight: Highlight
-  updateHighlight: (highlight: Highlight) => void
-}
-
-const TextEditArea = (props: TextEditAreaProps): JSX.Element => {
-  const [noteContent, setNoteContent] = useState(
-    props.highlight.annotation ?? ''
-  )
-
-  const handleNoteContentChange = useCallback(
-    (event: React.ChangeEvent<HTMLTextAreaElement>): void => {
-      setNoteContent(event.target.value)
-    },
-    [setNoteContent]
-  )
-
-  return (
-    <VStack css={{ width: '100%' }} key="textEditor">
-      <StyledTextArea
+      <SpanBox
         css={{
-          my: '$3',
-          minHeight: '$6',
-          borderRadius: '6px',
-          bg: '$grayBase',
-          p: '16px',
-          width: '100%',
-          marginTop: '16px',
-          resize: 'vertical',
+          marginLeft: 'auto',
+          width: '20px',
+          visibility: hover ? 'unset' : 'hidden',
+          '@media (hover: none)': {
+            visibility: 'unset',
+          },
         }}
-        autoFocus
-        maxLength={4000}
-        value={noteContent}
-        placeholder={'Add your notes...'}
-        onChange={handleNoteContentChange}
-      />
-      <HStack alignment="center" distribution="end" css={{ width: '100%' }}>
-        <Button
-          style="ctaPill"
-          css={{ mr: '$2' }}
-          onClick={() => {
-            props.setIsEditing(false)
-            setNoteContent(props.highlight.annotation ?? '')
-          }}
-        >
-          Cancel
-        </Button>
-        <Button
-          style="ctaDarkYellow"
-          onClick={async (e) => {
-            e.preventDefault()
-
-            console.log('updating highlight')
-            try {
-              const result = await updateHighlightMutation({
-                highlightId: props.highlight.id,
-                annotation: noteContent,
-              })
-              console.log('result: ' + result)
-
-              if (!result) {
-                showErrorToast('There was an error updating your highlight.')
-              } else {
-                showSuccessToast('Note saved')
-                props.highlight.annotation = noteContent
-                props.updateHighlight(props.highlight)
-              }
-            } catch (err) {
-              console.log('error updating annoation', err)
-              showErrorToast('There was an error updating your highlight.')
-            }
-
-            props.setIsEditing(false)
-          }}
-        >
-          Save
-        </Button>
-      </HStack>
-    </VStack>
+      >
+        <HighlightsMenu
+          highlight={props.highlight}
+          setLabelsTarget={props.setSetLabelsTarget}
+          setShowConfirmDeleteHighlightId={
+            props.setShowConfirmDeleteHighlightId
+          }
+        />
+      </SpanBox>
+    </HStack>
   )
 }

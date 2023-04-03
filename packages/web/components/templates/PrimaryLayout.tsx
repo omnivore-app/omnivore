@@ -1,20 +1,16 @@
 import { PageMetaData, PageMetaDataProps } from '../patterns/PageMetaData'
 import { Box } from '../elements/LayoutPrimitives'
-import {
-  ReactNode,
-  MutableRefObject,
-  useEffect,
-  useState,
-} from 'react'
-import { PrimaryHeader } from './../patterns/PrimaryHeader'
+import { ReactNode, useEffect, useState, useCallback } from 'react'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
 import { navigationCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
 import { useKeyboardShortcuts } from '../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { useRouter } from 'next/router'
-import { Analytics } from '@segment/analytics-next'
 import { ConfirmationModal } from '../patterns/ConfirmationModal'
 import { KeyboardShortcutListModal } from './KeyboardShortcutListModal'
 import { logoutMutation } from '../../lib/networking/mutations/logoutMutation'
+import { setupAnalytics } from '../../lib/analytics'
+import { primaryCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
+import { applyStoredTheme } from '../../lib/themeUpdater'
 
 type PrimaryLayoutProps = {
   children: ReactNode
@@ -26,6 +22,8 @@ type PrimaryLayoutProps = {
 }
 
 export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
+  applyStoredTheme(false)
+
   const { viewerData } = useGetViewerQuery()
   const router = useRouter()
   const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false)
@@ -34,13 +32,25 @@ export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
 
   useKeyboardShortcuts(navigationCommands(router))
 
+  useKeyboardShortcuts(
+    primaryCommands((action) => {
+      switch (action) {
+        case 'toggleShortcutHelpModalDisplay':
+          setShowKeyboardCommandsModal(true)
+          break
+      }
+    })
+  )
+
   // Attempt to identify the user if they are logged in.
   useEffect(() => {
+    setupAnalytics(viewerData?.me)
+
     const user = window.analytics?.user().id()
     if (!user && viewerData?.me?.id) {
       window.analytics?.identify({ userId: viewerData?.me?.id })
     }
-  }, [viewerData?.me?.id])
+  }, [viewerData?.me])
 
   async function logout(): Promise<void> {
     await logoutMutation()
@@ -56,57 +66,43 @@ export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
     }
   }
 
+  const showLogout = useCallback(() => {
+    setShowLogoutConfirmation(true)
+  }, [setShowLogoutConfirmation])
+
+  useEffect(() => {
+    document.addEventListener('logout', showLogout)
+
+    return () => {
+      document.removeEventListener('logout', showLogout)
+    }
+  }, [showLogout])
+
   return (
     <>
       {props.pageMetaDataProps ? (
         <PageMetaData {...props.pageMetaDataProps} />
       ) : null}
-      <Box css={{
-        width: '100vw',
-        height: '100vh',
-        bg: 'transparent',
-        '@smDown': {
-          bg: '$grayBase',
-        }
-      }}>
-        <PrimaryHeader
-          user={viewerData?.me}
-          hideHeader={props.hideHeader}
-          userInitials={viewerData?.me?.name.charAt(0) ?? ''}
-          profileImageURL={viewerData?.me?.profile.pictureUrl}
-          isTransparent={true}
-          toolbarControl={props.headerToolbarControl}
-          alwaysDisplayToolbar={props.alwaysDisplayToolbar}
-          setShowLogoutConfirmation={setShowLogoutConfirmation}
-          setShowKeyboardCommandsModal={setShowKeyboardCommandsModal}
-        />
-        <Box
-          css={{
-            height: '100%',
-            width: '100vw',
-            bg: '$grayBase',
-          }}
-        >
-          <Box
-          css={{
-            height: '48px',
-            bg: '$grayBase',
-          }}
-        ></Box>
-          {props.children}
-          {showLogoutConfirmation ? (
-            <ConfirmationModal
-              message={'Are you sure you want to log out?'}
-              onAccept={logout}
-              onOpenChange={() => setShowLogoutConfirmation(false)}
-            />
-          ) : null}
-          {showKeyboardCommandsModal ? (
-            <KeyboardShortcutListModal
-              onOpenChange={() => setShowKeyboardCommandsModal(false)}
-            />
-          ) : null}
-        </Box>
+      <Box
+        css={{
+          height: '100%',
+          width: '100vw',
+          bg: '$thBackground2',
+        }}
+      >
+        {props.children}
+        {showLogoutConfirmation ? (
+          <ConfirmationModal
+            message={'Are you sure you want to log out?'}
+            onAccept={logout}
+            onOpenChange={() => setShowLogoutConfirmation(false)}
+          />
+        ) : null}
+        {showKeyboardCommandsModal ? (
+          <KeyboardShortcutListModal
+            onOpenChange={() => setShowKeyboardCommandsModal(false)}
+          />
+        ) : null}
       </Box>
       <div data-testid={props.pageTestId} />
     </>

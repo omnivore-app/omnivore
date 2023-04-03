@@ -1,4 +1,4 @@
-directive @sanitize(allowedTags: [String], maxLength: Int, pattern: String) on INPUT_FIELD_DEFINITION
+directive @sanitize(allowedTags: [String], maxLength: Int, minLength: Int, pattern: String) on INPUT_FIELD_DEFINITION
 
 type AddPopularReadError {
   errorCodes: [AddPopularReadErrorCode!]!
@@ -86,6 +86,7 @@ type Article {
   readAt: Date
   readingProgressAnchorIndex: Int!
   readingProgressPercent: Float!
+  readingProgressTopPercent: Float
   recommendations: [Recommendation!]
   savedAt: Date!
   savedByViewer: Boolean
@@ -134,6 +135,7 @@ type ArticleSavingRequest {
   slug: String!
   status: ArticleSavingRequestStatus!
   updatedAt: Date!
+  url: String!
   user: User!
   userId: ID! @deprecated(reason: "userId has been replaced with user")
 }
@@ -143,6 +145,7 @@ type ArticleSavingRequestError {
 }
 
 enum ArticleSavingRequestErrorCode {
+  BAD_DATA
   NOT_FOUND
   UNAUTHORIZED
 }
@@ -295,13 +298,15 @@ input CreateHighlightInput {
   articleId: ID!
   highlightPositionAnchorIndex: Int
   highlightPositionPercent: Float
+  html: String
   id: ID!
-  patch: String!
+  patch: String
   prefix: String
-  quote: String!
+  quote: String
   sharedAt: Date
   shortId: String!
   suffix: String
+  type: HighlightType
 }
 
 type CreateHighlightReplyError {
@@ -795,16 +800,18 @@ type Highlight {
   createdByMe: Boolean!
   highlightPositionAnchorIndex: Int
   highlightPositionPercent: Float
+  html: String
   id: ID!
   labels: [Label!]
-  patch: String!
+  patch: String
   prefix: String
-  quote: String!
+  quote: String
   reactions: [Reaction!]!
   replies: [HighlightReply!]!
   sharedAt: Date
   shortId: String!
   suffix: String
+  type: HighlightType!
   updatedAt: Date!
   user: User!
 }
@@ -820,6 +827,12 @@ type HighlightReply {
 
 type HighlightStats {
   highlightCount: Int!
+}
+
+enum HighlightType {
+  HIGHLIGHT
+  NOTE
+  REDACTION
 }
 
 type Integration {
@@ -995,6 +1008,7 @@ input MergeHighlightInput {
   articleId: ID!
   highlightPositionAnchorIndex: Int
   highlightPositionPercent: Float
+  html: String
   id: ID!
   overlapHighlightIdList: [String!]!
   patch: String!
@@ -1241,7 +1255,7 @@ type Profile {
 type Query {
   apiKeys: ApiKeysResult!
   article(format: String, slug: String!, username: String!): ArticleResult!
-  articleSavingRequest(id: ID!): ArticleSavingRequestResult!
+  articleSavingRequest(id: ID, url: String): ArticleSavingRequestResult!
   articles(after: String, first: Int, includePending: Boolean, query: String, sharedOnly: Boolean, sort: SortParams): ArticlesResult!
   deviceTokens: DeviceTokensResult!
   feedArticles(after: String, first: Int, sharedByUser: ID, sort: SortParams): FeedArticlesResult!
@@ -1532,6 +1546,7 @@ input SaveArticleReadingProgressInput {
   id: ID!
   readingProgressAnchorIndex: Int!
   readingProgressPercent: Float!
+  readingProgressTopPercent: Float
 }
 
 union SaveArticleReadingProgressResult = SaveArticleReadingProgressError | SaveArticleReadingProgressSuccess
@@ -1633,6 +1648,7 @@ type SearchItem {
   readAt: Date
   readingProgressAnchorIndex: Int!
   readingProgressPercent: Float!
+  readingProgressTopPercent: Float
   recommendations: [Recommendation!]
   savedAt: Date!
   shortId: String
@@ -2075,6 +2091,8 @@ enum UpdateHighlightErrorCode {
 input UpdateHighlightInput {
   annotation: String
   highlightId: ID!
+  html: String
+  quote: String
   sharedAt: Date
 }
 
@@ -2166,6 +2184,7 @@ input UpdatePageInput {
   byline: String
   description: String
   pageId: ID!
+  publishedAt: Date
   savedAt: Date
   title: String
 }

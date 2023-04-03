@@ -8,6 +8,7 @@ const schema = gql`
   directive @sanitize(
     allowedTags: [String]
     maxLength: Int
+    minLength: Int
     pattern: String
   ) on INPUT_FIELD_DEFINITION
 
@@ -363,6 +364,7 @@ const schema = gql`
     savedAt: Date!
     updatedAt: Date!
     publishedAt: Date
+    readingProgressTopPercent: Float
     readingProgressPercent: Float!
     readingProgressAnchorIndex: Int!
     sharedComment: String
@@ -565,6 +567,7 @@ const schema = gql`
     description: String
     byline: String
     savedAt: Date
+    publishedAt: Date
   }
 
   type UpdatePageSuccess {
@@ -608,6 +611,7 @@ const schema = gql`
     | SaveArticleReadingProgressError
   input SaveArticleReadingProgressInput {
     id: ID!
+    readingProgressTopPercent: Float
     readingProgressPercent: Float!
     readingProgressAnchorIndex: Int!
   }
@@ -656,18 +660,24 @@ const schema = gql`
     reactions: [Reaction!]!
   }
 
+  enum HighlightType {
+    HIGHLIGHT
+    REDACTION
+    NOTE
+  }
+
   # Highlight
   type Highlight {
     id: ID!
     # used for simplified url format
     shortId: String!
     user: User!
-    quote: String!
+    quote: String
     # piece of content before the quote
     prefix: String
     # piece of content after the quote
     suffix: String
-    patch: String!
+    patch: String
     annotation: String
     replies: [HighlightReply!]!
     sharedAt: Date
@@ -678,20 +688,24 @@ const schema = gql`
     highlightPositionPercent: Float
     highlightPositionAnchorIndex: Int
     labels: [Label!]
+    type: HighlightType!
+    html: String
   }
 
   input CreateHighlightInput {
     id: ID!
     shortId: String!
     articleId: ID!
-    patch: String!
-    quote: String! @sanitize(maxLength: 6000)
+    patch: String
+    quote: String @sanitize(maxLength: 6000, minLength: 1)
     prefix: String @sanitize
     suffix: String @sanitize
     annotation: String @sanitize(maxLength: 4000)
     sharedAt: Date
     highlightPositionPercent: Float
     highlightPositionAnchorIndex: Int
+    type: HighlightType
+    html: String
   }
 
   type CreateHighlightSuccess {
@@ -717,13 +731,14 @@ const schema = gql`
     shortId: ID!
     articleId: ID!
     patch: String!
-    quote: String! @sanitize(maxLength: 6000)
+    quote: String! @sanitize(maxLength: 6000, minLength: 1)
     prefix: String @sanitize
     suffix: String @sanitize
     annotation: String @sanitize(maxLength: 8000)
     overlapHighlightIdList: [String!]!
     highlightPositionPercent: Float
     highlightPositionAnchorIndex: Int
+    html: String
   }
 
   type MergeHighlightSuccess {
@@ -747,8 +762,10 @@ const schema = gql`
 
   input UpdateHighlightInput {
     highlightId: ID!
-    annotation: String @sanitize
+    annotation: String @sanitize(maxLength: 4000)
     sharedAt: Date
+    quote: String @sanitize(maxLength: 6000, minLength: 1)
+    html: String
   }
 
   type UpdateHighlightSuccess {
@@ -1065,6 +1082,7 @@ const schema = gql`
     errorCode: CreateArticleErrorCode
     createdAt: Date!
     updatedAt: Date!
+    url: String!
   }
 
   # Query: ArticleSavingRequest
@@ -1074,6 +1092,7 @@ const schema = gql`
   enum ArticleSavingRequestErrorCode {
     UNAUTHORIZED
     NOT_FOUND
+    BAD_DATA
   }
   type ArticleSavingRequestError {
     errorCodes: [ArticleSavingRequestErrorCode!]!
@@ -1524,6 +1543,7 @@ const schema = gql`
     createdAt: Date!
     updatedAt: Date
     isArchived: Boolean!
+    readingProgressTopPercent: Float
     readingProgressPercent: Float!
     readingProgressAnchorIndex: Int!
     author: String
@@ -2515,7 +2535,7 @@ const schema = gql`
     getFollowers(userId: ID): GetFollowersResult!
     getFollowing(userId: ID): GetFollowingResult!
     getUserPersonalization: GetUserPersonalizationResult!
-    articleSavingRequest(id: ID!): ArticleSavingRequestResult!
+    articleSavingRequest(id: ID, url: String): ArticleSavingRequestResult!
     newsletterEmails: NewsletterEmailsResult!
     reminder(linkId: ID!): ReminderResult!
     labels: LabelsResult!

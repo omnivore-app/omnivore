@@ -52,6 +52,11 @@ const mutation = async (name, input) => {
 const App = () => {
   applyStoredTheme(false)
 
+  document.addEventListener('updateLabels', (event) => {
+    console.log('updating labels: ', event.labels)
+    setLabels(event.labels)
+  })
+
   return (
     <>
       <Box
@@ -59,6 +64,7 @@ const App = () => {
           overflowY: 'auto',
           height: '100%',
           width: '100vw',
+          paddingTop: window.webkit ? 0 : '48px', // add 48px to android only
         }}
       >
         <VStack
@@ -77,7 +83,7 @@ const App = () => {
             maxWidthPercentage={window.maxWidthPercentage}
             lineHeight={window.lineHeight}
             highlightOnRelease={window.highlightOnRelease}
-            highContrastFont={window.prefersHighContrastFont ?? true}
+            highContrastText={window.prefersHighContrastFont ?? true}
             articleMutations={{
               createHighlightMutation: (input) =>
                 mutation('createHighlight', input),

@@ -2,13 +2,7 @@ import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticle
 import { Box } from '../../elements/LayoutPrimitives'
 import { v4 as uuidv4 } from 'uuid'
 import { nanoid } from 'nanoid'
-import {
-  useState,
-  useEffect,
-  useCallback,
-  useRef,
-  ReactComponentElement,
-} from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { isDarkTheme } from '../../../lib/themeUpdater'
 import PSPDFKit from 'pspdfkit'
 import { Instance, HighlightAnnotation, List, Annotation, Rect } from 'pspdfkit'
@@ -17,13 +11,13 @@ import { createHighlightMutation } from '../../../lib/networking/mutations/creat
 import { deleteHighlightMutation } from '../../../lib/networking/mutations/deleteHighlightMutation'
 import { articleReadingProgressMutation } from '../../../lib/networking/mutations/articleReadingProgressMutation'
 import { mergeHighlightMutation } from '../../../lib/networking/mutations/mergeHighlightMutation'
-import { ShareHighlightModal } from './ShareHighlightModal'
 import { useCanShareNative } from '../../../lib/hooks/useCanShareNative'
 import { webBaseURL } from '../../../lib/appConfig'
 import { pspdfKitKey } from '../../../lib/appConfig'
 import { NotebookModal } from './NotebookModal'
 import { HighlightNoteModal } from './HighlightNoteModal'
 import { showErrorToast } from '../../../lib/toastHelpers'
+import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from '../homeFeed/HeaderSpacer'
 
 export type PdfArticleContainerProps = {
   viewerUsername: string
@@ -463,19 +457,16 @@ export default function PdfArticleContainer(
   // should be handled by the PSPDFKit instance callbacks.
 
   return (
-    <Box css={{ width: '100%', height: '100%' }}>
+    <Box
+      css={{
+        width: '100%',
+        height: `calc(100vh - ${HEADER_HEIGHT})`,
+        '@xlgDown': {
+          height: `calc(100vh - ${MOBILE_HEADER_HEIGHT})`,
+        },
+      }}
+    >
       <div ref={containerRef} style={{ width: '100%', height: '100%' }} />
-      {shareTarget && (
-        <ShareHighlightModal
-          url={getHighlightURL(shareTarget.shortId)}
-          title={props.article.title}
-          author={props.article.author}
-          highlight={shareTarget}
-          onOpenChange={() => {
-            setShareTarget(undefined)
-          }}
-        />
-      )}
       {noteTarget && (
         <HighlightNoteModal
           highlight={noteTarget}

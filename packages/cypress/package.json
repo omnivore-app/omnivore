@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "@testing-library/cypress": "^8.0.2",
-    "cypress": "^10.1.0"
+    "cypress": "^12.7.0"
   },
   "devDependencies": {},
   "volta": {

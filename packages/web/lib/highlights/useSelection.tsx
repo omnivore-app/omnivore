@@ -29,8 +29,8 @@ export function useSelection(
     async (mouseEvent) => {
       let wasDragEvent = false
       const tapAttributes = {
-        tapX: mouseEvent.screenX,
-        tapY: mouseEvent.screenY,
+        tapX: mouseEvent.clientX,
+        tapY: mouseEvent.clientY,
       }
 
       if (touchStartPos) {

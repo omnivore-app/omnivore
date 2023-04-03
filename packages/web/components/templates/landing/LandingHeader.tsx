@@ -13,7 +13,6 @@ const LoginButton = (): JSX.Element => {
         border: 'unset',
         background: 'unset',
         color: '#3D3D3D',
-        width: '62px',
         height: '42px',
         fontSize: 24,
         lineHeight: '24px',

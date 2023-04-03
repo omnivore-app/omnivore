@@ -148,41 +148,8 @@ const elasticMigration = esClient.indices
       log('Elastic index mappings updated.')
     })
   })
-  .then(() => {
-    log('Adding default state to pages in elastic...')
-    return esClient
-      .update_by_query({
-        index: INDEX_ALIAS,
-        requests_per_second: 250,
-        scroll_size: 500,
-        timeout: '30m',
-        body: {
-          script: {
-            source: 'ctx._source.state = params.state',
-            lang: 'painless',
-            params: {
-              state: 'SUCCEEDED',
-            },
-          },
-          query: {
-            bool: {
-              must_not: [
-                {
-                  exists: {
-                    field: 'state',
-                  },
-                },
-              ],
-            },
-          },
-        },
-      })
-      .then(() => log('Default state added.'))
-  })
   .catch((error) => {
     log(`${chalk.red('Elastic migration failed: ')}${error.message}`, chalk.red)
-    const { appliedMigrations } = error
-    logAppliedMigrations(appliedMigrations)
     process.exit(1)
   })
 

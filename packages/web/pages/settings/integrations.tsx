@@ -11,7 +11,7 @@ import {
   SpanBox,
   VStack,
 } from '../../components/elements/LayoutPrimitives'
-import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
+import { SettingsLayout } from '../../components/templates/SettingsLayout'
 import { applyStoredTheme } from '../../lib/themeUpdater'
 import { Button } from '../../components/elements/Button'
 import { useGetIntegrationsQuery } from '../../lib/networking/queries/useGetIntegrationsQuery'
@@ -122,16 +122,16 @@ export default function Integrations(): JSX.Element {
         },
       },
     ])
-  }, [])
+  }, [readwiseConnected, router, webhooks])
 
   return (
-    <PrimaryLayout pageTestId={'integrations'}>
+    <SettingsLayout>
       <Toaster
         containerStyle={{
           top: '5rem',
         }}
       />
-      <Header css={{ textAlign: 'center' }}>Integrations</Header>
+      <Header css={{ textAlign: 'center', width: '100%' }}>Integrations</Header>
       <Subheader>
         Connect with other applications can help enhance and streamline your
         experience with Omnivore, below are some useful apps to connect your
@@ -142,7 +142,7 @@ export default function Integrations(): JSX.Element {
         css={{
           width: '80%',
           margin: '0 auto',
-          height: '500px',
+          height: '100%',
           '@smDown': {
             width: '100%',
           },
@@ -217,6 +217,6 @@ export default function Integrations(): JSX.Element {
           )
         })}
       </VStack>
-    </PrimaryLayout>
+    </SettingsLayout>
   )
 }

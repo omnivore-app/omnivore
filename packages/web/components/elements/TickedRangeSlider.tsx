@@ -1,39 +1,73 @@
-
-
-import { Box, HStack } from './LayoutPrimitives'
-import { styled, theme } from '../tokens/stitches.config'
+import { Box, HStack, SpanBox } from './LayoutPrimitives'
+import { styled } from '../tokens/stitches.config'
+import { Root as Slider, Thumb, Track } from '@radix-ui/react-slider'
+import { DropdownSeparator } from './DropdownElements'
 
 type TickedRangeSliderProps = {
-  ticks?: number,
-  value: number,
-  onChange: (value: number) => void,
-  min?: number,
-  max?: number,
-  step?: number,
+  ticks?: number
+  value: number
+  onChange: (value: number) => void
+  min?: number
+  max?: number
+  step?: number
 }
 
-const Tick = styled(Box, {
-  background: theme.colors.grayBorderHover,
-  width: 2,
-  height: 8,
+const StyledSlider = styled(Slider, {
+  display: 'flex',
+  alignItems: 'center',
+
+  '.SliderTrack': {
+    display: 'flex',
+    justifyContent: 'center',
+    margin: '0px',
+    height: '8px',
+    width: '225px',
+    borderRadius: '10px',
+    backgroundColor: '#F2F2F2',
+  },
+  '.SliderThumb': {
+    display: 'block',
+    width: '20px',
+    height: '20px',
+    borderRadius: '50%',
+    border: '4px solid white',
+    backgroundColor: '#FFD234',
+    boxShadow: '0px 0px 20px rgba(19, 56, 77, 0.2)',
+  },
 })
 
 export function TickedRangeSlider({
-    ticks = 8,
-    min = 10,
-    max = 28,
-    step = 1,
-    value,
-    onChange,
-  } : TickedRangeSliderProps
-): JSX.Element {
-
+  min = 10,
+  max = 28,
+  step = 1,
+  value,
+  onChange,
+}: TickedRangeSliderProps): JSX.Element {
   return (
-    <Box css={{zIndex: 2}}>
-      <input onChange={(e) => onChange(e.target.value as any)} value={value} type="range" min={min} max={max} step={step} className='slider'/>
-      <HStack distribution='between' css={{position: 'relative', bottom: 12.2, left: 2, zIndex: -1}}>
-        {[...Array(ticks)].map((val, idx) => <Tick key={`ticks-${idx}`} />)}
-      </HStack>
-    </Box>
+    <HStack
+      alignment="center"
+      css={{
+        width: '225px',
+        height: '20px',
+        position: 'relative',
+      }}
+    >
+      <StyledSlider
+        max={max}
+        min={min}
+        step={step}
+        value={[value]}
+        onValueChange={(value) => {
+          if (value.length) {
+            onChange(value[0])
+          }
+        }}
+      >
+        <Track className="SliderTrack">
+          <Box css={{ bg: '#CECECE', width: '2.5px', height: '100%' }} />
+        </Track>
+        <Thumb className="SliderThumb" />
+      </StyledSlider>
+    </HStack>
   )
 }

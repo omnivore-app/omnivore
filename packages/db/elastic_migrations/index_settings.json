@@ -84,6 +84,10 @@
           "userId": {
             "type": "keyword"
           },
+          "type": {
+            "type": "keyword",
+            "null_value": "HIGHLIGHT"
+          },
           "quote": {
             "type": "text",
             "analyzer": "strip_html_analyzer"
@@ -123,8 +127,15 @@
           },
           "highlightPositionAnchorIndex": {
             "type": "integer"
+          },
+          "html": {
+            "type": "text",
+            "analyzer": "strip_html_analyzer"
           }
         }
+      },
+      "readingProgressTopPercent": {
+        "type": "float"
       },
       "readingProgressPercent": {
         "type": "float"

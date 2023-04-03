@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.*
 import app.omnivore.omnivore.*
+import app.omnivore.omnivore.dataService.DataService
 import app.omnivore.omnivore.graphql.generated.ValidateUsernameQuery
 import app.omnivore.omnivore.networking.Networker
 import app.omnivore.omnivore.networking.viewer
@@ -14,11 +15,8 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.intercom.android.sdk.Intercom
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.util.regex.Pattern
 import javax.inject.Inject
 
@@ -38,7 +36,8 @@ data class PendingEmailUserCreds(
 class LoginViewModel @Inject constructor(
   private val datastoreRepo: DatastoreRepository,
   private val eventTracker: EventTracker,
-  private val networker: Networker
+  private val networker: Networker,
+  private val dataService: DataService
 ): ViewModel() {
   private var validateUsernameJob: Job? = null
 
@@ -218,7 +217,7 @@ class LoginViewModel @Inject constructor(
       isLoading = false
 
       if (result.errorBody() != null) {
-        errorMessage = "Something went wrong. Please check your  and try again"
+        errorMessage = "Something went wrong. Please check your entries and try again"
       } else {
         pendingEmailUserCreds = PendingEmailUserCreds(email, password)
       }
@@ -271,6 +270,7 @@ class LoginViewModel @Inject constructor(
   fun logout() {
     viewModelScope.launch {
       datastoreRepo.clear()
+      dataService.clearDatabase()
       Intercom.client().logout()
     }
   }

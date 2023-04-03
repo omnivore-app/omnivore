@@ -29,7 +29,7 @@ export const addHighlightToPage = async (
                   ctx._source.updatedAt = params.highlight.updatedAt`,
           lang: 'painless',
           params: {
-            highlight: highlight,
+            highlight,
           },
         },
       },
@@ -136,9 +136,12 @@ export const deleteHighlight = async (
       refresh: ctx.refresh,
     })
 
-    if (body.updated === 0) return false
-
-    await ctx.pubsub.entityDeleted(EntityType.HIGHLIGHT, highlightId, ctx.uid)
+    body.updated > 0 &&
+      (await ctx.pubsub.entityDeleted(
+        EntityType.HIGHLIGHT,
+        highlightId,
+        ctx.uid
+      ))
 
     return true
   } catch (e) {
@@ -263,7 +266,7 @@ export const updateHighlight = async (
                    ctx._source.updatedAt = params.highlight.updatedAt`,
           lang: 'painless',
           params: {
-            highlight: highlight,
+            highlight,
           },
         },
         query: {
@@ -289,15 +292,15 @@ export const updateHighlight = async (
         },
       },
       refresh: ctx.refresh,
+      conflicts: 'proceed',
     })
 
-    if (body.updated === 0) return false
-
-    await ctx.pubsub.entityUpdated<Highlight>(
-      EntityType.HIGHLIGHT,
-      highlight,
-      ctx.uid
-    )
+    body.updated > 0 &&
+      (await ctx.pubsub.entityUpdated<Highlight>(
+        EntityType.HIGHLIGHT,
+        highlight,
+        ctx.uid
+      ))
 
     return true
   } catch (e) {

@@ -3,6 +3,9 @@ package app.omnivore.omnivore.persistence.entities
 import androidx.core.net.toUri
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import app.omnivore.omnivore.BuildConfig
+import app.omnivore.omnivore.models.ServerSyncStatus
+import app.omnivore.omnivore.ui.library.SavedItemSortFilter
 import java.util.*
 
 @Entity
@@ -86,9 +89,6 @@ data class SavedItemCardData(
 
 @Dao
 interface SavedItemDao {
-  @Query("SELECT savedItemId, slug, publisherURLString, title, author, imageURLString, isArchived, pageURLString, contentReader FROM SavedItem ORDER BY savedAt DESC")
-  fun getLibraryLiveData(): LiveData<List<SavedItemCardData>>
-
   @Query("SELECT * FROM savedItem")
   fun getAll(): List<SavedItem>
 
@@ -114,6 +114,43 @@ interface SavedItemDao {
   fun update(savedItem: SavedItem)
 
   @Transaction
-  @Query("SELECT savedItemId, slug, publisherURLString, title, author, imageURLString, isArchived, pageURLString, contentReader FROM SavedItem ORDER BY savedAt DESC")
-  fun getLibraryLiveDataWithLabels(): LiveData<List<SavedItemCardDataWithLabels>>
+  @Query(
+    "SELECT ${SavedItemQueryConstants.columns} " +
+      "FROM SavedItem " +
+      "WHERE serverSyncStatus != 2 AND isArchived != :archiveFilter " +
+      "ORDER BY savedAt DESC"
+  )
+  fun getLibraryLiveData(archiveFilter: Int): LiveData<List<SavedItemCardDataWithLabels>>
+
+  @Transaction
+  @Query(
+    "SELECT ${SavedItemQueryConstants.columns} " +
+      "FROM SavedItem " +
+      "WHERE serverSyncStatus != 2 AND isArchived != :archiveFilter " +
+      "ORDER BY savedAt ASC"
+  )
+  fun getLibraryLiveDataSortedByOldest(archiveFilter: Int): LiveData<List<SavedItemCardDataWithLabels>>
+
+  @Transaction
+  @Query(
+    "SELECT ${SavedItemQueryConstants.columns} " +
+      "FROM SavedItem " +
+      "WHERE serverSyncStatus != 2 AND isArchived != :archiveFilter " +
+      "ORDER BY readAt DESC, savedAt DESC"
+  )
+  fun getLibraryLiveDataSortedByRecentlyRead(archiveFilter: Int): LiveData<List<SavedItemCardDataWithLabels>>
+
+  @Transaction
+  @Query(
+    "SELECT ${SavedItemQueryConstants.columns} " +
+      "FROM SavedItem " +
+      "WHERE serverSyncStatus != 2 AND isArchived != :archiveFilter " +
+      "ORDER BY publishDate DESC"
+  )
+  fun getLibraryLiveDataSortedByRecentlyPublished(archiveFilter: Int): LiveData<List<SavedItemCardDataWithLabels>>
+}
+
+
+object SavedItemQueryConstants {
+  const val columns = "savedItemId, slug, publisherURLString, title, author, imageURLString, isArchived, pageURLString, contentReader "
 }

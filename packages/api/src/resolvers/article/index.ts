@@ -3,6 +3,26 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-floating-promises */
+import { Readability } from '@omnivore/readability'
+import * as httpContext from 'express-http-context'
+import graphqlFields from 'graphql-fields'
+import normalizeUrl from 'normalize-url'
+import { searchHighlights } from '../../elastic/highlights'
+import {
+  createPage,
+  getPageByParam,
+  searchAsYouType,
+  searchPages,
+  updatePage,
+  updatePagesAsync,
+} from '../../elastic/pages'
+import {
+  ArticleSavingRequestStatus,
+  Page,
+  PageType,
+  SearchItem as SearchItemData,
+} from '../../elastic/types'
+import { env } from '../../env'
 import {
   Article,
   ArticleError,
@@ -51,11 +71,13 @@ import {
   UpdatesSinceErrorCode,
   UpdatesSinceSuccess,
 } from '../../generated/graphql'
+import { createPageSaveRequest } from '../../services/create_page_save_request'
+import { parsedContentToPage } from '../../services/save_page'
+import { saveSearchHistory } from '../../services/search_history'
+import { traceAs } from '../../tracing'
 import { Merge } from '../../util'
-import {
-  getStorageFileDetails,
-  makeStorageFilePublic,
-} from '../../utils/uploads'
+import { analytics } from '../../utils/analytics'
+import { isSiteBlockedForParse } from '../../utils/blocked'
 import { ContentParseError } from '../../utils/errors'
 import {
   authorized,
@@ -67,45 +89,19 @@ import {
   userDataToUser,
   validatedDate,
 } from '../../utils/helpers'
+import { createImageProxyUrl } from '../../utils/imageproxy'
 import {
   getDistillerResult,
   htmlToMarkdown,
   ParsedContentPuppeteer,
   parsePreparedContent,
 } from '../../utils/parser'
-import { isSiteBlockedForParse } from '../../utils/blocked'
-import { Readability } from '@omnivore/readability'
-import { traceAs } from '../../tracing'
-
-import { createImageProxyUrl } from '../../utils/imageproxy'
-import normalizeUrl from 'normalize-url'
-import { WithDataSourcesContext } from '../types'
-
 import { parseSearchQuery, SortBy, SortOrder } from '../../utils/search'
-import { createPageSaveRequest } from '../../services/create_page_save_request'
-import { analytics } from '../../utils/analytics'
-import { env } from '../../env'
-import graphqlFields from 'graphql-fields'
-
 import {
-  ArticleSavingRequestStatus,
-  Page,
-  PageType,
-  SearchItem as SearchItemData,
-} from '../../elastic/types'
-import {
-  createPage,
-  getPageById,
-  getPageByParam,
-  searchAsYouType,
-  searchPages,
-  updatePage,
-  updatePagesAsync,
-} from '../../elastic/pages'
-import { searchHighlights } from '../../elastic/highlights'
-import { saveSearchHistory } from '../../services/search_history'
-import { parsedContentToPage } from '../../services/save_page'
-import * as httpContext from 'express-http-context'
+  getStorageFileDetails,
+  makeStorageFilePublic,
+} from '../../utils/uploads'
+import { WithDataSourcesContext } from '../types'
 
 enum ArticleFormat {
   Markdown = 'markdown',
@@ -649,24 +645,18 @@ export const setBookmarkArticleResolver = authorized<
     { input: { articleID, bookmark } },
     { claims: { uid }, log, pubsub }
   ) => {
-    const page = await getPageById(articleID)
+    const page = await getPageByParam({
+      userId: uid,
+      _id: articleID,
+    })
     if (!page) {
       return { errorCodes: [SetBookmarkArticleErrorCode.NotFound] }
     }
 
     if (!bookmark) {
-      const pageRemoved = await getPageByParam({
-        userId: uid,
-        _id: articleID,
-      })
-
-      if (!pageRemoved) {
-        return { errorCodes: [SetBookmarkArticleErrorCode.NotFound] }
-      }
-
       // delete the page and its metadata
       const deleted = await updatePage(
-        pageRemoved.id,
+        page.id,
         {
           state: ArticleSavingRequestStatus.Deleted,
           labels: [],
@@ -684,7 +674,7 @@ export const setBookmarkArticleResolver = authorized<
         userId: uid,
         event: 'link_removed',
         properties: {
-          url: pageRemoved.url,
+          url: page.url,
           env: env.server.apiEnv,
         },
       })
@@ -704,7 +694,7 @@ export const setBookmarkArticleResolver = authorized<
       // Make sure article.id instead of userArticle.id has passed. We use it for cache updates
       return {
         bookmarkedArticle: {
-          ...pageRemoved,
+          ...page,
           isArchived: false,
           savedByViewer: false,
           postedByViewer: false,
@@ -764,7 +754,14 @@ export const saveArticleReadingProgressResolver = authorized<
 >(
   async (
     _,
-    { input: { id, readingProgressPercent, readingProgressAnchorIndex } },
+    {
+      input: {
+        id,
+        readingProgressPercent,
+        readingProgressAnchorIndex,
+        readingProgressTopPercent,
+      },
+    },
     { claims: { uid }, pubsub }
   ) => {
     const page = await getPageByParam({ userId: uid, _id: id })
@@ -774,31 +771,43 @@ export const saveArticleReadingProgressResolver = authorized<
     }
 
     if (
-      (!readingProgressPercent && readingProgressPercent !== 0) ||
       readingProgressPercent < 0 ||
-      readingProgressPercent > 100
+      readingProgressPercent > 100 ||
+      (readingProgressTopPercent &&
+        (readingProgressTopPercent < 0 ||
+          readingProgressTopPercent > readingProgressPercent)) ||
+      readingProgressAnchorIndex < 0
     ) {
       return { errorCodes: [SaveArticleReadingProgressErrorCode.BadData] }
     }
-
+    // If we have a top percent, we only save it if it's greater than the current top percent
+    // or set to zero if the top percent is zero.
+    const readingProgressTopPercentToSave = readingProgressTopPercent
+      ? Math.max(readingProgressTopPercent, page.readingProgressTopPercent || 0)
+      : readingProgressTopPercent === 0
+      ? 0
+      : undefined
     // If setting to zero we accept the update, otherwise we require it
     // be greater than the current reading progress.
-    const shouldUpdate =
-      readingProgressPercent === 0 ||
-      page.readingProgressPercent < readingProgressPercent ||
-      page.readingProgressAnchorIndex < readingProgressAnchorIndex
-
     const updatedPart = {
-      readingProgressPercent: shouldUpdate
-        ? readingProgressPercent
-        : page.readingProgressPercent,
-      readingProgressAnchorIndex: shouldUpdate
-        ? readingProgressAnchorIndex
-        : page.readingProgressAnchorIndex,
+      readingProgressPercent:
+        readingProgressPercent === 0
+          ? 0
+          : Math.max(readingProgressPercent, page.readingProgressPercent),
+      readingProgressAnchorIndex:
+        readingProgressAnchorIndex === 0
+          ? 0
+          : Math.max(
+              readingProgressAnchorIndex,
+              page.readingProgressAnchorIndex
+            ),
+      readingProgressTopPercent: readingProgressTopPercentToSave,
       readAt: new Date(),
     }
-
-    await updatePage(id, updatedPart, { pubsub, uid })
+    const updated = await updatePage(id, updatedPart, { pubsub, uid })
+    if (!updated) {
+      return { errorCodes: [SaveArticleReadingProgressErrorCode.NotFound] }
+    }
 
     return {
       updatedArticle: {

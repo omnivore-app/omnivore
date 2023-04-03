@@ -2,6 +2,10 @@ package app.omnivore.omnivore.ui.reader
 
 import android.util.Log
 import androidx.compose.foundation.ScrollState
+import androidx.compose.runtime.remember
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -34,31 +38,46 @@ class WebReaderViewModel @Inject constructor(
 ): ViewModel() {
   var lastJavascriptActionLoopUUID: UUID = UUID.randomUUID()
   var javascriptDispatchQueue: MutableList<String> = mutableListOf()
-  var scrollState = ScrollState(0)
-  var currentToolbarHeight = 0
+  var maxToolbarHeightPx = 0.0f
 
   val webReaderParamsLiveData = MutableLiveData<WebReaderParams?>(null)
   val annotationLiveData = MutableLiveData<String?>(null)
   val javascriptActionLoopUUIDLiveData = MutableLiveData(lastJavascriptActionLoopUUID)
-  val shouldPopViewLiveData = MutableLiveData<Boolean>(false)
-  val hasFetchError = MutableLiveData<Boolean>(false)
+  val shouldPopViewLiveData = MutableLiveData(false)
+  val hasFetchError = MutableLiveData(false)
+  val currentToolbarHeightLiveData = MutableLiveData(0.0f)
 
   var hasTappedExistingHighlight = false
   var lastTapCoordinates: TapCoordinates? = null
+  private var isLoading = false
   
   fun loadItem(slug: String?, requestID: String?) {
+    if (isLoading || webReaderParamsLiveData.value != null) { return }
+    isLoading = true
+    Log.d("reader", "load item called")
+
     viewModelScope.launch {
       slug?.let { loadItemUsingSlug(it) }
       requestID?.let { loadItemUsingRequestID(it) }
     }
   }
 
+  fun showNavBar() {
+    onScrollChange(maxToolbarHeightPx)
+  }
+
+  fun onScrollChange(delta: Float) {
+    val newHeight = (currentToolbarHeightLiveData.value ?: 0.0f) + delta
+    currentToolbarHeightLiveData.value = newHeight.coerceIn(0f, maxToolbarHeightPx)
+  }
+
   private suspend fun loadItemUsingSlug(slug: String) {
     val webReaderParams = loadItemFromServer(slug)
 
     if (webReaderParams != null) {
-      Log.d("sync", "data loaded from server")
+      Log.d("reader", "data loaded from server")
       webReaderParamsLiveData.postValue(webReaderParams)
+      isLoading = false
     } else {
       loadItemFromDB(slug)
     }
@@ -70,6 +89,7 @@ class WebReaderViewModel @Inject constructor(
 
     if (webReaderParams != null && isSuccessful) {
       webReaderParamsLiveData.postValue(webReaderParams)
+      isLoading = false
     } else if (requestCount < 7) {
       // delay then try again
       delay(2000L)
@@ -96,6 +116,7 @@ class WebReaderViewModel @Inject constructor(
         Log.d("sync", "data loaded from db")
         webReaderParamsLiveData.postValue(WebReaderParams(persistedItem.savedItem, articleContent))
       }
+      isLoading = false
     }
   }
 
@@ -189,16 +210,6 @@ class WebReaderViewModel @Inject constructor(
         Log.d("Loggo", "receive unrecognized action of $actionID with json: $jsonString")
       }
     }
-  }
-
-  fun reset() {
-    shouldPopViewLiveData.postValue(false)
-    webReaderParamsLiveData.value = null
-    annotationLiveData.value = null
-    scrollState = ScrollState(0)
-    javascriptDispatchQueue = mutableListOf()
-    hasTappedExistingHighlight = false
-    lastTapCoordinates = null
   }
 
   fun resetJavascriptDispatchQueue() {

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { Context as ApolloContext } from 'apollo-server-core'
 import winston from 'winston'
-import Knex from 'knex'
+import { Knex } from 'knex'
 import UserModel from '../datalayer/user'
 import ArticleModel from '../datalayer/article'
 import UserArticleModel from '../datalayer/links'

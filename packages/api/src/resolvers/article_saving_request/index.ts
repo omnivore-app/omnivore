@@ -1,4 +1,6 @@
 /* eslint-disable prefer-const */
+import { getPageByParam } from '../../elastic/pages'
+import { env } from '../../env'
 import {
   ArticleSavingRequestError,
   ArticleSavingRequestErrorCode,
@@ -10,16 +12,14 @@ import {
   MutationCreateArticleSavingRequestArgs,
   QueryArticleSavingRequestArgs,
 } from '../../generated/graphql'
+import { createPageSaveRequest } from '../../services/create_page_save_request'
+import { analytics } from '../../utils/analytics'
 import {
   authorized,
   isParsingTimeout,
   pageToArticleSavingRequest,
 } from '../../utils/helpers'
-import { createPageSaveRequest } from '../../services/create_page_save_request'
-import { getPageById } from '../../elastic/pages'
 import { isErrorWithCode } from '../user'
-import { analytics } from '../../utils/analytics'
-import { env } from '../../env'
 
 export const createArticleSavingRequestResolver = authorized<
   CreateArticleSavingRequestSuccess,
@@ -56,23 +56,29 @@ export const articleSavingRequestResolver = authorized<
   ArticleSavingRequestSuccess,
   ArticleSavingRequestError,
   QueryArticleSavingRequestArgs
->(async (_, { id }, { models }) => {
-  let page
-  let user
-  try {
-    page = await getPageById(id)
-    if (!page) {
-      return { errorCodes: [ArticleSavingRequestErrorCode.NotFound] }
-    }
-    user = await models.user.get(page.userId)
-    // eslint-disable-next-line no-empty
-  } catch (error) {}
-  if (user && page) {
-    if (isParsingTimeout(page)) {
-      page.state = ArticleSavingRequestStatus.Succeeded
-    }
-    return { articleSavingRequest: pageToArticleSavingRequest(user, page) }
+>(async (_, { id, url }, { models, claims }) => {
+  if (!id && !url) {
+    return { errorCodes: [ArticleSavingRequestErrorCode.BadData] }
   }
-
-  return { errorCodes: [ArticleSavingRequestErrorCode.NotFound] }
+  const user = await models.user.get(claims.uid)
+  if (!user) {
+    return { errorCodes: [ArticleSavingRequestErrorCode.Unauthorized] }
+  }
+  const params = {
+    _id: id || undefined,
+    url: url || undefined,
+    userId: claims.uid,
+    state: [
+      ArticleSavingRequestStatus.Succeeded,
+      ArticleSavingRequestStatus.Processing,
+    ],
+  }
+  const page = await getPageByParam(params)
+  if (!page) {
+    return { errorCodes: [ArticleSavingRequestErrorCode.NotFound] }
+  }
+  if (isParsingTimeout(page)) {
+    page.state = ArticleSavingRequestStatus.Succeeded
+  }
+  return { articleSavingRequest: pageToArticleSavingRequest(user, page) }
 })

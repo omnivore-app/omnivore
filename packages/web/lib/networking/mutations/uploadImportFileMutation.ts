@@ -1,5 +1,4 @@
 import { gqlFetcher } from '../networkHelpers'
-import { v4 as uuidv4 } from 'uuid'
 
 export enum UploadImportFileType {
   URL_LIST = 'URL_LIST',

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { useRouter } from 'next/router'
 
 import { HStack } from '../../../components/elements/LayoutPrimitives'
@@ -30,7 +30,14 @@ export default function ConfirmEmail(): JSX.Element {
         >
           <input type="hidden" name="token" value={router.query.token} />
         </form>
-        <HStack css={{ bg: '$grayBg', padding: '24px', width: '100%', height: '100%'}}>
+        <HStack
+          css={{
+            bg: '$grayBg',
+            padding: '24px',
+            width: '100%',
+            height: '100%',
+          }}
+        >
           <LoadingView />
         </HStack>
       </ProfileLayout>

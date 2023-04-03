@@ -9,6 +9,7 @@ import { unsubscribeMutation } from '../mutations/unsubscribeMutation'
 import { articleReadingProgressMutation } from '../mutations/articleReadingProgressMutation'
 import { Label } from './../fragments/labelFragment'
 import { showErrorToast, showSuccessToast } from '../../toastHelpers'
+import { Highlight, highlightFragment } from '../fragments/highlightFragment'
 
 export type LibraryItemsQueryInput = {
   limit: number
@@ -66,6 +67,7 @@ export type LibraryItemNode = {
   contentReader?: ContentReader
   originalArticleUrl: string
   readingProgressPercent: number
+  readingProgressTopPercent?: number
   readingProgressAnchorIndex: number
   slug: string
   isArchived: boolean
@@ -82,7 +84,10 @@ export type LibraryItemNode = {
   siteName?: string
   subscription?: string
   readAt?: string
+  savedAt?: string
+  wordsCount?: number
   recommendations?: Recommendation[]
+  highlights?: Highlight[]
 }
 
 export type Recommendation = {
@@ -145,6 +150,7 @@ export function useGetLibraryItemsQuery({
               createdAt
               isArchived
               readingProgressPercent
+              readingProgressTopPercent
               readingProgressAnchorIndex
               author
               image
@@ -166,6 +172,8 @@ export function useGetLibraryItemsQuery({
               siteName
               subscription
               readAt
+              savedAt
+              wordsCount
               recommendations {
                 id
                 name
@@ -177,6 +185,9 @@ export function useGetLibraryItemsQuery({
                   profileImageURL
                 }
                 recommendedAt
+              }
+              highlights {
+                ...HighlightFields
               }
             }
           }
@@ -193,6 +204,7 @@ export function useGetLibraryItemsQuery({
         }
       }
     }
+    ${highlightFragment}
   `
 
   const variables = {
@@ -339,11 +351,13 @@ export function useGetLibraryItemsQuery({
           node: {
             ...item.node,
             readingProgressPercent: 100,
+            readingProgressTopPercent: 100,
           },
         })
         articleReadingProgressMutation({
           id: item.node.id,
           readingProgressPercent: 100,
+          readingProgressTopPercent: 100,
           readingProgressAnchorIndex: 0,
         })
         break
@@ -353,11 +367,14 @@ export function useGetLibraryItemsQuery({
           node: {
             ...item.node,
             readingProgressPercent: 0,
+            readingProgressTopPercent: 0,
+            readingProgressAnchorIndex: 0,
           },
         })
         articleReadingProgressMutation({
           id: item.node.id,
           readingProgressPercent: 0,
+          readingProgressTopPercent: 0,
           readingProgressAnchorIndex: 0,
         })
         break

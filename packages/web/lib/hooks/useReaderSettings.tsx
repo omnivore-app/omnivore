@@ -1,20 +1,18 @@
-import { useRegisterActions } from "kbar"
-import { useCallback, useState } from "react"
-import { userPersonalizationMutation } from "../networking/mutations/userPersonalizationMutation"
-import { useGetUserPreferences, UserPreferences } from "../networking/queries/useGetUserPreferences"
-import { usePersistedState } from "./usePersistedState"
+import { useRegisterActions } from 'kbar'
+import { useCallback, useState } from 'react'
+import { applyStoredTheme } from '../themeUpdater'
+import { usePersistedState } from './usePersistedState'
 
 const DEFAULT_FONT = 'Inter'
 
 export type ReaderSettings = {
-  preferencesData: UserPreferences | undefined
   fontSize: number
   lineHeight: number
   marginWidth: number
 
   setFontSize: (newFontSize: number) => void
   setLineHeight: (newLineHeight: number) => void
-  setMarginWidth: (newMarginWidth: number) => void 
+  setMarginWidth: (newMarginWidth: number) => void
 
   showSetLabelsModal: boolean
   showDeleteConfirmation: boolean
@@ -22,125 +20,207 @@ export type ReaderSettings = {
 
   setShowSetLabelsModal: (showSetLabelsModal: boolean) => void
   setShowDeleteConfirmation: (showDeleteConfirmation: boolean) => void
-  setShowEditDisplaySettingsModal: (showEditDisplaySettingsModal: boolean) => void
+  setShowEditDisplaySettingsModal: (
+    showEditDisplaySettingsModal: boolean
+  ) => void
 
   actionHandler: (action: string, arg?: unknown) => void
-  
-  fontFamily: string,
+
+  fontFamily: string
   setFontFamily: (newStyle: string) => void
+
+  justifyText: boolean | undefined
+  setJustifyText: (set: boolean) => void
+  highContrastText: boolean | undefined
+  setHighContrastText: (set: boolean) => void
 }
 
 export const useReaderSettings = (): ReaderSettings => {
-  const { preferencesData } = useGetUserPreferences()
-  const [fontSize, setFontSize] = useState(preferencesData?.fontSize ?? 20)
-  const [lineHeight, setLineHeight] = usePersistedState({ key: 'lineHeight', initialValue: 150 })
-  const [marginWidth, setMarginWidth] = usePersistedState({ key: 'marginWidth', initialValue: 200 })
-  const [fontFamily, setFontFamily] = usePersistedState({ key: 'fontFamily', initialValue: DEFAULT_FONT })
+  applyStoredTheme(false)
+
+  const [, updateState] = useState({})
+
+  const [fontSize, setFontSize] = usePersistedState({
+    key: 'fontSize',
+    initialValue: 20,
+  })
+  const [lineHeight, setLineHeight] = usePersistedState({
+    key: 'lineHeight',
+    initialValue: 150,
+  })
+  const [marginWidth, setMarginWidth] = usePersistedState({
+    key: 'marginWidth',
+    initialValue: 200,
+  })
+  const [fontFamily, setFontFamily] = usePersistedState({
+    key: 'fontFamily',
+    initialValue: DEFAULT_FONT,
+  })
+  const [highContrastText, setHighContrastText] = usePersistedState<
+    boolean | undefined
+  >({
+    key: `--display-high-contrast-text`,
+    initialValue: false,
+  })
+
+  const [justifyText, setJustifyText] = usePersistedState<boolean | undefined>({
+    key: `--display-justify-text`,
+    initialValue: false,
+  })
   const [showSetLabelsModal, setShowSetLabelsModal] = useState(false)
-  const [showEditDisplaySettingsModal, setShowEditDisplaySettingsModal] = useState(false)
+  const [showEditDisplaySettingsModal, setShowEditDisplaySettingsModal] =
+    useState(false)
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
 
-  const updateFontSize = async (newFontSize: number) => {
-    setFontSize(newFontSize)
-    await userPersonalizationMutation({ fontSize: newFontSize })
-  }
+  const updateFontSize = useCallback(
+    (newFontSize: number) => {
+      setFontSize(newFontSize)
+    },
+    [setFontSize]
+  )
 
-  const actionHandler = useCallback(async(action: string, arg?: unknown) => {
-    switch (action) {
-      case 'incrementFontSize':
-        await updateFontSize(Math.min(fontSize + 2, 28))
-        break
-      case 'decrementFontSize':
-        await updateFontSize(Math.max(fontSize - 2, 10))
-        break
-      case 'setMarginWidth': {
-        const value = Number(arg)
-        if (value >= 200 && value <= 560) {
-          setMarginWidth(value)
+  // const [hideMargins, setHideMargins] = usePersistedState<boolean | undefined>({
+  //   key: `--display-hide-margins`,
+  //   initialValue: false,
+  //   isSessionStorage: false,
+  // })
+
+  const actionHandler = useCallback(
+    (action: string, arg?: unknown) => {
+      switch (action) {
+        case 'setFontSize':
+          const value = Number(arg)
+          if (value >= 10 && value <= 34) {
+            updateFontSize(value)
+          }
+          break
+        case 'incrementFontSize':
+          updateFontSize(Math.min(fontSize + 2, 34))
+          break
+        case 'decrementFontSize':
+          updateFontSize(Math.max(fontSize - 2, 10))
+          break
+        case 'setMarginWidth': {
+          const value = Number(arg)
+          console.log('setMarginWidth: ', value)
+          if (value >= 200 && value <= 560) {
+            setMarginWidth(value)
+          }
+          break
         }
-        break
-      }
-      case 'incrementMarginWidth':
-        setMarginWidth(Math.min(marginWidth + 45, 560))
-        break
-      case 'decrementMarginWidth':
-        setMarginWidth(Math.max(marginWidth - 45, 200))
-        break
-      case 'setLineHeight': {
-        const value = Number(arg)
-        if (value >= 100 && value <= 300) {
-          setLineHeight(arg as number)
+        case 'incrementMarginWidth':
+          setMarginWidth(Math.min(marginWidth + 45, 560))
+          break
+        case 'decrementMarginWidth':
+          setMarginWidth(Math.max(marginWidth - 45, 200))
+          break
+        case 'setLineHeight': {
+          const value = Number(arg)
+          if (value >= 100 && value <= 300) {
+            setLineHeight(arg as number)
+          }
+          break
         }
-        break
+        case 'editDisplaySettings': {
+          setShowEditDisplaySettingsModal(true)
+          break
+        }
+        case 'setFontFamily': {
+          setFontFamily(arg as unknown as string)
+          break
+        }
+        case 'setLabels': {
+          setShowSetLabelsModal(true)
+          break
+        }
+        case 'resetReaderSettings': {
+          updateFontSize(20)
+          setMarginWidth(290)
+          setLineHeight(150)
+          setFontFamily(DEFAULT_FONT)
+          break
+        }
       }
-      case 'editDisplaySettings': {
-        setShowEditDisplaySettingsModal(true)
-        break
-      }
-      case 'setFontFamily': {
-        setFontFamily(arg as unknown as string)
-        break
-      }
-      case 'setLabels': {
-        setShowSetLabelsModal(true)
-        break
-      }
-      case 'resetReaderSettings': {
-        updateFontSize(20)
-        setMarginWidth(290)
-        setLineHeight(150)
-        setFontFamily(DEFAULT_FONT)
-        break
-      }
-    }
-  }, [fontSize, setFontSize, lineHeight, fontFamily,
-      setLineHeight, marginWidth, setMarginWidth, setFontFamily])
-  
-  
-  useRegisterActions([
-    {
-      id: 'increaseFont',
-      section: 'Article',
-      name: 'Increase font size',
-      shortcut: ['+'],
-      perform: () => actionHandler('incrementFontSize'),
     },
-    {
-      id: 'decreaseFont',
-      section: 'Article',
-      name: 'Decrease font size',
-      shortcut: ['-'],
-      perform: () => actionHandler('decrementFontSize'),
-    },
-    {
-      id: 'increaseMargin',
-      section: 'Article',
-      name: 'Increase margin width',
-      shortcut: [']'],
-      perform: () => actionHandler('incrementMarginWidth'),
-    },
-    {
-      id: 'decreaseMargin',
-      section: 'Article',
-      name: 'Decrease margin width',
-      shortcut: ['['],
-      perform: () => actionHandler('decrementMarginWidth'),
-    },
-    {
-      id: 'edit_a',
-      section: 'Article',
-      name: 'Edit labels',
-      shortcut: ['l'],
-      perform: () => setShowSetLabelsModal(true),
-    },
-  ], [])
+    [
+      fontSize,
+      setFontSize,
+      lineHeight,
+      fontFamily,
+      setLineHeight,
+      marginWidth,
+      setMarginWidth,
+      setFontFamily,
+    ]
+  )
+
+  useRegisterActions(
+    [
+      {
+        id: 'increaseFont',
+        section: 'Article',
+        name: 'Increase font size',
+        shortcut: ['+'],
+        perform: () => actionHandler('incrementFontSize'),
+      },
+      {
+        id: 'decreaseFont',
+        section: 'Article',
+        name: 'Decrease font size',
+        shortcut: ['-'],
+        perform: () => actionHandler('decrementFontSize'),
+      },
+      {
+        id: 'increaseMargin',
+        section: 'Article',
+        name: 'Increase margin width',
+        shortcut: [']'],
+        perform: () => actionHandler('incrementMarginWidth'),
+      },
+      {
+        id: 'decreaseMargin',
+        section: 'Article',
+        name: 'Decrease margin width',
+        shortcut: ['['],
+        perform: () => actionHandler('decrementMarginWidth'),
+      },
+      {
+        id: 'edit_labels',
+        section: 'Article',
+        name: 'Edit labels',
+        shortcut: ['l'],
+        perform: () => setShowSetLabelsModal(true),
+      },
+      {
+        id: 'display_settings',
+        section: 'Article',
+        name: 'Display settings',
+        shortcut: ['d'],
+        perform: () => setShowEditDisplaySettingsModal(true),
+      },
+    ],
+    [actionHandler]
+  )
 
   return {
-    preferencesData,
-    fontSize, lineHeight, marginWidth,
-    setFontSize,  setLineHeight, setMarginWidth,
-    showDeleteConfirmation, showSetLabelsModal, showEditDisplaySettingsModal,
-    setShowSetLabelsModal, setShowEditDisplaySettingsModal, setShowDeleteConfirmation,
-    actionHandler, setFontFamily, fontFamily,
+    fontSize,
+    lineHeight,
+    marginWidth,
+    setFontSize,
+    setLineHeight,
+    setMarginWidth,
+    showDeleteConfirmation,
+    showSetLabelsModal,
+    showEditDisplaySettingsModal,
+    setShowSetLabelsModal,
+    setShowEditDisplaySettingsModal,
+    setShowDeleteConfirmation,
+    actionHandler,
+    setFontFamily,
+    fontFamily,
+    justifyText,
+    setJustifyText,
+    highContrastText,
+    setHighContrastText,
   }
 }

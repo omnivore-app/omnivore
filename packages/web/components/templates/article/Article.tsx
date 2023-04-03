@@ -1,21 +1,16 @@
 import { Box } from '../../elements/LayoutPrimitives'
-import { useReadingProgressAnchor } from '../../../lib/hooks/useReadingProgressAnchor'
+import {
+  getTopOmnivoreAnchorElement,
+  parseDomTree,
+} from '../../../lib/anchorElements'
 import {
   ScrollOffsetChangeset,
   useScrollWatcher,
 } from '../../../lib/hooks/useScrollWatcher'
-import {
-  MutableRefObject,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import { MutableRefObject, useEffect, useRef, useState } from 'react'
 import { Tweet } from 'react-twitter-widgets'
 import { render } from 'react-dom'
 import { isDarkTheme } from '../../../lib/themeUpdater'
-import debounce from 'lodash/debounce'
 import { ArticleMutations } from '../../../lib/articleActions'
 
 export type ArticleProps = {
@@ -23,6 +18,7 @@ export type ArticleProps = {
   content: string
   initialAnchorIndex: number
   initialReadingProgress?: number
+  initialReadingProgressTop?: number
   highlightHref: MutableRefObject<string | null>
   articleMutations: ArticleMutations
 }
@@ -34,41 +30,31 @@ export function Article(props: ArticleProps): JSX.Element {
     props.initialReadingProgress
   )
 
-  const [readingAnchorIndex, setReadingAnchorIndex] = useState(
-    props.initialAnchorIndex
-  )
-
   const [shouldScrollToInitialPosition, setShouldScrollToInitialPosition] =
     useState(true)
 
   const articleContentRef = useRef<HTMLDivElement | null>(null)
 
-  useReadingProgressAnchor(articleContentRef, setReadingAnchorIndex)
-
-  const debouncedSetReadingProgress = useMemo(
-    () =>
-      debounce((readingProgress: number) => {
-        setReadingProgress(readingProgress)
-      }, 2000),
-    []
-  )
-
-  // Stop the invocation of the debounced function
-  // after unmounting
-  useEffect(() => {
-    return () => {
-      debouncedSetReadingProgress.cancel()
-    }
-  }, [])
+  const clampToPercent = (float: number) => {
+    return Math.floor(Math.max(0, Math.min(100, float)))
+  }
 
   useEffect(() => {
     ;(async () => {
       if (!readingProgress) return
+      if (!articleContentRef.current) return
+      if (!window.document.scrollingElement) return
+      const anchor = getTopOmnivoreAnchorElement(articleContentRef.current)
+      const topPositionPercent =
+        window.scrollY / window.document.scrollingElement.scrollHeight
+      const anchorIndex = Number(anchor)
+
       await props.articleMutations.articleReadingProgressMutation({
         id: props.articleId,
-        // round reading progress to 100% if more than that
-        readingProgressPercent: readingProgress > 100 ? 100 : readingProgress,
-        readingProgressAnchorIndex: readingAnchorIndex,
+        readingProgressPercent: clampToPercent(readingProgress),
+        readingProgressTopPercent: clampToPercent(topPositionPercent * 100),
+        readingProgressAnchorIndex:
+          anchorIndex == Number.NaN ? undefined : anchorIndex,
       })
     })()
 
@@ -89,35 +75,13 @@ export function Article(props: ArticleProps): JSX.Element {
 
   useScrollWatcher((changeset: ScrollOffsetChangeset) => {
     if (window && window.document.scrollingElement) {
-      const newReadingProgress =
-        window.scrollY / window.document.scrollingElement.scrollHeight
-      const adjustedReadingProgress =
-        newReadingProgress > 0.92 ? 1 : newReadingProgress
-      debouncedSetReadingProgress(adjustedReadingProgress * 100)
+      const bottomProgress =
+        (window.scrollY + window.document.scrollingElement.clientHeight) /
+        window.document.scrollingElement.scrollHeight
+
+      setReadingProgress(bottomProgress * 100)
     }
-  }, 1000)
-
-  const layoutImages = useCallback(
-    (image: HTMLImageElement, container: HTMLDivElement | null) => {
-      if (!container) return
-      const containerWidth = container.clientWidth + 140
-
-      if (!image.closest('blockquote, table')) {
-        let imageWidth = parseFloat(image.getAttribute('width') || '')
-        imageWidth = isNaN(imageWidth) ? image.naturalWidth : imageWidth
-
-        if (imageWidth > containerWidth) {
-          image.style.setProperty(
-            'width',
-            `${Math.min(imageWidth, containerWidth)}px`
-          )
-          image.style.setProperty('max-width', 'unset')
-          image.style.setProperty('margin-left', `-${Math.round(140 / 2)}px`)
-        }
-      }
-    },
-    []
-  )
+  }, 2500)
 
   // Scroll to initial anchor position
   useEffect(() => {
@@ -129,6 +93,8 @@ export function Article(props: ArticleProps): JSX.Element {
     }
 
     setShouldScrollToInitialPosition(false)
+
+    parseDomTree(articleContentRef.current)
 
     // If we are scrolling to a highlight, dont scroll to read position
     if (props.highlightHref.current) {
@@ -192,22 +158,6 @@ export function Article(props: ArticleProps): JSX.Element {
       )
     })
   }, [])
-
-  const onLoadImageHandler = useCallback(() => {
-    const images = articleContentRef.current?.querySelectorAll('img')
-
-    images?.forEach((image) => {
-      layoutImages(image, articleContentRef.current)
-    })
-  }, [layoutImages])
-
-  useEffect(() => {
-    window.addEventListener('load', onLoadImageHandler)
-
-    return () => {
-      window.removeEventListener('load', onLoadImageHandler)
-    }
-  }, [onLoadImageHandler])
 
   return (
     <>

@@ -3,12 +3,12 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import express from 'express'
 import { EntityType, readPushSubscription } from '../../datalayer/pubsub'
-import { getRepository } from '../../entity/utils'
-import { Integration, IntegrationType } from '../../entity/integration'
-import { buildLogger } from '../../utils/logger'
-import { syncWithIntegration } from '../../services/integrations'
 import { getPageById, searchPages } from '../../elastic/pages'
 import { Page } from '../../elastic/types'
+import { Integration, IntegrationType } from '../../entity/integration'
+import { getRepository } from '../../entity/utils'
+import { syncWithIntegration } from '../../services/integrations'
+import { buildLogger } from '../../utils/logger'
 import { DateFilter } from '../../utils/search'
 
 export interface Message {
@@ -88,6 +88,10 @@ export function integrationsServiceRouter() {
           logger.info('No page found for id', { id })
           res.status(200).send('No page found')
           return
+        }
+        if (page.userId !== userId) {
+          logger.info('Page does not belong to user', { id, userId })
+          return res.status(200).send('Page does not belong to user')
         }
         // sync updated page with integration
         logger.info('syncing updated page with integration', {

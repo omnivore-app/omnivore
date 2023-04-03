@@ -275,7 +275,7 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
 
       revalidate()
     },
-    [isSelected, props]
+    [isSelected, props, revalidate]
   )
 
   const filteredLabels = useMemo(() => {
@@ -295,6 +295,23 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
   const [focusedIndex, setFocusedIndex] = useState<number | undefined>(
     undefined
   )
+
+  const createLabelFromFilterText = useCallback(async () => {
+    const label = await createLabelMutation(
+      filterText,
+      randomLabelColorHex(),
+      ''
+    )
+    if (label) {
+      showSuccessToast(`Created label ${label.name}`, {
+        position: 'bottom-right',
+      })
+      toggleLabel(label)
+    } else {
+      showErrorToast('Failed to create label', { position: 'bottom-right' })
+    }
+  }, [filterText, toggleLabel])
+
   const handleKeyDown = useCallback(
     async (event: React.KeyboardEvent<HTMLInputElement>) => {
       const maxIndex = filteredLabels.length + 1
@@ -346,24 +363,15 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
         }
       }
     },
-    [filterText, filteredLabels, focusedIndex, isSelected, props]
-  )
-
-  const createLabelFromFilterText = useCallback(async () => {
-    const label = await createLabelMutation(
+    [
       filterText,
-      randomLabelColorHex(),
-      ''
-    )
-    if (label) {
-      showSuccessToast(`Created label ${label.name}`, {
-        position: 'bottom-right',
-      })
-      toggleLabel(label)
-    } else {
-      showErrorToast('Failed to create label', { position: 'bottom-right' })
-    }
-  }, [filterText, props, toggleLabel])
+      filteredLabels,
+      focusedIndex,
+      createLabelFromFilterText,
+      router,
+      toggleLabel,
+    ]
+  )
 
   return (
     <VStack

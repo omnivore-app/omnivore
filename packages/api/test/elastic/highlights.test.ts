@@ -1,6 +1,11 @@
 import 'mocha'
 import { expect } from 'chai'
-import { Highlight, Page, PageContext } from '../../src/elastic/types'
+import {
+  Highlight,
+  HighlightType,
+  Page,
+  PageContext,
+} from '../../src/elastic/types'
 import { createPubSubClient } from '../../src/datalayer/pubsub'
 import { deletePage } from '../../src/elastic/pages'
 import {
@@ -32,6 +37,7 @@ describe('highlights in elastic', () => {
         userId: page.userId,
         createdAt: new Date(),
         updatedAt: new Date(),
+        type: HighlightType.Highlight,
       }
 
       await addHighlightToPage(page.id, highlightData, ctx)
