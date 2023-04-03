@@ -29,7 +29,7 @@ export function HighlightViewItem(props: HighlightViewItemProps): JSX.Element {
 
   return (
     <HStack
-      css={{ width: '100%', py: '20px', cursor: 'pointer' }}
+      css={{ width: '100%', py: '20px' }}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >

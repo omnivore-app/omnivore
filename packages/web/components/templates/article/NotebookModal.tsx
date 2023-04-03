@@ -3,7 +3,7 @@ import {
   ModalOverlay,
   ModalContent,
 } from '../../elements/ModalPrimitives'
-import { HStack } from '../../elements/LayoutPrimitives'
+import { HStack, SpanBox } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { StyledText } from '../../elements/StyledText'
 import { theme } from '../../tokens/stitches.config'
@@ -19,6 +19,7 @@ import 'react-markdown-editor-lite/lib/index.css'
 import { Notebook } from './Notebook'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+import { MarkdownNote } from '../../patterns/HighlightNotes'
 
 type NotebookModalProps = {
   viewer: UserBasicData
@@ -183,6 +184,7 @@ function CloseButton(props: { close: () => void }): JSX.Element {
     </Button>
   )
 }
+
 function SizeToggle(props: SizeToggleProps): JSX.Element {
   return (
     <Button

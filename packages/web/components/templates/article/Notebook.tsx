@@ -16,7 +16,7 @@ import { createHighlightMutation } from '../../../lib/networking/mutations/creat
 import { v4 as uuidv4 } from 'uuid'
 import { nanoid } from 'nanoid'
 import { deleteHighlightMutation } from '../../../lib/networking/mutations/deleteHighlightMutation'
-import { HighlightNoteBox } from '../../patterns/HighlightNotes'
+import { HighlightNoteBox, MarkdownNote } from '../../patterns/HighlightNotes'
 import { HighlightViewItem } from './HighlightViewItem'
 import { ConfirmationModal } from '../../patterns/ConfirmationModal'
 import { TrashIcon } from '../../elements/images/TrashIcon'

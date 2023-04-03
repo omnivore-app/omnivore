@@ -11,7 +11,7 @@ import {
   HStack,
 } from '../elements/LayoutPrimitives'
 import { styled } from '../tokens/stitches.config'
-import { HighlightViewNote } from './HighlightNotes'
+import { HighlightViewNote, MarkdownModal } from './HighlightNotes'
 import ReactMarkdown from 'react-markdown'
 
 type HighlightViewProps = {

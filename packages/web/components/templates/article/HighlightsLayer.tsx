@@ -29,6 +29,7 @@ import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { useRouter } from 'next/router'
+import { MarkdownModal } from '../../patterns/HighlightNotes'
 
 type HighlightsLayerProps = {
   viewer: UserBasicData
