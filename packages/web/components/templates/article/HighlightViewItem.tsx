@@ -1,12 +1,22 @@
 import { useState } from 'react'
 import { Highlight } from '../../../lib/networking/fragments/highlightFragment'
+import {
+  LibraryItem,
+  ReadableItem,
+} from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 import { HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { HighlightView } from '../../patterns/HighlightView'
 import { HighlightsMenu } from '../homeFeed/HighlightItem'
 
 type HighlightViewItemProps = {
+  viewer: UserBasicData
+
+  item: ReadableItem
   highlight: Highlight
-  scrollToHighlight?: (arg: string) => void
+
+  viewInReader: (highlightId: string) => void
+
   deleteHighlightAction: () => void
   updateHighlight: (highlight: Highlight) => void
 
@@ -26,7 +36,6 @@ export function HighlightViewItem(props: HighlightViewItemProps): JSX.Element {
       <VStack css={{ width: '100%' }}>
         <HighlightView
           highlight={props.highlight}
-          scrollToHighlight={props.scrollToHighlight}
           updateHighlight={props.updateHighlight}
         />
         <SpanBox css={{ mb: '15px' }} />
@@ -42,7 +51,10 @@ export function HighlightViewItem(props: HighlightViewItemProps): JSX.Element {
         }}
       >
         <HighlightsMenu
+          item={props.item}
+          viewer={props.viewer}
           highlight={props.highlight}
+          viewInReader={props.viewInReader}
           setLabelsTarget={props.setSetLabelsTarget}
           setShowConfirmDeleteHighlightId={
             props.setShowConfirmDeleteHighlightId

@@ -1,18 +1,49 @@
+import { Item } from '@radix-ui/react-dropdown-menu'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
 import { DotsThreeVertical } from 'phosphor-react'
 import { useCallback } from 'react'
 import { Highlight } from '../../../lib/networking/fragments/highlightFragment'
+import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
-import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
-import { Box } from '../../elements/LayoutPrimitives'
+import {
+  Dropdown,
+  DropdownOption,
+  DropdownSeparator,
+} from '../../elements/DropdownElements'
+import { Box, SpanBox } from '../../elements/LayoutPrimitives'
 
-import { theme } from '../../tokens/stitches.config'
+import { styled, theme } from '../../tokens/stitches.config'
 
 type HighlightsMenuProps = {
+  viewer: UserBasicData
+
+  item: ReadableItem
   highlight: Highlight
+
+  viewInReader: (highlightId: string) => void
 
   setLabelsTarget: (target: Highlight) => void
   setShowConfirmDeleteHighlightId: (set: string) => void
 }
+
+const StyledLinkItem = styled('a', {
+  display: 'flex',
+  fontSize: '14px',
+  fontWeight: '400',
+  py: '10px',
+  px: '15px',
+  borderRadius: 3,
+  cursor: 'pointer',
+  color: '$utilityTextDefault',
+  textDecoration: 'none',
+
+  '&:hover': {
+    outline: 'none',
+    backgroundColor: '$grayBgHover',
+  },
+})
 
 export function HighlightsMenu(props: HighlightsMenuProps): JSX.Element {
   const copyHighlight = useCallback(() => {
@@ -69,6 +100,28 @@ export function HighlightsMenu(props: HighlightsMenuProps): JSX.Element {
         }}
         title="Delete"
       />
+      <DropdownSeparator />
+      <Link
+        href={`/${props.viewer.profile.username}/${props.item.slug}#${props.highlight.id}`}
+      >
+        <StyledLinkItem
+          onClick={(event) => {
+            console.log('event.ctrlKey: ', event.ctrlKey, event.metaKey)
+            if (event.ctrlKey || event.metaKey) {
+              window.open(
+                `/${props.viewer.profile.username}/${props.item.slug}#${props.highlight.id}`,
+                '_blank'
+              )
+              return
+            }
+            props.viewInReader(props.highlight.id)
+            event.preventDefault()
+            event.stopPropagation()
+          }}
+        >
+          View In Reader
+        </StyledLinkItem>
+      </Link>
     </Dropdown>
   )
 }

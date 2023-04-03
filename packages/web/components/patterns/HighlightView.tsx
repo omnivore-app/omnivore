@@ -18,7 +18,6 @@ type HighlightViewProps = {
   highlight: Highlight
   author?: string
   title?: string
-  scrollToHighlight?: (arg: string) => void
   updateHighlight: (highlight: Highlight) => void
 }
 
@@ -67,13 +66,7 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
           paddingLeft: '15px',
         }}
       >
-        <StyledQuote
-          onClick={() => {
-            if (props.scrollToHighlight) {
-              props.scrollToHighlight(props.highlight.id)
-            }
-          }}
-        >
+        <StyledQuote>
           <SpanBox
             css={{
               '> *': {

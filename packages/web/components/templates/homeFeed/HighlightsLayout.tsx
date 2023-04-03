@@ -1,5 +1,6 @@
+import { useRouter } from 'next/router'
 import { HighlighterCircle } from 'phosphor-react'
-import { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
+import { useCallback, useEffect, useReducer, useState } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { Highlight } from '../../../lib/networking/fragments/highlightFragment'
 import {
@@ -361,6 +362,8 @@ type HighlightListProps = {
 }
 
 function HighlightList(props: HighlightListProps): JSX.Element {
+  const router = useRouter()
+
   const exportHighlights = useCallback(() => {
     ;(async () => {
       if (!props.item.node.highlights) {
@@ -372,6 +375,36 @@ function HighlightList(props: HighlightListProps): JSX.Element {
       showSuccessToast('Highlight copied')
     })()
   }, [props.item.node.highlights])
+
+  const viewInReader = useCallback(
+    (highlightId) => {
+      if (!router || !router.isReady || !props.viewer) {
+        showErrorToast('Error navigating to highlight')
+        return
+      }
+      console.log(
+        'pushing user: ',
+        props.viewer,
+        'slug: ',
+        props.item.node.slug
+      )
+      router.push(
+        {
+          pathname: '/[username]/[slug]',
+          query: {
+            username: props.viewer.profile.username,
+            slug: props.item.node.slug,
+          },
+          hash: highlightId,
+        },
+        `${props.viewer.profile.username}/${props.item.node.slug}#${highlightId}`,
+        {
+          scroll: false,
+        }
+      )
+    },
+    [router, props]
+  )
 
   return (
     <VStack
@@ -418,11 +451,15 @@ function HighlightList(props: HighlightListProps): JSX.Element {
         </Dropdown>
       </HStack>
       <HStack css={{ width: '100%', height: '100%' }}>
-        <Notebook
-          sizeMode="normal"
-          pageId={props.item.node.id}
-          highlights={props.item.node.highlights ?? []}
-        />
+        {props.viewer && (
+          <Notebook
+            sizeMode="normal"
+            viewer={props.viewer}
+            item={props.item.node}
+            highlights={props.item.node.highlights ?? []}
+            viewInReader={viewInReader}
+          />
+        )}
       </HStack>
     </VStack>
   )

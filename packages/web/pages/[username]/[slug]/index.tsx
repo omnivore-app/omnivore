@@ -346,7 +346,7 @@ export default function Home(): JSX.Element {
           article={article}
           showHighlightsModal={showHighlightsModal}
           setShowHighlightsModal={setShowHighlightsModal}
-          viewerUsername={viewerData.me?.profile?.username}
+          viewer={viewerData.me}
         />
       ) : (
         <VStack
@@ -362,10 +362,10 @@ export default function Home(): JSX.Element {
         >
           {article && viewerData?.me ? (
             <ArticleContainer
+              viewer={viewerData.me}
               article={article}
               isAppleAppEmbed={false}
               highlightBarDisabled={false}
-              highlightsBaseURL={`${webBaseURL}/${viewerData.me?.profile?.username}/${slug}/highlights`}
               fontSize={readerSettings.fontSize}
               margin={readerSettings.marginWidth}
               lineHeight={readerSettings.lineHeight}

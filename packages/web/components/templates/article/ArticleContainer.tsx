@@ -18,14 +18,15 @@ import { LabelChip } from '../../elements/LabelChip'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { Recommendation } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { Avatar } from '../../elements/Avatar'
+import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 
 type ArticleContainerProps = {
+  viewer: UserBasicData
   article: ArticleAttributes
   labels: Label[]
   articleMutations: ArticleMutations
   isAppleAppEmbed: boolean
   highlightBarDisabled: boolean
-  highlightsBaseURL: string
   margin?: number
   fontSize?: number
   fontFamily?: string
@@ -107,15 +108,12 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   const [showReportIssuesModal, setShowReportIssuesModal] = useState(false)
   const [fontSize, setFontSize] = useState(props.fontSize ?? 20)
   // iOS app embed can overide the original margin and line height
-  const [maxWidthPercentageOverride, setMaxWidthPercentageOverride] = useState<
-    number | null
-  >(null)
-  const [lineHeightOverride, setLineHeightOverride] = useState<number | null>(
-    null
-  )
-  const [fontFamilyOverride, setFontFamilyOverride] = useState<string | null>(
-    null
-  )
+  const [maxWidthPercentageOverride, setMaxWidthPercentageOverride] =
+    useState<number | null>(null)
+  const [lineHeightOverride, setLineHeightOverride] =
+    useState<number | null>(null)
+  const [fontFamilyOverride, setFontFamilyOverride] =
+    useState<string | null>(null)
   const [highContrastText, setHighContrastText] = useState(
     props.highContrastText ?? false
   )
@@ -388,13 +386,14 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         <Box css={{ height: '100px' }} />
       </Box>
       <HighlightsLayer
+        viewer={props.viewer}
+        item={props.article}
         scrollToHighlight={highlightHref}
         highlights={props.article.highlights}
         articleTitle={props.article.title}
         articleAuthor={props.article.author ?? ''}
         articleId={props.article.id}
         isAppleAppEmbed={props.isAppleAppEmbed}
-        highlightsBaseURL={props.highlightsBaseURL}
         highlightBarDisabled={props.highlightBarDisabled}
         showHighlightsModal={props.showHighlightsModal}
         setShowHighlightsModal={props.setShowHighlightsModal}

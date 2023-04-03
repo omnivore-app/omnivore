@@ -11,6 +11,12 @@ import { Label } from './../fragments/labelFragment'
 import { showErrorToast, showSuccessToast } from '../../toastHelpers'
 import { Highlight, highlightFragment } from '../fragments/highlightFragment'
 
+export interface ReadableItem {
+  id: string
+  title: string
+  slug: string
+}
+
 export type LibraryItemsQueryInput = {
   limit: number
   sortDescending: boolean

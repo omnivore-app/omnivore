@@ -20,13 +20,21 @@ import { HighlightNoteBox } from '../../patterns/HighlightNotes'
 import { HighlightViewItem } from './HighlightViewItem'
 import { ConfirmationModal } from '../../patterns/ConfirmationModal'
 import { TrashIcon } from '../../elements/images/TrashIcon'
+import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
+import {
+  LibraryItem,
+  ReadableItem,
+} from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 
 type NotebookProps = {
-  pageId: string
+  viewer: UserBasicData
+
+  item: ReadableItem
   highlights: Highlight[]
-  scrollToHighlight?: (arg: string) => void
 
   sizeMode: 'normal' | 'maximized'
+
+  viewInReader: (highlightId: string) => void
 
   onAnnotationsChanged?: (
     highlights: Highlight[],
@@ -242,7 +250,7 @@ export function Notebook(props: NotebookProps): JSX.Element {
             id: noteId,
             shortId: nanoid(8),
             type: 'NOTE',
-            articleId: props.pageId,
+            articleId: props.item.id,
             annotation: text,
           })
           console.log('success creating annotation note: ', success)
@@ -277,7 +285,7 @@ export function Notebook(props: NotebookProps): JSX.Element {
         return
       }
     },
-    [annotations, props.pageId]
+    [annotations, props.item]
   )
   return (
     <VStack
@@ -304,8 +312,10 @@ export function Notebook(props: NotebookProps): JSX.Element {
         {sortedHighlights.map((highlight) => (
           <HighlightViewItem
             key={highlight.id}
+            item={props.item}
+            viewer={props.viewer}
             highlight={highlight}
-            scrollToHighlight={props.scrollToHighlight}
+            viewInReader={props.viewInReader}
             setSetLabelsTarget={setLabelsTarget}
             setShowConfirmDeleteHighlightId={setShowConfirmDeleteHighlightId}
             deleteHighlightAction={() => {

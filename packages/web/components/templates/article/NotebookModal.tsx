@@ -17,11 +17,16 @@ import { MenuTrigger } from '../../elements/MenuTrigger'
 import { highlightsAsMarkdown } from '../homeFeed/HighlightItem'
 import 'react-markdown-editor-lite/lib/index.css'
 import { Notebook } from './Notebook'
+import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
+import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 
 type NotebookModalProps = {
-  pageId: string
+  viewer: UserBasicData
+
+  item: ReadableItem
   highlights: Highlight[]
-  scrollToHighlight?: (arg: string) => void
+
+  viewHighlightInReader: (arg: string) => void
   onClose: (highlights: Highlight[], deletedAnnotations: Highlight[]) => void
 }
 
@@ -29,16 +34,6 @@ export const getHighlightLocation = (patch: string): number | undefined => {
   const dmp = new diff_match_patch()
   const patches = dmp.patch_fromText(patch)
   return patches[0].start1 || undefined
-}
-
-type AnnotationInfo = {
-  loaded: boolean
-
-  note: Highlight | undefined
-  noteId: string
-
-  allAnnotations: Highlight[]
-  deletedAnnotations: Highlight[]
 }
 
 export function NotebookModal(props: NotebookModalProps): JSX.Element {
@@ -72,6 +67,14 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
       showSuccessToast('Highlight copied')
     })()
   }, [allAnnotations])
+
+  const viewInReader = useCallback(
+    (highlightId) => {
+      props.viewHighlightInReader(highlightId)
+      handleClose()
+    },
+    [props, handleClose]
+  )
 
   return (
     <ModalRoot defaultOpen onOpenChange={handleClose}>
@@ -141,6 +144,7 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
         <Notebook
           {...props}
           sizeMode={sizeMode}
+          viewInReader={viewInReader}
           onAnnotationsChanged={handleAnnotationsChange}
         />
       </ModalContent>

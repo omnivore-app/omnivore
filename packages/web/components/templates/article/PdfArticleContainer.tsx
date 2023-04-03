@@ -2,7 +2,7 @@ import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticle
 import { Box } from '../../elements/LayoutPrimitives'
 import { v4 as uuidv4 } from 'uuid'
 import { nanoid } from 'nanoid'
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { isDarkTheme } from '../../../lib/themeUpdater'
 import PSPDFKit from 'pspdfkit'
 import { Instance, HighlightAnnotation, List, Annotation, Rect } from 'pspdfkit'
@@ -12,15 +12,15 @@ import { deleteHighlightMutation } from '../../../lib/networking/mutations/delet
 import { articleReadingProgressMutation } from '../../../lib/networking/mutations/articleReadingProgressMutation'
 import { mergeHighlightMutation } from '../../../lib/networking/mutations/mergeHighlightMutation'
 import { useCanShareNative } from '../../../lib/hooks/useCanShareNative'
-import { webBaseURL } from '../../../lib/appConfig'
 import { pspdfKitKey } from '../../../lib/appConfig'
 import { NotebookModal } from './NotebookModal'
 import { HighlightNoteModal } from './HighlightNoteModal'
 import { showErrorToast } from '../../../lib/toastHelpers'
 import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from '../homeFeed/HeaderSpacer'
+import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 
 export type PdfArticleContainerProps = {
-  viewerUsername: string
+  viewer: UserBasicData
   article: ArticleAttributes
   showHighlightsModal: boolean
   setShowHighlightsModal: React.Dispatch<React.SetStateAction<boolean>>
@@ -30,43 +30,41 @@ export default function PdfArticleContainer(
   props: PdfArticleContainerProps
 ): JSX.Element {
   const containerRef = useRef<HTMLDivElement | null>(null)
-  const [shareTarget, setShareTarget] = useState<Highlight | undefined>(
-    undefined
-  )
+  const [shareTarget, setShareTarget] =
+    useState<Highlight | undefined>(undefined)
   const [notebookKey, setNotebookKey] = useState<string>(uuidv4())
   const [noteTarget, setNoteTarget] = useState<Highlight | undefined>(undefined)
-  const [noteTargetPageIndex, setNoteTargetPageIndex] = useState<
-    number | undefined
-  >(undefined)
+  const [noteTargetPageIndex, setNoteTargetPageIndex] =
+    useState<number | undefined>(undefined)
   const highlightsRef = useRef<Highlight[]>([])
   const canShareNative = useCanShareNative()
 
-  const getHighlightURL = useCallback(
-    (highlightID: string): string =>
-      `${webBaseURL}/${props.viewerUsername}/${props.article.slug}/highlights/${highlightID}`,
-    [props.article.slug, props.viewerUsername]
-  )
+  // const getHighlightURL = useCallback(
+  //   (highlightID: string): string =>
+  //     `${webBaseURL}/${props.viewerUsername}/${props.article.slug}/highlights/${highlightID}`,
+  //   [props.article.slug, props.viewerUsername]
+  // )
 
-  const nativeShare = useCallback(
-    async (highlightID: string, title: string) => {
-      await navigator?.share({
-        title: title,
-        url: getHighlightURL(highlightID),
-      })
-    },
-    [getHighlightURL]
-  )
+  // const nativeShare = useCallback(
+  //   async (highlightID: string, title: string) => {
+  //     await navigator?.share({
+  //       title: title,
+  //       url: getHighlightURL(highlightID),
+  //     })
+  //   },
+  //   [getHighlightURL]
+  // )
 
-  const handleOpenShare = useCallback(
-    (highlight: Highlight) => {
-      if (canShareNative) {
-        nativeShare(highlight.shortId, props.article.title)
-      } else {
-        setShareTarget(highlight)
-      }
-    },
-    [nativeShare, canShareNative, props.article.title]
-  )
+  // const handleOpenShare = useCallback(
+  //   (highlight: Highlight) => {
+  //     if (canShareNative) {
+  //       nativeShare(highlight.shortId, props.article.title)
+  //     } else {
+  //       setShareTarget(highlight)
+  //     }
+  //   },
+  //   [nativeShare, canShareNative, props.article.title]
+  // )
 
   const annotationOmnivoreId = (annotation: Annotation): string | undefined => {
     if (
@@ -178,23 +176,23 @@ export default function PdfArticleContainer(
             instance.setSelectedAnnotation(null)
           },
         }
-        const share = {
-          type: 'custom' as const,
-          title: 'Share',
-          id: 'tooltip-share-annotation',
-          className: 'TooltipItem-Share',
-          onPress: () => {
-            if (
-              annotation.customData &&
-              annotation.customData.omnivoreHighlight &&
-              (annotation.customData.omnivoreHighlight as Highlight).shortId
-            ) {
-              const data = annotation.customData.omnivoreHighlight as Highlight
-              handleOpenShare(data)
-            }
-            instance.setSelectedAnnotation(null)
-          },
-        }
+        // const share = {
+        //   type: 'custom' as const,
+        //   title: 'Share',
+        //   id: 'tooltip-share-annotation',
+        //   className: 'TooltipItem-Share',
+        //   onPress: () => {
+        //     if (
+        //       annotation.customData &&
+        //       annotation.customData.omnivoreHighlight &&
+        //       (annotation.customData.omnivoreHighlight as Highlight).shortId
+        //     ) {
+        //       const data = annotation.customData.omnivoreHighlight as Highlight
+        //       handleOpenShare(data)
+        //     }
+        //     instance.setSelectedAnnotation(null)
+        //   },
+        // }
         return [copy, note, remove]
       }
 
@@ -424,7 +422,6 @@ export default function PdfArticleContainer(
 
     document.addEventListener('deleteHighlightbyId', async (event) => {
       const annotationId = (event as CustomEvent).detail as string
-      console.log(' DELETING ANNOTATION BY ID: ', annotationId)
       for (let pageIdx = 0; pageIdx < instance.totalPageCount; pageIdx++) {
         const annotations = await instance.getAnnotations(pageIdx)
         for (let annIdx = 0; annIdx < annotations.size; annIdx++) {
@@ -433,7 +430,6 @@ export default function PdfArticleContainer(
             continue
           }
           const storedId = annotationOmnivoreId(annotation)
-          console.log('  --- storedId:', storedId)
           if (storedId == annotationId) {
             await instance.delete(annotation)
             await deleteHighlightMutation(annotationId)
@@ -495,7 +491,8 @@ export default function PdfArticleContainer(
       {props.showHighlightsModal && (
         <NotebookModal
           key={notebookKey}
-          pageId={props.article.id}
+          viewer={props.viewer}
+          item={props.article}
           highlights={highlightsRef.current}
           onClose={(updatedHighlights, deletedAnnotations) => {
             console.log(
@@ -509,6 +506,10 @@ export default function PdfArticleContainer(
               })
               document.dispatchEvent(event)
             })
+            props.setShowHighlightsModal(false)
+          }}
+          viewHighlightInReader={(highlightId) => {
+            // TODO: scroll to highlight in PDF
             props.setShowHighlightsModal(false)
           }}
         />
