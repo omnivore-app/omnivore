@@ -127,7 +127,7 @@ export function LibraryHighlightGridCard(
               distribution="start"
             >
               {sortedHighlights.map((highlight) => (
-                <>
+                <SpanBox key={`hv-${highlight.id}`}>
                   <HighlightView
                     key={highlight.id}
                     highlight={highlight}
@@ -135,8 +135,8 @@ export function LibraryHighlightGridCard(
                       console.log('updated highlight: ', highlight)
                     }}
                   />
-                  <SpanBox css={{ mt: '10px', mb: '25px' }} />
-                </>
+                  <SpanBox css={{ height: '35px' }} />
+                </SpanBox>
               ))}
             </VStack>
           </>
