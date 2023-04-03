@@ -4,7 +4,6 @@ type AppEnvironment = 'prod' | 'dev' | 'demo' | 'local'
 type BaseURLs = {
   webBaseURL: string
   serverBaseURL: string
-  highlightsBaseURL: string
 }
 
 type BaseURLRecords = Record<AppEnvironment, BaseURLs>
@@ -14,22 +13,18 @@ const baseURLRecords: BaseURLRecords = {
   prod: {
     webBaseURL: process.env.NEXT_PUBLIC_BASE_URL ?? '',
     serverBaseURL: process.env.NEXT_PUBLIC_SERVER_BASE_URL ?? '',
-    highlightsBaseURL: process.env.NEXT_PUBLIC_HIGHLIGHTS_BASE_URL ?? '',
   },
   dev: {
     webBaseURL: process.env.NEXT_PUBLIC_DEV_BASE_URL ?? '',
     serverBaseURL: process.env.NEXT_PUBLIC_DEV_SERVER_BASE_URL ?? '',
-    highlightsBaseURL: process.env.NEXT_PUBLIC_DEV_HIGHLIGHTS_BASE_URL ?? '',
   },
   demo: {
     webBaseURL: process.env.NEXT_PUBLIC_DEMO_BASE_URL ?? '',
     serverBaseURL: process.env.NEXT_PUBLIC_DEMO_SERVER_BASE_URL ?? '',
-    highlightsBaseURL: process.env.NEXT_PUBLIC_DEMO_HIGHLIGHTS_BASE_URL ?? '',
   },
   local: {
     webBaseURL: process.env.NEXT_PUBLIC_LOCAL_BASE_URL ?? '',
     serverBaseURL: process.env.NEXT_PUBLIC_LOCAL_SERVER_BASE_URL ?? '',
-    highlightsBaseURL: process.env.NEXT_PUBLIC_LOCAL_HIGHLIGHTS_BASE_URL ?? '',
   },
 }
 
@@ -38,16 +33,6 @@ function serverBaseURL(env: AppEnvironment): string {
   if (value.length == 0) {
     throw new Error(
       `Couldn't find environment variable for server base url in ${env} environment`
-    )
-  }
-  return value
-}
-
-function highlightsURL(env: AppEnvironment): string {
-  const value = baseURLRecords[appEnv].highlightsBaseURL
-  if (value.length == 0) {
-    throw new Error(
-      `Couldn't find environment variable for highlights base url in ${env} environment`
     )
   }
   return value
@@ -95,7 +80,5 @@ export const googleID =
 export const gqlEndpoint = `${serverBaseURL(appEnv)}/api/graphql`
 
 export const fetchEndpoint = `${serverBaseURL(appEnv)}/api`
-
-export const highlightsBaseURL = highlightsURL(appEnv)
 
 export const webBaseURL = webURL(appEnv)

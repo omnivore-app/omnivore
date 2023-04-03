@@ -1,4 +1,4 @@
-import { Box, VStack, HStack } from '../../elements/LayoutPrimitives'
+import { Box, VStack, HStack, SpanBox } from '../../elements/LayoutPrimitives'
 import { useCallback, useMemo, useState } from 'react'
 import { CaretDown, CaretUp } from 'phosphor-react'
 import { MetaStyle, timeAgo, TitleStyle } from './LibraryCardStyles'
@@ -7,9 +7,9 @@ import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery
 import { LibraryItemNode } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { Button } from '../../elements/Button'
 import { theme } from '../../tokens/stitches.config'
-import { HighlightItem } from '../../templates/homeFeed/HighlightItem'
 import { getHighlightLocation } from '../../templates/article/NotebookModal'
 import { Highlight } from '../../../lib/networking/fragments/highlightFragment'
+import { HighlightView } from '../HighlightView'
 
 export const GridSeparator = styled(Box, {
   height: '1px',
@@ -46,21 +46,23 @@ export function LibraryHighlightGridCard(
       return []
     }
 
-    return props.item.highlights.sort((a: Highlight, b: Highlight) => {
-      if (a.highlightPositionPercent && b.highlightPositionPercent) {
-        return sorted(a.highlightPositionPercent, b.highlightPositionPercent)
-      }
-      // We do this in a try/catch because it might be an invalid diff
-      // With PDF it will definitely be an invalid diff.
-      try {
-        const aPos = getHighlightLocation(a.patch)
-        const bPos = getHighlightLocation(b.patch)
-        if (aPos && bPos) {
-          return sorted(aPos, bPos)
+    return props.item.highlights
+      .filter((h) => h.type === 'HIGHLIGHT')
+      .sort((a: Highlight, b: Highlight) => {
+        if (a.highlightPositionPercent && b.highlightPositionPercent) {
+          return sorted(a.highlightPositionPercent, b.highlightPositionPercent)
         }
-      } catch {}
-      return a.createdAt.localeCompare(b.createdAt)
-    })
+        // We do this in a try/catch because it might be an invalid diff
+        // With PDF it will definitely be an invalid diff.
+        try {
+          const aPos = getHighlightLocation(a.patch)
+          const bPos = getHighlightLocation(b.patch)
+          if (aPos && bPos) {
+            return sorted(aPos, bPos)
+          }
+        } catch {}
+        return a.createdAt.localeCompare(b.createdAt)
+      })
   }, [props.item.highlights])
 
   return (
@@ -121,17 +123,20 @@ export function LibraryHighlightGridCard(
           <>
             <GridSeparator css={{ width: '100%' }} />
             <VStack
-              css={{ height: '100%', width: '100%' }}
+              css={{ height: '100%', width: '100%', mt: '20px' }}
               distribution="start"
             >
               {sortedHighlights.map((highlight) => (
-                <HighlightItem
-                  key={highlight.id}
-                  viewer={props.viewer}
-                  item={props.item}
-                  highlight={highlight}
-                  deleteHighlight={props.deleteHighlight}
-                />
+                <SpanBox key={`hv-${highlight.id}`}>
+                  <HighlightView
+                    key={highlight.id}
+                    highlight={highlight}
+                    updateHighlight={(highlight) => {
+                      console.log('updated highlight: ', highlight)
+                    }}
+                  />
+                  <SpanBox css={{ height: '35px' }} />
+                </SpanBox>
               ))}
             </VStack>
           </>

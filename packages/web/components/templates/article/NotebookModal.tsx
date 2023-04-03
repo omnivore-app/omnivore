@@ -2,37 +2,33 @@ import {
   ModalRoot,
   ModalOverlay,
   ModalContent,
-  ModalTitleBar,
 } from '../../elements/ModalPrimitives'
-import { Box, HStack, VStack, SpanBox } from '../../elements/LayoutPrimitives'
+import { HStack, SpanBox } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { StyledText } from '../../elements/StyledText'
-import { TrashIcon } from '../../elements/images/TrashIcon'
 import { theme } from '../../tokens/stitches.config'
 import type { Highlight } from '../../../lib/networking/fragments/highlightFragment'
-import { HighlightView } from '../../patterns/HighlightView'
-import { useCallback, useMemo, useState } from 'react'
-import { StyledTextArea } from '../../elements/StyledTextArea'
-import { ConfirmationModal } from '../../patterns/ConfirmationModal'
-import { DotsThree } from 'phosphor-react'
+import { useCallback, useState } from 'react'
+import { ArrowsIn, ArrowsOut, X } from 'phosphor-react'
 import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
-import { SetLabelsModal } from './SetLabelsModal'
-import { Label } from '../../../lib/networking/fragments/labelFragment'
-import { setLabelsForHighlight } from '../../../lib/networking/mutations/setLabelsForHighlight'
-import { updateHighlightMutation } from '../../../lib/networking/mutations/updateHighlightMutation'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { diff_match_patch } from 'diff-match-patch'
-import { HighlightNoteTextEditArea } from '../../elements/HighlightNoteTextEditArea'
-import { CloseButton } from '../../elements/CloseButton'
 import { MenuTrigger } from '../../elements/MenuTrigger'
-import { highlightsAsMarkdown, HighlightsMenu } from '../homeFeed/HighlightItem'
+import { highlightsAsMarkdown } from '../homeFeed/HighlightItem'
+import 'react-markdown-editor-lite/lib/index.css'
+import { Notebook } from './Notebook'
+import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
+import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+import { MarkdownNote } from '../../patterns/HighlightNotes'
 
 type NotebookModalProps = {
+  viewer: UserBasicData
+
+  item: ReadableItem
   highlights: Highlight[]
-  scrollToHighlight?: (arg: string) => void
-  updateHighlight: (highlight: Highlight) => void
-  deleteHighlightAction?: (highlightId: string) => void
-  onOpenChange: (open: boolean) => void
+
+  viewHighlightInReader: (arg: string) => void
+  onClose: (highlights: Highlight[], deletedAnnotations: Highlight[]) => void
 }
 
 export const getHighlightLocation = (patch: string): number | undefined => {
@@ -42,252 +38,179 @@ export const getHighlightLocation = (patch: string): number | undefined => {
 }
 
 export function NotebookModal(props: NotebookModalProps): JSX.Element {
-  const [showConfirmDeleteHighlightId, setShowConfirmDeleteHighlightId] =
-    useState<undefined | string>(undefined)
-  const [labelsTarget, setLabelsTarget] = useState<Highlight | undefined>(
-    undefined
+  const [sizeMode, setSizeMode] = useState<'normal' | 'maximized'>('normal')
+  const [showConfirmDeleteNote, setShowConfirmDeleteNote] = useState(false)
+  const [allAnnotations, setAllAnnotations] =
+    useState<Highlight[] | undefined>(undefined)
+  const [deletedAnnotations, setDeletedAnnotations] =
+    useState<Highlight[] | undefined>(undefined)
+
+  const handleClose = useCallback(() => {
+    props.onClose(allAnnotations ?? [], deletedAnnotations ?? [])
+  }, [allAnnotations, deletedAnnotations])
+
+  const handleAnnotationsChange = useCallback(
+    (allAnnotations, deletedAnnotations) => {
+      setAllAnnotations(allAnnotations)
+      setDeletedAnnotations(deletedAnnotations)
+    },
+    []
   )
-  const [, updateState] = useState({})
 
   const exportHighlights = useCallback(() => {
     ;(async () => {
-      if (!props.highlights) {
+      if (!allAnnotations) {
         showErrorToast('No highlights to export')
         return
       }
-      const markdown = highlightsAsMarkdown(props.highlights)
+      const markdown = highlightsAsMarkdown(allAnnotations)
       await navigator.clipboard.writeText(markdown)
       showSuccessToast('Highlight copied')
     })()
-  }, [props.highlights])
+  }, [allAnnotations])
 
-  const sortedHighlights = useMemo(() => {
-    const sorted = (a: number, b: number) => {
-      if (a < b) {
-        return -1
-      }
-      if (a > b) {
-        return 1
-      }
-      return 0
-    }
-
-    return props.highlights.sort((a: Highlight, b: Highlight) => {
-      if (a.highlightPositionPercent && b.highlightPositionPercent) {
-        return sorted(a.highlightPositionPercent, b.highlightPositionPercent)
-      }
-      // We do this in a try/catch because it might be an invalid diff
-      // With PDF it will definitely be an invalid diff.
-      try {
-        const aPos = getHighlightLocation(a.patch)
-        const bPos = getHighlightLocation(b.patch)
-        if (aPos && bPos) {
-          return sorted(aPos, bPos)
-        }
-      } catch {}
-      return a.createdAt.localeCompare(b.createdAt)
-    })
-  }, [props.highlights])
+  const viewInReader = useCallback(
+    (highlightId) => {
+      props.viewHighlightInReader(highlightId)
+      handleClose()
+    },
+    [props, handleClose]
+  )
 
   return (
-    <ModalRoot defaultOpen onOpenChange={props.onOpenChange}>
+    <ModalRoot defaultOpen onOpenChange={handleClose}>
       <ModalOverlay />
       <ModalContent
-        onPointerDownOutside={(event) => {
+        onInteractOutside={(event) => {
           event.preventDefault()
-          props.onOpenChange(false)
         }}
-        css={{ overflow: 'auto', px: '24px' }}
+        css={{
+          overflow: 'auto',
+          height: sizeMode === 'normal' ? 'unset' : '100%',
+          maxWidth: sizeMode === 'normal' ? '640px' : '100%',
+          minHeight: sizeMode === 'normal' ? '525px' : 'unset',
+          '@mdDown': {
+            top: '20px',
+            width: '100%',
+            height: '100%',
+            maxHeight: 'unset',
+            transform: 'translate(-50%)',
+          },
+        }}
       >
-        <VStack distribution="start" css={{ height: '100%' }}>
+        <HStack
+          distribution="between"
+          alignment="center"
+          css={{
+            width: '100%',
+            position: 'sticky',
+            top: '0px',
+            height: '50px',
+            p: '20px',
+            bg: '$grayBg',
+            zIndex: 10,
+          }}
+        >
+          <StyledText style="modalHeadline" css={{ color: '$thTextSubtle2' }}>
+            Notebook
+          </StyledText>
           <HStack
-            distribution="between"
+            css={{
+              ml: 'auto',
+              cursor: 'pointer',
+              gap: '15px',
+              mr: '-5px',
+            }}
+            distribution="center"
             alignment="center"
-            css={{ height: '50px', width: '100%' }}
           >
-            <StyledText style="modalHeadline">Notebook</StyledText>
-            <HStack css={{ ml: 'auto', gap: '10px' }}>
-              <Dropdown triggerElement={<MenuTrigger />}>
-                <DropdownOption
-                  onSelect={() => {
-                    exportHighlights()
-                  }}
-                  title="Export"
-                />
-              </Dropdown>
-              <CloseButton close={() => props.onOpenChange(false)} />
-            </HStack>
-          </HStack>
-          <Box css={{ overflow: 'auto', width: '100%' }}>
-            {sortedHighlights.map((highlight) => (
-              <ModalHighlightView
-                key={highlight.id}
-                highlight={highlight}
-                showDelete={!!props.deleteHighlightAction}
-                scrollToHighlight={props.scrollToHighlight}
-                setSetLabelsTarget={setLabelsTarget}
-                setShowConfirmDeleteHighlightId={
-                  setShowConfirmDeleteHighlightId
-                }
-                deleteHighlightAction={() => {
-                  if (props.deleteHighlightAction) {
-                    props.deleteHighlightAction(highlight.id)
-                  }
+            <SizeToggle mode={sizeMode} setMode={setSizeMode} />
+            <Dropdown triggerElement={<MenuTrigger />}>
+              <DropdownOption
+                onSelect={() => {
+                  exportHighlights()
                 }}
-                updateHighlight={props.updateHighlight}
+                title="Export Notebook"
               />
-            ))}
-            {sortedHighlights.length === 0 && (
-              <SpanBox css={{ textAlign: 'center', width: '100%' }}>
-                <StyledText css={{ mb: '40px' }}>
-                  You have not added any highlights or notes to this document
-                </StyledText>
-              </SpanBox>
-            )}
-          </Box>
-        </VStack>
+              <DropdownOption
+                onSelect={() => {
+                  setShowConfirmDeleteNote(true)
+                }}
+                title="Delete Document Note"
+              />
+            </Dropdown>
+            <CloseButton close={handleClose} />
+          </HStack>
+        </HStack>
+        <Notebook
+          {...props}
+          sizeMode={sizeMode}
+          viewInReader={viewInReader}
+          onAnnotationsChanged={handleAnnotationsChange}
+        />
       </ModalContent>
-      {showConfirmDeleteHighlightId && (
-        <ConfirmationModal
-          message={'Are you sure you want to delete this highlight?'}
-          onAccept={() => {
-            if (props.deleteHighlightAction) {
-              props.deleteHighlightAction(showConfirmDeleteHighlightId)
-            }
-            setShowConfirmDeleteHighlightId(undefined)
-          }}
-          onOpenChange={() => setShowConfirmDeleteHighlightId(undefined)}
-          icon={
-            <TrashIcon
-              size={40}
-              strokeColor={theme.colors.grayTextContrast.toString()}
-            />
-          }
-        />
-      )}
-      {labelsTarget && (
-        <SetLabelsModal
-          provider={labelsTarget}
-          onOpenChange={function (open: boolean): void {
-            setLabelsTarget(undefined)
-          }}
-          onLabelsUpdated={function (labels: Label[]): void {
-            updateState({})
-          }}
-          save={function (labels: Label[]): Promise<Label[] | undefined> {
-            const result = setLabelsForHighlight(
-              labelsTarget.id,
-              labels.map((label) => label.id)
-            )
-            return result
-          }}
-        />
-      )}
     </ModalRoot>
   )
 }
 
-type ModalHighlightViewProps = {
-  highlight: Highlight
-  showDelete: boolean
-  scrollToHighlight?: (arg: string) => void
-  deleteHighlightAction: () => void
-  updateHighlight: (highlight: Highlight) => void
-
-  setSetLabelsTarget: (highlight: Highlight) => void
-  setShowConfirmDeleteHighlightId: (id: string | undefined) => void
+type SizeToggleProps = {
+  mode: 'normal' | 'maximized'
+  setMode: (mode: 'normal' | 'maximized') => void
 }
 
-function ModalHighlightView(props: ModalHighlightViewProps): JSX.Element {
-  const [hover, setHover] = useState(false)
-  const [isEditing, setIsEditing] = useState(false)
-
-  const copyHighlight = useCallback(async () => {
-    await navigator.clipboard.writeText(props.highlight.quote)
-  }, [props.highlight])
-
+function CloseButton(props: { close: () => void }): JSX.Element {
   return (
-    <HStack
-      css={{ width: '100%', py: '20px', cursor: 'pointer' }}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
+    <Button
+      style="plainIcon"
+      css={{
+        display: 'flex',
+        padding: '3px',
+        alignItems: 'center',
+        borderRadius: '9999px',
+        '&:hover': {
+          bg: '#898989',
+        },
+      }}
+      onClick={(event) => {
+        props.close()
+        event.preventDefault()
+      }}
     >
-      <VStack>
-        {/* <SpanBox css={{ marginLeft: 'auto' }}>
-          <Dropdown
-            triggerElement={
-              <DotsThree size={24} color={theme.colors.readerFont.toString()} />
-            }
-          >
-            <DropdownOption
-              onSelect={async () => {
-                await copyHighlight()
-              }}
-              title="Copy"
-            />
-            <DropdownOption
-              onSelect={() => {
-                props.setSetLabelsTarget(props.highlight)
-              }}
-              title="Labels"
-            />
-            <DropdownOption
-              onSelect={() => {
-                props.setShowConfirmDeleteHighlightId(props.highlight.id)
-              }}
-              title="Delete"
-            />
-          </Dropdown>
-        </SpanBox> */}
+      <X
+        width={17}
+        height={17}
+        color={theme.colors.thTextContrast2.toString()}
+      />
+    </Button>
+  )
+}
 
-        <HighlightView
-          scrollToHighlight={props.scrollToHighlight}
-          highlight={props.highlight}
-        />
-        {!isEditing ? (
-          <StyledText
-            css={{
-              borderRadius: '5px',
-              p: '16px',
-              width: '100%',
-              marginTop: '24px',
-              bg: '#EBEBEB',
-              color: '#3D3D3D',
-            }}
-            onClick={() => setIsEditing(true)}
-          >
-            {props.highlight.annotation
-              ? props.highlight.annotation
-              : 'Add your notes...'}
-          </StyledText>
-        ) : null}
-        {isEditing && (
-          <HighlightNoteTextEditArea
-            setIsEditing={setIsEditing}
-            highlight={props.highlight}
-            updateHighlight={props.updateHighlight}
-          />
-        )}
-        <SpanBox css={{ mt: '$2', mb: '$4' }} />
-      </VStack>
-      <SpanBox
-        css={{
-          marginLeft: 'auto',
-          width: '20px',
-          visibility: hover ? 'unset' : 'hidden',
-          '@media (hover: none)': {
-            visibility: 'unset',
-          },
-        }}
-      >
-        <HighlightsMenu
-          highlight={props.highlight}
-          setLabelsTarget={props.setSetLabelsTarget}
-          setShowConfirmDeleteHighlightId={
-            props.setShowConfirmDeleteHighlightId
-          }
-        />
-      </SpanBox>
-    </HStack>
+function SizeToggle(props: SizeToggleProps): JSX.Element {
+  return (
+    <Button
+      style="plainIcon"
+      css={{
+        display: 'flex',
+        padding: '2px',
+        alignItems: 'center',
+        borderRadius: '9999px',
+        '&:hover': {
+          bg: '#898989',
+        },
+        '@mdDown': {
+          display: 'none',
+        },
+      }}
+      onClick={(event) => {
+        props.setMode(props.mode == 'normal' ? 'maximized' : 'normal')
+        event.preventDefault()
+      }}
+    >
+      {props.mode == 'normal' ? (
+        <ArrowsOut size="15" color={theme.colors.thTextContrast2.toString()} />
+      ) : (
+        <ArrowsIn size="15" color={theme.colors.thTextContrast2.toString()} />
+      )}
+    </Button>
   )
 }

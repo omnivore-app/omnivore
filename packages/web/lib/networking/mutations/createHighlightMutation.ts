@@ -1,17 +1,28 @@
 import { gql } from 'graphql-request'
 import { gqlFetcher } from '../networkHelpers'
-import { Highlight, highlightFragment } from './../fragments/highlightFragment'
+import {
+  Highlight,
+  highlightFragment,
+  HighlightType,
+} from './../fragments/highlightFragment'
 
 export type CreateHighlightInput = {
-  prefix: string
-  suffix: string
-  quote: string
   id: string
   shortId: string
-  patch: string
   articleId: string
+
+  prefix?: string
+  suffix?: string
+  quote?: string
+  html?: string
+  annotation?: string
+
+  patch?: string
+
   highlightPositionPercent?: number
   highlightPositionAnchorIndex?: number
+
+  type?: HighlightType
 }
 
 type CreateHighlightOutput = {

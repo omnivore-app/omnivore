@@ -11,6 +11,7 @@ import { extendRangeToWordBoundaries } from './normalizeHighlightRange'
 import type { Highlight } from '../networking/fragments/highlightFragment'
 import { removeHighlights } from './deleteHighlight'
 import { ArticleMutations } from '../articleActions'
+import { NodeHtmlMarkdown } from 'node-html-markdown'
 
 type CreateHighlightInput = {
   selection: SelectionAttributes
@@ -28,6 +29,20 @@ type CreateHighlightOutput = {
   newHighlightIndex?: number
 }
 
+/* ********************************************************* *
+ * Re-use
+ * If using it several times, creating an instance saves time
+ * ********************************************************* */
+const nhm = new NodeHtmlMarkdown(
+  /* options (optional) */ {},
+  /* customTransformers (optional) */ undefined,
+  /* customCodeBlockTranslators (optional) */ undefined
+)
+
+export const htmlToMarkdown = (html: string) => {
+  return nhm.translate(/* html */ html)
+}
+
 export async function createHighlight(
   input: CreateHighlightInput,
   articleMutations: ArticleMutations
@@ -41,6 +56,10 @@ export async function createHighlight(
   const { range, selection } = input.selection
 
   extendRangeToWordBoundaries(range)
+
+  // Create a temp container for copying the range HTML
+  const container = document.createElement('div')
+  container.appendChild(range.cloneContents())
 
   const id = uuidv4()
   const patch = generateDiffPatch(range)
@@ -79,12 +98,15 @@ export async function createHighlight(
   )
 
   const newHighlightAttributes = {
-    prefix: highlightAttributes.prefix,
-    suffix: highlightAttributes.suffix,
-    quote: highlightAttributes.quote,
     id,
     shortId: nanoid(8),
     patch,
+
+    prefix: highlightAttributes.prefix,
+    suffix: highlightAttributes.suffix,
+    quote: htmlToMarkdown(container.innerHTML),
+    html: container.innerHTML,
+
     annotation: annotations.length > 0 ? annotations.join('\n') : undefined,
     articleId: input.articleId,
     highlightPositionPercent: input.highlightPositionPercent,
