@@ -78,7 +78,6 @@ public struct LibraryItemCard: View {
     if let highlights = item.highlights, highlights.count > 0 {
       let fmted = LocalText.pluralizedText(key: "number_of_highlights", count: highlights.count)
       if item.wordsCount > 0 {
-        print(" - highlightsText: ", " • \(fmted)")
         return " • \(fmted)"
       }
       return fmted

@@ -7,7 +7,6 @@ public enum LocalText {
 
   public static func pluralizedText(key: String, count: Int) -> String {
     let format = NSLocalizedString(key, bundle: .module, comment: "")
-    print("key", key, "format", format)
     return String.localizedStringWithFormat(format, count)
   }
 
