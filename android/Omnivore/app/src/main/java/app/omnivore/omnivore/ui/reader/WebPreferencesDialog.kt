@@ -1,5 +1,6 @@
 package app.omnivore.omnivore.ui.reader
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
@@ -26,6 +27,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import app.omnivore.omnivore.R
+import app.omnivore.omnivore.ui.components.SegmentedControl
 
 @Composable
 fun WebPreferencesDialog(onDismiss: () -> Unit, webReaderViewModel: WebReaderViewModel) {
@@ -34,7 +36,7 @@ fun WebPreferencesDialog(onDismiss: () -> Unit, webReaderViewModel: WebReaderVie
       shape = RoundedCornerShape(16.dp),
       color = Color.White,
       modifier = Modifier
-        .height(300.dp)
+        .height(350.dp)
     ) {
       WebPreferencesView(webReaderViewModel)
     }
@@ -93,6 +95,17 @@ fun WebPreferencesView(webReaderViewModel: WebReaderViewModel) {
             webReaderViewModel.updateHighContrastTextPreference(it)
           }
         )
+      }
+
+      Row(verticalAlignment = Alignment.CenterVertically) {
+        Text("Theme:")
+        Spacer(modifier = Modifier.weight(1.0F))
+        SegmentedControl(
+          items = listOf("Light", "Dark", "System"),
+          defaultSelectedItemIndex = 0
+        ) {
+          Log.e("CustomToggle", "Selected item: $it")
+        }
       }
 
       Row(
