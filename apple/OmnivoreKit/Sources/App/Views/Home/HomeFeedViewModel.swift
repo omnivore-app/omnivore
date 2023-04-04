@@ -51,15 +51,11 @@ import Views
     self.items = items
 
     // now try to update the continue reading items:
-    featureItems = items.filter { item in
+    featureItems = (items.filter { item in
       featureFilter.predicate.evaluate(with: item)
-    }
-    .sorted(by: { left, right in
-      if let lreadAt = left.readAt, let rreadAt = right.readAt {
-        return lreadAt > rreadAt
-      }
-      return false
-    })
+    } as NSArray)
+      .sortedArray(using: [featureFilter.sortDescriptor])
+      .compactMap { $0 as? LinkedItem }
   }
 
   func handleReaderItemNotification(objectID: NSManagedObjectID, dataService: DataService) {

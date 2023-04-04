@@ -58,9 +58,8 @@ const App = () => {
     <>
       <Box
         css={{
-          overflowY: 'auto',
-          height: '100%',
-          width: '100vw',
+          // height: '100vh',
+          // width: '100vw',
           paddingTop: window.webkit ? 0 : '48px', // add 48px to android only
         }}
       >

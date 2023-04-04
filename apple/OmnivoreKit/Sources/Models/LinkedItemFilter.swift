@@ -125,13 +125,23 @@ public extension FeaturedItemFilter {
       let newsletterLabelPredicate = NSPredicate(
         format: "SUBQUERY(labels, $label, $label.name == \"Newsletter\").@count > 0"
       )
-      return NSCompoundPredicate(andPredicateWithSubpredicates: [notInArchivePredicate, newsletterLabelPredicate])
+      return NSCompoundPredicate(andPredicateWithSubpredicates: [notInArchivePredicate, undeletedPredicate, newsletterLabelPredicate])
     case .recommended:
       // non-archived or deleted items with the Newsletter label
       let recommendedPredicate = NSPredicate(
         format: "recommendations.@count > 0"
       )
-      return NSCompoundPredicate(andPredicateWithSubpredicates: [notInArchivePredicate, recommendedPredicate])
+      return NSCompoundPredicate(andPredicateWithSubpredicates: [notInArchivePredicate, undeletedPredicate, recommendedPredicate])
+    }
+  }
+
+  var sortDescriptor: NSSortDescriptor {
+    let savedAtSort = NSSortDescriptor(key: #keyPath(LinkedItem.savedAt), ascending: false)
+    switch self {
+    case .continueReading:
+      return NSSortDescriptor(key: #keyPath(LinkedItem.readAt), ascending: false)
+    default:
+      return savedAtSort
     }
   }
 }
