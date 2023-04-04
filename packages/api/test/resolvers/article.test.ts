@@ -1064,6 +1064,7 @@ describe('Article API', () => {
                 id
                 createdAt
                 updatedAt
+                pageType
               }
               itemID
               updateReason

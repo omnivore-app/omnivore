@@ -1,14 +1,15 @@
+import { ResponseError } from '@elastic/elasticsearch/lib/errors'
+import { EntityType } from '../datalayer/pubsub'
+import { SortBy, SortOrder, SortParams } from '../utils/search'
+import { client, INDEX_ALIAS } from './index'
 import {
   Highlight,
   Page,
   PageContext,
+  PageType,
   SearchItem,
   SearchResponse,
 } from './types'
-import { ResponseError } from '@elastic/elasticsearch/lib/errors'
-import { client, INDEX_ALIAS } from './index'
-import { SortBy, SortOrder, SortParams } from '../utils/search'
-import { EntityType } from '../datalayer/pubsub'
 
 export const addHighlightToPage = async (
   id: string,
@@ -241,6 +242,7 @@ export const searchHighlights = async (
           ...highlight,
           ...hit._source,
           pageId: hit._id,
+          pageType: PageType.Highlights,
         })
       })
     })
