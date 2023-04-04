@@ -97,7 +97,11 @@ fun WebPreferencesView(webReaderViewModel: WebReaderViewModel) {
         )
       }
 
-      Row(verticalAlignment = Alignment.CenterVertically) {
+      Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+          .padding(vertical = 4.dp)
+      ) {
         Text("Theme:")
         Spacer(modifier = Modifier.weight(1.0F))
         SegmentedControl(
