@@ -222,20 +222,14 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   )
 
   const selectionPercentPos = (selection: Selection): number | undefined => {
-    if (
-      selection.rangeCount > 0 &&
-      window &&
-      window.document.scrollingElement
-    ) {
-      const percent =
-        (selection.getRangeAt(0).getBoundingClientRect().y + window.scrollY) /
-        window.document.scrollingElement.scrollHeight
-      console.log(
-        'percent breakdown: ',
-        selection.getRangeAt(0).getBoundingClientRect().y,
-        window.scrollY,
-        window.document.scrollingElement.scrollHeight
-      )
+    const containerRect = document
+      .getElementById('readability-page-1')
+      ?.getBoundingClientRect()
+    if (selection.rangeCount > 0 && containerRect) {
+      const selectionTop = selection.getRangeAt(0).getBoundingClientRect().y
+      const relativeTop = selectionTop - containerRect.y
+      const percent = relativeTop / containerRect.height
+
       return Math.min(Math.max(0, percent * 100), 100)
     }
     return undefined
@@ -264,7 +258,6 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
 
   const createHighlightCallback = useCallback(
     async (successAction: HighlightModalAction, annotation?: string) => {
-      console.log('creating highlight from: ', selectionData)
       if (!selectionData) {
         return
       }
