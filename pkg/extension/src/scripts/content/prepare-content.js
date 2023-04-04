@@ -136,14 +136,18 @@
     document.documentElement.appendChild(contentCopyEl);
 
     Array.from(contentCopyEl.getElementsByTagName('*')).forEach(prepareContentPostItem);
-    // check if create_time is defined
-    if (typeof create_time !== 'undefined' && create_time) {
-      // create_time is a global variable set by WeChat when rendering the page
-      const date = new Date(create_time * 1000);
-      const dateNode = document.createElement('div');
-      dateNode.className = 'omnivore-published-date';
-      dateNode.innerHTML = date.toLocaleString();
-      contentCopyEl.appendChild(dateNode);
+    try {
+      // check if create_time is defined
+      if (typeof create_time !== 'undefined' && create_time) {
+        // create_time is a global variable set by WeChat when rendering the page
+        const date = new Date(create_time * 1000);
+        const dateNode = document.createElement('div');
+        dateNode.className = 'omnivore-published-date';
+        dateNode.innerHTML = date.toLocaleString();
+        contentCopyEl.appendChild(dateNode);
+      }
+    } catch (e) {
+      console.log('Error while trying to add published date to WeChat post', e);
     }
     /*
    * Grab head and body separately as using clone on entire document into a div
