@@ -2,6 +2,7 @@ import { ResponseError } from '@elastic/elasticsearch/lib/errors'
 import { BuiltQuery, ESBuilder, esBuilder } from 'elastic-ts'
 import { EntityType } from '../datalayer/pubsub'
 import { BulkActionType } from '../generated/graphql'
+import { wordsCount } from '../utils/helpers'
 import {
   DateFilter,
   FieldFilter,
@@ -245,6 +246,7 @@ export const createPage = async (
         ...page,
         updatedAt: new Date(),
         savedAt: new Date(),
+        wordsCount: page.wordsCount ?? wordsCount(page.content),
       },
       refresh: 'wait_for', // wait for the index to be refreshed before returning
     })
