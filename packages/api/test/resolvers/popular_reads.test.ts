@@ -1,9 +1,9 @@
-import { createTestUser, deleteTestUser } from '../db'
-import { graphqlRequest, request } from '../util'
 import { expect } from 'chai'
 import 'mocha'
-import { User } from '../../src/entity/user'
 import { getPageByParam } from '../../src/elastic/pages'
+import { User } from '../../src/entity/user'
+import { createTestUser, deleteTestUser } from '../db'
+import { graphqlRequest, request } from '../util'
 
 describe('PopularReads API', () => {
   let user: User
@@ -55,6 +55,7 @@ describe('PopularReads API', () => {
       expect(page?.url).to.eq(
         'https://blog.omnivore.app/p/getting-started-with-omnivore'
       )
+      expect(page?.wordsCount).to.eq(1155)
     })
 
     it('responds status code 500 when invalid user', async () => {
