@@ -60,6 +60,7 @@
     "react-super-responsive-table": "^5.2.1",
     "react-topbar-progress-indicator": "^4.1.1",
     "react-twitter-widgets": "^1.10.0",
+    "remark-gfm": "^3.0.1",
     "swr": "^1.0.1",
     "uuid": "^8.3.2"
   },

@@ -16,10 +16,10 @@ public struct LibraryItemCard: View {
   public var body: some View {
     VStack {
       HStack(alignment: .top, spacing: 0) {
-        readIndicator
         articleInfo
         imageBox
       }
+      .padding(5)
       .frame(maxWidth: .infinity, maxHeight: .infinity)
 
       if item.hasLabels {
@@ -40,7 +40,7 @@ public struct LibraryItemCard: View {
   var readIndicator: some View {
     HStack {
       Circle()
-        .foregroundColor(item.readingProgress > 0 ? .clear : .indicatorBlue)
+        .foregroundColor( /* item.readingProgress > 0 ? .clear : */ .indicatorBlue)
         .frame(width: 9, height: 9, alignment: .topLeading)
         .padding(.top, 22)
         .padding(.leading, 0)
@@ -78,6 +78,7 @@ public struct LibraryItemCard: View {
     if let highlights = item.highlights, highlights.count > 0 {
       let fmted = LocalText.pluralizedText(key: "number_of_highlights", count: highlights.count)
       if item.wordsCount > 0 {
+        print(" - highlightsText: ", " • \(fmted)")
         return " • \(fmted)"
       }
       return fmted
@@ -145,7 +146,7 @@ public struct LibraryItemCard: View {
           }
         }
       }
-    }.opacity(isFullyRead ? 0.4 : 1.0)
+    }
   }
 
   var bylineStr: String {
@@ -190,8 +191,9 @@ public struct LibraryItemCard: View {
       Text(item.unwrappedTitle)
         .font(Font.system(size: 18, weight: .semibold))
         .lineSpacing(1.25)
-        .foregroundColor(isFullyRead ? Color.themeMediumGray : .appGrayTextContrast)
+        .foregroundColor(.appGrayTextContrast)
         .fixedSize(horizontal: false, vertical: true)
+        .lineLimit(2)
 
       byLine
     }
@@ -213,7 +215,6 @@ public struct LibraryItemCard: View {
       #endif
     }
     .padding(.top, 0)
-    .padding(.leading, 20)
     #if os(macOS)
       .onTapGesture {
         tapHandler()

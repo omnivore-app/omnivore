@@ -52,10 +52,7 @@ const mutation = async (name, input) => {
 const App = () => {
   applyStoredTheme(false)
 
-  document.addEventListener('updateLabels', (event) => {
-    console.log('updating labels: ', event.labels)
-    setLabels(event.labels)
-  })
+  console.log('rerendering: ', window.omnivoreArticle)
 
   return (
     <>

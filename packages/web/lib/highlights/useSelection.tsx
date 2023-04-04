@@ -9,9 +9,8 @@ import type { SelectionAttributes } from './highlightHelpers'
 export function useSelection(
   highlightLocations: HighlightLocation[]
 ): [SelectionAttributes | null, (x: SelectionAttributes | null) => void] {
-  const [touchStartPos, setTouchStartPos] = useState<
-    { x: number; y: number } | undefined
-  >(undefined)
+  const [touchStartPos, setTouchStartPos] =
+    useState<{ x: number; y: number } | undefined>(undefined)
   const [selectionAttributes, setSelectionAttributes] =
     useState<SelectionAttributes | null>(null)
 
@@ -61,6 +60,13 @@ export function useSelection(
 
       let shouldCancelSelection = false
       const overlapHighlights: HighlightLocation[] = []
+
+      console.log(
+        'checking highlight locations for ',
+        selectionStart,
+        selectionEnd
+      )
+      console.log(' highlight locations: ', highlightLocations)
 
       highlightLocations
         .sort((a, b) => {
@@ -138,13 +144,16 @@ export function useSelection(
         }, 100)
       }
 
+      console.log('range rect: ', rangeRect, 'tapAttributes', tapAttributes)
       return setSelectionAttributes({
         selection,
         wasDragEvent,
         range: mergedRange ?? range,
         focusPosition: {
-          x: rangeRect[isReverseSelected ? 'left' : 'right'],
-          y: rangeRect[isReverseSelected ? 'top' : 'bottom'],
+          // x: rangeRect[isReverseSelected ? 'left' : 'right'],
+          // y: rangeRect[isReverseSelected ? 'top' : 'bottom'],
+          x: tapAttributes.tapX,
+          y: tapAttributes.tapY,
           isReverseSelected,
         },
         overlapHighlights: overlapHighlights.map(({ id }) => id),

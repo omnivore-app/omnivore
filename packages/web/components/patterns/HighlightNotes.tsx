@@ -25,6 +25,7 @@ import {
 } from '../elements/ModalPrimitives'
 import { CloseButton } from '../elements/CloseButton'
 import { StyledText } from '../elements/StyledText'
+import remarkGfm from 'remark-gfm'
 
 const mdParser = new MarkdownIt()
 
@@ -326,7 +327,10 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
             }}
             onClick={() => props.setEditMode('edit')}
           >
-            <ReactMarkdown children={props.text ?? props.placeHolder} />
+            <ReactMarkdown
+              children={props.text ?? props.placeHolder}
+              remarkPlugins={[remarkGfm]}
+            />
           </SpanBox>
         </>
       )}

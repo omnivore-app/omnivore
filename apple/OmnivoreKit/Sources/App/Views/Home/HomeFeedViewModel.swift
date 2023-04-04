@@ -33,6 +33,9 @@ import Views
   @Published var showLabelsSheet = false
   @Published var showCommunityModal = false
 
+  @Published var featureFilter = FeaturedItemFilter.continueReading
+  @Published var featureItems = [LinkedItem]()
+
   var cursor: String?
 
   // These are used to make sure we handle search result
@@ -43,6 +46,21 @@ import Views
   var syncCursor: String?
 
   @AppStorage(UserDefaultKey.lastSelectedLinkedItemFilter.rawValue) var appliedFilter = LinkedItemFilter.inbox.rawValue
+
+  func setItems(_ items: [LinkedItem]) {
+    self.items = items
+
+    // now try to update the continue reading items:
+    featureItems = items.filter { item in
+      featureFilter.predicate.evaluate(with: item)
+    }
+    .sorted(by: { left, right in
+      if let lreadAt = left.readAt, let rreadAt = right.readAt {
+        return lreadAt > rreadAt
+      }
+      return false
+    })
+  }
 
   func handleReaderItemNotification(objectID: NSManagedObjectID, dataService: DataService) {
     // Pop the current selected item if needed
@@ -166,9 +184,9 @@ import Views
         // Don't use FRC for searching. Use server results directly.
         if fetchedResultsController != nil {
           fetchedResultsController = nil
-          items = []
+          setItems([])
         }
-        items = isRefresh ? newItems : items + newItems
+        setItems(isRefresh ? newItems : items + newItems)
       }
 
       isLoading = false
@@ -266,7 +284,7 @@ import Views
 
     fetchedResultsController.delegate = self
     try? fetchedResultsController.performFetch()
-    items = fetchedResultsController.fetchedObjects ?? []
+    setItems(fetchedResultsController.fetchedObjects ?? [])
   }
 
   func setLinkArchived(dataService: DataService, objectID: NSManagedObjectID, archived: Bool) {
@@ -340,6 +358,6 @@ import Views
 
 extension HomeFeedViewModel: NSFetchedResultsControllerDelegate {
   func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-    items = controller.fetchedObjects as? [LinkedItem] ?? []
+    setItems(controller.fetchedObjects as? [LinkedItem] ?? [])
   }
 }

@@ -11,8 +11,9 @@ import {
   HStack,
 } from '../elements/LayoutPrimitives'
 import { styled } from '../tokens/stitches.config'
-import { HighlightViewNote, MarkdownModal } from './HighlightNotes'
+import { HighlightViewNote } from './HighlightNotes'
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 type HighlightViewProps = {
   highlight: Highlight
@@ -83,7 +84,10 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
               },
             }}
           >
-            <ReactMarkdown children={props.highlight.quote ?? ''} />
+            <ReactMarkdown
+              children={props.highlight.quote ?? ''}
+              remarkPlugins={[remarkGfm]}
+            />
           </SpanBox>
         </StyledQuote>
         <Box css={{ display: 'block', pt: '5px' }}>

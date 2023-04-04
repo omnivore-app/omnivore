@@ -89,3 +89,49 @@ public extension LinkedItemFilter {
     }
   }
 }
+
+public enum FeaturedItemFilter: String, CaseIterable {
+  case continueReading
+  case recommended
+  case newsletters
+}
+
+public extension FeaturedItemFilter {
+  var title: String {
+    switch self {
+    case .continueReading:
+      return "Continue Reading"
+    default:
+      return rawValue
+    }
+  }
+
+  var predicate: NSPredicate {
+    let undeletedPredicate = NSPredicate(
+      format: "%K != %i", #keyPath(LinkedItem.serverSyncStatus), Int64(ServerSyncStatus.needsDeletion.rawValue)
+    )
+    let notInArchivePredicate = NSPredicate(
+      format: "%K == %@", #keyPath(LinkedItem.isArchived), Int(truncating: false) as NSNumber
+    )
+
+    switch self {
+    case .continueReading:
+      let continueReadingPredicate = NSPredicate(
+        format: "readingProgress > 1 AND readAt != nil"
+      )
+      return NSCompoundPredicate(andPredicateWithSubpredicates: [continueReadingPredicate, undeletedPredicate, notInArchivePredicate])
+    case .newsletters:
+      // non-archived or deleted items with the Newsletter label
+      let newsletterLabelPredicate = NSPredicate(
+        format: "SUBQUERY(labels, $label, $label.name == \"Newsletter\").@count > 0"
+      )
+      return NSCompoundPredicate(andPredicateWithSubpredicates: [notInArchivePredicate, newsletterLabelPredicate])
+    case .recommended:
+      // non-archived or deleted items with the Newsletter label
+      let recommendedPredicate = NSPredicate(
+        format: "recommendations.@count > 0"
+      )
+      return NSCompoundPredicate(andPredicateWithSubpredicates: [notInArchivePredicate, recommendedPredicate])
+    }
+  }
+}

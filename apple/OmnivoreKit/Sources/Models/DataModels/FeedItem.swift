@@ -74,6 +74,10 @@ public extension LinkedItem {
     readingProgress <= 0
   }
 
+  var isPartiallyRead: Bool {
+    Int(readingProgress) > 0
+  }
+
   var isRead: Bool {
     readingProgress >= 0.98
   }

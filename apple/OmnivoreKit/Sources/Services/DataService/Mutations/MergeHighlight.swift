@@ -40,7 +40,7 @@ extension DataService {
     )
 
     // Send update to server
-    syncHighlightCreation(highlight: internalHighlight, articleId: articleId)
+    syncHighlightMerge(highlight: internalHighlight, articleId: articleId, overlapHighlightIdList: overlapHighlightIdList)
 
     return internalHighlight.encoded()
   }

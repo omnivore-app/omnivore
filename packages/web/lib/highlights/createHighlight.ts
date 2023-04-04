@@ -51,15 +51,24 @@ export async function createHighlight(
     return {}
   }
 
+  console.log(
+    ' input.selection.overlapHighlights: ',
+    input.selection.overlapHighlights
+  )
+
   const shouldMerge = input.selection.overlapHighlights.length > 0
 
   const { range, selection } = input.selection
 
+  console.log('original range: ', range.toString())
   extendRangeToWordBoundaries(range)
 
   // Create a temp container for copying the range HTML
   const container = document.createElement('div')
   container.appendChild(range.cloneContents())
+
+  console.log(' - html: ', container.innerHTML)
+  console.log(' - markdown: ', htmlToMarkdown(container.innerHTML))
 
   const id = uuidv4()
   const patch = generateDiffPatch(range)

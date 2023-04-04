@@ -230,6 +230,12 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       const percent =
         (selection.getRangeAt(0).getBoundingClientRect().y + window.scrollY) /
         window.document.scrollingElement.scrollHeight
+      console.log(
+        'percent breakdown: ',
+        selection.getRangeAt(0).getBoundingClientRect().y,
+        window.scrollY,
+        window.document.scrollingElement.scrollHeight
+      )
       return Math.min(Math.max(0, percent * 100), 100)
     }
     return undefined
@@ -258,6 +264,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
 
   const createHighlightCallback = useCallback(
     async (successAction: HighlightModalAction, annotation?: string) => {
+      console.log('creating highlight from: ', selectionData)
       if (!selectionData) {
         return
       }

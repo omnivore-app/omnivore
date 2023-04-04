@@ -354,6 +354,52 @@ import Views
       }
     }
 
+    var featureCard: some View {
+      VStack(alignment: .leading, spacing: 20) {
+        Menu(content: {
+          Button(action: {
+            viewModel.featureFilter = .continueReading
+          }, label: {
+            Text("Continue Reading")
+          })
+          Button(action: {
+            viewModel.featureFilter = .recommended
+          }, label: {
+            Text("Recommended")
+            // Label("Recommended", systemImage: "x.circle")
+          })
+          Button(action: {
+            viewModel.featureFilter = .newsletters
+          }, label: {
+            Text("Newsletters")
+
+//            Label("Newsletters", systemImage: "x.circle")
+          })
+        }, label: {
+          HStack(alignment: .center) {
+            Text(viewModel.featureFilter.title.uppercased())
+              .font(Font.system(size: 14, weight: .medium))
+            Image(systemName: "chevron.down")
+          }
+        })
+          .padding(.top, 20)
+          .padding(.bottom, 0)
+
+        ScrollView(.horizontal, showsIndicators: false) {
+          LazyHStack(alignment: .top, spacing: 20) {
+            ForEach(viewModel.featureItems) { item in
+              LibraryFeatureCardNavigationLink(item: item, viewModel: viewModel)
+            }
+          }.padding(0)
+        }
+        .padding(.top, 0)
+
+        Text((LinkedItemFilter(rawValue: viewModel.appliedFilter)?.displayName ?? "Inbox").uppercased())
+          .font(Font.system(size: 14, weight: .medium))
+          .padding(.bottom, 5)
+      }
+    }
+
     var body: some View {
       ZStack {
         NavigationLink(
@@ -371,14 +417,20 @@ import Views
 
           List {
             filtersHeader
-              .listRowSeparator(.hidden, edges: .top)
+              .listRowInsets(.init(top: 0, leading: 10, bottom: 10, trailing: 10))
+
+            if viewModel.featureItems.count > 0 {
+              featureCard
+                .listRowInsets(.init(top: 0, leading: 10, bottom: 10, trailing: 10))
+            }
 
             ForEach(viewModel.items) { item in
               FeedCardNavigationLink(
                 item: item,
                 viewModel: viewModel
               )
-              .listRowInsets(.init(top: 0, leading: 8, bottom: 8, trailing: 8))
+              .listRowSeparatorTint(Color.thBorderColor)
+              .listRowInsets(.init(top: 0, leading: 10, bottom: 10, trailing: 10))
               .contextMenu {
                 menuItems(for: item)
               }
