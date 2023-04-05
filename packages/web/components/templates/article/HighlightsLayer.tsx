@@ -27,6 +27,7 @@ import { setLabelsForHighlight } from '../../../lib/networking/mutations/setLabe
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+import { useRegisterActions } from 'kbar'
 
 type HighlightsLayerProps = {
   viewer: UserBasicData
@@ -74,6 +75,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   >([])
   const focusedHighlightMousePos = useRef({ pageX: 0, pageY: 0 })
 
+  const [currentHighlightIdx, setCurrentHighlightIdx] = useState(0)
   const [focusedHighlight, setFocusedHighlight] =
     useState<Highlight | undefined>(undefined)
 
@@ -537,6 +539,32 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       handleAction('setHighlightLabels')
     }
 
+    const goToNextHighlight = () => {
+      const highlightsList = highlights.filter((h) => h.type == 'HIGHLIGHT')
+      const next = Math.min(currentHighlightIdx + 1, highlightsList.length - 1)
+      goToHighlightIdx(next, highlightsList)
+    }
+
+    const goToPreviousHighlight = () => {
+      const highlightsList = highlights.filter((h) => h.type == 'HIGHLIGHT')
+      const prev = Math.max(currentHighlightIdx - 1, 0)
+      goToHighlightIdx(prev, highlightsList)
+    }
+
+    const goToHighlightIdx = (idx: number, highlightsList: Highlight[]) => {
+      const highlight = highlightsList[idx]
+      console.log('highlight: ', highlight, 'idx', idx)
+
+      const target = document.querySelector(
+        `[omnivore-highlight-id="${highlight.id}"]`
+      )
+      target?.scrollIntoView({
+        block: 'center',
+        behavior: 'smooth',
+      })
+      setCurrentHighlightIdx(idx)
+    }
+
     const copy = async () => {
       if (focusedHighlight && focusedHighlight.quote) {
         if (window.AndroidWebKitMessenger) {
@@ -608,6 +636,8 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
     document.addEventListener('saveAnnotation', saveAnnotation)
     document.addEventListener('speakingSection', speakingSection)
     document.addEventListener('setHighlightLabels', setHighlightLabels)
+    document.addEventListener('scrollToNextHighlight', goToNextHighlight)
+    document.addEventListener('scrollToPrevHighlight', goToPreviousHighlight)
 
     return () => {
       document.removeEventListener('annotate', annotate)
@@ -619,6 +649,11 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       document.removeEventListener('saveAnnotation', saveAnnotation)
       document.removeEventListener('speakingSection', speakingSection)
       document.removeEventListener('setHighlightLabels', setHighlightLabels)
+      document.removeEventListener('scrollToNextHighlight', goToNextHighlight)
+      document.removeEventListener(
+        'scrollToPrevHighlight',
+        goToPreviousHighlight
+      )
     }
   })
 

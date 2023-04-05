@@ -248,7 +248,7 @@ export default function Home(): JSX.Element {
         name: 'Scroll to next highlight',
         shortcut: ['j'],
         perform: () => {
-          document.dispatchEvent(new Event('highlight'))
+          document.dispatchEvent(new Event('scrollToNextHighlight'))
         },
       },
       {
@@ -257,7 +257,7 @@ export default function Home(): JSX.Element {
         name: 'Scroll to previous highlight',
         shortcut: ['k'],
         perform: () => {
-          document.dispatchEvent(new Event('highlight'))
+          document.dispatchEvent(new Event('scrollToPrevHighlight'))
         },
       },
       {
