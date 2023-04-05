@@ -187,15 +187,16 @@
     if (pdfContent) {
       return pdfContent
     }
+    const url = window.location.href;
     try {
-      if (handleBackendUrl(window.location.href)) {
+      if (handleBackendUrl(url)) {
         return { type: 'url' }
       }
     } catch {
       console.log('error checking url')
     }
 
-    async function scrollPage () {
+    async function scrollPage (url) {
       const scrollingEl = (document.scrollingElement || document.body);
       const lastScrollPos = scrollingEl.scrollTop;
       const currentScrollHeight = scrollingEl.scrollHeight;
@@ -209,15 +210,16 @@
       /*
        * check below compares scrollTop against initial page height to handle
        * pages with infinite scroll else we shall be infinitely scrolling here.
+       * stop scrolling if the url has changed in the meantime.
        */
-      while (scrollingEl.scrollTop <= (currentScrollHeight - 500)) {
+      while (scrollingEl.scrollTop <= (currentScrollHeight - 500) && window.location.href === url) {
         const prevScrollTop = scrollingEl.scrollTop;
         scrollingEl.scrollTop += 500;
         /* sleep upon scrolling position change for event loop to handle events from scroll */
         await (new Promise((resolve) => { setTimeout(resolve, 10); }));
         if (scrollingEl.scrollTop === prevScrollTop) {
-        /* break out scroll loop if we are not able to scroll for any reason */
-        // console.log('breaking out scroll loop', scrollingEl.scrollTop, currentScrollHeight);
+          /* break out scroll loop if we are not able to scroll for any reason */
+          // console.log('breaking out scroll loop', scrollingEl.scrollTop, currentScrollHeight);
           break;
         }
       }
@@ -225,7 +227,7 @@
       /* sleep upon scrolling position change for event loop to handle events from scroll */
       await (new Promise((resolve) => { setTimeout(resolve, 10); }));
     }
-    await scrollPage();
+    await scrollPage(url);
 
     clearExistingBackdrops();
     return { type: 'html', content: prepareContentPostScroll() };
