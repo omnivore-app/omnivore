@@ -358,22 +358,24 @@ import Views
       VStack(alignment: .leading, spacing: 20) {
         Menu(content: {
           Button(action: {
-            viewModel.featureFilter = .continueReading
+            viewModel.updateFeatureFilter(.continueReading)
           }, label: {
             Text("Continue Reading")
           })
           Button(action: {
-            viewModel.featureFilter = .recommended
+            viewModel.updateFeatureFilter(.recommended)
           }, label: {
             Text("Recommended")
-            // Label("Recommended", systemImage: "x.circle")
           })
           Button(action: {
-            viewModel.featureFilter = .newsletters
+            viewModel.updateFeatureFilter(.newsletters)
           }, label: {
             Text("Newsletters")
-
-//            Label("Newsletters", systemImage: "x.circle")
+          })
+          Button(action: {
+            // viewModel.updateFeatureFilter(.newsletters)
+          }, label: {
+            Text("Hide Feature Section")
           })
         }, label: {
           HStack(alignment: .center) {
@@ -385,14 +387,18 @@ import Views
           .padding(.top, 20)
           .padding(.bottom, 0)
 
-        ScrollView(.horizontal, showsIndicators: false) {
-          LazyHStack(alignment: .top, spacing: 20) {
-            ForEach(viewModel.featureItems) { item in
-              LibraryFeatureCardNavigationLink(item: item, viewModel: viewModel)
-            }
-          }.padding(0)
+        if viewModel.featureItems.count > 0 {
+          ScrollView(.horizontal, showsIndicators: false) {
+            LazyHStack(alignment: .top, spacing: 20) {
+              ForEach(viewModel.featureItems) { item in
+                LibraryFeatureCardNavigationLink(item: item, viewModel: viewModel)
+              }
+            }.padding(0)
+          }
+          .padding(.top, 0)
+        } else {
+          Text(viewModel.featureFilter.emptyMessage)
         }
-        .padding(.top, 0)
 
         Text((LinkedItemFilter(rawValue: viewModel.appliedFilter)?.displayName ?? "Inbox").uppercased())
           .font(Font.system(size: 14, weight: .medium))
@@ -419,7 +425,8 @@ import Views
             filtersHeader
               .listRowInsets(.init(top: 0, leading: 10, bottom: 10, trailing: 10))
 
-            if viewModel.featureItems.count > 0 {
+            // Only show the feature card section if we have items loaded
+            if viewModel.items.count > 0 {
               featureCard
                 .listRowInsets(.init(top: 0, leading: 10, bottom: 10, trailing: 10))
             }

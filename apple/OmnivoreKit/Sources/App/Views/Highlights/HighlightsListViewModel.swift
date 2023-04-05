@@ -72,7 +72,7 @@ struct HighlightListItemParams: Identifiable {
   }
 
   private func loadHighlights(item: LinkedItem) {
-    let unsortedHighlights = item.highlights.asArray(of: Highlight.self)
+    let unsortedHighlights = item.highlights.asArray(of: Highlight.self).filter { $0.type == "HIGHLIGHT" }
 
     let highlights = unsortedHighlights.sorted { left, right in
       if left.positionPercent > 0, right.positionPercent > 0 {

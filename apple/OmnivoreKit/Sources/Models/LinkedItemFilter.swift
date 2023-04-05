@@ -106,6 +106,17 @@ public extension FeaturedItemFilter {
     }
   }
 
+  var emptyMessage: String {
+    switch self {
+    case .continueReading:
+      return "Your recently read items will appear here."
+    case .recommended:
+      return "Reads recommended in your Clubs will appear here."
+    case .newsletters:
+      return "All your Newsletters will appear here."
+    }
+  }
+
   var predicate: NSPredicate {
     let undeletedPredicate = NSPredicate(
       format: "%K != %i", #keyPath(LinkedItem.serverSyncStatus), Int64(ServerSyncStatus.needsDeletion.rawValue)

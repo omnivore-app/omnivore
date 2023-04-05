@@ -45,17 +45,22 @@ import Views
 
   var syncCursor: String?
 
+  @AppStorage(UserDefaultKey.hideFeatureSection.rawValue) var hideFeatureSection = false
   @AppStorage(UserDefaultKey.lastSelectedLinkedItemFilter.rawValue) var appliedFilter = LinkedItemFilter.inbox.rawValue
 
   func setItems(_ items: [LinkedItem]) {
     self.items = items
+    updateFeatureFilter(featureFilter)
+  }
 
+  func updateFeatureFilter(_ filter: FeaturedItemFilter) {
     // now try to update the continue reading items:
     featureItems = (items.filter { item in
-      featureFilter.predicate.evaluate(with: item)
+      filter.predicate.evaluate(with: item)
     } as NSArray)
-      .sortedArray(using: [featureFilter.sortDescriptor])
+      .sortedArray(using: [filter.sortDescriptor])
       .compactMap { $0 as? LinkedItem }
+    featureFilter = filter
   }
 
   func handleReaderItemNotification(objectID: NSManagedObjectID, dataService: DataService) {
