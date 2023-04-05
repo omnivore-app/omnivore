@@ -553,8 +553,6 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
 
     const goToHighlightIdx = (idx: number, highlightsList: Highlight[]) => {
       const highlight = highlightsList[idx]
-      console.log('highlight: ', highlight, 'idx', idx)
-
       const target = document.querySelector(
         `[omnivore-highlight-id="${highlight.id}"]`
       )
