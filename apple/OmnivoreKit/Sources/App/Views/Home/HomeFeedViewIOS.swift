@@ -372,23 +372,17 @@ struct AnimatingCellHeight: AnimatableModifier {
       VStack(alignment: .leading, spacing: 20) {
         Menu(content: {
           Button(action: {
-            withoutAnimation {
-              viewModel.updateFeatureFilter(.continueReading)
-            }
+            viewModel.updateFeatureFilter(.continueReading)
           }, label: {
             Text("Continue Reading")
           })
-//          Button(action: {
-//            withoutAnimation {
-//              viewModel.updateFeatureFilter(.recommended)
-//            }
-//          }, label: {
-//            Text("Recommended")
-//          })
           Button(action: {
-            withoutAnimation {
-              viewModel.updateFeatureFilter(.newsletters)
-            }
+            viewModel.updateFeatureFilter(.pinned)
+          }, label: {
+            Text("Pinned")
+          })
+          Button(action: {
+            viewModel.updateFeatureFilter(.newsletters)
           }, label: {
             Text("Newsletters")
           })
@@ -402,31 +396,34 @@ struct AnimatingCellHeight: AnimatableModifier {
             Text(viewModel.featureFilter.title.uppercased())
               .font(Font.system(size: 14, weight: .regular))
             Image(systemName: "chevron.down")
-          }
+          }.frame(maxWidth: .infinity, alignment: .leading)
         })
           .padding(.top, 20)
           .padding(.bottom, 0)
 
-        ScrollView(.horizontal, showsIndicators: false) {
-          if viewModel.featureItems.count > 0 {
-            LazyHStack(alignment: .top, spacing: 20) {
-              ForEach(viewModel.featureItems) { item in
-                LibraryFeatureCardNavigationLink(item: item, viewModel: viewModel)
-                  .background(
-                    RoundedRectangle(cornerRadius: 12) // << tune as needed
-                      .fill(Color(UIColor.systemBackground)) // << fill with system color
-                  )
+        GeometryReader { geo in
+
+          ScrollView(.horizontal, showsIndicators: false) {
+            if viewModel.featureItems.count > 0 {
+              LazyHStack(alignment: .top, spacing: 20) {
+                ForEach(viewModel.featureItems) { item in
+                  LibraryFeatureCardNavigationLink(item: item, viewModel: viewModel)
+                    .background(
+                      RoundedRectangle(cornerRadius: 12) // << tune as needed
+                        .fill(Color(UIColor.systemBackground)) // << fill with system color
+                    )
+                }
               }
-            }.padding(0)
-          } else {
-            Text(viewModel.featureFilter.emptyMessage)
-              .font(Font.system(size: 14, weight: .regular))
-              .foregroundColor(Color(hex: "#898989"))
-              .frame(height: 60, alignment: .topLeading)
+            } else {
+              Text(viewModel.featureFilter.emptyMessage)
+                .font(Font.system(size: 14, weight: .regular))
+                .foregroundColor(Color(hex: "#898989"))
+                .frame(maxWidth: geo.size.width)
+                .frame(height: 60, alignment: .topLeading)
+                .fixedSize(horizontal: false, vertical: true)
+            }
           }
         }
-        // .frame(height: viewModel.featureItems.count > 0 ? 160 : 60, alignment: .topLeading)
-        .padding(.top, 0)
 
         Text((LinkedItemFilter(rawValue: viewModel.appliedFilter)?.displayName ?? "Inbox").uppercased())
           .font(Font.system(size: 14, weight: .regular))
@@ -457,7 +454,7 @@ struct AnimatingCellHeight: AnimatableModifier {
             if !viewModel.hideFeatureSection, viewModel.items.count > 0 {
               featureCard
                 .listRowInsets(.init(top: 0, leading: 10, bottom: 10, trailing: 10))
-                .modifier(AnimatingCellHeight(height: viewModel.featureItems.count > 0 ? 260 : 80))
+                .modifier(AnimatingCellHeight(height: viewModel.featureItems.count > 0 ? 260 : 130))
             }
 
             ForEach(viewModel.items) { item in
