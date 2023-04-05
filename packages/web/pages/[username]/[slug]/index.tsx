@@ -243,6 +243,24 @@ export default function Home(): JSX.Element {
         },
       },
       {
+        id: 'highlight_next',
+        section: 'Article',
+        name: 'Scroll to next highlight',
+        shortcut: ['j'],
+        perform: () => {
+          document.dispatchEvent(new Event('highlight'))
+        },
+      },
+      {
+        id: 'highlight_previous',
+        section: 'Article',
+        name: 'Scroll to previous highlight',
+        shortcut: ['k'],
+        perform: () => {
+          document.dispatchEvent(new Event('highlight'))
+        },
+      },
+      {
         id: 'note',
         section: 'Article',
         name: 'Highlight selected text and add a note',

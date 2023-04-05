@@ -19,7 +19,6 @@ import { removeHighlights } from '../../../lib/highlights/deleteHighlight'
 import { createHighlight } from '../../../lib/highlights/createHighlight'
 import { HighlightNoteModal } from './HighlightNoteModal'
 import { NotebookModal } from './NotebookModal'
-import { useCanShareNative } from '../../../lib/hooks/useCanShareNative'
 import { showErrorToast } from '../../../lib/toastHelpers'
 import { ArticleMutations } from '../../../lib/articleActions'
 import { isTouchScreenDevice } from '../../../lib/deviceType'
@@ -28,8 +27,6 @@ import { setLabelsForHighlight } from '../../../lib/networking/mutations/setLabe
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
-import { useRouter } from 'next/router'
-import { MarkdownModal } from '../../patterns/HighlightNotes'
 
 type HighlightsLayerProps = {
   viewer: UserBasicData
@@ -68,7 +65,6 @@ interface SpeakingSectionEvent extends Event {
 }
 
 export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
-  const router = useRouter()
   const [highlights, setHighlights] = useState(props.highlights)
   const [highlightModalAction, setHighlightModalAction] =
     useState<HighlightActionProps>({ highlightModalAction: 'none' })
@@ -86,45 +82,54 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   const [labelsTarget, setLabelsTarget] =
     useState<Highlight | undefined>(undefined)
 
-  const canShareNative = useCanShareNative()
+  const createHighlightFromSelection = useCallback(
+    async (
+      selection: SelectionAttributes,
+      note?: string
+    ): Promise<Highlight | undefined> => {
+      const result = await createHighlight(
+        {
+          selection: selection,
+          articleId: props.articleId,
+          existingHighlights: highlights,
+          highlightStartEndOffsets: highlightLocations,
+          annotation: note,
+          highlightPositionPercent: selectionPercentPos(selection.selection),
+          highlightPositionAnchorIndex: selectionAnchorIndex(
+            selection.selection
+          ),
+        },
+        props.articleMutations
+      )
 
-  const createHighlightFromSelection = async (
-    selection: SelectionAttributes,
-    note?: string
-  ): Promise<Highlight | undefined> => {
-    const result = await createHighlight(
-      {
-        selection: selection,
-        articleId: props.articleId,
-        existingHighlights: highlights,
-        highlightStartEndOffsets: highlightLocations,
-        annotation: note,
-        highlightPositionPercent: selectionPercentPos(selection.selection),
-        highlightPositionAnchorIndex: selectionAnchorIndex(selection.selection),
-      },
-      props.articleMutations
-    )
+      if (result.errorMessage) {
+        throw 'Failed to create highlight: ' + result.errorMessage
+      }
 
-    if (result.errorMessage) {
-      throw 'Failed to create highlight: ' + result.errorMessage
-    }
+      if (!result.highlights || result.highlights.length == 0) {
+        // TODO: show an error message
+        console.error('Failed to create highlight')
+        return undefined
+      }
 
-    if (!result.highlights || result.highlights.length == 0) {
-      // TODO: show an error message
-      console.error('Failed to create highlight')
-      return undefined
-    }
+      setSelectionData(null)
+      setHighlights(result.highlights)
 
-    setSelectionData(null)
-    setHighlights(result.highlights)
+      if (result.newHighlightIndex === undefined) {
+        setHighlightModalAction({ highlightModalAction: 'none' })
+        return undefined
+      }
 
-    if (result.newHighlightIndex === undefined) {
-      setHighlightModalAction({ highlightModalAction: 'none' })
-      return undefined
-    }
-
-    return result.highlights[result.newHighlightIndex]
-  }
+      return result.highlights[result.newHighlightIndex]
+    },
+    [
+      highlightLocations,
+      highlights,
+      props.articleId,
+      props.articleMutations,
+      setSelectionData,
+    ]
+  )
 
   // Load the highlights
   useEffect(() => {
@@ -218,7 +223,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         setHighlightModalAction(inputs)
       }
     },
-    [props.highlightBarDisabled]
+    [props.highlightBarDisabled, createHighlightFromSelection]
   )
 
   const selectionPercentPos = (selection: Selection): number | undefined => {
@@ -274,15 +279,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         throw error
       }
     },
-    [
-      highlights,
-      openNoteModal,
-      props.articleId,
-      selectionData,
-      setSelectionData,
-      canShareNative,
-      highlightLocations,
-    ]
+    [selectionData, createHighlightFromSelection]
   )
 
   // Detect mouseclick on a highlight -- call `setFocusedHighlight` when highlight detected
@@ -355,13 +352,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         setFocusedHighlight(undefined)
       }
     },
-    [
-      openNoteModal,
-      highlights,
-      highlightLocations,
-      focusedHighlight,
-      setFocusedHighlight,
-    ]
+    [openNoteModal, highlights]
   )
 
   const handleDoubleClick = useCallback(
@@ -401,7 +392,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         setFocusedHighlight(undefined)
       }
     },
-    [highlights, highlightLocations, focusedHighlight, openNoteModal]
+    [highlights, openNoteModal]
   )
 
   const handleCloseNotebook = useCallback(
@@ -419,7 +410,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         updateHighlightsCallback(h)
       })
     },
-    [highlights, highlightLocations]
+    [highlightLocations, props, updateHighlightsCallback]
   )
 
   useEffect(() => {
@@ -486,7 +477,6 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       props.highlightBarDisabled,
       props.isAppleAppEmbed,
       removeHighlightCallback,
-      canShareNative,
       selectionData,
     ]
   )
@@ -496,7 +486,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       handleAction('create')
       setSelectionData(null)
     }
-  }, [selectionData, setSelectionData])
+  }, [selectionData, setSelectionData, handleAction, props.highlightOnRelease])
 
   const dispatchHighlightError = (action: string, error: unknown) => {
     if (props.isAppleAppEmbed) {
@@ -675,15 +665,21 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
     const anchorCoordinates = () => {
       return {
         pageX:
-          focusedHighlightMousePos.current?.pageX ??
           selectionData?.focusPosition.x ??
+          focusedHighlightMousePos.current?.pageX ??
           0,
         pageY:
-          focusedHighlightMousePos.current?.pageY ??
           selectionData?.focusPosition.y ??
+          focusedHighlightMousePos.current?.pageY ??
           0,
       }
     }
+
+    console.log(
+      'going to show the higlight bar: ',
+      focusedHighlightMousePos.current?.pageY,
+      selectionData?.focusPosition
+    )
 
     return (
       <>
@@ -695,6 +691,12 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           displayAtBottom={isTouchScreenDevice()}
         />
       </>
+    )
+  } else {
+    console.log(
+      'not showing the higlight bar: ',
+      focusedHighlight,
+      selectionData
     )
   }
 

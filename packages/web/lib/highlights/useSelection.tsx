@@ -144,22 +144,19 @@ export function useSelection(
         }, 100)
       }
 
-      console.log('range rect: ', rangeRect, 'tapAttributes', tapAttributes)
       return setSelectionAttributes({
         selection,
         wasDragEvent,
         range: mergedRange ?? range,
         focusPosition: {
-          // x: rangeRect[isReverseSelected ? 'left' : 'right'],
-          // y: rangeRect[isReverseSelected ? 'top' : 'bottom'],
-          x: tapAttributes.tapX,
-          y: tapAttributes.tapY,
+          x: rangeRect[isReverseSelected ? 'left' : 'right'],
+          y: rangeRect[isReverseSelected ? 'top' : 'bottom'],
           isReverseSelected,
         },
         overlapHighlights: overlapHighlights.map(({ id }) => id),
       })
     },
-    [highlightLocations, touchStartPos, setTouchStartPos]
+    [highlightLocations]
   )
 
   const copyTextSelection = useCallback(async () => {
@@ -191,6 +188,7 @@ export function useSelection(
     copyTextSelection,
     touchStartPos,
     setTouchStartPos,
+    handleTouchStart,
   ])
 
   return [selectionAttributes, setSelectionAttributes]
@@ -269,9 +267,9 @@ const rangeToPos = (range: Range, getFirst = false): RangeEndPos => {
   const rect = rects[getFirst ? 0 : rects.length - 1]
   return {
     left: window.scrollX + rect.left,
-    top: window.scrollY + rect.top,
+    top: window.scrollY + rect.top - 60,
     right: window.scrollX + rect.right,
-    bottom: window.scrollY + rect.bottom,
+    bottom: window.scrollY + rect.bottom + 5,
     width: rect.width,
     height: rect.height,
   }
