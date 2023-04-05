@@ -127,8 +127,9 @@ public extension FeaturedItemFilter {
 
     switch self {
     case .continueReading:
+      // Use > 1 instead of 0 so its only reads they have made slight progress on.
       let continueReadingPredicate = NSPredicate(
-        format: "readingProgress > 1 AND readAt != nil"
+        format: "readingProgress > 1 AND readingProgress < 100 AND readAt != nil"
       )
       return NSCompoundPredicate(andPredicateWithSubpredicates: [continueReadingPredicate, undeletedPredicate, notInArchivePredicate])
     case .newsletters:

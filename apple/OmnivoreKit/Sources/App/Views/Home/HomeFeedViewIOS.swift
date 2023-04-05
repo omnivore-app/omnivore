@@ -378,13 +378,13 @@ struct AnimatingCellHeight: AnimatableModifier {
           }, label: {
             Text("Continue Reading")
           })
-          Button(action: {
-            withoutAnimation {
-              viewModel.updateFeatureFilter(.recommended)
-            }
-          }, label: {
-            Text("Recommended")
-          })
+//          Button(action: {
+//            withoutAnimation {
+//              viewModel.updateFeatureFilter(.recommended)
+//            }
+//          }, label: {
+//            Text("Recommended")
+//          })
           Button(action: {
             withoutAnimation {
               viewModel.updateFeatureFilter(.newsletters)
@@ -395,7 +395,7 @@ struct AnimatingCellHeight: AnimatableModifier {
           Button(action: {
             showHideFeatureAlert = true
           }, label: {
-            Text("Hide Feature Section")
+            Text("Hide this Section")
           })
         }, label: {
           HStack(alignment: .center) {
