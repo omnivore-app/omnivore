@@ -10,7 +10,7 @@ const schema = gql`
     maxLength: Int
     minLength: Int
     pattern: String
-  ) on INPUT_FIELD_DEFINITION
+  ) on INPUT_FIELD_DEFINITION | ARGUMENT_DEFINITION
 
   enum SortOrder {
     ASCENDING
@@ -2542,7 +2542,7 @@ const schema = gql`
     search(
       after: String
       first: Int
-      query: String
+      query: String @sanitize(maxLength: 255)
       includeContent: Boolean
       format: String
     ): SearchResult!
