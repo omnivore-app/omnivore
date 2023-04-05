@@ -804,7 +804,6 @@ export const saveArticleReadingProgressResolver = authorized<
       readingProgressTopPercent: readingProgressTopPercentToSave,
       readAt: new Date(),
     }
-    console.log('updatedPart: ', updatedPart)
     const updated = await updatePage(id, updatedPart, { pubsub, uid })
     if (!updated) {
       return { errorCodes: [SaveArticleReadingProgressErrorCode.NotFound] }
