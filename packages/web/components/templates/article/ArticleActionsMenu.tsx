@@ -1,7 +1,7 @@
 import { Separator } from '@radix-ui/react-separator'
 import {
   ArchiveBox,
-  HighlighterCircle,
+  Notebook,
   Info,
   TagSimple,
   Trash,
@@ -131,7 +131,7 @@ export function ArticleActionsMenu(
             tooltipContent="View Highlights"
             tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
           >
-            <HighlighterCircle
+            <Notebook
               size={24}
               color={theme.colors.thHighContrast.toString()}
             />

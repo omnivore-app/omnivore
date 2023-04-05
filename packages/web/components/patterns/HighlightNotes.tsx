@@ -302,7 +302,7 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
               p: '5px',
               width: '100%',
               fontSize: '15px',
-              borderRadius: '2px',
+              borderRadius: '3px',
               marginTop: props.fillBackground || !props.text ? '10px' : '0px',
 
               paddingLeft:
