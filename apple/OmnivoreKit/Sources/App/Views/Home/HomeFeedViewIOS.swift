@@ -6,6 +6,19 @@ import UserNotifications
 import Utils
 import Views
 
+struct AnimatingCellHeight: AnimatableModifier {
+  var height: CGFloat = 0
+
+  var animatableData: CGFloat {
+    get { height }
+    set { height = newValue }
+  }
+
+  func body(content: Content) -> some View {
+    content.frame(height: height, alignment: .top).clipped()
+  }
+}
+
 // swiftlint:disable file_length
 #if os(iOS)
   private let enableGrid = UIDevice.isIPad || FeatureFlag.enableGridCardsOnPhone
@@ -359,17 +372,23 @@ import Views
       VStack(alignment: .leading, spacing: 20) {
         Menu(content: {
           Button(action: {
-            viewModel.updateFeatureFilter(.continueReading)
+            withoutAnimation {
+              viewModel.updateFeatureFilter(.continueReading)
+            }
           }, label: {
             Text("Continue Reading")
           })
           Button(action: {
-            viewModel.updateFeatureFilter(.recommended)
+            withoutAnimation {
+              viewModel.updateFeatureFilter(.recommended)
+            }
           }, label: {
             Text("Recommended")
           })
           Button(action: {
-            viewModel.updateFeatureFilter(.newsletters)
+            withoutAnimation {
+              viewModel.updateFeatureFilter(.newsletters)
+            }
           }, label: {
             Text("Newsletters")
           })
@@ -381,28 +400,36 @@ import Views
         }, label: {
           HStack(alignment: .center) {
             Text(viewModel.featureFilter.title.uppercased())
-              .font(Font.system(size: 14, weight: .medium))
+              .font(Font.system(size: 14, weight: .regular))
             Image(systemName: "chevron.down")
           }
         })
           .padding(.top, 20)
           .padding(.bottom, 0)
 
-        if viewModel.featureItems.count > 0 {
-          ScrollView(.horizontal, showsIndicators: false) {
+        ScrollView(.horizontal, showsIndicators: false) {
+          if viewModel.featureItems.count > 0 {
             LazyHStack(alignment: .top, spacing: 20) {
               ForEach(viewModel.featureItems) { item in
                 LibraryFeatureCardNavigationLink(item: item, viewModel: viewModel)
+                  .background(
+                    RoundedRectangle(cornerRadius: 12) // << tune as needed
+                      .fill(Color(UIColor.systemBackground)) // << fill with system color
+                  )
               }
             }.padding(0)
+          } else {
+            Text(viewModel.featureFilter.emptyMessage)
+              .font(Font.system(size: 14, weight: .regular))
+              .foregroundColor(Color(hex: "#898989"))
+              .frame(height: 60, alignment: .topLeading)
           }
-          .padding(.top, 0)
-        } else {
-          Text(viewModel.featureFilter.emptyMessage)
         }
+        // .frame(height: viewModel.featureItems.count > 0 ? 160 : 60, alignment: .topLeading)
+        .padding(.top, 0)
 
         Text((LinkedItemFilter(rawValue: viewModel.appliedFilter)?.displayName ?? "Inbox").uppercased())
-          .font(Font.system(size: 14, weight: .medium))
+          .font(Font.system(size: 14, weight: .regular))
           .padding(.bottom, 5)
       }
     }
@@ -430,6 +457,7 @@ import Views
             if !viewModel.hideFeatureSection, viewModel.items.count > 0 {
               featureCard
                 .listRowInsets(.init(top: 0, leading: 10, bottom: 10, trailing: 10))
+                .modifier(AnimatingCellHeight(height: viewModel.featureItems.count > 0 ? 260 : 80))
             }
 
             ForEach(viewModel.items) { item in
