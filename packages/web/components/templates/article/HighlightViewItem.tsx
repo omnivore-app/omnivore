@@ -17,7 +17,6 @@ type HighlightViewItemProps = {
 
   viewInReader: (highlightId: string) => void
 
-  deleteHighlightAction: () => void
   updateHighlight: (highlight: Highlight) => void
 
   setSetLabelsTarget: (highlight: Highlight) => void

@@ -121,8 +121,6 @@ export function Notebook(props: NotebookProps): JSX.Element {
       }
       case 'DELETE_HIGHLIGHT': {
         const highlightId = action.deleteHighlightId
-        console.log('  DELETE_HIGHLIGHT: ', highlightId)
-
         if (!highlightId) {
           throw new Error('No highlightId for delete action.')
         }
@@ -318,12 +316,6 @@ export function Notebook(props: NotebookProps): JSX.Element {
             viewInReader={props.viewInReader}
             setSetLabelsTarget={setLabelsTarget}
             setShowConfirmDeleteHighlightId={setShowConfirmDeleteHighlightId}
-            deleteHighlightAction={() => {
-              dispatchAnnotations({
-                type: 'DELETE_HIGHLIGHT',
-                deleteHighlightId: highlight.id,
-              })
-            }}
             updateHighlight={() => {
               dispatchAnnotations({
                 type: 'UPDATE_HIGHLIGHT',

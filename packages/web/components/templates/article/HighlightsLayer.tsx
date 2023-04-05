@@ -289,7 +289,6 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
 
       if (!target || (target as Node)?.nodeType !== Node.ELEMENT_NODE) {
         console.log(' -- returning early from page tap')
-
         return
       }
 
@@ -399,18 +398,15 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
     (updatedHighlights: Highlight[], deletedHighlights: Highlight[]) => {
       props.setShowHighlightsModal(false)
 
-      setHighlights(updatedHighlights)
-
+      // Remove all the existing highlights, then set the new ones
       removeHighlights(
-        deletedHighlights.map((h) => h.id),
+        highlights.map((h) => h.id),
         highlightLocations
       )
 
-      updatedHighlights.forEach((h) => {
-        updateHighlightsCallback(h)
-      })
+      setHighlights([...updatedHighlights])
     },
-    [highlightLocations, props, updateHighlightsCallback]
+    [highlights, highlightLocations, props, setHighlights]
   )
 
   useEffect(() => {
@@ -675,12 +671,6 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       }
     }
 
-    console.log(
-      'going to show the higlight bar: ',
-      focusedHighlightMousePos.current?.pageY,
-      selectionData?.focusPosition
-    )
-
     return (
       <>
         <HighlightBar
@@ -691,12 +681,6 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           displayAtBottom={isTouchScreenDevice()}
         />
       </>
-    )
-  } else {
-    console.log(
-      'not showing the higlight bar: ',
-      focusedHighlight,
-      selectionData
     )
   }
 

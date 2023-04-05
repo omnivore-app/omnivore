@@ -320,13 +320,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     readerTableHeaderColor: theme.colors.readerTableHeader.toString(),
     readerHeadersColor: theme.colors.readerFont.toString(),
   }
-  console.log(
-    'currentTheme from iOS: ',
-    highContrastText,
-    currentTheme(),
-    'readerFontColor',
-    styles.readerFontColor
-  )
 
   const recommendationsWithNotes = useMemo(() => {
     return (
