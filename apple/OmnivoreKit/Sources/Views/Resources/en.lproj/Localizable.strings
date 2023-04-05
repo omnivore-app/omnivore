@@ -190,6 +190,7 @@
 "recentlyReadGeneric" = "Recently Read";
 "recentlyPublishedGeneric" = "Recently Published";
 "clubsGeneric" = "Clubs";
+"filterGeneric" = "Filters";
 "errorGeneric" = "Something went wrong, please try again.";
 "pushNotificationsGeneric" = "Push Notifications";
 "dismissButton" = "Dismiss";

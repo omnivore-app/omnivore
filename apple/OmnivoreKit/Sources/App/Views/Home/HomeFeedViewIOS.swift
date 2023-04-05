@@ -243,6 +243,7 @@ import Views
 
     @State private var itemToRemove: LinkedItem?
     @State private var confirmationShown = false
+    @State private var showHideFeatureAlert = false
 
     @ObservedObject var viewModel: HomeFeedViewModel
 
@@ -373,7 +374,7 @@ import Views
             Text("Newsletters")
           })
           Button(action: {
-            // viewModel.updateFeatureFilter(.newsletters)
+            showHideFeatureAlert = true
           }, label: {
             Text("Hide Feature Section")
           })
@@ -426,7 +427,7 @@ import Views
               .listRowInsets(.init(top: 0, leading: 10, bottom: 10, trailing: 10))
 
             // Only show the feature card section if we have items loaded
-            if viewModel.items.count > 0 {
+            if !viewModel.hideFeatureSection, viewModel.items.count > 0 {
               featureCard
                 .listRowInsets(.init(top: 0, leading: 10, bottom: 10, trailing: 10))
             }
@@ -496,6 +497,13 @@ import Views
             }
             Button(LocalText.cancelGeneric, role: .cancel) { self.itemToRemove = nil }
           }
+        }
+        .alert("The Feature Section will be removed from your library. You can add it back from the filter settings in your profile.",
+               isPresented: $showHideFeatureAlert) {
+          Button("OK", role: .destructive) {
+            viewModel.hideFeatureSection = true
+          }
+          Button(LocalText.cancelGeneric, role: .cancel) { self.showHideFeatureAlert = false }
         }
       }
     }

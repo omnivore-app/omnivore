@@ -111,6 +111,10 @@ struct ProfileView: View {
           Text(LocalText.clubsGeneric)
         }
       #endif
+
+      NavigationLink(destination: FiltersView()) {
+        Text(LocalText.filtersGeneric)
+      }
     }
   }
 

@@ -191,6 +191,7 @@ public enum LocalText {
   public static let recentlyReadGeneric = localText(key: "recentlyReadGeneric")
   public static let recentlyPublishedGeneric = localText(key: "recentlyPublishedGeneric")
   public static let clubsGeneric = localText(key: "clubsGeneric")
+  public static let filtersGeneric = localText(key: "filterGeneric")
   public static let errorGeneric = localText(key: "errorGeneric")
   public static let pushNotificationsGeneric = localText(key: "pushNotificationsGeneric")
   public static let dismissButton = localText(key: "dismissButton")
