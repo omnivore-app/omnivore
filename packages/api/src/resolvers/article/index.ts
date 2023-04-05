@@ -4,7 +4,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { Readability } from '@omnivore/readability'
-import * as httpContext from 'express-http-context'
 import graphqlFields from 'graphql-fields'
 import normalizeUrl from 'normalize-url'
 import { searchHighlights } from '../../elastic/highlights'
@@ -73,7 +72,6 @@ import {
 } from '../../generated/graphql'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
 import { parsedContentToPage } from '../../services/save_page'
-import { saveSearchHistory } from '../../services/search_history'
 import { traceAs } from '../../tracing'
 import { Merge } from '../../util'
 import { analytics } from '../../utils/analytics'
@@ -952,14 +950,6 @@ export const searchResolver = authorized<
       cursor: endCursor,
     }
   })
-
-  // save query, including advanced search terms, in search history
-  if (params.query) {
-    const client = httpContext.get('client') as string | undefined
-    // don't save search history for rule based queries
-    client !== 'rule-handler' &&
-      (await saveSearchHistory(claims.uid, params.query))
-  }
 
   return {
     edges,
