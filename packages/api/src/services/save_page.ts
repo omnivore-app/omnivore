@@ -6,6 +6,7 @@ import { createPage, getPageByParam, updatePage } from '../elastic/pages'
 import { ArticleSavingRequestStatus, Page, PageType } from '../elastic/types'
 import { homePageURL } from '../env'
 import {
+  HighlightType,
   Maybe,
   PreparedDocumentInput,
   SaveErrorCode,
@@ -101,20 +102,24 @@ export const savePage = async (
     originalHtml: parseResult.domContent,
     canonicalUrl: parseResult.canonicalUrl,
   })
-
+  // check if the page already exists
   const existingPage = await getPageByParam({
     userId: saver.userId,
     url: articleToSave.url,
-    state: ArticleSavingRequestStatus.Succeeded,
   })
-
   if (existingPage) {
+    pageId = existingPage.id
+    slug = existingPage.slug
     if (
       !(await updatePage(
         existingPage.id,
         {
-          savedAt: new Date(),
-          archivedAt: null,
+          // update the page with the new content
+          ...articleToSave,
+          archivedAt: null, // unarchive if it was archived
+          id: pageId, // we don't want to update the id
+          slug, // we don't want to update the slug
+          createdAt: existingPage.createdAt, // we don't want to update the createdAt
         },
         ctx
       ))
@@ -124,8 +129,6 @@ export const savePage = async (
         message: 'Failed to update existing page',
       }
     }
-    pageId = existingPage.id
-    slug = existingPage.slug
   } else if (shouldParseInBackend(input)) {
     try {
       await createPageSaveRequest(
@@ -159,6 +162,7 @@ export const savePage = async (
       userId: ctx.uid,
       elasticPageId: pageId,
       ...parseResult.highlightData,
+      type: HighlightType.Highlight,
     }
 
     if (
@@ -235,7 +239,7 @@ export const parsedContentToPage = ({
     hash: uploadFileHash || stringToHash(parsedContent?.content || url),
     image: parsedContent?.previewImage ?? undefined,
     publishedAt: validatedDate(parsedContent?.publishedDate ?? undefined),
-    uploadFileId: uploadFileId,
+    uploadFileId,
     readingProgressPercent: 0,
     readingProgressAnchorIndex: 0,
     state: ArticleSavingRequestStatus.Succeeded,

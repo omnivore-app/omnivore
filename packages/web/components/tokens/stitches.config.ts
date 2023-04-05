@@ -130,7 +130,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         grayText: '#6A6968',
 
         // Semantic Colors
-        highlightBackground: '250, 227, 146',
+        highlightBackground: '255, 210, 52',
         recommendedHighlightBackground: '#E5FFE5',
         highlight: '#FFD234',
         highlightText: '#3D3D3D',
@@ -168,6 +168,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         thBackground2: '#F3F3F3',
         thBackground3: '#FFFFFF',
         thBackground4: '#EBEBEB',
+        thBackground5: '#F5F5F5',
         thBackgroundActive: '#F9F9F9',
         thBackgroundContrast: '#FFFFFF',
 
@@ -221,7 +222,7 @@ const darkThemeSpec = {
     grayText: '#CDCDCD',
 
     // Semantic Colors
-    highlightBackground: '134, 119, 64',
+    highlightBackground: '134, 109, 21',
     recommendedHighlightBackground: '#1F4315',
     highlight: '#FFD234',
     highlightText: 'white',
@@ -254,6 +255,7 @@ const darkThemeSpec = {
     thBackground2: '#3D3D3D',
     thBackground3: '#242424',
     thBackground4: '#3D3D3D',
+    thBackground5: '#3D3D3D',
     thBackgroundActive: '#2E2E2E',
     thBackgroundContrast: '#000000',
 

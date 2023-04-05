@@ -1,22 +1,22 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import express from 'express'
-import cors from 'cors'
-import { corsConfig } from '../utils/corsConfig'
-import { getRepository, setClaims } from '../entity/utils'
-import { getPageById } from '../elastic/pages'
-import { Speech, SpeechState } from '../entity/speech'
-import { buildLogger } from '../utils/logger'
-import { getClaimsByToken } from '../utils/auth'
-import { shouldSynthesize } from '../services/speech'
-import { readPushSubscription } from '../datalayer/pubsub'
-import { AppDataSource } from '../server'
-import { enqueueTextToSpeech } from '../utils/createTask'
 import { htmlToSpeechFile } from '@omnivore/text-to-speech-handler'
-import { UserPersonalization } from '../entity/user_personalization'
+import cors from 'cors'
+import express from 'express'
+import { readPushSubscription } from '../datalayer/pubsub'
+import { getPageById } from '../elastic/pages'
 import { ArticleSavingRequestStatus } from '../elastic/types'
+import { Speech, SpeechState } from '../entity/speech'
+import { UserPersonalization } from '../entity/user_personalization'
+import { getRepository, setClaims } from '../entity/utils'
+import { AppDataSource } from '../server'
 import { FeatureName, getFeature } from '../services/features'
+import { shouldSynthesize } from '../services/speech'
+import { getClaimsByToken } from '../utils/auth'
+import { corsConfig } from '../utils/corsConfig'
+import { enqueueTextToSpeech } from '../utils/createTask'
+import { buildLogger } from '../utils/logger'
 
 const DEFAULT_VOICE = 'Larry'
 const DEFAULT_COMPLIMENTARY_VOICE = 'Evelyn'
@@ -59,7 +59,10 @@ export function textToSpeechRouter() {
         logger.info('No page found', { id })
         return res.status(200).send('No page found')
       }
-
+      if (page.userId !== userId) {
+        logger.info('Page does not belong to user', { id, userId })
+        return res.status(200).send('Page does not belong to user')
+      }
       if (page.state === ArticleSavingRequestStatus.Processing) {
         logger.info('Page is still processing, try again later', { id })
         return res.status(400).send('Page is still processing')

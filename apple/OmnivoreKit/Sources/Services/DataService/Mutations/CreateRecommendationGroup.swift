@@ -4,6 +4,7 @@ import Models
 import SwiftGraphQL
 
 public extension DataService {
+  // swiftlint:disable:next line_length
   func createRecommendationGroup(name: String, onlyAdminCanPost: Bool, onlyAdminCanSeeMembers: Bool) async throws -> InternalRecommendationGroup {
     enum MutationResult {
       case saved(recommendationGroup: InternalRecommendationGroup)

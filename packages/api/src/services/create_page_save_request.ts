@@ -2,7 +2,12 @@ import normalizeUrl from 'normalize-url'
 import * as privateIpLib from 'private-ip'
 import { v4 as uuidv4 } from 'uuid'
 import { createPubSubClient, PubsubClient } from '../datalayer/pubsub'
-import { countByCreatedAt, createPage, getPageByParam } from '../elastic/pages'
+import {
+  countByCreatedAt,
+  createPage,
+  getPageByParam,
+  updatePage,
+} from '../elastic/pages'
 import { ArticleSavingRequestStatus, PageType } from '../elastic/types'
 import {
   ArticleSavingRequest,
@@ -87,6 +92,10 @@ export const createPageSaveRequest = async (
     stripWWW: false,
   })
 
+  const ctx = {
+    pubsub,
+    uid: userId,
+  }
   let page = await getPageByParam({
     userId,
     url: normalizedUrl,
@@ -110,7 +119,7 @@ export const createPageSaveRequest = async (
     }
 
     // create processing page
-    const pageId = await createPage(page, { pubsub, uid: userId })
+    const pageId = await createPage(page, ctx)
     if (!pageId) {
       console.log('Failed to create page', page)
       return Promise.reject({
@@ -118,7 +127,16 @@ export const createPageSaveRequest = async (
       })
     }
   }
-
+  // reset state to processing
+  if (page.state !== ArticleSavingRequestStatus.Processing) {
+    await updatePage(
+      page.id,
+      {
+        state: ArticleSavingRequestStatus.Processing,
+      },
+      ctx
+    )
+  }
   // enqueue task to parse page
   await enqueueParseRequest(url, userId, page.id, priority)
 

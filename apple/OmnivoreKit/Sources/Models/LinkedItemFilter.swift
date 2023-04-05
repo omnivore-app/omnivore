@@ -89,3 +89,87 @@ public extension LinkedItemFilter {
     }
   }
 }
+
+public enum FeaturedItemFilter: String, CaseIterable {
+  case continueReading
+  case recommended
+  case newsletters
+  case pinned
+}
+
+public extension FeaturedItemFilter {
+  var title: String {
+    switch self {
+    case .continueReading:
+      return "Continue Reading"
+    default:
+      return rawValue
+    }
+  }
+
+  var emptyMessage: String {
+    switch self {
+    case .continueReading:
+      return "Your recently read items will appear here."
+    case .pinned:
+      return "Create a label named Pinned and add it to items you'd like to appear here"
+    case .recommended:
+      return "Reads recommended in your Clubs will appear here."
+    case .newsletters:
+      return "All your Newsletters will appear here."
+    }
+  }
+
+  var predicate: NSPredicate {
+    let undeletedPredicate = NSPredicate(
+      format: "%K != %i", #keyPath(LinkedItem.serverSyncStatus), Int64(ServerSyncStatus.needsDeletion.rawValue)
+    )
+    let notInArchivePredicate = NSPredicate(
+      format: "%K == %@", #keyPath(LinkedItem.isArchived), Int(truncating: false) as NSNumber
+    )
+
+    switch self {
+    case .continueReading:
+      // Use > 1 instead of 0 so its only reads they have made slight progress on.
+      let continueReadingPredicate = NSPredicate(
+        format: "readingProgress > 1 AND readingProgress < 100 AND readAt != nil"
+      )
+      return NSCompoundPredicate(andPredicateWithSubpredicates: [
+        continueReadingPredicate, undeletedPredicate, notInArchivePredicate
+      ])
+    case .pinned:
+      let newsletterLabelPredicate = NSPredicate(
+        format: "SUBQUERY(labels, $label, $label.name == \"Pinned\").@count > 0"
+      )
+      return NSCompoundPredicate(andPredicateWithSubpredicates: [
+        notInArchivePredicate, undeletedPredicate, newsletterLabelPredicate
+      ])
+    case .newsletters:
+      // non-archived or deleted items with the Newsletter label
+      let newsletterLabelPredicate = NSPredicate(
+        format: "SUBQUERY(labels, $label, $label.name == \"Newsletter\").@count > 0"
+      )
+      return NSCompoundPredicate(andPredicateWithSubpredicates: [
+        notInArchivePredicate, undeletedPredicate, newsletterLabelPredicate
+      ])
+    case .recommended:
+      // non-archived or deleted items with the Newsletter label
+      let recommendedPredicate = NSPredicate(
+        format: "recommendations.@count > 0"
+      )
+      return NSCompoundPredicate(andPredicateWithSubpredicates: [
+        notInArchivePredicate, undeletedPredicate, recommendedPredicate
+      ])
+    }
+  }
+
+  var sortDescriptor: NSSortDescriptor {
+    let savedAtSort = NSSortDescriptor(key: #keyPath(LinkedItem.savedAt), ascending: false)
+    switch self {
+    case .continueReading:
+      return NSSortDescriptor(key: #keyPath(LinkedItem.readAt), ascending: false)
+    default:
+      return savedAtSort
+    }
+  }
+}

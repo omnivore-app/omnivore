@@ -52,8 +52,11 @@ struct SpeechDocument: Decodable {
   }
 
   var audioDirectory: URL {
-    FileManager.default
-      .urls(for: .documentDirectory, in: .userDomainMask)[0]
+    Self.audioDirectory(pageId: pageId)
+  }
+
+  static func audioDirectory(pageId: String) -> URL {
+    URL.om_documentsDirectory
       .appendingPathComponent("audio-\(pageId)")
   }
 }
@@ -141,7 +144,7 @@ struct SpeechSynthesizer {
                               text: utterance.text)
         result.append(item)
       } else {
-        // TODO: How do we want to handle completely skipped paragraphs?
+        // How do we want to handle completely skipped paragraphs?
       }
     }
 
@@ -170,13 +173,13 @@ struct SpeechSynthesizer {
 
   static func downloadData(session: URLSession, request: URLRequest) async throws -> Data {
     do {
-      let result: (Data, URLResponse)? = try await session.data(for: request)
-      guard let httpResponse = result?.1 as? HTTPURLResponse, 200 ..< 300 ~= httpResponse.statusCode else {
-        print("error: ", result?.1)
+      let (data, response) = try await session.data(for: request)
+      guard let httpResponse = response as? HTTPURLResponse, 200 ..< 300 ~= httpResponse.statusCode else {
+        print("error: ", response)
         throw BasicError.message(messageText: "audioFetch failed. no response or bad status code.")
       }
 
-      guard let data = result?.0 else {
+      guard !data.isEmpty else {
         throw BasicError.message(messageText: "audioFetch failed. no data received.")
       }
 
@@ -190,10 +193,11 @@ struct SpeechSynthesizer {
     }
   }
 
-  static func download(speechItem: SpeechItem,
-                       redownloadCached: Bool = false,
-                       session: URLSession = URLSession.shared) async throws -> SynthesizeData?
-  {
+  static func download(
+    speechItem: SpeechItem,
+    redownloadCached: Bool = false,
+    session: URLSession = URLSession.shared
+  ) async throws -> SynthesizeData? {
     let decoder = JSONDecoder()
 
     if !redownloadCached {
@@ -208,12 +212,10 @@ struct SpeechSynthesizer {
 
     let data = try await downloadData(session: session, request: speechItem.urlRequest)
 
-    let tempPath = FileManager.default
-      .urls(for: .cachesDirectory, in: .userDomainMask)[0]
+    let tempPath = URL.om_cachesDirectory
       .appendingPathComponent(UUID().uuidString + ".mp3")
 
-    let tempSMPath = FileManager.default
-      .urls(for: .cachesDirectory, in: .userDomainMask)[0]
+    let tempSMPath = URL.om_cachesDirectory
       .appendingPathComponent(UUID().uuidString + ".speechMarks")
 
     do {

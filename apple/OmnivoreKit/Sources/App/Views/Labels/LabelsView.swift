@@ -67,7 +67,9 @@ struct LabelsView: View {
     )
     .buttonStyle(PlainButtonStyle())
     .disabled(viewModel.isLoading)
-    .listRowSeparator(.hidden, edges: .bottom)
+    #if os(iOS)
+      .listRowSeparator(.hidden, edges: .bottom)
+    #endif
     .padding(.vertical, 10)
   }
 }

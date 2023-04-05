@@ -17,3 +17,10 @@ export function formattedShortDate(rawDate: string): string {
     timeZone,
   }).format(new Date(rawDate))
 }
+
+export function formattedShortTime(rawDate: string): string {
+  return new Intl.DateTimeFormat(locale, {
+    timeStyle: 'short',
+    timeZone,
+  }).format(new Date(rawDate))
+}

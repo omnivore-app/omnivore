@@ -15,6 +15,7 @@ import {
 import {
   ArticleSavingRequestStatus,
   Highlight,
+  HighlightType,
   Page,
   PageContext,
   PageType,
@@ -476,6 +477,7 @@ describe('Article API', () => {
             quote: 'test quote',
             updatedAt: new Date(),
             userId: user.id,
+            type: HighlightType.Highlight,
           },
         ],
       }
@@ -861,6 +863,7 @@ describe('Article API', () => {
           quote: '<p>search highlight</p>',
           createdAt: new Date(),
           updatedAt: new Date(),
+          type: HighlightType.Highlight,
         }
         await addHighlightToPage(page.id, highlight, ctx)
         highlights.push(highlight)
@@ -1061,6 +1064,7 @@ describe('Article API', () => {
                 id
                 createdAt
                 updatedAt
+                pageType
               }
               itemID
               updateReason

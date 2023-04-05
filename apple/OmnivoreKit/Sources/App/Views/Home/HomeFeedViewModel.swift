@@ -6,8 +6,6 @@ import Utils
 import Views
 
 @MainActor final class HomeFeedViewModel: NSObject, ObservableObject {
-  let dateFormatter = DateFormatter.formatterISO8601
-
   var currentDetailViewModel: LinkItemDetailViewModel?
 
   private var fetchedResultsController: NSFetchedResultsController<LinkedItem>?
@@ -35,6 +33,9 @@ import Views
   @Published var showLabelsSheet = false
   @Published var showCommunityModal = false
 
+  @Published var featureFilter = FeaturedItemFilter.continueReading
+  @Published var featureItems = [LinkedItem]()
+
   var cursor: String?
 
   // These are used to make sure we handle search result
@@ -44,7 +45,23 @@ import Views
 
   var syncCursor: String?
 
+  @AppStorage(UserDefaultKey.hideFeatureSection.rawValue) var hideFeatureSection = false
   @AppStorage(UserDefaultKey.lastSelectedLinkedItemFilter.rawValue) var appliedFilter = LinkedItemFilter.inbox.rawValue
+
+  func setItems(_ items: [LinkedItem]) {
+    self.items = items
+    updateFeatureFilter(featureFilter)
+  }
+
+  func updateFeatureFilter(_ filter: FeaturedItemFilter) {
+    // now try to update the continue reading items:
+    featureItems = (items.filter { item in
+      filter.predicate.evaluate(with: item)
+    } as NSArray)
+      .sortedArray(using: [filter.sortDescriptor])
+      .compactMap { $0 as? LinkedItem }
+    featureFilter = filter
+  }
 
   func handleReaderItemNotification(objectID: NSManagedObjectID, dataService: DataService) {
     // Pop the current selected item if needed
@@ -110,7 +127,7 @@ import Views
 
   func syncItems(dataService: DataService) async {
     let syncStart = Date.now
-    let lastSyncDate = dateFormatter.date(from: dataService.lastItemSyncTime) ?? Date(timeIntervalSinceReferenceDate: 0)
+    let lastSyncDate = dataService.lastItemSyncTime
 
     try? await dataService.syncOfflineItemsWithServerIfNeeded()
 
@@ -124,13 +141,14 @@ import Views
         self.isLoading = false
       }
     } else {
-      dataService.lastItemSyncTime = DateFormatter.formatterISO8601.string(from: syncStart)
+      dataService.lastItemSyncTime = syncStart
     }
 
     // If possible start prefetching new pages in the background
-    if let itemIDs = syncResult?.updatedItemIDs,
-       let username = dataService.currentViewer?.username,
-       itemIDs.count > 0
+    if
+      let itemIDs = syncResult?.updatedItemIDs,
+      let username = dataService.currentViewer?.username,
+      !itemIDs.isEmpty
     {
       Task.detached(priority: .background) {
         await dataService.prefetchPages(itemIDs: itemIDs, username: username)
@@ -167,9 +185,9 @@ import Views
         // Don't use FRC for searching. Use server results directly.
         if fetchedResultsController != nil {
           fetchedResultsController = nil
-          items = []
+          setItems([])
         }
-        items = isRefresh ? newItems : items + newItems
+        setItems(isRefresh ? newItems : items + newItems)
       }
 
       isLoading = false
@@ -267,7 +285,7 @@ import Views
 
     fetchedResultsController.delegate = self
     try? fetchedResultsController.performFetch()
-    items = fetchedResultsController.fetchedObjects ?? []
+    setItems(fetchedResultsController.fetchedObjects ?? [])
   }
 
   func setLinkArchived(dataService: DataService, objectID: NSManagedObjectID, archived: Bool) {
@@ -303,10 +321,21 @@ import Views
     isLoading = false
   }
 
+  private var queryContainsFilter: Bool {
+    if searchTerm.contains("in:inbox") || searchTerm.contains("in:all") || searchTerm.contains("in:archive") {
+      return true
+    }
+
+    return false
+  }
+
   private var searchQuery: String {
-    let filter = LinkedItemFilter(rawValue: appliedFilter) ?? .inbox
     let sort = LinkedItemSort(rawValue: appliedSort) ?? .newest
-    var query = "\(filter.queryString) \(sort.queryString)"
+    var query = sort.queryString
+
+    if !queryContainsFilter, let filter = LinkedItemFilter(rawValue: appliedFilter) {
+      query = "\(filter.queryString) \(sort.queryString)"
+    }
 
     if !searchTerm.isEmpty {
       query.append(" \(searchTerm)")
@@ -322,12 +351,14 @@ import Views
       query.append(negatedLabels.map { $0.name ?? "" }.joined(separator: ","))
     }
 
+    print("QUERY: `\(query)`")
+
     return query
   }
 }
 
 extension HomeFeedViewModel: NSFetchedResultsControllerDelegate {
   func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-    items = controller.fetchedObjects as? [LinkedItem] ?? []
+    setItems(controller.fetchedObjects as? [LinkedItem] ?? [])
   }
 }

@@ -1,6 +1,7 @@
 import Models
 import Utils
 import WebKit
+// swiftlint:disable file_length
 
 /// Describes actions that can be sent from the WebView back to native views.
 /// The names on the javascript side must match for an action to be handled.
@@ -16,9 +17,11 @@ enum ContextMenu {
 
 public final class OmnivoreWebView: WKWebView {
   #if os(iOS)
+    private var menuDisplayed = false
     private var panGestureRecognizer: UIPanGestureRecognizer?
-    private var tapGestureRecognizer: UITapGestureRecognizer?
   #endif
+
+  public var tapHandler: (() -> Void)?
 
   private var currentMenu: ContextMenu = .defaultMenu
 
@@ -105,6 +108,28 @@ public final class OmnivoreWebView: WKWebView {
     }
   }
 
+  public func updateAutoHighlightMode() {
+    let isEnabled = UserDefaults.standard.value(
+      forKey: UserDefaultKey.enableHighlightOnRelease.rawValue
+    ) as? Bool
+
+    if let isEnabled = isEnabled {
+      do {
+        try dispatchEvent(.handleAutoHighlightModeChange(isEnabled: isEnabled))
+      } catch {
+        showErrorInSnackbar("Error updating text contrast")
+      }
+    }
+  }
+
+  public func updateTitle(title: String) {
+    do {
+      try dispatchEvent(.updateTitle(title: title))
+    } catch {
+      showErrorInSnackbar("Error updating title")
+    }
+  }
+
   public func updateLabels(labelsJSON: String) {
     do {
       try dispatchEvent(.updateLabels(labels: labelsJSON))
@@ -153,9 +178,17 @@ public final class OmnivoreWebView: WKWebView {
       super.viewDidChangeEffectiveAppearance()
       switch effectiveAppearance.bestMatch(from: [.aqua, .darkAqua]) {
       case .some(.darkAqua):
-        dispatchEvent(.updateColorMode(isDark: true))
+        do {
+          try dispatchEvent(.updateColorMode(isDark: true))
+        } catch {
+          showErrorInSnackbar("Error updating theme")
+        }
       default:
-        dispatchEvent(.updateColorMode(isDark: false))
+        do {
+          try dispatchEvent(.updateColorMode(isDark: false))
+        } catch {
+          showErrorInSnackbar("Error updating theme")
+        }
       }
     }
   #endif
@@ -188,6 +221,17 @@ public final class OmnivoreWebView: WKWebView {
         { // swiftlint:disable:this opening_brace
           showHighlightMenu(CGRect(x: rectX, y: rectY, width: rectWidth, height: rectHeight))
         }
+
+      case "pageTapped":
+        print("currentMenu: ", currentMenu, "menuDisplayed", menuDisplayed)
+        if menuDisplayed {
+          hideMenuAndDismissHighlight()
+          break
+        }
+        if let tapHandler = self.tapHandler {
+          tapHandler()
+        }
+
       default:
         break
       }
@@ -238,6 +282,7 @@ public final class OmnivoreWebView: WKWebView {
       true
     }
 
+    // swiftlint:disable:next cyclomatic_complexity
     override public func canPerformAction(_ action: Selector, withSender _: Any?) -> Bool {
       switch action {
       case #selector(annotateSelection): return true
@@ -246,9 +291,10 @@ public final class OmnivoreWebView: WKWebView {
       case #selector(removeSelection): return true
       case #selector(copy(_:)): return true
       case #selector(setLabels(_:)): return true
-      case Selector(("_lookup:")): return true
-      case Selector(("_define:")): return true
-      case Selector(("_findSelected:")): return true
+      case Selector(("_lookup:")): return (currentMenu == .defaultMenu)
+      case Selector(("_define:")): return (currentMenu == .defaultMenu)
+      case Selector(("_translate:")): return (currentMenu == .defaultMenu)
+      case Selector(("_findSelected:")): return (currentMenu == .defaultMenu)
       default: return false
       }
     }
@@ -315,13 +361,18 @@ public final class OmnivoreWebView: WKWebView {
     override public func buildMenu(with builder: UIMenuBuilder) {
       if #available(iOS 16.0, *) {
         let annotate = UICommand(title: "Note", action: #selector(annotateSelection))
-        let highlight = UICommand(title: LocalText.genericHighlight, action: #selector(highlightSelection))
-        let remove = UICommand(title: "Remove", action: #selector(removeSelection))
-        let setLabels = UICommand(title: LocalText.labelsGeneric, action: #selector(setLabels))
 
-        let omnivore = UIMenu(title: "",
-                              options: .displayInline,
-                              children: currentMenu == .defaultMenu ? [highlight, annotate] : [annotate, setLabels, remove])
+        let items: [UIMenuElement]
+        if currentMenu == .defaultMenu {
+          let highlight = UICommand(title: LocalText.genericHighlight, action: #selector(highlightSelection))
+          items = [highlight, annotate]
+        } else {
+          let remove = UICommand(title: "Remove", action: #selector(removeSelection))
+          let setLabels = UICommand(title: LocalText.labelsGeneric, action: #selector(setLabels))
+          items = [annotate, setLabels, remove]
+        }
+
+        let omnivore = UIMenu(title: "", options: .displayInline, children: items)
         builder.insertSibling(omnivore, beforeMenu: .lookup)
       }
 
@@ -330,14 +381,11 @@ public final class OmnivoreWebView: WKWebView {
 
     private func hideMenu() {
       UIMenuController.shared.hideMenu()
-      if let tapGestureRecognizer = tapGestureRecognizer {
-        removeGestureRecognizer(tapGestureRecognizer)
-        self.tapGestureRecognizer = nil
-      }
       if let panGestureRecognizer = panGestureRecognizer {
         removeGestureRecognizer(panGestureRecognizer)
         self.panGestureRecognizer = nil
       }
+      menuDisplayed = false
       setDefaultMenu()
     }
 
@@ -349,21 +397,13 @@ public final class OmnivoreWebView: WKWebView {
     private func showHighlightMenu(_ rect: CGRect) {
       setHighlightMenu()
 
-      // When the highlight menu is displayed we set up gesture recognizers so it
-      // can be dismissed if the user interacts with another part of the view.
-      // This isn't needed for the default menu as the system will handle that.
-      if tapGestureRecognizer == nil {
-        let tap = UITapGestureRecognizer(target: self, action: #selector(gestureHandled))
-        tap.delegate = self
-        addGestureRecognizer(tap)
-        tapGestureRecognizer = tap
-      }
       if panGestureRecognizer == nil {
         let pan = UIPanGestureRecognizer(target: self, action: #selector(gestureHandled))
         pan.delegate = self
         addGestureRecognizer(pan)
         panGestureRecognizer = pan
       }
+      menuDisplayed = true
 
       UIMenuController.shared.showMenu(from: self, rect: rect)
     }
@@ -372,6 +412,7 @@ public final class OmnivoreWebView: WKWebView {
 
 public enum WebViewDispatchEvent {
   case handleFontContrastChange(isHighContrast: Bool)
+  case handleAutoHighlightModeChange(isEnabled: Bool)
   case updateLineHeight(height: Int)
   case updateMaxWidthPercentage(maxWidthPercentage: Int)
   case updateFontSize(size: Int)
@@ -388,8 +429,11 @@ public enum WebViewDispatchEvent {
   case dismissHighlight
   case speakingSection(anchorIdx: String)
   case updateLabels(labels: String)
+  case updateTitle(title: String)
+  case saveReadPosition
 
   var script: String {
+    // swiftlint:disable:next implicit_getter
     get throws {
       let propertyLine = try scriptPropertyLine
       return "var event = new Event('\(eventName)');\(propertyLine)document.dispatchEvent(event);"
@@ -432,10 +476,17 @@ public enum WebViewDispatchEvent {
       return "speakingSection"
     case .updateLabels:
       return "updateLabels"
+    case .updateTitle:
+      return "updateTitle"
+    case .handleAutoHighlightModeChange:
+      return "handleAutoHighlightModeChange"
+    case .saveReadPosition:
+      return "saveReadPosition"
     }
   }
 
   private var scriptPropertyLine: String {
+    // swiftlint:disable:next implicit_getter
     get throws {
       switch self {
       case let .handleFontContrastChange(isHighContrast: isHighContrast):
@@ -454,6 +505,14 @@ public enum WebViewDispatchEvent {
         return "event.fontFamily = '\(family)';"
       case let .updateLabels(labels):
         return "event.labels = \(labels);"
+      case let .updateTitle(title):
+        let encoder = JSONEncoder()
+        if let encoded = try? encoder.encode(title) {
+          let str = String(decoding: encoded, as: UTF8.self)
+          return "event.title = \(str);"
+        } else {
+          throw BasicError.message(messageText: "Unable to serialize title.")
+        }
       case let .saveAnnotation(annotation: annotation):
         let encoder = JSONEncoder()
         if let encoded = try? encoder.encode(annotation) {
@@ -464,7 +523,16 @@ public enum WebViewDispatchEvent {
         }
       case let .speakingSection(anchorIdx: anchorIdx):
         return "event.anchorIdx = '\(anchorIdx)';"
-      case .annotate, .highlight, .setHighlightLabels, .share, .remove, .copyHighlight, .dismissHighlight:
+      case let .handleAutoHighlightModeChange(isEnabled: isEnabled):
+        return "event.enableHighlightOnRelease = '\(isEnabled ? "on" : "off")';"
+      case .annotate,
+           .highlight,
+           .setHighlightLabels,
+           .share,
+           .remove,
+           .copyHighlight,
+           .dismissHighlight,
+           .saveReadPosition:
         return ""
       }
     }

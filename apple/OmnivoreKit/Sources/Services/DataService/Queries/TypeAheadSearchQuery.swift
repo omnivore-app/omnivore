@@ -12,7 +12,6 @@ public struct TypeaheadSearchItem: Identifiable {
 }
 
 public extension DataService {
-  // swiftlint:disable:next function_body_length
   func typeaheadSearch(searchTerm: String) async throws -> [TypeaheadSearchItem] {
     enum QueryResult {
       case success(result: [TypeaheadSearchItem])

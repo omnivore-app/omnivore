@@ -38,7 +38,7 @@ public final class Authenticator: ObservableObject {
   }
 
   public func logout(dataService: DataService, isAccountDeletion: Bool = false) {
-    dataService.resetCoreData()
+    dataService.resetLocalStorage()
     clearCreds()
     Authenticator.unregisterIntercomUser?()
     isLoggedIn = false

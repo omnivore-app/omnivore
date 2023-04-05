@@ -7,6 +7,8 @@
 "saveArticleProcessingState" = "已经保存到 Omnivore 中";
 "extensionAppUnauthorized" = "请在保存您的第一个链接之前从应用程序登录 Omnivore.";
 
+"saveToOmnivore" = "Save to Omnivore";
+
 // audio player
 "audioPlayerReplay" = "重播";
 
@@ -163,6 +165,7 @@
 "genericLoading" = "加载中...";
 "genericFontFamily" = "字体册";
 "genericHighContrastText" = "高对比度文本";
+"enableHighlightOnReleaseText" = "Auto Highlight Mode:";
 "genericFont" = "字体";
 "genericHighlight" = "荧光笔";
 "labelsGeneric" = "标签";
@@ -176,6 +179,7 @@
 "logoutGeneric" = "退出登录";
 "doneGeneric" = "完成";
 "cancelGeneric" = "取消";
+"exportGeneric" = "导出";
 "inboxGeneric" = "收集箱";
 "readLaterGeneric" = "稍后阅读";
 "newslettersGeneric" = "新闻稿件";
@@ -204,122 +208,124 @@
 // "saveArticleSavingState" = "保存中...";
 // "Confirm Your Profile" = "确认您的个人资料";
 
+
+// TODO: STRINGS TO UPDATE
 // Views/Home/HomeFeedViewIOS.swift file
-"Archive" = "存档";
-"Unarchive" = "取消存档";
-"Remove Item" = "删除此文章";
-"Are you sure you want to delete this item? All associated notes and highlights will be deleted." = "是否确定要删除此文章？所有相关的注释和高亮显示都将被删除。";
-"Delete Item" = "删除此文章";
-"Notebook" = "注释笔记";
-"Edit Info" = "编辑信息";
-"Add Labels" = "添加标签";
-"Edit Labels" = "编辑标签";
-"Recommended" = "推荐";
-
-// Views/Home/HomeFeedViewMac.swift
-"Home" = "文库";
-"Refresh Feed" = "刷新源";
-"Are you sure?" = "是否确定？";
-"Remove Link" = "删除链接";
-
-// Views/Home/HomeFeedViewModel.swift file
-"Link archived" = "链接已存档";
-"Link moved to Inbox" = "链接已移至收集箱";
-"Link removed" = "链接已删除";
-"Failed to snooze" = "无法睡眠";
-
-// Views/Home/LibrarySearchView.swift file
-"Remove" = "移除";
-"Search" = "搜索";
-"Recent Searches" = "最近的搜索";
-"Narrow with advanced search" = "使用高级搜索缩小筛选范围";
-"filter to inbox, archive, or all" = "筛选到收集箱、存档或全部";
-"search for a specific title" = "搜索特定标题";
-"any saved read with highlights" = "任何带有荧光笔高亮显示的已保存文章";
-"[More on Advanced Search](https://omnivore.app/help/search)" = "[了解更多高级搜索](https://omnivore.app/help/search)";
-
-// Views/AudioPlayer/ExpandedPlayer.swift
-"Playback Speed (%.1f×)" = "播放速度 (%.1f×)";
-"Change Voice" = "更改语音";
-"View Article" = "查看文章";
-"Stop" = "停止";
-
-// Views/AudioPlayer/MiniPlayer.swift
-"There was an error playing back your audio." = "播放音频时出错。";
-
-// Views/Labels/ApplyLabelsView.swift
-"Set Labels" = "设置标签";
-
-// Views/Labels/FilterByLabelsView.swift
-"Filter by Label" = "根据标签筛选";
-"Filter Labels" = "筛选标签";
-
-// Views/Labels/LabelsView.swift
-"Are you sure you want to delete this label?" = "是否确定要删除此标签？";
-"Delete Label" = "删除标签";
-"Label Name" = "标签名称";
-"Create New Label" = "创建新标签";
-
-// Views/Profile/NewsletterEmailsView.swift
-"Email copied" = "电子邮件已复制";
-
-// Views/Profile/ProfileView.swift
-"Omnivore Version \(appVersion)" = "Omnivore 版本 \(appVersion)";
-"Unable to load account information." = "无法加载帐户信息。";
-"We were unable to delete your account." = "我们无法删除您的帐户。";
-
-// Views/Profile/PushNotificationSettingsView.swift
-"Devices" = "设备";
-
-// Views/Profile/RecommendationGroupView.swift
-"Admins" = "管理员";
-"Members" = "成员";
-"Invite link copied" = "已复制邀请链接";
-
-// Views/Profile/RecommendationGroupsView.swift
-"Error creating club" = "Error creating club";
-"Club Rules" = "已复制邀请链接";
-"Only admins can post" = "只有管理员可以发帖";
-"Only admins can see members" = "只有管理员才能看到成员";
-
-// Views/Profile/Subscriptions.swift
-"failed to remove subscription" = "无法删除订阅";
-"Are you sure you want to cancel this subscription?" = "是否确定要取消此订阅？";
-"Subscription cancelled." = "订阅已取消。";
-"Could not unsubscribe." = "无法取消订阅。";
-
-// Views/Highlights/HighlightsListCard.swift
-"Highlight copied" = "已复制荧光笔高亮显示";
-"Copy" = "复制";
-"Delete" = "删除";
-"Add Notes..." = "添加注释...";
-
-// Views/LinkItemDetailView.swift
-"Link archived" = "链接已存档";
-"Link moved to Inbox" = "链接已移至收集箱";
-"Link removed" = "链接已删除";
-"Edit Info" = "编辑信息";
-"Unarchive" = "取消存档";
-"Archive" = "存档";
-"Are you sure?" = "是否确定？";
-"Remove Link" = "删除链接";
-
-// Views/LinkedItemMetadataEditView.swift
-"Edit Title and Description" = "编辑标题和说明";
-
-// Views/SelfHostSettingsView.swift
-"API Server Base URL" = "API 服务器基本 URL";
-"Web Server URL" = "Web 服务器 URL";
-"Text-to-speech Server URL" = "文章转语音服务器 URL";
-"Changing your environment settings will close the app." = "更改环境设置将关闭应用。";
-"Self-hosting Options" = "自我管选项";
-
-// Views/WelcomeView.swift
-"Your account has been deleted. Additional steps may be needed if Sign in with Apple was used to register." = "您的帐户已被删除。如果使用 Apple 登录 进行注册，则可能需要执行其他步骤。";
-"View Terms of Service" = "查看服务条款";
-"View Privacy Policy" = "查看隐私策略";
-"Self-hosting options" = "自我管选项";
-"View Details" = "查看详情";
+//"Archive" = "存档";
+//"Unarchive" = "取消存档";
+//"Remove Item" = "删除此文章";
+//"Are you sure you want to delete this item? All associated notes and highlights will be deleted." = "是否确定要删除此文章？所有相关的注释和高亮显示都将被删除。";
+//"Delete Item" = "删除此文章";
+//"Notebook" = "注释笔记";
+//"Edit Info" = "编辑信息";
+//"Add Labels" = "添加标签";
+//"Edit Labels" = "编辑标签";
+//"Recommended" = "推荐";
+//
+//// Views/Home/HomeFeedViewMac.swift
+//"Home" = "文库";
+//"Refresh Feed" = "刷新源";
+//"Are you sure?" = "是否确定？";
+//"Remove Link" = "删除链接";
+//
+//// Views/Home/HomeFeedViewModel.swift file
+//"Link archived" = "链接已存档";
+//"Link moved to Inbox" = "链接已移至收集箱";
+//"Link removed" = "链接已删除";
+//"Failed to snooze" = "无法睡眠";
+//
+//// Views/Home/LibrarySearchView.swift file
+//"Remove" = "移除";
+//"Search" = "搜索";
+//"Recent Searches" = "最近的搜索";
+//"Narrow with advanced search" = "使用高级搜索缩小筛选范围";
+//"filter to inbox, archive, or all" = "筛选到收集箱、存档或全部";
+//"search for a specific title" = "搜索特定标题";
+//"any saved read with highlights" = "任何带有荧光笔高亮显示的已保存文章";
+//"[More on Advanced Search](https://omnivore.app/help/search)" = "[了解更多高级搜索](https://omnivore.app/help/search)";
+//
+//// Views/AudioPlayer/ExpandedPlayer.swift
+//"Playback Speed (%.1f×)" = "播放速度 (%.1f×)";
+//"Change Voice" = "更改语音";
+//"View Article" = "查看文章";
+//"Stop" = "停止";
+//
+//// Views/AudioPlayer/MiniPlayer.swift
+//"There was an error playing back your audio." = "播放音频时出错。";
+//
+//// Views/Labels/ApplyLabelsView.swift
+//"Set Labels" = "设置标签";
+//
+//// Views/Labels/FilterByLabelsView.swift
+//"Filter by Label" = "根据标签筛选";
+//"Filter Labels" = "筛选标签";
+//
+//// Views/Labels/LabelsView.swift
+//"Are you sure you want to delete this label?" = "是否确定要删除此标签？";
+//"Delete Label" = "删除标签";
+//"Label Name" = "标签名称";
+//"Create New Label" = "创建新标签";
+//
+//// Views/Profile/NewsletterEmailsView.swift
+//"Email copied" = "电子邮件已复制";
+//
+//// Views/Profile/ProfileView.swift
+//"Omnivore Version \(appVersion)" = "Omnivore 版本 \(appVersion)";
+//"Unable to load account information." = "无法加载帐户信息。";
+//"We were unable to delete your account." = "我们无法删除您的帐户。";
+//
+//// Views/Profile/PushNotificationSettingsView.swift
+//"Devices" = "设备";
+//
+//// Views/Profile/RecommendationGroupView.swift
+//"Admins" = "管理员";
+//"Members" = "成员";
+//"Invite link copied" = "已复制邀请链接";
+//
+//// Views/Profile/RecommendationGroupsView.swift
+//"Error creating club" = "Error creating club";
+//"Club Rules" = "已复制邀请链接";
+//"Only admins can post" = "只有管理员可以发帖";
+//"Only admins can see members" = "只有管理员才能看到成员";
+//
+//// Views/Profile/Subscriptions.swift
+//"failed to remove subscription" = "无法删除订阅";
+//"Are you sure you want to cancel this subscription?" = "是否确定要取消此订阅？";
+//"Subscription cancelled." = "订阅已取消。";
+//"Could not unsubscribe." = "无法取消订阅。";
+//
+//// Views/Highlights/HighlightsListCard.swift
+//"Highlight copied" = "已复制荧光笔高亮显示";
+//"Copy" = "复制";
+//"Delete" = "删除";
+//"Add Notes..." = "添加注释...";
+//
+//// Views/LinkItemDetailView.swift
+//"Link archived" = "链接已存档";
+//"Link moved to Inbox" = "链接已移至收集箱";
+//"Link removed" = "链接已删除";
+//"Edit Info" = "编辑信息";
+//"Unarchive" = "取消存档";
+//"Archive" = "存档";
+//"Are you sure?" = "是否确定？";
+//"Remove Link" = "删除链接";
+//
+//// Views/LinkedItemMetadataEditView.swift
+//"Edit Title and Description" = "编辑标题和说明";
+//
+//// Views/SelfHostSettingsView.swift
+//"API Server Base URL" = "API 服务器基本 URL";
+//"Web Server URL" = "Web 服务器 URL";
+//"Text-to-speech Server URL" = "文章转语音服务器 URL";
+//"Changing your environment settings will close the app." = "更改环境设置将关闭应用。";
+//"Self-hosting Options" = "自我管选项";
+//
+//// Views/WelcomeView.swift
+//"Your account has been deleted. Additional steps may be needed if Sign in with Apple was used to register." = "您的帐户已被删除。如果使用 Apple 登录 进行注册，则可能需要执行其他步骤。";
+//"View Terms of Service" = "查看服务条款";
+//"View Privacy Policy" = "查看隐私策略";
+//"Self-hosting options" = "自我管选项";
+//"View Details" = "查看详情";
 
 // Unit test Entry -- Do not remove this or add entries after this one.
 // This allows us to check for syntax errors in this file with a unit test

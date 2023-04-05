@@ -13,6 +13,7 @@ typealias WKScriptMessageReplyHandler = (Any?, String?) -> Void
 final class WebReaderCoordinator: NSObject {
   var webViewActionHandler: (WKScriptMessage, WKScriptMessageReplyHandler?) -> Void = { _, _ in }
   var linkHandler: (URL) -> Void = { _ in }
+  var scrollPercentHandler: ((Int) -> Void) = { _ in }
   var needsReload = false
   var lastSavedAnnotationID: UUID?
   var previousReaderSettingsChangedUUID: UUID?
@@ -128,6 +129,9 @@ extension WebReaderCoordinator: WKNavigationDelegate {
       } else {
         updateShowBottomBar(false)
       }
+
+      let percent = Int(((yOffset + scrollView.visibleSize.height) / scrollView.contentSize.height) * 100)
+      scrollPercentHandler(max(0, min(percent, 100)))
     }
 
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {

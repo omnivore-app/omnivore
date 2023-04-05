@@ -37,6 +37,7 @@
       }
       .frame(height: storedSize.height)
       .overlay(content: {
+        // swiftlint:disable line_length
         HStack {
           let color: Color = .systemBackground
 
@@ -47,6 +48,7 @@
 
           LinearGradient(colors: [color, color.opacity(0.7), color.opacity(0.5), color.opacity(0.3)].reversed(), startPoint: .leading, endPoint: .trailing)
             .frame(width: 8)
+          // swiftlint:enable line_length
         }
       })
       .disabled(true)

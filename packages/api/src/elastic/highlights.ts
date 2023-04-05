@@ -1,14 +1,15 @@
+import { ResponseError } from '@elastic/elasticsearch/lib/errors'
+import { EntityType } from '../datalayer/pubsub'
+import { SortBy, SortOrder, SortParams } from '../utils/search'
+import { client, INDEX_ALIAS } from './index'
 import {
   Highlight,
   Page,
   PageContext,
+  PageType,
   SearchItem,
   SearchResponse,
 } from './types'
-import { ResponseError } from '@elastic/elasticsearch/lib/errors'
-import { client, INDEX_ALIAS } from './index'
-import { SortBy, SortOrder, SortParams } from '../utils/search'
-import { EntityType } from '../datalayer/pubsub'
 
 export const addHighlightToPage = async (
   id: string,
@@ -29,7 +30,7 @@ export const addHighlightToPage = async (
                   ctx._source.updatedAt = params.highlight.updatedAt`,
           lang: 'painless',
           params: {
-            highlight: highlight,
+            highlight,
           },
         },
       },
@@ -136,9 +137,12 @@ export const deleteHighlight = async (
       refresh: ctx.refresh,
     })
 
-    if (body.updated === 0) return false
-
-    await ctx.pubsub.entityDeleted(EntityType.HIGHLIGHT, highlightId, ctx.uid)
+    body.updated > 0 &&
+      (await ctx.pubsub.entityDeleted(
+        EntityType.HIGHLIGHT,
+        highlightId,
+        ctx.uid
+      ))
 
     return true
   } catch (e) {
@@ -238,6 +242,7 @@ export const searchHighlights = async (
           ...highlight,
           ...hit._source,
           pageId: hit._id,
+          pageType: PageType.Highlights,
         })
       })
     })
@@ -254,7 +259,7 @@ export const updateHighlight = async (
   ctx: PageContext
 ): Promise<boolean> => {
   try {
-    await client.updateByQuery({
+    const { body } = await client.updateByQuery({
       index: INDEX_ALIAS,
       body: {
         script: {
@@ -292,11 +297,12 @@ export const updateHighlight = async (
       conflicts: 'proceed',
     })
 
-    await ctx.pubsub.entityUpdated<Highlight>(
-      EntityType.HIGHLIGHT,
-      highlight,
-      ctx.uid
-    )
+    body.updated > 0 &&
+      (await ctx.pubsub.entityUpdated<Highlight>(
+        EntityType.HIGHLIGHT,
+        highlight,
+        ctx.uid
+      ))
 
     return true
   } catch (e) {

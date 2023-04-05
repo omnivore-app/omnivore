@@ -5,28 +5,41 @@ import SwiftGraphQL
 
 public extension DataService {
   func removeLink(objectID: NSManagedObjectID) {
-    // Update CoreData
-    viewContext.performAndWait {
-      guard let linkedItem = viewContext.object(with: objectID) as? LinkedItem else { return }
-      linkedItem.serverSyncStatus = Int64(ServerSyncStatus.needsDeletion.rawValue)
+    // First try to get the item synchronously, this is used later to delete files
+    // Then we can async update core data and make the API call to sync the deletion
 
-      do {
-        try viewContext.save()
-        logger.debug("LinkedItem succesfully marked for deletion")
-      } catch {
-        viewContext.rollback()
-        logger.debug("Failed to mark LinkedItem for deletion: \(error.localizedDescription)")
-      }
+    var linkedItemID: String?
+    viewContext.performAndWait {
+      guard let linkedItem = self.viewContext.object(with: objectID) as? LinkedItem else { return }
+      linkedItem.serverSyncStatus = Int64(ServerSyncStatus.needsDeletion.rawValue)
+      linkedItemID = linkedItem.id
     }
 
-    // Send update to server
-    backgroundContext.perform { [weak self] in
-      guard let linkedItem = self?.backgroundContext.object(with: objectID) as? LinkedItem else { return }
-      self?.syncLinkDeletion(itemID: linkedItem.unwrappedID, objectID: objectID)
+    viewContext.perform {
+      guard let linkedItem = self.viewContext.object(with: objectID) as? LinkedItem else { return }
+      linkedItem.serverSyncStatus = Int64(ServerSyncStatus.needsDeletion.rawValue)
+      linkedItemID = linkedItem.id
+
+      do {
+        try self.viewContext.save()
+        logger.debug("LinkedItem succesfully marked for deletion")
+      } catch {
+        self.viewContext.rollback()
+        logger.debug("Failed to mark LinkedItem for deletion: \(error.localizedDescription)")
+      }
+
+      // Send update to server
+      self.syncLinkDeletion(itemID: linkedItem.unwrappedID)
+    }
+
+    if let linkedItemID = linkedItemID {
+      Task {
+        AudioController.removeAudioFiles(itemID: linkedItemID)
+      }
     }
   }
 
-  func syncLinkDeletion(itemID: String, objectID: NSManagedObjectID) {
+  func syncLinkDeletion(itemID: String) {
     enum MutationResult {
       case success(linkId: String)
       case error(errorCode: Enums.SetBookmarkArticleErrorCode)
@@ -64,20 +77,20 @@ public extension DataService {
       let isSyncSuccess = data != nil
 
       context.perform {
-        guard let linkedItem = context.object(with: objectID) as? LinkedItem else { return }
+        guard let linkedItem = LinkedItem.lookup(byID: itemID, inContext: context) else { return }
 
         if isSyncSuccess {
           linkedItem.remove(inContext: context)
         } else {
           linkedItem.serverSyncStatus = Int64(ServerSyncStatus.needsDeletion.rawValue)
-        }
 
-        do {
-          try context.save()
-          logger.debug("LinkedItem deleted succesfully")
-        } catch {
-          context.rollback()
-          logger.debug("Failed to delete LinkedItem: \(error.localizedDescription)")
+          do {
+            try context.save()
+            logger.debug("LinkedItem deleted succesfully")
+          } catch {
+            context.rollback()
+            logger.debug("Failed to delete LinkedItem: \(error.localizedDescription)")
+          }
         }
       }
     }

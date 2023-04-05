@@ -6,7 +6,7 @@ import Utils
 import Views
 import WebKit
 
-// swiftlint:disable:next type_body_length
+// swiftlint:disable file_length type_body_length
 struct WebReaderContainerView: View {
   let item: LinkedItem
 
@@ -30,6 +30,7 @@ struct WebReaderContainerView: View {
   @State private var errorAlertMessage: String?
   @State private var showErrorAlertMessage = false
   @State private var showRecommendSheet = false
+  @State private var lastScrollPercentage: Int?
 
   @State var safariWebLink: SafariWebLink?
   @State var displayLinkSheet = false
@@ -56,6 +57,10 @@ struct WebReaderContainerView: View {
     }
   }
 
+  func scrollPercentHandler(percent: Int) {
+    lastScrollPercentage = percent
+  }
+
   func onHighlightListViewDismissal() {
     // Reload the web view if mutation happened in highlights list modal
     guard hasPerformedHighlightMutations else { return }
@@ -70,6 +75,14 @@ struct WebReaderContainerView: View {
           itemID: item.unwrappedID
         )
       }
+    }
+  }
+
+  private func tapHandler() {
+    withAnimation(.easeIn(duration: 0.08)) {
+      navBarVisibilityRatio = navBarVisibilityRatio == 1 ? 0 : 1
+      showBottomBar = navBarVisibilityRatio == 1
+      showNavBarActionID = UUID()
     }
   }
 
@@ -89,6 +102,12 @@ struct WebReaderContainerView: View {
     case "setHighlightLabels":
       annotation = messageBody["highlightID"] ?? ""
       showHighlightLabelsModal = true
+    case "pageTapped":
+      withAnimation {
+        navBarVisibilityRatio = navBarVisibilityRatio == 1 ? 0 : 1
+        showBottomBar = navBarVisibilityRatio == 1
+        showNavBarActionID = UUID()
+      }
     default:
       break
     }
@@ -160,7 +179,7 @@ struct WebReaderContainerView: View {
         Image(systemName: "sparkles")
       }).frame(width: 48, height: 48)
 
-        // TODO: We don't have a single note function yet
+        // We don't have a single note function yet
 //      Divider()
 //
 //      Button(action: addNote, label: {
@@ -176,6 +195,7 @@ struct WebReaderContainerView: View {
         viewModel.downloadAudio(audioController: audioController, item: item)
       },
       label: {
+        // swiftlint:disable:next line_length
         Label(viewModel.isDownloadingAudio ? "Downloading Audio" : "Download Audio", systemImage: "icloud.and.arrow.down")
       }
     )
@@ -249,7 +269,7 @@ struct WebReaderContainerView: View {
             Image(systemName: "chevron.backward")
               .font(.appNavbarIcon)
               .foregroundColor(.appGrayTextContrast)
-              .padding(.horizontal)
+              .padding()
           }
         )
         .scaleEffect(navBarVisibilityRatio)
@@ -274,9 +294,13 @@ struct WebReaderContainerView: View {
         },
         label: {
           #if os(iOS)
-            Image.profile
-              .padding(.horizontal)
+            Image(systemName: "ellipsis")
+              .resizable(resizingMode: Image.ResizingMode.stretch)
+              .aspectRatio(contentMode: .fit)
+              .foregroundColor(.appGrayTextContrast)
+              .frame(width: 20, height: 20)
               .scaleEffect(navBarVisibilityRatio)
+              .padding()
           #else
             Text(LocalText.genericOptions)
           #endif
@@ -285,6 +309,9 @@ struct WebReaderContainerView: View {
       #if os(macOS)
         .frame(maxWidth: 100)
         .padding(.trailing, 16)
+      #else
+        .padding(.trailing, 3)
+        .padding(.bottom, 10)
       #endif
     }
     .frame(height: readerViewNavBarHeight * navBarVisibilityRatio)
@@ -309,14 +336,20 @@ struct WebReaderContainerView: View {
       })
     }
     .sheet(isPresented: $showTitleEdit) {
-      LinkedItemMetadataEditView(item: item)
+      LinkedItemMetadataEditView(item: item, onSave: { title, _ in
+        item.title = title
+        // We dont need to update description because its never rendered in this view
+        readerSettingsChangedTransactionID = UUID()
+      })
     }
-    .sheet(isPresented: $showHighlightsView, onDismiss: onHighlightListViewDismissal) {
-      HighlightsListView(
-        itemObjectID: item.objectID,
-        hasHighlightMutations: $hasPerformedHighlightMutations
-      )
-    }
+    #if os(iOS)
+      .sheet(isPresented: $showHighlightsView, onDismiss: onHighlightListViewDismissal) {
+        HighlightsListView(
+          itemObjectID: item.objectID,
+          hasHighlightMutations: $hasPerformedHighlightMutations
+        )
+      }
+    #endif
     #if os(macOS)
       .buttonStyle(PlainButtonStyle())
     #endif
@@ -349,6 +382,8 @@ struct WebReaderContainerView: View {
               }
             #endif
           },
+          tapHandler: tapHandler,
+          scrollPercentHandler: scrollPercentHandler,
           webViewActionHandler: webViewActionHandler,
           navBarVisibilityRatioUpdater: {
             navBarVisibilityRatio = $0
@@ -361,11 +396,22 @@ struct WebReaderContainerView: View {
           showBottomBar: $showBottomBar,
           showHighlightAnnotationModal: $showHighlightAnnotationModal
         )
-        .onTapGesture {
-          withAnimation {
-            navBarVisibilityRatio = 1
-            showNavBarActionID = UUID()
+        .onAppear {
+          if item.isUnread {
+            dataService.updateLinkReadingProgress(itemID: item.unwrappedID, readingProgress: 0.1, anchorIndex: 0)
           }
+          Task {
+            await audioController.preload(itemIDs: [item.unwrappedID])
+          }
+        }
+        .onDisappear {
+//          if let lastScrollPercentage = self.lastScrollPercentage {
+//            dataService.updateLinkReadingProgress(
+//              itemID: item.unwrappedID,
+//              readingProgress: Double(lastScrollPercentage),
+//              anchorIndex: 0
+//            )
+//          }
         }
         .confirmationDialog(linkToOpen?.absoluteString ?? "", isPresented: $displayLinkSheet) {
           Button(action: {
@@ -374,7 +420,11 @@ struct WebReaderContainerView: View {
             }
           }, label: { Text(LocalText.genericOpen) })
           Button(action: {
-            UIPasteboard.general.string = item.unwrappedPageURLString
+            #if os(iOS)
+              UIPasteboard.general.string = item.unwrappedPageURLString
+            #else
+//            Pasteboard.general.string = item.unwrappedPageURLString TODO: fix for mac
+            #endif
             showInSnackbar("Link Copied")
           }, label: { Text(LocalText.readerCopyLink) })
           Button(action: {
@@ -394,18 +444,21 @@ struct WebReaderContainerView: View {
             showErrorAlertMessage = false
           })
         }
-        .formSheet(isPresented: $showRecommendSheet) {
-          let highlightCount = item.highlights.asArray(of: Highlight.self).filter(\.createdByMe).count
-          NavigationView {
-            RecommendToView(
-              dataService: dataService,
-              viewModel: RecommendToViewModel(pageID: item.unwrappedID,
-                                              highlightCount: highlightCount)
-            )
-          }.onDisappear {
-            showRecommendSheet = false
+        #if os(iOS)
+          .formSheet(isPresented: $showRecommendSheet) {
+            let highlightCount = item.highlights.asArray(of: Highlight.self).filter(\.createdByMe).count
+
+            NavigationView {
+              RecommendToView(
+                dataService: dataService,
+                viewModel: RecommendToViewModel(pageID: item.unwrappedID,
+                                                highlightCount: highlightCount)
+              )
+            }.onDisappear {
+              showRecommendSheet = false
+            }
           }
-        }
+        #endif
         .sheet(isPresented: $showHighlightAnnotationModal) {
           HighlightAnnotationSheet(
             annotation: $annotation,
@@ -481,9 +534,12 @@ struct WebReaderContainerView: View {
         readerSettingsChangedTransactionID = UUID()
       }
     #endif
+    .onAppear {
+      try? WebViewManager.shared().dispatchEvent(.saveReadPosition)
+    }
     .onDisappear {
-      // Clear the shared webview content when exiting
-      WebViewManager.shared().loadHTMLString("<html></html>", baseURL: nil)
+      // WebViewManager.shared().loadHTMLString("<html></html>", baseURL: nil)
+      WebViewManager.shared().loadHTMLString(WebReaderContent.emptyContent(isDark: Color.isDarkMode), baseURL: nil)
     }
   }
 
@@ -514,10 +570,11 @@ struct WebReaderContainerView: View {
   func scrollToTop() {}
 
   func openOriginalURL(urlString: String?) {
-    if let urlString = urlString,
-       let url = URL(string: urlString)
-    {
-      openURL(url)
-    }
+    guard
+      let urlString = urlString,
+      let url = URL(string: urlString)
+    else { return }
+
+    openURL(url)
   }
 }

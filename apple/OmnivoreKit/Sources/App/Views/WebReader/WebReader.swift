@@ -8,6 +8,8 @@ struct WebReader: PlatformViewRepresentable {
   let item: LinkedItem
   let articleContent: ArticleContent
   let openLinkAction: (URL) -> Void
+  let tapHandler: () -> Void
+  let scrollPercentHandler: (Int) -> Void
   let webViewActionHandler: (WKScriptMessage, WKScriptMessageReplyHandler?) -> Void
   let navBarVisibilityRatioUpdater: (Double) -> Void
 
@@ -46,13 +48,14 @@ struct WebReader: PlatformViewRepresentable {
     let webView = WebViewManager.shared()
     let contentController = WKUserContentController()
 
+    webView.tapHandler = tapHandler
     webView.navigationDelegate = context.coordinator
     webView.configuration.userContentController = contentController
     webView.configuration.userContentController.removeAllScriptMessageHandlers()
 
     #if os(iOS)
       webView.isOpaque = false
-      webView.backgroundColor = .clear
+      webView.backgroundColor = Color.isDarkMode ? .systemBackground : .white
       webView.scrollView.delegate = context.coordinator
       webView.scrollView.contentInset.top = readerViewNavBarHeight
       webView.scrollView.verticalScrollIndicatorInsets.top = readerViewNavBarHeight
@@ -72,6 +75,7 @@ struct WebReader: PlatformViewRepresentable {
     context.coordinator.linkHandler = openLinkAction
     context.coordinator.webViewActionHandler = webViewActionHandler
     context.coordinator.updateNavBarVisibilityRatio = navBarVisibilityRatioUpdater
+    context.coordinator.scrollPercentHandler = scrollPercentHandler
     context.coordinator.updateShowBottomBar = { newValue in
       self.showBottomBar = newValue
     }
@@ -98,9 +102,11 @@ struct WebReader: PlatformViewRepresentable {
       (webView as? OmnivoreWebView)?.updateFontFamily()
       (webView as? OmnivoreWebView)?.updateFontSize()
       (webView as? OmnivoreWebView)?.updateTextContrast()
+      (webView as? OmnivoreWebView)?.updateAutoHighlightMode()
       (webView as? OmnivoreWebView)?.updateMaxWidthPercentage()
       (webView as? OmnivoreWebView)?.updateLineHeight()
       (webView as? OmnivoreWebView)?.updateLabels(labelsJSON: item.labelsJSONString)
+      (webView as? OmnivoreWebView)?.updateTitle(title: item.title ?? "")
     }
 
     if showNavBarActionID != context.coordinator.previousShowNavBarActionID {
@@ -149,6 +155,15 @@ struct WebReader: PlatformViewRepresentable {
       }
     }()
 
+    let enableHighlightOnRelease: Bool = {
+      let key = UserDefaultKey.enableHighlightOnRelease.rawValue
+      if UserDefaults.standard.object(forKey: key) != nil {
+        return UserDefaults.standard.bool(forKey: key)
+      } else {
+        return false
+      }
+    }()
+
     let fontFamily = fontFamilyValue.flatMap { WebFont(rawValue: $0) } ?? .system
 
     let htmlString = WebReaderContent(
@@ -159,7 +174,8 @@ struct WebReader: PlatformViewRepresentable {
       lineHeight: lineHeight(),
       maxWidthPercentage: maxWidthPercentage(),
       fontFamily: fontFamily,
-      prefersHighContrastText: prefersHighContrastText
+      prefersHighContrastText: prefersHighContrastText,
+      enableHighlightOnRelease: enableHighlightOnRelease
     )
     .styledContent
 

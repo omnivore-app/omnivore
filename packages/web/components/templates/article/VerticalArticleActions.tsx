@@ -1,12 +1,12 @@
 import {
   ArchiveBox,
   DotsThreeOutline,
-  HighlighterCircle,
   Info,
   TagSimple,
   TextAa,
   Trash,
   Tray,
+  Notebook,
 } from 'phosphor-react'
 import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
 import { Button } from '../../elements/Button'
@@ -60,7 +60,7 @@ export function VerticalArticleActionsMenu(
             tooltipContent="View Highlights"
             tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
           >
-            <HighlighterCircle
+            <Notebook
               size={24}
               color={theme.colors.thHighContrast.toString()}
             />

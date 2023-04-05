@@ -12,5 +12,5 @@ public enum FeatureFlag {
   public static let enableShareButton = false
   public static let enableSnooze = false
   public static let enableGridCardsOnPhone = false
-  public static let enableUltraRealisticVoices = false
+  public static let enableUltraRealisticVoices = true
 }

@@ -57,22 +57,28 @@ export const articleSavingRequestResolver = authorized<
   ArticleSavingRequestError,
   QueryArticleSavingRequestArgs
 >(async (_, { id, url }, { models, claims }) => {
+  if (!id && !url) {
+    return { errorCodes: [ArticleSavingRequestErrorCode.BadData] }
+  }
+  const user = await models.user.get(claims.uid)
+  if (!user) {
+    return { errorCodes: [ArticleSavingRequestErrorCode.Unauthorized] }
+  }
   const params = {
     _id: id || undefined,
     url: url || undefined,
     userId: claims.uid,
+    state: [
+      ArticleSavingRequestStatus.Succeeded,
+      ArticleSavingRequestStatus.Processing,
+    ],
   }
   const page = await getPageByParam(params)
   if (!page) {
     return { errorCodes: [ArticleSavingRequestErrorCode.NotFound] }
   }
-  const user = await models.user.get(page.userId)
-  if (user && page) {
-    if (isParsingTimeout(page)) {
-      page.state = ArticleSavingRequestStatus.Succeeded
-    }
-    return { articleSavingRequest: pageToArticleSavingRequest(user, page) }
+  if (isParsingTimeout(page)) {
+    page.state = ArticleSavingRequestStatus.Succeeded
   }
-
-  return { errorCodes: [ArticleSavingRequestErrorCode.NotFound] }
+  return { articleSavingRequest: pageToArticleSavingRequest(user, page) }
 })

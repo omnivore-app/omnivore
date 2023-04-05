@@ -13,9 +13,10 @@ public struct HighlightData {
   public let highlightText: String
 
   public static func make(dict: NSDictionary?) -> HighlightData? {
-    if let dict = dict,
-       let highlightHTML = dict["highlightHTML"] as? String,
-       let highlightText = dict["highlightText"] as? String
+    if
+      let dict = dict,
+      let highlightHTML = dict["highlightHTML"] as? String,
+      let highlightText = dict["highlightText"] as? String
     {
       return HighlightData(highlightHTML: highlightHTML, highlightText: highlightText)
     }

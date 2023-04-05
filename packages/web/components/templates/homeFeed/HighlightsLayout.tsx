@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router'
 import { HighlighterCircle } from 'phosphor-react'
 import { useCallback, useEffect, useReducer, useState } from 'react'
 import { Toaster } from 'react-hot-toast'
@@ -18,9 +19,10 @@ import {
   timeAgo,
 } from '../../patterns/LibraryCards/LibraryCardStyles'
 import { LibraryHighlightGridCard } from '../../patterns/LibraryCards/LibraryHighlightGridCard'
+import { Notebook } from '../article/Notebook'
 import { EmptyHighlights } from './EmptyHighlights'
 import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from './HeaderSpacer'
-import { HighlightItem, highlightsAsMarkdown } from './HighlightItem'
+import { highlightsAsMarkdown } from './HighlightItem'
 
 type HighlightItemsLayoutProps = {
   items: LibraryItem[]
@@ -32,9 +34,8 @@ type HighlightItemsLayoutProps = {
 export function HighlightItemsLayout(
   props: HighlightItemsLayoutProps
 ): JSX.Element {
-  const [currentItem, setCurrentItem] = useState<LibraryItem | undefined>(
-    undefined
-  )
+  const [currentItem, setCurrentItem] =
+    useState<LibraryItem | undefined>(undefined)
 
   const listReducer = (
     state: LibraryItem[],
@@ -124,6 +125,9 @@ export function HighlightItemsLayout(
           '@xlgDown': {
             height: `calc(100vh - ${MOBILE_HEADER_HEIGHT})`,
           },
+          '@lgDown': {
+            overflowY: 'scroll',
+          },
           bg: '$thBackground2',
           overflow: 'hidden',
         }}
@@ -165,7 +169,7 @@ export function HighlightItemsLayout(
                 borderBottom: '1px solid $thBorderColor',
               }}
               alignment="center"
-              distribution="start"
+              distribution="center"
             ></HStack>
             <LibraryItemsList
               items={items}
@@ -185,28 +189,19 @@ export function HighlightItemsLayout(
                 height: '100%',
                 width: '100%',
                 flexGrow: '1',
+                justifyContent: 'center',
+                overflowY: 'scroll',
                 '@lgDown': {
                   display: 'none',
                   flexGrow: 'unset',
                 },
               }}
             >
-              <HStack
-                css={{
-                  flexGrow: '1',
-                  overflowY: 'scroll',
-                  height: '100%',
-                  width: '100%',
-                }}
-                distribution="start"
-                alignment="start"
-              >
-                <HighlightList
-                  item={currentItem}
-                  viewer={props.viewer}
-                  deleteHighlight={handleDelete}
-                />
-              </HStack>
+              <HighlightList
+                item={currentItem}
+                viewer={props.viewer}
+                deleteHighlight={handleDelete}
+              />
             </SpanBox>
           </>
         )}
@@ -256,6 +251,7 @@ function LibraryItemsList(props: LibraryItemsListProps): JSX.Element {
           )}
         </Box>
       ))}
+      <Box css={{ height: '240px' }} />
     </>
   )
 }
@@ -366,6 +362,8 @@ type HighlightListProps = {
 }
 
 function HighlightList(props: HighlightListProps): JSX.Element {
+  const router = useRouter()
+
   const exportHighlights = useCallback(() => {
     ;(async () => {
       if (!props.item.node.highlights) {
@@ -378,68 +376,231 @@ function HighlightList(props: HighlightListProps): JSX.Element {
     })()
   }, [props.item.node.highlights])
 
+  const viewInReader = useCallback(
+    (highlightId) => {
+      if (!router || !router.isReady || !props.viewer) {
+        showErrorToast('Error navigating to highlight')
+        return
+      }
+      console.log(
+        'pushing user: ',
+        props.viewer,
+        'slug: ',
+        props.item.node.slug
+      )
+      router.push(
+        {
+          pathname: '/[username]/[slug]',
+          query: {
+            username: props.viewer.profile.username,
+            slug: props.item.node.slug,
+          },
+          hash: highlightId,
+        },
+        `${props.viewer.profile.username}/${props.item.node.slug}#${highlightId}`,
+        {
+          scroll: false,
+        }
+      )
+    },
+    [router, props]
+  )
+
   return (
-    <HStack
+    <VStack
       css={{
         m: '20px',
-        height: '100%',
         flexGrow: '1',
+        height: '100%',
+        minWidth: '425px',
+        maxWidth: '625px',
+        width: '100%',
+        justifyContent: 'flex-start',
       }}
-      distribution="center"
-      alignment="start"
+      distribution="start"
+      alignment="center"
     >
-      <VStack
+      <HStack
         css={{
-          width: '425px',
-          borderRadius: '6px',
+          width: '100%',
+          borderBottom: '1px solid $thBorderColor',
         }}
         alignment="start"
-        distribution="start"
+        distribution="center"
       >
-        <HStack
+        <StyledText
           css={{
+            fontWeight: '600',
+            fontSize: '15px',
+            fontFamily: '$display',
             width: '100%',
-            pt: '25px',
-            borderBottom: '1px solid $thBorderColor',
+            color: 'thTextContrast2',
+            m: '0px',
+            pb: '5px',
           }}
-          alignment="start"
-          distribution="start"
         >
-          <StyledText
-            css={{
-              fontWeight: '600',
-              fontSize: '15px',
-              fontFamily: '$display',
-              width: '100%',
-              color: 'thTextContrast2',
+          NOTEBOOK
+        </StyledText>
+        <Dropdown triggerElement={<MenuTrigger />}>
+          <DropdownOption
+            onSelect={() => {
+              exportHighlights()
             }}
-          >
-            HIGHLIGHTS
-          </StyledText>
-          <Dropdown triggerElement={<MenuTrigger />}>
-            <DropdownOption
-              onSelect={() => {
-                exportHighlights()
-              }}
-              title="Export"
-            />
-          </Dropdown>
-        </HStack>
-        <VStack css={{ width: '100%' }} distribution="start" alignment="start">
-          {(props.item.node.highlights ?? []).map((highlight) => (
-            <HighlightItem
-              key={highlight.id}
-              viewer={props.viewer}
-              item={props.item.node}
-              highlight={highlight}
-              deleteHighlight={props.deleteHighlight}
-            />
-          ))}
-          <Box css={{ height: '100px' }} />
-        </VStack>
-      </VStack>
-    </HStack>
+            title="Export"
+          />
+        </Dropdown>
+      </HStack>
+      <HStack css={{ width: '100%', height: '100%' }}>
+        {props.viewer && (
+          <Notebook
+            sizeMode="normal"
+            viewer={props.viewer}
+            item={props.item.node}
+            highlights={props.item.node.highlights ?? []}
+            viewInReader={viewInReader}
+          />
+        )}
+      </HStack>
+    </VStack>
   )
+
+  // return (
+  //   <HStack
+  //     css={{
+  //       m: '20px',
+  //       height: '100%',
+  //       flexGrow: '1',
+  //     }}
+  //     distribution="center"
+  //     alignment="start"
+  //   >
+  //     <VStack
+  //       css={{
+  //         width: '425px',
+  //         borderRadius: '6px',
+  //       }}
+  //       alignment="start"
+  //       distribution="start"
+  //     >
+  //       <HStack
+  //         css={{
+  //           width: '100%',
+  //           pt: '25px',
+  //           borderBottom: '1px solid $thBorderColor',
+  //         }}
+  //         alignment="center"
+  //         distribution="center"
+  //       >
+  //         <StyledText
+  //           css={{
+  //             fontWeight: '600',
+  //             fontSize: '15px',
+  //             fontFamily: '$display',
+  //             width: '100%',
+  //             color: 'thTextContrast2',
+  //           }}
+  //         >
+  //           NOTEBOOK
+  //         </StyledText>
+  //         <Dropdown triggerElement={<MenuTrigger />}>
+  //           <DropdownOption
+  //             onSelect={() => {
+  //               exportHighlights()
+  //             }}
+  //             title="Export"
+  //           />
+  //         </Dropdown>
+  //       </HStack>
+
+  //       <HStack
+  //         css={{
+  //           width: '100%',
+  //           pt: '25px',
+  //           borderBottom: '1px solid $thBorderColor',
+  //         }}
+  //         alignment="center"
+  //         distribution="center"
+  //       >
+  //         <StyledText
+  //           css={{
+  //             fontWeight: '600',
+  //             fontSize: '15px',
+  //             fontFamily: '$display',
+  //             width: '100%',
+  //             color: 'thTextContrast2',
+  //           }}
+  //         >
+  //           NOTE
+  //         </StyledText>
+  //       </HStack>
+  //       <HighlightNoteBox
+  //         sizeMode="normal"
+  //         mode={notesEditMode}
+  //         setEditMode={setNotesEditMode}
+  //         text={note?.annotation}
+  //         placeHolder="Add notes to this document..."
+  //         saveText={(highlight) => {
+  //           console.log('saving text', highlight)
+  //         }}
+  //       />
+  //       <SpanBox css={{ mt: '10px', mb: '25px' }} />
+
+  //       {sortedHighlights && (
+  //         <>
+  //           <HStack
+  //             css={{
+  //               width: '100%',
+  //               pt: '25px',
+  //               borderBottom: '1px solid $thBorderColor',
+  //             }}
+  //             alignment="center"
+  //             distribution="center"
+  //           >
+  //             <StyledText
+  //               css={{
+  //                 fontWeight: '600',
+  //                 fontSize: '15px',
+  //                 fontFamily: '$display',
+  //                 width: '100%',
+  //                 color: 'thTextContrast2',
+  //               }}
+  //             >
+  //               HIGHLIGHTS
+  //             </StyledText>
+  //           </HStack>
+  //           <VStack
+  //             css={{ width: '100%', mt: '20px' }}
+  //             distribution="start"
+  //             alignment="start"
+  //           >
+  //             {sortedHighlights.map((highlight) => (
+  //               <>
+  //                 <HighlightViewItem
+  //                   key={highlight.id}
+  //                   highlight={highlight}
+  //                   updateHighlight={(highlight) => {
+  //                     console.log('updated highlight: ', highlight)
+  //                   }}
+
+  //                   deleteHighlightAction={(highlight) => {
+  //                     console.log('deleting: ', highlight)
+  //                   }}
+
+  //                   setSetLabelsTarget: (highlight: Highlight) => void
+  //                   setShowConfirmDeleteHighlightId: (id: string | undefined) => void
+
+  //                 />
+  //                 <SpanBox css={{ mt: '10px', mb: '25px' }} />
+  //               </>
+  //             ))}
+  //             <Box css={{ height: '100px' }} />
+  //           </VStack>
+  //           <SpanBox css={{ mt: '10px', mb: '25px' }} />
+  //         </>
+  //       )}
+  //     </VStack>
+  //   </HStack>
+  // )
 }
 
 type HighlightCountChipProps = {

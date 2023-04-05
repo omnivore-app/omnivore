@@ -5,6 +5,11 @@ public enum LocalText {
     NSLocalizedString(key, bundle: .module, comment: comment ?? "no comment provided by developer")
   }
 
+  public static func pluralizedText(key: String, count: Int) -> String {
+    let format = NSLocalizedString(key, bundle: .module, comment: "")
+    return String.localizedStringWithFormat(format, count)
+  }
+
   // Share extension
   public static let saveArticleSavedState = localText(key: "saveArticleSavedState")
   public static let saveArticleProcessingState = localText(key: "saveArticleProcessingState")
@@ -159,6 +164,7 @@ public enum LocalText {
   public static let genericLoading = localText(key: "genericLoading")
   public static let genericFontFamily = localText(key: "genericFontFamily")
   public static let genericHighContrastText = localText(key: "genericHighContrastText")
+  public static let enableHighlightOnReleaseText = localText(key: "enableHighlightOnReleaseText")
   public static let genericFont = localText(key: "genericFont")
   public static let genericHighlight = localText(key: "genericHighlight")
   public static let labelsGeneric = localText(key: "labelsGeneric")
@@ -172,6 +178,7 @@ public enum LocalText {
   public static let logoutGeneric = localText(key: "logoutGeneric")
   public static let doneGeneric = localText(key: "doneGeneric")
   public static let cancelGeneric = localText(key: "cancelGeneric")
+  public static let exportGeneric = localText(key: "exportGeneric")
   public static let inboxGeneric = localText(key: "inboxGeneric")
   public static let readLaterGeneric = localText(key: "readLaterGeneric")
   public static let newslettersGeneric = localText(key: "newslettersGeneric")
@@ -184,6 +191,7 @@ public enum LocalText {
   public static let recentlyReadGeneric = localText(key: "recentlyReadGeneric")
   public static let recentlyPublishedGeneric = localText(key: "recentlyPublishedGeneric")
   public static let clubsGeneric = localText(key: "clubsGeneric")
+  public static let filtersGeneric = localText(key: "filterGeneric")
   public static let errorGeneric = localText(key: "errorGeneric")
   public static let pushNotificationsGeneric = localText(key: "pushNotificationsGeneric")
   public static let dismissButton = localText(key: "dismissButton")

@@ -59,6 +59,7 @@ struct ProfileView: View {
   @EnvironmentObject var authenticator: Authenticator
   @EnvironmentObject var dataService: DataService
   @Environment(\.openURL) var openURL
+  @Environment(\.dismiss) var dismiss
 
   @StateObject private var viewModel = ProfileContainerViewModel()
 
@@ -69,12 +70,26 @@ struct ProfileView: View {
       Form {
         innerBody
       }
+      .navigationTitle(LocalText.genericProfile)
+      .navigationBarTitleDisplayMode(.inline)
+      .toolbar {
+        ToolbarItem(placement: .navigationBarTrailing) {
+          dismissButton
+        }
+      }
     #elseif os(macOS)
       List {
         innerBody
       }
       .listStyle(InsetListStyle())
     #endif
+  }
+
+  var dismissButton: some View {
+    Button(
+      action: { dismiss() },
+      label: { Text(LocalText.genericClose) }
+    )
   }
 
   private var accountSection: some View {
@@ -91,8 +106,14 @@ struct ProfileView: View {
         Text(LocalText.subscriptionsGeneric)
       }
 
-      NavigationLink(destination: GroupsView()) {
-        Text(LocalText.clubsGeneric)
+      #if os(iOS)
+        NavigationLink(destination: GroupsView()) {
+          Text(LocalText.clubsGeneric)
+        }
+      #endif
+
+      NavigationLink(destination: FiltersView()) {
+        Text(LocalText.filtersGeneric)
       }
     }
   }
@@ -164,14 +185,16 @@ struct ProfileView: View {
             Alert(
               title: Text(LocalText.profileConfirmLogoutMessage),
               primaryButton: .destructive(Text(LocalText.genericConfirm)) {
-                authenticator.logout(dataService: dataService)
+                dismiss()
+                DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
+                  authenticator.logout(dataService: dataService)
+                }
               },
               secondaryButton: .cancel()
             )
           }
       }
     }
-    .navigationTitle(LocalText.genericProfile)
   }
 }
 

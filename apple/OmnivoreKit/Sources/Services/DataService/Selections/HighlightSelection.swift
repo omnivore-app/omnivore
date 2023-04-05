@@ -14,11 +14,12 @@ let highlightLabelSelection = Selection.Label {
 let highlightSelection = Selection.Highlight {
   InternalHighlight(
     id: try $0.id(),
+    type: (try $0.type()).rawValue,
     shortId: try $0.shortId(),
-    quote: try $0.quote(),
+    quote: try $0.quote() ?? "",
     prefix: try $0.prefix(),
     suffix: try $0.suffix(),
-    patch: try $0.patch(),
+    patch: try $0.patch() ?? "",
     annotation: try $0.annotation(),
     createdAt: try $0.createdAt().value,
     updatedAt: try $0.updatedAt().value,

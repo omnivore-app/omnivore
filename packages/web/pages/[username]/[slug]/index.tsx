@@ -37,7 +37,7 @@ import { setLabelsMutation } from '../../../lib/networking/mutations/setLabelsMu
 import { ReaderHeader } from '../../../components/templates/reader/ReaderHeader'
 import { EditArticleModal } from '../../../components/templates/homeFeed/EditItemModals'
 import { VerticalArticleActionsMenu } from '../../../components/templates/article/VerticalArticleActions'
-import { HeaderSpacer } from '../../../components/templates/homeFeed/HeaderSpacer'
+import { PdfHeaderSpacer } from '../../../components/templates/article/PdfHeaderSpacer'
 
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
   () => import('./../../../components/templates/article/PdfArticleContainer'),
@@ -71,8 +71,6 @@ export default function Home(): JSX.Element {
 
   const actionHandler = useCallback(
     async (action: string, arg?: unknown) => {
-      console.log('handling action: ', action, article)
-
       switch (action) {
         case 'unarchive':
           if (article) {
@@ -245,6 +243,24 @@ export default function Home(): JSX.Element {
         },
       },
       {
+        id: 'highlight_next',
+        section: 'Article',
+        name: 'Scroll to next highlight',
+        shortcut: ['j'],
+        perform: () => {
+          document.dispatchEvent(new Event('scrollToNextHighlight'))
+        },
+      },
+      {
+        id: 'highlight_previous',
+        section: 'Article',
+        name: 'Scroll to previous highlight',
+        shortcut: ['k'],
+        perform: () => {
+          document.dispatchEvent(new Event('scrollToPrevHighlight'))
+        },
+      },
+      {
         id: 'note',
         section: 'Article',
         name: 'Highlight selected text and add a note',
@@ -318,7 +334,7 @@ export default function Home(): JSX.Element {
         />
       </ReaderHeader>
 
-      {article?.contentReader == 'PDF' && <HeaderSpacer />}
+      {article?.contentReader == 'PDF' && <PdfHeaderSpacer />}
 
       <VStack
         distribution="between"
@@ -348,7 +364,7 @@ export default function Home(): JSX.Element {
           article={article}
           showHighlightsModal={showHighlightsModal}
           setShowHighlightsModal={setShowHighlightsModal}
-          viewerUsername={viewerData.me?.profile?.username}
+          viewer={viewerData.me}
         />
       ) : (
         <VStack
@@ -360,14 +376,15 @@ export default function Home(): JSX.Element {
             height: '100%',
             background: '$readerMargin',
             overflow: 'scroll',
+            paddingTop: '80px',
           }}
         >
           {article && viewerData?.me ? (
             <ArticleContainer
+              viewer={viewerData.me}
               article={article}
               isAppleAppEmbed={false}
               highlightBarDisabled={false}
-              highlightsBaseURL={`${webBaseURL}/${viewerData.me?.profile?.username}/${slug}/highlights`}
               fontSize={readerSettings.fontSize}
               margin={readerSettings.marginWidth}
               lineHeight={readerSettings.lineHeight}

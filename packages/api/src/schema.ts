@@ -660,18 +660,24 @@ const schema = gql`
     reactions: [Reaction!]!
   }
 
+  enum HighlightType {
+    HIGHLIGHT
+    REDACTION
+    NOTE
+  }
+
   # Highlight
   type Highlight {
     id: ID!
     # used for simplified url format
     shortId: String!
     user: User!
-    quote: String!
+    quote: String
     # piece of content before the quote
     prefix: String
     # piece of content after the quote
     suffix: String
-    patch: String!
+    patch: String
     annotation: String
     replies: [HighlightReply!]!
     sharedAt: Date
@@ -682,6 +688,7 @@ const schema = gql`
     highlightPositionPercent: Float
     highlightPositionAnchorIndex: Int
     labels: [Label!]
+    type: HighlightType!
     html: String
   }
 
@@ -689,14 +696,15 @@ const schema = gql`
     id: ID!
     shortId: String!
     articleId: ID!
-    patch: String!
-    quote: String! @sanitize(maxLength: 6000, minLength: 1)
+    patch: String
+    quote: String @sanitize(maxLength: 12000, minLength: 1)
     prefix: String @sanitize
     suffix: String @sanitize
     annotation: String @sanitize(maxLength: 4000)
     sharedAt: Date
     highlightPositionPercent: Float
     highlightPositionAnchorIndex: Int
+    type: HighlightType
     html: String
   }
 
@@ -723,7 +731,7 @@ const schema = gql`
     shortId: ID!
     articleId: ID!
     patch: String!
-    quote: String! @sanitize(maxLength: 6000, minLength: 1)
+    quote: String! @sanitize(maxLength: 12000, minLength: 1)
     prefix: String @sanitize
     suffix: String @sanitize
     annotation: String @sanitize(maxLength: 8000)
@@ -756,7 +764,7 @@ const schema = gql`
     highlightId: ID!
     annotation: String @sanitize(maxLength: 4000)
     sharedAt: Date
-    quote: String @sanitize(maxLength: 6000, minLength: 1)
+    quote: String @sanitize(maxLength: 12000, minLength: 1)
     html: String
   }
 
@@ -1084,6 +1092,7 @@ const schema = gql`
   enum ArticleSavingRequestErrorCode {
     UNAUTHORIZED
     NOT_FOUND
+    BAD_DATA
   }
   type ArticleSavingRequestError {
     errorCodes: [ArticleSavingRequestErrorCode!]!

@@ -57,14 +57,14 @@ extension DataService {
           label.remove(inContext: context)
         } else {
           label.serverSyncStatus = Int64(ServerSyncStatus.needsDeletion.rawValue)
-        }
 
-        do {
-          try context.save()
-          logger.debug("LinkedItem deleted succesfully")
-        } catch {
-          context.rollback()
-          logger.debug("Failed to delete LinkedItem: \(error.localizedDescription)")
+          do {
+            try context.save()
+            logger.debug("LinkedItem deleted succesfully")
+          } catch {
+            context.rollback()
+            logger.debug("Failed to delete LinkedItem: \(error.localizedDescription)")
+          }
         }
       }
     }

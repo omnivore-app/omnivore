@@ -9,14 +9,36 @@ import type { SelectionAttributes } from './highlightHelpers'
 export function useSelection(
   highlightLocations: HighlightLocation[]
 ): [SelectionAttributes | null, (x: SelectionAttributes | null) => void] {
+  const [touchStartPos, setTouchStartPos] =
+    useState<{ x: number; y: number } | undefined>(undefined)
   const [selectionAttributes, setSelectionAttributes] =
     useState<SelectionAttributes | null>(null)
 
+  const handleTouchStart = useCallback(
+    (event: TouchEvent) => {
+      setTouchStartPos({
+        x: event.touches[0].pageX,
+        y: event.touches[0].pageY,
+      })
+    },
+    [touchStartPos, setTouchStartPos]
+  )
+
   const handleFinishTouch = useCallback(
     async (mouseEvent) => {
+      let wasDragEvent = false
       const tapAttributes = {
         tapX: mouseEvent.clientX,
         tapY: mouseEvent.clientY,
+      }
+
+      if (touchStartPos) {
+        if (
+          Math.abs(touchStartPos.x - mouseEvent.pageX) > 10 ||
+          Math.abs(touchStartPos.y - mouseEvent.pageY) > 10
+        ) {
+          wasDragEvent = true
+        }
       }
 
       window?.AndroidWebKitMessenger?.handleIdentifiableMessage(
@@ -38,6 +60,13 @@ export function useSelection(
 
       let shouldCancelSelection = false
       const overlapHighlights: HighlightLocation[] = []
+
+      console.log(
+        'checking highlight locations for ',
+        selectionStart,
+        selectionEnd
+      )
+      console.log(' highlight locations: ', highlightLocations)
 
       highlightLocations
         .sort((a, b) => {
@@ -117,7 +146,7 @@ export function useSelection(
 
       return setSelectionAttributes({
         selection,
-        mouseEvent,
+        wasDragEvent,
         range: mergedRange ?? range,
         focusPosition: {
           x: rangeRect[isReverseSelected ? 'left' : 'right'],
@@ -141,17 +170,26 @@ export function useSelection(
 
   useEffect(() => {
     document.addEventListener('mouseup', handleFinishTouch)
+    document.addEventListener('touchstart', handleTouchStart)
     document.addEventListener('touchend', handleFinishTouch)
     document.addEventListener('contextmenu', handleFinishTouch)
     document.addEventListener('copyTextSelection', copyTextSelection)
 
     return () => {
       document.removeEventListener('mouseup', handleFinishTouch)
+      document.removeEventListener('touchstart', handleTouchStart)
       document.removeEventListener('touchend', handleFinishTouch)
       document.removeEventListener('contextmenu', handleFinishTouch)
       document.removeEventListener('copyTextSelection', copyTextSelection)
     }
-  }, [highlightLocations, handleFinishTouch, copyTextSelection])
+  }, [
+    highlightLocations,
+    handleFinishTouch,
+    copyTextSelection,
+    touchStartPos,
+    setTouchStartPos,
+    handleTouchStart,
+  ])
 
   return [selectionAttributes, setSelectionAttributes]
 }
@@ -229,9 +267,9 @@ const rangeToPos = (range: Range, getFirst = false): RangeEndPos => {
   const rect = rects[getFirst ? 0 : rects.length - 1]
   return {
     left: window.scrollX + rect.left,
-    top: window.scrollY + rect.top,
+    top: window.scrollY + rect.top - 60,
     right: window.scrollX + rect.right,
-    bottom: window.scrollY + rect.bottom,
+    bottom: window.scrollY + rect.bottom + 5,
     width: rect.width,
     height: rect.height,
   }

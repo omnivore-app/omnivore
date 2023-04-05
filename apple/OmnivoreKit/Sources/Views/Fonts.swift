@@ -50,6 +50,10 @@ public extension Font {
     .customFont(InterFont.regular.rawValue, size: 16, relativeTo: .callout)
   }
 
+  static var appTextToSpeechCurrent: Font {
+    .customFont(InterFont.medium.rawValue, size: 16, relativeTo: .callout)
+  }
+
   /// 15pt, Inter-Regular
   static var appSubheadline: Font {
     .customFont(InterFont.regular.rawValue, size: 15, relativeTo: .subheadline)

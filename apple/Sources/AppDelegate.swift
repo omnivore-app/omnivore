@@ -15,11 +15,20 @@ private let logger = Logger(subsystem: "app.omnivore", category: "app-delegate")
 #if os(macOS)
   class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_: Notification) {
+      NSApplication.shared.delegate = self
       #if DEBUG
         if CommandLine.arguments.contains("--uitesting") {
           configureForUITests()
         }
       #endif
+    }
+
+    func applicationWillBecomeActive(_ notification: Notification) {
+      (notification.object as? NSApplication)?.windows.first?.makeKeyAndOrderFront(self)
+    }
+
+    func applicationShouldHandleReopen(_: NSApplication, hasVisibleWindows _: Bool) -> Bool {
+      true
     }
   }
 
@@ -48,6 +57,7 @@ private let logger = Logger(subsystem: "app.omnivore", category: "app-delegate")
       Services.registerBackgroundFetch()
       configureFirebase()
 
+      // swiftlint:disable:next line_length
       NotificationCenter.default.addObserver(forName: Notification.Name("ReconfigurePushNotifications"), object: nil, queue: OperationQueue.main) { _ in
         if UserDefaults.standard.bool(forKey: UserDefaultKey.notificationsEnabled.rawValue) {
           self.registerForNotifications()

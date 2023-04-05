@@ -1,4 +1,7 @@
-import { authorized } from '../../utils/helpers'
+import { DateTime } from 'luxon'
+import { getPageById } from '../../elastic/pages'
+import { Page } from '../../elastic/types'
+import { env } from '../../env'
 import {
   CreateReminderError,
   CreateReminderErrorCode,
@@ -17,14 +20,11 @@ import {
   UpdateReminderErrorCode,
   UpdateReminderSuccess,
 } from '../../generated/graphql'
-import { deleteTask, enqueueReminder } from '../../utils/createTask'
-import { analytics } from '../../utils/analytics'
-import { env } from '../../env'
-import { DataModels } from '../types'
-import { DateTime } from 'luxon'
 import { setLinkArchived } from '../../services/archive_link'
-import { getPageById } from '../../elastic/pages'
-import { Page } from '../../elastic/types'
+import { analytics } from '../../utils/analytics'
+import { deleteTask, enqueueReminder } from '../../utils/createTask'
+import { authorized } from '../../utils/helpers'
+import { DataModels } from '../types'
 
 const validScheduleTime = (str: string): Date | undefined => {
   const scheduleTime = DateTime.fromISO(str, { setZone: true }).set({
@@ -166,7 +166,11 @@ export const reminderResolver = authorized<
         errorCodes: [ReminderErrorCode.NotFound],
       }
     }
-
+    if (page.userId !== uid) {
+      return {
+        errorCodes: [ReminderErrorCode.Unauthorized],
+      }
+    }
     const reminder = await models.reminder.getCreatedByParameters(uid, {
       elasticPageId: page.id,
     })

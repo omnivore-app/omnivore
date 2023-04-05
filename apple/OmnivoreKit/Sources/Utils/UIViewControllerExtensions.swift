@@ -2,6 +2,7 @@
   import UIKit
 
   public extension UIViewController {
+    // swiftlint:disable line_length
     func embed(childViewController child: UIViewController, heightRatio: CGFloat? = nil) {
       addChild(child)
 

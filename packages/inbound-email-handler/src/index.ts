@@ -3,23 +3,28 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
+import { PubSub } from '@google-cloud/pubsub'
+import { handleNewsletter } from '@omnivore/content-handler'
 import * as Sentry from '@sentry/serverless'
+import axios from 'axios'
+import * as jwt from 'jsonwebtoken'
 import parseHeaders from 'parse-headers'
 import * as multipart from 'parse-multipart-data'
+import { promisify } from 'util'
 import {
   handleConfirmation,
   isConfirmationEmail,
   parseUnsubscribe,
 } from './newsletter'
-import { PubSub } from '@google-cloud/pubsub'
 import { handlePdfAttachment } from './pdf'
-import { handleNewsletter } from '@omnivore/content-handler'
-import axios from 'axios'
-import { promisify } from 'util'
-import * as jwt from 'jsonwebtoken'
 
 interface SaveReceivedEmailResponse {
   id: string
+}
+
+interface Envelope {
+  to: string[]
+  from: string
 }
 
 const signToken = promisify(jwt.sign)
@@ -68,6 +73,16 @@ const saveReceivedEmail = async (
   return response.data as SaveReceivedEmailResponse
 }
 
+export const parsedTo = (parsed: Record<string, string>): string => {
+  // envelope to contains the real recipient email address
+  try {
+    const envelope = JSON.parse(parsed.envelope) as Envelope
+    return envelope.to[0]
+  } catch (err) {
+    return parsed.to
+  }
+}
+
 export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
   async (req, res) => {
     try {
@@ -98,17 +113,12 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
       const subject = parsed['subject']
       const html = parsed['html']
       const text = parsed['text']
-
-      // headers added when forwarding email by some rules in Gmail
-      // e.g. 'X-Forwarded-To: recipient@omnivore.app'
-      const forwardedTo = headers['x-forwarded-to']?.toString().split(',')[0]
+      // if an email is forwarded to the inbox, the to is the forwarding email recipient
+      const to = parsedTo(parsed)
       // x-forwarded-for is a space separated list of email address
       // the first one is the forwarding email sender and the last one is the recipient
       // e.g. 'X-Forwarded-For: sender@omnivore.app recipient@omnivore.app'
       const forwardedFrom = headers['x-forwarded-for']?.toString().split(' ')[0]
-
-      // if an email is forwarded to the inbox, the to is the forwarding email recipient
-      const to = forwardedTo || parsed['to']
       const unSubHeader = headers['list-unsubscribe']?.toString()
 
       const { id: receivedEmailId } = await saveReceivedEmail(to, {

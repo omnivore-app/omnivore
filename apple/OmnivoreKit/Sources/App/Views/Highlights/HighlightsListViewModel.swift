@@ -58,11 +58,27 @@ struct HighlightListItemParams: Identifiable {
     }
   }
 
-  private func loadHighlights(item: LinkedItem) {
-    let unsortedHighlights = item.highlights.asArray(of: Highlight.self)
+  func highlightAsMarkdown(item: HighlightListItemParams) -> String {
+    var buffer = "> \(item.quote)"
+    if !item.annotation.isEmpty {
+      buffer += "\n\n\(item.annotation)"
+    }
+    buffer += "\n"
+    return buffer
+  }
 
-    let highlights = unsortedHighlights.sorted {
-      ($0.createdAt ?? Date()) < ($1.createdAt ?? Date())
+  func highlightsAsMarkdown() -> String {
+    highlightItems.map { highlightAsMarkdown(item: $0) }.lazy.joined(separator: "\n\n")
+  }
+
+  private func loadHighlights(item: LinkedItem) {
+    let unsortedHighlights = item.highlights.asArray(of: Highlight.self).filter { $0.type == "HIGHLIGHT" }
+
+    let highlights = unsortedHighlights.sorted { left, right in
+      if left.positionPercent > 0, right.positionPercent > 0 {
+        return left.positionPercent < right.positionPercent
+      }
+      return (left.createdAt ?? Date()) < (right.createdAt ?? Date())
     }
 
     highlightItems = highlights.map {

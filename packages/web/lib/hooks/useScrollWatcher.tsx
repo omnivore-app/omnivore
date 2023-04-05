@@ -40,6 +40,7 @@ export function useScrollWatcher(effect: Effect, delay: number): void {
     return () => {
       if (throttleTimeout.current) {
         clearTimeout(throttleTimeout.current)
+        throttleTimeout.current = undefined
       }
       window.removeEventListener('scroll', handleScroll)
     }

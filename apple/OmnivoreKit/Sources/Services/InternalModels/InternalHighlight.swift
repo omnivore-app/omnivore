@@ -4,6 +4,7 @@ import Models
 
 struct InternalHighlight: Encodable {
   let id: String
+  let type: String
   let shortId: String
   let quote: String
   let prefix: String?
@@ -28,6 +29,7 @@ struct InternalHighlight: Encodable {
 
     highlight.markedForDeletion = false
     highlight.id = id
+    highlight.type = type
     highlight.shortId = shortId
     highlight.quote = quote
     highlight.prefix = prefix
@@ -60,6 +62,7 @@ struct InternalHighlight: Encodable {
   static func make(from highlight: Highlight) -> InternalHighlight {
     InternalHighlight(
       id: highlight.id ?? "",
+      type: highlight.type ?? "",
       shortId: highlight.shortId ?? "",
       quote: highlight.quote ?? "",
       prefix: highlight.prefix,

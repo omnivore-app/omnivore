@@ -64,6 +64,7 @@
       super.init()
       self.voiceList = generateVoiceList()
       self.realisticVoiceList = generateRealisticVoiceList()
+      self._currentLanguage = defaultLanguage
     }
 
     deinit {
@@ -80,6 +81,17 @@
       EventTracker.track(
         .audioSessionStart(linkID: itemAudioProperties.itemID)
       )
+    }
+
+    public var offsets: [Double]? {
+      if let durations = durations {
+        var currentSum = 0.0
+        return durations.map {
+          currentSum += $0
+          return currentSum
+        }
+      }
+      return nil
     }
 
     public func stop() {
@@ -143,26 +155,14 @@
     }
 
     public func preload(itemIDs: [String], retryCount _: Int = 0) async -> Bool {
-      if !preloadEnabled {
-        return true
-      }
-
       for itemID in itemIDs {
-        if let document = try? await downloadSpeechFile(itemID: itemID, priority: .low) {
-          let synthesizer = SpeechSynthesizer(appEnvironment: dataService.appEnvironment, networker: dataService.networker, document: document, speechAuthHeader: speechAuthHeader)
-          do {
-            try await synthesizer.preload()
-            return true
-          } catch {
-            print("error preloading audio file", error)
-          }
-        }
+        _ = try? await downloadSpeechFile(itemID: itemID, priority: .low)
       }
       return false
     }
 
     public func downloadForOffline(itemID: String) async -> Bool {
-      if let document = try? await downloadSpeechFile(itemID: itemID, priority: .low) {
+      if let document = try? await getSpeechFile(itemID: itemID, priority: .low) {
         let synthesizer = SpeechSynthesizer(appEnvironment: dataService.appEnvironment, networker: dataService.networker, document: document, speechAuthHeader: speechAuthHeader)
         for item in synthesizer.createPlayerItems(from: 0) {
           do {
@@ -175,6 +175,17 @@
         return true
       }
       return false
+    }
+
+    public static func removeAudioFiles(itemID: String) {
+      do {
+        let audioDirectory = pathForAudioDirectory(itemID: itemID)
+        try FileManager.default.removeItem(at: audioDirectory)
+      } catch {
+        // We don't need to throw here, as its likely the
+        // directory just doesn't exist
+        print("Error removing audio files", error)
+      }
     }
 
     public var scrubState: PlayerScrubState = .reset {
@@ -423,7 +434,7 @@
 
       if let itemID = itemAudioProperties?.itemID {
         Task {
-          let document = try? await self.downloadSpeechFile(itemID: itemID, priority: .high)
+          let document = try? await self.getSpeechFile(itemID: itemID, priority: .high)
 
           DispatchQueue.main.async {
             if let document = document {
@@ -531,14 +542,13 @@
       itemID + "-" + currentVoice + ".mp3"
     }
 
-    public func pathForAudioDirectory(itemID: String) -> URL {
-      FileManager.default
-        .urls(for: .documentDirectory, in: .userDomainMask)[0]
+    public static func pathForAudioDirectory(itemID: String) -> URL {
+      URL.om_documentsDirectory
         .appendingPathComponent("audio-\(itemID)/")
     }
 
     public func pathForSpeechFile(itemID: String) -> URL {
-      pathForAudioDirectory(itemID: itemID)
+      Self.pathForAudioDirectory(itemID: itemID)
         .appendingPathComponent("speech-\(currentVoice).json")
     }
 
@@ -548,7 +558,7 @@
 
       if let itemID = itemAudioProperties?.itemID {
         Task {
-          let document = try? await downloadSpeechFile(itemID: itemID, priority: .high)
+          let document = try? await getSpeechFile(itemID: itemID, priority: .high)
 
           DispatchQueue.main.async {
             self.setTextItems()
@@ -868,18 +878,21 @@
       let str = String(decoding: data, as: UTF8.self)
       print("result speech file: ", str)
 
-      document = try? JSONDecoder().decode(SpeechDocument.self, from: data)
-
-      // Cache the file - if it exists
-      if let document = document {
+      if let document = try? JSONDecoder().decode(SpeechDocument.self, from: data) {
         do {
           try? FileManager.default.createDirectory(at: document.audioDirectory, withIntermediateDirectories: true)
           try data.write(to: speechFileUrl)
+          return document
         } catch {
           print("error writing file", error)
         }
       }
 
+      return nil
+    }
+
+    func getSpeechFile(itemID: String, priority: DownloadPriority) async throws -> SpeechDocument? {
+      document = try await downloadSpeechFile(itemID: itemID, priority: priority)
       return document
     }
 
