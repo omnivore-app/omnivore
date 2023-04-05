@@ -10,8 +10,7 @@ import QuickLookThumbnailing
 public enum PDFUtils {
   public static func copyToLocal(url: URL) throws -> String {
     let subPath = UUID().uuidString + ".pdf"
-    let dest = FileManager.default
-      .urls(for: .documentDirectory, in: .userDomainMask)[0]
+    let dest = URL.om_documentsDirectory
       .appendingPathComponent(subPath)
 
     try FileManager.default.copyItem(at: url, to: dest)
@@ -20,8 +19,7 @@ public enum PDFUtils {
 
   public static func moveToLocal(url: URL) throws -> String {
     let subPath = UUID().uuidString + ".pdf"
-    let dest = FileManager.default
-      .urls(for: .documentDirectory, in: .userDomainMask)[0]
+    let dest = URL.om_documentsDirectory
       .appendingPathComponent(subPath)
 
     try FileManager.default.moveItem(at: url, to: dest)
@@ -29,8 +27,7 @@ public enum PDFUtils {
   }
 
   public static func localPdfURL(filename: String) -> URL? {
-    let url = FileManager.default
-      .urls(for: .documentDirectory, in: .userDomainMask)[0]
+    let url = URL.om_documentsDirectory
       .appendingPathComponent(filename)
 
     return url

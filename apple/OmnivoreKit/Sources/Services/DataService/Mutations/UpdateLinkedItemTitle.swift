@@ -19,7 +19,6 @@ extension DataService {
       // Send update to server
       self.syncLinkedItemTitleAndDescription(
         itemID: itemID,
-        objectID: linkedItem.objectID,
         title: title,
         author: author,
         description: description
@@ -29,7 +28,6 @@ extension DataService {
 
   func syncLinkedItemTitleAndDescription(
     itemID: String,
-    objectID: NSManagedObjectID,
     title: String,
     author: String?,
     description: String
@@ -50,7 +48,10 @@ extension DataService {
 
     let mutation = Selection.Mutation {
       try $0.updatePage(
-        input: .init(byline: OptionalArgument(author), description: OptionalArgument(description), pageId: itemID, title: OptionalArgument(title)),
+        input: .init(byline: OptionalArgument(author),
+                     description: OptionalArgument(description),
+                     pageId: itemID,
+                     title: OptionalArgument(title)),
         selection: selection
       )
     }
@@ -64,7 +65,7 @@ extension DataService {
       let syncStatus: ServerSyncStatus = data == nil ? .needsUpdate : .isNSync
 
       context.perform {
-        guard let linkedItem = context.object(with: objectID) as? LinkedItem else { return }
+        guard let linkedItem = LinkedItem.lookup(byID: itemID, inContext: context) else { return }
         linkedItem.serverSyncStatus = Int64(syncStatus.rawValue)
 
         do {

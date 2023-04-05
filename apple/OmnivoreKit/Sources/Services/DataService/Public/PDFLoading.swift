@@ -21,8 +21,7 @@ public extension DataService {
 
     var localPdfURL: URL?
 
-    let tempPath = FileManager.default
-      .urls(for: .cachesDirectory, in: .userDomainMask)[0]
+    let tempPath = URL.om_cachesDirectory
       .appendingPathComponent(UUID().uuidString + ".pdf")
 
     try await backgroundContext.perform { [weak self] in

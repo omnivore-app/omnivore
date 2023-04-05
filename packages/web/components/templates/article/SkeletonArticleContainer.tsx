@@ -41,7 +41,6 @@ export function SkeletonArticleContainer(
           '--hr-margin': '1em',
           '--font-color': styles.readerFontColor,
           '--table-header-color': styles.readerTableHeaderColor,
-          '--headers-color': styles.readerHeadersColor,
           '@sm': {
             '--blockquote-padding': '1em 2em',
             '--blockquote-icon-font-size': '1.7rem',

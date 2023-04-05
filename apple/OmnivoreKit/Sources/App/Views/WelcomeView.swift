@@ -33,10 +33,9 @@ struct WelcomeView: View {
   }
 
   var headlineText: some View {
-    Group {
-      Text(LocalText.welcomeTitle)
-    }
-    .font(.appLargeTitle)
+    Text(LocalText.welcomeTitle)
+      .font(.appLargeTitle)
+      .fixedSize(horizontal: false, vertical: true)
   }
 
   var headlineView: some View {
@@ -76,6 +75,7 @@ struct WelcomeView: View {
         + Text(LocalText.privacyPolicyGeneric).underline()
     }
     .font(.appSubheadline)
+    .fixedSize(horizontal: false, vertical: true)
     .confirmationDialog("", isPresented: $showTermsLinks, titleVisibility: .hidden) {
       Button("View Terms of Service") {
         showTermsModal = true
@@ -225,18 +225,10 @@ struct WelcomeView: View {
       } else {
         VStack(alignment: .leading, spacing: containerSize.height < 500 ? 12 : 50) {
           logoView
-            .padding(.bottom, 20)
           headlineView
-          if containerSize.width > 500 {
-            authProviderButtonStack
-          } else {
-            HStack {
-              Spacer()
-              authProviderButtonStack
-              Spacer()
-            }
-          }
+          authProviderButtonStack
           footerView
+
           Spacer()
 
           Button(
@@ -249,7 +241,6 @@ struct WelcomeView: View {
                 .frame(maxWidth: .infinity, alignment: .center)
             }
           )
-          .padding(.vertical)
         }
         .padding()
         .sheet(isPresented: $showEmailLoginModal) {
@@ -258,11 +249,13 @@ struct WelcomeView: View {
         .sheet(isPresented: $showDebugModal) {
           DebugMenuView(selectedEnvironment: $selectedEnvironment)
         }
-        .sheet(isPresented: $showAdvancedLogin) {
-          NavigationView {
-            SelfHostSettingsView()
+        #if os(iOS)
+          .sheet(isPresented: $showAdvancedLogin) {
+            NavigationView {
+              SelfHostSettingsView()
+            }
           }
-        }
+        #endif
         .alert(deletedAccountConfirmationMessage, isPresented: $authenticator.showAppleRevokeTokenAlert) {
           Button("View Details") {
             openURL(URL(string: "https://support.apple.com/en-us/HT210426")!)

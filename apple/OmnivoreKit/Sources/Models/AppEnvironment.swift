@@ -58,7 +58,10 @@ public extension AppEnvironment {
     case .test, .local:
       return URL(string: "http://localhost:4000")!
     case .custom:
-      guard let str = UserDefaults.standard.string(forKey: AppEnvironmentUserDefaultKey.serverBaseURL.rawValue), let url = URL(string: str) else {
+      guard
+        let str = UserDefaults.standard.string(forKey: AppEnvironmentUserDefaultKey.serverBaseURL.rawValue),
+        let url = URL(string: str)
+      else {
         fatalError("custom serverBaseURL not set")
       }
       return url
@@ -74,7 +77,10 @@ public extension AppEnvironment {
     case .test, .local:
       return URL(string: "http://localhost:3000")!
     case .custom:
-      guard let str = UserDefaults.standard.string(forKey: AppEnvironmentUserDefaultKey.webAppBaseURL.rawValue), let url = URL(string: str) else {
+      guard
+        let str = UserDefaults.standard.string(forKey: AppEnvironmentUserDefaultKey.webAppBaseURL.rawValue),
+        let url = URL(string: str)
+      else {
         fatalError("custom webAppBaseURL not set")
       }
       return url
@@ -90,7 +96,10 @@ public extension AppEnvironment {
     case .test, .local:
       return URL(string: "http://localhost:4000")!
     case .custom:
-      guard let str = UserDefaults.standard.string(forKey: AppEnvironmentUserDefaultKey.ttsBaseURL.rawValue), let url = URL(string: str) else {
+      guard
+        let str = UserDefaults.standard.string(forKey: AppEnvironmentUserDefaultKey.ttsBaseURL.rawValue),
+        let url = URL(string: str)
+      else {
         fatalError("custom ttsBaseURL not set")
       }
       return url

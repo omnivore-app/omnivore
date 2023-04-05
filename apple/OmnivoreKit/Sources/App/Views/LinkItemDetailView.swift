@@ -168,7 +168,7 @@ struct LinkItemDetailView: View {
           }
         },
         label: {
-          Image.profile
+          Image(systemName: "ellipsis")
             .padding(.horizontal)
             .scaleEffect(navBarVisibilityRatio)
         }

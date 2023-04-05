@@ -27,6 +27,7 @@ public struct TextChip: View {
     self.padded = false
   }
 
+  // swiftlint:disable:next line_length
   public init?(feedItemLabel: LinkedItemLabel, negated: Bool = false, checked: Bool = false, padded: Bool = false, onTap: ((TextChip) -> Void)?) {
     guard let color = Color(hex: feedItemLabel.color ?? "") else {
       return nil
@@ -49,7 +50,7 @@ public struct TextChip: View {
       return .white
     }
 
-    return luminance > 0.5 ? .black : .white
+    return luminance > 0.35 ? .black : .white
   }
 
   var backgroundColor: Color {

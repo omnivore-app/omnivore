@@ -1,4 +1,3 @@
-
 import Models
 import Services
 import SwiftUI
@@ -20,7 +19,7 @@ import Views
   func removeToken(dataService: DataService, tokenID: String) {
     if let idx = devices.firstIndex(where: { $0.id == tokenID }) {
       Task {
-        try await dataService.syncDeviceToken(deviceTokenOperation: .deleteToken(tokenID: tokenID))
+        _ = try await dataService.syncDeviceToken(deviceTokenOperation: .deleteToken(tokenID: tokenID))
         devices.remove(at: idx)
       }
     }

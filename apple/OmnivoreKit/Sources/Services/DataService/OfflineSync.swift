@@ -147,13 +147,12 @@ public extension DataService {
         break
       case .needsDeletion:
         item.serverSyncStatus = Int64(ServerSyncStatus.isSyncing.rawValue)
-        syncLinkDeletion(itemID: item.unwrappedID, objectID: item.objectID)
+        syncLinkDeletion(itemID: item.unwrappedID)
       case .needsUpdate:
         item.serverSyncStatus = Int64(ServerSyncStatus.isSyncing.rawValue)
-        syncLinkArchiveStatus(itemID: item.unwrappedID, objectID: item.objectID, archived: item.isArchived)
+        syncLinkArchiveStatus(itemID: item.unwrappedID, archived: item.isArchived)
         syncLinkReadingProgress(
           itemID: item.unwrappedID,
-          objectID: item.objectID,
           readingProgress: item.readingProgress,
           anchorIndex: Int(item.readingProgressAnchor)
         )
@@ -176,15 +175,11 @@ public extension DataService {
         )
       case .needsDeletion:
         highlight.serverSyncStatus = Int64(ServerSyncStatus.isSyncing.rawValue)
-        syncHighlightDeletion(highlightID: highlight.unwrappedID, objectID: highlight.objectID)
+        syncHighlightDeletion(highlightID: highlight.unwrappedID)
       case .needsUpdate:
         if let annotation = highlight.annotation {
           highlight.serverSyncStatus = Int64(ServerSyncStatus.isSyncing.rawValue)
-          syncHighlightAttributes(
-            highlightID: highlight.unwrappedID,
-            objectID: highlight.objectID,
-            annotation: annotation
-          )
+          syncHighlightAttributes(highlightID: highlight.unwrappedID, annotation: annotation)
         } else {
           highlight.serverSyncStatus = Int64(ServerSyncStatus.isNSync.rawValue)
         }

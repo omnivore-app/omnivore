@@ -1,11 +1,13 @@
 import Foundation
 
+// swiftlint:disable identifier_name
 public enum UserDefaultKey: String {
   case preferredWebFont
   case preferredWebFontSize
   case preferredWebLineSpacing
   case preferredWebMaxWidthPercentage
   case prefersHighContrastWebFont
+  case enableHighlightOnRelease
   case userHasDeniedPushPrimer
   case firebasePushToken
   case homeFeedlayoutPreference
@@ -27,4 +29,6 @@ public enum UserDefaultKey: String {
   case notificationsEnabled
   case deviceTokenID
   case shouldPromptCommunityModal
+  case userWordsPerMinute
+  case hideFeatureSection
 }

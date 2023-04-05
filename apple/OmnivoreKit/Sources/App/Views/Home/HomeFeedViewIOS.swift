@@ -6,6 +6,19 @@ import UserNotifications
 import Utils
 import Views
 
+struct AnimatingCellHeight: AnimatableModifier {
+  var height: CGFloat = 0
+
+  var animatableData: CGFloat {
+    get { height }
+    set { height = newValue }
+  }
+
+  func body(content: Content) -> some View {
+    content.frame(height: height, alignment: .top).clipped()
+  }
+}
+
 // swiftlint:disable file_length
 #if os(iOS)
   private let enableGrid = UIDevice.isIPad || FeatureFlag.enableGridCardsOnPhone
@@ -13,6 +26,8 @@ import Views
   struct HomeFeedContainerView: View {
     @State var hasHighlightMutations = false
     @State var searchPresented = false
+    @State var addLinkPresented = false
+    @State var settingsPresented = false
     @EnvironmentObject var dataService: DataService
     @EnvironmentObject var audioController: AudioController
 
@@ -129,16 +144,18 @@ import Views
           }
           ToolbarItem(placement: .barTrailing) {
             if UIDevice.isIPhone {
-              NavigationLink(
-                destination: { ProfileView() },
-                label: {
-                  Image(systemName: "person.circle")
-                    .resizable()
-                    .frame(width: 22, height: 22)
-                    .padding(.vertical, 16)
-                    .foregroundColor(.appGrayTextContrast)
-                }
-              )
+              Menu(content: {
+                Button(action: { settingsPresented = true }, label: {
+                  Label(LocalText.genericProfile, systemImage: "person.circle")
+                })
+                Button(action: { addLinkPresented = true }, label: {
+                  Label("Add Link", systemImage: "plus.square")
+                })
+              }, label: {
+                Image(systemName: "ellipsis")
+                  .foregroundColor(.appGrayTextContrast)
+                  .frame(width: 24, height: 24)
+              })
             } else {
               EmptyView()
             }
@@ -189,6 +206,16 @@ import Views
       .fullScreenCover(isPresented: $searchPresented) {
         LibrarySearchView(homeFeedViewModel: self.viewModel)
       }
+      .sheet(isPresented: $addLinkPresented) {
+        NavigationView {
+          LibraryAddLinkView()
+        }
+      }
+      .sheet(isPresented: $settingsPresented) {
+        NavigationView {
+          ProfileView()
+        }
+      }
       .task {
         if viewModel.items.isEmpty {
           loadItems(isRefresh: false)
@@ -229,6 +256,7 @@ import Views
 
     @State private var itemToRemove: LinkedItem?
     @State private var confirmationShown = false
+    @State private var showHideFeatureAlert = false
 
     @ObservedObject var viewModel: HomeFeedViewModel
 
@@ -340,6 +368,69 @@ import Views
       }
     }
 
+    var featureCard: some View {
+      VStack(alignment: .leading, spacing: 20) {
+        Menu(content: {
+          Button(action: {
+            viewModel.updateFeatureFilter(.continueReading)
+          }, label: {
+            Text("Continue Reading")
+          })
+          Button(action: {
+            viewModel.updateFeatureFilter(.pinned)
+          }, label: {
+            Text("Pinned")
+          })
+          Button(action: {
+            viewModel.updateFeatureFilter(.newsletters)
+          }, label: {
+            Text("Newsletters")
+          })
+          Button(action: {
+            showHideFeatureAlert = true
+          }, label: {
+            Text("Hide this Section")
+          })
+        }, label: {
+          HStack(alignment: .center) {
+            Text(viewModel.featureFilter.title.uppercased())
+              .font(Font.system(size: 14, weight: .regular))
+            Image(systemName: "chevron.down")
+          }.frame(maxWidth: .infinity, alignment: .leading)
+        })
+          .padding(.top, 20)
+          .padding(.bottom, 0)
+
+        GeometryReader { geo in
+
+          ScrollView(.horizontal, showsIndicators: false) {
+            if viewModel.featureItems.count > 0 {
+              LazyHStack(alignment: .top, spacing: 20) {
+                ForEach(viewModel.featureItems) { item in
+                  LibraryFeatureCardNavigationLink(item: item, viewModel: viewModel)
+                    .background(
+                      RoundedRectangle(cornerRadius: 12) // << tune as needed
+                        .fill(Color(UIColor.systemBackground)) // << fill with system color
+                    )
+                }
+              }
+            } else {
+              Text(viewModel.featureFilter.emptyMessage)
+                .font(Font.system(size: 14, weight: .regular))
+                .foregroundColor(Color(hex: "#898989"))
+                .frame(maxWidth: geo.size.width)
+                .frame(height: 60, alignment: .topLeading)
+                .fixedSize(horizontal: false, vertical: true)
+            }
+          }
+        }
+
+        Text((LinkedItemFilter(rawValue: viewModel.appliedFilter)?.displayName ?? "Inbox").uppercased())
+          .font(Font.system(size: 14, weight: .regular))
+          .padding(.bottom, 5)
+      }
+    }
+
     var body: some View {
       ZStack {
         NavigationLink(
@@ -357,13 +448,22 @@ import Views
 
           List {
             filtersHeader
-              .listRowSeparator(.hidden, edges: .top)
+              .listRowInsets(.init(top: 0, leading: 10, bottom: 10, trailing: 10))
+
+            // Only show the feature card section if we have items loaded
+            if !viewModel.hideFeatureSection, viewModel.items.count > 0 {
+              featureCard
+                .listRowInsets(.init(top: 0, leading: 10, bottom: 10, trailing: 10))
+                .modifier(AnimatingCellHeight(height: viewModel.featureItems.count > 0 ? 260 : 130))
+            }
 
             ForEach(viewModel.items) { item in
               FeedCardNavigationLink(
                 item: item,
                 viewModel: viewModel
               )
+              .listRowSeparatorTint(Color.thBorderColor)
+              .listRowInsets(.init(top: 0, leading: 10, bottom: 10, trailing: 10))
               .contextMenu {
                 menuItems(for: item)
               }
@@ -407,8 +507,9 @@ import Views
               }
             }
           }
-          .padding(.top, 0)
+          .padding(0)
           .listStyle(PlainListStyle())
+          .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
           .alert("Are you sure you want to delete this item? All associated notes and highlights will be deleted.",
                  isPresented: $confirmationShown) {
             Button("Remove Item", role: .destructive) {
@@ -421,6 +522,13 @@ import Views
             }
             Button(LocalText.cancelGeneric, role: .cancel) { self.itemToRemove = nil }
           }
+        }
+        .alert("The Feature Section will be removed from your library. You can add it back from the filter settings in your profile.",
+               isPresented: $showHideFeatureAlert) {
+          Button("OK", role: .destructive) {
+            viewModel.hideFeatureSection = true
+          }
+          Button(LocalText.cancelGeneric, role: .cancel) { self.showHideFeatureAlert = false }
         }
       }
     }
@@ -498,6 +606,7 @@ import Views
           }
         }
       }
+      // swiftlint:disable:next line_length
       .alert("Are you sure you want to delete this item? All associated notes and highlights will be deleted.", isPresented: $confirmationShown) {
         Button("Delete Item", role: .destructive) {
           if let itemToRemove = itemToRemove {
@@ -556,45 +665,6 @@ struct LinkDestination: View {
       } else {
         EmptyView()
       }
-    }
-  }
-}
-
-// TODO: move everything below this to another file
-extension LinkedItemFilter {
-  var displayName: String {
-    switch self {
-    case .inbox:
-      return LocalText.inboxGeneric
-    case .readlater:
-      return LocalText.readLaterGeneric
-    case .newsletters:
-      return LocalText.newslettersGeneric
-    case .recommended:
-      return "Recommended"
-    case .all:
-      return LocalText.allGeneric
-    case .archived:
-      return LocalText.archivedGeneric
-    case .hasHighlights:
-      return LocalText.highlightedGeneric
-    case .files:
-      return LocalText.filesGeneric
-    }
-  }
-}
-
-public extension LinkedItemSort {
-  var displayName: String {
-    switch self {
-    case .newest:
-      return LocalText.newestGeneric
-    case .oldest:
-      return LocalText.oldestGeneric
-    case .recentlyRead:
-      return LocalText.recentlyReadGeneric
-    case .recentlyPublished:
-      return LocalText.recentlyPublishedGeneric
     }
   }
 }

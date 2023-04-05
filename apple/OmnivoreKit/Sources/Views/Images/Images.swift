@@ -12,7 +12,6 @@ public extension Image {
   static var homeTab: Image { Image("_homeTab", bundle: .module) }
   static var homeTabSelected: Image { Image("_homeTabSelected", bundle: .module) }
   static var profileTab: Image { Image("_profileTab", bundle: .module) }
-  static var profile: Image { Image("_profile", bundle: .module) }
   static var profileTabSelected: Image { Image("_profileTabSelected", bundle: .module) }
   static var dotsThree: Image { Image("_dots-three", bundle: .module) }
 }

@@ -1,8 +1,7 @@
-import { getLuminance, lighten } from 'color2k'
+import { getLuminance, lighten, parseToRgba, toHsla } from 'color2k'
 import { useRouter } from 'next/router'
 import { Button } from './Button'
 import { SpanBox } from './LayoutPrimitives'
-import { isDarkTheme } from '../../lib/themeUpdater'
 
 type LabelChipProps = {
   text: string
@@ -20,15 +19,18 @@ export function LabelChip(props: LabelChipProps): JSX.Element {
 
     return [r, g, b]
   }
-  const isDarkMode = isDarkTheme()
+
+  function f(x: number) {
+    const channel = x / 255
+    return channel <= 0.03928
+      ? channel / 12.92
+      : Math.pow((channel + 0.055) / 1.055, 2.4)
+  }
+
   const luminance = getLuminance(props.color)
-  const lightenColor = lighten(props.color, 0.2)
-  const color = hexToRgb(props.color)
-  const darkThemeTextColor =
-    luminance > 0.2
-      ? `rgba(${color[0]}, ${color[1]}, ${color[2]}, 1)`
-      : lightenColor
-  const lightThemeTextColor = luminance > 0.5 ? '#000000' : '#ffffff'
+  const backgroundColor = hexToRgb(props.color)
+  const textColor = luminance > 0.5 ? '#000000' : '#ffffff'
+
   return (
     <Button
       style="plainIcon"
@@ -42,7 +44,7 @@ export function LabelChip(props: LabelChipProps): JSX.Element {
           display: 'inline-table',
           margin: '2px',
           borderRadius: '4px',
-          color: lightThemeTextColor,
+          color: textColor,
           fontSize: '13px',
           fontWeight: '500',
           padding: '3px 6px',

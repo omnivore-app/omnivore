@@ -18,7 +18,6 @@ import Views
       Task {
         await viewModel.loadItems(
           dataService: dataService,
-          audioController: audioController,
           isRefresh: isRefresh
         )
       }
@@ -43,7 +42,6 @@ import Views
                 viewModel: viewModel
               )
               .contextMenu {
-                // TODO: add highlights view button
                 Button(
                   action: { viewModel.itemUnderTitleEdit = item },
                   label: { Label("Edit Info", systemImage: "info.circle") }
@@ -140,12 +138,11 @@ import Views
         Button(LocalText.cancelGeneric, role: .cancel) { self.itemToRemove = nil }
       }
       .sheet(item: $viewModel.itemUnderLabelEdit) { item in
-        ApplyLabelsView(mode: .item(item), onSave: nil)
+        ApplyLabelsView(mode: .item(item), isSearchFocused: false, onSave: nil)
       }
       .sheet(item: $viewModel.itemUnderTitleEdit) { item in
         LinkedItemMetadataEditView(item: item)
       }
-      // TODO: add highlights view sheet
       .task {
         if viewModel.items.isEmpty {
           loadItems(isRefresh: true)

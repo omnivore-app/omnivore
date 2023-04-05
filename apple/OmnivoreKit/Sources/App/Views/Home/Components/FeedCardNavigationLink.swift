@@ -45,11 +45,10 @@ struct FeedCardNavigationLink: View {
 
   var body: some View {
     ZStack {
-      Button(
-        action: {
-          viewModel.selectedItem = item
-          viewModel.linkIsActive = true
-        }) {
+      Button {
+        viewModel.selectedItem = item
+        viewModel.linkIsActive = true
+      } label: {
         NavigationLink(destination: EmptyView()) {
           EmptyView()
         }
@@ -58,7 +57,7 @@ struct FeedCardNavigationLink: View {
         .onAppear {
           Task { await viewModel.itemAppeared(item: item, dataService: dataService) }
         }
-        FeedCard(item: item, viewer: dataService.currentViewer)
+        LibraryItemCard(item: item, viewer: dataService.currentViewer)
       }
     }
   }

@@ -15,10 +15,6 @@ struct SafariWebLink: Identifiable {
   @Published var isDownloadingAudio: Bool = false
   @Published var audioDownloadTask: Task<Void, Error>?
 
-  deinit {
-    print("deinit WebReaderViewModel")
-  }
-
   func hasOriginalUrl(_ item: LinkedItem) -> Bool {
     if let pageURLString = item.pageURLString, let host = URL(string: pageURLString)?.host {
       if host == "omnivore.app" {
@@ -162,6 +158,7 @@ struct SafariWebLink: Identifiable {
     let readingProgress = messageBody["readingProgressPercent"] as? Double
     let anchorIndex = messageBody["readingProgressAnchorIndex"] as? Int
 
+    print("READING PROGRESS FROM JS: ", messageBody)
     guard let itemID = itemID, let readingProgress = readingProgress, let anchorIndex = anchorIndex else {
       replyHandler(["result": false], nil)
       return
@@ -195,10 +192,11 @@ struct SafariWebLink: Identifiable {
     }
   }
 
-  func setLabelsForHighlight(highlightID: String,
-                             labelIDs: [String],
-                             dataService: DataService)
-  {
+  func setLabelsForHighlight(
+    highlightID: String,
+    labelIDs: [String],
+    dataService: DataService
+  ) {
     dataService.setLabelsForHighlight(highlightID: highlightID, labelIDs: labelIDs)
   }
 

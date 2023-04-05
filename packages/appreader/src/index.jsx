@@ -14,7 +14,7 @@ const mutation = async (name, input) => {
         actionID: name,
         ...input,
       })
-    console.log('action result', result, result.result)
+    console.log('action result', name, result, result.result)
     return result.result
   } else {
     // Send android a message
@@ -50,21 +50,16 @@ const mutation = async (name, input) => {
 }
 
 const App = () => {
-  const [labels, setLabels] = React.useState(window.omnivoreArticle.labels)
   applyStoredTheme(false)
 
-  document.addEventListener('updateLabels', (event) => {
-    console.log('updating labels: ', event.labels)
-    setLabels(event.labels)
-  })
+  console.log('rerendering: ', window.omnivoreArticle)
 
   return (
     <>
       <Box
         css={{
-          overflowY: 'auto',
-          height: '100%',
-          width: '100vw',
+          // height: '100vh',
+          // width: '100vw',
           paddingTop: window.webkit ? 0 : '48px', // add 48px to android only
         }}
       >
@@ -75,15 +70,15 @@ const App = () => {
         >
           <ArticleContainer
             article={window.omnivoreArticle}
-            labels={labels}
+            labels={window.omnivoreArticle.labels}
             isAppleAppEmbed={true}
             highlightBarDisabled={!window.enableHighlightBar}
-            highlightsBaseURL="https://example.com"
             fontSize={window.fontSize ?? 18}
             fontFamily={window.fontFamily ?? 'inter'}
             margin={window.margin}
             maxWidthPercentage={window.maxWidthPercentage}
             lineHeight={window.lineHeight}
+            highlightOnRelease={window.highlightOnRelease}
             highContrastText={window.prefersHighContrastFont ?? true}
             articleMutations={{
               createHighlightMutation: (input) =>

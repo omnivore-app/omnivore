@@ -17,6 +17,7 @@ extension DataService {
   ) -> [String: Any]? {
     let internalHighlight = InternalHighlight(
       id: highlightID,
+      type: "HIGHLIGHT",
       shortId: shortId,
       quote: quote,
       prefix: nil,
@@ -39,7 +40,7 @@ extension DataService {
     )
 
     // Send update to server
-    syncHighlightCreation(highlight: internalHighlight, articleId: articleId)
+    syncHighlightMerge(highlight: internalHighlight, articleId: articleId, overlapHighlightIdList: overlapHighlightIdList)
 
     return internalHighlight.encoded()
   }
@@ -100,6 +101,7 @@ extension DataService {
           if let highlightObject = (try? context.fetch(fetchRequest))?.first {
             if isSyncSuccess {
               highlightObject.remove(inContext: context)
+              return
             } else {
               highlightObject.serverSyncStatus = Int64(ServerSyncStatus.needsDeletion.rawValue)
             }

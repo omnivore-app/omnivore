@@ -46,44 +46,50 @@ struct SubscriptionsView: View {
   @State private var progressViewOpacity = 0.0
 
   var body: some View {
-    if viewModel.isLoading {
-      ProgressView()
-        .opacity(progressViewOpacity)
-        .onAppear {
-          DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1000)) {
-            progressViewOpacity = 1
+    Group {
+      if viewModel.isLoading {
+        ProgressView()
+          .opacity(progressViewOpacity)
+          .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1000)) {
+              progressViewOpacity = 1
+            }
           }
+          .task { await viewModel.loadSubscriptions(dataService: dataService) }
+      } else if viewModel.hasNetworkError {
+        VStack {
+          Text(LocalText.subscriptionsErrorRetrieving).multilineTextAlignment(.center)
+          Button(
+            action: { Task { await viewModel.loadSubscriptions(dataService: dataService) } },
+            label: { Text(LocalText.genericRetry) }
+          )
+          .buttonStyle(RoundedRectButtonStyle())
         }
-        .task { await viewModel.loadSubscriptions(dataService: dataService) }
-    } else if viewModel.hasNetworkError {
-      VStack {
-        Text(LocalText.subscriptionsErrorRetrieving).multilineTextAlignment(.center)
-        Button(
-          action: { Task { await viewModel.loadSubscriptions(dataService: dataService) } },
-          label: { Text(LocalText.genericRetry) }
-        )
-        .buttonStyle(RoundedRectButtonStyle())
-      }
-    } else if viewModel.subscriptions.isEmpty {
-      VStack(alignment: .center) {
-        Spacer()
-        Text(LocalText.subscriptionsNone)
-        Spacer()
-      }
-    } else {
-      Group {
-        #if os(iOS)
-          Form {
-            innerBody
-          }
-        #elseif os(macOS)
-          List {
-            innerBody
-          }
-          .listStyle(InsetListStyle())
-        #endif
+      } else if viewModel.subscriptions.isEmpty {
+        VStack(alignment: .center) {
+          Spacer()
+          Text(LocalText.subscriptionsNone)
+          Spacer()
+        }
+      } else {
+        Group {
+          #if os(iOS)
+            Form {
+              innerBody
+            }
+          #elseif os(macOS)
+            List {
+              innerBody
+            }
+            .listStyle(InsetListStyle())
+          #endif
+        }
       }
     }
+    .navigationTitle("Subscriptions")
+    #if os(iOS)
+      .navigationBarTitleDisplayMode(.inline)
+    #endif
   }
 
   private var innerBody: some View {

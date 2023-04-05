@@ -447,6 +447,23 @@ export default function PdfArticleContainer(
       }
     })
 
+    document.addEventListener('scrollToHighlightId', async (event) => {
+      const annotationId = (event as CustomEvent).detail as string
+      for (let pageIdx = 0; pageIdx < instance.totalPageCount; pageIdx++) {
+        const annotations = await instance.getAnnotations(pageIdx)
+        for (let annIdx = 0; annIdx < annotations.size; annIdx++) {
+          const annotation = annotations.get(annIdx)
+          if (!annotation) {
+            continue
+          }
+          const storedId = annotationOmnivoreId(annotation)
+          if (storedId == annotationId) {
+            instance.jumpToRect(pageIdx, annotation.boundingBox)
+          }
+        }
+      }
+    })
+
     return () => {
       PSPDFKit && container && PSPDFKit.unload(container)
     }
@@ -509,7 +526,10 @@ export default function PdfArticleContainer(
             props.setShowHighlightsModal(false)
           }}
           viewHighlightInReader={(highlightId) => {
-            // TODO: scroll to highlight in PDF
+            const event = new CustomEvent('scrollToHighlightId', {
+              detail: highlightId,
+            })
+            document.dispatchEvent(event)
             props.setShowHighlightsModal(false)
           }}
         />

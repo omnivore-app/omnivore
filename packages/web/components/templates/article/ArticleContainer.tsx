@@ -12,7 +12,11 @@ import { Button } from '../../elements/Button'
 import { useEffect, useState, useRef, useMemo, useCallback } from 'react'
 import { ReportIssuesModal } from './ReportIssuesModal'
 import { reportIssueMutation } from '../../../lib/networking/mutations/reportIssueMutation'
-import { updateTheme, updateThemeLocally } from '../../../lib/themeUpdater'
+import {
+  currentTheme,
+  updateTheme,
+  updateThemeLocally,
+} from '../../../lib/themeUpdater'
 import { ArticleMutations } from '../../../lib/articleActions'
 import { LabelChip } from '../../elements/LabelChip'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
@@ -34,6 +38,7 @@ type ArticleContainerProps = {
   maxWidthPercentage?: number
   highContrastText?: boolean
   showHighlightsModal: boolean
+  highlightOnRelease?: boolean
   justifyText?: boolean
   setShowHighlightsModal: React.Dispatch<React.SetStateAction<boolean>>
 }
@@ -105,8 +110,13 @@ const RecommendationComments = (
 }
 
 export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
+  const [labels, setLabels] = useState(props.labels)
+  const [title, setTitle] = useState(props.article.title)
   const [showReportIssuesModal, setShowReportIssuesModal] = useState(false)
   const [fontSize, setFontSize] = useState(props.fontSize ?? 20)
+  const [highlightOnRelease, setHighlightOnRelease] = useState(
+    props.highlightOnRelease
+  )
   // iOS app embed can overide the original margin and line height
   const [maxWidthPercentageOverride, setMaxWidthPercentageOverride] =
     useState<number | null>(null)
@@ -145,6 +155,15 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
       if (newLineHeight >= 100 && newLineHeight <= 300) {
         setLineHeightOverride(newLineHeight)
       }
+    }
+
+    interface UpdateHighlightModeEvent extends Event {
+      enableHighlightOnRelease?: string
+    }
+
+    const updateHighlightMode = (event: UpdateHighlightModeEvent) => {
+      const isEnabled = event.enableHighlightOnRelease === 'on'
+      setHighlightOnRelease(isEnabled)
     }
 
     interface UpdateMaxWidthPercentageEvent extends Event {
@@ -209,14 +228,38 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
       updateThemeLocally(isDark === 'true' ? ThemeId.Dark : ThemeId.Light)
     }
 
+    interface UpdateLabelsEvent extends Event {
+      labels?: Label[]
+    }
+
+    const handleUpdateLabels = (event: UpdateLabelsEvent) => {
+      setLabels(event.labels ?? [])
+    }
+
+    interface UpdateTitleEvent extends Event {
+      title?: string
+    }
+
+    const handleUpdateTitle = (event: UpdateTitleEvent) => {
+      if (event.title) {
+        setTitle(event.title)
+      }
+    }
+
     const share = () => {
       if (navigator.share) {
         navigator.share({
-          title: props.article.title,
+          title: title,
           url: props.article.originalArticleUrl,
         })
       }
     }
+
+    const saveReadPosition = () => {
+      console.log('saving read position')
+    }
+
+    document.addEventListener('saveReadPosition', saveReadPosition)
 
     document.addEventListener('updateFontFamily', updateFontFamily)
     document.addEventListener('updateLineHeight', updateLineHeight)
@@ -231,7 +274,14 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
       'handleFontContrastChange',
       handleFontContrastChange
     )
+    document.addEventListener('updateTitle', handleUpdateTitle)
+    document.addEventListener('updateLabels', handleUpdateLabels)
+
     document.addEventListener('share', share)
+    document.addEventListener(
+      'handleAutoHighlightModeChange',
+      updateHighlightMode
+    )
 
     return () => {
       document.removeEventListener('updateFontFamily', updateFontFamily)
@@ -247,7 +297,14 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         'handleFontContrastChange',
         handleFontContrastChange
       )
+      document.removeEventListener('updateTitle', handleUpdateTitle)
+      document.removeEventListener('updateLabels', handleUpdateLabels)
       document.removeEventListener('share', share)
+      document.removeEventListener(
+        'handleAutoHighlightModeChange',
+        updateHighlightMode
+      )
+      document.removeEventListener('saveReadPosition', saveReadPosition)
     }
   })
 
@@ -278,7 +335,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         id="article-container"
         css={{
           padding: '30px',
-          paddingTop: '80px',
+          paddingTop: '30px',
           minHeight: '100vh',
           maxWidth: `${styles.maxWidthPercentage ?? 100}%`,
           background: props.isAppleAppEmbed
@@ -296,7 +353,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           '--hr-margin': '1em',
           '--font-color': styles.readerFontColor,
           '--table-header-color': styles.readerTableHeaderColor,
-          '--headers-color': styles.readerHeadersColor,
           '@sm': {
             '--blockquote-padding': '1em 2em',
             '--blockquote-icon-font-size': '1.7rem',
@@ -311,7 +367,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           },
           '@mdDown': {
             padding: '15px',
-            paddingTop: '80px',
           },
         }}
       >
@@ -322,22 +377,22 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
             }
           />
           <StyledText
-            style="boldHeadline"
+            style="articleTitle"
             data-testid="article-headline"
             css={{
+              color: styles.readerFontColor,
               fontFamily: styles.fontFamily,
               width: '100%',
               wordWrap: 'break-word',
-              color: styles.readerFontColor,
             }}
           >
-            {props.article.title}
+            {title}
           </StyledText>
           <ArticleSubtitle
             author={props.article.author}
             href={props.article.url}
           />
-          {props.labels ? (
+          {labels ? (
             <SpanBox
               css={{
                 pb: '16px',
@@ -345,7 +400,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
                 '&:empty': { display: 'none' },
               }}
             >
-              {props.labels?.map((label) => (
+              {labels?.map((label) => (
                 <LabelChip
                   key={label.id}
                   text={label.name}
@@ -390,13 +445,14 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         item={props.article}
         scrollToHighlight={highlightHref}
         highlights={props.article.highlights}
-        articleTitle={props.article.title}
+        articleTitle={title}
         articleAuthor={props.article.author ?? ''}
         articleId={props.article.id}
         isAppleAppEmbed={props.isAppleAppEmbed}
         highlightBarDisabled={props.highlightBarDisabled}
         showHighlightsModal={props.showHighlightsModal}
         setShowHighlightsModal={props.setShowHighlightsModal}
+        highlightOnRelease={highlightOnRelease}
         articleMutations={props.articleMutations}
       />
       {showReportIssuesModal ? (

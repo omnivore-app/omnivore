@@ -77,7 +77,9 @@ public struct FeedCard: View {
             Spacer()
           }
         }.introspectScrollView { scrollView in
-          scrollView.bounces = false
+          #if os(iOS)
+            scrollView.bounces = false
+          #endif
         }
         .padding(.top, 0)
         #if os(macOS)

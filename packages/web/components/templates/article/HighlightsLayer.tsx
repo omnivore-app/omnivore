@@ -19,7 +19,6 @@ import { removeHighlights } from '../../../lib/highlights/deleteHighlight'
 import { createHighlight } from '../../../lib/highlights/createHighlight'
 import { HighlightNoteModal } from './HighlightNoteModal'
 import { NotebookModal } from './NotebookModal'
-import { useCanShareNative } from '../../../lib/hooks/useCanShareNative'
 import { showErrorToast } from '../../../lib/toastHelpers'
 import { ArticleMutations } from '../../../lib/articleActions'
 import { isTouchScreenDevice } from '../../../lib/deviceType'
@@ -28,8 +27,7 @@ import { setLabelsForHighlight } from '../../../lib/networking/mutations/setLabe
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
-import { useRouter } from 'next/router'
-import { MarkdownModal } from '../../patterns/HighlightNotes'
+import { useRegisterActions } from 'kbar'
 
 type HighlightsLayerProps = {
   viewer: UserBasicData
@@ -43,6 +41,7 @@ type HighlightsLayerProps = {
   isAppleAppEmbed: boolean
   highlightBarDisabled: boolean
   showHighlightsModal: boolean
+  highlightOnRelease?: boolean
   scrollToHighlight: MutableRefObject<string | null>
 
   setShowHighlightsModal: React.Dispatch<React.SetStateAction<boolean>>
@@ -67,7 +66,6 @@ interface SpeakingSectionEvent extends Event {
 }
 
 export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
-  const router = useRouter()
   const [highlights, setHighlights] = useState(props.highlights)
   const [highlightModalAction, setHighlightModalAction] =
     useState<HighlightActionProps>({ highlightModalAction: 'none' })
@@ -77,6 +75,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   >([])
   const focusedHighlightMousePos = useRef({ pageX: 0, pageY: 0 })
 
+  const [currentHighlightIdx, setCurrentHighlightIdx] = useState(0)
   const [focusedHighlight, setFocusedHighlight] =
     useState<Highlight | undefined>(undefined)
 
@@ -85,45 +84,54 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   const [labelsTarget, setLabelsTarget] =
     useState<Highlight | undefined>(undefined)
 
-  const canShareNative = useCanShareNative()
+  const createHighlightFromSelection = useCallback(
+    async (
+      selection: SelectionAttributes,
+      note?: string
+    ): Promise<Highlight | undefined> => {
+      const result = await createHighlight(
+        {
+          selection: selection,
+          articleId: props.articleId,
+          existingHighlights: highlights,
+          highlightStartEndOffsets: highlightLocations,
+          annotation: note,
+          highlightPositionPercent: selectionPercentPos(selection.selection),
+          highlightPositionAnchorIndex: selectionAnchorIndex(
+            selection.selection
+          ),
+        },
+        props.articleMutations
+      )
 
-  const createHighlightFromSelection = async (
-    selection: SelectionAttributes,
-    note?: string
-  ): Promise<Highlight | undefined> => {
-    const result = await createHighlight(
-      {
-        selection: selection,
-        articleId: props.articleId,
-        existingHighlights: highlights,
-        highlightStartEndOffsets: highlightLocations,
-        annotation: note,
-        highlightPositionPercent: selectionPercentPos(selection.selection),
-        highlightPositionAnchorIndex: selectionAnchorIndex(selection.selection),
-      },
-      props.articleMutations
-    )
+      if (result.errorMessage) {
+        throw 'Failed to create highlight: ' + result.errorMessage
+      }
 
-    if (result.errorMessage) {
-      throw 'Failed to create highlight: ' + result.errorMessage
-    }
+      if (!result.highlights || result.highlights.length == 0) {
+        // TODO: show an error message
+        console.error('Failed to create highlight')
+        return undefined
+      }
 
-    if (!result.highlights || result.highlights.length == 0) {
-      // TODO: show an error message
-      console.error('Failed to create highlight')
-      return undefined
-    }
+      setSelectionData(null)
+      setHighlights(result.highlights)
 
-    setSelectionData(null)
-    setHighlights(result.highlights)
+      if (result.newHighlightIndex === undefined) {
+        setHighlightModalAction({ highlightModalAction: 'none' })
+        return undefined
+      }
 
-    if (result.newHighlightIndex === undefined) {
-      setHighlightModalAction({ highlightModalAction: 'none' })
-      return undefined
-    }
-
-    return result.highlights[result.newHighlightIndex]
-  }
+      return result.highlights[result.newHighlightIndex]
+    },
+    [
+      highlightLocations,
+      highlights,
+      props.articleId,
+      props.articleMutations,
+      setSelectionData,
+    ]
+  )
 
   // Load the highlights
   useEffect(() => {
@@ -161,7 +169,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       const highlightId = id || focusedHighlight?.id
 
       if (!highlightId) {
-        console.error('Failed to identify highlight to be removed')
+        console.trace('Failed to identify highlight to be removed')
         return
       }
 
@@ -191,21 +199,6 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
     [highlights, highlightLocations]
   )
 
-  // const handleNativeShare = useCallback((highlightID: string) => {
-  //   // navigator
-  //   //   ?.share({
-  //   //     title: props.articleTitle,
-  //   //     url: `${props.highlightsBaseURL}/${highlightID}`,
-  //   //   })
-  //   //   .then(() => {
-  //   //     setFocusedHighlight(undefined)
-  //   //   })
-  //   //   .catch((error) => {
-  //   //     console.log(error)
-  //   //     setFocusedHighlight(undefined)
-  //   //   })
-  // }, [])
-
   const openNoteModal = useCallback(
     (inputs: HighlightActionProps) => {
       // First try to send a signal to the ios app
@@ -232,18 +225,18 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         setHighlightModalAction(inputs)
       }
     },
-    [props.highlightBarDisabled]
+    [props.highlightBarDisabled, createHighlightFromSelection]
   )
 
   const selectionPercentPos = (selection: Selection): number | undefined => {
-    if (
-      selection.rangeCount > 0 &&
-      window &&
-      window.document.scrollingElement
-    ) {
-      const percent =
-        (selection.getRangeAt(0).getBoundingClientRect().y + window.scrollY) /
-        window.document.scrollingElement.scrollHeight
+    const containerRect = document
+      .getElementById('readability-page-1')
+      ?.getBoundingClientRect()
+    if (selection.rangeCount > 0 && containerRect) {
+      const selectionTop = selection.getRangeAt(0).getBoundingClientRect().y
+      const relativeTop = selectionTop - containerRect.y
+      const percent = relativeTop / containerRect.height
+
       return Math.min(Math.max(0, percent * 100), 100)
     }
     return undefined
@@ -288,23 +281,16 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         throw error
       }
     },
-    [
-      highlights,
-      openNoteModal,
-      props.articleId,
-      selectionData,
-      setSelectionData,
-      canShareNative,
-      highlightLocations,
-    ]
+    [selectionData, createHighlightFromSelection]
   )
 
   // Detect mouseclick on a highlight -- call `setFocusedHighlight` when highlight detected
-  const handleClickHighlight = useCallback(
+  const handleSingleClick = useCallback(
     (event: MouseEvent) => {
       const { target, pageX, pageY } = event
 
       if (!target || (target as Node)?.nodeType !== Node.ELEMENT_NODE) {
+        console.log(' -- returning early from page tap')
         return
       }
 
@@ -353,6 +339,52 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           highlightNoteIdAttribute
         )
         const highlight = highlights.find(($0) => $0.id === id)
+        setFocusedHighlight(highlight)
+
+        openNoteModal({
+          highlight: highlight,
+          highlightModalAction: 'addComment',
+        })
+      } else {
+        console.log('sending page tapped')
+        window?.webkit?.messageHandlers.viewerAction?.postMessage({
+          actionID: 'pageTapped',
+        })
+        setFocusedHighlight(undefined)
+      }
+    },
+    [openNoteModal, highlights]
+  )
+
+  const handleDoubleClick = useCallback(
+    (event: MouseEvent) => {
+      const { target } = event
+
+      if (!target || (target as Node)?.nodeType !== Node.ELEMENT_NODE) {
+        return
+      }
+
+      if ((target as Element).hasAttribute(highlightIdAttribute)) {
+        const id = (target as HTMLSpanElement).getAttribute(
+          highlightIdAttribute
+        )
+        const highlight = highlights.find(($0) => $0.id === id)
+        console.log('double tapped highlight: ', highlight)
+        setFocusedHighlight(highlight)
+
+        openNoteModal({
+          highlight: highlight,
+          highlightModalAction: 'addComment',
+        })
+      } else if ((target as Element).hasAttribute(highlightNoteIdAttribute)) {
+        const id = (target as HTMLSpanElement).getAttribute(
+          highlightNoteIdAttribute
+        )
+        const highlight = highlights.find(($0) => $0.id === id)
+        console.log('double tapped highlight with note: ', highlight)
+
+        setFocusedHighlight(highlight)
+
         openNoteModal({
           highlight: highlight,
           highlightModalAction: 'addComment',
@@ -361,35 +393,45 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         setFocusedHighlight(undefined)
       }
     },
-    [highlights, highlightLocations, openNoteModal]
+    [highlights, openNoteModal]
   )
 
   const handleCloseNotebook = useCallback(
     (updatedHighlights: Highlight[], deletedHighlights: Highlight[]) => {
       props.setShowHighlightsModal(false)
 
-      setHighlights(updatedHighlights)
-
+      // Remove all the existing highlights, then set the new ones
       removeHighlights(
-        deletedHighlights.map((h) => h.id),
+        highlights.map((h) => h.id),
         highlightLocations
       )
 
-      updatedHighlights.forEach((h) => {
-        updateHighlightsCallback(h)
-      })
+      setHighlights([...updatedHighlights])
     },
-    [highlights, highlightLocations]
+    [highlights, highlightLocations, props, setHighlights]
   )
 
   useEffect(() => {
-    if (typeof window === 'undefined') {
-      return
-    }
-    document.addEventListener('click', handleClickHighlight)
+    let clickCount = 0
+    const handleClick = (e: MouseEvent) => {
+      clickCount += 1
 
-    return () => document.removeEventListener('click', handleClickHighlight)
-  }, [handleClickHighlight])
+      setTimeout(() => {
+        if (clickCount === 1) handleSingleClick(e)
+        else if (clickCount === 2) handleDoubleClick(e)
+
+        clickCount = 0
+      }, 250)
+    }
+
+    // Add event listener for click events
+    document.addEventListener('click', handleClick)
+
+    // Remove event listener
+    return () => {
+      document.removeEventListener('click', handleClick)
+    }
+  }, [handleSingleClick, handleDoubleClick])
 
   const handleAction = useCallback(
     async (action: HighlightAction) => {
@@ -414,37 +456,6 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
             })
           }
           break
-        // case 'share':
-        //   if (props.isAppleAppEmbed) {
-        //     window?.webkit?.messageHandlers.highlightAction?.postMessage({
-        //       actionID: 'share',
-        //       highlightID: focusedHighlight?.id,
-        //     })
-        //   }
-
-        //   window?.AndroidWebKitMessenger?.handleIdentifiableMessage(
-        //     'shareHighlight',
-        //     JSON.stringify({
-        //       highlightID: focusedHighlight?.id,
-        //     })
-        //   )
-
-        //   if (focusedHighlight) {
-        //     if (canShareNative) {
-        //       handleNativeShare(focusedHighlight.shortId)
-        //     } else {
-        //       setHighlightModalAction({
-        //         highlight: focusedHighlight,
-        //         highlightModalAction: 'share',
-        //       })
-        //     }
-        //   } else {
-        //     await createHighlightCallback('share')
-        //   }
-        //   break
-        // case 'unshare':
-        //   console.log('unshare')
-        //   break // TODO: implement -- need to show confirmation dialog
         case 'setHighlightLabels':
           if (props.isAppleAppEmbed) {
             window?.webkit?.messageHandlers.highlightAction?.postMessage({
@@ -464,10 +475,16 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       props.highlightBarDisabled,
       props.isAppleAppEmbed,
       removeHighlightCallback,
-      canShareNative,
       selectionData,
     ]
   )
+
+  useEffect(() => {
+    if (props.highlightOnRelease && selectionData?.wasDragEvent) {
+      handleAction('create')
+      setSelectionData(null)
+    }
+  }, [selectionData, setSelectionData, handleAction, props.highlightOnRelease])
 
   const dispatchHighlightError = (action: string, error: unknown) => {
     if (props.isAppleAppEmbed) {
@@ -520,6 +537,30 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
 
     const setHighlightLabels = () => {
       handleAction('setHighlightLabels')
+    }
+
+    const goToNextHighlight = () => {
+      const highlightsList = highlights.filter((h) => h.type == 'HIGHLIGHT')
+      const next = Math.min(currentHighlightIdx + 1, highlightsList.length - 1)
+      goToHighlightIdx(next, highlightsList)
+    }
+
+    const goToPreviousHighlight = () => {
+      const highlightsList = highlights.filter((h) => h.type == 'HIGHLIGHT')
+      const prev = Math.max(currentHighlightIdx - 1, 0)
+      goToHighlightIdx(prev, highlightsList)
+    }
+
+    const goToHighlightIdx = (idx: number, highlightsList: Highlight[]) => {
+      const highlight = highlightsList[idx]
+      const target = document.querySelector(
+        `[omnivore-highlight-id="${highlight.id}"]`
+      )
+      target?.scrollIntoView({
+        block: 'center',
+        behavior: 'smooth',
+      })
+      setCurrentHighlightIdx(idx)
     }
 
     const copy = async () => {
@@ -593,6 +634,8 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
     document.addEventListener('saveAnnotation', saveAnnotation)
     document.addEventListener('speakingSection', speakingSection)
     document.addEventListener('setHighlightLabels', setHighlightLabels)
+    document.addEventListener('scrollToNextHighlight', goToNextHighlight)
+    document.addEventListener('scrollToPrevHighlight', goToPreviousHighlight)
 
     return () => {
       document.removeEventListener('annotate', annotate)
@@ -604,6 +647,11 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       document.removeEventListener('saveAnnotation', saveAnnotation)
       document.removeEventListener('speakingSection', speakingSection)
       document.removeEventListener('setHighlightLabels', setHighlightLabels)
+      document.removeEventListener('scrollToNextHighlight', goToNextHighlight)
+      document.removeEventListener(
+        'scrollToPrevHighlight',
+        goToPreviousHighlight
+      )
     }
   })
 
@@ -646,12 +694,12 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
     const anchorCoordinates = () => {
       return {
         pageX:
-          focusedHighlightMousePos.current?.pageX ??
           selectionData?.focusPosition.x ??
+          focusedHighlightMousePos.current?.pageX ??
           0,
         pageY:
-          focusedHighlightMousePos.current?.pageY ??
           selectionData?.focusPosition.y ??
+          focusedHighlightMousePos.current?.pageY ??
           0,
       }
     }

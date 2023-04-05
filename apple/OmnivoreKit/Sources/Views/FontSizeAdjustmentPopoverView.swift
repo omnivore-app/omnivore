@@ -14,6 +14,8 @@ public enum WebFont: String, CaseIterable {
   case georgia = "Georgia"
   case montserrat = "Montserrat"
   case newsreader = "Newsreader"
+  case atkinsonHyperlegible = "AtkinsonHyperlegible"
+  case lxgWWenKai = "LXGWWenKai"
 
   static var sorted: [WebFont] {
     allCases.sorted { left, right in
@@ -34,8 +36,20 @@ public enum WebFont: String, CaseIterable {
 
   public var displayValue: String {
     switch self {
-    case .inter, .merriweather, .lora, .opensans, .roboto, .crimsontext, .sourceserifpro, .georgia, .montserrat, .newsreader:
+    case .inter,
+         .merriweather,
+         .lora,
+         .opensans,
+         .roboto,
+         .crimsontext,
+         .sourceserifpro,
+         .georgia,
+         .montserrat,
+         .newsreader,
+         .lxgWWenKai:
       return rawValue
+    case .atkinsonHyperlegible:
+      return "Atkinson Hyperlegible"
     case .openDyslexic:
       return "Open Dyslexic"
     case .system:
@@ -44,9 +58,15 @@ public enum WebFont: String, CaseIterable {
   }
 
   public func font() -> Font? {
-    if let uiFont = UIFont(name: registeredName, size: 22) {
-      return Font(uiFont as CTFont)
-    }
+    #if os(iOS)
+      if let uiFont = UIFont(name: registeredName, size: 22) {
+        return Font(uiFont as CTFont)
+      }
+    #else
+      if let nsFont = NSFont(name: registeredName, size: 22) {
+        return Font(nsFont as CTFont)
+      }
+    #endif
     return Font.system(size: 22)
   }
 }
@@ -60,6 +80,7 @@ public enum WebFont: String, CaseIterable {
       UITraitCollection.current.preferredWebFontSize
     @AppStorage(UserDefaultKey.preferredWebLineSpacing.rawValue) var storedLineSpacing = 150
     @AppStorage(UserDefaultKey.preferredWebMaxWidthPercentage.rawValue) var storedMaxWidthPercentage = 100
+    @AppStorage(UserDefaultKey.enableHighlightOnRelease.rawValue) var enableHighlightOnRelease = false
     @AppStorage(UserDefaultKey.preferredWebFont.rawValue) var preferredFont = WebFont.inter.rawValue
     @AppStorage(UserDefaultKey.prefersHighContrastWebFont.rawValue) var prefersHighContrastText = true
 
@@ -178,8 +199,6 @@ public enum WebFont: String, CaseIterable {
               Text(LocalText.genericFont)
               Spacer()
               Image(systemName: "chevron.right")
-//              Button(action: {}, label: { Text("Crimson Text").frame(width: 91) })
-//                .buttonStyle(RoundedRectButtonStyle())
             }
           }
           .foregroundColor(.appGrayTextContrast)
@@ -189,6 +208,13 @@ public enum WebFont: String, CaseIterable {
             .frame(height: 40)
             .padding(.trailing, 6)
             .onChange(of: prefersHighContrastText) { _ in
+              updateReaderPreferences()
+            }
+
+          Toggle(LocalText.enableHighlightOnReleaseText, isOn: $enableHighlightOnRelease)
+            .frame(height: 40)
+            .padding(.trailing, 6)
+            .onChange(of: enableHighlightOnRelease) { _ in
               updateReaderPreferences()
             }
 

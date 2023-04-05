@@ -68,7 +68,6 @@ public extension Color {
     )
   }
 
-  // TODO: remove this?
   var isDark: Bool {
     guard let lum = luminance else { return false }
     return lum < 0.50
@@ -87,7 +86,17 @@ public extension Color {
       }
     #endif
 
-    return 0.2126 * Float(components[0]) + 0.7152 * Float(components[1]) + 0.0722 * Float(components[2])
+    let colorR = channelColor(components[0]) * 0.2126
+    let colorG = channelColor(components[1]) * 0.7152
+    let colorB = channelColor(components[2]) * 0.0722
+
+    return Float(colorR + colorG + colorB)
+  }
+
+  private func channelColor(_ channel: CGFloat) -> Double {
+    channel <= 0.03928
+      ? channel / 12.92
+      : pow((channel + 0.055) / 1.055, 2.4)
   }
 
   static var isDarkMode: Bool {

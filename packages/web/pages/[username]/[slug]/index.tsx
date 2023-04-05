@@ -243,6 +243,24 @@ export default function Home(): JSX.Element {
         },
       },
       {
+        id: 'highlight_next',
+        section: 'Article',
+        name: 'Scroll to next highlight',
+        shortcut: ['j'],
+        perform: () => {
+          document.dispatchEvent(new Event('scrollToNextHighlight'))
+        },
+      },
+      {
+        id: 'highlight_previous',
+        section: 'Article',
+        name: 'Scroll to previous highlight',
+        shortcut: ['k'],
+        perform: () => {
+          document.dispatchEvent(new Event('scrollToPrevHighlight'))
+        },
+      },
+      {
         id: 'note',
         section: 'Article',
         name: 'Highlight selected text and add a note',
@@ -358,6 +376,7 @@ export default function Home(): JSX.Element {
             height: '100%',
             background: '$readerMargin',
             overflow: 'scroll',
+            paddingTop: '80px',
           }}
         >
           {article && viewerData?.me ? (

@@ -4,6 +4,7 @@ import Models
 import SwiftGraphQL
 
 extension DataService {
+  // swiftlint:disable:next function_parameter_count
   public func createHighlight(
     shortId: String,
     highlightID: String,
@@ -16,6 +17,7 @@ extension DataService {
   ) -> [String: Any]? {
     let internalHighlight = InternalHighlight(
       id: highlightID,
+      type: "HIGHLIGHT",
       shortId: shortId,
       quote: quote,
       prefix: nil, suffix: nil,
@@ -60,9 +62,10 @@ extension DataService {
           articleId: articleId,
           highlightPositionAnchorIndex: OptionalArgument(highlight.positionAnchorIndex),
           highlightPositionPercent: OptionalArgument(highlight.positionPercent), id: highlight.id,
-          patch: highlight.patch,
-          quote: highlight.quote,
-          shortId: highlight.shortId
+          patch: OptionalArgument(highlight.patch),
+          quote: OptionalArgument(highlight.quote),
+          shortId: highlight.shortId,
+          type: OptionalArgument(Enums.HighlightType.highlight)
         ),
         selection: selection
       )

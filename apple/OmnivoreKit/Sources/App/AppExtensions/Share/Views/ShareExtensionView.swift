@@ -4,7 +4,7 @@ import SwiftUI
 import Utils
 import Views
 
-// swiftlint:disable:next type_body_length
+// swiftlint:disable file_length type_body_length
 public struct ShareExtensionView: View {
   let extensionContext: NSExtensionContext?
   @StateObject var labelsViewModel = LabelsViewModel()
@@ -177,6 +177,7 @@ public struct ShareExtensionView: View {
         VStack(spacing: 15) {
           SearchBar(searchTerm: $labelsViewModel.labelSearchFilter)
 
+          // swiftlint:disable line_length
           ScrollView {
             LabelsMasonaryView(labels: labelsViewModel.labels.applySearchFilter(labelsViewModel.labelSearchFilter),
                                selectedLabels: labelsViewModel.selectedLabels.applySearchFilter(labelsViewModel.labelSearchFilter),
@@ -199,6 +200,7 @@ public struct ShareExtensionView: View {
             .buttonStyle(PlainButtonStyle())
             .padding(10)
           }.background(Color.appButtonBackground)
+          // swiftlint:enable line_length
         }
       }
     }

@@ -6,6 +6,7 @@
 "saveArticleSavedState" = "Saved to Omnivore";
 "saveArticleProcessingState" = "Saved to Omnivore";
 "extensionAppUnauthorized" = "Please login to Omnivore from the app before saving your first link.";
+"saveToOmnivore" = "Save to Omnivore";
 
 // audio player
 "audioPlayerReplay" = "Replay";
@@ -79,7 +80,7 @@
 "texttospeechBetaSignupInProcess" = "Signing up for beta";
 "texttospeechBetaRealisticVoiceLimit" = "You are in the ultra realistic voices beta. During the beta you can listen to 10,000 words of audio per day.";
 "texttospeechBetaRequestReceived" = "Your request to join the ultra realistic voices demo has been received. You will be informed by email when a spot is available.";
-"texttospeechBetaWaitlist" = "Ultra realistic voices are currently in limited beta. Enabling the feature will add you to the beta queue.";
+"texttospeechBetaWaitlist" = "Ultra realistic voices are currently in limited beta and available for English only. Enabling the feature will add you to the beta queue.";
 
 // Sign in/up
 "registrationNoAccount" = "Don't have an account?";
@@ -137,7 +138,6 @@
 //"library.by.author.suffix" = "by \(author)" // unused
 //"Recommended by \(byStr) in \(inStr)" // unused
 
-
 // Generic
 "genericSnooze" = "Snooze";
 "genericClose" = "Close";
@@ -163,6 +163,7 @@
 "genericLoading" = "Loading...";
 "genericFontFamily" = "Font Family";
 "genericHighContrastText" = "High Contrast Text";
+"enableHighlightOnReleaseText" = "Auto Highlight Mode:";
 "genericFont" = "Font";
 "genericHighlight" = "Highlight";
 "labelsGeneric" = "Labels";
@@ -176,6 +177,7 @@
 "logoutGeneric" = "Logout";
 "doneGeneric" = "Done";
 "cancelGeneric" = "Cancel";
+"exportGeneric" = "Export";
 "inboxGeneric" = "Inbox";
 "readLaterGeneric" = "Read Later";
 "newslettersGeneric" = "Newsletters";
@@ -188,6 +190,7 @@
 "recentlyReadGeneric" = "Recently Read";
 "recentlyPublishedGeneric" = "Recently Published";
 "clubsGeneric" = "Clubs";
+"filterGeneric" = "Filters";
 "errorGeneric" = "Something went wrong, please try again.";
 "pushNotificationsGeneric" = "Push Notifications";
 "dismissButton" = "Dismiss";

@@ -9,6 +9,11 @@ extension DataService {
       guard let self = self else { return }
       guard let linkedItem = LinkedItem.lookup(byID: itemID, inContext: self.backgroundContext) else { return }
 
+      if readingProgress != 0, readingProgress < linkedItem.readingProgress {
+        return
+      }
+
+      print("updating reading progress: ", readingProgress, anchorIndex)
       linkedItem.update(
         inContext: self.backgroundContext,
         newReadingProgress: readingProgress,
@@ -18,14 +23,13 @@ extension DataService {
       // Send update to server
       self.syncLinkReadingProgress(
         itemID: linkedItem.unwrappedID,
-        objectID: linkedItem.objectID,
         readingProgress: readingProgress,
         anchorIndex: anchorIndex
       )
     }
   }
 
-  func syncLinkReadingProgress(itemID: String, objectID: NSManagedObjectID, readingProgress: Double, anchorIndex: Int) {
+  func syncLinkReadingProgress(itemID: String, readingProgress: Double, anchorIndex: Int) {
     enum MutationResult {
       case saved(readAt: Date?)
       case error(errorCode: Enums.SaveArticleReadingProgressErrorCode)
@@ -62,7 +66,7 @@ extension DataService {
       let syncStatus: ServerSyncStatus = data == nil ? .needsUpdate : .isNSync
 
       context.perform {
-        guard let linkedItem = context.object(with: objectID) as? LinkedItem else { return }
+        guard let linkedItem = LinkedItem.lookup(byID: itemID, inContext: context) else { return }
         linkedItem.serverSyncStatus = Int64(syncStatus.rawValue)
         if let mutationResult = data?.data, case let MutationResult.saved(readAt) = mutationResult {
           linkedItem.readAt = readAt

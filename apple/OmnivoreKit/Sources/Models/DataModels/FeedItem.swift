@@ -55,6 +55,7 @@ public struct JSONArticle: Decodable {
   public let url: String
   public let isArchived: Bool
   public let language: String?
+  public let wordsCount: Int?
 }
 
 public extension LinkedItem {
@@ -67,6 +68,14 @@ public extension LinkedItem {
 
   var hasLabels: Bool {
     (labels?.count ?? 0) > 0
+  }
+
+  var isUnread: Bool {
+    readingProgress <= 0
+  }
+
+  var isPartiallyRead: Bool {
+    Int(readingProgress) > 0
   }
 
   var isRead: Bool {
@@ -146,12 +155,14 @@ public extension LinkedItem {
           "userID": NSString(string: recommendation.user?.userID ?? ""),
           "name": NSString(string: recommendation.user?.name ?? ""),
           "username": NSString(string: recommendation.user?.username ?? ""),
-          "profileImageURL": recommendation.user?.profileImageURL == nil ? nil : NSString(string: recommendation.user?.profileImageURL ?? "")
+          "profileImageURL": recommendation.user?.profileImageURL as NSString? as Any
         ]),
         "recommendedAt": recommendedAt == nil ? nil : NSString(string: recommendedAt!)
       ]
     }
-    guard let JSON = (try? JSONSerialization.data(withJSONObject: recommendations, options: .prettyPrinted)) else { return "[]" }
+    guard let JSON = try? JSONSerialization.data(withJSONObject: recommendations, options: .prettyPrinted) else {
+      return "[]"
+    }
     return String(data: JSON, encoding: .utf8) ?? "[]"
   }
 
@@ -198,6 +209,7 @@ public extension LinkedItem {
     return item
   }
 
+  // swiftlint:disable:next cyclomatic_complexity
   func update(
     inContext context: NSManagedObjectContext,
     newReadingProgress: Double? = nil,
