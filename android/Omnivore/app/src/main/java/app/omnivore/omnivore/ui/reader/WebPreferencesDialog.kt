@@ -45,7 +45,8 @@ fun WebPreferencesDialog(onDismiss: () -> Unit, webReaderViewModel: WebReaderVie
 
 @Composable
 fun WebPreferencesView(webReaderViewModel: WebReaderViewModel) {
-  val currentWebPreferences = webReaderViewModel.storedWebPreferences(isSystemInDarkTheme())
+  val isDark = isSystemInDarkTheme()
+  val currentWebPreferences = webReaderViewModel.storedWebPreferences(isDark)
   val isFontListExpanded = remember { mutableStateOf(false) }
   val highContrastTextSwitchState = remember { mutableStateOf(currentWebPreferences.prefersHighContrastText) }
   val selectedWebFontRawValue = remember { mutableStateOf(currentWebPreferences.fontFamily.rawValue) }
@@ -105,10 +106,10 @@ fun WebPreferencesView(webReaderViewModel: WebReaderViewModel) {
         Text("Theme:")
         Spacer(modifier = Modifier.weight(1.0F))
         SegmentedControl(
-          items = listOf("Light", "Dark", "System"),
-          defaultSelectedItemIndex = 0
+          items = webReaderViewModel.systemThemeKeys,
+          initialSelectedItemIndex = webReaderViewModel.systemThemeKeys.indexOf(currentWebPreferences.storedThemePreference)
         ) {
-          Log.e("CustomToggle", "Selected item: $it")
+          webReaderViewModel.updateStoredThemePreference(it, isDark)
         }
       }
 
@@ -197,6 +198,7 @@ data class WebPreferences(
   val lineHeight: Int,
   val maxWidthPercentage: Int,
   val themeKey: String,
+  val storedThemePreference: String,
   val fontFamily: WebFont,
   val prefersHighContrastText: Boolean
 )

@@ -1,6 +1,5 @@
 package app.omnivore.omnivore.ui.components
 
-import androidx.annotation.ColorRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.offset
@@ -14,8 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -25,11 +22,11 @@ import androidx.compose.ui.zIndex
 @Composable
 fun SegmentedControl(
   items: List<String>,
-  defaultSelectedItemIndex: Int = 0,
+  initialSelectedItemIndex: Int,
   cornerRadius : Int = 10,
   onItemSelection: (selectedItemIndex: Int) -> Unit
 ) {
-  val selectedIndex = remember { mutableStateOf(defaultSelectedItemIndex) }
+  val selectedIndex = remember { mutableStateOf(initialSelectedItemIndex) }
 
   Row(
     modifier = Modifier

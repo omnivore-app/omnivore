@@ -54,6 +54,8 @@ class WebReaderViewModel @Inject constructor(
   val showLabelsSelectionSheetLiveData = MutableLiveData(false)
   val savedItemLabelsLiveData = dataService.db.savedItemLabelDao().getSavedItemLabelsLiveData()
 
+  val systemThemeKeys = listOf("Light", "Dark", "System")
+
   var hasTappedExistingHighlight = false
   var lastTapCoordinates: TapCoordinates? = null
   private var isLoading = false
@@ -257,6 +259,7 @@ class WebReaderViewModel @Inject constructor(
     val storedMaxWidth = datastoreRepo.getInt(DatastoreKeys.preferredWebMaxWidthPercentage)
 
     val storedFontFamily = datastoreRepo.getString(DatastoreKeys.preferredWebFontFamily) ?: WebFont.SYSTEM.rawValue
+    val storedThemePreference = datastoreRepo.getString(DatastoreKeys.preferredTheme) ?: "System"
     val storedWebFont = WebFont.values().first { it.rawValue == storedFontFamily }
 
     val prefersHighContrastFont = datastoreRepo.getString(DatastoreKeys.prefersWebHighContrastText) == "true"
@@ -265,10 +268,31 @@ class WebReaderViewModel @Inject constructor(
       textFontSize = storedFontSize ?: 12,
       lineHeight = storedLineHeight ?: 150,
       maxWidthPercentage = storedMaxWidth ?: 100,
-      themeKey = if (isDarkMode) "Gray" else "LightGray",
+      themeKey = themeKey(isDarkMode, storedThemePreference),
+      storedThemePreference = storedThemePreference,
       fontFamily = storedWebFont,
       prefersHighContrastText = prefersHighContrastFont
     )
+  }
+
+  fun themeKey(isDarkMode: Boolean, storedThemePreference: String): String {
+    if (storedThemePreference == "System") {
+      return if (isDarkMode) "Dark" else "Light"
+    }
+
+    return storedThemePreference
+  }
+
+  fun updateStoredThemePreference(index: Int, isDarkMode: Boolean) {
+    val newThemeKey = themeKey(isDarkMode, systemThemeKeys[index])
+
+    runBlocking {
+      datastoreRepo.putString(DatastoreKeys.preferredTheme, systemThemeKeys[index])
+    }
+
+    val isDark = newThemeKey == "Dark"
+    val script = "var event = new Event('updateColorMode');event.isDark = '$isDark';document.dispatchEvent(event);"
+    enqueueScript(script)
   }
 
   fun updateFontSize(isIncrease: Boolean)  {
