@@ -110,6 +110,7 @@ struct WebReader: PlatformViewRepresentable {
       (webView as? OmnivoreWebView)?.updateLineHeight()
       (webView as? OmnivoreWebView)?.updateLabels(labelsJSON: item.labelsJSONString)
       (webView as? OmnivoreWebView)?.updateTitle(title: item.title ?? "")
+      (webView as? OmnivoreWebView)?.updateJustifyText()
       webView.scrollView.indicatorStyle = ThemeManager.currentTheme.isDark ?
         UIScrollView.IndicatorStyle.white :
         UIScrollView.IndicatorStyle.black

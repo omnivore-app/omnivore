@@ -127,6 +127,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   const [highContrastText, setHighContrastText] = useState(
     props.highContrastText ?? false
   )
+  const [justifyText, setJustifyText] = useState(props.justifyText ?? false)
   const highlightHref = useRef(
     window.location.hash ? window.location.hash.split('#')[1] : null
   )
@@ -163,6 +164,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
 
     const updateHighlightMode = (event: UpdateHighlightModeEvent) => {
       const isEnabled = event.enableHighlightOnRelease === 'on'
+      console.log('setting highlight on release: ', isEnabled)
       setHighlightOnRelease(isEnabled)
     }
 
@@ -228,6 +230,15 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
       updateThemeLocally(isDark === 'true' ? ThemeId.Dark : ThemeId.Light)
     }
 
+    interface UpdateJustifyText extends Event {
+      justifyText?: boolean
+    }
+
+    const updateJustifyText = (event: UpdateJustifyText) => {
+      console.log('justify', event.justifyText)
+      setJustifyText(event.justifyText ?? false)
+    }
+
     interface UpdateLabelsEvent extends Event {
       labels?: Label[]
     }
@@ -274,6 +285,8 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
       'handleFontContrastChange',
       handleFontContrastChange
     )
+    document.addEventListener('updateJustifyText', updateJustifyText)
+
     document.addEventListener('updateTitle', handleUpdateTitle)
     document.addEventListener('updateLabels', handleUpdateLabels)
 
@@ -297,6 +310,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         'handleFontContrastChange',
         handleFontContrastChange
       )
+      document.removeEventListener('updateJustifyText', updateJustifyText)
       document.removeEventListener('updateTitle', handleUpdateTitle)
       document.removeEventListener('updateLabels', handleUpdateLabels)
       document.removeEventListener('share', share)
@@ -340,7 +354,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           maxWidth: `${styles.maxWidthPercentage ?? 100}%`,
           background: theme.colors.readerBg.toString(),
           '.article-inner-css': {
-            textAlign: props.justifyText ? 'justify' : 'start',
+            textAlign: justifyText ? 'justify' : 'start',
           },
           '--text-font-family': styles.fontFamily,
           '--text-font-size': `${styles.fontSize}px`,

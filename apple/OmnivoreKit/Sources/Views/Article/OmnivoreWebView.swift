@@ -122,6 +122,16 @@ public final class OmnivoreWebView: WKWebView {
     }
   }
 
+  public func updateJustifyText() {
+    do {
+      if let justify = UserDefaults.standard.value(forKey: UserDefaultKey.justifyText.rawValue) as? Bool {
+        try dispatchEvent(.updateJustifyText(justify: justify))
+      }
+    } catch {
+      showErrorInSnackbar("Error updating justify-text")
+    }
+  }
+
   public func updateTitle(title: String) {
     do {
       try dispatchEvent(.updateTitle(title: title))
@@ -419,6 +429,7 @@ public enum WebViewDispatchEvent {
   case updateColorMode(isDark: Bool)
   case updateFontFamily(family: String)
   case updateTheme(themeName: String)
+  case updateJustifyText(justify: Bool)
   case saveAnnotation(annotation: String)
   case annotate
   case highlight
@@ -456,6 +467,8 @@ public enum WebViewDispatchEvent {
       return "updateFontFamily"
     case .updateTheme:
       return "updateTheme"
+    case .updateJustifyText:
+      return "updateJustifyText"
     case .saveAnnotation:
       return "saveAnnotation"
     case .annotate:
@@ -499,6 +512,8 @@ public enum WebViewDispatchEvent {
         return "event.themeName = '\(themeName)';"
       case let .updateFontSize(size: size):
         return "event.fontSize = '\(size)';"
+      case let .updateJustifyText(justify: justify):
+        return "event.justifyText = \(justify);"
       case let .updateColorMode(isDark: isDark):
         return "event.isDark = '\(isDark)';"
       case let .updateFontFamily(family: family):

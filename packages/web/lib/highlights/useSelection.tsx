@@ -61,13 +61,6 @@ export function useSelection(
       let shouldCancelSelection = false
       const overlapHighlights: HighlightLocation[] = []
 
-      console.log(
-        'checking highlight locations for ',
-        selectionStart,
-        selectionEnd
-      )
-      console.log(' highlight locations: ', highlightLocations)
-
       highlightLocations
         .sort((a, b) => {
           if (a.start < b.start) {
@@ -156,7 +149,7 @@ export function useSelection(
         overlapHighlights: overlapHighlights.map(({ id }) => id),
       })
     },
-    [highlightLocations]
+    [touchStartPos, selectionAttributes, highlightLocations]
   )
 
   const copyTextSelection = useCallback(async () => {

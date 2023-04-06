@@ -81,6 +81,7 @@ const App = () => {
             lineHeight={window.lineHeight}
             highlightOnRelease={window.highlightOnRelease}
             highContrastText={window.prefersHighContrastFont ?? true}
+            justifyText={window.justifyText}
             articleMutations={{
               createHighlightMutation: (input) =>
                 mutation('createHighlight', input),
