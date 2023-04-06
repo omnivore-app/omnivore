@@ -53,6 +53,7 @@ import {
   SaveArticleReadingProgressErrorCode,
   SaveArticleReadingProgressSuccess,
   SearchError,
+  SearchErrorCode,
   SearchItem,
   SearchSuccess,
   SetBookmarkArticleError,
@@ -872,6 +873,11 @@ export const searchResolver = authorized<
 >(async (_obj, params, { claims }) => {
   const startCursor = params.after || ''
   const first = params.first || 10
+
+  // the query size is limited to 255 characters
+  if (params.query && params.query.length > 255) {
+    return { errorCodes: [SearchErrorCode.QueryTooLong] }
+  }
 
   const searchQuery = parseSearchQuery(params.query || undefined)
 
