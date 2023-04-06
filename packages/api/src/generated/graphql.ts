@@ -2223,6 +2223,7 @@ export type SearchError = {
 };
 
 export enum SearchErrorCode {
+  QueryTooLong = 'QUERY_TOO_LONG',
   Unauthorized = 'UNAUTHORIZED'
 }
 

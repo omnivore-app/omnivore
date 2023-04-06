@@ -10,7 +10,7 @@ const schema = gql`
     maxLength: Int
     minLength: Int
     pattern: String
-  ) on INPUT_FIELD_DEFINITION | ARGUMENT_DEFINITION
+  ) on INPUT_FIELD_DEFINITION
 
   enum SortOrder {
     ASCENDING
@@ -1587,6 +1587,7 @@ const schema = gql`
 
   enum SearchErrorCode {
     UNAUTHORIZED
+    QUERY_TOO_LONG
   }
 
   type SearchError {
@@ -2542,7 +2543,7 @@ const schema = gql`
     search(
       after: String
       first: Int
-      query: String @sanitize(maxLength: 255)
+      query: String
       includeContent: Boolean
       format: String
     ): SearchResult!
