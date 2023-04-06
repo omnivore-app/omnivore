@@ -67,6 +67,7 @@ const App = () => {
           alignment="center"
           distribution="center"
           className="disable-webkit-callout"
+          style={{ backgroundColor: 'var(--colors-readerBg)' }}
         >
           <ArticleContainer
             article={window.omnivoreArticle}
