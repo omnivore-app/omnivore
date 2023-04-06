@@ -5,6 +5,7 @@
 
 import { PubSub } from '@google-cloud/pubsub'
 import { handleNewsletter } from '@omnivore/content-handler'
+import { generateUniqueUrl } from '@omnivore/content-handler/build/src/content-handler'
 import * as Sentry from '@sentry/serverless'
 import axios from 'axios'
 import * as jwt from 'jsonwebtoken'
@@ -120,6 +121,7 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
       // e.g. 'X-Forwarded-For: sender@omnivore.app recipient@omnivore.app'
       const forwardedFrom = headers['x-forwarded-for']?.toString().split(' ')[0]
       const unSubHeader = headers['list-unsubscribe']?.toString()
+      const unsubscribe = parseUnsubscribe(unSubHeader)
 
       const { id: receivedEmailId } = await saveReceivedEmail(to, {
         from,
@@ -131,28 +133,25 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
 
       try {
         // check if it is a confirmation email or forwarding newsletter
-        const newsletterMessage = await handleNewsletter({
-          from,
-          to,
-          subject,
-          html,
-          headers,
-        })
-        if (newsletterMessage) {
-          await publishMessage(NEWSLETTER_EMAIL_RECEIVED_TOPIC, {
-            ...newsletterMessage,
-            receivedEmailId,
-          })
-          return res.status(200).send('newsletter received')
-        }
-
-        console.log('non-newsletter email from', from, 'to', to)
-
         if (isConfirmationEmail(from, subject)) {
           console.log('handleConfirmation', from)
           await handleConfirmation(to, subject)
+          // queue non-newsletter emails
+          await pubsub.topic(NON_NEWSLETTER_EMAIL_TOPIC).publishMessage({
+            json: {
+              from,
+              to,
+              subject,
+              html,
+              text,
+              unsubMailTo: unsubscribe.mailTo,
+              unsubHttpUrl: unsubscribe.httpUrl,
+              forwardedFrom,
+              receivedEmailId,
+            },
+          })
+          return res.send('ok')
         }
-
         if (pdfAttachment) {
           console.log('handle PDF attachment', from, to)
           await handlePdfAttachment(
@@ -164,24 +163,30 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
           )
           return res.send('ok')
         }
-
-        const unsubscribe = parseUnsubscribe(unSubHeader)
-        // queue non-newsletter emails
-        await pubsub.topic(NON_NEWSLETTER_EMAIL_TOPIC).publishMessage({
+        const newsletterMessage = await handleNewsletter({
+          from,
+          to,
+          subject,
+          html,
+          headers,
+        })
+        // queue newsletter emails
+        await pubsub.topic(NEWSLETTER_EMAIL_RECEIVED_TOPIC).publishMessage({
           json: {
-            from,
-            to,
-            subject,
-            html,
+            email: to,
+            content: html,
+            url: generateUniqueUrl(),
+            title: subject,
+            author: from,
             text,
             unsubMailTo: unsubscribe.mailTo,
             unsubHttpUrl: unsubscribe.httpUrl,
             forwardedFrom,
             receivedEmailId,
+            ...newsletterMessage,
           },
         })
-
-        res.send('ok')
+        res.send('newsletter received')
       } catch (error) {
         console.log('error handling emails, will forward.', from, to, subject)
         // queue error emails
