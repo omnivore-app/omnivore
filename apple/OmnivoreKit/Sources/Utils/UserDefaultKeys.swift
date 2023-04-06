@@ -31,4 +31,5 @@ public enum UserDefaultKey: String {
   case shouldPromptCommunityModal
   case userWordsPerMinute
   case hideFeatureSection
+  case justifyText
 }

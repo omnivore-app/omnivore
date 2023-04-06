@@ -31,7 +31,7 @@ struct WebReaderContent {
     self.maxWidthPercentage = maxWidthPercentage
     self.item = item
     self.isDark = isDark
-    self.themeKey = isDark ? "Dark" : "Light"
+    self.themeKey = ThemeManager.currentTheme.themeKey
     self.fontFamily = fontFamily
     self.articleContent = articleContent
     self.prefersHighContrastText = prefersHighContrastText

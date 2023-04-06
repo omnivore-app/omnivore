@@ -268,7 +268,7 @@ struct WebReaderContainerView: View {
           label: {
             Image(systemName: "chevron.backward")
               .font(.appNavbarIcon)
-              .foregroundColor(.appGrayTextContrast)
+              // .foregroundColor(.appGrayTextContrast)
               .padding()
           }
         )
@@ -297,7 +297,7 @@ struct WebReaderContainerView: View {
             Image(systemName: "ellipsis")
               .resizable(resizingMode: Image.ResizingMode.stretch)
               .aspectRatio(contentMode: .fit)
-              .foregroundColor(.appGrayTextContrast)
+              // .foregroundColor(.appGrayTextContrast)
               .frame(width: 20, height: 20)
               .scaleEffect(navBarVisibilityRatio)
               .padding()
@@ -316,7 +316,8 @@ struct WebReaderContainerView: View {
     }
     .frame(height: readerViewNavBarHeight * navBarVisibilityRatio)
     .opacity(navBarVisibilityRatio)
-    .background(Color.systemBackground)
+    .foregroundColor(ThemeManager.currentTheme.isDark ? .white : .black)
+    .background(ThemeManager.currentBgColor)
     .alert("Are you sure you want to remove this item? All associated notes and highlights will be deleted.",
            isPresented: $showDeleteConfirmation) {
       Button("Remove Item", role: .destructive) {
@@ -396,6 +397,7 @@ struct WebReaderContainerView: View {
           showBottomBar: $showBottomBar,
           showHighlightAnnotationModal: $showHighlightAnnotationModal
         )
+        .background(ThemeManager.currentBgColor)
         .onAppear {
           if item.isUnread {
             dataService.updateLinkReadingProgress(itemID: item.unwrappedID, readingProgress: 0.1, anchorIndex: 0)
@@ -403,15 +405,6 @@ struct WebReaderContainerView: View {
           Task {
             await audioController.preload(itemIDs: [item.unwrappedID])
           }
-        }
-        .onDisappear {
-//          if let lastScrollPercentage = self.lastScrollPercentage {
-//            dataService.updateLinkReadingProgress(
-//              itemID: item.unwrappedID,
-//              readingProgress: Double(lastScrollPercentage),
-//              anchorIndex: 0
-//            )
-//          }
         }
         .confirmationDialog(linkToOpen?.absoluteString ?? "", isPresented: $displayLinkSheet) {
           Button(action: {
@@ -526,7 +519,7 @@ struct WebReaderContainerView: View {
       #endif
     }
     #if os(iOS)
-      .formSheet(isPresented: $showPreferencesPopover, useSmallDetent: false) {
+      .formSheet(isPresented: $showPreferencesPopover, useSmallDetent: false, useLargeDetent: false) {
         webPreferencesPopoverView
       }
     #else

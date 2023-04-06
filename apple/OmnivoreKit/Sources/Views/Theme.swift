@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  Theme.swift
 //
 //
 //  Created by Jackson Harper on 10/27/22.
@@ -11,31 +11,57 @@ import Utils
 
 public enum Theme: String, CaseIterable {
   case system = "System"
-  case sepia = "Sepia"
-  case charcoal = "Charcoal"
-  case mint = "Mint"
-
-  case solarized = "Solarized"
-
   case light = "Light"
-  case dark = "Dark"
+  case sepia = "Sepia"
+  case apollo = "Apollo"
+  case dark = "Black"
+//  case dark = "Dark"
 
   public var bgColor: Color {
     switch self {
     case .system:
-      return Color.systemBackground
-    case .charcoal:
-      return Color(red: 48 / 255.0, green: 48 / 255.0, blue: 48 / 255.0)
-    case .sepia:
-      return Color(red: 249 / 255.0, green: 241 / 255.0, blue: 220 / 255.0)
-    case .mint:
-      return Color(red: 202 / 255.0, green: 230 / 255.0, blue: 208 / 255.0)
-    case .solarized:
-      return Color(red: 13 / 255.0, green: 39 / 255.0, blue: 50 / 255.0)
+      return Color.isDarkMode ? .systemBackground : .white
     case .light:
-      return Color.white
+      return .white
     case .dark:
       return Color.black
+    case .sepia:
+      return Color(hex: "#FBF0D9") ?? Color.white
+    case .apollo:
+      return Color(hex: "#6A6968") ?? Color.black
+    }
+  }
+
+  public var keyColor: Color {
+    switch self {
+    case .light:
+      return Color(hex: "#F5F5F5") ?? .white
+    case .dark:
+      return Color(hex: "#3B3938") ?? .black
+    default:
+      return bgColor
+    }
+  }
+
+  public var themeKey: String {
+    switch self {
+    case .dark:
+      return "Black"
+    case .light, .sepia, .apollo:
+      return rawValue
+    case .system:
+      return Color.isDarkMode ? "Black" : "Light"
+    }
+  }
+
+  public var isDark: Bool {
+    switch self {
+    case .system:
+      return Color.isDarkMode
+    case .sepia, .light:
+      return false
+    case .dark, .apollo:
+      return true
     }
   }
 
@@ -46,4 +72,12 @@ public enum Theme: String, CaseIterable {
 
 public enum ThemeManager {
   @AppStorage(UserDefaultKey.themeName.rawValue) public static var currentThemeName = "System"
+
+  public static var currentTheme: Theme {
+    Theme(rawValue: currentThemeName) ?? .system
+  }
+
+  public static var currentBgColor: Color {
+    currentTheme.bgColor
+  }
 }

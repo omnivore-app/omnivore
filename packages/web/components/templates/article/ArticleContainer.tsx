@@ -338,9 +338,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           paddingTop: '30px',
           minHeight: '100vh',
           maxWidth: `${styles.maxWidthPercentage ?? 100}%`,
-          background: props.isAppleAppEmbed
-            ? 'unset'
-            : theme.colors.readerBg.toString(),
+          background: theme.colors.readerBg.toString(),
           '.article-inner-css': {
             textAlign: props.justifyText ? 'justify' : 'start',
           },
