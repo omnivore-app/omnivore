@@ -12,6 +12,15 @@
     }
   }
 
+  class CustomSliderView: UISlider {
+    @IBInspectable var trackLineHeight: CGFloat = 2
+
+    override func trackRect(forBounds bound: CGRect) -> CGRect {
+      CGRect(origin: CGPoint(x: bound.origin.x, y: bound.midY),
+             size: CGSize(width: bound.width, height: trackLineHeight))
+    }
+  }
+
   struct CustomSlider: UIViewRepresentable {
     typealias UIViewType = UISlider
 
@@ -33,11 +42,12 @@
     }
 
     func makeUIView(context: Context) -> UISlider {
-      let slider = UISlider(frame: .zero)
+      let slider = CustomSliderView(frame: .zero)
+      slider.trackLineHeight = 2
       slider.minimumValue = asFloat(minValue)
       slider.maximumValue = asFloat(maxValue)
 
-      let tintColor = UIColor(Color.appCtaYellow)
+      let tintColor = UIColor(Color(hex: "#969594") ?? Color.appGrayBorder)
       let thumbImage = UIImage(systemName: "circle.fill",
                                withConfiguration: UIImage.SymbolConfiguration(scale: .medium))?
         .withTintColor(tintColor)
@@ -46,7 +56,7 @@
       slider.setThumbImage(thumbImage, for: .selected)
       slider.setThumbImage(thumbImage, for: .normal)
 
-      slider.minimumTrackTintColor = tintColor
+      //   slider.minimumTrackTintColor = tintColor
       slider.addTarget(context.coordinator,
                        action: #selector(Coordinator.valueChanged(_:)),
                        for: .valueChanged)
@@ -75,8 +85,11 @@
       }
 
       @objc func valueChanged(_ sender: UISlider) {
-        value.wrappedValue = Int(sender.value)
-        onEditingChanged(sender.isTracking)
+        let oldValue = value.wrappedValue
+        value.wrappedValue = Int(round(sender.value))
+        if oldValue != value.wrappedValue {
+          onEditingChanged(sender.isTracking)
+        }
       }
     }
   }

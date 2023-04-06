@@ -192,15 +192,19 @@ public enum WebFont: String, CaseIterable {
         Button(action: {
           storedFontSize = min(storedFontSize + 2, 28)
         }, label: { Image(systemName: "textformat.size.smaller") })
-        CustomSlider(value: $storedFontSize, minValue: 10, maxValue: 28) { changed in
-          print("changed font size: ", changed)
-          updateReaderPreferences()
+          .frame(width: 25, height: 25, alignment: .center)
+        CustomSlider(value: $storedFontSize, minValue: 10, maxValue: 28) { _ in
+          if storedFontSize % 2 == 0 {
+            updateReaderPreferences()
+          }
         }
+        .padding(.horizontal, 10)
         .tint(Color(hex: "#D9D9D9"))
 
         Button(action: {
           storedFontSize = max(storedFontSize - 2, 10)
         }, label: { Image(systemName: "textformat.size.larger") })
+          .frame(width: 25, height: 25, alignment: .center)
       }
     }
 
@@ -210,10 +214,10 @@ public enum WebFont: String, CaseIterable {
           storedMaxWidthPercentage = min(storedMaxWidthPercentage + 10, 100)
         }, label: { Image("margin-smaller", bundle: .module) })
           .frame(width: 25, height: 25, alignment: .center)
-        CustomSlider(value: $storedMaxWidthPercentage, minValue: 40, maxValue: 100) { changed in
-          print("changed storedMaxWidthPercentage: ", changed)
+        CustomSlider(value: $storedMaxWidthPercentage, minValue: 40, maxValue: 100) { _ in
           updateReaderPreferences()
         }
+        .padding(.horizontal, 10)
         .tint(Color(hex: "#D9D9D9"))
 
         Button(action: {
@@ -232,11 +236,12 @@ public enum WebFont: String, CaseIterable {
         CustomSlider(value: $storedLineSpacing, minValue: 100, maxValue: 300) { _ in
           updateReaderPreferences()
         }
+        .padding(.horizontal, 10)
         .tint(Color(hex: "#D9D9D9"))
 
         Button(action: {
           storedLineSpacing = max(storedLineSpacing - 25, 100)
-        }, label: { Image("lineheight-smaller", bundle: .module) })
+        }, label: { Image("lineheight-larger", bundle: .module) })
           .frame(width: 25, height: 25, alignment: .center)
       }
     }
@@ -247,10 +252,11 @@ public enum WebFont: String, CaseIterable {
           storedFontSize = min(storedFontSize + 2, 28)
         }, label: { Image("brightness-lower", bundle: .module) })
           .frame(width: 25, height: 25, alignment: .center)
-        CustomSlider(value: $storedFontSize, minValue: 10, maxValue: 28) { changed in
-          print("changed font size: ", changed)
+        CustomSlider(value: $storedFontSize, minValue: 10, maxValue: 28) { _ in
           updateReaderPreferences()
         }
+        .padding(.horizontal, 10)
+
         Button(action: {
           storedFontSize = max(storedFontSize - 2, 10)
         }, label: { Image("brightness-higher", bundle: .module) })
