@@ -14,7 +14,14 @@ struct HighlightListItemParams: Identifiable {
   let createdBy: InternalUserProfile?
 }
 
+struct NoteItemParams: Identifiable {
+  let id = UUID()
+  let highlightID: String
+  let annotation: String
+}
+
 @MainActor final class NotebookViewModel: ObservableObject {
+  @Published var noteItem: NoteItemParams?
   @Published var highlightItems = [HighlightListItemParams]()
 
   func load(itemObjectID: NSManagedObjectID, dataService: DataService) {
@@ -72,7 +79,9 @@ struct HighlightListItemParams: Identifiable {
   }
 
   private func loadHighlights(item: LinkedItem) {
-    let unsortedHighlights = item.highlights.asArray(of: Highlight.self).filter { $0.type == "HIGHLIGHT" }
+    let notes = item.highlights.asArray(of: Highlight.self).filter { $0.type == "NOTE" }
+    let unsortedHighlights = item.highlights.asArray(of: Highlight.self)
+      .filter { $0.type == "HIGHLIGHT" && $0.serverSyncStatus != ServerSyncStatus.needsDeletion.rawValue }
 
     let highlights = unsortedHighlights.sorted { left, right in
       if left.positionPercent > 0, right.positionPercent > 0 {
