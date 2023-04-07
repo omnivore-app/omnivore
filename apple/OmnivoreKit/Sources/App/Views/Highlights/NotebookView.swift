@@ -20,6 +20,7 @@
     @Binding var hasHighlightMutations: Bool
     @State var setLabelsHighlight: Highlight?
     @State var showShareView: Bool = false
+    @State var showConfirmNoteDelete = false
 
     var emptyView: some View {
       Text(LocalText.highlightCardNoHighlightsOnPage)
@@ -42,6 +43,14 @@
           }
         }.formSheet(isPresented: $showShareView) {
           ShareSheet(activityItems: [viewModel.highlightsAsMarkdown()])
+        }.alert("Are you sure you want to delete the note?",
+                isPresented: $showConfirmNoteDelete) {
+          Button("Remove Item", role: .destructive) {
+            showConfirmNoteDelete = false
+          }
+          Button(LocalText.cancelGeneric, role: .cancel) {
+            showConfirmNoteDelete = false
+          }
         }
       #else
         .toolbar {
@@ -139,6 +148,7 @@
           annotation: $noteAnnotation,
           onSave: {
             viewModel.updateNoteAnnotation(
+              itemObjectID: itemObjectID,
               annotation: noteAnnotation,
               dataService: dataService
             )
@@ -168,6 +178,10 @@
             action: { showShareView = true },
             label: { Label(LocalText.exportGeneric, systemImage: "square.and.arrow.up") }
           )
+          Button(
+            action: { showConfirmNoteDelete = true },
+            label: { Label("Delete Document Note", systemImage: "trash") }
+          ).padding()
         },
         label: {
           Image(systemName: "ellipsis")

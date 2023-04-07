@@ -45,10 +45,20 @@ struct NoteItemParams: Identifiable {
     }
   }
 
-  func updateNoteAnnotation(annotation: String, dataService: DataService) {
+  func updateNoteAnnotation(itemObjectID: NSManagedObjectID, annotation: String, dataService: DataService) {
     if let noteItem = self.noteItem {
       dataService.updateHighlightAttributes(highlightID: noteItem.highlightID, annotation: annotation)
       self.noteItem = NoteItemParams(highlightID: noteItem.highlightID, annotation: annotation)
+    } else {
+      let highlightId = UUID().uuidString.lowercased()
+      let shortId = NanoID.generate(alphabet: NanoID.Alphabet.urlSafe.rawValue, size: 8)
+
+      if let linkedItem = dataService.viewContext.object(with: itemObjectID) as? LinkedItem {
+        noteItem = NoteItemParams(highlightID: highlightId, annotation: annotation)
+        let highlight = dataService.createNote(shortId: shortId, highlightID: highlightId, articleId: linkedItem.unwrappedID, annotation: annotation)
+      } else {
+        //
+      }
     }
   }
 
