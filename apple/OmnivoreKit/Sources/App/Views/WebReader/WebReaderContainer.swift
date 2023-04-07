@@ -14,7 +14,7 @@ struct WebReaderContainerView: View {
   @State private var showLabelsModal = false
   @State private var showHighlightLabelsModal = false
   @State private var showTitleEdit = false
-  @State private var showHighlightsView = false
+  @State private var showNotebookView = false
   @State private var hasPerformedHighlightMutations = false
   @State var showHighlightAnnotationModal = false
   @State private var navBarVisibilityRatio = 1.0
@@ -61,7 +61,7 @@ struct WebReaderContainerView: View {
     lastScrollPercentage = percent
   }
 
-  func onHighlightListViewDismissal() {
+  func onNotebookViewDismissal() {
     // Reload the web view if mutation happened in highlights list modal
     guard hasPerformedHighlightMutations else { return }
 
@@ -205,7 +205,7 @@ struct WebReaderContainerView: View {
     let hasLabels = item.labels?.count != 0
     return Group {
       Button(
-        action: { showHighlightsView = true },
+        action: { showNotebookView = true },
         label: { Label("Notebook", systemImage: "highlighter") }
       )
       Button(
@@ -261,14 +261,13 @@ struct WebReaderContainerView: View {
   }
 
   var navBar: some View {
-    HStack(alignment: .center) {
+    HStack(alignment: .center, spacing: 15) {
       #if os(iOS)
         Button(
           action: { self.presentationMode.wrappedValue.dismiss() },
           label: {
             Image(systemName: "chevron.backward")
               .font(.appNavbarIcon)
-              // .foregroundColor(.appGrayTextContrast)
               .padding()
           }
         )
@@ -285,6 +284,14 @@ struct WebReaderContainerView: View {
       )
       .padding(.horizontal)
       .scaleEffect(navBarVisibilityRatio)
+      Button(
+        action: { showNotebookView.toggle() },
+        label: {
+          Image("notebook", bundle: Bundle.module)
+        }
+      )
+      .padding(.horizontal)
+      .scaleEffect(navBarVisibilityRatio)
       #if os(macOS)
         Spacer()
       #endif
@@ -297,7 +304,6 @@ struct WebReaderContainerView: View {
             Image(systemName: "ellipsis")
               .resizable(resizingMode: Image.ResizingMode.stretch)
               .aspectRatio(contentMode: .fit)
-              // .foregroundColor(.appGrayTextContrast)
               .frame(width: 20, height: 20)
               .scaleEffect(navBarVisibilityRatio)
               .padding()
@@ -344,7 +350,7 @@ struct WebReaderContainerView: View {
       })
     }
     #if os(iOS)
-      .sheet(isPresented: $showHighlightsView, onDismiss: onHighlightListViewDismissal) {
+      .sheet(isPresented: $showNotebookView, onDismiss: onNotebookViewDismissal) {
         NotebookView(
           itemObjectID: item.objectID,
           hasHighlightMutations: $hasPerformedHighlightMutations

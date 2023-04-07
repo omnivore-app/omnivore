@@ -17,7 +17,7 @@ struct HighlightListItemParams: Identifiable {
 struct NoteItemParams: Identifiable {
   let id = UUID()
   let highlightID: String
-  let annotation: String
+  let annotation: String?
 }
 
 @MainActor final class NotebookViewModel: ObservableObject {
@@ -79,7 +79,6 @@ struct NoteItemParams: Identifiable {
   }
 
   private func loadHighlights(item: LinkedItem) {
-    let notes = item.highlights.asArray(of: Highlight.self).filter { $0.type == "NOTE" }
     let unsortedHighlights = item.highlights.asArray(of: Highlight.self)
       .filter { $0.type == "HIGHLIGHT" && $0.serverSyncStatus != ServerSyncStatus.needsDeletion.rawValue }
 
@@ -100,5 +99,10 @@ struct NoteItemParams: Identifiable {
         createdBy: $0.createdByMe ? nil : InternalUserProfile.makeSingle($0.createdBy)
       )
     }
+
+    noteItem = item.highlights.asArray(of: Highlight.self)
+      .filter { $0.type == "NOTE" && $0.serverSyncStatus != ServerSyncStatus.needsDeletion.rawValue }
+      .first
+      .map { NoteItemParams(highlightID: $0.unwrappedID, annotation: $0.annotation) }
   }
 }

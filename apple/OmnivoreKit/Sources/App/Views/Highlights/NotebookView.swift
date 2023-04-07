@@ -1,5 +1,6 @@
 #if os(iOS)
   import CoreData
+  import MarkdownUI
   import Models
   import Services
   import SwiftUI
@@ -10,6 +11,11 @@
     @Environment(\.presentationMode) private var presentationMode
     @StateObject var viewModel = NotebookViewModel()
 
+    @State var showAnnotationModal = false
+    @State var errorAlertMessage: String?
+    @State var showErrorAlertMessage = false
+    @State var noteAnnotation = ""
+
     let itemObjectID: NSManagedObjectID
     @Binding var hasHighlightMutations: Bool
     @State var setLabelsHighlight: Highlight?
@@ -17,12 +23,12 @@
 
     var emptyView: some View {
       Text(LocalText.highlightCardNoHighlightsOnPage)
-        .multilineTextAlignment(.center)
+        .multilineTextAlignment(.leading)
         .padding(16)
     }
 
     var innerBody: some View {
-      (viewModel.highlightItems.count > 0 ? AnyView(listView) : AnyView(emptyView))
+      listView
         .navigationTitle("Notebook")
         .listStyle(PlainListStyle())
       #if os(iOS)
@@ -46,35 +52,80 @@
       #endif
     }
 
+    var noteSection: some View {
+      HStack {
+        // let isEmpty = viewModel.noteItem.annotation.isEmpty
+        Spacer(minLength: 6)
+
+        if let note = viewModel.noteItem, let annotation = note.annotation, !annotation.isEmpty {
+          Markdown(annotation)
+            .lineSpacing(6)
+            .accentColor(.appGraySolid)
+            .foregroundColor(.appGrayTextContrast)
+            .font(.appSubheadline)
+            .padding(12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.appButtonBackground)
+            .cornerRadius(8)
+
+        } else {
+          Text("Add Notes...")
+            .lineSpacing(6)
+            .accentColor(.appGraySolid)
+            .foregroundColor(.appGrayText)
+            .font(.appSubheadline)
+            .padding(12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.appButtonBackground)
+            .cornerRadius(8)
+        }
+      }
+      .onTapGesture {
+        //     annotation = highlightParams.annotation
+        showAnnotationModal = true
+      }
+    }
+
     var listView: some View {
       List {
-        Section {
-          ForEach(viewModel.highlightItems) { highlightParams in
-            HighlightsListCard(
-              viewModel: self.viewModel,
-              highlightParams: highlightParams,
-              hasHighlightMutations: $hasHighlightMutations,
-              onSaveAnnotation: {
-                viewModel.updateAnnotation(
-                  highlightID: highlightParams.highlightID,
-                  annotation: $0,
-                  dataService: dataService
-                )
-              },
-              onDeleteHighlight: {
-                hasHighlightMutations = true
-                viewModel.deleteHighlight(
-                  highlightID: highlightParams.highlightID,
-                  dataService: dataService
-                )
-              },
-              onSetLabels: { highlightID in
-                setLabelsHighlight = Highlight.lookup(byID: highlightID, inContext: dataService.viewContext)
-              }
-            )
-            .listRowSeparator(.hidden)
+        Section("Article Notes") {
+          noteSection
+            .listRowSeparator(.hidden, edges: .bottom)
+        }
+        Section("Highlights") {
+          if viewModel.highlightItems.count > 0 {
+            ForEach(Array(viewModel.highlightItems.enumerated()), id: \.offset) { idx, highlightParams in
+              HighlightsListCard(
+                viewModel: self.viewModel,
+                highlightParams: highlightParams,
+                hasHighlightMutations: $hasHighlightMutations,
+                onSaveAnnotation: {
+                  viewModel.updateAnnotation(
+                    highlightID: highlightParams.highlightID,
+                    annotation: $0,
+                    dataService: dataService
+                  )
+                },
+                onDeleteHighlight: {
+                  hasHighlightMutations = true
+                  viewModel.deleteHighlight(
+                    highlightID: highlightParams.highlightID,
+                    dataService: dataService
+                  )
+                },
+                onSetLabels: { highlightID in
+                  setLabelsHighlight = Highlight.lookup(byID: highlightID, inContext: dataService.viewContext)
+                }
+              )
+              .listRowSeparator(.hidden, edges: idx == 0 ? .bottom : .all)
+            }
+          } else {
+            emptyView
+              .listRowSeparator(.hidden, edges: .bottom)
           }
         }
+        Spacer(minLength: 120)
+          .listRowSeparator(.hidden, edges: .all)
       }.sheet(item: $setLabelsHighlight) { highlight in
         ApplyLabelsView(mode: .highlight(highlight), isSearchFocused: false, onSave: { selectedLabels in
           hasHighlightMutations = true
@@ -83,6 +134,20 @@
                                           labels: selectedLabels,
                                           dataService: dataService)
         })
+      }.sheet(isPresented: $showAnnotationModal) {
+        HighlightAnnotationSheet(
+          annotation: $noteAnnotation,
+          onSave: {
+            // onSaveAnnotation(annotation)
+            showAnnotationModal = false
+            hasHighlightMutations = true
+          },
+          onCancel: {
+            showAnnotationModal = false
+          },
+          errorAlertMessage: $errorAlertMessage,
+          showErrorAlertMessage: $showErrorAlertMessage
+        )
       }
     }
 
