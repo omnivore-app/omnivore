@@ -83,7 +83,10 @@
                 label: { Label("Copy", systemImage: "copy") }
               )
               Button(
-                action: { showAnnotationModal = true },
+                action: {
+                  noteAnnotation = viewModel.noteItem?.annotation ?? ""
+                  showAnnotationModal = true
+                },
                 label: { Label("Edit", systemImage: "edit") }
               )
             }
@@ -154,23 +157,25 @@
                                           dataService: dataService)
         })
       }.sheet(isPresented: $showAnnotationModal) {
-        HighlightAnnotationSheet(
-          annotation: $noteAnnotation,
-          onSave: {
-            viewModel.updateNoteAnnotation(
-              itemObjectID: itemObjectID,
-              annotation: noteAnnotation,
-              dataService: dataService
-            )
-            showAnnotationModal = false
-            hasHighlightMutations = true
-          },
-          onCancel: {
-            showAnnotationModal = false
-          },
-          errorAlertMessage: $errorAlertMessage,
-          showErrorAlertMessage: $showErrorAlertMessage
-        )
+        NavigationView {
+          HighlightAnnotationSheet(
+            annotation: $noteAnnotation,
+            onSave: {
+              viewModel.updateNoteAnnotation(
+                itemObjectID: itemObjectID,
+                annotation: noteAnnotation,
+                dataService: dataService
+              )
+              showAnnotationModal = false
+              hasHighlightMutations = true
+            },
+            onCancel: {
+              showAnnotationModal = false
+            },
+            errorAlertMessage: $errorAlertMessage,
+            showErrorAlertMessage: $showErrorAlertMessage
+          )
+        }
       }
     }
 
