@@ -12,6 +12,7 @@
     let viewModel: NotebookViewModel
     let highlightParams: HighlightListItemParams
     @Binding var hasHighlightMutations: Bool
+
     let onSaveAnnotation: (String) -> Void
     let onDeleteHighlight: () -> Void
     let onSetLabels: (String) -> Void

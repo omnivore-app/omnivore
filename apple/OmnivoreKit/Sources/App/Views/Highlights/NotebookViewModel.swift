@@ -45,6 +45,13 @@ struct NoteItemParams: Identifiable {
     }
   }
 
+  func updateNoteAnnotation(annotation: String, dataService: DataService) {
+    if let noteItem = self.noteItem {
+      dataService.updateHighlightAttributes(highlightID: noteItem.highlightID, annotation: annotation)
+      self.noteItem = NoteItemParams(highlightID: noteItem.highlightID, annotation: annotation)
+    }
+  }
+
   func deleteHighlight(highlightID: String, dataService: DataService) {
     dataService.deleteHighlight(highlightID: highlightID)
     highlightItems.removeAll { $0.highlightID == highlightID }

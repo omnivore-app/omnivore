@@ -81,7 +81,7 @@
         }
       }
       .onTapGesture {
-        //     annotation = highlightParams.annotation
+        noteAnnotation = viewModel.noteItem?.annotation ?? ""
         showAnnotationModal = true
       }
     }
@@ -138,7 +138,10 @@
         HighlightAnnotationSheet(
           annotation: $noteAnnotation,
           onSave: {
-            // onSaveAnnotation(annotation)
+            viewModel.updateNoteAnnotation(
+              annotation: noteAnnotation,
+              dataService: dataService
+            )
             showAnnotationModal = false
             hasHighlightMutations = true
           },

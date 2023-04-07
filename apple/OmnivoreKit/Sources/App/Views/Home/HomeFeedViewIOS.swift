@@ -318,10 +318,6 @@ struct AnimatingCellHeight: AnimatableModifier {
     func menuItems(for item: LinkedItem) -> some View {
       Group {
         Button(
-          action: { viewModel.itemForHighlightsView = item },
-          label: { Label("Notebook", systemImage: "highlighter") }
-        )
-        Button(
           action: { viewModel.itemUnderTitleEdit = item },
           label: { Label("Edit Info", systemImage: "info.circle") }
         )
