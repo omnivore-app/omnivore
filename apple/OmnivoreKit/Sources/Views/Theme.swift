@@ -15,7 +15,6 @@ public enum Theme: String, CaseIterable {
   case sepia = "Sepia"
   case apollo = "Apollo"
   case dark = "Black"
-//  case dark = "Dark"
 
   public var bgColor: Color {
     switch self {

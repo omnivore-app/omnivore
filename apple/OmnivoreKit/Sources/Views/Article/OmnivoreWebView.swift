@@ -44,9 +44,7 @@ public final class OmnivoreWebView: WKWebView {
 
   public func updateTheme() {
     do {
-      if let themeName = UserDefaults.standard.value(forKey: UserDefaultKey.themeName.rawValue) as? String {
-        try dispatchEvent(.updateTheme(themeName: themeName))
-      }
+      try dispatchEvent(.updateTheme(themeName: ThemeManager.currentTheme.themeKey))
     } catch {
       showErrorInSnackbar("Error updating theme")
     }
@@ -177,28 +175,19 @@ public final class OmnivoreWebView: WKWebView {
       super.traitCollectionDidChange(previousTraitCollection)
       guard previousTraitCollection?.userInterfaceStyle != traitCollection.userInterfaceStyle else { return }
       do {
-        try dispatchEvent(.updateColorMode(isDark: traitCollection.userInterfaceStyle == .dark))
+        if ThemeManager.currentTheme == .system {
+          try dispatchEvent(.updateTheme(themeName: ThemeManager.currentTheme.themeKey))
+        }
       } catch {
-        showErrorInSnackbar("Error updating theme")
+        showErrorInSnackbar("Error updating theme due to colormode change")
       }
     }
 
   #elseif os(macOS)
     override public func viewDidChangeEffectiveAppearance() {
       super.viewDidChangeEffectiveAppearance()
-      switch effectiveAppearance.bestMatch(from: [.aqua, .darkAqua]) {
-      case .some(.darkAqua):
-        do {
-          try dispatchEvent(.updateColorMode(isDark: true))
-        } catch {
-          showErrorInSnackbar("Error updating theme")
-        }
-      default:
-        do {
-          try dispatchEvent(.updateColorMode(isDark: false))
-        } catch {
-          showErrorInSnackbar("Error updating theme")
-        }
+      if ThemeManager.currentTheme == .system {
+        try dispatchEvent(.updateTheme(themeName: ThemeManager.currentTheme.themeKey))
       }
     }
   #endif
@@ -426,7 +415,6 @@ public enum WebViewDispatchEvent {
   case updateLineHeight(height: Int)
   case updateMaxWidthPercentage(maxWidthPercentage: Int)
   case updateFontSize(size: Int)
-  case updateColorMode(isDark: Bool)
   case updateFontFamily(family: String)
   case updateTheme(themeName: String)
   case updateJustifyText(justify: Bool)
@@ -461,8 +449,6 @@ public enum WebViewDispatchEvent {
       return "updateMaxWidthPercentage"
     case .updateFontSize:
       return "updateFontSize"
-    case .updateColorMode:
-      return "updateColorMode"
     case .updateFontFamily:
       return "updateFontFamily"
     case .updateTheme:
@@ -514,8 +500,6 @@ public enum WebViewDispatchEvent {
         return "event.fontSize = '\(size)';"
       case let .updateJustifyText(justify: justify):
         return "event.justifyText = \(justify);"
-      case let .updateColorMode(isDark: isDark):
-        return "event.isDark = '\(isDark)';"
       case let .updateFontFamily(family: family):
         return "event.fontFamily = '\(family)';"
       case let .updateLabels(labels):

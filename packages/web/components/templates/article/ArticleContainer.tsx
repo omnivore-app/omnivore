@@ -216,6 +216,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
 
     const handleThemeChange = async (event: UpdateThemeEvent) => {
       const newTheme = event.themeName
+      console.log('handling theme change: ', newTheme)
       if (newTheme) {
         updateTheme(newTheme)
       }
