@@ -143,7 +143,7 @@ struct WebReaderContainerView: View {
             textToSpeechButtonImage
           }
         )
-        .padding(.horizontal)
+        .padding(.horizontal, 5)
         .scaleEffect(navBarVisibilityRatio))
       }
     }
@@ -270,8 +270,21 @@ struct WebReaderContainerView: View {
         )
         .scaleEffect(navBarVisibilityRatio)
         Spacer()
+      #endif
+
+      Button(
+        action: { showNotebookView = true },
+        label: {
+          Image("notebook", bundle: Bundle(url: ViewsPackage.bundleURL))
+        }
+      )
+      .padding(.horizontal, 5)
+      .scaleEffect(navBarVisibilityRatio)
+
+      #if os(iOS)
         audioNavbarItem
       #endif
+
       Button(
         action: { showPreferencesPopover.toggle() },
         label: {
@@ -279,15 +292,7 @@ struct WebReaderContainerView: View {
             .font(.appNavbarIcon)
         }
       )
-      .padding(.horizontal)
-      .scaleEffect(navBarVisibilityRatio)
-      Button(
-        action: { showNotebookView = true },
-        label: {
-          Image("notebook", bundle: Bundle(url: ViewsPackage.bundleURL))
-        }
-      )
-      .padding(.horizontal)
+      .padding(.horizontal, 5)
       .scaleEffect(navBarVisibilityRatio)
       #if os(macOS)
         Spacer()
