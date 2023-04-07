@@ -91,10 +91,10 @@ public extension DataService {
           articleId: articleId,
           highlightPositionAnchorIndex: OptionalArgument(highlight.positionAnchorIndex),
           highlightPositionPercent: OptionalArgument(highlight.positionPercent), id: highlight.id,
-          patch: OptionalArgument(highlight.patch),
-          quote: OptionalArgument(highlight.quote),
+          patch: OptionalArgument(highlight.patch.isEmpty ? nil : highlight.patch),
+          quote: OptionalArgument(highlight.quote.isEmpty ? nil : highlight.quote),
           shortId: highlight.shortId,
-          type: OptionalArgument(Enums.HighlightType.highlight)
+          type: OptionalArgument(highlight.type == "NOTE" ? Enums.HighlightType.note : Enums.HighlightType.highlight)
         ),
         selection: selection
       )

@@ -55,10 +55,20 @@ struct NoteItemParams: Identifiable {
 
       if let linkedItem = dataService.viewContext.object(with: itemObjectID) as? LinkedItem {
         noteItem = NoteItemParams(highlightID: highlightId, annotation: annotation)
-        let highlight = dataService.createNote(shortId: shortId, highlightID: highlightId, articleId: linkedItem.unwrappedID, annotation: annotation)
+        let highlight = dataService.createNote(shortId: shortId,
+                                               highlightID: highlightId,
+                                               articleId: linkedItem.unwrappedID,
+                                               annotation: annotation)
       } else {
         //
       }
+    }
+  }
+
+  func deleteNote(dataService: DataService) {
+    if let highlightID = noteItem?.highlightID {
+      dataService.deleteHighlight(highlightID: highlightID)
+      noteItem = nil
     }
   }
 

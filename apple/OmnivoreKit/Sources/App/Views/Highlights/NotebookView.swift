@@ -46,6 +46,7 @@
         }.alert("Are you sure you want to delete the note?",
                 isPresented: $showConfirmNoteDelete) {
           Button("Remove Item", role: .destructive) {
+            viewModel.deleteNote(dataService: dataService)
             showConfirmNoteDelete = false
           }
           Button(LocalText.cancelGeneric, role: .cancel) {
