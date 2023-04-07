@@ -14,7 +14,7 @@ struct HighlightListItemParams: Identifiable {
   let createdBy: InternalUserProfile?
 }
 
-@MainActor final class HighlightsListViewModel: ObservableObject {
+@MainActor final class NotebookViewModel: ObservableObject {
   @Published var highlightItems = [HighlightListItemParams]()
 
   func load(itemObjectID: NSManagedObjectID, dataService: DataService) {

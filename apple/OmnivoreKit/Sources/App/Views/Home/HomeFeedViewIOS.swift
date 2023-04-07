@@ -81,7 +81,7 @@ struct AnimatingCellHeight: AnimatableModifier {
           LinkedItemMetadataEditView(item: item)
         }
         .sheet(item: $viewModel.itemForHighlightsView) { item in
-          HighlightsListView(itemObjectID: item.objectID, hasHighlightMutations: $hasHighlightMutations)
+          NotebookView(itemObjectID: item.objectID, hasHighlightMutations: $hasHighlightMutations)
         }
         .sheet(isPresented: $viewModel.showCommunityModal) {
           CommunityModal()

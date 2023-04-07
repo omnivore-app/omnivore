@@ -9,7 +9,7 @@
     @State var annotation = String()
     @State var showAnnotationModal = false
 
-    let viewModel: HighlightsListViewModel
+    let viewModel: NotebookViewModel
     let highlightParams: HighlightListItemParams
     @Binding var hasHighlightMutations: Bool
     let onSaveAnnotation: (String) -> Void

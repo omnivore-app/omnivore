@@ -5,10 +5,10 @@
   import SwiftUI
   import Views
 
-  struct HighlightsListView: View {
+  struct NotebookView: View {
     @EnvironmentObject var dataService: DataService
     @Environment(\.presentationMode) private var presentationMode
-    @StateObject var viewModel = HighlightsListViewModel()
+    @StateObject var viewModel = NotebookViewModel()
 
     let itemObjectID: NSManagedObjectID
     @Binding var hasHighlightMutations: Bool
