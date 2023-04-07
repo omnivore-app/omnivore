@@ -181,19 +181,21 @@
         noteSection
       }
       .sheet(isPresented: $showAnnotationModal) {
-        HighlightAnnotationSheet(
-          annotation: $annotation,
-          onSave: {
-            onSaveAnnotation(annotation)
-            showAnnotationModal = false
-            hasHighlightMutations = true
-          },
-          onCancel: {
-            showAnnotationModal = false
-          },
-          errorAlertMessage: $errorAlertMessage,
-          showErrorAlertMessage: $showErrorAlertMessage
-        )
+        NavigationView {
+          HighlightAnnotationSheet(
+            annotation: $annotation,
+            onSave: {
+              onSaveAnnotation(annotation)
+              showAnnotationModal = false
+              hasHighlightMutations = true
+            },
+            onCancel: {
+              showAnnotationModal = false
+            },
+            errorAlertMessage: $errorAlertMessage,
+            showErrorAlertMessage: $showErrorAlertMessage
+          )
+        }
       }
       .formSheet(isPresented: $showShareView) {
         ShareSheet(activityItems: [viewModel.highlightAsMarkdown(item: self.highlightParams)])
