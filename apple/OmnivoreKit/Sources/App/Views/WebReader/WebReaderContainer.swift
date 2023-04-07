@@ -205,10 +205,6 @@ struct WebReaderContainerView: View {
     let hasLabels = item.labels?.count != 0
     return Group {
       Button(
-        action: { showNotebookView = true },
-        label: { Label("Notebook", systemImage: "highlighter") }
-      )
-      Button(
         action: { showTitleEdit = true },
         label: { Label("Edit Info", systemImage: "info.circle") }
       )
@@ -268,6 +264,7 @@ struct WebReaderContainerView: View {
           label: {
             Image(systemName: "chevron.backward")
               .font(.appNavbarIcon)
+              // .foregroundColor(.appGrayTextContrast)
               .padding()
           }
         )
@@ -285,9 +282,9 @@ struct WebReaderContainerView: View {
       .padding(.horizontal)
       .scaleEffect(navBarVisibilityRatio)
       Button(
-        action: { showNotebookView.toggle() },
+        action: { showNotebookView = true },
         label: {
-          Image("notebook", bundle: Bundle.module)
+          Image("notebook", bundle: Bundle(url: ViewsPackage.bundleURL))
         }
       )
       .padding(.horizontal)
@@ -304,6 +301,7 @@ struct WebReaderContainerView: View {
             Image(systemName: "ellipsis")
               .resizable(resizingMode: Image.ResizingMode.stretch)
               .aspectRatio(contentMode: .fit)
+              // .foregroundColor(.appGrayTextContrast)
               .frame(width: 20, height: 20)
               .scaleEffect(navBarVisibilityRatio)
               .padding()
