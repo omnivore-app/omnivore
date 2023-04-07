@@ -28,7 +28,7 @@ public struct HighlightAnnotationSheet: View {
       HStack {
         Button(LocalText.cancelGeneric, action: onCancel)
         Spacer()
-        Label("Note", systemImage: "note.text")
+        Text("Note").font(Font.system(size: 14, weight: .medium))
         Spacer()
         Button(LocalText.genericSave) {
           onSave()
