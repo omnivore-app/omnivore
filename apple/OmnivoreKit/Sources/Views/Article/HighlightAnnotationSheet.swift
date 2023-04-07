@@ -25,16 +25,16 @@ public struct HighlightAnnotationSheet: View {
 
   public var body: some View {
     VStack {
-      HStack {
-        Button(LocalText.cancelGeneric, action: onCancel)
-        Spacer()
-        Text("Note").font(Font.system(size: 14, weight: .medium))
-        Spacer()
-        Button(LocalText.genericSave) {
-          onSave()
-        }
-      }
-      .foregroundColor(.appGrayTextContrast)
+//      HStack {
+//        Button(LocalText.cancelGeneric, action: onCancel)
+//        Spacer()
+//        Text("Note").font(Font.system(size: 18, weight: .bold))
+//        Spacer()
+//        Button(LocalText.genericSave) {
+//          onSave()
+//        }
+//      }
+//      .foregroundColor(.appGrayTextContrast)
 
       ScrollView {
         TextEditor(text: $annotation)
@@ -49,6 +49,15 @@ public struct HighlightAnnotationSheet: View {
       Spacer()
     }
     .padding()
+    .navigationTitle("Note")
+    .navigationBarTitleDisplayMode(.inline)
+    .navigationBarItems(leading: Button(action: onCancel, label: {
+      Text("Cancel")
+    }))
+    .navigationBarItems(trailing: Button(action: onSave, label: {
+      Text("Save").bold()
+    }))
+    .listStyle(PlainListStyle())
     .alert(errorAlertMessage ?? LocalText.readerError, isPresented: $showErrorAlertMessage) {
       Button(LocalText.genericOk, role: .cancel, action: {
         errorAlertMessage = nil
