@@ -56,6 +56,8 @@ struct WebReader: PlatformViewRepresentable {
     #if os(iOS)
       webView.isOpaque = false
       webView.backgroundColor = UIColor(ThemeManager.currentBgColor)
+      webView.underPageBackgroundColor = UIColor(ThemeManager.currentBgColor)
+      webView.scrollView.backgroundColor = UIColor(ThemeManager.currentBgColor)
       webView.scrollView.delegate = context.coordinator
       webView.scrollView.contentInset.top = readerViewNavBarHeight
       webView.scrollView.verticalScrollIndicatorInsets.top = readerViewNavBarHeight
