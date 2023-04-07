@@ -77,7 +77,16 @@
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Color.appButtonBackground)
             .cornerRadius(8)
-
+            .contextMenu {
+              Button(
+                action: { UIPasteboard.general.string = note.annotation },
+                label: { Label("Copy", systemImage: "copy") }
+              )
+              Button(
+                action: { showAnnotationModal = true },
+                label: { Label("Edit", systemImage: "edit") }
+              )
+            }
         } else {
           Text("Add Notes...")
             .lineSpacing(6)
