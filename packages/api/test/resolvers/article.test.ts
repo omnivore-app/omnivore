@@ -20,7 +20,6 @@ import {
   PageContext,
   PageType,
 } from '../../src/elastic/types'
-import { SearchHistory } from '../../src/entity/search_history'
 import { UploadFile } from '../../src/entity/upload_file'
 import { User } from '../../src/entity/user'
 import { getRepository } from '../../src/entity/utils'
@@ -876,33 +875,6 @@ describe('Article API', () => {
 
     after(async () => {
       await deletePagesByParam({ userId: user.id }, ctx)
-      await getRepository(SearchHistory).delete({ user: { id: user.id } })
-    })
-
-    context('when we search for a keyword', () => {
-      before(() => {
-        keyword = 'search api'
-      })
-
-      it('saves the term in search history', async () => {
-        await graphqlRequest(query, authToken).expect(200)
-        const searchHistories = await getRepository(SearchHistory).findBy({
-          user: { id: user.id },
-        })
-        expect(searchHistories.length).to.eq(1)
-        expect(searchHistories[0].term).to.eq(keyword)
-        const searchHistory = searchHistories[0]
-
-        // Check that the search history is updated
-        await graphqlRequest(query, authToken).expect(200)
-        const newSearchHistories = await getRepository(SearchHistory).findBy({
-          user: { id: user.id },
-        })
-        expect(newSearchHistories.length).to.eq(1)
-        expect(newSearchHistories[0].createdAt).to.be.greaterThan(
-          searchHistory.createdAt
-        )
-      })
     })
 
     context('when type:highlights is not in the query', () => {

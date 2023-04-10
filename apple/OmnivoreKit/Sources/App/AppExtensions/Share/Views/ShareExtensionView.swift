@@ -120,6 +120,8 @@ public struct ShareExtensionView: View {
         if viewState != .editingTitle {
           Text(self.viewModel.title)
             .font(.appSubheadline)
+            .lineLimit(2)
+            .fixedSize(horizontal: false, vertical: true)
             .foregroundColor(.appGrayTextContrast)
             .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -363,6 +365,19 @@ public struct ShareExtensionView: View {
     }
   }
 
+  func submitEditTitle() {
+    viewState = .mainView
+
+    if viewState == .editingTitle {
+      if let linkedItem = viewModel.linkedItem {
+        viewModel.submitTitleEdit(dataService: viewModel.services.dataService,
+                                  itemID: linkedItem.unwrappedID,
+                                  title: viewModel.title,
+                                  description: linkedItem.description)
+      }
+    }
+  }
+
   public var body: some View {
     VStack(alignment: .center) {
       Capsule()
@@ -381,16 +396,7 @@ public struct ShareExtensionView: View {
 
           Button(action: {
             withAnimation {
-              viewState = .mainView
-
-              if viewState == .editingTitle {
-                if let linkedItem = self.viewModel.linkedItem {
-                  viewModel.submitTitleEdit(dataService: self.viewModel.services.dataService,
-                                            itemID: linkedItem.unwrappedID,
-                                            title: self.viewModel.title,
-                                            description: linkedItem.description)
-                }
-              }
+              submitEditTitle()
             }
           }, label: { Text(LocalText.doneGeneric).bold() })
             .frame(maxWidth: .infinity, alignment: .trailing)
@@ -408,7 +414,9 @@ public struct ShareExtensionView: View {
           VStack(alignment: .center, spacing: 16) {
             VStack(alignment: .leading, spacing: 6) {
               TextEditor(text: $viewModel.title)
+                .textFieldStyle(.roundedBorder)
                 .lineSpacing(6)
+                .submitLabel(.done)
                 .accentColor(.appGraySolid)
                 .foregroundColor(.appGrayTextContrast)
                 .font(.appSubheadline)
@@ -422,6 +430,12 @@ public struct ShareExtensionView: View {
                 .focused($focusedField, equals: .titleEditor)
                 .task {
                   self.focusedField = .titleEditor
+                }
+                .onChange(of: viewModel.title) { text in
+                  if text.last?.isNewline == .some(true) {
+                    viewModel.title.removeLast()
+                    submitEditTitle()
+                  }
                 }
             }
           }

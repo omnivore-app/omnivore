@@ -1587,6 +1587,7 @@ const schema = gql`
 
   enum SearchErrorCode {
     UNAUTHORIZED
+    QUERY_TOO_LONG
   }
 
   type SearchError {

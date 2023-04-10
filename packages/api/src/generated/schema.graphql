@@ -1623,6 +1623,7 @@ type SearchError {
 }
 
 enum SearchErrorCode {
+  QUERY_TOO_LONG
   UNAUTHORIZED
 }
 
