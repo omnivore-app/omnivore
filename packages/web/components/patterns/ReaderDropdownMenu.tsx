@@ -18,7 +18,7 @@ export function ReaderDropdownMenu(props: DropdownMenuProps): JSX.Element {
         title="Archive"
       />
       <DropdownOption
-        onSelect={() => props.articleActionHandler('editLabels')}
+        onSelect={() => props.articleActionHandler('setLabels')}
         title="Edit Labels"
       />
       <DropdownOption
