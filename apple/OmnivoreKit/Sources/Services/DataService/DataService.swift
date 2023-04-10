@@ -55,13 +55,6 @@ public final class DataService: ObservableObject {
     backgroundContext.automaticallyMergesChangesFromParent = true
     backgroundContext.mergePolicy = NSMergePolicy.mergeByPropertyObjectTrump
 
-//    NotificationCenter.default.addObserver(
-//      forName: Notification.Name.NSManagedObjectContextObjectsDidChange,
-//      object: backgroundContext, queue: OperationQueue.main
-//    ) { note in
-//      print("MERGE NOTIFICATION: ", note)
-//    }
-
     if isFirstTimeRunningNewAppBuild() {
       resetLocalStorage()
     } else {
