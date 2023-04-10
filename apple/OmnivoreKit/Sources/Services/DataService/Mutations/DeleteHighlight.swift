@@ -53,6 +53,7 @@ public extension DataService {
 
       context.perform {
         guard let highlight = Highlight.lookup(byID: highlightID, inContext: context) else { return }
+        print("LOOKED UP HIGHLIGHT: ", highlight, highlight.serverSyncStatus, highlight.serverSyncStatus)
 
         if isSyncSuccess {
           highlight.remove(inContext: context)
