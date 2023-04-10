@@ -11,12 +11,16 @@ export const getTopOmnivoreAnchorElement = (
 ): string | undefined => {
   let topVisibleRect: Element | undefined = undefined
   const anchors = Array.from(
-    document.querySelectorAll(`[data-omnivore-anchor-idx]`)
+    document.querySelectorAll(`p[data-omnivore-anchor-idx]`)
   ).reverse()
 
   for (const anchor of anchors) {
     const rect = anchor.getBoundingClientRect()
-    if (rect.top >= 0 && rect.bottom <= articleContentElement.clientHeight) {
+    if (
+      rect.height > 0 &&
+      rect.top >= 50 &&
+      rect.bottom <= articleContentElement.clientHeight
+    ) {
       if (
         topVisibleRect &&
         topVisibleRect.getBoundingClientRect().top < rect.top
