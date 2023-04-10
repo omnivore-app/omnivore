@@ -49,7 +49,7 @@ export class PipedVideoHandler extends ContentHandler {
       return {}
     }
     const videoStream = videoStreams[0]
-    const src = `${baseUrl}/embed/${videoId}`
+    const src = `https://piped.mha.fi/embed/${videoId}`
     // escape html entities in title
     const title = metadata.title
     const escapedTitle = this.escapeTitle(title)
@@ -67,7 +67,7 @@ export class PipedVideoHandler extends ContentHandler {
         <meta property="og:title" content="${escapedTitle}" />
         <meta property="og:description" content="${metadata.description}" />
         <meta property="og:article:author" content="${authorName}" />
-        <meta property="og:site_name" content="Piped" />
+        <meta property="og:site_name" content="Piped Video" />
         <meta property="article:published_time" content="${metadata.uploadDate}" />
       </head>
       <body>
