@@ -93,6 +93,7 @@ on smaller screens we display the note icon
   font-weight: normal;
 
   color: var(--font-color);
+  text-align: var(--text-align);
 
   display: block;
   margin-block-start: 1em;

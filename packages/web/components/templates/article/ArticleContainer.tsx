@@ -164,7 +164,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
 
     const updateHighlightMode = (event: UpdateHighlightModeEvent) => {
       const isEnabled = event.enableHighlightOnRelease === 'on'
-      console.log('setting highlight on release: ', isEnabled)
       setHighlightOnRelease(isEnabled)
     }
 
@@ -216,7 +215,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
 
     const handleThemeChange = async (event: UpdateThemeEvent) => {
       const newTheme = event.themeName
-      console.log('handling theme change: ', newTheme)
       if (newTheme) {
         updateTheme(newTheme)
       }
@@ -236,7 +234,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     }
 
     const updateJustifyText = (event: UpdateJustifyText) => {
-      console.log('justify', event.justifyText)
       setJustifyText(event.justifyText ?? false)
     }
 
@@ -354,9 +351,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           minHeight: '100vh',
           maxWidth: `${styles.maxWidthPercentage ?? 100}%`,
           background: theme.colors.readerBg.toString(),
-          '.article-inner-css': {
-            textAlign: justifyText ? 'justify' : 'start',
-          },
+          '--text-align': justifyText ? 'justify' : 'start',
           '--text-font-family': styles.fontFamily,
           '--text-font-size': `${styles.fontSize}px`,
           '--line-height': `${styles.lineHeight}%`,
