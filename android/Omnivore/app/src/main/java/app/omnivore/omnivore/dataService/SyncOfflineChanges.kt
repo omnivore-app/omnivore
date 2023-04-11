@@ -7,17 +7,33 @@ import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.persistence.entities.Highlight
 import app.omnivore.omnivore.persistence.entities.SavedItem
 import com.apollographql.apollo3.api.Optional
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
+suspend fun DataService.startSyncChannels() {
+  for (savedItem in savedItemSyncChannel) {
+    syncSavedItem(savedItem)
+  }
+
+  for (highlight in highlightSyncChannel) {
+    syncHighlight(highlight)
+  }
+}
 
 suspend fun DataService.syncOfflineItemsWithServerIfNeeded() {
   val unSyncedSavedItems = db.savedItemDao().getUnSynced()
   val unSyncedHighlights = db.highlightDao().getUnSynced()
 
   for (savedItem in unSyncedSavedItems) {
-    syncSavedItem(savedItem)
+    delay(250)
+    savedItemSyncChannel.send(savedItem)
   }
 
   for (highlight in unSyncedHighlights) {
-    syncHighlight(highlight)
+    delay(250)
+    highlightSyncChannel.send(highlight)
   }
 }
 
