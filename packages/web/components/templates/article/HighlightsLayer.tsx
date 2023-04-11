@@ -284,12 +284,20 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
     [selectionData, createHighlightFromSelection]
   )
 
+  const isHTMLElement = (target: EventTarget): target is HTMLElement => {
+    return (
+      'nodeType' in target &&
+      'nodeName' in target &&
+      target.nodeType === Node.ELEMENT_NODE
+    )
+  }
+
   // Detect mouseclick on a highlight -- call `setFocusedHighlight` when highlight detected
   const handleSingleClick = useCallback(
     (event: MouseEvent) => {
       const { target, pageX, pageY } = event
 
-      if (!target || (target as Node)?.nodeType !== Node.ELEMENT_NODE) {
+      if (!target || !isHTMLElement(target)) {
         console.log(' -- returning early from page tap')
         return
       }
@@ -346,10 +354,36 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           highlightModalAction: 'addComment',
         })
       } else {
-        console.log('sending page tapped')
-        window?.webkit?.messageHandlers.viewerAction?.postMessage({
-          actionID: 'pageTapped',
-        })
+        const page = document.querySelector(`#readability-page-1`)
+        if (!page || !page.contains(target)) {
+          console.log('element is not in page')
+          return
+        }
+        console.log(
+          ' target: ',
+          target,
+          target.nodeName,
+          target.getAttribute('src'),
+          target.getAttribute('srcset')
+        )
+        if (target.nodeName == 'IMG' && target.getAttribute('src')) {
+          console.log('sending image tapped')
+
+          const rect = (target as Element).getBoundingClientRect()
+          window?.webkit?.messageHandlers.viewerAction?.postMessage({
+            actionID: 'imageTapped',
+            src: target.getAttribute('src') || target.getAttribute('srcset'),
+            rectX: rect.x,
+            rectY: rect.y,
+            rectWidth: rect.width,
+            rectHeight: rect.height,
+          })
+        } else {
+          console.log('sending page tapped')
+          window?.webkit?.messageHandlers.viewerAction?.postMessage({
+            actionID: 'pageTapped',
+          })
+        }
         setFocusedHighlight(undefined)
       }
     },

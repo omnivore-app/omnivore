@@ -16704,6 +16704,11 @@ ignore@^5.2.0:
   resolved "https://registry.yarnpkg.com/ignore/-/ignore-5.2.0.tgz#6d3bac8fa7fe0d45d9f9be7bac2fc279577e345a"
   integrity sha512-CmxgYGiEPCLhfLnpPp1MoRmifwEIOgjcHXxOBjv7mY96c+eWScsOP9c112ZyLdWHi0FxHjI+4uVhKYp/gcdRmQ==
 
+img-previewer@^2.1.7:
+  version "2.1.7"
+  resolved "https://registry.yarnpkg.com/img-previewer/-/img-previewer-2.1.7.tgz#a2c51e99a2416fbf390a4d15b20af6f07aa0859e"
+  integrity sha512-4vdBb8he4VfrQugUTPqISHpnc+FfJT01+VerTSrgVVE4L3uzfZjIRc0GiIPiu5phxt7+Xao5JQIlKwMZCsHuGw==
+
 immediate@~3.0.5:
   version "3.0.6"
   resolved "https://registry.yarnpkg.com/immediate/-/immediate-3.0.6.tgz#9db1dbd0faf8de6fbe0f5dd5e56bb606280de69b"

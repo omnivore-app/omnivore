@@ -13,6 +13,9 @@ import { render } from 'react-dom'
 import { isDarkTheme } from '../../../lib/themeUpdater'
 import { ArticleMutations } from '../../../lib/articleActions'
 
+import ImgPreviewer from 'img-previewer'
+import 'img-previewer/dist/index.css'
+
 export type ArticleProps = {
   articleId: string
   content: string
@@ -72,6 +75,20 @@ export function Article(props: ArticleProps): JSX.Element {
       })
     }
   }, [readingProgress])
+
+  useEffect(() => {
+    console.log(
+      'matching nodes: ',
+      document.querySelectorAll(`img[data-omnivore-anchor-idx]`)
+    )
+    const imgPreviewer = new ImgPreviewer(`#readability-page-1`)
+    imgPreviewer.update()
+    console.log(
+      'setup image previewer: ',
+      imgPreviewer,
+      imgPreviewer.getTotalIndex()
+    )
+  }, [props.content])
 
   useScrollWatcher((changeset: ScrollOffsetChangeset) => {
     if (window && window.document.scrollingElement) {
