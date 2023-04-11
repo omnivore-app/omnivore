@@ -2605,6 +2605,10 @@ Readability.prototype = {
         elem.setAttribute('src', elem.dataset.src)
       }
 
+      if (elem.getAttribute('data-lazy-src')) {
+        elem.setAttribute('src', elem.getAttribute('data-lazy-src'))
+      }
+
       // In some sites (e.g. Kotaku), they put 1px square image as base64 data uri in the src attribute.
       // So, here we check if the data uri is too short, just might as well remove it.
       if (elem.src && this.REGEXPS.b64DataUrl.test(elem.src)) {
