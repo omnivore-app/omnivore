@@ -1,18 +1,18 @@
 import { MulticastMessage } from 'firebase-admin/messaging'
 import { createPubSubClient } from '../datalayer/pubsub'
+import { updatePage } from '../elastic/pages'
+import { Page } from '../elastic/types'
+import { NewsletterEmail } from '../entity/newsletter_email'
 import { UserDeviceToken } from '../entity/user_device_tokens'
 import { env } from '../env'
 import { ContentReader } from '../generated/graphql'
 import { analytics } from '../utils/analytics'
-import { SaveContext, saveEmail, SaveEmailInput } from './save_email'
-import { Page } from '../elastic/types'
-import { addLabelToPage } from './labels'
-import { saveSubscription } from './subscriptions'
-import { NewsletterEmail } from '../entity/newsletter_email'
-import { fetchFavicon } from '../utils/parser'
-import { updatePage } from '../elastic/pages'
 import { isBase64Image } from '../utils/helpers'
+import { fetchFavicon } from '../utils/parser'
+import { addLabelToPage } from './labels'
 import { updateReceivedEmail } from './received_emails'
+import { SaveContext, saveEmail, SaveEmailInput } from './save_email'
+import { saveSubscription } from './subscriptions'
 
 export interface NewsletterMessage {
   from: string
@@ -75,16 +75,18 @@ export const saveNewsletterEmail = async (
     }
   }
 
-  // creates or updates subscription
-  const subscriptionId = await saveSubscription({
-    userId: newsletterEmail.user.id,
-    name: data.author,
-    newsletterEmail,
-    unsubscribeMailTo: data.unsubMailTo,
-    unsubscribeHttpUrl: data.unsubHttpUrl,
-    icon: page.siteIcon,
-  })
-  console.log('subscription saved', subscriptionId)
+  // creates or updates subscription only if their is a valid unsubscribe link
+  if (data.unsubMailTo || data.unsubHttpUrl) {
+    const subscriptionId = await saveSubscription({
+      userId: newsletterEmail.user.id,
+      name: data.author,
+      newsletterEmail,
+      unsubscribeMailTo: data.unsubMailTo,
+      unsubscribeHttpUrl: data.unsubHttpUrl,
+      icon: page.siteIcon,
+    })
+    console.log('subscription saved', subscriptionId)
+  }
 
   // adds newsletters label to page
   const result = await addLabelToPage(saveCtx, page.id, {
