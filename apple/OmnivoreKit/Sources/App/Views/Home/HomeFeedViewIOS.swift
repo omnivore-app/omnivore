@@ -33,7 +33,7 @@ struct AnimatingCellHeight: AnimatableModifier {
 
     @AppStorage(UserDefaultKey.homeFeedlayoutPreference.rawValue) var prefersListLayout = false
     @AppStorage(UserDefaultKey.shouldPromptCommunityModal.rawValue) var shouldPromptCommunityModal = true
-    @ObservedObject var viewModel: HomeFeedViewModel
+    @ObservedObject var viewModel: LibraryViewModel
 
     func loadItems(isRefresh: Bool) {
       Task { await viewModel.loadItems(dataService: dataService, isRefresh: isRefresh) }
@@ -236,7 +236,7 @@ struct AnimatingCellHeight: AnimatableModifier {
   struct HomeFeedView: View {
     @EnvironmentObject var dataService: DataService
     @Binding var prefersListLayout: Bool
-    @ObservedObject var viewModel: HomeFeedViewModel
+    @ObservedObject var viewModel: LibraryViewModel
 
     var body: some View {
       VStack(spacing: 0) {
@@ -267,7 +267,7 @@ struct AnimatingCellHeight: AnimatableModifier {
     @State private var confirmationShown = false
     @State private var showHideFeatureAlert = false
 
-    @ObservedObject var viewModel: HomeFeedViewModel
+    @ObservedObject var viewModel: LibraryViewModel
 
     var filtersHeader: some View {
       GeometryReader { reader in
@@ -547,7 +547,7 @@ struct AnimatingCellHeight: AnimatableModifier {
     @State private var confirmationShown = false
     @State var isContextMenuOpen = false
 
-    @ObservedObject var viewModel: HomeFeedViewModel
+    @ObservedObject var viewModel: LibraryViewModel
 
     func contextMenuActionHandler(item: LinkedItem, action: GridCardAction) {
       switch action {

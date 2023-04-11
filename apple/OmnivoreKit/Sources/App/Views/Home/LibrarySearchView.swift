@@ -15,9 +15,9 @@
     @Environment(\.isSearching) var isSearching
     @Environment(\.dismiss) private var dismiss
 
-    let homeFeedViewModel: HomeFeedViewModel
+    let homeFeedViewModel: LibraryViewModel
 
-    init(homeFeedViewModel: HomeFeedViewModel) {
+    init(homeFeedViewModel: LibraryViewModel) {
       self.homeFeedViewModel = homeFeedViewModel
     }
 

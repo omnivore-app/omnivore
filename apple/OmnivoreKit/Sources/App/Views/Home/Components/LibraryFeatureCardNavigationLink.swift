@@ -16,7 +16,7 @@ struct LibraryFeatureCardNavigationLink: View {
 
   let item: LinkedItem
 
-  @ObservedObject var viewModel: HomeFeedViewModel
+  @ObservedObject var viewModel: LibraryViewModel
 
   var body: some View {
     ZStack {

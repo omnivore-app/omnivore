@@ -15,7 +15,7 @@ import Views
     @State private var confirmationShown = false
     @State private var presentProfileSheet = false
 
-    @ObservedObject var viewModel: HomeFeedViewModel
+    @ObservedObject var viewModel: LibraryViewModel
 
     func loadItems(isRefresh: Bool) {
       Task {

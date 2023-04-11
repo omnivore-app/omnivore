@@ -5,7 +5,7 @@ import SwiftUI
 import Utils
 import Views
 
-@MainActor final class HomeFeedViewModel: NSObject, ObservableObject {
+@MainActor final class LibraryViewModel: NSObject, ObservableObject {
   var currentDetailViewModel: LinkItemDetailViewModel?
 
   private var fetchedResultsController: NSFetchedResultsController<LinkedItem>?
@@ -357,7 +357,7 @@ import Views
   }
 }
 
-extension HomeFeedViewModel: NSFetchedResultsControllerDelegate {
+extension LibraryViewModel: NSFetchedResultsControllerDelegate {
   func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
     setItems(controller.fetchedObjects as? [LinkedItem] ?? [])
   }

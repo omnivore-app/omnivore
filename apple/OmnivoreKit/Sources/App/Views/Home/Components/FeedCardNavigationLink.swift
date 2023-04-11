@@ -9,7 +9,7 @@ struct MacFeedCardNavigationLink: View {
 
   let item: LinkedItem
 
-  @ObservedObject var viewModel: HomeFeedViewModel
+  @ObservedObject var viewModel: LibraryViewModel
 
   var body: some View {
     ZStack {
@@ -39,7 +39,7 @@ struct FeedCardNavigationLink: View {
 
   let item: LinkedItem
 
-  @ObservedObject var viewModel: HomeFeedViewModel
+  @ObservedObject var viewModel: LibraryViewModel
 
   var body: some View {
     ZStack {
@@ -72,7 +72,7 @@ struct GridCardNavigationLink: View {
 
   @Binding var isContextMenuOpen: Bool
 
-  @ObservedObject var viewModel: HomeFeedViewModel
+  @ObservedObject var viewModel: LibraryViewModel
 
   func tapAction() {
     scale = 0.95
