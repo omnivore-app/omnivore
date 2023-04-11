@@ -3,6 +3,7 @@ import {
   darkTheme,
   sepiaTheme,
   apolloTheme,
+  blackTheme,
 } from '../components/tokens/stitches.config'
 
 const themeKey = 'theme'
@@ -31,6 +32,8 @@ function getTheme(themeId: string) {
       return sepiaTheme
     case ThemeId.Apollo:
       return apolloTheme
+    case ThemeId.Black:
+      return blackTheme
   }
   return ThemeId.Light
 }
@@ -45,6 +48,7 @@ export function updateThemeLocally(themeId: string): void {
     sepiaTheme,
     darkTheme,
     apolloTheme,
+    blackTheme,
     ...Object.keys(ThemeId)
   )
   document.body.classList.add(getTheme(themeId))
@@ -60,6 +64,8 @@ export function currentThemeName(): string {
       return 'Sepia'
     case ThemeId.Apollo:
       return 'Apollo'
+    case ThemeId.Black:
+      return 'Black'
   }
   return 'Light'
 }
@@ -97,5 +103,9 @@ export function applyStoredTheme(syncWithServer = true): ThemeId | undefined {
 
 export function isDarkTheme(): boolean {
   const currentTheme = currentThemeName()
-  return currentTheme === 'Dark' || currentTheme === 'Darker'
+  return (
+    currentTheme === 'Dark' ||
+    currentTheme === 'Darker' ||
+    currentTheme == 'Black'
+  )
 }

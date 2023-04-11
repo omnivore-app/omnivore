@@ -67,6 +67,7 @@ const App = () => {
           alignment="center"
           distribution="center"
           className="disable-webkit-callout"
+          style={{ backgroundColor: 'var(--colors-readerBg)' }}
         >
           <ArticleContainer
             article={window.omnivoreArticle}
@@ -80,6 +81,7 @@ const App = () => {
             lineHeight={window.lineHeight}
             highlightOnRelease={window.highlightOnRelease}
             highContrastText={window.prefersHighContrastFont ?? true}
+            justifyText={window.justifyText}
             articleMutations={{
               createHighlightMutation: (input) =>
                 mutation('createHighlight', input),

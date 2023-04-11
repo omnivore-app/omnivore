@@ -3,9 +3,9 @@ import Foundation
 import Models
 import SwiftGraphQL
 
-extension DataService {
+public extension DataService {
   // swiftlint:disable:next function_parameter_count
-  public func createHighlight(
+  func createHighlight(
     shortId: String,
     highlightID: String,
     quote: String,
@@ -40,7 +40,36 @@ extension DataService {
     return internalHighlight.encoded()
   }
 
-  func syncHighlightCreation(highlight: InternalHighlight, articleId: String) {
+  func createNote(
+    shortId: String,
+    highlightID: String,
+    articleId: String,
+    annotation: String
+  ) -> [String: Any]? {
+    let internalHighlight = InternalHighlight(
+      id: highlightID,
+      type: "NOTE",
+      shortId: shortId,
+      quote: "",
+      prefix: nil, suffix: nil,
+      patch: "",
+      annotation: annotation,
+      createdAt: nil,
+      updatedAt: nil,
+      createdByMe: true,
+      createdBy: nil,
+      positionPercent: nil,
+      positionAnchorIndex: nil,
+      labels: []
+    )
+
+    internalHighlight.persist(context: backgroundContext, associatedItemID: articleId)
+    syncHighlightCreation(highlight: internalHighlight, articleId: articleId)
+
+    return internalHighlight.encoded()
+  }
+
+  internal func syncHighlightCreation(highlight: InternalHighlight, articleId: String) {
     enum MutationResult {
       case saved(highlight: InternalHighlight)
       case error(errorCode: Enums.CreateHighlightErrorCode)
@@ -62,10 +91,10 @@ extension DataService {
           articleId: articleId,
           highlightPositionAnchorIndex: OptionalArgument(highlight.positionAnchorIndex),
           highlightPositionPercent: OptionalArgument(highlight.positionPercent), id: highlight.id,
-          patch: OptionalArgument(highlight.patch),
-          quote: OptionalArgument(highlight.quote),
+          patch: OptionalArgument(highlight.patch.isEmpty ? nil : highlight.patch),
+          quote: OptionalArgument(highlight.quote.isEmpty ? nil : highlight.quote),
           shortId: highlight.shortId,
-          type: OptionalArgument(Enums.HighlightType.highlight)
+          type: OptionalArgument(highlight.type == "NOTE" ? Enums.HighlightType.note : Enums.HighlightType.highlight)
         ),
         selection: selection
       )

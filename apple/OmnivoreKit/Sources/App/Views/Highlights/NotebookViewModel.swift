@@ -14,7 +14,14 @@ struct HighlightListItemParams: Identifiable {
   let createdBy: InternalUserProfile?
 }
 
-@MainActor final class HighlightsListViewModel: ObservableObject {
+struct NoteItemParams: Identifiable {
+  let id = UUID()
+  let highlightID: String
+  let annotation: String?
+}
+
+@MainActor final class NotebookViewModel: ObservableObject {
+  @Published var noteItem: NoteItemParams?
   @Published var highlightItems = [HighlightListItemParams]()
 
   func load(itemObjectID: NSManagedObjectID, dataService: DataService) {
@@ -35,6 +42,33 @@ struct HighlightListItemParams: Identifiable {
         labels: highlightItems[index].labels,
         createdBy: highlightItems[index].createdBy
       )
+    }
+  }
+
+  func updateNoteAnnotation(itemObjectID: NSManagedObjectID, annotation: String, dataService: DataService) {
+    if let noteItem = self.noteItem {
+      dataService.updateHighlightAttributes(highlightID: noteItem.highlightID, annotation: annotation)
+      self.noteItem = NoteItemParams(highlightID: noteItem.highlightID, annotation: annotation)
+    } else {
+      let highlightId = UUID().uuidString.lowercased()
+      let shortId = NanoID.generate(alphabet: NanoID.Alphabet.urlSafe.rawValue, size: 8)
+
+      if let linkedItem = dataService.viewContext.object(with: itemObjectID) as? LinkedItem {
+        noteItem = NoteItemParams(highlightID: highlightId, annotation: annotation)
+        let highlight = dataService.createNote(shortId: shortId,
+                                               highlightID: highlightId,
+                                               articleId: linkedItem.unwrappedID,
+                                               annotation: annotation)
+      } else {
+        //
+      }
+    }
+  }
+
+  func deleteNote(dataService: DataService) {
+    if let highlightID = noteItem?.highlightID {
+      dataService.deleteHighlight(highlightID: highlightID)
+      noteItem = nil
     }
   }
 
@@ -72,7 +106,8 @@ struct HighlightListItemParams: Identifiable {
   }
 
   private func loadHighlights(item: LinkedItem) {
-    let unsortedHighlights = item.highlights.asArray(of: Highlight.self).filter { $0.type == "HIGHLIGHT" }
+    let unsortedHighlights = item.highlights.asArray(of: Highlight.self)
+      .filter { $0.type == "HIGHLIGHT" && $0.serverSyncStatus != ServerSyncStatus.needsDeletion.rawValue }
 
     let highlights = unsortedHighlights.sorted { left, right in
       if left.positionPercent > 0, right.positionPercent > 0 {
@@ -91,5 +126,10 @@ struct HighlightListItemParams: Identifiable {
         createdBy: $0.createdByMe ? nil : InternalUserProfile.makeSingle($0.createdBy)
       )
     }
+
+    noteItem = item.highlights.asArray(of: Highlight.self)
+      .filter { $0.type == "NOTE" && $0.serverSyncStatus != ServerSyncStatus.needsDeletion.rawValue }
+      .first
+      .map { NoteItemParams(highlightID: $0.unwrappedID, annotation: $0.annotation) }
   }
 }
