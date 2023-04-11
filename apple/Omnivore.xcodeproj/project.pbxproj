@@ -995,7 +995,8 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"$SRCROOT\"/Scripts/format_and_lint.sh \n";
+			shellScript = "
+";
 		};
 /* End PBXShellScriptBuildPhase section */
 
