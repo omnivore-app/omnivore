@@ -124,10 +124,10 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     useState<number | null>(null)
   const [fontFamilyOverride, setFontFamilyOverride] =
     useState<string | null>(null)
-  const [highContrastText, setHighContrastText] = useState(
-    props.highContrastText ?? false
-  )
-  const [justifyText, setJustifyText] = useState(props.justifyText ?? false)
+  const [highContrastTextOverride, setHighContrastTextOverride] =
+    useState<boolean | undefined>(undefined)
+  const [justifyTextOverride, setJustifyTextOverride] =
+    useState<boolean | undefined>(undefined)
   const highlightHref = useRef(
     window.location.hash ? window.location.hash.split('#')[1] : null
   )
@@ -195,7 +195,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
 
     const handleFontContrastChange = async (event: UpdateFontContrastEvent) => {
       const highContrast = event.fontContrast == 'high'
-      setHighContrastText(highContrast)
+      setHighContrastTextOverride(highContrast)
     }
 
     interface UpdateFontSizeEvent extends Event {
@@ -234,7 +234,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     }
 
     const updateJustifyText = (event: UpdateJustifyText) => {
-      setJustifyText(event.justifyText ?? false)
+      setJustifyTextOverride(event.justifyText ?? false)
     }
 
     interface UpdateLabelsEvent extends Event {
@@ -320,15 +320,26 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     }
   })
 
+  const textColorValue = (isHighContrast: boolean) => {
+    return isHighContrast
+      ? theme.colors.readerFontHighContrast.toString()
+      : theme.colors.readerFont.toString()
+  }
+
+  const justifyTextValue = (isJustified: boolean) => {
+    return isJustified ? 'justify' : 'start'
+  }
+
   const styles = {
     fontSize,
     margin: props.margin ?? 360,
     maxWidthPercentage: maxWidthPercentageOverride ?? props.maxWidthPercentage,
     lineHeight: lineHeightOverride ?? props.lineHeight ?? 150,
     fontFamily: fontFamilyOverride ?? props.fontFamily ?? 'inter',
-    readerFontColor: highContrastText
-      ? theme.colors.readerFontHighContrast.toString()
-      : theme.colors.readerFont.toString(),
+    readerFontColor:
+      highContrastTextOverride != undefined
+        ? textColorValue(highContrastTextOverride)
+        : textColorValue(props.highContrastText ?? false),
     readerTableHeaderColor: theme.colors.readerTableHeader.toString(),
     readerHeadersColor: theme.colors.readerFont.toString(),
   }
@@ -351,7 +362,10 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           minHeight: '100vh',
           maxWidth: `${styles.maxWidthPercentage ?? 100}%`,
           background: theme.colors.readerBg.toString(),
-          '--text-align': justifyText ? 'justify' : 'start',
+          '--text-align':
+            justifyTextOverride != undefined
+              ? justifyTextValue(justifyTextOverride)
+              : justifyTextValue(props.justifyText ?? false),
           '--text-font-family': styles.fontFamily,
           '--text-font-size': `${styles.fontSize}px`,
           '--line-height': `${styles.lineHeight}%`,
