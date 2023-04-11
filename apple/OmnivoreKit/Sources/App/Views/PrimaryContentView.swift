@@ -12,17 +12,21 @@ public struct PrimaryContentView: View {
   public var body: some View {
     #if os(iOS)
       if UIDevice.isIPad {
-        splitView
+        if #available(iOS 16.0, *) {
+          RootSplitView()
+        } else {
+          splitViewDeprecated
+        }
       } else {
         HomeView()
       }
     #elseif os(macOS)
-      splitView
+      splitViewMac
     #endif
   }
 
   #if os(macOS)
-    private var splitView: some View {
+    private var splitViewMac: some View {
       NavigationView {
         PrimaryContentCategory.feed.destinationView
         Text(LocalText.navigationSelectLink)
@@ -32,7 +36,7 @@ public struct PrimaryContentView: View {
   #endif
 
   #if os(iOS)
-    private var splitView: some View {
+    private var splitViewDeprecated: some View {
       NavigationView {
         // The first column is the sidebar.
         PrimaryContentSidebar(categories: categories)
