@@ -3,7 +3,7 @@ import Utils
 import Views
 
 struct HomeView: View {
-  @StateObject private var viewModel = HomeFeedViewModel()
+  @StateObject private var viewModel = LibraryViewModel()
 
   #if os(iOS)
     var navView: some View {

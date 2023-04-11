@@ -639,7 +639,7 @@ struct ScrollViewOffsetPreferenceKey: PreferenceKey {
 #if os(iOS)
   // Allows us to present a sheet without animation
   // Used to configure full screen modal view coming from share extension read now button action
-  private extension View {
+  extension View {
     func withoutAnimation(_ completion: @escaping () -> Void) {
       UIView.setAnimationsEnabled(false)
       completion()
