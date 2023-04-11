@@ -62,6 +62,7 @@ struct WebReader: PlatformViewRepresentable {
       webView.scrollView.contentInset.top = readerViewNavBarHeight
       webView.scrollView.verticalScrollIndicatorInsets.top = readerViewNavBarHeight
       webView.configuration.userContentController.add(webView, name: "viewerAction")
+
       webView.scrollView.indicatorStyle = ThemeManager.currentTheme.isDark ?
         UIScrollView.IndicatorStyle.white :
         UIScrollView.IndicatorStyle.black
@@ -113,6 +114,10 @@ struct WebReader: PlatformViewRepresentable {
       (webView as? OmnivoreWebView)?.updateLabels(labelsJSON: item.labelsJSONString)
       (webView as? OmnivoreWebView)?.updateTitle(title: item.title ?? "")
       (webView as? OmnivoreWebView)?.updateJustifyText()
+
+      webView.backgroundColor = UIColor(ThemeManager.currentBgColor)
+      webView.underPageBackgroundColor = UIColor(ThemeManager.currentBgColor)
+      webView.scrollView.backgroundColor = UIColor(ThemeManager.currentBgColor)
       webView.scrollView.indicatorStyle = ThemeManager.currentTheme.isDark ?
         UIScrollView.IndicatorStyle.white :
         UIScrollView.IndicatorStyle.black
