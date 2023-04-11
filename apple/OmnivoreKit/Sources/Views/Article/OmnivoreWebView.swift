@@ -222,7 +222,6 @@ public final class OmnivoreWebView: WKWebView {
         }
 
       case "pageTapped":
-        print("currentMenu: ", currentMenu, "menuDisplayed", menuDisplayed)
         if menuDisplayed {
           hideMenuAndDismissHighlight()
           break
