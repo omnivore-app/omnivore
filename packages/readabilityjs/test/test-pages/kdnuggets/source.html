@@ -1,0 +1,1970 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head profile="https://gmpg.org/xfn/11">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <script type="text/javascript" async="async" src="https://www.google-analytics.com/plugins/ua/linkid.js"></script>
+        <script type="text/javascript" async="async" src="https://www.google-analytics.com/analytics.js"></script>
+        <script type="text/javascript" async="async" src="https://www.googletagmanager.com/gtag/js?id=G-67L1RV734X&amp;l=dataLayer&amp;cx=c"></script>
+        <script>
+        <![CDATA[
+        if(navigator.userAgent.match(/MSIE|Internet Explorer/i)||navigator.userAgent.match(/Trident\/7\..*?rv:11/i)){var href=document.location.href;if(!href.match(/[?&]nowprocket/)){if(href.indexOf("?")==-1){if(href.indexOf("#")==-1){document.location.href=href+"?nowprocket=1"}else{document.location.href=href.replace("#","?nowprocket=1#")}}else{if(href.indexOf("#")==-1){document.location.href=href+"&nowprocket=1"}else{document.location.href=href.replace("#","&nowprocket=1#")}}}}
+        ]]>
+        </script>
+        <script>
+        <![CDATA[
+        class RocketLazyLoadScripts{constructor(){this.triggerEvents=["keydown","mousedown","mousemove","touchmove","touchstart","touchend","wheel"],this.userEventHandler=this._triggerListener.bind(this),this.touchStartHandler=this._onTouchStart.bind(this),this.touchMoveHandler=this._onTouchMove.bind(this),this.touchEndHandler=this._onTouchEnd.bind(this),this.clickHandler=this._onClick.bind(this),this.interceptedClicks=[],window.addEventListener("pageshow",e=>{this.persisted=e.persisted}),window.addEventListener("DOMContentLoaded",()=>{this._preconnect3rdParties()}),this.delayedScripts={normal:[],async:[],defer:[]},this.trash=[],this.allJQueries=[]}_addUserInteractionListener(e){if(document.hidden){e._triggerListener();return}this.triggerEvents.forEach(t=>window.addEventListener(t,e.userEventHandler,{passive:!0})),window.addEventListener("touchstart",e.touchStartHandler,{passive:!0}),window.addEventListener("mousedown",e.touchStartHandler),document.addEventListener("visibilitychange",e.userEventHandler)}_removeUserInteractionListener(){this.triggerEvents.forEach(e=>window.removeEventListener(e,this.userEventHandler,{passive:!0})),document.removeEventListener("visibilitychange",this.userEventHandler)}_onTouchStart(e){"HTML"!==e.target.tagName&&(window.addEventListener("touchend",this.touchEndHandler),window.addEventListener("mouseup",this.touchEndHandler),window.addEventListener("touchmove",this.touchMoveHandler,{passive:!0}),window.addEventListener("mousemove",this.touchMoveHandler),e.target.addEventListener("click",this.clickHandler),this._renameDOMAttribute(e.target,"onclick","rocket-onclick"),this._pendingClickStarted())}_onTouchMove(e){window.removeEventListener("touchend",this.touchEndHandler),window.removeEventListener("mouseup",this.touchEndHandler),window.removeEventListener("touchmove",this.touchMoveHandler,{passive:!0}),window.removeEventListener("mousemove",this.touchMoveHandler),e.target.removeEventListener("click",this.clickHandler),this._renameDOMAttribute(e.target,"rocket-onclick","onclick"),this._pendingClickFinished()}_onTouchEnd(e){window.removeEventListener("touchend",this.touchEndHandler),window.removeEventListener("mouseup",this.touchEndHandler),window.removeEventListener("touchmove",this.touchMoveHandler,{passive:!0}),window.removeEventListener("mousemove",this.touchMoveHandler)}_onClick(e){e.target.removeEventListener("click",this.clickHandler),this._renameDOMAttribute(e.target,"rocket-onclick","onclick"),this.interceptedClicks.push(e),e.preventDefault(),e.stopPropagation(),e.stopImmediatePropagation(),this._pendingClickFinished()}_replayClicks(){window.removeEventListener("touchstart",this.touchStartHandler,{passive:!0}),window.removeEventListener("mousedown",this.touchStartHandler),this.interceptedClicks.forEach(e=>{e.target.dispatchEvent(new MouseEvent("click",{view:e.view,bubbles:!0,cancelable:!0}))})}_waitForPendingClicks(){return new Promise(e=>{this._isClickPending?this._pendingClickFinished=e:e()})}_pendingClickStarted(){this._isClickPending=!0}_pendingClickFinished(){this._isClickPending=!1}_renameDOMAttribute(e,t,i){e.hasAttribute&&e.hasAttribute(t)&&(event.target.setAttribute(i,event.target.getAttribute(t)),event.target.removeAttribute(t))}_triggerListener(){this._removeUserInteractionListener(this),"loading"===document.readyState?document.addEventListener("DOMContentLoaded",this._loadEverythingNow.bind(this)):this._loadEverythingNow()}_preconnect3rdParties(){let e=[];document.querySelectorAll("script[type=rocketlazyloadscript]").forEach(t=>{if(t.hasAttribute("src")){let i=new URL(t.src).origin;i!==location.origin&&e.push({src:i,crossOrigin:t.crossOrigin||"module"===t.getAttribute("data-rocket-type")})}}),e=[...new Map(e.map(e=>[JSON.stringify(e),e])).values()],this._batchInjectResourceHints(e,"preconnect")}async _loadEverythingNow(){this.lastBreath=Date.now(),this._delayEventListeners(this),this._delayJQueryReady(this),this._handleDocumentWrite(),this._registerAllDelayedScripts(),this._preloadAllScripts(),await this._loadScriptsFromList(this.delayedScripts.normal),await this._loadScriptsFromList(this.delayedScripts.defer),await this._loadScriptsFromList(this.delayedScripts.async);try{await this._triggerDOMContentLoaded(),await this._triggerWindowLoad()}catch(e){console.error(e)}window.dispatchEvent(new Event("rocket-allScriptsLoaded")),this._waitForPendingClicks().then(()=>{this._replayClicks()}),this._emptyTrash()}_registerAllDelayedScripts(){document.querySelectorAll("script[type=rocketlazyloadscript]").forEach(e=>{e.hasAttribute("data-rocket-src")?e.hasAttribute("async")&&!1!==e.async?this.delayedScripts.async.push(e):e.hasAttribute("defer")&&!1!==e.defer||"module"===e.getAttribute("data-rocket-type")?this.delayedScripts.defer.push(e):this.delayedScripts.normal.push(e):this.delayedScripts.normal.push(e)})}async _transformScript(e){return await this._littleBreath(),new Promise(t=>{function i(){e.setAttribute("data-rocket-status","executed"),t()}function r(){e.setAttribute("data-rocket-status","failed"),t()}try{let n=e.getAttribute("data-rocket-type"),s=e.getAttribute("data-rocket-src");if(n?(e.type=n,e.removeAttribute("data-rocket-type")):e.removeAttribute("type"),e.addEventListener("load",i),e.addEventListener("error",r),s)e.src=s,e.removeAttribute("data-rocket-src");else if(navigator.userAgent.indexOf("Firefox/")>0){var a=document.createElement("script");[...e.attributes].forEach(e=>{"type"!==e.nodeName&&a.setAttribute("data-rocket-type"===e.nodeName?"type":e.nodeName,e.nodeValue)}),a.text=e.text,e.parentNode.replaceChild(a,e),i()}else e.src="data:text/javascript;base64,"+window.btoa(unescape(encodeURIComponent(e.text)))}catch(o){r()}})}async _loadScriptsFromList(e){let t=e.shift();return t&&t.isConnected?(await this._transformScript(t),this._loadScriptsFromList(e)):Promise.resolve()}_preloadAllScripts(){this._batchInjectResourceHints([...this.delayedScripts.normal,...this.delayedScripts.defer,...this.delayedScripts.async],"preload")}_batchInjectResourceHints(e,t){var i=document.createDocumentFragment();e.forEach(e=>{let r=e.getAttribute&&e.getAttribute("data-rocket-src")||e.src;if(r){let n=document.createElement("link");n.href=r,n.rel=t,"preconnect"!==t&&(n.as="script"),e.getAttribute&&"module"===e.getAttribute("data-rocket-type")&&(n.crossOrigin=!0),e.crossOrigin&&(n.crossOrigin=e.crossOrigin),e.integrity&&(n.integrity=e.integrity),i.appendChild(n),this.trash.push(n)}}),document.head.appendChild(i)}_delayEventListeners(e){let t={};function i(e,i){!function e(i){!t[i]&&(t[i]={originalFunctions:{add:i.addEventListener,remove:i.removeEventListener},eventsToRewrite:[]},i.addEventListener=function(){arguments[0]=r(arguments[0]),t[i].originalFunctions.add.apply(i,arguments)},i.removeEventListener=function(){arguments[0]=r(arguments[0]),t[i].originalFunctions.remove.apply(i,arguments)});function r(e){return t[i].eventsToRewrite.indexOf(e)>=0?"rocket-"+e:e}}(e),t[e].eventsToRewrite.push(i)}function r(e,t){let i=e[t];Object.defineProperty(e,t,{get:()=>i||function(){},set(r){e["rocket"+t]=i=r}})}i(document,"DOMContentLoaded"),i(window,"DOMContentLoaded"),i(window,"load"),i(window,"pageshow"),i(document,"readystatechange"),r(document,"onreadystatechange"),r(window,"onload"),r(window,"onpageshow")}_delayJQueryReady(e){let t;function i(i){if(i&&i.fn&&!e.allJQueries.includes(i)){i.fn.ready=i.fn.init.prototype.ready=function(t){return e.domReadyFired?t.bind(document)(i):document.addEventListener("rocket-DOMContentLoaded",()=>t.bind(document)(i)),i([])};let r=i.fn.on;i.fn.on=i.fn.init.prototype.on=function(){if(this[0]===window){function e(e){return e.split(" ").map(e=>"load"===e||0===e.indexOf("load.")?"rocket-jquery-load":e).join(" ")}"string"==typeof arguments[0]||arguments[0]instanceof String?arguments[0]=e(arguments[0]):"object"==typeof arguments[0]&&Object.keys(arguments[0]).forEach(t=>{delete Object.assign(arguments[0],{[e(t)]:arguments[0][t]})[t]})}return r.apply(this,arguments),this},e.allJQueries.push(i)}t=i}i(window.jQuery),Object.defineProperty(window,"jQuery",{get:()=>t,set(e){i(e)}})}async _triggerDOMContentLoaded(){this.domReadyFired=!0,await this._littleBreath(),document.dispatchEvent(new Event("rocket-DOMContentLoaded")),await this._littleBreath(),window.dispatchEvent(new Event("rocket-DOMContentLoaded")),await this._littleBreath(),document.dispatchEvent(new Event("rocket-readystatechange")),await this._littleBreath(),document.rocketonreadystatechange&&document.rocketonreadystatechange()}async _triggerWindowLoad(){await this._littleBreath(),window.dispatchEvent(new Event("rocket-load")),await this._littleBreath(),window.rocketonload&&window.rocketonload(),await this._littleBreath(),this.allJQueries.forEach(e=>e(window).trigger("rocket-jquery-load")),await this._littleBreath();let e=new Event("rocket-pageshow");e.persisted=this.persisted,window.dispatchEvent(e),await this._littleBreath(),window.rocketonpageshow&&window.rocketonpageshow({persisted:this.persisted})}_handleDocumentWrite(){let e=new Map;document.write=document.writeln=function(t){let i=document.currentScript;i||console.error("WPRocket unable to document.write this: "+t);let r=document.createRange(),n=i.parentElement,s=e.get(i);void 0===s&&(s=i.nextSibling,e.set(i,s));let a=document.createDocumentFragment();r.setStart(a,0),a.appendChild(r.createContextualFragment(t)),n.insertBefore(a,s)}}async _littleBreath(){Date.now()-this.lastBreath>45&&(await this._requestAnimFrame(),this.lastBreath=Date.now())}async _requestAnimFrame(){return document.hidden?new Promise(e=>setTimeout(e)):new Promise(e=>requestAnimationFrame(e))}_emptyTrash(){this.trash.forEach(e=>e.remove())}static run(){let e=new RocketLazyLoadScripts;e._addUserInteractionListener(e)}}RocketLazyLoadScripts.run();
+        ]]>
+        </script>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>
+            Text Summarization Development: A Python Tutorial with GPT-3.5 - KDnuggets
+        </title>
+        <link rel="stylesheet" href="//www.kdnuggets.com/wp-content/cache/min/1/6635581248d5437c844c08504deca20a.css" media="all" data-minify="1" />
+        <link rel="shortcut icon" href="/wp-content/themes/kdn17/images/favicon.ico" />
+        <link rel="alternate" type="application/rss+xml" title="KDnuggets: AI, Analytics, Data Science, Machine Learning Feed" href="/feed/" />
+        <meta name="description" content="Utilizing the power of GPT-3.5 to develop a simple summarize generator application." />
+        <meta name="robots" content="index, follow" />
+        <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+        <meta name="bingbot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+        <link rel="canonical" href="//www.kdnuggets.com/2023/04/text-summarization-development-python-tutorial-gpt35.html" />
+        <meta property="og:url" content="https://www.kdnuggets.com/text-summarization-development-a-python-tutorial-with-gpt-3-5.html" />
+        <meta property="og:site_name" content="KDnuggets" />
+        <meta property="og:locale" content="en_US" />
+        <meta property="og:type" content="article" />
+        <meta property="article:author" content="https://www.facebook.com/kdnuggets" />
+        <meta property="article:publisher" content="https://www.facebook.com/kdnuggets" />
+        <meta property="article:section" content="KDnuggets Evergreen" />
+        <meta property="article:tag" content="Natural Language Processing" />
+        <meta property="og:title" content="Text Summarization Development: A Python Tutorial with GPT-3.5 - KDnuggets" />
+        <meta property="og:description" content="Utilizing the power of GPT-3.5 to develop a simple summarize generator application." />
+        <meta property="og:image" content="https://www.kdnuggets.com/wp-content/uploads/wijaya_text_summarization_development_python_tutorial_gpt35_3.jpg" />
+        <meta property="og:image:secure_url" content="https://www.kdnuggets.com/wp-content/uploads/wijaya_text_summarization_development_python_tutorial_gpt35_3.jpg" />
+        <meta property="og:image:width" content="1999" />
+        <meta property="og:image:height" content="1335" />
+        <meta property="og:image:alt" content="Text Summarization Development: A Python Tutorial with GPT-3.5" />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:site" content="@kdnuggets" />
+        <meta name="twitter:creator" content="@kdnuggets" />
+        <meta name="twitter:title" content="Text Summarization Development: A Python Tutorial with GPT-3.5 - KDnuggets" />
+        <meta name="twitter:description" content="Utilizing the power of GPT-3.5 to develop a simple summarize generator application." />
+        <meta name="twitter:image" content="https://www.kdnuggets.com/wp-content/uploads/wijaya_text_summarization_development_python_tutorial_gpt35_3-1024x684.jpg" />
+        <link rel="alternate" type="application/rss+xml" title="KDnuggets » Feed" href="//www.kdnuggets.com/feed" />
+        <link rel="alternate" type="application/rss+xml" title="KDnuggets » Comments Feed" href="//www.kdnuggets.com/comments/feed" />
+        <link rel="alternate" type="application/rss+xml" title="KDnuggets » Text Summarization Development: A Python Tutorial with GPT-3.5 Comments Feed" href="//www.kdnuggets.com/2023/04/text-summarization-development-python-tutorial-gpt35.html/feed" />
+        <script src="//www.googletagmanager.com/gtag/js?id=UA-361129-1" data-cfasync="false" data-wpfc-render="false" type="text/javascript" async="async"></script>
+        <script data-cfasync="false" data-wpfc-render="false" type="text/javascript">
+        //<![CDATA[
+                                var mi_version = '8.12.1';
+                                var mi_track_user = true;
+                                var mi_no_track_reason = '';
+                                
+                                                                var disableStrs = [
+                                                                                'ga-disable-G-67L1RV734X',
+                                                                                                                        'ga-disable-UA-361129-1',
+                                                                        ];
+
+                                /* Function to detect opted out users */
+                                function __gtagTrackerIsOptedOut() {
+                                        for (var index = 0; index < disableStrs.length; index++) {
+                                                if (document.cookie.indexOf(disableStrs[index] + '=true') > -1) {
+                                                        return true;
+                                                }
+                                        }
+
+                                        return false;
+                                }
+
+                                /* Disable tracking if the opt-out cookie exists. */
+                                if (__gtagTrackerIsOptedOut()) {
+                                        for (var index = 0; index < disableStrs.length; index++) {
+                                                window[disableStrs[index]] = true;
+                                        }
+                                }
+
+                                /* Opt-out function */
+                                function __gtagTrackerOptout() {
+                                        for (var index = 0; index < disableStrs.length; index++) {
+                                                document.cookie = disableStrs[index] + '=true; expires=Thu, 31 Dec 2099 23:59:59 UTC; path=/';
+                                                window[disableStrs[index]] = true;
+                                        }
+                                }
+
+                                if ('undefined' === typeof gaOptout) {
+                                        function gaOptout() {
+                                                __gtagTrackerOptout();
+                                        }
+                                }
+                                                                window.dataLayer = window.dataLayer || [];
+
+                                window.MonsterInsightsDualTracker = {
+                                        helpers: {},
+                                        trackers: {},
+                                };
+                                if (mi_track_user) {
+                                        function __gtagDataLayer() {
+                                                dataLayer.push(arguments);
+                                        }
+
+                                        function __gtagTracker(type, name, parameters) {
+                                                if (!parameters) {
+                                                        parameters = {};
+                                                }
+
+                                                if (parameters.send_to) {
+                                                        __gtagDataLayer.apply(null, arguments);
+                                                        return;
+                                                }
+
+                                                if (type === 'event') {
+                                                                                                                parameters.send_to = monsterinsights_frontend.v4_id;
+                                                        var hookName = name;
+                                                        if (typeof parameters['event_category'] !== 'undefined') {
+                                                                hookName = parameters['event_category'] + ':' + name;
+                                                        }
+
+                                                        if (typeof MonsterInsightsDualTracker.trackers[hookName] !== 'undefined') {
+                                                                MonsterInsightsDualTracker.trackers[hookName](parameters);
+                                                        } else {
+                                                                __gtagDataLayer('event', name, parameters);
+                                                        }
+                                                        
+                                                                                                                parameters.send_to = monsterinsights_frontend.ua;
+                                                        __gtagDataLayer(type, name, parameters);
+                                                                                                        } else {
+                                                        __gtagDataLayer.apply(null, arguments);
+                                                }
+                                        }
+
+                                        __gtagTracker('js', new Date());
+                                        __gtagTracker('set', {
+                                                'developer_id.dZGIzZG': true,
+                                                                                        });
+                                                                                __gtagTracker('config', 'G-67L1RV734X', {"forceSSL":"true","link_attribution":"true","tags":"Natural Language Processing","category":"kdnuggets-evergreen,kdnuggets-originals","author":"Cornellius Yudha Wijaya","post_type":"post"} );
+                                                                                                                        __gtagTracker('config', 'UA-361129-1', {"forceSSL":"true","link_attribution":"true","dimension1":"Natural Language Processing","dimension2":"kdnuggets-evergreen,kdnuggets-originals","dimension3":"Cornellius Yudha Wijaya","dimension4":"post"} );
+                                                                                window.gtag = __gtagTracker;                                                                            (function () {
+                                                /* https://developers.google.com/analytics/devguides/collection/analyticsjs/ */
+                                                /* ga and __gaTracker compatibility shim. */
+                                                var noopfn = function () {
+                                                        return null;
+                                                };
+                                                var newtracker = function () {
+                                                        return new Tracker();
+                                                };
+                                                var Tracker = function () {
+                                                        return null;
+                                                };
+                                                var p = Tracker.prototype;
+                                                p.get = noopfn;
+                                                p.set = noopfn;
+                                                p.send = function () {
+                                                        var args = Array.prototype.slice.call(arguments);
+                                                        args.unshift('send');
+                                                        __gaTracker.apply(null, args);
+                                                };
+                                                var __gaTracker = function () {
+                                                        var len = arguments.length;
+                                                        if (len === 0) {
+                                                                return;
+                                                        }
+                                                        var f = arguments[len - 1];
+                                                        if (typeof f !== 'object' || f === null || typeof f.hitCallback !== 'function') {
+                                                                if ('send' === arguments[0]) {
+                                                                        var hitConverted, hitObject = false, action;
+                                                                        if ('event' === arguments[1]) {
+                                                                                if ('undefined' !== typeof arguments[3]) {
+                                                                                        hitObject = {
+                                                                                                'eventAction': arguments[3],
+                                                                                                'eventCategory': arguments[2],
+                                                                                                'eventLabel': arguments[4],
+                                                                                                'value': arguments[5] ? arguments[5] : 1,
+                                                                                        }
+                                                                                }
+                                                                        }
+                                                                        if ('pageview' === arguments[1]) {
+                                                                                if ('undefined' !== typeof arguments[2]) {
+                                                                                        hitObject = {
+                                                                                                'eventAction': 'page_view',
+                                                                                                'page_path': arguments[2],
+                                                                                        }
+                                                                                }
+                                                                        }
+                                                                        if (typeof arguments[2] === 'object') {
+                                                                                hitObject = arguments[2];
+                                                                        }
+                                                                        if (typeof arguments[5] === 'object') {
+                                                                                Object.assign(hitObject, arguments[5]);
+                                                                        }
+                                                                        if ('undefined' !== typeof arguments[1].hitType) {
+                                                                                hitObject = arguments[1];
+                                                                                if ('pageview' === hitObject.hitType) {
+                                                                                        hitObject.eventAction = 'page_view';
+                                                                                }
+                                                                        }
+                                                                        if (hitObject) {
+                                                                                action = 'timing' === arguments[1].hitType ? 'timing_complete' : hitObject.eventAction;
+                                                                                hitConverted = mapArgs(hitObject);
+                                                                                __gtagTracker('event', action, hitConverted);
+                                                                        }
+                                                                }
+                                                                return;
+                                                        }
+
+                                                        function mapArgs(args) {
+                                                                var arg, hit = {};
+                                                                var gaMap = {
+                                                                        'eventCategory': 'event_category',
+                                                                        'eventAction': 'event_action',
+                                                                        'eventLabel': 'event_label',
+                                                                        'eventValue': 'event_value',
+                                                                        'nonInteraction': 'non_interaction',
+                                                                        'timingCategory': 'event_category',
+                                                                        'timingVar': 'name',
+                                                                        'timingValue': 'value',
+                                                                        'timingLabel': 'event_label',
+                                                                        'page': 'page_path',
+                                                                        'location': 'page_location',
+                                                                        'title': 'page_title',
+                                                                };
+                                                                for (arg in args) {
+                                                                                                                                                if (!(!args.hasOwnProperty(arg) || !gaMap.hasOwnProperty(arg))) {
+                                                                                hit[gaMap[arg]] = args[arg];
+                                                                        } else {
+                                                                                hit[arg] = args[arg];
+                                                                        }
+                                                                }
+                                                                return hit;
+                                                        }
+
+                                                        try {
+                                                                f.hitCallback();
+                                                        } catch (ex) {
+                                                        }
+                                                };
+                                                __gaTracker.create = newtracker;
+                                                __gaTracker.getByName = newtracker;
+                                                __gaTracker.getAll = function () {
+                                                        return [];
+                                                };
+                                                __gaTracker.remove = noopfn;
+                                                __gaTracker.loaded = true;
+                                                window['__gaTracker'] = __gaTracker;
+                                        })();
+                                                                        } else {
+                                                                                console.log("");
+                                        (function () {
+                                                function __gtagTracker() {
+                                                        return null;
+                                                }
+
+                                                window['__gtagTracker'] = __gtagTracker;
+                                                window['gtag'] = __gtagTracker;
+                                        })();
+                                                                        }
+        //]]>
+        </script>
+        <script id="kdnug-ready">
+        <![CDATA[
+                        window.advanced_ads_ready=function(e,a){a=a||"complete";var d=function(e){return"interactive"===a?"loading"!==e:"complete"===e};d(document.readyState)?e():document.addEventListener("readystatechange",(function(a){d(a.target.readyState)&&e()}),{once:"interactive"===a})},window.advanced_ads_ready_queue=window.advanced_ads_ready_queue||[];              
+        ]]>
+        </script>
+        <style id="global-styles-inline-css" type="text/css">
+        /*<![CDATA[*/
+        body{--wp--preset--color--black: #000000;--wp--preset--color--cyan-bluish-gray: #abb8c3;--wp--preset--color--white: #ffffff;--wp--preset--color--pale-pink: #f78da7;--wp--preset--color--vivid-red: #cf2e2e;--wp--preset--color--luminous-vivid-orange: #ff6900;--wp--preset--color--luminous-vivid-amber: #fcb900;--wp--preset--color--light-green-cyan: #7bdcb5;--wp--preset--color--vivid-green-cyan: #00d084;--wp--preset--color--pale-cyan-blue: #8ed1fc;--wp--preset--color--vivid-cyan-blue: #0693e3;--wp--preset--color--vivid-purple: #9b51e0;--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg,rgba(6,147,227,1) 0%,rgb(155,81,224) 100%);--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%);--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg,rgba(252,185,0,1) 0%,rgba(255,105,0,1) 100%);--wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg,rgba(255,105,0,1) 0%,rgb(207,46,46) 100%);--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%);--wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg,rgb(74,234,220) 0%,rgb(151,120,209) 20%,rgb(207,42,186) 40%,rgb(238,44,130) 60%,rgb(251,105,98) 80%,rgb(254,248,76) 100%);--wp--preset--gradient--blush-light-purple: linear-gradient(135deg,rgb(255,206,236) 0%,rgb(152,150,240) 100%);--wp--preset--gradient--blush-bordeaux: linear-gradient(135deg,rgb(254,205,165) 0%,rgb(254,45,45) 50%,rgb(107,0,62) 100%);--wp--preset--gradient--luminous-dusk: linear-gradient(135deg,rgb(255,203,112) 0%,rgb(199,81,192) 50%,rgb(65,88,208) 100%);--wp--preset--gradient--pale-ocean: linear-gradient(135deg,rgb(255,245,203) 0%,rgb(182,227,212) 50%,rgb(51,167,181) 100%);--wp--preset--gradient--electric-grass: linear-gradient(135deg,rgb(202,248,128) 0%,rgb(113,206,126) 100%);--wp--preset--gradient--midnight: linear-gradient(135deg,rgb(2,3,129) 0%,rgb(40,116,252) 100%);--wp--preset--duotone--dark-grayscale: url('#wp-duotone-dark-grayscale');--wp--preset--duotone--grayscale: url('#wp-duotone-grayscale');--wp--preset--duotone--purple-yellow: url('#wp-duotone-purple-yellow');--wp--preset--duotone--blue-red: url('#wp-duotone-blue-red');--wp--preset--duotone--midnight: url('#wp-duotone-midnight');--wp--preset--duotone--magenta-yellow: url('#wp-duotone-magenta-yellow');--wp--preset--duotone--purple-green: url('#wp-duotone-purple-green');--wp--preset--duotone--blue-orange: url('#wp-duotone-blue-orange');--wp--preset--font-size--small: 13px;--wp--preset--font-size--medium: 20px;--wp--preset--font-size--large: 36px;--wp--preset--font-size--x-large: 42px;--wp--preset--spacing--20: 0.44rem;--wp--preset--spacing--30: 0.67rem;--wp--preset--spacing--40: 1rem;--wp--preset--spacing--50: 1.5rem;--wp--preset--spacing--60: 2.25rem;--wp--preset--spacing--70: 3.38rem;--wp--preset--spacing--80: 5.06rem;}:where(.is-layout-flex){gap: 0.5em;}body .is-layout-flow > .alignleft{float: left;margin-inline-start: 0;margin-inline-end: 2em;}body .is-layout-flow > .alignright{float: right;margin-inline-start: 2em;margin-inline-end: 0;}body .is-layout-flow > .aligncenter{margin-left: auto !important;margin-right: auto !important;}body .is-layout-constrained > .alignleft{float: left;margin-inline-start: 0;margin-inline-end: 2em;}body .is-layout-constrained > .alignright{float: right;margin-inline-start: 2em;margin-inline-end: 0;}body .is-layout-constrained > .aligncenter{margin-left: auto !important;margin-right: auto !important;}body .is-layout-constrained > :where(:not(.alignleft):not(.alignright):not(.alignfull)){max-width: var(--wp--style--global--content-size);margin-left: auto !important;margin-right: auto !important;}body .is-layout-constrained > .alignwide{max-width: var(--wp--style--global--wide-size);}body .is-layout-flex{display: flex;}body .is-layout-flex{flex-wrap: wrap;align-items: center;}body .is-layout-flex > *{margin: 0;}:where(.wp-block-columns.is-layout-flex){gap: 2em;}.has-black-color{color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-color{color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-color{color: var(--wp--preset--color--white) !important;}.has-pale-pink-color{color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-color{color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-color{color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-color{color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-color{color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-color{color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-color{color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-color{color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-color{color: var(--wp--preset--color--vivid-purple) !important;}.has-black-background-color{background-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-background-color{background-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-background-color{background-color: var(--wp--preset--color--white) !important;}.has-pale-pink-background-color{background-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-background-color{background-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-background-color{background-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-background-color{background-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-background-color{background-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-background-color{background-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-background-color{background-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-background-color{background-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-background-color{background-color: var(--wp--preset--color--vivid-purple) !important;}.has-black-border-color{border-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-border-color{border-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-border-color{border-color: var(--wp--preset--color--white) !important;}.has-pale-pink-border-color{border-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-border-color{border-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-border-color{border-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-border-color{border-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-border-color{border-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-border-color{border-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-border-color{border-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-border-color{border-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-border-color{border-color: var(--wp--preset--color--vivid-purple) !important;}.has-vivid-cyan-blue-to-vivid-purple-gradient-background{background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple) !important;}.has-light-green-cyan-to-vivid-green-cyan-gradient-background{background: var(--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan) !important;}.has-luminous-vivid-amber-to-luminous-vivid-orange-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange) !important;}.has-luminous-vivid-orange-to-vivid-red-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-orange-to-vivid-red) !important;}.has-very-light-gray-to-cyan-bluish-gray-gradient-background{background: var(--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray) !important;}.has-cool-to-warm-spectrum-gradient-background{background: var(--wp--preset--gradient--cool-to-warm-spectrum) !important;}.has-blush-light-purple-gradient-background{background: var(--wp--preset--gradient--blush-light-purple) !important;}.has-blush-bordeaux-gradient-background{background: var(--wp--preset--gradient--blush-bordeaux) !important;}.has-luminous-dusk-gradient-background{background: var(--wp--preset--gradient--luminous-dusk) !important;}.has-pale-ocean-gradient-background{background: var(--wp--preset--gradient--pale-ocean) !important;}.has-electric-grass-gradient-background{background: var(--wp--preset--gradient--electric-grass) !important;}.has-midnight-gradient-background{background: var(--wp--preset--gradient--midnight) !important;}.has-small-font-size{font-size: var(--wp--preset--font-size--small) !important;}.has-medium-font-size{font-size: var(--wp--preset--font-size--medium) !important;}.has-large-font-size{font-size: var(--wp--preset--font-size--large) !important;}.has-x-large-font-size{font-size: var(--wp--preset--font-size--x-large) !important;}
+        .wp-block-navigation a:where(:not(.wp-element-button)){color: inherit;}
+        :where(.wp-block-columns.is-layout-flex){gap: 2em;}
+        .wp-block-pullquote{font-size: 1.5em;line-height: 1.6;}
+        /*]]>*/
+        </style>
+        <script type="rocketlazyloadscript" data-rocket-type="text/javascript" data-rocket-src="//www.kdnuggets.com/wp-content/plugins/google-analytics-premium/assets/js/frontend-gtag.min.js?ver=8.12.1" id="monsterinsights-frontend-script-js" defer="defer"></script>
+        <script data-cfasync="false" data-wpfc-render="false" type="text/javascript" id="monsterinsights-frontend-script-js-extra">
+        /* <![CDATA[ */
+        var monsterinsights_frontend = {"js_events_tracking":"true","download_extensions":"doc,pdf,ppt,zip,xls,docx,pptx,xlsx","inbound_paths":"[{\"path\":\"\\\/go\\\/\",\"label\":\"affiliate\"},{\"path\":\"\\\/recommend\\\/\",\"label\":\"affiliate\"}]","home_url":"https:\/\/www.kdnuggets.com","hash_tracking":"false","ua":"UA-361129-1","v4_id":"G-67L1RV734X"};/* ]]> */
+        </script>
+        <script type="text/javascript" src="//www.kdnuggets.com/wp-includes/js/jquery/jquery.min.js?ver=3.6.1" id="jquery-core-js"></script>
+        <script type="text/javascript" src="//www.kdnuggets.com/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.3.2" id="jquery-migrate-js"></script>
+        <script type="text/javascript" id="advanced-ads-advanced-js-js-extra">
+        /* <![CDATA[ */
+        var advads_options = {"blog_id":"1","privacy":{"enabled":false,"state":"not_needed"}};
+        /* ]]> */
+        </script>
+        <script type="text/javascript" src="//www.kdnuggets.com/wp-content/plugins/advanced-ads/public/assets/js/advanced.min.js?ver=1.39.4" id="advanced-ads-advanced-js-js"></script>
+        <script type="text/javascript" id="advanced_ads_pro/visitor_conditions-js-extra">
+        /* <![CDATA[ */
+        var advanced_ads_pro_visitor_conditions = {"referrer_cookie_name":"advanced_ads_pro_visitor_referrer","referrer_exdays":"365","page_impr_cookie_name":"advanced_ads_page_impressions","page_impr_exdays":"3650"};
+        /* ]]> */
+        </script>
+        <script data-minify="1" type="text/javascript" src="//www.kdnuggets.com/wp-content/cache/min/1/wp-content/uploads/947/173/594/242/8/945.js?ver=1680701406" id="advanced_ads_pro/visitor_conditions-js"></script>
+        <link rel="https://api.w.org/" href="//www.kdnuggets.com/wp-json/" />
+        <link rel="alternate" type="application/json" href="//www.kdnuggets.com/wp-json/wp/v2/posts/153498" />
+        <link rel="EditURI" type="application/rsd+xml" title="RSD" href="//www.kdnuggets.com/xmlrpc.php?rsd" />
+        <link rel="wlwmanifest" type="application/wlwmanifest+xml" href="//www.kdnuggets.com/wp-includes/wlwmanifest.xml" />
+        <meta name="generator" content="WordPress 6.1.1" />
+        <link rel="shortlink" href="//www.kdnuggets.com/?p=153498" />
+        <script type="text/javascript">
+        //<![CDATA[
+                var advadsCfpQueue = [];
+                var advadsCfpAd = function( adID ){
+                        if ( 'undefined' == typeof advadsProCfp ) { advadsCfpQueue.push( adID ) } else { advadsProCfp.addElement( adID ) }
+                };
+        //]]>
+        </script>
+        <script type="text/javascript">
+        //<![CDATA[
+                        if ( typeof advadsGATracking === 'undefined' ) {
+                                window.advadsGATracking = {
+                                        delayedAds: {},
+                                        deferedAds: {}
+                                };
+                        }
+        //]]>
+        </script>
+        <style type="text/css" id="wp-custom-css">
+        /*<![CDATA[*/
+                        div.latn, table.latn, table.thb {
+        border-width: 0px;
+        border-color: #ffffff;
+        }
+        #content {
+        border: 0px solid #ccc;
+        }               
+        /*]]>*/
+        </style><noscript>
+        <style id="rocket-lazyload-nojs-css">
+        <![CDATA[
+        .rll-youtube-player, [data-lazy-src]{display:none !important;}
+        ]]>
+        </style></noscript>
+        <script type="rocketlazyloadscript">
+        <![CDATA[
+        $ = jQuery
+        setTimeout(function() {
+        $('.widgettitle').wrapInner('<span></span>');
+        }, 1000);
+        ]]>
+        </script>
+    </head>
+    <body class="post-template-default single single-post postid-153498 single-format-standard aa-prefix-kdnug-">
+        <div class="main_wrapper">
+            <div id="wrapper">
+                <div class="site-header" id="header">
+                    <div class="site-header__logo">
+                        <div class="logo">
+                            <a href="/" aria-label="KDnuggets home"><img src="//www.kdnuggets.com/wp-content/themes/kdn17/images/logo.svg" alt="KDnuggets logo" width="174" height="52" data-lazy-src="//www.kdnuggets.com/wp-content/themes/kdn17/images/logo.svg" data-ll-status="loaded" class="entered lazyloaded" /><noscript><img src="//www.kdnuggets.com/wp-content/themes/kdn17/images/logo.svg" alt="KDnuggets logo" width="174" height="52" /></noscript></a>
+                        </div>
+                    </div>
+                    <div class="site-header__mobile" id="pull">
+                        <img class="menu" src="//www.kdnuggets.com/wp-content/themes/kdn17/images/menu.svg" width="28" height="28" /> <img class="search-icon" src="//www.kdnuggets.com/wp-content/themes/kdn17/images/search.svg" width="28" height="28" />
+                    </div>
+                    <div class="site-header__menu" id="pull-menu">
+                        <div class="navigation">
+                            <ul id="menu-header" class="menu">
+                                <li id="menu-item-138099" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-138099">
+                                    <a href="/news/index.html">Blog</a>
+                                    <ul class="sub-menu">
+                                        <li id="menu-item-138102" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-138102">
+                                            <a href="/news/top-stories.html">Top Posts</a>
+                                        </li>
+                                        <li id="menu-item-138104" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-138104">
+                                            <a href="https://www.kdnuggets.com/news/submissions.html">Submissions</a>
+                                        </li>
+                                        <li id="menu-item-140650" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-140650">
+                                            <a href="https://www.kdnuggets.com/about/index.html">About</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li id="menu-item-138105" class="sub-menu--2-col menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-138105">
+                                    <a href="https://www.kdnuggets.com/topic">Topics</a>
+                                    <ul class="sub-menu">
+                                        <li id="menu-item-138109" class="menu-item menu-item-type-taxonomy menu-item-object-post_tag menu-item-138109">
+                                            <a href="https://www.kdnuggets.com/tag/artificial-intelligence">Artificial Intelligence</a>
+                                        </li>
+                                        <li id="menu-item-138106" class="menu-item menu-item-type-taxonomy menu-item-object-post_tag menu-item-138106">
+                                            <a href="https://www.kdnuggets.com/tag/career-advice">Career Advice</a>
+                                        </li>
+                                        <li id="menu-item-138113" class="menu-item menu-item-type-taxonomy menu-item-object-post_tag menu-item-138113">
+                                            <a href="https://www.kdnuggets.com/tag/computer-vision">Computer Vision</a>
+                                        </li>
+                                        <li id="menu-item-141991" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-141991">
+                                            <a href="https://www.kdnuggets.com/tags/data-engineering">Data Engineering</a>
+                                        </li>
+                                        <li id="menu-item-138107" class="menu-item menu-item-type-taxonomy menu-item-object-post_tag menu-item-138107">
+                                            <a href="https://www.kdnuggets.com/tag/data-science">Data Science</a>
+                                        </li>
+                                        <li id="menu-item-138108" class="menu-item menu-item-type-taxonomy menu-item-object-post_tag menu-item-138108">
+                                            <a href="https://www.kdnuggets.com/tag/machine-learning">Machine Learning</a>
+                                        </li>
+                                        <li id="menu-item-141990" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-141990">
+                                            <a href="https://www.kdnuggets.com/tag/mlops">MLOps</a>
+                                        </li>
+                                        <li id="menu-item-138112" class="menu-item menu-item-type-taxonomy menu-item-object-post_tag menu-item-138112">
+                                            <a href="https://www.kdnuggets.com/tag/natural-language-processing">NLP</a>
+                                        </li>
+                                        <li id="menu-item-138114" class="menu-item menu-item-type-taxonomy menu-item-object-post_tag menu-item-138114">
+                                            <a href="https://www.kdnuggets.com/tag/news">News</a>
+                                        </li>
+                                        <li id="menu-item-138111" class="menu-item menu-item-type-taxonomy menu-item-object-post_tag menu-item-138111">
+                                            <a href="https://www.kdnuggets.com/tag/programming">Programming</a>
+                                        </li>
+                                        <li id="menu-item-138110" class="menu-item menu-item-type-taxonomy menu-item-object-post_tag menu-item-138110">
+                                            <a href="https://www.kdnuggets.com/tag/python">Python</a>
+                                        </li>
+                                        <li id="menu-item-138115" class="menu-item menu-item-type-taxonomy menu-item-object-post_tag menu-item-138115">
+                                            <a href="https://www.kdnuggets.com/tag/sql">SQL</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li id="menu-item-138117" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-138117">
+                                    <a href="https://www.kdnuggets.com/datasets/index.html">Datasets</a>
+                                </li>
+                                <li id="menu-item-144762" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-144762">
+                                    <a href="https://www.kdnuggets.com/education/index.html">Education</a>
+                                    <ul class="sub-menu">
+                                        <li id="menu-item-138120" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-138120">
+                                            <a href="/education/analytics-data-mining-certificates.html">Certificates</a>
+                                        </li>
+                                        <li id="menu-item-138118" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-138118">
+                                            <a href="https://www.kdnuggets.com/courses/index.html">Courses</a>
+                                        </li>
+                                        <li id="menu-item-138119" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-138119">
+                                            <a href="https://www.kdnuggets.com/education/online.html">Online Masters</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li id="menu-item-138122" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-138122">
+                                    <a href="https://www.kdnuggets.com/meetings/index.html">Resources</a>
+                                    <ul class="sub-menu">
+                                        <li id="menu-item-152029" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-152029">
+                                            <a href="https://www.kdnuggets.com/cheat-sheets/index.html">Cheat Sheets</a>
+                                        </li>
+                                        <li id="menu-item-138123" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-138123">
+                                            <a href="/meetings/index.html">Events</a>
+                                        </li>
+                                        <li id="menu-item-138124" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-138124">
+                                            <a href="/jobs/index.html">Jobs</a>
+                                        </li>
+                                        <li id="menu-item-152030" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-152030">
+                                            <a href="https://www.kdnuggets.com/projects/index.html">Projects</a>
+                                        </li>
+                                        <li id="menu-item-142902" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-142902">
+                                            <a href="https://www.kdnuggets.com/publication/index.html">Publications</a>
+                                        </li>
+                                        <li id="menu-item-138121" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-138121">
+                                            <a href="/webcasts/index.html">Webinars</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <ul class="site-header__social">
+                        <li class="site-header__social-item">
+                            <a href="https://www.facebook.com/kdnuggets" target="_blank" onclick="ga('send','pageview','/x/top/fb');"><img width="20" height="19" src="//www.kdnuggets.com/wp-content/themes/kdn17/images/facebook.svg" alt="Facebook" data-lazy-src="//www.kdnuggets.com/wp-content/themes/kdn17/images/facebook.svg" data-ll-status="loaded" class="entered lazyloaded" /><noscript><img width="20" height="19" src="//www.kdnuggets.com/wp-content/themes/kdn17/images/facebook.svg" alt="Facebook" /></noscript></a>
+                        </li>
+                        <li class="site-header__social-item">
+                            <a href="https://twitter.com/kdnuggets" target="_blank" onclick="ga('send','pageview','/x/top/twt');"><img width="20" height="16" src="//www.kdnuggets.com/wp-content/themes/kdn17/images/twitter.svg" alt="Twitter" data-lazy-src="//www.kdnuggets.com/wp-content/themes/kdn17/images/twitter.svg" data-ll-status="loaded" class="entered lazyloaded" /><noscript><img width="20" height="16" src="//www.kdnuggets.com/wp-content/themes/kdn17/images/twitter.svg" alt="Twitter" /></noscript></a>
+                        </li>
+                        <li class="site-header__social-item">
+                            <a href="https://www.linkedin.com/groups/54257/" target="_blank" onclick="ga('send','pageview','/x/top/in');"><img width="20" height="20" src="//www.kdnuggets.com/wp-content/themes/kdn17/images/linkedin.svg" alt="LinkedIn" data-lazy-src="//www.kdnuggets.com/wp-content/themes/kdn17/images/linkedin.svg" data-ll-status="loaded" class="entered lazyloaded" /><noscript><img width="20" height="20" src="//www.kdnuggets.com/wp-content/themes/kdn17/images/linkedin.svg" alt="LinkedIn" /></noscript></a>
+                        </li>
+                        <li class="site-header__social-item">
+                            <a href="https://www.instagram.com/officialkdnuggets/" target="_blank" onclick="ga('send','pageview','/x/top/ig');"><img width="500" height="500" src="//www.kdnuggets.com/wp-content/themes/kdn17/images/instagram.svg" alt="Instagram" data-lazy-src="//www.kdnuggets.com/wp-content/themes/kdn17/images/instagram.svg" data-ll-status="loaded" class="entered lazyloaded" /><noscript><img width="500" height="500" src="//www.kdnuggets.com/wp-content/themes/kdn17/images/instagram.svg" alt="Instagram" /></noscript></a>
+                        </li>
+                    </ul><a class="site-header__btn btn" href="#boxzilla-138215" onclick="event.preventDefault();" target="_blank">Join Newsletter</a>
+                    <div class="site-header__search">
+                        <div class="search">
+                            <form method="get" id="searchform" action="/" name="searchform">
+                                <input value="" name="s" id="s" placeholder="Search KDnuggets…" type="text" /> <button><img width="74" height="74" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2074%2074'%3E%3C/svg%3E" alt="Search" data-lazy-src="//www.kdnuggets.com/wp-content/themes/kdn17/images/search.svg" /><noscript><img width="74" height="74" src="//www.kdnuggets.com/wp-content/themes/kdn17/images/search.svg" alt="Search" /></noscript></button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div id="spacer">
+                    &#160;
+                </div>
+                <div id="content_wrapper">
+                    <div id="ad_wrapper">
+                        <script type="rocketlazyloadscript" data-rocket-type="text/javascript">
+                        <![CDATA[
+                        jQuery(function() {
+                        var menu = $('.site-header__menu'),
+                        menuImage = $('#header img.menu'),
+                        search = $('img.search-icon'),
+                        searchBar = $('.site-header__search'),
+                        searchOpen = false,
+                        menuOpen = false;
+
+                        search.on('click', function(e) {
+                        e.preventDefault();
+
+                        if (menuOpen) {
+                        menu.fadeOut(250);
+                        menuOpen = false;
+                        }
+
+                        searchBar.fadeToggle(250);
+                        searchOpen = true;
+                        });  
+
+                        $(menuImage).on('click', function(e) {
+                        e.preventDefault();
+
+                        if (searchOpen) {
+                        searchBar.fadeOut(250);
+                        searchOpen = false;
+                        }
+
+                        menu.fadeToggle(250);
+                        menuOpen = true;
+                        });
+
+                        $('.site-header__menu .menu-item-has-children').on('click', function(e) {
+                        if ($(window).width() > 1000) {
+                        return;
+                        }
+
+                        e.preventDefault();
+                        $(this).find('.sub-menu').slideToggle(250);
+                        })
+
+                        $('.site-header__menu .menu-item-has-children a').on('click', function(e) {
+                        if ($(window).width() > 1000) {
+                        return;
+                        }
+
+                        e.stopPropagation();
+                        })
+
+                        $(window).on('resize', function() {
+                        if ($(window).width() > 1000) {
+                        menu.css('display', '');
+                        search.css('display', '');
+                        }
+                        });
+                        });
+                        <!--        kpath = '/'; kda_top(); kda_sid_init(); kda_sid_n=1;-->
+                        ]]>
+                        </script>
+                        <div class="kdnug-e76deed45b0d8c14bcdc10aed4b770f3 kdnug-leaderboard-ros" id="kdnug-e76deed45b0d8c14bcdc10aed4b770f3">
+                            <div class="kdnug-leaderboard-ros" style="text-align: center;" id="kdnug-689859534">
+                                <div data-kdnug-trackid="153589" data-kdnug-trackbid="1" class="kdnug-target" id="kdnug-2024654148">
+                                    <a href="https://analytics.tepper.cmu.edu/online-msba/?ace_campaign=kd_nuggets_display&amp;utm_source=kdnuggetsdisplay&amp;utm_medium=display&amp;utm_campaign=kdnuggetsdisplay" rel="noopener nofollow" class="adv-link" target="_blank">
+                                    <p>
+                                        <img decoding="async" style="max-width: 100%; height: auto;" src="https://www.kdnuggets.com/wp-content/uploads/t4-cmu-banner-728-1.jpg" alt="Go from Data to Strategy: Tepper School of Business" /><br />
+                                        Go from Data to Strategy: Tepper School of Business
+                                    </p></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="content" class="single">
+                        <div id="post-header" class="">
+                            <h1 id="title">
+                                Text Summarization Development: A Python Tutorial with GPT-3.5
+                            </h1>
+                            <p class="excerpt">
+                                Utilizing the power of GPT-3.5 to develop a simple summarize generator application.
+                            </p>
+                            <div class="author-link">
+                                By <strong><a href="https://www.kdnuggets.com/author/cornelliusyudha-wijaya" title="Posts by Cornellius Yudha Wijaya" rel="author">Cornellius Yudha Wijaya</a></strong>, KDnuggets on April 7, 2023 in <a href="https://www.kdnuggets.com/tag/natural-language-processing">Natural Language Processing</a>
+                            </div><!-- -->
+                            <div class="addthis_native_toolbox"></div>
+                        </div>
+                        <hr class="grey-line" />
+                        <br />
+                        <div id="post-" class="post-153498 post type-post status-publish format-standard has-post-thumbnail hentry category-kdnuggets-evergreen category-kdnuggets-originals tag-natural-language-processing">
+                            <center>
+                                <img decoding="async" src="//www.kdnuggets.com/wp-content/uploads/wijaya_text_summarization_development_python_tutorial_gpt35_3.jpg" alt="Text Summarization Development: A Python Tutorial with GPT-3.5" width="100%" data-lazy-src="//www.kdnuggets.com/wp-content/uploads/wijaya_text_summarization_development_python_tutorial_gpt35_3.jpg" data-ll-status="loaded" class="entered lazyloaded" /><noscript><img decoding="async" src="//www.kdnuggets.com/wp-content/uploads/wijaya_text_summarization_development_python_tutorial_gpt35_3.jpg" alt="Text Summarization Development: A Python Tutorial with GPT-3.5" width="100%" /></noscript><br />
+                                <font size="-1">Image by <a href="https://www.freepik.com/free-photo/opened-ai-chat-laptop_38259334.htm#query=chatgpt&amp;position=0&amp;from_view=search&amp;track=sph" rel="noopener" target="_blank">frimufilms</a> on <a href="https://www.freepik.com/" rel="noopener" target="_blank">Freepik</a></font>
+                            </center><br />
+                            &#160;
+                            <p>
+                                This is an era where AI breakthrough is coming daily. We didn’t have many AI-generated in public a few years ago, but now the technology is accessible to everyone. It’s excellent for many individual creators or companies that want to significantly take advantage of the technology to develop something complex, which might take a long time.
+                            </p>
+                            <p>
+                                One of the most incredible breakthroughs that change how we work is the release of the <a href="https://platform.openai.com/docs/models/gpt-3-5" rel="noopener" target="_blank">GPT-3.5 model by OpenAI</a>. What is the GPT-3.5 model? If I let the model talk for themselves. In that case, the answer is “<strong>a highly advanced AI model in the field of natural language processing, with vast improvements in generating contextually accurate and relevant tex</strong>t”.
+                            </p>
+                            <p>
+                                OpenAI provides an API for the GPT-3.5 model that we can use to develop a simple app, such as a text summarizer. To do that, we can use Python to integrate the model API into our intended application seamlessly. What does the process look like? Let’s get into it.
+                            </p>
+                            <div style="text-align: center" class="kdnug-ba00f6ecaa07b4ad3a7156d7503d56b8 kdnug-ros-mobile-in-content" id="kdnug-ba00f6ecaa07b4ad3a7156d7503d56b8"></div>
+                            <p>
+                                &#160;
+                            </p>
+                            <h1>
+                                Prerequisite
+                            </h1>
+                            <p>
+                                &#160;
+                            </p>
+                            <p>
+                                There are a few prerequisites before following this tutorial, including:
+                            </p>
+                            <p>
+                                - Knowledge of Python, including knowledge of using external libraries and IDE
+                            </p>
+                            <p>
+                                - Understanding of APIs and handling the endpoint with Python
+                            </p>
+                            <p>
+                                - Having access to the OpenAI APIs
+                            </p>
+                            <p>
+                                To obtain OpenAI APIs access, we must register on the <a href="https://platform.openai.com/overview" rel="noopener" target="_blank">OpenAI Developer Platform</a> and visit the View API keys within your profile. On the web, click the “Create new secret key” button to acquire API access (See image below). Remember to save the keys, as they will not be shown the keys after that.<br />
+                                &#160;<br />
+                            </p>
+                            <center>
+                                <img decoding="async" alt="Text Summarization Development: A Python Tutorial with GPT-3.5" width="100%" data-lazy-src="//www.kdnuggets.com/wp-content/uploads/wijaya_text_summarization_development_python_tutorial_gpt35_5.png" class="entered exited" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20100%200'%3E%3C/svg%3E" /><noscript><img decoding="async" src="//www.kdnuggets.com/wp-content/uploads/wijaya_text_summarization_development_python_tutorial_gpt35_5.png" alt="Text Summarization Development: A Python Tutorial with GPT-3.5" width="100%" /></noscript><br />
+                                <font size="-1">Image by Author</font>
+                            </center><br />
+                            &#160;
+                            <p>
+                                With all the preparation ready, let’s try to understand the basic of the OpenAI APIs model.
+                            </p>
+                            <p>
+                                &#160;
+                            </p>
+                            <h1>
+                                Understanding GPT-3.5 OpenAI API
+                            </h1>
+                            <p>
+                                &#160;
+                            </p>
+                            <p>
+                                The <a href="https://platform.openai.com/docs/models/gpt-3-5" rel="noopener" target="_blank">GPT-3.5 family model</a> was specified for many language tasks, and each model in the family excels in some tasks. For this tutorial example, we would use the <code style="background: #F5F5F5;">gpt-3.5-turbo</code> as it was the recommended current model when this article was written for its capability and cost-efficiency.
+                            </p>
+                            <p>
+                                We often use the <code style="background: #F5F5F5;">text-davinci-003</code> in the OpenAI tutorial, but we would use the current model for this tutorial. We would rely on the <a href="https://platform.openai.com/docs/api-reference/chat/create" rel="noopener" target="_blank">ChatCompletion</a> endpoint instead of Completion because the current recommended model is a chat model. Even if the name was a chat model, it works for any language task.
+                            </p>
+                            <p>
+                                Let’s try to understand how the API works. First, we need to install the current OpenAI packages.&#160;
+                            </p>
+                            <div style="width: 98%; overflow: auto; padding-left: 10px; padding-bottom: 10px; padding-top: 10px; background: #F5F5F5;">
+                                <pre><code>pip install openai</code></pre>
+                            </div>
+                            <p>
+                                &#160;
+                            </p>
+                            <p>
+                                After we have finished installing the package, we will try to use the API by connecting via the ChatCompletion endpoint. However, we need to set the environment before we continue.
+                            </p>
+                            <p>
+                                In your favorite IDE (for me, it’s VS Code), create two files called <code style="background: #F5F5F5;">.env</code> and <code style="background: #F5F5F5;">summarizer_app.py</code>, similar to the image below.
+                            </p>
+                            <p>
+                                &#160;<br />
+                            </p>
+                            <center>
+                                <img decoding="async" src="//www.kdnuggets.com/wp-content/uploads/wijaya_text_summarization_development_python_tutorial_gpt35_1.png" alt="Text Summarization Development: A Python Tutorial with GPT-3.5" width="40%" data-lazy-src="//www.kdnuggets.com/wp-content/uploads/wijaya_text_summarization_development_python_tutorial_gpt35_1.png" data-ll-status="loaded" class="entered lazyloaded" /><noscript><img decoding="async" src="//www.kdnuggets.com/wp-content/uploads/wijaya_text_summarization_development_python_tutorial_gpt35_1.png" alt="Text Summarization Development: A Python Tutorial with GPT-3.5" width="40%" /></noscript><br />
+                                <font size="-1">Image by Author</font>
+                            </center><br />
+                            &#160;
+                            <p>
+                                The <code style="background: #F5F5F5;">summarizer_app.py</code> is where we would build our simple summarizer application, and the <code style="background: #F5F5F5;">.env</code> file is where we would store our API Key. For security reasons, it is always advised to separate our API key in another file rather than hard-code them in the Python file.
+                            </p>
+                            <p>
+                                In the <code style="background: #F5F5F5;">.env</code> file put the following syntax and save the file. Replace your_api_key_here with your actual API key. Don’t change the API key into a string object; let them as it is.&#160;
+                            </p>
+                            <div style="width: 98%; overflow: auto; padding-left: 10px; padding-bottom: 10px; padding-top: 10px; background: #F5F5F5;">
+                                <pre><code>OPENAI_API_KEY=your_api_key_here</code></pre>
+                            </div>
+                            <p>
+                                &#160;
+                            </p>
+                            <p>
+                                To understand the GPT-3.5 API better; we would use the following code to generate the word summarizer.
+                            </p>
+                            <div style="width: 98%; overflow: auto; padding-left: 10px; padding-bottom: 10px; padding-top: 10px; background: #F5F5F5;">
+                                <pre><code>openai.ChatCompletion.create(
+    model="gpt-3.5-turbo",
+    max_tokens=100,
+    temperature=0.7,
+    top_p=0.5,
+    frequency_penalty=0.5,
+    messages=[
+        {
+          "role": "system",
+          "content": "You are a helpful assistant for text summarization.",
+        },
+        {
+          "role": "user",
+          "content": f"Summarize this for a {person_type}: {prompt}",
+        },
+    ],
+)</code></pre>
+                            </div>
+                            <p>
+                                &#160;
+                            </p>
+                            <p>
+                                The above code is how we interact with the OpenAI APIs GPT-3.5 model. Using the ChatCompletion API, we create a conversation and will get the intended result after passing the prompt.
+                            </p>
+                            <p>
+                                Let’s break down each part to understand them better. In the first line, we use the <code style="background: #F5F5F5;">openai.ChatCompletion.create</code> code to create the response from the prompt we would pass into the API.
+                            </p>
+                            <p>
+                                In the next line, we have our hyperparameters that we use to improve our text tasks. Here is the summary of each hyperparameter function:
+                            </p>
+                            <ul>
+                                <li>
+                                    <code style="background: #F5F5F5;">model</code>: The model family we want to use. In this tutorial, we use the current recommended model (<code style="background: #F5F5F5;">gpt-3.5-turbo</code>).
+                                </li>
+                                <li>
+                                    <code style="background: #F5F5F5;">max_tokens</code>: The upper limit of the generated words by the model. It helps to limit the length of the generated text.
+                                </li>
+                                <li>
+                                    <code style="background: #F5F5F5;">temperature</code>: The randomness of the model output, with a higher temperature, means a more diverse and creative result. The value range is between 0 to infinity, although values more than 2 are not common.&#160;
+                                </li>
+                                <li>
+                                    <code style="background: #F5F5F5;">top_p</code>: Top P or top-k sampling or nucleus sampling is a parameter to control the sampling pool from the output distribution. For example, value 0.1 means the model only samples the output from the top 10% of the distribution. The value range was between 0 and 1; higher values mean a more diverse result.
+                                </li>
+                                <li>
+                                    <code style="background: #F5F5F5;">frequency_penalty</code>: The penalty for the repetition token from the output. The value range between -2 to 2, where positive values would suppress the model from repeating token while negative values encourage the model to use more repetitive words. 0 means no penalty.
+                                </li>
+                                <li>
+                                    <code style="background: #F5F5F5;">messages</code>: The parameter where we pass our text prompt to be processed with the model. We pass a list of dictionaries where the key is the role object (either "system", "user", or "assistant") that helps the model to understand the context and structure while the values are the context.
+                                    <ul>
+                                        <li>&#160;The role “system” is the set guidelines for the model “assistant” behavior,
+                                        </li>
+                                        <li>&#160;The role “user” represents the prompt from the person interacting with the model,
+                                        </li>
+                                        <li>&#160;The role “assistant” is the response to the “user” prompt
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                            <p>
+                                Having explained the parameter above, we can see that the <code style="background: #F5F5F5;">messages</code> parameter above has two dictionary object. The first dictionary is how we set the model as a text summarizer. The second is where we would pass our text and get the summarization output.&#160;
+                            </p>
+                            <p>
+                                In the second dictionary, you will also see the variable <code style="background: #F5F5F5;">person_type</code> and <code style="background: #F5F5F5;">prompt</code>. The <code style="background: #F5F5F5;">person_type</code> is a variable I used to control the summarized style, which I will show in the tutorial. While the <code style="background: #F5F5F5;">prompt</code> is where we would pass our text to be summarized.
+                            </p>
+                            <p>
+                                Continuing with the tutorial, place the below code in the <code style="background: #F5F5F5;">summarizer_app.py</code> file and we will try to run through how the function below works.
+                            </p>
+                            <div style="width: 98%; overflow: auto; padding-left: 10px; padding-bottom: 10px; padding-top: 10px; background: #F5F5F5;">
+                                <pre><code>import openai
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
+
+def generate_summarizer(
+    max_tokens,
+    temperature,
+    top_p,
+    frequency_penalty,
+    prompt,
+    person_type,
+):
+    res = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        max_tokens=100,
+        temperature=0.7,
+        top_p=0.5,
+        frequency_penalty=0.5,
+        messages=
+       [
+         {
+          "role": "system",
+          "content": "You are a helpful assistant for text summarization.",
+         },
+         {
+          "role": "user",
+          "content": f"Summarize this for a {person_type}: {prompt}",
+         },
+        ],
+    )
+    return res["choices"][0]["message"]["content"]</code></pre>
+                            </div>
+                            <p>
+                                &#160;
+                            </p>
+                            <p>
+                                The code above is where we create a Python function that would accept various parameters that we have discussed previously and return the text summary output.&#160;
+                            </p>
+                            <p>
+                                Try the function above with your parameter and see the output. Then let’s continue the tutorial to create a simple application with the streamlit package.
+                            </p>
+                            <p>
+                                &#160;
+                            </p>
+                            <h1>
+                                Text Summarization Application with Streamlit
+                            </h1>
+                            <p>
+                                &#160;
+                            </p>
+                            <p>
+                                <a href="https://docs.streamlit.io/" rel="noopener" target="_blank">Streamlit</a> is an open-source Python package designed for creating machine learning and data science web apps. It’s easy to use and intuitive, so it is recommended for many beginners.&#160;
+                            </p>
+                            <p>
+                                Let’s install the streamlit package before we continue with the tutorial.
+                            </p>
+                            <div style="width: 98%; overflow: auto; padding-left: 10px; padding-bottom: 10px; padding-top: 10px; background: #F5F5F5;">
+                                <pre><code>pip install streamlit</code></pre>
+                            </div>
+                            <p>
+                                &#160;
+                            </p>
+                            <p>
+                                After the installation is finished, put the following code into the <code style="background: #F5F5F5;">summarizer_app.py</code>.
+                            </p>
+                            <div style="width: 98%; overflow: auto; padding-left: 10px; padding-bottom: 10px; padding-top: 10px; background: #F5F5F5;">
+                                <pre><code>import streamlit as st
+
+#Set the application title
+st.title("GPT-3.5 Text Summarizer")
+
+#Provide the input area for text to be summarized
+input_text = st.text_area("Enter the text you want to summarize:", height=200)
+
+#Initiate three columns for section to be side-by-side
+col1, col2, col3 = st.columns(3)
+
+#Slider to control the model hyperparameter
+with col1:
+    token = st.slider("Token", min_value=0.0, max_value=200.0, value=50.0, step=1.0)
+    temp = st.slider("Temperature", min_value=0.0, max_value=1.0, value=0.0, step=0.01)
+    top_p = st.slider("Nucleus Sampling", min_value=0.0, max_value=1.0, value=0.5, step=0.01)
+    f_pen = st.slider("Frequency Penalty", min_value=-1.0, max_value=1.0, value=0.0, step=0.01)
+
+#Selection box to select the summarization style
+with col2:
+    option = st.selectbox(
+        "How do you like to be explained?",
+        (
+            "Second-Grader",
+            "Professional Data Scientist",
+            "Housewives",
+            "Retired",
+            "University Student",
+        ),
+    )
+
+#Showing the current parameter used for the model 
+with col3:
+    with st.expander("Current Parameter"):
+        st.write("Current Token :", token)
+        st.write("Current Temperature :", temp)
+        st.write("Current Nucleus Sampling :", top_p)
+        st.write("Current Frequency Penalty :", f_pen)
+
+#Creating button for execute the text summarization
+if st.button("Summarize"):
+    st.write(generate_summarizer(token, temp, top_p, f_pen, input_text, option))</code></pre>
+                            </div>
+                            <p>
+                                &#160;
+                            </p>
+                            <p>
+                                Try to run the following code in your command prompt to initiate the application.
+                            </p>
+                            <div style="width: 98%; overflow: auto; padding-left: 10px; padding-bottom: 10px; padding-top: 10px; background: #F5F5F5;">
+                                <pre><code>streamlit run summarizer_app.py</code></pre>
+                            </div>
+                            <p>
+                                &#160;
+                            </p>
+                            <p>
+                                If everything works well, you will see the following application in your default browser.
+                            </p>
+                            <p>
+                                &#160;<br />
+                            </p>
+                            <center>
+                                <img decoding="async" alt="Text Summarization Development: A Python Tutorial with GPT-3.5" width="70%" data-lazy-src="//www.kdnuggets.com/wp-content/uploads/wijaya_text_summarization_development_python_tutorial_gpt35_2.png" class="entered exited" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2070%200'%3E%3C/svg%3E" /><noscript><img decoding="async" src="//www.kdnuggets.com/wp-content/uploads/wijaya_text_summarization_development_python_tutorial_gpt35_2.png" alt="Text Summarization Development: A Python Tutorial with GPT-3.5" width="70%" /></noscript><br />
+                                <font size="-1">Image by Author</font>
+                            </center><br />
+                            &#160;
+                            <p>
+                                So, what happened in the code above? Let me briefly explain each function we used:
+                            </p>
+                            <ul>
+                                <li>
+                                    <code style="background: #F5F5F5;">.st.title</code>: Provide the title text of the web application.
+                                </li>
+                                <li>
+                                    <code style="background: #F5F5F5;">.st.write</code>: Writes the argument into the application; it could be anything but mainly a string text.
+                                </li>
+                                <li>
+                                    <code style="background: #F5F5F5;">.st.text_area</code>: Provide an area for text input that can be stored in the variable and used for the prompt for our text summarizer
+                                </li>
+                                <li>
+                                    <code style="background: #F5F5F5;">.st.columns</code>: Object containers to provide side-by-side interaction.
+                                </li>
+                                <li>
+                                    <code style="background: #F5F5F5;">.st.slider</code>: Provide a slider widget with set values that the user can interact with. The value is stored on a variable used as the model parameter.
+                                </li>
+                                <li>
+                                    <code style="background: #F5F5F5;">.st.selectbox</code>: Provide a selection widget for users to select the summarization style they want. In the example above, we use five different styles.
+                                </li>
+                                <li>
+                                    <code style="background: #F5F5F5;">.st.expander</code>: Provide a container that users can expand and hold multiple objects.
+                                </li>
+                                <li>
+                                    <code style="background: #F5F5F5;">.st.button</code>: Provide a button that runs the intended function when the user presses it.
+                                </li>
+                            </ul>
+                            <p>
+                                As streamlit would automatically design the UI following the given code from top to bottom, we could focus more on the interaction.&#160;&#160;
+                            </p>
+                            <p>
+                                With all the pieces in place, let’s try our summarization application with a text example. For our example, I would use the <a href="https://en.wikipedia.org/wiki/Theory_of_relativity" rel="noopener" target="_blank">Theory of Relativity Wikipedia page</a> text to be summarized. With a default parameter and second-grader style, we obtain the following result.
+                            </p>
+                            <div style="width: 98%; overflow: auto; padding-left: 10px; padding-bottom: 10px; padding-top: 10px; background: #F5F5F5;">
+                                <pre><code>Albert Einstein was a very smart scientist who came up with two important ideas about how the world works. The first one, called special relativity, talks about how things move when there is no gravity. The second one, called general relativity, explains how gravity works and how it affects things in space like stars and planets. These ideas helped us understand many things in science, like how particles interact with each other and even helped us discover black holes! </code></pre>
+                            </div>
+                            <p>
+                                &#160;
+                            </p>
+                            <p>
+                                You might obtain a different result than the above one. Let’s try the Housewives style and tweak the parameter a bit (Token 100, Temperature 0.5, Nucleus Sampling 0.5, Frequency Penalty 0.3).
+                            </p>
+                            <div style="width: 98%; overflow: auto; padding-left: 10px; padding-bottom: 10px; padding-top: 10px; background: #F5F5F5;">
+                                <pre><code>The theory of relativity is a set of physics theories proposed by Albert Einstein in 1905 and 1915. It includes special relativity, which applies to physical phenomena without gravity, and general relativity, which explains the law of gravitation and its relation to the forces of nature. The theory transformed theoretical physics and astronomy in the 20th century, introducing concepts like 4-dimensional spacetime and predicting astronomical phenomena like black holes and gravitational waves.</code></pre>
+                            </div>
+                            <p>
+                                &#160;
+                            </p>
+                            <p>
+                                As we can see, there is a difference in style for the same text we provide. With a change prompt and parameter, our application can be more functional.&#160;
+                            </p>
+                            <p>
+                                The overall look of our text summarizer application can be seen in the image below.
+                            </p>
+                            <p>
+                                &#160;<br />
+                            </p>
+                            <center>
+                                <img decoding="async" alt="Text Summarization Development: A Python Tutorial with GPT-3.5" width="70%" data-lazy-src="//www.kdnuggets.com/wp-content/uploads/wijaya_text_summarization_development_python_tutorial_gpt35_4.png" class="entered exited" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2070%200'%3E%3C/svg%3E" /><noscript><img decoding="async" src="//www.kdnuggets.com/wp-content/uploads/wijaya_text_summarization_development_python_tutorial_gpt35_4.png" alt="Text Summarization Development: A Python Tutorial with GPT-3.5" width="70%" /></noscript><br />
+                                <font size="-1">Image by Author</font>
+                            </center><br />
+                            &#160;
+                            <p>
+                                That is the tutorial on creating text summarizer application development with GPT-3.5. You could tweak the application even further and deploy the application.
+                            </p>
+                            <p>
+                                &#160;
+                            </p>
+                            <h1>
+                                Conclusion
+                            </h1>
+                            <p>
+                                &#160;
+                            </p>
+                            <p>
+                                Generative AI is rising, and we should utilize the opportunity by creating a fantastic application. In this tutorial, we will learn how the GPT-3.5 OpenAI APIs work and how to use them to create a text summarizer application with the help of Python and streamlit package.<br />
+                                &#160;<br />
+                                &#160;<br />
+                                <b><a href="https://www.linkedin.com/in/cornellius-yudha-wijaya/" target="_blank" rel="noopener">Cornellius Yudha Wijaya</a></b> is a data science assistant manager and data writer. While working full-time at Allianz Indonesia, he loves to share Python and Data tips via social media and writing media.<br />
+                                &#160;
+                            </p>
+                            <div class="crp_related crp-text-only">
+                                <br />
+                                <h3>
+                                    More On This Topic
+                                </h3>
+                                <ul>
+                                    <li>
+                                        <a href="https://www.kdnuggets.com/2019/01/approaches-text-summarization-overview.html" class="crp_link post-88917"><span class="crp_title">Approaches to Text Summarization: An Overview</span></a>
+                                    </li>
+                                    <li>
+                                        <a href="https://www.kdnuggets.com/2019/11/getting-started-automated-text-summarization.html" class="crp_link post-101969"><span class="crp_title">Getting Started with Automated Text Summarization</span></a>
+                                    </li>
+                                    <li>
+                                        <a href="https://www.kdnuggets.com/2020/07/pytorch-lstm-text-generation-tutorial.html" class="crp_link post-113183"><span class="crp_title">PyTorch LSTM: Text Generation Tutorial</span></a>
+                                    </li>
+                                    <li>
+                                        <a href="https://www.kdnuggets.com/2022/04/packt-summarization-gpt3.html" class="crp_link post-140593"><span class="crp_title">Summarization with GPT-3</span></a>
+                                    </li>
+                                    <li>
+                                        <a href="https://www.kdnuggets.com/2022/09/build-texttospeech-converter-python-5-minutes.html" class="crp_link post-146595"><span class="crp_title">Build a Text-to-Speech Converter with Python in 5 Minutes</span></a>
+                                    </li>
+                                    <li>
+                                        <a href="https://www.kdnuggets.com/2021/10/simple-text-scraping-parsing-processing-python-library.html" class="crp_link post-134496"><span class="crp_title">Simple Text Scraping, Parsing, and Processing with this Python Library</span></a>
+                                    </li>
+                                </ul>
+                                <div class="crp_clear"></div>
+                            </div>
+                        </div>
+                        <div class="box-form">
+                            <script type="rocketlazyloadscript">
+                            <![CDATA[
+                            (function() {
+                            window.mc4wp = window.mc4wp || {
+                            listeners: [],
+                            forms: {
+                            on: function(evt, cb) {
+                                window.mc4wp.listeners.push(
+                                        {
+                                                event   : evt,
+                                                callback: cb
+                                        }
+                                );
+                            }
+                            }
+                            }
+                            })();
+                            ]]>
+                            </script>
+                            <form id="mc4wp-form-3" class="mc4wp-form mc4wp-form-138095 mc4wp-ajax" method="post" data-id="138095" data-name="Subscribe to KDnuggets News (Article)" name="mc4wp-form-3">
+                                <div class="mc4wp-form-fields">
+                                    <div class="header-container">
+                                        <div>
+                                            <img width="200" height="111" src="/wp-content/uploads/newsletter.png" data-lazy-src="/wp-content/uploads/newsletter.png" data-ll-status="loaded" class="entered lazyloaded" /><noscript><img height="111" src="/wp-content/uploads/newsletter.png" width="100" /></noscript>
+                                        </div>
+                                        <p>
+                                            <a href="/news/subscribe.html">Get the FREE ebook 'The Great Big Natural Language Processing Primer' and the leading newsletter on AI, Data Science, and Machine Learning, straight to your inbox.</a>
+                                        </p>
+                                    </div>
+                                    <div class="form-fields">
+                                        <div class="field-container">
+                                            <input type="email" name="EMAIL" size="30" maxlength="60" placeholder="Your Email" required="" />
+                                        </div>
+                                        <div class="field-container submit-container">
+                                            <input class="btn" type="submit" value="Sign Up" />
+                                        </div>
+                                        <p style="font-size:11px; margin-top: 10px;">
+                                            By subscribing you accept KDnuggets <a style="font-size:10px" target="_blank" href="https://www.kdnuggets.com/news/privacy-policy.html">Privacy Policy</a>
+                                        </p><input type="hidden" name="Form Signup Location" value="article" />
+                                    </div>
+                                </div><label style="display: none !important;">Leave this field empty if you're human: <input type="text" name="_mc4wp_honeypot" value="" tabindex="-1" autocomplete="off" /></label><input type="hidden" name="_mc4wp_timestamp" value="1680875133" /><input type="hidden" name="_mc4wp_form_id" value="138095" /><input type="hidden" name="_mc4wp_form_element_id" value="mc4wp-form-3" />
+                                <div class="mc4wp-response"></div>
+                            </form>
+                        </div>
+                        <div id="disqus_thread"></div>
+                        <div class="page-link"></div>
+                        <div class="pagi">
+                            <hr class="grey-line" />
+                            <br />
+                            <div class="pagi-left">
+                                <a href="https://www.kdnuggets.com/2023/04/data-science-six-months-success-story.html" rel="prev">&lt;= Previous post</a>
+                            </div>
+                            <div class="pagi-right"></div><br />
+                            <br />
+                            <div class="latn" style="margin-top: 20px;">
+                                <div class="latn-heading">
+                                    <h2>
+                                        Top Posts Past 30 Days
+                                    </h2>
+                                </div>
+                                <table cellpadding="3" cellspacing="2">
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <ol class="three_ol">
+                                                    <li>
+                                                        <a href="/2023/03/4-ways-generate-passive-income-chatgpt.html"><b>4 Ways to Generate Passive Income Using ChatGPT</b></a>
+                                                    </li>
+                                                    <li>
+                                                        <a href="/2023/03/chatgpt-data-science-cheat-sheet.html"><b>ChatGPT for Data Science Cheat Sheet</b></a>
+                                                    </li>
+                                                    <li>
+                                                        <a href="/2023/03/gpt4-everything-need-know.html"><b>GPT-4: Everything You Need To Know</b></a>
+                                                    </li>
+                                                    <li>
+                                                        <a href="/2023/02/5-free-tools-detecting-chatgpt-gpt3-gpt2.html"><b>5 Free Tools For Detecting ChatGPT, GPT3, and GPT2</b></a>
+                                                    </li>
+                                                    <li>
+                                                        <a href="/2023/03/simpson-paradox-implications-data-science.html"><b>Simpson’s Paradox and its Implications in Data Science</b></a>
+                                                    </li>
+                                                    <li>
+                                                        <a href="/2023/03/automate-boring-stuff-chatgpt-python.html"><b>Automate the Boring Stuff with GPT-4 and Python</b></a>
+                                                    </li>
+                                                    <li>
+                                                        <a href="/2022/11/4-ways-rename-pandas-columns.html"><b>4 Ways to Rename Pandas Columns</b></a>
+                                                    </li>
+                                                    <li>
+                                                        <a href="/2023/03/chatgpt-google-bard-comparison-technical-differences.html"><b>ChatGPT vs Google Bard: A Comparison of the Technical Differences</b></a>
+                                                    </li>
+                                                    <li>
+                                                        <a href="/2023/03/openchatkit-opensource-chatgpt-alternative.html"><b>OpenChatKit: Open-Source ChatGPT Alternative</b></a>
+                                                    </li>
+                                                    <li>
+                                                        <a href="/2019/06/select-rows-columns-pandas.html"><b>How to Select Rows and Columns in Pandas Using [ ], .loc, iloc, .at and .iat</b></a>
+                                                    </li>
+                                                </ol>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="sidebar">
+                        <div class="search">
+                            <form method="get" id="searchform" action="/" name="searchform">
+                                <input value="" name="s" id="s" placeholder="Search KDnuggets…" type="text" /> <button><img width="74" height="74" src="//www.kdnuggets.com/wp-content/themes/kdn17/images/search.svg" alt="Search" data-lazy-src="//www.kdnuggets.com/wp-content/themes/kdn17/images/search.svg" data-ll-status="loaded" class="entered lazyloaded" /><noscript><img width="74" height="74" src="//www.kdnuggets.com/wp-content/themes/kdn17/images/search.svg" alt="Search" /></noscript></button>
+                            </form>
+                        </div>
+                        <div id="post-header-ad">
+                            <div class="kdnug-db3d927d962233058086d0bb0f76dfa1 kdnug-med-rectangle-ros" id="kdnug-db3d927d962233058086d0bb0f76dfa1">
+                                <div class="kdnug-med-rectangle-ros" id="kdnug-1482169315">
+                                    <div data-kdnug-trackid="153630" data-kdnug-trackbid="1" class="kdnug-target" id="kdnug-771849984">
+                                        <a href="https://continue.yorku.ca/programs/certificate-in-advanced-data-science-and-predictive-analytics/?utm_source=KDNuggets&amp;utm_medium=CSDADV&amp;utm_campaign=S23&amp;utm_agency=SCS" rel="noopener nofollow" class="adv-link" target="_blank">
+                                        <p>
+                                            <img decoding="async" style="max-width: 100%; height: auto;" src="https://www.kdnuggets.com/wp-content/uploads/s3-york-2304_Big_Data.gif" alt="Your potential realized." /><br />
+                                            Your potential realized.
+                                        </p></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="latn">
+                            <h3>
+                                <a href="/news/index.html">Latest News</a>
+                            </h3>
+                            <ul style="font-size:16px;">
+                                <li>
+                                    <a href="https://www.kdnuggets.com/2023/04/text-summarization-development-python-tutorial-gpt35.html">Text Summarization Development: A Python Tutorial with ...</a>
+                                </li>
+                                <li>
+                                    <a href="https://www.kdnuggets.com/2023/04/data-science-six-months-success-story.html">My Data Science Six Months Success Story</a>
+                                </li>
+                                <li>
+                                    <a href="https://www.kdnuggets.com/2023/04/8-opensource-alternative-chatgpt-bard.html">8 Open-Source Alternative to ChatGPT and Bard</a>
+                                </li>
+                                <li>
+                                    <a href="https://www.kdnuggets.com/2023/04/free-ebook-10-practical-python-programming-tricks.html">Free eBook: 10 Practical Python Programming Tricks</a>
+                                </li>
+                                <li>
+                                    <a href="https://www.kdnuggets.com/2023/04/future-work-ai-changing-job-landscape.html">The Future of Work: How AI is Changing the Job Landscape</a>
+                                </li>
+                                <li>
+                                    <a href="https://www.kdnuggets.com/2023/04/build-scalable-data-architecture-apache-kafka.html">How to Build a Scalable Data Architecture with Apache K...</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <table class="thb" cellpadding="3" width="100%">
+                            <tbody>
+                                <tr>
+                                    <th class="thb">
+                                        <h2 size="+1">
+                                            Top Posts Last Week
+                                        </h2>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <td align="left">
+                                        <a href="/2023/03/automate-boring-stuff-chatgpt-python.html"><img src="//www.kdnuggets.com/wp-content/uploads/selvaraj_automate_boring_stuff_chatgpt_python_17.png" alt="Automate the Boring Stuff with GPT-4 and Python" width="100%" data-lazy-src="//www.kdnuggets.com/wp-content/uploads/selvaraj_automate_boring_stuff_chatgpt_python_17.png" data-ll-status="loaded" class="entered lazyloaded" /><noscript><img src='//www.kdnuggets.com/wp-content/uploads/selvaraj_automate_boring_stuff_chatgpt_python_17.png' alt='Automate the Boring Stuff with GPT-4 and Python' width='100%' /></noscript></a><br />
+                                        <br />
+                                        <ol class="three_ol">
+                                            <li>
+                                                <a href="/2023/03/automate-boring-stuff-chatgpt-python.html"><b>Automate the Boring Stuff with GPT-4 and Python</b></a>
+                                            </li>
+                                            <li>
+                                                <a href="/2023/03/chatgpt-improve-data-science-skills.html"><b>How to Use ChatGPT to Improve Your Data Science Skills</b></a>
+                                            </li>
+                                            <li>
+                                                <a href="/2023/02/5-free-tools-detecting-chatgpt-gpt3-gpt2.html"><b>5 Free Tools For Detecting ChatGPT, GPT3, and GPT2</b></a>
+                                            </li>
+                                            <li>
+                                                <a href="/2023/03/chatgpt-data-science-cheat-sheet.html"><b>ChatGPT for Data Science Cheat Sheet</b></a>
+                                            </li>
+                                            <li>
+                                                <a href="/2023/03/4-ways-generate-passive-income-chatgpt.html"><b>4 Ways to Generate Passive Income Using ChatGPT</b></a>
+                                            </li>
+                                        </ol>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="latn" style="margin-top: 15px;">
+                            <h3>
+                                <b>More Recent Posts</b>
+                            </h3>
+                            <ul class="next-posts">
+                                <li>
+                                    <a href="https://www.kdnuggets.com/2023/04/build-scalable-data-architecture-apache-kafka.html">How to Build a Scalable Data Architecture with Apache Kafka</a>
+                                </li>
+                                <li>
+                                    <a href="https://www.kdnuggets.com/2023/04/top-19-skills-need-know-2023-data-scientist.html">Top 19 Skills You Need to Know in 2023 to Be a Data Scientist</a>
+                                </li>
+                                <li>
+                                    <a href="https://www.kdnuggets.com/2023/04/introducing-testing-library-natural-language-processing.html">Introducing the Testing Library for Natural Language Processing</a>
+                                </li>
+                                <li>
+                                    <a href="https://www.kdnuggets.com/2023/04/5-ways-ai-impacting-stem-education-2023.html">5 Ways AI Is Impacting STEM Education in 2023</a>
+                                </li>
+                                <li>
+                                    <a href="https://www.kdnuggets.com/2023/04/exploring-data-cleaning-techniques-python.html">Exploring Data Cleaning Techniques With Python</a>
+                                </li>
+                                <li>
+                                    <a href="https://www.kdnuggets.com/2023/04/5-essential-ai-tools-data-science.html">5 Essential AI Tools for Data Science</a>
+                                </li>
+                                <li>
+                                    <a href="https://www.kdnuggets.com/2023/04/top-posts-week-0327-0402.html">Top Posts March 27 – April 2: Automate the Boring Stuff ...</a>
+                                </li>
+                                <li>
+                                    <a href="https://www.kdnuggets.com/2022/06/14-essential-git-commands-data-scientists.html">14 Essential Git Commands for Data Scientists</a>
+                                </li>
+                                <li>
+                                    <a href="https://www.kdnuggets.com/2023/04/5-data-management-challenges-solutions.html">5 Data Management Challenges with Solutions</a>
+                                </li>
+                                <li>
+                                    <a href="https://www.kdnuggets.com/2023/04/langchain-101-build-gptpowered-applications.html">LangChain 101: Build Your Own GPT-Powered Applications</a>
+                                </li>
+                            </ul>
+                            <ul id="sidebar-recent">
+                                <li id="widget_crp-2" class="widget widget_widget_crp">
+                                    <h2 class="widgettitle">
+                                        Related Posts
+                                    </h2>
+                                    <div class="crp_related crp_related_widget crp-text-only">
+                                        <ul>
+                                            <li>
+                                                <a href="https://www.kdnuggets.com/2020/11/plexpage-multi-domain-summarization.html" class="crp_link post-118720"><span class="crp_title">Multi-domain summarization by PlexPage</span></a>
+                                            </li>
+                                            <li>
+                                                <a href="https://www.kdnuggets.com/2021/08/development-testing-etl-pipelines-aws-locally.html" class="crp_link post-130721"><span class="crp_title">Development &amp; Testing of ETL Pipelines for AWS Locally</span></a>
+                                            </li>
+                                            <li>
+                                                <a href="https://www.kdnuggets.com/2021/02/sas-solid-investment-banking-talent-development.html" class="crp_link post-122409"><span class="crp_title">A Solid Investment: Banking on Talent Development</span></a>
+                                            </li>
+                                            <li>
+                                                <a href="https://www.kdnuggets.com/2021/03/sas-banking-talent-development.html" class="crp_link post-123816"><span class="crp_title">A Solid Investment: Banking on Talent Development.</span></a>
+                                            </li>
+                                            <li>
+                                                <a href="https://www.kdnuggets.com/2021/09/machine-learning-beneficial-mobile-app-development.html" class="crp_link post-131967"><span class="crp_title">How is Machine Learning Beneficial in Mobile App Development?</span></a>
+                                            </li>
+                                            <li>
+                                                <a href="https://www.kdnuggets.com/2023/03/data-science-transform-mobile-app-development.html" class="crp_link post-153170"><span class="crp_title">How Data Science Can Transform Mobile App Development?</span></a>
+                                            </li>
+                                        </ul>
+                                        <div class="crp_clear"></div>
+                                    </div>
+                                </li>
+                                <li id="custom_html-3" class="widget_text widget widget_custom_html">
+                                    <div class="textwidget custom-html-widget">
+                                        <div class="kdnug-8e2f8c28db21b2a02c9b3bcecad41d38 kdnug-sidebar-3-sticky" id="kdnug-8e2f8c28db21b2a02c9b3bcecad41d38">
+                                            <div class="kdnug-sidebar-3-sticky" id="kdnug-1821101260">
+                                                <div data-kdnug-trackid="153079" data-kdnug-trackbid="1" class="kdnug-target" id="kdnug-1329870326">
+                                                    <a href="https://www.cdm.depaul.edu/academics/Pages/MS-in-Artificial-Intelligence.aspx?utm_medium=ad&amp;utm_source=kdnuggets&amp;utm_campaign=cdm_prospect&amp;utm_content=ad%20on%20right%20rail%20of%20site" rel="noopener nofollow" class="adv-link" target="_blank">
+                                                    <p>
+                                                        <img decoding="async" style="max-width: 100%; height: auto;" src="https://www.kdnuggets.com/wp-content/uploads/300x250_AI_Blue.png" alt="Shape the future with AI" />
+                                                    </p></a>
+                                                </div>
+                                            </div>
+                                        </div><br />
+                                    </div>
+                                </li>
+                                <li id="mc4wp_form_widget-2" class="widget widget_mc4wp_form_widget">
+                                    <h2 class="widgettitle">
+                                        Get The Latest News!
+                                    </h2>
+                                    <script type="rocketlazyloadscript">
+                                    <![CDATA[
+                                    (function() {
+                                    window.mc4wp = window.mc4wp || {
+                                    listeners: [],
+                                    forms: {
+                                    on: function(evt, cb) {
+                                    window.mc4wp.listeners.push(
+                                        {
+                                                event   : evt,
+                                                callback: cb
+                                        }
+                                    );
+                                    }
+                                    }
+                                    }
+                                    })();
+                                    ]]>
+                                    </script>
+                                    <form id="mc4wp-form-4" class="mc4wp-form mc4wp-form-77281 mc4wp-ajax" method="post" data-id="77281" data-name="Subscribe to KDnuggets News (Sidebar)" name="mc4wp-form-4">
+                                        <div class="mc4wp-form-fields">
+                                            <div class="header-container">
+                                                <div>
+                                                    <img width="200" height="111" src="/wp-content/uploads/newsletter.png" data-lazy-src="/wp-content/uploads/newsletter.png" data-ll-status="loaded" class="entered lazyloaded" /><noscript><img height="111" src="/wp-content/uploads/newsletter.png" width="100" /></noscript>
+                                                </div>
+                                                <p>
+                                                    <a href="/news/subscribe.html">Get the FREE ebook 'The Great Big Natural Language Processing Primer' and the leading newsletter on AI, Data Science, and Machine Learning, straight to your inbox.</a>
+                                                </p>
+                                            </div>
+                                            <div class="form-fields">
+                                                <div class="field-container">
+                                                    <input type="email" name="EMAIL" size="30" maxlength="60" placeholder="Your Email" required="" />
+                                                </div>
+                                                <div class="field-container submit-container">
+                                                    <input class="btn" type="submit" value="Sign Up" />
+                                                </div>
+                                                <p style="font-size:11px; margin-top: 10px;">
+                                                    By subscribing you accept KDnuggets <a style="font-size:10px" target="_blank" href="https://www.kdnuggets.com/news/privacy-policy.html">Privacy Policy</a>
+                                                </p>
+                                            </div>
+                                        </div><label style="display: none !important;">Leave this field empty if you're human: <input type="text" name="_mc4wp_honeypot" value="" tabindex="-1" autocomplete="off" /></label><input type="hidden" name="_mc4wp_timestamp" value="1680875133" /><input type="hidden" name="_mc4wp_form_id" value="77281" /><input type="hidden" name="_mc4wp_form_element_id" value="mc4wp-form-4" />
+                                        <div class="mc4wp-response"></div>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div><br />
+                <div id="footer">
+                    <div id="content" class="single">
+                        <hr class="grey-line" />
+                        <br />
+                        © 2023 <a href="https://www.guidingtechmedia.com/" target="_blank" rel="noopener noreferrer">Guiding Tech Media</a> &#160; | &#160; <a href="/about/index.html">About</a> &#160; | &#160; <a href="/contact.html">Contact</a> &#160; | &#160; <a href="/news/privacy-policy.html">Privacy Policy</a> &#160; | &#160; <a href="/terms-of-service.html">Terms of Service</a>
+                    </div><br />
+                    &#160;
+                    <div style="display: none;">
+                        Published on April 7, 2023 by Cornellius Yudha Wijaya
+                    </div>
+                    <div class="kd_bottom">
+                        <div class="footer-container">
+                            <div class="footer-news">
+                                <script type="rocketlazyloadscript">
+                                <![CDATA[
+                                (function() {
+                                window.mc4wp = window.mc4wp || {
+                                listeners: [],
+                                forms: {
+                                on: function(evt, cb) {
+                                window.mc4wp.listeners.push(
+                                        {
+                                                event   : evt,
+                                                callback: cb
+                                        }
+                                );
+                                }
+                                }
+                                }
+                                })();
+                                ]]>
+                                </script>
+                                <form id="mc4wp-form-5" class="mc4wp-form mc4wp-form-138093 mc4wp-ajax" method="post" data-id="138093" data-name="Subscribe to KDnuggets News (Footer)" name="mc4wp-form-5">
+                                    <div class="mc4wp-form-fields">
+                                        <p>
+                                            <strong>Subscribe To Our Newsletter</strong><br />
+                                            (Get The Complete Collection of Data Science Cheat Sheets)
+                                        </p>
+                                        <div class="footer-news-form">
+                                            <input type="email" name="EMAIL" placeholder="Your email address" required="" /> <input class="btn" type="submit" value="Subscribe" /> <input type="hidden" name="Form Signup Location" value="footer" />
+                                        </div>
+                                    </div><label style="display: none !important;">Leave this field empty if you're human: <input type="text" name="_mc4wp_honeypot" value="" tabindex="-1" autocomplete="off" /></label><input type="hidden" name="_mc4wp_timestamp" value="1680875133" /><input type="hidden" name="_mc4wp_form_id" value="138093" /><input type="hidden" name="_mc4wp_form_element_id" value="mc4wp-form-5" />
+                                    <div class="mc4wp-response"></div>
+                                </form>
+                            </div>
+                        </div><a class="close-footer" href="#"><img src="//www.kdnuggets.com/wp-content/themes/kdn17/images/bar-cross.svg" alt="Close" width="30" height="30" data-lazy-src="//www.kdnuggets.com/wp-content/themes/kdn17/images/bar-cross.svg" data-ll-status="loaded" class="entered lazyloaded" /><noscript><img src="//www.kdnuggets.com/wp-content/themes/kdn17/images/bar-cross.svg" alt="Close" width="30" height="30" /></noscript></a>
+                    </div>
+                    <script type="rocketlazyloadscript" data-rocket-type="text/javascript">
+                    <![CDATA[
+                    $('.close-footer').on('click', function(e) {  
+                    e.preventDefault();
+                    const d = new Date();
+                    d.setTime(d.getTime() + (7 * 24 * 60 * 60 * 1000));
+                    let expires = "expires="+d.toUTCString()
+                    document.cookie = 'footer_closed=1; expires=' + expires + '; path=/;'; // Set cookie for 7 days
+                    $('.kd_bottom').hide();
+                    });
+                    ]]>
+                    </script>
+                </div>
+                <div class="clear"></div>
+            </div>
+            <div style="display: none;">
+                <div id="boxzilla-box-138215-content">
+                    <script type="rocketlazyloadscript">
+                    <![CDATA[
+                    (function() {
+                    window.mc4wp = window.mc4wp || {
+                    listeners: [],
+                    forms: {
+                        on: function(evt, cb) {
+                                window.mc4wp.listeners.push(
+                                        {
+                                                event   : evt,
+                                                callback: cb
+                                        }
+                                );
+                        }
+                    }
+                    }
+                    })();
+                    ]]>
+                    </script>
+                    <form id="mc4wp-form-6" class="mc4wp-form mc4wp-form-138213 mc4wp-ajax" method="post" data-id="138213" data-name="Subscribe to KDnuggets News (Popup Button)" name="mc4wp-form-6">
+                        <div class="mc4wp-form-fields">
+                            <div class="header-container">
+                                <div>
+                                    <img width="200" height="111" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20200%20111'%3E%3C/svg%3E" data-lazy-src="/wp-content/uploads/newsletter-alt.png" /><noscript><img height="111" src="/wp-content/uploads/newsletter-alt.png" width="100" /></noscript>
+                                </div>
+                                <p>
+                                    <a href="/news/subscribe.html">Get the FREE ebook 'The Great Big Natural Language Processing Primer' and the leading newsletter on AI, Data Science, and Machine Learning, straight to your inbox.</a>
+                                </p>
+                            </div>
+                            <div class="form-fields">
+                                <div class="field-container">
+                                    <input type="email" name="EMAIL" size="30" maxlength="60" placeholder="Your Email" required="" />
+                                </div>
+                                <div class="field-container submit-container">
+                                    <input class="btn" type="submit" value="Sign Up" />
+                                </div>
+                                <p style="font-size:11px; margin-top: 10px;">
+                                    By subscribing you accept KDnuggets <a style="font-size:10px" target="_blank" href="https://www.kdnuggets.com/news/privacy-policy.html">Privacy Policy</a>
+                                </p><input type="hidden" name="Form Signup Location" value="popup_button" />
+                            </div>
+                        </div><label style="display: none !important;">Leave this field empty if you're human: <input type="text" name="_mc4wp_honeypot" value="" tabindex="-1" autocomplete="off" /></label><input type="hidden" name="_mc4wp_timestamp" value="1680875133" /><input type="hidden" name="_mc4wp_form_id" value="138213" /><input type="hidden" name="_mc4wp_form_element_id" value="mc4wp-form-6" />
+                        <div class="mc4wp-response"></div>
+                    </form>
+                </div>
+                <div id="boxzilla-box-82996-content">
+                    <script type="rocketlazyloadscript">
+                    <![CDATA[
+                    (function() {
+                    window.mc4wp = window.mc4wp || {
+                    listeners: [],
+                    forms: {
+                        on: function(evt, cb) {
+                                window.mc4wp.listeners.push(
+                                        {
+                                                event   : evt,
+                                                callback: cb
+                                        }
+                                );
+                        }
+                    }
+                    }
+                    })();
+                    ]]>
+                    </script>
+                    <form id="mc4wp-form-7" class="mc4wp-form mc4wp-form-138094 mc4wp-ajax" method="post" data-id="138094" data-name="Subscribe to KDnuggets News (Popup)" name="mc4wp-form-7">
+                        <div class="mc4wp-form-fields">
+                            <div class="header-container">
+                                <div>
+                                    <img width="200" height="111" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20200%20111'%3E%3C/svg%3E" data-lazy-src="/wp-content/uploads/newsletter-alt.png" /><noscript><img height="111" src="/wp-content/uploads/newsletter-alt.png" width="100" /></noscript>
+                                </div>
+                                <p>
+                                    <a href="/news/subscribe.html">Get the FREE ebook 'The Complete Collection of Data Science Cheat Sheets' and the leading newsletter on Data Science, Machine Learning, Analytics &amp; AI straight to your inbox.</a>
+                                </p>
+                            </div>
+                            <div class="form-fields">
+                                <div class="field-container">
+                                    <input type="email" name="EMAIL" size="30" maxlength="60" placeholder="Your Email" required="" />
+                                </div>
+                                <div class="field-container submit-container">
+                                    <input class="btn" type="submit" value="Sign Up" />
+                                </div>
+                                <p style="font-size:11px; margin-top: 10px;">
+                                    By subscribing you accept KDnuggets <a style="font-size:10px" target="_blank" href="https://www.kdnuggets.com/news/privacy-policy.html">Privacy Policy</a>
+                                </p><input type="hidden" name="Form Signup Location" value="popup_main" />
+                            </div>
+                        </div><label style="display: none !important;">Leave this field empty if you're human: <input type="text" name="_mc4wp_honeypot" value="" tabindex="-1" autocomplete="off" /></label><input type="hidden" name="_mc4wp_timestamp" value="1680875133" /><input type="hidden" name="_mc4wp_form_id" value="138094" /><input type="hidden" name="_mc4wp_form_element_id" value="mc4wp-form-7" />
+                        <div class="mc4wp-response"></div>
+                    </form>
+                </div>
+            </div>
+            <script>
+            <![CDATA[
+            (function(){var advanced_ads_ga_UID="UA-361129-1",advanced_ads_ga_anonymIP=!!1;function AdvAdsAdBlockCounterGA(t){this.UID=t,this.analyticsObject="function"==typeof gtag;var n=this;return this.count=function(){gtag("event","AdBlock",{event_category:"Advanced Ads",event_label:"Yes",non_interaction:!0,send_to:n.UID})},function(){if(!n.analyticsObject){var e=document.createElement("script");e.src="https://www.googletagmanager.com/gtag/js?id="+t,e.async=!0,document.body.appendChild(e),window.dataLayer=window.dataLayer||[],window.gtag=function(){dataLayer.push(arguments)},n.analyticsObject=!0,gtag("js",new Date)}var a={send_page_view:!1,transport_type:"beacon"};window.advanced_ads_ga_anonymIP&&(a.anonymize_ip=!0),gtag("config",t,a)}(),this}window.advanced_ads_check_adblocker=function(t){var n=[],e=null;function a(t){(window.requestAnimationFrame||window.mozRequestAnimationFrame||window.webkitRequestAnimationFrame||function(t){return setTimeout(t,16)}).call(window,t)}return a((function(){var t=document.createElement("div");t.innerHTML="&nbsp;",t.setAttribute("class","ad_unit ad-unit text-ad text_ad pub_300x250"),t.setAttribute("style","width: 1px !important; height: 1px !important; position: absolute !important; left: 0px !important; top: 0px !important; overflow: hidden !important;"),document.body.appendChild(t),a((function(){var a=window.getComputedStyle&&window.getComputedStyle(t),o=a&&a.getPropertyValue("-moz-binding");e=a&&"none"===a.getPropertyValue("display")||"string"==typeof o&&-1!==o.indexOf("about:");for(var i=0,d=n.length;i<d;i++)n[i](e);n=[]}))})),function(t){null!==e?t(e):n.push(t)}}(),advanced_ads_check_adblocker((function(t){t&&new AdvAdsAdBlockCounterGA(advanced_ads_ga_UID).count()}));})();
+            ]]>
+            </script>
+            <script type="rocketlazyloadscript">
+            <![CDATA[
+
+
+                        var wppl_precheck_remember_me = function() {
+
+                                // check remember me by default
+                                var forms = document.querySelectorAll('form');                                          
+                                if (forms) {
+
+                                        var rememberMeNames = ['rememberme', 'remember', 'rcp_user_remember'];
+                                        var rememberArray = [];
+
+                                        // loop through each remember me name and see if there's a field that matches
+                                        for( z = 0; z < rememberMeNames.length; z++ ) {
+                                                var input = document.getElementsByName( rememberMeNames[z] );
+                                                if( input.length ) {
+                                                        rememberArray.push(input);
+                                                }
+                                        }
+                                        
+                                        // if there are remember me inputs
+                                        if( rememberArray.length ) {    
+                                        
+                                                // 'check' the inputs so they're active         
+                                                        for (i = 0; i < rememberArray.length; i++) {
+                                                                for (x = 0; x < rememberArray[i].length; x++) {
+                                                                  rememberArray[i][x].checked = true;
+                                                                }
+                                                        }
+                                        
+                                        }
+
+                                        
+                                        // test for Ultimate Member Plugin forms
+                                                
+                                                // find the UM checkboxes
+                                                var UmCheckboxIcon = document.querySelectorAll('.um-icon-android-checkbox-outline-blank');
+                                                var UmCheckboxLabel = document.querySelectorAll('.um-field-checkbox');
+                                                
+                                                if( UmCheckboxIcon.length && UmCheckboxLabel.length ) {
+                                                        
+                                                        // loop through UM checkboxes
+                                                        for (i = 0; i < UmCheckboxLabel.length; i++) {
+                                                                
+                                                                // find the UM input element
+                                                                var UMCheckboxElement = UmCheckboxLabel[i].children;
+                                                                var UMCheckboxElementName = UMCheckboxElement[0].getAttribute('name');
+                                                                
+                                                                // check if UM input element is remember me box
+                                                                if( UMCheckboxElementName === 'remember' || UMCheckboxElementName === 'rememberme' ) {
+                                                                        
+                                                                        // activate the UM checkbox if it is a remember me box
+                                                                        UmCheckboxLabel[i].classList.add('active');
+                                                                        
+                                                                        // swap out UM classes to show the active state
+                                                                        UmCheckboxIcon[i].classList.add('um-icon-android-checkbox-outline');
+                                                                        UmCheckboxIcon[i].classList.remove('um-icon-android-checkbox-outline-blank');
+                                                                        
+                                                                } // endif
+                                                        
+                                                        } // end for
+
+                                                } // endif UM
+                                                
+                                                
+                                                
+                                        // test for AR Member
+                                                
+                                                var ArmRememberMeCheckboxContainer = document.querySelectorAll('.arm_form_input_container_rememberme');
+                                                
+                                                if( ArmRememberMeCheckboxContainer.length ) {
+                                                        
+                                                        for (i = 0; i < ArmRememberMeCheckboxContainer.length; i++) {
+                                                                
+                                                                var ArmRememberMeCheckbox = ArmRememberMeCheckboxContainer[i].querySelectorAll('md-checkbox');
+                                                                
+                                                                if( ArmRememberMeCheckbox.length ) {
+                                                                        // loop through AR Member checkboxes
+                                                                        for (x = 0; x < ArmRememberMeCheckbox.length; x++) {
+                                                                                if( ArmRememberMeCheckbox[x].classList.contains('ng-empty') ) {
+                                                                                        ArmRememberMeCheckbox[x].click();
+                                                                                }
+                                                                        }
+                                                                }
+                                                                
+                                                        }
+                                                        
+                                                } // end if AR Member
+                                                        
+                                                        
+                        
+                                } // endif forms
+
+                        }
+
+                        document.addEventListener('DOMContentLoaded', function(event) {
+                                wppl_precheck_remember_me();
+                        });
+
+            ]]>
+            </script>
+            <script type="rocketlazyloadscript">
+            <![CDATA[
+            (function() {function maybePrefixUrlField () {
+            const value = this.value.trim()
+            if (value !== '' && value.indexOf('http') !== 0) {
+            this.value = 'http://' + value
+            }
+            }
+
+            const urlFields = document.querySelectorAll('.mc4wp-form input[type="url"]')
+            for (let j = 0; j < urlFields.length; j++) {
+            urlFields[j].addEventListener('blur', maybePrefixUrlField)
+            }
+            })();
+            ]]>
+            </script>
+            <script type="text/javascript">
+            //<![CDATA[
+
+                /* MonsterInsights Scroll Tracking */
+                if ( typeof(jQuery) !== 'undefined' ) {
+                jQuery( document ).ready(function(){
+                function monsterinsights_scroll_tracking_load() {
+                if ( ( typeof(__gaTracker) !== 'undefined' && __gaTracker && __gaTracker.hasOwnProperty( "loaded" ) && __gaTracker.loaded == true ) || ( typeof(__gtagTracker) !== 'undefined' && __gtagTracker ) ) {
+                (function(factory) {
+                factory(jQuery);
+                }(function($) {
+
+                /* Scroll Depth */
+                "use strict";
+                var defaults = {
+                percentage: true
+                };
+
+                var $window = $(window),
+                cache = [],
+                scrollEventBound = false,
+                lastPixelDepth = 0;
+
+                /*
+                * Plugin
+                */
+
+                $.scrollDepth = function(options) {
+
+                var startTime = +new Date();
+
+                options = $.extend({}, defaults, options);
+
+                /*
+                * Functions
+                */
+
+                function sendEvent(action, label, scrollDistance, timing) {
+                if ( 'undefined' === typeof MonsterInsightsObject || 'undefined' === typeof MonsterInsightsObject.sendEvent ) {
+                return;
+                }
+                        var type        = 'event';
+            var eventName   = action;
+            var fieldsArray = {
+            event_category : 'Scroll Depth',
+            event_label    : label,
+            value          : 1,
+            non_interaction: true,
+            send_to: 'UA-361129-1'
+            };
+
+            MonsterInsightsObject.sendEvent( type, eventName, fieldsArray );
+
+            if (arguments.length > 3) {
+            var type        = 'event';
+            var eventName   = 'timing_complete';
+            fieldsArray = {
+            event_category : 'Scroll Depth',
+            name           : action,
+            event_label    : label,
+            value          : timing,
+            non_interaction: 1,
+            send_to: 'UA-361129-1'
+            };
+
+            MonsterInsightsObject.sendEvent( type, eventName, fieldsArray );
+            }
+                var paramName = action.toLowerCase();
+            var fieldsArray = {
+            send_to: 'G-67L1RV734X',
+            non_interaction: true
+            };
+            fieldsArray[paramName] = label;
+
+            if (arguments.length > 3) {
+            fieldsArray.scroll_timing = timing
+            MonsterInsightsObject.sendEvent('event', 'scroll_depth', fieldsArray);
+            } else {
+            MonsterInsightsObject.sendEvent('event', 'scroll_depth', fieldsArray);
+            }
+                        }
+
+                function calculateMarks(docHeight) {
+                return {
+                '25%' : parseInt(docHeight * 0.25, 10),
+                '50%' : parseInt(docHeight * 0.50, 10),
+                '75%' : parseInt(docHeight * 0.75, 10),
+                /* Cushion to trigger 100% event in iOS */
+                '100%': docHeight - 5
+                };
+                }
+
+                function checkMarks(marks, scrollDistance, timing) {
+                /* Check each active mark */
+                $.each(marks, function(key, val) {
+                if ( $.inArray(key, cache) === -1 && scrollDistance >= val ) {
+                sendEvent('Percentage', key, scrollDistance, timing);
+                cache.push(key);
+                }
+                });
+                }
+
+                function rounded(scrollDistance) {
+                /* Returns String */
+                return (Math.floor(scrollDistance/250) * 250).toString();
+                }
+
+                function init() {
+                bindScrollDepth();
+                }
+
+                /*
+                * Public Methods
+                */
+
+                /* Reset Scroll Depth with the originally initialized options */
+                $.scrollDepth.reset = function() {
+                cache = [];
+                lastPixelDepth = 0;
+                $window.off('scroll.scrollDepth');
+                bindScrollDepth();
+                };
+
+                /* Add DOM elements to be tracked */
+                $.scrollDepth.addElements = function(elems) {
+
+                if (typeof elems == "undefined" || !$.isArray(elems)) {
+                return;
+                }
+
+                $.merge(options.elements, elems);
+
+                /* If scroll event has been unbound from window, rebind */
+                if (!scrollEventBound) {
+                bindScrollDepth();
+                }
+
+                };
+
+                /* Remove DOM elements currently tracked */
+                $.scrollDepth.removeElements = function(elems) {
+
+                if (typeof elems == "undefined" || !$.isArray(elems)) {
+                return;
+                }
+
+                $.each(elems, function(index, elem) {
+
+                var inElementsArray = $.inArray(elem, options.elements);
+                var inCacheArray = $.inArray(elem, cache);
+
+                if (inElementsArray != -1) {
+                options.elements.splice(inElementsArray, 1);
+                }
+
+                if (inCacheArray != -1) {
+                cache.splice(inCacheArray, 1);
+                }
+
+                });
+
+                };
+
+                /*
+                * Throttle function borrowed from:
+                * Underscore.js 1.5.2
+                * http://underscorejs.org
+                * (c) 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+                * Underscore may be freely distributed under the MIT license.
+                */
+
+                function throttle(func, wait) {
+                var context, args, result;
+                var timeout = null;
+                var previous = 0;
+                var later = function() {
+                previous = new Date;
+                timeout = null;
+                result = func.apply(context, args);
+                };
+                return function() {
+                var now = new Date;
+                if (!previous) previous = now;
+                var remaining = wait - (now - previous);
+                context = this;
+                args = arguments;
+                if (remaining <= 0) {
+                clearTimeout(timeout);
+                timeout = null;
+                previous = now;
+                result = func.apply(context, args);
+                } else if (!timeout) {
+                timeout = setTimeout(later, remaining);
+                }
+                return result;
+                };
+                }
+
+                /*
+                * Scroll Event
+                */
+
+                function bindScrollDepth() {
+
+                scrollEventBound = true;
+
+                $window.on('scroll.scrollDepth', throttle(function() {
+                /*
+                * We calculate document and window height on each scroll event to
+                * account for dynamic DOM changes.
+                */
+
+                var docHeight = $(document).height(),
+                winHeight = window.innerHeight ? window.innerHeight : $window.height(),
+                scrollDistance = $window.scrollTop() + winHeight,
+
+                /* Recalculate percentage marks */
+                marks = calculateMarks(docHeight),
+
+                /* Timing */
+                timing = +new Date - startTime;
+
+                checkMarks(marks, scrollDistance, timing);
+                }, 500));
+
+                }
+
+                init();
+                };
+
+                /* UMD export */
+                return $.scrollDepth;
+
+                }));
+
+                jQuery.scrollDepth();
+                } else {
+                setTimeout(monsterinsights_scroll_tracking_load, 200);
+                }
+                }
+                monsterinsights_scroll_tracking_load();
+                });
+                }
+                /* End MonsterInsights Scroll Tracking */
+                
+            //]]>
+            </script>
+            <script type="rocketlazyloadscript" data-rocket-type="text/javascript" id="code-prettify-js-before">
+            <![CDATA[
+
+            var codePrettifyLoaderBaseUrl = "https:\/\/www.kdnuggets.com\/wp-content\/plugins\/code-prettify\/prettify";
+            ]]>
+            </script> 
+            <script type="rocketlazyloadscript" data-minify="1" data-rocket-type="text/javascript" data-rocket-src="//www.kdnuggets.com/wp-content/cache/min/1/wp-content/plugins/code-prettify/prettify/run_prettify.js?ver=1680701406" id="code-prettify-js" defer="defer"></script> 
+            <script type="text/javascript" id="dcl_comments-js-extra">
+
+            /* <![CDATA[ */
+            var countVars = {"disqusShortname":"kdnuggets"};
+            var embedVars = {"disqusConfig":{"integration":"wordpress 3.0.22"},"disqusIdentifier":"153498 https:\/\/www.kdnuggets.com\/?p=153498","disqusShortname":"kdnuggets","disqusTitle":"Text Summarization Development: A Python Tutorial with GPT-3.5","disqusUrl":"https:\/\/www.kdnuggets.com\/2023\/04\/text-summarization-development-python-tutorial-gpt35.html","postId":"153498"};
+            var dclCustomVars = {"dcl_progress_text":""};
+            /* ]]> */
+            </script> 
+            <script type="rocketlazyloadscript" data-rocket-type="text/javascript" data-rocket-src="//www.kdnuggets.com/wp-content/plugins/disqus-conditional-load/assets/js/embed-scroll.min.js?ver=11.0.6" id="dcl_comments-js" defer="defer"></script> 
+            <script type="text/javascript" id="advanced-ads-responsive-js-extra">
+
+            /* <![CDATA[ */
+            var advanced_ads_responsive = {"reload_on_resize":"1"};
+            /* ]]> */
+            </script> 
+            <script data-minify="1" type="text/javascript" src="//www.kdnuggets.com/wp-content/cache/min/1/wp-content/plugins/advanced-ads-responsive/public/assets/js/script.js?ver=1680701406" id="advanced-ads-responsive-js"></script> 
+            <script type="rocketlazyloadscript" data-rocket-type="text/javascript" id="rocket-browser-checker-js-after">
+            <![CDATA[
+
+            "use strict";var _createClass=function(){function defineProperties(target,props){for(var i=0;i<props.length;i++){var descriptor=props[i];descriptor.enumerable=descriptor.enumerable||!1,descriptor.configurable=!0,"value"in descriptor&&(descriptor.writable=!0),Object.defineProperty(target,descriptor.key,descriptor)}}return function(Constructor,protoProps,staticProps){return protoProps&&defineProperties(Constructor.prototype,protoProps),staticProps&&defineProperties(Constructor,staticProps),Constructor}}();function _classCallCheck(instance,Constructor){if(!(instance instanceof Constructor))throw new TypeError("Cannot call a class as a function")}var RocketBrowserCompatibilityChecker=function(){function RocketBrowserCompatibilityChecker(options){_classCallCheck(this,RocketBrowserCompatibilityChecker),this.passiveSupported=!1,this._checkPassiveOption(this),this.options=!!this.passiveSupported&&options}return _createClass(RocketBrowserCompatibilityChecker,[{key:"_checkPassiveOption",value:function(self){try{var options={get passive(){return!(self.passiveSupported=!0)}};window.addEventListener("test",null,options),window.removeEventListener("test",null,options)}catch(err){self.passiveSupported=!1}}},{key:"initRequestIdleCallback",value:function(){!1 in window&&(window.requestIdleCallback=function(cb){var start=Date.now();return setTimeout(function(){cb({didTimeout:!1,timeRemaining:function(){return Math.max(0,50-(Date.now()-start))}})},1)}),!1 in window&&(window.cancelIdleCallback=function(id){return clearTimeout(id)})}},{key:"isDataSaverModeOn",value:function(){return"connection"in navigator&&!0===navigator.connection.saveData}},{key:"supportsLinkPrefetch",value:function(){var elem=document.createElement("link");return elem.relList&&elem.relList.supports&&elem.relList.supports("prefetch")&&window.IntersectionObserver&&"isIntersecting"in IntersectionObserverEntry.prototype}},{key:"isSlowConnection",value:function(){return"connection"in navigator&&"effectiveType"in navigator.connection&&("2g"===navigator.connection.effectiveType||"slow-2g"===navigator.connection.effectiveType)}}]),RocketBrowserCompatibilityChecker}();
+            ]]>
+            </script> 
+            <script type="text/javascript" id="rocket-preload-links-js-extra">
+
+            /* <![CDATA[ */
+            var RocketPreloadLinksConfig = {"excludeUris":"\/test|\/news\/index.html|\/(?:.+\/)?feed(?:\/(?:.+\/?)?)?$|\/(?:.+\/)?embed\/|\/(index\\.php\/)?(.*)wp\\-json(\/.*|$)|\/refer\/|\/go\/|\/recommend\/|\/recommends\/","usesTrailingSlash":"","imageExt":"jpg|jpeg|gif|png|tiff|bmp|webp|avif|pdf|doc|docx|xls|xlsx|php","fileExt":"jpg|jpeg|gif|png|tiff|bmp|webp|avif|pdf|doc|docx|xls|xlsx|php|html|htm","siteUrl":"https:\/\/www.kdnuggets.com","onHoverDelay":"100","rateThrottle":"3"};
+            /* ]]> */
+            </script> 
+            <script type="rocketlazyloadscript" data-rocket-type="text/javascript" id="rocket-preload-links-js-after">
+            <![CDATA[
+
+            (function() {
+            "use strict";var r="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e},e=function(){function i(e,t){for(var n=0;n<t.length;n++){var i=t[n];i.enumerable=i.enumerable||!1,i.configurable=!0,"value"in i&&(i.writable=!0),Object.defineProperty(e,i.key,i)}}return function(e,t,n){return t&&i(e.prototype,t),n&&i(e,n),e}}();function i(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}var t=function(){function n(e,t){i(this,n),this.browser=e,this.config=t,this.options=this.browser.options,this.prefetched=new Set,this.eventTime=null,this.threshold=1111,this.numOnHover=0}return e(n,[{key:"init",value:function(){!this.browser.supportsLinkPrefetch()||this.browser.isDataSaverModeOn()||this.browser.isSlowConnection()||(this.regex={excludeUris:RegExp(this.config.excludeUris,"i"),images:RegExp(".("+this.config.imageExt+")$","i"),fileExt:RegExp(".("+this.config.fileExt+")$","i")},this._initListeners(this))}},{key:"_initListeners",value:function(e){-1<this.config.onHoverDelay&&document.addEventListener("mouseover",e.listener.bind(e),e.listenerOptions),document.addEventListener("mousedown",e.listener.bind(e),e.listenerOptions),document.addEventListener("touchstart",e.listener.bind(e),e.listenerOptions)}},{key:"listener",value:function(e){var t=e.target.closest("a"),n=this._prepareUrl(t);if(null!==n)switch(e.type){case"mousedown":case"touchstart":this._addPrefetchLink(n);break;case"mouseover":this._earlyPrefetch(t,n,"mouseout")}}},{key:"_earlyPrefetch",value:function(t,e,n){var i=this,r=setTimeout(function(){if(r=null,0===i.numOnHover)setTimeout(function(){return i.numOnHover=0},1e3);else if(i.numOnHover>i.config.rateThrottle)return;i.numOnHover++,i._addPrefetchLink(e)},this.config.onHoverDelay);t.addEventListener(n,function e(){t.removeEventListener(n,e,{passive:!0}),null!==r&&(clearTimeout(r),r=null)},{passive:!0})}},{key:"_addPrefetchLink",value:function(i){return this.prefetched.add(i.href),new Promise(function(e,t){var n=document.createElement("link");n.rel="prefetch",n.href=i.href,n.onload=e,n.onerror=t,document.head.appendChild(n)}).catch(function(){})}},{key:"_prepareUrl",value:function(e){if(null===e||"object"!==(void 0===e?"undefined":r(e))||!1 in e||-1===["http:","https:"].indexOf(e.protocol))return null;var t=e.href.substring(0,this.config.siteUrl.length),n=this._getPathname(e.href,t),i={original:e.href,protocol:e.protocol,origin:t,pathname:n,href:t+n};return this._isLinkOk(i)?i:null}},{key:"_getPathname",value:function(e,t){var n=t?e.substring(this.config.siteUrl.length):e;return n.startsWith("/")||(n="/"+n),this._shouldAddTrailingSlash(n)?n+"/":n}},{key:"_shouldAddTrailingSlash",value:function(e){return this.config.usesTrailingSlash&&!e.endsWith("/")&&!this.regex.fileExt.test(e)}},{key:"_isLinkOk",value:function(e){return null!==e&&"object"===(void 0===e?"undefined":r(e))&&(!this.prefetched.has(e.href)&&e.origin===this.config.siteUrl&&-1===e.href.indexOf("?")&&-1===e.href.indexOf("#")&&!this.regex.excludeUris.test(e.href)&&!this.regex.images.test(e.href))}}],[{key:"run",value:function(){"undefined"!=typeof RocketPreloadLinksConfig&&new n(new RocketBrowserCompatibilityChecker({capture:!0,passive:!0}),RocketPreloadLinksConfig).init()}}]),n}();t.run();
+            }());
+            ]]>
+            </script> 
+            <script type="text/javascript" id="advanced-ads-pro/front-js-extra">
+
+            /* <![CDATA[ */
+            var advadsCfpInfo = {"cfpExpHours":"3","cfpClickLimit":"3","cfpBan":"7","cfpPath":"","cfpDomain":"www.kdnuggets.com"};
+            /* ]]> */
+            </script> 
+            <script type="text/javascript" src="//www.kdnuggets.com/wp-content/plugins/advanced-ads-pro/assets/js/advanced-ads-pro.min.js?ver=2.21.1" id="advanced-ads-pro/front-js"></script> 
+            <script type="text/javascript" id="q2w3_fixed_widget-js-extra">
+
+            /* <![CDATA[ */
+            var q2w3_sidebar_options = [{"sidebar":"recent-widgets","use_sticky_position":false,"margin_top":80,"margin_bottom":0,"stop_elements_selectors":"","screen_max_width":700,"screen_max_height":0,"widgets":["#custom_html-3","#mc4wp_form_widget-2"]}];
+            /* ]]> */
+            </script> 
+            <script type="rocketlazyloadscript" data-rocket-type="text/javascript" data-rocket-src="//www.kdnuggets.com/wp-content/plugins/q2w3-fixed-widget/js/frontend.min.js?ver=6.2.3" id="q2w3_fixed_widget-js" defer="defer"></script> 
+            <script type="text/javascript" id="advanced-ads-pro/cache_busting-js-extra">
+
+            /* <![CDATA[ */
+            var advanced_ads_pro_ajax_object = {"ajax_url":"https:\/\/www.kdnuggets.com\/wp-admin\/admin-ajax.php","lazy_load_module_enabled":"","lazy_load":{"default_offset":0,"offsets":[]},"moveintohidden":"","wp_timezone_offset":"-14400"};
+            /* ]]> */
+            </script> 
+            <script type="text/javascript" src="//www.kdnuggets.com/wp-content/plugins/advanced-ads-pro/assets/js/base.min.js?ver=2.21.1" id="advanced-ads-pro/cache_busting-js"></script> 
+            <script type="text/javascript" id="advadsTrackingScript-js-extra">
+
+            /* <![CDATA[ */
+            var advadsTracking = {"impressionActionName":"aatrack-records","clickActionName":"aatrack-click","targetClass":"kdnug-target","blogId":"1","frontendPrefix":"kdnug-"};
+            /* ]]> */
+            </script> 
+            <script type="text/javascript" src="//www.kdnuggets.com/wp-content/plugins/advanced-ads-tracking/public/assets/js/dist/tracking.min.js?ver=2.4.3" id="advadsTrackingScript-js"></script> 
+            <script type="text/javascript" id="advadsTrackingGAFront-js-extra">
+
+            /* <![CDATA[ */
+            var advadsGALocale = {"Impressions":"Impressions","Clicks":"Clicks"};
+            /* ]]> */
+            </script> 
+            <script type="text/javascript" src="//www.kdnuggets.com/wp-content/plugins/advanced-ads-tracking/public/assets/js/dist/ga-tracking.min.js?ver=2.4.3" id="advadsTrackingGAFront-js"></script> 
+            <script type="text/javascript" id="boxzilla-js-extra">
+
+            /* <![CDATA[ */
+            var boxzilla_options = {"testMode":"","boxes":[{"id":138215,"icon":"&times;","content":"","css":{"background_color":"#f0ae37","width":600,"border_color":"#f0ae37","position":"center"},"trigger":false,"animation":"fade","cookie":{"triggered":0,"dismissed":0},"rehide":false,"position":"center","screenWidthCondition":null,"closable":true,"post":{"id":138215,"title":"Subscribe to KDnuggets (Button)","slug":"subscribe-to-kdnuggets-button"}},{"id":82996,"icon":"&times;","content":"","css":{"background_color":"#f0ae37","width":600,"border_color":"#f0ae37","border_style":"double","position":"center"},"trigger":{"method":"time_on_page","value":"3"},"animation":"fade","cookie":{"triggered":0,"dismissed":336},"rehide":false,"position":"center","screenWidthCondition":null,"closable":true,"post":{"id":82996,"title":"Subscribe to KDnuggets","slug":"subscribe-to-kdnuggets"}}]};
+            /* ]]> */
+            </script> 
+            <script type="rocketlazyloadscript" data-rocket-type="text/javascript" data-rocket-src="//www.kdnuggets.com/wp-content/plugins/boxzilla/assets/js/script.min.js?ver=3.2.25" id="boxzilla-js" defer="defer"></script> 
+            <script type="rocketlazyloadscript" data-minify="1" data-rocket-type="text/javascript" defer="defer" data-rocket-src="//www.kdnuggets.com/wp-content/cache/min/1/wp-content/plugins/mailchimp-for-wp/assets/js/forms.js?ver=1680701406" id="mc4wp-forms-api-js"></script> 
+            <script type="text/javascript" id="mc4wp-ajax-forms-js-extra">
+
+            /* <![CDATA[ */
+            var mc4wp_ajax_vars = {"loading_character":"\u2022","ajax_url":"https:\/\/www.kdnuggets.com\/wp-admin\/admin-ajax.php?action=mc4wp-form","error_text":"Oops. Something went wrong. Please try again later."};
+            /* ]]> */
+            </script> 
+            <script type="rocketlazyloadscript" data-minify="1" data-rocket-type="text/javascript" defer="defer" data-rocket-src="//www.kdnuggets.com/wp-content/cache/min/1/wp-content/plugins/mc4wp-premium/ajax-forms/assets/js/ajax-forms.js?ver=1680701406" id="mc4wp-ajax-forms-js"></script> 
+            <script type="text/javascript" id="boxzilla-stats-js-extra">
+
+            /* <![CDATA[ */
+            var boxzilla_stats_config = {"ajaxurl":"https:\/\/www.kdnuggets.com\/wp-admin\/admin-ajax.php?action=boxzilla_stats_track"};
+            /* ]]> */
+            </script> 
+            <script type="rocketlazyloadscript" data-rocket-type="text/javascript" data-rocket-src="//www.kdnuggets.com/wp-content/plugins/boxzilla-stats/assets/js/tracking.min.js?ver=1.1.3" id="boxzilla-stats-js" defer="defer"></script> 
+            <script type="rocketlazyloadscript">
+            <![CDATA[
+            window.advads_admin_bar_items = [];
+            ]]>
+            </script>
+            <script>
+            <![CDATA[
+            window.advads_ajax_queries = [{"id":"leaderboard-ros","method":"placement","params":{"previous_method":"placement","previous_id":"leaderboard-ros","post":"r0","url_parameter":"\/2023\/04\/text-summarization-development-python-tutorial-gpt35.html?utm_source=rss&utm_medium=rss&utm_campaign=text-summarization-development-a-python-tutorial-with-gpt-3-5","placement_type":"default","placement_position":"center","inline-css":"","cache-busting":"auto","output":{"class":["kdnug-leaderboard-ros"],"placement_id":"leaderboard-ros"}},"elementid":"kdnug-e76deed45b0d8c14bcdc10aed4b770f3","blog_id":1},{"id":"ros-mobile-in-content","method":"placement","params":{"inline-css":"text-align: center","pro_minimum_length":"500","placement_conditions":{"visitors":[{"type":"mobile","operator":"is"}]},"position":"after","index":3,"tag":"p","xpath":"","cache-busting":"auto","previous_method":"placement","previous_id":"ros-mobile-in-content","post":"r0","url_parameter":"\/2023\/04\/text-summarization-development-python-tutorial-gpt35.html?utm_source=rss&utm_medium=rss&utm_campaign=text-summarization-development-a-python-tutorial-with-gpt-3-5","placement_type":"post_content","output":{"class":["kdnug-ros-mobile-in-content"],"placement_id":"ros-mobile-in-content"}},"elementid":"kdnug-ba00f6ecaa07b4ad3a7156d7503d56b8","blog_id":1},{"id":"med-rectangle-ros","method":"placement","params":{"previous_method":"placement","previous_id":"med-rectangle-ros","post":"r0","url_parameter":"\/2023\/04\/text-summarization-development-python-tutorial-gpt35.html?utm_source=rss&utm_medium=rss&utm_campaign=text-summarization-development-a-python-tutorial-with-gpt-3-5","placement_type":"default","inline-css":"","cache-busting":"auto","output":{"class":["kdnug-med-rectangle-ros"],"placement_id":"med-rectangle-ros"}},"elementid":"kdnug-db3d927d962233058086d0bb0f76dfa1","blog_id":1},{"id":"med-rectangle-ros-sidebar-1","method":"placement","params":{"previous_method":"placement","previous_id":"med-rectangle-ros-sidebar-1","post":"r0","url_parameter":"\/2023\/04\/text-summarization-development-python-tutorial-gpt35.html?utm_source=rss&utm_medium=rss&utm_campaign=text-summarization-development-a-python-tutorial-with-gpt-3-5","placement_type":"default","inline-css":"","cache-busting":"auto","output":{"class":["kdnug-med-rectangle-ros-sidebar-1"],"placement_id":"med-rectangle-ros-sidebar-1"}},"elementid":"kdnug-25c323fb20c9fed8e43a2976b3007d89","blog_id":1},{"id":"sidebar-3-sticky","method":"placement","params":{"previous_method":"placement","previous_id":"sidebar-3-sticky","post":"r0","url_parameter":"\/2023\/04\/text-summarization-development-python-tutorial-gpt35.html?utm_source=rss&utm_medium=rss&utm_campaign=text-summarization-development-a-python-tutorial-with-gpt-3-5","placement_type":"default","inline-css":"","placement_conditions":{"visitors":[{"type":"mobile","operator":"is_not"}]},"cache-busting":"auto","output":{"class":["kdnug-sidebar-3-sticky"],"placement_id":"sidebar-3-sticky"}},"elementid":"kdnug-8e2f8c28db21b2a02c9b3bcecad41d38","blog_id":1}];
+            window.advads_ajax_queries_args = {"r0":{"id":153498,"author":"386","post_type":"post"}};
+            ( window.advanced_ads_ready || jQuery( document ).ready ).call( null, function() {if ( !window.advanced_ads_pro ) {console.log("Advanced Ads Pro: cache-busting can not be initialized");} });
+            ]]>
+            </script>
+            <script>
+            <![CDATA[
+            !function(){window.advanced_ads_ready_queue=window.advanced_ads_ready_queue||[],advanced_ads_ready_queue.push=window.advanced_ads_ready;for(var d=0,a=advanced_ads_ready_queue.length;d<a;d++)advanced_ads_ready(advanced_ads_ready_queue[d])}();
+            ]]>
+            </script>
+            <script id="kdnug-tracking">
+            <![CDATA[
+            var advads_tracking_ads = {};var advads_tracking_urls = {"1":"https:\/\/www.kdnuggets.com\/wp-admin\/admin-ajax.php"};var advads_tracking_methods = {"1":"ga"};var advads_tracking_parallel = {"1":false};var advads_tracking_linkbases = {"1":"https:\/\/www.kdnuggets.com\/linkout\/"};var advads_gatracking_uids = {"1":["UA-361129-1"]};var advads_gatracking_allads = {"1":{"153629":{"title":"s3-york-2304","target":"https:\/\/continue.yorku.ca\/programs\/certificate-in-big-data-analytics\/?utm_source=KDNuggets&utm_medium=CSDA&utm_campaign=S23&utm_agency=SCS","impression":true,"click":true},"153630":{"title":"s3-york-2304-b","target":"https:\/\/continue.yorku.ca\/programs\/certificate-in-advanced-data-science-and-predictive-analytics\/?utm_source=KDNuggets&utm_medium=CSDADV&utm_campaign=S23&utm_agency=SCS","impression":true,"click":true},"153589":{"title":"t4-cmu-2302","target":"https:\/\/analytics.tepper.cmu.edu\/online-msba\/?ace_campaign=kd_nuggets_display&utm_source=kdnuggetsdisplay&utm_medium=display&utm_campaign=kdnuggetsdisplay","impression":true,"click":true},"153079":{"title":"s4-depaul-2304","target":"https:\/\/www.cdm.depaul.edu\/academics\/Pages\/MS-in-Artificial-Intelligence.aspx?utm_medium=ad&utm_source=kdnuggets&utm_campaign=cdm_prospect&utm_content=ad%20on%20right%20rail%20of%20site","impression":true,"click":true},"152044":{"title":"t3-sas-2301_4206","target":"","impression":true,"click":true},"152010":{"title":"e1-sas-2301_4414","target":"","impression":true,"click":true},"151741":{"title":"s2-dremio-2302","target":"https:\/\/www.dremio.com\/gnarly-data-waves\/?utm_medium=paid-media&utm_source=kd-nuggets&utm_term=2023-Q1&utm_content=Banner&utm_campaign=GDW-B","impression":true,"click":true},"151494":{"title":"m1-odsc-2302-728","target":"http:\/\/bit.ly\/3UPwc92","impression":true,"click":true},"151476":{"title":"m2-formulated-2302-728","target":"https:\/\/www.datascience.salon\/upcoming-events\/","impression":true,"click":true},"151201":{"title":"t2-roidna-aws-2302","target":"https:\/\/pages.awscloud.com\/adx-webinar-dex-data-analytics-rearc-webinar.html?trk=8fe38080-2f9b-4e6f-8232-d4f454ceb15e&sc_channel=el","impression":true,"click":true},"151200":{"title":"t1-tdwi-2023","target":"https:\/\/tdwi.org\/Calendar\/Event-Calendar-Seminars.aspx?utm_source=KD&utm_medium=bannerad&utm_campaign=Seminars2023","impression":true,"click":true},"151203":{"title":"t4-uc-2302","target":"https:\/\/ad.doubleclick.net\/ddm\/trackclk\/N504001.2495500RESPONSESOLUTIONS\/B27263491.348664979;dc_trk_aid=540142568;dc_trk_cid=132660422;dc_lat=;dc_rdid=;tag_for_child_directed_treatment=;tfua=;ltd=","impression":true,"click":true},"149806":{"title":"h1-northwestern-2301-728","target":"https:\/\/sps.northwestern.edu\/information\/data-science-masters.php?utm_source=kdnuggets_a&utm_medium=banner728x180&utm_term=feb23&utm_content=msds&src=kdnuggets_msds_banner728x180_febfy23_a","impression":true,"click":true},"147669":{"title":"t4-response-2210-750","target":"https:\/\/ad.doubleclick.net\/ddm\/trackclk\/N504001.2495500RESPONSESOLUTIONS\/B27263491.348664979;dc_trk_aid=540142568;dc_trk_cid=132660422;dc_lat=;dc_rdid=;tag_for_child_directed_treatment=;tfua=;ltd=","impression":true,"click":true},"148802":{"title":"s5-mediately-2211-300","target":"","impression":true,"click":true},"147387":{"title":"t5-syncfusion-2210-750-b","target":"https:\/\/www.boldbi.com\/?utm_source=kdnuggets&utm_medium=cpc&utm_campaign=analyticsinsight_boldbi_bangnov22","impression":true,"click":true},"147386":{"title":"t5-syncfusion-2210-750-a","target":"https:\/\/www.boldbi.com\/?utm_source=kdnuggets&utm_medium=cpc&utm_campaign=analyticsinsight_boldbi_banenov22","impression":true,"click":true},"144383":{"title":"SASUS_KD Nuggets_DataScience_Hubpage_300x250 ROS_230725","target":"","impression":true,"click":true},"141512":{"title":"t5-pny-2302-750","target":"https:\/\/www.pny.com\/nvidia-a100-80gb?iscommercial=true","impression":true,"click":true},"136880":{"title":"SASUS_KD Nuggets_Learn_Talent Development_300x250 ROS_145733","target":"","impression":true,"click":true},"136834":{"title":"SASUS_KD Nuggets_Discovering New Possibilities_300x250 ROS_205918","target":"","impression":true,"click":true},"136734":{"title":"s6-streamsets-2201-300-platform","target":"https:\/\/streamsets.com\/products\/dataops-platform\/?utm_medium=social_pd&utm_source=KdNuggets&utm_campaign=22_q4streamsets_dataops_platform","impression":true,"click":true},"136256":{"title":"sas 300x250 jan-dec","target":"","impression":true,"click":true},"136220":{"title":"kineme 300x250","target":"https:\/\/www.knime.com\/knime-business-hub?utm_source=kdnuggets&utm_medium=paid&utm_term=&utm_content=&utm_campaign=hub_launch","impression":true,"click":true},"136101":{"title":"sas 300x250 oct-dec","target":"","impression":true,"click":true},"136095":{"title":"trifacta 728x90","target":"https:\/\/www.trifacta.com\/gated-form\/six-steps-data-engineering-cloud\/?utm_source=KDNuggetsad","impression":true,"click":true}}};var advads_gatracking_anonym = false;var advads_gatracking_transmitpageqs = {};
+            ]]>
+            </script>
+            <script>
+            <![CDATA[
+            window.lazyLoadOptions=[{elements_selector:"img[data-lazy-src],.rocket-lazyload,iframe[data-lazy-src]",data_src:"lazy-src",data_srcset:"lazy-srcset",data_sizes:"lazy-sizes",class_loading:"lazyloading",class_loaded:"lazyloaded",threshold:300,callback_loaded:function(element){if(element.tagName==="IFRAME"&&element.dataset.rocketLazyload=="fitvidscompatible"){if(element.classList.contains("lazyloaded")){if(typeof window.jQuery!="undefined"){if(jQuery.fn.fitVids){jQuery(element).parent().fitVids()}}}}}},{elements_selector:".rocket-lazyload",data_src:"lazy-src",data_srcset:"lazy-srcset",data_sizes:"lazy-sizes",class_loading:"lazyloading",class_loaded:"lazyloaded",threshold:300,}];window.addEventListener('LazyLoad::Initialized',function(e){var lazyLoadInstance=e.detail.instance;if(window.MutationObserver){var observer=new MutationObserver(function(mutations){var image_count=0;var iframe_count=0;var rocketlazy_count=0;mutations.forEach(function(mutation){for(var i=0;i<mutation.addedNodes.length;i++){if(typeof mutation.addedNodes[i].getElementsByTagName!=='function'){continue}
+            if(typeof mutation.addedNodes[i].getElementsByClassName!=='function'){continue}
+            images=mutation.addedNodes[i].getElementsByTagName('img');is_image=mutation.addedNodes[i].tagName=="IMG";iframes=mutation.addedNodes[i].getElementsByTagName('iframe');is_iframe=mutation.addedNodes[i].tagName=="IFRAME";rocket_lazy=mutation.addedNodes[i].getElementsByClassName('rocket-lazyload');image_count+=images.length;iframe_count+=iframes.length;rocketlazy_count+=rocket_lazy.length;if(is_image){image_count+=1}
+            if(is_iframe){iframe_count+=1}}});if(image_count>0||iframe_count>0||rocketlazy_count>0){lazyLoadInstance.update()}});var b=document.getElementsByTagName("body")[0];var config={childList:!0,subtree:!0};observer.observe(b,config)}},!1)
+            ]]>
+            </script>
+            <script data-no-minify="1" async="async" src="//www.kdnuggets.com/wp-content/plugins/wp-rocket/assets/js/lazyload/17.5/lazyload.min.js"></script>
+        </div>
+        <div class="ad_unit ad-unit text-ad text_ad pub_300x250" style="width: 1px !important; height: 1px !important; position: absolute !important; left: 0px !important; top: 0px !important; overflow: hidden !important;">
+            &#160;
+        </div>
+        <script type="rocketlazyloadscript" data-rocket-type="text/javascript">
+        //<![CDATA[
+        var la=!1;window.addEventListener("scroll",function(){(0!=document.documentElement.scrollTop&&!1===la||0!=document.body.scrollTop&&!1===la)&&(!function(){var e=document.createElement("script");e.type="text/javascript",e.async=!0,e.src="https://s7.addthis.com/js/300/addthis_widget.js#pubid=gpsaddthis";var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(e,a)}(),la=!0)},!0);
+        //]]>
+        </script>
+    </body>
+</html>
