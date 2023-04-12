@@ -1,7 +1,7 @@
 import Foundation
 
 public extension Bundle {
-  /// If it's not a debug build and not TF then it's probably
+  /// If it's not a debug build or TF then it's probably AppStore
   var isAppStoreBuild: Bool {
     #if DEBUG
       return false
