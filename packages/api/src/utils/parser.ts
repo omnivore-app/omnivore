@@ -384,7 +384,7 @@ const getJSONLdLinkMetadata = async (
 
     return result
   } catch (error) {
-    logger.warning(`Unable to get JSONLD link of the article`, error)
+    logger.warning(`Unable to get JSONLD link of the article`, { error })
     return result
   }
 }

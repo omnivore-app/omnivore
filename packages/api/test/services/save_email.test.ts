@@ -11,19 +11,23 @@ import { User } from '../../src/entity/user'
 describe('saveEmail', () => {
   const fakeContent = 'fake content'
   let user: User
+  let scope: nock.Scope
 
   before(async () => {
     // create test user
     user = await createTestUser('fakeUser')
+    scope = nock('https://blog.omnivore.app')
+      .get('/fake-url')
+      .reply(200)
+      .persist()
   })
 
   after(async () => {
     await deleteTestUser(user.id)
+    scope.persist(false)
   })
 
   it('doesnt fail if saved twice', async () => {
-    nock('https://blog.omnivore.app').get('/fake-url').reply(404)
-
     const url = 'https://blog.omnivore.app/fake-url'
     const title = 'fake title'
     const author = 'fake author'

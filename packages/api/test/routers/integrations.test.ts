@@ -17,20 +17,41 @@ import {
   PageContext,
 } from '../../src/elastic/types'
 import nock from 'nock'
-import { READWISE_API_URL } from '../../src/services/integrations'
 import { addHighlightToPage } from '../../src/elastic/highlights'
 import { getHighlightUrl } from '../../src/services/highlights'
 import { deletePage } from '../../src/elastic/pages'
+import { READWISE_API_URL } from '../../src/services/integrations/readwise'
+import sinon from 'sinon'
+import { Storage } from '@google-cloud/storage'
+import { MockBucket } from '../mock_storage'
+import { env } from '../../src/env'
 
 describe('Integrations routers', () => {
+  const baseUrl = '/svc/pubsub/integrations'
   let token: string
+  let user: User
+  let authToken: string
+
+  before(async () => {
+    user = await createTestUser('fakeUser')
+    const res = await request
+      .post('/local/debug/fake-user-login')
+      .send({ fakeEmail: user.email })
+
+    const body = res.body as { authToken: string }
+    authToken = body.authToken
+  })
+
+  after(async () => {
+    await deleteTestUser(user.id)
+  })
 
   describe('sync with integrations', () => {
-    const endpoint = (token: string, type = 'type', action = 'action') =>
-      `/svc/pubsub/integrations/${type}/${action}?token=${token}`
+    const endpoint = (token: string, name = 'name', action = 'action') =>
+      `${baseUrl}/${name}/${action}?token=${token}`
     let action: string
     let data: PubSubRequestBody
-    let integrationType: string
+    let integrationName: string
 
     context('when token is invalid', () => {
       before(() => {
@@ -44,7 +65,7 @@ describe('Integrations routers', () => {
 
     context('when token is valid', () => {
       before(() => {
-        token = process.env.PUBSUB_VERIFICATION_TOKEN!
+        token = process.env.PUBSUB_VERIFICATION_TOKEN as string
       })
 
       context('when data is expired', () => {
@@ -83,19 +104,9 @@ describe('Integrations routers', () => {
       })
 
       context('when user exists', () => {
-        let user: User
-
-        before(async () => {
-          user = await createTestUser('fakeUser')
-        })
-
-        after(async () => {
-          await deleteTestUser(user.id)
-        })
-
         context('when integration not found', () => {
           before(() => {
-            integrationType = IntegrationType.Readwise
+            integrationName = 'READWISE'
             data = {
               message: {
                 data: Buffer.from(
@@ -108,7 +119,7 @@ describe('Integrations routers', () => {
 
           it('returns 200 with No integration found', async () => {
             const res = await request
-              .post(endpoint(token, integrationType))
+              .post(endpoint(token, integrationName))
               .send(data)
               .expect(200)
             expect(res.text).to.eql('No integration found')
@@ -125,10 +136,10 @@ describe('Integrations routers', () => {
           before(async () => {
             integration = await getRepository(Integration).save({
               user: { id: user.id },
-              type: IntegrationType.Readwise,
+              name: 'READWISE',
               token: 'token',
             })
-            integrationType = integration.type
+            integrationName = integration.name
             // create page
             page = await createTestElasticPage(user.id)
             ctx = {
@@ -177,7 +188,7 @@ describe('Integrations routers', () => {
           })
 
           context('when action is sync_updated', () => {
-            before(async () => {
+            before(() => {
               action = 'sync_updated'
             })
 
@@ -208,7 +219,7 @@ describe('Integrations routers', () => {
 
               it('returns 200 with OK', async () => {
                 const res = await request
-                  .post(endpoint(token, integrationType, action))
+                  .post(endpoint(token, integrationName, action))
                   .send(data)
                   .expect(200)
                 expect(res.text).to.eql('OK')
@@ -240,7 +251,7 @@ describe('Integrations routers', () => {
 
                 it('returns 200 with OK', async () => {
                   const res = await request
-                    .post(endpoint(token, integrationType, action))
+                    .post(endpoint(token, integrationName, action))
                     .send(data)
                     .expect(200)
                   expect(res.text).to.eql('OK')
@@ -275,7 +286,7 @@ describe('Integrations routers', () => {
 
               it('returns 200 with OK', async () => {
                 const res = await request
-                  .post(endpoint(token, integrationType, action))
+                  .post(endpoint(token, integrationName, action))
                   .send(data)
                   .expect(200)
                 expect(res.text).to.eql('OK')
@@ -313,13 +324,81 @@ describe('Integrations routers', () => {
 
             it('returns 200 with OK', async () => {
               const res = await request
-                .post(endpoint(token, integrationType, action))
+                .post(endpoint(token, integrationName, action))
                 .send(data)
                 .expect(200)
               expect(res.text).to.eql('OK')
             })
           })
         })
+      })
+    })
+  })
+
+  describe('import from integrations router', () => {
+    let integration: Integration
+
+    before(async () => {
+      token = 'test token'
+      // create integration
+      integration = await getRepository(Integration).save({
+        user: { id: user.id },
+        name: 'POCKET',
+        token,
+        type: IntegrationType.Import,
+      })
+
+      // mock Pocket API
+      nock('https://getpocket.com', {
+        reqheaders: {
+          'content-type': 'application/json',
+          'x-accept': 'application/json',
+        },
+      })
+        .post('/v3/get', {
+          access_token: token,
+          consumer_key: env.pocket.consumerKey,
+          state: 'all',
+          detailType: 'complete',
+          since: 0,
+          sort: 'oldest',
+          count: 100,
+          offset: 0,
+        })
+        .reply(200, {
+          complete: 1,
+          list: {
+            '123': {
+              given_url: 'https://omnivore.app/pocket-import-test',
+              state: '0',
+            },
+          },
+          since: Date.now() / 1000,
+        })
+
+      // mock cloud storage
+      const mockBucket = new MockBucket('test')
+      sinon.replace(
+        Storage.prototype,
+        'bucket',
+        sinon.fake.returns(mockBucket as never)
+      )
+    })
+
+    after(async () => {
+      sinon.restore()
+      await deleteTestIntegrations(user.id, [integration.id])
+    })
+
+    context('when integration is pocket', () => {
+      it('returns 200 with OK', async () => {
+        return request
+          .post(`${baseUrl}/import`)
+          .send({
+            integrationId: integration.id,
+          })
+          .set('Cookie', `auth=${authToken}`)
+          .expect(200)
       })
     })
   })

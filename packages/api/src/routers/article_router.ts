@@ -4,7 +4,6 @@ import { htmlToSpeechFile } from '@omnivore/text-to-speech-handler'
 import cors from 'cors'
 import express from 'express'
 import * as jwt from 'jsonwebtoken'
-import { kx } from '../datalayer/knex_config'
 import { createPubSubClient } from '../datalayer/pubsub'
 import { getPageById, updatePage } from '../elastic/pages'
 import { Speech, SpeechState } from '../entity/speech'
@@ -12,7 +11,6 @@ import { getRepository } from '../entity/utils'
 import { env } from '../env'
 import { CreateArticleErrorCode } from '../generated/graphql'
 import { Claims } from '../resolvers/types'
-import { initModels } from '../server'
 import { createPageSaveRequest } from '../services/create_page_save_request'
 import { getClaimsByToken } from '../utils/auth'
 import { isSiteBlockedForParse } from '../utils/blocked'
@@ -59,8 +57,7 @@ export function articleRouter() {
       return res.status(400).send({ errorCode: 'BAD_DATA' })
     }
 
-    const models = initModels(kx, false)
-    const result = await createPageSaveRequest(uid, url, models)
+    const result = await createPageSaveRequest({ userId: uid, url })
 
     if (isSiteBlockedForParse(url)) {
       return res

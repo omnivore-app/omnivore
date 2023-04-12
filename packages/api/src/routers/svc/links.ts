@@ -3,9 +3,7 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import express from 'express'
 import { readPushSubscription } from '../../datalayer/pubsub'
-import { kx } from '../../datalayer/knex_config'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
-import { initModels } from '../../server'
 
 interface CreateLinkRequestMessage {
   url: string
@@ -39,10 +37,11 @@ export function linkServiceRouter() {
     }
     const msg = data as CreateLinkRequestMessage
 
-    const models = initModels(kx, false)
-
     try {
-      const request = await createPageSaveRequest(msg.userId, msg.url, models)
+      const request = await createPageSaveRequest({
+        userId: msg.userId,
+        url: msg.url,
+      })
       console.log('create link request', request)
 
       res.status(200).send(request)

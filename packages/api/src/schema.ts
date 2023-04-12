@@ -488,6 +488,8 @@ const schema = gql`
     uploadFileId: ID
     skipParsing: Boolean
     source: String
+    state: ArticleSavingRequestStatus
+    labels: [CreateLabelInput!]
   }
   enum CreateArticleErrorCode {
     UNABLE_TO_FETCH
@@ -530,6 +532,8 @@ const schema = gql`
     source: String!
     clientRequestId: ID!
     uploadFileId: ID!
+    state: ArticleSavingRequestStatus
+    labels: [CreateLabelInput!]
   }
 
   input ParseResult {
@@ -554,12 +558,16 @@ const schema = gql`
     title: String
     originalContent: String!
     parseResult: ParseResult
+    state: ArticleSavingRequestStatus
+    labels: [CreateLabelInput!]
   }
 
   input SaveUrlInput {
     url: String!
     source: String!
     clientRequestId: ID!
+    state: ArticleSavingRequestStatus
+    labels: [CreateLabelInput!]
   }
 
   union SaveResult = SaveSuccess | SaveError
@@ -1073,6 +1081,7 @@ const schema = gql`
     SUCCEEDED
     FAILED
     DELETED
+    ARCHIVED
   }
 
   type ArticleSavingRequest {
@@ -1427,7 +1436,7 @@ const schema = gql`
 
   input CreateLabelInput {
     name: String! @sanitize(maxLength: 64)
-    color: String! @sanitize(pattern: "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$")
+    color: String @sanitize(pattern: "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$")
     description: String @sanitize(maxLength: 100)
   }
 
@@ -1903,6 +1912,7 @@ const schema = gql`
 
   type Integration {
     id: ID!
+    name: String!
     type: IntegrationType!
     token: String!
     enabled: Boolean!
@@ -1911,7 +1921,8 @@ const schema = gql`
   }
 
   enum IntegrationType {
-    READWISE
+    EXPORT
+    IMPORT
   }
 
   type SetIntegrationError {
@@ -1928,7 +1939,8 @@ const schema = gql`
 
   input SetIntegrationInput {
     id: ID
-    type: IntegrationType!
+    name: String!
+    type: IntegrationType
     token: String!
     enabled: Boolean!
   }
@@ -2416,6 +2428,23 @@ const schema = gql`
     UNAUTHORIZED
   }
 
+  union ImportFromIntegrationResult =
+      ImportFromIntegrationSuccess
+    | ImportFromIntegrationError
+
+  type ImportFromIntegrationSuccess {
+    success: Boolean!
+  }
+
+  type ImportFromIntegrationError {
+    errorCodes: [ImportFromIntegrationErrorCode!]!
+  }
+
+  enum ImportFromIntegrationErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -2506,6 +2535,7 @@ const schema = gql`
     ): UploadImportFileResult!
     markEmailAsItem(recentEmailId: ID!): MarkEmailAsItemResult!
     bulkAction(query: String, action: BulkActionType!): BulkActionResult!
+    importFromIntegration(integrationId: ID!): ImportFromIntegrationResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed

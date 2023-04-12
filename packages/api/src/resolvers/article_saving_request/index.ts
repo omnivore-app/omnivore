@@ -1,5 +1,7 @@
 /* eslint-disable prefer-const */
 import { getPageByParam } from '../../elastic/pages'
+import { User } from '../../entity/user'
+import { getRepository } from '../../entity/utils'
 import { env } from '../../env'
 import {
   ArticleSavingRequestError,
@@ -25,7 +27,7 @@ export const createArticleSavingRequestResolver = authorized<
   CreateArticleSavingRequestSuccess,
   CreateArticleSavingRequestError,
   MutationCreateArticleSavingRequestArgs
->(async (_, { input: { url } }, { models, claims, pubsub }) => {
+>(async (_, { input: { url } }, { claims, pubsub }) => {
   analytics.track({
     userId: claims.uid,
     event: 'link_saved',
@@ -37,7 +39,11 @@ export const createArticleSavingRequestResolver = authorized<
   })
 
   try {
-    const request = await createPageSaveRequest(claims.uid, url, models, pubsub)
+    const request = await createPageSaveRequest({
+      userId: claims.uid,
+      url,
+      pubsub,
+    })
     return {
       articleSavingRequest: request,
     }
@@ -56,11 +62,14 @@ export const articleSavingRequestResolver = authorized<
   ArticleSavingRequestSuccess,
   ArticleSavingRequestError,
   QueryArticleSavingRequestArgs
->(async (_, { id, url }, { models, claims }) => {
+>(async (_, { id, url }, { claims }) => {
   if (!id && !url) {
     return { errorCodes: [ArticleSavingRequestErrorCode.BadData] }
   }
-  const user = await models.user.get(claims.uid)
+  const user = await getRepository(User).findOne({
+    where: { id: claims.uid },
+    relations: ['profile'],
+  })
   if (!user) {
     return { errorCodes: [ArticleSavingRequestErrorCode.Unauthorized] }
   }

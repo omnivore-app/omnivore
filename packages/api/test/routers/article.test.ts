@@ -5,6 +5,8 @@ import nock from 'nock'
 import 'mocha'
 import { env } from '../../src/env'
 import { User } from '../../src/entity/user'
+import sinon from 'sinon'
+import * as createTask from '../../src/utils/createTask'
 
 describe('/article/save API', () => {
   let user: User
@@ -32,6 +34,14 @@ describe('/article/save API', () => {
 
   describe('POST /article/save', () => {
     const url = 'https://blog.omnivore.app'
+
+    before(() => {
+      sinon.replace(createTask, 'enqueueParseRequest', sinon.fake.resolves(''))
+    })
+
+    after(() => {
+      sinon.restore()
+    })
 
     context('when token and url are valid', () => {
       it('should create an article saving request', async () => {

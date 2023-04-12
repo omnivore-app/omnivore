@@ -24,7 +24,7 @@ export class Label {
   color!: string
 
   @Column('text', { nullable: true })
-  description?: string
+  description?: string | null
 
   @CreateDateColumn()
   createdAt!: Date
