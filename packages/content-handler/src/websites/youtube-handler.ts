@@ -83,6 +83,7 @@ export class YoutubeHandler extends ContentHandler {
       <meta property="og:description" content="" />
       <meta property="og:article:author" content="${authorName}" />
       <meta property="og:site_name" content="YouTube" />
+      <meta property="og:type" content="video" />
       </head>
       <body>
       <iframe width="${width}" height="${height}" src="${src}" title="${escapedTitle}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>

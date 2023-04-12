@@ -69,6 +69,7 @@ export class PipedVideoHandler extends ContentHandler {
         <meta property="og:article:author" content="${authorName}" />
         <meta property="og:site_name" content="Piped Video" />
         <meta property="article:published_time" content="${metadata.uploadDate}" />
+        <meta property="og:type" content="video" />
       </head>
       <body>
       <iframe width="${width}" height="${height}" src="${src}" title="${escapedTitle}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>

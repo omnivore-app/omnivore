@@ -62,6 +62,9 @@ export enum PageType {
   Unknown = 'UNKNOWN',
   Website = 'WEBSITE',
   Highlights = 'HIGHLIGHTS',
+  TWEET = 'TWEET',
+  VIDEO = 'VIDEO',
+  IMAGE = 'IMAGE',
 }
 
 export enum ArticleSavingRequestStatus {

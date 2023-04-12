@@ -311,7 +311,7 @@ const schema = gql`
     UNKNOWN
     TWEET
     VIDEO
-    PICTURE
+    IMAGE
   }
 
   type Page {
