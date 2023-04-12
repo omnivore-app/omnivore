@@ -1219,8 +1219,11 @@ enum PageType {
   BOOK
   FILE
   HIGHLIGHTS
+  IMAGE
   PROFILE
+  TWEET
   UNKNOWN
+  VIDEO
   WEBSITE
 }
 

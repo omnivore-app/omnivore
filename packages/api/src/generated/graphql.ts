@@ -1683,8 +1683,11 @@ export enum PageType {
   Book = 'BOOK',
   File = 'FILE',
   Highlights = 'HIGHLIGHTS',
+  Image = 'IMAGE',
   Profile = 'PROFILE',
+  Tweet = 'TWEET',
   Unknown = 'UNKNOWN',
+  Video = 'VIDEO',
   Website = 'WEBSITE'
 }
 
