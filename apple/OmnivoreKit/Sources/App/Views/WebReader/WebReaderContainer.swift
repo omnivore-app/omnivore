@@ -462,17 +462,19 @@ struct WebReaderContainerView: View {
           }
         #endif
         .sheet(isPresented: $showHighlightAnnotationModal) {
-          HighlightAnnotationSheet(
-            annotation: $annotation,
-            onSave: {
-              annotationSaveTransactionID = UUID()
-            },
-            onCancel: {
-              showHighlightAnnotationModal = false
-            },
-            errorAlertMessage: $errorAlertMessage,
-            showErrorAlertMessage: $showErrorAlertMessage
-          )
+          NavigationView {
+            HighlightAnnotationSheet(
+              annotation: $annotation,
+              onSave: {
+                annotationSaveTransactionID = UUID()
+              },
+              onCancel: {
+                showHighlightAnnotationModal = false
+              },
+              errorAlertMessage: $errorAlertMessage,
+              showErrorAlertMessage: $showErrorAlertMessage
+            )
+          }
         }
         .sheet(isPresented: $showHighlightLabelsModal) {
           if let highlight = Highlight.lookup(byID: self.annotation, inContext: self.dataService.viewContext) {
