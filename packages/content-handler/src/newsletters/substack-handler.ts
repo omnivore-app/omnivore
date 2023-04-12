@@ -120,7 +120,10 @@ export class SubstackHandler extends ContentHandler {
       // elements (style will be handled in the reader)
       recurse(tweet, (n: Element) => {
         const className = n.className
-        if (className.startsWith('tweet-')) {
+        if (
+          className.startsWith('tweet-') ||
+          className.startsWith('quote-tweet')
+        ) {
           n.className = preClassName + className
         }
         n.removeAttribute('style')
