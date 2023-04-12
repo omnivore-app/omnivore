@@ -1,15 +1,17 @@
 import Foundation
 
 public extension Bundle {
+  /// If it's not a debug build and not TF then it's probably
   var isAppStoreBuild: Bool {
     #if DEBUG
       return false
     #else
-      guard let path = appStoreReceiptURL?.path else {
-        return true
-      }
-      return !path.contains("sandboxReceipt")
+      return !isTestFlightBuild
     #endif
+  }
+  
+  private var isTestFlightBuild: Bool {
+    appStoreReceiptURL?.path.contains("sandboxReceipt") == true
   }
 }
 
