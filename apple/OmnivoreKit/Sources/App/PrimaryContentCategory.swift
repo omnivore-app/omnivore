@@ -1,7 +1,7 @@
 import SwiftUI
 import Views
 
-enum PrimaryContentCategory: Identifiable, Hashable, Equatable {
+enum PrimaryContentCategory: Identifiable, Hashable, Equatable, Codable {
   case feed
   case profile
 

@@ -5,6 +5,24 @@ import SwiftUI
 import Utils
 import Views
 
+final class NavigationModel: ObservableObject, Codable {
+  @Published var selectedCategory: PrimaryContentCategory?
+  
+  enum CodingKeys: String, CodingKey {
+    case selectedCategory
+  }
+  
+  func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encodeIfPresent(selectedCategory, forKey: .selectedCategory)
+  }
+  
+  required init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    self.selectedCategory = try container.decodeIfPresent(PrimaryContentCategory.self, forKey: .selectedCategory)
+  }
+}
+
 @available(iOS 16.0, *)
 public struct RootSplitView: View {
   @StateObject private var libraryViewModel = LibraryViewModel()
