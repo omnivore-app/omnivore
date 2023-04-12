@@ -1,21 +1,36 @@
 import SwiftUI
+import Models
+import Services
 
 @available(iOS 16.0, *)
 struct SplitViewSidebar: View {
+  @EnvironmentObject var dataService: DataService
+  
   @ObservedObject var libraryViewModel: LibraryViewModel
   @ObservedObject var navigationModel: NavigationModel
-  
-  let categories = [
-    PrimaryContentCategory.feed,
-    PrimaryContentCategory.profile
-  ]
+  @ObservedObject var labelsViewModel: LabelsViewModel
   
   public var body: some View {
-    List(categories, selection: $navigationModel.selectedCategory) { category in
-      NavigationLink(value: category) {
-        category.listLabel
+    List {
+      Section(header: Text("Saved Searches")) {
+        ForEach(LinkedItemFilter.allCases, id: \.self) { filter in
+          Button(filter.displayName) {
+            print("tapped on \(filter.displayName)")
+          }
+        }
+      }
+      
+      Section(header: Text("Labels")) {
+        ForEach(labelsViewModel.labels) { label in
+          Button(label.unwrappedName) {
+            print("tapped on \(label.unwrappedName)")
+          }
+        }
       }
     }
-    .navigationTitle("Categories")
+    .navigationTitle("Filters")
+    .task {
+      await labelsViewModel.loadLabels(dataService: dataService)
+    }
   }
 }
