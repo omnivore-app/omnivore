@@ -5,6 +5,7 @@ import Views
 
 final class NavigationModel: ObservableObject {
   @Published var linkedItemFilter = LinkedItemFilter.inbox
+  @Published var activeLabelIDs = Set<String>()
 }
 
 @available(iOS 16.0, *)

@@ -14,16 +14,36 @@ struct SplitViewSidebar: View {
     List {
       Section(header: Text("Saved Searches")) {
         ForEach(LinkedItemFilter.allCases, id: \.self) { filter in
-          Button(filter.displayName) {
-            print("tapped on \(filter.displayName)")
+          Button(action: {
+            navigationModel.linkedItemFilter = filter
+          }) {
+            HStack {
+              Text(filter.displayName)
+              if navigationModel.linkedItemFilter == filter {
+                Spacer()
+                Image(systemName: "checkmark")
+              }
+            }
           }
         }
       }
       
       Section(header: Text("Labels")) {
         ForEach(labelsViewModel.labels) { label in
-          Button(label.unwrappedName) {
-            print("tapped on \(label.unwrappedName)")
+          Button(action: {
+            if navigationModel.activeLabelIDs.contains(label.unwrappedID) {
+              navigationModel.activeLabelIDs.remove(label.unwrappedID)
+            } else {
+              navigationModel.activeLabelIDs.insert(label.unwrappedID)
+            }
+          }) {
+            HStack {
+              Text(label.unwrappedName)
+              if navigationModel.activeLabelIDs.contains(label.unwrappedID) {
+                Spacer()
+                Image(systemName: "checkmark")
+              }
+            }
           }
         }
       }
