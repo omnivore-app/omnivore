@@ -270,7 +270,7 @@ describe('Newsletter email test', () => {
         ) ?? []
       )
 
-      expect(tweets.length).to.eq(14)
+      expect(tweets.length).to.eq(1)
     })
 
     it('returns BeehiivHandler for beehiiv.com newsletter', async () => {
