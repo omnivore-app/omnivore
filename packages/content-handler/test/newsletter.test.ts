@@ -249,6 +249,30 @@ describe('Newsletter email test', () => {
       expect(tweets.length).to.eq(7)
     })
 
+    it('fixes up static quote tweets in Substack newsletters', async () => {
+      const url =
+        'https://www.lennysnewsletter.com/p/how-to-use-chatgpt-in-your-pm-work'
+      const html = load('./test/data/substack-static-quote-tweet.html')
+      const handler = await getNewsletterHandler({
+        html,
+        from: '',
+        headers: {},
+      })
+      expect(handler).to.be.instanceOf(SubstackHandler)
+
+      const dom = parseHTML(html).document
+      expect(handler?.shouldPreParse(url, dom)).to.be.true
+
+      const preparsed = await handler?.preParse(url, dom)
+      const tweets = Array.from(
+        preparsed?.querySelectorAll(
+          'div[class="_omnivore-static-quote-tweet"]'
+        ) ?? []
+      )
+
+      expect(tweets.length).to.eq(1)
+    })
+
     it('returns BeehiivHandler for beehiiv.com newsletter', async () => {
       const handler = await getNewsletterHandler({
         html: '',

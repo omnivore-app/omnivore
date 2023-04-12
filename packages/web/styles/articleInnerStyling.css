@@ -380,6 +380,40 @@ on smaller screens we display the note icon
   -webkit-font-smoothing: subpixel-antialiased;
 }
 
+.article-inner-css ._omnivore-static-tweet ._omnivore-static-quote-tweet {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 14px;
+    line-height: 20px;
+}
+
+.article-inner-css ._omnivore-static-tweet ._omnivore-static-quote-tweet-header {
+  display: flex;
+  flex-direction: row;
+  gap: 9px;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.article-inner-css ._omnivore-static-tweet ._omnivore-static-quote-tweet-header-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  margin: unset !important;
+}
+
+.article-inner-css ._omnivore-static-tweet ._omnivore-static-quote-tweet-header-text {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  font-size: 14px;
+  line-height: 20px;
+}
+
 ._omnivore-static-tweet ._omnivore-static-tweet-header {
   display: flex;
   align-items: center;
