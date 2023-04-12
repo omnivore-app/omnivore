@@ -1,0 +1,1688 @@
+<html style="scroll-padding-top: var(--size-reader-top-bar);"><head><title>How to use ChatGPT in your PM work</title><style>
+@media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+  .typography .markup table.image-wrapper img,
+  .typography.editor .markup table.image-wrapper img,
+  .typography .markup table.kindle-wrapper img,
+  .typography.editor .markup table.kindle-wrapper img {
+    max-width: 550px;
+  }
+}
+
+
+@media screen and (max-width: 650px) {
+  .typography .markup div.youtube-inner div.youtube-screen,
+  .typography.editor .markup div.youtube-inner div.youtube-screen,
+  .typography .markup div.vimeo-inner div.youtube-screen,
+  .typography.editor .markup div.vimeo-inner div.youtube-screen {
+    display: none !important;
+  }
+}
+
+
+@media screen and (max-width: 370px) {
+  .typography .markup div.tiktok-wrap,
+  .typography.editor .markup div.tiktok-wrap {
+    width: calc(95vw - 32px);
+    height: calc((95vw - 32px - 2px) / 0.485714);
+  }
+}
+
+
+@media screen and (max-width: 650px) {
+  .typography .markup div.embedded-publication-wrap .embedded-publication.show-subscribe,
+  .typography.editor .markup div.embedded-publication-wrap .embedded-publication.show-subscribe {
+    padding: 24px;
+  }
+}
+
+
+@media screen and (max-width: 650px) {
+  .typography .markup div.subscription-widget-wrap .subscription-widget.show-subscribe,
+  .typography.editor .markup div.subscription-widget-wrap .subscription-widget.show-subscribe,
+  .typography .markup div.captioned-button-wrap .subscription-widget.show-subscribe,
+  .typography.editor .markup div.captioned-button-wrap .subscription-widget.show-subscribe {
+    padding: 24px;
+  }
+}
+
+
+@media screen and (max-width: 650px) {
+  .typography .markup div.subscription-widget-wrap .subscription-widget.show-subscribe .subscription-widget-subscribe .button,
+  .typography.editor .markup div.subscription-widget-wrap .subscription-widget.show-subscribe .subscription-widget-subscribe 
+.button,
+  .typography .markup div.captioned-button-wrap .subscription-widget.show-subscribe .subscription-widget-subscribe .button,
+  .typography.editor .markup div.captioned-button-wrap .subscription-widget.show-subscribe .subscription-widget-subscribe .button {
+    padding: 10px 12px;
+    min-width: 110px;
+  }
+}
+
+
+@media (max-width: 650px) {
+  .typography .markup .tweet,
+  .typography.editor .markup .tweet {
+    padding: 12px;
+  }
+}
+
+
+@media (max-width: 650px) {
+  .typography .markup .tweet .tweet-text,
+  .typography.editor .markup .tweet .tweet-text {
+    font-size: 14px;
+    line-height: 20px;
+  }
+}
+
+
+@media (max-width: 650px) {
+  .typography .markup .tweet .tweet-photos-container.two,
+  .typography.editor .markup .tweet .tweet-photos-container.two,
+  .typography .markup .tweet .tweet-photos-container.three,
+  .typography.editor .markup .tweet .tweet-photos-container.three,
+  .typography .markup .tweet .tweet-photos-container.four,
+  .typography.editor .markup .tweet .tweet-photos-container.four {
+    height: 200px;
+  }
+}
+
+
+@media (max-width: 650px) {
+  .typography .markup .tweet a.expanded-link .expanded-link-img,
+  .typography.editor .markup .tweet a.expanded-link .expanded-link-img {
+    max-height: 180px;
+  }
+}
+
+
+@media (max-width: 650px) {
+  .typography .markup .tweet a.expanded-link .expanded-link-description,
+  .typography.editor .markup .tweet a.expanded-link .expanded-link-description {
+    display: none;
+  }
+}
+
+
+@media screen and (max-width: 650px) {
+  .typography .markup .apple-podcast-container,
+  .typography.editor .markup .apple-podcast-container {
+    width: unset;
+  }
+}
+
+
+@media (max-width: 420px) {
+  .typography .markup .install-substack-app-embed img.install-substack-app-embed-img,
+  .typography.editor .markup .install-substack-app-embed img.install-substack-app-embed-img {
+    margin: 0 auto 16px auto;
+  }
+}
+
+
+@media screen and (min-width: 420px) and (max-width: 600px) {
+  .typography .markup .install-substack-app-embed .install-substack-app-embed-text,
+  .typography.editor .markup .install-substack-app-embed .install-substack-app-embed-text {
+    max-width: calc(100% - 100px);
+    width: initial;
+  }
+}
+
+
+@media (max-width: 420px) {
+  .typography .markup .install-substack-app-embed .install-substack-app-embed-text,
+  .typography.editor .markup .install-substack-app-embed .install-substack-app-embed-text {
+    margin: 0 0 12px 0;
+    max-width: 100%;
+    width: auto;
+    text-align: center;
+  }
+}
+
+
+@media (max-width: 600px) {
+  .typography .markup .install-substack-app-embed .install-substack-app-embed-link,
+  .typography.editor .markup .install-substack-app-embed .install-substack-app-embed-link {
+    margin-top: 16px;
+    width: 100%;
+  }
+}
+
+
+@media screen and (min-width: 481px) {
+  .share-button-container {
+    height: 38px;
+  }
+}
+
+
+@media screen and (min-width: 481px) {
+  .share-button-container a.comment {
+    height: 38px;
+    line-height: 38px;
+    padding-right: 10px;
+  }
+}
+
+
+@media screen and (max-width: 480px) {
+  .share-button-container .separator {
+    display: block;
+    margin: 0;
+    height: 8px;
+    border-left: none;
+  }
+}
+
+
+@media screen and (max-width: 480px) {
+  .share-button-container a.share.first img {
+    padding-left: 0;
+  }
+}
+
+
+@media screen and (min-width: 481px) {
+  .share-button-container a.mobile {
+    display: none !important;
+  }
+}
+
+
+@media screen and (max-width: 650px) {
+  .social-media-share-preview__description {
+    -webkit-line-clamp: 2;
+  }
+}
+
+
+@media screen and (max-width: 1000px) {
+  .congrats-box {
+    flex-direction: column;
+  }
+  .congrats-box .congrats-box-right {
+    margin-left: 38px;
+    margin-top: 16px;
+  }
+}
+
+
+@media screen and (max-width: 500px) {
+  .congrats-box {
+    display: none;
+  }
+}
+
+
+@media screen and (min-width: 541px) {
+  .settings-add-pub-modal-wrapper .container .add-recommending-pub-modal-container {
+    padding: 36px;
+    height: 680px;
+  }
+}
+
+
+@media screen and (min-width: 541px) {
+  .settings-add-pub-modal-wrapper .container .add-recommending-pub-modal-container .footer {
+    position: absolute;
+    bottom: 36px;
+    margin: 0px;
+  }
+}
+
+
+@media screen and (max-width: 840px) {
+  .header-with-anchor-widget .header-anchor-widget,
+  .header-anchor-container .header-anchor-widget {
+    display: none;
+  }
+}
+
+
+@media screen and (min-width: 768px) {
+  .post {
+    padding: 32px 0 0 0;
+  }
+}
+
+
+@media screen and (max-width: 650px) {
+  .post .post-header .post-label {
+    margin-top: 8px;
+  }
+}
+
+
+@media screen and (max-width: 650px) {
+  .post .post-header .meta-author-wrap.alternative-meta .meta-right-column .post-meta {
+    margin-top: 6px;
+  }
+}
+
+
+@media screen and (max-width: 650px) {
+  .post .footer-facepile-container {
+    height: 64px;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+  }
+}
+
+
+@media screen and (max-width: 650px) {
+  .post .post-footer.use-separators {
+    justify-content: center;
+  }
+}
+
+
+@media screen and (max-width: 650px) {
+  .post .post-footer.next-prev {
+    height: 64px;
+    justify-content: space-between;
+    box-sizing: border-box;
+  }
+}
+
+
+@media screen and (max-width: 650px) {
+  .post-contributor-footer .post-contributor-bio-table {
+    display: block;
+  }
+  .post-contributor-footer .post-contributor-bio-table-row {
+    display: flex;
+    flex-direction: row;
+  }
+  .post-contributor-footer .post-contributor-bio-userhead-cell,
+  .post-contributor-footer .post-contributor-bio-body-cell {
+    display: block;
+  }
+  .post-contributor-footer .post-contributor-bio-body-cell {
+    flex-grow: 1;
+  }
+  .post-contributor-footer .post-contributor-bio-body-table {
+    display: block;
+  }
+  .post-contributor-footer .post-contributor-bio-body-table-row {
+    display: block;
+  }
+  .post-contributor-footer .post-contributor-bio-copy-cell,
+  .post-contributor-footer .post-contributor-bio-controls-cell {
+    display: block;
+  }
+  .post-contributor-footer .post-contributor-bio-copy-cell {
+    margin: 0 0 16px 0;
+  }
+  .post-contributor-footer .post-contributor-bio-controls-cell {
+    width: auto;
+  }
+  .post-contributor-footer .post-contributor-bio-controls {
+    margin: auto;
+  }
+  .post-contributor-footer .post-contributor-bio-controls .button.primary {
+    width: 100%;
+  }
+  .post-contributor-footer .post-contributor-bio-text {
+    font-size: 14px;
+  }
+}
+
+
+@media screen and (min-width: 768px) {
+  .post-silhouette {
+    padding: 16px 0;
+  }
+}
+
+
+@media screen and (max-width: 650px) {
+  .post-silhouette .post-silhouette-title {
+    margin-top: 10.44225025px;
+    height: 120px;
+  }
+}
+
+
+@media screen and (max-width: 650px) {
+  .post-silhouette .post-silhouette-meta {
+    width: 75%;
+  }
+}
+
+
+@media screen and (max-width: 650px) {
+  .post-silhouette .post-silhouette-meta.with-byline-image {
+    margin: 20px 0;
+  }
+}
+
+
+@media screen and (max-width: 650px) {
+  .use-theme-bg .post-meta.alternative-meta .post-meta-item,
+  .post-meta.alternative-meta .post-meta-item {
+    padding-right: 16px;
+  }
+}
+
+
+@media screen and (max-width: 370px) {
+  .use-theme-bg .post-meta.alternative-meta .post-meta-item,
+  .post-meta.alternative-meta .post-meta-item {
+    font-size: 14px;
+  }
+}
+
+
+@media screen and (max-width: 650px) {
+  .use-theme-bg .post-meta.alternative-meta .post-meta-item.guest-author-publication,
+  .post-meta.alternative-meta .post-meta-item.guest-author-publication {
+    display: none;
+  }
+}
+
+
+@media screen and (max-width: 370px) {
+  .post-meta .post-meta-item .post-meta-button {
+    height: 36px !important;
+  }
+  .post-meta .post-meta-item .post-meta-button .meta-button-label {
+    display: none;
+  }
+  .post-meta .post-meta-item .post-meta-button > svg {
+    margin-right: 0;
+  }
+}
+
+
+@media screen and (max-width: 370px) {
+  .post-meta .post-meta-item {
+    font-size: 12px;
+  }
+}
+
+
+@media screen and (max-width: 650px) {
+  .post-preview > .post-preview-content .post-preview-meta {
+    margin-top: 12px 0;
+  }
+}
+
+
+@media screen and (max-width: 650px) {
+  .post-preview > .post-preview-image {
+    display: none;
+  }
+}
+
+
+@media screen and (max-width: 650px) {
+  .post-preview-silhouette .post-preview-silhouette-image {
+    display: none;
+  }
+}
+
+
+@media screen and (max-width: 650px) {
+  .post .floating-subscribe-button {
+    bottom: 20px;
+    right: 20px;
+  }
+}
+
+
+@media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+  body .markup table.image-wrapper img,
+  body .markup table.kindle-wrapper img {
+    max-width: 550px;
+  }
+}
+
+
+@media screen and (max-width: 650px) {
+  body .markup div.youtube-inner div.youtube-screen,
+  body .markup div.vimeo-inner div.youtube-screen {
+    display: none !important;
+  }
+}
+
+
+@media screen and (max-width: 370px) {
+  body .markup div.tiktok-wrap {
+    width: calc(95vw - 32px);
+    height: calc((95vw - 32px - 2px) / 0.485714);
+  }
+}
+
+
+@media screen and (max-width: 650px) {
+  body .markup div.embedded-publication-wrap .embedded-publication.show-subscribe {
+    padding: 24px;
+  }
+}
+
+
+@media screen and (max-width: 650px) {
+  body .markup div.subscription-widget-wrap .subscription-widget.show-subscribe,
+  body .markup div.captioned-button-wrap .subscription-widget.show-subscribe {
+    padding: 24px;
+  }
+}
+
+
+@media screen and (max-width: 650px) {
+  body .markup div.subscription-widget-wrap .subscription-widget.show-subscribe .subscription-widget-subscribe .button,
+  body .markup div.captioned-button-wrap .subscription-widget.show-subscribe .subscription-widget-subscribe .button {
+    padding: 10px 12px;
+    min-width: 110px;
+  }
+}
+
+
+@media (max-width: 650px) {
+  body .markup .tweet {
+    padding: 12px;
+  }
+}
+
+
+@media (max-width: 650px) {
+  body .markup .tweet .tweet-text {
+    font-size: 14px;
+    line-height: 20px;
+  }
+}
+
+
+@media (max-width: 650px) {
+  body .markup .tweet .tweet-photos-container.two,
+  body .markup .tweet .tweet-photos-container.three,
+  body .markup .tweet .tweet-photos-container.four {
+    height: 200px;
+  }
+}
+
+
+@media (max-width: 650px) {
+  body .markup .tweet a.expanded-link .expanded-link-img {
+    max-height: 180px;
+  }
+}
+
+
+@media (max-width: 650px) {
+  body .markup .tweet a.expanded-link .expanded-link-description {
+    display: none;
+  }
+}
+
+
+@media screen and (max-width: 650px) {
+  body .markup .apple-podcast-container {
+    width: unset;
+  }
+}
+
+
+@media (max-width: 420px) {
+  body .markup .install-substack-app-embed img.install-substack-app-embed-img {
+    margin: 0 auto 16px auto;
+  }
+}
+
+
+@media screen and (min-width: 420px) and (max-width: 600px) {
+  body .markup .install-substack-app-embed .install-substack-app-embed-text {
+    max-width: calc(100% - 100px);
+    width: initial;
+  }
+}
+
+
+@media (max-width: 420px) {
+  body .markup .install-substack-app-embed .install-substack-app-embed-text {
+    margin: 0 0 12px 0;
+    max-width: 100%;
+    width: auto;
+    text-align: center;
+  }
+}
+
+
+@media (max-width: 600px) {
+  body .markup .install-substack-app-embed .install-substack-app-embed-link {
+    margin-top: 16px;
+    width: 100%;
+  }
+}
+
+
+@media screen and (min-width: 500px) {
+  body .header a.logo {
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
+  }
+}
+
+
+@media screen and (max-width: 420px) {
+  body .subscription-receipt table:first-of-type .subscription-amount .subscription-discount {
+    width: 72px !important;
+  }
+}
+
+
+@media screen and (min-width: 481px) {
+  body .share-button-container {
+    height: auto;
+  }
+}
+
+
+@media screen and (max-width: 480px) {
+  body .share-button-container .separator {
+    display: block !important;
+    margin: 0 !important;
+    height: 8px !important;
+    border-left: none !important;
+  }
+}
+
+
+@media screen and (max-width: 650px) {
+  .digest .item .post-meta-item.audience {
+    display: none;
+  }
+}
+
+
+@media screen and (min-width: 500px) {
+  .digest-publication .logo img {
+    width: 42px;
+    height: 42px;
+    border-radius: 4px;
+  }
+}
+
+
+@media screen and (max-width: 650px) {
+  .comments-page .container .comment-list .collapsed-reply {
+    margin-left: 17px;
+  }
+}
+
+
+@media screen and (max-width: 650px) {
+  .comment > .comment-list {
+    padding-left: 25px;
+  }
+}
+
+
+@media screen and (max-width: 650px) {
+  .finish-magic-login-modal .modal-content .container {
+    padding: 24px 0;
+  }
+}
+
+
+@media (max-width: 650px) {
+  .reader2-text-b3 {
+    line-height: 24px;
+  }
+}
+
+
+@media screen and (max-width: 650px) {
+  .reader2-text-h4 {
+    line-height: 24px;
+  }
+}
+
+
+@media screen and (min-width: 541px) {
+  .user-profile-modal {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}
+
+
+@media screen and (max-width: 650px) {
+  .subscribe-widget form.form .sideBySideWrap button.rightButton {
+    padding: 10px 12px;
+  }
+}
+
+
+@media screen and (min-width: 541px) {
+  .pub-icon:hover .logo-hover,
+  .feed-item-icon:hover .logo-hover {
+    display: block;
+  }
+}
+
+
+@media screen and (max-width: 650px) {
+  .post-ufi.single-full-width-button .post-ufi-button-wrapper {
+    width: 100%;
+    padding: 16px;
+  }
+  .post-ufi.single-full-width-button .post-ufi-button-wrapper:empty {
+    display: none;
+  }
+  .post-ufi.single-full-width-button .post-ufi-button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+
+@media screen and (max-width: 768px) {
+  .file-embed-wrapper {
+    padding: 0;
+  }
+}
+
+
+@media screen and (max-width: 768px) {
+  .file-embed-wrapper-editor {
+    padding: 0;
+  }
+}
+
+
+@media screen and (max-width: 768px) {
+  .file-embed-wrapper-editor:active {
+    padding: 0;
+  }
+}
+
+
+@media only screen and (max-width: 650px) {
+  .file-embed-button.wide,
+  .file-embed-error-button.wide {
+    display: none;
+  }
+}
+
+
+@media only screen and (min-width: 630px) {
+  .file-embed-button.narrow,
+  .file-embed-error-button.narrow {
+    display: none;
+  }
+}
+
+
+@media screen and (min-width: 541px) {
+  .audio-player-wrapper .audio-player {
+    min-width: 500px;
+  }
+}
+
+
+@media screen and (max-width: 650px) {
+  .audio-player-wrapper .audio-player .audio-player-progress {
+    border-left-width: 16px;
+    border-right-width: 16px;
+  }
+}
+
+
+@media screen and (max-width: 650px) {
+  .audio-player-wrapper .audio-player .audio-player-progress .audio-player-progress-bar .audio-player-progress-bar-popup {
+    top: -54px;
+  }
+}
+
+
+@media screen and (max-width: 650px) {
+  .audio-player-wrapper-fancy .audio-player .audio-player-progress {
+    border-left-width: 16px;
+    border-right-width: 16px;
+  }
+}
+
+
+@media screen and (max-width: 650px) {
+  .audio-player-wrapper-fancy .audio-player .audio-player-progress .audio-player-progress-bar .audio-player-progress-bar-popup {
+    top: -54px;
+  }
+}
+
+
+@media (min-width: 250px) {
+  .audio-player-wrapper-fancy .audio-player {
+    padding: 32px;
+  }
+  .audio-player-wrapper-fancy .audio-player .btn-group {
+    display: flex;
+  }
+  .audio-player-wrapper-fancy .audio-player .btn-group .button:last-of-type {
+    display: block;
+  }
+}
+
+
+@media (min-width: 300px) {
+  .audio-player-wrapper-fancy .audio-player .btn-group {
+    display: block;
+  }
+  .audio-player-wrapper-fancy .audio-player .btn-group .button:first-of-type {
+    display: block;
+  }
+}
+
+
+@media (min-width: 350px) {
+  .audio-player-wrapper-fancy .audio-player .audio-player-substack-logo {
+    display: block;
+  }
+  .audio-player-wrapper-fancy .audio-player .audio-player-title {
+    margin-top: 16px;
+  }
+  .audio-player-wrapper-fancy .audio-player .audio-player-hero-image-container {
+    padding-top: 15%;
+    width: 15%;
+    display: block;
+  }
+  .audio-player-wrapper-fancy .audio-player .btn-group .button:first-of-type {
+    display: block;
+  }
+  .audio-player-wrapper-fancy .audio-player .audio-player-substack-logo {
+    display: block;
+  }
+}
+
+
+@media (min-width: 350px) {
+  .audio-player-wrapper-fancy .audio-player .audio-player-hero-image-container {
+    padding-top: 25%;
+    width: 25%;
+    display: block;
+  }
+  .audio-player-wrapper-fancy .audio-player .btn-group {
+    display: flex;
+  }
+  .audio-player-wrapper-fancy .audio-player .btn-group .button:first-of-type {
+    display: block;
+  }
+}
+
+
+@media (min-width: 400px) {
+  .audio-player-wrapper-fancy .audio-player .audio-player-hero-image-container {
+    padding-top: 40%;
+    width: 40%;
+  }
+}
+
+
+@media (max-width: 400px) {
+  .audio-player-wrapper-fancy .audio-player .btn-group {
+    margin-top: 12px;
+  }
+  .audio-player-wrapper-fancy .audio-player .btn-group .button {
+    font-size: 13px;
+    padding: 6px 12px;
+    height: auto;
+    margin-top: 10px;
+  }
+}
+
+
+@media (min-width: 600px) {
+  .audio-player-wrapper-fancy .audio-player .audio-player-hero-image-container {
+    padding-top: 55%;
+    width: 55%;
+  }
+}
+
+
+@media (max-width: 650px) {
+  .poll-editor-modal {
+    min-width: calc(100% - 20px);
+  }
+}
+
+
+@media (max-width: 750px) {
+  .poll-embed .poll-anchor-target .poll-anchor-copy-button {
+    left: 8px;
+    top: 45px;
+  }
+}
+
+
+@media screen and (min-width: 541px) {
+  .poll-embed .poll-wrapper.poll-web .poll-dialog .modal-table .modal-row .modal-content > .container {
+    width: 552px;
+    padding: 26px 24px;
+  }
+}
+
+
+@media screen and (max-width: 650px) {
+  .poll-embed .poll-wrapper.poll-web .poll-dialog .modal-table .modal-row .modal-content > .container {
+    padding: 40px 0;
+  }
+}
+
+
+@media screen and (max-width: 650px) {
+  .poll-embed .poll-wrapper.poll-web .poll-dialog .modal-row .modal-cell .modal-exit-btn {
+    margin-right: -20px;
+  }
+}
+</style></head><body class="email-body" style="font-kerning: auto;"><img 
+src="https://mailgun.substack.com/api/v1/email/open?token=eyJtIjoiPDIwMjMwNDExMTIwMTEyLjMuMDdjNDAxNzVhNmMyYmVkNUBtZzIuc3Vic3RhY2suY29tPiIsInUiOjcyNzkxNTk2LCJyIjoiamFja3NvbmgtMEhuZS1PUG1lQGluYm94Lm9tbml2b3JlLmFwcCIsImQiOiJtZzIuc3Vic3RhY2suY29tIiwicCI6MTExNzA4NDA0LCJ0IjoibmV3c2xldHRlciIsImEiOiJvbmx5X3BhaWQiLCJzIjoxMDg0NSwiYyI6InBvc3QiLCJmIjp0cnVlLCJwb3NpdGlvbiI6InRvcCIsImlhdCI6MTY4MTIxNTA3NCwiZXhwIjoxNjgzODA3MDc0LCJpc3MiOiJwdWItMCIsInN1YiI6ImVvIn0.PFGJ1aZ4nz_PcDYal_G625f6bIW8QgqVYuNOMAx7Uwg" 
+alt="" width="1" height="1" border="0" style="height:1px !important;width:1px !important;border-width:0 !important;margin-top:0 
+!important;margin-bottom:0 !important;margin-right:0 !important;margin-left:0 !important;padding-top:0 !important;padding-bottom:0 
+!important;padding-right:0 !important;padding-left:0 !important;"/><div 
+style="display:none;font-size:1px;color:#333333;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;" 
+class="preview">Real-life examples (and actual prompts) of how PMs are already using ChatGPT day-to-day 
+&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;</div><table 
+role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" class="email-body-container"><tr><td></td><td 
+width="550" class="content"></td><td></td></tr><tr><td></td><td align="left" width="550" class="content"><div style="font-size: 
+16px; line-height: 26px; margin: 0 auto; max-width: 550px; overflow-wrap: break-word; width: 100%;"><table role="presentation" 
+width="100%" border="0" cellspacing="0" cellpadding="0"><tr><td align="right" style="height: 20px;"><table role="presentation" 
+width="auto" border="0" cellspacing="0" cellpadding="0"><tr><td style="vertical-align: middle;"><span class="tw-font-body 
+tw-text-ssm tw-text-substack-secondary" style="color: #808080 !important; font-family: SF Pro Text, -apple-system, 
+BlinkMacSystemFont, Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol 
+!important; font-size: 13px !important;"><a 
+href="https://open.substack.com/pub/lenny/p/how-to-use-chatgpt-in-your-pm-work?utm_source=email&redirect=app-store" 
+class="tw-text-substack-secondary tw-underline" style="-webkit-text-decoration-line: underline !important; color: #808080 
+!important; text-decoration-line: underline !important;">Open in app</a> or <a 
+href="https://substack.com/redirect/2/eyJlIjoiaHR0cHM6Ly93d3cubGVubnlzbmV3c2xldHRlci5jb20vcC9ob3ctdG8tdXNlLWNoYXRncHQtaW4teW91ci1wbS13b3JrP3Rva2VuPWV5SjFjMlZ5WDJsa0lqbzNNamM1TVRVNU5pd2ljRzl6ZEY5cFpDSTZNVEV4TnpBNE5EQTBMQ0pwWVhRaU9qRTJPREV5TVRVd056UXNJbVY0Y0NJNk1UWTRNemd3TnpBM05Dd2lhWE56SWpvaWNIVmlMVEV3T0RRMUlpd2ljM1ZpSWpvaWNHOXpkQzF5WldGamRHbHZiaUo5Lm9lRTFfQm04Qm1TcWk1Nm51SEtIQ3luOU9kQjgzaC1Sd0hLcmFVREpQaGciLCJwIjoxMTE3MDg0MDQsInMiOjEwODQ1LCJmIjp0cnVlLCJ1Ijo3Mjc5MTU5NiwiaWF0IjoxNjgxMjE1MDc0LCJleHAiOjE2ODM4MDcwNzQsImlzcyI6InB1Yi0wIiwic3ViIjoibGluay1yZWRpcmVjdCJ9.dXQxGW1AcoR8wQix1EzhBcpYgPNmAqTGI92Fb9Q_9f0?" 
+class="tw-text-substack-secondary tw-underline" style="-webkit-text-decoration-line: underline !important; color: #808080 
+!important; text-decoration-line: underline !important;">online</a></span></td></tr></table></td></tr></table><table 
+role="presentation" width="auto" class="header graphic-header" style="border-spacing: 0; padding: 16px 0 32px;"><tr><td 
+align="center" style="padding: 0; text-align: center;"><a 
+href="https://substack.com/redirect/2/eyJlIjoiaHR0cHM6Ly93d3cubGVubnlzbmV3c2xldHRlci5jb20vcC9ob3ctdG8tdXNlLWNoYXRncHQtaW4teW91ci1wbS13b3JrP3Rva2VuPWV5SjFjMlZ5WDJsa0lqbzNNamM1TVRVNU5pd2ljRzl6ZEY5cFpDSTZNVEV4TnpBNE5EQTBMQ0pwWVhRaU9qRTJPREV5TVRVd056UXNJbVY0Y0NJNk1UWTRNemd3TnpBM05Dd2lhWE56SWpvaWNIVmlMVEV3T0RRMUlpd2ljM1ZpSWpvaWNHOXpkQzF5WldGamRHbHZiaUo5Lm9lRTFfQm04Qm1TcWk1Nm51SEtIQ3luOU9kQjgzaC1Sd0hLcmFVREpQaGciLCJwIjoxMTE3MDg0MDQsInMiOjEwODQ1LCJmIjp0cnVlLCJ1Ijo3Mjc5MTU5NiwiaWF0IjoxNjgxMjE1MDc0LCJleHAiOjE2ODM4MDcwNzQsImlzcyI6InB1Yi0wIiwic3ViIjoibGluay1yZWRpcmVjdCJ9.dXQxGW1AcoR8wQix1EzhBcpYgPNmAqTGI92Fb9Q_9f0?"><img 
+role="presentation" width="550" height="110" 
+src="https://substackcdn.com/image/fetch/w_1100,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2Fb88b5862-9a48-4557-9f71-c5f96eb3df23_1100x220.png" 
+class="header-image" style="border: none !important; display: block; height: auto; margin: 0 auto; max-width: 550px; vertical-align: 
+middle; width: 100%;"></a></td></tr></table><div class="typography" style="font-size: 16px; line-height: 26px;"><div 
+class="preamble" style="font-size: 16px; line-height: 26px; margin-top: 16px;"><div dir="auto" class="body markup" style="font-size: 
+16px; line-height: 26px; margin-bottom: 16px; text-align: initial; width: 100%; word-break: break-word;"><p style="color: #404040; 
+font-size: 16px; line-height: 26px; margin: 0 0 20px 0; margin-top: 0;">Below is a peek at today&#8217;s paid subscriber-only post. 
+Subscribe today and get access to this issue&#8212;and every issue.</p><div class="subscribe-widget is-signed-up" style="direction: 
+ltr; font-size: 16px; line-height: 26px; margin: 0 0 1em; margin-bottom: 0;"><p class="button-wrapper" style="color: #404040; 
+font-size: 16px; line-height: 26px; margin: 0 0 20px 0; text-align: center;"><a 
+href="https://substack.com/redirect/2/eyJlIjoiaHR0cHM6Ly93d3cubGVubnlzbmV3c2xldHRlci5jb20vc3Vic2NyaWJlP3Rva2VuPWV5SjFjMlZ5WDJsa0lqbzNNamM1TVRVNU5pd2lhV0YwSWpveE5qZ3hNakUxTURjMExDSmxlSEFpT2pFMk9ETTRNRGN3TnpRc0ltbHpjeUk2SW5CMVlpMHhNRGcwTlNJc0luTjFZaUk2SW1Ob1pXTnJiM1YwSW4wLk5UcS1FNmxJUTBfc0o5SFpuU0RjREJiOHJ3YWNCelpLVXZjVERkR1gzYU0mdXRtX3NvdXJjZT1wb3N0IiwicCI6MTExNzA4NDA0LCJzIjoxMDg0NSwiZiI6dHJ1ZSwidSI6NzI3OTE1OTYsImlhdCI6MTY4MTIxNTA3NCwiZXhwIjoxNjgzODA3MDc0LCJpc3MiOiJwdWItMCIsInN1YiI6ImxpbmstcmVkaXJlY3QifQ.eheND_jPq50E-nX5TxOzx_RZQM0pCCH3DcVm907Z2C8?&utm_medium=email&utm_source=subscribe-widget&utm_content=111708404" 
+class="button subscribe-btn primary" style="background-color: #f47c55; border: none; border-radius: 4px; box-sizing: border-box; 
+color: #ffffff !important; cursor: pointer; display: inline-block; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 
+Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 14px; font-weight: 600; 
+height: auto; line-height: 20px; margin: 0 auto; opacity: 1; outline: none; padding: 12px 20px; text-align: center; text-decoration: 
+none !important; white-space: nowrap;"><span style="color: #ffffff; text-decoration: none;">Upgrade to 
+paid</span></a></p></div></div><hr style="background: #e0e0e0; border: none; height: 1px; margin: 16px 0 0; padding: 
+0;"></div></div><div dir="auto" class="post typography" style="font-size: 16px; line-height: 26px; padding: 16px 0 0 0;"><div 
+class="post-header" style="font-size: 16px; line-height: 26px;"><h1 class="post-title published" style="-moz-osx-font-smoothing: 
+subpixel-antialiased; -webkit-font-smoothing: subpixel-antialiased; color: #404040; font-family: 'SF Compact Display', 
+-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe 
+UI Symbol'; font-size: 32px; font-weight: bold; line-height: 36px; margin: 0;"><a 
+href="https://substack.com/app-link/post?publication_id=10845&post_id=111708404&utm_source=post-email-title&isFreemail=true&token=eyJ1c2VyX2lkIjo3Mjc5MTU5NiwicG9zdF9pZCI6MTExNzA4NDA0LCJpYXQiOjE2ODEyMTUwNzQsImV4cCI6MTY4MzgwNzA3NCwiaXNzIjoicHViLTEwODQ1Iiwic3ViIjoicG9zdC1yZWFjdGlvbiJ9.oeE1_Bm8BmSqi56nuHKHCyn9OdB83h-RwHKraUDJPhg" 
+style="color: #404040; text-decoration: none;">How to use ChatGPT in your PM work</a></h1><h3 class="subtitle" 
+style="-moz-osx-font-smoothing: subpixel-antialiased; -webkit-font-smoothing: subpixel-antialiased; color: #808080; font-family: 'SF 
+Compact Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe 
+UI Emoji', 'Segoe UI Symbol'; font-size: 18px; font-weight: normal; line-height: 24px; margin: 4px 0 0; margin-top: 12px;">Real-life 
+examples (and actual prompts) of how PMs are already using ChatGPT day-to-day</h3><table role="presentation" width="100%" border="0" 
+cellspacing="0" cellpadding="0" class="post-meta" style="align-items: center; height: 20px; margin: 1em 0;"><tr><td><table 
+role="presentation" width="auto" border="0" cellspacing="0" cellpadding="0"><tr><td><table role="presentation" width="auto" 
+border="0" cellspacing="0" cellpadding="0"><tr><td style="vertical-align: middle;"><div 
+class="frontend-pencraft-Text-module__reset--20JLV frontend-pencraft-Text-module__size-11--1-ofT 
+frontend-pencraft-Text-module__line-height-20--1soeQ frontend-pencraft-Text-module__weight-medium--aTbx5 
+frontend-pencraft-Text-module__font-meta--2i-cR frontend-pencraft-Text-module__color-primary--2I-sF 
+frontend-pencraft-Text-module__transform-uppercase--38jbr frontend-pencraft-Text-module__meta--3RRSj custom-css-email-post-author" 
+style="color: #404040; font-family: 'SF Compact', -apple-system, -apple-system, -system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 
+Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 11px; font-weight: 500; 
+letter-spacing: .2px; line-height: 20px; margin: 0; text-decoration: unset; text-transform: uppercase;"><a 
+href="https://substack.com/redirect/7a788227-046a-4d69-8ce8-1df5559a4727?j=eyJ1IjoiMTdjNmNzIn0.WacP5qZHoQwMmZ7_CWu68V7iO_0SEuLZegEkOObSEOI" 
+style="color: #404040; font-family: 'SF Compact', -apple-system, -apple-system, -system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 
+Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 11px; font-weight: 500; 
+letter-spacing: .2px; line-height: 20px; margin: 0; text-decoration: none; text-transform: uppercase;" 
+class="frontend-pencraft-Text-module__reset--20JLV frontend-pencraft-Text-module__size-11--1-ofT 
+frontend-pencraft-Text-module__line-height-20--1soeQ frontend-pencraft-Text-module__weight-medium--aTbx5 
+frontend-pencraft-Text-module__font-meta--2i-cR frontend-pencraft-Text-module__color-primary--2I-sF 
+frontend-pencraft-Text-module__transform-uppercase--38jbr frontend-pencraft-Text-module__meta--3RRSj">Lenny 
+Rachitsky</a></div></td></tr></table></td></tr><tr><td><table role="presentation" width="auto" border="0" cellspacing="0" 
+cellpadding="0"><tr><td style="vertical-align: middle;"><div class="frontend-pencraft-Text-module__reset--20JLV 
+frontend-pencraft-Text-module__size-11--1-ofT frontend-pencraft-Text-module__line-height-20--1soeQ 
+frontend-pencraft-Text-module__weight-medium--aTbx5 frontend-pencraft-Text-module__font-meta--2i-cR 
+frontend-pencraft-Text-module__color-secondary--XjVGl frontend-pencraft-Text-module__transform-uppercase--38jbr 
+frontend-pencraft-Text-module__meta--3RRSj" style="color: #808080; font-family: 'SF Compact', -apple-system, -apple-system, 
+-system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI 
+Symbol'; font-size: 11px; font-weight: 500; letter-spacing: .2px; line-height: 20px; margin: 0; text-decoration: unset; 
+text-transform: uppercase;"><time dateTime="2023-04-11T12:08:42.009Z">Apr 11</time></div></td><td width="4" style="min-width: 
+4px"></td><td style="vertical-align: middle;"><table role="presentation" width="auto" border="0" cellspacing="0" 
+cellpadding="0"><tr><td style="vertical-align: middle;"><div class="frontend-pencraft-Text-module__reset--20JLV 
+frontend-pencraft-Text-module__size-11--1-ofT frontend-pencraft-Text-module__line-height-20--1soeQ 
+frontend-pencraft-Text-module__weight-medium--aTbx5 frontend-pencraft-Text-module__font-meta--2i-cR 
+frontend-pencraft-Text-module__color-secondary--XjVGl frontend-pencraft-Text-module__transform-uppercase--38jbr 
+frontend-pencraft-Text-module__meta--3RRSj" style="color: #808080; font-family: 'SF Compact', -apple-system, -apple-system, 
+-system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI 
+Symbol'; font-size: 11px; font-weight: 500; letter-spacing: .2px; line-height: 20px; margin: 0; text-decoration: unset; 
+text-transform: uppercase;">&#8729;</div></td><td width="4" style="min-width: 4px"></td><td style="vertical-align: middle;"><div 
+class="frontend-pencraft-Text-module__reset--20JLV frontend-pencraft-Text-module__size-11--1-ofT 
+frontend-pencraft-Text-module__line-height-20--1soeQ frontend-pencraft-Text-module__weight-medium--aTbx5 
+frontend-pencraft-Text-module__font-meta--2i-cR frontend-pencraft-Text-module__color-accent-purple--3OCNJ 
+frontend-pencraft-Text-module__transform-uppercase--38jbr frontend-pencraft-Text-module__meta--3RRSj" style="color: #702dff; 
+font-family: 'SF Compact', -apple-system, -apple-system, -system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, 
+sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 11px; font-weight: 500; letter-spacing: .2px; 
+line-height: 20px; margin: 0; text-decoration: unset; text-transform: 
+uppercase;">Preview</div></td></tr></table></td></tr></table></td></tr></table></td><td align="right"><table role="presentation" 
+width="auto" border="0" cellspacing="0" cellpadding="0"><tr><td style="vertical-align: middle;"><a 
+href="https://substack.com/redirect/7a788227-046a-4d69-8ce8-1df5559a4727?j=eyJ1IjoiMTdjNmNzIn0.WacP5qZHoQwMmZ7_CWu68V7iO_0SEuLZegEkOObSEOI"><img 
+src="https://substackcdn.com/image/fetch/f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2Fafba5161-65bb-4d99-8d6b-cce660917fa1_1540x1540.png" 
+style="border: none !important; border-radius: 500000px; box-sizing: border-box; height: 40px; margin: 0px; max-width: 550px; 
+min-height: 40px; min-width: 40px; object-fit: cover; vertical-align: middle; width: 40px;" width="40" height="40" 
+class="custom-css-email-avatar frontend-email-system-basics-module__avatar--1sRIo"></a></td></tr></table></td></tr></table><table 
+role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" class="email-ufi-2-top" style="border-bottom: 1px solid 
+#e0e0e0; border-top: 1px solid #e0e0e0; min-width: 100%;"><tr height="16"><td height="16" style="font-size: 0px; line-height: 
+0;">&#160;</td></tr><tr><td><table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0"><tr><td><table 
+role="presentation" width="auto" border="0" cellspacing="0" cellpadding="0"><tr><td style="vertical-align: middle;"><table 
+role="presentation" width="38" border="0" cellspacing="0" cellpadding="0"><tr><td align="center"><a 
+href="https://substack.com/app-link/post?publication_id=10845&post_id=111708404&utm_source=substack&isFreemail=true&submitLike=true&token=eyJ1c2VyX2lkIjo3Mjc5MTU5NiwicG9zdF9pZCI6MTExNzA4NDA0LCJyZWFjdGlvbiI6IuKdpCIsImlhdCI6MTY4MTIxNTA3NCwiZXhwIjoxNjgzODA3MDc0LCJpc3MiOiJwdWItMTA4NDUiLCJzdWIiOiJyZWFjdGlvbiJ9.fMrTU_1E2pZ9IxnmPFiz40hnkBFllZBrShzUS_p94RY&utm_medium=email" 
+style="border: 1px solid #e0e0e0; border-radius: 100000px; box-sizing: border-box; color: #808080; display: inline-block; 
+font-family: 'SF Pro Text', -apple-system, ui-sans-serif, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 
+'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 12px; font-weight: 500; line-height: 1; min-width: 38px; 
+padding: 9px 0; text-decoration: none; text-transform: uppercase; width: 38px;" class="email-icon-button"><img 
+src="https://substackcdn.com/image/fetch/w_36,c_scale,f_png,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack.com%2Ficon%2FLucideHeart%3Fv%3D4%26height%3D36%26fill%3Dnone%26stroke%3D%2523808080%26strokeWidth%3D2" 
+width="18" height="18" style="border: none !important; max-width: 18px; vertical-align: middle;" alt="" 
+class="icon"></a></td></tr></table></td><td width="8" style="min-width: 8px"></td><td style="vertical-align: middle;"><table 
+role="presentation" width="38" border="0" cellspacing="0" cellpadding="0"><tr><td align="center"><a 
+href="https://substack.com/app-link/post?publication_id=10845&post_id=111708404&utm_source=substack&utm_medium=email&isFreemail=true&comments=true&token=eyJ1c2VyX2lkIjo3Mjc5MTU5NiwicG9zdF9pZCI6MTExNzA4NDA0LCJpYXQiOjE2ODEyMTUwNzQsImV4cCI6MTY4MzgwNzA3NCwiaXNzIjoicHViLTEwODQ1Iiwic3ViIjoicG9zdC1yZWFjdGlvbiJ9.oeE1_Bm8BmSqi56nuHKHCyn9OdB83h-RwHKraUDJPhg&utm_source=substack&utm_medium=email" 
+style="border: 1px solid #e0e0e0; border-radius: 100000px; box-sizing: border-box; color: #808080; display: inline-block; 
+font-family: 'SF Pro Text', -apple-system, ui-sans-serif, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 
+'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 12px; font-weight: 500; line-height: 1; min-width: 38px; 
+padding: 9px 0; text-decoration: none; text-transform: uppercase; width: 38px;" class="email-icon-button"><img 
+src="https://substackcdn.com/image/fetch/w_36,c_scale,f_png,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack.com%2Ficon%2FLucideComments%3Fv%3D4%26height%3D36%26fill%3Dnone%26stroke%3D%2523808080%26strokeWidth%3D2" 
+width="18" height="18" style="border: none !important; max-width: 18px; vertical-align: middle;" alt="" 
+class="icon"></a></td></tr></table></td><td width="8" style="min-width: 8px"></td><td style="vertical-align: middle;"><table 
+role="presentation" width="38" border="0" cellspacing="0" cellpadding="0"><tr><td align="center"><a 
+href="https://substack.com/app-link/post?publication_id=10845&post_id=111708404&utm_source=substack&utm_medium=email&utm_content=share&action=share&triggerShare=true&isFreemail=true&token=eyJ1c2VyX2lkIjo3Mjc5MTU5NiwicG9zdF9pZCI6MTExNzA4NDA0LCJpYXQiOjE2ODEyMTUwNzQsImV4cCI6MTY4MzgwNzA3NCwiaXNzIjoicHViLTEwODQ1Iiwic3ViIjoicG9zdC1yZWFjdGlvbiJ9.oeE1_Bm8BmSqi56nuHKHCyn9OdB83h-RwHKraUDJPhg" 
+style="border: 1px solid #e0e0e0; border-radius: 100000px; box-sizing: border-box; color: #808080; display: inline-block; 
+font-family: 'SF Pro Text', -apple-system, ui-sans-serif, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 
+'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 12px; font-weight: 500; line-height: 1; min-width: 38px; 
+padding: 9px 0; text-decoration: none; text-transform: uppercase; width: 38px;" class="email-icon-button"><img 
+src="https://substackcdn.com/image/fetch/w_36,c_scale,f_png,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack.com%2Ficon%2FLucideShare%3Fv%3D4%26height%3D36%26fill%3Dnone%26stroke%3D%2523808080%26strokeWidth%3D2" 
+width="18" height="18" style="border: none !important; max-width: 18px; vertical-align: middle;" alt="" 
+class="icon"></a></td></tr></table></td></tr></table></td><td align="right"><table role="presentation" width="auto" border="0" 
+cellspacing="0" cellpadding="0"><tr><td style="vertical-align: middle;"><table role="presentation" width="auto" border="0" 
+cellspacing="0" cellpadding="0"><tr><td align="center"><a 
+href="https://substack.com/app-link/post?publication_id=10845&post_id=111708404&utm_source=substack&utm_medium=email&action=save&triggerSave=true&token=eyJ1c2VyX2lkIjo3Mjc5MTU5NiwicG9zdF9pZCI6MTExNzA4NDA0LCJpYXQiOjE2ODEyMTUwNzQsImV4cCI6MTY4MzgwNzA3NCwiaXNzIjoicHViLTEwODQ1Iiwic3ViIjoic2F2ZS1wb3N0In0.4aagGUMFnXLb_4CpgVPpg_aB5RUVJAVm6Gg9ZsnDv94" 
+class="email-button-outline" style="border: 1px solid #e0e0e0; border-radius: 100000px; color: #808080; display: inline-block; 
+font-family: 'SF Pro Text', -apple-system, ui-sans-serif, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 
+'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 12px; font-weight: 500; line-height: 12px; padding: 9px 14px; 
+text-decoration: none; text-transform: uppercase;"><div class="email-button-spacer" style="display: inline-block; font-size: 16px; 
+line-height: 26px; max-width: 0; min-height: 18px; vertical-align: middle;"></div><span class="email-button-text" 
+style="vertical-align: middle;">Save</span></a></td></tr></table></td></tr></table></td></tr></table></td></tr><tr height="16"><td 
+height="16" style="font-size: 0px; line-height: 0;">&#160;</td></tr></table></div></div><div dir="auto" class="post typography" 
+style="font-size: 16px; line-height: 26px; padding: 16px 0 0 0;"><div dir="auto" class="body markup" style="font-size: 16px; 
+line-height: 26px; margin-bottom: 16px; text-align: initial; width: 100%; word-break: break-word;"><p style="color: #404040; 
+font-size: 16px; line-height: 26px; margin: 0 0 20px 0; margin-top: 0;"><em><span>&#128075; Hey, I&#8217;m Lenny and welcome to 
+a</span><strong>&#160;&#128274; subscriber-only edition &#128274;&#160;</strong><span>of my weekly newsletter. Each week I tackle 
+reader questions about building product, driving growth, and accelerating your career.</span></em></p><div class="subscribe-widget 
+is-signed-up" style="direction: ltr; font-size: 16px; line-height: 26px; margin: 0 0 1em;"><p class="button-wrapper" style="color: 
+#404040; font-size: 16px; line-height: 26px; margin: 0 0 20px 0; text-align: center;"><a 
+href="https://substack.com/redirect/2/eyJlIjoiaHR0cHM6Ly93d3cubGVubnlzbmV3c2xldHRlci5jb20vc3Vic2NyaWJlP3Rva2VuPWV5SjFjMlZ5WDJsa0lqbzNNamM1TVRVNU5pd2lhV0YwSWpveE5qZ3hNakUxTURjMExDSmxlSEFpT2pFMk9ETTRNRGN3TnpRc0ltbHpjeUk2SW5CMVlpMHhNRGcwTlNJc0luTjFZaUk2SW1Ob1pXTnJiM1YwSW4wLk5UcS1FNmxJUTBfc0o5SFpuU0RjREJiOHJ3YWNCelpLVXZjVERkR1gzYU0mdXRtX3NvdXJjZT1wb3N0IiwicCI6MTExNzA4NDA0LCJzIjoxMDg0NSwiZiI6dHJ1ZSwidSI6NzI3OTE1OTYsImlhdCI6MTY4MTIxNTA3NCwiZXhwIjoxNjgzODA3MDc0LCJpc3MiOiJwdWItMCIsInN1YiI6ImxpbmstcmVkaXJlY3QifQ.eheND_jPq50E-nX5TxOzx_RZQM0pCCH3DcVm907Z2C8?&utm_medium=email&utm_source=subscribe-widget&utm_content=111708404" 
+class="button subscribe-btn primary" style="background-color: #f47c55; border: none; border-radius: 4px; box-sizing: border-box; 
+color: #ffffff !important; cursor: pointer; display: inline-block; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 
+Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 14px; font-weight: 600; 
+height: auto; line-height: 20px; margin: 0 auto; opacity: 1; outline: none; padding: 12px 20px; text-align: center; text-decoration: 
+none !important; white-space: nowrap;"><span style="color: #ffffff; text-decoration: none;">Upgrade to paid</span></a></p></div><div 
+style="font-size: 16px; line-height: 26px;"><hr style="background: #e0e0e0; border: none; height: 1px; margin: 32px 0; padding: 
+0;"></div><blockquote style="border-left: 4px solid #f47c55; margin: 20px 0; padding: 0;"><h2 style="-moz-osx-font-smoothing: 
+subpixel-antialiased; -webkit-font-smoothing: subpixel-antialiased; color: #404040; font-family: 'SF Compact Display', 
+-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe 
+UI Symbol'; font-size: 1.625em; font-weight: bold; line-height: 1.16em; margin: 1em 0 0.625em 0; margin-left: 20px;">Are PMs 
+actually using ChatGPT/GPT-4 for getting real work done, and if so, how?</h2></blockquote><p style="color: #404040; font-size: 16px; 
+line-height: 26px; margin: 0 0 20px 0;">Let this idea sink in:</p><div class="tweet static" style="-webkit-font-smoothing: 
+subpixel-antialiased; background: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; box-sizing: border-box; color: #404040; 
+direction: ltr; display: block; flex-direction: column; font-family: -apple-system, -system-ui, BlinkMacSystemFont, 'Segoe UI', 
+Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 14px; font-weight: 400; 
+gap: 12px; line-height: 20px; margin: 32px auto; max-width: 550px; padding: 16px 16px 12px; transition: color .25s cubic-bezier(.16, 
+1, .3, 1), background-color .25s cubic-bezier(.16, 1, .3, 1), box-shadow .25s cubic-bezier(.16, 1, .3, 1), opacity .25s 
+cubic-bezier(.16, 1, .3, 1), filter .25s cubic-bezier(.16, 1, .3, 1), stroke .25s cubic-bezier(.16, 1, .3, 1);"><a 
+class="tweet-link-top" 
+href="https://substack.com/redirect/0b3d5359-18b0-4372-86ba-923f3b822581?j=eyJ1IjoiMTdjNmNzIn0.WacP5qZHoQwMmZ7_CWu68V7iO_0SEuLZegEkOObSEOI" 
+target="_blank" rel="" style="color: #404040; display: block; flex-direction: column; gap: 12px; text-decoration: none; white-space: 
+pre-wrap;"><div class="tweet-header" style="align-items: center; display: block; flex-direction: row; font-size: 16px; gap: 12px; 
+height: 48px; line-height: 26px; margin-bottom: 12px;"><img class="tweet-header-avatar" 
+src="https://substackcdn.com/image/twitter_name/w_96/blader.jpg" alt="Twitter avatar for @blader" style="-ms-interpolation-mode: 
+bicubic; border: none !important; border-radius: 50%; display: block; float: left; height: 48px; margin: 0; margin-right: 12px; 
+max-width: 100%; vertical-align: middle; width: 48px;"><div class="tweet-header-text" style="display: block; flex-direction: column; 
+font-size: 14px; line-height: 20px; padding-top: 4px;"><span class="tweet-author-name" style="display: block; font-weight: 
+600;">Siqi Chen </span><span class="tweet-author-handle" style="color: #808080; display: block;">@blader</span></div></div><div 
+class="tweet-text" style="font-size: 20px; line-height: 24px; margin-bottom: 16px;">product development is basically just prompt 
+engineering the engineers to rotate words into the right shapes.
+
+soon it&#8217;ll be prompt engineering all the way down.</div></a><a class="tweet-link-bottom" 
+href="https://substack.com/redirect/0b3d5359-18b0-4372-86ba-923f3b822581?j=eyJ1IjoiMTdjNmNzIn0.WacP5qZHoQwMmZ7_CWu68V7iO_0SEuLZegEkOObSEOI" 
+target="_blank" rel="" style="color: #404040; display: block; flex-direction: column; gap: 12px; text-decoration: none; white-space: 
+pre-wrap;"><div class="tweet-footer" style="align-items: flex-start; display: block; flex-direction: column; font-size: 14px; gap: 
+8px; line-height: 20px; margin-top: 12px;"><span class="tweet-date" style="color: #808080; flex: 1;">8:44 AM &#8729; Mar 15, 
+2023</span><hr style="background: #e0e0e0; border: none; height: 1px; margin: 12px 0; padding: 0; width: 100%;"><div 
+class="tweet-ufi" style="align-items: center; display: block; font-size: 16px; gap: 24px; height: 20px; line-height: 26px;"><span 
+href="https://twitter.com/blader/status/1635925043736907777/likes" class="likes" style="color: #808080; display: block; float: left; 
+font-size: 14px; gap: 4px; line-height: 20px; margin-right: 24px; text-decoration: none;"><span class="like-count" style="color: 
+#404040; font-weight: 600; margin-right: 4px;">99</span><span>Likes</span></span><span 
+href="https://twitter.com/blader/status/1635925043736907777/retweets" class="retweets" style="color: #808080; display: block; float: 
+left; font-size: 14px; gap: 4px; line-height: 20px; margin-right: 24px; text-decoration: none;"><span class="rt-count" style="color: 
+#404040; font-weight: 600; margin-right: 4px;">8</span><span>Retweets</span></span></div></div></a></div><p style="color: #404040; 
+font-size: 16px; line-height: 26px; margin: 0 0 20px 0;"><span>Though I don&#8217;t believe PMs will be displaced by GPT-4/5/6/n, I 
+do believe that, as with most knowledge work, learning to work alongside AI will quickly become table stakes. Just like </span><a 
+href="https://substack.com/redirect/239a41cd-7839-4803-a8c5-46787facc26d?j=eyJ1IjoiMTdjNmNzIn0.WacP5qZHoQwMmZ7_CWu68V7iO_0SEuLZegEkOObSEOI" 
+rel="" style="color: #404040; text-decoration: underline;">Grammarly</a><span> became for writing, </span><a 
+href="https://substack.com/redirect/8cc6d4b0-be59-4e04-be92-11d01d24018b?j=eyJ1IjoiMTdjNmNzIn0.WacP5qZHoQwMmZ7_CWu68V7iO_0SEuLZegEkOObSEOI" 
+rel="" style="color: #404040; text-decoration: underline;">Copilot</a><span> for engineers, and </span><a 
+href="https://substack.com/redirect/3b574e51-76c8-445d-b254-3999ba90abf5?j=eyJ1IjoiMTdjNmNzIn0.WacP5qZHoQwMmZ7_CWu68V7iO_0SEuLZegEkOObSEOI" 
+rel="" style="color: #404040; text-decoration: underline;">Firefly</a><span>, </span><a 
+href="https://substack.com/redirect/a6736b58-cd09-4204-a4b7-a9e43d2c66c3?j=eyJ1IjoiMTdjNmNzIn0.WacP5qZHoQwMmZ7_CWu68V7iO_0SEuLZegEkOObSEOI" 
+rel="" style="color: #404040; text-decoration: underline;">Runway</a><span>, </span><a 
+href="https://substack.com/redirect/0a30ef98-dc86-47ec-ac4d-e0337b41a346?j=eyJ1IjoiMTdjNmNzIn0.WacP5qZHoQwMmZ7_CWu68V7iO_0SEuLZegEkOObSEOI" 
+rel="" style="color: #404040; text-decoration: underline;">Midjourney</a><span>, and others are becoming for designers. It&#8217;s 
+scary and confusing, but also exciting. When was the last time there was a transformative new tool for product management? 
+Never?</span></p><div class="tweet static" style="-webkit-font-smoothing: subpixel-antialiased; background: #ffffff; border: 1px 
+solid #e0e0e0; border-radius: 8px; box-sizing: border-box; color: #404040; direction: ltr; display: block; flex-direction: column; 
+font-family: -apple-system, -system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 
+'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 14px; font-weight: 400; gap: 12px; line-height: 20px; margin: 32px auto; max-width: 
+550px; padding: 16px 16px 12px; transition: color .25s cubic-bezier(.16, 1, .3, 1), background-color .25s cubic-bezier(.16, 1, .3, 
+1), box-shadow .25s cubic-bezier(.16, 1, .3, 1), opacity .25s cubic-bezier(.16, 1, .3, 1), filter .25s cubic-bezier(.16, 1, .3, 1), 
+stroke .25s cubic-bezier(.16, 1, .3, 1);"><a class="tweet-link-top" 
+href="https://substack.com/redirect/54a7f9c0-65f3-4376-a283-13d9af16e2e4?j=eyJ1IjoiMTdjNmNzIn0.WacP5qZHoQwMmZ7_CWu68V7iO_0SEuLZegEkOObSEOI" 
+target="_blank" rel="" style="color: #404040; display: block; flex-direction: column; gap: 12px; text-decoration: none; white-space: 
+pre-wrap;"><div class="tweet-header" style="align-items: center; display: block; flex-direction: row; font-size: 16px; gap: 12px; 
+height: 48px; line-height: 26px; margin-bottom: 12px;"><img class="tweet-header-avatar" 
+src="https://substackcdn.com/image/twitter_name/w_96/shreyas.jpg" alt="Twitter avatar for @shreyas" loading="lazy" 
+style="-ms-interpolation-mode: bicubic; border: none !important; border-radius: 50%; display: block; float: left; height: 48px; 
+margin: 0; margin-right: 12px; max-width: 100%; vertical-align: middle; width: 48px;"><div class="tweet-header-text" style="display: 
+block; flex-direction: column; font-size: 14px; line-height: 20px; padding-top: 4px;"><span class="tweet-author-name" 
+style="display: block; font-weight: 600;">Shreyas Doshi </span><span class="tweet-author-handle" style="color: #808080; display: 
+block;">@shreyas</span></div></div><div class="tweet-text" style="font-size: 20px; line-height: 24px; margin-bottom: 16px;">The year 
+is 2027.
+
+GPT-7 does most of the work on product teams: mocks, code, research, data analysis. There are highly leveraged engineers, designers, 
+analysts working across 5-10 products. Every product still has a PM, who has 55 GPT tabs open.
+
+PM now means Prompt Manager &#128513; </div><div class="quote-tweet" style="border: 1px solid #e0e0e0; border-radius: 8px; display: 
+block; flex-direction: column; font-size: 14px; gap: 8px; line-height: 20px; margin-top: 16px; padding: 12px;"><div 
+class="quote-tweet-header" style="align-items: center; display: block; flex-direction: row; font-size: 16px; gap: 8px; line-height: 
+26px; margin-bottom: 8px;"><img class="quote-tweet-header-avatar" 
+src="https://substackcdn.com/image/twitter_name/w_40/pradeepb28.jpg" alt="Twitter avatar for @pradeepb28" loading="lazy" 
+style="-ms-interpolation-mode: bicubic; border: none !important; border-radius: 50%; display: block; float: left; height: 20px; 
+margin: 0; margin-right: 8px; max-width: 100%; vertical-align: middle; width: 20px;"><div class="quote-tweet-header-text" 
+style="display: block; flex-direction: row; font-size: 14px; gap: 4px; line-height: 20px;"><span class="quote-tweet-name" 
+style="display: inline-block; font-weight: 600; margin-right: 4px;">deepu </span><span class="quote-tweet-username" style="color: 
+#808080;">@pradeepb28</span></div></div><span>I wonder if @lennysan @shreyas have thoughts or predictions about what the product 
+management would look like in next 5 years ?</span></div></a><a class="tweet-link-bottom" 
+href="https://substack.com/redirect/54a7f9c0-65f3-4376-a283-13d9af16e2e4?j=eyJ1IjoiMTdjNmNzIn0.WacP5qZHoQwMmZ7_CWu68V7iO_0SEuLZegEkOObSEOI" 
+target="_blank" rel="" style="color: #404040; display: block; flex-direction: column; gap: 12px; text-decoration: none; white-space: 
+pre-wrap;"><div class="tweet-footer" style="align-items: flex-start; display: block; flex-direction: column; font-size: 14px; gap: 
+8px; line-height: 20px; margin-top: 12px;"><span class="tweet-date" style="color: #808080; flex: 1;">11:23 AM &#8729; Dec 27, 
+2022</span><hr style="background: #e0e0e0; border: none; height: 1px; margin: 12px 0; padding: 0; width: 100%;"><div 
+class="tweet-ufi" style="align-items: center; display: block; font-size: 16px; gap: 24px; height: 20px; line-height: 26px;"><span 
+href="https://twitter.com/shreyas/status/1607698647084568576?s=20/likes" class="likes" style="color: #808080; display: block; float: 
+left; font-size: 14px; gap: 4px; line-height: 20px; margin-right: 24px; text-decoration: none;"><span class="like-count" 
+style="color: #404040; font-weight: 600; margin-right: 4px;">369</span><span>Likes</span></span><span 
+href="https://twitter.com/shreyas/status/1607698647084568576?s=20/retweets" class="retweets" style="color: #808080; display: block; 
+float: left; font-size: 14px; gap: 4px; line-height: 20px; margin-right: 24px; text-decoration: none;"><span class="rt-count" 
+style="color: #404040; font-weight: 600; margin-right: 4px;">35</span><span>Retweets</span></span></div></div></a></div><p 
+style="color: #404040; font-size: 16px; line-height: 26px; margin: 0 0 20px 0;"><span>Importantly, as Dan Shipper suggested in 
+</span><a 
+href="https://substack.com/redirect/afb2964f-666e-4ad3-8b7f-4cfa6a5681f7?j=eyJ1IjoiMTdjNmNzIn0.WacP5qZHoQwMmZ7_CWu68V7iO_0SEuLZegEkOObSEOI" 
+rel="" style="color: #404040; text-decoration: underline;">his recent guest post on building the Lenny Chatbot</a><span>, 
+</span><strong>&#8220;the best way to prepare for this fast-approaching future is to dive in and get your hands 
+dirty.&#8221;</strong><span> So to help you roll up your sleeves and get started, I </span><a 
+href="https://substack.com/redirect/b22f6c46-9b6e-42ef-a689-ff5778756d21?j=eyJ1IjoiMTdjNmNzIn0.WacP5qZHoQwMmZ7_CWu68V7iO_0SEuLZegEkOObSEOI" 
+rel="" style="color: #404040; text-decoration: underline;">polled Twitter</a><span> for concrete examples of how PMs are already 
+using ChatGPT day-to-day. Honestly, I was shocked by how common (and useful) it has already become for people. Below, I&#8217;ve 
+collected a dozen of my favorite use cases of how you can integrate ChatGPT into your work today&#8212;with actual prompts you can 
+play with.</span></p><p style="color: #404040; font-size: 16px; line-height: 26px; margin: 0 0 20px 0;"><span>To follow along, 
+</span><a 
+href="https://substack.com/redirect/65fd372d-b931-4f41-913d-8389dec680ad?j=eyJ1IjoiMTdjNmNzIn0.WacP5qZHoQwMmZ7_CWu68V7iO_0SEuLZegEkOObSEOI" 
+rel="" style="color: #404040; text-decoration: underline;">go sign up for ChatGPT</a><span> (seriously, go do that now), and try at 
+least one prompt you find below. Even if you don&#8217;t find it useful today, it&#8217;ll plant a seed.</span></p><p style="color: 
+#404040; font-size: 16px; line-height: 26px; margin: 0 0 20px 0;"><span>Also, a pro tip: You can ask ChatGPT for advice on how to 
+best </span><em>phrase</em><span> your prompt. It&#8217;s very meta and very cool. </span></p><p style="color: #404040; font-size: 
+16px; line-height: 26px; margin: 0 0 20px 0;">For example:</p><div class="tweet static" style="-webkit-font-smoothing: 
+subpixel-antialiased; background: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; box-sizing: border-box; color: #404040; 
+direction: ltr; display: block; flex-direction: column; font-family: -apple-system, -system-ui, BlinkMacSystemFont, 'Segoe UI', 
+Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 14px; font-weight: 400; 
+gap: 12px; line-height: 20px; margin: 32px auto; max-width: 550px; padding: 16px 16px 12px; transition: color .25s cubic-bezier(.16, 
+1, .3, 1), background-color .25s cubic-bezier(.16, 1, .3, 1), box-shadow .25s cubic-bezier(.16, 1, .3, 1), opacity .25s 
+cubic-bezier(.16, 1, .3, 1), filter .25s cubic-bezier(.16, 1, .3, 1), stroke .25s cubic-bezier(.16, 1, .3, 1);"><a 
+class="tweet-link-top" 
+href="https://substack.com/redirect/8fe4ff51-60b9-45e7-9e80-9894b892634b?j=eyJ1IjoiMTdjNmNzIn0.WacP5qZHoQwMmZ7_CWu68V7iO_0SEuLZegEkOObSEOI" 
+target="_blank" rel="" style="color: #404040; display: block; flex-direction: column; gap: 12px; text-decoration: none; white-space: 
+pre-wrap;"><div class="tweet-header" style="align-items: center; display: block; flex-direction: row; font-size: 16px; gap: 12px; 
+height: 48px; line-height: 26px; margin-bottom: 12px;"><img class="tweet-header-avatar" 
+src="https://substackcdn.com/image/twitter_name/w_96/mercurialsolo.jpg" alt="Twitter avatar for @mercurialsolo" loading="lazy" 
+style="-ms-interpolation-mode: bicubic; border: none !important; border-radius: 50%; display: block; float: left; height: 48px; 
+margin: 0; margin-right: 12px; max-width: 100%; vertical-align: middle; width: 48px;"><div class="tweet-header-text" style="display: 
+block; flex-direction: column; font-size: 14px; line-height: 20px; padding-top: 4px;"><span class="tweet-author-name" 
+style="display: block; font-weight: 600;">Barada Sahu </span><span class="tweet-author-handle" style="color: #808080; display: 
+block;">@mercurialsolo</span></div></div><div class="tweet-text" style="font-size: 20px; line-height: 24px; margin-bottom: 
+16px;"><span class="tweet-fake-link" style="color: #1da1f2;">@lennysan</span><span> </span><span class="tweet-fake-link" 
+style="color: #1da1f2;">@laurynisford</span><span> P1: &quot;Imagine you are a Product manager making a prompt to improve the 
+onboarding for Airtable. Please write the prompt&quot; 
+
+Fed the prompt and came up with ideas 
+============================
+
+P2: These are pretty common and already done, can you come up with more creative ideas?</span></div></a><a class="tweet-link-bottom" 
+href="https://substack.com/redirect/8fe4ff51-60b9-45e7-9e80-9894b892634b?j=eyJ1IjoiMTdjNmNzIn0.WacP5qZHoQwMmZ7_CWu68V7iO_0SEuLZegEkOObSEOI" 
+target="_blank" rel="" style="color: #404040; display: block; flex-direction: column; gap: 12px; text-decoration: none; white-space: 
+pre-wrap;"><div class="tweet-footer" style="align-items: flex-start; display: block; flex-direction: column; font-size: 14px; gap: 
+8px; line-height: 20px; margin-top: 12px;"><span class="tweet-date" style="color: #808080; flex: 1;">1:34 AM &#8729; Mar 31, 
+2023</span></div></a></div><p style="color: #404040; font-size: 16px; line-height: 26px; margin: 0 0 20px 0;">Here&#8217;s what it 
+suggested when I did this:</p><div class="captioned-image-container-static" style="font-size: 16px; line-height: 26px; margin: 32px 
+auto;"><figure style="margin: 0 auto; width: 100%;"><table class="image-wrapper" width="100%" border="0" cellspacing="0" 
+cellpadding="0" style="mso-padding-alt: 1em 0 1.6em;"><tbody><tr><td style="text-align: center;"></td><td align="left" 
+class="content" width="1456" style="text-align: center;"><a class="image-link" target="_blank" 
+href="https://substack.com/redirect/b5b71da9-d315-4cca-8c68-5a7bdc07997c?j=eyJ1IjoiMTdjNmNzIn0.WacP5qZHoQwMmZ7_CWu68V7iO_0SEuLZegEkOObSEOI" 
+rel="" style="align-items: center; border: none; display: block; flex-direction: column; height: auto; margin: 0; padding: 0; 
+position: relative; text-decoration: none; width: auto;"><img 
+data-attrs="{&quot;src&quot;:&quot;https://substack-post-media.s3.amazonaws.com/public/images/e641adac-5adc-459d-9a81-aeda03113db2_1470x548.png&quot;,&quot;fullscreen&quot;:null,&quot;imageSize&quot;:null,&quot;height&quot;:543,&quot;width&quot;:1456,&quot;resizeWidth&quot;:null,&quot;bytes&quot;:145292,&quot;alt&quot;:null,&quot;title&quot;:null,&quot;type&quot;:&quot;image/png&quot;,&quot;href&quot;:null,&quot;belowTheFold&quot;:true,&quot;internalRedirect&quot;:null}" 
+alt="" width="550" height="205.11675824175825" class="wide-image" 
+src="https://substackcdn.com/image/fetch/w_2912,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fe641adac-5adc-459d-9a81-aeda03113db2_1470x548.png" 
+style="-ms-interpolation-mode: bicubic; border: none !important; display: block; height: auto; margin: 0 auto; margin-bottom: 0; 
+max-width: 100% !important; vertical-align: middle; width: auto !important;"></a></td><td style="text-align: 
+center;"></td></tr></tbody></table></figure></div><div class="captioned-image-container-static" style="font-size: 16px; line-height: 
+26px; margin: 32px auto;"><figure style="margin: 0 auto; width: 100%;"><table class="image-wrapper" width="100%" border="0" 
+cellspacing="0" cellpadding="0" style="mso-padding-alt: 1em 0 1.6em;"><tbody><tr><td style="text-align: center;"></td><td 
+align="left" class="content" width="1318" style="text-align: center;"><a class="image-link" target="_blank" 
+href="https://substack.com/redirect/f34d11b2-0cf4-4949-a6c8-3b8b69b8259a?j=eyJ1IjoiMTdjNmNzIn0.WacP5qZHoQwMmZ7_CWu68V7iO_0SEuLZegEkOObSEOI" 
+rel="" style="align-items: center; border: none; display: block; flex-direction: column; height: auto; margin: 0; padding: 0; 
+position: relative; text-decoration: none; width: auto;"><img 
+data-attrs="{&quot;src&quot;:&quot;https://substack-post-media.s3.amazonaws.com/public/images/6e8c5cd3-baa9-4456-b12e-40fbf902e581_1318x1210.png&quot;,&quot;fullscreen&quot;:null,&quot;imageSize&quot;:null,&quot;height&quot;:1210,&quot;width&quot;:1318,&quot;resizeWidth&quot;:null,&quot;bytes&quot;:354779,&quot;alt&quot;:null,&quot;title&quot;:null,&quot;type&quot;:&quot;image/png&quot;,&quot;href&quot;:null,&quot;belowTheFold&quot;:true,&quot;internalRedirect&quot;:null}" 
+alt="" width="550" height="504.9317147192716" class="wide-image" 
+src="https://substackcdn.com/image/fetch/w_2636,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F6e8c5cd3-baa9-4456-b12e-40fbf902e581_1318x1210.png" 
+style="-ms-interpolation-mode: bicubic; border: none !important; display: block; height: auto; margin: 0 auto; margin-bottom: 0; 
+max-width: 100% !important; vertical-align: middle; width: auto !important;"></a></td><td style="text-align: 
+center;"></td></tr></tbody></table></figure></div><p style="color: #404040; font-size: 16px; line-height: 26px; margin: 0 0 20px 
+0;">The future is coming fast.</p><h1 class="header-with-anchor-widget" style="-moz-osx-font-smoothing: subpixel-antialiased; 
+-webkit-font-smoothing: subpixel-antialiased; color: #404040; font-family: 'SF Compact Display', -apple-system, BlinkMacSystemFont, 
+'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 2em; 
+font-weight: bold; line-height: 1.16em; margin: 1em 0 0.625em 0; position: relative;">12 ways to use ChatGPT in your PM work</h1><h4 
+class="header-with-anchor-widget" style="-moz-osx-font-smoothing: subpixel-antialiased; -webkit-font-smoothing: 
+subpixel-antialiased; color: #404040; font-family: 'SF Compact Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 
+Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 1.125em; font-weight: bold; 
+line-height: 1.16em; margin: 1em 0 0.625em 0; position: relative;">1. Collect and summarize user feedback and usage data</h4><p 
+style="color: #404040; font-size: 16px; line-height: 26px; margin: 0 0 20px 0;">Synthesize survey results:</p><div class="tweet 
+static" style="-webkit-font-smoothing: subpixel-antialiased; background: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; 
+box-sizing: border-box; color: #404040; direction: ltr; display: block; flex-direction: column; font-family: -apple-system, 
+-system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI 
+Symbol'; font-size: 14px; font-weight: 400; gap: 12px; line-height: 20px; margin: 32px auto; max-width: 550px; padding: 16px 16px 
+12px; transition: color .25s cubic-bezier(.16, 1, .3, 1), background-color .25s cubic-bezier(.16, 1, .3, 1), box-shadow .25s 
+cubic-bezier(.16, 1, .3, 1), opacity .25s cubic-bezier(.16, 1, .3, 1), filter .25s cubic-bezier(.16, 1, .3, 1), stroke .25s 
+cubic-bezier(.16, 1, .3, 1);"><a class="tweet-link-top" 
+href="https://substack.com/redirect/8807c20c-a270-477e-baab-9ec5d431de6b?j=eyJ1IjoiMTdjNmNzIn0.WacP5qZHoQwMmZ7_CWu68V7iO_0SEuLZegEkOObSEOI" 
+target="_blank" rel="" style="color: #404040; display: block; flex-direction: column; gap: 12px; text-decoration: none; white-space: 
+pre-wrap;"><div class="tweet-header" style="align-items: center; display: block; flex-direction: row; font-size: 16px; gap: 12px; 
+height: 48px; line-height: 26px; margin-bottom: 12px;"><img class="tweet-header-avatar" 
+src="https://substackcdn.com/image/twitter_name/w_96/lucdid.jpg" alt="Twitter avatar for @lucdid" loading="lazy" 
+style="-ms-interpolation-mode: bicubic; border: none !important; border-radius: 50%; display: block; float: left; height: 48px; 
+margin: 0; margin-right: 12px; max-width: 100%; vertical-align: middle; width: 48px;"><div class="tweet-header-text" style="display: 
+block; flex-direction: column; font-size: 14px; line-height: 20px; padding-top: 4px;"><span class="tweet-author-name" 
+style="display: block; font-weight: 600;">Lucas Didier </span><span class="tweet-author-handle" style="color: #808080; display: 
+block;">@lucdid</span></div></div><div class="tweet-text" style="font-size: 20px; line-height: 24px; margin-bottom: 16px;"><span 
+class="tweet-fake-link" style="color: #1da1f2;">@lennysan</span><span> Something like:
+
+&quot;I'm going to send you a list of X survey responses to the question &quot;....&quot; 
+
+Can you group these into buckets of insights, with their associated weight (in %), and list some examples of associated responses 
+for each insight?&quot;</span></div></a><a class="tweet-link-bottom" 
+href="https://substack.com/redirect/8807c20c-a270-477e-baab-9ec5d431de6b?j=eyJ1IjoiMTdjNmNzIn0.WacP5qZHoQwMmZ7_CWu68V7iO_0SEuLZegEkOObSEOI" 
+target="_blank" rel="" style="color: #404040; display: block; flex-direction: column; gap: 12px; text-decoration: none; white-space: 
+pre-wrap;"><div class="tweet-footer" style="align-items: flex-start; display: block; flex-direction: column; font-size: 14px; gap: 
+8px; line-height: 20px; margin-top: 12px;"><span class="tweet-date" style="color: #808080; flex: 1;">8:30 PM &#8729; Mar 30, 
+2023</span></div></a></div><p style="color: #404040; font-size: 16px; line-height: 26px; margin: 0 0 20px 0;">Find feature ideas and 
+bugs from app store reviews:</p><div class="tweet static" style="-webkit-font-smoothing: subpixel-antialiased; background: #ffffff; 
+border: 1px solid #e0e0e0; border-radius: 8px; box-sizing: border-box; color: #404040; direction: ltr; display: block; 
+flex-direction: column; font-family: -apple-system, -system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, 
+sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 14px; font-weight: 400; gap: 12px; line-height: 
+20px; margin: 32px auto; max-width: 550px; padding: 16px 16px 12px; transition: color .25s cubic-bezier(.16, 1, .3, 1), 
+background-color .25s cubic-bezier(.16, 1, .3, 1), box-shadow .25s cubic-bezier(.16, 1, .3, 1), opacity .25s cubic-bezier(.16, 1, 
+.3, 1), filter .25s cubic-bezier(.16, 1, .3, 1), stroke .25s cubic-bezier(.16, 1, .3, 1);"><a class="tweet-link-top" 
+href="https://substack.com/redirect/cf81c802-e157-49e7-8102-8d1a5882ee3d?j=eyJ1IjoiMTdjNmNzIn0.WacP5qZHoQwMmZ7_CWu68V7iO_0SEuLZegEkOObSEOI" 
+target="_blank" rel="" style="color: #404040; display: block; flex-direction: column; gap: 12px; text-decoration: none; white-space: 
+pre-wrap;"><div class="tweet-header" style="align-items: center; display: block; flex-direction: row; font-size: 16px; gap: 12px; 
+height: 48px; line-height: 26px; margin-bottom: 12px;"><img class="tweet-header-avatar" 
+src="https://substackcdn.com/image/twitter_name/w_96/MaximalTweet.jpg" alt="Twitter avatar for @MaximalTweet" loading="lazy" 
+style="-ms-interpolation-mode: bicubic; border: none !important; border-radius: 50%; display: block; float: left; height: 48px; 
+margin: 0; margin-right: 12px; max-width: 100%; vertical-align: middle; width: 48px;"><div class="tweet-header-text" style="display: 
+block; flex-direction: column; font-size: 14px; line-height: 20px; padding-top: 4px;"><span class="tweet-author-name" 
+style="display: block; font-weight: 600;">Max Schubert </span><span class="tweet-author-handle" style="color: #808080; display: 
+block;">@MaximalTweet</span></div></div><div class="tweet-text" style="font-size: 20px; line-height: 24px; margin-bottom: 
+16px;"><span class="tweet-fake-link" style="color: #1da1f2;">@lennysan</span><span> Another one from yesterday evening:
+_________
+I want to scrape App Store reviews of our app using Javascript. Walk me through it step by step.
+
+Then, I pasted all the reviews into the chat and asked GPT-4 to find the top 3 most requested features and 
+complaints.</span></div></a><a class="tweet-link-bottom" 
+href="https://substack.com/redirect/cf81c802-e157-49e7-8102-8d1a5882ee3d?j=eyJ1IjoiMTdjNmNzIn0.WacP5qZHoQwMmZ7_CWu68V7iO_0SEuLZegEkOObSEOI" 
+target="_blank" rel="" style="color: #404040; display: block; flex-direction: column; gap: 12px; text-decoration: none; white-space: 
+pre-wrap;"><div class="tweet-footer" style="align-items: flex-start; display: block; flex-direction: column; font-size: 14px; gap: 
+8px; line-height: 20px; margin-top: 12px;"><span class="tweet-date" style="color: #808080; flex: 1;">4:54 PM &#8729; Mar 27, 
+2023</span></div></a></div><p style="color: #404040; font-size: 16px; line-height: 26px; margin: 0 0 20px 0;">Extract insights from 
+raw usage metrics:</p><div class="tweet static" style="-webkit-font-smoothing: subpixel-antialiased; background: #ffffff; border: 
+1px solid #e0e0e0; border-radius: 8px; box-sizing: border-box; color: #404040; direction: ltr; display: block; flex-direction: 
+column; font-family: -apple-system, -system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color 
+Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 14px; font-weight: 400; gap: 12px; line-height: 20px; margin: 32px auto; 
+max-width: 550px; padding: 16px 16px 12px; transition: color .25s cubic-bezier(.16, 1, .3, 1), background-color .25s 
+cubic-bezier(.16, 1, .3, 1), box-shadow .25s cubic-bezier(.16, 1, .3, 1), opacity .25s cubic-bezier(.16, 1, .3, 1), filter .25s 
+cubic-bezier(.16, 1, .3, 1), stroke .25s cubic-bezier(.16, 1, .3, 1);"><a class="tweet-link-top" 
+href="https://substack.com/redirect/aa843906-b4b4-4739-b625-3afe519f4144?j=eyJ1IjoiMTdjNmNzIn0.WacP5qZHoQwMmZ7_CWu68V7iO_0SEuLZegEkOObSEOI" 
+target="_blank" rel="" style="color: #404040; display: block; flex-direction: column; gap: 12px; text-decoration: none; white-space: 
+pre-wrap;"><div class="tweet-header" style="align-items: center; display: block; flex-direction: row; font-size: 16px; gap: 12px; 
+height: 48px; line-height: 26px; margin-bottom: 12px;"><img class="tweet-header-avatar" 
+src="https://substackcdn.com/image/twitter_name/w_96/Dotnetster.jpg" alt="Twitter avatar for @Dotnetster" loading="lazy" 
+style="-ms-interpolation-mode: bicubic; border: none !important; border-radius: 50%; display: block; float: left; height: 48px; 
+margin: 0; margin-right: 12px; max-width: 100%; vertical-align: middle; width: 48px;"><div class="tweet-header-text" style="display: 
+block; flex-direction: column; font-size: 14px; line-height: 20px; padding-top: 4px;"><span class="tweet-author-name" 
+style="display: block; font-weight: 600;">RossMcLoughlin </span><span class="tweet-author-handle" style="color: #808080; display: 
+block;">@Dotnetster</span></div></div><div class="tweet-text" style="font-size: 20px; line-height: 24px; margin-bottom: 16px;"><span 
+class="tweet-fake-link" style="color: #1da1f2;">@lennysan</span><span> Converting our product usage metrics data to text and then 
+just asking GPT questions about the data.</span></div></a><a class="tweet-link-bottom" 
+href="https://substack.com/redirect/aa843906-b4b4-4739-b625-3afe519f4144?j=eyJ1IjoiMTdjNmNzIn0.WacP5qZHoQwMmZ7_CWu68V7iO_0SEuLZegEkOObSEOI" 
+target="_blank" rel="" style="color: #404040; display: block; flex-direction: column; gap: 12px; text-decoration: none; white-space: 
+pre-wrap;"><div class="tweet-footer" style="align-items: flex-start; display: block; flex-direction: column; font-size: 14px; gap: 
+8px; line-height: 20px; margin-top: 12px;"><span class="tweet-date" style="color: #808080; flex: 1;">6:22 PM &#8729; Mar 27, 
+2023</span><hr style="background: #e0e0e0; border: none; height: 1px; margin: 12px 0; padding: 0; width: 100%;"><div 
+class="tweet-ufi" style="align-items: center; display: block; font-size: 16px; gap: 24px; height: 20px; line-height: 26px;"><span 
+href="https://twitter.com/Dotnetster/status/1640418988458131456?s=20/likes" class="likes" style="color: #808080; display: block; 
+float: left; font-size: 14px; gap: 4px; line-height: 20px; margin-right: 24px; text-decoration: none;"><span class="like-count" 
+style="color: #404040; font-weight: 600; margin-right: 4px;">1</span><span>Like</span></span><span 
+href="https://twitter.com/Dotnetster/status/1640418988458131456?s=20/retweets" class="retweets" style="color: #808080; display: 
+block; float: left; font-size: 14px; gap: 4px; line-height: 20px; margin-right: 24px; text-decoration: none;"><span class="rt-count" 
+style="color: #404040; font-weight: 600; margin-right: 4px;">1</span><span>Retweet</span></span></div></div></a></div><p 
+style="color: #404040; font-size: 16px; line-height: 26px; margin: 0 0 20px 0;">Do sensitivity analysis:</p><div class="tweet 
+static" style="-webkit-font-smoothing: subpixel-antialiased; background: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; 
+box-sizing: border-box; color: #404040; direction: ltr; display: block; flex-direction: column; font-family: -apple-system, 
+-system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI 
+Symbol'; font-size: 14px; font-weight: 400; gap: 12px; line-height: 20px; margin: 32px auto; max-width: 550px; padding: 16px 16px 
+12px; transition: color .25s cubic-bezier(.16, 1, .3, 1), background-color .25s cubic-bezier(.16, 1, .3, 1), box-shadow .25s 
+cubic-bezier(.16, 1, .3, 1), opacity .25s cubic-bezier(.16, 1, .3, 1), filter .25s cubic-bezier(.16, 1, .3, 1), stroke .25s 
+cubic-bezier(.16, 1, .3, 1);"><a class="tweet-link-top" 
+href="https://substack.com/redirect/3f70c069-35d1-4502-95e2-9f1ef3e4b83b?j=eyJ1IjoiMTdjNmNzIn0.WacP5qZHoQwMmZ7_CWu68V7iO_0SEuLZegEkOObSEOI" 
+target="_blank" rel="" style="color: #404040; display: block; flex-direction: column; gap: 12px; text-decoration: none; white-space: 
+pre-wrap;"><div class="tweet-header" style="align-items: center; display: block; flex-direction: row; font-size: 16px; gap: 12px; 
+height: 48px; line-height: 26px; margin-bottom: 12px;"><img class="tweet-header-avatar" 
+src="https://substackcdn.com/image/twitter_name/w_96/tlonuqbar.jpg" alt="Twitter avatar for @tlonuqbar" loading="lazy" 
+style="-ms-interpolation-mode: bicubic; border: none !important; border-radius: 50%; display: block; float: left; height: 48px; 
+margin: 0; margin-right: 12px; max-width: 100%; vertical-align: middle; width: 48px;"><div class="tweet-header-text" style="display: 
+block; flex-direction: column; font-size: 14px; line-height: 20px; padding-top: 4px;"><span class="tweet-author-name" 
+style="display: block; font-weight: 600;">Mark Rogers </span><span class="tweet-author-handle" style="color: #808080; display: 
+block;">@tlonuqbar</span></div></div><div class="tweet-text" style="font-size: 20px; line-height: 24px; margin-bottom: 16px;"><span 
+class="tweet-fake-link" style="color: #1da1f2;">@lennysan</span><span> You can paste in the data in a table and ask for the 
+conversion percentages.  And then ask scenario questions. &quot;What is the volume of raw leads that would be needed to generate x 
+conversions?&quot;</span></div></a><a class="tweet-link-bottom" 
+href="https://substack.com/redirect/3f70c069-35d1-4502-95e2-9f1ef3e4b83b?j=eyJ1IjoiMTdjNmNzIn0.WacP5qZHoQwMmZ7_CWu68V7iO_0SEuLZegEkOObSEOI" 
+target="_blank" rel="" style="color: #404040; display: block; flex-direction: column; gap: 12px; text-decoration: none; white-space: 
+pre-wrap;"><div class="tweet-footer" style="align-items: flex-start; display: block; flex-direction: column; font-size: 14px; gap: 
+8px; line-height: 20px; margin-top: 12px;"><span class="tweet-date" style="color: #808080; flex: 1;">8:01 AM &#8729; Mar 31, 
+2023</span></div></a></div><h4 class="header-with-anchor-widget" style="-moz-osx-font-smoothing: subpixel-antialiased; 
+-webkit-font-smoothing: subpixel-antialiased; color: #404040; font-family: 'SF Compact Display', -apple-system, BlinkMacSystemFont, 
+'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 1.125em; 
+font-weight: bold; line-height: 1.16em; margin: 1em 0 0.625em 0; position: relative;">2. Come up with product name 
+suggestions</h4><div class="tweet static" style="-webkit-font-smoothing: subpixel-antialiased; background: #ffffff; border: 1px 
+solid #e0e0e0; border-radius: 8px; box-sizing: border-box; color: #404040; direction: ltr; display: block; flex-direction: column; 
+font-family: -apple-system, -system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 
+'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 14px; font-weight: 400; gap: 12px; line-height: 20px; margin: 32px auto; max-width: 
+550px; padding: 16px 16px 12px; transition: color .25s cubic-bezier(.16, 1, .3, 1), background-color .25s cubic-bezier(.16, 1, .3, 
+1), box-shadow .25s cubic-bezier(.16, 1, .3, 1), opacity .25s cubic-bezier(.16, 1, .3, 1), filter .25s cubic-bezier(.16, 1, .3, 1), 
+stroke .25s cubic-bezier(.16, 1, .3, 1);"><a class="tweet-link-top" 
+href="https://substack.com/redirect/6e05559a-e337-4060-8016-76de8d73a037?j=eyJ1IjoiMTdjNmNzIn0.WacP5qZHoQwMmZ7_CWu68V7iO_0SEuLZegEkOObSEOI" 
+target="_blank" rel="" style="color: #404040; display: block; flex-direction: column; gap: 12px; text-decoration: none; white-space: 
+pre-wrap;"><div class="tweet-header" style="align-items: center; display: block; flex-direction: row; font-size: 16px; gap: 12px; 
+height: 48px; line-height: 26px; margin-bottom: 12px;"><img class="tweet-header-avatar" 
+src="https://substackcdn.com/image/twitter_name/w_96/Bailey_Jennings.jpg" alt="Twitter avatar for @Bailey_Jennings" loading="lazy" 
+style="-ms-interpolation-mode: bicubic; border: none !important; border-radius: 50%; display: block; float: left; height: 48px; 
+margin: 0; margin-right: 12px; max-width: 100%; vertical-align: middle; width: 48px;"><div class="tweet-header-text" style="display: 
+block; flex-direction: column; font-size: 14px; line-height: 20px; padding-top: 4px;"><span class="tweet-author-name" 
+style="display: block; font-weight: 600;">Bailey Jennings </span><span class="tweet-author-handle" style="color: #808080; display: 
+block;">@Bailey_Jennings</span></div></div><div class="tweet-text" style="font-size: 20px; line-height: 24px; margin-bottom: 
+16px;"><span class="tweet-fake-link" style="color: #1da1f2;">@lennysan</span><span> Product/Feature naming:
+
+prompt:
+I am going to give you a description of a new software product I am planning to launch. I'd like you to return 10 product/feature 
+name ideas. Try to avoid using cliches like &quot;Product 2.0&quot;. 
+
+Do you have any questions?</span></div></a><a class="tweet-link-bottom" 
+href="https://substack.com/redirect/6e05559a-e337-4060-8016-76de8d73a037?j=eyJ1IjoiMTdjNmNzIn0.WacP5qZHoQwMmZ7_CWu68V7iO_0SEuLZegEkOObSEOI" 
+target="_blank" rel="" style="color: #404040; display: block; flex-direction: column; gap: 12px; text-decoration: none; white-space: 
+pre-wrap;"><div class="tweet-footer" style="align-items: flex-start; display: block; flex-direction: column; font-size: 14px; gap: 
+8px; line-height: 20px; margin-top: 12px;"><span class="tweet-date" style="color: #808080; flex: 1;">4:35 PM &#8729; Mar 27, 
+2023</span><hr style="background: #e0e0e0; border: none; height: 1px; margin: 12px 0; padding: 0; width: 100%;"><div 
+class="tweet-ufi" style="align-items: center; display: block; font-size: 16px; gap: 24px; height: 20px; line-height: 26px;"><span 
+href="https://twitter.com/Bailey_Jennings/status/1640392121533308928?s=20/likes" class="likes" style="color: #808080; display: 
+block; float: left; font-size: 14px; gap: 4px; line-height: 20px; margin-right: 24px; text-decoration: none;"><span 
+class="like-count" style="color: #404040; font-weight: 600; margin-right: 4px;">20</span><span>Likes</span></span><span 
+href="https://twitter.com/Bailey_Jennings/status/1640392121533308928?s=20/retweets" class="retweets" style="color: #808080; display: 
+block; float: left; font-size: 14px; gap: 4px; line-height: 20px; margin-right: 24px; text-decoration: none;"><span class="rt-count" 
+style="color: #404040; font-weight: 600; margin-right: 4px;">1</span><span>Retweet</span></span></div></div></a></div><div 
+class="tweet static" style="-webkit-font-smoothing: subpixel-antialiased; background: #ffffff; border: 1px solid #e0e0e0; 
+border-radius: 8px; box-sizing: border-box; color: #404040; direction: ltr; display: block; flex-direction: column; font-family: 
+-apple-system, -system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI 
+Emoji', 'Segoe UI Symbol'; font-size: 14px; font-weight: 400; gap: 12px; line-height: 20px; margin: 32px auto; max-width: 550px; 
+padding: 16px 16px 12px; transition: color .25s cubic-bezier(.16, 1, .3, 1), background-color .25s cubic-bezier(.16, 1, .3, 1), 
+box-shadow .25s cubic-bezier(.16, 1, .3, 1), opacity .25s cubic-bezier(.16, 1, .3, 1), filter .25s cubic-bezier(.16, 1, .3, 1), 
+stroke .25s cubic-bezier(.16, 1, .3, 1);"><a class="tweet-link-top" 
+href="https://substack.com/redirect/0b5f48d2-d48b-4032-8ca8-4f1ceb3927c6?j=eyJ1IjoiMTdjNmNzIn0.WacP5qZHoQwMmZ7_CWu68V7iO_0SEuLZegEkOObSEOI" 
+target="_blank" rel="" style="color: #404040; display: block; flex-direction: column; gap: 12px; text-decoration: none; white-space: 
+pre-wrap;"><div class="tweet-header" style="align-items: center; display: block; flex-direction: row; font-size: 16px; gap: 12px; 
+height: 48px; line-height: 26px; margin-bottom: 12px;"><img class="tweet-header-avatar" 
+src="https://substackcdn.com/image/twitter_name/w_96/jillianfunes.jpg" alt="Twitter avatar for @jillianfunes" loading="lazy" 
+style="-ms-interpolation-mode: bicubic; border: none !important; border-radius: 50%; display: block; float: left; height: 48px; 
+margin: 0; margin-right: 12px; max-width: 100%; vertical-align: middle; width: 48px;"><div class="tweet-header-text" style="display: 
+block; flex-direction: column; font-size: 14px; line-height: 20px; padding-top: 4px;"><span class="tweet-author-name" 
+style="display: block; font-weight: 600;">Jillian Funes </span><span class="tweet-author-handle" style="color: #808080; display: 
+block;">@jillianfunes</span></div></div><div class="tweet-text" style="font-size: 20px; line-height: 24px; margin-bottom: 
+16px;"><span class="tweet-fake-link" style="color: #1da1f2;">@lennysan</span><span> </span><span class="tweet-fake-link" 
+style="color: #1da1f2;">@angara_ps2c</span><span> I wish I had saved the prompt, but essentially I use this format: &quot;You are a 
+PM at a company that does X. You are launching a new product that does Y. Come up with 10 catchy, brandable names for it.&quot;
+It's come up with some pretty good ideas! &#128578;</span></div></a><a class="tweet-link-bottom" 
+href="https://substack.com/redirect/0b5f48d2-d48b-4032-8ca8-4f1ceb3927c6?j=eyJ1IjoiMTdjNmNzIn0.WacP5qZHoQwMmZ7_CWu68V7iO_0SEuLZegEkOObSEOI" 
+target="_blank" rel="" style="color: #404040; display: block; flex-direction: column; gap: 12px; text-decoration: none; white-space: 
+pre-wrap;"><div class="tweet-footer" style="align-items: flex-start; display: block; flex-direction: column; font-size: 14px; gap: 
+8px; line-height: 20px; margin-top: 12px;"><span class="tweet-date" style="color: #808080; flex: 1;">9:40 PM &#8729; Mar 31, 
+2023</span></div></a></div><h4 class="header-with-anchor-widget" style="-moz-osx-font-smoothing: subpixel-antialiased; 
+-webkit-font-smoothing: subpixel-antialiased; color: #404040; font-family: 'SF Compact Display', -apple-system, BlinkMacSystemFont, 
+'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 1.125em; 
+font-weight: bold; line-height: 1.16em; margin: 1em 0 0.625em 0; position: relative;">3. Strengthen your argument</h4><p 
+style="color: #404040; font-size: 16px; line-height: 26px; margin: 0 0 20px 0;">Come up with critical questions your audience may 
+ask:</p><div class="tweet static" style="-webkit-font-smoothing: subpixel-antialiased; background: #ffffff; border: 1px solid 
+#e0e0e0; border-radius: 8px; box-sizing: border-box; color: #404040; direction: ltr; display: block; flex-direction: column; 
+font-family: -apple-system, -system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 
+'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 14px; font-weight: 400; gap: 12px; line-height: 20px; margin: 32px auto; max-width: 
+550px; padding: 16px 16px 12px; transition: color .25s cubic-bezier(.16, 1, .3, 1), background-color .25s cubic-bezier(.16, 1, .3, 
+1), box-shadow .25s cubic-bezier(.16, 1, .3, 1), opacity .25s cubic-bezier(.16, 1, .3, 1), filter .25s cubic-bezier(.16, 1, .3, 1), 
+stroke .25s cubic-bezier(.16, 1, .3, 1);"><a class="tweet-link-top" 
+href="https://substack.com/redirect/ad02a44c-4d65-4ca8-b5cf-3cd4a8b45230?j=eyJ1IjoiMTdjNmNzIn0.WacP5qZHoQwMmZ7_CWu68V7iO_0SEuLZegEkOObSEOI" 
+target="_blank" rel="" style="color: #404040; display: block; flex-direction: column; gap: 12px; text-decoration: none; white-space: 
+pre-wrap;"><div class="tweet-header" style="align-items: center; display: block; flex-direction: row; font-size: 16px; gap: 12px; 
+height: 48px; line-height: 26px; margin-bottom: 12px;"><img class="tweet-header-avatar" 
+src="https://substackcdn.com/image/twitter_name/w_96/vybhavram.jpg" alt="Twitter avatar for @vybhavram" loading="lazy" 
+style="-ms-interpolation-mode: bicubic; border: none !important; border-radius: 50%; display: block; float: left; height: 48px; 
+margin: 0; margin-right: 12px; max-width: 100%; vertical-align: middle; width: 48px;"><div class="tweet-header-text" style="display: 
+block; flex-direction: column; font-size: 14px; line-height: 20px; padding-top: 4px;"><span class="tweet-author-name" 
+style="display: block; font-weight: 600;">Vybhav Ramachandran </span><span class="tweet-author-handle" style="color: #808080; 
+display: block;">@vybhavram</span></div></div><div class="tweet-text" style="font-size: 20px; line-height: 24px; margin-bottom: 
+16px;"><span class="tweet-fake-link" style="color: #1da1f2;">@lennysan</span><span> PRD Review:  &quot;Assume you are the CTO, 
+review this PRD and give me critical, but fair feedback)
+
+Before meetings : &quot;I'm meeting the VP of data science for a 30 minute call to discuss X. What should I ask her?&quot;
+
+After meetings : &quot;Summarize my notes into minutes, action items&quot;</span></div></a><a class="tweet-link-bottom" 
+href="https://substack.com/redirect/ad02a44c-4d65-4ca8-b5cf-3cd4a8b45230?j=eyJ1IjoiMTdjNmNzIn0.WacP5qZHoQwMmZ7_CWu68V7iO_0SEuLZegEkOObSEOI" 
+target="_blank" rel="" style="color: #404040; display: block; flex-direction: column; gap: 12px; text-decoration: none; white-space: 
+pre-wrap;"><div class="tweet-footer" style="align-items: flex-start; display: block; flex-direction: column; font-size: 14px; gap: 
+8px; line-height: 20px; margin-top: 12px;"><span class="tweet-date" style="color: #808080; flex: 1;">4:11 PM &#8729; Mar 27, 
+2023</span><hr style="background: #e0e0e0; border: none; height: 1px; margin: 12px 0; padding: 0; width: 100%;"><div 
+class="tweet-ufi" style="align-items: center; display: block; font-size: 16px; gap: 24px; height: 20px; line-height: 26px;"><span 
+href="https://twitter.com/vybhavram/status/1640386133208223745?s=20/likes" class="likes" style="color: #808080; display: block; 
+float: left; font-size: 14px; gap: 4px; line-height: 20px; margin-right: 24px; text-decoration: none;"><span class="like-count" 
+style="color: #404040; font-weight: 600; margin-right: 4px;">282</span><span>Likes</span></span><span 
+href="https://twitter.com/vybhavram/status/1640386133208223745?s=20/retweets" class="retweets" style="color: #808080; display: 
+block; float: left; font-size: 14px; gap: 4px; line-height: 20px; margin-right: 24px; text-decoration: none;"><span class="rt-count" 
+style="color: #404040; font-weight: 600; margin-right: 4px;">4</span><span>Retweets</span></span></div></div></a></div><p 
+style="color: #404040; font-size: 16px; line-height: 26px; margin: 0 0 20px 0;">Identify gaps and hidden assumptions in your 
+thinking:</p><div class="tweet static" style="-webkit-font-smoothing: subpixel-antialiased; background: #ffffff; border: 1px solid 
+#e0e0e0; border-radius: 8px; box-sizing: border-box; color: #404040; direction: ltr; display: block; flex-direction: column; 
+font-family: -apple-system, -system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 
+'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 14px; font-weight: 400; gap: 12px; line-height: 20px; margin: 32px auto; max-width: 
+550px; padding: 16px 16px 12px; transition: color .25s cubic-bezier(.16, 1, .3, 1), background-color .25s cubic-bezier(.16, 1, .3, 
+1), box-shadow .25s cubic-bezier(.16, 1, .3, 1), opacity .25s cubic-bezier(.16, 1, .3, 1), filter .25s cubic-bezier(.16, 1, .3, 1), 
+stroke .25s cubic-bezier(.16, 1, .3, 1);"><a class="tweet-link-top" 
+href="https://substack.com/redirect/c97c9ea2-7575-4ed9-b780-381de311d8f8?j=eyJ1IjoiMTdjNmNzIn0.WacP5qZHoQwMmZ7_CWu68V7iO_0SEuLZegEkOObSEOI" 
+target="_blank" rel="" style="color: #404040; display: block; flex-direction: column; gap: 12px; text-decoration: none; white-space: 
+pre-wrap;"><div class="tweet-header" style="align-items: center; display: block; flex-direction: row; font-size: 16px; gap: 12px; 
+height: 48px; line-height: 26px; margin-bottom: 12px;"><img class="tweet-header-avatar" 
+src="https://substackcdn.com/image/twitter_name/w_96/rishi_kar.jpg" alt="Twitter avatar for @rishi_kar" loading="lazy" 
+style="-ms-interpolation-mode: bicubic; border: none !important; border-radius: 50%; display: block; float: left; height: 48px; 
+margin: 0; margin-right: 12px; max-width: 100%; vertical-align: middle; width: 48px;"><div class="tweet-header-text" style="display: 
+block; flex-direction: column; font-size: 14px; line-height: 20px; padding-top: 4px;"><span class="tweet-author-name" 
+style="display: block; font-weight: 600;">Rishi Kar </span><span class="tweet-author-handle" style="color: #808080; display: 
+block;">@rishi_kar</span></div></div><div class="tweet-text" style="font-size: 20px; line-height: 24px; margin-bottom: 16px;"><span 
+class="tweet-fake-link" style="color: #1da1f2;">@lennysan</span><span> I really like how helpful GPT-4 is when trying to avoid 
+getting blind sided. My favourite prompt when thinking about GTM or a feature:
+
+&#8220;What am I missing here?&#8221;
+&#8220;What  am I being overly optimistic about?&#8221;
+&#8220;What is a macro event that can totally reverse the outcomes of this test&#8221;</span></div></a><a class="tweet-link-bottom" 
+href="https://substack.com/redirect/c97c9ea2-7575-4ed9-b780-381de311d8f8?j=eyJ1IjoiMTdjNmNzIn0.WacP5qZHoQwMmZ7_CWu68V7iO_0SEuLZegEkOObSEOI" 
+target="_blank" rel="" style="color: #404040; display: block; flex-direction: column; gap: 12px; text-decoration: none; white-space: 
+pre-wrap;"><div class="tweet-footer" style="align-items: flex-start; display: block; flex-direction: column; font-size: 14px; gap: 
+8px; line-height: 20px; margin-top: 12px;"><span class="tweet-date" style="color: #808080; flex: 1;">4:44 PM &#8729; Mar 27, 
+2023</span></div></a></div><div class="tweet static" style="-webkit-font-smoothing: subpixel-antialiased; background: #ffffff; 
+border: 1px solid #e0e0e0; border-radius: 8px; box-sizing: border-box; color: #404040; direction: ltr; display: block; 
+flex-direction: column; font-family: -apple-system, -system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, 
+sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 14px; font-weight: 400; gap: 12px; line-height: 
+20px; margin: 32px auto; max-width: 550px; padding: 16px 16px 12px; transition: color .25s cubic-bezier(.16, 1, .3, 1), 
+background-color .25s cubic-bezier(.16, 1, .3, 1), box-shadow .25s cubic-bezier(.16, 1, .3, 1), opacity .25s cubic-bezier(.16, 1, 
+.3, 1), filter .25s cubic-bezier(.16, 1, .3, 1), stroke .25s cubic-bezier(.16, 1, .3, 1);"><a class="tweet-link-top" 
+href="https://substack.com/redirect/f98dbccc-cf6c-4b96-842e-85fe76223f02?j=eyJ1IjoiMTdjNmNzIn0.WacP5qZHoQwMmZ7_CWu68V7iO_0SEuLZegEkOObSEOI" 
+target="_blank" rel="" style="color: #404040; display: block; flex-direction: column; gap: 12px; text-decoration: none; white-space: 
+pre-wrap;"><div class="tweet-header" style="align-items: center; display: block; flex-direction: row; font-size: 16px; gap: 12px; 
+height: 48px; line-height: 26px; margin-bottom: 12px;"><img class="tweet-header-avatar" 
+src="https://substackcdn.com/image/twitter_name/w_96/kranthitech.jpg" alt="Twitter avatar for @kranthitech" loading="lazy" 
+style="-ms-interpolation-mode: bicubic; border: none !important; border-radius: 50%; display: block; float: left; height: 48px; 
+margin: 0; margin-right: 12px; max-width: 100%; vertical-align: middle; width: 48px;"><div class="tweet-header-text" style="display: 
+block; flex-direction: column; font-size: 14px; line-height: 20px; padding-top: 4px;"><span class="tweet-author-name" 
+style="display: block; font-weight: 600;">Kranthi Kiran </span><span class="tweet-author-handle" style="color: #808080; display: 
+block;">@kranthitech</span></div></div><div class="tweet-text" style="font-size: 20px; line-height: 24px; margin-bottom: 
+16px;"><span class="tweet-fake-link" style="color: #1da1f2;">@lennysan</span><span> Identifying assumptions in any hypothesis. 
+This is an example of our visual mapping tool. Trying to uncover assumptions because of which a user experience may not be as 
+expected. </span></div><div class="tweet-photos-container four" style="border: 1px solid #e0e0e0; border-radius: 8px; box-sizing: 
+border-box; display: block; font-size: 16px; gap: 2px; height: 320px; line-height: 26px; overflow: hidden;"><div 
+class="tweet-photos-column" style="box-sizing: border-box; display: block; flex: 1 0; flex-direction: column; float: left; 
+font-size: 16px; gap: 2px; height: 100%; line-height: 26px; outline: 2px solid #ffffff; padding: 0; width: 50%;"><div 
+class="tweet-photo-wrapper half-height-container" style="box-sizing: border-box; font-size: 16px; height: 50%; line-height: 26px; 
+margin: 0; outline: 1px solid #ffffff; padding: 0; width: 100%;"><img class="tweet-photo" 
+src="https://substackcdn.com/image/fetch/w_600,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fpbs.substack.com%2Fmedia%2FFsS2YW-aAAAFfYH.png" 
+alt="Image" loading="lazy" style="-ms-interpolation-mode: bicubic; border: none !important; display: block; height: 100%; margin: 0 
+auto; max-width: 100%; object-fit: cover; vertical-align: middle; width: 100%;"></div><div class="tweet-photo-wrapper 
+half-height-container" style="box-sizing: border-box; font-size: 16px; height: 50%; line-height: 26px; margin: 0; outline: 1px solid 
+#ffffff; padding: 0; width: 100%;"><img class="tweet-photo" 
+src="https://substackcdn.com/image/fetch/w_600,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fpbs.substack.com%2Fmedia%2FFsS2YW_aIAA1mAt.png" 
+alt="Image" loading="lazy" style="-ms-interpolation-mode: bicubic; border: none !important; display: block; height: 100%; margin: 0 
+auto; max-width: 100%; object-fit: cover; vertical-align: middle; width: 100%;"></div></div><div class="tweet-photos-column" 
+style="box-sizing: border-box; display: block; flex: 1 0; flex-direction: column; float: left; font-size: 16px; gap: 2px; height: 
+100%; line-height: 26px; outline: 2px solid #ffffff; padding: 0; width: 50%;"><div class="tweet-photo-wrapper half-height-container" 
+style="box-sizing: border-box; font-size: 16px; height: 50%; line-height: 26px; margin: 0; outline: 1px solid #ffffff; padding: 0; 
+width: 100%;"><img class="tweet-photo" 
+src="https://substackcdn.com/image/fetch/w_600,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fpbs.substack.com%2Fmedia%2FFsS2YXAaQAMxgEt.png" 
+alt="Image" loading="lazy" style="-ms-interpolation-mode: bicubic; border: none !important; display: block; height: 100%; margin: 0 
+auto; max-width: 100%; object-fit: cover; vertical-align: middle; width: 100%;"></div><div class="tweet-photo-wrapper 
+half-height-container" style="box-sizing: border-box; font-size: 16px; height: 50%; line-height: 26px; margin: 0; outline: 1px solid 
+#ffffff; padding: 0; width: 100%;"><img class="tweet-photo" 
+src="https://substackcdn.com/image/fetch/w_600,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fpbs.substack.com%2Fmedia%2FFsS2YW_akAAFUYt.png" 
+alt="Image" loading="lazy" style="-ms-interpolation-mode: bicubic; border: none !important; display: block; height: 100%; margin: 0 
+auto; max-width: 100%; object-fit: cover; vertical-align: middle; width: 100%;"></div></div></div></a><a class="tweet-link-bottom" 
+href="https://substack.com/redirect/f98dbccc-cf6c-4b96-842e-85fe76223f02?j=eyJ1IjoiMTdjNmNzIn0.WacP5qZHoQwMmZ7_CWu68V7iO_0SEuLZegEkOObSEOI" 
+target="_blank" rel="" style="color: #404040; display: block; flex-direction: column; gap: 12px; text-decoration: none; white-space: 
+pre-wrap;"><div class="tweet-footer" style="align-items: flex-start; display: block; flex-direction: column; font-size: 14px; gap: 
+8px; line-height: 20px; margin-top: 12px;"><span class="tweet-date" style="color: #808080; flex: 1;">8:49 AM &#8729; Mar 28, 
+2023</span></div></a></div><p style="color: #404040; font-size: 16px; line-height: 26px; margin: 0 0 20px 0;">Highlight edge cases 
+and counterarguments:</p><div class="tweet static" style="-webkit-font-smoothing: subpixel-antialiased; background: #ffffff; border: 
+1px solid #e0e0e0; border-radius: 8px; box-sizing: border-box; color: #404040; direction: ltr; display: block; flex-direction: 
+column; font-family: -apple-system, -system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color 
+Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 14px; font-weight: 400; gap: 12px; line-height: 20px; margin: 32px auto; 
+max-width: 550px; padding: 16px 16px 12px; transition: color .25s cubic-bezier(.16, 1, .3, 1), background-color .25s 
+cubic-bezier(.16, 1, .3, 1), box-shadow .25s cubic-bezier(.16, 1, .3, 1), opacity .25s cubic-bezier(.16, 1, .3, 1), filter .25s 
+cubic-bezier(.16, 1, .3, 1), stroke .25s cubic-bezier(.16, 1, .3, 1);"><a class="tweet-link-top" 
+href="https://substack.com/redirect/0493fe3e-2431-41bf-bbcc-4f290681b8ad?j=eyJ1IjoiMTdjNmNzIn0.WacP5qZHoQwMmZ7_CWu68V7iO_0SEuLZegEkOObSEOI" 
+target="_blank" rel="" style="color: #404040; display: block; flex-direction: column; gap: 12px; text-decoration: none; white-space: 
+pre-wrap;"><div class="tweet-header" style="align-items: center; display: block; flex-direction: row; font-size: 16px; gap: 12px; 
+height: 48px; line-height: 26px; margin-bottom: 12px;"><img class="tweet-header-avatar" 
+src="https://substackcdn.com/image/twitter_name/w_96/olivercitrin.jpg" alt="Twitter avatar for @olivercitrin" loading="lazy" 
+style="-ms-interpolation-mode: bicubic; border: none !important; border-radius: 50%; display: block; float: left; height: 48px; 
+margin: 0; margin-right: 12px; max-width: 100%; vertical-align: middle; width: 48px;"><div class="tweet-header-text" style="display: 
+block; flex-direction: column; font-size: 14px; line-height: 20px; padding-top: 4px;"><span class="tweet-author-name" 
+style="display: block; font-weight: 600;">oliver </span><span class="tweet-author-handle" style="color: #808080; display: 
+block;">@olivercitrin</span></div></div><div class="tweet-text" style="font-size: 20px; line-height: 24px; margin-bottom: 
+16px;"><span class="tweet-fake-link" style="color: #1da1f2;">@lennysan</span><span> Incredibly helpful w removing personal bias 
+and/or understanding edge cases.
+
+1- &#8216;Tell me 5 reasons this feature won&#8217;t work as intended&#8217;
+
+2- &#8216;Tell me 5 unintended consequences of this feature&#8217;</span></div></a><a class="tweet-link-bottom" 
+href="https://substack.com/redirect/0493fe3e-2431-41bf-bbcc-4f290681b8ad?j=eyJ1IjoiMTdjNmNzIn0.WacP5qZHoQwMmZ7_CWu68V7iO_0SEuLZegEkOObSEOI" 
+target="_blank" rel="" style="color: #404040; display: block; flex-direction: column; gap: 12px; text-decoration: none; white-space: 
+pre-wrap;"><div class="tweet-footer" style="align-items: flex-start; display: block; flex-direction: column; font-size: 14px; gap: 
+8px; line-height: 20px; margin-top: 12px;"><span class="tweet-date" style="color: #808080; flex: 1;">7:58 PM &#8729; Mar 27, 
+2023</span></div></a></div><div class="tweet static" style="-webkit-font-smoothing: subpixel-antialiased; background: #ffffff; 
+border: 1px solid #e0e0e0; border-radius: 8px; box-sizing: border-box; color: #404040; direction: ltr; display: block; 
+flex-direction: column; font-family: -apple-system, -system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, 
+sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 14px; font-weight: 400; gap: 12px; line-height: 
+20px; margin: 32px auto; max-width: 550px; padding: 16px 16px 12px; transition: color .25s cubic-bezier(.16, 1, .3, 1), 
+background-color .25s cubic-bezier(.16, 1, .3, 1), box-shadow .25s cubic-bezier(.16, 1, .3, 1), opacity .25s cubic-bezier(.16, 1, 
+.3, 1), filter .25s cubic-bezier(.16, 1, .3, 1), stroke .25s cubic-bezier(.16, 1, .3, 1);"><a class="tweet-link-top" 
+href="https://substack.com/redirect/15305105-e6d4-4d71-8344-5616aa7f0782?j=eyJ1IjoiMTdjNmNzIn0.WacP5qZHoQwMmZ7_CWu68V7iO_0SEuLZegEkOObSEOI" 
+target="_blank" rel="" style="color: #404040; display: block; flex-direction: column; gap: 12px; text-decoration: none; white-space: 
+pre-wrap;"><div class="tweet-header" style="align-items: center; display: block; flex-direction: row; font-size: 16px; gap: 12px; 
+height: 48px; line-height: 26px; margin-bottom: 12px;"><img class="tweet-header-avatar" 
+src="https://substackcdn.com/image/twitter_name/w_96/dagaadit.jpg" alt="Twitter avatar for @dagaadit" loading="lazy" 
+style="-ms-interpolation-mode: bicubic; border: none !important; border-radius: 50%; display: block; float: left; height: 48px; 
+margin: 0; margin-right: 12px; max-width: 100%; vertical-align: middle; width: 48px;"><div class="tweet-header-text" style="display: 
+block; flex-direction: column; font-size: 14px; line-height: 20px; padding-top: 4px;"><span class="tweet-author-name" 
+style="display: block; font-weight: 600;">adit </span><span class="tweet-author-handle" style="color: #808080; display: 
+block;">@dagaadit</span></div></div><div class="tweet-text" style="font-size: 20px; line-height: 24px; margin-bottom: 16px;"><span 
+class="tweet-fake-link" style="color: #1da1f2;">@lennysan</span><span> Steelmanning the other side of an argument when drafting a 
+proposal (&#8220;why shouldn&#8217;t we do this?&#8221;)</span></div></a><a class="tweet-link-bottom" 
+href="https://substack.com/redirect/15305105-e6d4-4d71-8344-5616aa7f0782?j=eyJ1IjoiMTdjNmNzIn0.WacP5qZHoQwMmZ7_CWu68V7iO_0SEuLZegEkOObSEOI" 
+target="_blank" rel="" style="color: #404040; display: block; flex-direction: column; gap: 12px; text-decoration: none; white-space: 
+pre-wrap;"><div class="tweet-footer" style="align-items: flex-start; display: block; flex-direction: column; font-size: 14px; gap: 
+8px; line-height: 20px; margin-top: 12px;"><span class="tweet-date" style="color: #808080; flex: 1;">5:13 PM &#8729; Mar 27, 
+2023</span></div></a></div><h4 class="header-with-anchor-widget" style="-moz-osx-font-smoothing: subpixel-antialiased; 
+-webkit-font-smoothing: subpixel-antialiased; color: #404040; font-family: 'SF Compact Display', -apple-system, BlinkMacSystemFont, 
+'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 1.125em; 
+font-weight: bold; line-height: 1.16em; margin: 1em 0 0.625em 0; margin-bottom: 0; position: relative;">4. Inspire roadmap 
+ideas...</h4></div></div><div data-testid="paywall" class="paywall paywall-white-background" style="-moz-user-select: none; 
+-ms-user-select: none; -webkit-user-select: none; background: #ffffff; border-top: solid 2px #f47c55; color: #404040; cursor: 
+default; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 
+'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 16px; line-height: 26px; margin-bottom: 16px; margin-top: 6px; padding: 32px 24px 
+16px 24px; position: relative; text-align: center; user-select: none;"><h2 class="paywall-title" style="-moz-osx-font-smoothing: 
+subpixel-antialiased; -webkit-font-smoothing: subpixel-antialiased; color: inherit !important; font-family: 'SF Compact Display', 
+-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe 
+UI Symbol'; font-size: 22px; font-weight: 700; line-height: 33px; margin: 0 auto; margin-bottom: 6px;">Subscribe to Lenny's 
+Newsletter to read the rest.</h2><p class="paywall-subtitle" style="color: inherit !important; font-size: 16px; font-weight: light; 
+line-height: 24px; margin: 0 auto; margin-bottom: 24px;">Become a paying subscriber of Lenny's Newsletter to get access to this post 
+and other subscriber-only content.</p><div class="paywall-cta" style="font-size: 16px; line-height: 26px; margin-top: 0;"><a 
+href="https://substack.com/redirect/2/eyJlIjoiaHR0cHM6Ly93d3cubGVubnlzbmV3c2xldHRlci5jb20vc3Vic2NyaWJlP3Rva2VuPWV5SjFjMlZ5WDJsa0lqbzNNamM1TVRVNU5pd2lhV0YwSWpveE5qZ3hNakUxTURjMExDSmxlSEFpT2pFMk9ETTRNRGN3TnpRc0ltbHpjeUk2SW5CMVlpMHhNRGcwTlNJc0luTjFZaUk2SW1Ob1pXTnJiM1YwSW4wLk5UcS1FNmxJUTBfc0o5SFpuU0RjREJiOHJ3YWNCelpLVXZjVERkR1gzYU0mdXRtX3NvdXJjZT1wb3N0IiwicCI6MTExNzA4NDA0LCJzIjoxMDg0NSwiZiI6dHJ1ZSwidSI6NzI3OTE1OTYsImlhdCI6MTY4MTIxNTA3NCwiZXhwIjoxNjgzODA3MDc0LCJpc3MiOiJwdWItMCIsInN1YiI6ImxpbmstcmVkaXJlY3QifQ.eheND_jPq50E-nX5TxOzx_RZQM0pCCH3DcVm907Z2C8?simple=true&utm_source=paywall&utm_medium=email&utm_content=111708404&next=https://www.lennysnewsletter.com/p/how-to-use-chatgpt-in-your-pm-work" 
+class="button primary subscribe-btn" style="background-color: #f47c55; border: none; border-radius: 4px; box-sizing: border-box; 
+color: #ffffff !important; cursor: pointer; display: inline-block; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 
+Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 14px; font-weight: 400; 
+height: auto; line-height: 1em; margin: 0; opacity: 1; outline: none; padding: 16px 20px; text-align: center; text-decoration: none 
+!important; white-space: nowrap;"><span style="color: #ffffff; text-decoration: none;">Upgrade to paid</span></a></div></div><div 
+class="subscription-benefits" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, 
+sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 16px; line-height: 26px; margin-bottom: 32px;"><h3 
+style="-moz-osx-font-smoothing: subpixel-antialiased; -webkit-font-smoothing: subpixel-antialiased; color: #404040; font-family: 'SF 
+Compact Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe 
+UI Emoji', 'Segoe UI Symbol'; font-size: 16px; font-weight: 600; line-height: 1.16em; margin: 1em 0 0.625em 0; margin-bottom: 
+26px;">A subscription gets you:</h3><table><tr style="height: 28.8px;"><td class="check" style="color: #4c3; font-weight: light; 
+padding-right: 4px;"><img 
+src="https://substackcdn.com/image/fetch/w_32,c_scale,f_png,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack.com%2Ficon%2FSimpleCheckmarkIcon%3Fv%3D4%26height%3D32%26fill%3D%2523187F22%26stroke%3D%2523187F22%26strokeWidth%3D3.6" 
+width="16" height="16" style="border: none !important; max-width: 16px; vertical-align: middle;" alt=""></td><td style="font-weight: 
+light;">Every issue of the newsletter</td></tr><tr style="height: 28.8px;"><td class="check" style="color: #4c3; font-weight: light; 
+padding-right: 4px;"><img 
+src="https://substackcdn.com/image/fetch/w_32,c_scale,f_png,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack.com%2Ficon%2FSimpleCheckmarkIcon%3Fv%3D4%26height%3D32%26fill%3D%2523187F22%26stroke%3D%2523187F22%26strokeWidth%3D3.6" 
+width="16" height="16" style="border: none !important; max-width: 16px; vertical-align: middle;" alt=""></td><td style="font-weight: 
+light;">Access to a private Slack community</td></tr><tr style="height: 28.8px;"><td class="check" style="color: #4c3; font-weight: 
+light; padding-right: 4px;"><img 
+src="https://substackcdn.com/image/fetch/w_32,c_scale,f_png,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack.com%2Ficon%2FSimpleCheckmarkIcon%3Fv%3D4%26height%3D32%26fill%3D%2523187F22%26stroke%3D%2523187F22%26strokeWidth%3D3.6" 
+width="16" height="16" style="border: none !important; max-width: 16px; vertical-align: middle;" alt=""></td><td style="font-weight: 
+light;">Access to a curated collection of Lenny&#8217;s favorite reads and listens</td></tr></table></div><table role="presentation" 
+width="100%" border="0" cellspacing="0" cellpadding="0" class="email-ufi-2-bottom" style="border-bottom: 1px solid #e0e0e0; 
+border-top: 1px solid #e0e0e0; min-width: 100%;"><tr height="16"><td height="16" style="font-size: 0px; line-height: 
+0;">&#160;</td></tr><tr><td><table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0"><tr><td><table 
+role="presentation" width="auto" border="0" cellspacing="0" cellpadding="0" style="margin: 0 auto;"><tr><td style="vertical-align: 
+middle;"><table role="presentation" width="auto" border="0" cellspacing="0" cellpadding="0"><tr><td align="center"><a 
+href="https://substack.com/app-link/post?publication_id=10845&post_id=111708404&utm_source=substack&isFreemail=true&submitLike=true&token=eyJ1c2VyX2lkIjo3Mjc5MTU5NiwicG9zdF9pZCI6MTExNzA4NDA0LCJyZWFjdGlvbiI6IuKdpCIsImlhdCI6MTY4MTIxNTA3NCwiZXhwIjoxNjgzODA3MDc0LCJpc3MiOiJwdWItMTA4NDUiLCJzdWIiOiJyZWFjdGlvbiJ9.fMrTU_1E2pZ9IxnmPFiz40hnkBFllZBrShzUS_p94RY&utm_medium=email" 
+class="email-button-outline" style="border: 1px solid #e0e0e0; border-radius: 100000px; color: #808080; display: inline-block; 
+font-family: 'SF Pro Text', -apple-system, ui-sans-serif, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 
+'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 12px; font-weight: 500; line-height: 12px; padding: 9px 14px; 
+text-decoration: none; text-transform: uppercase;"><img 
+src="https://substackcdn.com/image/fetch/w_36,c_scale,f_png,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack.com%2Ficon%2FLucideHeart%3Fv%3D4%26height%3D36%26fill%3Dnone%26stroke%3D%2523808080%26strokeWidth%3D2" 
+width="18" height="18" style="border: none !important; margin-right: 8px; max-width: 18px; min-height: 18px; min-width: 18px; 
+vertical-align: middle;" alt="" class="icon"><span class="email-button-text" style="vertical-align: 
+middle;">Like</span></a></td></tr></table></td><td width="8" style="min-width: 8px"></td><td style="vertical-align: middle;"><table 
+role="presentation" width="auto" border="0" cellspacing="0" cellpadding="0"><tr><td align="center"><a 
+href="https://substack.com/app-link/post?publication_id=10845&post_id=111708404&utm_source=substack&utm_medium=email&isFreemail=true&comments=true&token=eyJ1c2VyX2lkIjo3Mjc5MTU5NiwicG9zdF9pZCI6MTExNzA4NDA0LCJpYXQiOjE2ODEyMTUwNzQsImV4cCI6MTY4MzgwNzA3NCwiaXNzIjoicHViLTEwODQ1Iiwic3ViIjoicG9zdC1yZWFjdGlvbiJ9.oeE1_Bm8BmSqi56nuHKHCyn9OdB83h-RwHKraUDJPhg&utm_source=substack&utm_medium=email" 
+class="email-button-outline" style="border: 1px solid #e0e0e0; border-radius: 100000px; color: #808080; display: inline-block; 
+font-family: 'SF Pro Text', -apple-system, ui-sans-serif, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 
+'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 12px; font-weight: 500; line-height: 12px; padding: 9px 14px; 
+text-decoration: none; text-transform: uppercase;"><img 
+src="https://substackcdn.com/image/fetch/w_36,c_scale,f_png,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack.com%2Ficon%2FLucideComments%3Fv%3D4%26height%3D36%26fill%3Dnone%26stroke%3D%2523808080%26strokeWidth%3D2" 
+width="18" height="18" style="border: none !important; margin-right: 8px; max-width: 18px; min-height: 18px; min-width: 18px; 
+vertical-align: middle;" alt="" class="icon"><span class="email-button-text" style="vertical-align: 
+middle;">Comment</span></a></td></tr></table></td><td width="8" style="min-width: 8px"></td><td style="vertical-align: 
+middle;"><table role="presentation" width="auto" border="0" cellspacing="0" cellpadding="0"><tr><td align="center"><a 
+href="https://substack.com/app-link/post?publication_id=10845&post_id=111708404&utm_source=substack&utm_medium=email&utm_content=share&action=share&triggerShare=true&isFreemail=true&token=eyJ1c2VyX2lkIjo3Mjc5MTU5NiwicG9zdF9pZCI6MTExNzA4NDA0LCJpYXQiOjE2ODEyMTUwNzQsImV4cCI6MTY4MzgwNzA3NCwiaXNzIjoicHViLTEwODQ1Iiwic3ViIjoicG9zdC1yZWFjdGlvbiJ9.oeE1_Bm8BmSqi56nuHKHCyn9OdB83h-RwHKraUDJPhg" 
+class="email-button-outline" style="border: 1px solid #e0e0e0; border-radius: 100000px; color: #808080; display: inline-block; 
+font-family: 'SF Pro Text', -apple-system, ui-sans-serif, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 
+'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 12px; font-weight: 500; line-height: 12px; padding: 9px 14px; 
+text-decoration: none; text-transform: uppercase;"><img 
+src="https://substackcdn.com/image/fetch/w_36,c_scale,f_png,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack.com%2Ficon%2FLucideShare%3Fv%3D4%26height%3D36%26fill%3Dnone%26stroke%3D%2523808080%26strokeWidth%3D2" 
+width="18" height="18" style="border: none !important; margin-right: 8px; max-width: 18px; min-height: 18px; min-width: 18px; 
+vertical-align: middle;" alt="" class="icon"><span class="email-button-text" style="vertical-align: 
+middle;">Share</span></a></td></tr></table></td></tr></table></td><td align="right"><table role="presentation" width="auto" 
+border="0" cellspacing="0" cellpadding="0"><tr></tr></table></td></tr></table></td></tr><tr height="16"><td height="16" 
+style="font-size: 0px; line-height: 0;">&#160;</td></tr></table><div class="footer 
+frontend-email-shared-typed-module__footer--WmMp1" style="color: #808080; font-size: 16px; line-height: 26px; padding: 24px 0; 
+text-align: center;"><div class="frontend-email-shared-typed-module__footerSection--9vwqp" style="font-size: 16px; line-height: 
+26px; padding: 0 24px;"><div style="color: #404040; font-family: -apple-system, -system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 
+Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 16px; font-weight: 700; 
+letter-spacing: -.32px; line-height: 20px; margin: 0; margin-bottom: 4px; text-decoration: unset;" 
+class="frontend-pencraft-Text-module__reset--20JLV frontend-pencraft-Text-module__size-16--yeezN 
+frontend-pencraft-Text-module__line-height-20--1soeQ frontend-pencraft-Text-module__weight-bold--VnIZR 
+frontend-pencraft-Text-module__font-text--hJYwu frontend-pencraft-Text-module__color-primary--2I-sF 
+frontend-pencraft-Text-module__header4--29ICx">Read Lenny&#39;s Newsletter in the app</div><div style="color: #808080; font-family: 
+-apple-system, -system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI 
+Emoji', 'Segoe UI Symbol'; font-size: 14px; font-weight: 400; letter-spacing: -.15px; line-height: 20px; margin: 0; margin-bottom: 
+16px; text-decoration: unset;" class="frontend-pencraft-Text-module__reset--20JLV frontend-pencraft-Text-module__size-14--1PYz8 
+frontend-pencraft-Text-module__line-height-20--1soeQ frontend-pencraft-Text-module__weight-normal--mEmBf 
+frontend-pencraft-Text-module__font-text--hJYwu frontend-pencraft-Text-module__color-secondary--XjVGl 
+frontend-pencraft-Text-module__body4--flxpT">Listen to posts, join subscriber chats, and never miss an update from Lenny 
+Rachitsky.</div><div style="font-size: 16px; line-height: 26px;"><a 
+href="https://substack.com/redirect/b2ba5991-73b1-4f5a-91d0-094d14e8986c?j=eyJ1IjoiMTdjNmNzIn0.WacP5qZHoQwMmZ7_CWu68V7iO_0SEuLZegEkOObSEOI" 
+class="email-footer-button" style="border-radius: 8px; display: inline-block; margin: 0 4px; overflow: hidden; text-decoration: 
+none;"><img alt="Get the iOS app" 
+src="https://substackcdn.com/image/fetch/w_246,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack.com%2Fimg%2Fapp_page%2Fapp-store.png" 
+width="123" height="40" style="border: none !important; max-width: 550px; vertical-align: middle;"></a><a 
+href="https://substack.com/redirect/fd88791b-93d9-4eb9-adad-95c598337bb7?j=eyJ1IjoiMTdjNmNzIn0.WacP5qZHoQwMmZ7_CWu68V7iO_0SEuLZegEkOObSEOI" 
+class="email-footer-button" style="border-radius: 8px; display: inline-block; margin: 0 4px; overflow: hidden; text-decoration: 
+none;"><img alt="Get the Android app" 
+src="https://substackcdn.com/image/fetch/w_270,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack.com%2Fimg%2Fapp_page%2Fgoogle-play.png%3Fv%3D1" 
+width="135" height="40" style="border: none !important; max-width: 550px; vertical-align: middle;"></a></div></div><div 
+class="frontend-email-shared-typed-module__divider--1oKOZ" style="border-top: 1px solid #e0e0e0; font-size: 16px; line-height: 26px; 
+margin: 24px 0;"></div><div style="font-size: 16px; line-height: 26px; padding-bottom: 24px;"><p 
+class="frontend-pencraft-Text-module__reset--20JLV frontend-pencraft-Text-module__size-12--2onFT 
+frontend-pencraft-Text-module__color-secondary--XjVGl small frontend-email-shared-typed-module__meta--AAyPr" style="color: #808080; 
+font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI 
+Emoji', 'Segoe UI Symbol'; font-size: 12px; letter-spacing: 0; line-height: 16px; margin: 0; padding-bottom: 0; text-decoration: 
+unset;">&#169; 2023 <span></span><br>2443 Fillmore St., #380-8231, San Francisco, CA 94115 <br><a 
+href="https://substack.com/redirect/2/eyJlIjoiaHR0cHM6Ly93d3cubGVubnlzbmV3c2xldHRlci5jb20vYWN0aW9uL2Rpc2FibGVfZW1haWw_dG9rZW49ZXlKMWMyVnlYMmxrSWpvM01qYzVNVFU1Tml3aWNHOXpkRjlwWkNJNk1URXhOekE0TkRBMExDSnBZWFFpT2pFMk9ERXlNVFV3TnpRc0ltVjRjQ0k2TVRZNE16Z3dOekEzTkN3aWFYTnpJam9pY0hWaUxURXdPRFExSWl3aWMzVmlJam9pWkdsellXSnNaVjlsYldGcGJDSjkuXy1NRl9Rc3ZUZlhPZWU4RXY1ejVJSVRMTzV0enV0T3ZRSVNNSVFBeVFBUSIsInAiOjExMTcwODQwNCwicyI6MTA4NDUsImYiOnRydWUsInUiOjcyNzkxNTk2LCJpYXQiOjE2ODEyMTUwNzQsImV4cCI6MTY4MzgwNzA3NCwiaXNzIjoicHViLTAiLCJzdWIiOiJsaW5rLXJlZGlyZWN0In0.JRpVC-ZnoW65PViOZeNNQmGm7KCf0arRkQATKs5iSJg?" 
+style="color: #808080; text-decoration: underline;"><span style="color: #808080; text-decoration: 
+underline;">Unsubscribe</span></a></p></div><p class="frontend-email-shared-typed-module__footerSection--9vwqp small 
+powered-by-substack" style="color: #808080; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, 
+sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 12px; line-height: 20px; margin: 0; margin-top: 0; 
+padding: 0 24px; padding-bottom: 0;"><a 
+href="https://substack.com/redirect/2/eyJlIjoiaHR0cHM6Ly9zdWJzdGFjay5jb20vc2lnbnVwP3V0bV9zb3VyY2U9c3Vic3RhY2smdXRtX21lZGl1bT1lbWFpbCZ1dG1fY29udGVudD1mb290ZXImdXRtX2NhbXBhaWduPWF1dG9maWxsZWQtZm9vdGVyJmZyZWVTaWdudXBFbWFpbD1qYWNrc29uaC0wSG5lLU9QbWVAaW5ib3gub21uaXZvcmUuYXBwIiwicCI6MTExNzA4NDA0LCJzIjoxMDg0NSwiZiI6dHJ1ZSwidSI6NzI3OTE1OTYsImlhdCI6MTY4MTIxNTA3NCwiZXhwIjoxNjgzODA3MDc0LCJpc3MiOiJwdWItMCIsInN1YiI6ImxpbmstcmVkaXJlY3QifQ.BpQ_-OvVDhTHkw5VQG5ITpxL-5GHBoBRLTej1D8A6iw?" 
+style="color: #808080; display: inline-block; margin: 0 4px; text-decoration: none;"><img 
+src="https://substackcdn.com/image/fetch/w_270,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack.com%2Fimg%2Femail%2Fpublish-button%402x.png" 
+srcset="https://substackcdn.com/image/fetch/w_135,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack.com%2Fimg%2Femail%2Fpublish-button.png, 
+https://substackcdn.com/image/fetch/w_270,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack.com%2Fimg%2Femail%2Fpublish-button%402x.png 
+2x, 
+https://substackcdn.com/image/fetch/w_405,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack.com%2Fimg%2Femail%2Fpublish-button%403x.png 
+3x" width="135" alt="Start writing" height="40" style="border: none !important; max-width: 550px; vertical-align: 
+middle;"></a></p></div></div></td><td></td></tr></table><img 
+src="https://mailgun.substack.com/api/v1/email/open?token=eyJtIjoiPDIwMjMwNDExMTIwMTEyLjMuMDdjNDAxNzVhNmMyYmVkNUBtZzIuc3Vic3RhY2suY29tPiIsInUiOjcyNzkxNTk2LCJyIjoiamFja3NvbmgtMEhuZS1PUG1lQGluYm94Lm9tbml2b3JlLmFwcCIsImQiOiJtZzIuc3Vic3RhY2suY29tIiwicCI6MTExNzA4NDA0LCJ0IjoibmV3c2xldHRlciIsImEiOiJvbmx5X3BhaWQiLCJzIjoxMDg0NSwiYyI6InBvc3QiLCJmIjp0cnVlLCJwb3NpdGlvbiI6ImJvdHRvbSIsImlhdCI6MTY4MTIxNTA3NCwiZXhwIjoxNjgzODA3MDc0LCJpc3MiOiJwdWItMCIsInN1YiI6ImVvIn0.WssptPuoJJ1qLd6_PyPu4M3M90r7FxFrE5Z8MrmDq4Q" 
+alt="" width="1" height="1" border="0" style="height:1px !important;width:1px !important;border-width:0 !important;margin-top:0 
+!important;margin-bottom:0 !important;margin-right:0 !important;margin-left:0 !important;padding-top:0 !important;padding-bottom:0 
+!important;padding-right:0 !important;padding-left:0 !important;"/><img width="1px" height="1px" alt="" 
+src="https://email.mg2.substack.com/o/eJxEkEuO4yAURVcTZrHeI2DwgHnPundg8XlJ6Biw-FSVd19KUlJNz5WOjq63nW6lHmYvrbNgREAtNSODs0aOEpRmlGzc1htlqrZTWG3_XYUWnN0NCafhyrXX0s0KcAkeBBKoWTixoGTRcOAXEIjIAZFPlwmUF4BK2tlzR0GeBKQbn9pwrVv_mHxJLLb1WukVYHodxJ6Zqx0hUvZkSt6OdbcxvHkMBhEVaAHiTfqxk8n02TbqnSrbh1t9SWnk2I-VsnUbhR_zcFv0tseSXyLQQrJq_lv_aCXfz_An0_nvv0QnATG78jWVlONHqTTZfWdtuFCSjdlslPPB-vvR0ag-dYqrBeUyfwcAAP__IVR5WA"></body></html>
