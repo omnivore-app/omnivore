@@ -1,9 +1,9 @@
 import SwiftUI
 
 @available(iOS 16.0, *)
-public struct SplitViewSidebar: View {
-  @StateObject private var libraryViewModel = LibraryViewModel()
-  @State private var selectedCategory: PrimaryContentCategory?
+struct SplitViewSidebar: View {
+  @ObservedObject var libraryViewModel: LibraryViewModel
+  @ObservedObject var navigationModel: NavigationModel
   
   let categories = [
     PrimaryContentCategory.feed,
@@ -11,7 +11,7 @@ public struct SplitViewSidebar: View {
   ]
   
   public var body: some View {
-    List(categories, selection: $selectedCategory) { category in
+    List(categories, selection: $navigationModel.selectedCategory) { category in
       NavigationLink(value: category) {
         category.listLabel
       }
