@@ -309,6 +309,9 @@ const schema = gql`
     WEBSITE
     HIGHLIGHTS
     UNKNOWN
+    TWEET
+    VIDEO
+    PICTURE
   }
 
   type Page {
