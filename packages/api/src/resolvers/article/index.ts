@@ -409,7 +409,7 @@ export const getArticleResolver: ResolverFn<
   Record<string, unknown>,
   WithDataSourcesContext,
   QueryArticleArgs
-> = async (_obj, { slug, format }, { claims, pubsub }, info) => {
+> = async (_obj, { slug, format }, { claims }, info) => {
   try {
     if (!claims?.uid) {
       return { errorCodes: [ArticleErrorCode.Unauthorized] }
@@ -950,7 +950,6 @@ export const searchResolver = authorized<
         originalArticleUrl: r.url,
         publishedAt: validatedDate(r.publishedAt),
         ownedByViewer: r.userId === claims.uid,
-        pageType: r.pageType || PageType.Unknown,
         siteIcon,
       } as SearchItem,
       cursor: endCursor,
@@ -1054,7 +1053,6 @@ export const updatesSinceResolver = authorized<
             p.pageType === PageType.File
               ? ContentReader.Pdf
               : ContentReader.Web,
-          pageType: p.pageType || PageType.Unknown,
         } as SearchItem,
         cursor: endCursor,
         itemID: p.id,

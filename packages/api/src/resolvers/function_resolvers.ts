@@ -559,6 +559,9 @@ export const functionResolvers = {
       }
       return item.url
     },
+    pageType(item: SearchItem) {
+      return item.pageType || PageType.Unknown
+    },
   },
   ...resultResolveTypeResolver('Login'),
   ...resultResolveTypeResolver('LogOut'),
