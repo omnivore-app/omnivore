@@ -1,11 +1,11 @@
-import { createPage } from '../elastic/pages'
+import * as httpContext from 'express-http-context2'
+import { readFileSync } from 'fs'
+import path from 'path'
 import { createPubSubClient } from '../datalayer/pubsub'
+import { createPage } from '../elastic/pages'
 import { ArticleSavingRequestStatus, Page, PageContext } from '../elastic/types'
 import { PageType } from '../generated/graphql'
 import { generateSlug, stringToHash } from '../utils/helpers'
-import { readFileSync } from 'fs'
-import path from 'path'
-import * as httpContext from 'express-http-context'
 
 type PopularRead = {
   url: string
@@ -124,7 +124,7 @@ export const addPopularReadsForNewUser = async (
   const defaultReads = ['omnivore_organize', 'power_read_it_later']
 
   // get client from request context
-  const client = httpContext.get('client') as string | undefined
+  const client = httpContext.get<string>('client')
 
   switch (client) {
     case 'web':
