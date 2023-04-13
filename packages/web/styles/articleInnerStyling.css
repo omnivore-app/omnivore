@@ -260,7 +260,6 @@ on smaller screens we display the note icon
 
 .article-inner-css sup,
 .article-inner-css sub {
-  position: relative;
   a {
     color: inherit;
     pointer-events: none;

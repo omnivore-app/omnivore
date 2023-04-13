@@ -18,10 +18,7 @@ export function ArticleSubtitle(props: ArticleSubtitleProps): JSX.Element {
   return (
     <Box>
       <StyledText style={textStyle} css={{ wordBreak: 'break-word' }}>
-        {subtitle}{' '}
-        {subtitle && (
-          <span style={{ position: 'relative', bottom: 1 }}>• </span>
-        )}{' '}
+        {subtitle} {subtitle && <span style={{ bottom: 1 }}>• </span>}{' '}
         {!props.hideButton && !shouldHideUrl(props.href) && (
           <>
             <StyledLink
