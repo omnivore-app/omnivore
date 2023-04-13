@@ -530,7 +530,7 @@ struct WebReaderContainerView: View {
       #endif
     }
     #if os(iOS)
-      .formSheet(isPresented: $showPreferencesPopover, modalSize: CGSize(width: 400, height: 465)) {
+      .formSheet(isPresented: $showPreferencesPopover, modalSize: CGSize(width: 400, height: 475)) {
         webPreferencesPopoverView
       }
     #else
