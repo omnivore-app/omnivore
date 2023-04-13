@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -14,8 +13,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material3.*
+import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,6 +27,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import app.omnivore.omnivore.R
+import app.omnivore.omnivore.ui.components.SegmentedControl
 
 @Composable
 fun WebPreferencesDialog(onDismiss: () -> Unit, webReaderViewModel: WebReaderViewModel) {
@@ -34,7 +36,7 @@ fun WebPreferencesDialog(onDismiss: () -> Unit, webReaderViewModel: WebReaderVie
       shape = RoundedCornerShape(16.dp),
       color = Color.White,
       modifier = Modifier
-        .height(300.dp)
+        .height(350.dp)
     ) {
       WebPreferencesView(webReaderViewModel)
     }
@@ -43,7 +45,8 @@ fun WebPreferencesDialog(onDismiss: () -> Unit, webReaderViewModel: WebReaderVie
 
 @Composable
 fun WebPreferencesView(webReaderViewModel: WebReaderViewModel) {
-  val currentWebPreferences = webReaderViewModel.storedWebPreferences(isSystemInDarkTheme())
+  val isDark = isSystemInDarkTheme()
+  val currentWebPreferences = webReaderViewModel.storedWebPreferences(isDark)
   val isFontListExpanded = remember { mutableStateOf(false) }
   val highContrastTextSwitchState = remember { mutableStateOf(currentWebPreferences.prefersHighContrastText) }
   val selectedWebFontRawValue = remember { mutableStateOf(currentWebPreferences.fontFamily.rawValue) }
@@ -93,6 +96,21 @@ fun WebPreferencesView(webReaderViewModel: WebReaderViewModel) {
             webReaderViewModel.updateHighContrastTextPreference(it)
           }
         )
+      }
+
+      Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+          .padding(vertical = 4.dp)
+      ) {
+        Text("Theme:")
+        Spacer(modifier = Modifier.weight(1.0F))
+        SegmentedControl(
+          items = webReaderViewModel.systemThemeKeys,
+          initialSelectedItemIndex = webReaderViewModel.systemThemeKeys.indexOf(currentWebPreferences.storedThemePreference)
+        ) {
+          webReaderViewModel.updateStoredThemePreference(it, isDark)
+        }
       }
 
       Row(
@@ -180,6 +198,7 @@ data class WebPreferences(
   val lineHeight: Int,
   val maxWidthPercentage: Int,
   val themeKey: String,
+  val storedThemePreference: String,
   val fontFamily: WebFont,
   val prefersHighContrastText: Boolean
 )

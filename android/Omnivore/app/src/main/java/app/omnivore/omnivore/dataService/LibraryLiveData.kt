@@ -63,6 +63,12 @@ fun DataService.libraryLiveData(
         }
       }
     }
+
+    if (labels.isNotEmpty()) {
+      mediatorLiveData.value = (mediatorLiveData.value ?: listOf()).filter {
+        it.labels.intersect(labels.toSet()).any()
+      }
+    }
   }
 
   return mediatorLiveData
