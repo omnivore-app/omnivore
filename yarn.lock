@@ -2590,11 +2590,11 @@
     uuid "^8.0.0"
 
 "@google-cloud/monitoring@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@google-cloud/monitoring/-/monitoring-3.0.0.tgz#674ff20db9773694ab11ad0397d256f67d12c0db"
-  integrity sha512-tpo9OAwFmaoxkMRmaMw2mn/1PjjP2s+u8J/PiZFMw/WwuYacpg/ddkKSlVEwWSRhBKNzgV/s52P6BaNfcwOmvQ==
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/@google-cloud/monitoring/-/monitoring-3.0.3.tgz#f01c82ba563cdfd96108dbddfd7705f2dad0847a"
+  integrity sha512-SIm1EUYwrb0HKvjdc+1LyL2naGU+k4KeivWq3eYgsjRnRncRFMWvmqN2giVJWbDvnfk4xhkbPEm3lggXjWU+qQ==
   dependencies:
-    google-gax "^3.0.1"
+    google-gax "^3.5.2"
 
 "@google-cloud/opentelemetry-cloud-trace-exporter@^1.1.0":
   version "1.1.0"
