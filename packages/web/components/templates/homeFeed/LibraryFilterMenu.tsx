@@ -3,7 +3,7 @@ import { StyledText } from '../../elements/StyledText'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
 import { Button } from '../../elements/Button'
-import { CaretRight, Circle, DotsThree, Plus, Upload } from 'phosphor-react'
+import { CaretRight, Circle, DotsThree, Plus } from 'phosphor-react'
 import { useGetSubscriptionsQuery } from '../../../lib/networking/queries/useGetSubscriptionsQuery'
 import { useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQuery'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
@@ -444,65 +444,33 @@ function AddLinkButton(props: AddLinkButtonProps): JSX.Element {
         }}
         distribution="center"
       >
-        <HStack css={{ gap: '15px' }}>
-          <Button
-            css={{
-              height: '40px',
-              p: '15px',
-              pr: '20px',
-              fontSize: '14px',
-              verticalAlign: 'center',
+        <Button
+          css={{
+            height: '40px',
+            p: '15px',
+            pr: '20px',
+            fontSize: '14px',
+            verticalAlign: 'center',
 
-              color: isDark
-                ? theme.colors.thHighContrast.toString()
-                : theme.colors.thTextContrast2.toString(),
-              display: 'flex',
-              alignItems: 'center',
-              fontWeight: '600',
-              bg: isDark
-                ? 'transparent'
-                : theme.colors.thBackground2.toString(),
-              border: `1px solid ${
-                isDark ? theme.colors.thHighContrast.toString() : 'transparent'
-              }`,
-            }}
-            onClick={(e) => {
-              props.showAddLinkModal()
-              e.preventDefault()
-            }}
-          >
-            <Plus size={16} weight="bold" />
-            <SpanBox css={{ width: '10px' }}></SpanBox>Add Link
-          </Button>
-          <Button
-            css={{
-              height: '40px',
-              p: '15px',
-              pr: '20px',
-              fontSize: '14px',
-              verticalAlign: 'center',
-
-              color: isDark
-                ? theme.colors.thHighContrast.toString()
-                : theme.colors.thTextContrast2.toString(),
-              display: 'flex',
-              alignItems: 'center',
-              fontWeight: '600',
-              bg: isDark
-                ? 'transparent'
-                : theme.colors.thBackground2.toString(),
-              border: `1px solid ${
-                isDark ? theme.colors.thHighContrast.toString() : 'transparent'
-              }`,
-            }}
-            onClick={(e) => {
-              props.showAddLinkModal()
-              e.preventDefault()
-            }}
-          >
-            <Upload size={16} weight="bold" />
-          </Button>
-        </HStack>
+            color: isDark
+              ? theme.colors.thHighContrast.toString()
+              : theme.colors.thTextContrast2.toString(),
+            display: 'flex',
+            alignItems: 'center',
+            fontWeight: '600',
+            bg: isDark ? 'transparent' : theme.colors.thBackground2.toString(),
+            border: `1px solid ${
+              isDark ? theme.colors.thHighContrast.toString() : 'transparent'
+            }`,
+          }}
+          onClick={(e) => {
+            props.showAddLinkModal()
+            e.preventDefault()
+          }}
+        >
+          <Plus size={16} weight="bold" />
+          <SpanBox css={{ width: '10px' }}></SpanBox>Add Link
+        </Button>
       </VStack>
     </>
   )
