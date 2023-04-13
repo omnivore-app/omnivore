@@ -4694,14 +4694,13 @@
     "@opentelemetry/instrumentation" "^0.29.2"
     graphql "^15.5.1"
 
-"@opentelemetry/instrumentation-grpc@^0.29.2":
-  version "0.29.2"
-  resolved "https://registry.yarnpkg.com/@opentelemetry/instrumentation-grpc/-/instrumentation-grpc-0.29.2.tgz#a98431f248431d2d5ecc39da3e72f14620a4b3b9"
-  integrity sha512-rWyx/a7CsEYopwxaND47z+I8SrTLTHEz9sm8sf30FkMviVyRzYqt2PJT+JMGInM7Om/IpZNEc29kSzUjLmqddQ==
+"@opentelemetry/instrumentation-grpc@^0.37.0":
+  version "0.37.0"
+  resolved "https://registry.yarnpkg.com/@opentelemetry/instrumentation-grpc/-/instrumentation-grpc-0.37.0.tgz#a0b346ea6f668ef04e19e6aa8494132fa117f1a0"
+  integrity sha512-8U65iB/imnpvxR2S4iDs580ui79lNVZvJ8k+DtZ2KMUJUpDUFt++WEOlTcSxBIJIG8fOtSy/9G6QJQxAHz0c1w==
   dependencies:
-    "@opentelemetry/api-metrics" "0.29.2"
-    "@opentelemetry/instrumentation" "0.29.2"
-    "@opentelemetry/semantic-conventions" "1.3.1"
+    "@opentelemetry/instrumentation" "0.37.0"
+    "@opentelemetry/semantic-conventions" "1.11.0"
 
 "@opentelemetry/instrumentation-http@^0.27.0":
   version "0.27.0"
@@ -4733,7 +4732,16 @@
     semver "^7.3.2"
     shimmer "^1.2.1"
 
-"@opentelemetry/instrumentation@0.29.2", "@opentelemetry/instrumentation@^0.29.2":
+"@opentelemetry/instrumentation@0.37.0":
+  version "0.37.0"
+  resolved "https://registry.yarnpkg.com/@opentelemetry/instrumentation/-/instrumentation-0.37.0.tgz#8ae3a9a2dfe94e78a6511b665f0e19f25fd52d8a"
+  integrity sha512-QAHIYTeVHcvP5NcI8r0WbvF5KCojZSzQLO9G73/OpiXLy/t8hIUXHq0nuuSB5zP5dKQ8h9sORi/3suGBNHnsjw==
+  dependencies:
+    require-in-the-middle "^6.0.0"
+    semver "^7.3.2"
+    shimmer "^1.2.1"
+
+"@opentelemetry/instrumentation@^0.29.2":
   version "0.29.2"
   resolved "https://registry.yarnpkg.com/@opentelemetry/instrumentation/-/instrumentation-0.29.2.tgz#70e6d4e1a84508f5e9d8c7c426adcd7b0dba6c95"
   integrity sha512-LXx5V0ONNATQFCE8C5uqnxWSm4rcXLssdLHdXjtGdxRmURqj/JO8jYefqXCD0LzsqEQ6yxOx2GZ0dgXvhBVdTw==
@@ -4813,12 +4821,17 @@
   resolved "https://registry.yarnpkg.com/@opentelemetry/semantic-conventions/-/semantic-conventions-1.0.1.tgz#9349c3860a53468fa2108b5df09aa843f22dbf94"
   integrity sha512-7XU1sfQ8uCVcXLxtAHA8r3qaLJ2oq7sKtEwzZhzuEXqYmjW+n+J4yM3kNo0HQo3Xp1eUe47UM6Wy6yuAvIyllg==
 
+"@opentelemetry/semantic-conventions@1.11.0", "@opentelemetry/semantic-conventions@^1.0.0", "@opentelemetry/semantic-conventions@^1.0.1":
+  version "1.11.0"
+  resolved "https://registry.yarnpkg.com/@opentelemetry/semantic-conventions/-/semantic-conventions-1.11.0.tgz#b7ed9a601acb6e0aef67564b37e4f9abad449170"
+  integrity sha512-fG4D0AktoHyHwGhFGv+PzKrZjxbKJfckJauTJdq2A+ej5cTazmNYjJVAODXXkYyrsI10muMl+B1iO2q1R6Lp+w==
+
 "@opentelemetry/semantic-conventions@1.2.0":
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/@opentelemetry/semantic-conventions/-/semantic-conventions-1.2.0.tgz#1549c1d88dc45d720b8487e39077eacc69636c73"
   integrity sha512-BNKB9fiYVghALJzCuWO3eNYfdTExPVK4ykrtmfNfy0A6UWYhOYjGMXifUmkunDJNL8ju9tBobo8jF0WR9zGy1Q==
 
-"@opentelemetry/semantic-conventions@1.3.1", "@opentelemetry/semantic-conventions@^1.0.0", "@opentelemetry/semantic-conventions@^1.0.1", "@opentelemetry/semantic-conventions@~1.3.0":
+"@opentelemetry/semantic-conventions@1.3.1", "@opentelemetry/semantic-conventions@~1.3.0":
   version "1.3.1"
   resolved "https://registry.yarnpkg.com/@opentelemetry/semantic-conventions/-/semantic-conventions-1.3.1.tgz#ba07b864a3c955f061aa30ea3ef7f4ae4449794a"
   integrity sha512-wU5J8rUoo32oSef/rFpOT1HIjLjAv3qIDHkw1QIhODV3OpAVHi5oVzlouozg9obUmZKtbZ0qUe/m7FP0y0yBzA==
@@ -17001,6 +17014,13 @@ is-ci@^3.0.0:
   dependencies:
     ci-info "^3.2.0"
 
+is-core-module@^2.11.0:
+  version "2.12.0"
+  resolved "https://registry.yarnpkg.com/is-core-module/-/is-core-module-2.12.0.tgz#36ad62f6f73c8253fd6472517a12483cf03e7ec4"
+  integrity sha512-RECHCBCd/viahWmwj6enj19sKbHfJrddi/6cBDsNTKbNq0f7VeaUkBo60BqzvPqo/W54ChS62Z5qyun7cfOMqQ==
+  dependencies:
+    has "^1.0.3"
+
 is-core-module@^2.2.0, is-core-module@^2.5.0:
   version "2.6.0"
   resolved "https://registry.yarnpkg.com/is-core-module/-/is-core-module-2.6.0.tgz#d7553b2526fe59b92ba3e40c8df757ec8a709e19"
@@ -24464,6 +24484,15 @@ require-in-the-middle@^5.0.3:
     module-details-from-path "^1.0.3"
     resolve "^1.12.0"
 
+require-in-the-middle@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/require-in-the-middle/-/require-in-the-middle-6.0.0.tgz#01cc6416286fb5e672d0fe031d996f8bc202509d"
+  integrity sha512-+dtWQ7l2lqQDxheaG3jjyN1QI37gEwvzACSgjYi4/C2y+ZTUMeRW8BIOm+9NBKvwaMBUSZfPXVOt1skB0vBkRw==
+  dependencies:
+    debug "^4.1.1"
+    module-details-from-path "^1.0.3"
+    resolve "^1.22.1"
+
 require-main-filename@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/require-main-filename/-/require-main-filename-2.0.0.tgz#d0b329ecc7cc0f61649f62215be69af54aa8989b"
@@ -24535,6 +24564,15 @@ resolve@^1.14.2, resolve@^1.19.0, resolve@^1.3.2, resolve@^1.9.0:
   integrity sha512-Hhtrw0nLeSrFQ7phPp4OOcVjLPIeMnRlr5mcnVuMe7M/7eBn98A3hmFRLoFo3DLZkivSYwhRUJTyPyWAk56WLw==
   dependencies:
     is-core-module "^2.8.1"
+    path-parse "^1.0.7"
+    supports-preserve-symlinks-flag "^1.0.0"
+
+resolve@^1.22.1:
+  version "1.22.2"
+  resolved "https://registry.yarnpkg.com/resolve/-/resolve-1.22.2.tgz#0ed0943d4e301867955766c9f3e1ae6d01c6845f"
+  integrity sha512-Sb+mjNHOULsBv818T40qSPeRiuWLyaGMa5ewydRLFimneixmVy2zdivRl+AF6jaYPC8ERxGDmFSiqui6SfPd+g==
+  dependencies:
+    is-core-module "^2.11.0"
     path-parse "^1.0.7"
     supports-preserve-symlinks-flag "^1.0.0"
 
