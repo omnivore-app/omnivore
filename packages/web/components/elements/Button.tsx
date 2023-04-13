@@ -159,6 +159,14 @@ export const Button = styled('button', {
           border: '1px solid $grayBorderHover',
         },
       },
+      link: {
+        color: '$grayText',
+        border: 'none',
+        bg: 'transparent',
+        '&:hover': {
+          opacity: 0.8,
+        },
+      },
       circularIcon: {
         mx: '$1',
         display: 'flex',
