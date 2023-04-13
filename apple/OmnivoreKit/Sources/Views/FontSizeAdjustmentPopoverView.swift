@@ -162,7 +162,9 @@ public enum WebFont: String, CaseIterable {
 
             VStack {
               Circle()
-                .strokeBorder(isSelected ? Color(hex: "#6A6968") ?? Color.appGrayBorder : .clear, lineWidth: isSelected ? 2 : 0)
+                .strokeBorder(isSelected ?
+                  Color(hex: "#6A6968") ?? Color.appGrayBorder
+                  : .clear, lineWidth: isSelected ? 2 : 0)
                 .background(Circle().fill(theme.keyColor))
                 .frame(width: 32, height: 32)
             }
@@ -190,7 +192,9 @@ public enum WebFont: String, CaseIterable {
     var fontSizeSlider: some View {
       HStack {
         Button(action: {
-          storedFontSize = min(storedFontSize + 2, 28)
+          storedFontSize = max(storedFontSize - 2, 10)
+          updateReaderPreferences()
+
         }, label: { Image(systemName: "textformat.size.smaller") })
           .frame(width: 25, height: 25, alignment: .center)
         CustomSlider(value: $storedFontSize, minValue: 10, maxValue: 28) { _ in
@@ -202,7 +206,9 @@ public enum WebFont: String, CaseIterable {
         .tint(Color(hex: "#D9D9D9"))
 
         Button(action: {
-          storedFontSize = max(storedFontSize - 2, 10)
+          storedFontSize = min(storedFontSize + 2, 28)
+          updateReaderPreferences()
+
         }, label: { Image(systemName: "textformat.size.larger") })
           .frame(width: 25, height: 25, alignment: .center)
       }
@@ -211,7 +217,9 @@ public enum WebFont: String, CaseIterable {
     var marginSlider: some View {
       HStack {
         Button(action: {
-          storedMaxWidthPercentage = min(storedMaxWidthPercentage + 10, 100)
+          storedMaxWidthPercentage = max(storedMaxWidthPercentage - 10, 40)
+          updateReaderPreferences()
+
         }, label: { Image("margin-smaller", bundle: .module) })
           .frame(width: 25, height: 25, alignment: .center)
         CustomSlider(value: $storedMaxWidthPercentage, minValue: 40, maxValue: 100) { _ in
@@ -221,7 +229,9 @@ public enum WebFont: String, CaseIterable {
         .tint(Color(hex: "#D9D9D9"))
 
         Button(action: {
-          storedMaxWidthPercentage = max(storedMaxWidthPercentage - 10, 40)
+          storedMaxWidthPercentage = min(storedMaxWidthPercentage + 10, 100)
+          updateReaderPreferences()
+
         }, label: { Image("margin-larger", bundle: .module) })
           .frame(width: 25, height: 25, alignment: .center)
       }
@@ -230,7 +240,9 @@ public enum WebFont: String, CaseIterable {
     var lineHeightSlider: some View {
       HStack {
         Button(action: {
-          storedLineSpacing = min(storedLineSpacing + 25, 300)
+          storedLineSpacing = max(storedLineSpacing - 25, 100)
+          updateReaderPreferences()
+
         }, label: { Image("lineheight-smaller", bundle: .module) })
           .frame(width: 25, height: 25, alignment: .center)
         CustomSlider(value: $storedLineSpacing, minValue: 100, maxValue: 300) { _ in
@@ -240,7 +252,9 @@ public enum WebFont: String, CaseIterable {
         .tint(Color(hex: "#D9D9D9"))
 
         Button(action: {
-          storedLineSpacing = max(storedLineSpacing - 25, 100)
+          storedLineSpacing = min(storedLineSpacing + 25, 300)
+          updateReaderPreferences()
+
         }, label: { Image("lineheight-larger", bundle: .module) })
           .frame(width: 25, height: 25, alignment: .center)
       }
@@ -308,23 +322,20 @@ public enum WebFont: String, CaseIterable {
           HStack(alignment: .center) {
             Text(LocalText.genericFont)
               .font(Font.system(size: 14, weight: .medium))
-              .foregroundColor(Color(hex: "#6A6968"))
 
             Spacer()
             NavigationLink(destination: fontList) {
               Text(preferredFontDisplayName)
                 .font(preferredFontFont)
-                .foregroundColor(Color(hex: "#3D3D3D"))
 
               Image(systemName: "chevron.right")
                 .font(Font.system(size: 10))
-                .foregroundColor(Color(hex: "#A9A9A9"))
             }
           }
-          .foregroundColor(.appGrayTextContrast)
           .frame(height: 40)
           .padding(.top, 10)
           .padding(.bottom, 10)
+          .foregroundColor(.appGrayTextContrast)
 
           fontSizeSlider
         }.tint(Color(hex: "#6A6968"))
@@ -338,7 +349,6 @@ public enum WebFont: String, CaseIterable {
             Text("Margin")
               .font(Font.system(size: 14))
               .frame(maxWidth: .infinity, alignment: .leading)
-              .foregroundColor(Color(hex: "#6A6968"))
 
             marginSlider
               .padding(.top, 5)
@@ -348,7 +358,6 @@ public enum WebFont: String, CaseIterable {
           Text("Line Height")
             .font(Font.system(size: 14))
             .frame(maxWidth: .infinity, alignment: .leading)
-            .foregroundColor(Color(hex: "#6A6968"))
 
           lineHeightSlider
           // .padding(.bottom, 20)
@@ -371,7 +380,6 @@ public enum WebFont: String, CaseIterable {
             Text("Theme")
               .font(Font.system(size: 14))
               .frame(maxWidth: .infinity, alignment: .leading)
-              .foregroundColor(Color(hex: "#6A6968"))
             Spacer()
 
             systemThemeCheckbox
@@ -399,7 +407,7 @@ public enum WebFont: String, CaseIterable {
             }, label: {
               Text("Reset")
                 .font(Font.system(size: 12, weight: .bold))
-                .foregroundColor(Color(hex: "#3D3D3D"))
+                .foregroundColor(.appGrayTextContrast)
             })
 
             Spacer()
@@ -411,7 +419,7 @@ public enum WebFont: String, CaseIterable {
                 .foregroundColor(Color(hex: "#A9A9A9"))
             }
           }
-          .foregroundColor(.appGrayTextContrast)
+          .foregroundColor(Color.appGrayText)
         }
         .padding(.horizontal, 30)
       }
