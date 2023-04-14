@@ -16,6 +16,7 @@ import {
   handleGoogleConfirmationEmail,
   isGoogleConfirmationEmail,
   isSubscriptionConfirmationEmail,
+  parseAuthor,
   parseUnsubscribe,
 } from './newsletter'
 import { handlePdfAttachment } from './pdf'
@@ -182,7 +183,7 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
             content: html,
             url: generateUniqueUrl(),
             title: subject,
-            author: from,
+            author: parseAuthor(from),
             text,
             unsubMailTo: unsubscribe.mailTo,
             unsubHttpUrl: unsubscribe.httpUrl,

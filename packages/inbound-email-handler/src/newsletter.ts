@@ -34,6 +34,14 @@ const parseAddress = (address: string): string => {
   return ''
 }
 
+export const parseAuthor = (address: string): string => {
+  const parsed = addressparser(address)
+  if (parsed.length > 0) {
+    return parsed[0].name
+  }
+  return address
+}
+
 export const handleGoogleConfirmationEmail = async (
   email: string,
   subject: string
