@@ -115,7 +115,7 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
           id: uuidv4(),
           file: file,
           name: file.name,
-          percent: 0,
+          progress: 0,
           status: 'inprogress',
         }
       })
@@ -160,6 +160,7 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
               },
             })
 
+            file.progress = 100
             file.status = 'success'
             setUploadFiles([...allFiles])
           } catch (error) {
@@ -306,7 +307,7 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
                           >
                             {file.name}
                           </Box>
-                          {file.progress == 100 ? (
+                          {file.status != 'inprogress' ? (
                             <HStack
                               alignment="center"
                               css={{ marginLeft: 'auto', fontSize: '14px' }}
