@@ -154,7 +154,6 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
                 }
                 const progress = (p.loaded / p.total) * 100
                 file.progress = progress
-                file.openUrl = `/article/sr/${request.createdPageId}`
 
                 setUploadFiles([...allFiles])
               },
@@ -162,6 +161,8 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
 
             file.progress = 100
             file.status = 'success'
+            file.openUrl = `/article/sr/${request.createdPageId}`
+
             setUploadFiles([...allFiles])
           } catch (error) {
             file.status = 'error'
@@ -278,7 +279,7 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
                   </DragnDropStyle>
                   <VStack css={{ width: '100%', mt: '25px', gap: '5px' }}>
                     {uploadFiles.map((file) => {
-                      console.log('fileL ', file.name, file.progress)
+                      console.log('fileL ', file.name, file)
                       return (
                         <HStack
                           key={file.id}
@@ -289,6 +290,7 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
                             borderRadius: '5px',
                             padding: '15px',
                             gap: '10px',
+                            color: '$thTextContrast',
                           }}
                           alignment="center"
                           distribution="start"
@@ -312,7 +314,7 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
                               alignment="center"
                               css={{ marginLeft: 'auto', fontSize: '14px' }}
                             >
-                              {file.status == 'success' && (
+                              {file.status == 'success' && file.openUrl && (
                                 <a href={file.openUrl}>Read Now</a>
                               )}
                               {file.status == 'error' && (
