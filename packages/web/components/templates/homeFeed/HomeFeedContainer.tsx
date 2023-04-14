@@ -78,8 +78,9 @@ export function HomeFeedContainer(): JSX.Element {
 
   const gridContainerRef = useRef<HTMLDivElement>(null)
 
-  const [labelsTarget, setLabelsTarget] =
-    useState<LibraryItem | undefined>(undefined)
+  const [labelsTarget, setLabelsTarget] = useState<LibraryItem | undefined>(
+    undefined
+  )
 
   const [showAddLinkModal, setShowAddLinkModal] = useState(false)
   const [showEditTitleModal, setShowEditTitleModal] = useState(false)
@@ -460,7 +461,7 @@ export function HomeFeedContainer(): JSX.Element {
     createAction({
       section: 'Library',
       name: 'Remove item',
-      shortcut: ['r'],
+      shortcut: ['#'],
       perform: () => handleCardAction('delete', activeItem),
     }),
     createAction({
@@ -472,13 +473,16 @@ export function HomeFeedContainer(): JSX.Element {
     createAction({
       section: 'Library',
       name: 'Mark item as read',
-      shortcut: ['Shift', 'i'],
-      perform: () => handleCardAction('mark-read', activeItem),
+      shortcut: ['m', 'r'],
+      perform: () => {
+        console.log('mark read action')
+        handleCardAction('mark-read', activeItem)
+      },
     }),
     createAction({
       section: 'Library',
       name: 'Mark item as unread',
-      shortcut: ['Shift', 'u'],
+      shortcut: ['m', 'u'],
       perform: () => handleCardAction('mark-unread', activeItem),
     }),
   ]
