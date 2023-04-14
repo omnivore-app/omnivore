@@ -16,6 +16,7 @@ type UploadFileResponseData = {
 type UploadFileData = {
   id: string
   uploadSignedUrl: string
+  createdPageId: string
 }
 
 export async function uploadFileRequestMutation(
@@ -30,6 +31,7 @@ export async function uploadFileRequestMutation(
         ... on UploadFileRequestSuccess {
           id
           uploadSignedUrl
+          createdPageId
         }
       }
     }`

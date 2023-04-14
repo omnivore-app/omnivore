@@ -1,10 +1,8 @@
-import * as Progress from '@radix-ui/react-progress'
 import axios from 'axios'
 import { Action, createAction, useKBar, useRegisterActions } from 'kbar'
 import debounce from 'lodash/debounce'
 import { useRouter } from 'next/router'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import Dropzone from 'react-dropzone'
 import { Toaster } from 'react-hot-toast'
 import TopBarProgress from 'react-topbar-progress-indicator'
 import { useFetchMore } from '../../../lib/hooks/useFetchMoreScroll'
@@ -17,7 +15,6 @@ import {
 } from '../../../lib/networking/fragments/articleFragment'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { setLabelsMutation } from '../../../lib/networking/mutations/setLabelsMutation'
-import { uploadFileRequestMutation } from '../../../lib/networking/mutations/uploadFileMutation'
 import {
   SearchItem,
   TypeaheadSearchItemsData,
@@ -37,7 +34,6 @@ import { StyledText } from '../../elements/StyledText'
 import { ConfirmationModal } from '../../patterns/ConfirmationModal'
 import { LinkedItemCardAction } from '../../patterns/LibraryCards/CardTypes'
 import { LinkedItemCard } from '../../patterns/LibraryCards/LinkedItemCard'
-import { styled, theme } from '../../tokens/stitches.config'
 import { SetLabelsModal } from '../article/SetLabelsModal'
 import { Box, HStack, VStack } from './../../elements/LayoutPrimitives'
 import { AddLinkModal } from './AddLinkModal'
@@ -46,6 +42,7 @@ import { EmptyLibrary } from './EmptyLibrary'
 import { HighlightItemsLayout } from './HighlightsLayout'
 import { LibraryFilterMenu } from './LibraryFilterMenu'
 import { LibraryHeader } from './LibraryHeader'
+import { UploadModal } from '../UploadModal'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 export type LibraryMode = 'reads' | 'highlights'
@@ -615,33 +612,6 @@ type HomeFeedContentProps = {
   ) => Promise<void>
 }
 
-const DragnDropContainer = styled('div', {
-  width: '100%',
-  height: '80%',
-  position: 'absolute',
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  zIndex: '1',
-  alignSelf: 'center',
-  left: 0,
-})
-
-const DragnDropStyle = styled('div', {
-  border: '3px dashed gray',
-  backgroundColor: 'aliceblue',
-  borderRadius: '5px',
-  width: '100%',
-  height: '100%',
-  opacity: '0.9',
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  alignSelf: 'center',
-  left: 0,
-  margin: '16px',
-})
-
 function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
   const { viewerData } = useGetViewerQuery()
   const [layout, setLayout] = usePersistedState<LayoutType>({
@@ -719,14 +689,11 @@ type LibraryItemsLayoutProps = {
 } & HomeFeedContentProps
 
 function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element {
-  const [uploadingFiles, setUploadingFiles] = useState([])
-  const [inDragOperation, setInDragOperation] = useState(false)
-  const [uploadProgress, setUploadProgress] = useState(0)
-
   const [showRemoveLinkConfirmation, setShowRemoveLinkConfirmation] =
     useState(false)
   const [showUnsubscribeConfirmation, setShowUnsubscribeConfirmation] =
     useState(false)
+  const [showUploadModal, setShowUploadModal] = useState(true)
   const [, updateState] = useState({})
 
   const removeItem = () => {
@@ -748,52 +715,6 @@ function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element {
     setShowUnsubscribeConfirmation(false)
   }
 
-  const handleDrop = async (acceptedFiles: any) => {
-    setInDragOperation(false)
-    setUploadingFiles(acceptedFiles.map((file: { name: any }) => file.name))
-
-    for (const file of acceptedFiles) {
-      try {
-        const request = await uploadFileRequestMutation({
-          // This will tell the backend not to save the URL
-          // and give it the local filename as the title.
-          url: `file://local/${file.path}`,
-          contentType: file.type,
-          createPageEntry: true,
-        })
-        if (!request?.uploadSignedUrl) {
-          throw 'No upload URL available'
-        }
-
-        const uploadResult = await axios.request({
-          method: 'PUT',
-          url: request?.uploadSignedUrl,
-          data: file,
-          withCredentials: false,
-          headers: {
-            'Content-Type': 'application/pdf',
-          },
-          onUploadProgress: (p) => {
-            if (!p.total) {
-              console.warn('No total available for upload progress')
-              return
-            }
-            const progress = (p.loaded / p.total) * 100
-            console.log('upload progress: ', progress)
-            setUploadProgress(progress)
-          },
-        })
-
-        console.log('result of uploading: ', uploadResult)
-      } catch (error) {
-        console.log('ERROR', error)
-      }
-    }
-
-    setUploadingFiles([])
-    props.reloadItems()
-  }
-
   return (
     <>
       <VStack
@@ -807,121 +728,53 @@ function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element {
         <Toaster />
 
         {props.isValidating && props.items.length == 0 && <TopBarProgress />}
-
-        <Dropzone
-          onDrop={handleDrop}
-          onDragEnter={() => {
-            setInDragOperation(true)
+        <div
+          onDragEnter={(event) => {
+            setShowUploadModal(true)
           }}
-          onDragLeave={() => {
-            setInDragOperation(false)
-          }}
-          preventDropOnDocument={true}
-          noClick={true}
-          accept={{
-            'application/pdf': ['.pdf'],
-          }}
+          style={{ height: '100%', width: '100%' }}
         >
-          {({ getRootProps, getInputProps, acceptedFiles, fileRejections }) => (
-            <div
-              {...getRootProps({ className: 'dropzone' })}
-              style={{ height: '100%', width: '100%' }}
-            >
-              {inDragOperation && uploadingFiles.length < 1 && (
-                <DragnDropContainer>
-                  <DragnDropStyle>
-                    <Box
-                      css={{
-                        color: '$utilityTextDefault',
-                        fontWeight: '800',
-                        fontSize: '$4',
-                      }}
-                    >
-                      Drop PDF document to to upload and add to your library
-                    </Box>
-                  </DragnDropStyle>
-                </DragnDropContainer>
-              )}
-              {uploadingFiles.length > 0 && (
-                <DragnDropContainer>
-                  <DragnDropStyle>
-                    <Box
-                      css={{
-                        color: '$utilityTextDefault',
-                        fontWeight: '800',
-                        fontSize: '$4',
-                        width: '80%',
-                      }}
-                    >
-                      <Progress.Root
-                        className="ProgressRoot"
-                        value={uploadProgress}
-                      >
-                        <Progress.Indicator
-                          className="ProgressIndicator"
-                          style={{
-                            transform: `translateX(-${100 - uploadProgress}%)`,
-                          }}
-                        />
-                      </Progress.Root>
-                      <StyledText
-                        style="boldText"
-                        css={{
-                          color: theme.colors.omnivoreGray.toString(),
-                        }}
-                      >
-                        Uploading file
-                      </StyledText>
-                    </Box>
-                  </DragnDropStyle>
-                </DragnDropContainer>
-              )}
-              <input {...getInputProps()} />
-              {!props.isValidating && props.items.length == 0 ? (
-                <EmptyLibrary
-                  onAddLinkClicked={() => {
-                    props.setShowAddLinkModal(true)
-                  }}
-                />
-              ) : (
-                <LibraryItems
-                  items={props.items}
-                  layout={props.layout}
-                  viewer={props.viewer}
-                  gridContainerRef={props.gridContainerRef}
-                  setShowEditTitleModal={props.setShowEditTitleModal}
-                  setLinkToEdit={props.setLinkToEdit}
-                  setShowUnsubscribeConfirmation={
-                    setShowUnsubscribeConfirmation
-                  }
-                  setLinkToRemove={props.setLinkToRemove}
-                  setLinkToUnsubscribe={props.setLinkToUnsubscribe}
-                  setShowRemoveLinkConfirmation={setShowRemoveLinkConfirmation}
-                  actionHandler={props.actionHandler}
-                />
-              )}
-              <HStack
-                distribution="center"
-                css={{ width: '100%', mt: '$2', mb: '$4' }}
-              >
-                {props.hasMore ? (
-                  <Button
-                    style="ctaGray"
-                    css={{
-                      cursor: props.isValidating ? 'not-allowed' : 'pointer',
-                    }}
-                    onClick={props.loadMore}
-                    disabled={props.isValidating}
-                  >
-                    {props.isValidating ? 'Loading' : 'Load More'}
-                  </Button>
-                ) : (
-                  <StyledText style="caption"></StyledText>
-                )}
-              </HStack>
-            </div>
+          {!props.isValidating && props.items.length == 0 ? (
+            <EmptyLibrary
+              onAddLinkClicked={() => {
+                props.setShowAddLinkModal(true)
+              }}
+            />
+          ) : (
+            <LibraryItems
+              items={props.items}
+              layout={props.layout}
+              viewer={props.viewer}
+              gridContainerRef={props.gridContainerRef}
+              setShowEditTitleModal={props.setShowEditTitleModal}
+              setLinkToEdit={props.setLinkToEdit}
+              setShowUnsubscribeConfirmation={setShowUnsubscribeConfirmation}
+              setLinkToRemove={props.setLinkToRemove}
+              setLinkToUnsubscribe={props.setLinkToUnsubscribe}
+              setShowRemoveLinkConfirmation={setShowRemoveLinkConfirmation}
+              actionHandler={props.actionHandler}
+            />
           )}
-        </Dropzone>
+          <HStack
+            distribution="center"
+            css={{ width: '100%', mt: '$2', mb: '$4' }}
+          >
+            {props.hasMore ? (
+              <Button
+                style="ctaGray"
+                css={{
+                  cursor: props.isValidating ? 'not-allowed' : 'pointer',
+                }}
+                onClick={props.loadMore}
+                disabled={props.isValidating}
+              >
+                {props.isValidating ? 'Loading' : 'Load More'}
+              </Button>
+            ) : (
+              <StyledText style="caption"></StyledText>
+            )}
+          </HStack>
+        </div>
       </VStack>
       {props.showEditTitleModal && (
         <EditLibraryItemModal
@@ -998,6 +851,9 @@ function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element {
             }
           }}
         />
+      )}
+      {showUploadModal && (
+        <UploadModal onOpenChange={() => setShowUploadModal(false)} />
       )}
     </>
   )
