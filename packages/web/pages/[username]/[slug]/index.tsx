@@ -113,7 +113,6 @@ export default function Home(): JSX.Element {
           }
           break
         case 'mark-read':
-          console.log('marking read: ', article)
           if (article) {
             articleReadingProgressMutation({
               id: article.id,
