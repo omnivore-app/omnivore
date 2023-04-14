@@ -102,17 +102,34 @@ export default function Home(): JSX.Element {
               linkId: article.id,
               archived: true,
             }).then((res) => {
-              if (res) {
-                showSuccessToast('Link archived', { position: 'bottom-right' })
-              } else {
-                // todo: revalidate or put back in cache?
-                showErrorToast('Error archiving link', {
+              if (!res) {
+                showErrorToast('Error archiving', {
                   position: 'bottom-right',
                 })
+              } else {
+                router.push(`/home`)
               }
             })
-
-            router.push(`/home`)
+          }
+          break
+        case 'mark-read':
+          console.log('marking read: ', article)
+          if (article) {
+            articleReadingProgressMutation({
+              id: article.id,
+              readingProgressPercent: 100,
+              readingProgressTopPercent: 100,
+              readingProgressAnchorIndex: 0,
+            }).then((res) => {
+              if (!res) {
+                // todo: revalidate or put back in cache?
+                showErrorToast('Error marking as read', {
+                  position: 'bottom-right',
+                })
+              } else {
+                router.push(`/home`)
+              }
+            })
           }
           break
         case 'delete':
@@ -153,12 +170,18 @@ export default function Home(): JSX.Element {
       actionHandler('delete')
     }
 
+    const markRead = () => {
+      actionHandler('mark-read')
+    }
+
     document.addEventListener('archive', archive)
     document.addEventListener('delete', deletePage)
+    document.addEventListener('mark-read', markRead)
     document.addEventListener('openOriginalArticle', openOriginalArticle)
 
     return () => {
       document.removeEventListener('archive', archive)
+      document.removeEventListener('mark-read', markRead)
       document.removeEventListener('openOriginalArticle', openOriginalArticle)
     }
   }, [actionHandler])
@@ -225,6 +248,15 @@ export default function Home(): JSX.Element {
         },
       },
       {
+        id: 'mark_read',
+        section: 'Article',
+        name: 'Mark current item as read',
+        shortcut: ['m', 'r'],
+        perform: () => {
+          document.dispatchEvent(new Event('mark-read'))
+        },
+      },
+      {
         id: 'delete',
         section: 'Article',
         name: 'Delete current item',
@@ -281,7 +313,7 @@ export default function Home(): JSX.Element {
       {
         id: 'edit_title',
         section: 'Article',
-        name: 'Edit title and description',
+        name: 'Edit Info',
         shortcut: ['i'],
         perform: () => setShowEditModal(true),
       },
