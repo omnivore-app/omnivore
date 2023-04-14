@@ -693,7 +693,7 @@ function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element {
     useState(false)
   const [showUnsubscribeConfirmation, setShowUnsubscribeConfirmation] =
     useState(false)
-  const [showUploadModal, setShowUploadModal] = useState(true)
+  const [showUploadModal, setShowUploadModal] = useState(false)
   const [, updateState] = useState({})
 
   const removeItem = () => {
