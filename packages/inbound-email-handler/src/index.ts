@@ -13,8 +13,10 @@ import parseHeaders from 'parse-headers'
 import * as multipart from 'parse-multipart-data'
 import { promisify } from 'util'
 import {
-  handleConfirmation,
-  isConfirmationEmail,
+  handleGoogleConfirmationEmail,
+  isGoogleConfirmationEmail,
+  isSubscriptionConfirmationEmail,
+  parseAuthor,
   parseUnsubscribe,
 } from './newsletter'
 import { handlePdfAttachment } from './pdf'
@@ -132,10 +134,13 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
       })
 
       try {
-        // check if it is a confirmation email or forwarding newsletter
-        if (isConfirmationEmail(from, subject)) {
-          console.log('handleConfirmation', from)
-          await handleConfirmation(to, subject)
+        // check if it is a subscription or google confirmation email
+        const isGoogleConfirmation = isGoogleConfirmationEmail(from, subject)
+        if (isGoogleConfirmation || isSubscriptionConfirmationEmail(subject)) {
+          console.debug('handleConfirmation', from, subject)
+          // we need to parse the confirmation code from the email
+          isGoogleConfirmation &&
+            (await handleGoogleConfirmationEmail(to, subject))
           // queue non-newsletter emails
           await pubsub.topic(NON_NEWSLETTER_EMAIL_TOPIC).publishMessage({
             json: {
@@ -154,6 +159,7 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
         }
         if (pdfAttachment) {
           console.log('handle PDF attachment', from, to)
+          // save the pdf attachment as an article
           await handlePdfAttachment(
             to,
             pdfAttachmentName,
@@ -163,6 +169,7 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
           )
           return res.send('ok')
         }
+        // all other emails are considered newsletters
         const newsletterMessage = await handleNewsletter({
           from,
           to,
@@ -177,7 +184,7 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
             content: html,
             url: generateUniqueUrl(),
             title: subject,
-            author: from,
+            author: parseAuthor(from),
             text,
             unsubMailTo: unsubscribe.mailTo,
             unsubHttpUrl: unsubscribe.httpUrl,
