@@ -6,11 +6,8 @@ import {
   ModalTitleBar,
 } from '../elements/ModalPrimitives'
 import type { KeyboardCommand } from '../../lib/keyboardShortcuts/useKeyboardShortcuts'
-import { HStack, VStack, Box } from '../elements/LayoutPrimitives'
+import { VStack, Box } from '../elements/LayoutPrimitives'
 import { StyledText } from '../elements/StyledText'
-import { Button } from '../elements/Button'
-import { CrossIcon } from '../elements/images/CrossIcon'
-import { theme } from '../tokens/stitches.config'
 import {
   navigationCommands,
   searchBarCommands,
@@ -143,6 +140,9 @@ export function KeyboardShortcutListModal(
           minWidth: '650px',
           minHeight: '430px',
           height: '430px',
+          '@mdDown': {
+            minWidth: '320px',
+          },
         }}
         onInteractOutside={() => {
           // remove focus from modal
@@ -163,11 +163,12 @@ export function KeyboardShortcutListModal(
             onOpenChange={props.onOpenChange}
           />
           <VStack
+            id="keyboard-shortcuts-ctr"
             distribution="start"
             css={{
               width: '100%',
               maxHeight: '100%',
-              overflow: 'scroll',
+              overflowY: 'scroll',
             }}
           >
             <ShortcutListSection
