@@ -3,13 +3,11 @@ import {
   ModalRoot,
   ModalContent,
   ModalOverlay,
+  ModalTitleBar,
 } from '../elements/ModalPrimitives'
 import type { KeyboardCommand } from '../../lib/keyboardShortcuts/useKeyboardShortcuts'
-import { HStack, VStack, Box } from '../elements/LayoutPrimitives'
+import { VStack, Box } from '../elements/LayoutPrimitives'
 import { StyledText } from '../elements/StyledText'
-import { Button } from '../elements/Button'
-import { CrossIcon } from '../elements/images/CrossIcon'
-import { theme } from '../tokens/stitches.config'
 import {
   navigationCommands,
   searchBarCommands,
@@ -22,56 +20,177 @@ type KeyboardShortcutListModalProps = {
   onOpenChange: (open: boolean) => void
 }
 
+const libraryItemCommands = () => {
+  return [
+    {
+      shortcutKeys: ['e'],
+      actionDescription: 'Toggle archive status',
+      shortcutKeyDescription: 'e',
+      callback: () => {},
+    },
+    {
+      actionDescription: 'Remove item',
+      shortcutKeys: ['#'],
+      shortcutKeyDescription: '#',
+      callback: () => {},
+    },
+    {
+      actionDescription: 'Edit item labels',
+      shortcutKeys: ['l'],
+      shortcutKeyDescription: 'l',
+      callback: () => {},
+    },
+    {
+      actionDescription: 'Mark item as read',
+      shortcutKeys: ['m', 'r'],
+      shortcutKeyDescription: 'm then r',
+      callback: () => {},
+    },
+    {
+      actionDescription: 'Mark item as unread',
+      shortcutKeys: ['m', 'u'],
+      shortcutKeyDescription: 'm then u',
+      callback: () => {},
+    },
+  ]
+}
+
+const readerCommands = () => {
+  return [
+    {
+      shortcutKeys: ['e'],
+      actionDescription: 'Toggle archive status',
+      shortcutKeyDescription: 'e',
+      callback: () => {},
+    },
+
+    {
+      actionDescription: 'Open original article',
+      shortcutKeys: ['o'],
+      shortcutKeyDescription: 'o',
+      callback: () => {},
+    },
+    {
+      actionDescription: 'Return to library',
+      shortcutKeys: ['u'],
+      shortcutKeyDescription: 'u',
+      callback: () => {},
+    },
+    {
+      actionDescription: 'Archive current item',
+      shortcutKeys: ['e'],
+      shortcutKeyDescription: 'e',
+      callback: () => {},
+    },
+    {
+      actionDescription: 'Mark current item as read',
+      shortcutKeys: ['m', 'r'],
+      shortcutKeyDescription: 'm then r',
+      callback: () => {},
+    },
+    {
+      actionDescription: 'Delete current item',
+      shortcutKeys: ['#'],
+      shortcutKeyDescription: '#',
+      callback: () => {},
+    },
+    {
+      actionDescription: 'Highlight selected text',
+      shortcutKeys: ['h'],
+      shortcutKeyDescription: 'h',
+      callback: () => {},
+    },
+    {
+      actionDescription: 'Scroll to next highlight',
+      shortcutKeys: ['j'],
+      shortcutKeyDescription: 'j',
+      callback: () => {},
+    },
+    {
+      actionDescription: 'Scroll to previous highlight',
+      shortcutKeys: ['k'],
+      shortcutKeyDescription: 'k',
+      callback: () => {},
+    },
+    {
+      actionDescription: 'Open Notebook',
+      shortcutKeys: ['t'],
+      shortcutKeyDescription: 't',
+      callback: () => {},
+    },
+    {
+      actionDescription: 'Edit Info',
+      shortcutKeys: ['i'],
+      shortcutKeyDescription: 'i',
+      callback: () => {},
+    },
+  ]
+}
+
 export function KeyboardShortcutListModal(
   props: KeyboardShortcutListModalProps
 ): JSX.Element {
   return (
     <ModalRoot defaultOpen onOpenChange={props.onOpenChange}>
       <ModalOverlay />
-      <ModalContent css={{ overflow: 'auto', bg: '$grayBase' }}>
-        <VStack>
-          <HStack
-            distribution="between"
+      <ModalContent
+        css={{
+          bg: '$grayBg',
+          px: '20px',
+          minWidth: '650px',
+          minHeight: '430px',
+          height: '430px',
+          '@mdDown': {
+            minWidth: '320px',
+          },
+        }}
+        onInteractOutside={() => {
+          // remove focus from modal
+          ;(document.activeElement as HTMLElement).blur()
+        }}
+      >
+        <VStack
+          distribution="start"
+          css={{
+            py: '20px',
+            gap: '10px',
+            width: '100%',
+            height: '100%',
+          }}
+        >
+          <ModalTitleBar
+            title="Keyboard Shortcuts"
+            onOpenChange={props.onOpenChange}
+          />
+          <VStack
+            id="keyboard-shortcuts-ctr"
+            distribution="start"
             css={{
-              pt: '$2',
-              px: '$1',
               width: '100%',
+              maxHeight: '100%',
+              overflowY: 'scroll',
             }}
           >
-            <StyledText css={{ my: '$2', mx: 0 }} style="modalHeadline">
-              Keyboard Shortcuts
-            </StyledText>
-            <Button
-              css={{ pt: '$2' }}
-              style="ghost"
-              onClick={() => {
-                props.onOpenChange(false)
-              }}
-            >
-              <CrossIcon
-                size={20}
-                strokeColor={theme.colors.grayTextContrast.toString()}
-              />
-            </Button>
-          </HStack>
-          <ShortcutListSection
-            title="Navigation"
-            commands={navigationCommands(undefined)}
-          />
-          <ShortcutListSection
-            title="Preferences"
-            commands={primaryCommands(() => {})}
-          />
-          <ShortcutListSection
-            title="Library"
-            commands={searchBarCommands(() => {}).concat(
-              libraryListCommands(() => {})
-            )}
-          />
-          <ShortcutListSection
-            title="Highlight Bar"
-            commands={highlightBarKeyboardCommands(() => {})}
-          />
+            <ShortcutListSection
+              title="Navigation"
+              commands={navigationCommands(undefined)}
+            />
+            <ShortcutListSection
+              title="Preferences"
+              commands={primaryCommands(() => {})}
+            />
+            <ShortcutListSection
+              title="Library"
+              commands={searchBarCommands(() => {})
+                .concat(libraryListCommands(() => {}))
+                .concat(libraryItemCommands())}
+            />
+            <ShortcutListSection title="Reader" commands={readerCommands()} />
+            <ShortcutListSection
+              title="Highlight Bar"
+              commands={highlightBarKeyboardCommands(() => {})}
+            />
+          </VStack>
         </VStack>
       </ModalContent>
     </ModalRoot>
@@ -89,11 +208,10 @@ function ShortcutListSection(props: ShortcutListSectionProps): JSX.Element {
       <StyledText
         style="shareTitle"
         css={{
-          pl: '$2',
-          pt: '$3',
+          pt: '15px',
           borderTop: '1px solid $grayBorder',
           width: '100%',
-          my: '$2',
+          my: '15px',
         }}
       >
         {props.title}
@@ -102,16 +220,16 @@ function ShortcutListSection(props: ShortcutListSectionProps): JSX.Element {
         <Box
           css={{
             width: '100%',
-            px: '$3',
+            px: '15px',
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
           }}
           key={index}
         >
-          <StyledText css={{ my: '$2' }}>
+          <StyledText css={{ my: '10px' }}>
             {command.actionDescription}
           </StyledText>
-          <StyledText css={{ my: '$2' }}>
+          <StyledText css={{ my: '10px' }}>
             {command.shortcutKeyDescription}
           </StyledText>
         </Box>

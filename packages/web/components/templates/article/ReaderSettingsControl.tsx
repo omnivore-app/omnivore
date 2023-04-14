@@ -228,7 +228,7 @@ function BasicSettings(props: SettingsProps): JSX.Element {
             props.readerSettings.setMarginWidth(290)
             props.readerSettings.setLineHeight(150)
             props.readerSettings.actionHandler('resetReaderSettings')
-            showSuccessToast('Display settings reset', {
+            showSuccessToast('Reader Preferences Reset', {
               position: 'bottom-right',
             })
           }}

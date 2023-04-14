@@ -13,7 +13,7 @@
 
 // Highlights List Card
 "highlightCardHighlightByOther" = "Highlight by ";
-"highlightCardNoHighlightsOnPage" = "You have not added any highlights or notes to this page.";
+"highlightCardNoHighlightsOnPage" = "You have not added any highlights to this page.";
 
 // Labels View
 "labelsViewAssignNameColor" = "Assign a name and color.";

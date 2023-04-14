@@ -10,6 +10,7 @@ import {
   deletePage,
   deletePagesByParam,
   getPageById,
+  getPageByParam,
   updatePage,
 } from '../../src/elastic/pages'
 import {
@@ -36,6 +37,9 @@ import {
   graphqlRequest,
   request,
 } from '../util'
+import sinon from 'sinon'
+import * as createTask from '../../src/utils/createTask'
+import * as uploads from '../../src/utils/uploads'
 
 chai.use(chaiString)
 
@@ -208,7 +212,13 @@ const searchQuery = (keyword = '') => {
   `
 }
 
-const savePageQuery = (url: string, title: string, originalContent: string) => {
+const savePageQuery = (
+  url: string,
+  title: string,
+  originalContent: string,
+  state: ArticleSavingRequestStatus | null = null,
+  labels: string[] | null = null
+) => {
   return `
     mutation {
       savePage(
@@ -218,6 +228,12 @@ const savePageQuery = (url: string, title: string, originalContent: string) => {
           clientRequestId: "${generateFakeUuid()}",
           title: "${title}",
           originalContent: "${originalContent}"
+          state: ${state}
+          labels: ${
+            labels
+              ? '[' + labels.map((label) => `{ name: "${label}" }`) + ']'
+              : null
+          }
         }
       ) {
         ... on SaveSuccess {
@@ -253,7 +269,11 @@ const saveFileQuery = (url: string, uploadFileId: string) => {
     `
 }
 
-const saveUrlQuery = (url: string) => {
+const saveUrlQuery = (
+  url: string,
+  state: ArticleSavingRequestStatus | null = null,
+  labels: string[] | null = null
+) => {
   return `
     mutation {
       saveUrl(
@@ -261,6 +281,12 @@ const saveUrlQuery = (url: string) => {
           url: "${url}",
           source: "test",
           clientRequestId: "${generateFakeUuid()}",
+          state: ${state}
+          labels: ${
+            labels
+              ? '[' + labels.map((label) => `{ name: "${label}" }`) + ']'
+              : null
+          }
         }
       ) {
         ... on SaveSuccess {
@@ -611,26 +637,72 @@ describe('Article API', () => {
         expect(allLinks.body.data.articles.edges[0].node.url).to.eq(url)
       })
     })
+
+    context('when we also want to save labels and archives the page', () => {
+      after(async () => {
+        await deletePagesByParam({ url }, ctx)
+      })
+
+      it('saves the labels and archives the page', async () => {
+        url = 'https://blog.omnivore.app/new-url-2'
+        const state = ArticleSavingRequestStatus.Archived
+        const labels = ['test name', 'test name 2']
+        await graphqlRequest(
+          savePageQuery(url, title, originalContent, state, labels),
+          authToken
+        ).expect(200)
+        await refreshIndex()
+
+        const savedPage = await getPageByParam({ url })
+        expect(savedPage?.archivedAt).to.not.be.null
+        expect(savedPage?.labels?.map((l) => l.name)).to.eql(labels)
+      })
+    })
   })
 
   describe('SaveUrl', () => {
     let query = ''
     let url = 'https://blog.omnivore.app/new-url-1'
 
+    before(() => {
+      sinon.replace(createTask, 'enqueueParseRequest', sinon.fake.resolves(''))
+    })
+
     beforeEach(() => {
       query = saveUrlQuery(url)
     })
 
-    context('when we save a new url', () => {
-      after(async () => {
-        await deletePagesByParam({ url }, ctx)
-      })
+    after(() => {
+      sinon.restore()
+    })
 
+    afterEach(async () => {
+      await deletePagesByParam({ url }, ctx)
+    })
+
+    context('when we save a new url', () => {
       it('should return a slugged url', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
         expect(res.body.data.saveUrl.url).to.startsWith(
           'http://localhost:3000/fakeUser/links/'
         )
+      })
+    })
+
+    context('when we save labels', () => {
+      it('saves the labels and archives the page', async () => {
+        url = 'https://blog.omnivore.app/new-url-2'
+        const state = ArticleSavingRequestStatus.Archived
+        const labels = ['test name', 'test name 2']
+        await graphqlRequest(
+          saveUrlQuery(url, state, labels),
+          authToken
+        ).expect(200)
+        await refreshIndex()
+
+        const savedPage = await getPageByParam({ url })
+        expect(savedPage?.archivedAt).to.not.be.null
+        expect(savedPage?.labels?.map((l) => l.name)).to.eql(labels)
       })
     })
   })
@@ -779,13 +851,25 @@ describe('Article API', () => {
     })
   })
 
-  xdescribe('SaveFile', () => {
+  describe('SaveFile', () => {
     let query = ''
     let url = ''
     let uploadFileId = ''
 
+    before(() => {
+      sinon.replace(
+        uploads,
+        'getStorageFileDetails',
+        sinon.fake.resolves({ fileUrl: 'fake url', md5Hash: 'fake hash' })
+      )
+    })
+
     beforeEach(() => {
       query = saveFileQuery(url, uploadFileId)
+    })
+
+    after(() => {
+      sinon.restore()
     })
 
     context('when the file is not uploaded', () => {

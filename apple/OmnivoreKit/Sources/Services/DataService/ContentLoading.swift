@@ -87,7 +87,9 @@ extension DataService {
       return ArticleContent(
         title: linkedItem.unwrappedTitle,
         htmlContent: htmlContent,
-        highlightsJSONString: highlights.map { InternalHighlight.make(from: $0) }.asJSONString,
+        highlightsJSONString: highlights
+          .filter { $0.serverSyncStatus != ServerSyncStatus.needsDeletion.rawValue }
+          .map { InternalHighlight.make(from: $0) }.asJSONString,
         contentStatus: .succeeded,
         objectID: linkedItem.objectID
       )

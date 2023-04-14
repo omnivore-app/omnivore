@@ -49,7 +49,7 @@ data class WebReaderContent(
     val publishedAt =
       "new Date().toISOString()" //if (item.publishDate != null) "new Date((item.publishDate!.timeIntervalSince1970 * 1000)).toISOString()" else "undefined"
     val textFontSize = preferences.textFontSize
-    val highlightCssFilePath = "highlight${if (preferences.themeKey == "Gray") "-dark" else ""}.css"
+    val highlightCssFilePath = "highlight${if (preferences.themeKey == "Dark") "-dark" else ""}.css"
 
     Log.d("theme", "current theme is: ${preferences.themeKey}")
 

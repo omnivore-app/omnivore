@@ -62,6 +62,7 @@ import {
   googleLoginResolver,
   googleSignupResolver,
   groupsResolver,
+  importFromIntegrationResolver,
   integrationsResolver,
   joinGroupResolver,
   labelsResolver,
@@ -202,6 +203,7 @@ export const functionResolvers = {
     uploadImportFile: uploadImportFileResolver,
     markEmailAsItem: markEmailAsItemResolver,
     bulkAction: bulkActionResolver,
+    importFromIntegration: importFromIntegrationResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -559,6 +561,9 @@ export const functionResolvers = {
       }
       return item.url
     },
+    pageType(item: SearchItem) {
+      return item.pageType || PageType.Unknown
+    },
   },
   ...resultResolveTypeResolver('Login'),
   ...resultResolveTypeResolver('LogOut'),
@@ -647,4 +652,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('RecentEmails'),
   ...resultResolveTypeResolver('MarkEmailAsItem'),
   ...resultResolveTypeResolver('BulkAction'),
+  ...resultResolveTypeResolver('ImportFromIntegration'),
 }

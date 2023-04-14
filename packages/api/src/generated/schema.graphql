@@ -153,6 +153,7 @@ enum ArticleSavingRequestErrorCode {
 union ArticleSavingRequestResult = ArticleSavingRequestError | ArticleSavingRequestSuccess
 
 enum ArticleSavingRequestStatus {
+  ARCHIVED
   DELETED
   FAILED
   PROCESSING
@@ -222,9 +223,11 @@ enum CreateArticleErrorCode {
 
 input CreateArticleInput {
   articleSavingRequestId: ID
+  labels: [CreateLabelInput!]
   preparedDocument: PreparedDocumentInput
   skipParsing: Boolean
   source: String
+  state: ArticleSavingRequestStatus
   uploadFileId: ID
   url: String!
 }
@@ -349,7 +352,7 @@ enum CreateLabelErrorCode {
 }
 
 input CreateLabelInput {
-  color: String!
+  color: String
   description: String
   name: String!
 }
@@ -835,17 +838,34 @@ enum HighlightType {
   REDACTION
 }
 
+type ImportFromIntegrationError {
+  errorCodes: [ImportFromIntegrationErrorCode!]!
+}
+
+enum ImportFromIntegrationErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+union ImportFromIntegrationResult = ImportFromIntegrationError | ImportFromIntegrationSuccess
+
+type ImportFromIntegrationSuccess {
+  success: Boolean!
+}
+
 type Integration {
   createdAt: Date!
   enabled: Boolean!
   id: ID!
+  name: String!
   token: String!
   type: IntegrationType!
   updatedAt: Date!
 }
 
 enum IntegrationType {
-  READWISE
+  EXPORT
+  IMPORT
 }
 
 type IntegrationsError {
@@ -1093,6 +1113,7 @@ type Mutation {
   generateApiKey(input: GenerateApiKeyInput!): GenerateApiKeyResult!
   googleLogin(input: GoogleLoginInput!): LoginResult!
   googleSignup(input: GoogleSignupInput!): GoogleSignupResult!
+  importFromIntegration(integrationId: ID!): ImportFromIntegrationResult!
   joinGroup(inviteCode: String!): JoinGroupResult!
   leaveGroup(groupId: ID!): LeaveGroupResult!
   logOut: LogOutResult!
@@ -1219,8 +1240,11 @@ enum PageType {
   BOOK
   FILE
   HIGHLIGHTS
+  IMAGE
   PROFILE
+  TWEET
   UNKNOWN
+  VIDEO
   WEBSITE
 }
 
@@ -1568,7 +1592,9 @@ enum SaveErrorCode {
 
 input SaveFileInput {
   clientRequestId: ID!
+  labels: [CreateLabelInput!]
   source: String!
+  state: ArticleSavingRequestStatus
   uploadFileId: ID!
   url: String!
 }
@@ -1598,9 +1624,11 @@ type SaveFilterSuccess {
 
 input SavePageInput {
   clientRequestId: ID!
+  labels: [CreateLabelInput!]
   originalContent: String!
   parseResult: ParseResult
   source: String!
+  state: ArticleSavingRequestStatus
   title: String
   url: String!
 }
@@ -1614,7 +1642,9 @@ type SaveSuccess {
 
 input SaveUrlInput {
   clientRequestId: ID!
+  labels: [CreateLabelInput!]
   source: String!
+  state: ArticleSavingRequestStatus
   url: String!
 }
 
@@ -1772,8 +1802,9 @@ enum SetIntegrationErrorCode {
 input SetIntegrationInput {
   enabled: Boolean!
   id: ID
+  name: String!
   token: String!
-  type: IntegrationType!
+  type: IntegrationType
 }
 
 union SetIntegrationResult = SetIntegrationError | SetIntegrationSuccess

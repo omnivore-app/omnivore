@@ -50,7 +50,7 @@ public struct PrimaryContentView: View {
       .accentColor(.appGrayTextContrast)
       .introspectSplitViewController {
         $0.preferredSplitBehavior = .tile
-        $0.preferredPrimaryColumnWidth = 200
+        $0.preferredPrimaryColumnWidth = 160
         $0.presentsWithGesture = false
         $0.displayModeButtonVisibility = .always
       }

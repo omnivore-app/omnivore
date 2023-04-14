@@ -2,15 +2,18 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 // Imports the Google Cloud Tasks library.
 import { CloudTasksClient, protos } from '@google-cloud/tasks'
+import { google } from '@google-cloud/tasks/build/protos/protos'
 import axios from 'axios'
+import { nanoid } from 'nanoid'
+import { Recommendation } from '../elastic/types'
 import { env } from '../env'
+import {
+  ArticleSavingRequestStatus,
+  CreateLabelInput,
+} from '../generated/graphql'
+import { signFeatureToken } from '../services/features'
 import { CreateTaskError } from './errors'
 import { buildLogger } from './logger'
-import { nanoid } from 'nanoid'
-import { google } from '@google-cloud/tasks/build/protos/protos'
-import { IntegrationType } from '../entity/integration'
-import { signFeatureToken } from '../services/features'
-import { Recommendation } from '../elastic/types'
 import View = google.cloud.tasks.v2.Task.View
 
 const logger = buildLogger('app.dispatch')
@@ -195,18 +198,30 @@ export const deleteTask = async (
  * @param queue - Queue name
  * @returns Name of the task created
  */
-export const enqueueParseRequest = async (
-  url: string,
-  userId: string,
-  saveRequestId: string,
-  priority: 'low' | 'high' = 'high',
-  queue = env.queue.name
-): Promise<string> => {
+export const enqueueParseRequest = async ({
+  url,
+  userId,
+  saveRequestId,
+  priority = 'high',
+  queue = env.queue.name,
+  state,
+  labels,
+}: {
+  url: string
+  userId: string
+  saveRequestId: string
+  priority?: 'low' | 'high'
+  queue?: string
+  state?: ArticleSavingRequestStatus
+  labels?: CreateLabelInput[]
+}): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT } = process.env
   const payload = {
     url,
     userId,
     saveRequestId,
+    state,
+    labels,
   }
 
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment
@@ -280,7 +295,7 @@ export const enqueueReminder = async (
 
 export const enqueueSyncWithIntegration = async (
   userId: string,
-  integrationType: IntegrationType
+  integrationName: string
 ): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT, PUBSUB_VERIFICATION_TOKEN } = process.env
   // use pubsub data format to send the userId to the task handler
@@ -305,7 +320,7 @@ export const enqueueSyncWithIntegration = async (
     payload,
     taskHandlerUrl: `${
       env.queue.integrationTaskHandlerUrl
-    }/${integrationType.toLowerCase()}/sync_all?token=${PUBSUB_VERIFICATION_TOKEN}`,
+    }/${integrationName.toLowerCase()}/sync_all?token=${PUBSUB_VERIFICATION_TOKEN}`,
     priority: 'low',
   })
 
@@ -429,6 +444,42 @@ export const enqueueRecommendation = async (
     project: GOOGLE_CLOUD_PROJECT,
     payload,
     taskHandlerUrl: env.queue.recommendationTaskHandlerUrl,
+    requestHeaders: headers,
+  })
+
+  if (!createdTasks || !createdTasks[0].name) {
+    logger.error(`Unable to get the name of the task`, {
+      payload,
+      createdTasks,
+    })
+    throw new CreateTaskError(`Unable to get the name of the task`)
+  }
+  return createdTasks[0].name
+}
+
+export const enqueueImportFromIntegration = async (
+  userId: string,
+  integrationId: string,
+  authToken: string
+): Promise<string> => {
+  const { GOOGLE_CLOUD_PROJECT } = process.env
+  const payload = {
+    integrationId,
+  }
+
+  const headers = {
+    Cookie: `auth=${authToken}`,
+  }
+  // If there is no Google Cloud Project Id exposed, it means that we are in local environment
+  if (env.dev.isLocal || !GOOGLE_CLOUD_PROJECT) {
+    return nanoid()
+  }
+
+  const createdTasks = await createHttpTaskWithToken({
+    project: GOOGLE_CLOUD_PROJECT,
+    payload,
+    taskHandlerUrl: `${env.queue.integrationTaskHandlerUrl}/import`,
+    priority: 'low',
     requestHeaders: headers,
   })
 

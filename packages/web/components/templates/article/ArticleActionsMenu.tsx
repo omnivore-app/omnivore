@@ -75,7 +75,7 @@ export function ArticleActionsMenu(
                 onClick={() => readerSettings.setShowSetLabelsModal(true)}
               >
                 <TooltipWrapped
-                  tooltipContent="Edit labels"
+                  tooltipContent="Edit labels (l)"
                   tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
                 >
                   <SpanBox ref={displaySettingsButtonRef}>
@@ -128,7 +128,7 @@ export function ArticleActionsMenu(
           }}
         >
           <TooltipWrapped
-            tooltipContent="View Highlights"
+            tooltipContent="View Notebook (t)"
             tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
           >
             <Notebook
@@ -150,7 +150,7 @@ export function ArticleActionsMenu(
           }}
         >
           <TooltipWrapped
-            tooltipContent="Edit title & description"
+            tooltipContent="Edit Info (i)"
             tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
           >
             <Info size={24} color={theme.colors.thHighContrast.toString()} />
@@ -173,7 +173,7 @@ export function ArticleActionsMenu(
           }}
         >
           <TooltipWrapped
-            tooltipContent="Delete"
+            tooltipContent="Remove (#)"
             tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
           >
             <Trash size={24} color={theme.colors.thHighContrast.toString()} />
@@ -190,7 +190,7 @@ export function ArticleActionsMenu(
             }}
           >
             <TooltipWrapped
-              tooltipContent="Archive"
+              tooltipContent="Archive (e)"
               tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
             >
               <ArchiveBox
@@ -205,7 +205,7 @@ export function ArticleActionsMenu(
             onClick={() => props.articleActionHandler('unarchive')}
           >
             <TooltipWrapped
-              tooltipContent="Unarchive"
+              tooltipContent="Unarchive (u)"
               tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
             >
               <Tray size={24} color={theme.colors.thHighContrast.toString()} />

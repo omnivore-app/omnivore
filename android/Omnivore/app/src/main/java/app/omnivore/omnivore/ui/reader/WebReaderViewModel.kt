@@ -12,8 +12,12 @@ import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.DatastoreKeys
 import app.omnivore.omnivore.DatastoreRepository
 import app.omnivore.omnivore.dataService.*
+import app.omnivore.omnivore.graphql.generated.type.CreateLabelInput
+import app.omnivore.omnivore.graphql.generated.type.SetLabelsInput
 import app.omnivore.omnivore.persistence.entities.SavedItem
 import app.omnivore.omnivore.networking.*
+import app.omnivore.omnivore.persistence.entities.SavedItemAndSavedItemLabelCrossRef
+import app.omnivore.omnivore.persistence.entities.SavedItemLabel
 import app.omnivore.omnivore.ui.library.SavedItemAction
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,7 +27,8 @@ import javax.inject.Inject
 
 data class WebReaderParams(
   val item: SavedItem,
-  val articleContent: ArticleContent
+  val articleContent: ArticleContent,
+  val labels: List<SavedItemLabel>
 )
 
 data class AnnotationWebViewMessage(
@@ -46,12 +51,18 @@ class WebReaderViewModel @Inject constructor(
   val shouldPopViewLiveData = MutableLiveData(false)
   val hasFetchError = MutableLiveData(false)
   val currentToolbarHeightLiveData = MutableLiveData(0.0f)
+  val showLabelsSelectionSheetLiveData = MutableLiveData(false)
+  val savedItemLabelsLiveData = dataService.db.savedItemLabelDao().getSavedItemLabelsLiveData()
+
+  val systemThemeKeys = listOf("Light", "Dark", "System")
 
   var hasTappedExistingHighlight = false
   var lastTapCoordinates: TapCoordinates? = null
   private var isLoading = false
+  private var slug: String? = null
   
   fun loadItem(slug: String?, requestID: String?) {
+    this.slug = slug
     if (isLoading || webReaderParamsLiveData.value != null) { return }
     isLoading = true
     Log.d("reader", "load item called")
@@ -72,14 +83,14 @@ class WebReaderViewModel @Inject constructor(
   }
 
   private suspend fun loadItemUsingSlug(slug: String) {
+    loadItemFromDB(slug)
+
     val webReaderParams = loadItemFromServer(slug)
 
     if (webReaderParams != null) {
       Log.d("reader", "data loaded from server")
       webReaderParamsLiveData.postValue(webReaderParams)
       isLoading = false
-    } else {
-      loadItemFromDB(slug)
     }
   }
 
@@ -88,6 +99,7 @@ class WebReaderViewModel @Inject constructor(
     val isSuccessful = webReaderParams?.articleContent?.contentStatus == "SUCCEEDED"
 
     if (webReaderParams != null && isSuccessful) {
+      this.slug = webReaderParams.item.slug
       webReaderParamsLiveData.postValue(webReaderParams)
       isLoading = false
     } else if (requestCount < 7) {
@@ -114,7 +126,13 @@ class WebReaderViewModel @Inject constructor(
         )
 
         Log.d("sync", "data loaded from db")
-        webReaderParamsLiveData.postValue(WebReaderParams(persistedItem.savedItem, articleContent))
+        webReaderParamsLiveData.postValue(
+          WebReaderParams(
+            persistedItem.savedItem,
+            articleContent,
+            persistedItem.labels
+          )
+        )
       }
       isLoading = false
     }
@@ -134,7 +152,7 @@ class WebReaderViewModel @Inject constructor(
       labelsJSONString = Gson().toJson(articleQueryResult.labels)
     )
 
-    return WebReaderParams(article, articleContent)
+    return WebReaderParams(article, articleContent, articleQueryResult.labels)
   }
 
   fun handleSavedItemAction(itemID: String, action: SavedItemAction) {
@@ -156,6 +174,9 @@ class WebReaderViewModel @Inject constructor(
           dataService.unarchiveSavedItem(itemID)
           popToLibraryView()
         }
+      }
+      SavedItemAction.EditLabels -> {
+        showLabelsSelectionSheetLiveData.value = true
       }
     }
   }
@@ -238,6 +259,7 @@ class WebReaderViewModel @Inject constructor(
     val storedMaxWidth = datastoreRepo.getInt(DatastoreKeys.preferredWebMaxWidthPercentage)
 
     val storedFontFamily = datastoreRepo.getString(DatastoreKeys.preferredWebFontFamily) ?: WebFont.SYSTEM.rawValue
+    val storedThemePreference = datastoreRepo.getString(DatastoreKeys.preferredTheme) ?: "System"
     val storedWebFont = WebFont.values().first { it.rawValue == storedFontFamily }
 
     val prefersHighContrastFont = datastoreRepo.getString(DatastoreKeys.prefersWebHighContrastText) == "true"
@@ -246,10 +268,31 @@ class WebReaderViewModel @Inject constructor(
       textFontSize = storedFontSize ?: 12,
       lineHeight = storedLineHeight ?: 150,
       maxWidthPercentage = storedMaxWidth ?: 100,
-      themeKey = if (isDarkMode) "Gray" else "LightGray",
+      themeKey = themeKey(isDarkMode, storedThemePreference),
+      storedThemePreference = storedThemePreference,
       fontFamily = storedWebFont,
       prefersHighContrastText = prefersHighContrastFont
     )
+  }
+
+  fun themeKey(isDarkMode: Boolean, storedThemePreference: String): String {
+    if (storedThemePreference == "System") {
+      return if (isDarkMode) "Dark" else "Light"
+    }
+
+    return storedThemePreference
+  }
+
+  fun updateStoredThemePreference(index: Int, isDarkMode: Boolean) {
+    val newThemeKey = themeKey(isDarkMode, systemThemeKeys[index])
+
+    runBlocking {
+      datastoreRepo.putString(DatastoreKeys.preferredTheme, systemThemeKeys[index])
+    }
+
+    val isDark = newThemeKey == "Dark"
+    val script = "var event = new Event('updateColorMode');event.isDark = '$isDark';document.dispatchEvent(event);"
+    enqueueScript(script)
   }
 
   fun updateFontSize(isIncrease: Boolean)  {
@@ -313,5 +356,58 @@ class WebReaderViewModel @Inject constructor(
 
     val script = "var event = new Event('updateFontFamily');event.fontFamily = '${font.rawValue}';document.dispatchEvent(event);"
     enqueueScript(script)
+  }
+
+  fun updateSavedItemLabels(savedItemID: String, labels: List<SavedItemLabel>) {
+    viewModelScope.launch {
+      withContext(Dispatchers.IO) {
+        val input = SetLabelsInput(labelIds = labels.map { it.savedItemLabelId }, pageId = savedItemID)
+        val networkResult = networker.updateLabelsForSavedItem(input)
+
+        // TODO: assign a server sync status to these
+        val crossRefs = labels.map {
+          SavedItemAndSavedItemLabelCrossRef(
+            savedItemLabelId = it.savedItemLabelId,
+            savedItemId = savedItemID
+          )
+        }
+
+        // Remove all labels first
+        dataService.db.savedItemAndSavedItemLabelCrossRefDao().deleteRefsBySavedItemId(savedItemID)
+
+        // Add back the current labels
+        dataService.db.savedItemAndSavedItemLabelCrossRefDao().insertAll(crossRefs)
+
+        slug?.let {
+          loadItemFromDB(it)
+        }
+
+        // Send labels to webview
+        val script = "var event = new Event('updateLabels');event.labels = ${Gson().toJson(labels)};document.dispatchEvent(event);"
+        CoroutineScope(Dispatchers.Main).launch {
+          enqueueScript(script)
+        }
+      }
+    }
+  }
+
+  fun createNewSavedItemLabel(labelName: String, hexColorValue: String) {
+    viewModelScope.launch {
+      withContext(Dispatchers.IO) {
+        val newLabel = networker.createNewLabel(CreateLabelInput(color = hexColorValue, name = labelName))
+
+        newLabel?.let {
+          val savedItemLabel = SavedItemLabel(
+            savedItemLabelId = it.id,
+            name = it.name,
+            color = it.color,
+            createdAt = it.createdAt as String?,
+            labelDescription = it.description
+          )
+
+          dataService.db.savedItemLabelDao().insertAll(listOf(savedItemLabel))
+        }
+      }
+    }
   }
 }

@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "@google-cloud/functions-framework": "3.1.2",
-    "@google-cloud/pubsub": "^2.16.3",
+    "@google-cloud/pubsub": "^3.4.1",
     "@google-cloud/storage": "^5.18.1",
     "axios": "^0.27.2",
     "concurrently": "^7.0.0",

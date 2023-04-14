@@ -1,29 +1,29 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { preParseContent } from '@omnivore/content-handler'
 import { Readability } from '@omnivore/readability'
-import createDOMPurify, { SanitizeElementHookEvent } from 'dompurify'
-import { PageType, PreparedDocumentInput } from '../generated/graphql'
-import { buildLogger, LogRecord } from './logger'
-import { createImageProxyUrl } from './imageproxy'
+import addressparser from 'addressparser'
 import axios from 'axios'
+import createDOMPurify, { SanitizeElementHookEvent } from 'dompurify'
 import * as hljs from 'highlightjs'
 import { decode } from 'html-entities'
+import * as jwt from 'jsonwebtoken'
 import { parseHTML } from 'linkedom'
-import { getRepository } from '../entity/utils'
-import { User } from '../entity/user'
+import { NodeHtmlMarkdown } from 'node-html-markdown'
 import { ILike } from 'typeorm'
+import { promisify } from 'util'
 import { v4 as uuid } from 'uuid'
-import addressparser from 'addressparser'
-import { preParseContent } from '@omnivore/content-handler'
+import { User } from '../entity/user'
+import { getRepository } from '../entity/utils'
+import { env } from '../env'
+import { PageType, PreparedDocumentInput } from '../generated/graphql'
 import {
   EmbeddedHighlightData,
   findEmbeddedHighlight,
 } from './highlightGenerator'
-import { NodeHtmlMarkdown } from 'node-html-markdown'
-import { promisify } from 'util'
-import * as jwt from 'jsonwebtoken'
-import { env } from '../env'
+import { createImageProxyUrl } from './imageproxy'
+import { buildLogger, LogRecord } from './logger'
 
 const logger = buildLogger('utils.parse')
 const signToken = promisify(jwt.sign)
@@ -118,12 +118,20 @@ const parseOriginalContent = (document: Document): PageType => {
         return PageType.Profile
       case 'website':
         return PageType.Website
+      case 'tweet':
+        return PageType.Tweet
+      case 'image':
+        return PageType.Image
+      default:
+        if (content.toLowerCase().startsWith('video')) {
+          return PageType.Video
+        }
+        return PageType.Unknown
     }
   } catch (error) {
     logger.error('Error extracting og:type from content', error)
+    return PageType.Unknown
   }
-
-  return PageType.Unknown
 }
 
 const getPurifiedContent = (html: string): Document => {
@@ -376,7 +384,7 @@ const getJSONLdLinkMetadata = async (
 
     return result
   } catch (error) {
-    logger.warning(`Unable to get JSONLD link of the article`, error)
+    logger.warning(`Unable to get JSONLD link of the article`, { error })
     return result
   }
 }

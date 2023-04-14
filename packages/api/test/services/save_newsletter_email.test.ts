@@ -1,18 +1,18 @@
-import 'mocha'
 import { expect } from 'chai'
 import 'chai/register-should'
-import { createTestUser, deleteTestUser } from '../db'
-import { createNewsletterEmail } from '../../src/services/newsletters'
-import { saveNewsletterEmail } from '../../src/services/save_newsletter_email'
-import { User } from '../../src/entity/user'
-import { NewsletterEmail } from '../../src/entity/newsletter_email'
-import { SaveContext } from '../../src/services/save_email'
+import 'mocha'
+import nock from 'nock'
 import { createPubSubClient } from '../../src/datalayer/pubsub'
 import { getPageByParam } from '../../src/elastic/pages'
-import nock from 'nock'
-import { getRepository } from '../../src/entity/utils'
-import { Subscription } from '../../src/entity/subscription'
+import { NewsletterEmail } from '../../src/entity/newsletter_email'
 import { ReceivedEmail } from '../../src/entity/received_email'
+import { Subscription } from '../../src/entity/subscription'
+import { User } from '../../src/entity/user'
+import { getRepository } from '../../src/entity/utils'
+import { createNewsletterEmail } from '../../src/services/newsletters'
+import { SaveContext } from '../../src/services/save_email'
+import { saveNewsletterEmail } from '../../src/services/save_newsletter_email'
+import { createTestUser, deleteTestUser } from '../db'
 
 describe('saveNewsletterEmail', () => {
   const fakeContent = 'fake content'
@@ -50,7 +50,8 @@ describe('saveNewsletterEmail', () => {
   })
 
   it('adds the newsletter to the library', async () => {
-    nock('https://blog.omnivore.app').get('/fake-url').reply(404)
+    nock('https://blog.omnivore.app').get('/fake-url').reply(200)
+    nock('https://blog.omnivore.app').head('/fake-url').reply(200)
     const url = 'https://blog.omnivore.app/fake-url'
 
     await saveNewsletterEmail(
@@ -62,6 +63,7 @@ describe('saveNewsletterEmail', () => {
         title,
         author,
         receivedEmailId: receivedEmail.id,
+        unsubHttpUrl: 'https://blog.omnivore.app/unsubscribe',
       },
       newsletterEmail,
       ctx
@@ -86,7 +88,9 @@ describe('saveNewsletterEmail', () => {
     expect(updatedReceivedEmail?.type).to.equal('article')
   })
 
-  it('should adds a Newsletter label to that page', async () => {
+  it('adds a Newsletter label to that page', async () => {
+    nock('https://blog.omnivore.app').get('/new-fake-url').reply(200)
+    nock('https://blog.omnivore.app').head('/new-fake-url').reply(200)
     const url = 'https://blog.omnivore.app/new-fake-url'
     const newLabel = {
       name: 'Newsletter',
@@ -109,5 +113,30 @@ describe('saveNewsletterEmail', () => {
 
     const page = await getPageByParam({ userId: user.id, url })
     expect(page?.labels?.[0]).to.deep.include(newLabel)
+  })
+
+  it('does not create a subscription if no unsubscribe header', async () => {
+    const url = 'https://blog.omnivore.app/no-unsubscribe'
+    nock('https://blog.omnivore.app').get('/no-unsubscribe').reply(404)
+
+    await saveNewsletterEmail(
+      {
+        email: newsletterEmail.address,
+        content: `<html><body>fake content 2</body></html>`,
+        url,
+        title,
+        author,
+        from,
+        receivedEmailId: receivedEmail.id,
+      },
+      newsletterEmail,
+      ctx
+    )
+
+    const subscriptions = await getRepository(Subscription).findBy({
+      newsletterEmail: { id: newsletterEmail.id },
+      name: from,
+    })
+    expect(subscriptions).to.be.empty
   })
 })

@@ -14,7 +14,7 @@ struct WebReaderContainerView: View {
   @State private var showLabelsModal = false
   @State private var showHighlightLabelsModal = false
   @State private var showTitleEdit = false
-  @State private var showHighlightsView = false
+  @State private var showNotebookView = false
   @State private var hasPerformedHighlightMutations = false
   @State var showHighlightAnnotationModal = false
   @State private var navBarVisibilityRatio = 1.0
@@ -61,7 +61,7 @@ struct WebReaderContainerView: View {
     lastScrollPercentage = percent
   }
 
-  func onHighlightListViewDismissal() {
+  func onNotebookViewDismissal() {
     // Reload the web view if mutation happened in highlights list modal
     guard hasPerformedHighlightMutations else { return }
 
@@ -143,7 +143,7 @@ struct WebReaderContainerView: View {
             textToSpeechButtonImage
           }
         )
-        .padding(.horizontal)
+        .padding(.horizontal, 5)
         .scaleEffect(navBarVisibilityRatio))
       }
     }
@@ -205,10 +205,6 @@ struct WebReaderContainerView: View {
     let hasLabels = item.labels?.count != 0
     return Group {
       Button(
-        action: { showHighlightsView = true },
-        label: { Label("Notebook", systemImage: "highlighter") }
-      )
-      Button(
         action: { showTitleEdit = true },
         label: { Label("Edit Info", systemImage: "info.circle") }
       )
@@ -261,21 +257,34 @@ struct WebReaderContainerView: View {
   }
 
   var navBar: some View {
-    HStack(alignment: .center) {
+    HStack(alignment: .center, spacing: 15) {
       #if os(iOS)
         Button(
           action: { self.presentationMode.wrappedValue.dismiss() },
           label: {
             Image(systemName: "chevron.backward")
               .font(.appNavbarIcon)
-              .foregroundColor(.appGrayTextContrast)
+              // .foregroundColor(.appGrayTextContrast)
               .padding()
           }
         )
         .scaleEffect(navBarVisibilityRatio)
         Spacer()
+      #endif
+
+      Button(
+        action: { showNotebookView = true },
+        label: {
+          Image("notebook", bundle: Bundle(url: ViewsPackage.bundleURL))
+        }
+      )
+      .padding(.horizontal, 5)
+      .scaleEffect(navBarVisibilityRatio)
+
+      #if os(iOS)
         audioNavbarItem
       #endif
+
       Button(
         action: { showPreferencesPopover.toggle() },
         label: {
@@ -283,7 +292,7 @@ struct WebReaderContainerView: View {
             .font(.appNavbarIcon)
         }
       )
-      .padding(.horizontal)
+      .padding(.horizontal, 5)
       .scaleEffect(navBarVisibilityRatio)
       #if os(macOS)
         Spacer()
@@ -297,7 +306,7 @@ struct WebReaderContainerView: View {
             Image(systemName: "ellipsis")
               .resizable(resizingMode: Image.ResizingMode.stretch)
               .aspectRatio(contentMode: .fit)
-              .foregroundColor(.appGrayTextContrast)
+              // .foregroundColor(.appGrayTextContrast)
               .frame(width: 20, height: 20)
               .scaleEffect(navBarVisibilityRatio)
               .padding()
@@ -316,7 +325,8 @@ struct WebReaderContainerView: View {
     }
     .frame(height: readerViewNavBarHeight * navBarVisibilityRatio)
     .opacity(navBarVisibilityRatio)
-    .background(Color.systemBackground)
+    .foregroundColor(ThemeManager.currentTheme.isDark ? .white : .black)
+    .background(ThemeManager.currentBgColor)
     .alert("Are you sure you want to remove this item? All associated notes and highlights will be deleted.",
            isPresented: $showDeleteConfirmation) {
       Button("Remove Item", role: .destructive) {
@@ -343,8 +353,8 @@ struct WebReaderContainerView: View {
       })
     }
     #if os(iOS)
-      .sheet(isPresented: $showHighlightsView, onDismiss: onHighlightListViewDismissal) {
-        HighlightsListView(
+      .sheet(isPresented: $showNotebookView, onDismiss: onNotebookViewDismissal) {
+        NotebookView(
           itemObjectID: item.objectID,
           hasHighlightMutations: $hasPerformedHighlightMutations
         )
@@ -396,6 +406,7 @@ struct WebReaderContainerView: View {
           showBottomBar: $showBottomBar,
           showHighlightAnnotationModal: $showHighlightAnnotationModal
         )
+        .background(ThemeManager.currentBgColor)
         .onAppear {
           if item.isUnread {
             dataService.updateLinkReadingProgress(itemID: item.unwrappedID, readingProgress: 0.1, anchorIndex: 0)
@@ -403,15 +414,6 @@ struct WebReaderContainerView: View {
           Task {
             await audioController.preload(itemIDs: [item.unwrappedID])
           }
-        }
-        .onDisappear {
-//          if let lastScrollPercentage = self.lastScrollPercentage {
-//            dataService.updateLinkReadingProgress(
-//              itemID: item.unwrappedID,
-//              readingProgress: Double(lastScrollPercentage),
-//              anchorIndex: 0
-//            )
-//          }
         }
         .confirmationDialog(linkToOpen?.absoluteString ?? "", isPresented: $displayLinkSheet) {
           Button(action: {
@@ -460,17 +462,19 @@ struct WebReaderContainerView: View {
           }
         #endif
         .sheet(isPresented: $showHighlightAnnotationModal) {
-          HighlightAnnotationSheet(
-            annotation: $annotation,
-            onSave: {
-              annotationSaveTransactionID = UUID()
-            },
-            onCancel: {
-              showHighlightAnnotationModal = false
-            },
-            errorAlertMessage: $errorAlertMessage,
-            showErrorAlertMessage: $showErrorAlertMessage
-          )
+          NavigationView {
+            HighlightAnnotationSheet(
+              annotation: $annotation,
+              onSave: {
+                annotationSaveTransactionID = UUID()
+              },
+              onCancel: {
+                showHighlightAnnotationModal = false
+              },
+              errorAlertMessage: $errorAlertMessage,
+              showErrorAlertMessage: $showErrorAlertMessage
+            )
+          }
         }
         .sheet(isPresented: $showHighlightLabelsModal) {
           if let highlight = Highlight.lookup(byID: self.annotation, inContext: self.dataService.viewContext) {
@@ -526,7 +530,7 @@ struct WebReaderContainerView: View {
       #endif
     }
     #if os(iOS)
-      .formSheet(isPresented: $showPreferencesPopover, useSmallDetent: false) {
+      .formSheet(isPresented: $showPreferencesPopover, modalSize: CGSize(width: 400, height: 475)) {
         webPreferencesPopoverView
       }
     #else

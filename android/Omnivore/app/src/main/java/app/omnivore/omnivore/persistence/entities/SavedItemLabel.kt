@@ -1,5 +1,6 @@
 package app.omnivore.omnivore.persistence.entities
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
 
 @Entity
@@ -16,6 +17,10 @@ data class SavedItemLabel(
 interface SavedItemLabelDao {
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   fun insertAll(items: List<SavedItemLabel>)
+
+  @Transaction
+  @Query("SELECT * FROM SavedItemLabel WHERE serverSyncStatus != 2 ORDER BY name ASC")
+  fun getSavedItemLabelsLiveData(): LiveData<List<SavedItemLabel>>
 }
 
 @Entity(
@@ -30,8 +35,7 @@ interface SavedItemLabelDao {
     ForeignKey(
       entity = SavedItemLabel::class,
       parentColumns = arrayOf("savedItemLabelId"),
-      childColumns = arrayOf("savedItemLabelId"),
-      onDelete = ForeignKey.CASCADE
+      childColumns = arrayOf("savedItemLabelId")
     )
   ]
 )
@@ -64,6 +68,9 @@ data class SavedItemCardDataWithLabels(
 interface SavedItemAndSavedItemLabelCrossRefDao {
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   fun insertAll(items: List<SavedItemAndSavedItemLabelCrossRef>)
+
+  @Query("DELETE FROM savedItemAndSavedItemLabelCrossRef WHERE savedItemId = :savedItemId")
+  fun deleteRefsBySavedItemId(savedItemId: String)
 }
 
 // has many highlights

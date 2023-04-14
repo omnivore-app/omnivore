@@ -103,7 +103,7 @@ function ControlButtonBox(props: ReaderHeaderProps): JSX.Element {
             props.showDisplaySettingsModal(true)
           }}
         >
-          <TooltipWrapped tooltipContent="Adjust Display Settings">
+          <TooltipWrapped tooltipContent="Reader Preferences (d)">
             <TextAa size={25} color={theme.colors.thHighContrast.toString()} />
           </TooltipWrapped>
         </Button>

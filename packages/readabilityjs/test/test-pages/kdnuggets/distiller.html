@@ -1,0 +1,191 @@
+<div><img decoding="async" src="//www.kdnuggets.com/wp-content/uploads/wijaya_text_summarization_development_python_tutorial_gpt35_3.jpg" alt="Text Summarization Development: A Python Tutorial with GPT-3.5"/><center><br/>
+                                <span>Image by <a href="https://www.freepik.com/free-photo/opened-ai-chat-laptop_38259334.htm#query=chatgpt&amp;position=0&amp;from_view=search&amp;track=sph" rel="noopener" target="_blank">frimufilms</a> on <a href="https://www.freepik.com/" rel="noopener" target="_blank">Freepik</a></span>
+                            </center><p>
+                                This is an era where AI breakthrough is coming daily. We didn’t have many AI-generated in public a few years ago, but now the technology is accessible to everyone. It’s excellent for many individual creators or companies that want to significantly take advantage of the technology to develop something complex, which might take a long time.
+                            </p><p>
+                                One of the most incredible breakthroughs that change how we work is the release of the <a href="https://platform.openai.com/docs/models/gpt-3-5" rel="noopener" target="_blank">GPT-3.5 model by OpenAI</a>. What is the GPT-3.5 model? If I let the model talk for themselves. In that case, the answer is “<strong>a highly advanced AI model in the field of natural language processing, with vast improvements in generating contextually accurate and relevant tex</strong>t”.
+                            </p><p>
+                                OpenAI provides an API for the GPT-3.5 model that we can use to develop a simple app, such as a text summarizer. To do that, we can use Python to integrate the model API into our intended application seamlessly. What does the process look like? Let’s get into it.
+                            </p><h1>
+                                Prerequisite
+                            </h1><p>
+                                There are a few prerequisites before following this tutorial, including:
+                            </p><p>
+                                - Knowledge of Python, including knowledge of using external libraries and IDE
+                            </p><p>
+                                - Understanding of APIs and handling the endpoint with Python
+                            </p><p>
+                                - Having access to the OpenAI APIs
+                            </p><p>
+                                To obtain OpenAI APIs access, we must register on the <a href="https://platform.openai.com/overview" rel="noopener" target="_blank">OpenAI Developer Platform</a> and visit the View API keys within your profile. On the web, click the “Create new secret key” button to acquire API access (See image below). Remember to save the keys, as they will not be shown the keys after that.<br/>
+                                 <br/>
+                            </p><img decoding="async" alt="Text Summarization Development: A Python Tutorial with GPT-3.5" src="data:image/svg+xml,%3Csvg%20xmlns=&#39;http://www.w3.org/2000/svg&#39;%20viewBox=&#39;0%200%20100%200&#39;%3E%3C/svg%3E"/><center><br/>
+                                <span>Image by Author</span>
+                            </center><p>
+                                With all the preparation ready, let’s try to understand the basic of the OpenAI APIs model.
+                            </p><h1>
+                                Understanding GPT-3.5 OpenAI API
+                            </h1><p>
+                                The <a href="https://platform.openai.com/docs/models/gpt-3-5" rel="noopener" target="_blank">GPT-3.5 family model</a> was specified for many language tasks, and each model in the family excels in some tasks. For this tutorial example, we would use the <code>gpt-3.5-turbo</code> as it was the recommended current model when this article was written for its capability and cost-efficiency.
+                            </p><p>
+                                We often use the <code>text-davinci-003</code> in the OpenAI tutorial, but we would use the current model for this tutorial. We would rely on the <a href="https://platform.openai.com/docs/api-reference/chat/create" rel="noopener" target="_blank">ChatCompletion</a> endpoint instead of Completion because the current recommended model is a chat model. Even if the name was a chat model, it works for any language task.
+                            </p><p>
+                                Let’s try to understand how the API works. First, we need to install the current OpenAI packages. 
+                            </p><pre><code>pip install openai</code></pre><p>
+                                After we have finished installing the package, we will try to use the API by connecting via the ChatCompletion endpoint. However, we need to set the environment before we continue.
+                            </p><p>
+                                In your favorite IDE (for me, it’s VS Code), create two files called <code>.env</code> and <code>summarizer_app.py</code>, similar to the image below.
+                            </p><img decoding="async" src="//www.kdnuggets.com/wp-content/uploads/wijaya_text_summarization_development_python_tutorial_gpt35_1.png" alt="Text Summarization Development: A Python Tutorial with GPT-3.5"/><center><br/>
+                                <span>Image by Author</span>
+                            </center><p>
+                                The <code>summarizer_app.py</code> is where we would build our simple summarizer application, and the <code>.env</code> file is where we would store our API Key. For security reasons, it is always advised to separate our API key in another file rather than hard-code them in the Python file.
+                            </p><p>
+                                In the <code>.env</code> file put the following syntax and save the file. Replace your_api_key_here with your actual API key. Don’t change the API key into a string object; let them as it is. 
+                            </p><pre><code>OPENAI_API_KEY=your_api_key_here</code></pre><p>
+                                To understand the GPT-3.5 API better; we would use the following code to generate the word summarizer.
+                            </p><pre><code>openai.ChatCompletion.create(
+    model=&#34;gpt-3.5-turbo&#34;,
+    max_tokens=100,
+    temperature=0.7,
+    top_p=0.5,
+    frequency_penalty=0.5,
+    messages=[
+        {
+          &#34;role&#34;: &#34;system&#34;,
+          &#34;content&#34;: &#34;You are a helpful assistant for text summarization.&#34;,
+        },
+        {
+          &#34;role&#34;: &#34;user&#34;,
+          &#34;content&#34;: f&#34;Summarize this for a {person_type}: {prompt}&#34;,
+        },
+    ],
+)</code></pre><p>
+                                The above code is how we interact with the OpenAI APIs GPT-3.5 model. Using the ChatCompletion API, we create a conversation and will get the intended result after passing the prompt.
+                            </p><p>
+                                Let’s break down each part to understand them better. In the first line, we use the <code>openai.ChatCompletion.create</code> code to create the response from the prompt we would pass into the API.
+                            </p><p>
+                                In the next line, we have our hyperparameters that we use to improve our text tasks. Here is the summary of each hyperparameter function:
+                            </p><ul><li><code>model</code>: The model family we want to use. In this tutorial, we use the current recommended model (<code>gpt-3.5-turbo</code>).</li><li><code>max_tokens</code>: The upper limit of the generated words by the model. It helps to limit the length of the generated text.</li><li><code>temperature</code>: The randomness of the model output, with a higher temperature, means a more diverse and creative result. The value range is between 0 to infinity, although values more than 2 are not common.</li><li><code>top_p</code>: Top P or top-k sampling or nucleus sampling is a parameter to control the sampling pool from the output distribution. For example, value 0.1 means the model only samples the output from the top 10% of the distribution. The value range was between 0 and 1; higher values mean a more diverse result.</li><li><code>frequency_penalty</code>: The penalty for the repetition token from the output. The value range between -2 to 2, where positive values would suppress the model from repeating token while negative values encourage the model to use more repetitive words. 0 means no penalty.</li><li><code>messages</code>: The parameter where we pass our text prompt to be processed with the model. We pass a list of dictionaries where the key is the role object (either &#34;system&#34;, &#34;user&#34;, or &#34;assistant&#34;) that helps the model to understand the context and structure while the values are the context.<ul><li>The role “system” is the set guidelines for the model “assistant” behavior,</li><li>The role “user” represents the prompt from the person interacting with the model,</li><li>The role “assistant” is the response to the “user” prompt</li></ul></li></ul><p>
+                                Having explained the parameter above, we can see that the <code>messages</code> parameter above has two dictionary object. The first dictionary is how we set the model as a text summarizer. The second is where we would pass our text and get the summarization output. 
+                            </p><p>
+                                In the second dictionary, you will also see the variable <code>person_type</code> and <code>prompt</code>. The <code>person_type</code> is a variable I used to control the summarized style, which I will show in the tutorial. While the <code>prompt</code> is where we would pass our text to be summarized.
+                            </p><p>
+                                Continuing with the tutorial, place the below code in the <code>summarizer_app.py</code> file and we will try to run through how the function below works.
+                            </p><pre><code>import openai
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+openai.api_key = os.getenv(&#34;OPENAI_API_KEY&#34;)
+
+
+def generate_summarizer(
+    max_tokens,
+    temperature,
+    top_p,
+    frequency_penalty,
+    prompt,
+    person_type,
+):
+    res = openai.ChatCompletion.create(
+        model=&#34;gpt-3.5-turbo&#34;,
+        max_tokens=100,
+        temperature=0.7,
+        top_p=0.5,
+        frequency_penalty=0.5,
+        messages=
+       [
+         {
+          &#34;role&#34;: &#34;system&#34;,
+          &#34;content&#34;: &#34;You are a helpful assistant for text summarization.&#34;,
+         },
+         {
+          &#34;role&#34;: &#34;user&#34;,
+          &#34;content&#34;: f&#34;Summarize this for a {person_type}: {prompt}&#34;,
+         },
+        ],
+    )
+    return res[&#34;choices&#34;][0][&#34;message&#34;][&#34;content&#34;]</code></pre><p>
+                                The code above is where we create a Python function that would accept various parameters that we have discussed previously and return the text summary output. 
+                            </p><p>
+                                Try the function above with your parameter and see the output. Then let’s continue the tutorial to create a simple application with the streamlit package.
+                            </p><h1>
+                                Text Summarization Application with Streamlit
+                            </h1><p>
+                                <a href="https://docs.streamlit.io/" rel="noopener" target="_blank">Streamlit</a> is an open-source Python package designed for creating machine learning and data science web apps. It’s easy to use and intuitive, so it is recommended for many beginners. 
+                            </p><p>
+                                Let’s install the streamlit package before we continue with the tutorial.
+                            </p><pre><code>pip install streamlit</code></pre><p>
+                                After the installation is finished, put the following code into the <code>summarizer_app.py</code>.
+                            </p><pre><code>import streamlit as st
+
+#Set the application title
+st.title(&#34;GPT-3.5 Text Summarizer&#34;)
+
+#Provide the input area for text to be summarized
+input_text = st.text_area(&#34;Enter the text you want to summarize:&#34;, height=200)
+
+#Initiate three columns for section to be side-by-side
+col1, col2, col3 = st.columns(3)
+
+#Slider to control the model hyperparameter
+with col1:
+    token = st.slider(&#34;Token&#34;, min_value=0.0, max_value=200.0, value=50.0, step=1.0)
+    temp = st.slider(&#34;Temperature&#34;, min_value=0.0, max_value=1.0, value=0.0, step=0.01)
+    top_p = st.slider(&#34;Nucleus Sampling&#34;, min_value=0.0, max_value=1.0, value=0.5, step=0.01)
+    f_pen = st.slider(&#34;Frequency Penalty&#34;, min_value=-1.0, max_value=1.0, value=0.0, step=0.01)
+
+#Selection box to select the summarization style
+with col2:
+    option = st.selectbox(
+        &#34;How do you like to be explained?&#34;,
+        (
+            &#34;Second-Grader&#34;,
+            &#34;Professional Data Scientist&#34;,
+            &#34;Housewives&#34;,
+            &#34;Retired&#34;,
+            &#34;University Student&#34;,
+        ),
+    )
+
+#Showing the current parameter used for the model 
+with col3:
+    with st.expander(&#34;Current Parameter&#34;):
+        st.write(&#34;Current Token :&#34;, token)
+        st.write(&#34;Current Temperature :&#34;, temp)
+        st.write(&#34;Current Nucleus Sampling :&#34;, top_p)
+        st.write(&#34;Current Frequency Penalty :&#34;, f_pen)
+
+#Creating button for execute the text summarization
+if st.button(&#34;Summarize&#34;):
+    st.write(generate_summarizer(token, temp, top_p, f_pen, input_text, option))</code></pre><p>
+                                Try to run the following code in your command prompt to initiate the application.
+                            </p><pre><code>streamlit run summarizer_app.py</code></pre><p>
+                                If everything works well, you will see the following application in your default browser.
+                            </p><img decoding="async" alt="Text Summarization Development: A Python Tutorial with GPT-3.5" src="data:image/svg+xml,%3Csvg%20xmlns=&#39;http://www.w3.org/2000/svg&#39;%20viewBox=&#39;0%200%2070%200&#39;%3E%3C/svg%3E"/><center><br/>
+                                <span>Image by Author</span>
+                            </center><p>
+                                So, what happened in the code above? Let me briefly explain each function we used:
+                            </p><ul><li><code>.st.title</code>: Provide the title text of the web application.</li><li><code>.st.write</code>: Writes the argument into the application; it could be anything but mainly a string text.</li><li><code>.st.text_area</code>: Provide an area for text input that can be stored in the variable and used for the prompt for our text summarizer</li><li><code>.st.columns</code>: Object containers to provide side-by-side interaction.</li><li><code>.st.slider</code>: Provide a slider widget with set values that the user can interact with. The value is stored on a variable used as the model parameter.</li><li><code>.st.selectbox</code>: Provide a selection widget for users to select the summarization style they want. In the example above, we use five different styles.</li><li><code>.st.expander</code>: Provide a container that users can expand and hold multiple objects.</li><li><code>.st.button</code>: Provide a button that runs the intended function when the user presses it.</li></ul><p>
+                                As streamlit would automatically design the UI following the given code from top to bottom, we could focus more on the interaction.  
+                            </p><p>
+                                With all the pieces in place, let’s try our summarization application with a text example. For our example, I would use the <a href="https://en.wikipedia.org/wiki/Theory_of_relativity" rel="noopener" target="_blank">Theory of Relativity Wikipedia page</a> text to be summarized. With a default parameter and second-grader style, we obtain the following result.
+                            </p><pre><code>Albert Einstein was a very smart scientist who came up with two important ideas about how the world works. The first one, called special relativity, talks about how things move when there is no gravity. The second one, called general relativity, explains how gravity works and how it affects things in space like stars and planets. These ideas helped us understand many things in science, like how particles interact with each other and even helped us discover black holes! </code></pre><p>
+                                You might obtain a different result than the above one. Let’s try the Housewives style and tweak the parameter a bit (Token 100, Temperature 0.5, Nucleus Sampling 0.5, Frequency Penalty 0.3).
+                            </p><pre><code>The theory of relativity is a set of physics theories proposed by Albert Einstein in 1905 and 1915. It includes special relativity, which applies to physical phenomena without gravity, and general relativity, which explains the law of gravitation and its relation to the forces of nature. The theory transformed theoretical physics and astronomy in the 20th century, introducing concepts like 4-dimensional spacetime and predicting astronomical phenomena like black holes and gravitational waves.</code></pre><p>
+                                As we can see, there is a difference in style for the same text we provide. With a change prompt and parameter, our application can be more functional. 
+                            </p><p>
+                                The overall look of our text summarizer application can be seen in the image below.
+                            </p><img decoding="async" alt="Text Summarization Development: A Python Tutorial with GPT-3.5" src="data:image/svg+xml,%3Csvg%20xmlns=&#39;http://www.w3.org/2000/svg&#39;%20viewBox=&#39;0%200%2070%200&#39;%3E%3C/svg%3E"/><center><br/>
+                                <span>Image by Author</span>
+                            </center><p>
+                                That is the tutorial on creating text summarizer application development with GPT-3.5. You could tweak the application even further and deploy the application.
+                            </p><h1>
+                                Conclusion
+                            </h1><p>
+                                Generative AI is rising, and we should utilize the opportunity by creating a fantastic application. In this tutorial, we will learn how the GPT-3.5 OpenAI APIs work and how to use them to create a text summarizer application with the help of Python and streamlit package.<br/>
+                                 <br/>
+                                 <br/>
+                                <b><a href="https://www.linkedin.com/in/cornellius-yudha-wijaya/" target="_blank" rel="noopener">Cornellius Yudha Wijaya</a></b> is a data science assistant manager and data writer. While working full-time at Allianz Indonesia, he loves to share Python and Data tips via social media and writing media.<br/>
+                                 
+                            </p></div>

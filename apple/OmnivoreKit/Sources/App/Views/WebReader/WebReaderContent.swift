@@ -31,7 +31,7 @@ struct WebReaderContent {
     self.maxWidthPercentage = maxWidthPercentage
     self.item = item
     self.isDark = isDark
-    self.themeKey = isDark ? "Dark" : "Light"
+    self.themeKey = ThemeManager.currentTheme.themeKey
     self.fontFamily = fontFamily
     self.articleContent = articleContent
     self.prefersHighContrastText = prefersHighContrastText
@@ -105,11 +105,7 @@ struct WebReaderContent {
 
   // swiftlint:disable line_length function_body_length
   static func emptyContent(isDark: Bool) -> String {
-    let themeKey = isDark ? "Dark" : "Light"
-//    let savedAt = "new Date(\(item.unwrappedSavedAt.timeIntervalSince1970 * 1000)).toISOString()"
-    //   let createdAt = "new Date(\(item.unwrappedCreatedAt.timeIntervalSince1970 * 1000)).toISOString()"
-    //   let publishedAt = item.publishDate != nil ? "new Date(\(item.publishDate!.timeIntervalSince1970 * 1000)).toISOString()" : "undefined"
-
+    let themeKey = ThemeManager.currentTheme.themeKey
     return """
     <!DOCTYPE html>
     <html>

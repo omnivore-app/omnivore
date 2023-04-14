@@ -1,6 +1,7 @@
 package app.omnivore.omnivore.ui.library
 
 import android.content.Intent
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -21,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import app.omnivore.omnivore.Routes
 import app.omnivore.omnivore.persistence.entities.SavedItemCardDataWithLabels
+import app.omnivore.omnivore.ui.components.LabelsSelectionSheet
 import app.omnivore.omnivore.ui.savedItemViews.SavedItemCard
 import app.omnivore.omnivore.ui.reader.PDFReaderActivity
 import app.omnivore.omnivore.ui.reader.WebReaderLoadingContainerActivity
@@ -65,7 +67,6 @@ fun LibraryViewContent(libraryViewModel: LibraryViewModel, modifier: Modifier) {
 
   val cardsData: List<SavedItemCardDataWithLabels> by libraryViewModel.itemsLiveData.observeAsState(listOf())
   val searchedCardsData: List<SavedItemCardDataWithLabels> by libraryViewModel.searchItemsLiveData.observeAsState(listOf())
-  val searchText: String by libraryViewModel.searchTextLiveData.observeAsState("")
 
   Box(
     modifier = Modifier
@@ -89,6 +90,7 @@ fun LibraryViewContent(libraryViewModel: LibraryViewModel, modifier: Modifier) {
       items(if (libraryViewModel.showSearchField) searchedCardsData else cardsData) { cardDataWithLabels ->
         SavedItemCard(
           cardData = cardDataWithLabels.cardData,
+          labels = cardDataWithLabels.labels,
           onClickHandler = {
             val activityClass = if (cardDataWithLabels.cardData.isPDF()) PDFReaderActivity::class.java else WebReaderLoadingContainerActivity::class.java
             val intent = Intent(context, activityClass)
@@ -101,7 +103,13 @@ fun LibraryViewContent(libraryViewModel: LibraryViewModel, modifier: Modifier) {
     }
 
     InfiniteListHandler(listState = listState) {
-      libraryViewModel.load()
+      if (cardsData.isEmpty()) {
+        Log.d("sync", "loading with load func")
+        libraryViewModel.initialLoad()
+      } else {
+        Log.d("sync", "loading with search api")
+        libraryViewModel.loadUsingSearchAPI()
+      }
     }
     
     PullRefreshIndicator(
@@ -109,6 +117,8 @@ fun LibraryViewContent(libraryViewModel: LibraryViewModel, modifier: Modifier) {
       state = pullRefreshState,
       modifier = Modifier.align(Alignment.TopCenter)
     )
+
+    LabelsSelectionSheet(viewModel = libraryViewModel)
   }
 }
 

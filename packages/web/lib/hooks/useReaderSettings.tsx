@@ -194,7 +194,7 @@ export const useReaderSettings = (): ReaderSettings => {
       {
         id: 'display_settings',
         section: 'Article',
-        name: 'Display settings',
+        name: 'Reader Preferences',
         shortcut: ['d'],
         perform: () => setShowEditDisplaySettingsModal(true),
       },

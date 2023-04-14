@@ -124,9 +124,10 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     useState<number | null>(null)
   const [fontFamilyOverride, setFontFamilyOverride] =
     useState<string | null>(null)
-  const [highContrastText, setHighContrastText] = useState(
-    props.highContrastText ?? false
-  )
+  const [highContrastTextOverride, setHighContrastTextOverride] =
+    useState<boolean | undefined>(undefined)
+  const [justifyTextOverride, setJustifyTextOverride] =
+    useState<boolean | undefined>(undefined)
   const highlightHref = useRef(
     window.location.hash ? window.location.hash.split('#')[1] : null
   )
@@ -194,7 +195,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
 
     const handleFontContrastChange = async (event: UpdateFontContrastEvent) => {
       const highContrast = event.fontContrast == 'high'
-      setHighContrastText(highContrast)
+      setHighContrastTextOverride(highContrast)
     }
 
     interface UpdateFontSizeEvent extends Event {
@@ -226,6 +227,14 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     const updateColorMode = (event: UpdateColorModeEvent) => {
       const isDark = event.isDark ?? 'false'
       updateThemeLocally(isDark === 'true' ? ThemeId.Dark : ThemeId.Light)
+    }
+
+    interface UpdateJustifyText extends Event {
+      justifyText?: boolean
+    }
+
+    const updateJustifyText = (event: UpdateJustifyText) => {
+      setJustifyTextOverride(event.justifyText ?? false)
     }
 
     interface UpdateLabelsEvent extends Event {
@@ -274,6 +283,8 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
       'handleFontContrastChange',
       handleFontContrastChange
     )
+    document.addEventListener('updateJustifyText', updateJustifyText)
+
     document.addEventListener('updateTitle', handleUpdateTitle)
     document.addEventListener('updateLabels', handleUpdateLabels)
 
@@ -297,6 +308,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         'handleFontContrastChange',
         handleFontContrastChange
       )
+      document.removeEventListener('updateJustifyText', updateJustifyText)
       document.removeEventListener('updateTitle', handleUpdateTitle)
       document.removeEventListener('updateLabels', handleUpdateLabels)
       document.removeEventListener('share', share)
@@ -308,15 +320,26 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     }
   })
 
+  const textColorValue = (isHighContrast: boolean) => {
+    return isHighContrast
+      ? theme.colors.readerFontHighContrast.toString()
+      : theme.colors.readerFont.toString()
+  }
+
+  const justifyTextValue = (isJustified: boolean) => {
+    return isJustified ? 'justify' : 'start'
+  }
+
   const styles = {
     fontSize,
     margin: props.margin ?? 360,
     maxWidthPercentage: maxWidthPercentageOverride ?? props.maxWidthPercentage,
     lineHeight: lineHeightOverride ?? props.lineHeight ?? 150,
     fontFamily: fontFamilyOverride ?? props.fontFamily ?? 'inter',
-    readerFontColor: highContrastText
-      ? theme.colors.readerFontHighContrast.toString()
-      : theme.colors.readerFont.toString(),
+    readerFontColor:
+      highContrastTextOverride != undefined
+        ? textColorValue(highContrastTextOverride)
+        : textColorValue(props.highContrastText ?? false),
     readerTableHeaderColor: theme.colors.readerTableHeader.toString(),
     readerHeadersColor: theme.colors.readerFont.toString(),
   }
@@ -338,12 +361,11 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           paddingTop: '30px',
           minHeight: '100vh',
           maxWidth: `${styles.maxWidthPercentage ?? 100}%`,
-          background: props.isAppleAppEmbed
-            ? 'unset'
-            : theme.colors.readerBg.toString(),
-          '.article-inner-css': {
-            textAlign: props.justifyText ? 'justify' : 'start',
-          },
+          background: theme.colors.readerBg.toString(),
+          '--text-align':
+            justifyTextOverride != undefined
+              ? justifyTextValue(justifyTextOverride)
+              : justifyTextValue(props.justifyText ?? false),
           '--text-font-family': styles.fontFamily,
           '--text-font-size': `${styles.fontSize}px`,
           '--line-height': `${styles.lineHeight}%`,

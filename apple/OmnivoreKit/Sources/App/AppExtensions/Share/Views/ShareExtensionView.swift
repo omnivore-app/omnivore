@@ -366,8 +366,6 @@ public struct ShareExtensionView: View {
   }
 
   func submitEditTitle() {
-    viewState = .mainView
-
     if viewState == .editingTitle {
       if let linkedItem = viewModel.linkedItem {
         viewModel.submitTitleEdit(dataService: viewModel.services.dataService,
@@ -376,6 +374,7 @@ public struct ShareExtensionView: View {
                                   description: linkedItem.description)
       }
     }
+    viewState = .mainView
   }
 
   public var body: some View {

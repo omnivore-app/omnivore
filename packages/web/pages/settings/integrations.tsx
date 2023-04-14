@@ -18,6 +18,10 @@ import { useGetIntegrationsQuery } from '../../lib/networking/queries/useGetInte
 import { useGetWebhooksQuery } from '../../lib/networking/queries/useGetWebhooksQuery'
 import { deleteIntegrationMutation } from '../../lib/networking/mutations/deleteIntegrationMutation'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
+import { fetchEndpoint } from '../../lib/appConfig'
+import { setIntegrationMutation } from '../../lib/networking/mutations/setIntegrationMutation'
+import { cookieValue } from '../../lib/cookieHelpers'
+import { importFromIntegrationMutation } from '../../lib/networking/mutations/importFromIntegrationMutation'
 
 // Styles
 const Header = styled(Box, {
@@ -65,7 +69,10 @@ export default function Integrations(): JSX.Element {
   const router = useRouter()
 
   const readwiseConnected = useMemo(() => {
-    return integrations.find((i) => i.type == 'READWISE')
+    return integrations.find((i) => i.name == 'READWISE' && i.type == 'EXPORT')
+  }, [integrations])
+  const pocketConnected = useMemo(() => {
+    return integrations.find((i) => i.name == 'POCKET' && i.type == 'IMPORT')
   }, [integrations])
 
   const deleteIntegration = async (id: string) => {
@@ -77,6 +84,58 @@ export default function Integrations(): JSX.Element {
       showErrorToast('Error: ' + err)
     }
   }
+
+  const importFromIntegration = async (id: string) => {
+    try {
+      await importFromIntegrationMutation(id)
+      showSuccessToast('Import started')
+    } catch (err) {
+      showErrorToast('Error: ' + err)
+    }
+  }
+
+  const redirectToPocket = () => {
+    // create a form and submit it to the backend
+    const form = document.createElement('form')
+    form.method = 'POST'
+    form.action = `${fetchEndpoint}/integration/pocket/auth`
+    document.body.appendChild(form)
+    form.submit()
+  }
+
+  useEffect(() => {
+    const connectToPocket = async () => {
+      try {
+        // get the token from cookies
+        const token = cookieValue('pocketRequestToken', document.cookie)
+        if (!token) {
+          showErrorToast('There was an error connecting to Pocket.')
+          return
+        }
+        const result = await setIntegrationMutation({
+          token,
+          name: 'POCKET',
+          type: 'IMPORT',
+          enabled: true,
+        })
+        if (result) {
+          revalidate()
+          showSuccessToast('Connected with Pocket.')
+        } else {
+          showErrorToast('There was an error connecting to Pocket.')
+        }
+      } catch (err) {
+        showErrorToast('Error: ' + err)
+      }
+    }
+    if (!router.isReady) return
+    if (
+      router.query.state == 'pocketAuthorizationFinished' &&
+      !pocketConnected
+    ) {
+      connectToPocket()
+    }
+  }, [router])
 
   useEffect(() => {
     setIntegrationsArray([
@@ -121,8 +180,23 @@ export default function Integrations(): JSX.Element {
           action: () => router.push('/settings/webhooks'),
         },
       },
+      {
+        icon: '/static/icons/pocket.svg',
+        title: 'Pocket',
+        subText: 'Pocket is a place to save articles, videos, and more.',
+        button: {
+          text: pocketConnected ? 'Import' : 'Connect to Pocket',
+          icon: <Link size={16} weight={'bold'} />,
+          style: 'ctaDarkYellow',
+          action: () => {
+            pocketConnected
+              ? importFromIntegration(pocketConnected.id)
+              : redirectToPocket()
+          },
+        },
+      },
     ])
-  }, [readwiseConnected, router, webhooks])
+  }, [pocketConnected, readwiseConnected, webhooks])
 
   return (
     <SettingsLayout>
@@ -142,7 +216,7 @@ export default function Integrations(): JSX.Element {
         css={{
           width: '80%',
           margin: '0 auto',
-          height: '100%',
+          height: '800px',
           '@smDown': {
             width: '100%',
           },

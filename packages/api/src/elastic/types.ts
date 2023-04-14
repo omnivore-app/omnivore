@@ -62,6 +62,9 @@ export enum PageType {
   Unknown = 'UNKNOWN',
   Website = 'WEBSITE',
   Highlights = 'HIGHLIGHTS',
+  Tweet = 'TWEET',
+  Video = 'VIDEO',
+  Image = 'IMAGE',
 }
 
 export enum ArticleSavingRequestStatus {
@@ -69,6 +72,8 @@ export enum ArticleSavingRequestStatus {
   Processing = 'PROCESSING',
   Succeeded = 'SUCCEEDED',
   Deleted = 'DELETED',
+
+  Archived = 'ARCHIVED',
 }
 
 export enum HighlightType {
@@ -81,7 +86,7 @@ export interface Label {
   id: string
   name: string
   color: string
-  description?: string
+  description?: string | null
   createdAt?: Date
 }
 

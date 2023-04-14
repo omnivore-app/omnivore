@@ -44,9 +44,7 @@ public final class OmnivoreWebView: WKWebView {
 
   public func updateTheme() {
     do {
-      if let themeName = UserDefaults.standard.value(forKey: UserDefaultKey.themeName.rawValue) as? String {
-        try dispatchEvent(.updateTheme(themeName: themeName))
-      }
+      try dispatchEvent(.updateTheme(themeName: ThemeManager.currentTheme.themeKey))
     } catch {
       showErrorInSnackbar("Error updating theme")
     }
@@ -122,6 +120,16 @@ public final class OmnivoreWebView: WKWebView {
     }
   }
 
+  public func updateJustifyText() {
+    do {
+      if let justify = UserDefaults.standard.value(forKey: UserDefaultKey.justifyText.rawValue) as? Bool {
+        try dispatchEvent(.updateJustifyText(justify: justify))
+      }
+    } catch {
+      showErrorInSnackbar("Error updating justify-text")
+    }
+  }
+
   public func updateTitle(title: String) {
     do {
       try dispatchEvent(.updateTitle(title: title))
@@ -167,28 +175,19 @@ public final class OmnivoreWebView: WKWebView {
       super.traitCollectionDidChange(previousTraitCollection)
       guard previousTraitCollection?.userInterfaceStyle != traitCollection.userInterfaceStyle else { return }
       do {
-        try dispatchEvent(.updateColorMode(isDark: traitCollection.userInterfaceStyle == .dark))
+        if ThemeManager.currentTheme == .system {
+          try dispatchEvent(.updateTheme(themeName: ThemeManager.currentTheme.themeKey))
+        }
       } catch {
-        showErrorInSnackbar("Error updating theme")
+        showErrorInSnackbar("Error updating theme due to colormode change")
       }
     }
 
   #elseif os(macOS)
     override public func viewDidChangeEffectiveAppearance() {
       super.viewDidChangeEffectiveAppearance()
-      switch effectiveAppearance.bestMatch(from: [.aqua, .darkAqua]) {
-      case .some(.darkAqua):
-        do {
-          try dispatchEvent(.updateColorMode(isDark: true))
-        } catch {
-          showErrorInSnackbar("Error updating theme")
-        }
-      default:
-        do {
-          try dispatchEvent(.updateColorMode(isDark: false))
-        } catch {
-          showErrorInSnackbar("Error updating theme")
-        }
+      if ThemeManager.currentTheme == .system {
+        try dispatchEvent(.updateTheme(themeName: ThemeManager.currentTheme.themeKey))
       }
     }
   #endif
@@ -223,7 +222,6 @@ public final class OmnivoreWebView: WKWebView {
         }
 
       case "pageTapped":
-        print("currentMenu: ", currentMenu, "menuDisplayed", menuDisplayed)
         if menuDisplayed {
           hideMenuAndDismissHighlight()
           break
@@ -416,9 +414,9 @@ public enum WebViewDispatchEvent {
   case updateLineHeight(height: Int)
   case updateMaxWidthPercentage(maxWidthPercentage: Int)
   case updateFontSize(size: Int)
-  case updateColorMode(isDark: Bool)
   case updateFontFamily(family: String)
   case updateTheme(themeName: String)
+  case updateJustifyText(justify: Bool)
   case saveAnnotation(annotation: String)
   case annotate
   case highlight
@@ -450,12 +448,12 @@ public enum WebViewDispatchEvent {
       return "updateMaxWidthPercentage"
     case .updateFontSize:
       return "updateFontSize"
-    case .updateColorMode:
-      return "updateColorMode"
     case .updateFontFamily:
       return "updateFontFamily"
     case .updateTheme:
       return "updateTheme"
+    case .updateJustifyText:
+      return "updateJustifyText"
     case .saveAnnotation:
       return "saveAnnotation"
     case .annotate:
@@ -499,8 +497,8 @@ public enum WebViewDispatchEvent {
         return "event.themeName = '\(themeName)';"
       case let .updateFontSize(size: size):
         return "event.fontSize = '\(size)';"
-      case let .updateColorMode(isDark: isDark):
-        return "event.isDark = '\(isDark)';"
+      case let .updateJustifyText(justify: justify):
+        return "event.justifyText = \(justify);"
       case let .updateFontFamily(family: family):
         return "event.fontFamily = '\(family)';"
       case let .updateLabels(labels):

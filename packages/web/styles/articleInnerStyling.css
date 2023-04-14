@@ -3,7 +3,7 @@
 }
 
 :root {
-  color-scheme: light dark;
+  color-scheme: var(--colorScheme-colorScheme);
 }
 
 .speakingSection {
@@ -93,6 +93,7 @@ on smaller screens we display the note icon
   font-weight: normal;
 
   color: var(--font-color);
+  text-align: var(--text-align);
 
   display: block;
   margin-block-start: 1em;
@@ -185,7 +186,7 @@ on smaller screens we display the note icon
   display: block;
   word-break: normal;
   white-space: nowrap;
-  border: 1px solid rgb(216, 216, 216);
+
   border-spacing: 0;
   border-collapse: collapse;
   font-size: 0.8rem;
@@ -199,16 +200,6 @@ on smaller screens we display the note icon
   caption {
     margin: 0.5em 0;
   }
-  th {
-    border: 1px solid rgb(216, 216, 216);
-    background-color: var(--table-header-color);
-    padding: 5px;
-  }
-  td {
-    border: 1px solid rgb(216, 216, 216);
-    padding: 0.5em;
-    padding: 5px;
-  }
 
   p {
     margin: 0;
@@ -220,6 +211,24 @@ on smaller screens we display the note icon
     margin: 0.5em auto !important;
     max-width: 100% !important;
   }
+}
+
+.article-inner-css table th {
+  padding: 5px;
+
+  text-align: center;
+  vertical-align: middle;
+  border-color: var(--colors-thTextSubtle3);
+  border-style: solid;
+  border-width: 1px;
+}
+.article-inner-css table td {
+  text-align: center;
+  vertical-align: middle;
+  border-color: var(--colors-thTextSubtle3);
+  border-style: solid;
+  border-width: 1px;
+  padding: 10px;
 }
 
 .article-inner-css ul,
@@ -251,7 +260,6 @@ on smaller screens we display the note icon
 
 .article-inner-css sup,
 .article-inner-css sub {
-  position: relative;
   a {
     color: inherit;
     pointer-events: none;
@@ -377,6 +385,40 @@ on smaller screens we display the note icon
   padding: 16px 16px ;
   box-sizing: border-box;
   -webkit-font-smoothing: subpixel-antialiased;
+}
+
+.article-inner-css ._omnivore-static-tweet ._omnivore-static-quote-tweet {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 14px;
+    line-height: 20px;
+}
+
+.article-inner-css ._omnivore-static-tweet ._omnivore-static-quote-tweet-header {
+  display: flex;
+  flex-direction: row;
+  gap: 9px;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.article-inner-css ._omnivore-static-tweet ._omnivore-static-quote-tweet-header-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  margin: unset !important;
+}
+
+.article-inner-css ._omnivore-static-tweet ._omnivore-static-quote-tweet-header-text {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  font-size: 14px;
+  line-height: 20px;
 }
 
 ._omnivore-static-tweet ._omnivore-static-tweet-header {

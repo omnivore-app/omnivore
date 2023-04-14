@@ -15,19 +15,19 @@ export function ReaderDropdownMenu(props: DropdownMenuProps): JSX.Element {
     <Dropdown triggerElement={props.triggerElement}>
       <DropdownOption
         onSelect={() => props.articleActionHandler('archive')}
-        title="Archive"
+        title="Archive (e)"
       />
       <DropdownOption
         onSelect={() => props.articleActionHandler('setLabels')}
-        title="Edit Labels"
+        title="Edit Labels (l)"
       />
       <DropdownOption
         onSelect={() => props.articleActionHandler('showEditModal')}
-        title="Edit Info"
+        title="Edit Info (i)"
       />
       <DropdownOption
         onSelect={() => props.articleActionHandler('delete')}
-        title="Delete"
+        title="Remove (#)"
       />
       <DropdownSeparator />
       <DropdownOption

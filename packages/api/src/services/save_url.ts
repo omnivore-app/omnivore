@@ -4,6 +4,8 @@ import { homePageURL } from '../env'
 import { SaveErrorCode, SaveResult, SaveUrlInput } from '../generated/graphql'
 import { DataModels } from '../resolvers/types'
 import { createPageSaveRequest } from './create_page_save_request'
+import { ArticleSavingRequestStatus } from '../elastic/types'
+import { createLabels } from './labels'
 
 type SaveContext = {
   pubsub: PubsubClient
@@ -16,13 +18,22 @@ export const saveUrl = async (
   input: SaveUrlInput
 ): Promise<SaveResult> => {
   try {
-    const pageSaveRequest = await createPageSaveRequest(
-      saver.id,
-      input.url,
-      ctx.models,
-      ctx.pubsub,
-      input.clientRequestId
-    )
+    // save state
+    const archivedAt =
+      input.state === ArticleSavingRequestStatus.Archived ? new Date() : null
+    // add labels to page
+    const labels = input.labels
+      ? await createLabels({ ...ctx, uid: saver.id }, input.labels)
+      : undefined
+
+    const pageSaveRequest = await createPageSaveRequest({
+      userId: saver.id,
+      url: input.url,
+      pubsub: ctx.pubsub,
+      articleSavingRequestId: input.clientRequestId,
+      archivedAt,
+      labels,
+    })
 
     return {
       clientRequestId: pageSaveRequest.id,

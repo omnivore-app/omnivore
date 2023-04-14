@@ -184,7 +184,7 @@ Readability.prototype = {
     publishedDate: /published|modified|created|updated/i,
     replaceFonts: /<(\/?)font[^>]*>/gi,
     normalize: /\s{2,}/g,
-    videos: /\/\/(www\.)?((dailymotion|youtube|youtube-nocookie|player\.vimeo|v\.qq|cdnapisec\.kaltura)\.com|(archive|upload\.wikimedia)\.org|player\.twitch\.tv)/i,
+    videos: /\/\/(www\.)?((dailymotion|youtube|youtube-nocookie|player\.vimeo|v\.qq|cdnapisec\.kaltura)\.com|(archive|upload\.wikimedia)\.org|player\.twitch\.tv|piped\.mha\.fi)/i,
     shareElements: /(\b|_)(share|sharedaddy|post-tags)(\b|_)/i,
     nextLink: /(next|weiter|continue|>([^\|]|$)|»([^\|]|$))/i,
     prevLink: /(prev|earl|old|new|<|«)/i,
@@ -2603,6 +2603,10 @@ Readability.prototype = {
       // Article example: https://nymag.com/intelligencer/2020/12/four-seasons-total-landscaping-the-full-est-possible-story.html
       if (!elem.getAttribute('src') && elem.dataset && elem.dataset.src) {
         elem.setAttribute('src', elem.dataset.src)
+      }
+
+      if (elem.getAttribute('data-lazy-src')) {
+        elem.setAttribute('src', elem.getAttribute('data-lazy-src'))
       }
 
       // In some sites (e.g. Kotaku), they put 1px square image as base64 data uri in the src attribute.

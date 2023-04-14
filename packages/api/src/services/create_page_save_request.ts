@@ -8,15 +8,25 @@ import {
   getPageByParam,
   updatePage,
 } from '../elastic/pages'
-import { ArticleSavingRequestStatus, PageType } from '../elastic/types'
+import { ArticleSavingRequestStatus, Label, PageType } from '../elastic/types'
+import { User } from '../entity/user'
+import { getRepository } from '../entity/utils'
 import {
   ArticleSavingRequest,
   CreateArticleSavingRequestErrorCode,
 } from '../generated/graphql'
-// TODO: switch to a proper Entity instead of using the old data models.
-import { DataModels } from '../resolvers/types'
 import { enqueueParseRequest } from '../utils/createTask'
 import { generateSlug, pageToArticleSavingRequest } from '../utils/helpers'
+
+interface PageSaveRequest {
+  userId: string
+  url: string
+  pubsub?: PubsubClient
+  articleSavingRequestId?: string
+  archivedAt?: Date | null
+  labels?: Label[]
+  priority?: 'low' | 'high'
+}
 
 const SAVING_CONTENT = 'Your link is being saved...'
 
@@ -58,14 +68,15 @@ export const validateUrl = (url: string): URL => {
   return u
 }
 
-export const createPageSaveRequest = async (
-  userId: string,
-  url: string,
-  models: DataModels,
-  pubsub: PubsubClient = createPubSubClient(),
+export const createPageSaveRequest = async ({
+  userId,
+  url,
+  pubsub = createPubSubClient(),
   articleSavingRequestId = uuidv4(),
-  priority?: 'low' | 'high'
-): Promise<ArticleSavingRequest> => {
+  archivedAt,
+  priority,
+  labels,
+}: PageSaveRequest): Promise<ArticleSavingRequest> => {
   try {
     validateUrl(url)
   } catch (error) {
@@ -75,7 +86,10 @@ export const createPageSaveRequest = async (
     })
   }
 
-  const user = await models.user.get(userId)
+  const user = await getRepository(User).findOne({
+    where: { id: userId },
+    relations: ['profile'],
+  })
   if (!user) {
     console.log('User not found', userId)
     return Promise.reject({
@@ -116,6 +130,8 @@ export const createPageSaveRequest = async (
       state: ArticleSavingRequestStatus.Processing,
       createdAt: new Date(),
       savedAt: new Date(),
+      archivedAt,
+      labels,
     }
 
     // create processing page
@@ -137,8 +153,20 @@ export const createPageSaveRequest = async (
       ctx
     )
   }
+  const labelsInput = labels?.map((label) => ({
+    name: label.name,
+    color: label.color,
+    description: label.description,
+  }))
   // enqueue task to parse page
-  await enqueueParseRequest(url, userId, page.id, priority)
+  await enqueueParseRequest({
+    url,
+    userId,
+    saveRequestId: page.id,
+    priority,
+    state: archivedAt ? ArticleSavingRequestStatus.Archived : undefined,
+    labels: labelsInput,
+  })
 
   return pageToArticleSavingRequest(user, page)
 }

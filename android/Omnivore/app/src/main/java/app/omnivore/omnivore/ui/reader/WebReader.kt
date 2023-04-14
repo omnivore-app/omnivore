@@ -47,13 +47,15 @@ fun WebReader(
   )
 
   val styledContent = webReaderContent.styledContent()
-  val isInDarkMode = isSystemInDarkTheme()
+  val isInDarkMode = preferences.themeKey == "Dark"
 
   Box {
     AndroidView(factory = {
       OmnivoreWebView(it).apply {
         if (isInDarkMode) {
           setBackgroundColor(Color.Transparent.hashCode())
+        } else {
+          setBackgroundColor(Color.White.hashCode())
         }
         viewModel = webReaderViewModel
 
@@ -127,6 +129,14 @@ fun WebReader(
         for (script in webReaderViewModel.javascriptDispatchQueue) {
           Log.d("js", "executing script: $script")
           it.evaluateJavascript(script, null)
+
+          if (script.contains("event.isDark")) {
+            if (script.contains("event.isDark = 'true'")) {
+              it.setBackgroundColor(Color.Transparent.hashCode())
+            } else {
+              it.setBackgroundColor(Color.White.hashCode())
+            }
+          }
         }
         webReaderViewModel.resetJavascriptDispatchQueue()
       }

@@ -106,8 +106,8 @@ const textVariants = {
     },
     shareTitle: {
       fontSize: '$1',
-      fontWeight: '600',
-      color: '$grayText',
+      fontWeight: '700',
+      color: '$grayTextContrast',
     },
     shareSubtitle: {
       fontSize: '$1',

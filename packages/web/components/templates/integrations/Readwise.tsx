@@ -26,7 +26,7 @@ const Header = styled(Box, {
 export function Readwise(): JSX.Element {
   const { integrations, revalidate } = useGetIntegrationsQuery()
   const readwiseIntegration = useMemo(() => {
-    return integrations.find((i) => i.type == 'READWISE')
+    return integrations.find((i) => i.name == 'READWISE' && i.type == 'EXPORT')
   }, [integrations])
 
   return (
@@ -82,7 +82,8 @@ function AddReadwiseForm(): JSX.Element {
     try {
       const result = await setIntegrationMutation({
         token,
-        type: 'READWISE',
+        name: 'READWISE',
+        type: 'EXPORT',
         enabled: true,
       })
       if (result) {

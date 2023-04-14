@@ -57,7 +57,7 @@ export function VerticalArticleActionsMenu(
           }}
         >
           <TooltipWrapped
-            tooltipContent="View Highlights"
+            tooltipContent="Open Notebook (t)"
             tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
           >
             <Notebook
@@ -79,7 +79,7 @@ export function VerticalArticleActionsMenu(
           }}
         >
           <TooltipWrapped
-            tooltipContent="Edit title & description"
+            tooltipContent="Edit Info (i)"
             tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
           >
             <Info size={24} color={theme.colors.thHighContrast.toString()} />
@@ -100,7 +100,7 @@ export function VerticalArticleActionsMenu(
           }}
         >
           <TooltipWrapped
-            tooltipContent="Delete"
+            tooltipContent="Remove (#)"
             tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
           >
             <Trash size={24} color={theme.colors.thHighContrast.toString()} />
@@ -117,7 +117,7 @@ export function VerticalArticleActionsMenu(
             }}
           >
             <TooltipWrapped
-              tooltipContent="Archive"
+              tooltipContent="Archive (e)"
               tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
             >
               <ArchiveBox
@@ -136,7 +136,7 @@ export function VerticalArticleActionsMenu(
             }}
           >
             <TooltipWrapped
-              tooltipContent="Unarchive"
+              tooltipContent="Unarchive (e)"
               tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
             >
               <Tray size={24} color={theme.colors.thHighContrast.toString()} />
@@ -152,7 +152,7 @@ export function VerticalArticleActionsMenu(
           }}
         >
           <TooltipWrapped
-            tooltipContent="Edit title & description"
+            tooltipContent="Edit Info (i)"
             tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
           >
             <TextAa size={24} color={theme.colors.thHighContrast.toString()} />

@@ -1,39 +1,40 @@
-import { AppleNewsHandler } from './websites/apple-news-handler'
-import { BloombergHandler } from './websites/bloomberg-handler'
-import { DerstandardHandler } from './websites/derstandard-handler'
-import { ImageHandler } from './websites/image-handler'
-import { MediumHandler } from './websites/medium-handler'
-import { PdfHandler } from './websites/pdf-handler'
-import { ScrapingBeeHandler } from './websites/scrapingBee-handler'
-import { TDotCoHandler } from './websites/t-dot-co-handler'
-import { TwitterHandler } from './websites/twitter-handler'
-import { YoutubeHandler } from './websites/youtube-handler'
-import { WikipediaHandler } from './websites/wikipedia-handler'
-import { GitHubHandler } from './websites/github-handler'
+import { parseHTML } from 'linkedom'
+import { Browser } from 'puppeteer-core'
 import {
   ContentHandler,
   NewsletterInput,
   NewsletterResult,
   PreHandleResult,
 } from './content-handler'
-import { SubstackHandler } from './newsletters/substack-handler'
 import { AxiosHandler } from './newsletters/axios-handler'
-import { GolangHandler } from './newsletters/golang-handler'
-import { MorningBrewHandler } from './newsletters/morning-brew-handler'
-import { BloombergNewsletterHandler } from './newsletters/bloomberg-newsletter-handler'
 import { BeehiivHandler } from './newsletters/beehiiv-handler'
+import { BloombergNewsletterHandler } from './newsletters/bloomberg-newsletter-handler'
 import { ConvertkitHandler } from './newsletters/convertkit-handler'
-import { RevueHandler } from './newsletters/revue-handler'
-import { GhostHandler } from './newsletters/ghost-handler'
-import { parseHTML } from 'linkedom'
 import { CooperPressHandler } from './newsletters/cooper-press-handler'
-import { HeyWorldHandler } from './newsletters/hey-world-handler'
-import { Browser } from 'puppeteer-core'
-import { StackOverflowHandler } from './websites/stack-overflow-handler'
-import { GenericHandler } from './newsletters/generic-handler'
-import { EveryIoHandler } from './newsletters/every-io-handler'
 import { EnergyWorldHandler } from './newsletters/energy-world'
+import { EveryIoHandler } from './newsletters/every-io-handler'
+import { GenericHandler } from './newsletters/generic-handler'
+import { GhostHandler } from './newsletters/ghost-handler'
+import { GolangHandler } from './newsletters/golang-handler'
+import { HeyWorldHandler } from './newsletters/hey-world-handler'
 import { IndiaTimesHandler } from './newsletters/india-times-handler'
+import { MorningBrewHandler } from './newsletters/morning-brew-handler'
+import { RevueHandler } from './newsletters/revue-handler'
+import { SubstackHandler } from './newsletters/substack-handler'
+import { AppleNewsHandler } from './websites/apple-news-handler'
+import { BloombergHandler } from './websites/bloomberg-handler'
+import { DerstandardHandler } from './websites/derstandard-handler'
+import { GitHubHandler } from './websites/github-handler'
+import { ImageHandler } from './websites/image-handler'
+import { MediumHandler } from './websites/medium-handler'
+import { PdfHandler } from './websites/pdf-handler'
+import { PipedVideoHandler } from './websites/piped-video-handler'
+import { ScrapingBeeHandler } from './websites/scrapingBee-handler'
+import { StackOverflowHandler } from './websites/stack-overflow-handler'
+import { TDotCoHandler } from './websites/t-dot-co-handler'
+import { TwitterHandler } from './websites/twitter-handler'
+import { WikipediaHandler } from './websites/wikipedia-handler'
+import { YoutubeHandler } from './websites/youtube-handler'
 
 const validateUrlString = (url: string): boolean => {
   const u = new URL(url)
@@ -73,6 +74,7 @@ const contentHandlers: ContentHandler[] = [
   new SubstackHandler(),
   new StackOverflowHandler(),
   new EnergyWorldHandler(),
+  new PipedVideoHandler(),
 ]
 
 const newsletterHandlers: ContentHandler[] = [

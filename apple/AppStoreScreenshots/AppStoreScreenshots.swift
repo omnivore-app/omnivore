@@ -26,7 +26,7 @@ final class AppStoreScreenshots: XCTestCase {
     setupSnapshot(app)
 
     // Display the context menu of the first item in the libary
-    app.collectionViews.cells.firstMatch.press(forDuration: 2)
+    // app.collectionViews.cells.firstMatch.press(forDuration: 2)
     snapshot("LibraryActions")
 
     app.children(matching: .window).element(boundBy: 0).tap()
@@ -37,7 +37,7 @@ final class AppStoreScreenshots: XCTestCase {
     setupSnapshot(app)
 
     // Move into the reader
-    app.collectionViews.cells.firstMatch.tap()
+    // app.collectionViews.cells.firstMatch.tap()
     snapshot("Reader")
   }
 
@@ -63,6 +63,21 @@ final class AppStoreScreenshots: XCTestCase {
 //    print("MINIPLAYER BUTTONS:  ", app.buttons.allElementsBoundByIndex)
 //
     snapshot("ReaderTTSPlayer")
+
+//    app.children(matching: .window).element(boundBy: 0).tap()
+//    XCUIApplication().buttons["Back"].tap()
+  }
+
+  func testScreenshotNotebook() throws {
+    let app = XCUIApplication()
+    setupSnapshot(app)
+//    app.collectionViews.cells.firstMatch.tap()
+//    print("BUTTONS:  ", app.buttons.allElementsBoundByIndex.count)
+//    app.buttons["Audiobook"].tap()
+//
+//    print("MINIPLAYER BUTTONS:  ", app.buttons.allElementsBoundByIndex)
+//
+    snapshot("Notebook")
 
 //    app.children(matching: .window).element(boundBy: 0).tap()
 //    XCUIApplication().buttons["Back"].tap()

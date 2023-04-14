@@ -14,33 +14,37 @@ import SwiftUI
     var onDismiss: (() -> Void)?
     var modalSize: CGSize
     let useSmallDetent: Bool
+    let useLargeDetent: Bool
 
     private var hostVC: UIHostingController<Content>?
 
     @available(*, unavailable)
     required init?(coder _: NSCoder) { fatalError("") }
 
-    init(content: @escaping () -> Content, modalSize: CGSize, useSmallDetent: Bool) {
+    init(content: @escaping () -> Content, modalSize: CGSize, useSmallDetent: Bool, useLargeDetent: Bool) {
       self.content = content
       self.modalSize = modalSize
       self.useSmallDetent = useSmallDetent
+      self.useLargeDetent = useLargeDetent
       super.init(nibName: nil, bundle: nil)
     }
 
     func show() {
       guard hostVC == nil else { return }
       let controller: UIHostingController<Content> = {
-        if UIDevice.isIPhone, useSmallDetent {
-          return FormSheetHostingController(rootView: content(), height: 100)
-        } else {
-          return UIHostingController(rootView: content())
-        }
+        // if UIDevice.isIPhone, useSmallDetent {
+        //  return FormSheetHostingController(rootView: content(), height: 100)
+        // } else {
+        UIHostingController(rootView: content())
+        // }
       }()
+
+      controller.preferredContentSize = modalSize
 
       if UIDevice.isIPhone {
         if let sheet = controller.sheetPresentationController {
           sheet.prefersGrabberVisible = false
-          sheet.detents = [.medium()]
+          sheet.detents = [.medium(), .large()]
           sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
         }
 
@@ -74,6 +78,7 @@ import SwiftUI
 
     let modalSize: CGSize
     let useSmallDetent: Bool
+    let useLargeDetent: Bool
     let content: () -> Content
 
     func makeUIViewController(
@@ -82,7 +87,8 @@ import SwiftUI
       let controller = FormSheetWrapper(
         content: content,
         modalSize: modalSize,
-        useSmallDetent: useSmallDetent
+        useSmallDetent: useSmallDetent,
+        useLargeDetent: useLargeDetent
       )
       controller.onDismiss = { self.show = false }
       return controller
@@ -105,6 +111,7 @@ import SwiftUI
       isPresented: Binding<Bool>,
       modalSize: CGSize = CGSize(width: 320, height: 320),
       useSmallDetent: Bool = false,
+      useLargeDetent: Bool = false,
       @ViewBuilder content: @escaping () -> Content
     ) -> some View {
       background(
@@ -112,6 +119,7 @@ import SwiftUI
           show: isPresented,
           modalSize: modalSize,
           useSmallDetent: useSmallDetent,
+          useLargeDetent: useLargeDetent,
           content: content
         )
       )

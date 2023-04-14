@@ -10,7 +10,8 @@ import {
 import { User } from './user'
 
 export enum IntegrationType {
-  Readwise = 'READWISE',
+  Export = 'EXPORT',
+  Import = 'IMPORT',
 }
 
 @Entity({ name: 'integrations' })
@@ -22,7 +23,13 @@ export class Integration {
   @JoinColumn({ name: 'user_id' })
   user!: User
 
-  @Column('enum', { enum: IntegrationType })
+  @Column('varchar', { length: 40 })
+  name!: string
+
+  @Column('enum', {
+    enum: IntegrationType,
+    default: IntegrationType.Export,
+  })
   type!: IntegrationType
 
   @Column('varchar', { length: 255 })

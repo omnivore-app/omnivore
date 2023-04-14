@@ -1,7 +1,7 @@
 import { Storage } from '@google-cloud/storage'
 import { importCsv } from './csv'
 import * as path from 'path'
-import { importMatterArchive, importMatterHistoryCsv } from './matterHistory'
+import { importMatterArchive } from './matterHistory'
 import { Stream } from 'node:stream'
 import { v4 as uuid } from 'uuid'
 import { CONTENT_FETCH_URL, createCloudTask, emailUserUrl } from './task'
@@ -12,6 +12,15 @@ import * as jwt from 'jsonwebtoken'
 import { Readability } from '@omnivore/readability'
 
 import * as Sentry from '@sentry/serverless'
+
+export enum ArticleSavingRequestStatus {
+  Failed = 'FAILED',
+  Processing = 'PROCESSING',
+  Succeeded = 'SUCCEEDED',
+  Deleted = 'DELETED',
+
+  Archived = 'ARCHIVED',
+}
 
 Sentry.GCPFunction.init({
   dsn: process.env.SENTRY_DSN,
@@ -24,7 +33,12 @@ const storage = new Storage()
 
 const CONTENT_TYPES = ['text/csv', 'application/zip']
 
-export type UrlHandler = (ctx: ImportContext, url: URL) => Promise<void>
+export type UrlHandler = (
+  ctx: ImportContext,
+  url: URL,
+  state?: ArticleSavingRequestStatus,
+  labels?: string[]
+) => Promise<void>
 export type ContentHandler = (
   ctx: ImportContext,
   url: URL,
@@ -66,13 +80,19 @@ const shouldHandle = (data: StorageEvent) => {
 const importURL = async (
   userId: string,
   url: URL,
-  source: string
+  source: string,
+  state?: ArticleSavingRequestStatus,
+  labels?: string[]
 ): Promise<string | undefined> => {
   return createCloudTask(CONTENT_FETCH_URL, {
     userId,
     source,
     url: url.toString(),
     saveRequestId: uuid(),
+    state,
+    labels: labels?.map((l) => {
+      return { name: l }
+    }),
   })
 }
 
@@ -122,10 +142,21 @@ const handlerForFile = (name: string): importHandlerFunc | undefined => {
   return undefined
 }
 
-const urlHandler = async (ctx: ImportContext, url: URL): Promise<void> => {
+const urlHandler = async (
+  ctx: ImportContext,
+  url: URL,
+  state?: ArticleSavingRequestStatus,
+  labels?: string[]
+): Promise<void> => {
   try {
     // Imports are stored in the format imports/<user id>/<type>-<uuid>.csv
-    const result = await importURL(ctx.userId, url, 'csv-importer')
+    const result = await importURL(
+      ctx.userId,
+      url,
+      'csv-importer',
+      state,
+      labels
+    )
     if (result) {
       ctx.countImported += 1
     }

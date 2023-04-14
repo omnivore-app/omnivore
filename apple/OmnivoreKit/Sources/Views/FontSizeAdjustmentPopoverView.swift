@@ -57,17 +57,17 @@ public enum WebFont: String, CaseIterable {
     }
   }
 
-  public func font() -> Font? {
+  public func font(size: CGFloat = 22) -> Font? {
     #if os(iOS)
-      if let uiFont = UIFont(name: registeredName, size: 22) {
+      if let uiFont = UIFont(name: registeredName, size: size) {
         return Font(uiFont as CTFont)
       }
     #else
-      if let nsFont = NSFont(name: registeredName, size: 22) {
+      if let nsFont = NSFont(name: registeredName, size: size) {
         return Font(nsFont as CTFont)
       }
     #endif
-    return Font.system(size: 22)
+    return Font.system(size: size)
   }
 }
 
@@ -83,6 +83,7 @@ public enum WebFont: String, CaseIterable {
     @AppStorage(UserDefaultKey.enableHighlightOnRelease.rawValue) var enableHighlightOnRelease = false
     @AppStorage(UserDefaultKey.preferredWebFont.rawValue) var preferredFont = WebFont.inter.rawValue
     @AppStorage(UserDefaultKey.prefersHighContrastWebFont.rawValue) var prefersHighContrastText = true
+    @AppStorage(UserDefaultKey.justifyText.rawValue) var justifyText = false
 
     public init(
       updateReaderPreferences: @escaping () -> Void,
@@ -103,7 +104,7 @@ public enum WebFont: String, CaseIterable {
             label: {
               HStack {
                 Text(font.displayValue)
-                  .font(font.font())
+                  .font(font.font(size: 22))
                   .foregroundColor(.appGrayTextContrast)
                 Spacer()
                 if font.rawValue == preferredFont {
@@ -121,119 +122,323 @@ public enum WebFont: String, CaseIterable {
       .navigationTitle("Reader Font")
     }
 
+    var advancedSettings: some View {
+      VStack {
+        Toggle("High Contrast Text:", isOn: $prefersHighContrastText)
+          .frame(height: 40)
+          .padding(.trailing, 6)
+          .onChange(of: prefersHighContrastText) { _ in
+            updateReaderPreferences()
+          }
+
+        Toggle(LocalText.enableHighlightOnReleaseText, isOn: $enableHighlightOnRelease)
+          .frame(height: 40)
+          .padding(.trailing, 6)
+          .onChange(of: enableHighlightOnRelease) { _ in
+            updateReaderPreferences()
+          }
+
+        Toggle("Justify Text", isOn: $justifyText)
+          .frame(height: 40)
+          .padding(.trailing, 6)
+          .onChange(of: justifyText) { _ in
+            updateReaderPreferences()
+          }
+
+        Spacer()
+      }
+      .padding(.horizontal, 30)
+      .listStyle(.plain)
+      .navigationBarTitleDisplayMode(.inline)
+      .navigationTitle("Advanced Settings")
+    }
+
     var themePicker: some View {
       ScrollView(.horizontal, showsIndicators: false) {
-        HStack(spacing: 16) {
-          ForEach(Theme.allCases, id: \.self) { theme in
-            VStack {
-              ZStack {
-                Circle()
-                  .foregroundColor(theme.bgColor)
-                  .frame(minWidth: 32, minHeight: 32)
-                  .padding(8)
-              }
+        HStack(spacing: 25) {
+          ForEach(Theme.allCases.filter { $0 != .system }, id: \.self) { theme in
+            let isSelected = currentTheme == theme.rawValue
+            let selectedColor = currentTheme == Theme.apollo.rawValue ? Color.appCtaYellow : Color(hex: "#6A6968")
 
-              Text(theme.rawValue).font(.appCaption)
+            VStack {
+              Circle()
+                .strokeBorder(isSelected ?
+                  Color(hex: "#6A6968") ?? Color.appGrayBorder
+                  : .clear, lineWidth: isSelected ? 2 : 0)
+                .background(Circle().fill(theme.keyColor))
+                .frame(width: 32, height: 32)
             }
-            .padding(8)
-            .background(Color(red: 248 / 255.0, green: 248 / 255.0, blue: 248 / 255.0))
             .onTapGesture {
-              ThemeManager.currentThemeName = theme.rawValue
+              currentTheme = theme.rawValue
               updateReaderPreferences()
             }
             .cornerRadius(8)
             .overlay(
-              RoundedRectangle(cornerRadius: 8)
-                .stroke(ThemeManager.currentThemeName == theme.rawValue ? Color.appCtaYellow : .clear, lineWidth: 2)
+              Image("checkmark-small", bundle: .module)
+                .foregroundColor(isSelected ? selectedColor : .clear)
             )
-            .padding(2)
           }
+          Spacer()
         }
+      }.onChange(of: currentTheme) { _ in
+        ThemeManager.currentThemeName = currentTheme
+        isAutoTheme = currentTheme == Theme.system.rawValue
+        updateReaderPreferences()
+      }.onAppear {
+        currentTheme = ThemeManager.currentThemeName
       }
     }
+
+    var fontSizeSlider: some View {
+      HStack {
+        Button(action: {
+          storedFontSize = max(storedFontSize - 2, 10)
+          updateReaderPreferences()
+
+        }, label: { Image(systemName: "textformat.size.smaller") })
+          .frame(width: 25, height: 25, alignment: .center)
+        CustomSlider(value: $storedFontSize, minValue: 10, maxValue: 28) { _ in
+          if storedFontSize % 2 == 0 {
+            updateReaderPreferences()
+          }
+        }
+        .padding(.horizontal, 10)
+        .tint(Color(hex: "#D9D9D9"))
+
+        Button(action: {
+          storedFontSize = min(storedFontSize + 2, 28)
+          updateReaderPreferences()
+
+        }, label: { Image(systemName: "textformat.size.larger") })
+          .frame(width: 25, height: 25, alignment: .center)
+      }
+    }
+
+    var marginSlider: some View {
+      HStack {
+        Button(action: {
+          storedMaxWidthPercentage = max(storedMaxWidthPercentage - 10, 40)
+          updateReaderPreferences()
+
+        }, label: { Image("margin-smaller", bundle: .module) })
+          .frame(width: 25, height: 25, alignment: .center)
+        CustomSlider(value: $storedMaxWidthPercentage, minValue: 40, maxValue: 100) { _ in
+          updateReaderPreferences()
+        }
+        .padding(.horizontal, 10)
+        .tint(Color(hex: "#D9D9D9"))
+
+        Button(action: {
+          storedMaxWidthPercentage = min(storedMaxWidthPercentage + 10, 100)
+          updateReaderPreferences()
+
+        }, label: { Image("margin-larger", bundle: .module) })
+          .frame(width: 25, height: 25, alignment: .center)
+      }
+    }
+
+    var lineHeightSlider: some View {
+      HStack {
+        Button(action: {
+          storedLineSpacing = max(storedLineSpacing - 25, 100)
+          updateReaderPreferences()
+
+        }, label: { Image("lineheight-smaller", bundle: .module) })
+          .frame(width: 25, height: 25, alignment: .center)
+        CustomSlider(value: $storedLineSpacing, minValue: 100, maxValue: 300) { _ in
+          updateReaderPreferences()
+        }
+        .padding(.horizontal, 10)
+        .tint(Color(hex: "#D9D9D9"))
+
+        Button(action: {
+          storedLineSpacing = min(storedLineSpacing + 25, 300)
+          updateReaderPreferences()
+
+        }, label: { Image("lineheight-larger", bundle: .module) })
+          .frame(width: 25, height: 25, alignment: .center)
+      }
+    }
+
+    var brightnessSlider: some View {
+      HStack {
+        Button(action: {
+          storedFontSize = min(storedFontSize + 2, 28)
+        }, label: { Image("brightness-lower", bundle: .module) })
+          .frame(width: 25, height: 25, alignment: .center)
+        CustomSlider(value: $storedFontSize, minValue: 10, maxValue: 28) { _ in
+          updateReaderPreferences()
+        }
+        .padding(.horizontal, 10)
+
+        Button(action: {
+          storedFontSize = max(storedFontSize - 2, 10)
+        }, label: { Image("brightness-higher", bundle: .module) })
+          .frame(width: 25, height: 25, alignment: .center)
+      }
+    }
+
+    var preferredFontFont: Font? {
+      let webFont = WebFont.allCases.first(where: { $0.rawValue == preferredFont })
+      return webFont?.font(size: 14)
+    }
+
+    var preferredFontDisplayName: String {
+      let webFont = WebFont.allCases.first(where: { $0.rawValue == preferredFont })
+      return webFont?.displayValue ?? ""
+    }
+
+    @State var isAutoTheme = true
+    @State var currentTheme = ThemeManager.currentThemeName
+
+    var systemThemeCheckbox: some View {
+      Toggle(isOn: $isAutoTheme) {
+        Text("Auto")
+          .font(Font.system(size: 12))
+          .foregroundColor(Color(hex: "#999999"))
+      }
+      .toggleStyle(CheckboxToggleStyle())
+      .onChange(of: isAutoTheme, perform: { _ in
+        if isAutoTheme {
+          currentTheme = Theme.system.rawValue
+        } else if currentTheme == Theme.system.rawValue {
+          // This else if block handles the case where the user toggles off auto
+          // but not when they click on another theme to toggle off auto
+          let newTheme = Color.isDarkMode ? Theme.dark : Theme.light
+          currentTheme = newTheme.rawValue
+        }
+      })
+      .onChange(of: currentTheme, perform: { _ in
+        isAutoTheme = (currentTheme == Theme.system.rawValue)
+      })
+      .onAppear {
+        isAutoTheme = ThemeManager.currentTheme == .system
+      }
+    }
+
+    public var controls: some View {
+      Group {
+        Group {
+          HStack(alignment: .center) {
+            Text(LocalText.genericFont)
+              .font(Font.system(size: 14, weight: .medium))
+
+            Spacer()
+            NavigationLink(destination: fontList) {
+              Text(preferredFontDisplayName)
+                .font(preferredFontFont)
+
+              Image(systemName: "chevron.right")
+                .font(Font.system(size: 10))
+            }
+          }
+          .frame(height: 40)
+          .padding(.top, 10)
+          .padding(.bottom, 10)
+          .foregroundColor(.appGrayTextContrast)
+
+          fontSizeSlider
+        }.tint(Color(hex: "#6A6968"))
+          .padding(.horizontal, 30)
+
+        Divider()
+          .padding(.vertical, 10)
+
+        Group {
+          if UIDevice.isIPad {
+            Text("Margin")
+              .font(Font.system(size: 14))
+              .frame(maxWidth: .infinity, alignment: .leading)
+
+            marginSlider
+              .padding(.top, 5)
+              .padding(.bottom, 10)
+          }
+
+          Text("Line Height")
+            .font(Font.system(size: 14))
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+          lineHeightSlider
+          // .padding(.bottom, 20)
+
+          //            Text("Brightness")
+          //              .font(Font.system(size: 14))
+          //              .frame(maxWidth: .infinity, alignment: .leading)
+          //              .foregroundColor(Color(hex: "#6A6968"))
+          //
+          //            brightnessSlider
+
+        }.tint(Color(hex: "#6A6968"))
+          .padding(.horizontal, 30)
+
+        Divider()
+          .padding(.vertical, 10)
+
+        Group {
+          HStack(alignment: .center) {
+            Text("Theme")
+              .font(Font.system(size: 14))
+              .frame(maxWidth: .infinity, alignment: .leading)
+            Spacer()
+
+            systemThemeCheckbox
+          }
+
+          themePicker
+        }.tint(Color(hex: "#6A6968"))
+          .padding(.horizontal, 30)
+
+        Divider()
+          .padding(.vertical, 10)
+
+        Group {
+          HStack(alignment: .center) {
+            Button(action: {
+              currentTheme = Theme.system.rawValue
+              storedFontSize = UITraitCollection.current.preferredWebFontSize
+              storedLineSpacing = 150
+              storedMaxWidthPercentage = 100
+              enableHighlightOnRelease = false
+              preferredFont = WebFont.inter.rawValue
+              prefersHighContrastText = true
+
+              enableHighlightOnRelease = false
+            }, label: {
+              Text("Reset")
+                .font(Font.system(size: 12, weight: .bold))
+                .foregroundColor(.appGrayTextContrast)
+            })
+
+            Spacer()
+            NavigationLink(destination: advancedSettings) {
+              Text("Advanced Settings")
+                .font(Font.system(size: 12))
+              Image(systemName: "chevron.right")
+                .font(Font.system(size: 10))
+                .foregroundColor(Color(hex: "#A9A9A9"))
+            }
+          }
+          .foregroundColor(Color.appGrayText)
+        }
+        .padding(.horizontal, 30)
+      }
+    }
+
+//    updateFontSize(20)
+//    setMarginWidth(290)
+//    setLineHeight(150)
+//    setFontFamily(DEFAULT_FONT)
 
     public var body: some View {
       NavigationView {
         VStack(alignment: .center) {
-//          themePicker
-//            .padding(.bottom, 16)
-
-          LabelledStepper(
-            labelText: "Font Size",
-            onIncrement: {
-              storedFontSize = min(storedFontSize + 2, 28)
-              updateReaderPreferences()
-            },
-            onDecrement: {
-              storedFontSize = max(storedFontSize - 2, 10)
-              updateReaderPreferences()
-            }
-          )
-
-          LabelledStepper(
-            labelText: "Margin",
-            onIncrement: {
-              storedMaxWidthPercentage = max(storedMaxWidthPercentage - 10, 40)
-              updateReaderPreferences()
-            },
-            onDecrement: {
-              storedMaxWidthPercentage = min(storedMaxWidthPercentage + 10, 100)
-              updateReaderPreferences()
-            }
-          )
-
-          LabelledStepper(
-            labelText: "Line Spacing",
-            onIncrement: {
-              storedLineSpacing = min(storedLineSpacing + 25, 300)
-              updateReaderPreferences()
-            },
-            onDecrement: {
-              storedLineSpacing = max(storedLineSpacing - 25, 100)
-              updateReaderPreferences()
-            }
-          )
-
-          NavigationLink(destination: fontList) {
-            HStack {
-              Text(LocalText.genericFont)
-              Spacer()
-              Image(systemName: "chevron.right")
-            }
-          }
-          .foregroundColor(.appGrayTextContrast)
-          .frame(height: 40)
-
-          Toggle("High Contrast Text:", isOn: $prefersHighContrastText)
-            .frame(height: 40)
-            .padding(.trailing, 6)
-            .onChange(of: prefersHighContrastText) { _ in
-              updateReaderPreferences()
-            }
-
-          Toggle(LocalText.enableHighlightOnReleaseText, isOn: $enableHighlightOnRelease)
-            .frame(height: 40)
-            .padding(.trailing, 6)
-            .onChange(of: enableHighlightOnRelease) { _ in
-              updateReaderPreferences()
-            }
-
+          controls
           Spacer()
         }
-        .padding()
         .navigationTitle("Reader Preferences")
         .navigationBarTitleDisplayMode(.inline)
-//        .toolbar {
-//          ToolbarItem(placement: .barTrailing) {
-//            Button(
-//              action: dismissAction,
-//              label: { Text(LocalText.doneGeneric).foregroundColor(.appGrayTextContrast).padding() }
-//            )
-//          }
-//        }
       }
-      // .navigationViewStyle(.stack)
-      // .accentColor(.appGrayTextContrast)
     }
   }
 
@@ -320,6 +525,22 @@ public enum WebFont: String, CaseIterable {
         )
         .frame(width: 55, height: 40, alignment: .center)
       }
+    }
+  }
+
+  struct CheckboxToggleStyle: ToggleStyle {
+    func makeBody(configuration: Configuration) -> some View {
+      Button(action: {
+        configuration.isOn.toggle()
+      }, label: {
+        HStack {
+          configuration.label
+
+          Image(systemName: configuration.isOn ? "checkmark.square" : "square")
+            .foregroundColor(Color(hex: "#D9D9D9"))
+        }
+      })
+        .buttonStyle(.plain)
     }
   }
 #endif

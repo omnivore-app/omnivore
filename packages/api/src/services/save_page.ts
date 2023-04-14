@@ -22,6 +22,7 @@ import {
 } from '../utils/helpers'
 import { parsePreparedContent } from '../utils/parser'
 import { createPageSaveRequest } from './create_page_save_request'
+import { createLabels } from './labels'
 
 type SaveContext = {
   pubsub: PubsubClient
@@ -107,6 +108,14 @@ export const savePage = async (
     userId: saver.userId,
     url: articleToSave.url,
   })
+  // save state
+  articleToSave.archivedAt =
+    input.state === ArticleSavingRequestStatus.Archived ? new Date() : null
+  // add labels to page
+  articleToSave.labels = input.labels
+    ? await createLabels(ctx, input.labels)
+    : undefined
+
   if (existingPage) {
     pageId = existingPage.id
     slug = existingPage.slug
@@ -116,7 +125,6 @@ export const savePage = async (
         {
           // update the page with the new content
           ...articleToSave,
-          archivedAt: null, // unarchive if it was archived
           id: pageId, // we don't want to update the id
           slug, // we don't want to update the slug
           createdAt: existingPage.createdAt, // we don't want to update the createdAt
@@ -131,13 +139,14 @@ export const savePage = async (
     }
   } else if (shouldParseInBackend(input)) {
     try {
-      await createPageSaveRequest(
-        saver.userId,
-        articleToSave.url,
-        ctx.models,
-        ctx.pubsub,
-        input.clientRequestId
-      )
+      await createPageSaveRequest({
+        userId: saver.userId,
+        url: articleToSave.url,
+        pubsub: ctx.pubsub,
+        articleSavingRequestId: input.clientRequestId,
+        archivedAt: articleToSave.archivedAt,
+        labels: articleToSave.labels,
+      })
     } catch (e) {
       return {
         errorCodes: [SaveErrorCode.Unknown],
@@ -165,12 +174,7 @@ export const savePage = async (
       type: HighlightType.Highlight,
     }
 
-    if (
-      !(await addHighlightToPage(pageId, highlight, {
-        pubsub: ctx.pubsub,
-        uid: ctx.uid,
-      }))
-    ) {
+    if (!(await addHighlightToPage(pageId, highlight, ctx))) {
       return {
         errorCodes: [SaveErrorCode.EmbeddedHighlightFailed],
         message: 'Failed to save highlight',

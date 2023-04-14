@@ -4,6 +4,7 @@ import { publicGqlFetcher } from '../networkHelpers'
 
 export interface Integration {
   id: string
+  name: string
   type: IntegrationType
   token: string
   enabled: boolean
@@ -11,7 +12,7 @@ export interface Integration {
   updatedAt: Date
 }
 
-export type IntegrationType = 'READWISE'
+export type IntegrationType = 'EXPORT' | 'IMPORT'
 
 interface IntegrationsQueryResponse {
   isValidating: boolean
@@ -34,6 +35,7 @@ export function useGetIntegrationsQuery(): IntegrationsQueryResponse {
         ... on IntegrationsSuccess {
           integrations {
             id
+            name
             type
             token
             enabled

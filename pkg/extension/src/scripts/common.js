@@ -80,7 +80,7 @@ function handleBackendUrl(url) {
     const FORCE_CONTENT_FETCH_URLS = [
       // twitter status url regex
       /twitter\.com\/(?:#!\/)?(\w+)\/status(?:es)?\/(\d+)(?:\/.*)?/,
-      /^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w-]+\?v=|embed\/|v\/)?)([\w-]+)(\S+)?$/,
+      /^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu\.be|piped\.video))(\/(?:[\w-]+\?v=|embed\/|v\/)?)([\w-]+)(\S+)?$/,
     ]
     return FORCE_CONTENT_FETCH_URLS.some((regex) => regex.test(url))
   } catch (error) {

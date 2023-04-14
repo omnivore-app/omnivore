@@ -86,6 +86,8 @@
           playbackRateButton(rate: 1.5, title: "1.5×", selected: audioController.playbackRate == 1.5)
           playbackRateButton(rate: 1.7, title: "1.7×", selected: audioController.playbackRate == 1.7)
           playbackRateButton(rate: 2.0, title: "2.0×", selected: audioController.playbackRate == 2.0)
+          playbackRateButton(rate: 2.2, title: "2.2×", selected: audioController.playbackRate == 2.2)
+          playbackRateButton(rate: 2.5, title: "2.5×", selected: audioController.playbackRate == 2.5)
         }
         Button(action: { showVoiceSheet = true }, label: { Label("Change Voice", systemImage: "person.wave.2") })
         Button(action: { viewArticle() }, label: { Label("View Article", systemImage: "book") })
@@ -331,6 +333,8 @@
           playbackRateButton(rate: 1.5, title: "1.5×", selected: audioController.playbackRate == 1.5)
           playbackRateButton(rate: 1.7, title: "1.7×", selected: audioController.playbackRate == 1.7)
           playbackRateButton(rate: 2.0, title: "2.0×", selected: audioController.playbackRate == 2.0)
+          playbackRateButton(rate: 2.2, title: "2.2×", selected: audioController.playbackRate == 2.2)
+          playbackRateButton(rate: 2.5, title: "2.5×", selected: audioController.playbackRate == 2.5)
         }, label: {
           Text("\(String(format: "%.1f", audioController.playbackRate))×")
             .font(.appCaption)

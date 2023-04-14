@@ -19,6 +19,7 @@ export class ImageHandler extends ContentHandler {
           <title>${title}</title>
           <meta property="og:image" content="${url}" />
           <meta property="og:title" content="${title}" />
+          <meta property="og:type" content="image" />
         </head>
         <body>
           <div>

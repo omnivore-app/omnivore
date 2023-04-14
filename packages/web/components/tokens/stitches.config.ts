@@ -6,6 +6,7 @@ export enum ThemeId {
   Dark = 'Dark',
   Sepia = 'Sepia',
   Apollo = 'Apollo',
+  Black = 'Black',
 }
 
 export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
@@ -279,6 +280,13 @@ const darkThemeSpec = {
   },
 }
 
+// This is used by iOS
+const blackThemeSpec = {
+  colors: {
+    readerBg: 'black',
+  },
+}
+
 const sepiaThemeSpec = {
   colors: {
     readerBg: '#FBF0D9',
@@ -309,6 +317,13 @@ export const apolloTheme = createTheme(ThemeId.Apollo, {
   colors: {
     ...darkThemeSpec.colors,
     ...apolloThemeSpec.colors,
+  },
+})
+export const blackTheme = createTheme(ThemeId.Black, {
+  ...darkThemeSpec,
+  colors: {
+    ...darkThemeSpec.colors,
+    ...blackThemeSpec.colors,
   },
 })
 

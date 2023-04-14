@@ -376,6 +376,7 @@ export class TwitterHandler extends ContentHandler {
       <meta property="og:description" content="${description}" />
       <meta property="article:published_time" content="${tweetData.created_at}" />
       <meta property="og:site_name" content="Twitter" />
+      <meta property="og:type" content="tweet" />
     </head>
     <body>
       <div>

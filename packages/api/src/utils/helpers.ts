@@ -1,4 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import crypto from 'crypto'
+import normalizeUrl from 'normalize-url'
+import path from 'path'
+import _ from 'underscore'
+import slugify from 'voca/slugify'
+import wordsCounter from 'word-counting'
+import { RegistrationType, UserData } from '../datalayer/user/model'
+import { updatePage } from '../elastic/pages'
+import { ArticleSavingRequestStatus, Page } from '../elastic/types'
+import { User } from '../entity/user'
 import {
   ArticleSavingRequest,
   CreateArticleError,
@@ -6,18 +16,9 @@ import {
   Profile,
   ResolverFn,
 } from '../generated/graphql'
-import { Claims, WithDataSourcesContext } from '../resolvers/types'
-import { RegistrationType, UserData } from '../datalayer/user/model'
-import crypto from 'crypto'
-import slugify from 'voca/slugify'
-import { Merge } from '../util'
 import { CreateArticlesSuccessPartial } from '../resolvers'
-import { ArticleSavingRequestStatus, Page } from '../elastic/types'
-import { updatePage } from '../elastic/pages'
-import path from 'path'
-import normalizeUrl from 'normalize-url'
-import wordsCounter from 'word-counting'
-import _ from 'underscore'
+import { Claims, WithDataSourcesContext } from '../resolvers/types'
+import { Merge } from '../util'
 
 interface InputObject {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -187,7 +188,7 @@ export const pageError = async (
 }
 
 export const pageToArticleSavingRequest = (
-  user: UserData,
+  user: User,
   page: Page
 ): ArticleSavingRequest => ({
   ...page,

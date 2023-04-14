@@ -81,7 +81,7 @@ struct AnimatingCellHeight: AnimatableModifier {
           LinkedItemMetadataEditView(item: item)
         }
         .sheet(item: $viewModel.itemForHighlightsView) { item in
-          HighlightsListView(itemObjectID: item.objectID, hasHighlightMutations: $hasHighlightMutations)
+          NotebookView(itemObjectID: item.objectID, hasHighlightMutations: $hasHighlightMutations)
         }
         .sheet(isPresented: $viewModel.showCommunityModal) {
           CommunityModal()
@@ -317,10 +317,6 @@ struct AnimatingCellHeight: AnimatableModifier {
 
     func menuItems(for item: LinkedItem) -> some View {
       Group {
-        Button(
-          action: { viewModel.itemForHighlightsView = item },
-          label: { Label("Notebook", systemImage: "highlighter") }
-        )
         Button(
           action: { viewModel.itemUnderTitleEdit = item },
           label: { Label("Edit Info", systemImage: "info.circle") }
