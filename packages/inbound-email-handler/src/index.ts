@@ -134,7 +134,7 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
       })
 
       try {
-        // check if it is a subscription google confirmation email
+        // check if it is a subscription or google confirmation email
         const isGoogleConfirmation = isGoogleConfirmationEmail(from, subject)
         if (isGoogleConfirmation || isSubscriptionConfirmationEmail(subject)) {
           console.debug('handleConfirmation', from, subject)
@@ -159,6 +159,7 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
         }
         if (pdfAttachment) {
           console.log('handle PDF attachment', from, to)
+          // save the pdf attachment as an article
           await handlePdfAttachment(
             to,
             pdfAttachmentName,
