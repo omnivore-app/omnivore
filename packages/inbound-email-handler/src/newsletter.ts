@@ -7,12 +7,14 @@ interface Unsubscribe {
   httpUrl?: string
 }
 
-const EMAIL_CONFIRMATION_CODE_RECEIVED_TOPIC = 'emailConfirmationCodeReceived'
-const CONFIRMATION_EMAIL_SENDER_ADDRESS = 'forwarding-noreply@google.com'
+const GOOGLE_CONFIRMATION_CODE_RECEIVED_TOPIC = 'emailConfirmationCodeReceived'
+const GOOGLE_CONFIRMATION_EMAIL_SENDER_ADDRESS = 'forwarding-noreply@google.com'
 // check unicode parentheses too
-const CONFIRMATION_CODE_PATTERN = /\d+/u
+const GOOGLE_CONFIRMATION_CODE_PATTERN = /\d+/u
 const UNSUBSCRIBE_HTTP_URL_PATTERN = /<(https?:\/\/[^>]*)>/
 const UNSUBSCRIBE_MAIL_TO_PATTERN = /<mailto:([^>]*)>/
+const CONFIRMATION_EMAIL_SUBJECT_PATTERN =
+  /(confirm|verify).*(newsletter(s)*|subscription(s)*|sign\s*up)/i
 
 export const parseUnsubscribe = (unSubHeader: string): Unsubscribe => {
   // parse list-unsubscribe header
@@ -32,7 +34,10 @@ const parseAddress = (address: string): string => {
   return ''
 }
 
-export const handleConfirmation = async (email: string, subject: string) => {
+export const handleGoogleConfirmationEmail = async (
+  email: string,
+  subject: string
+) => {
   console.log('confirmation email', email, subject)
 
   const confirmationCode = getConfirmationCode(subject)
@@ -47,11 +52,11 @@ export const handleConfirmation = async (email: string, subject: string) => {
   }
 
   const message = { emailAddress: email, confirmationCode: confirmationCode }
-  return publishMessage(EMAIL_CONFIRMATION_CODE_RECEIVED_TOPIC, message)
+  return publishMessage(GOOGLE_CONFIRMATION_CODE_RECEIVED_TOPIC, message)
 }
 
 export const getConfirmationCode = (subject: string): string | undefined => {
-  const matches = subject.match(CONFIRMATION_CODE_PATTERN)
+  const matches = subject.match(GOOGLE_CONFIRMATION_CODE_PATTERN)
   if (matches) {
     // get the number code only
     // e.g. (#123456) => 123456
@@ -60,9 +65,16 @@ export const getConfirmationCode = (subject: string): string | undefined => {
   return undefined
 }
 
-export const isConfirmationEmail = (from: string, subject: string): boolean => {
+export const isGoogleConfirmationEmail = (
+  from: string,
+  subject: string
+): boolean => {
   return (
-    parseAddress(from) === CONFIRMATION_EMAIL_SENDER_ADDRESS &&
-    CONFIRMATION_CODE_PATTERN.test(subject)
+    parseAddress(from) === GOOGLE_CONFIRMATION_EMAIL_SENDER_ADDRESS &&
+    GOOGLE_CONFIRMATION_CODE_PATTERN.test(subject)
   )
+}
+
+export const isSubscriptionConfirmationEmail = (subject: string): boolean => {
+  return CONFIRMATION_EMAIL_SUBJECT_PATTERN.test(subject)
 }
