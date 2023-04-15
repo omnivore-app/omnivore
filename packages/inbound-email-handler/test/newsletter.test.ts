@@ -3,12 +3,14 @@ import 'mocha'
 import { parsedTo } from '../src'
 import {
   getConfirmationCode,
-  isConfirmationEmail,
+  isGoogleConfirmationEmail,
+  isSubscriptionConfirmationEmail,
+  parseAuthor,
   parseUnsubscribe,
 } from '../src/newsletter'
 
 describe('Confirmation email test', () => {
-  describe('#isConfirmationEmail()', () => {
+  describe('#isGoogleConfirmationEmail()', () => {
     let from: string
     let subject: string
 
@@ -16,7 +18,7 @@ describe('Confirmation email test', () => {
       from = 'Gmail Team <forwarding-noreply@google.com>'
       subject = `(#123456789) Gmail Forwarding Confirmation - Receive Mail from test@omnivore.app`
 
-      expect(isConfirmationEmail(from, subject)).to.be.true
+      expect(isGoogleConfirmationEmail(from, subject)).to.be.true
     })
 
     it('returns true when email is from Japan Gmail Team', () => {
@@ -24,7 +26,7 @@ describe('Confirmation email test', () => {
       subject =
         '（#123456789）SWG の転送の確認 - test@omnivore.app からメールを受信'
 
-      expect(isConfirmationEmail(from, subject)).to.be.true
+      expect(isGoogleConfirmationEmail(from, subject)).to.be.true
     })
 
     it('returns true when email is in Spanish', () => {
@@ -32,7 +34,7 @@ describe('Confirmation email test', () => {
       subject =
         'Confirmación de reenvío de 123456789 (n.º Gmail) - Recibir correo de test@omnivore.app'
 
-      expect(isConfirmationEmail(from, subject)).to.be.true
+      expect(isGoogleConfirmationEmail(from, subject)).to.be.true
     })
   })
 
@@ -109,5 +111,20 @@ describe('parsedTo', () => {
         to,
       })
     ).to.equal(to)
+  })
+})
+
+describe('parseAuthor', () => {
+  it('returns author if exists', () => {
+    const author = 'Tester'
+    const address = `${author} <tester@omnivore.app>`
+    expect(parseAuthor(address)).to.eql(author)
+  })
+})
+
+describe('isSubscriptionConfirmationEmail', () => {
+  it('returns true if email is a confirmation', () => {
+    const subject = 'Confirm your Omnivore newsletter subscription'
+    expect(isSubscriptionConfirmationEmail(subject)).to.be.true
   })
 })
