@@ -27,6 +27,13 @@ const isFileUrl = (url: string): boolean => {
   return parsedUrl.protocol == 'file:'
 }
 
+export const pageTypeForContentType = (contentType: string): PageType => {
+  if (contentType == 'application/epub+zip') {
+    return PageType.Book
+  }
+  return PageType.File
+}
+
 export const uploadFileRequestResolver: ResolverFn<
   UploadFileRequestResult,
   unknown,
@@ -145,7 +152,7 @@ export const uploadFileRequestResolver: ResolverFn<
             title: title,
             hash: uploadFilePathName,
             content: '',
-            pageType: PageType.File,
+            pageType: pageTypeForContentType(input.contentType),
             uploadFileId: uploadFileData.id,
             slug: generateSlug(uploadFilePathName),
             createdAt: new Date(),

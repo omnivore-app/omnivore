@@ -4,6 +4,7 @@ import {
   sepiaTheme,
   apolloTheme,
   blackTheme,
+  theme,
 } from '../components/tokens/stitches.config'
 
 const themeKey = 'theme'
@@ -24,8 +25,8 @@ export function updateTheme(themeId: string): void {
   updateThemeLocally(themeId)
 }
 
-function getTheme(themeId: string) {
-  switch (currentTheme()) {
+export function getTheme(themeId: string) {
+  switch (themeId) {
     case ThemeId.Dark:
       return darkTheme
     case ThemeId.Sepia:
@@ -35,7 +36,7 @@ function getTheme(themeId: string) {
     case ThemeId.Black:
       return blackTheme
   }
-  return ThemeId.Light
+  return theme
 }
 
 export function updateThemeLocally(themeId: string): void {

@@ -98,10 +98,12 @@ import {
 } from '../../utils/parser'
 import { parseSearchQuery, SortBy, SortOrder } from '../../utils/search'
 import {
+  contentReaderForPageType,
   getStorageFileDetails,
   makeStorageFilePublic,
 } from '../../utils/uploads'
 import { WithDataSourcesContext } from '../types'
+import { pageTypeForContentType } from '../upload_files'
 
 enum ArticleFormat {
   Markdown = 'markdown',
@@ -258,7 +260,7 @@ export const createArticleResolver = authorized<
         uploadFileHash = uploadFileDetails.md5Hash
         userArticleUrl = uploadFileDetails.fileUrl
         canonicalUrl = uploadFile.url
-        pageType = PageType.File
+        pageType = pageTypeForContentType(uploadFile.contentType)
         title = titleForFilePath(uploadFile.url)
       } else if (
         source !== 'puppeteer-parse' &&
@@ -950,8 +952,7 @@ export const searchResolver = authorized<
         ...r,
         image: r.image && createImageProxyUrl(r.image, 260, 260),
         isArchived: !!r.archivedAt,
-        contentReader:
-          r.pageType === PageType.File ? ContentReader.Pdf : ContentReader.Web,
+        contentReader: contentReaderForPageType(r.pageType),
         originalArticleUrl: r.url,
         publishedAt: validatedDate(r.publishedAt),
         ownedByViewer: r.userId === claims.uid,
@@ -1054,10 +1055,7 @@ export const updatesSinceResolver = authorized<
           ...p,
           image: p.image && createImageProxyUrl(p.image, 260, 260),
           isArchived: !!p.archivedAt,
-          contentReader:
-            p.pageType === PageType.File
-              ? ContentReader.Pdf
-              : ContentReader.Web,
+          contentReader: contentReaderForPageType(p.pageType),
         } as SearchItem,
         cursor: endCursor,
         itemID: p.id,

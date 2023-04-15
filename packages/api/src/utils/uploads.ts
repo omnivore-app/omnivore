@@ -2,6 +2,19 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { File, GetSignedUrlConfig, Storage } from '@google-cloud/storage'
 import { env } from '../env'
+import { ContentReader, PageType } from '../generated/graphql'
+
+export const contentReaderForPageType = (pageType: PageType) => {
+  console.log('getting content reader: ', pageType)
+  switch (pageType) {
+    case PageType.Book:
+      return ContentReader.Epub
+    case PageType.File:
+      return ContentReader.Pdf
+    default:
+      return ContentReader.Web
+  }
+}
 
 /* On GAE/Prod, we shall rely on default app engine service account credentials.
  * Two changes needed: 1) add default service account to our uploads GCS Bucket
@@ -39,6 +52,7 @@ export const generateUploadSignedUrl = async (
     expires: Date.now() + 15 * 60 * 1000, // 15 minutes
     contentType: contentType,
   }
+  console.log('signed url for: ', options)
 
   // Get a v4 signed URL for uploading file
   const [url] = await storage
@@ -60,6 +74,7 @@ export const generateDownloadSignedUrl = async (
     .bucket(bucketName)
     .file(filePathName)
     .getSignedUrl(options)
+  console.log('generating download signed url', url)
   return url
 }
 

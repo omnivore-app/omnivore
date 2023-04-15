@@ -126,6 +126,7 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
       ;(async () => {
         for (const file of addedFiles) {
           try {
+            console.log('using content type: ', file.file.type)
             const request = await uploadFileRequestMutation({
               // This will tell the backend not to save the URL
               // and give it the local filename as the title.
@@ -145,7 +146,7 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
               data: file.file,
               withCredentials: false,
               headers: {
-                'Content-Type': 'application/pdf',
+                'Content-Type': file.file.type,
               },
               onUploadProgress: (p) => {
                 if (!p.total) {

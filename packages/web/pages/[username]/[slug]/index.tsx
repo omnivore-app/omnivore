@@ -38,9 +38,15 @@ import { ReaderHeader } from '../../../components/templates/reader/ReaderHeader'
 import { EditArticleModal } from '../../../components/templates/homeFeed/EditItemModals'
 import { VerticalArticleActionsMenu } from '../../../components/templates/article/VerticalArticleActions'
 import { PdfHeaderSpacer } from '../../../components/templates/article/PdfHeaderSpacer'
+import { EpubContainerProps } from '../../../components/templates/article/EpubContainer'
 
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
   () => import('./../../../components/templates/article/PdfArticleContainer'),
+  { ssr: false }
+)
+
+const EpubContainerNoSSR = dynamic<EpubContainerProps>(
+  () => import('./../../../components/templates/article/EpubContainer'),
   { ssr: false }
 )
 
@@ -403,14 +409,15 @@ export default function Home(): JSX.Element {
           />
         ) : null}
       </VStack>
-      {article && viewerData?.me && article.contentReader == 'PDF' ? (
+      {article && viewerData?.me && article.contentReader == 'PDF' && (
         <PdfArticleContainerNoSSR
           article={article}
           showHighlightsModal={showHighlightsModal}
           setShowHighlightsModal={setShowHighlightsModal}
           viewer={viewerData.me}
         />
-      ) : (
+      )}
+      {article && viewerData?.me && article.contentReader == 'WEB' && (
         <VStack
           id="article-wrapper"
           alignment="center"
@@ -446,6 +453,36 @@ export default function Home(): JSX.Element {
                 updateHighlightMutation,
                 articleReadingProgressMutation,
               }}
+            />
+          ) : (
+            <SkeletonArticleContainer
+              margin={readerSettings.marginWidth}
+              lineHeight={readerSettings.lineHeight}
+              fontSize={readerSettings.fontSize}
+            />
+          )}
+        </VStack>
+      )}
+
+      {article && viewerData?.me && article.contentReader == 'EPUB' && (
+        <VStack
+          alignment="center"
+          distribution="start"
+          className="disable-webkit-callout"
+          css={{
+            width: '100%',
+            height: '100%',
+            background: '$readerMargin',
+            overflow: 'scroll',
+            paddingTop: '80px',
+          }}
+        >
+          {article && viewerData?.me ? (
+            <EpubContainerNoSSR
+              article={article}
+              showHighlightsModal={showHighlightsModal}
+              setShowHighlightsModal={setShowHighlightsModal}
+              viewer={viewerData.me}
             />
           ) : (
             <SkeletonArticleContainer
