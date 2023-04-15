@@ -180,6 +180,7 @@ export default function Integrations(): JSX.Element {
           action: () => router.push('/settings/webhooks'),
         },
       },
+      /*
       {
         icon: '/static/icons/pocket.svg',
         title: 'Pocket',
@@ -195,6 +196,7 @@ export default function Integrations(): JSX.Element {
           },
         },
       },
+      */
     ])
   }, [pocketConnected, readwiseConnected, webhooks])
 
