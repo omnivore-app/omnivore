@@ -30,12 +30,14 @@ export default function PdfArticleContainer(
   props: PdfArticleContainerProps
 ): JSX.Element {
   const containerRef = useRef<HTMLDivElement | null>(null)
-  const [shareTarget, setShareTarget] =
-    useState<Highlight | undefined>(undefined)
+  const [shareTarget, setShareTarget] = useState<Highlight | undefined>(
+    undefined
+  )
   const [notebookKey, setNotebookKey] = useState<string>(uuidv4())
   const [noteTarget, setNoteTarget] = useState<Highlight | undefined>(undefined)
-  const [noteTargetPageIndex, setNoteTargetPageIndex] =
-    useState<number | undefined>(undefined)
+  const [noteTargetPageIndex, setNoteTargetPageIndex] = useState<
+    number | undefined
+  >(undefined)
   const highlightsRef = useRef<Highlight[]>([])
   const canShareNative = useCanShareNative()
 
@@ -475,6 +477,7 @@ export default function PdfArticleContainer(
 
   return (
     <Box
+      id="article-wrapper"
       css={{
         width: '100%',
         height: `calc(100vh - ${HEADER_HEIGHT})`,
