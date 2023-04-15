@@ -256,6 +256,19 @@ export default function Home(): JSX.Element {
         },
       },
       {
+        id: 'full_screen',
+        section: 'Article',
+        name: 'Read fullscreen',
+        shortcut: ['f'],
+        perform: () => {
+          const reader = document.getElementById('article-wrapper')
+          if (!reader) {
+            alert('Unable to enter fullscreen mode')
+          }
+          reader?.requestFullscreen()
+        },
+      },
+      {
         id: 'delete',
         section: 'Article',
         name: 'Delete current item',
@@ -399,6 +412,7 @@ export default function Home(): JSX.Element {
         />
       ) : (
         <VStack
+          id="article-wrapper"
           alignment="center"
           distribution="start"
           className="disable-webkit-callout"

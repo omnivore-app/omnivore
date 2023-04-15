@@ -71,6 +71,12 @@ const readerCommands = () => {
       callback: () => {},
     },
     {
+      actionDescription: 'Read fullscreen',
+      shortcutKeys: ['f'],
+      shortcutKeyDescription: 'f',
+      callback: () => {},
+    },
+    {
       actionDescription: 'Return to library',
       shortcutKeys: ['u'],
       shortcutKeyDescription: 'u',
