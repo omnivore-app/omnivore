@@ -155,10 +155,12 @@ const urlHandler = async (
       state,
       labels
     )
-    result ? ctx.countImported++ : ctx.countFailed++
+    if (!result) {
+      return Promise.reject('Failed to import url')
+    }
   } catch (err) {
     console.log('error importing url', err)
-    ctx.countFailed += 1
+    throw err
   }
 }
 

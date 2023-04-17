@@ -17,6 +17,7 @@ export const importCsv = async (ctx: ImportContext, stream: Stream) => {
       // labels follows format: "[label1, label2]"
       const labels = row.length > 2 ? row[2].slice(1, -1).split(',') : undefined
       await ctx.urlHandler(ctx, url, state, labels)
+      ctx.countImported++
     } catch (error) {
       console.log('invalid url', row, error)
       ctx.countFailed += 1
