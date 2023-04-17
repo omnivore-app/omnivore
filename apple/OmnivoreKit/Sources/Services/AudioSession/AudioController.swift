@@ -801,7 +801,7 @@
       }
 
       commandCenter.skipForwardCommand.isEnabled = true
-      commandCenter.skipForwardCommand.preferredIntervals = [30, 60]
+      commandCenter.skipForwardCommand.preferredIntervals = [15, 30, 60]
       commandCenter.skipForwardCommand.addTarget { event -> MPRemoteCommandHandlerStatus in
         if let event = event as? MPSkipIntervalCommandEvent {
           self.skipForward(seconds: event.interval)
@@ -811,7 +811,7 @@
       }
 
       commandCenter.skipBackwardCommand.isEnabled = true
-      commandCenter.skipBackwardCommand.preferredIntervals = [30, 60]
+      commandCenter.skipBackwardCommand.preferredIntervals = [15, 30, 60]
       commandCenter.skipBackwardCommand.addTarget { event -> MPRemoteCommandHandlerStatus in
         if let event = event as? MPSkipIntervalCommandEvent {
           self.skipBackwards(seconds: event.interval)
