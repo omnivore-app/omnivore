@@ -22,8 +22,11 @@ public struct RootSplitView: View {
         labelsViewModel: labelsViewModel
       )
     } content: {
-      LibraryContainerView(viewModel: libraryViewModel)
-        .navigationTitle("Library")
+      SplitViewContent(
+        libraryViewModel: libraryViewModel,
+        navigationModel: navigationModel
+      )
+      .navigationTitle("Library")
     } detail: {
       Text(LocalText.navigationSelectLink)
     }

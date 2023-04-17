@@ -5,6 +5,28 @@ import SwiftUI
 import Utils
 import Views
 
+//@available(iOS 16.0, *)
+struct SplitViewContent: View {
+  @EnvironmentObject var dataService: DataService
+  
+  @ObservedObject var libraryViewModel: LibraryViewModel
+  @ObservedObject var navigationModel: NavigationModel
+  
+  func loadItems(isRefresh: Bool) {
+    Task {
+      await libraryViewModel.loadItems(
+        dataService: dataService,
+        isRefresh: isRefresh
+      )
+    }
+  }
+  
+  public var body: some View {
+    LibraryListView(viewModel: libraryViewModel)
+      .refreshable { loadItems(isRefresh: true) }
+  }
+}
+
 struct LibraryContainerView: View {
   @State var hasHighlightMutations = false
   @State var searchPresented = false
@@ -24,21 +46,21 @@ struct LibraryContainerView: View {
 
   var body: some View {
     ZStack {
-      if let linkRequest = viewModel.linkRequest {
-        NavigationLink(
-          destination: WebReaderLoadingContainer(requestID: linkRequest.serverID),
-          tag: linkRequest,
-          selection: $viewModel.linkRequest
-        ) {
-          EmptyView()
-        }
-      }
+//      if let linkRequest = viewModel.linkRequest {
+//        NavigationLink(
+//          destination: WebReaderLoadingContainer(requestID: linkRequest.serverID),
+//          tag: linkRequest,
+//          selection: $viewModel.linkRequest
+//        ) {
+//          EmptyView()
+//        }
+//      }
       LibraryListView(viewModel: viewModel)
-        .refreshable { loadItems(isRefresh: true) }
+//        .refreshable { loadItems(isRefresh: true) }
         .onChange(of: viewModel.searchTerm) { _ in loadItems(isRefresh: true) }
-        .onChange(of: viewModel.selectedLabels) { _ in loadItems(isRefresh: true) }
-        .onChange(of: viewModel.negatedLabels) { _ in loadItems(isRefresh: true) }
-        .onChange(of: viewModel.appliedFilter) { _ in loadItems(isRefresh: true) }
+//        .onChange(of: viewModel.selectedLabels) { _ in loadItems(isRefresh: true) }
+//        .onChange(of: viewModel.negatedLabels) { _ in loadItems(isRefresh: true) }
+//        .onChange(of: viewModel.appliedFilter) { _ in loadItems(isRefresh: true) }
         .onChange(of: viewModel.appliedSort) { _ in loadItems(isRefresh: true) }
         .sheet(item: $viewModel.itemUnderLabelEdit) { item in
           ApplyLabelsView(mode: .item(item), isSearchFocused: false, onSave: nil)

@@ -200,6 +200,14 @@ import Views
       updateFetchController(dataService: dataService)
     }
   }
+  
+  func loadItemsUsingNavigationModel(
+    dataService: DataService,
+    navigationModel: NavigationModel,
+    isRefresh: Bool
+  ) async {
+    await loadItems(dataService: dataService, isRefresh: isRefresh)
+  }
 
   func loadItems(dataService: DataService, isRefresh: Bool) async {
     isLoading = true
