@@ -1,17 +1,15 @@
 import { Storage } from '@google-cloud/storage'
-import { importCsv } from './csv'
-import * as path from 'path'
-import { importMatterArchive } from './matterHistory'
-import { Stream } from 'node:stream'
-import { v4 as uuid } from 'uuid'
-import { CONTENT_FETCH_URL, createCloudTask, emailUserUrl } from './task'
-
-import axios from 'axios'
-import { promisify } from 'util'
-import * as jwt from 'jsonwebtoken'
 import { Readability } from '@omnivore/readability'
-
 import * as Sentry from '@sentry/serverless'
+import axios from 'axios'
+import * as jwt from 'jsonwebtoken'
+import { Stream } from 'node:stream'
+import * as path from 'path'
+import { promisify } from 'util'
+import { v4 as uuid } from 'uuid'
+import { importCsv } from './csv'
+import { importMatterArchive } from './matterHistory'
+import { CONTENT_FETCH_URL, createCloudTask, emailUserUrl } from './task'
 
 export enum ArticleSavingRequestStatus {
   Failed = 'FAILED',
@@ -157,11 +155,12 @@ const urlHandler = async (
       state,
       labels
     )
-    if (result) {
-      ctx.countImported += 1
+    if (!result) {
+      return Promise.reject('Failed to import url')
     }
   } catch (err) {
     console.log('error importing url', err)
+    throw err
   }
 }
 
