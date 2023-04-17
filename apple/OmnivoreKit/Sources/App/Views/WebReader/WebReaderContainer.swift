@@ -11,6 +11,7 @@ struct WebReaderContainerView: View {
   let item: LinkedItem
 
   @State private var showPreferencesPopover = false
+  @State private var showPreferencesFormsheet = false
   @State private var showLabelsModal = false
   @State private var showHighlightLabelsModal = false
   @State private var showTitleEdit = false
@@ -286,7 +287,13 @@ struct WebReaderContainerView: View {
       #endif
 
       Button(
-        action: { showPreferencesPopover.toggle() },
+        action: {
+          if UIDevice.current.userInterfaceIdiom == .phone {
+            showPreferencesFormsheet.toggle()
+          } else {
+            showPreferencesPopover.toggle()
+          }
+        },
         label: {
           Image(systemName: "textformat.size")
             .font(.appNavbarIcon)
@@ -294,6 +301,14 @@ struct WebReaderContainerView: View {
       )
       .padding(.horizontal, 5)
       .scaleEffect(navBarVisibilityRatio)
+      .popover(isPresented: $showPreferencesPopover) {
+        webPreferencesPopoverView
+          .frame(maxWidth: 400, maxHeight: 475)
+      }
+      .formSheet(isPresented: $showPreferencesFormsheet, modalSize: CGSize(width: 400, height: 475)) {
+        webPreferencesPopoverView
+      }
+
       #if os(macOS)
         Spacer()
       #endif
@@ -529,11 +544,7 @@ struct WebReaderContainerView: View {
         }
       #endif
     }
-    #if os(iOS)
-      .formSheet(isPresented: $showPreferencesPopover, modalSize: CGSize(width: 400, height: 475)) {
-        webPreferencesPopoverView
-      }
-    #else
+    #if os(macOS)
       .onReceive(NSNotification.readerSettingsChangedPublisher) { _ in
         readerSettingsChangedTransactionID = UUID()
       }
