@@ -1,12 +1,12 @@
-import 'mocha'
 import { expect } from 'chai'
+import * as fs from 'fs'
+import 'mocha'
+import path from 'path'
 import {
   htmlToSpeechFile,
   htmlToSsmlItems,
   stripEmojis,
 } from '../src/htmlToSsml'
-import * as fs from 'fs'
-import path from 'path'
 
 const TEST_OPTIONS = {
   primaryVoice: 'test-primary',
@@ -307,6 +307,20 @@ describe('convert HTML to Speech file', () => {
     )
     expect(speechFile.utterances[1].text).to.eql(
       'I feel like I’m working on reading, listening, and speaking all at once, sometimes I feel like I’m just getting surface understanding. '
+    )
+  })
+
+  it('splits sentences in German correctly', () => {
+    const html = `<div class="page" id="readability-page-1" data-omnivore-anchor-idx="1">
+<p data-omnivore-anchor-idx="2"><span data-omnivore-anchor-idx="3"><span data-omnivore-anchor-idx="4"><strong data-omnivore-anchor-idx="5"><em data-omnivore-anchor-idx="6"><span data-omnivore-anchor-idx="7" lang="DE" xml:lang="DE"><span data-omnivore-anchor-idx="8">Q</span></span></em></strong><em data-omnivore-anchor-idx="9"><span data-omnivore-anchor-idx="10" lang="DE" xml:lang="DE"><span data-omnivore-anchor-idx="11"><strong data-omnivore-anchor-idx="12">:</strong> „Die kürzliche Razzia in den BBC-Büros in Delhi sind ein weiterer Versuch der Regierung, kritische Medien-Kommentare zu unterdrücken. Man hat des Gefühl, Herr Modi hat Angst, in den Spiegel zu schauen!?“</span></span></em></span></span></p>
+</div>`
+    const speechFile = htmlToSpeechFile({
+      content: html,
+      options: TEST_OPTIONS,
+    })
+    expect(speechFile.utterances).to.have.lengthOf(1)
+    expect(speechFile.utterances[0].text).to.eql(
+      'Q: „Die kürzliche Razzia in den BBC-Büros in Delhi sind ein weiterer Versuch der Regierung, kritische Medien-Kommentare zu unterdrücken. Man hat des Gefühl, Herr Modi hat Angst, in den Spiegel zu schauen!? “'
     )
   })
 })
