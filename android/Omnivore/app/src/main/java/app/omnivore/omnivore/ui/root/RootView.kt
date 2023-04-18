@@ -17,6 +17,7 @@ import app.omnivore.omnivore.Routes
 import app.omnivore.omnivore.ui.auth.LoginViewModel
 import app.omnivore.omnivore.ui.auth.WelcomeScreen
 import app.omnivore.omnivore.ui.library.LibraryView
+import app.omnivore.omnivore.ui.library.SearchView
 import app.omnivore.omnivore.ui.library.LibraryViewModel
 import app.omnivore.omnivore.ui.settings.PolicyWebView
 import app.omnivore.omnivore.ui.settings.SettingsViewModel
@@ -75,6 +76,13 @@ fun PrimaryNavigator(
   NavHost(navController = navController, startDestination = Routes.Library.route) {
     composable(Routes.Library.route) {
       LibraryView(
+        libraryViewModel = libraryViewModel,
+        navController = navController
+      )
+    }
+
+    composable(Routes.Search.route) {
+      SearchView(
         libraryViewModel = libraryViewModel,
         navController = navController
       )

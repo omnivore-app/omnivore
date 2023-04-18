@@ -43,14 +43,15 @@ fun SavedItemCard(cardData: SavedItemCardData, labels: List<SavedItemLabel>, onC
       verticalAlignment = Alignment.Top,
       modifier = Modifier
         .fillMaxWidth()
-        .padding(12.dp)
+        .padding(15.dp)
         .background(if (isMenuExpanded) Color.LightGray else Color.Transparent)
     ) {
       Column(
-        verticalArrangement = Arrangement.spacedBy(2.dp),
+        verticalArrangement = Arrangement.spacedBy(5.dp),
         modifier = Modifier
           .weight(1f, fill = false)
-          .padding(end = 8.dp)
+          .padding(end = 20.dp)
+          .defaultMinSize(minHeight = 55.dp)
       ) {
         Text(
           text = cardData.title,
@@ -64,21 +65,21 @@ fun SavedItemCard(cardData: SavedItemCardData, labels: List<SavedItemLabel>, onC
 
         if (cardData.author != null && cardData.author != "") {
           Text(
-            text = "By ${cardData.author}",
+            text = byline(cardData),
             style = MaterialTheme.typography.bodyMedium,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
           )
         }
-
-        if (publisherDisplayName != null) {
-          Text(
-            text = publisherDisplayName,
-            style = MaterialTheme.typography.bodyMedium,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-          )
-        }
+//
+//        if (publisherDisplayName != null) {
+//          Text(
+//            text = publisherDisplayName,
+//            style = MaterialTheme.typography.bodyMedium,
+//            maxLines = 1,
+//            overflow = TextOverflow.Ellipsis
+//          )
+//        }
       }
 
       if (cardData.imageURLString != null) {
@@ -86,9 +87,8 @@ fun SavedItemCard(cardData: SavedItemCardData, labels: List<SavedItemLabel>, onC
           painter = rememberAsyncImagePainter(cardData.imageURLString),
           contentDescription = "Image associated with saved item",
           modifier = Modifier
-            .padding(top = 6.dp)
-            .clip(RoundedCornerShape(6.dp))
-            .size(80.dp)
+            .size(55.dp, 73.dp)
+            .clip(RoundedCornerShape(4.dp))
         )
       }
     }
@@ -98,7 +98,7 @@ fun SavedItemCard(cardData: SavedItemCardData, labels: List<SavedItemLabel>, onC
       horizontalArrangement = Arrangement.Start,
       verticalAlignment = Alignment.CenterVertically,
       modifier = Modifier
-        .padding(start = 6.dp)
+        .padding(start = 5.dp)
     ) {
       items(labels.sortedBy { it.name }) { label ->
         val chipColors = LabelChipColors.fromHex(label.color)
@@ -127,4 +127,17 @@ fun SavedItemCard(cardData: SavedItemCardData, labels: List<SavedItemLabel>, onC
       actionHandler = actionHandler
     )
   }
+}
+
+fun byline(item: SavedItemCardData): String {
+  item.author?.let {
+    return item.author
+  }
+
+  val publisherDisplayName = item.publisherDisplayName()
+  publisherDisplayName?.let {
+    return publisherDisplayName
+  }
+
+  return ""
 }

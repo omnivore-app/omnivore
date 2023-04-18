@@ -4,9 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -31,6 +29,7 @@ import app.omnivore.omnivore.R
 @Composable
 fun SearchBar(
   libraryViewModel: LibraryViewModel,
+  onSearchClicked: () -> Unit,
   onSettingsIconClick: () -> Unit
 ) {
   val searchText: String by libraryViewModel.searchTextLiveData.observeAsState("")
@@ -58,7 +57,7 @@ fun SearchBar(
             .padding(horizontal = 6.dp)
         )
       } else {
-        IconButton(onClick = { libraryViewModel.showSearchField = true }) {
+        IconButton(onClick = onSearchClicked) {
           Icon(
             imageVector = Icons.Filled.Search,
             contentDescription = null
@@ -87,44 +86,41 @@ fun SearchField(
   val keyboardController = LocalSoftwareKeyboardController.current
   val focusRequester = remember { FocusRequester() }
 
-  Row {
-    TextField(
-      modifier = Modifier
-        .fillMaxWidth()
-        .padding(vertical = 2.dp)
-        .onFocusChanged { focusState ->
-          showClearButton = (focusState.isFocused)
-        }
-        .focusRequester(focusRequester),
-      value = searchText,
-      onValueChange = onSearchTextChanged,
-      placeholder = {
-        Text(text = "Search")
-      },
-      trailingIcon = {
-        AnimatedVisibility(
-          visible = showClearButton,
-          enter = fadeIn(),
-          exit = fadeOut()
-        ) {
-          IconButton(onClick = { onSearchTextChanged("") }) {
-            Icon(
-              imageVector = Icons.Filled.Close,
-              contentDescription = null
-            )
+ TextField(
+        modifier = Modifier
+          .fillMaxWidth()
+          .padding(vertical = 2.dp)
+          .onFocusChanged { focusState ->
+            showClearButton = (focusState.isFocused)
           }
+          .focusRequester(focusRequester),
+        value = searchText,
+        onValueChange = onSearchTextChanged,
+        placeholder = {
+          Text(text = "Search")
+        },
+        trailingIcon = {
+          AnimatedVisibility(
+            visible = showClearButton,
+            enter = fadeIn(),
+            exit = fadeOut()
+          ) {
+            IconButton(onClick = { onSearchTextChanged("") }) {
+              Icon(
+                imageVector = Icons.Filled.Close,
+                contentDescription = null
+              )
+            }
 
-        }
-      },
-      maxLines = 1,
-      singleLine = true,
-      keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
-      keyboardActions = KeyboardActions(onDone = {
-        keyboardController?.hide()
-      }),
-    )
-  }
-
+          }
+        },
+        maxLines = 1,
+        singleLine = true,
+        keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+        keyboardActions = KeyboardActions(onDone = {
+          keyboardController?.hide()
+        }),
+      )
 
   LaunchedEffect(Unit) {
     focusRequester.requestFocus()

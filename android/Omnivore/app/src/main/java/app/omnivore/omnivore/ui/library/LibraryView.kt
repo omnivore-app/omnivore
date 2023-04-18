@@ -39,6 +39,7 @@ fun LibraryView(
     topBar = {
       SearchBar(
         libraryViewModel = libraryViewModel,
+        onSearchClicked = { navController.navigate(Routes.Search.route) },
         onSettingsIconClick = { navController.navigate(Routes.Settings.route) }
       )
     }
