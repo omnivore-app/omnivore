@@ -47,8 +47,7 @@ fun LibraryView(
       libraryViewModel,
       modifier = Modifier
         .padding(
-          top = paddingValues.calculateTopPadding(),
-          bottom = paddingValues.calculateBottomPadding()
+          top = paddingValues.calculateTopPadding()
         )
     )
   }
