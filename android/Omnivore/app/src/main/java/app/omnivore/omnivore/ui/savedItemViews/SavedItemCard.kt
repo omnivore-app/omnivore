@@ -13,16 +13,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.*
 import app.omnivore.omnivore.persistence.entities.SavedItemCardData
 import app.omnivore.omnivore.persistence.entities.SavedItemLabel
 import app.omnivore.omnivore.ui.components.LabelChipColors
 import app.omnivore.omnivore.ui.library.SavedItemAction
 import coil.compose.rememberAsyncImagePainter
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class,
+)
 @Composable
 fun SavedItemCard(cardData: SavedItemCardData, labels: List<SavedItemLabel>, onClickHandler: () -> Unit, actionHandler: (SavedItemAction) -> Unit) {
   var isMenuExpanded by remember { mutableStateOf(false) }
@@ -52,7 +54,11 @@ fun SavedItemCard(cardData: SavedItemCardData, labels: List<SavedItemLabel>, onC
       ) {
         Text(
           text = cardData.title,
-          style = MaterialTheme.typography.titleMedium,
+          style = TextStyle(
+            fontSize = 18.sp,
+            fontWeight = FontWeight.SemiBold
+          ),
+          maxLines = 2,
           lineHeight = 20.sp
         )
 
