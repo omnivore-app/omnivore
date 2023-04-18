@@ -244,6 +244,7 @@ export enum BulkActionType {
 }
 
 export enum ContentReader {
+  Epub = 'EPUB',
   Pdf = 'PDF',
   Web = 'WEB'
 }

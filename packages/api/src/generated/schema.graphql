@@ -203,6 +203,7 @@ enum BulkActionType {
 }
 
 enum ContentReader {
+  EPUB
   PDF
   WEB
 }
