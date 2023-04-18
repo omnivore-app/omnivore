@@ -262,14 +262,14 @@ export const stripEmojis = (text: string): string => {
 }
 
 const textToUtterances = ({
-  tokenizer,
+  wordTokenizer,
   idx,
   textItems,
   wordOffset,
   voice,
   isHtml = true,
 }: {
-  tokenizer: WordPunctTokenizer
+  wordTokenizer: WordPunctTokenizer
   idx: string
   textItems: string[]
   wordOffset: number
@@ -284,7 +284,7 @@ const textToUtterances = ({
         idx,
         text,
         wordOffset,
-        wordCount: tokenizer.tokenize(text).length,
+        wordCount: wordTokenizer.tokenize(text).length,
         voice,
       },
     ]
@@ -318,7 +318,7 @@ const textToUtterances = ({
     const nextText = currentText + sentence
     if (nextText.length > MAX_CHARS) {
       if (currentText.length > 0) {
-        const wordCount = tokenizer.tokenize(currentText).length
+        const wordCount = wordTokenizer.tokenize(currentText).length
         utterances.push({
           idx,
           text: currentText,
@@ -329,7 +329,7 @@ const textToUtterances = ({
         wordOffset += wordCount
         currentText = sentence
       } else {
-        const wordCount = tokenizer.tokenize(sentence).length
+        const wordCount = wordTokenizer.tokenize(sentence).length
         utterances.push({
           idx,
           text: sentence,
@@ -347,7 +347,7 @@ const textToUtterances = ({
         idx,
         text: currentText,
         wordOffset,
-        wordCount: tokenizer.tokenize(currentText).length,
+        wordCount: wordTokenizer.tokenize(currentText).length,
         voice,
       })
     }
@@ -385,13 +385,13 @@ export const htmlToSpeechFile = (htmlInput: HtmlInput): SpeechFile => {
     }
   }
 
-  const tokenizer = new WordPunctTokenizer()
+  const wordTokenizer = new WordPunctTokenizer()
   const utterances: Utterance[] = []
   let wordOffset = 0
   if (title) {
     // first utterances is the title
     const titleUtterance = textToUtterances({
-      tokenizer,
+      wordTokenizer,
       idx: '',
       textItems: [stripEmojis(title)], // title could have emoji
       wordOffset,
@@ -412,7 +412,7 @@ export const htmlToSpeechFile = (htmlInput: HtmlInput): SpeechFile => {
       const idx = i.toString()
       i = emitElement(textItems, node, true)
       const newUtterances = textToUtterances({
-        tokenizer,
+        wordTokenizer,
         idx,
         textItems,
         wordOffset,
