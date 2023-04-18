@@ -11,7 +11,7 @@ export const shouldSynthesize = async (
   page: Page
 ): Promise<boolean> => {
   if (
-    contentReaderForPageType(page.pageType) === ContentReader.Web ||
+    contentReaderForPageType(page.pageType) !== ContentReader.Web ||
     !page.content
   ) {
     // we don't synthesize files for now
