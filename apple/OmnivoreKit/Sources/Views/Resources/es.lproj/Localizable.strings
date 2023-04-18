@@ -1,9 +1,0 @@
-// Unit test Entry -- Do not remove this or add entries before this one.
-// This allows us to check for syntax errors in this file with a unit test
-"unitTestLeadingEntry" = "For testing purposes only.";
-
-"googleSignInButton" = "Continuar con Google";
-
-// Unit test Entry -- Do not remove this or add entries after this one.
-// This allows us to check for syntax errors in this file with a unit test
-"unitTestTrailingEntry" = "For testing purposes only.";
