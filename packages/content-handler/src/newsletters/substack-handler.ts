@@ -34,6 +34,10 @@ export class SubstackHandler extends ContentHandler {
     body?.querySelector('.post-cta')?.remove()
     body?.querySelector('.container-border')?.remove()
     body?.querySelector('.footer')?.remove()
+    // this removes the "restack" button
+    body?.querySelector('.email-ufi-2-bottom')?.remove()
+    // this removes the "share" button
+    body?.querySelector('.email-ufi-2-top')?.remove()
 
     dom = this.fixupStaticTweets(dom)
 

@@ -1,0 +1,1116 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Title</title>
+    <style>
+      @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+        .typography .markup table.image-wrapper img,
+        .typography.editor .markup table.image-wrapper img,
+        .typography .markup table.kindle-wrapper img,
+        .typography.editor .markup table.kindle-wrapper img {
+          max-width: 550px;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .typography .markup div.youtube-inner div.youtube-screen,
+        .typography.editor .markup div.youtube-inner div.youtube-screen,
+        .typography .markup div.vimeo-inner div.youtube-screen,
+        .typography.editor .markup div.vimeo-inner div.youtube-screen {
+          display: none !important;
+        }
+      }
+
+      @media screen and (max-width: 370px) {
+        .typography .markup div.tiktok-wrap,
+        .typography.editor .markup div.tiktok-wrap {
+          width: calc(95vw - 32px);
+          height: calc((95vw - 32px - 2px) / 0.485714);
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .typography
+          .markup
+          div.embedded-publication-wrap
+          .embedded-publication.show-subscribe,
+        .typography.editor
+          .markup
+          div.embedded-publication-wrap
+          .embedded-publication.show-subscribe {
+          padding: 24px;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .typography
+          .markup
+          div.subscription-widget-wrap
+          .subscription-widget.show-subscribe,
+        .typography.editor
+          .markup
+          div.subscription-widget-wrap
+          .subscription-widget.show-subscribe,
+        .typography
+          .markup
+          div.captioned-button-wrap
+          .subscription-widget.show-subscribe,
+        .typography.editor
+          .markup
+          div.captioned-button-wrap
+          .subscription-widget.show-subscribe {
+          padding: 24px;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .typography
+          .markup
+          div.subscription-widget-wrap
+          .subscription-widget.show-subscribe
+          .subscription-widget-subscribe
+          .button,
+        .typography.editor
+          .markup
+          div.subscription-widget-wrap
+          .subscription-widget.show-subscribe
+          .subscription-widget-subscribe
+          .button,
+        .typography
+          .markup
+          div.captioned-button-wrap
+          .subscription-widget.show-subscribe
+          .subscription-widget-subscribe
+          .button,
+        .typography.editor
+          .markup
+          div.captioned-button-wrap
+          .subscription-widget.show-subscribe
+          .subscription-widget-subscribe
+          .button {
+          padding: 10px 12px;
+          min-width: 110px;
+        }
+      }
+
+      @media (max-width: 650px) {
+        .typography .markup .tweet,
+        .typography.editor .markup .tweet {
+          padding: 12px;
+        }
+      }
+
+      @media (max-width: 650px) {
+        .typography .markup .tweet .tweet-text,
+        .typography.editor .markup .tweet .tweet-text {
+          font-size: 14px;
+          line-height: 20px;
+        }
+      }
+
+      @media (max-width: 650px) {
+        .typography .markup .tweet .tweet-photos-container.two,
+        .typography.editor .markup .tweet .tweet-photos-container.two,
+        .typography .markup .tweet .tweet-photos-container.three,
+        .typography.editor .markup .tweet .tweet-photos-container.three,
+        .typography .markup .tweet .tweet-photos-container.four,
+        .typography.editor .markup .tweet .tweet-photos-container.four {
+          height: 200px;
+        }
+      }
+
+      @media (max-width: 650px) {
+        .typography .markup .tweet a.expanded-link .expanded-link-img,
+        .typography.editor .markup .tweet a.expanded-link .expanded-link-img {
+          max-height: 180px;
+        }
+      }
+
+      @media (max-width: 650px) {
+        .typography .markup .tweet a.expanded-link .expanded-link-description,
+        .typography.editor
+          .markup
+          .tweet
+          a.expanded-link
+          .expanded-link-description {
+          display: none;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .typography .markup .apple-podcast-container,
+        .typography.editor .markup .apple-podcast-container {
+          width: unset;
+        }
+      }
+
+      @media (max-width: 420px) {
+        .typography
+          .markup
+          .install-substack-app-embed
+          img.install-substack-app-embed-img,
+        .typography.editor
+          .markup
+          .install-substack-app-embed
+          img.install-substack-app-embed-img {
+          margin: 0 auto 16px auto;
+        }
+      }
+
+      @media screen and (min-width: 420px) and (max-width: 600px) {
+        .typography
+          .markup
+          .install-substack-app-embed
+          .install-substack-app-embed-text,
+        .typography.editor
+          .markup
+          .install-substack-app-embed
+          .install-substack-app-embed-text {
+          max-width: calc(100% - 100px);
+          width: initial;
+        }
+      }
+
+      @media (max-width: 420px) {
+        .typography
+          .markup
+          .install-substack-app-embed
+          .install-substack-app-embed-text,
+        .typography.editor
+          .markup
+          .install-substack-app-embed
+          .install-substack-app-embed-text {
+          margin: 0 0 12px 0;
+          max-width: 100%;
+          width: auto;
+          text-align: center;
+        }
+      }
+
+      @media (max-width: 600px) {
+        .typography
+          .markup
+          .install-substack-app-embed
+          .install-substack-app-embed-link,
+        .typography.editor
+          .markup
+          .install-substack-app-embed
+          .install-substack-app-embed-link {
+          margin-top: 16px;
+          width: 100%;
+        }
+      }
+
+      @media screen and (min-width: 481px) {
+        .share-button-container {
+          height: 38px;
+        }
+      }
+
+      @media screen and (min-width: 481px) {
+        .share-button-container a.comment {
+          height: 38px;
+          line-height: 38px;
+          padding-right: 10px;
+        }
+      }
+
+      @media screen and (max-width: 480px) {
+        .share-button-container .separator {
+          display: block;
+          margin: 0;
+          height: 8px;
+          border-left: none;
+        }
+      }
+
+      @media screen and (max-width: 480px) {
+        .share-button-container a.share.first img {
+          padding-left: 0;
+        }
+      }
+
+      @media screen and (min-width: 481px) {
+        .share-button-container a.mobile {
+          display: none !important;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .social-media-share-preview__description {
+          -webkit-line-clamp: 2;
+        }
+      }
+
+      @media screen and (max-width: 1000px) {
+        .congrats-box {
+          flex-direction: column;
+        }
+        .congrats-box .congrats-box-right {
+          margin-left: 38px;
+          margin-top: 16px;
+        }
+      }
+
+      @media screen and (max-width: 500px) {
+        .congrats-box {
+          display: none;
+        }
+      }
+
+      @media screen and (min-width: 541px) {
+        .settings-add-pub-modal-wrapper
+          .container
+          .add-recommending-pub-modal-container {
+          padding: 36px;
+          height: 680px;
+        }
+      }
+
+      @media screen and (min-width: 541px) {
+        .settings-add-pub-modal-wrapper
+          .container
+          .add-recommending-pub-modal-container
+          .footer {
+          position: absolute;
+          bottom: 36px;
+          margin: 0px;
+        }
+      }
+
+      @media screen and (max-width: 840px) {
+        .header-with-anchor-widget .header-anchor-widget,
+        .header-anchor-container .header-anchor-widget {
+          display: none;
+        }
+      }
+
+      @media screen and (min-width: 768px) {
+        .post {
+          padding: 32px 0 0 0;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .post .post-header .post-label {
+          margin-top: 8px;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .post
+          .post-header
+          .meta-author-wrap.alternative-meta
+          .meta-right-column
+          .post-meta {
+          margin-top: 6px;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .post .footer-facepile-container {
+          height: 64px;
+          padding: 0 16px;
+          display: flex;
+          align-items: center;
+          justify-content: flex-start;
+          width: 100%;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .post .post-footer.use-separators {
+          justify-content: center;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .post .post-footer.next-prev {
+          height: 64px;
+          justify-content: space-between;
+          box-sizing: border-box;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .post-contributor-footer .post-contributor-bio-table {
+          display: block;
+        }
+        .post-contributor-footer .post-contributor-bio-table-row {
+          display: flex;
+          flex-direction: row;
+        }
+        .post-contributor-footer .post-contributor-bio-userhead-cell,
+        .post-contributor-footer .post-contributor-bio-body-cell {
+          display: block;
+        }
+        .post-contributor-footer .post-contributor-bio-body-cell {
+          flex-grow: 1;
+        }
+        .post-contributor-footer .post-contributor-bio-body-table {
+          display: block;
+        }
+        .post-contributor-footer .post-contributor-bio-body-table-row {
+          display: block;
+        }
+        .post-contributor-footer .post-contributor-bio-copy-cell,
+        .post-contributor-footer .post-contributor-bio-controls-cell {
+          display: block;
+        }
+        .post-contributor-footer .post-contributor-bio-copy-cell {
+          margin: 0 0 16px 0;
+        }
+        .post-contributor-footer .post-contributor-bio-controls-cell {
+          width: auto;
+        }
+        .post-contributor-footer .post-contributor-bio-controls {
+          margin: auto;
+        }
+        .post-contributor-footer
+          .post-contributor-bio-controls
+          .button.primary {
+          width: 100%;
+        }
+        .post-contributor-footer .post-contributor-bio-text {
+          font-size: 14px;
+        }
+      }
+
+      @media screen and (min-width: 768px) {
+        .post-silhouette {
+          padding: 16px 0;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .post-silhouette .post-silhouette-title {
+          margin-top: 10.44225025px;
+          height: 120px;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .post-silhouette .post-silhouette-meta {
+          width: 75%;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .post-silhouette .post-silhouette-meta.with-byline-image {
+          margin: 20px 0;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .use-theme-bg .post-meta.alternative-meta .post-meta-item,
+        .post-meta.alternative-meta .post-meta-item {
+          padding-right: 16px;
+        }
+      }
+
+      @media screen and (max-width: 370px) {
+        .use-theme-bg .post-meta.alternative-meta .post-meta-item,
+        .post-meta.alternative-meta .post-meta-item {
+          font-size: 14px;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .use-theme-bg
+          .post-meta.alternative-meta
+          .post-meta-item.guest-author-publication,
+        .post-meta.alternative-meta .post-meta-item.guest-author-publication {
+          display: none;
+        }
+      }
+
+      @media screen and (max-width: 370px) {
+        .post-meta .post-meta-item .post-meta-button {
+          height: 36px !important;
+        }
+        .post-meta .post-meta-item .post-meta-button .meta-button-label {
+          display: none;
+        }
+        .post-meta .post-meta-item .post-meta-button > svg {
+          margin-right: 0;
+        }
+      }
+
+      @media screen and (max-width: 370px) {
+        .post-meta .post-meta-item {
+          font-size: 12px;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .post-preview > .post-preview-content .post-preview-meta {
+          margin-top: 12px 0;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .post-preview > .post-preview-image {
+          display: none;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .post-preview-silhouette .post-preview-silhouette-image {
+          display: none;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .post .floating-subscribe-button {
+          bottom: 20px;
+          right: 20px;
+        }
+      }
+
+      @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+        body .markup table.image-wrapper img,
+        body .markup table.kindle-wrapper img {
+          max-width: 550px;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        body .markup div.youtube-inner div.youtube-screen,
+        body .markup div.vimeo-inner div.youtube-screen {
+          display: none !important;
+        }
+      }
+
+      @media screen and (max-width: 370px) {
+        body .markup div.tiktok-wrap {
+          width: calc(95vw - 32px);
+          height: calc((95vw - 32px - 2px) / 0.485714);
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        body
+          .markup
+          div.embedded-publication-wrap
+          .embedded-publication.show-subscribe {
+          padding: 24px;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        body
+          .markup
+          div.subscription-widget-wrap
+          .subscription-widget.show-subscribe,
+        body
+          .markup
+          div.captioned-button-wrap
+          .subscription-widget.show-subscribe {
+          padding: 24px;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        body
+          .markup
+          div.subscription-widget-wrap
+          .subscription-widget.show-subscribe
+          .subscription-widget-subscribe
+          .button,
+        body
+          .markup
+          div.captioned-button-wrap
+          .subscription-widget.show-subscribe
+          .subscription-widget-subscribe
+          .button {
+          padding: 10px 12px;
+          min-width: 110px;
+        }
+      }
+
+      @media (max-width: 650px) {
+        body .markup .tweet {
+          padding: 12px;
+        }
+      }
+
+      @media (max-width: 650px) {
+        body .markup .tweet .tweet-text {
+          font-size: 14px;
+          line-height: 20px;
+        }
+      }
+
+      @media (max-width: 650px) {
+        body .markup .tweet .tweet-photos-container.two,
+        body .markup .tweet .tweet-photos-container.three,
+        body .markup .tweet .tweet-photos-container.four {
+          height: 200px;
+        }
+      }
+
+      @media (max-width: 650px) {
+        body .markup .tweet a.expanded-link .expanded-link-img {
+          max-height: 180px;
+        }
+      }
+
+      @media (max-width: 650px) {
+        body .markup .tweet a.expanded-link .expanded-link-description {
+          display: none;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        body .markup .apple-podcast-container {
+          width: unset;
+        }
+      }
+
+      @media (max-width: 420px) {
+        body
+          .markup
+          .install-substack-app-embed
+          img.install-substack-app-embed-img {
+          margin: 0 auto 16px auto;
+        }
+      }
+
+      @media screen and (min-width: 420px) and (max-width: 600px) {
+        body
+          .markup
+          .install-substack-app-embed
+          .install-substack-app-embed-text {
+          max-width: calc(100% - 100px);
+          width: initial;
+        }
+      }
+
+      @media (max-width: 420px) {
+        body
+          .markup
+          .install-substack-app-embed
+          .install-substack-app-embed-text {
+          margin: 0 0 12px 0;
+          max-width: 100%;
+          width: auto;
+          text-align: center;
+        }
+      }
+
+      @media (max-width: 600px) {
+        body
+          .markup
+          .install-substack-app-embed
+          .install-substack-app-embed-link {
+          margin-top: 16px;
+          width: 100%;
+        }
+      }
+
+      @media screen and (min-width: 500px) {
+        body .header a.logo {
+          width: 42px;
+          height: 42px;
+          border-radius: 8px;
+        }
+      }
+
+      @media screen and (max-width: 420px) {
+        body
+          .subscription-receipt
+          table:first-of-type
+          .subscription-amount
+          .subscription-discount {
+          width: 72px !important;
+        }
+      }
+
+      @media screen and (min-width: 481px) {
+        body .share-button-container {
+          height: auto;
+        }
+      }
+
+      @media screen and (max-width: 480px) {
+        body .share-button-container .separator {
+          display: block !important;
+          margin: 0 !important;
+          height: 8px !important;
+          border-left: none !important;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .digest .item .post-meta-item.audience {
+          display: none;
+        }
+      }
+
+      @media screen and (min-width: 500px) {
+        .digest-publication .logo img {
+          width: 42px;
+          height: 42px;
+          border-radius: 4px;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .comments-page .container .comment-list .collapsed-reply {
+          margin-left: 17px;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .comment > .comment-list {
+          padding-left: 25px;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .finish-magic-login-modal .modal-content .container {
+          padding: 24px 0;
+        }
+      }
+
+      @media (max-width: 650px) {
+        .reader2-text-b3 {
+          line-height: 24px;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .reader2-text-h4 {
+          line-height: 24px;
+        }
+      }
+
+      @media screen and (min-width: 541px) {
+        .user-profile-modal {
+          padding-left: 12px;
+          padding-right: 12px;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .subscribe-widget form.form .sideBySideWrap button.rightButton {
+          padding: 10px 12px;
+        }
+      }
+
+      @media screen and (min-width: 541px) {
+        .pub-icon:hover .logo-hover,
+        .feed-item-icon:hover .logo-hover {
+          display: block;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .post-ufi.single-full-width-button .post-ufi-button-wrapper {
+          width: 100%;
+          padding: 16px;
+        }
+        .post-ufi.single-full-width-button .post-ufi-button-wrapper:empty {
+          display: none;
+        }
+        .post-ufi.single-full-width-button .post-ufi-button {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+
+      @media screen and (max-width: 768px) {
+        .file-embed-wrapper {
+          padding: 0;
+        }
+      }
+
+      @media screen and (max-width: 768px) {
+        .file-embed-wrapper-editor {
+          padding: 0;
+        }
+      }
+
+      @media screen and (max-width: 768px) {
+        .file-embed-wrapper-editor:active {
+          padding: 0;
+        }
+      }
+
+      @media only screen and (max-width: 650px) {
+        .file-embed-button.wide,
+        .file-embed-error-button.wide {
+          display: none;
+        }
+      }
+
+      @media only screen and (min-width: 630px) {
+        .file-embed-button.narrow,
+        .file-embed-error-button.narrow {
+          display: none;
+        }
+      }
+
+      @media screen and (min-width: 541px) {
+        .audio-player-wrapper .audio-player {
+          min-width: 500px;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .audio-player-wrapper .audio-player .audio-player-progress {
+          border-left-width: 16px;
+          border-right-width: 16px;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .audio-player-wrapper
+          .audio-player
+          .audio-player-progress
+          .audio-player-progress-bar
+          .audio-player-progress-bar-popup {
+          top: -54px;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .audio-player-wrapper-fancy .audio-player .audio-player-progress {
+          border-left-width: 16px;
+          border-right-width: 16px;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .audio-player-wrapper-fancy
+          .audio-player
+          .audio-player-progress
+          .audio-player-progress-bar
+          .audio-player-progress-bar-popup {
+          top: -54px;
+        }
+      }
+
+      @media (min-width: 250px) {
+        .audio-player-wrapper-fancy .audio-player {
+          padding: 32px;
+        }
+        .audio-player-wrapper-fancy .audio-player .btn-group {
+          display: flex;
+        }
+        .audio-player-wrapper-fancy
+          .audio-player
+          .btn-group
+          .button:last-of-type {
+          display: block;
+        }
+      }
+
+      @media (min-width: 300px) {
+        .audio-player-wrapper-fancy .audio-player .btn-group {
+          display: block;
+        }
+        .audio-player-wrapper-fancy
+          .audio-player
+          .btn-group
+          .button:first-of-type {
+          display: block;
+        }
+      }
+
+      @media (min-width: 350px) {
+        .audio-player-wrapper-fancy .audio-player .audio-player-substack-logo {
+          display: block;
+        }
+        .audio-player-wrapper-fancy .audio-player .audio-player-title {
+          margin-top: 16px;
+        }
+        .audio-player-wrapper-fancy
+          .audio-player
+          .audio-player-hero-image-container {
+          padding-top: 15%;
+          width: 15%;
+          display: block;
+        }
+        .audio-player-wrapper-fancy
+          .audio-player
+          .btn-group
+          .button:first-of-type {
+          display: block;
+        }
+        .audio-player-wrapper-fancy .audio-player .audio-player-substack-logo {
+          display: block;
+        }
+      }
+
+      @media (min-width: 350px) {
+        .audio-player-wrapper-fancy
+          .audio-player
+          .audio-player-hero-image-container {
+          padding-top: 25%;
+          width: 25%;
+          display: block;
+        }
+        .audio-player-wrapper-fancy .audio-player .btn-group {
+          display: flex;
+        }
+        .audio-player-wrapper-fancy
+          .audio-player
+          .btn-group
+          .button:first-of-type {
+          display: block;
+        }
+      }
+
+      @media (min-width: 400px) {
+        .audio-player-wrapper-fancy
+          .audio-player
+          .audio-player-hero-image-container {
+          padding-top: 40%;
+          width: 40%;
+        }
+      }
+
+      @media (max-width: 400px) {
+        .audio-player-wrapper-fancy .audio-player .btn-group {
+          margin-top: 12px;
+        }
+        .audio-player-wrapper-fancy .audio-player .btn-group .button {
+          font-size: 13px;
+          padding: 6px 12px;
+          height: auto;
+          margin-top: 10px;
+        }
+      }
+
+      @media (min-width: 600px) {
+        .audio-player-wrapper-fancy
+          .audio-player
+          .audio-player-hero-image-container {
+          padding-top: 55%;
+          width: 55%;
+        }
+      }
+
+      @media (max-width: 650px) {
+        .poll-editor-modal {
+          min-width: calc(100% - 20px);
+        }
+      }
+
+      @media (max-width: 750px) {
+        .poll-embed .poll-anchor-target .poll-anchor-copy-button {
+          left: 8px;
+          top: 45px;
+        }
+      }
+
+      @media screen and (min-width: 541px) {
+        .poll-embed
+          .poll-wrapper.poll-web
+          .poll-dialog
+          .modal-table
+          .modal-row
+          .modal-content
+          > .container {
+          width: 552px;
+          padding: 26px 24px;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .poll-embed
+          .poll-wrapper.poll-web
+          .poll-dialog
+          .modal-table
+          .modal-row
+          .modal-content
+          > .container {
+          padding: 40px 0;
+        }
+      }
+
+      @media screen and (max-width: 650px) {
+        .poll-embed
+          .poll-wrapper.poll-web
+          .poll-dialog
+          .modal-row
+          .modal-cell
+          .modal-exit-btn {
+          margin-right: -20px;
+        }
+      }
+    </style>
+  </head>
+  <body class="email-body" style="font-kerning: auto">
+    <img src="https://mailgun.substack.com/api/v1/email/open?token=eyJtIjoiPDIwMjMwNDE4MDI1NTQwLjMuMWE3ZGE0M2JkNzdmODJiYUBtZzIuc3Vic3RhY2suY29tPiIsInUiOjcyNTc3NzIxLCJyIjoic3kud3VoYkBnbWFpbC5jb20iLCJkIjoibWcyLnN1YnN0YWNrLmNvbSIsInAiOjExNTUyNjg5NCwidCI6Im5ld3NsZXR0ZXIiLCJhIjoiZXZlcnlvbmUiLCJzIjo2NjQ3MjEsImMiOiJwb3N0IiwiZiI6dHJ1ZSwicG9zaXRpb24iOiJ0b3AiLCJpYXQiOjE2ODE3ODY1NDMsImV4cCI6MTY4NDM3ODU0MywiaXNzIjoicHViLTAiLCJzdWIiOiJlbyJ9.SDD0IPBdKpQzkw_vNdf-R_V769CHJsQtnTiSFQI3X3w" alt="" width="1" height="1" border="0" style="
+        height: 1px !important;
+        width: 1px !important;
+        border-width: 0 !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        margin-right: 0 !important;
+        margin-left: 0 !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        padding-right: 0 !important;
+        padding-left: 0 !important;
+      ">
+    <div style="
+        display: none;
+        font-size: 1px;
+        color: #333333;
+        line-height: 1px;
+        max-height: 0px;
+        max-width: 0px;
+        opacity: 0;
+        overflow: hidden;
+      " class="preview">
+      subtitle
+      &nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌
+    </div>
+    <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" class="email-body-container">
+      <tbody>
+        <tr>
+          <td></td>
+          <td width="550" class="content"></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td align="left" width="550" class="content">
+            <div style="
+                font-size: 16px;
+                line-height: 26px;
+                margin: 0 auto;
+                max-width: 550px;
+                overflow-wrap: break-word;
+                width: 100%;
+              ">
+              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
+                <tbody>
+                  <tr>
+                    <td align="right" style="height: 20px">
+                      <table role="presentation" width="auto" border="0" cellspacing="0" cellpadding="0">
+                        <tbody>
+                          <tr>
+                            <td style="vertical-align: middle">
+                              <span class="tw-font-body tw-text-ssm tw-text-substack-secondary" style="
+                                  color: #808080 !important;
+                                  font-family: SF Pro Text, -apple-system,
+                                    BlinkMacSystemFont, Inter, Segoe UI, Roboto,
+                                    Helvetica, Arial, sans-serif,
+                                    Apple Color Emoji, Segoe UI Emoji,
+                                    Segoe UI Symbol !important;
+                                  font-size: 13px !important;
+                                "><a href="https://open.substack.com/pub/hongbo130/p/title?utm_source=email&redirect=app-store" class="tw-text-substack-secondary tw-underline" style="
+                                    -webkit-text-decoration-line: underline !important;
+                                    color: #808080 !important;
+                                    text-decoration-line: underline !important;
+                                  ">Open in app</a>
+                                or
+                                <a href="https://substack.com/redirect/2/eyJlIjoiaHR0cHM6Ly9ob25nYm8xMzAuc3Vic3RhY2suY29tL3AvdGl0bGU_dG9rZW49ZXlKMWMyVnlYMmxrSWpvM01qVTNOemN5TVN3aWNHOXpkRjlwWkNJNk1URTFOVEkyT0RrMExDSnBZWFFpT2pFMk9ERTNPRFkxTkRNc0ltVjRjQ0k2TVRZNE5ETTNPRFUwTXl3aWFYTnpJam9pY0hWaUxUWTJORGN5TVNJc0luTjFZaUk2SW5CdmMzUXRjbVZoWTNScGIyNGlmUS5zcDVpeE9NR0p0V2xNMWxxU3h0TDlaWjJVTGZ0X2pMTVFxd0dpMVFjRndJIiwicCI6MTE1NTI2ODk0LCJzIjo2NjQ3MjEsImYiOnRydWUsInUiOjcyNTc3NzIxLCJpYXQiOjE2ODE3ODY1NDMsImV4cCI6MTY4NDM3ODU0MywiaXNzIjoicHViLTAiLCJzdWIiOiJsaW5rLXJlZGlyZWN0In0.sSZyhodHh7396EPbdH0ouL0mu5UTN9UDyyppMNZmo_c?" class="tw-text-substack-secondary tw-underline" style="
+                                    -webkit-text-decoration-line: underline !important;
+                                    color: #808080 !important;
+                                    text-decoration-line: underline !important;
+                                  ">online</a></span>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              
+              <div class="typography" style="font-size: 16px; line-height: 26px">
+                
+              </div>
+              <div dir="auto" class="post typography" style="font-size: 16px; line-height: 26px; padding: 16px 0 0 0">
+                <div class="post-header" style="font-size: 16px; line-height: 26px">
+                  <h1 class="post-title published" style="
+                      -moz-osx-font-smoothing: subpixel-antialiased;
+                      -webkit-font-smoothing: subpixel-antialiased;
+                      color: #404040;
+                      font-family: 'SF Compact Display', -apple-system,
+                        BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+                        sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+                        'Segoe UI Symbol';
+                      font-size: 32px;
+                      font-weight: bold;
+                      line-height: 36px;
+                      margin: 0;
+                    ">
+                    <a href="https://substack.com/app-link/post?publication_id=664721&post_id=115526894&utm_source=post-email-title&isFreemail=true&token=eyJ1c2VyX2lkIjo3MjU3NzcyMSwicG9zdF9pZCI6MTE1NTI2ODk0LCJpYXQiOjE2ODE3ODY1NDMsImV4cCI6MTY4NDM3ODU0MywiaXNzIjoicHViLTY2NDcyMSIsInN1YiI6InBvc3QtcmVhY3Rpb24ifQ.sp5ixOMGJtWlM1lqSxtL9ZZ2ULft_jLMQqwGi1QcFwI" style="color: #404040; text-decoration: none">Title</a>
+                  </h1>
+                  <h3 class="subtitle" style="
+                      -moz-osx-font-smoothing: subpixel-antialiased;
+                      -webkit-font-smoothing: subpixel-antialiased;
+                      color: #808080;
+                      font-family: 'SF Compact Display', -apple-system,
+                        BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+                        sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+                        'Segoe UI Symbol';
+                      font-size: 18px;
+                      font-weight: normal;
+                      line-height: 24px;
+                      margin: 4px 0 0;
+                      margin-top: 12px;
+                    ">
+                    subtitle
+                  </h3>
+                  
+                  
+                </div>
+              </div>
+              <div dir="auto" class="post typography" style="font-size: 16px; line-height: 26px; padding: 16px 0 0 0">
+                <div dir="auto" class="body markup" style="
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin-bottom: 16px;
+                    text-align: initial;
+                    width: 100%;
+                    word-break: break-word;
+                  ">
+                  <p style="
+                      color: #404040;
+                      font-size: 16px;
+                      line-height: 26px;
+                      margin: 0 0 20px 0;
+                      margin-bottom: 0;
+                      margin-top: 0;
+                    ">
+                    content
+                  </p>
+                </div>
+              </div>
+              <div class="postscript-placeholder" style="
+                  box-sizing: border-box;
+                  font-size: 16px;
+                  line-height: 26px;
+                  margin: 32px 0 0;
+                  width: 100%;
+                "></div>
+              
+              
+            </div>
+          </td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+    <img src="https://mailgun.substack.com/api/v1/email/open?token=eyJtIjoiPDIwMjMwNDE4MDI1NTQwLjMuMWE3ZGE0M2JkNzdmODJiYUBtZzIuc3Vic3RhY2suY29tPiIsInUiOjcyNTc3NzIxLCJyIjoic3kud3VoYkBnbWFpbC5jb20iLCJkIjoibWcyLnN1YnN0YWNrLmNvbSIsInAiOjExNTUyNjg5NCwidCI6Im5ld3NsZXR0ZXIiLCJhIjoiZXZlcnlvbmUiLCJzIjo2NjQ3MjEsImMiOiJwb3N0IiwiZiI6dHJ1ZSwicG9zaXRpb24iOiJib3R0b20iLCJpYXQiOjE2ODE3ODY1NDMsImV4cCI6MTY4NDM3ODU0MywiaXNzIjoicHViLTAiLCJzdWIiOiJlbyJ9.Oxy-C8PEFpgrwRsznEb7fbtvjyX3FJ6YrCUnwUa18Cg" alt="" width="1" height="1" border="0" style="
+        height: 1px !important;
+        width: 1px !important;
+        border-width: 0 !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        margin-right: 0 !important;
+        margin-left: 0 !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        padding-right: 0 !important;
+        padding-left: 0 !important;
+      "><img width="1px" height="1px" alt="" src="https://email.mg2.substack.com/o/eJxM0E2OwyAMBeDTlGUEBDBdcJbIgJOiSaDiZ6rcfpS2i9k-y0-fXsBOW6mne5bWWXQqCqstIyeMFWCNVjOjA9O-bJSpYqe4YP93VTCzh-PSxNVEobkCyzm_G7wHAG-QgOtVsOQklzNXwnKpteLTPAmEiGr2EWC10uNN8WOTUxu-dQw_UygHS21ZK70BrtdB7GIuOGKiHMjRL9Wz5G-cohNCa2nsXX2Sfj7JZXq1nXqnyp7DL6Ecx8ipnwtl9DvFb_HwewrYU8lXkTEKpGDVtXN6jYe_Kb5direqDR_LgSm7R8mbL2LmrH8WHI3q9Q9SA4AUfwEAAP__Ihlzbg">
+  </body>
+</html>
