@@ -55,7 +55,7 @@ struct FeedCardNavigationLink: View {
         .onAppear {
           Task { await viewModel.itemAppeared(item: item, dataService: dataService) }
         }
-        LibraryItemCard(item: item, viewer: dataService.currentViewer)
+        LibraryItemCard(item: item)
       }
     }
   }

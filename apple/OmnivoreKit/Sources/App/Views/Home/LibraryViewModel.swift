@@ -206,6 +206,11 @@ import Views
     navigationModel: NavigationModel,
     isRefresh: Bool
   ) async {
+    if let filter = LinkedItemFilter(rawValue: navigationModel.linkedItemFilter) {
+      appliedFilter = filter.rawValue
+    }
+
+    selectedLabels = Array(navigationModel.activeLabels)
     await loadItems(dataService: dataService, isRefresh: isRefresh)
   }
 

@@ -16,13 +16,11 @@ public extension View {
 }
 
 public struct LibraryItemCard: View {
-  let viewer: Viewer?
   let tapHandler: () -> Void
   @ObservedObject var item: LinkedItem
 
-  public init(item: LinkedItem, viewer: Viewer?, tapHandler: @escaping () -> Void = {}) {
+  public init(item: LinkedItem, tapHandler: @escaping () -> Void = {}) {
     self.item = item
-    self.viewer = viewer
     self.tapHandler = tapHandler
   }
 

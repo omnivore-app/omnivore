@@ -15,11 +15,11 @@ struct SplitViewSidebar: View {
       Section(header: Text("Saved Searches")) {
         ForEach(LinkedItemFilter.allCases, id: \.self) { filter in
           Button(action: {
-            navigationModel.linkedItemFilter = filter
+            navigationModel.linkedItemFilter = filter.rawValue
           }) {
             HStack {
               Text(filter.displayName)
-              if navigationModel.linkedItemFilter == filter {
+              if navigationModel.linkedItemFilter == filter.rawValue {
                 Spacer()
                 Image(systemName: "checkmark")
               }
@@ -31,15 +31,15 @@ struct SplitViewSidebar: View {
       Section(header: Text("Labels")) {
         ForEach(labelsViewModel.labels) { label in
           Button(action: {
-            if navigationModel.activeLabelIDs.contains(label.unwrappedID) {
-              navigationModel.activeLabelIDs.remove(label.unwrappedID)
+            if navigationModel.activeLabels.contains(label) {
+              navigationModel.activeLabels.remove(label)
             } else {
-              navigationModel.activeLabelIDs.insert(label.unwrappedID)
+              navigationModel.activeLabels.insert(label)
             }
           }) {
             HStack {
               Text(label.unwrappedName)
-              if navigationModel.activeLabelIDs.contains(label.unwrappedID) {
+              if navigationModel.activeLabels.contains(label) {
                 Spacer()
                 Image(systemName: "checkmark")
               }
