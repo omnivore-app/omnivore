@@ -122,7 +122,7 @@
 // Welcome View
 "welcomeTitle" = "认真的读者所喜爱的稍后阅读。";
 "welcomeLearnMore" = "了解更多";
-"welcomeSignupAgreement" = "注册即表示您同意 Omnivore\n";
+"welcomeSignupAgreement" = "您使用我们的服务即表示您已同意本条款 Omnivore\n";
 "welcomeTitleTermsOfService" = "服务条款";
 "welcomeTitleAndJoiner" = " 和 ";
 "welcomeTitleEmailContinue" = "继续使用电子邮件";
