@@ -75,7 +75,9 @@ data class SavedItemCardData(
   val imageURLString: String?,
   val isArchived: Boolean,
   val pageURLString: String,
-  val contentReader: String?
+  val contentReader: String?,
+  val savedAt: String,
+  val readingProgress: Double,
 ) {
   fun publisherDisplayName(): String? {
     return publisherURLString?.toUri()?.host
@@ -159,5 +161,5 @@ interface SavedItemDao {
 
 
 object SavedItemQueryConstants {
-  const val columns = "savedItemId, slug, publisherURLString, title, author, imageURLString, isArchived, pageURLString, contentReader "
+  const val columns = "savedItemId, slug, publisherURLString, title, author, imageURLString, isArchived, pageURLString, contentReader, savedAt, readingProgress"
 }

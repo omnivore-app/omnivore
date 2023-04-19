@@ -132,6 +132,8 @@ class LibraryViewModel @Inject constructor(
           SavedItemCardDataWithLabels(
             cardData = SavedItemCardData(
               savedItemId = it.savedItemId,
+              savedAt = it.savedAt,
+              readingProgress = it.readingProgress,
               slug = it.slug,
               publisherURLString = it.publisherURLString,
               title = it.title,
@@ -218,7 +220,9 @@ class LibraryViewModel @Inject constructor(
               imageURLString = it.imageURLString,
               isArchived = it.isArchived,
               pageURLString = it.pageURLString,
-              contentReader = it.contentReader
+              contentReader = it.contentReader,
+              savedAt = it.savedAt,
+              readingProgress = it.readingProgress
             ),
             labels = listOf()
           )
