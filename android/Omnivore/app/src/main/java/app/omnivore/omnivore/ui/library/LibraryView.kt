@@ -66,7 +66,6 @@ fun LibraryViewContent(libraryViewModel: LibraryViewModel, modifier: Modifier) {
   )
 
   val cardsData: List<SavedItemCardDataWithLabels> by libraryViewModel.itemsLiveData.observeAsState(listOf())
-  val searchedCardsData: List<SavedItemCardDataWithLabels> by libraryViewModel.searchItemsLiveData.observeAsState(listOf())
 
   Box(
     modifier = Modifier

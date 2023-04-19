@@ -49,6 +49,10 @@ fun SearchView(
                     Row {
                         SearchField(
                             searchText,
+                            onSearch = {
+                                libraryViewModel.loadUsingSearchAPI()
+                                navController.popBackStack()
+                            },
                             onSearchTextChanged = { libraryViewModel.updateSearchText(it) },
                             navController = navController
                         )

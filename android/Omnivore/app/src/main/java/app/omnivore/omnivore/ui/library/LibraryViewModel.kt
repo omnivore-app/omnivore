@@ -97,7 +97,9 @@ class LibraryViewModel @Inject constructor(
     if (text == "") {
       searchItemsLiveData.value = listOf()
     } else {
-      load(clearPreviousSearch = true)
+      viewModelScope.launch {
+        performTypeaheadSearch(true)
+      }
     }
   }
 
@@ -133,12 +135,8 @@ class LibraryViewModel @Inject constructor(
     loadInitialFilterValues()
 
     viewModelScope.launch {
-      if (searchTextLiveData.value != "") {
-        performSearch(clearPreviousSearch)
-      } else {
-        syncItems()
-        loadUsingSearchAPI()
-      }
+      syncItems()
+      loadUsingSearchAPI()
     }
   }
 
@@ -189,9 +187,7 @@ class LibraryViewModel @Inject constructor(
   }
 
   suspend fun handleFilterChanges() {
-    if (searchTextLiveData.value != "") {
-      performSearch(true)
-    } else if (appliedSortFilterLiveData.value != null && appliedFilterLiveData.value != null) {
+    if (appliedSortFilterLiveData.value != null && appliedFilterLiveData.value != null) {
       itemsLiveDataInternal = dataService.libraryLiveData(appliedFilterLiveData.value!!, appliedSortFilterLiveData.value!!, activeLabelsLiveData.value ?: listOf())
       itemsLiveData.removeSource(itemsLiveDataInternal)
       itemsLiveData.addSource(itemsLiveDataInternal, itemsLiveData::setValue)
@@ -237,7 +233,7 @@ class LibraryViewModel @Inject constructor(
     }
   }
 
-  private suspend fun performSearch(clearPreviousSearch: Boolean) {
+  private suspend fun performTypeaheadSearch(clearPreviousSearch: Boolean) {
     if (clearPreviousSearch) {
       cursor = null
     }

@@ -66,17 +66,16 @@ fun SearchBar(
 @Composable
 fun SearchField(
   searchText: String,
+  onSearch: () -> Unit,
   onSearchTextChanged: (String) -> Unit,
   navController: NavHostController,
 ) {
   var showClearButton by remember { mutableStateOf(false) }
-  val keyboardController = LocalSoftwareKeyboardController.current
   val focusRequester = remember { FocusRequester() }
 
     TextField(
         modifier = Modifier
           .fillMaxWidth()
-          // .padding(vertical = 2.dp)
           .onFocusChanged { focusState ->
             showClearButton = (focusState.isFocused)
           }
@@ -115,9 +114,9 @@ fun SearchField(
         },
         maxLines = 1,
         singleLine = true,
-        keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
-        keyboardActions = KeyboardActions(onDone = {
-          keyboardController?.hide()
+        keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Search),
+        keyboardActions = KeyboardActions(onSearch = {
+          onSearch()
         }),
       )
 
