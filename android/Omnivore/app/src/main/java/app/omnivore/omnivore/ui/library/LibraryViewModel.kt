@@ -49,7 +49,6 @@ class LibraryViewModel @Inject constructor(
   val activeLabelsLiveData = MutableLiveData<List<SavedItemLabel>>(listOf())
 
   var isRefreshing by mutableStateOf(false)
-  var showSearchField by mutableStateOf(false)
   var hasLoadedInitialFilters = false
 
   fun loadInitialFilterValues() {

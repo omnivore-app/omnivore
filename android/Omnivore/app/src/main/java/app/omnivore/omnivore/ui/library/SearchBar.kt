@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
@@ -23,6 +24,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import app.omnivore.omnivore.R
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -36,40 +38,24 @@ fun SearchBar(
 
   TopAppBar(
     title = {
-      if (libraryViewModel.showSearchField) {
-        SearchField(searchText) { libraryViewModel.updateSearchText(it) }
-      } else {
         Text("Library")
-      }
     },
     colors = TopAppBarDefaults.topAppBarColors(
       containerColor = MaterialTheme.colorScheme.surfaceVariant
     ),
     actions = {
-      if (libraryViewModel.showSearchField) {
-        Text(
-          text = "Cancel",
-          modifier = Modifier
-            .clickable {
-              libraryViewModel.updateSearchText("")
-              libraryViewModel.showSearchField = false
-            }
-            .padding(horizontal = 6.dp)
+      IconButton(onClick = onSearchClicked) {
+        Icon(
+          imageVector = Icons.Filled.Search,
+          contentDescription = null
         )
-      } else {
-        IconButton(onClick = onSearchClicked) {
-          Icon(
-            imageVector = Icons.Filled.Search,
-            contentDescription = null
-          )
-        }
+      }
 
-        IconButton(onClick = onSettingsIconClick) {
-          Icon(
-            imageVector = Icons.Default.Settings,
-            contentDescription = null
-          )
-        }
+      IconButton(onClick = onSettingsIconClick) {
+        Icon(
+          imageVector = Icons.Default.Settings,
+          contentDescription = null
+        )
       }
     }
   )
@@ -80,7 +66,8 @@ fun SearchBar(
 @Composable
 fun SearchField(
   searchText: String,
-  onSearchTextChanged: (String) -> Unit
+  onSearchTextChanged: (String) -> Unit,
+  navController: NavHostController,
 ) {
   var showClearButton by remember { mutableStateOf(false) }
   val keyboardController = LocalSoftwareKeyboardController.current
@@ -89,7 +76,7 @@ fun SearchField(
  TextField(
         modifier = Modifier
           .fillMaxWidth()
-          .padding(vertical = 2.dp)
+          // .padding(vertical = 2.dp)
           .onFocusChanged { focusState ->
             showClearButton = (focusState.isFocused)
           }
@@ -99,6 +86,16 @@ fun SearchField(
         placeholder = {
           Text(text = "Search")
         },
+   leadingIcon = {
+     IconButton(
+                    onClick = { navController.popBackStack() }
+                ) {
+                    Icon(
+                        imageVector = androidx.compose.material.icons.Icons.Filled.ArrowBack,
+                        contentDescription = "Back"
+                    )
+                }
+   },
         trailingIcon = {
           AnimatedVisibility(
             visible = showClearButton,
