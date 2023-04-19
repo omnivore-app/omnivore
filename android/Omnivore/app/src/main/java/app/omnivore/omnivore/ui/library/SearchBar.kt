@@ -73,7 +73,7 @@ fun SearchField(
   val keyboardController = LocalSoftwareKeyboardController.current
   val focusRequester = remember { FocusRequester() }
 
- TextField(
+    TextField(
         modifier = Modifier
           .fillMaxWidth()
           // .padding(vertical = 2.dp)
@@ -86,16 +86,18 @@ fun SearchField(
         placeholder = {
           Text(text = "Search")
         },
-   leadingIcon = {
-     IconButton(
-                    onClick = { navController.popBackStack() }
-                ) {
+        leadingIcon = {
+            IconButton(
+                onClick = {
+                    onSearchTextChanged("")
+                    navController.popBackStack()
+                }) {
                     Icon(
                         imageVector = androidx.compose.material.icons.Icons.Filled.ArrowBack,
                         contentDescription = "Back"
                     )
                 }
-   },
+        },
         trailingIcon = {
           AnimatedVisibility(
             visible = showClearButton,

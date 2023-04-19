@@ -45,19 +45,6 @@ fun SearchView(
         topBar = {
             TopAppBar(
                 title = { Text("") },
-//                SearchField(searchText) { libraryViewModel.updateSearchText(it) }
-//                              },
-//                navigationIcon = {
-//                IconButton(
-//                    modifier = Modifier.background(color = Color.Red),
-//                    onClick = { navController.popBackStack() }
-//                ) {
-//                    Icon(
-//                        imageVector = androidx.compose.material.icons.Icons.Filled.ArrowBack,
-//                        contentDescription = "Back"
-//                    )
-//                },
-
                 actions = {
                     Row {
                         SearchField(
