@@ -4,7 +4,7 @@ import android.util.Log
 import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.persistence.entities.*
 
-suspend fun DataService.librarySearch(cursor: String?, query: String): SavedItemSyncResult {
+suspend fun DataService.librarySearch(cursor: String?, query: String): SearchResult {
   val searchResult = networker.search(cursor = cursor, limit = 10, query = query)
 
   val savedItems = searchResult.items.map { it.item }
@@ -28,14 +28,14 @@ suspend fun DataService.librarySearch(cursor: String?, query: String): SavedItem
   db.savedItemLabelDao().insertAll(labels)
   db.savedItemAndSavedItemLabelCrossRefDao().insertAll(crossRefs)
 
-  Log.d("sync", "found ${searchResult.items.size} items with search api. Query: $query")
+  Log.d("sync", "found ${searchResult.items.size} items with search api. Query: $query cursor: $cursor")
 
-  return SavedItemSyncResult(
+  return SearchResult(
     hasError = false,
     hasMoreItems = false,
     cursor = searchResult.cursor,
     count = searchResult.items.size,
-    savedItemSlugs = savedItems.map { it.slug }
+    savedItems = savedItems
   )
 }
 
@@ -148,5 +148,17 @@ data class SavedItemSyncResult(
 ) {
   companion object {
     val errorResult = SavedItemSyncResult(hasError = true, hasMoreItems = true, cursor = null, count = 0, savedItemSlugs = listOf())
+  }
+}
+
+data class SearchResult(
+  val hasError: Boolean,
+  val hasMoreItems: Boolean,
+  val count: Int,
+  val savedItems: List<SavedItem>,
+  val cursor: String?
+) {
+  companion object {
+    val errorResult = SearchResult(hasError = true, hasMoreItems = true, cursor = null, count = 0, savedItems = listOf())
   }
 }

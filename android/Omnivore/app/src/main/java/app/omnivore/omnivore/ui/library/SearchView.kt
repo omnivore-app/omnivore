@@ -32,6 +32,8 @@ import app.omnivore.omnivore.ui.reader.WebReaderLoadingContainerActivity
 import kotlinx.coroutines.flow.distinctUntilChanged
 import androidx.compose.ui.res.stringResource
 import app.omnivore.omnivore.R
+import app.omnivore.omnivore.persistence.entities.TypeaheadCardData
+import app.omnivore.omnivore.ui.savedItemViews.TypeaheadSearchCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,7 +52,7 @@ fun SearchView(
                         SearchField(
                             searchText,
                             onSearch = {
-                                libraryViewModel.loadUsingSearchAPI()
+                                libraryViewModel.performSearch()
                                 navController.popBackStack()
                             },
                             onSearchTextChanged = { libraryViewModel.updateSearchText(it) },
@@ -65,8 +67,7 @@ fun SearchView(
         SearchViewContent(
             libraryViewModel,
             modifier = Modifier
-                .padding(vertical = paddingValues.calculateTopPadding())
-                .background(Color.Blue)
+                .padding(top = paddingValues.calculateTopPadding())
         )
     }
 }
@@ -76,9 +77,7 @@ fun SearchView(
 fun SearchViewContent(libraryViewModel: LibraryViewModel, modifier: Modifier) {
     val context = LocalContext.current
     val listState = rememberLazyListState()
-
-    val searchedCardsData: List<SavedItemCardDataWithLabels> by libraryViewModel.searchItemsLiveData.observeAsState(listOf())
-
+    val searchedCardsData: List<TypeaheadCardData> by libraryViewModel.searchItemsLiveData.observeAsState(listOf())
 
         LazyColumn(
             state = listState,
@@ -89,17 +88,17 @@ fun SearchViewContent(libraryViewModel: LibraryViewModel, modifier: Modifier) {
                 .fillMaxSize()
 
         ) {
-            items(searchedCardsData) { cardDataWithLabels ->
-                SavedItemCard(
-                    cardData = cardDataWithLabels.cardData,
-                    labels = cardDataWithLabels.labels,
+            items(searchedCardsData) { cardData ->
+                TypeaheadSearchCard(
+                    cardData = cardData,
                     onClickHandler = {
-                        val activityClass = if (cardDataWithLabels.cardData.isPDF()) PDFReaderActivity::class.java else WebReaderLoadingContainerActivity::class.java
+                        // val activityClass = if (cardData.isPDF()) PDFReaderActivity::class.java else WebReaderLoadingContainerActivity::class.java
+                        val activityClass = WebReaderLoadingContainerActivity::class.java
                         val intent = Intent(context, activityClass)
-                        intent.putExtra("SAVED_ITEM_SLUG", cardDataWithLabels.cardData.slug)
+                        intent.putExtra("SAVED_ITEM_SLUG", cardData.slug)
                         context.startActivity(intent)
                     },
-                    actionHandler = { libraryViewModel.handleSavedItemAction(cardDataWithLabels.cardData.savedItemId, it) }
+                    actionHandler = { libraryViewModel.handleSavedItemAction(cardData.savedItemId, it) }
                 )
             }
         }

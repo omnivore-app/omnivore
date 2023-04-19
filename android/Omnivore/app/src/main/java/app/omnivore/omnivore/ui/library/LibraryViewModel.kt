@@ -38,7 +38,7 @@ class LibraryViewModel @Inject constructor(
 
   // Live Data
   val searchTextLiveData = MutableLiveData("")
-  val searchItemsLiveData = MutableLiveData<List<SavedItemCardDataWithLabels>>(listOf())
+  val searchItemsLiveData = MutableLiveData<List<TypeaheadCardData>>(listOf())
   private var itemsLiveDataInternal = dataService.libraryLiveData(SavedItemFilter.INBOX, SavedItemSortFilter.NEWEST, listOf())
   val itemsLiveData = MediatorLiveData<List<SavedItemCardDataWithLabels>>()
   val appliedFilterLiveData = MutableLiveData(SavedItemFilter.INBOX)
@@ -103,6 +103,53 @@ class LibraryViewModel @Inject constructor(
     }
   }
 
+  fun performSearch() {
+    // To perform search we just clear the current state, so the LibraryView infinite scroll
+    // load will update items.
+    viewModelScope.launch {
+      itemsLiveData.postValue(listOf())
+      librarySearchCursor = null
+
+      withContext(Dispatchers.IO) {
+        val result = dataService.librarySearch(cursor = librarySearchCursor, query = searchQueryString())
+        result.cursor?.let {
+          librarySearchCursor = it
+        }
+        CoroutineScope(Dispatchers.Main).launch {
+          isRefreshing = false
+        }
+
+        result.savedItems.map {
+          val isSavedInDB = dataService.isSavedItemContentStoredInDB(it.slug)
+
+          if (!isSavedInDB) {
+            delay(2000)
+            contentRequestChannel.send(it.slug)
+          }
+        }
+
+        val newItems = result.savedItems.map {
+          SavedItemCardDataWithLabels(
+            cardData = SavedItemCardData(
+              savedItemId = it.savedItemId,
+              slug = it.slug,
+              publisherURLString = it.publisherURLString,
+              title = it.title,
+              author = it.author,
+              imageURLString = it.imageURLString,
+              isArchived = it.isArchived,
+              pageURLString = it.pageURLString,
+              contentReader = it.contentReader
+            ),
+            labels = listOf()
+          )
+        }
+
+        itemsLiveData.postValue(newItems)
+      }
+    }
+  }
+
   fun refresh() {
     isRefreshing = true
     load(true)
@@ -151,13 +198,36 @@ class LibraryViewModel @Inject constructor(
           isRefreshing = false
         }
 
-        result.savedItemSlugs.map {
-          val isSavedInDB = dataService.isSavedItemContentStoredInDB(it)
+        result.savedItems.map {
+          val isSavedInDB = dataService.isSavedItemContentStoredInDB(it.slug)
 
           if (!isSavedInDB) {
             delay(2000)
-            contentRequestChannel.send(it)
+            contentRequestChannel.send(it.slug)
           }
+        }
+
+        val newItems = result.savedItems.map {
+          SavedItemCardDataWithLabels(
+            cardData = SavedItemCardData(
+              savedItemId = it.savedItemId,
+              slug = it.slug,
+              publisherURLString = it.publisherURLString,
+              title = it.title,
+              author = it.author,
+              imageURLString = it.imageURLString,
+              isArchived = it.isArchived,
+              pageURLString = it.pageURLString,
+              contentReader = it.contentReader
+            ),
+            labels = listOf()
+          )
+        }
+
+        itemsLiveData.value?.let{
+          itemsLiveData.postValue(newItems + it)
+        } ?: run {
+          itemsLiveData.postValue(newItems)
         }
       }
     }
@@ -253,11 +323,7 @@ class LibraryViewModel @Inject constructor(
       return
     }
 
-    val cardsDataWithLabels = searchResult.cardsData.map {
-      SavedItemCardDataWithLabels(cardData = it, labels = listOf())
-    }
-
-    searchItemsLiveData.postValue(cardsDataWithLabels)
+    searchItemsLiveData.postValue(searchResult.cardsData)
 
     CoroutineScope(Dispatchers.Main).launch {
       isRefreshing = false

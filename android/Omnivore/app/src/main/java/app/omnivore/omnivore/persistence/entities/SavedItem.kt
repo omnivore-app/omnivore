@@ -87,6 +87,13 @@ data class SavedItemCardData(
   }
 }
 
+data class TypeaheadCardData(
+  val savedItemId: String,
+  val slug: String,
+  val title: String,
+  val isArchived: Boolean,
+)
+
 @Dao
 interface SavedItemDao {
   @Query("SELECT * FROM savedItem")

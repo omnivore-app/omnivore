@@ -5,11 +5,12 @@ import app.omnivore.omnivore.graphql.generated.TypeaheadSearchQuery
 import app.omnivore.omnivore.persistence.entities.SavedItem
 import app.omnivore.omnivore.persistence.entities.SavedItemCardData
 import app.omnivore.omnivore.persistence.entities.SavedItemLabel
+import app.omnivore.omnivore.persistence.entities.TypeaheadCardData
 import com.apollographql.apollo3.api.Optional
 
 data class SearchQueryResponse(
   val cursor: String?,
-  val cardsData: List<SavedItemCardData>
+  val cardsData: List<TypeaheadCardData>
 )
 
 data class LibrarySearchQueryResponse(
@@ -33,16 +34,11 @@ suspend fun Networker.typeaheadSearch(
     val itemList = result.data?.typeaheadSearch?.onTypeaheadSearchSuccess?.items ?: listOf()
 
     val cardsData = itemList.map {
-      SavedItemCardData(
+      TypeaheadCardData(
         savedItemId = it.id,
         slug = it.slug,
-        publisherURLString = "",
         title = it.title,
-        author = "",
-        imageURLString = null,
         isArchived = false,
-        pageURLString = "",
-        contentReader = null,
       )
     }
 
