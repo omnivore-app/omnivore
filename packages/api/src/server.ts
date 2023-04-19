@@ -38,10 +38,10 @@ import { notificationRouter } from './routers/notification_router'
 import { pageRouter } from './routers/page_router'
 import { contentServiceRouter } from './routers/svc/content'
 import { emailsServiceRouter } from './routers/svc/emails'
+import { emailAttachmentRouter } from './routers/svc/email_attachment'
 import { integrationsServiceRouter } from './routers/svc/integrations'
 import { linkServiceRouter } from './routers/svc/links'
 import { newsletterServiceRouter } from './routers/svc/newsletters'
-import { pdfAttachmentsRouter } from './routers/svc/pdf_attachments'
 import { remindersServiceRouter } from './routers/svc/reminders'
 import { uploadServiceRouter } from './routers/svc/upload'
 import { webhooksServiceRouter } from './routers/svc/webhooks'
@@ -145,7 +145,7 @@ export const createApp = (): {
   app.use('/svc/pubsub/webhooks', webhooksServiceRouter())
   app.use('/svc/pubsub/integrations', integrationsServiceRouter())
   app.use('/svc/reminders', remindersServiceRouter())
-  app.use('/svc/pdf-attachments', pdfAttachmentsRouter())
+  app.use('/svc/email-attachment', emailAttachmentRouter())
 
   if (env.dev.isLocal) {
     app.use('/local/debug', localDebugRouter())

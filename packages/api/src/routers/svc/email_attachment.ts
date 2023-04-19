@@ -1,34 +1,35 @@
 import express from 'express'
+import { setClaims } from '../../datalayer/helpers'
+import { kx } from '../../datalayer/knex_config'
+import { createPubSubClient } from '../../datalayer/pubsub'
+import { createPage } from '../../elastic/pages'
+import { ArticleSavingRequestStatus, Page } from '../../elastic/types'
 import { env } from '../../env'
 import { PageType, UploadFileStatus } from '../../generated/graphql'
+import { initModels } from '../../server'
+import { getNewsletterEmail } from '../../services/newsletters'
+import { updateReceivedEmail } from '../../services/received_emails'
+import { analytics } from '../../utils/analytics'
+import { getClaimsByToken } from '../../utils/auth'
+import { generateSlug } from '../../utils/helpers'
 import {
   generateUploadFilePathName,
   generateUploadSignedUrl,
   getStorageFileDetails,
   makeStorageFilePublic,
 } from '../../utils/uploads'
-import { initModels } from '../../server'
-import { kx } from '../../datalayer/knex_config'
-import { analytics } from '../../utils/analytics'
-import { getNewsletterEmail } from '../../services/newsletters'
-import { setClaims } from '../../datalayer/helpers'
-import { generateSlug } from '../../utils/helpers'
-import { createPubSubClient } from '../../datalayer/pubsub'
-import { ArticleSavingRequestStatus, Page } from '../../elastic/types'
-import { createPage } from '../../elastic/pages'
-import { getClaimsByToken } from '../../utils/auth'
-import { updateReceivedEmail } from '../../services/received_emails'
 
-export function pdfAttachmentsRouter() {
+export function emailAttachmentRouter() {
   const router = express.Router()
 
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   router.post('/upload', async (req, res) => {
-    console.log('pdf-attachments/upload')
+    console.log('email-attachment/upload')
 
-    const { email, fileName } = req.body as {
+    const { email, fileName, contentType } = req.body as {
       email: string
       fileName: string
+      contentType: string
     }
 
     const token = req?.headers?.authorization
@@ -45,14 +46,13 @@ export function pdfAttachmentsRouter() {
 
     analytics.track({
       userId: user.id,
-      event: 'pdf_attachment_upload',
+      event: 'email_attachment_upload',
       properties: {
         env: env.server.apiEnv,
       },
     })
 
     try {
-      const contentType = 'application/pdf'
       const models = initModels(kx, false)
       const uploadFileData = await models.uploadFile.create({
         url: '',
@@ -86,7 +86,7 @@ export function pdfAttachmentsRouter() {
 
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   router.post('/create-article', async (req, res) => {
-    console.log('pdf-attachments/create-article')
+    console.log('email-attachment/create-article')
 
     const { email, uploadFileId, subject, receivedEmailId } = req.body as {
       email: string
@@ -109,7 +109,7 @@ export function pdfAttachmentsRouter() {
 
     analytics.track({
       userId: user.id,
-      event: 'pdf_attachment_create_article',
+      event: 'email_attachment_create_article',
       properties: {
         env: env.server.apiEnv,
       },
@@ -144,18 +144,21 @@ export function pdfAttachmentsRouter() {
       )
 
       const uploadFileHash = uploadFileDetails.md5Hash
-      const pageType = PageType.File
+      const pageType =
+        uploadFile.contentType === 'application/pdf'
+          ? PageType.File
+          : PageType.Book
       const title = subject || uploadFileData.fileName
       const articleToSave: Page = {
+        id: '',
         url: uploadFileUrlOverride,
-        pageType: pageType,
+        pageType,
         hash: uploadFileHash,
-        uploadFileId: uploadFileId,
+        uploadFileId,
         title,
         content: '',
         userId: user.id,
         slug: generateSlug(title),
-        id: '',
         createdAt: new Date(),
         savedAt: new Date(),
         readingProgressPercent: 0,
