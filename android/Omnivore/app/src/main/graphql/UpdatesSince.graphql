@@ -28,6 +28,10 @@ query UpdatesSince($after: String, $first: Int, $since: Date!) {
             name
             color
           }
+          highlights {
+            id
+            type
+          }
           pageId
           shortId
           quote
@@ -39,6 +43,7 @@ query UpdatesSince($after: String, $first: Int, $since: Date!) {
           savedAt
           updatedAt
           language
+          wordsCount
         }
       }
       pageInfo {

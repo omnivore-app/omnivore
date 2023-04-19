@@ -14,6 +14,7 @@ import app.omnivore.omnivore.graphql.generated.type.CreateLabelInput
 import app.omnivore.omnivore.graphql.generated.type.SetLabelsInput
 import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.persistence.entities.*
+import com.apollographql.apollo3.api.Optional
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
@@ -141,7 +142,8 @@ class LibraryViewModel @Inject constructor(
               imageURLString = it.imageURLString,
               isArchived = it.isArchived,
               pageURLString = it.pageURLString,
-              contentReader = it.contentReader
+              contentReader = it.contentReader,
+              wordsCount = it.wordsCount
             ),
             labels = listOf()
           )
@@ -222,7 +224,8 @@ class LibraryViewModel @Inject constructor(
               pageURLString = it.pageURLString,
               contentReader = it.contentReader,
               savedAt = it.savedAt,
-              readingProgress = it.readingProgress
+              readingProgress = it.readingProgress,
+              wordsCount = it.wordsCount
             ),
             labels = listOf()
           )
@@ -388,7 +391,7 @@ class LibraryViewModel @Inject constructor(
   fun createNewSavedItemLabel(labelName: String, hexColorValue: String) {
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
-        val newLabel = networker.createNewLabel(CreateLabelInput(color = hexColorValue, name = labelName))
+        val newLabel = networker.createNewLabel(CreateLabelInput(color = Optional.presentIfNotNull(hexColorValue), name = labelName))
 
         newLabel?.let {
           val savedItemLabel = SavedItemLabel(

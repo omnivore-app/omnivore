@@ -26,6 +26,10 @@ query Search($after: String, $first: Int, $query: String) {
             name
             color
           }
+          highlights {
+            id
+            type
+          }
           pageId
           shortId
           quote
@@ -36,6 +40,7 @@ query Search($after: String, $first: Int, $query: String) {
           readAt
           savedAt
           updatedAt
+          wordsCount
         }
       }
       pageInfo {

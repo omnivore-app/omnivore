@@ -77,7 +77,8 @@ suspend fun Networker.savedItem(slug: String): SavedItemQueryResponse {
       slug = article.articleFields.slug,
       isArchived = article.articleFields.isArchived,
       contentReader = article.articleFields.contentReader.rawValue,
-      content = article.articleFields.content
+      content = article.articleFields.content,
+      wordsCount = article.articleFields.wordsCount
     )
 
     return SavedItemQueryResponse(item = savedItem, highlights, labels = savedItemLabels, state = article.articleFields.state?.rawValue ?: "")

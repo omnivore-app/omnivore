@@ -19,6 +19,8 @@ import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.persistence.entities.SavedItemAndSavedItemLabelCrossRef
 import app.omnivore.omnivore.persistence.entities.SavedItemLabel
 import app.omnivore.omnivore.ui.library.SavedItemAction
+import com.apollographql.apollo3.api.Optional
+import com.apollographql.apollo3.api.Optional.Companion.presentIfNotNull
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
@@ -394,7 +396,8 @@ class WebReaderViewModel @Inject constructor(
   fun createNewSavedItemLabel(labelName: String, hexColorValue: String) {
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
-        val newLabel = networker.createNewLabel(CreateLabelInput(color = hexColorValue, name = labelName))
+
+        val newLabel = networker.createNewLabel(CreateLabelInput(color = Optional.presentIfNotNull(hexColorValue), name = labelName))
 
         newLabel?.let {
           val savedItemLabel = SavedItemLabel(

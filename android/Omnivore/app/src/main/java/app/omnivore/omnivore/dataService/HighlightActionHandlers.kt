@@ -15,10 +15,10 @@ suspend fun DataService.createWebHighlight(jsonString: String) {
     val highlight = Highlight(
       highlightId = createHighlightInput.id,
       shortId = createHighlightInput.shortId,
-      quote = createHighlightInput.quote,
+      quote = createHighlightInput.quote.getOrNull(),
       prefix = null,
       suffix = null,
-      patch = createHighlightInput.patch,
+      patch = createHighlightInput.patch.getOrNull(),
       annotation = createHighlightInput.annotation.getOrNull(),
       createdAt = null,
       updatedAt = null,

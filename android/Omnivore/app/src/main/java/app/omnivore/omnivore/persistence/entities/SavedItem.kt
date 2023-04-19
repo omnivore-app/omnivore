@@ -40,7 +40,8 @@ data class SavedItem(
   val originalHtml: String? = null,
   @ColumnInfo(typeAffinity = ColumnInfo.BLOB) val pdfData: ByteArray? = null,
   var serverSyncStatus: Int = 0,
-  val tempPDFURL: String? = null
+  val tempPDFURL: String? = null,
+  val wordsCount: Int? = null
 
 // hasMany highlights
 // hasMany labels
@@ -78,6 +79,7 @@ data class SavedItemCardData(
   val contentReader: String?,
   val savedAt: String,
   val readingProgress: Double,
+  val wordsCount: Int?
 ) {
   fun publisherDisplayName(): String? {
     return publisherURLString?.toUri()?.host
@@ -161,5 +163,5 @@ interface SavedItemDao {
 
 
 object SavedItemQueryConstants {
-  const val columns = "savedItemId, slug, publisherURLString, title, author, imageURLString, isArchived, pageURLString, contentReader, savedAt, readingProgress"
+  const val columns = "savedItemId, slug, publisherURLString, title, author, imageURLString, isArchived, pageURLString, contentReader, savedAt, readingProgress, wordsCount"
 }

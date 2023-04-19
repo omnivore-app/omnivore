@@ -62,7 +62,8 @@ suspend fun DataService.sync(since: String, cursor: String?, limit: Int = 20): S
       slug = it.slug,
       isArchived = it.isArchived,
       contentReader = it.contentReader.rawValue,
-      content = null
+      content = null,
+      wordsCount = it.wordsCount
     )
   }
 

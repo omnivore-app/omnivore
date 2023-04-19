@@ -134,13 +134,16 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
 
   private fun loadHighlights(highlights: List<Highlight>) {
     for (highlight in highlights) {
-      val highlightAnnotation = fragment
-        .document
-        ?.annotationProvider
-        ?.createAnnotationFromInstantJson(highlight.patch)
+      val patch = highlight.patch
+      if (patch != null) {
+        val highlightAnnotation = fragment
+          .document
+          ?.annotationProvider
+          ?.createAnnotationFromInstantJson(patch)
 
-      highlightAnnotation?.let {
-        fragment.addAnnotationToPage(highlightAnnotation, true)
+        highlightAnnotation?.let {
+          fragment.addAnnotationToPage(highlightAnnotation, true)
+        }
       }
     }
   }

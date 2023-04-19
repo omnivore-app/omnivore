@@ -53,6 +53,8 @@ fun SavedItemCard(cardData: SavedItemCardData, labels: List<SavedItemLabel>, onC
           .padding(end = 20.dp)
           .defaultMinSize(minHeight = 55.dp)
       ) {
+        readInfo(item = cardData)
+
         Text(
           text = cardData.title,
           style = TextStyle(
@@ -66,7 +68,11 @@ fun SavedItemCard(cardData: SavedItemCardData, labels: List<SavedItemLabel>, onC
         if (cardData.author != null && cardData.author != "") {
           Text(
             text = byline(cardData),
-            style = MaterialTheme.typography.bodyMedium,
+            style = TextStyle(
+              fontSize = 15.sp,
+              fontWeight = FontWeight.Normal,
+              color = Color(red = 137, green = 137, blue = 137)
+            ),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
           )
@@ -88,7 +94,7 @@ fun SavedItemCard(cardData: SavedItemCardData, labels: List<SavedItemLabel>, onC
           contentDescription = "Image associated with saved item",
           modifier = Modifier
             .size(55.dp, 73.dp)
-            .clip(RoundedCornerShape(4.dp))
+            .clip(RoundedCornerShape(10.dp))
         )
       }
     }
@@ -140,4 +146,97 @@ fun byline(item: SavedItemCardData): String {
   }
 
   return ""
+}
+
+//
+//var readingSpeed: Int64 {
+//  var result = UserDefaults.standard.integer(forKey: UserDefaultKey.userWordsPerMinute.rawValue)
+//  if result <= 0 {
+//    result = 235
+//  }
+//  return Int64(result)
+//}
+
+fun estimatedReadingTime(item: SavedItemCardData): String {
+  item.wordsCount?.let {
+    if (it > 0) {
+      val readLen = Math.max(1, it / 235)
+      return "$readLen MIN READ • "
+    }
+  }
+  return ""
+}
+
+fun readingProgress(item: SavedItemCardData): String {
+  // If there is no wordsCount don't show progress because it will make no sense
+  item.wordsCount?.let {
+    if (it > 0) {
+      val intVal = item.readingProgress.toInt()
+      return "$intVal%"
+    }
+  }
+  return ""
+}
+//
+//var highlightsText: String {
+//  if let highlights = item.highlights, highlights.count > 0 {
+//    let fmted = LocalText.pluralizedText(key: "number_of_highlights", count: highlights.count)
+//    if item.wordsCount > 0 {
+//      return " • \(fmted)"
+//    }
+//    return fmted
+//  }
+//  return ""
+//}
+//
+//var notesText: String {
+//  let notes = item.highlights?.filter { item in
+//          if let highlight = item as? Highlight {
+//            return !(highlight.annotation ?? "").isEmpty
+//          }
+//    return false
+//  }
+//
+//  if let notes = notes, notes.count > 0 {
+//    let fmted = LocalText.pluralizedText(key: "number_of_notes", count: notes.count)
+//    if item.wordsCount > 0 {
+//      return " • \(fmted)"
+//    }
+//    return fmted
+//  }
+//  return ""
+//}
+
+@Composable
+fun readInfo(item: SavedItemCardData) {
+  Row(
+    modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 15.dp)
+  ) {
+    Text(
+      text = estimatedReadingTime(item),
+      style = TextStyle(
+        fontSize = 11.sp,
+        fontWeight = FontWeight.Medium,
+        color = Color(red = 137, green = 137, blue = 137)
+      ),
+      maxLines = 1,
+      overflow = TextOverflow.Ellipsis
+    )
+
+    Text(
+      text = readingProgress(item),
+      style = TextStyle(
+        fontSize = 11.sp,
+        fontWeight = FontWeight.Medium,
+        color = if (item.readingProgress > 1) Color(red = 85, green = 185, blue = 56) else Color(red = 137, green = 137, blue = 137)
+      ),
+      maxLines = 1,
+      overflow = TextOverflow.Ellipsis
+    )
+
+//    Text("\(highlightsText)")
+//
+//    Text("\(notesText)")
+
+  }
 }
