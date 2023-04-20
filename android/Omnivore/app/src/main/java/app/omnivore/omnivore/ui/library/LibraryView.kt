@@ -37,11 +37,11 @@ fun LibraryView(
 ) {
   Scaffold(
     topBar = {
-      SearchBar(
-        libraryViewModel = libraryViewModel,
+      LibraryNavigationBar(
         onSearchClicked = { navController.navigate(Routes.Search.route) },
         onSettingsIconClick = { navController.navigate(Routes.Settings.route) }
       )
+
     }
   ) { paddingValues ->
     LibraryViewContent(

@@ -3,34 +3,24 @@ package app.omnivore.omnivore.ui.library
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import app.omnivore.omnivore.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchBar(
-  libraryViewModel: LibraryViewModel,
+fun LibraryNavigationBar(
   onSearchClicked: () -> Unit,
   onSettingsIconClick: () -> Unit
 ) {
@@ -38,9 +28,11 @@ fun SearchBar(
     title = {
         Text("Library")
     },
-    colors = TopAppBarDefaults.topAppBarColors(
-      containerColor = MaterialTheme.colorScheme.surfaceVariant
-    ),
+      modifier = Modifier.statusBarsPadding(),
+//      colors = TopAppBarDefaults.topAppBarColors(
+//      // containerColor = MaterialTheme.colorScheme.background,
+//      //    scrolledContainerColor = colorResource(R.color.gray_B7B7B7)
+//        ),
     actions = {
       IconButton(onClick = onSearchClicked) {
         Icon(
@@ -51,7 +43,7 @@ fun SearchBar(
 
       IconButton(onClick = onSettingsIconClick) {
         Icon(
-          imageVector = Icons.Default.Settings,
+          imageVector = Icons.Default.Person,
           contentDescription = null
         )
       }
@@ -73,11 +65,11 @@ fun SearchField(
 
     TextField(
         modifier = Modifier
-          .fillMaxWidth()
-          .onFocusChanged { focusState ->
-            showClearButton = (focusState.isFocused)
-          }
-          .focusRequester(focusRequester),
+            .fillMaxWidth()
+            .onFocusChanged { focusState ->
+                showClearButton = (focusState.isFocused)
+            }
+            .focusRequester(focusRequester),
         value = searchText,
         onValueChange = onSearchTextChanged,
         placeholder = {
