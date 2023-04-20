@@ -54,13 +54,16 @@ export default async (
   res: NextApiResponse
 ): Promise<void> => {
   const urlStr = req.query['url']
+  if (req.query['labels'] && typeof req.query['labels'] === 'string') {
+    req.query['labels'] = [req.query['labels']]
+  }
   const labels = req.query['labels'] as string[] | undefined
   const state = req.query['state'] as string | undefined
   const url = new URL(urlStr as string)
   const saveResult = await saveUrl(req, url, labels, state)
   console.log('saveResult: ', saveResult)
-  if (saveResult?.url) {
-    res.redirect(`?url=${encodeURIComponent(url.toString())}`)
+  if (saveResult) {
+    res.redirect(`/article?url=${encodeURIComponent(url.toString())}`)
     return
   }
 
