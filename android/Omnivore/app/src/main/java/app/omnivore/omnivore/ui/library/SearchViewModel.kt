@@ -144,28 +144,28 @@ class SearchViewModel @Inject constructor(
         isRefreshing.postValue(false)
     }
 
-    fun handleSavedItemAction(itemID: String, action: SavedItemAction) {
-//        when (action) {
-//            SavedItemAction.Delete -> {
-//                viewModelScope.launch {
-//                    dataService.deleteSavedItem(itemID)
-//                }
-//            }
-//            SavedItemAction.Archive -> {
-//                viewModelScope.launch {
-//                    dataService.archiveSavedItem(itemID)
-//                }
-//            }
-//            SavedItemAction.Unarchive -> {
-//                viewModelScope.launch {
-//                    dataService.unarchiveSavedItem(itemID)
-//                }
-//            }
-//            SavedItemAction.EditLabels -> {
-//                labelsSelectionCurrentItemLiveData.value = itemID
-//                showLabelsSelectionSheetLiveData.value = true
-//            }
-//        }
+    override fun handleSavedItemAction(itemID: String, action: SavedItemAction) {
+        when (action) {
+            SavedItemAction.Delete -> {
+                viewModelScope.launch {
+                    dataService.deleteSavedItem(itemID)
+                }
+            }
+            SavedItemAction.Archive -> {
+                viewModelScope.launch {
+                    dataService.archiveSavedItem(itemID)
+                }
+            }
+            SavedItemAction.Unarchive -> {
+                viewModelScope.launch {
+                    dataService.unarchiveSavedItem(itemID)
+                }
+            }
+            SavedItemAction.EditLabels -> {
+                // TODO
+            }
+        }
+        actionsMenuItemLiveData.postValue(null)
     }
 
     fun updateSavedItemLabels(savedItemID: String, labels: List<SavedItemLabel>) {

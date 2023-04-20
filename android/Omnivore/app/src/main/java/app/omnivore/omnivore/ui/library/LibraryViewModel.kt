@@ -248,7 +248,7 @@ class LibraryViewModel @Inject constructor(
     }
   }
 
-  fun handleSavedItemAction(itemID: String, action: SavedItemAction) {
+  override fun handleSavedItemAction(itemID: String, action: SavedItemAction) {
     when (action) {
       SavedItemAction.Delete -> {
         viewModelScope.launch {
@@ -270,6 +270,7 @@ class LibraryViewModel @Inject constructor(
         showLabelsSelectionSheetLiveData.value = true
       }
     }
+    actionsMenuItemLiveData.postValue(null)
   }
 
   fun updateSavedItemLabels(savedItemID: String, labels: List<SavedItemLabel>) {

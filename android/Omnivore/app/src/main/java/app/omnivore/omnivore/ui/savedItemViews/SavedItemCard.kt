@@ -41,13 +41,14 @@ fun SavedItemCard(savedItemViewModel: SavedItemViewModel, cardData: SavedItemCar
         onClick = onClickHandler,
         onLongClick = { savedItemViewModel.actionsMenuItemLiveData.postValue(cardData) }
       )
+      .fillMaxWidth()
   ) {
     Row(
       horizontalArrangement = Arrangement.SpaceBetween,
       verticalAlignment = Alignment.Top,
       modifier = Modifier
         .fillMaxWidth()
-        .padding(15.dp)
+        .padding(20.dp)
         .background(if (isMenuExpanded) Color.LightGray else Color.Transparent)
     ) {
       Column(

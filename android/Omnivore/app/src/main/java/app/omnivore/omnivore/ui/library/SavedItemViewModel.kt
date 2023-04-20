@@ -8,4 +8,5 @@ interface SavedItemViewModel {
     val actionsMenuItemLiveData: MutableLiveData<SavedItemCardData?>
         get() = MutableLiveData<SavedItemCardData?>(null)
 
+    fun handleSavedItemAction(itemID: String, action: SavedItemAction)
 }
