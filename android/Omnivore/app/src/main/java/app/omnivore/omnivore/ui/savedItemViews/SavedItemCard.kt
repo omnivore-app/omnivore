@@ -13,10 +13,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.*
+import app.omnivore.omnivore.R
 import app.omnivore.omnivore.persistence.entities.SavedItemCardData
 import app.omnivore.omnivore.persistence.entities.SavedItemLabel
 import app.omnivore.omnivore.ui.components.LabelChipColors
@@ -210,7 +212,9 @@ fun readingProgress(item: SavedItemCardData): String {
 @Composable
 fun readInfo(item: SavedItemCardData) {
   Row(
-    modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 15.dp)
+    modifier = Modifier
+      .fillMaxWidth()
+      .defaultMinSize(minHeight = 15.dp)
   ) {
     Text(
       text = estimatedReadingTime(item),
@@ -228,7 +232,7 @@ fun readInfo(item: SavedItemCardData) {
       style = TextStyle(
         fontSize = 11.sp,
         fontWeight = FontWeight.Medium,
-        color = if (item.readingProgress > 1) Color(red = 85, green = 185, blue = 56) else Color(red = 137, green = 137, blue = 137)
+        color = if (item.readingProgress > 1) colorResource(R.color.green_55B938) else colorResource(R.color.gray_898989)
       ),
       maxLines = 1,
       overflow = TextOverflow.Ellipsis
