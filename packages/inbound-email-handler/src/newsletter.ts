@@ -1,5 +1,4 @@
 import addressparser from 'addressparser'
-import rfc2047 from 'rfc2047'
 import { publishMessage } from './index'
 
 interface Unsubscribe {
@@ -19,10 +18,9 @@ const CONFIRMATION_EMAIL_SUBJECT_PATTERN =
 export const parseUnsubscribe = (unSubHeader: string): Unsubscribe => {
   // parse list-unsubscribe header
   // e.g. List-Unsubscribe: <https://omnivore.com/unsub>, <mailto:unsub@omnivore.com>
-  const decoded = rfc2047.decode(unSubHeader)
   return {
-    mailTo: decoded.match(UNSUBSCRIBE_MAIL_TO_PATTERN)?.[1],
-    httpUrl: decoded.match(UNSUBSCRIBE_HTTP_URL_PATTERN)?.[1],
+    mailTo: unSubHeader.match(UNSUBSCRIBE_MAIL_TO_PATTERN)?.[1],
+    httpUrl: unSubHeader.match(UNSUBSCRIBE_HTTP_URL_PATTERN)?.[1],
   }
 }
 

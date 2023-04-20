@@ -1,9 +1,8 @@
 import addressparser from 'addressparser'
-import rfc2047 from 'rfc2047'
-import { v4 as uuid } from 'uuid'
-import { parseHTML } from 'linkedom'
 import axios from 'axios'
+import { parseHTML } from 'linkedom'
 import { Browser } from 'puppeteer-core'
+import { v4 as uuid } from 'uuid'
 
 interface Unsubscribe {
   mailTo?: string
@@ -148,10 +147,9 @@ export abstract class ContentHandler {
   parseUnsubscribe(unSubHeader: string): Unsubscribe {
     // parse list-unsubscribe header
     // e.g. List-Unsubscribe: <https://omnivore.com/unsub>, <mailto:unsub@omnivore.com>
-    const decoded = rfc2047.decode(unSubHeader)
     return {
-      httpUrl: decoded.match(/<(https?:\/\/[^>]*)>/)?.[1],
-      mailTo: decoded.match(/<mailto:([^>]*)>/)?.[1],
+      httpUrl: unSubHeader.match(/<(https?:\/\/[^>]*)>/)?.[1],
+      mailTo: unSubHeader.match(/<mailto:([^>]*)>/)?.[1],
     }
   }
 
