@@ -45,6 +45,7 @@ const getDocumentUrl = async (
     const [url] = await file.getSignedUrl(options)
     return new URL(url)
   } catch (e) {
+    console.debug('error getting signed url', e)
     return undefined
   }
 }
