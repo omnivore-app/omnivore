@@ -22,13 +22,15 @@ import app.omnivore.omnivore.R
 import app.omnivore.omnivore.persistence.entities.SavedItemCardData
 import app.omnivore.omnivore.persistence.entities.SavedItemLabel
 import app.omnivore.omnivore.ui.components.LabelChipColors
+import app.omnivore.omnivore.ui.library.LibraryViewModel
 import app.omnivore.omnivore.ui.library.SavedItemAction
+import app.omnivore.omnivore.ui.library.SavedItemViewModel
 import coil.compose.rememberAsyncImagePainter
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class,
 )
 @Composable
-fun SavedItemCard(cardData: SavedItemCardData, labels: List<SavedItemLabel>, onClickHandler: () -> Unit, actionHandler: (SavedItemAction) -> Unit) {
+fun SavedItemCard(savedItemViewModel: SavedItemViewModel, cardData: SavedItemCardData, labels: List<SavedItemLabel>, onClickHandler: () -> Unit, actionHandler: (SavedItemAction) -> Unit) {
   var isMenuExpanded by remember { mutableStateOf(false) }
   val publisherDisplayName = cardData.publisherDisplayName()
   val listState = rememberLazyListState()
@@ -37,7 +39,7 @@ fun SavedItemCard(cardData: SavedItemCardData, labels: List<SavedItemLabel>, onC
     modifier = Modifier
       .combinedClickable(
         onClick = onClickHandler,
-        onLongClick = { isMenuExpanded = true }
+        onLongClick = { savedItemViewModel.actionsMenuItemLiveData.postValue(cardData) }
       )
   ) {
     Row(

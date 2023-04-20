@@ -26,7 +26,7 @@ class SearchViewModel @Inject constructor(
     private val networker: Networker,
     private val dataService: DataService,
     private val datastoreRepo: DatastoreRepository
-): ViewModel() {
+): ViewModel(), SavedItemViewModel {
     private val contentRequestChannel = Channel<String>(capacity = Channel.UNLIMITED)
 
     private var cursor: String? = null
@@ -43,6 +43,8 @@ class SearchViewModel @Inject constructor(
     val searchTextLiveData = MutableLiveData("")
     val searchItemsLiveData = MutableLiveData<List<TypeaheadCardData>>(listOf())
     val itemsLiveData = MediatorLiveData<List<SavedItemCardDataWithLabels>>()
+
+    override val actionsMenuItemLiveData = MutableLiveData<SavedItemCardData?>(null)
 
     fun updateSearchText(text: String) {
         typeaheadMode.postValue(true)

@@ -38,6 +38,7 @@ fun LibraryView(
   Scaffold(
     topBar = {
       LibraryNavigationBar(
+        savedItemViewModel = libraryViewModel,
         onSearchClicked = { navController.navigate(Routes.Search.route) },
         onSettingsIconClick = { navController.navigate(Routes.Settings.route) }
       )
@@ -86,6 +87,7 @@ fun LibraryViewContent(libraryViewModel: LibraryViewModel, modifier: Modifier) {
       }
       items(cardsData) { cardDataWithLabels ->
         SavedItemCard(
+          savedItemViewModel = libraryViewModel,
           cardData = cardDataWithLabels.cardData,
           labels = cardDataWithLabels.labels,
           onClickHandler = {

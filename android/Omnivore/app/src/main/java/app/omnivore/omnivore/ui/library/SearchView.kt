@@ -7,6 +7,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -14,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import app.omnivore.omnivore.R
@@ -34,22 +39,66 @@ fun SearchView(
     val isRefreshing: Boolean by viewModel.isRefreshing.observeAsState(false)
     val typeaheadMode: Boolean by viewModel.typeaheadMode.observeAsState(true)
     val searchText: String by viewModel.searchTextLiveData.observeAsState("")
+    val actionsMenuItem: SavedItemCardData? by viewModel.actionsMenuItemLiveData.observeAsState(null)
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("") },
-                actions = {
-                    Row {
-                        SearchField(
-                            searchText,
-                            onSearch = {
-                                viewModel.performSearch()
-                            },
-                            onSearchTextChanged = { viewModel.updateSearchText(it) },
-                            navController = navController
-                        )
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                ),
+                navigationIcon = {
+                    if (actionsMenuItem != null) {
+                        IconButton(onClick = {
+                            viewModel.actionsMenuItemLiveData.postValue(null)
+                        }) {
+                            Icon(
+                                imageVector = androidx.compose.material.icons.Icons.Filled.ArrowBack,
+                                modifier = Modifier,
+                                contentDescription = "Back"
+                            )
+                        }
                     }
+                },
+                actions = {
+                        if (actionsMenuItem != null) {
+                            IconButton(onClick = { }) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.archive_outline),
+                                    contentDescription = null
+                                )
+                            }
+                            IconButton(onClick = { }) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.tag),
+                                    contentDescription = null
+                                )
+                            }
+                            IconButton(onClick = { }) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Delete,
+                                    contentDescription = null
+                                )
+                            }
+                            IconButton(onClick = { }) {
+                                Icon(
+                                    imageVector = Icons.Default.MoreVert,
+                                    contentDescription = null
+                                )
+                            }
+                            } else {
+                                Row {
+                                    SearchField(
+                                        searchText,
+                                        onSearch = {
+                                            viewModel.performSearch()
+                                        },
+                                        onSearchTextChanged = { viewModel.updateSearchText(it) },
+                                        navController = navController
+                                    )
+                                }
+                            }
                 }
             )
 
@@ -138,6 +187,7 @@ fun SearchViewContent(viewModel: SearchViewModel, modifier: Modifier) {
     ) {
         items(cardsData) { cardDataWithLabels ->
             SavedItemCard(
+                savedItemViewModel = viewModel,
                 cardData = cardDataWithLabels.cardData,
                 labels = cardDataWithLabels.labels,
                 onClickHandler = {

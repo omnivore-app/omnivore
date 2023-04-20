@@ -26,7 +26,7 @@ class LibraryViewModel @Inject constructor(
   private val networker: Networker,
   private val dataService: DataService,
   private val datastoreRepo: DatastoreRepository
-): ViewModel() {
+): ViewModel(), SavedItemViewModel {
   private val contentRequestChannel = Channel<String>(capacity = Channel.UNLIMITED)
 
   private var cursor: String? = null
@@ -46,6 +46,8 @@ class LibraryViewModel @Inject constructor(
   val labelsSelectionCurrentItemLiveData = MutableLiveData<String?>(null)
   val savedItemLabelsLiveData = dataService.db.savedItemLabelDao().getSavedItemLabelsLiveData()
   val activeLabelsLiveData = MutableLiveData<List<SavedItemLabel>>(listOf())
+
+  override val actionsMenuItemLiveData = MutableLiveData<SavedItemCardData?>(null)
 
   var isRefreshing by mutableStateOf(false)
   var hasLoadedInitialFilters = false

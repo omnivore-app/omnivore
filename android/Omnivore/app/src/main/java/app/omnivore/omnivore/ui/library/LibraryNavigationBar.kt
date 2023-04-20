@@ -3,50 +3,101 @@ package app.omnivore.omnivore.ui.library
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavHostController
+import app.omnivore.omnivore.R
+import app.omnivore.omnivore.persistence.entities.SavedItemCardData
+import app.omnivore.omnivore.persistence.entities.SavedItemCardDataWithLabels
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LibraryNavigationBar(
+  savedItemViewModel: SavedItemViewModel,
   onSearchClicked: () -> Unit,
   onSettingsIconClick: () -> Unit
 ) {
+    val actionsMenuItem: SavedItemCardData? by savedItemViewModel.actionsMenuItemLiveData.observeAsState(null)
+
   TopAppBar(
     title = {
-        Text("Library")
+        Text(if (actionsMenuItem == null) "Library" else "")
     },
       modifier = Modifier.statusBarsPadding(),
-//      colors = TopAppBarDefaults.topAppBarColors(
-//      // containerColor = MaterialTheme.colorScheme.background,
-//      //    scrolledContainerColor = colorResource(R.color.gray_B7B7B7)
-//        ),
+      colors = TopAppBarDefaults.topAppBarColors(
+          containerColor = if (actionsMenuItem == null)  MaterialTheme.colorScheme.background else MaterialTheme.colorScheme.surfaceVariant
+        ),
+      navigationIcon = {
+          if (actionsMenuItem != null) {
+              IconButton(onClick = {
+                  savedItemViewModel.actionsMenuItemLiveData.postValue(null)
+              }) {
+                  Icon(
+                      imageVector = androidx.compose.material.icons.Icons.Filled.ArrowBack,
+                      modifier = Modifier,
+                      contentDescription = "Back"
+                  )
+              }
+          }
+      },
     actions = {
-      IconButton(onClick = onSearchClicked) {
-        Icon(
-          imageVector = Icons.Filled.Search,
-          contentDescription = null
-        )
-      }
+        if (actionsMenuItem != null) {
+            IconButton(onClick = onSearchClicked) {
+                Icon(
+                    painter = painterResource(id = R.drawable.archive_outline),
+                    contentDescription = null
+                )
+            }
+            IconButton(onClick = onSearchClicked) {
+                Icon(
+                    painter = painterResource(id = R.drawable.tag),
+                    contentDescription = null
+                )
+            }
+            IconButton(onClick = onSearchClicked) {
+                Icon(
+                    imageVector = Icons.Outlined.Delete,
+                    contentDescription = null
+                )
+            }
+            IconButton(onClick = onSettingsIconClick) {
+                Icon(
+                    imageVector = Icons.Default.MoreVert,
+                    contentDescription = null
+                )
+            }
+        } else {
+            IconButton(onClick = onSearchClicked) {
+                Icon(
+                    imageVector = Icons.Filled.Search,
+                    contentDescription = null
+                )
+            }
 
-      IconButton(onClick = onSettingsIconClick) {
-        Icon(
-          imageVector = Icons.Default.MoreVert,
-          contentDescription = null
-        )
-      }
+            IconButton(onClick = onSettingsIconClick) {
+                Icon(
+                    imageVector = Icons.Default.MoreVert,
+                    contentDescription = null
+                )
+            }
+        }
     }
   )
 }
