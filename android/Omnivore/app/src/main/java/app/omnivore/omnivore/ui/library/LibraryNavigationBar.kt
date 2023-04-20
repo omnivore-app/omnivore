@@ -43,7 +43,7 @@ fun LibraryNavigationBar(
 
       IconButton(onClick = onSettingsIconClick) {
         Icon(
-          imageVector = Icons.Default.Person,
+          imageVector = Icons.Default.MoreVert,
           contentDescription = null
         )
       }
