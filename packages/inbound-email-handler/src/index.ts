@@ -11,6 +11,7 @@ import axios from 'axios'
 import * as jwt from 'jsonwebtoken'
 import parseHeaders from 'parse-headers'
 import * as multipart from 'parse-multipart-data'
+import rfc2047 from 'rfc2047'
 import { promisify } from 'util'
 import { Attachment, handleAttachments, isAttachment } from './attachment'
 import {
@@ -96,14 +97,14 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
       for (const part of parts) {
         const { name, data, type, filename } = part
         if (name && data) {
-          parsed[name] = data.toString()
+          // decode data from rfc2047 encoded
+          parsed[name] = rfc2047.decode(data.toString())
         } else if (isAttachment(type, data)) {
           attachments.push({ data, contentType: type, filename })
         } else {
           console.log('no data or name for ', part)
         }
       }
-
       const headers = parseHeaders(parsed.headers)
       console.log('parsed: ', parsed)
       console.log('headers: ', headers)

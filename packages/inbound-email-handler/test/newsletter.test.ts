@@ -1,5 +1,7 @@
 import { expect } from 'chai'
 import 'mocha'
+import parseHeaders from 'parse-headers'
+import rfc2047 from 'rfc2047'
 import { parsedTo } from '../src'
 import {
   getConfirmationCode,
@@ -81,16 +83,6 @@ describe('Newsletter email test', () => {
 
       expect(parseUnsubscribe(header).httpUrl).to.equal(httpUrl)
     })
-
-    context('when unsubscribe header rfc2047 encoded', () => {
-      it('returns mail to address if exists', () => {
-        const header = `=?us-ascii?Q?=3Cmailto=3A654e9594-184c-4884-8e02-e6e58a3a6871+87e39b3d-c3ca-4be?= =?us-ascii?Q?b-ba4d-977cc2ba61e7+067a353f-f775-4f2c-?= =?us-ascii?Q?a5cc-978df38deeca=40unsub=2Ebeehiiv=2Ecom=3E=2C?= =?us-ascii?Q?_=3Chttps=3A=2F=2Fwww=2Emilkroad=2Ecom=2Fsubscribe=2F87e39b3d-c3ca-4beb-ba4d-97?= =?us-ascii?Q?7cc2ba61e7=2Fmanage=3Fpost=5Fid=3D067a353f-f775?= =?us-ascii?Q?-4f2c-a5cc-978df38deeca=3E?=',`
-
-        expect(parseUnsubscribe(header).mailTo).to.equal(
-          '654e9594-184c-4884-8e02-e6e58a3a6871+87e39b3d-c3ca-4beb-ba4d-977cc2ba61e7+067a353f-f775-4f2c-a5cc-978df38deeca@unsub.beehiiv.com'
-        )
-      })
-    })
   })
 })
 
@@ -126,5 +118,23 @@ describe('isSubscriptionConfirmationEmail', () => {
   it('returns true if email is a confirmation', () => {
     const subject = 'Confirm your Omnivore newsletter subscription'
     expect(isSubscriptionConfirmationEmail(subject)).to.be.true
+  })
+})
+
+describe('decode and parse headers', () => {
+  it('decodes headers from rfc2047 and parses it', () => {
+    const headerStr =
+      'Subject: =?UTF-8?B?8J+MjQ==?= Dead on arrival\n' +
+      'x-newsletter: =?us-ascii?Q?https=3A=2F=2Farchives=2Einternationalintrigue=2Eio=2Fp=2Fsudan-ceasefires-c?= =?us-ascii?Q?ollapse-fighting-intensifies?=\n'
+    const decoded = rfc2047.decode(headerStr)
+    expect(decoded).to.eql(
+      'Subject: 🌍 Dead on arrival\n' +
+        'x-newsletter: https://archives.internationalintrigue.io/p/sudan-ceasefires-collapse-fighting-intensifies\n'
+    )
+    expect(parseHeaders(decoded)).to.eql({
+      subject: '🌍 Dead on arrival',
+      'x-newsletter':
+        'https://archives.internationalintrigue.io/p/sudan-ceasefires-collapse-fighting-intensifies',
+    })
   })
 })
