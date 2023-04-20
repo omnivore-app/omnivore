@@ -8,7 +8,6 @@ import { getPageByParam } from '../elastic/pages'
 import {
   Article,
   ArticleHighlightsInput,
-  ContentReader,
   Highlight,
   HighlightType,
   LinkShareInfo,

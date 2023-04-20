@@ -635,7 +635,7 @@ export const searchAsYouType = async (
             ],
           },
         },
-        _source: ['title', 'slug', 'siteName'],
+        _source: ['title', 'slug', 'siteName', 'pageType'],
         size,
       },
     })

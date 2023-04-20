@@ -65,6 +65,7 @@ import {
   SortParams,
   TypeaheadSearchError,
   TypeaheadSearchErrorCode,
+  TypeaheadSearchItem,
   TypeaheadSearchSuccess,
   UpdateReason,
   UpdatesSinceError,
@@ -993,7 +994,13 @@ export const typeaheadSearchResolver = authorized<
     },
   })
 
-  return { items: await searchAsYouType(claims.uid, query, first || undefined) }
+  const results = await searchAsYouType(claims.uid, query, first || undefined)
+  const items: TypeaheadSearchItem[] = results.map((r) => ({
+    ...r,
+    contentReader: contentReaderForPageType(r.pageType),
+  }))
+
+  return { items }
 })
 
 export const updatesSinceResolver = authorized<

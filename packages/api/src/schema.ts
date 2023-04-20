@@ -1854,6 +1854,7 @@ const schema = gql`
     title: String!
     slug: String!
     siteName: String
+    contentReader: ContentReader!
   }
 
   union UpdatesSinceResult = UpdatesSinceSuccess | UpdatesSinceError
