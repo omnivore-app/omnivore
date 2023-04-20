@@ -13,12 +13,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import app.omnivore.omnivore.DatastoreRepository
 import app.omnivore.omnivore.Routes
+import app.omnivore.omnivore.dataService.DataService
 import app.omnivore.omnivore.ui.auth.LoginViewModel
 import app.omnivore.omnivore.ui.auth.WelcomeScreen
 import app.omnivore.omnivore.ui.library.LibraryView
 import app.omnivore.omnivore.ui.library.SearchView
 import app.omnivore.omnivore.ui.library.LibraryViewModel
+import app.omnivore.omnivore.ui.library.SearchViewModel
 import app.omnivore.omnivore.ui.settings.PolicyWebView
 import app.omnivore.omnivore.ui.settings.SettingsViewModel
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -26,6 +29,7 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 @Composable
 fun RootView(
   loginViewModel: LoginViewModel,
+  searchViewModel: SearchViewModel,
   libraryViewModel: LibraryViewModel,
   settingsViewModel: SettingsViewModel
 ) {
@@ -49,6 +53,7 @@ fun RootView(
     if (hasAuthToken) {
       PrimaryNavigator(
         loginViewModel = loginViewModel,
+        searchViewModel = searchViewModel,
         libraryViewModel = libraryViewModel,
         settingsViewModel = settingsViewModel
       )
@@ -69,6 +74,7 @@ fun RootView(
 fun PrimaryNavigator(
   loginViewModel: LoginViewModel,
   libraryViewModel: LibraryViewModel,
+  searchViewModel: SearchViewModel,
   settingsViewModel: SettingsViewModel
 ) {
   val navController = rememberNavController()
@@ -83,7 +89,7 @@ fun PrimaryNavigator(
 
     composable(Routes.Search.route) {
       SearchView(
-        libraryViewModel = libraryViewModel,
+        viewModel = searchViewModel,
         navController = navController
       )
     }
