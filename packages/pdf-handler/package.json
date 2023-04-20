@@ -13,7 +13,6 @@
     "test": "yarn mocha -r ts-node/register --config mocha-config.json",
     "lint": "eslint src --ext ts,js,tsx,jsx",
     "compile": "tsc",
-    "build": "tsc",
     "start": "functions-framework --source=build/src/ --target=pdfHandler",
     "dev": "concurrently \"tsc -w\" \"nodemon --watch ./build/ --exec npm run start\"",
     "gcloud-deploy": "gcloud functions deploy pdfHandler --region=$npm_config_region --runtime nodejs14 --trigger-bucket=$npm_config_bucket --env-vars-file=../gcf-shared/env-$npm_config_env.yaml",

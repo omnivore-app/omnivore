@@ -13,7 +13,6 @@
     "test": "yarn mocha -r ts-node/register --config mocha-config.json",
     "lint": "eslint src --ext ts,js,tsx,jsx",
     "compile": "tsc",
-    "build": "tsc",
     "start": "functions-framework --target=textToSpeechHandler",
     "start_streaming": "functions-framework --target=textToSpeechStreamingHandler",
     "dev": "concurrently \"tsc -w\" \"nodemon --watch ./build/ --exec npm run start\"",
