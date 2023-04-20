@@ -40,6 +40,9 @@ type NotebookProps = {
     highlights: Highlight[],
     deletedAnnotations: Highlight[]
   ) => void
+
+  showConfirmDeleteNote?: boolean
+  setShowConfirmDeleteNote?: (show: boolean) => void
 }
 
 export const getHighlightLocation = (patch: string): number | undefined => {
@@ -61,12 +64,15 @@ type AnnotationInfo = {
 export function Notebook(props: NotebookProps): JSX.Element {
   const [showConfirmDeleteHighlightId, setShowConfirmDeleteHighlightId] =
     useState<undefined | string>(undefined)
-  const [labelsTarget, setLabelsTarget] =
-    useState<Highlight | undefined>(undefined)
-  const [showConfirmDeleteNote, setShowConfirmDeleteNote] = useState(false)
-  const [notesEditMode, setNotesEditMode] =
-    useState<'edit' | 'preview'>('preview')
+  const [labelsTarget, setLabelsTarget] = useState<Highlight | undefined>(
+    undefined
+  )
+  const [notesEditMode, setNotesEditMode] = useState<'edit' | 'preview'>(
+    'preview'
+  )
   const [, updateState] = useState({})
+
+  console.log('props.showConfirmDeleteNote', props.showConfirmDeleteNote)
 
   const annotationsReducer = (
     state: AnnotationInfo,
@@ -398,15 +404,21 @@ export function Notebook(props: NotebookProps): JSX.Element {
           }}
         />
       )}
-      {showConfirmDeleteNote && (
+      {props.showConfirmDeleteNote && (
         <ConfirmationModal
           message="Are you sure you want to delete the note from this document?"
           acceptButtonLabel="Delete"
           onAccept={() => {
             deleteDocumentNote()
-            setShowConfirmDeleteNote(false)
+            if (props.setShowConfirmDeleteNote) {
+              props.setShowConfirmDeleteNote(false)
+            }
           }}
-          onOpenChange={() => setShowConfirmDeleteNote(false)}
+          onOpenChange={() => {
+            if (props.setShowConfirmDeleteNote) {
+              props.setShowConfirmDeleteNote(false)
+            }
+          }}
         />
       )}
     </VStack>
