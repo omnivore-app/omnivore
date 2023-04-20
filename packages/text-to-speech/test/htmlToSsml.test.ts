@@ -323,4 +323,18 @@ describe('convert HTML to Speech file', () => {
       'Q: „Die kürzliche Razzia in den BBC-Büros in Delhi sind ein weiterer Versuch der Regierung, kritische Medien-Kommentare zu unterdrücken. Man hat des Gefühl, Herr Modi hat Angst, in den Spiegel zu schauen!? “'
     )
   })
+
+  it('splits sentences in Chinese correctly', () => {
+    const html = `<div class="page" id="readability-page-1" data-omnivore-anchor-idx="1">
+  <p data-omnivore-anchor-idx="2">这是一段中文，我想看看它是怎么分句的。如果买二手房有中介参与，要找相对大的、知名的中介。中介的收费、服务情况要先问清。还要和中介谈好，中介费的付款时间，一般来说是签完合同付一部分，过户后付一部分，省的太早付完钱，中介就不管事了。付完记得要发票。中介如果提供贷款服务，让他玩去。贷款之类的问题，别怕麻烦，自己去找银行。</p>
+</div>`
+    const speechFile = htmlToSpeechFile({
+      content: html,
+      options: TEST_OPTIONS,
+    })
+    expect(speechFile.utterances).to.have.lengthOf(1)
+    expect(speechFile.utterances[0].text).to.eql(
+      '这是一段中文，我想看看它是怎么分句的。如果买二手房有中介参与，要找相对大的、知名的中介。中介的收费、服务情况要先问清。还要和中介谈好，中介费的付款时间，一般来说是签完合同付一部分，过户后付一部分，省的太早付完钱，中介就不管事了。付完记得要发票。中介如果提供贷款服务，让他玩去。贷款之类的问题，别怕麻烦，自己去找银行。'
+    )
+  })
 })
