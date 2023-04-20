@@ -1,18 +1,24 @@
 package app.omnivore.omnivore.ui.library
 
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import app.omnivore.omnivore.R
 import app.omnivore.omnivore.persistence.entities.SavedItemLabel
 import app.omnivore.omnivore.ui.components.LabelChipColors
 
@@ -23,6 +29,7 @@ fun LibraryFilterBar(viewModel: LibraryViewModel) {
   val activeSavedItemFilter: SavedItemFilter by viewModel.appliedFilterLiveData.observeAsState(SavedItemFilter.INBOX)
   val activeLabels: List<SavedItemLabel> by viewModel.activeLabelsLiveData.observeAsState(listOf())
 
+  val searchText: String by viewModel.searchTextLiveData.observeAsState("")
   var isSavedItemSortFilterMenuExpanded by remember { mutableStateOf(false) }
   val activeSavedItemSortFilter: SavedItemSortFilter by viewModel.appliedSortFilterLiveData.observeAsState(SavedItemSortFilter.NEWEST)
   val listState = rememberLazyListState()
@@ -37,6 +44,39 @@ fun LibraryFilterBar(viewModel: LibraryViewModel) {
         .fillMaxWidth()
     ) {
       item {
+        if (searchText.isNotEmpty()) {
+          AssistChip(
+            onClick = {
+              viewModel.updateSearchText("")
+            },
+            label = { Text(searchText) },
+            border = null,
+            colors = SuggestionChipDefaults.elevatedSuggestionChipColors(
+              containerColor = colorResource(R.color.gray_898989),
+              labelColor = Color.White,
+              iconContentColor = Color.White
+            ),
+            leadingIcon = {
+              Icon(
+                painter = painterResource(id = R.drawable.funnel_simple),
+                contentDescription = "Clear current search",
+                modifier = Modifier.size(17.dp),
+                tint = Color.White
+              )
+            },
+            trailingIcon = {
+              Icon(
+                Icons.Default.Clear,
+                contentDescription = "close icon to remove label",
+                modifier = Modifier.size(15.dp),
+                tint = Color.White
+              )
+
+            },
+            modifier = Modifier
+              .padding(horizontal = 4.dp)
+          )
+        }
         AssistChip(
           onClick = { isSavedItemFilterMenuExpanded = true },
           label = { Text(activeSavedItemFilter.displayText) },

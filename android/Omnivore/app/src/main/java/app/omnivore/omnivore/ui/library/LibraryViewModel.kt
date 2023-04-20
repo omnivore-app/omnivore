@@ -110,47 +110,6 @@ class LibraryViewModel @Inject constructor(
     viewModelScope.launch {
       itemsLiveData.postValue(listOf())
       librarySearchCursor = null
-
-      withContext(Dispatchers.IO) {
-        val result = dataService.librarySearch(cursor = librarySearchCursor, query = searchQueryString())
-        result.cursor?.let {
-          librarySearchCursor = it
-        }
-        CoroutineScope(Dispatchers.Main).launch {
-          isRefreshing = false
-        }
-
-        result.savedItems.map {
-          val isSavedInDB = dataService.isSavedItemContentStoredInDB(it.slug)
-
-          if (!isSavedInDB) {
-            delay(2000)
-            contentRequestChannel.send(it.slug)
-          }
-        }
-
-        val newItems = result.savedItems.map {
-          SavedItemCardDataWithLabels(
-            cardData = SavedItemCardData(
-              savedItemId = it.savedItemId,
-              savedAt = it.savedAt,
-              readingProgress = it.readingProgress,
-              slug = it.slug,
-              publisherURLString = it.publisherURLString,
-              title = it.title,
-              author = it.author,
-              imageURLString = it.imageURLString,
-              isArchived = it.isArchived,
-              pageURLString = it.pageURLString,
-              contentReader = it.contentReader,
-              wordsCount = it.wordsCount
-            ),
-            labels = listOf()
-          )
-        }
-
-        itemsLiveData.postValue(newItems)
-      }
     }
   }
 
