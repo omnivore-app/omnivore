@@ -100,8 +100,7 @@ fun LibraryViewContent(libraryViewModel: LibraryViewModel, modifier: Modifier) {
     }
 
     InfiniteListHandler(listState = listState) {
-      val searchText = libraryViewModel.searchTextLiveData.value ?: ""
-      if (cardsData.isEmpty() && searchText.isEmpty()) {
+      if (cardsData.isEmpty()) {
         Log.d("sync", "loading with load func")
         libraryViewModel.initialLoad()
       } else {

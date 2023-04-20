@@ -29,7 +29,6 @@ fun LibraryFilterBar(viewModel: LibraryViewModel) {
   val activeSavedItemFilter: SavedItemFilter by viewModel.appliedFilterLiveData.observeAsState(SavedItemFilter.INBOX)
   val activeLabels: List<SavedItemLabel> by viewModel.activeLabelsLiveData.observeAsState(listOf())
 
-  val searchText: String by viewModel.searchTextLiveData.observeAsState("")
   var isSavedItemSortFilterMenuExpanded by remember { mutableStateOf(false) }
   val activeSavedItemSortFilter: SavedItemSortFilter by viewModel.appliedSortFilterLiveData.observeAsState(SavedItemSortFilter.NEWEST)
   val listState = rememberLazyListState()
@@ -44,39 +43,6 @@ fun LibraryFilterBar(viewModel: LibraryViewModel) {
         .fillMaxWidth()
     ) {
       item {
-        if (searchText.isNotEmpty()) {
-          AssistChip(
-            onClick = {
-              viewModel.updateSearchText("")
-            },
-            label = { Text(searchText) },
-            border = null,
-            colors = SuggestionChipDefaults.elevatedSuggestionChipColors(
-              containerColor = colorResource(R.color.gray_898989),
-              labelColor = Color.White,
-              iconContentColor = Color.White
-            ),
-            leadingIcon = {
-              Icon(
-                painter = painterResource(id = R.drawable.funnel_simple),
-                contentDescription = "Clear current search",
-                modifier = Modifier.size(17.dp),
-                tint = Color.White
-              )
-            },
-            trailingIcon = {
-              Icon(
-                Icons.Default.Clear,
-                contentDescription = "close icon to remove label",
-                modifier = Modifier.size(15.dp),
-                tint = Color.White
-              )
-
-            },
-            modifier = Modifier
-              .padding(horizontal = 4.dp)
-          )
-        }
         AssistChip(
           onClick = { isSavedItemFilterMenuExpanded = true },
           label = { Text(activeSavedItemFilter.displayText) },

@@ -38,8 +38,6 @@ class LibraryViewModel @Inject constructor(
   private var receivedIdx = 0
 
   // Live Data
-  val searchTextLiveData = MutableLiveData("")
-  val searchItemsLiveData = MutableLiveData<List<TypeaheadCardData>>(listOf())
   private var itemsLiveDataInternal = dataService.libraryLiveData(SavedItemFilter.INBOX, SavedItemSortFilter.NEWEST, listOf())
   val itemsLiveData = MediatorLiveData<List<SavedItemCardDataWithLabels>>()
   val appliedFilterLiveData = MutableLiveData(SavedItemFilter.INBOX)
@@ -89,27 +87,6 @@ class LibraryViewModel @Inject constructor(
           dataService.fetchSavedItemContent(slug)
         }
       }
-    }
-  }
-
-  fun updateSearchText(text: String) {
-    searchTextLiveData.value = text
-
-    if (text == "") {
-      searchItemsLiveData.value = listOf()
-    } else {
-      viewModelScope.launch {
-        performTypeaheadSearch(true)
-      }
-    }
-  }
-
-  fun performSearch() {
-    // To perform search we just clear the current state, so the LibraryView infinite scroll
-    // load will update items.
-    viewModelScope.launch {
-      itemsLiveData.postValue(listOf())
-      librarySearchCursor = null
     }
   }
 
@@ -269,33 +246,6 @@ class LibraryViewModel @Inject constructor(
     }
   }
 
-  private suspend fun performTypeaheadSearch(clearPreviousSearch: Boolean) {
-    if (clearPreviousSearch) {
-      cursor = null
-    }
-
-    val thisSearchIdx = searchIdx
-    searchIdx += 1
-
-    // Execute the search
-    val searchResult = networker.typeaheadSearch(searchTextLiveData.value ?: "")
-
-    // Search results aren't guaranteed to return in order so this
-    // will discard old results that are returned while a user is typing.
-    // For example if a user types 'Canucks', often the search results
-    // for 'C' are returned after 'Canucks' because it takes the backend
-    // much longer to compute.
-    if (thisSearchIdx in 1..receivedIdx) {
-      return
-    }
-
-    searchItemsLiveData.postValue(searchResult.cardsData)
-
-    CoroutineScope(Dispatchers.Main).launch {
-      isRefreshing = false
-    }
-  }
-
   fun handleSavedItemAction(itemID: String, action: SavedItemAction) {
     when (action) {
       SavedItemAction.Delete -> {
@@ -377,11 +327,6 @@ class LibraryViewModel @Inject constructor(
 
   private fun searchQueryString(): String {
     var query = "${appliedFilterLiveData.value?.queryString} ${appliedSortFilterLiveData.value?.queryString}"
-    val searchText = searchTextLiveData.value ?: ""
-
-    if (searchText.isNotEmpty()) {
-      query += " $searchText"
-    }
 
     activeLabelsLiveData.value?.let {
       if (it.isNotEmpty()) {

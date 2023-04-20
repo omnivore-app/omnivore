@@ -34,8 +34,6 @@ fun SearchBar(
   onSearchClicked: () -> Unit,
   onSettingsIconClick: () -> Unit
 ) {
-  val searchText: String by libraryViewModel.searchTextLiveData.observeAsState("")
-
   TopAppBar(
     title = {
         Text("Library")
