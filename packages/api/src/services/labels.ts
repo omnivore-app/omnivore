@@ -129,8 +129,12 @@ export const createLabels = async (
     })
     .getMany()
 
-  const existingLabels = labelEntities.map((l) => l.name)
-  const newLabels = labels.filter((l) => !existingLabels.includes(l.name))
+  const existingLabelsInLowerCase = labelEntities.map((l) =>
+    l.name.toLowerCase()
+  )
+  const newLabels = labels.filter(
+    (l) => !existingLabelsInLowerCase.includes(l.name.toLowerCase())
+  )
   // create new labels
   const newLabelEntities = await getRepository(Label).save(
     newLabels.map((l) => ({
