@@ -1,6 +1,10 @@
 import { htmlToText } from 'html-to-text'
 import { parseHTML } from 'linkedom'
-import { SentenceTokenizerNew, WordPunctTokenizer } from 'natural'
+import {
+  SentenceTokenizer,
+  SentenceTokenizerNew,
+  WordPunctTokenizer,
+} from 'natural'
 
 // this code needs to be kept in sync with the
 // frontend code in: useReadingProgressAnchor
@@ -304,8 +308,17 @@ const textToUtterances = ({
     console.info('Converted HTML to text:', text)
   }
   const MAX_CHARS = 256
-  const sentenceTokenizer = new SentenceTokenizerNew()
-  const sentences = sentenceTokenizer.tokenize(text)
+  let sentences: string[] = []
+  try {
+    // use new sentence tokenizer
+    const sentenceTokenizer = new SentenceTokenizerNew()
+    sentences = sentenceTokenizer.tokenize(text)
+  } catch (err) {
+    console.debug('Unable to tokenize sentences, text:', text, ', error:', err)
+    // fallback to old sentence tokenizer
+    const sentenceTokenizer = new SentenceTokenizer()
+    sentences = sentenceTokenizer.tokenize(text)
+  }
   let currentText = ''
   // split text to max 256 chars per utterance and
   // use nlp lib to detect sentences and
