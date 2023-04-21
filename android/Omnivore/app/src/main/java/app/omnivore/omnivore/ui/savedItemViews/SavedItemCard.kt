@@ -48,7 +48,7 @@ fun SavedItemCard(savedItemViewModel: SavedItemViewModel, cardData: SavedItemCar
       verticalAlignment = Alignment.Top,
       modifier = Modifier
         .fillMaxWidth()
-        .padding(20.dp)
+        .padding(10.dp)
         .background(if (isMenuExpanded) Color.LightGray else Color.Transparent)
     ) {
       Column(
@@ -109,7 +109,7 @@ fun SavedItemCard(savedItemViewModel: SavedItemViewModel, cardData: SavedItemCar
       horizontalArrangement = Arrangement.Start,
       verticalAlignment = Alignment.CenterVertically,
       modifier = Modifier
-        .padding(start = 5.dp)
+        .padding(start = 10.dp, bottom = 5.dp, end = 10.dp)
     ) {
       items(labels.sortedBy { it.name }) { label ->
         val chipColors = LabelChipColors.fromHex(label.color)
@@ -123,20 +123,13 @@ fun SavedItemCard(savedItemViewModel: SavedItemViewModel, cardData: SavedItemCar
             labelColor = chipColors.textColor,
             iconContentColor = chipColors.textColor
           ),
-          modifier = Modifier
-            .padding(horizontal = 4.dp)
+//          modifier = Modifier
+//            .padding(horizontal = 4.dp)
         )
       }
     }
 
     Divider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 1.dp)
-
-    SavedItemContextMenu(
-      isExpanded = isMenuExpanded,
-      isArchived = cardData.isArchived,
-      onDismiss = { isMenuExpanded = false },
-      actionHandler = actionHandler
-    )
   }
 }
 
