@@ -27,10 +27,24 @@ import {
 } from './types'
 
 const appendQuery = (builder: ESBuilder, query: string): ESBuilder => {
+  const fields = ['title', 'content', 'author', 'description', 'siteName']
+  if (query.includes('*')) {
+    // wildcard query
+    fields.forEach((field) => {
+      builder = builder.orQuery('wildcard', {
+        [field]: {
+          value: query,
+          case_insensitive: true,
+        },
+      })
+    })
+    return builder.queryMinimumShouldMatch(1)
+  }
+
   return builder
     .orQuery('multi_match', {
       query,
-      fields: ['title', 'content', 'author', 'description', 'siteName'],
+      fields,
       operator: 'and',
       type: 'cross_fields',
     })
@@ -119,8 +133,25 @@ const appendIncludeLabelFilter = (
     builder = builder.query('nested', {
       path: 'labels',
       query: {
-        terms: {
-          'labels.name': filter.labels,
+        bool: {
+          should: filter.labels.map((label) => {
+            if (label.includes('*')) {
+              // Wildcard query
+              return {
+                wildcard: {
+                  'labels.name': {
+                    value: label,
+                  },
+                },
+              }
+            }
+            return {
+              term: {
+                'labels.name': label,
+              },
+            }
+          }),
+          minimum_should_match: 1,
         },
       },
     })
