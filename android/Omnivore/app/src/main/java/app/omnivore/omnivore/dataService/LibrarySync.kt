@@ -1,6 +1,8 @@
 package app.omnivore.omnivore.dataService
 
 import android.util.Log
+import androidx.room.PrimaryKey
+import app.omnivore.omnivore.models.ServerSyncStatus
 import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.persistence.entities.*
 
@@ -46,7 +48,8 @@ suspend fun DataService.librarySearch(cursor: String?, query: String): SearchRes
 }
 
 suspend fun DataService.sync(since: String, cursor: String?, limit: Int = 20): SavedItemSyncResult {
-  val syncResult = networker.savedItemUpdates(cursor = cursor, limit = limit, since = since) ?: return SavedItemSyncResult.errorResult
+  val syncResult = networker.savedItemUpdates(cursor = cursor, limit = limit, since = since)
+    ?: return SavedItemSyncResult.errorResult
 
   val savedItems = syncResult.items.map {
     SavedItem(
@@ -93,7 +96,10 @@ suspend fun DataService.sync(since: String, cursor: String?, limit: Int = 20): S
     labels.addAll(itemLabels)
 
     val newCrossRefs = itemLabels.map {
-      SavedItemAndSavedItemLabelCrossRef(savedItemLabelId = it.savedItemLabelId, savedItemId = item.id)
+      SavedItemAndSavedItemLabelCrossRef(
+        savedItemLabelId = it.savedItemLabelId,
+        savedItemId = item.id
+      )
     }
 
     crossRefs.addAll(newCrossRefs)
@@ -101,6 +107,37 @@ suspend fun DataService.sync(since: String, cursor: String?, limit: Int = 20): S
 
   db.savedItemLabelDao().insertAll(labels)
   db.savedItemAndSavedItemLabelCrossRefDao().insertAll(crossRefs)
+
+  // Persist Highlights
+  db.highlightDao().insertAll(syncResult.items.flatMap {
+    it.highlights ?: listOf()
+  }.map {
+    Highlight(
+      highlightId = it.highlightFields.id,
+      annotation = it.highlightFields.annotation,
+      createdByMe = it.highlightFields.createdByMe,
+      markedForDeletion = false,
+      patch = it.highlightFields.patch,
+      prefix = it.highlightFields.prefix,
+      quote = it.highlightFields.quote,
+      serverSyncStatus = ServerSyncStatus.IS_SYNCED.rawValue,
+      shortId  = it.highlightFields.shortId,
+      suffix  = it.highlightFields.suffix,
+      createdAt = null,
+      updatedAt  = it.highlightFields.updatedAt as String?,
+    )
+  })
+
+  val highlightCrossRefs = syncResult.items.flatMap {
+    val savedItem = it
+    (savedItem.highlights ?: listOf()).map {
+      Pair(it, savedItem.id)
+    }
+  }.map {
+    SavedItemAndHighlightCrossRef(highlightId = it.first.highlightFields.id, savedItemId = it.second)
+  }
+
+  db.savedItemAndHighlightCrossRefDao().insertAll(highlightCrossRefs)
 
   Log.d("sync", "found ${syncResult.items.size} items with sync api. Since: $since")
 
