@@ -119,8 +119,25 @@ const appendIncludeLabelFilter = (
     builder = builder.query('nested', {
       path: 'labels',
       query: {
-        terms: {
-          'labels.name': filter.labels,
+        bool: {
+          should: filter.labels.map((label) => {
+            if (label.includes('*')) {
+              // Wildcard query
+              return {
+                wildcard: {
+                  'labels.name': {
+                    value: label,
+                  },
+                },
+              }
+            }
+            return {
+              term: {
+                'labels.name': label,
+              },
+            }
+          }),
+          minimum_should_match: 1,
         },
       },
     })
