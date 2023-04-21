@@ -4,6 +4,7 @@ import androidx.core.net.toUri
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import app.omnivore.omnivore.BuildConfig
+import app.omnivore.omnivore.graphql.generated.SearchQuery
 import app.omnivore.omnivore.models.ServerSyncStatus
 import app.omnivore.omnivore.ui.library.SavedItemSortFilter
 import java.util.*

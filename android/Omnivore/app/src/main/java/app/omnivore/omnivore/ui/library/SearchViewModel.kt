@@ -80,29 +80,29 @@ class SearchViewModel @Inject constructor(
                 }
 
                 result.savedItems.map {
-                    val isSavedInDB = dataService.isSavedItemContentStoredInDB(it.slug)
+                    val isSavedInDB = dataService.isSavedItemContentStoredInDB(it.savedItem.slug)
 
                     if (!isSavedInDB) {
                         delay(2000)
-                        contentRequestChannel.send(it.slug)
+                        contentRequestChannel.send(it.savedItem.slug)
                     }
                 }
 
                 val newItems = result.savedItems.map {
                     SavedItemCardDataWithLabels(
                         cardData = SavedItemCardData(
-                            savedItemId = it.savedItemId,
-                            slug = it.slug,
-                            publisherURLString = it.publisherURLString,
-                            title = it.title,
-                            author = it.author,
-                            imageURLString = it.imageURLString,
-                            isArchived = it.isArchived,
-                            pageURLString = it.pageURLString,
-                            contentReader = it.contentReader,
-                            savedAt = it.savedAt,
-                            readingProgress = it.readingProgress,
-                            wordsCount = it.wordsCount
+                            savedItemId = it.savedItem.savedItemId,
+                            slug = it.savedItem.slug,
+                            publisherURLString = it.savedItem.publisherURLString,
+                            title = it.savedItem.title,
+                            author = it.savedItem.author,
+                            imageURLString = it.savedItem.imageURLString,
+                            isArchived = it.savedItem.isArchived,
+                            pageURLString = it.savedItem.pageURLString,
+                            contentReader = it.savedItem.contentReader,
+                            savedAt = it.savedItem.savedAt,
+                            readingProgress = it.savedItem.readingProgress,
+                            wordsCount = it.savedItem.wordsCount
                         ),
                         labels = listOf()
                     )

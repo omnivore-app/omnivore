@@ -141,38 +141,12 @@ class LibraryViewModel @Inject constructor(
         }
 
         result.savedItems.map {
-          val isSavedInDB = dataService.isSavedItemContentStoredInDB(it.slug)
+          val isSavedInDB = dataService.isSavedItemContentStoredInDB(it.savedItem.slug)
 
           if (!isSavedInDB) {
             delay(2000)
-            contentRequestChannel.send(it.slug)
+            contentRequestChannel.send(it.savedItem.slug)
           }
-        }
-
-        val newItems = result.savedItems.map {
-          SavedItemCardDataWithLabels(
-            cardData = SavedItemCardData(
-              savedItemId = it.savedItemId,
-              slug = it.slug,
-              publisherURLString = it.publisherURLString,
-              title = it.title,
-              author = it.author,
-              imageURLString = it.imageURLString,
-              isArchived = it.isArchived,
-              pageURLString = it.pageURLString,
-              contentReader = it.contentReader,
-              savedAt = it.savedAt,
-              readingProgress = it.readingProgress,
-              wordsCount = it.wordsCount
-            ),
-            labels = listOf()
-          )
-        }
-
-        itemsLiveData.value?.let{
-          itemsLiveData.postValue(newItems + it)
-        } ?: run {
-          itemsLiveData.postValue(newItems)
         }
       }
     }
@@ -203,6 +177,7 @@ class LibraryViewModel @Inject constructor(
 
   suspend fun handleFilterChanges() {
     if (appliedSortFilterLiveData.value != null && appliedFilterLiveData.value != null) {
+      println("PERFORMING A FILTER CHANGE")
       itemsLiveDataInternal = dataService.libraryLiveData(appliedFilterLiveData.value!!, appliedSortFilterLiveData.value!!, activeLabelsLiveData.value ?: listOf())
       itemsLiveData.removeSource(itemsLiveDataInternal)
       itemsLiveData.addSource(itemsLiveDataInternal, itemsLiveData::setValue)

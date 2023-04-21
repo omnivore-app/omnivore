@@ -7,9 +7,15 @@ import app.omnivore.omnivore.persistence.entities.*
 suspend fun DataService.librarySearch(cursor: String?, query: String): SearchResult {
   val searchResult = networker.search(cursor = cursor, limit = 10, query = query)
 
-  val savedItems = searchResult.items.map { it.item }
+  val savedItems = searchResult.items.map {
+    SavedItemWithLabelsAndHighlights(
+      savedItem = it.item,
+      labels = it.labels,
+      highlights = it.highlights,
+    )
+  }
 
-  db.savedItemDao().insertAll(savedItems)
+  db.savedItemDao().insertAll(savedItems.map { it.savedItem })
 
   val labels: MutableList<SavedItemLabel> = mutableListOf()
   val crossRefs: MutableList<SavedItemAndSavedItemLabelCrossRef> = mutableListOf()
@@ -156,7 +162,7 @@ data class SearchResult(
   val hasError: Boolean,
   val hasMoreItems: Boolean,
   val count: Int,
-  val savedItems: List<SavedItem>,
+  val savedItems: List<SavedItemWithLabelsAndHighlights>,
   val cursor: String?
 ) {
   companion object {
