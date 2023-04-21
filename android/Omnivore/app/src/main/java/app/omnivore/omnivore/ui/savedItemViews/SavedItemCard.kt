@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.material3.SuggestionChipDefaults.elevatedSuggestionChipColors
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,9 +32,11 @@ import coil.compose.rememberAsyncImagePainter
 )
 @Composable
 fun SavedItemCard(savedItemViewModel: SavedItemViewModel, cardData: SavedItemCardData, labels: List<SavedItemLabel>, onClickHandler: () -> Unit, actionHandler: (SavedItemAction) -> Unit) {
-  var isMenuExpanded by remember { mutableStateOf(false) }
-  val publisherDisplayName = cardData.publisherDisplayName()
   val listState = rememberLazyListState()
+
+  val actionsMenuItem: SavedItemCardData? by savedItemViewModel.actionsMenuItemLiveData.observeAsState(null)
+  var isFocused = actionsMenuItem?.savedItemId == cardData.savedItemId
+
 
   Column(
     modifier = Modifier
@@ -49,7 +52,7 @@ fun SavedItemCard(savedItemViewModel: SavedItemViewModel, cardData: SavedItemCar
       modifier = Modifier
         .fillMaxWidth()
         .padding(10.dp)
-        .background(if (isMenuExpanded) Color.LightGray else Color.Transparent)
+        .background(Color.Transparent)
     ) {
       Column(
         verticalArrangement = Arrangement.spacedBy(5.dp),
@@ -82,26 +85,17 @@ fun SavedItemCard(savedItemViewModel: SavedItemViewModel, cardData: SavedItemCar
             overflow = TextOverflow.Ellipsis
           )
         }
-//
-//        if (publisherDisplayName != null) {
-//          Text(
-//            text = publisherDisplayName,
-//            style = MaterialTheme.typography.bodyMedium,
-//            maxLines = 1,
-//            overflow = TextOverflow.Ellipsis
-//          )
-//        }
       }
 
-      if (cardData.imageURLString != null) {
-        Image(
-          painter = rememberAsyncImagePainter(cardData.imageURLString),
-          contentDescription = "Image associated with saved item",
-          modifier = Modifier
-            .size(55.dp, 73.dp)
-            .clip(RoundedCornerShape(10.dp))
-        )
-      }
+      Image(
+        painter = rememberAsyncImagePainter(cardData.imageURLString),
+        contentDescription = "Image associated with saved item",
+        modifier = Modifier
+          .size(55.dp, 73.dp)
+          .clip(RoundedCornerShape(10.dp))
+          .defaultMinSize(minWidth = 55.dp, minHeight = 73.dp)
+          .clip(RoundedCornerShape(10.dp))
+      )
     }
 
     LazyRow(
@@ -123,9 +117,9 @@ fun SavedItemCard(savedItemViewModel: SavedItemViewModel, cardData: SavedItemCar
             labelColor = chipColors.textColor,
             iconContentColor = chipColors.textColor
           ),
-//          modifier = Modifier
-//            .padding(horizontal = 4.dp)
+          modifier = Modifier.padding(end = 5.dp)
         )
+
       }
     }
 
@@ -175,8 +169,9 @@ fun readingProgress(item: SavedItemCardData): String {
   }
   return ""
 }
-//
+
 //var highlightsText: String {
+//  item.hig ?.let {
 //  if let highlights = item.highlights, highlights.count > 0 {
 //    let fmted = LocalText.pluralizedText(key: "number_of_highlights", count: highlights.count)
 //    if item.wordsCount > 0 {
