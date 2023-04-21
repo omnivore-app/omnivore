@@ -121,7 +121,9 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
       // e.g. 'X-Forwarded-For: sender@omnivore.app recipient@omnivore.app'
       const forwardedFrom = headers['x-forwarded-for']?.toString().split(' ')[0]
       const unSubHeader = headers['list-unsubscribe']?.toString()
-      const unsubscribe = parseUnsubscribe(unSubHeader)
+      const unsubscribe = unSubHeader
+        ? parseUnsubscribe(unSubHeader)
+        : undefined
 
       const { id: receivedEmailId } = await saveReceivedEmail(to, {
         from,
@@ -147,8 +149,8 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
               subject,
               html,
               text,
-              unsubMailTo: unsubscribe.mailTo,
-              unsubHttpUrl: unsubscribe.httpUrl,
+              unsubMailTo: unsubscribe?.mailTo,
+              unsubHttpUrl: unsubscribe?.httpUrl,
               forwardedFrom,
               receivedEmailId,
             },
@@ -178,8 +180,8 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
             title: subject,
             author: parseAuthor(from),
             text,
-            unsubMailTo: unsubscribe.mailTo,
-            unsubHttpUrl: unsubscribe.httpUrl,
+            unsubMailTo: unsubscribe?.mailTo,
+            unsubHttpUrl: unsubscribe?.httpUrl,
             forwardedFrom,
             receivedEmailId,
             ...newsletterMessage,
