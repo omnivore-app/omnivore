@@ -27,10 +27,24 @@ import {
 } from './types'
 
 const appendQuery = (builder: ESBuilder, query: string): ESBuilder => {
+  const fields = ['title', 'content', 'author', 'description', 'siteName']
+  if (query.includes('*')) {
+    // wildcard query
+    fields.forEach((field) => {
+      builder = builder.orQuery('wildcard', {
+        [field]: {
+          value: query,
+          case_insensitive: true,
+        },
+      })
+    })
+    return builder.queryMinimumShouldMatch(1)
+  }
+
   return builder
     .orQuery('multi_match', {
       query,
-      fields: ['title', 'content', 'author', 'description', 'siteName'],
+      fields,
       operator: 'and',
       type: 'cross_fields',
     })
