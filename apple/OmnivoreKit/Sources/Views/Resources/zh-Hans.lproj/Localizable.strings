@@ -7,14 +7,14 @@
 "saveArticleProcessingState" = "已经保存到 Omnivore 中";
 "extensionAppUnauthorized" = "请在保存您的第一个链接之前从应用程序登录 Omnivore.";
 
-"saveToOmnivore" = "Save to Omnivore";
+"saveToOmnivore" = "保存到 Omnivore";
 
 // audio player
 "audioPlayerReplay" = "重播";
 
 // Highlights List Card
-"highlightCardHighlightByOther" = "由荧光笔高亮显示 ";
-"highlightCardNoHighlightsOnPage" = "您尚未在此页面添加任荧光笔高亮显示或备注。";
+"highlightCardHighlightByOther" = "荧光笔高亮显示由 ";
+"highlightCardNoHighlightsOnPage" = "您尚未在此页面添加任何荧光笔高亮显示";
 
 // Labels View
 "labelsViewAssignNameColor" = "指定名称和颜色。";
@@ -54,7 +54,7 @@
 "communityTweet" = "关于 Omnivore 的推文";
 "communityFollowTwitter" = "在 Twitter 上关注我们";
 "communityJoinDiscord" = "加入我们的 Discord";
-"communityStarGithub" = "点亮我们的 GitHub 星星";
+"communityStarGithub" = "点亮我们的 GitHub 星标";
 
 // Clubs View
 "clubsLearnTitle" = "了解有关读书俱乐部的更多信息";
@@ -81,7 +81,7 @@
 "texttospeechBetaSignupInProcess" = "注册测试版";
 "texttospeechBetaRealisticVoiceLimit" = "您处于超逼真的语音测试版中。在测试期间您每天可以收听 10,000 字的音频。";
 "texttospeechBetaRequestReceived" = "已收到您加入超逼真语音演示的请求。当有空位时您将收到电子邮箱通知。";
-"texttospeechBetaWaitlist" = "超逼真的声音目前处于有限测试阶段。启用该功能会将您添加到测试队列中。";
+"texttospeechBetaWaitlist" = "超级真实的声音目前处于有限测试阶段，仅适用于英语。启用该功能会将您添加到测试队列中。";
 
 // Sign in/up
 "registrationNoAccount" = "还没有账号?";
@@ -122,10 +122,10 @@
 // Welcome View
 "welcomeTitle" = "认真的读者所喜爱的稍后阅读。";
 "welcomeLearnMore" = "了解更多";
-"welcomeSignupAgreement" = "注册即表示您同意 Omnivore’s\n";
+"welcomeSignupAgreement" = "您使用我们的服务即表示您已同意本条款 Omnivore\n";
 "welcomeTitleTermsOfService" = "服务条款";
 "welcomeTitleAndJoiner" = " 和 ";
-"welcomeTitleEmailContinue" = "继续发送电子邮件";
+"welcomeTitleEmailContinue" = "继续使用电子邮件";
 
 // Keyboard Commands
 "keyboardCommandDecreaseFont" = "减小字体大小";
@@ -165,7 +165,7 @@
 "genericLoading" = "加载中...";
 "genericFontFamily" = "字体册";
 "genericHighContrastText" = "高对比度文本";
-"enableHighlightOnReleaseText" = "Auto Highlight Mode:";
+"enableHighlightOnReleaseText" = "自动高亮模式:";
 "genericFont" = "字体";
 "genericHighlight" = "荧光笔";
 "labelsGeneric" = "标签";
@@ -192,6 +192,7 @@
 "recentlyReadGeneric" = "最近阅读";
 "recentlyPublishedGeneric" = "最近发布";
 "clubsGeneric" = "读书俱乐部";
+"filterGeneric" = "筛选";
 "errorGeneric" = "哦！出现了小问题，请您重试。";
 "pushNotificationsGeneric" = "推送通知";
 "dismissButton" = "返回或撤销";

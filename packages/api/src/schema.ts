@@ -36,6 +36,7 @@ const schema = gql`
   enum ContentReader {
     WEB
     PDF
+    EPUB
   }
 
   input SortParams {
@@ -1853,6 +1854,7 @@ const schema = gql`
     title: String!
     slug: String!
     siteName: String
+    contentReader: ContentReader!
   }
 
   union UpdatesSinceResult = UpdatesSinceSuccess | UpdatesSinceError

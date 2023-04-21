@@ -296,9 +296,9 @@
           .padding(.trailing, 32)
 
         Button(
-          action: { self.audioController.skipBackwards(seconds: 30) },
+          action: { self.audioController.skipBackwards(seconds: 15) },
           label: {
-            Image(systemName: "gobackward.30")
+            Image(systemName: "gobackward.15")
               .resizable()
               .font(Font.title.weight(.light))
           }
@@ -313,9 +313,9 @@
           .foregroundColor(.themeDarkGray)
 
         Button(
-          action: { self.audioController.skipForward(seconds: 30) },
+          action: { self.audioController.skipForward(seconds: 15) },
           label: {
-            Image(systemName: "goforward.30")
+            Image(systemName: "goforward.15")
               .resizable()
               .font(Font.title.weight(.light))
           }

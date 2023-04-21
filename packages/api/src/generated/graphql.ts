@@ -244,6 +244,7 @@ export enum BulkActionType {
 }
 
 export enum ContentReader {
+  Epub = 'EPUB',
   Pdf = 'PDF',
   Web = 'WEB'
 }
@@ -2722,6 +2723,7 @@ export enum TypeaheadSearchErrorCode {
 
 export type TypeaheadSearchItem = {
   __typename?: 'TypeaheadSearchItem';
+  contentReader: ContentReader;
   id: Scalars['ID'];
   siteName?: Maybe<Scalars['String']>;
   slug: Scalars['String'];
@@ -5719,6 +5721,7 @@ export type TypeaheadSearchErrorResolvers<ContextType = ResolverContext, ParentT
 };
 
 export type TypeaheadSearchItemResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['TypeaheadSearchItem'] = ResolversParentTypes['TypeaheadSearchItem']> = {
+  contentReader?: Resolver<ResolversTypes['ContentReader'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   siteName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;

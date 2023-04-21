@@ -1,41 +1,63 @@
 import axios, { AxiosResponse } from 'axios'
-import { promisify } from 'util'
 import * as jwt from 'jsonwebtoken'
+import { promisify } from 'util'
 
 const signToken = promisify(jwt.sign)
+
+export interface Attachment {
+  contentType: string
+  data: Buffer
+  filename: string | undefined
+}
 
 type UploadResponse = {
   id: string
   url: string
 }
 
-export const handlePdfAttachment = async (
+export const isAttachment = (contentType: string, data: Buffer): boolean => {
+  return (
+    (contentType === 'application/pdf' ||
+      contentType === 'application/epub+zip') &&
+    data.length > 0
+  )
+}
+
+export const handleAttachments = async (
   email: string,
-  fileName: string | undefined,
-  data: Buffer,
   subject: string,
+  attachments: Attachment[],
   receivedEmailId: string
 ): Promise<void> => {
-  console.log('handlePdfAttachment', email, fileName)
+  for await (const attachment of attachments) {
+    const { contentType, data } = attachment
+    const filename =
+      attachment.filename || contentType === 'application/pdf'
+        ? 'attachment.pdf'
+        : 'attachment.epub'
 
-  fileName = fileName || 'attachment.pdf'
-
-  try {
-    const uploadResult = await getUploadIdAndSignedUrl(email, fileName)
-    if (!uploadResult.url || !uploadResult.id) {
-      console.log('failed to create upload request', uploadResult)
-      return
+    try {
+      const uploadResult = await getUploadIdAndSignedUrl(
+        email,
+        filename,
+        contentType
+      )
+      if (!uploadResult.url || !uploadResult.id) {
+        console.log('failed to create upload request', uploadResult)
+        return
+      }
+      await uploadToSignedUrl(uploadResult.url, data, contentType)
+      await createArticle(email, uploadResult.id, subject, receivedEmailId)
+    } catch (error) {
+      console.error('handleAttachments error', error)
     }
-    await uploadToSignedUrl(uploadResult.url, data)
-    await createArticle(email, uploadResult.id, subject, receivedEmailId)
-  } catch (error) {
-    console.error('handlePdfAttachment error', error)
   }
 }
 
 const getUploadIdAndSignedUrl = async (
   email: string,
-  fileName: string
+  fileName: string,
+  contentType: string
 ): Promise<UploadResponse> => {
   if (process.env.JWT_SECRET === undefined) {
     throw new Error('JWT_SECRET is not defined')
@@ -44,13 +66,14 @@ const getUploadIdAndSignedUrl = async (
   const data = {
     fileName,
     email,
+    contentType,
   }
 
   if (process.env.INTERNAL_SVC_ENDPOINT === undefined) {
     throw new Error('REST_BACKEND_ENDPOINT is not defined')
   }
   const response = await axios.post(
-    `${process.env.INTERNAL_SVC_ENDPOINT}svc/pdf-attachments/upload`,
+    `${process.env.INTERNAL_SVC_ENDPOINT}svc/email-attachment/upload`,
     data,
     {
       headers: {
@@ -64,11 +87,12 @@ const getUploadIdAndSignedUrl = async (
 
 const uploadToSignedUrl = async (
   uploadUrl: string,
-  data: Buffer
+  data: Buffer,
+  contentType: string
 ): Promise<AxiosResponse> => {
   return axios.put(uploadUrl, data, {
     headers: {
-      'Content-Type': 'application/pdf',
+      'Content-Type': contentType,
     },
     maxBodyLength: 1000000000,
     maxContentLength: 100000000,
@@ -97,7 +121,7 @@ const createArticle = async (
     throw new Error('REST_BACKEND_ENDPOINT is not defined')
   }
   return axios.post(
-    `${process.env.INTERNAL_SVC_ENDPOINT}svc/pdf-attachments/create-article`,
+    `${process.env.INTERNAL_SVC_ENDPOINT}svc/email-attachment/create-article`,
     data,
     {
       headers: {

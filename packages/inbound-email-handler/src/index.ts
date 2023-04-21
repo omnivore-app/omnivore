@@ -11,7 +11,9 @@ import axios from 'axios'
 import * as jwt from 'jsonwebtoken'
 import parseHeaders from 'parse-headers'
 import * as multipart from 'parse-multipart-data'
+import rfc2047 from 'rfc2047'
 import { promisify } from 'util'
+import { Attachment, handleAttachments, isAttachment } from './attachment'
 import {
   handleGoogleConfirmationEmail,
   isGoogleConfirmationEmail,
@@ -19,7 +21,6 @@ import {
   parseAuthor,
   parseUnsubscribe,
 } from './newsletter'
-import { handlePdfAttachment } from './pdf'
 
 interface SaveReceivedEmailResponse {
   id: string
@@ -91,22 +92,19 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
     try {
       const parts = multipart.parse(req.body, 'xYzZY')
       const parsed: Record<string, string> = {}
-
-      let pdfAttachment: Buffer | undefined
-      let pdfAttachmentName: string | undefined
+      const attachments: Attachment[] = []
 
       for (const part of parts) {
         const { name, data, type, filename } = part
         if (name && data) {
-          parsed[name] = data.toString()
-        } else if (type === 'application/pdf' && data) {
-          pdfAttachment = data
-          pdfAttachmentName = filename
+          // decode data from rfc2047 encoded
+          parsed[name] = rfc2047.decode(data.toString())
+        } else if (isAttachment(type, data)) {
+          attachments.push({ data, contentType: type, filename })
         } else {
           console.log('no data or name for ', part)
         }
       }
-
       const headers = parseHeaders(parsed.headers)
       console.log('parsed: ', parsed)
       console.log('headers: ', headers)
@@ -123,7 +121,9 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
       // e.g. 'X-Forwarded-For: sender@omnivore.app recipient@omnivore.app'
       const forwardedFrom = headers['x-forwarded-for']?.toString().split(' ')[0]
       const unSubHeader = headers['list-unsubscribe']?.toString()
-      const unsubscribe = parseUnsubscribe(unSubHeader)
+      const unsubscribe = unSubHeader
+        ? parseUnsubscribe(unSubHeader)
+        : undefined
 
       const { id: receivedEmailId } = await saveReceivedEmail(to, {
         from,
@@ -149,24 +149,18 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
               subject,
               html,
               text,
-              unsubMailTo: unsubscribe.mailTo,
-              unsubHttpUrl: unsubscribe.httpUrl,
+              unsubMailTo: unsubscribe?.mailTo,
+              unsubHttpUrl: unsubscribe?.httpUrl,
               forwardedFrom,
               receivedEmailId,
             },
           })
           return res.send('ok')
         }
-        if (pdfAttachment) {
-          console.log('handle PDF attachment', from, to)
-          // save the pdf attachment as an article
-          await handlePdfAttachment(
-            to,
-            pdfAttachmentName,
-            pdfAttachment,
-            subject,
-            receivedEmailId
-          )
+        if (attachments.length > 0) {
+          console.debug('handle attachments', from, to, subject)
+          // save the attachments as articles
+          await handleAttachments(to, subject, attachments, receivedEmailId)
           return res.send('ok')
         }
         // all other emails are considered newsletters
@@ -186,8 +180,8 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
             title: subject,
             author: parseAuthor(from),
             text,
-            unsubMailTo: unsubscribe.mailTo,
-            unsubHttpUrl: unsubscribe.httpUrl,
+            unsubMailTo: unsubscribe?.mailTo,
+            unsubHttpUrl: unsubscribe?.httpUrl,
             forwardedFrom,
             receivedEmailId,
             ...newsletterMessage,

@@ -2,6 +2,7 @@ import * as chai from 'chai'
 import { expect } from 'chai'
 import chaiString from 'chai-string'
 import 'mocha'
+import sinon from 'sinon'
 import { createPubSubClient } from '../../src/datalayer/pubsub'
 import { refreshIndex } from '../../src/elastic'
 import { addHighlightToPage } from '../../src/elastic/highlights'
@@ -30,6 +31,8 @@ import {
   UpdateReason,
   UploadFileStatus,
 } from '../../src/generated/graphql'
+import * as createTask from '../../src/utils/createTask'
+import * as uploads from '../../src/utils/uploads'
 import { createTestUser, deleteTestUser } from '../db'
 import {
   createTestElasticPage,
@@ -37,9 +40,6 @@ import {
   graphqlRequest,
   request,
 } from '../util'
-import sinon from 'sinon'
-import * as createTask from '../../src/utils/createTask'
-import * as uploads from '../../src/utils/uploads'
 
 chai.use(chaiString)
 
@@ -362,6 +362,7 @@ const typeaheadSearchQuery = (keyword: string) => {
           id
           slug
           title
+          contentReader
         }
       }
       ... on TypeaheadSearchError {
@@ -1105,6 +1106,7 @@ describe('Article API', () => {
       expect(res.body.data.typeaheadSearch.items[2].id).to.eq(pages[2].id)
       expect(res.body.data.typeaheadSearch.items[3].id).to.eq(pages[3].id)
       expect(res.body.data.typeaheadSearch.items[4].id).to.eq(pages[4].id)
+      expect(res.body.data.typeaheadSearch.items[0].contentReader).to.eq('WEB')
     })
   })
 

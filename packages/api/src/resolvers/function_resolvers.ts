@@ -8,7 +8,6 @@ import { getPageByParam } from '../elastic/pages'
 import {
   Article,
   ArticleHighlightsInput,
-  ContentReader,
   Highlight,
   HighlightType,
   LinkShareInfo,
@@ -20,6 +19,7 @@ import {
 import { userDataToUser, validatedDate, wordsCount } from '../utils/helpers'
 import { createImageProxyUrl } from '../utils/imageproxy'
 import {
+  contentReaderForPageType,
   generateDownloadSignedUrl,
   generateUploadFilePathName,
 } from '../utils/uploads'
@@ -375,7 +375,8 @@ export const functionResolvers = {
   Article: {
     async url(article: Article, _: unknown, ctx: WithDataSourcesContext) {
       if (
-        article.pageType == PageType.File &&
+        (article.pageType == PageType.File ||
+          article.pageType == PageType.Book) &&
         ctx.claims &&
         article.uploadFileId
       ) {
@@ -468,9 +469,7 @@ export const functionResolvers = {
       return !!page?.archivedAt || false
     },
     contentReader(article: { pageType: PageType }) {
-      return article.pageType === PageType.File
-        ? ContentReader.Pdf
-        : ContentReader.Web
+      return contentReaderForPageType(article.pageType)
     },
     highlights(
       article: { id: string; userId?: string; highlights?: Highlight[] },
@@ -551,7 +550,11 @@ export const functionResolvers = {
   },
   SearchItem: {
     async url(item: SearchItem, _: unknown, ctx: WithDataSourcesContext) {
-      if (item.pageType == PageType.File && ctx.claims && item.uploadFileId) {
+      if (
+        (item.pageType == PageType.File || item.pageType == PageType.Book) &&
+        ctx.claims &&
+        item.uploadFileId
+      ) {
         const upload = await ctx.models.uploadFile.get(item.uploadFileId)
         if (!upload || !upload.fileName) {
           return undefined

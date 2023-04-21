@@ -1,12 +1,12 @@
-import 'mocha'
 import { expect } from 'chai'
+import * as fs from 'fs'
+import 'mocha'
+import path from 'path'
 import {
   htmlToSpeechFile,
   htmlToSsmlItems,
   stripEmojis,
 } from '../src/htmlToSsml'
-import * as fs from 'fs'
-import path from 'path'
 
 const TEST_OPTIONS = {
   primaryVoice: 'test-primary',
@@ -307,6 +307,34 @@ describe('convert HTML to Speech file', () => {
     )
     expect(speechFile.utterances[1].text).to.eql(
       'I feel like I’m working on reading, listening, and speaking all at once, sometimes I feel like I’m just getting surface understanding. '
+    )
+  })
+
+  it('splits sentences in German correctly', () => {
+    const html = `<div class="page" id="readability-page-1" data-omnivore-anchor-idx="1">
+<p data-omnivore-anchor-idx="2"><span data-omnivore-anchor-idx="3"><span data-omnivore-anchor-idx="4"><strong data-omnivore-anchor-idx="5"><em data-omnivore-anchor-idx="6"><span data-omnivore-anchor-idx="7" lang="DE" xml:lang="DE"><span data-omnivore-anchor-idx="8">Q</span></span></em></strong><em data-omnivore-anchor-idx="9"><span data-omnivore-anchor-idx="10" lang="DE" xml:lang="DE"><span data-omnivore-anchor-idx="11"><strong data-omnivore-anchor-idx="12">:</strong> „Die kürzliche Razzia in den BBC-Büros in Delhi sind ein weiterer Versuch der Regierung, kritische Medien-Kommentare zu unterdrücken. Man hat des Gefühl, Herr Modi hat Angst, in den Spiegel zu schauen!?“</span></span></em></span></span></p>
+</div>`
+    const speechFile = htmlToSpeechFile({
+      content: html,
+      options: TEST_OPTIONS,
+    })
+    expect(speechFile.utterances).to.have.lengthOf(1)
+    expect(speechFile.utterances[0].text).to.eql(
+      'Q: „Die kürzliche Razzia in den BBC-Büros in Delhi sind ein weiterer Versuch der Regierung, kritische Medien-Kommentare zu unterdrücken. Man hat des Gefühl, Herr Modi hat Angst, in den Spiegel zu schauen!? “'
+    )
+  })
+
+  it('splits sentences in Chinese correctly', () => {
+    const html = `<div class="page" id="readability-page-1" data-omnivore-anchor-idx="1">
+  <p data-omnivore-anchor-idx="2">这是一段中文，我想看看它是怎么分句的。如果买二手房有中介参与，要找相对大的、知名的中介。中介的收费、服务情况要先问清。还要和中介谈好，中介费的付款时间，一般来说是签完合同付一部分，过户后付一部分，省的太早付完钱，中介就不管事了。付完记得要发票。中介如果提供贷款服务，让他玩去。贷款之类的问题，别怕麻烦，自己去找银行。</p>
+</div>`
+    const speechFile = htmlToSpeechFile({
+      content: html,
+      options: TEST_OPTIONS,
+    })
+    expect(speechFile.utterances).to.have.lengthOf(1)
+    expect(speechFile.utterances[0].text).to.eql(
+      '这是一段中文，我想看看它是怎么分句的。如果买二手房有中介参与，要找相对大的、知名的中介。中介的收费、服务情况要先问清。还要和中介谈好，中介费的付款时间，一般来说是签完合同付一部分，过户后付一部分，省的太早付完钱，中介就不管事了。付完记得要发票。中介如果提供贷款服务，让他玩去。贷款之类的问题，别怕麻烦，自己去找银行。'
     )
   })
 })

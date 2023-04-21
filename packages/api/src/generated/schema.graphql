@@ -203,6 +203,7 @@ enum BulkActionType {
 }
 
 enum ContentReader {
+  EPUB
   PDF
   WEB
 }
@@ -2079,6 +2080,7 @@ enum TypeaheadSearchErrorCode {
 }
 
 type TypeaheadSearchItem {
+  contentReader: ContentReader!
   id: ID!
   siteName: String
   slug: String!

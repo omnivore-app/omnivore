@@ -1,4 +1,6 @@
 import { Page, PageType } from '../elastic/types'
+import { ContentReader } from '../generated/graphql'
+import { contentReaderForPageType } from '../utils/uploads'
 import { FeatureName, isOptedIn } from './features'
 
 /*
@@ -8,7 +10,10 @@ export const shouldSynthesize = async (
   userId: string,
   page: Page
 ): Promise<boolean> => {
-  if (page.pageType === PageType.File || !page.content) {
+  if (
+    contentReaderForPageType(page.pageType) !== ContentReader.Web ||
+    !page.content
+  ) {
     // we don't synthesize files for now
     return false
   }

@@ -40,10 +40,12 @@ export const getHighlightLocation = (patch: string): number | undefined => {
 export function NotebookModal(props: NotebookModalProps): JSX.Element {
   const [sizeMode, setSizeMode] = useState<'normal' | 'maximized'>('normal')
   const [showConfirmDeleteNote, setShowConfirmDeleteNote] = useState(false)
-  const [allAnnotations, setAllAnnotations] =
-    useState<Highlight[] | undefined>(undefined)
-  const [deletedAnnotations, setDeletedAnnotations] =
-    useState<Highlight[] | undefined>(undefined)
+  const [allAnnotations, setAllAnnotations] = useState<Highlight[] | undefined>(
+    undefined
+  )
+  const [deletedAnnotations, setDeletedAnnotations] = useState<
+    Highlight[] | undefined
+  >(undefined)
 
   const handleClose = useCallback(() => {
     props.onClose(allAnnotations ?? [], deletedAnnotations ?? [])
@@ -136,7 +138,7 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
                 onSelect={() => {
                   setShowConfirmDeleteNote(true)
                 }}
-                title="Delete Document Note"
+                title="Delete Article Note"
               />
             </Dropdown>
             <CloseButton close={handleClose} />
@@ -147,6 +149,8 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
           sizeMode={sizeMode}
           viewInReader={viewInReader}
           onAnnotationsChanged={handleAnnotationsChange}
+          showConfirmDeleteNote={showConfirmDeleteNote}
+          setShowConfirmDeleteNote={setShowConfirmDeleteNote}
         />
       </ModalContent>
     </ModalRoot>

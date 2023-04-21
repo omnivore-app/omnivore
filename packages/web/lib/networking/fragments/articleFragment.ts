@@ -23,7 +23,7 @@ export const articleFragment = gql`
   }
 `
 
-export type ContentReader = 'WEB' | 'PDF'
+export type ContentReader = 'WEB' | 'PDF' | 'EPUB'
 
 export enum State {
   SUCCEEDED = 'SUCCEEDED',
