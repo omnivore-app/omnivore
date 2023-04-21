@@ -24,13 +24,10 @@ query UpdatesSince($after: String, $first: Int, $since: Date!) {
           originalArticleUrl
           uploadFileId
           labels {
-            id
-            name
-            color
+            ...LabelFields
           }
           highlights {
-            id
-            type
+            ...HighlightFields
           }
           pageId
           shortId

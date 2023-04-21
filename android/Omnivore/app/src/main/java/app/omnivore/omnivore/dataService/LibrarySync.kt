@@ -76,9 +76,9 @@ suspend fun DataService.sync(since: String, cursor: String?, limit: Int = 20): S
   for (item in syncResult.items) {
     val itemLabels = (item.labels ?: listOf()).map {
       SavedItemLabel(
-        savedItemLabelId = it.id,
-        name = it.name,
-        color = it.color,
+        savedItemLabelId = it.labelFields.id,
+        name = it.labelFields.name,
+        color = it.labelFields.color,
         createdAt = null,
         labelDescription = null
       )

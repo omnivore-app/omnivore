@@ -91,9 +91,9 @@ suspend fun Networker.search(
         ),
         labels = (it.node.labels ?: listOf()).map { label ->
           SavedItemLabel(
-            savedItemLabelId = label.id,
-            name = label.name,
-            color = label.color,
+            savedItemLabelId = label.labelFields.id,
+            name = label.labelFields.name,
+            color = label.labelFields.color,
             createdAt = null,
             labelDescription = null
           )
