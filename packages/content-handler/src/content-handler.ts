@@ -172,9 +172,9 @@ export abstract class ContentHandler {
     const url =
       (await this.parseNewsletterUrl(headers, html)) || generateUniqueUrl()
     const author = this.parseAuthor(from)
-    const unsubscribe = this.parseUnsubscribe(
-      headers['list-unsubscribe']?.toString()
-    )
+    const unsubscribe = headers['list-unsubscribe']
+      ? this.parseUnsubscribe(headers['list-unsubscribe'].toString())
+      : undefined
 
     return {
       email: to,
@@ -182,8 +182,8 @@ export abstract class ContentHandler {
       url,
       title: subject,
       author,
-      unsubMailTo: unsubscribe.mailTo || '',
-      unsubHttpUrl: unsubscribe.httpUrl || '',
+      unsubMailTo: unsubscribe?.mailTo || '',
+      unsubHttpUrl: unsubscribe?.httpUrl || '',
     }
   }
 }
