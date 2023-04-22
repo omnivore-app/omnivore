@@ -189,7 +189,13 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
         })
         res.send('newsletter received')
       } catch (error) {
-        console.log('error handling emails, will forward.', from, to, subject)
+        console.log(
+          'error handling emails, will forward.',
+          from,
+          to,
+          subject,
+          error
+        )
         // queue error emails
         await pubsub.topic(NON_NEWSLETTER_EMAIL_TOPIC).publishMessage({
           json: {

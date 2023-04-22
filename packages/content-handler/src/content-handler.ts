@@ -173,7 +173,7 @@ export abstract class ContentHandler {
       (await this.parseNewsletterUrl(headers, html)) || generateUniqueUrl()
     const author = this.parseAuthor(from)
     const unsubscribe = headers['list-unsubscribe']
-      ? this.parseUnsubscribe(headers['list-unsubscribe']?.toString())
+      ? this.parseUnsubscribe(headers['list-unsubscribe'].toString())
       : undefined
 
     return {
