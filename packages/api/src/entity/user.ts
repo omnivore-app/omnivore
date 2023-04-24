@@ -40,7 +40,7 @@ export class User {
   @OneToMany(() => NewsletterEmail, (newsletterEmail) => newsletterEmail.user)
   newsletterEmails?: NewsletterEmail[]
 
-  @OneToOne(() => Profile, (profile) => profile.user)
+  @OneToOne(() => Profile, (profile) => profile.user, { eager: true })
   profile!: Profile
 
   @Column('varchar', { length: 255, nullable: true })

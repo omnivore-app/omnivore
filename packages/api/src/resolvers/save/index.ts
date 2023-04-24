@@ -1,3 +1,6 @@
+import { User } from '../../entity/user'
+import { getRepository } from '../../entity/utils'
+import { env } from '../../env'
 import {
   MutationSaveFileArgs,
   MutationSavePageArgs,
@@ -6,12 +9,11 @@ import {
   SaveErrorCode,
   SaveSuccess,
 } from '../../generated/graphql'
+import { saveFile } from '../../services/save_file'
 import { savePage } from '../../services/save_page'
 import { saveUrl } from '../../services/save_url'
-import { saveFile } from '../../services/save_file'
-import { authorized, userDataToUser } from '../../utils/helpers'
 import { analytics } from '../../utils/analytics'
-import { env } from '../../env'
+import { authorized, userDataToUser } from '../../utils/helpers'
 
 export const savePageResolver = authorized<
   SaveSuccess,
@@ -51,7 +53,6 @@ export const saveUrlResolver = authorized<
   MutationSaveUrlArgs
 >(async (_, { input }, ctx) => {
   const {
-    models,
     claims: { uid },
   } = ctx
 
@@ -66,7 +67,9 @@ export const saveUrlResolver = authorized<
     },
   })
 
-  const user = userDataToUser(await models.user.get(uid))
+  const user = await getRepository(User).findOneBy({
+    id: uid,
+  })
   if (!user) {
     return { errorCodes: [SaveErrorCode.Unauthorized] }
   }

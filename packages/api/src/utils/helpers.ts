@@ -289,3 +289,12 @@ export const generateRandomColor = (): string => {
 export const unescapeHtml = (html: string): string => {
   return _.unescape(html)
 }
+
+export const isUrl = (str: string): boolean => {
+  try {
+    new URL(str)
+    return true
+  } catch {
+    return false
+  }
+}
