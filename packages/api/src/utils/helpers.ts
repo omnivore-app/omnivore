@@ -18,6 +18,7 @@ import {
 } from '../generated/graphql'
 import { CreateArticlesSuccessPartial } from '../resolvers'
 import { Claims, WithDataSourcesContext } from '../resolvers/types'
+import { validateUrl } from '../services/create_page_save_request'
 import { Merge } from '../util'
 
 interface InputObject {
@@ -292,9 +293,10 @@ export const unescapeHtml = (html: string): string => {
 
 export const isUrl = (str: string): boolean => {
   try {
-    new URL(str)
+    validateUrl(str)
     return true
   } catch {
+    console.log('not an url', str)
     return false
   }
 }
