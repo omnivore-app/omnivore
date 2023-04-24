@@ -1,3 +1,8 @@
+import { ILike } from 'typeorm'
+import { NewsletterEmail } from '../../entity/newsletter_email'
+import { ReceivedEmail } from '../../entity/received_email'
+import { getRepository } from '../../entity/utils'
+import { env } from '../../env'
 import {
   MarkEmailAsItemError,
   MarkEmailAsItemErrorCode,
@@ -7,15 +12,11 @@ import {
   RecentEmailsErrorCode,
   RecentEmailsSuccess,
 } from '../../generated/graphql'
-import { authorized } from '../../utils/helpers'
-import { getRepository } from '../../entity/utils'
-import { ReceivedEmail } from '../../entity/received_email'
+import { updateReceivedEmail } from '../../services/received_emails'
 import { saveNewsletterEmail } from '../../services/save_newsletter_email'
-import { NewsletterEmail } from '../../entity/newsletter_email'
+import { authorized } from '../../utils/helpers'
 import { generateUniqueUrl, parseEmailAddress } from '../../utils/parser'
 import { sendEmail } from '../../utils/sendEmail'
-import { env } from '../../env'
-import { ILike } from 'typeorm'
 
 export const recentEmailsResolver = authorized<
   RecentEmailsSuccess,
@@ -114,6 +115,8 @@ export const markEmailAsItemResolver = authorized<
       },
       newsletterEmail
     )
+    // update received email type
+    await updateReceivedEmail(recentEmail.id, 'article')
 
     const text = `A recent email marked as a library item
                     by: ${claims.uid}

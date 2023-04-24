@@ -80,12 +80,6 @@ describe('saveNewsletterEmail', () => {
       newsletterEmail: { id: newsletterEmail.id },
     })
     expect(subscriptions).not.to.be.empty
-
-    // check if the received email was updated
-    const updatedReceivedEmail = await getRepository(ReceivedEmail).findOneBy({
-      id: receivedEmail.id,
-    })
-    expect(updatedReceivedEmail?.type).to.equal('article')
   })
 
   it('adds a Newsletter label to that page', async () => {
