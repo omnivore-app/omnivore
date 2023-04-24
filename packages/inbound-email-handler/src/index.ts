@@ -175,14 +175,12 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
         await pubsub.topic(NEWSLETTER_EMAIL_RECEIVED_TOPIC).publishMessage({
           json: {
             email: to,
-            content: html,
+            content: html || text, // html is preferred
             url: generateUniqueUrl(),
             title: subject,
             author: parseAuthor(from),
-            text,
             unsubMailTo: unsubscribe?.mailTo,
             unsubHttpUrl: unsubscribe?.httpUrl,
-            forwardedFrom,
             receivedEmailId,
             ...newsletterMessage,
           },

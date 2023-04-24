@@ -20,6 +20,16 @@ interface SetConfirmationCodeMessage {
   confirmationCode: string
 }
 
+const isNewsletterMessage = (data: any): data is NewsletterMessage => {
+  return (
+    'email' in data &&
+    'title' in data &&
+    'author' in data &&
+    'url' in data &&
+    'receivedEmailId' in data
+  )
+}
+
 export function newsletterServiceRouter() {
   const router = express.Router()
 
@@ -90,17 +100,10 @@ export function newsletterServiceRouter() {
     }
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const data = JSON.parse(message) as NewsletterMessage
-      if (
-        !('email' in data) ||
-        !('content' in data) ||
-        !('title' in data) ||
-        !('author' in data)
-      ) {
+      const data = JSON.parse(message) as unknown
+      if (!isNewsletterMessage(data)) {
         console.log('invalid newsletter message', data)
-        res.status(400).send('Bad Request')
-        return
+        return res.status(400).send('Bad Request')
       }
 
       // get user from newsletter email
