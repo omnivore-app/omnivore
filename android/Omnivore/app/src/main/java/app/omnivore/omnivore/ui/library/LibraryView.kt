@@ -35,6 +35,7 @@ import app.omnivore.omnivore.R
 import app.omnivore.omnivore.Routes
 import app.omnivore.omnivore.persistence.entities.SavedItemCardData
 import app.omnivore.omnivore.persistence.entities.SavedItemCardDataWithLabels
+import app.omnivore.omnivore.persistence.entities.SavedItemWithLabelsAndHighlights
 import app.omnivore.omnivore.ui.components.LabelsSelectionSheet
 import app.omnivore.omnivore.ui.savedItemViews.SavedItemCard
 import app.omnivore.omnivore.ui.reader.PDFReaderActivity
@@ -49,9 +50,6 @@ fun LibraryView(
   libraryViewModel: LibraryViewModel,
   navController: NavHostController
 ) {
-
-  val actionsMenuItem: SavedItemCardData? by libraryViewModel.actionsMenuItemLiveData.observeAsState(null)
-
   Scaffold(
     topBar = {
       LibraryNavigationBar(
@@ -83,7 +81,7 @@ fun LibraryViewContent(libraryViewModel: LibraryViewModel, modifier: Modifier) {
     onRefresh = { libraryViewModel.refresh() }
   )
 
-  val cardsData: List<SavedItemCardDataWithLabels> by libraryViewModel.itemsLiveData.observeAsState(
+  val cardsData: List<SavedItemWithLabelsAndHighlights> by libraryViewModel.itemsLiveData.observeAsState(
     listOf()
   )
 
@@ -107,18 +105,17 @@ fun LibraryViewContent(libraryViewModel: LibraryViewModel, modifier: Modifier) {
       items(cardsData) { cardDataWithLabels ->
         SavedItemCard(
           savedItemViewModel = libraryViewModel,
-          cardData = cardDataWithLabels.cardData,
-          labels = cardDataWithLabels.labels,
+          savedItem = cardDataWithLabels,
           onClickHandler = {
             val activityClass =
-              if (cardDataWithLabels.cardData.isPDF()) PDFReaderActivity::class.java else WebReaderLoadingContainerActivity::class.java
+              if (cardDataWithLabels.savedItem.contentReader == "PDF") PDFReaderActivity::class.java else WebReaderLoadingContainerActivity::class.java
             val intent = Intent(context, activityClass)
-            intent.putExtra("SAVED_ITEM_SLUG", cardDataWithLabels.cardData.slug)
+            intent.putExtra("SAVED_ITEM_SLUG", cardDataWithLabels.savedItem.slug)
             context.startActivity(intent)
           },
           actionHandler = {
             libraryViewModel.handleSavedItemAction(
-              cardDataWithLabels.cardData.savedItemId,
+              cardDataWithLabels.savedItem.savedItemId,
               it
             )
           }

@@ -42,9 +42,9 @@ class SearchViewModel @Inject constructor(
     val typeaheadMode = MutableLiveData(true)
     val searchTextLiveData = MutableLiveData("")
     val searchItemsLiveData = MutableLiveData<List<TypeaheadCardData>>(listOf())
-    val itemsLiveData = MediatorLiveData<List<SavedItemCardDataWithLabels>>()
+    val itemsLiveData = MediatorLiveData<List<SavedItemWithLabelsAndHighlights>>()
 
-    override val actionsMenuItemLiveData = MutableLiveData<SavedItemCardData?>(null)
+    override val actionsMenuItemLiveData = MutableLiveData<SavedItemWithLabelsAndHighlights?>(null)
 
     fun updateSearchText(text: String) {
         typeaheadMode.postValue(true)
@@ -88,7 +88,9 @@ class SearchViewModel @Inject constructor(
                     }
                 }
 
-                val newItems = result.savedItems.map {
+                val newItems = result.savedItems
+                    /*
+                    .map {
                     SavedItemCardDataWithLabels(
                         cardData = SavedItemCardData(
                             savedItemId = it.savedItem.savedItemId,
@@ -107,6 +109,7 @@ class SearchViewModel @Inject constructor(
                         labels = listOf()
                     )
                 }
+                */
 
                 itemsLiveData.value?.let{
                     itemsLiveData.postValue(newItems + it)

@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.*
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.persistence.entities.SavedItemCardData
 import app.omnivore.omnivore.persistence.entities.SavedItemLabel
+import app.omnivore.omnivore.persistence.entities.SavedItemWithLabelsAndHighlights
 import app.omnivore.omnivore.ui.components.LabelChipColors
 import app.omnivore.omnivore.ui.library.LibraryViewModel
 import app.omnivore.omnivore.ui.library.SavedItemAction
@@ -31,18 +32,16 @@ import coil.compose.rememberAsyncImagePainter
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class,
 )
 @Composable
-fun SavedItemCard(savedItemViewModel: SavedItemViewModel, cardData: SavedItemCardData, labels: List<SavedItemLabel>, onClickHandler: () -> Unit, actionHandler: (SavedItemAction) -> Unit) {
+fun SavedItemCard(savedItemViewModel: SavedItemViewModel, savedItem: SavedItemWithLabelsAndHighlights, onClickHandler: () -> Unit, actionHandler: (SavedItemAction) -> Unit) {
   val listState = rememberLazyListState()
 
-  val actionsMenuItem: SavedItemCardData? by savedItemViewModel.actionsMenuItemLiveData.observeAsState(null)
-  var isFocused = actionsMenuItem?.savedItemId == cardData.savedItemId
-
+  val actionsMenuItem: SavedItemWithLabelsAndHighlights? by savedItemViewModel.actionsMenuItemLiveData.observeAsState(null)
 
   Column(
     modifier = Modifier
       .combinedClickable(
         onClick = onClickHandler,
-        onLongClick = { savedItemViewModel.actionsMenuItemLiveData.postValue(cardData) }
+        onLongClick = { savedItemViewModel.actionsMenuItemLiveData.postValue(savedItem) }
       )
       .fillMaxWidth()
   ) {
@@ -61,10 +60,10 @@ fun SavedItemCard(savedItemViewModel: SavedItemViewModel, cardData: SavedItemCar
           .padding(end = 20.dp)
           .defaultMinSize(minHeight = 55.dp)
       ) {
-        readInfo(item = cardData)
+        readInfo(item = savedItem)
 
         Text(
-          text = cardData.title,
+          text = savedItem.savedItem.title,
           style = TextStyle(
             fontSize = 18.sp,
             fontWeight = FontWeight.SemiBold
@@ -73,9 +72,9 @@ fun SavedItemCard(savedItemViewModel: SavedItemViewModel, cardData: SavedItemCar
           lineHeight = 20.sp
         )
 
-        if (cardData.author != null && cardData.author != "") {
+        if (savedItem.savedItem.author != null && savedItem.savedItem.author != "") {
           Text(
-            text = byline(cardData),
+            text = byline(savedItem),
             style = TextStyle(
               fontSize = 15.sp,
               fontWeight = FontWeight.Normal,
@@ -88,7 +87,7 @@ fun SavedItemCard(savedItemViewModel: SavedItemViewModel, cardData: SavedItemCar
       }
 
       Image(
-        painter = rememberAsyncImagePainter(cardData.imageURLString),
+        painter = rememberAsyncImagePainter(savedItem.savedItem.imageURLString),
         contentDescription = "Image associated with saved item",
         modifier = Modifier
           .size(55.dp, 73.dp)
@@ -105,7 +104,7 @@ fun SavedItemCard(savedItemViewModel: SavedItemViewModel, cardData: SavedItemCar
       modifier = Modifier
         .padding(start = 10.dp, bottom = 5.dp, end = 10.dp)
     ) {
-      items(labels.sortedBy { it.name }) { label ->
+      items(savedItem.labels.sortedBy { it.name }) { label ->
         val chipColors = LabelChipColors.fromHex(label.color)
 
         SuggestionChip(
@@ -127,12 +126,12 @@ fun SavedItemCard(savedItemViewModel: SavedItemViewModel, cardData: SavedItemCar
   }
 }
 
-fun byline(item: SavedItemCardData): String {
-  item.author?.let {
-    return item.author
+fun byline(item: SavedItemWithLabelsAndHighlights): String {
+  item.savedItem.author?.let {
+    return item.savedItem.author
   }
 
-  val publisherDisplayName = item.publisherDisplayName()
+  val publisherDisplayName = item.savedItem.publisherDisplayName()
   publisherDisplayName?.let {
     return publisherDisplayName
   }
@@ -149,8 +148,8 @@ fun byline(item: SavedItemCardData): String {
 //  return Int64(result)
 //}
 
-fun estimatedReadingTime(item: SavedItemCardData): String {
-  item.wordsCount?.let {
+fun estimatedReadingTime(item: SavedItemWithLabelsAndHighlights): String {
+  item.savedItem.wordsCount?.let {
     if (it > 0) {
       val readLen = Math.max(1, it / 235)
       return "$readLen MIN READ • "
@@ -159,11 +158,11 @@ fun estimatedReadingTime(item: SavedItemCardData): String {
   return ""
 }
 
-fun readingProgress(item: SavedItemCardData): String {
+fun readingProgress(item: SavedItemWithLabelsAndHighlights): String {
   // If there is no wordsCount don't show progress because it will make no sense
-  item.wordsCount?.let {
+  item.savedItem.wordsCount?.let {
     if (it > 0) {
-      val intVal = item.readingProgress.toInt()
+      val intVal = item.savedItem.readingProgress.toInt()
       return "$intVal%"
     }
   }
@@ -201,7 +200,7 @@ fun readingProgress(item: SavedItemCardData): String {
 //}
 
 @Composable
-fun readInfo(item: SavedItemCardData) {
+fun readInfo(item: SavedItemWithLabelsAndHighlights) {
   Row(
     modifier = Modifier
       .fillMaxWidth()
@@ -223,7 +222,7 @@ fun readInfo(item: SavedItemCardData) {
       style = TextStyle(
         fontSize = 11.sp,
         fontWeight = FontWeight.Medium,
-        color = if (item.readingProgress > 1) colorResource(R.color.green_55B938) else colorResource(R.color.gray_898989)
+        color = if (item.savedItem.readingProgress > 1) colorResource(R.color.green_55B938) else colorResource(R.color.gray_898989)
       ),
       maxLines = 1,
       overflow = TextOverflow.Ellipsis

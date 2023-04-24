@@ -24,6 +24,7 @@ import androidx.navigation.NavHostController
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.persistence.entities.SavedItemCardData
 import app.omnivore.omnivore.persistence.entities.SavedItemCardDataWithLabels
+import app.omnivore.omnivore.persistence.entities.SavedItemWithLabelsAndHighlights
 import app.omnivore.omnivore.ui.reader.WebReaderLoadingContainerActivity
 import app.omnivore.omnivore.persistence.entities.TypeaheadCardData
 import app.omnivore.omnivore.ui.reader.PDFReaderActivity
@@ -39,7 +40,7 @@ fun SearchView(
     val isRefreshing: Boolean by viewModel.isRefreshing.observeAsState(false)
     val typeaheadMode: Boolean by viewModel.typeaheadMode.observeAsState(true)
     val searchText: String by viewModel.searchTextLiveData.observeAsState("")
-    val actionsMenuItem: SavedItemCardData? by viewModel.actionsMenuItemLiveData.observeAsState(null)
+    val actionsMenuItem: SavedItemWithLabelsAndHighlights? by viewModel.actionsMenuItemLiveData.observeAsState(null)
 
     Scaffold(
         topBar = {
@@ -174,7 +175,7 @@ fun SearchViewContent(viewModel: SearchViewModel, modifier: Modifier) {
     val context = LocalContext.current
     val listState = rememberLazyListState()
 
-    val cardsData: List<SavedItemCardDataWithLabels> by viewModel.itemsLiveData.observeAsState(listOf())
+    val cardsData: List<SavedItemWithLabelsAndHighlights> by viewModel.itemsLiveData.observeAsState(listOf())
 
     LazyColumn(
         state = listState,
@@ -188,15 +189,14 @@ fun SearchViewContent(viewModel: SearchViewModel, modifier: Modifier) {
         items(cardsData) { cardDataWithLabels ->
             SavedItemCard(
                 savedItemViewModel = viewModel,
-                cardData = cardDataWithLabels.cardData,
-                labels = cardDataWithLabels.labels,
+                savedItem = cardDataWithLabels,
                 onClickHandler = {
-                    val activityClass = if (cardDataWithLabels.cardData.isPDF()) PDFReaderActivity::class.java else WebReaderLoadingContainerActivity::class.java
+                    val activityClass = if (cardDataWithLabels.savedItem.contentReader == "PDF") PDFReaderActivity::class.java else WebReaderLoadingContainerActivity::class.java
                     val intent = Intent(context, activityClass)
-                    intent.putExtra("SAVED_ITEM_SLUG", cardDataWithLabels.cardData.slug)
+                    intent.putExtra("SAVED_ITEM_SLUG", cardDataWithLabels.savedItem.slug)
                     context.startActivity(intent)
                 },
-                actionHandler = { viewModel.handleSavedItemAction(cardDataWithLabels.cardData.savedItemId, it) }
+                actionHandler = { viewModel.handleSavedItemAction(cardDataWithLabels.savedItem.savedItemId, it) }
             )
         }
     }

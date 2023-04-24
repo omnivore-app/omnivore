@@ -27,6 +27,7 @@ import androidx.navigation.NavHostController
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.persistence.entities.SavedItemCardData
 import app.omnivore.omnivore.persistence.entities.SavedItemCardDataWithLabels
+import app.omnivore.omnivore.persistence.entities.SavedItemWithLabelsAndHighlights
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,7 +36,7 @@ fun LibraryNavigationBar(
   onSearchClicked: () -> Unit,
   onSettingsIconClick: () -> Unit
 ) {
-    val actionsMenuItem: SavedItemCardData? by savedItemViewModel.actionsMenuItemLiveData.observeAsState(null)
+    val actionsMenuItem: SavedItemWithLabelsAndHighlights? by savedItemViewModel.actionsMenuItemLiveData.observeAsState(null)
 
   TopAppBar(
     title = {
@@ -62,10 +63,10 @@ fun LibraryNavigationBar(
             actionsMenuItem?.let {
                 IconButton(onClick = {
                     savedItemViewModel.handleSavedItemAction(
-                        it.savedItemId,
-                        if (it.isArchived) SavedItemAction.Unarchive else SavedItemAction.Archive
+                        it.savedItem.savedItemId,
+                        if (it.savedItem.isArchived) SavedItemAction.Unarchive else SavedItemAction.Archive
                     ) }) {
-                    if (it.isArchived) {
+                    if (it.savedItem.isArchived) {
                         Icon(
                             painter = painterResource(id = R.drawable.unarchive),
                             contentDescription = null
@@ -77,13 +78,13 @@ fun LibraryNavigationBar(
                         )
                     }
                 }
-                IconButton(onClick = { savedItemViewModel.handleSavedItemAction(it.savedItemId, SavedItemAction.EditLabels) }) {
+                IconButton(onClick = { savedItemViewModel.handleSavedItemAction(it.savedItem.savedItemId, SavedItemAction.EditLabels) }) {
                     Icon(
                         painter = painterResource(id = R.drawable.tag),
                         contentDescription = null
                     )
                 }
-                IconButton(onClick = { savedItemViewModel.handleSavedItemAction(it.savedItemId, SavedItemAction.Delete) }) {
+                IconButton(onClick = { savedItemViewModel.handleSavedItemAction(it.savedItem.savedItemId, SavedItemAction.Delete) }) {
                     Icon(
                         imageVector = Icons.Outlined.Delete,
                         contentDescription = null

@@ -4,10 +4,7 @@ import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import app.omnivore.omnivore.*
 import app.omnivore.omnivore.dataService.*
 import app.omnivore.omnivore.graphql.generated.type.CreateLabelInput
@@ -38,8 +35,14 @@ class LibraryViewModel @Inject constructor(
   private var receivedIdx = 0
 
   // Live Data
-  private var itemsLiveDataInternal = dataService.libraryLiveData(SavedItemFilter.INBOX, SavedItemSortFilter.NEWEST, listOf())
-  val itemsLiveData = MediatorLiveData<List<SavedItemCardDataWithLabels>>()
+  private var itemsLiveDataInternal = dataService.db.savedItemDao().filteredLibraryData(
+    archiveFilter = 1,
+    sortKey = "newest",
+    requiredLabels = listOf(),
+    excludedLabels = listOf(),
+    allowedContentReaders = listOf("WEB", "PDF", "EPUB")
+  )
+  val itemsLiveData = MediatorLiveData<List<SavedItemWithLabelsAndHighlights>>()
   val appliedFilterLiveData = MutableLiveData(SavedItemFilter.INBOX)
   val appliedSortFilterLiveData = MutableLiveData(SavedItemSortFilter.NEWEST)
   val showLabelsSelectionSheetLiveData = MutableLiveData(false)
@@ -47,7 +50,7 @@ class LibraryViewModel @Inject constructor(
   val savedItemLabelsLiveData = dataService.db.savedItemLabelDao().getSavedItemLabelsLiveData()
   val activeLabelsLiveData = MutableLiveData<List<SavedItemLabel>>(listOf())
 
-  override val actionsMenuItemLiveData = MutableLiveData<SavedItemCardData?>(null)
+  override val actionsMenuItemLiveData = MutableLiveData<SavedItemWithLabelsAndHighlights?>(null)
 
   var isRefreshing by mutableStateOf(false)
   var hasLoadedInitialFilters = false
@@ -62,25 +65,27 @@ class LibraryViewModel @Inject constructor(
       }
     }
 
-    runBlocking {
-      datastoreRepo.getString(DatastoreKeys.lastUsedSavedItemFilter)?.let { str ->
-        try {
-          val filter = SavedItemFilter.values().first { it.rawValue == str }
-          appliedFilterLiveData.postValue(filter)
-        } catch (e: Exception) {
-          Log.d("error", "invalid filter value stored in datastore repo: $e")
-        }
-      }
-
-      datastoreRepo.getString(DatastoreKeys.lastUsedSavedItemSortFilter)?.let { str ->
-        try {
-          val filter = SavedItemSortFilter.values().first { it.rawValue == str }
-          appliedSortFilterLiveData.postValue(filter)
-        } catch (e: Exception) {
-          Log.d("error", "invalid sort filter value stored in datastore repo: $e")
-        }
-      }
-    }
+//    runBlocking {
+//      datastoreRepo.getString(DatastoreKeys.lastUsedSavedItemFilter)?.let { str ->
+//        try {
+//          val filter = SavedItemFilter.values().first { it.rawValue == str }
+//          appliedFilterLiveData.postValue(filter)
+//        } catch (e: Exception) {
+//          Log.d("error", "invalid filter value stored in datastore repo: $e")
+//        }
+//
+//        datastoreRepo.getString(DatastoreKeys.lastUsedSavedItemSortFilter)?.let { str ->
+//          try {
+//            val filter = SavedItemSortFilter.values().first { it.rawValue == str }
+//            appliedSortFilterLiveData.postValue(filter)
+//          } catch (e: Exception) {
+//            Log.d("error", "invalid sort filter value stored in datastore repo: $e")
+//          }
+//
+//          handleFilterChanges()
+//        }
+//      }
+//    }
 
     viewModelScope.launch {
       handleFilterChanges()
@@ -175,11 +180,56 @@ class LibraryViewModel @Inject constructor(
     }
   }
 
-  suspend fun handleFilterChanges() {
+  fun sortKey(appliedSortKey: String) {
+    when(appliedSortKey) {
+
+    }
+  }
+  fun handleFilterChanges() {
     if (appliedSortFilterLiveData.value != null && appliedFilterLiveData.value != null) {
-      println("PERFORMING A FILTER CHANGE")
-      itemsLiveDataInternal = dataService.libraryLiveData(appliedFilterLiveData.value!!, appliedSortFilterLiveData.value!!, activeLabelsLiveData.value ?: listOf())
-      itemsLiveData.removeSource(itemsLiveDataInternal)
+      val applied = appliedFilterLiveData.value
+      val sortKey = when (appliedSortFilterLiveData.value) {
+        SavedItemSortFilter.NEWEST -> "newest"
+        SavedItemSortFilter.OLDEST -> "oldest"
+        SavedItemSortFilter.RECENTLY_READ -> "recentlyRead"
+        SavedItemSortFilter.RECENTLY_PUBLISHED -> "recentlyPublished"
+        else -> "newest"
+      }
+
+      val archiveFilter = when (appliedFilterLiveData.value) {
+        SavedItemFilter.ARCHIVED -> 0
+        else -> 1
+      }
+
+      val allowedContentReaders = when(appliedFilterLiveData.value) {
+        SavedItemFilter.FILES -> listOf("PDF", "EPUB")
+        else -> listOf("WEB", "PDF", "EPUB")
+      }
+
+      var requiredLabels = when(appliedFilterLiveData.value) {
+        SavedItemFilter.NEWSLETTERS -> listOf("Newsletter")
+        else -> (activeLabelsLiveData.value ?: listOf()).map { it.name }
+      }
+     activeLabelsLiveData.value?.let {
+       requiredLabels = requiredLabels + it.map { it.name }
+     }
+
+
+      val excludeLabels = when(appliedFilterLiveData.value) {
+        SavedItemFilter.READ_LATER -> listOf("Newsletter")
+        else -> listOf()
+      }
+
+      val newData = dataService.db.savedItemDao().filteredLibraryData(
+        archiveFilter = archiveFilter,
+        sortKey = sortKey,
+        requiredLabels = requiredLabels,
+        excludedLabels = excludeLabels,
+        allowedContentReaders = allowedContentReaders
+      )
+
+     itemsLiveData.removeSource(itemsLiveDataInternal)
+      itemsLiveDataInternal = newData
       itemsLiveData.addSource(itemsLiveDataInternal, itemsLiveData::setValue)
     }
   }
@@ -295,9 +345,9 @@ class LibraryViewModel @Inject constructor(
     }
   }
 
-  fun currentSavedItemUnderEdit(): SavedItemCardDataWithLabels? {
+  fun currentSavedItemUnderEdit(): SavedItemWithLabelsAndHighlights? {
     labelsSelectionCurrentItemLiveData.value?.let { itemID ->
-      return itemsLiveData.value?.first { it.cardData.savedItemId == itemID }
+      return itemsLiveData.value?.first { it.savedItem.savedItemId == itemID }
     }
 
     return null
