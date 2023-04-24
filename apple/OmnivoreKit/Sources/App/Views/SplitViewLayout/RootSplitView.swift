@@ -56,10 +56,10 @@ public struct RootSplitView: View {
   }
 }
 
-public struct DetailView: View {
+private struct DetailView: View {
   let navigation: DetailViewNavigation
   
-  public var body: some View {
+  var body: some View {
     switch navigation {
     case .empty:
       Text(LocalText.navigationSelectLink)
@@ -70,49 +70,5 @@ public struct DetailView: View {
     case .requestLink(let requestID):
       Text(requestID)
     }
-  }
-}
-
-struct PDFDetailView: View {
-  @EnvironmentObject var dataService: DataService
-  @StateObject private var viewModel = LinkItemDetailViewModel()
-  
-  let pdfObjectID: NSManagedObjectID
-  
-  var body: some View {
-    if let pdfItem = viewModel.pdfItem, pdfItem.objectID == pdfObjectID {
-      PDFViewer(viewModel: PDFViewerViewModel(pdfItem: pdfItem))
-        .navigationBarTitleDisplayMode(.inline)
-    } else {
-      HStack(alignment: .center) {
-        Spacer()
-        Text(LocalText.genericLoading)
-        Spacer()
-      }
-      .task {
-        await viewModel.loadItem(linkedItemObjectID: pdfObjectID, dataService: dataService)
-      }
-    }
-  }
-}
-
-struct LinkedItemDetailView: View {
-  @EnvironmentObject var dataService: DataService
-  @StateObject private var viewModel = LinkItemDetailViewModel()
-  
-  let linkedItemObjectID: NSManagedObjectID
-  
-  var body: some View {
-    Group {
-      if let item = viewModel.item, item.objectID == linkedItemObjectID {
-        WebReaderContainerView(item: item)
-      } else {
-        Text("")
-          .task {
-            await viewModel.loadItem(linkedItemObjectID: linkedItemObjectID, dataService: dataService)
-          }
-      }
-    }
-    
   }
 }
