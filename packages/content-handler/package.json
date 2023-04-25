@@ -16,6 +16,7 @@
   },
   "devDependencies": {
     "@types/addressparser": "^1.0.1",
+    "@types/lodash": "^4.14.194",
     "@types/luxon": "^3.0.1",
     "@types/rfc2047": "^2.0.1",
     "@types/underscore": "^1.11.4",
