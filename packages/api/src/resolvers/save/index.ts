@@ -74,7 +74,7 @@ export const saveUrlResolver = authorized<
     return { errorCodes: [SaveErrorCode.Unauthorized] }
   }
 
-  return (await saveUrl(ctx, user, input)) as SaveSuccess
+  return (await saveUrl({ ...ctx, uid }, user, input)) as SaveSuccess
 })
 
 export const saveFileResolver = authorized<
