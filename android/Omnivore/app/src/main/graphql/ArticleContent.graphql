@@ -45,6 +45,7 @@ fragment ArticleFields on Article {
 
 fragment HighlightFields on Highlight {
   id
+  type
   shortId
   quote
   prefix

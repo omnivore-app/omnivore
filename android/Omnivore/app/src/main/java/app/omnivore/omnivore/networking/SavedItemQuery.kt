@@ -44,6 +44,7 @@ suspend fun Networker.savedItem(slug: String): SavedItemQueryResponse {
 
       Highlight(
         highlightId = it.highlightFields.id,
+        type = it.highlightFields.type.toString(),
         shortId = it.highlightFields.shortId,
         quote = it.highlightFields.quote,
         prefix = it.highlightFields.prefix,
