@@ -24,8 +24,8 @@ data class CreateHighlightParams(
     annotation = Optional.presentIfNotNull(`annotation`),
     articleId = articleId ?: "",
     id = id ?: "",
-    patch = patch ?: "",
-    quote = quote ?: "",
+    patch = Optional.presentIfNotNull(patch),
+    quote = Optional.presentIfNotNull(quote),
     shortId = shortId ?: ""
   )
 }

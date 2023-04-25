@@ -40,6 +40,7 @@ fragment ArticleFields on Article {
   readAt
   updatedAt
   content
+  wordsCount
 }
 
 fragment HighlightFields on Highlight {

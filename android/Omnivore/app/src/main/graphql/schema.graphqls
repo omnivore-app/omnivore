@@ -1,4 +1,4 @@
-directive @sanitize(allowedTags: [String], maxLength: Int, pattern: String) on INPUT_FIELD_DEFINITION
+directive @sanitize(allowedTags: [String], maxLength: Int, minLength: Int, pattern: String) on INPUT_FIELD_DEFINITION
 
 type AddPopularReadError {
   errorCodes: [AddPopularReadErrorCode!]!
@@ -86,6 +86,8 @@ type Article {
   readAt: Date
   readingProgressAnchorIndex: Int!
   readingProgressPercent: Float!
+  readingProgressTopPercent: Float
+  recommendations: [Recommendation!]
   savedAt: Date!
   savedByViewer: Boolean
   shareInfo: LinkShareInfo
@@ -101,6 +103,7 @@ type Article {
   updatedAt: Date!
   uploadFileId: ID
   url: String!
+  wordsCount: Int
 }
 
 type ArticleEdge {
@@ -132,6 +135,7 @@ type ArticleSavingRequest {
   slug: String!
   status: ArticleSavingRequestStatus!
   updatedAt: Date!
+  url: String!
   user: User!
   userId: ID! @deprecated(reason: "userId has been replaced with user")
 }
@@ -141,6 +145,7 @@ type ArticleSavingRequestError {
 }
 
 enum ArticleSavingRequestErrorCode {
+  BAD_DATA
   NOT_FOUND
   UNAUTHORIZED
 }
@@ -148,6 +153,7 @@ enum ArticleSavingRequestErrorCode {
 union ArticleSavingRequestResult = ArticleSavingRequestError | ArticleSavingRequestSuccess
 
 enum ArticleSavingRequestStatus {
+  ARCHIVED
   DELETED
   FAILED
   PROCESSING
@@ -177,7 +183,27 @@ type ArticlesSuccess {
   pageInfo: PageInfo!
 }
 
+type BulkActionError {
+  errorCodes: [BulkActionErrorCode!]!
+}
+
+enum BulkActionErrorCode {
+  UNAUTHORIZED
+}
+
+union BulkActionResult = BulkActionError | BulkActionSuccess
+
+type BulkActionSuccess {
+  success: Boolean!
+}
+
+enum BulkActionType {
+  ARCHIVE
+  DELETE
+}
+
 enum ContentReader {
+  EPUB
   PDF
   WEB
 }
@@ -198,9 +224,11 @@ enum CreateArticleErrorCode {
 
 input CreateArticleInput {
   articleSavingRequestId: ID
+  labels: [CreateLabelInput!]
   preparedDocument: PreparedDocumentInput
   skipParsing: Boolean
   source: String
+  state: ArticleSavingRequestStatus
   uploadFileId: ID
   url: String!
 }
@@ -232,6 +260,31 @@ type CreateArticleSuccess {
   user: User!
 }
 
+type CreateGroupError {
+  errorCodes: [CreateGroupErrorCode!]!
+}
+
+enum CreateGroupErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+input CreateGroupInput {
+  description: String
+  expiresInDays: Int
+  maxMembers: Int
+  name: String!
+  onlyAdminCanPost: Boolean
+  onlyAdminCanSeeMembers: Boolean
+  topics: [String!]
+}
+
+union CreateGroupResult = CreateGroupError | CreateGroupSuccess
+
+type CreateGroupSuccess {
+  group: RecommendationGroup!
+}
+
 type CreateHighlightError {
   errorCodes: [CreateHighlightErrorCode!]!
 }
@@ -247,13 +300,17 @@ enum CreateHighlightErrorCode {
 input CreateHighlightInput {
   annotation: String
   articleId: ID!
+  highlightPositionAnchorIndex: Int
+  highlightPositionPercent: Float
+  html: String
   id: ID!
-  patch: String!
+  patch: String
   prefix: String
-  quote: String!
+  quote: String
   sharedAt: Date
   shortId: String!
   suffix: String
+  type: HighlightType
 }
 
 type CreateHighlightReplyError {
@@ -296,7 +353,7 @@ enum CreateLabelErrorCode {
 }
 
 input CreateLabelInput {
-  color: String!
+  color: String
   description: String
   name: String!
 }
@@ -386,6 +443,22 @@ union DeleteAccountResult = DeleteAccountError | DeleteAccountSuccess
 
 type DeleteAccountSuccess {
   userID: ID!
+}
+
+type DeleteFilterError {
+  errorCodes: [DeleteFilterErrorCode!]!
+}
+
+enum DeleteFilterErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+union DeleteFilterResult = DeleteFilterError | DeleteFilterSuccess
+
+type DeleteFilterSuccess {
+  filter: Filter!
 }
 
 type DeleteHighlightError {
@@ -500,6 +573,22 @@ type DeleteReminderSuccess {
   reminder: Reminder!
 }
 
+type DeleteRuleError {
+  errorCodes: [DeleteRuleErrorCode!]!
+}
+
+enum DeleteRuleErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+union DeleteRuleResult = DeleteRuleError | DeleteRuleSuccess
+
+type DeleteRuleSuccess {
+  rule: Rule!
+}
+
 type DeleteWebhookError {
   errorCodes: [DeleteWebhookErrorCode!]!
 }
@@ -520,6 +609,31 @@ type DeviceToken {
   createdAt: Date!
   id: ID!
   token: String!
+}
+
+type DeviceTokensError {
+  errorCodes: [DeviceTokensErrorCode!]!
+}
+
+enum DeviceTokensErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+union DeviceTokensResult = DeviceTokensError | DeviceTokensSuccess
+
+type DeviceTokensSuccess {
+  deviceTokens: [DeviceToken!]!
+}
+
+type Feature {
+  createdAt: Date!
+  expiresAt: Date
+  grantedAt: Date
+  id: ID!
+  name: String!
+  token: String!
+  updatedAt: Date!
 }
 
 type FeedArticle {
@@ -553,6 +667,31 @@ union FeedArticlesResult = FeedArticlesError | FeedArticlesSuccess
 type FeedArticlesSuccess {
   edges: [FeedArticleEdge!]!
   pageInfo: PageInfo!
+}
+
+type Filter {
+  createdAt: Date!
+  description: String
+  filter: String!
+  id: ID!
+  name: String!
+  position: Int!
+  updatedAt: Date!
+}
+
+type FiltersError {
+  errorCodes: [FiltersErrorCode!]!
+}
+
+enum FiltersErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+union FiltersResult = FiltersError | FiltersSuccess
+
+type FiltersSuccess {
+  filters: [Filter!]!
 }
 
 type GenerateApiKeyError {
@@ -644,19 +783,39 @@ type GoogleSignupSuccess {
   me: User!
 }
 
+type GroupsError {
+  errorCodes: [GroupsErrorCode!]!
+}
+
+enum GroupsErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+union GroupsResult = GroupsError | GroupsSuccess
+
+type GroupsSuccess {
+  groups: [RecommendationGroup!]!
+}
+
 type Highlight {
   annotation: String
   createdAt: Date!
   createdByMe: Boolean!
+  highlightPositionAnchorIndex: Int
+  highlightPositionPercent: Float
+  html: String
   id: ID!
-  patch: String!
+  labels: [Label!]
+  patch: String
   prefix: String
-  quote: String!
+  quote: String
   reactions: [Reaction!]!
   replies: [HighlightReply!]!
   sharedAt: Date
   shortId: String!
   suffix: String
+  type: HighlightType!
   updatedAt: Date!
   user: User!
 }
@@ -674,17 +833,40 @@ type HighlightStats {
   highlightCount: Int!
 }
 
+enum HighlightType {
+  HIGHLIGHT
+  NOTE
+  REDACTION
+}
+
+type ImportFromIntegrationError {
+  errorCodes: [ImportFromIntegrationErrorCode!]!
+}
+
+enum ImportFromIntegrationErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+union ImportFromIntegrationResult = ImportFromIntegrationError | ImportFromIntegrationSuccess
+
+type ImportFromIntegrationSuccess {
+  success: Boolean!
+}
+
 type Integration {
   createdAt: Date!
   enabled: Boolean!
   id: ID!
+  name: String!
   token: String!
   type: IntegrationType!
   updatedAt: Date!
 }
 
 enum IntegrationType {
-  READWISE
+  EXPORT
+  IMPORT
 }
 
 type IntegrationsError {
@@ -700,6 +882,22 @@ union IntegrationsResult = IntegrationsError | IntegrationsSuccess
 
 type IntegrationsSuccess {
   integrations: [Integration!]!
+}
+
+type JoinGroupError {
+  errorCodes: [JoinGroupErrorCode!]!
+}
+
+enum JoinGroupErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+union JoinGroupResult = JoinGroupError | JoinGroupSuccess
+
+type JoinGroupSuccess {
+  group: RecommendationGroup!
 }
 
 type Label {
@@ -725,6 +923,22 @@ union LabelsResult = LabelsError | LabelsSuccess
 
 type LabelsSuccess {
   labels: [Label!]!
+}
+
+type LeaveGroupError {
+  errorCodes: [LeaveGroupErrorCode!]!
+}
+
+enum LeaveGroupErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+union LeaveGroupResult = LeaveGroupError | LeaveGroupSuccess
+
+type LeaveGroupSuccess {
+  success: Boolean!
 }
 
 type Link {
@@ -782,6 +996,22 @@ type LoginSuccess {
   me: User!
 }
 
+type MarkEmailAsItemError {
+  errorCodes: [MarkEmailAsItemErrorCode!]!
+}
+
+enum MarkEmailAsItemErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+union MarkEmailAsItemResult = MarkEmailAsItemError | MarkEmailAsItemSuccess
+
+type MarkEmailAsItemSuccess {
+  success: Boolean!
+}
+
 type MergeHighlightError {
   errorCodes: [MergeHighlightErrorCode!]!
 }
@@ -797,6 +1027,9 @@ enum MergeHighlightErrorCode {
 input MergeHighlightInput {
   annotation: String
   articleId: ID!
+  highlightPositionAnchorIndex: Int
+  highlightPositionPercent: Float
+  html: String
   id: ID!
   overlapHighlightIdList: [String!]!
   patch: String!
@@ -811,6 +1044,27 @@ union MergeHighlightResult = MergeHighlightError | MergeHighlightSuccess
 type MergeHighlightSuccess {
   highlight: Highlight!
   overlapHighlightIdList: [String!]!
+}
+
+type MoveFilterError {
+  errorCodes: [MoveFilterErrorCode!]!
+}
+
+enum MoveFilterErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+input MoveFilterInput {
+  afterFilterId: ID
+  filterId: ID!
+}
+
+union MoveFilterResult = MoveFilterError | MoveFilterSuccess
+
+type MoveFilterSuccess {
+  filter: Filter!
 }
 
 type MoveLabelError {
@@ -836,8 +1090,10 @@ type MoveLabelSuccess {
 
 type Mutation {
   addPopularRead(name: String!): AddPopularReadResult!
+  bulkAction(action: BulkActionType!, query: String): BulkActionResult!
   createArticle(input: CreateArticleInput!): CreateArticleResult!
   createArticleSavingRequest(input: CreateArticleSavingRequestInput!): CreateArticleSavingRequestResult!
+  createGroup(input: CreateGroupInput!): CreateGroupResult!
   createHighlight(input: CreateHighlightInput!): CreateHighlightResult!
   createHighlightReply(input: CreateHighlightReplyInput!): CreateHighlightReplyResult!
   createLabel(input: CreateLabelInput!): CreateLabelResult!
@@ -845,6 +1101,7 @@ type Mutation {
   createReaction(input: CreateReactionInput!): CreateReactionResult!
   createReminder(input: CreateReminderInput!): CreateReminderResult!
   deleteAccount(userID: ID!): DeleteAccountResult!
+  deleteFilter(id: ID!): DeleteFilterResult!
   deleteHighlight(highlightId: ID!): DeleteHighlightResult!
   deleteHighlightReply(highlightReplyId: ID!): DeleteHighlightReplyResult!
   deleteIntegration(id: ID!): DeleteIntegrationResult!
@@ -852,17 +1109,27 @@ type Mutation {
   deleteNewsletterEmail(newsletterEmailId: ID!): DeleteNewsletterEmailResult!
   deleteReaction(id: ID!): DeleteReactionResult!
   deleteReminder(id: ID!): DeleteReminderResult!
+  deleteRule(id: ID!): DeleteRuleResult!
   deleteWebhook(id: ID!): DeleteWebhookResult!
   generateApiKey(input: GenerateApiKeyInput!): GenerateApiKeyResult!
   googleLogin(input: GoogleLoginInput!): LoginResult!
   googleSignup(input: GoogleSignupInput!): GoogleSignupResult!
+  importFromIntegration(integrationId: ID!): ImportFromIntegrationResult!
+  joinGroup(inviteCode: String!): JoinGroupResult!
+  leaveGroup(groupId: ID!): LeaveGroupResult!
   logOut: LogOutResult!
+  markEmailAsItem(recentEmailId: ID!): MarkEmailAsItemResult!
   mergeHighlight(input: MergeHighlightInput!): MergeHighlightResult!
+  moveFilter(input: MoveFilterInput!): MoveFilterResult!
   moveLabel(input: MoveLabelInput!): MoveLabelResult!
+  optInFeature(input: OptInFeatureInput!): OptInFeatureResult!
+  recommend(input: RecommendInput!): RecommendResult!
+  recommendHighlights(input: RecommendHighlightsInput!): RecommendHighlightsResult!
   reportItem(input: ReportItemInput!): ReportItemResult!
   revokeApiKey(id: ID!): RevokeApiKeyResult!
   saveArticleReadingProgress(input: SaveArticleReadingProgressInput!): SaveArticleReadingProgressResult!
   saveFile(input: SaveFileInput!): SaveResult!
+  saveFilter(input: SaveFilterInput!): SaveFilterResult!
   savePage(input: SavePageInput!): SaveResult!
   saveUrl(input: SaveUrlInput!): SaveResult!
   setBookmarkArticle(input: SetBookmarkArticleInput!): SetBookmarkArticleResult!
@@ -872,6 +1139,7 @@ type Mutation {
   setLabels(input: SetLabelsInput!): SetLabelsResult!
   setLabelsForHighlight(input: SetLabelsForHighlightInput!): SetLabelsResult!
   setLinkArchived(input: ArchiveLinkInput!): ArchiveLinkResult!
+  setRule(input: SetRuleInput!): SetRuleResult!
   setShareArticle(input: SetShareArticleInput!): SetShareArticleResult!
   setShareHighlight(input: SetShareHighlightInput!): SetShareHighlightResult!
   setUserPersonalization(input: SetUserPersonalizationInput!): SetUserPersonalizationResult!
@@ -888,12 +1156,15 @@ type Mutation {
   updateUser(input: UpdateUserInput!): UpdateUserResult!
   updateUserProfile(input: UpdateUserProfileInput!): UpdateUserProfileResult!
   uploadFileRequest(input: UploadFileRequestInput!): UploadFileRequestResult!
+  uploadImportFile(contentType: String!, type: UploadImportFileType!): UploadImportFileResult!
 }
 
 type NewsletterEmail {
   address: String!
   confirmationCode: String
+  createdAt: Date!
   id: ID!
+  subscriptionCount: Int!
 }
 
 type NewsletterEmailsError {
@@ -909,6 +1180,25 @@ union NewsletterEmailsResult = NewsletterEmailsError | NewsletterEmailsSuccess
 
 type NewsletterEmailsSuccess {
   newsletterEmails: [NewsletterEmail!]!
+}
+
+type OptInFeatureError {
+  errorCodes: [OptInFeatureErrorCode!]!
+}
+
+enum OptInFeatureErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+}
+
+input OptInFeatureInput {
+  name: String!
+}
+
+union OptInFeatureResult = OptInFeatureError | OptInFeatureSuccess
+
+type OptInFeatureSuccess {
+  feature: Feature!
 }
 
 type Page {
@@ -951,9 +1241,27 @@ enum PageType {
   BOOK
   FILE
   HIGHLIGHTS
+  IMAGE
   PROFILE
+  TWEET
   UNKNOWN
+  VIDEO
   WEBSITE
+}
+
+input ParseResult {
+  byline: String
+  content: String!
+  dir: String
+  excerpt: String!
+  language: String
+  length: Int!
+  previewImage: String
+  publishedDate: Date
+  siteIcon: String
+  siteName: String
+  textContent: String!
+  title: String!
 }
 
 input PreparedDocumentInput {
@@ -971,25 +1279,31 @@ type Profile {
 
 type Query {
   apiKeys: ApiKeysResult!
-  article(slug: String!, username: String!): ArticleResult!
-  articleSavingRequest(id: ID!): ArticleSavingRequestResult!
+  article(format: String, slug: String!, username: String!): ArticleResult!
+  articleSavingRequest(id: ID, url: String): ArticleSavingRequestResult!
   articles(after: String, first: Int, includePending: Boolean, query: String, sharedOnly: Boolean, sort: SortParams): ArticlesResult!
+  deviceTokens: DeviceTokensResult!
   feedArticles(after: String, first: Int, sharedByUser: ID, sort: SortParams): FeedArticlesResult!
+  filters: FiltersResult!
   getFollowers(userId: ID): GetFollowersResult!
   getFollowing(userId: ID): GetFollowingResult!
   getUserPersonalization: GetUserPersonalizationResult!
+  groups: GroupsResult!
   hello: String
   integrations: IntegrationsResult!
   labels: LabelsResult!
   me: User
   newsletterEmails: NewsletterEmailsResult!
+  recentEmails: RecentEmailsResult!
+  recentSearches: RecentSearchesResult!
   reminder(linkId: ID!): ReminderResult!
-  search(after: String, first: Int, query: String): SearchResult!
+  rules(enabled: Boolean): RulesResult!
+  search(after: String, first: Int, format: String, includeContent: Boolean, query: String): SearchResult!
   sendInstallInstructions: SendInstallInstructionsResult!
   sharedArticle(selectedHighlightId: String, slug: String!, username: String!): SharedArticleResult!
   subscriptions(sort: SortParams): SubscriptionsResult!
   typeaheadSearch(first: Int, query: String!): TypeaheadSearchResult!
-  updatesSince(after: String, first: Int, since: Date!): UpdatesSinceResult!
+  updatesSince(after: String, first: Int, since: Date!, sort: SortParams): UpdatesSinceResult!
   user(userId: ID, username: String): UserResult!
   users: UsersResult!
   validateUsername(username: String!): Boolean!
@@ -1019,6 +1333,128 @@ type ReadState {
   progressPercent: Float!
   reading: Boolean
   readingTime: Int
+}
+
+type RecentEmail {
+  createdAt: Date!
+  from: String!
+  html: String
+  id: ID!
+  subject: String!
+  text: String!
+  to: String!
+  type: String!
+}
+
+type RecentEmailsError {
+  errorCodes: [RecentEmailsErrorCode!]!
+}
+
+enum RecentEmailsErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+union RecentEmailsResult = RecentEmailsError | RecentEmailsSuccess
+
+type RecentEmailsSuccess {
+  recentEmails: [RecentEmail!]!
+}
+
+type RecentSearch {
+  createdAt: Date!
+  id: ID!
+  term: String!
+}
+
+type RecentSearchesError {
+  errorCodes: [RecentSearchesErrorCode!]!
+}
+
+enum RecentSearchesErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+union RecentSearchesResult = RecentSearchesError | RecentSearchesSuccess
+
+type RecentSearchesSuccess {
+  searches: [RecentSearch!]!
+}
+
+type RecommendError {
+  errorCodes: [RecommendErrorCode!]!
+}
+
+enum RecommendErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+type RecommendHighlightsError {
+  errorCodes: [RecommendHighlightsErrorCode!]!
+}
+
+enum RecommendHighlightsErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+input RecommendHighlightsInput {
+  groupIds: [ID!]!
+  highlightIds: [ID!]!
+  note: String
+  pageId: ID!
+}
+
+union RecommendHighlightsResult = RecommendHighlightsError | RecommendHighlightsSuccess
+
+type RecommendHighlightsSuccess {
+  success: Boolean!
+}
+
+input RecommendInput {
+  groupIds: [ID!]!
+  note: String
+  pageId: ID!
+  recommendedWithHighlights: Boolean
+}
+
+union RecommendResult = RecommendError | RecommendSuccess
+
+type RecommendSuccess {
+  success: Boolean!
+}
+
+type Recommendation {
+  id: ID!
+  name: String!
+  note: String
+  recommendedAt: Date!
+  user: RecommendingUser
+}
+
+type RecommendationGroup {
+  admins: [User!]!
+  canPost: Boolean!
+  canSeeMembers: Boolean!
+  createdAt: Date!
+  description: String
+  id: ID!
+  inviteUrl: String!
+  members: [User!]!
+  name: String!
+  topics: [String!]
+  updatedAt: Date!
+}
+
+type RecommendingUser {
+  name: String!
+  profileImageURL: String
+  userId: String!
+  username: String!
 }
 
 type Reminder {
@@ -1079,6 +1515,48 @@ type RevokeApiKeySuccess {
   apiKey: ApiKey!
 }
 
+type Rule {
+  actions: [RuleAction!]!
+  createdAt: Date!
+  enabled: Boolean!
+  filter: String!
+  id: ID!
+  name: String!
+  updatedAt: Date!
+}
+
+type RuleAction {
+  params: [String!]!
+  type: RuleActionType!
+}
+
+input RuleActionInput {
+  params: [String!]!
+  type: RuleActionType!
+}
+
+enum RuleActionType {
+  ADD_LABEL
+  ARCHIVE
+  MARK_AS_READ
+  SEND_NOTIFICATION
+}
+
+type RulesError {
+  errorCodes: [RulesErrorCode!]!
+}
+
+enum RulesErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+union RulesResult = RulesError | RulesSuccess
+
+type RulesSuccess {
+  rules: [Rule!]!
+}
+
 type SaveArticleReadingProgressError {
   errorCodes: [SaveArticleReadingProgressErrorCode!]!
 }
@@ -1093,6 +1571,7 @@ input SaveArticleReadingProgressInput {
   id: ID!
   readingProgressAnchorIndex: Int!
   readingProgressPercent: Float!
+  readingProgressTopPercent: Float
 }
 
 union SaveArticleReadingProgressResult = SaveArticleReadingProgressError | SaveArticleReadingProgressSuccess
@@ -1107,21 +1586,50 @@ type SaveError {
 }
 
 enum SaveErrorCode {
+  EMBEDDED_HIGHLIGHT_FAILED
   UNAUTHORIZED
   UNKNOWN
 }
 
 input SaveFileInput {
   clientRequestId: ID!
+  labels: [CreateLabelInput!]
   source: String!
+  state: ArticleSavingRequestStatus
   uploadFileId: ID!
   url: String!
 }
 
+type SaveFilterError {
+  errorCodes: [SaveFilterErrorCode!]!
+}
+
+enum SaveFilterErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+input SaveFilterInput {
+  description: String
+  filter: String!
+  id: ID
+  name: String!
+}
+
+union SaveFilterResult = SaveFilterError | SaveFilterSuccess
+
+type SaveFilterSuccess {
+  filter: Filter!
+}
+
 input SavePageInput {
   clientRequestId: ID!
+  labels: [CreateLabelInput!]
   originalContent: String!
+  parseResult: ParseResult
   source: String!
+  state: ArticleSavingRequestStatus
   title: String
   url: String!
 }
@@ -1135,7 +1643,9 @@ type SaveSuccess {
 
 input SaveUrlInput {
   clientRequestId: ID!
+  labels: [CreateLabelInput!]
   source: String!
+  state: ArticleSavingRequestStatus
   url: String!
 }
 
@@ -1144,12 +1654,14 @@ type SearchError {
 }
 
 enum SearchErrorCode {
+  QUERY_TOO_LONG
   UNAUTHORIZED
 }
 
 type SearchItem {
   annotation: String
   author: String
+  content: String
   contentReader: ContentReader!
   createdAt: Date!
   description: String
@@ -1168,8 +1680,11 @@ type SearchItem {
   readAt: Date
   readingProgressAnchorIndex: Int!
   readingProgressPercent: Float!
+  readingProgressTopPercent: Float
+  recommendations: [Recommendation!]
   savedAt: Date!
   shortId: String
+  siteIcon: String
   siteName: String
   slug: String!
   state: ArticleSavingRequestStatus
@@ -1180,6 +1695,7 @@ type SearchItem {
   updatedAt: Date
   uploadFileId: ID
   url: String!
+  wordsCount: Int
 }
 
 type SearchItemEdge {
@@ -1287,8 +1803,9 @@ enum SetIntegrationErrorCode {
 input SetIntegrationInput {
   enabled: Boolean!
   id: ID
+  name: String!
   token: String!
-  type: IntegrationType!
+  type: IntegrationType
 }
 
 union SetIntegrationResult = SetIntegrationError | SetIntegrationSuccess
@@ -1321,6 +1838,31 @@ union SetLabelsResult = SetLabelsError | SetLabelsSuccess
 
 type SetLabelsSuccess {
   labels: [Label!]!
+}
+
+type SetRuleError {
+  errorCodes: [SetRuleErrorCode!]!
+}
+
+enum SetRuleErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+input SetRuleInput {
+  actions: [RuleActionInput!]!
+  description: String
+  enabled: Boolean!
+  filter: String!
+  id: ID
+  name: String!
+}
+
+union SetRuleResult = SetRuleError | SetRuleSuccess
+
+type SetRuleSuccess {
+  rule: Rule!
 }
 
 type SetShareArticleError {
@@ -1373,6 +1915,7 @@ type SetUserPersonalizationError {
 }
 
 enum SetUserPersonalizationErrorCode {
+  NOT_FOUND
   UNAUTHORIZED
 }
 
@@ -1382,6 +1925,10 @@ input SetUserPersonalizationInput {
   libraryLayoutType: String
   librarySortOrder: SortOrder
   margin: Int
+  speechRate: String
+  speechSecondaryVoice: String
+  speechVoice: String
+  speechVolume: String
   theme: String
 }
 
@@ -1485,6 +2032,7 @@ type SubscribeSuccess {
 type Subscription {
   createdAt: Date!
   description: String
+  icon: String
   id: ID!
   name: String!
   newsletterEmail: String!
@@ -1576,6 +2124,8 @@ enum UpdateHighlightErrorCode {
 input UpdateHighlightInput {
   annotation: String
   highlightId: ID!
+  html: String
+  quote: String
   sharedAt: Date
 }
 
@@ -1664,8 +2214,11 @@ enum UpdatePageErrorCode {
 }
 
 input UpdatePageInput {
+  byline: String
   description: String
   pageId: ID!
+  publishedAt: Date
+  savedAt: Date
   title: String
 }
 
@@ -1818,6 +2371,28 @@ enum UploadFileStatus {
   INITIALIZED
 }
 
+type UploadImportFileError {
+  errorCodes: [UploadImportFileErrorCode!]!
+}
+
+enum UploadImportFileErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+  UPLOAD_DAILY_LIMIT_EXCEEDED
+}
+
+union UploadImportFileResult = UploadImportFileError | UploadImportFileSuccess
+
+type UploadImportFileSuccess {
+  uploadSignedUrl: String
+}
+
+enum UploadImportFileType {
+  MATTER
+  POCKET
+  URL_LIST
+}
+
 type User {
   followersCount: Int
   friendsCount: Int
@@ -1851,6 +2426,10 @@ type UserPersonalization {
   libraryLayoutType: String
   librarySortOrder: SortOrder
   margin: Int
+  speechRate: String
+  speechSecondaryVoice: String
+  speechVoice: String
+  speechVolume: String
   theme: String
 }
 

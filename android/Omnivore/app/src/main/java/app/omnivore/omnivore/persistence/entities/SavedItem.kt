@@ -2,8 +2,10 @@ package app.omnivore.omnivore.persistence.entities
 
 import androidx.core.net.toUri
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.room.*
 import app.omnivore.omnivore.BuildConfig
+import app.omnivore.omnivore.graphql.generated.SearchQuery
 import app.omnivore.omnivore.models.ServerSyncStatus
 import app.omnivore.omnivore.ui.library.SavedItemSortFilter
 import java.util.*
@@ -40,7 +42,8 @@ data class SavedItem(
   val originalHtml: String? = null,
   @ColumnInfo(typeAffinity = ColumnInfo.BLOB) val pdfData: ByteArray? = null,
   var serverSyncStatus: Int = 0,
-  val tempPDFURL: String? = null
+  val tempPDFURL: String? = null,
+  val wordsCount: Int? = null
 
 // hasMany highlights
 // hasMany labels
@@ -75,7 +78,10 @@ data class SavedItemCardData(
   val imageURLString: String?,
   val isArchived: Boolean,
   val pageURLString: String,
-  val contentReader: String?
+  val contentReader: String?,
+  val savedAt: String,
+  val readingProgress: Double,
+  val wordsCount: Int?
 ) {
   fun publisherDisplayName(): String? {
     return publisherURLString?.toUri()?.host
@@ -86,6 +92,13 @@ data class SavedItemCardData(
     return contentReader == "PDF" || hasPDFSuffix
   }
 }
+
+data class TypeaheadCardData(
+  val savedItemId: String,
+  val slug: String,
+  val title: String,
+  val isArchived: Boolean,
+)
 
 @Dao
 interface SavedItemDao {
@@ -148,9 +161,73 @@ interface SavedItemDao {
       "ORDER BY publishDate DESC"
   )
   fun getLibraryLiveDataSortedByRecentlyPublished(archiveFilter: Int): LiveData<List<SavedItemCardDataWithLabels>>
+
+  @Transaction
+  @Query(
+    "SELECT ${SavedItemQueryConstants.libraryColumns} " +
+            "FROM SavedItem " +
+            "LEFT OUTER JOIN SavedItemAndSavedItemLabelCrossRef on SavedItem.savedItemId = SavedItemAndSavedItemLabelCrossRef.savedItemId " +
+            "LEFT OUTER JOIN SavedItemAndHighlightCrossRef on SavedItem.savedItemId = SavedItemAndHighlightCrossRef.savedItemId " +
+
+            "LEFT OUTER JOIN SavedItemLabel on SavedItemLabel.savedItemLabelId = SavedItemAndSavedItemLabelCrossRef.savedItemLabelId " +
+            "LEFT OUTER  JOIN Highlight on highlight.highlightId = SavedItemAndHighlightCrossRef.highlightId " +
+
+            "WHERE SavedItem.serverSyncStatus != 2 " +
+            "AND SavedItem.isArchived != :archiveFilter " +
+            "AND SavedItem.contentReader IN (:allowedContentReaders) " +
+            "AND CASE WHEN :hasRequiredLabels THEN SavedItemLabel.name in (:requiredLabels) ELSE 1 END " +
+            "AND CASE WHEN :hasExcludedLabels THEN  SavedItemLabel.name is NULL OR SavedItemLabel.name not in (:excludedLabels)  ELSE 1 END " +
+
+            "GROUP BY SavedItem.savedItemId " +
+
+            "ORDER BY \n" +
+            "CASE WHEN :sortKey = 'newest' THEN SavedItem.savedAt END DESC,\n" +
+            "CASE WHEN :sortKey = 'oldest' THEN SavedItem.savedAt END ASC,\n" +
+
+            "CASE WHEN :sortKey = 'recentlyRead' THEN SavedItem.readAt END DESC,\n" +
+            "CASE WHEN :sortKey = 'recentlyPublished' THEN SavedItem.publishDate END DESC"
+  )
+  fun _filteredLibraryData(archiveFilter: Int, sortKey: String, hasRequiredLabels: Int, hasExcludedLabels: Int, requiredLabels: List<String>, excludedLabels: List<String>, allowedContentReaders: List<String>): LiveData<List<SavedItemWithLabelsAndHighlights>>
+
+  fun filteredLibraryData(archiveFilter: Int, sortKey: String, requiredLabels: List<String>, excludedLabels: List<String>, allowedContentReaders: List<String>): LiveData<List<SavedItemWithLabelsAndHighlights>> {
+    return _filteredLibraryData(
+      archiveFilter = archiveFilter,
+      sortKey = sortKey,
+      hasRequiredLabels = requiredLabels.size,
+      hasExcludedLabels = excludedLabels.size,
+      requiredLabels = requiredLabels,
+      excludedLabels = excludedLabels,
+      allowedContentReaders = allowedContentReaders
+    )
+  }
 }
 
 
+
+
 object SavedItemQueryConstants {
-  const val columns = "savedItemId, slug, publisherURLString, title, author, imageURLString, isArchived, pageURLString, contentReader "
+  const val columns = "savedItemId, slug, publisherURLString, title, author, imageURLString, isArchived, pageURLString, contentReader, savedAt, readingProgress, wordsCount"
+  const val libraryColumns = "SavedItem.savedItemId, " +
+          "SavedItem.slug, " +
+          "SavedItem.createdAt, " +
+
+          "SavedItem.publisherURLString, " +
+          "SavedItem.title, " +
+          "SavedItem.author, " +
+          "SavedItem.imageURLString, " +
+          "SavedItem.isArchived, " +
+          "SavedItem.pageURLString, " +
+          "SavedItem.contentReader, " +
+          "SavedItem.savedAt, " +
+          "SavedItem.readingProgress, " +
+          "SavedItem.readingProgressAnchor, " +
+          "SavedItem.serverSyncStatus, " +
+
+          "SavedItem.wordsCount, " +
+          "SavedItemLabel.savedItemLabelId, " +
+          "SavedItemLabel.name, " +
+          "SavedItemLabel.color, " +
+          "Highlight.highlightId, " +
+          "Highlight.shortId, " +
+          "Highlight.createdByMe "
 }

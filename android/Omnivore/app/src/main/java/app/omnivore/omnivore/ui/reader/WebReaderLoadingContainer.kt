@@ -13,6 +13,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
@@ -32,6 +33,8 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import app.omnivore.omnivore.MainActivity
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.ui.components.WebReaderLabelsSelectionSheet
@@ -40,6 +43,7 @@ import app.omnivore.omnivore.ui.theme.OmnivoreTheme
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlin.math.roundToInt
+import androidx.navigation.compose.rememberNavController
 
 
 @AndroidEntryPoint
@@ -50,6 +54,7 @@ class WebReaderLoadingContainerActivity: ComponentActivity() {
     super.onCreate(savedInstanceState)
     val requestID = intent.getStringExtra("SAVED_ITEM_REQUEST_ID")
     val slug = intent.getStringExtra("SAVED_ITEM_SLUG")
+
 
     setContent {
       val systemUiController = rememberSystemUiController()
@@ -77,7 +82,7 @@ class WebReaderLoadingContainerActivity: ComponentActivity() {
               requestID = requestID,
               slug = slug,
               onLibraryIconTap = if (requestID != null) { { startMainActivity() } } else null,
-              webReaderViewModel = viewModel
+              webReaderViewModel = viewModel,
             )
           }
         }
@@ -137,6 +142,17 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, o
           }),
         backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
         title = {},
+        navigationIcon = {
+          IconButton(onClick = {
+            onBackPressedDispatcher?.onBackPressed()
+          }) {
+            Icon(
+              imageVector = androidx.compose.material.icons.Icons.Filled.ArrowBack,
+              modifier = Modifier,
+              contentDescription = "Back"
+            )
+          }
+        },
         actions = {
           if (onLibraryIconTap != null) {
             IconButton(onClick = { onLibraryIconTap() }) {
