@@ -31,6 +31,7 @@
     "addressparser": "^1.0.1",
     "axios": "^0.27.2",
     "linkedom": "^0.14.16",
+    "lodash": "^4.17.21",
     "luxon": "^3.0.4",
     "puppeteer-core": "^19.1.1",
     "rfc2047": "^4.0.1",
