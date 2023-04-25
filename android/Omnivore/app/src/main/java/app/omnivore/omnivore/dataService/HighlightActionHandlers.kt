@@ -13,6 +13,7 @@ suspend fun DataService.createWebHighlight(jsonString: String) {
 
   withContext(Dispatchers.IO) {
     val highlight = Highlight(
+      type = "HIGHLIGHT",
       highlightId = createHighlightInput.id,
       shortId = createHighlightInput.shortId,
       quote = createHighlightInput.quote.getOrNull(),

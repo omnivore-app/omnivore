@@ -139,6 +139,7 @@ suspend fun Networker.createHighlight(input: CreateHighlightInput): Highlight? {
 //      val updatedAtString = createdHighlight.highlightFields.updatedAt as? String
 
       return Highlight(
+        type = createdHighlight.highlightFields.type.toString(),
         highlightId = createdHighlight.highlightFields.id,
         shortId = createdHighlight.highlightFields.shortId,
         quote = createdHighlight.highlightFields.quote,

@@ -71,6 +71,7 @@ suspend fun Networker.search(
         highlights = (it.node.highlights ?: listOf()).map { highlight ->
           Highlight(
             highlightId = highlight.highlightFields.id,
+            type = highlight.highlightFields.type.toString(),
             annotation = highlight.highlightFields.annotation,
             createdByMe = highlight.highlightFields.createdByMe,
             patch = highlight.highlightFields.patch,

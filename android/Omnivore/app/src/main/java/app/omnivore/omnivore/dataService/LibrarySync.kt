@@ -113,6 +113,7 @@ suspend fun DataService.sync(since: String, cursor: String?, limit: Int = 20): S
     it.highlights ?: listOf()
   }.map {
     Highlight(
+      type = it.highlightFields.type.toString(),
       highlightId = it.highlightFields.id,
       annotation = it.highlightFields.annotation,
       createdByMe = it.highlightFields.createdByMe,

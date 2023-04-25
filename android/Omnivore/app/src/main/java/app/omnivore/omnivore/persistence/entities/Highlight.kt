@@ -7,6 +7,7 @@ import app.omnivore.omnivore.models.ServerSyncStatus
 @Entity
 data class Highlight(
   @PrimaryKey val highlightId: String,
+  val type: String,
   var annotation: String?,
   val createdAt: String?,
   val createdByMe: Boolean,
