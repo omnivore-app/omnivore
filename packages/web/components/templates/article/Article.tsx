@@ -159,6 +159,44 @@ export function Article(props: ArticleProps): JSX.Element {
     })
   }, [])
 
+  useEffect(() => {
+    // Get all images with initial sizes, if they are small
+    // make sure they get displayed small
+    const sizedImages = Array.from(
+      document.querySelectorAll('img[data-omnivore-width]')
+    )
+
+    sizedImages.forEach((element) => {
+      const img = element as HTMLImageElement
+      const width = Number(img.getAttribute('data-omnivore-width'))
+      const height = Number(img.getAttribute('data-omnivore-height'))
+      console.log('width and height: ', width, height)
+
+      if (!isNaN(width) && !isNaN(height) && width < 100 && height < 100) {
+        img.style.setProperty('width', `${width}px`)
+        img.style.setProperty('height', `${height}px`)
+        img.style.setProperty('max-width', 'unset')
+      }
+    })
+
+    const fallbackImages = Array.from(
+      document.querySelectorAll('img[data-omnivore-original-src]')
+    )
+
+    fallbackImages.forEach((element) => {
+      const img = element as HTMLImageElement
+      const fallbackSrc = img.getAttribute('data-omnivore-original-src')
+      if (fallbackSrc) {
+        img.onerror = () => {
+          console.log('image falling back to original: ', fallbackSrc)
+          // If the image fails to load fallback to the original
+          img.onerror = null
+          img.src = fallbackSrc
+        }
+      }
+    })
+  }, [props.content])
+
   return (
     <>
       <link
