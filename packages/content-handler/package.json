@@ -16,6 +16,7 @@
   },
   "devDependencies": {
     "@types/addressparser": "^1.0.1",
+    "@types/lodash": "^4.14.194",
     "@types/luxon": "^3.0.1",
     "@types/rfc2047": "^2.0.1",
     "@types/underscore": "^1.11.4",
@@ -31,6 +32,7 @@
     "addressparser": "^1.0.1",
     "axios": "^0.27.2",
     "linkedom": "^0.14.16",
+    "lodash": "^4.17.21",
     "luxon": "^3.0.4",
     "puppeteer-core": "^19.1.1",
     "underscore": "^1.13.6",
