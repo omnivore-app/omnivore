@@ -2,10 +2,12 @@ package app.omnivore.omnivore.persistence.entities
 
 import androidx.room.*
 import app.omnivore.omnivore.models.ServerSyncStatus
+import com.google.gson.annotations.SerializedName
 
 
 @Entity
 data class Highlight(
+  @SerializedName("id")
   @PrimaryKey val highlightId: String,
   val type: String,
   var annotation: String?,
