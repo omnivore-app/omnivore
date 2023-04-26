@@ -98,7 +98,7 @@ const moduleExports = {
       },
       {
         source: '/privacy',
-        destination: 'https://docs.omnivore.app/about/privacy-policy.html',
+        destination: 'https://docs.omnivore.app/about/privacy-policy',
         permanent: true,
       },
       {
