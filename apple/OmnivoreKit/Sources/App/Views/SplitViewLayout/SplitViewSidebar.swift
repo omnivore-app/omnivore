@@ -42,15 +42,38 @@ struct SplitViewSidebar: View {
               navigationModel.activeLabels.insert(label)
             }
           }) {
-            HStack {
-              Text(label.unwrappedName)
-              if navigationModel.activeLabels.contains(label) {
-                Spacer()
-                Image(systemName: "checkmark")
+            let isSelected = navigationModel.activeLabels.contains(label)
+            ZStack {
+              if isSelected {
+                Color.appButtonBackground
               }
+              HStack {
+                Circle()
+                  .fill(Color(hex: label.color ?? "") ?? .appButtonBackground)
+                  .frame(width: 24, height: 24)
+                Text(label.unwrappedName)
+                Spacer()
+                if isSelected {
+                  Image(systemName: "checkmark")
+                }
+              }
+              .padding(.horizontal)
             }
           }
         }
+      }
+    }
+    .toolbar {
+      ToolbarItem(placement: .barLeading) {
+        Button(action: {
+          print("tapped on logo")
+        }, label: {
+          Image.smallOmnivoreLogo
+            .renderingMode(.template)
+            .resizable()
+            .frame(width: 24, height: 24)
+            .foregroundColor(.appGrayTextContrast)
+        })
       }
     }
     .task {

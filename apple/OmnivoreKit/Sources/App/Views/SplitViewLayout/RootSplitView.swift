@@ -48,11 +48,13 @@ public struct RootSplitView: View {
         libraryViewModel: libraryViewModel,
         navigationModel: navigationModel
       )
+      .navigationBarTitleDisplayMode(.inline)
       .navigationTitle("Library")
     } detail: {
       DetailView(navigation: navigationModel.detailViewNavigation)
     }
     .accentColor(.appGrayTextContrast)
+    .navigationBarTitleDisplayMode(.inline)
   }
 }
 
