@@ -17,12 +17,17 @@ struct SplitViewSidebar: View {
           Button(action: {
             navigationModel.linkedItemFilter = filter.rawValue
           }) {
-            HStack {
-              Text(filter.displayName)
-              if navigationModel.linkedItemFilter == filter.rawValue {
-                Spacer()
-                Image(systemName: "checkmark")
+            let isSelected = navigationModel.linkedItemFilter == filter.rawValue
+            ZStack {
+              if isSelected {
+                Color.appYellow48
               }
+              HStack {
+                Text(filter.displayName)
+                  .foregroundColor(isSelected ? Color.black : Color.systemLabel)
+                Spacer()
+              }
+              .padding(.horizontal)
             }
           }
         }
@@ -48,7 +53,6 @@ struct SplitViewSidebar: View {
         }
       }
     }
-    .navigationTitle("Filters")
     .task {
       await labelsViewModel.loadLabels(dataService: dataService)
     }

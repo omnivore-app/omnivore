@@ -40,7 +40,7 @@ public extension Color {
   static var themeTTSReadingText: Color { Color("_themeTTSReadingText", bundle: .module) }
   static var themeDisabledBG: Color { Color("_themeDisabledBG", bundle: .module) }
   static var themeSolidBackground: Color { Color("_themeSolidBackground", bundle: .module) }
-  static var thBorderColor: Color { Color("thBorderColor", bundle: .module) }
+  static var thBorderColor: Color { Color("_thBorderColor", bundle: .module) }
 
   // Apple system UIColor equivalents
   #if os(iOS)
