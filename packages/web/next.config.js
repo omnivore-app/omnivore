@@ -97,6 +97,11 @@ const moduleExports = {
         permanent: true,
       },
       {
+        source: '/privacy',
+        destination: 'https://docs.omnivore.app/about/privacy',
+        permanent: true,
+      },
+      {
         source: '/install/chrome',
         destination:
           'https://chrome.google.com/webstore/detail/omnivore/blkggjdmcfjdbmmmlfcpplkchpeaiiab/',
