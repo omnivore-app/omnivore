@@ -56,7 +56,8 @@ class WebReaderViewModel @Inject constructor(
   val showLabelsSelectionSheetLiveData = MutableLiveData(false)
   val savedItemLabelsLiveData = dataService.db.savedItemLabelDao().getSavedItemLabelsLiveData()
 
-  val systemThemeKeys = listOf("Light", "Dark", "System")
+  // "Sepia", "Apollo",
+  val systemThemeKeys = listOf("Light", "Black", "System")
 
   var hasTappedExistingHighlight = false
   var lastTapCoordinates: TapCoordinates? = null
@@ -279,7 +280,7 @@ class WebReaderViewModel @Inject constructor(
 
   fun themeKey(isDarkMode: Boolean, storedThemePreference: String): String {
     if (storedThemePreference == "System") {
-      return if (isDarkMode) "Dark" else "Light"
+      return if (isDarkMode) "Black" else "Light"
     }
 
     return storedThemePreference
@@ -292,7 +293,7 @@ class WebReaderViewModel @Inject constructor(
       datastoreRepo.putString(DatastoreKeys.preferredTheme, systemThemeKeys[index])
     }
 
-    val isDark = newThemeKey == "Dark"
+    val isDark = newThemeKey == "Dark" || newThemeKey == "Black"
     val script = "var event = new Event('updateColorMode');event.isDark = '$isDark';document.dispatchEvent(event);"
     enqueueScript(script)
   }

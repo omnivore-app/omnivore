@@ -47,7 +47,7 @@ fun WebReader(
   )
 
   val styledContent = webReaderContent.styledContent()
-  val isInDarkMode = preferences.themeKey == "Dark"
+  val isInDarkMode = preferences.themeKey == "Dark" || preferences.themeKey == "Black"
 
   Box {
     AndroidView(factory = {
