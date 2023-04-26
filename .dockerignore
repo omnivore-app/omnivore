@@ -6,3 +6,5 @@
 **/.dockerignore
 **/*.yaml
 .secrets*.yaml
+apple
+android
