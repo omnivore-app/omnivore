@@ -76,7 +76,7 @@ fun LabelsSelectionSheet(viewModel: LibraryViewModel) {
           isLibraryMode = false,
           onSave = {
             if (it != labels) {
-              viewModel.updateSavedItemLabels(savedItemID = currentSavedItemData.cardData.savedItemId, labels = it)
+              viewModel.updateSavedItemLabels(savedItemID = currentSavedItemData.savedItem.savedItemId, labels = it)
             }
             viewModel.labelsSelectionCurrentItemLiveData.value = null
             viewModel.showLabelsSelectionSheetLiveData.value = false

@@ -23,6 +23,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -113,7 +114,10 @@ fun LoginFields(
       placeholder = { Text(text = "user@email.com") },
       label = { Text(text = "Email") },
       onValueChange = onEmailChange,
-      keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+      keyboardOptions = KeyboardOptions(
+        imeAction = ImeAction.Done,
+        keyboardType = KeyboardType.Email,
+        ),
       keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
     )
 
@@ -123,7 +127,10 @@ fun LoginFields(
       label = { Text(text = "Password") },
       onValueChange = onPasswordChange,
       visualTransformation = PasswordVisualTransformation(),
-      keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+      keyboardOptions = KeyboardOptions(
+        imeAction = ImeAction.Done,
+        keyboardType = KeyboardType.Password,
+      ),
       keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
     )
 

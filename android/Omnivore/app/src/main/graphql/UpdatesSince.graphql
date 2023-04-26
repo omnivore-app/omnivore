@@ -24,9 +24,10 @@ query UpdatesSince($after: String, $first: Int, $since: Date!) {
           originalArticleUrl
           uploadFileId
           labels {
-            id
-            name
-            color
+            ...LabelFields
+          }
+          highlights {
+            ...HighlightFields
           }
           pageId
           shortId
@@ -39,6 +40,7 @@ query UpdatesSince($after: String, $first: Int, $since: Date!) {
           savedAt
           updatedAt
           language
+          wordsCount
         }
       }
       pageInfo {

@@ -4,16 +4,14 @@ import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import app.omnivore.omnivore.*
 import app.omnivore.omnivore.dataService.*
 import app.omnivore.omnivore.graphql.generated.type.CreateLabelInput
 import app.omnivore.omnivore.graphql.generated.type.SetLabelsInput
 import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.persistence.entities.*
+import com.apollographql.apollo3.api.Optional
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
@@ -25,7 +23,7 @@ class LibraryViewModel @Inject constructor(
   private val networker: Networker,
   private val dataService: DataService,
   private val datastoreRepo: DatastoreRepository
-): ViewModel() {
+): ViewModel(), SavedItemViewModel {
   private val contentRequestChannel = Channel<String>(capacity = Channel.UNLIMITED)
 
   private var cursor: String? = null
@@ -37,10 +35,14 @@ class LibraryViewModel @Inject constructor(
   private var receivedIdx = 0
 
   // Live Data
-  val searchTextLiveData = MutableLiveData("")
-  val searchItemsLiveData = MutableLiveData<List<SavedItemCardDataWithLabels>>(listOf())
-  private var itemsLiveDataInternal = dataService.libraryLiveData(SavedItemFilter.INBOX, SavedItemSortFilter.NEWEST, listOf())
-  val itemsLiveData = MediatorLiveData<List<SavedItemCardDataWithLabels>>()
+  private var itemsLiveDataInternal = dataService.db.savedItemDao().filteredLibraryData(
+    archiveFilter = 1,
+    sortKey = "newest",
+    requiredLabels = listOf(),
+    excludedLabels = listOf(),
+    allowedContentReaders = listOf("WEB", "PDF", "EPUB")
+  )
+  val itemsLiveData = MediatorLiveData<List<SavedItemWithLabelsAndHighlights>>()
   val appliedFilterLiveData = MutableLiveData(SavedItemFilter.INBOX)
   val appliedSortFilterLiveData = MutableLiveData(SavedItemSortFilter.NEWEST)
   val showLabelsSelectionSheetLiveData = MutableLiveData(false)
@@ -48,8 +50,9 @@ class LibraryViewModel @Inject constructor(
   val savedItemLabelsLiveData = dataService.db.savedItemLabelDao().getSavedItemLabelsLiveData()
   val activeLabelsLiveData = MutableLiveData<List<SavedItemLabel>>(listOf())
 
+  override val actionsMenuItemLiveData = MutableLiveData<SavedItemWithLabelsAndHighlights?>(null)
+
   var isRefreshing by mutableStateOf(false)
-  var showSearchField by mutableStateOf(false)
   var hasLoadedInitialFilters = false
 
   fun loadInitialFilterValues() {
@@ -62,25 +65,27 @@ class LibraryViewModel @Inject constructor(
       }
     }
 
-    runBlocking {
-      datastoreRepo.getString(DatastoreKeys.lastUsedSavedItemFilter)?.let { str ->
-        try {
-          val filter = SavedItemFilter.values().first { it.rawValue == str }
-          appliedFilterLiveData.postValue(filter)
-        } catch (e: Exception) {
-          Log.d("error", "invalid filter value stored in datastore repo: $e")
-        }
-      }
-
-      datastoreRepo.getString(DatastoreKeys.lastUsedSavedItemSortFilter)?.let { str ->
-        try {
-          val filter = SavedItemSortFilter.values().first { it.rawValue == str }
-          appliedSortFilterLiveData.postValue(filter)
-        } catch (e: Exception) {
-          Log.d("error", "invalid sort filter value stored in datastore repo: $e")
-        }
-      }
-    }
+//    runBlocking {
+//      datastoreRepo.getString(DatastoreKeys.lastUsedSavedItemFilter)?.let { str ->
+//        try {
+//          val filter = SavedItemFilter.values().first { it.rawValue == str }
+//          appliedFilterLiveData.postValue(filter)
+//        } catch (e: Exception) {
+//          Log.d("error", "invalid filter value stored in datastore repo: $e")
+//        }
+//
+//        datastoreRepo.getString(DatastoreKeys.lastUsedSavedItemSortFilter)?.let { str ->
+//          try {
+//            val filter = SavedItemSortFilter.values().first { it.rawValue == str }
+//            appliedSortFilterLiveData.postValue(filter)
+//          } catch (e: Exception) {
+//            Log.d("error", "invalid sort filter value stored in datastore repo: $e")
+//          }
+//
+//          handleFilterChanges()
+//        }
+//      }
+//    }
 
     viewModelScope.launch {
       handleFilterChanges()
@@ -89,16 +94,6 @@ class LibraryViewModel @Inject constructor(
           dataService.fetchSavedItemContent(slug)
         }
       }
-    }
-  }
-
-  fun updateSearchText(text: String) {
-    searchTextLiveData.value = text
-
-    if (text == "") {
-      searchItemsLiveData.value = listOf()
-    } else {
-      load(clearPreviousSearch = true)
     }
   }
 
@@ -134,12 +129,8 @@ class LibraryViewModel @Inject constructor(
     loadInitialFilterValues()
 
     viewModelScope.launch {
-      if (searchTextLiveData.value != "") {
-        performSearch(clearPreviousSearch)
-      } else {
-        syncItems()
-        loadUsingSearchAPI()
-      }
+      syncItems()
+      loadUsingSearchAPI()
     }
   }
 
@@ -154,12 +145,12 @@ class LibraryViewModel @Inject constructor(
           isRefreshing = false
         }
 
-        result.savedItemSlugs.map {
-          val isSavedInDB = dataService.isSavedItemContentStoredInDB(it)
+        result.savedItems.map {
+          val isSavedInDB = dataService.isSavedItemContentStoredInDB(it.savedItem.slug)
 
           if (!isSavedInDB) {
             delay(2000)
-            contentRequestChannel.send(it)
+            contentRequestChannel.send(it.savedItem.slug)
           }
         }
       }
@@ -189,12 +180,56 @@ class LibraryViewModel @Inject constructor(
     }
   }
 
-  suspend fun handleFilterChanges() {
-    if (searchTextLiveData.value != "") {
-      performSearch(true)
-    } else if (appliedSortFilterLiveData.value != null && appliedFilterLiveData.value != null) {
-      itemsLiveDataInternal = dataService.libraryLiveData(appliedFilterLiveData.value!!, appliedSortFilterLiveData.value!!, activeLabelsLiveData.value ?: listOf())
-      itemsLiveData.removeSource(itemsLiveDataInternal)
+  fun sortKey(appliedSortKey: String) {
+    when(appliedSortKey) {
+
+    }
+  }
+  fun handleFilterChanges() {
+    if (appliedSortFilterLiveData.value != null && appliedFilterLiveData.value != null) {
+      val applied = appliedFilterLiveData.value
+      val sortKey = when (appliedSortFilterLiveData.value) {
+        SavedItemSortFilter.NEWEST -> "newest"
+        SavedItemSortFilter.OLDEST -> "oldest"
+        SavedItemSortFilter.RECENTLY_READ -> "recentlyRead"
+        SavedItemSortFilter.RECENTLY_PUBLISHED -> "recentlyPublished"
+        else -> "newest"
+      }
+
+      val archiveFilter = when (appliedFilterLiveData.value) {
+        SavedItemFilter.ARCHIVED -> 0
+        else -> 1
+      }
+
+      val allowedContentReaders = when(appliedFilterLiveData.value) {
+        SavedItemFilter.FILES -> listOf("PDF", "EPUB")
+        else -> listOf("WEB", "PDF", "EPUB")
+      }
+
+      var requiredLabels = when(appliedFilterLiveData.value) {
+        SavedItemFilter.NEWSLETTERS -> listOf("Newsletter")
+        else -> (activeLabelsLiveData.value ?: listOf()).map { it.name }
+      }
+     activeLabelsLiveData.value?.let {
+       requiredLabels = requiredLabels + it.map { it.name }
+     }
+
+
+      val excludeLabels = when(appliedFilterLiveData.value) {
+        SavedItemFilter.READ_LATER -> listOf("Newsletter")
+        else -> listOf()
+      }
+
+      val newData = dataService.db.savedItemDao().filteredLibraryData(
+        archiveFilter = archiveFilter,
+        sortKey = sortKey,
+        requiredLabels = requiredLabels,
+        excludedLabels = excludeLabels,
+        allowedContentReaders = allowedContentReaders
+      )
+
+     itemsLiveData.removeSource(itemsLiveDataInternal)
+      itemsLiveDataInternal = newData
       itemsLiveData.addSource(itemsLiveDataInternal, itemsLiveData::setValue)
     }
   }
@@ -238,38 +273,7 @@ class LibraryViewModel @Inject constructor(
     }
   }
 
-  private suspend fun performSearch(clearPreviousSearch: Boolean) {
-    if (clearPreviousSearch) {
-      cursor = null
-    }
-
-    val thisSearchIdx = searchIdx
-    searchIdx += 1
-
-    // Execute the search
-    val searchResult = networker.typeaheadSearch(searchTextLiveData.value ?: "")
-
-    // Search results aren't guaranteed to return in order so this
-    // will discard old results that are returned while a user is typing.
-    // For example if a user types 'Canucks', often the search results
-    // for 'C' are returned after 'Canucks' because it takes the backend
-    // much longer to compute.
-    if (thisSearchIdx in 1..receivedIdx) {
-      return
-    }
-
-    val cardsDataWithLabels = searchResult.cardsData.map {
-      SavedItemCardDataWithLabels(cardData = it, labels = listOf())
-    }
-
-    searchItemsLiveData.postValue(cardsDataWithLabels)
-
-    CoroutineScope(Dispatchers.Main).launch {
-      isRefreshing = false
-    }
-  }
-
-  fun handleSavedItemAction(itemID: String, action: SavedItemAction) {
+  override fun handleSavedItemAction(itemID: String, action: SavedItemAction) {
     when (action) {
       SavedItemAction.Delete -> {
         viewModelScope.launch {
@@ -291,6 +295,7 @@ class LibraryViewModel @Inject constructor(
         showLabelsSelectionSheetLiveData.value = true
       }
     }
+    actionsMenuItemLiveData.postValue(null)
   }
 
   fun updateSavedItemLabels(savedItemID: String, labels: List<SavedItemLabel>) {
@@ -323,7 +328,7 @@ class LibraryViewModel @Inject constructor(
   fun createNewSavedItemLabel(labelName: String, hexColorValue: String) {
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
-        val newLabel = networker.createNewLabel(CreateLabelInput(color = hexColorValue, name = labelName))
+        val newLabel = networker.createNewLabel(CreateLabelInput(color = Optional.presentIfNotNull(hexColorValue), name = labelName))
 
         newLabel?.let {
           val savedItemLabel = SavedItemLabel(
@@ -340,9 +345,9 @@ class LibraryViewModel @Inject constructor(
     }
   }
 
-  fun currentSavedItemUnderEdit(): SavedItemCardDataWithLabels? {
+  fun currentSavedItemUnderEdit(): SavedItemWithLabelsAndHighlights? {
     labelsSelectionCurrentItemLiveData.value?.let { itemID ->
-      return itemsLiveData.value?.first { it.cardData.savedItemId == itemID }
+      return itemsLiveData.value?.first { it.savedItem.savedItemId == itemID }
     }
 
     return null
@@ -350,11 +355,6 @@ class LibraryViewModel @Inject constructor(
 
   private fun searchQueryString(): String {
     var query = "${appliedFilterLiveData.value?.queryString} ${appliedSortFilterLiveData.value?.queryString}"
-    val searchText = searchTextLiveData.value ?: ""
-
-    if (searchText.isNotEmpty()) {
-      query += " $searchText"
-    }
 
     activeLabelsLiveData.value?.let {
       if (it.isNotEmpty()) {

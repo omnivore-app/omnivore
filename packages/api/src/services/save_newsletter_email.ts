@@ -10,17 +10,16 @@ import { analytics } from '../utils/analytics'
 import { isBase64Image } from '../utils/helpers'
 import { fetchFavicon } from '../utils/parser'
 import { addLabelToPage } from './labels'
-import { updateReceivedEmail } from './received_emails'
 import { SaveContext, saveEmail, SaveEmailInput } from './save_email'
 import { saveSubscription } from './subscriptions'
 
 export interface NewsletterMessage {
-  from: string
   email: string
-  content: string
   url: string
   title: string
   author: string
+  content?: string
+  from?: string
   unsubMailTo?: string
   unsubHttpUrl?: string
   receivedEmailId: string
@@ -44,6 +43,11 @@ export const saveNewsletterEmail = async (
     },
   })
 
+  if (!data.content) {
+    console.log('newsletter not created, no content:', data.email)
+    return false
+  }
+
   const saveCtx = ctx || {
     pubsub: createPubSubClient(),
     uid: newsletterEmail.user.id,
@@ -62,9 +66,6 @@ export const saveNewsletterEmail = async (
 
     return false
   }
-
-  // update received email type
-  await updateReceivedEmail(data.receivedEmailId, 'article')
 
   if (!page.siteIcon || isBase64Image(page.siteIcon)) {
     // fetch favicon if not already set or is a base64 image

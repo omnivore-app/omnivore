@@ -2,6 +2,7 @@ import { ContentHandler, PreHandleResult } from '../content-handler'
 import axios from 'axios'
 import { DateTime } from 'luxon'
 import _ from 'underscore'
+import { truncate } from 'lodash'
 import { Browser, BrowserContext } from 'puppeteer-core'
 
 interface TweetIncludes {
@@ -134,8 +135,10 @@ const getTweetsByIds = async (ids: string[]): Promise<Tweets> => {
   return response.data
 }
 
-const titleForAuthor = (author: { name: string }) => {
-  return `${author.name} on Twitter`
+const titleForTweet = (author: { name: string }, text: string) => {
+  return `${author.name} on Twitter: ${truncate(text.replace(/http\S+/, ''), {
+    length: 100,
+  })}`
 }
 
 const tweetIdFromStatusUrl = (url: string): string | undefined => {
@@ -319,7 +322,7 @@ export class TwitterHandler extends ContentHandler {
     const authorId = tweetData.author_id
     const author = tweet.includes.users.filter((u) => (u.id = authorId))[0]
     // escape html entities in title
-    const title = titleForAuthor(author)
+    const title = titleForTweet(author, tweetData.text)
     const escapedTitle = _.escape(title)
     const authorImage = author.profile_image_url.replace('_normal', '_400x400')
     const description = _.escape(tweetData.text)

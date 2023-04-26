@@ -1,16 +1,11 @@
 package app.omnivore.omnivore.networking
 
+import androidx.room.PrimaryKey
 import app.omnivore.omnivore.graphql.generated.SearchQuery
 import app.omnivore.omnivore.graphql.generated.TypeaheadSearchQuery
-import app.omnivore.omnivore.persistence.entities.SavedItem
-import app.omnivore.omnivore.persistence.entities.SavedItemCardData
-import app.omnivore.omnivore.persistence.entities.SavedItemLabel
+import app.omnivore.omnivore.models.ServerSyncStatus
+import app.omnivore.omnivore.persistence.entities.*
 import com.apollographql.apollo3.api.Optional
-
-data class SearchQueryResponse(
-  val cursor: String?,
-  val cardsData: List<SavedItemCardData>
-)
 
 data class LibrarySearchQueryResponse(
   val cursor: String?,
@@ -19,38 +14,9 @@ data class LibrarySearchQueryResponse(
 
 data class LibrarySearchItem(
   val item: SavedItem,
-  val labels: List<SavedItemLabel>
+  val labels: List<SavedItemLabel>,
+  val highlights: List<Highlight>
 )
-
-suspend fun Networker.typeaheadSearch(
-  query: String
-): SearchQueryResponse {
-  try {
-    val result = authenticatedApolloClient().query(
-      TypeaheadSearchQuery(query)
-    ).execute()
-
-    val itemList = result.data?.typeaheadSearch?.onTypeaheadSearchSuccess?.items ?: listOf()
-
-    val cardsData = itemList.map {
-      SavedItemCardData(
-        savedItemId = it.id,
-        slug = it.slug,
-        publisherURLString = "",
-        title = it.title,
-        author = "",
-        imageURLString = null,
-        isArchived = false,
-        pageURLString = "",
-        contentReader = null,
-      )
-    }
-
-    return SearchQueryResponse(null, cardsData)
-  } catch (e: java.lang.Exception) {
-    return SearchQueryResponse(null, listOf())
-  }
-}
 
 suspend fun Networker.search(
   cursor: String? = null,
@@ -90,15 +56,32 @@ suspend fun Networker.search(
           slug = it.node.slug,
           isArchived = it.node.isArchived,
           contentReader = it.node.contentReader.rawValue,
-          content = null
+          content = null,
+          wordsCount = it.node.wordsCount,
         ),
         labels = (it.node.labels ?: listOf()).map { label ->
           SavedItemLabel(
-            savedItemLabelId = label.id,
-            name = label.name,
-            color = label.color,
+            savedItemLabelId = label.labelFields.id,
+            name = label.labelFields.name,
+            color = label.labelFields.color,
             createdAt = null,
             labelDescription = null
+          )
+        },
+        highlights = (it.node.highlights ?: listOf()).map { highlight ->
+          Highlight(
+            highlightId = highlight.highlightFields.id,
+            type = highlight.highlightFields.type.toString(),
+            annotation = highlight.highlightFields.annotation,
+            createdByMe = highlight.highlightFields.createdByMe,
+            patch = highlight.highlightFields.patch,
+            prefix = highlight.highlightFields.prefix,
+            quote = highlight.highlightFields.quote,
+            serverSyncStatus = ServerSyncStatus.IS_SYNCED.rawValue,
+            shortId = highlight.highlightFields.shortId,
+            suffix  = highlight.highlightFields.suffix,
+            updatedAt = highlight.highlightFields.updatedAt as String?,
+            createdAt = null,
           )
         }
       )

@@ -26,6 +26,7 @@ interface PageSaveRequest {
   archivedAt?: Date | null
   labels?: Label[]
   priority?: 'low' | 'high'
+  user?: User | null
 }
 
 const SAVING_CONTENT = 'Your link is being saved...'
@@ -76,6 +77,7 @@ export const createPageSaveRequest = async ({
   archivedAt,
   priority,
   labels,
+  user,
 }: PageSaveRequest): Promise<ArticleSavingRequest> => {
   try {
     validateUrl(url)
@@ -85,16 +87,17 @@ export const createPageSaveRequest = async ({
       errorCode: CreateArticleSavingRequestErrorCode.BadData,
     })
   }
-
-  const user = await getRepository(User).findOne({
-    where: { id: userId },
-    relations: ['profile'],
-  })
+  // if user is not specified, get it from the database
   if (!user) {
-    console.log('User not found', userId)
-    return Promise.reject({
-      errorCode: CreateArticleSavingRequestErrorCode.BadData,
+    user = await getRepository(User).findOneBy({
+      id: userId,
     })
+    if (!user) {
+      console.log('User not found', userId)
+      return Promise.reject({
+        errorCode: CreateArticleSavingRequestErrorCode.BadData,
+      })
+    }
   }
 
   // get priority by checking rate limit if not specified

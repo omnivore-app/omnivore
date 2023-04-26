@@ -133,8 +133,8 @@ class PDFReaderViewModel @Inject constructor(
         annotation = Optional.presentIfNotNull(note),
         articleId = itemID,
         id = highlightID,
-        patch = newAnnotation.toInstantJson(),
-        quote = quote,
+        patch = Optional.presentIfNotNull(newAnnotation.toInstantJson()),
+        quote = Optional.presentIfNotNull(quote),
         shortId = shortID,
       )
 

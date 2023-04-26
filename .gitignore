@@ -65,3 +65,7 @@ omnivore-app-sa-gcs*
 
 # data migration file
 data.json
+
+# android
+*.aab
+*.apk

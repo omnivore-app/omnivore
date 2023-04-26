@@ -2,18 +2,21 @@ package app.omnivore.omnivore.persistence.entities
 
 import androidx.room.*
 import app.omnivore.omnivore.models.ServerSyncStatus
+import com.google.gson.annotations.SerializedName
 
 
 @Entity
 data class Highlight(
+  @SerializedName("id")
   @PrimaryKey val highlightId: String,
+  val type: String,
   var annotation: String?,
   val createdAt: String?,
   val createdByMe: Boolean,
   val markedForDeletion: Boolean = false,
-  var patch: String,
+  var patch: String?,
   var prefix: String?,
-  var quote: String,
+  var quote: String?,
   var serverSyncStatus: Int = ServerSyncStatus.IS_SYNCED.rawValue,
   var shortId: String,
   val suffix: String?,

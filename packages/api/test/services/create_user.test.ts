@@ -40,16 +40,22 @@ describe('create user', () => {
       const testUser = 'testuser'
 
       const adminUser = await createTestUser(testOwner)
+      const admninIds = [adminUser.id]
       const [, invite] = await createGroup({
         admin: adminUser,
         name: 'testgroup',
       })
       const user = await createTestUser(testUser, invite.code)
+      const userIds = [user.id]
 
-      expect(await getUserFollowers(user)).to.eql([adminUser])
-      expect(await getUserFollowing(user)).to.eql([adminUser])
-      expect(await getUserFollowers(adminUser)).to.eql([user])
-      expect(await getUserFollowing(adminUser)).to.eql([user])
+      const userFollowers = await getUserFollowers(user)
+      const userFollowing = await getUserFollowing(user)
+      const adminUserFollowers = await getUserFollowers(adminUser)
+      const adminUserFollowing = await getUserFollowing(adminUser)
+      expect(userFollowers.map(u => u.id)).to.eql(admninIds)
+      expect(userFollowing.map(u => u.id)).to.eql(admninIds)
+      expect(adminUserFollowers.map(u => u.id)).to.eql(userIds)
+      expect(adminUserFollowing.map(u => u.id)).to.eql(userIds)
     })
 
     it('creates profile when user exists but profile not', async () => {

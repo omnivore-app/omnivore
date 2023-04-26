@@ -66,8 +66,16 @@ export function LandingFooter(): JSX.Element {
           </FooterList>
         </VStack>
         <VStack>
-          <StyledText style="aboutFooter">Get Help</StyledText>
+          <StyledText style="aboutFooter">About</StyledText>
           <FooterList>
+            <li>
+              <a href="https://docs.omnivore.app/about/pricing">Pricing</a>
+            </li>
+            <li>
+              <a href="https://docs.omnivore.app/about/privacy-statement">
+                Privacy
+              </a>
+            </li>
             <li>
               <a href="mailto:feedback@omnivore.app">Contact us via email</a>
             </li>
