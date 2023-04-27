@@ -130,9 +130,8 @@ struct LibraryListView: View {
     List {
       if viewModel.showLoadingBar {
         ShimmeringLoader()
-      } else {
-        Spacer(minLength: 2)
       }
+      
       // Only show the feature card section if we have items loaded
       if !viewModel.hideFeatureSection, viewModel.items.count > 0 {
         featureCard
@@ -141,6 +140,8 @@ struct LibraryListView: View {
       }
       
       ForEach(viewModel.items) { item in
+        let isSelected = item.objectID == navigationModel.detailViewNavigation.objectID
+
         Button(
           action: {
             print("tapped on item with objectID: \(item.objectID)")
@@ -163,6 +164,7 @@ struct LibraryListView: View {
               }
           }
         )
+        .listRowBackground(isSelected ? Color.thBorderColor : Color.clear)
         .listRowSeparatorTint(Color.thBorderColor)
         .listRowInsets(.init(top: 0, leading: 10, bottom: 10, trailing: 10))
       }

@@ -32,6 +32,7 @@ struct SplitViewContent: View {
   }
 }
 
+// TODO: Delete this --- just here for reference
 struct LibraryContainerView: View {
   @State var hasHighlightMutations = false
   @State var searchPresented = false
