@@ -1,16 +1,16 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
-import UserModel from '../../../datalayer/user'
-import { createUser } from '../../../services/create_user'
-import { hashPassword } from '../../../utils/auth'
 import { decodeAppleToken } from '../apple_auth'
+import { decodeGoogleToken } from '../google_auth'
 import {
-  AuthProvider,
   DecodeTokenResult,
   JsonResponsePayload,
+  AuthProvider,
   PendingUserTokenPayload,
 } from '../auth_types'
-import { decodeGoogleToken } from '../google_auth'
 import { createPendingUserToken, suggestedUsername } from '../jwt_helpers'
+import UserModel from '../../../datalayer/user'
+import { hashPassword } from '../../../utils/auth'
+import { createUser } from '../../../services/create_user'
 
 export async function createMobileSignUpResponse(
   isAndroid: boolean,

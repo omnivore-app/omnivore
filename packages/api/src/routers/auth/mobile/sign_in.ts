@@ -1,18 +1,17 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
+import UserModel from '../../../datalayer/user'
+import { StatusType } from '../../../datalayer/user/model'
+import { getUserByEmail } from '../../../services/create_user'
+import { sendConfirmationEmail } from '../../../services/send_emails'
+import { comparePassword } from '../../../utils/auth'
 import { decodeAppleToken } from '../apple_auth'
-import { decodeGoogleToken } from '../google_auth'
 import {
+  AuthProvider,
   DecodeTokenResult,
   JsonResponsePayload,
-  AuthProvider,
 } from '../auth_types'
+import { decodeGoogleToken } from '../google_auth'
 import { createMobileAuthPayload } from '../jwt_helpers'
-import UserModel from '../../../datalayer/user'
-import { initModels } from '../../../server'
-import { sendConfirmationEmail } from '../../../services/send_emails'
-import { kx } from '../../../datalayer/knex_config'
-import { StatusType } from '../../../datalayer/user/model'
-import { comparePassword } from '../../../utils/auth'
 
 export async function createMobileSignInResponse(
   isAndroid: boolean,
@@ -46,11 +45,7 @@ export async function createMobileEmailSignInResponse(
       throw new Error('Missing username or password')
     }
 
-    const models = initModels(kx, false)
-    const user = await models.user.getWhere({
-      email,
-    })
-
+    const user = await getUserByEmail(email.trim())
     if (!user?.id || !user?.password) {
       throw new Error('user not found')
     }
