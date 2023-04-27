@@ -39,16 +39,10 @@ fun WebReader(
     .observeAsState(UUID.randomUUID())
 
   WebView.setWebContentsDebuggingEnabled(true)
-  val isInDarkMode = preferences.themeKey == "Dark" || preferences.themeKey == "Black"
 
   Box {
     AndroidView(factory = {
       OmnivoreWebView(it).apply {
-        if (isInDarkMode) {
-          setBackgroundColor(Color.Transparent.hashCode())
-        } else {
-          setBackgroundColor(Color.White.hashCode())
-        }
         viewModel = webReaderViewModel
 
         layoutParams = ViewGroup.LayoutParams(

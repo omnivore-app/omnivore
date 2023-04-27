@@ -122,17 +122,14 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, o
   webReaderViewModel.maxToolbarHeightPx = with(LocalDensity.current) { maxToolbarHeight.roundToPx().toFloat() }
   webReaderViewModel.loadItem(slug = slug, requestID = requestID)
 
-  val styledContent =
-    if (webReaderParams != null) {
-      val webReaderContent = WebReaderContent(
-        preferences = webReaderViewModel.storedWebPreferences(isSystemInDarkTheme()),
-        item = webReaderParams!!.item,
-        articleContent = webReaderParams!!.articleContent,
-      )
-      webReaderContent.styledContent()
-    } else {
-      null
-    }
+  val styledContent = webReaderParams?.let {
+    val webReaderContent = WebReaderContent(
+      preferences = webReaderViewModel.storedWebPreferences(isSystemInDarkTheme()),
+      item = it.item,
+      articleContent = it.articleContent,
+    )
+    webReaderContent.styledContent()
+  } ?: null
 
   Box(
     modifier = Modifier

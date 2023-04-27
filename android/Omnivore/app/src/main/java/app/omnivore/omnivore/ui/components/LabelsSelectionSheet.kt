@@ -1,20 +1,31 @@
+@file:OptIn(ExperimentalMaterialApi::class)
+
 package app.omnivore.omnivore.ui.components
 
+import LabelChip
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -29,28 +40,37 @@ fun WebReaderLabelsSelectionSheet(viewModel: WebReaderViewModel) {
   val labels: List<SavedItemLabel> by viewModel.savedItemLabelsLiveData.observeAsState(listOf())
   val webReaderParams: WebReaderParams? by viewModel.webReaderParamsLiveData.observeAsState(null)
 
+  val modalBottomSheetState = rememberModalBottomSheetState(
+    ModalBottomSheetValue.HalfExpanded,
+    confirmStateChange = { false }
+  )
+
   if (isActive) {
-    Dialog(onDismissRequest = {
-      viewModel.showLabelsSelectionSheetLiveData.value = false
-    } ) {
-      LabelsSelectionSheetContent(
-        labels = labels,
-        initialSelectedLabels = webReaderParams?.labels ?: listOf(),
-        onCancel = {
-          viewModel.showLabelsSelectionSheetLiveData.value = false
-        },
-        isLibraryMode = false,
-        onSave = {
-          if (it != labels) {
-            viewModel.updateSavedItemLabels(savedItemID = webReaderParams?.item?.savedItemId ?: "", labels = it)
-          }
-          viewModel.showLabelsSelectionSheetLiveData.value = false
-        },
-        onCreateLabel = { newLabelName, labelHexValue ->
-          viewModel.createNewSavedItemLabel(newLabelName, labelHexValue)
+    ModalBottomSheetLayout(
+      sheetBackgroundColor = Color.Transparent,
+      sheetState = modalBottomSheetState,
+      sheetContent = {
+        BottomSheetUI {
+          LabelsSelectionSheetContent(
+            labels = labels,
+            initialSelectedLabels = webReaderParams?.labels ?: listOf(),
+            onCancel = {
+              viewModel.showLabelsSelectionSheetLiveData.value = false
+            },
+            isLibraryMode = false,
+            onSave = {
+              if (it != labels) {
+                viewModel.updateSavedItemLabels(savedItemID = webReaderParams?.item?.savedItemId ?: "", labels = it)
+              }
+              viewModel.showLabelsSelectionSheetLiveData.value = false
+            },
+            onCreateLabel = { newLabelName, labelHexValue ->
+              viewModel.createNewSavedItemLabel(newLabelName, labelHexValue)
+            }
+          )
         }
-      )
-    }
+      }
+    ) {}
   }
 }
 
@@ -60,48 +80,59 @@ fun LabelsSelectionSheet(viewModel: LibraryViewModel) {
   val labels: List<SavedItemLabel> by viewModel.savedItemLabelsLiveData.observeAsState(listOf())
   val currentSavedItemData = viewModel.currentSavedItemUnderEdit()
 
+  val modalBottomSheetState = rememberModalBottomSheetState(
+    ModalBottomSheetValue.HalfExpanded,
+    confirmStateChange = { it != ModalBottomSheetValue.Hidden }
+  )
+
   if (isActive) {
-    Dialog(onDismissRequest = {
-      viewModel.labelsSelectionCurrentItemLiveData.value = null
-      viewModel.showLabelsSelectionSheetLiveData.value = false
-    } ) {
-      if (currentSavedItemData != null) {
-        LabelsSelectionSheetContent(
-          labels = labels,
-          initialSelectedLabels = currentSavedItemData.labels,
-          onCancel = {
-            viewModel.showLabelsSelectionSheetLiveData.value = false
-            viewModel.labelsSelectionCurrentItemLiveData.value = null
-          },
-          isLibraryMode = false,
-          onSave = {
-            if (it != labels) {
-              viewModel.updateSavedItemLabels(savedItemID = currentSavedItemData.savedItem.savedItemId, labels = it)
-            }
-            viewModel.labelsSelectionCurrentItemLiveData.value = null
-            viewModel.showLabelsSelectionSheetLiveData.value = false
-          },
-          onCreateLabel = { newLabelName, labelHexValue ->
-            viewModel.createNewSavedItemLabel(newLabelName, labelHexValue)
+    ModalBottomSheetLayout(
+      sheetBackgroundColor = Color.Transparent,
+      sheetState = modalBottomSheetState,
+      sheetContent = {
+        BottomSheetUI {
+          if (currentSavedItemData != null) {
+            LabelsSelectionSheetContent(
+              labels = labels,
+              initialSelectedLabels = currentSavedItemData.labels,
+              onCancel = {
+                viewModel.showLabelsSelectionSheetLiveData.value = false
+                viewModel.labelsSelectionCurrentItemLiveData.value = null
+              },
+              isLibraryMode = false,
+              onSave = {
+                if (it != labels) {
+                  viewModel.updateSavedItemLabels(
+                    savedItemID = currentSavedItemData.savedItem.savedItemId,
+                    labels = it
+                  )
+                }
+                viewModel.labelsSelectionCurrentItemLiveData.value = null
+                viewModel.showLabelsSelectionSheetLiveData.value = false
+              },
+              onCreateLabel = { newLabelName, labelHexValue ->
+                viewModel.createNewSavedItemLabel(newLabelName, labelHexValue)
+              }
+            )
+          } else { // Is used in library mode
+            LabelsSelectionSheetContent(
+              labels = labels,
+              initialSelectedLabels = viewModel.activeLabelsLiveData.value ?: listOf(),
+              onCancel = { viewModel.showLabelsSelectionSheetLiveData.value = false },
+              isLibraryMode = true,
+              onSave = {
+                viewModel.updateAppliedLabels(it)
+                viewModel.labelsSelectionCurrentItemLiveData.value = null
+                viewModel.showLabelsSelectionSheetLiveData.value = false
+              },
+              onCreateLabel = { newLabelName, labelHexValue ->
+                viewModel.createNewSavedItemLabel(newLabelName, labelHexValue)
+              }
+            )
           }
-        )
-      } else { // Is used in library mode
-        LabelsSelectionSheetContent(
-          labels = labels,
-          initialSelectedLabels = viewModel.activeLabelsLiveData.value ?: listOf(),
-          onCancel = { viewModel.showLabelsSelectionSheetLiveData.value = false },
-          isLibraryMode = true,
-          onSave = {
-            viewModel.updateAppliedLabels(it)
-            viewModel.labelsSelectionCurrentItemLiveData.value = null
-            viewModel.showLabelsSelectionSheetLiveData.value = false
-          },
-          onCreateLabel = { newLabelName, labelHexValue ->
-            viewModel.createNewSavedItemLabel(newLabelName, labelHexValue)
-          }
-        )
+        }
       }
-    }
+    ) {}
   }
 }
 
@@ -125,7 +156,6 @@ fun LabelsSelectionSheetContent(
     modifier = Modifier
       .fillMaxSize()
       .background(MaterialTheme.colorScheme.background),
-    shape = RoundedCornerShape(16.dp)
   ) {
 
     if (showCreateLabelDialog) {
@@ -142,8 +172,9 @@ fun LabelsSelectionSheetContent(
       verticalArrangement = Arrangement.Top,
       horizontalAlignment = Alignment.CenterHorizontally,
       modifier = Modifier
+      //  .verticalScroll(rememberScrollState())
         .fillMaxSize()
-        .padding(horizontal = 6.dp)
+        .padding(horizontal = 0.dp)
     ) {
       Row(
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -158,7 +189,7 @@ fun LabelsSelectionSheetContent(
         Text(titleText, fontWeight = FontWeight.ExtraBold)
 
         TextButton(onClick = { onSave(selectedLabels.value) }) {
-          Text(text = "Done")
+          Text(text = "Save")
         }
       }
       LazyColumn(
@@ -184,19 +215,13 @@ fun LabelsSelectionSheetContent(
                   selectedLabels.value = selectedLabels.value + listOf(label)
                 }
               }
-              .padding(horizontal = 6.dp)
+              .padding(horizontal = 10.dp, vertical = 6.dp)
           ) {
             val chipColors = LabelChipColors.fromHex(label.color)
 
-            SuggestionChip(
-              onClick = {},
-              label = { Text(label.name) },
-              border = null,
-              colors = SuggestionChipDefaults.elevatedSuggestionChipColors(
-                containerColor = chipColors.containerColor,
-                labelColor = chipColors.textColor,
-                iconContentColor = chipColors.textColor
-              )
+            LabelChip(
+              name = label.name,
+              colors = chipColors
             )
             if (isLabelSelected) {
               Icon(
@@ -231,5 +256,19 @@ fun LabelsSelectionSheetContent(
         }
       }
     }
+  }
+}
+
+@Composable
+private fun BottomSheetUI(content: @Composable () -> Unit) {
+  Box(
+    modifier = Modifier
+      .wrapContentHeight()
+      .fillMaxWidth()
+      .clip(RoundedCornerShape(topEnd = 20.dp, topStart = 20.dp))
+      .background(Color.White)
+      .statusBarsPadding()
+  ) {
+    content()
   }
 }
