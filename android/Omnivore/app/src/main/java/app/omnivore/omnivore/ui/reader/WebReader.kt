@@ -30,8 +30,8 @@ import java.util.*
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun WebReader(
-  params: WebReaderParams,
   preferences: WebPreferences,
+  styledContent: String,
   webReaderViewModel: WebReaderViewModel
 ) {
   val javascriptActionLoopUUID: UUID by webReaderViewModel
@@ -39,14 +39,6 @@ fun WebReader(
     .observeAsState(UUID.randomUUID())
 
   WebView.setWebContentsDebuggingEnabled(true)
-
-  val webReaderContent = WebReaderContent(
-    preferences = preferences,
-    item = params.item,
-    articleContent = params.articleContent,
-  )
-
-  val styledContent = webReaderContent.styledContent()
   val isInDarkMode = preferences.themeKey == "Dark" || preferences.themeKey == "Black"
 
   Box {

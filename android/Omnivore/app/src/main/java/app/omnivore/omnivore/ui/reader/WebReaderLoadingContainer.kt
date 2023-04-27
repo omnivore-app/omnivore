@@ -122,17 +122,29 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, o
   webReaderViewModel.maxToolbarHeightPx = with(LocalDensity.current) { maxToolbarHeight.roundToPx().toFloat() }
   webReaderViewModel.loadItem(slug = slug, requestID = requestID)
 
+  val styledContent =
+    if (webReaderParams != null) {
+      val webReaderContent = WebReaderContent(
+        preferences = webReaderViewModel.storedWebPreferences(isSystemInDarkTheme()),
+        item = webReaderParams!!.item,
+        articleContent = webReaderParams!!.articleContent,
+      )
+      webReaderContent.styledContent()
+    } else {
+      null
+    }
+
   Box(
     modifier = Modifier
       .fillMaxSize()
       .systemBarsPadding()
       .background(color = backgroundColor)
   ) {
-    if (webReaderParams != null) {
+    if (styledContent != null) {
       WebReader(
-        webReaderParams!!,
-        webReaderViewModel.storedWebPreferences(isSystemInDarkTheme()),
-        webReaderViewModel
+        preferences = webReaderViewModel.storedWebPreferences(isSystemInDarkTheme()),
+        styledContent = styledContent,
+        webReaderViewModel =  webReaderViewModel
       )
 
       TopAppBar(

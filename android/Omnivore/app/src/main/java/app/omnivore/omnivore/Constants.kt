@@ -15,6 +15,7 @@ object DatastoreKeys {
   const val preferredWebMaxWidthPercentage = "preferredWebMaxWidthPercentage"
   const val preferredWebFontFamily = "preferredWebFontFamily"
   const val prefersWebHighContrastText = "prefersWebHighContrastText"
+  const val prefersJustifyText = "prefersJustifyText"
   const val lastUsedSavedItemFilter = "lastUsedSavedItemFilter"
   const val lastUsedSavedItemSortFilter = "lastUsedSavedItemSortFilter"
   const val preferredTheme = "preferredTheme"
