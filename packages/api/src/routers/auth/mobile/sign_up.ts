@@ -1,16 +1,16 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
+import UserModel from '../../../datalayer/user'
+import { createUser } from '../../../services/create_user'
+import { hashPassword } from '../../../utils/auth'
 import { decodeAppleToken } from '../apple_auth'
-import { decodeGoogleToken } from '../google_auth'
 import {
+  AuthProvider,
   DecodeTokenResult,
   JsonResponsePayload,
-  AuthProvider,
   PendingUserTokenPayload,
 } from '../auth_types'
+import { decodeGoogleToken } from '../google_auth'
 import { createPendingUserToken, suggestedUsername } from '../jwt_helpers'
-import UserModel from '../../../datalayer/user'
-import { hashPassword } from '../../../utils/auth'
-import { createUser } from '../../../services/create_user'
 
 export async function createMobileSignUpResponse(
   isAndroid: boolean,
@@ -55,14 +55,16 @@ export async function createMobileEmailSignUpResponse(
       throw new Error('Missing username, password, name, or username')
     }
 
+    // trim whitespace in email address
+    const trimmedEmail = email.trim()
     const hashedPassword = await hashPassword(password)
 
     await createUser({
-      email,
+      email: trimmedEmail,
       provider: 'EMAIL',
-      sourceUserId: email,
-      name,
-      username: username.toLowerCase(),
+      sourceUserId: trimmedEmail,
+      name: name.trim(),
+      username: username.trim().toLowerCase(),
       password: hashedPassword,
       pendingConfirmation: true,
     })
