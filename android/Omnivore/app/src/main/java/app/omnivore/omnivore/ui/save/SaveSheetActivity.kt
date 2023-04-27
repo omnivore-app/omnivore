@@ -39,12 +39,11 @@ abstract class SaveSheetActivityBase: AppCompatActivity() {
       Intent.ACTION_SEND -> {
         if (intent.type?.startsWith("text/plain") == true) {
           intent.getStringExtra(Intent.EXTRA_TEXT)?.let {
-            Log.d(ContentValues.TAG, "Extracted text: $extractedText")
             extractedText = it
             viewModel.saveURL(it)
+            Log.d(ContentValues.TAG, "Extracted text: $extractedText")
           }
         }
-
         if (intent.type?.startsWith("text/html") == true) {
           intent.getStringExtra(Intent.EXTRA_HTML_TEXT)?.let {
             extractedText = it
@@ -155,7 +154,9 @@ abstract class SaveSheetActivityBase: AppCompatActivity() {
     viewModel: SaveViewModel,
     modalBottomSheetState: ModalBottomSheetState
   ) {
-    Box(modifier = Modifier.height(300.dp).background(Color.White)) {
+    Box(modifier = Modifier
+      .height(300.dp)
+      .background(Color.White)) {
       SaveContent(viewModel, modalBottomSheetState, modifier = Modifier.fillMaxSize())
     }
   }
