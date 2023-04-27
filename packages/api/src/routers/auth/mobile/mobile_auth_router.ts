@@ -32,13 +32,8 @@ export function mobileAuthRouter() {
   })
 
   router.post('/email-sign-up', async (req, res) => {
-    const { email, password, username, name } = req.body
-    const payload = await createMobileEmailSignUpResponse(
-      email,
-      password,
-      username,
-      name
-    )
+    const payload = await createMobileEmailSignUpResponse(req.body)
+
     res.status(payload.statusCode).json(payload.json)
   })
 

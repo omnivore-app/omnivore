@@ -54,12 +54,34 @@ import {
 import { createWebAuthToken } from './jwt_helpers'
 import { createSsoToken, ssoRedirectURL } from '../../utils/sso'
 
+export interface SignupRequest {
+  email: string
+  password: string
+  name: string
+  username: string
+  bio?: string
+  pictureUrl?: string
+}
+
 const logger = buildLogger('app.dispatch')
 const signToken = promisify(jwt.sign)
 
 const cookieParams = {
   httpOnly: true,
   maxAge: 365 * 24 * 60 * 60 * 1000,
+}
+
+export const isValidSignupRequest = (obj: any): obj is SignupRequest => {
+  return (
+    'email' in obj &&
+    obj.email.trim().length > 0 && // email must not be empty
+    'password' in obj &&
+    obj.password.length >= 8 && // password must be at least 8 characters
+    'name' in obj &&
+    obj.name.trim().length > 0 && // name must not be empty
+    'username' in obj &&
+    obj.username.trim().length > 0 // username must not be empty
+  )
 }
 
 export function authRouter() {
@@ -443,26 +465,6 @@ export function authRouter() {
     '/email-signup',
     cors<express.Request>(corsConfig),
     async (req: express.Request, res: express.Response) => {
-      interface SignupRequest {
-        email: string
-        password: string
-        name: string
-        username: string
-        bio?: string
-        pictureUrl?: string
-      }
-      function isValidSignupRequest(obj: any): obj is SignupRequest {
-        return (
-          'email' in obj &&
-          obj.email.trim().length > 0 && // email must not be empty
-          'password' in obj &&
-          obj.password.length >= 8 && // password must be at least 8 characters
-          'name' in obj &&
-          obj.name.trim().length > 0 && // name must not be empty
-          'username' in obj &&
-          obj.username.trim().length > 0 // username must not be empty
-        )
-      }
       if (!isValidSignupRequest(req.body)) {
         return res.redirect(
           `${env.client.url}/auth/email-signup?errorCodes=INVALID_CREDENTIALS`
