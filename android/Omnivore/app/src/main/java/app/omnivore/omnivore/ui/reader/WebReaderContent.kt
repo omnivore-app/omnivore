@@ -43,11 +43,11 @@ data class WebReaderContent(
   val articleContent: ArticleContent,
 ) {
   fun styledContent(): String {
-    // TODO: Kotlinize these three values (pasted from Swift)
-    val savedAt = "new Date(1662571290735.0).toISOString()"
-    val createdAt = "new Date().toISOString()"
-    val publishedAt =
-      "new Date().toISOString()" //if (item.publishDate != null) "new Date((item.publishDate!.timeIntervalSince1970 * 1000)).toISOString()" else "undefined"
+    val savedAt = "\"${item.savedAt}\""
+    val createdAt = "\"${item.createdAt}\""
+    val publishedAt = if (item.publishDate != null) "\"${item.publishDate}\"" else "undefined"
+
+
     val textFontSize = preferences.textFontSize
     val highlightCssFilePath = "highlight${if (preferences.themeKey == "Dark") "-dark" else ""}.css"
 
@@ -80,9 +80,9 @@ data class WebReaderContent(
                   id: "${item.savedItemId}",
                   linkId: "${item.savedItemId}",
                   slug: "${item.slug}",
-                  createdAt: new Date(1662571290735.0).toISOString(),
-                  savedAt: new Date(1662571290981.0).toISOString(),
-                  publishedAt: new Date(1662454816000.0).toISOString(),
+                  createdAt: ${createdAt},
+                  savedAt: ${savedAt},
+                  publishedAt: ${publishedAt},
                   url: `${item.pageURLString}`,
                   title: `${articleContent.title.replace("`", "\\`")}`,
                   content: document.getElementById('_omnivore-htmlContent').innerHTML,
