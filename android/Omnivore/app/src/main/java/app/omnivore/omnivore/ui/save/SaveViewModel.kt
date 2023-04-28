@@ -17,6 +17,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.util.*
+import java.util.regex.Pattern
 import javax.inject.Inject
 
 @HiltViewModel
@@ -34,6 +35,11 @@ class SaveViewModel @Inject constructor(
 
   private fun getAuthToken(): String? = runBlocking {
     datastoreRepo.getString(DatastoreKeys.omnivoreAuthToken)
+  }
+
+  fun cleanUrl(url: String): String? {
+    return Regex("https?:\\/\\/(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)")
+      .findAll(url).map { it.value }.first()
   }
 
   fun saveURL(url: String) {
@@ -54,6 +60,9 @@ class SaveViewModel @Inject constructor(
         .addHttpHeader("Authorization", value = authToken)
         .build()
 
+      // Attempt to parse the URL out of the text, if that fails send the text
+      val cleanedUrl = cleanUrl(url) ?: url
+
       try {
         clientRequestID = UUID.randomUUID().toString()
 
@@ -62,7 +71,7 @@ class SaveViewModel @Inject constructor(
             SaveUrlInput(
               clientRequestId = clientRequestID!!,
               source = "android",
-              url = url
+              url = cleanedUrl
             )
           )
         ).execute()

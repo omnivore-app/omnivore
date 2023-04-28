@@ -56,7 +56,8 @@ class WebReaderViewModel @Inject constructor(
   val showLabelsSelectionSheetLiveData = MutableLiveData(false)
   val savedItemLabelsLiveData = dataService.db.savedItemLabelDao().getSavedItemLabelsLiveData()
 
-  val systemThemeKeys = listOf("Light", "Dark", "System")
+  // "Sepia", "Apollo",
+  val systemThemeKeys = listOf("Light", "Black", "System")
 
   var hasTappedExistingHighlight = false
   var lastTapCoordinates: TapCoordinates? = null
@@ -265,6 +266,7 @@ class WebReaderViewModel @Inject constructor(
     val storedWebFont = WebFont.values().first { it.rawValue == storedFontFamily }
 
     val prefersHighContrastFont = datastoreRepo.getString(DatastoreKeys.prefersWebHighContrastText) == "true"
+    val prefersJustifyText = datastoreRepo.getString(DatastoreKeys.prefersJustifyText) == "true"
 
     WebPreferences(
       textFontSize = storedFontSize ?: 12,
@@ -273,13 +275,14 @@ class WebReaderViewModel @Inject constructor(
       themeKey = themeKey(isDarkMode, storedThemePreference),
       storedThemePreference = storedThemePreference,
       fontFamily = storedWebFont,
-      prefersHighContrastText = prefersHighContrastFont
+      prefersHighContrastText = prefersHighContrastFont,
+      prefersJustifyText = prefersJustifyText
     )
   }
 
   fun themeKey(isDarkMode: Boolean, storedThemePreference: String): String {
     if (storedThemePreference == "System") {
-      return if (isDarkMode) "Dark" else "Light"
+      return if (isDarkMode) "Black" else "Light"
     }
 
     return storedThemePreference
@@ -292,7 +295,7 @@ class WebReaderViewModel @Inject constructor(
       datastoreRepo.putString(DatastoreKeys.preferredTheme, systemThemeKeys[index])
     }
 
-    val isDark = newThemeKey == "Dark"
+    val isDark = newThemeKey == "Dark" || newThemeKey == "Black"
     val script = "var event = new Event('updateColorMode');event.isDark = '$isDark';document.dispatchEvent(event);"
     enqueueScript(script)
   }
@@ -348,6 +351,14 @@ class WebReaderViewModel @Inject constructor(
     }
     val fontContrastValue = if (prefersHighContrastText) "high" else "normal"
     val script = "var event = new Event('handleFontContrastChange');event.fontContrast = '$fontContrastValue';document.dispatchEvent(event);"
+    enqueueScript(script)
+  }
+
+  fun updateJustifyText(justifyText: Boolean) {
+    runBlocking {
+      datastoreRepo.putString(DatastoreKeys.prefersJustifyText, justifyText.toString())
+    }
+    val script = "var event = new Event('updateJustifyText');event.justifyText = $justifyText;document.dispatchEvent(event);"
     enqueueScript(script)
   }
 

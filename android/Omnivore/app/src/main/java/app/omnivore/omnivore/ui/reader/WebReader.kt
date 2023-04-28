@@ -30,8 +30,8 @@ import java.util.*
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun WebReader(
-  params: WebReaderParams,
   preferences: WebPreferences,
+  styledContent: String,
   webReaderViewModel: WebReaderViewModel
 ) {
   val javascriptActionLoopUUID: UUID by webReaderViewModel
@@ -40,23 +40,9 @@ fun WebReader(
 
   WebView.setWebContentsDebuggingEnabled(true)
 
-  val webReaderContent = WebReaderContent(
-    preferences = preferences,
-    item = params.item,
-    articleContent = params.articleContent,
-  )
-
-  val styledContent = webReaderContent.styledContent()
-  val isInDarkMode = preferences.themeKey == "Dark"
-
   Box {
     AndroidView(factory = {
       OmnivoreWebView(it).apply {
-        if (isInDarkMode) {
-          setBackgroundColor(Color.Transparent.hashCode())
-        } else {
-          setBackgroundColor(Color.White.hashCode())
-        }
         viewModel = webReaderViewModel
 
         layoutParams = ViewGroup.LayoutParams(
