@@ -4,12 +4,15 @@ import { theme } from '../../tokens/stitches.config'
 import { CaretLeft, Check } from 'phosphor-react'
 
 const FONT_FAMILIES = [
+  'AtkinsonHyperlegible',
   'Inter',
   'System Default',
   'Merriweather',
   'Lora',
   'Open Sans',
   'Roboto',
+  'Newsreader',
+  'Montserrat',
   'Crimson Text',
   'OpenDyslexic',
   'Source Serif Pro',
