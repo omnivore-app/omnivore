@@ -35,9 +35,13 @@ const FONT_FAMILIES = [
   'Lora',
   'Open Sans',
   'Roboto',
+  'Newsreader',
+  'Montserrat',
   'Crimson Text',
   'OpenDyslexic',
   'Source Serif Pro',
+  'LXGWWenKai',
+  'AtkinsonHyperlegible',
 ]
 
 type SettingsProps = {
