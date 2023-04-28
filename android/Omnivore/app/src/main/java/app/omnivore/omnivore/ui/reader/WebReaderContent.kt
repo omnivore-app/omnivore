@@ -100,6 +100,7 @@ data class WebReaderContent(
                 window.maxWidthPercentage = ${preferences.maxWidthPercentage}
                 window.lineHeight = ${preferences.lineHeight}
                 window.prefersHighContrastFont = ${preferences.prefersHighContrastText}
+                window.justifyText = ${preferences.prefersJustifyText}
                 window.enableHighlightBar = false
               </script>
               <script src="bundle.js"></script>
