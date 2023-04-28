@@ -11,6 +11,7 @@ import { createPendingUserToken, suggestedUsername } from '../jwt_helpers'
 import UserModel from '../../../datalayer/user'
 import { hashPassword } from '../../../utils/auth'
 import { createUser } from '../../../services/create_user'
+import { isValidSignupRequest } from '../auth_router'
 
 export async function createMobileSignUpResponse(
   isAndroid: boolean,
@@ -45,24 +46,24 @@ export async function createMobileSignUpResponse(
 }
 
 export async function createMobileEmailSignUpResponse(
-  email?: string,
-  password?: string,
-  username?: string,
-  name?: string
+  requestBody: any
 ): Promise<JsonResponsePayload> {
   try {
-    if (!email || !password || !username || !name) {
+    if (!isValidSignupRequest(requestBody)) {
       throw new Error('Missing username, password, name, or username')
     }
+    const { email, password, name, username } = requestBody
 
+    // trim whitespace in email address
+    const trimmedEmail = email.trim()
     const hashedPassword = await hashPassword(password)
 
     await createUser({
-      email,
+      email: trimmedEmail,
       provider: 'EMAIL',
-      sourceUserId: email,
-      name,
-      username: username.toLowerCase(),
+      sourceUserId: trimmedEmail,
+      name: name.trim(),
+      username: username.trim().toLowerCase(),
       password: hashedPassword,
       pendingConfirmation: true,
     })

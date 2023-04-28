@@ -11,7 +11,7 @@ import { formattedShortTime } from '../../lib/dateFormatting'
 import { HStack, SpanBox, VStack } from '../elements/LayoutPrimitives'
 
 import MarkdownIt from 'markdown-it'
-import MdEditor from 'react-markdown-editor-lite'
+import MdEditor, { Plugins } from 'react-markdown-editor-lite'
 import 'react-markdown-editor-lite/lib/index.css'
 import ReactMarkdown from 'react-markdown'
 import throttle from 'lodash/throttle'
@@ -28,6 +28,10 @@ import { StyledText } from '../elements/StyledText'
 import remarkGfm from 'remark-gfm'
 
 const mdParser = new MarkdownIt()
+
+MdEditor.use(Plugins.TabInsert, {
+  tabMapValue: 1, // note that 1 means a '\t' instead of ' '.
+})
 
 type NoteSectionProps = {
   placeHolder: string
@@ -212,6 +216,7 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
               hideMenu: false,
             }}
             plugins={[
+              'tab-insert',
               'header',
               'font-bold',
               'font-italic',

@@ -1,5 +1,6 @@
 package app.omnivore.omnivore.ui.savedItemViews
 
+import LabelChip
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -102,21 +103,16 @@ fun SavedItemCard(savedItemViewModel: SavedItemViewModel, savedItem: SavedItemWi
       horizontalArrangement = Arrangement.Start,
       verticalAlignment = Alignment.CenterVertically,
       modifier = Modifier
-        .padding(start = 10.dp, bottom = 5.dp, end = 10.dp)
+        .padding(start = 5.dp, bottom = 5.dp, end = 10.dp)
     ) {
       items(savedItem.labels.sortedBy { it.name }) { label ->
         val chipColors = LabelChipColors.fromHex(label.color)
 
-        SuggestionChip(
-          onClick = onClickHandler,
-          label = { Text(label.name) },
-          border = null,
-          colors = elevatedSuggestionChipColors(
-            containerColor = chipColors.containerColor,
-            labelColor = chipColors.textColor,
-            iconContentColor = chipColors.textColor
-          ),
-          modifier = Modifier.padding(end = 5.dp)
+        LabelChip(
+         // onClick = onClickHandler,
+          name = label.name,
+          colors = chipColors,
+      //    modifier = Modifier.padding(end = 5.dp)
         )
 
       }

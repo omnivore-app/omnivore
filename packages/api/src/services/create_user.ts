@@ -24,7 +24,8 @@ export const createUser = async (input: {
   password?: string
   pendingConfirmation?: boolean
 }): Promise<[User, Profile]> => {
-  const existingUser = await getUserByEmail(input.email)
+  const trimmedEmail = input.email.trim()
+  const existingUser = await getUserByEmail(trimmedEmail)
   if (existingUser) {
     if (existingUser.profile) {
       return Promise.reject({ errorCode: SignupErrorCode.UserExists })
@@ -63,7 +64,7 @@ export const createUser = async (input: {
       const user = await t.getRepository(User).save({
         source: input.provider,
         name: input.name,
-        email: input.email,
+        email: trimmedEmail,
         sourceUserId: input.sourceUserId,
         password: input.password,
         status: input.pendingConfirmation

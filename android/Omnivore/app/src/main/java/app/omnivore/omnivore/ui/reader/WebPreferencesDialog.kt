@@ -49,6 +49,9 @@ fun WebPreferencesView(webReaderViewModel: WebReaderViewModel) {
   val currentWebPreferences = webReaderViewModel.storedWebPreferences(isDark)
   val isFontListExpanded = remember { mutableStateOf(false) }
   val highContrastTextSwitchState = remember { mutableStateOf(currentWebPreferences.prefersHighContrastText) }
+
+  val justifyTextSwitchState = remember { mutableStateOf(currentWebPreferences.prefersJustifyText) }
+
   val selectedWebFontRawValue = remember { mutableStateOf(currentWebPreferences.fontFamily.rawValue) }
 
   Column(
@@ -94,6 +97,18 @@ fun WebPreferencesView(webReaderViewModel: WebReaderViewModel) {
           onCheckedChange = {
             highContrastTextSwitchState.value = it
             webReaderViewModel.updateHighContrastTextPreference(it)
+          }
+        )
+      }
+
+      Row(verticalAlignment = Alignment.CenterVertically) {
+        Text("Justify Text")
+        Spacer(modifier = Modifier.weight(1.0F))
+        Switch(
+          checked = justifyTextSwitchState.value,
+          onCheckedChange = {
+            justifyTextSwitchState.value = it
+            webReaderViewModel.updateJustifyText(it)
           }
         )
       }
@@ -200,5 +215,6 @@ data class WebPreferences(
   val themeKey: String,
   val storedThemePreference: String,
   val fontFamily: WebFont,
-  val prefersHighContrastText: Boolean
+  val prefersHighContrastText: Boolean,
+  val prefersJustifyText: Boolean
 )
