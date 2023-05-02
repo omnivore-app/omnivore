@@ -116,7 +116,6 @@ struct WebReader: PlatformViewRepresentable {
       (webView as? OmnivoreWebView)?.updateJustifyText()
 
       webView.backgroundColor = UIColor(ThemeManager.currentBgColor)
-      webView.tintColor = UIColor.black
       webView.underPageBackgroundColor = UIColor(ThemeManager.currentBgColor)
       webView.scrollView.backgroundColor = UIColor(ThemeManager.currentBgColor)
       webView.scrollView.indicatorStyle = ThemeManager.currentTheme.isDark ?
