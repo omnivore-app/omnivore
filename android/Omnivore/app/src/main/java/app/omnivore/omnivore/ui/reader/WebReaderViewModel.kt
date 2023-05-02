@@ -290,13 +290,13 @@ class WebReaderViewModel @Inject constructor(
 
   fun updateStoredThemePreference(index: Int, isDarkMode: Boolean) {
     val newThemeKey = themeKey(isDarkMode, systemThemeKeys[index])
+    Log.d("theme", "Setting theme key: ${newThemeKey}")
 
     runBlocking {
       datastoreRepo.putString(DatastoreKeys.preferredTheme, systemThemeKeys[index])
     }
 
-    val isDark = newThemeKey == "Dark" || newThemeKey == "Black"
-    val script = "var event = new Event('updateColorMode');event.isDark = '$isDark';document.dispatchEvent(event);"
+    val script = "var event = new Event('updateTheme');event.themeName = '$newThemeKey';document.dispatchEvent(event);"
     enqueueScript(script)
   }
 
