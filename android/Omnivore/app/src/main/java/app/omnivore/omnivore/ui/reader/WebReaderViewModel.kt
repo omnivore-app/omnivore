@@ -263,7 +263,7 @@ class WebReaderViewModel @Inject constructor(
 
     val storedFontFamily = datastoreRepo.getString(DatastoreKeys.preferredWebFontFamily) ?: WebFont.SYSTEM.rawValue
     val storedThemePreference = datastoreRepo.getString(DatastoreKeys.preferredTheme) ?: "System"
-    val storedWebFont = WebFont.values().first { it.rawValue == storedFontFamily }
+    val storedWebFont = WebFont.values().firstOrNull { it.rawValue == storedFontFamily } ?: WebFont.values().first()
 
     val prefersHighContrastFont = datastoreRepo.getString(DatastoreKeys.prefersWebHighContrastText) == "true"
     val prefersJustifyText = datastoreRepo.getString(DatastoreKeys.prefersJustifyText) == "true"
