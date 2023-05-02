@@ -37,8 +37,11 @@ public enum Theme: String, CaseIterable {
       return Color(red: 255 / 255.0, green: 210 / 255.0, blue: 52 / 255.0)
     case .dark, .apollo:
       return Color(red: 134 / 255.0, green: 109 / 255.0, blue: 21 / 255.0)
-    default:
-      return bgColor
+    case .system:
+      if Color.isDarkMode {
+        return Color(red: 134 / 255.0, green: 109 / 255.0, blue: 21 / 255.0)
+      }
+      return Color(red: 255 / 255.0, green: 210 / 255.0, blue: 52 / 255.0)
     }
   }
 
