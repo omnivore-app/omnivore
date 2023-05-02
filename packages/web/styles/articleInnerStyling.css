@@ -3,7 +3,7 @@
 }
 
 :root {
-  color-scheme: light;
+  color-scheme: var(--colorScheme-colorScheme);
 }
 
 .speakingSection {
