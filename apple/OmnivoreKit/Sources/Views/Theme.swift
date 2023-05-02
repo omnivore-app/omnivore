@@ -31,7 +31,7 @@ public enum Theme: String, CaseIterable {
     }
   }
 
-  public var keyColor: Color {
+  public var highlightColor: Color {
     switch self {
     case .light, .sepia:
       return Color(red: 255 / 255.0, green: 210 / 255.0, blue: 52 / 255.0)
