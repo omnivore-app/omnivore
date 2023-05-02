@@ -189,7 +189,7 @@ fun LabelsSelectionSheetContent(
         Text(titleText, fontWeight = FontWeight.ExtraBold)
 
         TextButton(onClick = { onSave(selectedLabels.value) }) {
-          Text(text = "Save")
+          Text(text = if (isLibraryMode) "Search" else "Save")
         }
       }
       LazyColumn(
