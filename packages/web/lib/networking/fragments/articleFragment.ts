@@ -20,6 +20,7 @@ export const articleFragment = gql`
     description
     linkId
     state
+    wordsCount
   }
 `
 

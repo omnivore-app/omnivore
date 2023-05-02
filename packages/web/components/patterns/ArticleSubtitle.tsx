@@ -40,14 +40,28 @@ export function ArticleSubtitle(props: ArticleSubtitleProps): JSX.Element {
 }
 
 type ReaderSavedInfoProps = {
+  wordsCount?: number
   rawDisplayDate: string
 }
 
 export function ReaderSavedInfo(props: ReaderSavedInfoProps): JSX.Element {
   return (
     <Box>
-      <StyledText css={{ wordBreak: 'break-word', fontSize: '15' }}>
+      <StyledText
+        css={{
+          wordBreak: 'break-word',
+          fontSize: '15',
+          color: '$thTextSubtle2',
+          fontFamily: '$inter',
+        }}
+      >
         {formattedLongDate(props.rawDisplayDate)}{' '}
+        {props.wordsCount ?? 0 > 0
+          ? `  • ${Math.max(
+              1,
+              Math.round((props.wordsCount ?? 0) / 235)
+            )} min read`
+          : null}
       </StyledText>
     </Box>
   )
