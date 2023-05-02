@@ -33,6 +33,17 @@ public enum Theme: String, CaseIterable {
 
   public var keyColor: Color {
     switch self {
+    case .light, .sepia:
+      return Color(red: 255 / 255.0, green: 210 / 255.0, blue: 52 / 255.0)
+    case .dark, .apollo:
+      return Color(red: 134 / 255.0, green: 109 / 255.0, blue: 21 / 255.0)
+    default:
+      return bgColor
+    }
+  }
+
+  public var keyColor: Color {
+    switch self {
     case .light:
       return Color(hex: "#F5F5F5") ?? .white
     case .dark:
@@ -78,5 +89,9 @@ public enum ThemeManager {
 
   public static var currentBgColor: Color {
     currentTheme.bgColor
+  }
+
+  public static var currentHighlightColor: Color {
+    currentTheme.highlightColor
   }
 }
