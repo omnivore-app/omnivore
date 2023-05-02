@@ -48,6 +48,7 @@ export type ArticleAttributes = {
   createdAt: string
   publishedAt?: string
   description?: string
+  wordsCount?: number
   contentReader: ContentReader
   readingProgressPercent: number
   readingProgressTopPercent?: number

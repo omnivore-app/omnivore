@@ -103,7 +103,7 @@ fun PrimaryNavigator(
     }
 
     composable(Routes.PrivacyPolicy.route) {
-      PolicyWebView(navController = navController, url = "https://omnivore.app/app/privacy")
+      PolicyWebView(navController = navController, url = "https://omnivore.app/privacy")
     }
 
     composable(Routes.TermsAndConditions.route) {

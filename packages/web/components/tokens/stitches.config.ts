@@ -270,7 +270,7 @@ const darkThemeSpec = {
     thBorderColor: '#4F4F4F',
     thBorderSubtle: '#6A6968',
 
-    thProgressFg: '#FFEA9F',
+    thProgressFg: '#FFD234',
 
     thHighContrast: '#D9D9D9',
   },
