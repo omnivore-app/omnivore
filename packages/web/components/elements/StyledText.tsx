@@ -60,10 +60,7 @@ const textVariants = {
     },
     articleTitle: {
       fontWeight: 'bold',
-      fontSize: '32px',
-      '@md': {
-        fontSize: '47px',
-      },
+      fontSize: '28px',
       margin: 0,
     },
     boldHeadline: {
