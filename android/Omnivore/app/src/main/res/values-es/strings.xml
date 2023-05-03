@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Omnivore</string>
+    <string name="welcome_title">Nunca te pierdas una gran lectura</string>
+    <string name="learn_more">Saber Más</string>
+    <string name="welcome_subtitle">Guarda artículos y léelos más tarde en nuestro lector sin distracciones.</string>
+    <string name="highlight_menu_action">Resaltado</string>
+    <string name="copy_menu_action">Copiar</string>
+    <string name="annotate_menu_action">Anotar</string>
+    <string name="pdf_remove_highlight">Borrar</string>
+    <string name="pdf_highlight_menu_action">Resaltado</string>
+    <string name="pdf_highlight_copy">Copiar</string>
+    <string name="highlight_note">Anotar</string>
+    <string name="copyTextSelection">Copiar</string>
+    <string name="pdf_highlight_menu_note">Anotar</string>
+</resources>
