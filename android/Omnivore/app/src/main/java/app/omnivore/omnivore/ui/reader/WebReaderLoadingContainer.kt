@@ -26,6 +26,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -33,8 +34,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import app.omnivore.omnivore.MainActivity
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.ui.components.WebReaderLabelsSelectionSheet
@@ -44,6 +43,8 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlin.math.roundToInt
 import androidx.navigation.compose.rememberNavController
+import app.omnivore.omnivore.Routes
+import app.omnivore.omnivore.ui.notebook.NotebookActivity
 
 
 @AndroidEntryPoint
@@ -54,7 +55,6 @@ class WebReaderLoadingContainerActivity: ComponentActivity() {
     super.onCreate(savedInstanceState)
     val requestID = intent.getStringExtra("SAVED_ITEM_REQUEST_ID")
     val slug = intent.getStringExtra("SAVED_ITEM_SLUG")
-
 
     setContent {
       val systemUiController = rememberSystemUiController()
@@ -122,6 +122,8 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, o
   webReaderViewModel.maxToolbarHeightPx = with(LocalDensity.current) { maxToolbarHeight.roundToPx().toFloat() }
   webReaderViewModel.loadItem(slug = slug, requestID = requestID)
 
+  val context = LocalContext.current
+
   val styledContent = webReaderParams?.let {
     val webReaderContent = WebReaderContent(
       preferences = webReaderViewModel.storedWebPreferences(isSystemInDarkTheme()),
@@ -167,6 +169,18 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, o
             IconButton(onClick = { onLibraryIconTap() }) {
               Icon(
                 imageVector = Icons.Default.Home,
+                contentDescription = null
+              )
+            }
+          }
+          webReaderParams?.let {
+            IconButton(onClick = {
+              val intent = Intent(context, NotebookActivity::class.java)
+              intent.putExtra("SAVED_ITEM_ID", it.item.savedItemId)
+              context.startActivity(intent)
+            }) {
+              Icon(
+                painter = painterResource(id = R.drawable.notebook),
                 contentDescription = null
               )
             }
