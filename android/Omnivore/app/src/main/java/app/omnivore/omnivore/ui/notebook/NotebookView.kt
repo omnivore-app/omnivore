@@ -9,9 +9,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.*
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -32,8 +32,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -86,7 +88,7 @@ class NotebookActivity: ComponentActivity() {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(color = Color.Black)
+                        // .background(color = Color.Black)
                 ) {
                     savedItemId?.let {
                         NotebookView(
@@ -120,20 +122,16 @@ class NotebookActivity: ComponentActivity() {
 fun NotebookView(savedItemId: String, viewModel: NotebookViewModel) {
     val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
     val savedItem = viewModel.getLibraryItemById(savedItemId).observeAsState()
-
-//    var isMenuExpanded by remember { mutableStateOf(false) }
-//    var showWebPreferencesDialog by remember { mutableStateOf(false ) }
-
-
-    val noteMarkdown = "This is some *markdown* for a note."
+    val scrollState = rememberScrollState()
 
     OmnivoreTheme() {
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text("Notebook") },
+                    title = { Text("") },
+                    modifier = Modifier.statusBarsPadding(),
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        containerColor = MaterialTheme.colorScheme.background
                     ),
                     navigationIcon = {
                         IconButton(onClick = {
@@ -160,11 +158,14 @@ fun NotebookView(savedItemId: String, viewModel: NotebookViewModel) {
             Column(
                 modifier = Modifier
                     .padding(paddingValues)
+                    .verticalScroll(scrollState)
+                    .fillMaxSize()
             ) {
                 savedItem.value?.let {
                     ArticleNotes(it)
                     HighlightsList(it)
                 }
+                Spacer(Modifier.weight(1f))
             }
         }
     }
@@ -179,10 +180,20 @@ fun ArticleNotes(item: SavedItemWithLabelsAndHighlights) {
     Column(modifier = Modifier
         .fillMaxWidth()
         .padding(start = 15.dp)
-        .padding(top = 40.dp, bottom = 10.dp)
+//        .padding(top = 40.dp)
     ) {
         Text("Article Notes")
         Divider(modifier = Modifier.padding(bottom= 15.dp))
+    notes.forEach { note ->
+        MarkdownText(
+            // modifier = Modifier.padding(paddingValues),
+            markdown = note.annotation ?: "",
+            fontSize = 12.sp,
+            style = TextStyle(lineHeight = 18.sp),
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
+        )
+    }
+    if (notes.isEmpty()) {
         Surface(
             modifier = Modifier
                 .padding(0.dp, end = 15.dp)
@@ -190,76 +201,56 @@ fun ArticleNotes(item: SavedItemWithLabelsAndHighlights) {
             shape = androidx.compose.material.MaterialTheme.shapes.medium,
             color = MaterialTheme.colorScheme.surfaceVariant
         ) {
-            LazyColumn(
-                state = listState,
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.CenterHorizontally,
-//                modifier = Modifier
-//                    .fillMaxSize()
-            ) {
-                items(notes) { note ->
-                    MarkdownText(
-                        // modifier = Modifier.padding(paddingValues),
-                        markdown = note.annotation ?: "",
-                        fontSize = 12.sp,
-                    )
-                }
-            }
-            if (notes.isEmpty()) {
-                Text(
-                    text = "Add Notes...",
-                    style = androidx.compose.material.MaterialTheme.typography.subtitle2,
-                    modifier = Modifier.padding(vertical = 10.dp, horizontal = 10.dp)
-                )
+            Text(
+                text = "Add Notes...",
+                style = androidx.compose.material.MaterialTheme.typography.subtitle2,
+                modifier = Modifier.padding(vertical = 10.dp, horizontal = 10.dp)
+            )
             }
         }
     }
-
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HighlightsList(item: SavedItemWithLabelsAndHighlights) {
     val highlights = item.highlights?.filter { it.type == "HIGHLIGHT" } ?: listOf()
-    val listState = rememberLazyListState()
     val yellowColor = colorResource(R.color.cta_yellow)
 
     Column(modifier = Modifier
         .fillMaxWidth()
         .padding(start = 15.dp)
-        .padding(top = 40.dp)
+        .padding(top = 40.dp, bottom = 100.dp)
     ) {
         Text("Highlights")
         Divider(modifier = Modifier.padding(bottom= 10.dp))
-        LazyColumn(
-            state = listState,
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            items(highlights) { highlight ->
+        highlights.forEach { highlight ->
                 var isMenuOpen by remember { mutableStateOf(false) }
 
                 Row(modifier = Modifier
                     .fillMaxWidth()
-                    .align(Alignment.End)) {
+                    .align(Alignment.End)
+                    .padding(0.dp)
+                ) {
+                    Spacer(Modifier.weight(1f))
                     IconButton(onClick = { isMenuOpen = true }) {
                         Icon(
                             imageVector = Icons.Default.MoreVert,
                             contentDescription = null
                         )
                     }
-                    DropdownMenu(
-                        expanded = isMenuOpen,
-                        onDismissRequest = { isMenuOpen = false }
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text("Copy") },
-                            onClick = {
-                                // actionHandler(it)
-                                // onDismiss()
-                            }
-                        )
-                    }
+//                    DropdownMenu(
+//                        expanded = isMenuOpen,
+//                        onDismissRequest = { isMenuOpen = false }
+//                    ) {
+//                        DropdownMenuItem(
+//                            text = { Text("Copy") },
+//                            onClick = {
+//                                // actionHandler(it)
+//                                // onDismiss()
+//                            }
+//                        )
+//                    }
                 }
 
                 highlight.quote?.let {
@@ -285,7 +276,7 @@ fun HighlightsList(item: SavedItemWithLabelsAndHighlights) {
                             modifier = Modifier
                                 .padding(start = 15.dp, end = 15.dp),
                             markdown = it,
-                            fontSize = 12.sp,
+                            fontSize = 14.sp,
                             color = MaterialTheme.colorScheme.onPrimaryContainer,
 
                         )
@@ -295,8 +286,10 @@ fun HighlightsList(item: SavedItemWithLabelsAndHighlights) {
                     MarkdownText(
                         // modifier = Modifier.padding(paddingValues),
                         markdown = it,
-                        fontSize = 12.sp,
-                    )
+                        fontSize = 14.sp,
+                        style = TextStyle(lineHeight = 18.sp),
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        )
                 } ?: run {
                     Surface(
                         modifier = Modifier
@@ -314,7 +307,6 @@ fun HighlightsList(item: SavedItemWithLabelsAndHighlights) {
                         }
                     }
                 }
-            }
         }
         if (highlights.isEmpty()) {
             Text(
