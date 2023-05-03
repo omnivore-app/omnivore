@@ -15,6 +15,9 @@ enum class WebFont(val displayText: String, val rawValue: String) {
   ROBOTO("Roboto", "Roboto"),
   CRIMSON_TEXT("Crimson Text", "Crimson Text"),
   SOURCE_SERIF_PRO("Source Serif Pro", "Source Serif Pro"),
+  NEWSREADER("Newsreader", "Newsreader"),
+  LXGWWENKAI("LXGW WenKai", "LXGWWenKai"),
+  ATKINSON_HYPERLEGIBLE("Atkinson Hyperlegible", "AtkinsonHyperlegible"),
 }
 
 enum class ArticleContentStatus(val rawValue: String) {

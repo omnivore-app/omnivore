@@ -288,6 +288,9 @@ const blackThemeSpec = {
 }
 
 const sepiaThemeSpec = {
+  colorScheme: {
+    colorScheme: 'light',
+  },
   colors: {
     readerBg: '#FBF0D9',
     readerFont: '#5F4B32',
