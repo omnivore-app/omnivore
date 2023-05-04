@@ -143,8 +143,9 @@ extension WebReaderCoordinator: WKNavigationDelegate {
 
     func scrollViewShouldScrollToTop(_ scrollView: UIScrollView) -> Bool {
       scrollView.contentInset.top = readerViewNavBarHeight
+      let navBarVisible = navBarVisibilityRatio == 1
       navBarVisibilityRatio = 1
-      return true
+      return navBarVisible
     }
   }
 #endif
