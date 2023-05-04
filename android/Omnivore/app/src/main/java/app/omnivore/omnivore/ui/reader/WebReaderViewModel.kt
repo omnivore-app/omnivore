@@ -263,7 +263,7 @@ class WebReaderViewModel @Inject constructor(
 
     val storedFontFamily = datastoreRepo.getString(DatastoreKeys.preferredWebFontFamily) ?: WebFont.SYSTEM.rawValue
     val storedThemePreference = datastoreRepo.getString(DatastoreKeys.preferredTheme) ?: "System"
-    val storedWebFont = WebFont.values().first { it.rawValue == storedFontFamily }
+    val storedWebFont = WebFont.values().firstOrNull { it.rawValue == storedFontFamily } ?: WebFont.values().first()
 
     val prefersHighContrastFont = datastoreRepo.getString(DatastoreKeys.prefersWebHighContrastText) == "true"
     val prefersJustifyText = datastoreRepo.getString(DatastoreKeys.prefersJustifyText) == "true"
@@ -290,13 +290,13 @@ class WebReaderViewModel @Inject constructor(
 
   fun updateStoredThemePreference(index: Int, isDarkMode: Boolean) {
     val newThemeKey = themeKey(isDarkMode, systemThemeKeys[index])
+    Log.d("theme", "Setting theme key: ${newThemeKey}")
 
     runBlocking {
       datastoreRepo.putString(DatastoreKeys.preferredTheme, systemThemeKeys[index])
     }
 
-    val isDark = newThemeKey == "Dark" || newThemeKey == "Black"
-    val script = "var event = new Event('updateColorMode');event.isDark = '$isDark';document.dispatchEvent(event);"
+    val script = "var event = new Event('updateTheme');event.themeName = '$newThemeKey';document.dispatchEvent(event);"
     enqueueScript(script)
   }
 

@@ -68,6 +68,7 @@ export enum SortBy {
   PUBLISHED = 'publishedAt',
   READ = 'readAt',
   LISTENED = 'listenedAt',
+  WORDS_COUNT = 'wordsCount',
 }
 
 export enum SortOrder {
@@ -200,6 +201,11 @@ const parseSortParams = (str?: string): SortParams | undefined => {
     case 'READ':
       return {
         by: SortBy.READ,
+        order: sortOrder,
+      }
+    case 'WORDSCOUNT':
+      return {
+        by: SortBy.WORDS_COUNT,
         order: sortOrder,
       }
   }

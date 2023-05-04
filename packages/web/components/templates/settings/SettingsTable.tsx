@@ -29,6 +29,8 @@ type SettingsTableRowProps = {
   title: string
   isLast: boolean
 
+  onClick?: () => void
+
   sublineElement: JSX.Element
   titleElement?: JSX.Element
   extraElement?: JSX.Element
@@ -130,6 +132,7 @@ export const SettingsTableRow = (props: SettingsTableRowProps): JSX.Element => {
         padding: '10px 12px',
         border: '0.5px solid $grayBgActive',
         width: '100%',
+        cursor: !!props.onClick ? 'pointer' : 'unset',
         '&:hover': {
           background: 'rgba(255, 234, 159, 0.12)',
         },
@@ -139,6 +142,7 @@ export const SettingsTableRow = (props: SettingsTableRowProps): JSX.Element => {
           paddingLeft: '0',
         },
       }}
+      onClick={props.onClick}
     >
       <Box
         css={{

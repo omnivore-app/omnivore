@@ -44,7 +44,7 @@ export function updateThemeLocally(themeId: string): void {
     window.localStorage.setItem(themeKey, themeId)
   }
 
-  document.body.classList.remove(
+  document.documentElement.classList.remove(
     ...Object.keys(LEGACY_THEMES),
     sepiaTheme,
     darkTheme,
@@ -52,7 +52,7 @@ export function updateThemeLocally(themeId: string): void {
     blackTheme,
     ...Object.keys(ThemeId)
   )
-  document.body.classList.add(getTheme(themeId))
+  document.documentElement.classList.add(getTheme(themeId))
 }
 
 export function currentThemeName(): string {
