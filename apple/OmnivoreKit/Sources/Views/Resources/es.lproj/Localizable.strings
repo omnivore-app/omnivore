@@ -124,7 +124,7 @@
 "welcomeSignupAgreement" = "Al registrarte, aceptas de Omnivore:\n";
 "welcomeTitleTermsOfService" = "Términos del Servicio";
 "welcomeTitleAndJoiner" = " y ";
-"welcomeTitleEmailContinue" = "Continuar con el correo electrónico;
+"welcomeTitleEmailContinue" = "Continuar con el correo electrónico";
 
 // Keyboard Commands
 "keyboardCommandDecreaseFont" = "Disminuir tamaño de fuente";
