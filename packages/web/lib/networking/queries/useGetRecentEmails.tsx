@@ -9,6 +9,7 @@ export interface RecentEmail {
   subject: string
   type: string
   text: string
+  html: string
   createdAt: string
 }
 
@@ -38,6 +39,7 @@ export function useGetRecentEmailsQuery(): RecentEmailsResponse {
             subject
             type
             text
+            html
             createdAt
           }
         }

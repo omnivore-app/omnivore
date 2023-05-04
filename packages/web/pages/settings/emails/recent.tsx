@@ -88,6 +88,7 @@ const MoreOptionItem = (props: MoreOptionItemProps): JSX.Element => {
 }
 
 type ViewRecentEmailModalProps = {
+  display: 'html' | 'text'
   recentEmail: RecentEmail
   onOpenChange: (open: boolean) => void
 }
@@ -114,16 +115,28 @@ const ViewRecentEmailModal = (
       >
         <VStack distribution="start">
           <ModalTitleBar title="View Email" onOpenChange={props.onOpenChange} />
-          <Box
-            css={{
-              width: '100%',
-              height: '100%',
-              fontSize: '12px',
-              overflowY: 'scroll',
-            }}
-          >
-            {props.recentEmail.text}
-          </Box>
+          {props.display == 'text' ? (
+            <Box
+              css={{
+                width: '100%',
+                height: '100%',
+                fontSize: '12px',
+                overflowY: 'scroll',
+              }}
+            >
+              {props.recentEmail.text}
+            </Box>
+          ) : (
+            <Box
+              css={{
+                width: '100%',
+                height: '100%',
+                fontSize: '12px',
+                overflowY: 'scroll',
+              }}
+              dangerouslySetInnerHTML={{ __html: props.recentEmail.html }}
+            ></Box>
+          )}
         </VStack>
       </ModalContent>
     </ModalRoot>
@@ -132,13 +145,29 @@ const ViewRecentEmailModal = (
 
 export default function RecentEmails(): JSX.Element {
   const { recentEmails, revalidate, isValidating } = useGetRecentEmailsQuery()
-  const [viewingEmail, setViewingEmail] = useState<RecentEmail | undefined>(
-    undefined
-  )
+  const [viewingEmailText, setViewingEmailText] = useState<
+    RecentEmail | undefined
+  >(undefined)
+
+  const [viewingEmailHtml, setViewingEmailHtml] = useState<
+    RecentEmail | undefined
+  >(undefined)
 
   applyStoredTheme(false)
 
   const sortedRecentEmails = useMemo(() => {
+    return [
+      {
+        id: 'id',
+        from: 'jackson-from',
+        to: 'jacksonh',
+        subject: 'this is a test email',
+        type: 'article',
+        text: 'this is the text',
+        html: '<b>this is bold</b><a href="https://omnivore.app">this is a link</a>more text',
+        createdAt: '2023-02-01',
+      },
+    ]
     return recentEmails.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
   }, [recentEmails])
 
@@ -154,6 +183,9 @@ export default function RecentEmails(): JSX.Element {
             <SettingsTableRow
               key={recentEmail.id}
               title={recentEmail.from}
+              onClick={() => {
+                setViewingEmailHtml(recentEmail)
+              }}
               isLast={i === sortedRecentEmails.length - 1}
               sublineElement={
                 <VStack>
@@ -184,7 +216,7 @@ export default function RecentEmails(): JSX.Element {
                     text="View Text"
                     action={() => {
                       console.log('viewing text: ', recentEmail)
-                      setViewingEmail(recentEmail)
+                      setViewingEmailText(recentEmail)
                     }}
                   />
                   {recentEmail.type != 'article' && (
@@ -216,10 +248,18 @@ export default function RecentEmails(): JSX.Element {
         />
       )}
 
-      {viewingEmail && (
+      {viewingEmailText && (
         <ViewRecentEmailModal
-          recentEmail={viewingEmail}
-          onOpenChange={() => setViewingEmail(undefined)}
+          display="text"
+          recentEmail={viewingEmailText}
+          onOpenChange={() => setViewingEmailText(undefined)}
+        />
+      )}
+      {viewingEmailHtml && (
+        <ViewRecentEmailModal
+          display="html"
+          recentEmail={viewingEmailHtml}
+          onOpenChange={() => setViewingEmailHtml(undefined)}
         />
       )}
     </SettingsTable>
