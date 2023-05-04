@@ -165,6 +165,12 @@ const getReadabilityResult = async (
       continue
     }
 
+    const images: string[] = []
+    const imageUrlWrapper = (url: string, width?: number, height?: number) => {
+      images.push(url)
+      return createImageProxyUrl(url, width, height)
+    }
+
     try {
       const article = await new Readability(document, {
         debug: DEBUG_MODE,
@@ -174,6 +180,10 @@ const getReadabilityResult = async (
       }).parse()
 
       if (article) {
+        // if (!article.previewImage) {
+        article.previewImage = images.find((i) => true)
+        console.log('using preview image: ', article.previewImage)
+        // }
         return article
       }
     } catch (error) {
@@ -219,6 +229,7 @@ export const parsePreparedContent = async (
   let dom = parseHTML(document).document
 
   try {
+    console.log('we already have an article: ', article)
     if (!article) {
       // Attempt to parse the article
       // preParse content

@@ -520,11 +520,13 @@ Readability.prototype = {
 
   /** Creates imageproxy links for all article images with href source */
   _createImageProxyLinks: function (articleContent) {
+    console.log(' - creating PROXY LINKS', this.createImageProxyUrl)
     if (this.createImageProxyUrl !== undefined) {
       const dataUriRegex = /^data:image\/(?:png|jpe?g|gif);base64,/;
 
       // replace all images' href source
       const images = articleContent.getElementsByTagName('img');
+      console.log(' - images: ', Array.from(images))
       Array.from(images).forEach(image => {
         // use data-src if lazy loading
         const src = image.getAttribute("data-src") || image.getAttribute("src");
@@ -543,6 +545,7 @@ Readability.prototype = {
           const width = attToNumber(image.getAttribute('width') || image.style.width);
           const height = attToNumber(image.getAttribute('height') || image.style.height);
 
+          console.log(' --- image sizes:', image.getAttribute('data-omnivore-width'), image.getAttribute('data-omnivore-height'))
           const proxySrc = this.createImageProxyUrl(absoluteSrc, width, height);
           image.setAttribute('src', proxySrc);
           image.setAttribute('data-omnivore-original-src', absoluteSrc)
@@ -554,6 +557,10 @@ Readability.prototype = {
 
       // replace all srcset's
       const elements = articleContent.querySelectorAll('[srcset]');
+      console.log(' - srcsets: ', Array.from(elements))
+
+      console.log('articleContent', articleContent.innerHTML)
+
       Array.from(elements).forEach(element => {
         let resultSrcset = '';
         const srcSet = element.getAttribute('srcset')
