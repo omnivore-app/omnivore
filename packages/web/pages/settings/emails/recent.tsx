@@ -156,18 +156,6 @@ export default function RecentEmails(): JSX.Element {
   applyStoredTheme(false)
 
   const sortedRecentEmails = useMemo(() => {
-    return [
-      {
-        id: 'id',
-        from: 'jackson-from',
-        to: 'jacksonh',
-        subject: 'this is a test email',
-        type: 'article',
-        text: 'this is the text',
-        html: '<b>this is bold</b><a href="https://omnivore.app">this is a link</a>more text',
-        createdAt: '2023-02-01',
-      },
-    ]
     return recentEmails.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
   }, [recentEmails])
 
