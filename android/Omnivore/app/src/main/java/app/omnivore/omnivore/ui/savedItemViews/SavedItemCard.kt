@@ -21,8 +21,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.*
 import app.omnivore.omnivore.R
-import app.omnivore.omnivore.persistence.entities.SavedItemCardData
-import app.omnivore.omnivore.persistence.entities.SavedItemLabel
 import app.omnivore.omnivore.persistence.entities.SavedItemWithLabelsAndHighlights
 import app.omnivore.omnivore.ui.components.LabelChipColors
 import app.omnivore.omnivore.ui.library.LibraryViewModel

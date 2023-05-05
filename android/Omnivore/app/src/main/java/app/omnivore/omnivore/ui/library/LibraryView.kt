@@ -33,8 +33,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.Routes
-import app.omnivore.omnivore.persistence.entities.SavedItemCardData
-import app.omnivore.omnivore.persistence.entities.SavedItemCardDataWithLabels
 import app.omnivore.omnivore.persistence.entities.SavedItemWithLabelsAndHighlights
 import app.omnivore.omnivore.ui.components.LabelsSelectionSheet
 import app.omnivore.omnivore.ui.savedItemViews.SavedItemCard

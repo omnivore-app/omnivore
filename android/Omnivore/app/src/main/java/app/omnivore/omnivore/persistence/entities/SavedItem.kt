@@ -2,12 +2,7 @@ package app.omnivore.omnivore.persistence.entities
 
 import androidx.core.net.toUri
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.room.*
-import app.omnivore.omnivore.BuildConfig
-import app.omnivore.omnivore.graphql.generated.SearchQuery
-import app.omnivore.omnivore.models.ServerSyncStatus
-import app.omnivore.omnivore.ui.library.SavedItemSortFilter
 import java.util.*
 
 @Entity
@@ -69,30 +64,6 @@ data class SavedItem(
   }
 }
 
-data class SavedItemCardData(
-  val savedItemId: String,
-  val slug: String,
-  val publisherURLString: String?,
-  val title: String,
-  val author: String?,
-  val imageURLString: String?,
-  val isArchived: Boolean,
-  val pageURLString: String,
-  val contentReader: String?,
-  val savedAt: String,
-  val readingProgress: Double,
-  val wordsCount: Int?
-) {
-  fun publisherDisplayName(): String? {
-    return publisherURLString?.toUri()?.host
-  }
-
-  fun isPDF(): Boolean {
-    val hasPDFSuffix = pageURLString.endsWith("pdf")
-    return contentReader == "PDF" || hasPDFSuffix
-  }
-}
-
 data class TypeaheadCardData(
   val savedItemId: String,
   val slug: String,
@@ -125,42 +96,6 @@ interface SavedItemDao {
 
   @Update
   fun update(savedItem: SavedItem)
-
-  @Transaction
-  @Query(
-    "SELECT ${SavedItemQueryConstants.columns} " +
-      "FROM SavedItem " +
-      "WHERE serverSyncStatus != 2 AND isArchived != :archiveFilter " +
-      "ORDER BY savedAt DESC"
-  )
-  fun getLibraryLiveData(archiveFilter: Int): LiveData<List<SavedItemCardDataWithLabels>>
-
-  @Transaction
-  @Query(
-    "SELECT ${SavedItemQueryConstants.columns} " +
-      "FROM SavedItem " +
-      "WHERE serverSyncStatus != 2 AND isArchived != :archiveFilter " +
-      "ORDER BY savedAt ASC"
-  )
-  fun getLibraryLiveDataSortedByOldest(archiveFilter: Int): LiveData<List<SavedItemCardDataWithLabels>>
-
-  @Transaction
-  @Query(
-    "SELECT ${SavedItemQueryConstants.columns} " +
-      "FROM SavedItem " +
-      "WHERE serverSyncStatus != 2 AND isArchived != :archiveFilter " +
-      "ORDER BY readAt DESC, savedAt DESC"
-  )
-  fun getLibraryLiveDataSortedByRecentlyRead(archiveFilter: Int): LiveData<List<SavedItemCardDataWithLabels>>
-
-  @Transaction
-  @Query(
-    "SELECT ${SavedItemQueryConstants.columns} " +
-      "FROM SavedItem " +
-      "WHERE serverSyncStatus != 2 AND isArchived != :archiveFilter " +
-      "ORDER BY publishDate DESC"
-  )
-  fun getLibraryLiveDataSortedByRecentlyPublished(archiveFilter: Int): LiveData<List<SavedItemCardDataWithLabels>>
 
   @Transaction
   @Query(

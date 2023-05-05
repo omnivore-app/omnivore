@@ -44,25 +44,6 @@ data class SavedItemAndSavedItemLabelCrossRef(
   val savedItemId: String
 )
 
-data class SavedItemWithLabels(
-  @Embedded val savedItem: SavedItem,
-  @Relation(
-    parentColumn = "savedItemId",
-    entityColumn = "savedItemLabelId",
-    associateBy = Junction(SavedItemAndSavedItemLabelCrossRef::class)
-  )
-  val labels: List<SavedItemLabel>
-)
-
-data class SavedItemCardDataWithLabels(
-  @Embedded val cardData: SavedItemCardData,
-  @Relation(
-    parentColumn = "savedItemId",
-    entityColumn = "savedItemLabelId",
-    associateBy = Junction(SavedItemAndSavedItemLabelCrossRef::class)
-  )
-  val labels: List<SavedItemLabel>
-)
 
 @Dao
 interface SavedItemAndSavedItemLabelCrossRefDao {

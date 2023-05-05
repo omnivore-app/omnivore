@@ -1,12 +1,7 @@
 package app.omnivore.omnivore.networking
 
-import app.omnivore.omnivore.graphql.generated.SearchQuery
 import app.omnivore.omnivore.graphql.generated.TypeaheadSearchQuery
-import app.omnivore.omnivore.persistence.entities.SavedItem
-import app.omnivore.omnivore.persistence.entities.SavedItemCardData
-import app.omnivore.omnivore.persistence.entities.SavedItemLabel
 import app.omnivore.omnivore.persistence.entities.TypeaheadCardData
-import com.apollographql.apollo3.api.Optional
 
 data class SearchQueryResponse(
     val cursor: String?,
