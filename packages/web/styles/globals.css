@@ -333,6 +333,49 @@ div#appleid-signin {
   src: url('/static/fonts/SFMono/SFMonoRegular.otf');
 }
 
+@font-face {
+  font-family: 'SourceSansPro';
+  font-weight: 400;
+  font-style: normal;
+  src: url('/static/fonts/SourceSansPro/SourceSansPro-Regular.ttf');
+}
+
+@font-face {
+  font-family: 'SourceSansPro';
+  font-weight: 700;
+  font-style: normal;
+  src: url('/static/fonts/SourceSansPro/SourceSansPro-Bold.ttf');
+}
+
+@font-face {
+  font-family: 'SourceSansPro';
+  font-weight: 400;
+  font-style: italic;
+  src: url('/static/fonts/SourceSansPro/SourceSansPro-Italic.ttf');
+}
+
+
+@font-face {
+  font-family: 'IBMPlexSans';
+  font-weight: 400;
+  font-style: normal;
+  src: url('/static/fonts/IBMPlexSans/IBMPlexSans-Regular.ttf');
+}
+
+@font-face {
+  font-family: 'IBMPlexSans';
+  font-weight: 700;
+  font-style: normal;
+  src: url('/static/fonts/IBMPlexSans/IBMPlexSans-Bold.ttf');
+}
+
+@font-face {
+  font-family: 'IBMPlexSans';
+  font-weight: 400;
+  font-style: italic;
+  src: url('/static/fonts/IBMPlexSans/IBMPlexSans-Italic.ttf');
+}
+
 .dropdown-arrow {
   display: inline-block;
   width: 0;
