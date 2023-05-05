@@ -3,6 +3,7 @@ package app.omnivore.omnivore.persistence.entities
 import androidx.core.net.toUri
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import app.omnivore.omnivore.models.ServerSyncStatus
 import java.util.*
 
 @Entity
@@ -72,6 +73,58 @@ data class TypeaheadCardData(
 )
 
 @Dao
+abstract class SavedItemWithLabelsAndHighlightsDao {
+
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  abstract fun insertSavedItems(items: List<SavedItem>)
+
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  abstract fun insertLabelCrossRefs(items: List<SavedItemAndSavedItemLabelCrossRef>)
+
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  abstract fun insertLabels(items: List<SavedItemLabel>)
+
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  abstract fun insertHighlights(items: List<Highlight>)
+
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  abstract fun insertHighlightCrossRefs(items: List<SavedItemAndHighlightCrossRef>)
+
+
+  @Transaction
+  open fun insertAll(savedItems: List<SavedItemWithLabelsAndHighlights>) {
+    insertSavedItems(savedItems.map { it.savedItem })
+
+    val labels: MutableList<SavedItemLabel> = mutableListOf()
+    val highlights: MutableList<Highlight> = mutableListOf()
+
+    val labelCrossRefs: MutableList<SavedItemAndSavedItemLabelCrossRef> = mutableListOf()
+    val highlightCrossRefs: MutableList<SavedItemAndHighlightCrossRef> = mutableListOf()
+
+    for (searchItem in savedItems) {
+      labels.addAll(searchItem.labels)
+
+      val newLabelCrossRefs = searchItem.labels.map {
+        SavedItemAndSavedItemLabelCrossRef(savedItemLabelId = it.savedItemLabelId, savedItemId = searchItem.savedItem.savedItemId)
+      }
+
+      val newHighlightCrossRefs = searchItem.highlights.map {
+        SavedItemAndHighlightCrossRef(highlightId = it.highlightId, savedItemId = searchItem.savedItem.savedItemId)
+      }
+
+      labelCrossRefs.addAll(newLabelCrossRefs)
+      highlightCrossRefs.addAll(newHighlightCrossRefs)
+    }
+
+    insertLabels(labels)
+    insertLabelCrossRefs(labelCrossRefs)
+
+    insertHighlights(highlights)
+    insertHighlightCrossRefs(highlightCrossRefs)
+  }
+}
+
+@Dao
 interface SavedItemDao {
   @Query("SELECT * FROM savedItem")
   fun getAll(): List<SavedItem>
@@ -84,9 +137,6 @@ interface SavedItemDao {
 
   @Query("SELECT * FROM savedItem WHERE slug = :slug")
   fun getSavedItemWithLabelsAndHighlights(slug: String): SavedItemWithLabelsAndHighlights?
-
-  @Insert(onConflict = OnConflictStrategy.REPLACE)
-  fun insertAll(items: List<SavedItem>)
 
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   fun insert(item: SavedItem)

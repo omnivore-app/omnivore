@@ -17,24 +17,7 @@ suspend fun DataService.librarySearch(cursor: String?, query: String): SearchRes
     )
   }
 
-  db.savedItemDao().insertAll(savedItems.map { it.savedItem })
-
-  val labels: MutableList<SavedItemLabel> = mutableListOf()
-  val crossRefs: MutableList<SavedItemAndSavedItemLabelCrossRef> = mutableListOf()
-
-  // save labels
-  for (searchItem in searchResult.items) {
-    labels.addAll(searchItem.labels)
-
-    val newCrossRefs = searchItem.labels.map {
-      SavedItemAndSavedItemLabelCrossRef(savedItemLabelId = it.savedItemLabelId, savedItemId = searchItem.item.savedItemId)
-    }
-
-    crossRefs.addAll(newCrossRefs)
-  }
-
-  db.savedItemLabelDao().insertAll(labels)
-  db.savedItemAndSavedItemLabelCrossRefDao().insertAll(crossRefs)
+  db.savedItemWithLabelsAndHighlightsDao().insertAll(savedItems)
 
   Log.d("sync", "found ${searchResult.items.size} items with search api. Query: $query cursor: $cursor")
 
@@ -52,7 +35,7 @@ suspend fun DataService.sync(since: String, cursor: String?, limit: Int = 20): S
     ?: return SavedItemSyncResult.errorResult
 
   val savedItems = syncResult.items.map {
-    SavedItem(
+    val savedItem = SavedItem(
       savedItemId = it.id,
       title = it.title,
       createdAt = it.createdAt as String,
@@ -74,71 +57,104 @@ suspend fun DataService.sync(since: String, cursor: String?, limit: Int = 20): S
       content = null,
       wordsCount = it.wordsCount
     )
-  }
-
-  db.savedItemDao().insertAll(savedItems)
-
-  val labels: MutableList<SavedItemLabel> = mutableListOf()
-  val crossRefs: MutableList<SavedItemAndSavedItemLabelCrossRef> = mutableListOf()
-
-  // save labels
-  for (item in syncResult.items) {
-    val itemLabels = (item.labels ?: listOf()).map {
+    val labels = it.labels?.map { label ->
       SavedItemLabel(
-        savedItemLabelId = it.labelFields.id,
-        name = it.labelFields.name,
-        color = it.labelFields.color,
+        savedItemLabelId = label.labelFields.id,
+        name = label.labelFields.name,
+        color = label.labelFields.color,
         createdAt = null,
         labelDescription = null
       )
-    }
-
-    labels.addAll(itemLabels)
-
-    val newCrossRefs = itemLabels.map {
-      SavedItemAndSavedItemLabelCrossRef(
-        savedItemLabelId = it.savedItemLabelId,
-        savedItemId = item.id
+    } ?: listOf()
+    val highlights = it.highlights?.map { highlight ->
+      Highlight(
+        type = highlight.highlightFields.type.toString(),
+        highlightId = highlight.highlightFields.id,
+        annotation = highlight.highlightFields.annotation,
+        createdByMe = highlight.highlightFields.createdByMe,
+        markedForDeletion = false,
+        patch = highlight.highlightFields.patch,
+        prefix = highlight.highlightFields.prefix,
+        quote = highlight.highlightFields.quote,
+        serverSyncStatus = ServerSyncStatus.IS_SYNCED.rawValue,
+        shortId  = highlight.highlightFields.shortId,
+        suffix  = highlight.highlightFields.suffix,
+        createdAt = null,
+        updatedAt  = highlight.highlightFields.updatedAt as String?,
       )
-    }
-
-    crossRefs.addAll(newCrossRefs)
-  }
-
-  db.savedItemLabelDao().insertAll(labels)
-  db.savedItemAndSavedItemLabelCrossRefDao().insertAll(crossRefs)
-
-  // Persist Highlights
-  db.highlightDao().insertAll(syncResult.items.flatMap {
-    it.highlights ?: listOf()
-  }.map {
-    Highlight(
-      type = it.highlightFields.type.toString(),
-      highlightId = it.highlightFields.id,
-      annotation = it.highlightFields.annotation,
-      createdByMe = it.highlightFields.createdByMe,
-      markedForDeletion = false,
-      patch = it.highlightFields.patch,
-      prefix = it.highlightFields.prefix,
-      quote = it.highlightFields.quote,
-      serverSyncStatus = ServerSyncStatus.IS_SYNCED.rawValue,
-      shortId  = it.highlightFields.shortId,
-      suffix  = it.highlightFields.suffix,
-      createdAt = null,
-      updatedAt  = it.highlightFields.updatedAt as String?,
+    } ?: listOf()
+    SavedItemWithLabelsAndHighlights(
+      savedItem = savedItem,
+      labels = labels,
+      highlights = highlights
     )
-  })
-
-  val highlightCrossRefs = syncResult.items.flatMap {
-    val savedItem = it
-    (savedItem.highlights ?: listOf()).map {
-      Pair(it, savedItem.id)
-    }
-  }.map {
-    SavedItemAndHighlightCrossRef(highlightId = it.first.highlightFields.id, savedItemId = it.second)
   }
 
-  db.savedItemAndHighlightCrossRefDao().insertAll(highlightCrossRefs)
+  db.savedItemWithLabelsAndHighlightsDao().insertAll(savedItems)
+//
+//  db.savedItemDao().insertAll(savedItems)
+//
+//  val labels: MutableList<SavedItemLabel> = mutableListOf()
+//  val crossRefs: MutableList<SavedItemAndSavedItemLabelCrossRef> = mutableListOf()
+//
+//  // save labels
+//  for (item in syncResult.items) {
+//    val itemLabels = (item.labels ?: listOf()).map {
+//      SavedItemLabel(
+//        savedItemLabelId = it.labelFields.id,
+//        name = it.labelFields.name,
+//        color = it.labelFields.color,
+//        createdAt = null,
+//        labelDescription = null
+//      )
+//    }
+//
+//    labels.addAll(itemLabels)
+//
+//    val newCrossRefs = itemLabels.map {
+//      SavedItemAndSavedItemLabelCrossRef(
+//        savedItemLabelId = it.savedItemLabelId,
+//        savedItemId = item.id
+//      )
+//    }
+//
+//    crossRefs.addAll(newCrossRefs)
+//  }
+//
+//  db.savedItemLabelDao().insertAll(labels)
+//  db.savedItemAndSavedItemLabelCrossRefDao().insertAll(crossRefs)
+//
+//  // Persist Highlights
+//  db.highlightDao().insertAll(syncResult.items.flatMap {
+//    it.highlights ?: listOf()
+//  }.map {
+//    Highlight(
+//      type = it.highlightFields.type.toString(),
+//      highlightId = it.highlightFields.id,
+//      annotation = it.highlightFields.annotation,
+//      createdByMe = it.highlightFields.createdByMe,
+//      markedForDeletion = false,
+//      patch = it.highlightFields.patch,
+//      prefix = it.highlightFields.prefix,
+//      quote = it.highlightFields.quote,
+//      serverSyncStatus = ServerSyncStatus.IS_SYNCED.rawValue,
+//      shortId  = it.highlightFields.shortId,
+//      suffix  = it.highlightFields.suffix,
+//      createdAt = null,
+//      updatedAt  = it.highlightFields.updatedAt as String?,
+//    )
+//  })
+//
+//  val highlightCrossRefs = syncResult.items.flatMap {
+//    val savedItem = it
+//    (savedItem.highlights ?: listOf()).map {
+//      Pair(it, savedItem.id)
+//    }
+//  }.map {
+//    SavedItemAndHighlightCrossRef(highlightId = it.first.highlightFields.id, savedItemId = it.second)
+//  }
+//
+//  db.savedItemAndHighlightCrossRefDao().insertAll(highlightCrossRefs)
 
   Log.d("sync", "found ${syncResult.items.size} items with sync api. Since: $since")
 
