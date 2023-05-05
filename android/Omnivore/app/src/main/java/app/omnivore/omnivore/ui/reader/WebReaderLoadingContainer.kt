@@ -11,12 +11,14 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.TopAppBar
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -25,6 +27,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -42,9 +45,8 @@ import app.omnivore.omnivore.ui.theme.OmnivoreTheme
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlin.math.roundToInt
-import androidx.navigation.compose.rememberNavController
-import app.omnivore.omnivore.Routes
 import app.omnivore.omnivore.ui.notebook.NotebookActivity
+import kotlinx.coroutines.launch
 
 
 @AndroidEntryPoint
@@ -105,12 +107,17 @@ class WebReaderLoadingContainerActivity: ComponentActivity() {
   }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, onLibraryIconTap: (() -> Unit)? = null, webReaderViewModel: WebReaderViewModel) {
   val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
 
   var isMenuExpanded by remember { mutableStateOf(false) }
   var showWebPreferencesDialog by remember { mutableStateOf(false ) }
+
+  val isDark = isSystemInDarkTheme()
+  val currentWebPreferences = webReaderViewModel.storedWebPreferences(isDark)
+  val currentTheme = Themes.values().find { it.themeKey == currentWebPreferences.themeKey }
 
   val webReaderParams: WebReaderParams? by webReaderViewModel.webReaderParamsLiveData.observeAsState(null)
   val annotation: String? by webReaderViewModel.annotationLiveData.observeAsState(null)
@@ -123,6 +130,7 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, o
   webReaderViewModel.loadItem(slug = slug, requestID = requestID)
 
   val context = LocalContext.current
+  val coroutineScope = rememberCoroutineScope()
 
   val styledContent = webReaderParams?.let {
     val webReaderContent = WebReaderContent(
@@ -133,111 +141,169 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, o
     webReaderContent.styledContent()
   } ?: null
 
-  Box(
-    modifier = Modifier
-      .fillMaxSize()
-      .systemBarsPadding()
-      .background(color = backgroundColor)
-  ) {
-    if (styledContent != null) {
-      WebReader(
-        preferences = webReaderViewModel.storedWebPreferences(isSystemInDarkTheme()),
-        styledContent = styledContent,
-        webReaderViewModel =  webReaderViewModel
-      )
+  val modalBottomSheetState = rememberModalBottomSheetState(
+    ModalBottomSheetValue.Hidden,
+  )
 
-      TopAppBar(
-        modifier = Modifier
-          .height(height = with(LocalDensity.current) {
-            toolbarHeightPx.roundToInt().toDp()
-          }),
-        backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
-        title = {},
-        navigationIcon = {
-          IconButton(onClick = {
-            onBackPressedDispatcher?.onBackPressed()
-          }) {
-            Icon(
-              imageVector = androidx.compose.material.icons.Icons.Filled.ArrowBack,
-              modifier = Modifier,
-              contentDescription = "Back"
-            )
-          }
-        },
-        actions = {
-          if (onLibraryIconTap != null) {
-            IconButton(onClick = { onLibraryIconTap() }) {
-              Icon(
-                imageVector = Icons.Default.Home,
-                contentDescription = null
-              )
-            }
-          }
-          webReaderParams?.let {
+  ModalBottomSheetLayout(
+    modifier = Modifier.statusBarsPadding(),
+    sheetBackgroundColor = Color.Transparent,
+    sheetState = modalBottomSheetState,
+    sheetContent = {
+      if (showWebPreferencesDialog) {
+        BottomSheetUI("Reader Preferences") {
+          WebPreferencesView(webReaderViewModel)
+        }
+      }
+      Spacer(modifier = Modifier.weight(1.0F))
+    }
+  ) {
+    Box(
+      modifier = Modifier
+        .fillMaxSize()
+        .systemBarsPadding()
+        .background(color = backgroundColor)
+    ) {
+      if (styledContent != null) {
+        WebReader(
+          preferences = webReaderViewModel.storedWebPreferences(isSystemInDarkTheme()),
+          styledContent = styledContent,
+          webReaderViewModel = webReaderViewModel
+        )
+
+        TopAppBar(
+          modifier = Modifier
+            .height(height = with(LocalDensity.current) {
+              toolbarHeightPx.roundToInt().toDp()
+            }),
+          backgroundColor = Color(currentTheme?.backgroundColor ?: 0xFFFFFFFF), //  MaterialTheme.colorScheme.surfaceVariant,
+          title = {},
+          navigationIcon = {
             IconButton(onClick = {
-              val intent = Intent(context, NotebookActivity::class.java)
-              intent.putExtra("SAVED_ITEM_ID", it.item.savedItemId)
-              context.startActivity(intent)
+              onBackPressedDispatcher?.onBackPressed()
             }) {
               Icon(
-                painter = painterResource(id = R.drawable.notebook),
+                imageVector = Icons.Filled.ArrowBack,
+                modifier = Modifier,
+                contentDescription = "Back"
+              )
+            }
+          },
+          actions = {
+            if (onLibraryIconTap != null) {
+              IconButton(onClick = { onLibraryIconTap() }) {
+                Icon(
+                  imageVector = Icons.Default.Home,
+                  contentDescription = null
+                )
+              }
+            }
+            webReaderParams?.let {
+              IconButton(onClick = {
+                val intent = Intent(context, NotebookActivity::class.java)
+                intent.putExtra("SAVED_ITEM_ID", it.item.savedItemId)
+                context.startActivity(intent)
+              }) {
+                Icon(
+                  painter = painterResource(id = R.drawable.notebook),
+                  contentDescription = null
+                )
+              }
+            }
+            IconButton(onClick = {
+              showWebPreferencesDialog = true
+              coroutineScope.launch {
+                modalBottomSheetState.show()
+              }
+            }) {
+              Icon(
+                painter = painterResource(id = R.drawable.format_letter_case),
                 contentDescription = null
               )
             }
-          }
-          IconButton(onClick = { showWebPreferencesDialog = true }) {
-            Icon(
-              painter = painterResource(id = R.drawable.format_letter_case),
-              contentDescription = null
-            )
-          }
-          IconButton(onClick = { isMenuExpanded = true }) {
-            Icon(
-              painter = painterResource(id = R.drawable.dots_horizontal),
-              contentDescription = null
-            )
-          }
-          SavedItemContextMenu(
-            isExpanded = isMenuExpanded,
-            isArchived = webReaderParams!!.item.isArchived,
-            onDismiss = { isMenuExpanded = false },
-            actionHandler = {
-              webReaderViewModel.handleSavedItemAction(
-                webReaderParams!!.item.savedItemId,
-                it
+            IconButton(onClick = { isMenuExpanded = true }) {
+              Icon(
+                painter = painterResource(id = R.drawable.dots_horizontal),
+                contentDescription = null
               )
+            }
+            SavedItemContextMenu(
+              isExpanded = isMenuExpanded,
+              isArchived = webReaderParams!!.item.isArchived,
+              onDismiss = { isMenuExpanded = false },
+              actionHandler = {
+                webReaderViewModel.handleSavedItemAction(
+                  webReaderParams!!.item.savedItemId,
+                  it
+                )
+              }
+            )
+          }
+        )
+
+        if (annotation != null) {
+          AnnotationEditView(
+            initialAnnotation = annotation!!,
+            onSave = {
+              webReaderViewModel.saveAnnotation(it)
+            },
+            onCancel = {
+              webReaderViewModel.cancelAnnotationEdit()
             }
           )
         }
-      )
 
-      if (showWebPreferencesDialog) {
-        WebPreferencesDialog(
-          onDismiss = {
-            showWebPreferencesDialog = false
-          },
-          webReaderViewModel = webReaderViewModel
-        )
+        WebReaderLabelsSelectionSheet(webReaderViewModel)
       }
 
-      if (annotation != null) {
-        AnnotationEditView(
-          initialAnnotation = annotation!!,
-          onSave = {
-            webReaderViewModel.saveAnnotation(it)
-          },
-          onCancel = {
-            webReaderViewModel.cancelAnnotationEdit()
-          }
-        )
+      LaunchedEffect(shouldPopView) {
+        if (shouldPopView) {
+          onBackPressedDispatcher?.onBackPressed()
+        }
       }
-
-      WebReaderLabelsSelectionSheet(webReaderViewModel)
     }
+  }
+}
 
-    LaunchedEffect(shouldPopView) {
-      if (shouldPopView) {
-        onBackPressedDispatcher?.onBackPressed()
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@Composable
+fun BottomSheetUI(title: String?, content: @Composable () -> Unit) {
+  val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+
+  Box(
+    modifier = Modifier
+      .wrapContentHeight()
+      .fillMaxWidth()
+      .clip(RoundedCornerShape(topEnd = 20.dp, topStart = 20.dp))
+      .background(Color.White)
+      .statusBarsPadding()
+  ) {
+    Scaffold(
+      topBar = {
+        TopAppBar(
+          title = { Text(title ?: "") },
+          modifier = Modifier.statusBarsPadding(),
+          colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.background
+          ),
+//          navigationIcon = {
+//            IconButton(onClick = {
+//              onBackPressedDispatcher?.onBackPressed()
+//            }) {
+//              Icon(
+//                imageVector = Icons.Filled.ArrowBack,
+//                modifier = Modifier,
+//                contentDescription = "Back"
+//              )
+//            }
+//          }
+        )
+      }
+    ) { paddingValues ->
+      Box(modifier = Modifier
+        .padding(paddingValues)
+        .fillMaxSize()) {
+        content()
       }
     }
   }
