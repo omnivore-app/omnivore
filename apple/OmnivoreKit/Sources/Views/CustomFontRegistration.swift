@@ -22,7 +22,10 @@ public func registerFonts() -> Bool {
     registerFont(bundle: .module, fontName: "Montserrat-Regular", fontExtension: "ttf"),
     registerFont(bundle: .module, fontName: "Newsreader-Regular", fontExtension: "ttf"),
     registerFont(bundle: .module, fontName: "AtkinsonHyperlegible-Regular", fontExtension: "ttf"),
-    registerFont(bundle: .module, fontName: "SourceSerifPro-Regular", fontExtension: "ttf")
+    registerFont(bundle: .module, fontName: "SourceSerifPro-Regular", fontExtension: "ttf"),
+    registerFont(bundle: .module, fontName: "SourceSansPro-Regular", fontExtension: "ttf"),
+    registerFont(bundle: .module, fontName: "IBMPlexSans-Regular", fontExtension: "ttf"),
+    registerFont(bundle: .module, fontName: "LXGWWenKai-Regular", fontExtension: "ttf")
   ]
   .allSatisfy { $0 }
 }
