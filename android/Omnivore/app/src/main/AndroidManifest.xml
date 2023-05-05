@@ -57,5 +57,10 @@
             android:exported="true"
             android:theme="@style/Theme.Omnivore"/>
 
+        <activity
+            android:name=".ui.notebook.NotebookActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Omnivore"/>
+
     </application>
 </manifest>

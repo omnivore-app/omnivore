@@ -172,8 +172,26 @@ interface SavedItemDao {
             "LEFT OUTER JOIN SavedItemLabel on SavedItemLabel.savedItemLabelId = SavedItemAndSavedItemLabelCrossRef.savedItemLabelId " +
             "LEFT OUTER  JOIN Highlight on highlight.highlightId = SavedItemAndHighlightCrossRef.highlightId " +
 
+            "WHERE SavedItem.savedItemId = :savedItemId " +
+            "AND SavedItem.serverSyncStatus != 2 " +
+            "AND Highlight.serverSyncStatus != 2 " +
+
+            "GROUP BY SavedItem.savedItemId "
+  )
+  fun getLibraryItemById(savedItemId: String): LiveData<SavedItemWithLabelsAndHighlights>
+
+  @Transaction
+  @Query(
+    "SELECT ${SavedItemQueryConstants.libraryColumns} " +
+            "FROM SavedItem " +
+            "LEFT OUTER JOIN SavedItemAndSavedItemLabelCrossRef on SavedItem.savedItemId = SavedItemAndSavedItemLabelCrossRef.savedItemId " +
+            "LEFT OUTER JOIN SavedItemAndHighlightCrossRef on SavedItem.savedItemId = SavedItemAndHighlightCrossRef.savedItemId " +
+
+            "LEFT OUTER JOIN SavedItemLabel on SavedItemLabel.savedItemLabelId = SavedItemAndSavedItemLabelCrossRef.savedItemLabelId " +
+            "LEFT OUTER  JOIN Highlight on highlight.highlightId = SavedItemAndHighlightCrossRef.highlightId " +
+
             "WHERE SavedItem.serverSyncStatus != 2 " +
-            "AND SavedItem.isArchived != :archiveFilter " +
+            "AND SavedItem.isArchived IN (:allowedArchiveStates) " +
             "AND SavedItem.contentReader IN (:allowedContentReaders) " +
             "AND CASE WHEN :hasRequiredLabels THEN SavedItemLabel.name in (:requiredLabels) ELSE 1 END " +
             "AND CASE WHEN :hasExcludedLabels THEN  SavedItemLabel.name is NULL OR SavedItemLabel.name not in (:excludedLabels)  ELSE 1 END " +
@@ -187,11 +205,11 @@ interface SavedItemDao {
             "CASE WHEN :sortKey = 'recentlyRead' THEN SavedItem.readAt END DESC,\n" +
             "CASE WHEN :sortKey = 'recentlyPublished' THEN SavedItem.publishDate END DESC"
   )
-  fun _filteredLibraryData(archiveFilter: Int, sortKey: String, hasRequiredLabels: Int, hasExcludedLabels: Int, requiredLabels: List<String>, excludedLabels: List<String>, allowedContentReaders: List<String>): LiveData<List<SavedItemWithLabelsAndHighlights>>
+  fun _filteredLibraryData(allowedArchiveStates: List<Int>, sortKey: String, hasRequiredLabels: Int, hasExcludedLabels: Int, requiredLabels: List<String>, excludedLabels: List<String>, allowedContentReaders: List<String>): LiveData<List<SavedItemWithLabelsAndHighlights>>
 
-  fun filteredLibraryData(archiveFilter: Int, sortKey: String, requiredLabels: List<String>, excludedLabels: List<String>, allowedContentReaders: List<String>): LiveData<List<SavedItemWithLabelsAndHighlights>> {
+  fun filteredLibraryData(allowedArchiveStates: List<Int>, sortKey: String, requiredLabels: List<String>, excludedLabels: List<String>, allowedContentReaders: List<String>): LiveData<List<SavedItemWithLabelsAndHighlights>> {
     return _filteredLibraryData(
-      archiveFilter = archiveFilter,
+      allowedArchiveStates = allowedArchiveStates,
       sortKey = sortKey,
       hasRequiredLabels = requiredLabels.size,
       hasExcludedLabels = excludedLabels.size,
