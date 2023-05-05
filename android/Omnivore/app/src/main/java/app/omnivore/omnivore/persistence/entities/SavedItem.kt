@@ -1,5 +1,6 @@
 package app.omnivore.omnivore.persistence.entities
 
+import android.util.Log
 import androidx.core.net.toUri
 import androidx.lifecycle.LiveData
 import androidx.room.*
@@ -90,7 +91,6 @@ abstract class SavedItemWithLabelsAndHighlightsDao {
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   abstract fun insertHighlightCrossRefs(items: List<SavedItemAndHighlightCrossRef>)
 
-
   @Transaction
   open fun insertAll(savedItems: List<SavedItemWithLabelsAndHighlights>) {
     insertSavedItems(savedItems.map { it.savedItem })
@@ -103,6 +103,7 @@ abstract class SavedItemWithLabelsAndHighlightsDao {
 
     for (searchItem in savedItems) {
       labels.addAll(searchItem.labels)
+      highlights.addAll(searchItem.highlights)
 
       val newLabelCrossRefs = searchItem.labels.map {
         SavedItemAndSavedItemLabelCrossRef(savedItemLabelId = it.savedItemLabelId, savedItemId = searchItem.savedItem.savedItemId)
@@ -190,7 +191,7 @@ interface SavedItemDao {
   fun _filteredLibraryData(allowedArchiveStates: List<Int>, sortKey: String, hasRequiredLabels: Int, hasExcludedLabels: Int, requiredLabels: List<String>, excludedLabels: List<String>, allowedContentReaders: List<String>): LiveData<List<SavedItemWithLabelsAndHighlights>>
 
   fun filteredLibraryData(allowedArchiveStates: List<Int>, sortKey: String, requiredLabels: List<String>, excludedLabels: List<String>, allowedContentReaders: List<String>): LiveData<List<SavedItemWithLabelsAndHighlights>> {
-    return _filteredLibraryData(
+    val result = _filteredLibraryData(
       allowedArchiveStates = allowedArchiveStates,
       sortKey = sortKey,
       hasRequiredLabels = requiredLabels.size,
@@ -199,6 +200,7 @@ interface SavedItemDao {
       excludedLabels = excludedLabels,
       allowedContentReaders = allowedContentReaders
     )
+    return result
   }
 }
 

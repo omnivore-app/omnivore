@@ -34,7 +34,6 @@ data class Highlight(
       entity = Highlight::class,
       parentColumns = arrayOf("highlightId"),
       childColumns = arrayOf("highlightId"),
-      onDelete = ForeignKey.CASCADE
     ),
     ForeignKey(
       entity = SavedItem::class,
