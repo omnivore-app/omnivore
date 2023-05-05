@@ -7,7 +7,7 @@ export const sortedLabels = (labels: Label[] | undefined): Label[] => {
 
   const colors = new Map<string, Label[]>()
   for (const label of labels) {
-    let list = colors.get(label.color) ?? []
+    const list = colors.get(label.color) ?? []
     list.push(label)
     colors.set(
       label.color,
