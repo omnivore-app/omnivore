@@ -18,6 +18,8 @@ enum class WebFont(val displayText: String, val rawValue: String) {
   NEWSREADER("Newsreader", "Newsreader"),
   LXGWWENKAI("LXGW WenKai", "LXGWWenKai"),
   ATKINSON_HYPERLEGIBLE("Atkinson Hyperlegible", "AtkinsonHyperlegible"),
+  SOURCE_SANS_PRO("Source Sans Pro", "SourceSansPro"),
+  IBM_PLEX_SANS("IBM Plex Sans", "IBMPlexSans"),
 }
 
 enum class ArticleContentStatus(val rawValue: String) {

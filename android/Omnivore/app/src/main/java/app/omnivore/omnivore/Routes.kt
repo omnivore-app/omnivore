@@ -7,4 +7,5 @@ sealed class Routes(val route: String) {
     object Documentation: Routes("Documentation")
     object PrivacyPolicy: Routes("PrivacyPolicy")
     object TermsAndConditions: Routes("TermsAndConditions")
+    object Notebook: Routes("Notebook")
 }

@@ -371,7 +371,7 @@ public struct ShareExtensionView: View {
         viewModel.submitTitleEdit(dataService: viewModel.services.dataService,
                                   itemID: linkedItem.unwrappedID,
                                   title: viewModel.title,
-                                  description: linkedItem.description)
+                                  description: linkedItem.descriptionText ?? "")
       }
     }
     viewState = .mainView
