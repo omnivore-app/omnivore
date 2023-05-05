@@ -24,17 +24,17 @@ export function useValidateUsernameQuery({
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const isUsernameValid = (data as any)?.validateUsername ?? false
-  const usernameErrorMessage = validationErrorMessage(username)
+  if (isUsernameValid) {
+    return { isUsernameValid }
+  }
 
+  // Try to figure out why the username is invalid
+  const usernameErrorMessage = validationErrorMessage(username.toLowerCase())
   if (usernameErrorMessage) {
     return {
       isUsernameValid: false,
       usernameErrorMessage,
     }
-  }
-
-  if (isUsernameValid) {
-    return { isUsernameValid }
   }
 
   return {
