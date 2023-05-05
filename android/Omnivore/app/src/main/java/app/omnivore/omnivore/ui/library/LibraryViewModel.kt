@@ -36,7 +36,7 @@ class LibraryViewModel @Inject constructor(
 
   // Live Data
   private var itemsLiveDataInternal = dataService.db.savedItemDao().filteredLibraryData(
-    archiveFilter = 1,
+    allowedArchiveStates = listOf(0),
     sortKey = "newest",
     requiredLabels = listOf(),
     excludedLabels = listOf(),
@@ -64,28 +64,6 @@ class LibraryViewModel @Inject constructor(
         dataService.syncLabels()
       }
     }
-
-//    runBlocking {
-//      datastoreRepo.getString(DatastoreKeys.lastUsedSavedItemFilter)?.let { str ->
-//        try {
-//          val filter = SavedItemFilter.values().first { it.rawValue == str }
-//          appliedFilterLiveData.postValue(filter)
-//        } catch (e: Exception) {
-//          Log.d("error", "invalid filter value stored in datastore repo: $e")
-//        }
-//
-//        datastoreRepo.getString(DatastoreKeys.lastUsedSavedItemSortFilter)?.let { str ->
-//          try {
-//            val filter = SavedItemSortFilter.values().first { it.rawValue == str }
-//            appliedSortFilterLiveData.postValue(filter)
-//          } catch (e: Exception) {
-//            Log.d("error", "invalid sort filter value stored in datastore repo: $e")
-//          }
-//
-//          handleFilterChanges()
-//        }
-//      }
-//    }
 
     viewModelScope.launch {
       handleFilterChanges()
@@ -196,9 +174,10 @@ class LibraryViewModel @Inject constructor(
         else -> "newest"
       }
 
-      val archiveFilter = when (appliedFilterLiveData.value) {
-        SavedItemFilter.ARCHIVED -> 0
-        else -> 1
+      val allowedArchiveStates = when (appliedFilterLiveData.value) {
+        SavedItemFilter.ALL -> listOf(0, 1)
+        SavedItemFilter.ARCHIVED -> listOf(1)
+        else -> listOf(0)
       }
 
       val allowedContentReaders = when(appliedFilterLiveData.value) {
@@ -221,7 +200,7 @@ class LibraryViewModel @Inject constructor(
       }
 
       val newData = dataService.db.savedItemDao().filteredLibraryData(
-        archiveFilter = archiveFilter,
+        allowedArchiveStates = allowedArchiveStates,
         sortKey = sortKey,
         requiredLabels = requiredLabels,
         excludedLabels = excludeLabels,
