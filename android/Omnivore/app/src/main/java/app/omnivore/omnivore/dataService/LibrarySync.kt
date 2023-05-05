@@ -91,70 +91,6 @@ suspend fun DataService.sync(since: String, cursor: String?, limit: Int = 20): S
   }
 
   db.savedItemWithLabelsAndHighlightsDao().insertAll(savedItems)
-//
-//  db.savedItemDao().insertAll(savedItems)
-//
-//  val labels: MutableList<SavedItemLabel> = mutableListOf()
-//  val crossRefs: MutableList<SavedItemAndSavedItemLabelCrossRef> = mutableListOf()
-//
-//  // save labels
-//  for (item in syncResult.items) {
-//    val itemLabels = (item.labels ?: listOf()).map {
-//      SavedItemLabel(
-//        savedItemLabelId = it.labelFields.id,
-//        name = it.labelFields.name,
-//        color = it.labelFields.color,
-//        createdAt = null,
-//        labelDescription = null
-//      )
-//    }
-//
-//    labels.addAll(itemLabels)
-//
-//    val newCrossRefs = itemLabels.map {
-//      SavedItemAndSavedItemLabelCrossRef(
-//        savedItemLabelId = it.savedItemLabelId,
-//        savedItemId = item.id
-//      )
-//    }
-//
-//    crossRefs.addAll(newCrossRefs)
-//  }
-//
-//  db.savedItemLabelDao().insertAll(labels)
-//  db.savedItemAndSavedItemLabelCrossRefDao().insertAll(crossRefs)
-//
-//  // Persist Highlights
-//  db.highlightDao().insertAll(syncResult.items.flatMap {
-//    it.highlights ?: listOf()
-//  }.map {
-//    Highlight(
-//      type = it.highlightFields.type.toString(),
-//      highlightId = it.highlightFields.id,
-//      annotation = it.highlightFields.annotation,
-//      createdByMe = it.highlightFields.createdByMe,
-//      markedForDeletion = false,
-//      patch = it.highlightFields.patch,
-//      prefix = it.highlightFields.prefix,
-//      quote = it.highlightFields.quote,
-//      serverSyncStatus = ServerSyncStatus.IS_SYNCED.rawValue,
-//      shortId  = it.highlightFields.shortId,
-//      suffix  = it.highlightFields.suffix,
-//      createdAt = null,
-//      updatedAt  = it.highlightFields.updatedAt as String?,
-//    )
-//  })
-//
-//  val highlightCrossRefs = syncResult.items.flatMap {
-//    val savedItem = it
-//    (savedItem.highlights ?: listOf()).map {
-//      Pair(it, savedItem.id)
-//    }
-//  }.map {
-//    SavedItemAndHighlightCrossRef(highlightId = it.first.highlightFields.id, savedItemId = it.second)
-//  }
-//
-//  db.savedItemAndHighlightCrossRefDao().insertAll(highlightCrossRefs)
 
   Log.d("sync", "found ${syncResult.items.size} items with sync api. Since: $since")
 
@@ -175,28 +111,16 @@ fun DataService.isSavedItemContentStoredInDB(slug: String): Boolean {
 
 suspend fun DataService.fetchSavedItemContent(slug: String) {
   val syncResult = networker.savedItem(slug)
-  val isSuccess = syncResult.item != null
 
-  val savedItem = syncResult.item ?: return
-  db.savedItemDao().insert(savedItem)
-
-  // Persist Labels
-  db.savedItemLabelDao().insertAll(syncResult.labels)
-
-  val labelCrossRefs = syncResult.labels.map {
-    SavedItemAndSavedItemLabelCrossRef(savedItemLabelId = it.savedItemLabelId, savedItemId = savedItem.savedItemId)
+  val savedItem = syncResult.item
+  savedItem?.let {
+    val item = SavedItemWithLabelsAndHighlights(
+      savedItem = savedItem,
+      labels = syncResult.labels,
+      highlights = syncResult.highlights
+    )
+    db.savedItemWithLabelsAndHighlightsDao().insertAll(listOf(item))
   }
-
-  db.savedItemAndSavedItemLabelCrossRefDao().insertAll(labelCrossRefs)
-
-  // Persist Highlights
-  db.highlightDao().insertAll(syncResult.highlights)
-
-  val highlightCrossRefs = syncResult.highlights.map {
-    SavedItemAndHighlightCrossRef(highlightId = it.highlightId, savedItemId = savedItem.savedItemId)
-  }
-
-  db.savedItemAndHighlightCrossRefDao().insertAll(highlightCrossRefs)
 }
 
 
