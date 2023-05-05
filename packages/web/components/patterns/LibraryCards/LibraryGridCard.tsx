@@ -178,9 +178,11 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
                   minHeight: '35px',
                 }}
               >
-                {props.item.labels?.map(({ name, color }, index) => (
-                  <LabelChip key={index} text={name || ''} color={color} />
-                ))}
+                {props.item.labels
+                  ?.sort((a, b) => a.name.localeCompare(b.name))
+                  .map(({ name, color }, index) => (
+                    <LabelChip key={index} text={name || ''} color={color} />
+                  ))}
               </HStack>
               <VStack
                 css={{

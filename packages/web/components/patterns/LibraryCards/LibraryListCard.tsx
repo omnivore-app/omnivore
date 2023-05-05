@@ -118,9 +118,11 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
                   display: 'block',
                 }}
               >
-                {props.item.labels?.map(({ name, color }, index) => (
-                  <LabelChip key={index} text={name || ''} color={color} />
-                ))}
+                {props.item.labels
+                  ?.sort((a, b) => a.name.localeCompare(b.name))
+                  .map(({ name, color }, index) => (
+                    <LabelChip key={index} text={name || ''} color={color} />
+                  ))}
               </HStack>
             </HStack>
           </VStack>
