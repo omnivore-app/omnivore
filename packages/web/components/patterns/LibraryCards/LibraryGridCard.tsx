@@ -18,6 +18,7 @@ import {
   timeAgo,
   TitleStyle,
 } from './LibraryCardStyles'
+import { sortedLabels } from '../../../lib/labelsSort'
 
 dayjs.extend(relativeTime)
 
@@ -178,11 +179,11 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
                   minHeight: '35px',
                 }}
               >
-                {props.item.labels
-                  ?.sort((a, b) => a.name.localeCompare(b.name))
-                  .map(({ name, color }, index) => (
+                {sortedLabels(props.item.labels).map(
+                  ({ name, color }, index) => (
                     <LabelChip key={index} text={name || ''} color={color} />
-                  ))}
+                  )
+                )}
               </HStack>
               <VStack
                 css={{

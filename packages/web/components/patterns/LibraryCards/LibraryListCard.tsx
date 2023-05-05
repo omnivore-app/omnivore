@@ -14,6 +14,7 @@ import {
   timeAgo,
   TitleStyle,
 } from './LibraryCardStyles'
+import { sortedLabels } from '../../../lib/labelsSort'
 
 export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
   const [isHovered, setIsHovered] = useState(false)
@@ -118,11 +119,11 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
                   display: 'block',
                 }}
               >
-                {props.item.labels
-                  ?.sort((a, b) => a.name.localeCompare(b.name))
-                  .map(({ name, color }, index) => (
+                {sortedLabels(props.item.labels).map(
+                  ({ name, color }, index) => (
                     <LabelChip key={index} text={name || ''} color={color} />
-                  ))}
+                  )
+                )}
               </HStack>
             </HStack>
           </VStack>
