@@ -58,6 +58,7 @@ export const DescriptionStyle = {
   '-webkit-box-orient': 'vertical',
   height: '45px',
   alignItems: 'start',
+  maxWidth: '-webkit-fill-available',
 }
 
 export const AuthorInfoStyle = {
