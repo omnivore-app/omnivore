@@ -43,7 +43,7 @@ enum class Themes(val themeKey: String, val backgroundColor: Long) {
   SEPIA("Sepia", 0xFFFBF0D9),
   DARK("Dark", 0xFF2a2a2a),
   APOLLO("Apollo", 0xFF6A6968),
-  BLACK("Black", 0xFFFFFFFF),
+  BLACK("Black", 0xFF000000),
 }
 
 @HiltViewModel
