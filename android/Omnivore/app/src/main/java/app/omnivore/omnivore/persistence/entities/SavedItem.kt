@@ -156,8 +156,6 @@ interface SavedItemDao {
             "LEFT OUTER  JOIN Highlight on highlight.highlightId = SavedItemAndHighlightCrossRef.highlightId " +
 
             "WHERE SavedItem.savedItemId = :savedItemId " +
-            "AND SavedItem.serverSyncStatus != 2 " +
-            "AND Highlight.serverSyncStatus != 2 " +
 
             "GROUP BY SavedItem.savedItemId "
   )

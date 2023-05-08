@@ -24,7 +24,6 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -34,7 +33,8 @@ import androidx.core.view.WindowInsetsCompat
 import app.omnivore.omnivore.MainActivity
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.ui.components.WebReaderLabelsSelectionSheet
-import app.omnivore.omnivore.ui.notebook.NotebookActivity
+import app.omnivore.omnivore.ui.notebook.NotebookView
+import app.omnivore.omnivore.ui.notebook.NotebookViewModel
 import app.omnivore.omnivore.ui.savedItemViews.SavedItemContextMenu
 import app.omnivore.omnivore.ui.theme.OmnivoreTheme
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -46,6 +46,7 @@ import kotlin.math.roundToInt
 @AndroidEntryPoint
 class WebReaderLoadingContainerActivity: ComponentActivity() {
   val viewModel: WebReaderViewModel by viewModels()
+  val notebookViewModel: NotebookViewModel by viewModels()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -79,6 +80,7 @@ class WebReaderLoadingContainerActivity: ComponentActivity() {
               slug = slug,
               onLibraryIconTap = if (requestID != null) { { startMainActivity() } } else null,
               webReaderViewModel = viewModel,
+              notebookViewModel = notebookViewModel,
             )
           }
         }
@@ -101,13 +103,25 @@ class WebReaderLoadingContainerActivity: ComponentActivity() {
   }
 }
 
+enum class BottomSheetState(
+) {
+  NONE(),
+  PREFERENCES(),
+  NOTEBOOK(),
+  HIGHLIGHTNOTE()
+}
+
+
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, onLibraryIconTap: (() -> Unit)? = null, webReaderViewModel: WebReaderViewModel) {
+fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
+                              onLibraryIconTap: (() -> Unit)? = null,
+                              webReaderViewModel: WebReaderViewModel,
+                              notebookViewModel: NotebookViewModel) {
   val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
 
   var isMenuExpanded by remember { mutableStateOf(false) }
-  var showWebPreferencesDialog by remember { mutableStateOf(false ) }
+  var bottomSheetState by remember { mutableStateOf(app.omnivore.omnivore.ui.reader.BottomSheetState.NONE)}
 
   val currentThemeKey = webReaderViewModel.currentThemeKey.observeAsState()
   val currentTheme = Themes.values().find { it.themeKey == currentThemeKey.value }
@@ -121,7 +135,6 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, o
   webReaderViewModel.maxToolbarHeightPx = with(LocalDensity.current) { maxToolbarHeight.roundToPx().toFloat() }
   webReaderViewModel.loadItem(slug = slug, requestID = requestID)
 
-  val context = LocalContext.current
   val coroutineScope = rememberCoroutineScope()
 
   val styledContent = webReaderParams?.let {
@@ -140,13 +153,29 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, o
   val themeTintColor = Color(currentTheme?.foregroundColor ?: 0xFFFFFFFF)
 
   ModalBottomSheetLayout(
-    modifier = Modifier.statusBarsPadding(),
+    modifier = Modifier
+      .statusBarsPadding(),
     sheetBackgroundColor = Color.Transparent,
     sheetState = modalBottomSheetState,
     sheetContent = {
-      if (showWebPreferencesDialog) {
-        BottomSheetUI("Reader Preferences") {
-          ReaderPreferencesView(webReaderViewModel)
+      when (bottomSheetState) {
+        BottomSheetState.PREFERENCES -> {
+          BottomSheetUI("Reader Preferences") {
+            ReaderPreferencesView(webReaderViewModel)
+          }
+        }
+        BottomSheetState.NOTEBOOK -> {
+          webReaderParams?.let { params ->
+            BottomSheetUI(title = "Notebook") {
+              NotebookView(savedItemId = params.item.savedItemId, viewModel = notebookViewModel)
+            }
+          }
+        }
+        BottomSheetState.HIGHLIGHTNOTE -> {
+
+        }
+        BottomSheetState.NONE -> {
+
         }
       }
       Spacer(modifier = Modifier.weight(1.0F))
@@ -186,9 +215,10 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, o
             }
             webReaderParams?.let {
               IconButton(onClick = {
-                val intent = Intent(context, NotebookActivity::class.java)
-                intent.putExtra("SAVED_ITEM_ID", it.item.savedItemId)
-                context.startActivity(intent)
+                bottomSheetState = BottomSheetState.NOTEBOOK
+                coroutineScope.launch {
+                  modalBottomSheetState.show()
+                }
               }) {
                 Icon(
                   painter = painterResource(id = R.drawable.notebook),
@@ -198,7 +228,7 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, o
               }
             }
             IconButton(onClick = {
-              showWebPreferencesDialog = true
+              bottomSheetState = BottomSheetState.PREFERENCES
               coroutineScope.launch {
                 modalBottomSheetState.show()
               }
@@ -219,7 +249,7 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, o
                 webReaderParams?.let { params ->
                   SavedItemContextMenu(
                     isExpanded = isMenuExpanded,
-                    isArchived = webReaderParams!!.item.isArchived,
+                    isArchived = params.item.isArchived,
                     onDismiss = { isMenuExpanded = false },
                     actionHandler = {
                       webReaderViewModel.handleSavedItemAction(
@@ -269,8 +299,6 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, o
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun BottomSheetUI(title: String?, content: @Composable () -> Unit) {
-  val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
-
   Box(
     modifier = Modifier
       .wrapContentHeight()

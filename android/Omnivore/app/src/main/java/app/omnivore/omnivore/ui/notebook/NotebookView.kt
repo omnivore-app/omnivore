@@ -46,7 +46,10 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
 import dev.jeziellago.compose.markdowntext.MarkdownText
 import kotlinx.coroutines.launch
-
+import android.util.Log
+import androidx.compose.ui.platform.LocalDensity
+import app.omnivore.omnivore.persistence.entities.Highlight
+import kotlin.math.roundToInt
 
 @AndroidEntryPoint
 class NotebookActivity: ComponentActivity() {
@@ -102,61 +105,105 @@ class NotebookActivity: ComponentActivity() {
     }
 }
 
+fun notebookMD(notes: List<Highlight>, highlights: List<Highlight>): String {
+    var result = ""
+
+    if (notes.isNotEmpty()) {
+        result += "## Notes\n"
+        notes.forEach {
+            result += it.annotation + "\n"
+        }
+        result += "\n"
+    }
+
+    if (highlights.isNotEmpty()) {
+        result += "## Highlights\n"
+        highlights.forEach {
+            result += "> ${it.quote}\n"
+            if ((it.annotation?: "").isNotEmpty()) {
+                result += it.annotation + "\n"
+            }
+        }
+        result += "\n"
+    }
+
+    return result
+}
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun NotebookView(savedItemId: String, viewModel: NotebookViewModel) {
-    val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+    var isMenuOpen by remember {
+        mutableStateOf(false)
+    }
     val savedItem = viewModel.getLibraryItemById(savedItemId).observeAsState()
     val scrollState = rememberScrollState()
     val modalBottomSheetState = rememberModalBottomSheetState(
         ModalBottomSheetValue.Hidden,
     )
+    val coroutineScope = rememberCoroutineScope()
+    val snackBarHostState = remember { SnackbarHostState() }
+    val clipboard: ClipboardManager? =
+        LocalContext.current.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
+
     val notes = savedItem.value?.highlights?.filter { it.type == "NOTE" } ?: listOf()
     val highlights = savedItem.value?.highlights?.filter { it.type == "HIGHLIGHT" } ?: listOf()
 
     ModalBottomSheetLayout(
-        modifier = Modifier.statusBarsPadding(),
         sheetBackgroundColor = Color.Transparent,
         sheetState = modalBottomSheetState,
         sheetContent = {
-            EditNoteModal()
+       //     EditNoteModal()
+            Spacer(modifier = Modifier.weight(1.0F))
         }
     ) {
         Scaffold(
             topBar = {
                 TopAppBar(
                     title = { Text("Notebook") },
-                    modifier = Modifier.statusBarsPadding(),
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.background
                     ),
-                    navigationIcon = {
-                        IconButton(onClick = {
-                            onBackPressedDispatcher?.onBackPressed()
-                        }) {
-                            Icon(
-                                imageVector = androidx.compose.material.icons.Icons.Filled.ArrowBack,
-                                modifier = Modifier,
-                                contentDescription = "Back"
-                            )
+                    actions = {
+                        Box {
+                            IconButton(onClick = {
+                                isMenuOpen = true
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Default.MoreVert,
+                                    contentDescription = null
+                                )
+                            }
+                            if (isMenuOpen) {
+                                DropdownMenu(
+                                    expanded = isMenuOpen,
+                                    onDismissRequest = { isMenuOpen = false }
+                                ) {
+                                    DropdownMenuItem(
+                                        text = { Text("Copy") },
+                                        onClick = {
+                                            val clip = ClipData.newPlainText("notebook", notebookMD(notes, highlights))
+                                            clipboard?.let {
+                                                it
+                                                clipboard?.setPrimaryClip(clip)
+                                            } ?: run {
+                                                coroutineScope.launch {
+                                                    snackBarHostState
+                                                        .showSnackbar("Notebook copied")
+                                                }
+                                            }
+                                            isMenuOpen = false
+                                        }
+                                    )
+                                }
+                            }
                         }
-                    },
-//                    actions = {
-//                        IconButton(onClick = {
-//
-//                        }) {
-//                            Icon(
-//                                imageVector = Icons.Default.MoreVert,
-//                                contentDescription = null
-//                            )
-//                        }
-//                    }
+                    }
                 )
             }
         ) { paddingValues ->
             Column(
                 modifier = Modifier
-                    .padding(paddingValues)
                     .verticalScroll(scrollState)
                     .fillMaxSize()
             ) {
@@ -166,7 +213,6 @@ fun NotebookView(savedItemId: String, viewModel: NotebookViewModel) {
                     }
                     HighlightsList(it)
                 }
-                Spacer(Modifier.weight(100f))
             }
         }
     }
