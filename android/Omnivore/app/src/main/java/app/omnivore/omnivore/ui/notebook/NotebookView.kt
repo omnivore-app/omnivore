@@ -3,12 +3,7 @@ package app.omnivore.omnivore.ui.notebook
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.content.Intent
-import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
-import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -37,73 +32,14 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.omnivore.omnivore.MainActivity
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.persistence.entities.SavedItemWithLabelsAndHighlights
 import app.omnivore.omnivore.ui.library.*
-import app.omnivore.omnivore.ui.theme.OmnivoreTheme
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import dagger.hilt.android.AndroidEntryPoint
 import dev.jeziellago.compose.markdowntext.MarkdownText
 import kotlinx.coroutines.launch
-import android.util.Log
-import androidx.compose.ui.platform.LocalDensity
 import app.omnivore.omnivore.persistence.entities.Highlight
-import kotlin.math.roundToInt
 
-@AndroidEntryPoint
-class NotebookActivity: ComponentActivity() {
-    val viewModel: NotebookViewModel by viewModels()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        val savedItemId = intent.getStringExtra("SAVED_ITEM_ID")
-
-        setContent {
-            val systemUiController = rememberSystemUiController()
-            val useDarkIcons = !isSystemInDarkTheme()
-
-            DisposableEffect(systemUiController, useDarkIcons) {
-                systemUiController.setSystemBarsColor(
-                    color = Color.Black,
-                    darkIcons = false
-                )
-
-                onDispose {}
-            }
-
-            OmnivoreTheme {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        // .background(color = Color.Black)
-                ) {
-                    savedItemId?.let {
-                        NotebookView(
-                            savedItemId = savedItemId,
-                            viewModel = viewModel
-                        )
-                    }
-                }
-                }
-            }
-        }
-
-//        // animate the view up when keyboard appears
-//        WindowCompat.setDecorFitsSystemWindows(window, false)
-//        val rootView = findViewById<View>(android.R.id.content).rootView
-//        ViewCompat.setOnApplyWindowInsetsListener(rootView) { _, insets ->
-//            val imeHeight = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
-//            rootView.setPadding(0, 0, 0, imeHeight)
-//            insets
-//        }
-//    }
-
-    private fun startMainActivity() {
-        val intent = Intent(this, MainActivity::class.java)
-        this.startActivity(intent)
-    }
-}
 
 fun notebookMD(notes: List<Highlight>, highlights: List<Highlight>): String {
     var result = ""

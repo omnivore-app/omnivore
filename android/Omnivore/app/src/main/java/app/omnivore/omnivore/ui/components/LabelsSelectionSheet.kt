@@ -42,7 +42,6 @@ fun WebReaderLabelsSelectionSheet(viewModel: WebReaderViewModel) {
 
   val modalBottomSheetState = rememberModalBottomSheetState(
     ModalBottomSheetValue.HalfExpanded,
-    confirmStateChange = { it != ModalBottomSheetValue.Hidden }
   )
 
   if (isActive) {

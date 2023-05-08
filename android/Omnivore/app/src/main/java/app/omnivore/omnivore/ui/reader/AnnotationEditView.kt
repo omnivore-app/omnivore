@@ -1,5 +1,6 @@
 package app.omnivore.omnivore.ui.reader
 
+import android.content.ClipData
 import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,6 +9,10 @@ import android.view.ViewGroup
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -22,7 +27,11 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.DialogFragment
+import app.omnivore.omnivore.ui.notebook.ArticleNotes
+import app.omnivore.omnivore.ui.notebook.HighlightsList
+import app.omnivore.omnivore.ui.notebook.notebookMD
 import app.omnivore.omnivore.ui.theme.OmnivoreTheme
+import kotlinx.coroutines.launch
 
 class AnnotationEditFragment : DialogFragment() {
   private var onSave: (String) -> Unit = {}
@@ -54,7 +63,7 @@ class AnnotationEditFragment : DialogFragment() {
             initialAnnotation,
             onSave,
             onCancel,
-            dismissAction = { dismiss() }
+         //    dismissAction = { dismiss() }
           )
         }
       }
@@ -73,62 +82,96 @@ fun AnnotationEditView(
   initialAnnotation: String,
   onSave: (String) -> Unit,
   onCancel: () -> Unit,
-  dismissAction: () -> Unit = {}
 ) {
   val annotation = remember { mutableStateOf(initialAnnotation) }
   val focusRequester = FocusRequester()
 
-  Column(
-    modifier = Modifier
-      .clip(RoundedCornerShape(4.dp))
-      .background(MaterialTheme.colorScheme.background)
-      .padding(8.dp),
-  ) {
-    Column(
-      modifier = Modifier.padding(16.dp),
-      horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-      Row {
-        TextButton(
-          onClick = {
+  Scaffold(
+    topBar = {
+      TopAppBar(
+        title = { Text("Notebook") },
+        colors = TopAppBarDefaults.topAppBarColors(
+          containerColor = MaterialTheme.colorScheme.background
+        ),
+        navigationIcon = {
+          IconButton(onClick = {
             onCancel()
-            dismissAction()
+          }) {
+            Icon(
+              imageVector = Icons.Filled.ArrowBack,
+              modifier = Modifier,
+              contentDescription = "Back",
+            )
           }
-        ) {
-          Text("Cancel")
-        }
-
-        Spacer(modifier = Modifier.weight(1.0F))
-
-        Text(text = "Note")
-
-        Spacer(modifier = Modifier.weight(1.0F))
-
-        TextButton(
-          onClick = {
-            onSave(annotation.value)
-            dismissAction()
+        },
+        actions = {
+          TextButton(
+            onClick = {
+              onSave(annotation.value)
+            }
+          ) {
+            Text("Save")
           }
-        ) {
-          Text("Save")
         }
-      }
-
-      Spacer(modifier = Modifier.height(8.dp))
-
+      )
+    }
+  ) { paddingValues ->
+    Column(
+      modifier = Modifier
+        .padding(paddingValues)
+        .fillMaxSize()
+    ) {
       TextField(
         value = annotation.value,
         onValueChange = { annotation.value = it },
         modifier = Modifier
-          .width(IntrinsicSize.Max)
-          .height(IntrinsicSize.Max)
-          .weight(1.0F)
           .focusRequester(focusRequester)
+          .fillMaxSize()
       )
+    }
+  }
+}
+//
+//    Column(
+//      modifier = Modifier.padding(16.dp),
+//      horizontalAlignment = Alignment.CenterHorizontally,
+//    ) {
+//      Row {
+//        TextButton(
+//          onClick = {
+//            onCancel()
+//            dismissAction()
+//          }
+//        ) {
+//          Text("Cancel")
+//        }
+//
+//        Spacer(modifier = Modifier.weight(1.0F))
+//
+//        Text(text = "Note")
+//
+//        Spacer(modifier = Modifier.weight(1.0F))
+//
+//        TextButton(
+//          onClick = {
+//            onSave(annotation.value)
+//            dismissAction()
+//          }
+//        ) {
+//          Text("Save")
+//        }
+//      }
+//
+//      Spacer(modifier = Modifier.height(8.dp))
+//
+//
+//
+//      Spacer(modifier = Modifier.height(16.dp))
 
-      LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-      }
+//
+//      LaunchedEffect(Unit) {
+//        focusRequester.requestFocus()
+//      }
 
 //      Row {
 //        Spacer(modifier = Modifier.weight(0.1F))
@@ -142,8 +185,7 @@ fun AnnotationEditView(
 //        )
 //        Spacer(modifier = Modifier.weight(0.1F))
 //      }
-    }
-
-    Spacer(modifier = Modifier.height(16.dp))
-  }
-}
+//    }
+//
+// // }
+//}

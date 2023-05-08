@@ -49,6 +49,7 @@ fun ReaderPreferencesView(webReaderViewModel: WebReaderViewModel) {
   Column(
     modifier = Modifier
       .padding(horizontal = 15.dp)
+      .padding(vertical = 35.dp)
       .verticalScroll(rememberScrollState())
   ) {
     Row(

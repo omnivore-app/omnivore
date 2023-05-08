@@ -121,7 +121,7 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
   val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
 
   var isMenuExpanded by remember { mutableStateOf(false) }
-  var bottomSheetState by remember { mutableStateOf(app.omnivore.omnivore.ui.reader.BottomSheetState.NONE)}
+  var bottomSheetState by remember { mutableStateOf(BottomSheetState.NONE) }
 
   val currentThemeKey = webReaderViewModel.currentThemeKey.observeAsState()
   val currentTheme = Themes.values().find { it.themeKey == currentThemeKey.value }
@@ -147,10 +147,17 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
   } ?: null
 
   val modalBottomSheetState = rememberModalBottomSheetState(
-    ModalBottomSheetValue.Hidden,
+    initialValue = ModalBottomSheetValue.Hidden,
   )
 
   val themeTintColor = Color(currentTheme?.foregroundColor ?: 0xFFFFFFFF)
+
+  annotation?.let {
+    bottomSheetState = BottomSheetState.HIGHLIGHTNOTE
+    coroutineScope.launch {
+      modalBottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
+    }
+  }
 
   ModalBottomSheetLayout(
     modifier = Modifier
@@ -172,7 +179,27 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
           }
         }
         BottomSheetState.HIGHLIGHTNOTE -> {
-
+          annotation?.let { annotation ->
+            BottomSheetUI(title = "Note") {
+              AnnotationEditView(
+                initialAnnotation = annotation,
+                onSave = {
+                  webReaderViewModel.saveAnnotation(it)
+                  coroutineScope.launch {
+                    modalBottomSheetState.hide()
+                    bottomSheetState = BottomSheetState.NONE
+                  }
+                },
+                onCancel = {
+                  webReaderViewModel.cancelAnnotationEdit()
+                  coroutineScope.launch {
+                    modalBottomSheetState.hide()
+                    bottomSheetState = BottomSheetState.NONE
+                  }
+                }
+              )
+            }
+          }
         }
         BottomSheetState.NONE -> {
 
@@ -215,9 +242,9 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
             }
             webReaderParams?.let {
               IconButton(onClick = {
-                bottomSheetState = BottomSheetState.NOTEBOOK
                 coroutineScope.launch {
-                  modalBottomSheetState.show()
+                  bottomSheetState = BottomSheetState.NOTEBOOK
+                  modalBottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
                 }
               }) {
                 Icon(
@@ -228,9 +255,9 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
               }
             }
             IconButton(onClick = {
-              bottomSheetState = BottomSheetState.PREFERENCES
               coroutineScope.launch {
-                modalBottomSheetState.show()
+                bottomSheetState = BottomSheetState.PREFERENCES
+                modalBottomSheetState.animateTo(ModalBottomSheetValue.HalfExpanded)
               }
             }) {
               Icon(
@@ -239,49 +266,36 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
                 tint = themeTintColor
               )
             }
-            IconButton(onClick = { isMenuExpanded = true }) {
-              Icon(
-                painter = painterResource(id = R.drawable.dots_horizontal),
-                contentDescription = null,
-                tint = themeTintColor
-              )
-              if (isMenuExpanded) {
-                webReaderParams?.let { params ->
-                  SavedItemContextMenu(
-                    isExpanded = isMenuExpanded,
-                    isArchived = params.item.isArchived,
-                    onDismiss = { isMenuExpanded = false },
-                    actionHandler = {
-                      webReaderViewModel.handleSavedItemAction(
-                        params.item.savedItemId,
-                        it
-                      )
-                    }
-                  )
+              IconButton(onClick = { isMenuExpanded = true }) {
+                Icon(
+                  painter = painterResource(id = R.drawable.dots_horizontal),
+                  contentDescription = null,
+                  tint = themeTintColor
+                )
+                if (isMenuExpanded) {
+                  webReaderParams?.let { params ->
+                    SavedItemContextMenu(
+                      isExpanded = isMenuExpanded,
+                      isArchived = params.item.isArchived,
+                      onDismiss = { isMenuExpanded = false },
+                      actionHandler = {
+                        webReaderViewModel.handleSavedItemAction(
+                          params.item.savedItemId,
+                          it
+                        )
+                      }
+                    )
+                  }
                 }
               }
-            }
           },
         )
       }
     ) { paddingValues ->
           if (styledContent != null) {
             WebReader(
-              preferences = webReaderViewModel.storedWebPreferences(isSystemInDarkTheme()),
               styledContent = styledContent,
               webReaderViewModel = webReaderViewModel
-            )
-          }
-
-          if (annotation != null) {
-            AnnotationEditView(
-              initialAnnotation = annotation!!,
-              onSave = {
-                webReaderViewModel.saveAnnotation(it)
-              },
-              onCancel = {
-                webReaderViewModel.cancelAnnotationEdit()
-              }
             )
           }
 
@@ -295,6 +309,7 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
       }
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
@@ -310,7 +325,6 @@ fun BottomSheetUI(title: String?, content: @Composable () -> Unit) {
     Scaffold(
     ) { paddingValues ->
       Box(modifier = Modifier
-        .padding(paddingValues)
         .fillMaxSize()) {
         content()
       }

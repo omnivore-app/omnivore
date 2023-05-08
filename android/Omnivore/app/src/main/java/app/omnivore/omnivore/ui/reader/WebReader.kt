@@ -30,7 +30,6 @@ import java.util.*
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun WebReader(
-  preferences: WebPreferences,
   styledContent: String,
   webReaderViewModel: WebReaderViewModel
 ) {
