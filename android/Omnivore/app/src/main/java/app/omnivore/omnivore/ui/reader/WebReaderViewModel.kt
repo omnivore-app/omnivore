@@ -6,9 +6,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import app.omnivore.omnivore.DatastoreKeys
 import app.omnivore.omnivore.DatastoreRepository
 import app.omnivore.omnivore.dataService.*
@@ -24,6 +22,7 @@ import com.apollographql.apollo3.api.Optional.Companion.presentIfNotNull
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.distinctUntilChanged
 import java.util.*
 import javax.inject.Inject
 
@@ -37,13 +36,13 @@ data class AnnotationWebViewMessage(
   val annotation: String?
 )
 
-enum class Themes(val themeKey: String, val backgroundColor: Long) {
-  SYSTEM("System", 0xFFFFFFFF),
-  LIGHT("Light", 0xFF000000),
-  SEPIA("Sepia", 0xFFFBF0D9),
-  DARK("Dark", 0xFF2a2a2a),
-  APOLLO("Apollo", 0xFF6A6968),
-  BLACK("Black", 0xFF000000),
+enum class Themes(val themeKey: String, val backgroundColor: Long, val foregroundColor: Long) {
+  SYSTEM("System", 0xFFFFFFFF, 0xFF000000),
+  LIGHT("Light", 0xFFFFFFFF, 0xFF000000),
+  SEPIA("Sepia", 0xFFFBF0D9, 0xFF000000),
+  DARK("Dark", 0xFF2F3030, 0xFFFFFFFF),
+  APOLLO("Apollo", 0xFF6A6968, 0xFFFFFFFF),
+  BLACK("Black", 0xFF000000, 0xFFFFFFFF),
 }
 
 @HiltViewModel
@@ -261,6 +260,11 @@ class WebReaderViewModel @Inject constructor(
     javascriptDispatchQueue.add(javascript)
     javascriptActionLoopUUIDLiveData.value = UUID.randomUUID()
   }
+
+  val currentThemeKey: LiveData<String> = datastoreRepo
+    .themeKeyFlow
+    .distinctUntilChanged()
+    .asLiveData()
 
   fun storedWebPreferences(isDarkMode: Boolean): WebPreferences = runBlocking {
     val storedFontSize = datastoreRepo.getInt(DatastoreKeys.preferredWebFontSize)

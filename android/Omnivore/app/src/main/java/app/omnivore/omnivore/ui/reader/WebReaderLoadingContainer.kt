@@ -1,8 +1,8 @@
 package app.omnivore.omnivore.ui.reader
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
@@ -16,8 +16,6 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,7 +23,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -36,17 +33,16 @@ import androidx.compose.ui.unit.dp
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.viewmodel.compose.viewModel
 import app.omnivore.omnivore.MainActivity
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.ui.components.WebReaderLabelsSelectionSheet
+import app.omnivore.omnivore.ui.notebook.NotebookActivity
 import app.omnivore.omnivore.ui.savedItemViews.SavedItemContextMenu
 import app.omnivore.omnivore.ui.theme.OmnivoreTheme
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
-import kotlin.math.roundToInt
-import app.omnivore.omnivore.ui.notebook.NotebookActivity
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 
 @AndroidEntryPoint
@@ -107,7 +103,7 @@ class WebReaderLoadingContainerActivity: ComponentActivity() {
   }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, onLibraryIconTap: (() -> Unit)? = null, webReaderViewModel: WebReaderViewModel) {
   val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
@@ -115,9 +111,8 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, o
   var isMenuExpanded by remember { mutableStateOf(false) }
   var showWebPreferencesDialog by remember { mutableStateOf(false ) }
 
-  val isDark = isSystemInDarkTheme()
-  val currentWebPreferences = webReaderViewModel.storedWebPreferences(isDark)
-  val currentTheme = Themes.values().find { it.themeKey == currentWebPreferences.themeKey }
+  val currentThemeKey = webReaderViewModel.currentThemeKey.observeAsState()
+  val currentTheme = Themes.values().find { it.themeKey == currentThemeKey.value }
 
   val webReaderParams: WebReaderParams? by webReaderViewModel.webReaderParamsLiveData.observeAsState(null)
   val annotation: String? by webReaderViewModel.annotationLiveData.observeAsState(null)
@@ -125,7 +120,6 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, o
   val toolbarHeightPx: Float by webReaderViewModel.currentToolbarHeightLiveData.observeAsState(0.0f)
 
   val maxToolbarHeight = 48.dp
-  val backgroundColor = if (isSystemInDarkTheme()) Color.Black else Color.White
   webReaderViewModel.maxToolbarHeightPx = with(LocalDensity.current) { maxToolbarHeight.roundToPx().toFloat() }
   webReaderViewModel.loadItem(slug = slug, requestID = requestID)
 
@@ -145,6 +139,8 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, o
     ModalBottomSheetValue.Hidden,
   )
 
+  val themeTintColor = Color(currentTheme?.foregroundColor ?: 0xFFFFFFFF)
+
   ModalBottomSheetLayout(
     modifier = Modifier.statusBarsPadding(),
     sheetBackgroundColor = Color.Transparent,
@@ -158,25 +154,15 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, o
       Spacer(modifier = Modifier.weight(1.0F))
     }
   ) {
-    Box(
-      modifier = Modifier
-        .fillMaxSize()
-        .systemBarsPadding()
-        .background(color = backgroundColor)
-    ) {
-      if (styledContent != null) {
-        WebReader(
-          preferences = webReaderViewModel.storedWebPreferences(isSystemInDarkTheme()),
-          styledContent = styledContent,
-          webReaderViewModel = webReaderViewModel
-        )
-
-        TopAppBar(
+    Scaffold(
+      topBar = {
+         TopAppBar(
           modifier = Modifier
             .height(height = with(LocalDensity.current) {
               toolbarHeightPx.roundToInt().toDp()
             }),
-          backgroundColor = Color(currentTheme?.backgroundColor ?: 0xFFFFFFFF), //  MaterialTheme.colorScheme.surfaceVariant,
+          backgroundColor = Color(currentTheme?.backgroundColor ?: 0xFFFFFFFF),
+           elevation = 0.dp,
           title = {},
           navigationIcon = {
             IconButton(onClick = {
@@ -185,7 +171,8 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, o
               Icon(
                 imageVector = Icons.Filled.ArrowBack,
                 modifier = Modifier,
-                contentDescription = "Back"
+                contentDescription = "Back",
+                tint = themeTintColor
               )
             }
           },
@@ -194,7 +181,8 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, o
               IconButton(onClick = { onLibraryIconTap() }) {
                 Icon(
                   imageVector = Icons.Default.Home,
-                  contentDescription = null
+                  contentDescription = null,
+                  tint = themeTintColor,
                 )
               }
             }
@@ -206,7 +194,8 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, o
               }) {
                 Icon(
                   painter = painterResource(id = R.drawable.notebook),
-                  contentDescription = null
+                  contentDescription = null,
+                  tint = themeTintColor
                 )
               }
             }
@@ -218,43 +207,58 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, o
             }) {
               Icon(
                 painter = painterResource(id = R.drawable.format_letter_case),
-                contentDescription = null
+                contentDescription = null,
+                tint = themeTintColor
               )
             }
             IconButton(onClick = { isMenuExpanded = true }) {
               Icon(
                 painter = painterResource(id = R.drawable.dots_horizontal),
-                contentDescription = null
+                contentDescription = null,
+                tint = themeTintColor
               )
+              if (isMenuExpanded) {
+                webReaderParams?.let { params ->
+                  SavedItemContextMenu(
+                    isExpanded = isMenuExpanded,
+                    isArchived = webReaderParams!!.item.isArchived,
+                    onDismiss = { isMenuExpanded = false },
+                    actionHandler = {
+                      webReaderViewModel.handleSavedItemAction(
+                        params.item.savedItemId,
+                        it
+                      )
+                    }
+                  )
+                }
+              }
             }
-            SavedItemContextMenu(
-              isExpanded = isMenuExpanded,
-              isArchived = webReaderParams!!.item.isArchived,
-              onDismiss = { isMenuExpanded = false },
-              actionHandler = {
-                webReaderViewModel.handleSavedItemAction(
-                  webReaderParams!!.item.savedItemId,
-                  it
-                )
+          },
+        )
+      }
+    ) { paddingValues ->
+          if (styledContent != null) {
+            WebReader(
+              preferences = webReaderViewModel.storedWebPreferences(isSystemInDarkTheme()),
+              styledContent = styledContent,
+              webReaderViewModel = webReaderViewModel
+            )
+          }
+
+          if (annotation != null) {
+            AnnotationEditView(
+              initialAnnotation = annotation!!,
+              onSave = {
+                webReaderViewModel.saveAnnotation(it)
+              },
+              onCancel = {
+                webReaderViewModel.cancelAnnotationEdit()
               }
             )
           }
-        )
 
-        if (annotation != null) {
-          AnnotationEditView(
-            initialAnnotation = annotation!!,
-            onSave = {
-              webReaderViewModel.saveAnnotation(it)
-            },
-            onCancel = {
-              webReaderViewModel.cancelAnnotationEdit()
-            }
-          )
+          WebReaderLabelsSelectionSheet(webReaderViewModel)
         }
-
-        WebReaderLabelsSelectionSheet(webReaderViewModel)
-      }
 
       LaunchedEffect(shouldPopView) {
         if (shouldPopView) {
@@ -262,7 +266,6 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, o
         }
       }
     }
-  }
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
