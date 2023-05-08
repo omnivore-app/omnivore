@@ -32,6 +32,8 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import app.omnivore.omnivore.MainActivity
 import app.omnivore.omnivore.R
+import app.omnivore.omnivore.persistence.entities.SavedItemLabel
+import app.omnivore.omnivore.ui.components.LabelsSelectionSheetContent
 import app.omnivore.omnivore.ui.components.WebReaderLabelsSelectionSheet
 import app.omnivore.omnivore.ui.notebook.NotebookView
 import app.omnivore.omnivore.ui.notebook.NotebookViewModel
@@ -108,7 +110,8 @@ enum class BottomSheetState(
   NONE(),
   PREFERENCES(),
   NOTEBOOK(),
-  HIGHLIGHTNOTE()
+  HIGHLIGHTNOTE(),
+  LABELS(),
 }
 
 
@@ -130,6 +133,8 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
   val annotation: String? by webReaderViewModel.annotationLiveData.observeAsState(null)
   val shouldPopView: Boolean by webReaderViewModel.shouldPopViewLiveData.observeAsState(false)
   val toolbarHeightPx: Float by webReaderViewModel.currentToolbarHeightLiveData.observeAsState(0.0f)
+
+  val labels: List<SavedItemLabel> by webReaderViewModel.savedItemLabelsLiveData.observeAsState(listOf())
 
   val maxToolbarHeight = 48.dp
   webReaderViewModel.maxToolbarHeightPx = with(LocalDensity.current) { maxToolbarHeight.roundToPx().toFloat() }
@@ -156,6 +161,15 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
     bottomSheetState = BottomSheetState.HIGHLIGHTNOTE
     coroutineScope.launch {
       modalBottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
+    }
+  }
+
+  val showLabelsSelector: Boolean by webReaderViewModel.showLabelsSelectionSheetLiveData.observeAsState(false)
+
+  if (showLabelsSelector) {
+    bottomSheetState = BottomSheetState.LABELS
+    coroutineScope.launch {
+      modalBottomSheetState.animateTo(ModalBottomSheetValue.HalfExpanded)
     }
   }
 
@@ -199,6 +213,35 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
                 }
               )
             }
+          }
+        }
+        app.omnivore.omnivore.ui.reader.BottomSheetState.LABELS -> {
+          BottomSheetUI(title = "Notebook") {
+            LabelsSelectionSheetContent(
+              labels = labels,
+              initialSelectedLabels = webReaderParams?.labels ?: listOf(),
+              onCancel = {
+                coroutineScope.launch {
+                  modalBottomSheetState.hide()
+                  bottomSheetState = BottomSheetState.NONE
+                }
+              },
+              isLibraryMode = false,
+              onSave = {
+                if (it != labels) {
+                  webReaderViewModel.updateSavedItemLabels(
+                    savedItemID = webReaderParams?.item?.savedItemId ?: "", labels = it
+                  )
+                }
+                coroutineScope.launch {
+                  modalBottomSheetState.hide()
+                  bottomSheetState = BottomSheetState.NONE
+                }
+              },
+              onCreateLabel = { newLabelName, labelHexValue ->
+                webReaderViewModel.createNewSavedItemLabel(newLabelName, labelHexValue)
+              }
+            )
           }
         }
         BottomSheetState.NONE -> {
@@ -298,8 +341,6 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
               webReaderViewModel = webReaderViewModel
             )
           }
-
-          WebReaderLabelsSelectionSheet(webReaderViewModel)
         }
 
       LaunchedEffect(shouldPopView) {
