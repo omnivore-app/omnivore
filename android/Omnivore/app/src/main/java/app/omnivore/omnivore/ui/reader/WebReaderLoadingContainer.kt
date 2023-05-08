@@ -126,6 +126,7 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
   var isMenuExpanded by remember { mutableStateOf(false) }
   var bottomSheetState by remember { mutableStateOf(BottomSheetState.NONE) }
 
+  val isDarkMode = isSystemInDarkTheme()
   val currentThemeKey = webReaderViewModel.currentThemeKey.observeAsState()
   val currentTheme = Themes.values().find { it.themeKey == currentThemeKey.value }
 
@@ -155,7 +156,24 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
     initialValue = ModalBottomSheetValue.Hidden,
   )
 
-  val themeTintColor = Color(currentTheme?.foregroundColor ?: 0xFFFFFFFF)
+  val themeBackgroundColor = currentTheme?.let {
+    if (it.themeKey == "System" && isDarkMode) {
+      Color(0xFF000000)
+    } else if (it.themeKey == "System" ) {
+      Color(0xFFFFFFFF)
+    } else {
+      Color(it.backgroundColor ?: 0xFFFFFFFF)
+    }
+  } ?: Color(0xFFFFFFFF)
+  val themeTintColor = currentTheme?.let {
+    if (it.themeKey == "System" && isDarkMode) {
+      Color(0xFFFFFFFF)
+    } else if (it.themeKey == "System" ) {
+      Color(0xFF000000)
+    } else {
+      Color(it.foregroundColor ?: 0xFF000000)
+    }
+  } ?: Color(0xFF000000)
 
   annotation?.let {
     bottomSheetState = BottomSheetState.HIGHLIGHTNOTE
@@ -258,7 +276,7 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
             .height(height = with(LocalDensity.current) {
               toolbarHeightPx.roundToInt().toDp()
             }),
-          backgroundColor = Color(currentTheme?.backgroundColor ?: 0xFFFFFFFF),
+          backgroundColor = themeBackgroundColor,
            elevation = 0.dp,
           title = {},
           navigationIcon = {
