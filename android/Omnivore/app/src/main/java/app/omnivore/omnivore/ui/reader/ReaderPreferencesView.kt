@@ -1,6 +1,5 @@
 package app.omnivore.omnivore.ui.reader
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
@@ -24,11 +23,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.omnivore.omnivore.R
-import app.omnivore.omnivore.ui.components.SegmentedControl
 import app.omnivore.omnivore.ui.theme.OmnivoreTheme
 
 @Composable
-fun WebPreferencesView(webReaderViewModel: WebReaderViewModel) {
+fun ReaderPreferencesView(webReaderViewModel: WebReaderViewModel) {
   val isDark = isSystemInDarkTheme()
   val currentWebPreferences = webReaderViewModel.storedWebPreferences(isDark)
   val isFontListExpanded = remember { mutableStateOf(false) }
@@ -36,7 +34,7 @@ fun WebPreferencesView(webReaderViewModel: WebReaderViewModel) {
 
   val justifyTextSwitchState = remember { mutableStateOf(currentWebPreferences.prefersJustifyText) }
 
-  val selectedWebFontRawValue = remember { mutableStateOf(currentWebPreferences.fontFamily.rawValue) }
+  val selectedWebFontName = remember { mutableStateOf(currentWebPreferences.fontFamily.displayText) }
 
 
   var fontSizeSliderValue by remember { mutableStateOf(currentWebPreferences.textFontSize.toFloat()) }
@@ -74,24 +72,27 @@ fun WebPreferencesView(webReaderViewModel: WebReaderViewModel) {
             // containerColor = Color.Transparent,
           ),
         ) {
-          Text(selectedWebFontRawValue.value)
+          Text(selectedWebFontName.value)
         }
         if (isFontListExpanded.value) {
           DropdownMenu(
             expanded = isFontListExpanded.value,
-            onDismissRequest = { isFontListExpanded.value = false }
+            onDismissRequest = { isFontListExpanded.value = false },
           ) {
             WebFont.values().forEach {
               DropdownMenuItem(
-                text = { Text(it.displayText) },
+                text = {
+                  Text(it.displayText, style = TextStyle(
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = Color(red = 137, green = 137, blue = 137)
+                  ))
+                },
                 onClick = {
                   webReaderViewModel.applyWebFont(it)
-                  selectedWebFontRawValue.value = it.rawValue
+                  selectedWebFontName.value = it.displayText
                   isFontListExpanded.value = false
                 },
-                colors = MenuDefaults.itemColors(
-                  textColor = Color(red = 137, green = 137, blue = 137),
-                )
               )
             }
           }

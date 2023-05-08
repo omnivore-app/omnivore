@@ -1,6 +1,5 @@
 package app.omnivore.omnivore.ui.reader
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -19,7 +18,6 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -148,7 +146,7 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null, o
     sheetContent = {
       if (showWebPreferencesDialog) {
         BottomSheetUI("Reader Preferences") {
-          WebPreferencesView(webReaderViewModel)
+          ReaderPreferencesView(webReaderViewModel)
         }
       }
       Spacer(modifier = Modifier.weight(1.0F))
@@ -282,26 +280,6 @@ fun BottomSheetUI(title: String?, content: @Composable () -> Unit) {
       .statusBarsPadding()
   ) {
     Scaffold(
-      topBar = {
-        TopAppBar(
-          title = { Text(title ?: "") },
-          modifier = Modifier.statusBarsPadding(),
-          colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.background
-          ),
-//          navigationIcon = {
-//            IconButton(onClick = {
-//              onBackPressedDispatcher?.onBackPressed()
-//            }) {
-//              Icon(
-//                imageVector = Icons.Filled.ArrowBack,
-//                modifier = Modifier,
-//                contentDescription = "Back"
-//              )
-//            }
-//          }
-        )
-      }
     ) { paddingValues ->
       Box(modifier = Modifier
         .padding(paddingValues)
