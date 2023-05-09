@@ -6,9 +6,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import app.omnivore.omnivore.DatastoreKeys
 import app.omnivore.omnivore.DatastoreRepository
 import app.omnivore.omnivore.dataService.*
@@ -24,6 +22,7 @@ import com.apollographql.apollo3.api.Optional.Companion.presentIfNotNull
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.distinctUntilChanged
 import java.util.*
 import javax.inject.Inject
 
@@ -36,6 +35,15 @@ data class WebReaderParams(
 data class AnnotationWebViewMessage(
   val annotation: String?
 )
+
+enum class Themes(val themeKey: String, val backgroundColor: Long, val foregroundColor: Long) {
+  SYSTEM("System", 0xFFFFFFFF, 0xFF000000),
+  LIGHT("Light", 0xFFFFFFFF, 0xFF000000),
+  SEPIA("Sepia", 0xFFFBF0D9, 0xFF000000),
+  DARK("Dark", 0xFF2F3030, 0xFFFFFFFF),
+  APOLLO("Apollo", 0xFF6A6968, 0xFFFFFFFF),
+  BLACK("Black", 0xFF000000, 0xFFFFFFFF),
+}
 
 @HiltViewModel
 class WebReaderViewModel @Inject constructor(
@@ -55,9 +63,6 @@ class WebReaderViewModel @Inject constructor(
   val currentToolbarHeightLiveData = MutableLiveData(0.0f)
   val showLabelsSelectionSheetLiveData = MutableLiveData(false)
   val savedItemLabelsLiveData = dataService.db.savedItemLabelDao().getSavedItemLabelsLiveData()
-
-  // "Sepia", "Apollo",
-  val systemThemeKeys = listOf("Light", "Black", "System")
 
   var hasTappedExistingHighlight = false
   var lastTapCoordinates: TapCoordinates? = null
@@ -256,6 +261,11 @@ class WebReaderViewModel @Inject constructor(
     javascriptActionLoopUUIDLiveData.value = UUID.randomUUID()
   }
 
+  val currentThemeKey: LiveData<String> = datastoreRepo
+    .themeKeyFlow
+    .distinctUntilChanged()
+    .asLiveData()
+
   fun storedWebPreferences(isDarkMode: Boolean): WebPreferences = runBlocking {
     val storedFontSize = datastoreRepo.getInt(DatastoreKeys.preferredWebFontSize)
     val storedLineHeight = datastoreRepo.getInt(DatastoreKeys.preferredWebLineHeight)
@@ -288,59 +298,37 @@ class WebReaderViewModel @Inject constructor(
     return storedThemePreference
   }
 
-  fun updateStoredThemePreference(index: Int, isDarkMode: Boolean) {
-    val newThemeKey = themeKey(isDarkMode, systemThemeKeys[index])
+  fun updateStoredThemePreference(newThemeKey: String, isDarkMode: Boolean) {
     Log.d("theme", "Setting theme key: ${newThemeKey}")
 
     runBlocking {
-      datastoreRepo.putString(DatastoreKeys.preferredTheme, systemThemeKeys[index])
+      datastoreRepo.putString(DatastoreKeys.preferredTheme, newThemeKey)
     }
 
     val script = "var event = new Event('updateTheme');event.themeName = '$newThemeKey';document.dispatchEvent(event);"
     enqueueScript(script)
   }
 
-  fun updateFontSize(isIncrease: Boolean)  {
-    val delta = if (isIncrease) 2 else -2
-    var newFontSize: Int
-
+  fun setFontSize(newFontSize: Int)  {
     runBlocking {
-      val storedFontSize = datastoreRepo.getInt(DatastoreKeys.preferredWebFontSize)
-      newFontSize = ((storedFontSize ?: 12) + delta).coerceIn(8, 28)
       datastoreRepo.putInt(DatastoreKeys.preferredWebFontSize, newFontSize)
     }
-
-    // Get value from data store and then update it
     val script = "var event = new Event('updateFontSize');event.fontSize = '$newFontSize';document.dispatchEvent(event);"
     enqueueScript(script)
   }
 
-  fun updateMaxWidthPercentage(isIncrease: Boolean)  {
-    val delta = if (isIncrease) 10 else -10
-    var newMaxWidthPercentageValue: Int
-
+  fun setMaxWidthPercentage(newMaxWidthPercentageValue: Int)  {
     runBlocking {
-      val storedWidth = datastoreRepo.getInt(DatastoreKeys.preferredWebMaxWidthPercentage)
-      newMaxWidthPercentageValue = ((storedWidth ?: 100) + delta).coerceIn(40, 100)
       datastoreRepo.putInt(DatastoreKeys.preferredWebMaxWidthPercentage, newMaxWidthPercentageValue)
     }
-
-    // Get value from data store and then update it
     val script = "var event = new Event('updateMaxWidthPercentage');event.maxWidthPercentage = '$newMaxWidthPercentageValue';document.dispatchEvent(event);"
     enqueueScript(script)
   }
 
-  fun updateLineSpacing(isIncrease: Boolean)  {
-    val delta = if (isIncrease) 25 else -25
-    var newLineHeight: Int
-
+  fun setLineHeight(newLineHeight: Int)  {
     runBlocking {
-      val storedHeight = datastoreRepo.getInt(DatastoreKeys.preferredWebLineHeight)
-      newLineHeight = ((storedHeight ?: 150) + delta).coerceIn(100, 300)
       datastoreRepo.putInt(DatastoreKeys.preferredWebLineHeight, newLineHeight)
     }
-
-    // Get value from data store and then update it
     val script = "var event = new Event('updateLineHeight');event.lineHeight = '$newLineHeight';document.dispatchEvent(event);"
     enqueueScript(script)
   }

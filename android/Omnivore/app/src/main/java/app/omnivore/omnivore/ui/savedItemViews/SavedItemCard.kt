@@ -1,6 +1,7 @@
 package app.omnivore.omnivore.ui.savedItemViews
 
 import LabelChip
+import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -21,8 +22,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.*
 import app.omnivore.omnivore.R
-import app.omnivore.omnivore.persistence.entities.SavedItemCardData
-import app.omnivore.omnivore.persistence.entities.SavedItemLabel
 import app.omnivore.omnivore.persistence.entities.SavedItemWithLabelsAndHighlights
 import app.omnivore.omnivore.ui.components.LabelChipColors
 import app.omnivore.omnivore.ui.library.LibraryViewModel
@@ -35,8 +34,6 @@ import coil.compose.rememberAsyncImagePainter
 @Composable
 fun SavedItemCard(savedItemViewModel: SavedItemViewModel, savedItem: SavedItemWithLabelsAndHighlights, onClickHandler: () -> Unit, actionHandler: (SavedItemAction) -> Unit) {
   val listState = rememberLazyListState()
-
-  val actionsMenuItem: SavedItemWithLabelsAndHighlights? by savedItemViewModel.actionsMenuItemLiveData.observeAsState(null)
 
   Column(
     modifier = Modifier

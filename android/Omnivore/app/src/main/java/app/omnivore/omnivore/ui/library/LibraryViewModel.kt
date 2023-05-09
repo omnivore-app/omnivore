@@ -76,6 +76,8 @@ class LibraryViewModel @Inject constructor(
   }
 
   fun refresh() {
+    cursor = null
+    librarySearchCursor = null
     isRefreshing = true
     load(true)
   }
@@ -164,8 +166,9 @@ class LibraryViewModel @Inject constructor(
     }
   }
   fun handleFilterChanges() {
+    librarySearchCursor = null
+
     if (appliedSortFilterLiveData.value != null && appliedFilterLiveData.value != null) {
-      val applied = appliedFilterLiveData.value
       val sortKey = when (appliedSortFilterLiveData.value) {
         SavedItemSortFilter.NEWEST -> "newest"
         SavedItemSortFilter.OLDEST -> "oldest"

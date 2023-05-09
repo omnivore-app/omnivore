@@ -13,13 +13,14 @@ import app.omnivore.omnivore.persistence.entities.*
     SavedItemAndSavedItemLabelCrossRef::class,
     SavedItemAndHighlightCrossRef::class
   ],
-  version = 6
+  version = 7
 )
 abstract class AppDatabase : RoomDatabase() {
   abstract fun viewerDao(): ViewerDao
   abstract fun savedItemDao(): SavedItemDao
   abstract fun highlightDao(): HighlightDao
   abstract fun savedItemLabelDao(): SavedItemLabelDao
+  abstract fun savedItemWithLabelsAndHighlightsDao(): SavedItemWithLabelsAndHighlightsDao
   abstract fun savedItemAndSavedItemLabelCrossRefDao(): SavedItemAndSavedItemLabelCrossRefDao
   abstract fun savedItemAndHighlightCrossRefDao(): SavedItemAndHighlightCrossRefDao
 }

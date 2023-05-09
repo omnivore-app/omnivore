@@ -1,7 +1,6 @@
 package app.omnivore.omnivore.ui.library
 
 import androidx.lifecycle.MutableLiveData
-import app.omnivore.omnivore.persistence.entities.SavedItemCardData
 import app.omnivore.omnivore.persistence.entities.SavedItemWithLabelsAndHighlights
 
 interface SavedItemViewModel {
