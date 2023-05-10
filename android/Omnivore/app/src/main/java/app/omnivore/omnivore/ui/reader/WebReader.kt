@@ -11,6 +11,7 @@ import android.view.*
 import android.view.View.OnScrollChangeListener
 import android.view.ViewTreeObserver.OnScrollChangedListener
 import android.webkit.JavascriptInterface
+import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -61,6 +62,17 @@ fun WebReader(
             super.onPageFinished(view, url)
             viewModel?.showNavBar()
             view?.animate()?.alpha(1.0f)?.duration = 200
+          }
+
+          override fun shouldOverrideUrlLoading(
+            view: WebView?,
+            request: WebResourceRequest?
+          ): Boolean {
+            Log.d("reader","SHOULD OVERRIDE REQUEST: ${request?.url} hasGesture: ${request?.hasGesture()} isForMainFrame: ${request?.isForMainFrame()}")
+            if ((request?.isForMainFrame == true) && (request?.hasGesture() == true)) {
+              return false
+            }
+            return super.shouldOverrideUrlLoading(view, request)
           }
         }
 

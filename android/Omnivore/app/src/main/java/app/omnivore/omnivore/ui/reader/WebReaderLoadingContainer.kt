@@ -34,7 +34,6 @@ import app.omnivore.omnivore.MainActivity
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.persistence.entities.SavedItemLabel
 import app.omnivore.omnivore.ui.components.LabelsSelectionSheetContent
-import app.omnivore.omnivore.ui.components.WebReaderLabelsSelectionSheet
 import app.omnivore.omnivore.ui.notebook.NotebookView
 import app.omnivore.omnivore.ui.notebook.NotebookViewModel
 import app.omnivore.omnivore.ui.savedItemViews.SavedItemContextMenu
@@ -124,7 +123,7 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
   val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
 
   var isMenuExpanded by remember { mutableStateOf(false) }
-  var bottomSheetState by remember { mutableStateOf(BottomSheetState.NONE) }
+  val bottomSheetState: BottomSheetState? by webReaderViewModel.bottomSheetStateLiveData.observeAsState(BottomSheetState.NONE)
 
   val isDarkMode = isSystemInDarkTheme()
   val currentThemeKey = webReaderViewModel.currentThemeKey.observeAsState()
@@ -175,22 +174,6 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
     }
   } ?: Color(0xFF000000)
 
-  annotation?.let {
-    bottomSheetState = BottomSheetState.HIGHLIGHTNOTE
-    coroutineScope.launch {
-      modalBottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
-    }
-  }
-
-  val showLabelsSelector: Boolean by webReaderViewModel.showLabelsSelectionSheetLiveData.observeAsState(false)
-
-  if (showLabelsSelector) {
-    bottomSheetState = BottomSheetState.LABELS
-    coroutineScope.launch {
-      modalBottomSheetState.animateTo(ModalBottomSheetValue.HalfExpanded)
-    }
-  }
-
   ModalBottomSheetLayout(
     modifier = Modifier
       .statusBarsPadding(),
@@ -219,14 +202,14 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
                   webReaderViewModel.saveAnnotation(it)
                   coroutineScope.launch {
                     modalBottomSheetState.hide()
-                    bottomSheetState = BottomSheetState.NONE
+                    webReaderViewModel.resetBottomSheet()
                   }
                 },
                 onCancel = {
                   webReaderViewModel.cancelAnnotationEdit()
                   coroutineScope.launch {
                     modalBottomSheetState.hide()
-                    bottomSheetState = BottomSheetState.NONE
+                    webReaderViewModel.resetBottomSheet()
                   }
                 }
               )
@@ -241,7 +224,7 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
               onCancel = {
                 coroutineScope.launch {
                   modalBottomSheetState.hide()
-                  bottomSheetState = BottomSheetState.NONE
+                  webReaderViewModel.resetBottomSheet()
                 }
               },
               isLibraryMode = false,
@@ -253,7 +236,7 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
                 }
                 coroutineScope.launch {
                   modalBottomSheetState.hide()
-                  bottomSheetState = BottomSheetState.NONE
+                  webReaderViewModel.resetBottomSheet()
                 }
               },
               onCreateLabel = { newLabelName, labelHexValue ->
@@ -263,6 +246,9 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
           }
         }
         BottomSheetState.NONE -> {
+
+        }
+        else -> {
 
         }
       }
@@ -304,7 +290,7 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
             webReaderParams?.let {
               IconButton(onClick = {
                 coroutineScope.launch {
-                  bottomSheetState = BottomSheetState.NOTEBOOK
+                  webReaderViewModel.setBottomSheet(BottomSheetState.NOTEBOOK)
                   modalBottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
                 }
               }) {
@@ -317,7 +303,7 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
             }
             IconButton(onClick = {
               coroutineScope.launch {
-                bottomSheetState = BottomSheetState.PREFERENCES
+                webReaderViewModel.setBottomSheet(BottomSheetState.PREFERENCES)
                 modalBottomSheetState.animateTo(ModalBottomSheetValue.HalfExpanded)
               }
             }) {

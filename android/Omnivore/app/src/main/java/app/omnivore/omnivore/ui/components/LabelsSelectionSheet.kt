@@ -9,9 +9,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
@@ -28,50 +26,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import app.omnivore.omnivore.persistence.entities.SavedItemLabel
 import app.omnivore.omnivore.ui.library.LibraryViewModel
-import app.omnivore.omnivore.ui.reader.WebReaderParams
-import app.omnivore.omnivore.ui.reader.WebReaderViewModel
 
-@Composable
-fun WebReaderLabelsSelectionSheet(viewModel: WebReaderViewModel) {
-  val isActive: Boolean by viewModel.showLabelsSelectionSheetLiveData.observeAsState(false)
-  val labels: List<SavedItemLabel> by viewModel.savedItemLabelsLiveData.observeAsState(listOf())
-  val webReaderParams: WebReaderParams? by viewModel.webReaderParamsLiveData.observeAsState(null)
-
-  val modalBottomSheetState = rememberModalBottomSheetState(
-    ModalBottomSheetValue.HalfExpanded,
-  )
-
-  if (isActive) {
-    ModalBottomSheetLayout(
-      sheetBackgroundColor = Color.Transparent,
-      sheetState = modalBottomSheetState,
-      sheetContent = {
-        BottomSheetUI {
-          LabelsSelectionSheetContent(
-            labels = labels,
-            initialSelectedLabels = webReaderParams?.labels ?: listOf(),
-            onCancel = {
-              viewModel.showLabelsSelectionSheetLiveData.value = false
-            },
-            isLibraryMode = false,
-            onSave = {
-              if (it != labels) {
-                viewModel.updateSavedItemLabels(savedItemID = webReaderParams?.item?.savedItemId ?: "", labels = it)
-              }
-              viewModel.showLabelsSelectionSheetLiveData.value = false
-            },
-            onCreateLabel = { newLabelName, labelHexValue ->
-              viewModel.createNewSavedItemLabel(newLabelName, labelHexValue)
-            }
-          )
-        }
-      }
-    ) {}
-  }
-}
 
 @Composable
 fun LabelsSelectionSheet(viewModel: LibraryViewModel) {

@@ -2,6 +2,7 @@ package app.omnivore.omnivore.ui.reader
 
 import android.util.Log
 import androidx.compose.foundation.ScrollState
+import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
@@ -64,6 +65,8 @@ class WebReaderViewModel @Inject constructor(
   val showLabelsSelectionSheetLiveData = MutableLiveData(false)
   val savedItemLabelsLiveData = dataService.db.savedItemLabelDao().getSavedItemLabelsLiveData()
 
+  val bottomSheetStateLiveData = MutableLiveData<BottomSheetState>(BottomSheetState.NONE)
+
   var hasTappedExistingHighlight = false
   var lastTapCoordinates: TapCoordinates? = null
   private var isLoading = false
@@ -83,6 +86,14 @@ class WebReaderViewModel @Inject constructor(
 
   fun showNavBar() {
     onScrollChange(maxToolbarHeightPx)
+  }
+
+  fun setBottomSheet(state: BottomSheetState) {
+    bottomSheetStateLiveData.postValue(state)
+  }
+
+  fun resetBottomSheet() {
+    bottomSheetStateLiveData.postValue(BottomSheetState.NONE)
   }
 
   fun onScrollChange(delta: Float) {
@@ -185,6 +196,7 @@ class WebReaderViewModel @Inject constructor(
       }
       SavedItemAction.EditLabels -> {
         showLabelsSelectionSheetLiveData.value = true
+        bottomSheetStateLiveData.postValue(BottomSheetState.LABELS)
       }
     }
   }
@@ -225,6 +237,7 @@ class WebReaderViewModel @Inject constructor(
             .fromJson(jsonString, AnnotationWebViewMessage::class.java)
             .annotation ?: ""
           annotationLiveData.value = annotation
+          bottomSheetStateLiveData.postValue(BottomSheetState.HIGHLIGHTNOTE)
         }
       }
       "shareHighlight" -> {
