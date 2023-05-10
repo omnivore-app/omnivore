@@ -2596,21 +2596,23 @@
   dependencies:
     google-gax "^3.5.2"
 
-"@google-cloud/opentelemetry-cloud-trace-exporter@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@google-cloud/opentelemetry-cloud-trace-exporter/-/opentelemetry-cloud-trace-exporter-1.1.0.tgz#f57c565fbacde3f5f26a8f3da4e61702c5c4b5df"
-  integrity sha512-pAgk5ieNcOOWBO2OQQsgZ7ZXbutVDCdlVg7srfQT7txTf2UlVajT1DlisEveMpMjjNjHeizjf/4P3NZ8btUlFw==
+"@google-cloud/opentelemetry-cloud-trace-exporter@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@google-cloud/opentelemetry-cloud-trace-exporter/-/opentelemetry-cloud-trace-exporter-2.0.0.tgz#5f437bf3185cdb91ab7357b020986e80d50d58b4"
+  integrity sha512-3YZ0xLy+t0nesNSOBgC1EQg56mwHHjdHDqPiSJD7a+ZGg2CT5iaiMTMUD4BB1tAF2gOZ/eWFzPMnPp20ZBgxJA==
   dependencies:
-    "@google-cloud/opentelemetry-resource-util" "^1.1.0"
+    "@google-cloud/opentelemetry-resource-util" "^2.0.0"
     "@grpc/grpc-js" "^1.1.8"
-    "@grpc/proto-loader" "^0.6.0"
+    "@grpc/proto-loader" "^0.7.0"
     google-auth-library "^7.0.0"
-    google-proto-files "^2.1.0"
+    google-proto-files "^3.0.0"
 
-"@google-cloud/opentelemetry-resource-util@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@google-cloud/opentelemetry-resource-util/-/opentelemetry-resource-util-1.1.0.tgz#0bd1fe708ba27288f6efc9712fbd3705fd325540"
-  integrity sha512-AXfQiqIxeespEYcRNaotC05ddiy2Vgk2yqY73b7Hl1UoJ75Gt4kSRcswrVn18eoDI0YQkSTBh7Ye9ugfFLN5HA==
+"@google-cloud/opentelemetry-resource-util@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@google-cloud/opentelemetry-resource-util/-/opentelemetry-resource-util-2.0.0.tgz#3c957f407f5fc5b47a9fed26ae5f50af0ed9c941"
+  integrity sha512-/7rtUZUk1H9Ss/IikDswOHSejIAFMfWQ6g7duJGQYeUYL5h0M0uqRAAS48IXzMlsJKkzvZER9l3JOBhCdOfueA==
+  dependencies:
+    gcp-metadata "^5.0.1"
 
 "@google-cloud/paginator@^3.0.0", "@google-cloud/paginator@^3.0.7":
   version "3.0.7"
@@ -3181,11 +3183,12 @@
   resolved "https://registry.yarnpkg.com/@graphql-typed-document-node/core/-/core-3.2.0.tgz#5f3d96ec6b2354ad6d8a28bf216a1d97b5426861"
   integrity sha512-mB9oAsNCm9aM3/SOv4YtBMqZbYj10R7dkq8byBqxGY/ncFwhf2oQzMV+LCRlWoDSEBJ3COiR1yeDvMtsoOsuFQ==
 
-"@grpc/grpc-js@^1.1.8":
-  version "1.3.7"
-  resolved "https://registry.yarnpkg.com/@grpc/grpc-js/-/grpc-js-1.3.7.tgz#58b687aff93b743aafde237fd2ee9a3259d7f2d8"
-  integrity sha512-CKQVuwuSPh40tgOkR7c0ZisxYRiN05PcKPW72mQL5y++qd7CwBRoaJZvU5xfXnCJDFBmS3qZGQ71Frx6Ofo2XA==
+"@grpc/grpc-js@^1.1.8", "@grpc/grpc-js@~1.8.0":
+  version "1.8.11"
+  resolved "https://registry.yarnpkg.com/@grpc/grpc-js/-/grpc-js-1.8.11.tgz#f113f7bc197e8d6f3d3f0c6b02925c7a5da1aec4"
+  integrity sha512-f/xC+6Z2QKsRJ+VSSFlt4hA5KSRm+PKvMWV8kMPkMgGlFidR6PeIkXrOasIY2roe+WROM6GFQLlgDKfeEZo2YQ==
   dependencies:
+    "@grpc/proto-loader" "^0.7.0"
     "@types/node" ">=12.12.47"
 
 "@grpc/grpc-js@~1.5.0":
@@ -3196,26 +3199,7 @@
     "@grpc/proto-loader" "^0.6.4"
     "@types/node" ">=12.12.47"
 
-"@grpc/grpc-js@~1.8.0":
-  version "1.8.11"
-  resolved "https://registry.yarnpkg.com/@grpc/grpc-js/-/grpc-js-1.8.11.tgz#f113f7bc197e8d6f3d3f0c6b02925c7a5da1aec4"
-  integrity sha512-f/xC+6Z2QKsRJ+VSSFlt4hA5KSRm+PKvMWV8kMPkMgGlFidR6PeIkXrOasIY2roe+WROM6GFQLlgDKfeEZo2YQ==
-  dependencies:
-    "@grpc/proto-loader" "^0.7.0"
-    "@types/node" ">=12.12.47"
-
-"@grpc/proto-loader@^0.6.0", "@grpc/proto-loader@^0.6.1":
-  version "0.6.4"
-  resolved "https://registry.yarnpkg.com/@grpc/proto-loader/-/proto-loader-0.6.4.tgz#5438c0d771e92274e77e631babdc14456441cbdc"
-  integrity sha512-7xvDvW/vJEcmLUltCUGOgWRPM8Oofv0eCFSVMuKqaqWJaXSzmB+m9hiyqe34QofAl4WAzIKUZZlinIF9FOHyTQ==
-  dependencies:
-    "@types/long" "^4.0.1"
-    lodash.camelcase "^4.3.0"
-    long "^4.0.0"
-    protobufjs "^6.10.0"
-    yargs "^16.1.1"
-
-"@grpc/proto-loader@^0.6.4":
+"@grpc/proto-loader@^0.6.1", "@grpc/proto-loader@^0.6.4":
   version "0.6.9"
   resolved "https://registry.yarnpkg.com/@grpc/proto-loader/-/proto-loader-0.6.9.tgz#4014eef366da733f8e04a9ddd7376fe8a58547b7"
   integrity sha512-UlcCS8VbsU9d3XTXGiEVFonN7hXk+oMXZtoHHG2oSA1/GcDP1q6OUgs20PzHDGizzyi8ufGSUDlk3O2NyY7leg==
@@ -15308,6 +15292,14 @@ gcp-metadata@^5.0.0:
     gaxios "^5.0.0"
     json-bigint "^1.0.0"
 
+gcp-metadata@^5.0.1:
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/gcp-metadata/-/gcp-metadata-5.2.0.tgz#b4772e9c5976241f5d3e69c4f446c906d25506ec"
+  integrity sha512-aFhhvvNycky2QyhG+dcfEdHBF0FRbYcf39s6WNHUDysKSrbJ5vuFbjydxBcmewtXeV248GP8dWT3ByPNxsyHCw==
+  dependencies:
+    gaxios "^5.0.0"
+    json-bigint "^1.0.0"
+
 generic-pool@3.8.2:
   version "3.8.2"
   resolved "https://registry.yarnpkg.com/generic-pool/-/generic-pool-3.8.2.tgz#aab4f280adb522fdfbdc5e5b64d718d3683f04e9"
@@ -15780,12 +15772,12 @@ google-p12-pem@^4.0.0:
   dependencies:
     node-forge "^1.3.1"
 
-google-proto-files@^2.1.0:
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/google-proto-files/-/google-proto-files-2.4.0.tgz#c9760aa3f41a61b43be759d411535fc97c6c6c22"
-  integrity sha512-M5u56EsADOnplBUHTBzqBcCtPNPoGtBBXefjtA7mt3KDsOnlRM75fwrW2rsPS3Am2vrf9I0/NlI0E3nKWo/Ipg==
+google-proto-files@^3.0.0:
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/google-proto-files/-/google-proto-files-3.0.3.tgz#73e116854df2167c1dcb02eb878c10b882bf7f26"
+  integrity sha512-7JaU/smPA/FpNsCaXyVjitwiQyn5zYC/ETA+xag3ziovBojIWvzevyrbVqhxgnQdgMJ0p1RVSvpzQL6hkg6yGw==
   dependencies:
-    protobufjs "^6.8.0"
+    protobufjs "^7.0.0"
     walkdir "^0.4.0"
 
 googleapis-common@^6.0.0:
@@ -22793,7 +22785,7 @@ protobufjs-cli@1.1.1:
     tmp "^0.2.1"
     uglify-js "^3.7.7"
 
-protobufjs@6.11.2, protobufjs@^6.10.0, protobufjs@^6.11.2, protobufjs@^6.8.0:
+protobufjs@6.11.2, protobufjs@^6.10.0, protobufjs@^6.11.2:
   version "6.11.2"
   resolved "https://registry.yarnpkg.com/protobufjs/-/protobufjs-6.11.2.tgz#de39fabd4ed32beaa08e9bb1e30d08544c1edf8b"
   integrity sha512-4BQJoPooKJl2G9j3XftkIXjoC9C0Av2NOrWmbLWT1vH32GcSUHjM0Arra6UfTsVyfMAuFzaLucXn1sadxJydAw==
@@ -28389,7 +28381,7 @@ yargs-unparser@2.0.0:
     flat "^5.0.2"
     is-plain-obj "^2.1.0"
 
-yargs@16.2.0, yargs@^16.0.0, yargs@^16.1.0, yargs@^16.1.1, yargs@^16.2.0:
+yargs@16.2.0, yargs@^16.0.0, yargs@^16.1.0, yargs@^16.2.0:
   version "16.2.0"
   resolved "https://registry.yarnpkg.com/yargs/-/yargs-16.2.0.tgz#1c82bf0f6b6a66eafce7ef30e376f49a12477f66"
   integrity sha512-D1mvvtDG0L5ft/jGWkLpG1+m0eQxOfaBvTNELraWj22wSVUMWxZUvYgJYcKh6jGGIkJFhH4IZPQhR4TKpc8mBw==
