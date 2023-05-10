@@ -160,9 +160,9 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
   val modalBottomSheetState = rememberModalBottomSheetState(
     initialValue = ModalBottomSheetValue.Hidden,
     confirmStateChange = {
-//      if (it == ModalBottomSheetValue.Hidden) {
-//        webReaderViewModel.resetBottomSheet()
-//      }
+      if (it == ModalBottomSheetValue.Hidden) {
+        webReaderViewModel.resetBottomSheet()
+      }
       true
     }
   )

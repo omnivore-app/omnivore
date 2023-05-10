@@ -7,8 +7,6 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.*
 import app.omnivore.omnivore.DatastoreKeys
@@ -99,17 +97,27 @@ class WebReaderViewModel @Inject constructor(
     bottomSheetStateLiveData.postValue(BottomSheetState.NONE)
   }
 
-  fun showOpenLinkSheet(uri: Uri) {
-    currentLink = uri
-    bottomSheetStateLiveData.postValue(BottomSheetState.LINK)
+  fun showOpenLinkSheet(context: Context, uri: Uri) {
+    webReaderParamsLiveData.value?.let {
+      if (it.item.pageURLString == uri.toString()) {
+        openLink(context, uri)
+      } else {
+        currentLink = uri
+        bottomSheetStateLiveData.postValue(BottomSheetState.LINK)
+      }
+    }
   }
 
   fun openCurrentLink(context: Context) {
     currentLink?.let {
-      val browserIntent = Intent(Intent.ACTION_VIEW, it)
-      startActivity(context, browserIntent, null)
+      openLink(context, it)
     }
     bottomSheetStateLiveData.postValue(BottomSheetState.NONE)
+  }
+
+  fun openLink(context: Context, uri: Uri) {
+    val browserIntent = Intent(Intent.ACTION_VIEW, uri)
+    startActivity(context, browserIntent, null)
   }
 
   fun saveCurrentLink(context: Context) {

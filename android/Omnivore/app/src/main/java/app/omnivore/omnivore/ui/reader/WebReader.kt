@@ -71,7 +71,7 @@ fun WebReader(
             var handled: Boolean? = null
             request?.let {
               if ((request?.isForMainFrame == true) && (request?.hasGesture() == true) && viewModel != null) {
-                viewModel?.showOpenLinkSheet(request.url)
+                viewModel?.showOpenLinkSheet(context, request.url)
                 handled = true
               }
             }
