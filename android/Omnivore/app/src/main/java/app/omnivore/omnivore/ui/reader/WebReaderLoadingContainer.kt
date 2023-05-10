@@ -130,7 +130,6 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
   val currentTheme = Themes.values().find { it.themeKey == currentThemeKey.value }
 
   val webReaderParams: WebReaderParams? by webReaderViewModel.webReaderParamsLiveData.observeAsState(null)
-  val annotation: String? by webReaderViewModel.annotationLiveData.observeAsState(null)
   val shouldPopView: Boolean by webReaderViewModel.shouldPopViewLiveData.observeAsState(false)
   val toolbarHeightPx: Float by webReaderViewModel.currentToolbarHeightLiveData.observeAsState(0.0f)
 
@@ -227,7 +226,7 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
           }
         }
         BottomSheetState.HIGHLIGHTNOTE -> {
-          annotation?.let { annotation ->
+          webReaderViewModel.annotation?.let { annotation ->
             BottomSheetUI(title = "Note") {
               AnnotationEditView(
                 initialAnnotation = annotation,

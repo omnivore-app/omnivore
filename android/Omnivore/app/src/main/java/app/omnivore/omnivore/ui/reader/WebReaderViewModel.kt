@@ -59,7 +59,7 @@ class WebReaderViewModel @Inject constructor(
   var maxToolbarHeightPx = 0.0f
 
   val webReaderParamsLiveData = MutableLiveData<WebReaderParams?>(null)
-  val annotationLiveData = MutableLiveData<String?>(null)
+  var annotation: String? = null
   val javascriptActionLoopUUIDLiveData = MutableLiveData(lastJavascriptActionLoopUUID)
   val shouldPopViewLiveData = MutableLiveData(false)
   val hasFetchError = MutableLiveData(false)
@@ -237,10 +237,10 @@ class WebReaderViewModel @Inject constructor(
       }
       "annotate" -> {
         viewModelScope.launch {
-          val annotation = Gson()
+          val annotationStr = Gson()
             .fromJson(jsonString, AnnotationWebViewMessage::class.java)
             .annotation ?: ""
-          annotationLiveData.value = annotation
+          annotation = annotationStr
           bottomSheetStateLiveData.postValue(BottomSheetState.HIGHLIGHTNOTE)
         }
       }
@@ -270,7 +270,8 @@ class WebReaderViewModel @Inject constructor(
   }
 
   fun cancelAnnotationEdit() {
-    annotationLiveData.value = null
+    annotation = null
+    resetBottomSheet()
   }
 
   private fun enqueueScript(javascript: String) {
