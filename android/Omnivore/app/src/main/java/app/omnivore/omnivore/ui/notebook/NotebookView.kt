@@ -120,7 +120,6 @@ fun NotebookView(savedItemId: String, viewModel: NotebookViewModel) {
                                         onClick = {
                                             val clip = ClipData.newPlainText("notebook", notebookMD(notes, highlights))
                                             clipboard?.let {
-                                                it
                                                 clipboard?.setPrimaryClip(clip)
                                             } ?: run {
                                                 coroutineScope.launch {
@@ -289,7 +288,6 @@ fun HighlightsList(item: SavedItemWithLabelsAndHighlights) {
                                     onClick = {
                                         val clip = ClipData.newPlainText("highlight", highlight.quote)
                                         clipboard?.let {
-                                            it
                                             clipboard?.setPrimaryClip(clip)
                                         } ?: run {
                                             coroutineScope.launch {

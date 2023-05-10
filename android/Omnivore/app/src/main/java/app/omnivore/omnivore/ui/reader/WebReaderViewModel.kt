@@ -1,33 +1,34 @@
 package app.omnivore.omnivore.ui.reader
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.util.Log
-import androidx.compose.foundation.ScrollState
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.runtime.remember
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import android.widget.Toast
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.*
 import app.omnivore.omnivore.DatastoreKeys
 import app.omnivore.omnivore.DatastoreRepository
 import app.omnivore.omnivore.dataService.*
 import app.omnivore.omnivore.graphql.generated.type.CreateLabelInput
 import app.omnivore.omnivore.graphql.generated.type.SetLabelsInput
-import app.omnivore.omnivore.persistence.entities.SavedItem
 import app.omnivore.omnivore.networking.*
+import app.omnivore.omnivore.persistence.entities.SavedItem
 import app.omnivore.omnivore.persistence.entities.SavedItemAndSavedItemLabelCrossRef
 import app.omnivore.omnivore.persistence.entities.SavedItemLabel
 import app.omnivore.omnivore.ui.library.SavedItemAction
-import com.apollographql.apollo3.api.Optional
 import com.apollographql.apollo3.api.Optional.Companion.presentIfNotNull
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.distinctUntilChanged
-import java.net.URI
 import java.util.*
 import javax.inject.Inject
+
 
 data class WebReaderParams(
   val item: SavedItem,
@@ -66,6 +67,7 @@ class WebReaderViewModel @Inject constructor(
   val currentToolbarHeightLiveData = MutableLiveData(0.0f)
   val savedItemLabelsLiveData = dataService.db.savedItemLabelDao().getSavedItemLabelsLiveData()
 
+  var currentLink: Uri? = null
   val bottomSheetStateLiveData = MutableLiveData<BottomSheetState>(BottomSheetState.NONE)
 
   var hasTappedExistingHighlight = false
@@ -98,7 +100,40 @@ class WebReaderViewModel @Inject constructor(
   }
 
   fun showOpenLinkSheet(uri: Uri) {
-    bottomSheetStateLiveData.postValue(BottomSheetState.LABELS)
+    currentLink = uri
+    bottomSheetStateLiveData.postValue(BottomSheetState.LINK)
+  }
+
+  fun openCurrentLink(context: Context) {
+    currentLink?.let {
+      val browserIntent = Intent(Intent.ACTION_VIEW, it)
+      startActivity(context, browserIntent, null)
+    }
+    bottomSheetStateLiveData.postValue(BottomSheetState.NONE)
+  }
+
+  fun saveCurrentLink(context: Context) {
+    currentLink?.let {
+      viewModelScope.launch {
+        val success = networker.saveUrl(it)
+        Toast.makeText(context, if (success) "Link saved" else "Error saving link" , Toast.LENGTH_SHORT).show()
+      }
+    }
+    bottomSheetStateLiveData.postValue(BottomSheetState.NONE)
+  }
+
+  fun copyCurrentLink(context: Context) {
+    currentLink?.let {
+      val clip = ClipData.newPlainText("link", it.toString())
+      val clipboard =
+        context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+      clipboard.setPrimaryClip(clip)
+      clipboard?.let {
+        clipboard?.setPrimaryClip(clip)
+        Toast.makeText(context, "Link Copied", Toast.LENGTH_SHORT).show()
+      }
+    }
+    bottomSheetStateLiveData.postValue(BottomSheetState.NONE)
   }
 
   fun onScrollChange(delta: Float) {
@@ -414,7 +449,7 @@ class WebReaderViewModel @Inject constructor(
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
 
-        val newLabel = networker.createNewLabel(CreateLabelInput(color = Optional.presentIfNotNull(hexColorValue), name = labelName))
+        val newLabel = networker.createNewLabel(CreateLabelInput(color = presentIfNotNull(hexColorValue), name = labelName))
 
         newLabel?.let {
           val savedItemLabel = SavedItemLabel(
