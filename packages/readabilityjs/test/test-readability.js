@@ -2,6 +2,7 @@ var chai = require("chai");
 var sinon = require("sinon");
 var chaiAsPromised = require("chai-as-promised");
 const { parseHTML } = require("linkedom");
+const nock = require("nock");
 
 chai.use(chaiAsPromised);
 chai.config.includeStack = true;
@@ -323,6 +324,21 @@ describe("Readability API", function() {
 });
 
 describe("Test pages", function() {
+  before(function() {
+    // mock the substack redirect to twitter
+    nock('https://email.mg2.substack.com')
+      .get('/c/eJxNkcuO3SAMhp8m7E5EzC1ZsDjT0fQidVG1qtRVRIKToCYQAZmZ9OlLejaVEBhk-__5PJqMc4in3kPK5Nr6fO6oPb6lFXPGSI6EsXdWK8ZAcQXEam6bVrTEpX6KiJtxq87xQLIfw-pGk13wVwWojlNKFo1UMpgYWCrbtoNJmIYh60AMYKxopoewOaxDP6LGV4xn8EjGsG3o89WLrHrJeU8Vu1fwUlZ-c5e9uuSU2_cF1xX9gHHG-PW5vKRs8pFK0AjoWq6KdMNapVoJvGIvpdEz0ApkLsEdPrLz6dP5Pv76LNOfnx_gxxd6J04DBaACZDkphZrVVqnR0nZCaVs6GVFxus1Qp2MoeuPvyw2Jegl-HsJNheC-JX7DkuX8EN5vFrdQh8271xCxNvt-Ieuvbx7e5bNHb4YV7YNmfgzlH99-Ro-xDMv2JutGCiY6yRsGgj_gFURCyk6wRpHixoZS5fXmxsXgmv6n8xdPFKS3')
+      .reply(302, '', [
+        'location',
+        'https://twitter.com/ShellenbergerMD/status/1529847068138778624?s=20&t=A2G3yBHyxcYI6szVC2TJ0A'
+      ]);
+
+    nock('https://twitter.com')
+      .get('/ShellenbergerMD/status/1529847068138778624')
+      .query({"s":"20","t":"A2G3yBHyxcYI6szVC2TJ0A"})
+      .reply(200);
+  });
+
   testPages.forEach(function(testPage) {
     describe(testPage.dir, function() {
       var uri = "http://fakehost/test/page.html";
