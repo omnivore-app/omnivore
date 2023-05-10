@@ -174,6 +174,39 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
     }
   } ?: Color(0xFF000000)
 
+    when (bottomSheetState) {
+      BottomSheetState.PREFERENCES -> {
+        coroutineScope.launch {
+          modalBottomSheetState.animateTo(ModalBottomSheetValue.HalfExpanded)
+        }
+      }
+      BottomSheetState.NOTEBOOK -> {
+        coroutineScope.launch {
+          modalBottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
+        }
+      }
+      BottomSheetState.HIGHLIGHTNOTE -> {
+        coroutineScope.launch {
+          modalBottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
+        }
+      }
+      BottomSheetState.LABELS -> {
+        coroutineScope.launch {
+          modalBottomSheetState.animateTo(ModalBottomSheetValue.HalfExpanded)
+        }
+      }
+      BottomSheetState.NONE -> {
+        coroutineScope.launch {
+          modalBottomSheetState.hide()
+        }
+      }
+      else -> {
+        coroutineScope.launch {
+          modalBottomSheetState.hide()
+        }
+      }
+    }
+
   ModalBottomSheetLayout(
     modifier = Modifier
       .statusBarsPadding(),

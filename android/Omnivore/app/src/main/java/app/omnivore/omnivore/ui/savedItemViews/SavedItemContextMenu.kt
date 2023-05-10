@@ -24,19 +24,19 @@ fun SavedItemContextMenu(
     expanded = isExpanded,
     onDismissRequest = onDismiss
   ) {
-//    DropdownMenuItem(
-//      text = { Text("Edit Labels") },
-//      onClick = {
-//        actionHandler(SavedItemAction.EditLabels)
-//        onDismiss()
-//      },
-//      leadingIcon = {
-//        Icon(
-//          painter = painterResource(id = R.drawable.tag),
-//          contentDescription = null
-//        )
-//      }
-//    )
+    DropdownMenuItem(
+      text = { Text("Edit Labels") },
+      onClick = {
+        actionHandler(SavedItemAction.EditLabels)
+        onDismiss()
+      },
+      leadingIcon = {
+        Icon(
+          painter = painterResource(id = R.drawable.tag),
+          contentDescription = null
+        )
+      }
+    )
     DropdownMenuItem(
       text = { Text(if (isArchived) "Unarchive" else "Archive") },
       onClick = {

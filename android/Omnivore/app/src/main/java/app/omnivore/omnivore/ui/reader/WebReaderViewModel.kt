@@ -1,5 +1,6 @@
 package app.omnivore.omnivore.ui.reader
 
+import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.ScrollState
 import androidx.compose.material.ModalBottomSheetValue
@@ -24,6 +25,7 @@ import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.distinctUntilChanged
+import java.net.URI
 import java.util.*
 import javax.inject.Inject
 
@@ -62,7 +64,6 @@ class WebReaderViewModel @Inject constructor(
   val shouldPopViewLiveData = MutableLiveData(false)
   val hasFetchError = MutableLiveData(false)
   val currentToolbarHeightLiveData = MutableLiveData(0.0f)
-  val showLabelsSelectionSheetLiveData = MutableLiveData(false)
   val savedItemLabelsLiveData = dataService.db.savedItemLabelDao().getSavedItemLabelsLiveData()
 
   val bottomSheetStateLiveData = MutableLiveData<BottomSheetState>(BottomSheetState.NONE)
@@ -94,6 +95,10 @@ class WebReaderViewModel @Inject constructor(
 
   fun resetBottomSheet() {
     bottomSheetStateLiveData.postValue(BottomSheetState.NONE)
+  }
+
+  fun showOpenLinkSheet(uri: Uri) {
+    bottomSheetStateLiveData.postValue(BottomSheetState.LABELS)
   }
 
   fun onScrollChange(delta: Float) {
@@ -195,7 +200,6 @@ class WebReaderViewModel @Inject constructor(
         }
       }
       SavedItemAction.EditLabels -> {
-        showLabelsSelectionSheetLiveData.value = true
         bottomSheetStateLiveData.postValue(BottomSheetState.LABELS)
       }
     }

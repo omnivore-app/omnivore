@@ -68,11 +68,15 @@ fun WebReader(
             view: WebView?,
             request: WebResourceRequest?
           ): Boolean {
-            Log.d("reader","SHOULD OVERRIDE REQUEST: ${request?.url} hasGesture: ${request?.hasGesture()} isForMainFrame: ${request?.isForMainFrame()}")
-            if ((request?.isForMainFrame == true) && (request?.hasGesture() == true)) {
-              return false
+            var handled: Boolean? = null
+            request?.let {
+              if ((request?.isForMainFrame == true) && (request?.hasGesture() == true) && viewModel != null) {
+                viewModel?.showOpenLinkSheet(request.url)
+                handled = true
+              }
             }
-            return super.shouldOverrideUrlLoading(view, request)
+
+            return handled ?: super.shouldOverrideUrlLoading(view, request)
           }
         }
 
