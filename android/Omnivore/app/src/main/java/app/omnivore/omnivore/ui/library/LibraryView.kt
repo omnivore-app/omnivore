@@ -33,38 +33,114 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.Routes
+import app.omnivore.omnivore.persistence.entities.SavedItemLabel
 import app.omnivore.omnivore.persistence.entities.SavedItemWithLabelsAndHighlights
-import app.omnivore.omnivore.ui.components.LabelsSelectionSheet
+import app.omnivore.omnivore.ui.components.LabelsSelectionSheetContent
 import app.omnivore.omnivore.ui.savedItemViews.SavedItemCard
 import app.omnivore.omnivore.ui.reader.PDFReaderActivity
 import app.omnivore.omnivore.ui.reader.WebReaderLoadingContainerActivity
-import app.omnivore.omnivore.ui.save.SaveSheetActivityBase
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun LibraryView(
   libraryViewModel: LibraryViewModel,
   navController: NavHostController
 ) {
-  Scaffold(
-    topBar = {
-      LibraryNavigationBar(
-        savedItemViewModel = libraryViewModel,
-        onSearchClicked = { navController.navigate(Routes.Search.route) },
-        onSettingsIconClick = { navController.navigate(Routes.Settings.route) }
-      )
+  val showLabelsSelectionSheet: Boolean by libraryViewModel.showLabelsSelectionSheetLiveData.observeAsState(false)
 
-    },
-  ) { paddingValues ->
+  val coroutineScope = rememberCoroutineScope()
+  val modalBottomSheetState = rememberModalBottomSheetState(
+    ModalBottomSheetValue.Hidden,
+    confirmStateChange = { it != ModalBottomSheetValue.Hidden }
+  )
+
+  if (showLabelsSelectionSheet) {
+    coroutineScope.launch {
+      modalBottomSheetState.animateTo(ModalBottomSheetValue.HalfExpanded)
+    }
+  } else {
+    coroutineScope.launch {
+      modalBottomSheetState.hide()
+    }
+  }
+
+  ModalBottomSheetLayout(
+    sheetBackgroundColor = Color.Transparent,
+    sheetState = modalBottomSheetState,
+    sheetContent = {
+      BottomSheetContent(libraryViewModel)
+      Spacer(modifier = Modifier.weight(1.0F))
+    }
+  ) {
+    Scaffold(
+      topBar = {
+        LibraryNavigationBar(
+          savedItemViewModel = libraryViewModel,
+          onSearchClicked = { navController.navigate(Routes.Search.route) },
+          onSettingsIconClick = { navController.navigate(Routes.Settings.route) }
+        )
+      },
+    ) { paddingValues ->
       LibraryViewContent(
         libraryViewModel,
         modifier = Modifier
-          .padding(
-            top = paddingValues.calculateTopPadding()
-          )
+          .padding(top = paddingValues.calculateTopPadding())
       )
+    }
+  }
+}
+
+@Composable
+fun BottomSheetContent(libraryViewModel: LibraryViewModel) {
+  val showLabelsSelectionSheet: Boolean by libraryViewModel.showLabelsSelectionSheetLiveData.observeAsState(false)
+  val currentSavedItemData = libraryViewModel.currentSavedItemUnderEdit()
+  val labels: List<SavedItemLabel> by libraryViewModel.savedItemLabelsLiveData.observeAsState(listOf())
+
+  if (showLabelsSelectionSheet) {
+    BottomSheetUI {
+      if (currentSavedItemData != null) {
+        LabelsSelectionSheetContent(
+          labels = labels,
+          initialSelectedLabels = currentSavedItemData.labels,
+          onCancel = {
+            libraryViewModel.showLabelsSelectionSheetLiveData.value = false
+            libraryViewModel.labelsSelectionCurrentItemLiveData.value = null
+          },
+          isLibraryMode = false,
+          onSave = {
+            if (it != labels) {
+              libraryViewModel.updateSavedItemLabels(
+                savedItemID = currentSavedItemData.savedItem.savedItemId,
+                labels = it
+              )
+            }
+            libraryViewModel.labelsSelectionCurrentItemLiveData.value = null
+            libraryViewModel.showLabelsSelectionSheetLiveData.value = false
+          },
+          onCreateLabel = { newLabelName, labelHexValue ->
+            libraryViewModel.createNewSavedItemLabel(newLabelName, labelHexValue)
+          }
+        )
+      } else { // Is used in library mode
+        LabelsSelectionSheetContent(
+          labels = labels,
+          initialSelectedLabels = libraryViewModel.activeLabelsLiveData.value ?: listOf(),
+          onCancel = { libraryViewModel.showLabelsSelectionSheetLiveData.value = false },
+          isLibraryMode = true,
+          onSave = {
+            libraryViewModel.updateAppliedLabels(it)
+            libraryViewModel.labelsSelectionCurrentItemLiveData.value = null
+            libraryViewModel.showLabelsSelectionSheetLiveData.value = false
+          },
+          onCreateLabel = { newLabelName, labelHexValue ->
+            libraryViewModel.createNewSavedItemLabel(newLabelName, labelHexValue)
+          }
+        )
+      }
+    }
   }
 }
 
@@ -137,9 +213,24 @@ fun LibraryViewContent(libraryViewModel: LibraryViewModel, modifier: Modifier) {
       modifier = Modifier.align(Alignment.TopCenter)
     )
 
-    LabelsSelectionSheet(viewModel = libraryViewModel)
+    // LabelsSelectionSheet(viewModel = libraryViewModel)
   }
 }
+
+@Composable
+private fun BottomSheetUI(content: @Composable () -> Unit) {
+  Box(
+    modifier = Modifier
+      .wrapContentHeight()
+      .fillMaxWidth()
+      .clip(RoundedCornerShape(topEnd = 20.dp, topStart = 20.dp))
+      .background(Color.White)
+      .statusBarsPadding()
+  ) {
+    content()
+  }
+}
+
 
 @Composable
 fun InfiniteListHandler(

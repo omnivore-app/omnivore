@@ -28,69 +28,70 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import app.omnivore.omnivore.persistence.entities.SavedItemLabel
 import app.omnivore.omnivore.ui.library.LibraryViewModel
+import com.google.accompanist.flowlayout.FlowRow
 
 
-@Composable
-fun LabelsSelectionSheet(viewModel: LibraryViewModel) {
-  val isActive: Boolean by viewModel.showLabelsSelectionSheetLiveData.observeAsState(false)
-  val labels: List<SavedItemLabel> by viewModel.savedItemLabelsLiveData.observeAsState(listOf())
-  val currentSavedItemData = viewModel.currentSavedItemUnderEdit()
-
-  val modalBottomSheetState = rememberModalBottomSheetState(
-    ModalBottomSheetValue.HalfExpanded,
-    confirmStateChange = { it != ModalBottomSheetValue.Hidden }
-  )
-
-  if (isActive) {
-    ModalBottomSheetLayout(
-      sheetBackgroundColor = Color.Transparent,
-      sheetState = modalBottomSheetState,
-      sheetContent = {
-        BottomSheetUI {
-          if (currentSavedItemData != null) {
-            LabelsSelectionSheetContent(
-              labels = labels,
-              initialSelectedLabels = currentSavedItemData.labels,
-              onCancel = {
-                viewModel.showLabelsSelectionSheetLiveData.value = false
-                viewModel.labelsSelectionCurrentItemLiveData.value = null
-              },
-              isLibraryMode = false,
-              onSave = {
-                if (it != labels) {
-                  viewModel.updateSavedItemLabels(
-                    savedItemID = currentSavedItemData.savedItem.savedItemId,
-                    labels = it
-                  )
-                }
-                viewModel.labelsSelectionCurrentItemLiveData.value = null
-                viewModel.showLabelsSelectionSheetLiveData.value = false
-              },
-              onCreateLabel = { newLabelName, labelHexValue ->
-                viewModel.createNewSavedItemLabel(newLabelName, labelHexValue)
-              }
-            )
-          } else { // Is used in library mode
-            LabelsSelectionSheetContent(
-              labels = labels,
-              initialSelectedLabels = viewModel.activeLabelsLiveData.value ?: listOf(),
-              onCancel = { viewModel.showLabelsSelectionSheetLiveData.value = false },
-              isLibraryMode = true,
-              onSave = {
-                viewModel.updateAppliedLabels(it)
-                viewModel.labelsSelectionCurrentItemLiveData.value = null
-                viewModel.showLabelsSelectionSheetLiveData.value = false
-              },
-              onCreateLabel = { newLabelName, labelHexValue ->
-                viewModel.createNewSavedItemLabel(newLabelName, labelHexValue)
-              }
-            )
-          }
-        }
-      }
-    ) {}
-  }
-}
+//@Composable
+//fun LabelsSelectionSheet(viewModel: LibraryViewModel) {
+//  val isActive: Boolean by viewModel.showLabelsSelectionSheetLiveData.observeAsState(false)
+//  val labels: List<SavedItemLabel> by viewModel.savedItemLabelsLiveData.observeAsState(listOf())
+//  val currentSavedItemData = viewModel.currentSavedItemUnderEdit()
+//
+//  val modalBottomSheetState = rememberModalBottomSheetState(
+//    ModalBottomSheetValue.HalfExpanded,
+//    confirmStateChange = { it != ModalBottomSheetValue.Hidden }
+//  )
+//
+//  if (isActive) {
+//    ModalBottomSheetLayout(
+//      sheetBackgroundColor = Color.Transparent,
+//      sheetState = modalBottomSheetState,
+//      sheetContent = {
+//        BottomSheetUI {
+//          if (currentSavedItemData != null) {
+//            LabelsSelectionSheetContent(
+//              labels = labels,
+//              initialSelectedLabels = currentSavedItemData.labels,
+//              onCancel = {
+//                viewModel.showLabelsSelectionSheetLiveData.value = false
+//                viewModel.labelsSelectionCurrentItemLiveData.value = null
+//              },
+//              isLibraryMode = false,
+//              onSave = {
+//                if (it != labels) {
+//                  viewModel.updateSavedItemLabels(
+//                    savedItemID = currentSavedItemData.savedItem.savedItemId,
+//                    labels = it
+//                  )
+//                }
+//                viewModel.labelsSelectionCurrentItemLiveData.value = null
+//                viewModel.showLabelsSelectionSheetLiveData.value = false
+//              },
+//              onCreateLabel = { newLabelName, labelHexValue ->
+//                viewModel.createNewSavedItemLabel(newLabelName, labelHexValue)
+//              }
+//            )
+//          } else { // Is used in library mode
+//            LabelsSelectionSheetContent(
+//              labels = labels,
+//              initialSelectedLabels = viewModel.activeLabelsLiveData.value ?: listOf(),
+//              onCancel = { viewModel.showLabelsSelectionSheetLiveData.value = false },
+//              isLibraryMode = true,
+//              onSave = {
+//                viewModel.updateAppliedLabels(it)
+//                viewModel.labelsSelectionCurrentItemLiveData.value = null
+//                viewModel.showLabelsSelectionSheetLiveData.value = false
+//              },
+//              onCreateLabel = { newLabelName, labelHexValue ->
+//                viewModel.createNewSavedItemLabel(newLabelName, labelHexValue)
+//              }
+//            )
+//          }
+//        }
+//      }
+//    ) {}
+//  }
+//}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -132,6 +133,7 @@ fun LabelsSelectionSheetContent(
         .fillMaxSize()
         .padding(horizontal = 0.dp)
     ) {
+
       Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
@@ -212,19 +214,5 @@ fun LabelsSelectionSheetContent(
         }
       }
     }
-  }
-}
-
-@Composable
-private fun BottomSheetUI(content: @Composable () -> Unit) {
-  Box(
-    modifier = Modifier
-      .wrapContentHeight()
-      .fillMaxWidth()
-      .clip(RoundedCornerShape(topEnd = 20.dp, topStart = 20.dp))
-      .background(Color.White)
-      .statusBarsPadding()
-  ) {
-    content()
   }
 }
