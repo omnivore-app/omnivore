@@ -160,12 +160,12 @@ describe('auth router', () => {
         username = 'omnivore_admin'
       })
 
-      it('redirects to sign up page with error code INVALID_PASSWORD', async () => {
+      it('redirects to sign up page with error code INVALID_CREDENTIALS', async () => {
         const res = await signupRequest(email, password, name, username).expect(
           302
         )
         expect(res.header.location).to.endWith(
-          '/email-signup?errorCodes=INVALID_PASSWORD'
+          '/email-signup?errorCodes=INVALID_CREDENTIALS'
         )
       })
     })
