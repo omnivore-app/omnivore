@@ -596,7 +596,8 @@ export function authRouter() {
           )
         }
 
-        res.cookie('auth', '', { expires: new Date() })
+        res.clearCookie('auth')
+        res.clearCookie('pendingUserAuth')
         res.redirect(`${env.client.url}/auth/reset-sent`)
       } catch (e) {
         logger.info('forgot-password exception:', e)
