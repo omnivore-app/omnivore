@@ -104,6 +104,7 @@ export const createApp = (): {
       max: (req) => {
         // 50 RPM for an authenticated request, 5 for a non-authenticated request
         const token = getClaimsByToken(
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
           req.header('authorization') ?? req.cookies['auth']
         )
         return !!token ? 50 : 5
