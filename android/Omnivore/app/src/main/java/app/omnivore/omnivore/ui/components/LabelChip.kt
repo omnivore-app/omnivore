@@ -13,10 +13,10 @@ import app.omnivore.omnivore.ui.components.LabelChipColors
 fun LabelChip(
     name: String,
     colors: LabelChipColors,
-    onSelectionChanged: (String) -> Unit = {},
+    modifier: Modifier = Modifier.padding(0.dp),
 ) {
     Surface(
-        modifier = Modifier.padding(4.dp),
+        modifier = modifier.padding(4.dp),
         shape = MaterialTheme.shapes.medium,
         color = colors.containerColor
     ) {

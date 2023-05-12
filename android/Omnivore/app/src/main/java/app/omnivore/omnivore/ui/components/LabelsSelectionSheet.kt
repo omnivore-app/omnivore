@@ -6,6 +6,9 @@ import LabelChip
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.FocusInteraction
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -23,17 +26,23 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalViewConfiguration
-import androidx.compose.ui.platform.ViewConfiguration
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.*
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -42,6 +51,7 @@ import app.omnivore.omnivore.persistence.entities.SavedItemLabel
 import app.omnivore.omnivore.ui.library.LibraryViewModel
 import com.dokar.chiptextfield.*
 import com.google.accompanist.flowlayout.FlowRow
+import kotlinx.coroutines.delay
 
 
 //@Composable
@@ -121,7 +131,7 @@ fun CircleIcon(colorHex: String){
     Row(
       modifier = Modifier
         .padding(start = 10.dp, end = 2.dp)
-        .padding(vertical = 10.dp)
+        .padding(vertical = 7.dp)
     ) {
       Canvas(modifier = Modifier.size(12.dp), onDraw = {
         drawCircle(color = chipColors.containerColor)
@@ -201,14 +211,15 @@ private fun CloseButtonImpl(
   }
 }
 
-class LabelChip(label: SavedItemLabel) : Chip(label.name) {
+class LabelChipView(label: SavedItemLabel) : Chip(label.name) {
   val label = label
 }
 
 @Composable
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class,
+  ExperimentalMaterial3Api::class
+)
 fun LabelsSelectionSheetContent(
-//  viewModel: LibraryViewModel,
   isLibraryMode: Boolean,
   labels: List<SavedItemLabel>,
   initialSelectedLabels: List<SavedItemLabel>,
@@ -216,21 +227,37 @@ fun LabelsSelectionSheetContent(
   onSave: (List<SavedItemLabel>) -> Unit,
   onCreateLabel: (String, String) -> Unit
 ) {
-  val listState = rememberLazyListState()
-  val selectedLabels = remember { mutableStateOf(initialSelectedLabels) }
-  var showCreateLabelDialog by remember { mutableStateOf(false ) }
+  val keyboardController = LocalSoftwareKeyboardController.current
+  val interactionSource = remember { MutableInteractionSource() }
+
+  val state = rememberChipTextFieldState(initialSelectedLabels.map {
+    LabelChipView(it)
+  })
 
   val focusRequester = remember { FocusRequester() }
+  var filterTextValue by remember { mutableStateOf(TextFieldValue()) }
+  val onFilterTextValueChange: (TextFieldValue) -> Unit = { filterTextValue = it }
 
+  val filteredLabels = labels.filter { label ->
+    val text = filterTextValue.text.toLowerCase(Locale.current)
+    val result = (text.isEmpty() || label.name.toLowerCase(Locale.current).startsWith(text))
+    val alreadySelected = state.chips.map { it.label.name }.contains(label.name)
+    result && !alreadySelected
+  }
+
+  val currentLabel = labels.find {
+    val text = filterTextValue.text.toLowerCase(Locale.current)
+    it.name.toLowerCase(Locale.current) == text
+  }
 
   val titleText = if (isLibraryMode) "Filter by Label" else "Set Labels"
 
-  val findOrCreateLabel: (name: String) -> SavedItemLabel = { name ->
-    val found = labels.find { it.name == name }
+  val findOrCreateLabel: (name: TextFieldValue) -> SavedItemLabel = { name ->
+    val found = labels.find { it.name == name.text }
     found
         ?: SavedItemLabel(
           savedItemLabelId = "",
-          name = name,
+          name = name.text,
           color = "#FFFFFF",
           createdAt = "",
           labelDescription = "",
@@ -243,25 +270,10 @@ fun LabelsSelectionSheetContent(
       .fillMaxSize()
       .background(MaterialTheme.colorScheme.background),
   ) {
-    var value by remember { mutableStateOf("Initial text") }
-    val state = rememberChipTextFieldState<LabelChip>()
-
-
-    if (showCreateLabelDialog) {
-      LabelCreationDialog(
-        onDismiss = { showCreateLabelDialog = false },
-        onSave = { labelName, hexColor ->
-          onCreateLabel(labelName, hexColor)
-          showCreateLabelDialog = false
-        }
-      )
-    }
-
     Column(
       verticalArrangement = Arrangement.Top,
       horizontalAlignment = Alignment.CenterHorizontally,
       modifier = Modifier
-        //  .verticalScroll(rememberScrollState())
         .fillMaxSize()
         .padding(horizontal = 5.dp)
     ) {
@@ -271,7 +283,6 @@ fun LabelsSelectionSheetContent(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
           .fillMaxWidth()
-          .padding(vertical = 5.dp)
       ) {
         TextButton(onClick = onCancel) {
           Text(text = "Cancel")
@@ -279,101 +290,89 @@ fun LabelsSelectionSheetContent(
 
         Text(titleText, fontWeight = FontWeight.ExtraBold)
 
-        TextButton(onClick = { onSave(selectedLabels.value) }) {
+        TextButton(onClick = { onSave(state.chips.map { it.label }) }) {
           Text(text = if (isLibraryMode) "Search" else "Save")
         }
       }
 
-        ChipTextField(
-          state = state,
-          onSubmit = { LabelChip(findOrCreateLabel(it)) },
-          chipLeadingIcon = { chip -> CircleIcon(colorHex = chip.label.color) },
-          chipTrailingIcon = { chip -> CloseButton(state, chip) },
-          chipStyle = ChipTextFieldDefaults.chipStyle(
-            shape = androidx.compose.material.MaterialTheme.shapes.medium,
-            unfocusedBorderWidth = 0.dp,
-            focusedTextColor = Color(0xFFAEAEAF),
-            focusedBorderColor = Color(0xFF2A2A2A),
-            focusedBackgroundColor = Color(0xFF2A2A2A)
-          ),
-          colors = androidx.compose.material.TextFieldDefaults.textFieldColors(
-            textColor = Color(0xFFAEAEAF),
-            backgroundColor = Color(0xFF3D3D3D)
-          ),
-          contentPadding = PaddingValues(15.dp),
+      ChipTextField(
+        state = state,
+        value = filterTextValue,
+        onValueChange = onFilterTextValueChange,
+        onSubmit = { LabelChipView(findOrCreateLabel(it)) },
+        chipLeadingIcon = { chip -> CircleIcon(colorHex = chip.label.color) },
+        chipTrailingIcon = { chip -> CloseButton(state, chip) },
+        interactionSource = interactionSource,
+        chipStyle = ChipTextFieldDefaults.chipStyle(
+          shape = androidx.compose.material.MaterialTheme.shapes.medium,
+          unfocusedBorderWidth = 0.dp,
+          focusedTextColor = Color(0xFFAEAEAF),
+          focusedBorderColor = Color(0xFF2A2A2A),
+          focusedBackgroundColor = Color(0xFF2A2A2A)
+        ),
+        colors = androidx.compose.material.TextFieldDefaults.textFieldColors(
+          textColor = Color(0xFFAEAEAF),
+          backgroundColor = Color(0xFF3D3D3D)
+        ),
+        contentPadding = PaddingValues(10.dp),
+        modifier = Modifier
+          .defaultMinSize(minHeight = 45.dp)
+          .fillMaxWidth()
+          .padding(horizontal = 10.dp)
+          .focusRequester(focusRequester)
+//          .onFocusEvent {
+//            val text = filterTextValue.text
+//            if (it.hasFocus) {
+//              val selection = filterTextValue.text.length
+//              onFilterTextValueChange(filterTextValue.copy(selection = TextRange(selection)))
+//            }
+//          }
+      )
+
+      if (!isLibraryMode && filterTextValue.text.isNotEmpty() && currentLabel == null) {
+        Row(
+          horizontalArrangement = Arrangement.Start,
+          verticalAlignment = Alignment.CenterVertically,
           modifier = Modifier
-            .defaultMinSize(minHeight = 45.dp)
             .fillMaxWidth()
+            .clickable {
+              val label = findOrCreateLabel(filterTextValue)
+              state.addChip(LabelChipView(label))
+              filterTextValue = TextFieldValue()
+            }
             .padding(horizontal = 10.dp)
-            .focusRequester(focusRequester)
+            .padding(top = 10.dp, bottom = 5.dp)
         )
+        {
+          Icon(
+            imageVector = Icons.Filled.AddCircle,
+            contentDescription = null,
+            modifier = Modifier.padding(end = 8.dp)
+          )
+          Text(text = "Create a new label named \"${filterTextValue.text}\"")
+        }
+      }
 
-        LazyColumn(
-          state = listState,
-          verticalArrangement = Arrangement.Top,
-          horizontalAlignment = Alignment.CenterHorizontally,
-          modifier = Modifier.fillMaxSize()
-        ) {
-          items(labels) { label ->
-            val isLabelSelected = selectedLabels.value.contains(label)
+      if (filteredLabels.isNotEmpty()) {
+        FlowRow(modifier = Modifier.fillMaxWidth().padding(10.dp)) {
+          filteredLabels.forEach { label ->
+            val chipColors = LabelChipColors.fromHex(label.color)
 
-            Row(
-              horizontalArrangement = Arrangement.SpaceBetween,
-              verticalAlignment = Alignment.CenterVertically,
+            LabelChip(
+              name = label.name,
+              colors = chipColors,
               modifier = Modifier
-                .fillMaxWidth()
                 .clickable {
-                  if (isLabelSelected) {
-                    selectedLabels.value =
-                      selectedLabels.value.filter { it.savedItemLabelId != label.savedItemLabelId }
-                  } else {
-                    selectedLabels.value = selectedLabels.value + listOf(label)
-                    state.addChip(app.omnivore.omnivore.ui.components.LabelChip(label))
-                  }
+                  state.addChip(LabelChipView(label))
+                  filterTextValue = TextFieldValue()
                 }
-                .padding(horizontal = 10.dp, vertical = 6.dp)
-            ) {
-              val chipColors = LabelChipColors.fromHex(label.color)
-
-              LabelChip(
-                name = label.name,
-                colors = chipColors
-              )
-              if (isLabelSelected) {
-                Icon(
-                  imageVector = Icons.Default.Check,
-                  contentDescription = null
-                )
-              }
-            }
-            Divider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 1.dp)
-          }
-
-          if (!isLibraryMode) {
-            item {
-              Row(
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                  .fillMaxWidth()
-                  .clickable { showCreateLabelDialog = true }
-                  .padding(horizontal = 6.dp)
-                  .padding(vertical = 12.dp)
-              )
-              {
-                Icon(
-                  imageVector = Icons.Filled.AddCircle,
-                  contentDescription = null,
-                  modifier = Modifier.padding(end = 8.dp)
-                )
-                Text(text = "Create a new Label")
-              }
-            }
+            )
           }
         }
       }
-      LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-      }
+    }
+  }
+  LaunchedEffect(Unit) {
+
   }
 }
