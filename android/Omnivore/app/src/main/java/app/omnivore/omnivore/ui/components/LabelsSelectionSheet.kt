@@ -227,7 +227,6 @@ fun LabelsSelectionSheetContent(
   onSave: (List<SavedItemLabel>) -> Unit,
   onCreateLabel: (String, String) -> Unit
 ) {
-  val keyboardController = LocalSoftwareKeyboardController.current
   val interactionSource = remember { MutableInteractionSource() }
 
   val state = rememberChipTextFieldState(initialSelectedLabels.map {
@@ -299,7 +298,15 @@ fun LabelsSelectionSheetContent(
         state = state,
         value = filterTextValue,
         onValueChange = onFilterTextValueChange,
-        onSubmit = { LabelChipView(findOrCreateLabel(it)) },
+        onSubmit = {
+          if (isLibraryMode) {
+            currentLabel?.let {
+              LabelChipView(it)
+            } ?: null
+          } else {
+            LabelChipView(findOrCreateLabel(it))
+          }
+        },
         chipLeadingIcon = { chip -> CircleIcon(colorHex = chip.label.color) },
         chipTrailingIcon = { chip -> CloseButton(state, chip) },
         interactionSource = interactionSource,
