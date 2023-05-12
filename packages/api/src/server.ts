@@ -107,7 +107,7 @@ export const createApp = (): {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
           req.header('authorization') ?? req.cookies['auth']
         )
-        return !!token ? 50 : 5
+        return !!token ? 50 : 10
       },
       standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
       legacyHeaders: false, // Disable the `X-RateLimit-*` headers
