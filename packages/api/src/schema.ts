@@ -1586,6 +1586,7 @@ const schema = gql`
     recommendations: [Recommendation!]
     wordsCount: Int
     content: String
+    archivedAt: Date
   }
 
   type SearchItemEdge {

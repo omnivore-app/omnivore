@@ -1660,6 +1660,7 @@ enum SearchErrorCode {
 
 type SearchItem {
   annotation: String
+  archivedAt: Date
   author: String
   content: String
   contentReader: ContentReader!
