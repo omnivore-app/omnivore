@@ -92,6 +92,7 @@ import {
 } from '../../utils/helpers'
 import { createImageProxyUrl } from '../../utils/imageproxy'
 import {
+  contentConverter,
   getDistillerResult,
   htmlToMarkdown,
   ParsedContentPuppeteer,
@@ -106,10 +107,11 @@ import {
 import { WithDataSourcesContext } from '../types'
 import { pageTypeForContentType } from '../upload_files'
 
-enum ArticleFormat {
+export enum ArticleFormat {
   Markdown = 'markdown',
   Html = 'html',
   Distiller = 'distiller',
+  HighlightedMarkdown = 'highlightedMarkdown',
 }
 
 export type PartialArticle = Omit<
@@ -943,9 +945,13 @@ export const searchResolver = authorized<
     if (siteIcon && !isBase64Image(siteIcon)) {
       siteIcon = createImageProxyUrl(siteIcon, 128, 128)
     }
-
-    if (params.includeContent && params.format === 'markdown' && r.content) {
-      r.content = htmlToMarkdown(r.content)
+    if (params.includeContent && r.content) {
+      // convert html to the requested format
+      const format = params.format || ArticleFormat.Html
+      const converter = contentConverter(format)
+      if (converter) {
+        r.content = converter(r.content, r.highlights)
+      }
     }
 
     return {

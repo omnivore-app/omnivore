@@ -10,17 +10,21 @@ import * as hljs from 'highlightjs'
 import { decode } from 'html-entities'
 import * as jwt from 'jsonwebtoken'
 import { parseHTML } from 'linkedom'
-import { NodeHtmlMarkdown } from 'node-html-markdown'
+import { NodeHtmlMarkdown, TranslatorConfigObject } from 'node-html-markdown'
 import { ILike } from 'typeorm'
 import { promisify } from 'util'
 import { v4 as uuid } from 'uuid'
+import { Highlight } from '../elastic/types'
 import { User } from '../entity/user'
 import { getRepository } from '../entity/utils'
 import { env } from '../env'
 import { PageType, PreparedDocumentInput } from '../generated/graphql'
+import { ArticleFormat } from '../resolvers/article'
 import {
   EmbeddedHighlightData,
   findEmbeddedHighlight,
+  highlightIdAttribute,
+  makeHighlightNodeAttributes,
 } from './highlightGenerator'
 import { createImageProxyUrl } from './imageproxy'
 import { buildLogger, LogRecord } from './logger'
@@ -488,15 +492,73 @@ export const fetchFavicon = async (
   }
 }
 
+// custom transformer to wrap <span class="highlight"> tags in markdown highlight tags `==`
+export const highlightTranslators: TranslatorConfigObject = {
+  span: ({ node }) => {
+    const id = node.getAttribute(highlightIdAttribute)
+    console.log(id)
+    if (!id) return {}
+
+    return {
+      prefix: '==',
+      postfix: '==',
+    }
+  },
+}
+
 /* ********************************************************* *
  * Re-use
  * If using it several times, creating an instance saves time
  * ********************************************************* */
 const nhm = new NodeHtmlMarkdown(
   /* options (optional) */ {},
-  /* customTransformers (optional) */ undefined,
+  /* customTransformers (optional) */ highlightTranslators,
   /* customCodeBlockTranslators (optional) */ undefined
 )
+
+type contentConverterFunc = (html: string, highlights?: Highlight[]) => string
+
+export const contentConverter = (
+  format: string
+): contentConverterFunc | undefined => {
+  switch (format) {
+    case ArticleFormat.Markdown:
+      return htmlToMarkdown
+    case ArticleFormat.HighlightedMarkdown:
+      return htmlToHighlightedMarkdown
+    case ArticleFormat.Html:
+    default:
+      return undefined
+  }
+}
+
+export const htmlToHighlightedMarkdown = (
+  html: string,
+  highlights?: Highlight[]
+): string => {
+  if (!highlights) {
+    return nhm.translate(/* html */ html)
+  }
+
+  const document = parseHTML(html).document
+  // wrap highlights in special tags
+  highlights
+    .filter((h) => h.type == 'HIGHLIGHT' && h.patch)
+    .forEach((highlight) => {
+      try {
+        makeHighlightNodeAttributes(
+          highlight.id,
+          highlight.patch as string,
+          document
+        )
+      } catch (err) {
+        console.error(err)
+      }
+    })
+  html = document.documentElement.outerHTML
+
+  return nhm.translate(/* html */ html)
+}
 
 export const htmlToMarkdown = (html: string) => {
   return nhm.translate(/* html */ html)
