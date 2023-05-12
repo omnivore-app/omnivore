@@ -501,7 +501,20 @@ struct WebReaderContainerView: View {
           }
         }
       } else if let errorMessage = viewModel.errorMessage {
-        Text(errorMessage).padding()
+        VStack {
+          Text(errorMessage).padding()
+          if viewModel.allowRetry, viewModel.hasOriginalUrl(item) {
+            Button("Open Original", action: {
+              openOriginalURL(urlString: item.pageURLString)
+            }).buttonStyle(RoundedRectButtonStyle())
+            if let urlStr = item.pageURLString, let username = dataService.currentViewer?.username, let url = URL(string: urlStr) {
+              Button("Attempt to Save Again", action: {
+                viewModel.errorMessage = nil
+                viewModel.saveLinkAndFetch(dataService: dataService, username: username, url: url)
+              }).buttonStyle(RoundedRectButtonStyle())
+            }
+          }
+        }
       } else {
         ProgressView()
           .opacity(progressViewOpacity)
