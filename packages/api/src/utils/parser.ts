@@ -496,7 +496,6 @@ export const fetchFavicon = async (
 export const highlightTranslators: TranslatorConfigObject = {
   span: ({ node }) => {
     const id = node.getAttribute(highlightIdAttribute)
-    console.log(id)
     if (!id) return {}
 
     return {
