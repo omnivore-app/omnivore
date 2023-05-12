@@ -176,6 +176,7 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
       Color(it.backgroundColor ?: 0xFFFFFFFF)
     }
   } ?: Color(0xFFFFFFFF)
+
   val themeTintColor = currentTheme?.let {
     if (it.themeKey == "System" && isDarkMode) {
       Color(0xFFFFFFFF)
@@ -189,27 +190,27 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
     when (bottomSheetState) {
       BottomSheetState.PREFERENCES -> {
         coroutineScope.launch {
-          modalBottomSheetState.animateTo(ModalBottomSheetValue.HalfExpanded)
+          modalBottomSheetState.show()
         }
       }
       BottomSheetState.NOTEBOOK -> {
         coroutineScope.launch {
-          modalBottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
+          modalBottomSheetState.show()
         }
       }
       BottomSheetState.HIGHLIGHTNOTE -> {
         coroutineScope.launch {
-          modalBottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
+          modalBottomSheetState.show()
         }
       }
       BottomSheetState.LABELS -> {
         coroutineScope.launch {
-          modalBottomSheetState.animateTo(ModalBottomSheetValue.HalfExpanded)
+          modalBottomSheetState.show()
         }
       }
       BottomSheetState.LINK -> {
         coroutineScope.launch {
-          modalBottomSheetState.animateTo(ModalBottomSheetValue.HalfExpanded)
+          modalBottomSheetState.show()
         }
       }
       BottomSheetState.NONE -> {
@@ -346,7 +347,7 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
               IconButton(onClick = {
                 coroutineScope.launch {
                   webReaderViewModel.setBottomSheet(BottomSheetState.NOTEBOOK)
-                  modalBottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
+                  modalBottomSheetState.show()
                 }
               }) {
                 Icon(
@@ -359,7 +360,7 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
             IconButton(onClick = {
               coroutineScope.launch {
                 webReaderViewModel.setBottomSheet(BottomSheetState.PREFERENCES)
-                modalBottomSheetState.animateTo(ModalBottomSheetValue.HalfExpanded)
+                modalBottomSheetState.show()
               }
             }) {
               Icon(

@@ -59,7 +59,7 @@ fun LibraryView(
 
   if (showLabelsSelectionSheet) {
     coroutineScope.launch {
-      modalBottomSheetState.animateTo(ModalBottomSheetValue.HalfExpanded)
+      modalBottomSheetState.show()
     }
   } else {
     coroutineScope.launch {

@@ -136,6 +136,7 @@ dependencies {
 
     implementation 'com.google.android.gms:play-services-auth:20.4.0'
     implementation "com.google.accompanist:accompanist-systemuicontroller:0.25.1"
+    implementation "com.google.accompanist:accompanist-flowlayout:0.25.1"
 
     implementation 'io.coil-kt:coil-compose:2.2.0'
 
@@ -151,6 +152,7 @@ dependencies {
     kapt "androidx.room:room-compiler:$room_version"
 
     implementation 'com.github.jeziellago:compose-markdown:0.3.3'
+    implementation "io.github.dokar3:chiptextfield:0.4.6"
 }
 
 apollo {
