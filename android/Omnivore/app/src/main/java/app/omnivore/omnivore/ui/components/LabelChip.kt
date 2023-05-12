@@ -16,7 +16,7 @@ fun LabelChip(
     modifier: Modifier = Modifier.padding(0.dp),
 ) {
     Surface(
-        modifier = modifier.padding(4.dp),
+        modifier = modifier.padding(2.dp),
         shape = MaterialTheme.shapes.medium,
         color = colors.containerColor
     ) {

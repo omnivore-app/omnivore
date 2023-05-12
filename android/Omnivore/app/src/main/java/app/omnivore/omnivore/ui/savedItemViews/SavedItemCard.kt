@@ -31,7 +31,7 @@ import app.omnivore.omnivore.ui.library.SavedItemAction
 import app.omnivore.omnivore.ui.library.SavedItemViewModel
 import coil.compose.rememberAsyncImagePainter
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
 @Composable
 fun SavedItemCard(savedItemViewModel: SavedItemViewModel, savedItem: SavedItemWithLabelsAndHighlights, onClickHandler: () -> Unit, actionHandler: (SavedItemAction) -> Unit) {
   val listState = rememberLazyListState()
@@ -96,21 +96,14 @@ fun SavedItemCard(savedItemViewModel: SavedItemViewModel, savedItem: SavedItemWi
       )
     }
 
-    LazyRow(
-      state = listState,
-      horizontalArrangement = Arrangement.Start,
-      verticalAlignment = Alignment.CenterVertically,
-      modifier = Modifier
-        .padding(start = 5.dp, bottom = 5.dp, end = 10.dp)
-    ) {
-      items(savedItem.labels.sortedWith(compareBy { it.name.toLowerCase(Locale.current) })) { label ->
+    FlowRow(modifier = Modifier.fillMaxWidth().padding(10.dp)) {
+      savedItem.labels.sortedWith(compareBy { it.name.toLowerCase(Locale.current) }).forEach { label ->
         val chipColors = LabelChipColors.fromHex(label.color)
 
         LabelChip(
           name = label.name,
           colors = chipColors,
         )
-
       }
     }
 
