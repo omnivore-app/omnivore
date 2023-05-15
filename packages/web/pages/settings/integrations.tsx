@@ -116,10 +116,11 @@ export default function Integrations(): JSX.Element {
         } else {
           showErrorToast('There was an error connecting to Pocket.')
         }
-        router.replace('/settings/integrations')
-        revalidate()
       } catch (err) {
         showErrorToast('Error: ' + err)
+      } finally {
+        router.replace('/settings/integrations')
+        revalidate()
       }
     }
     if (!router.isReady) return
