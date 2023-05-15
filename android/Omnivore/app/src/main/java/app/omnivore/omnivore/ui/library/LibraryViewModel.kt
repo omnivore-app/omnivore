@@ -1,6 +1,8 @@
 package app.omnivore.omnivore.ui.library
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.material3.SnackbarHostState
@@ -290,6 +292,9 @@ class LibraryViewModel @Inject constructor(
         labelsSelectionCurrentItemLiveData.value = itemID
         showLabelsSelectionSheetLiveData.value = true
       }
+      else -> {
+
+      }
     }
     actionsMenuItemLiveData.postValue(null)
   }
@@ -401,5 +406,5 @@ enum class SavedItemAction {
   Delete,
   Archive,
   Unarchive,
-  EditLabels
+  EditLabels,
 }

@@ -307,6 +307,9 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun ReaderTopAppBar(webReaderViewModel: WebReaderViewModel, onLibraryIconTap: (() -> Unit)? = null) {
+  val context = LocalContext.current
+  val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+
   val isDarkMode = isSystemInDarkTheme()
   val currentThemeKey = webReaderViewModel.currentThemeKey.observeAsState()
   val currentTheme = Themes.values().find { it.themeKey == currentThemeKey.value }
@@ -345,7 +348,7 @@ fun ReaderTopAppBar(webReaderViewModel: WebReaderViewModel, onLibraryIconTap: ((
     title = {},
     navigationIcon = {
       IconButton(onClick = {
-        // onBackPressedDispatcher?.onBackPressed()
+        onBackPressedDispatcher?.onBackPressed()
       }) {
         Icon(
           imageVector = Icons.Filled.ArrowBack,
@@ -394,9 +397,11 @@ fun ReaderTopAppBar(webReaderViewModel: WebReaderViewModel, onLibraryIconTap: ((
         if (isMenuExpanded) {
           webReaderParams?.let { params ->
             SavedItemContextMenu(
+              context = context,
               isExpanded = isMenuExpanded,
               isArchived = params.item.isArchived,
               onDismiss = { isMenuExpanded = false },
+              webReaderViewModel = webReaderViewModel,
               actionHandler = {
                 webReaderViewModel.handleSavedItemAction(
                   params.item.savedItemId,

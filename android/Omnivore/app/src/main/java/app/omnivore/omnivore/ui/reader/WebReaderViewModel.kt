@@ -7,6 +7,7 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.*
 import app.omnivore.omnivore.DatastoreKeys
@@ -105,6 +106,17 @@ class WebReaderViewModel @Inject constructor(
         currentLink = uri
         bottomSheetStateLiveData.postValue(BottomSheetState.LINK)
       }
+    }
+  }
+
+  fun showShareLinkSheet(context: Context) {
+    webReaderParamsLiveData.value?.let {
+      val browserIntent = Intent(Intent.ACTION_SEND)
+
+      browserIntent.setType("text/plain")
+      browserIntent.putExtra(Intent.EXTRA_TEXT, it.item.pageURLString)
+      browserIntent.putExtra(Intent.EXTRA_SUBJECT, it.item.pageURLString)
+      context.startActivity(browserIntent)
     }
   }
 
