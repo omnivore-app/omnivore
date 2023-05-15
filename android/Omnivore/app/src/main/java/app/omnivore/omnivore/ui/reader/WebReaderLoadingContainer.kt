@@ -128,17 +128,11 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
                               webReaderViewModel: WebReaderViewModel,
                               notebookViewModel: NotebookViewModel) {
   val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
-
-  var isMenuExpanded by remember { mutableStateOf(false) }
   val bottomSheetState: BottomSheetState? by webReaderViewModel.bottomSheetStateLiveData.observeAsState(BottomSheetState.NONE)
-
-  val isDarkMode = isSystemInDarkTheme()
-  val currentThemeKey = webReaderViewModel.currentThemeKey.observeAsState()
-  val currentTheme = Themes.values().find { it.themeKey == currentThemeKey.value }
 
   val webReaderParams: WebReaderParams? by webReaderViewModel.webReaderParamsLiveData.observeAsState(null)
   val shouldPopView: Boolean by webReaderViewModel.shouldPopViewLiveData.observeAsState(false)
-  val toolbarHeightPx: Float by webReaderViewModel.currentToolbarHeightLiveData.observeAsState(0.0f)
+
 
   val labels: List<SavedItemLabel> by webReaderViewModel.savedItemLabelsLiveData.observeAsState(listOf())
 
@@ -167,25 +161,6 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
     }
   )
 
-  val themeBackgroundColor = currentTheme?.let {
-    if (it.themeKey == "System" && isDarkMode) {
-      Color(0xFF000000)
-    } else if (it.themeKey == "System" ) {
-      Color(0xFFFFFFFF)
-    } else {
-      Color(it.backgroundColor ?: 0xFFFFFFFF)
-    }
-  } ?: Color(0xFFFFFFFF)
-
-  val themeTintColor = currentTheme?.let {
-    if (it.themeKey == "System" && isDarkMode) {
-      Color(0xFFFFFFFF)
-    } else if (it.themeKey == "System" ) {
-      Color(0xFF000000)
-    } else {
-      Color(it.foregroundColor ?: 0xFF000000)
-    }
-  } ?: Color(0xFF000000)
 
     when (bottomSheetState) {
       BottomSheetState.PREFERENCES -> {
@@ -311,102 +286,130 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
   ) {
     Scaffold(
       topBar = {
-         TopAppBar(
-          modifier = Modifier
-            .height(height = with(LocalDensity.current) {
-              toolbarHeightPx.roundToInt().toDp()
-            }),
-          backgroundColor = themeBackgroundColor,
-           elevation = 0.dp,
-          title = {},
-          navigationIcon = {
-            IconButton(onClick = {
-              onBackPressedDispatcher?.onBackPressed()
-            }) {
-              Icon(
-                imageVector = Icons.Filled.ArrowBack,
-                modifier = Modifier,
-                contentDescription = "Back",
-                tint = themeTintColor
-              )
-            }
-          },
-          actions = {
-            if (onLibraryIconTap != null) {
-              IconButton(onClick = { onLibraryIconTap() }) {
-                Icon(
-                  imageVector = Icons.Default.Home,
-                  contentDescription = null,
-                  tint = themeTintColor,
-                )
-              }
-            }
-            webReaderParams?.let {
-              IconButton(onClick = {
-                coroutineScope.launch {
-                  webReaderViewModel.setBottomSheet(BottomSheetState.NOTEBOOK)
-                }
-              }) {
-                Icon(
-                  painter = painterResource(id = R.drawable.notebook),
-                  contentDescription = null,
-                  tint = themeTintColor
-                )
-              }
-            }
-            IconButton(onClick = {
-              coroutineScope.launch {
-                webReaderViewModel.setBottomSheet(BottomSheetState.PREFERENCES)
-              }
-            }) {
-              Icon(
-                painter = painterResource(id = R.drawable.format_letter_case),
-                contentDescription = null,
-                tint = themeTintColor
-              )
-            }
-              IconButton(onClick = { isMenuExpanded = true }) {
-                Icon(
-                  painter = painterResource(id = R.drawable.dots_horizontal),
-                  contentDescription = null,
-                  tint = themeTintColor
-                )
-                if (isMenuExpanded) {
-                  webReaderParams?.let { params ->
-                    SavedItemContextMenu(
-                      isExpanded = isMenuExpanded,
-                      isArchived = params.item.isArchived,
-                      onDismiss = { isMenuExpanded = false },
-                      actionHandler = {
-                        webReaderViewModel.handleSavedItemAction(
-                          params.item.savedItemId,
-                          it
-                        )
-                      }
-                    )
-                  }
-                }
-              }
-          },
-        )
-      }
-    ) { paddingValues ->
-          if (styledContent != null) {
-            WebReader(
-              styledContent = styledContent,
-              webReaderViewModel = webReaderViewModel
-            )
-          }
+        ReaderTopAppBar(webReaderViewModel, onLibraryIconTap)
+      }) { paddingValues ->
+        if (styledContent != null) {
+          WebReader(
+            styledContent = styledContent,
+            webReaderViewModel = webReaderViewModel
+          )
         }
 
-      LaunchedEffect(shouldPopView) {
-        if (shouldPopView) {
-          onBackPressedDispatcher?.onBackPressed()
+        LaunchedEffect(shouldPopView) {
+          if (shouldPopView) {
+            onBackPressedDispatcher?.onBackPressed()
+          }
         }
       }
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
+@Composable
+fun ReaderTopAppBar(webReaderViewModel: WebReaderViewModel, onLibraryIconTap: (() -> Unit)? = null) {
+  val isDarkMode = isSystemInDarkTheme()
+  val currentThemeKey = webReaderViewModel.currentThemeKey.observeAsState()
+  val currentTheme = Themes.values().find { it.themeKey == currentThemeKey.value }
+  val toolbarHeightPx: Float by webReaderViewModel.currentToolbarHeightLiveData.observeAsState(0.0f)
+  val webReaderParams: WebReaderParams? by webReaderViewModel.webReaderParamsLiveData.observeAsState(null)
+  var isMenuExpanded by remember { mutableStateOf(false) }
+
+  val themeBackgroundColor = currentTheme?.let {
+    if (it.themeKey == "System" && isDarkMode) {
+      Color(0xFF000000)
+    } else if (it.themeKey == "System" ) {
+      Color(0xFFFFFFFF)
+    } else {
+      Color(it.backgroundColor ?: 0xFFFFFFFF)
+    }
+  } ?: Color(0xFFFFFFFF)
+
+  val themeTintColor = currentTheme?.let {
+    if (it.themeKey == "System" && isDarkMode) {
+      Color(0xFFFFFFFF)
+    } else if (it.themeKey == "System" ) {
+      Color(0xFF000000)
+    } else {
+      Color(it.foregroundColor ?: 0xFF000000)
+    }
+  } ?: Color(0xFF000000)
+
+
+  TopAppBar(
+    modifier = Modifier
+      .height(height = with(LocalDensity.current) {
+        toolbarHeightPx.roundToInt().toDp()
+      }),
+    backgroundColor = themeBackgroundColor,
+    elevation = 0.dp,
+    title = {},
+    navigationIcon = {
+      IconButton(onClick = {
+        // onBackPressedDispatcher?.onBackPressed()
+      }) {
+        Icon(
+          imageVector = Icons.Filled.ArrowBack,
+          modifier = Modifier,
+          contentDescription = "Back",
+          tint = themeTintColor
+        )
+      }
+    },
+    actions = {
+      if (onLibraryIconTap != null) {
+        IconButton(onClick = { onLibraryIconTap() }) {
+          Icon(
+            imageVector = Icons.Default.Home,
+            contentDescription = null,
+            tint = themeTintColor,
+          )
+        }
+      }
+      webReaderParams?.let {
+        IconButton(onClick = {
+          webReaderViewModel.setBottomSheet(BottomSheetState.NOTEBOOK)
+        }) {
+          Icon(
+            painter = painterResource(id = R.drawable.notebook),
+            contentDescription = null,
+            tint = themeTintColor
+          )
+        }
+      }
+      IconButton(onClick = {
+        webReaderViewModel.setBottomSheet(BottomSheetState.PREFERENCES)
+      }) {
+        Icon(
+          painter = painterResource(id = R.drawable.format_letter_case),
+          contentDescription = null,
+          tint = themeTintColor
+        )
+      }
+      IconButton(onClick = { isMenuExpanded = true }) {
+        Icon(
+          painter = painterResource(id = R.drawable.dots_horizontal),
+          contentDescription = null,
+          tint = themeTintColor
+        )
+        if (isMenuExpanded) {
+          webReaderParams?.let { params ->
+            SavedItemContextMenu(
+              isExpanded = isMenuExpanded,
+              isArchived = params.item.isArchived,
+              onDismiss = { isMenuExpanded = false },
+              actionHandler = {
+                webReaderViewModel.handleSavedItemAction(
+                  params.item.savedItemId,
+                  it
+                )
+              }
+            )
+          }
+        }
+      }
+    },
+  )
+}
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
@@ -433,7 +436,9 @@ fun BottomSheetUI(title: String?, content: @Composable () -> Unit) {
 fun OpenLinkView(webReaderViewModel: WebReaderViewModel) {
   val context = LocalContext.current
 
-  Column(modifier = Modifier.padding(top = 50.dp).padding(horizontal = 50.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
+  Column(modifier = Modifier
+    .padding(top = 50.dp)
+    .padding(horizontal = 50.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
     Row {
       Button(onClick = { webReaderViewModel.openCurrentLink(context) }, modifier = Modifier.fillMaxWidth()) {
         Text(text = "Open in Browser")
