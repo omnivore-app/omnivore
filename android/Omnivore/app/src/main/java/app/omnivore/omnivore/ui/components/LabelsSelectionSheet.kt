@@ -52,6 +52,10 @@ import app.omnivore.omnivore.ui.library.LibraryViewModel
 import com.dokar.chiptextfield.*
 import com.google.accompanist.flowlayout.FlowRow
 import kotlinx.coroutines.delay
+import java.time.LocalDate
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
+import java.util.*
 
 
 //@Composable
@@ -257,9 +261,10 @@ fun LabelsSelectionSheetContent(
         ?: SavedItemLabel(
           savedItemLabelId = "",
           name = name.text,
-          color = "#FFFFFF",
-          createdAt = "",
           labelDescription = "",
+          color = "#FFFFFF", // LabelSwatchHelper.random(),
+          createdAt = LocalDate.now().atStartOfDay().atOffset(ZoneOffset.UTC).format(
+            DateTimeFormatter.ISO_DATE_TIME),
           serverSyncStatus = ServerSyncStatus.NEEDS_CREATION.rawValue
         )
   }

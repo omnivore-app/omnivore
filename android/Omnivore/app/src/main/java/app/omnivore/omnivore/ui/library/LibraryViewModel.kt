@@ -9,9 +9,11 @@ import app.omnivore.omnivore.*
 import app.omnivore.omnivore.dataService.*
 import app.omnivore.omnivore.graphql.generated.type.CreateLabelInput
 import app.omnivore.omnivore.graphql.generated.type.SetLabelsInput
+import app.omnivore.omnivore.models.ServerSyncStatus
 import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.persistence.entities.*
 import com.apollographql.apollo3.api.Optional
+import com.apollographql.apollo3.api.Optional.Companion.presentIfNotNull
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
@@ -283,6 +285,22 @@ class LibraryViewModel @Inject constructor(
   fun updateSavedItemLabels(savedItemID: String, labels: List<SavedItemLabel>) {
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
+        val synced = labels.filter { it.serverSyncStatus == ServerSyncStatus.IS_SYNCED.rawValue }
+        val unsynced = labels.filter { it.serverSyncStatus != ServerSyncStatus.IS_SYNCED.rawValue }
+
+        var labelIds = mutableListOf<String>()
+        labelIds.addAll(synced.map { it.savedItemLabelId })
+
+        unsynced.forEach { label ->
+          val result = networker.createNewLabel(CreateLabelInput(
+            name = label.name,
+            color = presentIfNotNull(label.color),
+            description = presentIfNotNull(label.labelDescription),
+          ))
+          result?.let {
+            labelIds.add(it.id)
+          }
+        }
         val input = SetLabelsInput(labelIds = labels.map { it.savedItemLabelId }, pageId = savedItemID)
         val networkResult = networker.updateLabelsForSavedItem(input)
 
