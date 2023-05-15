@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useState } from 'react'
-import { useRouter } from 'next/router'
 import { styled } from '@stitches/react'
-import { Toaster } from 'react-hot-toast'
-import { DownloadSimple, Eye, Link } from 'phosphor-react'
 import Image from 'next/image'
-
+import { useRouter } from 'next/router'
+import { DownloadSimple, Eye, Link } from 'phosphor-react'
+import { useEffect, useMemo, useState } from 'react'
+import { Toaster } from 'react-hot-toast'
+import { Button } from '../../components/elements/Button'
 import {
   Box,
   HStack,
@@ -12,17 +12,15 @@ import {
   VStack,
 } from '../../components/elements/LayoutPrimitives'
 import { SettingsLayout } from '../../components/templates/SettingsLayout'
-import { applyStoredTheme } from '../../lib/themeUpdater'
-import { Button } from '../../components/elements/Button'
+import { fetchEndpoint } from '../../lib/appConfig'
+import { cookieValue } from '../../lib/cookieHelpers'
+import { deleteIntegrationMutation } from '../../lib/networking/mutations/deleteIntegrationMutation'
+import { importFromIntegrationMutation } from '../../lib/networking/mutations/importFromIntegrationMutation'
+import { setIntegrationMutation } from '../../lib/networking/mutations/setIntegrationMutation'
 import { useGetIntegrationsQuery } from '../../lib/networking/queries/useGetIntegrationsQuery'
 import { useGetWebhooksQuery } from '../../lib/networking/queries/useGetWebhooksQuery'
-import { deleteIntegrationMutation } from '../../lib/networking/mutations/deleteIntegrationMutation'
+import { applyStoredTheme } from '../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
-import { fetchEndpoint } from '../../lib/appConfig'
-import { setIntegrationMutation } from '../../lib/networking/mutations/setIntegrationMutation'
-import { cookieValue } from '../../lib/cookieHelpers'
-import { importFromIntegrationMutation } from '../../lib/networking/mutations/importFromIntegrationMutation'
-
 // Styles
 const Header = styled(Box, {
   color: '$utilityTextDefault',
@@ -180,7 +178,6 @@ export default function Integrations(): JSX.Element {
           action: () => router.push('/settings/webhooks'),
         },
       },
-      /*
       {
         icon: '/static/icons/pocket.svg',
         title: 'Pocket',
@@ -196,7 +193,6 @@ export default function Integrations(): JSX.Element {
           },
         },
       },
-      */
     ])
   }, [pocketConnected, readwiseConnected, webhooks])
 
