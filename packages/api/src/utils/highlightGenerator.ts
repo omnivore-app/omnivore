@@ -1,10 +1,11 @@
 import { diff_match_patch as DiffMatchPatch } from 'diff-match-patch'
-import { interpolationSearch } from './interpolationSearch'
-import { v4 as uuidv4 } from 'uuid'
 import { nanoid } from 'nanoid'
+import { v4 as uuidv4 } from 'uuid'
+import { interpolationSearch } from './interpolationSearch'
 
 const highlightTag = 'omnivore_highlight'
 export const maxHighlightLength = 2000
+export const highlightIdAttribute = 'omnivore-highlight-id'
 
 const nonParagraphTagsRegEx =
   /^(a|b|basefont|bdo|big|em|font|i|s|small|span|strike|strong|su[bp]|tt|u|code|mark)$/i
@@ -34,6 +35,15 @@ export type EmbeddedHighlightData = {
   id: string
   shortId: string
   patch: string
+}
+
+type FillNodeResponse = {
+  node: Node
+  textPartsToHighlight: {
+    text: string
+    highlight: boolean
+  }[]
+  isParagraphStart?: boolean
 }
 
 function getTextNodesBetween(rootNode: Node, startNode: Node, endNode: Node) {
@@ -323,5 +333,99 @@ const selectionOffsetsFromPatch = (
     highlightTextStart,
     highlightTextEnd,
     matchingHighlightContent,
+  }
+}
+
+const fillHighlight = ({
+  textNodes,
+  startingTextNodeIndex,
+  highlightTextStart,
+  highlightTextEnd,
+}: {
+  textNodes: TextNode[]
+  startingTextNodeIndex: number
+  highlightTextStart: number
+  highlightTextEnd: number
+}): FillNodeResponse => {
+  const {
+    node,
+    startIndex: startIndex,
+    isParagraphStart,
+  } = textNodes[startingTextNodeIndex]
+  const text = node.nodeValue || ''
+
+  const textBeforeHighlightLength = highlightTextStart - startIndex
+  const textAfterHighlightLength = highlightTextEnd - startIndex
+
+  const textPartsToHighlight = []
+  textBeforeHighlightLength > 0 &&
+    textPartsToHighlight.push({
+      text: text.substring(0, textBeforeHighlightLength),
+      highlight: false,
+    })
+  textPartsToHighlight.push({
+    text: text.substring(textBeforeHighlightLength, textAfterHighlightLength),
+    highlight: true,
+  })
+  textAfterHighlightLength <= text.length &&
+    textPartsToHighlight.push({
+      text: text.substring(textAfterHighlightLength),
+      highlight: false,
+    })
+  return {
+    node,
+    textPartsToHighlight,
+    isParagraphStart,
+  }
+}
+
+export function makeHighlightNodeAttributes(
+  id: string,
+  patch: string,
+  document: Document
+) {
+  const rootNode = document.documentElement
+
+  const allArticleNodes = getTextNodesBetween(rootNode, rootNode, rootNode)
+  const { highlightTextStart, highlightTextEnd, textNodes, textNodeIndex } =
+    getPrefixAndSuffix(allArticleNodes, patch)
+
+  let startingTextNodeIndex = textNodeIndex
+  let quote = ''
+
+  while (highlightTextEnd > textNodes[startingTextNodeIndex].startIndex) {
+    const { node, textPartsToHighlight, isParagraphStart } = fillHighlight({
+      textNodes,
+      startingTextNodeIndex,
+      highlightTextStart,
+      highlightTextEnd,
+    })
+    const { parentNode, nextSibling } = node
+
+    // check if the node is a <pre> tag
+    const isPre = node.parentElement?.tagName === 'PRE'
+
+    parentNode?.removeChild(node)
+    textPartsToHighlight.forEach(({ highlight, text: rawText }, i) => {
+      // If we are not in preformatted text, prevent hardcoded \n,
+      // we'll create new-lines based on the startsParagraph data
+      const text = isPre ? rawText : rawText.replace(/\n/g, '')
+      const newTextNode = document.createTextNode(rawText)
+
+      if (!highlight) {
+        return parentNode?.insertBefore(newTextNode, nextSibling)
+      } else {
+        if (text) {
+          isParagraphStart && !i && quote && (quote += '\n')
+          quote += text
+        }
+
+        const newHighlightSpan = document.createElement('span')
+        newHighlightSpan.setAttribute(highlightIdAttribute, id)
+        newHighlightSpan.appendChild(newTextNode)
+        return parentNode?.insertBefore(newHighlightSpan, nextSibling)
+      }
+    })
+    startingTextNodeIndex++
   }
 }
