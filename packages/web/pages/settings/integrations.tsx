@@ -13,7 +13,6 @@ import {
 } from '../../components/elements/LayoutPrimitives'
 import { SettingsLayout } from '../../components/templates/SettingsLayout'
 import { fetchEndpoint } from '../../lib/appConfig'
-import { cookieValue } from '../../lib/cookieHelpers'
 import { deleteIntegrationMutation } from '../../lib/networking/mutations/deleteIntegrationMutation'
 import { importFromIntegrationMutation } from '../../lib/networking/mutations/importFromIntegrationMutation'
 import { setIntegrationMutation } from '../../lib/networking/mutations/setIntegrationMutation'
@@ -104,12 +103,8 @@ export default function Integrations(): JSX.Element {
   useEffect(() => {
     const connectToPocket = async () => {
       try {
-        // get the token from cookies
-        const token = cookieValue('pocketRequestToken', document.cookie)
-        if (!token) {
-          showErrorToast('There was an error connecting to Pocket.')
-          return
-        }
+        // get the token from query string
+        const token = router.query.pocketToken as string
         const result = await setIntegrationMutation({
           token,
           name: 'POCKET',
@@ -124,13 +119,12 @@ export default function Integrations(): JSX.Element {
         }
       } catch (err) {
         showErrorToast('Error: ' + err)
+      } finally {
+        router.replace('/settings/integrations')
       }
     }
     if (!router.isReady) return
-    if (
-      router.query.state == 'pocketAuthorizationFinished' &&
-      !pocketConnected
-    ) {
+    if (router.query.pocketToken && !pocketConnected) {
       connectToPocket()
     }
   }, [router])

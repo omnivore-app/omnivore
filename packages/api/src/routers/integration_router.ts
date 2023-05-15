@@ -1,10 +1,10 @@
+import axios from 'axios'
 import cors from 'cors'
 import express from 'express'
-import { corsConfig } from '../utils/corsConfig'
 import { env } from '../env'
-import axios from 'axios'
-import { buildLogger } from '../utils/logger'
 import { getClaimsByToken } from '../utils/auth'
+import { corsConfig } from '../utils/corsConfig'
+import { buildLogger } from '../utils/logger'
 
 const logger = buildLogger('app.dispatch')
 
@@ -24,7 +24,7 @@ export function integrationRouter() {
       }
 
       const consumerKey = env.pocket.consumerKey
-      const redirectUri = `${env.client.url}/settings/integrations?state=pocketAuthorizationFinished`
+      const redirectUri = `${env.client.url}/settings/integrations`
       try {
         // make a POST request to Pocket to get a request token
         const response = await axios.post<{ code: string }>(
@@ -41,13 +41,9 @@ export function integrationRouter() {
           }
         )
         const { code } = response.data
-        // store the request token in a cookie
-        res.cookie('pocketRequestToken', code, {
-          maxAge: 1000 * 60 * 60,
-        })
         // redirect the user to Pocket to authorize the request token
         res.redirect(
-          `https://getpocket.com/auth/authorize?request_token=${code}&redirect_uri=${redirectUri}`
+          `https://getpocket.com/auth/authorize?request_token=${code}&redirect_uri=${redirectUri}?pocketToken=${code}`
         )
       } catch (e) {
         logger.info('pocket/request-token exception:', e)
