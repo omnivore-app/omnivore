@@ -262,7 +262,7 @@ fun LabelsSelectionSheetContent(
           savedItemLabelId = "",
           name = name.text,
           labelDescription = "",
-          color = "#FFFFFF", // LabelSwatchHelper.random(),
+          color = LabelSwatchHelper.random(),
           createdAt = LocalDate.now().atStartOfDay().atOffset(ZoneOffset.UTC).format(
             DateTimeFormatter.ISO_DATE_TIME),
           serverSyncStatus = ServerSyncStatus.NEEDS_CREATION.rawValue

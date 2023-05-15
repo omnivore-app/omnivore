@@ -10,17 +10,18 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ModalBottomSheetLayout
-import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.*
+import androidx.compose.material.DrawerValue
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
-import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -49,6 +50,7 @@ fun LibraryView(
   libraryViewModel: LibraryViewModel,
   navController: NavHostController
 ) {
+  val scaffoldState: ScaffoldState = rememberScaffoldState()
   val showLabelsSelectionSheet: Boolean by libraryViewModel.showLabelsSelectionSheetLiveData.observeAsState(false)
 
   val coroutineScope = rememberCoroutineScope()
@@ -67,6 +69,13 @@ fun LibraryView(
     }
   }
 
+  libraryViewModel.snackbarMessage?.let {
+    coroutineScope.launch {
+      scaffoldState.snackbarHostState.showSnackbar(it)
+      libraryViewModel.clearSnackbarMessage()
+    }
+  }
+
   ModalBottomSheetLayout(
     sheetBackgroundColor = Color.Transparent,
     sheetState = modalBottomSheetState,
@@ -76,6 +85,7 @@ fun LibraryView(
     }
   ) {
     Scaffold(
+      scaffoldState = scaffoldState,
       topBar = {
         LibraryNavigationBar(
           savedItemViewModel = libraryViewModel,
@@ -164,6 +174,7 @@ fun LibraryViewContent(libraryViewModel: LibraryViewModel, modifier: Modifier) {
       .fillMaxSize()
       .pullRefresh(pullRefreshState)
   ) {
+
     LazyColumn(
       state = listState,
       verticalArrangement = Arrangement.Top,

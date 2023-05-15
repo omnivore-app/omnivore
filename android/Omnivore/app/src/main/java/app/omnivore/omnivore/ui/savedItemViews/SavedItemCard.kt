@@ -65,6 +65,7 @@ fun SavedItemCard(savedItemViewModel: SavedItemViewModel, savedItem: SavedItemWi
           text = savedItem.savedItem.title,
           style = TextStyle(
             fontSize = 18.sp,
+            color = MaterialTheme.colorScheme.onBackground,
             fontWeight = FontWeight.SemiBold
           ),
           maxLines = 2,
