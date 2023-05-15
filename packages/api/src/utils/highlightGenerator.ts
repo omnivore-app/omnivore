@@ -354,22 +354,22 @@ const fillHighlight = ({
   } = textNodes[startingTextNodeIndex]
   const text = node.nodeValue || ''
 
-  const textBeforeHighlightLenght = highlightTextStart - startIndex
-  const textAfterHighlightLenght = highlightTextEnd - startIndex
+  const textBeforeHighlightLength = highlightTextStart - startIndex
+  const textAfterHighlightLength = highlightTextEnd - startIndex
 
   const textPartsToHighlight = []
-  textBeforeHighlightLenght > 0 &&
+  textBeforeHighlightLength > 0 &&
     textPartsToHighlight.push({
-      text: text.substring(0, textBeforeHighlightLenght),
+      text: text.substring(0, textBeforeHighlightLength),
       highlight: false,
     })
   textPartsToHighlight.push({
-    text: text.substring(textBeforeHighlightLenght, textAfterHighlightLenght),
+    text: text.substring(textBeforeHighlightLength, textAfterHighlightLength),
     highlight: true,
   })
-  textAfterHighlightLenght <= text.length &&
+  textAfterHighlightLength <= text.length &&
     textPartsToHighlight.push({
-      text: text.substring(textAfterHighlightLenght),
+      text: text.substring(textAfterHighlightLength),
       highlight: false,
     })
   return {
