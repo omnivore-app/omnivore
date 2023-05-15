@@ -112,8 +112,9 @@ export default function Integrations(): JSX.Element {
           enabled: true,
         })
         if (result) {
-          revalidate()
+          router.replace('/settings/integrations')
           showSuccessToast('Connected with Pocket.')
+          revalidate()
         } else {
           showErrorToast('There was an error connecting to Pocket.')
         }
