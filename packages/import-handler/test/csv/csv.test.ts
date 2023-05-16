@@ -68,7 +68,7 @@ describe('Load a complex CSV file', () => {
 
     await importCsv(stub, stream)
     expect(stub.countFailed).to.equal(0)
-    expect(stub.countImported).to.equal(2)
+    expect(stub.countImported).to.equal(3)
     expect(results).to.eql([
       {
         url: new URL('https://omnivore.app'),
@@ -77,6 +77,11 @@ describe('Load a complex CSV file', () => {
       },
       {
         url: new URL('https://google.com'),
+        state: 'SUCCEEDED',
+        labels: ['test', 'development'],
+      },
+      {
+        url: new URL('https://test.com'),
         state: 'SUCCEEDED',
         labels: ['test', 'development'],
       },
