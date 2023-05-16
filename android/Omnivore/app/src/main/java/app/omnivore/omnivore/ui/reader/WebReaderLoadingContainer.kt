@@ -3,6 +3,7 @@ package app.omnivore.omnivore.ui.reader
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.activity.compose.setContent
@@ -14,8 +15,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -34,7 +38,6 @@ import app.omnivore.omnivore.MainActivity
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.persistence.entities.SavedItemLabel
 import app.omnivore.omnivore.ui.components.LabelsSelectionSheetContent
-import app.omnivore.omnivore.ui.components.WebReaderLabelsSelectionSheet
 import app.omnivore.omnivore.ui.notebook.NotebookView
 import app.omnivore.omnivore.ui.notebook.NotebookViewModel
 import app.omnivore.omnivore.ui.savedItemViews.SavedItemContextMenu
@@ -43,6 +46,8 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
+import androidx.compose.material3.Button
+import androidx.compose.ui.platform.LocalContext
 
 
 @AndroidEntryPoint
@@ -112,6 +117,7 @@ enum class BottomSheetState(
   NOTEBOOK(),
   HIGHLIGHTNOTE(),
   LABELS(),
+  LINK()
 }
 
 
@@ -122,18 +128,11 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
                               webReaderViewModel: WebReaderViewModel,
                               notebookViewModel: NotebookViewModel) {
   val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
-
-  var isMenuExpanded by remember { mutableStateOf(false) }
-  var bottomSheetState by remember { mutableStateOf(BottomSheetState.NONE) }
-
-  val isDarkMode = isSystemInDarkTheme()
-  val currentThemeKey = webReaderViewModel.currentThemeKey.observeAsState()
-  val currentTheme = Themes.values().find { it.themeKey == currentThemeKey.value }
+  val bottomSheetState: BottomSheetState? by webReaderViewModel.bottomSheetStateLiveData.observeAsState(BottomSheetState.NONE)
 
   val webReaderParams: WebReaderParams? by webReaderViewModel.webReaderParamsLiveData.observeAsState(null)
-  val annotation: String? by webReaderViewModel.annotationLiveData.observeAsState(null)
   val shouldPopView: Boolean by webReaderViewModel.shouldPopViewLiveData.observeAsState(false)
-  val toolbarHeightPx: Float by webReaderViewModel.currentToolbarHeightLiveData.observeAsState(0.0f)
+
 
   val labels: List<SavedItemLabel> by webReaderViewModel.savedItemLabelsLiveData.observeAsState(listOf())
 
@@ -154,42 +153,54 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
 
   val modalBottomSheetState = rememberModalBottomSheetState(
     initialValue = ModalBottomSheetValue.Hidden,
+    confirmStateChange = {
+      if (it == ModalBottomSheetValue.Hidden) {
+        webReaderViewModel.resetBottomSheet()
+      }
+      true
+    }
   )
 
-  val themeBackgroundColor = currentTheme?.let {
-    if (it.themeKey == "System" && isDarkMode) {
-      Color(0xFF000000)
-    } else if (it.themeKey == "System" ) {
-      Color(0xFFFFFFFF)
-    } else {
-      Color(it.backgroundColor ?: 0xFFFFFFFF)
-    }
-  } ?: Color(0xFFFFFFFF)
-  val themeTintColor = currentTheme?.let {
-    if (it.themeKey == "System" && isDarkMode) {
-      Color(0xFFFFFFFF)
-    } else if (it.themeKey == "System" ) {
-      Color(0xFF000000)
-    } else {
-      Color(it.foregroundColor ?: 0xFF000000)
-    }
-  } ?: Color(0xFF000000)
 
-  annotation?.let {
-    bottomSheetState = BottomSheetState.HIGHLIGHTNOTE
-    coroutineScope.launch {
-      modalBottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
+    when (bottomSheetState) {
+      BottomSheetState.PREFERENCES -> {
+        coroutineScope.launch {
+          if (!modalBottomSheetState.isVisible) {
+            modalBottomSheetState.show()
+          }
+        }
+      }
+      BottomSheetState.NOTEBOOK -> {
+        coroutineScope.launch {
+          modalBottomSheetState.show()
+        }
+      }
+      BottomSheetState.HIGHLIGHTNOTE -> {
+        coroutineScope.launch {
+          modalBottomSheetState.show()
+        }
+      }
+      BottomSheetState.LABELS -> {
+        coroutineScope.launch {
+          modalBottomSheetState.show()
+        }
+      }
+      BottomSheetState.LINK -> {
+        coroutineScope.launch {
+          modalBottomSheetState.show()
+        }
+      }
+      BottomSheetState.NONE -> {
+        coroutineScope.launch {
+          modalBottomSheetState.hide()
+        }
+      }
+      else -> {
+        coroutineScope.launch {
+          modalBottomSheetState.hide()
+        }
+      }
     }
-  }
-
-  val showLabelsSelector: Boolean by webReaderViewModel.showLabelsSelectionSheetLiveData.observeAsState(false)
-
-  if (showLabelsSelector) {
-    bottomSheetState = BottomSheetState.LABELS
-    coroutineScope.launch {
-      modalBottomSheetState.animateTo(ModalBottomSheetValue.HalfExpanded)
-    }
-  }
 
   ModalBottomSheetLayout(
     modifier = Modifier
@@ -211,37 +222,34 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
           }
         }
         BottomSheetState.HIGHLIGHTNOTE -> {
-          annotation?.let { annotation ->
+          webReaderViewModel.annotation?.let { annotation ->
             BottomSheetUI(title = "Note") {
               AnnotationEditView(
                 initialAnnotation = annotation,
                 onSave = {
                   webReaderViewModel.saveAnnotation(it)
                   coroutineScope.launch {
-                    modalBottomSheetState.hide()
-                    bottomSheetState = BottomSheetState.NONE
+                    webReaderViewModel.resetBottomSheet()
                   }
                 },
                 onCancel = {
                   webReaderViewModel.cancelAnnotationEdit()
                   coroutineScope.launch {
-                    modalBottomSheetState.hide()
-                    bottomSheetState = BottomSheetState.NONE
+                    webReaderViewModel.resetBottomSheet()
                   }
                 }
               )
             }
           }
         }
-        app.omnivore.omnivore.ui.reader.BottomSheetState.LABELS -> {
+        BottomSheetState.LABELS -> {
           BottomSheetUI(title = "Notebook") {
             LabelsSelectionSheetContent(
               labels = labels,
               initialSelectedLabels = webReaderParams?.labels ?: listOf(),
               onCancel = {
                 coroutineScope.launch {
-                  modalBottomSheetState.hide()
-                  bottomSheetState = BottomSheetState.NONE
+                  webReaderViewModel.resetBottomSheet()
                 }
               },
               isLibraryMode = false,
@@ -252,8 +260,7 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
                   )
                 }
                 coroutineScope.launch {
-                  modalBottomSheetState.hide()
-                  bottomSheetState = BottomSheetState.NONE
+                  webReaderViewModel.resetBottomSheet()
                 }
               },
               onCreateLabel = { newLabelName, labelHexValue ->
@@ -262,7 +269,15 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
             )
           }
         }
+        BottomSheetState.LINK -> {
+          BottomSheetUI(title = "Open Link") {
+            OpenLinkView(webReaderViewModel)
+          }
+        }
         BottomSheetState.NONE -> {
+
+        }
+        else -> {
 
         }
       }
@@ -271,104 +286,135 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
   ) {
     Scaffold(
       topBar = {
-         TopAppBar(
-          modifier = Modifier
-            .height(height = with(LocalDensity.current) {
-              toolbarHeightPx.roundToInt().toDp()
-            }),
-          backgroundColor = themeBackgroundColor,
-           elevation = 0.dp,
-          title = {},
-          navigationIcon = {
-            IconButton(onClick = {
-              onBackPressedDispatcher?.onBackPressed()
-            }) {
-              Icon(
-                imageVector = Icons.Filled.ArrowBack,
-                modifier = Modifier,
-                contentDescription = "Back",
-                tint = themeTintColor
-              )
-            }
-          },
-          actions = {
-            if (onLibraryIconTap != null) {
-              IconButton(onClick = { onLibraryIconTap() }) {
-                Icon(
-                  imageVector = Icons.Default.Home,
-                  contentDescription = null,
-                  tint = themeTintColor,
-                )
-              }
-            }
-            webReaderParams?.let {
-              IconButton(onClick = {
-                coroutineScope.launch {
-                  bottomSheetState = BottomSheetState.NOTEBOOK
-                  modalBottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
-                }
-              }) {
-                Icon(
-                  painter = painterResource(id = R.drawable.notebook),
-                  contentDescription = null,
-                  tint = themeTintColor
-                )
-              }
-            }
-            IconButton(onClick = {
-              coroutineScope.launch {
-                bottomSheetState = BottomSheetState.PREFERENCES
-                modalBottomSheetState.animateTo(ModalBottomSheetValue.HalfExpanded)
-              }
-            }) {
-              Icon(
-                painter = painterResource(id = R.drawable.format_letter_case),
-                contentDescription = null,
-                tint = themeTintColor
-              )
-            }
-              IconButton(onClick = { isMenuExpanded = true }) {
-                Icon(
-                  painter = painterResource(id = R.drawable.dots_horizontal),
-                  contentDescription = null,
-                  tint = themeTintColor
-                )
-                if (isMenuExpanded) {
-                  webReaderParams?.let { params ->
-                    SavedItemContextMenu(
-                      isExpanded = isMenuExpanded,
-                      isArchived = params.item.isArchived,
-                      onDismiss = { isMenuExpanded = false },
-                      actionHandler = {
-                        webReaderViewModel.handleSavedItemAction(
-                          params.item.savedItemId,
-                          it
-                        )
-                      }
-                    )
-                  }
-                }
-              }
-          },
-        )
-      }
-    ) { paddingValues ->
-          if (styledContent != null) {
-            WebReader(
-              styledContent = styledContent,
-              webReaderViewModel = webReaderViewModel
-            )
-          }
+        ReaderTopAppBar(webReaderViewModel, onLibraryIconTap)
+      }) { paddingValues ->
+        if (styledContent != null) {
+          WebReader(
+            styledContent = styledContent,
+            webReaderViewModel = webReaderViewModel
+          )
         }
 
-      LaunchedEffect(shouldPopView) {
-        if (shouldPopView) {
-          onBackPressedDispatcher?.onBackPressed()
+        LaunchedEffect(shouldPopView) {
+          if (shouldPopView) {
+            onBackPressedDispatcher?.onBackPressed()
+          }
         }
       }
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
+@Composable
+fun ReaderTopAppBar(webReaderViewModel: WebReaderViewModel, onLibraryIconTap: (() -> Unit)? = null) {
+  val context = LocalContext.current
+  val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+
+  val isDarkMode = isSystemInDarkTheme()
+  val currentThemeKey = webReaderViewModel.currentThemeKey.observeAsState()
+  val currentTheme = Themes.values().find { it.themeKey == currentThemeKey.value }
+  val toolbarHeightPx: Float by webReaderViewModel.currentToolbarHeightLiveData.observeAsState(0.0f)
+  val webReaderParams: WebReaderParams? by webReaderViewModel.webReaderParamsLiveData.observeAsState(null)
+  var isMenuExpanded by remember { mutableStateOf(false) }
+
+  val themeBackgroundColor = currentTheme?.let {
+    if (it.themeKey == "System" && isDarkMode) {
+      Color(0xFF000000)
+    } else if (it.themeKey == "System" ) {
+      Color(0xFFFFFFFF)
+    } else {
+      Color(it.backgroundColor ?: 0xFFFFFFFF)
+    }
+  } ?: Color(0xFFFFFFFF)
+
+  val themeTintColor = currentTheme?.let {
+    if (it.themeKey == "System" && isDarkMode) {
+      Color(0xFFFFFFFF)
+    } else if (it.themeKey == "System" ) {
+      Color(0xFF000000)
+    } else {
+      Color(it.foregroundColor ?: 0xFF000000)
+    }
+  } ?: Color(0xFF000000)
+
+
+  TopAppBar(
+    modifier = Modifier
+      .height(height = with(LocalDensity.current) {
+        toolbarHeightPx.roundToInt().toDp()
+      }),
+    backgroundColor = themeBackgroundColor,
+    elevation = 0.dp,
+    title = {},
+    navigationIcon = {
+      IconButton(onClick = {
+        onBackPressedDispatcher?.onBackPressed()
+      }) {
+        Icon(
+          imageVector = Icons.Filled.ArrowBack,
+          modifier = Modifier,
+          contentDescription = "Back",
+          tint = themeTintColor
+        )
+      }
+    },
+    actions = {
+      if (onLibraryIconTap != null) {
+        IconButton(onClick = { onLibraryIconTap() }) {
+          Icon(
+            imageVector = Icons.Default.Home,
+            contentDescription = null,
+            tint = themeTintColor,
+          )
+        }
+      }
+      webReaderParams?.let {
+        IconButton(onClick = {
+          webReaderViewModel.setBottomSheet(BottomSheetState.NOTEBOOK)
+        }) {
+          Icon(
+            painter = painterResource(id = R.drawable.notebook),
+            contentDescription = null,
+            tint = themeTintColor
+          )
+        }
+      }
+      IconButton(onClick = {
+        webReaderViewModel.setBottomSheet(BottomSheetState.PREFERENCES)
+      }) {
+        Icon(
+          painter = painterResource(id = R.drawable.format_letter_case),
+          contentDescription = null,
+          tint = themeTintColor
+        )
+      }
+      IconButton(onClick = { isMenuExpanded = true }) {
+        Icon(
+          painter = painterResource(id = R.drawable.dots_horizontal),
+          contentDescription = null,
+          tint = themeTintColor
+        )
+        if (isMenuExpanded) {
+          webReaderParams?.let { params ->
+            SavedItemContextMenu(
+              context = context,
+              isExpanded = isMenuExpanded,
+              isArchived = params.item.isArchived,
+              onDismiss = { isMenuExpanded = false },
+              webReaderViewModel = webReaderViewModel,
+              actionHandler = {
+                webReaderViewModel.handleSavedItemAction(
+                  params.item.savedItemId,
+                  it
+                )
+              }
+            )
+          }
+        }
+      }
+    },
+  )
+}
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
@@ -383,9 +429,43 @@ fun BottomSheetUI(title: String?, content: @Composable () -> Unit) {
   ) {
     Scaffold(
     ) { paddingValues ->
-      Box(modifier = Modifier
-        .fillMaxSize()) {
+      Box(modifier = Modifier.fillMaxSize()) {
         content()
+      }
+    }
+  }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@Composable
+fun OpenLinkView(webReaderViewModel: WebReaderViewModel) {
+  val context = LocalContext.current
+
+  Column(modifier = Modifier
+    .padding(top = 50.dp)
+    .padding(horizontal = 50.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
+    Row {
+      Button(onClick = { webReaderViewModel.openCurrentLink(context) }, modifier = Modifier.fillMaxWidth()) {
+        Text(text = "Open in Browser")
+
+      }
+    }
+    Row() {
+      Button(onClick = { webReaderViewModel.saveCurrentLink(context) }, modifier = Modifier.fillMaxWidth()) {
+        Text(text = "Save to Omnivore")
+
+      }
+    }
+    Row() {
+      Button(onClick = {webReaderViewModel.copyCurrentLink(context) }, modifier = Modifier.fillMaxWidth()) {
+        Text(text = "Copy Link")
+
+      }
+    }
+    Row {
+      Button(onClick = {webReaderViewModel.resetBottomSheet() }, modifier = Modifier.fillMaxWidth()) {
+        Text(text = "Cancel")
+
       }
     }
   }

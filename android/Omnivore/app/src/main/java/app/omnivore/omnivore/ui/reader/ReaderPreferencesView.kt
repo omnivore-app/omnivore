@@ -11,6 +11,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Switch
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.ui.theme.OmnivoreTheme
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReaderPreferencesView(webReaderViewModel: WebReaderViewModel) {
   val isDark = isSystemInDarkTheme()
@@ -42,8 +45,6 @@ fun ReaderPreferencesView(webReaderViewModel: WebReaderViewModel) {
   var lineSpacingSliderValue by remember { mutableStateOf(currentWebPreferences.lineHeight.toFloat()) }
 
   val themeState = remember { mutableStateOf(currentWebPreferences.storedThemePreference) }
-
-  val themeListState = rememberLazyListState()
 
   OmnivoreTheme() {
   Column(
@@ -65,16 +66,17 @@ fun ReaderPreferencesView(webReaderViewModel: WebReaderViewModel) {
       ))
       Spacer(modifier = Modifier.weight(1.0F))
       Box {
-        OutlinedButton(
-          shape = RoundedCornerShape(4.dp),
+        AssistChip(
           onClick = { isFontListExpanded.value = true },
-          colors = ButtonDefaults.buttonColors(
-            contentColor = Color(red = 137, green = 137, blue = 137),
-            // containerColor = Color.Transparent,
-          ),
-        ) {
-          Text(selectedWebFontName.value)
-        }
+          label = { Text(selectedWebFontName.value, color = Color(red = 137, green = 137, blue = 137)) },
+          trailingIcon = {
+            Icon(
+              Icons.Default.ArrowDropDown,
+              contentDescription = "Choose the Reader font",
+              tint = Color(red = 137, green = 137, blue = 137)
+            )
+          },
+        )
         if (isFontListExpanded.value) {
           DropdownMenu(
             expanded = isFontListExpanded.value,

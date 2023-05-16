@@ -1,23 +1,25 @@
 package app.omnivore.omnivore.ui.reader
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.util.Log
-import androidx.compose.foundation.ScrollState
-import androidx.compose.runtime.remember
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.*
 import app.omnivore.omnivore.DatastoreKeys
 import app.omnivore.omnivore.DatastoreRepository
 import app.omnivore.omnivore.dataService.*
 import app.omnivore.omnivore.graphql.generated.type.CreateLabelInput
 import app.omnivore.omnivore.graphql.generated.type.SetLabelsInput
-import app.omnivore.omnivore.persistence.entities.SavedItem
 import app.omnivore.omnivore.networking.*
+import app.omnivore.omnivore.persistence.entities.SavedItem
 import app.omnivore.omnivore.persistence.entities.SavedItemAndSavedItemLabelCrossRef
 import app.omnivore.omnivore.persistence.entities.SavedItemLabel
 import app.omnivore.omnivore.ui.library.SavedItemAction
-import com.apollographql.apollo3.api.Optional
 import com.apollographql.apollo3.api.Optional.Companion.presentIfNotNull
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -25,6 +27,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.distinctUntilChanged
 import java.util.*
 import javax.inject.Inject
+
 
 data class WebReaderParams(
   val item: SavedItem,
@@ -56,13 +59,15 @@ class WebReaderViewModel @Inject constructor(
   var maxToolbarHeightPx = 0.0f
 
   val webReaderParamsLiveData = MutableLiveData<WebReaderParams?>(null)
-  val annotationLiveData = MutableLiveData<String?>(null)
+  var annotation: String? = null
   val javascriptActionLoopUUIDLiveData = MutableLiveData(lastJavascriptActionLoopUUID)
   val shouldPopViewLiveData = MutableLiveData(false)
   val hasFetchError = MutableLiveData(false)
   val currentToolbarHeightLiveData = MutableLiveData(0.0f)
-  val showLabelsSelectionSheetLiveData = MutableLiveData(false)
   val savedItemLabelsLiveData = dataService.db.savedItemLabelDao().getSavedItemLabelsLiveData()
+
+  var currentLink: Uri? = null
+  val bottomSheetStateLiveData = MutableLiveData<BottomSheetState>(BottomSheetState.NONE)
 
   var hasTappedExistingHighlight = false
   var lastTapCoordinates: TapCoordinates? = null
@@ -83,6 +88,72 @@ class WebReaderViewModel @Inject constructor(
 
   fun showNavBar() {
     onScrollChange(maxToolbarHeightPx)
+  }
+
+  fun setBottomSheet(state: BottomSheetState) {
+    bottomSheetStateLiveData.postValue(state)
+  }
+
+  fun resetBottomSheet() {
+    bottomSheetStateLiveData.postValue(BottomSheetState.NONE)
+  }
+
+  fun showOpenLinkSheet(context: Context, uri: Uri) {
+    webReaderParamsLiveData.value?.let {
+      if (it.item.pageURLString == uri.toString()) {
+        openLink(context, uri)
+      } else {
+        currentLink = uri
+        bottomSheetStateLiveData.postValue(BottomSheetState.LINK)
+      }
+    }
+  }
+
+  fun showShareLinkSheet(context: Context) {
+    webReaderParamsLiveData.value?.let {
+      val browserIntent = Intent(Intent.ACTION_SEND)
+
+      browserIntent.setType("text/plain")
+      browserIntent.putExtra(Intent.EXTRA_TEXT, it.item.pageURLString)
+      browserIntent.putExtra(Intent.EXTRA_SUBJECT, it.item.pageURLString)
+      context.startActivity(browserIntent)
+    }
+  }
+
+  fun openCurrentLink(context: Context) {
+    currentLink?.let {
+      openLink(context, it)
+    }
+    bottomSheetStateLiveData.postValue(BottomSheetState.NONE)
+  }
+
+  fun openLink(context: Context, uri: Uri) {
+    val browserIntent = Intent(Intent.ACTION_VIEW, uri)
+    startActivity(context, browserIntent, null)
+  }
+
+  fun saveCurrentLink(context: Context) {
+    currentLink?.let {
+      viewModelScope.launch {
+        val success = networker.saveUrl(it)
+        Toast.makeText(context, if (success) "Link saved" else "Error saving link" , Toast.LENGTH_SHORT).show()
+      }
+    }
+    bottomSheetStateLiveData.postValue(BottomSheetState.NONE)
+  }
+
+  fun copyCurrentLink(context: Context) {
+    currentLink?.let {
+      val clip = ClipData.newPlainText("link", it.toString())
+      val clipboard =
+        context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+      clipboard.setPrimaryClip(clip)
+      clipboard?.let {
+        clipboard?.setPrimaryClip(clip)
+        Toast.makeText(context, "Link Copied", Toast.LENGTH_SHORT).show()
+      }
+    }
+    bottomSheetStateLiveData.postValue(BottomSheetState.NONE)
   }
 
   fun onScrollChange(delta: Float) {
@@ -184,7 +255,7 @@ class WebReaderViewModel @Inject constructor(
         }
       }
       SavedItemAction.EditLabels -> {
-        showLabelsSelectionSheetLiveData.value = true
+        bottomSheetStateLiveData.postValue(BottomSheetState.LABELS)
       }
     }
   }
@@ -221,10 +292,11 @@ class WebReaderViewModel @Inject constructor(
       }
       "annotate" -> {
         viewModelScope.launch {
-          val annotation = Gson()
+          val annotationStr = Gson()
             .fromJson(jsonString, AnnotationWebViewMessage::class.java)
             .annotation ?: ""
-          annotationLiveData.value = annotation
+          annotation = annotationStr
+          bottomSheetStateLiveData.postValue(BottomSheetState.HIGHLIGHTNOTE)
         }
       }
       "shareHighlight" -> {
@@ -253,7 +325,8 @@ class WebReaderViewModel @Inject constructor(
   }
 
   fun cancelAnnotationEdit() {
-    annotationLiveData.value = null
+    annotation = null
+    resetBottomSheet()
   }
 
   private fun enqueueScript(javascript: String) {
@@ -396,7 +469,7 @@ class WebReaderViewModel @Inject constructor(
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
 
-        val newLabel = networker.createNewLabel(CreateLabelInput(color = Optional.presentIfNotNull(hexColorValue), name = labelName))
+        val newLabel = networker.createNewLabel(CreateLabelInput(color = presentIfNotNull(hexColorValue), name = labelName))
 
         newLabel?.let {
           val savedItemLabel = SavedItemLabel(

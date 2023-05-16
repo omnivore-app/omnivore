@@ -1,17 +1,26 @@
 package app.omnivore.omnivore.ui.library
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.util.Log
+import android.widget.Toast
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.*
 import app.omnivore.omnivore.*
 import app.omnivore.omnivore.dataService.*
 import app.omnivore.omnivore.graphql.generated.type.CreateLabelInput
 import app.omnivore.omnivore.graphql.generated.type.SetLabelsInput
+import app.omnivore.omnivore.models.ServerSyncStatus
 import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.persistence.entities.*
 import com.apollographql.apollo3.api.Optional
+import com.apollographql.apollo3.api.Optional.Companion.presentIfNotNull
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
@@ -33,6 +42,9 @@ class LibraryViewModel @Inject constructor(
   // responses in the right order
   private var searchIdx = 0
   private var receivedIdx = 0
+
+  var snackbarMessage by mutableStateOf<String?>(null)
+    private set
 
   // Live Data
   private var itemsLiveDataInternal = dataService.db.savedItemDao().filteredLibraryData(
@@ -73,6 +85,10 @@ class LibraryViewModel @Inject constructor(
         }
       }
     }
+  }
+
+  fun clearSnackbarMessage() {
+    snackbarMessage = null
   }
 
   fun refresh() {
@@ -276,6 +292,9 @@ class LibraryViewModel @Inject constructor(
         labelsSelectionCurrentItemLiveData.value = itemID
         showLabelsSelectionSheetLiveData.value = true
       }
+      else -> {
+
+      }
     }
     actionsMenuItemLiveData.postValue(null)
   }
@@ -283,11 +302,39 @@ class LibraryViewModel @Inject constructor(
   fun updateSavedItemLabels(savedItemID: String, labels: List<SavedItemLabel>) {
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
-        val input = SetLabelsInput(labelIds = labels.map { it.savedItemLabelId }, pageId = savedItemID)
+        val syncedLabels = labels.filter { it.serverSyncStatus == ServerSyncStatus.IS_SYNCED.rawValue }
+        val unsyncedLabels = labels.filter { it.serverSyncStatus != ServerSyncStatus.IS_SYNCED.rawValue }
+
+        var labelCreationError = false
+        val createdLabels = unsyncedLabels.mapNotNull { label ->
+          val result = networker.createNewLabel(CreateLabelInput(
+            name = label.name,
+            color = presentIfNotNull(label.color),
+            description = presentIfNotNull(label.labelDescription),
+          ))
+          result?.let {
+            SavedItemLabel(
+              savedItemLabelId = result.id,
+              name = result.name,
+              color = result.color,
+              createdAt = result.createdAt.toString(),
+              labelDescription = result.description,
+              serverSyncStatus = ServerSyncStatus.IS_SYNCED.rawValue
+            )
+          } ?: run {
+            labelCreationError = true
+            null
+          }
+        }
+
+        dataService.db.savedItemLabelDao().insertAll(createdLabels)
+
+        val allLabels = syncedLabels + createdLabels
+
+        val input = SetLabelsInput(labelIds = allLabels.map { it.savedItemLabelId }, pageId = savedItemID)
         val networkResult = networker.updateLabelsForSavedItem(input)
 
-        // TODO: assign a server sync status to these
-        val crossRefs = labels.map {
+        val crossRefs = allLabels.map {
           SavedItemAndSavedItemLabelCrossRef(
             savedItemLabelId = it.savedItemLabelId,
             savedItemId = savedItemID
@@ -299,6 +346,12 @@ class LibraryViewModel @Inject constructor(
 
         // Add back the current labels
         dataService.db.savedItemAndSavedItemLabelCrossRefDao().insertAll(crossRefs)
+
+        if (!networkResult || labelCreationError) {
+          snackbarMessage = "Unable to set labels"
+        } else {
+          snackbarMessage = "Labels updated"
+        }
 
         CoroutineScope(Dispatchers.Main).launch {
           handleFilterChanges()
@@ -353,5 +406,5 @@ enum class SavedItemAction {
   Delete,
   Archive,
   Unarchive,
-  EditLabels
+  EditLabels,
 }
