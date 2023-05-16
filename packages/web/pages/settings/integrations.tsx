@@ -151,11 +151,11 @@ export default function Integrations(): JSX.Element {
         subText:
           'Obsidian is a powerful and extensible knowledge base that works on top of your local folder of plain text files. Use the Omnivore Obsidian plugin to sync articles, highlights, and notes to Obsidian.',
         button: {
-          text: `Install Logseq Plugin`,
+          text: `Install Obsidian Plugin`,
           icon: <DownloadSimple size={16} weight={'bold'} />,
           style: 'ctaDarkYellow',
           action: () => {
-            router.push(`https://github.com/omnivore-app/logseq-omnivore`)
+            router.push(`https://github.com/omnivore-app/obsidian-omnivore`)
           },
         },
       },
