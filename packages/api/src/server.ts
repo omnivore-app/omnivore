@@ -101,13 +101,13 @@ export const createApp = (): {
   if (!env.dev.isLocal) {
     const apiLimiter = rateLimit({
       windowMs: 60 * 1000, // 1 minute
-      max: (req) => {
+      max: async (req) => {
         // 50 RPM for an authenticated request, 5 for a non-authenticated request
-        const token = getClaimsByToken(
+        const token = await getClaimsByToken(
           // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
           req.header('authorization') ?? req.cookies['auth']
         )
-        return !!token ? 50 : 10
+        return token ? 50 : 10
       },
       standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
       legacyHeaders: false, // Disable the `X-RateLimit-*` headers
