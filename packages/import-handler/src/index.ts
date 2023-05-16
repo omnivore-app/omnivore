@@ -153,7 +153,7 @@ const urlHandler = async (
       url,
       'csv-importer',
       state,
-      labels
+      labels && labels.length > 0 ? labels : undefined
     )
     if (!result) {
       return Promise.reject('Failed to import url')
