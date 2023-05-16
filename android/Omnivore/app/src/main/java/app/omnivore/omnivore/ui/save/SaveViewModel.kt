@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.Constants
@@ -19,10 +20,19 @@ import kotlinx.coroutines.runBlocking
 import java.util.*
 import javax.inject.Inject
 
+enum class SaveState {
+  NONE(),
+  SAVING(),
+  ERROR(),
+  SAVED()
+}
+
 @HiltViewModel
 class SaveViewModel @Inject constructor(
   private val datastoreRepo: DatastoreRepository
 ): ViewModel() {
+  val saveState = MutableLiveData(SaveState.NONE)
+
   var isLoading by mutableStateOf(false)
     private set
 
@@ -45,6 +55,7 @@ class SaveViewModel @Inject constructor(
     viewModelScope.launch {
       isLoading = true
       message = "Saving to Omnivore..."
+      saveState.postValue(SaveState.SAVING)
 
       val authToken = getAuthToken()
 
@@ -84,6 +95,7 @@ class SaveViewModel @Inject constructor(
           "There was an error saving your page"
         }
 
+        saveState.postValue(SaveState.SAVED)
         Log.d(ContentValues.TAG, "Saved URL?: $success")
       } catch (e: java.lang.Exception) {
         message = "There was an error saving your page"

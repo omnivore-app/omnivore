@@ -4,23 +4,47 @@ import android.content.ContentValues
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.TextView.SavedState
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.rounded.AddCircle
+import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material3.BottomAppBarDefaults
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment.Companion.TopCenter
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import app.omnivore.omnivore.R
+import app.omnivore.omnivore.ui.library.SavedItemAction
+import app.omnivore.omnivore.ui.reader.WebReaderLoadingContainerActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.seconds
 
 // Not sure why we need this class, but directly opening SaveSheetActivity
 // causes the app to crash.
@@ -56,36 +80,49 @@ abstract class SaveSheetActivityBase: AppCompatActivity() {
     }
 
     setContent {
-      val coroutineScope = rememberCoroutineScope()
-      val modalBottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
-      val isSheetOpened = remember { mutableStateOf(false) }
+      val saveState: SaveState by viewModel.saveState.observeAsState(SaveState.NONE)
+      val scaffoldState: ScaffoldState = rememberScaffoldState()
 
-      ModalBottomSheetLayout(
-        sheetBackgroundColor = Color.Transparent,
-        sheetState = modalBottomSheetState,
-        sheetContent = {
-          BottomSheetUI {
-            ScreenContent(viewModel, modalBottomSheetState)
-          }
-        }
-      ) {}
 
-      BackHandler {
-        onFinish(coroutineScope, modalBottomSheetState)
+      val message = when (saveState) {
+        SaveState.NONE -> ""
+        SaveState.SAVING -> "Saved to Omnivore"
+        SaveState.ERROR -> "Error Saving Article"
+        SaveState.SAVED -> "Saved to Omnivore"
       }
 
-      // Take action based on hidden state
-      LaunchedEffect(modalBottomSheetState.currentValue) {
-        when (modalBottomSheetState.currentValue) {
-          ModalBottomSheetValue.Hidden -> {
-            handleBottomSheetAtHiddenState(
-              isSheetOpened,
-              modalBottomSheetState
-            )
-          }
-          else -> {
-            Log.i(TAG, "Bottom sheet ${modalBottomSheetState.currentValue} state")
-          }
+      Scaffold(
+        modifier = Modifier.clickable {
+          Log.d("debug", "DISMISS SCAFFOLD")
+          exit()
+        },
+        scaffoldState = scaffoldState,
+        backgroundColor = Color.Transparent,
+
+        // TODO: In future versions we can present Label, Note, Highlight options here
+        bottomBar = {
+
+          androidx.compose.material3.BottomAppBar(
+
+            modifier = Modifier
+              .height(55.dp)
+              .fillMaxWidth()
+              .clip(RoundedCornerShape(topEnd = 5.dp, topStart = 5.dp)),
+            containerColor = MaterialTheme.colors.background,
+            actions = {
+                Spacer(modifier = Modifier.width(25.dp))
+                Text(message, style = androidx.compose.material3.MaterialTheme.typography.titleMedium)
+            },
+          )
+        },
+      ) {
+
+      }
+
+      LaunchedEffect(saveState) {
+        if (saveState == SaveState.SAVED) {
+          delay(1.5.seconds)
+          exit()
         }
       }
     }
