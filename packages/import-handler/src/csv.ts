@@ -14,7 +14,7 @@ export const importCsv = async (ctx: ImportContext, stream: Stream) => {
     try {
       const url = new URL(row[0])
       const state = row.length > 1 ? row[1] : undefined
-      // labels follows format: "[label1,label2]" or "[]"
+      // labels follows format: "[label1,label2]"
       const labels =
         row.length > 2
           ? (row[2] as string)

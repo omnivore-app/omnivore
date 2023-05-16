@@ -83,7 +83,7 @@ describe('Load a complex CSV file', () => {
       {
         url: new URL('https://test.com'),
         state: 'SUCCEEDED',
-        labels: [],
+        labels: ['test', 'development'],
       },
     ])
   })

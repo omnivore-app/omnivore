@@ -1,11 +1,11 @@
+import axios from 'axios'
+import { ArticleSavingRequestStatus } from '../../elastic/types'
+import { env } from '../../env'
 import {
   IntegrationService,
   RetrievedResult,
   RetrieveRequest,
 } from './integration'
-import axios from 'axios'
-import { env } from '../../env'
-import { ArticleSavingRequestStatus } from '../../elastic/types'
 
 interface PocketResponse {
   status: number // 1 if success
@@ -130,7 +130,9 @@ export class PocketIntegration extends IntegrationService {
     }
     const data = pocketItems.map((item) => ({
       url: item.given_url,
-      labels: Object.values(item.tags ?? {}).map((tag) => tag.tag),
+      labels: item.tags
+        ? Object.values(item.tags).map((tag) => tag.tag)
+        : undefined,
       state: statusToState[item.status],
     }))
     return {
