@@ -44,6 +44,10 @@
       "id": "save-extension@omnivore.app"
     }
   },
+  "options_ui": {
+    "page": "/views/options.html",
+    "open_in_tab": true
+  },
   "content_scripts": [
     {
       "matches": [
