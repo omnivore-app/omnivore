@@ -3,9 +3,7 @@
 package app.omnivore.omnivore.ui.components
 
 import LabelChip
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
@@ -279,6 +277,7 @@ fun LabelsSelectionSheetContent(
       horizontalAlignment = Alignment.CenterHorizontally,
       modifier = Modifier
         .fillMaxSize()
+        .verticalScroll(rememberScrollState())
         .padding(horizontal = 5.dp)
     ) {
 
