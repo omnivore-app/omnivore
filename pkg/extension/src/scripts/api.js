@@ -1,15 +1,19 @@
 function gqlRequest(apiUrl, query) {
-  return fetch(apiUrl, {
-    method: 'POST',
-    redirect: 'follow',
-    credentials: 'include',
-    mode: 'cors',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    },
-    body: query,
-  })
+  return getStorageItem('apiKey')
+    .then((apiKey) => {
+      return fetch(apiUrl, {
+        method: 'POST',
+        redirect: 'follow',
+        credentials: 'include',
+        mode: 'cors',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          Authorization: apiKey ? apiKey : undefined,
+        },
+        body: query,
+      })
+    })
     .then((response) => response.json())
     .then((json) => {
       if (!json['data']) {
