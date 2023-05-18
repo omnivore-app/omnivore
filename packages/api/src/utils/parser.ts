@@ -625,7 +625,7 @@ export const htmlToHighlightedMarkdown = (
           document
         )
       } catch (err) {
-        console.error(err)
+        console.log(err)
       }
     })
   html = document.documentElement.outerHTML
