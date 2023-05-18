@@ -422,7 +422,7 @@ export function makeHighlightNodeAttributes(
           isParagraphStart && !i && quote && (quote += '\n')
           quote += text
         }
-        console.log('quote', quote)
+
         const newHighlightSpan = document.createElement('span')
         newHighlightSpan.setAttribute(highlightIdAttribute, id)
         newHighlightSpan.appendChild(newTextNode)
