@@ -15,6 +15,8 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.focusTarget
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
@@ -33,15 +35,23 @@ import coil.compose.rememberAsyncImagePainter
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
 @Composable
-fun SavedItemCard(savedItemViewModel: SavedItemViewModel, savedItem: SavedItemWithLabelsAndHighlights, onClickHandler: () -> Unit, actionHandler: (SavedItemAction) -> Unit) {
-  val listState = rememberLazyListState()
+fun SavedItemCard(
+  selected: Boolean,
+  savedItemViewModel: SavedItemViewModel,
+  savedItem: SavedItemWithLabelsAndHighlights,
+  onClickHandler: () -> Unit,
+  actionHandler: (SavedItemAction) -> Unit) {
+  // Log.d("selected", "is selected: ${selected}")
 
   Column(
-    modifier = Modifier
+      modifier = Modifier
       .combinedClickable(
         onClick = onClickHandler,
-        onLongClick = { savedItemViewModel.actionsMenuItemLiveData.postValue(savedItem) }
+        onLongClick = {
+          savedItemViewModel.actionsMenuItemLiveData.postValue(savedItem)
+        }
       )
+      .background(if (selected) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.background)
       .fillMaxWidth()
   ) {
     Row(
@@ -51,6 +61,7 @@ fun SavedItemCard(savedItemViewModel: SavedItemViewModel, savedItem: SavedItemWi
         .fillMaxWidth()
         .padding(10.dp)
         .background(Color.Transparent)
+
     ) {
       Column(
         verticalArrangement = Arrangement.spacedBy(5.dp),

@@ -277,7 +277,6 @@ fun LabelsSelectionSheetContent(
       horizontalAlignment = Alignment.CenterHorizontally,
       modifier = Modifier
         .fillMaxSize()
-        .verticalScroll(rememberScrollState())
         .padding(horizontal = 5.dp)
     ) {
 
@@ -365,7 +364,13 @@ fun LabelsSelectionSheetContent(
       }
 
       if (filteredLabels.isNotEmpty()) {
-        FlowRow(modifier = Modifier.fillMaxWidth().padding(10.dp)) {
+        FlowRow(
+          modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(10.dp)
+            .padding(bottom = 55.dp)
+        ) {
           filteredLabels.forEach { label ->
             val chipColors = LabelChipColors.fromHex(label.color)
 

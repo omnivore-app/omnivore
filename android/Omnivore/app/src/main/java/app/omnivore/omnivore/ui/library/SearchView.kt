@@ -186,6 +186,7 @@ fun SearchViewContent(viewModel: SearchViewModel, modifier: Modifier) {
     ) {
         items(cardsData) { cardDataWithLabels ->
             SavedItemCard(
+                selected = false,
                 savedItemViewModel = viewModel,
                 savedItem = cardDataWithLabels,
                 onClickHandler = {
