@@ -501,6 +501,7 @@ export const highlightTranslators: TranslatorConfigObject = {
     return {
       prefix: '==',
       postfix: '==',
+      content: node.innerHTML.trim(),
     }
   },
 }
