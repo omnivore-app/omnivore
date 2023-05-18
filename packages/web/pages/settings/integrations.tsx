@@ -146,18 +146,32 @@ export default function Integrations(): JSX.Element {
         },
       },
       {
-        icon: '/static/icons/readwise.svg',
-        title: 'Readwise',
+        icon: '/static/icons/obsidian.png',
+        title: 'Obsidian',
         subText:
-          'Readwise makes it easy to revisit and learn from your ebook & article highlights. Use our Readwise integration to sync your highlights from Omnivore to Readwise.',
+          'Obsidian is a powerful and extensible knowledge base that works on top of your local folder of plain text files. Use the Omnivore Obsidian plugin to sync articles, highlights, and notes to Obsidian.',
         button: {
-          text: readwiseConnected ? 'Remove' : 'Connect to Readwise',
-          icon: <Link size={16} weight={'bold'} />,
-          style: readwiseConnected ? 'ctaWhite' : 'ctaDarkYellow',
+          text: `Install Obsidian Plugin`,
+          icon: <DownloadSimple size={16} weight={'bold'} />,
+          style: 'ctaDarkYellow',
           action: () => {
-            readwiseConnected
-              ? deleteIntegration(readwiseConnected.id)
-              : router.push('/settings/integrations/readwise')
+            router.push(`https://github.com/omnivore-app/obsidian-omnivore`)
+          },
+        },
+      },
+      {
+        icon: '/static/icons/pocket.svg',
+        title: 'Pocket',
+        subText:
+          'Pocket is a place to save articles, videos, and more. Our Pocket integration allows importing your Pocket library to Omnivore.',
+        button: {
+          text: pocketConnected ? 'Import' : 'Connect to Pocket',
+          icon: <Link size={16} weight={'bold'} />,
+          style: 'ctaDarkYellow',
+          action: () => {
+            pocketConnected
+              ? importFromIntegration(pocketConnected.id)
+              : redirectToPocket()
           },
         },
       },
@@ -173,17 +187,18 @@ export default function Integrations(): JSX.Element {
         },
       },
       {
-        icon: '/static/icons/pocket.svg',
-        title: 'Pocket',
-        subText: 'Pocket is a place to save articles, videos, and more.',
+        icon: '/static/icons/readwise.svg',
+        title: 'Readwise',
+        subText:
+          'Readwise makes it easy to revisit and learn from your ebook & article highlights. Use our Readwise integration to sync your highlights from Omnivore to Readwise.',
         button: {
-          text: pocketConnected ? 'Import' : 'Connect to Pocket',
+          text: readwiseConnected ? 'Remove' : 'Connect to Readwise',
           icon: <Link size={16} weight={'bold'} />,
-          style: 'ctaDarkYellow',
+          style: readwiseConnected ? 'ctaWhite' : 'ctaDarkYellow',
           action: () => {
-            pocketConnected
-              ? importFromIntegration(pocketConnected.id)
-              : redirectToPocket()
+            readwiseConnected
+              ? deleteIntegration(readwiseConnected.id)
+              : router.push('/settings/integrations/readwise')
           },
         },
       },
