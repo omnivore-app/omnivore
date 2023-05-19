@@ -165,6 +165,7 @@ fun LibraryViewContent(libraryViewModel: LibraryViewModel, modifier: Modifier) {
     onRefresh = { libraryViewModel.refresh() }
   )
 
+  val selectedItem: SavedItemWithLabelsAndHighlights? by libraryViewModel.actionsMenuItemLiveData.observeAsState()
   val cardsData: List<SavedItemWithLabelsAndHighlights> by libraryViewModel.itemsLiveData.observeAsState(
     listOf()
   )
@@ -188,10 +189,13 @@ fun LibraryViewContent(libraryViewModel: LibraryViewModel, modifier: Modifier) {
         LibraryFilterBar(libraryViewModel)
       }
       items(cardsData) { cardDataWithLabels ->
+        val selected = cardDataWithLabels.savedItem.savedItemId == selectedItem?.savedItem?.savedItemId
         SavedItemCard(
+          selected = selected,
           savedItemViewModel = libraryViewModel,
           savedItem = cardDataWithLabels,
           onClickHandler = {
+            libraryViewModel.actionsMenuItemLiveData.postValue(null)
             val activityClass =
               if (cardDataWithLabels.savedItem.contentReader == "PDF") PDFReaderActivity::class.java else WebReaderLoadingContainerActivity::class.java
             val intent = Intent(context, activityClass)
