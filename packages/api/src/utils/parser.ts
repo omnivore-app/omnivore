@@ -609,11 +609,24 @@ export const htmlToHighlightedMarkdown = (
   html: string,
   highlights?: Highlight[]
 ): string => {
-  if (!highlights) {
+  if (!highlights || highlights.length == 0) {
     return nhm.translate(/* html */ html)
   }
 
-  const document = parseHTML(html).document
+  let document: Document
+
+  try {
+    document = parseHTML(html).document
+
+    if (!document || !document.documentElement) {
+      // the html is invalid
+      throw new Error('Invalid html content')
+    }
+  } catch (err) {
+    console.log(err)
+    return nhm.translate(/* html */ html)
+  }
+
   // wrap highlights in special tags
   highlights
     .filter((h) => h.type == 'HIGHLIGHT' && h.patch)
