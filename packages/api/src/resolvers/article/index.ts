@@ -948,9 +948,13 @@ export const searchResolver = authorized<
     if (params.includeContent && r.content) {
       // convert html to the requested format
       const format = params.format || ArticleFormat.Html
-      const converter = contentConverter(format)
-      if (converter) {
-        r.content = converter(r.content, r.highlights)
+      try {
+        const converter = contentConverter(format)
+        if (converter) {
+          r.content = converter(r.content, r.highlights)
+        }
+      } catch (error) {
+        console.log('Error converting content', error)
       }
     }
 

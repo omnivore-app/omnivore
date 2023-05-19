@@ -11,6 +11,7 @@ import { decode } from 'html-entities'
 import * as jwt from 'jsonwebtoken'
 import { parseHTML } from 'linkedom'
 import { NodeHtmlMarkdown, TranslatorConfigObject } from 'node-html-markdown'
+import { ElementNode } from 'node-html-markdown/dist/nodes'
 import { ILike } from 'typeorm'
 import { promisify } from 'util'
 import { v4 as uuid } from 'uuid'
@@ -494,13 +495,86 @@ export const fetchFavicon = async (
 
 // custom transformer to wrap <span class="highlight"> tags in markdown highlight tags `==`
 export const highlightTranslators: TranslatorConfigObject = {
+  /* Link */
+  a: ({ node, options, visitor }) => {
+    const href = node.getAttribute('href')
+    if (!href) return {}
+
+    // Encodes symbols that can cause problems in markdown
+    let encodedHref = ''
+    for (const chr of href) {
+      switch (chr) {
+        case '(':
+          encodedHref += '%28'
+          break
+        case ')':
+          encodedHref += '%29'
+          break
+        case '_':
+          encodedHref += '%5F'
+          break
+        case '*':
+          encodedHref += '%2A'
+          break
+        default:
+          encodedHref += chr
+      }
+    }
+
+    const title = node.getAttribute('title')
+
+    let hasHighlight = false
+    // If the link is a highlight, wrap it in `==` tags
+    node.childNodes.forEach((child) => {
+      if (
+        child.nodeType === 1 &&
+        (child as ElementNode).getAttribute(highlightIdAttribute)
+      ) {
+        hasHighlight = true
+        return
+      }
+    })
+
+    // Inline link, when possible
+    // See: https://github.com/crosstype/node-html-markdown/issues/17
+    if (node.textContent === href && options.useInlineLinks)
+      return {
+        prefix: hasHighlight ? '==' : undefined,
+        postfix: hasHighlight ? '==' : undefined,
+        content: `<${encodedHref}>`,
+      }
+
+    const prefix = hasHighlight ? '==[' : '['
+    const postfix =
+      ']' +
+      (!options.useLinkReferenceDefinitions
+        ? `(${encodedHref}${title ? ` "${title}"` : ''})`
+        : `[${visitor.addOrGetUrlDefinition(encodedHref)}]`) +
+      `${hasHighlight ? '==' : ''}`
+
+    return {
+      postprocess: ({ content }) => content.replace(/(?:\r?\n)+/g, ' '),
+      childTranslators: visitor.instance.aTagTranslators,
+      prefix,
+      postfix,
+    }
+  },
+
   span: ({ node }) => {
     const id = node.getAttribute(highlightIdAttribute)
     if (!id) return {}
 
+    const hasLeadingSpace = node.innerHTML.startsWith(' ')
+    const hasTrailingSpace = node.innerHTML.endsWith(' ')
+    // remove the leading and trailing space
+    const content = node.innerHTML.trim()
+    const prefix = hasLeadingSpace ? ' ==' : '=='
+    const postfix = hasTrailingSpace ? '== ' : '=='
+
     return {
-      prefix: '==',
-      postfix: '==',
+      prefix,
+      postfix,
+      content,
     }
   },
 }
@@ -535,11 +609,24 @@ export const htmlToHighlightedMarkdown = (
   html: string,
   highlights?: Highlight[]
 ): string => {
-  if (!highlights) {
+  if (!highlights || highlights.length == 0) {
     return nhm.translate(/* html */ html)
   }
 
-  const document = parseHTML(html).document
+  let document: Document
+
+  try {
+    document = parseHTML(html).document
+
+    if (!document || !document.documentElement) {
+      // the html is invalid
+      throw new Error('Invalid html content')
+    }
+  } catch (err) {
+    console.log(err)
+    return nhm.translate(/* html */ html)
+  }
+
   // wrap highlights in special tags
   highlights
     .filter((h) => h.type == 'HIGHLIGHT' && h.patch)
@@ -551,7 +638,7 @@ export const htmlToHighlightedMarkdown = (
           document
         )
       } catch (err) {
-        console.error(err)
+        console.log(err)
       }
     })
   html = document.documentElement.outerHTML
