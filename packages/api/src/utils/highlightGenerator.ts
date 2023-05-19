@@ -66,6 +66,8 @@ function getTextNodesBetween(rootNode: Node, startNode: Node, endNode: Node) {
   }
 
   function getTextNodes(node: Node) {
+    if (!node) return
+
     if (node == startNode) {
       pastStartNode = true
     }
@@ -384,7 +386,7 @@ export function makeHighlightNodeAttributes(
   patch: string,
   document: Document
 ) {
-  const rootNode = document.documentElement
+  const rootNode = document.getRootNode()
 
   const allArticleNodes = getTextNodesBetween(rootNode, rootNode, rootNode)
   const { highlightTextStart, highlightTextEnd, textNodes, textNodeIndex } =
