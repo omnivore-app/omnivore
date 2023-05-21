@@ -43,7 +43,7 @@ In order to use Row Level Security every transaction with the database must set 
 
 - Install and run the _postgresql_ service on your machine.
 
-###Configure access to the database
+### Configure access to the database
 
 _On some systems, Postgres will only allow the local postgres user to connect to the database. One way around this is to
 set the authentication method in your pg_hba.conf file_. The `trust` method allows any user who can connect to
