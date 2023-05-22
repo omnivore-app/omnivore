@@ -316,13 +316,14 @@
         '.omnivore-top-button-label'
       )
       labels.forEach((label) => {
-        console.log('  - hiding label', label)
         label.style.display = 'none'
       })
       const container = root.shadowRoot.querySelector(
         '#omnivore-toast-container'
       )
       container.style.width = '280px'
+      container.style.top = 'unset'
+      container.style.bottom = '20px'
     }
   }
 

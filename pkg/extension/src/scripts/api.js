@@ -1,6 +1,7 @@
 function gqlRequest(apiUrl, query) {
   return getStorageItem('apiKey')
     .then((apiKey) => {
+      const auth = apiKey ? { Authorization: apiKey } : {}
       return fetch(apiUrl, {
         method: 'POST',
         redirect: 'follow',
@@ -9,7 +10,7 @@ function gqlRequest(apiUrl, query) {
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
-          Authorization: apiKey ? apiKey : undefined,
+          ...auth,
         },
         body: query,
       })
