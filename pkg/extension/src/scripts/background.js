@@ -615,6 +615,7 @@ function executeAction(action) {
             currentTab.id
           )
           if (isSignedUp) {
+            action(currentTab)
           }
         } else {
           const extensionManifest = browserApi.runtime.getManifest()
