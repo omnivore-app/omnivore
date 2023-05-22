@@ -18610,9 +18610,9 @@ klona@^2.0.4:
   integrity sha512-pJiBpiXMbt7dkzXe8Ghj/u4FfXOOa98fPW+bihOJ4SjnoijweJrNThJfd3ifXpXhREjpoF2mZVH1GfS9LV3kHQ==
 
 knex-stringcase@^1.4.2:
-  version "1.4.5"
-  resolved "https://registry.yarnpkg.com/knex-stringcase/-/knex-stringcase-1.4.5.tgz#47761c1ca4fffd1d276cab7bc3c1265e3669972a"
-  integrity sha512-dO8CzBAfxX6HeZ6BP+5KCMn3450MRoz3xsUascogE3OucUIyv/ki/W30YQz15EuAbHr03s9DfgiNlKfAvD+PvQ==
+  version "1.4.6"
+  resolved "https://registry.yarnpkg.com/knex-stringcase/-/knex-stringcase-1.4.6.tgz#e10f9201bc34de66386cc08525532012ebfd9e44"
+  integrity sha512-8YJafQWJqF0REx6OYKem4UBBY75RD+ZvENcWAufz/afc9MOBGjFyr70EPBy59y6LqoPzSmCdUV+qWO550B3lJg==
   dependencies:
     stringcase "^4.3.1"
 
