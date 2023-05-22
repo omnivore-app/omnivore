@@ -591,69 +591,8 @@ function onExtensionClick(tabId) {
   })
 }
 
-/* After installing extension, if user hasn’t logged into Omnivore, then we show the splash popup */
 function checkAuthOnFirstClickPostInstall(tabId) {
-  return getStorageItem('postInstallClickComplete').then(
-    async (postInstallClickComplete) => {
-      return true
-      if (postInstallClickComplete) return true
-
-      if (
-        typeof browser !== 'undefined' &&
-        browser.runtime &&
-        browser.runtime.sendNativeMessage
-      ) {
-        const response = await browser.runtime.sendNativeMessage('omnivore', {
-          message: ACTIONS.GetAuthToken,
-        })
-        if (response.authToken) {
-          authToken = response.authToken
-        }
-      }
-
-      return new Promise((resolve) => {
-        const xhr = new XMLHttpRequest()
-        xhr.onreadystatechange = function () {
-          if (xhr.readyState === 4 && xhr.status === 200) {
-            const { data } = JSON.parse(xhr.response)
-            if (!data.me) {
-              browserApi.tabs.sendMessage(tabId, {
-                action: ACTIONS.ShowMessage,
-                payload: {
-                  type: 'loading',
-                  text: 'Loading...',
-                },
-              })
-              browserApi.tabs.sendMessage(tabId, {
-                action: ACTIONS.ShowMessage,
-                payload: {
-                  text: '',
-                  type: 'error',
-                  errorCode: 401,
-                  url: omnivoreURL,
-                },
-              })
-              resolve(null)
-            } else {
-              setStorage({
-                postInstallClickComplete: true,
-              })
-              resolve(true)
-            }
-          }
-        }
-
-        const query = '{me{id}}'
-        const data = JSON.stringify({
-          query,
-        })
-        xhr.open('POST', omnivoreGraphqlURL + 'graphql', true)
-        setupConnection(xhr)
-
-        xhr.send(data)
-      })
-    }
-  )
+  return Promise.resolve(true)
 }
 
 function handleActionClick() {
@@ -676,7 +615,6 @@ function executeAction(action) {
             currentTab.id
           )
           if (isSignedUp) {
-            action(currentTab)
           }
         } else {
           const extensionManifest = browserApi.runtime.getManifest()
