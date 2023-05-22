@@ -114,6 +114,8 @@ export default function Integrations(): JSX.Element {
         if (result) {
           revalidate()
           showSuccessToast('Connected with Pocket.')
+          // start the import
+          await importFromIntegration(result.id)
         } else {
           showErrorToast('There was an error connecting to Pocket.')
         }
