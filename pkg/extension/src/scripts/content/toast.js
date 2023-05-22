@@ -324,8 +324,6 @@
       )
       container.style.width = '280px'
     }
-
-    root.shadowRoot.focus()
   }
 
   function connectKeyboard(root) {
