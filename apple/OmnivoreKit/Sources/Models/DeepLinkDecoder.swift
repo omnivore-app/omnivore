@@ -40,8 +40,7 @@ public extension DeepLink {
     case "saved-search":
       let named = url.path.replacingOccurrences(of: "/", with: "")
       return .savedSearch(named: named)
-    case "read":
-    case "shareExtensionRequestID":
+    case "read", "shareExtensionRequestID":
       let requestID = url.path.replacingOccurrences(of: "/", with: "")
       return .webAppLinkRequest(requestID: requestID)
     default:
