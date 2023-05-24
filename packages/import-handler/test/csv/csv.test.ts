@@ -88,3 +88,24 @@ describe('Load a complex CSV file', () => {
     ])
   })
 })
+
+describe('A file with no status set', () => {
+  it('should not try to set status', async () => {
+    const states: (ArticleSavingRequestStatus | undefined)[] = []
+    const stream = fs.createReadStream('./test/csv/data/unset-status.csv')
+    const stub = stubImportCtx()
+    stub.urlHandler = (
+      ctx: ImportContext,
+      url,
+      state?: ArticleSavingRequestStatus
+    ): Promise<void> => {
+      states.push(state)
+      return Promise.resolve()
+    }
+
+    await importCsv(stub, stream)
+    expect(stub.countFailed).to.equal(0)
+    expect(stub.countImported).to.equal(2)
+    expect(states).to.eql([undefined, ArticleSavingRequestStatus.Archived])
+  })
+})

@@ -13,7 +13,7 @@ export const importCsv = async (ctx: ImportContext, stream: Stream) => {
   for await (const row of parser) {
     try {
       const url = new URL(row[0])
-      const state = row.length > 1 ? row[1] : undefined
+      const state = row.length > 1 && row[1] ? row[1] : undefined
       // labels follows format: "[label1,label2]"
       const labels =
         row.length > 2
