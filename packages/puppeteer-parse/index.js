@@ -59,18 +59,23 @@ const userAgentForUrl = (url) => {
 };
 
 const fetchContentWithScrapingBee = async (url) => {
-  const response = await axios.get('https://app.scrapingbee.com/api/v1', {
-    params: {
-      'api_key':  process.env.SCRAPINGBEE_API_KEY,
-      'url': url,
-      'render_js': 'false',
-      'premium_proxy': 'true',
-      'country_code':'us'
-    }
-  })
-
-  const dom = parseHTML(response.data).document;
-  return { title: dom.title, domContent: dom.documentElement.outerHTML, url: url }
+  try {
+    const response = await axios.get('https://app.scrapingbee.com/api/v1', {
+      params: {
+        'api_key':  process.env.SCRAPINGBEE_API_KEY,
+        'url': url,
+        'render_js': 'false',
+        'premium_proxy': 'true',
+        'country_code':'us'
+      }
+    })
+  
+    const dom = parseHTML(response.data).document;
+    return { title: dom.title, domContent: dom.documentElement.outerHTML, url }
+  } catch (e) {
+    console.log('error fetching with scrapingbee', e)
+    return { title: '', domContent: '', url }
+  }
 }
 
 const enableJavascriptForUrl = (url) => {
@@ -350,8 +355,8 @@ async function fetchContent(req, res) {
 
     // fallback to scrapingbee
     const sbResult = await fetchContentWithScrapingBee(url);
-    const sbUrl = finalUrl || sbResult.url;
     const content = sbResult.domContent;
+    const title = sbResult.title;
     logRecord.fetchContentTime = Date.now() - functionStartTime;
 
     let readabilityResult = null;
@@ -359,7 +364,7 @@ async function fetchContent(req, res) {
       let document = parseHTML(content).document;
 
       // preParse content
-      const preParsedDom = await preParseContent(sbUrl, document)
+      const preParsedDom = await preParseContent(url, document)
       if (preParsedDom) {
         document = preParsedDom
       }
