@@ -73,8 +73,9 @@ const fetchContentWithScrapingBee = async (url) => {
     const dom = parseHTML(response.data).document;
     return { title: dom.title, domContent: dom.documentElement.outerHTML, url }
   } catch (e) {
-    console.log('error fetching with scrapingbee', e)
-    return { title: '', domContent: '', url }
+    console.error('error fetching with scrapingbee', e.message)
+
+    return { title: url, domContent: '', url }
   }
 }
 
@@ -325,19 +326,16 @@ async function fetchContent(req, res) {
 
       let readabilityResult = null;
       if (content) {
-        let document = parseHTML(content).document;
+        const document = parseHTML(content).document;
 
         // preParse content
-        const preParsedDom = await preParseContent(url, document)
-        if (preParsedDom) {
-          document = preParsedDom
-        }
+        const preParsedDom = (await preParseContent(url, document)) || document;
 
-        readabilityResult = await getReadabilityResult(url, document);
+        readabilityResult = await getReadabilityResult(url, preParsedDom);
       }
 
       const apiResponse = await sendSavePageMutation(userId, {
-        url: finalUrl,
+        url,
         clientRequestId: articleSavingRequestId,
         title,
         originalContent: content,
@@ -373,7 +371,7 @@ async function fetchContent(req, res) {
     }
 
     const apiResponse = await sendSavePageMutation(userId, {
-      url: finalUrl,
+      url,
       clientRequestId: articleSavingRequestId,
       title,
       originalContent: content,

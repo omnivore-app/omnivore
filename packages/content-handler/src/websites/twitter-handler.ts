@@ -288,7 +288,8 @@ const getTweetIds = async (
       return Array.from(ids)
     }, author)) as string[]
   } catch (error) {
-    console.log(error)
+    console.error('Error getting tweets', error)
+
     return []
   } finally {
     if (context) {
