@@ -1,9 +1,9 @@
-import { ContentHandler, PreHandleResult } from '../content-handler'
 import axios from 'axios'
-import { DateTime } from 'luxon'
-import _ from 'underscore'
 import { truncate } from 'lodash'
+import { DateTime } from 'luxon'
 import { Browser, BrowserContext } from 'puppeteer-core'
+import _ from 'underscore'
+import { ContentHandler, PreHandleResult } from '../content-handler'
 
 interface TweetIncludes {
   users: {
@@ -219,6 +219,7 @@ const getTweetIds = async (
 
     await page.goto(pageURL, {
       waitUntil: 'networkidle0',
+      timeout: 60000, // 60 seconds
     })
 
     return (await page.evaluate(async (author) => {

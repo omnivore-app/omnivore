@@ -389,9 +389,9 @@ async function fetchContent(req, res) {
       await context.close();
     }
     console.info(`parse-page`, logRecord);
-  }
 
-  return res.sendStatus(200);
+    res.sendStatus(200);
+  }
 }
 
 function validateUrlString(url) {
