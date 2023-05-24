@@ -11,6 +11,8 @@ public struct LinkRequest: Identifiable, Hashable {
 }
 
 public enum DeepLink {
+  case search(query: String)
+  case savedSearch(named: String)
   case webAppLinkRequest(requestID: String)
 }
 
@@ -32,6 +34,13 @@ public extension DeepLink {
 
   private static func deepLinkFromOmnivoreScheme(url: URL) -> DeepLink? {
     switch url.host {
+    case "search":
+      let query = url.path.replacingOccurrences(of: "/", with: "")
+      return .search(query: query)
+    case "saved-search":
+      let named = url.path.replacingOccurrences(of: "/", with: "")
+      return .savedSearch(named: named)
+    case "read":
     case "shareExtensionRequestID":
       let requestID = url.path.replacingOccurrences(of: "/", with: "")
       return .webAppLinkRequest(requestID: requestID)
