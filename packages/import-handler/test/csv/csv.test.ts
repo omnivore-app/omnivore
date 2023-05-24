@@ -109,3 +109,29 @@ describe('A file with no status set', () => {
     expect(states).to.eql([undefined, ArticleSavingRequestStatus.Archived])
   })
 })
+
+describe('A file with some labels', () => {
+  it('gets the labels, handles empty, and trims extra whitespace', async () => {
+    const importedLabels: (string[] | undefined)[] = []
+    const stream = fs.createReadStream('./test/csv/data/labels.csv')
+    const stub = stubImportCtx()
+    stub.urlHandler = (
+      ctx: ImportContext,
+      url,
+      state?: ArticleSavingRequestStatus,
+      labels?: string[]
+    ): Promise<void> => {
+      importedLabels.push(labels)
+      return Promise.resolve()
+    }
+
+    await importCsv(stub, stream)
+    expect(stub.countFailed).to.equal(0)
+    expect(stub.countImported).to.equal(3)
+    expect(importedLabels).to.eql([
+      ['Label1', 'Label2', 'Label 3', 'Label 4'],
+      [],
+      [],
+    ])
+  })
+})
