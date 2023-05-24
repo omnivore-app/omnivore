@@ -76,32 +76,7 @@
 
     document.body.appendChild(root)
     connectButtons(root)
-
-    return root
-  }
-
-  async function createCtaModal(url) {
-    if (currentToastEl) {
-      currentToastEl.remove()
-      currentToastEl = undefined
-    }
-
-    const file = await fetch(browserApi.runtime.getURL('/views/cta-popup.html'))
-    const html = await file.text()
-
-    const root = document.createElement('div')
-    root.attachShadow({ mode: 'open' })
-    if (root.shadowRoot) {
-      root.shadowRoot.innerHTML = `<style>:host {all initial;}</style>`
-    }
-
-    const toastEl = document.createElement('div')
-    toastEl.id = '#omnivore-toast'
-    toastEl.innerHTML = html
-    root.shadowRoot.appendChild(toastEl)
-
-    document.body.appendChild(root)
-    connectButtons(root)
+    // connectKeyboard(root)
 
     return root
   }
@@ -123,6 +98,8 @@
       '#omnivore-toast-edit-title-btn',
       '#omnivore-toast-edit-labels-btn',
       '#omnivore-toast-read-now-btn',
+      '#omnivore-toast-add-note-btn',
+      '#omnivore-open-menu-btn',
     ]
     actionButtons.forEach((btnId) => {
       const btn = currentToastEl.shadowRoot.querySelector(btnId)
@@ -152,6 +129,19 @@
       case 'page':
         updatePageStatus(payload.status)
         break
+      case 'note':
+        updateStatusBox(
+          '#omnivore-add-note-status',
+          payload.status,
+          payload.message,
+          payload.status == 'success' ? 2500 : undefined
+        )
+        if (payload.status == 'success') {
+          setTimeout(() => {
+            toggleRow('#omnivore-add-note-status')
+          }, 3000)
+        }
+        break
       case 'title':
         updateStatusBox(
           '#omnivore-edit-title-status',
@@ -159,6 +149,11 @@
           payload.message,
           payload.status == 'success' ? 2500 : undefined
         )
+        if (payload.status == 'success') {
+          setTimeout(() => {
+            toggleRow('#omnivore-edit-title-status')
+          }, 3000)
+        }
         break
       case 'labels':
         updateStatusBox(
@@ -167,6 +162,19 @@
           payload.message,
           payload.status == 'success' ? 2500 : undefined
         )
+        break
+      case 'extra':
+        updateStatusBox(
+          '#omnivore-extra-status',
+          payload.status,
+          payload.message,
+          payload.status == 'success' ? 2500 : undefined
+        )
+        if (payload.status == 'success') {
+          setTimeout(() => {
+            currentToastEl.remove()
+          }, 3000)
+        }
         break
     }
   }
@@ -259,12 +267,13 @@
     }
     if (dismissAfter) {
       setTimeout(() => {
-        statusBox.innerHTML = null
+        statusBox.innerHTML = ''
       }, dismissAfter)
     }
   }
 
   function toggleRow(rowId) {
+    console.log('currentToastEl: ', currentToastEl)
     const container = currentToastEl.shadowRoot.querySelector(rowId)
     const initialState = container?.getAttribute('data-state')
     const rows = currentToastEl.shadowRoot.querySelectorAll(
@@ -283,12 +292,15 @@
 
   function connectButtons(root) {
     const btns = [
+      { id: '#omnivore-toast-add-note-btn', func: addNote },
       { id: '#omnivore-toast-edit-title-btn', func: editTitle },
       { id: '#omnivore-toast-edit-labels-btn', func: editLabels },
       { id: '#omnivore-toast-read-now-btn', func: readNow },
       { id: '#omnivore-open-menu-btn', func: openMenu },
       { id: '#omnivore-toast-close-btn', func: closeToast },
       { id: '#omnivore-toast-login-btn', func: login },
+      { id: '#omnivore-toast-archive-btn', func: archive },
+      { id: '#omnivore-toast-delete-btn', func: deleteItem },
     ]
 
     for (const btnInfo of btns) {
@@ -297,6 +309,52 @@
         btn.addEventListener('click', btnInfo.func)
       }
     }
+
+    var x = window.matchMedia('(max-width: 500px)')
+    if (x.matches) {
+      const labels = root.shadowRoot.querySelectorAll(
+        '.omnivore-top-button-label'
+      )
+      labels.forEach((label) => {
+        label.style.display = 'none'
+      })
+      const container = root.shadowRoot.querySelector(
+        '#omnivore-toast-container'
+      )
+      container.style.width = '280px'
+      container.style.top = 'unset'
+      container.style.bottom = '20px'
+    }
+  }
+
+  function connectKeyboard(root) {
+    console.log('connecting keyboard')
+    root.addEventListener('keydown', (e) => {
+      console.log(
+        'root.addEventListener document code: ',
+        e.key,
+        'activeElement:',
+        document.activeElement
+      )
+
+      switch (e.key) {
+        case 'r':
+          readNow()
+          break
+        case 'l':
+          editLabels()
+          break
+        case 'm':
+          openMenu()
+          break
+        case 'i':
+          editTitle()
+          break
+        case 't':
+          addNote()
+          break
+      }
+    })
   }
 
   function createLabelRow(label, idx) {
@@ -424,7 +482,34 @@
     }
   }
 
+  function addNote() {
+    cancelAutoDismiss()
+    toggleRow('#omnivore-add-note-row')
+    currentToastEl.shadowRoot
+      .querySelector('#omnivore-add-note-textarea')
+      ?.focus()
+
+    currentToastEl.shadowRoot.querySelector(
+      '#omnivore-add-note-form'
+    ).onsubmit = (event) => {
+      console.log('submitting form: ', event)
+      updateStatusBox('#omnivore-add-note-status', 'loading', 'Adding note...')
+
+      browserApi.runtime.sendMessage({
+        action: ACTIONS.AddNote,
+        payload: {
+          ctx: ctx,
+          note: event.target.elements.title.value,
+        },
+      })
+
+      event.preventDefault()
+    }
+  }
+
   function editTitle() {
+    console.log('editing title')
+
     cancelAutoDismiss()
     toggleRow('#omnivore-edit-title-row')
     currentToastEl.shadowRoot
@@ -551,9 +636,31 @@
     }, 1000)
   }
 
+  function archive(event) {
+    browserApi.runtime.sendMessage({
+      action: ACTIONS.Archive,
+      payload: {
+        ctx: ctx,
+      },
+    })
+
+    event.preventDefault()
+  }
+
+  function deleteItem(event) {
+    browserApi.runtime.sendMessage({
+      action: ACTIONS.Delete,
+      payload: {
+        ctx: ctx,
+      },
+    })
+
+    event.preventDefault()
+  }
+
   function openMenu() {
     cancelAutoDismiss()
-    toggleRow('omnivore-extra-buttons-row')
+    toggleRow('#omnivore-extra-buttons-row')
   }
 
   function closeToast() {

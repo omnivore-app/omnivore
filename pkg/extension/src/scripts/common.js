@@ -35,8 +35,12 @@ window.ACTIONS = {
   ShowToolbar: 'SHOW_TOOLBAR',
   UpdateStatus: 'UPDATE_STATUS',
 
+  AddNote: 'ADD_NOTE',
   EditTitle: 'EDIT_TITLE',
   SetLabels: 'SET_LABELS',
+
+  Archive: 'ARCHIVE',
+  Delete: 'DELETE',
 }
 
 window.SAVE_URL_QUERY = `mutation SaveUrl ($input: SaveUrlInput!) {
