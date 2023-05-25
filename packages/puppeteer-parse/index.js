@@ -224,7 +224,7 @@ const sendSavePageMutation = async (userId, input) => {
           }
     }`,
     variables: {
-      input,
+      input: Object.assign({}, input , { source: 'puppeteer-parse' }),
     },
   });
 
@@ -256,7 +256,7 @@ async function fetchContent(req, res) {
   const articleSavingRequestId = (req.query ? req.query.saveRequestId : undefined) || (req.body ? req.body.saveRequestId : undefined);
   const state = req.body.state
   const labels = req.body.labels
-  const source = req.body.source || 'puppeteer-parse';
+  const source = req.body.source || 'parseContent';
 
   let logRecord = {
     url,
@@ -343,7 +343,6 @@ async function fetchContent(req, res) {
         parseResult: readabilityResult,
         state,
         labels,
-        source,
       });
 
       logRecord.totalTime = Date.now() - functionStartTime;
@@ -380,7 +379,6 @@ async function fetchContent(req, res) {
       parseResult: readabilityResult,
       state,
       labels,
-      source,
     });
 
     logRecord.totalTime = Date.now() - functionStartTime;
