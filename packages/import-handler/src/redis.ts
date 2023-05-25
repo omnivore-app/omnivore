@@ -1,9 +1,13 @@
-import fs from 'fs'
+import { readFileSync } from 'fs'
+import path from 'path'
 import { createClient } from 'redis'
 
 // load lua script
 export const lua = {
-  script: fs.readFileSync('./luaScripts/updateMetrics.lua', 'utf8'),
+  script: readFileSync(
+    path.resolve(__dirname, 'luaScripts/updateMetrics.lua'),
+    'utf8'
+  ),
   sha: '',
 }
 
