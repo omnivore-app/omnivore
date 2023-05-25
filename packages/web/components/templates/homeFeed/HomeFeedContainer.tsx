@@ -905,19 +905,15 @@ function LibraryItems(props: LibraryItemsProps): JSX.Element {
           margin: props.layout == 'LIST_LAYOUT' ? '16px -16px' : undefined,
           borderRadius: props.layout == 'LIST_LAYOUT' ? 0 : undefined,
         },
-        '@md': {
-          gridTemplateColumns:
-            props.layout == 'LIST_LAYOUT' ? 'none' : '1fr 1fr',
-        },
-        '@lg': {
+        '@media (min-width: 930px)': {
           gridTemplateColumns:
             props.layout == 'LIST_LAYOUT' ? 'none' : 'repeat(2, 1fr)',
         },
-        '@xl': {
+        '@media (min-width: 1280px)': {
           gridTemplateColumns:
             props.layout == 'LIST_LAYOUT' ? 'none' : 'repeat(3, 1fr)',
         },
-        '@xxl': {
+        '@media (min-width: 1600px)': {
           gridTemplateColumns:
             props.layout == 'LIST_LAYOUT' ? 'none' : 'repeat(4, 1fr)',
         },

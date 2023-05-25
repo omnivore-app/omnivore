@@ -24,7 +24,7 @@ export function DisplaySettingsModal(
         css={{
           width: '345px',
           padding: '0px',
-          top: '300px',
+          top: '262px',
           left: 'calc(100% - 250px)',
           '@lgDown': {
             top: '300px',
