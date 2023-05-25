@@ -80,6 +80,10 @@ function SavedSearches(props: LibraryFilterMenuProps): JSX.Element {
       term: 'in:inbox',
     },
     {
+      name: 'Continue Reading',
+      term: 'in:inbox sort:read-desc is:unread',
+    },
+    {
       name: 'Read Later',
       term: 'in:inbox -label:Newsletter',
     },
