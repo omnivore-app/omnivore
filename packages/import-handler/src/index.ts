@@ -364,15 +364,15 @@ export const importMetricsCollector = Sentry.GCPFunction.wrapHttpFunction(
       return res.status(401).send({ errorCode: 'UNAUTHENTICATED' })
     }
 
-    const redisClient = await createRedisClient(
-      process.env.REDIS_URL,
-      process.env.REDIS_CERT
-    )
     if (!isUpdateMetricsRequest(req.body)) {
       console.log('Invalid request body')
       return res.status(400).send('Bad Request')
     }
 
+    const redisClient = await createRedisClient(
+      process.env.REDIS_URL,
+      process.env.REDIS_CERT
+    )
     // update metrics
     await updateMetrics(redisClient, userId, req.body.taskId, req.body.status)
 
