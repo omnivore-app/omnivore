@@ -10,6 +10,7 @@ import { theme } from '../../tokens/stitches.config'
 
 type ReaderHeaderProps = {
   alwaysDisplayToolbar: boolean
+  hideDisplaySettings: boolean
   showDisplaySettingsModal: (show: boolean) => void
   children?: ReactNode
 }
@@ -69,7 +70,7 @@ export function ReaderHeader(props: ReaderHeaderProps): JSX.Element {
           >
             {props.children}
           </SpanBox>
-          {!props.alwaysDisplayToolbar && (
+          {!props.alwaysDisplayToolbar && !props.hideDisplaySettings && (
             <SpanBox
               css={{
                 width: '100%',
