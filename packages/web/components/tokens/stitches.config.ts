@@ -336,14 +336,6 @@ export const globalStyles = globalCss({
     colorScheme: 'var(--colorScheme-colorScheme)',
     backgroundColor: '$thBackground',
   },
-  '*': {
-    '&:focus': {
-      outline: 'none',
-    },
-    '&:focus-visible': {
-      outline: 'none',
-    },
-  },
   // browser prefers this loaded here vs in the article styling css
   '.article-inner-css': {
     '::selection': {
