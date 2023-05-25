@@ -10,7 +10,7 @@ import { useState } from 'react'
 import { ConfirmationModal } from '../patterns/ConfirmationModal'
 import { KeyboardShortcutListModal } from './KeyboardShortcutListModal'
 import { PageMetaData } from '../patterns/PageMetaData'
-import { HeaderSpacer, MOBILE_HEADER_HEIGHT } from './homeFeed/HeaderSpacer'
+import { HEADER_HEIGHT } from './homeFeed/HeaderSpacer'
 
 type SettingsLayoutProps = {
   title?: string
@@ -48,7 +48,7 @@ export function SettingsLayout(props: SettingsLayoutProps): JSX.Element {
       <VStack css={{ width: '100%', height: '100%' }}>
         <Box
           css={{
-            height: MOBILE_HEADER_HEIGHT,
+            height: HEADER_HEIGHT,
             bg: '$grayBase',
           }}
         ></Box>

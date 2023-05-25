@@ -9,10 +9,10 @@ import { useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQ
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { theme } from '../../tokens/stitches.config'
 import { currentThemeName } from '../../../lib/themeUpdater'
-import { MOBILE_HEADER_HEIGHT } from './HeaderSpacer'
 import { useRegisterActions } from 'kbar'
+import { HEADER_HEIGHT } from './HeaderSpacer'
 
-export const LIBRARY_LEFT_MENU_WIDTH = '300px'
+export const LIBRARY_LEFT_MENU_WIDTH = '233px'
 
 type LibraryFilterMenuProps = {
   setShowAddLinkModal: (show: boolean) => void
@@ -30,7 +30,7 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
       <Box
         css={{
           left: '0px',
-          top: '105px',
+          top: HEADER_HEIGHT,
           position: 'fixed',
           bg: '$thBackground',
           height: '100%',
@@ -43,7 +43,6 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
           },
           '@mdDown': {
             visibility: props.showFilterMenu ? 'visible' : 'hidden',
-            top: props.showFilterMenu ? MOBILE_HEADER_HEIGHT : '100%',
             width: '100%',
             transition: 'visibility 0s, top 150ms',
           },

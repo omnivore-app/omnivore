@@ -198,7 +198,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
       md: '(min-width: 768px)',
       lg: '(min-width: 992px)',
       xl: '(min-width: 1200px)',
-      xxl: '(min-width: 1700px)',
+      xxl: '(min-width: 1500px)',
     },
   })
 
@@ -335,14 +335,6 @@ export const globalStyles = globalCss({
   body: {
     colorScheme: 'var(--colorScheme-colorScheme)',
     backgroundColor: '$thBackground',
-  },
-  '*': {
-    '&:focus': {
-      outline: 'none',
-    },
-    '&:focus-visible': {
-      outline: 'none',
-    },
   },
   // browser prefers this loaded here vs in the article styling css
   '.article-inner-css': {

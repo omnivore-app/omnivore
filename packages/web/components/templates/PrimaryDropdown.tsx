@@ -93,6 +93,8 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
           height: '64px',
           p: '15px',
           gap: '15px',
+          cursor: 'pointer',
+          mouseEvents: 'all',
         }}
       >
         <Avatar

@@ -11,7 +11,7 @@ export function EmptyHighlights(): JSX.Element {
       css={{
         color: '$grayTextContrast',
         textAlign: 'center',
-        marginTop: '105px',
+        marginTop: '70px',
       }}
     >
       <Book size={44} color={theme.colors.grayTextContrast.toString()} />

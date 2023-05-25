@@ -12,11 +12,7 @@ import { LayoutType } from './HomeFeedContainer'
 import { PrimaryDropdown } from '../PrimaryDropdown'
 import { LogoBox } from '../../elements/LogoBox'
 import { OmnivoreSmallLogo } from '../../elements/images/OmnivoreNameLogo'
-import {
-  HeaderSpacer,
-  HEADER_HEIGHT,
-  MOBILE_HEADER_HEIGHT,
-} from './HeaderSpacer'
+import { HeaderSpacer, HEADER_HEIGHT } from './HeaderSpacer'
 
 type LibraryHeaderProps = {
   layout: LayoutType
@@ -43,12 +39,8 @@ export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
           width: '100%',
           height: HEADER_HEIGHT,
           bg: '$thBackground',
-          pt: '35px',
+          pt: '0px',
           borderBottom: '1px solid $thBorderColor',
-          '@mdDown': {
-            height: MOBILE_HEADER_HEIGHT,
-            pt: '0px',
-          },
         }}
       >
         {/* These will display/hide depending on breakpoints */}

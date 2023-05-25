@@ -932,11 +932,16 @@ function LibraryItems(props: LibraryItemsProps): JSX.Element {
           key={linkedItem.node.id}
           css={{
             width: '100%',
+            '&:focus-visible': {
+              outline: 'none',
+            },
             '&> div': {
               bg: '$thBackground3',
             },
             '&:focus': {
+              outline: 'none',
               '> div': {
+                outline: 'none',
                 bg: '$thBackgroundActive',
               },
             },

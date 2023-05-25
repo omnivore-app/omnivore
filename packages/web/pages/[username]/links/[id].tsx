@@ -13,6 +13,7 @@ import { applyStoredTheme } from '../../../lib/themeUpdater'
 import { useReaderSettings } from '../../../lib/hooks/useReaderSettings'
 import { SkeletonArticleContainer } from '../../../components/templates/article/SkeletonArticleContainer'
 import TopBarProgress from 'react-topbar-progress-indicator'
+import { ReaderHeader } from '../../../components/templates/reader/ReaderHeader'
 
 export default function ArticleSavingRequestPage(): JSX.Element {
   const router = useRouter()
@@ -59,6 +60,12 @@ export default function ArticleSavingRequestPage(): JSX.Element {
           },
         }}
       >
+        <ReaderHeader
+          alwaysDisplayToolbar={false}
+          hideDisplaySettings={true}
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
+          showDisplaySettingsModal={() => {}}
+        />
         <ArticleActionsMenu
           article={undefined}
           layout="side"

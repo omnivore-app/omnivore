@@ -13,6 +13,7 @@ import { theme } from '../../../components/tokens/stitches.config'
 import { useReaderSettings } from '../../../lib/hooks/useReaderSettings'
 import { useGetArticleSavingStatus } from '../../../lib/networking/queries/useGetArticleSavingStatus'
 import { applyStoredTheme } from '../../../lib/themeUpdater'
+import { ReaderHeader } from '../../../components/templates/reader/ReaderHeader'
 
 export default function ArticleSavingRequestPage(): JSX.Element {
   const router = useRouter()
@@ -43,6 +44,12 @@ export default function ArticleSavingRequestPage(): JSX.Element {
         path: router.pathname,
       }}
     >
+      <ReaderHeader
+        alwaysDisplayToolbar={false}
+        hideDisplaySettings={true}
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        showDisplaySettingsModal={() => {}}
+      />
       <TopBarProgress />
       <VStack
         distribution="between"
