@@ -31,20 +31,17 @@ export function ReaderHeader(props: ReaderHeaderProps): JSX.Element {
           height: HEADER_HEIGHT,
           display: props.alwaysDisplayToolbar ? 'flex' : 'transparent',
           pointerEvents: 'none',
-          cursor: 'default',
           borderBottom: props.alwaysDisplayToolbar
             ? '1px solid $thBorderColor'
             : '1px solid transparent',
           '@xlgDown': {
             bg: '$readerMargin',
             pointerEvents: 'unset',
-            cursor: 'unset',
             borderBottom: '1px solid $thBorderColor',
           },
           '@mdDown': {
             bg: '$readerBg',
             pointerEvents: 'unset',
-            cursor: 'unset',
           },
         }}
       >
@@ -54,7 +51,6 @@ export function ReaderHeader(props: ReaderHeaderProps): JSX.Element {
           css={{
             width: '100%',
             height: '100%',
-            pointerEvents: 'all',
           }}
         >
           <LogoBox />
