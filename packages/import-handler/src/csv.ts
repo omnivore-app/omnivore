@@ -6,9 +6,12 @@
 import { parse } from '@fast-csv/parse'
 import { Stream } from 'stream'
 import { ImportContext } from '.'
-import { ImportStatus, updateMetrics } from './metrics'
+import { createMetrics, ImportStatus, updateMetrics } from './metrics'
 
 export const importCsv = async (ctx: ImportContext, stream: Stream) => {
+  // create metrics in redis
+  await createMetrics(ctx.redisClient, ctx.userId, ctx.taskId, 'csv-importer')
+
   const parser = parse()
   stream.pipe(parser)
   for await (const row of parser) {
@@ -30,8 +33,7 @@ export const importCsv = async (ctx: ImportContext, stream: Stream) => {
         ctx.redisClient,
         ctx.userId,
         ctx.taskId,
-        ImportStatus.TOTAL,
-        ctx.source
+        ImportStatus.TOTAL
       )
 
       await ctx.urlHandler(ctx, url, state, labels)
@@ -42,8 +44,7 @@ export const importCsv = async (ctx: ImportContext, stream: Stream) => {
         ctx.redisClient,
         ctx.userId,
         ctx.taskId,
-        ImportStatus.STARTED,
-        ctx.source
+        ImportStatus.STARTED
       )
     } catch (error) {
       console.log('invalid url', row, error)
@@ -54,8 +55,7 @@ export const importCsv = async (ctx: ImportContext, stream: Stream) => {
         ctx.redisClient,
         ctx.userId,
         ctx.taskId,
-        ImportStatus.INVALID,
-        ctx.source
+        ImportStatus.INVALID
       )
     }
   }

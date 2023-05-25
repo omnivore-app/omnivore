@@ -10,7 +10,6 @@ import { promisify } from 'util'
 import { v4 as uuid } from 'uuid'
 import { importCsv } from './csv'
 import { importMatterArchive } from './matterHistory'
-import { createMetrics } from './metrics'
 import { createRedisClient } from './redis'
 import { CONTENT_FETCH_URL, createCloudTask, emailUserUrl } from './task'
 
@@ -59,7 +58,6 @@ export type ImportContext = {
   contentHandler: ContentHandler
   redisClient: RedisClient
   taskId: string
-  source: string
 }
 
 type importHandlerFunc = (ctx: ImportContext, stream: Stream) => Promise<void>
@@ -277,11 +275,7 @@ const handleEvent = async (data: StorageEvent, redisClient: RedisClient) => {
       contentHandler,
       redisClient,
       taskId: data.name,
-      source: 'csv-importer',
     }
-
-    // create metrics in redis
-    await createMetrics(redisClient, ctx.userId, ctx.taskId, ctx.source)
 
     await handler(ctx, stream)
 

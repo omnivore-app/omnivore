@@ -53,8 +53,7 @@ export const updateMetrics = async (
   redisClient: RedisClient,
   userId: string,
   taskId: string,
-  status: ImportStatus,
-  source: string
+  status: ImportStatus
 ) => {
   const key = `import:${userId}:${taskId}`
 
@@ -62,7 +61,7 @@ export const updateMetrics = async (
     // use lua script to increment hash field
     const state = await redisClient.evalSha(lua.sha, {
       keys: [key],
-      arguments: [status, Date.now().toString(), source],
+      arguments: [status, Date.now().toString()],
     })
 
     // if the task is finished, send email
