@@ -21,7 +21,7 @@ import {
 import { LibraryHighlightGridCard } from '../../patterns/LibraryCards/LibraryHighlightGridCard'
 import { Notebook } from '../article/Notebook'
 import { EmptyHighlights } from './EmptyHighlights'
-import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from './HeaderSpacer'
+import { HEADER_HEIGHT } from './HeaderSpacer'
 import { highlightsAsMarkdown } from './HighlightItem'
 
 type HighlightItemsLayoutProps = {
@@ -34,8 +34,9 @@ type HighlightItemsLayoutProps = {
 export function HighlightItemsLayout(
   props: HighlightItemsLayoutProps
 ): JSX.Element {
-  const [currentItem, setCurrentItem] =
-    useState<LibraryItem | undefined>(undefined)
+  const [currentItem, setCurrentItem] = useState<LibraryItem | undefined>(
+    undefined
+  )
 
   const listReducer = (
     state: LibraryItem[],
@@ -106,9 +107,6 @@ export function HighlightItemsLayout(
         css={{
           width: '100%',
           height: `calc(100vh - ${HEADER_HEIGHT})`,
-          '@xlgDown': {
-            height: `calc(100vh - ${MOBILE_HEADER_HEIGHT})`,
-          },
         }}
       >
         <EmptyHighlights />
@@ -122,9 +120,6 @@ export function HighlightItemsLayout(
         css={{
           width: '100%',
           height: `calc(100vh - ${HEADER_HEIGHT})`,
-          '@xlgDown': {
-            height: `calc(100vh - ${MOBILE_HEADER_HEIGHT})`,
-          },
           '@lgDown': {
             overflowY: 'scroll',
           },
@@ -153,9 +148,6 @@ export function HighlightItemsLayout(
           <VStack
             css={{
               minHeight: `calc(100vh - ${HEADER_HEIGHT})`,
-              '@xlgDown': {
-                minHeight: `calc(100vh - ${MOBILE_HEADER_HEIGHT})`,
-              },
               bg: '$thBackground',
             }}
             distribution="start"

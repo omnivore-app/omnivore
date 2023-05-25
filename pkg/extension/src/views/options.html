@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>API Key Storage</title>
+  <script src="/scripts/common.js"></script>
+  <style>
+    div.wrapper: {
+      max-width: 480px;
+      padding: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class='wrapper'>
+    <h1>API Key</h1>
+
+    <p>Normally Omnivore uses an authentication cookie that is set when
+      you log in at <a href='https://omnivore.app'>omnivore.app</a>. If
+      your security settings do not allow the extension to access this
+      cookie (for example if you are using containers), you can set an
+      API token in the extension's local storage instead.
+    </p>
+
+    <p>To do this, create an API key at 
+      <a href='https://omnivore.app/settings/api'>omnivore.app/settings/api</a>,
+      paste it into the textboix below, and choose 'Save API Key'.
+    </p>
+    
+    <p></p>
+    <label for="api-key">API Key:</label>
+    <input type="text" id="api-key">
+
+    <br><br>
+
+    <button id="save-api-key-btn">Save API Key</button>
+    <button id="load-api-key-btn">Load API Key</button>
+    <button id="clear-api-key-btn">Clear API Key</button>
+  </div>
+  <script src="/scripts/options.js"></script>
+</body>
+</html>

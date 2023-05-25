@@ -2,10 +2,7 @@ import { Box, HStack, VStack } from '../elements/LayoutPrimitives'
 import { OmnivoreNameLogo } from '../elements/images/OmnivoreNameLogo'
 import { UserBasicData } from '../../lib/networking/queries/useGetViewerQuery'
 import { PrimaryDropdown } from '../templates/PrimaryDropdown'
-import {
-  HEADER_HEIGHT,
-  MOBILE_HEADER_HEIGHT,
-} from '../templates/homeFeed/HeaderSpacer'
+import { HEADER_HEIGHT } from '../templates/homeFeed/HeaderSpacer'
 
 type HeaderProps = {
   user?: UserBasicData
@@ -25,7 +22,7 @@ export function SettingsHeader(props: HeaderProps): JSX.Element {
           position: 'fixed',
           width: '100%',
           px: '25px',
-          height: MOBILE_HEADER_HEIGHT,
+          height: HEADER_HEIGHT,
           bg: '$thBackground3',
           borderBottom: '1px solid $thBorderColor',
           '@mdDown': {

@@ -71,7 +71,8 @@ export function useGetIntegrationsQuery(): IntegrationsQueryResponse {
   return {
     isValidating: false,
     integrations: [],
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    revalidate: () => {},
+    revalidate: () => {
+      mutate()
+    },
   }
 }

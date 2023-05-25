@@ -204,7 +204,7 @@ public enum WebFont: String, CaseIterable {
         }, label: { Image(systemName: "textformat.size.smaller") })
           .frame(width: 25, height: 25, alignment: .center)
         CustomSlider(value: $storedFontSize, minValue: 10, maxValue: 28) { _ in
-          if storedFontSize % 2 == 0 {
+          if storedFontSize % 1 == 0 {
             updateReaderPreferences()
           }
         }

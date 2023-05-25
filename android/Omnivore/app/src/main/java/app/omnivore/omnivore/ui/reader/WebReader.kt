@@ -11,6 +11,7 @@ import android.view.*
 import android.view.View.OnScrollChangeListener
 import android.view.ViewTreeObserver.OnScrollChangedListener
 import android.webkit.JavascriptInterface
+import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -30,7 +31,6 @@ import java.util.*
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun WebReader(
-  preferences: WebPreferences,
   styledContent: String,
   webReaderViewModel: WebReaderViewModel
 ) {
@@ -62,6 +62,21 @@ fun WebReader(
             super.onPageFinished(view, url)
             viewModel?.showNavBar()
             view?.animate()?.alpha(1.0f)?.duration = 200
+          }
+
+          override fun shouldOverrideUrlLoading(
+            view: WebView?,
+            request: WebResourceRequest?
+          ): Boolean {
+            var handled: Boolean? = null
+            request?.let {
+              if ((request?.isForMainFrame == true) && (request?.hasGesture() == true) && viewModel != null) {
+                viewModel?.showOpenLinkSheet(context, request.url)
+                handled = true
+              }
+            }
+
+            return handled ?: super.shouldOverrideUrlLoading(view, request)
           }
         }
 
@@ -115,14 +130,6 @@ fun WebReader(
         for (script in webReaderViewModel.javascriptDispatchQueue) {
           Log.d("js", "executing script: $script")
           it.evaluateJavascript(script, null)
-
-          if (script.contains("event.isDark")) {
-            if (script.contains("event.isDark = 'true'")) {
-              it.setBackgroundColor(Color.Transparent.hashCode())
-            } else {
-              it.setBackgroundColor(Color.White.hashCode())
-            }
-          }
         }
         webReaderViewModel.resetJavascriptDispatchQueue()
       }

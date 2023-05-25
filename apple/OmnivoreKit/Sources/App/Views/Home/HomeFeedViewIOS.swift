@@ -179,11 +179,20 @@ struct AnimatingCellHeight: AnimatableModifier {
         }
       }
       .onOpenURL { url in
-        withoutAnimation {
-          viewModel.linkRequest = nil
-          DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
-            if let linkRequestID = DeepLink.make(from: url)?.linkRequestID {
-              viewModel.linkRequest = LinkRequest(id: UUID(), serverID: linkRequestID)
+        viewModel.linkRequest = nil
+        if let deepLink = DeepLink.make(from: url) {
+          switch deepLink {
+          case let .search(query):
+            viewModel.searchTerm = query
+          case let .savedSearch(named):
+            if let filter = LinkedItemFilter(rawValue: named) {
+              viewModel.appliedFilter = filter.rawValue
+            }
+          case let .webAppLinkRequest(requestID):
+            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
+              withoutAnimation {
+                viewModel.linkRequest = LinkRequest(id: UUID(), serverID: requestID)
+              }
             }
           }
         }

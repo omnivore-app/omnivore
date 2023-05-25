@@ -152,6 +152,23 @@ describe('auth router', () => {
         )
       })
     })
+
+    context('when password is over max length', () => {
+      before(() => {
+        email = 'Some_email'
+        password = 'badpass'.repeat(100)
+        username = 'omnivore_admin'
+      })
+
+      it('redirects to sign up page with error code INVALID_CREDENTIALS', async () => {
+        const res = await signupRequest(email, password, name, username).expect(
+          302
+        )
+        expect(res.header.location).to.endWith(
+          '/email-signup?errorCodes=INVALID_CREDENTIALS'
+        )
+      })
+    })
   })
 
   describe('login', () => {

@@ -66,6 +66,13 @@ public extension LinkedItem {
   var unwrappedSavedAt: Date { savedAt ?? Date() }
   var unwrappedCreatedAt: Date { createdAt ?? Date() }
 
+  var deepLink: URL? {
+    if let id = id {
+      return URL(string: "omnivore://read/\(id)")
+    }
+    return nil
+  }
+
   var hasLabels: Bool {
     (labels?.count ?? 0) > 0
   }

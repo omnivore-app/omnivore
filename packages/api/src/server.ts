@@ -50,6 +50,7 @@ import { userRouter } from './routers/user_router'
 import { sentryConfig } from './sentry'
 import { corsConfig } from './utils/corsConfig'
 import { buildLogger, buildLoggerTransport } from './utils/logger'
+import { getClaimsByToken } from './utils/auth'
 
 const PORT = process.env.PORT || 4000
 
@@ -100,7 +101,15 @@ export const createApp = (): {
   if (!env.dev.isLocal) {
     const apiLimiter = rateLimit({
       windowMs: 60 * 1000, // 1 minute
-      max: 50, // Limit each IP to 10 requests per `window` (here, per minute)
+      max: 100,
+      // async (req) => {
+      //   // 100 RPM for an authenticated request, 5 for a non-authenticated request
+      //   // const token = await getClaimsByToken(
+      //   //   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      //   //   req.header('authorization') ?? req.cookies['auth']
+      //   // )
+      //   return 100 // token ? 100 : 10
+      // },
       standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
       legacyHeaders: false, // Disable the `X-RateLimit-*` headers
       keyGenerator: (req) => {

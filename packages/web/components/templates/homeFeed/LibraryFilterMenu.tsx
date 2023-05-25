@@ -9,10 +9,10 @@ import { useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQ
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { theme } from '../../tokens/stitches.config'
 import { currentThemeName } from '../../../lib/themeUpdater'
-import { MOBILE_HEADER_HEIGHT } from './HeaderSpacer'
 import { useRegisterActions } from 'kbar'
+import { HEADER_HEIGHT } from './HeaderSpacer'
 
-export const LIBRARY_LEFT_MENU_WIDTH = '300px'
+export const LIBRARY_LEFT_MENU_WIDTH = '233px'
 
 type LibraryFilterMenuProps = {
   setShowAddLinkModal: (show: boolean) => void
@@ -30,7 +30,7 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
       <Box
         css={{
           left: '0px',
-          top: '105px',
+          top: HEADER_HEIGHT,
           position: 'fixed',
           bg: '$thBackground',
           height: '100%',
@@ -43,7 +43,6 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
           },
           '@mdDown': {
             visibility: props.showFilterMenu ? 'visible' : 'hidden',
-            top: props.showFilterMenu ? MOBILE_HEADER_HEIGHT : '100%',
             width: '100%',
             transition: 'visibility 0s, top 150ms',
           },
@@ -79,6 +78,10 @@ function SavedSearches(props: LibraryFilterMenuProps): JSX.Element {
     {
       name: 'Inbox',
       term: 'in:inbox',
+    },
+    {
+      name: 'Continue Reading',
+      term: 'in:inbox sort:read-desc is:unread',
     },
     {
       name: 'Read Later',
@@ -155,6 +158,10 @@ function Subscriptions(props: LibraryFilterMenuProps): JSX.Element {
     }),
     [subscriptions]
   )
+
+  if (subscriptions.length < 1) {
+    return <></>
+  }
 
   return (
     <MenuPanel
@@ -375,6 +382,8 @@ function LabelButton(props: LabelButtonProps): JSX.Element {
         color: '$thTextSubtle',
         verticalAlign: 'middle',
         borderRadius: '3px',
+        cursor: 'pointer',
+
         m: '0px',
         '&:hover': {
           backgroundColor: '$thBackground4',
@@ -383,7 +392,16 @@ function LabelButton(props: LabelButtonProps): JSX.Element {
       alignment="center"
       distribution="start"
     >
-      <label htmlFor={labelId} style={{ width: '100%' }}>
+      <label
+        htmlFor={labelId}
+        style={{
+          width: '100%',
+          maxWidth: '170px',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+        }}
+      >
         <Circle size={9} color={props.label.color} weight="fill" />
         <SpanBox css={{ pl: '10px' }}>{props.label.name}</SpanBox>
       </label>

@@ -13,9 +13,16 @@ export const importCsv = async (ctx: ImportContext, stream: Stream) => {
   for await (const row of parser) {
     try {
       const url = new URL(row[0])
-      const state = row.length > 1 ? row[1] : undefined
-      // labels follows format: "[label1, label2]"
-      const labels = row.length > 2 ? row[2].slice(1, -1).split(',') : undefined
+      const state = row.length > 1 && row[1] ? row[1] : undefined
+      // labels follows format: "[label1,label2]"
+      const labels =
+        row.length > 2
+          ? (row[2] as string)
+              .slice(1, -1)
+              .split(',')
+              .map((l) => l.trim())
+              .filter((l) => l !== '')
+          : undefined
       await ctx.urlHandler(ctx, url, state, labels)
       ctx.countImported += 1
     } catch (error) {

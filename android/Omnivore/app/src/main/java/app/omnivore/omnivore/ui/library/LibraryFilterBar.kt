@@ -17,6 +17,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.unit.dp
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.persistence.entities.SavedItemLabel
@@ -77,7 +79,7 @@ fun LibraryFilterBar(viewModel: LibraryViewModel) {
           modifier = Modifier.padding(end = 6.dp)
         )
       }
-      items(activeLabels.sortedBy { it.name }) { label ->
+      items(activeLabels.sortedWith(compareBy { it.name.toLowerCase(Locale.current) })) { label ->
         val chipColors = LabelChipColors.fromHex(label.color)
 
         AssistChip(

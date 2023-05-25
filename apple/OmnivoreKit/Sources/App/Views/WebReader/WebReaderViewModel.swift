@@ -12,6 +12,7 @@ struct SafariWebLink: Identifiable {
 @MainActor final class WebReaderViewModel: ObservableObject {
   @Published var articleContent: ArticleContent?
   @Published var errorMessage: String?
+  @Published var allowRetry = false
   @Published var isDownloadingAudio: Bool = false
   @Published var audioDownloadTask: Task<Void, Error>?
 
@@ -46,16 +47,14 @@ struct SafariWebLink: Identifiable {
     }
   }
 
-  func loadContent(dataService: DataService, username: String, itemID: String, retryCount: Int = 0) async {
+  func loadContent(dataService: DataService, username: String, itemID: String, retryCount _: Int = 0) async {
     errorMessage = nil
 
     do {
       articleContent = try await dataService.loadArticleContentWithRetries(itemID: itemID, username: username)
     } catch {
-      if retryCount == 0 {
-        return await loadContent(dataService: dataService, username: username, itemID: itemID, retryCount: 1)
-      }
       if let fetchError = error as? ContentFetchError {
+        allowRetry = true
         switch fetchError {
         case .network:
           errorMessage = "We were unable to retrieve your content. Please check network connectivity and try again."
@@ -207,6 +206,21 @@ struct SafariWebLink: Identifiable {
         print("SAVING: ", url.absoluteString)
         _ = try await dataService.createPageFromUrl(id: UUID().uuidString, url: url.absoluteString)
         Snackbar.show(message: "Link saved")
+      } catch {
+        Snackbar.show(message: "Error saving link")
+      }
+    }
+  }
+
+  func saveLinkAndFetch(dataService: DataService, username: String, url: URL) {
+    Task {
+      do {
+        Snackbar.show(message: "Saving link")
+        let requestId = UUID().uuidString
+        _ = try await dataService.createPageFromUrl(id: requestId, url: url.absoluteString)
+        Snackbar.show(message: "Link saved")
+
+        await loadContent(dataService: dataService, username: username, itemID: requestId, retryCount: 0)
       } catch {
         Snackbar.show(message: "Error saving link")
       }

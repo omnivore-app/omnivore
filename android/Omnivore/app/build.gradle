@@ -17,8 +17,8 @@ android {
         applicationId "app.omnivore.omnivore"
         minSdk 26
         targetSdk 33
-        versionCode 61
-        versionName "0.0.61"
+        versionCode 80
+        versionName "0.0.80"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -84,6 +84,7 @@ dependencies {
     implementation "androidx.compose.ui:ui:$compose_version"
     implementation "androidx.compose.material:material:$compose_version"
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
+    implementation "androidx.compose.material:material-icons-extended:$compose_version"
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
     implementation 'androidx.activity:activity-compose:1.6.1'
     implementation 'androidx.appcompat:appcompat:1.5.1'
@@ -135,6 +136,7 @@ dependencies {
 
     implementation 'com.google.android.gms:play-services-auth:20.4.0'
     implementation "com.google.accompanist:accompanist-systemuicontroller:0.25.1"
+    implementation "com.google.accompanist:accompanist-flowlayout:0.25.1"
 
     implementation 'io.coil-kt:coil-compose:2.2.0'
 
@@ -150,6 +152,7 @@ dependencies {
     kapt "androidx.room:room-compiler:$room_version"
 
     implementation 'com.github.jeziellago:compose-markdown:0.3.3'
+    implementation "io.github.dokar3:chiptextfield:0.4.6"
 }
 
 apollo {

@@ -371,6 +371,7 @@ export default function Home(): JSX.Element {
       <Toaster />
 
       <ReaderHeader
+        hideDisplaySettings={false}
         showDisplaySettingsModal={
           readerSettings.setShowEditDisplaySettingsModal
         }

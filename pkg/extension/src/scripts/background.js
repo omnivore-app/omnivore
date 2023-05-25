@@ -12,6 +12,7 @@
 'use strict'
 
 import { v4 as uuidv4 } from 'uuid'
+import { nanoid } from 'nanoid'
 
 let authToken = undefined
 const omnivoreURL = process.env.OMNIVORE_URL
@@ -285,6 +286,28 @@ async function editTitleRequest(tabId, request, completedResponse) {
     })
 }
 
+async function addNoteRequest(tabId, request, completedResponse) {
+  const noteId = uuidv4()
+  const shortId = nanoid(8)
+
+  return addNote(
+    omnivoreGraphqlURL + 'graphql',
+    completedResponse.responseId,
+    noteId,
+    shortId,
+    request.note
+  )
+    .then(() => {
+      updateClientStatus(tabId, 'note', 'success', 'Note updated.')
+      return true
+    })
+    .catch((err) => {
+      console.log('caught error updating title: ', err)
+      updateClientStatus(tabId, 'note', 'failure', 'Error adding note.')
+      return true
+    })
+}
+
 async function setLabelsRequest(tabId, request, completedResponse) {
   return setLabels(
     omnivoreGraphqlURL + 'graphql',
@@ -301,6 +324,33 @@ async function setLabelsRequest(tabId, request, completedResponse) {
     })
 }
 
+async function archiveRequest(tabId, request, completedResponse) {
+  return archive(omnivoreGraphqlURL + 'graphql', completedResponse.responseId)
+    .then(() => {
+      updateClientStatus(tabId, 'extra', 'success', 'Archived')
+      return true
+    })
+    .catch(() => {
+      updateClientStatus(tabId, 'extra', 'failure', 'Error archiving')
+      return true
+    })
+}
+
+async function deleteRequest(tabId, request, completedResponse) {
+  return deleteItem(
+    omnivoreGraphqlURL + 'graphql',
+    completedResponse.responseId
+  )
+    .then(() => {
+      updateClientStatus(tabId, 'extra', 'success', 'Deleted')
+      return true
+    })
+    .catch(() => {
+      updateClientStatus(tabId, 'extra', 'failure', 'Error deleting')
+      return true
+    })
+}
+
 async function processPendingRequests(tabId) {
   const tabRequests = pendingRequests.filter((pr) => pr.tabId === tabId)
 
@@ -312,8 +362,17 @@ async function processPendingRequests(tabId) {
         case 'EDIT_TITLE':
           handled = await editTitleRequest(tabId, pr, completed)
           break
+        case 'ADD_NOTE':
+          handled = await addNoteRequest(tabId, pr, completed)
+          break
         case 'SET_LABELS':
           handled = await setLabelsRequest(tabId, pr, completed)
+          break
+        case 'ARCHIVE':
+          handled = await archiveRequest(tabId, pr, completed)
+          break
+        case 'DELETE':
+          handled = await deleteRequest(tabId, pr, completed)
           break
       }
     }
@@ -532,69 +591,8 @@ function onExtensionClick(tabId) {
   })
 }
 
-/* After installing extension, if user hasn’t logged into Omnivore, then we show the splash popup */
 function checkAuthOnFirstClickPostInstall(tabId) {
-  return getStorageItem('postInstallClickComplete').then(
-    async (postInstallClickComplete) => {
-      return true
-      if (postInstallClickComplete) return true
-
-      if (
-        typeof browser !== 'undefined' &&
-        browser.runtime &&
-        browser.runtime.sendNativeMessage
-      ) {
-        const response = await browser.runtime.sendNativeMessage('omnivore', {
-          message: ACTIONS.GetAuthToken,
-        })
-        if (response.authToken) {
-          authToken = response.authToken
-        }
-      }
-
-      return new Promise((resolve) => {
-        const xhr = new XMLHttpRequest()
-        xhr.onreadystatechange = function () {
-          if (xhr.readyState === 4 && xhr.status === 200) {
-            const { data } = JSON.parse(xhr.response)
-            if (!data.me) {
-              browserApi.tabs.sendMessage(tabId, {
-                action: ACTIONS.ShowMessage,
-                payload: {
-                  type: 'loading',
-                  text: 'Loading...',
-                },
-              })
-              browserApi.tabs.sendMessage(tabId, {
-                action: ACTIONS.ShowMessage,
-                payload: {
-                  text: '',
-                  type: 'error',
-                  errorCode: 401,
-                  url: omnivoreURL,
-                },
-              })
-              resolve(null)
-            } else {
-              setStorage({
-                postInstallClickComplete: true,
-              })
-              resolve(true)
-            }
-          }
-        }
-
-        const query = '{me{id}}'
-        const data = JSON.stringify({
-          query,
-        })
-        xhr.open('POST', omnivoreGraphqlURL + 'graphql', true)
-        setupConnection(xhr)
-
-        xhr.send(data)
-      })
-    }
-  )
+  return Promise.resolve(true)
 }
 
 function handleActionClick() {
@@ -758,6 +756,39 @@ function init() {
         type: 'EDIT_TITLE',
         tabId: sender.tab.id,
         title: request.payload.title,
+        clientRequestId: request.payload.ctx.requestId,
+      })
+
+      processPendingRequests(sender.tab.id)
+    }
+
+    if (request.action === ACTIONS.Archive) {
+      pendingRequests.push({
+        id: uuidv4(),
+        type: 'ARCHIVE',
+        tabId: sender.tab.id,
+        clientRequestId: request.payload.ctx.requestId,
+      })
+
+      processPendingRequests(sender.tab.id)
+    }
+
+    if (request.action === ACTIONS.Delete) {
+      pendingRequests.push({
+        type: 'DELETE',
+        tabId: sender.tab.id,
+        clientRequestId: request.payload.ctx.requestId,
+      })
+
+      processPendingRequests(sender.tab.id)
+    }
+
+    if (request.action === ACTIONS.AddNote) {
+      pendingRequests.push({
+        id: uuidv4(),
+        type: 'ADD_NOTE',
+        tabId: sender.tab.id,
+        note: request.payload.note,
         clientRequestId: request.payload.ctx.requestId,
       })
 

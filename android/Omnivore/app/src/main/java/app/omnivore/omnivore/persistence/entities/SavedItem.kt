@@ -1,13 +1,10 @@
 package app.omnivore.omnivore.persistence.entities
 
+import android.util.Log
 import androidx.core.net.toUri
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.room.*
-import app.omnivore.omnivore.BuildConfig
-import app.omnivore.omnivore.graphql.generated.SearchQuery
 import app.omnivore.omnivore.models.ServerSyncStatus
-import app.omnivore.omnivore.ui.library.SavedItemSortFilter
 import java.util.*
 
 @Entity
@@ -69,36 +66,64 @@ data class SavedItem(
   }
 }
 
-data class SavedItemCardData(
-  val savedItemId: String,
-  val slug: String,
-  val publisherURLString: String?,
-  val title: String,
-  val author: String?,
-  val imageURLString: String?,
-  val isArchived: Boolean,
-  val pageURLString: String,
-  val contentReader: String?,
-  val savedAt: String,
-  val readingProgress: Double,
-  val wordsCount: Int?
-) {
-  fun publisherDisplayName(): String? {
-    return publisherURLString?.toUri()?.host
-  }
-
-  fun isPDF(): Boolean {
-    val hasPDFSuffix = pageURLString.endsWith("pdf")
-    return contentReader == "PDF" || hasPDFSuffix
-  }
-}
-
 data class TypeaheadCardData(
   val savedItemId: String,
   val slug: String,
   val title: String,
   val isArchived: Boolean,
 )
+
+@Dao
+abstract class SavedItemWithLabelsAndHighlightsDao {
+
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  abstract fun insertSavedItems(items: List<SavedItem>)
+
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  abstract fun insertLabelCrossRefs(items: List<SavedItemAndSavedItemLabelCrossRef>)
+
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  abstract fun insertLabels(items: List<SavedItemLabel>)
+
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  abstract fun insertHighlights(items: List<Highlight>)
+
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  abstract fun insertHighlightCrossRefs(items: List<SavedItemAndHighlightCrossRef>)
+
+  @Transaction
+  open fun insertAll(savedItems: List<SavedItemWithLabelsAndHighlights>) {
+    insertSavedItems(savedItems.map { it.savedItem })
+
+    val labels: MutableList<SavedItemLabel> = mutableListOf()
+    val highlights: MutableList<Highlight> = mutableListOf()
+
+    val labelCrossRefs: MutableList<SavedItemAndSavedItemLabelCrossRef> = mutableListOf()
+    val highlightCrossRefs: MutableList<SavedItemAndHighlightCrossRef> = mutableListOf()
+
+    for (searchItem in savedItems) {
+      labels.addAll(searchItem.labels)
+      highlights.addAll(searchItem.highlights)
+
+      val newLabelCrossRefs = searchItem.labels.map {
+        SavedItemAndSavedItemLabelCrossRef(savedItemLabelId = it.savedItemLabelId, savedItemId = searchItem.savedItem.savedItemId)
+      }
+
+      val newHighlightCrossRefs = searchItem.highlights.map {
+        SavedItemAndHighlightCrossRef(highlightId = it.highlightId, savedItemId = searchItem.savedItem.savedItemId)
+      }
+
+      labelCrossRefs.addAll(newLabelCrossRefs)
+      highlightCrossRefs.addAll(newHighlightCrossRefs)
+    }
+
+    insertLabels(labels)
+    insertLabelCrossRefs(labelCrossRefs)
+
+    insertHighlights(highlights)
+    insertHighlightCrossRefs(highlightCrossRefs)
+  }
+}
 
 @Dao
 interface SavedItemDao {
@@ -114,53 +139,11 @@ interface SavedItemDao {
   @Query("SELECT * FROM savedItem WHERE slug = :slug")
   fun getSavedItemWithLabelsAndHighlights(slug: String): SavedItemWithLabelsAndHighlights?
 
-  @Insert(onConflict = OnConflictStrategy.REPLACE)
-  fun insertAll(items: List<SavedItem>)
-
-  @Insert(onConflict = OnConflictStrategy.REPLACE)
-  fun insert(item: SavedItem)
-
   @Query("DELETE FROM savedItem WHERE savedItemId = :itemID")
   fun deleteById(itemID: String)
 
   @Update
   fun update(savedItem: SavedItem)
-
-  @Transaction
-  @Query(
-    "SELECT ${SavedItemQueryConstants.columns} " +
-      "FROM SavedItem " +
-      "WHERE serverSyncStatus != 2 AND isArchived != :archiveFilter " +
-      "ORDER BY savedAt DESC"
-  )
-  fun getLibraryLiveData(archiveFilter: Int): LiveData<List<SavedItemCardDataWithLabels>>
-
-  @Transaction
-  @Query(
-    "SELECT ${SavedItemQueryConstants.columns} " +
-      "FROM SavedItem " +
-      "WHERE serverSyncStatus != 2 AND isArchived != :archiveFilter " +
-      "ORDER BY savedAt ASC"
-  )
-  fun getLibraryLiveDataSortedByOldest(archiveFilter: Int): LiveData<List<SavedItemCardDataWithLabels>>
-
-  @Transaction
-  @Query(
-    "SELECT ${SavedItemQueryConstants.columns} " +
-      "FROM SavedItem " +
-      "WHERE serverSyncStatus != 2 AND isArchived != :archiveFilter " +
-      "ORDER BY readAt DESC, savedAt DESC"
-  )
-  fun getLibraryLiveDataSortedByRecentlyRead(archiveFilter: Int): LiveData<List<SavedItemCardDataWithLabels>>
-
-  @Transaction
-  @Query(
-    "SELECT ${SavedItemQueryConstants.columns} " +
-      "FROM SavedItem " +
-      "WHERE serverSyncStatus != 2 AND isArchived != :archiveFilter " +
-      "ORDER BY publishDate DESC"
-  )
-  fun getLibraryLiveDataSortedByRecentlyPublished(archiveFilter: Int): LiveData<List<SavedItemCardDataWithLabels>>
 
   @Transaction
   @Query(
@@ -173,8 +156,6 @@ interface SavedItemDao {
             "LEFT OUTER  JOIN Highlight on highlight.highlightId = SavedItemAndHighlightCrossRef.highlightId " +
 
             "WHERE SavedItem.savedItemId = :savedItemId " +
-            "AND SavedItem.serverSyncStatus != 2 " +
-            "AND Highlight.serverSyncStatus != 2 " +
 
             "GROUP BY SavedItem.savedItemId "
   )
@@ -208,7 +189,7 @@ interface SavedItemDao {
   fun _filteredLibraryData(allowedArchiveStates: List<Int>, sortKey: String, hasRequiredLabels: Int, hasExcludedLabels: Int, requiredLabels: List<String>, excludedLabels: List<String>, allowedContentReaders: List<String>): LiveData<List<SavedItemWithLabelsAndHighlights>>
 
   fun filteredLibraryData(allowedArchiveStates: List<Int>, sortKey: String, requiredLabels: List<String>, excludedLabels: List<String>, allowedContentReaders: List<String>): LiveData<List<SavedItemWithLabelsAndHighlights>> {
-    return _filteredLibraryData(
+    val result = _filteredLibraryData(
       allowedArchiveStates = allowedArchiveStates,
       sortKey = sortKey,
       hasRequiredLabels = requiredLabels.size,
@@ -217,6 +198,7 @@ interface SavedItemDao {
       excludedLabels = excludedLabels,
       allowedContentReaders = allowedContentReaders
     )
+    return result
   }
 }
 

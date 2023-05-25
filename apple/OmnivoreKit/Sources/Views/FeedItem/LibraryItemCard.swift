@@ -2,6 +2,17 @@ import Models
 import SwiftUI
 import Utils
 
+public extension View {
+  func draggableItem(item: LinkedItem) -> some View {
+    if #available(iOS 16.0, *), let url = item.deepLink {
+      return AnyView(self.draggable(url) {
+        Label(item.unwrappedTitle, systemImage: "link")
+      })
+    }
+    return AnyView(self)
+  }
+}
+
 public struct LibraryItemCard: View {
   let viewer: Viewer?
   let tapHandler: () -> Void
@@ -27,6 +38,7 @@ public struct LibraryItemCard: View {
       }
     }
     .padding(.bottom, 8)
+    .draggableItem(item: item)
   }
 
   var isFullyRead: Bool {

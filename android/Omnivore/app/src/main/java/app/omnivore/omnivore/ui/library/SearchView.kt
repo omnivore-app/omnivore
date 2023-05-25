@@ -22,8 +22,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import app.omnivore.omnivore.R
-import app.omnivore.omnivore.persistence.entities.SavedItemCardData
-import app.omnivore.omnivore.persistence.entities.SavedItemCardDataWithLabels
 import app.omnivore.omnivore.persistence.entities.SavedItemWithLabelsAndHighlights
 import app.omnivore.omnivore.ui.reader.WebReaderLoadingContainerActivity
 import app.omnivore.omnivore.persistence.entities.TypeaheadCardData
@@ -188,6 +186,7 @@ fun SearchViewContent(viewModel: SearchViewModel, modifier: Modifier) {
     ) {
         items(cardsData) { cardDataWithLabels ->
             SavedItemCard(
+                selected = false,
                 savedItemViewModel = viewModel,
                 savedItem = cardDataWithLabels,
                 onClickHandler = {

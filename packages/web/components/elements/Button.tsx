@@ -32,7 +32,6 @@ export const Button = styled('button', {
           bg: '$omnivoreCtaYellow',
         },
         '&:focus': {
-          outline: 'none !important',
           border: '1px solid $omnivoreCtaYellow',
         },
       },

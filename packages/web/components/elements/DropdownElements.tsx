@@ -169,7 +169,9 @@ export function Dropdown(
   } = props
   return (
     <Root modal={modal} onOpenChange={props.onOpenChange}>
-      <DropdownTrigger disabled={disabled}>{triggerElement}</DropdownTrigger>
+      <DropdownTrigger disabled={disabled} css={{ cursor: 'pointer' }}>
+        {triggerElement}
+      </DropdownTrigger>
       <DropdownContent
         css={css}
         onInteractOutside={() => {

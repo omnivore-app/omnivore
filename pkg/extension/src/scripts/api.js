@@ -1,15 +1,20 @@
 function gqlRequest(apiUrl, query) {
-  return fetch(apiUrl, {
-    method: 'POST',
-    redirect: 'follow',
-    credentials: 'include',
-    mode: 'cors',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    },
-    body: query,
-  })
+  return getStorageItem('apiKey')
+    .then((apiKey) => {
+      const auth = apiKey ? { Authorization: apiKey } : {}
+      return fetch(apiUrl, {
+        method: 'POST',
+        redirect: 'follow',
+        credentials: 'include',
+        mode: 'cors',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          ...auth,
+        },
+        body: query,
+      })
+    })
     .then((response) => response.json())
     .then((json) => {
       if (!json['data']) {
@@ -125,4 +130,191 @@ async function setLabels(apiUrl, pageId, labelIds) {
     throw new Error('Error setting labels.')
   }
   return data.setLabels.labels
+}
+
+async function addNote(apiUrl, pageId, noteId, shortId, note) {
+  const query = JSON.stringify({
+    query: `query GetArticle(
+      $username: String!
+      $slug: String!
+      $includeFriendsHighlights: Boolean
+    ) {
+      article(username: $username, slug: $slug) {
+        ... on ArticleSuccess {
+          article {
+            highlights(input: { includeFriends: $includeFriendsHighlights }) {
+              ...HighlightFields
+            }
+          }
+        }
+        ... on ArticleError {
+          errorCodes
+        }
+      }
+    }
+    fragment HighlightFields on Highlight {
+      id
+      type
+      annotation
+    }
+    `,
+    variables: {
+      username: 'me',
+      slug: pageId,
+      includeFriendsHighlights: false,
+    },
+  })
+
+  const data = await gqlRequest(apiUrl, query)
+  if (!data.article || data.article['errorCodes'] || !data.article['article']) {
+    console.log('GQL Error getting existing highlights:', data)
+    return
+  }
+
+  const existingNote = data.article.article.highlights.find(
+    (h) => h.type == 'NOTE'
+  )
+
+  if (existingNote) {
+    const mutation = JSON.stringify({
+      query: `
+      mutation UpdateHighlight($input: UpdateHighlightInput!) {
+        updateHighlight(input: $input) {
+          ... on UpdateHighlightSuccess {
+            highlight {
+              id
+            }
+          }
+          ... on UpdateHighlightError {
+            errorCodes
+          }
+        }
+      }
+    `,
+      variables: {
+        input: {
+          highlightId: existingNote.id,
+          annotation: existingNote.annotation
+            ? existingNote.annotation + '\n\n' + note
+            : note,
+        },
+      },
+    })
+    const result = await gqlRequest(apiUrl, mutation)
+    if (
+      !result.updateHighlight ||
+      result.updateHighlight['errorCodes'] ||
+      !result.updateHighlight.highlight
+    ) {
+      console.log('GQL Error updating note:', result)
+      return
+    }
+    return result.updateHighlight.highlight.id
+  } else {
+    const mutation = JSON.stringify({
+      query: `
+      mutation CreateHighlight($input: CreateHighlightInput!) {
+        createHighlight(input: $input) {
+          ... on CreateHighlightSuccess {
+            highlight {
+              id
+            }
+          }
+          ... on CreateHighlightError {
+            errorCodes
+          }
+        }
+      }
+    `,
+      variables: {
+        input: {
+          id: noteId,
+          shortId: shortId,
+          type: 'NOTE',
+          articleId: pageId,
+          annotation: note,
+        },
+      },
+    })
+    const result = await gqlRequest(apiUrl, mutation)
+    if (
+      !result.createHighlight ||
+      result.createHighlight['errorCodes'] ||
+      !result.createHighlight.highlight
+    ) {
+      console.log('GQL Error setting note:', result)
+      return
+    }
+    return result.createHighlight.highlight.id
+  }
+}
+
+async function archive(apiUrl, pageId) {
+  const mutation = JSON.stringify({
+    query: `mutation SetLinkArchived($input: ArchiveLinkInput!) {
+      setLinkArchived(input: $input) {
+        ... on ArchiveLinkSuccess {
+          linkId
+          message
+        }
+        ... on ArchiveLinkError {
+          message
+          errorCodes
+        }
+      }
+    }
+  `,
+    variables: {
+      input: {
+        linkId: pageId,
+        archived: true,
+      },
+    },
+  })
+
+  const data = await gqlRequest(apiUrl, mutation)
+  if (
+    !data.setLinkArchived ||
+    data.setLinkArchived['errorCodes'] ||
+    !data.setLinkArchived.linkId
+  ) {
+    console.log('GQL Error archiving:', data)
+    throw new Error('Error archiving.')
+  }
+  return data.setLinkArchived.linkId
+}
+
+async function deleteItem(apiUrl, pageId) {
+  const mutation = JSON.stringify({
+    query: `mutation SetBookmarkArticle($input: SetBookmarkArticleInput!) {
+      setBookmarkArticle(input: $input) {
+        ... on SetBookmarkArticleSuccess {
+          bookmarkedArticle {
+            id
+          }
+        }
+        ... on SetBookmarkArticleError {
+          errorCodes
+        }
+      }
+    }
+  `,
+    variables: {
+      input: {
+        articleID: pageId,
+        bookmark: false,
+      },
+    },
+  })
+
+  const data = await gqlRequest(apiUrl, mutation)
+  if (
+    !data.setBookmarkArticle ||
+    data.setBookmarkArticle['errorCodes'] ||
+    !data.setBookmarkArticle.bookmarkedArticle
+  ) {
+    console.log('GQL Error deleting:', data)
+    throw new Error('Error deleting.')
+  }
+  return data.setBookmarkArticle.bookmarkedArticle
 }

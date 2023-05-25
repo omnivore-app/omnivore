@@ -135,6 +135,10 @@ object LabelSwatchHelper {
     return listOf(shuffledSwatches.last()) + webSwatchHexes + shuffledSwatches.dropLast(1)
   }
 
+  fun random(): String {
+    return webSwatchHexes.random()
+  }
+
   private val webSwatchHexes = listOf(
     "#FF5D99",
     "#7CFF7B",

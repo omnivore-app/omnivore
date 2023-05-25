@@ -11,6 +11,8 @@ import javax.inject.Inject
 
 interface DatastoreRepository {
   val hasAuthTokenFlow: Flow<Boolean>
+  val themeKeyFlow: Flow<String>
+
   suspend fun clear()
   suspend fun putString(key: String, value: String)
   suspend fun putInt(key: String, value: Int)
@@ -66,5 +68,11 @@ class OmnivoreDatastore @Inject constructor(
       val key = stringPreferencesKey(DatastoreKeys.omnivoreAuthToken)
       val token = preferences[key]
       token != null
+    }
+
+  override val themeKeyFlow: Flow<String> = context
+    .dataStore.data.map { preferences ->
+      val key = stringPreferencesKey(DatastoreKeys.preferredTheme)
+      preferences[key] ?: "System"
     }
 }

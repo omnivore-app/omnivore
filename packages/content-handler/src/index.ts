@@ -33,6 +33,7 @@ import { ScrapingBeeHandler } from './websites/scrapingBee-handler'
 import { StackOverflowHandler } from './websites/stack-overflow-handler'
 import { TDotCoHandler } from './websites/t-dot-co-handler'
 import { TwitterHandler } from './websites/twitter-handler'
+import { WeixinQqHandler } from './websites/weixin-qq-handler'
 import { WikipediaHandler } from './websites/wikipedia-handler'
 import { YoutubeHandler } from './websites/youtube-handler'
 
@@ -75,6 +76,7 @@ const contentHandlers: ContentHandler[] = [
   new StackOverflowHandler(),
   new EnergyWorldHandler(),
   new PipedVideoHandler(),
+  new WeixinQqHandler(),
 ]
 
 const newsletterHandlers: ContentHandler[] = [

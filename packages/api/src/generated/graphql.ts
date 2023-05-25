@@ -2268,6 +2268,7 @@ export enum SearchErrorCode {
 export type SearchItem = {
   __typename?: 'SearchItem';
   annotation?: Maybe<Scalars['String']>;
+  archivedAt?: Maybe<Scalars['Date']>;
   author?: Maybe<Scalars['String']>;
   content?: Maybe<Scalars['String']>;
   contentReader: ContentReader;
@@ -5433,6 +5434,7 @@ export type SearchErrorResolvers<ContextType = ResolverContext, ParentType exten
 
 export type SearchItemResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SearchItem'] = ResolversParentTypes['SearchItem']> = {
   annotation?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  archivedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   author?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   content?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   contentReader?: Resolver<ResolversTypes['ContentReader'], ParentType, ContextType>;

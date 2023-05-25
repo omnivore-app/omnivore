@@ -96,6 +96,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
         <a
           href={`${props.viewer.profile.username}/${props.item.slug}`}
           style={{ textDecoration: 'unset', width: '100%', height: '100%' }}
+          tabIndex={-1}
         >
           <HStack
             css={{

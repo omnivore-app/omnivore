@@ -1,6 +1,7 @@
 package app.omnivore.omnivore.ui.savedItemViews
 
 import LabelChip
+import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -14,36 +15,43 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.focusTarget
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.unit.*
 import app.omnivore.omnivore.R
-import app.omnivore.omnivore.persistence.entities.SavedItemCardData
-import app.omnivore.omnivore.persistence.entities.SavedItemLabel
 import app.omnivore.omnivore.persistence.entities.SavedItemWithLabelsAndHighlights
 import app.omnivore.omnivore.ui.components.LabelChipColors
-import app.omnivore.omnivore.ui.library.LibraryViewModel
 import app.omnivore.omnivore.ui.library.SavedItemAction
 import app.omnivore.omnivore.ui.library.SavedItemViewModel
 import coil.compose.rememberAsyncImagePainter
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class,
-)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
 @Composable
-fun SavedItemCard(savedItemViewModel: SavedItemViewModel, savedItem: SavedItemWithLabelsAndHighlights, onClickHandler: () -> Unit, actionHandler: (SavedItemAction) -> Unit) {
-  val listState = rememberLazyListState()
-
-  val actionsMenuItem: SavedItemWithLabelsAndHighlights? by savedItemViewModel.actionsMenuItemLiveData.observeAsState(null)
+fun SavedItemCard(
+  selected: Boolean,
+  savedItemViewModel: SavedItemViewModel,
+  savedItem: SavedItemWithLabelsAndHighlights,
+  onClickHandler: () -> Unit,
+  actionHandler: (SavedItemAction) -> Unit) {
+  // Log.d("selected", "is selected: ${selected}")
 
   Column(
-    modifier = Modifier
+      modifier = Modifier
       .combinedClickable(
         onClick = onClickHandler,
-        onLongClick = { savedItemViewModel.actionsMenuItemLiveData.postValue(savedItem) }
+        onLongClick = {
+          savedItemViewModel.actionsMenuItemLiveData.postValue(savedItem)
+        }
       )
+      .background(if (selected) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.background)
       .fillMaxWidth()
   ) {
     Row(
@@ -53,6 +61,7 @@ fun SavedItemCard(savedItemViewModel: SavedItemViewModel, savedItem: SavedItemWi
         .fillMaxWidth()
         .padding(10.dp)
         .background(Color.Transparent)
+
     ) {
       Column(
         verticalArrangement = Arrangement.spacedBy(5.dp),
@@ -67,6 +76,7 @@ fun SavedItemCard(savedItemViewModel: SavedItemViewModel, savedItem: SavedItemWi
           text = savedItem.savedItem.title,
           style = TextStyle(
             fontSize = 18.sp,
+            color = MaterialTheme.colorScheme.onBackground,
             fontWeight = FontWeight.SemiBold
           ),
           maxLines = 2,
@@ -98,23 +108,14 @@ fun SavedItemCard(savedItemViewModel: SavedItemViewModel, savedItem: SavedItemWi
       )
     }
 
-    LazyRow(
-      state = listState,
-      horizontalArrangement = Arrangement.Start,
-      verticalAlignment = Alignment.CenterVertically,
-      modifier = Modifier
-        .padding(start = 5.dp, bottom = 5.dp, end = 10.dp)
-    ) {
-      items(savedItem.labels.sortedBy { it.name }) { label ->
+    FlowRow(modifier = Modifier.fillMaxWidth().padding(10.dp)) {
+      savedItem.labels.sortedWith(compareBy { it.name.toLowerCase(Locale.current) }).forEach { label ->
         val chipColors = LabelChipColors.fromHex(label.color)
 
         LabelChip(
-         // onClick = onClickHandler,
           name = label.name,
           colors = chipColors,
-      //    modifier = Modifier.padding(end = 5.dp)
         )
-
       }
     }
 

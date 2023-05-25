@@ -1,31 +1,33 @@
 package app.omnivore.omnivore.ui.reader
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.util.Log
-import androidx.compose.foundation.ScrollState
-import androidx.compose.runtime.remember
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat.startActivity
+import androidx.lifecycle.*
 import app.omnivore.omnivore.DatastoreKeys
 import app.omnivore.omnivore.DatastoreRepository
 import app.omnivore.omnivore.dataService.*
 import app.omnivore.omnivore.graphql.generated.type.CreateLabelInput
 import app.omnivore.omnivore.graphql.generated.type.SetLabelsInput
-import app.omnivore.omnivore.persistence.entities.SavedItem
 import app.omnivore.omnivore.networking.*
+import app.omnivore.omnivore.persistence.entities.SavedItem
 import app.omnivore.omnivore.persistence.entities.SavedItemAndSavedItemLabelCrossRef
 import app.omnivore.omnivore.persistence.entities.SavedItemLabel
 import app.omnivore.omnivore.ui.library.SavedItemAction
-import com.apollographql.apollo3.api.Optional
 import com.apollographql.apollo3.api.Optional.Companion.presentIfNotNull
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.distinctUntilChanged
 import java.util.*
 import javax.inject.Inject
+
 
 data class WebReaderParams(
   val item: SavedItem,
@@ -36,6 +38,15 @@ data class WebReaderParams(
 data class AnnotationWebViewMessage(
   val annotation: String?
 )
+
+enum class Themes(val themeKey: String, val backgroundColor: Long, val foregroundColor: Long) {
+  SYSTEM("System", 0xFFFFFFFF, 0xFF000000),
+  LIGHT("Light", 0xFFFFFFFF, 0xFF000000),
+  SEPIA("Sepia", 0xFFFBF0D9, 0xFF000000),
+  DARK("Dark", 0xFF2F3030, 0xFFFFFFFF),
+  APOLLO("Apollo", 0xFF6A6968, 0xFFFFFFFF),
+  BLACK("Black", 0xFF000000, 0xFFFFFFFF),
+}
 
 @HiltViewModel
 class WebReaderViewModel @Inject constructor(
@@ -48,16 +59,15 @@ class WebReaderViewModel @Inject constructor(
   var maxToolbarHeightPx = 0.0f
 
   val webReaderParamsLiveData = MutableLiveData<WebReaderParams?>(null)
-  val annotationLiveData = MutableLiveData<String?>(null)
+  var annotation: String? = null
   val javascriptActionLoopUUIDLiveData = MutableLiveData(lastJavascriptActionLoopUUID)
   val shouldPopViewLiveData = MutableLiveData(false)
   val hasFetchError = MutableLiveData(false)
   val currentToolbarHeightLiveData = MutableLiveData(0.0f)
-  val showLabelsSelectionSheetLiveData = MutableLiveData(false)
   val savedItemLabelsLiveData = dataService.db.savedItemLabelDao().getSavedItemLabelsLiveData()
 
-  // "Sepia", "Apollo",
-  val systemThemeKeys = listOf("Light", "Black", "System")
+  var currentLink: Uri? = null
+  val bottomSheetStateLiveData = MutableLiveData<BottomSheetState>(BottomSheetState.NONE)
 
   var hasTappedExistingHighlight = false
   var lastTapCoordinates: TapCoordinates? = null
@@ -78,6 +88,72 @@ class WebReaderViewModel @Inject constructor(
 
   fun showNavBar() {
     onScrollChange(maxToolbarHeightPx)
+  }
+
+  fun setBottomSheet(state: BottomSheetState) {
+    bottomSheetStateLiveData.postValue(state)
+  }
+
+  fun resetBottomSheet() {
+    bottomSheetStateLiveData.postValue(BottomSheetState.NONE)
+  }
+
+  fun showOpenLinkSheet(context: Context, uri: Uri) {
+    webReaderParamsLiveData.value?.let {
+      if (it.item.pageURLString == uri.toString()) {
+        openLink(context, uri)
+      } else {
+        currentLink = uri
+        bottomSheetStateLiveData.postValue(BottomSheetState.LINK)
+      }
+    }
+  }
+
+  fun showShareLinkSheet(context: Context) {
+    webReaderParamsLiveData.value?.let {
+      val browserIntent = Intent(Intent.ACTION_SEND)
+
+      browserIntent.setType("text/plain")
+      browserIntent.putExtra(Intent.EXTRA_TEXT, it.item.pageURLString)
+      browserIntent.putExtra(Intent.EXTRA_SUBJECT, it.item.pageURLString)
+      context.startActivity(browserIntent)
+    }
+  }
+
+  fun openCurrentLink(context: Context) {
+    currentLink?.let {
+      openLink(context, it)
+    }
+    bottomSheetStateLiveData.postValue(BottomSheetState.NONE)
+  }
+
+  fun openLink(context: Context, uri: Uri) {
+    val browserIntent = Intent(Intent.ACTION_VIEW, uri)
+    startActivity(context, browserIntent, null)
+  }
+
+  fun saveCurrentLink(context: Context) {
+    currentLink?.let {
+      viewModelScope.launch {
+        val success = networker.saveUrl(it)
+        Toast.makeText(context, if (success) "Link saved" else "Error saving link" , Toast.LENGTH_SHORT).show()
+      }
+    }
+    bottomSheetStateLiveData.postValue(BottomSheetState.NONE)
+  }
+
+  fun copyCurrentLink(context: Context) {
+    currentLink?.let {
+      val clip = ClipData.newPlainText("link", it.toString())
+      val clipboard =
+        context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+      clipboard.setPrimaryClip(clip)
+      clipboard?.let {
+        clipboard?.setPrimaryClip(clip)
+        Toast.makeText(context, "Link Copied", Toast.LENGTH_SHORT).show()
+      }
+    }
+    bottomSheetStateLiveData.postValue(BottomSheetState.NONE)
   }
 
   fun onScrollChange(delta: Float) {
@@ -179,7 +255,7 @@ class WebReaderViewModel @Inject constructor(
         }
       }
       SavedItemAction.EditLabels -> {
-        showLabelsSelectionSheetLiveData.value = true
+        bottomSheetStateLiveData.postValue(BottomSheetState.LABELS)
       }
     }
   }
@@ -216,10 +292,11 @@ class WebReaderViewModel @Inject constructor(
       }
       "annotate" -> {
         viewModelScope.launch {
-          val annotation = Gson()
+          val annotationStr = Gson()
             .fromJson(jsonString, AnnotationWebViewMessage::class.java)
             .annotation ?: ""
-          annotationLiveData.value = annotation
+          annotation = annotationStr
+          bottomSheetStateLiveData.postValue(BottomSheetState.HIGHLIGHTNOTE)
         }
       }
       "shareHighlight" -> {
@@ -248,13 +325,19 @@ class WebReaderViewModel @Inject constructor(
   }
 
   fun cancelAnnotationEdit() {
-    annotationLiveData.value = null
+    annotation = null
+    resetBottomSheet()
   }
 
   private fun enqueueScript(javascript: String) {
     javascriptDispatchQueue.add(javascript)
     javascriptActionLoopUUIDLiveData.value = UUID.randomUUID()
   }
+
+  val currentThemeKey: LiveData<String> = datastoreRepo
+    .themeKeyFlow
+    .distinctUntilChanged()
+    .asLiveData()
 
   fun storedWebPreferences(isDarkMode: Boolean): WebPreferences = runBlocking {
     val storedFontSize = datastoreRepo.getInt(DatastoreKeys.preferredWebFontSize)
@@ -288,59 +371,37 @@ class WebReaderViewModel @Inject constructor(
     return storedThemePreference
   }
 
-  fun updateStoredThemePreference(index: Int, isDarkMode: Boolean) {
-    val newThemeKey = themeKey(isDarkMode, systemThemeKeys[index])
+  fun updateStoredThemePreference(newThemeKey: String, isDarkMode: Boolean) {
     Log.d("theme", "Setting theme key: ${newThemeKey}")
 
     runBlocking {
-      datastoreRepo.putString(DatastoreKeys.preferredTheme, systemThemeKeys[index])
+      datastoreRepo.putString(DatastoreKeys.preferredTheme, newThemeKey)
     }
 
     val script = "var event = new Event('updateTheme');event.themeName = '$newThemeKey';document.dispatchEvent(event);"
     enqueueScript(script)
   }
 
-  fun updateFontSize(isIncrease: Boolean)  {
-    val delta = if (isIncrease) 2 else -2
-    var newFontSize: Int
-
+  fun setFontSize(newFontSize: Int)  {
     runBlocking {
-      val storedFontSize = datastoreRepo.getInt(DatastoreKeys.preferredWebFontSize)
-      newFontSize = ((storedFontSize ?: 12) + delta).coerceIn(8, 28)
       datastoreRepo.putInt(DatastoreKeys.preferredWebFontSize, newFontSize)
     }
-
-    // Get value from data store and then update it
     val script = "var event = new Event('updateFontSize');event.fontSize = '$newFontSize';document.dispatchEvent(event);"
     enqueueScript(script)
   }
 
-  fun updateMaxWidthPercentage(isIncrease: Boolean)  {
-    val delta = if (isIncrease) 10 else -10
-    var newMaxWidthPercentageValue: Int
-
+  fun setMaxWidthPercentage(newMaxWidthPercentageValue: Int)  {
     runBlocking {
-      val storedWidth = datastoreRepo.getInt(DatastoreKeys.preferredWebMaxWidthPercentage)
-      newMaxWidthPercentageValue = ((storedWidth ?: 100) + delta).coerceIn(40, 100)
       datastoreRepo.putInt(DatastoreKeys.preferredWebMaxWidthPercentage, newMaxWidthPercentageValue)
     }
-
-    // Get value from data store and then update it
     val script = "var event = new Event('updateMaxWidthPercentage');event.maxWidthPercentage = '$newMaxWidthPercentageValue';document.dispatchEvent(event);"
     enqueueScript(script)
   }
 
-  fun updateLineSpacing(isIncrease: Boolean)  {
-    val delta = if (isIncrease) 25 else -25
-    var newLineHeight: Int
-
+  fun setLineHeight(newLineHeight: Int)  {
     runBlocking {
-      val storedHeight = datastoreRepo.getInt(DatastoreKeys.preferredWebLineHeight)
-      newLineHeight = ((storedHeight ?: 150) + delta).coerceIn(100, 300)
       datastoreRepo.putInt(DatastoreKeys.preferredWebLineHeight, newLineHeight)
     }
-
-    // Get value from data store and then update it
     val script = "var event = new Event('updateLineHeight');event.lineHeight = '$newLineHeight';document.dispatchEvent(event);"
     enqueueScript(script)
   }
@@ -408,7 +469,7 @@ class WebReaderViewModel @Inject constructor(
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
 
-        val newLabel = networker.createNewLabel(CreateLabelInput(color = Optional.presentIfNotNull(hexColorValue), name = labelName))
+        val newLabel = networker.createNewLabel(CreateLabelInput(color = presentIfNotNull(hexColorValue), name = labelName))
 
         newLabel?.let {
           val savedItemLabel = SavedItemLabel(

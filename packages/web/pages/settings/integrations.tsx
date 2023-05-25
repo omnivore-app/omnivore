@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useState } from 'react'
-import { useRouter } from 'next/router'
 import { styled } from '@stitches/react'
-import { Toaster } from 'react-hot-toast'
-import { DownloadSimple, Eye, Link } from 'phosphor-react'
 import Image from 'next/image'
-
+import { useRouter } from 'next/router'
+import { DownloadSimple, Eye, Link } from 'phosphor-react'
+import { useEffect, useMemo, useState } from 'react'
+import { Toaster } from 'react-hot-toast'
+import { Button } from '../../components/elements/Button'
 import {
   Box,
   HStack,
@@ -12,17 +12,14 @@ import {
   VStack,
 } from '../../components/elements/LayoutPrimitives'
 import { SettingsLayout } from '../../components/templates/SettingsLayout'
-import { applyStoredTheme } from '../../lib/themeUpdater'
-import { Button } from '../../components/elements/Button'
+import { fetchEndpoint } from '../../lib/appConfig'
+import { deleteIntegrationMutation } from '../../lib/networking/mutations/deleteIntegrationMutation'
+import { importFromIntegrationMutation } from '../../lib/networking/mutations/importFromIntegrationMutation'
+import { setIntegrationMutation } from '../../lib/networking/mutations/setIntegrationMutation'
 import { useGetIntegrationsQuery } from '../../lib/networking/queries/useGetIntegrationsQuery'
 import { useGetWebhooksQuery } from '../../lib/networking/queries/useGetWebhooksQuery'
-import { deleteIntegrationMutation } from '../../lib/networking/mutations/deleteIntegrationMutation'
+import { applyStoredTheme } from '../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
-import { fetchEndpoint } from '../../lib/appConfig'
-import { setIntegrationMutation } from '../../lib/networking/mutations/setIntegrationMutation'
-import { cookieValue } from '../../lib/cookieHelpers'
-import { importFromIntegrationMutation } from '../../lib/networking/mutations/importFromIntegrationMutation'
-
 // Styles
 const Header = styled(Box, {
   color: '$utilityTextDefault',
@@ -106,12 +103,8 @@ export default function Integrations(): JSX.Element {
   useEffect(() => {
     const connectToPocket = async () => {
       try {
-        // get the token from cookies
-        const token = cookieValue('pocketRequestToken', document.cookie)
-        if (!token) {
-          showErrorToast('There was an error connecting to Pocket.')
-          return
-        }
+        // get the token from query string
+        const token = router.query.pocketToken as string
         const result = await setIntegrationMutation({
           token,
           name: 'POCKET',
@@ -121,18 +114,19 @@ export default function Integrations(): JSX.Element {
         if (result) {
           revalidate()
           showSuccessToast('Connected with Pocket.')
+          // start the import
+          await importFromIntegration(result.id)
         } else {
           showErrorToast('There was an error connecting to Pocket.')
         }
       } catch (err) {
         showErrorToast('Error: ' + err)
+      } finally {
+        router.replace('/settings/integrations')
       }
     }
     if (!router.isReady) return
-    if (
-      router.query.state == 'pocketAuthorizationFinished' &&
-      !pocketConnected
-    ) {
+    if (router.query.pocketToken && !pocketConnected) {
       connectToPocket()
     }
   }, [router])
@@ -154,6 +148,47 @@ export default function Integrations(): JSX.Element {
         },
       },
       {
+        icon: '/static/icons/obsidian.png',
+        title: 'Obsidian',
+        subText:
+          'Obsidian is a powerful and extensible knowledge base that works on top of your local folder of plain text files. Use the Omnivore Obsidian plugin to sync articles, highlights, and notes to Obsidian.',
+        button: {
+          text: `Install Obsidian Plugin`,
+          icon: <DownloadSimple size={16} weight={'bold'} />,
+          style: 'ctaDarkYellow',
+          action: () => {
+            router.push(`https://github.com/omnivore-app/obsidian-omnivore`)
+          },
+        },
+      },
+      {
+        icon: '/static/icons/pocket.svg',
+        title: 'Pocket',
+        subText:
+          'Pocket is a place to save articles, videos, and more. Our Pocket integration allows importing your Pocket library to Omnivore. Once connected we will asyncronously import all your Pocket articles into Omnivore, as this process is resource intensive it can take some time. You will receive an email when the process is completed.',
+        button: {
+          text: pocketConnected ? 'Import' : 'Connect to Pocket',
+          icon: <Link size={16} weight={'bold'} />,
+          style: 'ctaDarkYellow',
+          action: () => {
+            pocketConnected
+              ? importFromIntegration(pocketConnected.id)
+              : redirectToPocket()
+          },
+        },
+      },
+      {
+        icon: '/static/icons/webhooks.svg',
+        title: 'Webhooks',
+        subText: `${webhooks.length} Webhooks`,
+        button: {
+          text: 'View Webhooks',
+          icon: <Eye size={16} weight={'bold'} />,
+          style: 'ctaWhite',
+          action: () => router.push('/settings/webhooks'),
+        },
+      },
+      {
         icon: '/static/icons/readwise.svg',
         title: 'Readwise',
         subText:
@@ -169,34 +204,6 @@ export default function Integrations(): JSX.Element {
           },
         },
       },
-      {
-        icon: '/static/icons/webhooks.svg',
-        title: 'Webhooks',
-        subText: `${webhooks.length} Webhooks`,
-        button: {
-          text: 'View Webhooks',
-          icon: <Eye size={16} weight={'bold'} />,
-          style: 'ctaWhite',
-          action: () => router.push('/settings/webhooks'),
-        },
-      },
-      /*
-      {
-        icon: '/static/icons/pocket.svg',
-        title: 'Pocket',
-        subText: 'Pocket is a place to save articles, videos, and more.',
-        button: {
-          text: pocketConnected ? 'Import' : 'Connect to Pocket',
-          icon: <Link size={16} weight={'bold'} />,
-          style: 'ctaDarkYellow',
-          action: () => {
-            pocketConnected
-              ? importFromIntegration(pocketConnected.id)
-              : redirectToPocket()
-          },
-        },
-      },
-      */
     ])
   }, [pocketConnected, readwiseConnected, webhooks])
 

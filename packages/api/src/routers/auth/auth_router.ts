@@ -74,13 +74,17 @@ const cookieParams = {
 export const isValidSignupRequest = (obj: any): obj is SignupRequest => {
   return (
     'email' in obj &&
-    obj.email.trim().length > 0 && // email must not be empty
+    obj.email.trim().length > 0 &&
+    obj.email.trim().length < 512 && // email must not be empty
     'password' in obj &&
-    obj.password.length >= 8 && // password must be at least 8 characters
+    obj.password.length >= 8 &&
+    obj.password.trim().length < 512 && // password must be at least 8 characters
     'name' in obj &&
-    obj.name.trim().length > 0 && // name must not be empty
+    obj.name.trim().length > 0 &&
+    obj.name.trim().length < 512 && // name must not be empty
     'username' in obj &&
-    obj.username.trim().length > 0 // username must not be empty
+    obj.username.trim().length > 0 &&
+    obj.username.trim().length < 512 // username must not be empty
   )
 }
 
@@ -596,6 +600,8 @@ export function authRouter() {
           )
         }
 
+        res.clearCookie('auth')
+        res.clearCookie('pendingUserAuth')
         res.redirect(`${env.client.url}/auth/reset-sent`)
       } catch (e) {
         logger.info('forgot-password exception:', e)
