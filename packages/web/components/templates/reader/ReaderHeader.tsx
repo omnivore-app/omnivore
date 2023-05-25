@@ -97,6 +97,7 @@ function ControlButtonBox(props: ReaderHeaderProps): JSX.Element {
           height: '100%',
           gap: '20px',
           minWidth: '121px',
+          pointerEvents: 'all',
         }}
       >
         <Button
