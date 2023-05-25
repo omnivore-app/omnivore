@@ -29,6 +29,8 @@ export function ReaderHeader(props: ReaderHeaderProps): JSX.Element {
           height: HEADER_HEIGHT,
           display: props.alwaysDisplayToolbar ? 'flex' : 'transparent',
           pt: '35px',
+          pointerEvents: 'none',
+          cursor: 'default',
           borderBottom: props.alwaysDisplayToolbar
             ? '1px solid $thBorderColor'
             : '1px solid transparent',
@@ -36,10 +38,14 @@ export function ReaderHeader(props: ReaderHeaderProps): JSX.Element {
             height: MOBILE_HEADER_HEIGHT,
             pt: '0px',
             bg: '$readerMargin',
+            pointerEvents: 'unset',
+            cursor: 'unset',
             borderBottom: '1px solid $thBorderColor',
           },
           '@mdDown': {
             bg: '$readerBg',
+            pointerEvents: 'unset',
+            cursor: 'unset',
           },
         }}
       >
