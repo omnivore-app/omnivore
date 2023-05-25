@@ -40,6 +40,7 @@ const CONTENT_TYPES = ['text/csv', 'application/zip']
 export type UrlHandler = (
   ctx: ImportContext,
   url: URL,
+  taskId: string,
   state?: ArticleSavingRequestStatus,
   labels?: string[]
 ) => Promise<void>
@@ -96,6 +97,7 @@ const importURL = async (
   userId: string,
   url: URL,
   source: string,
+  taskId: string,
   state?: ArticleSavingRequestStatus,
   labels?: string[]
 ): Promise<string | undefined> => {
@@ -173,6 +175,7 @@ const handlerForFile = (name: string): importHandlerFunc | undefined => {
 const urlHandler = async (
   ctx: ImportContext,
   url: URL,
+  taskId: string,
   state?: ArticleSavingRequestStatus,
   labels?: string[]
 ): Promise<void> => {
@@ -182,6 +185,7 @@ const urlHandler = async (
       ctx.userId,
       url,
       'csv-importer',
+      taskId,
       state,
       labels && labels.length > 0 ? labels : undefined
     )
@@ -345,7 +349,7 @@ export const importMetricsCollector = Sentry.GCPFunction.wrapHttpFunction(
       console.error('JWT_SECRET not exists')
       return res.status(500).send({ errorCodes: 'JWT_SECRET_NOT_EXISTS' })
     }
-    const token = (req.query.token || req.headers.authorization) as string
+    const token = req.headers.authorization
     if (!token) {
       return res.status(401).send({ errorCode: 'INVALID_TOKEN' })
     }
@@ -373,6 +377,7 @@ export const importMetricsCollector = Sentry.GCPFunction.wrapHttpFunction(
 
     // update metrics
     await updateMetrics(redisClient, userId, req.body.taskId, req.body.status)
+
     await redisClient.quit()
 
     res.send('ok')

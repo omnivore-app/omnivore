@@ -44,6 +44,8 @@ const NON_SCRIPT_HOSTS= ['medium.com', 'fastcompany.com'];
 
 const ALLOWED_CONTENT_TYPES = ['text/html', 'application/octet-stream', 'text/plain', 'application/pdf'];
 
+const IMPORTER_METRICS_COLLECTOR_URL = process.env.IMPORTER_METRICS_COLLECTOR_URL;
+
 const userAgentForUrl = (url) => {
   try {
     const u = new URL(url);
@@ -248,6 +250,25 @@ const saveUploadedPdf = async (userId, url, uploadFileId, articleSavingRequestId
   );
 };
 
+const sendImportStatusUpdate = async (userId, taskId, status) => {
+  const auth = await signToken({ uid: userId }, process.env.JWT_SECRET);
+
+  const response = await axios.post(
+    IMPORTER_METRICS_COLLECTOR_URL, 
+    {
+      taskId,
+      status,
+    },
+    {
+      headers: {
+        'Authorization': auth,
+        'Content-Type': 'application/json',
+      },
+    });
+
+  return response.data;
+};
+
 async function fetchContent(req, res) {
   let functionStartTime = Date.now();
 
@@ -257,6 +278,7 @@ async function fetchContent(req, res) {
   const state = req.body.state
   const labels = req.body.labels
   const source = req.body.source || 'parseContent';
+  const taskId = req.body.taskId; // taskId is used to update import status
 
   let logRecord = {
     url,
@@ -266,7 +288,8 @@ async function fetchContent(req, res) {
       source,
     },
     state,
-    labelsToAdd: labels
+    labelsToAdd: labels,
+    taskId: taskId,
   };
 
   console.info(`Article parsing request`, logRecord);
@@ -278,7 +301,7 @@ async function fetchContent(req, res) {
   }
 
   // pre handle url with custom handlers
-  let title, content, contentType;
+  let title, content, contentType, importStatus;
   try {
     const browser = await getBrowserPromise;
     const result = await preHandleContent(url, browser);
@@ -348,6 +371,8 @@ async function fetchContent(req, res) {
       logRecord.totalTime = Date.now() - functionStartTime;
       logRecord.result = apiResponse.createArticle;
     }
+
+    importStatus = 'imported';
   } catch (e) {
     logRecord.error = e.message;
     console.error(`Error while retrieving page`, logRecord);
@@ -383,11 +408,22 @@ async function fetchContent(req, res) {
 
     logRecord.totalTime = Date.now() - functionStartTime;
     logRecord.result = apiResponse.createArticle;
+
+    importStatus = 'failed';
   } finally {
     if (context) {
       await context.close();
     }
     console.info(`parse-page`, logRecord);
+
+    // send import status to update the metrics
+    if (taskId) {
+      try {
+        await sendImportStatusUpdate(userId, taskId, importStatus);
+      } catch (e) {
+        console.error('Error while sending import status update', e);
+      }
+    }
 
     res.sendStatus(200);
   }
