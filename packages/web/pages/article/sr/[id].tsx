@@ -47,6 +47,7 @@ export default function ArticleSavingRequestPage(): JSX.Element {
       <ReaderHeader
         alwaysDisplayToolbar={false}
         hideDisplaySettings={true}
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
         showDisplaySettingsModal={() => {}}
       />
       <TopBarProgress />
