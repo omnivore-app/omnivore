@@ -40,7 +40,6 @@ const CONTENT_TYPES = ['text/csv', 'application/zip']
 export type UrlHandler = (
   ctx: ImportContext,
   url: URL,
-  taskId: string,
   state?: ArticleSavingRequestStatus,
   labels?: string[]
 ) => Promise<void>
@@ -175,7 +174,6 @@ const handlerForFile = (name: string): importHandlerFunc | undefined => {
 const urlHandler = async (
   ctx: ImportContext,
   url: URL,
-  taskId: string,
   state?: ArticleSavingRequestStatus,
   labels?: string[]
 ): Promise<void> => {
@@ -185,7 +183,7 @@ const urlHandler = async (
       ctx.userId,
       url,
       'csv-importer',
-      taskId,
+      ctx.taskId,
       state,
       labels && labels.length > 0 ? labels : undefined
     )

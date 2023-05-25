@@ -13,7 +13,7 @@ describe('Load a simple CSV file', () => {
   it('should call the handler for each URL', async () => {
     const urls: URL[] = []
     const stream = fs.createReadStream('./test/csv/data/simple.csv')
-    const stub = stubImportCtx()
+    const stub = await stubImportCtx()
     stub.urlHandler = (ctx: ImportContext, url): Promise<void> => {
       urls.push(url)
       return Promise.resolve()
@@ -26,12 +26,14 @@ describe('Load a simple CSV file', () => {
       new URL('https://omnivore.app'),
       new URL('https://google.com'),
     ])
+
+    await stub.redisClient.quit()
   })
 
   it('increments the failed count when the URL is invalid', async () => {
     const urls: URL[] = []
     const stream = fs.createReadStream('./test/csv/data/simple.csv')
-    const stub = stubImportCtx()
+    const stub = await stubImportCtx()
     stub.urlHandler = (ctx: ImportContext, url): Promise<void> => {
       urls.push(url)
       return Promise.reject('Failed to import url')
@@ -40,6 +42,8 @@ describe('Load a simple CSV file', () => {
     await importCsv(stub, stream)
     expect(stub.countFailed).to.equal(2)
     expect(stub.countImported).to.equal(0)
+
+    await stub.redisClient.quit()
   })
 })
 
@@ -51,7 +55,7 @@ describe('Load a complex CSV file', () => {
       labels?: string[]
     }[] = []
     const stream = fs.createReadStream('./test/csv/data/complex.csv')
-    const stub = stubImportCtx()
+    const stub = await stubImportCtx()
     stub.urlHandler = (
       ctx: ImportContext,
       url,
@@ -86,5 +90,7 @@ describe('Load a complex CSV file', () => {
         labels: ['test', 'development'],
       },
     ])
+
+    await stub.redisClient.quit()
   })
 })

@@ -42,6 +42,15 @@ jobs:
           --health-retries 10
         ports:
           - 9200
+      redis:
+        image: redis
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+        ports:
+          - 6379
     steps:
       - uses: actions/checkout@v2
         with:

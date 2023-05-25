@@ -1,15 +1,15 @@
-import 'mocha'
+import { Readability } from '@omnivore/readability'
 import * as chai from 'chai'
 import { expect } from 'chai'
 import chaiString from 'chai-string'
 import * as fs from 'fs'
+import 'mocha'
+import { ImportContext } from '../../src'
 import {
   importMatterArchive,
   importMatterHistoryCsv,
 } from '../../src/matterHistory'
 import { stubImportCtx } from '../util'
-import { ImportContext } from '../../src'
-import { Readability } from '@omnivore/readability'
 
 chai.use(chaiString)
 
@@ -17,7 +17,7 @@ describe('Load a simple _matter_history file', () => {
   it('should find the URL of each row', async () => {
     const urls: URL[] = []
     const stream = fs.createReadStream('./test/matter/data/_matter_history.csv')
-    const stub = stubImportCtx()
+    const stub = await stubImportCtx()
     stub.urlHandler = (ctx: ImportContext, url): Promise<void> => {
       urls.push(url)
       return Promise.resolve()
@@ -29,6 +29,8 @@ describe('Load a simple _matter_history file', () => {
     expect(urls).to.eql([
       new URL('https://www.bloomberg.com/features/2022-the-crypto-story/'),
     ])
+
+    await stub.redisClient.quit()
   })
 })
 
@@ -36,7 +38,7 @@ describe('Load archive file', () => {
   it('should find the URL of each row', async () => {
     const urls: URL[] = []
     const stream = fs.createReadStream('./test/matter/data/Archive.zip')
-    const stub = stubImportCtx()
+    const stub = await stubImportCtx()
     stub.contentHandler = (
       ctx: ImportContext,
       url: URL,
@@ -54,5 +56,7 @@ describe('Load archive file', () => {
     expect(urls).to.eql([
       new URL('https://www.bloomberg.com/features/2022-the-crypto-story/'),
     ])
+
+    await stub.redisClient.quit()
   })
 })
