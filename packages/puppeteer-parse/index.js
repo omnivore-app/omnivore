@@ -251,22 +251,24 @@ const saveUploadedPdf = async (userId, url, uploadFileId, articleSavingRequestId
 };
 
 const sendImportStatusUpdate = async (userId, taskId, status) => {
-  const auth = await signToken({ uid: userId }, process.env.JWT_SECRET);
+  try {
+    const auth = await signToken({ uid: userId }, process.env.JWT_SECRET);
 
-  const response = await axios.post(
-    IMPORTER_METRICS_COLLECTOR_URL, 
-    {
-      taskId,
-      status,
-    },
-    {
-      headers: {
-        'Authorization': auth,
-        'Content-Type': 'application/json',
+    await axios.post(
+      IMPORTER_METRICS_COLLECTOR_URL, 
+      {
+        taskId,
+        status,
       },
-    });
-
-  return response.data;
+      {
+        headers: {
+          'Authorization': auth,
+          'Content-Type': 'application/json',
+        },
+      });
+  } catch (e) {
+    console.error('Error while sending import status update', e);
+  }
 };
 
 async function fetchContent(req, res) {
@@ -418,11 +420,7 @@ async function fetchContent(req, res) {
 
     // send import status to update the metrics
     if (taskId) {
-      try {
-        await sendImportStatusUpdate(userId, taskId, importStatus);
-      } catch (e) {
-        console.error('Error while sending import status update', e);
-      }
+      await sendImportStatusUpdate(userId, taskId, importStatus);
     }
 
     res.sendStatus(200);
