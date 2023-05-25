@@ -12,9 +12,10 @@
     "test": "yarn mocha -r ts-node/register --config mocha-config.json",
     "lint": "eslint src --ext ts,js,tsx,jsx",
     "compile": "tsc",
-    "build": "tsc",
+    "build": "tsc && yarn copy-files",
     "start": "functions-framework --target=importHandler",
-    "dev": "concurrently \"tsc -w\" \"nodemon --watch ./build/ --exec npm run start\""
+    "dev": "concurrently \"tsc -w\" \"nodemon --watch ./build/ --exec npm run start\"",
+    "copy-files": "copyfiles -u 1 src/**/*.lua build/src"
   },
   "devDependencies": {
     "@types/chai": "^4.3.4",
@@ -28,6 +29,7 @@
     "@types/unzip-stream": "^0.3.1",
     "@types/urlsafe-base64": "^1.0.28",
     "@types/uuid": "^9.0.0",
+    "copyfiles": "^2.4.1",
     "eslint-plugin-prettier": "^4.0.0"
   },
   "dependencies": {
@@ -46,6 +48,7 @@
     "jsonwebtoken": "^8.5.1",
     "linkedom": "^0.14.21",
     "nodemon": "^2.0.15",
+    "redis": "^4.6.6",
     "unzip-stream": "^0.3.1",
     "urlsafe-base64": "^1.0.0",
     "uuid": "^9.0.0"
