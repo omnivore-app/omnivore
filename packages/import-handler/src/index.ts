@@ -10,6 +10,7 @@ import { promisify } from 'util'
 import { v4 as uuid } from 'uuid'
 import { importCsv } from './csv'
 import { importMatterArchive } from './matterHistory'
+import { ImportStatus, updateMetrics } from './metrics'
 import { createRedisClient } from './redis'
 import { CONTENT_FETCH_URL, createCloudTask, emailUserUrl } from './task'
 
@@ -61,6 +62,15 @@ export type ImportContext = {
 }
 
 type importHandlerFunc = (ctx: ImportContext, stream: Stream) => Promise<void>
+
+interface UpdateMetricsRequest {
+  taskId: string
+  status: ImportStatus
+}
+
+function isUpdateMetricsRequest(body: any): body is UpdateMetricsRequest {
+  return 'taskId' in body && 'status' in body
+}
 
 interface StorageEvent {
   name: string
@@ -325,6 +335,46 @@ export const importHandler = Sentry.GCPFunction.wrapHttpFunction(
     } else {
       console.log('no pubsub message')
     }
+    res.send('ok')
+  }
+)
+
+export const importMetricsCollector = Sentry.GCPFunction.wrapHttpFunction(
+  async (req, res) => {
+    if (!process.env.JWT_SECRET) {
+      console.error('JWT_SECRET not exists')
+      return res.status(500).send({ errorCodes: 'JWT_SECRET_NOT_EXISTS' })
+    }
+    const token = (req.query.token || req.headers.authorization) as string
+    if (!token) {
+      return res.status(401).send({ errorCode: 'INVALID_TOKEN' })
+    }
+
+    let userId: string
+
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET) as {
+        uid: string
+      }
+      userId = decoded.uid
+    } catch (e) {
+      console.error('Authentication error:', e)
+      return res.status(401).send({ errorCode: 'UNAUTHENTICATED' })
+    }
+
+    const redisClient = await createRedisClient(
+      process.env.REDIS_URL,
+      process.env.REDIS_CERT
+    )
+    if (!isUpdateMetricsRequest(req.body)) {
+      console.log('Invalid request body')
+      return res.status(400).send('Bad Request')
+    }
+
+    // update metrics
+    await updateMetrics(redisClient, userId, req.body.taskId, req.body.status)
+    await redisClient.quit()
+
     res.send('ok')
   }
 )
