@@ -16,7 +16,7 @@ import { pspdfKitKey } from '../../../lib/appConfig'
 import { NotebookModal } from './NotebookModal'
 import { HighlightNoteModal } from './HighlightNoteModal'
 import { showErrorToast } from '../../../lib/toastHelpers'
-import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from '../homeFeed/HeaderSpacer'
+import { HEADER_HEIGHT } from '../homeFeed/HeaderSpacer'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 
 export type PdfArticleContainerProps = {
@@ -481,9 +481,6 @@ export default function PdfArticleContainer(
       css={{
         width: '100%',
         height: `calc(100vh - ${HEADER_HEIGHT})`,
-        '@xlgDown': {
-          height: `calc(100vh - ${MOBILE_HEADER_HEIGHT})`,
-        },
       }}
     >
       <div ref={containerRef} style={{ width: '100%', height: '100%' }} />

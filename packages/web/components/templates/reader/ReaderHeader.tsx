@@ -5,7 +5,7 @@ import { PrimaryDropdown } from '../PrimaryDropdown'
 import { TooltipWrapped } from '../../elements/Tooltip'
 import { LogoBox } from '../../elements/LogoBox'
 import { ReactNode } from 'react'
-import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from '../homeFeed/HeaderSpacer'
+import { HEADER_HEIGHT } from '../homeFeed/HeaderSpacer'
 import { theme } from '../../tokens/stitches.config'
 
 type ReaderHeaderProps = {
@@ -24,19 +24,17 @@ export function ReaderHeader(props: ReaderHeaderProps): JSX.Element {
           top: '0',
           left: '0',
           zIndex: 1,
+          pt: '0px',
           position: 'fixed',
           width: '100%',
           height: HEADER_HEIGHT,
           display: props.alwaysDisplayToolbar ? 'flex' : 'transparent',
-          pt: '35px',
           pointerEvents: 'none',
           cursor: 'default',
           borderBottom: props.alwaysDisplayToolbar
             ? '1px solid $thBorderColor'
             : '1px solid transparent',
           '@xlgDown': {
-            height: MOBILE_HEADER_HEIGHT,
-            pt: '0px',
             bg: '$readerMargin',
             pointerEvents: 'unset',
             cursor: 'unset',
@@ -55,6 +53,7 @@ export function ReaderHeader(props: ReaderHeaderProps): JSX.Element {
           css={{
             width: '100%',
             height: '100%',
+            pointerEvents: 'all',
           }}
         >
           <LogoBox />
