@@ -11,6 +11,7 @@ export function LogoBox(): JSX.Element {
         css={{
           pl: '25px',
           height: '24px',
+          pointerEvents: 'all',
           width: LIBRARY_LEFT_MENU_WIDTH,
           minWidth: LIBRARY_LEFT_MENU_WIDTH,
           '@mdDown': {
