@@ -5,11 +5,17 @@ import axios from 'axios'
 import * as jwt from 'jsonwebtoken'
 import { Stream } from 'node:stream'
 import * as path from 'path'
+import { createClient } from 'redis'
 import { promisify } from 'util'
 import { v4 as uuid } from 'uuid'
 import { importCsv } from './csv'
 import { importMatterArchive } from './matterHistory'
+import { createMetrics } from './metrics'
+import { createRedisClient } from './redis'
 import { CONTENT_FETCH_URL, createCloudTask, emailUserUrl } from './task'
+
+// explicitly create the return type of RedisClient
+type RedisClient = ReturnType<typeof createClient>
 
 export enum ArticleSavingRequestStatus {
   Failed = 'FAILED',
@@ -51,6 +57,9 @@ export type ImportContext = {
   countFailed: number
   urlHandler: UrlHandler
   contentHandler: ContentHandler
+  redisClient: RedisClient
+  taskId: string
+  source: string
 }
 
 type importHandlerFunc = (ctx: ImportContext, stream: Stream) => Promise<void>
@@ -118,14 +127,27 @@ const sendImportFailedEmail = async (userId: string) => {
   })
 }
 
-const sendImportCompletedEmail = async (
+export const sendImportStartedEmail = async (
   userId: string,
   urlsEnqueued: number,
   urlsFailed: number
 ) => {
   return createEmailCloudTask(userId, {
-    subject: 'Your Omnivore import has completed processing',
-    body: `${urlsEnqueued} URLs have been processed and should be available in your library. ${urlsFailed} URLs failed to be parsed.`,
+    subject: 'Your Omnivore import has started',
+    body: `We have started processing ${urlsEnqueued} URLs. ${urlsFailed} URLs are invalid.`,
+  })
+}
+
+export const sendImportCompletedEmail = async (
+  userId: string,
+  urlsImported: number,
+  urlsFailed: number
+) => {
+  return createEmailCloudTask(userId, {
+    subject: 'Your Omnivore import has finished',
+    body: `We have finished processing ${
+      urlsImported + urlsFailed
+    } URLs. ${urlsImported} URLs have been added to your library. ${urlsFailed} URLs failed to be parsed.`,
   })
 }
 
@@ -222,7 +244,7 @@ const contentHandler = async (
   return Promise.resolve()
 }
 
-const handleEvent = async (data: StorageEvent) => {
+const handleEvent = async (data: StorageEvent, redisClient: RedisClient) => {
   if (shouldHandle(data)) {
     const handler = handlerForFile(data.name)
     if (!handler) {
@@ -253,12 +275,18 @@ const handleEvent = async (data: StorageEvent) => {
       countFailed: 0,
       urlHandler,
       contentHandler,
+      redisClient,
+      taskId: data.name,
+      source: 'csv-importer',
     }
+
+    // create metrics in redis
+    await createMetrics(redisClient, ctx.userId, ctx.taskId, ctx.source)
 
     await handler(ctx, stream)
 
     if (ctx.countImported > 0) {
-      await sendImportCompletedEmail(userId, ctx.countImported, ctx.countFailed)
+      await sendImportStartedEmail(userId, ctx.countImported, ctx.countFailed)
     } else {
       await sendImportFailedEmail(userId)
     }
@@ -285,11 +313,19 @@ export const importHandler = Sentry.GCPFunction.wrapHttpFunction(
       const pubSubMessage = req.body.message.data as string
       const obj = getStorageEvent(pubSubMessage)
       if (obj) {
+        // create redis client
+        const redisClient = await createRedisClient(
+          process.env.REDIS_URL,
+          process.env.REDIS_CERT
+        )
         try {
-          await handleEvent(obj)
+          await handleEvent(obj, redisClient)
         } catch (err) {
           console.log('error handling event', { err, obj })
           throw err
+        } finally {
+          // close redis client
+          await redisClient.quit()
         }
       }
     } else {

@@ -27,5 +27,8 @@ if (status == "imported" or status == "failed") then
     -- all the records have been processed
     -- update the metrics
     redis.call('HSET', key, 'end_time', timestamp, 'state', 1);
+    return 1
   end
 end
+
+return 0;

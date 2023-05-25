@@ -1,10 +1,11 @@
 import { createClient } from 'redis'
+import { sendImportCompletedEmail } from '.'
 import { lua } from './redis'
 
 // explicitly create the return type of RedisClient
 type RedisClient = ReturnType<typeof createClient>
 
-enum ImportStatus {
+export enum ImportStatus {
   STARTED = 'started',
   INVALID = 'invalid',
   IMPORTED = 'imported',
@@ -23,24 +24,24 @@ interface ImportMetrics {
   imported: number
   failed: number
   total: number
-  importer: string
+  source: string
   state: ImportTaskState
   startTime: number
   endTime: number
 }
 
-export const startImport = async (
+export const createMetrics = async (
   redisClient: RedisClient,
   userId: string,
   taskId: string,
-  importer: string
+  source: string
 ) => {
   const key = `import:${userId}:${taskId}`
   try {
     // set multiple fields
     await redisClient.hSet(key, {
-      ['start_time']: Date.now(), // unix timestamp in seconds
-      ['importer']: importer,
+      ['start_time']: Date.now(),
+      ['source']: source,
       ['state']: ImportTaskState.STARTED,
     })
   } catch (error) {
@@ -52,16 +53,25 @@ export const updateMetrics = async (
   redisClient: RedisClient,
   userId: string,
   taskId: string,
-  status: ImportStatus
+  status: ImportStatus,
+  source: string
 ) => {
   const key = `import:${userId}:${taskId}`
 
   try {
     // use lua script to increment hash field
-    await redisClient.evalSha(lua.sha, {
+    const state = await redisClient.evalSha(lua.sha, {
       keys: [key],
-      arguments: [status, Date.now().toString()],
+      arguments: [status, Date.now().toString(), source],
     })
+
+    // if the task is finished, send email
+    if (state == ImportTaskState.FINISHED) {
+      const metrics = await getMetrics(redisClient, userId, taskId)
+      if (metrics) {
+        await sendImportCompletedEmail(userId, metrics.imported, metrics.failed)
+      }
+    }
   } catch (error) {
     console.error('Redis Error', error)
   }
@@ -83,7 +93,7 @@ export const getMetrics = async (
       imported: parseInt(metrics.imported, 10),
       failed: parseInt(metrics.failed, 10),
       total: parseInt(metrics.total, 10),
-      importer: metrics.importer,
+      source: metrics.source,
       state: parseInt(metrics.state, 10),
       startTime: parseInt(metrics.start_time, 10),
       endTime: parseInt(metrics.end_time, 10),
