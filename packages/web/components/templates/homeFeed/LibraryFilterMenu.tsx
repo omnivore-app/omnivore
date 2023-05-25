@@ -155,6 +155,10 @@ function Subscriptions(props: LibraryFilterMenuProps): JSX.Element {
     [subscriptions]
   )
 
+  if (subscriptions.length < 1) {
+    return <></>
+  }
+
   return (
     <MenuPanel
       title="Subscriptions"
@@ -374,6 +378,8 @@ function LabelButton(props: LabelButtonProps): JSX.Element {
         color: '$thTextSubtle',
         verticalAlign: 'middle',
         borderRadius: '3px',
+        cursor: 'pointer',
+
         m: '0px',
         '&:hover': {
           backgroundColor: '$thBackground4',
@@ -382,7 +388,16 @@ function LabelButton(props: LabelButtonProps): JSX.Element {
       alignment="center"
       distribution="start"
     >
-      <label htmlFor={labelId} style={{ width: '100%' }}>
+      <label
+        htmlFor={labelId}
+        style={{
+          width: '100%',
+          maxWidth: '170px',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+        }}
+      >
         <Circle size={9} color={props.label.color} weight="fill" />
         <SpanBox css={{ pl: '10px' }}>{props.label.name}</SpanBox>
       </label>
