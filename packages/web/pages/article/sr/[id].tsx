@@ -48,7 +48,7 @@ export default function ArticleSavingRequestPage(): JSX.Element {
         alwaysDisplayToolbar={false}
         hideDisplaySettings={true}
         showDisplaySettingsModal={() => {}}
-      ></ReaderHeader>
+      />
       <TopBarProgress />
       <VStack
         distribution="between"
