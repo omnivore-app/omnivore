@@ -245,6 +245,10 @@ struct WebReaderContainerView: View {
         )
       }
       Button(
+        action: copyDeeplink,
+        label: { Label("Copy Deeplink", systemImage: "link") }
+      )
+      Button(
         action: delete,
         label: { Label("Delete", systemImage: "trash") }
       )
@@ -585,6 +589,19 @@ struct WebReaderContainerView: View {
 
   func share() {
     shareActionID = UUID()
+  }
+
+  func copyDeeplink() {
+    if let deepLink = item.deepLink {
+      #if os(iOS)
+        UIPasteboard.general.string = deepLink.absoluteString
+      #else
+        Pasteboard.general.string = deepLink.absoluteString
+      #endif
+      showInSnackbar("Deeplink Copied")
+    } else {
+      showInSnackbar("Error copying deeplink")
+    }
   }
 
   func delete() {
