@@ -24,6 +24,7 @@ import { ArticleFormat } from '../resolvers/article'
 import {
   EmbeddedHighlightData,
   findEmbeddedHighlight,
+  getArticleTextNodes,
   highlightIdAttribute,
   makeHighlightNodeAttributes,
 } from './highlightGenerator'
@@ -627,6 +628,11 @@ export const htmlToHighlightedMarkdown = (
     return nhm.translate(/* html */ html)
   }
 
+  const articleTextNodes = getArticleTextNodes(document)
+  if (!articleTextNodes) {
+    return nhm.translate(/* html */ html)
+  }
+
   // wrap highlights in special tags
   highlights
     .filter((h) => h.type == 'HIGHLIGHT' && h.patch)
@@ -635,7 +641,7 @@ export const htmlToHighlightedMarkdown = (
         makeHighlightNodeAttributes(
           highlight.id,
           highlight.patch as string,
-          document
+          articleTextNodes
         )
       } catch (err) {
         console.log(err)
