@@ -20,13 +20,7 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
   const [isHovered, setIsHovered] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
 
-  const originText =
-    props.item.siteName ||
-    siteName(props.item.originalArticleUrl, props.item.url)
-
-  const highlightCount = useMemo(() => {
-    return props.item.highlights?.length ?? 0
-  }, [props.item.highlights])
+  const originText = siteName(props.item.originalArticleUrl, props.item.url)
 
   return (
     <VStack

@@ -57,9 +57,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
   const [isHovered, setIsHovered] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
 
-  const originText =
-    props.item.siteName ||
-    siteName(props.item.originalArticleUrl, props.item.url)
+  const originText = siteName(props.item.originalArticleUrl, props.item.url)
 
   return (
     <VStack
