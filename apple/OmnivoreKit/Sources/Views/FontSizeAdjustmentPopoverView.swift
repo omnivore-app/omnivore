@@ -222,20 +222,23 @@ public enum WebFont: String, CaseIterable {
 
     var marginSlider: some View {
       HStack {
+        let minValue = UIDevice.isIPad ? 40 : 70
+        let stepSize = UIDevice.isIPad ? 10 : 2
+
         Button(action: {
-          storedMaxWidthPercentage = max(storedMaxWidthPercentage - 10, 40)
+          storedMaxWidthPercentage = max(storedMaxWidthPercentage - stepSize, minValue)
           updateReaderPreferences()
 
         }, label: { Image("margin-smaller", bundle: .module) })
           .frame(width: 25, height: 25, alignment: .center)
-        CustomSlider(value: $storedMaxWidthPercentage, minValue: 40, maxValue: 100) { _ in
+        CustomSlider(value: $storedMaxWidthPercentage, minValue: minValue, maxValue: 100) { _ in
           updateReaderPreferences()
         }
         .padding(.horizontal, 10)
         .tint(Color(hex: "#D9D9D9"))
 
         Button(action: {
-          storedMaxWidthPercentage = min(storedMaxWidthPercentage + 10, 100)
+          storedMaxWidthPercentage = min(storedMaxWidthPercentage + stepSize, 100)
           updateReaderPreferences()
 
         }, label: { Image("margin-larger", bundle: .module) })
@@ -351,15 +354,13 @@ public enum WebFont: String, CaseIterable {
           .padding(.vertical, 10)
 
         Group {
-          if UIDevice.isIPad {
-            Text("Margin")
-              .font(Font.system(size: 14))
-              .frame(maxWidth: .infinity, alignment: .leading)
+          Text("Margin")
+            .font(Font.system(size: 14))
+            .frame(maxWidth: .infinity, alignment: .leading)
 
-            marginSlider
-              .padding(.top, 5)
-              .padding(.bottom, 10)
-          }
+          marginSlider
+            .padding(.top, 5)
+            .padding(.bottom, 10)
 
           Text("Line Height")
             .font(Font.system(size: 14))
@@ -408,8 +409,9 @@ public enum WebFont: String, CaseIterable {
               enableHighlightOnRelease = false
               preferredFont = WebFont.inter.rawValue
               prefersHighContrastText = true
-
               enableHighlightOnRelease = false
+
+              updateReaderPreferences()
             }, label: {
               Text("Reset")
                 .font(Font.system(size: 12, weight: .bold))
