@@ -1,12 +1,16 @@
 package app.omnivore.omnivore.dataService
 
+import app.omnivore.omnivore.graphql.generated.type.CreateHighlightInput
+import app.omnivore.omnivore.graphql.generated.type.HighlightType
 import app.omnivore.omnivore.models.ServerSyncStatus
 import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.persistence.entities.Highlight
 import app.omnivore.omnivore.persistence.entities.SavedItemAndHighlightCrossRef
+import com.apollographql.apollo3.api.Optional
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.util.*
 
 suspend fun DataService.createWebHighlight(jsonString: String) {
   val createHighlightInput = Gson().fromJson(jsonString, CreateHighlightParams::class.java).asCreateHighlightInput()
@@ -37,6 +41,59 @@ suspend fun DataService.createWebHighlight(jsonString: String) {
     db.savedItemAndHighlightCrossRefDao().insertAll(listOf(crossRef))
 
     val newHighlight = networker.createHighlight(createHighlightInput)
+
+    newHighlight?.let {
+      db.highlightDao().update(it)
+    }
+  }
+}
+
+suspend fun DataService.createNoteHighlight(savedItemId: String, note: String) {
+  val shortId = UUID.randomUUID().toString()
+  val createHighlightId = UUID.randomUUID().toString()
+  val createHighlightParams = CreateHighlightParams(
+    type = HighlightType.NOTE,,
+    shortId = shortId,
+    id = createHighlightId,
+    quote = null,
+    patch = null,
+    articleId = null,
+    annotation = note,
+  )
+
+  withContext(Dispatchers.IO) {
+    val highlight = Highlight(
+      type = "HIGHLIGHT",
+      highlightId = createHighlightInput.id,
+      shortId = createHighlightInput.shortId,
+      quote = createHighlightInput.quote.getOrNull(),
+      prefix = null,
+      suffix = null,
+      patch = createHighlightInput.patch.getOrNull(),
+      annotation = createHighlightInput.annotation.getOrNull(),
+      createdAt = null,
+      updatedAt = null,
+      createdByMe = false
+    )
+
+    highlight.serverSyncStatus = ServerSyncStatus.NEEDS_CREATION.rawValue
+
+    val crossRef = SavedItemAndHighlightCrossRef(
+      highlightId = createHighlightId,
+      savedItemId = savedItemId
+    )
+
+    db.highlightDao().insertAll(listOf(highlight))
+    db.savedItemAndHighlightCrossRefDao().insertAll(listOf(crossRef))
+
+    val newHighlight = networker.createHighlight(input = CreateHighlightParams(
+       shortId = shortId,
+       id = createHighlightId,
+       quote = null,
+       patch = null,
+       articleId = null,
+       annotation = note,
+    ).asCreateHighlightInput())
 
     newHighlight?.let {
       db.highlightDao().update(it)

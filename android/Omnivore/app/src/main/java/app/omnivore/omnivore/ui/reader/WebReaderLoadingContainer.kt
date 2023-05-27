@@ -48,6 +48,7 @@ import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import androidx.compose.material3.Button
 import androidx.compose.ui.platform.LocalContext
+import app.omnivore.omnivore.ui.notebook.EditNoteModal
 
 
 @AndroidEntryPoint
@@ -115,6 +116,7 @@ enum class BottomSheetState(
   NONE(),
   PREFERENCES(),
   NOTEBOOK(),
+  ADDNOTE(),
   HIGHLIGHTNOTE(),
   LABELS(),
   LINK()
@@ -133,7 +135,6 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
   val webReaderParams: WebReaderParams? by webReaderViewModel.webReaderParamsLiveData.observeAsState(null)
   val shouldPopView: Boolean by webReaderViewModel.shouldPopViewLiveData.observeAsState(false)
 
-
   val labels: List<SavedItemLabel> by webReaderViewModel.savedItemLabelsLiveData.observeAsState(listOf())
 
   val maxToolbarHeight = 48.dp
@@ -151,9 +152,11 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
     webReaderContent.styledContent()
   } ?: null
 
+
   val modalBottomSheetState = rememberModalBottomSheetState(
     initialValue = ModalBottomSheetValue.Hidden,
-    confirmStateChange = {
+    skipHalfExpanded = bottomSheetState == BottomSheetState.ADDNOTE,
+    confirmValueChange = {
       if (it == ModalBottomSheetValue.Hidden) {
         webReaderViewModel.resetBottomSheet()
       }
@@ -171,6 +174,11 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
         }
       }
       BottomSheetState.NOTEBOOK -> {
+        coroutineScope.launch {
+          modalBottomSheetState.show()
+        }
+      }
+      BottomSheetState.ADDNOTE -> {
         coroutineScope.launch {
           modalBottomSheetState.show()
         }
@@ -217,13 +225,25 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
         BottomSheetState.NOTEBOOK -> {
           webReaderParams?.let { params ->
             BottomSheetUI(title = "Notebook") {
-              NotebookView(savedItemId = params.item.savedItemId, viewModel = notebookViewModel)
+              NotebookView(savedItemId = params.item.savedItemId, viewModel = notebookViewModel, onEditArticleNotes = {
+                webReaderViewModel.setBottomSheet(BottomSheetState.ADDNOTE)
+              })
             }
+          }
+        }
+        BottomSheetState.ADDNOTE -> {
+          webReaderParams?.let { params ->
+            EditNoteModal(onDismiss = {
+              coroutineScope.launch {
+                notebookViewModel.addArticleNote(savedItemId = params.item.savedItemId, note = it)
+                webReaderViewModel.setBottomSheet(BottomSheetState.NOTEBOOK)
+              }
+            })
           }
         }
         BottomSheetState.HIGHLIGHTNOTE -> {
           webReaderViewModel.annotation?.let { annotation ->
-            BottomSheetUI(title = "Note") {
+            BottomSheetUI(title = "Edit Note") {
               AnnotationEditView(
                 initialAnnotation = annotation,
                 onSave = {

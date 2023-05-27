@@ -171,6 +171,22 @@ interface SavedItemDao {
             "LEFT OUTER JOIN SavedItemLabel on SavedItemLabel.savedItemLabelId = SavedItemAndSavedItemLabelCrossRef.savedItemLabelId " +
             "LEFT OUTER  JOIN Highlight on highlight.highlightId = SavedItemAndHighlightCrossRef.highlightId " +
 
+            "WHERE SavedItem.savedItemId = :savedItemId " +
+
+            "GROUP BY SavedItem.savedItemId "
+  )
+  suspend fun getById(savedItemId: String): SavedItemWithLabelsAndHighlights?
+
+  @Transaction
+  @Query(
+    "SELECT ${SavedItemQueryConstants.libraryColumns} " +
+            "FROM SavedItem " +
+            "LEFT OUTER JOIN SavedItemAndSavedItemLabelCrossRef on SavedItem.savedItemId = SavedItemAndSavedItemLabelCrossRef.savedItemId " +
+            "LEFT OUTER JOIN SavedItemAndHighlightCrossRef on SavedItem.savedItemId = SavedItemAndHighlightCrossRef.savedItemId " +
+
+            "LEFT OUTER JOIN SavedItemLabel on SavedItemLabel.savedItemLabelId = SavedItemAndSavedItemLabelCrossRef.savedItemLabelId " +
+            "LEFT OUTER  JOIN Highlight on highlight.highlightId = SavedItemAndHighlightCrossRef.highlightId " +
+
             "WHERE SavedItem.serverSyncStatus != 2 " +
             "AND SavedItem.isArchived IN (:allowedArchiveStates) " +
             "AND SavedItem.contentReader IN (:allowedContentReaders) " +

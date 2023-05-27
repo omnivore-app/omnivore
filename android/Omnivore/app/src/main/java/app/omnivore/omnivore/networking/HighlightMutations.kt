@@ -6,6 +6,7 @@ import app.omnivore.omnivore.graphql.generated.DeleteHighlightMutation
 import app.omnivore.omnivore.graphql.generated.MergeHighlightMutation
 import app.omnivore.omnivore.graphql.generated.UpdateHighlightMutation
 import app.omnivore.omnivore.graphql.generated.type.CreateHighlightInput
+import app.omnivore.omnivore.graphql.generated.type.HighlightType
 import app.omnivore.omnivore.graphql.generated.type.MergeHighlightInput
 import app.omnivore.omnivore.graphql.generated.type.UpdateHighlightInput
 import app.omnivore.omnivore.persistence.entities.Highlight
@@ -13,6 +14,7 @@ import com.apollographql.apollo3.api.Optional
 import com.google.gson.Gson
 
 data class CreateHighlightParams(
+   val type: HighlightType,
    val shortId: String?,
    val id: String?,
    val quote: String?,
@@ -21,6 +23,7 @@ data class CreateHighlightParams(
    val `annotation`: String?
 ) {
   fun asCreateHighlightInput() = CreateHighlightInput(
+    type = type,
     annotation = Optional.presentIfNotNull(`annotation`),
     articleId = articleId ?: "",
     id = id ?: "",
