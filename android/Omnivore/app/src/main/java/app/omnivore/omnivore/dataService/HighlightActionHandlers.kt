@@ -48,22 +48,13 @@ suspend fun DataService.createWebHighlight(jsonString: String) {
   }
 }
 
-suspend fun DataService.createNoteHighlight(savedItemId: String, note: String) {
+suspend fun DataService.createNoteHighlight(savedItemId: String, note: String): String {
   val shortId = UUID.randomUUID().toString()
   val createHighlightId = UUID.randomUUID().toString()
-//  val createHighlightParams = CreateHighlightParams(
-//    type = HighlightType.NOTE,,
-//    shortId = shortId,
-//    id = createHighlightId,
-//    quote = null,
-//    patch = null,
-//    articleId = null,
-//    annotation = note,
-//  )
 
   withContext(Dispatchers.IO) {
     val highlight = Highlight(
-      type = "HIGHLIGHT",
+      type = "NOTE",
       highlightId = createHighlightId,
       shortId = shortId,
       quote = null,
@@ -87,12 +78,12 @@ suspend fun DataService.createNoteHighlight(savedItemId: String, note: String) {
     db.savedItemAndHighlightCrossRefDao().insertAll(listOf(crossRef))
 
     val newHighlight = networker.createHighlight(input = CreateHighlightParams(
-       type = HighlightType.HIGHLIGHT,
-       shortId = shortId,
+       type = HighlightType.NOTE,
+       articleId = savedItemId,
        id = createHighlightId,
+       shortId = shortId,
        quote = null,
        patch = null,
-       articleId = null,
        annotation = note,
     ).asCreateHighlightInput())
 
@@ -100,6 +91,8 @@ suspend fun DataService.createNoteHighlight(savedItemId: String, note: String) {
       db.highlightDao().update(it)
     }
   }
+
+  return createHighlightId
 }
 
 suspend fun DataService.mergeWebHighlights(jsonString: String) {

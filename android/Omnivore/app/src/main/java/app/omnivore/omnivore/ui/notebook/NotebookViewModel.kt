@@ -6,6 +6,7 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import app.omnivore.omnivore.DatastoreRepository
 import app.omnivore.omnivore.dataService.DataService
+import app.omnivore.omnivore.dataService.createNoteHighlight
 import app.omnivore.omnivore.networking.Networker
 import app.omnivore.omnivore.persistence.entities.SavedItemWithLabelsAndHighlights
 import app.omnivore.omnivore.ui.library.SavedItemViewModel
@@ -27,11 +28,11 @@ class NotebookViewModel @Inject constructor(
         println("this is an item: $item")
         return item?.let { item ->
             println("this is an item: $item")
-            val noteHighlight = item.highlights.first { it.type == "NOTE" }
+            val noteHighlight = item.highlights.firstOrNull { it.type == "NOTE" }
             noteHighlight?.let {
-
+                dataService.db.highlightDao().updateNote(highlightId = noteHighlight.highlightId, note = note)
             } ?: run {
-
+                dataService.createNoteHighlight(savedItemId, note)
             }
             return true
         } ?: false

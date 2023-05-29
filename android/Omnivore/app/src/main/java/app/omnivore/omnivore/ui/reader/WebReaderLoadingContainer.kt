@@ -233,11 +233,18 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
         }
         BottomSheetState.ADDNOTE -> {
           webReaderParams?.let { params ->
-            EditNoteModal(onDismiss = {
-              coroutineScope.launch {
-                notebookViewModel.addArticleNote(savedItemId = params.item.savedItemId, note = it)
+            EditNoteModal(
+              initialValue = null,
+              onDismiss = { save, note ->
+                if (save && note != null) {
+                  coroutineScope.launch {
+                    notebookViewModel.addArticleNote(
+                      savedItemId = params.item.savedItemId,
+                      note = note
+                    )
+                  }
+                }
                 webReaderViewModel.setBottomSheet(BottomSheetState.NOTEBOOK)
-              }
             })
           }
         }

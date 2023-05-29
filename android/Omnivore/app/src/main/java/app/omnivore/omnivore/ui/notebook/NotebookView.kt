@@ -23,6 +23,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -36,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -149,28 +151,31 @@ fun NotebookView(savedItemId: String, viewModel: NotebookViewModel, onEditArticl
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
-fun EditNoteModal(onDismiss: (text: String) -> Unit) {
+fun EditNoteModal(initialValue: String?, onDismiss: (save: Boolean, text: String?) -> Unit) {
     val focusRequester = remember { FocusRequester() }
-    val annotation = remember { mutableStateOf("") }
+    val annotation = remember { mutableStateOf(initialValue ?: "") }
 
     BottomSheetUI() {
         Scaffold(
             topBar = {
-                TopAppBar(
-                    title = { Text("Edit Note") },
+                CenterAlignedTopAppBar(
+                    title = { Text("Note") },
                     modifier = Modifier.statusBarsPadding(),
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.background
                     ),
                     navigationIcon = {
-                        IconButton(onClick = {
-                            onDismiss(annotation.value)
+                        TextButton(onClick = {
+                            onDismiss(false, initialValue)
                         }) {
-                            Icon(
-                                imageVector = androidx.compose.material.icons.Icons.Filled.ArrowBack,
-                                modifier = Modifier,
-                                contentDescription = "Back"
-                            )
+                            Text(text = "Cancel")
+                        }
+                    },
+                    actions = {
+                        TextButton(onClick = {
+                            onDismiss(true, annotation.value)
+                        }) {
+                            Text(text = "Save")
                         }
                     }
                 )
@@ -188,10 +193,6 @@ fun EditNoteModal(onDismiss: (text: String) -> Unit) {
 
             )
         }
-    }
-
-    BackHandler(enabled = true) {
-        onDismiss(annotation.value)
     }
 
     LaunchedEffect(Unit) {

@@ -91,6 +91,10 @@ interface HighlightDao {
   @Query("SELECT * FROM highlight WHERE highlightId = :highlightId")
   fun findById(highlightId: String): Highlight?
 
+  // Server sync status is passed in here to work around Room compile-time query rules, but should always be NEEDS_UPDATE
+  @Query("UPDATE highlight SET annotation = :note, serverSyncStatus = :serverSyncStatus WHERE highlightId = :highlightId")
+  fun updateNote(highlightId: String, note: String, serverSyncStatus: Int = ServerSyncStatus.NEEDS_UPDATE.rawValue)
+
   @Update
   fun update(highlight: Highlight)
 }
