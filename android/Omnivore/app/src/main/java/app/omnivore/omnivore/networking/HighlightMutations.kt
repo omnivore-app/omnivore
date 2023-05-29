@@ -23,8 +23,8 @@ data class CreateHighlightParams(
    val `annotation`: String?
 ) {
   fun asCreateHighlightInput() = CreateHighlightInput(
-    type = type,
-    annotation = Optional.presentIfNotNull(`annotation`),
+    type = Optional.presentIfNotNull(type),
+    annotation = Optional.presentIfNotNull(annotation),
     articleId = articleId ?: "",
     id = id ?: "",
     patch = Optional.presentIfNotNull(patch),

@@ -51,29 +51,29 @@ suspend fun DataService.createWebHighlight(jsonString: String) {
 suspend fun DataService.createNoteHighlight(savedItemId: String, note: String) {
   val shortId = UUID.randomUUID().toString()
   val createHighlightId = UUID.randomUUID().toString()
-  val createHighlightParams = CreateHighlightParams(
-    type = HighlightType.NOTE,,
-    shortId = shortId,
-    id = createHighlightId,
-    quote = null,
-    patch = null,
-    articleId = null,
-    annotation = note,
-  )
+//  val createHighlightParams = CreateHighlightParams(
+//    type = HighlightType.NOTE,,
+//    shortId = shortId,
+//    id = createHighlightId,
+//    quote = null,
+//    patch = null,
+//    articleId = null,
+//    annotation = note,
+//  )
 
   withContext(Dispatchers.IO) {
     val highlight = Highlight(
       type = "HIGHLIGHT",
-      highlightId = createHighlightInput.id,
-      shortId = createHighlightInput.shortId,
-      quote = createHighlightInput.quote.getOrNull(),
+      highlightId = createHighlightId,
+      shortId = shortId,
+      quote = null,
       prefix = null,
       suffix = null,
-      patch = createHighlightInput.patch.getOrNull(),
-      annotation = createHighlightInput.annotation.getOrNull(),
+      patch =null,
+      annotation = note,
       createdAt = null,
       updatedAt = null,
-      createdByMe = false
+      createdByMe = true
     )
 
     highlight.serverSyncStatus = ServerSyncStatus.NEEDS_CREATION.rawValue
@@ -87,6 +87,7 @@ suspend fun DataService.createNoteHighlight(savedItemId: String, note: String) {
     db.savedItemAndHighlightCrossRefDao().insertAll(listOf(crossRef))
 
     val newHighlight = networker.createHighlight(input = CreateHighlightParams(
+       type = HighlightType.HIGHLIGHT,
        shortId = shortId,
        id = createHighlightId,
        quote = null,

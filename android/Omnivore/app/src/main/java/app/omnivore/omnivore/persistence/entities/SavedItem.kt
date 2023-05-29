@@ -142,6 +142,9 @@ interface SavedItemDao {
   @Query("DELETE FROM savedItem WHERE savedItemId = :itemID")
   fun deleteById(itemID: String)
 
+  @Query("DELETE FROM savedItem WHERE savedItemId in (:itemIDs)")
+  fun deleteByIds(itemIDs: List<String>)
+
   @Update
   fun update(savedItem: SavedItem)
 
