@@ -10,6 +10,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.TextFieldColors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -21,6 +22,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -43,7 +45,7 @@ import app.omnivore.omnivore.ui.library.*
 import dev.jeziellago.compose.markdowntext.MarkdownText
 import kotlinx.coroutines.launch
 import app.omnivore.omnivore.persistence.entities.Highlight
-
+import app.omnivore.omnivore.ui.theme.OmnivoreTheme
 
 
 fun notebookMD(notes: List<Highlight>, highlights: List<Highlight>): String {
@@ -179,7 +181,11 @@ fun EditNoteModal(onDismiss: (text: String) -> Unit) {
                     .padding(paddingValues)
                     .focusRequester(focusRequester)
                     .fillMaxSize(),
-                value = annotation.value, onValueChange = { annotation.value = it }
+                value = annotation.value, onValueChange = { annotation.value = it },
+                colors = TextFieldDefaults.textFieldColors(
+                    textColor = Color.White
+                )
+
             )
         }
     }
@@ -364,18 +370,20 @@ fun HighlightsList(item: SavedItemWithLabelsAndHighlights) {
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun BottomSheetUI(content: @Composable () -> Unit) {
-    Box(
-        modifier = Modifier
-            .wrapContentHeight()
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(topEnd = 20.dp, topStart = 20.dp))
-            .background(Color.White)
-            .statusBarsPadding()
-    ) {
-        Scaffold(
-        ) { paddingValues ->
-            Box(modifier = Modifier.fillMaxSize()) {
-                content()
+    OmnivoreTheme() {
+        Box(
+            modifier = Modifier
+                .wrapContentHeight()
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(topEnd = 20.dp, topStart = 20.dp))
+                .background(Color.White)
+                .statusBarsPadding()
+        ) {
+            Scaffold(
+            ) { paddingValues ->
+                Box(modifier = Modifier.fillMaxSize()) {
+                    content()
+                }
             }
         }
     }

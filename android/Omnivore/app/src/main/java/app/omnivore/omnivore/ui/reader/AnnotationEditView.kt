@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.unit.dp
@@ -121,13 +122,17 @@ fun AnnotationEditView(
         .padding(paddingValues)
         .fillMaxSize()
     ) {
-      TextField(
-        value = annotation.value,
-        onValueChange = { annotation.value = it },
-        modifier = Modifier
-          .focusRequester(focusRequester)
-          .fillMaxSize()
-      )
+        TextField(
+          value = annotation.value,
+          onValueChange = { annotation.value = it },
+          colors = TextFieldDefaults.textFieldColors(
+            textColor = Color.White,
+            containerColor = Color.Green,
+          ),
+          modifier = Modifier
+            .focusRequester(focusRequester)
+            .fillMaxSize()
+        )
     }
   }
 }
