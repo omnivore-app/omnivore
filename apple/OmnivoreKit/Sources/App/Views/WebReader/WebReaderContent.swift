@@ -14,6 +14,7 @@ struct WebReaderContent {
   let articleContent: ArticleContent
   let prefersHighContrastText: Bool
   let enableHighlightOnRelease: Bool
+  let justifyText: Bool
 
   init(
     item: LinkedItem,
@@ -24,7 +25,8 @@ struct WebReaderContent {
     maxWidthPercentage: Int,
     fontFamily: WebFont,
     prefersHighContrastText: Bool,
-    enableHighlightOnRelease: Bool
+    enableHighlightOnRelease: Bool,
+    justifyText: Bool
   ) {
     self.textFontSize = fontSize
     self.lineHeight = lineHeight
@@ -36,6 +38,7 @@ struct WebReaderContent {
     self.articleContent = articleContent
     self.prefersHighContrastText = prefersHighContrastText
     self.enableHighlightOnRelease = enableHighlightOnRelease
+    self.justifyText = justifyText
   }
 
   // swiftlint:disable line_length
@@ -91,6 +94,7 @@ struct WebReaderContent {
           window.fontFamily = "\(fontFamily.rawValue)"
           window.maxWidthPercentage = \(maxWidthPercentage)
           window.lineHeight = \(lineHeight)
+          window.justifyText = \(justifyText)
           window.prefersHighContrastFont = \(prefersHighContrastText)
           window.enableHighlightBar = \(isMacApp)
           window.highlightOnRelease = \(enableHighlightOnRelease)
