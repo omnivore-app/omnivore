@@ -127,9 +127,38 @@ public extension LinkedItem {
   }
 
   var sortedLabels: [LinkedItemLabel] {
-    labels.asArray(of: LinkedItemLabel.self).sorted {
-      ($0.name ?? "").lowercased() < ($1.name ?? "").lowercased()
+    sortedLabels(labels: labels.asArray(of: LinkedItemLabel.self))
+  }
+
+  func sortedLabels(labels: [LinkedItemLabel]?) -> [LinkedItemLabel] {
+    guard let labels = labels else {
+      return []
     }
+
+    var colors = [String: [LinkedItemLabel]]()
+    for label in labels {
+      if let color = label.color {
+        var list = colors[color] ?? []
+        list.append(label)
+        colors[color] = list.sorted(by: { ($0.name ?? "").localizedCompare($1.name ?? "") == .orderedAscending })
+      }
+    }
+
+    let sortedColors = Array(colors.keys).sorted(by: { leftLabel, rightLabel -> Bool in
+      let aname = colors[leftLabel]?.first?.name ?? leftLabel
+      let bname = colors[rightLabel]?.first?.name ?? rightLabel
+      return aname.localizedCompare(bname) == .orderedAscending
+    })
+
+    var result = [LinkedItemLabel]()
+    for key in sortedColors {
+      if let items = colors[key] {
+        let sorted = items.sorted(by: { ($0.name ?? "").localizedCompare($1.name ?? "") == .orderedAscending })
+        result.append(contentsOf: sorted)
+      }
+    }
+
+    return result
   }
 
   var sortedHighlights: [Highlight] {
