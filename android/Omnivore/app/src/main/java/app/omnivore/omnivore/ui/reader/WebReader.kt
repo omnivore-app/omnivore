@@ -32,8 +32,12 @@ import java.util.*
 @Composable
 fun WebReader(
   styledContent: String,
-  webReaderViewModel: WebReaderViewModel
+  webReaderViewModel: WebReaderViewModel,
+  currentTheme: Themes?
 ) {
+  val currentThemeKey = webReaderViewModel.currentThemeKey.observeAsState()
+  val currentTheme = Themes.values().find { it.themeKey == currentThemeKey.value }
+
   val javascriptActionLoopUUID: UUID by webReaderViewModel
     .javascriptActionLoopUUIDLiveData
     .observeAsState(UUID.randomUUID())
@@ -55,15 +59,11 @@ fun WebReader(
         settings.allowFileAccess = true
         settings.domStorageEnabled = true
 
-        alpha = 0.0f
+        alpha = 1.0f
+        viewModel?.showNavBar()
+        setBackgroundColor(0xff0000);
 
         webViewClient = object : WebViewClient() {
-          override fun onPageFinished(view: WebView?, url: String?) {
-            super.onPageFinished(view, url)
-            viewModel?.showNavBar()
-            view?.animate()?.alpha(1.0f)?.duration = 200
-          }
-
           override fun shouldOverrideUrlLoading(
             view: WebView?,
             request: WebResourceRequest?

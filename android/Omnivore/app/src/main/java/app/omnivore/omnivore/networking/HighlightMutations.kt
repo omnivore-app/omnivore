@@ -139,8 +139,6 @@ suspend fun Networker.createHighlight(input: CreateHighlightInput): Highlight? {
     val createdHighlight = result.data?.createHighlight?.onCreateHighlightSuccess?.highlight
 
     if (createdHighlight != null) {
-//      val updatedAtString = createdHighlight.highlightFields.updatedAt as? String
-
       return Highlight(
         type = createdHighlight.highlightFields.type.toString(),
         highlightId = createdHighlight.highlightFields.id,
@@ -150,8 +148,8 @@ suspend fun Networker.createHighlight(input: CreateHighlightInput): Highlight? {
         suffix = createdHighlight.highlightFields.suffix,
         patch = createdHighlight.highlightFields.patch,
         annotation = createdHighlight.highlightFields.annotation,
-        createdAt = null, // TODO: update gql query to get this
-        updatedAt = null, // TODO: fix updatedAtString?.let { LocalDate.parse(it) },
+        createdAt =  createdHighlight.highlightFields.createdAt.toString(),
+        updatedAt = createdHighlight.highlightFields.updatedAt.toString(),
         createdByMe = createdHighlight.highlightFields.createdByMe
       )
     } else {

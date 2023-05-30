@@ -3,7 +3,6 @@ package app.omnivore.omnivore.ui.reader
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.activity.compose.setContent
@@ -15,11 +14,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -49,7 +45,6 @@ import kotlin.math.roundToInt
 import androidx.compose.material3.Button
 import androidx.compose.ui.platform.LocalContext
 import app.omnivore.omnivore.ui.notebook.EditNoteModal
-
 
 @AndroidEntryPoint
 class WebReaderLoadingContainerActivity: ComponentActivity() {
@@ -116,7 +111,7 @@ enum class BottomSheetState(
   NONE(),
   PREFERENCES(),
   NOTEBOOK(),
-  ADDNOTE(),
+  EDITNOTE(),
   HIGHLIGHTNOTE(),
   LABELS(),
   LINK()
@@ -129,6 +124,8 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
                               onLibraryIconTap: (() -> Unit)? = null,
                               webReaderViewModel: WebReaderViewModel,
                               notebookViewModel: NotebookViewModel) {
+  val currentThemeKey = webReaderViewModel.currentThemeKey.observeAsState()
+  val currentTheme = Themes.values().find { it.themeKey == currentThemeKey.value }
   val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
   val bottomSheetState: BottomSheetState? by webReaderViewModel.bottomSheetStateLiveData.observeAsState(BottomSheetState.NONE)
 
@@ -155,7 +152,7 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
 
   val modalBottomSheetState = rememberModalBottomSheetState(
     initialValue = ModalBottomSheetValue.Hidden,
-    skipHalfExpanded = bottomSheetState == BottomSheetState.ADDNOTE,
+    skipHalfExpanded = bottomSheetState == BottomSheetState.EDITNOTE,
     confirmValueChange = {
       if (it == ModalBottomSheetValue.Hidden) {
         webReaderViewModel.resetBottomSheet()
@@ -164,6 +161,11 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
     }
   )
 
+  val showMenu = {
+    coroutineScope.launch {
+      modalBottomSheetState.show()
+    }
+  }
 
     when (bottomSheetState) {
       BottomSheetState.PREFERENCES -> {
@@ -173,35 +175,10 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
           }
         }
       }
-      BottomSheetState.NOTEBOOK -> {
-        coroutineScope.launch {
-          modalBottomSheetState.show()
-        }
-      }
-      BottomSheetState.ADDNOTE -> {
-        coroutineScope.launch {
-          modalBottomSheetState.show()
-        }
-      }
-      BottomSheetState.HIGHLIGHTNOTE -> {
-        coroutineScope.launch {
-          modalBottomSheetState.show()
-        }
-      }
-      BottomSheetState.LABELS -> {
-        coroutineScope.launch {
-          modalBottomSheetState.show()
-        }
-      }
-      BottomSheetState.LINK -> {
-        coroutineScope.launch {
-          modalBottomSheetState.show()
-        }
-      }
-      BottomSheetState.NONE -> {
-        coroutineScope.launch {
-          modalBottomSheetState.hide()
-        }
+      BottomSheetState.NOTEBOOK, BottomSheetState.EDITNOTE,
+      BottomSheetState.HIGHLIGHTNOTE, BottomSheetState.LABELS,
+      BottomSheetState.LINK,  -> {
+        showMenu()
       }
       else -> {
         coroutineScope.launch {
@@ -225,16 +202,17 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
         BottomSheetState.NOTEBOOK -> {
           webReaderParams?.let { params ->
             BottomSheetUI(title = "Notebook") {
-              NotebookView(savedItemId = params.item.savedItemId, viewModel = notebookViewModel, onEditArticleNotes = {
-                webReaderViewModel.setBottomSheet(BottomSheetState.ADDNOTE)
+              NotebookView(savedItemId = params.item.savedItemId, viewModel = notebookViewModel, onEditNote = {
+                notebookViewModel.highlightUnderEdit = it
+                webReaderViewModel.setBottomSheet(BottomSheetState.EDITNOTE)
               })
             }
           }
         }
-        BottomSheetState.ADDNOTE -> {
+        BottomSheetState.EDITNOTE -> {
           webReaderParams?.let { params ->
             EditNoteModal(
-              initialValue = null,
+              initialValue = notebookViewModel.highlightUnderEdit?.annotation,
               onDismiss = { save, note ->
                 if (save && note != null) {
                   coroutineScope.launch {
@@ -318,7 +296,8 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
         if (styledContent != null) {
           WebReader(
             styledContent = styledContent,
-            webReaderViewModel = webReaderViewModel
+            webReaderViewModel = webReaderViewModel,
+            currentTheme = currentTheme,
           )
         }
 

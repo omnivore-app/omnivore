@@ -13,7 +13,7 @@ data class Highlight(
   val type: String,
   var annotation: String?,
   val createdAt: String?,
-  val createdByMe: Boolean,
+  val createdByMe: Boolean = true,
   val markedForDeletion: Boolean = false,
   var patch: String?,
   var prefix: String?,
@@ -22,10 +22,6 @@ data class Highlight(
   var shortId: String,
   val suffix: String?,
   val updatedAt: String?
-
-  // has many SavedItemLabels (inverse: labels have many highlights)
-  // has one savedItem (inverse: savedItem has many highlights
-  // has a UserProfile (no inverse)
 )
 
 @Entity(

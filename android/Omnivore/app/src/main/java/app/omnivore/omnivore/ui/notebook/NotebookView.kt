@@ -3,14 +3,10 @@ package app.omnivore.omnivore.ui.notebook
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import androidx.activity.OnBackPressedCallback
-import androidx.activity.compose.BackHandler
-import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.TextFieldColors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -35,9 +31,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -77,7 +71,7 @@ fun notebookMD(notes: List<Highlight>, highlights: List<Highlight>): String {
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
-fun NotebookView(savedItemId: String, viewModel: NotebookViewModel, onEditArticleNotes: () -> Unit) {
+fun NotebookView(savedItemId: String, viewModel: NotebookViewModel, onEditNote: (note: Highlight?) -> Unit) {
     var isMenuOpen by remember {
         mutableStateOf(false)
     }
@@ -142,8 +136,8 @@ fun NotebookView(savedItemId: String, viewModel: NotebookViewModel, onEditArticl
                 .padding(top = paddingValues.calculateTopPadding())
         ) {
             savedItem.value?.let {
-                ArticleNotes(viewModel, it, onEditArticleNotes)
-                HighlightsList(it)
+                ArticleNotes(viewModel, it, onEditNote)
+                HighlightsList(it, onEditNote)
             }
         }
     }
@@ -202,7 +196,7 @@ fun EditNoteModal(initialValue: String?, onDismiss: (save: Boolean, text: String
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
-fun ArticleNotes(viewModel: NotebookViewModel, item: SavedItemWithLabelsAndHighlights, onEditArticleNotes: () -> Unit) {
+fun ArticleNotes(viewModel: NotebookViewModel, item: SavedItemWithLabelsAndHighlights, onEditNote: (note: Highlight?) -> Unit) {
     val notes = item.highlights?.filter { it.type == "NOTE" } ?: listOf()
 
     Column(modifier = Modifier
@@ -218,12 +212,13 @@ fun ArticleNotes(viewModel: NotebookViewModel, item: SavedItemWithLabelsAndHighl
                 fontSize = 14.sp,
                 style = TextStyle(lineHeight = 18.sp),
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
+                onClick = { onEditNote(note) }
             )
         }
         if (notes.isEmpty()) {
             Button(
                 onClick = {
-                    onEditArticleNotes()
+                    onEditNote(null)
                 },
                 modifier = Modifier
                     .padding(0.dp, end = 15.dp)
@@ -248,7 +243,7 @@ fun ArticleNotes(viewModel: NotebookViewModel, item: SavedItemWithLabelsAndHighl
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HighlightsList(item: SavedItemWithLabelsAndHighlights) {
+fun HighlightsList(item: SavedItemWithLabelsAndHighlights, onEditNote: (note: Highlight?) -> Unit) {
     val highlights = item.highlights?.filter { it.type == "HIGHLIGHT" } ?: listOf()
     val yellowColor = colorResource(R.color.cta_yellow)
 
@@ -265,98 +260,107 @@ fun HighlightsList(item: SavedItemWithLabelsAndHighlights) {
         Text("Highlights")
         Divider(modifier = Modifier.padding(bottom= 10.dp))
         highlights.forEach { highlight ->
-                var isMenuOpen by remember { mutableStateOf(false) }
+            var isMenuOpen by remember { mutableStateOf(false) }
 
-                Row(modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.End)
-                    .padding(0.dp)
-                ) {
-                    Spacer(Modifier.weight(1f))
-                    Box {
-                        IconButton(onClick = { isMenuOpen = true }) {
-                            Icon(
-                                imageVector = Icons.Default.MoreVert,
-                                contentDescription = null
-                            )
-                        }
-                        if (isMenuOpen) {
-                            DropdownMenu(
-                                expanded = isMenuOpen,
-                                onDismissRequest = { isMenuOpen = false }
-                            ) {
-                                DropdownMenuItem(
-                                    text = { Text("Copy") },
-                                    onClick = {
-                                        val clip = ClipData.newPlainText("highlight", highlight.quote)
-                                        clipboard?.let {
-                                            clipboard?.setPrimaryClip(clip)
-                                        } ?: run {
-                                            coroutineScope.launch {
-                                                snackBarHostState
-                                                    .showSnackbar("Highlight copied")
-                                            }
-                                        }
-                                        isMenuOpen = false
-                                    }
-                                )
-                            }
-                        }
-                    }
-                }
-
-                highlight.quote?.let {
-                    Row(modifier = Modifier
-                        .padding(start = 2.dp, end = 15.dp)
-                        .fillMaxWidth()
-                        .drawWithCache {
-                            onDrawWithContent {
-                                // draw behind the content the vertical line on the left
-                                drawLine(
-                                    color = yellowColor,
-                                    start = Offset.Zero,
-                                    end = Offset(0f, this.size.height),
-                                    strokeWidth = 10f
-                                )
-
-                                // draw the content
-                                drawContent()
-                            }
-                        }) {
-
-                        MarkdownText(
-                            modifier = Modifier
-                                .padding(start = 15.dp, end = 15.dp),
-                            markdown = it,
-                            fontSize = 14.sp,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            Row(modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.End)
+                .padding(0.dp)
+            ) {
+                Spacer(Modifier.weight(1f))
+                Box {
+                    IconButton(onClick = { isMenuOpen = true }) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = null
                         )
                     }
+                    if (isMenuOpen) {
+                        DropdownMenu(
+                            expanded = isMenuOpen,
+                            onDismissRequest = { isMenuOpen = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Copy") },
+                                onClick = {
+                                    val clip = ClipData.newPlainText("highlight", highlight.quote)
+                                    clipboard?.let {
+                                        clipboard?.setPrimaryClip(clip)
+                                    } ?: run {
+                                        coroutineScope.launch {
+                                            snackBarHostState
+                                                .showSnackbar("Highlight copied")
+                                        }
+                                    }
+                                    isMenuOpen = false
+                                }
+                            )
+                        }
+                    }
                 }
-                highlight.annotation?.let {
+            }
+
+            highlight.quote?.let {
+                Row(modifier = Modifier
+                    .padding(start = 2.dp, end = 15.dp)
+                    .fillMaxWidth()
+                    .drawWithCache {
+                        onDrawWithContent {
+                            // draw behind the content the vertical line on the left
+                            drawLine(
+                                color = yellowColor,
+                                start = Offset.Zero,
+                                end = Offset(0f, this.size.height),
+                                strokeWidth = 10f
+                            )
+
+                            // draw the content
+                            drawContent()
+                        }
+                    }) {
+
                     MarkdownText(
-                        // modifier = Modifier.padding(paddingValues),
+                        modifier = Modifier
+                            .padding(start = 15.dp, end = 15.dp),
                         markdown = it,
                         fontSize = 14.sp,
                         color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        )
-                } ?: run {
-//                    Surface(
-//                        modifier = Modifier
-//                            .padding(0.dp, end = 15.dp, top = 15.dp, bottom = 30.dp)
-//                            .fillMaxWidth(),
-//                        shape = androidx.compose.material.MaterialTheme.shapes.medium,
-//                        color = MaterialTheme.colorScheme.surfaceVariant
-//                    ) {
-//                        Row {
-//                            Text(
-//                                text = "Add Notes...",
-//                                style = androidx.compose.material.MaterialTheme.typography.subtitle2,
-//                                modifier = Modifier.padding(vertical = 10.dp, horizontal = 10.dp)
-//                            )
-//                        }
-//                    }
+                    )
                 }
+            }
+            highlight.annotation?.let {
+                MarkdownText(
+                    // modifier = Modifier.padding(paddingValues),
+                    markdown = it,
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    onClick = { onEditNote(highlight) },
+                    modifier = Modifier
+                        .padding(top = 15.dp),
+                    )
+            } ?: run {
+                Button(
+                    onClick = {
+                        onEditNote(highlight)
+                    },
+                    modifier = Modifier
+                        .padding(0.dp, top = 15.dp, end = 15.dp)
+                        .fillMaxWidth(),
+                    shape = androidx.compose.material.MaterialTheme.shapes.medium,
+                    colors = ButtonDefaults.buttonColors(
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                ) {
+                    Text(
+                        text = "Add Note...",
+                        style = androidx.compose.material.MaterialTheme.typography.subtitle2,
+                        modifier = Modifier
+                            .padding(vertical = 2.dp, horizontal = 0.dp),
+                    )
+                    Spacer(Modifier.weight(1f))
+                }
+            }
         }
         if (highlights.isEmpty()) {
             Text(
