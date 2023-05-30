@@ -184,7 +184,6 @@ fun EditNoteModal(initialValue: String?, onDismiss: (save: Boolean, text: String
                 colors = TextFieldDefaults.textFieldColors(
                     textColor = Color.White
                 )
-
             )
         }
     }
@@ -381,7 +380,7 @@ fun BottomSheetUI(content: @Composable () -> Unit) {
                 .wrapContentHeight()
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(topEnd = 20.dp, topStart = 20.dp))
-                .background(Color.White)
+                .background(Color.Transparent)
                 .statusBarsPadding()
         ) {
             Scaffold(

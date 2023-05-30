@@ -7,7 +7,7 @@
     <FrameLayout
         android:id="@+id/fragmentContainer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
 
     <com.pspdfkit.ui.PdfThumbnailBar
         android:id="@+id/thumbnailBar"
