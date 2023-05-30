@@ -32,9 +32,10 @@ import app.omnivore.omnivore.ui.notebook.ArticleNotes
 import app.omnivore.omnivore.ui.notebook.HighlightsList
 import app.omnivore.omnivore.ui.notebook.notebookMD
 import app.omnivore.omnivore.ui.theme.OmnivoreTheme
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.launch
 
-class AnnotationEditFragment : DialogFragment() {
+class AnnotationEditFragment : BottomSheetDialogFragment() {
   private var onSave: (String) -> Unit = {}
   private var onCancel: () -> Unit = {}
   private var initialAnnotation: String = ""
