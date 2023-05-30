@@ -328,6 +328,13 @@ class WebReaderViewModel @Inject constructor(
     cancelAnnotationEdit()
   }
 
+  fun cancelAnnotation() {
+    val script = "var event = new Event('dismissHighlight');document.dispatchEvent(event);"
+
+    enqueueScript(script)
+    cancelAnnotationEdit()
+  }
+
   fun cancelAnnotationEdit() {
     annotation = null
     resetBottomSheet()

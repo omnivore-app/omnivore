@@ -240,6 +240,8 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
               coroutineScope.launch {
                 if (save) {
                   webReaderViewModel.saveAnnotation(note ?: "")
+                } else {
+                  webReaderViewModel.cancelAnnotation()
                 }
                 webReaderViewModel.annotation = null
               }
