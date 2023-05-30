@@ -4,22 +4,19 @@ import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.graphics.Bitmap
+import android.graphics.Color
 import android.graphics.Rect
 import android.util.Log
 import android.view.*
 import android.view.View.OnScrollChangeListener
-import android.view.ViewTreeObserver.OnScrollChangedListener
 import android.webkit.JavascriptInterface
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.viewinterop.AndroidView
 import app.omnivore.omnivore.R
 import com.google.gson.Gson
@@ -35,9 +32,6 @@ fun WebReader(
   webReaderViewModel: WebReaderViewModel,
   currentTheme: Themes?
 ) {
-  val currentThemeKey = webReaderViewModel.currentThemeKey.observeAsState()
-  val currentTheme = Themes.values().find { it.themeKey == currentThemeKey.value }
-
   val javascriptActionLoopUUID: UUID by webReaderViewModel
     .javascriptActionLoopUUIDLiveData
     .observeAsState(UUID.randomUUID())
@@ -61,7 +55,9 @@ fun WebReader(
 
         alpha = 1.0f
         viewModel?.showNavBar()
-        setBackgroundColor(0xff0000);
+        currentTheme?.let { theme ->
+          setBackgroundColor(theme.backgroundColor.toInt());
+        }
 
         webViewClient = object : WebViewClient() {
           override fun shouldOverrideUrlLoading(

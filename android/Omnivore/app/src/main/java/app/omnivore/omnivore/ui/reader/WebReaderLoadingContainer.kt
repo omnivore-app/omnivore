@@ -214,13 +214,20 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
             EditNoteModal(
               initialValue = notebookViewModel.highlightUnderEdit?.annotation,
               onDismiss = { save, note ->
-                if (save && note != null) {
-                  coroutineScope.launch {
-                    notebookViewModel.addArticleNote(
-                      savedItemId = params.item.savedItemId,
-                      note = note
-                    )
+                coroutineScope.launch {
+                  if (save) {
+                    notebookViewModel.highlightUnderEdit?.let { highlight ->
+                      notebookViewModel.updateHighlightNote(highlight.highlightId, note)
+                    } ?: run {
+                      if (note != null) {
+                        notebookViewModel.addArticleNote(
+                          savedItemId = params.item.savedItemId,
+                          note = note
+                        )
+                      }
+                    }
                   }
+                  notebookViewModel.highlightUnderEdit = null
                 }
                 webReaderViewModel.setBottomSheet(BottomSheetState.NOTEBOOK)
             })
