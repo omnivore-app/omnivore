@@ -100,8 +100,8 @@ export class User extends BaseEntity {
   @OneToMany(() => UserArticle, (ua) => ua.user)
   articles!: UserArticle[]
 
-  @Column('text')
-  sourceUserId!: string
+  @Column({ type: 'text' })
+  source_user_id!: string
 
   @Column({ type: 'enum', enum: AuthProvider })
   source!: AuthProvider
