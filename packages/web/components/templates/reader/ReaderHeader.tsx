@@ -30,7 +30,7 @@ export function ReaderHeader(props: ReaderHeaderProps): JSX.Element {
           width: '100%',
           height: HEADER_HEIGHT,
           display: props.alwaysDisplayToolbar ? 'flex' : 'transparent',
-          pointerEvents: 'none',
+          pointerEvents: props.alwaysDisplayToolbar ? 'unset' : 'none',
           borderBottom: props.alwaysDisplayToolbar
             ? '1px solid $thBorderColor'
             : '1px solid transparent',
