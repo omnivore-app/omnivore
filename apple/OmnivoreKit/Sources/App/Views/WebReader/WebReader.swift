@@ -116,13 +116,15 @@ struct WebReader: PlatformViewRepresentable {
       (webView as? OmnivoreWebView)?.updateTitle(title: item.title ?? "")
       (webView as? OmnivoreWebView)?.updateJustifyText()
 
-      webView.backgroundColor = UIColor(ThemeManager.currentBgColor)
-      webView.tintColor = UIColor(ThemeManager.currentHighlightColor)
-      webView.underPageBackgroundColor = UIColor(ThemeManager.currentBgColor)
-      webView.scrollView.backgroundColor = UIColor(ThemeManager.currentBgColor)
-      webView.scrollView.indicatorStyle = ThemeManager.currentTheme.isDark ?
-        UIScrollView.IndicatorStyle.white :
-        UIScrollView.IndicatorStyle.black
+      #if os(iOS)
+        webView.backgroundColor = UIColor(ThemeManager.currentBgColor)
+        webView.tintColor = UIColor(ThemeManager.currentHighlightColor)
+        webView.underPageBackgroundColor = UIColor(ThemeManager.currentBgColor)
+        webView.scrollView.backgroundColor = UIColor(ThemeManager.currentBgColor)
+        webView.scrollView.indicatorStyle = ThemeManager.currentTheme.isDark ?
+          UIScrollView.IndicatorStyle.white :
+          UIScrollView.IndicatorStyle.black
+      #endif
     }
 
     if showNavBarActionID != context.coordinator.previousShowNavBarActionID {
