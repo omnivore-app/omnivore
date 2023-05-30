@@ -180,6 +180,15 @@ struct WebReader: PlatformViewRepresentable {
       }
     }()
 
+    let justifyText: Bool = {
+      let key = UserDefaultKey.justifyText.rawValue
+      if UserDefaults.standard.object(forKey: key) != nil {
+        return UserDefaults.standard.bool(forKey: key)
+      } else {
+        return false
+      }
+    }()
+
     let fontFamily = fontFamilyValue.flatMap { WebFont(rawValue: $0) } ?? .system
 
     let htmlString = WebReaderContent(
@@ -191,7 +200,8 @@ struct WebReader: PlatformViewRepresentable {
       maxWidthPercentage: maxWidthPercentage(),
       fontFamily: fontFamily,
       prefersHighContrastText: prefersHighContrastText,
-      enableHighlightOnRelease: enableHighlightOnRelease
+      enableHighlightOnRelease: enableHighlightOnRelease,
+      justifyText: justifyText
     )
     .styledContent
 

@@ -59,6 +59,12 @@ export enum StatusType {
   Pending = 'PENDING',
 }
 
+export enum AuthProvider {
+  Apple = 'APPLE',
+  Google = 'GOOGLE',
+  Email = 'EMAIL',
+}
+
 @Entity({ name: 'admin_user' })
 export class AdminUser extends BaseEntity {
   @PrimaryGeneratedColumn()
@@ -93,6 +99,12 @@ export class User extends BaseEntity {
 
   @OneToMany(() => UserArticle, (ua) => ua.user)
   articles!: UserArticle[]
+
+  @Column({ type: 'text' })
+  source_user_id!: string
+
+  @Column({ type: 'enum', enum: AuthProvider })
+  source!: AuthProvider
 }
 
 @Entity()

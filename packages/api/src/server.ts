@@ -50,7 +50,6 @@ import { userRouter } from './routers/user_router'
 import { sentryConfig } from './sentry'
 import { corsConfig } from './utils/corsConfig'
 import { buildLogger, buildLoggerTransport } from './utils/logger'
-import { getClaimsByToken } from './utils/auth'
 
 const PORT = process.env.PORT || 4000
 
@@ -198,6 +197,8 @@ const main = async (): Promise<void> => {
     const logger = buildLogger('app.dispatch')
     logger.notice(`🚀 Server ready at ${apollo.graphqlPath}`)
   })
+
+  listener.timeout = 1000 * 60 * 10 // 10 minutes
 
   // Avoid keepalive timeout-related connection drops manifesting in user-facing 502s.
   // See here: https://cloud.google.com/load-balancing/docs/https#timeouts_and_retries

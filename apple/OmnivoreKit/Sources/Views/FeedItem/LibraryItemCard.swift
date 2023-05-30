@@ -213,19 +213,8 @@ public struct LibraryItemCard: View {
   }
 
   var labels: some View {
-    ScrollView(.horizontal, showsIndicators: false) {
-      HStack {
-        ForEach(item.sortedLabels, id: \.self) {
-          TextChip(feedItemLabel: $0)
-        }
-        Spacer()
-      }
-    }.introspectScrollView { scrollView in
-      #if os(iOS)
-        scrollView.bounces = false
-      #endif
-    }
-    .padding(.top, 0)
+    LabelsFlowLayout(labels: item.sortedLabels)
+      .padding(.top, 0)
     #if os(macOS)
       .onTapGesture {
         tapHandler()

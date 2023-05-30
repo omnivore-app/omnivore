@@ -1,4 +1,5 @@
 import { diff_match_patch as DiffMatchPatch } from 'diff-match-patch'
+import { parseHTML } from 'linkedom'
 import { nanoid } from 'nanoid'
 import { v4 as uuidv4 } from 'uuid'
 import { interpolationSearch } from './interpolationSearch'
@@ -381,18 +382,35 @@ const fillHighlight = ({
   }
 }
 
+export function getArticleTextNodes(
+  document: Document
+): ArticleTextContent | null {
+  try {
+    const rootNode = document.getRootNode()
+    return getTextNodesBetween(rootNode, rootNode, rootNode)
+  } catch (error) {
+    console.log(error)
+    return null
+  }
+}
+
 export function makeHighlightNodeAttributes(
   id: string,
   patch: string,
-  document: Document
+  articleTextNodes: ArticleTextContent
 ) {
-  const rootNode = document.getRootNode()
+  const document = parseHTML('').document
+  const textNodes = articleTextNodes.textNodes
+  const { highlightTextStart, highlightTextEnd } = selectionOffsetsFromPatch(
+    articleTextNodes.articleText,
+    patch
+  )
 
-  const allArticleNodes = getTextNodesBetween(rootNode, rootNode, rootNode)
-  const { highlightTextStart, highlightTextEnd, textNodes, textNodeIndex } =
-    getPrefixAndSuffix(allArticleNodes, patch)
-
-  let startingTextNodeIndex = textNodeIndex
+  // Searching for the starting text node using interpolation search algorithm
+  let startingTextNodeIndex = interpolationSearch(
+    textNodes.map(({ startIndex: startIndex }) => startIndex),
+    highlightTextStart
+  )
   let quote = ''
 
   while (
