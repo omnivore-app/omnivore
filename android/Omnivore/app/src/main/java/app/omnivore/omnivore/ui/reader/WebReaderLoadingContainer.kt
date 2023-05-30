@@ -152,7 +152,7 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
 
   val modalBottomSheetState = rememberModalBottomSheetState(
     initialValue = ModalBottomSheetValue.Hidden,
-    skipHalfExpanded = bottomSheetState == BottomSheetState.EDITNOTE,
+    skipHalfExpanded = bottomSheetState == BottomSheetState.EDITNOTE || bottomSheetState == BottomSheetState.HIGHLIGHTNOTE,
     confirmValueChange = {
       if (it == ModalBottomSheetValue.Hidden) {
         webReaderViewModel.resetBottomSheet()
@@ -234,25 +234,18 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
           }
         }
         BottomSheetState.HIGHLIGHTNOTE -> {
-          webReaderViewModel.annotation?.let { annotation ->
-            BottomSheetUI(title = "Edit Note") {
-              AnnotationEditView(
-                initialAnnotation = annotation,
-                onSave = {
-                  webReaderViewModel.saveAnnotation(it)
-                  coroutineScope.launch {
-                    webReaderViewModel.resetBottomSheet()
-                  }
-                },
-                onCancel = {
-                  webReaderViewModel.cancelAnnotationEdit()
-                  coroutineScope.launch {
-                    webReaderViewModel.resetBottomSheet()
-                  }
+          EditNoteModal(
+            initialValue = webReaderViewModel.annotation,
+            onDismiss = { save, note ->
+              coroutineScope.launch {
+                if (save) {
+                  webReaderViewModel.saveAnnotation(note ?: "")
                 }
-              )
+                webReaderViewModel.annotation = null
+              }
+              webReaderViewModel.resetBottomSheet()
             }
-          }
+          )
         }
         BottomSheetState.LABELS -> {
           BottomSheetUI(title = "Notebook") {
