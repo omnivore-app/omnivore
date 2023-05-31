@@ -191,7 +191,7 @@ struct WebReader: PlatformViewRepresentable {
       }
     }()
 
-    let fontFamily = fontFamilyValue.flatMap { WebFont(rawValue: $0) } ?? .system
+    let fontFamily = fontFamilyValue.flatMap { WebFont(rawValue: $0) } ?? .atkinsonHyperlegible
 
     let htmlString = WebReaderContent(
       item: item,
