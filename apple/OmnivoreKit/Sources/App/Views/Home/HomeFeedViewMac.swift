@@ -92,7 +92,7 @@ import Views
         .navigationTitle("Home")
         .searchable(
           text: $viewModel.searchTerm,
-          placement: .toolbar
+          placement: .sidebar
         ) {
           if viewModel.searchTerm.isEmpty {
             Text(LocalText.inboxGeneric).searchCompletion("in:inbox ")
