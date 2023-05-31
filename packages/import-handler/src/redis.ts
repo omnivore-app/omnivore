@@ -2,6 +2,9 @@ import { readFileSync } from 'fs'
 import path from 'path'
 import { createClient } from 'redis'
 
+// explicitly create the return type of RedisClient
+type RedisClient = ReturnType<typeof createClient>
+
 // load lua script
 export const lua = {
   script: readFileSync(
@@ -11,7 +14,10 @@ export const lua = {
   sha: '',
 }
 
-export const createRedisClient = async (url?: string, cert?: string) => {
+export const createRedisClient = async (
+  url?: string,
+  cert?: string
+): Promise<RedisClient> => {
   const redisClient = createClient({
     url,
     socket: {
