@@ -15,6 +15,8 @@ import Views
     @Binding var justifyText: Bool
     @Binding var currentThemeName: String
 
+    @Environment(\.openURL) var openURL
+
     public var fontSizeButtons: some View {
       Group {
         Button(
@@ -133,6 +135,13 @@ import Views
     }
 
     public var body: some Commands {
+      CommandGroup(after: .appInfo) {
+        Button("Open Online", action: {
+          if let url = URL(string: "https://omnivore.app/") {
+            NSWorkspace.shared.open(url)
+          }
+        })
+      }
       CommandMenu("Reader Display") {
         spacingButtons
 

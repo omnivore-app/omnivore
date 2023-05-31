@@ -82,6 +82,7 @@ struct ProfileView: View {
         innerBody
       }
       .listStyle(InsetListStyle())
+      .frame(minWidth: 400, minHeight: 400)
     #endif
   }
 

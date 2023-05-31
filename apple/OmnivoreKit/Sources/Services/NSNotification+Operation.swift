@@ -9,6 +9,7 @@ public extension NSNotification {
   static let OperationFailure = Notification.Name("OperationFailure")
   static let ReaderSettingsChanged = Notification.Name("ReaderSettingsChanged")
   static let SpeakingReaderItem = Notification.Name("SpeakingReaderItem")
+  static let DisplayProfile = Notification.Name("DisplayProfile")
 
   static var pushFeedItemPublisher: NotificationCenter.Publisher {
     NotificationCenter.default.publisher(for: PushJSONArticle)
@@ -32,6 +33,10 @@ public extension NSNotification {
 
   static var speakingReaderItemPublisher: NotificationCenter.Publisher {
     NotificationCenter.default.publisher(for: SpeakingReaderItem)
+  }
+
+  static var displayProfilePublisher: NotificationCenter.Publisher {
+    NotificationCenter.default.publisher(for: DisplayProfile)
   }
 
   internal var operationMessage: String? {
@@ -67,5 +72,9 @@ public extension NSNotification {
 
   static func readerSettingsChanged() {
     NotificationCenter.default.post(name: NSNotification.ReaderSettingsChanged, object: nil)
+  }
+
+  static func displayProfile() {
+    NotificationCenter.default.post(name: NSNotification.DisplayProfile, object: nil)
   }
 }

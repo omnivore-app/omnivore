@@ -115,7 +115,7 @@
 "menuDebugApiEnv" = "API Environment:";
 
 // Navigation
-"navigationSelectLink" = "Select a link from the feed";
+"navigationSelectLink" = "Select a link from your library";
 "navigationSelectSidebarToggle" = "Toggle sidebar";
 
 // Welcome View

@@ -11,6 +11,7 @@ import Views
     @EnvironmentObject var audioController: AudioController
     @State private var itemToRemove: LinkedItem?
     @State private var confirmationShown = false
+    @State private var presentProfileSheet = false
 
     @ObservedObject var viewModel: HomeFeedViewModel
 
@@ -143,6 +144,12 @@ import Views
       }
       .sheet(item: $viewModel.itemUnderTitleEdit) { item in
         LinkedItemMetadataEditView(item: item)
+      }
+      .sheet(isPresented: $presentProfileSheet) {
+        ProfileView()
+      }
+      .onReceive(NSNotification.displayProfilePublisher) { _ in
+        presentProfileSheet = true
       }
       .task {
         if viewModel.items.isEmpty {
