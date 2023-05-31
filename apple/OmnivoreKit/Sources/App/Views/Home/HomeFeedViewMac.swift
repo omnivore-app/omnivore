@@ -35,59 +35,58 @@ import Views
           }
         }
         List {
-          Section {
-            ForEach(viewModel.items) { item in
-              MacFeedCardNavigationLink(
-                item: item,
-                viewModel: viewModel
+          ForEach(viewModel.items) { item in
+            MacFeedCardNavigationLink(
+              item: item,
+              viewModel: viewModel
+            )
+            .contextMenu {
+              Button(
+                action: { viewModel.itemUnderTitleEdit = item },
+                label: { Label("Edit Info", systemImage: "info.circle") }
               )
-              .contextMenu {
-                Button(
-                  action: { viewModel.itemUnderTitleEdit = item },
-                  label: { Label("Edit Info", systemImage: "info.circle") }
-                )
-                Button(
-                  action: { viewModel.itemUnderLabelEdit = item },
-                  label: { Label(item.labels?.count == 0 ? "Add Labels" : "Edit Labels", systemImage: "tag") }
-                )
-                Button(action: {
-                  withAnimation(.linear(duration: 0.4)) {
-                    viewModel.setLinkArchived(
-                      dataService: dataService,
-                      objectID: item.objectID,
-                      archived: !item.isArchived
-                    )
-                  }
-                }, label: {
-                  Label(
-                    item.isArchived ? "Unarchive" : "Archive",
-                    systemImage: item.isArchived ? "tray.and.arrow.down.fill" : "archivebox"
+              Button(
+                action: { viewModel.itemUnderLabelEdit = item },
+                label: { Label(item.labels?.count == 0 ? "Add Labels" : "Edit Labels", systemImage: "tag") }
+              )
+              Button(action: {
+                withAnimation(.linear(duration: 0.4)) {
+                  viewModel.setLinkArchived(
+                    dataService: dataService,
+                    objectID: item.objectID,
+                    archived: !item.isArchived
                   )
-                })
-                Button(
-                  action: {
-                    itemToRemove = item
-                    confirmationShown = true
-                  },
-                  label: { Label("Delete", systemImage: "trash") }
+                }
+              }, label: {
+                Label(
+                  item.isArchived ? "Unarchive" : "Archive",
+                  systemImage: item.isArchived ? "tray.and.arrow.down.fill" : "archivebox"
                 )
-                if FeatureFlag.enableSnooze {
-                  Button {
-                    viewModel.itemToSnoozeID = item.id
-                    viewModel.snoozePresented = true
-                  } label: {
-                    Label { Text(LocalText.genericSnooze) } icon: { Image.moon }
-                  }
+              })
+              Button(
+                action: {
+                  itemToRemove = item
+                  confirmationShown = true
+                },
+                label: { Label("Delete", systemImage: "trash") }
+              )
+              if FeatureFlag.enableSnooze {
+                Button {
+                  viewModel.itemToSnoozeID = item.id
+                  viewModel.snoozePresented = true
+                } label: {
+                  Label { Text(LocalText.genericSnooze) } icon: { Image.moon }
                 }
               }
             }
+            Divider().padding(5)
           }
 
           if viewModel.isLoading {
             LoadingSection()
           }
         }
-        .listStyle(PlainListStyle())
+        // .listStyle(PlainListStyle())
         .navigationTitle("Home")
         .searchable(
           text: $viewModel.searchTerm,

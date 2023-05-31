@@ -28,9 +28,7 @@ struct MacFeedCardNavigationLink: View {
       .onAppear {
         Task { await viewModel.itemAppeared(item: item, dataService: dataService) }
       }
-      FeedCard(item: item, viewer: dataService.currentViewer) {
-        viewModel.selectedLinkItem = item.objectID
-      }
+      LibraryItemCard(item: item, viewer: dataService.currentViewer)
     }
   }
 }
