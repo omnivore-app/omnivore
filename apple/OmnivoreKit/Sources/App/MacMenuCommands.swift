@@ -9,10 +9,11 @@ import Views
     )
     @AppStorage(UserDefaultKey.preferredWebLineSpacing.rawValue) var storedLineSpacing = 150
     @AppStorage(UserDefaultKey.preferredWebMaxWidthPercentage.rawValue) var storedMaxWidthPercentage = 100
-    @AppStorage(UserDefaultKey.enableHighlightOnRelease.rawValue) var enableHighlightOnRelease = false
 
     @Binding var preferredFont: String
     @Binding var prefersHighContrastText: Bool
+    @Binding var justifyText: Bool
+    @Binding var currentThemeName: String
 
     public var fontSizeButtons: some View {
       Group {
@@ -85,10 +86,14 @@ import Views
 
     public init(
       preferredFont: Binding<String>,
-      prefersHighContrastText: Binding<Bool>
+      prefersHighContrastText: Binding<Bool>,
+      justifyText: Binding<Bool>,
+      currentThemeName: Binding<String>
     ) {
       self._preferredFont = preferredFont
       self._prefersHighContrastText = prefersHighContrastText
+      self._justifyText = justifyText
+      self._currentThemeName = currentThemeName
     }
 
     public var body: some Commands {
@@ -111,14 +116,22 @@ import Views
           }
         }
 
+        Picker(selection: $currentThemeName, label: Text("Theme")) {
+          ForEach(Theme.allCases, id: \.self) { theme in
+            Text(theme.rawValue).tag(theme.rawValue).tag(theme.rawValue)
+          }
+        }.onChange(of: currentThemeName) { _ in
+          NSNotification.readerSettingsChanged()
+        }
+
         Toggle(
           isOn: $prefersHighContrastText,
           label: { Text(LocalText.genericHighContrastText) }
         )
 
         Toggle(
-          isOn: $enableHighlightOnRelease,
-          label: { Text(LocalText.genericHighContrastText) }
+          isOn: $justifyText,
+          label: { Text(LocalText.enableJustifyText) }
         )
       }
     }

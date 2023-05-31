@@ -35,6 +35,8 @@ import Views
           }
         }
         List {
+          Spacer(minLength: 10)
+
           ForEach(viewModel.items) { item in
             MacFeedCardNavigationLink(
               item: item,
