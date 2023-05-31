@@ -163,7 +163,8 @@
 "genericLoading" = "Loading...";
 "genericFontFamily" = "Font Family";
 "genericHighContrastText" = "High Contrast Text";
-"enableHighlightOnReleaseText" = "Auto Highlight Mode:";
+"enableHighlightOnReleaseText" = "Auto Highlight Mode";
+"enableJustifyText" = "Justify Text";
 "genericFont" = "Font";
 "genericHighlight" = "Highlight";
 "labelsGeneric" = "Labels";
