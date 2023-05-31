@@ -1,5 +1,6 @@
 package app.omnivore.omnivore.persistence.entities
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
 import app.omnivore.omnivore.models.ServerSyncStatus
 import com.google.gson.annotations.SerializedName
@@ -12,7 +13,7 @@ data class Highlight(
   val type: String,
   var annotation: String?,
   val createdAt: String?,
-  val createdByMe: Boolean,
+  val createdByMe: Boolean = true,
   val markedForDeletion: Boolean = false,
   var patch: String?,
   var prefix: String?,
@@ -21,10 +22,6 @@ data class Highlight(
   var shortId: String,
   val suffix: String?,
   val updatedAt: String?
-
-  // has many SavedItemLabels (inverse: labels have many highlights)
-  // has one savedItem (inverse: savedItem has many highlights
-  // has a UserProfile (no inverse)
 )
 
 @Entity(
@@ -89,6 +86,10 @@ interface HighlightDao {
 
   @Query("SELECT * FROM highlight WHERE highlightId = :highlightId")
   fun findById(highlightId: String): Highlight?
+
+  // Server sync status is passed in here to work around Room compile-time query rules, but should always be NEEDS_UPDATE
+  @Query("UPDATE highlight SET annotation = :note, serverSyncStatus = :serverSyncStatus WHERE highlightId = :highlightId")
+  fun updateNote(highlightId: String, note: String, serverSyncStatus: Int = ServerSyncStatus.NEEDS_UPDATE.rawValue)
 
   @Update
   fun update(highlight: Highlight)

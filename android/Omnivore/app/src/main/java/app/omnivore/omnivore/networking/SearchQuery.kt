@@ -64,7 +64,7 @@ suspend fun Networker.search(
             savedItemLabelId = label.labelFields.id,
             name = label.labelFields.name,
             color = label.labelFields.color,
-            createdAt = null,
+            createdAt = label.labelFields.createdAt as String?,
             labelDescription = null
           )
         },
@@ -81,7 +81,7 @@ suspend fun Networker.search(
             shortId = highlight.highlightFields.shortId,
             suffix  = highlight.highlightFields.suffix,
             updatedAt = highlight.highlightFields.updatedAt as String?,
-            createdAt = null,
+            createdAt = highlight.highlightFields.createdAt as String?,
           )
         }
       )

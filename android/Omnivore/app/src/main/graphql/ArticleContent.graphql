@@ -53,6 +53,7 @@ fragment HighlightFields on Highlight {
   patch
   annotation
   createdByMe
+  createdAt
   updatedAt
   sharedAt
 }

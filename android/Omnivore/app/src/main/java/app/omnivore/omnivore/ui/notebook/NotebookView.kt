@@ -3,7 +3,6 @@ package app.omnivore.omnivore.ui.notebook
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,12 +18,16 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -38,7 +41,7 @@ import app.omnivore.omnivore.ui.library.*
 import dev.jeziellago.compose.markdowntext.MarkdownText
 import kotlinx.coroutines.launch
 import app.omnivore.omnivore.persistence.entities.Highlight
-
+import app.omnivore.omnivore.ui.theme.OmnivoreTheme
 
 
 fun notebookMD(notes: List<Highlight>, highlights: List<Highlight>): String {
@@ -68,15 +71,12 @@ fun notebookMD(notes: List<Highlight>, highlights: List<Highlight>): String {
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
-fun NotebookView(savedItemId: String, viewModel: NotebookViewModel) {
+fun NotebookView(savedItemId: String, viewModel: NotebookViewModel, onEditNote: (note: Highlight?) -> Unit) {
     var isMenuOpen by remember {
         mutableStateOf(false)
     }
     val savedItem = viewModel.getLibraryItemById(savedItemId).observeAsState()
     val scrollState = rememberScrollState()
-    val modalBottomSheetState = rememberModalBottomSheetState(
-        ModalBottomSheetValue.Hidden,
-    )
     val coroutineScope = rememberCoroutineScope()
     val snackBarHostState = remember { SnackbarHostState() }
     val clipboard: ClipboardManager? =
@@ -85,69 +85,59 @@ fun NotebookView(savedItemId: String, viewModel: NotebookViewModel) {
     val notes = savedItem.value?.highlights?.filter { it.type == "NOTE" } ?: listOf()
     val highlights = savedItem.value?.highlights?.filter { it.type == "HIGHLIGHT" } ?: listOf()
 
-    ModalBottomSheetLayout(
-        sheetBackgroundColor = Color.Transparent,
-        sheetState = modalBottomSheetState,
-        sheetContent = {
-       //     EditNoteModal()
-            Spacer(modifier = Modifier.weight(1.0F))
-        }
-    ) {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = { Text("Notebook") },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.background
-                    ),
-                    actions = {
-                        Box {
-                            IconButton(onClick = {
-                                isMenuOpen = true
-                            }) {
-                                Icon(
-                                    imageVector = Icons.Default.MoreVert,
-                                    contentDescription = null
-                                )
-                            }
-                            if (isMenuOpen) {
-                                DropdownMenu(
-                                    expanded = isMenuOpen,
-                                    onDismissRequest = { isMenuOpen = false }
-                                ) {
-                                    DropdownMenuItem(
-                                        text = { Text("Copy") },
-                                        onClick = {
-                                            val clip = ClipData.newPlainText("notebook", notebookMD(notes, highlights))
-                                            clipboard?.let {
-                                                clipboard?.setPrimaryClip(clip)
-                                            } ?: run {
-                                                coroutineScope.launch {
-                                                    snackBarHostState
-                                                        .showSnackbar("Notebook copied")
-                                                }
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Notebook") },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                ),
+                actions = {
+                    Box {
+                        IconButton(onClick = {
+                            isMenuOpen = true
+                        }) {
+                            Icon(
+                                imageVector = Icons.Default.MoreVert,
+                                contentDescription = null
+                            )
+                        }
+                        if (isMenuOpen) {
+                            DropdownMenu(
+                                expanded = isMenuOpen,
+                                onDismissRequest = { isMenuOpen = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text("Copy") },
+                                    onClick = {
+                                        val clip = ClipData.newPlainText("notebook", notebookMD(notes, highlights))
+                                        clipboard?.let {
+                                            clipboard?.setPrimaryClip(clip)
+                                        } ?: run {
+                                            coroutineScope.launch {
+                                                snackBarHostState
+                                                    .showSnackbar("Notebook copied")
                                             }
-                                            isMenuOpen = false
                                         }
-                                    )
-                                }
+                                        isMenuOpen = false
+                                    }
+                                )
                             }
                         }
                     }
-                )
-            }
-        ) { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .verticalScroll(scrollState)
-                    .fillMaxSize()
-            ) {
-                savedItem.value?.let {
-                    if (notes.isNotEmpty()) {
-                        ArticleNotes(it)
-                    }
-                    HighlightsList(it)
                 }
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .verticalScroll(scrollState)
+                .fillMaxSize()
+                .padding(top = paddingValues.calculateTopPadding())
+        ) {
+            savedItem.value?.let {
+                ArticleNotes(viewModel, it, onEditNote)
+                HighlightsList(it, onEditNote)
             }
         }
     }
@@ -155,28 +145,31 @@ fun NotebookView(savedItemId: String, viewModel: NotebookViewModel) {
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
-fun EditNoteModal() {
-    val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
-    val annotation = remember { mutableStateOf("") }
+fun EditNoteModal(initialValue: String?, onDismiss: (save: Boolean, text: String?) -> Unit) {
+    val focusRequester = remember { FocusRequester() }
+    val annotation = remember { mutableStateOf(initialValue ?: "") }
 
     BottomSheetUI() {
         Scaffold(
             topBar = {
-                TopAppBar(
+                CenterAlignedTopAppBar(
                     title = { Text("Note") },
                     modifier = Modifier.statusBarsPadding(),
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.background
                     ),
                     navigationIcon = {
-                        IconButton(onClick = {
-                            onBackPressedDispatcher?.onBackPressed()
+                        TextButton(onClick = {
+                            onDismiss(false, initialValue)
                         }) {
-                            Icon(
-                                imageVector = androidx.compose.material.icons.Icons.Filled.ArrowBack,
-                                modifier = Modifier,
-                                contentDescription = "Back"
-                            )
+                            Text(text = "Cancel")
+                        }
+                    },
+                    actions = {
+                        TextButton(onClick = {
+                            onDismiss(true, annotation.value)
+                        }) {
+                            Text(text = "Save")
                         }
                     }
                 )
@@ -185,26 +178,30 @@ fun EditNoteModal() {
             TextField(
                 modifier = Modifier
                     .padding(paddingValues)
+                    .focusRequester(focusRequester)
                     .fillMaxSize(),
-                value = annotation.value, onValueChange = { annotation.value = it }
+                value = annotation.value, onValueChange = { annotation.value = it },
+                colors = TextFieldDefaults.textFieldColors(
+                    textColor = Color.White
+                )
             )
         }
+    }
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
-fun ArticleNotes(item: SavedItemWithLabelsAndHighlights) {
+fun ArticleNotes(viewModel: NotebookViewModel, item: SavedItemWithLabelsAndHighlights, onEditNote: (note: Highlight?) -> Unit) {
     val notes = item.highlights?.filter { it.type == "NOTE" } ?: listOf()
-    val showDialog = remember { mutableStateOf(false) }
-    val modalBottomSheetState = rememberModalBottomSheetState(
-        ModalBottomSheetValue.Expanded,
-    )
-    val annotation = remember { mutableStateOf("") }
 
     Column(modifier = Modifier
         .fillMaxWidth()
         .padding(start = 15.dp)
+        .padding(top = 20.dp, bottom = 50.dp)
     ) {
         Text("Article Notes")
         Divider(modifier = Modifier.padding(bottom= 15.dp))
@@ -214,14 +211,13 @@ fun ArticleNotes(item: SavedItemWithLabelsAndHighlights) {
                 fontSize = 14.sp,
                 style = TextStyle(lineHeight = 18.sp),
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
+                onClick = { onEditNote(note) }
             )
         }
         if (notes.isEmpty()) {
             Button(
                 onClick = {
-//                    viewModelScope.launch {
-//                        datastoreRepo.clearValue(DatastoreKeys.omnivorePendingUserToken)
-//                    }
+                    onEditNote(null)
                 },
                 modifier = Modifier
                     .padding(0.dp, end = 15.dp)
@@ -232,12 +228,12 @@ fun ArticleNotes(item: SavedItemWithLabelsAndHighlights) {
                     containerColor = MaterialTheme.colorScheme.surfaceVariant
                 )
             ) {
-//                Text(
-//                    text = "Add Notes...",
-//                    style = androidx.compose.material.MaterialTheme.typography.subtitle2,
-//                    modifier = Modifier
-//                        .padding(vertical = 2.dp, horizontal = 0.dp),
-//                )
+                Text(
+                    text = "Add Notes...",
+                    style = androidx.compose.material.MaterialTheme.typography.subtitle2,
+                    modifier = Modifier
+                        .padding(vertical = 2.dp, horizontal = 0.dp),
+                )
                 Spacer(Modifier.weight(1f))
             }
         }
@@ -246,7 +242,7 @@ fun ArticleNotes(item: SavedItemWithLabelsAndHighlights) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HighlightsList(item: SavedItemWithLabelsAndHighlights) {
+fun HighlightsList(item: SavedItemWithLabelsAndHighlights, onEditNote: (note: Highlight?) -> Unit) {
     val highlights = item.highlights?.filter { it.type == "HIGHLIGHT" } ?: listOf()
     val yellowColor = colorResource(R.color.cta_yellow)
 
@@ -263,98 +259,107 @@ fun HighlightsList(item: SavedItemWithLabelsAndHighlights) {
         Text("Highlights")
         Divider(modifier = Modifier.padding(bottom= 10.dp))
         highlights.forEach { highlight ->
-                var isMenuOpen by remember { mutableStateOf(false) }
+            var isMenuOpen by remember { mutableStateOf(false) }
 
-                Row(modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.End)
-                    .padding(0.dp)
-                ) {
-                    Spacer(Modifier.weight(1f))
-                    Box {
-                        IconButton(onClick = { isMenuOpen = true }) {
-                            Icon(
-                                imageVector = Icons.Default.MoreVert,
-                                contentDescription = null
-                            )
-                        }
-                        if (isMenuOpen) {
-                            DropdownMenu(
-                                expanded = isMenuOpen,
-                                onDismissRequest = { isMenuOpen = false }
-                            ) {
-                                DropdownMenuItem(
-                                    text = { Text("Copy") },
-                                    onClick = {
-                                        val clip = ClipData.newPlainText("highlight", highlight.quote)
-                                        clipboard?.let {
-                                            clipboard?.setPrimaryClip(clip)
-                                        } ?: run {
-                                            coroutineScope.launch {
-                                                snackBarHostState
-                                                    .showSnackbar("Highlight copied")
-                                            }
-                                        }
-                                        isMenuOpen = false
-                                    }
-                                )
-                            }
-                        }
-                    }
-                }
-
-                highlight.quote?.let {
-                    Row(modifier = Modifier
-                        .padding(start = 2.dp, end = 15.dp)
-                        .fillMaxWidth()
-                        .drawWithCache {
-                            onDrawWithContent {
-                                // draw behind the content the vertical line on the left
-                                drawLine(
-                                    color = yellowColor,
-                                    start = Offset.Zero,
-                                    end = Offset(0f, this.size.height),
-                                    strokeWidth = 10f
-                                )
-
-                                // draw the content
-                                drawContent()
-                            }
-                        }) {
-
-                        MarkdownText(
-                            modifier = Modifier
-                                .padding(start = 15.dp, end = 15.dp),
-                            markdown = it,
-                            fontSize = 14.sp,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            Row(modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.End)
+                .padding(0.dp)
+            ) {
+                Spacer(Modifier.weight(1f))
+                Box {
+                    IconButton(onClick = { isMenuOpen = true }) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = null
                         )
                     }
+                    if (isMenuOpen) {
+                        DropdownMenu(
+                            expanded = isMenuOpen,
+                            onDismissRequest = { isMenuOpen = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Copy") },
+                                onClick = {
+                                    val clip = ClipData.newPlainText("highlight", highlight.quote)
+                                    clipboard?.let {
+                                        clipboard?.setPrimaryClip(clip)
+                                    } ?: run {
+                                        coroutineScope.launch {
+                                            snackBarHostState
+                                                .showSnackbar("Highlight copied")
+                                        }
+                                    }
+                                    isMenuOpen = false
+                                }
+                            )
+                        }
+                    }
                 }
-                highlight.annotation?.let {
+            }
+
+            highlight.quote?.let {
+                Row(modifier = Modifier
+                    .padding(start = 2.dp, end = 15.dp)
+                    .fillMaxWidth()
+                    .drawWithCache {
+                        onDrawWithContent {
+                            // draw behind the content the vertical line on the left
+                            drawLine(
+                                color = yellowColor,
+                                start = Offset.Zero,
+                                end = Offset(0f, this.size.height),
+                                strokeWidth = 10f
+                            )
+
+                            // draw the content
+                            drawContent()
+                        }
+                    }) {
+
                     MarkdownText(
-                        // modifier = Modifier.padding(paddingValues),
+                        modifier = Modifier
+                            .padding(start = 15.dp, end = 15.dp),
                         markdown = it,
                         fontSize = 14.sp,
                         color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        )
-                } ?: run {
-//                    Surface(
-//                        modifier = Modifier
-//                            .padding(0.dp, end = 15.dp, top = 15.dp, bottom = 30.dp)
-//                            .fillMaxWidth(),
-//                        shape = androidx.compose.material.MaterialTheme.shapes.medium,
-//                        color = MaterialTheme.colorScheme.surfaceVariant
-//                    ) {
-//                        Row {
-//                            Text(
-//                                text = "Add Notes...",
-//                                style = androidx.compose.material.MaterialTheme.typography.subtitle2,
-//                                modifier = Modifier.padding(vertical = 10.dp, horizontal = 10.dp)
-//                            )
-//                        }
-//                    }
+                    )
                 }
+            }
+            highlight.annotation?.let {
+                MarkdownText(
+                    // modifier = Modifier.padding(paddingValues),
+                    markdown = it,
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    onClick = { onEditNote(highlight) },
+                    modifier = Modifier
+                        .padding(top = 15.dp),
+                    )
+            } ?: run {
+                Button(
+                    onClick = {
+                        onEditNote(highlight)
+                    },
+                    modifier = Modifier
+                        .padding(0.dp, top = 15.dp, end = 15.dp)
+                        .fillMaxWidth(),
+                    shape = androidx.compose.material.MaterialTheme.shapes.medium,
+                    colors = ButtonDefaults.buttonColors(
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                ) {
+                    Text(
+                        text = "Add Note...",
+                        style = androidx.compose.material.MaterialTheme.typography.subtitle2,
+                        modifier = Modifier
+                            .padding(vertical = 2.dp, horizontal = 0.dp),
+                    )
+                    Spacer(Modifier.weight(1f))
+                }
+            }
         }
         if (highlights.isEmpty()) {
             Text(
@@ -366,18 +371,25 @@ fun HighlightsList(item: SavedItemWithLabelsAndHighlights) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
-private fun BottomSheetUI(content: @Composable () -> Unit) {
-    Box(
-        modifier = Modifier
-            .wrapContentHeight()
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(topEnd = 20.dp, topStart = 20.dp))
-            .background(Color.White)
-            .statusBarsPadding()
-            .padding(top = 20.dp)
-    ) {
-        content()
+fun BottomSheetUI(content: @Composable () -> Unit) {
+    OmnivoreTheme() {
+        Box(
+            modifier = Modifier
+                .wrapContentHeight()
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(topEnd = 20.dp, topStart = 20.dp))
+                .background(Color.Transparent)
+                .statusBarsPadding()
+        ) {
+            Scaffold(
+            ) { paddingValues ->
+                Box(modifier = Modifier.fillMaxSize()) {
+                    content()
+                }
+            }
+        }
     }
 }
 
