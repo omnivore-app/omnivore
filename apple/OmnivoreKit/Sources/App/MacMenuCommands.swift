@@ -84,6 +84,26 @@ import Views
       }
     }
 
+    public var resetButton: some View {
+      Group {
+        Button(
+          action: {
+            storedLineSpacing = max(storedLineSpacing - 25, 100)
+
+            ThemeManager.currentThemeName = Theme.system.rawValue
+            storedFontSize = 16
+            storedLineSpacing = 150
+            storedMaxWidthPercentage = 80
+            preferredFont = WebFont.inter.rawValue
+            prefersHighContrastText = true
+
+            NSNotification.readerSettingsChanged()
+          },
+          label: { Text("Reset") }
+        )
+      }
+    }
+
     public init(
       preferredFont: Binding<String>,
       prefersHighContrastText: Binding<Bool>,
@@ -96,8 +116,8 @@ import Views
       self._currentThemeName = currentThemeName
     }
 
-    public var body: some Commands {
-      CommandMenu("Reader Display") {
+    var spacingButtons: some View {
+      Group {
         fontSizeButtons
 
         Divider()
@@ -109,6 +129,12 @@ import Views
         lineSpacingButtons
 
         Divider()
+      }
+    }
+
+    public var body: some Commands {
+      CommandMenu("Reader Display") {
+        spacingButtons
 
         Picker(selection: $preferredFont, label: Text(LocalText.genericFontFamily)) {
           ForEach(WebFont.allCases, id: \.self) { font in
@@ -120,8 +146,6 @@ import Views
           ForEach(Theme.allCases, id: \.self) { theme in
             Text(theme.rawValue).tag(theme.rawValue).tag(theme.rawValue)
           }
-        }.onChange(of: currentThemeName) { _ in
-          NSNotification.readerSettingsChanged()
         }
 
         Toggle(
@@ -133,6 +157,10 @@ import Views
           isOn: $justifyText,
           label: { Text(LocalText.enableJustifyText) }
         )
+
+        Divider()
+
+        resetButton
       }
     }
   }
