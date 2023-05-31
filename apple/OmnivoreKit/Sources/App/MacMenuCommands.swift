@@ -8,7 +8,7 @@ import Views
       NSFont.userFont(ofSize: 16)?.pointSize ?? 16
     )
     @AppStorage(UserDefaultKey.preferredWebLineSpacing.rawValue) var storedLineSpacing = 150
-    @AppStorage(UserDefaultKey.preferredWebMaxWidthPercentage.rawValue) var storedMaxWidthPercentage = 100
+    @AppStorage(UserDefaultKey.preferredWebMaxWidthPercentage.rawValue) var storedMaxWidthPercentage = 80
 
     @Binding var preferredFont: String
     @Binding var prefersHighContrastText: Bool
