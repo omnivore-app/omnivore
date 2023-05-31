@@ -142,6 +142,11 @@ import Views
           }
         })
       }
+      CommandGroup(after: .appTermination) {
+        Button("Logout", action: {
+          NSNotification.logout()
+        })
+      }
       CommandMenu("Reader Display") {
         spacingButtons
 

@@ -9,6 +9,8 @@ import Views
   struct HomeFeedView: View {
     @EnvironmentObject var dataService: DataService
     @EnvironmentObject var audioController: AudioController
+    @EnvironmentObject var authenticator: Authenticator
+
     @State private var itemToRemove: LinkedItem?
     @State private var confirmationShown = false
     @State private var presentProfileSheet = false
@@ -150,6 +152,9 @@ import Views
       }
       .onReceive(NSNotification.displayProfilePublisher) { _ in
         presentProfileSheet = true
+      }
+      .onReceive(NSNotification.logoutPublisher) { _ in
+        authenticator.logout(dataService: dataService)
       }
       .task {
         if viewModel.items.isEmpty {

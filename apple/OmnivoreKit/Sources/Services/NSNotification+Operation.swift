@@ -10,6 +10,7 @@ public extension NSNotification {
   static let ReaderSettingsChanged = Notification.Name("ReaderSettingsChanged")
   static let SpeakingReaderItem = Notification.Name("SpeakingReaderItem")
   static let DisplayProfile = Notification.Name("DisplayProfile")
+  static let Logout = Notification.Name("Logout")
 
   static var pushFeedItemPublisher: NotificationCenter.Publisher {
     NotificationCenter.default.publisher(for: PushJSONArticle)
@@ -37,6 +38,10 @@ public extension NSNotification {
 
   static var displayProfilePublisher: NotificationCenter.Publisher {
     NotificationCenter.default.publisher(for: DisplayProfile)
+  }
+
+  static var logoutPublisher: NotificationCenter.Publisher {
+    NotificationCenter.default.publisher(for: Logout)
   }
 
   internal var operationMessage: String? {
@@ -72,6 +77,10 @@ public extension NSNotification {
 
   static func readerSettingsChanged() {
     NotificationCenter.default.post(name: NSNotification.ReaderSettingsChanged, object: nil)
+  }
+
+  static func logout() {
+    NotificationCenter.default.post(name: NSNotification.Logout, object: nil)
   }
 
   static func displayProfile() {
