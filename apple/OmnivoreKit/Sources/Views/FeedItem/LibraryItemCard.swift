@@ -121,21 +121,21 @@ public struct LibraryItemCard: View {
     AnyView(HStack {
       Text("\(estimatedReadingTime)")
         .font(Font.system(size: 11, weight: .medium))
-        .foregroundColor(Color.themeMediumGray)
+        .foregroundColor(Color.themeMiddleGray)
         +
         Text("\(readingProgress)")
         .font(Font.system(size: 11, weight: .medium))
-        .foregroundColor(isPartiallyRead ? Color.appGreenSuccess : Color.themeMediumGray)
+        .foregroundColor(isPartiallyRead ? Color.appGreenSuccess : Color.themeMiddleGray)
 
         +
         Text("\(highlightsText)")
         .font(Font.system(size: 11, weight: .medium))
-        .foregroundColor(Color.themeMediumGray)
+        .foregroundColor(Color.themeMiddleGray)
 
         +
         Text("\(notesText)")
         .font(Font.system(size: 11, weight: .medium))
-        .foregroundColor(Color.themeMediumGray)
+        .foregroundColor(Color.themeMiddleGray)
     }
     .frame(maxWidth: .infinity, alignment: .leading))
   }
@@ -148,13 +148,13 @@ public struct LibraryItemCard: View {
             image
               .resizable()
               .aspectRatio(contentMode: .fill)
-              .frame(width: 55, height: 73)
-              .cornerRadius(4)
+              .frame(width: 40, height: 40)
+              .cornerRadius(5)
               .padding(.top, 2)
           } else {
             Color.systemBackground
-              .frame(width: 55, height: 73)
-              .cornerRadius(4)
+              .frame(width: 40, height: 40)
+              .cornerRadius(5)
               .padding(.top, 2)
           }
         }
@@ -172,27 +172,12 @@ public struct LibraryItemCard: View {
     }
 
     return ""
-
-//    var str = ""
-//    if let author = item.author {
-//      str += author
-//    }
-//
-//    if item.author != nil, item.publisherDisplayName != nil {
-//      str += ", "
-//    }
-//
-//    if let publisherDisplayName = item.publisherDisplayName {
-//      str += publisherDisplayName
-//    }
-//
-//    return str
   }
 
   var byLine: some View {
     Text(bylineStr)
-      .font(Font.system(size: 15, weight: .regular))
-      .foregroundColor(Color.themeMediumGray)
+      .font(Font.system(size: 11, weight: .regular))
+      .foregroundColor(Color.themeLightestGray)
       .frame(maxWidth: .infinity, alignment: .leading)
       .lineLimit(1)
   }
@@ -202,7 +187,7 @@ public struct LibraryItemCard: View {
       readInfo
 
       Text(item.unwrappedTitle)
-        .font(Font.system(size: 18, weight: .semibold))
+        .font(Font.system(size: 14, weight: .semibold))
         .lineSpacing(1.25)
         .foregroundColor(.appGrayTextContrast)
         .fixedSize(horizontal: false, vertical: true)
