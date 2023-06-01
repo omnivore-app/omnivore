@@ -12,7 +12,7 @@
     "test": "yarn mocha -r ts-node/register --config mocha-config.json",
     "lint": "eslint src --ext ts,js,tsx,jsx",
     "compile": "tsc",
-    "build": "tsc",
+    "build": "tsc && yarn copy-files",
     "start": "functions-framework --target=importHandler",
     "dev": "concurrently \"tsc -w\" \"nodemon --watch ./build/ --exec npm run start\"",
     "copy-files": "copyfiles src/luaScripts/*.lua build/",

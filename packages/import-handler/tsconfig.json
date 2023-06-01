@@ -4,7 +4,7 @@
   "compilerOptions": {
     "outDir": "build",
     "rootDir": ".",
-    "lib": ["dom"],
+    "lib": ["es2020"],
     // Generate d.ts files
     "declaration": true
   },
