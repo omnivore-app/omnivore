@@ -119,23 +119,25 @@ public struct LibraryItemCard: View {
 
   var readInfo: some View {
     AnyView(HStack {
+      let fgcolor = Color.isDarkMode ? Color.themeDarkWhiteGray : Color.themeMiddleGray
       Text("\(estimatedReadingTime)")
         .font(Font.system(size: 11, weight: .medium))
-        .foregroundColor(Color.themeMiddleGray)
+        .foregroundColor(fgcolor)
+
         +
         Text("\(readingProgress)")
         .font(Font.system(size: 11, weight: .medium))
-        .foregroundColor(isPartiallyRead ? Color.appGreenSuccess : Color.themeMiddleGray)
+        .foregroundColor(isPartiallyRead ? Color.appGreenSuccess : fgcolor)
 
         +
         Text("\(highlightsText)")
         .font(Font.system(size: 11, weight: .medium))
-        .foregroundColor(Color.themeMiddleGray)
+        .foregroundColor(fgcolor)
 
         +
         Text("\(notesText)")
         .font(Font.system(size: 11, weight: .medium))
-        .foregroundColor(Color.themeMiddleGray)
+        .foregroundColor(fgcolor)
     }
     .frame(maxWidth: .infinity, alignment: .leading))
   }
@@ -177,7 +179,7 @@ public struct LibraryItemCard: View {
   var byLine: some View {
     Text(bylineStr)
       .font(Font.system(size: 11, weight: .regular))
-      .foregroundColor(Color.themeLightestGray)
+      .foregroundColor(Color.isDarkMode ? Color.themeLightGray : Color.themeLightestGray)
       .frame(maxWidth: .infinity, alignment: .leading)
       .lineLimit(1)
   }

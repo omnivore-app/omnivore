@@ -20,7 +20,7 @@ struct LabelsFlowLayout: View {
       GeometryReader { geometry in
         self.generateContent(in: geometry)
       }
-    }.padding(5)
+    }.padding(0)
       .frame(height: totalHeight)
   }
 
@@ -59,8 +59,7 @@ struct LabelsFlowLayout: View {
   }
 
   private func item(for item: LinkedItemLabel) -> some View {
-    let chip = TextChip(feedItemLabel: item, padded: false, onTap: nil)
-    return chip
+    LibraryItemLabelView(text: item.name!, color: Color(hex: item.color!)!)
   }
 
   private func viewHeightReader(_ binding: Binding<CGFloat>) -> some View {
