@@ -8,11 +8,14 @@ import Views
       NSFont.userFont(ofSize: 16)?.pointSize ?? 16
     )
     @AppStorage(UserDefaultKey.preferredWebLineSpacing.rawValue) var storedLineSpacing = 150
-    @AppStorage(UserDefaultKey.preferredWebMaxWidthPercentage.rawValue) var storedMaxWidthPercentage = 100
-    @AppStorage(UserDefaultKey.enableHighlightOnRelease.rawValue) var enableHighlightOnRelease = false
+    @AppStorage(UserDefaultKey.preferredWebMaxWidthPercentage.rawValue) var storedMaxWidthPercentage = 80
 
     @Binding var preferredFont: String
     @Binding var prefersHighContrastText: Bool
+    @Binding var justifyText: Bool
+    @Binding var currentThemeName: String
+
+    @Environment(\.openURL) var openURL
 
     public var fontSizeButtons: some View {
       Group {
@@ -83,16 +86,40 @@ import Views
       }
     }
 
+    public var resetButton: some View {
+      Group {
+        Button(
+          action: {
+            storedLineSpacing = max(storedLineSpacing - 25, 100)
+
+            ThemeManager.currentThemeName = Theme.system.rawValue
+            storedFontSize = 16
+            storedLineSpacing = 150
+            storedMaxWidthPercentage = 80
+            preferredFont = WebFont.inter.rawValue
+            prefersHighContrastText = true
+
+            NSNotification.readerSettingsChanged()
+          },
+          label: { Text("Reset") }
+        )
+      }
+    }
+
     public init(
       preferredFont: Binding<String>,
-      prefersHighContrastText: Binding<Bool>
+      prefersHighContrastText: Binding<Bool>,
+      justifyText: Binding<Bool>,
+      currentThemeName: Binding<String>
     ) {
       self._preferredFont = preferredFont
       self._prefersHighContrastText = prefersHighContrastText
+      self._justifyText = justifyText
+      self._currentThemeName = currentThemeName
     }
 
-    public var body: some Commands {
-      CommandMenu("Reader Display") {
+    var spacingButtons: some View {
+      Group {
         fontSizeButtons
 
         Divider()
@@ -104,10 +131,34 @@ import Views
         lineSpacingButtons
 
         Divider()
+      }
+    }
+
+    public var body: some Commands {
+      CommandGroup(after: .appInfo) {
+        Button("Open Online", action: {
+          if let url = URL(string: "https://omnivore.app/") {
+            NSWorkspace.shared.open(url)
+          }
+        })
+      }
+      CommandGroup(after: .appTermination) {
+        Button("Logout", action: {
+          NSNotification.logout()
+        })
+      }
+      CommandMenu("Reader Display") {
+        spacingButtons
 
         Picker(selection: $preferredFont, label: Text(LocalText.genericFontFamily)) {
           ForEach(WebFont.allCases, id: \.self) { font in
             Text(font.displayValue).tag(font.rawValue)
+          }
+        }
+
+        Picker(selection: $currentThemeName, label: Text("Theme")) {
+          ForEach(Theme.allCases, id: \.self) { theme in
+            Text(theme.rawValue).tag(theme.rawValue).tag(theme.rawValue)
           }
         }
 
@@ -117,9 +168,13 @@ import Views
         )
 
         Toggle(
-          isOn: $enableHighlightOnRelease,
-          label: { Text(LocalText.genericHighContrastText) }
+          isOn: $justifyText,
+          label: { Text(LocalText.enableJustifyText) }
         )
+
+        Divider()
+
+        resetButton
       }
     }
   }

@@ -72,9 +72,11 @@ struct ApplyLabelsView: View {
                     Image(systemName: "checkmark")
                   }
                 }
+                .contentShape(Rectangle())
               }
             )
             .padding(.vertical, 5)
+            .frame(maxWidth: .infinity, alignment: .leading)
             #if os(macOS)
               .buttonStyle(PlainButtonStyle())
             #endif

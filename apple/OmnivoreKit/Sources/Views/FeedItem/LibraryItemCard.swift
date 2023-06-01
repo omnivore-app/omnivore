@@ -4,11 +4,13 @@ import Utils
 
 public extension View {
   func draggableItem(item: LinkedItem) -> some View {
-    if #available(iOS 16.0, *), let url = item.deepLink {
-      return AnyView(self.draggable(url) {
-        Label(item.unwrappedTitle, systemImage: "link")
-      })
-    }
+    #if os(iOS)
+      if #available(iOS 16.0, *), let url = item.deepLink {
+        return AnyView(self.draggable(url) {
+          Label(item.unwrappedTitle, systemImage: "link")
+        })
+      }
+    #endif
     return AnyView(self)
   }
 }

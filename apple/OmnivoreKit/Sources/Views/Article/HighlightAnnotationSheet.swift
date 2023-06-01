@@ -50,19 +50,22 @@ public struct HighlightAnnotationSheet: View {
     }
     .padding()
     .navigationTitle("Note")
-    .navigationBarTitleDisplayMode(.inline)
-    .navigationBarItems(leading: Button(action: onCancel, label: {
-      Text("Cancel")
-    }))
-    .navigationBarItems(trailing: Button(action: onSave, label: {
-      Text("Save").bold()
-    }))
+    #if os(iOS)
+      .navigationBarTitleDisplayMode(.inline)
+
+      .navigationBarItems(leading: Button(action: onCancel, label: {
+        Text("Cancel")
+      }))
+      .navigationBarItems(trailing: Button(action: onSave, label: {
+        Text("Save").bold()
+      }))
+    #endif
     .listStyle(PlainListStyle())
-    .alert(errorAlertMessage ?? LocalText.readerError, isPresented: $showErrorAlertMessage) {
-      Button(LocalText.genericOk, role: .cancel, action: {
-        errorAlertMessage = nil
-        showErrorAlertMessage = false
-      })
-    }
+      .alert(errorAlertMessage ?? LocalText.readerError, isPresented: $showErrorAlertMessage) {
+        Button(LocalText.genericOk, role: .cancel, action: {
+          errorAlertMessage = nil
+          showErrorAlertMessage = false
+        })
+      }
   }
 }

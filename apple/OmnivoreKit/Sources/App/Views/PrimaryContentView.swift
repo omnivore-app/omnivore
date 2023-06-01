@@ -24,14 +24,7 @@ public struct PrimaryContentView: View {
   #if os(macOS)
     private var splitView: some View {
       NavigationView {
-        // The first column is the sidebar.
-        PrimaryContentSidebar(categories: categories)
-          .navigationTitle("Categories")
-
-        // Second column is the Primary Nav Stack
         PrimaryContentCategory.feed.destinationView
-
-        // Third column is the detail view
         Text(LocalText.navigationSelectLink)
       }
       .accentColor(.appGrayTextContrast)
