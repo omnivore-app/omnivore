@@ -1,22 +1,12 @@
 import { Readability } from '@omnivore/readability'
-import { createClient } from 'redis'
 import { ArticleSavingRequestStatus, ImportContext } from '../src'
-
-export const createRedisClient = async (url?: string) => {
-  const redisClient = createClient({
-    url,
-  })
-
-  redisClient.on('error', (err) => console.error('Redis Client Error', err))
-
-  await redisClient.connect()
-  console.log('Redis Client Connected:', url)
-
-  return redisClient
-}
+import { createRedisClient } from '../src/redis'
 
 export const stubImportCtx = async () => {
-  const redisClient = await createRedisClient(process.env.REDIS_URL)
+  const redisClient = await createRedisClient(
+    process.env.REDIS_URL,
+    process.env.REDIS_CERT
+  )
   return {
     userId: '',
     countImported: 0,
