@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "description": "",
   "main": "build/src/index.js",
-  "files": [
-    "build/src"
-  ],
   "keywords": [],
   "license": "Apache-2.0",
   "scripts": {
