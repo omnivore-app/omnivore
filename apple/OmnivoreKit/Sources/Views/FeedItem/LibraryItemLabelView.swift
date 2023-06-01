@@ -12,14 +12,15 @@ public struct LibraryItemLabelView: View {
   }
 
   public var body: some View {
-    HStack {
+    HStack(spacing: 5) {
       Circle()
         .fill(color)
+        .frame(width: 11, height: 11)
 
       Text(text)
         .font(.appCaptionTwo)
     }
-    .padding(.horizontal, 8)
+    .padding(.horizontal, 10)
     .padding(.vertical, 6)
     .lineLimit(1)
     .foregroundColor(Color.themeLabelForeground)

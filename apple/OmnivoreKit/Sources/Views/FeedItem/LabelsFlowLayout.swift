@@ -31,8 +31,8 @@ struct LabelsFlowLayout: View {
     return ZStack(alignment: .topLeading) {
       ForEach(self.labelItems, id: \.self) { label in
         self.item(for: label)
-          .padding(.horizontal, 1)
-          .padding(.vertical, 1)
+          .padding(.horizontal, 2)
+          .padding(.vertical, 2)
           .alignmentGuide(.leading, computeValue: { dim in
             if abs(width - dim.width) > geom.size.width {
               width = 0
