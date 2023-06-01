@@ -3,16 +3,19 @@
   "version": "1.0.0",
   "description": "",
   "main": "build/src/index.js",
+  "files": [
+    "build/src"
+  ],
   "keywords": [],
   "license": "Apache-2.0",
   "scripts": {
     "test": "yarn mocha -r ts-node/register --config mocha-config.json",
     "lint": "eslint src --ext ts,js,tsx,jsx",
     "compile": "tsc",
-    "build": "tsc && yarn copy-files",
+    "build": "tsc",
     "start": "functions-framework --target=importHandler",
     "dev": "concurrently \"tsc -w\" \"nodemon --watch ./build/ --exec npm run start\"",
-    "copy-files": "copyfiles src/luaScripts/*.lua build",
+    "copy-files": "copyfiles src/luaScripts/*.lua build/",
     "start:collector": "functions-framework --target=importMetricsCollector"
   },
   "devDependencies": {

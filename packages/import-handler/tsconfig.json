@@ -4,6 +4,7 @@
   "compilerOptions": {
     "outDir": "build",
     "rootDir": ".",
+    "lib": ["dom"],
     // Generate d.ts files
     "declaration": true
   },
