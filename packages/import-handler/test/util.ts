@@ -3,7 +3,10 @@ import { ArticleSavingRequestStatus, ImportContext } from '../src'
 import { createRedisClient } from '../src/redis'
 
 export const stubImportCtx = async () => {
-  const redisClient = await createRedisClient()
+  const redisClient = await createRedisClient(
+    process.env.REDIS_URL,
+    process.env.REDIS_CERT
+  )
   return {
     userId: '',
     countImported: 0,
