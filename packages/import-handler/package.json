@@ -15,7 +15,7 @@
     "build": "tsc && yarn copy-files",
     "start": "functions-framework --target=importHandler",
     "dev": "concurrently \"tsc -w\" \"nodemon --watch ./build/ --exec npm run start\"",
-    "copy-files": "copyfiles -u 1 src/**/*.lua build/src",
+    "copy-files": "copyfiles src/luaScripts/*.lua build",
     "start:collector": "functions-framework --target=importMetricsCollector"
   },
   "devDependencies": {
