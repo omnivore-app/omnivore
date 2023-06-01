@@ -1,10 +1,12 @@
 {
   "extends": "./../../tsconfig.json",
+  "ts-node": { "files": true },
   "compilerOptions": {
     "outDir": "build",
     "rootDir": ".",
+    "lib": ["dom"],
     // Generate d.ts files
     "declaration": true
   },
-  "include": ["src"]
+  "include": ["src", "test"]
 }
