@@ -142,7 +142,7 @@ import Views
           }
         })
       }
-      CommandGroup(after: .appTermination) {
+      CommandGroup(before: .appTermination) {
         Button("Logout", action: {
           NSNotification.logout()
         })
