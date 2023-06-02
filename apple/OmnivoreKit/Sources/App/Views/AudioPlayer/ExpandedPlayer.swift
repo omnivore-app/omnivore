@@ -305,12 +305,12 @@
         )
         .frame(width: 16, height: 16)
         .padding(.trailing, 16)
-        .foregroundColor(.themeDarkGray)
+        .foregroundColor(.themeAudioPlayerGray)
 
         playPauseButtonItem
           .frame(width: 45, height: 45)
           .padding(.trailing, 16)
-          .foregroundColor(.themeDarkGray)
+          .foregroundColor(.themeAudioPlayerGray)
 
         Button(
           action: { self.audioController.skipForward(seconds: 15) },
@@ -322,7 +322,7 @@
         )
         .frame(width: 16, height: 16)
         .padding(.trailing, 32 - 4) // -4 to account for the menu touch padding
-        .foregroundColor(.themeDarkGray)
+        .foregroundColor(.themeAudioPlayerGray)
 
         Menu(content: {
           playbackRateButton(rate: 0.8, title: "0.8×", selected: audioController.playbackRate == 0.8)

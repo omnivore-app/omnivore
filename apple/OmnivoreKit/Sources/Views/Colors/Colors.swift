@@ -23,9 +23,18 @@ public extension Color {
   static var webControlButtonBackground: Color { Color("_webControlButtonBackground", bundle: .module) }
 
   // New theme colors
-  static var themeLightGray: Color { Color("_lightGray", bundle: .module) }
   static var themeMediumGray: Color { Color("_mediumGray", bundle: .module) }
+  static var themeMiddleGray: Color { Color("_middleGray", bundle: .module) }
+  static var themeLightGray: Color { Color("_lightGray", bundle: .module) }
+  static var themeLightestGray: Color { Color("_lightestGray", bundle: .module) }
+  static var themeDarkWhiteGray: Color { Color("_darkWhiteGray", bundle: .module) }
   static var themeDarkGray: Color { Color("_darkGray", bundle: .module) }
+
+  static var themeLabelOutline: Color { Color("_labelOutline", bundle: .module) }
+  static var themeLabelForeground: Color { Color("_labelForeground", bundle: .module) }
+  static var themeLabelBackground: Color { Color("_labelBackground", bundle: .module) }
+
+  static var themeAudioPlayerGray: Color { Color("_audioPlayerGray", bundle: .module) }
   static var themeGrayBg01: Color { Color("_themeGrayBg01", bundle: .module) }
   static var themeHighlightColor: Color { Color("_highlightColor", bundle: .module) }
   static var themeTTSReadingText: Color { Color("_themeTTSReadingText", bundle: .module) }

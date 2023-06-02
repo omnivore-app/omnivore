@@ -118,16 +118,21 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     props.highlightOnRelease
   )
   // iOS app embed can overide the original margin and line height
-  const [maxWidthPercentageOverride, setMaxWidthPercentageOverride] =
-    useState<number | null>(null)
-  const [lineHeightOverride, setLineHeightOverride] =
-    useState<number | null>(null)
-  const [fontFamilyOverride, setFontFamilyOverride] =
-    useState<string | null>(null)
-  const [highContrastTextOverride, setHighContrastTextOverride] =
-    useState<boolean | undefined>(undefined)
-  const [justifyTextOverride, setJustifyTextOverride] =
-    useState<boolean | undefined>(undefined)
+  const [maxWidthPercentageOverride, setMaxWidthPercentageOverride] = useState<
+    number | null
+  >(null)
+  const [lineHeightOverride, setLineHeightOverride] = useState<number | null>(
+    null
+  )
+  const [fontFamilyOverride, setFontFamilyOverride] = useState<string | null>(
+    null
+  )
+  const [highContrastTextOverride, setHighContrastTextOverride] = useState<
+    boolean | undefined
+  >(undefined)
+  const [justifyTextOverride, setJustifyTextOverride] = useState<
+    boolean | undefined
+  >(undefined)
   const highlightHref = useRef(
     window.location.hash ? window.location.hash.split('#')[1] : null
   )
@@ -429,6 +434,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
                   key={label.id}
                   text={label.name}
                   color={label.color}
+                  useAppAppearance={props.isAppleAppEmbed}
                 />
               ))}
             </SpanBox>
