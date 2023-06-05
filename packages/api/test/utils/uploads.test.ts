@@ -13,7 +13,7 @@ describe('contentReaderForPage', () => {
     const result = contentReaderForPage(PageType.Book, 'fakeUploadFileId')
     expect(result).to.eq(ContentReader.Epub)
   })
-  it('returns PDF if there is an uploadFileId and type is not File', () => {
+  it('returns PDF if there is an uploadFileId and type is File', () => {
     const result = contentReaderForPage(PageType.File, 'fakeUploadFileId')
     expect(result).to.eq(ContentReader.Pdf)
   })
