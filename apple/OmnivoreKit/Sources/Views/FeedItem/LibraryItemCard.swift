@@ -17,13 +17,11 @@ public extension View {
 
 public struct LibraryItemCard: View {
   let viewer: Viewer?
-  let tapHandler: () -> Void
   @ObservedObject var item: LinkedItem
 
-  public init(item: LinkedItem, viewer: Viewer?, tapHandler: @escaping () -> Void = {}) {
+  public init(item: LinkedItem, viewer: Viewer?) {
     self.item = item
     self.viewer = viewer
-    self.tapHandler = tapHandler
   }
 
   public var body: some View {
@@ -204,10 +202,5 @@ public struct LibraryItemCard: View {
   var labels: some View {
     LabelsFlowLayout(labels: item.sortedLabels)
       .padding(.top, 0)
-    #if os(macOS)
-      .onTapGesture {
-        tapHandler()
-      }
-    #endif
   }
 }

@@ -45,6 +45,7 @@ import Views
               item: item,
               viewModel: viewModel
             )
+            .listRowInsets(EdgeInsets())
             .contextMenu {
               Button(
                 action: { viewModel.itemUnderTitleEdit = item },
@@ -91,11 +92,11 @@ import Views
             LoadingSection()
           }
         }
-        // .listStyle(PlainListStyle())
+        .listStyle(InsetListStyle())
         .navigationTitle("Home")
         .searchable(
           text: $viewModel.searchTerm,
-          placement: .sidebar
+          placement: .toolbar
         ) {
           if viewModel.searchTerm.isEmpty {
             Text(LocalText.inboxGeneric).searchCompletion("in:inbox ")
@@ -105,8 +106,6 @@ import Views
           }
         }
         .onChange(of: viewModel.searchTerm) { _ in
-          // Maybe we should debounce this, but
-          // it feels like it works ok without
           loadItems(isRefresh: true)
         }
         .onSubmit(of: .search) {
