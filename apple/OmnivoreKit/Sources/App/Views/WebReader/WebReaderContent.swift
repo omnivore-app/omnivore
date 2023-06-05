@@ -81,7 +81,7 @@ struct WebReaderContent {
             title: `\(articleContent.title.replacingOccurrences(of: "`", with: "\\`"))`,
             content: document.getElementById('_omnivore-htmlContent').innerHTML,
             originalArticleUrl: "\(item.unwrappedPageURLString)",
-            contentReader: "WEB",
+            contentReader: "\(item.contentReader ?? "WEB")",
             readingProgressPercent: \(item.readingProgress),
             readingProgressAnchorIndex: \(item.readingProgressAnchor),
             labels: \(item.labelsJSONString),
