@@ -2219,6 +2219,7 @@ input UpdatePageInput {
   byline: String
   description: String
   pageId: ID!
+  previewImage: String
   publishedAt: Date
   savedAt: Date
   title: String
