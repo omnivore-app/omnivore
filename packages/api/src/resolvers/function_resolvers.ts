@@ -19,7 +19,7 @@ import {
 import { userDataToUser, validatedDate, wordsCount } from '../utils/helpers'
 import { createImageProxyUrl } from '../utils/imageproxy'
 import {
-  contentReaderForPageType,
+  contentReaderForPage,
   generateDownloadSignedUrl,
   generateUploadFilePathName,
 } from '../utils/uploads'
@@ -468,8 +468,11 @@ export const functionResolvers = {
       })
       return !!page?.archivedAt || false
     },
-    contentReader(article: { pageType: PageType }) {
-      return contentReaderForPageType(article.pageType)
+    contentReader(article: {
+      pageType: PageType
+      uploadFileId: string | undefined
+    }) {
+      return contentReaderForPage(article.pageType, article.uploadFileId)
     },
     highlights(
       article: { id: string; userId?: string; highlights?: Highlight[] },
