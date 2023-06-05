@@ -4,8 +4,13 @@ import { File, GetSignedUrlConfig, Storage } from '@google-cloud/storage'
 import { env } from '../env'
 import { ContentReader, PageType } from '../generated/graphql'
 
-export const contentReaderForPageType = (pageType: PageType) => {
-  console.log('getting content reader: ', pageType)
+export const contentReaderForPage = (
+  pageType: PageType,
+  uploadFileId: string | null | undefined
+) => {
+  if (!uploadFileId) {
+    return ContentReader.Web
+  }
   switch (pageType) {
     case PageType.Book:
       return ContentReader.Epub
