@@ -207,6 +207,16 @@ export const parsePreparedContent = async (
   let highlightData = undefined
   const { document, pageInfo } = preparedDocument
 
+  if (!document) {
+    console.log('No document')
+    return {
+      canonicalUrl: url,
+      parsedContent: null,
+      domContent: '',
+      pageType: PageType.Unknown,
+    }
+  }
+
   // Checking for content type acceptance or if there are no contentType
   // at all (backward extension versions compatibility)
   if (
@@ -222,14 +232,15 @@ export const parsePreparedContent = async (
     }
   }
 
-  let dom = parseHTML(document).document
+  let dom: Document | null = null
 
   try {
+    dom = parseHTML(document).document
+
     if (!article) {
       // Attempt to parse the article
       // preParse content
-      const preParsedDom = await preParseContent(url, dom)
-      preParsedDom && (dom = preParsedDom)
+      dom = (await preParseContent(url, dom)) || dom
 
       article = await getReadabilityResult(url, document, dom, isNewsletter)
     }
@@ -260,7 +271,7 @@ export const parsePreparedContent = async (
         codeBlocks.forEach((e) => {
           if (e.textContent) {
             const att = hljs.highlightAuto(e.textContent)
-            const code = dom.createElement('code')
+            const code = articleDom.createElement('code')
             const langClass =
               `hljs language-${att.language}` +
               (att.second_best?.language
@@ -356,7 +367,7 @@ export const parsePreparedContent = async (
     domContent: document,
     parsedContent: article,
     canonicalUrl,
-    pageType: parseOriginalContent(dom),
+    pageType: dom ? parseOriginalContent(dom) : PageType.Unknown,
     highlightData,
   }
 }

@@ -4,20 +4,19 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 
 import { parse } from '@fast-csv/parse'
-import { Stream } from 'stream'
-import unzip from 'unzip-stream'
+import { Readability } from '@omnivore/readability'
+import crypto from 'crypto'
+import createDOMPurify, { SanitizeElementHookEvent } from 'dompurify'
 import fs from 'fs'
-import path from 'path'
 import * as fsExtra from 'fs-extra'
 import glob from 'glob'
-
 import { parseHTML } from 'linkedom'
-import { Readability } from '@omnivore/readability'
-import createDOMPurify, { SanitizeElementHookEvent } from 'dompurify'
-
+import path from 'path'
+import { Stream } from 'stream'
+import unzip from 'unzip-stream'
 import { encode } from 'urlsafe-base64'
-import crypto from 'crypto'
 import { ImportContext } from '.'
+import { createMetrics, ImportStatus, updateMetrics } from './metrics'
 
 export type UrlHandler = (url: URL) => Promise<void>
 
@@ -36,8 +35,22 @@ export const importMatterHistoryCsv = async (
   for await (const row of parser) {
     try {
       const url = new URL(row['URL'])
+      // update total counter
+      await updateMetrics(
+        ctx.redisClient,
+        ctx.userId,
+        ctx.taskId,
+        ImportStatus.TOTAL
+      )
       await ctx.urlHandler(ctx, url)
       ctx.countImported += 1
+      // update started counter
+      await updateMetrics(
+        ctx.redisClient,
+        ctx.userId,
+        ctx.taskId,
+        ImportStatus.STARTED
+      )
     } catch (error) {
       console.log('invalid url', row, error)
       ctx.countFailed += 1
@@ -204,6 +217,13 @@ const handleMatterHistoryRow = async (
 
   if (!url) {
     ctx.countFailed += 1
+    // update failed counter
+    await updateMetrics(
+      ctx.redisClient,
+      ctx.userId,
+      ctx.taskId,
+      ImportStatus.FAILED
+    )
     return
   }
 
@@ -232,6 +252,14 @@ export const importMatterArchive = async (
   const archiveDir = await unarchive(stream)
 
   try {
+    // create metrics in redis
+    await createMetrics(
+      ctx.redisClient,
+      ctx.userId,
+      ctx.taskId,
+      'matter-importer'
+    )
+
     const historyFile = path.join(archiveDir, '_matter_history.csv')
 
     const parser = parse({
@@ -243,11 +271,34 @@ export const importMatterArchive = async (
 
     for await (const row of parser) {
       try {
+        // update total metrics
+        await updateMetrics(
+          ctx.redisClient,
+          ctx.userId,
+          ctx.taskId,
+          ImportStatus.TOTAL
+        )
+
         await handleMatterHistoryRow(ctx, archiveDir, row)
+
         ctx.countImported += 1
+        // update started metrics
+        await updateMetrics(
+          ctx.redisClient,
+          ctx.userId,
+          ctx.taskId,
+          ImportStatus.STARTED
+        )
       } catch (error) {
         console.log('invalid url', row, error)
         ctx.countFailed += 1
+        // update failed metrics
+        await updateMetrics(
+          ctx.redisClient,
+          ctx.userId,
+          ctx.taskId,
+          ImportStatus.FAILED
+        )
       }
     }
   } catch (err) {

@@ -44,6 +44,8 @@ const NON_SCRIPT_HOSTS= ['medium.com', 'fastcompany.com'];
 
 const ALLOWED_CONTENT_TYPES = ['text/html', 'application/octet-stream', 'text/plain', 'application/pdf'];
 
+const IMPORTER_METRICS_COLLECTOR_URL = process.env.IMPORTER_METRICS_COLLECTOR_URL;
+
 const userAgentForUrl = (url) => {
   try {
     const u = new URL(url);
@@ -59,18 +61,24 @@ const userAgentForUrl = (url) => {
 };
 
 const fetchContentWithScrapingBee = async (url) => {
-  const response = await axios.get('https://app.scrapingbee.com/api/v1', {
-    params: {
-      'api_key':  process.env.SCRAPINGBEE_API_KEY,
-      'url': url,
-      'render_js': 'false',
-      'premium_proxy': 'true',
-      'country_code':'us'
-    }
-  })
+  try {
+    const response = await axios.get('https://app.scrapingbee.com/api/v1', {
+      params: {
+        'api_key':  process.env.SCRAPINGBEE_API_KEY,
+        'url': url,
+        'render_js': 'false',
+        'premium_proxy': 'true',
+        'country_code':'us'
+      }
+    })
+  
+    const dom = parseHTML(response.data).document;
+    return { title: dom.title, domContent: dom.documentElement.outerHTML, url }
+  } catch (e) {
+    console.error('error fetching with scrapingbee', e.message)
 
-  const dom = parseHTML(response.data).document;
-  return { title: dom.title, domContent: dom.documentElement.outerHTML, url: url }
+    return { title: url, domContent: '', url }
+  }
 }
 
 const enableJavascriptForUrl = (url) => {
@@ -242,6 +250,27 @@ const saveUploadedPdf = async (userId, url, uploadFileId, articleSavingRequestId
   );
 };
 
+const sendImportStatusUpdate = async (userId, taskId, status) => {
+  try {
+    const auth = await signToken({ uid: userId }, process.env.JWT_SECRET);
+
+    await axios.post(
+      IMPORTER_METRICS_COLLECTOR_URL, 
+      {
+        taskId,
+        status,
+      },
+      {
+        headers: {
+          'Authorization': auth,
+          'Content-Type': 'application/json',
+        },
+      });
+  } catch (e) {
+    console.error('Error while sending import status update', e);
+  }
+};
+
 async function fetchContent(req, res) {
   let functionStartTime = Date.now();
 
@@ -250,16 +279,19 @@ async function fetchContent(req, res) {
   const articleSavingRequestId = (req.query ? req.query.saveRequestId : undefined) || (req.body ? req.body.saveRequestId : undefined);
   const state = req.body.state
   const labels = req.body.labels
+  const source = req.body.source || 'parseContent';
+  const taskId = req.body.taskId; // taskId is used to update import status
 
   let logRecord = {
     url,
     userId,
     articleSavingRequestId,
     labels: {
-      source: 'parseContent',
+      source,
     },
     state,
-    labelsToAdd: labels
+    labelsToAdd: labels,
+    taskId: taskId,
   };
 
   console.info(`Article parsing request`, logRecord);
@@ -271,7 +303,7 @@ async function fetchContent(req, res) {
   }
 
   // pre handle url with custom handlers
-  let title, content, contentType;
+  let title, content, contentType, importStatus;
   try {
     const browser = await getBrowserPromise;
     const result = await preHandleContent(url, browser);
@@ -320,19 +352,16 @@ async function fetchContent(req, res) {
 
       let readabilityResult = null;
       if (content) {
-        let document = parseHTML(content).document;
+        const document = parseHTML(content).document;
 
         // preParse content
-        const preParsedDom = await preParseContent(url, document)
-        if (preParsedDom) {
-          document = preParsedDom
-        }
+        const preParsedDom = (await preParseContent(url, document)) || document;
 
-        readabilityResult = await getReadabilityResult(url, document);
+        readabilityResult = await getReadabilityResult(url, preParsedDom);
       }
 
       const apiResponse = await sendSavePageMutation(userId, {
-        url: finalUrl,
+        url,
         clientRequestId: articleSavingRequestId,
         title,
         originalContent: content,
@@ -344,14 +373,16 @@ async function fetchContent(req, res) {
       logRecord.totalTime = Date.now() - functionStartTime;
       logRecord.result = apiResponse.createArticle;
     }
+
+    importStatus = 'imported';
   } catch (e) {
     logRecord.error = e.message;
     console.error(`Error while retrieving page`, logRecord);
 
     // fallback to scrapingbee
     const sbResult = await fetchContentWithScrapingBee(url);
-    const sbUrl = finalUrl || sbResult.url;
     const content = sbResult.domContent;
+    const title = sbResult.title;
     logRecord.fetchContentTime = Date.now() - functionStartTime;
 
     let readabilityResult = null;
@@ -359,7 +390,7 @@ async function fetchContent(req, res) {
       let document = parseHTML(content).document;
 
       // preParse content
-      const preParsedDom = await preParseContent(sbUrl, document)
+      const preParsedDom = await preParseContent(url, document)
       if (preParsedDom) {
         document = preParsedDom
       }
@@ -368,7 +399,7 @@ async function fetchContent(req, res) {
     }
 
     const apiResponse = await sendSavePageMutation(userId, {
-      url: finalUrl,
+      url,
       clientRequestId: articleSavingRequestId,
       title,
       originalContent: content,
@@ -379,14 +410,21 @@ async function fetchContent(req, res) {
 
     logRecord.totalTime = Date.now() - functionStartTime;
     logRecord.result = apiResponse.createArticle;
+
+    importStatus = 'failed';
   } finally {
     if (context) {
       await context.close();
     }
     console.info(`parse-page`, logRecord);
-  }
 
-  return res.sendStatus(200);
+    // send import status to update the metrics
+    if (taskId) {
+      await sendImportStatusUpdate(userId, taskId, importStatus);
+    }
+
+    res.sendStatus(200);
+  }
 }
 
 function validateUrlString(url) {

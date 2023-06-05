@@ -1,7 +1,10 @@
 import { Readability } from '@omnivore/readability'
 import { ArticleSavingRequestStatus, ImportContext } from '../src'
+import { createRedisClient } from '../src/redis'
 
-export const stubImportCtx = () => {
+export const stubImportCtx = async (): Promise<ImportContext> => {
+  const redisClient = await createRedisClient(process.env.REDIS_URL)
+
   return {
     userId: '',
     countImported: 0,
@@ -23,5 +26,7 @@ export const stubImportCtx = () => {
     ): Promise<void> => {
       return Promise.resolve()
     },
+    redisClient,
+    taskId: '',
   }
 }

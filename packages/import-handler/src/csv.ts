@@ -6,8 +6,12 @@
 import { parse } from '@fast-csv/parse'
 import { Stream } from 'stream'
 import { ImportContext } from '.'
+import { createMetrics, ImportStatus, updateMetrics } from './metrics'
 
 export const importCsv = async (ctx: ImportContext, stream: Stream) => {
+  // create metrics in redis
+  await createMetrics(ctx.redisClient, ctx.userId, ctx.taskId, 'csv-importer')
+
   const parser = parse()
   stream.pipe(parser)
   for await (const row of parser) {
@@ -23,11 +27,36 @@ export const importCsv = async (ctx: ImportContext, stream: Stream) => {
               .map((l) => l.trim())
               .filter((l) => l !== '')
           : undefined
+
+      // update total counter
+      await updateMetrics(
+        ctx.redisClient,
+        ctx.userId,
+        ctx.taskId,
+        ImportStatus.TOTAL
+      )
+
       await ctx.urlHandler(ctx, url, state, labels)
+
       ctx.countImported += 1
+      // update started counter
+      await updateMetrics(
+        ctx.redisClient,
+        ctx.userId,
+        ctx.taskId,
+        ImportStatus.STARTED
+      )
     } catch (error) {
       console.log('invalid url', row, error)
+
       ctx.countFailed += 1
+      // update invalid counter
+      await updateMetrics(
+        ctx.redisClient,
+        ctx.userId,
+        ctx.taskId,
+        ImportStatus.INVALID
+      )
     }
   }
 }
