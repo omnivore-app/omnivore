@@ -87,13 +87,13 @@ export const getMetrics = async (
 
     return {
       // convert to integer
-      started: parseInt(metrics.started, 10),
-      invalid: parseInt(metrics.invalid, 10),
-      imported: parseInt(metrics.imported, 10),
-      failed: parseInt(metrics.failed, 10),
-      total: parseInt(metrics.total, 10),
+      started: parseInt(metrics.started, 10) || 0,
+      invalid: parseInt(metrics.invalid, 10) || 0,
+      imported: parseInt(metrics.imported, 10) || 0,
+      failed: parseInt(metrics.failed, 10) || 0,
+      total: parseInt(metrics.total, 10) || 0,
       source: metrics.source,
-      state: parseInt(metrics.state, 10),
+      state: parseInt(metrics.state, 10) || ImportTaskState.STARTED,
       startTime: parseInt(metrics.start_time, 10),
       endTime: parseInt(metrics.end_time, 10),
     }
