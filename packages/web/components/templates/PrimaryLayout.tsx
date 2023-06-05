@@ -87,6 +87,7 @@ export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
         css={{
           height: '100%',
           width: '100vw',
+          overflowX: 'clip',
           bg: '$thBackground2',
         }}
       >
