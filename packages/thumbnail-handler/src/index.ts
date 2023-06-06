@@ -50,7 +50,7 @@ const articleQuery = async (userId: string, slug: string): Promise<Page> => {
     query: `query article ($username: String!, $slug: String!){
           article(username: $username, slug: $slug){
             ... on ArticleSuccess {
-              Article {
+              article {
                 id
                 content
                 image
@@ -100,10 +100,9 @@ const updatePageMutation = async (
             ... on UpdatePageSuccess {
               updatedPage {
                 id
-                previewImage
               }
             }
-            ... on UpdateError{
+            ... on UpdatePageError {
               errorCodes
             }
           }
@@ -251,12 +250,13 @@ export const thumbnailHandler = Sentry.GCPFunction.wrapHttpFunction(
         return res.status(200).send('OK')
       }
 
-      await updatePageMutation(uid, page.id, thumbnail)
+      const updated = await updatePageMutation(uid, page.id, thumbnail)
+      console.debug('thumbnail updated', updated)
 
       res.send('ok')
     } catch (e) {
       console.error(e)
-      return res.status(500).send('INTERNAL_SERVER_ERROR')
+      res.status(500).send('INTERNAL_SERVER_ERROR')
     }
   }
 )
