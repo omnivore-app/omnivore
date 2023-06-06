@@ -1,4 +1,8 @@
-import { authorized } from '../../utils/helpers'
+import { ILike } from 'typeorm'
+import { Subscription } from '../../entity/subscription'
+import { User } from '../../entity/user'
+import { getRepository } from '../../entity/utils'
+import { env } from '../../env'
 import {
   MutationSubscribeArgs,
   MutationUnsubscribeArgs,
@@ -16,13 +20,9 @@ import {
   UnsubscribeErrorCode,
   UnsubscribeSuccess,
 } from '../../generated/graphql'
-import { analytics } from '../../utils/analytics'
-import { env } from '../../env'
-import { getRepository } from '../../entity/utils'
-import { User } from '../../entity/user'
-import { Subscription } from '../../entity/subscription'
 import { getSubscribeHandler, unsubscribe } from '../../services/subscriptions'
-import { ILike } from 'typeorm'
+import { analytics } from '../../utils/analytics'
+import { authorized } from '../../utils/helpers'
 import { createImageProxyUrl } from '../../utils/imageproxy'
 
 export const subscriptionsResolver = authorized<
@@ -90,10 +90,13 @@ export const unsubscribeResolver = authorized<
       }
     }
 
-    const subscription = await getRepository(Subscription).findOne({
-      where: { name: ILike(name), user: { id: uid } },
-      relations: ['newsletterEmail'],
-    })
+    const subscription = await getRepository(Subscription)
+      .createQueryBuilder('subscription')
+      .innerJoinAndSelect('subscription.newsletterEmail', 'newsletterEmail')
+      .where({ user: { id: uid } })
+      .andWhere('LOWER(name) = LOWER(:name)', { name }) // case insensitive
+      .getOne()
+
     if (!subscription) {
       return {
         errorCodes: [UnsubscribeErrorCode.NotFound],
