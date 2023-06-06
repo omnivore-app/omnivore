@@ -4,7 +4,7 @@ import { PubsubClient } from '../datalayer/pubsub'
 import { addHighlightToPage } from '../elastic/highlights'
 import { createPage, getPageByParam, updatePage } from '../elastic/pages'
 import { ArticleSavingRequestStatus, Page, PageType } from '../elastic/types'
-import { homePageURL } from '../env'
+import { env, homePageURL } from '../env'
 import {
   HighlightType,
   Maybe,
@@ -14,6 +14,8 @@ import {
   SaveResult,
 } from '../generated/graphql'
 import { DataModels } from '../resolvers/types'
+import { generateVerificationToken } from '../utils/auth'
+import createHttpTaskWithToken from '../utils/createTask'
 import {
   generateSlug,
   stringToHash,
@@ -164,7 +166,21 @@ export const savePage = async (
     pageId = newPageId
   }
 
-  // TODO: update thumbnail and pre-cache images
+  // create a task to update thumbnail and pre-cache all images
+  try {
+    await createHttpTaskWithToken({
+      payload: {
+        userId: saver.userId,
+        slug,
+      },
+      taskHandlerUrl: env.queue.thumbnailTaskHandlerUrl,
+      requestHeaders: {
+        Authorization: generateVerificationToken(saver.userId),
+      },
+    })
+  } catch (e) {
+    console.log('Failed to create thumbnail task', e)
+  }
 
   if (parseResult.highlightData) {
     const highlight = {
