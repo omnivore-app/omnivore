@@ -42,6 +42,7 @@ import dev.jeziellago.compose.markdowntext.MarkdownText
 import kotlinx.coroutines.launch
 import app.omnivore.omnivore.persistence.entities.Highlight
 import app.omnivore.omnivore.ui.theme.OmnivoreTheme
+import androidx.compose.runtime.saveable.rememberSaveable
 
 
 fun notebookMD(notes: List<Highlight>, highlights: List<Highlight>): String {
@@ -147,7 +148,7 @@ fun NotebookView(savedItemId: String, viewModel: NotebookViewModel, onEditNote: 
 @Composable
 fun EditNoteModal(initialValue: String?, onDismiss: (save: Boolean, text: String?) -> Unit) {
     val focusRequester = remember { FocusRequester() }
-    val annotation = remember { mutableStateOf(initialValue ?: "") }
+    val annotation = rememberSaveable { mutableStateOf(initialValue ?: "") }
 
     BottomSheetUI() {
         Scaffold(
@@ -177,7 +178,7 @@ fun EditNoteModal(initialValue: String?, onDismiss: (save: Boolean, text: String
         ) { paddingValues ->
             TextField(
                 modifier = Modifier
-                    .padding(paddingValues)
+                    .padding(top = paddingValues.calculateTopPadding())
                     .focusRequester(focusRequester)
                     .fillMaxSize(),
                 value = annotation.value, onValueChange = { annotation.value = it },
