@@ -164,6 +164,8 @@ export const savePage = async (
     pageId = newPageId
   }
 
+  // TODO: update thumbnail and pre-cache images
+
   if (parseResult.highlightData) {
     const highlight = {
       updatedAt: new Date(),
