@@ -393,9 +393,9 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
         alignment="start"
         css={{
           flexGrow: '1',
-          overflow: 'scroll',
           width: '100%',
           height: '294px',
+          overflowY: 'scroll',
         }}
       >
         {filteredLabels &&
