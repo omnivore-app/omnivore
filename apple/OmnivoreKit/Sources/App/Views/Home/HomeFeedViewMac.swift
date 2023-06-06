@@ -9,8 +9,11 @@ import Views
   struct HomeFeedView: View {
     @EnvironmentObject var dataService: DataService
     @EnvironmentObject var audioController: AudioController
+    @EnvironmentObject var authenticator: Authenticator
+
     @State private var itemToRemove: LinkedItem?
     @State private var confirmationShown = false
+    @State private var presentProfileSheet = false
 
     @ObservedObject var viewModel: HomeFeedViewModel
 
@@ -35,59 +38,61 @@ import Views
           }
         }
         List {
-          Section {
-            ForEach(viewModel.items) { item in
-              MacFeedCardNavigationLink(
-                item: item,
-                viewModel: viewModel
+          Spacer(minLength: 10)
+
+          ForEach(viewModel.items) { item in
+            MacFeedCardNavigationLink(
+              item: item,
+              viewModel: viewModel
+            )
+            .listRowInsets(EdgeInsets())
+            .contextMenu {
+              Button(
+                action: { viewModel.itemUnderTitleEdit = item },
+                label: { Label("Edit Info", systemImage: "info.circle") }
               )
-              .contextMenu {
-                Button(
-                  action: { viewModel.itemUnderTitleEdit = item },
-                  label: { Label("Edit Info", systemImage: "info.circle") }
-                )
-                Button(
-                  action: { viewModel.itemUnderLabelEdit = item },
-                  label: { Label(item.labels?.count == 0 ? "Add Labels" : "Edit Labels", systemImage: "tag") }
-                )
-                Button(action: {
-                  withAnimation(.linear(duration: 0.4)) {
-                    viewModel.setLinkArchived(
-                      dataService: dataService,
-                      objectID: item.objectID,
-                      archived: !item.isArchived
-                    )
-                  }
-                }, label: {
-                  Label(
-                    item.isArchived ? "Unarchive" : "Archive",
-                    systemImage: item.isArchived ? "tray.and.arrow.down.fill" : "archivebox"
+              Button(
+                action: { viewModel.itemUnderLabelEdit = item },
+                label: { Label(item.labels?.count == 0 ? "Add Labels" : "Edit Labels", systemImage: "tag") }
+              )
+              Button(action: {
+                withAnimation(.linear(duration: 0.4)) {
+                  viewModel.setLinkArchived(
+                    dataService: dataService,
+                    objectID: item.objectID,
+                    archived: !item.isArchived
                   )
-                })
-                Button(
-                  action: {
-                    itemToRemove = item
-                    confirmationShown = true
-                  },
-                  label: { Label("Delete", systemImage: "trash") }
+                }
+              }, label: {
+                Label(
+                  item.isArchived ? "Unarchive" : "Archive",
+                  systemImage: item.isArchived ? "tray.and.arrow.down.fill" : "archivebox"
                 )
-                if FeatureFlag.enableSnooze {
-                  Button {
-                    viewModel.itemToSnoozeID = item.id
-                    viewModel.snoozePresented = true
-                  } label: {
-                    Label { Text(LocalText.genericSnooze) } icon: { Image.moon }
-                  }
+              })
+              Button(
+                action: {
+                  itemToRemove = item
+                  confirmationShown = true
+                },
+                label: { Label("Delete", systemImage: "trash") }
+              )
+              if FeatureFlag.enableSnooze {
+                Button {
+                  viewModel.itemToSnoozeID = item.id
+                  viewModel.snoozePresented = true
+                } label: {
+                  Label { Text(LocalText.genericSnooze) } icon: { Image.moon }
                 }
               }
             }
+            Divider().padding(5)
           }
 
           if viewModel.isLoading {
             LoadingSection()
           }
         }
-        .listStyle(PlainListStyle())
+        .listStyle(InsetListStyle())
         .navigationTitle("Home")
         .searchable(
           text: $viewModel.searchTerm,
@@ -101,8 +106,6 @@ import Views
           }
         }
         .onChange(of: viewModel.searchTerm) { _ in
-          // Maybe we should debounce this, but
-          // it feels like it works ok without
           loadItems(isRefresh: true)
         }
         .onSubmit(of: .search) {
@@ -142,6 +145,15 @@ import Views
       }
       .sheet(item: $viewModel.itemUnderTitleEdit) { item in
         LinkedItemMetadataEditView(item: item)
+      }
+      .sheet(isPresented: $presentProfileSheet) {
+        ProfileView()
+      }
+      .onReceive(NSNotification.displayProfilePublisher) { _ in
+        presentProfileSheet = true
+      }
+      .onReceive(NSNotification.logoutPublisher) { _ in
+        authenticator.logout(dataService: dataService)
       }
       .task {
         if viewModel.items.isEmpty {

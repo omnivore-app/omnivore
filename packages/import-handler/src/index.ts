@@ -5,11 +5,17 @@ import axios from 'axios'
 import * as jwt from 'jsonwebtoken'
 import { Stream } from 'node:stream'
 import * as path from 'path'
+import { createClient } from 'redis'
 import { promisify } from 'util'
 import { v4 as uuid } from 'uuid'
 import { importCsv } from './csv'
 import { importMatterArchive } from './matterHistory'
+import { ImportStatus, updateMetrics } from './metrics'
+import { createRedisClient } from './redis'
 import { CONTENT_FETCH_URL, createCloudTask, emailUserUrl } from './task'
+
+// explicitly create the return type of RedisClient
+type RedisClient = ReturnType<typeof createClient>
 
 export enum ArticleSavingRequestStatus {
   Failed = 'FAILED',
@@ -51,9 +57,20 @@ export type ImportContext = {
   countFailed: number
   urlHandler: UrlHandler
   contentHandler: ContentHandler
+  redisClient: RedisClient
+  taskId: string
 }
 
 type importHandlerFunc = (ctx: ImportContext, stream: Stream) => Promise<void>
+
+interface UpdateMetricsRequest {
+  taskId: string
+  status: ImportStatus
+}
+
+function isUpdateMetricsRequest(body: any): body is UpdateMetricsRequest {
+  return 'taskId' in body && 'status' in body
+}
 
 interface StorageEvent {
   name: string
@@ -79,6 +96,7 @@ const importURL = async (
   userId: string,
   url: URL,
   source: string,
+  taskId: string,
   state?: ArticleSavingRequestStatus,
   labels?: string[]
 ): Promise<string | undefined> => {
@@ -91,6 +109,7 @@ const importURL = async (
     labels: labels?.map((l) => {
       return { name: l }
     }),
+    taskId,
   })
 }
 
@@ -118,14 +137,27 @@ const sendImportFailedEmail = async (userId: string) => {
   })
 }
 
-const sendImportCompletedEmail = async (
+export const sendImportStartedEmail = async (
   userId: string,
   urlsEnqueued: number,
   urlsFailed: number
 ) => {
   return createEmailCloudTask(userId, {
-    subject: 'Your Omnivore import has completed processing',
-    body: `${urlsEnqueued} URLs have been processed and should be available in your library. ${urlsFailed} URLs failed to be parsed.`,
+    subject: 'Your Omnivore import has started',
+    body: `We have started processing ${urlsEnqueued} URLs. ${urlsFailed} URLs are invalid.`,
+  })
+}
+
+export const sendImportCompletedEmail = async (
+  userId: string,
+  urlsImported: number,
+  urlsFailed: number
+) => {
+  return createEmailCloudTask(userId, {
+    subject: 'Your Omnivore import has finished',
+    body: `We have finished processing ${
+      urlsImported + urlsFailed
+    } URLs. ${urlsImported} URLs have been added to your library. ${urlsFailed} URLs failed to be parsed.`,
   })
 }
 
@@ -152,6 +184,7 @@ const urlHandler = async (
       ctx.userId,
       url,
       'csv-importer',
+      ctx.taskId,
       state,
       labels && labels.length > 0 ? labels : undefined
     )
@@ -222,7 +255,7 @@ const contentHandler = async (
   return Promise.resolve()
 }
 
-const handleEvent = async (data: StorageEvent) => {
+const handleEvent = async (data: StorageEvent, redisClient: RedisClient) => {
   if (shouldHandle(data)) {
     const handler = handlerForFile(data.name)
     if (!handler) {
@@ -253,12 +286,14 @@ const handleEvent = async (data: StorageEvent) => {
       countFailed: 0,
       urlHandler,
       contentHandler,
+      redisClient,
+      taskId: data.name,
     }
 
     await handler(ctx, stream)
 
     if (ctx.countImported > 0) {
-      await sendImportCompletedEmail(userId, ctx.countImported, ctx.countFailed)
+      await sendImportStartedEmail(userId, ctx.countImported, ctx.countFailed)
     } else {
       await sendImportFailedEmail(userId)
     }
@@ -285,16 +320,65 @@ export const importHandler = Sentry.GCPFunction.wrapHttpFunction(
       const pubSubMessage = req.body.message.data as string
       const obj = getStorageEvent(pubSubMessage)
       if (obj) {
+        // create redis client
+        const redisClient = await createRedisClient(
+          process.env.REDIS_URL,
+          process.env.REDIS_CERT
+        )
         try {
-          await handleEvent(obj)
+          await handleEvent(obj, redisClient)
         } catch (err) {
           console.log('error handling event', { err, obj })
           throw err
+        } finally {
+          // close redis client
+          await redisClient.quit()
         }
       }
     } else {
       console.log('no pubsub message')
     }
+    res.send('ok')
+  }
+)
+
+export const importMetricsCollector = Sentry.GCPFunction.wrapHttpFunction(
+  async (req, res) => {
+    if (!process.env.JWT_SECRET) {
+      console.error('JWT_SECRET not exists')
+      return res.status(500).send({ errorCodes: 'JWT_SECRET_NOT_EXISTS' })
+    }
+    const token = req.headers.authorization
+    if (!token) {
+      return res.status(401).send({ errorCode: 'INVALID_TOKEN' })
+    }
+
+    let userId: string
+
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET) as {
+        uid: string
+      }
+      userId = decoded.uid
+    } catch (e) {
+      console.error('Authentication error:', e)
+      return res.status(401).send({ errorCode: 'UNAUTHENTICATED' })
+    }
+
+    if (!isUpdateMetricsRequest(req.body)) {
+      console.log('Invalid request body')
+      return res.status(400).send('Bad Request')
+    }
+
+    const redisClient = await createRedisClient(
+      process.env.REDIS_URL,
+      process.env.REDIS_CERT
+    )
+    // update metrics
+    await updateMetrics(redisClient, userId, req.body.taskId, req.body.status)
+
+    await redisClient.quit()
+
     res.send('ok')
   }
 )

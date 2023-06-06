@@ -17,8 +17,8 @@ android {
         applicationId "app.omnivore.omnivore"
         minSdk 26
         targetSdk 33
-        versionCode 80
-        versionName "0.0.80"
+        versionCode 83
+        versionName "0.0.83"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -144,10 +144,11 @@ dependencies {
     implementation 'com.pspdfkit:pspdfkit:8.4.1'
 
     implementation 'com.segment.analytics.kotlin:android:1.10.0'
-    implementation 'io.intercom.android:intercom-sdk-base:14.0.0'
+    implementation 'io.intercom.android:intercom-sdk:15.1.0'
 
     // Room Deps
     implementation "androidx.room:room-runtime:$room_version"
+    implementation "androidx.room:room-ktx:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
 

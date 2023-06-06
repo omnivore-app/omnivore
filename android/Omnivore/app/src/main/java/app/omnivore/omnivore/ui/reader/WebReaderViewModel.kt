@@ -319,7 +319,18 @@ class WebReaderViewModel @Inject constructor(
   }
 
   fun saveAnnotation(annotation: String) {
-    val script = "var event = new Event('saveAnnotation');event.annotation = '$annotation';document.dispatchEvent(event);"
+    val jsonAnnotation = Gson().toJson(annotation)
+    val script = "var event = new Event('saveAnnotation');event.annotation = $jsonAnnotation;document.dispatchEvent(event);"
+
+    Log.d("loggo", script)
+
+    enqueueScript(script)
+    cancelAnnotationEdit()
+  }
+
+  fun cancelAnnotation() {
+    val script = "var event = new Event('dismissHighlight');document.dispatchEvent(event);"
+
     enqueueScript(script)
     cancelAnnotationEdit()
   }

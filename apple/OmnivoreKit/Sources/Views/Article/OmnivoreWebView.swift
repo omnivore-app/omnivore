@@ -187,7 +187,7 @@ public final class OmnivoreWebView: WKWebView {
     override public func viewDidChangeEffectiveAppearance() {
       super.viewDidChangeEffectiveAppearance()
       if ThemeManager.currentTheme == .system {
-        try dispatchEvent(.updateTheme(themeName: ThemeManager.currentTheme.themeKey))
+        try? dispatchEvent(.updateTheme(themeName: ThemeManager.currentTheme.themeKey))
       }
     }
   #endif

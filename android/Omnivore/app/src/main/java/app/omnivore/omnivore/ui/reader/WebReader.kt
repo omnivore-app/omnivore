@@ -4,22 +4,19 @@ import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.graphics.Bitmap
+import android.graphics.Color
 import android.graphics.Rect
 import android.util.Log
 import android.view.*
 import android.view.View.OnScrollChangeListener
-import android.view.ViewTreeObserver.OnScrollChangedListener
 import android.webkit.JavascriptInterface
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.viewinterop.AndroidView
 import app.omnivore.omnivore.R
 import com.google.gson.Gson
@@ -32,7 +29,8 @@ import java.util.*
 @Composable
 fun WebReader(
   styledContent: String,
-  webReaderViewModel: WebReaderViewModel
+  webReaderViewModel: WebReaderViewModel,
+  currentTheme: Themes?
 ) {
   val javascriptActionLoopUUID: UUID by webReaderViewModel
     .javascriptActionLoopUUIDLiveData
@@ -55,15 +53,13 @@ fun WebReader(
         settings.allowFileAccess = true
         settings.domStorageEnabled = true
 
-        alpha = 0.0f
+        alpha = 1.0f
+        viewModel?.showNavBar()
+        currentTheme?.let { theme ->
+          setBackgroundColor(theme.backgroundColor.toInt());
+        }
 
         webViewClient = object : WebViewClient() {
-          override fun onPageFinished(view: WebView?, url: String?) {
-            super.onPageFinished(view, url)
-            viewModel?.showNavBar()
-            view?.animate()?.alpha(1.0f)?.duration = 200
-          }
-
           override fun shouldOverrideUrlLoading(
             view: WebView?,
             request: WebResourceRequest?

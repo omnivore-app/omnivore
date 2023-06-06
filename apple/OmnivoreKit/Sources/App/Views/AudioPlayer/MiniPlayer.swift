@@ -134,11 +134,11 @@
 
           playPauseButtonItem
             .frame(width: 40, height: 40)
-            .foregroundColor(.themeDarkGray)
+            .foregroundColor(.themeAudioPlayerGray)
 
           stopButton
             .frame(width: 40, height: 40)
-            .foregroundColor(.themeDarkGray)
+            .foregroundColor(.themeAudioPlayerGray)
         }
         .padding(16)
         .frame(maxHeight: .infinity)

@@ -34,6 +34,10 @@ suspend fun DataService.sync(since: String, cursor: String?, limit: Int = 20): S
   val syncResult = networker.savedItemUpdates(cursor = cursor, limit = limit, since = since)
     ?: return SavedItemSyncResult.errorResult
 
+  if (syncResult.deletedItemIDs.isNotEmpty()) {
+    db.savedItemDao().deleteByIds(syncResult.deletedItemIDs)
+  }
+
   val savedItems = syncResult.items.map {
     val savedItem = SavedItem(
       savedItemId = it.id,

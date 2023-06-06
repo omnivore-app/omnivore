@@ -17,6 +17,9 @@ struct MainApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @AppStorage(UserDefaultKey.preferredWebFont.rawValue) var preferredFont = WebFont.inter.rawValue
     @AppStorage(UserDefaultKey.prefersHighContrastWebFont.rawValue) var prefersHighContrastText = true
+    @AppStorage(UserDefaultKey.justifyText.rawValue) var justifyText = false
+    @AppStorage(UserDefaultKey.themeName.rawValue) var currentThemeName = "System"
+
   #elseif os(iOS)
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
   #endif
@@ -39,7 +42,9 @@ struct MainApp: App {
       .commands {
         MacMenuCommands(
           preferredFont: $preferredFont,
-          prefersHighContrastText: $prefersHighContrastText
+          prefersHighContrastText: $prefersHighContrastText,
+          justifyText: $justifyText,
+          currentThemeName: $currentThemeName
         )
       }
       .onChange(of: preferredFont) { _ in
@@ -48,6 +53,13 @@ struct MainApp: App {
       .onChange(of: prefersHighContrastText) { _ in
         NSNotification.readerSettingsChanged()
       }
+      .onChange(of: justifyText) { _ in
+        NSNotification.readerSettingsChanged()
+      }
+      .onChange(of: currentThemeName) { _ in
+        NSNotification.readerSettingsChanged()
+      }
+
     #endif
   }
 }

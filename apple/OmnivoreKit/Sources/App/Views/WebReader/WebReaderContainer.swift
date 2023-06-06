@@ -288,30 +288,30 @@ struct WebReaderContainerView: View {
 
       #if os(iOS)
         audioNavbarItem
-      #endif
 
-      Button(
-        action: {
-          if UIDevice.current.userInterfaceIdiom == .phone {
-            showPreferencesFormsheet.toggle()
-          } else {
-            showPreferencesPopover.toggle()
+        Button(
+          action: {
+            if UIDevice.current.userInterfaceIdiom == .phone {
+              showPreferencesFormsheet.toggle()
+            } else {
+              showPreferencesPopover.toggle()
+            }
+          },
+          label: {
+            Image(systemName: "textformat.size")
+              .font(.appNavbarIcon)
           }
-        },
-        label: {
-          Image(systemName: "textformat.size")
-            .font(.appNavbarIcon)
+        )
+        .padding(.horizontal, 5)
+        .scaleEffect(navBarVisibilityRatio)
+        .popover(isPresented: $showPreferencesPopover) {
+          webPreferencesPopoverView
+            .frame(maxWidth: 400, maxHeight: 475)
         }
-      )
-      .padding(.horizontal, 5)
-      .scaleEffect(navBarVisibilityRatio)
-      .popover(isPresented: $showPreferencesPopover) {
-        webPreferencesPopoverView
-          .frame(maxWidth: 400, maxHeight: 475)
-      }
-      .formSheet(isPresented: $showPreferencesFormsheet, modalSize: CGSize(width: 400, height: 475)) {
-        webPreferencesPopoverView
-      }
+        .formSheet(isPresented: $showPreferencesFormsheet, modalSize: CGSize(width: 400, height: 475)) {
+          webPreferencesPopoverView
+        }
+      #endif
 
       #if os(macOS)
         Spacer()
@@ -596,7 +596,9 @@ struct WebReaderContainerView: View {
       #if os(iOS)
         UIPasteboard.general.string = deepLink.absoluteString
       #else
-        Pasteboard.general.string = deepLink.absoluteString
+        let pasteBoard = NSPasteboard.general
+        pasteBoard.clearContents()
+        pasteBoard.writeObjects([deepLink.absoluteString as NSString])
       #endif
       showInSnackbar("Deeplink Copied")
     } else {

@@ -142,6 +142,9 @@ interface SavedItemDao {
   @Query("DELETE FROM savedItem WHERE savedItemId = :itemID")
   fun deleteById(itemID: String)
 
+  @Query("DELETE FROM savedItem WHERE savedItemId in (:itemIDs)")
+  fun deleteByIds(itemIDs: List<String>)
+
   @Update
   fun update(savedItem: SavedItem)
 
@@ -160,6 +163,22 @@ interface SavedItemDao {
             "GROUP BY SavedItem.savedItemId "
   )
   fun getLibraryItemById(savedItemId: String): LiveData<SavedItemWithLabelsAndHighlights>
+
+  @Transaction
+  @Query(
+    "SELECT ${SavedItemQueryConstants.libraryColumns} " +
+            "FROM SavedItem " +
+            "LEFT OUTER JOIN SavedItemAndSavedItemLabelCrossRef on SavedItem.savedItemId = SavedItemAndSavedItemLabelCrossRef.savedItemId " +
+            "LEFT OUTER JOIN SavedItemAndHighlightCrossRef on SavedItem.savedItemId = SavedItemAndHighlightCrossRef.savedItemId " +
+
+            "LEFT OUTER JOIN SavedItemLabel on SavedItemLabel.savedItemLabelId = SavedItemAndSavedItemLabelCrossRef.savedItemLabelId " +
+            "LEFT OUTER  JOIN Highlight on highlight.highlightId = SavedItemAndHighlightCrossRef.highlightId " +
+
+            "WHERE SavedItem.savedItemId = :savedItemId " +
+
+            "GROUP BY SavedItem.savedItemId "
+  )
+  suspend fun getById(savedItemId: String): SavedItemWithLabelsAndHighlights?
 
   @Transaction
   @Query(

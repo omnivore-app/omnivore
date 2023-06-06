@@ -100,7 +100,7 @@ import {
 } from '../../utils/parser'
 import { parseSearchQuery, SortBy, SortOrder } from '../../utils/search'
 import {
-  contentReaderForPageType,
+  contentReaderForPage,
   getStorageFileDetails,
   makeStorageFilePublic,
 } from '../../utils/uploads'
@@ -963,7 +963,7 @@ export const searchResolver = authorized<
         ...r,
         image: r.image && createImageProxyUrl(r.image, 260, 260),
         isArchived: !!r.archivedAt,
-        contentReader: contentReaderForPageType(r.pageType),
+        contentReader: contentReaderForPage(r.pageType, r.uploadFileId),
         originalArticleUrl: r.url,
         publishedAt: validatedDate(r.publishedAt),
         ownedByViewer: r.userId === claims.uid,
@@ -1007,7 +1007,7 @@ export const typeaheadSearchResolver = authorized<
   const results = await searchAsYouType(claims.uid, query, first || undefined)
   const items: TypeaheadSearchItem[] = results.map((r) => ({
     ...r,
-    contentReader: contentReaderForPageType(r.pageType),
+    contentReader: contentReaderForPage(r.pageType, r.uploadFileId),
   }))
 
   return { items }
@@ -1072,7 +1072,7 @@ export const updatesSinceResolver = authorized<
           ...p,
           image: p.image && createImageProxyUrl(p.image, 260, 260),
           isArchived: !!p.archivedAt,
-          contentReader: contentReaderForPageType(p.pageType),
+          contentReader: contentReaderForPage(p.pageType, p.uploadFileId),
         } as SearchItem,
         cursor: endCursor,
         itemID: p.id,

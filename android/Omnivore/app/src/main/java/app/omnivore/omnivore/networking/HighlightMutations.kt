@@ -6,6 +6,7 @@ import app.omnivore.omnivore.graphql.generated.DeleteHighlightMutation
 import app.omnivore.omnivore.graphql.generated.MergeHighlightMutation
 import app.omnivore.omnivore.graphql.generated.UpdateHighlightMutation
 import app.omnivore.omnivore.graphql.generated.type.CreateHighlightInput
+import app.omnivore.omnivore.graphql.generated.type.HighlightType
 import app.omnivore.omnivore.graphql.generated.type.MergeHighlightInput
 import app.omnivore.omnivore.graphql.generated.type.UpdateHighlightInput
 import app.omnivore.omnivore.persistence.entities.Highlight
@@ -13,6 +14,7 @@ import com.apollographql.apollo3.api.Optional
 import com.google.gson.Gson
 
 data class CreateHighlightParams(
+   val type: HighlightType,
    val shortId: String?,
    val id: String?,
    val quote: String?,
@@ -21,7 +23,8 @@ data class CreateHighlightParams(
    val `annotation`: String?
 ) {
   fun asCreateHighlightInput() = CreateHighlightInput(
-    annotation = Optional.presentIfNotNull(`annotation`),
+    type = Optional.presentIfNotNull(type),
+    annotation = Optional.presentIfNotNull(annotation),
     articleId = articleId ?: "",
     id = id ?: "",
     patch = Optional.presentIfNotNull(patch),
@@ -136,8 +139,6 @@ suspend fun Networker.createHighlight(input: CreateHighlightInput): Highlight? {
     val createdHighlight = result.data?.createHighlight?.onCreateHighlightSuccess?.highlight
 
     if (createdHighlight != null) {
-//      val updatedAtString = createdHighlight.highlightFields.updatedAt as? String
-
       return Highlight(
         type = createdHighlight.highlightFields.type.toString(),
         highlightId = createdHighlight.highlightFields.id,
@@ -147,8 +148,8 @@ suspend fun Networker.createHighlight(input: CreateHighlightInput): Highlight? {
         suffix = createdHighlight.highlightFields.suffix,
         patch = createdHighlight.highlightFields.patch,
         annotation = createdHighlight.highlightFields.annotation,
-        createdAt = null, // TODO: update gql query to get this
-        updatedAt = null, // TODO: fix updatedAtString?.let { LocalDate.parse(it) },
+        createdAt =  createdHighlight.highlightFields.createdAt.toString(),
+        updatedAt = createdHighlight.highlightFields.updatedAt.toString(),
         createdByMe = createdHighlight.highlightFields.createdByMe
       )
     } else {
