@@ -82,7 +82,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    color: #6A6968;
+    color: #898989;
     border: none;
     background-color: transparent;
     cursor: pointer;
@@ -110,7 +110,7 @@
     stroke: white;
   }
   #omnivore-toast-container svg {
-    fill: #6A6968;
+    fill: #898989;
   }
   #omnivore-toast-container > svg *,
   #omnivore-toast-container svg:hover {
@@ -219,6 +219,10 @@
     background-color: #EBEBEB;
   }
 
+  #omnivore-toast-container #omnivore-edit-labels-list button:hover {
+    background-color: #EBEBEB;
+  }
+
   #omnivore-edit-labels-list {
     overflow-y: scroll;
     max-height: 200px;
@@ -276,10 +280,12 @@
     outline: none;
   }
 
+  .omnivore-toast-menu-divider {
+    border-bottom: 1px solid #D9D9D9;
+    width: 80%;
+  }
+
   @media (prefers-color-scheme: dark) {
-    #omnivore-toast-container .omnivore-toast-func-row button {
-      color: #3D3D3D;
-    }
     #omnivore-toast-container {
       background: #333333;
     }
@@ -292,13 +298,20 @@
     #omnivore-toast-container svg {
       fill: #898989;
     }
-    #omnivore-toast-container button {
+    .omnivore-save-button button {
+      color: #333333;
+    }
+    #omnivore-toast-container #omnivore-edit-labels-list button {
       color: #898989;
     }
     #omnivore-toast-container button:hover > svg *,
     #omnivore-toast-container button:hover {
       color: #D9D9D9;
       fill: #D9D9D9;
+      background-color: #2A2A2A;
+    }
+    #omnivore-toast-container #omnivore-edit-labels-list button:hover {
+      color: #D9D9D9;
       background-color: #2A2A2A;
     }
     #omnivore-toast-container #omnivore-extra-buttons-row button:hover {
@@ -312,6 +325,9 @@
     }
     #omnivore-toast-container #omnivore-toast-delete-btn > svg * {
       fill: none;
+    }
+    .omnivore-toast-menu-divider {
+      border-bottom: 1px solid #898989;
     }
   }
 </style>
@@ -423,7 +439,7 @@
       </svg>           
       Edit Title
     </button>
-    <span style="border-bottom: 1px solid #D9D9D9;width:80%"></span>
+    <span class="omnivore-toast-menu-divider"></span>
     <button id="omnivore-toast-archive-btn">
       <svg width="18" height="16" viewBox="0 0 18 16" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M16.0143 0.166748H1.93155C1.157 0.166748 0.523193 0.800512 0.523193 1.5751V3.92222C0.523193 4.6264 1.03956 5.18958 1.69675 5.30698V14.0148C1.69675 14.7893 2.33052 15.4231 3.10511 15.4231H14.8407C15.6152 15.4231 16.249 14.7894 16.249 14.0148V5.30698C16.9062 5.18959 17.4226 4.6264 17.4226 3.92222V1.5751C17.4226 0.800554 16.7888 0.166748 16.0143 0.166748ZM1.93155 1.5751H16.0143V3.92222H1.93155V1.5751ZM14.8407 14.0148H3.10511V5.33049H14.8407V14.0148Z" fill="#6A6968"/>
@@ -431,7 +447,7 @@
       </svg>  
       Archive
     </button>
-    <span style="border-bottom: 1px solid #D9D9D9;width:80%"></span>
+    <span class="omnivore-toast-menu-divider"></span>
     <button id="omnivore-toast-delete-btn">
       <svg width="20" height="21" viewBox="0 0 20 21" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M16.6602 5.16992L3.51147 5.16993" stroke="#6A6968" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
