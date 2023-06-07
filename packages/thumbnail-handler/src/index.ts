@@ -228,14 +228,24 @@ export const findThumbnail = async (
 
 export const thumbnailHandler = Sentry.GCPFunction.wrapHttpFunction(
   async (req, res) => {
-    const token = req.headers?.authorization
+    if (!process.env.JWT_SECRET) {
+      console.error('JWT_SECRET not exists')
+      return res.status(500).send('JWT_SECRET_NOT_EXISTS')
+    }
+
+    const token = req.headers.cookie?.split('auth=')[1]
     if (!token) {
       console.debug('no token')
       return res.status(401).send('UNAUTHORIZED')
     }
-    const { uid } = jwt.decode(token) as { uid: string }
-    if (!uid) {
-      console.debug('no uid')
+    let uid = ''
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET) as {
+        uid: string
+      }
+      uid = decoded.uid
+    } catch (e) {
+      console.debug(e)
       return res.status(401).send('UNAUTHORIZED')
     }
 
