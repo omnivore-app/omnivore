@@ -1,13 +1,13 @@
+import { getPageById, updatePage } from '../../elastic/pages'
+import { Page } from '../../elastic/types'
 import {
   MutationUpdatePageArgs,
   UpdatePageError,
   UpdatePageErrorCode,
   UpdatePageSuccess,
 } from '../../generated/graphql'
-import { authorized, userDataToUser } from '../../utils/helpers'
-import { getPageById, updatePage } from '../../elastic/pages'
-import { Page } from '../../entity/page'
 import { Merge } from '../../util'
+import { authorized, userDataToUser } from '../../utils/helpers'
 
 export type UpdatePageSuccessPartial = Merge<
   UpdatePageSuccess,
@@ -42,6 +42,7 @@ export const updatePageResolver = authorized<
     author: input.byline ?? undefined,
     savedAt: input.savedAt ? new Date(input.savedAt) : undefined,
     publishedAt: input.publishedAt ? new Date(input.publishedAt) : undefined,
+    image: input.previewImage ?? undefined,
   }
 
   const updateResult = await updatePage(input.pageId, pageData, { ...ctx, uid })

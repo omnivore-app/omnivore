@@ -580,6 +580,7 @@ const schema = gql`
     byline: String
     savedAt: Date
     publishedAt: Date
+    previewImage: String @sanitize
   }
 
   type UpdatePageSuccess {

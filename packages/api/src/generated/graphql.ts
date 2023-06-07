@@ -2874,6 +2874,7 @@ export type UpdatePageInput = {
   byline?: InputMaybe<Scalars['String']>;
   description?: InputMaybe<Scalars['String']>;
   pageId: Scalars['ID'];
+  previewImage?: InputMaybe<Scalars['String']>;
   publishedAt?: InputMaybe<Scalars['Date']>;
   savedAt?: InputMaybe<Scalars['Date']>;
   title?: InputMaybe<Scalars['String']>;

@@ -14,6 +14,7 @@ import {
   SaveResult,
 } from '../generated/graphql'
 import { DataModels } from '../resolvers/types'
+import { enqueueThumbnailTask } from '../utils/createTask'
 import {
   generateSlug,
   stringToHash,
@@ -162,6 +163,18 @@ export const savePage = async (
       }
     }
     pageId = newPageId
+  }
+
+  // create a task to update thumbnail and pre-cache all images
+  try {
+    const taskId = await enqueueThumbnailTask(
+      saver.userId,
+      slug,
+      articleToSave.content
+    )
+    console.debug('Created thumbnail task', taskId)
+  } catch (e) {
+    console.log('Failed to create thumbnail task', e)
   }
 
   if (parseResult.highlightData) {

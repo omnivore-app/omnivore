@@ -1,3 +1,8 @@
+import normalizeUrl from 'normalize-url'
+import { PubsubClient } from '../datalayer/pubsub'
+import { createPage, getPageByParam, updatePage } from '../elastic/pages'
+import { ArticleSavingRequestStatus, Page } from '../elastic/types'
+import { enqueueThumbnailTask } from '../utils/createTask'
 import {
   generateSlug,
   stringToHash,
@@ -9,10 +14,6 @@ import {
   parsePreparedContent,
   parseUrlMetadata,
 } from '../utils/parser'
-import normalizeUrl from 'normalize-url'
-import { PubsubClient } from '../datalayer/pubsub'
-import { ArticleSavingRequestStatus, Page } from '../elastic/types'
-import { createPage, getPageByParam, updatePage } from '../elastic/pages'
 
 export type SaveContext = {
   pubsub: PubsubClient
@@ -103,6 +104,18 @@ export const saveEmail = async (
     console.log('failed to create new page')
 
     return undefined
+  }
+
+  // create a task to update thumbnail and pre-cache all images
+  try {
+    const taskId = await enqueueThumbnailTask(
+      ctx.uid,
+      slug,
+      articleToSave.content
+    )
+    console.debug('Created thumbnail task', taskId)
+  } catch (e) {
+    console.log('Failed to create thumbnail task', e)
   }
 
   articleToSave.id = pageId
