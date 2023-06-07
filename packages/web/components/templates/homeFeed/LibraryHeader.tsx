@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
-import { Box, HStack, VStack } from '../../elements/LayoutPrimitives'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { theme } from '../../tokens/stitches.config'
 import { FormInput } from '../../elements/FormElements'
 import { searchBarCommands } from '../../../lib/keyboardShortcuts/navigationShortcuts'
@@ -7,6 +7,7 @@ import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboard
 import { Button, IconButton } from '../../elements/Button'
 import {
   ArchiveBox,
+  CaretDown,
   FunnelSimple,
   ListBullets,
   MagnifyingGlass,
@@ -25,6 +26,8 @@ import {
   ScrollOffsetChangeset,
   useScrollWatcher,
 } from '../../../lib/hooks/useScrollWatcher'
+import { CardCheckbox } from '../../patterns/LibraryCards/LibraryCardStyles'
+import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
 
 type LibraryHeaderProps = {
   layout: LayoutType
@@ -358,6 +361,12 @@ type ControlButtonBoxProps = {
 function MultiSelectControlButtonBox(
   props: ControlButtonBoxProps
 ): JSX.Element {
+  const [isChecked, setIsChecked] = useState(false)
+
+  const handleCheckChanged = useCallback(() => {
+    setIsChecked(!isChecked)
+  }, [isChecked])
+
   return (
     <HStack alignment="center" distribution="center" css={{ gap: '20px' }}>
       <Button
@@ -510,8 +519,34 @@ function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
           ...breakpoints,
         }}
       >
+        {props.inMultiSelect && (
+          <SpanBox css={{ flex: 1 }}>
+            <Button css={{ p: '5px', gap: '5px' }}>
+              <CardCheckbox isChecked={false} handleChanged={() => {}} />
+              &nbsp;
+              <Dropdown
+                triggerElement={
+                  <CaretDown
+                    size={15}
+                    color={theme.colors.thBorderSubtle.toString()}
+                    weight="fill"
+                  />
+                }
+              >
+                <DropdownOption onSelect={() => {}} title="All Visible" />
+                <DropdownOption
+                  onSelect={() => {}}
+                  title="All Matching Search"
+                />
+              </Dropdown>
+            </Button>
+          </SpanBox>
+        )}
         {props.inMultiSelect ? (
-          <MultiSelectControlButtonBox {...props} />
+          <>
+            <MultiSelectControlButtonBox {...props} />
+            <SpanBox css={{ flex: 1 }}></SpanBox>
+          </>
         ) : (
           <SearchControlButtonBox {...props} />
         )}
