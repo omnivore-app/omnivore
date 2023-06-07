@@ -12,6 +12,7 @@ import {
   CreateLabelInput,
 } from '../generated/graphql'
 import { signFeatureToken } from '../services/features'
+import { generateVerificationToken } from './auth'
 import { CreateTaskError } from './errors'
 import { buildLogger } from './logger'
 import View = google.cloud.tasks.v2.Task.View
@@ -486,6 +487,53 @@ export const enqueueImportFromIntegration = async (
     taskHandlerUrl: `${env.queue.integrationTaskHandlerUrl}/import`,
     priority: 'low',
     requestHeaders: headers,
+  })
+
+  if (!createdTasks || !createdTasks[0].name) {
+    logger.error(`Unable to get the name of the task`, {
+      payload,
+      createdTasks,
+    })
+    throw new CreateTaskError(`Unable to get the name of the task`)
+  }
+  return createdTasks[0].name
+}
+
+export const enqueueThumbnailTask = async (
+  userId: string,
+  slug: string,
+  content: string
+): Promise<string> => {
+  const { GOOGLE_CLOUD_PROJECT } = process.env
+  const payload = {
+    userId,
+    slug,
+    content,
+  }
+
+  const requestHeaders = {
+    Authorization: generateVerificationToken(userId),
+  }
+
+  // If there is no Google Cloud Project Id exposed, it means that we are in local environment
+  if (env.dev.isLocal || !GOOGLE_CLOUD_PROJECT) {
+    // Calling the handler function directly.
+    setTimeout(() => {
+      axios
+        .post(env.queue.thumbnailTaskHandlerUrl, payload, {
+          headers: requestHeaders,
+        })
+        .catch((error) => {
+          console.error(error)
+        })
+    }, 0)
+    return ''
+  }
+
+  const createdTasks = await createHttpTaskWithToken({
+    payload,
+    taskHandlerUrl: env.queue.thumbnailTaskHandlerUrl,
+    requestHeaders,
   })
 
   if (!createdTasks || !createdTasks[0].name) {

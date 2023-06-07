@@ -4,7 +4,7 @@ import { PubsubClient } from '../datalayer/pubsub'
 import { addHighlightToPage } from '../elastic/highlights'
 import { createPage, getPageByParam, updatePage } from '../elastic/pages'
 import { ArticleSavingRequestStatus, Page, PageType } from '../elastic/types'
-import { env, homePageURL } from '../env'
+import { homePageURL } from '../env'
 import {
   HighlightType,
   Maybe,
@@ -14,8 +14,7 @@ import {
   SaveResult,
 } from '../generated/graphql'
 import { DataModels } from '../resolvers/types'
-import { generateVerificationToken } from '../utils/auth'
-import createHttpTaskWithToken from '../utils/createTask'
+import { enqueueThumbnailTask } from '../utils/createTask'
 import {
   generateSlug,
   stringToHash,
@@ -168,16 +167,12 @@ export const savePage = async (
 
   // create a task to update thumbnail and pre-cache all images
   try {
-    await createHttpTaskWithToken({
-      payload: {
-        userId: saver.userId,
-        slug,
-      },
-      taskHandlerUrl: env.queue.thumbnailTaskHandlerUrl,
-      requestHeaders: {
-        Authorization: generateVerificationToken(saver.userId),
-      },
-    })
+    const taskId = await enqueueThumbnailTask(
+      saver.userId,
+      slug,
+      articleToSave.content
+    )
+    console.debug('Created thumbnail task', taskId)
   } catch (e) {
     console.log('Failed to create thumbnail task', e)
   }
