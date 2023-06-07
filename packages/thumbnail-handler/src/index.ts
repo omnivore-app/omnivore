@@ -158,8 +158,10 @@ const getImageSize = async (url: string): Promise<[number, number] | null> => {
   }
 }
 
-// credit to https://github.com/reddit-archive/reddit/blob/753b17407e9a9dca09558526805922de24133d53/r2/r2/lib/media.py#L706
-const findThumbnail = async (content: string): Promise<string | null> => {
+// credit: https://github.com/reddit-archive/reddit/blob/753b17407e9a9dca09558526805922de24133d53/r2/r2/lib/media.py#L706
+export const findThumbnail = async (
+  content: string
+): Promise<string | null> => {
   const dom = parseHTML(content).document
 
   // find the largest and squarest image as the thumbnail

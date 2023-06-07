@@ -17,7 +17,8 @@
   "devDependencies": {
     "chai": "^4.3.6",
     "eslint-plugin-prettier": "^4.0.0",
-    "mocha": "^10.0.0"
+    "mocha": "^10.0.0",
+    "nock": "^13.3.1"
   },
   "dependencies": {
     "@google-cloud/functions-framework": "3.1.2",
