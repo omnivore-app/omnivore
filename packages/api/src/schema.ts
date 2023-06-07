@@ -2416,6 +2416,27 @@ const schema = gql`
   enum BulkActionType {
     DELETE
     ARCHIVE
+    MARK_AS_READ
+    ADD_LABELS
+  }
+
+  input BulkAction {
+    itemType: BulkActionItemType!
+    type: BulkActionType!
+    itemIds: [ID!]!
+    labelIds: [ID!]
+  }
+
+  enum BulkActionItemType {
+    PAGE
+    HIGHLIGHT
+    LABEL
+    SUBSCRIPTION
+  }
+
+  input BulkActionInput {
+    query: String
+    actions: [BulkAction!]!
   }
 
   union BulkActionResult = BulkActionSuccess | BulkActionError
@@ -2538,7 +2559,7 @@ const schema = gql`
       contentType: String!
     ): UploadImportFileResult!
     markEmailAsItem(recentEmailId: ID!): MarkEmailAsItemResult!
-    bulkAction(query: String, action: BulkActionType!): BulkActionResult!
+    bulkAction(input: BulkActionInput!): BulkActionResult!
     importFromIntegration(integrationId: ID!): ImportFromIntegrationResult!
   }
 
