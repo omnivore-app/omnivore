@@ -240,12 +240,13 @@ export const thumbnailHandler = Sentry.GCPFunction.wrapHttpFunction(
     }
     let uid = ''
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET) as {
+      jwt.verify(token, process.env.JWT_SECRET)
+      const decoded = jwt.decode(token) as {
         uid: string
       }
       uid = decoded.uid
     } catch (e) {
-      console.debug('invalid token')
+      console.debug('invalid token', e)
       return res.status(401).send('UNAUTHORIZED')
     }
 
