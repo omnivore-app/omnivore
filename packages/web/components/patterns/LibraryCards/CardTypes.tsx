@@ -21,4 +21,6 @@ export type LinkedItemCardProps = {
   viewer: UserBasicData
   inMultiSelect: boolean
   handleAction: (action: LinkedItemCardAction) => void
+
+  isHovered?: boolean
 }

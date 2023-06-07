@@ -4,22 +4,21 @@ import type { LinkedItemCardProps } from './CardTypes'
 import { CoverImage } from '../../elements/CoverImage'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { DotsThreeVertical } from 'phosphor-react'
 import Link from 'next/link'
 import { CardMenu } from '../CardMenu'
 import {
   AuthorInfoStyle,
+  CardCheckbox,
   DescriptionStyle,
   LibraryItemMetadata,
   MenuStyle,
   MetaStyle,
   siteName,
-  timeAgo,
   TitleStyle,
 } from './LibraryCardStyles'
 import { sortedLabels } from '../../../lib/labelsSort'
-import CheckboxComponent from '../../elements/Checkbox'
 
 dayjs.extend(relativeTime)
 
@@ -53,12 +52,8 @@ export function ProgressBar(props: ProgressBarProps): JSX.Element {
   )
 }
 
-// Component
 export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
   const [isHovered, setIsHovered] = useState(false)
-  const [menuOpen, setMenuOpen] = useState(false)
-
-  const originText = siteName(props.item.originalArticleUrl, props.item.url)
 
   return (
     <VStack
@@ -88,145 +83,156 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
         setIsHovered(false)
       }}
     >
-      <Link
-        href={`${props.viewer.profile.username}/${props.item.slug}`}
-        passHref
-      >
-        <a
+      {props.inMultiSelect ? (
+        <LibraryGridCardContent {...props} isHovered={isHovered} />
+      ) : (
+        <Link
           href={`${props.viewer.profile.username}/${props.item.slug}`}
-          style={{ textDecoration: 'unset', width: '100%', height: '100%' }}
-          tabIndex={-1}
+          passHref
+        >
+          <a
+            href={`${props.viewer.profile.username}/${props.item.slug}`}
+            style={{ textDecoration: 'unset', width: '100%', height: '100%' }}
+            tabIndex={-1}
+          >
+            <LibraryGridCardContent {...props} isHovered={isHovered} />
+          </a>
+        </Link>
+      )}
+    </VStack>
+  )
+}
+
+const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [isChecked, setIsChecked] = useState(false)
+
+  const originText = siteName(props.item.originalArticleUrl, props.item.url)
+
+  const handleCheckChanged = useCallback(() => {
+    setIsChecked(!isChecked)
+  }, [isChecked])
+
+  return (
+    <>
+      <HStack
+        css={{
+          ...MetaStyle,
+          minHeight: '35px',
+        }}
+        distribution="start"
+      >
+        <LibraryItemMetadata item={props.item} />
+        {props.inMultiSelect ? (
+          <SpanBox css={{ marginLeft: 'auto' }}>
+            <CardCheckbox
+              isChecked={isChecked}
+              handleChanged={handleCheckChanged}
+            />
+          </SpanBox>
+        ) : (
+          <Box
+            css={{
+              ...MenuStyle,
+              visibility: props.isHovered || menuOpen ? 'unset' : 'hidden',
+              '@media (hover: none)': {
+                visibility: 'unset',
+              },
+            }}
+          >
+            <CardMenu
+              item={props.item}
+              viewer={props.viewer}
+              onOpenChange={(open) => setMenuOpen(open)}
+              actionHandler={props.handleAction}
+              triggerElement={
+                <DotsThreeVertical size={25} weight="bold" color="#ADADAD" />
+              }
+            />
+          </Box>
+        )}
+      </HStack>
+      <VStack
+        alignment="start"
+        distribution="start"
+        css={{ height: '100%', width: '100%' }}
+      >
+        <Box
+          css={{
+            ...TitleStyle,
+            height: '42px',
+          }}
+        >
+          {props.item.title}
+        </Box>
+        <Box css={DescriptionStyle}>{props.item.description}</Box>
+        <SpanBox
+          css={{
+            ...AuthorInfoStyle,
+            mt: '10px',
+          }}
+        >
+          {props.item.author}
+          {props.item.author && originText && ' | '}
+          <SpanBox css={{ textDecoration: 'underline' }}>{originText}</SpanBox>
+        </SpanBox>
+        <SpanBox
+          css={{
+            pt: '20px',
+            pr: '10px',
+            pb: '20px',
+            width: '100%',
+            m: '0px',
+          }}
+        >
+          <ProgressBar
+            fillPercentage={props.item.readingProgressPercent}
+            fillColor="$thProgressFg"
+            backgroundColor="$thBorderSubtle"
+            borderRadius="5px"
+          />
+        </SpanBox>
+
+        <HStack
+          distribution="start"
+          alignment="start"
+          css={{ width: '100%', minHeight: '50px' }}
         >
           <HStack
             css={{
-              ...MetaStyle,
+              display: 'block',
               minHeight: '35px',
             }}
-            distribution="start"
           >
-            <LibraryItemMetadata item={props.item} />
-            {props.inMultiSelect ? (
-              <SpanBox css={{ marginLeft: 'auto' }}>
-                <input
-                  type="checkbox"
-                  onClick={(event) => {
-                    event.preventDefault()
-                  }}
-                ></input>
-              </SpanBox>
-            ) : (
-              <Box
-                css={{
-                  ...MenuStyle,
-                  visibility: isHovered || menuOpen ? 'unset' : 'hidden',
-                  '@media (hover: none)': {
-                    visibility: 'unset',
-                  },
-                }}
-              >
-                <CardMenu
-                  item={props.item}
-                  viewer={props.viewer}
-                  onOpenChange={(open) => setMenuOpen(open)}
-                  actionHandler={props.handleAction}
-                  triggerElement={
-                    <DotsThreeVertical
-                      size={25}
-                      weight="bold"
-                      color="#ADADAD"
-                    />
-                  }
-                />
-              </Box>
-            )}
+            {sortedLabels(props.item.labels).map(({ name, color }, index) => (
+              <LabelChip key={index} text={name || ''} color={color} />
+            ))}
           </HStack>
           <VStack
-            alignment="start"
-            distribution="start"
-            css={{ height: '100%', width: '100%' }}
+            css={{
+              width: '80px',
+              height: '100%',
+              marginLeft: 'auto',
+              flexGrow: '1',
+            }}
+            alignment="end"
+            distribution="end"
           >
-            <Box
-              css={{
-                ...TitleStyle,
-                height: '42px',
-              }}
-            >
-              {props.item.title}
-            </Box>
-            <Box css={DescriptionStyle}>{props.item.description}</Box>
-            <SpanBox
-              css={{
-                ...AuthorInfoStyle,
-                mt: '10px',
-              }}
-            >
-              {props.item.author}
-              {props.item.author && originText && ' | '}
-              <SpanBox css={{ textDecoration: 'underline' }}>
-                {originText}
-              </SpanBox>
-            </SpanBox>
-            <SpanBox
-              css={{
-                pt: '20px',
-                pr: '10px',
-                pb: '20px',
-                width: '100%',
-                m: '0px',
-              }}
-            >
-              <ProgressBar
-                fillPercentage={props.item.readingProgressPercent}
-                fillColor="$thProgressFg"
-                backgroundColor="$thBorderSubtle"
-                borderRadius="5px"
+            {props.item.image && (
+              <CoverImage
+                src={props.item.image}
+                alt="Link Preview Image"
+                width={50}
+                height={50}
+                css={{ borderRadius: '8px' }}
+                onError={(e) => {
+                  ;(e.target as HTMLElement).style.display = 'none'
+                }}
               />
-            </SpanBox>
-
-            <HStack
-              distribution="start"
-              alignment="start"
-              css={{ width: '100%', minHeight: '50px' }}
-            >
-              <HStack
-                css={{
-                  display: 'block',
-                  minHeight: '35px',
-                }}
-              >
-                {sortedLabels(props.item.labels).map(
-                  ({ name, color }, index) => (
-                    <LabelChip key={index} text={name || ''} color={color} />
-                  )
-                )}
-              </HStack>
-              <VStack
-                css={{
-                  width: '80px',
-                  height: '100%',
-                  marginLeft: 'auto',
-                  flexGrow: '1',
-                }}
-                alignment="end"
-                distribution="end"
-              >
-                {props.item.image && (
-                  <CoverImage
-                    src={props.item.image}
-                    alt="Link Preview Image"
-                    width={50}
-                    height={50}
-                    css={{ borderRadius: '8px' }}
-                    onError={(e) => {
-                      ;(e.target as HTMLElement).style.display = 'none'
-                    }}
-                  />
-                )}
-              </VStack>
-            </HStack>
+            )}
           </VStack>
-        </a>
-      </Link>
-    </VStack>
+        </HStack>
+      </VStack>
+    </>
   )
 }
