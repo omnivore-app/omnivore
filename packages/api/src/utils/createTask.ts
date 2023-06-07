@@ -511,8 +511,8 @@ export const enqueueThumbnailTask = async (
     content,
   }
 
-  const requestHeaders = {
-    Authorization: generateVerificationToken(userId),
+  const headers = {
+    Cookie: `auth=${generateVerificationToken(userId)}`,
   }
 
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment
@@ -521,7 +521,7 @@ export const enqueueThumbnailTask = async (
     setTimeout(() => {
       axios
         .post(env.queue.thumbnailTaskHandlerUrl, payload, {
-          headers: requestHeaders,
+          headers,
         })
         .catch((error) => {
           console.error(error)
@@ -533,7 +533,7 @@ export const enqueueThumbnailTask = async (
   const createdTasks = await createHttpTaskWithToken({
     payload,
     taskHandlerUrl: env.queue.thumbnailTaskHandlerUrl,
-    requestHeaders,
+    requestHeaders: headers,
   })
 
   if (!createdTasks || !createdTasks[0].name) {

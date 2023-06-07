@@ -233,8 +233,7 @@ export const thumbnailHandler = Sentry.GCPFunction.wrapHttpFunction(
       return res.status(500).send('JWT_SECRET_NOT_EXISTS')
     }
 
-    const token = req.headers?.authorization
-    console.debug('token', token)
+    const token = req.headers.cookie?.split('auth=')[1]
     if (!token) {
       console.debug('no token')
       return res.status(401).send('UNAUTHORIZED')
