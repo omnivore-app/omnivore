@@ -1,5 +1,6 @@
 import * as Sentry from '@sentry/serverless'
 import axios from 'axios'
+import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
 import sizeOf from 'image-size'
 import * as jwt from 'jsonwebtoken'
 import { parseHTML } from 'linkedom'
@@ -29,8 +30,10 @@ interface UpdatePageResponse {
 
 interface ThumbnailRequest {
   slug: string
+  content: string
 }
 
+dotenv.config()
 Sentry.GCPFunction.init({
   dsn: process.env.SENTRY_DSN,
   tracesSampleRate: 0,
@@ -57,7 +60,7 @@ const articleQuery = async (userId: string, slug: string): Promise<Page> => {
               }
             }
             ... on ArticleError {
-              errorCode
+              errorCodes
             }
           }
     }`,
@@ -131,7 +134,7 @@ const updatePageMutation = async (
 }
 
 const isThumbnailRequest = (body: any): body is ThumbnailRequest => {
-  return 'slug' in body
+  return 'slug' in body && 'content' in body
 }
 
 const getImageSize = async (url: string): Promise<[number, number] | null> => {
@@ -168,6 +171,7 @@ export const findThumbnail = async (
   // and pre-cache all images
   const images = dom.querySelectorAll('img[src]')
   if (!images || images.length === 0) {
+    console.debug('no images')
     return null
   }
 
@@ -186,16 +190,17 @@ export const findThumbnail = async (
 
     let area = size[0] * size[1]
 
-    // ignore little images
+    // ignore small images
     if (area < 5000) {
-      console.debug('ignore little', src)
+      console.debug('ignore small', src)
       continue
     }
 
-    // ignore excessively long/wide images
-    if (Math.max(...size) / Math.min(...size) > 1.5) {
-      console.debug('ignore dimensions', src)
-      continue
+    // penalize excessively long/wide images
+    const ratio = Math.max(...size) / Math.min(...size)
+    if (ratio > 1.5) {
+      console.debug('penalizing long/wide', src)
+      area /= ratio * 2
     }
 
     // penalize images with "sprite" in their name
@@ -225,30 +230,35 @@ export const thumbnailHandler = Sentry.GCPFunction.wrapHttpFunction(
   async (req, res) => {
     const token = req.headers?.authorization
     if (!token) {
+      console.debug('no token')
       return res.status(401).send('UNAUTHORIZED')
     }
     const { uid } = jwt.decode(token) as { uid: string }
     if (!uid) {
+      console.debug('no uid')
       return res.status(401).send('UNAUTHORIZED')
     }
 
     if (!isThumbnailRequest(req.body)) {
+      console.debug('bad request')
       return res.status(400).send('BAD_REQUEST')
     }
 
-    const { slug } = req.body
+    const { slug, content } = req.body
 
     try {
-      const page = await articleQuery(uid, slug)
-
       // find thumbnail from all images & pre-cache
-      const thumbnail = await findThumbnail(page.content)
+      const thumbnail = await findThumbnail(content)
       if (!thumbnail) {
+        console.debug('no thumbnail')
         return res.status(200).send('NOT_FOUND')
       }
 
+      const page = await articleQuery(uid, slug)
+      console.debug('find page', page.id)
       // update page with thumbnail if not already set
       if (page.image) {
+        console.debug('thumbnail already set')
         return res.status(200).send('OK')
       }
 
