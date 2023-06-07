@@ -1,4 +1,3 @@
-import axios from 'axios'
 import { Action, createAction, useKBar, useRegisterActions } from 'kbar'
 import debounce from 'lodash/debounce'
 import { useRouter } from 'next/router'
@@ -628,6 +627,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
   )
 
   const [showFilterMenu, setShowFilterMenu] = useState(false)
+  const [inMultiSelect, setInMultiSelect] = useState(false)
 
   return (
     <VStack
@@ -646,6 +646,8 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
         }}
         showFilterMenu={showFilterMenu}
         setShowFilterMenu={setShowFilterMenu}
+        inMultiSelect={inMultiSelect}
+        setInMultiSelect={setInMultiSelect}
       />
       <HStack css={{ width: '100%', height: '100%' }}>
         <LibraryFilterMenu
@@ -671,6 +673,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
           <LibraryItemsLayout
             viewer={viewerData?.me}
             layout={layout}
+            inMultiSelect={inMultiSelect}
             {...props}
           />
         )}
@@ -686,6 +689,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
 type LibraryItemsLayoutProps = {
   layout: LayoutType
   viewer?: UserBasicData
+  inMultiSelect: boolean
 } & HomeFeedContentProps
 
 function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element {
@@ -753,6 +757,7 @@ function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element {
               setLinkToUnsubscribe={props.setLinkToUnsubscribe}
               setShowRemoveLinkConfirmation={setShowRemoveLinkConfirmation}
               actionHandler={props.actionHandler}
+              inMultiSelect={props.inMultiSelect}
             />
           )}
           <HStack
@@ -873,6 +878,8 @@ type LibraryItemsProps = {
   setLinkToUnsubscribe: (set: LibraryItem | undefined) => void
   setShowRemoveLinkConfirmation: (show: true) => void
 
+  inMultiSelect: boolean
+
   actionHandler: (
     action: LinkedItemCardAction,
     item: LibraryItem | undefined
@@ -932,7 +939,7 @@ function LibraryItems(props: LibraryItemsProps): JSX.Element {
               outline: 'none',
             },
             '&> div': {
-              bg: '$thBackground3',
+              bg: '$thBackground',
             },
             '&:focus': {
               outline: 'none',
@@ -956,6 +963,7 @@ function LibraryItems(props: LibraryItemsProps): JSX.Element {
               layout={props.layout}
               item={linkedItem.node}
               viewer={props.viewer}
+              inMultiSelect={props.inMultiSelect}
               handleAction={(action: LinkedItemCardAction) => {
                 if (action === 'delete') {
                   props.setShowRemoveLinkConfirmation(true)

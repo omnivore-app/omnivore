@@ -2,21 +2,39 @@ import React from 'react'
 import { styled } from '@stitches/react'
 import * as CheckboxPrimitive from '@radix-ui/react-checkbox'
 import { CheckIcon } from './images/CheckIcon'
+import { Box } from './LayoutPrimitives'
+import { Check } from 'phosphor-react'
 
-const Checkbox = styled(CheckboxPrimitive.Root, {
+// const Checkbox = styled(CheckboxPrimitive.Root, {
+//   all: 'unset',
+//   width: 15,
+//   height: 15,
+//   borderRadius: 2,
+//   display: 'flex',
+//   alignItems: 'center',
+//   justifyContent: 'center',
+// })
+
+// const CheckboxIndicator = styled(CheckboxPrimitive.Indicator, {
+//   color: '#FFFFFF',
+// })
+
+const CheckboxRoot = styled(CheckboxPrimitive.Root, {
   all: 'unset',
-  width: 16,
-  height: 16,
-  minWidth: 16,
-  minHeight: 16,
-  borderRadius: 3,
+  backgroundColor: 'white',
+  width: 25,
+  height: 25,
+  borderRadius: 4,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
+  boxShadow: `0 2px 10px black`,
+  '&:hover': { backgroundColor: 'violet' },
+  '&:focus': { boxShadow: `0 0 0 2px black` },
 })
 
 const CheckboxIndicator = styled(CheckboxPrimitive.Indicator, {
-  color: '#FFFFFF',
+  color: 'violet',
 })
 
 export const CheckboxComponent: React.FC<{
@@ -26,18 +44,15 @@ export const CheckboxComponent: React.FC<{
   const toggleChecked = () => setChecked(!checked)
 
   return (
-    <Checkbox
-      css={{
-        border: checked ? '2px solid #F9D354' : '2px solid #3F3E3C4D',
-        backgroundColor: checked ? '#F9D354' : '#FFFFFF',
-      }}
-      checked={checked}
-      onCheckedChange={toggleChecked}
-    >
-      <CheckboxIndicator>
-        <CheckIcon />
-      </CheckboxIndicator>
-    </Checkbox>
+    <form>
+      <Box css={{ alignItems: 'center' }}>
+        <CheckboxRoot defaultChecked id="c1">
+          <CheckboxIndicator>
+            <Check size={20} color="black" />
+          </CheckboxIndicator>
+        </CheckboxRoot>
+      </Box>
+    </form>
   )
 }
 

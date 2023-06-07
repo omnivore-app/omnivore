@@ -11,6 +11,7 @@ import { theme } from '../../tokens/stitches.config'
 import { currentThemeName } from '../../../lib/themeUpdater'
 import { useRegisterActions } from 'kbar'
 import { HEADER_HEIGHT } from './HeaderSpacer'
+import { LogoBox } from '../../elements/LogoBox'
 
 export const LIBRARY_LEFT_MENU_WIDTH = '233px'
 
@@ -30,12 +31,12 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
       <Box
         css={{
           left: '0px',
-          top: HEADER_HEIGHT,
+          top: '0px',
           position: 'fixed',
-          bg: '$thBackground',
+          bg: '#1D1D1D', // $thBackground',
           height: '100%',
           width: LIBRARY_LEFT_MENU_WIDTH,
-          borderRight: '1px solid $thBorderColor',
+          // borderRight: '1px solid $thBorderColor',
           overflowY: 'auto',
           overflowX: 'hidden',
           '&::-webkit-scrollbar': {
@@ -48,6 +49,21 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
           },
         }}
       >
+        <Box
+          css={{
+            width: '100%',
+            px: '25px',
+            pb: '25px',
+
+            // '@lg': {
+            //   display: props.alwaysDisplayToolbar ? 'flex' : 'none',
+            // },
+            // '@mdDown': { px: '15px' },
+          }}
+        >
+          <LogoBox />
+        </Box>
+
         <SavedSearches {...props} />
         <Subscriptions {...props} />
         <Labels {...props} />

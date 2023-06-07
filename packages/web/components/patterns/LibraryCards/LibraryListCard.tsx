@@ -15,6 +15,7 @@ import {
   TitleStyle,
 } from './LibraryCardStyles'
 import { sortedLabels } from '../../../lib/labelsSort'
+import { Checkbox } from '@radix-ui/react-checkbox'
 
 export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
   const [isHovered, setIsHovered] = useState(false)
@@ -64,25 +65,31 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
         >
           <HStack css={MetaStyle} distribution="start">
             <LibraryItemMetadata item={props.item} showProgress={true} />
-            <Box
-              css={{
-                ...MenuStyle,
-                visibility: isHovered || menuOpen ? 'unset' : 'hidden',
-                '@media (hover: none)': {
-                  visibility: 'unset',
-                },
-              }}
-            >
-              <CardMenu
-                item={props.item}
-                viewer={props.viewer}
-                onOpenChange={(open) => setMenuOpen(open)}
-                actionHandler={props.handleAction}
-                triggerElement={
-                  <DotsThree size={25} weight="bold" color="#ADADAD" />
-                }
-              />
-            </Box>
+            {props.inMultiSelect ? (
+              <SpanBox css={{ marginLeft: 'auto' }}>
+                <input type="checkbox"></input>
+              </SpanBox>
+            ) : (
+              <Box
+                css={{
+                  ...MenuStyle,
+                  visibility: isHovered || menuOpen ? 'unset' : 'hidden',
+                  '@media (hover: none)': {
+                    visibility: 'unset',
+                  },
+                }}
+              >
+                <CardMenu
+                  item={props.item}
+                  viewer={props.viewer}
+                  onOpenChange={(open) => setMenuOpen(open)}
+                  actionHandler={props.handleAction}
+                  triggerElement={
+                    <DotsThree size={25} weight="bold" color="#ADADAD" />
+                  }
+                />
+              </Box>
+            )}
           </HStack>
           <VStack
             alignment="start"

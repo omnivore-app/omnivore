@@ -19,6 +19,7 @@ import {
   TitleStyle,
 } from './LibraryCardStyles'
 import { sortedLabels } from '../../../lib/labelsSort'
+import CheckboxComponent from '../../elements/Checkbox'
 
 dayjs.extend(relativeTime)
 
@@ -104,25 +105,40 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
             distribution="start"
           >
             <LibraryItemMetadata item={props.item} />
-            <Box
-              css={{
-                ...MenuStyle,
-                visibility: isHovered || menuOpen ? 'unset' : 'hidden',
-                '@media (hover: none)': {
-                  visibility: 'unset',
-                },
-              }}
-            >
-              <CardMenu
-                item={props.item}
-                viewer={props.viewer}
-                onOpenChange={(open) => setMenuOpen(open)}
-                actionHandler={props.handleAction}
-                triggerElement={
-                  <DotsThreeVertical size={25} weight="bold" color="#ADADAD" />
-                }
-              />
-            </Box>
+            {props.inMultiSelect ? (
+              <SpanBox css={{ marginLeft: 'auto' }}>
+                <input
+                  type="checkbox"
+                  onClick={(event) => {
+                    event.preventDefault()
+                  }}
+                ></input>
+              </SpanBox>
+            ) : (
+              <Box
+                css={{
+                  ...MenuStyle,
+                  visibility: isHovered || menuOpen ? 'unset' : 'hidden',
+                  '@media (hover: none)': {
+                    visibility: 'unset',
+                  },
+                }}
+              >
+                <CardMenu
+                  item={props.item}
+                  viewer={props.viewer}
+                  onOpenChange={(open) => setMenuOpen(open)}
+                  actionHandler={props.handleAction}
+                  triggerElement={
+                    <DotsThreeVertical
+                      size={25}
+                      weight="bold"
+                      color="#ADADAD"
+                    />
+                  }
+                />
+              </Box>
+            )}
           </HStack>
           <VStack
             alignment="start"

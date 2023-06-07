@@ -1,18 +1,30 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Box, HStack, VStack } from '../../elements/LayoutPrimitives'
 import { theme } from '../../tokens/stitches.config'
 import { FormInput } from '../../elements/FormElements'
 import { searchBarCommands } from '../../../lib/keyboardShortcuts/navigationShortcuts'
 import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { Button, IconButton } from '../../elements/Button'
-import { FunnelSimple, MagnifyingGlass, X } from 'phosphor-react'
-import { ListSelectorIcon } from '../../elements/images/ListSelectorIcon'
-import { GridSelectorIcon } from '../../elements/images/GridSelectorIcon'
+import {
+  ArchiveBox,
+  FunnelSimple,
+  ListBullets,
+  MagnifyingGlass,
+  Prohibit,
+  SquaresFour,
+  TagSimple,
+  TrashSimple,
+  X,
+} from 'phosphor-react'
 import { LayoutType } from './HomeFeedContainer'
 import { PrimaryDropdown } from '../PrimaryDropdown'
-import { LogoBox } from '../../elements/LogoBox'
 import { OmnivoreSmallLogo } from '../../elements/images/OmnivoreNameLogo'
 import { HeaderSpacer, HEADER_HEIGHT } from './HeaderSpacer'
+import { LIBRARY_LEFT_MENU_WIDTH } from '../../templates/homeFeed/LibraryFilterMenu'
+import {
+  ScrollOffsetChangeset,
+  useScrollWatcher,
+} from '../../../lib/hooks/useScrollWatcher'
 
 type LibraryHeaderProps = {
   layout: LayoutType
@@ -23,9 +35,24 @@ type LibraryHeaderProps = {
 
   showFilterMenu: boolean
   setShowFilterMenu: (show: boolean) => void
+
+  inMultiSelect: boolean
+  setInMultiSelect: (set: boolean) => void
 }
 
 export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
+  const [isScrolled, setIsScrolled] = useState(props.inMultiSelect)
+
+  useEffect(() => {
+    if (window.scrollY > 5 || props.inMultiSelect) {
+      setIsScrolled(true)
+    }
+  })
+
+  useScrollWatcher((changeset: ScrollOffsetChangeset) => {
+    setIsScrolled(window.scrollY > 5)
+  }, 0)
+
   return (
     <>
       <VStack
@@ -33,14 +60,16 @@ export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
         distribution="start"
         css={{
           top: '0',
-          left: '0',
+          right: '0',
+          left: LIBRARY_LEFT_MENU_WIDTH,
           zIndex: 5,
           position: 'fixed',
-          width: '100%',
           height: HEADER_HEIGHT,
-          bg: '$thBackground',
-          pt: '0px',
-          borderBottom: '1px solid $thBorderColor',
+          bg: isScrolled ? '$thBackground' : 'transparent',
+          '@mdDown': {
+            left: '0px',
+            right: '0',
+          },
         }}
       >
         {/* These will display/hide depending on breakpoints */}
@@ -59,7 +88,7 @@ function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
   return (
     <HStack
       alignment="center"
-      distribution="start"
+      distribution="center"
       css={{
         width: '100%',
         height: '100%',
@@ -68,11 +97,13 @@ function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
         },
       }}
     >
-      <LogoBox />
-      <SearchBox {...props} />
+      {/* <MagnifyingGlass size={20} color="#898989" /> */}
+      {/*  */}
       <ControlButtonBox
         layout={props.layout}
         updateLayout={props.updateLayout}
+        inMultiSelect={props.inMultiSelect}
+        setInMultiSelect={props.setInMultiSelect}
       />
     </HStack>
   )
@@ -114,6 +145,8 @@ function SmallHeaderLayout(props: LibraryHeaderProps): JSX.Element {
             layout={props.layout}
             updateLayout={props.updateLayout}
             setShowInlineSearch={setShowInlineSearch}
+            inMultiSelect={props.inMultiSelect}
+            setInMultiSelect={props.setInMultiSelect}
           />
         </>
       )}
@@ -317,52 +350,171 @@ type ControlButtonBoxProps = {
   layout: LayoutType
   updateLayout: (layout: LayoutType) => void
   setShowInlineSearch?: (show: boolean) => void
+
+  inMultiSelect: boolean
+  setInMultiSelect: (set: boolean) => void
+}
+
+function MultiSelectControlButtonBox(
+  props: ControlButtonBoxProps
+): JSX.Element {
+  return (
+    <HStack alignment="center" distribution="center" css={{ gap: '20px' }}>
+      <Button
+        style="outline"
+        // onClick={(e) => {
+        //   props.updateLayout(
+        //     props.layout == 'GRID_LAYOUT' ? 'LIST_LAYOUT' : 'GRID_LAYOUT'
+        //   )
+        //   e.preventDefault()
+        // }}
+      >
+        <ArchiveBox
+          width={20}
+          height={20}
+          color={theme.colors.thTextContrast2.toString()}
+        />
+        Archive
+      </Button>
+      <Button
+        style="outline"
+        // onClick={(e) => {
+        //   props.updateLayout(
+        //     props.layout == 'GRID_LAYOUT' ? 'LIST_LAYOUT' : 'GRID_LAYOUT'
+        //   )
+        //   e.preventDefault()
+        // }}
+      >
+        <TagSimple
+          width={20}
+          height={20}
+          color={theme.colors.thTextContrast2.toString()}
+        />
+        Label
+      </Button>
+      <Button
+        style="outline"
+        // onClick={(e) => {
+        //   props.updateLayout(
+        //     props.layout == 'GRID_LAYOUT' ? 'LIST_LAYOUT' : 'GRID_LAYOUT'
+        //   )
+        //   e.preventDefault()
+        // }}
+      >
+        <TrashSimple
+          width={20}
+          height={20}
+          color={theme.colors.thTextContrast2.toString()}
+        />
+        Delete
+      </Button>
+      <Button
+        style="cancel"
+        onClick={(e) => {
+          props.setInMultiSelect(false)
+          e.preventDefault()
+        }}
+      >
+        <Prohibit
+          width={20}
+          height={20}
+          color={theme.colors.thTextContrast2.toString()}
+        />
+        Cancel
+      </Button>
+    </HStack>
+  )
+}
+
+function SearchControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
+  return (
+    <>
+      <SearchBox searchTerm="" applySearchQuery={(searchQuery: string) => {}} />
+      <Button
+        style="plainIcon"
+        css={{ display: 'flex', marginLeft: 'auto' }}
+        onClick={(e) => {
+          props.updateLayout(
+            props.layout == 'GRID_LAYOUT' ? 'LIST_LAYOUT' : 'GRID_LAYOUT'
+          )
+          e.preventDefault()
+        }}
+      >
+        {props.layout == 'GRID_LAYOUT' ? (
+          <ListBullets
+            width={30}
+            height={30}
+            weight="light"
+            color={'#898989'}
+          />
+        ) : (
+          <SquaresFour
+            width={30}
+            height={30}
+            weight="light"
+            color={'#898989'}
+          />
+        )}
+      </Button>
+      <PrimaryDropdown
+        showThemeSection={true}
+        startSelectMultiple={() => {
+          props.setInMultiSelect(true)
+        }}
+      />
+    </>
+  )
 }
 
 function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
+  const breakpoints =
+    props.layout == 'GRID_LAYOUT'
+      ? {
+          minWidth: '121px',
+
+          '@xlgDown': {
+            width: '320px',
+          },
+          '@smDown': {
+            width: '320px',
+          },
+          '@media (min-width: 930px)': {
+            width: '640px',
+          },
+          '@media (min-width: 1280px)': {
+            width: '1000px',
+          },
+          '@media (min-width: 1600px)': {
+            width: '1340px',
+          },
+        }
+      : {
+          width: '900px',
+          '@xlgDown': {
+            width: '90%',
+          },
+          '@xxl': {
+            width: '1200px',
+          },
+        }
   return (
     <>
       <HStack
         alignment="center"
-        distribution="end"
+        distribution={props.inMultiSelect ? 'center' : 'start'}
         css={{
-          marginLeft: 'auto',
-          marginRight: '45px',
-          width: '100px',
-          height: '100%',
-          gap: '20px',
-          minWidth: '121px',
+          gap: '10px',
           '@mdDown': {
             display: 'none',
           },
+          ...breakpoints,
         }}
       >
-        <Button
-          style="plainIcon"
-          css={{ display: 'flex' }}
-          onClick={(e) => {
-            props.updateLayout('LIST_LAYOUT')
-            e.preventDefault()
-          }}
-        >
-          <ListSelectorIcon
-            color={props.layout == 'GRID_LAYOUT' ? '#6A6968' : '#FFEA9F'}
-          />
-        </Button>
-
-        <Button
-          style="plainIcon"
-          css={{ display: 'flex' }}
-          onClick={(e) => {
-            props.updateLayout('GRID_LAYOUT')
-            e.preventDefault()
-          }}
-        >
-          <GridSelectorIcon
-            color={props.layout == 'LIST_LAYOUT' ? '#6A6968' : '#FFEA9F'}
-          />
-        </Button>
-        <PrimaryDropdown showThemeSection={true} />
+        {props.inMultiSelect ? (
+          <MultiSelectControlButtonBox {...props} />
+        ) : (
+          <SearchControlButtonBox {...props} />
+        )}
       </HStack>
 
       {props.setShowInlineSearch && (
@@ -398,6 +550,9 @@ function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
             showThemeSection={true}
             layout={props.layout}
             updateLayout={props.updateLayout}
+            startSelectMultiple={() => {
+              props.setInMultiSelect(true)
+            }}
           />
         </HStack>
       )}

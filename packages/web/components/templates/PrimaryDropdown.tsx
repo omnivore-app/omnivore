@@ -23,6 +23,8 @@ type PrimaryDropdownProps = {
 
   layout?: LayoutType
   updateLayout?: (layout: LayoutType) => void
+
+  startSelectMultiple?: () => void
 }
 
 export type HeaderDropdownAction =
@@ -35,6 +37,7 @@ export type HeaderDropdownAction =
   | 'navigate-to-integrations'
   | 'increaseFontSize'
   | 'decreaseFontSize'
+  | 'begin-select-multiple'
   | 'logout'
 
 export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
@@ -61,6 +64,11 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
           break
         case 'navigate-to-integrations':
           router.push('/settings/integrations')
+          break
+        case 'begin-select-multiple':
+          if (props.startSelectMultiple) {
+            props.startSelectMultiple()
+          }
           break
         case 'logout':
           document.dispatchEvent(new Event('logout'))
@@ -153,6 +161,14 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
         onSelect={() => headerDropdownActionHandler('navigate-to-labels')}
         title="Labels"
       />
+      {props.startSelectMultiple && (
+        <DropdownOption
+          onSelect={() => headerDropdownActionHandler('begin-select-multiple')}
+          title="Select Multiple"
+        />
+      )}
+      <DropdownSeparator />
+
       <DropdownOption
         onSelect={() => headerDropdownActionHandler('navigate-to-api')}
         title="API Keys"

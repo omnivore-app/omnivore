@@ -19,5 +19,6 @@ export type LinkedItemCardProps = {
   item: LibraryItemNode
   layout: LayoutType
   viewer: UserBasicData
+  inMultiSelect: boolean
   handleAction: (action: LinkedItemCardAction) => void
 }
