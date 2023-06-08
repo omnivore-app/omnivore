@@ -20,8 +20,8 @@ export async function bulkActionMutation(
   query: string
 ): Promise<boolean> {
   const mutation = gql`
-    mutation {
-      bulkAction(action: $action, query: $query) {
+    mutation BulkAction($action: BulkActionType!, $query: String!) {
+      bulkAction(query: $query, action: $action) {
         ... on BulkActionSuccess {
           success
         }
