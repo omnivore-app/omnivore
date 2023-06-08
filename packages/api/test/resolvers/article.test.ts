@@ -1214,9 +1214,9 @@ describe('Article API', () => {
   })
 
   describe('BulkAction API', () => {
-    const bulkActionQuery = (action: BulkActionType) => `
+    const bulkActionQuery = (action: BulkActionType, query = 'in:all') => `
       mutation {
-        bulkAction (action: ${action}) {
+        bulkAction (action: ${action}, query: "${query}") {
           ... on BulkActionSuccess {
             success
           }
