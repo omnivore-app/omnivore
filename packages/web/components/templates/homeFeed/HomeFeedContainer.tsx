@@ -627,8 +627,13 @@ export function HomeFeedContainer(): JSX.Element {
           multiSelectMode === 'search'
             ? queryInputs.searchQuery || 'in:inbox'
             : `includes:${checkedItems.join(',')}`
+        const expectedCount =
+          multiSelectMode === 'search'
+            ? itemsPages?.[0].search.pageInfo.totalCount || 0
+            : checkedItems.length
+
         try {
-          const res = await bulkActionMutation(action, query)
+          const res = await bulkActionMutation(action, query, expectedCount)
           if (res) {
             switch (action) {
               case BulkAction.ARCHIVE:
@@ -648,7 +653,7 @@ export function HomeFeedContainer(): JSX.Element {
       })()
       setMultiSelectMode('off')
     },
-    [multiSelectMode, checkedItems]
+    [itemsPages, multiSelectMode, checkedItems]
   )
 
   return (
