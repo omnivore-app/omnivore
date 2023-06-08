@@ -156,23 +156,27 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
         onSelect={() => headerDropdownActionHandler('navigate-to-labels')}
         title="Labels"
       />
-      <DropdownSeparator />
-      {props.startSelectMultiple && (
-        <DropdownOption
-          onSelect={() =>
-            props.startSelectMultiple && props.startSelectMultiple()
-          }
-          title="Select Multiple"
-        />
-      )}
       {props.showAddLinkModal && (
-        <DropdownOption
-          onSelect={() => props.showAddLinkModal && props.showAddLinkModal()}
-          title="Add Link"
-        />
-      )}
-      <DropdownSeparator />
+        <>
+          <DropdownSeparator />
 
+          <DropdownOption
+            onSelect={() => props.showAddLinkModal && props.showAddLinkModal()}
+            title="Add Link"
+          />
+        </>
+      )}
+      {props.startSelectMultiple && (
+        <>
+          <DropdownOption
+            onSelect={() =>
+              props.startSelectMultiple && props.startSelectMultiple()
+            }
+            title="Select Multiple"
+          />
+          <DropdownSeparator />
+        </>
+      )}
       <DropdownOption
         onSelect={() => headerDropdownActionHandler('navigate-to-api')}
         title="API Keys"
