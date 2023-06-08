@@ -13,7 +13,7 @@ import {
   searchAsYouType,
   searchPages,
   updatePage,
-  updatePagesAsync,
+  updatePages,
 } from '../../elastic/pages'
 import {
   ArticleSavingRequestStatus,
@@ -1098,46 +1098,59 @@ export const bulkActionResolver = authorized<
   BulkActionSuccess,
   BulkActionError,
   MutationBulkActionArgs
->(async (_parent, { query, action, labelIds }, { claims: { uid }, log }) => {
-  log.info('bulkActionResolver')
+>(
+  async (
+    _parent,
+    { query, action, labelIds, expectedCount, async },
+    { claims: { uid }, log }
+  ) => {
+    log.info('bulkActionResolver')
 
-  analytics.track({
-    userId: uid,
-    event: 'BulkAction',
-    properties: {
-      env: env.server.apiEnv,
-      action,
-    },
-  })
+    analytics.track({
+      userId: uid,
+      event: 'BulkAction',
+      properties: {
+        env: env.server.apiEnv,
+        action,
+      },
+    })
 
-  if (!uid) {
-    log.log('bulkActionResolver', { error: 'Unauthorized' })
-    return { errorCodes: [BulkActionErrorCode.Unauthorized] }
-  }
+    if (!uid) {
+      log.log('bulkActionResolver', { error: 'Unauthorized' })
+      return { errorCodes: [BulkActionErrorCode.Unauthorized] }
+    }
 
-  if (!query) {
-    log.log('bulkActionResolver', { error: 'no query' })
-    return { errorCodes: [BulkActionErrorCode.BadRequest] }
-  }
-
-  // get labels if needed
-  let labels = undefined
-  if (action === BulkActionType.AddLabels) {
-    if (!labelIds || labelIds.length === 0) {
+    if (!query) {
+      log.log('bulkActionResolver', { error: 'no query' })
       return { errorCodes: [BulkActionErrorCode.BadRequest] }
     }
 
-    labels = await getLabelsByIds(uid, labelIds)
+    // get labels if needed
+    let labels = undefined
+    if (action === BulkActionType.AddLabels) {
+      if (!labelIds || labelIds.length === 0) {
+        return { errorCodes: [BulkActionErrorCode.BadRequest] }
+      }
+
+      labels = await getLabelsByIds(uid, labelIds)
+    }
+
+    // parse query
+    const searchQuery = parseSearchQuery(query)
+
+    // start a task to update pages
+    const taskId = await updatePages(
+      uid,
+      action,
+      searchQuery,
+      Math.min(expectedCount ?? 500, 500), // default and max to 500
+      !!async, // default to false
+      labels
+    )
+
+    return { success: !!taskId }
   }
-
-  // parse query
-  const searchQuery = parseSearchQuery(query)
-
-  // start a task to update pages
-  const taskId = await updatePagesAsync(uid, action, searchQuery, labels)
-
-  return { success: !!taskId }
-})
+)
 
 const getUpdateReason = (page: Page, since: Date) => {
   if (page.state === ArticleSavingRequestStatus.Deleted) {

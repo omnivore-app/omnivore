@@ -1267,13 +1267,11 @@ describe('Article API', () => {
           authToken
         ).expect(200)
         expect(res.body.data.bulkAction.success).to.be.true
-        // Wait for the archive to finish
-        await setTimeout(async () => {
-          const pages = await graphqlRequest(searchQuery(), authToken).expect(
-            200
-          )
-          expect(pages.body.data.search.pageInfo.totalCount).to.eql(0)
-        }, 1000)
+
+        await refreshIndex()
+
+        const pages = await graphqlRequest(searchQuery(), authToken).expect(200)
+        expect(pages.body.data.search.pageInfo.totalCount).to.eql(0)
       })
     })
 
@@ -1284,14 +1282,14 @@ describe('Article API', () => {
           authToken
         ).expect(200)
         expect(res.body.data.bulkAction.success).to.be.true
-        // Wait for the delete to finish
-        await setTimeout(async () => {
-          const pages = await graphqlRequest(
-            searchQuery('in:all'),
-            authToken
-          ).expect(200)
-          expect(pages.body.data.search.pageInfo.totalCount).to.eql(0)
-        }, 1000)
+
+        await refreshIndex()
+
+        const pages = await graphqlRequest(
+          searchQuery('in:all'),
+          authToken
+        ).expect(200)
+        expect(pages.body.data.search.pageInfo.totalCount).to.eql(0)
       })
     })
   })

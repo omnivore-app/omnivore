@@ -1302,6 +1302,8 @@ export type MutationAddPopularReadArgs = {
 
 export type MutationBulkActionArgs = {
   action: BulkActionType;
+  async?: InputMaybe<Scalars['Boolean']>;
+  expectedCount?: InputMaybe<Scalars['Int']>;
   labelIds?: InputMaybe<Array<Scalars['ID']>>;
   query: Scalars['String'];
 };

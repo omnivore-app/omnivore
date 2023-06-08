@@ -695,10 +695,12 @@ export const searchAsYouType = async (
   }
 }
 
-export const updatePagesAsync = async (
+export const updatePages = async (
   userId: string,
   action: BulkActionType,
   args: PageSearchArgs,
+  maxDocs: number,
+  async: boolean,
   labels?: Label[]
 ): Promise<string | null> => {
   // build the script
@@ -774,8 +776,11 @@ export const updatePagesAsync = async (
     const { body } = await client.updateByQuery({
       index: INDEX_ALIAS,
       conflicts: 'proceed',
-      wait_for_completion: false,
+      wait_for_completion: !async,
       body: searchBody,
+      max_docs: maxDocs,
+      requests_per_second: 500, // throttle the requests
+      slices: 'auto', // parallelize the requests
     })
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -784,8 +789,13 @@ export const updatePagesAsync = async (
       return null
     }
 
-    console.log('update pages task started', body.task)
-    return body.task as string
+    if (async) {
+      console.log('update pages task started', body.task)
+      return body.task as string
+    }
+
+    console.log('updated pages in elastic', body.updated)
+    return body.updated as string
   } catch (e) {
     console.log('failed to update pages in elastic', e)
     return null
