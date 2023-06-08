@@ -331,6 +331,23 @@ export function HomeFeedContainer(): JSX.Element {
     return labelsTarget || linkToEdit || linkToRemove || linkToUnsubscribe
   }, [labelsTarget, linkToEdit, linkToRemove, linkToUnsubscribe])
 
+  const [checkedItems, setCheckedItems] = useState<string[]>([])
+  const [multiSelectMode, setMultiSelectMode] = useState<MultiSelectMode>('off')
+
+  const selectActiveArticle = useCallback(() => {
+    console.log('selecting article: ', activeItem)
+    if (activeItem) {
+      if (multiSelectMode === 'off') {
+        console.log('setting ')
+        setMultiSelectMode('none')
+      }
+      const itemId = activeItem.node.id
+      const isChecked = itemIsChecked(itemId)
+      console.log('setting is checked: ', isChecked, itemId)
+      setIsChecked(itemId, !isChecked)
+    }
+  }, [activeItem, multiSelectMode, checkedItems])
+
   useKeyboardShortcuts(
     libraryListCommands((action) => {
       const columnCount = (container: HTMLDivElement) => {
@@ -348,7 +365,16 @@ export function HomeFeedContainer(): JSX.Element {
 
       switch (action) {
         case 'openArticle':
-          handleCardAction('showDetail', activeItem)
+          if (multiSelectMode !== 'off' && activeItem) {
+            const itemId = activeItem.node.id
+            const isChecked = itemIsChecked(itemId)
+            setIsChecked(itemId, !isChecked)
+          } else {
+            handleCardAction('showDetail', activeItem)
+          }
+          break
+        case 'selectArticle':
+          selectActiveArticle()
           break
         case 'openOriginalArticle':
           handleCardAction('showOriginal', activeItem)
@@ -434,6 +460,11 @@ export function HomeFeedContainer(): JSX.Element {
           break
         case 'sortAscending':
           setQueryInputs({ ...queryInputs, sortDescending: false })
+          break
+        case 'beginMultiSelect':
+          if (multiSelectMode == 'off') {
+            setMultiSelectMode('none')
+          }
           break
       }
     })
@@ -522,23 +553,22 @@ export function HomeFeedContainer(): JSX.Element {
   )
   useFetchMore(handleFetchMore)
 
-  const [checkedItems, setCheckedItems] = useState<string[]>([])
-  const [multiSelectMode, setMultiSelectMode] = useState<MultiSelectMode>('off')
-
   const setIsChecked = useCallback(
     (itemId: string, set: boolean) => {
+      console.log('setting is checked with list: ', checkedItems)
       if (set && checkedItems.indexOf(itemId) === -1) {
         checkedItems.push(itemId)
         setCheckedItems([...checkedItems])
       } else if (!set && checkedItems.indexOf(itemId) !== -1) {
-        setCheckedItems(checkedItems.splice(checkedItems.indexOf(itemId), 1))
+        checkedItems.splice(checkedItems.indexOf(itemId))
+        setCheckedItems([...checkedItems])
       }
     },
     [checkedItems]
   )
 
   useEffect(() => {
-    console.log('switching on multiselect mode: ', multiSelectMode)
+    console.log(' -- multiselect mode: ', multiSelectMode)
     switch (multiSelectMode) {
       case 'off':
       case 'none':
@@ -686,8 +716,6 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
   )
 
   const [showFilterMenu, setShowFilterMenu] = useState(false)
-
-  console.log('props.multiSelectMode: ', props.multiSelectMode)
 
   return (
     <VStack

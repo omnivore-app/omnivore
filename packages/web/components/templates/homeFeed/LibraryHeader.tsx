@@ -49,18 +49,14 @@ type LibraryHeaderProps = {
 }
 
 export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
-  const [showBackground, setShowBackground] = useState(
-    props.multiSelectMode !== 'off'
-  )
+  const [showBackground, setShowBackground] = useState(false)
 
   useEffect(() => {
-    if (window.scrollY > 5 || props.multiSelectMode != 'off') {
-      setShowBackground(true)
-    }
-  })
+    setShowBackground(window.scrollY > 5 || props.multiSelectMode !== 'off')
+  }, [props.multiSelectMode])
 
   useScrollWatcher((changeset: ScrollOffsetChangeset) => {
-    setShowBackground(window.scrollY > 5)
+    setShowBackground(window.scrollY > 5 || props.multiSelectMode !== 'off')
   }, 0)
 
   return (
