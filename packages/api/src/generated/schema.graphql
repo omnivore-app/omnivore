@@ -183,31 +183,13 @@ type ArticlesSuccess {
   pageInfo: PageInfo!
 }
 
-input BulkAction {
-  itemIds: [ID!]!
-  itemType: BulkActionItemType!
-  labelIds: [ID!]
-  type: BulkActionType!
-}
-
 type BulkActionError {
   errorCodes: [BulkActionErrorCode!]!
 }
 
 enum BulkActionErrorCode {
+  BAD_REQUEST
   UNAUTHORIZED
-}
-
-input BulkActionInput {
-  actions: [BulkAction!]!
-  query: String
-}
-
-enum BulkActionItemType {
-  HIGHLIGHT
-  LABEL
-  PAGE
-  SUBSCRIPTION
 }
 
 union BulkActionResult = BulkActionError | BulkActionSuccess
@@ -1111,7 +1093,7 @@ type MoveLabelSuccess {
 
 type Mutation {
   addPopularRead(name: String!): AddPopularReadResult!
-  bulkAction(input: BulkActionInput!): BulkActionResult!
+  bulkAction(action: BulkActionType!, labelIds: [ID!], query: String!): BulkActionResult!
   createArticle(input: CreateArticleInput!): CreateArticleResult!
   createArticleSavingRequest(input: CreateArticleSavingRequestInput!): CreateArticleSavingRequestResult!
   createGroup(input: CreateGroupInput!): CreateGroupResult!

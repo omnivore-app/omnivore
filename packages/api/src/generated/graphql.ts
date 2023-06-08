@@ -222,32 +222,14 @@ export type ArticlesSuccess = {
   pageInfo: PageInfo;
 };
 
-export type BulkAction = {
-  itemIds: Array<Scalars['ID']>;
-  itemType: BulkActionItemType;
-  labelIds?: InputMaybe<Array<Scalars['ID']>>;
-  type: BulkActionType;
-};
-
 export type BulkActionError = {
   __typename?: 'BulkActionError';
   errorCodes: Array<BulkActionErrorCode>;
 };
 
 export enum BulkActionErrorCode {
+  BadRequest = 'BAD_REQUEST',
   Unauthorized = 'UNAUTHORIZED'
-}
-
-export type BulkActionInput = {
-  actions: Array<BulkAction>;
-  query?: InputMaybe<Scalars['String']>;
-};
-
-export enum BulkActionItemType {
-  Highlight = 'HIGHLIGHT',
-  Label = 'LABEL',
-  Page = 'PAGE',
-  Subscription = 'SUBSCRIPTION'
 }
 
 export type BulkActionResult = BulkActionError | BulkActionSuccess;
@@ -1319,7 +1301,9 @@ export type MutationAddPopularReadArgs = {
 
 
 export type MutationBulkActionArgs = {
-  input: BulkActionInput;
+  action: BulkActionType;
+  labelIds?: InputMaybe<Array<Scalars['ID']>>;
+  query: Scalars['String'];
 };
 
 
@@ -3313,11 +3297,8 @@ export type ResolversTypes = {
   ArticlesResult: ResolversTypes['ArticlesError'] | ResolversTypes['ArticlesSuccess'];
   ArticlesSuccess: ResolverTypeWrapper<ArticlesSuccess>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
-  BulkAction: BulkAction;
   BulkActionError: ResolverTypeWrapper<BulkActionError>;
   BulkActionErrorCode: BulkActionErrorCode;
-  BulkActionInput: BulkActionInput;
-  BulkActionItemType: BulkActionItemType;
   BulkActionResult: ResolversTypes['BulkActionError'] | ResolversTypes['BulkActionSuccess'];
   BulkActionSuccess: ResolverTypeWrapper<BulkActionSuccess>;
   BulkActionType: BulkActionType;
@@ -3796,9 +3777,7 @@ export type ResolversParentTypes = {
   ArticlesResult: ResolversParentTypes['ArticlesError'] | ResolversParentTypes['ArticlesSuccess'];
   ArticlesSuccess: ArticlesSuccess;
   Boolean: Scalars['Boolean'];
-  BulkAction: BulkAction;
   BulkActionError: BulkActionError;
-  BulkActionInput: BulkActionInput;
   BulkActionResult: ResolversParentTypes['BulkActionError'] | ResolversParentTypes['BulkActionSuccess'];
   BulkActionSuccess: BulkActionSuccess;
   CreateArticleError: CreateArticleError;
@@ -5037,7 +5016,7 @@ export type MoveLabelSuccessResolvers<ContextType = ResolverContext, ParentType 
 
 export type MutationResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   addPopularRead?: Resolver<ResolversTypes['AddPopularReadResult'], ParentType, ContextType, RequireFields<MutationAddPopularReadArgs, 'name'>>;
-  bulkAction?: Resolver<ResolversTypes['BulkActionResult'], ParentType, ContextType, RequireFields<MutationBulkActionArgs, 'input'>>;
+  bulkAction?: Resolver<ResolversTypes['BulkActionResult'], ParentType, ContextType, RequireFields<MutationBulkActionArgs, 'action' | 'query'>>;
   createArticle?: Resolver<ResolversTypes['CreateArticleResult'], ParentType, ContextType, RequireFields<MutationCreateArticleArgs, 'input'>>;
   createArticleSavingRequest?: Resolver<ResolversTypes['CreateArticleSavingRequestResult'], ParentType, ContextType, RequireFields<MutationCreateArticleSavingRequestArgs, 'input'>>;
   createGroup?: Resolver<ResolversTypes['CreateGroupResult'], ParentType, ContextType, RequireFields<MutationCreateGroupArgs, 'input'>>;

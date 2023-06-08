@@ -31,6 +31,7 @@ import {
   BulkActionError,
   BulkActionErrorCode,
   BulkActionSuccess,
+  BulkActionType,
   ContentReader,
   CreateArticleError,
   CreateArticleErrorCode,
@@ -73,7 +74,7 @@ import {
   UpdatesSinceSuccess,
 } from '../../generated/graphql'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
-import { createLabels } from '../../services/labels'
+import { createLabels, getLabelsByIds } from '../../services/labels'
 import { parsedContentToPage } from '../../services/save_page'
 import { traceAs } from '../../tracing'
 import { Merge } from '../../util'
@@ -1097,26 +1098,43 @@ export const bulkActionResolver = authorized<
   BulkActionSuccess,
   BulkActionError,
   MutationBulkActionArgs
->(async (_parent, { action }, { claims: { uid }, log }) => {
+>(async (_parent, { query, action, labelIds }, { claims: { uid }, log }) => {
   log.info('bulkActionResolver')
-
-  if (!uid) {
-    log.error('bulkActionResolver', { error: 'Unauthorized' })
-    return { errorCodes: [BulkActionErrorCode.Unauthorized] }
-  }
 
   analytics.track({
     userId: uid,
     event: 'BulkAction',
     properties: {
       env: env.server.apiEnv,
+      action,
     },
   })
 
-  // TODO: get search filters from query
+  if (!uid) {
+    log.log('bulkActionResolver', { error: 'Unauthorized' })
+    return { errorCodes: [BulkActionErrorCode.Unauthorized] }
+  }
+
+  if (!query) {
+    log.log('bulkActionResolver', { error: 'no query' })
+    return { errorCodes: [BulkActionErrorCode.BadRequest] }
+  }
+
+  // get labels if needed
+  let labels = undefined
+  if (action === BulkActionType.AddLabels) {
+    if (!labelIds || labelIds.length === 0) {
+      return { errorCodes: [BulkActionErrorCode.BadRequest] }
+    }
+
+    labels = await getLabelsByIds(uid, labelIds)
+  }
+
+  // parse query
+  const searchQuery = parseSearchQuery(query)
 
   // start a task to update pages
-  const taskId = await updatePagesAsync(uid, action)
+  const taskId = await updatePagesAsync(uid, action, searchQuery, labels)
 
   return { success: !!taskId }
 })

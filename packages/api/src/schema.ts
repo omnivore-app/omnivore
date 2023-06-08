@@ -2420,25 +2420,6 @@ const schema = gql`
     ADD_LABELS
   }
 
-  input BulkAction {
-    itemType: BulkActionItemType!
-    type: BulkActionType!
-    itemIds: [ID!]!
-    labelIds: [ID!]
-  }
-
-  enum BulkActionItemType {
-    PAGE
-    HIGHLIGHT
-    LABEL
-    SUBSCRIPTION
-  }
-
-  input BulkActionInput {
-    query: String
-    actions: [BulkAction!]!
-  }
-
   union BulkActionResult = BulkActionSuccess | BulkActionError
 
   type BulkActionSuccess {
@@ -2451,6 +2432,7 @@ const schema = gql`
 
   enum BulkActionErrorCode {
     UNAUTHORIZED
+    BAD_REQUEST
   }
 
   union ImportFromIntegrationResult =
@@ -2559,7 +2541,11 @@ const schema = gql`
       contentType: String!
     ): UploadImportFileResult!
     markEmailAsItem(recentEmailId: ID!): MarkEmailAsItemResult!
-    bulkAction(input: BulkActionInput!): BulkActionResult!
+    bulkAction(
+      query: String!
+      action: BulkActionType!
+      labelIds: [ID!]
+    ): BulkActionResult!
     importFromIntegration(integrationId: ID!): ImportFromIntegrationResult!
   }
 
