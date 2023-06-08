@@ -709,7 +709,7 @@ export const updatePagesAsync = async (
   switch (action) {
     case BulkActionType.Archive:
       script = {
-        source: `ctx._source.archivedAt = params.archivedAt`,
+        source: `ctx._source.archivedAt = params.archivedAt;`,
         params: {
           archivedAt: new Date(),
         },
@@ -717,7 +717,7 @@ export const updatePagesAsync = async (
       break
     case BulkActionType.Delete:
       script = {
-        source: `ctx._source.state = params.state`,
+        source: `ctx._source.state = params.state;`,
         params: {
           state: ArticleSavingRequestStatus.Deleted,
         },
@@ -728,9 +728,12 @@ export const updatePagesAsync = async (
         source: `if (ctx._source.labels == null) {
           ctx._source.labels = params.labels
         } else {
-          ctx._source.labels.addAll(params.labels)
-        }
-        ctx._source.labels.unique()`,
+          for (label in params.labels) {
+            if (!ctx._source.labels.any(l -> l.name == label.name)) {
+              ctx._source.labels.add(label)
+            }
+          }
+        }`,
         params: {
           labels,
         },
@@ -752,7 +755,7 @@ export const updatePagesAsync = async (
 
   // add updatedAt to the script
   const updatedScript = {
-    source: `${script.source}; ctx._source.updatedAt = params.updatedAt`,
+    source: `${script.source} ctx._source.updatedAt = params.updatedAt`,
     lang: 'painless',
     params: {
       ...script.params,
