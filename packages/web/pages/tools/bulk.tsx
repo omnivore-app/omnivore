@@ -34,7 +34,7 @@ export default function BulkPerformer(): JSX.Element {
         return
       }
       try {
-        const success = await bulkActionMutation(action)
+        const success = await bulkActionMutation(action, 'in:all')
         if (!success) {
           throw 'Success not returned'
         }
