@@ -42,6 +42,8 @@ import { HighlightItemsLayout } from './HighlightsLayout'
 import { LibraryFilterMenu } from './LibraryFilterMenu'
 import { LibraryHeader, MultiSelectMode } from './LibraryHeader'
 import { UploadModal } from '../UploadModal'
+import { BulkAction } from '../../../lib/networking/mutations/bulkActionMutation'
+import { bulkActionMutation } from '../../../lib/networking/mutations/bulkActionMutation'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 export type LibraryMode = 'reads' | 'highlights'
@@ -302,13 +304,21 @@ export function HomeFeedContainer(): JSX.Element {
         }
         break
       case 'archive':
-        performActionOnItem('archive', item)
+        if (multiSelectMode !== 'off') {
+          performMultiSelectAction(BulkAction.ARCHIVE)
+        } else {
+          performActionOnItem('archive', item)
+        }
         break
       case 'unarchive':
         performActionOnItem('unarchive', item)
         break
       case 'delete':
-        performActionOnItem('delete', item)
+        if (multiSelectMode !== 'off') {
+          performMultiSelectAction(BulkAction.DELETE)
+        } else {
+          performActionOnItem('delete', item)
+        }
         break
       case 'mark-read':
         performActionOnItem('mark-read', item)
@@ -466,6 +476,9 @@ export function HomeFeedContainer(): JSX.Element {
             setMultiSelectMode('none')
           }
           break
+        case 'endMultiSelect':
+          setMultiSelectMode('off')
+          break
       }
     })
   )
@@ -555,12 +568,11 @@ export function HomeFeedContainer(): JSX.Element {
 
   const setIsChecked = useCallback(
     (itemId: string, set: boolean) => {
-      console.log('setting is checked with list: ', checkedItems)
       if (set && checkedItems.indexOf(itemId) === -1) {
         checkedItems.push(itemId)
         setCheckedItems([...checkedItems])
       } else if (!set && checkedItems.indexOf(itemId) !== -1) {
-        checkedItems.splice(checkedItems.indexOf(itemId))
+        checkedItems.splice(checkedItems.indexOf(itemId), 1)
         setCheckedItems([...checkedItems])
       }
     },
@@ -568,7 +580,6 @@ export function HomeFeedContainer(): JSX.Element {
   )
 
   useEffect(() => {
-    console.log(' -- multiselect mode: ', multiSelectMode)
     switch (multiSelectMode) {
       case 'off':
       case 'none':
@@ -595,6 +606,23 @@ export function HomeFeedContainer(): JSX.Element {
     [checkedItems]
   )
 
+  const performMultiSelectAction = useCallback(
+    (action: BulkAction) => {
+      console.log(
+        'performing bulk action: ',
+        action,
+        'mode',
+        mode,
+        checkedItems
+      )
+      try {
+        // const query = multiSelectMode === 'some' ?
+        // const res = await bulkActionMutation(action, query)
+      } catch (err) {}
+    },
+    [checkedItems]
+  )
+
   return (
     <HomeFeedGrid
       items={libraryItems}
@@ -604,6 +632,7 @@ export function HomeFeedContainer(): JSX.Element {
       itemIsChecked={itemIsChecked}
       multiSelectMode={multiSelectMode}
       setMultiSelectMode={setMultiSelectMode}
+      performMultiSelectAction={performMultiSelectAction}
       searchTerm={queryInputs.searchQuery}
       gridContainerRef={gridContainerRef}
       mode={mode}
@@ -698,6 +727,8 @@ type HomeFeedContentProps = {
   itemIsChecked: (itemId: string) => boolean
   setMultiSelectMode: (mode: MultiSelectMode) => void
   numItemsSelected: number
+
+  performMultiSelectAction: (action: BulkAction) => void
 }
 
 function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
@@ -737,6 +768,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
         setMultiSelectMode={props.setMultiSelectMode}
         numItemsSelected={props.numItemsSelected}
         showAddLinkModal={() => props.setShowAddLinkModal(true)}
+        performMultiSelectAction={props.performMultiSelectAction}
       />
       <HStack css={{ width: '100%', height: '100%' }}>
         <LibraryFilterMenu

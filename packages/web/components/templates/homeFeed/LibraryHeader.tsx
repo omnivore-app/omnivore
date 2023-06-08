@@ -28,6 +28,7 @@ import {
 } from '../../../lib/hooks/useScrollWatcher'
 import { CardCheckbox } from '../../patterns/LibraryCards/LibraryCardStyles'
 import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
+import { BulkAction } from '../../../lib/networking/mutations/bulkActionMutation'
 
 export type MultiSelectMode = 'off' | 'none' | 'some' | 'visible' | 'search'
 
@@ -46,6 +47,8 @@ type LibraryHeaderProps = {
   numItemsSelected: number
   multiSelectMode: MultiSelectMode
   setMultiSelectMode: (mode: MultiSelectMode) => void
+
+  performMultiSelectAction: (action: BulkAction) => void
 }
 
 export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
@@ -110,6 +113,7 @@ function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
         multiSelectMode={props.multiSelectMode}
         setMultiSelectMode={props.setMultiSelectMode}
         showAddLinkModal={props.showAddLinkModal}
+        performMultiSelectAction={props.performMultiSelectAction}
       />
     </HStack>
   )
@@ -155,6 +159,7 @@ function SmallHeaderLayout(props: LibraryHeaderProps): JSX.Element {
             multiSelectMode={props.multiSelectMode}
             setMultiSelectMode={props.setMultiSelectMode}
             showAddLinkModal={props.showAddLinkModal}
+            performMultiSelectAction={props.performMultiSelectAction}
           />
         </>
       )}
@@ -364,6 +369,8 @@ type ControlButtonBoxProps = {
   numItemsSelected: number
   multiSelectMode: MultiSelectMode
   setMultiSelectMode: (mode: MultiSelectMode) => void
+
+  performMultiSelectAction: (action: BulkAction) => void
 }
 
 function MultiSelectControlButtonBox(
@@ -379,12 +386,10 @@ function MultiSelectControlButtonBox(
     <HStack alignment="center" distribution="center" css={{ gap: '20px' }}>
       <Button
         style="outline"
-        // onClick={(e) => {
-        //   props.updateLayout(
-        //     props.layout == 'GRID_LAYOUT' ? 'LIST_LAYOUT' : 'GRID_LAYOUT'
-        //   )
-        //   e.preventDefault()
-        // }}
+        onClick={(e) => {
+          props.performMultiSelectAction(BulkAction.ARCHIVE)
+          e.preventDefault()
+        }}
       >
         <ArchiveBox
           width={20}
@@ -411,12 +416,10 @@ function MultiSelectControlButtonBox(
       </Button>
       <Button
         style="outline"
-        // onClick={(e) => {
-        //   props.updateLayout(
-        //     props.layout == 'GRID_LAYOUT' ? 'LIST_LAYOUT' : 'GRID_LAYOUT'
-        //   )
-        //   e.preventDefault()
-        // }}
+        onClick={(e) => {
+          props.performMultiSelectAction(BulkAction.DELETE)
+          e.preventDefault()
+        }}
       >
         <TrashSimple
           width={20}

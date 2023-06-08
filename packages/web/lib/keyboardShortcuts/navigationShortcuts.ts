@@ -90,6 +90,7 @@ type LibraryListKeyboardAction =
   | 'showAddLinkModal'
   | 'showEditLabelsModal'
   | 'beginMultiSelect'
+  | 'endMultiSelect'
 
 export function libraryListCommands(
   actionHandler: (action: LibraryListKeyboardAction) => void
@@ -138,6 +139,12 @@ export function libraryListCommands(
       actionDescription: 'Begin multi select',
       shortcutKeyDescription: 'm then s',
       callback: () => actionHandler('beginMultiSelect'),
+    },
+    {
+      shortcutKeys: ['escape'],
+      actionDescription: 'End multi select',
+      shortcutKeyDescription: 'Escape',
+      callback: () => actionHandler('endMultiSelect'),
     },
     // {
     //   shortcutKeys: ['e'],
