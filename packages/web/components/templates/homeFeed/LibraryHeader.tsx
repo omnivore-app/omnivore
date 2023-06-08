@@ -452,7 +452,7 @@ function SearchControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
       <SearchBox
         searchTerm=""
         applySearchQuery={(searchQuery: string) => {
-          props.applySearchQuery('')
+          console.log('search box: ', searchQuery)
         }}
       />
       <Button
