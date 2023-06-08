@@ -2416,6 +2416,8 @@ const schema = gql`
   enum BulkActionType {
     DELETE
     ARCHIVE
+    MARK_AS_READ
+    ADD_LABELS
   }
 
   union BulkActionResult = BulkActionSuccess | BulkActionError
@@ -2430,6 +2432,7 @@ const schema = gql`
 
   enum BulkActionErrorCode {
     UNAUTHORIZED
+    BAD_REQUEST
   }
 
   union ImportFromIntegrationResult =
@@ -2538,7 +2541,11 @@ const schema = gql`
       contentType: String!
     ): UploadImportFileResult!
     markEmailAsItem(recentEmailId: ID!): MarkEmailAsItemResult!
-    bulkAction(query: String, action: BulkActionType!): BulkActionResult!
+    bulkAction(
+      query: String!
+      action: BulkActionType!
+      labelIds: [ID!]
+    ): BulkActionResult!
     importFromIntegration(integrationId: ID!): ImportFromIntegrationResult!
   }
 

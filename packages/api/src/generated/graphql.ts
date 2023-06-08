@@ -228,6 +228,7 @@ export type BulkActionError = {
 };
 
 export enum BulkActionErrorCode {
+  BadRequest = 'BAD_REQUEST',
   Unauthorized = 'UNAUTHORIZED'
 }
 
@@ -239,8 +240,10 @@ export type BulkActionSuccess = {
 };
 
 export enum BulkActionType {
+  AddLabels = 'ADD_LABELS',
   Archive = 'ARCHIVE',
-  Delete = 'DELETE'
+  Delete = 'DELETE',
+  MarkAsRead = 'MARK_AS_READ'
 }
 
 export enum ContentReader {
@@ -1299,7 +1302,8 @@ export type MutationAddPopularReadArgs = {
 
 export type MutationBulkActionArgs = {
   action: BulkActionType;
-  query?: InputMaybe<Scalars['String']>;
+  labelIds?: InputMaybe<Array<Scalars['ID']>>;
+  query: Scalars['String'];
 };
 
 
@@ -5012,7 +5016,7 @@ export type MoveLabelSuccessResolvers<ContextType = ResolverContext, ParentType 
 
 export type MutationResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   addPopularRead?: Resolver<ResolversTypes['AddPopularReadResult'], ParentType, ContextType, RequireFields<MutationAddPopularReadArgs, 'name'>>;
-  bulkAction?: Resolver<ResolversTypes['BulkActionResult'], ParentType, ContextType, RequireFields<MutationBulkActionArgs, 'action'>>;
+  bulkAction?: Resolver<ResolversTypes['BulkActionResult'], ParentType, ContextType, RequireFields<MutationBulkActionArgs, 'action' | 'query'>>;
   createArticle?: Resolver<ResolversTypes['CreateArticleResult'], ParentType, ContextType, RequireFields<MutationCreateArticleArgs, 'input'>>;
   createArticleSavingRequest?: Resolver<ResolversTypes['CreateArticleSavingRequestResult'], ParentType, ContextType, RequireFields<MutationCreateArticleSavingRequestArgs, 'input'>>;
   createGroup?: Resolver<ResolversTypes['CreateGroupResult'], ParentType, ContextType, RequireFields<MutationCreateGroupArgs, 'input'>>;

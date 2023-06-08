@@ -18,6 +18,7 @@ import {
 import { client, INDEX_ALIAS } from './index'
 import {
   ArticleSavingRequestStatus,
+  Label,
   Page,
   PageContext,
   PageSearchArgs,
@@ -424,103 +425,111 @@ export const getPageById = async (id: string): Promise<Page | undefined> => {
   }
 }
 
+const buildSearchBody = (userId: string, args: PageSearchArgs) => {
+  const {
+    query,
+    readFilter = ReadFilter.ALL,
+    typeFilter,
+    labelFilters,
+    inFilter = InFilter.ALL,
+    hasFilters,
+    dateFilters,
+    termFilters,
+    matchFilters,
+    ids,
+    noFilters,
+    siteName,
+  } = args
+
+  const includeLabels = labelFilters?.filter(
+    (filter) => filter.type === LabelFilterType.INCLUDE
+  )
+  const excludeLabels = labelFilters?.filter(
+    (filter) => filter.type === LabelFilterType.EXCLUDE
+  )
+
+  // start building the query
+  let builder = esBuilder().query('term', { userId })
+
+  // append filters
+  if (query) {
+    builder = appendQuery(builder, query)
+  }
+  if (typeFilter) {
+    builder = appendTypeFilter(builder, typeFilter)
+  }
+  if (inFilter !== InFilter.ALL) {
+    builder = appendInFilter(builder, inFilter)
+  }
+  if (readFilter !== ReadFilter.ALL) {
+    builder = appendReadFilter(builder, readFilter)
+  }
+  if (hasFilters && hasFilters.length > 0) {
+    builder = appendHasFilters(builder, hasFilters)
+  }
+  if (includeLabels && includeLabels.length > 0) {
+    builder = appendIncludeLabelFilter(builder, includeLabels)
+  }
+  if (excludeLabels && excludeLabels.length > 0) {
+    builder = appendExcludeLabelFilter(builder, excludeLabels)
+  }
+  if (dateFilters && dateFilters.length > 0) {
+    builder = appendDateFilters(builder, dateFilters)
+  }
+  if (termFilters) {
+    builder = appendTermFilters(builder, termFilters)
+  }
+  if (matchFilters) {
+    builder = appendMatchFilters(builder, matchFilters)
+  }
+  if (ids && ids.length > 0) {
+    builder = appendIdsFilter(builder, ids)
+  }
+  if (args.recommendedBy) {
+    builder = appendRecommendedBy(builder, args.recommendedBy)
+  }
+  if (!args.includePending) {
+    builder = builder.notQuery('term', {
+      state: ArticleSavingRequestStatus.Processing,
+    })
+  }
+  if (!args.includeDeleted) {
+    builder = builder.notQuery('term', {
+      state: ArticleSavingRequestStatus.Deleted,
+    })
+  }
+  if (noFilters) {
+    builder = appendNoFilters(builder, noFilters)
+  }
+  if (siteName) {
+    builder = appendSiteNameFilter(builder, siteName)
+  }
+
+  return builder
+}
+
 export const searchPages = async (
   args: PageSearchArgs,
   userId: string
 ): Promise<[Page[], number] | undefined> => {
   try {
-    const {
-      from = 0,
-      size = 10,
-      sort,
-      query,
-      readFilter = ReadFilter.ALL,
-      typeFilter,
-      labelFilters,
-      inFilter = InFilter.ALL,
-      hasFilters,
-      dateFilters,
-      termFilters,
-      matchFilters,
-      ids,
-      includeContent,
-      noFilters,
-      siteName,
-    } = args
+    const { from = 0, size = 10, sort, includeContent } = args
+
     // default order is descending
     const sortOrder = sort?.order || SortOrder.DESCENDING
     // default sort by saved_at
     const sortField = sort?.by || SortBy.SAVED
-    const includeLabels = labelFilters?.filter(
-      (filter) => filter.type === LabelFilterType.INCLUDE
-    )
-    const excludeLabels = labelFilters?.filter(
-      (filter) => filter.type === LabelFilterType.EXCLUDE
-    )
-    // start building the query
-    let builder = esBuilder()
-      .query('term', { userId })
+
+    // build the query
+    const builder = buildSearchBody(userId, args)
+    const body = builder
       .sort(sortField, sortOrder)
       .from(from)
       .size(size)
       .rawOption('_source', {
         excludes: includeContent ? [] : ['originalHtml', 'content'],
       })
-    // append filters
-    if (query) {
-      builder = appendQuery(builder, query)
-    }
-    if (typeFilter) {
-      builder = appendTypeFilter(builder, typeFilter)
-    }
-    if (inFilter !== InFilter.ALL) {
-      builder = appendInFilter(builder, inFilter)
-    }
-    if (readFilter !== ReadFilter.ALL) {
-      builder = appendReadFilter(builder, readFilter)
-    }
-    if (hasFilters && hasFilters.length > 0) {
-      builder = appendHasFilters(builder, hasFilters)
-    }
-    if (includeLabels && includeLabels.length > 0) {
-      builder = appendIncludeLabelFilter(builder, includeLabels)
-    }
-    if (excludeLabels && excludeLabels.length > 0) {
-      builder = appendExcludeLabelFilter(builder, excludeLabels)
-    }
-    if (dateFilters && dateFilters.length > 0) {
-      builder = appendDateFilters(builder, dateFilters)
-    }
-    if (termFilters) {
-      builder = appendTermFilters(builder, termFilters)
-    }
-    if (matchFilters) {
-      builder = appendMatchFilters(builder, matchFilters)
-    }
-    if (ids && ids.length > 0) {
-      builder = appendIdsFilter(builder, ids)
-    }
-    if (args.recommendedBy) {
-      builder = appendRecommendedBy(builder, args.recommendedBy)
-    }
-    if (!args.includePending) {
-      builder = builder.notQuery('term', {
-        state: ArticleSavingRequestStatus.Processing,
-      })
-    }
-    if (!args.includeDeleted) {
-      builder = builder.notQuery('term', {
-        state: ArticleSavingRequestStatus.Deleted,
-      })
-    }
-    if (noFilters) {
-      builder = appendNoFilters(builder, noFilters)
-    }
-    if (siteName) {
-      builder = appendSiteNameFilter(builder, siteName)
-    }
-    // build the query
-    const body = builder.build()
+      .build()
 
     console.debug('searching pages in elastic', JSON.stringify(body))
     const response = await client.search<SearchResponse<Page>, BuiltQuery>({
@@ -688,61 +697,89 @@ export const searchAsYouType = async (
 
 export const updatePagesAsync = async (
   userId: string,
-  action: BulkActionType
+  action: BulkActionType,
+  args: PageSearchArgs,
+  labels?: Label[]
 ): Promise<string | null> => {
-  // default action is archive
-  let must_not = [
-    {
-      exists: {
-        field: 'archivedAt',
-      },
-    },
-  ]
-  let params: Record<string, unknown> = { archivedAt: new Date() }
-  if (action === BulkActionType.Delete) {
-    must_not = []
-    params = { state: ArticleSavingRequestStatus.Deleted }
+  // build the script
+  let script = {
+    source: '',
+    params: {},
   }
-  // get update field
-  const field = Object.keys(params)[0]
+  switch (action) {
+    case BulkActionType.Archive:
+      script = {
+        source: `ctx._source.archivedAt = params.archivedAt;`,
+        params: {
+          archivedAt: new Date(),
+        },
+      }
+      break
+    case BulkActionType.Delete:
+      script = {
+        source: `ctx._source.state = params.state;`,
+        params: {
+          state: ArticleSavingRequestStatus.Deleted,
+        },
+      }
+      break
+    case BulkActionType.AddLabels:
+      script = {
+        source: `if (ctx._source.labels == null) {
+          ctx._source.labels = params.labels
+        } else {
+          for (label in params.labels) {
+            if (!ctx._source.labels.any(l -> l.name == label.name)) {
+              ctx._source.labels.add(label)
+            }
+          }
+        }`,
+        params: {
+          labels,
+        },
+      }
+      break
+    case BulkActionType.MarkAsRead:
+      script = {
+        source: `ctx._source.readAt = params.readAt;
+        ctx._source.readingProgressPercent = params.readingProgressPercent;`,
+        params: {
+          readAt: new Date(),
+          readingProgressPercent: 100,
+        },
+      }
+      break
+    default:
+      throw new Error('Invalid bulk action')
+  }
+
+  // add updatedAt to the script
+  const updatedScript = {
+    source: `${script.source} ctx._source.updatedAt = params.updatedAt`,
+    lang: 'painless',
+    params: {
+      ...script.params,
+      updatedAt: new Date(),
+    },
+  }
+
+  // build the query
+  const searchBody = buildSearchBody(userId, args)
+    .rawOption('script', updatedScript)
+    .build()
+
+  console.debug('updating pages in elastic', JSON.stringify(searchBody))
 
   try {
     const { body } = await client.updateByQuery({
       index: INDEX_ALIAS,
       conflicts: 'proceed',
       wait_for_completion: false,
-      body: {
-        query: {
-          bool: {
-            filter: [
-              {
-                term: {
-                  userId,
-                },
-              },
-              {
-                terms: {
-                  state: [
-                    ArticleSavingRequestStatus.Succeeded,
-                    ArticleSavingRequestStatus.Failed,
-                    ArticleSavingRequestStatus.Processing,
-                  ],
-                },
-              },
-            ],
-            must_not,
-          },
-        },
-        script: {
-          source: `ctx._source.${field} = params.${field}`,
-          lang: 'painless',
-          params,
-        },
-      },
+      body: searchBody,
     })
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    if (body.failures?.length > 0) {
+    if (body.failures && body.failures.length > 0) {
       console.log('failed to update pages in elastic', body.failures)
       return null
     }

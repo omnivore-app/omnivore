@@ -188,6 +188,7 @@ type BulkActionError {
 }
 
 enum BulkActionErrorCode {
+  BAD_REQUEST
   UNAUTHORIZED
 }
 
@@ -198,8 +199,10 @@ type BulkActionSuccess {
 }
 
 enum BulkActionType {
+  ADD_LABELS
   ARCHIVE
   DELETE
+  MARK_AS_READ
 }
 
 enum ContentReader {
@@ -1090,7 +1093,7 @@ type MoveLabelSuccess {
 
 type Mutation {
   addPopularRead(name: String!): AddPopularReadResult!
-  bulkAction(action: BulkActionType!, query: String): BulkActionResult!
+  bulkAction(action: BulkActionType!, labelIds: [ID!], query: String!): BulkActionResult!
   createArticle(input: CreateArticleInput!): CreateArticleResult!
   createArticleSavingRequest(input: CreateArticleSavingRequestInput!): CreateArticleSavingRequestResult!
   createGroup(input: CreateGroupInput!): CreateGroupResult!
