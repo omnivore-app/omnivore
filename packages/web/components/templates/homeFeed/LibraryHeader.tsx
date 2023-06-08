@@ -505,7 +505,6 @@ function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
     props.layout == 'GRID_LAYOUT'
       ? {
           minWidth: '121px',
-
           '@xlgDown': {
             width: '320px',
           },

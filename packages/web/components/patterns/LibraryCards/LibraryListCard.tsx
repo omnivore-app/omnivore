@@ -28,17 +28,21 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
         gap: '10px',
         border: '1px solid $grayBorder',
         borderBottom: 'none',
-        width: '900px',
-
-        '@xxl': {
-          width: '1200px',
-        },
 
         '@xlgDown': {
           width: 'unset',
           borderRadius: 'unset',
           borderLeft: 'unset',
           borderRight: 'unset',
+        },
+        '@media (min-width: 930px)': {
+          width: '640px',
+        },
+        '@media (min-width: 1280px)': {
+          width: '1000px',
+        },
+        '@media (min-width: 1600px)': {
+          width: '1340px',
         },
       }}
       alignment="start"
