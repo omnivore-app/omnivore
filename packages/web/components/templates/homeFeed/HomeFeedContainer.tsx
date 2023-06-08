@@ -44,6 +44,7 @@ import { LibraryHeader, MultiSelectMode } from './LibraryHeader'
 import { UploadModal } from '../UploadModal'
 import { BulkAction } from '../../../lib/networking/mutations/bulkActionMutation'
 import { bulkActionMutation } from '../../../lib/networking/mutations/bulkActionMutation'
+import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 export type LibraryMode = 'reads' | 'highlights'
@@ -349,7 +350,7 @@ export function HomeFeedContainer(): JSX.Element {
     if (activeItem) {
       if (multiSelectMode === 'off') {
         console.log('setting ')
-        setMultiSelectMode('none')
+        setMultiSelectMode('some')
       }
       const itemId = activeItem.node.id
       const isChecked = itemIsChecked(itemId)
@@ -608,6 +609,12 @@ export function HomeFeedContainer(): JSX.Element {
 
   const performMultiSelectAction = useCallback(
     (action: BulkAction) => {
+      if (multiSelectMode === 'off') {
+        return
+      }
+      if (multiSelectMode !== 'search' && checkedItems.length < 1) {
+        return
+      }
       console.log(
         'performing bulk action: ',
         action,
@@ -615,12 +622,31 @@ export function HomeFeedContainer(): JSX.Element {
         multiSelectMode,
         checkedItems
       )
-      try {
-        // const query = multiSelectMode === 'some' ?
-        // const res = await bulkActionMutation(action, query)
-      } catch (err) {}
+      ;(async () => {
+        const query =
+          multiSelectMode === 'some'
+            ? `includes:${checkedItems.join(',')}`
+            : queryInputs.searchQuery || 'in:inbox'
+        try {
+          const res = await bulkActionMutation(action, query)
+          if (res) {
+            switch (action) {
+              case BulkAction.ARCHIVE:
+                showSuccessToast('Items archived')
+                break
+              case BulkAction.DELETE:
+                showSuccessToast('Items deleted')
+                break
+            }
+          } else {
+            showErrorToast('Error performing bulk action')
+          }
+        } catch (err) {
+          showErrorToast('Error performing bulk action')
+        }
+      })()
     },
-    [checkedItems]
+    [multiSelectMode, checkedItems]
   )
 
   return (
