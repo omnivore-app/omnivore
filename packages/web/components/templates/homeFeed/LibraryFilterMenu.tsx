@@ -10,7 +10,6 @@ import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { theme } from '../../tokens/stitches.config'
 import { currentThemeName } from '../../../lib/themeUpdater'
 import { useRegisterActions } from 'kbar'
-import { HEADER_HEIGHT } from './HeaderSpacer'
 import { LogoBox } from '../../elements/LogoBox'
 
 export const LIBRARY_LEFT_MENU_WIDTH = '233px'
@@ -33,10 +32,9 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
           left: '0px',
           top: '0px',
           position: 'fixed',
-          bg: '#1D1D1D', // $thBackground',
+          bg: '$thLeftMenuBackground',
           height: '100%',
           width: LIBRARY_LEFT_MENU_WIDTH,
-          // borderRight: '1px solid $thBorderColor',
           overflowY: 'auto',
           overflowX: 'hidden',
           '&::-webkit-scrollbar': {
@@ -67,10 +65,6 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
         <SavedSearches {...props} />
         <Subscriptions {...props} />
         <Labels {...props} />
-        {/* 
-        <AddLinkButton
-          showAddLinkModal={() => props.setShowAddLinkModal(true)}
-        /> */}
         <Box css={{ height: '250px ' }} />
       </Box>
       {/* This spacer pushes library content to the right of 

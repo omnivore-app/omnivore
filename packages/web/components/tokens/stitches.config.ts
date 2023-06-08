@@ -172,6 +172,8 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         thBackground5: '#F5F5F5',
         thBackgroundActive: '#F9F9F9',
         thBackgroundContrast: '#FFFFFF',
+        thLeftMenuBackground: '$thBackground',
+        thLibraryBackground: '$thBackground2',
 
         thTextContrast: '#1E1E1E',
         thTextContrast2: '#3D3D3D',
@@ -259,6 +261,8 @@ const darkThemeSpec = {
     thBackground5: '#3D3D3D',
     thBackgroundActive: '#2E2E2E',
     thBackgroundContrast: '#000000',
+    thLeftMenuBackground: '#1D1D1D',
+    thLibraryBackground: '#333333',
 
     thTextContrast: '#FFFFFF',
     thTextContrast2: '#EBEBEB',
