@@ -396,7 +396,7 @@ function MultiSelectControlButtonBox(
           height={20}
           color={theme.colors.thTextContrast2.toString()}
         />
-        Archive
+        <SpanBox css={{ '@lgDown': { display: 'none' } }}>Archive</SpanBox>
       </Button>
       <Button
         style="outline"
@@ -412,7 +412,7 @@ function MultiSelectControlButtonBox(
           height={20}
           color={theme.colors.thTextContrast2.toString()}
         />
-        Label
+        <SpanBox css={{ '@lgDown': { display: 'none' } }}>Label</SpanBox>
       </Button>
       <Button
         style="outline"
@@ -426,7 +426,7 @@ function MultiSelectControlButtonBox(
           height={20}
           color={theme.colors.thTextContrast2.toString()}
         />
-        Delete
+        <SpanBox css={{ '@lgDown': { display: 'none' } }}>Delete</SpanBox>
       </Button>
       <Button
         style="cancel"
@@ -584,13 +584,21 @@ function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
             </SpanBox>
             <SpanBox
               css={{
-                paddingLeft: '10px',
+                paddingLeft: '5px',
                 fontSize: '12px',
                 fontWeight: '600',
                 fontFamily: '$inter',
+                '@xlgDown': {
+                  paddingLeft: '5px',
+                },
               }}
             >
-              {props.numItemsSelected} selected
+              {props.numItemsSelected}{' '}
+              <SpanBox
+                css={{ '@media (max-width: 1280px)': { display: 'none' } }}
+              >
+                selected
+              </SpanBox>
             </SpanBox>
           </SpanBox>
         )}
