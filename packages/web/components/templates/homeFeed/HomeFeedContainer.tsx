@@ -612,7 +612,7 @@ export function HomeFeedContainer(): JSX.Element {
         'performing bulk action: ',
         action,
         'mode',
-        mode,
+        multiSelectMode,
         checkedItems
       )
       try {
