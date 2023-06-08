@@ -172,8 +172,8 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         thBackground5: '#F5F5F5',
         thBackgroundActive: '#F9F9F9',
         thBackgroundContrast: '#FFFFFF',
-        thLeftMenuBackground: '$thBackground',
-        thLibraryBackground: '$thBackground2',
+        thLeftMenuBackground: '#F2F3F6',
+        thLibraryBackground: '#FFFFFF',
 
         thTextContrast: '#1E1E1E',
         thTextContrast2: '#3D3D3D',
