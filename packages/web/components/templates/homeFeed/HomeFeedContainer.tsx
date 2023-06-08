@@ -644,7 +644,9 @@ export function HomeFeedContainer(): JSX.Element {
         } catch (err) {
           showErrorToast('Error performing bulk action')
         }
+        mutate()
       })()
+      setMultiSelectMode('off')
     },
     [multiSelectMode, checkedItems]
   )
