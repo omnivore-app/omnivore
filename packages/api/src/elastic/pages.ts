@@ -789,8 +789,13 @@ export const updatePages = async (
       return null
     }
 
-    console.log('update pages task started', body.task)
-    return body.task as string
+    if (async) {
+      console.log('update pages task started', body.task)
+      return body.task as string
+    }
+
+    console.log('updated pages in elastic', body.updated)
+    return body.updated as string
   } catch (e) {
     console.log('failed to update pages in elastic', e)
     return null
