@@ -26,7 +26,11 @@ export async function bulkActionMutation(
       $query: String!
       $expectedCount: Int
     ) {
-      bulkAction(query: $query, action: $action) {
+      bulkAction(
+        query: $query
+        action: $action
+        expectedCount: $expectedCount
+      ) {
         ... on BulkActionSuccess {
           success
         }
