@@ -725,7 +725,12 @@ export const updatePagesAsync = async (
       break
     case BulkActionType.AddLabels:
       script = {
-        source: `ctx._source.labels.addAll(params.labels)`,
+        source: `if (ctx._source.labels == null) {
+          ctx._source.labels = params.labels
+        } else {
+          ctx._source.labels.addAll(params.labels)
+        }
+        ctx._source.labels.unique()`,
         params: {
           labels,
         },
@@ -734,12 +739,10 @@ export const updatePagesAsync = async (
     case BulkActionType.MarkAsRead:
       script = {
         source: `ctx._source.readAt = params.readAt;
-        ctx._source.readingProgressPercent = params.readingProgressPercent;
-        ctx._source.readingProgressTopPercent = params.readingProgressTopPercent`,
+        ctx._source.readingProgressPercent = params.readingProgressPercent;`,
         params: {
           readAt: new Date(),
           readingProgressPercent: 100,
-          readingProgressTopPercent: 100,
         },
       }
       break
