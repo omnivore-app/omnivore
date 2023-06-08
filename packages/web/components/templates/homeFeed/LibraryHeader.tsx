@@ -449,7 +449,12 @@ function MultiSelectControlButtonBox(
 function SearchControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
   return (
     <>
-      <SearchBox searchTerm="" applySearchQuery={(searchQuery: string) => {}} />
+      <SearchBox
+        searchTerm=""
+        applySearchQuery={(searchQuery: string) => {
+          props.applySearchQuery('')
+        }}
+      />
       <Button
         style="plainIcon"
         css={{ display: 'flex', marginLeft: 'auto' }}
