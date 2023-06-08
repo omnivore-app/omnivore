@@ -624,9 +624,9 @@ export function HomeFeedContainer(): JSX.Element {
       )
       ;(async () => {
         const query =
-          multiSelectMode === 'some'
-            ? `includes:${checkedItems.join(',')}`
-            : queryInputs.searchQuery || 'in:inbox'
+          multiSelectMode === 'search'
+            ? queryInputs.searchQuery || 'in:inbox'
+            : `includes:${checkedItems.join(',')}`
         try {
           const res = await bulkActionMutation(action, query)
           if (res) {
