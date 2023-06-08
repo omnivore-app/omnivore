@@ -105,13 +105,11 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
 
 const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
   const [menuOpen, setMenuOpen] = useState(false)
-  const [isChecked, setIsChecked] = useState(false)
-
   const originText = siteName(props.item.originalArticleUrl, props.item.url)
 
   const handleCheckChanged = useCallback(() => {
-    setIsChecked(!isChecked)
-  }, [isChecked])
+    props.setIsChecked(props.item.id, !props.isChecked)
+  }, [props.isChecked])
 
   return (
     <>
@@ -126,7 +124,7 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
         {props.inMultiSelect ? (
           <SpanBox css={{ marginLeft: 'auto' }}>
             <CardCheckbox
-              isChecked={isChecked}
+              isChecked={props.isChecked}
               handleChanged={handleCheckChanged}
             />
           </SpanBox>

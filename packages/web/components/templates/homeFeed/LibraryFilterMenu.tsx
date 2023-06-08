@@ -67,10 +67,10 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
         <SavedSearches {...props} />
         <Subscriptions {...props} />
         <Labels {...props} />
-
+        {/* 
         <AddLinkButton
           showAddLinkModal={() => props.setShowAddLinkModal(true)}
-        />
+        /> */}
         <Box css={{ height: '250px ' }} />
       </Box>
       {/* This spacer pushes library content to the right of 

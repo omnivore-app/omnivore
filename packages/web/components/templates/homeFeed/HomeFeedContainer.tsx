@@ -40,7 +40,7 @@ import { EditLibraryItemModal } from './EditItemModals'
 import { EmptyLibrary } from './EmptyLibrary'
 import { HighlightItemsLayout } from './HighlightsLayout'
 import { LibraryFilterMenu } from './LibraryFilterMenu'
-import { LibraryHeader } from './LibraryHeader'
+import { LibraryHeader, MultiSelectMode } from './LibraryHeader'
 import { UploadModal } from '../UploadModal'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
@@ -116,6 +116,7 @@ export function HomeFeedContainer(): JSX.Element {
     } else {
       setMode('reads')
     }
+    setMultiSelectMode('off')
   }, [queryInputs])
 
   useEffect(() => {
@@ -521,11 +522,58 @@ export function HomeFeedContainer(): JSX.Element {
   )
   useFetchMore(handleFetchMore)
 
+  const [checkedItems, setCheckedItems] = useState<string[]>([])
+  const [multiSelectMode, setMultiSelectMode] = useState<MultiSelectMode>('off')
+
+  const setIsChecked = useCallback(
+    (itemId: string, set: boolean) => {
+      if (set && checkedItems.indexOf(itemId) === -1) {
+        checkedItems.push(itemId)
+        setCheckedItems([...checkedItems])
+      } else if (!set && checkedItems.indexOf(itemId) !== -1) {
+        setCheckedItems(checkedItems.splice(checkedItems.indexOf(itemId), 1))
+      }
+    },
+    [checkedItems]
+  )
+
+  useEffect(() => {
+    console.log('switching on multiselect mode: ', multiSelectMode)
+    switch (multiSelectMode) {
+      case 'off':
+      case 'none':
+        setCheckedItems([])
+        break
+      case 'some':
+        break
+      case 'search':
+      case 'visible':
+        const allIds = (
+          itemsPages?.flatMap((ad) => {
+            return ad.search.edges
+          }) || []
+        ).map((item) => item.node.id)
+        setCheckedItems(allIds)
+        break
+    }
+  }, [multiSelectMode])
+
+  const itemIsChecked = useCallback(
+    (itemId: string) => {
+      return checkedItems.indexOf(itemId) !== -1
+    },
+    [checkedItems]
+  )
+
   return (
     <HomeFeedGrid
       items={libraryItems}
       actionHandler={handleCardAction}
       reloadItems={mutate}
+      setIsChecked={setIsChecked}
+      itemIsChecked={itemIsChecked}
+      multiSelectMode={multiSelectMode}
+      setMultiSelectMode={setMultiSelectMode}
       searchTerm={queryInputs.searchQuery}
       gridContainerRef={gridContainerRef}
       mode={mode}
@@ -572,6 +620,11 @@ export function HomeFeedContainer(): JSX.Element {
       setLinkToEdit={setLinkToEdit}
       linkToUnsubscribe={linkToUnsubscribe}
       setLinkToUnsubscribe={setLinkToUnsubscribe}
+      numItemsSelected={
+        multiSelectMode == 'search'
+          ? itemsPages?.[0].search.pageInfo.totalCount || 0
+          : checkedItems.length
+      }
     />
   )
 }
@@ -609,6 +662,12 @@ type HomeFeedContentProps = {
     action: LinkedItemCardAction,
     item: LibraryItem | undefined
   ) => Promise<void>
+
+  multiSelectMode: MultiSelectMode
+  setIsChecked: (itemId: string, set: boolean) => void
+  itemIsChecked: (itemId: string) => boolean
+  setMultiSelectMode: (mode: MultiSelectMode) => void
+  numItemsSelected: number
 }
 
 function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
@@ -627,7 +686,8 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
   )
 
   const [showFilterMenu, setShowFilterMenu] = useState(false)
-  const [inMultiSelect, setInMultiSelect] = useState(false)
+
+  console.log('props.multiSelectMode: ', props.multiSelectMode)
 
   return (
     <VStack
@@ -641,13 +701,14 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
         updateLayout={updateLayout}
         searchTerm={props.searchTerm}
         applySearchQuery={(searchQuery: string) => {
-          console.log('searching with searchQuery: ', searchQuery)
           props.applySearchQuery(searchQuery)
         }}
         showFilterMenu={showFilterMenu}
         setShowFilterMenu={setShowFilterMenu}
-        inMultiSelect={inMultiSelect}
-        setInMultiSelect={setInMultiSelect}
+        multiSelectMode={props.multiSelectMode}
+        setMultiSelectMode={props.setMultiSelectMode}
+        numItemsSelected={props.numItemsSelected}
+        showAddLinkModal={() => props.setShowAddLinkModal(true)}
       />
       <HStack css={{ width: '100%', height: '100%' }}>
         <LibraryFilterMenu
@@ -673,7 +734,8 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
           <LibraryItemsLayout
             viewer={viewerData?.me}
             layout={layout}
-            inMultiSelect={inMultiSelect}
+            inMultiSelect={props.multiSelectMode !== 'off'}
+            isChecked={props.itemIsChecked}
             {...props}
           />
         )}
@@ -690,6 +752,9 @@ type LibraryItemsLayoutProps = {
   layout: LayoutType
   viewer?: UserBasicData
   inMultiSelect: boolean
+
+  isChecked: (itemId: string) => boolean
+  setIsChecked: (itemId: string, set: boolean) => void
 } & HomeFeedContentProps
 
 function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element {
@@ -749,6 +814,8 @@ function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element {
               items={props.items}
               layout={props.layout}
               viewer={props.viewer}
+              isChecked={props.isChecked}
+              setIsChecked={props.setIsChecked}
               gridContainerRef={props.gridContainerRef}
               setShowEditTitleModal={props.setShowEditTitleModal}
               setLinkToEdit={props.setLinkToEdit}
@@ -811,6 +878,10 @@ function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element {
                     item={props.linkToRemove?.node}
                     viewer={props.viewer}
                     layout="GRID_LAYOUT"
+                    inMultiSelect={false}
+                    isChecked={false}
+                    // eslint-disable-next-line @typescript-eslint/no-empty-function
+                    setIsChecked={() => {}}
                     // eslint-disable-next-line @typescript-eslint/no-empty-function
                     handleAction={() => {}}
                   />
@@ -879,6 +950,8 @@ type LibraryItemsProps = {
   setShowRemoveLinkConfirmation: (show: true) => void
 
   inMultiSelect: boolean
+  isChecked: (itemId: string) => boolean
+  setIsChecked: (itemId: string, set: boolean) => void
 
   actionHandler: (
     action: LinkedItemCardAction,
@@ -963,6 +1036,8 @@ function LibraryItems(props: LibraryItemsProps): JSX.Element {
               layout={props.layout}
               item={linkedItem.node}
               viewer={props.viewer}
+              isChecked={props.isChecked(linkedItem.node.id)}
+              setIsChecked={props.setIsChecked}
               inMultiSelect={props.inMultiSelect}
               handleAction={(action: LinkedItemCardAction) => {
                 if (action === 'delete') {

@@ -29,6 +29,8 @@ import {
 import { CardCheckbox } from '../../patterns/LibraryCards/LibraryCardStyles'
 import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
 
+export type MultiSelectMode = 'off' | 'none' | 'some' | 'visible' | 'search'
+
 type LibraryHeaderProps = {
   layout: LayoutType
   updateLayout: (layout: LayoutType) => void
@@ -39,21 +41,26 @@ type LibraryHeaderProps = {
   showFilterMenu: boolean
   setShowFilterMenu: (show: boolean) => void
 
-  inMultiSelect: boolean
-  setInMultiSelect: (set: boolean) => void
+  showAddLinkModal: () => void
+
+  numItemsSelected: number
+  multiSelectMode: MultiSelectMode
+  setMultiSelectMode: (mode: MultiSelectMode) => void
 }
 
 export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
-  const [isScrolled, setIsScrolled] = useState(props.inMultiSelect)
+  const [showBackground, setShowBackground] = useState(
+    props.multiSelectMode !== 'off'
+  )
 
   useEffect(() => {
-    if (window.scrollY > 5 || props.inMultiSelect) {
-      setIsScrolled(true)
+    if (window.scrollY > 5 || props.multiSelectMode != 'off') {
+      setShowBackground(true)
     }
   })
 
   useScrollWatcher((changeset: ScrollOffsetChangeset) => {
-    setIsScrolled(window.scrollY > 5)
+    setShowBackground(window.scrollY > 5)
   }, 0)
 
   return (
@@ -68,7 +75,7 @@ export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
           zIndex: 5,
           position: 'fixed',
           height: HEADER_HEIGHT,
-          bg: isScrolled ? '$thBackground' : 'transparent',
+          bg: showBackground ? '$thBackground' : 'transparent',
           '@mdDown': {
             left: '0px',
             right: '0',
@@ -100,13 +107,13 @@ function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
         },
       }}
     >
-      {/* <MagnifyingGlass size={20} color="#898989" /> */}
-      {/*  */}
       <ControlButtonBox
         layout={props.layout}
         updateLayout={props.updateLayout}
-        inMultiSelect={props.inMultiSelect}
-        setInMultiSelect={props.setInMultiSelect}
+        numItemsSelected={props.numItemsSelected}
+        multiSelectMode={props.multiSelectMode}
+        setMultiSelectMode={props.setMultiSelectMode}
+        showAddLinkModal={props.showAddLinkModal}
       />
     </HStack>
   )
@@ -148,8 +155,10 @@ function SmallHeaderLayout(props: LibraryHeaderProps): JSX.Element {
             layout={props.layout}
             updateLayout={props.updateLayout}
             setShowInlineSearch={setShowInlineSearch}
-            inMultiSelect={props.inMultiSelect}
-            setInMultiSelect={props.setInMultiSelect}
+            numItemsSelected={props.numItemsSelected}
+            multiSelectMode={props.multiSelectMode}
+            setMultiSelectMode={props.setMultiSelectMode}
+            showAddLinkModal={props.showAddLinkModal}
           />
         </>
       )}
@@ -354,8 +363,11 @@ type ControlButtonBoxProps = {
   updateLayout: (layout: LayoutType) => void
   setShowInlineSearch?: (show: boolean) => void
 
-  inMultiSelect: boolean
-  setInMultiSelect: (set: boolean) => void
+  showAddLinkModal: () => void
+
+  numItemsSelected: number
+  multiSelectMode: MultiSelectMode
+  setMultiSelectMode: (mode: MultiSelectMode) => void
 }
 
 function MultiSelectControlButtonBox(
@@ -420,7 +432,7 @@ function MultiSelectControlButtonBox(
       <Button
         style="cancel"
         onClick={(e) => {
-          props.setInMultiSelect(false)
+          props.setMultiSelectMode('off')
           e.preventDefault()
         }}
       >
@@ -468,14 +480,23 @@ function SearchControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
       <PrimaryDropdown
         showThemeSection={true}
         startSelectMultiple={() => {
-          props.setInMultiSelect(true)
+          props.setMultiSelectMode('none')
         }}
+        showAddLinkModal={props.showAddLinkModal}
       />
     </>
   )
 }
 
 function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
+  const [isChecked, setIsChecked] = useState(false)
+
+  useEffect(() => {
+    if (props.multiSelectMode === 'off' || props.multiSelectMode === 'none') {
+      setIsChecked(false)
+    }
+  }, [props.multiSelectMode])
+
   const breakpoints =
     props.layout == 'GRID_LAYOUT'
       ? {
@@ -510,7 +531,7 @@ function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
     <>
       <HStack
         alignment="center"
-        distribution={props.inMultiSelect ? 'center' : 'start'}
+        distribution={props.multiSelectMode !== 'off' ? 'center' : 'start'}
         css={{
           gap: '10px',
           '@mdDown': {
@@ -519,11 +540,24 @@ function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
           ...breakpoints,
         }}
       >
-        {props.inMultiSelect && (
-          <SpanBox css={{ flex: 1 }}>
-            <Button css={{ p: '5px', gap: '5px' }}>
-              <CardCheckbox isChecked={false} handleChanged={() => {}} />
-              &nbsp;
+        {props.multiSelectMode !== 'off' && (
+          <SpanBox
+            css={{
+              flex: 1,
+              display: 'flex',
+              gap: '2px',
+              alignItems: 'center',
+            }}
+          >
+            <CardCheckbox
+              isChecked={isChecked}
+              handleChanged={() => {
+                const newValue = !isChecked
+                props.setMultiSelectMode(newValue ? 'visible' : 'none')
+                setIsChecked(newValue)
+              }}
+            />
+            <SpanBox css={{ pt: '2px' }}>
               <Dropdown
                 triggerElement={
                   <CaretDown
@@ -533,18 +567,43 @@ function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
                   />
                 }
               >
-                <DropdownOption onSelect={() => {}} title="All Visible" />
                 <DropdownOption
-                  onSelect={() => {}}
-                  title="All Matching Search"
+                  onSelect={() => {
+                    setIsChecked(true)
+                    props.setMultiSelectMode('visible')
+                  }}
+                  title="All"
+                />
+                <DropdownOption
+                  onSelect={() => {
+                    setIsChecked(true)
+                    props.setMultiSelectMode('search')
+                  }}
+                  title="All matching search"
                 />
               </Dropdown>
-            </Button>
+            </SpanBox>
+            <SpanBox
+              css={{
+                paddingLeft: '10px',
+                fontSize: '12px',
+                fontWeight: '600',
+                fontFamily: '$inter',
+              }}
+            >
+              {props.numItemsSelected} selected
+            </SpanBox>
           </SpanBox>
         )}
-        {props.inMultiSelect ? (
+        {props.multiSelectMode !== 'off' ? (
           <>
-            <MultiSelectControlButtonBox {...props} />
+            <MultiSelectControlButtonBox
+              {...props}
+              // setInMultiSelect={(set: boolean) => {
+              //   setIsChecked(false)
+              //   props.setInMultiSelect(set)
+              // }}
+            />
             <SpanBox css={{ flex: 1 }}></SpanBox>
           </>
         ) : (
@@ -586,7 +645,7 @@ function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
             layout={props.layout}
             updateLayout={props.updateLayout}
             startSelectMultiple={() => {
-              props.setInMultiSelect(true)
+              props.setMultiSelectMode('none')
             }}
           />
         </HStack>
