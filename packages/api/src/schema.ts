@@ -2545,6 +2545,8 @@ const schema = gql`
       query: String!
       action: BulkActionType!
       labelIds: [ID!]
+      expectedCount: Int # max number of items to process
+      async: Boolean # if true, return immediately and process in the background
     ): BulkActionResult!
     importFromIntegration(integrationId: ID!): ImportFromIntegrationResult!
   }

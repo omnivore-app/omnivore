@@ -695,10 +695,12 @@ export const searchAsYouType = async (
   }
 }
 
-export const updatePagesAsync = async (
+export const updatePages = async (
   userId: string,
   action: BulkActionType,
   args: PageSearchArgs,
+  maxDocs: number,
+  async: boolean,
   labels?: Label[]
 ): Promise<string | null> => {
   // build the script
@@ -774,8 +776,11 @@ export const updatePagesAsync = async (
     const { body } = await client.updateByQuery({
       index: INDEX_ALIAS,
       conflicts: 'proceed',
-      wait_for_completion: false,
+      wait_for_completion: !async,
       body: searchBody,
+      max_docs: maxDocs,
+      requests_per_second: 500, // throttle the requests
+      slices: 'auto', // parallelize the requests
     })
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
