@@ -153,7 +153,7 @@ function SmallHeaderLayout(props: LibraryHeaderProps): JSX.Element {
         </HStack>
       ) : (
         <>
-          <MenuHeaderButton {...props} />
+          {props.multiSelectMode === 'off' && <MenuHeaderButton {...props} />}
           <ControlButtonBox
             layout={props.layout}
             updateLayout={props.updateLayout}
@@ -227,6 +227,10 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
   const inputRef = useRef<HTMLInputElement | null>(null)
   const [focused, setFocused] = useState(false)
   const [searchTerm, setSearchTerm] = useState(props.searchTerm ?? '')
+
+  useEffect(() => {
+    setSearchTerm(props.searchTerm ?? '')
+  }, [props.searchTerm])
 
   const border = props.compact
     ? focused
@@ -514,18 +518,6 @@ function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
     }
   }, [props.multiSelectMode])
 
-  const breakpoints = {
-    width: '95%',
-    '@media (min-width: 930px)': {
-      width: '640px',
-    },
-    '@media (min-width: 1280px)': {
-      width: '1000px',
-    },
-    '@media (min-width: 1600px)': {
-      width: '1340px',
-    },
-  }
   return (
     <>
       <HStack
@@ -534,9 +526,18 @@ function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
         css={{
           gap: '10px',
           '@mdDown': {
-            display: 'none',
+            display: props.multiSelectMode !== 'off' ? 'flex' : 'none',
           },
-          ...breakpoints,
+          width: '95%',
+          '@media (min-width: 930px)': {
+            width: '640px',
+          },
+          '@media (min-width: 1280px)': {
+            width: '1000px',
+          },
+          '@media (min-width: 1600px)': {
+            width: '1340px',
+          },
         }}
       >
         {props.multiSelectMode !== 'off' && (
@@ -546,6 +547,9 @@ function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
               display: 'flex',
               gap: '2px',
               alignItems: 'center',
+              '@mdDown': {
+                mx: '20px',
+              },
             }}
           >
             <CardCheckbox
@@ -604,13 +608,7 @@ function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
         )}
         {props.multiSelectMode !== 'off' ? (
           <>
-            <MultiSelectControlButtonBox
-              {...props}
-              // setInMultiSelect={(set: boolean) => {
-              //   setIsChecked(false)
-              //   props.setInMultiSelect(set)
-              // }}
-            />
+            <MultiSelectControlButtonBox {...props} />
             <SpanBox css={{ flex: 1 }}></SpanBox>
           </>
         ) : (
@@ -618,7 +616,7 @@ function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
         )}
       </HStack>
 
-      {props.setShowInlineSearch && (
+      {props.setShowInlineSearch && props.multiSelectMode === 'off' && (
         <HStack
           alignment="center"
           distribution="end"
