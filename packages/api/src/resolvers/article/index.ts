@@ -1194,7 +1194,7 @@ export const setFavoriteArticleResolver = authorized<
       page.id,
       {
         name: 'Favorites',
-        color: '#07D2D0', // TODO: pick a color
+        color: '#FFD700', // gold
       }
     )
     if (!result) {
