@@ -1061,12 +1061,12 @@ function LibraryItems(props: LibraryItemsProps): JSX.Element {
         display: 'grid',
         width: '100%',
         gridAutoRows: 'auto',
-        borderRadius: '8px',
+        borderRadius: '5px',
         gridGap: props.layout == 'LIST_LAYOUT' ? '0' : '20px',
-        marginTop: props.layout == 'LIST_LAYOUT' ? '21px' : '0',
+        marginTop: '0px',
         marginBottom: '0px',
-        paddingTop: props.layout == 'LIST_LAYOUT' ? '0' : '21px',
-        paddingBottom: props.layout == 'LIST_LAYOUT' ? '0px' : '21px',
+        paddingTop: '0',
+        paddingBottom: '0px',
         overflow: 'hidden',
         '@xlgDown': {
           border: 'unset',
@@ -1105,7 +1105,7 @@ function LibraryItems(props: LibraryItemsProps): JSX.Element {
               outline: 'none',
             },
             '&> div': {
-              bg: '$thBackground',
+              bg: '$thBackground3',
             },
             '&:focus': {
               outline: 'none',
