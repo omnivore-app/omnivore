@@ -52,11 +52,6 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
             width: '100%',
             px: '25px',
             pb: '25px',
-
-            // '@lg': {
-            //   display: props.alwaysDisplayToolbar ? 'flex' : 'none',
-            // },
-            // '@mdDown': { px: '15px' },
           }}
         >
           <LogoBox />

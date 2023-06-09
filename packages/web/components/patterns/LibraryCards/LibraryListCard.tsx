@@ -15,6 +15,7 @@ import {
   TitleStyle,
 } from './LibraryCardStyles'
 import { sortedLabels } from '../../../lib/labelsSort'
+import { LIBRARY_LEFT_MENU_WIDTH } from '../../templates/homeFeed/LibraryFilterMenu'
 
 export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
   const [isHovered, setIsHovered] = useState(false)
@@ -28,12 +29,9 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
         gap: '10px',
         border: '1px solid $grayBorder',
         borderBottom: 'none',
-
-        '@xlgDown': {
-          width: 'unset',
-          borderRadius: 'unset',
-          borderLeft: 'unset',
-          borderRight: 'unset',
+        width: '100vw',
+        '@media (min-width: 768px)': {
+          width: `calc(100vw - ${LIBRARY_LEFT_MENU_WIDTH})`,
         },
         '@media (min-width: 930px)': {
           width: '640px',
