@@ -1,4 +1,4 @@
-import { Between, ILike } from 'typeorm'
+import { Between } from 'typeorm'
 import { createPubSubClient } from '../../datalayer/pubsub'
 import { getHighlightById } from '../../elastic/highlights'
 import {
@@ -39,9 +39,13 @@ import {
   UpdateLabelSuccess,
 } from '../../generated/graphql'
 import { AppDataSource } from '../../server'
-import { getLabelsByIds } from '../../services/labels'
+import {
+  createLabel,
+  getLabelByName,
+  getLabelsByIds,
+} from '../../services/labels'
 import { analytics } from '../../utils/analytics'
-import { authorized, generateRandomColor } from '../../utils/helpers'
+import { authorized } from '../../utils/helpers'
 
 export const labelsResolver = authorized<LabelsSuccess, LabelsError>(
   async (_obj, _params, { claims: { uid }, log }) => {
@@ -90,8 +94,6 @@ export const createLabelResolver = authorized<
 >(async (_, { input }, { claims: { uid }, log }) => {
   log.info('createLabelResolver')
 
-  const { name, color, description } = input
-
   try {
     const user = await getRepository(User).findOneBy({ id: uid })
     if (!user) {
@@ -101,30 +103,20 @@ export const createLabelResolver = authorized<
     }
 
     // Check if label already exists ignoring case of name
-    const existingLabel = await getRepository(Label).findOneBy({
-      user: { id: user.id },
-      name: ILike(name),
-    })
+    const existingLabel = await getLabelByName(uid, input.name)
     if (existingLabel) {
       return {
         errorCodes: [CreateLabelErrorCode.LabelAlreadyExists],
       }
     }
 
-    const label = await getRepository(Label).save({
-      user,
-      name,
-      color: color || generateRandomColor(),
-      description: description || '',
-    })
+    const label = await createLabel(uid, input)
 
     analytics.track({
       userId: uid,
       event: 'label_created',
       properties: {
-        name,
-        color,
-        description,
+        ...input,
         env: env.server.apiEnv,
       },
     })
@@ -156,7 +148,7 @@ export const deleteLabelResolver = authorized<
     }
 
     const label = await getRepository(Label).findOne({
-      where: { id: labelId },
+      where: { id: labelId, user: { id: uid } },
       relations: ['user'],
     })
     if (!label) {
@@ -165,9 +157,11 @@ export const deleteLabelResolver = authorized<
       }
     }
 
-    if (label.user.id !== uid) {
+    // internal labels cannot be deleted
+    if (label.internal) {
+      log.info('internal labels cannot be deleted')
       return {
-        errorCodes: [DeleteLabelErrorCode.Unauthorized],
+        errorCodes: [DeleteLabelErrorCode.Forbidden],
       }
     }
 
@@ -307,6 +301,15 @@ export const updateLabelResolver = authorized<
     if (!label) {
       return {
         errorCodes: [UpdateLabelErrorCode.NotFound],
+      }
+    }
+
+    // internal labels cannot be updated
+    if (label.internal && label.name.toLowerCase() !== name.toLowerCase()) {
+      log.info('internal labels cannot be updated')
+
+      return {
+        errorCodes: [UpdateLabelErrorCode.Forbidden],
       }
     }
 

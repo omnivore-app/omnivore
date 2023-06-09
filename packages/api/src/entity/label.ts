@@ -31,4 +31,7 @@ export class Label {
 
   @Column('integer', { default: 0 })
   position!: number
+
+  @Column('boolean', { default: false })
+  internal!: boolean
 }

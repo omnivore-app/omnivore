@@ -254,6 +254,8 @@ export const updateLabel = async (
       },
       refresh: ctx.refresh,
       conflicts: 'proceed', // ignore conflicts
+      requests_per_second: 500, // throttle the requests
+      slices: 'auto', // parallelize the requests
     })
 
     body.updated > 0 &&

@@ -518,6 +518,7 @@ type DeleteLabelError {
 
 enum DeleteLabelErrorCode {
   BAD_REQUEST
+  FORBIDDEN
   NOT_FOUND
   UNAUTHORIZED
 }
@@ -908,6 +909,7 @@ type Label {
   createdAt: Date
   description: String
   id: ID!
+  internal: Boolean!
   name: String!
   position: Int
 }

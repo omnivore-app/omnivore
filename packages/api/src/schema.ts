@@ -1418,6 +1418,7 @@ const schema = gql`
     description: String
     createdAt: Date
     position: Int
+    internal: Boolean!
   }
 
   type LabelsSuccess {
@@ -1467,6 +1468,7 @@ const schema = gql`
     UNAUTHORIZED
     BAD_REQUEST
     NOT_FOUND
+    FORBIDDEN
   }
 
   type DeleteLabelError {
