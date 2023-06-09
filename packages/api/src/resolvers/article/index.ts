@@ -1166,6 +1166,15 @@ export const setFavoriteArticleResolver = authorized<
   MutationSetFavoriteArticleArgs
 >(async (_, { id }, { claims: { uid }, log, pubsub }) => {
   try {
+    analytics.track({
+      userId: uid,
+      event: 'setFavoriteArticle',
+      properties: {
+        env: env.server.apiEnv,
+        id,
+      },
+    })
+
     const page = await getPageByParam({ userId: uid, _id: id })
 
     if (!page) {
