@@ -2470,6 +2470,7 @@ const schema = gql`
     UNAUTHORIZED
     BAD_REQUEST
     NOT_FOUND
+    ALREADY_EXISTS
   }
 
   # Mutations

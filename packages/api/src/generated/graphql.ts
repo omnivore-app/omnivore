@@ -2405,6 +2405,7 @@ export type SetFavoriteArticleError = {
 };
 
 export enum SetFavoriteArticleErrorCode {
+  AlreadyExists = 'ALREADY_EXISTS',
   BadRequest = 'BAD_REQUEST',
   NotFound = 'NOT_FOUND',
   Unauthorized = 'UNAUTHORIZED'

@@ -1780,6 +1780,7 @@ type SetFavoriteArticleError {
 }
 
 enum SetFavoriteArticleErrorCode {
+  ALREADY_EXISTS
   BAD_REQUEST
   NOT_FOUND
   UNAUTHORIZED

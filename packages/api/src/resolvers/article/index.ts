@@ -1169,6 +1169,12 @@ export const setFavoriteArticleResolver = authorized<
   SetFavoriteArticleError,
   MutationSetFavoriteArticleArgs
 >(async (_, { id }, { claims: { uid }, log, pubsub }) => {
+  log.info('setFavoriteArticleResolver', { id })
+
+  if (!uid) {
+    return { errorCodes: [SetFavoriteArticleErrorCode.Unauthorized] }
+  }
+
   try {
     analytics.track({
       userId: uid,
@@ -1180,9 +1186,14 @@ export const setFavoriteArticleResolver = authorized<
     })
 
     const page = await getPageByParam({ userId: uid, _id: id })
-
     if (!page) {
       return { errorCodes: [SetFavoriteArticleErrorCode.NotFound] }
+    }
+
+    const label = {
+      id: '',
+      name: 'Favorites',
+      color: '#FFD700', // gold
     }
 
     // adds Favorites label to page
@@ -1192,13 +1203,10 @@ export const setFavoriteArticleResolver = authorized<
         pubsub,
       },
       page.id,
-      {
-        name: 'Favorites',
-        color: '#FFD700', // gold
-      }
+      label
     )
     if (!result) {
-      return { errorCodes: [SetFavoriteArticleErrorCode.Unauthorized] }
+      return { errorCodes: [SetFavoriteArticleErrorCode.AlreadyExists] }
     }
 
     log.debug('Favorites label added:', result)
@@ -1206,11 +1214,12 @@ export const setFavoriteArticleResolver = authorized<
     return {
       favoriteArticle: {
         ...page,
+        labels: page.labels ? [...page.labels, label] : [label],
         isArchived: !!page.archivedAt,
       },
     }
   } catch (error) {
-    log.debug('Error adding Favorites label:', error)
+    log.info('Error adding Favorites label:', error)
     return { errorCodes: [SetFavoriteArticleErrorCode.BadRequest] }
   }
 })
