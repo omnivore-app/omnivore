@@ -69,7 +69,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
         borderStyle: 'solid',
         borderColor: '$thBorderColor',
         cursor: 'pointer',
-        '@smDown': {
+        '@media (max-width: 930px)': {
           m: '15px',
           width: 'calc(100% - 30px)',
         },

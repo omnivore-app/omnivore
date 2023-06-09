@@ -400,12 +400,10 @@ function MultiSelectControlButtonBox(
       </Button>
       <Button
         style="outline"
-        // onClick={(e) => {
-        //   props.updateLayout(
-        //     props.layout == 'GRID_LAYOUT' ? 'LIST_LAYOUT' : 'GRID_LAYOUT'
-        //   )
-        //   e.preventDefault()
-        // }}
+        onClick={(e) => {
+          props.performMultiSelectAction(BulkAction.ADD_LABELS)
+          e.preventDefault()
+        }}
       >
         <TagSimple
           width={20}
@@ -501,35 +499,18 @@ function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
     }
   }, [props.multiSelectMode])
 
-  const breakpoints =
-    props.layout == 'GRID_LAYOUT'
-      ? {
-          minWidth: '121px',
-          '@xlgDown': {
-            width: '320px',
-          },
-          '@smDown': {
-            width: '320px',
-          },
-          '@media (min-width: 930px)': {
-            width: '640px',
-          },
-          '@media (min-width: 1280px)': {
-            width: '1000px',
-          },
-          '@media (min-width: 1600px)': {
-            width: '1340px',
-          },
-        }
-      : {
-          width: '900px',
-          '@xlgDown': {
-            width: '90%',
-          },
-          '@xxl': {
-            width: '1200px',
-          },
-        }
+  const breakpoints = {
+    width: '95%',
+    '@media (min-width: 930px)': {
+      width: '640px',
+    },
+    '@media (min-width: 1280px)': {
+      width: '1000px',
+    },
+    '@media (min-width: 1600px)': {
+      width: '1340px',
+    },
+  }
   return (
     <>
       <HStack

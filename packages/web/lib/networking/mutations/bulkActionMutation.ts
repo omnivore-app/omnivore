@@ -4,6 +4,7 @@ import { gqlFetcher } from '../networkHelpers'
 export enum BulkAction {
   ARCHIVE = 'ARCHIVE',
   DELETE = 'DELETE',
+  ADD_LABELS = 'ADD_LABELS',
 }
 
 type BulkActionResponseData = {
