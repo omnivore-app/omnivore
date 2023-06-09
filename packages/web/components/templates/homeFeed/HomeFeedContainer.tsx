@@ -1063,7 +1063,7 @@ function LibraryItems(props: LibraryItemsProps): JSX.Element {
         gridAutoRows: 'auto',
         borderRadius: '5px',
         gridGap: props.layout == 'LIST_LAYOUT' ? '0' : '20px',
-        marginTop: '0px',
+        marginTop: '10px',
         marginBottom: '0px',
         paddingTop: '0',
         paddingBottom: '0px',
