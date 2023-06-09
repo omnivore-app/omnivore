@@ -1022,7 +1022,7 @@ export type Label = {
   createdAt?: Maybe<Scalars['Date']>;
   description?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
-  internal: Scalars['Boolean'];
+  internal?: Maybe<Scalars['Boolean']>;
   name: Scalars['String'];
   position?: Maybe<Scalars['Int']>;
 };
@@ -4907,7 +4907,7 @@ export type LabelResolvers<ContextType = ResolverContext, ParentType extends Res
   createdAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  internal?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  internal?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   position?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;

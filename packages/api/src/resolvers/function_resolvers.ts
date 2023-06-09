@@ -23,7 +23,6 @@ import {
   generateDownloadSignedUrl,
   generateUploadFilePathName,
 } from '../utils/uploads'
-import { setFavoriteArticleResolver } from './article'
 import { optInFeatureResolver } from './features'
 import { uploadImportFileResolver } from './importers/uploadImportFileResolver'
 import {
@@ -88,6 +87,7 @@ import {
   sendInstallInstructionsResolver,
   setBookmarkArticleResolver,
   setDeviceTokenResolver,
+  setFavoriteArticleResolver,
   setFollowResolver,
   setIntegrationResolver,
   setLabelsForHighlightResolver,

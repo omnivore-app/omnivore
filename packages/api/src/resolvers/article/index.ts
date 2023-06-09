@@ -1160,8 +1160,12 @@ export const bulkActionResolver = authorized<
   }
 )
 
-export const setFavoriteArticleResolver = authorized<
+export type SetFavoriteArticleSuccessPartial = Merge<
   SetFavoriteArticleSuccess,
+  { favoriteArticle: PartialArticle }
+>
+export const setFavoriteArticleResolver = authorized<
+  SetFavoriteArticleSuccessPartial,
   SetFavoriteArticleError,
   MutationSetFavoriteArticleArgs
 >(async (_, { id }, { claims: { uid }, log, pubsub }) => {
@@ -1200,7 +1204,10 @@ export const setFavoriteArticleResolver = authorized<
     log.debug('Favorites label added:', result)
 
     return {
-      favoriteArticle: page,
+      favoriteArticle: {
+        ...page,
+        isArchived: !!page.archivedAt,
+      },
     }
   } catch (error) {
     log.debug('Error adding Favorites label:', error)

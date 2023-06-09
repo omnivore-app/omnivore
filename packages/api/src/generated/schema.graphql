@@ -909,7 +909,7 @@ type Label {
   createdAt: Date
   description: String
   id: ID!
-  internal: Boolean!
+  internal: Boolean
   name: String!
   position: Int
 }

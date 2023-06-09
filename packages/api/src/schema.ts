@@ -1418,7 +1418,7 @@ const schema = gql`
     description: String
     createdAt: Date
     position: Int
-    internal: Boolean!
+    internal: Boolean
   }
 
   type LabelsSuccess {
