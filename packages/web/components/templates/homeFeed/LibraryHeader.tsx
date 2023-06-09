@@ -114,6 +114,8 @@ function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
         setMultiSelectMode={props.setMultiSelectMode}
         showAddLinkModal={props.showAddLinkModal}
         performMultiSelectAction={props.performMultiSelectAction}
+        searchTerm={props.searchTerm}
+        applySearchQuery={props.applySearchQuery}
       />
     </HStack>
   )
@@ -160,6 +162,8 @@ function SmallHeaderLayout(props: LibraryHeaderProps): JSX.Element {
             setMultiSelectMode={props.setMultiSelectMode}
             showAddLinkModal={props.showAddLinkModal}
             performMultiSelectAction={props.performMultiSelectAction}
+            searchTerm={props.searchTerm}
+            applySearchQuery={props.applySearchQuery}
           />
         </>
       )}
@@ -371,6 +375,9 @@ type ControlButtonBoxProps = {
   setMultiSelectMode: (mode: MultiSelectMode) => void
 
   performMultiSelectAction: (action: BulkAction) => void
+
+  searchTerm: string | undefined
+  applySearchQuery: (searchQuery: string) => void
 }
 
 function MultiSelectControlButtonBox(
@@ -444,15 +451,14 @@ function MultiSelectControlButtonBox(
   )
 }
 
-function SearchControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
+type SearchControlButtonBoxProps = ControlButtonBoxProps
+
+function SearchControlButtonBox(
+  props: SearchControlButtonBoxProps
+): JSX.Element {
   return (
     <>
-      <SearchBox
-        searchTerm=""
-        applySearchQuery={(searchQuery: string) => {
-          console.log('search box: ', searchQuery)
-        }}
-      />
+      <SearchBox {...props} />
       <Button
         style="plainIcon"
         css={{ display: 'flex', marginLeft: 'auto' }}
