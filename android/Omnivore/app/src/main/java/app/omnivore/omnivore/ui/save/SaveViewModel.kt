@@ -18,6 +18,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.util.*
+import java.util.regex.Pattern
 import javax.inject.Inject
 
 enum class SaveState {
@@ -46,9 +47,14 @@ class SaveViewModel @Inject constructor(
     datastoreRepo.getString(DatastoreKeys.omnivoreAuthToken)
   }
 
-  fun cleanUrl(url: String): String? {
-    return Regex("https?:\\/\\/(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)")
-      .findAll(url).map { it.value }.first()
+  fun cleanUrl(text: String): String? {
+    val pattern = Pattern.compile("\\b(?:https?|ftp)://\\S+")
+    val matcher = pattern.matcher(text)
+
+    if (matcher.find()) {
+      return matcher.group()
+    }
+    return null
   }
 
   fun saveURL(url: String) {
