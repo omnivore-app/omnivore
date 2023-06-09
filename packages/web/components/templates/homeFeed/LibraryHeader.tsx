@@ -29,6 +29,7 @@ import {
 import { CardCheckbox } from '../../patterns/LibraryCards/LibraryCardStyles'
 import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
 import { BulkAction } from '../../../lib/networking/mutations/bulkActionMutation'
+import { ConfirmationModal } from '../../patterns/ConfirmationModal'
 
 export type MultiSelectMode = 'off' | 'none' | 'some' | 'visible' | 'search'
 
@@ -383,11 +384,7 @@ type ControlButtonBoxProps = {
 function MultiSelectControlButtonBox(
   props: ControlButtonBoxProps
 ): JSX.Element {
-  const [isChecked, setIsChecked] = useState(false)
-
-  const handleCheckChanged = useCallback(() => {
-    setIsChecked(!isChecked)
-  }, [isChecked])
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false)
 
   return (
     <HStack alignment="center" distribution="center" css={{ gap: '20px' }}>
@@ -405,7 +402,7 @@ function MultiSelectControlButtonBox(
         />
         <SpanBox css={{ '@lgDown': { display: 'none' } }}>Archive</SpanBox>
       </Button>
-      <Button
+      {/* <Button
         style="outline"
         onClick={(e) => {
           props.performMultiSelectAction(BulkAction.ADD_LABELS)
@@ -418,11 +415,11 @@ function MultiSelectControlButtonBox(
           color={theme.colors.thTextContrast2.toString()}
         />
         <SpanBox css={{ '@lgDown': { display: 'none' } }}>Label</SpanBox>
-      </Button>
+      </Button> */}
       <Button
         style="outline"
         onClick={(e) => {
-          props.performMultiSelectAction(BulkAction.DELETE)
+          setShowConfirmDelete(true)
           e.preventDefault()
         }}
       >
@@ -447,6 +444,18 @@ function MultiSelectControlButtonBox(
         />
         Cancel
       </Button>
+      {showConfirmDelete && (
+        <ConfirmationModal
+          message={`You are about to delete ${props.numItemsSelected} items. All associated notes and highlights will be deleted.`}
+          acceptButtonLabel={'Delete'}
+          onAccept={() => {
+            props.performMultiSelectAction(BulkAction.DELETE)
+          }}
+          onOpenChange={(open: boolean) => {
+            setShowConfirmDelete(false)
+          }}
+        />
+      )}
     </HStack>
   )
 }
