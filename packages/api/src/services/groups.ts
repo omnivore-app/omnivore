@@ -1,16 +1,16 @@
-import { User } from '../entity/user'
-import { Group } from '../entity/groups/group'
-import { Invite } from '../entity/groups/invite'
-import { GroupMembership } from '../entity/groups/group_membership'
 import { nanoid } from 'nanoid'
-import { AppDataSource } from '../server'
-import { RecommendationGroup, User as GraphqlUser } from '../generated/graphql'
+import { Group } from '../entity/groups/group'
+import { GroupMembership } from '../entity/groups/group_membership'
+import { Invite } from '../entity/groups/invite'
+import { RuleActionType } from '../entity/rule'
+import { User } from '../entity/user'
 import { getRepository } from '../entity/utils'
 import { homePageURL } from '../env'
+import { RecommendationGroup, User as GraphqlUser } from '../generated/graphql'
+import { AppDataSource } from '../server'
 import { userDataToUser } from '../utils/helpers'
-import { createLabel } from './labels'
+import { createLabel, getLabelByName } from './labels'
 import { createRule } from './rules'
-import { RuleActionType } from '../entity/rule'
 
 export const createGroup = async (input: {
   admin: User
@@ -228,8 +228,11 @@ export const createLabelAndRuleForGroup = async (
   userId: string,
   groupName: string
 ) => {
-  // create a new label for the group
-  const label = await createLabel(userId, { name: groupName })
+  let label = await getLabelByName(userId, groupName)
+  if (!label) {
+    // create a new label for the group
+    label = await createLabel(userId, { name: groupName })
+  }
 
   // create a rule to add the label to all pages in the group
   const addLabelPromise = createRule(userId, {

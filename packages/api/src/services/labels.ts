@@ -9,6 +9,12 @@ import { getRepository } from '../entity/utils'
 import { CreateLabelInput } from '../generated/graphql'
 import { generateRandomColor } from '../utils/helpers'
 
+const INTERNAL_LABELS_IN_LOWERCASE = ['newsletters', 'favorites']
+
+const isLabelInternal = (name: string): boolean => {
+  return INTERNAL_LABELS_IN_LOWERCASE.includes(name.toLowerCase())
+}
+
 const batchGetLabelsFromLinkIds = async (
   linkIds: readonly string[]
 ): Promise<Label[][]> => {
@@ -40,19 +46,12 @@ export const addLabelToPage = async (
     return false
   }
 
-  let labelEntity = await getRepository(Label)
-    .createQueryBuilder()
-    .where({ user: { id: user.id } })
-    .andWhere('LOWER(name) = LOWER(:name)', { name: label.name })
-    .getOne()
+  let labelEntity = await getLabelByName(user.id, label.name)
 
   if (!labelEntity) {
     console.log('creating new label', label.name)
 
-    labelEntity = await getRepository(Label).save({
-      ...label,
-      user,
-    })
+    labelEntity = await createLabel(user.id, label)
   }
 
   console.log('adding label to page', label.name, pageId)
@@ -80,30 +79,31 @@ export const getLabelsByIds = async (
   })
 }
 
+export const getLabelByName = async (
+  userId: string,
+  name: string
+): Promise<Label | null> => {
+  return getRepository(Label)
+    .createQueryBuilder()
+    .where({ user: { id: userId } })
+    .andWhere('LOWER(name) = LOWER(:name)', { name })
+    .getOne()
+}
+
 export const createLabel = async (
   userId: string,
   label: {
     name: string
-    color?: string
-    description?: string
+    color?: string | null
+    description?: string | null
   }
 ): Promise<Label> => {
-  const existingLabel = await getRepository(Label)
-    .createQueryBuilder()
-    .where({ user: { id: userId } })
-    .andWhere('LOWER(name) = LOWER(:name)', { name: label.name })
-    .getOne()
-
-  if (existingLabel) {
-    return existingLabel
-  }
-
-  // create a new label and assign a random color if not provided
-  label.color = label.color || generateRandomColor()
-
   return getRepository(Label).save({
-    ...label,
     user: { id: userId },
+    name: label.name,
+    color: label.color || generateRandomColor(), // assign a random color if not provided
+    description: label.description,
+    internal: isLabelInternal(label.name),
   })
 }
 
@@ -141,6 +141,7 @@ export const createLabels = async (
       name: l.name,
       description: l.description,
       color: l.color || generateRandomColor(),
+      internal: isLabelInternal(l.name),
       user,
     }))
   )

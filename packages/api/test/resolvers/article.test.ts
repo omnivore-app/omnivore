@@ -1293,4 +1293,67 @@ describe('Article API', () => {
       })
     })
   })
+
+  describe('SetFavoriteArticle API', () => {
+    const setFavoriteArticleQuery = (articleId: string) => `
+      mutation {
+        setFavoriteArticle(id: "${articleId}") {
+          ... on SetFavoriteArticleSuccess {
+            favoriteArticle {
+              id
+              labels {
+                name
+              }
+            }
+          }
+          ... on SetFavoriteArticleError {
+            errorCodes
+          }
+        }
+      }`
+
+    let articleId = ''
+
+    before(async () => {
+      const page: Page = {
+        id: '',
+        hash: '',
+        userId: user.id,
+        pageType: PageType.Article,
+        title: 'test setFavoriteArticle',
+        content: '',
+        slug: '',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        readingProgressPercent: 0,
+        readingProgressAnchorIndex: 0,
+        url: 'https://test.omnivore.app/setFavoriteArticle',
+        savedAt: new Date(),
+        state: ArticleSavingRequestStatus.Succeeded,
+      }
+      articleId = (await createPage(page, ctx))!
+    })
+
+    after(async () => {
+      // Delete the page
+      await deletePagesByParam({ userId: user.id }, ctx)
+    })
+
+    it('favorites the article', async () => {
+      const res = await graphqlRequest(
+        setFavoriteArticleQuery(articleId),
+        authToken
+      ).expect(200)
+      console.log(res.body.data.setFavoriteArticle.favoriteArticle)
+      expect(res.body.data.setFavoriteArticle.favoriteArticle.id).to.eq(
+        articleId
+      )
+      expect(
+        res.body.data.setFavoriteArticle.favoriteArticle.labels[0].name
+      ).to.eq('Favorites')
+
+      const page = await getPageById(articleId)
+      expect(page?.labels?.map((l) => l.name)).to.eql(['Favorites'])
+    })
+  })
 })

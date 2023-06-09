@@ -518,6 +518,7 @@ type DeleteLabelError {
 
 enum DeleteLabelErrorCode {
   BAD_REQUEST
+  FORBIDDEN
   NOT_FOUND
   UNAUTHORIZED
 }
@@ -908,6 +909,7 @@ type Label {
   createdAt: Date
   description: String
   id: ID!
+  internal: Boolean
   name: String!
   position: Int
 }
@@ -1137,6 +1139,7 @@ type Mutation {
   saveUrl(input: SaveUrlInput!): SaveResult!
   setBookmarkArticle(input: SetBookmarkArticleInput!): SetBookmarkArticleResult!
   setDeviceToken(input: SetDeviceTokenInput!): SetDeviceTokenResult!
+  setFavoriteArticle(id: ID!): SetFavoriteArticleResult!
   setFollow(input: SetFollowInput!): SetFollowResult!
   setIntegration(input: SetIntegrationInput!): SetIntegrationResult!
   setLabels(input: SetLabelsInput!): SetLabelsResult!
@@ -1770,6 +1773,23 @@ union SetDeviceTokenResult = SetDeviceTokenError | SetDeviceTokenSuccess
 
 type SetDeviceTokenSuccess {
   deviceToken: DeviceToken!
+}
+
+type SetFavoriteArticleError {
+  errorCodes: [SetFavoriteArticleErrorCode!]!
+}
+
+enum SetFavoriteArticleErrorCode {
+  ALREADY_EXISTS
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+union SetFavoriteArticleResult = SetFavoriteArticleError | SetFavoriteArticleSuccess
+
+type SetFavoriteArticleSuccess {
+  favoriteArticle: Article!
 }
 
 type SetFollowError {

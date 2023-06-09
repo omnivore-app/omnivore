@@ -87,6 +87,7 @@ import {
   sendInstallInstructionsResolver,
   setBookmarkArticleResolver,
   setDeviceTokenResolver,
+  setFavoriteArticleResolver,
   setFollowResolver,
   setIntegrationResolver,
   setLabelsForHighlightResolver,
@@ -204,6 +205,7 @@ export const functionResolvers = {
     markEmailAsItem: markEmailAsItemResolver,
     bulkAction: bulkActionResolver,
     importFromIntegration: importFromIntegrationResolver,
+    setFavoriteArticle: setFavoriteArticleResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -659,4 +661,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('MarkEmailAsItem'),
   ...resultResolveTypeResolver('BulkAction'),
   ...resultResolveTypeResolver('ImportFromIntegration'),
+  ...resultResolveTypeResolver('SetFavoriteArticle'),
 }

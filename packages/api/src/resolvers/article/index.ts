@@ -42,6 +42,7 @@ import {
   MutationCreateArticleArgs,
   MutationSaveArticleReadingProgressArgs,
   MutationSetBookmarkArticleArgs,
+  MutationSetFavoriteArticleArgs,
   MutationSetShareArticleArgs,
   PageInfo,
   QueryArticleArgs,
@@ -60,6 +61,9 @@ import {
   SetBookmarkArticleError,
   SetBookmarkArticleErrorCode,
   SetBookmarkArticleSuccess,
+  SetFavoriteArticleError,
+  SetFavoriteArticleErrorCode,
+  SetFavoriteArticleSuccess,
   SetShareArticleError,
   SetShareArticleErrorCode,
   SetShareArticleSuccess,
@@ -74,7 +78,11 @@ import {
   UpdatesSinceSuccess,
 } from '../../generated/graphql'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
-import { createLabels, getLabelsByIds } from '../../services/labels'
+import {
+  addLabelToPage,
+  createLabels,
+  getLabelsByIds,
+} from '../../services/labels'
 import { parsedContentToPage } from '../../services/save_page'
 import { traceAs } from '../../tracing'
 import { Merge } from '../../util'
@@ -1151,6 +1159,70 @@ export const bulkActionResolver = authorized<
     return { success: !!taskId }
   }
 )
+
+export type SetFavoriteArticleSuccessPartial = Merge<
+  SetFavoriteArticleSuccess,
+  { favoriteArticle: PartialArticle }
+>
+export const setFavoriteArticleResolver = authorized<
+  SetFavoriteArticleSuccessPartial,
+  SetFavoriteArticleError,
+  MutationSetFavoriteArticleArgs
+>(async (_, { id }, { claims: { uid }, log, pubsub }) => {
+  log.info('setFavoriteArticleResolver', { id })
+
+  if (!uid) {
+    return { errorCodes: [SetFavoriteArticleErrorCode.Unauthorized] }
+  }
+
+  try {
+    analytics.track({
+      userId: uid,
+      event: 'setFavoriteArticle',
+      properties: {
+        env: env.server.apiEnv,
+        id,
+      },
+    })
+
+    const page = await getPageByParam({ userId: uid, _id: id })
+    if (!page) {
+      return { errorCodes: [SetFavoriteArticleErrorCode.NotFound] }
+    }
+
+    const label = {
+      id: '',
+      name: 'Favorites',
+      color: '#FFD700', // gold
+    }
+
+    // adds Favorites label to page
+    const result = await addLabelToPage(
+      {
+        uid,
+        pubsub,
+      },
+      page.id,
+      label
+    )
+    if (!result) {
+      return { errorCodes: [SetFavoriteArticleErrorCode.AlreadyExists] }
+    }
+
+    log.debug('Favorites label added:', result)
+
+    return {
+      favoriteArticle: {
+        ...page,
+        labels: page.labels ? [...page.labels, label] : [label],
+        isArchived: !!page.archivedAt,
+      },
+    }
+  } catch (error) {
+    log.info('Error adding Favorites label:', error)
+    return { errorCodes: [SetFavoriteArticleErrorCode.BadRequest] }
+  }
+})
 
 const getUpdateReason = (page: Page, since: Date) => {
   if (page.state === ArticleSavingRequestStatus.Deleted) {
