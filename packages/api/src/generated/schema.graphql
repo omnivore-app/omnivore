@@ -1139,6 +1139,7 @@ type Mutation {
   saveUrl(input: SaveUrlInput!): SaveResult!
   setBookmarkArticle(input: SetBookmarkArticleInput!): SetBookmarkArticleResult!
   setDeviceToken(input: SetDeviceTokenInput!): SetDeviceTokenResult!
+  setFavoriteArticle(id: ID!): SetFavoriteArticleResult!
   setFollow(input: SetFollowInput!): SetFollowResult!
   setIntegration(input: SetIntegrationInput!): SetIntegrationResult!
   setLabels(input: SetLabelsInput!): SetLabelsResult!
@@ -1772,6 +1773,22 @@ union SetDeviceTokenResult = SetDeviceTokenError | SetDeviceTokenSuccess
 
 type SetDeviceTokenSuccess {
   deviceToken: DeviceToken!
+}
+
+type SetFavoriteArticleError {
+  errorCodes: [SetFavoriteArticleErrorCode!]!
+}
+
+enum SetFavoriteArticleErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+union SetFavoriteArticleResult = SetFavoriteArticleError | SetFavoriteArticleSuccess
+
+type SetFavoriteArticleSuccess {
+  favoriteArticle: Article!
 }
 
 type SetFollowError {

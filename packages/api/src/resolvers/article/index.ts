@@ -42,6 +42,7 @@ import {
   MutationCreateArticleArgs,
   MutationSaveArticleReadingProgressArgs,
   MutationSetBookmarkArticleArgs,
+  MutationSetFavoriteArticleArgs,
   MutationSetShareArticleArgs,
   PageInfo,
   QueryArticleArgs,
@@ -60,6 +61,9 @@ import {
   SetBookmarkArticleError,
   SetBookmarkArticleErrorCode,
   SetBookmarkArticleSuccess,
+  SetFavoriteArticleError,
+  SetFavoriteArticleErrorCode,
+  SetFavoriteArticleSuccess,
   SetShareArticleError,
   SetShareArticleErrorCode,
   SetShareArticleSuccess,
@@ -74,7 +78,11 @@ import {
   UpdatesSinceSuccess,
 } from '../../generated/graphql'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
-import { createLabels, getLabelsByIds } from '../../services/labels'
+import {
+  addLabelToPage,
+  createLabels,
+  getLabelsByIds,
+} from '../../services/labels'
 import { parsedContentToPage } from '../../services/save_page'
 import { traceAs } from '../../tracing'
 import { Merge } from '../../util'
@@ -1151,6 +1159,45 @@ export const bulkActionResolver = authorized<
     return { success: !!taskId }
   }
 )
+
+export const setFavoriteArticleResolver = authorized<
+  SetFavoriteArticleSuccess,
+  SetFavoriteArticleError,
+  MutationSetFavoriteArticleArgs
+>(async (_, { id }, { claims: { uid }, log, pubsub }) => {
+  try {
+    const page = await getPageByParam({ userId: uid, _id: id })
+
+    if (!page) {
+      return { errorCodes: [SetFavoriteArticleErrorCode.NotFound] }
+    }
+
+    // adds Favorites label to page
+    const result = await addLabelToPage(
+      {
+        uid,
+        pubsub,
+      },
+      page.id,
+      {
+        name: 'Favorites',
+        color: '#07D2D0', // TODO: pick a color
+      }
+    )
+    if (!result) {
+      return { errorCodes: [SetFavoriteArticleErrorCode.Unauthorized] }
+    }
+
+    log.debug('Favorites label added:', result)
+
+    return {
+      favoriteArticle: page,
+    }
+  } catch (error) {
+    log.debug('Error adding Favorites label:', error)
+    return { errorCodes: [SetFavoriteArticleErrorCode.BadRequest] }
+  }
+})
 
 const getUpdateReason = (page: Page, since: Date) => {
   if (page.state === ArticleSavingRequestStatus.Deleted) {

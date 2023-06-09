@@ -2454,6 +2454,24 @@ const schema = gql`
     BAD_REQUEST
   }
 
+  union SetFavoriteArticleResult =
+      SetFavoriteArticleSuccess
+    | SetFavoriteArticleError
+
+  type SetFavoriteArticleSuccess {
+    favoriteArticle: Article!
+  }
+
+  type SetFavoriteArticleError {
+    errorCodes: [SetFavoriteArticleErrorCode!]!
+  }
+
+  enum SetFavoriteArticleErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -2551,6 +2569,7 @@ const schema = gql`
       async: Boolean # if true, return immediately and process in the background
     ): BulkActionResult!
     importFromIntegration(integrationId: ID!): ImportFromIntegrationResult!
+    setFavoriteArticle(id: ID!): SetFavoriteArticleResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed
