@@ -174,6 +174,11 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         thBackgroundContrast: '#FFFFFF',
         thLeftMenuBackground: '#FCFCFC',
         thLibraryBackground: '#F3F3F3',
+        thLibrarySearchbox: '#FCFCFC',
+        thLibraryMenuPrimary: '#3D3D3D',
+        thLibraryMenuSecondary: '#3D3D3D',
+        thLibraryMenuUnselected: '#898989',
+        thLibrarySelectionColor: '#FFEA9F',
 
         thTextContrast: '#1E1E1E',
         thTextContrast2: '#3D3D3D',
@@ -263,6 +268,11 @@ const darkThemeSpec = {
     thBackgroundContrast: '#000000',
     thLeftMenuBackground: '#1D1D1D',
     thLibraryBackground: '#333333',
+    thLibrarySearchbox: '#3D3D3D',
+    thLibraryMenuPrimary: '#EBEBEB',
+    thLibraryMenuSecondary: '#EBEBEB',
+    thLibraryMenuUnselected: '#898989',
+    thLibrarySelectionColor: '#3D3D3D',
 
     thTextContrast: '#FFFFFF',
     thTextContrast2: '#EBEBEB',

@@ -258,7 +258,7 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
         height: '38px',
         width: '100%',
         maxWidth: '521px',
-        bg: props.compact ? 'white' : '$thBackground2',
+        bg: '$thLibrarySearchbox',
         borderRadius: '6px',
         border: border,
       }}

@@ -243,7 +243,7 @@ function MenuPanel(props: MenuPanelProps): JSX.Element {
             fontWeight: '600',
             fontSize: '16px',
             lineHeight: '125%',
-            color: '$thTextContrast',
+            color: '$thLibraryMenuPrimary',
             pl: '10px',
             my: '20px',
           }}
@@ -331,11 +331,14 @@ function FilterButton(props: FilterButtonProps): JSX.Element {
         width: '100%',
         maxWidth: '100%',
         height: '32px',
-        backgroundColor: selected ? '#FFEA9F' : 'unset',
+
+        backgroundColor: selected ? '$thLibrarySelectionColor' : 'unset',
         fontSize: '14px',
         fontWeight: 'regular',
         fontFamily: '$display',
-        color: selected ? '#3D3D3D' : '$thTextSubtle',
+        color: selected
+          ? '$thLibraryMenuSecondary'
+          : '$thLibraryMenuUnselected',
         verticalAlign: 'middle',
         borderRadius: '3px',
         cursor: 'pointer',
@@ -344,10 +347,14 @@ function FilterButton(props: FilterButtonProps): JSX.Element {
         whiteSpace: 'nowrap',
         alignItems: 'center',
         '&:hover': {
-          backgroundColor: selected ? '#FFEA9F' : '$thBackground4',
+          backgroundColor: selected
+            ? '$thLibrarySelectionColor'
+            : '$thBackground4',
         },
         '&:active': {
-          backgroundColor: selected ? '#FFEA9F' : '$thBackground4',
+          backgroundColor: selected
+            ? '$thLibrarySelectionColor'
+            : '$thBackground4',
         },
       }}
       onClick={(e) => {
