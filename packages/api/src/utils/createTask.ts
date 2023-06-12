@@ -56,7 +56,9 @@ const createHttpTaskWithToken = async ({
   }
 
   // Construct the fully qualified queue name.
-  priority === 'low' && (queue = `${queue}-low`)
+  if (priority === 'low') {
+    queue = `${queue}-low`
+  }
 
   const parent = client.queuePath(project, location, queue)
   // Convert message to buffer.
@@ -534,6 +536,7 @@ export const enqueueThumbnailTask = async (
     payload,
     taskHandlerUrl: env.queue.thumbnailTaskHandlerUrl,
     requestHeaders: headers,
+    queue: 'omnivore-thumbnail-queue',
   })
 
   if (!createdTasks || !createdTasks[0].name) {
