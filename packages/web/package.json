@@ -42,6 +42,7 @@
     "epubjs": "^0.3.93",
     "graphql-request": "^3.6.1",
     "kbar": "^0.1.0-beta.35",
+    "loadjs": "^4.3.0-rc1",
     "markdown-it": "^13.0.1",
     "nanoid": "^3.1.29",
     "next": "^12.1.0",
@@ -60,7 +61,6 @@
     "react-spinners": "^0.13.7",
     "react-super-responsive-table": "^5.2.1",
     "react-topbar-progress-indicator": "^4.1.1",
-    "react-twitter-widgets": "^1.10.0",
     "remark-gfm": "^3.0.1",
     "swr": "^1.0.1",
     "uuid": "^8.3.2"
@@ -82,6 +82,7 @@
     "@types/cookie": "^0.4.1",
     "@types/diff-match-patch": "^1.0.32",
     "@types/jest": "^27.0.2",
+    "@types/loadjs": "^4.0.1",
     "@types/lodash.debounce": "^4.0.6",
     "@types/markdown-it": "^12.2.3",
     "@types/react": "17.0.2",
