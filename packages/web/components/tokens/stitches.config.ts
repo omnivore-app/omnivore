@@ -163,7 +163,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         //utility
         overlay: 'rgba(63, 62, 60, 0.2)',
 
-        // New theme, special naming to keep things straigh
+        // New theme, special naming to keep things straight
         // once all switch over, we will rename
         thBackground: '#FFFFFF',
         thBackground2: '#F3F3F3',
@@ -172,8 +172,8 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         thBackground5: '#F5F5F5',
         thBackgroundActive: '#F9F9F9',
         thBackgroundContrast: '#FFFFFF',
-        thLeftMenuBackground: '#F2F3F6',
-        thLibraryBackground: '#FFFFFF',
+        thLeftMenuBackground: '#FCFCFC',
+        thLibraryBackground: '#F3F3F3',
 
         thTextContrast: '#1E1E1E',
         thTextContrast2: '#3D3D3D',
