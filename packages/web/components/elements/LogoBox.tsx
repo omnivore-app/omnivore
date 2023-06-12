@@ -31,6 +31,7 @@ export function LogoBox(): JSX.Element {
           '@md': {
             display: 'none',
           },
+          lineHeight: '1',
         }}
       >
         <OmnivoreNameLogo color={theme.colors.thHighContrast.toString()} />

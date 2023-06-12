@@ -146,3 +146,18 @@ export function LibraryItemMetadata(
     </Box>
   )
 }
+
+type CardCheckBoxProps = {
+  isChecked: boolean
+  handleChanged: () => void
+}
+
+export function CardCheckbox(props: CardCheckBoxProps): JSX.Element {
+  return (
+    <input
+      type="checkbox"
+      checked={props.isChecked}
+      onChange={props.handleChanged}
+    ></input>
+  )
+}

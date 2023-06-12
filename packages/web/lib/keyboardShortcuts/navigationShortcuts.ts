@@ -74,6 +74,7 @@ export function primaryCommands(
 
 type LibraryListKeyboardAction =
   | 'openArticle'
+  | 'selectArticle'
   | 'openOriginalArticle'
   | 'moveFocusToNextListItem'
   | 'moveFocusToPreviousListItem'
@@ -88,6 +89,8 @@ type LibraryListKeyboardAction =
   | 'shareItem'
   | 'showAddLinkModal'
   | 'showEditLabelsModal'
+  | 'beginMultiSelect'
+  | 'endMultiSelect'
 
 export function libraryListCommands(
   actionHandler: (action: LibraryListKeyboardAction) => void
@@ -98,6 +101,14 @@ export function libraryListCommands(
       actionDescription: 'Open article',
       shortcutKeyDescription: 'enter/return',
       callback: () => actionHandler('openArticle'),
+    },
+    {
+      shortcutKeys: ['x'],
+      actionDescription: 'Select article',
+      shortcutKeyDescription: 'x',
+      callback: () => {
+        actionHandler('selectArticle')
+      },
     },
     {
       shortcutKeys: ['o'],
@@ -122,6 +133,18 @@ export function libraryListCommands(
       actionDescription: 'Focus previous item in list',
       shortcutKeyDescription: 'k or left arrow',
       callback: () => actionHandler('moveFocusToPreviousListItem'),
+    },
+    {
+      shortcutKeys: ['m', 's'],
+      actionDescription: 'Begin multi select',
+      shortcutKeyDescription: 'm then s',
+      callback: () => actionHandler('beginMultiSelect'),
+    },
+    {
+      shortcutKeys: ['escape'],
+      actionDescription: 'End multi select',
+      shortcutKeyDescription: 'Escape',
+      callback: () => actionHandler('endMultiSelect'),
     },
     // {
     //   shortcutKeys: ['e'],

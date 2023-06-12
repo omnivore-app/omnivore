@@ -109,7 +109,6 @@ export const useKeyboardShortcuts = (commands: KeyboardCommand[]): void => {
       const { target } = keydownEvent
       if (!keydownEvent.key) return
       const key = keydownEvent.key.toLowerCase()
-
       if (keys[key] === undefined) return
       if (keys[key] === false) {
         if (key === 'k' && metaPressed()) {

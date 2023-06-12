@@ -25,11 +25,6 @@ export function OmnivoreLogoBase(props: OmnivoreLogoBaseProps): JSX.Element {
         onClick={(event) => {
           const query = window.sessionStorage.getItem('q')
           if (query) {
-            console.log(
-              'going to: ',
-              window.sessionStorage.getItem('q'),
-              props.href
-            )
             router.push(`/home?${query}`)
             event.preventDefault()
           }

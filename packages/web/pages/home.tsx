@@ -18,7 +18,7 @@ function LoadedContent(): JSX.Element {
       <VStack
         alignment="center"
         distribution="center"
-        css={{ backgroundColor: '$thBackground2' }}
+        css={{ backgroundColor: '$thLibraryBackground' }}
       >
         <HomeFeedContainer />
       </VStack>
