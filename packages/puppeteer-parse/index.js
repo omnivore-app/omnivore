@@ -46,6 +46,8 @@ const ALLOWED_CONTENT_TYPES = ['text/html', 'application/octet-stream', 'text/pl
 
 const IMPORTER_METRICS_COLLECTOR_URL = process.env.IMPORTER_METRICS_COLLECTOR_URL;
 
+const REQUEST_TIMEOUT = 30000;
+
 const userAgentForUrl = (url) => {
   try {
     const u = new URL(url);
@@ -69,7 +71,8 @@ const fetchContentWithScrapingBee = async (url) => {
         'render_js': 'false',
         'premium_proxy': 'true',
         'country_code':'us'
-      }
+      },
+      timeout: REQUEST_TIMEOUT,
     })
   
     const dom = parseHTML(response.data).document;
@@ -131,14 +134,19 @@ const getBrowserPromise = (async () => {
 })();
 
 const uploadToSignedUrl = async ({ id, uploadSignedUrl }, contentType, contentObjUrl) => {
-  const stream = await axios.get(contentObjUrl, { responseType: 'stream' });
-  return await axios.put(uploadSignedUrl, stream.data, {
-    headers: {
-      'Content-Type': contentType,
-    },
-    maxBodyLength: 1000000000,
-    maxContentLength: 100000000,
-  })
+  try {
+    const stream = await axios.get(contentObjUrl, { responseType: 'stream' });
+    return axios.put(uploadSignedUrl, stream.data, {
+      headers: {
+        'Content-Type': contentType,
+      },
+      maxBodyLength: 1000000000,
+      maxContentLength: 100000000,
+    });
+  } catch (error) {
+    console.error('error uploading to signed url', error.message);
+    return null;
+  }
 };
 
 const getUploadIdAndSignedUrl = async (userId, url, articleSavingRequestId) => {
@@ -164,21 +172,39 @@ const getUploadIdAndSignedUrl = async (userId, url, articleSavingRequestId) => {
     }
   });
 
-  const response = await axios.post(`${process.env.REST_BACKEND_ENDPOINT}/graphql`, data,
+  try {
+    const response = await axios.post(`${process.env.REST_BACKEND_ENDPOINT}/graphql`, data,
     {
       headers: {
         Cookie: `auth=${auth};`,
         'Content-Type': 'application/json',
       },
+      timeout: REQUEST_TIMEOUT,
     });
-  return response.data.data.uploadFileRequest;
+
+    if (response.data.data.uploadFileRequest.errorCodes && response.data.data.uploadFileRequest.errorCodes.length > 0) {
+      console.error('Error while getting upload id and signed url', response.data.data.uploadFileRequest.errorCodes[0]);
+      return null;
+    }
+
+    return response.data.data.uploadFileRequest;
+  } catch (e) {
+    console.error('error getting upload id and signed url', e.message);
+    return null;
+  }
 };
 
 const uploadPdf = async (url, userId, articleSavingRequestId) => {
   validateUrlString(url);
 
   const uploadResult = await getUploadIdAndSignedUrl(userId, url, articleSavingRequestId);
-  await uploadToSignedUrl(uploadResult, 'application/pdf', url);
+  if (!uploadResult) {
+    throw new Error('error while getting upload id and signed url');
+  }
+  const uploaded = await uploadToSignedUrl(uploadResult, 'application/pdf', url);
+  if (!uploaded) {
+    throw new Error('error while uploading pdf');
+  }
   return uploadResult.id;
 };
 
@@ -202,14 +228,26 @@ const sendCreateArticleMutation = async (userId, input) => {
   });
 
   const auth = await signToken({ uid: userId }, process.env.JWT_SECRET);
-  const response = await axios.post(`${process.env.REST_BACKEND_ENDPOINT}/graphql`, data,
+  try {
+    const response = await axios.post(`${process.env.REST_BACKEND_ENDPOINT}/graphql`, data,
     {
       headers: {
         Cookie: `auth=${auth};`,
         'Content-Type': 'application/json',
       },
+      timeout: REQUEST_TIMEOUT,
     });
-  return response.data.data.createArticle;
+
+    if (response.data.data.createArticle.errorCodes && response.data.data.createArticle.errorCodes.length > 0) {
+      console.error('error while creating article', response.data.data.createArticle.errorCodes[0]);
+      return null;
+    }
+
+    return response.data.data.createArticle;
+  } catch (error) {
+    console.error('error creating article', error.message);
+    return null;
+  }
 };
 
 const sendSavePageMutation = async (userId, input) => {
@@ -231,14 +269,26 @@ const sendSavePageMutation = async (userId, input) => {
   });
 
   const auth = await signToken({ uid: userId }, process.env.JWT_SECRET);
-  const response = await axios.post(`${process.env.REST_BACKEND_ENDPOINT}/graphql`, data,
+  try {
+    const response = await axios.post(`${process.env.REST_BACKEND_ENDPOINT}/graphql`, data,
     {
       headers: {
         Cookie: `auth=${auth};`,
         'Content-Type': 'application/json',
       },
+      timeout: REQUEST_TIMEOUT,
     });
-  return response.data.data.savePage;
+
+    if (response.data.data.savePage.errorCodes && response.data.data.savePage.errorCodes.length > 0) {
+      console.error('error while saving page', response.data.data.savePage.errorCodes[0]);
+      return null;
+    }
+
+    return response.data.data.savePage;
+  } catch (error) {
+    console.error('error saving page', error.message);
+    return null;
+  }
 };
 
 const saveUploadedPdf = async (userId, url, uploadFileId, articleSavingRequestId) => {
@@ -265,9 +315,10 @@ const sendImportStatusUpdate = async (userId, taskId, status) => {
           'Authorization': auth,
           'Content-Type': 'application/json',
         },
+        timeout: REQUEST_TIMEOUT,
       });
   } catch (e) {
-    console.error('Error while sending import status update', e);
+    console.error('error while sending import status update', e);
   }
 };
 
@@ -318,7 +369,7 @@ async function fetchContent(req, res) {
     console.info('error with handler: ', e);
   }
 
-  let context, page, finalUrl;
+  let context, page, finalUrl, statusCode = 200;
   try {
     if ((!content || !title) && contentType !== 'application/pdf') {
       const result = await retrievePage(url, logRecord, functionStartTime);
@@ -332,7 +383,13 @@ async function fetchContent(req, res) {
 
     if (contentType === 'application/pdf') {
       const uploadedFileId = await uploadPdf(finalUrl, userId, articleSavingRequestId);
-      await saveUploadedPdf(userId, finalUrl, uploadedFileId, articleSavingRequestId);
+      const uploadedPdf = await saveUploadedPdf(userId, finalUrl, uploadedFileId, articleSavingRequestId);
+      if (!uploadedPdf) {
+        statusCode = 500;
+        logRecord.error = 'error while saving uploaded pdf';
+      } else {
+        importStatus = 'imported';
+      }
     } else {
       if (!content || !title) {
         const result = await retrieveHtml(page, logRecord);
@@ -347,19 +404,39 @@ async function fetchContent(req, res) {
       } else {
         console.info('using prefetched content and title');
       }
-
       logRecord.fetchContentTime = Date.now() - functionStartTime;
+    }
+  } catch (e) {
+    logRecord.error = e.message;
+    console.error(`Error while retrieving page`, logRecord);
 
+    // fallback to scrapingbee for non pdf content
+    if (contentType !== 'application/pdf') {
+      const fetchStartTime = Date.now();
+      const sbResult = await fetchContentWithScrapingBee(url);
+      content = sbResult.domContent;
+      title = sbResult.title;
+      logRecord.fetchContentTime = Date.now() - fetchStartTime;
+    }
+  } finally {
+    // close browser context if it was opened
+    if (context) {
+      await context.close();
+    }
+    // save non pdf content
+    if (contentType !== 'application/pdf') {
+      // parse content if it is not empty
       let readabilityResult = null;
       if (content) {
-        const document = parseHTML(content).document;
-
+        let document = parseHTML(content).document;
         // preParse content
-        const preParsedDom = (await preParseContent(url, document)) || document;
-
-        readabilityResult = await getReadabilityResult(url, preParsedDom);
+        const preParsedDom = await preParseContent(url, document)
+        if (preParsedDom) {
+          document = preParsedDom
+        }
+        readabilityResult = await getReadabilityResult(url, document);
       }
-
+      
       const apiResponse = await sendSavePageMutation(userId, {
         url,
         clientRequestId: articleSavingRequestId,
@@ -369,61 +446,23 @@ async function fetchContent(req, res) {
         state,
         labels,
       });
-
-      logRecord.totalTime = Date.now() - functionStartTime;
-      logRecord.result = apiResponse.createArticle;
-    }
-
-    importStatus = 'imported';
-  } catch (e) {
-    logRecord.error = e.message;
-    console.error(`Error while retrieving page`, logRecord);
-
-    // fallback to scrapingbee
-    const sbResult = await fetchContentWithScrapingBee(url);
-    const content = sbResult.domContent;
-    const title = sbResult.title;
-    logRecord.fetchContentTime = Date.now() - functionStartTime;
-
-    let readabilityResult = null;
-    if (content) {
-      let document = parseHTML(content).document;
-
-      // preParse content
-      const preParsedDom = await preParseContent(url, document)
-      if (preParsedDom) {
-        document = preParsedDom
+      if (!apiResponse) {
+        logRecord.error = 'error while saving page';
+        statusCode = 500;
+      } else {
+        importStatus = readabilityResult ? 'imported' : 'failed';
       }
-
-      readabilityResult = await getReadabilityResult(url, document);
     }
-
-    const apiResponse = await sendSavePageMutation(userId, {
-      url,
-      clientRequestId: articleSavingRequestId,
-      title,
-      originalContent: content,
-      parseResult: readabilityResult,
-      state,
-      labels,
-    });
 
     logRecord.totalTime = Date.now() - functionStartTime;
-    logRecord.result = apiResponse.createArticle;
-
-    importStatus = 'failed';
-  } finally {
-    if (context) {
-      await context.close();
-    }
     console.info(`parse-page`, logRecord);
 
     // send import status to update the metrics
-    if (taskId) {
+    if (taskId && importStatus) {
       await sendImportStatusUpdate(userId, taskId, importStatus);
     }
 
-    res.sendStatus(200);
+    res.sendStatus(statusCode);
   }
 }
 
