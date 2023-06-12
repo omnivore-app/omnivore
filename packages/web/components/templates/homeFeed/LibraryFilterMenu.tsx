@@ -448,66 +448,6 @@ function LabelButton(props: LabelButtonProps): JSX.Element {
   )
 }
 
-type AddLinkButtonProps = {
-  showAddLinkModal: () => void
-}
-
-function AddLinkButton(props: AddLinkButtonProps): JSX.Element {
-  const currentTheme = currentThemeName()
-  const isDark = currentTheme == 'Dark'
-
-  return (
-    <>
-      <VStack
-        css={{
-          position: 'fixed',
-          bottom: '0px',
-
-          pl: '25px',
-          height: '80px',
-          bg: '$thBackground',
-          width: LIBRARY_LEFT_MENU_WIDTH,
-          borderTop: '1px solid $thBorderColor',
-          borderRight: '1px solid $thBorderColor',
-
-          '@mdDown': {
-            width: '100%',
-          },
-        }}
-        distribution="center"
-      >
-        <Button
-          css={{
-            height: '40px',
-            p: '15px',
-            pr: '20px',
-            fontSize: '14px',
-            verticalAlign: 'center',
-
-            color: isDark
-              ? theme.colors.thHighContrast.toString()
-              : theme.colors.thTextContrast2.toString(),
-            display: 'flex',
-            alignItems: 'center',
-            fontWeight: '600',
-            bg: isDark ? 'transparent' : theme.colors.thBackground2.toString(),
-            border: `1px solid ${
-              isDark ? theme.colors.thHighContrast.toString() : 'transparent'
-            }`,
-          }}
-          onClick={(e) => {
-            props.showAddLinkModal()
-            e.preventDefault()
-          }}
-        >
-          <Plus size={16} weight="bold" />
-          <SpanBox css={{ width: '10px' }}></SpanBox>Add Link
-        </Button>
-      </VStack>
-    </>
-  )
-}
-
 type ViewAllButtonProps = {
   state: boolean
   setState: (state: boolean) => void

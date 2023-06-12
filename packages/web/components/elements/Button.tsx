@@ -312,7 +312,7 @@ export const IconButton = styled(Button, {
         height: '28px',
         color: '#898989',
         border: 'unset',
-        background: '$thBackground',
+        background: 'transparent',
         boxSizing: 'border-box',
         borderRadius: 6,
       },
