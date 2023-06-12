@@ -40,8 +40,12 @@ Sentry.GCPFunction.init({
 })
 
 const signToken = promisify(jwt.sign)
+const REQUEST_TIMEOUT = 30000 // 30s
 
-const articleQuery = async (userId: string, slug: string): Promise<Page> => {
+const articleQuery = async (
+  userId: string,
+  slug: string
+): Promise<Page | null> => {
   const JWT_SECRET = process.env.JWT_SECRET
   const REST_BACKEND_ENDPOINT = process.env.REST_BACKEND_ENDPOINT
 
@@ -71,18 +75,28 @@ const articleQuery = async (userId: string, slug: string): Promise<Page> => {
   })
   const auth = (await signToken({ uid: userId }, JWT_SECRET)) as string
 
-  const response = await axios.post<ArticleResponse>(
-    `${REST_BACKEND_ENDPOINT}/graphql`,
-    data,
-    {
-      headers: {
-        Cookie: `auth=${auth};`,
-        'Content-Type': 'application/json',
-      },
-    }
-  )
+  try {
+    const response = await axios.post<ArticleResponse>(
+      `${REST_BACKEND_ENDPOINT}/graphql`,
+      data,
+      {
+        headers: {
+          Cookie: `auth=${auth};`,
+          'Content-Type': 'application/json',
+        },
+        timeout: REQUEST_TIMEOUT,
+      }
+    )
 
-  return response.data.data.article.article
+    return response.data.data.article.article
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error('article query error', error.message)
+    } else {
+      console.error(error)
+    }
+    return null
+  }
 }
 
 const updatePageMutation = async (
@@ -119,18 +133,28 @@ const updatePageMutation = async (
   })
 
   const auth = (await signToken({ uid: userId }, JWT_SECRET)) as string
-  const response = await axios.post<UpdatePageResponse>(
-    `${REST_BACKEND_ENDPOINT}/graphql`,
-    data,
-    {
-      headers: {
-        Cookie: `auth=${auth};`,
-        'Content-Type': 'application/json',
-      },
-    }
-  )
+  try {
+    const response = await axios.post<UpdatePageResponse>(
+      `${REST_BACKEND_ENDPOINT}/graphql`,
+      data,
+      {
+        headers: {
+          Cookie: `auth=${auth};`,
+          'Content-Type': 'application/json',
+        },
+        timeout: REQUEST_TIMEOUT,
+      }
+    )
 
-  return !!response.data.data.updatePage
+    return !!response.data.data.updatePage
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error('update page mutation error', error.message)
+    } else {
+      console.error(error)
+    }
+    return false
+  }
 }
 
 const isThumbnailRequest = (body: any): body is ThumbnailRequest => {
@@ -142,6 +166,8 @@ const getImageSize = async (url: string): Promise<[number, number] | null> => {
     // get image file by url
     const response = await axios.get(url, {
       responseType: 'arraybuffer',
+      timeout: 5000, // 5s
+      maxContentLength: 10000000, // 10mb
     })
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
@@ -265,7 +291,11 @@ export const thumbnailHandler = Sentry.GCPFunction.wrapHttpFunction(
       }
 
       const page = await articleQuery(uid, slug)
-      console.debug('find page', page.id)
+      if (!page) {
+        console.info('page not found')
+        return res.status(200).send('NOT_FOUND')
+      }
+
       // update page with thumbnail if not already set
       if (page.image) {
         console.debug('thumbnail already set')

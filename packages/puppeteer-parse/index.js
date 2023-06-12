@@ -46,7 +46,7 @@ const ALLOWED_CONTENT_TYPES = ['text/html', 'application/octet-stream', 'text/pl
 
 const IMPORTER_METRICS_COLLECTOR_URL = process.env.IMPORTER_METRICS_COLLECTOR_URL;
 
-const REQUEST_TIMEOUT = 30000;
+const REQUEST_TIMEOUT = 30000; // 30 seconds
 
 const userAgentForUrl = (url) => {
   try {
