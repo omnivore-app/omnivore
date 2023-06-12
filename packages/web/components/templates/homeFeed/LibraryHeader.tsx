@@ -40,6 +40,8 @@ type LibraryHeaderProps = {
   searchTerm: string | undefined
   applySearchQuery: (searchQuery: string) => void
 
+  alwaysShowHeader: boolean
+
   showFilterMenu: boolean
   setShowFilterMenu: (show: boolean) => void
 
@@ -56,11 +58,17 @@ export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
   const [showBackground, setShowBackground] = useState(false)
 
   useEffect(() => {
-    setShowBackground(window.scrollY > 5 || props.multiSelectMode !== 'off')
-  }, [props.multiSelectMode])
+    if (!props.alwaysShowHeader) {
+      setShowBackground(window.scrollY > 5 || props.multiSelectMode !== 'off')
+    } else {
+      setShowBackground(true)
+    }
+  }, [props.multiSelectMode, props.alwaysShowHeader])
 
   useScrollWatcher((changeset: ScrollOffsetChangeset) => {
-    setShowBackground(window.scrollY > 5 || props.multiSelectMode !== 'off')
+    if (!props.alwaysShowHeader) {
+      setShowBackground(window.scrollY > 5 || props.multiSelectMode !== 'off')
+    }
   }, 0)
 
   return (
