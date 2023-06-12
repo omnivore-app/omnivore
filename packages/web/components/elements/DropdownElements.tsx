@@ -35,6 +35,9 @@ const DropdownTrigger = styled(Trigger, {
   '&:hover': {
     opacity: 0.7,
   },
+  '&:focus': {
+    outline: 'none',
+  },
 })
 
 const StyledTriggerItem = styled(TriggerItem, {
