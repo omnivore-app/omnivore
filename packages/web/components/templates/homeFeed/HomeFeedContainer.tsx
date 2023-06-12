@@ -795,6 +795,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
         applySearchQuery={(searchQuery: string) => {
           props.applySearchQuery(searchQuery)
         }}
+        allowSelectMultiple={props.mode !== 'highlights'}
         alwaysShowHeader={props.mode == 'highlights'}
         showFilterMenu={showFilterMenu}
         setShowFilterMenu={setShowFilterMenu}

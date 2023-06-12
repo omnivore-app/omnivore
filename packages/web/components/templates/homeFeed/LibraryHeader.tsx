@@ -41,6 +41,7 @@ type LibraryHeaderProps = {
   applySearchQuery: (searchQuery: string) => void
 
   alwaysShowHeader: boolean
+  allowSelectMultiple: boolean
 
   showFilterMenu: boolean
   setShowFilterMenu: (show: boolean) => void
@@ -125,6 +126,7 @@ function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
         performMultiSelectAction={props.performMultiSelectAction}
         searchTerm={props.searchTerm}
         applySearchQuery={props.applySearchQuery}
+        allowSelectMultiple={props.allowSelectMultiple}
       />
     </HStack>
   )
@@ -173,6 +175,7 @@ function SmallHeaderLayout(props: LibraryHeaderProps): JSX.Element {
             performMultiSelectAction={props.performMultiSelectAction}
             searchTerm={props.searchTerm}
             applySearchQuery={props.applySearchQuery}
+            allowSelectMultiple={props.allowSelectMultiple}
           />
         </>
       )}
@@ -383,6 +386,8 @@ type ControlButtonBoxProps = {
 
   showAddLinkModal: () => void
 
+  allowSelectMultiple: boolean
+
   numItemsSelected: number
   multiSelectMode: MultiSelectMode
   setMultiSelectMode: (mode: MultiSelectMode) => void
@@ -508,9 +513,13 @@ function SearchControlButtonBox(
       </Button>
       <PrimaryDropdown
         showThemeSection={true}
-        startSelectMultiple={() => {
-          props.setMultiSelectMode('none')
-        }}
+        startSelectMultiple={
+          props.allowSelectMultiple
+            ? () => {
+                props.setMultiSelectMode('none')
+              }
+            : undefined
+        }
         showAddLinkModal={props.showAddLinkModal}
       />
     </>
