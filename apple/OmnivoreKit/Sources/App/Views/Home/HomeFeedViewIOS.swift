@@ -410,13 +410,9 @@ struct AnimatingCellHeight: AnimatableModifier {
 
           ScrollView(.horizontal, showsIndicators: false) {
             if viewModel.featureItems.count > 0 {
-              LazyHStack(alignment: .top, spacing: 20) {
+              LazyHStack(alignment: .top, spacing: 10) {
                 ForEach(viewModel.featureItems) { item in
                   LibraryFeatureCardNavigationLink(item: item, viewModel: viewModel)
-                    .background(
-                      RoundedRectangle(cornerRadius: 12) // << tune as needed
-                        .fill(Color(UIColor.systemBackground)) // << fill with system color
-                    )
                 }
               }
             } else {
@@ -432,7 +428,6 @@ struct AnimatingCellHeight: AnimatableModifier {
 
         Text((LinkedItemFilter(rawValue: viewModel.appliedFilter)?.displayName ?? "Inbox").uppercased())
           .font(Font.system(size: 14, weight: .regular))
-          .padding(.bottom, 5)
       }
     }
 
