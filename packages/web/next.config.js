@@ -1,3 +1,17 @@
+const ContentSecurityPolicy = `
+  default-src 'none';
+  base-uri 'self';
+  block-all-mixed-content;
+  connect-src 'self' api-prod.omnivore.app api-demo.omnivore.app;
+  font-src 'self';
+  form-action 'self' api-prod.omnivore.app api-demo.omnivore.app;
+  frame-ancestors 'none';
+  frame-src 'none';
+  manifest-src 'self';
+  script-src script-src 'self' 'unsafe-inline';
+  style-src 'self' 'unsafe-inline';
+`
+
 const moduleExports = {
   images: {
     domains: [
@@ -22,6 +36,12 @@ const moduleExports = {
     {
       source: '/api/mobile-auth/:path*',
       destination: `https://api-${process.env.NEXT_PUBLIC_APP_ENV}.omnivore.app/api/mobile-auth/:path*`,
+    },
+  ],
+  Headers: [
+    {
+      key: 'Content-Security-Policy',
+      value: ContentSecurityPolicy.replace(/\s{2,}/g, ' ').trim(),
     },
   ],
   async redirects() {
