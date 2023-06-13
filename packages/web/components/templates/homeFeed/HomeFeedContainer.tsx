@@ -635,19 +635,27 @@ export function HomeFeedContainer(): JSX.Element {
         try {
           const res = await bulkActionMutation(action, query, expectedCount)
           if (res) {
+            let successMessage: string | undefined = undefined
             switch (action) {
               case BulkAction.ARCHIVE:
-                showSuccessToast('Items archived')
+                successMessage = 'Link Archived'
                 break
               case BulkAction.DELETE:
-                showSuccessToast('Items deleted')
+                successMessage = 'Items deleted'
                 break
             }
+            if (successMessage) {
+              showSuccessToast(successMessage, { position: 'bottom-right' })
+            }
           } else {
-            showErrorToast('Error performing bulk action')
+            showErrorToast('Error performing bulk action', {
+              position: 'bottom-right',
+            })
           }
         } catch (err) {
-          showErrorToast('Error performing bulk action')
+          showErrorToast('Error performing bulk action', {
+            position: 'bottom-right',
+          })
         }
         mutate()
       })()
