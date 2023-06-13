@@ -1110,7 +1110,7 @@ export const bulkActionResolver = authorized<
   async (
     _parent,
     { query, action, labelIds, expectedCount, async },
-    { claims: { uid }, log }
+    { claims: { uid }, log, pubsub }
   ) => {
     log.info('bulkActionResolver')
 
@@ -1146,9 +1146,12 @@ export const bulkActionResolver = authorized<
     // parse query
     const searchQuery = parseSearchQuery(query)
 
+    // refresh index if not async
+    const ctx = { uid, pubsub, refresh: !async }
+
     // start a task to update pages
     const taskId = await updatePages(
-      uid,
+      ctx,
       action,
       searchQuery,
       Math.min(expectedCount ?? 500, 500), // default and max to 500
