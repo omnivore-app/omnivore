@@ -1,5 +1,6 @@
 import { createOrUpdateLinkShareInfo } from '../../datalayer/links/share_info'
-
+import { updatePage } from '../../elastic/pages'
+import { env } from '../../env'
 import {
   ArchiveLinkError,
   ArchiveLinkErrorCode,
@@ -10,11 +11,8 @@ import {
   UpdateLinkShareInfoErrorCode,
   UpdateLinkShareInfoSuccess,
 } from '../../generated/graphql'
-
-import { authorized } from '../../utils/helpers'
 import { analytics } from '../../utils/analytics'
-import { env } from '../../env'
-import { updatePage } from '../../elastic/pages'
+import { authorized } from '../../utils/helpers'
 
 export const updateLinkShareInfoResolver = authorized<
   UpdateLinkShareInfoSuccess,
@@ -81,7 +79,7 @@ export const setLinkArchivedResolver = authorized<
       {
         archivedAt: args.input.archived ? new Date() : null,
       },
-      { pubsub, uid: claims.uid }
+      { pubsub, uid: claims.uid, refresh: true } // refresh index to update search results
     )
   } catch (e) {
     return {

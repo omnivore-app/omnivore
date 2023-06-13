@@ -696,7 +696,7 @@ export const searchAsYouType = async (
 }
 
 export const updatePages = async (
-  userId: string,
+  ctx: PageContext,
   action: BulkActionType,
   args: PageSearchArgs,
   maxDocs: number,
@@ -766,7 +766,7 @@ export const updatePages = async (
   }
 
   // build the query
-  const searchBody = buildSearchBody(userId, args)
+  const searchBody = buildSearchBody(ctx.uid, args)
     .rawOption('script', updatedScript)
     .build()
 
@@ -781,6 +781,7 @@ export const updatePages = async (
       max_docs: maxDocs,
       requests_per_second: 500, // throttle the requests
       slices: 'auto', // parallelize the requests
+      refresh: ctx.refresh,
     })
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -788,6 +789,8 @@ export const updatePages = async (
       console.log('failed to update pages in elastic', body.failures)
       return null
     }
+
+    // TODO: publish entityUpdated events for each page
 
     if (async) {
       console.log('update pages task started', body.task)
