@@ -47,6 +47,10 @@ type RecommendationCommentsProps = {
   recommendationsWithNotes: Recommendation[]
 }
 
+export interface UpdateTitleEvent extends Event {
+  title?: string
+}
+
 const RecommendationComments = (
   props: RecommendationCommentsProps
 ): JSX.Element => {
@@ -249,10 +253,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
 
     const handleUpdateLabels = (event: UpdateLabelsEvent) => {
       setLabels(event.labels ?? [])
-    }
-
-    interface UpdateTitleEvent extends Event {
-      title?: string
     }
 
     const handleUpdateTitle = (event: UpdateTitleEvent) => {
