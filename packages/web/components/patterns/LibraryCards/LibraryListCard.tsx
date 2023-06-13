@@ -23,7 +23,8 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
   return (
     <VStack
       css={{
-        p: '20px',
+        px: '15px',
+        py: '10px',
         height: '100%',
         cursor: 'pointer',
         gap: '10px',

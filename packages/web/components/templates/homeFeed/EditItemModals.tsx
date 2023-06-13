@@ -1,4 +1,5 @@
 import {
+  ModalButtonBar,
   ModalContent,
   ModalOverlay,
   ModalRoot,
@@ -215,7 +216,15 @@ function EditItemModal(props: EditItemModalProps): JSX.Element {
   }
 
   return (
-    <ModalRoot defaultOpen onOpenChange={props.onOpenChange} css={{}}>
+    <ModalRoot
+      defaultOpen
+      modal={true}
+      onOpenChange={() => {
+        console.log('props.onOpenChange')
+        props.onOpenChange(false)
+      }}
+      css={{}}
+    >
       <ModalOverlay />
       <ModalContent
         css={{ bg: '$grayBg', p: '20px', maxWidth: '420px' }}
@@ -230,6 +239,7 @@ function EditItemModal(props: EditItemModalProps): JSX.Element {
             <form
               onSubmit={(event) => {
                 event.preventDefault()
+                props.onSave(title, author, description, savedAt, publishedAt)
               }}
             >
               <HStack distribution="start" css={{ width: '100%' }}>
@@ -309,30 +319,10 @@ function EditItemModal(props: EditItemModalProps): JSX.Element {
                 }}
                 maxLength={4000}
               />
-              <HStack distribution="end" css={{ mt: '12px', width: '100%' }}>
-                <Button
-                  onClick={() => props.onOpenChange(false)}
-                  style="cancelGeneric"
-                  css={{ mr: '5px' }}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={() => {
-                    props.onSave(
-                      title,
-                      author,
-                      description,
-                      savedAt,
-                      publishedAt
-                    )
-                  }}
-                  style="ctaDarkYellow"
-                  css={{ mb: '0px' }}
-                >
-                  Save Changes
-                </Button>
-              </HStack>
+              <ModalButtonBar
+                onOpenChange={props.onOpenChange}
+                acceptButtonLabel="Save Changes"
+              />
             </form>
           </Box>
         </VStack>
