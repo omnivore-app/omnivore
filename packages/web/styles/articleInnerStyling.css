@@ -13,7 +13,9 @@
 
 .highlight {
   color: var(--colors-highlightText);
-  background-color: rgb(var(--colors-highlightBackground));
+  background-color: rgba(var(--colors-highlightBackground), 0.35);
+  border-bottom: 2px rgb(var(--colors-highlightBackground)) solid;
+  border-radius: 2px;
   cursor: pointer;
 }
 
