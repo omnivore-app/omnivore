@@ -536,6 +536,10 @@ export default function Home(): JSX.Element {
             article.description = description
             article.savedAt = savedAt
             article.publishedAt = publishedAt
+
+            const titleEvent = new Event('updateTitle') as UpdateTitleEvent
+            titleEvent.title = title
+            document.dispatchEvent(titleEvent)
           }}
         />
       )}
