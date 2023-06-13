@@ -223,15 +223,29 @@ const sendSavePageMutation = async (userId: string, input: unknown) => {
   })
 
   const auth = (await signToken({ uid: userId }, JWT_SECRET)) as string
-  const response = await axios.post(`${REST_BACKEND_ENDPOINT}/graphql`, data, {
-    headers: {
-      Cookie: `auth=${auth};`,
-      'Content-Type': 'application/json',
-    },
-  })
+  try {
+    const response = await axios.post(
+      `${REST_BACKEND_ENDPOINT}/graphql`,
+      data,
+      {
+        headers: {
+          Cookie: `auth=${auth};`,
+          'Content-Type': 'application/json',
+        },
+        timeout: 30000, // 30s
+      }
+    )
 
-  /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-  return !!response.data.data.savePage
+    /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+    return !!response.data.data.savePage
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error('save page mutation error', error.message)
+    } else {
+      console.error(error)
+    }
+    return false
+  }
 }
 
 const contentHandler = async (
