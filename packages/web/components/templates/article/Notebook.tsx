@@ -72,8 +72,6 @@ export function Notebook(props: NotebookProps): JSX.Element {
   )
   const [, updateState] = useState({})
 
-  console.log('props.showConfirmDeleteNote', props.showConfirmDeleteNote)
-
   const annotationsReducer = (
     state: AnnotationInfo,
     action: {

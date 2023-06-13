@@ -86,6 +86,8 @@ export function HomeFeedContainer(): JSX.Element {
   const [linkToRemove, setLinkToRemove] = useState<LibraryItem>()
   const [linkToEdit, setLinkToEdit] = useState<LibraryItem>()
   const [linkToUnsubscribe, setLinkToUnsubscribe] = useState<LibraryItem>()
+  const [checkedItems, setCheckedItems] = useState<string[]>([])
+  const [multiSelectMode, setMultiSelectMode] = useState<MultiSelectMode>('off')
 
   const [queryInputs, setQueryInputs] =
     useState<LibraryItemsQueryInput>(defaultQuery)
@@ -267,97 +269,186 @@ export function HomeFeedContainer(): JSX.Element {
       alreadyScrolled.current = true
 
       if (activeItem) {
-        console.log('refreshing')
         // refresh items on home feed
         performActionOnItem('refresh', activeItem)
       }
     }
   }, [activeCardId, scrollToActiveCard])
 
-  const handleCardAction = async (
-    action: LinkedItemCardAction,
-    item: LibraryItem | undefined
-  ): Promise<void> => {
-    if (!item) {
-      return
-    }
+  const performMultiSelectAction = useCallback(
+    (action: BulkAction) => {
+      if (multiSelectMode === 'off') {
+        return
+      }
+      if (multiSelectMode !== 'search' && checkedItems.length < 1) {
+        return
+      }
+      ;(async () => {
+        const query =
+          multiSelectMode === 'search'
+            ? queryInputs.searchQuery || 'in:inbox'
+            : `includes:${checkedItems.join(',')}`
+        const expectedCount =
+          multiSelectMode === 'search'
+            ? itemsPages?.[0].search.pageInfo.totalCount || 0
+            : checkedItems.length
 
-    switch (action) {
-      case 'showDetail':
-        const username = viewerData?.me?.profile.username
-        if (username) {
-          setActiveCardId(item.node.id)
-          if (item.node.state === State.PROCESSING) {
-            router.push(`/article?url=${encodeURIComponent(item.node.url)}`)
+        try {
+          const res = await bulkActionMutation(action, query, expectedCount)
+          if (res) {
+            let successMessage: string | undefined = undefined
+            switch (action) {
+              case BulkAction.ARCHIVE:
+                successMessage = 'Link Archived'
+                break
+              case BulkAction.DELETE:
+                successMessage = 'Items deleted'
+                break
+            }
+            if (successMessage) {
+              showSuccessToast(successMessage, { position: 'bottom-right' })
+            }
           } else {
-            const dl =
-              item.node.pageType === PageType.HIGHLIGHTS
-                ? `#${item.node.id}`
-                : ''
-            router.push(`/${username}/${item.node.slug}` + dl)
+            showErrorToast('Error performing bulk action', {
+              position: 'bottom-right',
+            })
           }
+        } catch (err) {
+          showErrorToast('Error performing bulk action', {
+            position: 'bottom-right',
+          })
         }
-        break
-      case 'showOriginal':
-        const url = item.node.originalArticleUrl
-        if (url) {
-          window.open(url, '_blank')
+        mutate()
+      })()
+      setMultiSelectMode('off')
+    },
+    [itemsPages, multiSelectMode, checkedItems, mutate, queryInputs.searchQuery]
+  )
+
+  const handleCardAction = useCallback(
+    (action: LinkedItemCardAction, item: LibraryItem | undefined) => {
+      if (multiSelectMode !== 'off') {
+        switch (action) {
+          case 'archive':
+            performMultiSelectAction(BulkAction.ARCHIVE)
+            break
+          case 'unarchive':
+            performMultiSelectAction(BulkAction.ARCHIVE)
+            break
+          case 'delete':
+            performMultiSelectAction(BulkAction.DELETE)
+            break
         }
-        break
-      case 'archive':
-        if (multiSelectMode !== 'off') {
-          performMultiSelectAction(BulkAction.ARCHIVE)
-        } else {
-          performActionOnItem('archive', item)
-        }
-        break
-      case 'unarchive':
-        performActionOnItem('unarchive', item)
-        break
-      case 'delete':
-        if (multiSelectMode !== 'off') {
-          performMultiSelectAction(BulkAction.DELETE)
-        } else {
-          performActionOnItem('delete', item)
-        }
-        break
-      case 'mark-read':
-        performActionOnItem('mark-read', item)
-        break
-      case 'mark-unread':
-        performActionOnItem('mark-unread', item)
-        break
-      case 'set-labels':
-        setLabelsTarget(item)
-        break
-      case 'unsubscribe':
-        performActionOnItem('unsubscribe', item)
-      case 'update-item':
-        performActionOnItem('update-item', item)
-        break
-    }
-  }
+        return
+      }
+
+      if (!item) {
+        return
+      }
+
+      switch (action) {
+        case 'showDetail':
+          const username = viewerData?.me?.profile.username
+          if (username) {
+            setActiveCardId(item.node.id)
+            if (item.node.state === State.PROCESSING) {
+              router.push(`/article?url=${encodeURIComponent(item.node.url)}`)
+            } else {
+              const dl =
+                item.node.pageType === PageType.HIGHLIGHTS
+                  ? `#${item.node.id}`
+                  : ''
+              router.push(`/${username}/${item.node.slug}` + dl)
+            }
+          }
+          break
+        case 'showOriginal':
+          const url = item.node.originalArticleUrl
+          if (url) {
+            window.open(url, '_blank')
+          }
+          break
+        case 'archive':
+          if (multiSelectMode !== 'off') {
+            performMultiSelectAction(BulkAction.ARCHIVE)
+          } else {
+            performActionOnItem('archive', item)
+          }
+          break
+        case 'unarchive':
+          if (multiSelectMode !== 'off') {
+            performMultiSelectAction(BulkAction.ARCHIVE)
+          } else {
+            performActionOnItem('unarchive', item)
+          }
+          break
+        case 'delete':
+          if (multiSelectMode !== 'off') {
+            performMultiSelectAction(BulkAction.DELETE)
+          } else {
+            performActionOnItem('delete', item)
+          }
+          break
+        case 'mark-read':
+          performActionOnItem('mark-read', item)
+          break
+        case 'mark-unread':
+          performActionOnItem('mark-unread', item)
+          break
+        case 'set-labels':
+          setLabelsTarget(item)
+          break
+        case 'unsubscribe':
+          performActionOnItem('unsubscribe', item)
+        case 'update-item':
+          performActionOnItem('update-item', item)
+          break
+      }
+    },
+    [
+      multiSelectMode,
+      performActionOnItem,
+      performMultiSelectAction,
+      router,
+      setActiveCardId,
+      viewerData?.me?.profile.username,
+    ]
+  )
 
   const modalTargetItem = useMemo(() => {
     return labelsTarget || linkToEdit || linkToRemove || linkToUnsubscribe
   }, [labelsTarget, linkToEdit, linkToRemove, linkToUnsubscribe])
 
-  const [checkedItems, setCheckedItems] = useState<string[]>([])
-  const [multiSelectMode, setMultiSelectMode] = useState<MultiSelectMode>('off')
+  const itemIsChecked = useCallback(
+    (itemId: string) => {
+      return checkedItems.indexOf(itemId) !== -1
+    },
+    [checkedItems]
+  )
+
+  const setIsChecked = useCallback(
+    (itemId: string, set: boolean) => {
+      if (set && checkedItems.indexOf(itemId) === -1) {
+        checkedItems.push(itemId)
+        setCheckedItems([...checkedItems])
+      } else if (!set && checkedItems.indexOf(itemId) !== -1) {
+        checkedItems.splice(checkedItems.indexOf(itemId), 1)
+        setCheckedItems([...checkedItems])
+      }
+    },
+    [checkedItems]
+  )
 
   const selectActiveArticle = useCallback(() => {
-    console.log('selecting article: ', activeItem)
     if (activeItem) {
       if (multiSelectMode === 'off') {
-        console.log('setting ')
         setMultiSelectMode('some')
       }
       const itemId = activeItem.node.id
       const isChecked = itemIsChecked(itemId)
-      console.log('setting is checked: ', isChecked, itemId)
       setIsChecked(itemId, !isChecked)
     }
-  }, [activeItem, multiSelectMode, checkedItems])
+  }, [activeItem, multiSelectMode, checkedItems, itemIsChecked, setIsChecked])
 
   useKeyboardShortcuts(
     libraryListCommands((action) => {
@@ -517,7 +608,6 @@ export function HomeFeedContainer(): JSX.Element {
       name: 'Mark item as read',
       shortcut: ['m', 'r'],
       perform: () => {
-        console.log('mark read action')
         handleCardAction('mark-read', activeItem)
       },
     }),
@@ -567,19 +657,6 @@ export function HomeFeedContainer(): JSX.Element {
   )
   useFetchMore(handleFetchMore)
 
-  const setIsChecked = useCallback(
-    (itemId: string, set: boolean) => {
-      if (set && checkedItems.indexOf(itemId) === -1) {
-        checkedItems.push(itemId)
-        setCheckedItems([...checkedItems])
-      } else if (!set && checkedItems.indexOf(itemId) !== -1) {
-        checkedItems.splice(checkedItems.indexOf(itemId), 1)
-        setCheckedItems([...checkedItems])
-      }
-    },
-    [checkedItems]
-  )
-
   useEffect(() => {
     switch (multiSelectMode) {
       case 'off':
@@ -599,70 +676,6 @@ export function HomeFeedContainer(): JSX.Element {
         break
     }
   }, [multiSelectMode])
-
-  const itemIsChecked = useCallback(
-    (itemId: string) => {
-      return checkedItems.indexOf(itemId) !== -1
-    },
-    [checkedItems]
-  )
-
-  const performMultiSelectAction = useCallback(
-    (action: BulkAction) => {
-      if (multiSelectMode === 'off') {
-        return
-      }
-      if (multiSelectMode !== 'search' && checkedItems.length < 1) {
-        return
-      }
-      console.log(
-        'performing bulk action: ',
-        action,
-        'mode',
-        multiSelectMode,
-        checkedItems
-      )
-      ;(async () => {
-        const query =
-          multiSelectMode === 'search'
-            ? queryInputs.searchQuery || 'in:inbox'
-            : `includes:${checkedItems.join(',')}`
-        const expectedCount =
-          multiSelectMode === 'search'
-            ? itemsPages?.[0].search.pageInfo.totalCount || 0
-            : checkedItems.length
-
-        try {
-          const res = await bulkActionMutation(action, query, expectedCount)
-          if (res) {
-            let successMessage: string | undefined = undefined
-            switch (action) {
-              case BulkAction.ARCHIVE:
-                successMessage = 'Link Archived'
-                break
-              case BulkAction.DELETE:
-                successMessage = 'Items deleted'
-                break
-            }
-            if (successMessage) {
-              showSuccessToast(successMessage, { position: 'bottom-right' })
-            }
-          } else {
-            showErrorToast('Error performing bulk action', {
-              position: 'bottom-right',
-            })
-          }
-        } catch (err) {
-          showErrorToast('Error performing bulk action', {
-            position: 'bottom-right',
-          })
-        }
-        mutate()
-      })()
-      setMultiSelectMode('off')
-    },
-    [itemsPages, multiSelectMode, checkedItems]
-  )
 
   return (
     <HomeFeedGrid
@@ -761,7 +774,7 @@ type HomeFeedContentProps = {
   actionHandler: (
     action: LinkedItemCardAction,
     item: LibraryItem | undefined
-  ) => Promise<void>
+  ) => void
 
   multiSelectMode: MultiSelectMode
   setIsChecked: (itemId: string, set: boolean) => void
@@ -818,7 +831,6 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
           setShowAddLinkModal={props.setShowAddLinkModal}
           searchTerm={props.searchTerm}
           applySearchQuery={(searchQuery: string) => {
-            console.log('searching with searchQuery: ', searchQuery)
             props.applySearchQuery(searchQuery)
           }}
           showFilterMenu={showFilterMenu}
@@ -844,7 +856,12 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
         )}
 
         {props.showAddLinkModal && (
-          <AddLinkModal onOpenChange={() => props.setShowAddLinkModal(false)} />
+          <AddLinkModal
+            onOpenChange={() => {
+              props.setShowAddLinkModal(false)
+              props.reloadItems()
+            }}
+          />
         )}
       </HStack>
     </VStack>
@@ -1059,7 +1076,7 @@ type LibraryItemsProps = {
   actionHandler: (
     action: LinkedItemCardAction,
     item: LibraryItem | undefined
-  ) => Promise<void>
+  ) => void
 }
 
 function LibraryItems(props: LibraryItemsProps): JSX.Element {
