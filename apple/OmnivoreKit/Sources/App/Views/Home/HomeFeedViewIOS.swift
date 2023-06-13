@@ -398,7 +398,7 @@ struct AnimatingCellHeight: AnimatableModifier {
           })
         }, label: {
           HStack(alignment: .center) {
-            Text(viewModel.featureFilter.title.uppercased())
+            Text((FeaturedItemFilter(rawValue: viewModel.featureFilter) ?? .continueReading).title.uppercased())
               .font(Font.system(size: 14, weight: .regular))
             Image(systemName: "chevron.down")
           }.frame(maxWidth: .infinity, alignment: .leading)
@@ -410,17 +410,13 @@ struct AnimatingCellHeight: AnimatableModifier {
 
           ScrollView(.horizontal, showsIndicators: false) {
             if viewModel.featureItems.count > 0 {
-              LazyHStack(alignment: .top, spacing: 20) {
+              LazyHStack(alignment: .top, spacing: 10) {
                 ForEach(viewModel.featureItems) { item in
                   LibraryFeatureCardNavigationLink(item: item, viewModel: viewModel)
-                    .background(
-                      RoundedRectangle(cornerRadius: 12) // << tune as needed
-                        .fill(Color(UIColor.systemBackground)) // << fill with system color
-                    )
                 }
               }
             } else {
-              Text(viewModel.featureFilter.emptyMessage)
+              Text((FeaturedItemFilter(rawValue: viewModel.featureFilter) ?? .continueReading).emptyMessage)
                 .font(Font.system(size: 14, weight: .regular))
                 .foregroundColor(Color(hex: "#898989"))
                 .frame(maxWidth: geo.size.width)
@@ -432,7 +428,6 @@ struct AnimatingCellHeight: AnimatableModifier {
 
         Text((LinkedItemFilter(rawValue: viewModel.appliedFilter)?.displayName ?? "Inbox").uppercased())
           .font(Font.system(size: 14, weight: .regular))
-          .padding(.bottom, 5)
       }
     }
 
@@ -455,8 +450,7 @@ struct AnimatingCellHeight: AnimatableModifier {
             filtersHeader
               .listRowInsets(.init(top: 0, leading: 10, bottom: 10, trailing: 10))
 
-            // Only show the feature card section if we have items loaded
-            if !viewModel.hideFeatureSection, viewModel.items.count > 0 {
+            if !viewModel.hideFeatureSection, viewModel.items.count > 0, viewModel.searchTerm.isEmpty, viewModel.selectedLabels.isEmpty, viewModel.negatedLabels.isEmpty {
               featureCard
                 .listRowInsets(.init(top: 0, leading: 10, bottom: 10, trailing: 10))
                 .modifier(AnimatingCellHeight(height: viewModel.featureItems.count > 0 ? 260 : 130))

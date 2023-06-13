@@ -12,6 +12,7 @@ public enum UserDefaultKey: String {
   case firebasePushToken
   case homeFeedlayoutPreference
   case lastSelectedLinkedItemFilter
+  case lastSelectedFeaturedItemFilter
   case lastUsedAppVersion
   case lastUsedAppBuildNumber
   case lastItemSyncTime

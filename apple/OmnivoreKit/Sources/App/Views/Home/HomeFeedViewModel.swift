@@ -32,8 +32,6 @@ import Views
 
   @Published var showLabelsSheet = false
   @Published var showCommunityModal = false
-
-  @Published var featureFilter = FeaturedItemFilter.continueReading
   @Published var featureItems = [LinkedItem]()
 
   var cursor: String?
@@ -47,20 +45,25 @@ import Views
 
   @AppStorage(UserDefaultKey.hideFeatureSection.rawValue) var hideFeatureSection = false
   @AppStorage(UserDefaultKey.lastSelectedLinkedItemFilter.rawValue) var appliedFilter = LinkedItemFilter.inbox.rawValue
+  @AppStorage(UserDefaultKey.lastSelectedFeaturedItemFilter.rawValue) var featureFilter = FeaturedItemFilter.continueReading.rawValue
 
   func setItems(_ items: [LinkedItem]) {
     self.items = items
-    updateFeatureFilter(featureFilter)
+    updateFeatureFilter(FeaturedItemFilter(rawValue: featureFilter))
   }
 
-  func updateFeatureFilter(_ filter: FeaturedItemFilter) {
-    // now try to update the continue reading items:
-    featureItems = (items.filter { item in
-      filter.predicate.evaluate(with: item)
-    } as NSArray)
-      .sortedArray(using: [filter.sortDescriptor])
-      .compactMap { $0 as? LinkedItem }
-    featureFilter = filter
+  func updateFeatureFilter(_ filter: FeaturedItemFilter?) {
+    if let filter = filter {
+      // now try to update the continue reading items:
+      featureItems = (items.filter { item in
+        filter.predicate.evaluate(with: item)
+      } as NSArray)
+        .sortedArray(using: [filter.sortDescriptor])
+        .compactMap { $0 as? LinkedItem }
+      featureFilter = filter.rawValue
+    } else {
+      featureItems = []
+    }
   }
 
   func handleReaderItemNotification(objectID: NSManagedObjectID, dataService: DataService) {
