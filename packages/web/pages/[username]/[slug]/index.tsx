@@ -7,7 +7,10 @@ import {
 } from '../../../lib/networking/queries/useGetArticleQuery'
 import { useRouter } from 'next/router'
 import { VStack } from './../../../components/elements/LayoutPrimitives'
-import { ArticleContainer } from './../../../components/templates/article/ArticleContainer'
+import {
+  ArticleContainer,
+  UpdateTitleEvent,
+} from './../../../components/templates/article/ArticleContainer'
 import { PdfArticleContainerProps } from './../../../components/templates/article/PdfArticleContainer'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
