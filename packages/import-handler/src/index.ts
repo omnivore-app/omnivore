@@ -104,6 +104,7 @@ const importURL = async (
     userId,
     source,
     url: url.toString(),
+    saveRequestId: '',
     state,
     labels: labels?.map((l) => {
       return { name: l }
