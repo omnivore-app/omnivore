@@ -450,8 +450,7 @@ struct AnimatingCellHeight: AnimatableModifier {
             filtersHeader
               .listRowInsets(.init(top: 0, leading: 10, bottom: 10, trailing: 10))
 
-            // Only show the feature card section if we have items loaded
-            if !viewModel.hideFeatureSection, viewModel.items.count > 0, viewModel.searchTerm.isEmpty {
+            if !viewModel.hideFeatureSection, viewModel.items.count > 0, viewModel.searchTerm.isEmpty, viewModel.selectedLabels.isEmpty, viewModel.negatedLabels.isEmpty {
               featureCard
                 .listRowInsets(.init(top: 0, leading: 10, bottom: 10, trailing: 10))
                 .modifier(AnimatingCellHeight(height: viewModel.featureItems.count > 0 ? 260 : 130))
