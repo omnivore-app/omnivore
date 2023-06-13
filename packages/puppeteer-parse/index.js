@@ -47,6 +47,7 @@ const ALLOWED_CONTENT_TYPES = ['text/html', 'application/octet-stream', 'text/pl
 const IMPORTER_METRICS_COLLECTOR_URL = process.env.IMPORTER_METRICS_COLLECTOR_URL;
 
 const REQUEST_TIMEOUT = 30000; // 30 seconds
+const MAX_RETRY_COUNT = process.env.MAX_RETRY_COUNT || '1';
 
 const userAgentForUrl = (url) => {
   try {
@@ -456,6 +457,12 @@ async function fetchContent(req, res) {
 
     logRecord.totalTime = Date.now() - functionStartTime;
     console.info(`parse-page`, logRecord);
+
+    // mark import failed on the last failed retry
+    const retryCount = req.headers['x-cloudtasks-taskretrycount'];
+    if (retryCount == MAX_RETRY_COUNT) {
+      importStatus = importStatus || 'failed';
+    }
 
     // send import status to update the metrics
     if (taskId && importStatus) {
