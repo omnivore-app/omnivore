@@ -120,7 +120,10 @@ export default function Integrations(): JSX.Element {
           showErrorToast('There was an error connecting to Pocket.')
         }
       } catch (err) {
-        showErrorToast('Error: ' + err)
+        showErrorToast(
+          'There was an error connecting to Pocket. Please try again.',
+          { duration: 5000 }
+        )
       } finally {
         router.replace('/settings/integrations')
       }
