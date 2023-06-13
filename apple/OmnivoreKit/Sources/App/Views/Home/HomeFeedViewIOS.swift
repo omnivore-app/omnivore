@@ -398,7 +398,7 @@ struct AnimatingCellHeight: AnimatableModifier {
           })
         }, label: {
           HStack(alignment: .center) {
-            Text(viewModel.featureFilter.title.uppercased())
+            Text((FeaturedItemFilter(rawValue: viewModel.featureFilter) ?? .continueReading).title.uppercased())
               .font(Font.system(size: 14, weight: .regular))
             Image(systemName: "chevron.down")
           }.frame(maxWidth: .infinity, alignment: .leading)
@@ -420,7 +420,7 @@ struct AnimatingCellHeight: AnimatableModifier {
                 }
               }
             } else {
-              Text(viewModel.featureFilter.emptyMessage)
+              Text((FeaturedItemFilter(rawValue: viewModel.featureFilter) ?? .continueReading).emptyMessage)
                 .font(Font.system(size: 14, weight: .regular))
                 .foregroundColor(Color(hex: "#898989"))
                 .frame(maxWidth: geo.size.width)
@@ -456,7 +456,7 @@ struct AnimatingCellHeight: AnimatableModifier {
               .listRowInsets(.init(top: 0, leading: 10, bottom: 10, trailing: 10))
 
             // Only show the feature card section if we have items loaded
-            if !viewModel.hideFeatureSection, viewModel.items.count > 0 {
+            if !viewModel.hideFeatureSection, viewModel.items.count > 0, viewModel.searchTerm.isEmpty {
               featureCard
                 .listRowInsets(.init(top: 0, leading: 10, bottom: 10, trailing: 10))
                 .modifier(AnimatingCellHeight(height: viewModel.featureItems.count > 0 ? 260 : 130))
