@@ -19,5 +19,12 @@ export type LinkedItemCardProps = {
   item: LibraryItemNode
   layout: LayoutType
   viewer: UserBasicData
+
   handleAction: (action: LinkedItemCardAction) => void
+
+  inMultiSelect: boolean
+  isChecked: boolean
+  setIsChecked: (itemId: string, set: boolean) => void
+
+  isHovered?: boolean
 }

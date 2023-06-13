@@ -10,7 +10,7 @@ import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { theme } from '../../tokens/stitches.config'
 import { currentThemeName } from '../../../lib/themeUpdater'
 import { useRegisterActions } from 'kbar'
-import { HEADER_HEIGHT } from './HeaderSpacer'
+import { LogoBox } from '../../elements/LogoBox'
 
 export const LIBRARY_LEFT_MENU_WIDTH = '233px'
 
@@ -30,12 +30,11 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
       <Box
         css={{
           left: '0px',
-          top: HEADER_HEIGHT,
+          top: '0px',
           position: 'fixed',
-          bg: '$thBackground',
+          bg: '$thLeftMenuBackground',
           height: '100%',
           width: LIBRARY_LEFT_MENU_WIDTH,
-          borderRight: '1px solid $thBorderColor',
           overflowY: 'auto',
           overflowX: 'hidden',
           '&::-webkit-scrollbar': {
@@ -48,13 +47,21 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
           },
         }}
       >
+        <Box
+          css={{
+            width: '100%',
+            px: '25px',
+            pb: '25px',
+            pt: '4.5px',
+            lineHeight: '1',
+          }}
+        >
+          <LogoBox />
+        </Box>
+
         <SavedSearches {...props} />
         <Subscriptions {...props} />
         <Labels {...props} />
-
-        <AddLinkButton
-          showAddLinkModal={() => props.setShowAddLinkModal(true)}
-        />
         <Box css={{ height: '250px ' }} />
       </Box>
       {/* This spacer pushes library content to the right of 
@@ -236,7 +243,7 @@ function MenuPanel(props: MenuPanelProps): JSX.Element {
             fontWeight: '600',
             fontSize: '16px',
             lineHeight: '125%',
-            color: '$thTextContrast',
+            color: '$thLibraryMenuPrimary',
             pl: '10px',
             my: '20px',
           }}
@@ -324,11 +331,14 @@ function FilterButton(props: FilterButtonProps): JSX.Element {
         width: '100%',
         maxWidth: '100%',
         height: '32px',
-        backgroundColor: selected ? '#FFEA9F' : 'unset',
+
+        backgroundColor: selected ? '$thLibrarySelectionColor' : 'unset',
         fontSize: '14px',
         fontWeight: 'regular',
         fontFamily: '$display',
-        color: selected ? '#3D3D3D' : '$thTextSubtle',
+        color: selected
+          ? '$thLibraryMenuSecondary'
+          : '$thLibraryMenuUnselected',
         verticalAlign: 'middle',
         borderRadius: '3px',
         cursor: 'pointer',
@@ -337,10 +347,14 @@ function FilterButton(props: FilterButtonProps): JSX.Element {
         whiteSpace: 'nowrap',
         alignItems: 'center',
         '&:hover': {
-          backgroundColor: selected ? '#FFEA9F' : '$thBackground4',
+          backgroundColor: selected
+            ? '$thLibrarySelectionColor'
+            : '$thBackground4',
         },
         '&:active': {
-          backgroundColor: selected ? '#FFEA9F' : '$thBackground4',
+          backgroundColor: selected
+            ? '$thLibrarySelectionColor'
+            : '$thBackground4',
         },
       }}
       onClick={(e) => {
@@ -431,66 +445,6 @@ function LabelButton(props: LabelButtonProps): JSX.Element {
         />
       </SpanBox>
     </HStack>
-  )
-}
-
-type AddLinkButtonProps = {
-  showAddLinkModal: () => void
-}
-
-function AddLinkButton(props: AddLinkButtonProps): JSX.Element {
-  const currentTheme = currentThemeName()
-  const isDark = currentTheme == 'Dark'
-
-  return (
-    <>
-      <VStack
-        css={{
-          position: 'fixed',
-          bottom: '0px',
-
-          pl: '25px',
-          height: '80px',
-          bg: '$thBackground',
-          width: LIBRARY_LEFT_MENU_WIDTH,
-          borderTop: '1px solid $thBorderColor',
-          borderRight: '1px solid $thBorderColor',
-
-          '@mdDown': {
-            width: '100%',
-          },
-        }}
-        distribution="center"
-      >
-        <Button
-          css={{
-            height: '40px',
-            p: '15px',
-            pr: '20px',
-            fontSize: '14px',
-            verticalAlign: 'center',
-
-            color: isDark
-              ? theme.colors.thHighContrast.toString()
-              : theme.colors.thTextContrast2.toString(),
-            display: 'flex',
-            alignItems: 'center',
-            fontWeight: '600',
-            bg: isDark ? 'transparent' : theme.colors.thBackground2.toString(),
-            border: `1px solid ${
-              isDark ? theme.colors.thHighContrast.toString() : 'transparent'
-            }`,
-          }}
-          onClick={(e) => {
-            props.showAddLinkModal()
-            e.preventDefault()
-          }}
-        >
-          <Plus size={16} weight="bold" />
-          <SpanBox css={{ width: '10px' }}></SpanBox>Add Link
-        </Button>
-      </VStack>
-    </>
   )
 }
 

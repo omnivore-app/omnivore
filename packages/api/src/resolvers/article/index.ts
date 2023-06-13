@@ -13,7 +13,7 @@ import {
   searchAsYouType,
   searchPages,
   updatePage,
-  updatePagesAsync,
+  updatePages,
 } from '../../elastic/pages'
 import {
   ArticleSavingRequestStatus,
@@ -31,6 +31,7 @@ import {
   BulkActionError,
   BulkActionErrorCode,
   BulkActionSuccess,
+  BulkActionType,
   ContentReader,
   CreateArticleError,
   CreateArticleErrorCode,
@@ -41,6 +42,7 @@ import {
   MutationCreateArticleArgs,
   MutationSaveArticleReadingProgressArgs,
   MutationSetBookmarkArticleArgs,
+  MutationSetFavoriteArticleArgs,
   MutationSetShareArticleArgs,
   PageInfo,
   QueryArticleArgs,
@@ -59,6 +61,9 @@ import {
   SetBookmarkArticleError,
   SetBookmarkArticleErrorCode,
   SetBookmarkArticleSuccess,
+  SetFavoriteArticleError,
+  SetFavoriteArticleErrorCode,
+  SetFavoriteArticleSuccess,
   SetShareArticleError,
   SetShareArticleErrorCode,
   SetShareArticleSuccess,
@@ -73,7 +78,11 @@ import {
   UpdatesSinceSuccess,
 } from '../../generated/graphql'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
-import { createLabels } from '../../services/labels'
+import {
+  addLabelToPage,
+  createLabels,
+  getLabelsByIds,
+} from '../../services/labels'
 import { parsedContentToPage } from '../../services/save_page'
 import { traceAs } from '../../tracing'
 import { Merge } from '../../util'
@@ -1097,28 +1106,125 @@ export const bulkActionResolver = authorized<
   BulkActionSuccess,
   BulkActionError,
   MutationBulkActionArgs
->(async (_parent, { action }, { claims: { uid }, log }) => {
-  log.info('bulkActionResolver')
+>(
+  async (
+    _parent,
+    { query, action, labelIds, expectedCount, async },
+    { claims: { uid }, log, pubsub }
+  ) => {
+    log.info('bulkActionResolver')
+
+    analytics.track({
+      userId: uid,
+      event: 'BulkAction',
+      properties: {
+        env: env.server.apiEnv,
+        action,
+      },
+    })
+
+    if (!uid) {
+      log.log('bulkActionResolver', { error: 'Unauthorized' })
+      return { errorCodes: [BulkActionErrorCode.Unauthorized] }
+    }
+
+    if (!query) {
+      log.log('bulkActionResolver', { error: 'no query' })
+      return { errorCodes: [BulkActionErrorCode.BadRequest] }
+    }
+
+    // get labels if needed
+    let labels = undefined
+    if (action === BulkActionType.AddLabels) {
+      if (!labelIds || labelIds.length === 0) {
+        return { errorCodes: [BulkActionErrorCode.BadRequest] }
+      }
+
+      labels = await getLabelsByIds(uid, labelIds)
+    }
+
+    // parse query
+    const searchQuery = parseSearchQuery(query)
+
+    // refresh index if not async
+    const ctx = { uid, pubsub, refresh: !async }
+
+    // start a task to update pages
+    const taskId = await updatePages(
+      ctx,
+      action,
+      searchQuery,
+      Math.min(expectedCount ?? 500, 500), // default and max to 500
+      !!async, // default to false
+      labels
+    )
+
+    return { success: !!taskId }
+  }
+)
+
+export type SetFavoriteArticleSuccessPartial = Merge<
+  SetFavoriteArticleSuccess,
+  { favoriteArticle: PartialArticle }
+>
+export const setFavoriteArticleResolver = authorized<
+  SetFavoriteArticleSuccessPartial,
+  SetFavoriteArticleError,
+  MutationSetFavoriteArticleArgs
+>(async (_, { id }, { claims: { uid }, log, pubsub }) => {
+  log.info('setFavoriteArticleResolver', { id })
 
   if (!uid) {
-    log.error('bulkActionResolver', { error: 'Unauthorized' })
-    return { errorCodes: [BulkActionErrorCode.Unauthorized] }
+    return { errorCodes: [SetFavoriteArticleErrorCode.Unauthorized] }
   }
 
-  analytics.track({
-    userId: uid,
-    event: 'BulkAction',
-    properties: {
-      env: env.server.apiEnv,
-    },
-  })
+  try {
+    analytics.track({
+      userId: uid,
+      event: 'setFavoriteArticle',
+      properties: {
+        env: env.server.apiEnv,
+        id,
+      },
+    })
 
-  // TODO: get search filters from query
+    const page = await getPageByParam({ userId: uid, _id: id })
+    if (!page) {
+      return { errorCodes: [SetFavoriteArticleErrorCode.NotFound] }
+    }
 
-  // start a task to update pages
-  const taskId = await updatePagesAsync(uid, action)
+    const label = {
+      id: '',
+      name: 'Favorites',
+      color: '#FFD700', // gold
+    }
 
-  return { success: !!taskId }
+    // adds Favorites label to page
+    const result = await addLabelToPage(
+      {
+        uid,
+        pubsub,
+      },
+      page.id,
+      label
+    )
+    if (!result) {
+      return { errorCodes: [SetFavoriteArticleErrorCode.AlreadyExists] }
+    }
+
+    log.debug('Favorites label added:', result)
+
+    return {
+      favoriteArticle: {
+        ...page,
+        labels: page.labels ? [...page.labels, label] : [label],
+        isArchived: !!page.archivedAt,
+      },
+    }
+  } catch (error) {
+    log.info('Error adding Favorites label:', error)
+    return { errorCodes: [SetFavoriteArticleErrorCode.BadRequest] }
+  }
 })
 
 const getUpdateReason = (page: Page, since: Date) => {

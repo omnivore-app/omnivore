@@ -1,9 +1,9 @@
-import { createTestUser, deleteTestUser } from '../db'
-import { createTestElasticPage, graphqlRequest, request } from '../util'
 import { expect } from 'chai'
 import 'mocha'
-import { User } from '../../src/entity/user'
 import { Page } from '../../src/elastic/types'
+import { User } from '../../src/entity/user'
+import { createTestUser, deleteTestUser } from '../db'
+import { createTestElasticPage, graphqlRequest, request } from '../util'
 
 describe('Update API', () => {
   let user: User
@@ -28,8 +28,9 @@ describe('Update API', () => {
 
   describe('update page', () => {
     let query: string
-    let title = 'New Title'
-    let description = 'New Description'
+    const title = 'New Title'
+    const description = 'New Description'
+    const previewImage = 'https://omnivore.app/image.png'
 
     beforeEach(() => {
       query = `
@@ -39,12 +40,14 @@ describe('Update API', () => {
               pageId: "${page.id}"
               title: "${title}"
               description: "${description}"
+              previewImage: "${previewImage}"
             }
           ) {
             ... on UpdatePageSuccess {
               updatedPage {
                 title
                 description
+                image
               }
             }
             ... on UpdatePageError {
@@ -61,6 +64,7 @@ describe('Update API', () => {
       const updatedPage = res?.body.data.updatePage.updatedPage
       expect(updatedPage?.title).to.eql(title)
       expect(updatedPage?.description).to.eql(description)
+      expect(updatedPage?.image).to.eql(previewImage)
     })
   })
 })

@@ -23,6 +23,9 @@ type PrimaryDropdownProps = {
 
   layout?: LayoutType
   updateLayout?: (layout: LayoutType) => void
+
+  showAddLinkModal?: () => void
+  startSelectMultiple?: () => void
 }
 
 export type HeaderDropdownAction =
@@ -153,6 +156,27 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
         onSelect={() => headerDropdownActionHandler('navigate-to-labels')}
         title="Labels"
       />
+      {props.showAddLinkModal && (
+        <>
+          <DropdownSeparator />
+
+          <DropdownOption
+            onSelect={() => props.showAddLinkModal && props.showAddLinkModal()}
+            title="Add Link"
+          />
+        </>
+      )}
+      {props.startSelectMultiple && (
+        <>
+          <DropdownOption
+            onSelect={() =>
+              props.startSelectMultiple && props.startSelectMultiple()
+            }
+            title="Select Multiple"
+          />
+          <DropdownSeparator />
+        </>
+      )}
       <DropdownOption
         onSelect={() => headerDropdownActionHandler('navigate-to-api')}
         title="API Keys"

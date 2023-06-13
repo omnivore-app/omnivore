@@ -188,6 +188,7 @@ type BulkActionError {
 }
 
 enum BulkActionErrorCode {
+  BAD_REQUEST
   UNAUTHORIZED
 }
 
@@ -198,8 +199,10 @@ type BulkActionSuccess {
 }
 
 enum BulkActionType {
+  ADD_LABELS
   ARCHIVE
   DELETE
+  MARK_AS_READ
 }
 
 enum ContentReader {
@@ -515,6 +518,7 @@ type DeleteLabelError {
 
 enum DeleteLabelErrorCode {
   BAD_REQUEST
+  FORBIDDEN
   NOT_FOUND
   UNAUTHORIZED
 }
@@ -905,6 +909,7 @@ type Label {
   createdAt: Date
   description: String
   id: ID!
+  internal: Boolean
   name: String!
   position: Int
 }
@@ -1090,7 +1095,7 @@ type MoveLabelSuccess {
 
 type Mutation {
   addPopularRead(name: String!): AddPopularReadResult!
-  bulkAction(action: BulkActionType!, query: String): BulkActionResult!
+  bulkAction(action: BulkActionType!, async: Boolean, expectedCount: Int, labelIds: [ID!], query: String!): BulkActionResult!
   createArticle(input: CreateArticleInput!): CreateArticleResult!
   createArticleSavingRequest(input: CreateArticleSavingRequestInput!): CreateArticleSavingRequestResult!
   createGroup(input: CreateGroupInput!): CreateGroupResult!
@@ -1134,6 +1139,7 @@ type Mutation {
   saveUrl(input: SaveUrlInput!): SaveResult!
   setBookmarkArticle(input: SetBookmarkArticleInput!): SetBookmarkArticleResult!
   setDeviceToken(input: SetDeviceTokenInput!): SetDeviceTokenResult!
+  setFavoriteArticle(id: ID!): SetFavoriteArticleResult!
   setFollow(input: SetFollowInput!): SetFollowResult!
   setIntegration(input: SetIntegrationInput!): SetIntegrationResult!
   setLabels(input: SetLabelsInput!): SetLabelsResult!
@@ -1769,6 +1775,23 @@ type SetDeviceTokenSuccess {
   deviceToken: DeviceToken!
 }
 
+type SetFavoriteArticleError {
+  errorCodes: [SetFavoriteArticleErrorCode!]!
+}
+
+enum SetFavoriteArticleErrorCode {
+  ALREADY_EXISTS
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+union SetFavoriteArticleResult = SetFavoriteArticleError | SetFavoriteArticleSuccess
+
+type SetFavoriteArticleSuccess {
+  favoriteArticle: Article!
+}
+
 type SetFollowError {
   errorCodes: [SetFollowErrorCode!]!
 }
@@ -2219,6 +2242,7 @@ input UpdatePageInput {
   byline: String
   description: String
   pageId: ID!
+  previewImage: String
   publishedAt: Date
   savedAt: Date
   title: String

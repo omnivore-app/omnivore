@@ -83,7 +83,7 @@ export function authorized<
   return (parent, args, ctx, info) => {
     const { claims } = ctx
     if (claims?.uid) {
-      return resolver(parent, args, { ...ctx, claims }, info)
+      return resolver(parent, args, { ...ctx, claims, uid: claims.uid }, info)
     }
     return { errorCodes: ['UNAUTHORIZED'] } as TError
   }

@@ -580,6 +580,7 @@ const schema = gql`
     byline: String
     savedAt: Date
     publishedAt: Date
+    previewImage: String @sanitize
   }
 
   type UpdatePageSuccess {
@@ -1417,6 +1418,7 @@ const schema = gql`
     description: String
     createdAt: Date
     position: Int
+    internal: Boolean
   }
 
   type LabelsSuccess {
@@ -1466,6 +1468,7 @@ const schema = gql`
     UNAUTHORIZED
     BAD_REQUEST
     NOT_FOUND
+    FORBIDDEN
   }
 
   type DeleteLabelError {
@@ -2415,6 +2418,8 @@ const schema = gql`
   enum BulkActionType {
     DELETE
     ARCHIVE
+    MARK_AS_READ
+    ADD_LABELS
   }
 
   union BulkActionResult = BulkActionSuccess | BulkActionError
@@ -2429,6 +2434,7 @@ const schema = gql`
 
   enum BulkActionErrorCode {
     UNAUTHORIZED
+    BAD_REQUEST
   }
 
   union ImportFromIntegrationResult =
@@ -2446,6 +2452,25 @@ const schema = gql`
   enum ImportFromIntegrationErrorCode {
     UNAUTHORIZED
     BAD_REQUEST
+  }
+
+  union SetFavoriteArticleResult =
+      SetFavoriteArticleSuccess
+    | SetFavoriteArticleError
+
+  type SetFavoriteArticleSuccess {
+    favoriteArticle: Article!
+  }
+
+  type SetFavoriteArticleError {
+    errorCodes: [SetFavoriteArticleErrorCode!]!
+  }
+
+  enum SetFavoriteArticleErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+    ALREADY_EXISTS
   }
 
   # Mutations
@@ -2537,8 +2562,15 @@ const schema = gql`
       contentType: String!
     ): UploadImportFileResult!
     markEmailAsItem(recentEmailId: ID!): MarkEmailAsItemResult!
-    bulkAction(query: String, action: BulkActionType!): BulkActionResult!
+    bulkAction(
+      query: String!
+      action: BulkActionType!
+      labelIds: [ID!]
+      expectedCount: Int # max number of items to process
+      async: Boolean # if true, return immediately and process in the background
+    ): BulkActionResult!
     importFromIntegration(integrationId: ID!): ImportFromIntegrationResult!
+    setFavoriteArticle(id: ID!): SetFavoriteArticleResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed

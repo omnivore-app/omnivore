@@ -116,7 +116,7 @@
 "menuDebugApiEnv" = "API接口环境:";
 
 // Navigation
-"navigationSelectLink" = "从源中选择链接";
+"navigationSelectLink" = "从你的文库中选择一个链接";
 "navigationSelectSidebarToggle" = "切换侧边栏";
 
 // Welcome View
@@ -165,7 +165,8 @@
 "genericLoading" = "加载中...";
 "genericFontFamily" = "字体册";
 "genericHighContrastText" = "高对比度文本";
-"enableHighlightOnReleaseText" = "自动高亮模式:";
+"enableHighlightOnReleaseText" = "自动高亮模式";
+"enableJustifyText" = "两侧对齐";
 "genericFont" = "字体";
 "genericHighlight" = "荧光笔";
 "labelsGeneric" = "标签";

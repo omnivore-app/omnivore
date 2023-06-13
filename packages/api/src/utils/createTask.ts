@@ -12,6 +12,7 @@ import {
   CreateLabelInput,
 } from '../generated/graphql'
 import { signFeatureToken } from '../services/features'
+import { generateVerificationToken } from './auth'
 import { CreateTaskError } from './errors'
 import { buildLogger } from './logger'
 import View = google.cloud.tasks.v2.Task.View
@@ -22,7 +23,7 @@ const logger = buildLogger('app.dispatch')
 const client = new CloudTasksClient()
 
 const createHttpTaskWithToken = async ({
-  project,
+  project = process.env.GOOGLE_CLOUD_PROJECT,
   queue = env.queue.name,
   location = env.queue.location,
   taskHandlerUrl = env.queue.contentFetchUrl,
@@ -32,7 +33,7 @@ const createHttpTaskWithToken = async ({
   scheduleTime,
   requestHeaders,
 }: {
-  project: string
+  project?: string
   queue?: string
   location?: string
   taskHandlerUrl?: string
@@ -42,14 +43,22 @@ const createHttpTaskWithToken = async ({
   scheduleTime?: number
   requestHeaders?: Record<string, string>
 }): Promise<
-  [
-    protos.google.cloud.tasks.v2.ITask,
-    protos.google.cloud.tasks.v2.ICreateTaskRequest | undefined,
-    unknown | undefined
-  ]
+  | [
+      protos.google.cloud.tasks.v2.ITask,
+      protos.google.cloud.tasks.v2.ICreateTaskRequest | undefined,
+      unknown | undefined
+    ]
+  | null
 > => {
+  // If there is no Google Cloud Project Id exposed, it means that we are in local environment
+  if (env.dev.isLocal || !project) {
+    return null
+  }
+
   // Construct the fully qualified queue name.
-  priority === 'low' && (queue = `${queue}-low`)
+  if (priority === 'low') {
+    queue = `${queue}-low`
+  }
 
   const parent = client.queuePath(project, location, queue)
   // Convert message to buffer.
@@ -458,7 +467,6 @@ export const enqueueRecommendation = async (
 }
 
 export const enqueueImportFromIntegration = async (
-  userId: string,
   integrationId: string,
   authToken: string
 ): Promise<string> => {
@@ -481,6 +489,54 @@ export const enqueueImportFromIntegration = async (
     taskHandlerUrl: `${env.queue.integrationTaskHandlerUrl}/import`,
     priority: 'low',
     requestHeaders: headers,
+  })
+
+  if (!createdTasks || !createdTasks[0].name) {
+    logger.error(`Unable to get the name of the task`, {
+      payload,
+      createdTasks,
+    })
+    throw new CreateTaskError(`Unable to get the name of the task`)
+  }
+  return createdTasks[0].name
+}
+
+export const enqueueThumbnailTask = async (
+  userId: string,
+  slug: string,
+  content: string
+): Promise<string> => {
+  const { GOOGLE_CLOUD_PROJECT } = process.env
+  const payload = {
+    userId,
+    slug,
+    content,
+  }
+
+  const headers = {
+    Cookie: `auth=${generateVerificationToken(userId)}`,
+  }
+
+  // If there is no Google Cloud Project Id exposed, it means that we are in local environment
+  if (env.dev.isLocal || !GOOGLE_CLOUD_PROJECT) {
+    // Calling the handler function directly.
+    setTimeout(() => {
+      axios
+        .post(env.queue.thumbnailTaskHandlerUrl, payload, {
+          headers,
+        })
+        .catch((error) => {
+          console.error(error)
+        })
+    }, 0)
+    return ''
+  }
+
+  const createdTasks = await createHttpTaskWithToken({
+    payload,
+    taskHandlerUrl: env.queue.thumbnailTaskHandlerUrl,
+    requestHeaders: headers,
+    queue: 'omnivore-thumbnail-queue',
   })
 
   if (!createdTasks || !createdTasks[0].name) {

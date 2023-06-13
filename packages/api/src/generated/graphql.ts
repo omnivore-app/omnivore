@@ -228,6 +228,7 @@ export type BulkActionError = {
 };
 
 export enum BulkActionErrorCode {
+  BadRequest = 'BAD_REQUEST',
   Unauthorized = 'UNAUTHORIZED'
 }
 
@@ -239,8 +240,10 @@ export type BulkActionSuccess = {
 };
 
 export enum BulkActionType {
+  AddLabels = 'ADD_LABELS',
   Archive = 'ARCHIVE',
-  Delete = 'DELETE'
+  Delete = 'DELETE',
+  MarkAsRead = 'MARK_AS_READ'
 }
 
 export enum ContentReader {
@@ -583,6 +586,7 @@ export type DeleteLabelError = {
 
 export enum DeleteLabelErrorCode {
   BadRequest = 'BAD_REQUEST',
+  Forbidden = 'FORBIDDEN',
   NotFound = 'NOT_FOUND',
   Unauthorized = 'UNAUTHORIZED'
 }
@@ -1018,6 +1022,7 @@ export type Label = {
   createdAt?: Maybe<Scalars['Date']>;
   description?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
+  internal?: Maybe<Scalars['Boolean']>;
   name: Scalars['String'];
   position?: Maybe<Scalars['Int']>;
 };
@@ -1266,6 +1271,7 @@ export type Mutation = {
   saveUrl: SaveResult;
   setBookmarkArticle: SetBookmarkArticleResult;
   setDeviceToken: SetDeviceTokenResult;
+  setFavoriteArticle: SetFavoriteArticleResult;
   setFollow: SetFollowResult;
   setIntegration: SetIntegrationResult;
   setLabels: SetLabelsResult;
@@ -1299,7 +1305,10 @@ export type MutationAddPopularReadArgs = {
 
 export type MutationBulkActionArgs = {
   action: BulkActionType;
-  query?: InputMaybe<Scalars['String']>;
+  async?: InputMaybe<Scalars['Boolean']>;
+  expectedCount?: InputMaybe<Scalars['Int']>;
+  labelIds?: InputMaybe<Array<Scalars['ID']>>;
+  query: Scalars['String'];
 };
 
 
@@ -1505,6 +1514,11 @@ export type MutationSetBookmarkArticleArgs = {
 
 export type MutationSetDeviceTokenArgs = {
   input: SetDeviceTokenInput;
+};
+
+
+export type MutationSetFavoriteArticleArgs = {
+  id: Scalars['ID'];
 };
 
 
@@ -2385,6 +2399,25 @@ export type SetDeviceTokenSuccess = {
   deviceToken: DeviceToken;
 };
 
+export type SetFavoriteArticleError = {
+  __typename?: 'SetFavoriteArticleError';
+  errorCodes: Array<SetFavoriteArticleErrorCode>;
+};
+
+export enum SetFavoriteArticleErrorCode {
+  AlreadyExists = 'ALREADY_EXISTS',
+  BadRequest = 'BAD_REQUEST',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type SetFavoriteArticleResult = SetFavoriteArticleError | SetFavoriteArticleSuccess;
+
+export type SetFavoriteArticleSuccess = {
+  __typename?: 'SetFavoriteArticleSuccess';
+  favoriteArticle: Article;
+};
+
 export type SetFollowError = {
   __typename?: 'SetFollowError';
   errorCodes: Array<SetFollowErrorCode>;
@@ -2874,6 +2907,7 @@ export type UpdatePageInput = {
   byline?: InputMaybe<Scalars['String']>;
   description?: InputMaybe<Scalars['String']>;
   pageId: Scalars['ID'];
+  previewImage?: InputMaybe<Scalars['String']>;
   publishedAt?: InputMaybe<Scalars['Date']>;
   savedAt?: InputMaybe<Scalars['Date']>;
   title?: InputMaybe<Scalars['String']>;
@@ -3591,6 +3625,10 @@ export type ResolversTypes = {
   SetDeviceTokenInput: SetDeviceTokenInput;
   SetDeviceTokenResult: ResolversTypes['SetDeviceTokenError'] | ResolversTypes['SetDeviceTokenSuccess'];
   SetDeviceTokenSuccess: ResolverTypeWrapper<SetDeviceTokenSuccess>;
+  SetFavoriteArticleError: ResolverTypeWrapper<SetFavoriteArticleError>;
+  SetFavoriteArticleErrorCode: SetFavoriteArticleErrorCode;
+  SetFavoriteArticleResult: ResolversTypes['SetFavoriteArticleError'] | ResolversTypes['SetFavoriteArticleSuccess'];
+  SetFavoriteArticleSuccess: ResolverTypeWrapper<SetFavoriteArticleSuccess>;
   SetFollowError: ResolverTypeWrapper<SetFollowError>;
   SetFollowErrorCode: SetFollowErrorCode;
   SetFollowInput: SetFollowInput;
@@ -4007,6 +4045,9 @@ export type ResolversParentTypes = {
   SetDeviceTokenInput: SetDeviceTokenInput;
   SetDeviceTokenResult: ResolversParentTypes['SetDeviceTokenError'] | ResolversParentTypes['SetDeviceTokenSuccess'];
   SetDeviceTokenSuccess: SetDeviceTokenSuccess;
+  SetFavoriteArticleError: SetFavoriteArticleError;
+  SetFavoriteArticleResult: ResolversParentTypes['SetFavoriteArticleError'] | ResolversParentTypes['SetFavoriteArticleSuccess'];
+  SetFavoriteArticleSuccess: SetFavoriteArticleSuccess;
   SetFollowError: SetFollowError;
   SetFollowInput: SetFollowInput;
   SetFollowResult: ResolversParentTypes['SetFollowError'] | ResolversParentTypes['SetFollowSuccess'];
@@ -4867,6 +4908,7 @@ export type LabelResolvers<ContextType = ResolverContext, ParentType extends Res
   createdAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  internal?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   position?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -5011,7 +5053,7 @@ export type MoveLabelSuccessResolvers<ContextType = ResolverContext, ParentType 
 
 export type MutationResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   addPopularRead?: Resolver<ResolversTypes['AddPopularReadResult'], ParentType, ContextType, RequireFields<MutationAddPopularReadArgs, 'name'>>;
-  bulkAction?: Resolver<ResolversTypes['BulkActionResult'], ParentType, ContextType, RequireFields<MutationBulkActionArgs, 'action'>>;
+  bulkAction?: Resolver<ResolversTypes['BulkActionResult'], ParentType, ContextType, RequireFields<MutationBulkActionArgs, 'action' | 'query'>>;
   createArticle?: Resolver<ResolversTypes['CreateArticleResult'], ParentType, ContextType, RequireFields<MutationCreateArticleArgs, 'input'>>;
   createArticleSavingRequest?: Resolver<ResolversTypes['CreateArticleSavingRequestResult'], ParentType, ContextType, RequireFields<MutationCreateArticleSavingRequestArgs, 'input'>>;
   createGroup?: Resolver<ResolversTypes['CreateGroupResult'], ParentType, ContextType, RequireFields<MutationCreateGroupArgs, 'input'>>;
@@ -5055,6 +5097,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   saveUrl?: Resolver<ResolversTypes['SaveResult'], ParentType, ContextType, RequireFields<MutationSaveUrlArgs, 'input'>>;
   setBookmarkArticle?: Resolver<ResolversTypes['SetBookmarkArticleResult'], ParentType, ContextType, RequireFields<MutationSetBookmarkArticleArgs, 'input'>>;
   setDeviceToken?: Resolver<ResolversTypes['SetDeviceTokenResult'], ParentType, ContextType, RequireFields<MutationSetDeviceTokenArgs, 'input'>>;
+  setFavoriteArticle?: Resolver<ResolversTypes['SetFavoriteArticleResult'], ParentType, ContextType, RequireFields<MutationSetFavoriteArticleArgs, 'id'>>;
   setFollow?: Resolver<ResolversTypes['SetFollowResult'], ParentType, ContextType, RequireFields<MutationSetFollowArgs, 'input'>>;
   setIntegration?: Resolver<ResolversTypes['SetIntegrationResult'], ParentType, ContextType, RequireFields<MutationSetIntegrationArgs, 'input'>>;
   setLabels?: Resolver<ResolversTypes['SetLabelsResult'], ParentType, ContextType, RequireFields<MutationSetLabelsArgs, 'input'>>;
@@ -5529,6 +5572,20 @@ export type SetDeviceTokenResultResolvers<ContextType = ResolverContext, ParentT
 
 export type SetDeviceTokenSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SetDeviceTokenSuccess'] = ResolversParentTypes['SetDeviceTokenSuccess']> = {
   deviceToken?: Resolver<ResolversTypes['DeviceToken'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SetFavoriteArticleErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SetFavoriteArticleError'] = ResolversParentTypes['SetFavoriteArticleError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['SetFavoriteArticleErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SetFavoriteArticleResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SetFavoriteArticleResult'] = ResolversParentTypes['SetFavoriteArticleResult']> = {
+  __resolveType: TypeResolveFn<'SetFavoriteArticleError' | 'SetFavoriteArticleSuccess', ParentType, ContextType>;
+};
+
+export type SetFavoriteArticleSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SetFavoriteArticleSuccess'] = ResolversParentTypes['SetFavoriteArticleSuccess']> = {
+  favoriteArticle?: Resolver<ResolversTypes['Article'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -6253,6 +6310,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   SetDeviceTokenError?: SetDeviceTokenErrorResolvers<ContextType>;
   SetDeviceTokenResult?: SetDeviceTokenResultResolvers<ContextType>;
   SetDeviceTokenSuccess?: SetDeviceTokenSuccessResolvers<ContextType>;
+  SetFavoriteArticleError?: SetFavoriteArticleErrorResolvers<ContextType>;
+  SetFavoriteArticleResult?: SetFavoriteArticleResultResolvers<ContextType>;
+  SetFavoriteArticleSuccess?: SetFavoriteArticleSuccessResolvers<ContextType>;
   SetFollowError?: SetFollowErrorResolvers<ContextType>;
   SetFollowResult?: SetFollowResultResolvers<ContextType>;
   SetFollowSuccess?: SetFollowSuccessResolvers<ContextType>;

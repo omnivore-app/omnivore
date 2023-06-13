@@ -198,15 +198,16 @@ export const createTestSubscription = async (
   user: User,
   name: string,
   newsletterEmail?: NewsletterEmail,
-  status = SubscriptionStatus.Active
+  status = SubscriptionStatus.Active,
+  unsubscribeMailTo?: string
 ): Promise<Subscription> => {
-  const subscription = new Subscription()
-  subscription.user = user
-  subscription.name = name
-  newsletterEmail && (subscription.newsletterEmail = newsletterEmail)
-  subscription.status = status
-
-  return getRepository(Subscription).save(subscription)
+  return getRepository(Subscription).save({
+    user,
+    name,
+    newsletterEmail,
+    status,
+    unsubscribeMailTo,
+  })
 }
 
 export const deleteTestLabels = async (

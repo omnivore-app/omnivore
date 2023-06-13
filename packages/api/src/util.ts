@@ -66,6 +66,7 @@ interface BackendEnv {
     integrationTaskHandlerUrl: string
     textToSpeechTaskHandlerUrl: string
     recommendationTaskHandlerUrl: string
+    thumbnailTaskHandlerUrl: string
   }
   fileUpload: {
     gcsUploadBucket: string
@@ -159,6 +160,7 @@ const nullableEnvVars = [
   'GCP_LOCATION',
   'RECOMMENDATION_TASK_HANDLER_URL',
   'POCKET_CONSUMER_KEY',
+  'THUMBNAIL_TASK_HANDLER_URL',
 ] // Allow some vars to be null/empty
 
 /* If not in GAE and Prod/QA/Demo env (f.e. on localhost/dev env), allow following env vars to be null */
@@ -245,6 +247,7 @@ export function getEnv(): BackendEnv {
     integrationTaskHandlerUrl: parse('INTEGRATION_TASK_HANDLER_URL'),
     textToSpeechTaskHandlerUrl: parse('TEXT_TO_SPEECH_TASK_HANDLER_URL'),
     recommendationTaskHandlerUrl: parse('RECOMMENDATION_TASK_HANDLER_URL'),
+    thumbnailTaskHandlerUrl: parse('THUMBNAIL_TASK_HANDLER_URL'),
   }
   const imageProxy = {
     url: parse('IMAGE_PROXY_URL'),

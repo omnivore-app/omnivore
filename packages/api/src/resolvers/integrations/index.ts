@@ -247,7 +247,6 @@ export const importFromIntegrationResolver = authorized<
     )) as string
     // create a task to import all the pages
     const taskName = await enqueueImportFromIntegration(
-      uid,
       integration.id,
       authToken
     )
