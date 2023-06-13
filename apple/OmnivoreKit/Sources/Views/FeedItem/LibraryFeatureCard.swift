@@ -76,16 +76,16 @@ public struct LibraryFeatureCard: View {
           switch phase {
           case .empty:
             Color.systemBackground
-              .frame(width: 146, height: 82)
+              .frame(width: 146, height: 90)
               .cornerRadius(5)
           case let .success(image):
             image.resizable()
               .aspectRatio(contentMode: .fill)
-              .frame(width: 146, height: 82)
+              .frame(width: 146, height: 90)
               .cornerRadius(5)
           case .failure:
             Image(systemName: "photo")
-              .frame(width: 146, height: 82)
+              .frame(width: 146, height: 90)
               .foregroundColor(Color(hex: "#6A6968"))
               .background(Color(hex: "#EBEBEB"))
               .cornerRadius(5)
@@ -99,7 +99,7 @@ public struct LibraryFeatureCard: View {
         }
       } else {
         Image(systemName: "photo")
-          .frame(width: 146, height: 82)
+          .frame(width: 146, height: 90)
           .foregroundColor(Color(hex: "#6A6968"))
           .background(Color(hex: "#EBEBEB"))
           .cornerRadius(5)
