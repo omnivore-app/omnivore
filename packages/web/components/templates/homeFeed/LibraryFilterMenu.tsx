@@ -8,7 +8,6 @@ import { useGetSubscriptionsQuery } from '../../../lib/networking/queries/useGet
 import { useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQuery'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { theme } from '../../tokens/stitches.config'
-import { currentThemeName } from '../../../lib/themeUpdater'
 import { useRegisterActions } from 'kbar'
 import { LogoBox } from '../../elements/LogoBox'
 
@@ -391,9 +390,15 @@ function LabelButton(props: LabelButtonProps): JSX.Element {
         pt: '2px', // TODO: hack to middle align
         width: '100%',
         height: '30px',
-        fontSize: '16px',
+
+        fontSize: '14px',
         fontWeight: 'regular',
-        color: '$thTextSubtle',
+        fontFamily: '$display',
+        color:
+          state == 'on'
+            ? '$thLibraryMenuSecondary'
+            : '$thLibraryMenuUnselected',
+
         verticalAlign: 'middle',
         borderRadius: '3px',
         cursor: 'pointer',
