@@ -23,8 +23,5 @@ describe('findThumbnail', () => {
     const thumbnail = await findThumbnail(content)
 
     expect(thumbnail).to.eql('https://omnivore.app/large_and_square.png')
-
-    // clean up
-    nock.cleanAll()
   })
 })
