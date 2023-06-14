@@ -438,15 +438,6 @@ export const getArticleResolver: ResolverFn<
       format === ArticleFormat.Distiller ||
       !!graphqlFields(info).article.originalHtml
 
-    analytics.track({
-      userId: claims?.uid,
-      event: 'link_fetched',
-      properties: {
-        slug,
-        env: env.server.apiEnv,
-      },
-    })
-
     // We allow the backend to use the ID instead of a slug to fetch the article
     const page =
       (await getPageByParam(
@@ -900,15 +891,6 @@ export const searchResolver = authorized<
 
   const searchQuery = parseSearchQuery(params.query || undefined)
 
-  analytics.track({
-    userId: claims.uid,
-    event: 'search',
-    properties: {
-      env: env.server.apiEnv,
-      ...searchQuery,
-    },
-  })
-
   let results: SearchItemData[]
   let totalCount: number
 
@@ -1035,17 +1017,6 @@ export const updatesSinceResolver = authorized<
     if (!uid) {
       return { errorCodes: [UpdatesSinceErrorCode.Unauthorized] }
     }
-
-    analytics.track({
-      userId: uid,
-      event: 'updatesSince',
-      properties: {
-        env: env.server.apiEnv,
-        since,
-        first,
-        after,
-      },
-    })
 
     const sort = sortParamsToElasticSort(sortParams)
 
