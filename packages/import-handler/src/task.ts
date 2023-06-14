@@ -16,9 +16,9 @@ export const CONTENT_FETCH_URL = process.env.CONTENT_FETCH_GCF_URL
 export const createCloudTask = async (
   taskHandlerUrl: string | undefined,
   payload: unknown,
-  requestHeaders?: Record<string, string>
+  requestHeaders?: Record<string, string>,
+  queue = 'omnivore-import-queue'
 ) => {
-  const queue = 'omnivore-import-queue'
   const location = process.env.GCP_LOCATION
   const project = process.env.GCP_PROJECT_ID
 
