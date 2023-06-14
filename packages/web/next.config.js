@@ -2,7 +2,7 @@ const ContentSecurityPolicy = `
   default-src 'none';
   base-uri 'self';
   block-all-mixed-content;
-  connect-src 'self' api-prod.omnivore.app api-demo.omnivore.app;
+  connect-src 'self' api-prod.omnivore.app api-demo.omnivore.app proxy-prod.omnivore-image-cache.app proxy-demo.omnivore-image-cache.app api.segment.io cdn.segment.com widget.intercom.io api-iam.intercom.io wss://nexus-websocket-a.intercom.io platform.twitter.com;
   font-src 'self';
   form-action 'self' api-prod.omnivore.app api-demo.omnivore.app;
   frame-ancestors 'none';
@@ -10,6 +10,8 @@ const ContentSecurityPolicy = `
   manifest-src 'self';
   script-src script-src 'self' 'unsafe-inline';
   style-src 'self' 'unsafe-inline';
+  img-src 'self';
+  manifest-src 'self';
 `
 
 const moduleExports = {
