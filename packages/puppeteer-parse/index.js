@@ -461,6 +461,7 @@ async function fetchContent(req, res) {
     // mark import failed on the last failed retry
     const retryCount = req.headers['x-cloudtasks-taskretrycount'];
     if (retryCount == MAX_RETRY_COUNT) {
+      console.debug('max retry count reached');
       importStatus = importStatus || 'failed';
     }
 
