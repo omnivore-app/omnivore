@@ -6,6 +6,12 @@ public struct HighlightAnnotationSheet: View {
   @Binding var errorAlertMessage: String?
   @Binding var showErrorAlertMessage: Bool
 
+  enum FocusField: Hashable {
+    case textEditor
+  }
+
+  @FocusState private var focusedField: FocusField?
+
   let onSave: () -> Void
   let onCancel: () -> Void
 
@@ -25,30 +31,14 @@ public struct HighlightAnnotationSheet: View {
 
   public var body: some View {
     VStack {
-//      HStack {
-//        Button(LocalText.cancelGeneric, action: onCancel)
-//        Spacer()
-//        Text("Note").font(Font.system(size: 18, weight: .bold))
-//        Spacer()
-//        Button(LocalText.genericSave) {
-//          onSave()
-//        }
-//      }
-//      .foregroundColor(.appGrayTextContrast)
-
-      ScrollView {
-        TextEditor(text: $annotation)
-          .frame(height: 200)
-        #if os(iOS)
-          .introspectTextView {
-            $0.becomeFirstResponder()
-          }
-        #endif
-      }
-
-      Spacer()
+      TextEditor(text: $annotation)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .focused($focusedField, equals: .textEditor)
+        .padding(.horizontal)
+        .task {
+          focusedField = .textEditor
+        }
     }
-    .padding()
     .navigationTitle("Note")
     #if os(iOS)
       .navigationBarTitleDisplayMode(.inline)
