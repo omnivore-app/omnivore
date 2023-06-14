@@ -1,17 +1,17 @@
 const ContentSecurityPolicy = `
-  default-src 'none';
+  default-src 'self';
   base-uri 'self';
   block-all-mixed-content;
-  connect-src 'self' api-prod.omnivore.app api-demo.omnivore.app proxy-prod.omnivore-image-cache.app proxy-demo.omnivore-image-cache.app api.segment.io cdn.segment.com widget.intercom.io api-iam.intercom.io wss://nexus-websocket-a.intercom.io platform.twitter.com;
-  font-src 'self';
-  form-action 'self' api-prod.omnivore.app api-demo.omnivore.app;
+  connect-src 'self' ${process.env.NEXT_PUBLIC_SERVER_BASE_URL} proxy-prod.omnivore-image-cache.app proxy-demo.omnivore-image-cache.app storage.googleapis.com api.segment.io cdn.segment.com widget.intercom.io api-iam.intercom.io wss://nexus-websocket-a.intercom.io platform.twitter.com;
+  font-src 'self' data: cdn.jsdelivr.net;
+  form-action 'self' ${process.env.NEXT_PUBLIC_SERVER_BASE_URL};
   frame-ancestors 'none';
-  frame-src 'none';
+  frame-src accounts.google.com platform.twitter.com;
   manifest-src 'self';
-  script-src script-src 'self' 'unsafe-inline';
-  style-src 'self' 'unsafe-inline';
-  img-src 'self';
-  manifest-src 'self';
+  script-src 'self' 'unsafe-inline' 'unsafe-eval' accounts.google.com widget.intercom.io js.intercomcdn.com platform.twitter.com cdnjs.cloudflare.com cdn.jsdelivr.net;
+  style-src 'self' 'unsafe-inline' accounts.google.com cdnjs.cloudflare.com;
+  img-src 'self' blob: data: https:;
+  worker-src 'self' blob:;
 `
 
 const moduleExports = {
@@ -40,12 +40,19 @@ const moduleExports = {
       destination: `https://api-${process.env.NEXT_PUBLIC_APP_ENV}.omnivore.app/api/mobile-auth/:path*`,
     },
   ],
-  Headers: [
-    {
-      key: 'Content-Security-Policy',
-      value: ContentSecurityPolicy.replace(/\s{2,}/g, ' ').trim(),
-    },
-  ],
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: ContentSecurityPolicy.replace(/\s{2,}/g, ' ').trim(),
+          },
+        ],
+      },
+    ]
+  },
   async redirects() {
     return [
       {
