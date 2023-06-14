@@ -183,7 +183,8 @@ fun EditNoteModal(initialValue: String?, onDismiss: (save: Boolean, text: String
                     .fillMaxSize(),
                 value = annotation.value, onValueChange = { annotation.value = it },
                 colors = TextFieldDefaults.textFieldColors(
-                    textColor = Color.White
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
                 )
             )
         }
