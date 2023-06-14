@@ -375,6 +375,9 @@ describe('Integrations routers', () => {
                 '1234': {
                   tag: 'test',
                 },
+                '1235': {
+                  tag: 'new',
+                },
               },
             },
           },

@@ -42,7 +42,6 @@
     "@sentry/serverless": "^7.30.0",
     "@types/express": "^4.17.13",
     "axios": "^1.2.2",
-    "csv-parser": "^3.0.0",
     "dompurify": "^2.4.3",
     "fs-extra": "^11.1.0",
     "glob": "^8.1.0",

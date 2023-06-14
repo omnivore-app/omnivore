@@ -8,6 +8,22 @@ import { Stream } from 'stream'
 import { ImportContext } from '.'
 import { createMetrics, ImportStatus, updateMetrics } from './metrics'
 
+const parseLabels = (labels: string): string[] => {
+  try {
+    // labels follows format: "[""label1"",""label2""]"
+    return JSON.parse(labels) as string[]
+  } catch (error) {
+    console.debug('invalid labels format', labels)
+
+    // labels follows format: "[label1,label2]"
+    return labels
+      .slice(1, -1)
+      .split(',')
+      .map((l) => l.trim())
+      .filter((l) => l !== '')
+  }
+}
+
 export const importCsv = async (ctx: ImportContext, stream: Stream) => {
   // create metrics in redis
   await createMetrics(ctx.redisClient, ctx.userId, ctx.taskId, 'csv-importer')
@@ -18,15 +34,7 @@ export const importCsv = async (ctx: ImportContext, stream: Stream) => {
     try {
       const url = new URL(row[0])
       const state = row.length > 1 && row[1] ? row[1] : undefined
-      // labels follows format: "[label1,label2]"
-      const labels =
-        row.length > 2
-          ? (row[2] as string)
-              .slice(1, -1)
-              .split(',')
-              .map((l) => l.trim())
-              .filter((l) => l !== '')
-          : undefined
+      const labels = row.length > 2 ? parseLabels(row[2]) : undefined
 
       // update total counter
       await updateMetrics(
