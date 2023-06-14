@@ -410,9 +410,9 @@ export default function LabelsPage(): JSX.Element {
 
                 if (editingLabelId == label.id) {
                   if (windowWidth >= breakpoint) {
-                    return <DesktopEditCard {...cardProps} />
+                    return <DesktopEditCard key={label.id} {...cardProps} />
                   } else {
-                    return <MobileEditCard {...cardProps} />
+                    return <MobileEditCard key={label.id} {...cardProps} />
                   }
                 }
 
