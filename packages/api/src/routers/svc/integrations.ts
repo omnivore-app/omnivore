@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+import { stringify } from 'csv-stringify'
 import express from 'express'
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
@@ -220,6 +221,12 @@ export function integrationsServiceRouter() {
       writeStream = file.createWriteStream({
         contentType: 'text/csv',
       })
+      // stringify the data and pipe it to the write_stream
+      const stringifier = stringify({
+        header: false,
+        columns: ['url', 'state', 'labels'],
+      })
+      stringifier.pipe(writeStream)
 
       let hasMore = true
       let offset = 0
@@ -236,11 +243,7 @@ export function integrationsServiceRouter() {
           break
         }
         // write the list of urls, state and labels to the stream
-        const csvData = retrievedData.map((page) => {
-          const { url, state, labels } = page
-          return [url, state, `"[${labels?.join(',') || ''}]"`].join(',')
-        })
-        writeStream.write(csvData.join('\n'))
+        retrievedData.forEach((row) => stringifier.write(row))
 
         hasMore = !!retrieved.hasMore
         offset += retrievedData.length
