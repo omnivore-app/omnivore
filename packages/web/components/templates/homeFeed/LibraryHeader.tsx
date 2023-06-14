@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { theme } from '../../tokens/stitches.config'
 import { FormInput } from '../../elements/FormElements'
@@ -13,7 +13,6 @@ import {
   MagnifyingGlass,
   Prohibit,
   SquaresFour,
-  TagSimple,
   TrashSimple,
   X,
 } from 'phosphor-react'
@@ -666,6 +665,7 @@ function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
             showThemeSection={true}
             layout={props.layout}
             updateLayout={props.updateLayout}
+            showAddLinkModal={props.showAddLinkModal}
             startSelectMultiple={() => {
               props.setMultiSelectMode('none')
             }}
