@@ -116,6 +116,7 @@ const RESERVED_NAMES = new Set([
   'register',
   'remove',
   'replies',
+  'robots.txt',
   'root',
   'rss',
   'sales',
