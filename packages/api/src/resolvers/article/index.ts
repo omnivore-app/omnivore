@@ -662,6 +662,12 @@ export const setBookmarkArticleResolver = authorized<
       return { errorCodes: [SetBookmarkArticleErrorCode.NotFound] }
     }
 
+    const pageContext = {
+      pubsub,
+      uid,
+      refresh: true, // refresh to make sure the page is deleted
+    }
+
     if (!bookmark) {
       // delete the page and its metadata
       const deleted = await updatePage(
@@ -673,7 +679,7 @@ export const setBookmarkArticleResolver = authorized<
           readingProgressAnchorIndex: 0,
           readingProgressPercent: 0,
         },
-        { pubsub, uid }
+        pageContext
       )
       if (!deleted) {
         return { errorCodes: [SetBookmarkArticleErrorCode.NotFound] }
@@ -715,10 +721,7 @@ export const setBookmarkArticleResolver = authorized<
           userId: uid,
           slug: generateSlug(page.title),
         }
-        const updated = await updatePage(articleID, pageUpdated, {
-          pubsub,
-          uid,
-        })
+        const updated = await updatePage(articleID, pageUpdated, pageContext)
         if (!updated) {
           return { errorCodes: [SetBookmarkArticleErrorCode.NotFound] }
         }
@@ -1175,6 +1178,7 @@ export const setFavoriteArticleResolver = authorized<
       {
         uid,
         pubsub,
+        refresh: true,
       },
       page.id,
       label

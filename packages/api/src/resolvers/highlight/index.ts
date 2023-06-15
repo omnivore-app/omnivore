@@ -92,6 +92,7 @@ export const createHighlightResolver = authorized<
       !(await addHighlightToPage(pageId, highlight, {
         pubsub,
         uid: claims.uid,
+        refresh: true,
       }))
     ) {
       return {
@@ -186,7 +187,7 @@ export const mergeHighlightResolver = authorized<
     const merged = await updatePage(
       pageId,
       { highlights: pageHighlights.concat(highlight) },
-      { pubsub, uid: claims.uid }
+      { pubsub, uid: claims.uid, refresh: true }
     )
     if (!merged) {
       throw new Error('Failed to create merged highlight')
@@ -266,6 +267,7 @@ export const updateHighlightResolver = authorized<
   const updated = await updateHighlight(updatedHighlight, {
     pubsub,
     uid: claims.uid,
+    refresh: true,
   })
 
   if (!updated) {
@@ -299,6 +301,7 @@ export const deleteHighlightResolver = authorized<
   const deleted = await deleteHighlight(highlightId, {
     pubsub,
     uid: claims.uid,
+    refresh: true,
   })
 
   if (!deleted) {
@@ -358,6 +361,7 @@ export const setShareHighlightResolver = authorized<
   const updated = await updateHighlight(updatedHighlight, {
     pubsub,
     uid: claims.uid,
+    refresh: true,
   })
 
   if (!updated) {
