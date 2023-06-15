@@ -45,7 +45,11 @@ export const updatePageResolver = authorized<
     image: input.previewImage ?? undefined,
   }
 
-  const updateResult = await updatePage(input.pageId, pageData, { ...ctx, uid })
+  const updateResult = await updatePage(input.pageId, pageData, {
+    pubsub: ctx.pubsub,
+    uid,
+    refresh: true,
+  })
   if (!updateResult) return { errorCodes: [UpdatePageErrorCode.UpdateFailed] }
 
   const updatedPage = (await getPageById(input.pageId)) as unknown as Page
