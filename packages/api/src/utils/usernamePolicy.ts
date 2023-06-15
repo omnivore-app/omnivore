@@ -123,6 +123,7 @@ const RESERVED_NAMES = new Set([
   'save',
   'search',
   'security',
+  'security.txt',
   'sessions',
   'settings',
   'shop',
