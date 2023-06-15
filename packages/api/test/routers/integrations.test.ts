@@ -395,7 +395,6 @@ describe('Integrations routers', () => {
 
     after(async () => {
       sinon.restore()
-      nock.cleanAll()
       await deleteTestIntegrations(user.id, [integration.id])
     })
 

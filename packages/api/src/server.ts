@@ -48,6 +48,7 @@ import { webhooksServiceRouter } from './routers/svc/webhooks'
 import { textToSpeechRouter } from './routers/text_to_speech'
 import { userRouter } from './routers/user_router'
 import { sentryConfig } from './sentry'
+import { getClaimsByToken } from './utils/auth'
 import { corsConfig } from './utils/corsConfig'
 import { buildLogger, buildLoggerTransport } from './utils/logger'
 
@@ -97,32 +98,30 @@ export const createApp = (): {
   app.use(json({ limit: '100mb' }))
   app.use(urlencoded({ limit: '100mb', extended: true }))
 
-  if (!env.dev.isLocal) {
-    const apiLimiter = rateLimit({
-      windowMs: 60 * 1000, // 1 minute
-      max: 100,
-      // async (req) => {
-      //   // 100 RPM for an authenticated request, 5 for a non-authenticated request
-      //   // const token = await getClaimsByToken(
-      //   //   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      //   //   req.header('authorization') ?? req.cookies['auth']
-      //   // )
-      //   return 100 // token ? 100 : 10
-      // },
-      standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-      legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-      keyGenerator: (req) => {
-        return (
-          req.header('authorization') ||
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-          (req.cookies['auth'] as string) ||
-          req.ip
-        )
-      },
-    })
-    // Apply the rate limiting middleware to API calls only
-    app.use('/api/', apiLimiter)
-  }
+  const apiLimiter = rateLimit({
+    windowMs: 60 * 1000, // 1 minute
+    max: async (req) => {
+      // 100 RPM for an authenticated request, 5 for a non-authenticated request
+      const token = await getClaimsByToken(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        req.header('authorization') ?? req.cookies['auth']
+      )
+      return token ? 100 : 5
+    },
+    keyGenerator: (req) => {
+      return (
+        req.header('authorization') ||
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        (req.cookies['auth'] as string) ||
+        req.ip
+      )
+    },
+    // skip preflight requests and test requests
+    skip: (req) => req.method === 'OPTIONS' || env.dev.isLocal,
+  })
+
+  // Apply the rate limiting middleware to API calls only
+  app.use('/api/', apiLimiter)
 
   // set client info in the request context
   app.use(httpContext.middleware)
@@ -137,11 +136,19 @@ export const createApp = (): {
   // respond healthy to auto-scaler.
   app.get('/_ah/health', (req, res) => res.sendStatus(200))
 
-  app.use('/api/auth', authRouter())
+  // 5 RPM for auth requests
+  const authLimiter = rateLimit({
+    windowMs: 60 * 1000, // 1 minute
+    max: 5,
+    // skip preflight requests and test requests
+    skip: (req) => req.method === 'OPTIONS' || env.dev.isLocal,
+  })
+
+  app.use('/api/auth', authLimiter, authRouter())
+  app.use('/api/mobile-auth', authLimiter, mobileAuthRouter())
   app.use('/api/page', pageRouter())
   app.use('/api/user', userRouter())
   app.use('/api/article', articleRouter())
-  app.use('/api/mobile-auth', mobileAuthRouter())
   app.use('/api/text-to-speech', textToSpeechRouter())
   app.use('/api/notification', notificationRouter())
   app.use('/api/integration', integrationRouter())
