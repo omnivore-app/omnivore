@@ -113,7 +113,7 @@ const ViewRecentEmailModal = (
           ;(document.activeElement as HTMLElement).blur()
         }}
       >
-        <VStack distribution="start">
+        <VStack distribution="start" css={{ height: '100%' }}>
           <ModalTitleBar title="View Email" onOpenChange={props.onOpenChange} />
           {props.display == 'text' ? (
             <Box
