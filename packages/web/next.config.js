@@ -8,7 +8,7 @@ const ContentSecurityPolicy = `
   frame-ancestors 'none';
   frame-src accounts.google.com platform.twitter.com;
   manifest-src 'self';
-  script-src 'self' 'unsafe-inline' 'unsafe-eval' accounts.google.com widget.intercom.io js.intercomcdn.com platform.twitter.com cdnjs.cloudflare.com cdn.jsdelivr.net;
+  script-src 'self' 'unsafe-inline' 'unsafe-eval' accounts.google.com widget.intercom.io js.intercomcdn.com platform.twitter.com cdnjs.cloudflare.com cdn.jsdelivr.net cdn.segment.com;
   style-src 'self' 'unsafe-inline' accounts.google.com cdnjs.cloudflare.com;
   img-src 'self' blob: data: https:;
   worker-src 'self' blob:;
