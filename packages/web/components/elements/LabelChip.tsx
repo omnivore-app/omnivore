@@ -8,6 +8,7 @@ import { isDarkTheme } from '../../lib/themeUpdater'
 type LabelChipProps = {
   text: string
   color: string // expected to be a RGB hex color string
+  isSelected?: boolean
   useAppAppearance?: boolean
 }
 
@@ -15,25 +16,10 @@ export function LabelChip(props: LabelChipProps): JSX.Element {
   const router = useRouter()
   const isDark = isDarkTheme()
 
-  const hexToRgb = (hex: string) => {
-    const bigint = parseInt(hex.substring(1), 16)
-    const r = (bigint >> 16) & 255
-    const g = (bigint >> 8) & 255
-    const b = bigint & 255
-
-    return [r, g, b]
-  }
-
-  function f(x: number) {
-    const channel = x / 255
-    return channel <= 0.03928
-      ? channel / 12.92
-      : Math.pow((channel + 0.055) / 1.055, 2.4)
-  }
-
   const luminance = getLuminance(props.color)
-  const backgroundColor = hexToRgb(props.color)
   const textColor = luminance > 0.5 ? '#000000' : '#ffffff'
+  const selectedBorder = isDark ? 'white' : 'black'
+  const unSelectedBorder = isDark ? '#6A6968' : '#D9D9D9'
 
   if (props.useAppAppearance) {
     return (
@@ -52,7 +38,7 @@ export function LabelChip(props: LabelChipProps): JSX.Element {
           borderWidth: '1px',
           borderStyle: 'solid',
           color: isDark ? '#EBEBEB' : '#2A2A2A',
-          borderColor: isDark ? '#6A6968' : '#D9D9D9',
+          borderColor: props.isSelected ? selectedBorder : unSelectedBorder,
           backgroundColor: isDark ? '#2A2A2A' : '#F5F5F5',
         }}
       >

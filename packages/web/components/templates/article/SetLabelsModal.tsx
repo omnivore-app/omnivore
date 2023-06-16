@@ -78,14 +78,17 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
     <ModalRoot defaultOpen onOpenChange={onOpenChange}>
       <ModalOverlay />
       <ModalContent
-        css={{ border: '1px solid $grayBorder' }}
+        css={{
+          border: '1px solid $grayBorder',
+          backgroundColor: '$thBackground',
+        }}
         onPointerDownOutside={(event) => {
           event.preventDefault()
           onOpenChange(false)
         }}
       >
         <VStack distribution="start" css={{ height: '100%' }}>
-          <SpanBox css={{ p: '16px', width: '100%' }}>
+          <SpanBox css={{ pt: '0px', px: '16px', width: '100%' }}>
             <ModalTitleBar title="Labels" onOpenChange={onOpenChange} />
           </SpanBox>
           <SetLabelsControl
