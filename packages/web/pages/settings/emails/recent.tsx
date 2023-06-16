@@ -113,7 +113,7 @@ const ViewRecentEmailModal = (
           ;(document.activeElement as HTMLElement).blur()
         }}
       >
-        <VStack distribution="start">
+        <VStack distribution="start" css={{ height: '100%' }}>
           <ModalTitleBar title="View Email" onOpenChange={props.onOpenChange} />
           {props.display == 'text' ? (
             <Box
@@ -133,9 +133,16 @@ const ViewRecentEmailModal = (
                 height: '100%',
                 fontSize: '12px',
                 overflowY: 'scroll',
+                iframe: {
+                  width: '100%',
+                  height: '100%',
+                  display: 'block',
+                  border: 'none',
+                },
               }}
-              dangerouslySetInnerHTML={{ __html: props.recentEmail.html }}
-            ></Box>
+            >
+              <iframe srcDoc={props.recentEmail.html}></iframe>
+            </Box>
           )}
         </VStack>
       </ModalContent>
