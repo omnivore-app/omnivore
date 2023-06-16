@@ -6,7 +6,7 @@ const ContentSecurityPolicy = `
   font-src 'self' data: cdn.jsdelivr.net;
   form-action 'self' ${process.env.NEXT_PUBLIC_SERVER_BASE_URL};
   frame-ancestors 'none';
-  frame-src accounts.google.com platform.twitter.com www.youtube-nocookie.com;
+  frame-src self accounts.google.com platform.twitter.com www.youtube.com www.youtube-nocookie.com;
   manifest-src 'self';
   script-src 'self' 'unsafe-inline' 'unsafe-eval' accounts.google.com widget.intercom.io js.intercomcdn.com platform.twitter.com cdnjs.cloudflare.com cdn.jsdelivr.net cdn.segment.com;
   style-src 'self' 'unsafe-inline' accounts.google.com cdnjs.cloudflare.com;
