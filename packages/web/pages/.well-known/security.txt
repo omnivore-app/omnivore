@@ -1,0 +1,4 @@
+Contact: mailto:feedback@omnivore.app
+Expires: 2024-06-01T04:00:00.000Z
+Canonical: https://omnivore.app/.well-known/security.txt
+Policy: https://github.com/omnivore-app/omnivore/blob/main/SECURITY.md
