@@ -133,9 +133,16 @@ const ViewRecentEmailModal = (
                 height: '100%',
                 fontSize: '12px',
                 overflowY: 'scroll',
+                iframe: {
+                  width: '100%',
+                  height: '100%',
+                  display: 'block',
+                  border: 'none',
+                },
               }}
-              dangerouslySetInnerHTML={{ __html: props.recentEmail.html }}
-            ></Box>
+            >
+              <iframe srcDoc={props.recentEmail.html}></iframe>
+            </Box>
           )}
         </VStack>
       </ModalContent>
