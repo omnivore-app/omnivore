@@ -16,6 +16,7 @@ declare global {
     analytics?: Analytics
     AndroidWebKitMessenger?: AndroidWebKitMessenger
     themeKey?: string
+    twttr?: EmbedTweetWidget
   }
 }
 
@@ -42,4 +43,11 @@ interface IntercomSettings {
   hide_default_launcher: boolean
   vertical_padding: number
   custom_launcher_selector: string
+}
+
+export interface EmbedTweetWidget {
+  widgets: {
+    createTweet: (string, HTMLElement, unknown) => void
+  }
+  [key: string]: string | { createTweet: unknown }
 }

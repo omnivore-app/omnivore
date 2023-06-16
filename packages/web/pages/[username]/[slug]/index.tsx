@@ -247,6 +247,21 @@ export default function Home(): JSX.Element {
         },
       },
       {
+        id: 'back_home_esc',
+        section: 'Article',
+        name: 'Back to library',
+        shortcut: ['escape'],
+        perform: () => {
+          const query = window.sessionStorage.getItem('q')
+          if (query) {
+            router.push(`/home?${query}`)
+            return
+          } else {
+            router.push(`/home`)
+          }
+        },
+      },
+      {
         id: 'archive',
         section: 'Article',
         name: 'Archive current item',

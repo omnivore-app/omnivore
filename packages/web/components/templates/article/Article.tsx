@@ -8,10 +8,10 @@ import {
   useScrollWatcher,
 } from '../../../lib/hooks/useScrollWatcher'
 import { MutableRefObject, useEffect, useRef, useState } from 'react'
-import { Tweet } from 'react-twitter-widgets'
-import { render } from 'react-dom'
 import { isDarkTheme } from '../../../lib/themeUpdater'
 import { ArticleMutations } from '../../../lib/articleActions'
+
+import loadjs from 'loadjs'
 
 export type ArticleProps = {
   articleId: string
@@ -141,22 +141,44 @@ export function Article(props: ArticleProps): JSX.Element {
       window.MathJax.typeset()
     }
 
-    const tweets = Array.from(
+    const tweetPlaceholders = Array.from(
       document.getElementsByClassName('tweet-placeholder')
     )
 
-    tweets.forEach((tweet) => {
-      render(
-        <Tweet
-          tweetId={tweet.getAttribute('data-tweet-id') || ''}
-          options={{
+    if (tweetPlaceholders.length > 0) {
+      ;(async () => {
+        const twScriptUrl = 'https://platform.twitter.com/widgets.js'
+        const twScriptWindowFieldName = 'twttr'
+        const twScriptName = twScriptWindowFieldName
+
+        await new Promise((resolve, reject) => {
+          if (!loadjs.isDefined(twScriptName)) {
+            loadjs(twScriptUrl, twScriptName)
+          }
+          loadjs.ready(twScriptName, {
+            success: () => {
+              if (window.twttr?.widgets) {
+                resolve(true)
+              } else {
+                resolve(false)
+              }
+            },
+            error: () =>
+              reject(new Error('Could not load remote twitter widgets js')),
+          })
+        })
+
+        tweetPlaceholders.forEach((tweetPlaceholder) => {
+          const tweetId = tweetPlaceholder.getAttribute('data-tweet-id')
+          if (!tweetId) return
+          window.twttr?.widgets?.createTweet(tweetId, tweetPlaceholder, {
             theme: isDarkTheme() ? 'dark' : 'light',
             align: 'center',
-          }}
-        />,
-        tweet
-      )
-    })
+            dnt: 'true',
+          })
+        })
+      })()
+    }
   }, [])
 
   useEffect(() => {
