@@ -1,4 +1,5 @@
 /* eslint-disable prefer-const */
+import normalizeUrl from 'normalize-url'
 import { getPageByParam } from '../../elastic/pages'
 import { User } from '../../entity/user'
 import { getRepository } from '../../entity/utils'
@@ -73,9 +74,17 @@ export const articleSavingRequestResolver = authorized<
   if (!user) {
     return { errorCodes: [ArticleSavingRequestErrorCode.Unauthorized] }
   }
+
+  const normalizedUrl = url
+    ? normalizeUrl(url, {
+        stripHash: true,
+        stripWWW: false,
+      })
+    : undefined
+
   const params = {
     _id: id || undefined,
-    url: url || undefined,
+    url: normalizedUrl,
     userId: claims.uid,
     state: [
       ArticleSavingRequestStatus.Succeeded,
