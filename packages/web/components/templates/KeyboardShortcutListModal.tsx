@@ -77,6 +77,12 @@ const readerCommands = () => {
       callback: () => {},
     },
     {
+      shortcutKeys: ['escape'],
+      actionDescription: 'End multi select',
+      shortcutKeyDescription: 'Escape',
+      callback: () => {},
+    },
+    {
       actionDescription: 'Return to library',
       shortcutKeys: ['u'],
       shortcutKeyDescription: 'u',
