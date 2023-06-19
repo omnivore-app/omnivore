@@ -904,7 +904,7 @@ function DesktopEditCard(props: any) {
             isCreateMode={isCreateMode && !label}
             canEdit={editingLabelId === label?.id}
             labelId={label?.id || ''}
-            labelColor={label?.color || '#000000'}
+            labelColor={labelColorHex}
             setLabelColor={setLabelColorHex}
           />
           <Input

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useMemo, useRef, useState } from 'react'
 import { styled } from '../tokens/stitches.config'
 import { Box, HStack, SpanBox } from './LayoutPrimitives'
 import { StyledText } from './StyledText'
@@ -29,14 +29,24 @@ const DropdownMenuTrigger = styled(DropdownMenuPrimitive.Trigger, {
 })
 
 export const LabelColorDropdown = (props: LabelColorDropdownProps) => {
-  const { isCreateMode, canEdit, labelId, labelColor, setLabelColor } = props
+  const pickerRef = useRef<HTMLButtonElement | null>(null)
+  const { isCreateMode, canEdit } = props
+  const [triangle, setTriangle] = useState<
+    'top-left' | 'hide' | 'top-right' | undefined
+  >('top-left')
   const [open, setOpen] = useState<boolean | undefined>(false)
 
-  const handleCustomColorChange = (color: string) => {
-    setLabelColor(color.toUpperCase())
-  }
-
   const handleOpen = (open: boolean) => {
+    if (
+      pickerRef.current &&
+      window.innerHeight - pickerRef.current?.getBoundingClientRect().bottom <
+        116
+    ) {
+      setTriangle('hide')
+    } else {
+      setTriangle('top-left')
+    }
+
     if (canEdit && open) setOpen(true)
     else if (isCreateMode && !canEdit && open) setOpen(true)
     else setOpen(false)
@@ -45,6 +55,7 @@ export const LabelColorDropdown = (props: LabelColorDropdownProps) => {
   return (
     <DropdownMenu onOpenChange={handleOpen} open={open}>
       <DropdownMenuTrigger
+        ref={pickerRef}
         css={{
           minWidth: '64px',
           width: '100%',
@@ -60,7 +71,7 @@ export const LabelColorDropdown = (props: LabelColorDropdownProps) => {
         <LabelOption
           isCreateMode={isCreateMode}
           labelId={''}
-          color={labelColor}
+          color={props.labelColor}
           isDropdownOption={false}
         />
       </DropdownMenuTrigger>
@@ -82,15 +93,14 @@ export const LabelColorDropdown = (props: LabelColorDropdownProps) => {
         }}
       >
         <TwitterPicker
-          color={labelColor}
+          triangle={triangle}
+          color={props.labelColor}
           onChange={(color, event) => {
-            console.log('changed to color: ', color)
-            setLabelColor(color.hex)
+            props.setLabelColor(color.hex.toUpperCase())
             event.preventDefault()
           }}
           onChangeComplete={(color, event) => {
-            console.log('onChangeComplete: ', color)
-            setLabelColor(color.hex)
+            props.setLabelColor(color.hex.toUpperCase())
             event.preventDefault()
           }}
         />
@@ -140,7 +150,7 @@ function LabelOption(props: LabelOptionProps): JSX.Element {
           whiteSpace: 'nowrap',
         }}
       >
-        <LabelColorIcon fillColor={text} strokeColor={border} />
+        <LabelColorIcon color={text} />
       </Box>
       <StyledText
         css={{
@@ -172,10 +182,7 @@ function getLabelColorObject(color: LabelColor) {
   return colorObject
 }
 
-function LabelColorIcon(props: {
-  fillColor: string
-  strokeColor: string
-}): JSX.Element {
+function LabelColorIcon(props: { color: string }): JSX.Element {
   return (
     <Box
       css={{
@@ -183,8 +190,8 @@ function LabelColorIcon(props: {
         height: '14px',
         borderRadius: '50%',
         border: '2px solid',
-        borderColor: props.strokeColor,
-        backgroundColor: props.fillColor,
+        borderColor: props.color,
+        backgroundColor: props.color,
       }}
     />
   )
