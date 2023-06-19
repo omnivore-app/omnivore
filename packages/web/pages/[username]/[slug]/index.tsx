@@ -251,6 +251,14 @@ export default function Home(): JSX.Element {
         name: 'Back to library',
         shortcut: ['escape'],
         perform: () => {
+          if (
+            readerSettings.showSetLabelsModal ||
+            readerSettings.showDeleteConfirmation ||
+            readerSettings.showDeleteConfirmation ||
+            readerSettings.showEditDisplaySettingsModal
+          ) {
+            return
+          }
           const query = window.sessionStorage.getItem('q')
           if (query) {
             router.push(`/home?${query}`)
@@ -353,7 +361,7 @@ export default function Home(): JSX.Element {
         perform: () => setShowEditModal(true),
       },
     ],
-    []
+    [readerSettings]
   )
 
   if (articleFetchError && articleFetchError.indexOf('NOT_FOUND') > -1) {
