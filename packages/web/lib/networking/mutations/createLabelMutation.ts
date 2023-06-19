@@ -17,7 +17,7 @@ export async function createLabelMutation(
   description?: string
 ): Promise<any | undefined> {
   const mutation = gql`
-    mutation {
+    mutation CreateLabel($input: CreateLabelInput!) {
       createLabel(input: $input) {
         ... on CreateLabelSuccess {
           label {

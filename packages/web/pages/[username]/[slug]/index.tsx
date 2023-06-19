@@ -150,7 +150,6 @@ export default function Home(): JSX.Element {
           }
           break
         case 'refreshLabels':
-          console.log('refreshing labels: ', arg)
           setLabels(arg as Label[])
           break
         case 'showHighlights':

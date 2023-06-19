@@ -67,6 +67,8 @@ export const LabelsPicker = (props: LabelsPickerProps): JSX.Element => {
           if (idx !== -1) {
             currentLabels[idx] = newLabel
             props.setSelectedLabels([...currentLabels])
+          } else {
+            props.setSelectedLabels([...currentLabels, newLabel])
           }
         } else {
           showMessage(`Error creating label ${tempLabel.name}`)
@@ -105,6 +107,7 @@ export const LabelsPicker = (props: LabelsPickerProps): JSX.Element => {
           color: randomLabelColorHex(),
           description: '',
           createdAt: new Date(),
+          _temporary: true,
         }
         props.setSelectedLabels([...current, tempLabel])
         clearInputState()
@@ -146,11 +149,6 @@ export const LabelsPicker = (props: LabelsPickerProps): JSX.Element => {
       l.name.toLowerCase().startsWith(_tabStartValue)
     )
 
-    console.log(
-      `'${_tabStartValue}' matches: `,
-      matches,
-      availableLabels.labels.map((l) => l.name.toLowerCase())
-    )
     if (_tabCount < matches.length) {
       setInputValue(matches[_tabCount].name)
     } else if (matches.length > 0) {
@@ -186,6 +184,7 @@ export const LabelsPicker = (props: LabelsPickerProps): JSX.Element => {
         bg: '#3D3D3D',
         border: '1px transparent solid',
         borderRadius: '6px',
+        verticalAlign: 'center',
         padding: '5px',
         lineHeight: '2',
         width: '100%',
@@ -208,7 +207,6 @@ export const LabelsPicker = (props: LabelsPickerProps): JSX.Element => {
           marginTop: '0px',
           marginBottom: '0px',
           borderColor: 'transparent',
-          padding: '1px 10px',
         },
       }}
       onMouseDown={(event) => {
@@ -235,61 +233,62 @@ export const LabelsPicker = (props: LabelsPickerProps): JSX.Element => {
           useAppAppearance={true}
         />
       ))}
-      <AutosizeInput
-        placeholder={isEmpty ? 'Filter for label' : undefined}
-        inputRef={(ref) => {
-          inputRef.current = ref
+      <SpanBox
+        css={{
+          display: 'inline-flex',
+          height: '24px',
+          paddingBottom: '20px',
+          transform: `translateY(-2px)`,
         }}
-        onFocus={() => {
-          if (props.onFocus) {
-            props.onFocus()
-          }
-        }}
-        minWidth="2px"
-        maxLength={48}
-        value={inputValue}
-        onClick={(event) => {
-          event.stopPropagation()
-        }}
-        onKeyUp={(event) => {
-          switch (event.key) {
-            case 'Escape':
-              clearInputState()
-              break
-            case 'Enter':
-              selectOrCreateLabel(inputValue)
-              event.preventDefault()
-              break
-          }
-        }}
-        onKeyDown={(event) => {
-          switch (event.key) {
-            case 'Tab':
-              autoComplete()
-              event.preventDefault()
-              break
-            case 'Delete':
-            case 'Backspace':
-              clearTabState()
-              if (inputValue.length === 0) {
-                deleteLastLabel()
+      >
+        <AutosizeInput
+          placeholder={isEmpty ? 'Filter for label' : undefined}
+          inputRef={(ref) => {
+            inputRef.current = ref
+          }}
+          onFocus={() => {
+            if (props.onFocus) {
+              props.onFocus()
+            }
+          }}
+          minWidth="2px"
+          maxLength={48}
+          value={inputValue}
+          onClick={(event) => {
+            event.stopPropagation()
+          }}
+          onKeyUp={(event) => {
+            switch (event.key) {
+              case 'Escape':
+                clearInputState()
+                break
+              case 'Enter':
+                selectOrCreateLabel(inputValue)
                 event.preventDefault()
-              }
-              break
-          }
-        }}
-        onKeyPress={(event) => {
-          // switch (event.key) {
-          //   case 'Enter':
-          //     selectOrCreateLabel(inputValue)
-          //     event.preventDefault()
-          //     break
-          // }
-        }}
-        onChange={function (event) {
-          setInputValue(event.target.value)
-        }}
-      />
+                break
+            }
+          }}
+          onKeyDown={(event) => {
+            switch (event.key) {
+              case 'Tab':
+                autoComplete()
+                event.preventDefault()
+                break
+              case 'Delete':
+              case 'Backspace':
+                clearTabState()
+                if (inputValue.length === 0) {
+                  deleteLastLabel()
+                  event.preventDefault()
+                }
+                break
+            }
+          }}
+          onChange={function (event) {
+            setInputValue(event.target.value)
+          }}
+        />
+      </SpanBox>
     </Box>
   )
 }

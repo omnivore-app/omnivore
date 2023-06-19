@@ -38,18 +38,6 @@ type HeaderProps = {
   setSelectedLabels: (labels: Label[]) => void
 }
 
-const FormInput = styled('input', {
-  width: '100%',
-  fontSize: '16px',
-  fontFamily: 'inter',
-  fontWeight: 'normal',
-  lineHeight: '1.8',
-  color: '$grayTextContrast',
-  '&:focus': {
-    outline: 'none',
-  },
-})
-
 const StyledLabel = styled('label', {
   display: 'flex',
   justifyContent: 'flex-start',

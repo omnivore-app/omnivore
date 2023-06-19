@@ -19,60 +19,31 @@ type SetLabelsModalProps = {
 }
 
 export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
-  const [previousSelectedLabels, setPreviousSelectedLabels] = useState(
-    props.provider.labels ?? []
-  )
   const [selectedLabels, setSelectedLabels] = useState(
     props.provider.labels ?? []
   )
 
-  const labelsEqual = (left: Label[], right: Label[]) => {
-    if (left.length !== right.length) {
-      return false
-    }
-
-    for (const label of left) {
-      if (!right.find((r) => label.id == r.id)) {
-        return false
-      }
-    }
-
-    return true
+  const containsTemporaryLabel = (labels: Label[]) => {
+    return !!labels.find((l) => '_temporary' in l)
   }
 
   const onOpenChange = useCallback(
-    async (open: boolean) => {
-      // Only make API call if the labels have been modified
-      if (!labelsEqual(selectedLabels, previousSelectedLabels)) {
-        const result = await props.save(selectedLabels)
-        if (props.onLabelsUpdated) {
-          props.onLabelsUpdated(selectedLabels)
-        }
-
-        if (!result) {
-          showErrorToast('Error updating labels')
-        }
-      }
-
-      props.onOpenChange(open)
+    (open: boolean) => {
+      ;(async () => {
+        await props.save(selectedLabels)
+        props.onOpenChange(open)
+      })()
     },
-    [props, selectedLabels, previousSelectedLabels]
+    [props, selectedLabels]
   )
 
   useEffect(() => {
-    if (labelsEqual(selectedLabels, previousSelectedLabels)) {
-      return
+    if (!containsTemporaryLabel(selectedLabels)) {
+      ;(async () => {
+        await props.save(selectedLabels)
+      })()
     }
-
-    props
-      .save(selectedLabels)
-      .then((result) => {
-        setPreviousSelectedLabels(result ?? [])
-      })
-      .catch((err) => {
-        console.log('error saving labels: ', err)
-      })
-  }, [props, selectedLabels, previousSelectedLabels, setPreviousSelectedLabels])
+  }, [props, selectedLabels])
 
   return (
     <ModalRoot defaultOpen onOpenChange={onOpenChange}>
