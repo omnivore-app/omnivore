@@ -228,16 +228,19 @@ export function integrationsServiceRouter() {
       })
       stringifier.pipe(writeStream)
 
-      let hasMore = true
       let offset = 0
-      let since = integration.syncedAt?.getTime() || 0
-      while (hasMore) {
+      const since = integration.syncedAt?.getTime() || 0
+      let syncedAt = since
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
         // get pages from integration
         const retrieved = await integrationService.retrieve({
           token: integration.token,
           since,
-          offset: offset,
+          offset,
         })
+        syncedAt = retrieved.since || Date.now()
+
         const retrievedData = retrieved.data
         if (retrievedData.length === 0) {
           break
@@ -245,13 +248,15 @@ export function integrationsServiceRouter() {
         // write the list of urls, state and labels to the stream
         retrievedData.forEach((row) => stringifier.write(row))
 
-        hasMore = !!retrieved.hasMore
         offset += retrievedData.length
-        since = retrieved.since || Date.now()
+        console.debug('retrieved data', {
+          total: offset,
+          size: retrievedData.length,
+        })
       }
       // update the integration's syncedAt
       await getRepository(Integration).update(integration.id, {
-        syncedAt: new Date(since),
+        syncedAt: new Date(syncedAt),
       })
     } catch (err) {
       logger.error('import pages from integration failed', err)

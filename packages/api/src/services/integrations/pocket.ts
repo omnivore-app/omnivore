@@ -135,9 +135,13 @@ export class PocketIntegration extends IntegrationService {
         : undefined,
       state: statusToState[item.status],
     }))
+
+    if (pocketData.error) {
+      throw new Error(`Error retrieving pocket data: ${pocketData.error}`)
+    }
+
     return {
       data,
-      hasMore: pocketData.complete !== 1,
       since: pocketData.since * 1000,
     }
   }
