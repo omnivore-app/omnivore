@@ -230,12 +230,13 @@ export function ArticleActionsMenu(
           }}
           save={(labels: Label[]) => {
             if (props.article?.id) {
-              return (
-                setLabelsMutation(
+              const result =
+                (await setLabelsMutation(
                   props.article?.id,
                   labels.map((l) => l.id)
-                ) ?? []
-              )
+                )) ?? []
+              props.article.labels = result
+              return Promise.resolve(result)
             }
             return Promise.resolve(labels)
           }}
