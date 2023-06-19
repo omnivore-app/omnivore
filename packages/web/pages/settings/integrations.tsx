@@ -217,91 +217,97 @@ export default function Integrations(): JSX.Element {
           top: '5rem',
         }}
       />
-      <Header css={{ textAlign: 'center', width: '100%' }}>Integrations</Header>
-      <Subheader>
-        Connect with other applications can help enhance and streamline your
-        experience with Omnivore, below are some useful apps to connect your
-        Omnivore account to.
-      </Subheader>
-      <VStack
-        distribution={'start'}
-        css={{
-          width: '80%',
-          margin: '0 auto',
-          height: '800px',
-          '@smDown': {
-            width: '100%',
-          },
-        }}
-      >
-        <Header>Applications</Header>
 
-        {integrationsArray.map((item) => {
-          return (
-            <HStack
-              key={item.title}
-              css={{
-                width: '100%',
-                borderRadius: '5px',
-                backgroundColor: '$grayBg',
-                margin: '10px 0',
-                padding: '20px',
-                display: 'flex',
-                alignItems: 'center',
-                '@smDown': {
-                  flexWrap: 'wrap',
-                  borderRadius: 'unset',
-                },
-              }}
-            >
-              <Image
-                src={item.icon}
-                alt="integration Image"
-                width={75}
-                height={75}
-              />
-              <Box
+      <VStack css={{ width: '100%', height: '100%' }}>
+        <Header css={{ textAlign: 'center', width: '100%' }}>
+          Integrations
+        </Header>
+        <Subheader>
+          Connect with other applications can help enhance and streamline your
+          experience with Omnivore, below are some useful apps to connect your
+          Omnivore account to.
+        </Subheader>
+        <VStack
+          distribution={'start'}
+          css={{
+            width: '80%',
+            margin: '0 auto',
+            height: '800px',
+            '@smDown': {
+              width: '100%',
+            },
+          }}
+        >
+          <Header>Applications</Header>
+
+          {integrationsArray.map((item) => {
+            return (
+              <HStack
+                key={item.title}
                 css={{
-                  '@sm': {
-                    width: '60%',
-                  },
-                  padding: '8px',
-                  color: '$utilityTextDefault',
-                  m: '10px',
-                  'h3, p': {
-                    margin: '0',
+                  width: '100%',
+                  borderRadius: '5px',
+                  backgroundColor: '$grayBg',
+                  margin: '10px 0',
+                  padding: '20px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  '@smDown': {
+                    flexWrap: 'wrap',
+                    borderRadius: 'unset',
                   },
                 }}
               >
-                <h3>{item.title}</h3>
-                <p>{item.subText}</p>
-              </Box>
-              <HStack css={{ '@smDown': { width: '100%' } }}>
-                <Button
-                  style={
-                    item.button.style === 'ctaDarkYellow'
-                      ? 'ctaDarkYellow'
-                      : 'ctaWhite'
-                  }
+                <Image
+                  src={item.icon}
+                  alt="integration Image"
+                  width={75}
+                  height={75}
+                />
+                <Box
                   css={{
-                    py: '10px',
-                    px: '14px',
-                    minWidth: '230px',
-                    width: '100%',
+                    '@sm': {
+                      width: '60%',
+                    },
+                    padding: '8px',
+                    color: '$utilityTextDefault',
+                    m: '10px',
+                    'h3, p': {
+                      margin: '0',
+                    },
                   }}
-                  onClick={item.button.action}
                 >
-                  {item.button.icon}
-                  <SpanBox
-                    css={{ pl: '10px', fontWeight: '600', fontSize: '16px' }}
+                  <h3>{item.title}</h3>
+                  <p>{item.subText}</p>
+                </Box>
+                <HStack css={{ '@smDown': { width: '100%' } }}>
+                  <Button
+                    style={
+                      item.button.style === 'ctaDarkYellow'
+                        ? 'ctaDarkYellow'
+                        : 'ctaWhite'
+                    }
+                    css={{
+                      py: '10px',
+                      px: '14px',
+                      minWidth: '230px',
+                      width: '100%',
+                    }}
+                    onClick={item.button.action}
                   >
-                    {item.button.text}
-                  </SpanBox>
-                </Button>
+                    {item.button.icon}
+                    <SpanBox
+                      css={{ pl: '10px', fontWeight: '600', fontSize: '16px' }}
+                    >
+                      {item.button.text}
+                    </SpanBox>
+                  </Button>
+                </HStack>
               </HStack>
-            </HStack>
-          )
-        })}
+            )
+          })}
+        </VStack>
+        <Box css={{ height: '400px', width: '100% ' }} />
       </VStack>
     </SettingsLayout>
   )
