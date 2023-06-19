@@ -104,6 +104,7 @@ const importURL = async (
     userId,
     source,
     url: url.toString(),
+    saveRequestId: '',
     state,
     labels: labels?.map((l) => {
       return { name: l }
@@ -126,7 +127,12 @@ const createEmailCloudTask = async (userId: string, payload: unknown) => {
     Cookie: `auth=${authToken}`,
   }
 
-  return createCloudTask(emailUserUrl(), payload, headers)
+  return createCloudTask(
+    emailUserUrl(),
+    payload,
+    headers,
+    'omnivore-email-queue'
+  )
 }
 
 const sendImportFailedEmail = async (userId: string) => {

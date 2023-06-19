@@ -389,6 +389,6 @@ fun LabelsSelectionSheetContent(
     }
   }
   LaunchedEffect(Unit) {
-
+    state.focusTextField()
   }
 }

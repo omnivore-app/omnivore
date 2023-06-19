@@ -76,19 +76,19 @@ public struct LibraryFeatureCard: View {
           switch phase {
           case .empty:
             Color.systemBackground
-              .frame(width: 150, height: 90)
-              .cornerRadius(8)
+              .frame(width: 146, height: 90)
+              .cornerRadius(5)
           case let .success(image):
             image.resizable()
               .aspectRatio(contentMode: .fill)
-              .frame(width: 150, height: 90)
-              .cornerRadius(8)
+              .frame(width: 146, height: 90)
+              .cornerRadius(5)
           case .failure:
             Image(systemName: "photo")
-              .frame(width: 150, height: 90)
+              .frame(width: 146, height: 90)
               .foregroundColor(Color(hex: "#6A6968"))
               .background(Color(hex: "#EBEBEB"))
-              .cornerRadius(8)
+              .cornerRadius(5)
           @unknown default:
             // Since the AsyncImagePhase enum isn't frozen,
             // we need to add this currently unused fallback
@@ -99,10 +99,10 @@ public struct LibraryFeatureCard: View {
         }
       } else {
         Image(systemName: "photo")
-          .frame(width: 150, height: 90)
+          .frame(width: 146, height: 90)
           .foregroundColor(Color(hex: "#6A6968"))
           .background(Color(hex: "#EBEBEB"))
-          .cornerRadius(8)
+          .cornerRadius(5)
       }
     }
   }

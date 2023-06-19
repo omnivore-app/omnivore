@@ -369,8 +369,16 @@ describe('Integrations routers', () => {
           complete: 1,
           list: {
             '123': {
-              given_url: 'https://omnivore.app/pocket-import-test',
+              given_url: 'https://omnivore.app/pocket-import-test,test',
               state: '0',
+              tags: {
+                '1234': {
+                  tag: 'test',
+                },
+                '1235': {
+                  tag: 'new',
+                },
+              },
             },
           },
           since: Date.now() / 1000,

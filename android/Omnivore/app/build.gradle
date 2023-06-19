@@ -153,7 +153,7 @@ dependencies {
     kapt "androidx.room:room-compiler:$room_version"
 
     implementation 'com.github.jeziellago:compose-markdown:0.3.3'
-    implementation "io.github.dokar3:chiptextfield:0.4.6"
+    implementation "io.github.dokar3:chiptextfield:0.4.7"
 }
 
 apollo {

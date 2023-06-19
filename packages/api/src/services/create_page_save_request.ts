@@ -112,6 +112,7 @@ export const createPageSaveRequest = async ({
   const ctx = {
     pubsub,
     uid: userId,
+    refresh: true,
   }
   let page = await getPageByParam({
     userId,

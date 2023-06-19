@@ -85,6 +85,11 @@ export function LandingFooter(): JSX.Element {
               </a>
             </li>
             <li>
+              <a href="https://github.com/omnivore-app/omnivore/blob/main/SECURITY.md">
+                Security
+              </a>
+            </li>
+            <li>
               <a href="https://docs.omnivore.app">Read our Docs</a>
             </li>
           </FooterList>

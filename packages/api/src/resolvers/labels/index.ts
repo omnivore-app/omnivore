@@ -180,6 +180,7 @@ export const deleteLabelResolver = authorized<
     await deleteLabel(label.name, {
       pubsub: createPubSubClient(),
       uid,
+      refresh: true,
     })
 
     analytics.track({
@@ -248,6 +249,7 @@ export const setLabelsResolver = authorized<
       {
         pubsub,
         uid,
+        refresh: true,
       },
       labelsToAdd
     )
@@ -340,6 +342,7 @@ export const updateLabelResolver = authorized<
     await updateLabel(label, {
       pubsub,
       uid,
+      refresh: true,
     })
 
     return { label }
@@ -391,6 +394,7 @@ export const setLabelsForHighlightResolver = authorized<
     const updated = await setLabelsForHighlight(highlightId, labels, {
       pubsub,
       uid,
+      refresh: true,
     })
     if (!updated) {
       return {

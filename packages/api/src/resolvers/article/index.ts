@@ -438,15 +438,6 @@ export const getArticleResolver: ResolverFn<
       format === ArticleFormat.Distiller ||
       !!graphqlFields(info).article.originalHtml
 
-    analytics.track({
-      userId: claims?.uid,
-      event: 'link_fetched',
-      properties: {
-        slug,
-        env: env.server.apiEnv,
-      },
-    })
-
     // We allow the backend to use the ID instead of a slug to fetch the article
     const page =
       (await getPageByParam(
@@ -671,6 +662,12 @@ export const setBookmarkArticleResolver = authorized<
       return { errorCodes: [SetBookmarkArticleErrorCode.NotFound] }
     }
 
+    const pageContext = {
+      pubsub,
+      uid,
+      refresh: true, // refresh to make sure the page is deleted
+    }
+
     if (!bookmark) {
       // delete the page and its metadata
       const deleted = await updatePage(
@@ -682,7 +679,7 @@ export const setBookmarkArticleResolver = authorized<
           readingProgressAnchorIndex: 0,
           readingProgressPercent: 0,
         },
-        { pubsub, uid }
+        pageContext
       )
       if (!deleted) {
         return { errorCodes: [SetBookmarkArticleErrorCode.NotFound] }
@@ -724,10 +721,7 @@ export const setBookmarkArticleResolver = authorized<
           userId: uid,
           slug: generateSlug(page.title),
         }
-        const updated = await updatePage(articleID, pageUpdated, {
-          pubsub,
-          uid,
-        })
+        const updated = await updatePage(articleID, pageUpdated, pageContext)
         if (!updated) {
           return { errorCodes: [SetBookmarkArticleErrorCode.NotFound] }
         }
@@ -900,15 +894,6 @@ export const searchResolver = authorized<
 
   const searchQuery = parseSearchQuery(params.query || undefined)
 
-  analytics.track({
-    userId: claims.uid,
-    event: 'search',
-    properties: {
-      env: env.server.apiEnv,
-      ...searchQuery,
-    },
-  })
-
   let results: SearchItemData[]
   let totalCount: number
 
@@ -1035,17 +1020,6 @@ export const updatesSinceResolver = authorized<
     if (!uid) {
       return { errorCodes: [UpdatesSinceErrorCode.Unauthorized] }
     }
-
-    analytics.track({
-      userId: uid,
-      event: 'updatesSince',
-      properties: {
-        env: env.server.apiEnv,
-        since,
-        first,
-        after,
-      },
-    })
 
     const sort = sortParamsToElasticSort(sortParams)
 
@@ -1204,6 +1178,7 @@ export const setFavoriteArticleResolver = authorized<
       {
         uid,
         pubsub,
+        refresh: true,
       },
       page.id,
       label
