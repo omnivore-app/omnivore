@@ -6,6 +6,7 @@ import {
   TagSimple,
   Trash,
   Tray,
+  Tag,
 } from 'phosphor-react'
 import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
 import { Button } from '../../elements/Button'
@@ -79,7 +80,7 @@ export function ArticleActionsMenu(
                   tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
                 >
                   <SpanBox ref={displaySettingsButtonRef}>
-                    <TagSimple
+                    <Tag
                       size={24}
                       color={theme.colors.thHighContrast.toString()}
                     />
@@ -97,10 +98,7 @@ export function ArticleActionsMenu(
                 },
               }}
             >
-              <TagSimple
-                size={24}
-                color={theme.colors.thHighContrast.toString()}
-              />
+              <Tag size={24} color={theme.colors.thHighContrast.toString()} />
             </Button>
           )}
         </SpanBox>
@@ -116,7 +114,7 @@ export function ArticleActionsMenu(
             },
           }}
         >
-          <TagSimple size={24} color={theme.colors.thHighContrast.toString()} />
+          <Tag size={24} color={theme.colors.thHighContrast.toString()} />
         </Button>
 
         <Button
