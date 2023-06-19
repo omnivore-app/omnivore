@@ -228,7 +228,7 @@ export function ArticleActionsMenu(
           onLabelsUpdated={(labels: Label[]) => {
             props.articleActionHandler('refreshLabels', labels)
           }}
-          save={(labels: Label[]) => {
+          save={async (labels: Label[]) => {
             if (props.article?.id) {
               const result =
                 (await setLabelsMutation(
