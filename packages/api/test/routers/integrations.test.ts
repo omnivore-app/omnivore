@@ -1,30 +1,30 @@
-import 'mocha'
-import { createTestElasticPage, request } from '../util'
+import { Storage } from '@google-cloud/storage'
 import { expect } from 'chai'
 import { DateTime } from 'luxon'
+import 'mocha'
+import nock from 'nock'
+import sinon from 'sinon'
 import {
   createPubSubClient,
   PubSubRequestBody,
 } from '../../src/datalayer/pubsub'
-import { User } from '../../src/entity/user'
-import { createTestUser, deleteTestIntegrations, deleteTestUser } from '../db'
-import { Integration, IntegrationType } from '../../src/entity/integration'
-import { getRepository } from '../../src/entity/utils'
+import { addHighlightToPage } from '../../src/elastic/highlights'
+import { deletePage } from '../../src/elastic/pages'
 import {
   Highlight,
   HighlightType,
   Page,
   PageContext,
 } from '../../src/elastic/types'
-import nock from 'nock'
-import { addHighlightToPage } from '../../src/elastic/highlights'
-import { getHighlightUrl } from '../../src/services/highlights'
-import { deletePage } from '../../src/elastic/pages'
-import { READWISE_API_URL } from '../../src/services/integrations/readwise'
-import sinon from 'sinon'
-import { Storage } from '@google-cloud/storage'
-import { MockBucket } from '../mock_storage'
+import { Integration, IntegrationType } from '../../src/entity/integration'
+import { User } from '../../src/entity/user'
+import { getRepository } from '../../src/entity/utils'
 import { env } from '../../src/env'
+import { getHighlightUrl } from '../../src/services/highlights'
+import { READWISE_API_URL } from '../../src/services/integrations/readwise'
+import { createTestUser, deleteTestIntegrations, deleteTestUser } from '../db'
+import { MockBucket } from '../mock_storage'
+import { createTestElasticPage, request } from '../util'
 
 describe('Integrations routers', () => {
   const baseUrl = '/svc/pubsub/integrations'
@@ -349,22 +349,23 @@ describe('Integrations routers', () => {
       })
 
       // mock Pocket API
+      const reqBody = {
+        access_token: token,
+        consumer_key: env.pocket.consumerKey,
+        state: 'all',
+        detailType: 'complete',
+        since: 0,
+        sort: 'oldest',
+        count: 100,
+        offset: 0,
+      }
       nock('https://getpocket.com', {
         reqheaders: {
           'content-type': 'application/json',
           'x-accept': 'application/json',
         },
       })
-        .post('/v3/get', {
-          access_token: token,
-          consumer_key: env.pocket.consumerKey,
-          state: 'all',
-          detailType: 'complete',
-          since: 0,
-          sort: 'oldest',
-          count: 100,
-          offset: 0,
-        })
+        .post('/v3/get', reqBody)
         .reply(200, {
           complete: 1,
           list: {
@@ -382,6 +383,13 @@ describe('Integrations routers', () => {
             },
           },
           since: Date.now() / 1000,
+        })
+        .post('/v3/get', {
+          ...reqBody,
+          offset: 1,
+        })
+        .reply(200, {
+          list: {},
         })
 
       // mock cloud storage

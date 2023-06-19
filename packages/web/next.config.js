@@ -4,7 +4,7 @@ const ContentSecurityPolicy = `
   block-all-mixed-content;
   connect-src 'self' ${process.env.NEXT_PUBLIC_SERVER_BASE_URL} proxy-prod.omnivore-image-cache.app proxy-demo.omnivore-image-cache.app storage.googleapis.com api.segment.io cdn.segment.com widget.intercom.io api-iam.intercom.io wss://nexus-websocket-a.intercom.io platform.twitter.com;
   font-src 'self' data: cdn.jsdelivr.net;
-  form-action 'self' ${process.env.NEXT_PUBLIC_SERVER_BASE_URL};
+  form-action 'self' ${process.env.NEXT_PUBLIC_SERVER_BASE_URL} https://getpocket.com/auth/authorize;
   frame-ancestors 'none';
   frame-src self accounts.google.com platform.twitter.com www.youtube.com www.youtube-nocookie.com;
   manifest-src 'self';
@@ -123,6 +123,11 @@ const moduleExports = {
       {
         source: '/hackers.txt',
         destination: '/.well-known/security.txt',
+        permanent: true,
+      },
+      {
+        source: '/.well-known/security.txt',
+        destination: '/static/well-known/security.txt',
         permanent: true,
       },
       {
