@@ -33,7 +33,7 @@
     "@sentry/nextjs": "^7.42.0",
     "@stitches/react": "^1.2.5",
     "@types/react-input-autosize": "^2.2.1",
-    "antd": "4.24.3",
+    "antd": "5.6.2",
     "axios": "^1.2.0",
     "color2k": "^2.0.0",
     "cookie": "^0.5.0",
