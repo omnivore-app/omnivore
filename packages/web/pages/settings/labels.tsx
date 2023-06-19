@@ -82,6 +82,7 @@ const TableCardBox = styled(Box, {
 })
 
 const inputStyles = {
+  height: '35px',
   backgroundColor: 'transparent',
   color: '$grayTextContrast',
   padding: '6px 6px',

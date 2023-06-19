@@ -17,8 +17,6 @@ const DropdownMenuContent = styled(DropdownMenuPrimitive.Content, {
   borderRadius: 6,
   backgroundColor: '$grayBg',
   padding: 5,
-  boxShadow:
-    '0px 10px 38px -10px rgba(22, 23, 24, 0.35), 0px 10px 20px -15px rgba(22, 23, 24, 0.2)',
 })
 
 const DropdownMenu = DropdownMenuPrimitive.Root
@@ -30,70 +28,8 @@ const DropdownMenuTrigger = styled(DropdownMenuPrimitive.Trigger, {
   marginRight: '$2',
 })
 
-// const MainContainer = styled(Box, {
-//   fontFamily: 'inter',
-//   fontSize: '$2',
-//   lineHeight: '1.25',
-//   color: '$grayText',
-//   display: 'flex',
-//   justifyContent: 'space-between',
-//   alignItems: 'center',
-//   backgroundColor: '$grayBg',
-//   border: '1px solid $grayBorder',
-//   width: '180px',
-//   borderRadius: '$3',
-//   px: '$3',
-//   py: '0px',
-//   cursor: 'pointer',
-//   '&:hover': {
-//     border: '1px solid $grayBorderHover',
-//   },
-//   '@mdDown': {
-//     width: '100%',
-//   },
-// })
-
-const StyledLabel = styled('label', {
-  position: 'relative',
-  width: '154px',
-  height: '40px',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  textAlign: 'center',
-  fontSize: '13px',
-  borderRadius: '50px',
-  overflow: 'hidden',
-
-  '>input': {
-    position: 'absolute',
-    width: '154px',
-    height: '40px',
-
-    appearance: 'none',
-    '-moz-appearance': 'none',
-    '-webkit-appearance': 'none',
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-  },
-
-  '::-webkit-color-swatch': {
-    border: 0,
-    borderRadius: 0,
-  },
-
-  '::-moz-focus-inner': {
-    padding: 0,
-  },
-})
-
 export const LabelColorDropdown = (props: LabelColorDropdownProps) => {
   const { isCreateMode, canEdit, labelId, labelColor, setLabelColor } = props
-
-  const isDarkMode = isDarkTheme()
-  const iconColor = isDarkMode ? '#FFFFFF' : '#0A0806'
-  const [colorPickerValue, setColorPickerValue] = useState(props.labelColor)
   const [open, setOpen] = useState<boolean | undefined>(false)
 
   const handleCustomColorChange = (color: string) => {
@@ -118,122 +54,23 @@ export const LabelColorDropdown = (props: LabelColorDropdownProps) => {
           },
         }}
       >
-        <SpanBox css={{ paddingRight: '$3' }}>
-          <LabelOption
-            isCreateMode={isCreateMode}
-            labelId={''}
-            color={labelColor}
-            isDropdownOption={false}
-          />
-        </SpanBox>
+        <LabelOption
+          isCreateMode={isCreateMode}
+          labelId={''}
+          color={labelColor}
+          isDropdownOption={false}
+        />
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="start" sideOffset={-10}>
+      <DropdownMenuContent align="start" sideOffset={10}>
         <TwitterPicker />
       </DropdownMenuContent>
     </DropdownMenu>
   )
-
-  return (
-    <Box
-      css={{
-        display: 'flex',
-        flexFlow: 'column',
-        alignItems: 'center',
-      }}
-    >
-      <StyledLabel>
-        <input
-          type="color"
-          value={colorPickerValue}
-          onChange={(event) => {
-            // setColorPickerValue(event.target.value)
-            handleCustomColorChange(event.target.value)
-            event.preventDefault()
-          }}
-        />
-        <SpanBox css={{ zIndex: '19', gap: '5px' }}>
-          {labelId ? (
-            <LabelOption
-              isCreateMode={isCreateMode}
-              labelId={labelId}
-              color={labelColor}
-              isDropdownOption={false}
-            />
-          ) : (
-            <LabelOption
-              isCreateMode={isCreateMode}
-              labelId={''}
-              color={labelColor}
-              isDropdownOption={false}
-            />
-          )}
-        </SpanBox>
-      </StyledLabel>
-    </Box>
-  )
-
-  // return (
-  //   <DropdownMenu onOpenChange={handleOpen} open={open}>
-  //     <DropdownMenuTrigger
-  //       css={{
-  //         minWidth: '64px',
-  //         width: '100%',
-  //         '@md': {
-  //           minWidth: '170px',
-  //           width: 'auto',
-  //         },
-  //       }}
-  //     >
-  //       <MainContainer>
-  //         <SpanBox css={{ paddingRight: '$3' }}>
-  //           {labelId !== '' && labelId === labelColorHexRowId ? (
-  //             <LabelOption
-  //               isCreateMode={isCreateMode}
-  //               labelId={labelId}
-  //               color={labelColorHexValue}
-  //               isDropdownOption={false}
-  //             />
-  //           ) : (
-  //             <>
-  //               {labelId ? (
-  //                 <LabelOption
-  //                   isCreateMode={isCreateMode}
-  //                   labelId={labelId}
-  //                   color={labelColor}
-  //                   isDropdownOption={false}
-  //                 />
-  //               ) : (
-  //                 <LabelOption
-  //                   isCreateMode={isCreateMode}
-  //                   labelId={''}
-  //                   color={labelColorHexValue}
-  //                   isDropdownOption={false}
-  //                 />
-  //               )}
-  //             </>
-  //           )}
-  //         </SpanBox>
-
-  //         <CaretDown size={16} color={iconColor} weight="bold" />
-  //       </MainContainer>
-  //     </DropdownMenuTrigger>
-
-  //     <DropdownMenuContent sideOffset={5}>
-  //       <input type="color"></input>
-  //     </DropdownMenuContent>
-  //   </DropdownMenu>
-  // )
 }
 
 function LabelOption(props: LabelOptionProps): JSX.Element {
   const { color, isDropdownOption, isCreateMode, labelId } = props
-  // const colorDetails = getColorDetails(
-  //   color as LabelColor,
-  //   labelId,
-  //   Boolean(isCreateMode)
-  // )
-  const isCreating = isCreateMode && !labelId
   const { text, border, colorName, background } = getLabelColorObject(
     color as LabelColor
   )
@@ -257,11 +94,17 @@ function LabelOption(props: LabelOptionProps): JSX.Element {
     <HStack
       alignment="center"
       distribution="start"
-      css={{ width: '100%', padding: isDropdownOption ? '' : '$2 0' }}
+      css={{
+        width: '100%',
+        height: '35px',
+        padding: '$2 0',
+        border: '1px solid $grayBorder',
+        borderRadius: '6px',
+      }}
     >
       <Box
         css={{
-          m: '$1',
+          m: '10px',
           textTransform: 'capitalize',
           fontSize: '$3',
           whiteSpace: 'nowrap',
@@ -271,7 +114,7 @@ function LabelOption(props: LabelOptionProps): JSX.Element {
       </Box>
       <StyledText
         css={{
-          m: '$1',
+          m: '0px',
           color: '$grayText',
           fontSize: '$3',
           whiteSpace: 'nowrap',
@@ -282,7 +125,6 @@ function LabelOption(props: LabelOptionProps): JSX.Element {
       >
         {colorHex}
       </StyledText>
-      {isDropdownOption ? <Box css={{ pr: '$2' }} /> : null}
     </HStack>
   )
 }
