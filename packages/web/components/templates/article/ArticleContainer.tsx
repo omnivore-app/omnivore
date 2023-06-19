@@ -23,6 +23,8 @@ import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { Recommendation } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { Avatar } from '../../elements/Avatar'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
+import Downshift from 'downshift'
+import { LabelsPicker } from '../../elements/LabelsPicker'
 
 type ArticleContainerProps = {
   viewer: UserBasicData
@@ -421,6 +423,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
             author={props.article.author}
             href={props.article.url}
           />
+
           {labels ? (
             <SpanBox
               css={{

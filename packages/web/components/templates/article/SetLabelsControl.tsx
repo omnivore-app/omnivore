@@ -3,16 +3,15 @@ import Link from 'next/link'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { StyledText } from '../../elements/StyledText'
-import { CrossIcon } from '../../elements/images/CrossIcon'
 import { styled, theme } from '../../tokens/stitches.config'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQuery'
 import { Check, Circle, PencilSimple, Plus } from 'phosphor-react'
-import { isTouchScreenDevice } from '../../../lib/deviceType'
 import { createLabelMutation } from '../../../lib/networking/mutations/createLabelMutation'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { randomLabelColorHex } from '../../../utils/settings-page/labels/labelColorObjects'
 import { useRouter } from 'next/router'
+import { LabelsPicker } from '../../elements/LabelsPicker'
 
 export interface LabelsProvider {
   labels?: Label[]
@@ -21,30 +20,49 @@ export interface LabelsProvider {
 type SetLabelsControlProps = {
   provider: LabelsProvider
 
+  inputValue: string
+  setInputValue: (value: string) => void
+  clearInputState: () => void
+
   selectedLabels: Label[]
   setSelectedLabels: (labels: Label[]) => void
 
   onLabelsUpdated?: (labels: Label[]) => void
+
+  tabCount: number
+  setTabCount: (count: number) => void
+  tabStartValue: string
+  setTabStartValue: (value: string) => void
+
+  highlightLastLabel: boolean
+  setHighlightLastLabel: (set: boolean) => void
+
+  deleteLastLabel: () => void
+  selectOrCreateLabel: (value: string) => void
 }
 
 type HeaderProps = {
-  filterText: string
   focused: boolean
   resetFocusedIndex: () => void
-  setFilterText: (text: string) => void
-}
 
-const FormInput = styled('input', {
-  width: '100%',
-  fontSize: '16px',
-  fontFamily: 'inter',
-  fontWeight: 'normal',
-  lineHeight: '1.8',
-  color: '$grayTextContrast',
-  '&:focus': {
-    outline: 'none',
-  },
-})
+  inputValue: string
+  setInputValue: (value: string) => void
+  clearInputState: () => void
+
+  selectedLabels: Label[]
+  setSelectedLabels: (labels: Label[]) => void
+
+  tabCount: number
+  setTabCount: (count: number) => void
+  tabStartValue: string
+  setTabStartValue: (value: string) => void
+
+  highlightLastLabel: boolean
+  setHighlightLastLabel: (set: boolean) => void
+
+  deleteLastLabel: () => void
+  selectOrCreateLabel: (value: string) => void
+}
 
 const StyledLabel = styled('label', {
   display: 'flex',
@@ -52,18 +70,8 @@ const StyledLabel = styled('label', {
 })
 
 function Header(props: HeaderProps): JSX.Element {
-  const inputRef = useRef<HTMLInputElement>(null)
-
-  useEffect(() => {
-    if (!isTouchScreenDevice() && props.focused && inputRef.current) {
-      inputRef.current.focus()
-    }
-  }, [props.focused])
-
   return (
-    <VStack
-      css={{ width: '100%', my: '0px', borderBottom: '1px solid $grayBorder' }}
-    >
+    <VStack css={{ width: '100%', my: '0px' }}>
       <Box
         css={{
           width: '100%',
@@ -71,33 +79,24 @@ function Header(props: HeaderProps): JSX.Element {
           px: '14px',
         }}
       >
-        <FormInput
-          ref={inputRef}
-          type="text"
-          tabIndex={props.focused && !isTouchScreenDevice() ? 0 : -1}
-          autoFocus={!isTouchScreenDevice()}
-          value={props.filterText}
-          placeholder="Filter for label"
-          onChange={(event) => {
-            props.setFilterText(event.target.value)
-          }}
+        <LabelsPicker
+          focused={props.focused}
+          inputValue={props.inputValue}
+          setInputValue={props.setInputValue}
+          selectedLabels={props.selectedLabels}
+          setSelectedLabels={props.setSelectedLabels}
+          tabCount={props.tabCount}
+          setTabCount={props.setTabCount}
+          tabStartValue={props.tabStartValue}
+          setTabStartValue={props.setTabStartValue}
+          highlightLastLabel={props.highlightLastLabel}
+          setHighlightLastLabel={props.setHighlightLastLabel}
           onFocus={() => {
             props.resetFocusedIndex()
           }}
-          css={{
-            border: '1px solid $grayBorder',
-            borderRadius: '8px',
-            width: '100%',
-            bg: 'transparent',
-            fontSize: '16px',
-            textIndent: '8px',
-            marginBottom: '2px',
-            color: '$grayTextContrast',
-            '&:focus': {
-              outline: 'none',
-              boxShadow: '0px 0px 2px 2px rgba(255, 234, 159, 0.56)',
-            },
-          }}
+          clearInputState={props.clearInputState}
+          deleteLastLabel={props.deleteLastLabel}
+          selectOrCreateLabel={props.selectOrCreateLabel}
         />
       </Box>
     </VStack>
@@ -127,8 +126,11 @@ function LabelListItem(props: LabelListItemProps): JSX.Element {
       css={{
         width: '100%',
         height: '42px',
-        borderBottom: '1px solid $grayBorder',
+        p: '15px',
         bg: props.focused ? '$grayBgActive' : 'unset',
+        '&:focus-visible': {
+          outline: 'none',
+        },
       }}
       tabIndex={props.focused ? 0 : -1}
       onClick={(event) => {
@@ -144,22 +146,6 @@ function LabelListItem(props: LabelListItemProps): JSX.Element {
         checked={selected}
         readOnly
       />
-      <Box
-        css={{
-          pl: '10px',
-          width: '32px',
-          display: 'flex',
-          alignItems: 'center',
-        }}
-      >
-        {selected && (
-          <Check
-            size={15}
-            color={theme.colors.grayText.toString()}
-            weight="bold"
-          />
-        )}
-      </Box>
       <Box
         css={{
           width: '30px',
@@ -183,14 +169,17 @@ function LabelListItem(props: LabelListItemProps): JSX.Element {
       <Box
         css={{
           pl: '10px',
-          width: '40px',
           marginLeft: 'auto',
           display: 'flex',
           alignItems: 'center',
         }}
       >
         {selected && (
-          <CrossIcon size={14} strokeColor={theme.colors.grayText.toString()} />
+          <Check
+            size={15}
+            color={theme.colors.grayText.toString()}
+            weight="bold"
+          />
         )}
       </Box>
     </StyledLabel>
@@ -199,6 +188,7 @@ function LabelListItem(props: LabelListItemProps): JSX.Element {
 
 type FooterProps = {
   focused: boolean
+  filterText: string
 }
 
 function Footer(props: FooterProps): JSX.Element {
@@ -228,24 +218,47 @@ function Footer(props: FooterProps): JSX.Element {
         },
       }}
     >
-      <SpanBox
-        css={{ display: 'flex', fontSize: '12px', padding: '33px', gap: '8px' }}
-      >
-        <PencilSimple size={18} color={theme.colors.grayText.toString()} />
-        <Link href="/settings/labels">Edit labels</Link>
-      </SpanBox>
+      {props.filterText.length > 0 ? (
+        <Button
+          style="modalOption"
+          css={{
+            pl: '26px',
+            position: 'relative',
+            color: theme.colors.grayText.toString(),
+            height: '42px',
+            borderBottom: '1px solid $grayBorder',
+            bg: props.focused ? '$grayBgActive' : 'unset',
+          }}
+          // onClick={createLabelFromFilterText}
+        >
+          <HStack alignment="center" distribution="start" css={{ gap: '8px' }}>
+            <Plus size={18} color={theme.colors.grayText.toString()} />
+            <SpanBox
+              css={{ fontSize: '12px' }}
+            >{`Use Enter to create new label "${props.filterText}"`}</SpanBox>
+          </HStack>
+        </Button>
+      ) : (
+        <SpanBox
+          css={{
+            display: 'flex',
+            fontSize: '12px',
+            padding: '33px',
+            gap: '8px',
+          }}
+        ></SpanBox>
+      )}
     </HStack>
   )
 }
 
 export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
   const router = useRouter()
-  const [filterText, setFilterText] = useState('')
   const { labels, revalidate } = useGetLabelsQuery()
 
   useEffect(() => {
     setFocusedIndex(undefined)
-  }, [filterText])
+  }, [props.inputValue])
 
   const isSelected = useCallback(
     (label: Label): boolean => {
@@ -273,6 +286,7 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
         props.onLabelsUpdated(newSelectedLabels)
       }
 
+      props.clearInputState()
       revalidate()
     },
     [isSelected, props, revalidate]
@@ -284,33 +298,32 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
     }
     return labels
       .filter((label) => {
-        return label.name.toLowerCase().includes(filterText.toLowerCase())
+        return label.name.toLowerCase().includes(props.inputValue.toLowerCase())
       })
       .sort((left: Label, right: Label) => {
         return left.name.localeCompare(right.name)
       })
-  }, [labels, filterText])
+  }, [labels, props.inputValue])
 
   // Move focus through the labels list on tab or arrow up/down keys
   const [focusedIndex, setFocusedIndex] = useState<number | undefined>(
     undefined
   )
 
-  const createLabelFromFilterText = useCallback(async () => {
-    const label = await createLabelMutation(
-      filterText,
-      randomLabelColorHex(),
-      ''
-    )
-    if (label) {
-      showSuccessToast(`Created label ${label.name}`, {
-        position: 'bottom-right',
-      })
-      toggleLabel(label)
-    } else {
-      showErrorToast('Failed to create label', { position: 'bottom-right' })
-    }
-  }, [filterText, toggleLabel])
+  const createLabelFromFilterText = useCallback(
+    async (text: string) => {
+      const label = await createLabelMutation(text, randomLabelColorHex(), '')
+      if (label) {
+        showSuccessToast(`Created label ${label.name}`, {
+          position: 'bottom-right',
+        })
+        toggleLabel(label)
+      } else {
+        showErrorToast('Failed to create label', { position: 'bottom-right' })
+      }
+    },
+    [props.inputValue, toggleLabel]
+  )
 
   const handleKeyDown = useCallback(
     async (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -325,12 +338,12 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
         }
         // If the `Create New label` button isn't visible we skip it
         // when navigating with the arrow keys
-        if (focusedIndex === maxIndex && !filterText) {
+        if (focusedIndex === maxIndex && !props.inputValue) {
           newIndex = maxIndex - 2
         }
         setFocusedIndex(newIndex)
       }
-      if (event.key === 'ArrowDown' || event.key === 'Tab') {
+      if (event.key === 'ArrowDown') {
         event.preventDefault()
         let newIndex = focusedIndex
         if (focusedIndex === undefined) {
@@ -340,7 +353,7 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
         }
         // If the `Create New label` button isn't visible we skip it
         // when navigating with the arrow keys
-        if (focusedIndex === maxIndex - 2 && !filterText) {
+        if (focusedIndex === maxIndex - 2 && !props.inputValue) {
           newIndex = maxIndex
         }
         setFocusedIndex(newIndex)
@@ -352,7 +365,9 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
           return
         }
         if (focusedIndex === maxIndex - 1) {
-          await createLabelFromFilterText()
+          const _filterText = props.inputValue
+          props.setInputValue('')
+          await createLabelFromFilterText(_filterText)
           return
         }
         if (focusedIndex !== undefined) {
@@ -364,7 +379,7 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
       }
     },
     [
-      filterText,
+      props.inputValue,
       filteredLabels,
       focusedIndex,
       createLabelFromFilterText,
@@ -385,55 +400,45 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
       <Header
         focused={focusedIndex === undefined}
         resetFocusedIndex={() => setFocusedIndex(undefined)}
-        setFilterText={setFilterText}
-        filterText={filterText}
+        inputValue={props.inputValue}
+        setInputValue={props.setInputValue}
+        selectedLabels={props.selectedLabels}
+        setSelectedLabels={props.setSelectedLabels}
+        tabCount={props.tabCount}
+        setTabCount={props.setTabCount}
+        tabStartValue={props.tabStartValue}
+        setTabStartValue={props.setTabStartValue}
+        highlightLastLabel={props.highlightLastLabel}
+        setHighlightLastLabel={props.setHighlightLastLabel}
+        deleteLastLabel={props.deleteLastLabel}
+        selectOrCreateLabel={props.selectOrCreateLabel}
+        clearInputState={props.clearInputState}
       />
       <VStack
         distribution="start"
         alignment="start"
         css={{
+          mt: '10px',
           flexGrow: '1',
           width: '100%',
-          height: '294px',
+          height: '200px',
           overflowY: 'scroll',
         }}
       >
-        {filteredLabels &&
-          filteredLabels.map((label, idx) => (
-            <LabelListItem
-              key={label.id}
-              label={label}
-              focused={idx === focusedIndex}
-              selected={isSelected(label)}
-              toggleLabel={toggleLabel}
-            />
-          ))}
+        {filteredLabels.map((label, idx) => (
+          <LabelListItem
+            key={label.id}
+            label={label}
+            focused={idx === focusedIndex}
+            selected={isSelected(label)}
+            toggleLabel={toggleLabel}
+          />
+        ))}
       </VStack>
-      {filterText && (
-        <Button
-          style="modalOption"
-          css={{
-            pl: '26px',
-            color: theme.colors.grayText.toString(),
-            height: '42px',
-            borderBottom: '1px solid $grayBorder',
-            bg:
-              focusedIndex === filteredLabels.length
-                ? '$grayBgActive'
-                : 'unset',
-          }}
-          onClick={createLabelFromFilterText}
-        >
-          <HStack alignment="center" distribution="start" css={{ gap: '8px' }}>
-            <Plus size={18} color={theme.colors.grayText.toString()} />
-            <SpanBox
-              css={{ fontSize: '12px' }}
-            >{`Create new label "${filterText}"`}</SpanBox>
-          </HStack>
-        </Button>
-      )}
-
-      <Footer focused={focusedIndex === filteredLabels.length + 1} />
+      <Footer
+        filterText={props.inputValue}
+        focused={focusedIndex === filteredLabels.length + 1}
+      />
     </VStack>
   )
 }

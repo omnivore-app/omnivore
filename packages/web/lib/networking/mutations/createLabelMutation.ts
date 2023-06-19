@@ -17,14 +17,8 @@ export async function createLabelMutation(
   description?: string
 ): Promise<any | undefined> {
   const mutation = gql`
-    mutation {
-      createLabel(
-        input: {
-          color: "${color}"
-          name: "${name}"
-          description: "${description}"
-        }
-      ) {
+    mutation CreateLabel($input: CreateLabelInput!) {
+      createLabel(input: $input) {
         ... on CreateLabelSuccess {
           label {
             id
@@ -42,8 +36,13 @@ export async function createLabelMutation(
   `
 
   try {
-    const data = await gqlFetcher(mutation) as CreateLabelResult
-    console.log('created label', data)
+    const data = (await gqlFetcher(mutation, {
+      input: {
+        name,
+        color,
+        description,
+      },
+    })) as CreateLabelResult
     return data.errorCodes ? undefined : data.createLabel.label
   } catch (error) {
     console.log('createLabelMutation error', error)
