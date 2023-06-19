@@ -126,6 +126,11 @@ const moduleExports = {
         permanent: true,
       },
       {
+        source: '/.well-known/security.txt',
+        destination: '/static/well-known/security.txt',
+        permanent: true,
+      },
+      {
         source: '/privacy',
         destination: 'https://docs.omnivore.app/about/privacy-policy',
         permanent: true,
