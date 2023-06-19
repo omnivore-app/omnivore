@@ -8,7 +8,6 @@ import {
   LabelOptionProps,
 } from '../../utils/settings-page/labels/types'
 import { labelColorObjects } from '../../utils/settings-page/labels/labelColorObjects'
-import { isDarkTheme } from '../../lib/themeUpdater'
 import { LabelColor } from '../../lib/networking/fragments/labelFragment'
 import { TwitterPicker } from 'react-color'
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu'
@@ -103,6 +102,13 @@ export const LabelColorDropdown = (props: LabelColorDropdownProps) => {
             props.setLabelColor(color.hex.toUpperCase())
             event.preventDefault()
           }}
+          styles={{
+            default: {
+              input: {
+                color: '$grayText',
+              },
+            },
+          }}
         />
       </DropdownMenuContent>
     </DropdownMenu>
@@ -111,25 +117,6 @@ export const LabelColorDropdown = (props: LabelColorDropdownProps) => {
 
 function LabelOption(props: LabelOptionProps): JSX.Element {
   const { color, isDropdownOption, isCreateMode, labelId } = props
-  const { text, border, colorName, background } = getLabelColorObject(
-    color as LabelColor
-  )
-
-  let colorNameText = colorName
-  if (!labelId && isCreateMode) {
-    colorNameText = 'Select Color'
-    colorNameText = isDropdownOption ? colorName : colorNameText
-  }
-
-  colorNameText = color === 'custom color' ? colorNameText : colorName
-
-  let colorHex = !labelId && isCreateMode && !isDropdownOption ? '' : text
-
-  colorHex =
-    !labelId && isCreateMode && !isDropdownOption && color !== 'custom color'
-      ? text
-      : colorHex
-
   return (
     <HStack
       alignment="center"
@@ -150,7 +137,7 @@ function LabelOption(props: LabelOptionProps): JSX.Element {
           whiteSpace: 'nowrap',
         }}
       >
-        <LabelColorIcon color={text} />
+        <LabelColorIcon color={props.color} />
       </Box>
       <StyledText
         css={{
@@ -163,7 +150,7 @@ function LabelOption(props: LabelOptionProps): JSX.Element {
           },
         }}
       >
-        {colorHex}
+        {props.color}
       </StyledText>
     </HStack>
   )
