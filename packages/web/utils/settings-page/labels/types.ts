@@ -1,7 +1,4 @@
-import {
-  Label,
-  LabelColor,
-} from '../../../lib/networking/fragments/labelFragment'
+import { Label } from '../../../lib/networking/fragments/labelFragment'
 
 export type LabelOptionProps = {
   color: string

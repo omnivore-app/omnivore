@@ -24,10 +24,7 @@ import {
   Trash,
   Plus,
 } from 'phosphor-react'
-import {
-  GenericTableCardProps,
-  LabelColorHex,
-} from '../../utils/settings-page/labels/types'
+import { GenericTableCardProps } from '../../utils/settings-page/labels/types'
 import { labelColorObjects } from '../../utils/settings-page/labels/labelColorObjects'
 import { TooltipWrapped } from '../../components/elements/Tooltip'
 import { LabelColorDropdown } from '../../components/elements/LabelColorDropdown'
