@@ -52,6 +52,9 @@ export const LabelColorDropdown = (props: LabelColorDropdownProps) => {
             minWidth: '170px',
             width: 'auto',
           },
+          borderRadius: '6px',
+          outlineStyle: 'solid',
+          outlineColor: open ? '$omnivoreYellow' : 'transparent',
         }}
       >
         <LabelOption
@@ -62,8 +65,35 @@ export const LabelColorDropdown = (props: LabelColorDropdownProps) => {
         />
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="start" sideOffset={10}>
-        <TwitterPicker />
+      <DropdownMenuContent
+        align="start"
+        sideOffset={10}
+        onKeyUp={(event) => {
+          switch (event.key) {
+            case 'Escape':
+              setOpen(false)
+              event.preventDefault()
+              break
+            case 'Enter':
+              setOpen(false)
+              event.preventDefault()
+              break
+          }
+        }}
+      >
+        <TwitterPicker
+          color={labelColor}
+          onChange={(color, event) => {
+            console.log('changed to color: ', color)
+            setLabelColor(color.hex)
+            event.preventDefault()
+          }}
+          onChangeComplete={(color, event) => {
+            console.log('onChangeComplete: ', color)
+            setLabelColor(color.hex)
+            event.preventDefault()
+          }}
+        />
       </DropdownMenuContent>
     </DropdownMenu>
   )
