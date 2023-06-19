@@ -5,6 +5,7 @@ import { Label } from '../../lib/networking/fragments/labelFragment'
 import { useGetLabelsQuery } from '../../lib/networking/queries/useGetLabelsQuery'
 import { LabelChip } from './LabelChip'
 import { isTouchScreenDevice } from '../../lib/deviceType'
+import { EditLabelLabelChip } from './EditLabelChip'
 
 type LabelsPickerProps = {
   selectedLabels: Label[]
@@ -126,7 +127,7 @@ export const LabelsPicker = (props: LabelsPickerProps): JSX.Element => {
       }}
     >
       {props.selectedLabels.map((label, idx) => (
-        <LabelChip
+        <EditLabelLabelChip
           key={label.id}
           text={label.name}
           color={label.color}
@@ -141,7 +142,6 @@ export const LabelsPicker = (props: LabelsPickerProps): JSX.Element => {
               props.setSelectedLabels([..._selectedLabels])
             }
           }}
-          useAppAppearance={true}
         />
       ))}
       <SpanBox
