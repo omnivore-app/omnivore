@@ -235,7 +235,7 @@ function Footer(props: FooterProps): JSX.Element {
             <Plus size={18} color={theme.colors.grayText.toString()} />
             <SpanBox
               css={{ fontSize: '12px' }}
-            >{`Create new label "${props.filterText}"`}</SpanBox>
+            >{`Use Enter to create new label "${props.filterText}"`}</SpanBox>
           </HStack>
         </Button>
       ) : (
@@ -246,10 +246,7 @@ function Footer(props: FooterProps): JSX.Element {
             padding: '33px',
             gap: '8px',
           }}
-        >
-          <PencilSimple size={18} color={theme.colors.grayText.toString()} />
-          <Link href="/settings/labels">Edit labels</Link>
-        </SpanBox>
+        ></SpanBox>
       )}
     </HStack>
   )
