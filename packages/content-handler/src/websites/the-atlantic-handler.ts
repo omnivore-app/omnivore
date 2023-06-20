@@ -13,6 +13,13 @@ export class TheAtlanticHandler extends ContentHandler {
     return u.hostname.endsWith('theatlantic.com')
   }
 
+  removeRelatedContentLinks(articleContent: Element): Node[] {
+    const content = Array.from(articleContent.children)
+    return content.filter(
+      (paragraph) => !paragraph.className.startsWith('ArticleRelated')
+    )
+  }
+
   unfurlContent(content: Document): Document {
     const articleContentSection = content.querySelector(
       '[data-event-module="article body"]'
@@ -22,11 +29,12 @@ export class TheAtlanticHandler extends ContentHandler {
       return content
     }
 
+    const articleContent = this.removeRelatedContentLinks(articleContentSection)
     const divOverArticle = content.createElement('div')
     divOverArticle.setAttribute('id', 'prehandled')
-    divOverArticle.innerHTML += articleContentSection.innerHTML
-    content.insertBefore(divOverArticle, articleContentSection)
+    articleContent.forEach((it) => divOverArticle.appendChild(it))
 
+    content.insertBefore(divOverArticle, articleContentSection)
     articleContentSection.remove()
 
     return content
