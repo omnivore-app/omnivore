@@ -14,7 +14,7 @@ const signToken = promisify(jwt.sign);
 const os = require('os');
 const { Storage } = require('@google-cloud/storage');
 const { parseHTML } = require('linkedom');
-const { preHandleContent, preParseContent } = require('../content-handler/src/index');
+const { preHandleContent, preParseContent } = require("@omnivore/content-handler");
 const { Readability } = require("@omnivore/readability");
 
 const puppeteer = require('puppeteer-extra');
