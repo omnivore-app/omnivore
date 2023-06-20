@@ -112,6 +112,9 @@ export const LabelsPicker = (props: LabelsPickerProps): JSX.Element => {
           marginTop: '0px',
           marginBottom: '0px',
         },
+        '>input': {
+          fontSize: '16px',
+        },
       }}
       onMouseDown={(event) => {
         inputRef.current?.focus()
@@ -153,9 +156,13 @@ export const LabelsPicker = (props: LabelsPickerProps): JSX.Element => {
         }}
       >
         <AutosizeInput
-          placeholder={isEmpty ? 'Filter for label' : undefined}
+          placeholder={isEmpty ? 'Add Labels' : undefined}
           inputRef={(ref) => {
             inputRef.current = ref
+          }}
+          inputStyle={{
+            fontSize: '16px',
+            minWidth: '100px',
           }}
           onFocus={() => {
             if (props.onFocus) {
