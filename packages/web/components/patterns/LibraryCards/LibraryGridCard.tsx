@@ -4,7 +4,7 @@ import type { LinkedItemCardProps } from './CardTypes'
 import { CoverImage } from '../../elements/CoverImage'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { DotsThreeVertical } from 'phosphor-react'
 import Link from 'next/link'
 import { CardMenu } from '../CardMenu'
@@ -104,12 +104,13 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
 }
 
 const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
+  const { isChecked, setIsChecked, item } = props
   const [menuOpen, setMenuOpen] = useState(false)
   const originText = siteName(props.item.originalArticleUrl, props.item.url)
 
   const handleCheckChanged = useCallback(() => {
-    props.setIsChecked(props.item.id, !props.isChecked)
-  }, [props.isChecked])
+    setIsChecked(item.id, !isChecked)
+  }, [setIsChecked, isChecked])
 
   return (
     <>

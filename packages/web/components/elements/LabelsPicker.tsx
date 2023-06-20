@@ -1,11 +1,11 @@
 import AutosizeInput from 'react-input-autosize'
 import { Box, SpanBox } from './LayoutPrimitives'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { Label } from '../../lib/networking/fragments/labelFragment'
 import { useGetLabelsQuery } from '../../lib/networking/queries/useGetLabelsQuery'
-import { LabelChip } from './LabelChip'
 import { isTouchScreenDevice } from '../../lib/deviceType'
 import { EditLabelLabelChip } from './EditLabelChip'
+import { LabelsDispatcher } from '../../lib/hooks/useSetPageLabels'
 
 type LabelsPickerProps = {
   selectedLabels: Label[]
@@ -16,7 +16,7 @@ type LabelsPickerProps = {
   clearInputState: () => void
 
   onFocus?: () => void
-  setSelectedLabels: (labels: Label[]) => void
+  dispatchLabels: LabelsDispatcher
 
   deleteLastLabel: () => void
   selectOrCreateLabel: (value: string) => void
@@ -33,32 +33,42 @@ type LabelsPickerProps = {
 export const LabelsPicker = (props: LabelsPickerProps): JSX.Element => {
   const inputRef = useRef<HTMLInputElement | null>()
   const availableLabels = useGetLabelsQuery()
+  const {
+    focused,
+    inputValue,
+    tabCount,
+    tabStartValue,
+    selectedLabels,
+    setInputValue,
+    setTabCount,
+    setTabStartValue,
+  } = props
 
   useEffect(() => {
-    if (!isTouchScreenDevice() && props.focused && inputRef.current) {
+    if (!isTouchScreenDevice() && focused && inputRef.current) {
       inputRef.current.focus()
     }
-  }, [props.focused])
+  }, [focused])
 
   const autoComplete = useCallback(() => {
-    const lowerCasedValue = props.inputValue.toLowerCase()
+    const lowerCasedValue = inputValue.toLowerCase()
 
     if (lowerCasedValue.length < 1) {
       return
     }
 
-    let _tabCount = props.tabCount
-    let _tabStartValue = props.tabStartValue.toLowerCase()
+    let _tabCount = tabCount
+    let _tabStartValue = tabStartValue.toLowerCase()
 
     if (_tabCount === -1) {
       _tabCount = 0
       _tabStartValue = lowerCasedValue
 
-      props.setTabCount(0)
-      props.setTabStartValue(lowerCasedValue)
+      setTabCount(0)
+      setTabStartValue(lowerCasedValue)
     } else {
-      _tabCount = props.tabCount + 1
-      props.setTabCount(_tabCount)
+      _tabCount = tabCount + 1
+      setTabCount(_tabCount)
     }
 
     const matches = availableLabels.labels.filter((l) =>
@@ -66,21 +76,29 @@ export const LabelsPicker = (props: LabelsPickerProps): JSX.Element => {
     )
 
     if (_tabCount < matches.length) {
-      props.setInputValue(matches[_tabCount].name)
+      setInputValue(matches[_tabCount].name)
     } else if (matches.length > 0) {
-      props.setTabCount(0)
-      props.setInputValue(matches[0].name)
+      setTabCount(0)
+      setInputValue(matches[0].name)
     }
-  }, [props.inputValue, availableLabels, props.tabCount, props.tabStartValue])
+  }, [
+    inputValue,
+    availableLabels,
+    tabCount,
+    tabStartValue,
+    setInputValue,
+    setTabCount,
+    setTabStartValue,
+  ])
 
   const clearTabState = useCallback(() => {
-    props.setTabCount(-1)
-    props.setTabStartValue('')
-  }, [])
+    setTabCount(-1)
+    setTabStartValue('')
+  }, [setTabCount, setTabStartValue])
 
   const isEmpty = useMemo(() => {
-    return props.selectedLabels.length === 0 && props.inputValue.length === 0
-  }, [props.inputValue, props.selectedLabels])
+    return selectedLabels.length === 0 && inputValue.length === 0
+  }, [inputValue, selectedLabels])
 
   return (
     <Box
@@ -112,9 +130,13 @@ export const LabelsPicker = (props: LabelsPickerProps): JSX.Element => {
           marginTop: '0px',
           marginBottom: '0px',
         },
+        '>input': {
+          fontSize: '16px',
+        },
       }}
       onMouseDown={(event) => {
         inputRef.current?.focus()
+        props.setHighlightLastLabel(false)
         inputRef.current?.setSelectionRange(
           inputRef.current?.value.length,
           inputRef.current?.value.length
@@ -123,7 +145,9 @@ export const LabelsPicker = (props: LabelsPickerProps): JSX.Element => {
       }}
       onDoubleClick={(event) => {
         inputRef.current?.focus()
+        props.setHighlightLastLabel(false)
         inputRef.current?.setSelectionRange(0, inputRef.current?.value.length)
+        event.preventDefault()
       }}
     >
       {props.selectedLabels.map((label, idx) => (
@@ -139,7 +163,10 @@ export const LabelsPicker = (props: LabelsPickerProps): JSX.Element => {
             if (idx !== -1) {
               const _selectedLabels = props.selectedLabels
               _selectedLabels.splice(idx, 1)
-              props.setSelectedLabels([..._selectedLabels])
+              props.dispatchLabels({
+                type: 'SAVE',
+                labels: [..._selectedLabels],
+              })
             }
           }}
         />
@@ -153,9 +180,16 @@ export const LabelsPicker = (props: LabelsPickerProps): JSX.Element => {
         }}
       >
         <AutosizeInput
-          placeholder={isEmpty ? 'Filter for label' : undefined}
+          placeholder={isEmpty ? 'Add Labels' : undefined}
           inputRef={(ref) => {
             inputRef.current = ref
+          }}
+          inputStyle={{
+            fontSize: '16px',
+            minWidth:
+              props.inputValue.length == 0 && props.selectedLabels.length == 0
+                ? '100px'
+                : '2px',
           }}
           onFocus={() => {
             if (props.onFocus) {

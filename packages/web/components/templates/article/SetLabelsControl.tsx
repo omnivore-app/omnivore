@@ -1,17 +1,17 @@
 import { useCallback, useRef, useState, useMemo, useEffect } from 'react'
-import Link from 'next/link'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { StyledText } from '../../elements/StyledText'
 import { styled, theme } from '../../tokens/stitches.config'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQuery'
-import { Check, Circle, PencilSimple, Plus } from 'phosphor-react'
+import { Check, Circle, Plus, WarningCircle } from 'phosphor-react'
 import { createLabelMutation } from '../../../lib/networking/mutations/createLabelMutation'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { randomLabelColorHex } from '../../../utils/settings-page/labels/labelColorObjects'
 import { useRouter } from 'next/router'
 import { LabelsPicker } from '../../elements/LabelsPicker'
+import { LabelsDispatcher } from '../../../lib/hooks/useSetPageLabels'
 
 export interface LabelsProvider {
   labels?: Label[]
@@ -25,9 +25,7 @@ type SetLabelsControlProps = {
   clearInputState: () => void
 
   selectedLabels: Label[]
-  setSelectedLabels: (labels: Label[]) => void
-
-  onLabelsUpdated?: (labels: Label[]) => void
+  dispatchLabels: LabelsDispatcher
 
   tabCount: number
   setTabCount: (count: number) => void
@@ -39,29 +37,13 @@ type SetLabelsControlProps = {
 
   deleteLastLabel: () => void
   selectOrCreateLabel: (value: string) => void
+
+  errorMessage?: string
 }
 
-type HeaderProps = {
+type HeaderProps = SetLabelsControlProps & {
   focused: boolean
   resetFocusedIndex: () => void
-
-  inputValue: string
-  setInputValue: (value: string) => void
-  clearInputState: () => void
-
-  selectedLabels: Label[]
-  setSelectedLabels: (labels: Label[]) => void
-
-  tabCount: number
-  setTabCount: (count: number) => void
-  tabStartValue: string
-  setTabStartValue: (value: string) => void
-
-  highlightLastLabel: boolean
-  setHighlightLastLabel: (set: boolean) => void
-
-  deleteLastLabel: () => void
-  selectOrCreateLabel: (value: string) => void
 }
 
 const StyledLabel = styled('label', {
@@ -75,7 +57,8 @@ function Header(props: HeaderProps): JSX.Element {
       <Box
         css={{
           width: '100%',
-          my: '14px',
+          mt: '10px',
+          mb: '5px',
           px: '14px',
         }}
       >
@@ -84,7 +67,7 @@ function Header(props: HeaderProps): JSX.Element {
           inputValue={props.inputValue}
           setInputValue={props.setInputValue}
           selectedLabels={props.selectedLabels}
-          setSelectedLabels={props.setSelectedLabels}
+          dispatchLabels={props.dispatchLabels}
           tabCount={props.tabCount}
           setTabCount={props.setTabCount}
           tabStartValue={props.tabStartValue}
@@ -254,20 +237,32 @@ function Footer(props: FooterProps): JSX.Element {
 
 export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
   const router = useRouter()
+  const { inputValue, setInputValue, selectedLabels, setHighlightLastLabel } =
+    props
   const { labels, revalidate } = useGetLabelsQuery()
+  // Move focus through the labels list on tab or arrow up/down keys
+  const [focusedIndex, setFocusedIndex] = useState<number | undefined>(
+    undefined
+  )
 
   useEffect(() => {
     setFocusedIndex(undefined)
-  }, [props.inputValue])
+  }, [inputValue])
 
   const isSelected = useCallback(
     (label: Label): boolean => {
-      return props.selectedLabels.some((other) => {
+      return selectedLabels.some((other) => {
         return other.id === label.id
       })
     },
-    [props.selectedLabels]
+    [selectedLabels]
   )
+
+  useEffect(() => {
+    if (focusedIndex === 0) {
+      setHighlightLastLabel(false)
+    }
+  }, [setHighlightLastLabel, focusedIndex])
 
   const toggleLabel = useCallback(
     async (label: Label) => {
@@ -279,12 +274,8 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
       } else {
         newSelectedLabels = [...props.selectedLabels, label]
       }
-      props.setSelectedLabels(newSelectedLabels)
+      props.dispatchLabels({ type: 'SAVE', labels: newSelectedLabels })
       props.provider.labels = newSelectedLabels
-
-      if (props.onLabelsUpdated) {
-        props.onLabelsUpdated(newSelectedLabels)
-      }
 
       props.clearInputState()
       revalidate()
@@ -298,17 +289,12 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
     }
     return labels
       .filter((label) => {
-        return label.name.toLowerCase().includes(props.inputValue.toLowerCase())
+        return label.name.toLowerCase().includes(inputValue.toLowerCase())
       })
       .sort((left: Label, right: Label) => {
         return left.name.localeCompare(right.name)
       })
-  }, [labels, props.inputValue])
-
-  // Move focus through the labels list on tab or arrow up/down keys
-  const [focusedIndex, setFocusedIndex] = useState<number | undefined>(
-    undefined
-  )
+  }, [labels, inputValue])
 
   const createLabelFromFilterText = useCallback(
     async (text: string) => {
@@ -322,7 +308,7 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
         showErrorToast('Failed to create label', { position: 'bottom-right' })
       }
     },
-    [props.inputValue, toggleLabel]
+    [toggleLabel]
   )
 
   const handleKeyDown = useCallback(
@@ -338,7 +324,7 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
         }
         // If the `Create New label` button isn't visible we skip it
         // when navigating with the arrow keys
-        if (focusedIndex === maxIndex && !props.inputValue) {
+        if (focusedIndex === maxIndex && !inputValue) {
           newIndex = maxIndex - 2
         }
         setFocusedIndex(newIndex)
@@ -353,7 +339,7 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
         }
         // If the `Create New label` button isn't visible we skip it
         // when navigating with the arrow keys
-        if (focusedIndex === maxIndex - 2 && !props.inputValue) {
+        if (focusedIndex === maxIndex - 2 && !inputValue) {
           newIndex = maxIndex
         }
         setFocusedIndex(newIndex)
@@ -365,8 +351,8 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
           return
         }
         if (focusedIndex === maxIndex - 1) {
-          const _filterText = props.inputValue
-          props.setInputValue('')
+          const _filterText = inputValue
+          setInputValue('')
           await createLabelFromFilterText(_filterText)
           return
         }
@@ -379,7 +365,8 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
       }
     },
     [
-      props.inputValue,
+      inputValue,
+      setInputValue,
       filteredLabels,
       focusedIndex,
       createLabelFromFilterText,
@@ -398,12 +385,13 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
       }}
     >
       <Header
+        provider={props.provider}
         focused={focusedIndex === undefined}
         resetFocusedIndex={() => setFocusedIndex(undefined)}
-        inputValue={props.inputValue}
-        setInputValue={props.setInputValue}
+        inputValue={inputValue}
+        setInputValue={setInputValue}
         selectedLabels={props.selectedLabels}
-        setSelectedLabels={props.setSelectedLabels}
+        dispatchLabels={props.dispatchLabels}
         tabCount={props.tabCount}
         setTabCount={props.setTabCount}
         tabStartValue={props.tabStartValue}
@@ -414,6 +402,28 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
         selectOrCreateLabel={props.selectOrCreateLabel}
         clearInputState={props.clearInputState}
       />
+      <Box
+        css={{
+          width: '100%',
+          height: '15px',
+          color: '#FF3B30',
+          fontSize: '12px',
+          fontFamily: '$inter',
+          gap: '5px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'end',
+          paddingRight: '15px',
+          m: '0px',
+        }}
+      >
+        {props.errorMessage && (
+          <>
+            {props.errorMessage}
+            <WarningCircle color="#FF3B30" size={15} />
+          </>
+        )}
+      </Box>
       <VStack
         distribution="start"
         alignment="start"
@@ -436,7 +446,7 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
         ))}
       </VStack>
       <Footer
-        filterText={props.inputValue}
+        filterText={inputValue}
         focused={focusedIndex === filteredLabels.length + 1}
       />
     </VStack>

@@ -22,12 +22,9 @@ import { NotebookModal } from './NotebookModal'
 import { showErrorToast } from '../../../lib/toastHelpers'
 import { ArticleMutations } from '../../../lib/articleActions'
 import { isTouchScreenDevice } from '../../../lib/deviceType'
-import { SetLabelsModal } from './SetLabelsModal'
-import { setLabelsForHighlight } from '../../../lib/networking/mutations/setLabelsForHighlight'
-import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
-import { useRegisterActions } from 'kbar'
+import { SetHighlightLabelsModalPresenter } from './SetLabelsModalPresenter'
 
 type HighlightsLayerProps = {
   viewer: UserBasicData
@@ -673,18 +670,10 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
 
   if (labelsTarget) {
     return (
-      <SetLabelsModal
-        provider={labelsTarget}
-        onOpenChange={function (): void {
-          setLabelsTarget(undefined)
-        }}
-        save={function (labels: Label[]): Promise<Label[] | undefined> {
-          const result = setLabelsForHighlight(
-            labelsTarget.id,
-            labels.map((label) => label.id)
-          )
-          return result
-        }}
+      <SetHighlightLabelsModalPresenter
+        highlight={labelsTarget}
+        highlightId={labelsTarget.id}
+        onOpenChange={() => setLabelsTarget(undefined)}
       />
     )
   }

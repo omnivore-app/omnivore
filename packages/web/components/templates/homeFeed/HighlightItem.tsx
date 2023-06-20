@@ -1,6 +1,4 @@
-import { Item } from '@radix-ui/react-dropdown-menu'
 import Link from 'next/link'
-import { useRouter } from 'next/router'
 import { DotsThreeVertical } from 'phosphor-react'
 import { useCallback } from 'react'
 import { Highlight } from '../../../lib/networking/fragments/highlightFragment'
@@ -12,7 +10,7 @@ import {
   DropdownOption,
   DropdownSeparator,
 } from '../../elements/DropdownElements'
-import { Box, SpanBox } from '../../elements/LayoutPrimitives'
+import { Box } from '../../elements/LayoutPrimitives'
 
 import { styled, theme } from '../../tokens/stitches.config'
 

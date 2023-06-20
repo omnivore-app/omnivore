@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import {
@@ -13,76 +13,102 @@ import { showSuccessToast } from '../../../lib/toastHelpers'
 import { useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQuery'
 import { v4 as uuidv4 } from 'uuid'
 import { randomLabelColorHex } from '../../../utils/settings-page/labels/labelColorObjects'
+import { LabelsDispatcher } from '../../../lib/hooks/useSetPageLabels'
 
 type SetLabelsModalProps = {
   provider: LabelsProvider
 
-  onLabelsUpdated?: (labels: Label[]) => void
   onOpenChange: (open: boolean) => void
-  save: (labels: Label[]) => Promise<Label[] | undefined>
+
+  selectedLabels: Label[]
+  dispatchLabels: LabelsDispatcher
 }
 
 export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
   const [inputValue, setInputValue] = useState('')
+  const { selectedLabels, dispatchLabels } = props
   const availableLabels = useGetLabelsQuery()
   const [tabCount, setTabCount] = useState(-1)
   const [tabStartValue, setTabStartValue] = useState('')
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(
+    undefined
+  )
+  const errorTimeoutRef = useRef<NodeJS.Timeout | undefined>()
   const [highlightLastLabel, setHighlightLastLabel] = useState(false)
 
-  const [selectedLabels, setSelectedLabels] = useState(
-    props.provider.labels ?? []
-  )
-
-  const containsTemporaryLabel = (labels: Label[]) => {
-    return !!labels.find((l) => '_temporary' in l)
-  }
-
-  const onOpenChange = useCallback(
-    (open: boolean) => {
-      ;(async () => {
-        await props.save(selectedLabels)
-        props.onOpenChange(open)
-      })()
+  const showMessage = useCallback(
+    (msg: string, timeout?: number) => {
+      if (errorTimeoutRef.current) {
+        clearTimeout(errorTimeoutRef.current)
+        errorTimeoutRef.current = undefined
+      }
+      setErrorMessage(msg)
+      if (timeout) {
+        errorTimeoutRef.current = setTimeout(() => {
+          setErrorMessage(undefined)
+          if (errorTimeoutRef.current) {
+            clearTimeout(errorTimeoutRef.current)
+            errorTimeoutRef.current = undefined
+          }
+        }, timeout)
+      }
     },
-    [props, selectedLabels]
+    [errorTimeoutRef]
   )
 
-  const showMessage = useCallback((msg: string) => {
-    console.log('showMessage: ', msg)
-  }, [])
+  useEffect(() => {
+    const maxLengthMessage = 'Max label length: 48 chars'
+
+    if (inputValue.length >= 48) {
+      showMessage(maxLengthMessage)
+    } else if (errorMessage === maxLengthMessage) {
+      setErrorMessage(undefined)
+    }
+
+    if (inputValue.length > 0) {
+      setHighlightLastLabel(false)
+    }
+  }, [errorMessage, inputValue, showMessage])
 
   const clearInputState = useCallback(() => {
     setTabCount(-1)
     setInputValue('')
     setTabStartValue('')
     setHighlightLastLabel(false)
-  }, [tabCount, tabStartValue, highlightLastLabel])
+  }, [])
 
   const createLabelAsync = useCallback(
-    (tempLabel: Label) => {
+    (newLabels: Label[], tempLabel: Label) => {
       ;(async () => {
-        const currentLabels = selectedLabels
+        const currentLabels = newLabels
         const newLabel = await createLabelMutation(
           tempLabel.name,
           tempLabel.color
         )
+        const idx = currentLabels.findIndex((l) => l.id === tempLabel.id)
         if (newLabel) {
-          const idx = currentLabels.findIndex((l) => l.id === tempLabel.id)
           showSuccessToast(`Created label ${newLabel.name}`, {
             position: 'bottom-right',
           })
           if (idx !== -1) {
             currentLabels[idx] = newLabel
-            setSelectedLabels([...currentLabels])
+            dispatchLabels({ type: 'SAVE', labels: [...currentLabels] })
           } else {
-            setSelectedLabels([...currentLabels, newLabel])
+            dispatchLabels({
+              type: 'SAVE',
+              labels: [...currentLabels, newLabel],
+            })
           }
         } else {
-          showMessage(`Error creating label ${tempLabel.name}`)
+          showMessage(`Error creating label ${tempLabel.name}`, 5000)
+          if (idx !== -1) {
+            currentLabels.splice(idx, 1)
+            dispatchLabels({ type: 'SAVE', labels: [...currentLabels] })
+          }
         }
       })()
     },
-    [selectedLabels]
+    [dispatchLabels, showMessage]
   )
 
   const selectOrCreateLabel = useCallback(
@@ -102,10 +128,10 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
           (l) => l.name.toLowerCase() == lowerCasedValue
         )
         if (!isAdded) {
-          setSelectedLabels([...current, existing])
+          dispatchLabels({ type: 'SAVE', labels: [...current, existing] })
           clearInputState()
         } else {
-          showMessage(`label ${value} already added.`)
+          showMessage(`label ${value} already added.`, 5000)
         }
       } else {
         const tempLabel = {
@@ -114,17 +140,18 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
           color: randomLabelColorHex(),
           description: '',
           createdAt: new Date(),
-          _temporary: true,
         }
-        setSelectedLabels([...current, tempLabel])
+        const newLabels = [...current, tempLabel]
+        dispatchLabels({ type: 'TEMP', labels: newLabels })
         clearInputState()
 
-        createLabelAsync(tempLabel)
+        createLabelAsync(newLabels, tempLabel)
       }
     },
     [
       availableLabels,
       selectedLabels,
+      dispatchLabels,
       clearInputState,
       createLabelAsync,
       showMessage,
@@ -135,23 +162,15 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
     if (highlightLastLabel) {
       const current = selectedLabels
       current.pop()
-      setSelectedLabels([...current])
+      dispatchLabels({ type: 'SAVE', labels: [...current] })
       setHighlightLastLabel(false)
     } else {
       setHighlightLastLabel(true)
     }
-  }, [highlightLastLabel, selectedLabels])
-
-  useEffect(() => {
-    if (!containsTemporaryLabel(selectedLabels)) {
-      ;(async () => {
-        await props.save(selectedLabels)
-      })()
-    }
-  }, [props, selectedLabels])
+  }, [highlightLastLabel, selectedLabels, dispatchLabels])
 
   return (
-    <ModalRoot defaultOpen onOpenChange={onOpenChange}>
+    <ModalRoot defaultOpen onOpenChange={props.onOpenChange}>
       <ModalOverlay />
       <ModalContent
         css={{
@@ -160,21 +179,20 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
         }}
         onPointerDownOutside={(event) => {
           event.preventDefault()
-          onOpenChange(false)
+          props.onOpenChange(false)
         }}
       >
         <VStack distribution="start" css={{ height: '100%' }}>
           <SpanBox css={{ pt: '0px', px: '16px', width: '100%' }}>
-            <ModalTitleBar title="Labels" onOpenChange={onOpenChange} />
+            <ModalTitleBar title="Labels" onOpenChange={props.onOpenChange} />
           </SpanBox>
           <SetLabelsControl
             provider={props.provider}
             inputValue={inputValue}
             setInputValue={setInputValue}
             clearInputState={clearInputState}
-            selectedLabels={selectedLabels}
-            setSelectedLabels={setSelectedLabels}
-            onLabelsUpdated={props.onLabelsUpdated}
+            selectedLabels={props.selectedLabels}
+            dispatchLabels={props.dispatchLabels}
             tabCount={tabCount}
             setTabCount={setTabCount}
             tabStartValue={tabStartValue}
@@ -183,6 +201,7 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
             setHighlightLastLabel={setHighlightLastLabel}
             deleteLastLabel={deleteLastLabel}
             selectOrCreateLabel={selectOrCreateLabel}
+            errorMessage={errorMessage}
           />
         </VStack>
       </ModalContent>

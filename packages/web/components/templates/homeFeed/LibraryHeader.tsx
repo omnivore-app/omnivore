@@ -418,20 +418,6 @@ function MultiSelectControlButtonBox(
         />
         <SpanBox css={{ '@lgDown': { display: 'none' } }}>Archive</SpanBox>
       </Button>
-      {/* <Button
-        style="outline"
-        onClick={(e) => {
-          props.performMultiSelectAction(BulkAction.ADD_LABELS)
-          e.preventDefault()
-        }}
-      >
-        <TagSimple
-          width={20}
-          height={20}
-          color={theme.colors.thTextContrast2.toString()}
-        />
-        <SpanBox css={{ '@lgDown': { display: 'none' } }}>Label</SpanBox>
-      </Button> */}
       <Button
         style="outline"
         onClick={(e) => {
