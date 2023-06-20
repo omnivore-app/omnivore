@@ -187,7 +187,7 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
         await props.save(selectedLabels)
       })()
     }
-  }, [props, selectedLabels])
+  }, [props.save, selectedLabels])
 
   return (
     <ModalRoot defaultOpen onOpenChange={onOpenChange}>
