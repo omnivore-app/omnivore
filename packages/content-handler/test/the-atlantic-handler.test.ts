@@ -37,7 +37,7 @@ describe('Testing the atlantic opening', () => {
       'https://theatlantic.com/article'
     );
 
-    // We grab the title from the doucment. 
+    // We name the div to ensure we can validate that it has been inserted.
     expect(response.dom?.getElementById('prehandled')).not.to.be.null
   })
 
@@ -46,7 +46,7 @@ describe('Testing the atlantic opening', () => {
       'https://theatlantic.com/article'
     );
 
-    // We grab the title from the doucment. 
+    // This exists in the HTML, but we remove it when preparsing.
     expect(response.dom?.getElementsByClassName('ArticleRelatedContentModule_root__BBa6g').length).to.eql(0)
   })
 })
