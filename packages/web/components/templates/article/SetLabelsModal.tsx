@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import {
@@ -27,6 +27,10 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
   const availableLabels = useGetLabelsQuery()
   const [tabCount, setTabCount] = useState(-1)
   const [tabStartValue, setTabStartValue] = useState('')
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(
+    undefined
+  )
+  const errorTimeoutRef = useRef<NodeJS.Timeout | undefined>()
   const [highlightLastLabel, setHighlightLastLabel] = useState(false)
 
   const [selectedLabels, setSelectedLabels] = useState(
@@ -47,9 +51,35 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
     [props, selectedLabels]
   )
 
-  const showMessage = useCallback((msg: string) => {
-    console.log('showMessage: ', msg)
-  }, [])
+  const showMessage = useCallback(
+    (msg: string, timeout?: number) => {
+      if (errorTimeoutRef.current) {
+        clearTimeout(errorTimeoutRef.current)
+        errorTimeoutRef.current = undefined
+      }
+      setErrorMessage(msg)
+      if (timeout) {
+        errorTimeoutRef.current = setTimeout(() => {
+          setErrorMessage(undefined)
+          if (errorTimeoutRef.current) {
+            clearTimeout(errorTimeoutRef.current)
+            errorTimeoutRef.current = undefined
+          }
+        }, timeout)
+      }
+    },
+    [errorTimeoutRef]
+  )
+
+  useEffect(() => {
+    const maxLengthMessage = 'Max label length: 48 chars'
+
+    if (inputValue.length >= 48) {
+      showMessage(maxLengthMessage)
+    } else if (errorMessage === maxLengthMessage) {
+      setErrorMessage(undefined)
+    }
+  }, [inputValue, showMessage])
 
   const clearInputState = useCallback(() => {
     setTabCount(-1)
@@ -59,15 +89,15 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
   }, [tabCount, tabStartValue, highlightLastLabel])
 
   const createLabelAsync = useCallback(
-    (tempLabel: Label) => {
+    (newLabels: Label[], tempLabel: Label) => {
       ;(async () => {
-        const currentLabels = selectedLabels
+        const currentLabels = newLabels
         const newLabel = await createLabelMutation(
           tempLabel.name,
           tempLabel.color
         )
+        const idx = currentLabels.findIndex((l) => l.id === tempLabel.id)
         if (newLabel) {
-          const idx = currentLabels.findIndex((l) => l.id === tempLabel.id)
           showSuccessToast(`Created label ${newLabel.name}`, {
             position: 'bottom-right',
           })
@@ -78,7 +108,11 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
             setSelectedLabels([...currentLabels, newLabel])
           }
         } else {
-          showMessage(`Error creating label ${tempLabel.name}`)
+          showMessage(`Error creating label ${tempLabel.name}`, 5000)
+          if (idx !== -1) {
+            currentLabels.splice(idx, 1)
+            setSelectedLabels([...currentLabels])
+          }
         }
       })()
     },
@@ -105,7 +139,7 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
           setSelectedLabels([...current, existing])
           clearInputState()
         } else {
-          showMessage(`label ${value} already added.`)
+          showMessage(`label ${value} already added.`, 5000)
         }
       } else {
         const tempLabel = {
@@ -116,10 +150,11 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
           createdAt: new Date(),
           _temporary: true,
         }
-        setSelectedLabels([...current, tempLabel])
+        const newLabels = [...current, tempLabel]
+        setSelectedLabels(newLabels)
         clearInputState()
 
-        createLabelAsync(tempLabel)
+        createLabelAsync(newLabels, tempLabel)
       }
     },
     [
@@ -183,6 +218,7 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
             setHighlightLastLabel={setHighlightLastLabel}
             deleteLastLabel={deleteLastLabel}
             selectOrCreateLabel={selectOrCreateLabel}
+            errorMessage={errorMessage}
           />
         </VStack>
       </ModalContent>

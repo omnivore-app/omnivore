@@ -6,7 +6,13 @@ import { StyledText } from '../../elements/StyledText'
 import { styled, theme } from '../../tokens/stitches.config'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQuery'
-import { Check, Circle, PencilSimple, Plus } from 'phosphor-react'
+import {
+  Check,
+  Circle,
+  PencilSimple,
+  Plus,
+  WarningCircle,
+} from 'phosphor-react'
 import { createLabelMutation } from '../../../lib/networking/mutations/createLabelMutation'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { randomLabelColorHex } from '../../../utils/settings-page/labels/labelColorObjects'
@@ -39,6 +45,8 @@ type SetLabelsControlProps = {
 
   deleteLastLabel: () => void
   selectOrCreateLabel: (value: string) => void
+
+  errorMessage?: string
 }
 
 type HeaderProps = {
@@ -75,7 +83,8 @@ function Header(props: HeaderProps): JSX.Element {
       <Box
         css={{
           width: '100%',
-          my: '14px',
+          mt: '10px',
+          mb: '5px',
           px: '14px',
         }}
       >
@@ -414,6 +423,28 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
         selectOrCreateLabel={props.selectOrCreateLabel}
         clearInputState={props.clearInputState}
       />
+      <Box
+        css={{
+          width: '100%',
+          height: '15px',
+          color: '#FF3B30',
+          fontSize: '12px',
+          fontFamily: '$inter',
+          gap: '5px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'end',
+          paddingRight: '15px',
+          m: '0px',
+        }}
+      >
+        {props.errorMessage && (
+          <>
+            {props.errorMessage}
+            <WarningCircle color="#FF3B30" size={15} />
+          </>
+        )}
+      </Box>
       <VStack
         distribution="start"
         alignment="start"
