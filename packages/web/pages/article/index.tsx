@@ -30,6 +30,7 @@ export default function ArticleSavingRequestPage(): JSX.Element {
         <ArticleActionsMenu
           article={undefined}
           layout="top"
+          readerSettings={readerSettings}
           showReaderDisplaySettings={true}
           articleActionHandler={readerSettings.actionHandler}
         />
@@ -59,6 +60,7 @@ export default function ArticleSavingRequestPage(): JSX.Element {
         <ArticleActionsMenu
           article={undefined}
           layout="side"
+          readerSettings={readerSettings}
           showReaderDisplaySettings={true}
           articleActionHandler={readerSettings.actionHandler}
         />
