@@ -31,7 +31,7 @@ describe('Testing the atlantic opening', () => {
     expect(response.dom?.querySelector('[data-event-module="article body"]')).toBeEmptyDOMElement()
   });
 
-  it ('should append a new div, and add the article content inside', () => { 
+  it ('should append a new div, and add the article content inside', async() => { 
     const response = await new TheAtlanticHandler().preHandle(
       'https://theatlantic.com/article/'
     );
