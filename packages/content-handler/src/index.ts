@@ -27,6 +27,7 @@ import { DerstandardHandler } from './websites/derstandard-handler'
 import { GitHubHandler } from './websites/github-handler'
 import { ImageHandler } from './websites/image-handler'
 import { MediumHandler } from './websites/medium-handler'
+import { NitterHandler } from './websites/nitter-handler'
 import { PdfHandler } from './websites/pdf-handler'
 import { PipedVideoHandler } from './websites/piped-video-handler'
 import { ScrapingBeeHandler } from './websites/scrapingBee-handler'
@@ -77,6 +78,7 @@ const contentHandlers: ContentHandler[] = [
   new EnergyWorldHandler(),
   new PipedVideoHandler(),
   new WeixinQqHandler(),
+  new NitterHandler(),
 ]
 
 const newsletterHandlers: ContentHandler[] = [
