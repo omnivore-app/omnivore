@@ -185,6 +185,9 @@ export function Dropdown(
         sideOffset={sideOffset}
         align={align ? align : 'center'}
         alignOffset={alignOffset}
+        onCloseAutoFocus={(event) => {
+          event.preventDefault()
+        }}
       >
         {labelText && <StyledLabel>{labelText}</StyledLabel>}
         {children}

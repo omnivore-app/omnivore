@@ -12,6 +12,7 @@ export type LinkedItemCardAction =
   | 'mark-read'
   | 'mark-unread'
   | 'set-labels'
+  | 'open-notebook'
   | 'unsubscribe'
   | 'update-item'
 

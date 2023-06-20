@@ -10,6 +10,7 @@ export type CardMenuDropdownAction =
   | 'unarchive'
   | 'delete'
   | 'set-labels'
+  | 'open-notebook'
   | 'showOriginal'
   | 'unsubscribe'
   | 'editTitle'
@@ -44,6 +45,12 @@ export function CardMenu(props: CardMenuProps): JSX.Element {
           props.actionHandler('set-labels')
         }}
         title="Set Labels"
+      />
+      <DropdownOption
+        onSelect={() => {
+          props.actionHandler('open-notebook')
+        }}
+        title="Open Notebook"
       />
       <DropdownOption
         onSelect={() => props.actionHandler('showOriginal')}

@@ -82,6 +82,7 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
     <ModalRoot defaultOpen onOpenChange={handleClose}>
       <ModalOverlay />
       <ModalContent
+        tabIndex={-1}
         onInteractOutside={(event) => {
           event.preventDefault()
         }}
