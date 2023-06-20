@@ -164,7 +164,10 @@ export const LabelsPicker = (props: LabelsPickerProps): JSX.Element => {
           }}
           inputStyle={{
             fontSize: '16px',
-            minWidth: '100px',
+            minWidth:
+              props.inputValue.length == 0 && props.selectedLabels.length == 0
+                ? '100px'
+                : '2px',
           }}
           onFocus={() => {
             if (props.onFocus) {
