@@ -46,11 +46,11 @@ export class NitterHandler extends ContentHandler {
         context = await browser.createIncognitoBrowserContext()
         const page = await context.newPage()
 
-        // // Modify this variable to control the size of viewport
-        // const deviceScaleFactor = 0.2
-        // const height = Math.floor(2000 / deviceScaleFactor)
-        // const width = Math.floor(1700 / deviceScaleFactor)
-        // await page.setViewport({ width, height, deviceScaleFactor })
+        // Modify this variable to control the size of viewport
+        const deviceScaleFactor = 0.2
+        const height = Math.floor(2000 / deviceScaleFactor)
+        const width = Math.floor(1700 / deviceScaleFactor)
+        await page.setViewport({ width, height, deviceScaleFactor })
 
         await page.goto(url, {
           waitUntil: 'networkidle2',
