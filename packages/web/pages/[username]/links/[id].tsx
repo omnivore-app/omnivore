@@ -34,6 +34,7 @@ export default function ArticleSavingRequestPage(): JSX.Element {
         <ArticleActionsMenu
           article={undefined}
           layout="top"
+          readerSettings={readerSettings}
           showReaderDisplaySettings={true}
           articleActionHandler={readerSettings.actionHandler}
         />
