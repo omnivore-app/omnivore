@@ -38,9 +38,6 @@ export class NitterHandler extends ContentHandler {
     const url = `${this.ADDRESS}/${username}/status/${tweetId}`
 
     async function genTweets(): Promise<Tweet[]> {
-      const waitFor = (ms: number) =>
-        new Promise((resolve) => setTimeout(resolve, ms))
-
       let context: BrowserContext | undefined
       try {
         context = await browser.createIncognitoBrowserContext()
@@ -59,6 +56,10 @@ export class NitterHandler extends ContentHandler {
 
         const tweets = (await page.evaluate(
           async (username, id, url) => {
+            async function waitFor(ms: number) {
+              return new Promise((resolve) => setTimeout(resolve, ms))
+            }
+
             function authorParser(header: Element) {
               const avatar = header
                 .querySelector('.tweet-avatar img')
@@ -76,6 +77,12 @@ export class NitterHandler extends ContentHandler {
                 avatar,
                 name,
               }
+            }
+
+            function dateParser(tweetDate: string) {
+              const validDateTime = tweetDate.replace(' · ', ' ')
+
+              return new Date(validDateTime).toISOString()
             }
 
             function attachmentParser(attachments: Element | null) {
@@ -108,21 +115,19 @@ export class NitterHandler extends ContentHandler {
                 return null
               }
 
-              const createdAt = body
+              const tweetDate = body
                 .querySelector('.tweet-date a')
                 ?.getAttribute('title')
-              if (!createdAt) {
+              if (!tweetDate) {
                 return null
               }
+              const createdAt = dateParser(tweetDate)
 
               const content = body.querySelector('.tweet-content')
               if (!content) {
                 return null
               }
-              const text = content.textContent
-              if (!text) {
-                return null
-              }
+              const text = content.textContent ?? ''
               const urls = Array.from(content.querySelectorAll('a')).map(
                 (a) => ({
                   url: a.getAttribute('href') ?? '',
@@ -186,7 +191,6 @@ export class NitterHandler extends ContentHandler {
           url
         )) as Tweet[]
 
-        console.log('tweets', tweets)
         return tweets
       } catch (error) {
         console.error('Error getting tweets', error)
@@ -202,11 +206,12 @@ export class NitterHandler extends ContentHandler {
     return genTweets()
   }
 
-  tweetIdAndUsernameFromUrl = (url: string) => {
-    const match = url.toString().match(this.URL_MATCH)
+  parseTweetUrl = (url: string) => {
+    const match = url.match(this.URL_MATCH)
     return {
-      tweetId: match?.[5],
+      domain: match?.[1],
       username: match?.[4],
+      tweetId: match?.[5],
     }
   }
 
@@ -227,9 +232,9 @@ export class NitterHandler extends ContentHandler {
   }
 
   async preHandle(url: string, browser: Browser): Promise<PreHandleResult> {
-    const { tweetId, username } = this.tweetIdAndUsernameFromUrl(url)
-    if (!tweetId || !username) {
-      throw new Error('could not find tweet id or username in url')
+    const { tweetId, username, domain } = this.parseTweetUrl(url)
+    if (!tweetId || !username || !domain) {
+      throw new Error('could not parse tweet url')
     }
     const tweets = await this.getTweets(browser, username, tweetId)
 
@@ -238,7 +243,7 @@ export class NitterHandler extends ContentHandler {
     // escape html entities in title
     const title = this.titleForTweet(author, tweet.text)
     const escapedTitle = _.escape(title)
-    const authorImage = `${this.ADDRESS}/${author.profileImageUrl.replace(
+    const authorImage = `${this.ADDRESS}${author.profileImageUrl.replace(
       '_normal',
       '_400x400'
     )}`
@@ -260,9 +265,9 @@ export class NitterHandler extends ContentHandler {
         tweet.entities.photos
           ?.map(
             (url) =>
-              `<a class="media-link" href=${this.ADDRESS}/${url}>
+              `<a class="media-link" href=${this.ADDRESS}${url}>
           <picture>
-            <img class="tweet-img" src=${this.ADDRESS}/${url} />
+            <img class="tweet-img" src=${this.ADDRESS}${url} />
           </picture>
           </a>`
           )
@@ -275,31 +280,30 @@ export class NitterHandler extends ContentHandler {
     }
 
     const tweetUrl = `
-       — <a href="https://twitter.com/${author.username}">${
+       — <a href="https://${domain}/${author.username}">${
       author.username
     }</a> <span itemscope itemtype="https://schema.org/Person" itemprop="author">${
       author.name
-    }</span> <a href="${url}">${this.formatTimestamp(tweet.createdAt)}</a>
-    `
+    }</span> <a href="${url}">${this.formatTimestamp(tweet.createdAt)}</a>`
 
     const content = `
-<html>
-    <head>
-      <meta property="og:image" content="${authorImage}" />
-      <meta property="og:image:secure_url" content="${authorImage}" />
-      <meta property="og:title" content="${escapedTitle}" />
-      <meta property="og:description" content="${description}" />
-      <meta property="article:published_time" content="${tweet.createdAt}" />
-      <meta property="og:site_name" content="Twitter" />
-      <meta property="og:type" content="tweet" />
-    </head>
-    <body>
-      <div>
-        ${tweetsContent}
-        ${tweetUrl}
-      </div>
-    </body>
-</html>`
+      <html>
+          <head>
+            <meta property="og:image" content="${authorImage}" />
+            <meta property="og:image:secure_url" content="${authorImage}" />
+            <meta property="og:title" content="${escapedTitle}" />
+            <meta property="og:description" content="${description}" />
+            <meta property="article:published_time" content="${tweet.createdAt}" />
+            <meta property="og:site_name" content="Twitter" />
+            <meta property="og:type" content="tweet" />
+          </head>
+          <body>
+            <div>
+              ${tweetsContent}
+              ${tweetUrl}
+            </div>
+          </body>
+      </html>`
 
     return { content, url, title }
   }
