@@ -25,6 +25,9 @@ export class TheAtlanticHandler extends ContentHandler {
       '[data-event-module="article body"]'
     )
 
+    // Remove the audio player. 
+    content.querySelector('[data-event-module="audio player"]')?.remove()
+
     if (!articleContentSection) {
       return content
     }
