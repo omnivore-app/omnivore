@@ -43,6 +43,8 @@ import { BulkAction } from '../../../lib/networking/mutations/bulkActionMutation
 import { bulkActionMutation } from '../../../lib/networking/mutations/bulkActionMutation'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { SetPageLabelsModalPresenter } from '../article/SetLabelsModalPresenter'
+import { NotebookPresenter } from '../article/NotebookPresenter'
+import { Highlight } from '../../../lib/networking/fragments/highlightFragment'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 export type LibraryMode = 'reads' | 'highlights'
@@ -76,6 +78,10 @@ export function HomeFeedContainer(): JSX.Element {
   const gridContainerRef = useRef<HTMLDivElement>(null)
 
   const [labelsTarget, setLabelsTarget] = useState<LibraryItem | undefined>(
+    undefined
+  )
+
+  const [notebookTarget, setNotebookTarget] = useState<LibraryItem | undefined>(
     undefined
   )
 
@@ -328,6 +334,9 @@ export function HomeFeedContainer(): JSX.Element {
       case 'set-labels':
         setLabelsTarget(item)
         break
+      case 'open-notebook':
+        setNotebookTarget(item)
+        break
       case 'unsubscribe':
         performActionOnItem('unsubscribe', item)
       case 'update-item':
@@ -464,6 +473,9 @@ export function HomeFeedContainer(): JSX.Element {
         case 'showEditLabelsModal':
           handleCardAction('set-labels', activeItem)
           break
+        case 'openNotebook':
+          handleCardAction('open-notebook', activeItem)
+          break
         case 'sortDescending':
           setQueryInputs({ ...queryInputs, sortDescending: true })
           break
@@ -509,6 +521,12 @@ export function HomeFeedContainer(): JSX.Element {
       name: 'Edit item labels',
       shortcut: ['l'],
       perform: () => handleCardAction('set-labels', activeItem),
+    }),
+    createAction({
+      section: 'Library',
+      name: 'Open Notebook',
+      shortcut: ['t'],
+      perform: () => handleCardAction('open-notebook', activeItem),
     }),
     createAction({
       section: 'Library',
@@ -705,6 +723,8 @@ export function HomeFeedContainer(): JSX.Element {
       isValidating={isValidating}
       labelsTarget={labelsTarget}
       setLabelsTarget={setLabelsTarget}
+      notebookTarget={notebookTarget}
+      setNotebookTarget={setNotebookTarget}
       showAddLinkModal={showAddLinkModal}
       setShowAddLinkModal={setShowAddLinkModal}
       showEditTitleModal={showEditTitleModal}
@@ -740,6 +760,10 @@ type HomeFeedContentProps = {
   loadMore: () => void
   labelsTarget: LibraryItem | undefined
   setLabelsTarget: (target: LibraryItem | undefined) => void
+
+  notebookTarget: LibraryItem | undefined
+  setNotebookTarget: (target: LibraryItem | undefined) => void
+
   showAddLinkModal: boolean
   setShowAddLinkModal: (show: boolean) => void
   showEditTitleModal: boolean
@@ -1012,6 +1036,19 @@ function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element {
               props.setActiveItem(activate)
               props.setLabelsTarget(undefined)
             }
+          }}
+        />
+      )}
+      {props.viewer && props.notebookTarget?.node.id && (
+        <NotebookPresenter
+          viewer={props.viewer}
+          item={props.notebookTarget?.node}
+          highlights={props.notebookTarget?.node.highlights ?? []}
+          onClose={(highlights: Highlight[]) => {
+            if (props.notebookTarget?.node.highlights) {
+              props.notebookTarget.node.highlights = highlights
+            }
+            props.setNotebookTarget(undefined)
           }}
         />
       )}
