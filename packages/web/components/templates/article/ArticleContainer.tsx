@@ -12,19 +12,13 @@ import { Button } from '../../elements/Button'
 import { useEffect, useState, useRef, useMemo, useCallback } from 'react'
 import { ReportIssuesModal } from './ReportIssuesModal'
 import { reportIssueMutation } from '../../../lib/networking/mutations/reportIssueMutation'
-import {
-  currentTheme,
-  updateTheme,
-  updateThemeLocally,
-} from '../../../lib/themeUpdater'
+import { updateTheme, updateThemeLocally } from '../../../lib/themeUpdater'
 import { ArticleMutations } from '../../../lib/articleActions'
 import { LabelChip } from '../../elements/LabelChip'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { Recommendation } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { Avatar } from '../../elements/Avatar'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
-import Downshift from 'downshift'
-import { LabelsPicker } from '../../elements/LabelsPicker'
 
 type ArticleContainerProps = {
   viewer: UserBasicData
@@ -145,9 +139,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
 
   const updateFontSize = useCallback(
     (newFontSize: number) => {
-      if (fontSize !== newFontSize) {
-        setFontSize(newFontSize)
-      }
+      setFontSize(newFontSize)
     },
     [setFontSize]
   )
@@ -155,7 +147,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   useEffect(() => {
     setLabels(props.labels)
     updateFontSize(props.fontSize ?? 20)
-  }, [props.labels, props.fontSize])
+  }, [props.labels, props.fontSize, updateFontSize])
 
   // Listen for preference change events sent from host apps (ios, macos...)
   useEffect(() => {

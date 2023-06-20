@@ -1,10 +1,6 @@
 import { ReactNode, useMemo, useState } from 'react'
 import { HStack, VStack } from './../elements/LayoutPrimitives'
-import {
-  Dropdown,
-  DropdownOption,
-  DropdownSeparator,
-} from '../elements/DropdownElements'
+import { Dropdown, DropdownOption } from '../elements/DropdownElements'
 import { StyledText } from '../elements/StyledText'
 import { Button } from '../elements/Button'
 import { currentThemeName } from '../../lib/themeUpdater'

@@ -1,4 +1,4 @@
-import { Box, HStack, VStack } from '../elements/LayoutPrimitives'
+import { Box, HStack } from '../elements/LayoutPrimitives'
 import { OmnivoreNameLogo } from '../elements/images/OmnivoreNameLogo'
 import { UserBasicData } from '../../lib/networking/queries/useGetViewerQuery'
 import { PrimaryDropdown } from '../templates/PrimaryDropdown'

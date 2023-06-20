@@ -76,12 +76,13 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
 export function LibraryListCardContent(
   props: LinkedItemCardProps
 ): JSX.Element {
+  const { isChecked, setIsChecked, item } = props
   const [menuOpen, setMenuOpen] = useState(false)
   const originText = siteName(props.item.originalArticleUrl, props.item.url)
 
   const handleCheckChanged = useCallback(() => {
-    props.setIsChecked(props.item.id, !props.isChecked)
-  }, [props.isChecked])
+    setIsChecked(item.id, !isChecked)
+  }, [isChecked, setIsChecked, item])
 
   return (
     <>

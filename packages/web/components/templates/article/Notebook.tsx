@@ -4,27 +4,21 @@ import { theme } from '../../tokens/stitches.config'
 import type { Highlight } from '../../../lib/networking/fragments/highlightFragment'
 import { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
 import { BookOpen, PencilLine, X } from 'phosphor-react'
-import { SetLabelsModal } from './SetLabelsModal'
-import { Label } from '../../../lib/networking/fragments/labelFragment'
-import { setLabelsForHighlight } from '../../../lib/networking/mutations/setLabelsForHighlight'
 import { updateHighlightMutation } from '../../../lib/networking/mutations/updateHighlightMutation'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { diff_match_patch } from 'diff-match-patch'
-import { highlightsAsMarkdown } from '../homeFeed/HighlightItem'
 import 'react-markdown-editor-lite/lib/index.css'
 import { createHighlightMutation } from '../../../lib/networking/mutations/createHighlightMutation'
 import { v4 as uuidv4 } from 'uuid'
 import { nanoid } from 'nanoid'
 import { deleteHighlightMutation } from '../../../lib/networking/mutations/deleteHighlightMutation'
-import { HighlightNoteBox, MarkdownNote } from '../../patterns/HighlightNotes'
+import { HighlightNoteBox } from '../../patterns/HighlightNotes'
 import { HighlightViewItem } from './HighlightViewItem'
 import { ConfirmationModal } from '../../patterns/ConfirmationModal'
 import { TrashIcon } from '../../elements/images/TrashIcon'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
-import {
-  LibraryItem,
-  ReadableItem,
-} from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+import { SetHighlightLabelsModalPresenter } from './SetLabelsModalPresenter'
 
 type NotebookProps = {
   viewer: UserBasicData
@@ -289,6 +283,7 @@ export function Notebook(props: NotebookProps): JSX.Element {
     },
     [annotations, props.item]
   )
+
   return (
     <VStack
       distribution="start"
@@ -385,21 +380,10 @@ export function Notebook(props: NotebookProps): JSX.Element {
         />
       )}
       {labelsTarget && (
-        <SetLabelsModal
-          provider={labelsTarget}
-          onOpenChange={function (open: boolean): void {
-            setLabelsTarget(undefined)
-          }}
-          onLabelsUpdated={function (labels: Label[]): void {
-            updateState({})
-          }}
-          save={function (labels: Label[]): Promise<Label[] | undefined> {
-            const result = setLabelsForHighlight(
-              labelsTarget.id,
-              labels.map((label) => label.id)
-            )
-            return result
-          }}
+        <SetHighlightLabelsModalPresenter
+          highlight={labelsTarget}
+          highlightId={labelsTarget.id}
+          onOpenChange={() => setLabelsTarget(undefined)}
         />
       )}
       {props.showConfirmDeleteNote && (

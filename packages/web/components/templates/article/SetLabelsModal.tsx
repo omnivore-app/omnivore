@@ -13,17 +13,20 @@ import { showSuccessToast } from '../../../lib/toastHelpers'
 import { useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQuery'
 import { v4 as uuidv4 } from 'uuid'
 import { randomLabelColorHex } from '../../../utils/settings-page/labels/labelColorObjects'
+import { LabelsDispatcher } from '../../../lib/hooks/useSetPageLabels'
 
 type SetLabelsModalProps = {
   provider: LabelsProvider
 
-  onLabelsUpdated?: (labels: Label[]) => void
   onOpenChange: (open: boolean) => void
-  save: (labels: Label[]) => Promise<Label[] | undefined>
+
+  selectedLabels: Label[]
+  dispatchLabels: LabelsDispatcher
 }
 
 export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
   const [inputValue, setInputValue] = useState('')
+  const { selectedLabels, dispatchLabels } = props
   const availableLabels = useGetLabelsQuery()
   const [tabCount, setTabCount] = useState(-1)
   const [tabStartValue, setTabStartValue] = useState('')
@@ -32,24 +35,6 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
   )
   const errorTimeoutRef = useRef<NodeJS.Timeout | undefined>()
   const [highlightLastLabel, setHighlightLastLabel] = useState(false)
-
-  const [selectedLabels, setSelectedLabels] = useState(
-    props.provider.labels ?? []
-  )
-
-  const containsTemporaryLabel = (labels: Label[]) => {
-    return !!labels.find((l) => '_temporary' in l)
-  }
-
-  const onOpenChange = useCallback(
-    (open: boolean) => {
-      ;(async () => {
-        await props.save(selectedLabels)
-        props.onOpenChange(open)
-      })()
-    },
-    [props, selectedLabels]
-  )
 
   const showMessage = useCallback(
     (msg: string, timeout?: number) => {
@@ -83,14 +68,14 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
     if (inputValue.length > 0) {
       setHighlightLastLabel(false)
     }
-  }, [inputValue, showMessage])
+  }, [errorMessage, inputValue, showMessage])
 
   const clearInputState = useCallback(() => {
     setTabCount(-1)
     setInputValue('')
     setTabStartValue('')
     setHighlightLastLabel(false)
-  }, [tabCount, tabStartValue, highlightLastLabel])
+  }, [])
 
   const createLabelAsync = useCallback(
     (newLabels: Label[], tempLabel: Label) => {
@@ -107,20 +92,23 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
           })
           if (idx !== -1) {
             currentLabels[idx] = newLabel
-            setSelectedLabels([...currentLabels])
+            dispatchLabels({ type: 'SAVE', labels: [...currentLabels] })
           } else {
-            setSelectedLabels([...currentLabels, newLabel])
+            dispatchLabels({
+              type: 'SAVE',
+              labels: [...currentLabels, newLabel],
+            })
           }
         } else {
           showMessage(`Error creating label ${tempLabel.name}`, 5000)
           if (idx !== -1) {
             currentLabels.splice(idx, 1)
-            setSelectedLabels([...currentLabels])
+            dispatchLabels({ type: 'SAVE', labels: [...currentLabels] })
           }
         }
       })()
     },
-    [selectedLabels]
+    [dispatchLabels, showMessage]
   )
 
   const selectOrCreateLabel = useCallback(
@@ -140,7 +128,7 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
           (l) => l.name.toLowerCase() == lowerCasedValue
         )
         if (!isAdded) {
-          setSelectedLabels([...current, existing])
+          dispatchLabels({ type: 'SAVE', labels: [...current, existing] })
           clearInputState()
         } else {
           showMessage(`label ${value} already added.`, 5000)
@@ -152,10 +140,9 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
           color: randomLabelColorHex(),
           description: '',
           createdAt: new Date(),
-          _temporary: true,
         }
         const newLabels = [...current, tempLabel]
-        setSelectedLabels(newLabels)
+        dispatchLabels({ type: 'TEMP', labels: newLabels })
         clearInputState()
 
         createLabelAsync(newLabels, tempLabel)
@@ -164,6 +151,7 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
     [
       availableLabels,
       selectedLabels,
+      dispatchLabels,
       clearInputState,
       createLabelAsync,
       showMessage,
@@ -174,23 +162,15 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
     if (highlightLastLabel) {
       const current = selectedLabels
       current.pop()
-      setSelectedLabels([...current])
+      dispatchLabels({ type: 'SAVE', labels: [...current] })
       setHighlightLastLabel(false)
     } else {
       setHighlightLastLabel(true)
     }
-  }, [highlightLastLabel, selectedLabels])
-
-  useEffect(() => {
-    if (!containsTemporaryLabel(selectedLabels)) {
-      ;(async () => {
-        await props.save(selectedLabels)
-      })()
-    }
-  }, [props.save, selectedLabels])
+  }, [highlightLastLabel, selectedLabels, dispatchLabels])
 
   return (
-    <ModalRoot defaultOpen onOpenChange={onOpenChange}>
+    <ModalRoot defaultOpen onOpenChange={props.onOpenChange}>
       <ModalOverlay />
       <ModalContent
         css={{
@@ -199,21 +179,20 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
         }}
         onPointerDownOutside={(event) => {
           event.preventDefault()
-          onOpenChange(false)
+          props.onOpenChange(false)
         }}
       >
         <VStack distribution="start" css={{ height: '100%' }}>
           <SpanBox css={{ pt: '0px', px: '16px', width: '100%' }}>
-            <ModalTitleBar title="Labels" onOpenChange={onOpenChange} />
+            <ModalTitleBar title="Labels" onOpenChange={props.onOpenChange} />
           </SpanBox>
           <SetLabelsControl
             provider={props.provider}
             inputValue={inputValue}
             setInputValue={setInputValue}
             clearInputState={clearInputState}
-            selectedLabels={selectedLabels}
-            setSelectedLabels={setSelectedLabels}
-            onLabelsUpdated={props.onLabelsUpdated}
+            selectedLabels={props.selectedLabels}
+            dispatchLabels={props.dispatchLabels}
             tabCount={tabCount}
             setTabCount={setTabCount}
             tabStartValue={tabStartValue}

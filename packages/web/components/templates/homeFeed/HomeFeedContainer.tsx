@@ -12,8 +12,6 @@ import {
   PageType,
   State,
 } from '../../../lib/networking/fragments/articleFragment'
-import { Label } from '../../../lib/networking/fragments/labelFragment'
-import { setLabelsMutation } from '../../../lib/networking/mutations/setLabelsMutation'
 import {
   SearchItem,
   TypeaheadSearchItemsData,
@@ -33,7 +31,6 @@ import { StyledText } from '../../elements/StyledText'
 import { ConfirmationModal } from '../../patterns/ConfirmationModal'
 import { LinkedItemCardAction } from '../../patterns/LibraryCards/CardTypes'
 import { LinkedItemCard } from '../../patterns/LibraryCards/LinkedItemCard'
-import { SetLabelsModal } from '../article/SetLabelsModal'
 import { Box, HStack, VStack } from './../../elements/LayoutPrimitives'
 import { AddLinkModal } from './AddLinkModal'
 import { EditLibraryItemModal } from './EditItemModals'
@@ -45,6 +42,7 @@ import { UploadModal } from '../UploadModal'
 import { BulkAction } from '../../../lib/networking/mutations/bulkActionMutation'
 import { bulkActionMutation } from '../../../lib/networking/mutations/bulkActionMutation'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
+import { SetPageLabelsModalPresenter } from '../article/SetLabelsModalPresenter'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 export type LibraryMode = 'reads' | 'highlights'
@@ -1005,23 +1003,9 @@ function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element {
         />
       )}
       {props.labelsTarget?.node.id && (
-        <SetLabelsModal
-          provider={props.labelsTarget.node}
-          onLabelsUpdated={(labels: Label[]) => {
-            if (props.labelsTarget) {
-              props.labelsTarget.node.labels = labels
-              updateState({})
-            }
-          }}
-          save={(labels: Label[]) => {
-            if (props.labelsTarget?.node.id) {
-              return setLabelsMutation(
-                props.labelsTarget.node.id,
-                labels.map((label) => label.id)
-              )
-            }
-            return Promise.resolve(undefined)
-          }}
+        <SetPageLabelsModalPresenter
+          articleId={props.labelsTarget.node.id}
+          article={props.labelsTarget.node}
           onOpenChange={() => {
             if (props.labelsTarget) {
               const activate = props.labelsTarget

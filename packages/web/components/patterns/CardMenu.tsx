@@ -2,7 +2,6 @@ import type { ReactNode } from 'react'
 import { Dropdown, DropdownOption } from '../elements/DropdownElements'
 import { LibraryItemNode } from '../../lib/networking/queries/useGetLibraryItemsQuery'
 import { UserBasicData } from '../../lib/networking/queries/useGetViewerQuery'
-import { isVipUser } from '../../lib/featureFlag'
 
 export type CardMenuDropdownAction =
   | 'mark-read'

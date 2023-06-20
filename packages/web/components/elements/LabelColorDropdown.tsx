@@ -1,6 +1,6 @@
-import React, { useMemo, useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { styled } from '../tokens/stitches.config'
-import { Box, HStack, SpanBox } from './LayoutPrimitives'
+import { Box, HStack } from './LayoutPrimitives'
 import { StyledText } from './StyledText'
 import {
   LabelColorDropdownProps,
@@ -116,7 +116,6 @@ export const LabelColorDropdown = (props: LabelColorDropdownProps) => {
 }
 
 function LabelOption(props: LabelOptionProps): JSX.Element {
-  const { color, isDropdownOption, isCreateMode, labelId } = props
   return (
     <HStack
       alignment="center"
@@ -154,19 +153,6 @@ function LabelOption(props: LabelOptionProps): JSX.Element {
       </StyledText>
     </HStack>
   )
-}
-
-function getLabelColorObject(color: LabelColor) {
-  if (labelColorObjects[color]) {
-    return labelColorObjects[color]
-  }
-  const colorObject: LabelColorObject = {
-    colorName: 'Custom',
-    text: color,
-    border: color + '66',
-    background: color + '0D',
-  }
-  return colorObject
 }
 
 function LabelColorIcon(props: { color: string }): JSX.Element {

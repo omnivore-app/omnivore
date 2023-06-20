@@ -2,7 +2,6 @@ import {
   ArchiveBox,
   DotsThreeOutline,
   Info,
-  TagSimple,
   TextAa,
   Trash,
   Tray,
