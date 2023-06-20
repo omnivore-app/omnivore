@@ -181,6 +181,10 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
           event.preventDefault()
           props.onOpenChange(false)
         }}
+        onEscapeKeyDown={(event) => {
+          props.onOpenChange(false)
+          event.preventDefault()
+        }}
       >
         <VStack distribution="start" css={{ height: '100%' }}>
           <SpanBox css={{ pt: '0px', px: '16px', width: '100%' }}>
