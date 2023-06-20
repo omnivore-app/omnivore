@@ -14,8 +14,10 @@ type EditLabelChipProps = {
 export function EditLabelLabelChip(props: EditLabelChipProps): JSX.Element {
   const isDark = isDarkTheme()
 
-  const selectedBorder = '#FFEA9F'
-  const unSelectedBorder = 'transparent'
+  const selectedBorder = isDark ? '#FFEA9F' : '#D9D9D9'
+  const unSelectedBorder = isDark ? 'transparent' : '#DEDEDE'
+  const xUnselectedColor = isDark ? '#6A6968' : '#DEDEDE'
+
   return (
     <SpanBox
       css={{
@@ -33,7 +35,7 @@ export function EditLabelLabelChip(props: EditLabelChipProps): JSX.Element {
         borderStyle: 'solid',
         color: isDark ? '#EBEBEB' : '#2A2A2A',
         borderColor: props.isSelected ? selectedBorder : unSelectedBorder,
-        backgroundColor: isDark ? '#2A2A2A' : '#F5F5F5',
+        backgroundColor: isDark ? '#2A2A2A' : '#F9F9F9',
       }}
     >
       <HStack alignment="center" css={{ gap: '7px' }}>
@@ -49,11 +51,7 @@ export function EditLabelLabelChip(props: EditLabelChipProps): JSX.Element {
         >
           <X
             size={14}
-            color={
-              props.isSelected
-                ? '#FFEA9F'
-                : theme.colors.thBorderSubtle.toString()
-            }
+            color={props.isSelected ? '#FFEA9F' : xUnselectedColor}
           />
         </Button>
       </HStack>

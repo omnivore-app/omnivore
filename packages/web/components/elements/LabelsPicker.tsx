@@ -104,7 +104,7 @@ export const LabelsPicker = (props: LabelsPickerProps): JSX.Element => {
     <Box
       css={{
         display: 'inline-block',
-        bg: '#3D3D3D',
+        bg: '$thBackground2', // '#3D3D3D' '#D9D9D9',
         border: '1px transparent solid',
         borderRadius: '6px',
         verticalAlign: 'center',
@@ -112,7 +112,7 @@ export const LabelsPicker = (props: LabelsPickerProps): JSX.Element => {
         lineHeight: '2',
         width: '100%',
         cursor: 'text',
-        color: '#EBEBEB',
+        color: '$thTextContrast2',
         fontSize: '12px',
         fontFamily: '$inter',
         input: {

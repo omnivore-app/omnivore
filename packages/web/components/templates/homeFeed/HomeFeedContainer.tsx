@@ -1092,13 +1092,17 @@ function LibraryItems(props: LibraryItemsProps): JSX.Element {
         display: 'grid',
         width: '100%',
         gridAutoRows: 'auto',
-        borderRadius: '5px',
+        borderRadius: '6px',
         gridGap: props.layout == 'LIST_LAYOUT' ? '0' : '20px',
         marginTop: '10px',
         marginBottom: '0px',
         paddingTop: '0',
         paddingBottom: '0px',
         overflow: 'hidden',
+        boxShadow:
+          props.layout == 'LIST_LAYOUT'
+            ? '0 1px 3px 0 rgba(0, 0, 0, 0.1),0 1px 2px 0 rgba(0, 0, 0, 0.06);'
+            : 'unset',
         '@xlgDown': {
           border: 'unset',
           borderRadius: props.layout == 'LIST_LAYOUT' ? 0 : undefined,
