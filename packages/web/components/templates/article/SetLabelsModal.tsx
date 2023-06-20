@@ -79,6 +79,10 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
     } else if (errorMessage === maxLengthMessage) {
       setErrorMessage(undefined)
     }
+
+    if (inputValue.length > 0) {
+      setHighlightLastLabel(false)
+    }
   }, [inputValue, showMessage])
 
   const clearInputState = useCallback(() => {

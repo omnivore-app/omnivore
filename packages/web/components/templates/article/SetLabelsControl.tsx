@@ -264,6 +264,10 @@ function Footer(props: FooterProps): JSX.Element {
 export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
   const router = useRouter()
   const { labels, revalidate } = useGetLabelsQuery()
+  // Move focus through the labels list on tab or arrow up/down keys
+  const [focusedIndex, setFocusedIndex] = useState<number | undefined>(
+    undefined
+  )
 
   useEffect(() => {
     setFocusedIndex(undefined)
@@ -277,6 +281,12 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
     },
     [props.selectedLabels]
   )
+
+  useEffect(() => {
+    if (focusedIndex === 0) {
+      props.setHighlightLastLabel(false)
+    }
+  }, [focusedIndex])
 
   const toggleLabel = useCallback(
     async (label: Label) => {
@@ -313,11 +323,6 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
         return left.name.localeCompare(right.name)
       })
   }, [labels, props.inputValue])
-
-  // Move focus through the labels list on tab or arrow up/down keys
-  const [focusedIndex, setFocusedIndex] = useState<number | undefined>(
-    undefined
-  )
 
   const createLabelFromFilterText = useCallback(
     async (text: string) => {

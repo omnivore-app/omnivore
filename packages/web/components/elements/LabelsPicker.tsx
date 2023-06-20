@@ -118,6 +118,7 @@ export const LabelsPicker = (props: LabelsPickerProps): JSX.Element => {
       }}
       onMouseDown={(event) => {
         inputRef.current?.focus()
+        props.setHighlightLastLabel(false)
         inputRef.current?.setSelectionRange(
           inputRef.current?.value.length,
           inputRef.current?.value.length
@@ -126,6 +127,7 @@ export const LabelsPicker = (props: LabelsPickerProps): JSX.Element => {
       }}
       onDoubleClick={(event) => {
         inputRef.current?.focus()
+        props.setHighlightLastLabel(false)
         inputRef.current?.setSelectionRange(0, inputRef.current?.value.length)
       }}
     >
