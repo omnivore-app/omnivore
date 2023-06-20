@@ -48,7 +48,7 @@ export const LabelsPicker = (props: LabelsPickerProps): JSX.Element => {
     if (!isTouchScreenDevice() && focused && inputRef.current) {
       inputRef.current.focus()
     }
-  }, [focused])
+  }, [inputRef.current, focused])
 
   const autoComplete = useCallback(() => {
     const lowerCasedValue = inputValue.toLowerCase()
@@ -124,7 +124,7 @@ export const LabelsPicker = (props: LabelsPickerProps): JSX.Element => {
         },
         '&:focus-within': {
           outline: 'none',
-          border: '1px solid $thLibraryMenuUnselected',
+          border: '1px solid #898989',
         },
         '>span': {
           marginTop: '0px',

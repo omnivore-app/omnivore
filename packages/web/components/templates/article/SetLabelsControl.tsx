@@ -241,9 +241,7 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
     props
   const { labels, revalidate } = useGetLabelsQuery()
   // Move focus through the labels list on tab or arrow up/down keys
-  const [focusedIndex, setFocusedIndex] = useState<number | undefined>(
-    undefined
-  )
+  const [focusedIndex, setFocusedIndex] = useState<number | undefined>(0)
 
   useEffect(() => {
     setFocusedIndex(undefined)

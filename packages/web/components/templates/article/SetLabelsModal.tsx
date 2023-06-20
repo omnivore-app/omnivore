@@ -173,6 +173,7 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
     <ModalRoot defaultOpen onOpenChange={props.onOpenChange}>
       <ModalOverlay />
       <ModalContent
+        tabIndex={0}
         css={{
           border: '1px solid $grayBorder',
           backgroundColor: '$thBackground',
