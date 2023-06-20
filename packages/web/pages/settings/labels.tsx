@@ -24,10 +24,7 @@ import {
   Trash,
   Plus,
 } from 'phosphor-react'
-import {
-  GenericTableCardProps,
-  LabelColorHex,
-} from '../../utils/settings-page/labels/types'
+import { GenericTableCardProps } from '../../utils/settings-page/labels/types'
 import { labelColorObjects } from '../../utils/settings-page/labels/labelColorObjects'
 import { TooltipWrapped } from '../../components/elements/Tooltip'
 import { LabelColorDropdown } from '../../components/elements/LabelColorDropdown'
@@ -82,6 +79,7 @@ const TableCardBox = styled(Box, {
 })
 
 const inputStyles = {
+  height: '35px',
   backgroundColor: 'transparent',
   color: '$grayTextContrast',
   padding: '6px 6px',
@@ -146,10 +144,7 @@ const TextArea = styled('textarea', { ...inputStyles })
 
 export default function LabelsPage(): JSX.Element {
   const { labels, revalidate } = useGetLabelsQuery()
-  const [labelColorHex, setLabelColorHex] = useState<LabelColorHex>({
-    rowId: '',
-    value: '#000000',
-  })
+  const [labelColorHex, setLabelColorHex] = useState('#000000')
   const [editingLabelId, setEditingLabelId] = useState<string | null>(null)
   const [nameInputText, setNameInputText] = useState<string>('')
   const [descriptionInputText, setDescriptionInputText] = useState<string>('')
@@ -184,13 +179,13 @@ export default function LabelsPage(): JSX.Element {
     setEditingLabelId('')
     setNameInputText('')
     setDescriptionInputText('')
-    setLabelColorHex({ rowId: '', value: '#000000' })
+    setLabelColorHex('#000000')
   }
 
   async function createLabel(): Promise<void> {
     const res = await createLabelMutation(
       nameInputText.trim(),
-      labelColorHex.value,
+      labelColorHex,
       descriptionInputText
     )
     if (res) {
@@ -206,7 +201,7 @@ export default function LabelsPage(): JSX.Element {
     await updateLabelMutation({
       labelId: id,
       name: nameInputText,
-      color: labelColorHex.value,
+      color: labelColorHex,
       description: descriptionInputText,
     })
     revalidate()
@@ -217,7 +212,7 @@ export default function LabelsPage(): JSX.Element {
       setEditingLabelId(label.id)
       setNameInputText(label.name)
       setDescriptionInputText(label.description || '')
-      setLabelColorHex({ rowId: '', value: label.color })
+      setLabelColorHex(label.color)
     } else {
       resetLabelState()
     }
@@ -244,11 +239,7 @@ export default function LabelsPage(): JSX.Element {
     ) as LabelColor[]
     const randomColorHex =
       colorHexes[Math.floor(Math.random() * colorHexes.length)]
-    setLabelColorHex((prevState) => ({
-      ...prevState,
-      rowId: rowId || '',
-      value: randomColorHex,
-    }))
+    setLabelColorHex(randomColorHex)
   }
 
   return (
@@ -459,8 +450,7 @@ function GenericTableCard(
     resetState,
   } = props
   const showInput = editingLabelId === label?.id || (isCreateMode && !label)
-  const labelColor =
-    editingLabelId === label?.id ? labelColorHex.value : label?.color
+  const labelColor = editingLabelId === label?.id ? labelColorHex : label?.color
   const iconColor = isDarkTheme() ? '#D8D7D5' : '#5F5E58'
 
   const handleEdit = () => {
@@ -649,11 +639,9 @@ function GenericTableCard(
             <LabelColorDropdown
               isCreateMode={isCreateMode && !label}
               canEdit={editingLabelId === label?.id}
-              labelColorHexRowId={labelColorHex.rowId}
-              labelColorHexValue={labelColorHex.value}
+              labelColor={labelColorHex}
+              setLabelColor={setLabelColorHex}
               labelId={label?.id || ''}
-              labelColor={label?.color || '#000000'}
-              setLabelColorHex={setLabelColorHex}
             />
           )}
           {showInput && (
@@ -809,7 +797,7 @@ function MobileEditCard(props: any) {
       <VStack distribution="center" css={{ width: '100%', margin: '8px' }}>
         {nameInputText && (
           <SpanBox css={{ ml: '-2px', mt: '0px' }}>
-            <LabelChip color={labelColorHex.value} text={nameInputText} />
+            <LabelChip color={labelColorHex} text={nameInputText} />
           </SpanBox>
         )}
         <Input
@@ -821,11 +809,9 @@ function MobileEditCard(props: any) {
         <LabelColorDropdown
           isCreateMode={isCreateMode && !label}
           canEdit={editingLabelId === label?.id}
-          labelColorHexRowId={labelColorHex.rowId}
-          labelColorHexValue={labelColorHex.value}
           labelId={label?.id || ''}
           labelColor={label?.color || '#000000'}
-          setLabelColorHex={setLabelColorHex}
+          setLabelColor={setLabelColorHex}
         />
         <TextArea
           placeholder="Description (optional)"
@@ -900,7 +886,7 @@ function DesktopEditCard(props: any) {
       >
         {nameInputText && (
           <SpanBox css={{ px: '11px', mt: '3px' }}>
-            <LabelChip color={labelColorHex.value} text={nameInputText} />
+            <LabelChip color={labelColorHex} text={nameInputText} />
           </SpanBox>
         )}
         <HStack
@@ -917,11 +903,9 @@ function DesktopEditCard(props: any) {
           <LabelColorDropdown
             isCreateMode={isCreateMode && !label}
             canEdit={editingLabelId === label?.id}
-            labelColorHexRowId={labelColorHex.rowId}
-            labelColorHexValue={labelColorHex.value}
             labelId={label?.id || ''}
-            labelColor={label?.color || '#000000'}
-            setLabelColorHex={setLabelColorHex}
+            labelColor={labelColorHex}
+            setLabelColor={setLabelColorHex}
           />
           <Input
             type="text"

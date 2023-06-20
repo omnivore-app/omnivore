@@ -13,7 +13,7 @@ import * as Progress from '@radix-ui/react-progress'
 import { theme } from '../tokens/stitches.config'
 import { uploadFileRequestMutation } from '../../lib/networking/mutations/uploadFileMutation'
 import axios from 'axios'
-import { CheckCircle, File } from 'phosphor-react'
+import { File } from 'phosphor-react'
 import { showErrorToast } from '../../lib/toastHelpers'
 
 const DragnDropContainer = styled('div', {

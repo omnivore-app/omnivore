@@ -83,7 +83,7 @@ export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
           zIndex: 5,
           position: 'fixed',
           height: HEADER_HEIGHT,
-          bg: showBackground ? '$thBackground' : 'transparent',
+          bg: '$thLibraryBackground',
           '@mdDown': {
             left: '0px',
             right: '0',
@@ -242,14 +242,6 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
     setSearchTerm(props.searchTerm ?? '')
   }, [props.searchTerm])
 
-  const border = props.compact
-    ? focused
-      ? '1px solid $omnivoreCtaYellow'
-      : '1px solid black'
-    : focused
-    ? '1px solid $omnivoreCtaYellow'
-    : '1px solid $thBorderColor'
-
   useKeyboardShortcuts(
     searchBarCommands((action) => {
       if (action === 'focusSearchBar' && inputRef.current) {
@@ -270,7 +262,12 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
         maxWidth: '521px',
         bg: '$thLibrarySearchbox',
         borderRadius: '6px',
-        border: border,
+        border: focused
+          ? '2px solid $omnivoreCtaYellow'
+          : '2px solid transparent',
+        boxShadow: focused
+          ? 'none'
+          : '0 1px 3px 0 rgba(0, 0, 0, 0.1),0 1px 2px 0 rgba(0, 0, 0, 0.06);',
       }}
     >
       <HStack
@@ -418,20 +415,6 @@ function MultiSelectControlButtonBox(
         />
         <SpanBox css={{ '@lgDown': { display: 'none' } }}>Archive</SpanBox>
       </Button>
-      {/* <Button
-        style="outline"
-        onClick={(e) => {
-          props.performMultiSelectAction(BulkAction.ADD_LABELS)
-          e.preventDefault()
-        }}
-      >
-        <TagSimple
-          width={20}
-          height={20}
-          color={theme.colors.thTextContrast2.toString()}
-        />
-        <SpanBox css={{ '@lgDown': { display: 'none' } }}>Label</SpanBox>
-      </Button> */}
       <Button
         style="outline"
         onClick={(e) => {

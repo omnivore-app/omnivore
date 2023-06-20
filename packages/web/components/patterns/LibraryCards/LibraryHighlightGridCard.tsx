@@ -1,5 +1,5 @@
 import { Box, VStack, HStack, SpanBox } from '../../elements/LayoutPrimitives'
-import { useCallback, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { CaretDown, CaretUp } from 'phosphor-react'
 import { MetaStyle, timeAgo, TitleStyle } from './LibraryCardStyles'
 import { styled } from '@stitches/react'

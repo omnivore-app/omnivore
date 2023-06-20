@@ -1,22 +1,12 @@
 import { Separator } from '@radix-ui/react-separator'
-import {
-  ArchiveBox,
-  Notebook,
-  Info,
-  TagSimple,
-  Trash,
-  Tray,
-} from 'phosphor-react'
+import { ArchiveBox, Notebook, Info, Trash, Tray, Tag } from 'phosphor-react'
 import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
 import { Button } from '../../elements/Button'
 import { Box, SpanBox } from '../../elements/LayoutPrimitives'
 import { TooltipWrapped } from '../../elements/Tooltip'
 import { styled, theme } from '../../tokens/stitches.config'
-import { useReaderSettings } from '../../../lib/hooks/useReaderSettings'
+import { ReaderSettings } from '../../../lib/hooks/useReaderSettings'
 import { useRef } from 'react'
-import { setLabelsMutation } from '../../../lib/networking/mutations/setLabelsMutation'
-import { Label } from '../../../lib/networking/fragments/labelFragment'
-import { SetLabelsModal } from './SetLabelsModal'
 
 export type ArticleActionsMenuLayout = 'top' | 'side'
 
@@ -24,6 +14,7 @@ type ArticleActionsMenuProps = {
   article?: ArticleAttributes
   layout: ArticleActionsMenuLayout
   showReaderDisplaySettings?: boolean
+  readerSettings: ReaderSettings
   articleActionHandler: (action: string, arg?: unknown) => void
 }
 
@@ -44,7 +35,6 @@ const MenuSeparator = (props: MenuSeparatorProps): JSX.Element => {
 export function ArticleActionsMenu(
   props: ArticleActionsMenuProps
 ): JSX.Element {
-  const readerSettings = useReaderSettings()
   const displaySettingsButtonRef = useRef<HTMLElement | null>(null)
 
   return (
@@ -72,14 +62,14 @@ export function ArticleActionsMenu(
             <>
               <Button
                 style="articleActionIcon"
-                onClick={() => readerSettings.setShowSetLabelsModal(true)}
+                onClick={() => props.readerSettings.setShowSetLabelsModal(true)}
               >
                 <TooltipWrapped
                   tooltipContent="Edit labels (l)"
                   tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
                 >
                   <SpanBox ref={displaySettingsButtonRef}>
-                    <TagSimple
+                    <Tag
                       size={24}
                       color={theme.colors.thHighContrast.toString()}
                     />
@@ -97,10 +87,7 @@ export function ArticleActionsMenu(
                 },
               }}
             >
-              <TagSimple
-                size={24}
-                color={theme.colors.thHighContrast.toString()}
-              />
+              <Tag size={24} color={theme.colors.thHighContrast.toString()} />
             </Button>
           )}
         </SpanBox>
@@ -116,7 +103,7 @@ export function ArticleActionsMenu(
             },
           }}
         >
-          <TagSimple size={24} color={theme.colors.thHighContrast.toString()} />
+          <Tag size={24} color={theme.colors.thHighContrast.toString()} />
         </Button>
 
         <Button
@@ -218,29 +205,6 @@ export function ArticleActionsMenu(
         <DotsThree size={24} color={theme.colors.readerFont.toString()} />
       </Button> */}
       </Box>
-
-      {props.article && readerSettings.showSetLabelsModal && (
-        <SetLabelsModal
-          provider={props.article}
-          onOpenChange={(open: boolean) => {
-            readerSettings.setShowSetLabelsModal(false)
-          }}
-          onLabelsUpdated={(labels: Label[]) => {
-            props.articleActionHandler('refreshLabels', labels)
-          }}
-          save={(labels: Label[]) => {
-            if (props.article?.id) {
-              return (
-                setLabelsMutation(
-                  props.article?.id,
-                  labels.map((l) => l.id)
-                ) ?? []
-              )
-            }
-            return Promise.resolve(labels)
-          }}
-        />
-      )}
     </>
   )
 }

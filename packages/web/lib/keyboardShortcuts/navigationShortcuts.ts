@@ -89,6 +89,7 @@ type LibraryListKeyboardAction =
   | 'shareItem'
   | 'showAddLinkModal'
   | 'showEditLabelsModal'
+  | 'openNotebook'
   | 'beginMultiSelect'
   | 'endMultiSelect'
 

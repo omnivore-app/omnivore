@@ -12,11 +12,10 @@ import {
   UpdateTitleEvent,
 } from './../../../components/templates/article/ArticleContainer'
 import { PdfArticleContainerProps } from './../../../components/templates/article/PdfArticleContainer'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { navigationCommands } from '../../../lib/keyboardShortcuts/navigationShortcuts'
 import dynamic from 'next/dynamic'
-import { webBaseURL } from '../../../lib/appConfig'
 import { Toaster } from 'react-hot-toast'
 import { createHighlightMutation } from '../../../lib/networking/mutations/createHighlightMutation'
 import { deleteHighlightMutation } from '../../../lib/networking/mutations/deleteHighlightMutation'
@@ -36,12 +35,12 @@ import { SkeletonArticleContainer } from '../../../components/templates/article/
 import { useRegisterActions } from 'kbar'
 import { deleteLinkMutation } from '../../../lib/networking/mutations/deleteLinkMutation'
 import { ConfirmationModal } from '../../../components/patterns/ConfirmationModal'
-import { setLabelsMutation } from '../../../lib/networking/mutations/setLabelsMutation'
 import { ReaderHeader } from '../../../components/templates/reader/ReaderHeader'
 import { EditArticleModal } from '../../../components/templates/homeFeed/EditItemModals'
 import { VerticalArticleActionsMenu } from '../../../components/templates/article/VerticalArticleActions'
 import { PdfHeaderSpacer } from '../../../components/templates/article/PdfHeaderSpacer'
 import { EpubContainerProps } from '../../../components/templates/article/EpubContainer'
+import { useSetPageLabels } from '../../../lib/hooks/useSetPageLabels'
 
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
   () => import('./../../../components/templates/article/PdfArticleContainer'),
@@ -56,8 +55,6 @@ const EpubContainerNoSSR = dynamic<EpubContainerProps>(
 export default function Home(): JSX.Element {
   const router = useRouter()
   const { cache, mutate } = useSWRConfig()
-  const { slug } = router.query
-
   const [showEditModal, setShowEditModal] = useState(false)
   const [showHighlightsModal, setShowHighlightsModal] = useState(false)
   const { viewerData } = useGetViewerQuery()
@@ -69,12 +66,12 @@ export default function Home(): JSX.Element {
     includeFriendsHighlights: false,
   })
   const article = articleData?.article.article
-  const [labels, setLabels] = useState<Label[]>([])
   useEffect(() => {
-    if (article?.labels) {
-      setLabels(article.labels)
-    }
-  }, [article])
+    dispatchLabels({
+      type: 'RESET',
+      labels: article?.labels ?? [],
+    })
+  }, [articleData?.article.article])
 
   useKeyboardShortcuts(navigationCommands(router))
 
@@ -150,8 +147,10 @@ export default function Home(): JSX.Element {
           }
           break
         case 'refreshLabels':
-          console.log('refreshing labels: ', arg)
-          setLabels(arg as Label[])
+          dispatchLabels({
+            type: 'RESET',
+            labels: arg as Label[],
+          })
           break
         case 'showHighlights':
           setShowHighlightsModal(true)
@@ -252,6 +251,14 @@ export default function Home(): JSX.Element {
         name: 'Back to library',
         shortcut: ['escape'],
         perform: () => {
+          if (
+            readerSettings.showSetLabelsModal ||
+            readerSettings.showDeleteConfirmation ||
+            readerSettings.showDeleteConfirmation ||
+            readerSettings.showEditDisplaySettingsModal
+          ) {
+            return
+          }
           const query = window.sessionStorage.getItem('q')
           if (query) {
             router.push(`/home?${query}`)
@@ -354,8 +361,10 @@ export default function Home(): JSX.Element {
         perform: () => setShowEditModal(true),
       },
     ],
-    []
+    [readerSettings]
   )
+
+  const [labels, dispatchLabels] = useSetPageLabels(article?.id)
 
   if (articleFetchError && articleFetchError.indexOf('NOT_FOUND') > -1) {
     router.push('/404')
@@ -370,6 +379,7 @@ export default function Home(): JSX.Element {
           article={article}
           layout="top"
           showReaderDisplaySettings={article?.contentReader != 'PDF'}
+          readerSettings={readerSettings}
           articleActionHandler={actionHandler}
         />
       }
@@ -423,6 +433,7 @@ export default function Home(): JSX.Element {
           <ArticleActionsMenu
             article={article}
             layout="side"
+            readerSettings={readerSettings}
             showReaderDisplaySettings={true}
             articleActionHandler={actionHandler}
           />
@@ -460,7 +471,7 @@ export default function Home(): JSX.Element {
               margin={readerSettings.marginWidth}
               lineHeight={readerSettings.lineHeight}
               fontFamily={readerSettings.fontFamily}
-              labels={labels}
+              labels={labels.labels}
               showHighlightsModal={showHighlightsModal}
               setShowHighlightsModal={setShowHighlightsModal}
               justifyText={readerSettings.justifyText ?? undefined}
@@ -516,15 +527,8 @@ export default function Home(): JSX.Element {
       {article && readerSettings.showSetLabelsModal && (
         <SetLabelsModal
           provider={article}
-          onLabelsUpdated={(labels: Label[]) => {
-            actionHandler('refreshLabels', labels)
-          }}
-          save={(labels: Label[]) => {
-            return setLabelsMutation(
-              article.linkId,
-              labels.map((label) => label.id)
-            )
-          }}
+          selectedLabels={labels.labels}
+          dispatchLabels={dispatchLabels}
           onOpenChange={() => readerSettings.setShowSetLabelsModal(false)}
         />
       )}

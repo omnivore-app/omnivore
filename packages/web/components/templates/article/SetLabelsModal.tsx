@@ -1,6 +1,5 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
-import { showErrorToast } from '../../../lib/toastHelpers'
 import { SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import {
   ModalRoot,
@@ -9,90 +8,205 @@ import {
   ModalTitleBar,
 } from '../../elements/ModalPrimitives'
 import { LabelsProvider, SetLabelsControl } from './SetLabelsControl'
+import { createLabelMutation } from '../../../lib/networking/mutations/createLabelMutation'
+import { showSuccessToast } from '../../../lib/toastHelpers'
+import { useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQuery'
+import { v4 as uuidv4 } from 'uuid'
+import { randomLabelColorHex } from '../../../utils/settings-page/labels/labelColorObjects'
+import { LabelsDispatcher } from '../../../lib/hooks/useSetPageLabels'
 
 type SetLabelsModalProps = {
   provider: LabelsProvider
 
-  onLabelsUpdated?: (labels: Label[]) => void
   onOpenChange: (open: boolean) => void
-  save: (labels: Label[]) => Promise<Label[] | undefined>
+
+  selectedLabels: Label[]
+  dispatchLabels: LabelsDispatcher
 }
 
 export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
-  const [previousSelectedLabels, setPreviousSelectedLabels] = useState(
-    props.provider.labels ?? []
+  const [inputValue, setInputValue] = useState('')
+  const { selectedLabels, dispatchLabels } = props
+  const availableLabels = useGetLabelsQuery()
+  const [tabCount, setTabCount] = useState(-1)
+  const [tabStartValue, setTabStartValue] = useState('')
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(
+    undefined
   )
-  const [selectedLabels, setSelectedLabels] = useState(
-    props.provider.labels ?? []
-  )
+  const errorTimeoutRef = useRef<NodeJS.Timeout | undefined>()
+  const [highlightLastLabel, setHighlightLastLabel] = useState(false)
 
-  const labelsEqual = (left: Label[], right: Label[]) => {
-    if (left.length !== right.length) {
-      return false
-    }
-
-    for (const label of left) {
-      if (!right.find((r) => label.id == r.id)) {
-        return false
+  const showMessage = useCallback(
+    (msg: string, timeout?: number) => {
+      if (errorTimeoutRef.current) {
+        clearTimeout(errorTimeoutRef.current)
+        errorTimeoutRef.current = undefined
       }
-    }
-
-    return true
-  }
-
-  const onOpenChange = useCallback(
-    async (open: boolean) => {
-      // Only make API call if the labels have been modified
-      if (!labelsEqual(selectedLabels, previousSelectedLabels)) {
-        const result = await props.save(selectedLabels)
-        if (props.onLabelsUpdated) {
-          props.onLabelsUpdated(selectedLabels)
-        }
-
-        if (!result) {
-          showErrorToast('Error updating labels')
-        }
+      setErrorMessage(msg)
+      if (timeout) {
+        errorTimeoutRef.current = setTimeout(() => {
+          setErrorMessage(undefined)
+          if (errorTimeoutRef.current) {
+            clearTimeout(errorTimeoutRef.current)
+            errorTimeoutRef.current = undefined
+          }
+        }, timeout)
       }
-
-      props.onOpenChange(open)
     },
-    [props, selectedLabels, previousSelectedLabels]
+    [errorTimeoutRef]
   )
 
   useEffect(() => {
-    if (labelsEqual(selectedLabels, previousSelectedLabels)) {
-      return
+    const maxLengthMessage = 'Max label length: 48 chars'
+
+    if (inputValue.length >= 48) {
+      showMessage(maxLengthMessage)
+    } else if (errorMessage === maxLengthMessage) {
+      setErrorMessage(undefined)
     }
 
-    props
-      .save(selectedLabels)
-      .then((result) => {
-        setPreviousSelectedLabels(result ?? [])
-      })
-      .catch((err) => {
-        console.log('error saving labels: ', err)
-      })
-  }, [props, selectedLabels, previousSelectedLabels, setPreviousSelectedLabels])
+    if (inputValue.length > 0) {
+      setHighlightLastLabel(false)
+    }
+  }, [errorMessage, inputValue, showMessage])
+
+  const clearInputState = useCallback(() => {
+    setTabCount(-1)
+    setInputValue('')
+    setTabStartValue('')
+    setHighlightLastLabel(false)
+  }, [])
+
+  const createLabelAsync = useCallback(
+    (newLabels: Label[], tempLabel: Label) => {
+      ;(async () => {
+        const currentLabels = newLabels
+        const newLabel = await createLabelMutation(
+          tempLabel.name,
+          tempLabel.color
+        )
+        const idx = currentLabels.findIndex((l) => l.id === tempLabel.id)
+        if (newLabel) {
+          showSuccessToast(`Created label ${newLabel.name}`, {
+            position: 'bottom-right',
+          })
+          if (idx !== -1) {
+            currentLabels[idx] = newLabel
+            dispatchLabels({ type: 'SAVE', labels: [...currentLabels] })
+          } else {
+            dispatchLabels({
+              type: 'SAVE',
+              labels: [...currentLabels, newLabel],
+            })
+          }
+        } else {
+          showMessage(`Error creating label ${tempLabel.name}`, 5000)
+          if (idx !== -1) {
+            currentLabels.splice(idx, 1)
+            dispatchLabels({ type: 'SAVE', labels: [...currentLabels] })
+          }
+        }
+      })()
+    },
+    [dispatchLabels, showMessage]
+  )
+
+  const selectOrCreateLabel = useCallback(
+    (value: string) => {
+      const current = selectedLabels ?? []
+      const lowerCasedValue = value.toLowerCase()
+      const existing = availableLabels.labels.find(
+        (l) => l.name.toLowerCase() == lowerCasedValue
+      )
+
+      if (lowerCasedValue.length < 1) {
+        return
+      }
+
+      if (existing) {
+        const isAdded = selectedLabels.find(
+          (l) => l.name.toLowerCase() == lowerCasedValue
+        )
+        if (!isAdded) {
+          dispatchLabels({ type: 'SAVE', labels: [...current, existing] })
+          clearInputState()
+        } else {
+          showMessage(`label ${value} already added.`, 5000)
+        }
+      } else {
+        const tempLabel = {
+          id: uuidv4(),
+          name: value,
+          color: randomLabelColorHex(),
+          description: '',
+          createdAt: new Date(),
+        }
+        const newLabels = [...current, tempLabel]
+        dispatchLabels({ type: 'TEMP', labels: newLabels })
+        clearInputState()
+
+        createLabelAsync(newLabels, tempLabel)
+      }
+    },
+    [
+      availableLabels,
+      selectedLabels,
+      dispatchLabels,
+      clearInputState,
+      createLabelAsync,
+      showMessage,
+    ]
+  )
+
+  const deleteLastLabel = useCallback(() => {
+    if (highlightLastLabel) {
+      const current = selectedLabels
+      current.pop()
+      dispatchLabels({ type: 'SAVE', labels: [...current] })
+      setHighlightLastLabel(false)
+    } else {
+      setHighlightLastLabel(true)
+    }
+  }, [highlightLastLabel, selectedLabels, dispatchLabels])
 
   return (
-    <ModalRoot defaultOpen onOpenChange={onOpenChange}>
+    <ModalRoot defaultOpen onOpenChange={props.onOpenChange}>
       <ModalOverlay />
       <ModalContent
-        css={{ border: '1px solid $grayBorder' }}
+        tabIndex={0}
+        css={{
+          border: '1px solid $grayBorder',
+          backgroundColor: '$thBackground',
+        }}
         onPointerDownOutside={(event) => {
           event.preventDefault()
-          onOpenChange(false)
+          props.onOpenChange(false)
+        }}
+        onEscapeKeyDown={(event) => {
+          props.onOpenChange(false)
+          event.preventDefault()
         }}
       >
         <VStack distribution="start" css={{ height: '100%' }}>
-          <SpanBox css={{ p: '16px', width: '100%' }}>
-            <ModalTitleBar title="Labels" onOpenChange={onOpenChange} />
+          <SpanBox css={{ pt: '0px', px: '16px', width: '100%' }}>
+            <ModalTitleBar title="Labels" onOpenChange={props.onOpenChange} />
           </SpanBox>
           <SetLabelsControl
             provider={props.provider}
-            selectedLabels={selectedLabels}
-            setSelectedLabels={setSelectedLabels}
-            onLabelsUpdated={props.onLabelsUpdated}
+            inputValue={inputValue}
+            setInputValue={setInputValue}
+            clearInputState={clearInputState}
+            selectedLabels={props.selectedLabels}
+            dispatchLabels={props.dispatchLabels}
+            tabCount={tabCount}
+            setTabCount={setTabCount}
+            tabStartValue={tabStartValue}
+            setTabStartValue={setTabStartValue}
+            highlightLastLabel={highlightLastLabel}
+            setHighlightLastLabel={setHighlightLastLabel}
+            deleteLastLabel={deleteLastLabel}
+            selectOrCreateLabel={selectOrCreateLabel}
+            errorMessage={errorMessage}
           />
         </VStack>
       </ModalContent>

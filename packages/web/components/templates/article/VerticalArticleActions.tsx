@@ -2,11 +2,11 @@ import {
   ArchiveBox,
   DotsThreeOutline,
   Info,
-  TagSimple,
   TextAa,
   Trash,
   Tray,
   Notebook,
+  Tag,
 } from 'phosphor-react'
 import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
 import { Button } from '../../elements/Button'
@@ -45,7 +45,7 @@ export function VerticalArticleActionsMenu(
             alignItems: 'center',
           }}
         >
-          <TagSimple size={24} color={theme.colors.thHighContrast.toString()} />
+          <Tag size={24} color={theme.colors.thHighContrast.toString()} />
         </Button>
 
         <Button

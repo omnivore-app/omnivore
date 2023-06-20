@@ -2,7 +2,6 @@ import type { ReactNode } from 'react'
 import { Dropdown, DropdownOption } from '../elements/DropdownElements'
 import { LibraryItemNode } from '../../lib/networking/queries/useGetLibraryItemsQuery'
 import { UserBasicData } from '../../lib/networking/queries/useGetViewerQuery'
-import { isVipUser } from '../../lib/featureFlag'
 
 export type CardMenuDropdownAction =
   | 'mark-read'
@@ -11,6 +10,7 @@ export type CardMenuDropdownAction =
   | 'unarchive'
   | 'delete'
   | 'set-labels'
+  | 'open-notebook'
   | 'showOriginal'
   | 'unsubscribe'
   | 'editTitle'
@@ -45,6 +45,12 @@ export function CardMenu(props: CardMenuProps): JSX.Element {
           props.actionHandler('set-labels')
         }}
         title="Set Labels"
+      />
+      <DropdownOption
+        onSelect={() => {
+          props.actionHandler('open-notebook')
+        }}
+        title="Open Notebook"
       />
       <DropdownOption
         onSelect={() => props.actionHandler('showOriginal')}

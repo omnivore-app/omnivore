@@ -22,7 +22,7 @@ export const labelFragment = gql`
 export type Label = {
   id: string
   name: string
-  color: LabelColor
+  color: string
   description?: string
   createdAt: Date
 }

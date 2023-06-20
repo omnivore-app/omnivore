@@ -123,8 +123,9 @@ const CreateActionModal = (props: CreateActionModalProps): JSX.Element => {
     }
   }
 
-  const [actionType, setActionType] =
-    useState<RuleActionType | undefined>(undefined)
+  const [actionType, setActionType] = useState<RuleActionType | undefined>(
+    undefined
+  )
 
   return (
     <Modal
@@ -191,8 +192,9 @@ export default function Rules(): JSX.Element {
   const { rules, revalidate } = useGetRulesQuery()
   const { labels } = useGetLabelsQuery()
   const [isCreateRuleModalOpen, setIsCreateRuleModalOpen] = useState(false)
-  const [createActionRule, setCreateActionRule] =
-    useState<Rule | undefined>(undefined)
+  const [createActionRule, setCreateActionRule] = useState<Rule | undefined>(
+    undefined
+  )
 
   const dataSource = useMemo(() => {
     return rules.map((rule: Rule) => {

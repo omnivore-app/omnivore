@@ -12,7 +12,7 @@ import {
 import { TickedRangeSlider } from '../../elements/TickedRangeSlider'
 import { showSuccessToast } from '../../../lib/toastHelpers'
 import { ReaderSettings } from '../../../lib/hooks/useReaderSettings'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { currentThemeName, updateTheme } from '../../../lib/themeUpdater'
 import { LineHeightIncreaseIcon } from '../../elements/images/LineHeightIncreaseIconProps'
 import { LineHeightDecreaseIcon } from '../../elements/images/LineHeightDecreaseIcon'
@@ -70,6 +70,8 @@ export function ReaderSettingsControl(props: ReaderSettingsProps): JSX.Element {
 }
 
 function AdvancedSettings(props: SettingsProps): JSX.Element {
+  const { readerSettings } = props
+
   return (
     <VStack
       css={{ width: '100%', minHeight: '320px', p: '10px' }}
@@ -122,9 +124,9 @@ function AdvancedSettings(props: SettingsProps): JSX.Element {
         </Label>
         <SwitchRoot
           id="justify-text"
-          checked={props.readerSettings.justifyText ?? false}
+          checked={readerSettings.justifyText ?? false}
           onCheckedChange={(checked) => {
-            props.readerSettings.setJustifyText(checked)
+            readerSettings.setJustifyText(checked)
           }}
         >
           <SwitchThumb />
@@ -153,9 +155,9 @@ function AdvancedSettings(props: SettingsProps): JSX.Element {
         </Label>
         <SwitchRoot
           id="high-contrast-text"
-          checked={props.readerSettings.highContrastText ?? false}
+          checked={readerSettings.highContrastText ?? false}
           onCheckedChange={(checked) => {
-            props.readerSettings.setHighContrastText(checked)
+            readerSettings.setHighContrastText(checked)
           }}
         >
           <SwitchThumb />
@@ -196,17 +198,18 @@ const Label = styled('label', {
 })
 
 function BasicSettings(props: SettingsProps): JSX.Element {
+  const { readerSettings } = props
   return (
     <VStack css={{ width: '100%' }}>
-      <FontControls readerSettings={props.readerSettings} />
+      <FontControls readerSettings={readerSettings} />
 
       <HorizontalDivider />
 
-      <LayoutControls readerSettings={props.readerSettings} />
+      <LayoutControls readerSettings={readerSettings} />
 
       <HorizontalDivider />
 
-      <ThemeSelector {...props} />
+      <ThemeSelector />
 
       <HorizontalDivider />
 
@@ -228,10 +231,10 @@ function BasicSettings(props: SettingsProps): JSX.Element {
             },
           }}
           onClick={() => {
-            props.readerSettings.setFontFamily('Inter')
-            props.readerSettings.setMarginWidth(290)
-            props.readerSettings.setLineHeight(150)
-            props.readerSettings.actionHandler('resetReaderSettings')
+            readerSettings.setFontFamily('Inter')
+            readerSettings.setMarginWidth(290)
+            readerSettings.setLineHeight(150)
+            readerSettings.actionHandler('resetReaderSettings')
             showSuccessToast('Reader Preferences Reset', {
               position: 'bottom-right',
             })
@@ -272,6 +275,7 @@ type FontControlsProps = {
 }
 
 function FontControls(props: FontControlsProps): JSX.Element {
+  const { readerSettings } = props
   const FontSelect = styled('select', {
     pl: '5px',
     height: '30px',
@@ -281,16 +285,16 @@ function FontControls(props: FontControlsProps): JSX.Element {
     fontSize: '12px',
     background: '$thBackground',
     border: '1px solid $thBorderColor',
-    fontFamily: props.readerSettings.fontFamily,
+    fontFamily: readerSettings.fontFamily,
     textTransform: 'capitalize',
     borderRadius: '4px',
   })
 
   const handleFontSizeChange = useCallback(
     (value) => {
-      props.readerSettings.actionHandler('setFontSize', value)
+      readerSettings.actionHandler('setFontSize', value)
     },
-    [props.readerSettings.actionHandler]
+    [readerSettings]
   )
 
   return (
@@ -304,13 +308,13 @@ function FontControls(props: FontControlsProps): JSX.Element {
         <FontSelect
           css={{ marginLeft: 'auto' }}
           tabIndex={-1}
-          defaultValue={props.readerSettings.fontFamily}
+          defaultValue={readerSettings.fontFamily}
           onChange={(e: React.FormEvent<HTMLSelectElement>) => {
             const font = e.currentTarget.value
             if (FONT_FAMILIES.indexOf(font) < 0) {
               return
             }
-            props.readerSettings.setFontFamily(font)
+            readerSettings.setFontFamily(font)
           }}
         >
           {FONT_FAMILIES.map((family) => (
@@ -329,7 +333,7 @@ function FontControls(props: FontControlsProps): JSX.Element {
           style="plainIcon"
           css={{ py: '0px', width: '60px' }}
           onClick={() => {
-            props.readerSettings.actionHandler('decrementFontSize')
+            readerSettings.actionHandler('decrementFontSize')
           }}
         >
           <SpanBox
@@ -391,11 +395,13 @@ type LayoutControlsProps = {
 }
 
 function LayoutControls(props: LayoutControlsProps): JSX.Element {
+  const { readerSettings } = props
+
   const handleMarginWidthChange = useCallback(
     (value) => {
-      props.readerSettings.setMarginWidth(value)
+      readerSettings.setMarginWidth(value)
     },
-    [props.readerSettings.actionHandler, props.readerSettings.setMarginWidth]
+    [readerSettings]
   )
 
   return (
@@ -425,10 +431,10 @@ function LayoutControls(props: LayoutControlsProps): JSX.Element {
             css={{ py: '0px', width: '60px' }}
             onClick={() => {
               const newMarginWith = Math.max(
-                props.readerSettings.marginWidth - 45,
+                readerSettings.marginWidth - 45,
                 200
               )
-              props.readerSettings.setMarginWidth(newMarginWith)
+              readerSettings.setMarginWidth(newMarginWith)
             }}
           >
             <ArrowsHorizontal size={24} color="#969696" />
@@ -437,7 +443,7 @@ function LayoutControls(props: LayoutControlsProps): JSX.Element {
             min={200}
             max={560}
             step={45}
-            value={props.readerSettings.marginWidth}
+            value={readerSettings.marginWidth}
             onChange={handleMarginWidthChange}
           />
           <Button
@@ -445,10 +451,10 @@ function LayoutControls(props: LayoutControlsProps): JSX.Element {
             css={{ py: '0px', width: '60px' }}
             onClick={() => {
               const newMarginWith = Math.min(
-                props.readerSettings.marginWidth + 45,
+                readerSettings.marginWidth + 45,
                 560
               )
-              props.readerSettings.setMarginWidth(newMarginWith)
+              readerSettings.setMarginWidth(newMarginWith)
             }}
           >
             <ArrowsInLineHorizontal size={24} color="#969696" />
@@ -522,7 +528,7 @@ function LayoutControls(props: LayoutControlsProps): JSX.Element {
   )
 }
 
-function ThemeSelector(props: ReaderSettingsProps): JSX.Element {
+function ThemeSelector(): JSX.Element {
   const [currentTheme, setCurrentTheme] = useState(currentThemeName())
   return (
     <VStack

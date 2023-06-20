@@ -12,8 +12,6 @@ import {
   PageType,
   State,
 } from '../../../lib/networking/fragments/articleFragment'
-import { Label } from '../../../lib/networking/fragments/labelFragment'
-import { setLabelsMutation } from '../../../lib/networking/mutations/setLabelsMutation'
 import {
   SearchItem,
   TypeaheadSearchItemsData,
@@ -33,7 +31,6 @@ import { StyledText } from '../../elements/StyledText'
 import { ConfirmationModal } from '../../patterns/ConfirmationModal'
 import { LinkedItemCardAction } from '../../patterns/LibraryCards/CardTypes'
 import { LinkedItemCard } from '../../patterns/LibraryCards/LinkedItemCard'
-import { SetLabelsModal } from '../article/SetLabelsModal'
 import { Box, HStack, VStack } from './../../elements/LayoutPrimitives'
 import { AddLinkModal } from './AddLinkModal'
 import { EditLibraryItemModal } from './EditItemModals'
@@ -45,6 +42,9 @@ import { UploadModal } from '../UploadModal'
 import { BulkAction } from '../../../lib/networking/mutations/bulkActionMutation'
 import { bulkActionMutation } from '../../../lib/networking/mutations/bulkActionMutation'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
+import { SetPageLabelsModalPresenter } from '../article/SetLabelsModalPresenter'
+import { NotebookPresenter } from '../article/NotebookPresenter'
+import { Highlight } from '../../../lib/networking/fragments/highlightFragment'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 export type LibraryMode = 'reads' | 'highlights'
@@ -78,6 +78,10 @@ export function HomeFeedContainer(): JSX.Element {
   const gridContainerRef = useRef<HTMLDivElement>(null)
 
   const [labelsTarget, setLabelsTarget] = useState<LibraryItem | undefined>(
+    undefined
+  )
+
+  const [notebookTarget, setNotebookTarget] = useState<LibraryItem | undefined>(
     undefined
   )
 
@@ -330,6 +334,9 @@ export function HomeFeedContainer(): JSX.Element {
       case 'set-labels':
         setLabelsTarget(item)
         break
+      case 'open-notebook':
+        setNotebookTarget(item)
+        break
       case 'unsubscribe':
         performActionOnItem('unsubscribe', item)
       case 'update-item':
@@ -466,6 +473,9 @@ export function HomeFeedContainer(): JSX.Element {
         case 'showEditLabelsModal':
           handleCardAction('set-labels', activeItem)
           break
+        case 'openNotebook':
+          handleCardAction('open-notebook', activeItem)
+          break
         case 'sortDescending':
           setQueryInputs({ ...queryInputs, sortDescending: true })
           break
@@ -511,6 +521,12 @@ export function HomeFeedContainer(): JSX.Element {
       name: 'Edit item labels',
       shortcut: ['l'],
       perform: () => handleCardAction('set-labels', activeItem),
+    }),
+    createAction({
+      section: 'Library',
+      name: 'Open Notebook',
+      shortcut: ['t'],
+      perform: () => handleCardAction('open-notebook', activeItem),
     }),
     createAction({
       section: 'Library',
@@ -707,6 +723,8 @@ export function HomeFeedContainer(): JSX.Element {
       isValidating={isValidating}
       labelsTarget={labelsTarget}
       setLabelsTarget={setLabelsTarget}
+      notebookTarget={notebookTarget}
+      setNotebookTarget={setNotebookTarget}
       showAddLinkModal={showAddLinkModal}
       setShowAddLinkModal={setShowAddLinkModal}
       showEditTitleModal={showEditTitleModal}
@@ -742,6 +760,10 @@ type HomeFeedContentProps = {
   loadMore: () => void
   labelsTarget: LibraryItem | undefined
   setLabelsTarget: (target: LibraryItem | undefined) => void
+
+  notebookTarget: LibraryItem | undefined
+  setNotebookTarget: (target: LibraryItem | undefined) => void
+
   showAddLinkModal: boolean
   setShowAddLinkModal: (show: boolean) => void
   showEditTitleModal: boolean
@@ -1005,29 +1027,28 @@ function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element {
         />
       )}
       {props.labelsTarget?.node.id && (
-        <SetLabelsModal
-          provider={props.labelsTarget.node}
-          onLabelsUpdated={(labels: Label[]) => {
-            if (props.labelsTarget) {
-              props.labelsTarget.node.labels = labels
-              updateState({})
-            }
-          }}
-          save={(labels: Label[]) => {
-            if (props.labelsTarget?.node.id) {
-              return setLabelsMutation(
-                props.labelsTarget.node.id,
-                labels.map((label) => label.id)
-              )
-            }
-            return Promise.resolve(undefined)
-          }}
+        <SetPageLabelsModalPresenter
+          articleId={props.labelsTarget.node.id}
+          article={props.labelsTarget.node}
           onOpenChange={() => {
             if (props.labelsTarget) {
               const activate = props.labelsTarget
               props.setActiveItem(activate)
               props.setLabelsTarget(undefined)
             }
+          }}
+        />
+      )}
+      {props.viewer && props.notebookTarget?.node.id && (
+        <NotebookPresenter
+          viewer={props.viewer}
+          item={props.notebookTarget?.node}
+          highlights={props.notebookTarget?.node.highlights ?? []}
+          onClose={(highlights: Highlight[]) => {
+            if (props.notebookTarget?.node.highlights) {
+              props.notebookTarget.node.highlights = highlights
+            }
+            props.setNotebookTarget(undefined)
           }}
         />
       )}
@@ -1071,13 +1092,17 @@ function LibraryItems(props: LibraryItemsProps): JSX.Element {
         display: 'grid',
         width: '100%',
         gridAutoRows: 'auto',
-        borderRadius: '5px',
+        borderRadius: '6px',
         gridGap: props.layout == 'LIST_LAYOUT' ? '0' : '20px',
         marginTop: '10px',
         marginBottom: '0px',
         paddingTop: '0',
         paddingBottom: '0px',
         overflow: 'hidden',
+        boxShadow:
+          props.layout == 'LIST_LAYOUT'
+            ? '0 1px 3px 0 rgba(0, 0, 0, 0.1),0 1px 2px 0 rgba(0, 0, 0, 0.06);'
+            : 'unset',
         '@xlgDown': {
           border: 'unset',
           borderRadius: props.layout == 'LIST_LAYOUT' ? 0 : undefined,

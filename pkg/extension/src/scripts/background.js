@@ -815,7 +815,18 @@ function init() {
 
   browserApi.contextMenus.create({
     id: 'save-selection',
-    title: 'Save to Omnivore',
+    title: 'Save link to Omnivore',
+    contexts: ['link'],
+    onclick: async function (obj) {
+      executeAction(async function (currentTab) {
+        await saveUrl(currentTab, obj.linkUrl)
+      })
+    },
+  })
+
+  browserApi.contextMenus.create({
+    id: 'save-selection',
+    title: 'Save link to Omnivore',
     contexts: ['link'],
     onclick: async function (obj) {
       executeAction(async function (currentTab) {
