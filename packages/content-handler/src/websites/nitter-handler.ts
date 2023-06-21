@@ -1,7 +1,7 @@
 import { parseHTML } from 'linkedom'
 import _, { truncate } from 'lodash'
 import { DateTime } from 'luxon'
-import { Browser, BrowserContext } from 'puppeteer-core'
+import { Browser, BrowserContext, WaitForOptions } from 'puppeteer-core'
 import { ContentHandler, PreHandleResult } from '../content-handler'
 
 interface Tweet {
@@ -135,10 +135,11 @@ export class NitterHandler extends ContentHandler {
 
       context = await browser.createIncognitoBrowserContext()
       const page = await context.newPage()
-      await page.goto(url, {
+      const option: WaitForOptions = {
         waitUntil: 'networkidle2',
-        timeout: 30000, // 30 seconds
-      })
+        timeout: 60000, // 30 seconds
+      }
+      await page.goto(url, option)
 
       const html = await page.content()
       const document = parseHTML(html).document
@@ -160,10 +161,7 @@ export class NitterHandler extends ContentHandler {
           }
 
           // go to new url and wait for it to load
-          await page.goto(`${this.ADDRESS}${newUrl}`, {
-            waitUntil: 'networkidle2',
-            timeout: 30000, // 30 seconds
-          })
+          await page.goto(`${this.ADDRESS}${newUrl}`, option)
 
           const document = parseHTML(await page.content()).document
           const nextThread = document.querySelector('.main-thread .after-tweet')
