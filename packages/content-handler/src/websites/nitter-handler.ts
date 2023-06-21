@@ -239,6 +239,10 @@ export class NitterHandler extends ContentHandler {
       '_400x400'
     )}`
     const description = _.escape(tweet.text)
+    const imageDomain =
+      domain === 'twitter.com'
+        ? 'https://pbs.twimg.com'
+        : 'https://nitter.net/pic'
 
     let tweetsContent = ''
     for (const tweet of tweets) {
@@ -253,9 +257,13 @@ export class NitterHandler extends ContentHandler {
       const includesHtml = tweet.attachments
         .map(
           (attachment) =>
-            `<a class="media-link" href=${this.ADDRESS}${attachment.url}>
+            `<a class="media-link" href=${imageDomain}${decodeURIComponent(
+              attachment.url
+            ).replace('/pic', '')}>
           <picture>
-            <img class="tweet-img" src=${this.ADDRESS}${attachment.previewUrl} />
+            <img class="tweet-img" src=${imageDomain}${decodeURIComponent(
+              attachment.previewUrl
+            ).replace('/pic', '')} />
           </picture>
           </a>`
         )
