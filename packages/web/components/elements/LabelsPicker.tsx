@@ -8,7 +8,7 @@ import { EditLabelChip } from './EditLabelChip'
 import { LabelsDispatcher } from '../../lib/hooks/useSetPageLabels'
 import { EditLabelChipStack } from './EditLabelChipStack'
 
-const MaxUnstackedLabels = 4
+const MaxUnstackedLabels = 7
 
 type LabelsPickerProps = {
   selectedLabels: Label[]
