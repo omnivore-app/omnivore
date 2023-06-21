@@ -115,6 +115,14 @@ export const markEmailAsItemResolver = authorized<
       },
       newsletterEmail
     )
+    if (!success) {
+      log.info('newsletter not created', recentEmail.id)
+
+      return {
+        errorCodes: [MarkEmailAsItemErrorCode.BadRequest],
+      }
+    }
+
     // update received email type
     await updateReceivedEmail(recentEmail.id, 'article')
 

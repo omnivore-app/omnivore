@@ -67,27 +67,24 @@ export const saveNewsletterEmail = async (
     return false
   }
 
-  if (!page.siteIcon || isBase64Image(page.siteIcon)) {
+  let icon = page.siteIcon
+  if (!icon || isBase64Image(icon)) {
     // fetch favicon if not already set or is a base64 image
-    const favicon = await fetchFavicon(page.url)
-    if (favicon) {
-      page.siteIcon = favicon
-      await updatePage(page.id, { siteIcon: favicon }, saveCtx)
+    icon = await fetchFavicon(page.url)
+    if (icon) {
+      await updatePage(page.id, { siteIcon: icon }, saveCtx)
     }
   }
 
-  // creates or updates subscription only if their is a valid unsubscribe link
-  if (data.unsubMailTo || data.unsubHttpUrl) {
-    const subscriptionId = await saveSubscription({
-      userId: newsletterEmail.user.id,
-      name: data.author,
-      newsletterEmail,
-      unsubscribeMailTo: data.unsubMailTo,
-      unsubscribeHttpUrl: data.unsubHttpUrl,
-      icon: page.siteIcon,
-    })
-    console.log('subscription saved', subscriptionId)
-  }
+  const subscriptionId = await saveSubscription({
+    userId: newsletterEmail.user.id,
+    name: data.author,
+    newsletterEmail,
+    unsubscribeMailTo: data.unsubMailTo,
+    unsubscribeHttpUrl: data.unsubHttpUrl,
+    icon,
+  })
+  console.log('subscription saved', subscriptionId)
 
   // adds newsletters label to page
   const result = await addLabelToPage(saveCtx, page.id, {
