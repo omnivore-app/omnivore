@@ -374,10 +374,6 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
       if (event.key === 'Enter') {
         event.preventDefault()
         if (focusedIndex === maxIndex) {
-          router.push('/settings/labels')
-          return
-        }
-        if (focusedIndex === maxIndex - 1) {
           const _filterText = inputValue
           setInputValue('')
           await createLabelFromFilterText(_filterText)
