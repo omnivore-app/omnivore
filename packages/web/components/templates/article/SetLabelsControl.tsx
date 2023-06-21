@@ -172,6 +172,8 @@ function LabelListItem(props: LabelListItemProps): JSX.Element {
 type FooterProps = {
   focused: boolean
   filterText: string
+  selectedLabels: Label[]
+  availableLabels: Label[]
 }
 
 function Footer(props: FooterProps): JSX.Element {
@@ -182,6 +184,20 @@ function Footer(props: FooterProps): JSX.Element {
       ref.current.focus()
     }
   }, [props.focused])
+
+  const textMatch: 'selected' | 'available' | 'none' = useMemo(() => {
+    const findLabel = (l: Label) =>
+      l.name.toLowerCase() == props.filterText.toLowerCase()
+    const available = props.availableLabels.find(findLabel)
+    const selected = props.selectedLabels.find(findLabel)
+    if (available && !selected) {
+      return 'available'
+    }
+    if (selected) {
+      return 'selected'
+    }
+    return 'none'
+  }, [props])
 
   return (
     <HStack
@@ -214,11 +230,24 @@ function Footer(props: FooterProps): JSX.Element {
           }}
           // onClick={createLabelFromFilterText}
         >
-          <HStack alignment="center" distribution="start" css={{ gap: '8px' }}>
-            <Plus size={18} color={theme.colors.grayText.toString()} />
-            <SpanBox
-              css={{ fontSize: '12px' }}
-            >{`Use Enter to create new label "${props.filterText}"`}</SpanBox>
+          <HStack
+            alignment="center"
+            distribution="start"
+            css={{ gap: '8px', fontSize: '12px' }}
+          >
+            {textMatch === 'available' && (
+              <>
+                <Check size={18} color={theme.colors.grayText.toString()} />
+                Use Enter to add label "{props.filterText}"
+              </>
+            )}
+
+            {textMatch === 'none' && (
+              <>
+                <Plus size={18} color={theme.colors.grayText.toString()} />
+                Use Enter to create new label "{props.filterText}"
+              </>
+            )}
           </HStack>
         </Button>
       ) : (
@@ -447,6 +476,8 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
       ) : (
         <Footer
           filterText={inputValue}
+          selectedLabels={props.selectedLabels}
+          availableLabels={labels}
           focused={focusedIndex === filteredLabels.length + 1}
         />
       )}
