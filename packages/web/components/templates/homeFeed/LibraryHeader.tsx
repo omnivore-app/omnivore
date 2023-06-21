@@ -13,6 +13,7 @@ import {
   MagnifyingGlass,
   Prohibit,
   SquaresFour,
+  Tag,
   TrashSimple,
   X,
 } from 'phosphor-react'
@@ -29,6 +30,9 @@ import { CardCheckbox } from '../../patterns/LibraryCards/LibraryCardStyles'
 import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
 import { BulkAction } from '../../../lib/networking/mutations/bulkActionMutation'
 import { ConfirmationModal } from '../../patterns/ConfirmationModal'
+import { AddBulkLabelsModal } from '../article/AddBulkLabelsModal'
+import { Label } from '../../../lib/networking/fragments/labelFragment'
+import { LabelsDispatcher } from '../../../lib/hooks/useSetPageLabels'
 
 export type MultiSelectMode = 'off' | 'none' | 'some' | 'visible' | 'search'
 
@@ -51,26 +55,10 @@ type LibraryHeaderProps = {
   multiSelectMode: MultiSelectMode
   setMultiSelectMode: (mode: MultiSelectMode) => void
 
-  performMultiSelectAction: (action: BulkAction) => void
+  performMultiSelectAction: (action: BulkAction, labelIds?: string[]) => void
 }
 
 export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
-  const [showBackground, setShowBackground] = useState(false)
-
-  useEffect(() => {
-    if (!props.alwaysShowHeader) {
-      setShowBackground(window.scrollY > 5 || props.multiSelectMode !== 'off')
-    } else {
-      setShowBackground(true)
-    }
-  }, [props.multiSelectMode, props.alwaysShowHeader])
-
-  useScrollWatcher((changeset: ScrollOffsetChangeset) => {
-    if (!props.alwaysShowHeader) {
-      setShowBackground(window.scrollY > 5 || props.multiSelectMode !== 'off')
-    }
-  }, 0)
-
   return (
     <>
       <VStack
@@ -122,6 +110,7 @@ function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
         multiSelectMode={props.multiSelectMode}
         setMultiSelectMode={props.setMultiSelectMode}
         showAddLinkModal={props.showAddLinkModal}
+        bulkSetLabels={props.bulkSetLabels}
         performMultiSelectAction={props.performMultiSelectAction}
         searchTerm={props.searchTerm}
         applySearchQuery={props.applySearchQuery}
@@ -171,6 +160,7 @@ function SmallHeaderLayout(props: LibraryHeaderProps): JSX.Element {
             multiSelectMode={props.multiSelectMode}
             setMultiSelectMode={props.setMultiSelectMode}
             showAddLinkModal={props.showAddLinkModal}
+            bulkSetLabels={props.bulkSetLabels}
             performMultiSelectAction={props.performMultiSelectAction}
             searchTerm={props.searchTerm}
             applySearchQuery={props.applySearchQuery}
@@ -388,7 +378,7 @@ type ControlButtonBoxProps = {
   multiSelectMode: MultiSelectMode
   setMultiSelectMode: (mode: MultiSelectMode) => void
 
-  performMultiSelectAction: (action: BulkAction) => void
+  performMultiSelectAction: (action: BulkAction, labelIds?: string[]) => void
 
   searchTerm: string | undefined
   applySearchQuery: (searchQuery: string) => void
@@ -398,6 +388,7 @@ function MultiSelectControlButtonBox(
   props: ControlButtonBoxProps
 ): JSX.Element {
   const [showConfirmDelete, setShowConfirmDelete] = useState(false)
+  const [showLabelsModal, setShowLabelsModal] = useState(false)
 
   return (
     <HStack alignment="center" distribution="center" css={{ gap: '20px' }}>
@@ -414,6 +405,20 @@ function MultiSelectControlButtonBox(
           color={theme.colors.thTextContrast2.toString()}
         />
         <SpanBox css={{ '@lgDown': { display: 'none' } }}>Archive</SpanBox>
+      </Button>
+      <Button
+        style="outline"
+        onClick={(e) => {
+          setShowLabelsModal(true)
+          e.preventDefault()
+        }}
+      >
+        <Tag
+          width={20}
+          height={20}
+          color={theme.colors.thTextContrast2.toString()}
+        />
+        <SpanBox css={{ '@lgDown': { display: 'none' } }}>Add Labels</SpanBox>
       </Button>
       <Button
         style="outline"
@@ -441,7 +446,7 @@ function MultiSelectControlButtonBox(
           height={20}
           color={theme.colors.thTextContrast2.toString()}
         />
-        Cancel
+        <SpanBox css={{ '@lgDown': { display: 'none' } }}>Cancel</SpanBox>
       </Button>
       {showConfirmDelete && (
         <ConfirmationModal
@@ -452,6 +457,17 @@ function MultiSelectControlButtonBox(
           }}
           onOpenChange={(open: boolean) => {
             setShowConfirmDelete(false)
+          }}
+        />
+      )}
+      {showLabelsModal && (
+        <AddBulkLabelsModal
+          bulkSetLabels={(labels: Label[]) => {
+            const labelIds = labels.map((l) => l.id)
+            props.performMultiSelectAction(BulkAction.ADD_LABELS, labelIds)
+          }}
+          onOpenChange={(open: boolean) => {
+            setShowLabelsModal(false)
           }}
         />
       )}
@@ -564,7 +580,7 @@ function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
                 triggerElement={
                   <CaretDown
                     size={15}
-                    color={theme.colors.thBorderSubtle.toString()}
+                    color={theme.colors.graySolid.toString()}
                     weight="fill"
                   />
                 }

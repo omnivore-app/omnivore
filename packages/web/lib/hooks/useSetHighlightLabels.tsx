@@ -2,12 +2,7 @@ import { useReducer } from 'react'
 import { Label } from '../networking/fragments/labelFragment'
 import { showErrorToast } from '../toastHelpers'
 import { setLabelsForHighlight } from '../networking/mutations/setLabelsForHighlight'
-
-export type LabelAction = 'RESET' | 'TEMP' | 'SAVE'
-export type LabelsDispatcher = (action: {
-  type: LabelAction
-  labels: Label[]
-}) => void
+import { LabelsDispatcher } from './useSetPageLabels'
 
 export const useSetHighlightLabels = (
   highlightId?: string

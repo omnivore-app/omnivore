@@ -192,7 +192,6 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
             <ModalTitleBar title="Labels" onOpenChange={props.onOpenChange} />
           </SpanBox>
           <SetLabelsControl
-            provider={props.provider}
             inputValue={inputValue}
             setInputValue={setInputValue}
             clearInputState={clearInputState}

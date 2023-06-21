@@ -125,7 +125,7 @@ export const Button = styled('button', {
         fontWeight: '600',
         fontFamily: '$inter',
         cursor: 'pointer',
-        border: '1px solid $thBorderSubtle',
+        border: '1px solid $thBorderColor',
         bg: 'transparent',
         '&:hover': {
           border: '1px solid $grayBorderHover',

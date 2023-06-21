@@ -18,8 +18,6 @@ export interface LabelsProvider {
 }
 
 type SetLabelsControlProps = {
-  provider: LabelsProvider
-
   inputValue: string
   setInputValue: (value: string) => void
   clearInputState: () => void
@@ -39,6 +37,8 @@ type SetLabelsControlProps = {
   selectOrCreateLabel: (value: string) => void
 
   errorMessage?: string
+
+  footer?: React.ReactNode
 }
 
 type HeaderProps = SetLabelsControlProps & {
@@ -273,7 +273,6 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
         newSelectedLabels = [...props.selectedLabels, label]
       }
       props.dispatchLabels({ type: 'SAVE', labels: newSelectedLabels })
-      props.provider.labels = newSelectedLabels
 
       props.clearInputState()
       revalidate()
@@ -383,7 +382,6 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
       }}
     >
       <Header
-        provider={props.provider}
         focused={focusedIndex === undefined}
         resetFocusedIndex={() => setFocusedIndex(undefined)}
         inputValue={inputValue}
@@ -443,10 +441,14 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
           />
         ))}
       </VStack>
-      <Footer
-        filterText={inputValue}
-        focused={focusedIndex === filteredLabels.length + 1}
-      />
+      {props.footer ? (
+        props.footer
+      ) : (
+        <Footer
+          filterText={inputValue}
+          focused={focusedIndex === filteredLabels.length + 1}
+        />
+      )}
     </VStack>
   )
 }
