@@ -179,7 +179,10 @@ export class NitterHandler extends ContentHandler {
         }
 
         const tweet = parseTweet(item)
-        tweet && tweets.push(tweet)
+        // filter out replies
+        if (tweet && tweet.author.username === username) {
+          tweets.push(tweet)
+        }
       }
 
       return tweets
