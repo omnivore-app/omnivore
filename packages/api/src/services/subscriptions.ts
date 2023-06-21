@@ -114,19 +114,14 @@ export const saveSubscription = async ({
 export const unsubscribe = async (subscription: Subscription) => {
   let unsubscribed = false
   if (subscription.unsubscribeMailTo) {
-    // unsubscribe by sending email first
+    // unsubscribe by sending email
     unsubscribed = await sendUnsubscribeEmail(
       subscription.unsubscribeMailTo,
       subscription.newsletterEmail.address
     )
-  } else if (subscription.unsubscribeHttpUrl) {
-    // unsubscribe by sending http request if no unsubscribeMailTo
-    unsubscribed = await sendUnsubscribeHttpRequest(
-      subscription.unsubscribeHttpUrl
-    )
-  } else {
-    console.log('No unsubscribe method defined')
   }
+  // TODO: find a good way to unsubscribe by url if email fails or not provided
+  // because it often requires clicking a button on the page to unsubscribe
 
   if (!unsubscribed) {
     // update subscription status to unsubscribed if failed to unsubscribe
