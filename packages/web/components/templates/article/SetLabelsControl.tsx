@@ -244,6 +244,7 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
   const [focusedIndex, setFocusedIndex] = useState<number | undefined>(0)
 
   useEffect(() => {
+    console.log('setting focused index: ', inputValue)
     setFocusedIndex(undefined)
   }, [inputValue])
 
