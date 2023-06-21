@@ -15,11 +15,14 @@ interface Tweet {
   entities: {
     urls: {
       url: string
-      display_url: string
+      displayUrl: string
     }[]
-    photos: string[]
-    videos: string[]
   }
+  attachments: {
+    type: string
+    url: string
+    previewUrl: string
+  }[]
   createdAt: string
 }
 
@@ -35,170 +38,162 @@ export class NitterHandler extends ContentHandler {
   }
 
   async getTweets(browser: Browser, username: string, tweetId: string) {
-    const url = `${this.ADDRESS}/${username}/status/${tweetId}`
+    function authorParser(header: Element) {
+      const profileImageUrl =
+        header.querySelector('.tweet-avatar img')?.getAttribute('src') ?? ''
+      const name =
+        header.querySelector('.fullname')?.getAttribute('title') ?? ''
+      const username =
+        header.querySelector('.username')?.getAttribute('title') ?? ''
 
-    async function genTweets(address: string): Promise<Tweet[]> {
-      function authorParser(header: Element) {
-        const avatar = header
-          .querySelector('.tweet-avatar img')
-          ?.getAttribute('src')
-        if (!avatar) {
-          return null
-        }
-        const name = header.querySelector('.fullname')?.getAttribute('title')
-        if (!name) {
-          return null
-        }
-        return {
-          avatar,
-          name,
-        }
-      }
-
-      function dateParser(tweetDate: string) {
-        const validDateTime = tweetDate.replace(' · ', ' ')
-
-        return new Date(validDateTime).toISOString()
-      }
-
-      function attachmentParser(attachments: Element | null) {
-        if (!attachments) return { photos: [], videos: [] }
-
-        const photos = Array.from(attachments.querySelectorAll('img')).map(
-          (i) => i.getAttribute('src') ?? ''
-        )
-        const videos = Array.from(attachments.querySelectorAll('source')).map(
-          (i) => i.getAttribute('src') ?? ''
-        )
-        return {
-          photos,
-          videos,
-        }
-      }
-
-      function parseTweet(tweet: Element): Tweet | null {
-        const header = tweet.querySelector('.tweet-header')
-        if (!header) {
-          return null
-        }
-        const author = authorParser(header)
-        if (!author) {
-          return null
-        }
-
-        const body = tweet.querySelector('.tweet-body')
-        if (!body) {
-          return null
-        }
-
-        const tweetDate = body
-          .querySelector('.tweet-date a')
-          ?.getAttribute('title')
-        if (!tweetDate) {
-          return null
-        }
-        const createdAt = dateParser(tweetDate)
-
-        const content = body.querySelector('.tweet-content')
-        if (!content) {
-          return null
-        }
-        const text = content.textContent ?? ''
-        const urls = Array.from(content.querySelectorAll('a')).map((a) => ({
-          url: a.getAttribute('href') ?? '',
-          display_url: a.textContent ?? '',
-        }))
-
-        const attachments = body.querySelector('.attachments')
-        const { photos, videos } = attachmentParser(attachments)
-
-        return {
-          author: {
-            username,
-            name: author.name,
-            profileImageUrl: author.avatar,
-          },
-          createdAt,
-          text,
-          url,
-          entities: {
-            urls,
-            photos,
-            videos,
-          },
-        }
-      }
-
-      let context: BrowserContext | undefined
-      try {
-        const tweets: Tweet[] = []
-
-        context = await browser.createIncognitoBrowserContext()
-        const page = await context.newPage()
-        await page.goto(url, {
-          waitUntil: 'networkidle2',
-          timeout: 30000, // 30 seconds
-        })
-
-        const html = await page.content()
-        const document = parseHTML(html).document
-
-        // get the main thread including tweets and threads
-        const mainThread = document.querySelector('.main-thread')
-        if (!mainThread) {
-          return []
-        }
-        const timelineItems = Array.from(
-          mainThread.querySelectorAll('.timeline-item')
-        )
-        for (let i = 0; i < timelineItems.length; i++) {
-          const item = timelineItems[i]
-          if (item.classList.contains('more-replies')) {
-            const newUrl = item.querySelector('a')?.getAttribute('href')
-            if (!newUrl) {
-              break
-            }
-
-            // go to new url and wait for it to load
-            await page.goto(`${address}${newUrl}`, {
-              waitUntil: 'networkidle2',
-              timeout: 30000, // 30 seconds
-            })
-
-            const document = parseHTML(await page.content()).document
-            const nextThread = document.querySelector(
-              '.main-thread .after-tweet'
-            )
-            if (!nextThread) {
-              break
-            }
-
-            // get the new timeline items and add them to the list
-            const newTimelineItems = Array.from(
-              nextThread.querySelectorAll('.timeline-item')
-            )
-
-            timelineItems.push(...newTimelineItems)
-            continue
-          }
-
-          const tweet = parseTweet(item)
-          tweet && tweets.push(tweet)
-        }
-
-        return tweets
-      } catch (error) {
-        console.error('Error getting tweets', error)
-
-        return []
-      } finally {
-        if (context) {
-          await context.close()
-        }
+      return {
+        profileImageUrl,
+        name,
+        username: username.replace('@', ''), // remove @ from username
       }
     }
 
-    return genTweets(this.ADDRESS)
+    function dateParser(date: Element) {
+      const validDateTime =
+        date.getAttribute('title')?.replace(' · ', ' ') ?? Date.now()
+
+      return new Date(validDateTime).toISOString()
+    }
+
+    function urlParser(date: Element) {
+      return date.getAttribute('href') ?? ''
+    }
+
+    function attachmentParser(attachments: Element | null) {
+      if (!attachments) return []
+
+      const photos = Array.from(attachments.querySelectorAll('img')).map(
+        (i) => ({
+          url: i.getAttribute('src') ?? '',
+          type: 'photo',
+          previewUrl: i.getAttribute('src') ?? '',
+        })
+      )
+      const videos = Array.from(attachments.querySelectorAll('video')).map(
+        (i) => ({
+          url: i.getAttribute('data-url') ?? '',
+          type: 'video',
+          previewUrl: i.getAttribute('poster') ?? '',
+        })
+      )
+
+      return [...photos, ...videos]
+    }
+
+    function parseTweet(tweet: Element): Tweet | null {
+      const header = tweet.querySelector('.tweet-header')
+      if (!header) {
+        return null
+      }
+      const author = authorParser(header)
+
+      const body = tweet.querySelector('.tweet-body')
+      if (!body) {
+        return null
+      }
+
+      const tweetDateElement = body.querySelector('.tweet-date a')
+      if (!tweetDateElement) {
+        return null
+      }
+      const createdAt = dateParser(tweetDateElement)
+      const url = urlParser(tweetDateElement)
+
+      const content = body.querySelector('.tweet-content')
+      if (!content) {
+        return null
+      }
+      const text = content.textContent ?? ''
+      const urls = Array.from(content.querySelectorAll('a')).map((a) => ({
+        url: a.getAttribute('href') ?? '',
+        displayUrl: a.textContent ?? '',
+      }))
+
+      const attachments = attachmentParser(body.querySelector('.attachments'))
+
+      return {
+        author,
+        createdAt,
+        text,
+        url,
+        entities: {
+          urls,
+        },
+        attachments,
+      }
+    }
+
+    let context: BrowserContext | undefined
+    try {
+      const url = `${this.ADDRESS}/${username}/status/${tweetId}`
+      const tweets: Tweet[] = []
+
+      context = await browser.createIncognitoBrowserContext()
+      const page = await context.newPage()
+      await page.goto(url, {
+        waitUntil: 'networkidle2',
+        timeout: 30000, // 30 seconds
+      })
+
+      const html = await page.content()
+      const document = parseHTML(html).document
+
+      // get the main thread including tweets and threads
+      const mainThread = document.querySelector('.main-thread')
+      if (!mainThread) {
+        return []
+      }
+      const timelineItems = Array.from(
+        mainThread.querySelectorAll('.timeline-item')
+      )
+      for (let i = 0; i < timelineItems.length; i++) {
+        const item = timelineItems[i]
+        if (item.classList.contains('more-replies')) {
+          const newUrl = item.querySelector('a')?.getAttribute('href')
+          if (!newUrl) {
+            break
+          }
+
+          // go to new url and wait for it to load
+          await page.goto(`${this.ADDRESS}${newUrl}`, {
+            waitUntil: 'networkidle2',
+            timeout: 30000, // 30 seconds
+          })
+
+          const document = parseHTML(await page.content()).document
+          const nextThread = document.querySelector('.main-thread .after-tweet')
+          if (!nextThread) {
+            break
+          }
+
+          // get the new timeline items and add them to the list
+          const newTimelineItems = Array.from(
+            nextThread.querySelectorAll('.timeline-item')
+          )
+
+          timelineItems.push(...newTimelineItems)
+          continue
+        }
+
+        const tweet = parseTweet(item)
+        tweet && tweets.push(tweet)
+      }
+
+      return tweets
+    } catch (error) {
+      console.error('Error getting tweets', error)
+
+      return []
+    } finally {
+      if (context) {
+        await context.close()
+      }
+    }
   }
 
   parseTweetUrl = (url: string) => {
@@ -251,22 +246,21 @@ export class NitterHandler extends ContentHandler {
         for (const urlObj of tweet.entities.urls) {
           text = text.replace(
             urlObj.url,
-            `<a href="${urlObj.url}">${urlObj.display_url}</a>`
+            `<a href="${urlObj.url}">${urlObj.displayUrl}</a>`
           )
         }
       }
 
-      const includesHtml =
-        tweet.entities.photos
-          ?.map(
-            (url) =>
-              `<a class="media-link" href=${this.ADDRESS}${url}>
+      const includesHtml = tweet.attachments
+        .map(
+          (attachment) =>
+            `<a class="media-link" href=${this.ADDRESS}${attachment.url}>
           <picture>
-            <img class="tweet-img" src=${this.ADDRESS}${url} />
+            <img class="tweet-img" src=${this.ADDRESS}${attachment.previewUrl} />
           </picture>
           </a>`
-          )
-          .join('\n') ?? ''
+        )
+        .join('\n')
 
       tweetsContent += `
       <p>${text}</p>
