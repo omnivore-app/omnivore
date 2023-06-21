@@ -105,7 +105,6 @@ function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
         multiSelectMode={props.multiSelectMode}
         setMultiSelectMode={props.setMultiSelectMode}
         showAddLinkModal={props.showAddLinkModal}
-        bulkSetLabels={props.bulkSetLabels}
         performMultiSelectAction={props.performMultiSelectAction}
         searchTerm={props.searchTerm}
         applySearchQuery={props.applySearchQuery}
@@ -155,7 +154,6 @@ function SmallHeaderLayout(props: LibraryHeaderProps): JSX.Element {
             multiSelectMode={props.multiSelectMode}
             setMultiSelectMode={props.setMultiSelectMode}
             showAddLinkModal={props.showAddLinkModal}
-            bulkSetLabels={props.bulkSetLabels}
             performMultiSelectAction={props.performMultiSelectAction}
             searchTerm={props.searchTerm}
             applySearchQuery={props.applySearchQuery}
