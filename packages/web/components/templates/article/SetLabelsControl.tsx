@@ -238,14 +238,14 @@ function Footer(props: FooterProps): JSX.Element {
             {textMatch === 'available' && (
               <>
                 <Check size={18} color={theme.colors.grayText.toString()} />
-                Use Enter to add label "{props.filterText}"
+                Use Enter to add label &quot;{props.filterText}&quot;
               </>
             )}
 
             {textMatch === 'none' && (
               <>
                 <Plus size={18} color={theme.colors.grayText.toString()} />
-                Use Enter to create new label "{props.filterText}"
+                Use Enter to create new label &quot;{props.filterText}&quot;
               </>
             )}
           </HStack>
