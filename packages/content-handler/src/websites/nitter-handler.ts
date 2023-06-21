@@ -137,7 +137,7 @@ export class NitterHandler extends ContentHandler {
       const page = await context.newPage()
       const option: WaitForOptions = {
         waitUntil: 'networkidle2',
-        timeout: 60000, // 30 seconds
+        timeout: 60000, // 60 seconds
       }
       await page.goto(url, option)
 
@@ -240,13 +240,11 @@ export class NitterHandler extends ContentHandler {
     let tweetsContent = ''
     for (const tweet of tweets) {
       let text = tweet.text
-      if (tweet.entities && tweet.entities.urls) {
-        for (const urlObj of tweet.entities.urls) {
-          text = text.replace(
-            urlObj.url,
-            `<a href="${urlObj.url}">${urlObj.displayUrl}</a>`
-          )
-        }
+      for (const urlObj of tweet.entities.urls) {
+        text = text.replace(
+          urlObj.displayUrl,
+          `<a href="${urlObj.url}">${urlObj.displayUrl}</a>`
+        )
       }
 
       const includesHtml = tweet.attachments
