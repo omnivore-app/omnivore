@@ -78,6 +78,16 @@ const sendUnsubscribeHttpRequest = async (url: string): Promise<boolean> => {
   }
 }
 
+export const getSubscriptionByNameAndUserId = async (
+  name: string,
+  userId: string
+): Promise<Subscription | null> => {
+  return getRepository(Subscription).findOneBy({
+    name,
+    user: { id: userId },
+  })
+}
+
 export const saveSubscription = async ({
   userId,
   name,
