@@ -1,7 +1,8 @@
-import { useReducer } from 'react'
+import { useEffect, useReducer } from 'react'
 import { setLabelsMutation } from '../networking/mutations/setLabelsMutation'
 import { Label } from '../networking/fragments/labelFragment'
 import { showErrorToast } from '../toastHelpers'
+import { LabelsProvider } from '../../components/templates/article/SetLabelsControl'
 
 export type LabelAction = 'RESET' | 'TEMP' | 'SAVE'
 export type LabelsDispatcher = (action: {

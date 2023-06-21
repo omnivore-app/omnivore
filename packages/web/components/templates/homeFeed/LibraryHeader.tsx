@@ -22,17 +22,12 @@ import { PrimaryDropdown } from '../PrimaryDropdown'
 import { OmnivoreSmallLogo } from '../../elements/images/OmnivoreNameLogo'
 import { HeaderSpacer, HEADER_HEIGHT } from './HeaderSpacer'
 import { LIBRARY_LEFT_MENU_WIDTH } from '../../templates/homeFeed/LibraryFilterMenu'
-import {
-  ScrollOffsetChangeset,
-  useScrollWatcher,
-} from '../../../lib/hooks/useScrollWatcher'
 import { CardCheckbox } from '../../patterns/LibraryCards/LibraryCardStyles'
 import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
 import { BulkAction } from '../../../lib/networking/mutations/bulkActionMutation'
 import { ConfirmationModal } from '../../patterns/ConfirmationModal'
 import { AddBulkLabelsModal } from '../article/AddBulkLabelsModal'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
-import { LabelsDispatcher } from '../../../lib/hooks/useSetPageLabels'
 
 export type MultiSelectMode = 'off' | 'none' | 'some' | 'visible' | 'search'
 
