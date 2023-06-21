@@ -4,11 +4,11 @@ import { gqlFetcher } from '../networkHelpers'
 
 type SetLabelsResult = {
   setLabels: SetLabels
-  errorCodes?: unknown[]
 }
 
 type SetLabels = {
   labels: Label[]
+  errorCodes?: unknown[]
 }
 
 export async function setLabelsMutation(
@@ -35,7 +35,7 @@ export async function setLabelsMutation(
     const data = (await gqlFetcher(mutation, {
       input: { pageId, labelIds },
     })) as SetLabelsResult
-    return data.errorCodes ? undefined : data.setLabels.labels
+    return data.setLabels.errorCodes ? undefined : data.setLabels.labels
   } catch (error) {
     console.log(' -- SetLabelsOutput error', error)
     return undefined

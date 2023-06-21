@@ -1,11 +1,14 @@
 import AutosizeInput from 'react-input-autosize'
 import { Box, SpanBox } from './LayoutPrimitives'
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Label } from '../../lib/networking/fragments/labelFragment'
 import { useGetLabelsQuery } from '../../lib/networking/queries/useGetLabelsQuery'
 import { isTouchScreenDevice } from '../../lib/deviceType'
-import { EditLabelLabelChip } from './EditLabelChip'
+import { EditLabelChip } from './EditLabelChip'
 import { LabelsDispatcher } from '../../lib/hooks/useSetPageLabels'
+import { EditLabelChipStack } from './EditLabelChipStack'
+
+const MaxUnstackedLabels = 4
 
 type LabelsPickerProps = {
   selectedLabels: Label[]
@@ -33,6 +36,7 @@ type LabelsPickerProps = {
 export const LabelsPicker = (props: LabelsPickerProps): JSX.Element => {
   const inputRef = useRef<HTMLInputElement | null>()
   const availableLabels = useGetLabelsQuery()
+  const [isStackExpanded, setIsStackExpanded] = useState(false)
   const {
     focused,
     inputValue,
@@ -100,6 +104,10 @@ export const LabelsPicker = (props: LabelsPickerProps): JSX.Element => {
     return selectedLabels.length === 0 && inputValue.length === 0
   }, [inputValue, selectedLabels])
 
+  const isStacked = useMemo(() => {
+    return selectedLabels.length > MaxUnstackedLabels && !isStackExpanded
+  }, [selectedLabels.length, isStackExpanded])
+
   return (
     <Box
       css={{
@@ -150,27 +158,39 @@ export const LabelsPicker = (props: LabelsPickerProps): JSX.Element => {
         event.preventDefault()
       }}
     >
-      {props.selectedLabels.map((label, idx) => (
-        <EditLabelLabelChip
-          key={label.id}
-          text={label.name}
-          color={label.color}
-          isSelected={
-            props.highlightLastLabel && idx == props.selectedLabels.length - 1
-          }
-          xAction={() => {
-            const idx = props.selectedLabels.findIndex((l) => l.id == label.id)
-            if (idx !== -1) {
-              const _selectedLabels = props.selectedLabels
-              _selectedLabels.splice(idx, 1)
-              props.dispatchLabels({
-                type: 'SAVE',
-                labels: [..._selectedLabels],
-              })
-            }
+      {isStacked ? (
+        <EditLabelChipStack
+          labels={selectedLabels}
+          setExpanded={(expanded: boolean) => {
+            setIsStackExpanded(true)
           }}
+          isSelected={props.highlightLastLabel}
         />
-      ))}
+      ) : (
+        props.selectedLabels.map((label, idx) => (
+          <EditLabelChip
+            key={label.id}
+            text={label.name}
+            color={label.color}
+            isSelected={
+              props.highlightLastLabel && idx == props.selectedLabels.length - 1
+            }
+            xAction={() => {
+              const idx = props.selectedLabels.findIndex(
+                (l) => l.id == label.id
+              )
+              if (idx !== -1) {
+                const _selectedLabels = props.selectedLabels
+                _selectedLabels.splice(idx, 1)
+                props.dispatchLabels({
+                  type: 'SAVE',
+                  labels: [..._selectedLabels],
+                })
+              }
+            }}
+          />
+        ))
+      )}
       <SpanBox
         css={{
           display: 'inline-flex',
@@ -208,7 +228,12 @@ export const LabelsPicker = (props: LabelsPickerProps): JSX.Element => {
                 props.clearInputState()
                 break
               case 'Enter':
-                props.selectOrCreateLabel(props.inputValue)
+                if (isStacked && props.highlightLastLabel) {
+                  setIsStackExpanded(true)
+                  props.setHighlightLastLabel(false)
+                } else {
+                  props.selectOrCreateLabel(props.inputValue)
+                }
                 event.preventDefault()
                 break
             }
@@ -223,7 +248,12 @@ export const LabelsPicker = (props: LabelsPickerProps): JSX.Element => {
               case 'Backspace':
                 clearTabState()
                 if (props.inputValue.length === 0) {
-                  props.deleteLastLabel()
+                  if (isStacked && props.highlightLastLabel) {
+                    setIsStackExpanded(true)
+                    props.setHighlightLastLabel(false)
+                  } else {
+                    props.deleteLastLabel()
+                  }
                   event.preventDefault()
                 }
                 break

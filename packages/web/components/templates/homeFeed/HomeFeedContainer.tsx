@@ -52,11 +52,6 @@ import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { SetPageLabelsModalPresenter } from '../article/SetLabelsModalPresenter'
 import { NotebookPresenter } from '../article/NotebookPresenter'
 import { Highlight } from '../../../lib/networking/fragments/highlightFragment'
-import { Label } from '../../../lib/networking/fragments/labelFragment'
-import {
-  LabelAction,
-  LabelsDispatcher,
-} from '../../../lib/hooks/useSetPageLabels'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 export type LibraryMode = 'reads' | 'highlights'

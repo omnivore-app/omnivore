@@ -1,8 +1,8 @@
-import { useEffect, useReducer } from 'react'
+import { useCallback, useEffect, useMemo, useReducer, useRef } from 'react'
 import { setLabelsMutation } from '../networking/mutations/setLabelsMutation'
 import { Label } from '../networking/fragments/labelFragment'
 import { showErrorToast } from '../toastHelpers'
-import { LabelsProvider } from '../../components/templates/article/SetLabelsControl'
+import throttle from 'lodash/throttle'
 
 export type LabelAction = 'RESET' | 'TEMP' | 'SAVE'
 export type LabelsDispatcher = (action: {
@@ -13,9 +13,24 @@ export type LabelsDispatcher = (action: {
 export const useSetPageLabels = (
   articleId?: string
 ): [{ labels: Label[] }, LabelsDispatcher] => {
+  const saveLabels = (labels: Label[]) => {
+    ;(async () => {
+      const labelIds = labels.map((l) => l.id)
+      if (articleId) {
+        const result = await setLabelsMutation(articleId, labelIds)
+        if (!result) {
+          showErrorToast('Error saving labels', {
+            position: 'bottom-right',
+          })
+        }
+      }
+    })()
+  }
+
   const labelsReducer = (
     state: {
       labels: Label[]
+      throttledSave: (labels: Label[]) => void
     },
     action: {
       type: string
@@ -25,37 +40,26 @@ export const useSetPageLabels = (
     switch (action.type) {
       case 'RESET': {
         return {
+          ...state,
           labels: action.labels,
         }
       }
       case 'TEMP': {
         return {
+          ...state,
           labels: action.labels,
         }
       }
       case 'SAVE': {
-        const labelIds = action.labels.map((l) => l.id)
         if (articleId) {
-          ;(async () => {
-            const result = await setLabelsMutation(articleId, labelIds)
-            if (result) {
-              dispatchLabels({
-                type: 'RESET',
-                // Use the original labels value here so we dont re-order
-                labels: action.labels ?? [],
-              })
-            } else {
-              showErrorToast('Error saving labels', {
-                position: 'bottom-right',
-              })
-            }
-          })()
+          state.throttledSave(action.labels)
         } else {
           showErrorToast('Unable to update labels', {
             position: 'bottom-right',
           })
         }
         return {
+          ...state,
           labels: action.labels,
         }
       }
@@ -64,8 +68,13 @@ export const useSetPageLabels = (
     }
   }
 
+  const debouncedSave = useCallback(
+    throttle((labels: Label[]) => saveLabels(labels), 2000),
+    []
+  )
   const [labels, dispatchLabels] = useReducer(labelsReducer, {
     labels: [],
+    throttledSave: debouncedSave,
   })
 
   return [labels, dispatchLabels]
