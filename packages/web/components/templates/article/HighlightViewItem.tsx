@@ -25,38 +25,29 @@ export function HighlightViewItem(props: HighlightViewItemProps): JSX.Element {
 
   return (
     <HStack
-      css={{ width: '100%', py: '20px' }}
+      css={{
+        width: '100%',
+        pt: '10px',
+        pb: '20px',
+      }}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
-      <VStack css={{ width: '100%' }}>
+      <VStack css={{ width: '100%', height: '100%' }}>
         <HighlightView
           highlight={props.highlight}
           updateHighlight={props.updateHighlight}
         />
         <SpanBox css={{ mb: '15px' }} />
       </VStack>
-      <SpanBox
-        css={{
-          marginLeft: 'auto',
-          width: '20px',
-          visibility: hover ? 'unset' : 'hidden',
-          '@media (hover: none)': {
-            visibility: 'unset',
-          },
-        }}
-      >
-        <HighlightsMenu
-          item={props.item}
-          viewer={props.viewer}
-          highlight={props.highlight}
-          viewInReader={props.viewInReader}
-          setLabelsTarget={props.setSetLabelsTarget}
-          setShowConfirmDeleteHighlightId={
-            props.setShowConfirmDeleteHighlightId
-          }
-        />
-      </SpanBox>
+      <HighlightsMenu
+        item={props.item}
+        viewer={props.viewer}
+        highlight={props.highlight}
+        viewInReader={props.viewInReader}
+        setLabelsTarget={props.setSetLabelsTarget}
+        setShowConfirmDeleteHighlightId={props.setShowConfirmDeleteHighlightId}
+      />
     </HStack>
   )
 }

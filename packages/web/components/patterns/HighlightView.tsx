@@ -14,6 +14,7 @@ import { styled } from '../tokens/stitches.config'
 import { HighlightViewNote } from './HighlightNotes'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import { isDarkTheme } from '../../lib/themeUpdater'
 
 type HighlightViewProps = {
   highlight: Highlight
@@ -23,62 +24,70 @@ type HighlightViewProps = {
 }
 
 const StyledQuote = styled(Blockquote, {
+  p: '10px',
   margin: '0px 0px 0px 0px',
   fontSize: '18px',
   lineHeight: '27px',
+  borderRadius: '4px',
+  width: '100%',
+  background: 'rgba(255, 210, 52, 0.10)',
 })
 
 export function HighlightView(props: HighlightViewProps): JSX.Element {
+  const isDark = isDarkTheme()
   const [noteMode, setNoteMode] = useState<'preview' | 'edit'>('preview')
 
   return (
     <HStack
       css={{
+        p: '5px',
         width: '100%',
-        height: '100%',
         alignItems: 'stretch',
-
-        background: '$thBackground',
+        bg: isDark ? '#3D3D3D' : '$thBackground',
         borderRadius: '6px',
         boxShadow: '0px 4px 4px rgba(33, 33, 33, 0.1)',
+        '@mdDown': {
+          p: '0px',
+        },
       }}
-      //   <Box
-      //   css={{
-      //     width: '100%',
-      //     height: '100%',
-      //     padding: '10px',
-      //     background: '$thBackground',
-      //     borderRadius: '6px',
-      //     boxShadow: '0px 4px 4px rgba(33, 33, 33, 0.1)',
-      //   }}
-      // >
     >
       <VStack
         css={{
           minHeight: '100%',
           width: '10px',
-          pt: '15px',
+          pt: '10px',
           pl: '10px',
+          pr: '10px',
+          '@mdDown': {
+            display: 'none',
+          },
         }}
       >
-        <CaretDown size={15} color="#898989" weight="fill" />
+        {/* <CaretDown size={12} color="#898989" weight="fill" /> */}
         <Box
           css={{
             width: '2px',
             flexGrow: '1',
             background: '#FFD234',
             marginTop: '5px',
-            marginLeft: '6px',
+            marginLeft: '5px',
             flex: '1',
-            marginBottom: '10px',
+            marginBottom: '25px',
           }}
         />
       </VStack>
+
       <VStack
         css={{
           width: '100%',
           padding: '10px',
-          paddingLeft: '20px',
+
+          paddingTop: '15px',
+          paddingRight: '15px',
+
+          '@mdDown': {
+            padding: '0px',
+          },
         }}
       >
         <StyledQuote>
@@ -89,7 +98,7 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
               },
               fontSize: '15px',
               lineHeight: 1.5,
-              color: '$grayText',
+              color: '$thTextSubtle2',
               img: {
                 display: 'block',
                 margin: '0.5em auto !important',
@@ -110,11 +119,18 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
           ))}
         </Box>
         <HStack
-          css={{ width: '100%', height: '100%', pt: '15px' }}
+          css={{
+            width: '100%',
+            pt: '15px',
+            '@mdDown': {
+              p: '10px',
+            },
+          }}
           alignment="start"
           distribution="start"
         >
           <HighlightViewNote
+            targetId={props.highlight.id}
             text={props.highlight.annotation}
             placeHolder="Add notes to this highlight..."
             highlight={props.highlight}
@@ -123,28 +139,6 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
             setEditMode={setNoteMode}
             updateHighlight={props.updateHighlight}
           />
-          <SpanBox
-            css={{
-              lineHeight: '1',
-              marginLeft: '20px',
-              marginTop: '15px',
-              cursor: 'pointer',
-              borderRadius: '1000px',
-              '&:hover': {
-                background: '#EBEBEB',
-              },
-            }}
-            onClick={(event) => {
-              setNoteMode(noteMode == 'preview' ? 'edit' : 'preview')
-              event.preventDefault()
-            }}
-          >
-            {noteMode === 'edit' ? (
-              <BookOpen size={15} color="#898989" />
-            ) : (
-              <PencilLine size={15} color="#898989" />
-            )}
-          </SpanBox>
         </HStack>
       </VStack>
     </HStack>

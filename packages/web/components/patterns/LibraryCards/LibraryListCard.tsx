@@ -6,6 +6,8 @@ import {
   Archive,
   ArchiveBox,
   DotsThree,
+  Note,
+  Notebook,
   Tag,
   Trash,
   Tray,
@@ -119,6 +121,27 @@ export function LibraryListCardContent(
             <Button
               style="hoverActionIcon"
               onClick={(event) => {
+                props.handleAction('open-notebook')
+                event.preventDefault()
+              }}
+            >
+              <Notebook
+                size={19}
+                color={theme.colors.thHighContrast.toString()}
+              />
+            </Button>
+            <Button
+              style="hoverActionIcon"
+              onClick={(event) => {
+                props.handleAction('set-labels')
+                event.preventDefault()
+              }}
+            >
+              <Tag size={18} color={theme.colors.thHighContrast.toString()} />
+            </Button>
+            <Button
+              style="hoverActionIcon"
+              onClick={(event) => {
                 const action = props.item.isArchived ? 'unarchive' : 'archive'
                 props.handleAction(action)
                 event.preventDefault()
@@ -144,15 +167,6 @@ export function LibraryListCardContent(
               }}
             >
               <Trash size={18} color={theme.colors.thHighContrast.toString()} />
-            </Button>
-            <Button
-              style="hoverActionIcon"
-              onClick={(event) => {
-                props.handleAction('set-labels')
-                event.preventDefault()
-              }}
-            >
-              <Tag size={18} color={theme.colors.thHighContrast.toString()} />
             </Button>
             <CardMenu
               item={props.item}

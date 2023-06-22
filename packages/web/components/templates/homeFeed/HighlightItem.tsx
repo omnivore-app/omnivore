@@ -10,7 +10,7 @@ import {
   DropdownOption,
   DropdownSeparator,
 } from '../../elements/DropdownElements'
-import { Box } from '../../elements/LayoutPrimitives'
+import { Box, VStack } from '../../elements/LayoutPrimitives'
 
 import { styled, theme } from '../../tokens/stitches.config'
 
@@ -57,70 +57,76 @@ export function HighlightsMenu(props: HighlightsMenuProps): JSX.Element {
   }, [props.highlight])
 
   return (
-    <Dropdown
-      triggerElement={
-        <Box
-          css={{
-            display: 'flex',
-            height: '20px',
-            width: '20px',
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderRadius: '1000px',
-            '&:hover': {
-              bg: '#898989',
-            },
-          }}
-        >
-          <DotsThreeVertical
-            size={20}
-            color={theme.colors.thTextContrast2.toString()}
-            weight="bold"
-          />
-        </Box>
-      }
+    <VStack
+      distribution="center"
+      alignment="center"
+      css={{ height: '100%', pl: '5px', pt: '5px' }}
     >
-      <DropdownOption
-        onSelect={async () => {
-          copyHighlight()
-        }}
-        title="Copy"
-      />
-      <DropdownOption
-        onSelect={() => {
-          props.setLabelsTarget(props.highlight)
-        }}
-        title="Labels"
-      />
-      <DropdownOption
-        onSelect={() => {
-          props.setShowConfirmDeleteHighlightId(props.highlight.id)
-        }}
-        title="Delete"
-      />
-      <DropdownSeparator />
-      <Link
-        href={`/${props.viewer.profile.username}/${props.item.slug}#${props.highlight.id}`}
+      <Dropdown
+        triggerElement={
+          <Box
+            css={{
+              display: 'flex',
+              height: '20px',
+              width: '20px',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '1000px',
+              '&:hover': {
+                bg: '#898989',
+              },
+            }}
+          >
+            <DotsThreeVertical
+              size={20}
+              color={theme.colors.thTextContrast2.toString()}
+              weight="bold"
+            />
+          </Box>
+        }
       >
-        <StyledLinkItem
-          onClick={(event) => {
-            console.log('event.ctrlKey: ', event.ctrlKey, event.metaKey)
-            if (event.ctrlKey || event.metaKey) {
-              window.open(
-                `/${props.viewer.profile.username}/${props.item.slug}#${props.highlight.id}`,
-                '_blank'
-              )
-              return
-            }
-            props.viewInReader(props.highlight.id)
-            event.preventDefault()
-            event.stopPropagation()
+        <DropdownOption
+          onSelect={async () => {
+            copyHighlight()
           }}
+          title="Copy"
+        />
+        <DropdownOption
+          onSelect={() => {
+            props.setLabelsTarget(props.highlight)
+          }}
+          title="Labels"
+        />
+        <DropdownOption
+          onSelect={() => {
+            props.setShowConfirmDeleteHighlightId(props.highlight.id)
+          }}
+          title="Delete"
+        />
+        <DropdownSeparator />
+        <Link
+          href={`/${props.viewer.profile.username}/${props.item.slug}#${props.highlight.id}`}
         >
-          View In Reader
-        </StyledLinkItem>
-      </Link>
-    </Dropdown>
+          <StyledLinkItem
+            onClick={(event) => {
+              console.log('event.ctrlKey: ', event.ctrlKey, event.metaKey)
+              if (event.ctrlKey || event.metaKey) {
+                window.open(
+                  `/${props.viewer.profile.username}/${props.item.slug}#${props.highlight.id}`,
+                  '_blank'
+                )
+                return
+              }
+              props.viewInReader(props.highlight.id)
+              event.preventDefault()
+              event.stopPropagation()
+            }}
+          >
+            View In Reader
+          </StyledLinkItem>
+        </Link>
+      </Dropdown>
+    </VStack>
   )
 }
 

@@ -145,9 +145,6 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
               gap: '10px',
               px: '20px',
               borderRadius: '1000px',
-
-              bg: 'red',
-
               visibility: props.isHovered || menuOpen ? 'unset' : 'hidden',
               '@media (hover: none)': {
                 visibility: 'unset',

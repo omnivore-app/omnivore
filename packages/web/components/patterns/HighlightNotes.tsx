@@ -26,6 +26,9 @@ import {
 import { CloseButton } from '../elements/CloseButton'
 import { StyledText } from '../elements/StyledText'
 import remarkGfm from 'remark-gfm'
+import { RcEditorStyles } from './RcEditorStyles'
+import { isDarkTheme } from '../../lib/themeUpdater'
+import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 
 const mdParser = new MarkdownIt()
 
@@ -34,6 +37,8 @@ MdEditor.use(Plugins.TabInsert, {
 })
 
 type NoteSectionProps = {
+  targetId: string
+
   placeHolder: string
   mode: 'edit' | 'preview'
 
@@ -60,6 +65,7 @@ export function HighlightNoteBox(props: NoteSectionProps): JSX.Element {
 
   return (
     <MarkdownNote
+      targetId={props.targetId}
       placeHolder={props.placeHolder}
       mode={props.mode}
       sizeMode={props.sizeMode}
@@ -73,6 +79,8 @@ export function HighlightNoteBox(props: NoteSectionProps): JSX.Element {
 }
 
 type HighlightViewNoteProps = {
+  targetId: string
+
   placeHolder: string
   mode: 'edit' | 'preview'
 
@@ -99,6 +107,13 @@ export function HighlightViewNote(props: HighlightViewNoteProps): JSX.Element {
           setLastSaved(updateTime)
           props.highlight.annotation = text
           props.updateHighlight(props.highlight)
+          showSuccessToast('Note saved.', {
+            position: 'bottom-right',
+          })
+        } else {
+          showErrorToast('Error saving note.', {
+            position: 'bottom-right',
+          })
         }
       })()
     },
@@ -107,6 +122,7 @@ export function HighlightViewNote(props: HighlightViewNoteProps): JSX.Element {
 
   return (
     <MarkdownNote
+      targetId={props.targetId}
       placeHolder={props.placeHolder}
       mode={props.mode}
       sizeMode={props.sizeMode}
@@ -120,6 +136,8 @@ export function HighlightViewNote(props: HighlightViewNoteProps): JSX.Element {
 }
 
 type MarkdownNote = {
+  targetId: string
+
   placeHolder: string
   mode: 'edit' | 'preview'
 
@@ -137,37 +155,7 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
   const editorRef = useRef<MdEditor | null>(null)
   const [lastChanged, setLastChanged] = useState<Date | undefined>(undefined)
   const [errorSaving, setErrorSaving] = useState<string | undefined>(undefined)
-
-  const saveRef = useRef(props.saveText)
-
-  useEffect(() => {
-    saveRef.current = props.saveText
-  }, [props.lastSaved, lastChanged])
-
-  const debouncedSave = useMemo<
-    (text: string, updateTime: Date) => void
-  >(() => {
-    const func = (text: string, updateTime: Date) => {
-      saveRef.current?.(text, updateTime)
-    }
-    return throttle(func, 3000)
-  }, [])
-
-  const handleEditorChange = useCallback(
-    (
-      data: { text: string; html: string },
-      event?: ChangeEvent<HTMLTextAreaElement> | undefined
-    ) => {
-      if (event) {
-        event.preventDefault()
-      }
-
-      const updateTime = new Date()
-      setLastChanged(updateTime)
-      debouncedSave(data.text, updateTime)
-    },
-    [props.lastSaved, lastChanged]
-  )
+  const isDark = isDarkTheme()
 
   return (
     <>
@@ -175,28 +163,13 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
         <VStack
           css={{
             width: '100%',
-            mt: '15px',
-            '.rc-md-editor': {
-              borderRadius: '5px',
-            },
-            '.rc-md-navigation': {
-              borderRadius: '5px',
-              borderBottomLeftRadius: '0px',
-              borderBottomRightRadius: '0px',
-            },
-            '.rc-md-editor .editor-container >.section': {
-              borderRight: 'unset',
-            },
-            '.rc-md-editor .editor-container .sec-md .input': {
-              padding: '10px',
-              borderRadius: '5px',
-              fontSize: '16px',
-            },
+            ...RcEditorStyles(isDark),
           }}
           onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
             if (event.code.toLowerCase() === 'escape') {
               props.setEditMode('preview')
               event.preventDefault()
+              event.stopPropagation()
             }
           }}
         >
@@ -233,7 +206,6 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
               height: props.sizeMode == 'normal' ? '160px' : '320px',
             }}
             renderHTML={(text: string) => mdParser.render(text)}
-            onChange={handleEditorChange}
           />
           <HStack
             css={{
@@ -258,46 +230,32 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
                 {errorSaving}
               </SpanBox>
             )}
-            {props.lastSaved !== undefined ? (
-              <>
-                {lastChanged === props.lastSaved
-                  ? 'Saved'
-                  : `Last saved ${formattedShortTime(
-                      props.lastSaved.toISOString()
-                    )}`}
-              </>
-            ) : null}
-            {lastChanged !== props.lastSaved && (
-              <SpanBox
-                css={{
-                  fontSize: '9px',
-                  mt: '1px',
-                  color: 'green',
-                  marginLeft: 'auto',
+            <SpanBox
+              css={{
+                fontSize: '9px',
+                mt: '10px',
+                color: 'green',
+                marginLeft: 'auto',
+              }}
+            >
+              <Button
+                style="ctaDarkYellow"
+                onClick={(event) => {
+                  const value = editorRef.current?.getMdValue()
+                  if (value) {
+                    props.saveText(value, new Date())
+                    props.setEditMode('preview')
+                  } else {
+                    showErrorToast('Error saving note.', {
+                      position: 'bottom-right',
+                    })
+                  }
+                  event.preventDefault()
                 }}
               >
-                <Button
-                  css={{
-                    textDecoration: 'underline',
-                    border: 'unset',
-                    background: 'unset',
-                    '&:hover': {
-                      border: 'unset',
-                      background: 'unset',
-                    },
-                  }}
-                  onClick={(event) => {
-                    const value = editorRef.current?.getMdValue()
-                    if (value) {
-                      props.saveText(value, new Date())
-                    }
-                    event.preventDefault()
-                  }}
-                >
-                  Save
-                </Button>
-              </SpanBox>
-            )}
+                Save
+              </Button>
+            </SpanBox>
           </HStack>
         </VStack>
       ) : (
@@ -306,9 +264,9 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
             css={{
               p: '5px',
               width: '100%',
-              fontSize: '15px',
-              // borderRadius: '3px',
-              marginTop: props.fillBackground || !props.text ? '10px' : '0px',
+              fontSize: '12px',
+              marginTop: '0px',
+              paddingTop: '0px',
 
               paddingLeft:
                 props.fillBackground && props.text
@@ -344,6 +302,8 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
 }
 
 type MarkdownModalProps = {
+  targetId: string
+
   placeHolder: string
   mode: 'edit' | 'preview'
 
@@ -435,6 +395,7 @@ export function MarkdownModal(props: MarkdownModalProps): JSX.Element {
           </HStack>
           <SpanBox css={{ padding: '20px', width: '100%', height: '100%' }}>
             <MarkdownNote
+              targetId={props.targetId}
               placeHolder={props.placeHolder}
               mode={props.mode}
               sizeMode={props.sizeMode}

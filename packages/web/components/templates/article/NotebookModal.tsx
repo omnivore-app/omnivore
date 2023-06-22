@@ -89,8 +89,9 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
         css={{
           overflow: 'auto',
           bg: '$thLibraryBackground',
+          width: '100%',
           height: sizeMode === 'normal' ? 'unset' : '100%',
-          maxWidth: sizeMode === 'normal' ? '640px' : '100%',
+          maxWidth: sizeMode === 'normal' ? '748px' : '1050px',
           minHeight: sizeMode === 'normal' ? '525px' : 'unset',
           '@mdDown': {
             top: '20px',
@@ -102,7 +103,7 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
         }}
       >
         <HStack
-          distribution="between"
+          distribution="center"
           alignment="center"
           css={{
             width: '100%',
@@ -127,7 +128,7 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
             distribution="center"
             alignment="center"
           >
-            <SizeToggle mode={sizeMode} setMode={setSizeMode} />
+            {/* <SizeToggle mode={sizeMode} setMode={setSizeMode} /> */}
             <Dropdown triggerElement={<MenuTrigger />}>
               <DropdownOption
                 onSelect={() => {

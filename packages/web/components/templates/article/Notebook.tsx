@@ -3,7 +3,15 @@ import { StyledText } from '../../elements/StyledText'
 import { theme } from '../../tokens/stitches.config'
 import type { Highlight } from '../../../lib/networking/fragments/highlightFragment'
 import { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
-import { BookOpen, CaretDown, PencilLine, X } from 'phosphor-react'
+import {
+  BookOpen,
+  CaretDown,
+  CaretRight,
+  DotsThree,
+  Pencil,
+  PencilLine,
+  X,
+} from 'phosphor-react'
 import { updateHighlightMutation } from '../../../lib/networking/mutations/updateHighlightMutation'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { diff_match_patch } from 'diff-match-patch'
@@ -20,6 +28,8 @@ import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery
 import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { SetHighlightLabelsModalPresenter } from './SetLabelsModalPresenter'
 import { Button } from '../../elements/Button'
+import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
+import { ArticleNoteBox } from '../../patterns/ArticleNotes'
 
 type NotebookProps = {
   viewer: UserBasicData
@@ -93,6 +103,7 @@ export function Notebook(props: NotebookProps): JSX.Element {
         if (!action.note) {
           throw new Error('No note on CREATE_NOTE action')
         }
+        console.log(' - CREATE_NOTE', action.note)
         return {
           ...state,
           note: action.note,
@@ -234,6 +245,14 @@ export function Notebook(props: NotebookProps): JSX.Element {
 
   const handleSaveNoteText = useCallback(
     (text, cb: (success: boolean) => void) => {
+      console.log(
+        'saving note text: ',
+        text,
+        'annotations.loaded: ',
+        annotations.loaded,
+        'annotations.note: ',
+        annotations.note
+      )
       if (!annotations.loaded) {
         // We haven't loaded the user's annotations yet, so we can't
         // find or create their highlight note.
@@ -285,72 +304,89 @@ export function Notebook(props: NotebookProps): JSX.Element {
     [annotations, props.item]
   )
 
+  const [articleNotesCollapsed, setArticleNotesCollapsed] = useState(false)
+  const [highlightsCollapsed, setHighlightsCollapsed] = useState(false)
+
   return (
     <VStack
       distribution="start"
-      css={{ height: '100%', width: '100%', p: '20px' }}
+      css={{
+        height: '100%',
+        width: '100%',
+        p: '40px',
+        '@mdDown': { p: '10px' },
+      }}
     >
-      <TitledSection
+      <SectionTitle
         title="Article Notes"
-        editMode={notesEditMode == 'edit'}
-        setEditMode={(edit) => setNotesEditMode(edit ? 'edit' : 'preview')}
+        collapsed={articleNotesCollapsed}
+        setCollapsed={setArticleNotesCollapsed}
       />
-      <Box
-        css={{
-          width: '100%',
-          height: '100%',
-          padding: '10px',
-          background: '$thBackground',
-          borderRadius: '6px',
-          boxShadow: '0px 4px 4px rgba(33, 33, 33, 0.1)',
-        }}
-      >
-        <HighlightNoteBox
-          mode={notesEditMode}
-          sizeMode={props.sizeMode}
-          setEditMode={setNotesEditMode}
-          text={annotations.note?.annotation}
-          placeHolder="Add notes to this document..."
-          saveText={handleSaveNoteText}
-        />
-      </Box>
+      {!articleNotesCollapsed && (
+        <HStack
+          alignment="start"
+          distribution="start"
+          css={{ width: '100%', mt: '10px', gap: '10px' }}
+        >
+          <ArticleNoteBox
+            mode={notesEditMode}
+            targetId={props.item.id}
+            sizeMode={props.sizeMode}
+            setEditMode={setNotesEditMode}
+            text={annotations.note?.annotation}
+            placeHolder="Add notes to this document..."
+            saveText={handleSaveNoteText}
+          />
+        </HStack>
+      )}
+
       <SpanBox css={{ mt: '10px', mb: '25px' }} />
       <Box css={{ width: '100%' }}>
-        <TitledSection title="Highlights" />
+        <SectionTitle
+          title="Highlights"
+          collapsed={highlightsCollapsed}
+          setCollapsed={setHighlightsCollapsed}
+        />
 
-        {sortedHighlights.map((highlight) => (
-          <HighlightViewItem
-            key={highlight.id}
-            item={props.item}
-            viewer={props.viewer}
-            highlight={highlight}
-            viewInReader={props.viewInReader}
-            setSetLabelsTarget={setLabelsTarget}
-            setShowConfirmDeleteHighlightId={setShowConfirmDeleteHighlightId}
-            updateHighlight={() => {
-              dispatchAnnotations({
-                type: 'UPDATE_HIGHLIGHT',
-                updateHighlight: highlight,
-              })
-            }}
-          />
-        ))}
-        {sortedHighlights.length === 0 && (
-          <Box
-            css={{
-              mt: '15px',
-              width: '100%',
-              fontSize: '9px',
-              color: '$thTextSubtle',
-              alignItems: 'center',
-              justifyContent: 'center',
-              mb: '100px',
-            }}
-          >
-            You have not added any highlights to this document.
-          </Box>
+        {!highlightsCollapsed && (
+          <>
+            {sortedHighlights.map((highlight) => (
+              <HighlightViewItem
+                key={highlight.id}
+                item={props.item}
+                viewer={props.viewer}
+                highlight={highlight}
+                viewInReader={props.viewInReader}
+                setSetLabelsTarget={setLabelsTarget}
+                setShowConfirmDeleteHighlightId={
+                  setShowConfirmDeleteHighlightId
+                }
+                updateHighlight={() => {
+                  dispatchAnnotations({
+                    type: 'UPDATE_HIGHLIGHT',
+                    updateHighlight: highlight,
+                  })
+                }}
+              />
+            ))}
+            {sortedHighlights.length === 0 && (
+              <Box
+                css={{
+                  mt: '15px',
+                  width: '100%',
+                  fontSize: '9px',
+                  color: '$thTextSubtle',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  mb: '100px',
+                }}
+              >
+                You have not added any highlights to this document.
+              </Box>
+            )}
+          </>
         )}
-        <Box
+        {/* <Box
           css={{
             '@mdDown': {
               height: '320px',
@@ -358,7 +394,7 @@ export function Notebook(props: NotebookProps): JSX.Element {
               background: 'transparent',
             },
           }}
-        />
+        /> */}
       </Box>
 
       {showConfirmDeleteHighlightId && (
@@ -419,62 +455,52 @@ export function Notebook(props: NotebookProps): JSX.Element {
   )
 }
 
-type TitledSectionProps = {
+type SectionTitleProps = {
   title: string
-  editMode?: boolean
-  setEditMode?: (set: boolean) => void
+  collapsed: boolean
+  setCollapsed: (set: boolean) => void
 }
 
-function TitledSection(props: TitledSectionProps): JSX.Element {
+function SectionTitle(props: SectionTitleProps): JSX.Element {
   return (
     <>
-      <HStack
-        css={{ width: '100%', gap: '10px' }}
-        alignment="center"
-        distribution="start"
+      <Button
+        style="plainIcon"
+        css={{
+          display: 'flex',
+          alignItems: 'center',
+          width: '100%',
+          gap: '5px',
+        }}
+        onClick={(event) => {
+          props.setCollapsed(!props.collapsed)
+          event.stopPropagation()
+        }}
       >
-        {/* <CaretDown size={12} color={theme.colors.thNotebookSubtle.toString()} /> */}
+        {props.collapsed ? (
+          <CaretRight
+            size={12}
+            color={theme.colors.thNotebookSubtle.toString()}
+          />
+        ) : (
+          <CaretDown
+            size={12}
+            color={theme.colors.thNotebookSubtle.toString()}
+          />
+        )}
         <StyledText
           css={{
+            m: '0px',
             pt: '2px',
             fontFamily: '$inter',
-            fontStyle: 'normal',
+            fontWeight: '500',
             fontSize: '12px',
-            lineHeight: '20px',
             color: '$thNotebookSubtle',
           }}
         >
           {props.title}
         </StyledText>
-        {props.setEditMode && (
-          <SpanBox
-            css={{
-              marginLeft: 'auto',
-              justifyContent: 'end',
-              lineHeight: '1',
-              alignSelf: 'end',
-              padding: '2px',
-              cursor: 'pointer',
-              borderRadius: '1000px',
-              '&:hover': {
-                background: '#EBEBEB',
-              },
-            }}
-            onClick={(event) => {
-              if (props.setEditMode) {
-                props.setEditMode(!props.editMode)
-              }
-              event.preventDefault()
-            }}
-          >
-            {props.editMode ? (
-              <BookOpen size={15} color="#898989" />
-            ) : (
-              <PencilLine size={15} color="#898989" />
-            )}
-          </SpanBox>
-        )}
-      </HStack>
+      </Button>
     </>
   )
 }
