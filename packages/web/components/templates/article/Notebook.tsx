@@ -20,7 +20,6 @@ import { createHighlightMutation } from '../../../lib/networking/mutations/creat
 import { v4 as uuidv4 } from 'uuid'
 import { nanoid } from 'nanoid'
 import { deleteHighlightMutation } from '../../../lib/networking/mutations/deleteHighlightMutation'
-import { HighlightNoteBox } from '../../patterns/HighlightNotes'
 import { HighlightViewItem } from './HighlightViewItem'
 import { ConfirmationModal } from '../../patterns/ConfirmationModal'
 import { TrashIcon } from '../../elements/images/TrashIcon'
@@ -28,7 +27,6 @@ import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery
 import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { SetHighlightLabelsModalPresenter } from './SetLabelsModalPresenter'
 import { Button } from '../../elements/Button'
-import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
 import { ArticleNotes } from '../../patterns/ArticleNotes'
 
 type NotebookProps = {
@@ -61,6 +59,7 @@ type AnnotationInfo = {
 
   note: Highlight | undefined
   noteId: string
+  creatingNote: boolean
 
   allAnnotations: Highlight[]
   deletedAnnotations: Highlight[]
@@ -103,12 +102,18 @@ export function Notebook(props: NotebookProps): JSX.Element {
         if (!action.note) {
           throw new Error('No note on CREATE_NOTE action')
         }
-        console.log(' - CREATE_NOTE', action.note)
         return {
           ...state,
           note: action.note,
           noteId: action.note.id,
+          creatingNote: false,
           allAnnotations: [...state.allAnnotations, action.note],
+        }
+      }
+      case 'CREATING_NOTE': {
+        return {
+          ...state,
+          creatingNote: true,
         }
       }
       case 'DELETE_NOTE': {
@@ -168,6 +173,7 @@ export function Notebook(props: NotebookProps): JSX.Element {
   const [annotations, dispatchAnnotations] = useReducer(annotationsReducer, {
     loaded: false,
     note: undefined,
+    creatingNote: false,
     noteId: uuidv4(),
     allAnnotations: [],
     deletedAnnotations: [],
@@ -245,31 +251,24 @@ export function Notebook(props: NotebookProps): JSX.Element {
 
   const handleSaveNoteText = useCallback(
     (text, cb: (success: boolean) => void) => {
-      console.log(
-        'saving note text: ',
-        text,
-        'annotations.loaded: ',
-        annotations.loaded,
-        'annotations.note: ',
-        annotations.note
-      )
       if (!annotations.loaded) {
         // We haven't loaded the user's annotations yet, so we can't
         // find or create their highlight note.
         return
       }
 
-      if (!annotations.note) {
-        const noteId = annotations.noteId
+      if (!annotations.note && !annotations.creatingNote) {
+        dispatchAnnotations({
+          type: 'CREATING_NOTE',
+        })
         ;(async () => {
           const success = await createHighlightMutation({
-            id: noteId,
+            id: annotations.noteId,
             shortId: nanoid(8),
             type: 'NOTE',
             articleId: props.item.id,
             annotation: text,
           })
-          console.log('success creating annotation note: ', success)
           if (success) {
             dispatchAnnotations({
               type: 'CREATE_NOTE',
@@ -278,7 +277,6 @@ export function Notebook(props: NotebookProps): JSX.Element {
           }
           cb(!!success)
         })()
-        return
       }
 
       if (annotations.note) {

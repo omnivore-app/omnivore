@@ -1,6 +1,7 @@
-import { Disc, FloppyDisk } from 'phosphor-react'
-import { PluginComponent, PluginProps } from 'react-markdown-editor-lite'
-import { SpanBox } from '../elements/LayoutPrimitives'
+/* eslint-disable functional/no-class */
+
+import { FloppyDisk } from 'phosphor-react'
+import { PluginComponent } from 'react-markdown-editor-lite'
 import { Button } from '../elements/Button'
 
 export default class MDEditorSavePlugin extends PluginComponent {
@@ -10,11 +11,7 @@ export default class MDEditorSavePlugin extends PluginComponent {
 
   constructor(props: any) {
     super(props)
-
-    this.handleClick = this.handleClick.bind(this)
   }
-
-  private handleClick() {}
 
   render() {
     return (
