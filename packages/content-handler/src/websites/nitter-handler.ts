@@ -133,7 +133,7 @@ export class NitterHandler extends ContentHandler {
       const tweets: Tweet[] = []
 
       const option = {
-        timeout: 10000, // 10 seconds
+        timeout: 60000, // 60 seconds
       }
       const response = await axios.get(url, option)
       const document = parseHTML(response.data).document
