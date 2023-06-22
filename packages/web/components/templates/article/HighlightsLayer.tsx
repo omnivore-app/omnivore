@@ -20,7 +20,7 @@ import { removeHighlights } from '../../../lib/highlights/deleteHighlight'
 import { createHighlight } from '../../../lib/highlights/createHighlight'
 import { HighlightNoteModal } from './HighlightNoteModal'
 import { NotebookModal } from './NotebookModal'
-import { showErrorToast } from '../../../lib/toastHelpers'
+import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { ArticleMutations } from '../../../lib/articleActions'
 import { isTouchScreenDevice } from '../../../lib/deviceType'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
@@ -473,7 +473,18 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
             textToCopy = userSelectionText
           }
 
-          if (textToCopy) await navigator.clipboard.writeText(textToCopy)
+          if (textToCopy) {
+            try {
+              await navigator.clipboard.writeText(textToCopy)
+              showSuccessToast('Highlight copied', {
+                position: 'bottom-right',
+              })
+            } catch (error) {
+              showErrorToast('Error copying highlight, permission denied.', {
+                position: 'bottom-right',
+              })
+            }
+          }
 
           selection.empty()
           setSelectionData(null)
