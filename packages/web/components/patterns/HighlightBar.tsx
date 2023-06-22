@@ -43,19 +43,19 @@ export function HighlightBar(props: HighlightBarProps): JSX.Element {
         borderRadius: '4px',
         border: '1px solid $grayBorder',
         boxShadow: theme.shadows.cardBoxShadow.toString(),
-        bottom: props.displayAtBottom
-          ? 'calc(38px + env(safe-area-inset-bottom, 40px))'
-          : undefined,
-        '@smDown': props.displayAtBottom
-          ? {
-              maxWidth: '85%',
-              bottom: `calc(28px + ${
-                isAndroid() ? 30 : 0
-              }px + env(safe-area-inset-bottom, 40px))`,
-            }
-          : undefined,
-        left: props.displayAtBottom ? undefined : props.anchorCoordinates.pageX,
-        top: props.displayAtBottom ? undefined : props.anchorCoordinates.pageY,
+        ...(props.displayAtBottom && {
+          bottom: 'calc(38px + env(safe-area-inset-bottom, 40px))',
+        }),
+        ...(props.displayAtBottom && {
+          '@smDown': {
+            maxWidth: '85%',
+            bottom: `calc(28px + ${
+              isAndroid() ? 30 : 0
+            }px + env(safe-area-inset-bottom, 40px))`,
+          },
+        }),
+        ...(!props.displayAtBottom && { left: props.anchorCoordinates.pageX }),
+        ...(!props.displayAtBottom && { top: props.anchorCoordinates.pageY }),
       }}
     >
       <BarContent {...props} />
