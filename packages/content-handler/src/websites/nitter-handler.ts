@@ -284,7 +284,7 @@ export class NitterHandler extends ContentHandler {
             <meta property="og:type" content="tweet" />
           </head>
           <body>
-            <div>
+            <div class="_omnivore_twitter">
               ${tweetsContent}
               ${tweetUrl}
             </div>
