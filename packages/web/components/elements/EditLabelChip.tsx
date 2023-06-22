@@ -2,6 +2,7 @@ import { Button } from './Button'
 import { SpanBox, HStack } from './LayoutPrimitives'
 import { Circle, X } from 'phosphor-react'
 import { isDarkTheme } from '../../lib/themeUpdater'
+import { theme } from '../tokens/stitches.config'
 
 type EditLabelChipProps = {
   text: string
@@ -13,9 +14,12 @@ type EditLabelChipProps = {
 export function EditLabelChip(props: EditLabelChipProps): JSX.Element {
   const isDark = isDarkTheme()
 
-  const selectedBorder = isDark ? '#FFEA9F' : '#D9D9D9'
+  const selectedBorder = isDark ? '#FFEA9F' : '$omnivoreGray'
   const unSelectedBorder = isDark ? 'transparent' : '#DEDEDE'
-  const xUnselectedColor = isDark ? '#6A6968' : '#DEDEDE'
+  const xSelectedColor = isDark
+    ? '#FFEA9F'
+    : theme.colors.omnivoreGray.toString()
+  const xUnselectedColor = isDark ? '#6A6968' : '#2A2A2A'
 
   return (
     <SpanBox
@@ -50,7 +54,7 @@ export function EditLabelChip(props: EditLabelChipProps): JSX.Element {
         >
           <X
             size={14}
-            color={props.isSelected ? '#FFEA9F' : xUnselectedColor}
+            color={props.isSelected ? xSelectedColor : xUnselectedColor}
           />
         </Button>
       </HStack>

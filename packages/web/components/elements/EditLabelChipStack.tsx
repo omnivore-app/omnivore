@@ -4,6 +4,7 @@ import { Circle, X } from 'phosphor-react'
 import { isDarkTheme } from '../../lib/themeUpdater'
 import { Label } from '../../lib/networking/fragments/labelFragment'
 import { useMemo } from 'react'
+import { theme } from '../tokens/stitches.config'
 
 type EditLabelChipStackProps = {
   labels: Label[]
@@ -16,7 +17,7 @@ export function EditLabelChipStack(
 ): JSX.Element {
   const isDark = isDarkTheme()
 
-  const selectedBorder = isDark ? '#FFEA9F' : '#D9D9D9'
+  const selectedBorder = isDark ? '#FFEA9F' : '$omnivoreGray'
   const unSelectedBorder = isDark ? 'transparent' : '#DEDEDE'
 
   const colors = useMemo(() => {
