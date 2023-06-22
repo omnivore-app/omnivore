@@ -7,7 +7,6 @@
 
 <img align="right" src="https://avatars.githubusercontent.com/u/70113176?s=400&u=506b21d9f019f3160963c010ef363667fb24c7c9&v=4" height="150px" alt="Omnivore Logo">
 
-
 [Omnivore](https://omnivore.app) is a complete, open source read-it-later solution for people who like text.
 
 We built Omnivore because we love reading and we want it to be more social. Join us!
@@ -44,14 +43,14 @@ Read more about Omnivore on our blog. <https://blog.omnivore.app/p/getting-start
 
 Omnivore takes advantage of some great open source software:
 
-* [TypeScript](https://www.typescriptlang.org/) - Most of our backend and frontend are written in TypeScript.
-* [Next.js](https://nextjs.org/) - Our frontend is a Next.JS app and is hosted on [Vercel](https://vercel.com/).
-* [SWR](https://swr.vercel.app/) - We do all our data fetching on the web using SWR.
-* [Stitches](https://stitches.dev/) - We use Stitches on the frontend to style our components.
-* [Mozilla Readability](https://github.com/mozilla/readability) - We use Mozilla's Readability library to make pages easier to read.
-* [Swift GraphQL](https://www.swift-graphql.com/) - We generate our GraphQL queries on iOS using Swift GraphQL.
-* [Radix](https://www.radix-ui.com/) - We use Radix UI's components on our frontend.
-* And many more awesome libraries, just checkout our package files to see what we are using.
+- [TypeScript](https://www.typescriptlang.org/) - Most of our backend and frontend are written in TypeScript.
+- [Next.js](https://nextjs.org/) - Our frontend is a Next.JS app and is hosted on [Vercel](https://vercel.com/).
+- [SWR](https://swr.vercel.app/) - We do all our data fetching on the web using SWR.
+- [Stitches](https://stitches.dev/) - We use Stitches on the frontend to style our components.
+- [Mozilla Readability](https://github.com/mozilla/readability) - We use Mozilla's Readability library to make pages easier to read.
+- [Swift GraphQL](https://www.swift-graphql.com/) - We generate our GraphQL queries on iOS using Swift GraphQL.
+- [Radix](https://www.radix-ui.com/) - We use Radix UI's components on our frontend.
+- And many more awesome libraries, just checkout our package files to see what we are using.
 
 ## Importing Libraries
 
@@ -60,23 +59,23 @@ a tool that imports a list of CSV URLs: [omnivore-import](https://github.com/dav
 
 ## How to setup local development :computer:
 
-The easiest way to get started with local development is to use `docker-compose up`. This will start a postgres container, our web frontend, an API server, and our content fetching microservice.
+The easiest way to get started with local development is to use `docker compose up`. This will start a postgres container, our web frontend, an API server, and our content fetching microservice.
 
 ### Requirements for development
 
 Omnivore is written in TypeScript and JavaScript.
 
-* [Node](https://nodejs.org/) -- currently we are using Node.js v14.18
-* [Chromium](https://www.chromium.org/chromium-projects/) -- see below for installation info
+- [Node](https://nodejs.org/) -- currently we are using Node.js v14.18
+- [Chromium](https://www.chromium.org/chromium-projects/) -- see below for installation info
 
-###  Running the web and API services
+### Running the web and API services
 
-### 1. Start docker-compose
+### 1. Start docker compose
 
 ```bash
 git clone https://github.com/omnivore-app/omnivore
 cd omnivore
-docker-compose up
+docker compose up
 ```
 
 This will start postgres, initialize the database, and start the web and api services.
@@ -87,7 +86,7 @@ Open <http://localhost:3000> and confirm Omnivore is running
 
 ### 3. Login with the test account
 
-During database setup docker-compose creates an account `demo@omnivore.app`, password: `demo`.
+During database setup docker compose creates an account `demo@omnivore.app`, password: `demo`.
 
 Go to <http://localhost:3000/> in your browser and choose `Continue with Email` to login.
 
@@ -97,7 +96,7 @@ If you want to work on just the frontend of Omnivore you can run the backend ser
 with docker compose and the frontend locally:
 
 ```bash
-docker-compose up api content-fetch
+docker compose up api content-fetch
 cd packages/web
 cp .env.template .env
 yarn dev
@@ -137,7 +136,6 @@ and enter a URL such as `https://blog.omnivore.app/p/getting-started-with-omnivo
 You should see a Chromium window open and navigate to your link. When the service
 is done fetching your content you will see it in your library.
 
-
 ## How to deploy to your own server
 
 Omnivore was originally designed to be deployed on GCP and takes advantage
@@ -153,7 +151,7 @@ bucket.
 - `packages/api` - the backend API service
 - `packages/web` - the web frontend (can easily be deployed to vercel)
 - `packages/puppeteer-parse` - the content fetching service (can easily
-be deployed as an AWS lambda or GCP Cloud Function)
+  be deployed as an AWS lambda or GCP Cloud Function)
 
 Additionally, you will need to run our database migrations to initialize
 your database. These are dockerized and can be run with the
@@ -162,4 +160,3 @@ your database. These are dockerized and can be run with the
 ## License
 
 Omnivore and our extensions to Readability.js are under the AGPL-3.0 license.
-
