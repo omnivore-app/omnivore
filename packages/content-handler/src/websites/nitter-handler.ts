@@ -282,6 +282,7 @@ export class NitterHandler extends ContentHandler {
             <meta property="article:published_time" content="${tweet.createdAt}" />
             <meta property="og:site_name" content="Twitter" />
             <meta property="og:type" content="tweet" />
+            <meta property="dc:creator" content="${author.name}" />
           </head>
           <body>
             <div class="_omnivore_twitter">
