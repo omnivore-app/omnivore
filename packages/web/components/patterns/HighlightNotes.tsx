@@ -163,7 +163,7 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
         <VStack
           css={{
             width: '100%',
-            ...RcEditorStyles(isDark),
+            ...RcEditorStyles(isDark, false),
           }}
           onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
             if (event.code.toLowerCase() === 'escape') {
@@ -266,7 +266,7 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
               width: '100%',
               fontSize: '12px',
               marginTop: '0px',
-              paddingTop: '0px',
+              paddingTop: '5px',
 
               paddingLeft:
                 props.fillBackground && props.text
@@ -282,6 +282,7 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
                   : '0px',
               color: props.text ? '$thHighContrast' : '#898989',
               // border: props.text ? 'unset' : '1px solid $thBorderColor',
+              borderRadius: '5px',
               background:
                 props.text && props.fillBackground ? '$thBackground5' : 'unset',
               '> *': {

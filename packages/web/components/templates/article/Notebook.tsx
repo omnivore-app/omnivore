@@ -314,7 +314,7 @@ export function Notebook(props: NotebookProps): JSX.Element {
         height: '100%',
         width: '100%',
         p: '40px',
-        '@mdDown': { p: '10px' },
+        '@mdDown': { p: '15px' },
       }}
     >
       <SectionTitle
