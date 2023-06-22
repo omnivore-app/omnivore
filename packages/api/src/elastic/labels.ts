@@ -74,6 +74,7 @@ export const updateLabelsInPage = async (
       retry_on_conflict: 3,
     })
 
+    if (body.result === 'noop') return true
     if (body.result !== 'updated') return false
     if (labelsToAdd) {
       // publish labels to be added

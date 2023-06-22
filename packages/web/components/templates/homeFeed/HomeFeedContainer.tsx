@@ -1,7 +1,14 @@
 import { Action, createAction, useKBar, useRegisterActions } from 'kbar'
 import debounce from 'lodash/debounce'
 import { useRouter } from 'next/router'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
+} from 'react'
 import { Toaster } from 'react-hot-toast'
 import TopBarProgress from 'react-topbar-progress-indicator'
 import { useFetchMore } from '../../../lib/hooks/useFetchMoreScroll'
@@ -624,20 +631,13 @@ export function HomeFeedContainer(): JSX.Element {
   )
 
   const performMultiSelectAction = useCallback(
-    (action: BulkAction) => {
+    (action: BulkAction, labelIds?: string[]) => {
       if (multiSelectMode === 'off') {
         return
       }
       if (multiSelectMode !== 'search' && checkedItems.length < 1) {
         return
       }
-      console.log(
-        'performing bulk action: ',
-        action,
-        'mode',
-        multiSelectMode,
-        checkedItems
-      )
       ;(async () => {
         const query =
           multiSelectMode === 'search'
@@ -649,12 +649,20 @@ export function HomeFeedContainer(): JSX.Element {
             : checkedItems.length
 
         try {
-          const res = await bulkActionMutation(action, query, expectedCount)
+          const res = await bulkActionMutation(
+            action,
+            query,
+            expectedCount,
+            labelIds
+          )
           if (res) {
             let successMessage: string | undefined = undefined
             switch (action) {
               case BulkAction.ARCHIVE:
                 successMessage = 'Link Archived'
+                break
+              case BulkAction.ADD_LABELS:
+                successMessage = 'Labels Added'
                 break
               case BulkAction.DELETE:
                 successMessage = 'Items deleted'
@@ -791,7 +799,7 @@ type HomeFeedContentProps = {
   setMultiSelectMode: (mode: MultiSelectMode) => void
   numItemsSelected: number
 
-  performMultiSelectAction: (action: BulkAction) => void
+  performMultiSelectAction: (action: BulkAction, labelIds?: string[]) => void
 }
 
 function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
