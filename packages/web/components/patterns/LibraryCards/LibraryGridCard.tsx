@@ -142,6 +142,9 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
           <Box
             css={{
               ...MenuStyle,
+              width: '30px',
+              mt: '-5px',
+              mr: '-5px',
               gap: '10px',
               px: '20px',
               borderRadius: '1000px',
@@ -151,7 +154,7 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
               },
             }}
           >
-            <Button
+            {/* <Button
               style="hoverActionIcon"
               onClick={(event) => {
                 const action = props.item.isArchived ? 'unarchive' : 'archive'
@@ -188,7 +191,7 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
               }}
             >
               <Tag size={18} color={theme.colors.thHighContrast.toString()} />
-            </Button>
+            </Button> */}
             <CardMenu
               item={props.item}
               viewer={props.viewer}
