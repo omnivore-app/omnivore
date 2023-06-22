@@ -6,7 +6,7 @@ import { StyledText } from '../elements/StyledText'
 import { Button } from '../elements/Button'
 import { HStack, Box } from '../elements/LayoutPrimitives'
 import { PenWithColorIcon } from '../elements/images/PenWithColorIcon'
-import { Note, Tag, Trash } from 'phosphor-react'
+import { Note, Tag, Trash, Copy } from 'phosphor-react'
 
 type PageCoordinates = {
   pageX: number
@@ -21,6 +21,7 @@ export type HighlightAction =
   | 'post'
   | 'unshare'
   | 'setHighlightLabels'
+  | 'copy'
 
 type HighlightBarProps = {
   anchorCoordinates: PageCoordinates
@@ -36,7 +37,7 @@ export function HighlightBar(props: HighlightBarProps): JSX.Element {
       <Box
         css={{
           width: '100%',
-          maxWidth: props.isNewHighlight ? '280px' : '330px',
+          maxWidth: props.isNewHighlight ? '330px' : '380px',
           height: '48px',
           position: 'fixed',
           background: '$grayBg',
@@ -60,7 +61,7 @@ export function HighlightBar(props: HighlightBarProps): JSX.Element {
       <Box
         css={{
           width: '100%',
-          maxWidth: props.isNewHighlight ? '280px' : '330px',
+          maxWidth: props.isNewHighlight ? '330px' : '380px',
           height: '48px',
           position: 'absolute',
           background: '$grayBg',
@@ -194,6 +195,29 @@ function BarContent(props: HighlightBarProps): JSX.Element {
             }}
           >
             Note
+          </StyledText>
+        </HStack>
+      </Button>
+      <Separator />
+      <Button
+        style="plainIcon"
+        title="Copy text to clipboard"
+        onClick={() => props.handleButtonClick('copy')}
+        css={{ color: '$readerFont', height: '100%', m: 0, p: 0 }}
+      >
+        <HStack css={{ height: '100%', alignItems: 'center' }}>
+          <Copy size={24} color={theme.colors.readerFont.toString()} />
+          <StyledText
+            style="body"
+            css={{
+              pl: '12px',
+              m: '0px',
+              color: '$readerFont',
+              fontWeight: '400',
+              fontSize: '16px',
+            }}
+          >
+            Copy
           </StyledText>
         </HStack>
       </Button>
