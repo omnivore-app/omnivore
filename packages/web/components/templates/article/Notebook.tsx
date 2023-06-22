@@ -29,7 +29,7 @@ import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItems
 import { SetHighlightLabelsModalPresenter } from './SetLabelsModalPresenter'
 import { Button } from '../../elements/Button'
 import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
-import { ArticleNoteBox } from '../../patterns/ArticleNotes'
+import { ArticleNotes } from '../../patterns/ArticleNotes'
 
 type NotebookProps = {
   viewer: UserBasicData
@@ -328,7 +328,7 @@ export function Notebook(props: NotebookProps): JSX.Element {
           distribution="start"
           css={{ width: '100%', mt: '10px', gap: '10px' }}
         >
-          <ArticleNoteBox
+          <ArticleNotes
             mode={notesEditMode}
             targetId={props.item.id}
             sizeMode={props.sizeMode}
