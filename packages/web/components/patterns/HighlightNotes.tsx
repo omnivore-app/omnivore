@@ -8,7 +8,7 @@ import {
   useState,
 } from 'react'
 import { formattedShortTime } from '../../lib/dateFormatting'
-import { HStack, SpanBox, VStack } from '../elements/LayoutPrimitives'
+import { Box, HStack, SpanBox, VStack } from '../elements/LayoutPrimitives'
 
 import MarkdownIt from 'markdown-it'
 import MdEditor, { Plugins } from 'react-markdown-editor-lite'
@@ -307,7 +307,7 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
               p: '5px',
               width: '100%',
               fontSize: '15px',
-              borderRadius: '3px',
+              // borderRadius: '3px',
               marginTop: props.fillBackground || !props.text ? '10px' : '0px',
 
               paddingLeft:
@@ -323,7 +323,7 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
                   ? '5px'
                   : '0px',
               color: props.text ? '$thHighContrast' : '#898989',
-              border: props.text ? 'unset' : '1px solid $thBorderColor',
+              // border: props.text ? 'unset' : '1px solid $thBorderColor',
               background:
                 props.text && props.fillBackground ? '$thBackground5' : 'unset',
               '> *': {

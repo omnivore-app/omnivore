@@ -180,6 +180,8 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         thLibraryMenuUnselected: '#898989',
         thLibrarySelectionColor: '#FFEA9F',
 
+        thNotebookSubtle: '#6A6968',
+
         thTextContrast: '#1E1E1E',
         thTextContrast2: '#3D3D3D',
 
@@ -273,6 +275,8 @@ const darkThemeSpec = {
     thLibraryMenuSecondary: '#EBEBEB',
     thLibraryMenuUnselected: '#898989',
     thLibrarySelectionColor: '#3D3D3D',
+
+    thNotebookSubtle: '#898989',
 
     thTextContrast: '#FFFFFF',
     thTextContrast2: '#EBEBEB',

@@ -88,6 +88,7 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
         }}
         css={{
           overflow: 'auto',
+          bg: '$thLibraryBackground',
           height: sizeMode === 'normal' ? 'unset' : '100%',
           maxWidth: sizeMode === 'normal' ? '640px' : '100%',
           minHeight: sizeMode === 'normal' ? '525px' : 'unset',

@@ -2,7 +2,14 @@ import { Box, VStack, HStack, SpanBox } from '../../elements/LayoutPrimitives'
 import { LabelChip } from '../../elements/LabelChip'
 import type { LinkedItemCardProps } from './CardTypes'
 import { useCallback, useState } from 'react'
-import { DotsThree } from 'phosphor-react'
+import {
+  Archive,
+  ArchiveBox,
+  DotsThree,
+  Tag,
+  Trash,
+  Tray,
+} from 'phosphor-react'
 import Link from 'next/link'
 import { CardMenu } from '../CardMenu'
 import {
@@ -16,6 +23,8 @@ import {
 } from './LibraryCardStyles'
 import { sortedLabels } from '../../../lib/labelsSort'
 import { LIBRARY_LEFT_MENU_WIDTH } from '../../templates/homeFeed/LibraryFilterMenu'
+import { Button } from '../../elements/Button'
+import { theme } from '../../tokens/stitches.config'
 
 export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
   const [isHovered, setIsHovered] = useState(false)
@@ -99,12 +108,52 @@ export function LibraryListCardContent(
           <Box
             css={{
               ...MenuStyle,
+              gap: '10px',
+              px: '20px',
               visibility: props.isHovered || menuOpen ? 'unset' : 'hidden',
               '@media (hover: none)': {
                 visibility: 'unset',
               },
             }}
           >
+            <Button
+              style="hoverActionIcon"
+              onClick={(event) => {
+                const action = props.item.isArchived ? 'unarchive' : 'archive'
+                props.handleAction(action)
+                event.preventDefault()
+              }}
+            >
+              {props.item.isArchived ? (
+                <Tray
+                  size={18}
+                  color={theme.colors.thHighContrast.toString()}
+                />
+              ) : (
+                <ArchiveBox
+                  size={18}
+                  color={theme.colors.thHighContrast.toString()}
+                />
+              )}
+            </Button>
+            <Button
+              style="hoverActionIcon"
+              onClick={(event) => {
+                props.handleAction('delete')
+                event.preventDefault()
+              }}
+            >
+              <Trash size={18} color={theme.colors.thHighContrast.toString()} />
+            </Button>
+            <Button
+              style="hoverActionIcon"
+              onClick={(event) => {
+                props.handleAction('set-labels')
+                event.preventDefault()
+              }}
+            >
+              <Tag size={18} color={theme.colors.thHighContrast.toString()} />
+            </Button>
             <CardMenu
               item={props.item}
               viewer={props.viewer}

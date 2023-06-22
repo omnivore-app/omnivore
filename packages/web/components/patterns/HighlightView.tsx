@@ -1,5 +1,5 @@
 /* eslint-disable react/no-children-prop */
-import { BookOpen, PencilLine } from 'phosphor-react'
+import { BookOpen, CaretDown, PencilLine } from 'phosphor-react'
 import { useState } from 'react'
 import type { Highlight } from '../../lib/networking/fragments/highlightFragment'
 import { LabelChip } from '../elements/LabelChip'
@@ -37,24 +37,38 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
         width: '100%',
         height: '100%',
         alignItems: 'stretch',
+
+        background: '$thBackground',
+        borderRadius: '6px',
+        boxShadow: '0px 4px 4px rgba(33, 33, 33, 0.1)',
       }}
+      //   <Box
+      //   css={{
+      //     width: '100%',
+      //     height: '100%',
+      //     padding: '10px',
+      //     background: '$thBackground',
+      //     borderRadius: '6px',
+      //     boxShadow: '0px 4px 4px rgba(33, 33, 33, 0.1)',
+      //   }}
+      // >
     >
-      <VStack css={{ minHeight: '100%', width: '10px' }}>
-        <Box
-          css={{
-            mt: '5px',
-            width: '10px',
-            height: '10px',
-            background: '#FFD234',
-            borderRadius: '7px',
-          }}
-        />
+      <VStack
+        css={{
+          minHeight: '100%',
+          width: '10px',
+          pt: '15px',
+          pl: '10px',
+        }}
+      >
+        <CaretDown size={15} color="#898989" weight="fill" />
         <Box
           css={{
             width: '2px',
             flexGrow: '1',
             background: '#FFD234',
-            marginLeft: '4px',
+            marginTop: '5px',
+            marginLeft: '6px',
             flex: '1',
             marginBottom: '10px',
           }}
@@ -63,8 +77,8 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
       <VStack
         css={{
           width: '100%',
-          padding: '0px',
-          paddingLeft: '15px',
+          padding: '10px',
+          paddingLeft: '20px',
         }}
       >
         <StyledQuote>

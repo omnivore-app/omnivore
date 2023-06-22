@@ -3,7 +3,7 @@ import { StyledText } from '../../elements/StyledText'
 import { theme } from '../../tokens/stitches.config'
 import type { Highlight } from '../../../lib/networking/fragments/highlightFragment'
 import { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
-import { BookOpen, PencilLine, X } from 'phosphor-react'
+import { BookOpen, CaretDown, PencilLine, X } from 'phosphor-react'
 import { updateHighlightMutation } from '../../../lib/networking/mutations/updateHighlightMutation'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { diff_match_patch } from 'diff-match-patch'
@@ -19,6 +19,7 @@ import { TrashIcon } from '../../elements/images/TrashIcon'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { SetHighlightLabelsModalPresenter } from './SetLabelsModalPresenter'
+import { Button } from '../../elements/Button'
 
 type NotebookProps = {
   viewer: UserBasicData
@@ -290,21 +291,32 @@ export function Notebook(props: NotebookProps): JSX.Element {
       css={{ height: '100%', width: '100%', p: '20px' }}
     >
       <TitledSection
-        title="ARTICLE NOTES"
+        title="Article Notes"
         editMode={notesEditMode == 'edit'}
         setEditMode={(edit) => setNotesEditMode(edit ? 'edit' : 'preview')}
       />
-      <HighlightNoteBox
-        mode={notesEditMode}
-        sizeMode={props.sizeMode}
-        setEditMode={setNotesEditMode}
-        text={annotations.note?.annotation}
-        placeHolder="Add notes to this document..."
-        saveText={handleSaveNoteText}
-      />
+      <Box
+        css={{
+          width: '100%',
+          height: '100%',
+          padding: '10px',
+          background: '$thBackground',
+          borderRadius: '6px',
+          boxShadow: '0px 4px 4px rgba(33, 33, 33, 0.1)',
+        }}
+      >
+        <HighlightNoteBox
+          mode={notesEditMode}
+          sizeMode={props.sizeMode}
+          setEditMode={setNotesEditMode}
+          text={annotations.note?.annotation}
+          placeHolder="Add notes to this document..."
+          saveText={handleSaveNoteText}
+        />
+      </Box>
       <SpanBox css={{ mt: '10px', mb: '25px' }} />
       <Box css={{ width: '100%' }}>
-        <TitledSection title="HIGHLIGHTS" />
+        <TitledSection title="Highlights" />
 
         {sortedHighlights.map((highlight) => (
           <HighlightViewItem
@@ -417,19 +429,19 @@ function TitledSection(props: TitledSectionProps): JSX.Element {
   return (
     <>
       <HStack
-        css={{ width: '100%', borderBottom: '1px solid $thBorderColor' }}
-        alignment="start"
+        css={{ width: '100%', gap: '10px' }}
+        alignment="center"
         distribution="start"
       >
+        {/* <CaretDown size={12} color={theme.colors.thNotebookSubtle.toString()} /> */}
         <StyledText
           css={{
-            fontFamily: '$display',
+            pt: '2px',
+            fontFamily: '$inter',
             fontStyle: 'normal',
-            fontWeight: '700',
             fontSize: '12px',
             lineHeight: '20px',
-            color: '#898989',
-            marginBottom: '1px',
+            color: '$thNotebookSubtle',
           }}
         >
           {props.title}

@@ -5,7 +5,14 @@ import { CoverImage } from '../../elements/CoverImage'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useCallback, useState } from 'react'
-import { DotsThreeVertical } from 'phosphor-react'
+import {
+  ArchiveBox,
+  DotsThree,
+  DotsThreeVertical,
+  Tag,
+  Trash,
+  Tray,
+} from 'phosphor-react'
 import Link from 'next/link'
 import { CardMenu } from '../CardMenu'
 import {
@@ -19,6 +26,8 @@ import {
   TitleStyle,
 } from './LibraryCardStyles'
 import { sortedLabels } from '../../../lib/labelsSort'
+import { Button } from '../../elements/Button'
+import { theme } from '../../tokens/stitches.config'
 
 dayjs.extend(relativeTime)
 
@@ -133,19 +142,63 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
           <Box
             css={{
               ...MenuStyle,
+              gap: '10px',
+              px: '20px',
+              borderRadius: '1000px',
+
+              bg: 'red',
+
               visibility: props.isHovered || menuOpen ? 'unset' : 'hidden',
               '@media (hover: none)': {
                 visibility: 'unset',
               },
             }}
           >
+            <Button
+              style="hoverActionIcon"
+              onClick={(event) => {
+                const action = props.item.isArchived ? 'unarchive' : 'archive'
+                props.handleAction(action)
+                event.preventDefault()
+              }}
+            >
+              {props.item.isArchived ? (
+                <Tray
+                  size={18}
+                  color={theme.colors.thHighContrast.toString()}
+                />
+              ) : (
+                <ArchiveBox
+                  size={18}
+                  color={theme.colors.thHighContrast.toString()}
+                />
+              )}
+            </Button>
+            <Button
+              style="hoverActionIcon"
+              onClick={(event) => {
+                props.handleAction('delete')
+                event.preventDefault()
+              }}
+            >
+              <Trash size={18} color={theme.colors.thHighContrast.toString()} />
+            </Button>
+            <Button
+              style="hoverActionIcon"
+              onClick={(event) => {
+                props.handleAction('set-labels')
+                event.preventDefault()
+              }}
+            >
+              <Tag size={18} color={theme.colors.thHighContrast.toString()} />
+            </Button>
             <CardMenu
               item={props.item}
               viewer={props.viewer}
               onOpenChange={(open) => setMenuOpen(open)}
               actionHandler={props.handleAction}
               triggerElement={
-                <DotsThreeVertical size={25} weight="bold" color="#ADADAD" />
+                <DotsThree size={25} weight="bold" color="#ADADAD" />
               }
             />
           </Box>

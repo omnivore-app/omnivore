@@ -18,16 +18,12 @@ export const MenuStyle = {
   display: 'flex',
   marginLeft: 'auto',
   height: '30px',
-  width: '30px',
+  width: '150px',
   mt: '-5px',
   mr: '-5px',
   pt: '2px',
   alignItems: 'center',
   justifyContent: 'center',
-  borderRadius: '1000px',
-  '&:hover': {
-    bg: '$thBackground4',
-  },
 }
 
 export const TitleStyle = {
