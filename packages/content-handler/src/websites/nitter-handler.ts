@@ -1,7 +1,7 @@
+import axios from 'axios'
 import { parseHTML } from 'linkedom'
 import _, { truncate } from 'lodash'
 import { DateTime } from 'luxon'
-import { Browser, BrowserContext, WaitForOptions } from 'puppeteer-core'
 import { ContentHandler, PreHandleResult } from '../content-handler'
 
 interface Tweet {
@@ -37,7 +37,7 @@ export class NitterHandler extends ContentHandler {
     this.name = 'Nitter'
   }
 
-  async getTweets(browser: Browser, username: string, tweetId: string) {
+  async getTweets(username: string, tweetId: string) {
     function authorParser(header: Element) {
       const profileImageUrl =
         header.querySelector('.tweet-avatar img')?.getAttribute('src') ?? ''
@@ -128,21 +128,15 @@ export class NitterHandler extends ContentHandler {
       }
     }
 
-    let context: BrowserContext | undefined
     try {
       const url = `${this.ADDRESS}/${username}/status/${tweetId}`
       const tweets: Tweet[] = []
 
-      context = await browser.createIncognitoBrowserContext()
-      const page = await context.newPage()
-      const option: WaitForOptions = {
-        waitUntil: 'networkidle2',
-        timeout: 60000, // 60 seconds
+      const option = {
+        timeout: 10000, // 10 seconds
       }
-      await page.goto(url, option)
-
-      const html = await page.content()
-      const document = parseHTML(html).document
+      const response = await axios.get(url, option)
+      const document = parseHTML(response.data).document
 
       // get the main thread including tweets and threads
       const mainThread = document.querySelector('.main-thread')
@@ -161,9 +155,9 @@ export class NitterHandler extends ContentHandler {
           }
 
           // go to new url and wait for it to load
-          await page.goto(`${this.ADDRESS}${newUrl}`, option)
+          const response = await axios.get(`${this.ADDRESS}${newUrl}`, option)
 
-          const document = parseHTML(await page.content()).document
+          const document = parseHTML(response.data).document
           const nextThread = document.querySelector('.main-thread .after-tweet')
           if (!nextThread) {
             break
@@ -190,10 +184,6 @@ export class NitterHandler extends ContentHandler {
       console.error('Error getting tweets', error)
 
       return []
-    } finally {
-      if (context) {
-        await context.close()
-      }
     }
   }
 
@@ -222,12 +212,12 @@ export class NitterHandler extends ContentHandler {
     return this.URL_MATCH.test(url.toString())
   }
 
-  async preHandle(url: string, browser: Browser): Promise<PreHandleResult> {
+  async preHandle(url: string): Promise<PreHandleResult> {
     const { tweetId, username, domain } = this.parseTweetUrl(url)
     if (!tweetId || !username || !domain) {
       throw new Error('could not parse tweet url')
     }
-    const tweets = await this.getTweets(browser, username, tweetId)
+    const tweets = await this.getTweets(username, tweetId)
 
     const tweet = tweets[0]
     const author = tweet.author
