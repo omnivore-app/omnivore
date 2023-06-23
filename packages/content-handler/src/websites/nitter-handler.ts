@@ -2,7 +2,12 @@ import axios from 'axios'
 import { parseHTML } from 'linkedom'
 import _, { truncate } from 'lodash'
 import { DateTime } from 'luxon'
+import { createClient } from 'redis'
 import { ContentHandler, PreHandleResult } from '../content-handler'
+import { createRedisClient } from '../redis'
+
+// explicitly create the return type of RedisClient
+type RedisClient = ReturnType<typeof createClient>
 
 interface Tweet {
   url: string
@@ -31,14 +36,15 @@ export class NitterHandler extends ContentHandler {
   URL_MATCH =
     /((twitter\.com)|(nitter\.net))\/(?:#!\/)?(\w+)\/status(?:es)?\/(\d+)(?:\/.*)?/
   INSTANCES = [
-    'https://nitter.net',
-    'https://nitter.lacontrevoie.fr',
-    'https://nitter.1d4.us',
-    'https://nitter.kavin.rocks',
-    'https://nitter.it',
-    'https://twitter.owacon.moe',
-    'https://singapore.unofficialbird.com',
+    { value: 'https://nitter.net', score: 0 },
+    { value: 'https://nitter.lacontrevoie.fr', score: 0 },
+    { value: 'https://nitter.1d4.us', score: 0 },
+    { value: 'https://nitter.kavin.rocks', score: 0 },
+    { value: 'https://nitter.it', score: 0 },
+    { value: 'https://twitter.owacon.moe', score: 0 },
+    { value: 'https://singapore.unofficialbird.com', score: 0 },
   ]
+  REDIS_KEY = 'nitter-instances'
 
   private instance: string
 
@@ -46,6 +52,44 @@ export class NitterHandler extends ContentHandler {
     super()
     this.name = 'Nitter'
     this.instance = ''
+  }
+
+  async getInstance(redisClient: RedisClient) {
+    const instances = await redisClient.zRangeByScore(
+      this.REDIS_KEY,
+      '-inf',
+      '+inf',
+      {
+        LIMIT: {
+          count: 1,
+          offset: 0,
+        },
+      }
+    )
+
+    // if no instance is found, save the default instances
+    if (instances.length === 0) {
+      await redisClient.zAdd(this.REDIS_KEY, this.INSTANCES)
+      return this.INSTANCES[0].value
+    }
+
+    return instances[0]
+  }
+
+  async incrementInstanceScore(
+    redisClient: RedisClient,
+    instance: string,
+    score = 1
+  ) {
+    await redisClient.zIncrBy(this.REDIS_KEY, score, instance)
+  }
+
+  async decrementInstanceScore(
+    redisClient: RedisClient,
+    instance: string,
+    score = 1
+  ) {
+    await redisClient.zIncrBy(this.REDIS_KEY, score, instance)
   }
 
   async getTweets(username: string, tweetId: string) {
@@ -139,22 +183,30 @@ export class NitterHandler extends ContentHandler {
       }
     }
 
+    const redisClient = await createRedisClient()
+
     try {
       const tweets: Tweet[] = []
       const option = {
         timeout: 20000, // 20 seconds
       }
       let html: any
-      // use the first instance that works
-      for (const instance of this.INSTANCES) {
+      // get instance from redis
+      for (let i = 0; i < this.INSTANCES.length; i++) {
+        const instance = await this.getInstance(redisClient)
+
         try {
           const url = `${instance}/${username}/status/${tweetId}`
           const response = await axios.get(url, option)
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           html = response.data
           this.instance = instance
+
+          await this.incrementInstanceScore(redisClient, instance)
           break
         } catch (error) {
+          await this.decrementInstanceScore(redisClient, instance)
+
           if (axios.isAxiosError(error)) {
             console.info(`Error getting tweets from ${instance}`, error.message)
           } else {
@@ -214,6 +266,8 @@ export class NitterHandler extends ContentHandler {
       console.error('Error getting tweets', error)
 
       return []
+    } finally {
+      await redisClient?.quit()
     }
   }
 
