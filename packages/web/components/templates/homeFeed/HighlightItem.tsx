@@ -66,6 +66,7 @@ export function HighlightsMenu(props: HighlightsMenuProps): JSX.Element {
         triggerElement={
           <Box
             css={{
+              marginLeft: 'auto',
               display: 'flex',
               height: '20px',
               width: '20px',

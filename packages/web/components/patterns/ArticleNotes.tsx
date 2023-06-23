@@ -182,7 +182,6 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
       css={{
         width: '100%',
         ...RcEditorStyles(isDark, true),
-        pr: '25px',
       }}
       onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.code.toLowerCase() === 'escape') {

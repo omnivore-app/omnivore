@@ -367,7 +367,10 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
         <SetHighlightLabelsModalPresenter
           highlight={labelsTarget}
           highlightId={labelsTarget.id}
-          onOpenChange={() => setLabelsTarget(undefined)}
+          onOpenChange={() => {
+            mutate()
+            setLabelsTarget(undefined)
+          }}
         />
       )}
       {props.showConfirmDeleteNote && (

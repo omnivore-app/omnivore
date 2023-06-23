@@ -130,6 +130,8 @@ export function LibraryHighlightGridCard(
                 <SpanBox key={`hv-${highlight.id}`}>
                   <HighlightView
                     key={highlight.id}
+                    viewer={props.viewer}
+                    item={props.item}
                     highlight={highlight}
                     updateHighlight={(highlight) => {
                       console.log('updated highlight: ', highlight)

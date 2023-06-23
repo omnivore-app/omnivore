@@ -15,12 +15,22 @@ import { HighlightViewNote } from './HighlightNotes'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { isDarkTheme } from '../../lib/themeUpdater'
+import { HighlightsMenu } from '../templates/homeFeed/HighlightItem'
+import { ReadableItem } from '../../lib/networking/queries/useGetLibraryItemsQuery'
+import { UserBasicData } from '../../lib/networking/queries/useGetViewerQuery'
 
 type HighlightViewProps = {
+  item: ReadableItem
+  viewer: UserBasicData
   highlight: Highlight
   author?: string
   title?: string
   updateHighlight: (highlight: Highlight) => void
+
+  viewInReader: (highlightId: string) => void
+
+  setLabelsTarget: (target: Highlight) => void
+  setShowConfirmDeleteHighlightId: (set: string) => void
 }
 
 const StyledQuote = styled(Blockquote, {
@@ -38,13 +48,14 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
   const [noteMode, setNoteMode] = useState<'preview' | 'edit'>('preview')
 
   return (
-    <HStack
+    <VStack
       css={{
-        p: '5px',
+        p: '0px',
         width: '100%',
         alignItems: 'stretch',
         bg: isDark ? '#3D3D3D' : '$thBackground',
         borderRadius: '6px',
+        border: '1px solid $thBorderSubtle',
         boxShadow: '0px 4px 4px rgba(33, 33, 33, 0.1)',
         '@mdDown': {
           p: '0px',
@@ -52,6 +63,27 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
       }}
     >
       <VStack
+        css={{
+          borderBottom: '1px solid $thBorderSubtle',
+          width: '100%',
+          height: '40px',
+          paddingRight: '10px',
+        }}
+        distribution="end"
+        alignment="end"
+      >
+        <HighlightsMenu
+          item={props.item}
+          viewer={props.viewer}
+          highlight={props.highlight}
+          viewInReader={props.viewInReader}
+          setLabelsTarget={props.setLabelsTarget}
+          setShowConfirmDeleteHighlightId={
+            props.setShowConfirmDeleteHighlightId
+          }
+        />
+      </VStack>
+      {/* <VStack
         css={{
           minHeight: '100%',
           width: '10px',
@@ -63,7 +95,6 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
           },
         }}
       >
-        {/* <CaretDown size={12} color="#898989" weight="fill" /> */}
         <Box
           css={{
             width: '2px',
@@ -75,7 +106,7 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
             marginBottom: '25px',
           }}
         />
-      </VStack>
+      </VStack> */}
 
       <VStack
         css={{
@@ -140,6 +171,6 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
           />
         </HStack>
       </VStack>
-    </HStack>
+    </VStack>
   )
 }

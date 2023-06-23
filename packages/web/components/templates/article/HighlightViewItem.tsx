@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Highlight } from '../../../lib/networking/fragments/highlightFragment'
 import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
-import { HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
+import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { HighlightView } from '../../patterns/HighlightView'
 import { HighlightsMenu } from '../homeFeed/HighlightItem'
 
@@ -35,19 +35,18 @@ export function HighlightViewItem(props: HighlightViewItemProps): JSX.Element {
     >
       <VStack css={{ width: '100%', height: '100%' }}>
         <HighlightView
+          viewer={props.viewer}
+          item={props.item}
           highlight={props.highlight}
           updateHighlight={props.updateHighlight}
+          viewInReader={props.viewInReader}
+          setLabelsTarget={props.setSetLabelsTarget}
+          setShowConfirmDeleteHighlightId={
+            props.setShowConfirmDeleteHighlightId
+          }
         />
         <SpanBox css={{ mb: '15px' }} />
       </VStack>
-      <HighlightsMenu
-        item={props.item}
-        viewer={props.viewer}
-        highlight={props.highlight}
-        viewInReader={props.viewInReader}
-        setLabelsTarget={props.setSetLabelsTarget}
-        setShowConfirmDeleteHighlightId={props.setShowConfirmDeleteHighlightId}
-      />
     </HStack>
   )
 }
