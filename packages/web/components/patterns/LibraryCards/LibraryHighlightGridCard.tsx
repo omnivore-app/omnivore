@@ -1,5 +1,5 @@
 import { Box, VStack, HStack, SpanBox } from '../../elements/LayoutPrimitives'
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { CaretDown, CaretUp } from 'phosphor-react'
 import { MetaStyle, timeAgo, TitleStyle } from './LibraryCardStyles'
 import { styled } from '@stitches/react'
@@ -10,6 +10,8 @@ import { theme } from '../../tokens/stitches.config'
 import { getHighlightLocation } from '../../templates/article/NotebookModal'
 import { Highlight } from '../../../lib/networking/fragments/highlightFragment'
 import { HighlightView } from '../HighlightView'
+import { useRouter } from 'next/router'
+import { showErrorToast } from '../../../lib/toastHelpers'
 
 export const GridSeparator = styled(Box, {
   height: '1px',
@@ -29,6 +31,31 @@ export function LibraryHighlightGridCard(
 ): JSX.Element {
   const [expanded, setExpanded] = useState(false)
   const higlightCount = props.item.highlights?.length ?? 0
+  const router = useRouter()
+  const viewInReader = useCallback(
+    (highlightId) => {
+      if (!router || !router.isReady || !props.viewer) {
+        showErrorToast('Error navigating to highlight')
+        return
+      }
+      console.log('pushing user: ', props.viewer, 'slug: ', props.item.slug)
+      router.push(
+        {
+          pathname: '/[username]/[slug]',
+          query: {
+            username: props.viewer.profile.username,
+            slug: props.item.slug,
+          },
+          hash: highlightId,
+        },
+        `${props.viewer.profile.username}/${props.item.slug}#${highlightId}`,
+        {
+          scroll: false,
+        }
+      )
+    },
+    [router, props]
+  )
 
   const sortedHighlights = useMemo(() => {
     const sorted = (a: number, b: number) => {
@@ -132,7 +159,7 @@ export function LibraryHighlightGridCard(
                     viewer={props.viewer}
                     item={props.item}
                     highlight={highlight}
-                    viewInReader={() => {}}
+                    viewInReader={viewInReader}
                     setLabelsTarget={() => {}}
                     setShowConfirmDeleteHighlightId={() => {}}
                     updateHighlight={(highlight) => {
