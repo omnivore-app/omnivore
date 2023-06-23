@@ -36,13 +36,13 @@ export class NitterHandler extends ContentHandler {
   URL_MATCH =
     /((twitter\.com)|(nitter\.net))\/(?:#!\/)?(\w+)\/status(?:es)?\/(\d+)(?:\/.*)?/
   INSTANCES = [
-    { value: 'https://nitter.1d4.us', score: 7 },
-    { value: 'https://nitter.net', score: 6 }, // the official instance
-    { value: 'https://nitter.lacontrevoie.fr', score: 5 },
-    { value: 'https://nitter.kavin.rocks', score: 4 },
-    { value: 'https://nitter.it', score: 3 },
-    { value: 'https://singapore.unofficialbird.com', score: 2 },
-    { value: 'nitter.fly.dev', score: 1 },
+    { value: 'https://nitter.1d4.us', score: 0 },
+    { value: 'https://nitter.net', score: 1 }, // the official instance
+    { value: 'https://nitter.lacontrevoie.fr', score: 2 },
+    { value: 'https://nitter.kavin.rocks', score: 3 },
+    { value: 'https://nitter.it', score: 4 },
+    { value: 'https://singapore.unofficialbird.com', score: 5 },
+    { value: 'nitter.fly.dev', score: 6 },
   ]
   REDIS_KEY = 'nitter-instances'
 
@@ -55,15 +55,19 @@ export class NitterHandler extends ContentHandler {
   }
 
   async getInstances(redisClient: RedisClient) {
-    const instances = await redisClient.zRangeByScore(
-      this.REDIS_KEY,
-      '-inf',
-      '+inf'
-    )
+    const instances = await redisClient.zRange(this.REDIS_KEY, '-inf', '+inf', {
+      REV: true,
+      BY: 'SCORE',
+    })
+    console.debug('instances', instances)
 
     // if no instance is found, save the default instances
     if (instances.length === 0) {
-      await redisClient.zAdd(this.REDIS_KEY, this.INSTANCES)
+      const result = await redisClient.zAdd(this.REDIS_KEY, this.INSTANCES, {
+        NX: true, // only add if the key does not exist
+      })
+      console.debug('zAdd result', result)
+
       return this.INSTANCES.map((i) => i.value)
     }
 
@@ -184,20 +188,16 @@ export class NitterHandler extends ContentHandler {
           const url = `${instance}/${username}/status/${tweetId}`
           const startTime = Date.now()
           const response = await axios.get(url, option)
-          const latency = Date.now() - startTime
+          const latency = (Date.now() - startTime) / 1000000 // convert to seconds
 
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           html = response.data
           this.instance = instance
 
-          await this.incrementInstanceScore(
-            redisClient,
-            instance,
-            -latency / 1000
-          )
+          await this.incrementInstanceScore(redisClient, instance, latency)
           break
         } catch (error) {
-          await this.incrementInstanceScore(redisClient, instance, -20000)
+          await this.incrementInstanceScore(redisClient, instance, 20)
 
           if (axios.isAxiosError(error)) {
             console.info(`Error getting tweets from ${instance}`, error.message)
