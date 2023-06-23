@@ -1051,7 +1051,6 @@ function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element {
         <NotebookPresenter
           viewer={props.viewer}
           item={props.notebookTarget?.node}
-          highlights={props.notebookTarget?.node.highlights ?? []}
           onClose={(highlights: Highlight[]) => {
             if (props.notebookTarget?.node.highlights) {
               props.notebookTarget.node.highlights = highlights
