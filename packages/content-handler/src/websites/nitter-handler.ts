@@ -142,7 +142,7 @@ export class NitterHandler extends ContentHandler {
     try {
       const tweets: Tweet[] = []
       const option = {
-        timeout: 60000, // 60 seconds
+        timeout: 20000, // 20 seconds
       }
       let html: any
       // use the first instance that works
