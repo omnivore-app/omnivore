@@ -160,8 +160,12 @@ export function LibraryHighlightGridCard(
                     item={props.item}
                     highlight={highlight}
                     viewInReader={viewInReader}
-                    setLabelsTarget={() => {}}
-                    setShowConfirmDeleteHighlightId={() => {}}
+                    setLabelsTarget={() => {
+                      console.log('TODO: set labels')
+                    }}
+                    setShowConfirmDeleteHighlightId={() => {
+                      console.log('TODO: confirm delete')
+                    }}
                     updateHighlight={(highlight) => {
                       console.log('updated highlight: ', highlight)
                     }}
