@@ -47,7 +47,6 @@ type NoteSectionProps = {
   placeHolder: string
   mode: 'edit' | 'preview'
 
-  sizeMode: 'normal' | 'maximized'
   setEditMode: (set: 'edit' | 'preview') => void
 
   text: string | undefined
@@ -72,7 +71,6 @@ export function ArticleNotes(props: NoteSectionProps): JSX.Element {
     <MarkdownNote
       targetId={props.targetId}
       placeHolder={props.placeHolder}
-      sizeMode={props.sizeMode}
       text={props.text}
       saveText={saveText}
       lastSaved={lastSaved}
@@ -89,7 +87,6 @@ type HighlightViewNoteProps = {
 
   highlight: Highlight
 
-  sizeMode: 'normal' | 'maximized'
   setEditMode: (set: 'edit' | 'preview') => void
 
   text: string | undefined
@@ -120,7 +117,6 @@ export function HighlightViewNote(props: HighlightViewNoteProps): JSX.Element {
     <MarkdownNote
       targetId={props.targetId}
       placeHolder={props.placeHolder}
-      sizeMode={props.sizeMode}
       text={props.text}
       saveText={saveText}
       lastSaved={lastSaved}
@@ -133,8 +129,6 @@ type MarkdownNote = {
   targetId: string
 
   placeHolder: string
-
-  sizeMode: 'normal' | 'maximized'
 
   text: string | undefined
   fillBackground: boolean | undefined
@@ -193,8 +187,6 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
       document.removeEventListener('saveMarkdownNote', saveMarkdownNote)
     }
   }, [props, editorRef])
-
-  console.log('isDark: ', isDark)
 
   return (
     <VStack

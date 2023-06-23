@@ -134,7 +134,6 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
             text={props.highlight.annotation}
             placeHolder="Add notes to this highlight..."
             highlight={props.highlight}
-            sizeMode={'normal'}
             mode={noteMode}
             setEditMode={setNoteMode}
             updateHighlight={props.updateHighlight}

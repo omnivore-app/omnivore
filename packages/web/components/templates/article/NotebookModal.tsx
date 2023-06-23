@@ -16,7 +16,7 @@ import { diff_match_patch } from 'diff-match-patch'
 import { MenuTrigger } from '../../elements/MenuTrigger'
 import { highlightsAsMarkdown } from '../homeFeed/HighlightItem'
 import 'react-markdown-editor-lite/lib/index.css'
-import { Notebook } from './Notebook'
+import { NotebookContent } from './Notebook'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 
@@ -27,7 +27,7 @@ type NotebookModalProps = {
   highlights: Highlight[]
 
   viewHighlightInReader: (arg: string) => void
-  onClose: (highlights: Highlight[], deletedAnnotations: Highlight[]) => void
+  onClose: (highlights: Highlight[]) => void
 }
 
 export const getHighlightLocation = (patch: string): number | undefined => {
@@ -37,26 +37,20 @@ export const getHighlightLocation = (patch: string): number | undefined => {
 }
 
 export function NotebookModal(props: NotebookModalProps): JSX.Element {
-  const [sizeMode, setSizeMode] = useState<'normal' | 'maximized'>('normal')
   const [showConfirmDeleteNote, setShowConfirmDeleteNote] = useState(false)
   const [allAnnotations, setAllAnnotations] = useState<Highlight[] | undefined>(
     undefined
   )
-  const [deletedAnnotations, setDeletedAnnotations] = useState<
-    Highlight[] | undefined
-  >(undefined)
 
   const handleClose = useCallback(() => {
-    props.onClose(allAnnotations ?? [], deletedAnnotations ?? [])
-  }, [props, allAnnotations, deletedAnnotations])
+    console.log('closing: ', allAnnotations)
+    props.onClose(allAnnotations ?? [])
+  }, [props, allAnnotations])
 
-  const handleAnnotationsChange = useCallback(
-    (allAnnotations, deletedAnnotations) => {
-      setAllAnnotations(allAnnotations)
-      setDeletedAnnotations(deletedAnnotations)
-    },
-    []
-  )
+  const handleAnnotationsChange = useCallback((allAnnotations) => {
+    console.log('all annotation: ', allAnnotations)
+    setAllAnnotations(allAnnotations)
+  }, [])
 
   const exportHighlights = useCallback(() => {
     ;(async () => {
@@ -90,9 +84,9 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
           overflow: 'auto',
           bg: '$thLibraryBackground',
           width: '100%',
-          height: sizeMode === 'normal' ? 'unset' : '100%',
-          maxWidth: sizeMode === 'normal' ? '748px' : '1050px',
-          minHeight: sizeMode === 'normal' ? '525px' : 'unset',
+          height: 'unset',
+          maxWidth: '748px',
+          minHeight: '525px',
           '@mdDown': {
             top: '20px',
             width: '100%',
@@ -100,6 +94,15 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
             maxHeight: 'unset',
             transform: 'translate(-50%)',
           },
+        }}
+        onKeyUp={(event) => {
+          switch (event.key) {
+            case 'Escape':
+              handleClose()
+              event.preventDefault()
+              event.stopPropagation()
+              break
+          }
         }}
       >
         <HStack
@@ -128,7 +131,6 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
             distribution="center"
             alignment="center"
           >
-            {/* <SizeToggle mode={sizeMode} setMode={setSizeMode} /> */}
             <Dropdown triggerElement={<MenuTrigger />}>
               <DropdownOption
                 onSelect={() => {
@@ -146,9 +148,8 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
             <CloseButton close={handleClose} />
           </HStack>
         </HStack>
-        <Notebook
+        <NotebookContent
           {...props}
-          sizeMode={sizeMode}
           viewInReader={viewInReader}
           onAnnotationsChanged={handleAnnotationsChange}
           showConfirmDeleteNote={showConfirmDeleteNote}

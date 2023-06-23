@@ -19,7 +19,7 @@ import {
   timeAgo,
 } from '../../patterns/LibraryCards/LibraryCardStyles'
 import { LibraryHighlightGridCard } from '../../patterns/LibraryCards/LibraryHighlightGridCard'
-import { Notebook } from '../article/Notebook'
+import { NotebookContent } from '../article/Notebook'
 import { EmptyHighlights } from './EmptyHighlights'
 import { HEADER_HEIGHT } from './HeaderSpacer'
 import { highlightsAsMarkdown } from './HighlightItem'
@@ -444,8 +444,7 @@ function HighlightList(props: HighlightListProps): JSX.Element {
       </HStack>
       <HStack css={{ width: '100%', height: '100%' }}>
         {props.viewer && (
-          <Notebook
-            sizeMode="normal"
+          <NotebookContent
             viewer={props.viewer}
             item={props.item.node}
             highlights={props.item.node.highlights ?? []}

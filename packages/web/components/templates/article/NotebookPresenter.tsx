@@ -21,8 +21,8 @@ export const NotebookPresenter = (props: NotebookPresenterProps) => {
       viewer={props.viewer}
       item={props.item}
       highlights={props.highlights}
-      onClose={(highlights: Highlight[], deletedAnnotations: Highlight[]) => {
-        console.log('NotebookModal: ', highlights, deletedAnnotations)
+      onClose={(highlights: Highlight[]) => {
+        console.log('NotebookModal: ', highlights)
         props.onClose(highlights)
       }}
       viewHighlightInReader={(highlightId) => {

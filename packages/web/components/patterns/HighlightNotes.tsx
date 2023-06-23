@@ -42,7 +42,6 @@ type NoteSectionProps = {
   placeHolder: string
   mode: 'edit' | 'preview'
 
-  sizeMode: 'normal' | 'maximized'
   setEditMode: (set: 'edit' | 'preview') => void
 
   text: string | undefined
@@ -68,7 +67,6 @@ export function HighlightNoteBox(props: NoteSectionProps): JSX.Element {
       targetId={props.targetId}
       placeHolder={props.placeHolder}
       mode={props.mode}
-      sizeMode={props.sizeMode}
       setEditMode={props.setEditMode}
       text={props.text}
       saveText={saveText}
@@ -86,7 +84,6 @@ type HighlightViewNoteProps = {
 
   highlight: Highlight
 
-  sizeMode: 'normal' | 'maximized'
   setEditMode: (set: 'edit' | 'preview') => void
 
   text: string | undefined
@@ -125,7 +122,6 @@ export function HighlightViewNote(props: HighlightViewNoteProps): JSX.Element {
       targetId={props.targetId}
       placeHolder={props.placeHolder}
       mode={props.mode}
-      sizeMode={props.sizeMode}
       setEditMode={props.setEditMode}
       text={props.text}
       saveText={saveText}
@@ -141,7 +137,6 @@ type MarkdownNote = {
   placeHolder: string
   mode: 'edit' | 'preview'
 
-  sizeMode: 'normal' | 'maximized'
   setEditMode: (set: 'edit' | 'preview') => void
 
   text: string | undefined
@@ -203,7 +198,7 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
             ]}
             style={{
               width: '100%',
-              height: props.sizeMode == 'normal' ? '160px' : '320px',
+              height: '160px',
             }}
             renderHTML={(text: string) => mdParser.render(text)}
           />
@@ -299,116 +294,5 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
         </>
       )}
     </>
-  )
-}
-
-type MarkdownModalProps = {
-  targetId: string
-
-  placeHolder: string
-  mode: 'edit' | 'preview'
-
-  sizeMode: 'normal' | 'maximized'
-  setEditMode: (set: 'edit' | 'preview') => void
-
-  text: string | undefined
-  saveText: (text: string, completed: (success: boolean) => void) => void
-}
-
-export function MarkdownModal(props: MarkdownModalProps): JSX.Element {
-  const [lastSaved, setLastSaved] = useState<Date | undefined>(undefined)
-
-  const saveText = useCallback(
-    (text, updateTime) => {
-      props.saveText(text, (success) => {
-        if (success) {
-          setLastSaved(updateTime)
-        }
-      })
-    },
-    [props]
-  )
-
-  const handleClose = useCallback(() => {
-    console.log('onOpenChange')
-  }, [])
-
-  return (
-    <ModalRoot
-      defaultOpen
-      onOpenChange={handleClose}
-      css={{ width: '100%', height: '100%' }}
-    >
-      <ModalOverlay css={{ width: '100%', height: '100%' }} />
-      <ModalContent
-        css={{
-          bg: '$grayBg',
-          zIndex: '30',
-          width: '100%',
-          height: '100%',
-          maxHeight: 'unset',
-          maxWidth: 'unset',
-        }}
-      >
-        <VStack>
-          <HStack
-            distribution="between"
-            alignment="center"
-            css={{
-              width: '100%',
-              position: 'sticky',
-              top: '0px',
-              height: '50px',
-              p: '20px',
-              bg: '$grayBg',
-              zIndex: 10,
-            }}
-          >
-            <StyledText style="modalHeadline" css={{ color: '$thTextSubtle2' }}>
-              Edit Note
-            </StyledText>
-            <HStack
-              css={{
-                ml: 'auto',
-                cursor: 'pointer',
-                gap: '15px',
-                mr: '-5px',
-              }}
-              distribution="center"
-              alignment="center"
-            >
-              {/* <Dropdown triggerElement={<MenuTrigger />}>
-              <DropdownOption
-                onSelect={() => {
-                  exportHighlights()
-                }}
-                title="Export Notebook"
-              />
-              <DropdownOption
-                onSelect={() => {
-                  setShowConfirmDeleteNote(true)
-                }}
-                title="Delete Document Note"
-              />
-            </Dropdown> */}
-              <CloseButton close={handleClose} />
-            </HStack>
-          </HStack>
-          <SpanBox css={{ padding: '20px', width: '100%', height: '100%' }}>
-            <MarkdownNote
-              targetId={props.targetId}
-              placeHolder={props.placeHolder}
-              mode={props.mode}
-              sizeMode={props.sizeMode}
-              setEditMode={props.setEditMode}
-              text={props.text}
-              saveText={saveText}
-              lastSaved={lastSaved}
-              fillBackground={false}
-            />
-          </SpanBox>
-        </VStack>
-      </ModalContent>
-    </ModalRoot>
   )
 }
