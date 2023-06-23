@@ -54,37 +54,23 @@ export class NitterHandler extends ContentHandler {
     this.instance = ''
   }
 
-  async getInstance(redisClient: RedisClient) {
+  async getInstances(redisClient: RedisClient) {
     const instances = await redisClient.zRangeByScore(
       this.REDIS_KEY,
       '-inf',
-      '+inf',
-      {
-        LIMIT: {
-          count: 1,
-          offset: 0,
-        },
-      }
+      '+inf'
     )
 
     // if no instance is found, save the default instances
     if (instances.length === 0) {
       await redisClient.zAdd(this.REDIS_KEY, this.INSTANCES)
-      return this.INSTANCES[0].value
+      return this.INSTANCES.map((i) => i.value)
     }
 
-    return instances[0]
+    return instances
   }
 
   async incrementInstanceScore(
-    redisClient: RedisClient,
-    instance: string,
-    score = 1
-  ) {
-    await redisClient.zIncrBy(this.REDIS_KEY, score, instance)
-  }
-
-  async decrementInstanceScore(
     redisClient: RedisClient,
     instance: string,
     score = 1
@@ -191,21 +177,27 @@ export class NitterHandler extends ContentHandler {
         timeout: 20000, // 20 seconds
       }
       let html: any
-      // get instance from redis
-      for (let i = 0; i < this.INSTANCES.length; i++) {
-        const instance = await this.getInstance(redisClient)
-
+      // get instances from redis
+      const instances = await this.getInstances(redisClient)
+      for (const instance of instances) {
         try {
           const url = `${instance}/${username}/status/${tweetId}`
+          const startTime = Date.now()
           const response = await axios.get(url, option)
+          const latency = Date.now() - startTime
+
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           html = response.data
           this.instance = instance
 
-          await this.incrementInstanceScore(redisClient, instance)
+          await this.incrementInstanceScore(
+            redisClient,
+            instance,
+            -latency / 1000
+          )
           break
         } catch (error) {
-          await this.decrementInstanceScore(redisClient, instance)
+          await this.incrementInstanceScore(redisClient, instance, -20000)
 
           if (axios.isAxiosError(error)) {
             console.info(`Error getting tweets from ${instance}`, error.message)
