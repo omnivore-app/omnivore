@@ -252,7 +252,7 @@ export class NitterHandler extends ContentHandler {
         if (classList.contains('more-replies')) {
           const newUrl = item.querySelector('a')?.getAttribute('href')
           if (!newUrl) {
-            console.error('new url', newUrl)
+            console.error('no new url', newUrl)
             break
           }
 
