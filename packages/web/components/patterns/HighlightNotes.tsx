@@ -18,13 +18,6 @@ import throttle from 'lodash/throttle'
 import { updateHighlightMutation } from '../../lib/networking/mutations/updateHighlightMutation'
 import { Highlight } from '../../lib/networking/fragments/highlightFragment'
 import { Button } from '../elements/Button'
-import {
-  ModalContent,
-  ModalOverlay,
-  ModalRoot,
-} from '../elements/ModalPrimitives'
-import { CloseButton } from '../elements/CloseButton'
-import { StyledText } from '../elements/StyledText'
 import remarkGfm from 'remark-gfm'
 import { RcEditorStyles } from './RcEditorStyles'
 import { isDarkTheme } from '../../lib/themeUpdater'
@@ -35,46 +28,6 @@ const mdParser = new MarkdownIt()
 MdEditor.use(Plugins.TabInsert, {
   tabMapValue: 1, // note that 1 means a '\t' instead of ' '.
 })
-
-type NoteSectionProps = {
-  targetId: string
-
-  placeHolder: string
-  mode: 'edit' | 'preview'
-
-  setEditMode: (set: 'edit' | 'preview') => void
-
-  text: string | undefined
-  saveText: (text: string, completed: (success: boolean) => void) => void
-}
-
-export function HighlightNoteBox(props: NoteSectionProps): JSX.Element {
-  const [lastSaved, setLastSaved] = useState<Date | undefined>(undefined)
-
-  const saveText = useCallback(
-    (text, updateTime) => {
-      props.saveText(text, (success) => {
-        if (success) {
-          setLastSaved(updateTime)
-        }
-      })
-    },
-    [props]
-  )
-
-  return (
-    <MarkdownNote
-      targetId={props.targetId}
-      placeHolder={props.placeHolder}
-      mode={props.mode}
-      setEditMode={props.setEditMode}
-      text={props.text}
-      saveText={saveText}
-      lastSaved={lastSaved}
-      fillBackground={false}
-    />
-  )
-}
 
 type HighlightViewNoteProps = {
   targetId: string
@@ -92,9 +45,10 @@ type HighlightViewNoteProps = {
 
 export function HighlightViewNote(props: HighlightViewNoteProps): JSX.Element {
   const [lastSaved, setLastSaved] = useState<Date | undefined>(undefined)
+  const [errorSaving, setErrorSaving] = useState<string | undefined>(undefined)
 
   const saveText = useCallback(
-    (text, updateTime) => {
+    (text, updateTime, interactive) => {
       ;(async () => {
         const success = await updateHighlightMutation({
           annotation: text,
@@ -104,13 +58,13 @@ export function HighlightViewNote(props: HighlightViewNoteProps): JSX.Element {
           setLastSaved(updateTime)
           props.highlight.annotation = text
           props.updateHighlight(props.highlight)
-          showSuccessToast('Note saved.', {
-            position: 'bottom-right',
-          })
+          if (interactive) {
+            showSuccessToast('Note saved', {
+              position: 'bottom-right',
+            })
+          }
         } else {
-          showErrorToast('Error saving note.', {
-            position: 'bottom-right',
-          })
+          setErrorSaving('Error saving note.')
         }
       })()
     },
@@ -126,6 +80,7 @@ export function HighlightViewNote(props: HighlightViewNoteProps): JSX.Element {
       text={props.text}
       saveText={saveText}
       lastSaved={lastSaved}
+      errorSaving={errorSaving}
       fillBackground={true}
     />
   )
@@ -143,14 +98,47 @@ type MarkdownNote = {
   fillBackground: boolean | undefined
 
   lastSaved: Date | undefined
-  saveText: (text: string, updateTime: Date) => void
+  errorSaving: string | undefined
+
+  saveText: (text: string, updateTime: Date, interactive: boolean) => void
 }
 
 export function MarkdownNote(props: MarkdownNote): JSX.Element {
   const editorRef = useRef<MdEditor | null>(null)
-  const [lastChanged, setLastChanged] = useState<Date | undefined>(undefined)
-  const [errorSaving, setErrorSaving] = useState<string | undefined>(undefined)
   const isDark = isDarkTheme()
+  const [lastChanged, setLastChanged] = useState<Date | undefined>(undefined)
+
+  const saveRef = useRef(props.saveText)
+
+  useEffect(() => {
+    saveRef.current = props.saveText
+  }, [props])
+
+  const debouncedSave = useMemo<
+    (text: string, updateTime: Date) => void
+  >(() => {
+    const func = (text: string, updateTime: Date) => {
+      saveRef.current?.(text, updateTime, false)
+    }
+    return throttle(func, 3000)
+  }, [])
+
+  const handleEditorChange = useCallback(
+    (
+      data: { text: string; html: string },
+      event?: ChangeEvent<HTMLTextAreaElement> | undefined
+    ) => {
+      if (event) {
+        event.preventDefault()
+      }
+
+      const updateTime = new Date()
+      setLastChanged(updateTime)
+
+      debouncedSave(data.text, updateTime)
+    },
+    []
+  )
 
   return (
     <>
@@ -201,6 +189,7 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
               height: '160px',
             }}
             renderHTML={(text: string) => mdParser.render(text)}
+            onChange={handleEditorChange}
           />
           <HStack
             css={{
@@ -213,7 +202,7 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
             alignment="start"
             distribution="start"
           >
-            {errorSaving && (
+            {props.errorSaving && (
               <SpanBox
                 css={{
                   width: '100%',
@@ -222,9 +211,18 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
                   color: 'red',
                 }}
               >
-                {errorSaving}
+                {props.errorSaving}
               </SpanBox>
             )}
+            {props.lastSaved !== undefined ? (
+              <>
+                {lastChanged === props.lastSaved
+                  ? 'Saved'
+                  : `Last saved ${formattedShortTime(
+                      props.lastSaved.toISOString()
+                    )}`}
+              </>
+            ) : null}
             <SpanBox
               css={{
                 fontSize: '9px',
@@ -238,7 +236,9 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
                 onClick={(event) => {
                   const value = editorRef.current?.getMdValue()
                   if (value) {
-                    props.saveText(value, new Date())
+                    const updateTime = new Date()
+                    setLastChanged(updateTime)
+                    props.saveText(value, updateTime, true)
                     props.setEditMode('preview')
                   } else {
                     showErrorToast('Error saving note.', {

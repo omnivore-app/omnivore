@@ -45,24 +45,15 @@ type NoteSectionProps = {
   targetId: string
 
   placeHolder: string
-  mode: 'edit' | 'preview'
-
-  setEditMode: (set: 'edit' | 'preview') => void
 
   text: string | undefined
-  saveText: (text: string, completed: (success: boolean) => void) => void
+  saveText: (text: string) => void
 }
 
 export function ArticleNotes(props: NoteSectionProps): JSX.Element {
-  const [lastSaved, setLastSaved] = useState<Date | undefined>(undefined)
-
   const saveText = useCallback(
-    (text, updateTime) => {
-      props.saveText(text, (success) => {
-        if (success) {
-          setLastSaved(updateTime)
-        }
-      })
+    (text) => {
+      props.saveText(text)
     },
     [props]
   )
@@ -73,7 +64,6 @@ export function ArticleNotes(props: NoteSectionProps): JSX.Element {
       placeHolder={props.placeHolder}
       text={props.text}
       saveText={saveText}
-      lastSaved={lastSaved}
       fillBackground={false}
     />
   )
@@ -97,14 +87,14 @@ export function HighlightViewNote(props: HighlightViewNoteProps): JSX.Element {
   const [lastSaved, setLastSaved] = useState<Date | undefined>(undefined)
 
   const saveText = useCallback(
-    (text, updateTime) => {
+    (text) => {
       ;(async () => {
         const success = await updateHighlightMutation({
           annotation: text,
           highlightId: props.highlight?.id,
         })
         if (success) {
-          setLastSaved(updateTime)
+          // setLastSaved(updateTime)
           props.highlight.annotation = text
           props.updateHighlight(props.highlight)
         }
@@ -119,7 +109,6 @@ export function HighlightViewNote(props: HighlightViewNoteProps): JSX.Element {
       placeHolder={props.placeHolder}
       text={props.text}
       saveText={saveText}
-      lastSaved={lastSaved}
       fillBackground={true}
     />
   )
@@ -133,27 +122,22 @@ type MarkdownNote = {
   text: string | undefined
   fillBackground: boolean | undefined
 
-  lastSaved: Date | undefined
-  saveText: (text: string, updateTime: Date) => void
+  saveText: (text: string) => void
 }
 
 export function MarkdownNote(props: MarkdownNote): JSX.Element {
   const editorRef = useRef<MdEditor | null>(null)
-  const [lastChanged, setLastChanged] = useState<Date | undefined>(undefined)
-  const [errorSaving, setErrorSaving] = useState<string | undefined>(undefined)
   const isDark = isDarkTheme()
 
   const saveRef = useRef(props.saveText)
 
   useEffect(() => {
     saveRef.current = props.saveText
-  }, [props.lastSaved, lastChanged])
+  }, [props])
 
-  const debouncedSave = useMemo<
-    (text: string, updateTime: Date) => void
-  >(() => {
-    const func = (text: string, updateTime: Date) => {
-      saveRef.current?.(text, updateTime)
+  const debouncedSave = useMemo<(text: string) => void>(() => {
+    const func = (text: string) => {
+      saveRef.current?.(text)
     }
     return throttle(func, 3000)
   }, [])
@@ -167,19 +151,16 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
         event.preventDefault()
       }
 
-      const updateTime = new Date()
-      setLastChanged(updateTime)
-      localStorage.setItem(`note-${props.targetId}`, JSON.stringify(data))
-      debouncedSave(data.text, updateTime)
+      debouncedSave(data.text)
     },
-    [props.lastSaved, lastChanged]
+    []
   )
 
   useEffect(() => {
     const saveMarkdownNote = () => {
       const md = editorRef.current?.getMdValue()
       if (md) {
-        props.saveText(md, new Date())
+        props.saveText(md)
       }
     }
     document.addEventListener('saveMarkdownNote', saveMarkdownNote)
@@ -238,38 +219,6 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
         renderHTML={(text: string) => mdParser.render(text)}
         onChange={handleEditorChange}
       />
-      <HStack
-        css={{
-          minHeight: '15px',
-          width: '100%',
-          fontSize: '9px',
-          mt: '5px',
-          color: '$thTextSubtle',
-        }}
-        alignment="start"
-        distribution="start"
-      >
-        {errorSaving && (
-          <SpanBox
-            css={{
-              width: '100%',
-              fontSize: '9px',
-              mt: '5px',
-            }}
-          >
-            {errorSaving}
-          </SpanBox>
-        )}
-        {props.lastSaved !== undefined ? (
-          <>
-            {lastChanged === props.lastSaved
-              ? 'Saved'
-              : `Last saved ${formattedShortTime(
-                  props.lastSaved.toISOString()
-                )}`}
-          </>
-        ) : null}
-      </HStack>
     </VStack>
   )
 }

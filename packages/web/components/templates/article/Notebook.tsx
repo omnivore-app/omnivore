@@ -36,6 +36,8 @@ import { SetHighlightLabelsModalPresenter } from './SetLabelsModalPresenter'
 import { Button } from '../../elements/Button'
 import { ArticleNotes } from '../../patterns/ArticleNotes'
 import { useGetArticleQuery } from '../../../lib/networking/queries/useGetArticleQuery'
+import { formattedShortTime } from '../../../lib/dateFormatting'
+import { isDarkTheme } from '../../../lib/themeUpdater'
 
 type NotebookContentProps = {
   viewer: UserBasicData
@@ -64,6 +66,8 @@ type NoteState = {
 }
 
 export function NotebookContent(props: NotebookContentProps): JSX.Element {
+  const isDark = isDarkTheme()
+
   const { articleData, mutate } = useGetArticleQuery({
     slug: props.item.slug,
     username: props.viewer.profile.username,
@@ -73,9 +77,6 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
     useState<undefined | string>(undefined)
   const [labelsTarget, setLabelsTarget] = useState<Highlight | undefined>(
     undefined
-  )
-  const [notesEditMode, setNotesEditMode] = useState<'edit' | 'preview'>(
-    'preview'
   )
   const noteState = useRef<NoteState>({
     isCreating: false,
@@ -87,14 +88,22 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
     return uuidv4()
   }, [])
 
-  const updateNote = useCallback((note: Highlight, text: string) => {
-    ;(async () => {
-      const result = await updateHighlightMutation({
-        highlightId: note.id,
-        annotation: text,
-      })
-    })()
-  }, [])
+  const updateNote = useCallback(
+    (note: Highlight, text: string, startTime: Date) => {
+      ;(async () => {
+        const result = await updateHighlightMutation({
+          highlightId: note.id,
+          annotation: text,
+        })
+        if (result) {
+          setLastSaved(startTime)
+        } else {
+          setErrorSaving('Error saving')
+        }
+      })()
+    },
+    []
+  )
 
   const createNote = useCallback((text: string) => {
     console.log('creating note: ', newNoteId, noteState.current.isCreating)
@@ -112,10 +121,13 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
         if (success) {
           noteState.current.note = success
           noteState.current.isCreating = false
+        } else {
+          setErrorSaving('Error creating note')
         }
       } catch (error) {
         console.error('error creating note: ', error)
         noteState.current.isCreating = false
+        setErrorSaving('Error creating note')
       }
     })()
   }, [])
@@ -167,10 +179,12 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
   }, [highlights])
 
   const handleSaveNoteText = useCallback(
-    (text, cb: (success: boolean) => void) => {
-      console.log('handleSaveNoteText', noteState.current)
+    (text) => {
+      const changeTime = new Date()
+
+      setLastChanged(changeTime)
       if (noteState.current.note) {
-        updateNote(noteState.current.note, text)
+        updateNote(noteState.current.note, text, changeTime)
         return
       }
       if (noteState.current.isCreating) {
@@ -195,6 +209,9 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
 
   const [articleNotesCollapsed, setArticleNotesCollapsed] = useState(false)
   const [highlightsCollapsed, setHighlightsCollapsed] = useState(false)
+  const [errorSaving, setErrorSaving] = useState<string | undefined>(undefined)
+  const [lastChanged, setLastChanged] = useState<Date | undefined>(undefined)
+  const [lastSaved, setLastSaved] = useState<Date | undefined>(undefined)
 
   return (
     <VStack
@@ -203,6 +220,7 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
         height: '100%',
         width: '100%',
         p: '20px',
+        bg: '$readerMargin',
         '@mdDown': { p: '15px' },
       }}
     >
@@ -212,20 +230,50 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
         setCollapsed={setArticleNotesCollapsed}
       />
       {!articleNotesCollapsed && (
-        <HStack
-          alignment="start"
-          distribution="start"
-          css={{ width: '100%', mt: '10px', gap: '10px' }}
-        >
-          <ArticleNotes
-            mode={notesEditMode}
-            targetId={props.item.id}
-            setEditMode={setNotesEditMode}
-            text={noteState.current.note?.annotation}
-            placeHolder="Add notes to this document..."
-            saveText={handleSaveNoteText}
-          />
-        </HStack>
+        <>
+          <HStack
+            alignment="start"
+            distribution="start"
+            css={{ width: '100%', mt: '10px', gap: '10px' }}
+          >
+            <ArticleNotes
+              targetId={props.item.id}
+              text={noteState.current.note?.annotation}
+              placeHolder="Add notes to this document..."
+              saveText={handleSaveNoteText}
+            />
+          </HStack>
+          <HStack
+            css={{
+              minHeight: '15px',
+              width: '100%',
+              fontSize: '9px',
+              mt: '5px',
+              color: '$thTextSubtle',
+            }}
+            alignment="start"
+            distribution="start"
+          >
+            {errorSaving && (
+              <SpanBox
+                css={{
+                  width: '100%',
+                  fontSize: '9px',
+                  mt: '5px',
+                }}
+              >
+                {errorSaving}
+              </SpanBox>
+            )}
+            {lastSaved !== undefined ? (
+              <>
+                {lastChanged === lastSaved
+                  ? 'Saved'
+                  : `Last saved ${formattedShortTime(lastSaved.toISOString())}`}
+              </>
+            ) : null}
+          </HStack>
+        </>
       )}
 
       <SpanBox css={{ mt: '10px', mb: '25px' }} />
@@ -250,16 +298,14 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
                   setShowConfirmDeleteHighlightId
                 }
                 updateHighlight={() => {
-                  // dispatchAnnotations({
-                  //   type: 'UPDATE_HIGHLIGHT',
-                  //   updateHighlight: highlight,
-                  // })
+                  mutate()
                 }}
               />
             ))}
             {sortedHighlights.length === 0 && (
               <Box
                 css={{
+                  p: '10px',
                   mt: '15px',
                   width: '100%',
                   fontSize: '9px',
@@ -267,6 +313,10 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
                   alignItems: 'center',
                   justifyContent: 'center',
                   mb: '100px',
+
+                  bg: isDark ? '#3D3D3D' : '$thBackground',
+                  borderRadius: '6px',
+                  boxShadow: '0px 4px 4px rgba(33, 33, 33, 0.1)',
                 }}
               >
                 You have not added any highlights to this document.
