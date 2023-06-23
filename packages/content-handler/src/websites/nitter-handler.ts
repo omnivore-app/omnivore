@@ -183,7 +183,7 @@ export class NitterHandler extends ContentHandler {
       const option = {
         timeout: 20000, // 20 seconds
       }
-      let html: any
+      let html = ''
       // get instances from redis
       const instances = await this.getInstances(redisClient)
       for (const instance of instances) {
@@ -194,8 +194,8 @@ export class NitterHandler extends ContentHandler {
           const latency = Math.floor(Date.now() - startTime)
           console.debug('latency', latency)
 
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          html = response.data
+          html = response.data as string
+          console.debug('html', html)
           this.instance = instance
 
           await this.incrementInstanceScore(redisClient, instance, latency)
@@ -230,16 +230,37 @@ export class NitterHandler extends ContentHandler {
       )
       for (let i = 0; i < timelineItems.length; i++) {
         const item = timelineItems[i]
-        if (item.classList.contains('more-replies')) {
+        const classList = item.classList
+        // skip unavailable tweets and earlier replies
+        if (
+          classList.contains('unavailable') ||
+          classList.contains('earlier-replies')
+        ) {
+          console.debug('skip unavailable tweets and earlier replies', item)
+          continue
+        }
+        // if there are more replies, get them
+        if (classList.contains('more-replies')) {
           const newUrl = item.querySelector('a')?.getAttribute('href')
           if (!newUrl) {
             break
           }
 
-          // go to new url and wait for it to load
-          const response = await axios.get(`${this.instance}${newUrl}`, option)
+          let html = ''
+          try {
+            // go to new url and wait for it to load
+            const response = await axios.get(
+              `${this.instance}${newUrl}`,
+              option
+            )
 
-          const document = parseHTML(response.data).document
+            html = response.data as string
+          } catch (error) {
+            console.info('Error parsing html', error)
+            break
+          }
+
+          const document = parseHTML(html).document
           const nextThread = document.querySelector('.main-thread .after-tweet')
           if (!nextThread) {
             break
