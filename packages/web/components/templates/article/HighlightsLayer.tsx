@@ -10,6 +10,7 @@ import type { HighlightLocation } from '../../../lib/highlights/highlightGenerat
 import { useSelection } from '../../../lib/highlights/useSelection'
 import type { Highlight } from '../../../lib/networking/fragments/highlightFragment'
 import {
+  getHighlightElements,
   highlightIdAttribute,
   highlightNoteIdAttribute,
   SelectionAttributes,
@@ -19,7 +20,7 @@ import { removeHighlights } from '../../../lib/highlights/deleteHighlight'
 import { createHighlight } from '../../../lib/highlights/createHighlight'
 import { HighlightNoteModal } from './HighlightNoteModal'
 import { NotebookModal } from './NotebookModal'
-import { showErrorToast } from '../../../lib/toastHelpers'
+import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { ArticleMutations } from '../../../lib/articleActions'
 import { isTouchScreenDevice } from '../../../lib/deviceType'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
@@ -263,7 +264,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   }
 
   const createHighlightCallback = useCallback(
-    async (successAction: HighlightModalAction, annotation?: string) => {
+    async (annotation?: string) => {
       if (!selectionData) {
         return
       }
@@ -395,7 +396,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   )
 
   const handleCloseNotebook = useCallback(
-    (updatedHighlights: Highlight[], deletedHighlights: Highlight[]) => {
+    (updatedHighlights: Highlight[]) => {
       props.setShowHighlightsModal(false)
 
       // Remove all the existing highlights, then set the new ones
@@ -454,6 +455,41 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
             })
           }
           break
+        case 'copy': {
+          const selection = window.getSelection()
+          if (selection === null) return
+
+          const userSelectionText = selection.toString()
+          let textToCopy = ''
+
+          if (focusedHighlight) {
+            const highlightedElements = getHighlightElements(
+              focusedHighlight.id
+            )
+            highlightedElements.forEach(
+              (element) => (textToCopy += element.textContent)
+            )
+          } else if (userSelectionText) {
+            textToCopy = userSelectionText
+          }
+
+          if (textToCopy) {
+            try {
+              await navigator.clipboard.writeText(textToCopy)
+              showSuccessToast('Highlight copied', {
+                position: 'bottom-right',
+              })
+            } catch (error) {
+              showErrorToast('Error copying highlight, permission denied.', {
+                position: 'bottom-right',
+              })
+            }
+          }
+
+          selection.empty()
+          setSelectionData(null)
+          break
+        }
         case 'setHighlightLabels':
           if (props.isAppleAppEmbed) {
             window?.webkit?.messageHandlers.highlightAction?.postMessage({
@@ -474,6 +510,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       props.isAppleAppEmbed,
       removeHighlightCallback,
       selectionData,
+      setSelectionData,
     ]
   )
 
@@ -615,7 +652,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         dispatchHighlightMessage('noteCreated')
       } else {
         try {
-          await createHighlightCallback('none', event.annotation)
+          await createHighlightCallback('none')
           dispatchHighlightMessage('noteCreated')
         } catch (error) {
           dispatchHighlightError('saveAnnotation', error)
