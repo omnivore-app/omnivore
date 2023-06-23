@@ -32,13 +32,13 @@ export class NitterHandler extends ContentHandler {
   URL_MATCH =
     /((twitter\.com)|(nitter\.net))\/(?:#!\/)?(\w+)\/status(?:es)?\/(\d+)(?:\/.*)?/
   INSTANCES = [
-    { value: 'https://nitter.1d4.us', score: 0 },
+    { value: 'https://nitter.moomoo.me', score: 0 },
     { value: 'https://nitter.net', score: 1 }, // the official instance
     { value: 'https://nitter.lacontrevoie.fr', score: 2 },
     { value: 'https://nitter.kavin.rocks', score: 3 },
-    { value: 'https://nitter.it', score: 4 },
+    { value: 'https://notabird.site', score: 4 },
     { value: 'https://singapore.unofficialbird.com', score: 5 },
-    { value: 'nitter.fly.dev', score: 6 },
+    { value: 'https://nitter.fly.dev', score: 6 },
   ]
   REDIS_KEY = 'nitter-instances'
 
@@ -173,7 +173,10 @@ export class NitterHandler extends ContentHandler {
       }
     }
 
-    const redisClient = await createRedisClient()
+    const redisClient = await createRedisClient(
+      process.env.REDIS_URL,
+      process.env.REDIS_CERT
+    )
 
     try {
       const tweets: Tweet[] = []
