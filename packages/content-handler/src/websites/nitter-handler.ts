@@ -30,11 +30,22 @@ export class NitterHandler extends ContentHandler {
   // matches twitter.com and nitter.net urls
   URL_MATCH =
     /((twitter\.com)|(nitter\.net))\/(?:#!\/)?(\w+)\/status(?:es)?\/(\d+)(?:\/.*)?/
-  ADDRESS = 'https://nitter.net'
+  INSTANCES = [
+    'https://nitter.net',
+    'https://nitter.lacontrevoie.fr',
+    'https://nitter.1d4.us',
+    'https://nitter.kavin.rocks',
+    'https://nitter.it',
+    'https://twitter.owacon.moe',
+    'https://singapore.unofficialbird.com',
+  ]
+
+  private instance: string
 
   constructor() {
     super()
     this.name = 'Nitter'
+    this.instance = ''
   }
 
   async getTweets(username: string, tweetId: string) {
@@ -129,14 +140,33 @@ export class NitterHandler extends ContentHandler {
     }
 
     try {
-      const url = `${this.ADDRESS}/${username}/status/${tweetId}`
       const tweets: Tweet[] = []
-
       const option = {
         timeout: 60000, // 60 seconds
       }
-      const response = await axios.get(url, option)
-      const document = parseHTML(response.data).document
+      let html: any
+      // use the first instance that works
+      for (const instance of this.INSTANCES) {
+        try {
+          const url = `${instance}/${username}/status/${tweetId}`
+          const response = await axios.get(url, option)
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          html = response.data
+          this.instance = instance
+          break
+        } catch (error) {
+          if (axios.isAxiosError(error)) {
+            console.info(`Error getting tweets from ${instance}`, error.message)
+          } else {
+            console.info(`Error getting tweets from ${instance}`, error)
+          }
+        }
+      }
+      if (!this.instance || !html) {
+        return []
+      }
+
+      const document = parseHTML(html).document
 
       // get the main thread including tweets and threads
       const mainThread = document.querySelector('.main-thread')
@@ -155,7 +185,7 @@ export class NitterHandler extends ContentHandler {
           }
 
           // go to new url and wait for it to load
-          const response = await axios.get(`${this.ADDRESS}${newUrl}`, option)
+          const response = await axios.get(`${this.instance}${newUrl}`, option)
 
           const document = parseHTML(response.data).document
           const nextThread = document.querySelector('.main-thread .after-tweet')
@@ -218,13 +248,16 @@ export class NitterHandler extends ContentHandler {
       throw new Error('could not parse tweet url')
     }
     const tweets = await this.getTweets(username, tweetId)
+    if (tweets.length === 0) {
+      throw new Error('could not get tweets')
+    }
 
     const tweet = tweets[0]
     const author = tweet.author
     // escape html entities in title
     const title = this.titleForTweet(author, tweet.text)
     const escapedTitle = _.escape(title)
-    const authorImage = `${this.ADDRESS}${author.profileImageUrl.replace(
+    const authorImage = `${this.instance}${author.profileImageUrl.replace(
       '_normal',
       '_400x400'
     )}`
