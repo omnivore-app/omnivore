@@ -2,23 +2,8 @@ import { Box, HStack, VStack, SpanBox } from '../../elements/LayoutPrimitives'
 import { StyledText } from '../../elements/StyledText'
 import { theme } from '../../tokens/stitches.config'
 import type { Highlight } from '../../../lib/networking/fragments/highlightFragment'
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useReducer,
-  useRef,
-  useState,
-} from 'react'
-import {
-  BookOpen,
-  CaretDown,
-  CaretRight,
-  DotsThree,
-  Pencil,
-  PencilLine,
-  X,
-} from 'phosphor-react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { CaretDown, CaretRight } from 'phosphor-react'
 import { updateHighlightMutation } from '../../../lib/networking/mutations/updateHighlightMutation'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { diff_match_patch } from 'diff-match-patch'
@@ -43,7 +28,6 @@ type NotebookContentProps = {
   viewer: UserBasicData
 
   item: ReadableItem
-  highlights: Highlight[]
 
   viewInReader: (highlightId: string) => void
 
@@ -73,6 +57,7 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
     username: props.viewer.profile.username,
     includeFriendsHighlights: false,
   })
+  const [noteText, setNoteText] = useState<string>('')
   const [showConfirmDeleteHighlightId, setShowConfirmDeleteHighlightId] =
     useState<undefined | string>(undefined)
   const [labelsTarget, setLabelsTarget] = useState<Highlight | undefined>(
@@ -138,6 +123,7 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
     if (note) {
       noteState.current.note = note
       noteState.current.isCreating = false
+      setNoteText(note.annotation || '')
     }
     return result
   }, [articleData])
@@ -204,8 +190,23 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
       }
       createNote(text)
     },
-    [noteState, createNote, updateNote]
+    [noteText, noteState, createNote, updateNote, highlights]
   )
+
+  const deleteDocumentNote = useCallback(() => {
+    ;(async () => {
+      highlights
+        ?.filter((h) => h.type === 'NOTE')
+        .forEach(async (h) => {
+          const result = await deleteHighlightMutation(h.id)
+          if (!result) {
+            showErrorToast('Error deleting note')
+          }
+        })
+      noteState.current.note = undefined
+    })()
+    setNoteText('')
+  }, [noteState, highlights])
 
   const [articleNotesCollapsed, setArticleNotesCollapsed] = useState(false)
   const [highlightsCollapsed, setHighlightsCollapsed] = useState(false)
@@ -238,7 +239,8 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
           >
             <ArticleNotes
               targetId={props.item.id}
-              text={noteState.current.note?.annotation}
+              text={noteText}
+              setText={setNoteText}
               placeHolder="Add notes to this document..."
               saveText={handleSaveNoteText}
             />
@@ -308,7 +310,7 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
                   p: '10px',
                   mt: '15px',
                   width: '100%',
-                  fontSize: '9px',
+                  fontSize: '13px',
                   color: '$thTextSubtle',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -373,7 +375,7 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
           message="Are you sure you want to delete the note from this document?"
           acceptButtonLabel="Delete"
           onAccept={() => {
-            // deleteDocumentNote()
+            deleteDocumentNote()
             if (props.setShowConfirmDeleteNote) {
               props.setShowConfirmDeleteNote(false)
             }
@@ -403,7 +405,6 @@ function SectionTitle(props: SectionTitleProps): JSX.Element {
         css={{
           display: 'flex',
           alignItems: 'center',
-          width: '100%',
           gap: '5px',
         }}
         onClick={(event) => {

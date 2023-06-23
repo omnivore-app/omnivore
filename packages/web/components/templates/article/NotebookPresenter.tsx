@@ -10,7 +10,6 @@ type NotebookPresenterProps = {
   viewer: UserBasicData
 
   item: ReadableItem
-  highlights: Highlight[]
 
   onClose: (highlights: Highlight[]) => void
 }
@@ -20,7 +19,6 @@ export const NotebookPresenter = (props: NotebookPresenterProps) => {
     <NotebookModal
       viewer={props.viewer}
       item={props.item}
-      highlights={props.highlights}
       onClose={(highlights: Highlight[]) => {
         console.log('NotebookModal: ', highlights)
         props.onClose(highlights)

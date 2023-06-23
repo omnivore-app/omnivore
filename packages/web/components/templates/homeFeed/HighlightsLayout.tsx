@@ -447,7 +447,6 @@ function HighlightList(props: HighlightListProps): JSX.Element {
           <NotebookContent
             viewer={props.viewer}
             item={props.item.node}
-            highlights={props.item.node.highlights ?? []}
             viewInReader={viewInReader}
           />
         )}

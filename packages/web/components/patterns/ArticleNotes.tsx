@@ -46,7 +46,9 @@ type NoteSectionProps = {
 
   placeHolder: string
 
-  text: string | undefined
+  text: string
+  setText: (text: string) => void
+
   saveText: (text: string) => void
 }
 
@@ -63,6 +65,7 @@ export function ArticleNotes(props: NoteSectionProps): JSX.Element {
       targetId={props.targetId}
       placeHolder={props.placeHolder}
       text={props.text}
+      setText={props.setText}
       saveText={saveText}
       fillBackground={false}
     />
@@ -79,7 +82,9 @@ type HighlightViewNoteProps = {
 
   setEditMode: (set: 'edit' | 'preview') => void
 
-  text: string | undefined
+  text: string
+  setText: (text: string) => void
+
   updateHighlight: (highlight: Highlight) => void
 }
 
@@ -108,6 +113,7 @@ export function HighlightViewNote(props: HighlightViewNoteProps): JSX.Element {
       targetId={props.targetId}
       placeHolder={props.placeHolder}
       text={props.text}
+      setText={props.setText}
       saveText={saveText}
       fillBackground={true}
     />
@@ -120,6 +126,7 @@ type MarkdownNote = {
   placeHolder: string
 
   text: string | undefined
+  setText: (text: string) => void
   fillBackground: boolean | undefined
 
   saveText: (text: string) => void
@@ -147,6 +154,7 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
       data: { text: string; html: string },
       event?: ChangeEvent<HTMLTextAreaElement> | undefined
     ) => {
+      props.setText(data.text)
       if (event) {
         event.preventDefault()
       }
@@ -186,8 +194,7 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
       <MdEditor
         key="note-editor"
         ref={editorRef}
-        autoFocus={true}
-        defaultValue={props.text}
+        value={props.text}
         placeholder={props.placeHolder}
         view={{ menu: true, md: true, html: false }}
         canView={{

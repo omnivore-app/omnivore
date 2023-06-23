@@ -510,14 +510,13 @@ export default function PdfArticleContainer(
           key={notebookKey}
           viewer={props.viewer}
           item={props.article}
-          highlights={highlightsRef.current}
-          onClose={(updatedHighlights, deletedAnnotations) => {
+          onClose={(updatedHighlights, deletedHighlights) => {
             console.log(
               'closed PDF notebook: ',
               updatedHighlights,
-              deletedAnnotations
+              deletedHighlights
             )
-            deletedAnnotations.forEach((highlight) => {
+            deletedHighlights.forEach((highlight) => {
               const event = new CustomEvent('deleteHighlightbyId', {
                 detail: highlight.id,
               })

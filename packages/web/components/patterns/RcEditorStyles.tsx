@@ -30,11 +30,5 @@ export const RcEditorStyles = (isDark: boolean, shadow: boolean) => {
       border: '1px solid $thBorderSubtle',
       backgroundColor: isDark ? '#2A2A2A' : 'white',
     },
-    '.rc-md-editor:focus-within': {
-      outline: '2px solid $omnivoreCtaYellow',
-      borderRadius: '5px',
-      border: 'unset',
-      boxShadow: 'unset',
-    },
   }
 }

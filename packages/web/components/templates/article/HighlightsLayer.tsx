@@ -749,7 +749,6 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       <NotebookModal
         viewer={props.viewer}
         item={props.item}
-        highlights={highlights}
         onClose={handleCloseNotebook}
         viewHighlightInReader={(highlightId) => {
           // The timeout here is a bit of a hack to work around rerendering

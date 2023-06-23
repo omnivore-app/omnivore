@@ -24,10 +24,9 @@ type NotebookModalProps = {
   viewer: UserBasicData
 
   item: ReadableItem
-  highlights: Highlight[]
 
   viewHighlightInReader: (arg: string) => void
-  onClose: (highlights: Highlight[]) => void
+  onClose: (highlights: Highlight[], deletedHighlights: Highlight[]) => void
 }
 
 export const getHighlightLocation = (patch: string): number | undefined => {
@@ -42,13 +41,15 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
     undefined
   )
 
+  const [deletedHighlights, setDeletedAnnotations] = useState<
+    Highlight[] | undefined
+  >(undefined)
+
   const handleClose = useCallback(() => {
-    console.log('closing: ', allAnnotations)
-    props.onClose(allAnnotations ?? [])
+    props.onClose(allAnnotations ?? [], deletedHighlights ?? [])
   }, [props, allAnnotations])
 
   const handleAnnotationsChange = useCallback((allAnnotations) => {
-    console.log('all annotation: ', allAnnotations)
     setAllAnnotations(allAnnotations)
   }, [])
 
@@ -188,36 +189,6 @@ function CloseButton(props: { close: () => void }): JSX.Element {
         height={17}
         color={theme.colors.thTextContrast2.toString()}
       />
-    </Button>
-  )
-}
-
-function SizeToggle(props: SizeToggleProps): JSX.Element {
-  return (
-    <Button
-      style="plainIcon"
-      css={{
-        display: 'flex',
-        padding: '2px',
-        alignItems: 'center',
-        borderRadius: '9999px',
-        '&:hover': {
-          bg: '#898989',
-        },
-        '@mdDown': {
-          display: 'none',
-        },
-      }}
-      onClick={(event) => {
-        props.setMode(props.mode == 'normal' ? 'maximized' : 'normal')
-        event.preventDefault()
-      }}
-    >
-      {props.mode == 'normal' ? (
-        <ArrowsOut size="15" color={theme.colors.thTextContrast2.toString()} />
-      ) : (
-        <ArrowsIn size="15" color={theme.colors.thTextContrast2.toString()} />
-      )}
     </Button>
   )
 }
