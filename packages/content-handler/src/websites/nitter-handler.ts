@@ -32,12 +32,12 @@ export class NitterHandler extends ContentHandler {
     /((twitter\.com)|(nitter\.net))\/(?:#!\/)?(\w+)\/status(?:es)?\/(\d+)(?:\/.*)?/
   INSTANCES = [
     'https://nitter.net',
-    'https://nitter.42l.fr',
-    'https://nitter.pussthecat.org',
-    'https://nitter.nixnet.services',
-    'https://nitter.tedomum.net',
-    'https://nitter.fdn.fr',
-    'https://nitter.cc',
+    'https://nitter.lacontrevoie.fr',
+    'https://nitter.1d4.us',
+    'https://nitter.kavin.rocks',
+    'https://nitter.it',
+    'https://twitter.owacon.moe',
+    'https://singapore.unofficialbird.com',
   ]
 
   private instance: string
