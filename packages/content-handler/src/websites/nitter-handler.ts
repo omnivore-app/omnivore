@@ -36,13 +36,13 @@ export class NitterHandler extends ContentHandler {
   URL_MATCH =
     /((twitter\.com)|(nitter\.net))\/(?:#!\/)?(\w+)\/status(?:es)?\/(\d+)(?:\/.*)?/
   INSTANCES = [
-    { value: 'https://nitter.net', score: 0 },
-    { value: 'https://nitter.lacontrevoie.fr', score: 0 },
-    { value: 'https://nitter.1d4.us', score: 0 },
-    { value: 'https://nitter.kavin.rocks', score: 0 },
-    { value: 'https://nitter.it', score: 0 },
-    { value: 'https://twitter.owacon.moe', score: 0 },
-    { value: 'https://singapore.unofficialbird.com', score: 0 },
+    { value: 'https://nitter.1d4.us', score: 7 },
+    { value: 'https://nitter.net', score: 6 }, // the official instance
+    { value: 'https://nitter.lacontrevoie.fr', score: 5 },
+    { value: 'https://nitter.kavin.rocks', score: 4 },
+    { value: 'https://nitter.it', score: 3 },
+    { value: 'https://singapore.unofficialbird.com', score: 2 },
+    { value: 'nitter.fly.dev', score: 1 },
   ]
   REDIS_KEY = 'nitter-instances'
 
