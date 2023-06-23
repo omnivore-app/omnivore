@@ -28,7 +28,6 @@ export function LibraryHighlightGridCard(
   props: LibraryHighlightGridCardProps
 ): JSX.Element {
   const [expanded, setExpanded] = useState(false)
-
   const higlightCount = props.item.highlights?.length ?? 0
 
   const sortedHighlights = useMemo(() => {
@@ -123,16 +122,19 @@ export function LibraryHighlightGridCard(
           <>
             <GridSeparator css={{ width: '100%' }} />
             <VStack
-              css={{ height: '100%', width: '100%', mt: '20px' }}
+              css={{ height: '100%', width: '100%', mt: '20px', gap: '20px' }}
               distribution="start"
             >
               {sortedHighlights.map((highlight) => (
-                <SpanBox key={`hv-${highlight.id}`}>
+                <SpanBox key={`hv-${highlight.id}`} css={{ width: '100%' }}>
                   <HighlightView
                     key={highlight.id}
                     viewer={props.viewer}
                     item={props.item}
                     highlight={highlight}
+                    viewInReader={() => {}}
+                    setLabelsTarget={() => {}}
+                    setShowConfirmDeleteHighlightId={() => {}}
                     updateHighlight={(highlight) => {
                       console.log('updated highlight: ', highlight)
                     }}

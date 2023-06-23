@@ -221,7 +221,6 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
         height: '100%',
         width: '100%',
         p: '20px',
-        bg: '$readerMargin',
         '@mdDown': { p: '15px' },
       }}
     >

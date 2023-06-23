@@ -1,5 +1,11 @@
 /* eslint-disable react/no-children-prop */
-import { BookOpen, CaretDown, PencilLine } from 'phosphor-react'
+import {
+  BookOpen,
+  CaretDown,
+  HighlighterCircle,
+  Notebook,
+  PencilLine,
+} from 'phosphor-react'
 import { useState } from 'react'
 import type { Highlight } from '../../lib/networking/fragments/highlightFragment'
 import { LabelChip } from '../elements/LabelChip'
@@ -10,7 +16,7 @@ import {
   SpanBox,
   HStack,
 } from '../elements/LayoutPrimitives'
-import { styled } from '../tokens/stitches.config'
+import { styled, theme } from '../tokens/stitches.config'
 import { HighlightViewNote } from './HighlightNotes'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -62,27 +68,35 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
         },
       }}
     >
-      <VStack
+      <HStack
         css={{
           borderBottom: '1px solid $thBorderSubtle',
           width: '100%',
           height: '40px',
-          paddingRight: '10px',
+          px: '15px',
         }}
-        distribution="end"
-        alignment="end"
+        distribution="start"
+        alignment="center"
       >
-        <HighlightsMenu
-          item={props.item}
-          viewer={props.viewer}
-          highlight={props.highlight}
-          viewInReader={props.viewInReader}
-          setLabelsTarget={props.setLabelsTarget}
-          setShowConfirmDeleteHighlightId={
-            props.setShowConfirmDeleteHighlightId
-          }
-        />
-      </VStack>
+        {props.highlight.annotation ? (
+          <Notebook size={20} color="#757575" />
+        ) : (
+          <HighlighterCircle size={20} color="#757575" />
+        )}
+
+        <SpanBox css={{ marginLeft: 'auto' }}>
+          <HighlightsMenu
+            item={props.item}
+            viewer={props.viewer}
+            highlight={props.highlight}
+            viewInReader={props.viewInReader}
+            setLabelsTarget={props.setLabelsTarget}
+            setShowConfirmDeleteHighlightId={
+              props.setShowConfirmDeleteHighlightId
+            }
+          />
+        </SpanBox>
+      </HStack>
       {/* <VStack
         css={{
           minHeight: '100%',
