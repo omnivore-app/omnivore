@@ -173,7 +173,10 @@ export class NitterHandler extends ContentHandler {
       }
     }
 
-    const redisClient = await createRedisClient()
+    const redisClient = await createRedisClient(
+      process.env.REDIS_URL,
+      process.env.REDIS_CERT
+    )
 
     try {
       const tweets: Tweet[] = []
