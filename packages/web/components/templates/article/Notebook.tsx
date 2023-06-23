@@ -2,7 +2,14 @@ import { Box, HStack, VStack, SpanBox } from '../../elements/LayoutPrimitives'
 import { StyledText } from '../../elements/StyledText'
 import { theme } from '../../tokens/stitches.config'
 import type { Highlight } from '../../../lib/networking/fragments/highlightFragment'
-import { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
+} from 'react'
 import {
   BookOpen,
   CaretDown,
@@ -50,14 +57,10 @@ export const getHighlightLocation = (patch: string): number | undefined => {
   return patches[0].start1 || undefined
 }
 
-type AnnotationInfo = {
-  loaded: boolean
-
+type NoteState = {
+  isCreating: boolean
   note: Highlight | undefined
-  noteId: string
-  creatingNote: boolean
-
-  allAnnotations: Highlight[]
+  createStarted: Date | undefined
 }
 
 export function NotebookContent(props: NotebookContentProps): JSX.Element {
@@ -74,189 +77,58 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
   const [notesEditMode, setNotesEditMode] = useState<'edit' | 'preview'>(
     'preview'
   )
-
-  // const annotationsReducer = (
-  //   state: AnnotationInfo,
-  //   action: {
-  //     type: string
-  //     allHighlights?: Highlight[]
-  //     note?: Highlight | undefined
-
-  //     updateHighlight?: Highlight | undefined
-  //     deleteHighlightId?: string | undefined
-  //   }
-  // ) => {
-  //   switch (action.type) {
-  //     case 'RESET': {
-  //       const note = action.allHighlights?.find((h) => h.type == 'NOTE')
-  //       return {
-  //         ...state,
-  //         loaded: true,
-  //         note: note,
-  //         noteId: note?.id ?? state.noteId,
-  //         allAnnotations: [...(action.allHighlights ?? [])],
-  //       }
-  //     }
-  //     case 'CREATE_NOTE': {
-  //       if (!action.note) {
-  //         throw new Error('No note on CREATE_NOTE action')
-  //       }
-  //       return {
-  //         ...state,
-  //         note: action.note,
-  //         noteId: action.note.id,
-  //         creatingNote: false,
-  //         allAnnotations: [...state.allAnnotations, action.note],
-  //       }
-  //     }
-  //     case 'CREATING_NOTE': {
-  //       return {
-  //         ...state,
-  //         creatingNote: true,
-  //       }
-  //     }
-  //     case 'DELETE_NOTE': {
-  //       // If there is no note to delete, just make sure we have cleared out the note
-  //       const noteId = action.note?.id
-  //       if (!action.note?.id) {
-  //         return {
-  //           ...state,
-  //           node: undefined,
-  //           noteId: uuidv4(),
-  //         }
-  //       }
-  //       const idx = state.allAnnotations.findIndex((h) => h.id === noteId)
-  //       return {
-  //         ...state,
-  //         note: undefined,
-  //         noteId: uuidv4(),
-  //         allAnnotations: state.allAnnotations.splice(idx, 1),
-  //       }
-  //     }
-  //     case 'DELETE_HIGHLIGHT': {
-  //       const highlightId = action.deleteHighlightId
-  //       if (!highlightId) {
-  //         throw new Error('No highlightId for delete action.')
-  //       }
-  //       const idx = state.allAnnotations.findIndex((h) => h.id === highlightId)
-  //       if (idx < 0) {
-  //         return { ...state }
-  //       }
-  //       const deleted = state.deletedAnnotations
-  //       deleted.push(state.allAnnotations[idx])
-
-  //       return {
-  //         ...state,
-  //         deletedAnnotations: deleted,
-  //         allAnnotations: state.allAnnotations.splice(idx, 1),
-  //       }
-  //     }
-  //     case 'UPDATE_HIGHLIGHT': {
-  //       const highlight = action.updateHighlight
-  //       if (!highlight) {
-  //         throw new Error('No highlightId for delete action.')
-  //       }
-  //       const idx = state.allAnnotations.findIndex((h) => h.id === highlight.id)
-  //       if (idx !== -1) {
-  //         state.allAnnotations[idx] = highlight
-  //       }
-  //       return {
-  //         ...state,
-  //       }
-  //     }
-  //     default:
-  //       return state
-  //   }
-  // }
-
-  // const [annotations, dispatchAnnotations] = useReducer(annotationsReducer, {
-  //   loaded: false,
-  //   note: undefined,
-  //   creatingNote: false,
-  //   noteId: uuidv4(),
-  //   allAnnotations: [],
-  //   deletedAnnotations: [],
-  // })
-
-  // useEffect(() => {
-  //   dispatchAnnotations({
-  //     type: 'RESET',
-  //     allHighlights: props.highlights,
-  //   })
-  // }, [props.highlights])
-
-  // const deleteDocumentNote = useCallback(() => {
-  //   const note = annotations.note
-  //   if (!note) {
-  //     showErrorToast('No note found')
-  //     return
-  //   }
-  //   ;(async () => {
-  //     try {
-  //       const result = await deleteHighlightMutation(note.id)
-  //       if (!result) {
-  //         throw new Error()
-  //       }
-  //       showSuccessToast('Note deleted')
-  //       dispatchAnnotations({
-  //         note,
-  //         type: 'DELETE_NOTE',
-  //       })
-  //     } catch (err) {
-  //       console.log('error deleting note', err)
-  //       showErrorToast('Error deleting note')
-  //     }
-  //   })()
-  // }, [annotations])
-
-  const noteReducer = (
-    state: {
-      note?: Highlight
-      isCreating: boolean
-    },
-    action: {
-      type: string
-      note?: Highlight
-    }
-  ) => {
-    switch (action.type) {
-      case 'SET_NOTE': {
-        if (!action.note) {
-          console.error(
-            'invalidate SET_NOTE action, no note provider',
-            action,
-            state
-          )
-        }
-        return {
-          ...state,
-          note: action.note,
-        }
-      }
-    }
-    return state
-  }
-
-  const [noteState, dispatchNote] = useReducer(noteReducer, {
-    note: undefined,
+  const noteState = useRef<NoteState>({
     isCreating: false,
+    note: undefined,
+    createStarted: undefined,
   })
+
+  const newNoteId = useMemo(() => {
+    return uuidv4()
+  }, [])
+
+  const updateNote = useCallback((note: Highlight, text: string) => {
+    ;(async () => {
+      const result = await updateHighlightMutation({
+        highlightId: note.id,
+        annotation: text,
+      })
+    })()
+  }, [])
+
+  const createNote = useCallback((text: string) => {
+    console.log('creating note: ', newNoteId, noteState.current.isCreating)
+    noteState.current.isCreating = true
+    noteState.current.createStarted = new Date()
+    ;(async () => {
+      try {
+        const success = await createHighlightMutation({
+          id: newNoteId,
+          shortId: nanoid(8),
+          type: 'NOTE',
+          articleId: props.item.id,
+          annotation: text,
+        })
+        if (success) {
+          noteState.current.note = success
+          noteState.current.isCreating = false
+        }
+      } catch (error) {
+        console.error('error creating note: ', error)
+        noteState.current.isCreating = false
+      }
+    })()
+  }, [])
 
   const highlights = useMemo(() => {
     const result = articleData?.article.article.highlights
     const note = result?.find((h) => h.type === 'NOTE')
     if (note) {
-      dispatchNote({
-        type: 'SET_NOTE',
-        note: note,
-      })
+      noteState.current.note = note
+      noteState.current.isCreating = false
     }
     return result
   }, [articleData])
-
-  // const note = useMemo(() => {
-  //   return highlights?.find((h) => h.type === 'NOTE')
-  // }, [highlights])
 
   useEffect(() => {
     if (highlights && props.onAnnotationsChanged) {
@@ -295,8 +167,30 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
   }, [highlights])
 
   const handleSaveNoteText = useCallback(
-    (text, cb: (success: boolean) => void) => {},
-    [highlights, props.item]
+    (text, cb: (success: boolean) => void) => {
+      console.log('handleSaveNoteText', noteState.current)
+      if (noteState.current.note) {
+        updateNote(noteState.current.note, text)
+        return
+      }
+      if (noteState.current.isCreating) {
+        console.log('note is being created, deferring')
+
+        if (noteState.current.createStarted) {
+          const timeSinceStart =
+            new Date().getTime() - noteState.current.createStarted.getTime()
+          console.log(' -- timeSinceStart: ', timeSinceStart)
+
+          if (timeSinceStart > 4000) {
+            createNote(text)
+            return
+          }
+        }
+        return
+      }
+      createNote(text)
+    },
+    [noteState, createNote, updateNote]
   )
 
   const [articleNotesCollapsed, setArticleNotesCollapsed] = useState(false)
@@ -310,7 +204,6 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
         width: '100%',
         p: '20px',
         '@mdDown': { p: '15px' },
-        background: '#F8FAFB',
       }}
     >
       <SectionTitle
@@ -328,7 +221,7 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
             mode={notesEditMode}
             targetId={props.item.id}
             setEditMode={setNotesEditMode}
-            text={noteState.note?.annotation}
+            text={noteState.current.note?.annotation}
             placeHolder="Add notes to this document..."
             saveText={handleSaveNoteText}
           />
