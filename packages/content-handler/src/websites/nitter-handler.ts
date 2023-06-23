@@ -55,8 +55,8 @@ export class NitterHandler extends ContentHandler {
   }
 
   async getInstances(redisClient: RedisClient) {
+    // get instances by score in ascending order
     const instances = await redisClient.zRange(this.REDIS_KEY, '-inf', '+inf', {
-      REV: true,
       BY: 'SCORE',
     })
     console.debug('instances', instances)
@@ -66,7 +66,11 @@ export class NitterHandler extends ContentHandler {
       const result = await redisClient.zAdd(this.REDIS_KEY, this.INSTANCES, {
         NX: true, // only add if the key does not exist
       })
-      console.debug('zAdd result', result)
+      console.debug('add instances', result)
+
+      // expire the key after 1 day
+      const exp = await redisClient.expire(this.REDIS_KEY, 60 * 60 * 24)
+      console.debug('instances expire in 1 day', exp)
 
       return this.INSTANCES.map((i) => i.value)
     }
@@ -188,7 +192,8 @@ export class NitterHandler extends ContentHandler {
           const url = `${instance}/${username}/status/${tweetId}`
           const startTime = Date.now()
           const response = await axios.get(url, option)
-          const latency = (Date.now() - startTime) / 1000000 // convert to seconds
+          const latency = Math.floor(Date.now() - startTime)
+          console.debug('latency', latency)
 
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           html = response.data
@@ -197,7 +202,11 @@ export class NitterHandler extends ContentHandler {
           await this.incrementInstanceScore(redisClient, instance, latency)
           break
         } catch (error) {
-          await this.incrementInstanceScore(redisClient, instance, 20)
+          await this.incrementInstanceScore(
+            redisClient,
+            instance,
+            option.timeout
+          )
 
           if (axios.isAxiosError(error)) {
             console.info(`Error getting tweets from ${instance}`, error.message)
