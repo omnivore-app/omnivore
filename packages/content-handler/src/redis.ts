@@ -1,6 +1,12 @@
 import { createClient } from 'redis'
 
-export const createRedisClient = async (url?: string, cert?: string) => {
+// explicitly create the return type of RedisClient
+export type RedisClient = ReturnType<typeof createClient>
+
+export const createRedisClient = async (
+  url?: string,
+  cert?: string
+): Promise<RedisClient> => {
   const redisClient = createClient({
     url,
     socket: {

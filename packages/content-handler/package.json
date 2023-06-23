@@ -35,7 +35,7 @@
     "lodash": "^4.17.21",
     "luxon": "^3.0.4",
     "puppeteer-core": "^19.1.1",
-    "redis": "^4.6.7",
+    "redis": "^4.3.1",
     "underscore": "^1.13.6",
     "uuid": "^9.0.0"
   }

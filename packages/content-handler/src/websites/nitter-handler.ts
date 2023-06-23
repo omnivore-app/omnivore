@@ -2,12 +2,8 @@ import axios from 'axios'
 import { parseHTML } from 'linkedom'
 import _, { truncate } from 'lodash'
 import { DateTime } from 'luxon'
-import { createClient } from 'redis'
 import { ContentHandler, PreHandleResult } from '../content-handler'
-import { createRedisClient } from '../redis'
-
-// explicitly create the return type of RedisClient
-type RedisClient = ReturnType<typeof createClient>
+import { createRedisClient, RedisClient } from '../redis'
 
 interface Tweet {
   url: string
