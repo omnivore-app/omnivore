@@ -350,7 +350,7 @@ export class NitterHandler extends ContentHandler {
       '_normal',
       '_400x400'
     )}`
-    const description = _.escape(tweet.text)
+    const description = _.escape(tweet.text) || escapedTitle
     const imageDomain =
       domain.toLowerCase() === 'twitter.com'
         ? 'https://pbs.twimg.com'
@@ -402,6 +402,7 @@ export class NitterHandler extends ContentHandler {
             <meta property="og:site_name" content="Twitter" />
             <meta property="og:type" content="tweet" />
             <meta property="dc:creator" content="${author.name}" />
+            <meta property="twitter:description" content="${description}" />
           </head>
           <body>
             <div class="_omnivore_twitter">
