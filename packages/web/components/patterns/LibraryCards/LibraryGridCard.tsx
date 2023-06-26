@@ -5,16 +5,7 @@ import { CoverImage } from '../../elements/CoverImage'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useCallback, useState } from 'react'
-import {
-  ArchiveBox,
-  DotsThree,
-  DotsThreeVertical,
-  Tag,
-  Trash,
-  Tray,
-} from 'phosphor-react'
 import Link from 'next/link'
-import { CardMenu } from '../CardMenu'
 import {
   AuthorInfoStyle,
   CardCheckbox,
@@ -25,8 +16,6 @@ import {
   TitleStyle,
 } from './LibraryCardStyles'
 import { sortedLabels } from '../../../lib/labelsSort'
-import { Button } from '../../elements/Button'
-import { theme } from '../../tokens/stitches.config'
 import { LibraryHoverActions } from './LibraryHoverActions'
 import {
   useHover,

@@ -14,7 +14,6 @@ import {
 } from 'phosphor-react'
 import { CardMenu } from '../CardMenu'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
-import { useFloating, shift, offset } from '@floating-ui/react'
 
 type LibraryHoverActionsProps = {
   viewer: UserBasicData
