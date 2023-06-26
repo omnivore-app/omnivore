@@ -288,7 +288,10 @@ export class NitterHandler extends ContentHandler {
 
         const tweet = parseTweet(item)
         // filter out replies
-        if (tweet && tweet.author.username.toLowerCase() === username) {
+        if (
+          tweet &&
+          tweet.author.username.toLowerCase() === username.toLowerCase()
+        ) {
           tweets.push(tweet)
         }
       }
