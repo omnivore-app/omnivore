@@ -48,7 +48,7 @@ export function HighlightBar(props: HighlightBarProps): JSX.Element {
         }),
         ...(props.displayAtBottom && {
           '@smDown': {
-            maxWidth: '85%',
+            maxWidth: '90vw',
             bottom: `calc(28px + ${
               isAndroid() ? 30 : 0
             }px + env(safe-area-inset-bottom, 40px))`,
@@ -89,7 +89,7 @@ function BarButton({ text, title, iconElement, onClick }: BarButtonProps) {
         <StyledText
           style="body"
           css={{
-            pl: '12px',
+            pl: '4px',
             m: '0px',
             color: '$readerFont',
             fontWeight: '400',
@@ -134,7 +134,7 @@ function BarContent(props: HighlightBarProps): JSX.Element {
             text="Delete"
             title="Remove Highlight"
             iconElement={
-              <Trash size={24} color={theme.colors.omnivoreRed.toString()} />
+              <Trash size={20} color={theme.colors.omnivoreRed.toString()} />
             }
             onClick={() => props.handleButtonClick('delete')}
           />
@@ -143,7 +143,7 @@ function BarContent(props: HighlightBarProps): JSX.Element {
             text="Labels"
             title="Set Labels"
             iconElement={
-              <Tag size={24} color={theme.colors.readerFont.toString()} />
+              <Tag size={20} color={theme.colors.readerFont.toString()} />
             }
             onClick={() => props.handleButtonClick('setHighlightLabels')}
           />
@@ -154,7 +154,7 @@ function BarContent(props: HighlightBarProps): JSX.Element {
         text="Note"
         title="Add Note to Highlight"
         iconElement={
-          <Note size={24} color={theme.colors.readerFont.toString()} />
+          <Note size={20} color={theme.colors.readerFont.toString()} />
         }
         onClick={() => props.handleButtonClick('comment')}
       />
@@ -163,7 +163,7 @@ function BarContent(props: HighlightBarProps): JSX.Element {
         text="Copy"
         title="Copy Text to Clipboard"
         iconElement={
-          <Copy size={24} color={theme.colors.readerFont.toString()} />
+          <Copy size={20} color={theme.colors.readerFont.toString()} />
         }
         onClick={() => props.handleButtonClick('copy')}
       />
