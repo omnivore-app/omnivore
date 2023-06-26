@@ -20,7 +20,6 @@ import {
   CardCheckbox,
   DescriptionStyle,
   LibraryItemMetadata,
-  MenuStyle,
   MetaStyle,
   siteName,
   TitleStyle,
@@ -29,6 +28,14 @@ import { sortedLabels } from '../../../lib/labelsSort'
 import { Button } from '../../elements/Button'
 import { theme } from '../../tokens/stitches.config'
 import { LibraryHoverActions } from './LibraryHoverActions'
+import {
+  useHover,
+  useFloating,
+  useInteractions,
+  size,
+  offset,
+  autoUpdate,
+} from '@floating-ui/react'
 
 dayjs.extend(relativeTime)
 
@@ -64,11 +71,29 @@ export function ProgressBar(props: ProgressBarProps): JSX.Element {
 
 export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
   const [isHovered, setIsHovered] = useState(false)
-  const [anchor, setAnchor] = useState<HTMLDivElement | null>(null)
+  const [isOpen, setIsOpen] = useState(false)
+
+  const { refs, floatingStyles, context } = useFloating({
+    open: isOpen,
+    onOpenChange: setIsOpen,
+    middleware: [
+      offset({
+        mainAxis: -25,
+      }),
+      size(),
+    ],
+    placement: 'top-end',
+    whileElementsMounted: autoUpdate,
+  })
+
+  const hover = useHover(context)
+
+  const { getReferenceProps, getFloatingProps } = useInteractions([hover])
 
   return (
     <VStack
-      ref={setAnchor}
+      ref={refs.setReference}
+      {...getReferenceProps()}
       css={{
         pl: '20px',
         padding: '15px',
@@ -99,13 +124,18 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
         <LibraryGridCardContent {...props} isHovered={isHovered} />
       ) : (
         <>
-          <LibraryHoverActions
-            anchor={anchor}
-            item={props.item}
-            viewer={props.viewer}
-            handleAction={props.handleAction}
-            isHovered={isHovered ?? false}
-          />
+          <Box
+            ref={refs.setFloating}
+            style={floatingStyles}
+            {...getFloatingProps()}
+          >
+            <LibraryHoverActions
+              item={props.item}
+              viewer={props.viewer}
+              handleAction={props.handleAction}
+              isHovered={isHovered ?? false}
+            />
+          </Box>
           <Link
             href={`${props.viewer.profile.username}/${props.item.slug}`}
             passHref

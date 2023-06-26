@@ -1106,12 +1106,10 @@ function LibraryItems(props: LibraryItemsProps): JSX.Element {
         paddingTop: '0',
         paddingBottom: '0px',
         overflow: 'hidden',
-        boxShadow:
-          props.layout == 'LIST_LAYOUT'
-            ? '0 1px 3px 0 rgba(0, 0, 0, 0.1),0 1px 2px 0 rgba(0, 0, 0, 0.06);'
-            : 'unset',
+        '@media (max-width: 930px)': {
+          gridGap: props.layout == 'LIST_LAYOUT' ? '0px' : '20px',
+        },
         '@xlgDown': {
-          border: 'unset',
           borderRadius: props.layout == 'LIST_LAYOUT' ? 0 : undefined,
         },
         '@smDown': {

@@ -1,41 +1,55 @@
 import { Box, VStack, HStack, SpanBox } from '../../elements/LayoutPrimitives'
 import { LabelChip } from '../../elements/LabelChip'
 import type { LinkedItemCardProps } from './CardTypes'
-import { useCallback, useState } from 'react'
-import {
-  Archive,
-  ArchiveBox,
-  DotsThree,
-  Note,
-  Notebook,
-  Tag,
-  Trash,
-  Tray,
-} from 'phosphor-react'
+import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
-import { CardMenu } from '../CardMenu'
 import {
   AuthorInfoStyle,
   CardCheckbox,
   LibraryItemMetadata,
-  MenuStyle,
   MetaStyle,
   siteName,
   TitleStyle,
 } from './LibraryCardStyles'
 import { sortedLabels } from '../../../lib/labelsSort'
 import { LIBRARY_LEFT_MENU_WIDTH } from '../../templates/homeFeed/LibraryFilterMenu'
-import { Button } from '../../elements/Button'
-import { theme } from '../../tokens/stitches.config'
 import { LibraryHoverActions } from './LibraryHoverActions'
+import {
+  useHover,
+  useFloating,
+  useInteractions,
+  size,
+  offset,
+  autoUpdate,
+} from '@floating-ui/react'
 
 export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
   const [isHovered, setIsHovered] = useState(false)
-  const [anchor, setAnchor] = useState<HTMLDivElement | null>(null)
+
+  const [isOpen, setIsOpen] = useState(false)
+
+  const { refs, floatingStyles, context } = useFloating({
+    open: isOpen,
+    onOpenChange: setIsOpen,
+    middleware: [
+      offset({
+        mainAxis: -25,
+        // crossAxis: -10,
+      }),
+      size(),
+    ],
+    placement: 'top-end',
+    whileElementsMounted: autoUpdate,
+  })
+
+  const hover = useHover(context)
+
+  const { getReferenceProps, getFloatingProps } = useInteractions([hover])
 
   return (
     <VStack
-      ref={setAnchor}
+      ref={refs.setReference}
+      {...getReferenceProps()}
       css={{
         px: '20px',
         pt: '20px',
@@ -59,6 +73,12 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
         '@media (min-width: 1600px)': {
           width: '1340px',
         },
+        boxShadow:
+          '0 1px 3px 0 rgba(0, 0, 0, 0.1),0 1px 2px 0 rgba(0, 0, 0, 0.06);',
+        '@media (max-width: 930px)': {
+          boxShadow: 'unset',
+          borderRadius: 'unset',
+        },
       }}
       alignment="start"
       distribution="start"
@@ -73,13 +93,18 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
         <LibraryListCardContent {...props} isHovered={isHovered} />
       ) : (
         <>
-          <LibraryHoverActions
-            anchor={anchor}
-            item={props.item}
-            viewer={props.viewer}
-            handleAction={props.handleAction}
-            isHovered={isHovered ?? false}
-          />
+          <Box
+            ref={refs.setFloating}
+            style={floatingStyles}
+            {...getFloatingProps()}
+          >
+            <LibraryHoverActions
+              item={props.item}
+              viewer={props.viewer}
+              handleAction={props.handleAction}
+              isHovered={isHovered ?? false}
+            />
+          </Box>
           <Link
             href={`${props.viewer.profile.username}/${props.item.slug}`}
             passHref
@@ -126,7 +151,9 @@ export function LibraryListCardContent(
         distribution="start"
         css={{ height: '100%', width: '100%' }}
       >
-        <Box css={{ ...TitleStyle, width: '80%' }}>{props.item.title}</Box>
+        <Box css={{ ...TitleStyle, fontSize: '18px', width: '80%' }}>
+          {props.item.title}
+        </Box>
         <SpanBox
           css={{
             mt: '5px',
