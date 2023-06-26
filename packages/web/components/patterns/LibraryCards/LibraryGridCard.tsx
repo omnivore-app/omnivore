@@ -28,6 +28,7 @@ import {
 import { sortedLabels } from '../../../lib/labelsSort'
 import { Button } from '../../elements/Button'
 import { theme } from '../../tokens/stitches.config'
+import { LibraryHoverActions } from './LibraryHoverActions'
 
 dayjs.extend(relativeTime)
 
@@ -95,18 +96,26 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
       {props.inMultiSelect ? (
         <LibraryGridCardContent {...props} isHovered={isHovered} />
       ) : (
-        <Link
-          href={`${props.viewer.profile.username}/${props.item.slug}`}
-          passHref
-        >
-          <a
+        <>
+          <LibraryHoverActions
+            item={props.item}
+            viewer={props.viewer}
+            handleAction={props.handleAction}
+            isHovered={isHovered ?? false}
+          />
+          <Link
             href={`${props.viewer.profile.username}/${props.item.slug}`}
-            style={{ textDecoration: 'unset', width: '100%', height: '100%' }}
-            tabIndex={-1}
+            passHref
           >
-            <LibraryGridCardContent {...props} isHovered={isHovered} />
-          </a>
-        </Link>
+            <a
+              href={`${props.viewer.profile.username}/${props.item.slug}`}
+              style={{ textDecoration: 'unset', width: '100%', height: '100%' }}
+              tabIndex={-1}
+            >
+              <LibraryGridCardContent {...props} isHovered={isHovered} />
+            </a>
+          </Link>
+        </>
       )}
     </VStack>
   )
@@ -114,7 +123,6 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
 
 const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
   const { isChecked, setIsChecked, item } = props
-  const [menuOpen, setMenuOpen] = useState(false)
   const originText = siteName(props.item.originalArticleUrl, props.item.url)
 
   const handleCheckChanged = useCallback(() => {
@@ -131,79 +139,16 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
         distribution="start"
       >
         <LibraryItemMetadata item={props.item} />
-        {props.inMultiSelect ? (
+        {props.inMultiSelect && (
           <SpanBox css={{ marginLeft: 'auto' }}>
             <CardCheckbox
               isChecked={props.isChecked}
               handleChanged={handleCheckChanged}
             />
           </SpanBox>
-        ) : (
-          <Box
-            css={{
-              ...MenuStyle,
-              width: '30px',
-              mt: '-5px',
-              mr: '-5px',
-              gap: '10px',
-              px: '20px',
-              borderRadius: '1000px',
-              visibility: props.isHovered || menuOpen ? 'unset' : 'hidden',
-              '@media (hover: none)': {
-                visibility: 'unset',
-              },
-            }}
-          >
-            {/* <Button
-              style="hoverActionIcon"
-              onClick={(event) => {
-                const action = props.item.isArchived ? 'unarchive' : 'archive'
-                props.handleAction(action)
-                event.preventDefault()
-              }}
-            >
-              {props.item.isArchived ? (
-                <Tray
-                  size={18}
-                  color={theme.colors.thHighContrast.toString()}
-                />
-              ) : (
-                <ArchiveBox
-                  size={18}
-                  color={theme.colors.thHighContrast.toString()}
-                />
-              )}
-            </Button>
-            <Button
-              style="hoverActionIcon"
-              onClick={(event) => {
-                props.handleAction('delete')
-                event.preventDefault()
-              }}
-            >
-              <Trash size={18} color={theme.colors.thHighContrast.toString()} />
-            </Button>
-            <Button
-              style="hoverActionIcon"
-              onClick={(event) => {
-                props.handleAction('set-labels')
-                event.preventDefault()
-              }}
-            >
-              <Tag size={18} color={theme.colors.thHighContrast.toString()} />
-            </Button> */}
-            <CardMenu
-              item={props.item}
-              viewer={props.viewer}
-              onOpenChange={(open) => setMenuOpen(open)}
-              actionHandler={props.handleAction}
-              triggerElement={
-                <DotsThree size={25} weight="bold" color="#ADADAD" />
-              }
-            />
-          </Box>
         )}
       </HStack>
+
       <VStack
         alignment="start"
         distribution="start"

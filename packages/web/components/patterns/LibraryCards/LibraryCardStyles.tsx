@@ -14,18 +14,6 @@ export const MetaStyle = {
   fontFamily: '$display',
 }
 
-export const MenuStyle = {
-  display: 'flex',
-  marginLeft: 'auto',
-  height: '30px',
-  width: '180px',
-  // mt: '-5px',
-  // mr: '-5px',
-  pt: '2px',
-  alignItems: 'center',
-  justifyContent: 'center',
-}
-
 export const TitleStyle = {
   color: '$thTextContrast2',
   fontSize: '16px',

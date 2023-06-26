@@ -261,10 +261,11 @@ export const Button = styled('button', {
         border: 'none',
         cursor: 'pointer',
         padding: '4px',
-        borderRadius: '5px',
+        height: '100%',
+        pt: '6px',
 
         '&:hover': {
-          opacity: 0.7,
+          bg: '$grayBgHover',
         },
       },
       ghost: {

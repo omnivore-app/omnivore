@@ -27,6 +27,7 @@ import { sortedLabels } from '../../../lib/labelsSort'
 import { LIBRARY_LEFT_MENU_WIDTH } from '../../templates/homeFeed/LibraryFilterMenu'
 import { Button } from '../../elements/Button'
 import { theme } from '../../tokens/stitches.config'
+import { LibraryHoverActions } from './LibraryHoverActions'
 
 export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
   const [isHovered, setIsHovered] = useState(false)
@@ -67,18 +68,26 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
       {props.inMultiSelect ? (
         <LibraryListCardContent {...props} isHovered={isHovered} />
       ) : (
-        <Link
-          href={`${props.viewer.profile.username}/${props.item.slug}`}
-          passHref
-        >
-          <a
+        <>
+          <LibraryHoverActions
+            item={props.item}
+            viewer={props.viewer}
+            handleAction={props.handleAction}
+            isHovered={isHovered ?? false}
+          />
+          <Link
             href={`${props.viewer.profile.username}/${props.item.slug}`}
-            style={{ textDecoration: 'unset', width: '100%', height: '100%' }}
-            tabIndex={-1}
+            passHref
           >
-            <LibraryListCardContent {...props} isHovered={isHovered} />
-          </a>
-        </Link>
+            <a
+              href={`${props.viewer.profile.username}/${props.item.slug}`}
+              style={{ textDecoration: 'unset', width: '100%', height: '100%' }}
+              tabIndex={-1}
+            >
+              <LibraryListCardContent {...props} isHovered={isHovered} />
+            </a>
+          </Link>
+        </>
       )}
     </VStack>
   )
@@ -99,85 +108,13 @@ export function LibraryListCardContent(
     <>
       <HStack css={MetaStyle} distribution="start">
         <LibraryItemMetadata item={props.item} showProgress={true} />
-        {props.inMultiSelect ? (
+        {props.inMultiSelect && (
           <SpanBox css={{ marginLeft: 'auto' }}>
             <CardCheckbox
               isChecked={props.isChecked}
               handleChanged={handleCheckChanged}
             />
           </SpanBox>
-        ) : (
-          <Box
-            css={{
-              ...MenuStyle,
-              gap: '10px',
-              px: '20px',
-              visibility: props.isHovered || menuOpen ? 'unset' : 'hidden',
-              '@media (hover: none)': {
-                visibility: 'unset',
-              },
-            }}
-          >
-            <Button
-              style="hoverActionIcon"
-              onClick={(event) => {
-                props.handleAction('open-notebook')
-                event.preventDefault()
-              }}
-            >
-              <Notebook
-                size={19}
-                color={theme.colors.thHighContrast.toString()}
-              />
-            </Button>
-            <Button
-              style="hoverActionIcon"
-              onClick={(event) => {
-                props.handleAction('set-labels')
-                event.preventDefault()
-              }}
-            >
-              <Tag size={18} color={theme.colors.thHighContrast.toString()} />
-            </Button>
-            <Button
-              style="hoverActionIcon"
-              onClick={(event) => {
-                const action = props.item.isArchived ? 'unarchive' : 'archive'
-                props.handleAction(action)
-                event.preventDefault()
-              }}
-            >
-              {props.item.isArchived ? (
-                <Tray
-                  size={18}
-                  color={theme.colors.thHighContrast.toString()}
-                />
-              ) : (
-                <ArchiveBox
-                  size={18}
-                  color={theme.colors.thHighContrast.toString()}
-                />
-              )}
-            </Button>
-            <Button
-              style="hoverActionIcon"
-              onClick={(event) => {
-                props.handleAction('delete')
-                event.preventDefault()
-              }}
-            >
-              <Trash size={18} color={theme.colors.thHighContrast.toString()} />
-            </Button>
-            <CardMenu
-              item={props.item}
-              viewer={props.viewer}
-              onOpenChange={(open) => setMenuOpen(open)}
-              actionHandler={props.handleAction}
-              triggerElement={
-                <DotsThree size={25} weight="bold" color="#ADADAD" />
-              }
-            />
-          </Box>
         )}
       </HStack>
       <VStack
