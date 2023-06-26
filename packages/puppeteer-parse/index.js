@@ -724,10 +724,10 @@ async function retrieveHtml(page, logRecord) {
               // Replacing element only of there are no content inside, b/c might remove important div with content.
               // Article example: http://www.josiahzayner.com/2017/01/genetic-designer-part-i.html
               // DIV with class "content-inner" has `url("https://resources.blogblog.com/blogblog/data/1kt/travel/bg_container.png")` background image.
-              if (el.innerHTML.length < 25) {
+              if (!el.textContent) {
                 const img = document.createElement('img');
                 img.src = matchedSRC[1];
-                el && el.parentNode && el.parentNode.removeChild(el);
+                el && el.parentNode && el.parentNode.replaceChild(img, el);
               }
             }
           }

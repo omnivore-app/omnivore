@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>
+            Digital Garden Overview
+        </title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <script src="https://fastly.jsdelivr.net/npm/mermaid@9.4.0/dist/mermaid.min.js"></script>
+        <script>
+        <![CDATA[
+        mermaid.initialize({
+        startOnLoad: true,
+        });
+        ]]>
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/prism.min.js" integrity="sha512-hpZ5pDCF2bRCweL5WoA0/N1elet1KYL5mx3LP555Eg/0ZguaHawxNvEjF6O3rufAChs16HVNhEc6blF/rZoowQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/plugins/autoloader/prism-autoloader.min.js" integrity="sha512-sv0slik/5O0JIPdLBCR2A3XDg/1U3WuDEheZfI/DI5n8Yqc3h5kjrnr46FGBNiUAJF7rE4LHKwQ/SoSLRKAxEA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script src="https://cdn.jsdelivr.net/npm/lucide@0.115.0/dist/umd/lucide.min.js"></script>
+        <script>
+        <![CDATA[
+        // Create callout icons
+        window.addEventListener("load", () => {
+        document.querySelectorAll(".callout").forEach((elem) => {
+            const icon = getComputedStyle(elem).getPropertyValue('--callout-icon');
+            const iconName = icon && icon.trim().replace(/^lucide-/, "");
+
+            if (iconName) {
+                const calloutTitle = elem.querySelector(".callout-title");
+
+                if (calloutTitle) {
+                    const calloutIconContainer = document.createElement("div");
+                    const calloutIcon = document.createElement("i");
+
+                    calloutIconContainer.appendChild(calloutIcon);
+                    calloutIcon.setAttribute("icon-name", iconName);
+                    calloutIconContainer.setAttribute("class", "callout-icon");
+                    calloutTitle.insertBefore(calloutIconContainer, calloutTitle.firstChild);
+                }
+            }
+        });
+
+        lucide.createIcons();
+
+        // Collapse callouts
+        Array.from(document.querySelectorAll(".callout.is-collapsible")).forEach((elem) => {
+            elem.querySelector('.callout-title').addEventListener("click", (event) => {
+                if (elem.classList.contains("is-collapsed")) {
+                    elem.classList.remove("is-collapsed");
+                } else {
+                    elem.classList.add("is-collapsed");
+                }
+            });
+        });
+        });
+        ]]>
+        </script>
+        <script src="https://fastly.jsdelivr.net/npm/force-graph@1.43.0/dist/force-graph.min.js"></script>
+        <style type="text/css">
+        /*<![CDATA[*/
+        .force-graph-container canvas {
+        display: block;
+        user-select: none;
+        outline: none;
+        -webkit-tap-highlight-color: transparent;
+        }
+
+        .force-graph-container .graph-tooltip {
+        position: absolute;
+        top: 0;
+        font-family: sans-serif;
+        font-size: 16px;
+        padding: 4px;
+        border-radius: 3px;
+        color: #eee;
+        background: rgba(0,0,0,0.65);
+        visibility: hidden; /* by default */
+        }
+
+        .force-graph-container .clickable {
+        cursor: pointer;
+        }
+
+        .force-graph-container .grabbable {
+        cursor: move;
+        cursor: grab;
+        cursor: -moz-grab;
+        cursor: -webkit-grab;
+        }
+
+        .force-graph-container .grabbable:active {
+        cursor: grabbing;
+        cursor: -moz-grabbing;
+        cursor: -webkit-grabbing;
+        }
+        /*]]>*/
+        </style>
+        <script defer="defer" src="https://fastly.jsdelivr.net/npm/@alpinejs/persist@3.11.1/dist/cdn.min.js"></script>
+        <script src="https://fastly.jsdelivr.net/npm/alpinejs@3.11.1/dist/cdn.min.js" defer="defer"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/themes/prism-okaidia.min.css" integrity="sha512-mIs9kKbaw6JZFfSuo+MovjU+Ntggfoj8RwAmJbVXQ5mkAX5LlgETQEweFPI18humSPHymTb5iikEOKWF7I8ncQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <script src="https://fastly.jsdelivr.net/npm/whatwg-fetch@3.6.2/dist/fetch.umd.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+        <link href="/styles/digital-garden-base.css" rel="stylesheet" />
+        <link href="/styles/obsidian-base.css" rel="stylesheet" />
+        <link href="/styles/_theme.eae2f3b6.css" rel="stylesheet" />
+        <link href="/styles/custom-style.css" rel="stylesheet" />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="manifest" href="/manifest.webmanifest" />
+        <style>
+        <![CDATA[
+        body.css-settings-manager { } body.theme-light.css-settings-manager { } body.theme-dark.css-settings-manager { }
+        ]]>
+        </style>
+        <style>
+        <![CDATA[
+        #tooltip-wrapper {
+        background: var(--background-primary);
+        padding: 1em;
+        border-radius: 4px;
+        overflow: hidden;
+        position: fixed;
+        width: 80%;
+        max-width: 400px;
+        height: auto;
+        max-height: 300px;
+        font-size: 0.8em;
+        box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+        opacity: 0;
+        transition: opacity 100ms;
+        unicode-bidi: plaintext;
+        overflow-y: scroll;
+        z-index: 10;
+        }
+
+        #tooltip-wrapper:after {
+        content: "";
+        position: absolute;
+        z-index: 1;
+        bottom: 0;
+        left: 0;
+        pointer-events: none;
+        width: 100%;
+        unicode-bidi: plaintext;
+        height: 75px;
+        }
+        ]]>
+        </style>
+    </head>
+    <body class="theme-dark markdown-preview-view markdown-rendered markdown-preview-section css-settings-manager">
+        <div x-init="isDesktop = (window.innerWidth&gt;=1400) ? true: false;" x-on:resize.window="isDesktop = (window.innerWidth&gt;=1400) ? true : false;" x-data="{isDesktop: true, showFilesMobile: false}">
+            <div x-show.important="!isDesktop" style="display: none !important;">
+                <nav class="navbar">
+                    <div class="navbar-inner">
+                        <span style="font-size: 1.5rem; margin-right: 10px;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="menu" class="lucide lucide-menu svg-icon">
+                        <line x1="4" y1="12" x2="20" y2="12"></line>
+                        <line x1="4" y1="6" x2="20" y2="6"></line>
+                        <line x1="4" y1="18" x2="20" y2="18"></line></svg></span> <a href="/" style="text-decoration: none;">
+                        <h1 style="margin: 15px !important;">
+                            Digital Garden Docs
+                        </h1></a>
+                    </div>
+                    <div class="search-button align-icon" onclick="toggleSearch()">
+                        <span class="search-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="search" class="lucide lucide-search svg-icon">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span> <span class="search-text"><span>Search</span> <span style="font-size: 0.6rem; padding: 2px 2px 0 6px; text-align:center; transform: translateY(4px);" class="search-keys">⌘ + K</span></span>
+                    </div>
+                </nav>
+            </div>
+            <div x-show="showFilesMobile &amp;&amp; !isDesktop" style="display:none;" class="fullpage-overlay"></div>
+            <nav class="filetree-sidebar" x-show.important="isDesktop || showFilesMobile">
+                <a href="/" style="text-decoration: none;">
+                <h1 style="text-align:center;">
+                    Digital Garden Docs
+                </h1></a>
+                <div style="display: flex; justify-content: center;">
+                    <div class="search-button align-icon" onclick="toggleSearch()">
+                        <span class="search-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="search" class="lucide lucide-search svg-icon">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span> <span class="search-text"><span>Search</span> <span style="font-size: 0.6rem; padding: 2px 2px 0 6px; text-align:center; transform: translateY(4px);" class="search-keys">⌘ + K</span></span>
+                    </div>
+                </div>
+                <div class="folder" x-data="{isOpen: true}">
+                    <div x-show="isOpen" class="">
+                        <div class="folder inner-folder" x-data="{isOpen: $persist(false).as('Advanced')}">
+                            <div class="foldername-wrapper align-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="chevron-down" class="lucide lucide-chevron-down svg-icon" x-show="isOpen" style="display: none;">
+                                <polyline points="6 9 12 15 18 9"></polyline></svg> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="chevron-right" class="lucide lucide-chevron-right svg-icon" x-show="!isOpen">
+                                <polyline points="9 18 15 12 9 6"></polyline></svg> <span class="foldername">Advanced</span>
+                            </div>
+                            <div x-show="isOpen" style="display:none" class="filelist">
+                                <div class="notelink">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="sticky-note" class="lucide lucide-sticky-note svg-icon" aria-hidden="true">
+                                    <path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z"></path>
+                                    <path d="M15 3v6h6"></path></svg><a data-note-icon="" style="text-decoration: none;" class="filename" href="/advanced/adding-custom-components/">Adding custom components</a>
+                                </div>
+                            </div>
+                            <div x-show="isOpen" style="display:none" class="filelist">
+                                <div class="notelink">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="sticky-note" class="lucide lucide-sticky-note svg-icon" aria-hidden="true">
+                                    <path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z"></path>
+                                    <path d="M15 3v6h6"></path></svg><a data-note-icon="" style="text-decoration: none;" class="filename" href="/advanced/comparison-to-other-solutions/">Comparison to other solutions</a>
+                                </div>
+                            </div>
+                            <div x-show="isOpen" style="display:none" class="filelist">
+                                <div class="notelink">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="sticky-note" class="lucide lucide-sticky-note svg-icon" aria-hidden="true">
+                                    <path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z"></path>
+                                    <path d="M15 3v6h6"></path></svg><a data-note-icon="" style="text-decoration: none;" class="filename" href="/advanced/configure-build-pipeline/">Configure build pipeline</a>
+                                </div>
+                            </div>
+                            <div x-show="isOpen" style="display:none" class="filelist">
+                                <div class="notelink">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="sticky-note" class="lucide lucide-sticky-note svg-icon" aria-hidden="true">
+                                    <path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z"></path>
+                                    <path d="M15 3v6h6"></path></svg><a data-note-icon="" style="text-decoration: none;" class="filename" href="/advanced/content-customization/">Content Customization</a>
+                                </div>
+                            </div>
+                            <div x-show="isOpen" style="display:none" class="filelist">
+                                <div class="notelink">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="sticky-note" class="lucide lucide-sticky-note svg-icon" aria-hidden="true">
+                                    <path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z"></path>
+                                    <path d="M15 3v6h6"></path></svg><a data-note-icon="" style="text-decoration: none;" class="filename" href="/advanced/css-customization/">CSS Customization</a>
+                                </div>
+                            </div>
+                            <div x-show="isOpen" style="display:none" class="filelist">
+                                <div class="notelink">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="sticky-note" class="lucide lucide-sticky-note svg-icon" aria-hidden="true">
+                                    <path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z"></path>
+                                    <path d="M15 3v6h6"></path></svg><a data-note-icon="" style="text-decoration: none;" class="filename" href="/advanced/dataview-queries/">Dataview queries</a>
+                                </div>
+                            </div>
+                            <div x-show="isOpen" style="display:none" class="filelist">
+                                <div class="notelink">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="sticky-note" class="lucide lucide-sticky-note svg-icon" aria-hidden="true">
+                                    <path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z"></path>
+                                    <path d="M15 3v6h6"></path></svg><a data-note-icon="" style="text-decoration: none;" class="filename" href="/advanced/fine-grained-access-token/">Fine grained access token</a>
+                                </div>
+                            </div>
+                            <div x-show="isOpen" style="display:none" class="filelist">
+                                <div class="notelink">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="sticky-note" class="lucide lucide-sticky-note svg-icon" aria-hidden="true">
+                                    <path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z"></path>
+                                    <path d="M15 3v6h6"></path></svg><a data-note-icon="" style="text-decoration: none;" class="filename" href="/advanced/hosting-alternatives/">Hosting alternatives</a>
+                                </div>
+                            </div>
+                            <div x-show="isOpen" style="display:none" class="filelist">
+                                <div class="notelink">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="sticky-note" class="lucide lucide-sticky-note svg-icon" aria-hidden="true">
+                                    <path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z"></path>
+                                    <path d="M15 3v6h6"></path></svg><a data-note-icon="" style="text-decoration: none;" class="filename" href="/advanced/note-specific-settings/">Note Specific Settings</a>
+                                </div>
+                            </div>
+                            <div x-show="isOpen" style="display:none" class="filelist">
+                                <div class="notelink">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="sticky-note" class="lucide lucide-sticky-note svg-icon" aria-hidden="true">
+                                    <path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z"></path>
+                                    <path d="M15 3v6h6"></path></svg><a data-note-icon="" style="text-decoration: none;" class="filename" href="/advanced/roadmap/">Roadmap</a>
+                                </div>
+                            </div>
+                            <div x-show="isOpen" style="display:none" class="filelist">
+                                <div class="notelink">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="sticky-note" class="lucide lucide-sticky-note svg-icon" aria-hidden="true">
+                                    <path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z"></path>
+                                    <path d="M15 3v6h6"></path></svg><a data-note-icon="" style="text-decoration: none;" class="filename" href="/advanced/tips-and-tricks/">Tips and Tricks</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div x-show="isOpen" class="">
+                        <div class="folder inner-folder" x-data="{isOpen: $persist(false).as('Example pages')}">
+                            <div class="foldername-wrapper align-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="chevron-down" class="lucide lucide-chevron-down svg-icon" x-show="isOpen" style="display: none;">
+                                <polyline points="6 9 12 15 18 9"></polyline></svg> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="chevron-right" class="lucide lucide-chevron-right svg-icon" x-show="!isOpen">
+                                <polyline points="9 18 15 12 9 6"></polyline></svg> <span class="foldername">Example pages</span>
+                            </div>
+                            <div x-show="isOpen" style="display:none" class="filelist">
+                                <div class="notelink">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="sticky-note" class="lucide lucide-sticky-note svg-icon" aria-hidden="true">
+                                    <path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z"></path>
+                                    <path d="M15 3v6h6"></path></svg><a data-note-icon="" style="text-decoration: none;" class="filename" href="/example-pages/frontmatter-tag-example/">Frontmatter tag example</a>
+                                </div>
+                            </div>
+                            <div x-show="isOpen" style="display:none" class="filelist">
+                                <div class="notelink">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="sticky-note" class="lucide lucide-sticky-note svg-icon" aria-hidden="true">
+                                    <path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z"></path>
+                                    <path d="M15 3v6h6"></path></svg><a data-note-icon="" style="text-decoration: none;" class="filename" href="/example-pages/inline-tag-example/">Inline tag example</a>
+                                </div>
+                            </div>
+                            <div x-show="isOpen" style="display:none" class="filelist">
+                                <div class="notelink">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="sticky-note" class="lucide lucide-sticky-note svg-icon" aria-hidden="true">
+                                    <path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z"></path>
+                                    <path d="M15 3v6h6"></path></svg><a data-note-icon="" style="text-decoration: none;" class="filename" href="/example-pages/simple-page/">Simple Page</a>
+                                </div>
+                            </div>
+                            <div x-show="isOpen" style="display:none" class="filelist">
+                                <div class="notelink">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="sticky-note" class="lucide lucide-sticky-note svg-icon" aria-hidden="true">
+                                    <path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z"></path>
+                                    <path d="M15 3v6h6"></path></svg><a data-note-icon="" style="text-decoration: none;" class="filename" href="/example-pages/transcluded-document/">Transcluded document</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div x-show="isOpen" class="">
+                        <div class="folder inner-folder" x-data="{isOpen: $persist(false).as('Getting Started')}">
+                            <div class="foldername-wrapper align-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="chevron-down" class="lucide lucide-chevron-down svg-icon" x-show="isOpen" style="display: none;">
+                                <polyline points="6 9 12 15 18 9"></polyline></svg> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="chevron-right" class="lucide lucide-chevron-right svg-icon" x-show="!isOpen">
+                                <polyline points="9 18 15 12 9 6"></polyline></svg> <span class="foldername">Getting Started</span>
+                            </div>
+                            <div x-show="isOpen" style="display:none" class="filelist">
+                                <div class="notelink">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="sticky-note" class="lucide lucide-sticky-note svg-icon" aria-hidden="true">
+                                    <path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z"></path>
+                                    <path d="M15 3v6h6"></path></svg><a data-note-icon="" style="text-decoration: none;" class="filename" href="/getting-started/01-getting-started/">01 Getting started</a>
+                                </div>
+                            </div>
+                            <div x-show="isOpen" style="display:none" class="filelist">
+                                <div class="notelink">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="sticky-note" class="lucide lucide-sticky-note svg-icon" aria-hidden="true">
+                                    <path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z"></path>
+                                    <path d="M15 3v6h6"></path></svg><a data-note-icon="" style="text-decoration: none;" class="filename" href="/getting-started/02-commands/">02 Commands</a>
+                                </div>
+                            </div>
+                            <div x-show="isOpen" style="display:none" class="filelist">
+                                <div class="notelink">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="sticky-note" class="lucide lucide-sticky-note svg-icon" aria-hidden="true">
+                                    <path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z"></path>
+                                    <path d="M15 3v6h6"></path></svg><a data-note-icon="" style="text-decoration: none;" class="filename" href="/getting-started/03-note-settings/">03 Note settings</a>
+                                </div>
+                            </div>
+                            <div x-show="isOpen" style="display:none" class="filelist">
+                                <div class="notelink">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="sticky-note" class="lucide lucide-sticky-note svg-icon" aria-hidden="true">
+                                    <path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z"></path>
+                                    <path d="M15 3v6h6"></path></svg><a data-note-icon="" style="text-decoration: none;" class="filename" href="/getting-started/04-appearance-settings/">04 Appearance Settings</a>
+                                </div>
+                            </div>
+                            <div x-show="isOpen" style="display:none" class="filelist">
+                                <div class="notelink">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="sticky-note" class="lucide lucide-sticky-note svg-icon" aria-hidden="true">
+                                    <path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z"></path>
+                                    <path d="M15 3v6h6"></path></svg><a data-note-icon="" style="text-decoration: none;" class="filename" href="/getting-started/05-other-settings/">05 Other Settings</a>
+                                </div>
+                            </div>
+                            <div x-show="isOpen" style="display:none" class="filelist">
+                                <div class="notelink">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="sticky-note" class="lucide lucide-sticky-note svg-icon" aria-hidden="true">
+                                    <path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z"></path>
+                                    <path d="M15 3v6h6"></path></svg><a data-note-icon="" style="text-decoration: none;" class="filename" href="/getting-started/06-updating-the-template/">06 Updating the template</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div x-show="isOpen" class="">
+                        <div class="notelink active-note">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="sticky-note" class="lucide lucide-sticky-note svg-icon" aria-hidden="true">
+                            <path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z"></path>
+                            <path d="M15 3v6h6"></path></svg><a data-note-icon="" style="text-decoration: none;" class="filename" href="/">Digital Garden Overview</a>
+                        </div>
+                    </div>
+                    <div x-show="isOpen" class="">
+                        <div class="notelink">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="sticky-note" class="lucide lucide-sticky-note svg-icon" aria-hidden="true">
+                            <path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z"></path>
+                            <path d="M15 3v6h6"></path></svg><a data-note-icon="" style="text-decoration: none;" class="filename" href="/features/">Features</a>
+                        </div>
+                    </div>
+                    <div x-show="isOpen" class="">
+                        <div class="notelink">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="sticky-note" class="lucide lucide-sticky-note svg-icon" aria-hidden="true">
+                            <path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z"></path>
+                            <path d="M15 3v6h6"></path></svg><a data-note-icon="" style="text-decoration: none;" class="filename" href="/troubleshooting/">Troubleshooting</a>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <div class="search-container" id="globalsearch" onclick="toggleSearch()">
+            <div class="search-box">
+                <input type="search" id="term" placeholder="Start typing..." />
+                <div id="search-results"></div>
+                <footer class="search-box-footer">
+                    <div class="navigation-hint">
+                        <span>Enter to select</span>
+                    </div>
+                    <div class="navigation-hint align-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="arrow-up" class="lucide lucide-arrow-up svg-icon" aria-hidden="true">
+                        <line x1="12" y1="19" x2="12" y2="5"></line>
+                        <polyline points="5 12 12 5 19 12"></polyline></svg> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="arrow-down" class="lucide lucide-arrow-down svg-icon" aria-hidden="true">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <polyline points="19 12 12 19 5 12"></polyline></svg> <span>to navigate</span>
+                    </div>
+                    <div class="navigation-hint">
+                        <span>ESC to close</span>
+                    </div>
+                </footer>
+            </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/flexsearch@0.7.21/dist/flexsearch.bundle.js"></script> 
+        <script>
+        <![CDATA[
+
+        document.addEventListener('DOMContentLoaded', init, false);
+        document.addEventListener('DOMContentLoaded', setCorrectShortcut, false);
+
+        window.toggleSearch = function () {
+        if (document.getElementById('globalsearch').classList.contains('active')) {
+            document
+                .getElementById('globalsearch')
+                .classList
+                .remove('active');
+        } else {
+            document
+                .getElementById('globalsearch')
+                .classList
+                .add('active');
+            document
+                .getElementById('term')
+                .focus();
+        }
+        }
+
+        window.toggleTagSearch = function (evt) {
+        console.log(evt.textContent);
+        const term = evt.textContent;
+        if (term) {
+            window
+                .document
+                .getElementById('term')
+                .value = term.trim();
+            window.toggleSearch();
+            window.search();
+        }
+        }
+
+        const loadingSvg = `
+        <svg width="100" height="100" viewBox="0 0 45 45" xmlns="http://www.w3.org/2000/svg" stroke="#fff">
+        <g fill="none" fill-rule="evenodd" transform="translate(1 1)" stroke-width="2">
+          <circle cx="22" cy="22" r="6" stroke-opacity="0">
+              <animate attributeName="r"
+                   begin="1.5s" dur="3s"
+                   values="6;22"
+                   calcMode="linear"
+                   repeatCount="indefinite" />
+              <animate attributeName="stroke-opacity"
+                   begin="1.5s" dur="3s"
+                   values="1;0" calcMode="linear"
+                   repeatCount="indefinite" />
+              <animate attributeName="stroke-width"
+                   begin="1.5s" dur="3s"
+                   values="2;0" calcMode="linear"
+                   repeatCount="indefinite" />
+          <\/circle>
+          <circle cx="22" cy="22" r="6" stroke-opacity="0">
+              <animate attributeName="r"
+                   begin="3s" dur="3s"
+                   values="6;22"
+                   calcMode="linear"
+                   repeatCount="indefinite" />
+              <animate attributeName="stroke-opacity"
+                   begin="3s" dur="3s"
+                   values="1;0" calcMode="linear"
+                   repeatCount="indefinite" />
+              <animate attributeName="stroke-width"
+                   begin="3s" dur="3s"
+                   values="2;0" calcMode="linear"
+                   repeatCount="indefinite" />
+          <\/circle>
+          <circle cx="22" cy="22" r="8">
+              <animate attributeName="r"
+                   begin="0s" dur="1.5s"
+                   values="6;1;2;3;4;5;6"
+                   calcMode="linear"
+                   repeatCount="indefinite" />
+          <\/circle>
+        <\/g>
+        <\/svg>`;
+
+        function debounce(func, wait, immediate) {
+        var timeout;
+        return function () {
+            var context = this,
+                args = arguments;
+            var later = function () {
+                timeout = null;
+                if (!immediate) 
+                    func.apply(context, args);
+                };
+            var callNow = immediate && !timeout;
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+            if (callNow) 
+                func.apply(context, args);
+            };
+        };
+
+        function setCorrectShortcut() {
+        if (navigator.platform.toUpperCase().indexOf('MAC') >= 0) {
+            document
+                .querySelectorAll(".search-keys")
+                .forEach(x => x.innerHTML = "⌘ + K");
+        }
+        }
+
+        function createIndex(posts) {
+        const encoder = (str) => str
+            .toLowerCase()
+            .split(/([^a-z]|[^\x00-\x7F])/)
+        const contentIndex = new FlexSearch.Document({
+            cache: true,
+            charset: "latin:extra",
+            optimize: true,
+            index: [
+                {
+                    field: "content",
+                    tokenize: "reverse",
+                    encode: encoder
+                }, {
+                    field: "title",
+                    tokenize: "forward",
+                    encode: encoder
+                }, {
+                    field: "tags",
+                    tokenize: "forward",
+                    encode: encoder
+                }
+            ]
+        })
+        posts.forEach((p, idx) => {
+            contentIndex.add({
+                id: idx, title: p.title, content: p.content, //Change to removeHTML
+            })
+        });
+        return contentIndex;
+        }
+
+        async function init() {
+        //init offline search index
+
+        const searchIndexDate = '2023-06-19T11:01:57.667Z';
+        let shouldFetch = true;
+        if(localStorage.getItem("searchIndex")) {
+            let {date, docs}= JSON.parse(localStorage.getItem('searchIndex'));
+            if(date === searchIndexDate){
+                shouldFetch = false;
+                let index = createIndex(docs);
+                window.docs = docs
+                window.index = index;
+            }        
+        }
+        if(shouldFetch){
+            let docs = await(await fetch('/searchIndex.json?v=2023-06-19T11:01:57.667Z')).json();
+            let index = createIndex(docs);
+            localStorage.setItem("searchIndex", JSON.stringify({date: '2023-06-19T11:01:57.667Z', docs}));
+            window.docs = docs
+            window.index = index;
+        }
+
+        //open searchmodal when ctrl + k is pressed, cmd + k on mac
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                toggleSearch();
+            }
+            if (e.key === 'Escape') {
+                document
+                    .getElementById('globalsearch')
+                    .classList
+                    .remove('active');
+            }
+
+            //navigate search results with arrow keys
+            if (document.getElementById('globalsearch').classList.contains('active')) {
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    let active = document.querySelector('.searchresult.active');
+                    if (active) {
+                        active
+                            .classList
+                            .remove('active');
+                        if (active.nextElementSibling) {
+                            active
+                                .nextElementSibling
+                                .classList
+                                .add('active');
+                        } else {
+                            document
+                                .querySelector('.searchresult')
+                                .classList
+                                .add('active');
+                        }
+                    } else {
+                        document
+                            .querySelector('.searchresult')
+                            .classList
+                            .add('active');
+                    }
+
+                    let currentActive = document.querySelector('.searchresult.active');
+                    if (currentActive) {
+                        currentActive.scrollIntoView({behavior: 'smooth', block: 'nearest', inline: 'start'});
+                    }
+                }
+                if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    let active = document.querySelector('.searchresult.active');
+                    if (active) {
+                        active
+                            .classList
+                            .remove('active');
+                        if (active.previousElementSibling) {
+                            active
+                                .previousElementSibling
+                                .classList
+                                .add('active');
+                        } else {
+                            document
+                                .querySelectorAll('.searchresult')
+                                .forEach((el) => {
+                                    if (!el.nextElementSibling) {
+                                        el
+                                            .classList
+                                            .add('active');
+                                    }
+                                });
+                        }
+                    } else {
+                        document
+                            .querySelectorAll('.searchresult')
+                            .forEach((el) => {
+                                if (el.nextElementSibling) {
+                                    el
+                                        .classList
+                                        .add('active');
+                                }
+                            });
+                    }
+
+                    let currentActive = document.querySelector('.searchresult.active');
+                    if (currentActive) {
+                        currentActive.scrollIntoView({behavior: 'smooth', block: 'nearest', inline: 'start'});
+                    }
+
+                }
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    let active = document.querySelector('.searchresult.active');
+                    if (active) {
+                        window.location.href = active
+                            .querySelector("a")
+                            .href;
+                    }
+                }
+            }
+        });
+
+        const debouncedSearch = debounce(search, 200, false);
+        field = document.querySelector('#term');
+        field.addEventListener('keydown', (e) => {
+            if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') {
+                debouncedSearch();
+            }
+        });
+        resultsDiv = document.querySelector('#search-results');
+
+        const params = new URL(location.href).searchParams;
+        if (params.get('q')) {
+            field.setAttribute('value', params.get('q'));
+            toggleSearch();
+            search();
+        }
+        }
+        window.lastSearch = '';
+        async function search() {
+        let search = field
+            .value
+            .trim();
+        if (!search) 
+            return;
+        if (search == lastSearch) 
+            return;
+        console.log(`search for ${search}`);
+        window.lastSearch = search;
+
+        resultsDiv.innerHTML = loadingSvg;
+        //let searchRequest = await fetch(`/api/search?term=${encodeURIComponent(search)}`);
+        //let results = await searchRequest.json();
+        let results = offlineSearch(search);
+        let resultsHTML = '';
+        if (!results.length) {
+            let resultParagraph = document.createElement("p");
+            resultParagraph.innerText = `No results for "${search}"`;
+            resultsDiv.innerHTML = '';
+            resultsDiv.appendChild(resultParagraph);
+            return;
+        }
+        resultsHTML += '<div style="max-width:100%;">';
+        // we need to add title, url from ref
+        results.forEach(r => {
+            if(r.tags && r.tags.length > 0){
+                resultsHTML += `<div class="searchresult">
+                    <a class="search-link" href="${r.url}">${r.title}<\/a>
+                    <div onclick="window.location='${r.url}'">
+                        <div class="header-meta">
+                            <div class="header-tags">
+                                ${r.tags.map(tag=>'<a class="tag" href="JavaScript:Void(0);">#'+tag+'<\/a>').join("")}
+                            <\/div>
+                        <\/div>
+                        ${r.content}
+                    <\/div>
+                <\/div>`;
+            } else {
+                resultsHTML += `<div class="searchresult">
+                    <a class="search-link" href="${r.url}">${r.title}<\/a>
+                    <div onclick="window.location='${r.url}'">
+                        ${r.content}
+                    <\/div>
+                <\/div>`;
+            }
+        });
+        resultsHTML += '<\/div>';
+        resultsDiv.innerHTML = resultsHTML;
+        }
+
+        function truncate(str, size) {
+        //first, remove HTML
+        str = str.replaceAll(/<[^>]*>/g, '');
+        if (str.length < size) 
+            return str;
+        return str.substring(0, size - 3) + '...';
+        }
+
+        function offlineSearch(searchQuery) {
+        let data = window.docs;
+
+        let isTagSearch = search[0] === "#" && search.length > 1;
+
+        let searchResults = isTagSearch
+            ? index.search(searchQuery.substring(1), [
+                {
+                    field: "tags"
+                }
+            ])
+            : index.search(searchQuery, [
+                {
+                    field: "title",
+                    limit: 5
+                }, {
+                    field: "content",
+                    weight: 10
+                }
+            ]);
+
+        const getByField = (field) => {
+            const results = searchResults.filter((x) => x.field === field)
+            if (results.length === 0) {
+                return []
+            } else {
+                return [...results[0].result]
+            }
+        }
+        const allIds = new Set([
+            ...getByField("title"),
+            ...getByField("content")
+        ])
+        const dataIds = [...allIds];
+        const finalResults = dataIds.map((id) => {
+            let result = data[id];
+            result.content = truncate(result.content, 400);
+            result.tags = result
+                .tags
+                .filter((x) => x != "gardenEntry" && x != "note"); //Note is automatically added by 11ty. GardenEntry is used internally to mark the home page
+
+            return result;
+        })
+        return finalResults;
+
+        }
+        ]]>
+        </script>
+        <main class="content cm-s-obsidian">
+            <header>
+                <div class="header-meta">
+                    <div class="header-tags"></div>
+                </div>
+            </header>
+            <h1 style="font-size: 128px">
+                🏡
+            </h1>
+            <h1 id="obsidian-digital-garden" tabindex="-1">
+                Obsidian Digital Garden
+            </h1>
+            <p>
+                The <a href="https://github.com/oleeskild/obsidian-digital-garden" target="_blank" class="external-link">Obsidian Digital Garden Plugin</a> is a free and open source publishing tool for <a href="https://obsidian.md" target="_blank" class="external-link">Obsidian</a>.
+            </p>
+            <p>
+                Publish your notes directly from <a href="https://obsidian.md/" target="_blank" class="external-link">Obsidian</a> to the internet. While <a class="internal-link data-note-icon=" href="/features/">feature packed</a>, it is <a class="internal-link data-note-icon=" href="/getting-started/03-note-settings/">highly configurable</a> and <a class="internal-link data-note-icon=" href="/advanced/adding-custom-components/">hackable</a>. Enable and disable features on a per-note basis. Use it as a full fledged digital garden or as a <a class="internal-link data-note-icon=" href="/example-pages/simple-page/">simple note sharing solution</a>.
+            </p>
+            <p>
+                👉 <a class="internal-link data-note-icon=" href="/getting-started/01-getting-started/">Getting Started</a><br />
+                👉 <a class="internal-link data-note-icon=" href="/features/">Features</a>
+            </p>
+            <div style="display:none; justify-content: center; cursor: pointer;">
+                <a href="/getting-started/01-getting-started/"><button style="font-size: 32px; padding: 10px 20px; height: fit-content; margin-top: 20px; margin-bottom: 40px; background: var(--text-accent); font-weight: 600; color: var(--text-on-accent); cursor: pointer;">GETTING STARTED</button></a>
+            </div>
+            <h2 id="examples" tabindex="-1">
+                Examples
+            </h2>
+            <p>
+                This site is itself powered by the Digital Garden plugin.
+            </p>
+            <h3 id="sites-other-people-have-created" tabindex="-1">
+                Sites other people have created
+            </h3>
+            <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: center;">
+                <div style="display: flex; flex-direction: column; justify-content: center;align-items:center;">
+                    <img style="padding: 10px" src="https://res.cloudinary.com/dix4ngy25/image/upload/c_scale,r_8,w_300/v1668690350/dgdocs/CleanShot_2022-11-17_at_14.05.20_2x.png" /> <a href="https://edav-garden.netlify.app/" target="_blank">Edav Garden</a>
+                </div>
+                <div style="display: flex; flex-direction: column; justify-content: center;align-items:center;">
+                    <img style="padding: 10px" src="https://res.cloudinary.com/dix4ngy25/image/upload/c_scale,r_8,w_300/v1668500110/dgdocs/CleanShot_2022-11-15_at_09.14.26_2x.png" /> <a href="https://ajy.co/" target="_blank">ajy.co</a>
+                </div>
+                <div style="display: flex; flex-direction: column; justify-content: center;align-items:center;">
+                    <img style="padding: 10px" src="https://res.cloudinary.com/dix4ngy25/image/upload/c_scale,r_8,w_300/v1672992556/dgdocs/CleanShot_2023-02-05_at_20.18.45_2x" /> <a href="https://hermitage.utsob.me/" target="_blank">Hermitage</a>
+                </div>
+                <div style="display: flex; flex-direction: column; justify-content: center;align-items:center;">
+                    <img style="padding: 10px" src="https://res.cloudinary.com/dix4ngy25/image/upload/c_scale,r_8,w_300/v1668068263/dgdocs/CleanShot_2022-11-10_at_09.17.28_2x.png" /> <a href="https://notes.thatother.dev/" target="_blank">That Other Dev</a>
+                </div>
+                <div style="display: flex; flex-direction: column; justify-content: center;align-items:center;">
+                    <img style="padding: 10px" src="https://res.cloudinary.com/dix4ngy25/image/upload/c_scale,r_8,w_300/v1668500118/dgdocs/CleanShot_2022-11-15_at_09.14.17_2x.png" /> <a href="https://razvan-andrei-surdu.eu/" target="_blank">Razvan Andrei Surdu</a>
+                </div>
+                <div style="display: flex; flex-direction: column; justify-content: center;align-items: center">
+                    <img style="padding: 10px" src="https://res.cloudinary.com/dix4ngy25/image/upload/c_scale,r_8,w_300/v1668068103/dgdocs/CleanShot_2023-02-05_at_20.17.02_2x" /> <a href="https://icewind.quest/" target="_blank">IceWind.Quest</a>
+                </div>
+                <div style="display: flex; flex-direction: column; justify-content: center;align-items:center;">
+                    <img style="padding: 10px" src="https://res.cloudinary.com/dix4ngy25/image/upload/c_scale,r_8,w_300/v1668068358/dgdocs/CleanShot_2022-11-10_at_09.19.06_2x.png" /> <a href="https://notes.hxhc.xyz/" target="_blank">hxhc</a>
+                </div>
+                <div style="display: flex; flex-direction: column; justify-content: center;align-items:center;">
+                    <img style="padding: 10px" src="https://res.cloudinary.com/dix4ngy25/image/upload/c_scale,r_8,w_300/v1671387169/dgdocs/CleanShot_2022-12-18_at_19.12.28_2x.png" /> <a href="https://notes.ole.dev/" target="_blank">notes.ole.dev</a>
+                </div>
+            </div>
+            <div style="display: flex; justify-content: center; cursor: pointer;">
+                <a href="https://github.com/oleeskild/obsidian-digital-garden/issues/55" target="_blank"><button style="font-size: 24px; padding: 10px; height: fit-content; margin-top: 50px; background: var(--text-accent); font-weight: 600; color: var(--text-on-accent); cursor: pointer;">Submit your site</button></a>
+            </div>
+        </main>
+        <aside>
+            <div class="sidebar">
+                <div class="sidebar-container">
+                    <script>
+                    <![CDATA[
+                    async function fetchGraphData() {
+                    const graphData = await fetch('/graph.json').then(res => res.json());
+                    const fullGraphData  = filterFullGraphData(graphData);
+                    return {graphData, fullGraphData}
+                    }
+
+                    function getNextLevelNeighbours(existing, remaining) {
+                    const keys = Object.values(existing).map((n) => n.neighbors).flat();
+                    const n_remaining = Object.keys(remaining).reduce((acc, key) => {
+                    if (keys.indexOf(key) != -1) {
+                    if (!remaining[key].hide) {
+                        existing[key] = remaining[key];
+                    }
+                    } else {
+                    acc[key] = remaining[key];
+                    }
+                    return acc;
+                    }, {});
+                    return existing, n_remaining;
+                    }
+
+                    function filterLocalGraphData(graphData, depth) {
+                    if (graphData == null) {
+                    return null;
+                    }
+                    let remaining = JSON.parse(JSON.stringify(graphData.nodes));
+                    let links = JSON.parse(JSON.stringify(graphData.links));
+                    let currentLink = decodeURI(window.location.pathname);
+                    let currentNode = remaining[currentLink] || Object.values(remaining).find((v) => v.home);
+                    delete remaining[currentNode.url];
+                    if (!currentNode.home) {
+                    let home = Object.values(remaining).find((v) => v.home);
+                    delete remaining[home.url];
+                    }
+                    currentNode.current = true;
+                    let existing = {};
+                    existing[currentNode.url] = currentNode;
+                    for (let i = 0; i < depth; i++) {
+                    existing, remaining = getNextLevelNeighbours(existing, remaining);
+                    }
+                    nodes = Object.values(existing);
+                    if (!currentNode.home) {
+                    nodes = nodes.filter(n => !n.home);
+                    }
+                    let ids = nodes.map((n) => n.id);
+                    return {
+                    nodes,
+                    links: links.filter(function (con) {
+                    return ids.indexOf(con.target) > -1 && ids.indexOf(con.source) > -1;
+                    }),
+                    }
+                    }
+
+                    function getCssVar(variable) {return getComputedStyle(document.body).getPropertyValue(variable)}
+
+                    function htmlDecode(input) {
+                    var doc = new DOMParser().parseFromString(input, "text/html");
+                    return doc.documentElement.textContent;
+                    }
+
+                    function renderGraph(graphData, id, delay, fullScreen) {
+                    if (graphData == null) {
+                    return;
+                    }
+                    const el = document.getElementById(id);
+                    width = el.offsetWidth;
+                    height = el.offsetHeight;
+                    const highlightNodes = new Set();
+                    let hoverNode = null;
+                    const color = getCssVar("--graph-main");
+                    const mutedColor = getCssVar("--graph-muted");
+                    let Graph = ForceGraph()
+                    (el)
+                    .graphData(graphData)
+                    .nodeId('id')
+                    .nodeLabel('title')
+                    .linkSource('source')
+                    .linkTarget('target')
+                    .d3AlphaDecay(0.10)
+                    .width(width)
+                    .height(height)
+                    .linkDirectionalArrowLength(2)
+                    .linkDirectionalArrowRelPos(0.5)
+                    .autoPauseRedraw(false)
+                    .linkColor((link) => {
+                    if (hoverNode == null) {
+                    return color;
+                    }
+                    if (link.source.id == hoverNode.id || link.target.id == hoverNode.id) {
+                    return color;
+                    } else {
+                    return mutedColor;
+                    }
+
+                    })
+                    .nodeCanvasObject((node, ctx) => {
+                    const numberOfNeighbours = (node.neighbors && node.neighbors.length) || 2;
+                    const nodeR = Math.min(7, Math.max(numberOfNeighbours / 2, 2));
+
+                    ctx.beginPath();
+                    ctx.arc(node.x, node.y, nodeR, 0, 2 * Math.PI, false);
+                    if (hoverNode == null) {
+                    ctx.fillStyle = color;
+                    } else {
+                    if (node == hoverNode || highlightNodes.has(node.url)) {
+                        ctx.fillStyle = color;
+                    } else {
+                        ctx.fillStyle = mutedColor;
+                    }
+                    }
+
+                    ctx.fill();
+
+                    if (node.current) {
+                    ctx.beginPath();
+                    ctx.arc(node.x, node.y, nodeR + 1, 0, 2 * Math.PI, false);
+                    ctx.lineWidth = 0.5;
+                    ctx.strokeStyle = color;
+                    ctx.stroke();
+                    }
+
+                    const label = htmlDecode(node.title)
+                    const fontSize = 3.5;
+                    ctx.font = `${fontSize}px Sans-Serif`;
+
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'top';
+                    ctx.fillText(label, node.x, node.y + nodeR + 2);
+                    })
+                    .onNodeClick(node => {
+                    window.location = node.url;
+                    })
+                    .onNodeHover(node => {
+                    highlightNodes.clear();
+                    if (node) {
+                    highlightNodes.add(node);
+                    node.neighbors.forEach(neighbor => highlightNodes.add(neighbor));
+                    }
+                    hoverNode = node || null;
+
+                    });
+                    if (fullScreen || (delay != null && graphData.nodes.length > 4)) {
+                    setTimeout(() => {
+                    Graph.zoomToFit(5, 75);
+                    }, delay || 200);
+                    }
+                    return Graph;
+                    }
+
+                    function renderLocalGraph(graphData, depth, fullScreen) {
+                    if (window.graph){
+                    window.graph._destructor();
+                    }
+                    const data = filterLocalGraphData(graphData, depth);
+                    return renderGraph(data, 'link-graph', null, fullScreen);
+                    }
+
+                    function filterFullGraphData(graphData) {
+                    if (graphData == null) {
+                    return null;
+                    }
+                    graphData = JSON.parse(JSON.stringify(graphData));
+                    const hiddens = Object.values(graphData.nodes).filter((n) => n.hide).map((n) => n.id);
+                    const data = {
+                    links: JSON.parse(JSON.stringify(graphData.links)).filter((l) => hiddens.indexOf(l.source) == -1 && hiddens.indexOf(l.target) == -1),
+                    nodes: [...Object.values(graphData.nodes).filter((n) => !n.hide)]
+                    }
+                    return data
+                    }
+
+                    function openFullGraph(fullGraphData) {
+                    lucide.createIcons({
+                    attrs: {
+                    class: ["svg-icon"]
+                    }
+                    });
+                    return renderGraph(fullGraphData, "full-graph-container", 200, false);;
+                    }
+
+                    function closefullGraph(fullGraph) {
+                    if (fullGraph) {
+                    fullGraph._destructor();
+                    }
+                    return null;
+                    }
+                    ]]>
+                    </script>
+                    <div x-init="{graphData, fullGraphData} = await fetchGraphData();" x-data="{ graphData: null, depth: 1, graph: null, fullGraph: null, showFullGraph: false, fullScreen: false, fullGraphData: null}" id="graph-component" x-bind:class="fullScreen ? 'graph graph-fs' : 'graph'" v-scope="" class="graph">
+                        <div class="graph-title-container">
+                            <div class="graph-title">
+                                Connected Pages
+                            </div>
+                            <div id="graph-controls">
+                                <div class="depth-control">
+                                    <label for="graph-depth">Depth</label>
+                                    <div class="slider">
+                                        <input x-model.number="depth" name="graph-depth" list="depthmarkers" type="range" step="1" min="1" max="3" id="graph-depth" /> <datalist id="depthmarkers">
+                                            <option value="1" label="1">
+                                            </option>
+                                            <option value="2" label="2">
+                                            </option>
+                                            <option value="3" label="3">
+                                            </option>
+                                        </datalist>
+                                    </div><span id="depth-display" x-text="depth">1</span>
+                                </div>
+                                <div class="ctrl-right">
+                                    <span id="global-graph-btn" x-on:click="showFullGraph = true; setTimeout(() =&gt; {fullGraph = openFullGraph(fullGraphData)}, 100)"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="globe" class="lucide lucide-globe svg-icon" aria-hidden="true">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg></span> <span id="graph-fs-btn" x-on:click="fullScreen = !fullScreen"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="expand" class="lucide lucide-expand svg-icon" aria-hidden="true">
+                                    <path d="m21 21-6-6m6 6v-4.8m0 4.8h-4.8"></path>
+                                    <path d="M3 16.2V21m0 0h4.8M3 21l6-6"></path>
+                                    <path d="M21 7.8V3m0 0h-4.8M21 3l-6 6"></path>
+                                    <path d="M3 7.8V3m0 0h4.8M3 3l6 6"></path></svg></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div x-effect="window.graph = renderLocalGraph(graphData, depth, fullScreen)" id="link-graph">
+                            <div class="force-graph-container" style="position: relative;">
+                                <canvas style="width: 320px; height: 320px;" width="320" height="320"></canvas>
+                                <div class="graph-tooltip"></div>
+                            </div>
+                        </div>
+                        <div x-show="showFullGraph" id="full-graph" class="show" style="display: none;">
+                            <span id="full-graph-close" x-on:click="fullGraph = closefullGraph(fullGraph); showFullGraph = false;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="x" class="lucide lucide-x svg-icon" aria-hidden="true">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line></svg></span>
+                            <div id="full-graph-container"></div>
+                        </div>
+                    </div>
+                    <div class="toc">
+                        <div class="toc-title-container">
+                            <div class="toc-title">
+                                On this page
+                            </div>
+                        </div>
+                        <div class="toc-container">
+                            <nav class="toc">
+                                <ol>
+                                    <li>
+                                        <a href="#obsidian-digital-garden">Obsidian Digital Garden</a>
+                                        <ol>
+                                            <li>
+                                                <a href="#examples">Examples</a>
+                                                <ol>
+                                                    <li>
+                                                        <a href="#sites-other-people-have-created">Sites other people have created</a>
+                                                    </li>
+                                                </ol>
+                                            </li>
+                                        </ol>
+                                    </li>
+                                </ol>
+                            </nav>
+                        </div>
+                    </div>
+                    <div class="backlinks">
+                        <div class="backlink-title" style="margin: 4px 0 !important;">
+                            Pages mentioning this page
+                        </div>
+                        <div class="backlink-list">
+                            <div class="backlink-card">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="link" class="lucide lucide-link svg-icon">
+                                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg><a href="/advanced/tips-and-tricks/" data-note-icon="" class="backlink">Tips and Tricks</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        <div style="opacity: 0; display: none;" id="tooltip-wrapper">
+            <div id="tooltip-content"></div>
+        </div><iframe style="display: none; height: 0; width: 0;" id="link-preview-iframe" src="" name="link-preview-iframe"></iframe> 
+        <script>
+        <![CDATA[
+
+        var opacityTimeout;
+        var contentTimeout;
+        var transitionDurationMs = 100;
+
+        var iframe = document.getElementById('link-preview-iframe')
+        var tooltipWrapper = document.getElementById('tooltip-wrapper')
+        var tooltipContent = document.getElementById('tooltip-content')
+
+        var linkHistories = {};
+
+        function hideTooltip() {
+        opacityTimeout = setTimeout(function () {
+        tooltipWrapper.style.opacity = 0;
+        contentTimeout = setTimeout(function () {
+        tooltipContent.innerHTML = '';
+        tooltipWrapper.style.display = 'none';
+        }, transitionDurationMs + 1);
+        }, transitionDurationMs)
+        }
+
+        function showTooltip(event) {
+        var elem = event.target;
+        var elem_props = elem.getClientRects()[elem.getClientRects().length - 1];
+        var top = window.pageYOffset || document.documentElement.scrollTop;
+        var url = event.target.getAttribute("href");
+        if (url.indexOf("http") === -1 || url.indexOf(window.location.host) !== -1) {
+        let contentURL = url.split('#')[0]
+        if (!linkHistories[contentURL]) {
+        iframe.src = contentURL
+        iframe.onload = function () {
+          tooltipContentHtml = ''
+          tooltipContentHtml += '<div style="font-weight: bold; unicode-bidi: plaintext;">' + iframe.contentWindow.document.querySelector('h1').innerHTML + '<\/div>'
+          tooltipContentHtml += iframe.contentWindow.document.querySelector('.content').innerHTML
+          tooltipContent.innerHTML = tooltipContentHtml
+          linkHistories[contentURL] = tooltipContentHtml
+          tooltipWrapper.style.display = 'block';
+          tooltipWrapper.scrollTop = 0;
+          setTimeout(function () {
+            tooltipWrapper.style.opacity = 1;
+            if (url.indexOf("#") != -1) {
+              let id = url.split('#')[1];
+              const focus = tooltipWrapper.querySelector(`[id='${id}']`);
+              focus.classList.add('referred');
+              console.log(focus);
+              focus.scrollIntoView({behavior: 'smooth'}, true)
+            } else {
+              tooltipWrapper.scroll(0, 0);
+            }
+          }, 1)
+        }
+        } else {
+        tooltipContent.innerHTML = linkHistories[contentURL]
+        tooltipWrapper.style.display = 'block';
+        setTimeout(function () {
+          tooltipWrapper.style.opacity = 1;
+          if (url.indexOf("#") != -1) {
+              let id = url.split('#')[1];
+              const focus = tooltipWrapper.querySelector(`[id='${id}']`);
+              focus.classList.add('referred');
+              focus.scrollIntoView({behavior: 'smooth'}, true)
+          } else {
+              tooltipWrapper.scroll(0, 0);
+          }
+        }, 1)
+        }
+
+        function getInnerWidth(elem) {
+        var style = window.getComputedStyle(elem);
+        return elem.offsetWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight) - parseFloat(style.borderLeft) - parseFloat(style.borderRight) - parseFloat(style.marginLeft) - parseFloat(style.marginRight);
+        }
+
+        tooltipWrapper.style.left = elem_props.left - (tooltipWrapper.offsetWidth / 2) + (elem_props.width / 2) + "px";
+
+        if ((window.innerHeight - elem_props.top) < (tooltipWrapper.offsetHeight)) {
+        tooltipWrapper.style.top = elem_props.top + top - tooltipWrapper.offsetHeight - 10 + "px";
+        } else if ((window.innerHeight - elem_props.top) > (tooltipWrapper.offsetHeight)) {
+        tooltipWrapper.style.top = elem_props.top + top + 35 + "px";
+        }
+
+        if ((elem_props.left + (elem_props.width / 2)) < (tooltipWrapper.offsetWidth / 2)) {
+        tooltipWrapper.style.left = "10px";
+        } else if ((document.body.clientWidth - elem_props.left - (elem_props.width / 2)) < (tooltipWrapper.offsetWidth / 2)) {
+        tooltipWrapper.style.left = document.body.clientWidth - tooltipWrapper.offsetWidth - 20 + "px";
+        }
+        }
+        }
+
+        function setupListeners(linkElement) {
+        linkElement.addEventListener('mouseleave', function (_event) {
+        hideTooltip();
+        });
+
+        tooltipWrapper.addEventListener('mouseleave', function (_event) {
+        hideTooltip();
+        });
+
+        linkElement.addEventListener('mouseenter', function (event) {
+        clearTimeout(opacityTimeout);
+        clearTimeout(contentTimeout);
+        showTooltip(event);
+        });
+
+        tooltipWrapper.addEventListener('mouseenter', function (event) {
+        clearTimeout(opacityTimeout);
+        clearTimeout(contentTimeout);
+        });
+        }
+
+        window.addEventListener("load", function(event) 
+        {
+        document.querySelectorAll('.internal-link').forEach(setupListeners);
+        document.querySelectorAll('.backlink-card a').forEach(setupListeners);
+        });
+        ]]>
+        </script> 
+        <script defer="defer" src="/_vercel/insights/script.js"></script> 
+        <script>
+        <![CDATA[
+
+        lucide.createIcons({
+            attrs: {
+                class: ["svg-icon"]
+            }
+        });
+        ]]>
+        </script>
+    </body>
+</html>
