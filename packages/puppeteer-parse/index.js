@@ -326,16 +326,16 @@ const sendImportStatusUpdate = async (userId, taskId, status) => {
 async function fetchContent(req, res) {
   let functionStartTime = Date.now();
 
-  let url = getUrl(req);
   const userId = (req.query ? req.query.userId : undefined) || (req.body ? req.body.userId : undefined);
   const articleSavingRequestId = (req.query ? req.query.saveRequestId : undefined) || (req.body ? req.body.saveRequestId : undefined);
   const state = req.body.state
   const labels = req.body.labels
   const source = req.body.source || 'parseContent';
   const taskId = req.body.taskId; // taskId is used to update import status
+  const urlStr = (req.query ? req.query.url : undefined) || (req.body ? req.body.url : undefined);
 
   let logRecord = {
-    url,
+    url: urlStr,
     userId,
     articleSavingRequestId,
     labels: {
@@ -348,30 +348,31 @@ async function fetchContent(req, res) {
 
   console.info(`Article parsing request`, logRecord);
 
-  if (!url) {
-    logRecord.urlIsInvalid = true;
-    console.info(`Valid URL to parse not specified`, logRecord);
-    return res.sendStatus(400);
-  }
-
-  // pre handle url with custom handlers
-  let title, content, contentType, importStatus;
+  let url, context, page, finalUrl, title, content, contentType, importStatus, statusCode = 200;
   try {
-    const browser = await getBrowserPromise;
-    const result = await preHandleContent(url, browser);
-    if (result && result.url) {
-      url = result.url
-      validateUrlString(url);
+    url = getUrl(urlStr);
+    if (!url) {
+      logRecord.urlIsInvalid = true;
+      logRecord.error = 'Valid URL to parse not specified';
+      statusCode = 400;
+      return;
     }
-    if (result && result.title) { title = result.title }
-    if (result && result.content) { content = result.content }
-    if (result && result.contentType) { contentType = result.contentType }
-  } catch (e) {
-    console.info('error with handler: ', e);
-  }
 
-  let context, page, finalUrl, statusCode = 200;
-  try {
+    // pre handle url with custom handlers
+    try {
+      const browser = await getBrowserPromise;
+      const result = await preHandleContent(url, browser);
+      if (result && result.url) {
+        validateUrlString(url);
+        url = result.url;
+      }
+      if (result && result.title) { title = result.title }
+      if (result && result.content) { content = result.content }
+      if (result && result.contentType) { contentType = result.contentType }
+    } catch (e) {
+      console.info('error with handler: ', e);
+    }
+
     if ((!content || !title) && contentType !== 'application/pdf') {
       const result = await retrievePage(url, logRecord, functionStartTime);
       if (result && result.context) { context = result.context }
@@ -412,7 +413,9 @@ async function fetchContent(req, res) {
     console.error(`Error while retrieving page`, logRecord);
 
     // fallback to scrapingbee for non pdf content
-    if (contentType !== 'application/pdf') {
+    if (url && contentType !== 'application/pdf') {
+      console.info('fallback to scrapingbee', url);
+
       const fetchStartTime = Date.now();
       const sbResult = await fetchContentWithScrapingBee(url);
       content = sbResult.domContent;
@@ -425,7 +428,7 @@ async function fetchContent(req, res) {
       await context.close();
     }
     // save non pdf content
-    if (contentType !== 'application/pdf') {
+    if (url && contentType !== 'application/pdf') {
       // parse content if it is not empty
       let readabilityResult = null;
       if (content) {
@@ -507,8 +510,7 @@ function tryParseUrl(urlStr) {
   }
 }
 
-function getUrl(req) {
-  const urlStr = (req.query ? req.query.url : undefined) || (req.body ? req.body.url : undefined);
+function getUrl(urlStr) {
   const url = tryParseUrl(urlStr)
   if (!url) {
     throw new Error('No URL specified');
@@ -797,7 +799,8 @@ async function preview(req, res) {
     return res.sendStatus(500);
   }
 
-  const url = getUrl(req);
+  const urlStr = (req.query ? req.query.url : undefined) || (req.body ? req.body.url : undefined);
+  const url = getUrl(urlStr);
   console.log('preview request url', url);
 
   const logRecord = {
