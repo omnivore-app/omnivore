@@ -586,3 +586,8 @@ on smaller screens we display the note icon
   -webkit-line-clamp: 2;
   overflow: hidden;
 }
+
+.article-inner-css ._omnivore_tweet_content {
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}

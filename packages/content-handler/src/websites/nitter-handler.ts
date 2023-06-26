@@ -381,10 +381,7 @@ export class NitterHandler extends ContentHandler {
         )
         .join('\n')
 
-      tweetsContent += `
-      <p>${text}</p>
-      ${includesHtml}
-    `
+      tweetsContent += `<p class="_omnivore_tweet_content">${text}</p>${includesHtml}`
     }
 
     const tweetUrl = `
