@@ -234,8 +234,8 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
               <Button
                 style="ctaDarkYellow"
                 onClick={(event) => {
-                  const value = editorRef.current?.getMdValue()
-                  if (value) {
+                  if (editorRef.current) {
+                    const value = editorRef.current.getMdValue()
                     const updateTime = new Date()
                     setLastChanged(updateTime)
                     props.saveText(value, updateTime, true)
