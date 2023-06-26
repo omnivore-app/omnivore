@@ -10,6 +10,7 @@ import {
   MetaStyle,
   siteName,
   TitleStyle,
+  MenuStyle,
 } from './LibraryCardStyles'
 import { sortedLabels } from '../../../lib/labelsSort'
 import { LIBRARY_LEFT_MENU_WIDTH } from '../../templates/homeFeed/LibraryFilterMenu'
@@ -22,6 +23,8 @@ import {
   offset,
   autoUpdate,
 } from '@floating-ui/react'
+import { CardMenu } from '../CardMenu'
+import { DotsThree } from 'phosphor-react'
 
 export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
   const [isHovered, setIsHovered] = useState(false)
@@ -34,7 +37,6 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
     middleware: [
       offset({
         mainAxis: -25,
-        // crossAxis: -10,
       }),
       size(),
     ],
@@ -126,6 +128,7 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
 export function LibraryListCardContent(
   props: LinkedItemCardProps
 ): JSX.Element {
+  const [menuOpen, setMenuOpen] = useState(false)
   const { isChecked, setIsChecked, item } = props
   const originText = siteName(props.item.originalArticleUrl, props.item.url)
 
@@ -137,13 +140,33 @@ export function LibraryListCardContent(
     <>
       <HStack css={MetaStyle} distribution="start">
         <LibraryItemMetadata item={props.item} showProgress={true} />
-        {props.inMultiSelect && (
+        {props.inMultiSelect ? (
           <SpanBox css={{ marginLeft: 'auto' }}>
             <CardCheckbox
               isChecked={props.isChecked}
               handleChanged={handleCheckChanged}
             />
           </SpanBox>
+        ) : (
+          <Box
+            css={{
+              ...MenuStyle,
+              visibility: menuOpen ? 'visible' : 'hidden',
+              '@media (hover: none)': {
+                visibility: 'unset',
+              },
+            }}
+          >
+            <CardMenu
+              item={props.item}
+              viewer={props.viewer}
+              onOpenChange={(open) => setMenuOpen(open)}
+              actionHandler={props.handleAction}
+              triggerElement={
+                <DotsThree size={25} weight="bold" color="#ADADAD" />
+              }
+            />
+          </Box>
         )}
       </HStack>
       <VStack
