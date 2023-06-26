@@ -14,8 +14,10 @@ import {
 } from 'phosphor-react'
 import { CardMenu } from '../CardMenu'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
+import { useFloating, shift, offset } from '@floating-ui/react'
 
 type LibraryHoverActionsProps = {
+  anchor: HTMLDivElement | null
   viewer: UserBasicData
 
   isHovered: boolean
@@ -26,21 +28,30 @@ type LibraryHoverActionsProps = {
 
 export const LibraryHoverActions = (props: LibraryHoverActionsProps) => {
   const [menuOpen, setMenuOpen] = useState(false)
+  const { refs, floatingStyles } = useFloating({
+    elements: {
+      reference: props.anchor,
+    },
+    middleware: [
+      offset({
+        mainAxis: -44,
+        crossAxis: -10,
+      }),
+    ],
+    placement: 'top-end',
+  })
 
   return (
-    <Box
-      css={{
-        position: 'relative',
-        width: '100%',
-        height: '0px',
-        display: 'flex',
-      }}
-    >
+    <Box ref={refs.setFloating} style={floatingStyles}>
       <Box
         css={{
-          position: 'absolute',
-          top: '-6px',
-          right: '-6px',
+          // position: 'fixed',
+          // transform: 'translate(621px, 73px)',
+
+          // top: '5px',
+          // right: '155px',
+          // marginTop: '-33px',
+          // marginRight: '-162px',
           overflow: 'clip',
 
           height: '33px',

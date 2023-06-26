@@ -1100,7 +1100,7 @@ function LibraryItems(props: LibraryItemsProps): JSX.Element {
         width: '100%',
         gridAutoRows: 'auto',
         borderRadius: '6px',
-        gridGap: props.layout == 'LIST_LAYOUT' ? '0' : '20px',
+        gridGap: props.layout == 'LIST_LAYOUT' ? '10px' : '20px',
         marginTop: '10px',
         marginBottom: '0px',
         paddingTop: '0',

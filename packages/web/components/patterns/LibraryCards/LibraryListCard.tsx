@@ -31,17 +31,21 @@ import { LibraryHoverActions } from './LibraryHoverActions'
 
 export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
   const [isHovered, setIsHovered] = useState(false)
+  const [anchor, setAnchor] = useState<HTMLDivElement | null>(null)
 
   return (
     <VStack
+      ref={setAnchor}
       css={{
-        px: '15px',
-        py: '10px',
+        px: '20px',
+        pt: '20px',
+        pb: '20px',
         height: '100%',
         cursor: 'pointer',
         gap: '10px',
         border: '1px solid $grayBorder',
         borderBottom: 'none',
+        borderRadius: '6px',
         width: '100vw',
         '@media (min-width: 768px)': {
           width: `calc(100vw - ${LIBRARY_LEFT_MENU_WIDTH})`,
@@ -70,6 +74,7 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
       ) : (
         <>
           <LibraryHoverActions
+            anchor={anchor}
             item={props.item}
             viewer={props.viewer}
             handleAction={props.handleAction}
@@ -97,7 +102,6 @@ export function LibraryListCardContent(
   props: LinkedItemCardProps
 ): JSX.Element {
   const { isChecked, setIsChecked, item } = props
-  const [menuOpen, setMenuOpen] = useState(false)
   const originText = siteName(props.item.originalArticleUrl, props.item.url)
 
   const handleCheckChanged = useCallback(() => {

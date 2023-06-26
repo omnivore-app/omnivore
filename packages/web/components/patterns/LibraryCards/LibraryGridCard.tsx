@@ -64,9 +64,11 @@ export function ProgressBar(props: ProgressBarProps): JSX.Element {
 
 export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
   const [isHovered, setIsHovered] = useState(false)
+  const [anchor, setAnchor] = useState<HTMLDivElement | null>(null)
 
   return (
     <VStack
+      ref={setAnchor}
       css={{
         pl: '20px',
         padding: '15px',
@@ -98,6 +100,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
       ) : (
         <>
           <LibraryHoverActions
+            anchor={anchor}
             item={props.item}
             viewer={props.viewer}
             handleAction={props.handleAction}
