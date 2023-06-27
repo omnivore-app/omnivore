@@ -695,104 +695,95 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
     }
   })
 
-  if (highlightModalAction?.highlightModalAction == 'addComment') {
-    return (
-      <HighlightNoteModal
-        highlight={highlightModalAction.highlight}
-        author={props.articleAuthor}
-        title={props.articleTitle}
-        onUpdate={updateHighlightsCallback}
-        onOpenChange={() =>
-          setHighlightModalAction({ highlightModalAction: 'none' })
-        }
-        createHighlightForNote={highlightModalAction?.createHighlightForNote}
-      />
-    )
-  }
-
-  if (labelsTarget) {
-    return (
-      <SetHighlightLabelsModalPresenter
-        highlight={labelsTarget}
-        highlightId={labelsTarget.id}
-        onOpenChange={() => setLabelsTarget(undefined)}
-      />
-    )
-  }
-
-  // Display the button bar if we are not in the native app and there
-  // is a focused highlight or selection data
-  if (!props.highlightBarDisabled && (focusedHighlight || selectionData)) {
-    const anchorCoordinates = () => {
-      return {
-        pageX:
-          selectionData?.focusPosition.x ??
-          focusedHighlightMousePos.current?.pageX ??
-          0,
-        pageY:
-          selectionData?.focusPosition.y ??
-          focusedHighlightMousePos.current?.pageY ??
-          0,
-      }
+  const anchorCoordinates = () => {
+    return {
+      pageX:
+        selectionData?.focusPosition.x ??
+        focusedHighlightMousePos.current?.pageX ??
+        0,
+      pageY:
+        selectionData?.focusPosition.y ??
+        focusedHighlightMousePos.current?.pageY ??
+        0,
     }
-
-    return (
-      <>
-        <HighlightBar
-          anchorCoordinates={anchorCoordinates()}
-          isNewHighlight={!!selectionData}
-          handleButtonClick={handleAction}
-          isSharedToFeed={focusedHighlight?.sharedAt != undefined}
-          displayAtBottom={isTouchScreenDevice()}
-        />
-      </>
-    )
   }
 
-  if (props.showHighlightsModal) {
-    return (
-      <SlidingPane
-        className="sliding-pane-class"
-        isOpen={props.showHighlightsModal}
-        width={windowDimensions.width < 600 ? '100%' : '420px'}
-        hideHeader={true}
-        from="right"
-        overlayClassName="slide-panel-overlay"
-        onRequestClose={() => {
-          props.setShowHighlightsModal(false)
-        }}
-      >
+  return (
+    <>
+      {highlightModalAction?.highlightModalAction == 'addComment' && (
+        <HighlightNoteModal
+          highlight={highlightModalAction.highlight}
+          author={props.articleAuthor}
+          title={props.articleTitle}
+          onUpdate={updateHighlightsCallback}
+          onOpenChange={() =>
+            setHighlightModalAction({ highlightModalAction: 'none' })
+          }
+          createHighlightForNote={highlightModalAction?.createHighlightForNote}
+        />
+      )}
+      {labelsTarget && (
+        <SetHighlightLabelsModalPresenter
+          highlight={labelsTarget}
+          highlightId={labelsTarget.id}
+          onOpenChange={() => setLabelsTarget(undefined)}
+        />
+      )}
+      // Display the button bar if we are not in the native app and there // is
+      a focused highlight or selection data
+      {!props.highlightBarDisabled && (focusedHighlight || selectionData) && (
         <>
-          <NotebookHeader setShowNotebook={props.setShowHighlightsModal} />
-          <NotebookContent
-            viewer={props.viewer}
-            item={props.item}
-            // highlights={highlights}
-            // onClose={handleCloseNotebook}
-            viewInReader={(highlightId) => {
-              // The timeout here is a bit of a hack to work around rerendering
-              setTimeout(() => {
-                const target = document.querySelector(
-                  `[omnivore-highlight-id="${highlightId}"]`
-                )
-                target?.scrollIntoView({
-                  block: 'center',
-                  behavior: 'auto',
-                })
-              }, 1)
-              history.replaceState(
-                undefined,
-                window.location.href,
-                `#${highlightId}`
-              )
-
-              // props.setShowHighlightsModal(false)
-            }}
+          <HighlightBar
+            anchorCoordinates={anchorCoordinates()}
+            isNewHighlight={!!selectionData}
+            handleButtonClick={handleAction}
+            isSharedToFeed={focusedHighlight?.sharedAt != undefined}
+            displayAtBottom={isTouchScreenDevice()}
           />
         </>
-      </SlidingPane>
-    )
-  }
+      )}
+      {props.showHighlightsModal && (
+        <SlidingPane
+          className="sliding-pane-class"
+          isOpen={props.showHighlightsModal}
+          width={windowDimensions.width < 600 ? '100%' : '420px'}
+          hideHeader={true}
+          from="right"
+          overlayClassName="slide-panel-overlay"
+          onRequestClose={() => {
+            props.setShowHighlightsModal(false)
+          }}
+        >
+          <>
+            <NotebookHeader setShowNotebook={props.setShowHighlightsModal} />
+            <NotebookContent
+              viewer={props.viewer}
+              item={props.item}
+              // highlights={highlights}
+              // onClose={handleCloseNotebook}
+              viewInReader={(highlightId) => {
+                // The timeout here is a bit of a hack to work around rerendering
+                setTimeout(() => {
+                  const target = document.querySelector(
+                    `[omnivore-highlight-id="${highlightId}"]`
+                  )
+                  target?.scrollIntoView({
+                    block: 'center',
+                    behavior: 'auto',
+                  })
+                }, 1)
+                history.replaceState(
+                  undefined,
+                  window.location.href,
+                  `#${highlightId}`
+                )
 
-  return <></>
+                // props.setShowHighlightsModal(false)
+              }}
+            />
+          </>
+        </SlidingPane>
+      )}
+    </>
+  )
 }
