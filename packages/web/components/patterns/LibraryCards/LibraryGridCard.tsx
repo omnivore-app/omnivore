@@ -28,6 +28,7 @@ import {
 } from '@floating-ui/react'
 import { CardMenu } from '../CardMenu'
 import { DotsThree } from 'phosphor-react'
+import { isTouchScreenDevice } from '../../../lib/deviceType'
 
 dayjs.extend(relativeTime)
 
