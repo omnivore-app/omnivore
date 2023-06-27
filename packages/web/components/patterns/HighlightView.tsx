@@ -1,12 +1,5 @@
 /* eslint-disable react/no-children-prop */
-import {
-  BookOpen,
-  CaretDown,
-  HighlighterCircle,
-  Notebook,
-  PencilLine,
-} from 'phosphor-react'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { Highlight } from '../../lib/networking/fragments/highlightFragment'
 import { LabelChip } from '../elements/LabelChip'
 import {
@@ -24,6 +17,16 @@ import { isDarkTheme } from '../../lib/themeUpdater'
 import { HighlightsMenu } from '../templates/homeFeed/HighlightItem'
 import { ReadableItem } from '../../lib/networking/queries/useGetLibraryItemsQuery'
 import { UserBasicData } from '../../lib/networking/queries/useGetViewerQuery'
+import {
+  autoUpdate,
+  offset,
+  size,
+  useFloating,
+  useHover,
+  useInteractions,
+} from '@floating-ui/react'
+import { LibraryHoverActions } from './LibraryCards/LibraryHoverActions'
+import { HighlightHoverActions } from './HighlightHoverActions'
 
 type HighlightViewProps = {
   item: ReadableItem
@@ -40,95 +43,71 @@ type HighlightViewProps = {
 }
 
 const StyledQuote = styled(Blockquote, {
-  p: '10px',
+  p: '0px',
   margin: '0px 0px 0px 0px',
   fontSize: '18px',
   lineHeight: '27px',
   borderRadius: '4px',
   width: '100%',
-  background: 'rgba(255, 210, 52, 0.10)',
 })
 
 export function HighlightView(props: HighlightViewProps): JSX.Element {
   const isDark = isDarkTheme()
   const [noteMode, setNoteMode] = useState<'preview' | 'edit'>('preview')
+  const [isHovered, setIsHovered] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
+
+  const { refs, floatingStyles, context } = useFloating({
+    open: isOpen,
+    onOpenChange: setIsOpen,
+    middleware: [
+      offset({
+        mainAxis: -25,
+      }),
+      size(),
+    ],
+    placement: 'top-end',
+    whileElementsMounted: autoUpdate,
+  })
+
+  const hover = useHover(context)
+
+  const { getReferenceProps, getFloatingProps } = useInteractions([hover])
+
+  console.log(
+    'ref={refs.setFloating, style={floatingStyles}',
+    refs.setFloating,
+    floatingStyles
+  )
 
   return (
     <VStack
+      ref={refs.setReference}
+      {...getReferenceProps()}
       css={{
         p: '0px',
         width: '100%',
-        alignItems: 'stretch',
-        bg: isDark ? '#3D3D3D' : '$thBackground',
-        borderRadius: '6px',
-        border: '1px solid $thBorderSubtle',
-        boxShadow: '0px 4px 4px rgba(33, 33, 33, 0.1)',
-        '@mdDown': {
-          p: '0px',
-        },
       }}
     >
-      <HStack
-        css={{
-          borderBottom: '1px solid $thBorderSubtle',
-          width: '100%',
-          height: '40px',
-          px: '15px',
-        }}
-        distribution="start"
-        alignment="center"
+      <Box
+        ref={refs.setFloating}
+        style={floatingStyles}
+        {...getFloatingProps()}
       >
-        {props.highlight.annotation ? (
-          <Notebook size={20} color="#757575" />
-        ) : (
-          <HighlighterCircle size={20} color="#757575" />
-        )}
-
-        <SpanBox css={{ marginLeft: 'auto' }}>
-          <HighlightsMenu
-            item={props.item}
-            viewer={props.viewer}
-            highlight={props.highlight}
-            viewInReader={props.viewInReader}
-            setLabelsTarget={props.setLabelsTarget}
-            setShowConfirmDeleteHighlightId={
-              props.setShowConfirmDeleteHighlightId
-            }
-          />
-        </SpanBox>
-      </HStack>
-      {/* <VStack
-        css={{
-          minHeight: '100%',
-          width: '10px',
-          pt: '10px',
-          pl: '10px',
-          pr: '10px',
-          '@mdDown': {
-            display: 'none',
-          },
-        }}
-      >
-        <Box
-          css={{
-            width: '2px',
-            flexGrow: '1',
-            background: '#FFD234',
-            marginTop: '5px',
-            marginLeft: '5px',
-            flex: '1',
-            marginBottom: '25px',
-          }}
+        <HighlightHoverActions
+          viewer={props.viewer}
+          highlight={props.highlight}
+          isHovered={isOpen ?? false}
+          viewInReader={props.viewInReader}
+          setLabelsTarget={props.setLabelsTarget}
+          setShowConfirmDeleteHighlightId={
+            props.setShowConfirmDeleteHighlightId
+          }
         />
-      </VStack> */}
-
+      </Box>
       <VStack
         css={{
           width: '100%',
-          padding: '10px',
-
-          paddingTop: '15px',
-          paddingRight: '15px',
 
           '@mdDown': {
             padding: '0px',
@@ -140,6 +119,14 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
             css={{
               '> *': {
                 m: '0px',
+                display: 'inline',
+                padding: '2px',
+                backgroundColor:
+                  'rgba(var(--colors-highlightBackground), 0.35)',
+                boxShadow:
+                  '1px 0 0 rgba(var(--colors-highlightBackground), 0.35), -1px 0 0 rgba(var(--colors-highlightBackground), 0.35)',
+                boxDecorationBreak: 'clone',
+                borderRadius: '2px',
               },
               fontSize: '15px',
               lineHeight: 1.5,

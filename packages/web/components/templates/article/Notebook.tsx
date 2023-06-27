@@ -60,9 +60,8 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
   const [noteText, setNoteText] = useState<string>('')
   const [showConfirmDeleteHighlightId, setShowConfirmDeleteHighlightId] =
     useState<undefined | string>(undefined)
-  const [labelsTarget, setLabelsTarget] = useState<Highlight | undefined>(
-    undefined
-  )
+  const [labelsTarget, setLabelsTarget] =
+    useState<Highlight | undefined>(undefined)
   const noteState = useRef<NoteState>({
     isCreating: false,
     note: undefined,
@@ -174,12 +173,9 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
         return
       }
       if (noteState.current.isCreating) {
-        console.log('note is being created, deferring')
-
         if (noteState.current.createStarted) {
           const timeSinceStart =
             new Date().getTime() - noteState.current.createStarted.getTime()
-          console.log(' -- timeSinceStart: ', timeSinceStart)
 
           if (timeSinceStart > 4000) {
             createNote(text)
@@ -208,8 +204,8 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
     setNoteText('')
   }, [noteState, highlights])
 
-  const [articleNotesCollapsed, setArticleNotesCollapsed] = useState(false)
-  const [highlightsCollapsed, setHighlightsCollapsed] = useState(false)
+  const [tabSelected, setTabSelected] = useState<'note' | 'highlights'>('note')
+
   const [errorSaving, setErrorSaving] = useState<string | undefined>(undefined)
   const [lastChanged, setLastChanged] = useState<Date | undefined>(undefined)
   const [lastSaved, setLastSaved] = useState<Date | undefined>(undefined)
@@ -221,120 +217,118 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
         height: '100%',
         width: '100%',
         p: '20px',
+
+        bg: '$thLibrarySearchbox',
         '@mdDown': { p: '15px' },
       }}
     >
-      <SectionTitle
-        title="Article Notes"
-        collapsed={articleNotesCollapsed}
-        setCollapsed={setArticleNotesCollapsed}
-      />
-      {!articleNotesCollapsed && (
-        <>
-          <HStack
-            alignment="start"
-            distribution="start"
-            css={{ width: '100%', mt: '10px', gap: '10px' }}
-          >
-            <ArticleNotes
-              targetId={props.item.id}
-              text={noteText}
-              setText={setNoteText}
-              placeHolder="Add notes to this document..."
-              saveText={handleSaveNoteText}
-            />
-          </HStack>
-          <HStack
-            css={{
-              minHeight: '15px',
-              width: '100%',
-              fontSize: '9px',
-              mt: '5px',
-              color: '$thTextSubtle',
-            }}
-            alignment="start"
-            distribution="start"
-          >
-            {errorSaving && (
-              <SpanBox
-                css={{
-                  width: '100%',
-                  fontSize: '9px',
-                  mt: '5px',
-                }}
-              >
-                {errorSaving}
-              </SpanBox>
-            )}
-            {lastSaved !== undefined ? (
-              <>
-                {lastChanged === lastSaved
-                  ? 'Saved'
-                  : `Last saved ${formattedShortTime(lastSaved.toISOString())}`}
-              </>
-            ) : null}
-          </HStack>
-        </>
-      )}
-
-      <SpanBox css={{ mt: '10px', mb: '25px' }} />
-      <Box css={{ width: '100%' }}>
+      {/* <HStack
+        css={{
+          width: '100%',
+          gap: '30px',
+          fontSize: '13px',
+          borderBottom: '1px solid $thBorderSubtle',
+        }}
+        distribution="start"
+        alignment="start"
+      >
+        <SectionTitle
+          title="Article Note"
+          selected={tabSelected == 'note'}
+          setSelected={() => setTabSelected('note')}
+        />
         <SectionTitle
           title="Highlights"
-          collapsed={highlightsCollapsed}
-          setCollapsed={setHighlightsCollapsed}
+          selected={tabSelected == 'highlights'}
+          setSelected={() => setTabSelected('highlights')}
         />
+      </HStack> */}
 
-        {!highlightsCollapsed && (
-          <>
-            {sortedHighlights.map((highlight) => (
-              <HighlightViewItem
-                key={highlight.id}
-                item={props.item}
-                viewer={props.viewer}
-                highlight={highlight}
-                viewInReader={props.viewInReader}
-                setSetLabelsTarget={setLabelsTarget}
-                setShowConfirmDeleteHighlightId={
-                  setShowConfirmDeleteHighlightId
-                }
-                updateHighlight={() => {
-                  mutate()
-                }}
-              />
-            ))}
-            {sortedHighlights.length === 0 && (
-              <Box
-                css={{
-                  p: '10px',
-                  mt: '15px',
-                  width: '100%',
-                  fontSize: '13px',
-                  color: '$thTextSubtle',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  mb: '100px',
-
-                  bg: isDark ? '#3D3D3D' : '$thBackground',
-                  borderRadius: '6px',
-                  boxShadow: '0px 4px 4px rgba(33, 33, 33, 0.1)',
-                }}
-              >
-                You have not added any highlights to this document.
-              </Box>
-            )}
-          </>
-        )}
-        {/* <Box
+      {/* {tabSelected == 'note' && ( */}
+      <>
+        <HStack
+          alignment="start"
+          distribution="start"
+          css={{ width: '100%', mt: '20px', gap: '10px' }}
+        >
+          <ArticleNotes
+            targetId={props.item.id}
+            text={noteText}
+            setText={setNoteText}
+            placeHolder="Add notes to this document..."
+            saveText={handleSaveNoteText}
+          />
+        </HStack>
+        <HStack
           css={{
-            '@mdDown': {
-              height: '320px',
-              width: '100%',
-              background: 'transparent',
-            },
+            minHeight: '15px',
+            width: '100%',
+            fontSize: '9px',
+            mt: '5px',
+            color: '$thTextSubtle',
           }}
-        /> */}
-      </Box>
+          alignment="start"
+          distribution="start"
+        >
+          {errorSaving && (
+            <SpanBox
+              css={{
+                width: '100%',
+                fontSize: '9px',
+                mt: '5px',
+              }}
+            >
+              {errorSaving}
+            </SpanBox>
+          )}
+          {lastSaved !== undefined ? (
+            <>
+              {lastChanged === lastSaved
+                ? 'Saved'
+                : `Last saved ${formattedShortTime(lastSaved.toISOString())}`}
+            </>
+          ) : null}
+        </HStack>
+      </>
+      {/* )} */}
+
+      {/* {tabSelected == 'highlights' && ( */}
+      <VStack css={{ mt: '20px', gap: '30px' }}>
+        {sortedHighlights.map((highlight) => (
+          <HighlightViewItem
+            key={highlight.id}
+            item={props.item}
+            viewer={props.viewer}
+            highlight={highlight}
+            viewInReader={props.viewInReader}
+            setSetLabelsTarget={setLabelsTarget}
+            setShowConfirmDeleteHighlightId={setShowConfirmDeleteHighlightId}
+            updateHighlight={() => {
+              mutate()
+            }}
+          />
+        ))}
+        {sortedHighlights.length === 0 && (
+          <Box
+            css={{
+              p: '10px',
+              mt: '15px',
+              width: '100%',
+              fontSize: '13px',
+              color: '$thTextSubtle',
+              alignItems: 'center',
+              justifyContent: 'center',
+              mb: '100px',
+              bg: isDark ? '#3D3D3D' : '$thBackground',
+              borderRadius: '6px',
+              boxShadow: '0px 4px 4px rgba(33, 33, 33, 0.1)',
+            }}
+          >
+            You have not added any highlights to this document.
+          </Box>
+        )}
+      </VStack>
+      {/* )} */}
 
       {showConfirmDeleteHighlightId && (
         <ConfirmationModal
@@ -395,8 +389,8 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
 
 type SectionTitleProps = {
   title: string
-  collapsed: boolean
-  setCollapsed: (set: boolean) => void
+  selected: boolean
+  setSelected: (set: boolean) => void
 }
 
 function SectionTitle(props: SectionTitleProps): JSX.Element {
@@ -408,30 +402,25 @@ function SectionTitle(props: SectionTitleProps): JSX.Element {
           display: 'flex',
           alignItems: 'center',
           gap: '5px',
+          color: props.selected ? '$thTextContrast' : '$thTextSubtle',
+          borderBottom: props.selected
+            ? '1px solid $thTextContrast'
+            : '1px solid transparent',
         }}
         onClick={(event) => {
-          props.setCollapsed(!props.collapsed)
+          props.setSelected(true)
           event.stopPropagation()
         }}
       >
-        {props.collapsed ? (
-          <CaretRight
-            size={12}
-            color={theme.colors.thNotebookSubtle.toString()}
-          />
-        ) : (
-          <CaretDown
-            size={12}
-            color={theme.colors.thNotebookSubtle.toString()}
-          />
-        )}
         <StyledText
           css={{
             m: '0px',
             pt: '2px',
+            pb: '2px',
+            px: '5px',
             fontFamily: '$inter',
             fontWeight: '500',
-            fontSize: '12px',
+            fontSize: '13px',
             color: '$thNotebookSubtle',
           }}
         >

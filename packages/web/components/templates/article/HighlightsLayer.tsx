@@ -26,6 +26,10 @@ import { isTouchScreenDevice } from '../../../lib/deviceType'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { SetHighlightLabelsModalPresenter } from './SetLabelsModalPresenter'
+import SlidingPane from 'react-sliding-pane'
+import 'react-sliding-pane/dist/react-sliding-pane.css'
+import { NotebookContent } from './Notebook'
+import { NotebookHeader } from './NotebookHeader'
 
 type HighlightsLayerProps = {
   viewer: UserBasicData
@@ -74,15 +78,13 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   const focusedHighlightMousePos = useRef({ pageX: 0, pageY: 0 })
 
   const [currentHighlightIdx, setCurrentHighlightIdx] = useState(0)
-  const [focusedHighlight, setFocusedHighlight] = useState<
-    Highlight | undefined
-  >(undefined)
+  const [focusedHighlight, setFocusedHighlight] =
+    useState<Highlight | undefined>(undefined)
 
   const [selectionData, setSelectionData] = useSelection(highlightLocations)
 
-  const [labelsTarget, setLabelsTarget] = useState<Highlight | undefined>(
-    undefined
-  )
+  const [labelsTarget, setLabelsTarget] =
+    useState<Highlight | undefined>(undefined)
 
   const createHighlightFromSelection = useCallback(
     async (
@@ -746,6 +748,50 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
 
   if (props.showHighlightsModal) {
     return (
+      <SlidingPane
+        className="sliding-pane-class"
+        isOpen={props.showHighlightsModal}
+        width={/* windowDimensions.width < 600 ? '100%' : */ '420px'}
+        hideHeader={true}
+        from="right"
+        overlayClassName="slide-panel-overlay"
+        onRequestClose={() => {
+          props.setShowHighlightsModal(false)
+        }}
+      >
+        <>
+          <NotebookHeader setShowNotebook={props.setShowHighlightsModal} />
+          <NotebookContent
+            viewer={props.viewer}
+            item={props.item}
+            // highlights={highlights}
+            // onClose={handleCloseNotebook}
+            viewInReader={(highlightId) => {
+              // The timeout here is a bit of a hack to work around rerendering
+              setTimeout(() => {
+                const target = document.querySelector(
+                  `[omnivore-highlight-id="${highlightId}"]`
+                )
+                target?.scrollIntoView({
+                  block: 'center',
+                  behavior: 'auto',
+                })
+              }, 1)
+              history.replaceState(
+                undefined,
+                window.location.href,
+                `#${highlightId}`
+              )
+
+              // props.setShowHighlightsModal(false)
+            }}
+          />
+        </>
+      </SlidingPane>
+    )
+
+    {
+      /* return (
       <NotebookModal
         viewer={props.viewer}
         item={props.item}
@@ -769,7 +815,8 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           props.setShowHighlightsModal(false)
         }}
       />
-    )
+    ) */
+    }
   }
 
   return <></>

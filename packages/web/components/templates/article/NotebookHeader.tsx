@@ -31,7 +31,9 @@ export const NotebookHeader = (props: NotebookHeaderProps) => {
         top: '0px',
         height: '50px',
         p: '20px',
-        background: '#F8FAFB',
+        borderTopLeftRadius: '10px',
+        overflow: 'clip',
+        background: '$thLibrarySearchbox',
         zIndex: 10,
       }}
     >
@@ -49,18 +51,18 @@ export const NotebookHeader = (props: NotebookHeaderProps) => {
         alignment="center"
       >
         <Dropdown triggerElement={<MenuTrigger />}>
-          {/* <DropdownOption
+          <DropdownOption
             onSelect={() => {
-              exportHighlights()
+              // exportHighlights()
             }}
             title="Export Notebook"
           />
           <DropdownOption
             onSelect={() => {
-              setShowConfirmDeleteNote(true)
+              // setShowConfirmDeleteNote(true)
             }}
             title="Delete Article Note"
-          /> */}
+          />
         </Dropdown>
         <CloseButton close={handleClose} />
       </HStack>

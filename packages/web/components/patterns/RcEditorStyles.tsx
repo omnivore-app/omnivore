@@ -8,7 +8,6 @@ export const RcEditorStyles = (isDark: boolean, shadow: boolean) => {
       borderRadius: '5px',
       backgroundColor: isDark ? '#2A2A2A' : 'white',
       border: '1px solid $thBorderSubtle',
-      boxShadow: shadow ? '0px 4px 4px rgba(33, 33, 33, 0.1)' : 'unset',
     },
     '.rc-md-navigation': {
       borderRadius: '5px',

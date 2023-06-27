@@ -263,6 +263,7 @@ export const Button = styled('button', {
         padding: '4px',
         height: '100%',
         pt: '6px',
+        minWidth: '25px',
 
         '&:hover': {
           bg: '$grayBgHover',

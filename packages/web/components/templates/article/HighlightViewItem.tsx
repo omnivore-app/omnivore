@@ -4,7 +4,6 @@ import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItems
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { HighlightView } from '../../patterns/HighlightView'
-import { HighlightsMenu } from '../homeFeed/HighlightItem'
 
 type HighlightViewItemProps = {
   viewer: UserBasicData
@@ -27,8 +26,8 @@ export function HighlightViewItem(props: HighlightViewItemProps): JSX.Element {
     <HStack
       css={{
         width: '100%',
-        pt: '10px',
-        pb: '20px',
+        pt: '0px',
+        pb: '0px',
       }}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}

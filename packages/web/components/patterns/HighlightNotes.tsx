@@ -145,6 +145,7 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
       {props.mode == 'edit' ? (
         <VStack
           css={{
+            pt: '5px',
             width: '100%',
             ...RcEditorStyles(isDark, false),
           }}
@@ -257,26 +258,11 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
         <>
           <SpanBox
             css={{
-              p: '5px',
+              p: props.text ? '10px' : '0px',
               width: '100%',
               fontSize: '12px',
               marginTop: '0px',
-              paddingTop: '5px',
-
-              paddingLeft:
-                props.fillBackground && props.text
-                  ? '10px'
-                  : !props.text
-                  ? '5px'
-                  : '0px',
-              paddingRight:
-                props.fillBackground && props.text
-                  ? '10px'
-                  : !props.text
-                  ? '5px'
-                  : '0px',
               color: props.text ? '$thHighContrast' : '#898989',
-              // border: props.text ? 'unset' : '1px solid $thBorderColor',
               borderRadius: '5px',
               background:
                 props.text && props.fillBackground ? '$thBackground5' : 'unset',
