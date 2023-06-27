@@ -34,9 +34,8 @@ type HighlightItemsLayoutProps = {
 export function HighlightItemsLayout(
   props: HighlightItemsLayoutProps
 ): JSX.Element {
-  const [currentItem, setCurrentItem] = useState<LibraryItem | undefined>(
-    undefined
-  )
+  const [currentItem, setCurrentItem] =
+    useState<LibraryItem | undefined>(undefined)
 
   const listReducer = (
     state: LibraryItem[],
@@ -183,6 +182,7 @@ export function HighlightItemsLayout(
                 flexGrow: '1',
                 justifyContent: 'center',
                 overflowY: 'scroll',
+                bg: '$thLibrarySearchbox',
                 '@lgDown': {
                   display: 'none',
                   flexGrow: 'unset',
@@ -415,24 +415,11 @@ function HighlightList(props: HighlightListProps): JSX.Element {
       <HStack
         css={{
           width: '100%',
-          borderBottom: '1px solid $thBorderColor',
+          height: '100%',
         }}
         alignment="start"
-        distribution="center"
+        distribution="end"
       >
-        <StyledText
-          css={{
-            fontWeight: '600',
-            fontSize: '15px',
-            fontFamily: '$display',
-            width: '100%',
-            color: 'thTextContrast2',
-            m: '0px',
-            pb: '5px',
-          }}
-        >
-          NOTEBOOK
-        </StyledText>
         <Dropdown triggerElement={<MenuTrigger />}>
           <DropdownOption
             onSelect={() => {
@@ -442,7 +429,9 @@ function HighlightList(props: HighlightListProps): JSX.Element {
           />
         </Dropdown>
       </HStack>
-      <HStack css={{ width: '100%', height: '100%' }}>
+      <HStack
+        css={{ width: '100%', height: '100%', bg: '$thLibrarySearchbox' }}
+      >
         {props.viewer && (
           <NotebookContent
             viewer={props.viewer}
