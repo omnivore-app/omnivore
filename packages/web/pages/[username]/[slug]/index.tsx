@@ -259,6 +259,10 @@ export default function Home(): JSX.Element {
           ) {
             return
           }
+          if (showHighlightsModal) {
+            setShowHighlightsModal(false)
+            return
+          }
           const query = window.sessionStorage.getItem('q')
           if (query) {
             router.push(`/home?${query}`)
@@ -361,7 +365,7 @@ export default function Home(): JSX.Element {
         perform: () => setShowEditModal(true),
       },
     ],
-    [readerSettings]
+    [readerSettings, showHighlightsModal]
   )
 
   const [labels, dispatchLabels] = useSetPageLabels(article?.id)
