@@ -117,7 +117,24 @@ export const savePage = async (
     ? await createLabels(ctx, input.labels)
     : undefined
 
-  if (existingPage) {
+  // always parse in backend if the url is in the force puppeteer list
+  if (shouldParseInBackend(input)) {
+    try {
+      await createPageSaveRequest({
+        userId: saver.userId,
+        url: articleToSave.url,
+        pubsub: ctx.pubsub,
+        articleSavingRequestId: input.clientRequestId,
+        archivedAt: articleToSave.archivedAt,
+        labels: articleToSave.labels,
+      })
+    } catch (e) {
+      return {
+        errorCodes: [SaveErrorCode.Unknown],
+        message: 'Failed to create page save request',
+      }
+    }
+  } else if (existingPage) {
     pageId = existingPage.id
     slug = existingPage.slug
     if (
@@ -136,22 +153,6 @@ export const savePage = async (
       return {
         errorCodes: [SaveErrorCode.Unknown],
         message: 'Failed to update existing page',
-      }
-    }
-  } else if (shouldParseInBackend(input)) {
-    try {
-      await createPageSaveRequest({
-        userId: saver.userId,
-        url: articleToSave.url,
-        pubsub: ctx.pubsub,
-        articleSavingRequestId: input.clientRequestId,
-        archivedAt: articleToSave.archivedAt,
-        labels: articleToSave.labels,
-      })
-    } catch (e) {
-      return {
-        errorCodes: [SaveErrorCode.Unknown],
-        message: 'Failed to create page save request',
       }
     }
   } else {
