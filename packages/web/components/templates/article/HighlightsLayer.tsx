@@ -444,7 +444,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           await removeHighlightCallback()
           break
         case 'create':
-          await createHighlightCallback('none')
+          await createHighlightCallback()
           break
         case 'comment':
           if (props.highlightBarDisabled || focusedHighlight) {
@@ -657,7 +657,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         dispatchHighlightMessage('noteCreated')
       } else {
         try {
-          await createHighlightCallback('none')
+          await createHighlightCallback()
           dispatchHighlightMessage('noteCreated')
         } catch (error) {
           dispatchHighlightError('saveAnnotation', error)
