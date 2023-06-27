@@ -1,9 +1,5 @@
-import { Highlight } from '../../../lib/networking/fragments/highlightFragment'
 import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
-import {
-  UserBasicData,
-  useGetViewerQuery,
-} from '../../../lib/networking/queries/useGetViewerQuery'
+import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 import SlidingPane from 'react-sliding-pane'
 import 'react-sliding-pane/dist/react-sliding-pane.css'
 import { NotebookContent } from './Notebook'
