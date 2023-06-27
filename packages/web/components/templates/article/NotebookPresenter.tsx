@@ -35,8 +35,6 @@ export const NotebookPresenter = (props: NotebookPresenterProps) => {
         <NotebookContent
           viewer={props.viewer}
           item={props.item}
-          // highlights={highlights}
-          // onClose={handleCloseNotebook}
           viewInReader={(highlightId) => {
             // The timeout here is a bit of a hack to work around rerendering
             setTimeout(() => {
