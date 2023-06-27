@@ -188,6 +188,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         )
         setHighlights(highlights.filter(($0) => $0.id !== highlightId))
         setFocusedHighlight(undefined)
+        document.dispatchEvent(new Event('highlightsUpdated'))
       } else {
         console.error('Failed to delete highlight')
       }

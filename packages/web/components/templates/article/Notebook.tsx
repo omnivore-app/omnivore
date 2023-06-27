@@ -208,6 +208,18 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
   const [lastChanged, setLastChanged] = useState<Date | undefined>(undefined)
   const [lastSaved, setLastSaved] = useState<Date | undefined>(undefined)
 
+  useEffect(() => {
+    const highlightsUpdated = () => {
+      mutate()
+    }
+    document.addEventListener('highlightsUpdated', highlightsUpdated)
+    return () => {
+      document.removeEventListener('highlightsUpdated', highlightsUpdated)
+    }
+  }, [forceUpdate])
+
+  console.log('articleData: ', articleData)
+
   return (
     <VStack
       tabIndex={-1}
