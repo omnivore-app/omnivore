@@ -74,6 +74,8 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
 
   const { getReferenceProps, getFloatingProps } = useInteractions([hover])
 
+  const highlightAlpha = isDark ? 1.0 : 0.35
+
   return (
     <VStack
       ref={refs.setReference}
@@ -115,9 +117,8 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
                 m: '0px',
                 display: 'inline',
                 padding: '2px',
-                backgroundColor: 'rgba(var(--colors-highlightBackground), 1)',
-                boxShadow:
-                  '1px 0 0 rgba(var(--colors-highlightBackground), 1), -1px 0 0 rgba(var(--colors-highlightBackground),1)',
+                backgroundColor: `rgba(var(--colors-highlightBackground), ${highlightAlpha})`,
+                boxShadow: `1px 0 0 rgba(var(--colors-highlightBackground), ${highlightAlpha}), -1px 0 0 rgba(var(--colors-highlightBackground), ${highlightAlpha})`,
                 boxDecorationBreak: 'clone',
                 borderRadius: '2px',
               },
