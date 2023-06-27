@@ -777,8 +777,6 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
                   window.location.href,
                   `#${highlightId}`
                 )
-
-                // props.setShowHighlightsModal(false)
               }}
             />
           </>

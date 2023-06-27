@@ -4,28 +4,62 @@ import {
   UserBasicData,
   useGetViewerQuery,
 } from '../../../lib/networking/queries/useGetViewerQuery'
-import { NotebookModal } from './NotebookModal'
+import SlidingPane from 'react-sliding-pane'
+import 'react-sliding-pane/dist/react-sliding-pane.css'
+import { NotebookContent } from './Notebook'
+import { NotebookHeader } from './NotebookHeader'
+import useGetWindowDimensions from '../../../lib/hooks/useGetWindowDimensions'
 
 type NotebookPresenterProps = {
   viewer: UserBasicData
 
   item: ReadableItem
 
-  onClose: (highlights: Highlight[]) => void
+  open: boolean
+  setOpen: (open: boolean) => void
 }
 
 export const NotebookPresenter = (props: NotebookPresenterProps) => {
+  const windowDimensions = useGetWindowDimensions()
+
   return (
-    <NotebookModal
-      viewer={props.viewer}
-      item={props.item}
-      onClose={(highlights: Highlight[]) => {
-        console.log('NotebookModal: ', highlights)
-        props.onClose(highlights)
+    <SlidingPane
+      className="sliding-pane-class"
+      isOpen={props.open}
+      width={windowDimensions.width < 600 ? '100%' : '420px'}
+      hideHeader={true}
+      from="right"
+      overlayClassName="slide-panel-overlay"
+      onRequestClose={() => {
+        props.setOpen(false)
       }}
-      viewHighlightInReader={(highlightId) => {
-        window.location.href = `/${props.viewer.profile.username}/${props.item.slug}#${highlightId}`
-      }}
-    />
+    >
+      <>
+        <NotebookHeader setShowNotebook={props.setOpen} />
+        <NotebookContent
+          viewer={props.viewer}
+          item={props.item}
+          // highlights={highlights}
+          // onClose={handleCloseNotebook}
+          viewInReader={(highlightId) => {
+            // The timeout here is a bit of a hack to work around rerendering
+            setTimeout(() => {
+              const target = document.querySelector(
+                `[omnivore-highlight-id="${highlightId}"]`
+              )
+              target?.scrollIntoView({
+                block: 'center',
+                behavior: 'auto',
+              })
+            }, 1)
+            history.replaceState(
+              undefined,
+              window.location.href,
+              `#${highlightId}`
+            )
+          }}
+        />
+      </>
+    </SlidingPane>
   )
 }

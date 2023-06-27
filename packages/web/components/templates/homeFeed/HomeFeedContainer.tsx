@@ -84,13 +84,11 @@ export function HomeFeedContainer(): JSX.Element {
 
   const gridContainerRef = useRef<HTMLDivElement>(null)
 
-  const [labelsTarget, setLabelsTarget] = useState<LibraryItem | undefined>(
-    undefined
-  )
+  const [labelsTarget, setLabelsTarget] =
+    useState<LibraryItem | undefined>(undefined)
 
-  const [notebookTarget, setNotebookTarget] = useState<LibraryItem | undefined>(
-    undefined
-  )
+  const [notebookTarget, setNotebookTarget] =
+    useState<LibraryItem | undefined>(undefined)
 
   const [showAddLinkModal, setShowAddLinkModal] = useState(false)
   const [showEditTitleModal, setShowEditTitleModal] = useState(false)
@@ -1051,11 +1049,13 @@ function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element {
         <NotebookPresenter
           viewer={props.viewer}
           item={props.notebookTarget?.node}
-          onClose={(highlights: Highlight[]) => {
-            if (props.notebookTarget?.node.highlights) {
-              props.notebookTarget.node.highlights = highlights
-            }
-            props.setNotebookTarget(undefined)
+          open={props.notebookTarget?.node !== undefined}
+          setOpen={(open: boolean) => {
+            // onClose={(highlights: Highlight[]) => {
+            //   if (props.notebookTarget?.node.highlights) {
+            //     props.notebookTarget.node.highlights = highlights
+            //   }
+            props.setNotebookTarget(open ? props.notebookTarget : undefined)
           }}
         />
       )}
