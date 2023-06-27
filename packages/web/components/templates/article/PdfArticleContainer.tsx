@@ -13,11 +13,15 @@ import { articleReadingProgressMutation } from '../../../lib/networking/mutation
 import { mergeHighlightMutation } from '../../../lib/networking/mutations/mergeHighlightMutation'
 import { useCanShareNative } from '../../../lib/hooks/useCanShareNative'
 import { pspdfKitKey } from '../../../lib/appConfig'
-import { NotebookModal } from './NotebookModal'
 import { HighlightNoteModal } from './HighlightNoteModal'
 import { showErrorToast } from '../../../lib/toastHelpers'
 import { HEADER_HEIGHT } from '../homeFeed/HeaderSpacer'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
+import SlidingPane from 'react-sliding-pane'
+import 'react-sliding-pane/dist/react-sliding-pane.css'
+import { NotebookContent } from './Notebook'
+import { NotebookHeader } from './NotebookHeader'
+import useWindowDimensions from '../../../lib/hooks/useGetWindowDimensions'
 
 export type PdfArticleContainerProps = {
   viewer: UserBasicData
@@ -30,14 +34,12 @@ export default function PdfArticleContainer(
   props: PdfArticleContainerProps
 ): JSX.Element {
   const containerRef = useRef<HTMLDivElement | null>(null)
-  const [shareTarget, setShareTarget] = useState<Highlight | undefined>(
-    undefined
-  )
+  const [shareTarget, setShareTarget] =
+    useState<Highlight | undefined>(undefined)
   const [notebookKey, setNotebookKey] = useState<string>(uuidv4())
   const [noteTarget, setNoteTarget] = useState<Highlight | undefined>(undefined)
-  const [noteTargetPageIndex, setNoteTargetPageIndex] = useState<
-    number | undefined
-  >(undefined)
+  const [noteTargetPageIndex, setNoteTargetPageIndex] =
+    useState<number | undefined>(undefined)
   const highlightsRef = useRef<Highlight[]>([])
   const canShareNative = useCanShareNative()
 
@@ -475,6 +477,8 @@ export default function PdfArticleContainer(
   // the PSPDFKit instance if the theme, article URL, or page URL changes. Everything else
   // should be handled by the PSPDFKit instance callbacks.
 
+  const windowDimensions = useWindowDimensions()
+
   return (
     <Box
       id="article-wrapper"
@@ -505,34 +509,31 @@ export default function PdfArticleContainer(
           }}
         />
       )}
-      {props.showHighlightsModal && (
-        <NotebookModal
-          key={notebookKey}
-          viewer={props.viewer}
-          item={props.article}
-          onClose={(updatedHighlights, deletedHighlights) => {
-            console.log(
-              'closed PDF notebook: ',
-              updatedHighlights,
-              deletedHighlights
-            )
-            deletedHighlights.forEach((highlight) => {
-              const event = new CustomEvent('deleteHighlightbyId', {
-                detail: highlight.id,
+      <SlidingPane
+        className="sliding-pane-class"
+        isOpen={props.showHighlightsModal}
+        width={windowDimensions.width < 600 ? '100%' : '420px'}
+        hideHeader={true}
+        from="right"
+        overlayClassName="slide-panel-overlay"
+        onRequestClose={() => {
+          props.setShowHighlightsModal(false)
+        }}
+      >
+        <>
+          <NotebookHeader setShowNotebook={props.setShowHighlightsModal} />
+          <NotebookContent
+            viewer={props.viewer}
+            item={props.article}
+            viewInReader={(highlightId) => {
+              const event = new CustomEvent('scrollToHighlightId', {
+                detail: highlightId,
               })
               document.dispatchEvent(event)
-            })
-            props.setShowHighlightsModal(false)
-          }}
-          viewHighlightInReader={(highlightId) => {
-            const event = new CustomEvent('scrollToHighlightId', {
-              detail: highlightId,
-            })
-            document.dispatchEvent(event)
-            props.setShowHighlightsModal(false)
-          }}
-        />
-      )}
+            }}
+          />
+        </>
+      </SlidingPane>
     </Box>
   )
 }

@@ -204,8 +204,6 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
     setNoteText('')
   }, [noteState, highlights])
 
-  const [tabSelected, setTabSelected] = useState<'note' | 'highlights'>('note')
-
   const [errorSaving, setErrorSaving] = useState<string | undefined>(undefined)
   const [lastChanged, setLastChanged] = useState<Date | undefined>(undefined)
   const [lastSaved, setLastSaved] = useState<Date | undefined>(undefined)
