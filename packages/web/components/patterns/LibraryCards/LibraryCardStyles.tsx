@@ -6,14 +6,6 @@ import { Box, SpanBox } from '../../elements/LayoutPrimitives'
 
 dayjs.extend(relativeTime)
 
-export const MetaStyle = {
-  width: '100%',
-  color: '$thTextSubtle3',
-  fontSize: '13px',
-  fontWeight: '400',
-  fontFamily: '$display',
-}
-
 export const MenuStyle = {
   display: 'flex',
   marginLeft: 'auto',
@@ -28,6 +20,14 @@ export const MenuStyle = {
   '&:hover': {
     bg: '$thBackground4',
   },
+}
+
+export const MetaStyle = {
+  width: '100%',
+  color: '$thTextSubtle3',
+  fontSize: '13px',
+  fontWeight: '400',
+  fontFamily: '$display',
 }
 
 export const TitleStyle = {
@@ -119,7 +119,9 @@ export function LibraryItemMetadata(
   props: LibraryItemMetadataProps
 ): JSX.Element {
   const highlightCount = useMemo(() => {
-    return props.item.highlights?.length ?? 0
+    return (
+      props.item.highlights?.filter((h) => h.type == 'HIGHLIGHT').length ?? 0
+    )
   }, [props.item.highlights])
 
   return (

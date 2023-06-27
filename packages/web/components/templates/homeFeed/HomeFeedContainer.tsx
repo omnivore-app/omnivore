@@ -84,13 +84,11 @@ export function HomeFeedContainer(): JSX.Element {
 
   const gridContainerRef = useRef<HTMLDivElement>(null)
 
-  const [labelsTarget, setLabelsTarget] = useState<LibraryItem | undefined>(
-    undefined
-  )
+  const [labelsTarget, setLabelsTarget] =
+    useState<LibraryItem | undefined>(undefined)
 
-  const [notebookTarget, setNotebookTarget] = useState<LibraryItem | undefined>(
-    undefined
-  )
+  const [notebookTarget, setNotebookTarget] =
+    useState<LibraryItem | undefined>(undefined)
 
   const [showAddLinkModal, setShowAddLinkModal] = useState(false)
   const [showEditTitleModal, setShowEditTitleModal] = useState(false)
@@ -207,6 +205,11 @@ export function HomeFeedContainer(): JSX.Element {
       }
       setActiveCardId(id)
       scrollToActiveCard(id, true)
+
+      const newItem = getItem(id)
+      if (notebookTarget && newItem) {
+        setNotebookTarget(newItem)
+      }
     },
     [libraryItems]
   )
@@ -261,6 +264,13 @@ export function HomeFeedContainer(): JSX.Element {
     return libraryItems.find((item) => item.node.id === activeCardId)
   }, [libraryItems, activeCardId])
 
+  const getItem = useCallback(
+    (itemId) => {
+      return libraryItems.find((item) => item.node.id === itemId)
+    },
+    [libraryItems]
+  )
+
   const activeItemIndex = useMemo(() => {
     if (!activeCardId) {
       return undefined
@@ -278,8 +288,6 @@ export function HomeFeedContainer(): JSX.Element {
       alreadyScrolled.current = true
 
       if (activeItem) {
-        console.log('refreshing')
-        // refresh items on home feed
         performActionOnItem('refresh', activeItem)
       }
     }
@@ -342,7 +350,11 @@ export function HomeFeedContainer(): JSX.Element {
         setLabelsTarget(item)
         break
       case 'open-notebook':
-        setNotebookTarget(item)
+        if (!notebookTarget) {
+          setNotebookTarget(item)
+        } else {
+          setNotebookTarget(undefined)
+        }
         break
       case 'unsubscribe':
         performActionOnItem('unsubscribe', item)
@@ -481,6 +493,7 @@ export function HomeFeedContainer(): JSX.Element {
           handleCardAction('set-labels', activeItem)
           break
         case 'openNotebook':
+          console.log('openNotebook: ', notebookTarget)
           handleCardAction('open-notebook', activeItem)
           break
         case 'sortDescending':
@@ -1051,12 +1064,13 @@ function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element {
         <NotebookPresenter
           viewer={props.viewer}
           item={props.notebookTarget?.node}
-          highlights={props.notebookTarget?.node.highlights ?? []}
-          onClose={(highlights: Highlight[]) => {
-            if (props.notebookTarget?.node.highlights) {
-              props.notebookTarget.node.highlights = highlights
-            }
-            props.setNotebookTarget(undefined)
+          open={props.notebookTarget?.node !== undefined}
+          setOpen={(open: boolean) => {
+            // onClose={(highlights: Highlight[]) => {
+            //   if (props.notebookTarget?.node.highlights) {
+            //     props.notebookTarget.node.highlights = highlights
+            //   }
+            props.setNotebookTarget(open ? props.notebookTarget : undefined)
           }}
         />
       )}
@@ -1101,18 +1115,16 @@ function LibraryItems(props: LibraryItemsProps): JSX.Element {
         width: '100%',
         gridAutoRows: 'auto',
         borderRadius: '6px',
-        gridGap: props.layout == 'LIST_LAYOUT' ? '0' : '20px',
+        gridGap: props.layout == 'LIST_LAYOUT' ? '10px' : '20px',
         marginTop: '10px',
         marginBottom: '0px',
         paddingTop: '0',
         paddingBottom: '0px',
         overflow: 'hidden',
-        boxShadow:
-          props.layout == 'LIST_LAYOUT'
-            ? '0 1px 3px 0 rgba(0, 0, 0, 0.1),0 1px 2px 0 rgba(0, 0, 0, 0.06);'
-            : 'unset',
+        '@media (max-width: 930px)': {
+          gridGap: props.layout == 'LIST_LAYOUT' ? '0px' : '20px',
+        },
         '@xlgDown': {
-          border: 'unset',
           borderRadius: props.layout == 'LIST_LAYOUT' ? 0 : undefined,
         },
         '@smDown': {

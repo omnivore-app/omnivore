@@ -125,7 +125,7 @@ const readerCommands = () => {
       callback: () => {},
     },
     {
-      actionDescription: 'Open Notebook',
+      actionDescription: 'Toggle Notebook open',
       shortcutKeys: ['t'],
       shortcutKeyDescription: 't',
       callback: () => {},

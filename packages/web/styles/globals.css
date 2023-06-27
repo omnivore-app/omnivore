@@ -419,20 +419,22 @@ button {
   margin: 0px;
 }
 
-.omnivore-masonry-grid {
-  display: -webkit-box; /* Not needed if autoprefixing */
-  display: -ms-flexbox; /* Not needed if autoprefixing */
-  display: flex;
-  margin-left: -16px; /* gutter size offset */
-  margin-right: 14px;
-  width: auto;
+.slide-panel-overlay {
+  z-index: 100 !important;
+  background: transparent !important;
+  pointer-events: none;
 }
-.omnivore-masonry-grid_column {
-  padding-left: 16px; /* gutter size */
-  background-clip: padding-box;
+  
+.slide-pane__content {
+  padding: 0px !important;
+  pointer-events: all;
+  border-top-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  border-left: 1px solid var(--colors-thNotebookBorder);
+  background: var(--colors-thNotebookBackground);
 }
 
-/* .omnivore-masonry-grid_column > div {
-  background: grey;
-  margin-bottom: 16px;
-} */
+.slide-pane {
+  background: transparent !important;
+  box-shadow: 0px 4px 4px rgba(33, 33, 33, 0.1) !important;
+}
