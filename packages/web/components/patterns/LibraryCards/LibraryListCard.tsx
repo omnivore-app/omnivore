@@ -184,6 +184,7 @@ export function LibraryListCardContent(
           css={{
             mt: '5px',
             ...AuthorInfoStyle,
+            maxWidth: '90%',
           }}
         >
           {props.item.author}
