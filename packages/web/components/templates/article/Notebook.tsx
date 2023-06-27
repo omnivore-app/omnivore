@@ -216,9 +216,7 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
     return () => {
       document.removeEventListener('highlightsUpdated', highlightsUpdated)
     }
-  }, [forceUpdate])
-
-  console.log('articleData: ', articleData)
+  }, [mutate])
 
   return (
     <VStack
