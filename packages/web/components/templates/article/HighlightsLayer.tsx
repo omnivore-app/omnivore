@@ -729,8 +729,8 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           onOpenChange={() => setLabelsTarget(undefined)}
         />
       )}
-      // Display the button bar if we are not in the native app and there // is
-      a focused highlight or selection data
+      {/* // Display the button bar if we are not in the native app and there // is
+      a focused highlight or selection data */}
       {!props.highlightBarDisabled && (focusedHighlight || selectionData) && (
         <>
           <HighlightBar
