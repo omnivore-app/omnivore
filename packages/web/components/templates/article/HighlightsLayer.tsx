@@ -546,6 +546,21 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
     }
   }
 
+  const deleteHighlightById = useCallback(
+    (event: Event) => {
+      const annotationId = (event as CustomEvent).detail as string
+      if (annotationId) {
+        removeHighlights(
+          highlights.map((h) => h.id),
+          highlightLocations
+        )
+        const keptHighlights = highlights.filter(($0) => $0.id !== annotationId)
+        setHighlights([...keptHighlights])
+      }
+    },
+    [highlights, highlightLocations]
+  )
+
   useEffect(() => {
     const safeHandleAction = async (action: HighlightAction) => {
       try {
@@ -676,6 +691,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
     document.addEventListener('setHighlightLabels', setHighlightLabels)
     document.addEventListener('scrollToNextHighlight', goToNextHighlight)
     document.addEventListener('scrollToPrevHighlight', goToPreviousHighlight)
+    document.addEventListener('deleteHighlightbyId', deleteHighlightById)
 
     return () => {
       document.removeEventListener('annotate', annotate)
@@ -692,6 +708,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         'scrollToPrevHighlight',
         goToPreviousHighlight
       )
+      document.removeEventListener('deleteHighlightbyId', deleteHighlightById)
     }
   })
 
