@@ -36,12 +36,29 @@ type SaverUserData = {
   username: string
 }
 
+const TWEET_URL_REGEX =
+  /twitter\.com\/(?:#!\/)?(\w+)\/status(?:es)?\/(\d+)(?:\/.*)?/
+
 // where we can use APIs to fetch their underlying content.
 const FORCE_PUPPETEER_URLS = [
-  // twitter status url regex
-  /twitter\.com\/(?:#!\/)?(\w+)\/status(?:es)?\/(\d+)(?:\/.*)?/,
+  TWEET_URL_REGEX,
   /^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w-]+\?v=|embed\/|v\/)?)([\w-]+)(\S+)?$/,
 ]
+
+export const cleanUrl = (url: string) => {
+  const trackingParams: (RegExp | string)[] = [/^utm_\w+/i] // remove utm tracking parameters
+  if (TWEET_URL_REGEX.test(url)) {
+    console.debug('cleaning tweet url', url)
+    // remove tracking parameters from tweet links:
+    // https://twitter.com/omnivore/status/1673218959624093698?s=12&t=R91quPajs0E53Yds-fhv2g
+    trackingParams.push('s', 't')
+  }
+  return normalizeUrl(url, {
+    stripHash: true,
+    stripWWW: false,
+    removeQueryParameters: trackingParams,
+  })
+}
 
 const createSlug = (url: string, title?: Maybe<string> | undefined) => {
   const { pathname } = new URL(url)
@@ -252,10 +269,7 @@ export const parsedContentToPage = ({
       parsedContent?.siteName ||
       url,
     author: parsedContent?.byline ?? undefined,
-    url: normalizeUrl(canonicalUrl || url, {
-      stripHash: true,
-      stripWWW: false,
-    }),
+    url: cleanUrl(canonicalUrl || url),
     pageType,
     hash: uploadFileHash || stringToHash(parsedContent?.content || url),
     image: parsedContent?.previewImage ?? undefined,

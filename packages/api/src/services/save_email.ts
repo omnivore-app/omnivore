@@ -1,4 +1,3 @@
-import normalizeUrl from 'normalize-url'
 import { PubsubClient } from '../datalayer/pubsub'
 import { createPage, getPageByParam, updatePage } from '../elastic/pages'
 import { ArticleSavingRequestStatus, Page } from '../elastic/types'
@@ -14,6 +13,7 @@ import {
   parsePreparedContent,
   parseUrlMetadata,
 } from '../utils/parser'
+import { cleanUrl } from './save_page'
 
 export type SaveContext = {
   pubsub: PubsubClient
@@ -63,10 +63,7 @@ export const saveEmail = async (
     description: metadata?.description || parseResult.parsedContent?.excerpt,
     title: input.title,
     author: input.author,
-    url: normalizeUrl(parseResult.canonicalUrl || url, {
-      stripHash: true,
-      stripWWW: false,
-    }),
+    url: cleanUrl(parseResult.canonicalUrl || url),
     pageType: parseResult.pageType,
     hash: stringToHash(content),
     image:

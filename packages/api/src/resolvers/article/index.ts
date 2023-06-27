@@ -5,7 +5,6 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { Readability } from '@omnivore/readability'
 import graphqlFields from 'graphql-fields'
-import normalizeUrl from 'normalize-url'
 import { searchHighlights } from '../../elastic/highlights'
 import {
   createPage,
@@ -83,7 +82,7 @@ import {
   createLabels,
   getLabelsByIds,
 } from '../../services/labels'
-import { parsedContentToPage } from '../../services/save_page'
+import { cleanUrl, parsedContentToPage } from '../../services/save_page'
 import { traceAs } from '../../tracing'
 import { Merge } from '../../util'
 import { analytics } from '../../utils/analytics'
@@ -228,10 +227,7 @@ export const createArticleResolver = authorized<
           pageType: PageType.Unknown,
           contentReader: ContentReader.Web,
           author: '',
-          url: normalizeUrl(canonicalUrl || url, {
-            stripHash: true,
-            stripWWW: false,
-          }),
+          url: cleanUrl(canonicalUrl || url),
           hash: '',
           isArchived: false,
         },

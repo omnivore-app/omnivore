@@ -1,4 +1,3 @@
-import normalizeUrl from 'normalize-url'
 import * as privateIpLib from 'private-ip'
 import { v4 as uuidv4 } from 'uuid'
 import { createPubSubClient, PubsubClient } from '../datalayer/pubsub'
@@ -17,6 +16,7 @@ import {
 } from '../generated/graphql'
 import { enqueueParseRequest } from '../utils/createTask'
 import { generateSlug, pageToArticleSavingRequest } from '../utils/helpers'
+import { cleanUrl } from './save_page'
 
 interface PageSaveRequest {
   userId: string
@@ -104,10 +104,7 @@ export const createPageSaveRequest = async ({
   priority = priority || (await getPriorityByRateLimit(userId))
 
   // look for existing page
-  const normalizedUrl = normalizeUrl(url, {
-    stripHash: true,
-    stripWWW: false,
-  })
+  const normalizedUrl = cleanUrl(url)
 
   const ctx = {
     pubsub,
