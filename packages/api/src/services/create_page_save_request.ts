@@ -15,8 +15,11 @@ import {
   CreateArticleSavingRequestErrorCode,
 } from '../generated/graphql'
 import { enqueueParseRequest } from '../utils/createTask'
-import { generateSlug, pageToArticleSavingRequest } from '../utils/helpers'
-import { cleanUrl } from './save_page'
+import {
+  cleanUrl,
+  generateSlug,
+  pageToArticleSavingRequest,
+} from '../utils/helpers'
 
 interface PageSaveRequest {
   userId: string
@@ -104,7 +107,7 @@ export const createPageSaveRequest = async ({
   priority = priority || (await getPriorityByRateLimit(userId))
 
   // look for existing page
-  const normalizedUrl = cleanUrl(url)
+  url = cleanUrl(url)
 
   const ctx = {
     pubsub,
@@ -113,10 +116,10 @@ export const createPageSaveRequest = async ({
   }
   let page = await getPageByParam({
     userId,
-    url: normalizedUrl,
+    url,
   })
   if (!page) {
-    console.log('Page not exists', normalizedUrl)
+    console.log('Page not exists', url)
     page = {
       id: articleSavingRequestId,
       userId,
@@ -127,7 +130,7 @@ export const createPageSaveRequest = async ({
       readingProgressPercent: 0,
       slug: generateSlug(url),
       title: url,
-      url: normalizedUrl,
+      url,
       state: ArticleSavingRequestStatus.Processing,
       createdAt: new Date(),
       savedAt: new Date(),
@@ -161,7 +164,7 @@ export const createPageSaveRequest = async ({
   }))
   // enqueue task to parse page
   await enqueueParseRequest({
-    url: normalizedUrl,
+    url,
     userId,
     saveRequestId: page.id,
     priority,

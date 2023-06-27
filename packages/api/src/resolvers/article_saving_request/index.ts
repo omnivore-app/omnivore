@@ -15,10 +15,10 @@ import {
   QueryArticleSavingRequestArgs,
 } from '../../generated/graphql'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
-import { cleanUrl } from '../../services/save_page'
 import { analytics } from '../../utils/analytics'
 import {
   authorized,
+  cleanUrl,
   isParsingTimeout,
   pageToArticleSavingRequest,
 } from '../../utils/helpers'

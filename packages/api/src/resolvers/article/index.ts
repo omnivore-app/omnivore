@@ -82,7 +82,7 @@ import {
   createLabels,
   getLabelsByIds,
 } from '../../services/labels'
-import { cleanUrl, parsedContentToPage } from '../../services/save_page'
+import { parsedContentToPage } from '../../services/save_page'
 import { traceAs } from '../../tracing'
 import { Merge } from '../../util'
 import { analytics } from '../../utils/analytics'
@@ -90,6 +90,7 @@ import { isSiteBlockedForParse } from '../../utils/blocked'
 import { ContentParseError } from '../../utils/errors'
 import {
   authorized,
+  cleanUrl,
   generateSlug,
   isBase64Image,
   isParsingTimeout,
@@ -195,6 +196,7 @@ export const createArticleResolver = authorized<
         )
       }
 
+      url = cleanUrl(url)
       const { pathname } = new URL(url)
 
       const croppedPathname = decodeURIComponent(
@@ -227,7 +229,7 @@ export const createArticleResolver = authorized<
           pageType: PageType.Unknown,
           contentReader: ContentReader.Web,
           author: '',
-          url: cleanUrl(canonicalUrl || url),
+          url,
           hash: '',
           isArchived: false,
         },
