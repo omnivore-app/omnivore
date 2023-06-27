@@ -275,7 +275,9 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
               color: props.text ? '$thHighContrast' : '#898989',
               borderRadius: '5px',
               background:
-                props.text && props.fillBackground ? '$thBackground5' : 'unset',
+                props.text && props.fillBackground
+                  ? '$thNotebookTextBackground'
+                  : 'unset',
               '> *': {
                 m: '0px',
               },

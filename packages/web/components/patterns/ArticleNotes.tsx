@@ -7,27 +7,14 @@ import {
   useRef,
   useState,
 } from 'react'
-import { formattedShortTime } from '../../lib/dateFormatting'
-import { Box, HStack, SpanBox, VStack } from '../elements/LayoutPrimitives'
+import { VStack } from '../elements/LayoutPrimitives'
 
 import MarkdownIt from 'markdown-it'
 import MdEditor, { Plugins } from 'react-markdown-editor-lite'
 import 'react-markdown-editor-lite/lib/index.css'
-import ReactMarkdown from 'react-markdown'
 import throttle from 'lodash/throttle'
 import { updateHighlightMutation } from '../../lib/networking/mutations/updateHighlightMutation'
 import { Highlight } from '../../lib/networking/fragments/highlightFragment'
-import { Button } from '../elements/Button'
-import {
-  ModalContent,
-  ModalOverlay,
-  ModalRoot,
-} from '../elements/ModalPrimitives'
-import { CloseButton } from '../elements/CloseButton'
-import { StyledText } from '../elements/StyledText'
-import remarkGfm from 'remark-gfm'
-import MDEditorSavePlugin from './MDEditorSavePlugin'
-import HandleFullScreen from './MDEditorSavePlugin'
 import Counter from './MDEditorSavePlugin'
 import { isDarkTheme } from '../../lib/themeUpdater'
 import { RcEditorStyles } from './RcEditorStyles'

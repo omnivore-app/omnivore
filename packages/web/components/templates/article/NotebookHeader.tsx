@@ -11,6 +11,9 @@ import { HStack } from '../../elements/LayoutPrimitives'
 import { MenuTrigger } from '../../elements/MenuTrigger'
 import { StyledText } from '../../elements/StyledText'
 import { NotebookModal } from './NotebookModal'
+import { Sidebar } from 'phosphor-react'
+import { theme } from '../../tokens/stitches.config'
+import { Button } from '../../elements/Button'
 
 type NotebookHeaderProps = {
   setShowNotebook: (set: boolean) => void
@@ -35,9 +38,10 @@ export const NotebookHeader = (props: NotebookHeaderProps) => {
         overflow: 'clip',
         background: '$thLibrarySearchbox',
         zIndex: 10,
+        borderBottom: '1px solid $thNotebookBorder',
       }}
     >
-      <StyledText style="modalHeadline" css={{ color: '$thTextSubtle2' }}>
+      <StyledText style="modalHeadline" css={{ color: '$thNotebookSubtle' }}>
         Notebook
       </StyledText>
       <HStack
@@ -50,7 +54,7 @@ export const NotebookHeader = (props: NotebookHeaderProps) => {
         distribution="center"
         alignment="center"
       >
-        <Dropdown triggerElement={<MenuTrigger />}>
+        {/* <Dropdown triggerElement={<MenuTrigger />}>
           <DropdownOption
             onSelect={() => {
               // exportHighlights()
@@ -63,8 +67,10 @@ export const NotebookHeader = (props: NotebookHeaderProps) => {
             }}
             title="Delete Article Note"
           />
-        </Dropdown>
-        <CloseButton close={handleClose} />
+        </Dropdown> */}
+        <Button style="plainIcon" onClick={() => props.setShowNotebook(false)}>
+          <Sidebar size={25} color={theme.colors.thNotebookSubtle.toString()} />
+        </Button>
       </HStack>
     </HStack>
   )

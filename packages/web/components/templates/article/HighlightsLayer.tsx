@@ -742,46 +742,44 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           />
         </>
       )}
-      {props.showHighlightsModal && (
-        <SlidingPane
-          className="sliding-pane-class"
-          isOpen={props.showHighlightsModal}
-          width={windowDimensions.width < 600 ? '100%' : '420px'}
-          hideHeader={true}
-          from="right"
-          overlayClassName="slide-panel-overlay"
-          onRequestClose={() => {
-            props.setShowHighlightsModal(false)
-          }}
-        >
-          <>
-            <NotebookHeader setShowNotebook={props.setShowHighlightsModal} />
-            <NotebookContent
-              viewer={props.viewer}
-              item={props.item}
-              // highlights={highlights}
-              // onClose={handleCloseNotebook}
-              viewInReader={(highlightId) => {
-                // The timeout here is a bit of a hack to work around rerendering
-                setTimeout(() => {
-                  const target = document.querySelector(
-                    `[omnivore-highlight-id="${highlightId}"]`
-                  )
-                  target?.scrollIntoView({
-                    block: 'center',
-                    behavior: 'auto',
-                  })
-                }, 1)
-                history.replaceState(
-                  undefined,
-                  window.location.href,
-                  `#${highlightId}`
+      <SlidingPane
+        className="sliding-pane-class"
+        isOpen={props.showHighlightsModal}
+        width={windowDimensions.width < 600 ? '100%' : '420px'}
+        hideHeader={true}
+        from="right"
+        overlayClassName="slide-panel-overlay"
+        onRequestClose={() => {
+          props.setShowHighlightsModal(false)
+        }}
+      >
+        <>
+          <NotebookHeader setShowNotebook={props.setShowHighlightsModal} />
+          <NotebookContent
+            viewer={props.viewer}
+            item={props.item}
+            // highlights={highlights}
+            // onClose={handleCloseNotebook}
+            viewInReader={(highlightId) => {
+              // The timeout here is a bit of a hack to work around rerendering
+              setTimeout(() => {
+                const target = document.querySelector(
+                  `[omnivore-highlight-id="${highlightId}"]`
                 )
-              }}
-            />
-          </>
-        </SlidingPane>
-      )}
+                target?.scrollIntoView({
+                  block: 'center',
+                  behavior: 'auto',
+                })
+              }, 1)
+              history.replaceState(
+                undefined,
+                window.location.href,
+                `#${highlightId}`
+              )
+            }}
+          />
+        </>
+      </SlidingPane>
     </>
   )
 }

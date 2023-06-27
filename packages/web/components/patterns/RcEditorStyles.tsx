@@ -1,7 +1,7 @@
 export const RcEditorStyles = (isDark: boolean, shadow: boolean) => {
   return {
     '.rc-md-editor .rc-md-navigation': {
-      background: 'var(--colors-grayBg)',
+      background: '$grayBg',
       borderBottom: '1px solid $thBorderSubtle',
     },
     '.rc-md-editor': {

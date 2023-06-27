@@ -350,7 +350,7 @@ export default function Home(): JSX.Element {
         name: 'Notebook',
         shortcut: ['t'],
         perform: () => {
-          setShowHighlightsModal(true)
+          setShowHighlightsModal(!showHighlightsModal)
         },
       },
       {

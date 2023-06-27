@@ -183,6 +183,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         thNotebookSubtle: '#6A6968',
         thNotebookBorder: '#D9D9D9',
         thNotebookBackground: '#FCFCFC',
+        thNotebookTextBackground: '#EBEBEB',
 
         thTextContrast: '#1E1E1E',
         thTextContrast2: '#3D3D3D',
@@ -280,7 +281,8 @@ const darkThemeSpec = {
 
     thNotebookSubtle: '#898989',
     thNotebookBorder: '#898989',
-    thNotebookBackground: '#3D3D3D',
+    thNotebookBackground: '#3B3938',
+    thNotebookTextBackground: '#3D3D3D',
     thNotebookHighContrast: '#2A2A2A',
 
     thTextContrast: '#FFFFFF',

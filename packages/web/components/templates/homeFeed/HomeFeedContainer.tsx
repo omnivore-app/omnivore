@@ -350,7 +350,11 @@ export function HomeFeedContainer(): JSX.Element {
         setLabelsTarget(item)
         break
       case 'open-notebook':
-        setNotebookTarget(item)
+        if (!notebookTarget) {
+          setNotebookTarget(item)
+        } else {
+          setNotebookTarget(undefined)
+        }
         break
       case 'unsubscribe':
         performActionOnItem('unsubscribe', item)
@@ -489,6 +493,7 @@ export function HomeFeedContainer(): JSX.Element {
           handleCardAction('set-labels', activeItem)
           break
         case 'openNotebook':
+          console.log('openNotebook: ', notebookTarget)
           handleCardAction('open-notebook', activeItem)
           break
         case 'sortDescending':

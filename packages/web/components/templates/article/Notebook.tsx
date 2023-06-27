@@ -212,44 +212,22 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
 
   return (
     <VStack
+      tabIndex={-1}
       distribution="start"
       css={{
         height: '100%',
         width: '100%',
-        p: '20px',
+        px: '20px',
 
         bg: '$thLibrarySearchbox',
         '@mdDown': { p: '15px' },
       }}
     >
-      {/* <HStack
-        css={{
-          width: '100%',
-          gap: '30px',
-          fontSize: '13px',
-          borderBottom: '1px solid $thBorderSubtle',
-        }}
-        distribution="start"
-        alignment="start"
-      >
-        <SectionTitle
-          title="Article Note"
-          selected={tabSelected == 'note'}
-          setSelected={() => setTabSelected('note')}
-        />
-        <SectionTitle
-          title="Highlights"
-          selected={tabSelected == 'highlights'}
-          setSelected={() => setTabSelected('highlights')}
-        />
-      </HStack> */}
-
-      {/* {tabSelected == 'note' && ( */}
       <>
         <HStack
           alignment="start"
           distribution="start"
-          css={{ width: '100%', mt: '20px', gap: '10px' }}
+          css={{ width: '100%', gap: '10px', mt: '25px' }}
         >
           <ArticleNotes
             targetId={props.item.id}
@@ -291,7 +269,7 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
         </HStack>
       </>
 
-      <VStack css={{ mt: '20px', gap: '30px' }}>
+      <VStack css={{ mt: '25px', gap: '25px' }}>
         {sortedHighlights.map((highlight) => (
           <HighlightViewItem
             key={highlight.id}
