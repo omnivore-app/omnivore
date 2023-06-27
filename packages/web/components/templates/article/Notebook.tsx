@@ -316,14 +316,23 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
           message={'Are you sure you want to delete this highlight?'}
           onAccept={() => {
             ;(async () => {
+              const highlightId = showConfirmDeleteHighlightId
               const success = await deleteHighlightMutation(
                 showConfirmDeleteHighlightId
               )
               mutate()
               if (success) {
-                showSuccessToast('Highlight deleted.')
+                showSuccessToast('Highlight deleted.', {
+                  position: 'bottom-right',
+                })
+                const event = new CustomEvent('deleteHighlightbyId', {
+                  detail: highlightId,
+                })
+                document.dispatchEvent(event)
               } else {
-                showErrorToast('Error deleting highlight')
+                showErrorToast('Error deleting highlight', {
+                  position: 'bottom-right',
+                })
               }
             })()
             setShowConfirmDeleteHighlightId(undefined)
