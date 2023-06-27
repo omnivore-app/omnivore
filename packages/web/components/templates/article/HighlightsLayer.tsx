@@ -30,6 +30,7 @@ import SlidingPane from 'react-sliding-pane'
 import 'react-sliding-pane/dist/react-sliding-pane.css'
 import { NotebookContent } from './Notebook'
 import { NotebookHeader } from './NotebookHeader'
+import useGetWindowDimensions from '../../../lib/hooks/useGetWindowDimensions'
 
 type HighlightsLayerProps = {
   viewer: UserBasicData
@@ -85,6 +86,8 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
 
   const [labelsTarget, setLabelsTarget] =
     useState<Highlight | undefined>(undefined)
+
+  const windowDimensions = useGetWindowDimensions()
 
   const createHighlightFromSelection = useCallback(
     async (
@@ -751,7 +754,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       <SlidingPane
         className="sliding-pane-class"
         isOpen={props.showHighlightsModal}
-        width={/* windowDimensions.width < 600 ? '100%' : */ '420px'}
+        width={windowDimensions.width < 600 ? '100%' : '420px'}
         hideHeader={true}
         from="right"
         overlayClassName="slide-panel-overlay"
@@ -789,34 +792,6 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         </>
       </SlidingPane>
     )
-
-    {
-      /* return (
-      <NotebookModal
-        viewer={props.viewer}
-        item={props.item}
-        onClose={handleCloseNotebook}
-        viewHighlightInReader={(highlightId) => {
-          // The timeout here is a bit of a hack to work around rerendering
-          setTimeout(() => {
-            const target = document.querySelector(
-              `[omnivore-highlight-id="${highlightId}"]`
-            )
-            target?.scrollIntoView({
-              block: 'center',
-              behavior: 'auto',
-            })
-          }, 1)
-          history.replaceState(
-            undefined,
-            window.location.href,
-            `#${highlightId}`
-          )
-          props.setShowHighlightsModal(false)
-        }}
-      />
-    ) */
-    }
   }
 
   return <></>
