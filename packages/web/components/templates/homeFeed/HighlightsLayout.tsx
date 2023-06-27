@@ -182,7 +182,6 @@ export function HighlightItemsLayout(
                 flexGrow: '1',
                 justifyContent: 'center',
                 overflowY: 'scroll',
-                bg: '$thLibrarySearchbox',
                 '@lgDown': {
                   display: 'none',
                   flexGrow: 'unset',
