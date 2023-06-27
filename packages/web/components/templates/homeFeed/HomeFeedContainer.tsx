@@ -205,6 +205,11 @@ export function HomeFeedContainer(): JSX.Element {
       }
       setActiveCardId(id)
       scrollToActiveCard(id, true)
+
+      const newItem = getItem(id)
+      if (notebookTarget && newItem) {
+        setNotebookTarget(newItem)
+      }
     },
     [libraryItems]
   )
@@ -259,6 +264,13 @@ export function HomeFeedContainer(): JSX.Element {
     return libraryItems.find((item) => item.node.id === activeCardId)
   }, [libraryItems, activeCardId])
 
+  const getItem = useCallback(
+    (itemId) => {
+      return libraryItems.find((item) => item.node.id === itemId)
+    },
+    [libraryItems]
+  )
+
   const activeItemIndex = useMemo(() => {
     if (!activeCardId) {
       return undefined
@@ -276,8 +288,6 @@ export function HomeFeedContainer(): JSX.Element {
       alreadyScrolled.current = true
 
       if (activeItem) {
-        console.log('refreshing')
-        // refresh items on home feed
         performActionOnItem('refresh', activeItem)
       }
     }

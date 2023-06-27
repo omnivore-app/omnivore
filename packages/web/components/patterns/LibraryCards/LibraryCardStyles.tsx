@@ -119,7 +119,9 @@ export function LibraryItemMetadata(
   props: LibraryItemMetadataProps
 ): JSX.Element {
   const highlightCount = useMemo(() => {
-    return props.item.highlights?.length ?? 0
+    return (
+      props.item.highlights?.filter((h) => h.type == 'HIGHLIGHT').length ?? 0
+    )
   }, [props.item.highlights])
 
   return (
