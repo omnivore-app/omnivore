@@ -116,18 +116,20 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
         <LibraryGridCardContent {...props} isHovered={isHovered} />
       ) : (
         <>
-          <Box
-            ref={refs.setFloating}
-            style={floatingStyles}
-            {...getFloatingProps()}
-          >
-            <LibraryHoverActions
-              item={props.item}
-              viewer={props.viewer}
-              handleAction={props.handleAction}
-              isHovered={isHovered ?? false}
-            />
-          </Box>
+          {!isTouchScreenDevice() && (
+            <Box
+              ref={refs.setFloating}
+              style={floatingStyles}
+              {...getFloatingProps()}
+            >
+              <LibraryHoverActions
+                item={props.item}
+                viewer={props.viewer}
+                handleAction={props.handleAction}
+                isHovered={isHovered ?? false}
+              />
+            </Box>
+          )}
           <Link
             href={`${props.viewer.profile.username}/${props.item.slug}`}
             passHref

@@ -25,6 +25,7 @@ import {
 } from '@floating-ui/react'
 import { CardMenu } from '../CardMenu'
 import { DotsThree } from 'phosphor-react'
+import { isTouchScreenDevice } from '../../../lib/deviceType'
 
 export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
   const [isHovered, setIsHovered] = useState(false)
@@ -95,18 +96,20 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
         <LibraryListCardContent {...props} isHovered={isHovered} />
       ) : (
         <>
-          <Box
-            ref={refs.setFloating}
-            style={floatingStyles}
-            {...getFloatingProps()}
-          >
-            <LibraryHoverActions
-              item={props.item}
-              viewer={props.viewer}
-              handleAction={props.handleAction}
-              isHovered={isHovered ?? false}
-            />
-          </Box>
+          {!isTouchScreenDevice() && (
+            <Box
+              ref={refs.setFloating}
+              style={floatingStyles}
+              {...getFloatingProps()}
+            >
+              <LibraryHoverActions
+                item={props.item}
+                viewer={props.viewer}
+                handleAction={props.handleAction}
+                isHovered={isHovered ?? false}
+              />
+            </Box>
+          )}
           <Link
             href={`${props.viewer.profile.username}/${props.item.slug}`}
             passHref
