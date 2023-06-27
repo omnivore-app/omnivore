@@ -36,12 +36,29 @@ type SaverUserData = {
   username: string
 }
 
+const TWEET_URL_REGEX =
+  /twitter\.com\/(?:#!\/)?(\w+)\/status(?:es)?\/(\d+)(?:\/.*)?/
+
 // where we can use APIs to fetch their underlying content.
 const FORCE_PUPPETEER_URLS = [
-  // twitter status url regex
-  /twitter\.com\/(?:#!\/)?(\w+)\/status(?:es)?\/(\d+)(?:\/.*)?/,
+  TWEET_URL_REGEX,
   /^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w-]+\?v=|embed\/|v\/)?)([\w-]+)(\S+)?$/,
 ]
+
+export const cleanUrl = (url: string) => {
+  const trackingParams: (RegExp | string)[] = [/^utm_\w+/i] // remove utm tracking parameters
+  if (TWEET_URL_REGEX.test(url)) {
+    console.debug('cleaning tweet url', url)
+    // remove tracking parameters from tweet links:
+    // https://twitter.com/omnivore/status/1673218959624093698?s=12&t=R91quPajs0E53Yds-fhv2g
+    trackingParams.push('s', 't')
+  }
+  return normalizeUrl(url, {
+    stripHash: true,
+    stripWWW: false,
+    removeQueryParameters: trackingParams,
+  })
+}
 
 const createSlug = (url: string, title?: Maybe<string> | undefined) => {
   const { pathname } = new URL(url)
@@ -104,11 +121,7 @@ export const savePage = async (
     originalHtml: parseResult.domContent,
     canonicalUrl: parseResult.canonicalUrl,
   })
-  // check if the page already exists
-  const existingPage = await getPageByParam({
-    userId: saver.userId,
-    url: articleToSave.url,
-  })
+
   // save state
   articleToSave.archivedAt =
     input.state === ArticleSavingRequestStatus.Archived ? new Date() : null
@@ -117,28 +130,8 @@ export const savePage = async (
     ? await createLabels(ctx, input.labels)
     : undefined
 
-  if (existingPage) {
-    pageId = existingPage.id
-    slug = existingPage.slug
-    if (
-      !(await updatePage(
-        existingPage.id,
-        {
-          // update the page with the new content
-          ...articleToSave,
-          id: pageId, // we don't want to update the id
-          slug, // we don't want to update the slug
-          createdAt: existingPage.createdAt, // we don't want to update the createdAt
-        },
-        ctx
-      ))
-    ) {
-      return {
-        errorCodes: [SaveErrorCode.Unknown],
-        message: 'Failed to update existing page',
-      }
-    }
-  } else if (shouldParseInBackend(input)) {
+  // always parse in backend if the url is in the force puppeteer list
+  if (shouldParseInBackend(input)) {
     try {
       await createPageSaveRequest({
         userId: saver.userId,
@@ -155,14 +148,42 @@ export const savePage = async (
       }
     }
   } else {
-    const newPageId = await createPage(articleToSave, ctx)
-    if (!newPageId) {
-      return {
-        errorCodes: [SaveErrorCode.Unknown],
-        message: 'Failed to create new page',
+    // check if the page already exists
+    const existingPage = await getPageByParam({
+      userId: saver.userId,
+      url: articleToSave.url,
+    })
+    if (existingPage) {
+      pageId = existingPage.id
+      slug = existingPage.slug
+      if (
+        !(await updatePage(
+          existingPage.id,
+          {
+            // update the page with the new content
+            ...articleToSave,
+            id: pageId, // we don't want to update the id
+            slug, // we don't want to update the slug
+            createdAt: existingPage.createdAt, // we don't want to update the createdAt
+          },
+          ctx
+        ))
+      ) {
+        return {
+          errorCodes: [SaveErrorCode.Unknown],
+          message: 'Failed to update existing page',
+        }
       }
+    } else {
+      const newPageId = await createPage(articleToSave, ctx)
+      if (!newPageId) {
+        return {
+          errorCodes: [SaveErrorCode.Unknown],
+          message: 'Failed to create new page',
+        }
+      }
+      pageId = newPageId
     }
-    pageId = newPageId
   }
 
   // create a task to update thumbnail and pre-cache all images
@@ -248,10 +269,7 @@ export const parsedContentToPage = ({
       parsedContent?.siteName ||
       url,
     author: parsedContent?.byline ?? undefined,
-    url: normalizeUrl(canonicalUrl || url, {
-      stripHash: true,
-      stripWWW: false,
-    }),
+    url: cleanUrl(canonicalUrl || url),
     pageType,
     hash: uploadFileHash || stringToHash(parsedContent?.content || url),
     image: parsedContent?.previewImage ?? undefined,

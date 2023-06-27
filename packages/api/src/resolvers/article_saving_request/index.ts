@@ -1,5 +1,4 @@
 /* eslint-disable prefer-const */
-import normalizeUrl from 'normalize-url'
 import { getPageByParam } from '../../elastic/pages'
 import { User } from '../../entity/user'
 import { getRepository } from '../../entity/utils'
@@ -16,6 +15,7 @@ import {
   QueryArticleSavingRequestArgs,
 } from '../../generated/graphql'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
+import { cleanUrl } from '../../services/save_page'
 import { analytics } from '../../utils/analytics'
 import {
   authorized,
@@ -75,12 +75,7 @@ export const articleSavingRequestResolver = authorized<
     return { errorCodes: [ArticleSavingRequestErrorCode.Unauthorized] }
   }
 
-  const normalizedUrl = url
-    ? normalizeUrl(url, {
-        stripHash: true,
-        stripWWW: false,
-      })
-    : undefined
+  const normalizedUrl = url ? cleanUrl(url) : undefined
 
   const params = {
     _id: id || undefined,
