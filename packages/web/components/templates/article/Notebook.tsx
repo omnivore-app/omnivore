@@ -290,9 +290,7 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
           ) : null}
         </HStack>
       </>
-      {/* )} */}
 
-      {/* {tabSelected == 'highlights' && ( */}
       <VStack css={{ mt: '20px', gap: '30px' }}>
         {sortedHighlights.map((highlight) => (
           <HighlightViewItem
@@ -327,8 +325,13 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
             You have not added any highlights to this document.
           </Box>
         )}
+        <Box
+          css={{
+            width: '100%',
+            height: '320px',
+          }}
+        ></Box>
       </VStack>
-      {/* )} */}
 
       {showConfirmDeleteHighlightId && (
         <ConfirmationModal

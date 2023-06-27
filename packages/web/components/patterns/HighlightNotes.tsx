@@ -233,6 +233,16 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
               }}
             >
               <Button
+                css={{ marginRight: '10px' }}
+                style="ctaOutlineYellow"
+                onClick={(event) => {
+                  props.setEditMode('preview')
+                  event.preventDefault()
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
                 style="ctaDarkYellow"
                 onClick={(event) => {
                   if (editorRef.current) {

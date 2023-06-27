@@ -74,12 +74,6 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
 
   const { getReferenceProps, getFloatingProps } = useInteractions([hover])
 
-  console.log(
-    'ref={refs.setFloating, style={floatingStyles}',
-    refs.setFloating,
-    floatingStyles
-  )
-
   return (
     <VStack
       ref={refs.setReference}
