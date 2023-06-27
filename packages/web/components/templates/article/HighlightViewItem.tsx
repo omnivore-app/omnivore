@@ -2,9 +2,8 @@ import { useState } from 'react'
 import { Highlight } from '../../../lib/networking/fragments/highlightFragment'
 import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
-import { HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
+import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { HighlightView } from '../../patterns/HighlightView'
-import { HighlightsMenu } from '../homeFeed/HighlightItem'
 
 type HighlightViewItemProps = {
   viewer: UserBasicData
@@ -25,38 +24,28 @@ export function HighlightViewItem(props: HighlightViewItemProps): JSX.Element {
 
   return (
     <HStack
-      css={{ width: '100%', py: '20px' }}
+      css={{
+        width: '100%',
+        pt: '0px',
+        pb: '0px',
+      }}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
-      <VStack css={{ width: '100%' }}>
+      <VStack css={{ width: '100%', height: '100%' }}>
         <HighlightView
+          viewer={props.viewer}
+          item={props.item}
           highlight={props.highlight}
           updateHighlight={props.updateHighlight}
-        />
-        <SpanBox css={{ mb: '15px' }} />
-      </VStack>
-      <SpanBox
-        css={{
-          marginLeft: 'auto',
-          width: '20px',
-          visibility: hover ? 'unset' : 'hidden',
-          '@media (hover: none)': {
-            visibility: 'unset',
-          },
-        }}
-      >
-        <HighlightsMenu
-          item={props.item}
-          viewer={props.viewer}
-          highlight={props.highlight}
           viewInReader={props.viewInReader}
           setLabelsTarget={props.setSetLabelsTarget}
           setShowConfirmDeleteHighlightId={
             props.setShowConfirmDeleteHighlightId
           }
         />
-      </SpanBox>
+        <SpanBox css={{ mb: '15px' }} />
+      </VStack>
     </HStack>
   )
 }

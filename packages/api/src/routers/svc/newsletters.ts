@@ -3,6 +3,7 @@ import {
   createPubSubClient,
   readPushSubscription,
 } from '../../datalayer/pubsub'
+import { SubscriptionStatus } from '../../generated/graphql'
 import {
   getNewsletterEmail,
   updateConfirmationCode,
@@ -13,6 +14,7 @@ import {
   saveNewsletterEmail,
 } from '../../services/save_newsletter_email'
 import { saveUrlFromEmail } from '../../services/save_url'
+import { getSubscriptionByNameAndUserId } from '../../services/subscriptions'
 import { isUrl } from '../../utils/helpers'
 
 interface SetConfirmationCodeMessage {
@@ -128,6 +130,16 @@ export function newsletterServiceRouter() {
           return res.status(500).send('Error saving url from email')
         }
       } else {
+        // do not subscribe if subscription already exists and is unsubscribed
+        const existingSubscription = await getSubscriptionByNameAndUserId(
+          data.author,
+          newsletterEmail.user.id
+        )
+        if (existingSubscription?.status === SubscriptionStatus.Unsubscribed) {
+          console.log('newsletter already unsubscribed:', data.author)
+          return res.status(200).send('newsletter already unsubscribed')
+        }
+
         // save newsletter instead
         const result = await saveNewsletterEmail(data, newsletterEmail, saveCtx)
         if (!result) {

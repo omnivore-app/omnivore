@@ -111,9 +111,7 @@ export const unsubscribeResolver = authorized<
     }
 
     if (!subscription.unsubscribeMailTo && !subscription.unsubscribeHttpUrl) {
-      return {
-        errorCodes: [UnsubscribeErrorCode.UnsubscribeMethodNotFound],
-      }
+      log.info('No unsubscribe method found')
     }
 
     await unsubscribe(subscription)

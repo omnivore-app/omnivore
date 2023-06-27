@@ -19,17 +19,20 @@ type BulkActionResponse = {
 export async function bulkActionMutation(
   action: BulkAction,
   query: string,
-  expectedCount: number
+  expectedCount: number,
+  labelIds?: string[]
 ): Promise<boolean> {
   const mutation = gql`
     mutation BulkAction(
       $action: BulkActionType!
       $query: String!
       $expectedCount: Int
+      $labelIds: [ID!]
     ) {
       bulkAction(
         query: $query
         action: $action
+        labelIds: $labelIds
         expectedCount: $expectedCount
       ) {
         ... on BulkActionSuccess {
@@ -48,6 +51,7 @@ export async function bulkActionMutation(
     const response = await gqlFetcher(mutation, {
       action,
       query,
+      labelIds,
       expectedCount,
     })
     console.log('response', response)

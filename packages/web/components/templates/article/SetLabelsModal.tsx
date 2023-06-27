@@ -14,6 +14,7 @@ import { useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQ
 import { v4 as uuidv4 } from 'uuid'
 import { randomLabelColorHex } from '../../../utils/settings-page/labels/labelColorObjects'
 import { LabelsDispatcher } from '../../../lib/hooks/useSetPageLabels'
+import * as Dialog from '@radix-ui/react-dialog'
 
 type SetLabelsModalProps = {
   provider: LabelsProvider
@@ -30,9 +31,8 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
   const availableLabels = useGetLabelsQuery()
   const [tabCount, setTabCount] = useState(-1)
   const [tabStartValue, setTabStartValue] = useState('')
-  const [errorMessage, setErrorMessage] = useState<string | undefined>(
-    undefined
-  )
+  const [errorMessage, setErrorMessage] =
+    useState<string | undefined>(undefined)
   const errorTimeoutRef = useRef<NodeJS.Timeout | undefined>()
   const [highlightLastLabel, setHighlightLastLabel] = useState(false)
 
@@ -171,45 +171,46 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
 
   return (
     <ModalRoot defaultOpen onOpenChange={props.onOpenChange}>
-      <ModalOverlay />
-      <ModalContent
-        tabIndex={0}
-        css={{
-          border: '1px solid $grayBorder',
-          backgroundColor: '$thBackground',
-        }}
-        onPointerDownOutside={(event) => {
-          event.preventDefault()
-          props.onOpenChange(false)
-        }}
-        onEscapeKeyDown={(event) => {
-          props.onOpenChange(false)
-          event.preventDefault()
-        }}
-      >
-        <VStack distribution="start" css={{ height: '100%' }}>
-          <SpanBox css={{ pt: '0px', px: '16px', width: '100%' }}>
-            <ModalTitleBar title="Labels" onOpenChange={props.onOpenChange} />
-          </SpanBox>
-          <SetLabelsControl
-            provider={props.provider}
-            inputValue={inputValue}
-            setInputValue={setInputValue}
-            clearInputState={clearInputState}
-            selectedLabels={props.selectedLabels}
-            dispatchLabels={props.dispatchLabels}
-            tabCount={tabCount}
-            setTabCount={setTabCount}
-            tabStartValue={tabStartValue}
-            setTabStartValue={setTabStartValue}
-            highlightLastLabel={highlightLastLabel}
-            setHighlightLastLabel={setHighlightLastLabel}
-            deleteLastLabel={deleteLastLabel}
-            selectOrCreateLabel={selectOrCreateLabel}
-            errorMessage={errorMessage}
-          />
-        </VStack>
-      </ModalContent>
+      <Dialog.Portal>
+        <ModalOverlay />
+        <ModalContent
+          tabIndex={0}
+          css={{
+            border: '1px solid $grayBorder',
+            backgroundColor: '$thBackground',
+          }}
+          onPointerDownOutside={(event) => {
+            event.preventDefault()
+            props.onOpenChange(false)
+          }}
+          onEscapeKeyDown={(event) => {
+            props.onOpenChange(false)
+            event.preventDefault()
+          }}
+        >
+          <VStack distribution="start" css={{ height: '100%' }}>
+            <SpanBox css={{ pt: '0px', px: '16px', width: '100%' }}>
+              <ModalTitleBar title="Labels" onOpenChange={props.onOpenChange} />
+            </SpanBox>
+            <SetLabelsControl
+              inputValue={inputValue}
+              setInputValue={setInputValue}
+              clearInputState={clearInputState}
+              selectedLabels={props.selectedLabels}
+              dispatchLabels={props.dispatchLabels}
+              tabCount={tabCount}
+              setTabCount={setTabCount}
+              tabStartValue={tabStartValue}
+              setTabStartValue={setTabStartValue}
+              highlightLastLabel={highlightLastLabel}
+              setHighlightLastLabel={setHighlightLastLabel}
+              deleteLastLabel={deleteLastLabel}
+              selectOrCreateLabel={selectOrCreateLabel}
+              errorMessage={errorMessage}
+            />
+          </VStack>
+        </ModalContent>
+      </Dialog.Portal>
     </ModalRoot>
   )
 }

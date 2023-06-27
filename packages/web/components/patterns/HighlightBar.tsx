@@ -6,7 +6,7 @@ import { StyledText } from '../elements/StyledText'
 import { Button } from '../elements/Button'
 import { HStack, Box } from '../elements/LayoutPrimitives'
 import { PenWithColorIcon } from '../elements/images/PenWithColorIcon'
-import { Note, Tag, Trash } from 'phosphor-react'
+import { Note, Tag, Trash, Copy } from 'phosphor-react'
 
 type PageCoordinates = {
   pageX: number
@@ -21,6 +21,7 @@ export type HighlightAction =
   | 'post'
   | 'unshare'
   | 'setHighlightLabels'
+  | 'copy'
 
 type HighlightBarProps = {
   anchorCoordinates: PageCoordinates
@@ -31,50 +32,75 @@ type HighlightBarProps = {
 }
 
 export function HighlightBar(props: HighlightBarProps): JSX.Element {
-  if (props.displayAtBottom) {
-    return (
-      <Box
-        css={{
-          width: '100%',
-          maxWidth: props.isNewHighlight ? '280px' : '330px',
-          height: '48px',
-          position: 'fixed',
-          background: '$grayBg',
-          borderRadius: '4px',
-          border: '1px solid $grayBorder',
-          boxShadow: theme.shadows.cardBoxShadow.toString(),
+  return (
+    <Box
+      css={{
+        width: '100%',
+        maxWidth: props.isNewHighlight ? '330px' : '380px',
+        height: '48px',
+        position: props.displayAtBottom ? 'fixed' : 'absolute',
+        background: '$grayBg',
+        borderRadius: '4px',
+        border: '1px solid $grayBorder',
+        boxShadow: theme.shadows.cardBoxShadow.toString(),
+        ...(props.displayAtBottom && {
           bottom: 'calc(38px + env(safe-area-inset-bottom, 40px))',
+        }),
+        ...(props.displayAtBottom && {
           '@smDown': {
-            maxWidth: '85%',
+            maxWidth: '90vw',
             bottom: `calc(28px + ${
               isAndroid() ? 30 : 0
             }px + env(safe-area-inset-bottom, 40px))`,
           },
-        }}
-      >
-        <BarContent {...props} />
-      </Box>
-    )
-  } else {
-    return (
-      <Box
-        css={{
-          width: '100%',
-          maxWidth: props.isNewHighlight ? '280px' : '330px',
-          height: '48px',
-          position: 'absolute',
-          background: '$grayBg',
-          borderRadius: '4px',
-          border: '1px solid $grayBorder',
-          boxShadow: theme.shadows.cardBoxShadow.toString(),
-          left: props.anchorCoordinates.pageX,
-          top: props.anchorCoordinates.pageY,
-        }}
-      >
-        <BarContent {...props} />
-      </Box>
-    )
-  }
+        }),
+        ...(!props.displayAtBottom && { left: props.anchorCoordinates.pageX }),
+        ...(!props.displayAtBottom && { top: props.anchorCoordinates.pageY }),
+      }}
+    >
+      <BarContent {...props} />
+    </Box>
+  )
+}
+
+type BarButtonProps = {
+  title: string
+  onClick: VoidFunction
+  iconElement: JSX.Element
+  text: string
+}
+
+function BarButton({ text, title, iconElement, onClick }: BarButtonProps) {
+  return (
+    <Button
+      style="plainIcon"
+      title={title}
+      onClick={onClick}
+      css={{
+        flexDirection: 'column',
+        height: '100%',
+        m: 0,
+        p: 0,
+        alignItems: 'baseline',
+      }}
+    >
+      <HStack css={{ height: '100%', alignItems: 'center' }}>
+        {iconElement}
+        <StyledText
+          style="body"
+          css={{
+            pl: '4px',
+            m: '0px',
+            color: '$readerFont',
+            fontWeight: '400',
+            fontSize: '16px',
+          }}
+        >
+          {text}
+        </StyledText>
+      </HStack>
+    </Button>
+  )
 }
 
 function BarContent(props: HighlightBarProps): JSX.Element {
@@ -96,116 +122,51 @@ function BarContent(props: HighlightBarProps): JSX.Element {
       }}
     >
       {props.isNewHighlight ? (
-        <Button
-          style="plainIcon"
+        <BarButton
+          text="Highlight"
           title="Create Highlight"
+          iconElement={<PenWithColorIcon />}
           onClick={() => props.handleButtonClick('create')}
-          css={{
-            flexDirection: 'column',
-            height: '100%',
-            m: 0,
-            p: 0,
-            alignItems: 'baseline',
-          }}
-        >
-          <HStack css={{ height: '100%', alignItems: 'center' }}>
-            <PenWithColorIcon />
-            <StyledText
-              style="body"
-              css={{
-                pl: '12px',
-                m: '0px',
-                color: '$readerFont',
-                fontWeight: '400',
-                fontSize: '16px',
-              }}
-            >
-              Highlight
-            </StyledText>
-          </HStack>
-        </Button>
+        />
       ) : (
         <>
-          <Button
-            style="plainIcon"
+          <BarButton
+            text="Delete"
             title="Remove Highlight"
+            iconElement={
+              <Trash size={20} color={theme.colors.omnivoreRed.toString()} />
+            }
             onClick={() => props.handleButtonClick('delete')}
-            css={{ color: '$readerFont', height: '100%', m: 0, p: 0 }}
-          >
-            <HStack css={{ height: '100%', alignItems: 'center' }}>
-              <Trash size={24} color={theme.colors.omnivoreRed.toString()} />
-              <StyledText
-                style="body"
-                css={{
-                  pl: '12px',
-                  m: '0px',
-                  color: '$readerFont',
-                  fontWeight: '400',
-                  fontSize: '16px',
-                }}
-              >
-                Delete
-              </StyledText>
-            </HStack>
-          </Button>
+          />
           <Separator />
-
-          <Button
-            style="plainIcon"
+          <BarButton
+            text="Labels"
             title="Set Labels"
+            iconElement={
+              <Tag size={20} color={theme.colors.readerFont.toString()} />
+            }
             onClick={() => props.handleButtonClick('setHighlightLabels')}
-            css={{ color: '$readerFont', height: '100%', m: 0, p: 0 }}
-          >
-            <HStack css={{ height: '100%', alignItems: 'center' }}>
-              <Tag size={24} color={theme.colors.readerFont.toString()} />
-              <StyledText
-                style="body"
-                css={{
-                  pl: '12px',
-                  m: '0px',
-                  color: '$readerFont',
-                  fontWeight: '400',
-                  fontSize: '16px',
-                }}
-              >
-                Labels
-              </StyledText>
-            </HStack>
-          </Button>
+          />
         </>
       )}
       <Separator />
-      <Button
-        style="plainIcon"
+      <BarButton
+        text="Note"
         title="Add Note to Highlight"
+        iconElement={
+          <Note size={20} color={theme.colors.readerFont.toString()} />
+        }
         onClick={() => props.handleButtonClick('comment')}
-        css={{ color: '$readerFont', height: '100%', m: 0, p: 0 }}
-      >
-        <HStack css={{ height: '100%', alignItems: 'center' }}>
-          <Note size={24} color={theme.colors.readerFont.toString()} />
-          <StyledText
-            style="body"
-            css={{
-              pl: '12px',
-              m: '0px',
-              color: '$readerFont',
-              fontWeight: '400',
-              fontSize: '16px',
-            }}
-          >
-            Note
-          </StyledText>
-        </HStack>
-      </Button>
-      {/* <Separator />
-      <Button
-        style="plainIcon"
-        title="Share Highlight"
-        onClick={() => props.handleButtonClick('share')}
-        css={{ color: '$readerFont', height: '100%', m: 0, p: 0, pt: '6px' }}
-      >
-        <ShareIcon size={28} strokeColor={theme.colors.readerFont.toString()} isCompleted={false} />
-      </Button> */}
+      />
+      <Separator />
+      <BarButton
+        text="Copy"
+        title="Copy Text to Clipboard"
+        iconElement={
+          <Copy size={20} color={theme.colors.readerFont.toString()} />
+        }
+        onClick={() => props.handleButtonClick('copy')}
+      />
     </HStack>
   )
 }

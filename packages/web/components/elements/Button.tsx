@@ -125,7 +125,7 @@ export const Button = styled('button', {
         fontWeight: '600',
         fontFamily: '$inter',
         cursor: 'pointer',
-        border: '1px solid $thBorderSubtle',
+        border: '1px solid $thBorderColor',
         bg: 'transparent',
         '&:hover': {
           border: '1px solid $grayBorderHover',
@@ -242,15 +242,31 @@ export const Button = styled('button', {
         border: 'none',
         cursor: 'pointer',
         '&:hover': {
-          opacity: 0.8,
+          opacity: 0.7,
         },
       },
       articleActionIcon: {
         bg: 'transparent',
         border: 'none',
         cursor: 'pointer',
+        padding: '4px',
+        borderRadius: '5px',
+
         '&:hover': {
-          opacity: 0.8,
+          opacity: 0.7,
+        },
+      },
+      hoverActionIcon: {
+        bg: 'transparent',
+        border: 'none',
+        cursor: 'pointer',
+        padding: '4px',
+        height: '100%',
+        pt: '6px',
+        minWidth: '25px',
+
+        '&:hover': {
+          bg: '$grayBgHover',
         },
       },
       ghost: {

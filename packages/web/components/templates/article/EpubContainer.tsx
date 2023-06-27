@@ -333,7 +333,6 @@ export default function EpubContainer(props: EpubContainerProps): JSX.Element {
           key={notebookKey}
           viewer={props.viewer}
           item={props.article}
-          highlights={highlightsRef.current}
           onClose={(updatedHighlights, deletedAnnotations) => {
             console.log(
               'closed PDF notebook: ',

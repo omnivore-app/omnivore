@@ -14,6 +14,7 @@ import {
   Recommendation,
   recommendationFragment,
 } from './useGetLibraryItemsQuery'
+import useSWR from 'swr'
 
 type ArticleQueryInput = {
   username?: string
@@ -25,6 +26,8 @@ type ArticleQueryOutput = {
   articleData?: ArticleData
   isLoading: boolean
   articleFetchError: string[] | null
+
+  mutate: () => void
 }
 
 type ArticleData = {
@@ -107,7 +110,7 @@ export function useGetArticleQuery({
     includeFriendsHighlights,
   }
 
-  const { data, error } = useSWRImmutable(
+  const { data, error, mutate } = useSWR(
     slug ? [query, username, slug, includeFriendsHighlights] : null,
     makeGqlFetcher(variables)
   )
@@ -124,6 +127,7 @@ export function useGetArticleQuery({
   }
 
   return {
+    mutate: mutate,
     articleData: resultData,
     isLoading: !error && !data,
     articleFetchError: resultError ? (resultError as string[]) : null,

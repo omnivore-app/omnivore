@@ -5,20 +5,30 @@ import { CoverImage } from '../../elements/CoverImage'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useCallback, useState } from 'react'
-import { DotsThreeVertical } from 'phosphor-react'
 import Link from 'next/link'
-import { CardMenu } from '../CardMenu'
 import {
   AuthorInfoStyle,
   CardCheckbox,
   DescriptionStyle,
   LibraryItemMetadata,
-  MenuStyle,
   MetaStyle,
   siteName,
   TitleStyle,
+  MenuStyle,
 } from './LibraryCardStyles'
 import { sortedLabels } from '../../../lib/labelsSort'
+import { LibraryHoverActions } from './LibraryHoverActions'
+import {
+  useHover,
+  useFloating,
+  useInteractions,
+  size,
+  offset,
+  autoUpdate,
+} from '@floating-ui/react'
+import { CardMenu } from '../CardMenu'
+import { DotsThree } from 'phosphor-react'
+import { isTouchScreenDevice } from '../../../lib/deviceType'
 
 dayjs.extend(relativeTime)
 
@@ -54,9 +64,29 @@ export function ProgressBar(props: ProgressBarProps): JSX.Element {
 
 export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
   const [isHovered, setIsHovered] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
+
+  const { refs, floatingStyles, context } = useFloating({
+    open: isOpen,
+    onOpenChange: setIsOpen,
+    middleware: [
+      offset({
+        mainAxis: -25,
+      }),
+      size(),
+    ],
+    placement: 'top-end',
+    whileElementsMounted: autoUpdate,
+  })
+
+  const hover = useHover(context)
+
+  const { getReferenceProps, getFloatingProps } = useInteractions([hover])
 
   return (
     <VStack
+      ref={refs.setReference}
+      {...getReferenceProps()}
       css={{
         pl: '20px',
         padding: '15px',
@@ -86,18 +116,34 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
       {props.inMultiSelect ? (
         <LibraryGridCardContent {...props} isHovered={isHovered} />
       ) : (
-        <Link
-          href={`${props.viewer.profile.username}/${props.item.slug}`}
-          passHref
-        >
-          <a
+        <>
+          {!isTouchScreenDevice() && (
+            <Box
+              ref={refs.setFloating}
+              style={floatingStyles}
+              {...getFloatingProps()}
+            >
+              <LibraryHoverActions
+                item={props.item}
+                viewer={props.viewer}
+                handleAction={props.handleAction}
+                isHovered={isHovered ?? false}
+              />
+            </Box>
+          )}
+          <Link
             href={`${props.viewer.profile.username}/${props.item.slug}`}
-            style={{ textDecoration: 'unset', width: '100%', height: '100%' }}
-            tabIndex={-1}
+            passHref
           >
-            <LibraryGridCardContent {...props} isHovered={isHovered} />
-          </a>
-        </Link>
+            <a
+              href={`${props.viewer.profile.username}/${props.item.slug}`}
+              style={{ textDecoration: 'unset', width: '100%', height: '100%' }}
+              tabIndex={-1}
+            >
+              <LibraryGridCardContent {...props} isHovered={isHovered} />
+            </a>
+          </Link>
+        </>
       )}
     </VStack>
   )
@@ -133,7 +179,7 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
           <Box
             css={{
               ...MenuStyle,
-              visibility: props.isHovered || menuOpen ? 'unset' : 'hidden',
+              visibility: menuOpen ? 'visible' : 'hidden',
               '@media (hover: none)': {
                 visibility: 'unset',
               },
@@ -145,12 +191,13 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
               onOpenChange={(open) => setMenuOpen(open)}
               actionHandler={props.handleAction}
               triggerElement={
-                <DotsThreeVertical size={25} weight="bold" color="#ADADAD" />
+                <DotsThree size={25} weight="bold" color="#ADADAD" />
               }
             />
           </Box>
         )}
       </HStack>
+
       <VStack
         alignment="start"
         distribution="start"

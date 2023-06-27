@@ -1059,6 +1059,8 @@ Readability.prototype = {
     if (node.className === 'omnivore-published-date' && this._isValidPublishedDate(node.textContent)) {
       return new Date(node.textContent);
     }
+    // we don't want to check for dates in the URL's
+    if (node.tagName.toLowerCase() === 'a') return
     // Searching for the real date in the text content
     let dateRegExpFound = this.REGEXPS.DATES_REGEXPS.find(regexp => regexp.test(node.textContent.trim()))
     dateRegExpFound && (dateRegExpFound = dateRegExpFound.exec(node.textContent.trim()))

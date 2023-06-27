@@ -131,6 +131,8 @@ export async function createHighlight(
     )
   }
 
+  document.dispatchEvent(new Event('highlightsUpdated'))
+
   if (highlight) {
     const highlights = [...keptHighlights, highlight]
     return {

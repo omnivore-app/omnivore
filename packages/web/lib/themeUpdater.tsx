@@ -107,6 +107,7 @@ export function isDarkTheme(): boolean {
   return (
     currentTheme === 'Dark' ||
     currentTheme === 'Darker' ||
+    currentTheme === 'Apollo' ||
     currentTheme == 'Black'
   )
 }

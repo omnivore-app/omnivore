@@ -2,34 +2,67 @@ import { Box, VStack, HStack, SpanBox } from '../../elements/LayoutPrimitives'
 import { LabelChip } from '../../elements/LabelChip'
 import type { LinkedItemCardProps } from './CardTypes'
 import { useCallback, useState } from 'react'
-import { DotsThree } from 'phosphor-react'
 import Link from 'next/link'
-import { CardMenu } from '../CardMenu'
 import {
   AuthorInfoStyle,
   CardCheckbox,
   LibraryItemMetadata,
-  MenuStyle,
   MetaStyle,
   siteName,
   TitleStyle,
+  MenuStyle,
 } from './LibraryCardStyles'
 import { sortedLabels } from '../../../lib/labelsSort'
 import { LIBRARY_LEFT_MENU_WIDTH } from '../../templates/homeFeed/LibraryFilterMenu'
+import { LibraryHoverActions } from './LibraryHoverActions'
+import {
+  useHover,
+  useFloating,
+  useInteractions,
+  size,
+  offset,
+  autoUpdate,
+} from '@floating-ui/react'
+import { CardMenu } from '../CardMenu'
+import { DotsThree } from 'phosphor-react'
+import { isTouchScreenDevice } from '../../../lib/deviceType'
 
 export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
   const [isHovered, setIsHovered] = useState(false)
 
+  const [isOpen, setIsOpen] = useState(false)
+
+  const { refs, floatingStyles, context } = useFloating({
+    open: isOpen,
+    onOpenChange: setIsOpen,
+    middleware: [
+      offset({
+        mainAxis: -25,
+      }),
+      size(),
+    ],
+    placement: 'top-end',
+    whileElementsMounted: autoUpdate,
+  })
+
+  const hover = useHover(context)
+
+  const { getReferenceProps, getFloatingProps } = useInteractions([hover])
+
   return (
     <VStack
+      ref={refs.setReference}
+      {...getReferenceProps()}
       css={{
-        px: '15px',
-        py: '10px',
+        px: '20px',
+        pt: '20px',
+        pb: '20px',
         height: '100%',
         cursor: 'pointer',
         gap: '10px',
         border: '1px solid $grayBorder',
         borderBottom: 'none',
+        borderRadius: '6px',
         width: '100vw',
         '@media (min-width: 768px)': {
           width: `calc(100vw - ${LIBRARY_LEFT_MENU_WIDTH})`,
@@ -42,6 +75,12 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
         },
         '@media (min-width: 1600px)': {
           width: '1340px',
+        },
+        boxShadow:
+          '0 1px 3px 0 rgba(0, 0, 0, 0.1),0 1px 2px 0 rgba(0, 0, 0, 0.06);',
+        '@media (max-width: 930px)': {
+          boxShadow: 'unset',
+          borderRadius: 'unset',
         },
       }}
       alignment="start"
@@ -56,18 +95,34 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
       {props.inMultiSelect ? (
         <LibraryListCardContent {...props} isHovered={isHovered} />
       ) : (
-        <Link
-          href={`${props.viewer.profile.username}/${props.item.slug}`}
-          passHref
-        >
-          <a
+        <>
+          {!isTouchScreenDevice() && (
+            <Box
+              ref={refs.setFloating}
+              style={floatingStyles}
+              {...getFloatingProps()}
+            >
+              <LibraryHoverActions
+                item={props.item}
+                viewer={props.viewer}
+                handleAction={props.handleAction}
+                isHovered={isHovered ?? false}
+              />
+            </Box>
+          )}
+          <Link
             href={`${props.viewer.profile.username}/${props.item.slug}`}
-            style={{ textDecoration: 'unset', width: '100%', height: '100%' }}
-            tabIndex={-1}
+            passHref
           >
-            <LibraryListCardContent {...props} isHovered={isHovered} />
-          </a>
-        </Link>
+            <a
+              href={`${props.viewer.profile.username}/${props.item.slug}`}
+              style={{ textDecoration: 'unset', width: '100%', height: '100%' }}
+              tabIndex={-1}
+            >
+              <LibraryListCardContent {...props} isHovered={isHovered} />
+            </a>
+          </Link>
+        </>
       )}
     </VStack>
   )
@@ -76,8 +131,8 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
 export function LibraryListCardContent(
   props: LinkedItemCardProps
 ): JSX.Element {
-  const { isChecked, setIsChecked, item } = props
   const [menuOpen, setMenuOpen] = useState(false)
+  const { isChecked, setIsChecked, item } = props
   const originText = siteName(props.item.originalArticleUrl, props.item.url)
 
   const handleCheckChanged = useCallback(() => {
@@ -99,7 +154,7 @@ export function LibraryListCardContent(
           <Box
             css={{
               ...MenuStyle,
-              visibility: props.isHovered || menuOpen ? 'unset' : 'hidden',
+              visibility: menuOpen ? 'visible' : 'hidden',
               '@media (hover: none)': {
                 visibility: 'unset',
               },
@@ -122,11 +177,14 @@ export function LibraryListCardContent(
         distribution="start"
         css={{ height: '100%', width: '100%' }}
       >
-        <Box css={{ ...TitleStyle, width: '80%' }}>{props.item.title}</Box>
+        <Box css={{ ...TitleStyle, fontSize: '18px', width: '80%' }}>
+          {props.item.title}
+        </Box>
         <SpanBox
           css={{
             mt: '5px',
             ...AuthorInfoStyle,
+            maxWidth: '90%',
           }}
         >
           {props.item.author}

@@ -27,15 +27,16 @@ import { DerstandardHandler } from './websites/derstandard-handler'
 import { GitHubHandler } from './websites/github-handler'
 import { ImageHandler } from './websites/image-handler'
 import { MediumHandler } from './websites/medium-handler'
+import { NitterHandler } from './websites/nitter-handler'
 import { PdfHandler } from './websites/pdf-handler'
 import { PipedVideoHandler } from './websites/piped-video-handler'
 import { ScrapingBeeHandler } from './websites/scrapingBee-handler'
 import { StackOverflowHandler } from './websites/stack-overflow-handler'
 import { TDotCoHandler } from './websites/t-dot-co-handler'
-import { TwitterHandler } from './websites/twitter-handler'
 import { WeixinQqHandler } from './websites/weixin-qq-handler'
 import { WikipediaHandler } from './websites/wikipedia-handler'
 import { YoutubeHandler } from './websites/youtube-handler'
+import { TheAtlanticHandler } from './websites/the-atlantic-handler'
 
 const validateUrlString = (url: string): boolean => {
   const u = new URL(url)
@@ -56,6 +57,7 @@ const validateUrlString = (url: string): boolean => {
 }
 
 const contentHandlers: ContentHandler[] = [
+  new TheAtlanticHandler(),
   new AppleNewsHandler(),
   new BloombergHandler(),
   new DerstandardHandler(),
@@ -64,7 +66,6 @@ const contentHandlers: ContentHandler[] = [
   new PdfHandler(),
   new ScrapingBeeHandler(),
   new TDotCoHandler(),
-  new TwitterHandler(),
   new YoutubeHandler(),
   new WikipediaHandler(),
   new GitHubHandler(),
@@ -77,6 +78,7 @@ const contentHandlers: ContentHandler[] = [
   new EnergyWorldHandler(),
   new PipedVideoHandler(),
   new WeixinQqHandler(),
+  new NitterHandler(),
 ]
 
 const newsletterHandlers: ContentHandler[] = [

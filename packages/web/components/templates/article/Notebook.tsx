@@ -2,8 +2,8 @@ import { Box, HStack, VStack, SpanBox } from '../../elements/LayoutPrimitives'
 import { StyledText } from '../../elements/StyledText'
 import { theme } from '../../tokens/stitches.config'
 import type { Highlight } from '../../../lib/networking/fragments/highlightFragment'
-import { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
-import { BookOpen, PencilLine, X } from 'phosphor-react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { CaretDown, CaretRight } from 'phosphor-react'
 import { updateHighlightMutation } from '../../../lib/networking/mutations/updateHighlightMutation'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { diff_match_patch } from 'diff-match-patch'
@@ -12,28 +12,26 @@ import { createHighlightMutation } from '../../../lib/networking/mutations/creat
 import { v4 as uuidv4 } from 'uuid'
 import { nanoid } from 'nanoid'
 import { deleteHighlightMutation } from '../../../lib/networking/mutations/deleteHighlightMutation'
-import { HighlightNoteBox } from '../../patterns/HighlightNotes'
 import { HighlightViewItem } from './HighlightViewItem'
 import { ConfirmationModal } from '../../patterns/ConfirmationModal'
 import { TrashIcon } from '../../elements/images/TrashIcon'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { SetHighlightLabelsModalPresenter } from './SetLabelsModalPresenter'
+import { Button } from '../../elements/Button'
+import { ArticleNotes } from '../../patterns/ArticleNotes'
+import { useGetArticleQuery } from '../../../lib/networking/queries/useGetArticleQuery'
+import { formattedShortTime } from '../../../lib/dateFormatting'
+import { isDarkTheme } from '../../../lib/themeUpdater'
 
-type NotebookProps = {
+type NotebookContentProps = {
   viewer: UserBasicData
 
   item: ReadableItem
-  highlights: Highlight[]
-
-  sizeMode: 'normal' | 'maximized'
 
   viewInReader: (highlightId: string) => void
 
-  onAnnotationsChanged?: (
-    highlights: Highlight[],
-    deletedAnnotations: Highlight[]
-  ) => void
+  onAnnotationsChanged?: (highlights: Highlight[]) => void
 
   showConfirmDeleteNote?: boolean
   setShowConfirmDeleteNote?: (show: boolean) => void
@@ -45,161 +43,95 @@ export const getHighlightLocation = (patch: string): number | undefined => {
   return patches[0].start1 || undefined
 }
 
-type AnnotationInfo = {
-  loaded: boolean
-
+type NoteState = {
+  isCreating: boolean
   note: Highlight | undefined
-  noteId: string
-
-  allAnnotations: Highlight[]
-  deletedAnnotations: Highlight[]
+  createStarted: Date | undefined
 }
 
-export function Notebook(props: NotebookProps): JSX.Element {
+export function NotebookContent(props: NotebookContentProps): JSX.Element {
+  const isDark = isDarkTheme()
+
+  const { articleData, mutate } = useGetArticleQuery({
+    slug: props.item.slug,
+    username: props.viewer.profile.username,
+    includeFriendsHighlights: false,
+  })
+  const [noteText, setNoteText] = useState<string>('')
   const [showConfirmDeleteHighlightId, setShowConfirmDeleteHighlightId] =
     useState<undefined | string>(undefined)
-  const [labelsTarget, setLabelsTarget] = useState<Highlight | undefined>(
-    undefined
-  )
-  const [notesEditMode, setNotesEditMode] = useState<'edit' | 'preview'>(
-    'preview'
-  )
-  const [, updateState] = useState({})
-
-  const annotationsReducer = (
-    state: AnnotationInfo,
-    action: {
-      type: string
-      allHighlights?: Highlight[]
-      note?: Highlight | undefined
-
-      updateHighlight?: Highlight | undefined
-      deleteHighlightId?: string | undefined
-    }
-  ) => {
-    switch (action.type) {
-      case 'RESET': {
-        const note = action.allHighlights?.find((h) => h.type == 'NOTE')
-        return {
-          ...state,
-          loaded: true,
-          note: note,
-          noteId: note?.id ?? state.noteId,
-          allAnnotations: [...(action.allHighlights ?? [])],
-        }
-      }
-      case 'CREATE_NOTE': {
-        if (!action.note) {
-          throw new Error('No note on CREATE_NOTE action')
-        }
-        return {
-          ...state,
-          note: action.note,
-          noteId: action.note.id,
-          allAnnotations: [...state.allAnnotations, action.note],
-        }
-      }
-      case 'DELETE_NOTE': {
-        // If there is no note to delete, just make sure we have cleared out the note
-        const noteId = action.note?.id
-        if (!action.note?.id) {
-          return {
-            ...state,
-            node: undefined,
-            noteId: uuidv4(),
-          }
-        }
-        const idx = state.allAnnotations.findIndex((h) => h.id === noteId)
-        return {
-          ...state,
-          note: undefined,
-          noteId: uuidv4(),
-          allAnnotations: state.allAnnotations.splice(idx, 1),
-        }
-      }
-      case 'DELETE_HIGHLIGHT': {
-        const highlightId = action.deleteHighlightId
-        if (!highlightId) {
-          throw new Error('No highlightId for delete action.')
-        }
-        const idx = state.allAnnotations.findIndex((h) => h.id === highlightId)
-        if (idx < 0) {
-          return { ...state }
-        }
-        const deleted = state.deletedAnnotations
-        deleted.push(state.allAnnotations[idx])
-
-        return {
-          ...state,
-          deletedAnnotations: deleted,
-          allAnnotations: state.allAnnotations.splice(idx, 1),
-        }
-      }
-      case 'UPDATE_HIGHLIGHT': {
-        const highlight = action.updateHighlight
-        if (!highlight) {
-          throw new Error('No highlightId for delete action.')
-        }
-        const idx = state.allAnnotations.findIndex((h) => h.id === highlight.id)
-        if (idx !== -1) {
-          state.allAnnotations[idx] = highlight
-        }
-        return {
-          ...state,
-        }
-      }
-      default:
-        return state
-    }
-  }
-
-  const [annotations, dispatchAnnotations] = useReducer(annotationsReducer, {
-    loaded: false,
+  const [labelsTarget, setLabelsTarget] =
+    useState<Highlight | undefined>(undefined)
+  const noteState = useRef<NoteState>({
+    isCreating: false,
     note: undefined,
-    noteId: uuidv4(),
-    allAnnotations: [],
-    deletedAnnotations: [],
+    createStarted: undefined,
   })
 
-  useEffect(() => {
-    dispatchAnnotations({
-      type: 'RESET',
-      allHighlights: props.highlights,
-    })
-  }, [props.highlights])
+  const newNoteId = useMemo(() => {
+    return uuidv4()
+  }, [])
 
-  useEffect(() => {
-    if (props.onAnnotationsChanged) {
-      props.onAnnotationsChanged(
-        annotations.allAnnotations,
-        annotations.deletedAnnotations
-      )
-    }
-  }, [annotations])
+  const updateNote = useCallback(
+    (note: Highlight, text: string, startTime: Date) => {
+      ;(async () => {
+        const result = await updateHighlightMutation({
+          highlightId: note.id,
+          annotation: text,
+        })
+        if (result) {
+          setLastSaved(startTime)
+        } else {
+          setErrorSaving('Error saving')
+        }
+      })()
+    },
+    []
+  )
 
-  const deleteDocumentNote = useCallback(() => {
-    const note = annotations.note
-    if (!note) {
-      showErrorToast('No note found')
-      return
-    }
+  const createNote = useCallback((text: string) => {
+    console.log('creating note: ', newNoteId, noteState.current.isCreating)
+    noteState.current.isCreating = true
+    noteState.current.createStarted = new Date()
     ;(async () => {
       try {
-        const result = await deleteHighlightMutation(note.id)
-        if (!result) {
-          throw new Error()
-        }
-        showSuccessToast('Note deleted')
-        dispatchAnnotations({
-          note,
-          type: 'DELETE_NOTE',
+        const success = await createHighlightMutation({
+          id: newNoteId,
+          shortId: nanoid(8),
+          type: 'NOTE',
+          articleId: props.item.id,
+          annotation: text,
         })
-      } catch (err) {
-        console.log('error deleting note', err)
-        showErrorToast('Error deleting note')
+        if (success) {
+          noteState.current.note = success
+          noteState.current.isCreating = false
+        } else {
+          setErrorSaving('Error creating note')
+        }
+      } catch (error) {
+        console.error('error creating note: ', error)
+        noteState.current.isCreating = false
+        setErrorSaving('Error creating note')
       }
     })()
-  }, [annotations])
+  }, [])
+
+  const highlights = useMemo(() => {
+    const result = articleData?.article.article.highlights
+    const note = result?.find((h) => h.type === 'NOTE')
+    if (note) {
+      noteState.current.note = note
+      noteState.current.isCreating = false
+      setNoteText(note.annotation || '')
+    }
+    return result
+  }, [articleData])
+
+  useEffect(() => {
+    if (highlights && props.onAnnotationsChanged) {
+      props.onAnnotationsChanged(highlights)
+    }
+  }, [highlights])
 
   const sortedHighlights = useMemo(() => {
     const sorted = (a: number, b: number) => {
@@ -212,7 +144,7 @@ export function Notebook(props: NotebookProps): JSX.Element {
       return 0
     }
 
-    return annotations.allAnnotations
+    return (highlights ?? [])
       .filter((h) => h.type === 'HIGHLIGHT')
       .sort((a: Highlight, b: Highlight) => {
         if (a.highlightPositionPercent && b.highlightPositionPercent) {
@@ -229,83 +161,123 @@ export function Notebook(props: NotebookProps): JSX.Element {
         } catch {}
         return a.createdAt.localeCompare(b.createdAt)
       })
-  }, [annotations])
+  }, [highlights])
 
   const handleSaveNoteText = useCallback(
-    (text, cb: (success: boolean) => void) => {
-      if (!annotations.loaded) {
-        // We haven't loaded the user's annotations yet, so we can't
-        // find or create their highlight note.
-        return
-      }
+    (text) => {
+      const changeTime = new Date()
 
-      if (!annotations.note) {
-        const noteId = annotations.noteId
-        ;(async () => {
-          const success = await createHighlightMutation({
-            id: noteId,
-            shortId: nanoid(8),
-            type: 'NOTE',
-            articleId: props.item.id,
-            annotation: text,
-          })
-          console.log('success creating annotation note: ', success)
-          if (success) {
-            dispatchAnnotations({
-              type: 'CREATE_NOTE',
-              note: success,
-            })
-          }
-          cb(!!success)
-        })()
+      setLastChanged(changeTime)
+      if (noteState.current.note) {
+        updateNote(noteState.current.note, text, changeTime)
         return
       }
+      if (noteState.current.isCreating) {
+        if (noteState.current.createStarted) {
+          const timeSinceStart =
+            new Date().getTime() - noteState.current.createStarted.getTime()
 
-      if (annotations.note) {
-        const note = annotations.note
-        ;(async () => {
-          const success = await updateHighlightMutation({
-            highlightId: note.id,
-            annotation: text,
-          })
-          console.log('success updating annotation note: ', success)
-          if (success) {
-            note.annotation = text
-            dispatchAnnotations({
-              type: 'UPDATE_NOTE',
-              note: note,
-            })
+          if (timeSinceStart > 4000) {
+            createNote(text)
+            return
           }
-          cb(!!success)
-        })()
+        }
         return
       }
+      createNote(text)
     },
-    [annotations, props.item]
+    [noteText, noteState, createNote, updateNote, highlights]
   )
+
+  const deleteDocumentNote = useCallback(() => {
+    ;(async () => {
+      highlights
+        ?.filter((h) => h.type === 'NOTE')
+        .forEach(async (h) => {
+          const result = await deleteHighlightMutation(h.id)
+          if (!result) {
+            showErrorToast('Error deleting note')
+          }
+        })
+      noteState.current.note = undefined
+    })()
+    setNoteText('')
+  }, [noteState, highlights])
+
+  const [errorSaving, setErrorSaving] = useState<string | undefined>(undefined)
+  const [lastChanged, setLastChanged] = useState<Date | undefined>(undefined)
+  const [lastSaved, setLastSaved] = useState<Date | undefined>(undefined)
+
+  useEffect(() => {
+    const highlightsUpdated = () => {
+      mutate()
+    }
+    document.addEventListener('highlightsUpdated', highlightsUpdated)
+    return () => {
+      document.removeEventListener('highlightsUpdated', highlightsUpdated)
+    }
+  }, [mutate])
 
   return (
     <VStack
+      tabIndex={-1}
       distribution="start"
-      css={{ height: '100%', width: '100%', p: '20px' }}
-    >
-      <TitledSection
-        title="ARTICLE NOTES"
-        editMode={notesEditMode == 'edit'}
-        setEditMode={(edit) => setNotesEditMode(edit ? 'edit' : 'preview')}
-      />
-      <HighlightNoteBox
-        mode={notesEditMode}
-        sizeMode={props.sizeMode}
-        setEditMode={setNotesEditMode}
-        text={annotations.note?.annotation}
-        placeHolder="Add notes to this document..."
-        saveText={handleSaveNoteText}
-      />
-      <SpanBox css={{ mt: '10px', mb: '25px' }} />
-      <Box css={{ width: '100%' }}>
-        <TitledSection title="HIGHLIGHTS" />
+      css={{
+        height: '100%',
+        width: '100%',
+        px: '20px',
 
+        bg: '$thLibrarySearchbox',
+        '@mdDown': { p: '15px' },
+      }}
+    >
+      <>
+        <HStack
+          alignment="start"
+          distribution="start"
+          css={{ width: '100%', gap: '10px', mt: '25px' }}
+        >
+          <ArticleNotes
+            targetId={props.item.id}
+            text={noteText}
+            setText={setNoteText}
+            placeHolder="Add notes to this document..."
+            saveText={handleSaveNoteText}
+          />
+        </HStack>
+        <HStack
+          css={{
+            minHeight: '15px',
+            width: '100%',
+            fontSize: '9px',
+            mt: '5px',
+            color: '$thTextSubtle',
+          }}
+          alignment="start"
+          distribution="start"
+        >
+          {errorSaving && (
+            <SpanBox
+              css={{
+                width: '100%',
+                fontSize: '9px',
+                mt: '5px',
+              }}
+            >
+              {errorSaving}
+            </SpanBox>
+          )}
+          {lastSaved !== undefined ? (
+            <>
+              {lastChanged === lastSaved
+                ? 'Saved'
+                : `Last saved ${formattedShortTime(lastSaved.toISOString())}`}
+            </>
+          ) : null}
+        </HStack>
+      </>
+
+      <VStack css={{ mt: '25px', gap: '25px' }}>
         {sortedHighlights.map((highlight) => (
           <HighlightViewItem
             key={highlight.id}
@@ -316,23 +288,24 @@ export function Notebook(props: NotebookProps): JSX.Element {
             setSetLabelsTarget={setLabelsTarget}
             setShowConfirmDeleteHighlightId={setShowConfirmDeleteHighlightId}
             updateHighlight={() => {
-              dispatchAnnotations({
-                type: 'UPDATE_HIGHLIGHT',
-                updateHighlight: highlight,
-              })
+              mutate()
             }}
           />
         ))}
         {sortedHighlights.length === 0 && (
           <Box
             css={{
+              p: '10px',
               mt: '15px',
               width: '100%',
-              fontSize: '9px',
+              fontSize: '13px',
               color: '$thTextSubtle',
               alignItems: 'center',
               justifyContent: 'center',
               mb: '100px',
+              bg: isDark ? '#3D3D3D' : '$thBackground',
+              borderRadius: '6px',
+              boxShadow: '0px 4px 4px rgba(33, 33, 33, 0.1)',
             }}
           >
             You have not added any highlights to this document.
@@ -340,32 +313,34 @@ export function Notebook(props: NotebookProps): JSX.Element {
         )}
         <Box
           css={{
-            '@mdDown': {
-              height: '320px',
-              width: '100%',
-              background: 'transparent',
-            },
+            width: '100%',
+            height: '320px',
           }}
-        />
-      </Box>
+        ></Box>
+      </VStack>
 
       {showConfirmDeleteHighlightId && (
         <ConfirmationModal
           message={'Are you sure you want to delete this highlight?'}
           onAccept={() => {
             ;(async () => {
+              const highlightId = showConfirmDeleteHighlightId
               const success = await deleteHighlightMutation(
                 showConfirmDeleteHighlightId
               )
-              console.log(' ConfirmationModal::DeleteHighlight', success)
+              mutate()
               if (success) {
-                dispatchAnnotations({
-                  type: 'DELETE_HIGHLIGHT',
-                  deleteHighlightId: showConfirmDeleteHighlightId,
+                showSuccessToast('Highlight deleted.', {
+                  position: 'bottom-right',
                 })
-                showSuccessToast('Highlight deleted.')
+                const event = new CustomEvent('deleteHighlightbyId', {
+                  detail: highlightId,
+                })
+                document.dispatchEvent(event)
               } else {
-                showErrorToast('Error deleting highlight')
+                showErrorToast('Error deleting highlight', {
+                  position: 'bottom-right',
+                })
               }
             })()
             setShowConfirmDeleteHighlightId(undefined)
@@ -383,7 +358,10 @@ export function Notebook(props: NotebookProps): JSX.Element {
         <SetHighlightLabelsModalPresenter
           highlight={labelsTarget}
           highlightId={labelsTarget.id}
-          onOpenChange={() => setLabelsTarget(undefined)}
+          onOpenChange={() => {
+            mutate()
+            setLabelsTarget(undefined)
+          }}
         />
       )}
       {props.showConfirmDeleteNote && (
@@ -407,62 +385,46 @@ export function Notebook(props: NotebookProps): JSX.Element {
   )
 }
 
-type TitledSectionProps = {
+type SectionTitleProps = {
   title: string
-  editMode?: boolean
-  setEditMode?: (set: boolean) => void
+  selected: boolean
+  setSelected: (set: boolean) => void
 }
 
-function TitledSection(props: TitledSectionProps): JSX.Element {
+function SectionTitle(props: SectionTitleProps): JSX.Element {
   return (
     <>
-      <HStack
-        css={{ width: '100%', borderBottom: '1px solid $thBorderColor' }}
-        alignment="start"
-        distribution="start"
+      <Button
+        style="plainIcon"
+        css={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '5px',
+          color: props.selected ? '$thTextContrast' : '$thTextSubtle',
+          borderBottom: props.selected
+            ? '1px solid $thTextContrast'
+            : '1px solid transparent',
+        }}
+        onClick={(event) => {
+          props.setSelected(true)
+          event.stopPropagation()
+        }}
       >
         <StyledText
           css={{
-            fontFamily: '$display',
-            fontStyle: 'normal',
-            fontWeight: '700',
-            fontSize: '12px',
-            lineHeight: '20px',
-            color: '#898989',
-            marginBottom: '1px',
+            m: '0px',
+            pt: '2px',
+            pb: '2px',
+            px: '5px',
+            fontFamily: '$inter',
+            fontWeight: '500',
+            fontSize: '13px',
+            color: '$thNotebookSubtle',
           }}
         >
           {props.title}
         </StyledText>
-        {props.setEditMode && (
-          <SpanBox
-            css={{
-              marginLeft: 'auto',
-              justifyContent: 'end',
-              lineHeight: '1',
-              alignSelf: 'end',
-              padding: '2px',
-              cursor: 'pointer',
-              borderRadius: '1000px',
-              '&:hover': {
-                background: '#EBEBEB',
-              },
-            }}
-            onClick={(event) => {
-              if (props.setEditMode) {
-                props.setEditMode(!props.editMode)
-              }
-              event.preventDefault()
-            }}
-          >
-            {props.editMode ? (
-              <BookOpen size={15} color="#898989" />
-            ) : (
-              <PencilLine size={15} color="#898989" />
-            )}
-          </SpanBox>
-        )}
-      </HStack>
+      </Button>
     </>
   )
 }

@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useSetPageLabels } from '../../../lib/hooks/useSetPageLabels'
 import { LabelsProvider } from './SetLabelsControl'
 import { SetLabelsModal } from './SetLabelsModal'
@@ -22,12 +22,19 @@ export function SetPageLabelsModalPresenter(
     })
   }, [props.article, dispatchLabels])
 
+  const onOpenChange = useCallback(() => {
+    if (props.article) {
+      props.article.labels = labels.labels
+    }
+    props.onOpenChange(true)
+  }, [props, labels])
+
   return (
     <SetLabelsModal
       provider={props.article}
       selectedLabels={labels.labels}
       dispatchLabels={dispatchLabels}
-      onOpenChange={props.onOpenChange}
+      onOpenChange={onOpenChange}
     />
   )
 }

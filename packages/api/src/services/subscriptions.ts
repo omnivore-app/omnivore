@@ -37,28 +37,55 @@ export const parseUnsubscribeMailTo = (unsubscribeMailTo: string) => {
 const sendUnsubscribeEmail = async (
   unsubscribeMailTo: string,
   newsletterEmail: string
-): Promise<void> => {
-  // get subject from unsubscribe email address if exists
-  const parsed = parseUnsubscribeMailTo(unsubscribeMailTo)
+): Promise<boolean> => {
+  try {
+    // get subject from unsubscribe email address if exists
+    const parsed = parseUnsubscribeMailTo(unsubscribeMailTo)
 
-  const sent = await sendEmail({
-    to: parsed.to,
-    subject: parsed.subject,
-    text: UNSUBSCRIBE_EMAIL_TEXT,
-    from: newsletterEmail,
-  })
+    const sent = await sendEmail({
+      to: parsed.to,
+      subject: parsed.subject,
+      text: UNSUBSCRIBE_EMAIL_TEXT,
+      from: newsletterEmail,
+    })
 
-  if (!sent) {
-    throw new Error(`Failed to unsubscribe, email: ${unsubscribeMailTo}`)
+    if (!sent) {
+      console.log('Failed to send unsubscribe email', unsubscribeMailTo)
+      return false
+    }
+
+    return true
+  } catch (error) {
+    console.log('Failed to send unsubscribe email', error)
+    return false
   }
 }
 
-const sendUnsubscribeHttpRequest = async (url: string): Promise<void> => {
-  const response = await axios.get(url)
+const sendUnsubscribeHttpRequest = async (url: string): Promise<boolean> => {
+  try {
+    await axios.get(url, {
+      timeout: 5000, // 5 seconds
+    })
 
-  if (response.status !== 200) {
-    throw new Error(`Failed to unsubscribe, response: ${response.statusText}`)
+    return true
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.log('Failed to send unsubscribe http request', error.message)
+    } else {
+      console.log('Failed to send unsubscribe http request', error)
+    }
+    return false
   }
+}
+
+export const getSubscriptionByNameAndUserId = async (
+  name: string,
+  userId: string
+): Promise<Subscription | null> => {
+  return getRepository(Subscription).findOneBy({
+    name,
+    user: { id: userId },
+  })
 }
 
 export const saveSubscription = async ({
@@ -85,20 +112,26 @@ export const saveSubscription = async ({
 }
 
 export const unsubscribe = async (subscription: Subscription) => {
+  let unsubscribed = false
   if (subscription.unsubscribeMailTo) {
-    // unsubscribe by sending email first
-    await sendUnsubscribeEmail(
+    // unsubscribe by sending email
+    unsubscribed = await sendUnsubscribeEmail(
       subscription.unsubscribeMailTo,
       subscription.newsletterEmail.address
     )
-  } else if (subscription.unsubscribeHttpUrl) {
-    // unsubscribe by sending http request if no unsubscribeMailTo
-    await sendUnsubscribeHttpRequest(subscription.unsubscribeHttpUrl)
-  } else {
-    throw new Error('No unsubscribe method defined')
+  }
+  // TODO: find a good way to unsubscribe by url if email fails or not provided
+  // because it often requires clicking a button on the page to unsubscribe
+
+  if (!unsubscribed) {
+    // update subscription status to unsubscribed if failed to unsubscribe
+    console.log('Failed to unsubscribe', subscription.id)
+    return getRepository(Subscription).update(subscription.id, {
+      status: SubscriptionStatus.Unsubscribed,
+    })
   }
 
-  // delete the subscription
+  // delete the subscription if successfully unsubscribed
   await getRepository(Subscription).delete(subscription.id)
 }
 
@@ -114,7 +147,7 @@ export const unsubscribeAll = async (
       relations: ['newsletterEmail'],
     })
 
-    for (const subscription of subscriptions) {
+    for await (const subscription of subscriptions) {
       try {
         await unsubscribe(subscription)
       } catch (error) {

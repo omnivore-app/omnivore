@@ -16,7 +16,7 @@ import { diff_match_patch } from 'diff-match-patch'
 import { MenuTrigger } from '../../elements/MenuTrigger'
 import { highlightsAsMarkdown } from '../homeFeed/HighlightItem'
 import 'react-markdown-editor-lite/lib/index.css'
-import { Notebook } from './Notebook'
+import { NotebookContent } from './Notebook'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 
@@ -24,10 +24,9 @@ type NotebookModalProps = {
   viewer: UserBasicData
 
   item: ReadableItem
-  highlights: Highlight[]
 
   viewHighlightInReader: (arg: string) => void
-  onClose: (highlights: Highlight[], deletedAnnotations: Highlight[]) => void
+  onClose: (highlights: Highlight[], deletedHighlights: Highlight[]) => void
 }
 
 export const getHighlightLocation = (patch: string): number | undefined => {
@@ -37,26 +36,22 @@ export const getHighlightLocation = (patch: string): number | undefined => {
 }
 
 export function NotebookModal(props: NotebookModalProps): JSX.Element {
-  const [sizeMode, setSizeMode] = useState<'normal' | 'maximized'>('normal')
   const [showConfirmDeleteNote, setShowConfirmDeleteNote] = useState(false)
   const [allAnnotations, setAllAnnotations] = useState<Highlight[] | undefined>(
     undefined
   )
-  const [deletedAnnotations, setDeletedAnnotations] = useState<
+
+  const [deletedHighlights, setDeletedAnnotations] = useState<
     Highlight[] | undefined
   >(undefined)
 
   const handleClose = useCallback(() => {
-    props.onClose(allAnnotations ?? [], deletedAnnotations ?? [])
-  }, [props, allAnnotations, deletedAnnotations])
+    props.onClose(allAnnotations ?? [], deletedHighlights ?? [])
+  }, [props, allAnnotations])
 
-  const handleAnnotationsChange = useCallback(
-    (allAnnotations, deletedAnnotations) => {
-      setAllAnnotations(allAnnotations)
-      setDeletedAnnotations(deletedAnnotations)
-    },
-    []
-  )
+  const handleAnnotationsChange = useCallback((allAnnotations) => {
+    setAllAnnotations(allAnnotations)
+  }, [])
 
   const exportHighlights = useCallback(() => {
     ;(async () => {
@@ -88,9 +83,11 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
         }}
         css={{
           overflow: 'auto',
-          height: sizeMode === 'normal' ? 'unset' : '100%',
-          maxWidth: sizeMode === 'normal' ? '640px' : '100%',
-          minHeight: sizeMode === 'normal' ? '525px' : 'unset',
+          bg: '$thLibraryBackground',
+          width: '100%',
+          height: 'unset',
+          maxWidth: '748px',
+          minHeight: '525px',
           '@mdDown': {
             top: '20px',
             width: '100%',
@@ -99,9 +96,18 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
             transform: 'translate(-50%)',
           },
         }}
+        onKeyUp={(event) => {
+          switch (event.key) {
+            case 'Escape':
+              handleClose()
+              event.preventDefault()
+              event.stopPropagation()
+              break
+          }
+        }}
       >
         <HStack
-          distribution="between"
+          distribution="center"
           alignment="center"
           css={{
             width: '100%',
@@ -126,7 +132,6 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
             distribution="center"
             alignment="center"
           >
-            <SizeToggle mode={sizeMode} setMode={setSizeMode} />
             <Dropdown triggerElement={<MenuTrigger />}>
               <DropdownOption
                 onSelect={() => {
@@ -144,9 +149,8 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
             <CloseButton close={handleClose} />
           </HStack>
         </HStack>
-        <Notebook
+        <NotebookContent
           {...props}
-          sizeMode={sizeMode}
           viewInReader={viewInReader}
           onAnnotationsChanged={handleAnnotationsChange}
           showConfirmDeleteNote={showConfirmDeleteNote}
@@ -185,36 +189,6 @@ function CloseButton(props: { close: () => void }): JSX.Element {
         height={17}
         color={theme.colors.thTextContrast2.toString()}
       />
-    </Button>
-  )
-}
-
-function SizeToggle(props: SizeToggleProps): JSX.Element {
-  return (
-    <Button
-      style="plainIcon"
-      css={{
-        display: 'flex',
-        padding: '2px',
-        alignItems: 'center',
-        borderRadius: '9999px',
-        '&:hover': {
-          bg: '#898989',
-        },
-        '@mdDown': {
-          display: 'none',
-        },
-      }}
-      onClick={(event) => {
-        props.setMode(props.mode == 'normal' ? 'maximized' : 'normal')
-        event.preventDefault()
-      }}
-    >
-      {props.mode == 'normal' ? (
-        <ArrowsOut size="15" color={theme.colors.thTextContrast2.toString()} />
-      ) : (
-        <ArrowsIn size="15" color={theme.colors.thTextContrast2.toString()} />
-      )}
     </Button>
   )
 }

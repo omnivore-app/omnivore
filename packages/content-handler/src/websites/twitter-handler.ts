@@ -217,6 +217,12 @@ const getTweetIds = async (
     context = await browser.createIncognitoBrowserContext()
     const page = await context.newPage()
 
+    // Modify this variable to control the size of viewport
+    const deviceScaleFactor = 0.2
+    const height = Math.floor(2000 / deviceScaleFactor)
+    const width = Math.floor(1700 / deviceScaleFactor)
+    await page.setViewport({ width, height, deviceScaleFactor })
+
     await page.goto(pageURL, {
       waitUntil: 'networkidle0',
       timeout: 60000, // 60 seconds
@@ -230,62 +236,48 @@ const getTweetIds = async (
       const waitFor = (ms: number) =>
         new Promise((resolve) => setTimeout(resolve, ms))
 
-      const ids: Set<string> = new Set()
+      const ids = []
 
-      const distance = 1080
-      let scrollHeight = document.body.scrollHeight
-      let currentHeight = 0
-      // keep scrolling until there are no more elements
-      while (currentHeight < scrollHeight) {
-        const timeNodes = Array.from(document.querySelectorAll('time'))
+      // Find the first Show thread button and click it
+      const showRepliesButton = Array.from(
+        document.querySelectorAll('div[dir]')
+      )
+        .filter(
+          (node) => node.children[0] && node.children[0].tagName === 'SPAN'
+        )
+        .find((node) => node.children[0].innerHTML === 'Show replies')
 
-        for (let i = 0; i < timeNodes.length; i++) {
-          const timeContainerAnchor:
-            | HTMLAnchorElement
-            | HTMLSpanElement
-            | null = timeNodes[i].parentElement
-          if (!timeContainerAnchor) continue
+      if (showRepliesButton) {
+        ;(showRepliesButton as HTMLElement).click()
 
-          if (timeContainerAnchor.tagName === 'SPAN') continue
-
-          const href = timeContainerAnchor.getAttribute('href')
-          if (!href) continue
-
-          // Get the tweet id and username from the href: https://twitter.com/username/status/1234567890
-          const match = href.match(/\/([^/]+)\/status\/(\d+)/)
-          if (!match) continue
-
-          const id = match[2]
-          const username = match[1]
-
-          // stop at non-author replies
-          if (username !== author) return Array.from(ids)
-          ids.add(id)
-        }
-
-        window.scrollBy(0, distance)
-        await waitFor(500)
-        currentHeight += distance
-
-        // Find the show replies button and click it
-        if (currentHeight >= scrollHeight) {
-          const showRepliesButton = Array.from(
-            document.querySelectorAll('div[dir]')
-          )
-            .filter(
-              (node) => node.children[0] && node.children[0].tagName === 'SPAN'
-            )
-            .find((node) => node.children[0].innerHTML === 'Show replies')
-
-          if (showRepliesButton) {
-            ;(showRepliesButton as HTMLElement).click()
-            await waitFor(1000)
-            scrollHeight = document.body.scrollHeight
-          }
-        }
+        await waitFor(2000)
       }
 
-      return Array.from(ids)
+      const timeNodes = Array.from(document.querySelectorAll('time'))
+
+      for (const timeNode of timeNodes) {
+        /** @type {HTMLAnchorElement | HTMLSpanElement} */
+        const timeContainerAnchor: HTMLAnchorElement | HTMLSpanElement | null =
+          timeNode.parentElement
+        if (!timeContainerAnchor) continue
+
+        if (timeContainerAnchor.tagName === 'SPAN') continue
+
+        const href = timeContainerAnchor.getAttribute('href')
+        if (!href) continue
+
+        // Get the tweet id and username from the href: https://twitter.com/username/status/1234567890
+        const match = href.match(/\/([^/]+)\/status\/(\d+)/)
+        if (!match) continue
+
+        const id = match[2]
+        const username = match[1]
+
+        // skip non-author replies
+        username === author && ids.push(id)
+      }
+
+      return ids
     }, author)) as string[]
   } catch (error) {
     console.error('Error getting tweets', error)
