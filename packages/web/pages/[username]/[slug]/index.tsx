@@ -463,6 +463,9 @@ export default function Home(): JSX.Element {
             background: '$readerMargin',
             overflow: 'scroll',
             paddingTop: '80px',
+            '@media print': {
+              paddingTop: '0px',
+            },
           }}
         >
           {article && viewerData?.me ? (

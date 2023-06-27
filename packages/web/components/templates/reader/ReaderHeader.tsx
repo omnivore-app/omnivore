@@ -43,6 +43,9 @@ export function ReaderHeader(props: ReaderHeaderProps): JSX.Element {
             bg: '$readerBg',
             pointerEvents: 'unset',
           },
+          '@media print': {
+            display: 'none',
+          },
         }}
       >
         <HStack
