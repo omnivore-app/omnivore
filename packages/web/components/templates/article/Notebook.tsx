@@ -226,8 +226,6 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
         height: '100%',
         width: '100%',
         px: '20px',
-
-        bg: '$thLibrarySearchbox',
         '@mdDown': { p: '15px' },
       }}
     >
