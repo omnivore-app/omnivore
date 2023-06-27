@@ -164,7 +164,7 @@ export const createPageSaveRequest = async ({
   }))
   // enqueue task to parse page
   await enqueueParseRequest({
-    url,
+    url: normalizedUrl,
     userId,
     saveRequestId: page.id,
     priority,

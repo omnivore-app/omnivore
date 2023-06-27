@@ -104,11 +104,7 @@ export const savePage = async (
     originalHtml: parseResult.domContent,
     canonicalUrl: parseResult.canonicalUrl,
   })
-  // check if the page already exists
-  const existingPage = await getPageByParam({
-    userId: saver.userId,
-    url: articleToSave.url,
-  })
+
   // save state
   articleToSave.archivedAt =
     input.state === ArticleSavingRequestStatus.Archived ? new Date() : null
@@ -134,36 +130,43 @@ export const savePage = async (
         message: 'Failed to create page save request',
       }
     }
-  } else if (existingPage) {
-    pageId = existingPage.id
-    slug = existingPage.slug
-    if (
-      !(await updatePage(
-        existingPage.id,
-        {
-          // update the page with the new content
-          ...articleToSave,
-          id: pageId, // we don't want to update the id
-          slug, // we don't want to update the slug
-          createdAt: existingPage.createdAt, // we don't want to update the createdAt
-        },
-        ctx
-      ))
-    ) {
-      return {
-        errorCodes: [SaveErrorCode.Unknown],
-        message: 'Failed to update existing page',
-      }
-    }
   } else {
-    const newPageId = await createPage(articleToSave, ctx)
-    if (!newPageId) {
-      return {
-        errorCodes: [SaveErrorCode.Unknown],
-        message: 'Failed to create new page',
+    // check if the page already exists
+    const existingPage = await getPageByParam({
+      userId: saver.userId,
+      url: articleToSave.url,
+    })
+    if (existingPage) {
+      pageId = existingPage.id
+      slug = existingPage.slug
+      if (
+        !(await updatePage(
+          existingPage.id,
+          {
+            // update the page with the new content
+            ...articleToSave,
+            id: pageId, // we don't want to update the id
+            slug, // we don't want to update the slug
+            createdAt: existingPage.createdAt, // we don't want to update the createdAt
+          },
+          ctx
+        ))
+      ) {
+        return {
+          errorCodes: [SaveErrorCode.Unknown],
+          message: 'Failed to update existing page',
+        }
       }
+    } else {
+      const newPageId = await createPage(articleToSave, ctx)
+      if (!newPageId) {
+        return {
+          errorCodes: [SaveErrorCode.Unknown],
+          message: 'Failed to create new page',
+        }
+      }
+      pageId = newPageId
     }
-    pageId = newPageId
   }
 
   // create a task to update thumbnail and pre-cache all images
