@@ -44,12 +44,14 @@ import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import androidx.compose.material3.Button
 import androidx.compose.ui.platform.LocalContext
+import app.omnivore.omnivore.ui.components.LabelsViewModel
 import app.omnivore.omnivore.ui.notebook.EditNoteModal
 
 @AndroidEntryPoint
 class WebReaderLoadingContainerActivity: ComponentActivity() {
   val viewModel: WebReaderViewModel by viewModels()
-  val notebookViewModel: NotebookViewModel by viewModels()
+  private val notebookViewModel: NotebookViewModel by viewModels()
+  private val labelsViewModel: LabelsViewModel by viewModels()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -84,6 +86,7 @@ class WebReaderLoadingContainerActivity: ComponentActivity() {
               onLibraryIconTap = if (requestID != null) { { startMainActivity() } } else null,
               webReaderViewModel = viewModel,
               notebookViewModel = notebookViewModel,
+              labelsViewModel = labelsViewModel,
             )
           }
         }
@@ -123,7 +126,8 @@ enum class BottomSheetState(
 fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
                               onLibraryIconTap: (() -> Unit)? = null,
                               webReaderViewModel: WebReaderViewModel,
-                              notebookViewModel: NotebookViewModel) {
+                              notebookViewModel: NotebookViewModel,
+                              labelsViewModel: LabelsViewModel) {
   val currentThemeKey = webReaderViewModel.currentThemeKey.observeAsState()
   val currentTheme = Themes.values().find { it.themeKey == currentThemeKey.value }
   val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
@@ -253,6 +257,7 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
           BottomSheetUI(title = "Notebook") {
             LabelsSelectionSheetContent(
               labels = labels,
+              labelsViewModel = labelsViewModel,
               initialSelectedLabels = webReaderParams?.labels ?: listOf(),
               onCancel = {
                 coroutineScope.launch {
