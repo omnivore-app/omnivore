@@ -113,7 +113,7 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
         <StyledQuote>
           <SpanBox
             css={{
-              '> *': {
+              '*': {
                 m: '0px',
                 display: 'inline',
                 padding: '2px',
