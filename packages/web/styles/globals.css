@@ -436,5 +436,14 @@ button {
 
 .slide-pane {
   background: transparent !important;
+  transition: transform .2s !important;
   box-shadow: 0px 4px 4px rgba(33, 33, 33, 0.1) !important;
+}
+
+@media (max-width: 600px) {
+  .slide-pane__content {
+    border-top-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-left: 1px solid var(--colors-thNotebookBorder);
+  }
 }

@@ -36,7 +36,7 @@ export const NotebookHeader = (props: NotebookHeaderProps) => {
         p: '20px',
         borderTopLeftRadius: '10px',
         overflow: 'clip',
-        background: '$thLibrarySearchbox',
+        background: '$thNotebookBackground',
         zIndex: 10,
         borderBottom: '1px solid $thNotebookBorder',
       }}

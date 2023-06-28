@@ -5,7 +5,6 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { Readability } from '@omnivore/readability'
 import graphqlFields from 'graphql-fields'
-import normalizeUrl from 'normalize-url'
 import { searchHighlights } from '../../elastic/highlights'
 import {
   createPage,
@@ -91,6 +90,7 @@ import { isSiteBlockedForParse } from '../../utils/blocked'
 import { ContentParseError } from '../../utils/errors'
 import {
   authorized,
+  cleanUrl,
   generateSlug,
   isBase64Image,
   isParsingTimeout,
@@ -196,6 +196,7 @@ export const createArticleResolver = authorized<
         )
       }
 
+      url = cleanUrl(url)
       const { pathname } = new URL(url)
 
       const croppedPathname = decodeURIComponent(
@@ -228,10 +229,7 @@ export const createArticleResolver = authorized<
           pageType: PageType.Unknown,
           contentReader: ContentReader.Web,
           author: '',
-          url: normalizeUrl(canonicalUrl || url, {
-            stripHash: true,
-            stripWWW: false,
-          }),
+          url,
           hash: '',
           isArchived: false,
         },

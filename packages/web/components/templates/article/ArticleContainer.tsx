@@ -458,6 +458,9 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
             '&:hover': {
               opacity: 0.8,
             },
+            '@media print': {
+              display: 'none',
+            },
           }}
           onClick={() => setShowReportIssuesModal(true)}
         >

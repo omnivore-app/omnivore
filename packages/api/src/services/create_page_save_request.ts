@@ -1,4 +1,3 @@
-import normalizeUrl from 'normalize-url'
 import * as privateIpLib from 'private-ip'
 import { v4 as uuidv4 } from 'uuid'
 import { createPubSubClient, PubsubClient } from '../datalayer/pubsub'
@@ -16,7 +15,11 @@ import {
   CreateArticleSavingRequestErrorCode,
 } from '../generated/graphql'
 import { enqueueParseRequest } from '../utils/createTask'
-import { generateSlug, pageToArticleSavingRequest } from '../utils/helpers'
+import {
+  cleanUrl,
+  generateSlug,
+  pageToArticleSavingRequest,
+} from '../utils/helpers'
 
 interface PageSaveRequest {
   userId: string
@@ -104,10 +107,7 @@ export const createPageSaveRequest = async ({
   priority = priority || (await getPriorityByRateLimit(userId))
 
   // look for existing page
-  const normalizedUrl = normalizeUrl(url, {
-    stripHash: true,
-    stripWWW: false,
-  })
+  url = cleanUrl(url)
 
   const ctx = {
     pubsub,
@@ -116,10 +116,10 @@ export const createPageSaveRequest = async ({
   }
   let page = await getPageByParam({
     userId,
-    url: normalizedUrl,
+    url,
   })
   if (!page) {
-    console.log('Page not exists', normalizedUrl)
+    console.log('Page not exists', url)
     page = {
       id: articleSavingRequestId,
       userId,
@@ -130,7 +130,7 @@ export const createPageSaveRequest = async ({
       readingProgressPercent: 0,
       slug: generateSlug(url),
       title: url,
-      url: normalizedUrl,
+      url,
       state: ArticleSavingRequestStatus.Processing,
       createdAt: new Date(),
       savedAt: new Date(),

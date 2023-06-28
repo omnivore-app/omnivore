@@ -1,7 +1,5 @@
 import '../styles/globals.css'
 import '../styles/articleInnerStyling.css'
-import 'react-pro-sidebar/dist/css/styles.css'
-import '../styles/menu.css'
 
 import type { AppProps } from 'next/app'
 import { IdProvider } from '@radix-ui/react-id'

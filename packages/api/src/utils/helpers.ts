@@ -26,6 +26,9 @@ interface InputObject {
   [key: string]: any
 }
 
+export const TWEET_URL_REGEX =
+  /twitter\.com\/(?:#!\/)?(\w+)\/status(?:es)?\/(\d+)(?:\/.*)?/
+
 export const keysToCamelCase = (object: InputObject): InputObject => {
   Object.keys(object).forEach((key) => {
     const parts = key.split('_')
@@ -299,4 +302,18 @@ export const isUrl = (str: string): boolean => {
     console.log('not an url', str)
     return false
   }
+}
+
+export const cleanUrl = (url: string) => {
+  const trackingParams: (RegExp | string)[] = [/^utm_\w+/i] // remove utm tracking parameters
+  if (TWEET_URL_REGEX.test(url)) {
+    // remove tracking parameters from tweet links:
+    // https://twitter.com/omnivore/status/1673218959624093698?s=12&t=R91quPajs0E53Yds-fhv2g
+    trackingParams.push('s', 't')
+  }
+  return normalizeUrl(url, {
+    stripHash: true,
+    stripWWW: false,
+    removeQueryParameters: trackingParams,
+  })
 }

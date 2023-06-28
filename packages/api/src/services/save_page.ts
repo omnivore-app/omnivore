@@ -1,5 +1,4 @@
 import { Readability } from '@omnivore/readability'
-import normalizeUrl from 'normalize-url'
 import { PubsubClient } from '../datalayer/pubsub'
 import { addHighlightToPage } from '../elastic/highlights'
 import { createPage, getPageByParam, updatePage } from '../elastic/pages'
@@ -16,8 +15,10 @@ import {
 import { DataModels } from '../resolvers/types'
 import { enqueueThumbnailTask } from '../utils/createTask'
 import {
+  cleanUrl,
   generateSlug,
   stringToHash,
+  TWEET_URL_REGEX,
   validatedDate,
   wordsCount,
 } from '../utils/helpers'
@@ -38,8 +39,7 @@ type SaverUserData = {
 
 // where we can use APIs to fetch their underlying content.
 const FORCE_PUPPETEER_URLS = [
-  // twitter status url regex
-  /twitter\.com\/(?:#!\/)?(\w+)\/status(?:es)?\/(\d+)(?:\/.*)?/,
+  TWEET_URL_REGEX,
   /^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w-]+\?v=|embed\/|v\/)?)([\w-]+)(\S+)?$/,
 ]
 
@@ -104,11 +104,7 @@ export const savePage = async (
     originalHtml: parseResult.domContent,
     canonicalUrl: parseResult.canonicalUrl,
   })
-  // check if the page already exists
-  const existingPage = await getPageByParam({
-    userId: saver.userId,
-    url: articleToSave.url,
-  })
+
   // save state
   articleToSave.archivedAt =
     input.state === ArticleSavingRequestStatus.Archived ? new Date() : null
@@ -117,28 +113,8 @@ export const savePage = async (
     ? await createLabels(ctx, input.labels)
     : undefined
 
-  if (existingPage) {
-    pageId = existingPage.id
-    slug = existingPage.slug
-    if (
-      !(await updatePage(
-        existingPage.id,
-        {
-          // update the page with the new content
-          ...articleToSave,
-          id: pageId, // we don't want to update the id
-          slug, // we don't want to update the slug
-          createdAt: existingPage.createdAt, // we don't want to update the createdAt
-        },
-        ctx
-      ))
-    ) {
-      return {
-        errorCodes: [SaveErrorCode.Unknown],
-        message: 'Failed to update existing page',
-      }
-    }
-  } else if (shouldParseInBackend(input)) {
+  // always parse in backend if the url is in the force puppeteer list
+  if (shouldParseInBackend(input)) {
     try {
       await createPageSaveRequest({
         userId: saver.userId,
@@ -155,14 +131,42 @@ export const savePage = async (
       }
     }
   } else {
-    const newPageId = await createPage(articleToSave, ctx)
-    if (!newPageId) {
-      return {
-        errorCodes: [SaveErrorCode.Unknown],
-        message: 'Failed to create new page',
+    // check if the page already exists
+    const existingPage = await getPageByParam({
+      userId: saver.userId,
+      url: articleToSave.url,
+    })
+    if (existingPage) {
+      pageId = existingPage.id
+      slug = existingPage.slug
+      if (
+        !(await updatePage(
+          existingPage.id,
+          {
+            // update the page with the new content
+            ...articleToSave,
+            id: pageId, // we don't want to update the id
+            slug, // we don't want to update the slug
+            createdAt: existingPage.createdAt, // we don't want to update the createdAt
+          },
+          ctx
+        ))
+      ) {
+        return {
+          errorCodes: [SaveErrorCode.Unknown],
+          message: 'Failed to update existing page',
+        }
       }
+    } else {
+      const newPageId = await createPage(articleToSave, ctx)
+      if (!newPageId) {
+        return {
+          errorCodes: [SaveErrorCode.Unknown],
+          message: 'Failed to create new page',
+        }
+      }
+      pageId = newPageId
     }
-    pageId = newPageId
   }
 
   // create a task to update thumbnail and pre-cache all images
@@ -248,10 +252,7 @@ export const parsedContentToPage = ({
       parsedContent?.siteName ||
       url,
     author: parsedContent?.byline ?? undefined,
-    url: normalizeUrl(canonicalUrl || url, {
-      stripHash: true,
-      stripWWW: false,
-    }),
+    url: cleanUrl(canonicalUrl || url),
     pageType,
     hash: uploadFileHash || stringToHash(parsedContent?.content || url),
     image: parsedContent?.previewImage ?? undefined,
