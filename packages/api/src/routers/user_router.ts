@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import cors from 'cors'
 import express from 'express'
-import { sendEmail } from '../utils/sendEmail'
-import { env } from '../env'
-import { buildLogger } from '../utils/logger'
-import { getRepository } from '../entity/utils'
 import { User } from '../entity/user'
+import { getRepository } from '../entity/utils'
+import { env } from '../env'
 import { getClaimsByToken } from '../utils/auth'
 import { corsConfig } from '../utils/corsConfig'
-import cors from 'cors'
+import { buildLogger } from '../utils/logger'
+import { sendEmail } from '../utils/sendEmail'
 
 const logger = buildLogger('app.dispatch')
 
@@ -18,14 +18,21 @@ export function userRouter() {
   router.post('/email', cors<express.Request>(corsConfig), async (req, res) => {
     logger.info('email to-user router')
     const token =
-      req.headers['Omnivore-Authorization'] ||
+      req.header('Omnivore-Authorization') ||
       req.cookies?.auth ||
       req.headers?.authorization
-    const claims = await getClaimsByToken(token)
-    if (!claims) {
-      res.status(401).send('UNAUTHORIZED')
-      return
+
+    let claims
+    try {
+      claims = await getClaimsByToken(token)
+      if (!claims) {
+        return res.status(401).send('UNAUTHORIZED')
+      }
+    } catch (e) {
+      logger.info('failed to authorize', e)
+      return res.status(401).send('UNAUTHORIZED')
     }
+
     const from = env.sender.message
     const { body, subject } = req.body as {
       body?: string
