@@ -26,6 +26,7 @@ export function userRouter() {
     try {
       claims = await getClaimsByToken(token)
       if (!claims) {
+        logger.info('failed to authorize')
         return res.status(401).send('UNAUTHORIZED')
       }
     } catch (e) {
