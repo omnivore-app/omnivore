@@ -3,6 +3,7 @@ import { createPage, getPageByParam, updatePage } from '../elastic/pages'
 import { ArticleSavingRequestStatus, Page } from '../elastic/types'
 import { enqueueThumbnailTask } from '../utils/createTask'
 import {
+  cleanUrl,
   generateSlug,
   stringToHash,
   validatedDate,
@@ -13,7 +14,6 @@ import {
   parsePreparedContent,
   parseUrlMetadata,
 } from '../utils/parser'
-import { cleanUrl } from './save_page'
 
 export type SaveContext = {
   pubsub: PubsubClient
