@@ -124,7 +124,7 @@ const createEmailCloudTask = async (userId: string, payload: unknown) => {
     process.env.JWT_SECRET
   )) as string
   const headers = {
-    Cookie: `auth=${authToken}`,
+    'Omnivore-Authorization': authToken,
   }
 
   return createCloudTask(
