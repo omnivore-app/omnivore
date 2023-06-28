@@ -5,7 +5,7 @@ import express from 'express'
 import { User } from '../entity/user'
 import { getRepository } from '../entity/utils'
 import { env } from '../env'
-import { getClaimsByToken } from '../utils/auth'
+import { getClaimsByToken, getTokenByRequest } from '../utils/auth'
 import { corsConfig } from '../utils/corsConfig'
 import { buildLogger } from '../utils/logger'
 import { sendEmail } from '../utils/sendEmail'
@@ -17,10 +17,7 @@ export function userRouter() {
 
   router.post('/email', cors<express.Request>(corsConfig), async (req, res) => {
     logger.info('email to-user router')
-    const token =
-      req.header('Omnivore-Authorization') ||
-      req.cookies?.auth ||
-      req.headers?.authorization
+    const token = getTokenByRequest(req)
 
     let claims
     try {
