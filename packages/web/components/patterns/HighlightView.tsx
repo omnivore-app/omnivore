@@ -118,7 +118,7 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
                 display: 'inline',
                 padding: '2px',
                 backgroundColor: `rgba(var(--colors-highlightBackground), ${highlightAlpha})`,
-                boxShadow: `1px 0 0 rgba(var(--colors-highlightBackground), ${highlightAlpha}), -1px 0 0 rgba(var(--colors-highlightBackground), ${highlightAlpha})`,
+                boxShadow: `3px 0 0 rgba(var(--colors-highlightBackground), ${highlightAlpha}), -3px 0 0 rgba(var(--colors-highlightBackground), ${highlightAlpha})`,
                 boxDecorationBreak: 'clone',
                 borderRadius: '2px',
               },
