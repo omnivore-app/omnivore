@@ -1,13 +1,15 @@
 import * as bcrypt from 'bcryptjs'
-import { v4 as uuidv4 } from 'uuid'
-import { Claims, ClaimsToSet } from '../resolvers/types'
-import { getRepository } from '../entity/utils'
-import { ApiKey } from '../entity/api_key'
 import crypto from 'crypto'
-import * as jwt from 'jsonwebtoken'
-import { env } from '../env'
 import express from 'express'
+import * as jwt from 'jsonwebtoken'
 import { promisify } from 'util'
+import { v4 as uuidv4 } from 'uuid'
+import { ApiKey } from '../entity/api_key'
+import { getRepository } from '../entity/utils'
+import { env } from '../env'
+import { Claims, ClaimsToSet } from '../resolvers/types'
+
+export const OmnivoreAuthorizationHeader = 'Omnivore-Authorization'
 
 const signToken = promisify(jwt.sign)
 
@@ -111,4 +113,13 @@ export const setAuthInCookie = async (
     httpOnly: true,
     expires: new Date(new Date().getTime() + 365 * 24 * 60 * 60 * 1000),
   })
+}
+
+export const getTokenByRequest = (req: express.Request): string | undefined => {
+  return (
+    req.header(OmnivoreAuthorizationHeader) ||
+    req.headers.authorization ||
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    (req.cookies?.auth as string)
+  )
 }

@@ -2,19 +2,24 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+import cors from 'cors'
 import express from 'express'
+import * as jwt from 'jsonwebtoken'
+import { kx } from '../datalayer/knex_config'
+import { createPubSubClient } from '../datalayer/pubsub'
+import { createPage, getPageByParam, updatePage } from '../elastic/pages'
+import { addRecommendation } from '../elastic/recommendation'
+import { Recommendation } from '../elastic/types'
+import { env } from '../env'
 import {
   ArticleSavingRequestStatus,
   PageType,
   UploadFileStatus,
 } from '../generated/graphql'
-import cors from 'cors'
-import { env } from '../env'
-import { buildLogger } from '../utils/logger'
-import * as jwt from 'jsonwebtoken'
-import { corsConfig } from '../utils/corsConfig'
+import { Claims } from '../resolvers/types'
 import { initModels } from '../server'
-import { kx } from '../datalayer/knex_config'
+import { getTokenByRequest } from '../utils/auth'
+import { corsConfig } from '../utils/corsConfig'
 import {
   fileNameForFilePath,
   generateSlug,
@@ -22,15 +27,11 @@ import {
   titleForFilePath,
   validateUuid,
 } from '../utils/helpers'
+import { buildLogger } from '../utils/logger'
 import {
   generateUploadFilePathName,
   generateUploadSignedUrl,
 } from '../utils/uploads'
-import { Claims } from '../resolvers/types'
-import { createPage, getPageByParam, updatePage } from '../elastic/pages'
-import { createPubSubClient } from '../datalayer/pubsub'
-import { Recommendation } from '../elastic/types'
-import { addRecommendation } from '../elastic/recommendation'
 
 const logger = buildLogger('app.dispatch')
 
@@ -157,7 +158,7 @@ export function pageRouter() {
     '/recommend',
     cors<express.Request>(corsConfig),
     async (req, res) => {
-      const token = req?.cookies?.auth || req?.headers?.authorization
+      const token = getTokenByRequest(req)
       if (!token || !jwt.verify(token, env.server.jwtSecret)) {
         return res.status(401).send({ errorCode: 'UNAUTHORIZED' })
       }

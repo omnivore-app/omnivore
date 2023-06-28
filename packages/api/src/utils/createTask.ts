@@ -12,7 +12,7 @@ import {
   CreateLabelInput,
 } from '../generated/graphql'
 import { signFeatureToken } from '../services/features'
-import { generateVerificationToken } from './auth'
+import { generateVerificationToken, OmnivoreAuthorizationHeader } from './auth'
 import { CreateTaskError } from './errors'
 import { buildLogger } from './logger'
 import View = google.cloud.tasks.v2.Task.View
@@ -432,7 +432,7 @@ export const enqueueRecommendation = async (
   }
 
   const headers = {
-    Cookie: `auth=${authToken}`,
+    [OmnivoreAuthorizationHeader]: authToken,
   }
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment
   if (env.dev.isLocal || !GOOGLE_CLOUD_PROJECT) {
