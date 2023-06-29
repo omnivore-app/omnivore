@@ -69,6 +69,11 @@ export function HighlightNoteModal(
         onPointerDownOutside={(event) => {
           event.preventDefault()
         }}
+        onEscapeKeyDown={(event) => {
+          props.onOpenChange(false)
+          event.preventDefault()
+          event.stopPropagation()
+        }}
       >
         <form
           onSubmit={(event) => {
