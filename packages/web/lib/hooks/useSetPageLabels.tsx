@@ -36,6 +36,7 @@ export const useSetPageLabels = (
     action: {
       type: string
       labels: Label[]
+      articleId?: string
     }
   ) => {
     switch (action.type) {
@@ -64,6 +65,12 @@ export const useSetPageLabels = (
           labels: action.labels,
         }
       }
+      case 'UPDATE_ARTICLE_ID': {
+        return {
+          ...state,
+          articleId: action.articleId,
+        }
+      }
       default:
         return state
     }
@@ -76,6 +83,15 @@ export const useSetPageLabels = (
     ),
     []
   )
+
+  useEffect(() => {
+    dispatchLabels({
+      type: 'UPDATE_ARTICLE_ID',
+      labels: [],
+      articleId: articleId,
+    })
+  }, [articleId])
+
   const [labels, dispatchLabels] = useReducer(labelsReducer, {
     labels: [],
     articleId: articleId,
