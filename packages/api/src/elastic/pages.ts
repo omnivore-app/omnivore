@@ -28,14 +28,21 @@ import {
 } from './types'
 
 const appendQuery = (builder: ESBuilder, query: string): ESBuilder => {
-  const fields = ['title', 'content', 'author', 'description', 'siteName']
+  const fields = [
+    { field: 'title', boost: 3 },
+    { field: 'content', boost: 1 },
+    { field: 'author', boost: 1 },
+    { field: 'description', boost: 1 },
+    { field: 'siteName', boost: 1 },
+  ]
+  // wildcard query
   if (query.includes('*')) {
-    // wildcard query
     fields.forEach((field) => {
       builder = builder.orQuery('wildcard', {
-        [field]: {
+        [field.field]: {
           value: query,
           case_insensitive: true,
+          boost: field.boost,
         },
       })
     })
@@ -45,9 +52,11 @@ const appendQuery = (builder: ESBuilder, query: string): ESBuilder => {
   return builder
     .orQuery('multi_match', {
       query,
-      fields,
-      operator: 'and',
-      type: 'cross_fields',
+      fields: fields.map(
+        (field) => `${field.field}${field.boost > 1 ? `^${field.boost}` : ''}`
+      ),
+      type: 'best_fields',
+      tie_breaker: 0.3,
     })
     .queryMinimumShouldMatch(1)
 }
@@ -83,6 +92,17 @@ const appendInFilter = (builder: ESBuilder, filter: InFilter): ESBuilder => {
       return builder.query('exists', { field: 'archivedAt' })
     case InFilter.INBOX:
       return builder.notQuery('exists', { field: 'archivedAt' })
+    case InFilter.TRASH:
+      // return only deleted pages within 14 days
+      return builder
+        .query('term', {
+          state: ArticleSavingRequestStatus.Deleted,
+        })
+        .andQuery('range', {
+          updatedAt: {
+            gte: 'now-14d',
+          },
+        })
   }
   return builder
 }
@@ -192,6 +212,19 @@ const appendMatchFilters = (
   filters: FieldFilter[]
 ): ESBuilder => {
   filters.forEach((filter) => {
+    if (filter.nested) {
+      // nested query
+      builder = builder.query('nested', {
+        path: filter.field.split('.')[0], // get the nested field name
+        query: {
+          match: {
+            [filter.field]: filter.value,
+          },
+        },
+      })
+      return
+    }
+
     builder = builder.query('match', {
       [filter.field]: filter.value,
     })
@@ -493,7 +526,7 @@ const buildSearchBody = (userId: string, args: PageSearchArgs) => {
       state: ArticleSavingRequestStatus.Processing,
     })
   }
-  if (!args.includeDeleted) {
+  if (!args.includeDeleted && inFilter !== InFilter.TRASH) {
     builder = builder.notQuery('term', {
       state: ArticleSavingRequestStatus.Deleted,
     })
@@ -523,6 +556,7 @@ export const searchPages = async (
     // build the query
     const builder = buildSearchBody(userId, args)
     const body = builder
+      .sort('_score', 'desc') // sort by score first
       .sort(sortField, sortOrder)
       .from(from)
       .size(size)

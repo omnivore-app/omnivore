@@ -21,6 +21,7 @@ export enum InFilter {
   ALL,
   INBOX,
   ARCHIVE,
+  TRASH,
 }
 
 export interface SearchFilter {
@@ -82,6 +83,7 @@ export interface SortParams {
 }
 
 export interface FieldFilter {
+  nested?: boolean
   field: string
   value: string
 }
@@ -119,6 +121,8 @@ const parseInFilter = (
       return InFilter.INBOX
     case 'ARCHIVE':
       return InFilter.ARCHIVE
+    case 'TRASH':
+      return InFilter.TRASH
   }
   return query ? InFilter.ALL : InFilter.INBOX
 }
@@ -260,10 +264,19 @@ const parseFieldFilter = (
     return undefined
   }
 
+  let nested = false
+  // normalize the term to lower case
+  const value = str.toLowerCase()
+
+  if (field === 'note') {
+    field = 'highlights.annotation'
+    nested = true
+  }
+
   return {
+    nested,
     field,
-    // normalize the term to lower case
-    value: str.toLowerCase(),
+    value,
   }
 }
 
@@ -343,6 +356,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
       'no',
       'mode',
       'site',
+      'note',
     ],
     tokenize: true,
   })
@@ -414,6 +428,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
         case 'author':
         case 'title':
         case 'description':
+        case 'note':
         case 'content': {
           const fieldFilter = parseFieldFilter(keyword.keyword, keyword.value)
           fieldFilter && result.matchFilters.push(fieldFilter)

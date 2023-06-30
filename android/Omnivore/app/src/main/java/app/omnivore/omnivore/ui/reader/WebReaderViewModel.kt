@@ -15,16 +15,21 @@ import app.omnivore.omnivore.DatastoreRepository
 import app.omnivore.omnivore.dataService.*
 import app.omnivore.omnivore.graphql.generated.type.CreateLabelInput
 import app.omnivore.omnivore.graphql.generated.type.SetLabelsInput
+import app.omnivore.omnivore.models.ServerSyncStatus
 import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.persistence.entities.SavedItem
 import app.omnivore.omnivore.persistence.entities.SavedItemAndSavedItemLabelCrossRef
 import app.omnivore.omnivore.persistence.entities.SavedItemLabel
+import app.omnivore.omnivore.ui.components.LabelSwatchHelper
 import app.omnivore.omnivore.ui.library.SavedItemAction
 import com.apollographql.apollo3.api.Optional.Companion.presentIfNotNull
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.distinctUntilChanged
+import java.time.LocalDate
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 import java.util.*
 import javax.inject.Inject
 
@@ -446,11 +451,27 @@ class WebReaderViewModel @Inject constructor(
   fun updateSavedItemLabels(savedItemID: String, labels: List<SavedItemLabel>) {
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
-        val input = SetLabelsInput(labelIds = labels.map { it.savedItemLabelId }, pageId = savedItemID)
+        val namedLabels = dataService.db.savedItemLabelDao().namedLabels(labels.map { it.name })
+
+        namedLabels.filter { it.serverSyncStatus != ServerSyncStatus.IS_SYNCED.rawValue }.mapNotNull {
+          val result = networker.createNewLabel(CreateLabelInput(color = presentIfNotNull(it.color), name = it.name))
+          result?.let { it1 ->
+            SavedItemLabel(
+              savedItemLabelId = it1.id,
+              name = result.name,
+              color = result.color,
+              createdAt = result.createdAt.toString(),
+              labelDescription = result.description,
+              serverSyncStatus = ServerSyncStatus.IS_SYNCED.rawValue
+            )
+          }
+        }
+
+        val input = SetLabelsInput(labelIds = namedLabels.map { it.savedItemLabelId }, pageId = savedItemID)
         val networkResult = networker.updateLabelsForSavedItem(input)
 
         // TODO: assign a server sync status to these
-        val crossRefs = labels.map {
+        val crossRefs = namedLabels.map {
           SavedItemAndSavedItemLabelCrossRef(
             savedItemLabelId = it.savedItemLabelId,
             savedItemId = savedItemID

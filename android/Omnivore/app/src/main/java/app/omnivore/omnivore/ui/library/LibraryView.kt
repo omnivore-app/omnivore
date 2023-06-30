@@ -37,6 +37,7 @@ import app.omnivore.omnivore.Routes
 import app.omnivore.omnivore.persistence.entities.SavedItemLabel
 import app.omnivore.omnivore.persistence.entities.SavedItemWithLabelsAndHighlights
 import app.omnivore.omnivore.ui.components.LabelsSelectionSheetContent
+import app.omnivore.omnivore.ui.components.LabelsViewModel
 import app.omnivore.omnivore.ui.savedItemViews.SavedItemCard
 import app.omnivore.omnivore.ui.reader.PDFReaderActivity
 import app.omnivore.omnivore.ui.reader.WebReaderLoadingContainerActivity
@@ -48,6 +49,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun LibraryView(
   libraryViewModel: LibraryViewModel,
+  labelsViewModel: LabelsViewModel,
   navController: NavHostController
 ) {
   val scaffoldState: ScaffoldState = rememberScaffoldState()
@@ -80,7 +82,7 @@ fun LibraryView(
     sheetBackgroundColor = Color.Transparent,
     sheetState = modalBottomSheetState,
     sheetContent = {
-      BottomSheetContent(libraryViewModel)
+      BottomSheetContent(libraryViewModel, labelsViewModel)
       Spacer(modifier = Modifier.weight(1.0F))
     }
   ) {
@@ -104,7 +106,7 @@ fun LibraryView(
 }
 
 @Composable
-fun BottomSheetContent(libraryViewModel: LibraryViewModel) {
+fun BottomSheetContent(libraryViewModel: LibraryViewModel, labelsViewModel: LabelsViewModel) {
   val showLabelsSelectionSheet: Boolean by libraryViewModel.showLabelsSelectionSheetLiveData.observeAsState(false)
   val currentSavedItemData = libraryViewModel.currentSavedItemUnderEdit()
   val labels: List<SavedItemLabel> by libraryViewModel.savedItemLabelsLiveData.observeAsState(listOf())
@@ -114,6 +116,7 @@ fun BottomSheetContent(libraryViewModel: LibraryViewModel) {
       if (currentSavedItemData != null) {
         LabelsSelectionSheetContent(
           labels = labels,
+          labelsViewModel = labelsViewModel,
           initialSelectedLabels = currentSavedItemData.labels,
           onCancel = {
             libraryViewModel.showLabelsSelectionSheetLiveData.value = false
@@ -137,6 +140,7 @@ fun BottomSheetContent(libraryViewModel: LibraryViewModel) {
       } else { // Is used in library mode
         LabelsSelectionSheetContent(
           labels = labels,
+          labelsViewModel = labelsViewModel,
           initialSelectedLabels = libraryViewModel.activeLabelsLiveData.value ?: listOf(),
           onCancel = { libraryViewModel.showLabelsSelectionSheetLiveData.value = false },
           isLibraryMode = true,

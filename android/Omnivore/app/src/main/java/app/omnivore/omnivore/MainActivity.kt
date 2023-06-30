@@ -14,6 +14,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import app.omnivore.omnivore.ui.auth.LoginViewModel
+import app.omnivore.omnivore.ui.components.LabelsViewModel
 import app.omnivore.omnivore.ui.library.LibraryViewModel
 import app.omnivore.omnivore.ui.library.SearchViewModel
 import app.omnivore.omnivore.ui.root.RootView
@@ -35,6 +36,7 @@ class MainActivity : ComponentActivity() {
     val libraryViewModel: LibraryViewModel by viewModels()
     val settingsViewModel: SettingsViewModel by viewModels()
     val searchViewModel: SearchViewModel by viewModels()
+    val labelsViewModel: LabelsViewModel by viewModels()
 
     val context = this
 
@@ -55,7 +57,7 @@ class MainActivity : ComponentActivity() {
             .fillMaxSize()
             .background(color = Color.Black)
         ) {
-          RootView(loginViewModel, searchViewModel, libraryViewModel, settingsViewModel)
+          RootView(loginViewModel, searchViewModel, libraryViewModel, settingsViewModel, labelsViewModel)
         }
       }
     }

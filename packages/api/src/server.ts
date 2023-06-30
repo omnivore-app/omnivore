@@ -48,7 +48,7 @@ import { webhooksServiceRouter } from './routers/svc/webhooks'
 import { textToSpeechRouter } from './routers/text_to_speech'
 import { userRouter } from './routers/user_router'
 import { sentryConfig } from './sentry'
-import { getClaimsByToken } from './utils/auth'
+import { getClaimsByToken, getTokenByRequest } from './utils/auth'
 import { corsConfig } from './utils/corsConfig'
 import { buildLogger, buildLoggerTransport } from './utils/logger'
 
@@ -102,19 +102,17 @@ export const createApp = (): {
     windowMs: 60 * 1000, // 1 minute
     max: async (req) => {
       // 100 RPM for an authenticated request, 5 for a non-authenticated request
-      const token = await getClaimsByToken(
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        req.header('authorization') ?? req.cookies['auth']
-      )
-      return token ? 100 : 5
+      const token = getTokenByRequest(req)
+      try {
+        const claims = await getClaimsByToken(token)
+        return claims ? 100 : 5
+      } catch (e) {
+        console.log('non-authenticated request')
+        return 5
+      }
     },
     keyGenerator: (req) => {
-      return (
-        req.header('authorization') ||
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        (req.cookies['auth'] as string) ||
-        req.ip
-      )
+      return getTokenByRequest(req) || req.ip
     },
     // skip preflight requests and test requests
     skip: (req) => req.method === 'OPTIONS' || env.dev.isLocal,

@@ -217,6 +217,14 @@ class LabelChipView(label: SavedItemLabel) : Chip(label.name) {
   val label = label
 }
 
+fun findOrCreateLabel(labelsViewModel: LabelsViewModel, labels: List<SavedItemLabel>, name: TextFieldValue): SavedItemLabel {
+  val found = labels.find { it.name == name.text }
+  if (found != null) {
+    return found
+  }
+  return labelsViewModel.createNewSavedItemLabelWithTemp(name.text, LabelSwatchHelper.random())
+}
+
 @Composable
 @OptIn(ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class,
   ExperimentalMaterial3Api::class
@@ -225,6 +233,7 @@ fun LabelsSelectionSheetContent(
   isLibraryMode: Boolean,
   labels: List<SavedItemLabel>,
   initialSelectedLabels: List<SavedItemLabel>,
+  labelsViewModel: LabelsViewModel,
   onCancel: () -> Unit,
   onSave: (List<SavedItemLabel>) -> Unit,
   onCreateLabel: (String, String) -> Unit
@@ -252,20 +261,6 @@ fun LabelsSelectionSheetContent(
   }
 
   val titleText = if (isLibraryMode) "Filter by Label" else "Set Labels"
-
-  val findOrCreateLabel: (name: TextFieldValue) -> SavedItemLabel = { name ->
-    val found = labels.find { it.name == name.text }
-    found
-        ?: SavedItemLabel(
-          savedItemLabelId = "",
-          name = name.text,
-          labelDescription = "",
-          color = LabelSwatchHelper.random(),
-          createdAt = LocalDate.now().atStartOfDay().atOffset(ZoneOffset.UTC).format(
-            DateTimeFormatter.ISO_DATE_TIME),
-          serverSyncStatus = ServerSyncStatus.NEEDS_CREATION.rawValue
-        )
-  }
 
   Surface(
     modifier = Modifier
@@ -307,7 +302,7 @@ fun LabelsSelectionSheetContent(
               LabelChipView(it)
             } ?: null
           } else {
-            LabelChipView(findOrCreateLabel(it))
+            LabelChipView(findOrCreateLabel(labelsViewModel = labelsViewModel, labels = labels, name = it))
           }
         },
         chipLeadingIcon = { chip -> CircleIcon(colorHex = chip.label.color) },
@@ -346,7 +341,7 @@ fun LabelsSelectionSheetContent(
           modifier = Modifier
             .fillMaxWidth()
             .clickable {
-              val label = findOrCreateLabel(filterTextValue)
+              val label = findOrCreateLabel(labelsViewModel = labelsViewModel, labels = labels, name = filterTextValue)
               state.addChip(LabelChipView(label))
               filterTextValue = TextFieldValue()
             }

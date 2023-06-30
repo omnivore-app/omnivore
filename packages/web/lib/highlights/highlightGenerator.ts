@@ -115,6 +115,11 @@ export function makeHighlightNodeAttributes(
     })
     const { parentNode, nextSibling } = node
 
+    if (node.textContent && !/[^\t\n\r ]/.test(node.textContent)) {
+      startingTextNodeIndex++
+      continue
+    }
+
     let isPre = false
     const nodeElement = node instanceof HTMLElement ? node : node.parentElement
     if (nodeElement) {

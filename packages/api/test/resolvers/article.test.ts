@@ -911,6 +911,7 @@ describe('Article API', () => {
     const url = 'https://blog.omnivore.app/p/getting-started-with-omnivore'
     const pages: Page[] = []
     const highlights: Highlight[] = []
+    const searchedKeyword = 'aaabbbccc'
 
     let query = ''
     let keyword = ''
@@ -924,13 +925,13 @@ describe('Article API', () => {
           userId: user.id,
           pageType: PageType.Article,
           title: 'test title',
-          content: '<p>test search api</p>',
+          content: `<p>test ${searchedKeyword}</p>`,
           slug: 'test slug',
           createdAt: new Date(),
           updatedAt: new Date(),
           readingProgressPercent: 0,
           readingProgressAnchorIndex: 0,
-          url: url,
+          url: `${url}/${i}`,
           savedAt: new Date(),
           state: ArticleSavingRequestStatus.Succeeded,
           siteName: 'Example',
@@ -964,7 +965,7 @@ describe('Article API', () => {
 
     context('when type:highlights is not in the query', () => {
       before(() => {
-        keyword = 'search api'
+        keyword = searchedKeyword
       })
 
       it('should return pages in descending order', async () => {
@@ -990,7 +991,7 @@ describe('Article API', () => {
 
     context('when type:highlights is in the query', () => {
       before(() => {
-        keyword = "'search api' type:highlights"
+        keyword = `'${searchedKeyword}' type:highlights`
       })
 
       it('should return highlights in descending order', async () => {
@@ -1007,7 +1008,7 @@ describe('Article API', () => {
 
     context('when is:unread is in the query', () => {
       before(() => {
-        keyword = "'search api' is:unread"
+        keyword = `'${searchedKeyword}' is:unread`
       })
 
       it('should return unread articles in descending order', async () => {
@@ -1024,7 +1025,7 @@ describe('Article API', () => {
 
     context('when no:label is in the query', () => {
       before(async () => {
-        keyword = "'search api' no:label"
+        keyword = `'${searchedKeyword}' no:label`
       })
 
       it('returns non-labeled items in descending order', async () => {
@@ -1036,7 +1037,7 @@ describe('Article API', () => {
 
     context('when no:highlight is in the query', () => {
       before(async () => {
-        keyword = "'search api' no:highlight"
+        keyword = `'${searchedKeyword}' no:highlight`
       })
 
       it('returns non-highlighted items in descending order', async () => {
@@ -1048,7 +1049,7 @@ describe('Article API', () => {
 
     context('when site:${site_name} is in the query', () => {
       before(async () => {
-        keyword = "'search api' site:example"
+        keyword = `'${searchedKeyword}' site:example`
       })
 
       it('returns items from the site', async () => {

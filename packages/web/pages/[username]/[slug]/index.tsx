@@ -368,7 +368,9 @@ export default function Home(): JSX.Element {
     [readerSettings, showHighlightsModal]
   )
 
-  const [labels, dispatchLabels] = useSetPageLabels(article?.id)
+  const [labels, dispatchLabels] = useSetPageLabels(
+    articleData?.article.article?.id
+  )
 
   if (articleFetchError && articleFetchError.indexOf('NOT_FOUND') > -1) {
     router.push('/404')
