@@ -92,6 +92,17 @@ const appendInFilter = (builder: ESBuilder, filter: InFilter): ESBuilder => {
       return builder.query('exists', { field: 'archivedAt' })
     case InFilter.INBOX:
       return builder.notQuery('exists', { field: 'archivedAt' })
+    case InFilter.TRASH:
+      // return only deleted pages within 14 days
+      return builder
+        .query('term', {
+          state: ArticleSavingRequestStatus.Deleted,
+        })
+        .andQuery('range', {
+          updatedAt: {
+            gte: 'now-14d',
+          },
+        })
   }
   return builder
 }
@@ -515,7 +526,7 @@ const buildSearchBody = (userId: string, args: PageSearchArgs) => {
       state: ArticleSavingRequestStatus.Processing,
     })
   }
-  if (!args.includeDeleted) {
+  if (!args.includeDeleted && inFilter !== InFilter.TRASH) {
     builder = builder.notQuery('term', {
       state: ArticleSavingRequestStatus.Deleted,
     })
