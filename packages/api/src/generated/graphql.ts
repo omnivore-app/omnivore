@@ -2481,7 +2481,8 @@ export enum SetLabelsErrorCode {
 
 export type SetLabelsForHighlightInput = {
   highlightId: Scalars['ID'];
-  labelIds: Array<Scalars['ID']>;
+  labelIds?: InputMaybe<Array<Scalars['ID']>>;
+  labels?: InputMaybe<Array<CreateLabelInput>>;
 };
 
 export type SetLabelsInput = {

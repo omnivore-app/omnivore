@@ -1850,7 +1850,8 @@ enum SetLabelsErrorCode {
 
 input SetLabelsForHighlightInput {
   highlightId: ID!
-  labelIds: [ID!]!
+  labelIds: [ID!]
+  labels: [CreateLabelInput!]
 }
 
 input SetLabelsInput {

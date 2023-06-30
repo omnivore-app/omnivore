@@ -379,7 +379,14 @@ export const setLabelsForHighlightResolver = authorized<
 >(async (_, { input }, { claims: { uid }, log, pubsub }) => {
   log.info('setLabelsForHighlightResolver')
 
-  const { highlightId, labelIds } = input
+  const { highlightId, labelIds, labels } = input
+
+  if (!labelIds && !labels) {
+    log.info('labelIds or labels must be provided')
+    return {
+      errorCodes: [SetLabelsErrorCode.BadRequest],
+    }
+  }
 
   try {
     const user = await getRepository(User).findOneBy({ id: uid })
@@ -401,19 +408,39 @@ export const setLabelsForHighlightResolver = authorized<
       }
     }
 
-    const labels = await getLabelsByIds(uid, labelIds)
-    if (labels.length !== labelIds.length) {
-      return {
-        errorCodes: [SetLabelsErrorCode.NotFound],
+    const ctx = {
+      uid,
+      pubsub,
+      refresh: true,
+    }
+    let labelsSet: Label[] = []
+    if (labels && labels.length > 0) {
+      // for new clients that send label names
+      // create labels if they don't exist
+      labelsSet = await createLabels(ctx, labels)
+    } else if (labelIds && labelIds.length > 0) {
+      // for old clients that send labelIds
+      labelsSet = await getLabelsByIds(uid, labelIds)
+      if (labelsSet.length !== labelIds.length) {
+        return {
+          errorCodes: [SetLabelsErrorCode.NotFound],
+        }
       }
     }
-
+    // filter out labels that are already set
+    const labelsToAdd = labelsSet.filter(
+      (label) =>
+        !highlight.labels?.some(
+          (highlightLabel) => highlightLabel.id === label.id
+        )
+    )
     // set labels in the highlights
-    const updated = await setLabelsForHighlight(highlightId, labels, {
-      pubsub,
-      uid,
-      refresh: true,
-    })
+    const updated = await setLabelsForHighlight(
+      highlightId,
+      labelsSet,
+      ctx,
+      labelsToAdd
+    )
     if (!updated) {
       return {
         errorCodes: [SetLabelsErrorCode.NotFound],
@@ -431,7 +458,7 @@ export const setLabelsForHighlightResolver = authorized<
     })
 
     return {
-      labels,
+      labels: labelsSet,
     }
   } catch (error) {
     log.error(error)

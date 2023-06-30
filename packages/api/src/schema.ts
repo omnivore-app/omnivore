@@ -1837,7 +1837,8 @@ const schema = gql`
 
   input SetLabelsForHighlightInput {
     highlightId: ID!
-    labelIds: [ID!]!
+    labelIds: [ID!]
+    labels: [CreateLabelInput!]
   }
 
   union TypeaheadSearchResult = TypeaheadSearchSuccess | TypeaheadSearchError
