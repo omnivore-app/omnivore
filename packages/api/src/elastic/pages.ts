@@ -201,6 +201,19 @@ const appendMatchFilters = (
   filters: FieldFilter[]
 ): ESBuilder => {
   filters.forEach((filter) => {
+    if (filter.nested) {
+      // nested query
+      builder = builder.query('nested', {
+        path: filter.field.split('.')[0], // get the nested field name
+        query: {
+          match: {
+            [filter.field]: filter.value,
+          },
+        },
+      })
+      return
+    }
+
     builder = builder.query('match', {
       [filter.field]: filter.value,
     })
