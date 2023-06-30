@@ -581,6 +581,7 @@ const schema = gql`
     savedAt: Date
     publishedAt: Date
     previewImage: String @sanitize
+    state: ArticleSavingRequestStatus
   }
 
   type UpdatePageSuccess {
