@@ -2245,6 +2245,7 @@ input UpdatePageInput {
   previewImage: String
   publishedAt: Date
   savedAt: Date
+  state: ArticleSavingRequestStatus
   title: String
 }
 

@@ -43,6 +43,7 @@ export const updatePageResolver = authorized<
     savedAt: input.savedAt ? new Date(input.savedAt) : undefined,
     publishedAt: input.publishedAt ? new Date(input.publishedAt) : undefined,
     image: input.previewImage ?? undefined,
+    state: input.state ?? undefined,
   }
 
   const updateResult = await updatePage(input.pageId, pageData, {

@@ -2910,6 +2910,7 @@ export type UpdatePageInput = {
   previewImage?: InputMaybe<Scalars['String']>;
   publishedAt?: InputMaybe<Scalars['Date']>;
   savedAt?: InputMaybe<Scalars['Date']>;
+  state?: InputMaybe<ArticleSavingRequestStatus>;
   title?: InputMaybe<Scalars['String']>;
 };
 
