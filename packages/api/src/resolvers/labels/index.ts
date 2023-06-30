@@ -41,6 +41,7 @@ import {
 import { AppDataSource } from '../../server'
 import {
   createLabel,
+  createLabels,
   getLabelByName,
   getLabelsByIds,
 } from '../../services/labels'
@@ -210,7 +211,14 @@ export const setLabelsResolver = authorized<
 >(async (_, { input }, { claims: { uid }, log, pubsub }) => {
   log.info('setLabelsResolver')
 
-  const { pageId, labelIds } = input
+  const { pageId, labelIds, labels } = input
+
+  if (!labelIds && !labels) {
+    log.info('labelIds or labels must be provided')
+    return {
+      errorCodes: [SetLabelsErrorCode.BadRequest],
+    }
+  }
 
   try {
     const user = await getRepository(User).findOneBy({ id: uid })
@@ -232,25 +240,35 @@ export const setLabelsResolver = authorized<
       }
     }
 
-    const labels = await getLabelsByIds(uid, labelIds)
-    if (labels.length !== labelIds.length) {
-      return {
-        errorCodes: [SetLabelsErrorCode.NotFound],
+    const ctx = {
+      uid,
+      pubsub,
+      refresh: true,
+    }
+    let labelsSet: Label[] = []
+
+    if (labels && labels.length > 0) {
+      // for new clients that send label names
+      // create labels if they don't exist
+      labelsSet = await createLabels(ctx, labels)
+    } else if (labelIds && labelIds.length > 0) {
+      // for old clients that send labelIds
+      labelsSet = await getLabelsByIds(uid, labelIds)
+      if (labelsSet.length !== labelIds.length) {
+        return {
+          errorCodes: [SetLabelsErrorCode.NotFound],
+        }
       }
     }
     // filter out labels that are already set
-    const labelsToAdd = labels.filter(
+    const labelsToAdd = labelsSet.filter(
       (label) => !page.labels?.some((pageLabel) => pageLabel.id === label.id)
     )
     // update labels in the page
     const updated = await updateLabelsInPage(
       pageId,
-      labels,
-      {
-        pubsub,
-        uid,
-        refresh: true,
-      },
+      labelsSet,
+      ctx,
       labelsToAdd
     )
     if (!updated) {
@@ -270,7 +288,7 @@ export const setLabelsResolver = authorized<
     })
 
     return {
-      labels,
+      labels: labelsSet,
     }
   } catch (error) {
     log.error(error)

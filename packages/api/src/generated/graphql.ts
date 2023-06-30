@@ -2485,7 +2485,8 @@ export type SetLabelsForHighlightInput = {
 };
 
 export type SetLabelsInput = {
-  labelIds: Array<Scalars['ID']>;
+  labelIds?: InputMaybe<Array<Scalars['ID']>>;
+  labels?: InputMaybe<Array<CreateLabelInput>>;
   pageId: Scalars['ID'];
 };
 
