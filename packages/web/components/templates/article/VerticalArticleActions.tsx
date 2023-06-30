@@ -43,6 +43,9 @@ export function VerticalArticleActionsMenu(
           css={{
             display: 'flex',
             alignItems: 'center',
+            '@media (max-width: 300px)': {
+              display: 'none',
+            },
           }}
         >
           <Tag size={24} color={theme.colors.thHighContrast.toString()} />
@@ -54,6 +57,9 @@ export function VerticalArticleActionsMenu(
           css={{
             display: 'flex',
             alignItems: 'center',
+            '@media (max-width: 300px)': {
+              display: 'none',
+            },
           }}
         >
           <TooltipWrapped
@@ -114,6 +120,9 @@ export function VerticalArticleActionsMenu(
             css={{
               display: 'flex',
               alignItems: 'center',
+              '@media (max-width: 300px)': {
+                display: 'none',
+              },
             }}
           >
             <TooltipWrapped
@@ -133,6 +142,9 @@ export function VerticalArticleActionsMenu(
             css={{
               display: 'flex',
               alignItems: 'center',
+              '@media (max-width: 300px)': {
+                display: 'none',
+              },
             }}
           >
             <TooltipWrapped
@@ -149,6 +161,9 @@ export function VerticalArticleActionsMenu(
           css={{
             display: 'flex',
             alignItems: 'center',
+            '@media (max-width: 300px)': {
+              display: 'none',
+            },
           }}
         >
           <TooltipWrapped
