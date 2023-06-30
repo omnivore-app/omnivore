@@ -65,9 +65,6 @@ export function ReaderHeader(props: ReaderHeaderProps): JSX.Element {
                 display: props.alwaysDisplayToolbar ? 'flex' : 'none',
               },
               '@mdDown': { px: '15px' },
-              '@media (max-width: 300px)': {
-                display: 'none',
-              },
             }}
           >
             {props.children}
@@ -78,9 +75,6 @@ export function ReaderHeader(props: ReaderHeaderProps): JSX.Element {
                 width: '100%',
                 '@lgDown': {
                   display: 'none',
-                },
-                '@media (max-width: 300px)': {
-                  display: 'flex',
                 },
               }}
             >
