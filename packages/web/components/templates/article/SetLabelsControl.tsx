@@ -174,6 +174,9 @@ type FooterProps = {
   filterText: string
   selectedLabels: Label[]
   availableLabels: Label[]
+
+  createEnteredLabel: () => Promise<void>
+  selectEnteredLabel: () => Promise<void>
 }
 
 function Footer(props: FooterProps): JSX.Element {
@@ -233,7 +236,17 @@ function Footer(props: FooterProps): JSX.Element {
           <HStack
             alignment="center"
             distribution="start"
-            css={{ gap: '8px', fontSize: '12px' }}
+            css={{ gap: '8px', fontSize: '12px', pointer: 'cursor' }}
+            onClick={async (event) => {
+              switch (textMatch) {
+                case 'available':
+                  await props.selectEnteredLabel()
+                  return
+                case 'none':
+                  await props.createEnteredLabel()
+                  return
+              }
+            }}
           >
             {textMatch === 'available' && (
               <>
@@ -273,7 +286,6 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
   const [focusedIndex, setFocusedIndex] = useState<number | undefined>(0)
 
   useEffect(() => {
-    console.log('setting focused index: ', inputValue)
     setFocusedIndex(undefined)
   }, [inputValue])
 
@@ -398,6 +410,22 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
     ]
   )
 
+  const createEnteredLabel = useCallback(() => {
+    const _filterText = inputValue
+    setInputValue('')
+    return createLabelFromFilterText(_filterText)
+  }, [inputValue])
+
+  const selectEnteredLabel = useCallback(() => {
+    const label = labels.find(
+      (l: Label) => l.name.toLowerCase() == inputValue.toLowerCase()
+    )
+    if (!label) {
+      return Promise.resolve()
+    }
+    return toggleLabel(label)
+  }, [labels, inputValue])
+
   return (
     <VStack
       distribution="start"
@@ -475,6 +503,8 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
           selectedLabels={props.selectedLabels}
           availableLabels={labels}
           focused={focusedIndex === filteredLabels.length + 1}
+          createEnteredLabel={createEnteredLabel}
+          selectEnteredLabel={selectEnteredLabel}
         />
       )}
     </VStack>

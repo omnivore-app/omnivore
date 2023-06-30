@@ -13,7 +13,7 @@ export type LabelsDispatcher = (action: {
 export const useSetPageLabels = (
   articleId?: string
 ): [{ labels: Label[] }, LabelsDispatcher] => {
-  const saveLabels = (labels: Label[]) => {
+  const saveLabels = (labels: Label[], articleId: string) => {
     ;(async () => {
       const labelIds = labels.map((l) => l.id)
       if (articleId) {
@@ -30,11 +30,13 @@ export const useSetPageLabels = (
   const labelsReducer = (
     state: {
       labels: Label[]
-      throttledSave: (labels: Label[]) => void
+      articleId: string | undefined
+      throttledSave: (labels: Label[], articleId: string) => void
     },
     action: {
       type: string
       labels: Label[]
+      articleId?: string
     }
   ) => {
     switch (action.type) {
@@ -51,8 +53,8 @@ export const useSetPageLabels = (
         }
       }
       case 'SAVE': {
-        if (articleId) {
-          state.throttledSave(action.labels)
+        if (state.articleId) {
+          state.throttledSave(action.labels, state.articleId)
         } else {
           showErrorToast('Unable to update labels', {
             position: 'bottom-right',
@@ -63,17 +65,36 @@ export const useSetPageLabels = (
           labels: action.labels,
         }
       }
+      case 'UPDATE_ARTICLE_ID': {
+        return {
+          ...state,
+          articleId: action.articleId,
+        }
+      }
       default:
         return state
     }
   }
 
   const debouncedSave = useCallback(
-    throttle((labels: Label[]) => saveLabels(labels), 2000),
+    throttle(
+      (labels: Label[], articleId: string) => saveLabels(labels, articleId),
+      2000
+    ),
     []
   )
+
+  useEffect(() => {
+    dispatchLabels({
+      type: 'UPDATE_ARTICLE_ID',
+      labels: [],
+      articleId: articleId,
+    })
+  }, [articleId])
+
   const [labels, dispatchLabels] = useReducer(labelsReducer, {
     labels: [],
+    articleId: articleId,
     throttledSave: debouncedSave,
   })
 
