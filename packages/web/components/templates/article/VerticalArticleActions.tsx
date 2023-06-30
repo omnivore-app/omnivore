@@ -161,9 +161,6 @@ export function VerticalArticleActionsMenu(
           css={{
             display: 'flex',
             alignItems: 'center',
-            '@media (max-width: 300px)': {
-              display: 'none',
-            },
           }}
         >
           <TooltipWrapped
