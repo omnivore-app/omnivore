@@ -2,6 +2,7 @@ package app.omnivore.omnivore.persistence.entities
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import app.omnivore.omnivore.models.ServerSyncStatus
 
 @Entity
 data class SavedItemLabel(
@@ -21,6 +22,14 @@ interface SavedItemLabelDao {
   @Transaction
   @Query("SELECT * FROM SavedItemLabel WHERE serverSyncStatus != 2 ORDER BY name ASC")
   fun getSavedItemLabelsLiveData(): LiveData<List<SavedItemLabel>>
+
+  @Transaction
+  @Query("UPDATE SavedItemLabel set savedItemLabelId = :permanentId,  serverSyncStatus = :status WHERE savedItemLabelId = :tempId")
+  fun updateTempLabel(tempId: String, permanentId: String, status: ServerSyncStatus = ServerSyncStatus.IS_SYNCED)
+
+  @Transaction
+  @Query("SELECT * FROM SavedItemLabel WHERE name in (:names) ORDER BY name ASC")
+  fun namedLabels(names: List<String>): List<SavedItemLabel>
 }
 
 @Entity(
