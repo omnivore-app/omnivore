@@ -29,9 +29,9 @@ struct LabelsFlowLayout: View {
     var height = CGFloat.zero
 
     return ZStack(alignment: .topLeading) {
-      ForEach(self.labelItems, id: \.self) { label in
+      ForEach(Array(self.labelItems.enumerated()), id: \.offset) { index, label in
         self.item(for: label)
-          .padding(.horizontal, 3)
+          .padding(.horizontal, index == 0 ? 0 : 3)
           .padding(.vertical, 5)
           .alignmentGuide(.leading, computeValue: { dim in
             if abs(width - dim.width) > geom.size.width {

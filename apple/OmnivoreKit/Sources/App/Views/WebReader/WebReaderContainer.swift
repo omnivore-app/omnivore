@@ -395,171 +395,174 @@ struct WebReaderContainerView: View {
 
   var body: some View {
     ZStack {
-      if let articleContent = viewModel.articleContent {
-        WebReader(
-          item: item,
-          articleContent: articleContent,
-          openLinkAction: {
-            #if os(macOS)
-              NSWorkspace.shared.open($0)
-            #elseif os(iOS)
-              if UIDevice.current.userInterfaceIdiom == .phone, $0.absoluteString != item.unwrappedPageURLString {
-                linkToOpen = $0
-                displayLinkSheet = true
-              } else {
-                safariWebLink = SafariWebLink(id: UUID(), url: $0)
-              }
-            #endif
-          },
-          tapHandler: tapHandler,
-          scrollPercentHandler: scrollPercentHandler,
-          webViewActionHandler: webViewActionHandler,
-          navBarVisibilityRatioUpdater: {
-            navBarVisibilityRatio = $0
-          },
-          readerSettingsChangedTransactionID: $readerSettingsChangedTransactionID,
-          annotationSaveTransactionID: $annotationSaveTransactionID,
-          showNavBarActionID: $showNavBarActionID,
-          shareActionID: $shareActionID,
-          annotation: $annotation,
-          showBottomBar: $showBottomBar,
-          showHighlightAnnotationModal: $showHighlightAnnotationModal
-        )
-        .background(ThemeManager.currentBgColor)
-        .onAppear {
-          if item.isUnread {
-            dataService.updateLinkReadingProgress(itemID: item.unwrappedID, readingProgress: 0.1, anchorIndex: 0)
-          }
-          Task {
-            await audioController.preload(itemIDs: [item.unwrappedID])
-          }
-        }
-        .confirmationDialog(linkToOpen?.absoluteString ?? "", isPresented: $displayLinkSheet) {
-          Button(action: {
-            if let linkToOpen = linkToOpen {
-              safariWebLink = SafariWebLink(id: UUID(), url: linkToOpen)
-            }
-          }, label: { Text(LocalText.genericOpen) })
-          Button(action: {
-            #if os(iOS)
-              UIPasteboard.general.string = item.unwrappedPageURLString
-            #else
-//            Pasteboard.general.string = item.unwrappedPageURLString TODO: fix for mac
-            #endif
-            showInSnackbar("Link Copied")
-          }, label: { Text(LocalText.readerCopyLink) })
-          Button(action: {
-            if let linkToOpen = linkToOpen {
-              viewModel.saveLink(dataService: dataService, url: linkToOpen)
-            }
-          }, label: { Text(LocalText.readerSave) })
-        }
-        #if os(iOS)
-          .fullScreenCover(item: $safariWebLink) {
-            SafariView(url: $0.url)
-          }
-        #endif
-        .alert(errorAlertMessage ?? LocalText.readerError, isPresented: $showErrorAlertMessage) {
-          Button(LocalText.genericOk, role: .cancel, action: {
-            errorAlertMessage = nil
-            showErrorAlertMessage = false
-          })
-        }
-        #if os(iOS)
-          .formSheet(isPresented: $showRecommendSheet) {
-            let highlightCount = item.highlights.asArray(of: Highlight.self).filter(\.createdByMe).count
-
-            NavigationView {
-              RecommendToView(
-                dataService: dataService,
-                viewModel: RecommendToViewModel(pageID: item.unwrappedID,
-                                                highlightCount: highlightCount)
-              )
-            }.onDisappear {
-              showRecommendSheet = false
-            }
-          }
-        #endif
-        .sheet(isPresented: $showHighlightAnnotationModal) {
-          NavigationView {
-            HighlightAnnotationSheet(
-              annotation: $annotation,
-              onSave: {
-                annotationSaveTransactionID = UUID()
-              },
-              onCancel: {
-                showHighlightAnnotationModal = false
-              },
-              errorAlertMessage: $errorAlertMessage,
-              showErrorAlertMessage: $showErrorAlertMessage
-            )
-          }
-        }
-        .sheet(isPresented: $showHighlightLabelsModal) {
-          if let highlight = Highlight.lookup(byID: self.annotation, inContext: self.dataService.viewContext) {
-            ApplyLabelsView(mode: .highlight(highlight), isSearchFocused: false) { selectedLabels in
-              viewModel.setLabelsForHighlight(highlightID: highlight.unwrappedID,
-                                              labelIDs: selectedLabels.map(\.unwrappedID),
-                                              dataService: dataService)
-            }
-          }
-        }
-      } else if let errorMessage = viewModel.errorMessage {
-        VStack {
-          Text(errorMessage).padding()
-          if viewModel.allowRetry, viewModel.hasOriginalUrl(item) {
-            Button("Open Original", action: {
-              openOriginalURL(urlString: item.pageURLString)
-            }).buttonStyle(RoundedRectButtonStyle())
-            if let urlStr = item.pageURLString, let username = dataService.currentViewer?.username, let url = URL(string: urlStr) {
-              Button("Attempt to Save Again", action: {
-                viewModel.errorMessage = nil
-                viewModel.saveLinkAndFetch(dataService: dataService, username: username, url: url)
-              }).buttonStyle(RoundedRectButtonStyle())
-            }
-          }
-        }
-      } else {
-        ProgressView()
-          .opacity(progressViewOpacity)
+      GeometryReader { geo in
+        let foo = print("READER", geo.size)
+        if let articleContent = viewModel.articleContent {
+          WebReader(
+            item: item,
+            articleContent: articleContent,
+            openLinkAction: {
+              #if os(macOS)
+                NSWorkspace.shared.open($0)
+              #elseif os(iOS)
+                if UIDevice.current.userInterfaceIdiom == .phone, $0.absoluteString != item.unwrappedPageURLString {
+                  linkToOpen = $0
+                  displayLinkSheet = true
+                } else {
+                  safariWebLink = SafariWebLink(id: UUID(), url: $0)
+                }
+              #endif
+            },
+            tapHandler: tapHandler,
+            scrollPercentHandler: scrollPercentHandler,
+            webViewActionHandler: webViewActionHandler,
+            navBarVisibilityRatioUpdater: {
+              navBarVisibilityRatio = $0
+            },
+            readerSettingsChangedTransactionID: $readerSettingsChangedTransactionID,
+            annotationSaveTransactionID: $annotationSaveTransactionID,
+            showNavBarActionID: $showNavBarActionID,
+            shareActionID: $shareActionID,
+            annotation: $annotation,
+            showBottomBar: $showBottomBar,
+            showHighlightAnnotationModal: $showHighlightAnnotationModal
+          )
+          .background(ThemeManager.currentBgColor)
           .onAppear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1000)) {
-              progressViewOpacity = 1
+            if item.isUnread {
+              dataService.updateLinkReadingProgress(itemID: item.unwrappedID, readingProgress: 0.1, anchorIndex: 0)
+            }
+            Task {
+              await audioController.preload(itemIDs: [item.unwrappedID])
             }
           }
-          .task {
-            if let username = dataService.currentViewer?.username {
-              await viewModel.loadContent(
-                dataService: dataService,
-                username: username,
-                itemID: item.unwrappedID
+          .confirmationDialog(linkToOpen?.absoluteString ?? "", isPresented: $displayLinkSheet) {
+            Button(action: {
+              if let linkToOpen = linkToOpen {
+                safariWebLink = SafariWebLink(id: UUID(), url: linkToOpen)
+              }
+            }, label: { Text(LocalText.genericOpen) })
+            Button(action: {
+              #if os(iOS)
+                UIPasteboard.general.string = item.unwrappedPageURLString
+              #else
+                //            Pasteboard.general.string = item.unwrappedPageURLString TODO: fix for mac
+              #endif
+              showInSnackbar("Link Copied")
+            }, label: { Text(LocalText.readerCopyLink) })
+            Button(action: {
+              if let linkToOpen = linkToOpen {
+                viewModel.saveLink(dataService: dataService, url: linkToOpen)
+              }
+            }, label: { Text(LocalText.readerSave) })
+          }
+          #if os(iOS)
+            .fullScreenCover(item: $safariWebLink) {
+              SafariView(url: $0.url)
+            }
+          #endif
+          .alert(errorAlertMessage ?? LocalText.readerError, isPresented: $showErrorAlertMessage) {
+            Button(LocalText.genericOk, role: .cancel, action: {
+              errorAlertMessage = nil
+              showErrorAlertMessage = false
+            })
+          }
+          #if os(iOS)
+            .formSheet(isPresented: $showRecommendSheet) {
+              let highlightCount = item.highlights.asArray(of: Highlight.self).filter(\.createdByMe).count
+
+              NavigationView {
+                RecommendToView(
+                  dataService: dataService,
+                  viewModel: RecommendToViewModel(pageID: item.unwrappedID,
+                                                  highlightCount: highlightCount)
+                )
+              }.onDisappear {
+                showRecommendSheet = false
+              }
+            }
+          #endif
+          .sheet(isPresented: $showHighlightAnnotationModal) {
+            NavigationView {
+              HighlightAnnotationSheet(
+                annotation: $annotation,
+                onSave: {
+                  annotationSaveTransactionID = UUID()
+                },
+                onCancel: {
+                  showHighlightAnnotationModal = false
+                },
+                errorAlertMessage: $errorAlertMessage,
+                showErrorAlertMessage: $showErrorAlertMessage
               )
-            } else {
-              viewModel.errorMessage = "You are not logged in."
             }
           }
-      }
-      #if os(iOS)
-        VStack(spacing: 0) {
-          navBar
-          Spacer()
-          if showBottomBar {
-            bottomButtons
-              .frame(height: 48)
-              .background(Color.webControlButtonBackground)
-              .cornerRadius(6)
-              .padding(.bottom, 34)
-              .shadow(color: .gray.opacity(0.13), radius: 8, x: 0, y: 4)
-              .opacity(bottomBarOpacity)
-              .onAppear {
-                withAnimation(Animation.linear(duration: 0.25)) { self.bottomBarOpacity = 1 }
+          .sheet(isPresented: $showHighlightLabelsModal) {
+            if let highlight = Highlight.lookup(byID: self.annotation, inContext: self.dataService.viewContext) {
+              ApplyLabelsView(mode: .highlight(highlight), isSearchFocused: false) { selectedLabels in
+                viewModel.setLabelsForHighlight(highlightID: highlight.unwrappedID,
+                                                labelIDs: selectedLabels.map(\.unwrappedID),
+                                                dataService: dataService)
               }
-              .onDisappear {
-                self.bottomBarOpacity = 0
-              }
+            }
           }
+        } else if let errorMessage = viewModel.errorMessage {
+          VStack {
+            Text(errorMessage).padding()
+            if viewModel.allowRetry, viewModel.hasOriginalUrl(item) {
+              Button("Open Original", action: {
+                openOriginalURL(urlString: item.pageURLString)
+              }).buttonStyle(RoundedRectButtonStyle())
+              if let urlStr = item.pageURLString, let username = dataService.currentViewer?.username, let url = URL(string: urlStr) {
+                Button("Attempt to Save Again", action: {
+                  viewModel.errorMessage = nil
+                  viewModel.saveLinkAndFetch(dataService: dataService, username: username, url: url)
+                }).buttonStyle(RoundedRectButtonStyle())
+              }
+            }
+          }
+        } else {
+          ProgressView()
+            .opacity(progressViewOpacity)
+            .onAppear {
+              DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1000)) {
+                progressViewOpacity = 1
+              }
+            }
+            .task {
+              if let username = dataService.currentViewer?.username {
+                await viewModel.loadContent(
+                  dataService: dataService,
+                  username: username,
+                  itemID: item.unwrappedID
+                )
+              } else {
+                viewModel.errorMessage = "You are not logged in."
+              }
+            }
         }
-      #endif
+        #if os(iOS)
+          VStack(spacing: 0) {
+            navBar
+            Spacer()
+            if showBottomBar {
+              bottomButtons
+                .frame(height: 48)
+                .background(Color.webControlButtonBackground)
+                .cornerRadius(6)
+                .padding(.bottom, 34)
+                .shadow(color: .gray.opacity(0.13), radius: 8, x: 0, y: 4)
+                .opacity(bottomBarOpacity)
+                .onAppear {
+                  withAnimation(Animation.linear(duration: 0.25)) { self.bottomBarOpacity = 1 }
+                }
+                .onDisappear {
+                  self.bottomBarOpacity = 0
+                }
+            }
+          }
+        #endif
+      }
     }
     #if os(macOS)
       .onReceive(NSNotification.readerSettingsChangedPublisher) { _ in

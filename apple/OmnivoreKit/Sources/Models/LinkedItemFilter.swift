@@ -142,11 +142,11 @@ public extension FeaturedItemFilter {
         continueReadingPredicate, undeletedPredicate, notInArchivePredicate
       ])
     case .pinned:
-      let newsletterLabelPredicate = NSPredicate(
+      let pinnedPredicate = NSPredicate(
         format: "SUBQUERY(labels, $label, $label.name == \"Pinned\").@count > 0"
       )
       return NSCompoundPredicate(andPredicateWithSubpredicates: [
-        notInArchivePredicate, undeletedPredicate, newsletterLabelPredicate
+        notInArchivePredicate, undeletedPredicate, pinnedPredicate
       ])
     case .newsletters:
       // non-archived or deleted items with the Newsletter label

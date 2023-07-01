@@ -30,7 +30,6 @@ public struct LibraryItemCard: View {
         articleInfo
         imageBox
       }
-      .padding(5)
       .frame(maxWidth: .infinity, maxHeight: .infinity)
 
       if item.hasLabels {
@@ -196,7 +195,6 @@ public struct LibraryItemCard: View {
       byLine
     }
     .padding(0)
-    .padding(.trailing, 8)
   }
 
   var labels: some View {

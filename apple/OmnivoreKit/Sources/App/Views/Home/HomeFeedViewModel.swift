@@ -31,6 +31,7 @@ import Views
   @Published var linkIsActive = false
 
   @Published var showLabelsSheet = false
+  @Published var showFiltersModal = false
   @Published var showCommunityModal = false
   @Published var featureItems = [LinkedItem]()
 
@@ -49,12 +50,19 @@ import Views
 
   func setItems(_ items: [LinkedItem]) {
     self.items = items
-    updateFeatureFilter(FeaturedItemFilter(rawValue: featureFilter))
   }
 
-  func updateFeatureFilter(_ filter: FeaturedItemFilter?) {
+  func updateFeatureFilter(dataService: DataService, filter: FeaturedItemFilter?) {
+    Task {
+      if let filter = filter {
+        featureItems = await loadFeatureItems(dataService: dataService, predicate: filter.predicate, sort: filter.sortDescriptor)
+      } else {
+        featureItems = []
+      }
+    }
     if let filter = filter {
       // now try to update the continue reading items:
+
       featureItems = (items.filter { item in
         filter.predicate.evaluate(with: item)
       } as NSArray)
@@ -223,6 +231,8 @@ import Views
       updateFetchController(dataService: dataService)
     }
 
+    updateFeatureFilter(dataService: dataService, filter: FeaturedItemFilter(rawValue: featureFilter))
+
     isLoading = false
     showLoadingBar = false
   }
@@ -235,6 +245,17 @@ import Views
 
     isLoading = false
     showLoadingBar = false
+  }
+
+  func pinItem(dataService _: DataService, item _: LinkedItem) async {}
+
+  func loadFeatureItems(dataService: DataService, predicate: NSPredicate, sort: NSSortDescriptor) async -> [LinkedItem] {
+    let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
+    fetchRequest.fetchLimit = 25
+    fetchRequest.predicate = predicate
+    fetchRequest.sortDescriptors = [sort]
+
+    return (try? dataService.viewContext.fetch(fetchRequest)) ?? []
   }
 
   private var fetchRequest: NSFetchRequest<Models.LinkedItem> {

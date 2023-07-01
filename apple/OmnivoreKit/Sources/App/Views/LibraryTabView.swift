@@ -6,41 +6,50 @@
 //
 
 import Foundation
+import Models
 import SwiftUI
 
 struct LibraryTabView: View {
-//  @EnvironmentObject var authenticator: Authenticator
-//  @EnvironmentObject var dataService: DataService
-//  @Binding var selectedEnvironment: AppEnvironment
-
-//  let appEnvironments: [AppEnvironment] = [.local, .demo, .prod]
+  @StateObject private var viewModel = HomeFeedViewModel()
 
   var body: some View {
-    TabView {
-      HomeView()
-        .tabItem {
-          Label {
-            Text("Subscriptions")
-          } icon: {
-            Image.tabSubscriptions
-          }
+    NavigationView {
+      ZStack {
+        NavigationLink(
+          destination: LinkDestination(selectedItem: viewModel.selectedItem),
+          isActive: $viewModel.linkIsActive
+        ) {
+          EmptyView()
         }
-      HomeView()
-        .tabItem {
-          Label {
-            Text("Library")
-          } icon: {
-            Image.tabLibrary
-          }
+        TabView {
+          HomeView(viewModel: viewModel)
+            .tabItem {
+              Label {
+                Text("Subscriptions")
+              } icon: {
+                Image.tabSubscriptions
+              }
+            }
+          HomeView(viewModel: viewModel)
+            .tabItem {
+              Label {
+                Text("Library")
+              } icon: {
+                Image.tabLibrary
+              }
+            }
+          HomeView(viewModel: viewModel)
+            .tabItem {
+              Label {
+                Text("Highlights")
+              } icon: {
+                Image.tabHighlights
+              }
+            }
         }
-      HomeView()
-        .tabItem {
-          Label {
-            Text("Highlights")
-          } icon: {
-            Image.tabHighlights
-          }
-        }
+      }
     }
+    .navigationViewStyle(.stack)
+    .accentColor(.appGrayTextContrast)
   }
 }
