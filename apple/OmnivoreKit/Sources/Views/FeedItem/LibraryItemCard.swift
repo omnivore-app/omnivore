@@ -36,7 +36,7 @@ public struct LibraryItemCard: View {
         labels
       }
     }
-    .padding(.bottom, 8)
+    .padding(.bottom, 5)
     .draggableItem(item: item)
   }
 

@@ -50,6 +50,5 @@ struct LibraryTabView: View {
       }
     }
     .navigationViewStyle(.stack)
-    .accentColor(.appGrayTextContrast)
   }
 }
