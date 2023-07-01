@@ -102,8 +102,12 @@ public extension FeaturedItemFilter {
     switch self {
     case .continueReading:
       return "Continue Reading"
-    default:
-      return rawValue
+    case .recommended:
+      return "Recommended"
+    case .newsletters:
+      return "Newsletters"
+    case .pinned:
+      return "Pinned"
     }
   }
 

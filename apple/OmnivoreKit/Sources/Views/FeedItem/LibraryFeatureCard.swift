@@ -17,7 +17,6 @@ public struct LibraryFeatureCard: View {
     VStack(alignment: .leading, spacing: 5) {
       imageBox
       title
-      readInfo
       Spacer()
     }
     .padding(0)
@@ -32,43 +31,6 @@ public struct LibraryFeatureCard: View {
     Int(item.readingProgress) > 0
   }
 
-  var readingSpeed: Int64 {
-    var result = UserDefaults.standard.integer(forKey: UserDefaultKey.userWordsPerMinute.rawValue)
-    if result <= 0 {
-      result = 235
-    }
-    return Int64(result)
-  }
-
-  var estimatedReadingTime: String {
-    if item.wordsCount > 0 {
-      let readLen = max(1, item.wordsCount / readingSpeed)
-      return "\(readLen) MIN READ • "
-    }
-    return ""
-  }
-
-  var readingProgress: String {
-    // If there is no wordsCount don't show progress because it will make no sense
-    if item.wordsCount > 0 {
-      return "\(String(format: "%d", Int(item.readingProgress)))%"
-    }
-    return ""
-  }
-
-  var readInfo: some View {
-    AnyView(HStack {
-      Text("\(estimatedReadingTime)")
-        .font(Font.system(size: 11, weight: .medium))
-        .foregroundColor(Color.themeMediumGray)
-        +
-        Text("\(readingProgress)")
-        .font(Font.system(size: 11, weight: .medium))
-        .foregroundColor(isPartiallyRead ? Color.appGreenSuccess : Color.themeMediumGray)
-    }
-    .frame(maxWidth: 150, alignment: .leading))
-  }
-
   var imageBox: some View {
     Group {
       if let imageURL = item.imageURL {
@@ -76,7 +38,7 @@ public struct LibraryFeatureCard: View {
           switch phase {
           case .empty:
             Color.systemBackground
-              .frame(width: 146, height: 90)
+              .frame(width: 145, height: 90)
               .cornerRadius(5)
           case let .success(image):
             image.resizable()
@@ -110,7 +72,7 @@ public struct LibraryFeatureCard: View {
   var title: some View {
     Text(item.unwrappedTitle.trimmingCharacters(in: .whitespacesAndNewlines))
       .multilineTextAlignment(.leading)
-      .font(Font.system(size: 13, weight: .semibold))
+      .font(Font.system(size: 11, weight: .medium))
       .lineSpacing(1.25)
       .foregroundColor(.appGrayTextContrast)
       .fixedSize(horizontal: false, vertical: true)

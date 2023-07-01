@@ -14,7 +14,8 @@ public struct PrimaryContentView: View {
       if UIDevice.isIPad {
         splitView
       } else {
-        HomeView()
+//        HomeView()
+        LibraryTabView()
       }
     #elseif os(macOS)
       splitView

@@ -197,21 +197,21 @@ struct AnimatingCellHeight: AnimatableModifier {
           }
         }
       }
-      .formSheet(isPresented: $viewModel.snoozePresented) {
-        SnoozeView(
-          snoozePresented: $viewModel.snoozePresented,
-          itemToSnoozeID: $viewModel.itemToSnoozeID
-        ) { snoozeParams in
-          Task {
-            await viewModel.snoozeUntil(
-              dataService: dataService,
-              linkId: snoozeParams.feedItemId,
-              until: snoozeParams.snoozeUntilDate,
-              successMessage: snoozeParams.successMessage
-            )
-          }
-        }
-      }
+//      .formSheet(isPresented: $viewModel.snoozePresented) {
+//        SnoozeView(
+//          snoozePresented: $viewModel.snoozePresented,
+//          itemToSnoozeID: $viewModel.itemToSnoozeID
+//        ) { snoozeParams in
+//          Task {
+//            await viewModel.snoozeUntil(
+//              dataService: dataService,
+//              linkId: snoozeParams.feedItemId,
+//              until: snoozeParams.snoozeUntilDate,
+//              successMessage: snoozeParams.successMessage
+//            )
+//          }
+//        }
+//      }
       .fullScreenCover(isPresented: $searchPresented) {
         LibrarySearchView(homeFeedViewModel: self.viewModel)
       }
@@ -352,14 +352,6 @@ struct AnimatingCellHeight: AnimatableModifier {
           itemToRemove = item
           confirmationShown = true
         }
-        if FeatureFlag.enableSnooze {
-          Button {
-            viewModel.itemToSnoozeID = item.id
-            viewModel.snoozePresented = true
-          } label: {
-            Label { Text(LocalText.genericSnooze) } icon: { Image.moon }
-          }
-        }
         if let author = item.author {
           Button(
             action: {
@@ -374,60 +366,64 @@ struct AnimatingCellHeight: AnimatableModifier {
     }
 
     var featureCard: some View {
-      VStack(alignment: .leading, spacing: 20) {
-        Menu(content: {
-          Button(action: {
-            viewModel.updateFeatureFilter(.continueReading)
+      VStack {
+        VStack(alignment: .leading, spacing: 20) {
+          Menu(content: {
+            Button(action: {
+              viewModel.updateFeatureFilter(.continueReading)
+            }, label: {
+              Text("Continue Reading")
+            })
+            Button(action: {
+              viewModel.updateFeatureFilter(.pinned)
+            }, label: {
+              Text("Pinned")
+            })
+            Button(action: {
+              viewModel.updateFeatureFilter(.newsletters)
+            }, label: {
+              Text("Newsletters")
+            })
+            Button(action: {
+              showHideFeatureAlert = true
+            }, label: {
+              Text("Hide this Section")
+            })
           }, label: {
-            Text("Continue Reading")
+            HStack(alignment: .center) {
+              Text((FeaturedItemFilter(rawValue: viewModel.featureFilter) ?? .continueReading).title)
+                .font(Font.system(size: 13, weight: .regular))
+              Image(systemName: "chevron.down")
+                .font(Font.system(size: 13, weight: .regular))
+            }.frame(maxWidth: .infinity, alignment: .leading)
+              .tint(Color(hex: "#007AFF"))
           })
-          Button(action: {
-            viewModel.updateFeatureFilter(.pinned)
-          }, label: {
-            Text("Pinned")
-          })
-          Button(action: {
-            viewModel.updateFeatureFilter(.newsletters)
-          }, label: {
-            Text("Newsletters")
-          })
-          Button(action: {
-            showHideFeatureAlert = true
-          }, label: {
-            Text("Hide this Section")
-          })
-        }, label: {
-          HStack(alignment: .center) {
-            Text((FeaturedItemFilter(rawValue: viewModel.featureFilter) ?? .continueReading).title.uppercased())
-              .font(Font.system(size: 14, weight: .regular))
-            Image(systemName: "chevron.down")
-          }.frame(maxWidth: .infinity, alignment: .leading)
-        })
-          .padding(.top, 20)
-          .padding(.bottom, 0)
+            .padding(.top, 15)
 
-        GeometryReader { geo in
+          GeometryReader { geo in
 
-          ScrollView(.horizontal, showsIndicators: false) {
-            if viewModel.featureItems.count > 0 {
-              LazyHStack(alignment: .top, spacing: 10) {
-                ForEach(viewModel.featureItems) { item in
-                  LibraryFeatureCardNavigationLink(item: item, viewModel: viewModel)
+            ScrollView(.horizontal, showsIndicators: false) {
+              if viewModel.featureItems.count > 0 {
+                LazyHStack(alignment: .top, spacing: 10) {
+                  ForEach(viewModel.featureItems) { item in
+                    LibraryFeatureCardNavigationLink(item: item, viewModel: viewModel)
+                  }
                 }
+              } else {
+                Text((FeaturedItemFilter(rawValue: viewModel.featureFilter) ?? .continueReading).emptyMessage)
+                  .font(Font.system(size: 14, weight: .regular))
+                  .foregroundColor(Color(hex: "#898989"))
+                  .frame(maxWidth: geo.size.width)
+                  .frame(height: 60, alignment: .topLeading)
+                  .fixedSize(horizontal: false, vertical: true)
               }
-            } else {
-              Text((FeaturedItemFilter(rawValue: viewModel.featureFilter) ?? .continueReading).emptyMessage)
-                .font(Font.system(size: 14, weight: .regular))
-                .foregroundColor(Color(hex: "#898989"))
-                .frame(maxWidth: geo.size.width)
-                .frame(height: 60, alignment: .topLeading)
-                .fixedSize(horizontal: false, vertical: true)
             }
           }
         }
+        .padding(.horizontal, 20)
 
-        Text((LinkedItemFilter(rawValue: viewModel.appliedFilter)?.displayName ?? "Inbox").uppercased())
-          .font(Font.system(size: 14, weight: .regular))
+        Color.thFeatureSeparator
+          .frame(maxWidth: .infinity, maxHeight: 10)
       }
     }
 
@@ -452,8 +448,8 @@ struct AnimatingCellHeight: AnimatableModifier {
 
             if !viewModel.hideFeatureSection, viewModel.items.count > 0, viewModel.searchTerm.isEmpty, viewModel.selectedLabels.isEmpty, viewModel.negatedLabels.isEmpty {
               featureCard
-                .listRowInsets(.init(top: 0, leading: 10, bottom: 10, trailing: 10))
-                .modifier(AnimatingCellHeight(height: viewModel.featureItems.count > 0 ? 260 : 130))
+                .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+                .modifier(AnimatingCellHeight(height: viewModel.featureItems.count > 0 ? 200 : 130))
             }
 
             ForEach(viewModel.items) { item in
@@ -494,16 +490,16 @@ struct AnimatingCellHeight: AnimatableModifier {
                   }
                 ).tint(.red)
               }
-              .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                if FeatureFlag.enableSnooze {
-                  Button {
-                    viewModel.itemToSnoozeID = item.id
-                    viewModel.snoozePresented = true
-                  } label: {
-                    Label { Text(LocalText.genericSnooze) } icon: { Image.moon }
-                  }.tint(.appYellow48)
-                }
-              }
+//              .swipeActions(edge: .leading, allowsFullSwipe: true) {
+//                if FeatureFlag.enableSnooze {
+//                  Button {
+//                    viewModel.itemToSnoozeID = item.id
+//                    viewModel.snoozePresented = true
+//                  } label: {
+//                    Label { Text(LocalText.genericSnooze) } icon: { Image.moon }
+//                  }.tint(.appYellow48)
+//                }
+//              }
             }
           }
           .padding(0)
