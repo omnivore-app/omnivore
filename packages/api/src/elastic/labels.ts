@@ -1,7 +1,7 @@
-import { Label, PageContext } from './types'
-import { client, INDEX_ALIAS } from './index'
-import { EntityType } from '../datalayer/pubsub'
 import { ResponseError } from '@elastic/elasticsearch/lib/errors'
+import { EntityType } from '../datalayer/pubsub'
+import { client, INDEX_ALIAS } from './index'
+import { Label, PageContext } from './types'
 
 export const addLabelInPage = async (
   pageId: string,
@@ -273,7 +273,8 @@ export const updateLabel = async (
 export const setLabelsForHighlight = async (
   highlightId: string,
   labels: Label[],
-  ctx: PageContext
+  ctx: PageContext,
+  labelsToAdd?: Label[]
 ): Promise<boolean> => {
   try {
     const { body } = await client.updateByQuery({
@@ -304,14 +305,17 @@ export const setLabelsForHighlight = async (
       conflicts: 'proceed', // ignore conflicts
     })
 
-    if (body.updated > 0) {
-      for (const label of labels) {
-        await ctx.pubsub.entityCreated<Label & { highlightId: string }>(
-          EntityType.LABEL,
-          { highlightId, ...label },
-          ctx.uid
+    if (labelsToAdd) {
+      // publish labels to be added
+      await Promise.all(
+        labelsToAdd.map((label) =>
+          ctx.pubsub.entityCreated<Label & { highlightId: string }>(
+            EntityType.LABEL,
+            { highlightId, ...label },
+            ctx.uid
+          )
         )
-      }
+      )
     }
 
     return true
