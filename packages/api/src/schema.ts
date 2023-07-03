@@ -2139,6 +2139,7 @@ const schema = gql`
     id: ID
     name: String!
     filter: String!
+    category: String!
     description: String
   }
 
@@ -2153,6 +2154,7 @@ const schema = gql`
     name: String!
     filter: String!
     position: Int!
+    category: String!
     description: String
     createdAt: Date!
     updatedAt: Date!
