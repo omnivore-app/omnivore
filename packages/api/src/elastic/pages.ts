@@ -55,7 +55,7 @@ const appendQuery = (builder: ESBuilder, query: string): ESBuilder => {
     { field: 'content', boost: 1 },
     { field: 'author', boost: 1 },
     { field: 'description', boost: 1 },
-    { field: 'siteName', boost: 1 },
+    { field: 'siteName', boost: 2 },
   ]
   const nestedFields: Field[] = [{ field: 'highlights.annotation', boost: 2 }]
 
