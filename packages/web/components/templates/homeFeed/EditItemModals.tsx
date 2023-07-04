@@ -1,23 +1,20 @@
+import dayjs, { Dayjs } from 'dayjs'
+import { useCallback, useState } from 'react'
+import { updatePageMutation } from '../../../lib/networking/mutations/updatePageMutation'
+import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
+import { LibraryItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
+import { CloseButton } from '../../elements/CloseButton'
+import { FormInput } from '../../elements/FormElements'
+import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import {
   ModalButtonBar,
   ModalContent,
   ModalOverlay,
   ModalRoot,
 } from '../../elements/ModalPrimitives'
-import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
-import { Button } from '../../elements/Button'
 import { StyledText } from '../../elements/StyledText'
-
-import { FormInput } from '../../elements/FormElements'
-import { useCallback, useState } from 'react'
-import { LibraryItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { StyledTextArea } from '../../elements/StyledTextArea'
-import { updatePageMutation } from '../../../lib/networking/mutations/updatePageMutation'
-import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
-import dayjs, { Dayjs } from 'dayjs'
-import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
-import { CloseButton } from '../../elements/CloseButton'
-
 type EditLibraryItemModalProps = {
   onOpenChange: (open: boolean) => void
   item: LibraryItem
@@ -227,7 +224,7 @@ function EditItemModal(props: EditItemModalProps): JSX.Element {
     >
       <ModalOverlay />
       <ModalContent
-        css={{ bg: '$grayBg', p: '20px', maxWidth: '420px' }}
+        css={{ bg: '$grayBg', p: '20px', maxWidth: '480px' }}
         onInteractOutside={() => {
           // remove focus from modal
           ;(document.activeElement as HTMLElement).blur()
@@ -244,10 +241,10 @@ function EditItemModal(props: EditItemModalProps): JSX.Element {
             >
               <HStack distribution="start" css={{ width: '100%' }}>
                 <VStack css={{ width: '45%' }}>
-                  <StyledText css={titleStyle}>SAVED AT:</StyledText>
+                  <StyledText css={titleStyle}>SAVED AT</StyledText>
                   <FormInput
                     type="datetime-local"
-                    value={props.savedAt.format('YYYY-MM-DDTHH:mm')}
+                    value={savedAt.format('YYYY-MM-DDTHH:mm')}
                     placeholder="Edit Date"
                     onChange={(event) => {
                       const dateStr = event.target.value
@@ -264,8 +261,8 @@ function EditItemModal(props: EditItemModalProps): JSX.Element {
                   <FormInput
                     type="datetime-local"
                     value={
-                      props.publishedAt
-                        ? props.publishedAt.format('YYYY-MM-DDTHH:mm')
+                      publishedAt
+                        ? publishedAt.format('YYYY-MM-DDTHH:mm')
                         : undefined
                     }
                     placeholder="Edit Published Date"
