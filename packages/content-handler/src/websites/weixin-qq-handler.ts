@@ -16,10 +16,9 @@ export class WeixinQqHandler extends ContentHandler {
     const publishTime = dom.querySelector('#publish_time')?.textContent
     if (publishTime) {
       const dateTimeFormat = 'yyyy-LL-dd HH:mm'
-      const publishTimeISO = DateTime.fromFormat(
-        publishTime,
-        dateTimeFormat
-      ).toISO()
+      const publishTimeISO = DateTime.fromFormat(publishTime, dateTimeFormat, {
+        zone: 'Asia/Shanghai',
+      }).toISO()
 
       // create a meta node to store the publish time in ISO format
       const metaNode = dom.createElement('meta')
