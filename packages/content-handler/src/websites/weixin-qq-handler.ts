@@ -16,12 +16,16 @@ export class WeixinQqHandler extends ContentHandler {
     const publishTime = dom.querySelector('#publish_time')?.textContent
     if (publishTime) {
       const dateTimeFormat = 'yyyy-LL-dd HH:mm'
-      // convert the publish time to a string in the format of "2023-01-01 00:00" in GMT+8
-      const publishTimeInGMT8 = DateTime.fromFormat(publishTime, dateTimeFormat)
-        .setZone('Asia/Shanghai')
-        .toFormat(dateTimeFormat)
-      // replace the publish time in the dom
-      dom.querySelector('#publish_time')?.replaceWith(publishTimeInGMT8)
+      const publishTimeISO = DateTime.fromFormat(
+        publishTime,
+        dateTimeFormat
+      ).toISO()
+
+      // create a meta node to store the publish time in ISO format
+      const metaNode = dom.createElement('meta')
+      metaNode.setAttribute('name', 'date')
+      metaNode.setAttribute('content', publishTimeISO)
+      dom.querySelector('head')?.appendChild(metaNode)
     }
     // This replace the class name of the article info to preserve the block
     dom
