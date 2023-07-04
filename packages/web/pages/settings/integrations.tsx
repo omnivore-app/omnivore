@@ -232,7 +232,7 @@ export default function Integrations(): JSX.Element {
           css={{
             width: '80%',
             margin: '0 auto',
-            height: '800px',
+            height: '100%',
             '@smDown': {
               width: '100%',
             },
@@ -307,7 +307,6 @@ export default function Integrations(): JSX.Element {
             )
           })}
         </VStack>
-        <Box css={{ height: '400px', width: '100% ' }} />
       </VStack>
     </SettingsLayout>
   )

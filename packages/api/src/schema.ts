@@ -1504,7 +1504,8 @@ const schema = gql`
 
   input SetLabelsInput {
     pageId: ID!
-    labelIds: [ID!]!
+    labelIds: [ID!]
+    labels: [CreateLabelInput!]
   }
 
   union SetLabelsResult = SetLabelsSuccess | SetLabelsError
@@ -1837,7 +1838,8 @@ const schema = gql`
 
   input SetLabelsForHighlightInput {
     highlightId: ID!
-    labelIds: [ID!]!
+    labelIds: [ID!]
+    labels: [CreateLabelInput!]
   }
 
   union TypeaheadSearchResult = TypeaheadSearchSuccess | TypeaheadSearchError
