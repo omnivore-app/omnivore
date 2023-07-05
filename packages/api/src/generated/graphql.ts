@@ -762,6 +762,7 @@ export type FeedArticlesSuccess = {
 
 export type Filter = {
   __typename?: 'Filter';
+  category: Scalars['String'];
   createdAt: Scalars['Date'];
   description?: Maybe<Scalars['String']>;
   filter: Scalars['String'];
@@ -2229,6 +2230,7 @@ export enum SaveFilterErrorCode {
 }
 
 export type SaveFilterInput = {
+  category: Scalars['String'];
   description?: InputMaybe<Scalars['String']>;
   filter: Scalars['String'];
   id?: InputMaybe<Scalars['ID']>;
@@ -4707,6 +4709,7 @@ export type FeedArticlesSuccessResolvers<ContextType = ResolverContext, ParentTy
 };
 
 export type FilterResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Filter'] = ResolversParentTypes['Filter']> = {
+  category?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   filter?: Resolver<ResolversTypes['String'], ParentType, ContextType>;

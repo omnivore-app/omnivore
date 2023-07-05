@@ -674,6 +674,7 @@ type FeedArticlesSuccess {
 }
 
 type Filter {
+  category: String!
   createdAt: Date!
   description: String
   filter: String!
@@ -1617,6 +1618,7 @@ enum SaveFilterErrorCode {
 }
 
 input SaveFilterInput {
+  category: String!
   description: String
   filter: String!
   id: ID

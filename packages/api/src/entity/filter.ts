@@ -29,6 +29,9 @@ export class Filter {
   @Column('varchar', { length: 255 })
   filter!: string
 
+  @Column('varchar', { length: 255 })
+  category!: string
+
   @Column('integer', { default: 0 })
   position!: number
 
