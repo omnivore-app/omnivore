@@ -28,37 +28,82 @@ import {
 } from './types'
 
 const appendQuery = (builder: ESBuilder, query: string): ESBuilder => {
-  const fields = [
+  interface Field {
+    field: string
+    boost: number
+  }
+
+  const wildcardQuery = (field: Field) => {
+    return {
+      [field.field]: {
+        value: query,
+        case_insensitive: true,
+        boost: field.boost,
+      },
+    }
+  }
+
+  // add boost to the field name like title^3
+  const fieldWithBoost = (field: Field) =>
+    `${field.field}${field.boost > 1 ? `^${field.boost}` : ''}`
+
+  // get the parent field name like highlights from highlights.annotation
+  const getParentField = (nestedField: string) => nestedField.split('.')[0]
+
+  const nonNestedFields: Field[] = [
     { field: 'title', boost: 3 },
     { field: 'content', boost: 1 },
     { field: 'author', boost: 1 },
     { field: 'description', boost: 1 },
-    { field: 'siteName', boost: 1 },
+    { field: 'siteName', boost: 2 },
   ]
+  const nestedFields: Field[] = [{ field: 'highlights.annotation', boost: 2 }]
+
+  // minimum_should_match: 1 means that at least one of the queries must match
+  builder = builder.queryMinimumShouldMatch(1)
+
   // wildcard query
   if (query.includes('*')) {
-    fields.forEach((field) => {
-      builder = builder.orQuery('wildcard', {
-        [field.field]: {
-          value: query,
-          case_insensitive: true,
-          boost: field.boost,
+    nonNestedFields.forEach((field) => {
+      builder = builder.orQuery('wildcard', wildcardQuery(field))
+    })
+
+    nestedFields.forEach((nestedField) => {
+      builder = builder.orQuery('nested', {
+        path: getParentField(nestedField.field),
+        query: {
+          wildcard: wildcardQuery(nestedField),
         },
       })
     })
-    return builder.queryMinimumShouldMatch(1)
+
+    return builder
   }
 
-  return builder
-    .orQuery('multi_match', {
-      query,
-      fields: fields.map(
-        (field) => `${field.field}${field.boost > 1 ? `^${field.boost}` : ''}`
-      ),
-      type: 'best_fields',
-      tie_breaker: 0.3,
+  // match query
+  builder = builder.orQuery('multi_match', {
+    query,
+    fields: nonNestedFields.map((field) => fieldWithBoost(field)),
+    type: 'best_fields',
+    tie_breaker: 0.3,
+    operator: 'and',
+  })
+
+  nestedFields.forEach((nestedField) => {
+    builder = builder.orQuery('nested', {
+      path: getParentField(nestedField.field),
+      query: {
+        match: {
+          [nestedField.field]: {
+            query,
+            boost: nestedField.boost,
+          },
+        },
+      },
     })
-    .queryMinimumShouldMatch(1)
+  })
+
+  return builder
 }
 
 const appendTypeFilter = (builder: ESBuilder, filter: PageType): ESBuilder => {
