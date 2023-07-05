@@ -12,7 +12,7 @@ CREATE TABLE omnivore.rss_subscription (
     url TEXT NOT NULL,
     image_url TEXT,
     count integer NOT NULL DEFAULT 0,
-    last_updated timestamptz,
+    last_fetched_at timestamptz,
     created_at timestamptz NOT NULL DEFAULT current_timestamp,
     updated_at timestamptz NOT NULL DEFAULT current_timestamp
 );
