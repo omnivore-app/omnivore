@@ -14,7 +14,7 @@ CREATE TABLE omnivore.rss_subscription (
     count integer NOT NULL DEFAULT 0,
     last_updated timestamptz,
     created_at timestamptz NOT NULL DEFAULT current_timestamp,
-    updated_at timestamptz NOT NULL DEFAULT current_timestamp,
+    updated_at timestamptz NOT NULL DEFAULT current_timestamp
 );
 
 COMMIT;
