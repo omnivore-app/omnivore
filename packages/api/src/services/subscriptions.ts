@@ -2,7 +2,7 @@ import axios from 'axios'
 import { NewsletterEmail } from '../entity/newsletter_email'
 import { Subscription } from '../entity/subscription'
 import { getRepository } from '../entity/utils'
-import { SubscriptionStatus } from '../generated/graphql'
+import { SubscriptionStatus, SubscriptionType } from '../generated/graphql'
 import { sendEmail } from '../utils/sendEmail'
 import { createNewsletterEmail } from './newsletters'
 
@@ -13,6 +13,7 @@ interface SaveSubscriptionInput {
   unsubscribeMailTo?: string
   unsubscribeHttpUrl?: string
   icon?: string
+  from?: string
 }
 
 export const UNSUBSCRIBE_EMAIL_TEXT =
@@ -85,6 +86,7 @@ export const getSubscriptionByNameAndUserId = async (
   return getRepository(Subscription).findOneBy({
     name,
     user: { id: userId },
+    type: SubscriptionType.Newsletter,
   })
 }
 
@@ -96,19 +98,36 @@ export const saveSubscription = async ({
   unsubscribeHttpUrl,
   icon,
 }: SaveSubscriptionInput): Promise<string> => {
-  const result = await getRepository(Subscription).upsert(
-    {
-      name,
-      newsletterEmail: { id: newsletterEmail.id },
-      user: { id: userId },
-      unsubscribeHttpUrl,
-      unsubscribeMailTo,
-      icon,
-    },
-    ['name', 'user']
-  )
+  const subscriptionData = {
+    unsubscribeHttpUrl,
+    unsubscribeMailTo,
+    icon,
+    lastFetchedAt: new Date(),
+  }
 
-  return result.identifiers[0].id as string
+  const existingSubscription = await getSubscriptionByNameAndUserId(
+    name,
+    userId
+  )
+  if (existingSubscription) {
+    // update subscription if already exists
+    await getRepository(Subscription).update(
+      existingSubscription.id,
+      subscriptionData
+    )
+
+    return existingSubscription.id
+  }
+
+  const result = await getRepository(Subscription).save({
+    ...subscriptionData,
+    name,
+    newsletterEmail: { id: newsletterEmail.id },
+    user: { id: userId },
+    type: SubscriptionType.Newsletter,
+  })
+
+  return result.id
 }
 
 export const unsubscribe = async (subscription: Subscription) => {
