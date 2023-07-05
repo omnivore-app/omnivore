@@ -98,8 +98,8 @@ struct AnimatingCellHeight: AnimatableModifier {
                 let title = (LinkedItemFilter(rawValue: viewModel.appliedFilter) ?? LinkedItemFilter.inbox).displayName
                 Text(title)
                   .font(Font.system(size: 18, weight: .semibold))
-                Image(systemName: "chevron.down")
-                  .font(Font.system(size: 13, weight: .regular))
+//                Image(systemName: "chevron.down")
+//                  .font(Font.system(size: 13, weight: .regular))
               }.frame(maxWidth: .infinity, alignment: .leading)
             })
           }
@@ -361,38 +361,45 @@ struct AnimatingCellHeight: AnimatableModifier {
 
     var featureCard: some View {
       VStack {
+        Color.thBorderColor.frame(maxWidth: .infinity, maxHeight: 0.5)
+
         VStack(alignment: .leading, spacing: 15) {
-          Menu(content: {
-            Button(action: {
-              viewModel.updateFeatureFilter(dataService: dataService, filter: .continueReading)
+          HStack {
+            Menu(content: {
+              Button(action: {
+                viewModel.updateFeatureFilter(dataService: dataService, filter: .continueReading)
+              }, label: {
+                Text("Continue Reading")
+              })
+              Button(action: {
+                viewModel.updateFeatureFilter(dataService: dataService, filter: .pinned)
+              }, label: {
+                Text("Pinned")
+              })
+              Button(action: {
+                viewModel.updateFeatureFilter(dataService: dataService, filter: .newsletters)
+              }, label: {
+                Text("Newsletters")
+              })
+              Button(action: {
+                showHideFeatureAlert = true
+              }, label: {
+                Text("Hide this Section")
+              })
             }, label: {
-              Text("Continue Reading")
-            })
-            Button(action: {
-              viewModel.updateFeatureFilter(dataService: dataService, filter: .pinned)
-            }, label: {
-              Text("Pinned")
-            })
-            Button(action: {
-              viewModel.updateFeatureFilter(dataService: dataService, filter: .newsletters)
-            }, label: {
-              Text("Newsletters")
-            })
-            Button(action: {
-              showHideFeatureAlert = true
-            }, label: {
-              Text("Hide this Section")
-            })
-          }, label: {
-            HStack(alignment: .center) {
-              Text((FeaturedItemFilter(rawValue: viewModel.featureFilter) ?? .continueReading).title)
-                .font(Font.system(size: 13, weight: .medium))
-              Image(systemName: "chevron.down")
-                .font(Font.system(size: 13, weight: .regular))
-            }.frame(maxWidth: .infinity, alignment: .leading)
+              HStack(alignment: .center) {
+                Text((FeaturedItemFilter(rawValue: viewModel.featureFilter) ?? .continueReading).title)
+                  .font(Font.system(size: 13, weight: .medium))
+                Image(systemName: "chevron.down")
+                  .font(Font.system(size: 13, weight: .regular))
+              }
               .tint(Color(hex: "#007AFF"))
-          })
-            .padding(.top, 15)
+              .frame(maxWidth: .infinity, alignment: .leading)
+            })
+            Spacer()
+          }
+          .padding(.top, 10)
+          .padding(.horizontal, 15)
 
           GeometryReader { geo in
             ScrollView(.horizontal, showsIndicators: false) {
@@ -412,13 +419,11 @@ struct AnimatingCellHeight: AnimatableModifier {
                   .fixedSize(horizontal: false, vertical: true)
               }
             }
-          }
+          }.padding(.horizontal, 15)
+          Color.thBorderColor.frame(maxWidth: .infinity, maxHeight: 0.5)
         }
-        .padding(.horizontal, 20)
-
-        Color.thFeatureSeparator
-          .frame(maxWidth: .infinity, maxHeight: 10)
       }
+      .background(Color.systemGray6)
     }
 
     var body: some View {
@@ -430,14 +435,20 @@ struct AnimatingCellHeight: AnimatableModifier {
         }
 
         List {
+          filtersHeader
+            .listRowSeparator(.hidden, edges: .all)
+            .listRowInsets(.init(top: 0, leading: 10, bottom: 0, trailing: 10))
+
           if viewModel.listConfig.hasFeatureCards,
              !viewModel.hideFeatureSection,
              viewModel.items.count > 0,
-             viewModel.searchTerm.isEmpty, viewModel.selectedLabels.isEmpty,
+             viewModel.searchTerm.isEmpty,
+             viewModel.selectedLabels.isEmpty,
              viewModel.negatedLabels.isEmpty
           {
             featureCard
               .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+              .listRowSeparator(.hidden, edges: .all)
               .modifier(AnimatingCellHeight(height: viewModel.featureItems.count > 0 ? 200 : 130))
           }
 

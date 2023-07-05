@@ -47,14 +47,14 @@ struct LibraryTabView: View {
           EmptyView()
         }
         TabView {
-          HomeView(viewModel: subViewModel)
-            .tabItem {
-              Label {
-                Text("Subscriptions")
-              } icon: {
-                Image.tabSubscriptions
-              }
-            }
+//          HomeView(viewModel: subViewModel)
+//            .tabItem {
+//              Label {
+//                Text("Subscriptions")
+//              } icon: {
+//                Image.tabSubscriptions
+//              }
+//            }
           HomeView(viewModel: libraryViewModel)
             .tabItem {
               Label {
@@ -71,7 +71,7 @@ struct LibraryTabView: View {
                 Image.tabHighlights
               }
             }
-        }
+        }.ignoresSafeArea()
       }
     }
     .navigationViewStyle(.stack)

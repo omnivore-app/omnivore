@@ -112,10 +112,7 @@ struct LinkItemDetailView: View {
       if isPDF {
         pdfContainerView
       } else if let item = viewModel.item {
-        GeometryReader { geo in
-          let foo = print("READER", geo.size)
-          WebReaderContainerView(item: item)
-        }
+        WebReaderContainerView(item: item)
       }
     }
     .task {
