@@ -430,7 +430,9 @@ struct AnimatingCellHeight: AnimatableModifier {
         }
 
         List {
-          if !viewModel.hideFeatureSection, viewModel.items.count > 0,
+          if viewModel.listConfig.hasFeatureCards,
+             !viewModel.hideFeatureSection,
+             viewModel.items.count > 0,
              viewModel.searchTerm.isEmpty, viewModel.selectedLabels.isEmpty,
              viewModel.negatedLabels.isEmpty
           {
@@ -449,41 +451,16 @@ struct AnimatingCellHeight: AnimatableModifier {
             .contextMenu {
               menuItems(for: item)
             }
-            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-              if !item.isArchived {
-                Button(action: {
-                  withAnimation(.linear(duration: 0.4)) {
-                    viewModel.setLinkArchived(dataService: dataService, objectID: item.objectID, archived: true)
-                  }
-                }, label: {
-                  Label("Archive", systemImage: "archivebox")
-                }).tint(.green)
-              } else {
-                Button(action: {
-                  withAnimation(.linear(duration: 0.4)) {
-                    viewModel.setLinkArchived(dataService: dataService, objectID: item.objectID, archived: false)
-                  }
-                }, label: {
-                  Label("Unarchive", systemImage: "tray.and.arrow.down.fill")
-                }).tint(.indigo)
+            .swipeActions(edge: .leading, allowsFullSwipe: true) {
+              ForEach(viewModel.listConfig.leadingSwipeActions, id: \.self) { action in
+                swipeActionButton(action: action, item: item)
               }
-              Button(
-                action: {
-                  itemToRemove = item
-                  confirmationShown = true
-                },
-                label: {
-                  Image(systemName: "trash")
-                }
-              ).tint(.red)
             }
-//              .swipeActions(edge: .leading, allowsFullSwipe: true) {
-//                Button {
-//                  viewModel.pinItem(dataService, item)
-//                } label: {
-//                  Label { Text("Pin") } icon: { Image(systemName: "pin.fill") }
-//                }.tint(Color(hex: "#0A84FF"))
-//              }
+            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+              ForEach(viewModel.listConfig.trailingSwipeActions, id: \.self) { action in
+                swipeActionButton(action: action, item: item)
+              }
+            }
           }
         }
         .padding(0)
@@ -508,6 +485,50 @@ struct AnimatingCellHeight: AnimatableModifier {
           viewModel.hideFeatureSection = true
         }
         Button(LocalText.cancelGeneric, role: .cancel) { self.showHideFeatureAlert = false }
+      }
+    }
+
+    func swipeActionButton(action: SwipeAction, item: LinkedItem) -> AnyView {
+      switch action {
+      case .pin:
+        return AnyView(Button(action: {
+          viewModel.addLabel(dataService: dataService, item: item, label: "Pinned")
+        }, label: {
+          VStack {
+            Image(systemName: "pin.fill")
+              .rotationEffect(Angle(degrees: 90))
+            Text("Pin")
+          }
+        }).tint(Color(hex: "#0A84FF")))
+      case .archive:
+        return AnyView(Button(action: {
+          withAnimation(.linear(duration: 0.4)) {
+            viewModel.setLinkArchived(dataService: dataService, objectID: item.objectID, archived: !item.isArchived)
+          }
+        }, label: {
+          Label(!item.isArchived ? "Archive" : "Unarchive", systemImage: !item.isArchived ? "archivebox" : "tray.and.arrow.down.fill")
+        })
+          .tint(!item.isArchived ? .green : .indigo))
+      case .delete:
+        return AnyView(Button(
+          action: {
+            itemToRemove = item
+            confirmationShown = true
+          },
+          label: {
+            Label("Delete", systemImage: "trash")
+          }
+        ).tint(.red))
+      case .moveToInbox:
+        return AnyView(Button(
+          action: {
+            viewModel.addLabel(dataService: dataService, item: item, label: "Inbox")
+
+          },
+          label: {
+            Label("Move to Inbox", systemImage: "tray.fill")
+          }
+        ).tint(Color(hex: "#0A84FF")))
       }
     }
   }

@@ -10,19 +10,44 @@ import Models
 import SwiftUI
 
 struct LibraryTabView: View {
-  @StateObject private var viewModel = HomeFeedViewModel()
+  @StateObject private var subViewModel = HomeFeedViewModel(
+    listConfig: LibraryListConfig(
+      hasFeatureCards: false,
+      leadingSwipeActions: [.moveToInbox],
+      trailingSwipeActions: [.delete, .archive],
+      cardStyle: .library
+    )
+  )
+
+  @StateObject private var libraryViewModel = HomeFeedViewModel(
+    listConfig: LibraryListConfig(
+      hasFeatureCards: true,
+      leadingSwipeActions: [.pin],
+      trailingSwipeActions: [.delete, .archive],
+      cardStyle: .library
+    )
+  )
+
+  @StateObject private var highlightsViewModel = HomeFeedViewModel(
+    listConfig: LibraryListConfig(
+      hasFeatureCards: true,
+      leadingSwipeActions: [.pin],
+      trailingSwipeActions: [.delete, .archive],
+      cardStyle: .highlights
+    )
+  )
 
   var body: some View {
     NavigationView {
       ZStack {
         NavigationLink(
-          destination: LinkDestination(selectedItem: viewModel.selectedItem),
-          isActive: $viewModel.linkIsActive
+          destination: LinkDestination(selectedItem: libraryViewModel.selectedItem),
+          isActive: $libraryViewModel.linkIsActive
         ) {
           EmptyView()
         }
         TabView {
-          HomeView(viewModel: viewModel)
+          HomeView(viewModel: subViewModel)
             .tabItem {
               Label {
                 Text("Subscriptions")
@@ -30,7 +55,7 @@ struct LibraryTabView: View {
                 Image.tabSubscriptions
               }
             }
-          HomeView(viewModel: viewModel)
+          HomeView(viewModel: libraryViewModel)
             .tabItem {
               Label {
                 Text("Library")
@@ -38,7 +63,7 @@ struct LibraryTabView: View {
                 Image.tabLibrary
               }
             }
-          HomeView(viewModel: viewModel)
+          HomeView(viewModel: highlightsViewModel)
             .tabItem {
               Label {
                 Text("Highlights")

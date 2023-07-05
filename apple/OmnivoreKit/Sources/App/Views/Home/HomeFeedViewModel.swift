@@ -35,6 +35,8 @@ import Views
   @Published var showCommunityModal = false
   @Published var featureItems = [LinkedItem]()
 
+  @Published var listConfig: LibraryListConfig
+
   var cursor: String?
 
   // These are used to make sure we handle search result
@@ -48,6 +50,11 @@ import Views
   @AppStorage(UserDefaultKey.lastSelectedLinkedItemFilter.rawValue) var appliedFilter = LinkedItemFilter.inbox.rawValue
   @AppStorage(UserDefaultKey.lastSelectedFeaturedItemFilter.rawValue) var featureFilter = FeaturedItemFilter.continueReading.rawValue
 
+  init(listConfig: LibraryListConfig) {
+    self.listConfig = listConfig
+    super.init()
+  }
+
   func setItems(_ items: [LinkedItem]) {
     self.items = items
   }
@@ -56,6 +63,7 @@ import Views
     Task {
       if let filter = filter {
         featureItems = await loadFeatureItems(dataService: dataService, predicate: filter.predicate, sort: filter.sortDescriptor)
+        print("updated feature items: ", featureItems.count)
       } else {
         featureItems = []
       }
@@ -247,8 +255,6 @@ import Views
     showLoadingBar = false
   }
 
-  func pinItem(dataService _: DataService, item _: LinkedItem) async {}
-
   func loadFeatureItems(dataService: DataService, predicate: NSPredicate, sort: NSSortDescriptor) async -> [LinkedItem] {
     let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
     fetchRequest.fetchLimit = 25
@@ -320,6 +326,15 @@ import Views
   func removeLink(dataService: DataService, objectID: NSManagedObjectID) {
     Snackbar.show(message: "Link removed")
     dataService.removeLink(objectID: objectID)
+  }
+
+  func addLabel(dataService: DataService, item: LinkedItem, label: String) {
+    Task {
+      if let label = LinkedItemLabel.named(label, inContext: dataService.viewContext) {
+        dataService.updateItemLabels(itemID: item.unwrappedID, labelIDs: [label.unwrappedID])
+      }
+      updateFeatureFilter(dataService: dataService, filter: FeaturedItemFilter(rawValue: featureFilter))
+    }
   }
 
   func snoozeUntil(dataService: DataService, linkId: String, until: Date, successMessage: String?) async {
