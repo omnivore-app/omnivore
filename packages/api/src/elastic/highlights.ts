@@ -1,4 +1,4 @@
-import { ResponseError } from '@elastic/elasticsearch/lib/errors'
+import { errors } from '@elastic/elasticsearch'
 import { EntityType } from '../datalayer/pubsub'
 import { SortBy, SortOrder, SortParams } from '../utils/search'
 import { client, INDEX_ALIAS } from './index'
@@ -49,7 +49,7 @@ export const addHighlightToPage = async (
     return true
   } catch (e) {
     if (
-      e instanceof ResponseError &&
+      e instanceof errors.ResponseError &&
       e.message === 'document_missing_exception'
     ) {
       console.log('page has been deleted', id)

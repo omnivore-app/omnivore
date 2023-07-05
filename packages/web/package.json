@@ -105,7 +105,7 @@
     "storybook-addon-next-router": "^3.1.1"
   },
   "volta": {
-    "node": "14.18.0",
+    "node": "18.16.1",
     "yarn": "1.22.10"
   }
 }
