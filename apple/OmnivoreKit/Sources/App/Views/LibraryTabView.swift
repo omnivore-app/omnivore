@@ -46,7 +46,7 @@ struct LibraryTabView: View {
         ) {
           EmptyView()
         }
-        TabView {
+//        TabView {
 //          HomeView(viewModel: subViewModel)
 //            .tabItem {
 //              Label {
@@ -55,23 +55,23 @@ struct LibraryTabView: View {
 //                Image.tabSubscriptions
 //              }
 //            }
-          HomeView(viewModel: libraryViewModel)
-            .tabItem {
-              Label {
-                Text("Library")
-              } icon: {
-                Image.tabLibrary
-              }
+        HomeView(viewModel: libraryViewModel)
+          .tabItem {
+            Label {
+              Text("Library")
+            } icon: {
+              Image.tabLibrary
             }
-          HomeView(viewModel: highlightsViewModel)
-            .tabItem {
-              Label {
-                Text("Highlights")
-              } icon: {
-                Image.tabHighlights
-              }
-            }
-        }.ignoresSafeArea()
+          }
+//          HomeView(viewModel: highlightsViewModel)
+//            .tabItem {
+//              Label {
+//                Text("Highlights")
+//              } icon: {
+//                Image.tabHighlights
+//              }
+//            }
+//        }
       }
     }
     .navigationViewStyle(.stack)
