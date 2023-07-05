@@ -2058,13 +2058,16 @@ type SubscribeSuccess {
 }
 
 type Subscription {
+  count: Int!
   createdAt: Date!
   description: String
   icon: String
   id: ID!
+  lastFetchedAt: Date
   name: String!
-  newsletterEmail: String!
+  newsletterEmail: String
   status: SubscriptionStatus!
+  type: SubscriptionType!
   unsubscribeHttpUrl: String
   unsubscribeMailTo: String
   updatedAt: Date!
@@ -2075,6 +2078,11 @@ enum SubscriptionStatus {
   ACTIVE
   DELETED
   UNSUBSCRIBED
+}
+
+enum SubscriptionType {
+  NEWSLETTER
+  RSS
 }
 
 type SubscriptionsError {

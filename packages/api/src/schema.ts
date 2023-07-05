@@ -1619,16 +1619,24 @@ const schema = gql`
     subscriptions: [Subscription!]!
   }
 
+  enum SubscriptionType {
+    RSS
+    NEWSLETTER
+  }
+
   type Subscription {
     id: ID!
     name: String!
-    newsletterEmail: String!
+    newsletterEmail: String
     url: String
     description: String
     status: SubscriptionStatus!
     unsubscribeMailTo: String
     unsubscribeHttpUrl: String
     icon: String
+    type: SubscriptionType!
+    count: Int!
+    lastFetchedAt: Date
     createdAt: Date!
     updatedAt: Date!
   }

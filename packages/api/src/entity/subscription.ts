@@ -5,15 +5,13 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
-  Unique,
   UpdateDateColumn,
 } from 'typeorm'
-import { User } from './user'
-import { SubscriptionStatus } from '../generated/graphql'
+import { SubscriptionStatus, SubscriptionType } from '../generated/graphql'
 import { NewsletterEmail } from './newsletter_email'
+import { User } from './user'
 
 @Entity({ name: 'subscriptions' })
-@Unique(['name', 'user'])
 export class Subscription {
   @PrimaryGeneratedColumn('uuid')
   id!: string
@@ -50,9 +48,20 @@ export class Subscription {
   @Column('text', { nullable: true })
   icon?: string
 
-  @CreateDateColumn()
+  @Column('enum', {
+    enum: SubscriptionType,
+  })
+  type!: SubscriptionType
+
+  @Column('integer', { default: 0 })
+  count!: number
+
+  @Column('timestamp', { nullable: true })
+  lastFetchedAt?: Date | null
+
+  @CreateDateColumn({ default: () => 'CURRENT_TIMESTAMP' })
   createdAt!: Date
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ default: () => 'CURRENT_TIMESTAMP' })
   updatedAt!: Date
 }
