@@ -43,7 +43,7 @@ extension DataService {
     let mutation = Selection.Mutation {
       try $0.setLabels(
         input: InputObjects.SetLabelsInput(
-          labelIds: labelIDs,
+          labelIds: OptionalArgument(labelIDs),
           pageId: itemID
         ),
         selection: selection
