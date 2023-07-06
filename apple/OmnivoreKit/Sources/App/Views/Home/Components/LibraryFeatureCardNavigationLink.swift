@@ -15,8 +15,9 @@ struct LibraryFeatureCardNavigationLink: View {
   @EnvironmentObject var audioController: AudioController
 
   let item: LinkedItem
-
   @ObservedObject var viewModel: HomeFeedViewModel
+
+  let onLongPress: (LinkedItem) -> Void
 
   var body: some View {
     ZStack {
@@ -29,11 +30,11 @@ struct LibraryFeatureCardNavigationLink: View {
         }
         .opacity(0)
         .buttonStyle(PlainButtonStyle())
-        .onAppear {
-          Task { await viewModel.itemAppeared(item: item, dataService: dataService) }
-        }
         LibraryFeatureCard(item: item, viewer: dataService.currentViewer)
       }
+      .delayedGesture(LongPressGesture().onEnded { _ in
+        onLongPress(item)
+      })
     }
   }
 }

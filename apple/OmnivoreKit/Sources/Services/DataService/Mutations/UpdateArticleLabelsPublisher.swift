@@ -19,6 +19,9 @@ extension DataService {
         }
       }
 
+      linkedItem.update(inContext: self.backgroundContext)
+      try? self.backgroundContext.save()
+
       // Send update to server
       self.syncLabelUpdates(itemID: itemID, labelIDs: labelIDs)
     }

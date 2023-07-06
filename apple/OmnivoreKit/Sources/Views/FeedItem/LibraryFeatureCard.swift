@@ -18,9 +18,9 @@ public struct LibraryFeatureCard: View {
       imageBox
       title
       Spacer()
-    }
-    .padding(0)
-    .frame(maxWidth: 150)
+
+    }.padding(0)
+      .frame(maxWidth: 150)
   }
 
   var isFullyRead: Bool {

@@ -55,30 +55,24 @@ import Views
     super.init()
   }
 
-  func setItems(_ items: [LinkedItem]) {
+  func setItems(_ context: NSManagedObjectContext, _ items: [LinkedItem]) {
     self.items = items
+    updateFeatureFilter(context: context, filter: FeaturedItemFilter(rawValue: featureFilter))
   }
 
-  func updateFeatureFilter(dataService: DataService, filter: FeaturedItemFilter?) {
+  func updateFeatureFilter(context: NSManagedObjectContext, filter: FeaturedItemFilter?) {
     Task {
       if let filter = filter {
-        featureItems = await loadFeatureItems(dataService: dataService, predicate: filter.predicate, sort: filter.sortDescriptor)
-        print("updated feature items: ", featureItems.count)
+        featureFilter = filter.rawValue
+
+        featureItems = await loadFeatureItems(
+          context: context,
+          predicate: filter.predicate,
+          sort: filter.sortDescriptor
+        )
       } else {
         featureItems = []
       }
-    }
-    if let filter = filter {
-      // now try to update the continue reading items:
-
-      featureItems = (items.filter { item in
-        filter.predicate.evaluate(with: item)
-      } as NSArray)
-        .sortedArray(using: [filter.sortDescriptor])
-        .compactMap { $0 as? LinkedItem }
-      featureFilter = filter.rawValue
-    } else {
-      featureItems = []
     }
   }
 
@@ -204,9 +198,9 @@ import Views
         // Don't use FRC for searching. Use server results directly.
         if fetchedResultsController != nil {
           fetchedResultsController = nil
-          setItems([])
+          setItems(dataService.viewContext, [])
         }
-        setItems(isRefresh ? newItems : items + newItems)
+        setItems(dataService.viewContext, isRefresh ? newItems : items + newItems)
       }
 
       isLoading = false
@@ -239,7 +233,7 @@ import Views
       updateFetchController(dataService: dataService)
     }
 
-    updateFeatureFilter(dataService: dataService, filter: FeaturedItemFilter(rawValue: featureFilter))
+    updateFeatureFilter(context: dataService.viewContext, filter: FeaturedItemFilter(rawValue: featureFilter))
 
     isLoading = false
     showLoadingBar = false
@@ -255,13 +249,13 @@ import Views
     showLoadingBar = false
   }
 
-  func loadFeatureItems(dataService: DataService, predicate: NSPredicate, sort: NSSortDescriptor) async -> [LinkedItem] {
+  func loadFeatureItems(context: NSManagedObjectContext, predicate: NSPredicate, sort: NSSortDescriptor) async -> [LinkedItem] {
     let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
     fetchRequest.fetchLimit = 25
     fetchRequest.predicate = predicate
     fetchRequest.sortDescriptors = [sort]
 
-    return (try? dataService.viewContext.fetch(fetchRequest)) ?? []
+    return (try? context.fetch(fetchRequest)) ?? []
   }
 
   private var fetchRequest: NSFetchRequest<Models.LinkedItem> {
@@ -315,7 +309,7 @@ import Views
 
     fetchedResultsController.delegate = self
     try? fetchedResultsController.performFetch()
-    setItems(fetchedResultsController.fetchedObjects ?? [])
+    setItems(dataService.viewContext, fetchedResultsController.fetchedObjects ?? [])
   }
 
   func setLinkArchived(dataService: DataService, objectID: NSManagedObjectID, archived: Bool) {
@@ -331,10 +325,50 @@ import Views
   func addLabel(dataService: DataService, item: LinkedItem, label: String) {
     Task {
       if let label = LinkedItemLabel.named(label, inContext: dataService.viewContext) {
-        dataService.updateItemLabels(itemID: item.unwrappedID, labelIDs: [label.unwrappedID])
+        // Label already exists, so just add it and refresh everything
+        let existingLabels = item.labels?.allObjects.compactMap { ($0 as? LinkedItemLabel)?.unwrappedID } ?? []
+        dataService.updateItemLabels(itemID: item.unwrappedID, labelIDs: existingLabels + [label.unwrappedID])
+
+        item.update(inContext: dataService.viewContext)
+        updateFeatureFilter(context: dataService.viewContext, filter: FeaturedItemFilter(rawValue: featureFilter))
+      } else if let labelID = try? await dataService.createLabel(name: "Pinned", color: "#0A84FF", description: ""),
+                let label = LinkedItemLabel.named(label, inContext: dataService.viewContext)
+      {
+        let existingLabels = item.labels?.allObjects.compactMap { ($0 as? LinkedItemLabel)?.unwrappedID } ?? []
+        dataService.updateItemLabels(itemID: item.unwrappedID, labelIDs: existingLabels + [label.unwrappedID])
+
+        item.update(inContext: dataService.viewContext)
+        updateFeatureFilter(context: dataService.viewContext, filter: FeaturedItemFilter(rawValue: featureFilter))
       }
-      updateFeatureFilter(dataService: dataService, filter: FeaturedItemFilter(rawValue: featureFilter))
     }
+  }
+
+  func removeLabel(dataService: DataService, item: LinkedItem, named: String) {
+    let labelIds = item.labels?.filter { ($0 as? LinkedItemLabel)?.name != named }.compactMap { ($0 as? LinkedItemLabel)?.unwrappedID } ?? []
+    dataService.updateItemLabels(itemID: item.unwrappedID, labelIDs: labelIds)
+    item.update(inContext: dataService.viewContext)
+  }
+
+  func pinItem(dataService: DataService, item: LinkedItem) {
+    addLabel(dataService: dataService, item: item, label: "Pinned")
+    if featureFilter == FeaturedItemFilter.pinned.rawValue {
+      updateFeatureFilter(context: dataService.viewContext, filter: .pinned)
+    }
+  }
+
+  func unpinItem(dataService: DataService, item: LinkedItem) {
+    removeLabel(dataService: dataService, item: item, named: "Pinned")
+    if featureFilter == FeaturedItemFilter.pinned.rawValue {
+      updateFeatureFilter(context: dataService.viewContext, filter: .pinned)
+    }
+  }
+
+  func markRead(dataService: DataService, item: LinkedItem) {
+    dataService.updateLinkReadingProgress(itemID: item.unwrappedID, readingProgress: 100, anchorIndex: 0)
+  }
+
+  func markUnread(dataService: DataService, item: LinkedItem) {
+    dataService.updateLinkReadingProgress(itemID: item.unwrappedID, readingProgress: 0, anchorIndex: 0)
   }
 
   func snoozeUntil(dataService: DataService, linkId: String, until: Date, successMessage: String?) async {
@@ -398,6 +432,6 @@ import Views
 
 extension HomeFeedViewModel: NSFetchedResultsControllerDelegate {
   func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-    setItems(controller.fetchedObjects as? [LinkedItem] ?? [])
+    setItems(controller.managedObjectContext, controller.fetchedObjects as? [LinkedItem] ?? [])
   }
 }

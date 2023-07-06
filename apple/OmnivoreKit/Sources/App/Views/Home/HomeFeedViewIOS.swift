@@ -28,6 +28,7 @@ struct AnimatingCellHeight: AnimatableModifier {
     @State var searchPresented = false
     @State var addLinkPresented = false
     @State var settingsPresented = false
+
     @EnvironmentObject var dataService: DataService
     @EnvironmentObject var audioController: AudioController
 
@@ -260,6 +261,8 @@ struct AnimatingCellHeight: AnimatableModifier {
     @State private var itemToRemove: LinkedItem?
     @State private var confirmationShown = false
     @State private var showHideFeatureAlert = false
+    @State var showFeatureActions = false
+    @State var selectedFeatureItem: LinkedItem?
 
     @ObservedObject var viewModel: HomeFeedViewModel
 
@@ -367,17 +370,17 @@ struct AnimatingCellHeight: AnimatableModifier {
           HStack {
             Menu(content: {
               Button(action: {
-                viewModel.updateFeatureFilter(dataService: dataService, filter: .continueReading)
+                viewModel.updateFeatureFilter(context: dataService.viewContext, filter: .continueReading)
               }, label: {
                 Text("Continue Reading")
               })
               Button(action: {
-                viewModel.updateFeatureFilter(dataService: dataService, filter: .pinned)
+                viewModel.updateFeatureFilter(context: dataService.viewContext, filter: .pinned)
               }, label: {
                 Text("Pinned")
               })
               Button(action: {
-                viewModel.updateFeatureFilter(dataService: dataService, filter: .newsletters)
+                viewModel.updateFeatureFilter(context: dataService.viewContext, filter: .newsletters)
               }, label: {
                 Text("Newsletters")
               })
@@ -405,9 +408,14 @@ struct AnimatingCellHeight: AnimatableModifier {
             ScrollView(.horizontal, showsIndicators: false) {
               if viewModel.featureItems.count > 0 {
                 LazyHStack(alignment: .top, spacing: 15) {
+                  Spacer(minLength: 1).frame(width: 1)
                   ForEach(viewModel.featureItems) { item in
-                    LibraryFeatureCardNavigationLink(item: item, viewModel: viewModel)
+                    LibraryFeatureCardNavigationLink(item: item, viewModel: viewModel, onLongPress: { item in
+                      self.selectedFeatureItem = item
+                      self.showFeatureActions = true
+                    })
                   }
+                  Spacer(minLength: 1).frame(width: 1)
                 }
                 .padding(.top, 0)
               } else {
@@ -419,7 +427,7 @@ struct AnimatingCellHeight: AnimatableModifier {
                   .fixedSize(horizontal: false, vertical: true)
               }
             }
-          }.padding(.horizontal, 15)
+          }
           Color.thBorderColor.frame(maxWidth: .infinity, maxHeight: 0.5)
         }
       }
@@ -449,7 +457,8 @@ struct AnimatingCellHeight: AnimatableModifier {
             featureCard
               .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
               .listRowSeparator(.hidden, edges: .all)
-              .modifier(AnimatingCellHeight(height: viewModel.featureItems.count > 0 ? 200 : 130))
+              // .modifier(AnimatingCellHeight(height: viewModel.isLoading || viewModel.featureItems.count > 0 ? 190 : 130))
+              .modifier(AnimatingCellHeight(height: 190))
           }
 
           ForEach(viewModel.items) { item in
@@ -497,17 +506,46 @@ struct AnimatingCellHeight: AnimatableModifier {
         }
         Button(LocalText.cancelGeneric, role: .cancel) { self.showHideFeatureAlert = false }
       }
+      .confirmationDialog("", isPresented: $showFeatureActions) {
+        if let item = selectedFeatureItem {
+          if FeaturedItemFilter(rawValue: viewModel.featureFilter) == .pinned {
+            Button("Unpin", action: {
+              viewModel.unpinItem(dataService: dataService, item: item)
+            })
+          }
+          Button("Pin", action: {
+            viewModel.pinItem(dataService: dataService, item: item)
+          })
+          Button("Archive", action: {
+            viewModel.setLinkArchived(dataService: dataService, objectID: item.objectID, archived: true)
+          })
+          Button("Delete", action: {
+            viewModel.removeLink(dataService: dataService, objectID: item.objectID)
+          })
+          if FeaturedItemFilter(rawValue: viewModel.featureFilter) == .continueReading {
+            Button("Mark Read", action: {
+              viewModel.markRead(dataService: dataService, item: item)
+            })
+            Button("Mark Unread", action: {
+              viewModel.markUnread(dataService: dataService, item: item)
+            })
+          }
+          Button("Dismiss", role: .cancel, action: {
+            showFeatureActions = false
+          })
+        }
+      }
     }
 
     func swipeActionButton(action: SwipeAction, item: LinkedItem) -> AnyView {
       switch action {
       case .pin:
         return AnyView(Button(action: {
-          viewModel.addLabel(dataService: dataService, item: item, label: "Pinned")
+          viewModel.pinItem(dataService: dataService, item: item)
         }, label: {
           VStack {
             Image(systemName: "pin.fill")
-              .rotationEffect(Angle(degrees: 90))
+              .rotationEffect(Angle(degrees: 180))
             Text("Pin")
           }
         }).tint(Color(hex: "#0A84FF")))

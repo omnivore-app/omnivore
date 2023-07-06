@@ -116,7 +116,7 @@ public extension FeaturedItemFilter {
     case .continueReading:
       return "Your recently read items will appear here."
     case .pinned:
-      return "Create a label named Pinned and add it to items you'd like to appear here"
+      return "Create a label named Pinned and add it to items you would like to appear here."
     case .recommended:
       return "Reads recommended in your Clubs will appear here."
     case .newsletters:
@@ -172,6 +172,8 @@ public extension FeaturedItemFilter {
     switch self {
     case .continueReading:
       return NSSortDescriptor(key: #keyPath(LinkedItem.readAt), ascending: false)
+    case .pinned:
+      return NSSortDescriptor(key: #keyPath(LinkedItem.updatedAt), ascending: false)
     default:
       return savedAtSort
     }
