@@ -519,10 +519,11 @@ struct AnimatingCellHeight: AnimatableModifier {
           Button("Archive", action: {
             viewModel.setLinkArchived(dataService: dataService, objectID: item.objectID, archived: true)
           })
-          Button("Delete", action: {
-            viewModel.removeLink(dataService: dataService, objectID: item.objectID)
+          Button("Remove", action: {
+            itemToRemove = item
+            confirmationShown = true
           })
-          if FeaturedItemFilter(rawValue: viewModel.featureFilter) == .continueReading {
+          if FeaturedItemFilter(rawValue: viewModel.featureFilter) != .pinned {
             Button("Mark Read", action: {
               viewModel.markRead(dataService: dataService, item: item)
             })
