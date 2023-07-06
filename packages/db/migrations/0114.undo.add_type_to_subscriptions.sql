@@ -10,6 +10,6 @@ ALTER TABLE omnivore.subscriptions
     DROP COLUMN count,
     DROP COLUMN "type";
 
-DROP TYPE omnivore.subscription_type;
+DROP TYPE subscription_type;
 
 COMMIT;
