@@ -29,10 +29,10 @@ struct LabelsFlowLayout: View {
     var height = CGFloat.zero
 
     return ZStack(alignment: .topLeading) {
-      ForEach(Array(self.labelItems.enumerated()), id: \.offset) { index, label in
+      ForEach(Array(self.labelItems.enumerated()), id: \.offset) { _, label in
         self.item(for: label)
-          .padding(.horizontal, index == 0 ? 0 : 3)
-          .padding(.vertical, 5)
+          .padding(.trailing, 5)
+          .padding(.bottom, 5)
           .alignmentGuide(.leading, computeValue: { dim in
             if abs(width - dim.width) > geom.size.width {
               width = 0
@@ -54,21 +54,19 @@ struct LabelsFlowLayout: View {
             return result
           })
       }
-    }
-    .background(viewHeightReader($totalHeight))
+    }.background(viewCalculator())
   }
 
   private func item(for item: LinkedItemLabel) -> some View {
     LibraryItemLabelView(text: item.name!, color: Color(hex: item.color!)!)
   }
 
-  private func viewHeightReader(_ binding: Binding<CGFloat>) -> some View {
-    GeometryReader { geometry -> Color in
-      let rect = geometry.frame(in: .local)
-      DispatchQueue.main.async {
-        binding.wrappedValue = rect.size.height
+  func viewCalculator() -> some View {
+    GeometryReader { geometry in
+      Color.clear.onAppear {
+        let rect = geometry.frame(in: .local)
+        self.totalHeight = rect.size.height
       }
-      return .clear
     }
   }
 }

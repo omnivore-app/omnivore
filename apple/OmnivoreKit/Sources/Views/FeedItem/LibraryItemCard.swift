@@ -36,7 +36,7 @@ public struct LibraryItemCard: View {
         labels
       }
     }
-    .padding(.bottom, 5)
+    .padding(.bottom, 0)
     .draggableItem(item: item)
   }
 
@@ -199,6 +199,5 @@ public struct LibraryItemCard: View {
 
   var labels: some View {
     LabelsFlowLayout(labels: item.sortedLabels)
-      .padding(.top, 0)
   }
 }
