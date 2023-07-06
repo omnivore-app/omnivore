@@ -1574,12 +1574,13 @@ export type MutationSetWebhookArgs = {
 
 
 export type MutationSubscribeArgs = {
-  name: Scalars['String'];
+  input: SubscribeInput;
 };
 
 
 export type MutationUnsubscribeArgs = {
   name: Scalars['String'];
+  subscriptionId?: InputMaybe<Scalars['ID']>;
 };
 
 
@@ -1869,6 +1870,7 @@ export type QuerySharedArticleArgs = {
 
 export type QuerySubscriptionsArgs = {
   sort?: InputMaybe<SortParams>;
+  type?: InputMaybe<SubscriptionType>;
 };
 
 
@@ -2696,6 +2698,12 @@ export enum SubscribeErrorCode {
   NotFound = 'NOT_FOUND',
   Unauthorized = 'UNAUTHORIZED'
 }
+
+export type SubscribeInput = {
+  name?: InputMaybe<Scalars['String']>;
+  subscriptionType?: InputMaybe<SubscriptionType>;
+  url?: InputMaybe<Scalars['String']>;
+};
 
 export type SubscribeResult = SubscribeError | SubscribeSuccess;
 
@@ -3695,6 +3703,7 @@ export type ResolversTypes = {
   String: ResolverTypeWrapper<Scalars['String']>;
   SubscribeError: ResolverTypeWrapper<SubscribeError>;
   SubscribeErrorCode: SubscribeErrorCode;
+  SubscribeInput: SubscribeInput;
   SubscribeResult: ResolversTypes['SubscribeError'] | ResolversTypes['SubscribeSuccess'];
   SubscribeSuccess: ResolverTypeWrapper<SubscribeSuccess>;
   Subscription: ResolverTypeWrapper<{}>;
@@ -4102,6 +4111,7 @@ export type ResolversParentTypes = {
   SortParams: SortParams;
   String: Scalars['String'];
   SubscribeError: SubscribeError;
+  SubscribeInput: SubscribeInput;
   SubscribeResult: ResolversParentTypes['SubscribeError'] | ResolversParentTypes['SubscribeSuccess'];
   SubscribeSuccess: SubscribeSuccess;
   Subscription: {};
@@ -5123,7 +5133,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   setShareHighlight?: Resolver<ResolversTypes['SetShareHighlightResult'], ParentType, ContextType, RequireFields<MutationSetShareHighlightArgs, 'input'>>;
   setUserPersonalization?: Resolver<ResolversTypes['SetUserPersonalizationResult'], ParentType, ContextType, RequireFields<MutationSetUserPersonalizationArgs, 'input'>>;
   setWebhook?: Resolver<ResolversTypes['SetWebhookResult'], ParentType, ContextType, RequireFields<MutationSetWebhookArgs, 'input'>>;
-  subscribe?: Resolver<ResolversTypes['SubscribeResult'], ParentType, ContextType, RequireFields<MutationSubscribeArgs, 'name'>>;
+  subscribe?: Resolver<ResolversTypes['SubscribeResult'], ParentType, ContextType, RequireFields<MutationSubscribeArgs, 'input'>>;
   unsubscribe?: Resolver<ResolversTypes['UnsubscribeResult'], ParentType, ContextType, RequireFields<MutationUnsubscribeArgs, 'name'>>;
   updateHighlight?: Resolver<ResolversTypes['UpdateHighlightResult'], ParentType, ContextType, RequireFields<MutationUpdateHighlightArgs, 'input'>>;
   updateHighlightReply?: Resolver<ResolversTypes['UpdateHighlightReplyResult'], ParentType, ContextType, RequireFields<MutationUpdateHighlightReplyArgs, 'input'>>;

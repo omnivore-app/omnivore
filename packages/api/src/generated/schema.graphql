@@ -1151,8 +1151,8 @@ type Mutation {
   setShareHighlight(input: SetShareHighlightInput!): SetShareHighlightResult!
   setUserPersonalization(input: SetUserPersonalizationInput!): SetUserPersonalizationResult!
   setWebhook(input: SetWebhookInput!): SetWebhookResult!
-  subscribe(name: String!): SubscribeResult!
-  unsubscribe(name: String!): UnsubscribeResult!
+  subscribe(input: SubscribeInput!): SubscribeResult!
+  unsubscribe(name: String!, subscriptionId: ID): UnsubscribeResult!
   updateHighlight(input: UpdateHighlightInput!): UpdateHighlightResult!
   updateHighlightReply(input: UpdateHighlightReplyInput!): UpdateHighlightReplyResult!
   updateLabel(input: UpdateLabelInput!): UpdateLabelResult!
@@ -1308,7 +1308,7 @@ type Query {
   search(after: String, first: Int, format: String, includeContent: Boolean, query: String): SearchResult!
   sendInstallInstructions: SendInstallInstructionsResult!
   sharedArticle(selectedHighlightId: String, slug: String!, username: String!): SharedArticleResult!
-  subscriptions(sort: SortParams): SubscriptionsResult!
+  subscriptions(sort: SortParams, type: SubscriptionType): SubscriptionsResult!
   typeaheadSearch(first: Int, query: String!): TypeaheadSearchResult!
   updatesSince(after: String, first: Int, since: Date!, sort: SortParams): UpdatesSinceResult!
   user(userId: ID, username: String): UserResult!
@@ -2049,6 +2049,12 @@ enum SubscribeErrorCode {
   BAD_REQUEST
   NOT_FOUND
   UNAUTHORIZED
+}
+
+input SubscribeInput {
+  name: String
+  subscriptionType: SubscriptionType
+  url: String
 }
 
 union SubscribeResult = SubscribeError | SubscribeSuccess

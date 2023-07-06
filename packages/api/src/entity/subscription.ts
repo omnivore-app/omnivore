@@ -29,9 +29,9 @@ export class Subscription {
   })
   status!: SubscriptionStatus
 
-  @ManyToOne(() => NewsletterEmail)
+  @ManyToOne(() => NewsletterEmail, { nullable: true })
   @JoinColumn({ name: 'newsletter_email_id' })
-  newsletterEmail!: NewsletterEmail
+  newsletterEmail?: NewsletterEmail | null
 
   @Column('text', { nullable: true })
   description?: string

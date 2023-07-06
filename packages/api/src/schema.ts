@@ -2486,6 +2486,12 @@ const schema = gql`
     ALREADY_EXISTS
   }
 
+  input SubscribeInput {
+    url: String
+    name: String
+    subscriptionType: SubscriptionType
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -2547,8 +2553,8 @@ const schema = gql`
     deleteLabel(id: ID!): DeleteLabelResult!
     setLabels(input: SetLabelsInput!): SetLabelsResult!
     generateApiKey(input: GenerateApiKeyInput!): GenerateApiKeyResult!
-    unsubscribe(name: String!): UnsubscribeResult!
-    subscribe(name: String!): SubscribeResult!
+    unsubscribe(name: String!, subscriptionId: ID): UnsubscribeResult!
+    subscribe(input: SubscribeInput!): SubscribeResult!
     addPopularRead(name: String!): AddPopularReadResult!
     setWebhook(input: SetWebhookInput!): SetWebhookResult!
     deleteWebhook(id: ID!): DeleteWebhookResult!
@@ -2628,7 +2634,10 @@ const schema = gql`
       includeContent: Boolean
       format: String
     ): SearchResult!
-    subscriptions(sort: SortParams): SubscriptionsResult!
+    subscriptions(
+      sort: SortParams
+      type: SubscriptionType
+    ): SubscriptionsResult!
     sendInstallInstructions: SendInstallInstructionsResult!
     webhooks: WebhooksResult!
     webhook(id: ID!): WebhookResult!

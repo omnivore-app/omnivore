@@ -1,20 +1,20 @@
 import Postgrator from 'postgrator'
-import { User } from '../src/entity/user'
-import { Profile } from '../src/entity/profile'
-import { Page } from '../src/entity/page'
-import { Link } from '../src/entity/link'
-import { Reminder } from '../src/entity/reminder'
-import { NewsletterEmail } from '../src/entity/newsletter_email'
-import { UserDeviceToken } from '../src/entity/user_device_tokens'
-import { Label } from '../src/entity/label'
-import { Subscription } from '../src/entity/subscription'
-import { AppDataSource } from '../src/server'
-import { getRepository, setClaims } from '../src/entity/utils'
-import { createUser } from '../src/services/create_user'
-import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
-import { SubscriptionStatus } from '../src/generated/graphql'
-import { Integration } from '../src/entity/integration'
 import { FindOptionsWhere } from 'typeorm'
+import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
+import { Integration } from '../src/entity/integration'
+import { Label } from '../src/entity/label'
+import { Link } from '../src/entity/link'
+import { NewsletterEmail } from '../src/entity/newsletter_email'
+import { Page } from '../src/entity/page'
+import { Profile } from '../src/entity/profile'
+import { Reminder } from '../src/entity/reminder'
+import { Subscription } from '../src/entity/subscription'
+import { User } from '../src/entity/user'
+import { UserDeviceToken } from '../src/entity/user_device_tokens'
+import { getRepository, setClaims } from '../src/entity/utils'
+import { SubscriptionStatus, SubscriptionType } from '../src/generated/graphql'
+import { AppDataSource } from '../src/server'
+import { createUser } from '../src/services/create_user'
 
 const runMigrations = async () => {
   const migrationDirectory = __dirname + '/../../db/migrations'
@@ -199,7 +199,8 @@ export const createTestSubscription = async (
   name: string,
   newsletterEmail?: NewsletterEmail,
   status = SubscriptionStatus.Active,
-  unsubscribeMailTo?: string
+  unsubscribeMailTo?: string,
+  subscriptionType = SubscriptionType.Newsletter
 ): Promise<Subscription> => {
   return getRepository(Subscription).save({
     user,
@@ -207,6 +208,8 @@ export const createTestSubscription = async (
     newsletterEmail,
     status,
     unsubscribeMailTo,
+    lastFetchedAt: new Date(),
+    type: subscriptionType,
   })
 }
 
