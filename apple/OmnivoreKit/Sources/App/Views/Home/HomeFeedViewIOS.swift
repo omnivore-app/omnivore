@@ -545,8 +545,7 @@ struct AnimatingCellHeight: AnimatableModifier {
           viewModel.pinItem(dataService: dataService, item: item)
         }, label: {
           VStack {
-            Image(systemName: "pin.fill")
-              .rotationEffect(Angle(degrees: 180))
+            Image.pinRotated
             Text("Pin")
           }
         }).tint(Color(hex: "#0A84FF")))
