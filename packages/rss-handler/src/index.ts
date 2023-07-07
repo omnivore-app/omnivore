@@ -1,6 +1,70 @@
 import * as Sentry from '@sentry/serverless'
+import axios from 'axios'
 import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
+import * as jwt from 'jsonwebtoken'
 import Parser from 'rss-parser'
+import { promisify } from 'util'
+
+interface RssFeedRequest {
+  subscriptionId: string
+  userId: string
+  feedUrl: string
+}
+
+function isRssFeedRequest(body: any): body is RssFeedRequest {
+  return 'subscriptionId' in body && 'userId' in body && 'feedUrl' in body
+}
+
+const sendSavePageMutation = async (userId: string, input: unknown) => {
+  const JWT_SECRET = process.env.JWT_SECRET
+  const REST_BACKEND_ENDPOINT = process.env.REST_BACKEND_ENDPOINT
+
+  if (!JWT_SECRET || !REST_BACKEND_ENDPOINT) {
+    throw 'Environment not configured correctly'
+  }
+
+  const data = JSON.stringify({
+    query: `mutation SavePage ($input: SavePageInput!){
+          savePage(input:$input){
+            ... on SaveSuccess{
+              url
+              clientRequestId
+            }
+            ... on SaveError{
+                errorCodes
+            }
+          }
+    }`,
+    variables: {
+      input: Object.assign({}, input, { source: 'puppeteer-parse' }),
+    },
+  })
+
+  const auth = (await signToken({ uid: userId }, JWT_SECRET)) as string
+  try {
+    const response = await axios.post(
+      `${REST_BACKEND_ENDPOINT}/graphql`,
+      data,
+      {
+        headers: {
+          Cookie: `auth=${auth};`,
+          'Content-Type': 'application/json',
+        },
+        timeout: 30000, // 30s
+      }
+    )
+
+    /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+    return !!response.data.data.savePage
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error('save page mutation error', error.message)
+    } else {
+      console.error(error)
+    }
+    return false
+  }
+}
 
 dotenv.config()
 Sentry.GCPFunction.init({
@@ -8,18 +72,54 @@ Sentry.GCPFunction.init({
   tracesSampleRate: 0,
 })
 
+const signToken = promisify(jwt.sign)
 const parser = new Parser()
 
 export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
   async (req, res) => {
-    try {
-      const feed = await parser.parseURL('https://www.reddit.com/.rss')
-      console.log(feed.title)
+    if (!process.env.JWT_SECRET) {
+      console.error('Missing JWT_SECRET in environment')
+      return res.status(500).send('INTERNAL_SERVER_ERROR')
+    }
 
-      feed.items.forEach((item) => {
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        console.log(`${item.title}:${item.link}`)
-      })
+    try {
+      if (!isRssFeedRequest(req.body)) {
+        console.error('Invalid request body', req.body)
+        return res.status(400).send('INVALID_REQUEST_BODY')
+      }
+
+      const { userId, feedUrl } = req.body
+      // fetch feed
+      const feed = await parser.parseURL(feedUrl)
+      console.debug(feed.title)
+
+      // save each item in the feed
+      await Promise.all(
+        feed.items.map((item) => {
+          if (!item.link || !item.title || !item.content) {
+            console.log('Invalid feed item', item)
+            return
+          }
+
+          const input = {
+            source: 'rss-feeder',
+            url: item.link,
+            saveRequestId: '',
+            labels: [{ name: 'RSS' }],
+            title: item.title,
+            originalContent: item.content,
+          }
+
+          try {
+            // save page
+            return sendSavePageMutation(userId, input)
+          } catch (error) {
+            console.error('Error while saving page', error)
+          }
+        })
+      )
+
+      // TODO: update subscription lastFetchedAt
 
       res.send('ok')
     } catch (e) {
