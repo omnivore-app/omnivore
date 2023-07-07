@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import os from 'os'
 import * as dotenv from 'dotenv'
+import os from 'os'
 
 interface BackendEnv {
   pg: {
@@ -67,6 +67,7 @@ interface BackendEnv {
     textToSpeechTaskHandlerUrl: string
     recommendationTaskHandlerUrl: string
     thumbnailTaskHandlerUrl: string
+    rssFeedTaskHandlerUrl: string
   }
   fileUpload: {
     gcsUploadBucket: string
@@ -161,6 +162,7 @@ const nullableEnvVars = [
   'RECOMMENDATION_TASK_HANDLER_URL',
   'POCKET_CONSUMER_KEY',
   'THUMBNAIL_TASK_HANDLER_URL',
+  'RSS_FEED_TASK_HANDLER_URL',
 ] // Allow some vars to be null/empty
 
 /* If not in GAE and Prod/QA/Demo env (f.e. on localhost/dev env), allow following env vars to be null */
@@ -248,6 +250,7 @@ export function getEnv(): BackendEnv {
     textToSpeechTaskHandlerUrl: parse('TEXT_TO_SPEECH_TASK_HANDLER_URL'),
     recommendationTaskHandlerUrl: parse('RECOMMENDATION_TASK_HANDLER_URL'),
     thumbnailTaskHandlerUrl: parse('THUMBNAIL_TASK_HANDLER_URL'),
+    rssFeedTaskHandlerUrl: parse('RSS_FEED_TASK_HANDLER_URL'),
   }
   const imageProxy = {
     url: parse('IMAGE_PROXY_URL'),

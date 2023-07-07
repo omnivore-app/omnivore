@@ -6,6 +6,7 @@ import { google } from '@google-cloud/tasks/build/protos/protos'
 import axios from 'axios'
 import { nanoid } from 'nanoid'
 import { Recommendation } from '../elastic/types'
+import { Subscription } from '../entity/subscription'
 import { env } from '../env'
 import {
   ArticleSavingRequestStatus,
@@ -547,6 +548,33 @@ export const enqueueThumbnailTask = async (
     taskHandlerUrl: env.queue.thumbnailTaskHandlerUrl,
     requestHeaders: headers,
     queue: 'omnivore-thumbnail-queue',
+  })
+
+  if (!createdTasks || !createdTasks[0].name) {
+    logger.error(`Unable to get the name of the task`, {
+      payload,
+      createdTasks,
+    })
+    throw new CreateTaskError(`Unable to get the name of the task`)
+  }
+  return createdTasks[0].name
+}
+
+export const enqueueRssFeedFetch = async (
+  rssFeedSubscription: Subscription
+): Promise<string> => {
+  const { GOOGLE_CLOUD_PROJECT } = process.env
+  const payload = {
+    subscriptionId: rssFeedSubscription.id,
+    userId: rssFeedSubscription.user.id,
+    feedUrl: rssFeedSubscription.url,
+  }
+
+  const createdTasks = await createHttpTaskWithToken({
+    project: GOOGLE_CLOUD_PROJECT,
+    queue: 'omnivore-rss-feed-queue',
+    payload,
+    taskHandlerUrl: env.queue.rssFeedTaskHandlerUrl,
   })
 
   if (!createdTasks || !createdTasks[0].name) {
