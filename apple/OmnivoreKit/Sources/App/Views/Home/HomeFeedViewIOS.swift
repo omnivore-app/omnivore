@@ -541,12 +541,17 @@ struct AnimatingCellHeight: AnimatableModifier {
     func swipeActionButton(action: SwipeAction, item: LinkedItem) -> AnyView {
       switch action {
       case .pin:
+        let isPinned = item.labels?.allObjects.first { ($0 as? LinkedItemLabel)?.name == "Pinned" } != nil
         return AnyView(Button(action: {
-          viewModel.pinItem(dataService: dataService, item: item)
+          if isPinned {
+            viewModel.unpinItem(dataService: dataService, item: item)
+          } else {
+            viewModel.pinItem(dataService: dataService, item: item)
+          }
         }, label: {
           VStack {
             Image.pinRotated
-            Text("Pin")
+            Text(isPinned ? "Unpin" : "Pin")
           }
         }).tint(Color(hex: "#0A84FF")))
       case .archive:
@@ -555,7 +560,8 @@ struct AnimatingCellHeight: AnimatableModifier {
             viewModel.setLinkArchived(dataService: dataService, objectID: item.objectID, archived: !item.isArchived)
           }
         }, label: {
-          Label(!item.isArchived ? "Archive" : "Unarchive", systemImage: !item.isArchived ? "archivebox" : "tray.and.arrow.down.fill")
+          Label(!item.isArchived ? "Archive" : "Unarchive",
+                systemImage: !item.isArchived ? "archivebox" : "tray.and.arrow.down.fill")
         })
           .tint(!item.isArchived ? .green : .indigo))
       case .delete:
@@ -571,7 +577,7 @@ struct AnimatingCellHeight: AnimatableModifier {
       case .moveToInbox:
         return AnyView(Button(
           action: {
-            viewModel.addLabel(dataService: dataService, item: item, label: "Inbox")
+            // viewModel.addLabel(dataService: dataService, item: item, label: "Inbox", color)
 
           },
           label: {

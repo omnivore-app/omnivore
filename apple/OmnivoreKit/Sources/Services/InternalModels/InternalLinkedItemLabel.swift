@@ -56,11 +56,11 @@ public struct InternalLinkedItemLabel: Encodable {
   }
 }
 
-extension LinkedItemLabel {
-  public var unwrappedID: String { id ?? "" }
-  public var unwrappedName: String { name ?? "" }
+public extension LinkedItemLabel {
+  var unwrappedID: String { id ?? "" }
+  var unwrappedName: String { name ?? "" }
 
-  public static func named(_ name: String, inContext context: NSManagedObjectContext) -> LinkedItemLabel? {
+  static func named(_ name: String, inContext context: NSManagedObjectContext) -> LinkedItemLabel? {
     let fetchRequest: NSFetchRequest<Models.LinkedItemLabel> = LinkedItemLabel.fetchRequest()
     fetchRequest.predicate = NSPredicate(
       format: "name == %@", name
@@ -90,7 +90,7 @@ extension LinkedItemLabel {
     return label
   }
 
-  func update(
+  internal func update(
     inContext context: NSManagedObjectContext,
     newName: String? = nil,
     newColor: String? = nil,
@@ -121,7 +121,7 @@ extension LinkedItemLabel {
     }
   }
 
-  func remove(inContext context: NSManagedObjectContext) {
+  internal func remove(inContext context: NSManagedObjectContext) {
     context.perform {
       context.delete(self)
 
