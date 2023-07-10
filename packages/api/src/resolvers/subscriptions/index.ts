@@ -6,6 +6,7 @@ import { env } from '../../env'
 import {
   MutationSubscribeArgs,
   MutationUnsubscribeArgs,
+  MutationUpdateSubscriptionArgs,
   QuerySubscriptionsArgs,
   SortBy,
   SortOrder,
@@ -20,16 +21,25 @@ import {
   UnsubscribeError,
   UnsubscribeErrorCode,
   UnsubscribeSuccess,
+  UpdateSubscriptionError,
+  UpdateSubscriptionErrorCode,
+  UpdateSubscriptionSuccess,
 } from '../../generated/graphql'
 import { getSubscribeHandler, unsubscribe } from '../../services/subscriptions'
+import { Merge } from '../../util'
 import { analytics } from '../../utils/analytics'
 import { authorized } from '../../utils/helpers'
-import { createImageProxyUrl } from '../../utils/imageproxy'
+
+type PartialSubscription = Omit<Subscription, 'newsletterEmail'>
 
 const parser = new Parser()
 
-export const subscriptionsResolver = authorized<
+export type SubscriptionsSuccessPartial = Merge<
   SubscriptionsSuccess,
+  { subscriptions: PartialSubscription[] }
+>
+export const subscriptionsResolver = authorized<
+  SubscriptionsSuccessPartial,
   SubscriptionsError,
   QuerySubscriptionsArgs
 >(async (_obj, { sort, type: subscriptionType }, { claims: { uid }, log }) => {
@@ -66,11 +76,7 @@ export const subscriptionsResolver = authorized<
       .getMany()
 
     return {
-      subscriptions: subscriptions.map((s) => ({
-        ...s,
-        icon: s.icon && createImageProxyUrl(s.icon, 128, 128),
-        newsletterEmail: s.newsletterEmail?.address,
-      })),
+      subscriptions,
     }
   } catch (error) {
     log.error(error)
@@ -80,8 +86,12 @@ export const subscriptionsResolver = authorized<
   }
 })
 
-export const unsubscribeResolver = authorized<
+export type UnsubscribeSuccessPartial = Merge<
   UnsubscribeSuccess,
+  { subscription: PartialSubscription }
+>
+export const unsubscribeResolver = authorized<
+  UnsubscribeSuccessPartial,
   UnsubscribeError,
   MutationUnsubscribeArgs
 >(async (_, { name, subscriptionId }, { claims: { uid }, log }) => {
@@ -122,8 +132,12 @@ export const unsubscribeResolver = authorized<
       }
     }
 
-    if (!subscription.unsubscribeMailTo && !subscription.unsubscribeHttpUrl) {
-      log.info('No unsubscribe method found')
+    if (
+      subscription.type === SubscriptionType.Newsletter &&
+      !subscription.unsubscribeMailTo &&
+      !subscription.unsubscribeHttpUrl
+    ) {
+      log.info('No unsubscribe method found for newsletter subscription')
     }
 
     await unsubscribe(subscription)
@@ -138,10 +152,7 @@ export const unsubscribeResolver = authorized<
     })
 
     return {
-      subscription: {
-        ...subscription,
-        newsletterEmail: subscription.newsletterEmail?.address,
-      },
+      subscription,
     }
   } catch (error) {
     log.error('failed to unsubscribe', error)
@@ -151,8 +162,12 @@ export const unsubscribeResolver = authorized<
   }
 })
 
-export const subscribeResolver = authorized<
+export type SubscribeSuccessPartial = Merge<
   SubscribeSuccess,
+  { subscriptions: PartialSubscription[] }
+>
+export const subscribeResolver = authorized<
+  SubscribeSuccessPartial,
   SubscribeError,
   MutationSubscribeArgs
 >(async (_, { input }, { claims: { uid }, log }) => {
@@ -209,10 +224,7 @@ export const subscribeResolver = authorized<
       }
 
       return {
-        subscriptions: newSubscriptions.map((s) => ({
-          ...s,
-          newsletterEmail: s.newsletterEmail?.address,
-        })),
+        subscriptions: newSubscriptions,
       }
     }
 
@@ -231,12 +243,7 @@ export const subscribeResolver = authorized<
       })
 
       return {
-        subscriptions: [
-          {
-            ...newSubscription,
-            newsletterEmail: null,
-          },
-        ],
+        subscriptions: [newSubscription],
       }
     }
 
@@ -248,6 +255,68 @@ export const subscribeResolver = authorized<
     log.error('failed to subscribe', error)
     return {
       errorCodes: [SubscribeErrorCode.BadRequest],
+    }
+  }
+})
+
+export type UpdateSubscriptionSuccessPartial = Merge<
+  UpdateSubscriptionSuccess,
+  { subscription: PartialSubscription }
+>
+export const updateSubscriptionResolver = authorized<
+  UpdateSubscriptionSuccessPartial,
+  UpdateSubscriptionError,
+  MutationUpdateSubscriptionArgs
+>(async (_, { input }, { claims: { uid }, log }) => {
+  log.info('updateSubscriptionResolver')
+
+  try {
+    analytics.track({
+      userId: uid,
+      event: 'update_subscription',
+      properties: {
+        ...input,
+        env: env.server.apiEnv,
+      },
+    })
+
+    const user = await getRepository(User).findOneBy({ id: uid })
+    if (!user) {
+      return {
+        errorCodes: [UpdateSubscriptionErrorCode.Unauthorized],
+      }
+    }
+
+    // find existing subscription
+    const subscription = await getRepository(Subscription).findOneBy({
+      id: input.id,
+      user: { id: uid },
+      status: SubscriptionStatus.Active,
+    })
+    if (!subscription) {
+      log.info('subscription not found')
+      return {
+        errorCodes: [UpdateSubscriptionErrorCode.NotFound],
+      }
+    }
+
+    // update subscription
+    const updatedSubscription = await getRepository(Subscription).save({
+      id: input.id,
+      name: input.name || undefined,
+      description: input.description || undefined,
+      lastFetchedAt: input.lastFetchedAt
+        ? new Date(input.lastFetchedAt)
+        : undefined,
+    })
+
+    return {
+      subscription: updatedSubscription,
+    }
+  } catch (error) {
+    log.error('failed to update subscription', error)
+    return {
+      errorCodes: [UpdateSubscriptionErrorCode.BadRequest],
     }
   }
 })

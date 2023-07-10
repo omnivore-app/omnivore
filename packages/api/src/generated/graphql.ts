@@ -1292,6 +1292,7 @@ export type Mutation = {
   updatePage: UpdatePageResult;
   updateReminder: UpdateReminderResult;
   updateSharedComment: UpdateSharedCommentResult;
+  updateSubscription: UpdateSubscriptionResult;
   updateUser: UpdateUserResult;
   updateUserProfile: UpdateUserProfileResult;
   uploadFileRequest: UploadFileRequestResult;
@@ -1616,6 +1617,11 @@ export type MutationUpdateReminderArgs = {
 
 export type MutationUpdateSharedCommentArgs = {
   input: UpdateSharedCommentInput;
+};
+
+
+export type MutationUpdateSubscriptionArgs = {
+  input: UpdateSubscriptionInput;
 };
 
 
@@ -2995,6 +3001,31 @@ export type UpdateSharedCommentSuccess = {
   sharedComment: Scalars['String'];
 };
 
+export type UpdateSubscriptionError = {
+  __typename?: 'UpdateSubscriptionError';
+  errorCodes: Array<UpdateSubscriptionErrorCode>;
+};
+
+export enum UpdateSubscriptionErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type UpdateSubscriptionInput = {
+  description?: InputMaybe<Scalars['String']>;
+  id: Scalars['ID'];
+  lastFetchedAt?: InputMaybe<Scalars['Date']>;
+  name?: InputMaybe<Scalars['String']>;
+};
+
+export type UpdateSubscriptionResult = UpdateSubscriptionError | UpdateSubscriptionSuccess;
+
+export type UpdateSubscriptionSuccess = {
+  __typename?: 'UpdateSubscriptionSuccess';
+  subscription: Subscription;
+};
+
 export type UpdateUserError = {
   __typename?: 'UpdateUserError';
   errorCodes: Array<UpdateUserErrorCode>;
@@ -3759,6 +3790,11 @@ export type ResolversTypes = {
   UpdateSharedCommentInput: UpdateSharedCommentInput;
   UpdateSharedCommentResult: ResolversTypes['UpdateSharedCommentError'] | ResolversTypes['UpdateSharedCommentSuccess'];
   UpdateSharedCommentSuccess: ResolverTypeWrapper<UpdateSharedCommentSuccess>;
+  UpdateSubscriptionError: ResolverTypeWrapper<UpdateSubscriptionError>;
+  UpdateSubscriptionErrorCode: UpdateSubscriptionErrorCode;
+  UpdateSubscriptionInput: UpdateSubscriptionInput;
+  UpdateSubscriptionResult: ResolversTypes['UpdateSubscriptionError'] | ResolversTypes['UpdateSubscriptionSuccess'];
+  UpdateSubscriptionSuccess: ResolverTypeWrapper<UpdateSubscriptionSuccess>;
   UpdateUserError: ResolverTypeWrapper<UpdateUserError>;
   UpdateUserErrorCode: UpdateUserErrorCode;
   UpdateUserInput: UpdateUserInput;
@@ -4154,6 +4190,10 @@ export type ResolversParentTypes = {
   UpdateSharedCommentInput: UpdateSharedCommentInput;
   UpdateSharedCommentResult: ResolversParentTypes['UpdateSharedCommentError'] | ResolversParentTypes['UpdateSharedCommentSuccess'];
   UpdateSharedCommentSuccess: UpdateSharedCommentSuccess;
+  UpdateSubscriptionError: UpdateSubscriptionError;
+  UpdateSubscriptionInput: UpdateSubscriptionInput;
+  UpdateSubscriptionResult: ResolversParentTypes['UpdateSubscriptionError'] | ResolversParentTypes['UpdateSubscriptionSuccess'];
+  UpdateSubscriptionSuccess: UpdateSubscriptionSuccess;
   UpdateUserError: UpdateUserError;
   UpdateUserInput: UpdateUserInput;
   UpdateUserProfileError: UpdateUserProfileError;
@@ -5142,6 +5182,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   updatePage?: Resolver<ResolversTypes['UpdatePageResult'], ParentType, ContextType, RequireFields<MutationUpdatePageArgs, 'input'>>;
   updateReminder?: Resolver<ResolversTypes['UpdateReminderResult'], ParentType, ContextType, RequireFields<MutationUpdateReminderArgs, 'input'>>;
   updateSharedComment?: Resolver<ResolversTypes['UpdateSharedCommentResult'], ParentType, ContextType, RequireFields<MutationUpdateSharedCommentArgs, 'input'>>;
+  updateSubscription?: Resolver<ResolversTypes['UpdateSubscriptionResult'], ParentType, ContextType, RequireFields<MutationUpdateSubscriptionArgs, 'input'>>;
   updateUser?: Resolver<ResolversTypes['UpdateUserResult'], ParentType, ContextType, RequireFields<MutationUpdateUserArgs, 'input'>>;
   updateUserProfile?: Resolver<ResolversTypes['UpdateUserProfileResult'], ParentType, ContextType, RequireFields<MutationUpdateUserProfileArgs, 'input'>>;
   uploadFileRequest?: Resolver<ResolversTypes['UploadFileRequestResult'], ParentType, ContextType, RequireFields<MutationUploadFileRequestArgs, 'input'>>;
@@ -5938,6 +5979,20 @@ export type UpdateSharedCommentSuccessResolvers<ContextType = ResolverContext, P
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type UpdateSubscriptionErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateSubscriptionError'] = ResolversParentTypes['UpdateSubscriptionError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['UpdateSubscriptionErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type UpdateSubscriptionResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateSubscriptionResult'] = ResolversParentTypes['UpdateSubscriptionResult']> = {
+  __resolveType: TypeResolveFn<'UpdateSubscriptionError' | 'UpdateSubscriptionSuccess', ParentType, ContextType>;
+};
+
+export type UpdateSubscriptionSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateSubscriptionSuccess'] = ResolversParentTypes['UpdateSubscriptionSuccess']> = {
+  subscription?: Resolver<ResolversTypes['Subscription'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type UpdateUserErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateUserError'] = ResolversParentTypes['UpdateUserError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['UpdateUserErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -6405,6 +6460,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   UpdateSharedCommentError?: UpdateSharedCommentErrorResolvers<ContextType>;
   UpdateSharedCommentResult?: UpdateSharedCommentResultResolvers<ContextType>;
   UpdateSharedCommentSuccess?: UpdateSharedCommentSuccessResolvers<ContextType>;
+  UpdateSubscriptionError?: UpdateSubscriptionErrorResolvers<ContextType>;
+  UpdateSubscriptionResult?: UpdateSubscriptionResultResolvers<ContextType>;
+  UpdateSubscriptionSuccess?: UpdateSubscriptionSuccessResolvers<ContextType>;
   UpdateUserError?: UpdateUserErrorResolvers<ContextType>;
   UpdateUserProfileError?: UpdateUserProfileErrorResolvers<ContextType>;
   UpdateUserProfileResult?: UpdateUserProfileResultResolvers<ContextType>;

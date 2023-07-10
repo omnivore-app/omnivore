@@ -1160,6 +1160,7 @@ type Mutation {
   updatePage(input: UpdatePageInput!): UpdatePageResult!
   updateReminder(input: UpdateReminderInput!): UpdateReminderResult!
   updateSharedComment(input: UpdateSharedCommentInput!): UpdateSharedCommentResult!
+  updateSubscription(input: UpdateSubscriptionInput!): UpdateSubscriptionResult!
   updateUser(input: UpdateUserInput!): UpdateUserResult!
   updateUserProfile(input: UpdateUserProfileInput!): UpdateUserProfileResult!
   uploadFileRequest(input: UploadFileRequestInput!): UploadFileRequestResult!
@@ -2321,6 +2322,29 @@ union UpdateSharedCommentResult = UpdateSharedCommentError | UpdateSharedComment
 type UpdateSharedCommentSuccess {
   articleID: ID!
   sharedComment: String!
+}
+
+type UpdateSubscriptionError {
+  errorCodes: [UpdateSubscriptionErrorCode!]!
+}
+
+enum UpdateSubscriptionErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+input UpdateSubscriptionInput {
+  description: String
+  id: ID!
+  lastFetchedAt: Date
+  name: String
+}
+
+union UpdateSubscriptionResult = UpdateSubscriptionError | UpdateSubscriptionSuccess
+
+type UpdateSubscriptionSuccess {
+  subscription: Subscription!
 }
 
 type UpdateUserError {

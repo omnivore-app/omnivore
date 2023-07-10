@@ -2492,6 +2492,31 @@ const schema = gql`
     subscriptionType: SubscriptionType
   }
 
+  input UpdateSubscriptionInput {
+    id: ID!
+    name: String
+    description: String
+    lastFetchedAt: Date
+  }
+
+  union UpdateSubscriptionResult =
+      UpdateSubscriptionSuccess
+    | UpdateSubscriptionError
+
+  type UpdateSubscriptionSuccess {
+    subscription: Subscription!
+  }
+
+  type UpdateSubscriptionError {
+    errorCodes: [UpdateSubscriptionErrorCode!]!
+  }
+
+  enum UpdateSubscriptionErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -2590,6 +2615,9 @@ const schema = gql`
     ): BulkActionResult!
     importFromIntegration(integrationId: ID!): ImportFromIntegrationResult!
     setFavoriteArticle(id: ID!): SetFavoriteArticleResult!
+    updateSubscription(
+      input: UpdateSubscriptionInput!
+    ): UpdateSubscriptionResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed
