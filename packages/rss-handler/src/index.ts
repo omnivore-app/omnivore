@@ -66,6 +66,66 @@ const sendSavePageMutation = async (userId: string, input: unknown) => {
   }
 }
 
+const sendUpdateSubscriptionMutation = async (
+  userId: string,
+  subscriptionId: string,
+  lastFetchedAt: Date
+) => {
+  const JWT_SECRET = process.env.JWT_SECRET
+  const REST_BACKEND_ENDPOINT = process.env.REST_BACKEND_ENDPOINT
+
+  if (!JWT_SECRET || !REST_BACKEND_ENDPOINT) {
+    throw 'Environment not configured correctly'
+  }
+
+  const data = JSON.stringify({
+    query: `mutation UpdateSubscription($input: UpdateSubscriptionInput!){
+      updateSubscription(input:$input){
+        ... on UpdateSubscriptionSuccess{
+          subscription{
+            id
+            lastFetchedAt
+          }
+        }
+        ... on UpdateSubscriptionError{
+            errorCodes
+        }
+      }
+    }`,
+    variables: {
+      input: {
+        id: subscriptionId,
+        lastFetchedAt,
+      },
+    },
+  })
+
+  const auth = (await signToken({ uid: userId }, JWT_SECRET)) as string
+  try {
+    const response = await axios.post(
+      `${REST_BACKEND_ENDPOINT}/graphql`,
+      data,
+      {
+        headers: {
+          Cookie: `auth=${auth};`,
+          'Content-Type': 'application/json',
+        },
+        timeout: 30000, // 30s
+      }
+    )
+
+    /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+    return !!response.data.data.savePage
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error('update subscription mutation error', error.message)
+    } else {
+      console.error(error)
+    }
+    return false
+  }
+}
+
 dotenv.config()
 Sentry.GCPFunction.init({
   dsn: process.env.SENTRY_DSN,
@@ -91,7 +151,7 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
       const { userId, feedUrl } = req.body
       // fetch feed
       const feed = await parser.parseURL(feedUrl)
-      console.debug(feed.title)
+      console.log('Fetched feed', feed.title)
 
       // save each item in the feed
       await Promise.all(
@@ -111,6 +171,7 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
           }
 
           try {
+            console.log('Saving page', input.title)
             // save page
             return sendSavePageMutation(userId, input)
           } catch (error) {
@@ -119,7 +180,13 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
         })
       )
 
-      // TODO: update subscription lastFetchedAt
+      // update subscription lastFetchedAt
+      const updatedSubscription = await sendUpdateSubscriptionMutation(
+        userId,
+        req.body.subscriptionId,
+        new Date()
+      )
+      console.log('Updated subscription', updatedSubscription)
 
       res.send('ok')
     } catch (e) {
