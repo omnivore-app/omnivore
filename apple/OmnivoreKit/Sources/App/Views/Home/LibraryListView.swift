@@ -9,7 +9,7 @@ import Foundation
 import Models
 import SwiftUI
 
-struct LibraryTabView: View {
+struct LibraryListView: View {
   @StateObject private var subViewModel = HomeFeedViewModel(
     listConfig: LibraryListConfig(
       hasFeatureCards: false,
@@ -38,41 +38,21 @@ struct LibraryTabView: View {
   )
 
   var body: some View {
-    NavigationView {
-      ZStack {
-        NavigationLink(
-          destination: LinkDestination(selectedItem: libraryViewModel.selectedItem),
-          isActive: $libraryViewModel.linkIsActive
-        ) {
-          EmptyView()
-        }
-//        TabView {
-//          HomeView(viewModel: subViewModel)
-//            .tabItem {
-//              Label {
-//                Text("Subscriptions")
-//              } icon: {
-//                Image.tabSubscriptions
-//              }
-//            }
-        HomeView(viewModel: libraryViewModel)
-          .tabItem {
-            Label {
-              Text("Library")
-            } icon: {
-              Image.tabLibrary
-            }
-          }
-//          HomeView(viewModel: highlightsViewModel)
-//            .tabItem {
-//              Label {
-//                Text("Highlights")
-//              } icon: {
-//                Image.tabHighlights
-//              }
-//            }
-//        }
+    ZStack {
+      NavigationLink(
+        destination: LinkDestination(selectedItem: libraryViewModel.selectedItem),
+        isActive: $libraryViewModel.linkIsActive
+      ) {
+        EmptyView()
       }
+      HomeView(viewModel: libraryViewModel)
+        .tabItem {
+          Label {
+            Text("Library")
+          } icon: {
+            Image.tabLibrary
+          }
+        }
     }
     .navigationViewStyle(.stack)
     .navigationBarTitleDisplayMode(.inline)

@@ -35,11 +35,10 @@ enum PrimaryContentCategory: Identifiable, Hashable, Equatable {
     Label { Text(title) } icon: { image.renderingMode(.template) }
   }
 
-  @ViewBuilder var destinationView: some View {
+  @MainActor @ViewBuilder var destinationView: some View {
     switch self {
     case .feed:
-      // HomeView(viewModel: HomeFeedViewModel())
-      EmptyView()
+      LibraryListView()
     case .profile:
       ProfileView()
     }

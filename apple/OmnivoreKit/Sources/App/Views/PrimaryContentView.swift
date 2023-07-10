@@ -3,7 +3,7 @@ import Services
 import SwiftUI
 import Views
 
-public struct PrimaryContentView: View {
+@MainActor public struct PrimaryContentView: View {
   let categories = [
     PrimaryContentCategory.feed,
     PrimaryContentCategory.profile
@@ -52,7 +52,7 @@ public struct PrimaryContentView: View {
   #endif
 }
 
-struct PrimaryContentSidebar: View {
+@MainActor struct PrimaryContentSidebar: View {
   @State private var selectedCategory: PrimaryContentCategory?
   let categories: [PrimaryContentCategory]
 
