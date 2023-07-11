@@ -23,7 +23,7 @@ export function rssFeedRouter() {
     try {
       // get all active rss feed subscriptions
       const subscriptions = await getRepository(Subscription).find({
-        select: ['id', 'url', 'user'],
+        select: ['id', 'url', 'user', 'lastFetchedAt'],
         where: {
           type: SubscriptionType.Rss,
           status: SubscriptionStatus.Active,

@@ -568,6 +568,7 @@ export const enqueueRssFeedFetch = async (
     subscriptionId: rssFeedSubscription.id,
     userId: rssFeedSubscription.user.id,
     feedUrl: rssFeedSubscription.url,
+    lastFetchedAt: rssFeedSubscription.lastFetchedAt,
   }
 
   const createdTasks = await createHttpTaskWithToken({
