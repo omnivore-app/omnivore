@@ -83,6 +83,7 @@
     "pg": "^8.3.3",
     "postgrator": "^4.2.0",
     "private-ip": "^2.3.3",
+    "rss-parser": "^3.13.0",
     "sanitize-html": "^2.3.2",
     "search-query-parser": "^1.6.0",
     "snake-case": "^3.0.3",

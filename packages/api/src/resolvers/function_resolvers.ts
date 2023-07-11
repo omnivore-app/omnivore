@@ -5,6 +5,7 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { getShareInfoForArticle } from '../datalayer/links/share_info'
 import { getPageByParam } from '../elastic/pages'
+import { Subscription } from '../entity/subscription'
 import {
   Article,
   ArticleHighlightsInput,
@@ -109,6 +110,7 @@ import {
   updateReminderResolver,
   updateSharedCommentResolver,
   updatesSinceResolver,
+  updateSubscriptionResolver,
   updateUserProfileResolver,
   updateUserResolver,
   uploadFileRequestResolver,
@@ -206,6 +208,7 @@ export const functionResolvers = {
     bulkAction: bulkActionResolver,
     importFromIntegration: importFromIntegrationResolver,
     setFavoriteArticle: setFavoriteArticleResolver,
+    updateSubscription: updateSubscriptionResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -573,6 +576,16 @@ export const functionResolvers = {
       return item.pageType || PageType.Unknown
     },
   },
+  Subscription: {
+    newsletterEmail(subscription: Subscription) {
+      return subscription.newsletterEmail?.address
+    },
+    icon(subscription: Subscription) {
+      return (
+        subscription.icon && createImageProxyUrl(subscription.icon, 128, 128)
+      )
+    },
+  },
   ...resultResolveTypeResolver('Login'),
   ...resultResolveTypeResolver('LogOut'),
   ...resultResolveTypeResolver('GoogleSignup'),
@@ -662,4 +675,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('BulkAction'),
   ...resultResolveTypeResolver('ImportFromIntegration'),
   ...resultResolveTypeResolver('SetFavoriteArticle'),
+  ...resultResolveTypeResolver('UpdateSubscription'),
 }

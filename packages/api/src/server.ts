@@ -43,6 +43,7 @@ import { integrationsServiceRouter } from './routers/svc/integrations'
 import { linkServiceRouter } from './routers/svc/links'
 import { newsletterServiceRouter } from './routers/svc/newsletters'
 import { remindersServiceRouter } from './routers/svc/reminders'
+import { rssFeedRouter } from './routers/svc/rss_feed'
 import { uploadServiceRouter } from './routers/svc/upload'
 import { webhooksServiceRouter } from './routers/svc/webhooks'
 import { textToSpeechRouter } from './routers/text_to_speech'
@@ -159,6 +160,7 @@ export const createApp = (): {
   app.use('/svc/pubsub/integrations', integrationsServiceRouter())
   app.use('/svc/reminders', remindersServiceRouter())
   app.use('/svc/email-attachment', emailAttachmentRouter())
+  app.use('/svc/rss-feed', rssFeedRouter())
 
   if (env.dev.isLocal) {
     app.use('/local/debug', localDebugRouter())

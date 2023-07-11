@@ -162,6 +162,7 @@ export interface Page {
   listenedAt?: Date
   wordsCount?: number
   recommendations?: Recommendation[]
+  rssFeedUrl?: string
 }
 
 export interface SearchItem {

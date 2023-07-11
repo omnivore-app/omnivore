@@ -1151,8 +1151,8 @@ type Mutation {
   setShareHighlight(input: SetShareHighlightInput!): SetShareHighlightResult!
   setUserPersonalization(input: SetUserPersonalizationInput!): SetUserPersonalizationResult!
   setWebhook(input: SetWebhookInput!): SetWebhookResult!
-  subscribe(name: String!): SubscribeResult!
-  unsubscribe(name: String!): UnsubscribeResult!
+  subscribe(input: SubscribeInput!): SubscribeResult!
+  unsubscribe(name: String!, subscriptionId: ID): UnsubscribeResult!
   updateHighlight(input: UpdateHighlightInput!): UpdateHighlightResult!
   updateHighlightReply(input: UpdateHighlightReplyInput!): UpdateHighlightReplyResult!
   updateLabel(input: UpdateLabelInput!): UpdateLabelResult!
@@ -1160,6 +1160,7 @@ type Mutation {
   updatePage(input: UpdatePageInput!): UpdatePageResult!
   updateReminder(input: UpdateReminderInput!): UpdateReminderResult!
   updateSharedComment(input: UpdateSharedCommentInput!): UpdateSharedCommentResult!
+  updateSubscription(input: UpdateSubscriptionInput!): UpdateSubscriptionResult!
   updateUser(input: UpdateUserInput!): UpdateUserResult!
   updateUserProfile(input: UpdateUserProfileInput!): UpdateUserProfileResult!
   uploadFileRequest(input: UploadFileRequestInput!): UploadFileRequestResult!
@@ -1308,7 +1309,7 @@ type Query {
   search(after: String, first: Int, format: String, includeContent: Boolean, query: String): SearchResult!
   sendInstallInstructions: SendInstallInstructionsResult!
   sharedArticle(selectedHighlightId: String, slug: String!, username: String!): SharedArticleResult!
-  subscriptions(sort: SortParams): SubscriptionsResult!
+  subscriptions(sort: SortParams, type: SubscriptionType): SubscriptionsResult!
   typeaheadSearch(first: Int, query: String!): TypeaheadSearchResult!
   updatesSince(after: String, first: Int, since: Date!, sort: SortParams): UpdatesSinceResult!
   user(userId: ID, username: String): UserResult!
@@ -1636,6 +1637,7 @@ input SavePageInput {
   labels: [CreateLabelInput!]
   originalContent: String!
   parseResult: ParseResult
+  rssFeedUrl: String
   source: String!
   state: ArticleSavingRequestStatus
   title: String
@@ -2051,6 +2053,12 @@ enum SubscribeErrorCode {
   UNAUTHORIZED
 }
 
+input SubscribeInput {
+  name: String
+  subscriptionType: SubscriptionType
+  url: String
+}
+
 union SubscribeResult = SubscribeError | SubscribeSuccess
 
 type SubscribeSuccess {
@@ -2058,13 +2066,16 @@ type SubscribeSuccess {
 }
 
 type Subscription {
+  count: Int!
   createdAt: Date!
   description: String
   icon: String
   id: ID!
+  lastFetchedAt: Date
   name: String!
-  newsletterEmail: String!
+  newsletterEmail: String
   status: SubscriptionStatus!
+  type: SubscriptionType!
   unsubscribeHttpUrl: String
   unsubscribeMailTo: String
   updatedAt: Date!
@@ -2075,6 +2086,11 @@ enum SubscriptionStatus {
   ACTIVE
   DELETED
   UNSUBSCRIBED
+}
+
+enum SubscriptionType {
+  NEWSLETTER
+  RSS
 }
 
 type SubscriptionsError {
@@ -2307,6 +2323,29 @@ union UpdateSharedCommentResult = UpdateSharedCommentError | UpdateSharedComment
 type UpdateSharedCommentSuccess {
   articleID: ID!
   sharedComment: String!
+}
+
+type UpdateSubscriptionError {
+  errorCodes: [UpdateSubscriptionErrorCode!]!
+}
+
+enum UpdateSubscriptionErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+input UpdateSubscriptionInput {
+  description: String
+  id: ID!
+  lastFetchedAt: Date
+  name: String
+}
+
+union UpdateSubscriptionResult = UpdateSubscriptionError | UpdateSubscriptionSuccess
+
+type UpdateSubscriptionSuccess {
+  subscription: Subscription!
 }
 
 type UpdateUserError {
