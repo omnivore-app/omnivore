@@ -9,10 +9,16 @@ interface RssFeedRequest {
   subscriptionId: string
   userId: string
   feedUrl: string
+  lastFetchedAt: Date
 }
 
 function isRssFeedRequest(body: any): body is RssFeedRequest {
-  return 'subscriptionId' in body && 'userId' in body && 'feedUrl' in body
+  return (
+    'subscriptionId' in body &&
+    'userId' in body &&
+    'feedUrl' in body &&
+    'lastFetchedAt' in body
+  )
 }
 
 const sendSavePageMutation = async (userId: string, input: unknown) => {
@@ -148,16 +154,21 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
         return res.status(400).send('INVALID_REQUEST_BODY')
       }
 
-      const { userId, feedUrl, subscriptionId } = req.body
+      const { userId, feedUrl, subscriptionId, lastFetchedAt } = req.body
       // fetch feed
       const feed = await parser.parseURL(feedUrl)
-      const lastFetchedAt = new Date()
-      console.log('Fetched feed', feed.title, lastFetchedAt)
+      const newFetchedAt = new Date()
+      console.log('Fetched feed', feed.title, newFetchedAt)
 
       // save each item in the feed
       for (const item of feed.items) {
-        if (!item.link || !item.title || !item.content) {
+        if (!item.link || !item.title || !item.content || !item.isoDate) {
           console.log('Invalid feed item', item)
+          continue
+        }
+
+        if (new Date(item.isoDate) <= lastFetchedAt) {
+          console.log('Skipping old feed item', item.title)
           continue
         }
 
@@ -184,7 +195,7 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
       const updatedSubscription = await sendUpdateSubscriptionMutation(
         userId,
         subscriptionId,
-        lastFetchedAt
+        newFetchedAt
       )
       console.log('Updated subscription', updatedSubscription)
 
