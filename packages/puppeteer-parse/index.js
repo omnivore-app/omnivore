@@ -333,6 +333,8 @@ async function fetchContent(req, res) {
   const source = req.body.source || 'parseContent';
   const taskId = req.body.taskId; // taskId is used to update import status
   const urlStr = (req.query ? req.query.url : undefined) || (req.body ? req.body.url : undefined);
+  const locale = (req.query ? req.query.locale : undefined) || (req.body ? req.body.locale : undefined);
+  const timezone = (req.query ? req.query.timezone : undefined) || (req.body ? req.body.timezone : undefined);
 
   let logRecord = {
     url: urlStr,
@@ -344,6 +346,8 @@ async function fetchContent(req, res) {
     state,
     labelsToAdd: labels,
     taskId: taskId,
+    locale,
+    timezone,
   };
 
   console.info(`Article parsing request`, logRecord);
@@ -374,7 +378,7 @@ async function fetchContent(req, res) {
     }
 
     if ((!content || !title) && contentType !== 'application/pdf') {
-      const result = await retrievePage(url, logRecord, functionStartTime);
+      const result = await retrievePage(url, logRecord, functionStartTime, locale, timezone);
       if (result && result.context) { context = result.context }
       if (result && result.page) { page = result.page }
       if (result && result.finalUrl) { finalUrl = result.finalUrl }
@@ -522,7 +526,7 @@ function getUrl(urlStr) {
   return parsed.href;
 }
 
-async function retrievePage(url, logRecord, functionStartTime) {
+async function retrievePage(url, logRecord, functionStartTime, locale, timezone) {
   validateUrlString(url);
 
   const browser = await getBrowserPromise;
@@ -535,6 +539,16 @@ async function retrievePage(url, logRecord, functionStartTime) {
     await page.setJavaScriptEnabled(false);
   }
   await page.setUserAgent(userAgentForUrl(url));
+
+  // set locale for the page
+  if (locale) {
+    await page.setExtraHTTPHeaders({ 'Accept-Language': locale });
+  }
+
+  // set timezone for the page
+  if (timezone) {
+    await page.emulateTimezone(timezone);
+  }
 
   const client = await page.target().createCDPSession();
 

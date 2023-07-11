@@ -34,6 +34,8 @@ export const saveUrl = async (
       archivedAt,
       labels,
       user,
+      locale: input.locale || undefined,
+      timezone: input.timezone || undefined,
     })
 
     return {

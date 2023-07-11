@@ -1652,8 +1652,10 @@ type SaveSuccess {
 input SaveUrlInput {
   clientRequestId: ID!
   labels: [CreateLabelInput!]
+  locale: String
   source: String!
   state: ArticleSavingRequestStatus
+  timezone: String
   url: String!
 }
 

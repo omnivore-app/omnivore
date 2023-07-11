@@ -2266,8 +2266,10 @@ export type SaveSuccess = {
 export type SaveUrlInput = {
   clientRequestId: Scalars['ID'];
   labels?: InputMaybe<Array<CreateLabelInput>>;
+  locale?: InputMaybe<Scalars['String']>;
   source: Scalars['String'];
   state?: InputMaybe<ArticleSavingRequestStatus>;
+  timezone?: InputMaybe<Scalars['String']>;
   url: Scalars['String'];
 };
 

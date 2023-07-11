@@ -215,6 +215,8 @@ export const enqueueParseRequest = async ({
   queue = env.queue.name,
   state,
   labels,
+  locale,
+  timezone,
 }: {
   url: string
   userId: string
@@ -223,6 +225,8 @@ export const enqueueParseRequest = async ({
   queue?: string
   state?: ArticleSavingRequestStatus
   labels?: CreateLabelInput[]
+  locale?: string
+  timezone?: string
 }): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT } = process.env
   const payload = {
@@ -231,6 +235,8 @@ export const enqueueParseRequest = async ({
     saveRequestId,
     state,
     labels,
+    locale,
+    timezone,
   }
 
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment
