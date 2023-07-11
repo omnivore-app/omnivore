@@ -761,15 +761,7 @@ async function retrieveHtml(page, logRecord) {
         document.getElementById('px-block-form-wrapper')) {
         return 'IS_BLOCKED'
       }
-      // check if create_time is defined
-      if (typeof create_time !== 'undefined' && create_time) {
-        // create_time is a global variable set by WeChat when rendering the page
-        const date = new Date(create_time * 1000);
-        const dateNode = document.createElement('div');
-        dateNode.className = 'omnivore-published-date';
-        dateNode.innerHTML = date.toLocaleString();
-        document.body.appendChild(dateNode);
-      }
+
       return document.documentElement.outerHTML;
     }, iframes);
     logRecord.puppeteerSuccess = true;
