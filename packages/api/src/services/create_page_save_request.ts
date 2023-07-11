@@ -30,6 +30,8 @@ interface PageSaveRequest {
   labels?: Label[]
   priority?: 'low' | 'high'
   user?: User | null
+  locale?: string
+  timezone?: string
 }
 
 const SAVING_CONTENT = 'Your link is being saved...'
@@ -81,6 +83,8 @@ export const createPageSaveRequest = async ({
   priority,
   labels,
   user,
+  locale,
+  timezone,
 }: PageSaveRequest): Promise<ArticleSavingRequest> => {
   try {
     validateUrl(url)
@@ -170,6 +174,8 @@ export const createPageSaveRequest = async ({
     priority,
     state: archivedAt ? ArticleSavingRequestStatus.Archived : undefined,
     labels: labelsInput,
+    locale,
+    timezone,
   })
 
   return pageToArticleSavingRequest(user, page)

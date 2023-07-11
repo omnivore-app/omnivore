@@ -570,6 +570,8 @@ const schema = gql`
     clientRequestId: ID!
     state: ArticleSavingRequestStatus
     labels: [CreateLabelInput!]
+    locale: String
+    timezone: String
   }
 
   union SaveResult = SaveSuccess | SaveError
