@@ -179,6 +179,7 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
           labels: [{ name: 'RSS' }],
           title: item.title,
           originalContent: item.content,
+          rssFeedUrl: feedUrl,
         }
 
         try {

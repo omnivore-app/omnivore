@@ -103,6 +103,7 @@ export const savePage = async (
     pageType: parseResult.pageType,
     originalHtml: parseResult.domContent,
     canonicalUrl: parseResult.canonicalUrl,
+    rssFeedUrl: input.rssFeedUrl,
   })
 
   // save state
@@ -221,6 +222,7 @@ export const parsedContentToPage = ({
   uploadFileHash,
   uploadFileId,
   saveTime,
+  rssFeedUrl,
 }: {
   url: string
   userId: string
@@ -236,6 +238,7 @@ export const parsedContentToPage = ({
   uploadFileHash?: string | null
   uploadFileId?: string | null
   saveTime?: Date
+  rssFeedUrl?: string | null
 }): Page => {
   return {
     id: pageId || '',
@@ -267,5 +270,6 @@ export const parsedContentToPage = ({
     language: parsedContent?.language ?? undefined,
     siteIcon: parsedContent?.siteIcon ?? undefined,
     wordsCount: wordsCount(parsedContent?.textContent || ''),
+    rssFeedUrl: rssFeedUrl || undefined,
   }
 }

@@ -2257,6 +2257,7 @@ export type SavePageInput = {
   labels?: InputMaybe<Array<CreateLabelInput>>;
   originalContent: Scalars['String'];
   parseResult?: InputMaybe<ParseResult>;
+  rssFeedUrl?: InputMaybe<Scalars['String']>;
   source: Scalars['String'];
   state?: InputMaybe<ArticleSavingRequestStatus>;
   title?: InputMaybe<Scalars['String']>;

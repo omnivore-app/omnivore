@@ -561,6 +561,7 @@ const schema = gql`
     parseResult: ParseResult
     state: ArticleSavingRequestStatus
     labels: [CreateLabelInput!]
+    rssFeedUrl: String
   }
 
   input SaveUrlInput {
