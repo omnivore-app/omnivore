@@ -148,43 +148,43 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
         return res.status(400).send('INVALID_REQUEST_BODY')
       }
 
-      const { userId, feedUrl } = req.body
+      const { userId, feedUrl, subscriptionId } = req.body
       // fetch feed
       const feed = await parser.parseURL(feedUrl)
-      console.log('Fetched feed', feed.title)
+      const lastFetchedAt = new Date()
+      console.log('Fetched feed', feed.title, lastFetchedAt)
 
       // save each item in the feed
-      await Promise.all(
-        feed.items.map((item) => {
-          if (!item.link || !item.title || !item.content) {
-            console.log('Invalid feed item', item)
-            return
-          }
+      for (const item of feed.items) {
+        if (!item.link || !item.title || !item.content) {
+          console.log('Invalid feed item', item)
+          continue
+        }
 
-          const input = {
-            source: 'rss-feeder',
-            url: item.link,
-            saveRequestId: '',
-            labels: [{ name: 'RSS' }],
-            title: item.title,
-            originalContent: item.content,
-          }
+        const input = {
+          source: 'rss-feeder',
+          url: item.link,
+          saveRequestId: '',
+          labels: [{ name: 'RSS' }],
+          title: item.title,
+          originalContent: item.content,
+        }
 
-          try {
-            console.log('Saving page', input.title)
-            // save page
-            return sendSavePageMutation(userId, input)
-          } catch (error) {
-            console.error('Error while saving page', error)
-          }
-        })
-      )
+        try {
+          console.log('Saving page', input.title)
+          // save page
+          const result = await sendSavePageMutation(userId, input)
+          console.log('Saved page', result)
+        } catch (error) {
+          console.error('Error while saving page', error)
+        }
+      }
 
       // update subscription lastFetchedAt
       const updatedSubscription = await sendUpdateSubscriptionMutation(
         userId,
-        req.body.subscriptionId,
-        new Date()
+        subscriptionId,
+        lastFetchedAt
       )
       console.log('Updated subscription', updatedSubscription)
 
