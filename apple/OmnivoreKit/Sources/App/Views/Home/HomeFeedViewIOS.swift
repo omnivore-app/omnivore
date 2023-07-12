@@ -318,39 +318,46 @@ struct AnimatingCellHeight: AnimatableModifier {
 
     func menuItems(for item: LinkedItem) -> some View {
       Group {
-        Button(
-          action: { viewModel.itemUnderTitleEdit = item },
-          label: { Label("Edit Info", systemImage: "info.circle") }
-        )
-        Button(
-          action: { viewModel.itemUnderLabelEdit = item },
-          label: { Label(item.labels?.count == 0 ? "Add Labels" : "Edit Labels", systemImage: "tag") }
-        )
-        Button(action: {
-          withAnimation(.linear(duration: 0.4)) {
-            viewModel.setLinkArchived(
-              dataService: dataService,
-              objectID: item.objectID,
-              archived: !item.isArchived
+        if item.state != "DELETED" {
+          Button(
+            action: { viewModel.itemUnderTitleEdit = item },
+            label: { Label("Edit Info", systemImage: "info.circle") }
+          )
+          Button(
+            action: { viewModel.itemUnderLabelEdit = item },
+            label: { Label(item.labels?.count == 0 ? "Add Labels" : "Edit Labels", systemImage: "tag") }
+          )
+          Button(action: {
+            withAnimation(.linear(duration: 0.4)) {
+              viewModel.setLinkArchived(
+                dataService: dataService,
+                objectID: item.objectID,
+                archived: !item.isArchived
+              )
+            }
+          }, label: {
+            Label(
+              item.isArchived ? "Unarchive" : "Archive",
+              systemImage: item.isArchived ? "tray.and.arrow.down.fill" : "archivebox"
+            )
+          })
+          Button("Remove Item", role: .destructive) {
+            viewModel.removeLink(dataService: dataService, objectID: item.objectID)
+          }
+          if let author = item.author {
+            Button(
+              action: {
+                viewModel.searchTerm = "author:\"\(author)\""
+              },
+              label: {
+                Label(String("More by \(author)"), systemImage: "person")
+              }
             )
           }
-        }, label: {
-          Label(
-            item.isArchived ? "Unarchive" : "Archive",
-            systemImage: item.isArchived ? "tray.and.arrow.down.fill" : "archivebox"
-          )
-        })
-        Button("Remove Item", role: .destructive) {
-          viewModel.removeLink(dataService: dataService, objectID: item.objectID)
-        }
-        if let author = item.author {
+        } else {
           Button(
-            action: {
-              viewModel.searchTerm = "author:\"\(author)\""
-            },
-            label: {
-              Label(String("More by \(author)"), systemImage: "person")
-            }
+            action: { viewModel.undeleteItem(dataService: dataService, itemID: item.unwrappedID) },
+            label: { Label("Undelete", systemImage: "trash.slash") }
           )
         }
       }

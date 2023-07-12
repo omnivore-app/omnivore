@@ -325,14 +325,18 @@ import Views
       dataService.removeLink(objectID: objectID)
 
       Snackbar.show(message: "Link deleted", undoAction: {
-        Task {
-          if await dataService.undeleteItem(itemID: itemID) {
-            Snackbar.show(message: "Link undeleted")
-          } else {
-            Snackbar.show(message: "Error. Check trash to recover.")
-          }
-        }
+        self.undeleteItem(dataService: dataService, itemID: itemID)
       })
+    }
+  }
+
+  func undeleteItem(dataService: DataService, itemID: String) {
+    Task {
+      if await dataService.undeleteItem(itemID: itemID) {
+        Snackbar.show(message: "Link undeleted")
+      } else {
+        Snackbar.show(message: "Error. Check trash to recover.")
+      }
     }
   }
 
