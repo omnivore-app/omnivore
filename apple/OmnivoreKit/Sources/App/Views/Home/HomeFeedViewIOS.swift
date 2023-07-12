@@ -364,8 +364,9 @@ struct AnimatingCellHeight: AnimatableModifier {
 
     var featureCard: some View {
       VStack(spacing: 0) {
-        // Color.thBorderColor.frame(maxWidth: .infinity, maxHeight: 0.5)
-
+        if Color.isDarkMode {
+          Color(hex: "#3D3D3D").frame(maxWidth: .infinity, maxHeight: 0.5)
+        }
         VStack(alignment: .leading, spacing: 15) {
           HStack {
             Menu(content: {
@@ -390,14 +391,19 @@ struct AnimatingCellHeight: AnimatableModifier {
                 Text("Hide this Section")
               })
             }, label: {
-              HStack(alignment: .center) {
-                Text((FeaturedItemFilter(rawValue: viewModel.featureFilter) ?? .continueReading).title)
-                  .font(Font.system(size: 13, weight: .medium))
-                Image(systemName: "chevron.down")
-                  .font(Font.system(size: 13, weight: .regular))
-              }
-              .tint(Color(hex: "#007AFF"))
-              .frame(maxWidth: .infinity, alignment: .leading)
+              Group {
+                HStack(alignment: .center) {
+                  Image(systemName: "line.3.horizontal.decrease")
+                    .font(Font.system(size: 13, weight: .regular))
+                  Text((FeaturedItemFilter(rawValue: viewModel.featureFilter) ?? .continueReading).title)
+                    .font(Font.system(size: 13, weight: .medium))
+                }
+                .tint(Color(hex: "#007AFF"))
+                .padding(.vertical, 5)
+                .padding(.horizontal, 7)
+                .background(Color(hex: "#007AFF")?.opacity(0.1))
+                .cornerRadius(5)
+              }.frame(maxWidth: .infinity, alignment: .leading)
             })
             Spacer()
           }
@@ -428,19 +434,25 @@ struct AnimatingCellHeight: AnimatableModifier {
               }
             }
           }
-          // Color.thBorderColor.frame(maxWidth: .infinity, maxHeight: 0.5)
-        }.background(Color.systemBackground)
-          .frame(height: 190)
-
-        VStack {
-          LinearGradient(gradient: Gradient(colors: [.black.opacity(0.06), .systemGray6]),
-                         startPoint: .top, endPoint: .bottom)
-            .frame(maxWidth: .infinity, maxHeight: 6)
-
-          Spacer()
         }
-        .background(Color.systemGray6)
-        .frame(maxWidth: .infinity)
+        .background(Color.isDarkMode ? Color(hex: "#2A2A2A") : Color.systemBackground)
+        .frame(height: 190)
+
+        if Color.isDarkMode {
+          Color(hex: "#3D3D3D").frame(maxWidth: .infinity, maxHeight: 0.5)
+        }
+
+        if !Color.isDarkMode {
+          VStack {
+            LinearGradient(gradient: Gradient(colors: [.black.opacity(0.06), .systemGray6]),
+                           startPoint: .top, endPoint: .bottom)
+              .frame(maxWidth: .infinity, maxHeight: 6)
+
+            Spacer()
+          }
+          .background(Color.systemGray6)
+          .frame(maxWidth: .infinity)
+        }
       }
     }
 
@@ -467,8 +479,7 @@ struct AnimatingCellHeight: AnimatableModifier {
             featureCard
               .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
               .listRowSeparator(.hidden, edges: .all)
-              // .modifier(AnimatingCellHeight(height: viewModel.isLoading || viewModel.featureItems.count > 0 ? 190 : 130))
-              .modifier(AnimatingCellHeight(height: 190 + 13))
+              .modifier(AnimatingCellHeight(height: 190 + (Color.isDarkMode ? 1 : 13)))
           }
 
           ForEach(viewModel.items) { item in

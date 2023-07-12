@@ -61,8 +61,8 @@ import Views
   }
 
   func updateFeatureFilter(context: NSManagedObjectContext, filter: FeaturedItemFilter?) {
-    Task {
-      if let filter = filter {
+    if let filter = filter {
+      Task {
         featureFilter = filter.rawValue
 
         featureItems = await loadFeatureItems(
@@ -70,9 +70,9 @@ import Views
           predicate: filter.predicate,
           sort: filter.sortDescriptor
         )
-      } else {
-        featureItems = []
       }
+    } else {
+      featureItems = []
     }
   }
 
