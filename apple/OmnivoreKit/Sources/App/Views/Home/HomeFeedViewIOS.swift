@@ -261,8 +261,6 @@ struct AnimatingCellHeight: AnimatableModifier {
     @State private var itemToRemove: LinkedItem?
     @State private var confirmationShown = false
     @State private var showHideFeatureAlert = false
-    @State var showFeatureActions = false
-    @State var selectedFeatureItem: LinkedItem?
 
     @ObservedObject var viewModel: HomeFeedViewModel
 
@@ -413,13 +411,10 @@ struct AnimatingCellHeight: AnimatableModifier {
           GeometryReader { geo in
             ScrollView(.horizontal, showsIndicators: false) {
               if viewModel.featureItems.count > 0 {
-                LazyHStack(alignment: .top, spacing: 15) {
+                HStack(alignment: .top, spacing: 15) {
                   Spacer(minLength: 1).frame(width: 1)
                   ForEach(viewModel.featureItems) { item in
-                    LibraryFeatureCardNavigationLink(item: item, viewModel: viewModel, onLongPress: { item in
-                      self.selectedFeatureItem = item
-                      self.showFeatureActions = true
-                    })
+                    LibraryFeatureCardNavigationLink(item: item, viewModel: viewModel)
                   }
                   Spacer(minLength: 1).frame(width: 1)
                 }
@@ -435,7 +430,7 @@ struct AnimatingCellHeight: AnimatableModifier {
             }
           }
         }
-        .background(Color.isDarkMode ? Color(hex: "#2A2A2A") : Color.systemBackground)
+        .background(Color.isDarkMode ? Color(hex: "#1C1C1C") : Color.systemBackground)
         .frame(height: 190)
 
         if !Color.isDarkMode {
@@ -529,36 +524,6 @@ struct AnimatingCellHeight: AnimatableModifier {
           viewModel.hideFeatureSection = true
         }
         Button(LocalText.cancelGeneric, role: .cancel) { self.showHideFeatureAlert = false }
-      }
-      .confirmationDialog("", isPresented: $showFeatureActions) {
-        if let item = selectedFeatureItem {
-          if FeaturedItemFilter(rawValue: viewModel.featureFilter) == .pinned {
-            Button("Unpin", action: {
-              viewModel.unpinItem(dataService: dataService, item: item)
-            })
-          }
-          Button("Pin", action: {
-            viewModel.pinItem(dataService: dataService, item: item)
-          })
-          Button("Archive", action: {
-            viewModel.setLinkArchived(dataService: dataService, objectID: item.objectID, archived: true)
-          })
-          Button("Remove", action: {
-            itemToRemove = item
-            confirmationShown = true
-          })
-          if FeaturedItemFilter(rawValue: viewModel.featureFilter) != .pinned {
-            Button("Mark Read", action: {
-              viewModel.markRead(dataService: dataService, item: item)
-            })
-            Button("Mark Unread", action: {
-              viewModel.markUnread(dataService: dataService, item: item)
-            })
-          }
-          Button("Dismiss", role: .cancel, action: {
-            showFeatureActions = false
-          })
-        }
       }
     }
 
