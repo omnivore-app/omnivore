@@ -28,7 +28,10 @@ export function EmptyLibrary(props: EmptyLibraryProps): JSX.Element {
 
       <StyledText style="footnote" css={{ color: '$grayTextContrast' }}>
         You can add a link or read more about Omnivore&apos;s{' '}
-        <Link href="/help/search">advanced search</Link>.
+        <a href="https://docs.omnivore.app/using/search.html" target="_blank">
+          advanced search
+        </a>
+        .
       </StyledText>
 
       <Button
