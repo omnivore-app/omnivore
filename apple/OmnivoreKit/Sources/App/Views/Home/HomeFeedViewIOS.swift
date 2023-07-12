@@ -628,6 +628,61 @@ struct AnimatingCellHeight: AnimatableModifier {
       Task { await viewModel.loadItems(dataService: dataService, isRefresh: isRefresh) }
     }
 
+    var filtersHeader: some View {
+      GeometryReader { reader in
+        ScrollView(.horizontal, showsIndicators: false) {
+          HStack {
+            if viewModel.searchTerm.count > 0 {
+              TextChipButton.makeSearchFilterButton(title: viewModel.searchTerm) {
+                viewModel.searchTerm = ""
+              }.frame(maxWidth: reader.size.width * 0.66)
+            } else {
+              Menu(
+                content: {
+                  ForEach(LinkedItemFilter.allCases, id: \.self) { filter in
+                    Button(filter.displayName, action: { viewModel.appliedFilter = filter.rawValue })
+                  }
+                },
+                label: {
+                  TextChipButton.makeMenuButton(
+                    title: LinkedItemFilter(rawValue: viewModel.appliedFilter)?.displayName ?? "Filter"
+                  )
+                }
+              )
+            }
+            Menu(
+              content: {
+                ForEach(LinkedItemSort.allCases, id: \.self) { sort in
+                  Button(sort.displayName, action: { viewModel.appliedSort = sort.rawValue })
+                }
+              },
+              label: {
+                TextChipButton.makeMenuButton(
+                  title: LinkedItemSort(rawValue: viewModel.appliedSort)?.displayName ?? "Sort"
+                )
+              }
+            )
+            TextChipButton.makeAddLabelButton {
+              viewModel.showLabelsSheet = true
+            }
+            ForEach(viewModel.selectedLabels, id: \.self) { label in
+              TextChipButton.makeRemovableLabelButton(feedItemLabel: label, negated: false) {
+                viewModel.selectedLabels.removeAll { $0.id == label.id }
+              }
+            }
+            ForEach(viewModel.negatedLabels, id: \.self) { label in
+              TextChipButton.makeRemovableLabelButton(feedItemLabel: label, negated: true) {
+                viewModel.negatedLabels.removeAll { $0.id == label.id }
+              }
+            }
+            Spacer()
+          }
+          .padding(0)
+        }
+        .listRowSeparator(.hidden)
+      }
+    }
+
     var body: some View {
       ZStack {
         ScrollView {
@@ -638,7 +693,11 @@ struct AnimatingCellHeight: AnimatableModifier {
             EmptyView()
           }
 
-          LazyVGrid(columns: [GridItem(.adaptive(minimum: 325), spacing: 16)], spacing: 16) {
+          filtersHeader
+            .padding(.leading, 16)
+            .padding(.bottom, 25)
+
+          LazyVGrid(columns: [GridItem(.adaptive(minimum: 325), spacing: 16)], alignment: .leading, spacing: 16) {
             ForEach(viewModel.items) { item in
               GridCardNavigationLink(
                 item: item,
@@ -647,7 +706,9 @@ struct AnimatingCellHeight: AnimatableModifier {
                 viewModel: viewModel
               )
             }
+            Spacer()
           }
+          .frame(maxHeight: .infinity)
           .padding()
           .background(
             GeometryReader {

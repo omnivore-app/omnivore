@@ -74,15 +74,6 @@ struct GridCardNavigationLink: View {
 
   @ObservedObject var viewModel: HomeFeedViewModel
 
-  func tapAction() {
-    scale = 0.95
-    DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(150)) {
-      scale = 1.0
-      viewModel.selectedItem = item
-      viewModel.linkIsActive = true
-    }
-  }
-
   var body: some View {
     ZStack {
       Button {
