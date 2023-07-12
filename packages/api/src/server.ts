@@ -158,9 +158,9 @@ export const createApp = (): {
   app.use('/svc/pubsub/upload', uploadServiceRouter())
   app.use('/svc/pubsub/webhooks', webhooksServiceRouter())
   app.use('/svc/pubsub/integrations', integrationsServiceRouter())
+  app.use('/svc/pubsub/rss-feed', rssFeedRouter())
   app.use('/svc/reminders', remindersServiceRouter())
   app.use('/svc/email-attachment', emailAttachmentRouter())
-  app.use('/svc/rss-feed', rssFeedRouter())
 
   if (env.dev.isLocal) {
     app.use('/local/debug', localDebugRouter())
