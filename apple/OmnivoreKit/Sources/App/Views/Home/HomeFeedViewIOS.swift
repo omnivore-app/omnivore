@@ -92,17 +92,17 @@ struct AnimatingCellHeight: AnimatableModifier {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
           ToolbarItem(placement: .barLeading) {
-            Button(action: {
-              viewModel.showFiltersModal = true
-            }, label: {
-              HStack(alignment: .center) {
-                let title = (LinkedItemFilter(rawValue: viewModel.appliedFilter) ?? LinkedItemFilter.inbox).displayName
-                Text(title)
-                  .font(Font.system(size: 18, weight: .semibold))
+//            Button(action: {
+//              viewModel.showFiltersModal = true
+//            }, label: {
+            HStack(alignment: .center) {
+              let title = (LinkedItemFilter(rawValue: viewModel.appliedFilter) ?? LinkedItemFilter.inbox).displayName
+              Text(title)
+                .font(Font.system(size: 18, weight: .semibold))
 //                Image(systemName: "chevron.down")
 //                  .font(Font.system(size: 13, weight: .regular))
-              }.frame(maxWidth: .infinity, alignment: .leading)
-            })
+            }.frame(maxWidth: .infinity, alignment: .leading)
+//            })
           }
           ToolbarItem(placement: .barTrailing) {
             Button("", action: {})
