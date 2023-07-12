@@ -4,10 +4,15 @@ import { publicGqlFetcher } from '../networkHelpers'
 
 export type SubscriptionStatus = 'ACTIVE' | 'DELETED' | 'UNSUBSCRIBED'
 
+export enum SubscriptionType {
+  RSS = 'RSS',
+  NEWSLETTER = 'NEWSLETTER',
+}
+
 export type Subscription = {
   id: string
   name: string
-  newsletterEmail: string
+  newsletterEmail?: string
 
   url?: string
   description?: string
@@ -15,6 +20,7 @@ export type Subscription = {
   status: SubscriptionStatus
   createdAt: string
   updatedAt: string
+  lastFetchedAt?: string
 }
 
 type SubscriptionsQueryResponse = {
@@ -31,10 +37,13 @@ type SubscriptionsData = {
   subscriptions: unknown
 }
 
-export function useGetSubscriptionsQuery(): SubscriptionsQueryResponse {
+export function useGetSubscriptionsQuery(
+  subscriptionType = SubscriptionType.NEWSLETTER,
+  sortBy = 'UPDATED_TIME'
+): SubscriptionsQueryResponse {
   const query = gql`
     query GetSubscriptions {
-      subscriptions(sort: { by: UPDATED_TIME }) {
+      subscriptions(sort: { by: ${sortBy} }, type: ${subscriptionType}) {
         ... on SubscriptionsSuccess {
           subscriptions {
             id
@@ -47,6 +56,7 @@ export function useGetSubscriptionsQuery(): SubscriptionsQueryResponse {
             unsubscribeHttpUrl
             createdAt
             updatedAt
+            lastFetchedAt
           }
         }
         ... on SubscriptionsError {
