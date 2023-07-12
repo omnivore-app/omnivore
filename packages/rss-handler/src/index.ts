@@ -175,7 +175,7 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
         const input = {
           source: 'rss-feeder',
           url: item.link,
-          saveRequestId: '',
+          clientRequestId: '',
           labels: [{ name: 'RSS' }],
           title: item.title,
           originalContent: item.content,
