@@ -438,10 +438,6 @@ struct AnimatingCellHeight: AnimatableModifier {
         .background(Color.isDarkMode ? Color(hex: "#2A2A2A") : Color.systemBackground)
         .frame(height: 190)
 
-        if Color.isDarkMode {
-          Color(hex: "#3D3D3D").frame(maxWidth: .infinity, maxHeight: 0.5)
-        }
-
         if !Color.isDarkMode {
           VStack {
             LinearGradient(gradient: Gradient(colors: [.black.opacity(0.06), .systemGray6]),
@@ -451,6 +447,13 @@ struct AnimatingCellHeight: AnimatableModifier {
             Spacer()
           }
           .background(Color.systemGray6)
+          .frame(maxWidth: .infinity)
+        } else {
+          VStack {
+            Color(hex: "#3D3D3D").frame(maxWidth: .infinity, maxHeight: 0.5)
+            Spacer()
+          }
+          .background(Color.systemBackground)
           .frame(maxWidth: .infinity)
         }
       }
@@ -479,7 +482,7 @@ struct AnimatingCellHeight: AnimatableModifier {
             featureCard
               .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
               .listRowSeparator(.hidden, edges: .all)
-              .modifier(AnimatingCellHeight(height: 190 + (Color.isDarkMode ? 1 : 13)))
+              .modifier(AnimatingCellHeight(height: 190 + (Color.isDarkMode ? 13 : 13)))
           }
 
           ForEach(viewModel.items) { item in
