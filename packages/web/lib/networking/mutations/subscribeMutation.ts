@@ -7,11 +7,11 @@ import {
 
 type SubscribeResult = {
   subscribe: Subscribe
-  errorCodes?: unknown[]
 }
 
 type Subscribe = {
   subscriptions: Subscription[]
+  errorCodes?: unknown[]
 }
 
 export type SubscribeMutationInput = {
@@ -39,7 +39,7 @@ export async function subscribeMutation(
   `
   try {
     const data = (await gqlFetcher(mutation, { input })) as SubscribeResult
-    return data.errorCodes ? undefined : data.subscribe
+    return data.subscribe.errorCodes ? undefined : data.subscribe
   } catch (error) {
     console.log('subscribeMutation error', error)
     return undefined

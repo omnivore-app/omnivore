@@ -4,11 +4,11 @@ import { Subscription } from '../queries/useGetSubscriptionsQuery'
 
 type UnsubscribeResult = {
   unsubscribe: Unsubscribe
-  errorCodes?: unknown[]
 }
 
 type Unsubscribe = {
   subscription: Subscription
+  errorCodes?: unknown[]
 }
 
 export async function unsubscribeMutation(
@@ -32,7 +32,9 @@ export async function unsubscribeMutation(
 
   try {
     const data = (await gqlFetcher(mutation)) as UnsubscribeResult
-    return data.errorCodes ? undefined : data.unsubscribe.subscription.id
+    return data.unsubscribe.errorCodes
+      ? undefined
+      : data.unsubscribe.subscription.id
   } catch (error) {
     console.log('unsubscribeMutation error', error)
     return undefined
