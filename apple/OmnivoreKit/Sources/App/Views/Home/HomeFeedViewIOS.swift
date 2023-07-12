@@ -257,9 +257,6 @@ struct AnimatingCellHeight: AnimatableModifier {
     @EnvironmentObject var audioController: AudioController
 
     @Binding var prefersListLayout: Bool
-
-    @State private var itemToRemove: LinkedItem?
-    @State private var confirmationShown = false
     @State private var showHideFeatureAlert = false
 
     @ObservedObject var viewModel: HomeFeedViewModel
@@ -344,8 +341,7 @@ struct AnimatingCellHeight: AnimatableModifier {
           )
         })
         Button("Remove Item", role: .destructive) {
-          itemToRemove = item
-          confirmationShown = true
+          viewModel.removeLink(dataService: dataService, objectID: item.objectID)
         }
         if let author = item.author {
           Button(
@@ -505,18 +501,6 @@ struct AnimatingCellHeight: AnimatableModifier {
         .padding(0)
         .listStyle(PlainListStyle())
         .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
-        .alert("Are you sure you want to delete this item? All associated notes and highlights will be deleted.",
-               isPresented: $confirmationShown) {
-          Button("Remove Item", role: .destructive) {
-            if let itemToRemove = itemToRemove {
-              withAnimation {
-                viewModel.removeLink(dataService: dataService, objectID: itemToRemove.objectID)
-              }
-            }
-            self.itemToRemove = nil
-          }
-          Button(LocalText.cancelGeneric, role: .cancel) { self.itemToRemove = nil }
-        }
       }
       .alert("The Feature Section will be removed from your library. You can add it back from the filter settings in your profile.",
              isPresented: $showHideFeatureAlert) {
@@ -556,8 +540,7 @@ struct AnimatingCellHeight: AnimatableModifier {
       case .delete:
         return AnyView(Button(
           action: {
-            itemToRemove = item
-            confirmationShown = true
+            viewModel.removeLink(dataService: dataService, objectID: item.objectID)
           },
           label: {
             Label("Delete", systemImage: "trash")
@@ -581,8 +564,6 @@ struct AnimatingCellHeight: AnimatableModifier {
     @EnvironmentObject var dataService: DataService
     @EnvironmentObject var audioController: AudioController
 
-    @State private var itemToRemove: LinkedItem?
-    @State private var confirmationShown = false
     @State var isContextMenuOpen = false
 
     @ObservedObject var viewModel: HomeFeedViewModel
@@ -594,8 +575,7 @@ struct AnimatingCellHeight: AnimatableModifier {
       case .toggleArchiveStatus:
         viewModel.setLinkArchived(dataService: dataService, objectID: item.objectID, archived: !item.isArchived)
       case .delete:
-        itemToRemove = item
-        confirmationShown = true
+        viewModel.removeLink(dataService: dataService, objectID: item.objectID)
       case .editLabels:
         viewModel.itemUnderLabelEdit = item
       case .editTitle:
@@ -709,18 +689,6 @@ struct AnimatingCellHeight: AnimatableModifier {
             LoadingSection()
           }
         }
-      }
-      // swiftlint:disable:next line_length
-      .alert("Are you sure you want to delete this item? All associated notes and highlights will be deleted.", isPresented: $confirmationShown) {
-        Button("Delete Item", role: .destructive) {
-          if let itemToRemove = itemToRemove {
-            withAnimation {
-              viewModel.removeLink(dataService: dataService, objectID: itemToRemove.objectID)
-            }
-          }
-          self.itemToRemove = nil
-        }
-        Button(LocalText.cancelGeneric, role: .cancel) { self.itemToRemove = nil }
       }
     }
   }

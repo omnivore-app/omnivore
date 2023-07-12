@@ -19,6 +19,7 @@ public final class RootViewModel: ObservableObject {
 
   @Published var snackbarMessage: String?
   @Published var showSnackbar = false
+  @Published var snackBarUndoAction: (() -> Void)?
   @Published var showMiniPlayer = true
 
   public init() {

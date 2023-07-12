@@ -62,7 +62,7 @@ struct InnerRootView: View {
             }
           }
         #endif
-        .snackBar(isShowing: $viewModel.showSnackbar, message: viewModel.snackbarMessage)
+        .snackBar(isShowing: $viewModel.showSnackbar, message: viewModel.snackbarMessage, undoAction: viewModel.snackBarUndoAction)
           // Schedule the dismissal every time we present the snackbar.
           .onChange(of: viewModel.showSnackbar) { newValue in
             if newValue {
@@ -93,8 +93,9 @@ struct InnerRootView: View {
     #if os(iOS)
       .onReceive(NSNotification.operationSuccessPublisher) { notification in
         if let message = notification.userInfo?["message"] as? String {
-          viewModel.showSnackbar = true
           viewModel.snackbarMessage = message
+          viewModel.snackBarUndoAction = notification.userInfo?["undoAction"] as? (() -> Void)
+          viewModel.showSnackbar = true
         }
       }
       .onReceive(NSNotification.operationFailedPublisher) { notification in

@@ -5,16 +5,20 @@ public struct Snackbar: View {
   private let presentingView: AnyView
   private let text: Text
 
+  private let undoAction: (() -> Void)?
+
   @Environment(\.colorScheme) private var colorScheme: ColorScheme
 
   init<PresentingView>(
     isShowing: Binding<Bool>,
     presentingView: PresentingView,
-    text: Text
+    text: Text,
+    undoAction: (() -> Void)?
   ) where PresentingView: View {
     self._isShowing = isShowing
     self.presentingView = AnyView(presentingView)
     self.text = text
+    self.undoAction = undoAction
   }
 
   public var body: some View {
@@ -29,6 +33,10 @@ public struct Snackbar: View {
                 .font(.appCallout)
                 .foregroundColor(self.colorScheme == .light ? .white : .appTextDefault)
               Spacer()
+              if let undoAction = undoAction {
+                Button("Undo", action: undoAction)
+                  .font(.system(size: 16, weight: .bold))
+              }
             }
             .padding()
             .frame(width: min(380, geometry.size.width * 0.96), height: 44)
@@ -45,7 +53,7 @@ public struct Snackbar: View {
 }
 
 public extension View {
-  func snackBar(isShowing: Binding<Bool>, message: String?) -> some View {
-    Snackbar(isShowing: isShowing, presentingView: self, text: Text(message ?? ""))
+  func snackBar(isShowing: Binding<Bool>, message: String?, undoAction: (() -> Void)?) -> some View {
+    Snackbar(isShowing: isShowing, presentingView: self, text: Text(message ?? ""), undoAction: undoAction)
   }
 }

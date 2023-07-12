@@ -318,8 +318,22 @@ import Views
   }
 
   func removeLink(dataService: DataService, objectID: NSManagedObjectID) {
-    Snackbar.show(message: "Link removed")
-    dataService.removeLink(objectID: objectID)
+    let item = dataService.viewContext.object(with: objectID) as? LinkedItem
+
+    if let item = item {
+      let itemID = item.unwrappedID
+      dataService.removeLink(objectID: objectID)
+
+      Snackbar.show(message: "Link deleted", undoAction: {
+        Task {
+          if await dataService.undeleteItem(itemID: itemID) {
+            Snackbar.show(message: "Link undeleted")
+          } else {
+            Snackbar.show(message: "Error. Check trash to recover.")
+          }
+        }
+      })
+    }
   }
 
   func getOrCreateLabel(dataService: DataService, named: String, color: String) -> LinkedItemLabel? {
