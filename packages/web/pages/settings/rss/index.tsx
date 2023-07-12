@@ -75,8 +75,7 @@ export default function Rss(): JSX.Element {
                     subscription.lastFetchedAt
                       ? formattedShortDate(subscription.lastFetchedAt)
                       : 'Never'
-                  }, `}
-                  {`Updated: ${formattedShortDate(subscription.updatedAt)}, `}
+                  }`}
                 </StyledText>
               }
             />
