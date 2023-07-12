@@ -103,9 +103,24 @@ export default function AddRssFeed(): JSX.Element {
           {errorMessage && (
             <StyledText style="error">{errorMessage}</StyledText>
           )}
-          <Button style="ctaDarkYellow" css={{}} onClick={subscribe}>
-            Add
-          </Button>
+          <HStack>
+            <Button
+              style="ctaDarkYellow"
+              css={{ marginRight: '10px' }}
+              onClick={subscribe}
+            >
+              Add
+            </Button>
+            <Button
+              style="ctaGray"
+              css={{}}
+              onClick={async () => {
+                router.push('/settings/rss')
+              }}
+            >
+              Back
+            </Button>
+          </HStack>
         </VStack>
       </SettingsLayout>
       <div data-testid="settings-rss-subscribe-page-tag" />
