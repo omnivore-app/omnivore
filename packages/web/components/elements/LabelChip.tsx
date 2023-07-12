@@ -27,7 +27,7 @@ export function LabelChip(props: LabelChipProps): JSX.Element {
         fontSize: '11px',
         fontWeight: '500',
         fontFamily: '$inter',
-        padding: '3px 8px',
+        padding: '4px 7px',
         whiteSpace: 'nowrap',
         cursor: 'pointer',
         backgroundClip: 'padding-box',

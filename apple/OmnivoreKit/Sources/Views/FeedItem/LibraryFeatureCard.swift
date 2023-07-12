@@ -32,41 +32,43 @@ public struct LibraryFeatureCard: View {
   }
 
   var imageBox: some View {
-    Group {
-      if let imageURL = item.imageURL {
-        AsyncImage(url: imageURL) { phase in
-          switch phase {
-          case .empty:
-            Color.systemBackground
-              .frame(width: 145, height: 90)
-              .cornerRadius(5)
-          case let .success(image):
-            image.resizable()
-              .aspectRatio(contentMode: .fill)
-              .frame(width: 146, height: 90)
-              .cornerRadius(5)
-          case .failure:
-            Image(systemName: "photo")
-              .frame(width: 146, height: 90)
-              .foregroundColor(Color(hex: "#6A6968"))
-              .background(Color(hex: "#EBEBEB"))
-              .cornerRadius(5)
-          @unknown default:
-            // Since the AsyncImagePhase enum isn't frozen,
-            // we need to add this currently unused fallback
-            // to handle any new cases that might be added
-            // in the future:
-            EmptyView()
+    ZStack(alignment: .bottomLeading) {
+      Group {
+        if let imageURL = item.imageURL {
+          AsyncImage(url: imageURL) { phase in
+            switch phase {
+            case .empty:
+              Color.systemBackground
+                .frame(width: 146, height: 90)
+            case let .success(image):
+              image.resizable()
+                .frame(width: 146, height: 90)
+                .aspectRatio(contentMode: .fill)
+            case .failure:
+              Image(systemName: "photo")
+                .frame(width: 146, height: 90)
+                .foregroundColor(Color(hex: "#6A6968"))
+                .background(Color(hex: "#EBEBEB"))
+
+            @unknown default:
+              // Since the AsyncImagePhase enum isn't frozen,
+              // we need to add this currently unused fallback
+              // to handle any new cases that might be added
+              // in the future:
+              EmptyView()
+            }
           }
+        } else {
+          Image(systemName: "photo")
+            .frame(width: 146, height: 90)
+            .foregroundColor(Color(hex: "#6A6968"))
+            .background(Color(hex: "#EBEBEB"))
         }
-      } else {
-        Image(systemName: "photo")
-          .frame(width: 146, height: 90)
-          .foregroundColor(Color(hex: "#6A6968"))
-          .background(Color(hex: "#EBEBEB"))
-          .cornerRadius(5)
+        Color(hex: "#D9D9D9")?.opacity(0.65).frame(width: 146, height: 5)
+        Color(hex: "#FFD234").frame(width: 146 * (item.readingProgress / 100), height: 5)
       }
     }
+    .cornerRadius(5)
   }
 
   var title: some View {
