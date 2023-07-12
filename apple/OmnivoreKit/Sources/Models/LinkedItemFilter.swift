@@ -7,6 +7,7 @@ public enum LinkedItemFilter: String, CaseIterable {
   case recommended
   case all
   case archived
+  case deleted
   case hasHighlights
   case files
 }
@@ -26,6 +27,8 @@ public extension LinkedItemFilter {
       return "in:all"
     case .archived:
       return "in:archive"
+    case .deleted:
+      return "in:trash"
     case .hasHighlights:
       return "has:highlights"
     case .files:
@@ -73,6 +76,11 @@ public extension LinkedItemFilter {
         format: "%K == %@", #keyPath(LinkedItem.isArchived), Int(truncating: true) as NSNumber
       )
       return NSCompoundPredicate(andPredicateWithSubpredicates: [undeletedPredicate, inArchivePredicate])
+    case .deleted:
+      let deletedPredicate = NSPredicate(
+        format: "%K == %i", #keyPath(LinkedItem.serverSyncStatus), Int64(ServerSyncStatus.needsDeletion.rawValue)
+      )
+      return NSCompoundPredicate(andPredicateWithSubpredicates: [deletedPredicate])
     case .files:
       // include pdf only
       let isPDFPredicate = NSPredicate(

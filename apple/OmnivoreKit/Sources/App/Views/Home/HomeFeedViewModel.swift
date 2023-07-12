@@ -192,7 +192,7 @@ import Views
         return itemObjects
       }()
 
-      if searchTerm.replacingOccurrences(of: " ", with: "").isEmpty {
+      if searchTerm.replacingOccurrences(of: " ", with: "").isEmpty, LinkedItemFilter(rawValue: appliedFilter) != .deleted {
         updateFetchController(dataService: dataService)
       } else {
         // Don't use FRC for searching. Use server results directly.

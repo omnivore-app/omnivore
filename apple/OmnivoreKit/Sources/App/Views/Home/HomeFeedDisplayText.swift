@@ -17,6 +17,8 @@ extension LinkedItemFilter {
       return LocalText.allGeneric
     case .archived:
       return LocalText.archivedGeneric
+    case .deleted:
+      return "Deleted"
     case .hasHighlights:
       return LocalText.highlightedGeneric
     case .files:
