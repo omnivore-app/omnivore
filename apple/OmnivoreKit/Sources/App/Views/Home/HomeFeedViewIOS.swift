@@ -363,8 +363,8 @@ struct AnimatingCellHeight: AnimatableModifier {
     }
 
     var featureCard: some View {
-      VStack {
-        Color.thBorderColor.frame(maxWidth: .infinity, maxHeight: 0.5)
+      VStack(spacing: 0) {
+        // Color.thBorderColor.frame(maxWidth: .infinity, maxHeight: 0.5)
 
         VStack(alignment: .leading, spacing: 15) {
           HStack {
@@ -428,10 +428,20 @@ struct AnimatingCellHeight: AnimatableModifier {
               }
             }
           }
-          Color.thBorderColor.frame(maxWidth: .infinity, maxHeight: 0.5)
+          // Color.thBorderColor.frame(maxWidth: .infinity, maxHeight: 0.5)
+        }.background(Color.systemBackground)
+          .frame(height: 190)
+
+        VStack {
+          LinearGradient(gradient: Gradient(colors: [.black.opacity(0.06), .systemGray6]),
+                         startPoint: .top, endPoint: .bottom)
+            .frame(maxWidth: .infinity, maxHeight: 6)
+
+          Spacer()
         }
+        .background(Color.systemGray6)
+        .frame(maxWidth: .infinity)
       }
-      .background(Color.systemGray6)
     }
 
     var body: some View {
@@ -458,7 +468,7 @@ struct AnimatingCellHeight: AnimatableModifier {
               .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
               .listRowSeparator(.hidden, edges: .all)
               // .modifier(AnimatingCellHeight(height: viewModel.isLoading || viewModel.featureItems.count > 0 ? 190 : 130))
-              .modifier(AnimatingCellHeight(height: 190))
+              .modifier(AnimatingCellHeight(height: 190 + 13))
           }
 
           ForEach(viewModel.items) { item in

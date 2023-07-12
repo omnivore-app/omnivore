@@ -85,15 +85,24 @@ struct GridCardNavigationLink: View {
 
   var body: some View {
     ZStack {
-      NavigationLink(destination: EmptyView()) {
-        EmptyView()
-      }
-      GridCard(item: item, isContextMenuOpen: $isContextMenuOpen, actionHandler: actionHandler, tapAction: {
-        withAnimation { tapAction() }
-      })
+      Button {
+        if isContextMenuOpen {
+          isContextMenuOpen = false
+        } else {
+          viewModel.selectedItem = item
+          viewModel.linkIsActive = true
+        }
+      } label: {
+        NavigationLink(destination: EmptyView()) {
+          EmptyView()
+        }
+        .opacity(0)
+        .buttonStyle(PlainButtonStyle())
         .onAppear {
           Task { await viewModel.itemAppeared(item: item, dataService: dataService) }
         }
+        GridCard(item: item, isContextMenuOpen: $isContextMenuOpen, actionHandler: actionHandler)
+      }
     }
     .aspectRatio(1.8, contentMode: .fill)
     .scaleEffect(scale)
@@ -102,10 +111,6 @@ struct GridCardNavigationLink: View {
         .onTapGesture {
           if isContextMenuOpen {
             isContextMenuOpen = false
-          } else {
-            withAnimation {
-              tapAction()
-            }
           }
         }
     )

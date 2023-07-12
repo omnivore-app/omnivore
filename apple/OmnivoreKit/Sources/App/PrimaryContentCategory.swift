@@ -16,7 +16,7 @@ enum PrimaryContentCategory: Identifiable, Hashable, Equatable {
   var title: String {
     switch self {
     case .feed:
-      return "Home"
+      return "Library"
     case .profile:
       return LocalText.genericProfile
     }
@@ -25,9 +25,9 @@ enum PrimaryContentCategory: Identifiable, Hashable, Equatable {
   var image: Image {
     switch self {
     case .feed:
-      return .homeTab
+      return Image(systemName: "book")
     case .profile:
-      return .profileTab
+      return Image(systemName: "person.circle")
     }
   }
 

@@ -7,9 +7,12 @@
 
 import Foundation
 import Models
+import Services
 import SwiftUI
 
 struct LibraryTabView: View {
+  @EnvironmentObject var dataService: DataService
+
   @StateObject private var subViewModel = HomeFeedViewModel(
     listConfig: LibraryListConfig(
       hasFeatureCards: false,
@@ -46,23 +49,27 @@ struct LibraryTabView: View {
         ) {
           EmptyView()
         }
-//        TabView {
-//          HomeView(viewModel: subViewModel)
+//        TabView(selection: $selection) {
+//          BriefingView(
+//            articleId: "98e017a3-79d5-4049-97bc-ff170153792a"
+//          )
+//          .tabItem {
+//            Label {
+//              Text("Your Briefing")
+//            } icon: {
+//              Image.tabBriefing.padding(.trailing, 5)
+//            }
+//          }.tag(0)
+
+        HomeView(viewModel: libraryViewModel)
 //            .tabItem {
 //              Label {
-//                Text("Subscriptions")
+//                Text("Library")
 //              } icon: {
-//                Image.tabSubscriptions
+//                Image.tabLibrary
 //              }
-//            }
-        HomeView(viewModel: libraryViewModel)
-          .tabItem {
-            Label {
-              Text("Library")
-            } icon: {
-              Image.tabLibrary
-            }
-          }
+//            }.tag(1)
+
 //          HomeView(viewModel: highlightsViewModel)
 //            .tabItem {
 //              Label {
@@ -70,7 +77,7 @@ struct LibraryTabView: View {
 //              } icon: {
 //                Image.tabHighlights
 //              }
-//            }
+//            }.tag(2)
 //        }
       }
     }

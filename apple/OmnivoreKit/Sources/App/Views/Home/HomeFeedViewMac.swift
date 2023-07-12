@@ -93,7 +93,7 @@ import Views
           }
         }
         .listStyle(InsetListStyle())
-        .navigationTitle("Home")
+        .navigationTitle("Library")
         .searchable(
           text: $viewModel.searchTerm,
           placement: .toolbar
