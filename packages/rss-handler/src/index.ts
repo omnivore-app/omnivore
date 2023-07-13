@@ -10,7 +10,7 @@ interface RssFeedRequest {
   subscriptionId: string
   userId: string
   feedUrl: string
-  lastFetchedAt: Date
+  lastFetchedAt: string
 }
 
 function isRssFeedRequest(body: any): body is RssFeedRequest {
@@ -122,7 +122,7 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
           continue
         }
 
-        if (new Date(publishedAt) <= lastFetchedAt) {
+        if (new Date(publishedAt) <= new Date(lastFetchedAt)) {
           console.log('Skipping old feed item', item.link)
           continue
         }
