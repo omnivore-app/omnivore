@@ -579,7 +579,7 @@ export const enqueueRssFeedFetch = async (
 
   const createdTasks = await createHttpTaskWithToken({
     project: GOOGLE_CLOUD_PROJECT,
-    queue: 'omnivore-rss-feed-queue',
+    queue: 'omnivore-rss-queue',
     payload,
     taskHandlerUrl: env.queue.rssFeedTaskHandlerUrl,
   })
