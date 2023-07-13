@@ -652,13 +652,6 @@ struct AnimatingCellHeight: AnimatableModifier {
     var body: some View {
       ZStack {
         ScrollView {
-          NavigationLink(
-            destination: LinkDestination(selectedItem: viewModel.selectedItem),
-            isActive: $viewModel.linkIsActive
-          ) {
-            EmptyView()
-          }
-
           filtersHeader
             .padding(.leading, 16)
             .padding(.bottom, 25)
