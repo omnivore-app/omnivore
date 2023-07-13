@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { v4 as uuidv4 } from 'uuid'
+import { locale, timeZone } from '../../lib/dateFormatting'
 import { SaveResponseData } from '../../lib/networking/mutations/saveUrlMutation'
 import { ssrFetcher } from '../../lib/networking/networkHelpers'
 
@@ -8,7 +9,8 @@ const saveUrl = async (
   url: URL,
   labels: string[] | undefined,
   state: string | undefined,
-  timezone?: string
+  timezone?: string,
+  locale?: string
 ) => {
   const clientRequestId = uuidv4()
   const mutation = `
@@ -35,6 +37,7 @@ const saveUrl = async (
         labels: labels?.map((label) => ({ name: label })),
         state,
         timezone,
+        locale,
       },
     })
 
@@ -62,10 +65,7 @@ export default async (
   const labels = req.query['labels'] as string[] | undefined
   const state = req.query['state'] as string | undefined
   const url = new URL(urlStr as string)
-  // get timezone from browser
-  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
-
-  const saveResult = await saveUrl(req, url, labels, state, timezone)
+  const saveResult = await saveUrl(req, url, labels, state, timeZone, locale)
   console.log('saveResult: ', saveResult)
   if (saveResult) {
     res.redirect(`/article?url=${encodeURIComponent(url.toString())}`)
