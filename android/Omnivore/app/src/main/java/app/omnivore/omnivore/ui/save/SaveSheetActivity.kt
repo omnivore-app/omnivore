@@ -36,7 +36,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.dp
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.ui.library.SavedItemAction
@@ -46,7 +45,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.seconds
-import java.util.TimeZone
 
 // Not sure why we need this class, but directly opening SaveSheetActivity
 // causes the app to crash.
@@ -61,16 +59,12 @@ abstract class SaveSheetActivityBase : AppCompatActivity() {
     val viewModel: SaveViewModel by viewModels()
     var extractedText: String? = null
 
-    // get locale and timezone from device
-    val timezone = TimeZone.getDefault().id
-    val locale = Locale.current.toLanguageTag()
-
     when (intent?.action) {
       Intent.ACTION_SEND -> {
         if (intent.type?.startsWith("text/plain") == true) {
           intent.getStringExtra(Intent.EXTRA_TEXT)?.let {
             extractedText = it
-            viewModel.saveURL(it, timezone, locale)
+            viewModel.saveURL(it)
             Log.d(ContentValues.TAG, "Extracted text: $extractedText")
           }
         }

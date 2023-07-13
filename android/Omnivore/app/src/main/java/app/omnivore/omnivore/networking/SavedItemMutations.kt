@@ -3,6 +3,7 @@ package app.omnivore.omnivore.networking
 import android.content.ContentValues
 import android.net.Uri
 import android.util.Log
+import androidx.compose.ui.text.intl.Locale
 import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.Constants
 import app.omnivore.omnivore.graphql.generated.SaveUrlMutation
@@ -46,15 +47,18 @@ suspend fun Networker.updateArchiveStatusSavedItem(
   }
 }
 
-suspend fun Networker.saveUrl(url: Uri, timeZone: String, locale: String): Boolean {
+suspend fun Networker.saveUrl(url: Uri): Boolean {
   return try {
     val clientRequestId = UUID.randomUUID().toString()
+    // get locale and timezone from device
+    val timezone = TimeZone.getDefault().id
+    val locale = Locale.current.toLanguageTag()
     val input = SaveUrlInput(
       url = url.toString(),
       clientRequestId = clientRequestId,
       source = "android",
-      timezone = timeZone,
-      locale = locale
+      timezone = Optional.present(timezone),
+      locale = Optional.present(locale)
     )
     val result = authenticatedApolloClient().mutation(SaveUrlMutation(input)).execute()
     result.data?.saveUrl?.onSaveSuccess?.url != null
