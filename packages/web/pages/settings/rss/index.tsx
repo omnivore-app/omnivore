@@ -7,7 +7,7 @@ import {
   SettingsTable,
   SettingsTableRow,
 } from '../../../components/templates/settings/SettingsTable'
-import { formattedShortDate } from '../../../lib/dateFormatting'
+import { formattedLongDate } from '../../../lib/dateFormatting'
 import { unsubscribeMutation } from '../../../lib/networking/mutations/unsubscribeMutation'
 import {
   SubscriptionType,
@@ -71,9 +71,10 @@ export default function Rss(): JSX.Element {
                     },
                   }}
                 >
+                  {`URL: ${subscription.url}, `}
                   {`Last fetched: ${
                     subscription.lastFetchedAt
-                      ? formattedShortDate(subscription.lastFetchedAt)
+                      ? formattedLongDate(subscription.lastFetchedAt)
                       : 'Never'
                   }`}
                 </StyledText>
