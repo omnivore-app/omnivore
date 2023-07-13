@@ -9,7 +9,7 @@ import { getRepository } from '../entity/utils'
 import { CreateLabelInput } from '../generated/graphql'
 import { generateRandomColor } from '../utils/helpers'
 
-const INTERNAL_LABELS_IN_LOWERCASE = ['newsletters', 'favorites']
+const INTERNAL_LABELS_IN_LOWERCASE = ['newsletters', 'favorites', 'rss']
 
 const isLabelInternal = (name: string): boolean => {
   return INTERNAL_LABELS_IN_LOWERCASE.includes(name.toLowerCase())
