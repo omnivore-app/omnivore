@@ -52,7 +52,7 @@ class SaveSheetActivity : SaveSheetActivityBase() {}
 
 @AndroidEntryPoint
 @OptIn(ExperimentalMaterialApi::class)
-abstract class SaveSheetActivityBase: AppCompatActivity() {
+abstract class SaveSheetActivityBase : AppCompatActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
@@ -74,6 +74,7 @@ abstract class SaveSheetActivityBase: AppCompatActivity() {
           }
         }
       }
+
       else -> {
         // Handle other intents, such as being started from the home screen
       }
@@ -110,8 +111,11 @@ abstract class SaveSheetActivityBase: AppCompatActivity() {
               .clip(RoundedCornerShape(topEnd = 5.dp, topStart = 5.dp)),
             containerColor = MaterialTheme.colors.background,
             actions = {
-                Spacer(modifier = Modifier.width(25.dp))
-                Text(message, style = androidx.compose.material3.MaterialTheme.typography.titleMedium)
+              Spacer(modifier = Modifier.width(25.dp))
+              Text(
+                message,
+                style = androidx.compose.material3.MaterialTheme.typography.titleMedium
+              )
             },
           )
         },
@@ -181,7 +185,7 @@ abstract class SaveSheetActivityBase: AppCompatActivity() {
   ) {
     coroutineScope.launch {
       if (withResults) setResult(RESULT_OK)
-      result?.let { intent = it}
+      result?.let { intent = it }
       modalBottomSheetState.hide() // will trigger the LaunchedEffect
     }
   }
@@ -191,9 +195,11 @@ abstract class SaveSheetActivityBase: AppCompatActivity() {
     viewModel: SaveViewModel,
     modalBottomSheetState: ModalBottomSheetState
   ) {
-    Box(modifier = Modifier
-      .height(300.dp)
-      .background(Color.White)) {
+    Box(
+      modifier = Modifier
+        .height(300.dp)
+        .background(Color.White)
+    ) {
       SaveContent(viewModel, modalBottomSheetState, modifier = Modifier.fillMaxSize())
     }
   }

@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.intl.Locale
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,6 +15,7 @@ import app.omnivore.omnivore.DatastoreRepository
 import app.omnivore.omnivore.graphql.generated.SaveUrlMutation
 import app.omnivore.omnivore.graphql.generated.type.SaveUrlInput
 import com.apollographql.apollo3.ApolloClient
+import com.apollographql.apollo3.api.Optional
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -31,7 +33,7 @@ enum class SaveState {
 @HiltViewModel
 class SaveViewModel @Inject constructor(
   private val datastoreRepo: DatastoreRepository
-): ViewModel() {
+) : ViewModel() {
   val saveState = MutableLiveData(SaveState.NONE)
 
   var isLoading by mutableStateOf(false)
@@ -81,13 +83,18 @@ class SaveViewModel @Inject constructor(
 
       try {
         clientRequestID = UUID.randomUUID().toString()
+        // get locale and timezone from device
+        val timezone = TimeZone.getDefault().id
+        val locale = Locale.current.toLanguageTag()
 
         val response = apolloClient.mutation(
           SaveUrlMutation(
             SaveUrlInput(
               clientRequestId = clientRequestID!!,
               source = "android",
-              url = cleanedUrl
+              url = cleanedUrl,
+              timezone = Optional.present(timezone),
+              locale = Optional.present(locale)
             )
           )
         ).execute()

@@ -20,7 +20,9 @@ export type SaveUrlData = {
 }
 
 export async function saveUrlMutation(
-  url: string
+  url: string,
+  timezone?: string,
+  locale?: string
 ): Promise<SaveLinkOutput | undefined> {
   const clientRequestId = uuidv4()
   const mutation = gql`
@@ -44,6 +46,8 @@ export async function saveUrlMutation(
         url,
         clientRequestId,
         source: 'add-link',
+        timezone,
+        locale,
       },
     })
     const output = data as SaveResponseData | undefined

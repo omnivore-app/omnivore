@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react'
 import toast from 'react-hot-toast'
+import { locale, timeZone } from '../../../lib/dateFormatting'
 import { saveUrlMutation } from '../../../lib/networking/mutations/saveUrlMutation'
 import { showErrorToast } from '../../../lib/toastHelpers'
 import { Button } from '../../elements/Button'
@@ -21,8 +22,8 @@ export function AddLinkModal(props: AddLinkModalProps): JSX.Element {
   const [link, setLink] = useState('')
 
   const handleLinkSubmission = useCallback(
-    async (link: string) => {
-      const result = await saveUrlMutation(link)
+    async (link: string, timezone: string, locale: string) => {
+      const result = await saveUrlMutation(link, timezone, locale)
       if (result) {
         toast(
           () => (
@@ -95,7 +96,7 @@ export function AddLinkModal(props: AddLinkModalProps): JSX.Element {
                   setLink(newLink)
                   submitLink = newLink
                 }
-                handleLinkSubmission(submitLink)
+                handleLinkSubmission(submitLink, timeZone, locale)
                 props.onOpenChange(false)
               }}
             >
