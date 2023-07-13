@@ -4,6 +4,7 @@ import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-d
 import * as jwt from 'jsonwebtoken'
 import Parser from 'rss-parser'
 import { promisify } from 'util'
+import { CONTENT_FETCH_URL, createCloudTask } from './task'
 
 interface RssFeedRequest {
   subscriptionId: string
@@ -19,57 +20,6 @@ function isRssFeedRequest(body: any): body is RssFeedRequest {
     'feedUrl' in body &&
     'lastFetchedAt' in body
   )
-}
-
-const sendSavePageMutation = async (userId: string, input: unknown) => {
-  const JWT_SECRET = process.env.JWT_SECRET
-  const REST_BACKEND_ENDPOINT = process.env.REST_BACKEND_ENDPOINT
-
-  if (!JWT_SECRET || !REST_BACKEND_ENDPOINT) {
-    throw 'Environment not configured correctly'
-  }
-
-  const data = JSON.stringify({
-    query: `mutation SavePage ($input: SavePageInput!){
-          savePage(input:$input){
-            ... on SaveSuccess{
-              url
-              clientRequestId
-            }
-            ... on SaveError{
-                errorCodes
-            }
-          }
-    }`,
-    variables: {
-      input: Object.assign({}, input, { source: 'puppeteer-parse' }),
-    },
-  })
-
-  const auth = (await signToken({ uid: userId }, JWT_SECRET)) as string
-  try {
-    const response = await axios.post(
-      `${REST_BACKEND_ENDPOINT}/graphql`,
-      data,
-      {
-        headers: {
-          Cookie: `auth=${auth};`,
-          'Content-Type': 'application/json',
-        },
-        timeout: 30000, // 30s
-      }
-    )
-
-    /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-    return !!response.data.data.savePage
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      console.error('save page mutation error', error.message)
-    } else {
-      console.error(error)
-    }
-    return false
-  }
 }
 
 const sendUpdateSubscriptionMutation = async (
@@ -155,40 +105,44 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
       }
 
       const { userId, feedUrl, subscriptionId, lastFetchedAt } = req.body
+      console.log('Processing feed', feedUrl, lastFetchedAt)
+
       // fetch feed
       const feed = await parser.parseURL(feedUrl)
       const newFetchedAt = new Date()
       console.log('Fetched feed', feed.title, newFetchedAt)
 
       // save each item in the feed
-      for (const item of feed.items) {
-        if (!item.link || !item.title || !item.content || !item.isoDate) {
+      for await (const item of feed.items) {
+        const publishedAt = item.pubDate || item.isoDate
+        console.log('Processing feed item', item.link, publishedAt)
+
+        if (!item.link || !publishedAt) {
           console.log('Invalid feed item', item)
           continue
         }
 
-        if (new Date(item.isoDate) <= lastFetchedAt) {
-          console.log('Skipping old feed item', item.title)
+        if (new Date(publishedAt) <= lastFetchedAt) {
+          console.log('Skipping old feed item', item.link)
           continue
         }
 
         const input = {
+          userId,
           source: 'rss-feeder',
           url: item.link,
-          clientRequestId: '',
+          saveRequestId: '',
           labels: [{ name: 'RSS' }],
-          title: item.title,
-          originalContent: item.content,
           rssFeedUrl: feedUrl,
         }
 
         try {
-          console.log('Saving page', input.title)
+          console.log('Creating task', input.url)
           // save page
-          const result = await sendSavePageMutation(userId, input)
-          console.log('Saved page', result)
+          const task = await createCloudTask(CONTENT_FETCH_URL, input)
+          console.log('Created task', task)
         } catch (error) {
-          console.error('Error while saving page', error)
+          console.error('Error while creating task', error)
         }
       }
 

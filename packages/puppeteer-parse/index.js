@@ -335,6 +335,7 @@ async function fetchContent(req, res) {
   const urlStr = (req.query ? req.query.url : undefined) || (req.body ? req.body.url : undefined);
   const locale = (req.query ? req.query.locale : undefined) || (req.body ? req.body.locale : undefined);
   const timezone = (req.query ? req.query.timezone : undefined) || (req.body ? req.body.timezone : undefined);
+  const rssFeedUrl = (req.query ? req.query.rssFeedUrl : undefined) || (req.body ? req.body.rssFeedUrl : undefined);
 
   let logRecord = {
     url: urlStr,
@@ -348,6 +349,7 @@ async function fetchContent(req, res) {
     taskId: taskId,
     locale,
     timezone,
+    rssFeedUrl,
   };
 
   console.info(`Article parsing request`, logRecord);
@@ -453,6 +455,7 @@ async function fetchContent(req, res) {
         parseResult: readabilityResult,
         state,
         labels,
+        rssFeedUrl,
       });
       if (!apiResponse) {
         logRecord.error = 'error while saving page';
