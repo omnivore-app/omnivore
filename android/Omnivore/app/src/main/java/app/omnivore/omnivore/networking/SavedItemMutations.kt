@@ -53,7 +53,7 @@ suspend fun Networker.saveUrl(url: Uri, timeZone: String, locale: String): Boole
       url = url.toString(),
       clientRequestId = clientRequestId,
       source = "android",
-      timeZone = timeZone,
+      timezone = timeZone,
       locale = locale
     )
     val result = authenticatedApolloClient().mutation(SaveUrlMutation(input)).execute()
