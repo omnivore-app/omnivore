@@ -268,9 +268,14 @@ const parseFieldFilter = (
   // normalize the term to lower case
   const value = str.toLowerCase()
 
-  if (field === 'note') {
-    field = 'highlights.annotation'
-    nested = true
+  switch (field.toUpperCase()) {
+    case 'RSS':
+      field = 'rssFeedUrl'
+      break
+    case 'NOTE':
+      field = 'highlights.annotation'
+      nested = true
+      break
   }
 
   return {
@@ -357,6 +362,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
       'mode',
       'site',
       'note',
+      'rss',
     ],
     tokenize: true,
   })
@@ -419,6 +425,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
         }
         // term filters
         case 'subscription':
+        case 'rss':
         case 'language': {
           const fieldFilter = parseFieldFilter(keyword.keyword, keyword.value)
           fieldFilter && result.termFilters.push(fieldFilter)
