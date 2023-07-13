@@ -165,6 +165,12 @@ const moduleExports = {
         permanent: true,
       },
       {
+        source: '/install/macos',
+        destination:
+          'https://apps.apple.com/us/app/omnivore-read-highlight-share/id1564031042',
+        permanent: true,
+      },
+      {
         source: '/install/safari',
         destination:
           'https://apps.apple.com/us/app/omnivore-read-highlight-share/id1564031042',
