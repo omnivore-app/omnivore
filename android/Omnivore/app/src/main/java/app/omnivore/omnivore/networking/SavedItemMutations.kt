@@ -46,14 +46,15 @@ suspend fun Networker.updateArchiveStatusSavedItem(
   }
 }
 
-suspend fun Networker.saveUrl(url: Uri, timeZone: String): Boolean {
+suspend fun Networker.saveUrl(url: Uri, timeZone: String, locale: String): Boolean {
   return try {
     val clientRequestId = UUID.randomUUID().toString()
     val input = SaveUrlInput(
       url = url.toString(),
       clientRequestId = clientRequestId,
       source = "android",
-      timeZone = timeZone
+      timeZone = timeZone,
+      locale = locale
     )
     val result = authenticatedApolloClient().mutation(SaveUrlMutation(input)).execute()
     result.data?.saveUrl?.onSaveSuccess?.url != null
