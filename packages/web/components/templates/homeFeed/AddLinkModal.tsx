@@ -20,9 +20,12 @@ type AddLinkModalProps = {
 export function AddLinkModal(props: AddLinkModalProps): JSX.Element {
   const [link, setLink] = useState('')
 
+  // get timezone from browser
+  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+
   const handleLinkSubmission = useCallback(
-    async (link: string) => {
-      const result = await saveUrlMutation(link)
+    async (link: string, timezone: string) => {
+      const result = await saveUrlMutation(link, timezone)
       if (result) {
         toast(
           () => (
@@ -95,7 +98,7 @@ export function AddLinkModal(props: AddLinkModalProps): JSX.Element {
                   setLink(newLink)
                   submitLink = newLink
                 }
-                handleLinkSubmission(submitLink)
+                handleLinkSubmission(submitLink, timezone)
                 props.onOpenChange(false)
               }}
             >

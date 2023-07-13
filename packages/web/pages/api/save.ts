@@ -7,7 +7,8 @@ const saveUrl = async (
   req: NextApiRequest,
   url: URL,
   labels: string[] | undefined,
-  state: string | undefined
+  state: string | undefined,
+  timezone?: string
 ) => {
   const clientRequestId = uuidv4()
   const mutation = `
@@ -33,6 +34,7 @@ const saveUrl = async (
         source: 'api-save-url',
         labels: labels?.map((label) => ({ name: label })),
         state,
+        timezone,
       },
     })
 
@@ -60,7 +62,10 @@ export default async (
   const labels = req.query['labels'] as string[] | undefined
   const state = req.query['state'] as string | undefined
   const url = new URL(urlStr as string)
-  const saveResult = await saveUrl(req, url, labels, state)
+  // get timezone from browser
+  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+
+  const saveResult = await saveUrl(req, url, labels, state, timezone)
   console.log('saveResult: ', saveResult)
   if (saveResult) {
     res.redirect(`/article?url=${encodeURIComponent(url.toString())}`)
