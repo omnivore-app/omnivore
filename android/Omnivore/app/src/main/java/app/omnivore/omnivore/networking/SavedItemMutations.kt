@@ -17,7 +17,8 @@ import java.util.*
 suspend fun Networker.deleteSavedItem(itemID: String): Boolean {
   return try {
     val input = SetBookmarkArticleInput(itemID, false)
-    val result = authenticatedApolloClient().mutation(SetBookmarkArticleMutation(input)).execute()
+    val result =
+      authenticatedApolloClient().mutation(SetBookmarkArticleMutation(input)).execute()
     result.data?.setBookmarkArticle?.onSetBookmarkArticleSuccess?.bookmarkedArticle?.id != null
   } catch (e: java.lang.Exception) {
     false
@@ -32,7 +33,10 @@ suspend fun Networker.unarchiveSavedItem(itemID: String): Boolean {
   return updateArchiveStatusSavedItem(itemID, false)
 }
 
-suspend fun Networker.updateArchiveStatusSavedItem(itemID: String, setAsArchived: Boolean): Boolean {
+suspend fun Networker.updateArchiveStatusSavedItem(
+  itemID: String,
+  setAsArchived: Boolean
+): Boolean {
   return try {
     val input = ArchiveLinkInput(setAsArchived, itemID)
     val result = authenticatedApolloClient().mutation(SetLinkArchivedMutation(input)).execute()
@@ -42,10 +46,15 @@ suspend fun Networker.updateArchiveStatusSavedItem(itemID: String, setAsArchived
   }
 }
 
-suspend fun Networker.saveUrl(url: Uri): Boolean {
+suspend fun Networker.saveUrl(url: Uri, timeZone: String): Boolean {
   return try {
     val clientRequestId = UUID.randomUUID().toString()
-    val input = SaveUrlInput(url = url.toString(), clientRequestId = clientRequestId, source = "android")
+    val input = SaveUrlInput(
+      url = url.toString(),
+      clientRequestId = clientRequestId,
+      source = "android",
+      timeZone = timeZone
+    )
     val result = authenticatedApolloClient().mutation(SaveUrlMutation(input)).execute()
     result.data?.saveUrl?.onSaveSuccess?.url != null
   } catch (e: java.lang.Exception) {

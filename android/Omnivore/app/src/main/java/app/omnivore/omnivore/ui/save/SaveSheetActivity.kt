@@ -45,6 +45,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.seconds
+import java.util.TimeZone
 
 // Not sure why we need this class, but directly opening SaveSheetActivity
 // causes the app to crash.
@@ -52,19 +53,22 @@ class SaveSheetActivity : SaveSheetActivityBase() {}
 
 @AndroidEntryPoint
 @OptIn(ExperimentalMaterialApi::class)
-abstract class SaveSheetActivityBase: AppCompatActivity() {
+abstract class SaveSheetActivityBase : AppCompatActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
     val viewModel: SaveViewModel by viewModels()
     var extractedText: String? = null
 
+    // get timezone from device
+    val timezone = TimeZone.getDefault().id
+
     when (intent?.action) {
       Intent.ACTION_SEND -> {
         if (intent.type?.startsWith("text/plain") == true) {
           intent.getStringExtra(Intent.EXTRA_TEXT)?.let {
             extractedText = it
-            viewModel.saveURL(it)
+            viewModel.saveURL(it, timezone)
             Log.d(ContentValues.TAG, "Extracted text: $extractedText")
           }
         }
@@ -74,6 +78,7 @@ abstract class SaveSheetActivityBase: AppCompatActivity() {
           }
         }
       }
+
       else -> {
         // Handle other intents, such as being started from the home screen
       }
@@ -110,8 +115,11 @@ abstract class SaveSheetActivityBase: AppCompatActivity() {
               .clip(RoundedCornerShape(topEnd = 5.dp, topStart = 5.dp)),
             containerColor = MaterialTheme.colors.background,
             actions = {
-                Spacer(modifier = Modifier.width(25.dp))
-                Text(message, style = androidx.compose.material3.MaterialTheme.typography.titleMedium)
+              Spacer(modifier = Modifier.width(25.dp))
+              Text(
+                message,
+                style = androidx.compose.material3.MaterialTheme.typography.titleMedium
+              )
             },
           )
         },
@@ -181,7 +189,7 @@ abstract class SaveSheetActivityBase: AppCompatActivity() {
   ) {
     coroutineScope.launch {
       if (withResults) setResult(RESULT_OK)
-      result?.let { intent = it}
+      result?.let { intent = it }
       modalBottomSheetState.hide() // will trigger the LaunchedEffect
     }
   }
@@ -191,9 +199,11 @@ abstract class SaveSheetActivityBase: AppCompatActivity() {
     viewModel: SaveViewModel,
     modalBottomSheetState: ModalBottomSheetState
   ) {
-    Box(modifier = Modifier
-      .height(300.dp)
-      .background(Color.White)) {
+    Box(
+      modifier = Modifier
+        .height(300.dp)
+        .background(Color.White)
+    ) {
       SaveContent(viewModel, modalBottomSheetState, modifier = Modifier.fillMaxSize())
     }
   }
