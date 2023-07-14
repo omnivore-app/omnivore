@@ -148,6 +148,50 @@ const appendInFilter = (builder: ESBuilder, filter: InFilter): ESBuilder => {
             gte: 'now-14d',
           },
         })
+    case InFilter.LIBRARY:
+      return builder.query('nested', {
+        path: 'labels',
+        query: {
+          bool: {
+            should: [
+              {
+                term: {
+                  'labels.name': 'library',
+                },
+              },
+              {
+                bool: {
+                  must_not: {
+                    terms: {
+                      'labels.name': ['newsletter', 'rss'],
+                    },
+                  },
+                  should: [],
+                },
+              },
+            ],
+            minimum_should_match: 1,
+          },
+        },
+      })
+    case InFilter.SUBSCRIPTION:
+      return builder
+        .andQuery('nested', {
+          path: 'labels',
+          query: {
+            terms: {
+              'labels.name': ['newsletter', 'rss'],
+            },
+          },
+        })
+        .notQuery('nested', {
+          path: 'labels',
+          query: {
+            term: {
+              'labels.name': 'library',
+            },
+          },
+        })
   }
   return builder
 }
