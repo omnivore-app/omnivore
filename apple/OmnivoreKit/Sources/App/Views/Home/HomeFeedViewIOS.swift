@@ -356,8 +356,8 @@ struct AnimatingCellHeight: AnimatableModifier {
           }
         } else {
           Button(
-            action: { viewModel.undeleteItem(dataService: dataService, itemID: item.unwrappedID) },
-            label: { Label("Undelete", systemImage: "trash.slash") }
+            action: { viewModel.recoverItem(dataService: dataService, itemID: item.unwrappedID) },
+            label: { Label("Recover", systemImage: "trash.slash") }
           )
         }
       }
@@ -550,7 +550,7 @@ struct AnimatingCellHeight: AnimatableModifier {
             viewModel.removeLink(dataService: dataService, objectID: item.objectID)
           },
           label: {
-            Label("Delete", systemImage: "trash")
+            Label("Remove", systemImage: "trash")
           }
         ).tint(.red))
       case .moveToInbox:

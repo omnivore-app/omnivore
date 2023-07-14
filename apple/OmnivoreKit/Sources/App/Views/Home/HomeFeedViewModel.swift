@@ -318,22 +318,13 @@ import Views
   }
 
   func removeLink(dataService: DataService, objectID: NSManagedObjectID) {
-    let item = dataService.viewContext.object(with: objectID) as? LinkedItem
-
-    if let item = item {
-      let itemID = item.unwrappedID
-      dataService.removeLink(objectID: objectID)
-
-      Snackbar.show(message: "Link deleted", undoAction: {
-        self.undeleteItem(dataService: dataService, itemID: itemID)
-      })
-    }
+    removeLibraryItemAction(dataService: dataService, objectID: objectID)
   }
 
-  func undeleteItem(dataService: DataService, itemID: String) {
+  func recoverItem(dataService: DataService, itemID: String) {
     Task {
-      if await dataService.undeleteItem(itemID: itemID) {
-        Snackbar.show(message: "Link undeleted")
+      if await dataService.recoverItem(itemID: itemID) {
+        Snackbar.show(message: "Item recovered")
       } else {
         Snackbar.show(message: "Error. Check trash to recover.")
       }

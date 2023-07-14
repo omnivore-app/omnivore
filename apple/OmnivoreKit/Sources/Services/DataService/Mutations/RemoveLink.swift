@@ -4,7 +4,7 @@ import Models
 import SwiftGraphQL
 
 public extension DataService {
-  func removeLink(objectID: NSManagedObjectID) {
+  func removeLink(objectID: NSManagedObjectID, sync: Bool = true) {
     // First try to get the item synchronously, this is used later to delete files
     // Then we can async update core data and make the API call to sync the deletion
 
@@ -28,8 +28,9 @@ public extension DataService {
         logger.debug("Failed to mark LinkedItem for deletion: \(error.localizedDescription)")
       }
 
-      // Send update to server
-      self.syncLinkDeletion(itemID: linkedItem.unwrappedID)
+      if sync {
+        self.syncLinkDeletion(itemID: linkedItem.unwrappedID)
+      }
     }
 
     if let linkedItemID = linkedItemID {

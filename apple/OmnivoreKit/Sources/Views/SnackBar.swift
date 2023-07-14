@@ -42,7 +42,10 @@ public struct Snackbar: View {
                 .foregroundColor(self.colorScheme == .light ? .white : .appTextDefault)
               Spacer()
               if let undoAction = operation.undoAction {
-                Button("Undo", action: undoAction)
+                Button("Undo", action: {
+                  isShowing = false
+                  undoAction()
+                })
                   .font(.system(size: 16, weight: .bold))
               }
             }

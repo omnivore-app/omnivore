@@ -4,7 +4,7 @@ import Models
 import SwiftGraphQL
 
 public extension DataService {
-  func undeleteItem(itemID: String) async -> Bool {
+  func recoverItem(itemID: String) async -> Bool {
     var itemUpdatedLocal = false
     // If the item is still available locally, update its state
     backgroundContext.performAndWait {
@@ -22,12 +22,12 @@ public extension DataService {
       }
     }
 
-    // If we undeleted locally, but failed to sync the undelete, that is OK, because
+    // If we recovered locally, but failed to sync the undelete, that is OK, because
     // the item shouldn't be deleted server side.
-    return await syncServerUndeleteItem(itemID: itemID) || itemUpdatedLocal
+    return await syncServerRecoverItem(itemID: itemID) || itemUpdatedLocal
   }
 
-  func syncServerUndeleteItem(itemID: String) async -> Bool {
+  func syncServerRecoverItem(itemID: String) async -> Bool {
     enum MutationResult {
       case saved(title: String)
       case error(errorMessage: String)

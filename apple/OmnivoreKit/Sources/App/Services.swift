@@ -84,13 +84,6 @@ public final class Services {
       Task {
         do {
           let fetchedItemCount = try await services.dataService.fetchLinkedItemsBackgroundTask()
-          EventTracker.track(
-            .backgroundFetch(
-              jobStatus: .success,
-              itemCount: fetchedItemCount,
-              secondsElapsed: Int(startTime.timeIntervalSinceNow)
-            )
-          )
           task.setTaskCompleted(success: true)
         } catch {
           EventTracker.track(

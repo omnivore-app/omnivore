@@ -19,7 +19,6 @@ struct WebReaderContainerView: View {
   @State private var hasPerformedHighlightMutations = false
   @State var showHighlightAnnotationModal = false
   @State private var navBarVisibilityRatio = 1.0
-  @State private var showDeleteConfirmation = false
   @State private var progressViewOpacity = 0.0
   @State var readerSettingsChangedTransactionID: UUID?
   @State var annotationSaveTransactionID: UUID?
@@ -250,7 +249,7 @@ struct WebReaderContainerView: View {
       )
       Button(
         action: delete,
-        label: { Label("Delete", systemImage: "trash") }
+        label: { Label("Remove", systemImage: "trash") }
       )
       Button(
         action: {
@@ -346,17 +345,6 @@ struct WebReaderContainerView: View {
     .opacity(navBarVisibilityRatio)
     .foregroundColor(ThemeManager.currentTheme.isDark ? .white : .black)
     .background(ThemeManager.currentBgColor)
-    .alert("Are you sure you want to remove this item? All associated notes and highlights will be deleted.",
-           isPresented: $showDeleteConfirmation) {
-      Button("Remove Item", role: .destructive) {
-        Snackbar.show(message: "Link removed")
-        dataService.removeLink(objectID: item.objectID)
-        #if os(iOS)
-          presentationMode.wrappedValue.dismiss()
-        #endif
-      }
-      Button(LocalText.cancelGeneric, role: .cancel, action: {})
-    }
     .sheet(isPresented: $showLabelsModal) {
       ApplyLabelsView(mode: .item(item), isSearchFocused: false, onSave: { labels in
         showLabelsModal = false
@@ -607,7 +595,12 @@ struct WebReaderContainerView: View {
   }
 
   func delete() {
-    showDeleteConfirmation = true
+    removeLibraryItemAction(dataService: dataService, objectID: item.objectID)
+    #if os(iOS)
+      DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
+        presentationMode.wrappedValue.dismiss()
+      }
+    #endif
   }
 
   func editLabels() {

@@ -38,7 +38,9 @@ public extension LinkedItemFilter {
 
   var predicate: NSPredicate {
     let undeletedPredicate = NSPredicate(
-      format: "%K != %i", #keyPath(LinkedItem.serverSyncStatus), Int64(ServerSyncStatus.needsDeletion.rawValue)
+      format: "%K != %i AND %K != \"DELETED\"",
+      #keyPath(LinkedItem.serverSyncStatus), Int64(ServerSyncStatus.needsDeletion.rawValue),
+      #keyPath(LinkedItem.state)
     )
     let notInArchivePredicate = NSPredicate(
       format: "%K == %@", #keyPath(LinkedItem.isArchived), Int(truncating: false) as NSNumber
