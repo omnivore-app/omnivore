@@ -562,6 +562,8 @@ const schema = gql`
     state: ArticleSavingRequestStatus
     labels: [CreateLabelInput!]
     rssFeedUrl: String
+    savedAt: Date
+    publishedAt: Date
   }
 
   input SaveUrlInput {

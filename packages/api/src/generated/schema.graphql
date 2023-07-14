@@ -1637,7 +1637,9 @@ input SavePageInput {
   labels: [CreateLabelInput!]
   originalContent: String!
   parseResult: ParseResult
+  publishedAt: Date
   rssFeedUrl: String
+  savedAt: Date
   source: String!
   state: ArticleSavingRequestStatus
   title: String

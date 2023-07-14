@@ -139,6 +139,8 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
           saveRequestId: '',
           labels: [{ name: 'RSS', color: '#f26522' }],
           rssFeedUrl: feedUrl,
+          savedAt: publishedAt,
+          publishedAt,
         }
 
         try {

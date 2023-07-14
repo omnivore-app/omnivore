@@ -104,6 +104,8 @@ export const savePage = async (
     originalHtml: parseResult.domContent,
     canonicalUrl: parseResult.canonicalUrl,
     rssFeedUrl: input.rssFeedUrl,
+    saveTime: input.savedAt ? new Date(input.savedAt) : undefined,
+    publishedAt: input.publishedAt ? new Date(input.publishedAt) : undefined,
   })
 
   // save state
@@ -223,6 +225,7 @@ export const parsedContentToPage = ({
   uploadFileId,
   saveTime,
   rssFeedUrl,
+  publishedAt,
 }: {
   url: string
   userId: string
@@ -239,6 +242,7 @@ export const parsedContentToPage = ({
   uploadFileId?: string | null
   saveTime?: Date
   rssFeedUrl?: string | null
+  publishedAt?: Date | null
 }): Page => {
   return {
     id: pageId || '',
@@ -259,13 +263,15 @@ export const parsedContentToPage = ({
     pageType,
     hash: uploadFileHash || stringToHash(parsedContent?.content || url),
     image: parsedContent?.previewImage ?? undefined,
-    publishedAt: validatedDate(parsedContent?.publishedDate ?? undefined),
+    publishedAt: validatedDate(
+      publishedAt || parsedContent?.publishedDate || undefined
+    ),
     uploadFileId,
     readingProgressPercent: 0,
     readingProgressAnchorIndex: 0,
     state: ArticleSavingRequestStatus.Succeeded,
-    createdAt: saveTime || new Date(),
-    savedAt: saveTime || new Date(),
+    createdAt: validatedDate(saveTime) || new Date(),
+    savedAt: validatedDate(saveTime) || new Date(),
     siteName: parsedContent?.siteName ?? undefined,
     language: parsedContent?.language ?? undefined,
     siteIcon: parsedContent?.siteIcon ?? undefined,
