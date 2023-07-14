@@ -17,10 +17,9 @@ public final class RootViewModel: ObservableObject {
   @Published public var showNewFeaturePrimer = false
   @AppStorage(UserDefaultKey.shouldShowNewFeaturePrimer.rawValue) var shouldShowNewFeaturePrimer = false
 
-  @Published var snackbarMessage: String?
+  @Published var showMiniPlayer = false
   @Published var showSnackbar = false
-  @Published var snackBarUndoAction: (() -> Void)?
-  @Published var showMiniPlayer = true
+  @Published var snackbarOperation: SnackbarOperation?
 
   public init() {
     registerFonts()
