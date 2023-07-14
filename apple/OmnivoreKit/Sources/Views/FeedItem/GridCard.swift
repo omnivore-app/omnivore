@@ -89,15 +89,6 @@ public struct GridCard: View {
                 .font(.appHeadline)
                 .foregroundColor(.appGrayTextContrast)
                 .lineLimit(1)
-              // .onTapGesture { tapHandler() }
-              Spacer()
-
-              Menu(
-                content: { contextMenuView },
-                label: { Image(systemName: "ellipsis").padding() }
-              )
-              .frame(width: 16, height: 16, alignment: .center)
-              .onTapGesture { isContextMenuOpen = true }
             }
 
             HStack {

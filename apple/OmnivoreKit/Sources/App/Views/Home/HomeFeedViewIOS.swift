@@ -317,50 +317,7 @@ struct AnimatingCellHeight: AnimatableModifier {
     }
 
     func menuItems(for item: LinkedItem) -> some View {
-      Group {
-        if item.state != "DELETED" {
-          Button(
-            action: { viewModel.itemUnderTitleEdit = item },
-            label: { Label("Edit Info", systemImage: "info.circle") }
-          )
-          Button(
-            action: { viewModel.itemUnderLabelEdit = item },
-            label: { Label(item.labels?.count == 0 ? "Add Labels" : "Edit Labels", systemImage: "tag") }
-          )
-          Button(action: {
-            withAnimation(.linear(duration: 0.4)) {
-              viewModel.setLinkArchived(
-                dataService: dataService,
-                objectID: item.objectID,
-                archived: !item.isArchived
-              )
-            }
-          }, label: {
-            Label(
-              item.isArchived ? "Unarchive" : "Archive",
-              systemImage: item.isArchived ? "tray.and.arrow.down.fill" : "archivebox"
-            )
-          })
-          Button("Remove Item", role: .destructive) {
-            viewModel.removeLink(dataService: dataService, objectID: item.objectID)
-          }
-          if let author = item.author {
-            Button(
-              action: {
-                viewModel.searchTerm = "author:\"\(author)\""
-              },
-              label: {
-                Label(String("More by \(author)"), systemImage: "person")
-              }
-            )
-          }
-        } else {
-          Button(
-            action: { viewModel.recoverItem(dataService: dataService, itemID: item.unwrappedID) },
-            label: { Label("Recover", systemImage: "trash.slash") }
-          )
-        }
-      }
+      libraryItemMenu(dataService: dataService, viewModel: viewModel, item: item)
     }
 
     var featureCard: some View {
@@ -458,6 +415,7 @@ struct AnimatingCellHeight: AnimatableModifier {
     }
 
     var body: some View {
+      let horizontalInset = CGFloat(UIDevice.isIPad ? 20 : 10)
       VStack(spacing: 0) {
         if viewModel.showLoadingBar {
           ShimmeringLoader()
@@ -468,7 +426,7 @@ struct AnimatingCellHeight: AnimatableModifier {
         List {
           filtersHeader
             .listRowSeparator(.hidden, edges: .all)
-            .listRowInsets(.init(top: 0, leading: 10, bottom: 0, trailing: 10))
+            .listRowInsets(.init(top: 0, leading: horizontalInset, bottom: 0, trailing: horizontalInset))
 
           if viewModel.listConfig.hasFeatureCards,
              !viewModel.hideFeatureSection,
@@ -489,7 +447,7 @@ struct AnimatingCellHeight: AnimatableModifier {
               viewModel: viewModel
             )
             .listRowSeparatorTint(Color.thBorderColor)
-            .listRowInsets(.init(top: 0, leading: 10, bottom: 10, trailing: 10))
+            .listRowInsets(.init(top: 0, leading: horizontalInset, bottom: 10, trailing: horizontalInset))
             .contextMenu {
               menuItems(for: item)
             }
@@ -664,6 +622,9 @@ struct AnimatingCellHeight: AnimatableModifier {
                 isContextMenuOpen: $isContextMenuOpen,
                 viewModel: viewModel
               )
+              .contextMenu {
+                libraryItemMenu(dataService: dataService, viewModel: viewModel, item: item)
+              }
             }
             Spacer()
           }
