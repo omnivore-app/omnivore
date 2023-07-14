@@ -114,15 +114,20 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
 
       // save each item in the feed
       for await (const item of feed.items) {
-        const publishedAt = item.pubDate || item.isoDate
-        console.log('Processing feed item', item.link, publishedAt)
+        const publishedAtString = item.pubDate || item.isoDate
+        console.log('Processing feed item', item.link, publishedAtString)
 
-        if (!item.link || !publishedAt) {
+        if (!item.link || !publishedAtString) {
           console.log('Invalid feed item', item)
           continue
         }
 
-        if (new Date(publishedAt) <= new Date(lastFetchedAt)) {
+        // skip old items and items that were published before 48h
+        const publishedAt = new Date(publishedAtString)
+        if (
+          publishedAt < new Date(Date.now() - 48 * 60 * 60 * 1000) ||
+          publishedAt < new Date(lastFetchedAt)
+        ) {
           console.log('Skipping old feed item', item.link)
           continue
         }
