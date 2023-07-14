@@ -26,7 +26,7 @@ public struct LibraryItemCard: View {
 
   public var body: some View {
     VStack {
-      HStack(alignment: .top, spacing: 0) {
+      HStack(alignment: .top, spacing: 10) {
         articleInfo
         imageBox
       }
