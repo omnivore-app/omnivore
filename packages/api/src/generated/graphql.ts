@@ -762,6 +762,7 @@ export type FeedArticlesSuccess = {
 
 export type Filter = {
   __typename?: 'Filter';
+  category: Scalars['String'];
   createdAt: Scalars['Date'];
   description?: Maybe<Scalars['String']>;
   filter: Scalars['String'];
@@ -1291,6 +1292,7 @@ export type Mutation = {
   updatePage: UpdatePageResult;
   updateReminder: UpdateReminderResult;
   updateSharedComment: UpdateSharedCommentResult;
+  updateSubscription: UpdateSubscriptionResult;
   updateUser: UpdateUserResult;
   updateUserProfile: UpdateUserProfileResult;
   uploadFileRequest: UploadFileRequestResult;
@@ -1573,12 +1575,13 @@ export type MutationSetWebhookArgs = {
 
 
 export type MutationSubscribeArgs = {
-  name: Scalars['String'];
+  input: SubscribeInput;
 };
 
 
 export type MutationUnsubscribeArgs = {
   name: Scalars['String'];
+  subscriptionId?: InputMaybe<Scalars['ID']>;
 };
 
 
@@ -1614,6 +1617,11 @@ export type MutationUpdateReminderArgs = {
 
 export type MutationUpdateSharedCommentArgs = {
   input: UpdateSharedCommentInput;
+};
+
+
+export type MutationUpdateSubscriptionArgs = {
+  input: UpdateSubscriptionInput;
 };
 
 
@@ -1868,6 +1876,7 @@ export type QuerySharedArticleArgs = {
 
 export type QuerySubscriptionsArgs = {
   sort?: InputMaybe<SortParams>;
+  type?: InputMaybe<SubscriptionType>;
 };
 
 
@@ -2229,6 +2238,7 @@ export enum SaveFilterErrorCode {
 }
 
 export type SaveFilterInput = {
+  category: Scalars['String'];
   description?: InputMaybe<Scalars['String']>;
   filter: Scalars['String'];
   id?: InputMaybe<Scalars['ID']>;
@@ -2247,6 +2257,9 @@ export type SavePageInput = {
   labels?: InputMaybe<Array<CreateLabelInput>>;
   originalContent: Scalars['String'];
   parseResult?: InputMaybe<ParseResult>;
+  publishedAt?: InputMaybe<Scalars['Date']>;
+  rssFeedUrl?: InputMaybe<Scalars['String']>;
+  savedAt?: InputMaybe<Scalars['Date']>;
   source: Scalars['String'];
   state?: InputMaybe<ArticleSavingRequestStatus>;
   title?: InputMaybe<Scalars['String']>;
@@ -2264,8 +2277,10 @@ export type SaveSuccess = {
 export type SaveUrlInput = {
   clientRequestId: Scalars['ID'];
   labels?: InputMaybe<Array<CreateLabelInput>>;
+  locale?: InputMaybe<Scalars['String']>;
   source: Scalars['String'];
   state?: InputMaybe<ArticleSavingRequestStatus>;
+  timezone?: InputMaybe<Scalars['String']>;
   url: Scalars['String'];
 };
 
@@ -2695,6 +2710,12 @@ export enum SubscribeErrorCode {
   Unauthorized = 'UNAUTHORIZED'
 }
 
+export type SubscribeInput = {
+  name?: InputMaybe<Scalars['String']>;
+  subscriptionType?: InputMaybe<SubscriptionType>;
+  url?: InputMaybe<Scalars['String']>;
+};
+
 export type SubscribeResult = SubscribeError | SubscribeSuccess;
 
 export type SubscribeSuccess = {
@@ -2704,13 +2725,16 @@ export type SubscribeSuccess = {
 
 export type Subscription = {
   __typename?: 'Subscription';
+  count: Scalars['Int'];
   createdAt: Scalars['Date'];
   description?: Maybe<Scalars['String']>;
   icon?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
+  lastFetchedAt?: Maybe<Scalars['Date']>;
   name: Scalars['String'];
-  newsletterEmail: Scalars['String'];
+  newsletterEmail?: Maybe<Scalars['String']>;
   status: SubscriptionStatus;
+  type: SubscriptionType;
   unsubscribeHttpUrl?: Maybe<Scalars['String']>;
   unsubscribeMailTo?: Maybe<Scalars['String']>;
   updatedAt: Scalars['Date'];
@@ -2721,6 +2745,11 @@ export enum SubscriptionStatus {
   Active = 'ACTIVE',
   Deleted = 'DELETED',
   Unsubscribed = 'UNSUBSCRIBED'
+}
+
+export enum SubscriptionType {
+  Newsletter = 'NEWSLETTER',
+  Rss = 'RSS'
 }
 
 export type SubscriptionsError = {
@@ -2975,6 +3004,31 @@ export type UpdateSharedCommentSuccess = {
   __typename?: 'UpdateSharedCommentSuccess';
   articleID: Scalars['ID'];
   sharedComment: Scalars['String'];
+};
+
+export type UpdateSubscriptionError = {
+  __typename?: 'UpdateSubscriptionError';
+  errorCodes: Array<UpdateSubscriptionErrorCode>;
+};
+
+export enum UpdateSubscriptionErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type UpdateSubscriptionInput = {
+  description?: InputMaybe<Scalars['String']>;
+  id: Scalars['ID'];
+  lastFetchedAt?: InputMaybe<Scalars['Date']>;
+  name?: InputMaybe<Scalars['String']>;
+};
+
+export type UpdateSubscriptionResult = UpdateSubscriptionError | UpdateSubscriptionSuccess;
+
+export type UpdateSubscriptionSuccess = {
+  __typename?: 'UpdateSubscriptionSuccess';
+  subscription: Subscription;
 };
 
 export type UpdateUserError = {
@@ -3685,10 +3739,12 @@ export type ResolversTypes = {
   String: ResolverTypeWrapper<Scalars['String']>;
   SubscribeError: ResolverTypeWrapper<SubscribeError>;
   SubscribeErrorCode: SubscribeErrorCode;
+  SubscribeInput: SubscribeInput;
   SubscribeResult: ResolversTypes['SubscribeError'] | ResolversTypes['SubscribeSuccess'];
   SubscribeSuccess: ResolverTypeWrapper<SubscribeSuccess>;
   Subscription: ResolverTypeWrapper<{}>;
   SubscriptionStatus: SubscriptionStatus;
+  SubscriptionType: SubscriptionType;
   SubscriptionsError: ResolverTypeWrapper<SubscriptionsError>;
   SubscriptionsErrorCode: SubscriptionsErrorCode;
   SubscriptionsResult: ResolversTypes['SubscriptionsError'] | ResolversTypes['SubscriptionsSuccess'];
@@ -3739,6 +3795,11 @@ export type ResolversTypes = {
   UpdateSharedCommentInput: UpdateSharedCommentInput;
   UpdateSharedCommentResult: ResolversTypes['UpdateSharedCommentError'] | ResolversTypes['UpdateSharedCommentSuccess'];
   UpdateSharedCommentSuccess: ResolverTypeWrapper<UpdateSharedCommentSuccess>;
+  UpdateSubscriptionError: ResolverTypeWrapper<UpdateSubscriptionError>;
+  UpdateSubscriptionErrorCode: UpdateSubscriptionErrorCode;
+  UpdateSubscriptionInput: UpdateSubscriptionInput;
+  UpdateSubscriptionResult: ResolversTypes['UpdateSubscriptionError'] | ResolversTypes['UpdateSubscriptionSuccess'];
+  UpdateSubscriptionSuccess: ResolverTypeWrapper<UpdateSubscriptionSuccess>;
   UpdateUserError: ResolverTypeWrapper<UpdateUserError>;
   UpdateUserErrorCode: UpdateUserErrorCode;
   UpdateUserInput: UpdateUserInput;
@@ -4091,6 +4152,7 @@ export type ResolversParentTypes = {
   SortParams: SortParams;
   String: Scalars['String'];
   SubscribeError: SubscribeError;
+  SubscribeInput: SubscribeInput;
   SubscribeResult: ResolversParentTypes['SubscribeError'] | ResolversParentTypes['SubscribeSuccess'];
   SubscribeSuccess: SubscribeSuccess;
   Subscription: {};
@@ -4133,6 +4195,10 @@ export type ResolversParentTypes = {
   UpdateSharedCommentInput: UpdateSharedCommentInput;
   UpdateSharedCommentResult: ResolversParentTypes['UpdateSharedCommentError'] | ResolversParentTypes['UpdateSharedCommentSuccess'];
   UpdateSharedCommentSuccess: UpdateSharedCommentSuccess;
+  UpdateSubscriptionError: UpdateSubscriptionError;
+  UpdateSubscriptionInput: UpdateSubscriptionInput;
+  UpdateSubscriptionResult: ResolversParentTypes['UpdateSubscriptionError'] | ResolversParentTypes['UpdateSubscriptionSuccess'];
+  UpdateSubscriptionSuccess: UpdateSubscriptionSuccess;
   UpdateUserError: UpdateUserError;
   UpdateUserInput: UpdateUserInput;
   UpdateUserProfileError: UpdateUserProfileError;
@@ -4707,6 +4773,7 @@ export type FeedArticlesSuccessResolvers<ContextType = ResolverContext, ParentTy
 };
 
 export type FilterResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Filter'] = ResolversParentTypes['Filter']> = {
+  category?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   filter?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -5111,7 +5178,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   setShareHighlight?: Resolver<ResolversTypes['SetShareHighlightResult'], ParentType, ContextType, RequireFields<MutationSetShareHighlightArgs, 'input'>>;
   setUserPersonalization?: Resolver<ResolversTypes['SetUserPersonalizationResult'], ParentType, ContextType, RequireFields<MutationSetUserPersonalizationArgs, 'input'>>;
   setWebhook?: Resolver<ResolversTypes['SetWebhookResult'], ParentType, ContextType, RequireFields<MutationSetWebhookArgs, 'input'>>;
-  subscribe?: Resolver<ResolversTypes['SubscribeResult'], ParentType, ContextType, RequireFields<MutationSubscribeArgs, 'name'>>;
+  subscribe?: Resolver<ResolversTypes['SubscribeResult'], ParentType, ContextType, RequireFields<MutationSubscribeArgs, 'input'>>;
   unsubscribe?: Resolver<ResolversTypes['UnsubscribeResult'], ParentType, ContextType, RequireFields<MutationUnsubscribeArgs, 'name'>>;
   updateHighlight?: Resolver<ResolversTypes['UpdateHighlightResult'], ParentType, ContextType, RequireFields<MutationUpdateHighlightArgs, 'input'>>;
   updateHighlightReply?: Resolver<ResolversTypes['UpdateHighlightReplyResult'], ParentType, ContextType, RequireFields<MutationUpdateHighlightReplyArgs, 'input'>>;
@@ -5120,6 +5187,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   updatePage?: Resolver<ResolversTypes['UpdatePageResult'], ParentType, ContextType, RequireFields<MutationUpdatePageArgs, 'input'>>;
   updateReminder?: Resolver<ResolversTypes['UpdateReminderResult'], ParentType, ContextType, RequireFields<MutationUpdateReminderArgs, 'input'>>;
   updateSharedComment?: Resolver<ResolversTypes['UpdateSharedCommentResult'], ParentType, ContextType, RequireFields<MutationUpdateSharedCommentArgs, 'input'>>;
+  updateSubscription?: Resolver<ResolversTypes['UpdateSubscriptionResult'], ParentType, ContextType, RequireFields<MutationUpdateSubscriptionArgs, 'input'>>;
   updateUser?: Resolver<ResolversTypes['UpdateUserResult'], ParentType, ContextType, RequireFields<MutationUpdateUserArgs, 'input'>>;
   updateUserProfile?: Resolver<ResolversTypes['UpdateUserProfileResult'], ParentType, ContextType, RequireFields<MutationUpdateUserProfileArgs, 'input'>>;
   uploadFileRequest?: Resolver<ResolversTypes['UploadFileRequestResult'], ParentType, ContextType, RequireFields<MutationUploadFileRequestArgs, 'input'>>;
@@ -5742,13 +5810,16 @@ export type SubscribeSuccessResolvers<ContextType = ResolverContext, ParentType 
 };
 
 export type SubscriptionResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = {
+  count?: SubscriptionResolver<ResolversTypes['Int'], "count", ParentType, ContextType>;
   createdAt?: SubscriptionResolver<ResolversTypes['Date'], "createdAt", ParentType, ContextType>;
   description?: SubscriptionResolver<Maybe<ResolversTypes['String']>, "description", ParentType, ContextType>;
   icon?: SubscriptionResolver<Maybe<ResolversTypes['String']>, "icon", ParentType, ContextType>;
   id?: SubscriptionResolver<ResolversTypes['ID'], "id", ParentType, ContextType>;
+  lastFetchedAt?: SubscriptionResolver<Maybe<ResolversTypes['Date']>, "lastFetchedAt", ParentType, ContextType>;
   name?: SubscriptionResolver<ResolversTypes['String'], "name", ParentType, ContextType>;
-  newsletterEmail?: SubscriptionResolver<ResolversTypes['String'], "newsletterEmail", ParentType, ContextType>;
+  newsletterEmail?: SubscriptionResolver<Maybe<ResolversTypes['String']>, "newsletterEmail", ParentType, ContextType>;
   status?: SubscriptionResolver<ResolversTypes['SubscriptionStatus'], "status", ParentType, ContextType>;
+  type?: SubscriptionResolver<ResolversTypes['SubscriptionType'], "type", ParentType, ContextType>;
   unsubscribeHttpUrl?: SubscriptionResolver<Maybe<ResolversTypes['String']>, "unsubscribeHttpUrl", ParentType, ContextType>;
   unsubscribeMailTo?: SubscriptionResolver<Maybe<ResolversTypes['String']>, "unsubscribeMailTo", ParentType, ContextType>;
   updatedAt?: SubscriptionResolver<ResolversTypes['Date'], "updatedAt", ParentType, ContextType>;
@@ -5910,6 +5981,20 @@ export type UpdateSharedCommentResultResolvers<ContextType = ResolverContext, Pa
 export type UpdateSharedCommentSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateSharedCommentSuccess'] = ResolversParentTypes['UpdateSharedCommentSuccess']> = {
   articleID?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   sharedComment?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type UpdateSubscriptionErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateSubscriptionError'] = ResolversParentTypes['UpdateSubscriptionError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['UpdateSubscriptionErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type UpdateSubscriptionResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateSubscriptionResult'] = ResolversParentTypes['UpdateSubscriptionResult']> = {
+  __resolveType: TypeResolveFn<'UpdateSubscriptionError' | 'UpdateSubscriptionSuccess', ParentType, ContextType>;
+};
+
+export type UpdateSubscriptionSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateSubscriptionSuccess'] = ResolversParentTypes['UpdateSubscriptionSuccess']> = {
+  subscription?: Resolver<ResolversTypes['Subscription'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -6380,6 +6465,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   UpdateSharedCommentError?: UpdateSharedCommentErrorResolvers<ContextType>;
   UpdateSharedCommentResult?: UpdateSharedCommentResultResolvers<ContextType>;
   UpdateSharedCommentSuccess?: UpdateSharedCommentSuccessResolvers<ContextType>;
+  UpdateSubscriptionError?: UpdateSubscriptionErrorResolvers<ContextType>;
+  UpdateSubscriptionResult?: UpdateSubscriptionResultResolvers<ContextType>;
+  UpdateSubscriptionSuccess?: UpdateSubscriptionSuccessResolvers<ContextType>;
   UpdateUserError?: UpdateUserErrorResolvers<ContextType>;
   UpdateUserProfileError?: UpdateUserProfileErrorResolvers<ContextType>;
   UpdateUserProfileResult?: UpdateUserProfileResultResolvers<ContextType>;

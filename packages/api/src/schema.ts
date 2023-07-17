@@ -561,6 +561,9 @@ const schema = gql`
     parseResult: ParseResult
     state: ArticleSavingRequestStatus
     labels: [CreateLabelInput!]
+    rssFeedUrl: String
+    savedAt: Date
+    publishedAt: Date
   }
 
   input SaveUrlInput {
@@ -569,6 +572,8 @@ const schema = gql`
     clientRequestId: ID!
     state: ArticleSavingRequestStatus
     labels: [CreateLabelInput!]
+    locale: String
+    timezone: String
   }
 
   union SaveResult = SaveSuccess | SaveError
@@ -1619,16 +1624,24 @@ const schema = gql`
     subscriptions: [Subscription!]!
   }
 
+  enum SubscriptionType {
+    RSS
+    NEWSLETTER
+  }
+
   type Subscription {
     id: ID!
     name: String!
-    newsletterEmail: String!
+    newsletterEmail: String
     url: String
     description: String
     status: SubscriptionStatus!
     unsubscribeMailTo: String
     unsubscribeHttpUrl: String
     icon: String
+    type: SubscriptionType!
+    count: Int!
+    lastFetchedAt: Date
     createdAt: Date!
     updatedAt: Date!
   }
@@ -2139,6 +2152,7 @@ const schema = gql`
     id: ID
     name: String!
     filter: String!
+    category: String!
     description: String
   }
 
@@ -2153,6 +2167,7 @@ const schema = gql`
     name: String!
     filter: String!
     position: Int!
+    category: String!
     description: String
     createdAt: Date!
     updatedAt: Date!
@@ -2476,6 +2491,37 @@ const schema = gql`
     ALREADY_EXISTS
   }
 
+  input SubscribeInput {
+    url: String
+    name: String
+    subscriptionType: SubscriptionType
+  }
+
+  input UpdateSubscriptionInput {
+    id: ID!
+    name: String
+    description: String
+    lastFetchedAt: Date
+  }
+
+  union UpdateSubscriptionResult =
+      UpdateSubscriptionSuccess
+    | UpdateSubscriptionError
+
+  type UpdateSubscriptionSuccess {
+    subscription: Subscription!
+  }
+
+  type UpdateSubscriptionError {
+    errorCodes: [UpdateSubscriptionErrorCode!]!
+  }
+
+  enum UpdateSubscriptionErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -2537,8 +2583,8 @@ const schema = gql`
     deleteLabel(id: ID!): DeleteLabelResult!
     setLabels(input: SetLabelsInput!): SetLabelsResult!
     generateApiKey(input: GenerateApiKeyInput!): GenerateApiKeyResult!
-    unsubscribe(name: String!): UnsubscribeResult!
-    subscribe(name: String!): SubscribeResult!
+    unsubscribe(name: String!, subscriptionId: ID): UnsubscribeResult!
+    subscribe(input: SubscribeInput!): SubscribeResult!
     addPopularRead(name: String!): AddPopularReadResult!
     setWebhook(input: SetWebhookInput!): SetWebhookResult!
     deleteWebhook(id: ID!): DeleteWebhookResult!
@@ -2574,6 +2620,9 @@ const schema = gql`
     ): BulkActionResult!
     importFromIntegration(integrationId: ID!): ImportFromIntegrationResult!
     setFavoriteArticle(id: ID!): SetFavoriteArticleResult!
+    updateSubscription(
+      input: UpdateSubscriptionInput!
+    ): UpdateSubscriptionResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed
@@ -2618,7 +2667,10 @@ const schema = gql`
       includeContent: Boolean
       format: String
     ): SearchResult!
-    subscriptions(sort: SortParams): SubscriptionsResult!
+    subscriptions(
+      sort: SortParams
+      type: SubscriptionType
+    ): SubscriptionsResult!
     sendInstallInstructions: SendInstallInstructionsResult!
     webhooks: WebhooksResult!
     webhook(id: ID!): WebhookResult!

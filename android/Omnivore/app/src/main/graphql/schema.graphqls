@@ -1720,6 +1720,8 @@ input SaveUrlInput {
   source: String!
   state: ArticleSavingRequestStatus
   url: String!
+  timezone: String
+  locale: String
 }
 
 type SearchError {

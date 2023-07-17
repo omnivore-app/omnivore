@@ -6,7 +6,10 @@ import { NewsletterEmail } from '../../src/entity/newsletter_email'
 import { Subscription } from '../../src/entity/subscription'
 import { User } from '../../src/entity/user'
 import { getRepository } from '../../src/entity/utils'
-import { SubscriptionStatus } from '../../src/generated/graphql'
+import {
+  SubscriptionStatus,
+  SubscriptionType,
+} from '../../src/generated/graphql'
 import { UNSUBSCRIBE_EMAIL_TEXT } from '../../src/services/subscriptions'
 import * as sendEmail from '../../src/utils/sendEmail'
 import { createTestSubscription, createTestUser, deleteTestUser } from '../db'
@@ -35,7 +38,7 @@ describe('Subscriptions API', () => {
       confirmationCode: 'test',
     })
 
-    //  create testing subscriptions
+    //  create testing newsletter subscriptions
     const sub1 = await createTestSubscription(user, 'sub_1', newsletterEmail)
     const sub2 = await createTestSubscription(user, 'sub_2', newsletterEmail)
     // create a unsubscribed subscription
@@ -45,8 +48,15 @@ describe('Subscriptions API', () => {
       newsletterEmail,
       SubscriptionStatus.Unsubscribed
     )
-    // create a subscription without a newsletter email
-    await createTestSubscription(user, 'sub_4')
+    // create an rss feed subscription
+    await createTestSubscription(
+      user,
+      'sub_4',
+      undefined,
+      SubscriptionStatus.Active,
+      undefined,
+      SubscriptionType.Rss
+    )
     subscriptions = [sub2, sub1]
   })
 
@@ -143,10 +153,7 @@ describe('Subscriptions API', () => {
         sinon.fake.resolves(true)
       )
 
-      const res = await graphqlRequest(
-        query(name.toUpperCase()),
-        authToken
-      ).expect(200)
+      const res = await graphqlRequest(query(name), authToken).expect(200)
 
       expect(res.body.data.unsubscribe.subscription).to.eql({
         id: subscription.id,

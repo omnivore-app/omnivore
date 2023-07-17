@@ -41,6 +41,10 @@ export const FormInput = styled('input', {
 export const FormLabel = styled('label', {
   fontSize: '16px',
   color: '$omnivoreGray',
+  '&.required:after': {
+    content: ' *',
+    color: 'red',
+  },
 })
 
 export const BorderedFormInput = styled(FormInput, {

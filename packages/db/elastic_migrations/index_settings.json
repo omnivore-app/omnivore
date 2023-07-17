@@ -159,6 +159,10 @@
         "type": "keyword",
         "normalizer": "lowercase_normalizer"
       },
+      "rssFeedUrl": {
+        "type": "keyword",
+        "normalizer": "lowercase_normalizer"
+      },
       "state": {
         "type": "keyword"
       },

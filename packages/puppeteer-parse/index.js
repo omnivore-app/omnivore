@@ -333,6 +333,11 @@ async function fetchContent(req, res) {
   const source = req.body.source || 'parseContent';
   const taskId = req.body.taskId; // taskId is used to update import status
   const urlStr = (req.query ? req.query.url : undefined) || (req.body ? req.body.url : undefined);
+  const locale = (req.query ? req.query.locale : undefined) || (req.body ? req.body.locale : undefined);
+  const timezone = (req.query ? req.query.timezone : undefined) || (req.body ? req.body.timezone : undefined);
+  const rssFeedUrl = req.body.rssFeedUrl;
+  const savedAt = req.body.savedAt;
+  const publishedAt = req.body.publishedAt;
 
   let logRecord = {
     url: urlStr,
@@ -344,6 +349,11 @@ async function fetchContent(req, res) {
     state,
     labelsToAdd: labels,
     taskId: taskId,
+    locale,
+    timezone,
+    rssFeedUrl,
+    savedAt,
+    publishedAt,
   };
 
   console.info(`Article parsing request`, logRecord);
@@ -374,7 +384,7 @@ async function fetchContent(req, res) {
     }
 
     if ((!content || !title) && contentType !== 'application/pdf') {
-      const result = await retrievePage(url, logRecord, functionStartTime);
+      const result = await retrievePage(url, logRecord, functionStartTime, locale, timezone);
       if (result && result.context) { context = result.context }
       if (result && result.page) { page = result.page }
       if (result && result.finalUrl) { finalUrl = result.finalUrl }
@@ -449,6 +459,9 @@ async function fetchContent(req, res) {
         parseResult: readabilityResult,
         state,
         labels,
+        rssFeedUrl,
+        savedAt,
+        publishedAt,
       });
       if (!apiResponse) {
         logRecord.error = 'error while saving page';
@@ -522,7 +535,7 @@ function getUrl(urlStr) {
   return parsed.href;
 }
 
-async function retrievePage(url, logRecord, functionStartTime) {
+async function retrievePage(url, logRecord, functionStartTime, locale, timezone) {
   validateUrlString(url);
 
   const browser = await getBrowserPromise;
@@ -535,6 +548,16 @@ async function retrievePage(url, logRecord, functionStartTime) {
     await page.setJavaScriptEnabled(false);
   }
   await page.setUserAgent(userAgentForUrl(url));
+
+  // set locale for the page
+  if (locale) {
+    await page.setExtraHTTPHeaders({ 'Accept-Language': locale });
+  }
+
+  // set timezone for the page
+  if (timezone) {
+    await page.emulateTimezone(timezone);
+  }
 
   const client = await page.target().createCDPSession();
 
@@ -747,15 +770,7 @@ async function retrieveHtml(page, logRecord) {
         document.getElementById('px-block-form-wrapper')) {
         return 'IS_BLOCKED'
       }
-      // check if create_time is defined
-      if (typeof create_time !== 'undefined' && create_time) {
-        // create_time is a global variable set by WeChat when rendering the page
-        const date = new Date(create_time * 1000);
-        const dateNode = document.createElement('div');
-        dateNode.className = 'omnivore-published-date';
-        dateNode.innerHTML = date.toLocaleString();
-        document.body.appendChild(dateNode);
-      }
+
       return document.documentElement.outerHTML;
     }, iframes);
     logRecord.puppeteerSuccess = true;

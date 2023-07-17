@@ -14,16 +14,14 @@ import Link from 'next/link'
 
 export function EmailSignup(): JSX.Element {
   const router = useRouter()
-  const [email, setEmail] = useState<string | undefined>(undefined)
-  const [password, setPassword] = useState<string | undefined>(undefined)
-  const [fullname, setFullname] = useState<string | undefined>(undefined)
-  const [username, setUsername] = useState<string | undefined>(undefined)
+  const [email, setEmail] = useState<string | undefined>()
+  const [password, setPassword] = useState<string | undefined>()
+  const [fullname, setFullname] = useState<string | undefined>()
+  const [username, setUsername] = useState<string | undefined>()
   const [debouncedUsername, setDebouncedUsername] = useState<
     string | undefined
-  >(undefined)
-  const [errorMessage, setErrorMessage] = useState<string | undefined>(
-    undefined
-  )
+  >()
+  const [errorMessage, setErrorMessage] = useState<string | undefined>()
 
   useEffect(() => {
     if (!router.isReady) return
@@ -70,57 +68,61 @@ export function EmailSignup(): JSX.Element {
           css={{ width: '100%', minWidth: '320px', gap: '16px', pb: '16px' }}
         >
           <SpanBox css={{ width: '100%' }}>
-            <FormLabel>Email</FormLabel>
+            <FormLabel className="required">Email</FormLabel>
             <BorderedFormInput
               key="email"
               type="text"
               name="email"
-              value={email}
+              defaultValue={email}
               placeholder="Email"
               css={{ backgroundColor: 'white', color: 'black' }}
               onChange={(e) => {
                 e.preventDefault()
                 setEmail(e.target.value)
               }}
+              required
             />
           </SpanBox>
 
           <SpanBox css={{ width: '100%' }}>
-            <FormLabel>Password</FormLabel>
+            <FormLabel className="required">Password</FormLabel>
             <BorderedFormInput
               key="password"
               type="password"
               name="password"
-              value={password}
+              defaultValue={password}
               placeholder="Password"
               css={{ bg: 'white', color: 'black' }}
               onChange={(e) => setPassword(e.target.value)}
+              required
             />
           </SpanBox>
 
           <SpanBox css={{ width: '100%' }}>
-            <FormLabel>Full Name</FormLabel>
+            <FormLabel className="required">Full Name</FormLabel>
             <BorderedFormInput
               key="fullname"
               type="text"
               name="name"
-              value={fullname}
+              defaultValue={fullname}
               placeholder="Full Name"
               css={{ bg: 'white', color: 'black' }}
               onChange={(e) => setFullname(e.target.value)}
+              required
             />
           </SpanBox>
 
           <SpanBox css={{ width: '100%' }}>
-            <FormLabel>Username</FormLabel>
+            <FormLabel className="required">Username</FormLabel>
             <BorderedFormInput
               key="username"
               type="text"
               name="username"
-              value={username}
+              defaultValue={username}
               placeholder="Username"
               css={{ bg: 'white', color: 'black' }}
               onChange={handleUsernameChange}
+              required
             />
           </SpanBox>
           {username && username.length > 0 && usernameErrorMessage && (
