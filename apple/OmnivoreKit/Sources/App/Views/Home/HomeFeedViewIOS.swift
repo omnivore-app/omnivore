@@ -434,7 +434,8 @@ struct AnimatingCellHeight: AnimatableModifier {
              viewModel.items.count > 0,
              viewModel.searchTerm.isEmpty,
              viewModel.selectedLabels.isEmpty,
-             viewModel.negatedLabels.isEmpty
+             viewModel.negatedLabels.isEmpty,
+             LinkedItemFilter(rawValue: viewModel.appliedFilter) == .inbox
           {
             featureCard
               .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
