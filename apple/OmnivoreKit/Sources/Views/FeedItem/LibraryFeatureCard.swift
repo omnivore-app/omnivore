@@ -66,7 +66,7 @@ public struct LibraryFeatureCard: View {
     HStack {
       Text(item.unwrappedTitle.prefix(1))
         .font(Font.system(size: 128, weight: .bold))
-        .offset(CGSize(width: -48, height: 32))
+        .offset(CGSize(width: -48, height: 12))
         .frame(alignment: .bottomLeading)
         .foregroundColor(Gradient.randomColor(str: item.unwrappedTitle, offset: 1))
     }
