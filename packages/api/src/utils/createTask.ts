@@ -572,9 +572,14 @@ export const enqueueRssFeedFetch = async (
   const { GOOGLE_CLOUD_PROJECT } = process.env
   const payload = {
     subscriptionId: rssFeedSubscription.id,
-    userId: rssFeedSubscription.user.id,
     feedUrl: rssFeedSubscription.url,
     lastFetchedAt: rssFeedSubscription.lastFetchedAt,
+  }
+
+  const headers = {
+    [OmnivoreAuthorizationHeader]: generateVerificationToken(
+      rssFeedSubscription.user.id
+    ),
   }
 
   const createdTasks = await createHttpTaskWithToken({
@@ -582,6 +587,7 @@ export const enqueueRssFeedFetch = async (
     queue: 'omnivore-rss-queue',
     payload,
     taskHandlerUrl: env.queue.rssFeedTaskHandlerUrl,
+    requestHeaders: headers,
   })
 
   if (!createdTasks || !createdTasks[0].name) {
