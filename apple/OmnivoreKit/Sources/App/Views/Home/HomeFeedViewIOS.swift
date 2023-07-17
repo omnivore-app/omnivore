@@ -381,6 +381,7 @@ struct AnimatingCellHeight: AnimatableModifier {
                 .padding(.top, 0)
               } else {
                 Text((FeaturedItemFilter(rawValue: viewModel.featureFilter) ?? .continueReading).emptyMessage)
+                  .padding(.horizontal, UIDevice.isIPad ? 20 : 10)
                   .font(Font.system(size: 14, weight: .regular))
                   .foregroundColor(Color(hex: "#898989"))
                   .frame(maxWidth: geo.size.width)
