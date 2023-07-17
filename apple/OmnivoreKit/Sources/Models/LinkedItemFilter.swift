@@ -36,6 +36,15 @@ public extension LinkedItemFilter {
     }
   }
 
+  var allowLocalFetch: Bool {
+    switch self {
+    case .inbox:
+      return true
+    default:
+      return false
+    }
+  }
+
   var predicate: NSPredicate {
     let undeletedPredicate = NSPredicate(
       format: "%K != %i AND %K != \"DELETED\"",

@@ -183,6 +183,8 @@ import Views
       cursor: isRefresh ? nil : cursor
     )
 
+    let filter = LinkedItemFilter(rawValue: appliedFilter)
+
     if let queryResult = queryResult {
       let newItems: [LinkedItem] = {
         var itemObjects = [LinkedItem]()
@@ -192,7 +194,7 @@ import Views
         return itemObjects
       }()
 
-      if searchTerm.replacingOccurrences(of: " ", with: "").isEmpty, LinkedItemFilter(rawValue: appliedFilter) != .deleted {
+      if searchTerm.replacingOccurrences(of: " ", with: "").isEmpty, filter?.allowLocalFetch ?? false {
         updateFetchController(dataService: dataService)
       } else {
         // Don't use FRC for searching. Use server results directly.
