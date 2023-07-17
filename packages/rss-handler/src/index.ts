@@ -8,17 +8,13 @@ import { CONTENT_FETCH_URL, createCloudTask } from './task'
 
 interface RssFeedRequest {
   subscriptionId: string
-  userId: string
   feedUrl: string
   lastFetchedAt: string
 }
 
 function isRssFeedRequest(body: any): body is RssFeedRequest {
   return (
-    'subscriptionId' in body &&
-    'userId' in body &&
-    'feedUrl' in body &&
-    'lastFetchedAt' in body
+    'subscriptionId' in body && 'feedUrl' in body && 'lastFetchedAt' in body
   )
 }
 
