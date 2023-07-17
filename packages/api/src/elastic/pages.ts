@@ -149,30 +149,37 @@ const appendInFilter = (builder: ESBuilder, filter: InFilter): ESBuilder => {
           },
         })
     case InFilter.LIBRARY:
-      return builder.query('nested', {
-        path: 'labels',
-        query: {
-          bool: {
-            should: [
-              {
+      return builder.query('bool', {
+        should: [
+          {
+            nested: {
+              path: 'labels',
+              query: {
                 term: {
                   'labels.name': 'library',
                 },
               },
-              {
-                bool: {
-                  must_not: {
-                    terms: {
-                      'labels.name': ['newsletter', 'rss'],
+            },
+          },
+          {
+            bool: {
+              must_not: [
+                {
+                  nested: {
+                    path: 'labels',
+                    query: {
+                      terms: {
+                        'labels.name': ['newsletter', 'rss'],
+                      },
                     },
                   },
-                  should: [],
                 },
-              },
-            ],
-            minimum_should_match: 1,
+              ],
+              should: [],
+            },
           },
-        },
+        ],
+        minimum_should_match: 1,
       })
     case InFilter.SUBSCRIPTION:
       return builder
