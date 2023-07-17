@@ -54,6 +54,12 @@ export const importCsv = async (ctx: ImportContext, stream: Stream) => {
         ctx.taskId,
         ImportStatus.STARTED
       )
+
+      // limit import to 20k urls
+      if (ctx.countImported + ctx.countFailed >= 20000) {
+        console.log('import limit reached')
+        break
+      }
     } catch (error) {
       console.log('invalid url', row, error)
 
