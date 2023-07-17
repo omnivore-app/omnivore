@@ -248,7 +248,7 @@ export const parsePreparedContent = async (
     if (!article?.textContent && allowRetry) {
       const newDocument = {
         ...preparedDocument,
-        document: '<html>' + document + '</html>',
+        document: '<html><body>' + document + '</body></html>', // wrap in body
       }
       return parsePreparedContent(
         url,
