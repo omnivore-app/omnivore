@@ -31,6 +31,7 @@ struct WebReaderContainerView: View {
   @State private var showErrorAlertMessage = false
   @State private var showRecommendSheet = false
   @State private var lastScrollPercentage: Int?
+  @State private var isRecovering = false
 
   @State var safariWebLink: SafariWebLink?
   @State var displayLinkSheet = false
@@ -494,16 +495,39 @@ struct WebReaderContainerView: View {
         }
       } else if let errorMessage = viewModel.errorMessage {
         VStack {
-          Text(errorMessage).padding()
           if viewModel.allowRetry, viewModel.hasOriginalUrl(item) {
-            Button("Open Original", action: {
-              openOriginalURL(urlString: item.pageURLString)
-            }).buttonStyle(RoundedRectButtonStyle())
-            if let urlStr = item.pageURLString, let username = dataService.currentViewer?.username, let url = URL(string: urlStr) {
-              Button("Attempt to Save Again", action: {
-                viewModel.errorMessage = nil
-                viewModel.saveLinkAndFetch(dataService: dataService, username: username, url: url)
+            if item.state == "DELETED" {
+              Text("Item has been deleted, would you like to recover it?").padding()
+              if isRecovering {
+                ProgressView()
+              } else {
+                Button("Recover", action: {
+                  self.isRecovering = true
+                  Task {
+                    if !(await dataService.recoverItem(itemID: item.unwrappedID)) {
+                      Snackbar.show(message: "Error recovering item")
+                    } else {
+                      await viewModel.loadContent(
+                        dataService: dataService,
+                        username: dataService.currentViewer?.username ?? "me",
+                        itemID: item.unwrappedID
+                      )
+                    }
+                    isRecovering = false
+                  }
+                }).buttonStyle(RoundedRectButtonStyle())
+              }
+            } else {
+              Text(errorMessage).padding()
+              Button("Open Original", action: {
+                openOriginalURL(urlString: item.pageURLString)
               }).buttonStyle(RoundedRectButtonStyle())
+              if let urlStr = item.pageURLString, let username = dataService.currentViewer?.username, let url = URL(string: urlStr) {
+                Button("Attempt to Save Again", action: {
+                  viewModel.errorMessage = nil
+                  viewModel.saveLinkAndFetch(dataService: dataService, username: username, url: url)
+                }).buttonStyle(RoundedRectButtonStyle())
+              }
             }
           }
         }
