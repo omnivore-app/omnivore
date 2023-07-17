@@ -192,8 +192,9 @@ const appendInFilter = (builder: ESBuilder, filter: InFilter): ESBuilder => {
             },
           },
         })
+    default:
+      return builder
   }
-  return builder
 }
 
 const appendHasFilters = (
