@@ -139,10 +139,10 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
           continue
         }
 
-        // skip old items and items that were published before 48h
+        // skip old items and items that were published before 24h
         const publishedAt = new Date(item.isoDate)
         if (
-          publishedAt < new Date(Date.now() - 48 * 60 * 60 * 1000) ||
+          publishedAt < new Date(Date.now() - 24 * 60 * 60 * 1000) ||
           publishedAt < new Date(lastFetchedAt)
         ) {
           console.log('Skipping old feed item', item.link)
