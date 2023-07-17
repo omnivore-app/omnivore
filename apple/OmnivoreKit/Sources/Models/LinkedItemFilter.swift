@@ -17,7 +17,7 @@ public extension LinkedItemFilter {
     case .inbox:
       return "in:inbox"
     case .readlater:
-      return "in:inbox -label:Newsletter"
+      return "in:library"
     case .newsletters:
       return "in:inbox label:Newsletter"
     case .recommended:

@@ -91,7 +91,7 @@ function SavedSearches(props: LibraryFilterMenuProps): JSX.Element {
     },
     {
       name: 'Read Later',
-      term: 'in:inbox -label:Newsletter',
+      term: 'in:library',
     },
     {
       name: 'Highlights',
