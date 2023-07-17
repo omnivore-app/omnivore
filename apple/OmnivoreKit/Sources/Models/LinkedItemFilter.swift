@@ -18,7 +18,7 @@ public extension LinkedItemFilter {
     case .inbox:
       return "in:inbox"
     case .readlater:
-      return "in:inbox -label:Newsletter"
+      return "in:library"
     case .newsletters:
       return "in:inbox label:Newsletter"
     case .recommended:
@@ -64,8 +64,11 @@ public extension LinkedItemFilter {
       let nonNewsletterLabelPredicate = NSPredicate(
         format: "NOT SUBQUERY(labels, $label, $label.name == \"Newsletter\") .@count > 0"
       )
+      let nonRSSPredicate = NSPredicate(
+        format: "NOT SUBQUERY(labels, $label, $label.name == \"RSS\") .@count > 0"
+      )
       return NSCompoundPredicate(andPredicateWithSubpredicates: [
-        undeletedPredicate, notInArchivePredicate, nonNewsletterLabelPredicate
+        undeletedPredicate, notInArchivePredicate, nonNewsletterLabelPredicate, nonRSSPredicate
       ])
     case .newsletters:
       // non-archived or deleted items with the Newsletter label
