@@ -48,6 +48,7 @@ export const registerDatabase = async (secrets: any): Promise<Connection> => {
       ReceivedEmail,
       ContentDisplayReport,
       Group,
+      Integration,
     ],
   })
 
@@ -210,7 +211,7 @@ export class Group extends BaseEntity {
   name!: string
 
   @OneToOne(() => User)
-  @JoinColumn({ name: 'created_at' })
+  @JoinColumn({ name: 'created_by' })
   createdBy!: User
 
   @Column({ type: 'timestamp', name: 'created_at' })
@@ -230,4 +231,29 @@ export class Group extends BaseEntity {
 
   @Column('boolean', { default: false, name: 'only_admin_can_see_members' })
   onlyAdminCanSeeMembers!: boolean
+}
+
+@Entity()
+export class Integration extends BaseEntity {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string
+
+  @JoinColumn({ name: 'user_id' })
+  @ManyToOne(() => User, (user) => user.articles, { eager: true })
+  user!: User
+
+  @Column('varchar', { length: 40 })
+  name!: string
+
+  @Column('boolean', { default: true })
+  enabled!: boolean
+
+  @Column({ type: 'timestamp', name: 'created_at' })
+  createdAt!: Date
+
+  @Column({ type: 'timestamp', name: 'updated_at' })
+  updatedAt!: Date
+
+  @Column({ name: 'synced_at', type: 'timestamp', nullable: true })
+  syncedAt?: Date | null
 }
