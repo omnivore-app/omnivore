@@ -356,6 +356,7 @@ function FilterButton(props: FilterButtonProps): JSX.Element {
             : '$thBackground4',
         },
       }}
+      title={props.text}
       onClick={(e) => {
         props.applySearchQuery(props.filterTerm)
         props.setShowFilterMenu(false)
@@ -408,6 +409,7 @@ function LabelButton(props: LabelButtonProps): JSX.Element {
           backgroundColor: '$thBackground4',
         },
       }}
+      title={props.label.name}
       alignment="center"
       distribution="start"
     >
