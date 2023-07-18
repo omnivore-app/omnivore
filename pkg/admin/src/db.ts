@@ -233,7 +233,7 @@ export class Group extends BaseEntity {
   onlyAdminCanSeeMembers!: boolean
 }
 
-@Entity()
+@Entity({ name: 'integrations' })
 export class Integration extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string
