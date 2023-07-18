@@ -149,38 +149,40 @@ const appendInFilter = (builder: ESBuilder, filter: InFilter): ESBuilder => {
           },
         })
     case InFilter.LIBRARY:
-      return builder.query('bool', {
-        should: [
-          {
-            nested: {
-              path: 'labels',
-              query: {
-                term: {
-                  'labels.name': 'library',
+      return builder
+        .query('bool', {
+          should: [
+            {
+              nested: {
+                path: 'labels',
+                query: {
+                  term: {
+                    'labels.name': 'library',
+                  },
                 },
               },
             },
-          },
-          {
-            bool: {
-              must_not: [
-                {
-                  nested: {
-                    path: 'labels',
-                    query: {
-                      terms: {
-                        'labels.name': ['newsletter', 'rss'],
+            {
+              bool: {
+                must_not: [
+                  {
+                    nested: {
+                      path: 'labels',
+                      query: {
+                        terms: {
+                          'labels.name': ['newsletter', 'rss'],
+                        },
                       },
                     },
                   },
-                },
-              ],
-              should: [],
+                ],
+                should: [],
+              },
             },
-          },
-        ],
-        minimum_should_match: 1,
-      })
+          ],
+          minimum_should_match: 1,
+        })
+        .notQuery('exists', { field: 'archivedAt' })
     case InFilter.SUBSCRIPTION:
       return builder
         .andQuery('nested', {
@@ -199,6 +201,7 @@ const appendInFilter = (builder: ESBuilder, filter: InFilter): ESBuilder => {
             },
           },
         })
+        .notQuery('exists', { field: 'archivedAt' })
     default:
       return builder
   }
