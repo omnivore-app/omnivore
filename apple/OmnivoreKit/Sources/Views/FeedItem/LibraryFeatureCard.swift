@@ -40,8 +40,8 @@ public struct LibraryFeatureCard: View {
             EmptyView()
           case let .success(image):
             image.resizable()
+              .aspectRatio(contentMode: .fit)
               .frame(width: 146, height: 90)
-              .aspectRatio(contentMode: .fill)
           case .failure:
             fallbackImage
 
