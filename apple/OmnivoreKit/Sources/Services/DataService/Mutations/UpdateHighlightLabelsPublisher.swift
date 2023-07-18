@@ -41,7 +41,7 @@ public extension DataService {
       try $0.setLabelsForHighlight(
         input: InputObjects.SetLabelsForHighlightInput(
           highlightId: highlightID,
-          labelIds: labelIDs
+          labelIds: OptionalArgument(labelIDs)
         ),
         selection: selection
       )

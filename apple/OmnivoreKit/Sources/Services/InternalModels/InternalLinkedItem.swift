@@ -98,6 +98,7 @@ extension Sequence where Element == InternalLinkedItem {
         print("LinkedItems saved succesfully")
       } catch {
         context.rollback()
+        print(error)
         print("Failed to save LinkedItems: \(error.localizedDescription)")
       }
     }

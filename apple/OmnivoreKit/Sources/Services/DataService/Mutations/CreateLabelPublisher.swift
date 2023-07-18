@@ -43,7 +43,7 @@ extension DataService {
     let mutation = Selection.Mutation {
       try $0.createLabel(
         input: InputObjects.CreateLabelInput(
-          color: label.color,
+          color: OptionalArgument(label.color),
           description: OptionalArgument(label.labelDescription),
           name: label.name
         ),

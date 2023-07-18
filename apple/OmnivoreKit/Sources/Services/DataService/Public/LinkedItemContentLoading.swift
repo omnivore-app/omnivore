@@ -43,7 +43,7 @@ public extension DataService {
         username: username,
         requestCount: requestCount + 1
       )
-    case .succeeded, .unknown:
+    case .succeeded, .unknown, .deleted:
       return fetchedContent
     }
   }

@@ -30,8 +30,7 @@ import Views
 
   func handleDeleteAction(dataService: DataService) {
     guard let objectID = item?.objectID ?? pdfItem?.objectID else { return }
-    showInSnackbar("Link removed")
-    dataService.removeLink(objectID: objectID)
+    removeLibraryItemAction(dataService: dataService, objectID: objectID)
   }
 
   func updateItemReadStatus(dataService: DataService) {
@@ -70,41 +69,15 @@ import Views
 struct LinkItemDetailView: View {
   @EnvironmentObject var authenticator: Authenticator
   @EnvironmentObject var dataService: DataService
-  @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
 
-  static let navBarHeight = 50.0
   let linkedItemObjectID: NSManagedObjectID
   let isPDF: Bool
 
   @StateObject private var viewModel = LinkItemDetailViewModel()
-  @State private var showFontSizePopover = false
-  @State private var showTitleEdit = false
-  @State private var navBarVisibilityRatio = 1.0
-  @State private var showDeleteConfirmation = false
 
   init(linkedItemObjectID: NSManagedObjectID, isPDF: Bool) {
     self.linkedItemObjectID = linkedItemObjectID
     self.isPDF = isPDF
-  }
-
-  var toggleReadStatusToolbarItem: some View {
-    Button(
-      action: {
-        viewModel.updateItemReadStatus(dataService: dataService)
-      },
-      label: {
-        Image(systemName: viewModel.isItemRead ? "line.horizontal.3.decrease.circle" : "checkmark.circle")
-      }
-    )
-  }
-
-  var removeLinkToolbarItem: some View {
-    Button(
-      action: { print("delete item action") },
-      label: {
-        Image(systemName: "trash")
-      }
-    )
   }
 
   var body: some View {
@@ -121,76 +94,6 @@ struct LinkItemDetailView: View {
     #if os(iOS)
       .navigationBarHidden(true)
     #endif
-  }
-
-  var navBar: some View {
-    HStack(alignment: .center) {
-      Button(
-        action: { self.presentationMode.wrappedValue.dismiss() },
-        label: {
-          Image(systemName: "chevron.backward")
-            .font(.appNavbarIcon)
-            .foregroundColor(.appGrayTextContrast)
-            .padding(.horizontal)
-        }
-      )
-      .scaleEffect(navBarVisibilityRatio)
-      Spacer()
-      Button(
-        action: { showFontSizePopover.toggle() },
-        label: {
-          Image(systemName: "textformat.size")
-            .font(.appTitleTwo)
-        }
-      )
-      .padding(.horizontal)
-      .scaleEffect(navBarVisibilityRatio)
-      Menu(
-        content: {
-          Group {
-            Button(
-              action: { showTitleEdit = true },
-              label: { Label("Edit Info", systemImage: "info.circle") }
-            )
-            Button(
-              action: { viewModel.handleArchiveAction(dataService: dataService) },
-              label: {
-                Label(
-                  viewModel.isItemArchived ? "Unarchive" : "Archive",
-                  systemImage: viewModel.isItemArchived ? "tray.and.arrow.down.fill" : "archivebox"
-                )
-              }
-            )
-            Button(
-              action: { showDeleteConfirmation = true },
-              label: { Label("Delete", systemImage: "trash") }
-            )
-          }
-        },
-        label: {
-          Image(systemName: "ellipsis")
-            .padding(.horizontal)
-            .scaleEffect(navBarVisibilityRatio)
-        }
-      )
-    }
-    .frame(height: readerViewNavBarHeight * navBarVisibilityRatio)
-    .opacity(navBarVisibilityRatio)
-    .background(Color.systemBackground)
-    .onTapGesture {
-      showFontSizePopover = false
-    }
-    .alert("Are you sure?", isPresented: $showDeleteConfirmation) {
-      Button("Remove Link", role: .destructive) {
-        viewModel.handleDeleteAction(dataService: dataService)
-      }
-      Button(LocalText.cancelGeneric, role: .cancel, action: {})
-    }
-    .sheet(isPresented: $showTitleEdit) {
-      if let item = viewModel.item {
-        LinkedItemMetadataEditView(item: item)
-      }
-    }
   }
 
   @ViewBuilder private var pdfContainerView: some View {

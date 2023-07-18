@@ -67,8 +67,10 @@ public extension NSNotification {
     )
   }
 
-  static func operationSuccess(message: String) {
-    NotificationCenter.default.post(name: NSNotification.OperationSuccess, object: nil, userInfo: ["message": message])
+  static func operationSuccess(message: String, undoAction: (() -> Void)?) {
+    NotificationCenter.default.post(name: NSNotification.OperationSuccess,
+                                    object: nil,
+                                    userInfo: ["message": message, "undoAction": undoAction as Any])
   }
 
   static func operationFailed(message: String) {

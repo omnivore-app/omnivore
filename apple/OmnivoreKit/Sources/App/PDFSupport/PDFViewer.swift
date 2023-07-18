@@ -40,6 +40,8 @@ import Utils
     @State var readerView: Bool = false
     @State private var shareLink: ShareLink?
     @State private var errorMessage: String?
+    @State private var showNotebookView = false
+    @State private var hasPerformedHighlightMutations = false
 
     init(viewModel: PDFViewerViewModel) {
       self.viewModel = viewModel
@@ -117,6 +119,12 @@ import Utils
                 style: .plain,
                 target: controller.searchButtonItem.target,
                 action: controller.searchButtonItem.action
+              ),
+              UIBarButtonItem(
+                image: UIImage(named: "notebook", in: Bundle(url: ViewsPackage.bundleURL), with: nil),
+                style: .plain,
+                target: coordinator,
+                action: #selector(PDFViewCoordinator.toggleNotebookView)
               )
             ]
 
@@ -183,6 +191,15 @@ import Utils
           .sheet(item: $shareLink) {
             ShareSheet(activityItems: [$0.url])
           }
+          .fullScreenCover(isPresented: $showNotebookView, onDismiss: onNotebookViewDismissal) {
+            NotebookView(
+              itemObjectID: viewModel.pdfItem.objectID,
+              hasHighlightMutations: $hasPerformedHighlightMutations,
+              onDeleteHighlight: { highlightId in
+                coordinator.removeHighlightFromPDF(highlightId: highlightId)
+              }
+            )
+          }
       } else if let errorMessage = errorMessage {
         Text(errorMessage)
       } else {
@@ -200,6 +217,12 @@ import Utils
             }
           }
       }
+    }
+
+    func onNotebookViewDismissal() {
+      guard hasPerformedHighlightMutations else { return }
+
+      hasPerformedHighlightMutations.toggle()
     }
 
     class PDFViewCoordinator: NSObject, PDFDocumentViewControllerDelegate, PDFViewControllerDelegate {
@@ -237,6 +260,22 @@ import Utils
         controller.documentPublisher.sink { document in
           print("document published", document.isValid)
         }.store(in: &subscriptions)
+      }
+
+      func removeHighlightFromPDF(highlightId: String) {
+        for pageIndex in 0 ..< document.pageCount {
+          let pageHighlights = document.annotations(at: pageIndex, type: HighlightAnnotation.self)
+
+          for annotation in pageHighlights {
+            if let customHighlight = annotation.customData?["omnivoreHighlight"] as? [String: String] {
+              if customHighlight["id"]?.lowercased() == highlightId {
+                if !document.remove(annotations: [annotation]) {
+                  Snackbar.show(message: "Error removing highlight")
+                }
+              }
+            }
+          }
+        }
       }
 
       func highlightsOverlap(left: HighlightAnnotation, right: HighlightAnnotation) -> Bool {
@@ -379,6 +418,12 @@ import Utils
       @objc public func toggleReaderView() {
         if let viewer = self.viewer {
           viewer.readerView = !viewer.readerView
+        }
+      }
+
+      @objc public func toggleNotebookView() {
+        if let viewer = self.viewer {
+          viewer.showNotebookView = !viewer.showNotebookView
         }
       }
 

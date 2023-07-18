@@ -31,8 +31,11 @@ import Views
   @Published var linkIsActive = false
 
   @Published var showLabelsSheet = false
+  @Published var showFiltersModal = false
   @Published var showCommunityModal = false
   @Published var featureItems = [LinkedItem]()
+
+  @Published var listConfig: LibraryListConfig
 
   var cursor: String?
 
@@ -47,20 +50,27 @@ import Views
   @AppStorage(UserDefaultKey.lastSelectedLinkedItemFilter.rawValue) var appliedFilter = LinkedItemFilter.inbox.rawValue
   @AppStorage(UserDefaultKey.lastSelectedFeaturedItemFilter.rawValue) var featureFilter = FeaturedItemFilter.continueReading.rawValue
 
-  func setItems(_ items: [LinkedItem]) {
-    self.items = items
-    updateFeatureFilter(FeaturedItemFilter(rawValue: featureFilter))
+  init(listConfig: LibraryListConfig) {
+    self.listConfig = listConfig
+    super.init()
   }
 
-  func updateFeatureFilter(_ filter: FeaturedItemFilter?) {
+  func setItems(_ context: NSManagedObjectContext, _ items: [LinkedItem]) {
+    self.items = items
+    updateFeatureFilter(context: context, filter: FeaturedItemFilter(rawValue: featureFilter))
+  }
+
+  func updateFeatureFilter(context: NSManagedObjectContext, filter: FeaturedItemFilter?) {
     if let filter = filter {
-      // now try to update the continue reading items:
-      featureItems = (items.filter { item in
-        filter.predicate.evaluate(with: item)
-      } as NSArray)
-        .sortedArray(using: [filter.sortDescriptor])
-        .compactMap { $0 as? LinkedItem }
-      featureFilter = filter.rawValue
+      Task {
+        featureFilter = filter.rawValue
+
+        featureItems = await loadFeatureItems(
+          context: context,
+          predicate: filter.predicate,
+          sort: filter.sortDescriptor
+        )
+      }
     } else {
       featureItems = []
     }
@@ -173,6 +183,8 @@ import Views
       cursor: isRefresh ? nil : cursor
     )
 
+    let filter = LinkedItemFilter(rawValue: appliedFilter)
+
     if let queryResult = queryResult {
       let newItems: [LinkedItem] = {
         var itemObjects = [LinkedItem]()
@@ -182,15 +194,15 @@ import Views
         return itemObjects
       }()
 
-      if searchTerm.replacingOccurrences(of: " ", with: "").isEmpty {
+      if searchTerm.replacingOccurrences(of: " ", with: "").isEmpty, filter?.allowLocalFetch ?? false {
         updateFetchController(dataService: dataService)
       } else {
         // Don't use FRC for searching. Use server results directly.
         if fetchedResultsController != nil {
           fetchedResultsController = nil
-          setItems([])
+          setItems(dataService.viewContext, [])
         }
-        setItems(isRefresh ? newItems : items + newItems)
+        setItems(dataService.viewContext, isRefresh ? newItems : items + newItems)
       }
 
       isLoading = false
@@ -223,6 +235,8 @@ import Views
       updateFetchController(dataService: dataService)
     }
 
+    updateFeatureFilter(context: dataService.viewContext, filter: FeaturedItemFilter(rawValue: featureFilter))
+
     isLoading = false
     showLoadingBar = false
   }
@@ -235,6 +249,15 @@ import Views
 
     isLoading = false
     showLoadingBar = false
+  }
+
+  func loadFeatureItems(context: NSManagedObjectContext, predicate: NSPredicate, sort: NSSortDescriptor) async -> [LinkedItem] {
+    let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
+    fetchRequest.fetchLimit = 25
+    fetchRequest.predicate = predicate
+    fetchRequest.sortDescriptors = [sort]
+
+    return (try? context.fetch(fetchRequest)) ?? []
   }
 
   private var fetchRequest: NSFetchRequest<Models.LinkedItem> {
@@ -288,7 +311,7 @@ import Views
 
     fetchedResultsController.delegate = self
     try? fetchedResultsController.performFetch()
-    setItems(fetchedResultsController.fetchedObjects ?? [])
+    setItems(dataService.viewContext, fetchedResultsController.fetchedObjects ?? [])
   }
 
   func setLinkArchived(dataService: DataService, objectID: NSManagedObjectID, archived: Bool) {
@@ -297,8 +320,68 @@ import Views
   }
 
   func removeLink(dataService: DataService, objectID: NSManagedObjectID) {
-    Snackbar.show(message: "Link removed")
-    dataService.removeLink(objectID: objectID)
+    removeLibraryItemAction(dataService: dataService, objectID: objectID)
+  }
+
+  func recoverItem(dataService: DataService, itemID: String) {
+    Task {
+      if await dataService.recoverItem(itemID: itemID) {
+        Snackbar.show(message: "Item recovered")
+      } else {
+        Snackbar.show(message: "Error. Check trash to recover.")
+      }
+    }
+  }
+
+  func getOrCreateLabel(dataService: DataService, named: String, color: String) -> LinkedItemLabel? {
+    if let label = LinkedItemLabel.named(named, inContext: dataService.viewContext) {
+      return label
+    }
+    if let labelID = try? dataService.createLabel(name: named, color: color, description: "") {
+      return dataService.viewContext.object(with: labelID) as? LinkedItemLabel
+      // return LinkedItemLabel.lookup(byID: labelID, inContext: dataService.viewContext)
+    }
+    return nil
+  }
+
+  func addLabel(dataService: DataService, item: LinkedItem, label: String, color: String) {
+    if let label = getOrCreateLabel(dataService: dataService, named: "Pinned", color: color) {
+      let existingLabels = item.labels?.allObjects.compactMap { ($0 as? LinkedItemLabel)?.unwrappedID } ?? []
+      dataService.updateItemLabels(itemID: item.unwrappedID, labelIDs: existingLabels + [label.unwrappedID])
+
+      item.update(inContext: dataService.viewContext)
+      updateFeatureFilter(context: dataService.viewContext, filter: FeaturedItemFilter(rawValue: featureFilter))
+    }
+  }
+
+  func removeLabel(dataService: DataService, item: LinkedItem, named: String) {
+    let labelIds = item.labels?
+      .filter { ($0 as? LinkedItemLabel)?.name != named }
+      .compactMap { ($0 as? LinkedItemLabel)?.unwrappedID } ?? []
+    dataService.updateItemLabels(itemID: item.unwrappedID, labelIDs: labelIds)
+    item.update(inContext: dataService.viewContext)
+  }
+
+  func pinItem(dataService: DataService, item: LinkedItem) {
+    addLabel(dataService: dataService, item: item, label: "Pinned", color: "#0A84FF")
+    if featureFilter == FeaturedItemFilter.pinned.rawValue {
+      updateFeatureFilter(context: dataService.viewContext, filter: .pinned)
+    }
+  }
+
+  func unpinItem(dataService: DataService, item: LinkedItem) {
+    removeLabel(dataService: dataService, item: item, named: "Pinned")
+    if featureFilter == FeaturedItemFilter.pinned.rawValue {
+      updateFeatureFilter(context: dataService.viewContext, filter: .pinned)
+    }
+  }
+
+  func markRead(dataService: DataService, item: LinkedItem) {
+    dataService.updateLinkReadingProgress(itemID: item.unwrappedID, readingProgress: 100, anchorIndex: 0)
+  }
+
+  func markUnread(dataService: DataService, item: LinkedItem) {
+    dataService.updateLinkReadingProgress(itemID: item.unwrappedID, readingProgress: 0, anchorIndex: 0)
   }
 
   func snoozeUntil(dataService: DataService, linkId: String, until: Date, successMessage: String?) async {
@@ -362,6 +445,6 @@ import Views
 
 extension HomeFeedViewModel: NSFetchedResultsControllerDelegate {
   func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-    setItems(controller.fetchedObjects as? [LinkedItem] ?? [])
+    setItems(controller.managedObjectContext, controller.fetchedObjects as? [LinkedItem] ?? [])
   }
 }
