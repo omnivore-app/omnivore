@@ -14,7 +14,7 @@ struct LibraryListView: View {
     listConfig: LibraryListConfig(
       hasFeatureCards: false,
       leadingSwipeActions: [.moveToInbox],
-      trailingSwipeActions: [.delete, .archive],
+      trailingSwipeActions: [.archive, .delete],
       cardStyle: .library
     )
   )
@@ -23,7 +23,7 @@ struct LibraryListView: View {
     listConfig: LibraryListConfig(
       hasFeatureCards: true,
       leadingSwipeActions: [.pin],
-      trailingSwipeActions: [.delete, .archive],
+      trailingSwipeActions: [.archive, .delete],
       cardStyle: .library
     )
   )
@@ -32,7 +32,7 @@ struct LibraryListView: View {
     listConfig: LibraryListConfig(
       hasFeatureCards: true,
       leadingSwipeActions: [.pin],
-      trailingSwipeActions: [.delete, .archive],
+      trailingSwipeActions: [.archive, .delete],
       cardStyle: .highlights
     )
   )
