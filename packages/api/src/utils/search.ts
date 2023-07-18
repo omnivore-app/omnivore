@@ -22,6 +22,8 @@ export enum InFilter {
   INBOX,
   ARCHIVE,
   TRASH,
+  SUBSCRIPTION,
+  LIBRARY,
 }
 
 export interface SearchFilter {
@@ -123,7 +125,12 @@ const parseInFilter = (
       return InFilter.ARCHIVE
     case 'TRASH':
       return InFilter.TRASH
+    case 'SUBSCRIPTION':
+      return InFilter.SUBSCRIPTION
+    case 'LIBRARY':
+      return InFilter.LIBRARY
   }
+
   return query ? InFilter.ALL : InFilter.INBOX
 }
 

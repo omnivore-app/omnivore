@@ -19,7 +19,6 @@ struct WebReaderContainerView: View {
   @State private var hasPerformedHighlightMutations = false
   @State var showHighlightAnnotationModal = false
   @State private var navBarVisibilityRatio = 1.0
-  @State private var showDeleteConfirmation = false
   @State private var progressViewOpacity = 0.0
   @State var readerSettingsChangedTransactionID: UUID?
   @State var annotationSaveTransactionID: UUID?
@@ -32,6 +31,7 @@ struct WebReaderContainerView: View {
   @State private var showErrorAlertMessage = false
   @State private var showRecommendSheet = false
   @State private var lastScrollPercentage: Int?
+  @State private var isRecovering = false
 
   @State var safariWebLink: SafariWebLink?
   @State var displayLinkSheet = false
@@ -250,7 +250,7 @@ struct WebReaderContainerView: View {
       )
       Button(
         action: delete,
-        label: { Label("Delete", systemImage: "trash") }
+        label: { Label("Remove", systemImage: "trash") }
       )
       Button(
         action: {
@@ -346,17 +346,6 @@ struct WebReaderContainerView: View {
     .opacity(navBarVisibilityRatio)
     .foregroundColor(ThemeManager.currentTheme.isDark ? .white : .black)
     .background(ThemeManager.currentBgColor)
-    .alert("Are you sure you want to remove this item? All associated notes and highlights will be deleted.",
-           isPresented: $showDeleteConfirmation) {
-      Button("Remove Item", role: .destructive) {
-        Snackbar.show(message: "Link removed")
-        dataService.removeLink(objectID: item.objectID)
-        #if os(iOS)
-          presentationMode.wrappedValue.dismiss()
-        #endif
-      }
-      Button(LocalText.cancelGeneric, role: .cancel, action: {})
-    }
     .sheet(isPresented: $showLabelsModal) {
       ApplyLabelsView(mode: .item(item), isSearchFocused: false, onSave: { labels in
         showLabelsModal = false
@@ -444,7 +433,7 @@ struct WebReaderContainerView: View {
             #if os(iOS)
               UIPasteboard.general.string = item.unwrappedPageURLString
             #else
-//            Pasteboard.general.string = item.unwrappedPageURLString TODO: fix for mac
+              //            Pasteboard.general.string = item.unwrappedPageURLString TODO: fix for mac
             #endif
             showInSnackbar("Link Copied")
           }, label: { Text(LocalText.readerCopyLink) })
@@ -506,16 +495,39 @@ struct WebReaderContainerView: View {
         }
       } else if let errorMessage = viewModel.errorMessage {
         VStack {
-          Text(errorMessage).padding()
           if viewModel.allowRetry, viewModel.hasOriginalUrl(item) {
-            Button("Open Original", action: {
-              openOriginalURL(urlString: item.pageURLString)
-            }).buttonStyle(RoundedRectButtonStyle())
-            if let urlStr = item.pageURLString, let username = dataService.currentViewer?.username, let url = URL(string: urlStr) {
-              Button("Attempt to Save Again", action: {
-                viewModel.errorMessage = nil
-                viewModel.saveLinkAndFetch(dataService: dataService, username: username, url: url)
+            if item.state == "DELETED" {
+              Text("Item has been deleted, would you like to recover it?").padding()
+              if isRecovering {
+                ProgressView()
+              } else {
+                Button("Recover", action: {
+                  self.isRecovering = true
+                  Task {
+                    if !(await dataService.recoverItem(itemID: item.unwrappedID)) {
+                      Snackbar.show(message: "Error recovering item")
+                    } else {
+                      await viewModel.loadContent(
+                        dataService: dataService,
+                        username: dataService.currentViewer?.username ?? "me",
+                        itemID: item.unwrappedID
+                      )
+                    }
+                    isRecovering = false
+                  }
+                }).buttonStyle(RoundedRectButtonStyle())
+              }
+            } else {
+              Text(errorMessage).padding()
+              Button("Open Original", action: {
+                openOriginalURL(urlString: item.pageURLString)
               }).buttonStyle(RoundedRectButtonStyle())
+              if let urlStr = item.pageURLString, let username = dataService.currentViewer?.username, let url = URL(string: urlStr) {
+                Button("Attempt to Save Again", action: {
+                  viewModel.errorMessage = nil
+                  viewModel.saveLinkAndFetch(dataService: dataService, username: username, url: url)
+                }).buttonStyle(RoundedRectButtonStyle())
+              }
             }
           }
         }
@@ -607,7 +619,12 @@ struct WebReaderContainerView: View {
   }
 
   func delete() {
-    showDeleteConfirmation = true
+    removeLibraryItemAction(dataService: dataService, objectID: item.objectID)
+    #if os(iOS)
+      DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
+        presentationMode.wrappedValue.dismiss()
+      }
+    #endif
   }
 
   func editLabels() {

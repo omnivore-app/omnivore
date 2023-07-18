@@ -6,6 +6,7 @@ public enum ArticleContentStatus: String {
   case processing = "PROCESSING"
   case succeeded = "SUCCEEDED"
   case unknown = "UNKNOWN"
+  case deleted = "DELETED"
 }
 
 public struct ArticleContent {

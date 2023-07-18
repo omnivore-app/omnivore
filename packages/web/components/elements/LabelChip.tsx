@@ -17,7 +17,7 @@ export function LabelChip(props: LabelChipProps): JSX.Element {
   const isDark = isDarkTheme()
 
   const selectedBorder = isDark ? '#FFEA9F' : 'black'
-  const unSelectedBorder = isDark ? '#6A6968' : '#D9D9D9'
+  const unSelectedBorder = isDark ? '#2A2A2A' : '#D9D9D9'
 
   return (
     <SpanBox
@@ -27,7 +27,7 @@ export function LabelChip(props: LabelChipProps): JSX.Element {
         fontSize: '11px',
         fontWeight: '500',
         fontFamily: '$inter',
-        padding: '1px 7px',
+        padding: '4px 7px',
         whiteSpace: 'nowrap',
         cursor: 'pointer',
         backgroundClip: 'padding-box',

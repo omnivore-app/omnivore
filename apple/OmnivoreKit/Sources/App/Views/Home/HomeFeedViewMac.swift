@@ -74,7 +74,7 @@ import Views
                   itemToRemove = item
                   confirmationShown = true
                 },
-                label: { Label("Delete", systemImage: "trash") }
+                label: { Label("Remove", systemImage: "trash") }
               )
               if FeatureFlag.enableSnooze {
                 Button {
@@ -93,7 +93,7 @@ import Views
           }
         }
         .listStyle(InsetListStyle())
-        .navigationTitle("Home")
+        .navigationTitle("Library")
         .searchable(
           text: $viewModel.searchTerm,
           placement: .toolbar

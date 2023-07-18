@@ -1,20 +1,32 @@
 import SwiftUI
 
+public typealias SnackbarUndoAction = (() -> Void)
+
+public struct SnackbarOperation {
+  let message: String
+  let undoAction: SnackbarUndoAction?
+
+  public init(message: String, undoAction: SnackbarUndoAction?) {
+    self.message = message
+    self.undoAction = undoAction
+  }
+}
+
 public struct Snackbar: View {
   @Binding var isShowing: Bool
   private let presentingView: AnyView
-  private let text: Text
+  private let operation: SnackbarOperation
 
   @Environment(\.colorScheme) private var colorScheme: ColorScheme
 
   init<PresentingView>(
     isShowing: Binding<Bool>,
     presentingView: PresentingView,
-    text: Text
+    operation: SnackbarOperation
   ) where PresentingView: View {
     self._isShowing = isShowing
     self.presentingView = AnyView(presentingView)
-    self.text = text
+    self.operation = operation
   }
 
   public var body: some View {
@@ -23,12 +35,19 @@ public struct Snackbar: View {
         presentingView
         VStack {
           Spacer()
-          if self.isShowing {
+          if isShowing {
             HStack {
-              self.text
+              Text(operation.message)
                 .font(.appCallout)
                 .foregroundColor(self.colorScheme == .light ? .white : .appTextDefault)
               Spacer()
+              if let undoAction = operation.undoAction {
+                Button("Undo", action: {
+                  isShowing = false
+                  undoAction()
+                })
+                  .font(.system(size: 16, weight: .bold))
+              }
             }
             .padding()
             .frame(width: min(380, geometry.size.width * 0.96), height: 44)
@@ -45,7 +64,11 @@ public struct Snackbar: View {
 }
 
 public extension View {
-  func snackBar(isShowing: Binding<Bool>, message: String?) -> some View {
-    Snackbar(isShowing: isShowing, presentingView: self, text: Text(message ?? ""))
+  func snackBar(isShowing: Binding<Bool>, operation: SnackbarOperation?) -> some View {
+    if let operation = operation {
+      return AnyView(Snackbar(isShowing: isShowing, presentingView: self, operation: operation))
+    } else {
+      return AnyView(self)
+    }
   }
 }

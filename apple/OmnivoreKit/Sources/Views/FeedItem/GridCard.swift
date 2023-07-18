@@ -14,18 +14,16 @@ public struct GridCard: View {
   @Binding var isContextMenuOpen: Bool
   let item: LinkedItem
   let actionHandler: (GridCardAction) -> Void
-  let tapAction: () -> Void
+  // let tapAction: () -> Void
 
   public init(
     item: LinkedItem,
     isContextMenuOpen: Binding<Bool>,
-    actionHandler: @escaping (GridCardAction) -> Void,
-    tapAction: @escaping () -> Void
+    actionHandler: @escaping (GridCardAction) -> Void
   ) {
     self.item = item
     self._isContextMenuOpen = isContextMenuOpen
     self.actionHandler = actionHandler
-    self.tapAction = tapAction
   }
 
   // Menu doesn't provide an API to observe it's open state
@@ -33,8 +31,6 @@ public struct GridCard: View {
   func tapHandler() {
     if isContextMenuOpen {
       isContextMenuOpen = false
-    } else {
-      tapAction()
     }
   }
 
@@ -83,7 +79,7 @@ public struct GridCard: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.bottom, 16)
         }
-        .onTapGesture { tapHandler() }
+        // .onTapGesture { tapHandler() }
 
         VStack {
           // Title, Subtitle, Menu Button
@@ -93,15 +89,6 @@ public struct GridCard: View {
                 .font(.appHeadline)
                 .foregroundColor(.appGrayTextContrast)
                 .lineLimit(1)
-                .onTapGesture { tapHandler() }
-              Spacer()
-
-              Menu(
-                content: { contextMenuView },
-                label: { Image(systemName: "ellipsis").padding() }
-              )
-              .frame(width: 16, height: 16, alignment: .center)
-              .onTapGesture { isContextMenuOpen = true }
             }
 
             HStack {
@@ -121,7 +108,7 @@ public struct GridCard: View {
 
               Spacer()
             }
-            .onTapGesture { tapHandler() }
+            // .onTapGesture { tapHandler() }
           }
           .frame(height: 30)
           .padding(.horizontal)
@@ -156,7 +143,7 @@ public struct GridCard: View {
             }
           }
           .padding(.horizontal)
-          .onTapGesture { tapHandler() }
+          // .onTapGesture { tapHandler() }
 
           // Category Labels
           if item.hasLabels {
@@ -169,7 +156,7 @@ public struct GridCard: View {
               }
               .padding(.horizontal)
             }
-            .onTapGesture { tapHandler() }
+            // .onTapGesture { tapHandler() }
           }
 
           if let status = item.serverSyncStatus, status != ServerSyncStatus.isNSync.rawValue {

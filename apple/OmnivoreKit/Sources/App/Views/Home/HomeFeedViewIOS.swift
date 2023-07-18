@@ -28,6 +28,7 @@ struct AnimatingCellHeight: AnimatableModifier {
     @State var searchPresented = false
     @State var addLinkPresented = false
     @State var settingsPresented = false
+
     @EnvironmentObject var dataService: DataService
     @EnvironmentObject var audioController: AudioController
 
@@ -83,31 +84,25 @@ struct AnimatingCellHeight: AnimatableModifier {
         .sheet(item: $viewModel.itemForHighlightsView) { item in
           NotebookView(itemObjectID: item.objectID, hasHighlightMutations: $hasHighlightMutations)
         }
-        .sheet(isPresented: $viewModel.showCommunityModal) {
-          CommunityModal()
-            .onAppear {
-              shouldPromptCommunityModal = false
-            }
+        .sheet(isPresented: $viewModel.showFiltersModal) {
+          NavigationView {
+            FilterSelectorView(viewModel: viewModel)
+          }
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
           ToolbarItem(placement: .barLeading) {
-            Button(action: {
-              viewModel.showCommunityModal = true
-            }, label: {
-              Image.smallOmnivoreLogo
-                .renderingMode(.template)
-                .resizable()
-                .frame(width: 24, height: 24)
-                .foregroundColor(.appGrayTextContrast)
-                .overlay(alignment: .topTrailing, content: {
-                  if shouldPromptCommunityModal {
-                    Circle()
-                      .fill(Color.red)
-                      .frame(width: 6, height: 6)
-                  }
-                })
-            })
+//            Button(action: {
+//              viewModel.showFiltersModal = true
+//            }, label: {
+            HStack(alignment: .center) {
+              let title = (LinkedItemFilter(rawValue: viewModel.appliedFilter) ?? LinkedItemFilter.inbox).displayName
+              Text(title)
+                .font(Font.system(size: 18, weight: .semibold))
+//                Image(systemName: "chevron.down")
+//                  .font(Font.system(size: 13, weight: .regular))
+            }.frame(maxWidth: .infinity, alignment: .leading)
+//            })
           }
           ToolbarItem(placement: .barTrailing) {
             Button("", action: {})
@@ -197,21 +192,21 @@ struct AnimatingCellHeight: AnimatableModifier {
           }
         }
       }
-      .formSheet(isPresented: $viewModel.snoozePresented) {
-        SnoozeView(
-          snoozePresented: $viewModel.snoozePresented,
-          itemToSnoozeID: $viewModel.itemToSnoozeID
-        ) { snoozeParams in
-          Task {
-            await viewModel.snoozeUntil(
-              dataService: dataService,
-              linkId: snoozeParams.feedItemId,
-              until: snoozeParams.snoozeUntilDate,
-              successMessage: snoozeParams.successMessage
-            )
-          }
-        }
-      }
+//      .formSheet(isPresented: $viewModel.snoozePresented) {
+//        SnoozeView(
+//          snoozePresented: $viewModel.snoozePresented,
+//          itemToSnoozeID: $viewModel.itemToSnoozeID
+//        ) { snoozeParams in
+//          Task {
+//            await viewModel.snoozeUntil(
+//              dataService: dataService,
+//              linkId: snoozeParams.feedItemId,
+//              until: snoozeParams.snoozeUntilDate,
+//              successMessage: snoozeParams.successMessage
+//            )
+//          }
+//        }
+//      }
       .fullScreenCover(isPresented: $searchPresented) {
         LibrarySearchView(homeFeedViewModel: self.viewModel)
       }
@@ -262,9 +257,6 @@ struct AnimatingCellHeight: AnimatableModifier {
     @EnvironmentObject var audioController: AudioController
 
     @Binding var prefersListLayout: Bool
-
-    @State private var itemToRemove: LinkedItem?
-    @State private var confirmationShown = false
     @State private var showHideFeatureAlert = false
 
     @ObservedObject var viewModel: HomeFeedViewModel
@@ -325,210 +317,212 @@ struct AnimatingCellHeight: AnimatableModifier {
     }
 
     func menuItems(for item: LinkedItem) -> some View {
-      Group {
-        Button(
-          action: { viewModel.itemUnderTitleEdit = item },
-          label: { Label("Edit Info", systemImage: "info.circle") }
-        )
-        Button(
-          action: { viewModel.itemUnderLabelEdit = item },
-          label: { Label(item.labels?.count == 0 ? "Add Labels" : "Edit Labels", systemImage: "tag") }
-        )
-        Button(action: {
-          withAnimation(.linear(duration: 0.4)) {
-            viewModel.setLinkArchived(
-              dataService: dataService,
-              objectID: item.objectID,
-              archived: !item.isArchived
-            )
-          }
-        }, label: {
-          Label(
-            item.isArchived ? "Unarchive" : "Archive",
-            systemImage: item.isArchived ? "tray.and.arrow.down.fill" : "archivebox"
-          )
-        })
-        Button("Remove Item", role: .destructive) {
-          itemToRemove = item
-          confirmationShown = true
-        }
-        if FeatureFlag.enableSnooze {
-          Button {
-            viewModel.itemToSnoozeID = item.id
-            viewModel.snoozePresented = true
-          } label: {
-            Label { Text(LocalText.genericSnooze) } icon: { Image.moon }
-          }
-        }
-        if let author = item.author {
-          Button(
-            action: {
-              viewModel.searchTerm = "author:\"\(author)\""
-            },
-            label: {
-              Label(String("More by \(author)"), systemImage: "person")
-            }
-          )
-        }
-      }
+      libraryItemMenu(dataService: dataService, viewModel: viewModel, item: item)
     }
 
     var featureCard: some View {
-      VStack(alignment: .leading, spacing: 20) {
-        Menu(content: {
-          Button(action: {
-            viewModel.updateFeatureFilter(.continueReading)
-          }, label: {
-            Text("Continue Reading")
-          })
-          Button(action: {
-            viewModel.updateFeatureFilter(.pinned)
-          }, label: {
-            Text("Pinned")
-          })
-          Button(action: {
-            viewModel.updateFeatureFilter(.newsletters)
-          }, label: {
-            Text("Newsletters")
-          })
-          Button(action: {
-            showHideFeatureAlert = true
-          }, label: {
-            Text("Hide this Section")
-          })
-        }, label: {
-          HStack(alignment: .center) {
-            Text((FeaturedItemFilter(rawValue: viewModel.featureFilter) ?? .continueReading).title.uppercased())
-              .font(Font.system(size: 14, weight: .regular))
-            Image(systemName: "chevron.down")
-          }.frame(maxWidth: .infinity, alignment: .leading)
-        })
-          .padding(.top, 20)
-          .padding(.bottom, 0)
-
-        GeometryReader { geo in
-
-          ScrollView(.horizontal, showsIndicators: false) {
-            if viewModel.featureItems.count > 0 {
-              LazyHStack(alignment: .top, spacing: 10) {
-                ForEach(viewModel.featureItems) { item in
-                  LibraryFeatureCardNavigationLink(item: item, viewModel: viewModel)
+      VStack(spacing: 0) {
+        if Color.isDarkMode {
+          Color(hex: "#3D3D3D").frame(maxWidth: .infinity, maxHeight: 0.5)
+        }
+        VStack(alignment: .leading, spacing: 15) {
+          HStack {
+            Menu(content: {
+              Button(action: {
+                viewModel.updateFeatureFilter(context: dataService.viewContext, filter: .continueReading)
+              }, label: {
+                Text("Continue Reading")
+              })
+              Button(action: {
+                viewModel.updateFeatureFilter(context: dataService.viewContext, filter: .pinned)
+              }, label: {
+                Text("Pinned")
+              })
+              Button(action: {
+                viewModel.updateFeatureFilter(context: dataService.viewContext, filter: .newsletters)
+              }, label: {
+                Text("Newsletters")
+              })
+              Button(action: {
+                showHideFeatureAlert = true
+              }, label: {
+                Text("Hide this Section")
+              })
+            }, label: {
+              Group {
+                HStack(alignment: .center) {
+                  Image(systemName: "line.3.horizontal.decrease")
+                    .font(Font.system(size: 13, weight: .regular))
+                  Text((FeaturedItemFilter(rawValue: viewModel.featureFilter) ?? .continueReading).title)
+                    .font(Font.system(size: 13, weight: .medium))
                 }
+                .tint(Color(hex: "#007AFF"))
+                .padding(.vertical, 5)
+                .padding(.horizontal, 7)
+                .background(Color(hex: "#007AFF")?.opacity(0.1))
+                .cornerRadius(5)
+              }.frame(maxWidth: .infinity, alignment: .leading)
+            })
+            Spacer()
+          }
+          .padding(.top, 10)
+          .padding(.horizontal, 15)
+
+          GeometryReader { geo in
+            ScrollView(.horizontal, showsIndicators: false) {
+              if viewModel.featureItems.count > 0 {
+                HStack(alignment: .top, spacing: 15) {
+                  Spacer(minLength: 1).frame(width: 1)
+                  ForEach(viewModel.featureItems) { item in
+                    LibraryFeatureCardNavigationLink(item: item, viewModel: viewModel)
+                  }
+                  Spacer(minLength: 1).frame(width: 1)
+                }
+                .padding(.top, 0)
+              } else {
+                Text((FeaturedItemFilter(rawValue: viewModel.featureFilter) ?? .continueReading).emptyMessage)
+                  .padding(.horizontal, UIDevice.isIPad ? 20 : 10)
+                  .font(Font.system(size: 14, weight: .regular))
+                  .foregroundColor(Color(hex: "#898989"))
+                  .frame(maxWidth: geo.size.width)
+                  .frame(height: 60, alignment: .topLeading)
+                  .fixedSize(horizontal: false, vertical: true)
               }
-            } else {
-              Text((FeaturedItemFilter(rawValue: viewModel.featureFilter) ?? .continueReading).emptyMessage)
-                .font(Font.system(size: 14, weight: .regular))
-                .foregroundColor(Color(hex: "#898989"))
-                .frame(maxWidth: geo.size.width)
-                .frame(height: 60, alignment: .topLeading)
-                .fixedSize(horizontal: false, vertical: true)
             }
           }
         }
+        .background(Color.isDarkMode ? Color(hex: "#1C1C1C") : Color.systemBackground)
+        .frame(height: 190)
 
-        Text((LinkedItemFilter(rawValue: viewModel.appliedFilter)?.displayName ?? "Inbox").uppercased())
-          .font(Font.system(size: 14, weight: .regular))
+        if !Color.isDarkMode {
+          VStack {
+            LinearGradient(gradient: Gradient(colors: [.black.opacity(0.06), .systemGray6]),
+                           startPoint: .top, endPoint: .bottom)
+              .frame(maxWidth: .infinity, maxHeight: 6)
+
+            Spacer()
+          }
+          .background(Color.systemGray6)
+          .frame(maxWidth: .infinity)
+        } else {
+          VStack {
+            Color(hex: "#3D3D3D").frame(maxWidth: .infinity, maxHeight: 0.5)
+            Spacer()
+          }
+          .background(Color.systemBackground)
+          .frame(maxWidth: .infinity)
+        }
       }
     }
 
     var body: some View {
-      ZStack {
-        NavigationLink(
-          destination: LinkDestination(selectedItem: viewModel.selectedItem),
-          isActive: $viewModel.linkIsActive
-        ) {
-          EmptyView()
+      let horizontalInset = CGFloat(UIDevice.isIPad ? 20 : 10)
+      VStack(spacing: 0) {
+        if viewModel.showLoadingBar {
+          ShimmeringLoader()
+        } else {
+          Spacer(minLength: 2)
         }
-        VStack(spacing: 0) {
-          if viewModel.showLoadingBar {
-            ShimmeringLoader()
+
+        List {
+          filtersHeader
+            .listRowSeparator(.hidden, edges: .all)
+            .listRowInsets(.init(top: 0, leading: horizontalInset, bottom: 0, trailing: horizontalInset))
+
+          if viewModel.listConfig.hasFeatureCards,
+             !viewModel.hideFeatureSection,
+             viewModel.items.count > 0,
+             viewModel.searchTerm.isEmpty,
+             viewModel.selectedLabels.isEmpty,
+             viewModel.negatedLabels.isEmpty,
+             LinkedItemFilter(rawValue: viewModel.appliedFilter) == .inbox
+          {
+            featureCard
+              .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+              .listRowSeparator(.hidden, edges: .all)
+              .modifier(AnimatingCellHeight(height: 190 + (Color.isDarkMode ? 13 : 13)))
+          }
+
+          ForEach(viewModel.items) { item in
+            FeedCardNavigationLink(
+              item: item,
+              viewModel: viewModel
+            )
+            .listRowSeparatorTint(Color.thBorderColor)
+            .listRowInsets(.init(top: 0, leading: horizontalInset, bottom: 10, trailing: horizontalInset))
+            .contextMenu {
+              menuItems(for: item)
+            }
+            .swipeActions(edge: .leading, allowsFullSwipe: true) {
+              ForEach(viewModel.listConfig.leadingSwipeActions, id: \.self) { action in
+                swipeActionButton(action: action, item: item)
+              }
+            }
+            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+              ForEach(viewModel.listConfig.trailingSwipeActions, id: \.self) { action in
+                swipeActionButton(action: action, item: item)
+              }
+            }
+          }
+        }
+        .padding(0)
+        .listStyle(PlainListStyle())
+        .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+      }
+      .alert("The Feature Section will be removed from your library. You can add it back from the filter settings in your profile.",
+             isPresented: $showHideFeatureAlert) {
+        Button("OK", role: .destructive) {
+          viewModel.hideFeatureSection = true
+        }
+        Button(LocalText.cancelGeneric, role: .cancel) { self.showHideFeatureAlert = false }
+      }
+    }
+
+    func swipeActionButton(action: SwipeAction, item: LinkedItem) -> AnyView {
+      switch action {
+      case .pin:
+        let isPinned = item.labels?.allObjects.first { ($0 as? LinkedItemLabel)?.name == "Pinned" } != nil
+        return AnyView(Button(action: {
+          if isPinned {
+            viewModel.unpinItem(dataService: dataService, item: item)
           } else {
-            Spacer(minLength: 2)
+            viewModel.pinItem(dataService: dataService, item: item)
           }
+        }, label: {
+          VStack {
+            Image.pinRotated
+            Text(isPinned ? "Unpin" : "Pin")
+          }
+        }).tint(Color(hex: "#0A84FF")))
+      case .archive:
+        return AnyView(Button(action: {
+          withAnimation(.linear(duration: 0.4)) {
+            viewModel.setLinkArchived(dataService: dataService, objectID: item.objectID, archived: !item.isArchived)
+          }
+        }, label: {
+          Label(!item.isArchived ? "Archive" : "Unarchive",
+                systemImage: !item.isArchived ? "archivebox" : "tray.and.arrow.down.fill")
+        })
+          .tint(!item.isArchived ? .green : .indigo))
+      case .delete:
+        return AnyView(Button(
+          action: {
+            viewModel.removeLink(dataService: dataService, objectID: item.objectID)
+          },
+          label: {
+            Label("Remove", systemImage: "trash")
+          }
+        ).tint(.red))
+      case .moveToInbox:
+        return AnyView(Button(
+          action: {
+            // viewModel.addLabel(dataService: dataService, item: item, label: "Inbox", color)
 
-          List {
-            filtersHeader
-              .listRowInsets(.init(top: 0, leading: 10, bottom: 10, trailing: 10))
-
-            if !viewModel.hideFeatureSection, viewModel.items.count > 0, viewModel.searchTerm.isEmpty, viewModel.selectedLabels.isEmpty, viewModel.negatedLabels.isEmpty {
-              featureCard
-                .listRowInsets(.init(top: 0, leading: 10, bottom: 10, trailing: 10))
-                .modifier(AnimatingCellHeight(height: viewModel.featureItems.count > 0 ? 260 : 130))
-            }
-
-            ForEach(viewModel.items) { item in
-              FeedCardNavigationLink(
-                item: item,
-                viewModel: viewModel
-              )
-              .listRowSeparatorTint(Color.thBorderColor)
-              .listRowInsets(.init(top: 0, leading: 10, bottom: 10, trailing: 10))
-              .contextMenu {
-                menuItems(for: item)
-              }
-              .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                if !item.isArchived {
-                  Button(action: {
-                    withAnimation(.linear(duration: 0.4)) {
-                      viewModel.setLinkArchived(dataService: dataService, objectID: item.objectID, archived: true)
-                    }
-                  }, label: {
-                    Label("Archive", systemImage: "archivebox")
-                  }).tint(.green)
-                } else {
-                  Button(action: {
-                    withAnimation(.linear(duration: 0.4)) {
-                      viewModel.setLinkArchived(dataService: dataService, objectID: item.objectID, archived: false)
-                    }
-                  }, label: {
-                    Label("Unarchive", systemImage: "tray.and.arrow.down.fill")
-                  }).tint(.indigo)
-                }
-                Button(
-                  action: {
-                    itemToRemove = item
-                    confirmationShown = true
-                  },
-                  label: {
-                    Image(systemName: "trash")
-                  }
-                ).tint(.red)
-              }
-              .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                if FeatureFlag.enableSnooze {
-                  Button {
-                    viewModel.itemToSnoozeID = item.id
-                    viewModel.snoozePresented = true
-                  } label: {
-                    Label { Text(LocalText.genericSnooze) } icon: { Image.moon }
-                  }.tint(.appYellow48)
-                }
-              }
-            }
+          },
+          label: {
+            Label("Move to Inbox", systemImage: "tray.fill")
           }
-          .padding(0)
-          .listStyle(PlainListStyle())
-          .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
-          .alert("Are you sure you want to delete this item? All associated notes and highlights will be deleted.",
-                 isPresented: $confirmationShown) {
-            Button("Remove Item", role: .destructive) {
-              if let itemToRemove = itemToRemove {
-                withAnimation {
-                  viewModel.removeLink(dataService: dataService, objectID: itemToRemove.objectID)
-                }
-              }
-              self.itemToRemove = nil
-            }
-            Button(LocalText.cancelGeneric, role: .cancel) { self.itemToRemove = nil }
-          }
-        }
-        .alert("The Feature Section will be removed from your library. You can add it back from the filter settings in your profile.",
-               isPresented: $showHideFeatureAlert) {
-          Button("OK", role: .destructive) {
-            viewModel.hideFeatureSection = true
-          }
-          Button(LocalText.cancelGeneric, role: .cancel) { self.showHideFeatureAlert = false }
-        }
+        ).tint(Color(hex: "#0A84FF")))
       }
     }
   }
@@ -537,8 +531,6 @@ struct AnimatingCellHeight: AnimatableModifier {
     @EnvironmentObject var dataService: DataService
     @EnvironmentObject var audioController: AudioController
 
-    @State private var itemToRemove: LinkedItem?
-    @State private var confirmationShown = false
     @State var isContextMenuOpen = false
 
     @ObservedObject var viewModel: HomeFeedViewModel
@@ -550,8 +542,7 @@ struct AnimatingCellHeight: AnimatableModifier {
       case .toggleArchiveStatus:
         viewModel.setLinkArchived(dataService: dataService, objectID: item.objectID, archived: !item.isArchived)
       case .delete:
-        itemToRemove = item
-        confirmationShown = true
+        viewModel.removeLink(dataService: dataService, objectID: item.objectID)
       case .editLabels:
         viewModel.itemUnderLabelEdit = item
       case .editTitle:
@@ -563,17 +554,69 @@ struct AnimatingCellHeight: AnimatableModifier {
       Task { await viewModel.loadItems(dataService: dataService, isRefresh: isRefresh) }
     }
 
+    var filtersHeader: some View {
+      GeometryReader { reader in
+        ScrollView(.horizontal, showsIndicators: false) {
+          HStack {
+            if viewModel.searchTerm.count > 0 {
+              TextChipButton.makeSearchFilterButton(title: viewModel.searchTerm) {
+                viewModel.searchTerm = ""
+              }.frame(maxWidth: reader.size.width * 0.66)
+            } else {
+              Menu(
+                content: {
+                  ForEach(LinkedItemFilter.allCases, id: \.self) { filter in
+                    Button(filter.displayName, action: { viewModel.appliedFilter = filter.rawValue })
+                  }
+                },
+                label: {
+                  TextChipButton.makeMenuButton(
+                    title: LinkedItemFilter(rawValue: viewModel.appliedFilter)?.displayName ?? "Filter"
+                  )
+                }
+              )
+            }
+            Menu(
+              content: {
+                ForEach(LinkedItemSort.allCases, id: \.self) { sort in
+                  Button(sort.displayName, action: { viewModel.appliedSort = sort.rawValue })
+                }
+              },
+              label: {
+                TextChipButton.makeMenuButton(
+                  title: LinkedItemSort(rawValue: viewModel.appliedSort)?.displayName ?? "Sort"
+                )
+              }
+            )
+            TextChipButton.makeAddLabelButton {
+              viewModel.showLabelsSheet = true
+            }
+            ForEach(viewModel.selectedLabels, id: \.self) { label in
+              TextChipButton.makeRemovableLabelButton(feedItemLabel: label, negated: false) {
+                viewModel.selectedLabels.removeAll { $0.id == label.id }
+              }
+            }
+            ForEach(viewModel.negatedLabels, id: \.self) { label in
+              TextChipButton.makeRemovableLabelButton(feedItemLabel: label, negated: true) {
+                viewModel.negatedLabels.removeAll { $0.id == label.id }
+              }
+            }
+            Spacer()
+          }
+          .padding(0)
+        }
+        .listRowSeparator(.hidden)
+      }
+    }
+
     var body: some View {
       ZStack {
         ScrollView {
-          NavigationLink(
-            destination: LinkDestination(selectedItem: viewModel.selectedItem),
-            isActive: $viewModel.linkIsActive
-          ) {
-            EmptyView()
-          }
+          filtersHeader
+            .padding(.leading, 16)
+            .padding(.bottom, 25)
 
-          LazyVGrid(columns: [GridItem(.adaptive(minimum: 325), spacing: 16)], spacing: 16) {
+          LazyVGrid(columns: [GridItem(.adaptive(minimum: 325), spacing: 16)], alignment: .leading, spacing: 16) {
             ForEach(viewModel.items) { item in
               GridCardNavigationLink(
                 item: item,
@@ -581,8 +624,13 @@ struct AnimatingCellHeight: AnimatableModifier {
                 isContextMenuOpen: $isContextMenuOpen,
                 viewModel: viewModel
               )
+              .contextMenu {
+                libraryItemMenu(dataService: dataService, viewModel: viewModel, item: item)
+              }
             }
+            Spacer()
           }
+          .frame(maxHeight: .infinity)
           .padding()
           .background(
             GeometryReader {
@@ -604,18 +652,6 @@ struct AnimatingCellHeight: AnimatableModifier {
             LoadingSection()
           }
         }
-      }
-      // swiftlint:disable:next line_length
-      .alert("Are you sure you want to delete this item? All associated notes and highlights will be deleted.", isPresented: $confirmationShown) {
-        Button("Delete Item", role: .destructive) {
-          if let itemToRemove = itemToRemove {
-            withAnimation {
-              viewModel.removeLink(dataService: dataService, objectID: itemToRemove.objectID)
-            }
-          }
-          self.itemToRemove = nil
-        }
-        Button(LocalText.cancelGeneric, role: .cancel) { self.itemToRemove = nil }
       }
     }
   }

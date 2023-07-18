@@ -6,6 +6,8 @@
   import SwiftUI
   import Views
 
+  typealias DeleteHighlightAction = (String) -> Void
+
   struct NotebookView: View {
     @EnvironmentObject var dataService: DataService
     @Environment(\.presentationMode) private var presentationMode
@@ -21,6 +23,7 @@
     @State var setLabelsHighlight: Highlight?
     @State var showShareView: Bool = false
     @State var showConfirmNoteDelete = false
+    @State var onDeleteHighlight: DeleteHighlightAction?
 
     var emptyView: some View {
       Text(LocalText.highlightCardNoHighlightsOnPage)
@@ -134,6 +137,9 @@
                     highlightID: highlightParams.highlightID,
                     dataService: dataService
                   )
+                  if let onDeleteHighlight = onDeleteHighlight {
+                    onDeleteHighlight(highlightParams.highlightID)
+                  }
                 },
                 onSetLabels: { highlightID in
                   setLabelsHighlight = Highlight.lookup(byID: highlightID, inContext: dataService.viewContext)

@@ -1,11 +1,11 @@
 {
   "images" : [
     {
-      "filename" : "BookOpen.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "filename" : "HighlighterCircle.png",
       "idiom" : "universal",
       "scale" : "2x"
     },

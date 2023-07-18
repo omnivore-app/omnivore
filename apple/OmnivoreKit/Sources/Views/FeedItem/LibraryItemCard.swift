@@ -26,18 +26,17 @@ public struct LibraryItemCard: View {
 
   public var body: some View {
     VStack {
-      HStack(alignment: .top, spacing: 0) {
+      HStack(alignment: .top, spacing: 10) {
         articleInfo
         imageBox
       }
-      .padding(5)
       .frame(maxWidth: .infinity, maxHeight: .infinity)
 
       if item.hasLabels {
         labels
       }
     }
-    .padding(.bottom, 8)
+    .padding(.bottom, 5)
     .draggableItem(item: item)
   }
 
@@ -83,13 +82,21 @@ public struct LibraryItemCard: View {
     if item.wordsCount > 0 {
       return "\(String(format: "%d", Int(item.readingProgress)))%"
     }
+    if item.isPDF {
+      // base estimated reading time on page count
+      return "\(String(format: "%d", Int(item.readingProgress)))%"
+    }
     return ""
+  }
+
+  var hasMultipleInfoItems: Bool {
+    item.wordsCount > 0 || item.highlights?.first { ($0 as? Highlight)?.annotation != nil } != nil
   }
 
   var highlightsText: String {
     if let highlights = item.highlights, highlights.count > 0 {
       let fmted = LocalText.pluralizedText(key: "number_of_highlights", count: highlights.count)
-      if item.wordsCount > 0 {
+      if item.wordsCount > 0 || item.isPDF {
         return " • \(fmted)"
       }
       return fmted
@@ -107,7 +114,7 @@ public struct LibraryItemCard: View {
 
     if let notes = notes, notes.count > 0 {
       let fmted = LocalText.pluralizedText(key: "number_of_notes", count: notes.count)
-      if item.wordsCount > 0 {
+      if hasMultipleInfoItems {
         return " • \(fmted)"
       }
       return fmted
@@ -196,11 +203,9 @@ public struct LibraryItemCard: View {
       byLine
     }
     .padding(0)
-    .padding(.trailing, 8)
   }
 
   var labels: some View {
     LabelsFlowLayout(labels: item.sortedLabels)
-      .padding(.top, 0)
   }
 }

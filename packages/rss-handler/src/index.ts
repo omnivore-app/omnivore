@@ -8,17 +8,13 @@ import { CONTENT_FETCH_URL, createCloudTask } from './task'
 
 interface RssFeedRequest {
   subscriptionId: string
-  userId: string
   feedUrl: string
   lastFetchedAt: string
 }
 
 function isRssFeedRequest(body: any): body is RssFeedRequest {
   return (
-    'subscriptionId' in body &&
-    'userId' in body &&
-    'feedUrl' in body &&
-    'lastFetchedAt' in body
+    'subscriptionId' in body && 'feedUrl' in body && 'lastFetchedAt' in body
   )
 }
 
@@ -98,13 +94,31 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
       return res.status(500).send('INTERNAL_SERVER_ERROR')
     }
 
+    const token = req.header('Omnivore-Authorization')
+    if (!token) {
+      console.error('Missing authorization header')
+      return res.status(401).send('UNAUTHORIZED')
+    }
+
     try {
+      let userId: string
+
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET) as {
+          uid: string
+        }
+        userId = decoded.uid
+      } catch (e) {
+        console.error('Authorization error', e)
+        return res.status(401).send('UNAUTHORIZED')
+      }
+
       if (!isRssFeedRequest(req.body)) {
         console.error('Invalid request body', req.body)
         return res.status(400).send('INVALID_REQUEST_BODY')
       }
 
-      const { userId, feedUrl, subscriptionId, lastFetchedAt } = req.body
+      const { feedUrl, subscriptionId, lastFetchedAt } = req.body
       console.log('Processing feed', feedUrl, lastFetchedAt)
 
       // fetch feed
@@ -121,10 +135,10 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
           continue
         }
 
-        // skip old items and items that were published before 48h
+        // skip old items and items that were published before 24h
         const publishedAt = new Date(item.isoDate)
         if (
-          publishedAt < new Date(Date.now() - 48 * 60 * 60 * 1000) ||
+          publishedAt < new Date(Date.now() - 24 * 60 * 60 * 1000) ||
           publishedAt < new Date(lastFetchedAt)
         ) {
           console.log('Skipping old feed item', item.link)

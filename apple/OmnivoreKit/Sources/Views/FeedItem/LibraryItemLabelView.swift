@@ -28,7 +28,7 @@ public struct LibraryItemLabelView: View {
     .cornerRadius(5)
     .overlay(
       RoundedRectangle(cornerRadius: 5)
-        .stroke(Color.themeLabelOutline, lineWidth: 1)
+        .stroke(Color.isDarkMode ? Color.themeLabelBackground : Color.themeLabelOutline, lineWidth: 1)
     )
   }
 }

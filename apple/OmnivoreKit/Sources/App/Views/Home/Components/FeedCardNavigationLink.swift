@@ -74,26 +74,26 @@ struct GridCardNavigationLink: View {
 
   @ObservedObject var viewModel: HomeFeedViewModel
 
-  func tapAction() {
-    scale = 0.95
-    DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(150)) {
-      scale = 1.0
-      viewModel.selectedItem = item
-      viewModel.linkIsActive = true
-    }
-  }
-
   var body: some View {
     ZStack {
-      NavigationLink(destination: EmptyView()) {
-        EmptyView()
-      }
-      GridCard(item: item, isContextMenuOpen: $isContextMenuOpen, actionHandler: actionHandler, tapAction: {
-        withAnimation { tapAction() }
-      })
+      Button {
+        if isContextMenuOpen {
+          isContextMenuOpen = false
+        } else {
+          viewModel.selectedItem = item
+          viewModel.linkIsActive = true
+        }
+      } label: {
+        NavigationLink(destination: EmptyView()) {
+          EmptyView()
+        }
+        .opacity(0)
+        .buttonStyle(PlainButtonStyle())
         .onAppear {
           Task { await viewModel.itemAppeared(item: item, dataService: dataService) }
         }
+        GridCard(item: item, isContextMenuOpen: $isContextMenuOpen, actionHandler: actionHandler)
+      }
     }
     .aspectRatio(1.8, contentMode: .fill)
     .scaleEffect(scale)
@@ -102,10 +102,6 @@ struct GridCardNavigationLink: View {
         .onTapGesture {
           if isContextMenuOpen {
             isContextMenuOpen = false
-          } else {
-            withAnimation {
-              tapAction()
-            }
           }
         }
     )

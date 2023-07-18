@@ -3,7 +3,11 @@ import Utils
 import Views
 
 struct HomeView: View {
-  @StateObject private var viewModel = HomeFeedViewModel()
+  @State private var viewModel: HomeFeedViewModel
+
+  init(viewModel: HomeFeedViewModel) {
+    self.viewModel = viewModel
+  }
 
   #if os(iOS)
     var navView: some View {

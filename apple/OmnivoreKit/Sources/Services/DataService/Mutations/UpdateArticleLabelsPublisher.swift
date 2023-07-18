@@ -19,6 +19,9 @@ extension DataService {
         }
       }
 
+      linkedItem.update(inContext: self.backgroundContext)
+      try? self.backgroundContext.save()
+
       // Send update to server
       self.syncLabelUpdates(itemID: itemID, labelIDs: labelIDs)
     }
@@ -40,7 +43,7 @@ extension DataService {
     let mutation = Selection.Mutation {
       try $0.setLabels(
         input: InputObjects.SetLabelsInput(
-          labelIds: labelIDs,
+          labelIds: OptionalArgument(labelIDs),
           pageId: itemID
         ),
         selection: selection
