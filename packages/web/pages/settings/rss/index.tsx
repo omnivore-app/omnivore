@@ -1,5 +1,8 @@
 import { useRouter } from 'next/router'
+import { FloppyDisk, Pencil, XCircle } from 'phosphor-react'
 import { useState } from 'react'
+import { FormInput } from '../../../components/elements/FormElements'
+import { HStack } from '../../../components/elements/LayoutPrimitives'
 import { StyledText } from '../../../components/elements/StyledText'
 import { ConfirmationModal } from '../../../components/patterns/ConfirmationModal'
 import {
@@ -7,8 +10,10 @@ import {
   SettingsTable,
   SettingsTableRow,
 } from '../../../components/templates/settings/SettingsTable'
+import { theme } from '../../../components/tokens/stitches.config'
 import { formattedShortTime } from '../../../lib/dateFormatting'
 import { unsubscribeMutation } from '../../../lib/networking/mutations/unsubscribeMutation'
+import { updateSubscriptionMutation } from '../../../lib/networking/mutations/updateSubscriptionMutation'
 import {
   SubscriptionType,
   useGetSubscriptionsQuery,
@@ -22,6 +27,22 @@ export default function Rss(): JSX.Element {
     SubscriptionType.RSS
   )
   const [onDeleteId, setOnDeleteId] = useState<string>('')
+  const [onEditId, setOnEditId] = useState('')
+  const [name, setName] = useState('')
+
+  async function updateSubscription(): Promise<void> {
+    const result = await updateSubscriptionMutation({
+      id: onEditId,
+      name,
+    })
+    if (result) {
+      showSuccessToast('RSS feed updated', { position: 'bottom-right' })
+    } else {
+      showErrorToast('Failed to update', { position: 'bottom-right' })
+    }
+
+    revalidate()
+  }
 
   async function onDelete(id: string): Promise<void> {
     const result = await unsubscribeMutation('', id)
@@ -54,30 +75,67 @@ export default function Rss(): JSX.Element {
           return (
             <SettingsTableRow
               key={subscription.id}
-              title={subscription.name}
+              title={
+                <HStack
+                  alignment={'center'}
+                  distribution={'start'}
+                  css={{ width: '400px' }}
+                >
+                  <FormInput
+                    value={onEditId ? name : subscription.name}
+                    onClick={(e) => e.stopPropagation()}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Description"
+                    disabled={!onEditId}
+                  />
+                  {onEditId ? (
+                    <HStack alignment={'center'} distribution={'start'}>
+                      <FloppyDisk
+                        style={{ cursor: 'pointer', marginLeft: '5px' }}
+                        color={theme.colors.omnivoreCtaYellow.toString()}
+                        onClick={async (e) => {
+                          e.stopPropagation()
+                          await updateSubscription()
+                          setOnEditId('')
+                        }}
+                      >
+                        Save
+                      </FloppyDisk>
+                      <XCircle
+                        style={{ cursor: 'pointer', marginLeft: '5px' }}
+                        color={theme.colors.omnivoreRed.toString()}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setOnEditId('')
+                        }}
+                      >
+                        Cancel
+                      </XCircle>
+                    </HStack>
+                  ) : (
+                    <Pencil
+                      style={{ cursor: 'pointer', marginLeft: '5px' }}
+                      color={theme.colors.omnivoreLightGray.toString()}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setName(subscription.name)
+                        setOnEditId(subscription.id)
+                      }}
+                    />
+                  )}
+                </HStack>
+              }
               isLast={i === subscriptions.length - 1}
               onDelete={() => {
                 console.log('onDelete triggered: ', subscription.id)
                 setOnDeleteId(subscription.id)
               }}
               deleteTitle="Delete"
-              extraElement={
-                <StyledText
-                  css={{
-                    color: '$grayText',
-                  }}
-                >
-                  {subscription.description}
-                </StyledText>
-              }
               sublineElement={
                 <StyledText
                   css={{
-                    my: '5px',
+                    my: '8px',
                     fontSize: '11px',
-                    a: {
-                      color: '$omnivoreCtaYellow',
-                    },
                   }}
                 >
                   {`URL: ${subscription.url}, `}
