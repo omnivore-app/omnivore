@@ -28,6 +28,7 @@ import {
 import { getSubscribeHandler, unsubscribe } from '../../services/subscriptions'
 import { Merge } from '../../util'
 import { analytics } from '../../utils/analytics'
+import { enqueueRssFeedFetch } from '../../utils/createTask'
 import { authorized } from '../../utils/helpers'
 
 type PartialSubscription = Omit<Subscription, 'newsletterEmail'>
@@ -241,6 +242,9 @@ export const subscribeResolver = authorized<
         description: feed.description,
         icon: feed.image?.url,
       })
+
+      // create a cloud task to fetch rss feed item for the new subscription
+      await enqueueRssFeedFetch(newSubscription)
 
       return {
         subscriptions: [newSubscription],
