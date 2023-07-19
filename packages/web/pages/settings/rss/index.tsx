@@ -61,6 +61,15 @@ export default function Rss(): JSX.Element {
                 setOnDeleteId(subscription.id)
               }}
               deleteTitle="Delete"
+              extraElement={
+                <StyledText
+                  css={{
+                    color: '$grayText',
+                  }}
+                >
+                  {subscription.description}
+                </StyledText>
+              }
               sublineElement={
                 <StyledText
                   css={{
