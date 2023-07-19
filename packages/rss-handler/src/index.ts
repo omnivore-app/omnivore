@@ -211,7 +211,7 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
           return res.send('ok')
         }
 
-        // the feed has never been fetched, save the last valid item
+        // the feed has never been fetched, save at least the last valid item
         const created = await createSavingItemTask(
           userId,
           feedUrl,
