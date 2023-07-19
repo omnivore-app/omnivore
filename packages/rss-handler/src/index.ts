@@ -9,7 +9,7 @@ import { CONTENT_FETCH_URL, createCloudTask } from './task'
 interface RssFeedRequest {
   subscriptionId: string
   feedUrl: string
-  lastFetchedAt: string
+  lastFetchedAt: number // unix timestamp in milliseconds
 }
 
 interface ValidRssFeedItem {
@@ -180,10 +180,10 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
         // skip old items and items that were published before 24h
         const publishedAt = new Date(item.isoDate)
         if (
-          publishedAt < new Date(Date.now() - 24 * 60 * 60 * 1000) ||
-          publishedAt < new Date(lastFetchedAt)
+          publishedAt < new Date(lastFetchedAt) ||
+          publishedAt < new Date(Date.now() - 24 * 60 * 60 * 1000)
         ) {
-          console.log('Skipping old feed item', item.link)
+          console.log('Skipping old feed item', lastValidItem.link)
           continue
         }
 

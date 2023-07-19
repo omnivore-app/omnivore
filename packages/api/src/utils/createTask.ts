@@ -573,7 +573,7 @@ export const enqueueRssFeedFetch = async (
   const payload = {
     subscriptionId: rssFeedSubscription.id,
     feedUrl: rssFeedSubscription.url,
-    lastFetchedAt: rssFeedSubscription.lastFetchedAt,
+    lastFetchedAt: rssFeedSubscription.lastFetchedAt?.getTime() || 0, // unix timestamp in milliseconds
   }
 
   const headers = {
