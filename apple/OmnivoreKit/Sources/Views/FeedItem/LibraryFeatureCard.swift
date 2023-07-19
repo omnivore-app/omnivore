@@ -37,11 +37,14 @@ public struct LibraryFeatureCard: View {
         AsyncImage(url: imageURL) { phase in
           switch phase {
           case .empty:
-            EmptyView()
+            Color.systemBackground
+              .frame(width: 146, height: 90)
           case let .success(image):
             image.resizable()
-              .aspectRatio(contentMode: .fit)
+              .resizable()
+              .scaledToFill()
               .frame(width: 146, height: 90)
+              .clipped()
           case .failure:
             fallbackImage
 
@@ -50,7 +53,8 @@ public struct LibraryFeatureCard: View {
             // we need to add this currently unused fallback
             // to handle any new cases that might be added
             // in the future:
-            EmptyView()
+            Color.systemBackground
+              .frame(width: 146, height: 90)
           }
         }
       } else {
