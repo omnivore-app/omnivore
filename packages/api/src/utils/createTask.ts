@@ -582,6 +582,21 @@ export const enqueueRssFeedFetch = async (
     ),
   }
 
+  // If there is no Google Cloud Project Id exposed, it means that we are in local environment
+  if (env.dev.isLocal || !GOOGLE_CLOUD_PROJECT) {
+    // Calling the handler function directly.
+    setTimeout(() => {
+      axios
+        .post(env.queue.rssFeedTaskHandlerUrl, payload, {
+          headers,
+        })
+        .catch((error) => {
+          console.error(error)
+        })
+    }, 0)
+    return nanoid()
+  }
+
   const createdTasks = await createHttpTaskWithToken({
     project: GOOGLE_CLOUD_PROJECT,
     queue: 'omnivore-rss-queue',

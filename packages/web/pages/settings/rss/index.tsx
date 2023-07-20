@@ -28,12 +28,12 @@ export default function Rss(): JSX.Element {
   )
   const [onDeleteId, setOnDeleteId] = useState<string>('')
   const [onEditId, setOnEditId] = useState('')
-  const [name, setName] = useState('')
+  const [onEditName, setOnEditName] = useState('')
 
   async function updateSubscription(): Promise<void> {
     const result = await updateSubscriptionMutation({
       id: onEditId,
-      name,
+      name: onEditName,
     })
     if (result) {
       showSuccessToast('RSS feed updated', { position: 'bottom-right' })
@@ -76,20 +76,24 @@ export default function Rss(): JSX.Element {
             <SettingsTableRow
               key={subscription.id}
               title={
-                <HStack
-                  alignment={'center'}
-                  distribution={'start'}
-                  css={{ width: '400px' }}
-                >
-                  <FormInput
-                    value={onEditId ? name : subscription.name}
-                    onClick={(e) => e.stopPropagation()}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Description"
-                    disabled={!onEditId}
-                  />
-                  {onEditId ? (
-                    <HStack alignment={'center'} distribution={'start'}>
+                onEditId === subscription.id ? (
+                  <HStack alignment={'center'} distribution={'start'}>
+                    <FormInput
+                      value={onEditName}
+                      onClick={(e) => e.stopPropagation()}
+                      onChange={(e) => setOnEditName(e.target.value)}
+                      placeholder="Description"
+                      css={{
+                        m: '0px',
+                        fontSize: '18px',
+                        '@mdDown': {
+                          fontSize: '12px',
+                          fontWeight: 'bold',
+                        },
+                        width: '400px',
+                      }}
+                    />
+                    <HStack>
                       <FloppyDisk
                         style={{ cursor: 'pointer', marginLeft: '5px' }}
                         color={theme.colors.omnivoreCtaYellow.toString()}
@@ -98,9 +102,7 @@ export default function Rss(): JSX.Element {
                           await updateSubscription()
                           setOnEditId('')
                         }}
-                      >
-                        Save
-                      </FloppyDisk>
+                      />
                       <XCircle
                         style={{ cursor: 'pointer', marginLeft: '5px' }}
                         color={theme.colors.omnivoreRed.toString()}
@@ -108,22 +110,34 @@ export default function Rss(): JSX.Element {
                           e.stopPropagation()
                           setOnEditId('')
                         }}
-                      >
-                        Cancel
-                      </XCircle>
+                      />
                     </HStack>
-                  ) : (
+                  </HStack>
+                ) : (
+                  <HStack alignment={'center'} distribution={'start'}>
+                    <StyledText
+                      css={{
+                        m: '0px',
+                        fontSize: '18px',
+                        '@mdDown': {
+                          fontSize: '12px',
+                          fontWeight: 'bold',
+                        },
+                      }}
+                    >
+                      {subscription.name}
+                    </StyledText>
                     <Pencil
                       style={{ cursor: 'pointer', marginLeft: '5px' }}
                       color={theme.colors.omnivoreLightGray.toString()}
                       onClick={(e) => {
                         e.stopPropagation()
-                        setName(subscription.name)
+                        setOnEditName(subscription.name)
                         setOnEditId(subscription.id)
                       }}
                     />
-                  )}
-                </HStack>
+                  </HStack>
+                )
               }
               isLast={i === subscriptions.length - 1}
               onDelete={() => {
