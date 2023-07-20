@@ -1,14 +1,14 @@
+import cors from 'cors'
 import express from 'express'
+import * as jwt from 'jsonwebtoken'
+import { env } from '../env'
+import { Claims } from '../resolvers/types'
 import { getDeviceTokensByUserId } from '../services/user_device_tokens'
+import { corsConfig } from '../utils/corsConfig'
 import {
   PushNotificationType,
   sendMulticastPushNotifications,
 } from '../utils/sendNotification'
-import cors from 'cors'
-import { corsConfig } from '../utils/corsConfig'
-import * as jwt from 'jsonwebtoken'
-import { env } from '../env'
-import { Claims } from '../resolvers/types'
 
 interface Notification {
   body: string

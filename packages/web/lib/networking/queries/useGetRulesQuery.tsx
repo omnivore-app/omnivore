@@ -14,6 +14,11 @@ export enum RuleActionType {
   SendNotification = 'SEND_NOTIFICATION',
 }
 
+export enum RuleEventType {
+  PAGE_CREATED = 'PAGE_CREATED',
+  PAGE_UPDATED = 'PAGE_UPDATED',
+}
+
 export interface Rule {
   id: string
   name: string
@@ -22,6 +27,7 @@ export interface Rule {
   enabled: boolean
   createdAt: Date
   updatedAt: Date
+  eventTypes: RuleEventType[]
 }
 
 interface RulesQueryResponse {
@@ -54,6 +60,7 @@ export function useGetRulesQuery(): RulesQueryResponse {
             enabled
             createdAt
             updatedAt
+            eventTypes
           }
         }
         ... on RulesError {

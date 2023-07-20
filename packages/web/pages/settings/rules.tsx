@@ -13,6 +13,7 @@ import {
   Rule,
   RuleAction,
   RuleActionType,
+  RuleEventType,
   useGetRulesQuery,
 } from '../../lib/networking/queries/useGetRulesQuery'
 import { applyStoredTheme } from '../../lib/themeUpdater'
@@ -30,11 +31,13 @@ const CreateRuleModal = (props: CreateRuleModalProps): JSX.Element => {
   const onOk = async (values: any) => {
     const name = form.getFieldValue('name')
     const filter = form.getFieldValue('filter')
+    const eventTypes = form.getFieldValue('eventTypes')
     await setRuleMutation({
       name,
       filter,
       actions: [],
       enabled: true,
+      eventTypes,
     })
     form.resetFields()
     props.setIsModalOpen(false)
@@ -51,7 +54,7 @@ const CreateRuleModal = (props: CreateRuleModalProps): JSX.Element => {
     <Modal
       title="Create Rule"
       open={props.isModalOpen}
-      onOk={onOk}
+      onOk={form.submit}
       onCancel={onCancel}
       destroyOnClose={true}
     >
@@ -60,7 +63,7 @@ const CreateRuleModal = (props: CreateRuleModalProps): JSX.Element => {
         name="createRule"
         labelCol={{ span: 8 }}
         wrapperCol={{ span: 16 }}
-        // onFinish={onFinish}
+        onFinish={onOk}
         // onFinishFailed={onFinishFailed}
         autoComplete="off"
       >
@@ -78,6 +81,32 @@ const CreateRuleModal = (props: CreateRuleModalProps): JSX.Element => {
           rules={[{ required: true, message: 'Please enter the rule filter' }]}
         >
           <Input />
+        </Form.Item>
+
+        <Form.Item
+          label="When"
+          name="eventTypes"
+          rules={[
+            {
+              required: true,
+              message: 'Please select when the rule will be triggered',
+            },
+          ]}
+        >
+          <Select
+            mode="multiple"
+            allowClear
+            placeholder="Please select when the rule will be triggered"
+          >
+            {Object.keys(RuleEventType).map((key: string, index: number) => {
+              const value = Object.values(RuleEventType)[index]
+              return (
+                <Select.Option key={key} value={value}>
+                  {key}
+                </Select.Option>
+              )
+            })}
+          </Select>
         </Form.Item>
       </Form>
     </Modal>
@@ -111,6 +140,7 @@ const CreateActionModal = (props: CreateActionModalProps): JSX.Element => {
             params: params,
           },
         ],
+        eventTypes: props.rule.eventTypes,
       })
       form.resetFields()
       props.setIsModalOpen(false)
@@ -127,7 +157,7 @@ const CreateActionModal = (props: CreateActionModalProps): JSX.Element => {
     <Modal
       title="Create Action"
       open={props.rule != undefined}
-      onOk={onOk}
+      onOk={form.submit}
       onCancel={() => {
         form.resetFields()
         props.setIsModalOpen(false)
@@ -138,6 +168,7 @@ const CreateActionModal = (props: CreateActionModalProps): JSX.Element => {
         labelCol={{ span: 8 }}
         wrapperCol={{ span: 16 }}
         autoComplete="off"
+        onFinish={onOk}
       >
         <Form.Item
           label="Action"
@@ -199,6 +230,7 @@ export default function Rules(): JSX.Element {
         name: rule.name,
         filter: rule.filter,
         actions: rule.actions,
+        eventTypes: rule.eventTypes,
       }
     })
   }, [rules])
@@ -245,6 +277,20 @@ export default function Rules(): JSX.Element {
       title: 'Filter',
       dataIndex: 'filter',
       key: 'filter',
+    },
+    {
+      title: 'When',
+      render: (text: string, row: { eventTypes: RuleEventType[] }) => (
+        <>
+          {row.eventTypes.map((eventType: RuleEventType, index: number) => {
+            return (
+              <Tag color={'geekblue'} key={index}>
+                {eventType}
+              </Tag>
+            )
+          })}
+        </>
+      ),
     },
     {
       title: 'Actions',
