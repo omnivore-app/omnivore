@@ -14,6 +14,7 @@ import { SettingsLayout } from '../../../components/templates/SettingsLayout'
 import { subscribeMutation } from '../../../lib/networking/mutations/subscribeMutation'
 import { SubscriptionType } from '../../../lib/networking/queries/useGetSubscriptionsQuery'
 import { showSuccessToast } from '../../../lib/toastHelpers'
+import { formatMessage } from '../../../locales/en/messages'
 
 // Styles
 const Header = styled(Box, {
@@ -30,20 +31,21 @@ export default function AddRssFeed(): JSX.Element {
   const [feedUrl, setFeedUrl] = useState<string>('')
 
   const subscribe = useCallback(async () => {
-    try {
-      const result = await subscribeMutation({
-        url: feedUrl,
-        subscriptionType: SubscriptionType.RSS,
+    const result = await subscribeMutation({
+      url: feedUrl,
+      subscriptionType: SubscriptionType.RSS,
+    })
+
+    if (result.subscribe.errorCodes) {
+      const errorMessage = formatMessage({
+        id: `error.${result.subscribe.errorCodes[0]}`,
       })
-      if (result) {
-        router.push(`/settings/rss`)
-        showSuccessToast('New RSS feed has been added.')
-      } else {
-        setErrorMessage('There was an error adding new RSS feed.')
-      }
-    } catch (err) {
-      setErrorMessage('Error: ' + err)
+      setErrorMessage(`There was an error adding new RSS feed: ${errorMessage}`)
+      return
     }
+
+    router.push(`/settings/rss`)
+    showSuccessToast('New RSS feed has been added.')
   }, [feedUrl, router])
 
   return (

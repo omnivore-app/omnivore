@@ -7,9 +7,9 @@ interface UpdateSubscriptionResult {
 }
 
 export enum UpdateSubscriptionErrorCode {
-  BAD_REQUEST = 'BAD_REQUEST',
-  NOT_FOUND = 'NOT_FOUND',
-  UNAUTHORIZED = 'UNAUTHORIZED',
+  BadRequest = 'BAD_REQUEST',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED',
 }
 
 interface UpdateSubscription {
@@ -52,7 +52,7 @@ export async function updateSubscriptionMutation(
     console.log('updateSubscriptionMutation error', error)
     return {
       updateSubscription: {
-        errorCodes: [UpdateSubscriptionErrorCode.BAD_REQUEST],
+        errorCodes: [UpdateSubscriptionErrorCode.BadRequest],
       },
     }
   }

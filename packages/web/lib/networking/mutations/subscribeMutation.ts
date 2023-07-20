@@ -9,9 +9,16 @@ type SubscribeResult = {
   subscribe: Subscribe
 }
 
+enum SubscribeErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED',
+  AlreadySubscribed = 'ALREADY_SUBSCRIBED',
+}
+
 type Subscribe = {
-  subscriptions: Subscription[]
-  errorCodes?: unknown[]
+  subscriptions?: Subscription[]
+  errorCodes?: SubscribeErrorCode[]
 }
 
 export type SubscribeMutationInput = {
@@ -22,7 +29,7 @@ export type SubscribeMutationInput = {
 
 export async function subscribeMutation(
   input: SubscribeMutationInput
-): Promise<any | undefined> {
+): Promise<SubscribeResult> {
   const mutation = gql`
     mutation Subscribe($input: SubscribeInput!) {
       subscribe(input: $input) {
@@ -39,9 +46,13 @@ export async function subscribeMutation(
   `
   try {
     const data = (await gqlFetcher(mutation, { input })) as SubscribeResult
-    return data.subscribe.errorCodes ? undefined : data.subscribe
+    return data
   } catch (error) {
     console.log('subscribeMutation error', error)
-    return undefined
+    return {
+      subscribe: {
+        errorCodes: [SubscribeErrorCode.BadRequest],
+      },
+    }
   }
 }
