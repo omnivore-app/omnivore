@@ -257,6 +257,11 @@ export const subscribeResolver = authorized<
     }
   } catch (error) {
     log.error('failed to subscribe', error)
+    if (error instanceof Error && error.message === 'Status code 404') {
+      return {
+        errorCodes: [SubscribeErrorCode.NotFound],
+      }
+    }
     return {
       errorCodes: [SubscribeErrorCode.BadRequest],
     }
