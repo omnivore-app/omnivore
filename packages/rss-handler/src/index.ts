@@ -14,7 +14,7 @@ interface RssFeedRequest {
 
 interface ValidRssFeedItem {
   link: string
-  isoDate: string
+  isoDate?: string
 }
 
 function isRssFeedRequest(body: any): body is RssFeedRequest {
@@ -166,7 +166,7 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
       for (const item of feed.items) {
         console.log('Processing feed item', item.link, item.isoDate)
 
-        if (!item.link || !item.isoDate) {
+        if (!item.link) {
           console.log('Invalid feed item', item)
           continue
         }
@@ -178,7 +178,7 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
         }
 
         // skip old items and items that were published before 24h
-        const publishedAt = new Date(item.isoDate)
+        const publishedAt = item.isoDate ? new Date(item.isoDate) : new Date()
         if (
           publishedAt < new Date(lastFetchedAt) ||
           publishedAt < new Date(Date.now() - 24 * 60 * 60 * 1000)
@@ -225,7 +225,9 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
           return res.status(500).send('INTERNAL_SERVER_ERROR')
         }
 
-        lastItemFetchedAt = new Date(lastValidItem.isoDate)
+        lastItemFetchedAt = lastValidItem.isoDate
+          ? new Date(lastValidItem.isoDate)
+          : new Date()
       }
 
       // update subscription lastFetchedAt
