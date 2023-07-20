@@ -71,7 +71,7 @@ export function EmailSignup(): JSX.Element {
             <FormLabel className="required">Email</FormLabel>
             <BorderedFormInput
               key="email"
-              type="text"
+              type="email"
               name="email"
               defaultValue={email}
               placeholder="Email"
