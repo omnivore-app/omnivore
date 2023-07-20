@@ -2,6 +2,7 @@ import SwiftUI
 import Utils
 import Views
 
+@MainActor
 struct HomeView: View {
   @State private var viewModel: HomeFeedViewModel
 

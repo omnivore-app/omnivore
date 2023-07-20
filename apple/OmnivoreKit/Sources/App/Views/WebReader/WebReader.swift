@@ -4,6 +4,7 @@ import Utils
 import Views
 import WebKit
 
+@MainActor
 struct WebReader: PlatformViewRepresentable {
   let item: LinkedItem
   let articleContent: ArticleContent

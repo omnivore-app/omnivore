@@ -7,6 +7,7 @@ import Views
 
 let appLogger = Logger(subsystem: "app.omnivore", category: "app-package")
 
+@MainActor
 public struct RootView: View {
   @Environment(\.scenePhase) var scenePhase
   @StateObject private var viewModel = RootViewModel()
@@ -39,6 +40,7 @@ public struct RootView: View {
   }
 }
 
+@MainActor
 struct InnerRootView: View {
   @EnvironmentObject var dataService: DataService
   @EnvironmentObject var authenticator: Authenticator

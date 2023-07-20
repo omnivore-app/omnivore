@@ -23,6 +23,7 @@ struct AnimatingCellHeight: AnimatableModifier {
 #if os(iOS)
   private let enableGrid = UIDevice.isIPad || FeatureFlag.enableGridCardsOnPhone
 
+  @MainActor
   struct HomeFeedContainerView: View {
     @State var hasHighlightMutations = false
     @State var searchPresented = false
@@ -228,6 +229,7 @@ struct AnimatingCellHeight: AnimatableModifier {
     }
   }
 
+  @MainActor
   struct HomeFeedView: View {
     @EnvironmentObject var dataService: DataService
     @Binding var prefersListLayout: Bool
