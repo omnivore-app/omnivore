@@ -1,7 +1,7 @@
 import { styled } from '@stitches/react'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
-import { DownloadSimple, Eye, Link } from 'phosphor-react'
+import { DownloadSimple, Eye, Link, Spinner } from 'phosphor-react'
 import { useEffect, useMemo, useState } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { Button } from '../../components/elements/Button'
@@ -16,7 +16,10 @@ import { fetchEndpoint } from '../../lib/appConfig'
 import { deleteIntegrationMutation } from '../../lib/networking/mutations/deleteIntegrationMutation'
 import { importFromIntegrationMutation } from '../../lib/networking/mutations/importFromIntegrationMutation'
 import { setIntegrationMutation } from '../../lib/networking/mutations/setIntegrationMutation'
-import { useGetIntegrationsQuery } from '../../lib/networking/queries/useGetIntegrationsQuery'
+import {
+  Integration,
+  useGetIntegrationsQuery,
+} from '../../lib/networking/queries/useGetIntegrationsQuery'
 import { useGetWebhooksQuery } from '../../lib/networking/queries/useGetWebhooksQuery'
 import { applyStoredTheme } from '../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
@@ -53,6 +56,7 @@ type integrationsCard = {
     icon?: JSX.Element
     style: string
     action: () => void
+    disabled?: boolean
   }
 }
 export default function Integrations(): JSX.Element {
@@ -85,6 +89,7 @@ export default function Integrations(): JSX.Element {
   const importFromIntegration = async (id: string) => {
     try {
       await importFromIntegrationMutation(id)
+      revalidate()
       showSuccessToast('Import started')
     } catch (err) {
       showErrorToast('Error: ' + err)
@@ -98,6 +103,10 @@ export default function Integrations(): JSX.Element {
     form.action = `${fetchEndpoint}/integration/pocket/auth`
     document.body.appendChild(form)
     form.submit()
+  }
+
+  const isImporting = (integration: Integration | undefined) => {
+    return !!integration && !!integration.taskName
   }
 
   useEffect(() => {
@@ -171,13 +180,18 @@ export default function Integrations(): JSX.Element {
           'Pocket is a place to save articles, videos, and more. Our Pocket integration allows importing your Pocket library to Omnivore. Once connected we will asyncronously import all your Pocket articles into Omnivore, as this process is resource intensive it can take some time. You will receive an email when the process is completed.',
         button: {
           text: pocketConnected ? 'Import' : 'Connect to Pocket',
-          icon: <Link size={16} weight={'bold'} />,
-          style: 'ctaDarkYellow',
+          icon: isImporting(pocketConnected) ? (
+            <Spinner size={16} />
+          ) : (
+            <Link size={16} weight={'bold'} />
+          ),
+          style: isImporting(pocketConnected) ? 'ctaWhite' : 'ctaDarkYellow',
           action: () => {
             pocketConnected
               ? importFromIntegration(pocketConnected.id)
               : redirectToPocket()
           },
+          disabled: isImporting(pocketConnected),
         },
       },
       {
@@ -294,6 +308,7 @@ export default function Integrations(): JSX.Element {
                       width: '100%',
                     }}
                     onClick={item.button.action}
+                    disabled={item.button.disabled}
                   >
                     {item.button.icon}
                     <SpanBox

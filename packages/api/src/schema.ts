@@ -1940,6 +1940,7 @@ const schema = gql`
     enabled: Boolean!
     createdAt: Date!
     updatedAt: Date!
+    taskName: String
   }
 
   enum IntegrationType {

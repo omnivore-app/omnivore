@@ -257,6 +257,7 @@ export function integrationsServiceRouter() {
       // update the integration's syncedAt
       await getRepository(Integration).update(integration.id, {
         syncedAt: new Date(syncedAt),
+        taskName: null,
       })
     } catch (err) {
       logger.error('import pages from integration failed', err)
