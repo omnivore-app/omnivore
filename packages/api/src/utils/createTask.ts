@@ -497,7 +497,7 @@ export const enqueueImportFromIntegration = async (
           console.error(error)
         })
     }, 0)
-    return ''
+    return nanoid()
   }
 
   const createdTasks = await createHttpTaskWithToken({

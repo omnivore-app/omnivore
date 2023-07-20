@@ -972,6 +972,7 @@ export type Integration = {
   enabled: Scalars['Boolean'];
   id: Scalars['ID'];
   name: Scalars['String'];
+  taskName?: Maybe<Scalars['String']>;
   token: Scalars['String'];
   type: IntegrationType;
   updatedAt: Scalars['Date'];
@@ -4939,6 +4940,7 @@ export type IntegrationResolvers<ContextType = ResolverContext, ParentType exten
   enabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  taskName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   token?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['IntegrationType'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;

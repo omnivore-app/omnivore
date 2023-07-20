@@ -10,6 +10,7 @@ export interface Integration {
   enabled: boolean
   createdAt: Date
   updatedAt: Date
+  taskName?: string
 }
 
 export type IntegrationType = 'EXPORT' | 'IMPORT'
@@ -41,6 +42,7 @@ export function useGetIntegrationsQuery(): IntegrationsQueryResponse {
             enabled
             createdAt
             updatedAt
+            taskName
           }
         }
         ... on IntegrationsError {
