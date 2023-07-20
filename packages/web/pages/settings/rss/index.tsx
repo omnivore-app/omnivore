@@ -20,6 +20,7 @@ import {
 } from '../../../lib/networking/queries/useGetSubscriptionsQuery'
 import { applyStoredTheme } from '../../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
+import { formatMessage } from '../../../locales/en/messages'
 
 export default function Rss(): JSX.Element {
   const router = useRouter()
@@ -35,12 +36,18 @@ export default function Rss(): JSX.Element {
       id: onEditId,
       name: onEditName,
     })
-    if (result) {
-      showSuccessToast('RSS feed updated', { position: 'bottom-right' })
-    } else {
-      showErrorToast('Failed to update', { position: 'bottom-right' })
+
+    if (result.updateSubscription.errorCodes) {
+      const errorMessage = formatMessage({
+        id: `error.${result.updateSubscription.errorCodes[0]}`,
+      })
+      showErrorToast(`failed to update subscription: ${errorMessage}`, {
+        position: 'bottom-right',
+      })
+      return
     }
 
+    showSuccessToast('RSS feed updated', { position: 'bottom-right' })
     revalidate()
   }
 
@@ -109,6 +116,7 @@ export default function Rss(): JSX.Element {
                         onClick={(e) => {
                           e.stopPropagation()
                           setOnEditId('')
+                          setOnEditName('')
                         }}
                       />
                     </HStack>
