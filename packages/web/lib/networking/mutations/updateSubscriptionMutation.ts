@@ -6,9 +6,15 @@ interface UpdateSubscriptionResult {
   updateSubscription: UpdateSubscription
 }
 
+export enum UpdateSubscriptionErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED',
+}
+
 interface UpdateSubscription {
-  subscription: Subscription
-  errorCodes?: unknown[]
+  subscription?: Subscription
+  errorCodes?: UpdateSubscriptionErrorCode[]
 }
 
 interface UpdateSubscriptionInput {
@@ -20,7 +26,7 @@ interface UpdateSubscriptionInput {
 
 export async function updateSubscriptionMutation(
   input: UpdateSubscriptionInput
-): Promise<any | undefined> {
+): Promise<UpdateSubscriptionResult> {
   const mutation = gql`
     mutation UpdateSubscription($input: UpdateSubscriptionInput!) {
       updateSubscription(input: $input) {
@@ -41,11 +47,13 @@ export async function updateSubscriptionMutation(
     const data = (await gqlFetcher(mutation, {
       input,
     })) as UpdateSubscriptionResult
-    return data.updateSubscription.errorCodes
-      ? undefined
-      : data.updateSubscription.subscription.id
+    return data
   } catch (error) {
     console.log('updateSubscriptionMutation error', error)
-    return undefined
+    return {
+      updateSubscription: {
+        errorCodes: [UpdateSubscriptionErrorCode.BadRequest],
+      },
+    }
   }
 }
