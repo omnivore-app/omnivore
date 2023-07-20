@@ -1,26 +1,22 @@
+import { Button, Form, Input, Modal, Select, Space, Table, Tag } from 'antd'
+// import 'antd/dist/antd.dark.css'
+import 'antd/dist/antd.compact.css'
 import { useCallback, useMemo, useState } from 'react'
 import { Toaster } from 'react-hot-toast'
-
-import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
-import { applyStoredTheme } from '../../lib/themeUpdater'
+import { Box, HStack } from '../../components/elements/LayoutPrimitives'
+import { SettingsLayout } from '../../components/templates/SettingsLayout'
+import { Label } from '../../lib/networking/fragments/labelFragment'
+import { deleteRuleMutation } from '../../lib/networking/mutations/deleteRuleMutation'
+import { setRuleMutation } from '../../lib/networking/mutations/setRuleMutation'
+import { useGetLabelsQuery } from '../../lib/networking/queries/useGetLabelsQuery'
 import {
   Rule,
   RuleAction,
   RuleActionType,
   useGetRulesQuery,
 } from '../../lib/networking/queries/useGetRulesQuery'
-
-import { SettingsLayout } from '../../components/templates/SettingsLayout'
-import { Button, Space, Table, Form, Input, Modal, Tag, Select } from 'antd'
-
-// import 'antd/dist/antd.dark.css'
-import 'antd/dist/antd.compact.css'
-
-import { Box, HStack } from '../../components/elements/LayoutPrimitives'
-import { useGetLabelsQuery } from '../../lib/networking/queries/useGetLabelsQuery'
-import { Label } from '../../lib/networking/fragments/labelFragment'
-import { setRuleMutation } from '../../lib/networking/mutations/setRuleMutation'
-import { deleteRuleMutation } from '../../lib/networking/mutations/deleteRuleMutation'
+import { applyStoredTheme } from '../../lib/themeUpdater'
+import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 
 type CreateRuleModalProps = {
   isModalOpen: boolean
@@ -324,7 +320,9 @@ export default function Rules(): JSX.Element {
         revalidate={revalidate}
       />
 
-      <Box css={{ pt: '44px', px: '10%', '@smDown': { px: '0' } }}>
+      <Box
+        css={{ pt: '44px', px: '10%', '@smDown': { px: '0' }, width: '100%' }}
+      >
         <HStack css={{ py: '16px' }} distribution="end">
           <Button
             onClick={() => {

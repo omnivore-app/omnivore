@@ -11,7 +11,7 @@ export enum RuleActionType {
   AddLabel = 'ADD_LABEL',
   Archive = 'ARCHIVE',
   MarkAsRead = 'MARK_AS_READ',
-  // SendNotification = 'SEND_NOTIFICATION',
+  SendNotification = 'SEND_NOTIFICATION',
 }
 
 export interface Rule {
