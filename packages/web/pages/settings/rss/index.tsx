@@ -11,7 +11,7 @@ import {
   SettingsTableRow,
 } from '../../../components/templates/settings/SettingsTable'
 import { theme } from '../../../components/tokens/stitches.config'
-import { formattedShortTime } from '../../../lib/dateFormatting'
+import { formattedDateTime } from '../../../lib/dateFormatting'
 import { unsubscribeMutation } from '../../../lib/networking/mutations/unsubscribeMutation'
 import { updateSubscriptionMutation } from '../../../lib/networking/mutations/updateSubscriptionMutation'
 import {
@@ -155,7 +155,7 @@ export default function Rss(): JSX.Element {
                   {`URL: ${subscription.url}, `}
                   {`Last fetched: ${
                     subscription.lastFetchedAt
-                      ? formattedShortTime(subscription.lastFetchedAt)
+                      ? formattedDateTime(subscription.lastFetchedAt)
                       : 'Never'
                   }`}
                 </StyledText>

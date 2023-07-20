@@ -24,3 +24,11 @@ export function formattedShortTime(rawDate: string): string {
     timeZone,
   }).format(new Date(rawDate))
 }
+
+export function formattedDateTime(rawDate: string): string {
+  return new Intl.DateTimeFormat(locale, {
+    dateStyle: 'short',
+    timeStyle: 'short',
+    timeZone,
+  }).format(new Date(rawDate))
+}
