@@ -31,8 +31,22 @@ export default function AddRssFeed(): JSX.Element {
   const [feedUrl, setFeedUrl] = useState<string>('')
 
   const subscribe = useCallback(async () => {
+    if (!feedUrl) {
+      setErrorMessage('Please enter a valid RSS feed URL')
+      return
+    }
+
+    let normailizedUrl: string
+    // normalize the url
+    try {
+      normailizedUrl = new URL(feedUrl).toString()
+    } catch (e) {
+      setErrorMessage('Please enter a valid RSS feed URL')
+      return
+    }
+
     const result = await subscribeMutation({
-      url: feedUrl,
+      url: normailizedUrl,
       subscriptionType: SubscriptionType.RSS,
     })
 
@@ -80,12 +94,9 @@ export default function AddRssFeed(): JSX.Element {
             value={feedUrl}
             placeholder={'Enter the RSS feed URL here'}
             onChange={(e) => {
-              e.preventDefault()
+              setErrorMessage(undefined)
               setFeedUrl(e.target.value)
             }}
-            disabled={false}
-            hidden={false}
-            required={true}
             css={{
               border: '1px solid $textNonessential',
               borderRadius: '8px',
