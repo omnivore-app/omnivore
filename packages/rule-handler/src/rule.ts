@@ -2,6 +2,7 @@ import axios, { AxiosResponse } from 'axios'
 import { filterPage } from './filter'
 import { getAuthToken, PubSubData } from './index'
 import { setLabels } from './label'
+import { NotificationData, sendNotification } from './notification'
 import { archivePage, markPageAsRead } from './page'
 
 export enum RuleActionType {
@@ -140,25 +141,25 @@ export const triggerActions = async (
             filteredPage.readingProgressPercent < 100 &&
             actionPromises.push(markPageAsRead(apiEndpoint, authToken, data.id))
           )
-        // case RuleActionType.SendNotification: {
-        //   const data: NotificationData = {
-        //     title: 'New page added to your library',
-        //     body: filteredPage.title,
-        //     image: filteredPage.image || undefined,
-        //   }
+        case RuleActionType.SendNotification: {
+          const data: NotificationData = {
+            title: 'New page added to your library',
+            body: filteredPage.title,
+            image: filteredPage.image || undefined,
+          }
 
-        //   const params = action.params
-        //   if (params.length > 0) {
-        //     const param = JSON.parse(params[0]) as NotificationData
-        //     data.body = param.body || data.body
-        //     data.title = param.title || data.title
-        //     data.image = param.image || data.image
-        //   }
+          const params = action.params
+          if (params.length > 0) {
+            const param = JSON.parse(params[0]) as NotificationData
+            data.body = param.body || data.body
+            data.title = param.title || data.title
+            data.image = param.image || data.image
+          }
 
-        //   return actionPromises.push(
-        //     sendNotification(apiEndpoint, authToken, data)
-        //   )
-        // }
+          return actionPromises.push(
+            sendNotification(apiEndpoint, authToken, data)
+          )
+        }
       }
     })
   }

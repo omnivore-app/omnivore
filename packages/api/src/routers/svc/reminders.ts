@@ -1,17 +1,19 @@
 import express from 'express'
-import { analytics } from '../../utils/analytics'
-import { initModels } from '../../server'
-import { kx } from '../../datalayer/knex_config'
-import { setClaims } from '../../datalayer/helpers'
-import { sendEmail } from '../../utils/sendEmail'
-import { env, homePageURL } from '../../env'
 import { MulticastMessage } from 'firebase-admin/messaging'
+import { setClaims } from '../../datalayer/helpers'
+import { kx } from '../../datalayer/knex_config'
+import { createPubSubClient } from '../../datalayer/pubsub'
+import { updatePage } from '../../elastic/pages'
 import { UserDeviceToken } from '../../entity/user_device_tokens'
+import { env, homePageURL } from '../../env'
 import { ContentReader } from '../../generated/graphql'
 import { DataModels } from '../../resolvers/types'
-import { updatePage } from '../../elastic/pages'
-import { createPubSubClient } from '../../datalayer/pubsub'
+import { initModels } from '../../server'
 import { getPagesWithReminder, PageReminder } from '../../services/reminders'
+import { getDeviceTokensByUserId } from '../../services/user_device_tokens'
+import { analytics } from '../../utils/analytics'
+import { sendEmail } from '../../utils/sendEmail'
+import { sendMulticastPushNotifications } from '../../utils/sendNotification'
 
 interface PageToNotify {
   title: string
@@ -106,19 +108,19 @@ export function remindersServiceRouter() {
           to: user.email,
         })
 
-        // // send push notifications
-        // const deviceTokens = await getDeviceTokensByUserId(userId)
-        // if (deviceTokens && deviceTokens.length > 0) {
-        //   const message = messageForPages(pageReminders, deviceTokens)
-        //   await sendMulticastPushNotifications(userId, message, 'reminder')
-        // }
-        //
-        // if (!deviceTokens) {
-        //   console.log('Device tokens not set:', userId)
-        //
-        //   res.status(400).send('Device token Not Found')
-        //   return
-        // }
+        // send push notifications
+        const deviceTokens = await getDeviceTokensByUserId(userId)
+        if (deviceTokens && deviceTokens.length > 0) {
+          const message = messageForPages(pageReminders, deviceTokens)
+          await sendMulticastPushNotifications(userId, message, 'reminder')
+        }
+
+        if (!deviceTokens) {
+          console.log('Device tokens not set:', userId)
+
+          res.status(400).send('Device token Not Found')
+          return
+        }
       }
 
       await updateRemindersStatus(models, userId, pagesToUnarchive, remindAt)
