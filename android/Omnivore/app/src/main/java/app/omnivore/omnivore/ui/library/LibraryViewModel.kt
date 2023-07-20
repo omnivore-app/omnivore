@@ -27,8 +27,13 @@ import kotlinx.coroutines.channels.Channel
 import java.time.Instant
 import javax.inject.Inject
 
+class LibraryViewModel: LibraryListViewModel() {
+
+  val filters: List<ListFilter> = listOf()
+}
+
 @HiltViewModel
-class LibraryViewModel @Inject constructor(
+open class LibraryListViewModel @Inject constructor(
   private val networker: Networker,
   private val dataService: DataService,
   private val datastoreRepo: DatastoreRepository
@@ -55,7 +60,7 @@ class LibraryViewModel @Inject constructor(
     allowedContentReaders = listOf("WEB", "PDF", "EPUB")
   )
   val itemsLiveData = MediatorLiveData<List<SavedItemWithLabelsAndHighlights>>()
-  val appliedFilterLiveData = MutableLiveData(SavedItemFilter.INBOX)
+  val appliedFilterLiveData = MutableLiveData(LibraryFilter.INBOX)
   val appliedSortFilterLiveData = MutableLiveData(SavedItemSortFilter.NEWEST)
   val showLabelsSelectionSheetLiveData = MutableLiveData(false)
   val labelsSelectionCurrentItemLiveData = MutableLiveData<String?>(null)

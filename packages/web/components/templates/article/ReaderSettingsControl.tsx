@@ -163,6 +163,37 @@ function AdvancedSettings(props: SettingsProps): JSX.Element {
           <SwitchThumb />
         </SwitchRoot>
       </HStack>
+
+      <HStack
+        css={{
+          width: '100%',
+          pr: '30px',
+          alignItems: 'center',
+          '&:hover': {
+            opacity: 0.8,
+          },
+          '&[data-state="on"]': {
+            bg: '$thBackground',
+          },
+        }}
+        alignment="start"
+        distribution="between"
+      >
+        <Label htmlFor="rtl-text-direction" css={{ width: '100%' }}>
+          <StyledText style="displaySettingsLabel" css={{ pl: '20px' }}>
+            RTL Text
+          </StyledText>
+        </Label>
+        <SwitchRoot
+          id="rtl-text-direction"
+          checked={readerSettings.highContrastText ?? false}
+          onCheckedChange={(checked) => {
+            readerSettings.setHighContrastText(checked)
+          }}
+        >
+          <SwitchThumb />
+        </SwitchRoot>
+      </HStack>
     </VStack>
   )
 }

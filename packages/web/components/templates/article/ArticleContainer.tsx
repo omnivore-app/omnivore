@@ -36,6 +36,7 @@ type ArticleContainerProps = {
   showHighlightsModal: boolean
   highlightOnRelease?: boolean
   justifyText?: boolean
+  textDirection?: 'ltr' | 'rtl'
   setShowHighlightsModal: React.Dispatch<React.SetStateAction<boolean>>
 }
 
@@ -363,6 +364,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     <>
       <Box
         id="article-container"
+        dir={props.textDirection ?? 'ltr'}
         css={{
           padding: 30,
           minHeight: '100vh',

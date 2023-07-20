@@ -88,7 +88,7 @@ fun SettingsViewContent(loginViewModel: LoginViewModel, settingsViewModel: Setti
 //      RowDivider()
 //      SettingRow(text = "Emails") { Log.d("settings", "emails button tapped") }
 //      RowDivider()
-//      SettingRow(text = "Subscriptions") { Log.d("settings", "subscriptions button tapped") }
+//      SettingRow(text = "Subscriptions") { Log.d("settings", "tab_subscriptions.xml button tapped") }
 //      RowDivider()
 //      SettingRow(text = "Clubs") { Log.d("settings", "clubs button tapped") }
 

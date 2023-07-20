@@ -131,26 +131,26 @@ const postgresMigration = postgrator
     process.exit(1)
   })
 
-// elastic migration
-log('Creating elastic index...')
-const elasticMigration = esClient.indices
-  .exists({ index: INDEX_ALIAS })
-  .then(({ body: exists }) => {
-    if (!exists) {
-      return createIndex().then(() => log('Elastic index created.'))
-    } else {
-      log('Elastic index already exists.')
-    }
-  })
-  .then(() => {
-    log('Updating elastic index mappings...')
-    return updateMappings().then(() => {
-      log('Elastic index mappings updated.')
-    })
-  })
-  .catch((error) => {
-    log(`${chalk.red('Elastic migration failed: ')}${error.message}`, chalk.red)
-    process.exit(1)
-  })
+// // elastic migration
+// log('Creating elastic index...')
+// const elasticMigration = esClient.indices
+//   .exists({ index: INDEX_ALIAS })
+//   .then(({ body: exists }) => {
+//     if (!exists) {
+//       return createIndex().then(() => log('Elastic index created.'))
+//     } else {
+//       log('Elastic index already exists.')
+//     }
+//   })
+//   .then(() => {
+//     log('Updating elastic index mappings...')
+//     return updateMappings().then(() => {
+//       log('Elastic index mappings updated.')
+//     })
+//   })
+//   .catch((error) => {
+//     log(`${chalk.red('Elastic migration failed: ')}${error.message}`, chalk.red)
+//     process.exit(1)
+//   })
 
-Promise.all([postgresMigration, elasticMigration]).then(() => log('Exiting...'))
+Promise.all([postgresMigration]).then(() => log('Exiting...'))

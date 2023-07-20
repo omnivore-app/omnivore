@@ -7,7 +7,11 @@ export class WikipediaHandler extends ContentHandler {
   }
 
   shouldPreParse(url: string, dom: Document): boolean {
-    return new URL(url).hostname.endsWith('wikipedia.org')
+    let u = new URL(url)
+    return (
+      u.hostname.endsWith('wikipedia.org') ||
+      u.hostname.endsWith('wiktionary.org')
+    )
   }
 
   async preParse(url: string, dom: Document): Promise<Document> {

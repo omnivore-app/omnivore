@@ -28,7 +28,7 @@ import app.omnivore.omnivore.ui.components.LabelChipColors
 @Composable
 fun LibraryFilterBar(viewModel: LibraryViewModel) {
   var isSavedItemFilterMenuExpanded by remember { mutableStateOf(false) }
-  val activeSavedItemFilter: SavedItemFilter by viewModel.appliedFilterLiveData.observeAsState(SavedItemFilter.INBOX)
+  val activeSavedItemFilter: ListFilter by viewModel.appliedFilterLiveData.observeAsState(LibraryFilter.INBOX)
   val activeLabels: List<SavedItemLabel> by viewModel.activeLabelsLiveData.observeAsState(listOf())
 
   var isSavedItemSortFilterMenuExpanded by remember { mutableStateOf(false) }
@@ -108,6 +108,7 @@ fun LibraryFilterBar(viewModel: LibraryViewModel) {
     }
 
     SavedItemFilterContextMenu(
+      filters = viewModel.filters,
       isExpanded = isSavedItemFilterMenuExpanded,
       onDismiss = { isSavedItemFilterMenuExpanded = false },
       actionHandler = { viewModel.updateSavedItemFilter(it) }

@@ -8,6 +8,7 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.core.view.ViewCompat
@@ -55,7 +56,7 @@ class MainActivity : ComponentActivity() {
         Box(
           modifier = Modifier
             .fillMaxSize()
-            .background(color = Color.Black)
+            .background(color = MaterialTheme.colorScheme.background)
         ) {
           RootView(loginViewModel, searchViewModel, libraryViewModel, settingsViewModel, labelsViewModel)
         }
