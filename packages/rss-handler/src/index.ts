@@ -2,7 +2,7 @@ import * as Sentry from '@sentry/serverless'
 import axios from 'axios'
 import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
 import * as jwt from 'jsonwebtoken'
-import Parser from 'rss-parser'
+import Parser, { Item } from 'rss-parser'
 import { promisify } from 'util'
 import { CONTENT_FETCH_URL, createCloudTask } from './task'
 
@@ -10,11 +10,6 @@ interface RssFeedRequest {
   subscriptionId: string
   feedUrl: string
   lastFetchedAt: number // unix timestamp in milliseconds
-}
-
-interface ValidRssFeedItem {
-  link: string
-  isoDate?: string
 }
 
 function isRssFeedRequest(body: any): body is RssFeedRequest {
@@ -86,7 +81,7 @@ const sendUpdateSubscriptionMutation = async (
 const createSavingItemTask = async (
   userId: string,
   feedUrl: string,
-  item: ValidRssFeedItem
+  item: Item
 ) => {
   const input = {
     userId,
@@ -156,7 +151,7 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
       console.log('Processing feed', feedUrl, lastFetchedAt)
 
       let lastItemFetchedAt: Date | null = null
-      let lastValidItem: ValidRssFeedItem | null = null
+      let lastValidItem: Item | null = null
 
       // fetch feed
       const feed = await parser.parseURL(feedUrl)
@@ -171,27 +166,26 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
           continue
         }
 
+        const publishedAt = item.isoDate ? new Date(item.isoDate) : new Date()
         // remember the last valid item
-        lastValidItem = {
-          link: item.link,
-          isoDate: item.isoDate,
+        if (
+          !lastValidItem ||
+          (lastValidItem.isoDate &&
+            publishedAt > new Date(lastValidItem.isoDate))
+        ) {
+          lastValidItem = item
         }
 
         // skip old items and items that were published before 24h
-        const publishedAt = item.isoDate ? new Date(item.isoDate) : new Date()
         if (
           publishedAt < new Date(lastFetchedAt) ||
           publishedAt < new Date(Date.now() - 24 * 60 * 60 * 1000)
         ) {
-          console.log('Skipping old feed item', lastValidItem.link)
+          console.log('Skipping old feed item', item.link)
           continue
         }
 
-        const created = await createSavingItemTask(
-          userId,
-          feedUrl,
-          lastValidItem
-        )
+        const created = await createSavingItemTask(userId, feedUrl, item)
         if (!created) {
           console.error('Failed to create task for feed item', item.link)
           continue
