@@ -28,6 +28,7 @@ const errorMessages: Record<string, string> = {
   'error.INVALID_PASSWORD': 'Invalid password. Password must be at least 8 chars.',
   'error.ALREADY_SUBSCRIBED': 'You are already subscribed to this feed',
   'error.BAD_REQUEST': 'Bad request',
+  'error.EXCEEDED_MAX_SUBSCRIPTIONS': 'Exceeded max subscriptions',
 }
 
 const loginPageMessages: Record<string, string> = {

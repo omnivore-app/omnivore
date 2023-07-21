@@ -35,7 +35,7 @@ export function rssFeedRouter() {
       await Promise.all(
         subscriptions.map((subscription) => {
           try {
-            return enqueueRssFeedFetch(subscription)
+            return enqueueRssFeedFetch(subscription.user.id, subscription)
           } catch (error) {
             console.log('error creating rss feed fetch task', error)
           }
