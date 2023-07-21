@@ -1694,6 +1694,7 @@ const schema = gql`
     BAD_REQUEST
     NOT_FOUND
     ALREADY_SUBSCRIBED
+    EXCEEDED_MAX_SUBSCRIPTIONS
   }
 
   union AddPopularReadResult = AddPopularReadSuccess | AddPopularReadError
@@ -1940,6 +1941,7 @@ const schema = gql`
     enabled: Boolean!
     createdAt: Date!
     updatedAt: Date!
+    taskName: String
   }
 
   enum IntegrationType {

@@ -2,14 +2,14 @@ import * as Sentry from '@sentry/serverless'
 import axios from 'axios'
 import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
 import * as jwt from 'jsonwebtoken'
-import Parser from 'rss-parser'
+import Parser, { Item } from 'rss-parser'
 import { promisify } from 'util'
 import { CONTENT_FETCH_URL, createCloudTask } from './task'
 
 interface RssFeedRequest {
   subscriptionId: string
   feedUrl: string
-  lastFetchedAt: string
+  lastFetchedAt: number // unix timestamp in milliseconds
 }
 
 function isRssFeedRequest(body: any): body is RssFeedRequest {
@@ -78,6 +78,35 @@ const sendUpdateSubscriptionMutation = async (
   }
 }
 
+const createSavingItemTask = async (
+  userId: string,
+  feedUrl: string,
+  item: Item
+) => {
+  const input = {
+    userId,
+    source: 'rss-feeder',
+    url: item.link,
+    saveRequestId: '',
+    labels: [{ name: 'RSS', color: '#f26522' }],
+    rssFeedUrl: feedUrl,
+    savedAt: item.isoDate,
+    publishedAt: item.isoDate,
+  }
+
+  try {
+    console.log('Creating task', input.url)
+    // save page
+    const task = await createCloudTask(CONTENT_FETCH_URL, input)
+    console.log('Created task', task)
+
+    return !!task
+  } catch (error) {
+    console.error('Error while creating task', error)
+    return false
+  }
+}
+
 dotenv.config()
 Sentry.GCPFunction.init({
   dsn: process.env.SENTRY_DSN,
@@ -121,56 +150,85 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
       const { feedUrl, subscriptionId, lastFetchedAt } = req.body
       console.log('Processing feed', feedUrl, lastFetchedAt)
 
+      let lastItemFetchedAt: Date | null = null
+      let lastValidItem: Item | null = null
+
       // fetch feed
       const feed = await parser.parseURL(feedUrl)
-      const newFetchedAt = new Date()
-      console.log('Fetched feed', feed.title, newFetchedAt)
+      console.log('Fetched feed', feed.title, new Date())
 
       // save each item in the feed
-      for await (const item of feed.items) {
+      for (const item of feed.items) {
         console.log('Processing feed item', item.link, item.isoDate)
 
-        if (!item.link || !item.isoDate) {
+        if (!item.link) {
           console.log('Invalid feed item', item)
           continue
         }
 
-        // skip old items and items that were published before 24h
-        const publishedAt = new Date(item.isoDate)
+        const publishedAt = item.isoDate ? new Date(item.isoDate) : new Date()
+        // remember the last valid item
         if (
-          publishedAt < new Date(Date.now() - 24 * 60 * 60 * 1000) ||
-          publishedAt < new Date(lastFetchedAt)
+          !lastValidItem ||
+          (lastValidItem.isoDate &&
+            publishedAt > new Date(lastValidItem.isoDate))
+        ) {
+          lastValidItem = item
+        }
+
+        // skip old items and items that were published before 24h
+        if (
+          publishedAt < new Date(lastFetchedAt) ||
+          publishedAt < new Date(Date.now() - 24 * 60 * 60 * 1000)
         ) {
           console.log('Skipping old feed item', item.link)
           continue
         }
 
-        const input = {
-          userId,
-          source: 'rss-feeder',
-          url: item.link,
-          saveRequestId: '',
-          labels: [{ name: 'RSS', color: '#f26522' }],
-          rssFeedUrl: feedUrl,
-          savedAt: publishedAt,
-          publishedAt,
+        const created = await createSavingItemTask(userId, feedUrl, item)
+        if (!created) {
+          console.error('Failed to create task for feed item', item.link)
+          continue
         }
 
-        try {
-          console.log('Creating task', input.url)
-          // save page
-          const task = await createCloudTask(CONTENT_FETCH_URL, input)
-          console.log('Created task', task)
-        } catch (error) {
-          console.error('Error while creating task', error)
+        // remember the last item fetched at
+        if (!lastItemFetchedAt || publishedAt > lastItemFetchedAt) {
+          lastItemFetchedAt = publishedAt
         }
+      }
+
+      // no items saved
+      if (!lastItemFetchedAt) {
+        // the feed has been fetched before, no new valid items found
+        if (lastFetchedAt || !lastValidItem) {
+          console.log('No new valid items found')
+          return res.send('ok')
+        }
+
+        // the feed has never been fetched, save at least the last valid item
+        const created = await createSavingItemTask(
+          userId,
+          feedUrl,
+          lastValidItem
+        )
+        if (!created) {
+          console.error(
+            'Failed to create task for feed item',
+            lastValidItem.link
+          )
+          return res.status(500).send('INTERNAL_SERVER_ERROR')
+        }
+
+        lastItemFetchedAt = lastValidItem.isoDate
+          ? new Date(lastValidItem.isoDate)
+          : new Date()
       }
 
       // update subscription lastFetchedAt
       const updatedSubscription = await sendUpdateSubscriptionMutation(
         userId,
         subscriptionId,
-        newFetchedAt
+        lastItemFetchedAt
       )
       console.log('Updated subscription', updatedSubscription)
 

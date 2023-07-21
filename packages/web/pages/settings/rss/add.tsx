@@ -14,6 +14,7 @@ import { SettingsLayout } from '../../../components/templates/SettingsLayout'
 import { subscribeMutation } from '../../../lib/networking/mutations/subscribeMutation'
 import { SubscriptionType } from '../../../lib/networking/queries/useGetSubscriptionsQuery'
 import { showSuccessToast } from '../../../lib/toastHelpers'
+import { formatMessage } from '../../../locales/en/messages'
 
 // Styles
 const Header = styled(Box, {
@@ -30,20 +31,35 @@ export default function AddRssFeed(): JSX.Element {
   const [feedUrl, setFeedUrl] = useState<string>('')
 
   const subscribe = useCallback(async () => {
-    try {
-      const result = await subscribeMutation({
-        url: feedUrl,
-        subscriptionType: SubscriptionType.RSS,
-      })
-      if (result) {
-        router.push(`/settings/rss`)
-        showSuccessToast('New RSS feed has been added.')
-      } else {
-        setErrorMessage('There was an error adding new RSS feed.')
-      }
-    } catch (err) {
-      setErrorMessage('Error: ' + err)
+    if (!feedUrl) {
+      setErrorMessage('Please enter a valid RSS feed URL')
+      return
     }
+
+    let normailizedUrl: string
+    // normalize the url
+    try {
+      normailizedUrl = new URL(feedUrl).toString()
+    } catch (e) {
+      setErrorMessage('Please enter a valid RSS feed URL')
+      return
+    }
+
+    const result = await subscribeMutation({
+      url: normailizedUrl,
+      subscriptionType: SubscriptionType.RSS,
+    })
+
+    if (result.subscribe.errorCodes) {
+      const errorMessage = formatMessage({
+        id: `error.${result.subscribe.errorCodes[0]}`,
+      })
+      setErrorMessage(`There was an error adding new RSS feed: ${errorMessage}`)
+      return
+    }
+
+    router.push(`/settings/rss`)
+    showSuccessToast('New RSS feed has been added.')
   }, [feedUrl, router])
 
   return (
@@ -78,12 +94,9 @@ export default function AddRssFeed(): JSX.Element {
             value={feedUrl}
             placeholder={'Enter the RSS feed URL here'}
             onChange={(e) => {
-              e.preventDefault()
+              setErrorMessage(undefined)
               setFeedUrl(e.target.value)
             }}
-            disabled={false}
-            hidden={false}
-            required={true}
             css={{
               border: '1px solid $textNonessential',
               borderRadius: '8px',

@@ -864,6 +864,7 @@ type Integration {
   enabled: Boolean!
   id: ID!
   name: String!
+  taskName: String
   token: String!
   type: IntegrationType!
   updatedAt: Date!
@@ -2053,6 +2054,7 @@ type SubscribeError {
 enum SubscribeErrorCode {
   ALREADY_SUBSCRIBED
   BAD_REQUEST
+  EXCEEDED_MAX_SUBSCRIPTIONS
   NOT_FOUND
   UNAUTHORIZED
 }

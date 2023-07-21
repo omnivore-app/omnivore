@@ -497,7 +497,7 @@ export const enqueueImportFromIntegration = async (
           console.error(error)
         })
     }, 0)
-    return ''
+    return nanoid()
   }
 
   const createdTasks = await createHttpTaskWithToken({
@@ -567,19 +567,33 @@ export const enqueueThumbnailTask = async (
 }
 
 export const enqueueRssFeedFetch = async (
+  userId: string,
   rssFeedSubscription: Subscription
 ): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT } = process.env
   const payload = {
     subscriptionId: rssFeedSubscription.id,
     feedUrl: rssFeedSubscription.url,
-    lastFetchedAt: rssFeedSubscription.lastFetchedAt,
+    lastFetchedAt: rssFeedSubscription.lastFetchedAt?.getTime() || 0, // unix timestamp in milliseconds
   }
 
   const headers = {
-    [OmnivoreAuthorizationHeader]: generateVerificationToken(
-      rssFeedSubscription.user.id
-    ),
+    [OmnivoreAuthorizationHeader]: generateVerificationToken(userId),
+  }
+
+  // If there is no Google Cloud Project Id exposed, it means that we are in local environment
+  if (env.dev.isLocal || !GOOGLE_CLOUD_PROJECT) {
+    // Calling the handler function directly.
+    setTimeout(() => {
+      axios
+        .post(env.queue.rssFeedTaskHandlerUrl, payload, {
+          headers,
+        })
+        .catch((error) => {
+          console.error(error)
+        })
+    }, 0)
+    return nanoid()
   }
 
   const createdTasks = await createHttpTaskWithToken({
