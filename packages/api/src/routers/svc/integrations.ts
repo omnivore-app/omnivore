@@ -263,7 +263,7 @@ export function integrationsServiceRouter() {
             total: offset,
             size: retrievedData.length,
           })
-        } while (retrievedData.length > 0)
+        } while (retrievedData.length > 0 && offset < 20000) // limit to 20k pages
       }
 
       // update the integration's syncedAt and remove taskName
