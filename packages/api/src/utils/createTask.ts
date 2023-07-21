@@ -567,6 +567,7 @@ export const enqueueThumbnailTask = async (
 }
 
 export const enqueueRssFeedFetch = async (
+  userId: string,
   rssFeedSubscription: Subscription
 ): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT } = process.env
@@ -577,9 +578,7 @@ export const enqueueRssFeedFetch = async (
   }
 
   const headers = {
-    [OmnivoreAuthorizationHeader]: generateVerificationToken(
-      rssFeedSubscription.user.id
-    ),
+    [OmnivoreAuthorizationHeader]: generateVerificationToken(userId),
   }
 
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment

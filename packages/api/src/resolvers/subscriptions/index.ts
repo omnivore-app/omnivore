@@ -25,6 +25,7 @@ import {
   UpdateSubscriptionErrorCode,
   UpdateSubscriptionSuccess,
 } from '../../generated/graphql'
+import { AppDataSource } from '../../server'
 import { getSubscribeHandler, unsubscribe } from '../../services/subscriptions'
 import { Merge } from '../../util'
 import { analytics } from '../../utils/analytics'
@@ -234,20 +235,34 @@ export const subscribeResolver = authorized<
       // validate rss feed
       const feed = await parser.parseURL(input.url)
 
-      const newSubscription = await getRepository(Subscription).save({
-        name: feed.title,
-        url: input.url,
-        user: { id: uid },
-        type: SubscriptionType.Rss,
-        description: feed.description,
-        icon: feed.image?.url,
-      })
+      // limit number of rss subscriptions to 20
+      const newSubscriptions = (await AppDataSource.query(
+        `insert into omnivore.subscriptions (name, url, description, type, user_id, icon) 
+        select $1, $2, $3, $4, $5, $6 from omnivore.subscriptions 
+        where user_id = $5 and type = 'RSS' and status = 'ACTIVE' 
+        having count(*) < 20 
+        returning *;`,
+        [
+          feed.title,
+          input.url,
+          feed.description || null,
+          SubscriptionType.Rss,
+          uid,
+          feed.image?.url || null,
+        ]
+      )) as Subscription[]
+
+      if (newSubscriptions.length === 0) {
+        return {
+          errorCodes: [SubscribeErrorCode.ExceededMaxSubscriptions],
+        }
+      }
 
       // create a cloud task to fetch rss feed item for the new subscription
-      await enqueueRssFeedFetch(newSubscription)
+      await enqueueRssFeedFetch(uid, newSubscriptions[0])
 
       return {
-        subscriptions: [newSubscription],
+        subscriptions: newSubscriptions,
       }
     }
 

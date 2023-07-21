@@ -2707,6 +2707,7 @@ export type SubscribeError = {
 export enum SubscribeErrorCode {
   AlreadySubscribed = 'ALREADY_SUBSCRIBED',
   BadRequest = 'BAD_REQUEST',
+  ExceededMaxSubscriptions = 'EXCEEDED_MAX_SUBSCRIPTIONS',
   NotFound = 'NOT_FOUND',
   Unauthorized = 'UNAUTHORIZED'
 }
