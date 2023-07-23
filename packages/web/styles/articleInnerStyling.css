@@ -262,6 +262,10 @@ on smaller screens we display the note icon
 
 .article-inner-css sup,
 .article-inner-css sub {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
   a {
     color: inherit;
     pointer-events: none;
@@ -269,7 +273,7 @@ on smaller screens we display the note icon
 }
 
 .article-inner-css sup {
-  top: -0.3em;
+  top: -0.75em;
 }
 
 .article-inner-css sub {
