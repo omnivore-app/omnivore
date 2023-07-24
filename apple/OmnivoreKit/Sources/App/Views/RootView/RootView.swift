@@ -64,17 +64,6 @@ struct InnerRootView: View {
             }
           }
         #endif
-        .snackBar(isShowing: $viewModel.showSnackbar, operation: viewModel.snackbarOperation)
-          // Schedule the dismissal every time we present the snackbar.
-          .onChange(of: viewModel.showSnackbar) { newValue in
-            if newValue {
-              DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                withAnimation {
-                  viewModel.showSnackbar = false
-                }
-              }
-            }
-          }
       }
     } else {
       WelcomeView()
@@ -92,21 +81,6 @@ struct InnerRootView: View {
           .frame(minWidth: 400, idealWidth: 1200, minHeight: 400, idealHeight: 1200)
       #endif
     }
-    #if os(iOS)
-      .onReceive(NSNotification.operationSuccessPublisher) { notification in
-        if let message = notification.userInfo?["message"] as? String {
-          viewModel.snackbarOperation = SnackbarOperation(message: message,
-                                                          undoAction: notification.userInfo?["undoAction"] as? SnackbarUndoAction)
-          viewModel.showSnackbar = true
-        }
-      }
-      .onReceive(NSNotification.operationFailedPublisher) { notification in
-        if let message = notification.userInfo?["message"] as? String {
-          viewModel.showSnackbar = true
-          viewModel.snackbarOperation = SnackbarOperation(message: message, undoAction: nil)
-        }
-      }
-    #endif
     .onOpenURL { Authenticator.handleGoogleURL(url: $0) }
   }
 

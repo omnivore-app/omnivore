@@ -5,6 +5,8 @@ import Views
 @MainActor
 struct HomeView: View {
   @State private var viewModel: HomeFeedViewModel
+  @State var showSnackbar = false
+  @State var snackbarOperation: SnackbarOperation?
 
   init(viewModel: HomeFeedViewModel) {
     self.viewModel = viewModel

@@ -29,6 +29,8 @@ struct AnimatingCellHeight: AnimatableModifier {
     @State var searchPresented = false
     @State var addLinkPresented = false
     @State var settingsPresented = false
+    @State var isListScrolled = false
+    @State var listTitle = ""
 
     @EnvironmentObject var dataService: DataService
     @EnvironmentObject var audioController: AudioController
@@ -53,6 +55,8 @@ struct AnimatingCellHeight: AnimatableModifier {
           }
         }
         HomeFeedView(
+          listTitle: $listTitle,
+          isListScrolled: $isListScrolled,
           prefersListLayout: $prefersListLayout,
           viewModel: viewModel
         )
@@ -93,17 +97,18 @@ struct AnimatingCellHeight: AnimatableModifier {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
           ToolbarItem(placement: .barLeading) {
-//            Button(action: {
-//              viewModel.showFiltersModal = true
-//            }, label: {
-            HStack(alignment: .center) {
+            VStack(alignment: .leading) {
               let title = (LinkedItemFilter(rawValue: viewModel.appliedFilter) ?? LinkedItemFilter.inbox).displayName
+
               Text(title)
-                .font(Font.system(size: 18, weight: .semibold))
-//                Image(systemName: "chevron.down")
-//                  .font(Font.system(size: 13, weight: .regular))
+                .font(Font.system(size: isListScrolled ? 10 : 18, weight: .semibold))
+
+              if isListScrolled {
+                Text(listTitle)
+                  .font(Font.system(size: 15, weight: .regular))
+                  .foregroundColor(Color.appGrayText)
+              }
             }.frame(maxWidth: .infinity, alignment: .leading)
-//            })
           }
           ToolbarItem(placement: .barTrailing) {
             Button("", action: {})
@@ -148,9 +153,7 @@ struct AnimatingCellHeight: AnimatableModifier {
                   Label("Add Link", systemImage: "plus.square")
                 })
               }, label: {
-                Image(systemName: "ellipsis")
-                  .foregroundColor(.appGrayTextContrast)
-                  .frame(width: 24, height: 24)
+                Image.utilityMenu
               })
             } else {
               EmptyView()
@@ -232,13 +235,19 @@ struct AnimatingCellHeight: AnimatableModifier {
   @MainActor
   struct HomeFeedView: View {
     @EnvironmentObject var dataService: DataService
+
+    @Binding var listTitle: String
+    @Binding var isListScrolled: Bool
     @Binding var prefersListLayout: Bool
     @ObservedObject var viewModel: HomeFeedViewModel
+
+    @State var showSnackbar = false
+    @State var snackbarOperation: SnackbarOperation?
 
     var body: some View {
       VStack(spacing: 0) {
         if prefersListLayout || !enableGrid {
-          HomeFeedListView(prefersListLayout: $prefersListLayout, viewModel: viewModel)
+          HomeFeedListView(listTitle: $listTitle, isListScrolled: $isListScrolled, prefersListLayout: $prefersListLayout, viewModel: viewModel)
         } else {
           HomeFeedGridView(viewModel: viewModel)
         }
@@ -251,6 +260,33 @@ struct AnimatingCellHeight: AnimatableModifier {
           self.viewModel.negatedLabels = $1
         }
       }
+      .popup(isPresented: $showSnackbar) {
+        if let operation = snackbarOperation {
+          Snackbar(isShowing: $showSnackbar, operation: operation)
+        } else {
+          EmptyView()
+        }
+      } customize: {
+        $0
+          .type(.toast)
+          .autohideIn(2)
+          .position(.bottom)
+          .animation(.spring())
+          .closeOnTapOutside(true)
+      }
+      .onReceive(NSNotification.operationSuccessPublisher) { notification in
+        if let message = notification.userInfo?["message"] as? String {
+          snackbarOperation = SnackbarOperation(message: message,
+                                                undoAction: notification.userInfo?["undoAction"] as? SnackbarUndoAction)
+          showSnackbar = true
+        }
+      }
+      .onReceive(NSNotification.operationFailedPublisher) { notification in
+        if let message = notification.userInfo?["message"] as? String {
+          showSnackbar = true
+          snackbarOperation = SnackbarOperation(message: message, undoAction: nil)
+        }
+      }
     }
   }
 
@@ -258,6 +294,8 @@ struct AnimatingCellHeight: AnimatableModifier {
     @EnvironmentObject var dataService: DataService
     @EnvironmentObject var audioController: AudioController
 
+    @Binding var listTitle: String
+    @Binding var isListScrolled: Bool
     @Binding var prefersListLayout: Bool
     @State private var showHideFeatureAlert = false
 
@@ -417,6 +455,48 @@ struct AnimatingCellHeight: AnimatableModifier {
       }
     }
 
+    struct ScrollOffsetPreferenceKey: PreferenceKey {
+      static var defaultValue: CGPoint = .zero
+
+      static func reduce(value _: inout CGPoint, nextValue _: () -> CGPoint) {}
+    }
+
+    @State var topItem: LinkedItem?
+
+    func setTopItem(_ item: LinkedItem) {
+      if let date = item.savedAt, let daysAgo = Calendar.current.dateComponents([.day], from: date, to: Date()).day {
+        if daysAgo < 1 {
+          let formatter = DateFormatter()
+          formatter.timeStyle = .none
+          formatter.dateStyle = .long
+          formatter.doesRelativeDateFormatting = true
+          if let str = formatter.string(for: date) {
+            listTitle = str.capitalized
+          }
+        } else if daysAgo < 2 {
+          let formatter = RelativeDateTimeFormatter()
+          formatter.dateTimeStyle = .named
+          if let str = formatter.string(for: date) {
+            listTitle = str.capitalized
+          }
+        } else if daysAgo < 5 {
+          let formatter = DateFormatter()
+          formatter.dateFormat = "EEEE"
+          if let str = formatter.string(for: date) {
+            listTitle = str
+          }
+        } else {
+          let formatter = DateFormatter()
+          formatter.dateStyle = .medium
+          formatter.timeStyle = .none
+          if let str = formatter.string(for: date) {
+            listTitle = str
+          }
+        }
+        topItem = item
+      }
+    }
+
     var body: some View {
       let horizontalInset = CGFloat(UIDevice.isIPad ? 20 : 10)
       VStack(spacing: 0) {
@@ -443,6 +523,16 @@ struct AnimatingCellHeight: AnimatableModifier {
               .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
               .listRowSeparator(.hidden, edges: .all)
               .modifier(AnimatingCellHeight(height: 190 + (Color.isDarkMode ? 13 : 13)))
+              .onDisappear {
+                withAnimation {
+                  isListScrolled = true
+                }
+              }
+              .onAppear {
+                withAnimation {
+                  isListScrolled = false
+                }
+              }
           }
 
           ForEach(viewModel.items) { item in
@@ -450,6 +540,19 @@ struct AnimatingCellHeight: AnimatableModifier {
               item: item,
               viewModel: viewModel
             )
+            .background(GeometryReader { geometry in
+              Color.clear
+                .preference(key: ScrollOffsetPreferenceKey.self, value: geometry.frame(in: .named("scroll")).origin)
+            })
+            .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
+              if value.y < 100, value.y > 0 {
+                if let date = item.savedAt {
+                  if topItem != item {
+                    setTopItem(item)
+                  }
+                }
+              }
+            }
             .listRowSeparatorTint(Color.thBorderColor)
             .listRowInsets(.init(top: 0, leading: horizontalInset, bottom: 10, trailing: horizontalInset))
             .contextMenu {
@@ -470,6 +573,7 @@ struct AnimatingCellHeight: AnimatableModifier {
         .padding(0)
         .listStyle(PlainListStyle())
         .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+        .coordinateSpace(name: "scroll")
       }
       .alert("The Feature Section will be removed from your library. You can add it back from the filter settings in your profile.",
              isPresented: $showHideFeatureAlert) {

@@ -19,7 +19,7 @@ final class WebReaderCoordinator: NSObject {
   var previousReaderSettingsChangedUUID: UUID?
   var previousShowNavBarActionID: UUID?
   var previousShareActionID: UUID?
-  var updateNavBarVisibilityRatio: (Double) -> Void = { _ in }
+  var updateNavBarVisibility: (Bool) -> Void = { _ in }
   var updateShowBottomBar: (Bool) -> Void = { _ in }
   var articleContentID = UUID()
   private var yOffsetAtStartOfDrag: Double?
@@ -31,10 +31,10 @@ final class WebReaderCoordinator: NSObject {
     super.init()
   }
 
-  var navBarVisibilityRatio: Double = 1.0 {
+  var navBarVisible: Bool = true {
     didSet {
-      isNavBarHidden = navBarVisibilityRatio == 0
-      updateNavBarVisibilityRatio(navBarVisibilityRatio)
+      isNavBarHidden = !navBarVisible
+      updateNavBarVisibility(navBarVisible)
     }
   }
 
@@ -98,30 +98,28 @@ extension WebReaderCoordinator: WKNavigationDelegate {
 
       if yOffset == 0 {
         scrollView.contentInset.top = readerViewNavBarHeight
-        navBarVisibilityRatio = 1
+        navBarVisible = true
         return
       }
 
       if yOffset < 0 {
-        navBarVisibilityRatio = 1
+        navBarVisible = true
         scrollView.contentInset.top = readerViewNavBarHeight
         return
       }
 
       if yOffset < readerViewNavBarHeight {
         let isScrollingUp = yOffsetAtStartOfDrag ?? 0 > yOffset
-        navBarVisibilityRatio = isScrollingUp || yOffset < 0 ? 1 : min(1, 1 - (yOffset / readerViewNavBarHeight))
-        scrollView.contentInset.top = navBarVisibilityRatio * readerViewNavBarHeight
+        navBarVisible = isScrollingUp || yOffset < 0
+        scrollView.contentInset.top = navBarVisible ? readerViewNavBarHeight : 0
         return
       }
 
       guard let yOffsetAtStartOfDrag = yOffsetAtStartOfDrag else { return }
 
       if yOffset > yOffsetAtStartOfDrag, !isNavBarHidden {
-        let translation = yOffset - yOffsetAtStartOfDrag
-        let ratio = translation < readerViewNavBarHeight ? 1 - (translation / readerViewNavBarHeight) : 0
-        navBarVisibilityRatio = min(ratio, 1)
-        scrollView.contentInset.top = navBarVisibilityRatio * readerViewNavBarHeight
+        navBarVisible = false
+        scrollView.contentInset.top = navBarVisible ? readerViewNavBarHeight : 0
       }
 
       if yOffset + scrollView.visibleSize.height > scrollView.contentSize.height - 140 {
@@ -137,15 +135,15 @@ extension WebReaderCoordinator: WKNavigationDelegate {
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
       if decelerate, scrollView.contentOffset.y + scrollView.contentInset.top < (yOffsetAtStartOfDrag ?? 0) {
         scrollView.contentInset.top = readerViewNavBarHeight
-        navBarVisibilityRatio = 1
+        navBarVisible = true
       }
     }
 
     func scrollViewShouldScrollToTop(_ scrollView: UIScrollView) -> Bool {
       scrollView.contentInset.top = readerViewNavBarHeight
-      let navBarVisible = navBarVisibilityRatio == 1
-      navBarVisibilityRatio = 1
-      return navBarVisible
+      let isVisible = navBarVisible
+      navBarVisible = true
+      return isVisible
     }
   }
 #endif

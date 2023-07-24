@@ -29,7 +29,7 @@
 
       do {
         try await dataService.leaveGroup(groupID: recommendationGroup.id)
-        Snackbar.show(message: "You have left the club.")
+        // Snackbar.show(message: "You have left the club.")
       } catch {
         return false
       }
@@ -182,7 +182,7 @@
               pasteBoard.writeObjects([highlightParams.quote as NSString])
             #endif
 
-            Snackbar.show(message: "Invite link copied")
+            // Snackbar.show(message: "Invite link copied")
           }, label: {
             Text("[\(viewModel.recommendationGroup.inviteUrl)](\(viewModel.recommendationGroup.inviteUrl))")
               .font(.appCaption)

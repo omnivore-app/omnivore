@@ -12,7 +12,7 @@ struct WebReader: PlatformViewRepresentable {
   let tapHandler: () -> Void
   let scrollPercentHandler: (Int) -> Void
   let webViewActionHandler: (WKScriptMessage, WKScriptMessageReplyHandler?) -> Void
-  let navBarVisibilityRatioUpdater: (Double) -> Void
+  let navBarVisibilityUpdater: (Bool) -> Void
 
   @Binding var readerSettingsChangedTransactionID: UUID?
   @Binding var annotationSaveTransactionID: UUID?
@@ -82,7 +82,7 @@ struct WebReader: PlatformViewRepresentable {
 
     context.coordinator.linkHandler = openLinkAction
     context.coordinator.webViewActionHandler = webViewActionHandler
-    context.coordinator.updateNavBarVisibilityRatio = navBarVisibilityRatioUpdater
+    context.coordinator.updateNavBarVisibility = navBarVisibilityUpdater
     context.coordinator.scrollPercentHandler = scrollPercentHandler
     context.coordinator.updateShowBottomBar = { newValue in
       self.showBottomBar = newValue
