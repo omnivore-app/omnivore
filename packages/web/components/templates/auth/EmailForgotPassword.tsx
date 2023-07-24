@@ -49,7 +49,7 @@ export function EmailForgotPassword(): JSX.Element {
             <FormLabel>Email</FormLabel>
             <BorderedFormInput
               key="email"
-              type="text"
+              type="email"
               name="email"
               value={email}
               placeholder="Email"
