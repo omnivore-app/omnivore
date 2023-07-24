@@ -43,14 +43,13 @@ struct LibraryTabView: View {
   )
 
   var body: some View {
-    NavigationView {
-      ZStack {
-        NavigationLink(
-          destination: LinkDestination(selectedItem: libraryViewModel.selectedItem),
-          isActive: $libraryViewModel.linkIsActive
-        ) {
-          EmptyView()
-        }
+    ZStack {
+      NavigationLink(
+        destination: LinkDestination(selectedItem: libraryViewModel.selectedItem),
+        isActive: $libraryViewModel.linkIsActive
+      ) {
+        EmptyView()
+      }
 //        TabView(selection: $selection) {
 //          BriefingView(
 //            articleId: "98e017a3-79d5-4049-97bc-ff170153792a"
@@ -63,7 +62,7 @@ struct LibraryTabView: View {
 //            }
 //          }.tag(0)
 
-        HomeView(viewModel: libraryViewModel)
+      HomeView(viewModel: libraryViewModel)
 //            .tabItem {
 //              Label {
 //                Text("Library")
@@ -81,9 +80,6 @@ struct LibraryTabView: View {
 //              }
 //            }.tag(2)
 //        }
-      }
     }
-    .navigationViewStyle(.stack)
-    .navigationBarTitleDisplayMode(.inline)
   }
 }
