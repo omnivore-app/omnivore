@@ -1,6 +1,5 @@
 import 'mocha'
 import chai, { expect } from 'chai'
-import 'chai/register-should'
 import {
   createTestUser,
   createUserWithoutProfile,

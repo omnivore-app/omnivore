@@ -1,6 +1,5 @@
 import 'mocha'
 import { expect } from 'chai'
-import 'chai/register-should'
 import { createTestUser, deleteTestUser } from '../db'
 import { SaveContext, saveEmail } from '../../src/services/save_email'
 import { createPubSubClient } from '../../src/datalayer/pubsub'

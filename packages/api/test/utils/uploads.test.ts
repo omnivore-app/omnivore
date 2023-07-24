@@ -1,6 +1,5 @@
 import 'mocha'
 import { expect } from 'chai'
-import 'chai/register-should'
 import { contentReaderForPage } from '../../src/utils/uploads'
 import { ContentReader, PageType } from '../../src/generated/graphql'
 

@@ -1,4 +1,4 @@
-import { ResponseError } from '@elastic/elasticsearch/lib/errors'
+import { errors } from '@elastic/elasticsearch'
 import { EntityType } from '../datalayer/pubsub'
 import { client, INDEX_ALIAS } from './index'
 import { Label, PageContext } from './types'
@@ -43,7 +43,7 @@ export const addLabelInPage = async (
     return true
   } catch (e) {
     if (
-      e instanceof ResponseError &&
+      e instanceof errors.ResponseError &&
       e.message === 'document_missing_exception'
     ) {
       console.log('page has been deleted', pageId)
@@ -92,7 +92,7 @@ export const updateLabelsInPage = async (
     return true
   } catch (e) {
     if (
-      e instanceof ResponseError &&
+      e instanceof errors.ResponseError &&
       e.message === 'document_missing_exception'
     ) {
       console.log('page has been deleted', pageId)
@@ -321,7 +321,7 @@ export const setLabelsForHighlight = async (
     return true
   } catch (e) {
     if (
-      e instanceof ResponseError &&
+      e instanceof errors.ResponseError &&
       e.message === 'document_missing_exception'
     ) {
       console.log('highlight has been deleted', highlightId)

@@ -32,7 +32,7 @@
     "webpack-dev-server": "^4.7.4"
   },
   "volta": {
-    "node": "14.18.0",
+    "node": "18.16.0",
     "yarn": "1.22.10"
   }
 }

@@ -1,7 +1,7 @@
 # Note this docker file is meant for local testing
 # and not for production.
 
-FROM node:14.18-alpine as builder
+FROM node:18.16-alpine as builder
 ENV NODE_OPTIONS=--max-old-space-size=8192
 ARG APP_ENV
 ARG BASE_URL
@@ -30,7 +30,7 @@ RUN echo "module.exports = {}" > ./packages/web/next.config.js
 RUN yarn workspace @omnivore/web build
 
 
-FROM node:14.18-alpine as runner
+FROM node:18.16-alpine as runner
 ENV NODE_ENV production
 ENV PORT=8080
 ENV NEXT_TELEMETRY_DISABLED 1

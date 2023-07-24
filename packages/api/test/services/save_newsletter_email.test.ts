@@ -1,5 +1,4 @@
 import { expect } from 'chai'
-import 'chai/register-should'
 import 'mocha'
 import nock from 'nock'
 import { createPubSubClient } from '../../src/datalayer/pubsub'
