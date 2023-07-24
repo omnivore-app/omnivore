@@ -155,6 +155,7 @@ struct AnimatingCellHeight: AnimatableModifier {
               }, label: {
                 Image.utilityMenu
               })
+                .foregroundColor(.appGrayTextContrast)
             } else {
               EmptyView()
             }
