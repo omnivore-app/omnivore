@@ -438,7 +438,8 @@ struct AnimatingCellHeight: AnimatableModifier {
           VStack {
             LinearGradient(gradient: Gradient(colors: [.black.opacity(0.06), .systemGray6]),
                            startPoint: .top, endPoint: .bottom)
-              .frame(maxWidth: .infinity, maxHeight: 6)
+              .frame(maxWidth: .infinity, maxHeight: 3)
+              .opacity(0.4)
 
             Spacer()
           }
