@@ -12,23 +12,9 @@ struct HomeView: View {
     self.viewModel = viewModel
   }
 
-  #if os(iOS)
-    var navView: some View {
-      NavigationView {
-        HomeFeedContainerView(viewModel: viewModel)
-      }
-      .navigationViewStyle(.stack)
-      .accentColor(.appGrayTextContrast)
-    }
-  #endif
-
   var body: some View {
     #if os(iOS)
-      if UIDevice.isIPhone {
-        navView
-      } else {
-        HomeFeedContainerView(viewModel: viewModel)
-      }
+      HomeFeedContainerView(viewModel: viewModel)
     #elseif os(macOS)
       HomeFeedView(viewModel: viewModel)
         .frame(minWidth: 320)
