@@ -75,6 +75,7 @@ import Views
         )
       #endif
     }
+    .dynamicTypeSize(.small ... .large)
     .listStyle(.sidebar)
   }
 

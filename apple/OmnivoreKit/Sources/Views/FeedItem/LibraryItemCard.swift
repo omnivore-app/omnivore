@@ -38,6 +38,7 @@ public struct LibraryItemCard: View {
     }
     .padding(.bottom, 5)
     .draggableItem(item: item)
+    .dynamicTypeSize(.xSmall ... .accessibility1)
   }
 
   var isFullyRead: Bool {
@@ -192,6 +193,7 @@ public struct LibraryItemCard: View {
   public var articleInfo: some View {
     VStack(alignment: .leading, spacing: 5) {
       readInfo
+        .dynamicTypeSize(.xSmall ... .medium)
 
       Text(item.unwrappedTitle)
         .font(.body).fontWeight(.semibold)
