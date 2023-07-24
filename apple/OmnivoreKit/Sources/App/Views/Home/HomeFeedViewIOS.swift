@@ -354,6 +354,7 @@ struct AnimatingCellHeight: AnimatableModifier {
         }
         .listRowSeparator(.hidden)
       }
+      .dynamicTypeSize(.small ... .accessibility1)
     }
 
     func menuItems(for item: LinkedItem) -> some View {
