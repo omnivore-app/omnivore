@@ -1,5 +1,6 @@
 import AVFoundation
 import Models
+import PopupView
 import Services
 import SwiftUI
 import Utils
@@ -18,7 +19,7 @@ struct WebReaderContainerView: View {
   @State private var showNotebookView = false
   @State private var hasPerformedHighlightMutations = false
   @State var showHighlightAnnotationModal = false
-  @State private var navBarVisibilityRatio = 1.0
+  @State private var navBarVisible = true
   @State private var progressViewOpacity = 0.0
   @State var readerSettingsChangedTransactionID: UUID?
   @State var annotationSaveTransactionID: UUID?
@@ -81,8 +82,8 @@ struct WebReaderContainerView: View {
 
   private func tapHandler() {
     withAnimation(.easeIn(duration: 0.08)) {
-      navBarVisibilityRatio = navBarVisibilityRatio == 1 ? 0 : 1
-      showBottomBar = navBarVisibilityRatio == 1
+      navBarVisible = !navBarVisible
+      showBottomBar = navBarVisible
       showNavBarActionID = UUID()
     }
   }
@@ -105,8 +106,8 @@ struct WebReaderContainerView: View {
       showHighlightLabelsModal = true
     case "pageTapped":
       withAnimation {
-        navBarVisibilityRatio = navBarVisibilityRatio == 1 ? 0 : 1
-        showBottomBar = navBarVisibilityRatio == 1
+        navBarVisible = !navBarVisible
+        showBottomBar = navBarVisible
         showNavBarActionID = UUID()
       }
     default:
@@ -118,8 +119,7 @@ struct WebReaderContainerView: View {
     var audioNavbarItem: some View {
       if audioController.isLoadingItem(itemID: item.unwrappedID) {
         return AnyView(ProgressView()
-          .padding(.horizontal)
-          .scaleEffect(navBarVisibilityRatio))
+          .padding(.horizontal))
       } else {
         return AnyView(Button(
           action: {
@@ -143,36 +143,34 @@ struct WebReaderContainerView: View {
           label: {
             textToSpeechButtonImage
           }
-        )
-        .padding(.horizontal, 5)
-        .scaleEffect(navBarVisibilityRatio))
+        ))
       }
     }
 
     var textToSpeechButtonImage: some View {
       if audioController.state == .stopped || audioController.itemAudioProperties?.itemID != self.item.id {
-        return Image(systemName: "headphones").font(.appTitleThree)
+        return AnyView(Image.headphones)
       }
       let name = audioController.isPlayingItem(itemID: item.unwrappedID) ? "pause.circle" : "play.circle"
-      return Image(systemName: name).font(.appNavbarIcon)
+      return AnyView(Image(systemName: name).font(.appNavbarIcon))
     }
   #endif
 
   var bottomButtons: some View {
     HStack(alignment: .center) {
       Button(action: archive, label: {
-        Image(systemName: item.isArchived ? "tray.and.arrow.down" : "archivebox")
+        item.isArchived ? Image.unarchive : Image.archive
       }).frame(width: 48, height: 48)
         .padding(.leading, 8)
       Divider().opacity(0.8)
 
       Button(action: delete, label: {
-        Image(systemName: "trash")
+        Image.remove
       }).frame(width: 48, height: 48)
       Divider().opacity(0.8)
 
       Button(action: editLabels, label: {
-        Image(systemName: "tag")
+        Image.label
       }).frame(width: 48, height: 48)
       Divider().opacity(0.8)
 
@@ -261,30 +259,29 @@ struct WebReaderContainerView: View {
     }
   }
 
+  let navBarOffset = 100
+
   var navBar: some View {
-    HStack(alignment: .center, spacing: 15) {
+    HStack(alignment: .center, spacing: 10) {
       #if os(iOS)
         Button(
           action: { self.presentationMode.wrappedValue.dismiss() },
           label: {
-            Image(systemName: "chevron.backward")
-              .font(.appNavbarIcon)
-              // .foregroundColor(.appGrayTextContrast)
-              .padding()
+            Image.chevronRight
+              .padding(.horizontal, 10)
+              .padding(.vertical)
           }
         )
-        .scaleEffect(navBarVisibilityRatio)
         Spacer()
       #endif
 
       Button(
         action: { showNotebookView = true },
         label: {
-          Image("notebook", bundle: Bundle(url: ViewsPackage.bundleURL))
+          Image.notebook
         }
       )
-      .padding(.horizontal, 5)
-      .scaleEffect(navBarVisibilityRatio)
+      .padding(.trailing, 4)
 
       #if os(iOS)
         audioNavbarItem
@@ -298,12 +295,10 @@ struct WebReaderContainerView: View {
             }
           },
           label: {
-            Image(systemName: "textformat.size")
-              .font(.appNavbarIcon)
+            Image.readerSettings
           }
         )
         .padding(.horizontal, 5)
-        .scaleEffect(navBarVisibilityRatio)
         .popover(isPresented: $showPreferencesPopover) {
           webPreferencesPopoverView
             .frame(maxWidth: 400, maxHeight: 475)
@@ -322,13 +317,8 @@ struct WebReaderContainerView: View {
         },
         label: {
           #if os(iOS)
-            Image(systemName: "ellipsis")
-              .resizable(resizingMode: Image.ResizingMode.stretch)
-              .aspectRatio(contentMode: .fit)
-              // .foregroundColor(.appGrayTextContrast)
-              .frame(width: 20, height: 20)
-              .scaleEffect(navBarVisibilityRatio)
-              .padding()
+            Image.utilityMenu
+
           #else
             Text(LocalText.genericOptions)
           #endif
@@ -338,12 +328,12 @@ struct WebReaderContainerView: View {
         .frame(maxWidth: 100)
         .padding(.trailing, 16)
       #else
-        .padding(.trailing, 3)
-        .padding(.bottom, 10)
+        .padding(.trailing, 16)
       #endif
     }
-    .frame(height: readerViewNavBarHeight * navBarVisibilityRatio)
-    .opacity(navBarVisibilityRatio)
+    .tint(Color(hex: "#2A2A2A"))
+    .frame(height: readerViewNavBarHeight)
+    .frame(maxWidth: .infinity)
     .foregroundColor(ThemeManager.currentTheme.isDark ? .white : .black)
     .background(ThemeManager.currentBgColor)
     .sheet(isPresented: $showLabelsModal) {
@@ -403,8 +393,10 @@ struct WebReaderContainerView: View {
           tapHandler: tapHandler,
           scrollPercentHandler: scrollPercentHandler,
           webViewActionHandler: webViewActionHandler,
-          navBarVisibilityRatioUpdater: {
-            navBarVisibilityRatio = $0
+          navBarVisibilityUpdater: { visible in
+            withAnimation {
+              navBarVisible = visible
+            }
           },
           readerSettingsChangedTransactionID: $readerSettingsChangedTransactionID,
           annotationSaveTransactionID: $annotationSaveTransactionID,
@@ -505,7 +497,7 @@ struct WebReaderContainerView: View {
                   self.isRecovering = true
                   Task {
                     if !(await dataService.recoverItem(itemID: item.unwrappedID)) {
-                      Snackbar.show(message: "Error recovering item")
+                      viewModel.snackbar(message: "Error recovering item")
                     } else {
                       await viewModel.loadContent(
                         dataService: dataService,
@@ -554,6 +546,8 @@ struct WebReaderContainerView: View {
       #if os(iOS)
         VStack(spacing: 0) {
           navBar
+            .offset(y: navBarVisible ? 0 : -150)
+
           Spacer()
           if showBottomBar {
             bottomButtons
@@ -585,6 +579,20 @@ struct WebReaderContainerView: View {
       // WebViewManager.shared().loadHTMLString("<html></html>", baseURL: nil)
       WebViewManager.shared().loadHTMLString(WebReaderContent.emptyContent(isDark: Color.isDarkMode), baseURL: nil)
     }
+    .popup(isPresented: $viewModel.showSnackbar) {
+      if let operation = viewModel.snackbarOperation {
+        Snackbar(isShowing: $viewModel.showSnackbar, operation: operation)
+      } else {
+        EmptyView()
+      }
+    } customize: {
+      $0
+        .type(.toast)
+        .autohideIn(2)
+        .position(.bottom)
+        .animation(.spring())
+        .closeOnTapOutside(true)
+    }
   }
 
   func archive() {
@@ -592,7 +600,7 @@ struct WebReaderContainerView: View {
     #if os(iOS)
       presentationMode.wrappedValue.dismiss()
     #endif
-    Snackbar.show(message: !item.isArchived ? "Link archived" : "Link moved to Inbox")
+    viewModel.snackbar(message: !item.isArchived ? "Link archived" : "Link moved to Inbox")
   }
 
   func recommend() {

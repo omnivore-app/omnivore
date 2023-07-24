@@ -1,4 +1,5 @@
 import Models
+import PopupView
 import Services
 import SwiftUI
 import Views
@@ -38,6 +39,14 @@ struct NewsletterEmailsView: View {
   @EnvironmentObject var dataService: DataService
   @StateObject var viewModel = NewsletterEmailsViewModel()
 
+  @State var showSnackbar = false
+  @State var snackbarOperation: SnackbarOperation?
+
+  func snackbar(message: String) {
+    snackbarOperation = SnackbarOperation(message: message, undoAction: nil)
+    showSnackbar = true
+  }
+
   var body: some View {
     Group {
       #if os(iOS)
@@ -52,6 +61,20 @@ struct NewsletterEmailsView: View {
       #endif
     }
     .task { await viewModel.loadEmails(dataService: dataService) }
+    .popup(isPresented: $showSnackbar) {
+      if let operation = snackbarOperation {
+        Snackbar(isShowing: $showSnackbar, operation: operation)
+      } else {
+        EmptyView()
+      }
+    } customize: {
+      $0
+        .type(.toast)
+        .autohideIn(2)
+        .position(.bottom)
+        .animation(.spring())
+        .closeOnTapOutside(true)
+    }
   }
 
   private var innerBody: some View {
@@ -87,7 +110,7 @@ struct NewsletterEmailsView: View {
                   pasteBoard.writeObjects([newsletterEmail.unwrappedEmail as NSString])
                 #endif
 
-                Snackbar.show(message: "Email copied")
+                snackbar(message: "Email copied")
               },
               label: { Text(newsletterEmail.unwrappedEmail) }
             )
@@ -95,6 +118,7 @@ struct NewsletterEmailsView: View {
         }
       }
     }
+
     .navigationTitle(LocalText.emailsGeneric)
   }
 }

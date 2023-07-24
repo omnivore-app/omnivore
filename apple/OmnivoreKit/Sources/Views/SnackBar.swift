@@ -14,59 +14,51 @@ public struct SnackbarOperation {
 
 public struct Snackbar: View {
   @Binding var isShowing: Bool
-  private let presentingView: AnyView
   private let operation: SnackbarOperation
 
   @Environment(\.colorScheme) private var colorScheme: ColorScheme
 
-  init<PresentingView>(
+  public init(
     isShowing: Binding<Bool>,
-    presentingView: PresentingView,
     operation: SnackbarOperation
-  ) where PresentingView: View {
+  ) {
     self._isShowing = isShowing
-    self.presentingView = AnyView(presentingView)
     self.operation = operation
   }
 
   public var body: some View {
-    GeometryReader { geometry in
-      ZStack(alignment: .center) {
-        presentingView
-        VStack {
-          Spacer()
-          if isShowing {
-            HStack {
-              Text(operation.message)
-                .font(.appCallout)
-                .foregroundColor(self.colorScheme == .light ? .white : .appTextDefault)
-              Spacer()
-              if let undoAction = operation.undoAction {
-                Button("Undo", action: {
-                  isShowing = false
-                  undoAction()
-                })
-                  .font(.system(size: 16, weight: .bold))
-              }
-            }
-            .padding()
-            .frame(width: min(380, geometry.size.width * 0.96), height: 44)
-            .background(self.colorScheme == .light ? Color.black : Color.white)
-            .cornerRadius(5)
-            .offset(x: 0, y: -8)
-            .shadow(color: .gray, radius: 2)
-            .animation(.spring(), value: true)
-          }
+    VStack(alignment: .center) {
+      HStack {
+        Text(operation.message)
+          .font(.appCallout)
+          .foregroundColor(self.colorScheme == .light ? .white : .appTextDefault)
+        Spacer()
+        if let undoAction = operation.undoAction {
+          Button("Undo", action: {
+            isShowing = false
+            undoAction()
+          })
+            .font(.system(size: 16, weight: .bold))
         }
       }
+      .frame(maxWidth: 380)
+      .frame(height: 44)
+      .padding(.horizontal, 15)
+      .background(self.colorScheme == .light ? Color.black : Color.white)
+      .cornerRadius(5)
+      .clipped()
+
+      Spacer(minLength: 20)
     }
+    .background(Color.clear)
+    .frame(height: 44 + 22)
   }
 }
 
 public extension View {
   func snackBar(isShowing: Binding<Bool>, operation: SnackbarOperation?) -> some View {
     if let operation = operation {
-      return AnyView(Snackbar(isShowing: isShowing, presentingView: self, operation: operation))
+      return AnyView(Snackbar(isShowing: isShowing, operation: operation))
     } else {
       return AnyView(self)
     }

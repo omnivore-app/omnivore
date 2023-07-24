@@ -10,15 +10,18 @@ import Views
   ]
 
   public var body: some View {
+    innerBody
+  }
+
+  public var innerBody: some View {
     #if os(iOS)
       if UIDevice.isIPad {
-        splitView
+        return AnyView(splitView)
       } else {
-//        HomeView()
-        LibraryTabView()
+        return AnyView(LibraryTabView())
       }
-    #elseif os(macOS)
-      splitView
+    #else
+      return AnyView(splitView)
     #endif
   }
 

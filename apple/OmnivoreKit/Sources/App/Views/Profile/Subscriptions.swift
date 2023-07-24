@@ -114,7 +114,7 @@ struct SubscriptionsView: View {
       Button("Yes", role: .destructive) {
         Task {
           let unsubscribed = await viewModel.cancelSubscription(dataService: dataService)
-          Snackbar.show(message: unsubscribed ? "Subscription cancelled." : "Could not unsubscribe.")
+          // Snackbar.show(message: unsubscribed ? "Subscription cancelled." : "Could not unsubscribe.")
         }
       }
       Button("No", role: .cancel) {

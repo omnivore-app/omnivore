@@ -111,7 +111,7 @@
           .frame(width: dim, height: dim)
           .cornerRadius(6)
 
-        Image(systemName: "headphones")
+        Image.headphones
           .resizable()
           .aspectRatio(contentMode: .fit)
           .frame(width: dim / 2, height: dim / 2)

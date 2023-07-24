@@ -7,8 +7,10 @@
 
 import Foundation
 import Models
+import PopupView
 import Services
 import SwiftUI
+import Views
 
 struct LibraryTabView: View {
   @EnvironmentObject var dataService: DataService
