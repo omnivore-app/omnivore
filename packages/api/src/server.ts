@@ -170,6 +170,9 @@ export const createApp = (): {
     throw new Error('Sentry TEST error!')
   })
 
+  // The error handler must be before any other error middleware and after all routes
+  app.use(Sentry.Handlers.errorHandler())
+
   const apollo = makeApolloServer()
   const httpServer = createServer(app)
 
@@ -189,9 +192,6 @@ const main = async (): Promise<void> => {
 
   await apollo.start()
   apollo.applyMiddleware({ app, path: '/api/graphql', cors: corsConfig })
-
-  // The error handler must be before any other error middleware and after all routes
-  app.use(Sentry.Handlers.errorHandler())
 
   if (!env.dev.isLocal) {
     const mwLogger = loggers.get('express', { levels: config.syslog.levels })
