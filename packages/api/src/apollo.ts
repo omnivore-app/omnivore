@@ -105,7 +105,7 @@ export function makeApolloServer(): ApolloServer {
     context: contextFunc,
     formatError: (err) => {
       logger.info('server error', err)
-      Sentry.captureException(err)
+      // Sentry.captureException(err)
       // hide error messages from frontend on prod
       return new Error('Unexpected server error')
     },
