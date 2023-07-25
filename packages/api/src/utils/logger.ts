@@ -29,6 +29,7 @@ const googleConfigs = {
   level: 'info',
   logName: 'logger',
   levels: config.syslog.levels,
+  maxEntrySize: 256000, // 256KB
 }
 
 function localConfig(id: string): ConsoleTransportOptions {
