@@ -39,10 +39,10 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
   req,
   res,
 }) => {
-  // logger.info(`handling gql request`, {
-  //   query: req.body.query,
-  //   variables: req.body.variables,
-  // })
+  logger.info(`handling gql request`, {
+    query: req.body.query,
+    variables: req.body.variables,
+  })
 
   const token = req?.cookies?.auth || req?.headers?.authorization
   const claims = await getClaimsByToken(token)
