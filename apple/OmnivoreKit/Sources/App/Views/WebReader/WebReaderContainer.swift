@@ -337,7 +337,7 @@ struct WebReaderContainerView: View {
     .foregroundColor(ThemeManager.currentTheme.isDark ? .white : .black)
     .background(ThemeManager.currentBgColor)
     .sheet(isPresented: $showLabelsModal) {
-      ApplyLabelsView(mode: .item(item), isSearchFocused: false, onSave: { labels in
+      ApplyLabelsView(mode: .item(item), onSave: { labels in
         showLabelsModal = false
         item.labels = NSSet(array: labels)
         readerSettingsChangedTransactionID = UUID()
@@ -478,7 +478,7 @@ struct WebReaderContainerView: View {
         }
         .sheet(isPresented: $showHighlightLabelsModal) {
           if let highlight = Highlight.lookup(byID: self.annotation, inContext: self.dataService.viewContext) {
-            ApplyLabelsView(mode: .highlight(highlight), isSearchFocused: false) { selectedLabels in
+            ApplyLabelsView(mode: .highlight(highlight)) { selectedLabels in
               viewModel.setLabelsForHighlight(highlightID: highlight.unwrappedID,
                                               labelIDs: selectedLabels.map(\.unwrappedID),
                                               dataService: dataService)

@@ -3,6 +3,7 @@ import Services
 import SwiftUI
 import Views
 
+@MainActor
 struct ApplyLabelsView: View {
   enum Mode {
     case item(LinkedItem)
@@ -29,7 +30,6 @@ struct ApplyLabelsView: View {
   }
 
   let mode: Mode
-  let isSearchFocused: Bool
   let onSave: (([LinkedItemLabel]) -> Void)?
 
   @EnvironmentObject var dataService: DataService
