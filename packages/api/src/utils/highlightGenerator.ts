@@ -48,6 +48,8 @@ type FillNodeResponse = {
 }
 
 function getTextNodesBetween(rootNode: Node, startNode: Node, endNode: Node) {
+  const maxTime = 1000 * 60 * 10 // 10 minutes
+  const start = Date.now()
   let textNodeStartingPoint = 0
   let articleText = ''
   let newParagraph = false
@@ -67,6 +69,13 @@ function getTextNodesBetween(rootNode: Node, startNode: Node, endNode: Node) {
   }
 
   function getTextNodes(node: Node) {
+    // If the function takes too long, throw an error
+    if (Date.now() - start > maxTime) {
+      const error = new Error('getTextNodes Timeout')
+      console.error(error)
+      throw error
+    }
+
     if (!node) return
 
     if (node == startNode) {
@@ -120,34 +129,43 @@ export const findEmbeddedHighlight = (
     return undefined
   }
 
-  const beforeNodes = getTextNodesBetween(dom, articleContentElement, startNode)
-  const highlightNodes = getTextNodesBetween(dom, startNode, endNode)
-  const afterNodes = getTextNodesBetween(dom, endNode, articleContentElement)
-  const allArticleNodes = getTextNodesBetween(
-    dom,
-    articleContentElement,
-    articleContentElement
-  )
+  try {
+    const beforeNodes = getTextNodesBetween(
+      dom,
+      articleContentElement,
+      startNode
+    )
+    const highlightNodes = getTextNodesBetween(dom, startNode, endNode)
+    const afterNodes = getTextNodesBetween(dom, endNode, articleContentElement)
+    const allArticleNodes = getTextNodesBetween(
+      dom,
+      articleContentElement,
+      articleContentElement
+    )
 
-  const patch = generateDiffPatch(
-    allArticleNodes,
-    beforeNodes,
-    highlightNodes,
-    afterNodes
-  )
+    const patch = generateDiffPatch(
+      allArticleNodes,
+      beforeNodes,
+      highlightNodes,
+      afterNodes
+    )
 
-  const id = uuidv4()
-  const shortId = nanoid(8)
-  const info = getPrefixAndSuffix(allArticleNodes, patch)
-  const quote = getQuoteText(highlightNodes)
+    const id = uuidv4()
+    const shortId = nanoid(8)
+    const info = getPrefixAndSuffix(allArticleNodes, patch)
+    const quote = getQuoteText(highlightNodes)
 
-  return {
-    id,
-    shortId,
-    quote,
-    patch,
-    prefix: info.prefix,
-    suffix: info.suffix,
+    return {
+      id,
+      shortId,
+      quote,
+      patch,
+      prefix: info.prefix,
+      suffix: info.suffix,
+    }
+  } catch (error) {
+    console.error(error)
+    return undefined
   }
 }
 
@@ -389,7 +407,7 @@ export function getArticleTextNodes(
     const rootNode = document.getRootNode()
     return getTextNodesBetween(rootNode, rootNode, rootNode)
   } catch (error) {
-    console.log(error)
+    console.error(error)
     return null
   }
 }
