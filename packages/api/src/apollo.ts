@@ -39,10 +39,10 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
   req,
   res,
 }) => {
-  logger.info(`handling gql request`, {
-    query: req.body.query,
-    variables: req.body.variables,
-  })
+  // logger.info(`handling gql request`, {
+  //   query: req.body.query,
+  //   variables: req.body.variables,
+  // })
 
   const token = req?.cookies?.auth || req?.headers?.authorization
   const claims = await getClaimsByToken(token)
@@ -105,7 +105,7 @@ export function makeApolloServer(): ApolloServer {
     context: contextFunc,
     formatError: (err) => {
       logger.info('server error', err)
-      // Sentry.captureException(err)
+      Sentry.captureException(err)
       // hide error messages from frontend on prod
       return new Error('Unexpected server error')
     },

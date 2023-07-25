@@ -171,7 +171,7 @@ export const createApp = (): {
   })
 
   // The error handler must be before any other error middleware and after all routes
-  // app.use(Sentry.Handlers.errorHandler())
+  app.use(Sentry.Handlers.errorHandler())
 
   const apollo = makeApolloServer()
   const httpServer = createServer(app)
