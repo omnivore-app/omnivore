@@ -539,6 +539,10 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
     }
   }
 
+  useEffect(() => {
+    setFocusedHighlight(undefined)
+  }, [selectionData])
+
   const dispatchHighlightMessage = (actionID: string) => {
     if (props.isAppleAppEmbed) {
       window?.webkit?.messageHandlers.highlightAction?.postMessage({
