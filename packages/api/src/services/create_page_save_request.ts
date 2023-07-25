@@ -145,7 +145,7 @@ export const createPageSaveRequest = async ({
     // create processing page
     const pageId = await createPage(page, ctx)
     if (!pageId) {
-      console.log('Failed to create page', page)
+      console.log('Failed to create page', url)
       return Promise.reject({
         errorCode: CreateArticleSavingRequestErrorCode.BadData,
       })
