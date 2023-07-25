@@ -344,6 +344,13 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     readerHeadersColor: theme.colors.readerFont.toString(),
   }
 
+  const maxWidthStyles = {
+    default: styles.maxWidthPercentage
+      ? `${styles.maxWidthPercentage}%`
+      : 1024 - styles.margin,
+    small: styles.maxWidthPercentage ? `${styles.maxWidthPercentage}%` : `${120 - Math.round((styles.margin * 10) / 100)}%`,
+  }
+
   const recommendationsWithNotes = useMemo(() => {
     return (
       props.article.recommendations?.filter((recommendation) => {
@@ -357,10 +364,9 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
       <Box
         id="article-container"
         css={{
-          padding: '30px',
-          paddingTop: '30px',
+          padding: 30,
           minHeight: '100vh',
-          maxWidth: `${styles.maxWidthPercentage ?? 100}%`,
+          maxWidth: maxWidthStyles.default,
           background: theme.colors.readerBg.toString(),
           '--text-align':
             justifyTextOverride != undefined
@@ -380,15 +386,10 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
             '--blockquote-icon-font-size': '1.7rem',
             '--figure-margin': '2.6875rem auto',
             '--hr-margin': '2em',
-            margin: `0px 0px`,
-          },
-          '@md': {
-            maxWidth: styles.maxWidthPercentage
-              ? `${styles.maxWidthPercentage}%`
-              : 1024 - styles.margin,
           },
           '@mdDown': {
-            padding: '15px',
+            maxWidth: maxWidthStyles.small,
+            padding: 15,
           },
         }}
       >
