@@ -64,7 +64,7 @@ export function webhooksServiceRouter() {
           [type]: data,
         })
 
-        console.log('triggering webhook', url, method, body)
+        console.log('triggering webhook', url)
         await axios.request({
           url,
           method,
