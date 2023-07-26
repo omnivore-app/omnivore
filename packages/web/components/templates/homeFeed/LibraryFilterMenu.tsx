@@ -149,7 +149,7 @@ function Subscriptions(props: LibraryFilterMenuProps): JSX.Element {
   const [viewAll, setViewAll] = useState(false)
 
   useRegisterActions(
-    subscriptions.map((subscription, idx) => {
+    (subscriptions ?? []).map((subscription, idx) => {
       const key = String(idx + 1)
       const name = subscription.name
       return {
@@ -165,7 +165,7 @@ function Subscriptions(props: LibraryFilterMenuProps): JSX.Element {
     [subscriptions]
   )
 
-  if (subscriptions.length < 1) {
+  if (!subscriptions || subscriptions.length < 1) {
     return <></>
   }
 
