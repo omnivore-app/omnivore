@@ -198,7 +198,7 @@ function Subscriptions(props: LibraryFilterMenuProps): JSX.Element {
 
 function Labels(props: LibraryFilterMenuProps): JSX.Element {
   const { labels } = useGetLabelsQuery()
-  const [viewAll, setViewAll] = usePersistedState<boolean | undefined>({
+  const [viewAll, setViewAll] = usePersistedState<boolean>({
     key: `--labels-view-all`,
     initialValue: false,
   })
