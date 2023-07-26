@@ -102,12 +102,12 @@ export const saveNewsletterEmail = async (
     return true
   }
 
-  const multicastMessage = messageForLink(page, deviceTokens)
-  await sendMulticastPushNotifications(
-    newsletterEmail.user.id,
-    multicastMessage,
-    'newsletter'
-  )
+  // const multicastMessage = messageForLink(page, deviceTokens)
+  // await sendMulticastPushNotifications(
+  //   newsletterEmail.user.id,
+  //   multicastMessage,
+  //   'newsletter'
+  // )
 
   return true
 }
