@@ -500,7 +500,7 @@ export const fetchFavicon = async (
     const domain = new URL(realUrl).hostname
     return `https://api.faviconkit.com/${domain}/128`
   } catch (e) {
-    logger.info('Error fetching favicon', e)
+    console.log('Error fetching favicon', e)
     return undefined
   }
 }

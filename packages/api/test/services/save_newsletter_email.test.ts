@@ -109,8 +109,8 @@ describe('saveNewsletterEmail', () => {
   })
 
   it('does not create a subscription if no unsubscribe header', async () => {
-    const url = 'https://blog.omnivore.app/no-unsubscribe'
-    nock('https://blog.omnivore.app').get('/no-unsubscribe').reply(404)
+    const url = 'https://omnivore.app/no_url?q=no-unsubscribe'
+    nock('https://omnivore.app').get('/no_url?q=no-unsubscribe').reply(404)
 
     await saveNewsletterEmail(
       {
