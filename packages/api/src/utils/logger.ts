@@ -1,5 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
+import { LoggingWinston } from '@google-cloud/logging-winston'
+import { cloneDeep, isArray, isObject, isString, truncate } from 'lodash'
+import { DateTime } from 'luxon'
 import {
   config,
   format,
@@ -8,9 +11,7 @@ import {
   loggers,
   transports,
 } from 'winston'
-import { LoggingWinston } from '@google-cloud/logging-winston'
-import TransportStream = require('winston-transport')
-import { DateTime } from 'luxon'
+import TransportStream from 'winston-transport'
 import { ConsoleTransportOptions } from 'winston/lib/winston/transports'
 import { env } from '../env'
 
@@ -55,12 +56,39 @@ function localConfig(id: string): ConsoleTransportOptions {
   }
 }
 
+// truncate any string values in the object to a given length
+const truncateObjectDeep = (object: any, length: number): any => {
+  const copyObj = cloneDeep(object) as never
+
+  const truncateDeep = (obj: any): any => {
+    if (isString(obj) && obj.length > length) {
+      return `${truncate(obj, { length })} [truncated]`
+    }
+
+    if (isArray(obj)) {
+      return obj.map((i) => truncateDeep(i) as never)
+    }
+
+    if (isObject(obj)) {
+      Object.entries(obj).forEach(([key, value]) => {
+        obj[key as keyof typeof obj] = truncateDeep(value) as never
+      })
+
+      return obj
+    }
+
+    // return everything else untouched
+    return obj
+  }
+
+  return truncateDeep(copyObj)
+}
+
 class GcpLoggingTransport extends LoggingWinston {
   log(info: any, callback: (err: Error | null, apiResponse?: any) => void) {
-    const infoString = JSON.stringify(info)
-    if (infoString.length > 250000) {
-      // max size for a log entry is 256KB
-      info = infoString.substring(0, 256000)
+    const sizeInfo = JSON.stringify(info).length
+    if (sizeInfo > 250000) {
+      info = truncateObjectDeep(info, 5000) as never // the max length for string values is 5000
     }
     super.log(info, callback)
   }
