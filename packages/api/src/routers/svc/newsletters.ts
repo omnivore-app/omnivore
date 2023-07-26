@@ -16,6 +16,9 @@ import {
 import { saveUrlFromEmail } from '../../services/save_url'
 import { getSubscriptionByNameAndUserId } from '../../services/subscriptions'
 import { isUrl } from '../../utils/helpers'
+import { buildLogger } from '../../utils/logger'
+
+const logger = buildLogger('app.dispatch')
 
 interface SetConfirmationCodeMessage {
   emailAddress: string
@@ -37,10 +40,10 @@ export function newsletterServiceRouter() {
 
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   router.post('/confirmation', async (req, res) => {
-    console.log('setConfirmationCode')
+    logger.info('setConfirmationCode')
 
     const { message, expired } = readPushSubscription(req)
-    console.log('pubsub message:', message, 'expired:', expired)
+    logger.info('pubsub message:', message, 'expired:', expired)
 
     if (!message) {
       res.status(400).send('Bad Request')
@@ -48,7 +51,7 @@ export function newsletterServiceRouter() {
     }
 
     if (expired) {
-      console.log('discards expired message:', message)
+      logger.info('discards expired message:', message)
       res.status(200).send('Expired')
       return
     }
@@ -58,7 +61,7 @@ export function newsletterServiceRouter() {
       const data: SetConfirmationCodeMessage = JSON.parse(message)
 
       if (!('emailAddress' in data) || !('confirmationCode' in data)) {
-        console.log('No email address or confirmation code found in message')
+        logger.info('No email address or confirmation code found in message')
         res.status(400).send('Bad Request')
         return
       }
@@ -68,14 +71,14 @@ export function newsletterServiceRouter() {
         data.confirmationCode
       )
       if (!result) {
-        console.log('Newsletter email not found', data.emailAddress)
+        logger.info('Newsletter email not found', data.emailAddress)
         res.status(200).send('Not Found')
         return
       }
 
       res.status(200).send('confirmation code set')
     } catch (e) {
-      console.log(e)
+      logger.info(e)
       if (e instanceof SyntaxError) {
         // when message is not a valid json string
         res.status(400).send(e)
@@ -87,7 +90,7 @@ export function newsletterServiceRouter() {
 
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   router.post('/create', async (req, res) => {
-    console.log('create')
+    logger.info('create')
 
     const { message, expired } = readPushSubscription(req)
     if (!message) {
@@ -96,7 +99,7 @@ export function newsletterServiceRouter() {
     }
 
     if (expired) {
-      console.log('discards expired message:', message)
+      logger.info('discards expired message:', message)
       res.status(200).send('Expired')
       return
     }
@@ -104,14 +107,14 @@ export function newsletterServiceRouter() {
     try {
       const data = JSON.parse(message) as unknown
       if (!isNewsletterMessage(data)) {
-        console.log('invalid newsletter message', data)
+        logger.info('invalid newsletter message', data)
         return res.status(400).send('Bad Request')
       }
 
       // get user from newsletter email
       const newsletterEmail = await getNewsletterEmail(data.email)
       if (!newsletterEmail) {
-        console.log('newsletter email not found', data.email)
+        logger.info('newsletter email not found', data.email)
         return res.status(200).send('Not Found')
       }
 
@@ -136,14 +139,14 @@ export function newsletterServiceRouter() {
           newsletterEmail.user.id
         )
         if (existingSubscription?.status === SubscriptionStatus.Unsubscribed) {
-          console.log('newsletter already unsubscribed:', data.author)
+          logger.info('newsletter already unsubscribed:', data.author)
           return res.status(200).send('newsletter already unsubscribed')
         }
 
         // save newsletter instead
         const result = await saveNewsletterEmail(data, newsletterEmail, saveCtx)
         if (!result) {
-          console.log(
+          logger.info(
             'Error creating newsletter link from data',
             data.email,
             data.title,
@@ -159,7 +162,7 @@ export function newsletterServiceRouter() {
 
       res.status(200).send('newsletter created')
     } catch (e) {
-      console.log(e)
+      logger.info(e)
       if (e instanceof SyntaxError) {
         // when message is not a valid json string
         res.status(400).send(e)

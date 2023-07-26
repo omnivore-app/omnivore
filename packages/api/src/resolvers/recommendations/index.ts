@@ -1,3 +1,9 @@
+import { In } from 'typeorm'
+import { getPageByParam } from '../../elastic/pages'
+import { Group } from '../../entity/groups/group'
+import { User } from '../../entity/user'
+import { getRepository } from '../../entity/utils'
+import { env } from '../../env'
 import {
   CreateGroupError,
   CreateGroupErrorCode,
@@ -32,15 +38,9 @@ import {
   joinGroup,
   leaveGroup,
 } from '../../services/groups'
-import { authorized, userDataToUser } from '../../utils/helpers'
-import { getRepository } from '../../entity/utils'
-import { User } from '../../entity/user'
-import { Group } from '../../entity/groups/group'
-import { In } from 'typeorm'
-import { getPageByParam } from '../../elastic/pages'
-import { enqueueRecommendation } from '../../utils/createTask'
-import { env } from '../../env'
 import { analytics } from '../../utils/analytics'
+import { enqueueRecommendation } from '../../utils/createTask'
+import { authorized, userDataToUser } from '../../utils/helpers'
 
 export const createGroupResolver = authorized<
   CreateGroupSuccess,
@@ -236,7 +236,7 @@ export const recommendResolver = authorized<
         )
         .flat()
     )
-    console.log('taskNames', taskNames)
+    log.info('taskNames', taskNames)
 
     return {
       success: true,

@@ -22,9 +22,12 @@ import {
   validatedDate,
   wordsCount,
 } from '../utils/helpers'
+import { buildLogger } from '../utils/logger'
 import { parsePreparedContent } from '../utils/parser'
 import { createPageSaveRequest } from './create_page_save_request'
 import { createLabels } from './labels'
+
+const logger = buildLogger('app.dispatch')
 
 type SaveContext = {
   pubsub: PubsubClient
@@ -179,9 +182,9 @@ export const savePage = async (
       slug,
       articleToSave.content
     )
-    console.debug('Created thumbnail task', taskId)
+    logger.info('Created thumbnail task', taskId)
   } catch (e) {
-    console.log('Failed to create thumbnail task', e)
+    logger.error('Failed to create thumbnail task', e)
   }
 
   if (parseResult.highlightData) {

@@ -5,18 +5,21 @@ import { Subscription } from '../../entity/subscription'
 import { getRepository } from '../../entity/utils'
 import { SubscriptionStatus, SubscriptionType } from '../../generated/graphql'
 import { enqueueRssFeedFetch } from '../../utils/createTask'
+import { buildLogger } from '../../utils/logger'
+
+const logger = buildLogger('app.dispatch')
 
 export function rssFeedRouter() {
   const router = express.Router()
 
   router.post('/fetchAll', async (req, res) => {
-    console.log('fetch all rss feeds')
+    logger.info('fetch all rss feeds')
 
     const { message: msgStr, expired } = readPushSubscription(req)
-    console.log('read pubsub message', msgStr, 'has expired', expired)
+    logger.info('read pubsub message', msgStr, 'has expired', expired)
 
     if (expired) {
-      console.log('discarding expired message')
+      logger.info('discarding expired message')
       return res.status(200).send('Expired')
     }
 
@@ -37,14 +40,14 @@ export function rssFeedRouter() {
           try {
             return enqueueRssFeedFetch(subscription.user.id, subscription)
           } catch (error) {
-            console.log('error creating rss feed fetch task', error)
+            logger.info('error creating rss feed fetch task', error)
           }
         })
       )
 
       res.send('OK')
     } catch (error) {
-      console.log('error fetching rss feeds', error)
+      logger.info('error fetching rss feeds', error)
       res.status(500).send('Internal Server Error')
     }
   })

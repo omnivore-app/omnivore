@@ -26,7 +26,7 @@ import {
   findEmbeddedHighlight,
   getArticleTextNodes,
   highlightIdAttribute,
-  makeHighlightNodeAttributes,
+  makeHighlightNodeAttributes
 } from './highlightGenerator'
 import { createImageProxyUrl } from './imageproxy'
 import { buildLogger, LogRecord } from './logger'
@@ -183,7 +183,7 @@ const getReadabilityResult = async (
         return article
       }
     } catch (error) {
-      console.log('parsing error for url', url, error)
+      logger.info('parsing error for url', url, error)
     }
   }
 
@@ -208,7 +208,7 @@ export const parsePreparedContent = async (
   const { document, pageInfo } = preparedDocument
 
   if (!document) {
-    console.log('No document')
+    logger.info('No document')
     return {
       canonicalUrl: url,
       parsedContent: null,
@@ -223,7 +223,7 @@ export const parsePreparedContent = async (
     pageInfo.contentType &&
     !ALLOWED_CONTENT_TYPES.includes(pageInfo.contentType)
   ) {
-    console.log('Not allowed content type', pageInfo.contentType)
+    logger.info('Not allowed content type', pageInfo.contentType)
     return {
       canonicalUrl: url,
       parsedContent: null,
@@ -348,7 +348,7 @@ export const parsePreparedContent = async (
     })
     logRecord.parseSuccess = true
   } catch (error) {
-    console.log('Error parsing content', error)
+    logger.info('Error parsing content', error)
     Object.assign(logRecord, {
       parseSuccess: false,
       parseError: error,
@@ -443,7 +443,7 @@ export const parsePageMetadata = (html: string): Metadata | undefined => {
 
     return { title, author, description, previewImage }
   } catch (e) {
-    console.log('failed to parse page:', e)
+    logger.info('failed to parse page:', e)
     return undefined
   }
 }
@@ -455,7 +455,7 @@ export const parseUrlMetadata = async (
     const res = await axios.get(url)
     return parsePageMetadata(res.data)
   } catch (e) {
-    console.log('failed to get:', url, e)
+    logger.info('failed to get:', url, e)
     return undefined
   }
 }
@@ -500,7 +500,7 @@ export const fetchFavicon = async (
     const domain = new URL(realUrl).hostname
     return `https://api.faviconkit.com/${domain}/128`
   } catch (e) {
-    console.log('Error fetching favicon', e)
+    logger.info('Error fetching favicon', e)
     return undefined
   }
 }
@@ -635,7 +635,7 @@ export const htmlToHighlightedMarkdown = (
       throw new Error('Invalid html content')
     }
   } catch (err) {
-    console.log(err)
+    logger.info(err)
     return nhm.translate(/* html */ html)
   }
 
@@ -655,7 +655,7 @@ export const htmlToHighlightedMarkdown = (
           articleTextNodes
         )
       } catch (err) {
-        console.log(err)
+        logger.info(err)
       }
     })
   html = document.documentElement.outerHTML
@@ -674,14 +674,14 @@ export const getDistillerResult = async (
   try {
     const url = process.env.DISTILLER_URL
     if (!url) {
-      console.log('No distiller url')
+      logger.info('No distiller url')
       return undefined
     }
 
     const exp = Math.floor(Date.now() / 1000) + 60 * 60 // 1 hour
     const auth = (await signToken({ uid, exp }, env.server.jwtSecret)) as string
 
-    console.debug('Parsing by distiller', url)
+    logger.info('Parsing by distiller', url)
     const response = await axios.post<string>(url, html, {
       headers: {
         Authorization: auth,
@@ -690,7 +690,7 @@ export const getDistillerResult = async (
     })
     return response.data
   } catch (e) {
-    console.log('Error parsing by distiller', e)
+    logger.info('Error parsing by distiller', e)
     return undefined
   }
 }

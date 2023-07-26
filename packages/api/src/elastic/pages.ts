@@ -3,6 +3,7 @@ import { BuiltQuery, ESBuilder, esBuilder } from 'elastic-ts'
 import { EntityType } from '../datalayer/pubsub'
 import { BulkActionType } from '../generated/graphql'
 import { wordsCount } from '../utils/helpers'
+import { buildLogger } from '../utils/logger'
 import {
   DateFilter,
   FieldFilter,
@@ -26,6 +27,8 @@ import {
   ParamSet,
   SearchResponse,
 } from './types'
+
+const logger = buildLogger('elasticsearch')
 
 const appendQuery = (builder: ESBuilder, query: string): ESBuilder => {
   interface Field {
@@ -421,7 +424,7 @@ export const createPage = async (
 
     return page.id
   } catch (e) {
-    console.error('failed to create a page in elastic', JSON.stringify(e))
+    logger.error('failed to create a page in elastic', JSON.stringify(e))
     return undefined
   }
 }
@@ -461,10 +464,10 @@ export const updatePage = async (
       e instanceof errors.ResponseError &&
       e.message === 'document_missing_exception'
     ) {
-      console.log('page has been deleted', id)
+      logger.info('page has been deleted', id)
       return false
     }
-    console.error('failed to update a page in elastic', e)
+    logger.error('failed to update a page in elastic', e)
     return false
   }
 }
@@ -486,10 +489,10 @@ export const deletePage = async (
       e instanceof errors.ResponseError &&
       e.message === 'document_missing_exception'
     ) {
-      console.log('page has been deleted', id)
+      logger.info('page has been deleted', id)
       return false
     }
-    console.error('failed to delete a page in elastic', e)
+    logger.error('failed to delete a page in elastic', e)
     return false
   }
 }
@@ -530,7 +533,7 @@ export const getPageByParam = async <K extends keyof ParamSet>(
       id: body.hits.hits[0]._id,
     } as Page
   } catch (e) {
-    console.error('failed to get page by param in elastic', e)
+    logger.error('failed to get page by param in elastic', e)
     return undefined
   }
 }
@@ -550,10 +553,10 @@ export const getPageById = async (id: string): Promise<Page | undefined> => {
     } as Page
   } catch (e) {
     if (e instanceof errors.ResponseError && e.statusCode === 404) {
-      console.log('page has been deleted', id)
+      logger.info('page has been deleted', id)
       return undefined
     }
-    console.error('failed to get page by id in elastic', e)
+    logger.error('failed to get page by id in elastic', e)
     return undefined
   }
 }
@@ -665,7 +668,7 @@ export const searchPages = async (
       })
       .build()
 
-    console.debug('searching pages in elastic', JSON.stringify(body))
+    logger.info('searching pages in elastic', JSON.stringify(body))
     const response = await client.search<SearchResponse<Page>, BuiltQuery>({
       index: INDEX_ALIAS,
       body,
@@ -685,10 +688,10 @@ export const searchPages = async (
   } catch (e) {
     if (e instanceof errors.ResponseError) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      console.error('failed to search pages in elastic', e.meta.body.error)
+      logger.error('failed to search pages in elastic', e.meta.body.error)
       return undefined
     }
-    console.error('failed to search pages in elastic', e)
+    logger.error('failed to search pages in elastic', e)
     return undefined
   }
 }
@@ -726,7 +729,7 @@ export const countByCreatedAt = async (
 
     return body.count as number
   } catch (e) {
-    console.error('failed to count pages in elastic', e)
+    logger.error('failed to count pages in elastic', e)
     return 0
   }
 }
@@ -765,7 +768,7 @@ export const deletePagesByParam = async <K extends keyof ParamSet>(
 
     return false
   } catch (e) {
-    console.error('failed to delete pages by param in elastic', e)
+    logger.error('failed to delete pages by param in elastic', e)
     return false
   }
 }
@@ -823,7 +826,7 @@ export const searchAsYouType = async (
       id: hit._id,
     }))
   } catch (e) {
-    console.error('failed to search as you type in elastic', e)
+    logger.error('failed to search as you type in elastic', e)
 
     return []
   }
@@ -904,7 +907,7 @@ export const updatePages = async (
     .rawOption('script', updatedScript)
     .build()
 
-  console.debug('updating pages in elastic', JSON.stringify(searchBody))
+  logger.info('updating pages in elastic', JSON.stringify(searchBody))
 
   try {
     const { body } = await client.updateByQuery({
@@ -920,21 +923,21 @@ export const updatePages = async (
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (body.failures && body.failures.length > 0) {
-      console.log('failed to update pages in elastic', body.failures)
+      logger.info('failed to update pages in elastic', body.failures)
       return null
     }
 
     // TODO: publish entityUpdated events for each page
 
     if (async) {
-      console.log('update pages task started', body.task)
+      logger.info('update pages task started', body.task)
       return body.task as string
     }
 
-    console.log('updated pages in elastic', body.updated)
+    logger.info('updated pages in elastic', body.updated)
     return body.updated as string
   } catch (e) {
-    console.log('failed to update pages in elastic', e)
+    logger.info('failed to update pages in elastic', e)
     return null
   }
 }

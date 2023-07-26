@@ -144,11 +144,11 @@ export const edgeLoader = <
           result.push(keyMap[key] || [])
         }
         if (result.length !== keys.length) {
-          console.error('DataModel error: count mismatch ', keys, result)
+          logger.error('DataModel error: count mismatch ', keys, result)
         }
         return result
       } catch (e) {
-        console.error('DataModel error: ', e)
+        logger.error('DataModel error: ', e)
         throw e
       }
     },

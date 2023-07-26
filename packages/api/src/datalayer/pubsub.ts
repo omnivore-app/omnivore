@@ -2,13 +2,16 @@ import { PubSub } from '@google-cloud/pubsub'
 import { env } from '../env'
 import { ReportType } from '../generated/graphql'
 import express from 'express'
+import { buildLogger } from '../utils/logger'
+
+const logger = buildLogger('pubsub')
 
 const client = new PubSub()
 
 export const createPubSubClient = (): PubsubClient => {
   const publish = (topicName: string, msg: Buffer): Promise<void> => {
     if (env.dev.isLocal) {
-      console.log(`Publishing ${topicName}`)
+      logger.info(`Publishing ${topicName}`)
       return Promise.resolve()
     }
 
@@ -16,7 +19,7 @@ export const createPubSubClient = (): PubsubClient => {
       .topic(topicName)
       .publishMessage({ data: msg })
       .catch((err) => {
-        console.error(`[PubSub] error: ${topicName}`, err)
+        logger.error(`[PubSub] error: ${topicName}`, err)
       })
       .then(() => {
         return Promise.resolve()
@@ -126,13 +129,13 @@ export const readPushSubscription = (
   req: express.Request
 ): { message: string | undefined; expired: boolean } => {
   if (req.query.token !== process.env.PUBSUB_VERIFICATION_TOKEN) {
-    console.log('query does not include valid pubsub token')
+    logger.info('query does not include valid pubsub token')
     return { message: undefined, expired: false }
   }
 
   // GCP PubSub sends the request as a base64 encoded string
   if (!('message' in req.body)) {
-    console.log('Invalid pubsub message: message not in body')
+    logger.info('Invalid pubsub message: message not in body')
     return { message: undefined, expired: false }
   }
 

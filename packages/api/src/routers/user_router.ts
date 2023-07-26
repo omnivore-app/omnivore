@@ -37,7 +37,7 @@ export function userRouter() {
       subject?: string
     }
     if (!subject || !body || !from) {
-      console.log(subject, body, from)
+      logger.error('Bad Request', subject, body, from)
       res.status(400).send('Bad Request')
       return
     }

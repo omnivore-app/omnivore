@@ -2,16 +2,19 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import express from 'express'
+import { setClaims } from '../../datalayer/helpers'
+import { kx } from '../../datalayer/knex_config'
 import {
   createPubSubClient,
   readPushSubscription,
 } from '../../datalayer/pubsub'
-import { Page } from '../../elastic/types'
 import { getPageByParam, updatePage } from '../../elastic/pages'
+import { Page } from '../../elastic/types'
 import { ArticleSavingRequestStatus } from '../../generated/graphql'
 import { initModels } from '../../server'
-import { kx } from '../../datalayer/knex_config'
-import { setClaims } from '../../datalayer/helpers'
+import { buildLogger } from '../../utils/logger'
+
+const logger = buildLogger('app.dispatch')
 
 interface UpdateContentMessage {
   fileId: string
@@ -25,9 +28,9 @@ export function contentServiceRouter() {
   const router = express.Router()
 
   router.post('/search', async (req, res) => {
-    console.log('search req', req.query, req.body)
+    logger.info('search req', req.query, req.body)
     const { message: msgStr, expired } = readPushSubscription(req)
-    console.log('read pubsub message', msgStr, 'has expired', expired)
+    logger.info('read pubsub message', msgStr, 'has expired', expired)
 
     if (!msgStr) {
       res.status(400).send('Bad Request')
@@ -35,14 +38,14 @@ export function contentServiceRouter() {
     }
 
     if (expired) {
-      console.log('discarding expired message')
+      logger.info('discarding expired message')
       res.status(200).send('Expired')
       return
     }
 
     const data = JSON.parse(msgStr)
     if (!('fileId' in data) || !('content' in data)) {
-      console.log('No file id or content found in message')
+      logger.info('No file id or content found in message')
       res.status(400).send('Bad Request')
       return
     }
@@ -52,14 +55,14 @@ export function contentServiceRouter() {
     const parts = msg.fileId.split('/')
     const fileId = parts && parts.length > 1 ? parts[1] : undefined
     if (!fileId) {
-      console.log('No file id found in message')
+      logger.info('No file id found in message')
       res.status(400).send('Bad Request')
       return
     }
 
     const page = await getPageByParam({ uploadFileId: fileId })
     if (!page) {
-      console.log('No upload file found for id:', fileId)
+      logger.info('No upload file found for id:', fileId)
       res.status(400).send('Bad Request')
       return
     }
@@ -80,16 +83,16 @@ export function contentServiceRouter() {
         await setClaims(tx, page.userId)
         return models.uploadFile.setFileUploadComplete(fileId, tx)
       })
-      console.log('updated uploadFileData', uploadFileData)
+      logger.info('updated uploadFileData', uploadFileData)
     } catch (error) {
-      console.log('error marking file upload as completed', error)
+      logger.info('error marking file upload as completed', error)
     }
 
     const result = await updatePage(page.id, pageToUpdate, {
       pubsub: createPubSubClient(),
       uid: page.userId,
     })
-    console.log(
+    logger.info(
       'Updating article text',
       page.id,
       result,

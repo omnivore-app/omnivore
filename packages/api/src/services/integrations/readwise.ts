@@ -4,8 +4,11 @@ import { Integration } from '../../entity/integration'
 import { getRepository } from '../../entity/utils'
 import { env } from '../../env'
 import { wait } from '../../utils/helpers'
+import { buildLogger } from '../../utils/logger'
 import { getHighlightUrl } from '../highlights'
 import { IntegrationService } from './integration'
+
+const logger = buildLogger('app.dispatch')
 
 interface ReadwiseHighlight {
   // The highlight text, (technically the only field required in a highlight object)
@@ -48,7 +51,7 @@ export class ReadwiseIntegration extends IntegrationService {
       })
       return response.status === 204 ? token : null
     } catch (error) {
-      console.log('error validating readwise token', error)
+      logger.info('error validating readwise token', error)
       return null
     }
   }
@@ -66,7 +69,7 @@ export class ReadwiseIntegration extends IntegrationService {
 
     // update integration syncedAt if successful
     if (result) {
-      console.log('updating integration syncedAt')
+      logger.info('updating integration syncedAt')
       await getRepository(Integration).update(integration.id, {
         syncedAt: new Date(),
       })
@@ -129,14 +132,14 @@ export class ReadwiseIntegration extends IntegrationService {
         error.response?.status === 429 &&
         retryCount < 3
       ) {
-        console.log('Readwise API rate limit exceeded, retrying...')
+        logger.info('Readwise API rate limit exceeded, retrying...')
         // wait for Retry-After seconds in the header if rate limited
         // max retry count is 3
         const retryAfter = error.response?.headers['retry-after'] || '10' // default to 10 seconds
         await wait(parseInt(retryAfter, 10) * 1000)
         return this.syncWithReadwise(token, highlights, retryCount + 1)
       }
-      console.log('Error creating highlights in Readwise', error)
+      logger.info('Error creating highlights in Readwise', error)
       return false
     }
   }

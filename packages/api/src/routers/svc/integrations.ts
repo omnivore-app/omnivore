@@ -259,7 +259,7 @@ export function integrationsServiceRouter() {
           syncedAt = retrieved.since || Date.now()
           retrievedData = retrieved.data
 
-          console.debug('retrieved data', {
+          logger.info('retrieved data', {
             total: offset,
             size: retrievedData.length,
           })
