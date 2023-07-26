@@ -56,27 +56,39 @@ import Views
 }
 
 @MainActor struct PrimaryContentSidebar: View {
+  @State private var addLinkPresented = false
   @State private var selectedCategory: PrimaryContentCategory?
   let categories: [PrimaryContentCategory]
 
   var innerBody: some View {
-    List(categories) { category in
-      NavigationLink(
-        destination: category.destinationView,
-        tag: category,
-        selection: $selectedCategory,
-        label: { category.listLabel }
-      )
-      #if os(iOS)
-        .listRowBackground(
-          category == selectedCategory
-            ? Color.appGraySolid.opacity(0.4).cornerRadius(8)
-            : Color.clear.cornerRadius(8)
+    List {
+      ForEach(categories, id: \.self) { category in
+        NavigationLink(
+          destination: category.destinationView,
+          tag: category,
+          selection: $selectedCategory,
+          label: { category.listLabel }
         )
-      #endif
+        #if os(iOS)
+          .listRowBackground(
+            category == selectedCategory
+              ? Color.appGraySolid.opacity(0.4).cornerRadius(8)
+              : Color.clear.cornerRadius(8)
+          )
+        #endif
+      }
+
+      Button(action: { addLinkPresented = true }, label: {
+        Label("Add Link", systemImage: "plus.circle")
+      })
     }
     .dynamicTypeSize(.small ... .large)
     .listStyle(.sidebar)
+    .sheet(isPresented: $addLinkPresented) {
+      NavigationView {
+        LibraryAddLinkView()
+      }
+    }
   }
 
   var body: some View {

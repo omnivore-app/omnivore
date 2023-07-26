@@ -150,7 +150,7 @@ struct AnimatingCellHeight: AnimatableModifier {
                   Label(LocalText.genericProfile, systemImage: "person.circle")
                 })
                 Button(action: { addLinkPresented = true }, label: {
-                  Label("Add Link", systemImage: "plus.square")
+                  Label("Add Link", systemImage: "plus.circle")
                 })
               }, label: {
                 Image.utilityMenu
