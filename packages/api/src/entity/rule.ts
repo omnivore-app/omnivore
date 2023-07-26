@@ -16,6 +16,11 @@ export enum RuleActionType {
   SendNotification = 'SEND_NOTIFICATION',
 }
 
+export enum RuleEventType {
+  PageCreated = 'PAGE_CREATED',
+  PageUpdated = 'PAGE_UPDATED',
+}
+
 export interface RuleAction {
   type: RuleActionType
   params: string[]
@@ -41,6 +46,9 @@ export class Rule {
 
   @Column('text', { nullable: true })
   description?: string | null
+
+  @Column('text', { array: true })
+  eventTypes!: RuleEventType[]
 
   @Column('boolean', { default: true })
   enabled!: boolean

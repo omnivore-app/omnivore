@@ -1,14 +1,15 @@
+import cors from 'cors'
 import express from 'express'
+import * as jwt from 'jsonwebtoken'
+import debounce from 'lodash.debounce'
+import { env } from '../env'
+import { Claims } from '../resolvers/types'
 import { getDeviceTokensByUserId } from '../services/user_device_tokens'
+import { corsConfig } from '../utils/corsConfig'
 import {
   PushNotificationType,
   sendMulticastPushNotifications,
 } from '../utils/sendNotification'
-import cors from 'cors'
-import { corsConfig } from '../utils/corsConfig'
-import * as jwt from 'jsonwebtoken'
-import { env } from '../env'
-import { Claims } from '../resolvers/types'
 
 interface Notification {
   body: string
@@ -57,14 +58,17 @@ export function notificationRouter() {
       tokens: tokens.map((token) => token.token),
     }
 
-    const result = await sendMulticastPushNotifications(
-      userId,
-      message,
-      notificationType || 'rule'
-    )
-    if (!result) {
-      return res.status(400).send({ errorCode: 'SEND_NOTIFICATION_FAILED' })
-    }
+    // Debounce the sendMulticastPushNotifications function with a delay of 1 minute
+    debounce(async () => {
+      const result = await sendMulticastPushNotifications(
+        userId,
+        message,
+        notificationType || 'rule'
+      )
+      if (!result) {
+        return res.status(400).send({ errorCode: 'SEND_NOTIFICATION_FAILED' })
+      }
+    }, 60 * 1000)
 
     res.send('OK')
   })

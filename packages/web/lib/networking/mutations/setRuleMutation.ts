@@ -1,6 +1,6 @@
 import { gql } from 'graphql-request'
 import { gqlFetcher } from '../networkHelpers'
-import { Rule, RuleAction } from '../queries/useGetRulesQuery'
+import { Rule, RuleAction, RuleEventType } from '../queries/useGetRulesQuery'
 
 export type SetRuleInput = {
   id?: string
@@ -8,6 +8,7 @@ export type SetRuleInput = {
   filter: string
   actions: RuleAction[]
   enabled: boolean
+  eventTypes: RuleEventType[]
 }
 
 type SetRuleResult = {
@@ -35,6 +36,7 @@ export async function setRuleMutation(
               params
             }
             enabled
+            eventTypes
           }
         }
         ... on SetRuleError {

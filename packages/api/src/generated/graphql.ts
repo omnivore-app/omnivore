@@ -2140,6 +2140,7 @@ export type Rule = {
   actions: Array<RuleAction>;
   createdAt: Scalars['Date'];
   enabled: Scalars['Boolean'];
+  eventTypes: Array<RuleEventType>;
   filter: Scalars['String'];
   id: Scalars['ID'];
   name: Scalars['String'];
@@ -2162,6 +2163,11 @@ export enum RuleActionType {
   Archive = 'ARCHIVE',
   MarkAsRead = 'MARK_AS_READ',
   SendNotification = 'SEND_NOTIFICATION'
+}
+
+export enum RuleEventType {
+  PageCreated = 'PAGE_CREATED',
+  PageUpdated = 'PAGE_UPDATED'
 }
 
 export type RulesError = {
@@ -2529,6 +2535,7 @@ export type SetRuleInput = {
   actions: Array<RuleActionInput>;
   description?: InputMaybe<Scalars['String']>;
   enabled: Scalars['Boolean'];
+  eventTypes: Array<RuleEventType>;
   filter: Scalars['String'];
   id?: InputMaybe<Scalars['ID']>;
   name: Scalars['String'];
@@ -3643,6 +3650,7 @@ export type ResolversTypes = {
   RuleAction: ResolverTypeWrapper<RuleAction>;
   RuleActionInput: RuleActionInput;
   RuleActionType: RuleActionType;
+  RuleEventType: RuleEventType;
   RulesError: ResolverTypeWrapper<RulesError>;
   RulesErrorCode: RulesErrorCode;
   RulesResult: ResolversTypes['RulesError'] | ResolversTypes['RulesSuccess'];
@@ -5473,6 +5481,7 @@ export type RuleResolvers<ContextType = ResolverContext, ParentType extends Reso
   actions?: Resolver<Array<ResolversTypes['RuleAction']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   enabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  eventTypes?: Resolver<Array<ResolversTypes['RuleEventType']>, ParentType, ContextType>;
   filter?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;

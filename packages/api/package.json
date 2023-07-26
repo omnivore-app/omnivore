@@ -117,6 +117,7 @@
     "@types/highlightjs": "^9.12.2",
     "@types/intercom-client": "^2.11.8",
     "@types/jsonwebtoken": "^8.5.0",
+    "@types/lodash.debounce": "^4.0.6",
     "@types/luxon": "^1.25.0",
     "@types/mocha": "^8.2.2",
     "@types/nanoid": "^3.0.0",

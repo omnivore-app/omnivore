@@ -2,6 +2,7 @@ import axios, { AxiosResponse } from 'axios'
 import { filterPage } from './filter'
 import { getAuthToken, PubSubData } from './index'
 import { setLabels } from './label'
+import { NotificationData, sendNotification } from './notification'
 import { archivePage, markPageAsRead } from './page'
 
 export enum RuleActionType {
@@ -16,6 +17,11 @@ export interface RuleAction {
   params: string[]
 }
 
+export enum RuleEventType {
+  PageCreated = 'PAGE_CREATED',
+  PageUpdated = 'PAGE_UPDATED',
+}
+
 export interface Rule {
   id: string
   userId: string
@@ -26,9 +32,8 @@ export interface Rule {
   enabled: boolean
   createdAt: Date
   updatedAt: Date
+  eventTypes: RuleEventType[]
 }
-
-const EVENT_FILTERS = ['event:created', 'event:updated']
 
 export const getEnabledRules = async (
   userId: string,
@@ -52,6 +57,7 @@ export const getEnabledRules = async (
               type
               params
             }
+            eventTypes
           }  
         }
       }
@@ -75,33 +81,22 @@ export const triggerActions = async (
   data: PubSubData,
   apiEndpoint: string,
   jwtSecret: string,
-  eventType: string
+  eventType: RuleEventType
 ) => {
   const authToken = await getAuthToken(userId, jwtSecret)
   const actionPromises: Promise<AxiosResponse<any, any> | undefined>[] = []
 
   for (const rule of rules) {
-    let filter = rule.filter
-    const filters = filter.split(' ')
-
     // Check if the rule is enabled for the event type
-    const eventFilterIndex = filters.findIndex((f) => EVENT_FILTERS.includes(f))
-    if (eventFilterIndex !== -1) {
-      const eventFilter = filters[eventFilterIndex]
-      if (eventFilter !== `event:${eventType}`.toLowerCase()) {
-        continue
-      }
-
-      // Remove the event filter from the filter string
-      filters.splice(eventFilterIndex, 1)
-      filter = filters.join(' ')
+    if (!rule.eventTypes.includes(eventType)) {
+      continue
     }
 
     const filteredPage = await filterPage(
       userId,
       apiEndpoint,
       authToken,
-      filter,
+      rule.filter,
       data.id
     )
     if (!filteredPage) {
@@ -140,25 +135,25 @@ export const triggerActions = async (
             filteredPage.readingProgressPercent < 100 &&
             actionPromises.push(markPageAsRead(apiEndpoint, authToken, data.id))
           )
-        // case RuleActionType.SendNotification: {
-        //   const data: NotificationData = {
-        //     title: 'New page added to your library',
-        //     body: filteredPage.title,
-        //     image: filteredPage.image || undefined,
-        //   }
+        case RuleActionType.SendNotification: {
+          const data: NotificationData = {
+            title: 'New page added to your library',
+            body: filteredPage.title,
+            image: filteredPage.image || undefined,
+          }
 
-        //   const params = action.params
-        //   if (params.length > 0) {
-        //     const param = JSON.parse(params[0]) as NotificationData
-        //     data.body = param.body || data.body
-        //     data.title = param.title || data.title
-        //     data.image = param.image || data.image
-        //   }
+          const params = action.params
+          if (params.length > 0) {
+            const param = JSON.parse(params[0]) as NotificationData
+            data.body = param.body || data.body
+            data.title = param.title || data.title
+            data.image = param.image || data.image
+          }
 
-        //   return actionPromises.push(
-        //     sendNotification(apiEndpoint, authToken, data)
-        //   )
-        // }
+          return actionPromises.push(
+            sendNotification(apiEndpoint, authToken, data)
+          )
+        }
       }
     })
   }

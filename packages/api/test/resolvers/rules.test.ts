@@ -48,6 +48,7 @@ describe('Rules Resolver', () => {
             }`
           )}],
           enabled: ${enabled}
+          eventTypes: [PAGE_CREATED, PAGE_UPDATED]
         }) {
           ... on SetRuleSuccess {
             rule {
@@ -116,6 +117,7 @@ describe('Rules Resolver', () => {
               enabled
               createdAt
               updatedAt
+              eventTypes
             }
           }
           ... on RulesError {
