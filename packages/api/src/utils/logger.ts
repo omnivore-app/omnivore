@@ -88,6 +88,8 @@ class GcpLoggingTransport extends LoggingWinston {
   log(info: any, callback: (err: Error | null, apiResponse?: any) => void) {
     const sizeInfo = JSON.stringify(info).length
     if (sizeInfo > 250000) {
+      // add a console.trace to help debug
+      console.trace('GCP Logging API payload too large', sizeInfo)
       info = truncateObjectDeep(info, 5000) as never // the max length for string values is 5000
     }
     super.log(info, callback)
