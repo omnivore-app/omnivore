@@ -55,6 +55,17 @@ function localConfig(id: string): ConsoleTransportOptions {
   }
 }
 
+class GcpLoggingTransport extends LoggingWinston {
+  log(info: any, callback: (err: Error | null, apiResponse?: any) => void) {
+    const infoString = JSON.stringify(info)
+    if (infoString.length > 250000) {
+      // max size for a log entry is 256KB
+      info = infoString.substring(0, 256000)
+    }
+    super.log(info, callback)
+  }
+}
+
 /**
  * Builds a logger with common options, including a transport for GCP when running in the cloud.
  * @param id Name of the log stream.
@@ -72,7 +83,7 @@ export function buildLogger(id: string, options?: LoggerOptions): Logger {
 export function buildLoggerTransport(id: string): TransportStream {
   return env.dev.isLocal
     ? new transports.Console(localConfig(id))
-    : new LoggingWinston({ ...googleConfigs, ...{ logName: id } })
+    : new GcpLoggingTransport({ ...googleConfigs, ...{ logName: id } })
 }
 
 /**

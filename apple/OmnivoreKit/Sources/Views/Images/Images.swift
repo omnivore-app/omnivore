@@ -17,4 +17,15 @@ public extension Image {
   static var tabHighlights: Image { Image("_tab_highlights", bundle: .module).renderingMode(.template) }
 
   static var pinRotated: Image { Image("pin-rotated", bundle: .module) }
+
+  static var chevronRight: Image { Image("chevron-right", bundle: .module) }
+  static var notebook: Image { Image("notebook", bundle: .module) }
+  static var headphones: Image { Image("headphones", bundle: .module) }
+  static var readerSettings: Image { Image("reader-settings", bundle: .module) }
+  static var utilityMenu: Image { Image("utility-menu", bundle: .module) }
+
+  static var archive: Image { Image("archive", bundle: .module) }
+  static var unarchive: Image { Image("unarchive", bundle: .module) }
+  static var remove: Image { Image("remove", bundle: .module) }
+  static var label: Image { Image("label", bundle: .module) }
 }

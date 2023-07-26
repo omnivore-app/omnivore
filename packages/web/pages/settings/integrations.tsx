@@ -177,7 +177,7 @@ export default function Integrations(): JSX.Element {
         icon: '/static/icons/pocket.svg',
         title: 'Pocket',
         subText:
-          'Pocket is a place to save articles, videos, and more. Our Pocket integration allows importing your Pocket library to Omnivore. Once connected we will asyncronously import all your Pocket articles into Omnivore, as this process is resource intensive it can take some time. You will receive an email when the process is completed.',
+          'Pocket is a place to save articles, videos, and more. Our Pocket integration allows importing your Pocket library to Omnivore. Once connected we will asyncronously import all your Pocket articles into Omnivore, as this process is resource intensive it can take some time. You will receive an email when the process is completed. Limit 20k articles per import.',
         button: {
           text: pocketConnected ? 'Import' : 'Connect to Pocket',
           icon: isImporting(pocketConnected) ? (

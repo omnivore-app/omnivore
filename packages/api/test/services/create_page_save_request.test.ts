@@ -1,6 +1,5 @@
 import 'mocha'
 import { expect } from 'chai'
-import 'chai/register-should'
 import { validateUrl } from '../../src/services/create_page_save_request'
 
 describe('validateUrl', () => {

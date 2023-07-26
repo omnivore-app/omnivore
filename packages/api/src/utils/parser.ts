@@ -443,7 +443,7 @@ export const parsePageMetadata = (html: string): Metadata | undefined => {
 
     return { title, author, description, previewImage }
   } catch (e) {
-    console.log('failed to parse page:', html, e)
+    console.log('failed to parse page:', e)
     return undefined
   }
 }

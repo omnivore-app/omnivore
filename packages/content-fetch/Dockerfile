@@ -1,18 +1,18 @@
-FROM node:14.18-alpine
+FROM node:18.16-alpine
 
 # Installs latest Chromium (92) package.
 RUN apk add --no-cache \
-      chromium \
-      nss \
-      freetype \
-      harfbuzz \
-      ca-certificates \
-      ttf-freefont \
-      nodejs \
-      yarn \
-      g++ \
-      make \
-      python3
+    chromium \
+    nss \
+    freetype \
+    harfbuzz \
+    ca-certificates \
+    ttf-freefont \
+    nodejs \
+    yarn \
+    g++ \
+    make \
+    python3
 
 # Add user so we don't need --no-sandbox.
 RUN addgroup -S pptruser && adduser -S -g pptruser pptruser \
