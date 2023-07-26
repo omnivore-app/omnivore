@@ -34,41 +34,12 @@ export default function PdfArticleContainer(
   props: PdfArticleContainerProps
 ): JSX.Element {
   const containerRef = useRef<HTMLDivElement | null>(null)
-  const [shareTarget, setShareTarget] =
-    useState<Highlight | undefined>(undefined)
   const [notebookKey, setNotebookKey] = useState<string>(uuidv4())
   const [noteTarget, setNoteTarget] = useState<Highlight | undefined>(undefined)
-  const [noteTargetPageIndex, setNoteTargetPageIndex] =
-    useState<number | undefined>(undefined)
+  const [noteTargetPageIndex, setNoteTargetPageIndex] = useState<
+    number | undefined
+  >(undefined)
   const highlightsRef = useRef<Highlight[]>([])
-  const canShareNative = useCanShareNative()
-
-  // const getHighlightURL = useCallback(
-  //   (highlightID: string): string =>
-  //     `${webBaseURL}/${props.viewerUsername}/${props.article.slug}/highlights/${highlightID}`,
-  //   [props.article.slug, props.viewerUsername]
-  // )
-
-  // const nativeShare = useCallback(
-  //   async (highlightID: string, title: string) => {
-  //     await navigator?.share({
-  //       title: title,
-  //       url: getHighlightURL(highlightID),
-  //     })
-  //   },
-  //   [getHighlightURL]
-  // )
-
-  // const handleOpenShare = useCallback(
-  //   (highlight: Highlight) => {
-  //     if (canShareNative) {
-  //       nativeShare(highlight.shortId, props.article.title)
-  //     } else {
-  //       setShareTarget(highlight)
-  //     }
-  //   },
-  //   [nativeShare, canShareNative, props.article.title]
-  // )
 
   const annotationOmnivoreId = (annotation: Annotation): string | undefined => {
     if (
@@ -207,6 +178,22 @@ export default function PdfArticleContainer(
         blendMode: PSPDFKit.BlendMode.multiply,
       }
 
+      const initialPage = () => {
+        const highlightHref = window.location.hash
+          ? window.location.hash.split('#')[1]
+          : null
+        if (highlightHref) {
+          // find the page index if possible
+          const highlight = props.article.highlights.find(
+            (h) => h.id === highlightHref
+          )
+          if (highlight) {
+            return highlight.highlightPositionAnchorIndex
+          }
+        }
+        return props.article.readingProgressAnchorIndex
+      }
+
       instance = await PSPDFKit.load({
         container: container || '.pdf-container',
         toolbarItems,
@@ -219,7 +206,7 @@ export default function PdfArticleContainer(
         annotationTooltipCallback: annotationTooltipCallback,
         initialViewState: new PSPDFKit.ViewState({
           zoom: PSPDFKit.ZoomMode.FIT_TO_WIDTH,
-          currentPageIndex: props.article.readingProgressAnchorIndex || 0,
+          currentPageIndex: initialPage() || 0,
         }),
       })
 
