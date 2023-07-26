@@ -51,7 +51,7 @@ export class ReadwiseIntegration extends IntegrationService {
       })
       return response.status === 204 ? token : null
     } catch (error) {
-      logger.info('error validating readwise token', error)
+      logger.error('error validating readwise token', error)
       return null
     }
   }
@@ -139,7 +139,7 @@ export class ReadwiseIntegration extends IntegrationService {
         await wait(parseInt(retryAfter, 10) * 1000)
         return this.syncWithReadwise(token, highlights, retryCount + 1)
       }
-      logger.info('Error creating highlights in Readwise', error)
+      logger.error('Error creating highlights in Readwise', error)
       return false
     }
   }

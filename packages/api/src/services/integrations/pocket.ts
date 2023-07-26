@@ -76,7 +76,7 @@ export class PocketIntegration extends IntegrationService {
       )
       return response.data.access_token
     } catch (error) {
-      logger.info('error validating pocket token', error)
+      logger.error('error validating pocket token', error)
       return null
     }
   }
@@ -108,7 +108,7 @@ export class PocketIntegration extends IntegrationService {
 
       return response.data
     } catch (error) {
-      logger.info('error retrieving pocket data', error)
+      logger.error('error retrieving pocket data', error)
       throw new Error('Error retrieving pocket data')
     }
   }

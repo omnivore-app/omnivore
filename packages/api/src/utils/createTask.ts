@@ -245,8 +245,8 @@ export const enqueueParseRequest = async ({
     // Calling the handler function directly.
     setTimeout(() => {
       axios.post(env.queue.contentFetchUrl, payload).catch((error) => {
-        logger.error(error)
-        logger.warning(
+        console.error(error)
+        console.error(
           `Error occurred while requesting local puppeteer-parse function\nPlease, ensure your function is set up properly and running using "yarn start" from the "/pkg/gcf/puppeteer-parse" folder`
         )
       })
@@ -399,7 +399,7 @@ export const enqueueTextToSpeech = async ({
     // Calling the handler function directly.
     setTimeout(() => {
       axios.post(taskHandlerUrl, payload).catch((error) => {
-        logger.error(error)
+        console.error(error)
       })
     }, 0)
     return ''
@@ -450,7 +450,7 @@ export const enqueueRecommendation = async (
           headers,
         })
         .catch((error) => {
-          logger.error(error)
+          console.error(error)
         })
     }, 0)
     return ''
@@ -494,7 +494,7 @@ export const enqueueImportFromIntegration = async (
           headers,
         })
         .catch((error) => {
-          logger.error(error)
+          console.error(error)
         })
     }, 0)
     return nanoid()
@@ -543,7 +543,7 @@ export const enqueueThumbnailTask = async (
           headers,
         })
         .catch((error) => {
-          logger.error(error)
+          console.error(error)
         })
     }, 0)
     return ''
@@ -590,7 +590,7 @@ export const enqueueRssFeedFetch = async (
           headers,
         })
         .catch((error) => {
-          logger.error(error)
+          console.error(error)
         })
     }, 0)
     return nanoid()
