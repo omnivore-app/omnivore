@@ -2066,6 +2066,7 @@ const schema = gql`
     enabled: Boolean!
     createdAt: Date!
     updatedAt: Date!
+    eventTypes: [RuleEventType!]!
   }
 
   type RuleAction {
@@ -2089,6 +2090,11 @@ const schema = gql`
     BAD_REQUEST
   }
 
+  enum RuleEventType {
+    PAGE_CREATED
+    PAGE_UPDATED
+  }
+
   input SetRuleInput {
     id: ID
     name: String!
@@ -2096,6 +2102,7 @@ const schema = gql`
     filter: String!
     actions: [RuleActionInput!]!
     enabled: Boolean!
+    eventTypes: [RuleEventType!]!
   }
 
   input RuleActionInput {

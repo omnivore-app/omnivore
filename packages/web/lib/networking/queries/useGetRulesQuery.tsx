@@ -11,7 +11,12 @@ export enum RuleActionType {
   AddLabel = 'ADD_LABEL',
   Archive = 'ARCHIVE',
   MarkAsRead = 'MARK_AS_READ',
-  // SendNotification = 'SEND_NOTIFICATION',
+  SendNotification = 'SEND_NOTIFICATION',
+}
+
+export enum RuleEventType {
+  PAGE_CREATED = 'PAGE_CREATED',
+  PAGE_UPDATED = 'PAGE_UPDATED',
 }
 
 export interface Rule {
@@ -22,6 +27,7 @@ export interface Rule {
   enabled: boolean
   createdAt: Date
   updatedAt: Date
+  eventTypes: RuleEventType[]
 }
 
 interface RulesQueryResponse {
@@ -54,6 +60,7 @@ export function useGetRulesQuery(): RulesQueryResponse {
             enabled
             createdAt
             updatedAt
+            eventTypes
           }
         }
         ... on RulesError {

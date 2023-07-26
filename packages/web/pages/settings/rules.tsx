@@ -1,26 +1,23 @@
+import { Button, Form, Input, Modal, Select, Space, Table, Tag } from 'antd'
+// import 'antd/dist/antd.dark.css'
+import 'antd/dist/antd.compact.css'
 import { useCallback, useMemo, useState } from 'react'
 import { Toaster } from 'react-hot-toast'
-
-import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
-import { applyStoredTheme } from '../../lib/themeUpdater'
+import { Box, HStack } from '../../components/elements/LayoutPrimitives'
+import { SettingsLayout } from '../../components/templates/SettingsLayout'
+import { Label } from '../../lib/networking/fragments/labelFragment'
+import { deleteRuleMutation } from '../../lib/networking/mutations/deleteRuleMutation'
+import { setRuleMutation } from '../../lib/networking/mutations/setRuleMutation'
+import { useGetLabelsQuery } from '../../lib/networking/queries/useGetLabelsQuery'
 import {
   Rule,
   RuleAction,
   RuleActionType,
+  RuleEventType,
   useGetRulesQuery,
 } from '../../lib/networking/queries/useGetRulesQuery'
-
-import { SettingsLayout } from '../../components/templates/SettingsLayout'
-import { Button, Space, Table, Form, Input, Modal, Tag, Select } from 'antd'
-
-// import 'antd/dist/antd.dark.css'
-import 'antd/dist/antd.compact.css'
-
-import { Box, HStack } from '../../components/elements/LayoutPrimitives'
-import { useGetLabelsQuery } from '../../lib/networking/queries/useGetLabelsQuery'
-import { Label } from '../../lib/networking/fragments/labelFragment'
-import { setRuleMutation } from '../../lib/networking/mutations/setRuleMutation'
-import { deleteRuleMutation } from '../../lib/networking/mutations/deleteRuleMutation'
+import { applyStoredTheme } from '../../lib/themeUpdater'
+import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 
 type CreateRuleModalProps = {
   isModalOpen: boolean
@@ -34,11 +31,13 @@ const CreateRuleModal = (props: CreateRuleModalProps): JSX.Element => {
   const onOk = async (values: any) => {
     const name = form.getFieldValue('name')
     const filter = form.getFieldValue('filter')
+    const eventTypes = form.getFieldValue('eventTypes')
     await setRuleMutation({
       name,
       filter,
       actions: [],
       enabled: true,
+      eventTypes,
     })
     form.resetFields()
     props.setIsModalOpen(false)
@@ -55,7 +54,7 @@ const CreateRuleModal = (props: CreateRuleModalProps): JSX.Element => {
     <Modal
       title="Create Rule"
       open={props.isModalOpen}
-      onOk={onOk}
+      onOk={form.submit}
       onCancel={onCancel}
       destroyOnClose={true}
     >
@@ -64,7 +63,7 @@ const CreateRuleModal = (props: CreateRuleModalProps): JSX.Element => {
         name="createRule"
         labelCol={{ span: 8 }}
         wrapperCol={{ span: 16 }}
-        // onFinish={onFinish}
+        onFinish={onOk}
         // onFinishFailed={onFinishFailed}
         autoComplete="off"
       >
@@ -82,6 +81,32 @@ const CreateRuleModal = (props: CreateRuleModalProps): JSX.Element => {
           rules={[{ required: true, message: 'Please enter the rule filter' }]}
         >
           <Input />
+        </Form.Item>
+
+        <Form.Item
+          label="When"
+          name="eventTypes"
+          rules={[
+            {
+              required: true,
+              message: 'Please select when the rule will be triggered',
+            },
+          ]}
+        >
+          <Select
+            mode="multiple"
+            allowClear
+            placeholder="Please select when the rule will be triggered"
+          >
+            {Object.keys(RuleEventType).map((key: string, index: number) => {
+              const value = Object.values(RuleEventType)[index]
+              return (
+                <Select.Option key={key} value={value}>
+                  {key}
+                </Select.Option>
+              )
+            })}
+          </Select>
         </Form.Item>
       </Form>
     </Modal>
@@ -115,6 +140,7 @@ const CreateActionModal = (props: CreateActionModalProps): JSX.Element => {
             params: params,
           },
         ],
+        eventTypes: props.rule.eventTypes,
       })
       form.resetFields()
       props.setIsModalOpen(false)
@@ -131,7 +157,7 @@ const CreateActionModal = (props: CreateActionModalProps): JSX.Element => {
     <Modal
       title="Create Action"
       open={props.rule != undefined}
-      onOk={onOk}
+      onOk={form.submit}
       onCancel={() => {
         form.resetFields()
         props.setIsModalOpen(false)
@@ -142,6 +168,7 @@ const CreateActionModal = (props: CreateActionModalProps): JSX.Element => {
         labelCol={{ span: 8 }}
         wrapperCol={{ span: 16 }}
         autoComplete="off"
+        onFinish={onOk}
       >
         <Form.Item
           label="Action"
@@ -203,6 +230,7 @@ export default function Rules(): JSX.Element {
         name: rule.name,
         filter: rule.filter,
         actions: rule.actions,
+        eventTypes: rule.eventTypes,
       }
     })
   }, [rules])
@@ -249,6 +277,20 @@ export default function Rules(): JSX.Element {
       title: 'Filter',
       dataIndex: 'filter',
       key: 'filter',
+    },
+    {
+      title: 'When',
+      render: (text: string, row: { eventTypes: RuleEventType[] }) => (
+        <>
+          {row.eventTypes.map((eventType: RuleEventType, index: number) => {
+            return (
+              <Tag color={'geekblue'} key={index}>
+                {eventType}
+              </Tag>
+            )
+          })}
+        </>
+      ),
     },
     {
       title: 'Actions',
@@ -324,7 +366,9 @@ export default function Rules(): JSX.Element {
         revalidate={revalidate}
       />
 
-      <Box css={{ pt: '44px', px: '10%', '@smDown': { px: '0' } }}>
+      <Box
+        css={{ pt: '44px', px: '10%', '@smDown': { px: '0' }, width: '100%' }}
+      >
         <HStack css={{ py: '16px' }} distribution="end">
           <Button
             onClick={() => {

@@ -1528,6 +1528,7 @@ type Rule {
   actions: [RuleAction!]!
   createdAt: Date!
   enabled: Boolean!
+  eventTypes: [RuleEventType!]!
   filter: String!
   id: ID!
   name: String!
@@ -1549,6 +1550,11 @@ enum RuleActionType {
   ARCHIVE
   MARK_AS_READ
   SEND_NOTIFICATION
+}
+
+enum RuleEventType {
+  PAGE_CREATED
+  PAGE_UPDATED
 }
 
 type RulesError {
@@ -1889,6 +1895,7 @@ input SetRuleInput {
   actions: [RuleActionInput!]!
   description: String
   enabled: Boolean!
+  eventTypes: [RuleEventType!]!
   filter: String!
   id: ID
   name: String!

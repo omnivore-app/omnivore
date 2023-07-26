@@ -10,6 +10,7 @@ import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { theme } from '../../tokens/stitches.config'
 import { useRegisterActions } from 'kbar'
 import { LogoBox } from '../../elements/LogoBox'
+import { usePersistedState } from '../../../lib/hooks/usePersistedState'
 
 export const LIBRARY_LEFT_MENU_WIDTH = '233px'
 
@@ -146,10 +147,13 @@ function SavedSearches(props: LibraryFilterMenuProps): JSX.Element {
 
 function Subscriptions(props: LibraryFilterMenuProps): JSX.Element {
   const { subscriptions } = useGetSubscriptionsQuery()
-  const [viewAll, setViewAll] = useState(false)
+  const [viewAll, setViewAll] = usePersistedState<boolean>({
+    key: `--subscriptions-view-all`,
+    initialValue: false,
+  })
 
   useRegisterActions(
-    subscriptions.map((subscription, idx) => {
+    (subscriptions ?? []).map((subscription, idx) => {
       const key = String(idx + 1)
       const name = subscription.name
       return {
@@ -165,7 +169,7 @@ function Subscriptions(props: LibraryFilterMenuProps): JSX.Element {
     [subscriptions]
   )
 
-  if (subscriptions.length < 1) {
+  if (!subscriptions || subscriptions.length < 1) {
     return <></>
   }
 
@@ -194,7 +198,10 @@ function Subscriptions(props: LibraryFilterMenuProps): JSX.Element {
 
 function Labels(props: LibraryFilterMenuProps): JSX.Element {
   const { labels } = useGetLabelsQuery()
-  const [viewAll, setViewAll] = useState(false)
+  const [viewAll, setViewAll] = usePersistedState<boolean>({
+    key: `--labels-view-all`,
+    initialValue: false,
+  })
 
   return (
     <MenuPanel
