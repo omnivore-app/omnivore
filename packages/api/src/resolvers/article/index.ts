@@ -877,103 +877,105 @@ export const getReadingProgressAnchorIndexForArticleResolver: ResolverFn<
   return articleReadingProgressAnchorIndex || 0
 }
 
-export const searchResolver = authorized<SearchSuccess, SearchError, QuerySearchArgs>(
-  async (_obj, params, { claims, log }) => {
-    const startCursor = params.after || ''
-    const first = params.first || 10
+export const searchResolver = authorized<
+  SearchSuccess,
+  SearchError,
+  QuerySearchArgs
+>(async (_obj, params, { claims, log }) => {
+  const startCursor = params.after || ''
+  const first = params.first || 10
 
-    // the query size is limited to 255 characters
-    if (params.query && params.query.length > 255) {
-      return { errorCodes: [SearchErrorCode.QueryTooLong] }
+  // the query size is limited to 255 characters
+  if (params.query && params.query.length > 255) {
+    return { errorCodes: [SearchErrorCode.QueryTooLong] }
+  }
+
+  const searchQuery = parseSearchQuery(params.query || undefined)
+
+  let results: SearchItemData[]
+  let totalCount: number
+
+  const searchType = searchQuery.typeFilter
+  // search highlights if type:highlights
+  if (searchType === PageType.Highlights) {
+    ;[results, totalCount] = (await searchHighlights(
+      {
+        from: Number(startCursor),
+        size: first + 1, // fetch one more item to get next cursor
+        sort: searchQuery.sortParams,
+        query: searchQuery.query,
+      },
+      claims.uid
+    )) || [[], 0]
+  } else {
+    // otherwise, search pages
+    ;[results, totalCount] = (await searchPages(
+      {
+        from: Number(startCursor),
+        size: first + 1, // fetch one more item to get next cursor
+        sort: searchQuery.sortParams,
+        includePending: true,
+        includeContent: params.includeContent ?? false,
+        ...searchQuery,
+      },
+      claims.uid
+    )) || [[], 0]
+  }
+
+  const start =
+    startCursor && !isNaN(Number(startCursor)) ? Number(startCursor) : 0
+  const hasNextPage = results.length > first
+  const endCursor = String(start + results.length - (hasNextPage ? 1 : 0))
+
+  if (hasNextPage) {
+    // remove an extra if exists
+    results.pop()
+  }
+
+  const edges = results.map((r) => {
+    let siteIcon = r.siteIcon
+    if (siteIcon && !isBase64Image(siteIcon)) {
+      siteIcon = createImageProxyUrl(siteIcon, 128, 128)
     }
-
-    const searchQuery = parseSearchQuery(params.query || undefined)
-
-    let results: SearchItemData[]
-    let totalCount: number
-
-    const searchType = searchQuery.typeFilter
-    // search highlights if type:highlights
-    if (searchType === PageType.Highlights) {
-      ;[results, totalCount] = (await searchHighlights(
-        {
-          from: Number(startCursor),
-          size: first + 1, // fetch one more item to get next cursor
-          sort: searchQuery.sortParams,
-          query: searchQuery.query,
-        },
-        claims.uid
-      )) || [[], 0]
-    } else {
-      // otherwise, search pages
-      ;[results, totalCount] = (await searchPages(
-        {
-          from: Number(startCursor),
-          size: first + 1, // fetch one more item to get next cursor
-          sort: searchQuery.sortParams,
-          includePending: true,
-          includeContent: params.includeContent ?? false,
-          ...searchQuery,
-        },
-        claims.uid
-      )) || [[], 0]
-    }
-
-    const start =
-      startCursor && !isNaN(Number(startCursor)) ? Number(startCursor) : 0
-    const hasNextPage = results.length > first
-    const endCursor = String(start + results.length - (hasNextPage ? 1 : 0))
-
-    if (hasNextPage) {
-      // remove an extra if exists
-      results.pop()
-    }
-
-    const edges = results.map((r) => {
-      let siteIcon = r.siteIcon
-      if (siteIcon && !isBase64Image(siteIcon)) {
-        siteIcon = createImageProxyUrl(siteIcon, 128, 128)
-      }
-      if (params.includeContent && r.content) {
-        // convert html to the requested format
-        const format = params.format || ArticleFormat.Html
-        try {
-          const converter = contentConverter(format)
-          if (converter) {
-            r.content = converter(r.content, r.highlights)
-          }
-        } catch (error) {
-          log.error('Error converting content', error)
+    if (params.includeContent && r.content) {
+      // convert html to the requested format
+      const format = params.format || ArticleFormat.Html
+      try {
+        const converter = contentConverter(format)
+        if (converter) {
+          r.content = converter(r.content, r.highlights)
         }
+      } catch (error) {
+        log.error('Error converting content', error)
       }
-
-      return {
-        node: {
-          ...r,
-          image: r.image && createImageProxyUrl(r.image, 260, 260),
-          isArchived: !!r.archivedAt,
-          contentReader: contentReaderForPage(r.pageType, r.uploadFileId),
-          originalArticleUrl: r.url,
-          publishedAt: validatedDate(r.publishedAt),
-          ownedByViewer: r.userId === claims.uid,
-          siteIcon,
-        } as SearchItem,
-        cursor: endCursor,
-      }
-    })
+    }
 
     return {
-      edges,
-      pageInfo: {
-        hasPreviousPage: false,
-        startCursor,
-        hasNextPage: hasNextPage,
-        endCursor,
-        totalCount,
-      },
+      node: {
+        ...r,
+        image: r.image && createImageProxyUrl(r.image, 260, 260),
+        isArchived: !!r.archivedAt,
+        contentReader: contentReaderForPage(r.pageType, r.uploadFileId),
+        originalArticleUrl: r.url,
+        publishedAt: validatedDate(r.publishedAt),
+        ownedByViewer: r.userId === claims.uid,
+        siteIcon,
+      } as SearchItem,
+      cursor: endCursor,
     }
+  })
+
+  return {
+    edges,
+    pageInfo: {
+      hasPreviousPage: false,
+      startCursor,
+      hasNextPage: hasNextPage,
+      endCursor,
+      totalCount,
+    },
   }
-)
+})
 
 export const typeaheadSearchResolver = authorized<
   TypeaheadSearchSuccess,

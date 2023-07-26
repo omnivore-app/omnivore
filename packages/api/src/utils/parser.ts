@@ -26,7 +26,7 @@ import {
   findEmbeddedHighlight,
   getArticleTextNodes,
   highlightIdAttribute,
-  makeHighlightNodeAttributes
+  makeHighlightNodeAttributes,
 } from './highlightGenerator'
 import { createImageProxyUrl } from './imageproxy'
 import { buildLogger, LogRecord } from './logger'
