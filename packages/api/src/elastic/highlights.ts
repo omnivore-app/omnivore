@@ -1,5 +1,6 @@
 import { errors } from '@elastic/elasticsearch'
 import { EntityType } from '../datalayer/pubsub'
+import { buildLogger } from '../utils/logger'
 import { SortBy, SortOrder, SortParams } from '../utils/search'
 import { client, INDEX_ALIAS } from './index'
 import {
@@ -10,6 +11,8 @@ import {
   SearchItem,
   SearchResponse,
 } from './types'
+
+const logger = buildLogger('elasticsearch')
 
 export const addHighlightToPage = async (
   id: string,
@@ -52,10 +55,10 @@ export const addHighlightToPage = async (
       e instanceof errors.ResponseError &&
       e.message === 'document_missing_exception'
     ) {
-      console.log('page has been deleted', id)
+      logger.info('page has been deleted', id)
       return false
     }
-    console.error('failed to add highlight to a page in elastic', e)
+    logger.error('failed to add highlight to a page in elastic', e)
     return false
   }
 }
@@ -90,7 +93,7 @@ export const getHighlightById = async (
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return
     return body.hits.hits[0].inner_hits.highlights.hits.hits[0]._source
   } catch (e) {
-    console.error('failed to get highlight from a page in elastic', e)
+    logger.error('failed to get highlight from a page in elastic', e)
     return undefined
   }
 }
@@ -146,7 +149,7 @@ export const deleteHighlight = async (
 
     return true
   } catch (e) {
-    console.error('failed to delete a highlight in elastic', e)
+    logger.error('failed to delete a highlight in elastic', e)
 
     return false
   }
@@ -223,7 +226,7 @@ export const searchHighlights = async (
       ],
     }
 
-    console.log('searching highlights in elastic', JSON.stringify(searchBody))
+    logger.info('searching highlights in elastic', JSON.stringify(searchBody))
 
     const response = await client.search<SearchResponse<Page>>({
       index: INDEX_ALIAS,
@@ -249,7 +252,7 @@ export const searchHighlights = async (
 
     return [results, response.body.hits.total.value]
   } catch (e) {
-    console.error('failed to search highlights in elastic', e)
+    logger.error('failed to search highlights in elastic', e)
     return undefined
   }
 }
@@ -306,7 +309,7 @@ export const updateHighlight = async (
 
     return true
   } catch (e) {
-    console.error('failed to update highlight in elastic', e)
+    logger.error('failed to update highlight in elastic', e)
     return false
   }
 }

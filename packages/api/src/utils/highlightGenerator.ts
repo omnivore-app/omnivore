@@ -3,6 +3,9 @@ import { parseHTML } from 'linkedom'
 import { nanoid } from 'nanoid'
 import { v4 as uuidv4 } from 'uuid'
 import { interpolationSearch } from './interpolationSearch'
+import { buildLogger } from './logger'
+
+const logger = buildLogger('app.dispatch')
 
 const highlightTag = 'omnivore_highlight'
 export const maxHighlightLength = 2000
@@ -72,7 +75,7 @@ function getTextNodesBetween(rootNode: Node, startNode: Node, endNode: Node) {
     // If the function takes too long, throw an error
     if (Date.now() - start > maxTime) {
       const error = new Error('getTextNodes Timeout')
-      console.error(error)
+      logger.error(error)
       throw error
     }
 
@@ -164,7 +167,7 @@ export const findEmbeddedHighlight = (
       suffix: info.suffix,
     }
   } catch (error) {
-    console.error(error)
+    logger.error(error)
     return undefined
   }
 }
@@ -407,7 +410,7 @@ export function getArticleTextNodes(
     const rootNode = document.getRootNode()
     return getTextNodesBetween(rootNode, rootNode, rootNode)
   } catch (error) {
-    console.error(error)
+    logger.error(error)
     return null
   }
 }

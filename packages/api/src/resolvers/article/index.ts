@@ -426,7 +426,7 @@ export const getArticleResolver: ResolverFn<
   Record<string, unknown>,
   WithDataSourcesContext,
   QueryArticleArgs
-> = async (_obj, { slug, format }, { claims }, info) => {
+> = async (_obj, { slug, format }, { claims, log }, info) => {
   try {
     if (!claims?.uid) {
       return { errorCodes: [ArticleErrorCode.Unauthorized] }
@@ -481,7 +481,7 @@ export const getArticleResolver: ResolverFn<
       article: { ...page, isArchived: !!page.archivedAt, linkId: page.id },
     }
   } catch (error) {
-    console.log(error)
+    log.error(error)
     return { errorCodes: [ArticleErrorCode.BadData] }
   }
 }
@@ -495,7 +495,7 @@ export const getArticlesResolver = authorized<
   PaginatedPartialArticles,
   ArticlesError,
   QueryArticlesArgs
->(async (_obj, params, { claims }) => {
+>(async (_obj, params, { claims, log }) => {
   const startCursor = params.after || ''
   const first = params.first || 10
 
@@ -526,7 +526,7 @@ export const getArticlesResolver = authorized<
   const hasNextPage = pages.length > first
   const endCursor = String(start + pages.length - (hasNextPage ? 1 : 0))
 
-  console.log(
+  log.info(
     'start',
     start,
     'returning end cursor',
@@ -881,7 +881,7 @@ export const searchResolver = authorized<
   SearchSuccess,
   SearchError,
   QuerySearchArgs
->(async (_obj, params, { claims }) => {
+>(async (_obj, params, { claims, log }) => {
   const startCursor = params.after || ''
   const first = params.first || 10
 
@@ -946,7 +946,7 @@ export const searchResolver = authorized<
           r.content = converter(r.content, r.highlights)
         }
       } catch (error) {
-        console.log('Error converting content', error)
+        log.error('Error converting content', error)
       }
     }
 

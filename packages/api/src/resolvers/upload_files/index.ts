@@ -1,26 +1,26 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import {
-  ResolverFn,
-  UploadFileRequestResult,
-  MutationUploadFileRequestArgs,
-  UploadFileStatus,
-  UploadFileRequestErrorCode,
-  ArticleSavingRequestStatus,
-} from '../../generated/graphql'
-import { WithDataSourcesContext } from '../types'
-import {
-  generateUploadSignedUrl,
-  generateUploadFilePathName,
-  getFilePublicUrl,
-} from '../../utils/uploads'
-import path from 'path'
 import normalizeUrl from 'normalize-url'
-import { analytics } from '../../utils/analytics'
-import { env } from '../../env'
+import path from 'path'
 import { createPage, getPageByParam, updatePage } from '../../elastic/pages'
 import { PageType } from '../../elastic/types'
-import { generateSlug } from '../../utils/helpers'
+import { env } from '../../env'
+import {
+  ArticleSavingRequestStatus,
+  MutationUploadFileRequestArgs,
+  ResolverFn,
+  UploadFileRequestErrorCode,
+  UploadFileRequestResult,
+  UploadFileStatus,
+} from '../../generated/graphql'
 import { validateUrl } from '../../services/create_page_save_request'
+import { analytics } from '../../utils/analytics'
+import { generateSlug } from '../../utils/helpers'
+import {
+  generateUploadFilePathName,
+  generateUploadSignedUrl,
+  getFilePublicUrl,
+} from '../../utils/uploads'
+import { WithDataSourcesContext } from '../types'
 
 const isFileUrl = (url: string): boolean => {
   const parsedUrl = new URL(url)
@@ -40,7 +40,7 @@ export const uploadFileRequestResolver: ResolverFn<
   WithDataSourcesContext,
   MutationUploadFileRequestArgs
 > = async (_obj, { input }, ctx) => {
-  const { models, kx, claims } = ctx
+  const { models, kx, claims, log } = ctx
   let uploadFileData: { id: string | null } = {
     id: null,
   }
@@ -79,7 +79,7 @@ export const uploadFileRequestResolver: ResolverFn<
       try {
         validateUrl(url)
       } catch (error) {
-        console.log('illegal file input url', error)
+        log.info('illegal file input url', error)
         return {
           errorCodes: [UploadFileRequestErrorCode.BadInput],
         }

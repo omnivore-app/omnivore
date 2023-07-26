@@ -149,13 +149,13 @@ export const createAppEngineTask = async ({
     }
   }
 
-  console.log('Sending task:')
-  console.log(task)
+  logger.info('Sending task:')
+  logger.info(task)
   // Send create task request.
   const request = { parent: parent, task: task }
   const [response] = await client.createTask(request)
   const name = response.name
-  console.log(`Created task ${name}`)
+  logger.info(`Created task ${name}`)
 
   return name
 }
@@ -246,7 +246,7 @@ export const enqueueParseRequest = async ({
     setTimeout(() => {
       axios.post(env.queue.contentFetchUrl, payload).catch((error) => {
         console.error(error)
-        logger.warning(
+        console.error(
           `Error occurred while requesting local puppeteer-parse function\nPlease, ensure your function is set up properly and running using "yarn start" from the "/pkg/gcf/puppeteer-parse" folder`
         )
       })
@@ -399,7 +399,7 @@ export const enqueueTextToSpeech = async ({
     // Calling the handler function directly.
     setTimeout(() => {
       axios.post(taskHandlerUrl, payload).catch((error) => {
-        logger.error(error)
+        console.error(error)
       })
     }, 0)
     return ''
@@ -450,7 +450,7 @@ export const enqueueRecommendation = async (
           headers,
         })
         .catch((error) => {
-          logger.error(error)
+          console.error(error)
         })
     }, 0)
     return ''

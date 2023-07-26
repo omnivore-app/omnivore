@@ -6,12 +6,15 @@ import { readPushSubscription } from '../../datalayer/pubsub'
 import { getRepository } from '../../entity/utils'
 import { Webhook } from '../../entity/webhook'
 import axios, { Method } from 'axios'
+import { buildLogger } from '../../utils/logger'
+
+const logger = buildLogger('app.dispatch')
 
 export function webhooksServiceRouter() {
   const router = express.Router()
 
   router.post('/trigger/:action', async (req, res) => {
-    console.log('trigger webhook of action', req.params.action)
+    logger.info('trigger webhook of action', req.params.action)
     const { message: msgStr, expired } = readPushSubscription(req)
 
     if (!msgStr) {
@@ -20,7 +23,7 @@ export function webhooksServiceRouter() {
     }
 
     if (expired) {
-      console.log('discarding expired message')
+      logger.info('discarding expired message')
       res.status(200).send('Expired')
       return
     }
@@ -29,7 +32,7 @@ export function webhooksServiceRouter() {
       const data = JSON.parse(msgStr)
       const { userId, type } = data
       if (!userId || !type) {
-        console.log('No userId or type found in message')
+        logger.info('No userId or type found in message')
         res.status(400).send('Bad Request')
         return
       }
@@ -44,7 +47,7 @@ export function webhooksServiceRouter() {
         .getMany()
 
       if (webhooks.length <= 0) {
-        console.log(
+        logger.info(
           'No active webhook found for user',
           userId,
           'and eventType',
@@ -64,7 +67,7 @@ export function webhooksServiceRouter() {
           [type]: data,
         })
 
-        console.log('triggering webhook', url)
+        logger.info('triggering webhook', url)
         await axios.request({
           url,
           method,
@@ -77,7 +80,7 @@ export function webhooksServiceRouter() {
 
       res.status(200).send('OK')
     } catch (err) {
-      console.log('trigger webhook failed', err)
+      logger.info('trigger webhook failed', err)
       res.status(500).send(err)
     }
   })

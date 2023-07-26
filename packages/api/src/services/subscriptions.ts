@@ -3,8 +3,11 @@ import { NewsletterEmail } from '../entity/newsletter_email'
 import { Subscription } from '../entity/subscription'
 import { getRepository } from '../entity/utils'
 import { SubscriptionStatus, SubscriptionType } from '../generated/graphql'
+import { buildLogger } from '../utils/logger'
 import { sendEmail } from '../utils/sendEmail'
 import { createNewsletterEmail } from './newsletters'
+
+const logger = buildLogger('app.dispatch')
 
 interface SaveSubscriptionInput {
   userId: string
@@ -51,13 +54,13 @@ const sendUnsubscribeEmail = async (
     })
 
     if (!sent) {
-      console.log('Failed to send unsubscribe email', unsubscribeMailTo)
+      logger.info('Failed to send unsubscribe email', unsubscribeMailTo)
       return false
     }
 
     return true
   } catch (error) {
-    console.log('Failed to send unsubscribe email', error)
+    logger.info('Failed to send unsubscribe email', error)
     return false
   }
 }
@@ -71,9 +74,9 @@ const sendUnsubscribeHttpRequest = async (url: string): Promise<boolean> => {
     return true
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      console.log('Failed to send unsubscribe http request', error.message)
+      logger.info('Failed to send unsubscribe http request', error.message)
     } else {
-      console.log('Failed to send unsubscribe http request', error)
+      logger.info('Failed to send unsubscribe http request', error)
     }
     return false
   }
@@ -147,7 +150,7 @@ export const unsubscribe = async (subscription: Subscription) => {
 
     if (!unsubscribed) {
       // update subscription status to unsubscribed if failed to unsubscribe
-      console.log('Failed to unsubscribe', subscription.id)
+      logger.info('Failed to unsubscribe', subscription.id)
       return getRepository(Subscription).update(subscription.id, {
         status: SubscriptionStatus.Unsubscribed,
       })
@@ -174,11 +177,11 @@ export const unsubscribeAll = async (
       try {
         await unsubscribe(subscription)
       } catch (error) {
-        console.log('Failed to unsubscribe', error)
+        logger.info('Failed to unsubscribe', error)
       }
     }
   } catch (error) {
-    console.log('Failed to unsubscribe all', error)
+    logger.info('Failed to unsubscribe all', error)
   }
 }
 
@@ -211,7 +214,7 @@ export class SubscribeHandler {
       // subscribe to newsletter service
       const subscribedNames = await this._subscribe(newsletterEmail.address)
       if (subscribedNames.length === 0) {
-        console.log('Failed to get subscribe response', name)
+        logger.info('Failed to get subscribe response', name)
         return null
       }
 
@@ -229,7 +232,7 @@ export class SubscribeHandler {
 
       return Promise.all(newSubscriptions)
     } catch (error) {
-      console.log('Failed to handleSubscribe', error)
+      logger.info('Failed to handleSubscribe', error)
       return null
     }
   }

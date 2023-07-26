@@ -1,11 +1,14 @@
 import axios from 'axios'
 import { ArticleSavingRequestStatus } from '../../elastic/types'
 import { env } from '../../env'
+import { buildLogger } from '../../utils/logger'
 import {
   IntegrationService,
   RetrievedResult,
   RetrieveRequest,
 } from './integration'
+
+const logger = buildLogger('app.dispatch')
 
 interface PocketResponse {
   status: number // 1 if success
@@ -73,7 +76,7 @@ export class PocketIntegration extends IntegrationService {
       )
       return response.data.access_token
     } catch (error) {
-      console.log('error validating pocket token', error)
+      logger.error('error validating pocket token', error)
       return null
     }
   }
@@ -102,10 +105,10 @@ export class PocketIntegration extends IntegrationService {
           headers: this.headers,
         }
       )
-      console.debug('pocket data', response.data)
+
       return response.data
     } catch (error) {
-      console.log('error retrieving pocket data', error)
+      logger.error('error retrieving pocket data', error)
       throw new Error('Error retrieving pocket data')
     }
   }
