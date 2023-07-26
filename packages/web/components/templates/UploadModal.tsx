@@ -15,6 +15,10 @@ import { uploadFileRequestMutation } from '../../lib/networking/mutations/upload
 import axios from 'axios'
 import { File } from 'phosphor-react'
 import { showErrorToast } from '../../lib/toastHelpers'
+import {
+  UploadImportFileType,
+  uploadImportFileRequestMutation,
+} from '../../lib/networking/mutations/uploadImportFileMutation'
 
 const DragnDropContainer = styled('div', {
   width: '100%',
@@ -80,6 +84,7 @@ type UploadingFile = {
   progress: number
   status: 'inprogress' | 'success' | 'error'
   openUrl: string | undefined
+  contentType: string
 }
 
 export function UploadModal(props: UploadModalProps): JSX.Element {
@@ -106,19 +111,53 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
     [dropzoneRef]
   )
 
+  const uploadSignedUrlForFile = async (file: UploadingFile) => {
+    switch (file.contentType) {
+      case 'text/csv': {
+        const result = await uploadImportFileRequestMutation(
+          UploadImportFileType.URL_LIST,
+          file.contentType
+        )
+        return [result?.uploadSignedUrl, undefined]
+      }
+      case 'application/zip': {
+        const result = await uploadImportFileRequestMutation(
+          UploadImportFileType.MATTER,
+          file.contentType
+        )
+        return [result?.uploadSignedUrl, undefined]
+      }
+      case 'application/pdf':
+      case 'application/epub+zip': {
+        const request = await uploadFileRequestMutation({
+          // This will tell the backend not to save the URL
+          // and give it the local filename as the title.
+          url: `file://local/${file.id}/${file.file.path}`,
+          contentType: file.contentType,
+          createPageEntry: true,
+        })
+        return [request?.uploadSignedUrl, request?.createdPageId]
+      }
+    }
+    return [undefined, undefined]
+  }
+
   const handleAcceptedFiles = useCallback(
     (acceptedFiles: any, event: DropEvent) => {
       setInDragOperation(false)
 
-      const addedFiles = acceptedFiles.map((file: { name: any }) => {
-        return {
-          id: uuidv4(),
-          file: file,
-          name: file.name,
-          progress: 0,
-          status: 'inprogress',
+      const addedFiles = acceptedFiles.map(
+        (file: { name: any; type: string }) => {
+          return {
+            id: uuidv4(),
+            file: file,
+            name: file.name,
+            progress: 0,
+            status: 'inprogress',
+            contentType: file.type,
+          }
         }
-      })
+      )
 
       const allFiles = [...uploadFiles, ...addedFiles]
 
@@ -127,22 +166,17 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
         for (const file of addedFiles) {
           try {
             console.log('using content type: ', file.file.type)
-            const request = await uploadFileRequestMutation({
-              // This will tell the backend not to save the URL
-              // and give it the local filename as the title.
-              url: `file://local/${file.id}/${file.file.path}`,
-              contentType: file.file.type,
-              createPageEntry: true,
-            })
-
-            if (!request?.uploadSignedUrl) {
+            const [uploadSignedUrl, requestId] = await uploadSignedUrlForFile(
+              file
+            )
+            if (!uploadSignedUrl) {
               showErrorToast('No upload URL available')
               return
             }
 
             const uploadResult = await axios.request({
               method: 'PUT',
-              url: request?.uploadSignedUrl,
+              url: uploadSignedUrl,
               data: file.file,
               withCredentials: false,
               headers: {
@@ -162,7 +196,7 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
 
             file.progress = 100
             file.status = 'success'
-            file.openUrl = `/article/sr/${request.createdPageId}`
+            file.openUrl = requestId ? `/article/sr/${requestId}` : undefined
 
             setUploadFiles([...allFiles])
           } catch (error) {
@@ -216,6 +250,8 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
             preventDropOnDocument={true}
             noClick={true}
             accept={{
+              'text/csv': ['.csv'],
+              'application/zip': ['.zip'],
               'application/pdf': ['.pdf'],
               'application/epub+zip': ['.epub'],
             }}
@@ -317,6 +353,9 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
                             >
                               {file.status == 'success' && file.openUrl && (
                                 <a href={file.openUrl}>Read Now</a>
+                              )}
+                              {file.status == 'success' && !file.openUrl && (
+                                <span>Your import has started</span>
                               )}
                               {file.status == 'error' && (
                                 <SpanBox css={{ color: 'red' }}>
