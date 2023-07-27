@@ -1,13 +1,13 @@
+import { User } from '../../entity/user'
+import { env } from '../../env'
 import {
   SendInstallInstructionsError,
   SendInstallInstructionsErrorCode,
   SendInstallInstructionsSuccess,
 } from '../../generated/graphql'
+import { AppDataSource } from '../../server'
 import { authorized } from '../../utils/helpers'
 import { sendEmail } from '../../utils/sendEmail'
-import { AppDataSource } from '../../server'
-import { User } from '../../entity/user'
-import { env } from '../../env'
 
 const INSTALL_INSTRUCTIONS_EMAIL_TEMPLATE_ID =
   'd-c576bdc3b9a849dab250655ba14c7794'
@@ -15,7 +15,7 @@ const INSTALL_INSTRUCTIONS_EMAIL_TEMPLATE_ID =
 export const sendInstallInstructionsResolver = authorized<
   SendInstallInstructionsSuccess,
   SendInstallInstructionsError
->(async (_parent, _args, { claims }) => {
+>(async (_parent, _args, { claims, log }) => {
   try {
     const user = await AppDataSource.getRepository(User).findOneBy({
       id: claims.uid,
@@ -37,7 +37,7 @@ export const sendInstallInstructionsResolver = authorized<
       sent: sendInstallInstructions,
     }
   } catch (e) {
-    console.log(e)
+    log.info(e)
 
     return {
       errorCodes: [SendInstallInstructionsErrorCode.BadRequest],

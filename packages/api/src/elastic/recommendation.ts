@@ -1,4 +1,4 @@
-import { buildLogger } from '../utils/logger'
+import { logger } from '.'
 import { createPage, getPageByParam, updatePage } from './pages'
 import {
   ArticleSavingRequestStatus,
@@ -6,8 +6,6 @@ import {
   PageContext,
   Recommendation,
 } from './types'
-
-const logger = buildLogger('app.dispatch')
 
 export const addRecommendation = async (
   ctx: PageContext,

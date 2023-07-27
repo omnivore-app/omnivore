@@ -9,14 +9,12 @@ import {
   validatedDate,
   wordsCount,
 } from '../utils/helpers'
-import { buildLogger } from '../utils/logger'
+import { logger } from '../utils/logger'
 import {
   FAKE_URL_PREFIX,
   parsePreparedContent,
   parseUrlMetadata,
 } from '../utils/parser'
-
-const logger = buildLogger('app.dispatch')
 
 export type SaveContext = {
   pubsub: PubsubClient

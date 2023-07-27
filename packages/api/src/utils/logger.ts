@@ -4,6 +4,12 @@ import { LoggingWinston } from '@google-cloud/logging-winston'
 import { cloneDeep, isArray, isObject, isString, truncate } from 'lodash'
 import { DateTime } from 'luxon'
 import {
+  AdvancedConsoleLogger,
+  Logger as TypeOrmLogger,
+  LoggerOptions as TypeOrmLoggerOptions,
+  QueryRunner,
+} from 'typeorm'
+import {
   config,
   format,
   Logger,
@@ -14,6 +20,30 @@ import {
 import TransportStream from 'winston-transport'
 import { ConsoleTransportOptions } from 'winston/lib/winston/transports'
 import { env } from '../env'
+
+export class CustomTypeOrmLogger
+  extends AdvancedConsoleLogger
+  implements TypeOrmLogger
+{
+  private logger: Logger
+
+  constructor(options?: TypeOrmLoggerOptions) {
+    super(options)
+    this.logger = buildLogger('typeorm')
+  }
+
+  logQuery(query: string, parameters?: any[], queryRunner?: QueryRunner) {
+    this.logger.debug(query, parameters, queryRunner)
+  }
+
+  log(
+    level: 'log' | 'info' | 'warn',
+    message: any,
+    queryRunner?: QueryRunner
+  ): void {
+    this.logger.log(level, message, queryRunner)
+  }
+}
 
 const colors = {
   emerg: 'inverse underline magenta',
@@ -124,5 +154,7 @@ export interface LogRecord {
   }
   [key: string]: any
 }
+
+export const logger = buildLogger('app')
 
 export default {}

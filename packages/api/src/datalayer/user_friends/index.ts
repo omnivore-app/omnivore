@@ -8,7 +8,12 @@ import {
 import DataModel, { MAX_RECORDS_LIMIT } from '../model'
 import { Knex } from 'knex'
 import { Table } from '../../utils/dictionary'
-import { ENABLE_DB_REQUEST_LOGGING, globalCounter, logMethod } from '../helpers'
+import {
+  ENABLE_DB_REQUEST_LOGGING,
+  globalCounter,
+  logMethod,
+  logger,
+} from '../helpers'
 import DataLoader from 'dataloader'
 
 class UserFriendModel extends DataModel<UserFriendData, CreateSet, UpdateSet> {
@@ -43,7 +48,7 @@ class UserFriendModel extends DataModel<UserFriendData, CreateSet, UpdateSet> {
         // logger.debug('\n\n\n\n\nResult for userId_articleId_load', { keys, result });
 
         if (result.length !== keys.length) {
-          console.error('DataModel error: count mismatch ', keys, result)
+          logger.error('DataModel error: count mismatch ', keys, result)
         }
         return result
       },

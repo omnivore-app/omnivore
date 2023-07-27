@@ -1,7 +1,8 @@
-import { getRepository } from '../entity/utils'
-import { Reminder } from '../entity/reminder'
-import { getPageById } from '../elastic/pages'
 import { IsNull, Not } from 'typeorm'
+import { getPageById } from '../elastic/pages'
+import { Reminder } from '../entity/reminder'
+import { getRepository } from '../entity/utils'
+import { logger } from '../utils/logger'
 
 export interface PageReminder {
   pageId: string
@@ -31,7 +32,7 @@ export const getPagesWithReminder = async (
     if (reminder.elasticPageId) {
       const page = await getPageById(reminder.elasticPageId)
       if (!page) {
-        console.log(`Reminder ${reminder.id} has invalid elasticPageId`)
+        logger.info(`Reminder ${reminder.id} has invalid elasticPageId`)
         continue
       }
 

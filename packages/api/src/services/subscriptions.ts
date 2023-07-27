@@ -3,11 +3,9 @@ import { NewsletterEmail } from '../entity/newsletter_email'
 import { Subscription } from '../entity/subscription'
 import { getRepository } from '../entity/utils'
 import { SubscriptionStatus, SubscriptionType } from '../generated/graphql'
-import { buildLogger } from '../utils/logger'
+import { logger } from '../utils/logger'
 import { sendEmail } from '../utils/sendEmail'
 import { createNewsletterEmail } from './newsletters'
-
-const logger = buildLogger('app.dispatch')
 
 interface SaveSubscriptionInput {
   userId: string

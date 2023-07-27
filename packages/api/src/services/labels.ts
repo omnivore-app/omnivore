@@ -8,6 +8,7 @@ import { User } from '../entity/user'
 import { getRepository } from '../entity/utils'
 import { CreateLabelInput } from '../generated/graphql'
 import { generateRandomColor } from '../utils/helpers'
+import { logger } from '../utils/logger'
 
 const INTERNAL_LABELS_IN_LOWERCASE = [
   'newsletters',
@@ -54,12 +55,12 @@ export const addLabelToPage = async (
   let labelEntity = await getLabelByName(user.id, label.name)
 
   if (!labelEntity) {
-    console.log('creating new label', label.name)
+    logger.info('creating new label', label.name)
 
     labelEntity = await createLabel(user.id, label)
   }
 
-  console.log('adding label to page', label.name, pageId)
+  logger.info('adding label to page', label.name, pageId)
 
   return addLabelInPage(
     pageId,
@@ -120,7 +121,7 @@ export const createLabels = async (
     id: ctx.uid,
   })
   if (!user) {
-    console.error('user not found')
+    logger.error('user not found')
     return []
   }
 

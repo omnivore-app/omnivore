@@ -12,9 +12,7 @@ import { getPageByParam, updatePage } from '../../elastic/pages'
 import { Page } from '../../elastic/types'
 import { ArticleSavingRequestStatus } from '../../generated/graphql'
 import { initModels } from '../../server'
-import { buildLogger } from '../../utils/logger'
-
-const logger = buildLogger('app.dispatch')
+import { logger } from '../../utils/logger'
 
 interface UpdateContentMessage {
   fileId: string

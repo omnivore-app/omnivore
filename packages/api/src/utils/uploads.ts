@@ -3,6 +3,7 @@
 import { File, GetSignedUrlConfig, Storage } from '@google-cloud/storage'
 import { env } from '../env'
 import { ContentReader, PageType } from '../generated/graphql'
+import { logger } from './logger'
 
 export const contentReaderForPage = (
   pageType: PageType,
@@ -57,7 +58,7 @@ export const generateUploadSignedUrl = async (
     expires: Date.now() + 15 * 60 * 1000, // 15 minutes
     contentType: contentType,
   }
-  console.log('signed url for: ', options)
+  logger.info('signed url for: ', options)
 
   // Get a v4 signed URL for uploading file
   const [url] = await storage
@@ -79,7 +80,7 @@ export const generateDownloadSignedUrl = async (
     .bucket(bucketName)
     .file(filePathName)
     .getSignedUrl(options)
-  console.log('generating download signed url', url)
+  logger.info('generating download signed url', url)
   return url
 }
 

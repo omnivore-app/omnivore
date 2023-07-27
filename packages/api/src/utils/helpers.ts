@@ -20,7 +20,7 @@ import { CreateArticlesSuccessPartial } from '../resolvers'
 import { Claims, WithDataSourcesContext } from '../resolvers/types'
 import { validateUrl } from '../services/create_page_save_request'
 import { Merge } from '../util'
-
+import { logger } from './logger'
 interface InputObject {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any
@@ -225,7 +225,7 @@ export const validatedDate = (
     }
     return new Date(date)
   } catch (e) {
-    console.log('error validating date', date, e)
+    logger.error('error validating date', date, e)
     return undefined
   }
 }
@@ -247,7 +247,7 @@ export const titleForFilePath = (url: string): string => {
     const title = decodeURI(path.basename(new URL(url).pathname, '.pdf'))
     return title
   } catch (e) {
-    console.log(e)
+    logger.error(e)
   }
   return url
 }
@@ -299,7 +299,7 @@ export const isUrl = (str: string): boolean => {
     validateUrl(str)
     return true
   } catch {
-    console.log('not an url', str)
+    logger.error('not an url', str)
     return false
   }
 }

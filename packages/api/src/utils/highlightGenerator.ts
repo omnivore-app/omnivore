@@ -3,9 +3,7 @@ import { parseHTML } from 'linkedom'
 import { nanoid } from 'nanoid'
 import { v4 as uuidv4 } from 'uuid'
 import { interpolationSearch } from './interpolationSearch'
-import { buildLogger } from './logger'
-
-const logger = buildLogger('app.dispatch')
+import { logger } from './logger'
 
 const highlightTag = 'omnivore_highlight'
 export const maxHighlightLength = 2000

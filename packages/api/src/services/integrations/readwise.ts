@@ -4,6 +4,7 @@ import { Integration } from '../../entity/integration'
 import { getRepository } from '../../entity/utils'
 import { env } from '../../env'
 import { wait } from '../../utils/helpers'
+import { logger } from '../../utils/logger'
 import { getHighlightUrl } from '../highlights'
 import { IntegrationService } from './integration'
 
@@ -48,7 +49,11 @@ export class ReadwiseIntegration extends IntegrationService {
       })
       return response.status === 204 ? token : null
     } catch (error) {
-      console.error('error validating readwise token', error)
+      if (axios.isAxiosError(error)) {
+        logger.error(error.response)
+      } else {
+        logger.error(error)
+      }
       return null
     }
   }
@@ -66,7 +71,7 @@ export class ReadwiseIntegration extends IntegrationService {
 
     // update integration syncedAt if successful
     if (result) {
-      console.info('updating integration syncedAt')
+      logger.info('updating integration syncedAt')
       await getRepository(Integration).update(integration.id, {
         syncedAt: new Date(),
       })
@@ -124,19 +129,21 @@ export class ReadwiseIntegration extends IntegrationService {
       )
       return response.status === 200
     } catch (error) {
-      if (
-        axios.isAxiosError(error) &&
-        error.response?.status === 429 &&
-        retryCount < 3
-      ) {
-        console.info('Readwise API rate limit exceeded, retrying...')
-        // wait for Retry-After seconds in the header if rate limited
-        // max retry count is 3
-        const retryAfter = error.response?.headers['retry-after'] || '10' // default to 10 seconds
-        await wait(parseInt(retryAfter, 10) * 1000)
-        return this.syncWithReadwise(token, highlights, retryCount + 1)
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 429 && retryCount < 3) {
+          logger.info('Readwise API rate limit exceeded, retrying...')
+          // wait for Retry-After seconds in the header if rate limited
+          // max retry count is 3
+          const retryAfter = error.response?.headers['retry-after'] || '10' // default to 10 seconds
+          await wait(parseInt(retryAfter, 10) * 1000)
+          return this.syncWithReadwise(token, highlights, retryCount + 1)
+        }
+
+        logger.error(error.response)
+      } else {
+        logger.error(error)
       }
-      console.error('Error creating highlights in Readwise', error)
+
       return false
     }
   }
