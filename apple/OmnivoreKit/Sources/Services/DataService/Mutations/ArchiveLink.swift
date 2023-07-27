@@ -2,6 +2,7 @@ import CoreData
 import Foundation
 import Models
 import SwiftGraphQL
+import Utils
 
 extension DataService {
   public func archiveLink(objectID: NSManagedObjectID, archived: Bool) {
@@ -13,6 +14,11 @@ extension DataService {
 
       // Send update to server
       self.syncLinkArchiveStatus(itemID: linkedItem.unwrappedID, archived: archived)
+
+      let message = archived ? "Link archived" : "Link moved to Inbox"
+      DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(300)) {
+        showInLibrarySnackbar(message)
+      }
     }
   }
 

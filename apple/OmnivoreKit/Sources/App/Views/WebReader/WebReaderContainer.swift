@@ -377,6 +377,7 @@ struct WebReaderContainerView: View {
       if let articleContent = viewModel.articleContent {
         WebReader(
           item: item,
+          viewModel: viewModel,
           articleContent: articleContent,
           openLinkAction: {
             #if os(macOS)
@@ -427,7 +428,7 @@ struct WebReaderContainerView: View {
             #else
               //            Pasteboard.general.string = item.unwrappedPageURLString TODO: fix for mac
             #endif
-            showInSnackbar("Link Copied")
+            showInLibrarySnackbar("Link Copied")
           }, label: { Text(LocalText.readerCopyLink) })
           Button(action: {
             if let linkToOpen = linkToOpen {
@@ -593,6 +594,13 @@ struct WebReaderContainerView: View {
         .animation(.spring())
         .closeOnTapOutside(true)
     }
+    .onReceive(NSNotification.readerSnackBarPublisher) { notification in
+      if let message = notification.userInfo?["message"] as? String {
+        viewModel.snackbarOperation = SnackbarOperation(message: message,
+                                                        undoAction: notification.userInfo?["undoAction"] as? SnackbarUndoAction)
+        viewModel.showSnackbar = true
+      }
+    }
   }
 
   func archive() {
@@ -600,7 +608,6 @@ struct WebReaderContainerView: View {
     #if os(iOS)
       presentationMode.wrappedValue.dismiss()
     #endif
-    viewModel.snackbar(message: !item.isArchived ? "Link archived" : "Link moved to Inbox")
   }
 
   func recommend() {
@@ -620,9 +627,9 @@ struct WebReaderContainerView: View {
         pasteBoard.clearContents()
         pasteBoard.writeObjects([deepLink.absoluteString as NSString])
       #endif
-      showInSnackbar("Deeplink Copied")
+      showInLibrarySnackbar("Deeplink Copied")
     } else {
-      showInSnackbar("Error copying deeplink")
+      showInLibrarySnackbar("Error copying deeplink")
     }
   }
 

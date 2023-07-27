@@ -242,9 +242,6 @@ struct AnimatingCellHeight: AnimatableModifier {
     @Binding var prefersListLayout: Bool
     @ObservedObject var viewModel: HomeFeedViewModel
 
-    @State var showSnackbar = false
-    @State var snackbarOperation: SnackbarOperation?
-
     var body: some View {
       VStack(spacing: 0) {
         if prefersListLayout || !enableGrid {
@@ -261,9 +258,9 @@ struct AnimatingCellHeight: AnimatableModifier {
           self.viewModel.negatedLabels = $1
         }
       }
-      .popup(isPresented: $showSnackbar) {
-        if let operation = snackbarOperation {
-          Snackbar(isShowing: $showSnackbar, operation: operation)
+      .popup(isPresented: $viewModel.showSnackbar) {
+        if let operation = viewModel.snackbarOperation {
+          Snackbar(isShowing: $viewModel.showSnackbar, operation: operation)
         } else {
           EmptyView()
         }
@@ -275,17 +272,13 @@ struct AnimatingCellHeight: AnimatableModifier {
           .animation(.spring())
           .isOpaque(false)
       }
-      .onReceive(NSNotification.operationSuccessPublisher) { notification in
-        if let message = notification.userInfo?["message"] as? String {
-          snackbarOperation = SnackbarOperation(message: message,
-                                                undoAction: notification.userInfo?["undoAction"] as? SnackbarUndoAction)
-          showSnackbar = true
-        }
-      }
-      .onReceive(NSNotification.operationFailedPublisher) { notification in
-        if let message = notification.userInfo?["message"] as? String {
-          showSnackbar = true
-          snackbarOperation = SnackbarOperation(message: message, undoAction: nil)
+      .onReceive(NSNotification.librarySnackBarPublisher) { notification in
+        if !viewModel.showSnackbar {
+          if let message = notification.userInfo?["message"] as? String {
+            viewModel.snackbarOperation = SnackbarOperation(message: message,
+                                                            undoAction: notification.userInfo?["undoAction"] as? SnackbarUndoAction)
+            viewModel.showSnackbar = true
+          }
         }
       }
     }

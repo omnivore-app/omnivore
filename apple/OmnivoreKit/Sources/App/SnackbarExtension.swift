@@ -3,7 +3,7 @@ import Services
 import Views
 
 extension Snackbar {
-  static func show(message: String, undoAction: (() -> Void)? = nil) {
-    NSNotification.operationSuccess(message: message, undoAction: undoAction)
+  static func showInLibrary(message: String, undoAction: (() -> Void)? = nil) {
+    NSNotification.librarySnackBar(message: message, undoAction: undoAction)
   }
 }

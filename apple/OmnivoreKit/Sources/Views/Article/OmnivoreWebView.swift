@@ -46,7 +46,7 @@ public final class OmnivoreWebView: WKWebView {
     do {
       try dispatchEvent(.updateTheme(themeName: ThemeManager.currentTheme.themeKey))
     } catch {
-      showErrorInSnackbar("Error updating theme")
+      showInReaderSnackbar("Error updating theme")
     }
   }
 
@@ -56,7 +56,7 @@ public final class OmnivoreWebView: WKWebView {
         try dispatchEvent(.updateFontFamily(family: fontFamily))
       }
     } catch {
-      showErrorInSnackbar("Error updating font")
+      showInReaderSnackbar("Error updating font")
     }
   }
 
@@ -66,7 +66,7 @@ public final class OmnivoreWebView: WKWebView {
         try dispatchEvent(.updateFontSize(size: fontSize))
       }
     } catch {
-      showErrorInSnackbar("Error updating font")
+      showInReaderSnackbar("Error updating font")
     }
   }
 
@@ -77,7 +77,7 @@ public final class OmnivoreWebView: WKWebView {
       do {
         try dispatchEvent(.updateMaxWidthPercentage(maxWidthPercentage: maxWidthPercentage))
       } catch {
-        showErrorInSnackbar("Error updating max width")
+        showInReaderSnackbar("Error updating max width")
       }
     }
   }
@@ -87,7 +87,7 @@ public final class OmnivoreWebView: WKWebView {
       do {
         try dispatchEvent(.updateLineHeight(height: height))
       } catch {
-        showErrorInSnackbar("Error updating line height")
+        showInReaderSnackbar("Error updating line height")
       }
     }
   }
@@ -101,7 +101,7 @@ public final class OmnivoreWebView: WKWebView {
       do {
         try dispatchEvent(.handleFontContrastChange(isHighContrast: isHighContrast))
       } catch {
-        showErrorInSnackbar("Error updating text contrast")
+        showInReaderSnackbar("Error updating text contrast")
       }
     }
   }
@@ -115,7 +115,7 @@ public final class OmnivoreWebView: WKWebView {
       do {
         try dispatchEvent(.handleAutoHighlightModeChange(isEnabled: isEnabled))
       } catch {
-        showErrorInSnackbar("Error updating text contrast")
+        showInReaderSnackbar("Error updating text contrast")
       }
     }
   }
@@ -126,7 +126,7 @@ public final class OmnivoreWebView: WKWebView {
         try dispatchEvent(.updateJustifyText(justify: justify))
       }
     } catch {
-      showErrorInSnackbar("Error updating justify-text")
+      showInReaderSnackbar("Error updating justify-text")
     }
   }
 
@@ -134,7 +134,7 @@ public final class OmnivoreWebView: WKWebView {
     do {
       try dispatchEvent(.updateTitle(title: title))
     } catch {
-      showErrorInSnackbar("Error updating title")
+      showInReaderSnackbar("Error updating title")
     }
   }
 
@@ -142,7 +142,7 @@ public final class OmnivoreWebView: WKWebView {
     do {
       try dispatchEvent(.updateLabels(labels: labelsJSON))
     } catch {
-      showErrorInSnackbar("Error updating labels")
+      showInReaderSnackbar("Error updating labels")
     }
   }
 
@@ -150,7 +150,7 @@ public final class OmnivoreWebView: WKWebView {
     do {
       try dispatchEvent(.share)
     } catch {
-      showErrorInSnackbar("Error updating line height")
+      showInReaderSnackbar("Error updating line height")
     }
   }
 
@@ -179,7 +179,7 @@ public final class OmnivoreWebView: WKWebView {
           try dispatchEvent(.updateTheme(themeName: ThemeManager.currentTheme.themeKey))
         }
       } catch {
-        showErrorInSnackbar("Error updating theme due to colormode change")
+        showInReaderSnackbar("Error updating theme due to colormode change")
       }
     }
 
@@ -305,7 +305,7 @@ public final class OmnivoreWebView: WKWebView {
       do {
         try dispatchEvent(.annotate)
       } catch {
-        showErrorInSnackbar("Error creating highlight")
+        showInReaderSnackbar("Error creating highlight")
       }
       hideMenu()
     }
@@ -314,7 +314,7 @@ public final class OmnivoreWebView: WKWebView {
       do {
         try dispatchEvent(.highlight)
       } catch {
-        showErrorInSnackbar("Error creating highlight")
+        showInReaderSnackbar("Error creating highlight")
       }
       hideMenu()
     }
@@ -323,7 +323,7 @@ public final class OmnivoreWebView: WKWebView {
       do {
         try dispatchEvent(.share)
       } catch {
-        showErrorInSnackbar("Error sharing highlight")
+        showInReaderSnackbar("Error sharing highlight")
       }
       hideMenu()
     }
@@ -332,7 +332,7 @@ public final class OmnivoreWebView: WKWebView {
       do {
         try dispatchEvent(.remove)
       } catch {
-        showErrorInSnackbar("Error deleting highlight")
+        showInReaderSnackbar("Error deleting highlight")
       }
       hideMenu()
     }
@@ -342,7 +342,7 @@ public final class OmnivoreWebView: WKWebView {
       do {
         try dispatchEvent(.copyHighlight)
       } catch {
-        showErrorInSnackbar("Error copying highlight")
+        showInReaderSnackbar("Error copying highlight")
       }
       hideMenu()
     }
@@ -351,7 +351,7 @@ public final class OmnivoreWebView: WKWebView {
       do {
         try dispatchEvent(.setHighlightLabels)
       } catch {
-        showErrorInSnackbar("Error setting labels for highlight")
+        showInReaderSnackbar("Error setting labels for highlight")
       }
       hideMenu()
     }
