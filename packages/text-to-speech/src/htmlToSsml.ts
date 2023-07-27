@@ -298,12 +298,7 @@ const textToUtterances = ({
   try {
     text = htmlToText(text, { wordwrap: false })
   } catch (err) {
-    console.error(
-      'Unable to convert HTML to text, html:',
-      text,
-      ', error:',
-      err
-    )
+    console.error('Unable to convert HTML to text, html:')
     text = parseHTML(text).document.documentElement.textContent ?? text
     console.info('Converted HTML to text:', text)
   }
@@ -314,7 +309,7 @@ const textToUtterances = ({
     const sentenceTokenizer = new SentenceTokenizerNew()
     sentences = sentenceTokenizer.tokenize(text)
   } catch (err) {
-    console.debug('Unable to tokenize sentences, text:', text, ', error:', err)
+    console.debug('Unable to tokenize sentences')
     // fallback to old sentence tokenizer
     const sentenceTokenizer = new SentenceTokenizer()
     sentences = sentenceTokenizer.tokenize(text)

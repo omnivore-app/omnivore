@@ -33,7 +33,11 @@ export class CustomTypeOrmLogger
   }
 
   logQuery(query: string, parameters?: any[], queryRunner?: QueryRunner) {
-    this.logger.debug(query, parameters, queryRunner)
+    this.logger.info(
+      `query: ${query} -- PARAMETERS: ${super.stringifyParams(
+        parameters || []
+      )}`
+    )
   }
 
   log(
@@ -41,7 +45,7 @@ export class CustomTypeOrmLogger
     message: any,
     queryRunner?: QueryRunner
   ): void {
-    this.logger.log(level, message, queryRunner)
+    this.logger.log(level, message)
   }
 }
 
