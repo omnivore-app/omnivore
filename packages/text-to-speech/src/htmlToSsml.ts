@@ -298,9 +298,9 @@ const textToUtterances = ({
   try {
     text = htmlToText(text, { wordwrap: false })
   } catch (err) {
-    console.error('Unable to convert HTML to text, html:')
+    console.error('Unable to convert HTML to text')
     text = parseHTML(text).document.documentElement.textContent ?? text
-    console.info('Converted HTML to text:', text)
+    console.info('Converted HTML to text')
   }
   const MAX_CHARS = 256
   let sentences: string[] = []
