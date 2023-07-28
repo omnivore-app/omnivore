@@ -29,8 +29,9 @@ export default function AppArticleEmbed(): JSX.Element {
 
   const router = useRouter()
 
-  const [contentProps, setContentProps] =
-    useState<AppArticleEmbedContentProps | undefined>(undefined)
+  const [contentProps, setContentProps] = useState<
+    AppArticleEmbedContentProps | undefined
+  >(undefined)
 
   useEffect(() => {
     if (!router.isReady) return
@@ -78,7 +79,7 @@ function AppArticleEmbedContent(
         <Script
           async
           id="MathJax-script"
-          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+          src="/public/static/tex-mml-chtml.js"
         />
         <VStack
           alignment="center"
