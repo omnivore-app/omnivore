@@ -1,18 +1,17 @@
 const ContentSecurityPolicy = `
   default-src 'self';
   base-uri 'self';
-  block-all-mixed-content;
   connect-src 'self' ${process.env.NEXT_PUBLIC_SERVER_BASE_URL} proxy-prod.omnivore-image-cache.app accounts.google.com proxy-demo.omnivore-image-cache.app storage.googleapis.com api.segment.io cdn.segment.com widget.intercom.io api-iam.intercom.io wss://nexus-websocket-a.intercom.io wss://nexus-websocket-b.intercom.io wss://nexus-europe-websocket.intercom.io wss://nexus-australia-websocket.intercom.io platform.twitter.com;
-  font-src 'self' data: cdn.jsdelivr.net https://js.intercomcdn.com https://fonts.intercomcdn.com;
+  font-src 'self' data: https://cdn.jsdelivr.net https://js.intercomcdn.com https://fonts.intercomcdn.com;
   form-action 'self' ${process.env.NEXT_PUBLIC_SERVER_BASE_URL} https://getpocket.com/auth/authorize https://intercom.help https://api-iam.intercom.io https://api-iam.eu.intercom.io https://api-iam.au.intercom.io;
   frame-ancestors 'none';
   frame-src self accounts.google.com platform.twitter.com www.youtube.com www.youtube-nocookie.com;
   manifest-src 'self';
-  script-src 'self' 'unsafe-inline' 'unsafe-eval' accounts.google.com widget.intercom.io js.intercomcdn.com platform.twitter.com cdnjs.cloudflare.com cdn.jsdelivr.net cdn.segment.com;
-  style-src 'self' 'unsafe-inline' accounts.google.com cdnjs.cloudflare.com;
+  script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com https://app.intercom.io https://widget.intercom.io https://js.intercomcdn.com https://platform.twitter.com https://cdn.jsdelivr.net https://cdn.segment.com;
+  style-src 'self' 'unsafe-inline' accounts.google.com ;
   img-src 'self' blob: data: https:;
   worker-src 'self' blob:;
-  media-src https://js.intercomcdn.com;
+  media-src js.intercomcdn.com;
 `
 
 const moduleExports = {
