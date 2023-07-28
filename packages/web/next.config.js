@@ -12,7 +12,7 @@ const ContentSecurityPolicy = `
   style-src 'self' 'unsafe-inline' accounts.google.com cdnjs.cloudflare.com;
   img-src 'self' blob: data: https:;
   worker-src 'self' blob:;
-  media-src: https://js.intercomcdn.com
+  media-src https://js.intercomcdn.com;
 `
 
 const moduleExports = {
