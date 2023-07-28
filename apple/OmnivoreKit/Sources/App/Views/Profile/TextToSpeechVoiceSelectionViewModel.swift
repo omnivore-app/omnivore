@@ -18,6 +18,9 @@
     @Published var realisticVoicesToggle: Bool = false
     @Published var waitingForRealisticVoices: Bool = false
 
+    @Published var showSnackbar: Bool = false
+    var snackbarMessage: String?
+
     func requestUltraRealisticFeatureAccess(
       dataService: DataService,
       audioController: AudioController
@@ -50,7 +53,8 @@
         realisticVoicesToggle = false
         waitingForRealisticVoices = false
         audioController.ultraRealisticFeatureRequested = false
-        Snackbar.show(message: "Error signing up for beta. Please try again.")
+        snackbarMessage = "Error signing up for beta. Please try again."
+        showSnackbar = true
       }
     }
   }

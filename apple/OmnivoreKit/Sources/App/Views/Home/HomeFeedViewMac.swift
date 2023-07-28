@@ -141,7 +141,7 @@ import Views
         Button(LocalText.cancelGeneric, role: .cancel) { self.itemToRemove = nil }
       }
       .sheet(item: $viewModel.itemUnderLabelEdit) { item in
-        ApplyLabelsView(mode: .item(item), isSearchFocused: false, onSave: nil)
+        ApplyLabelsView(mode: .item(item), onSave: nil)
       }
       .sheet(item: $viewModel.itemUnderTitleEdit) { item in
         LinkedItemMetadataEditView(item: item)

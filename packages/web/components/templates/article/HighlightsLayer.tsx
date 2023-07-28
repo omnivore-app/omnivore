@@ -78,13 +78,15 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   const focusedHighlightMousePos = useRef({ pageX: 0, pageY: 0 })
 
   const [currentHighlightIdx, setCurrentHighlightIdx] = useState(0)
-  const [focusedHighlight, setFocusedHighlight] =
-    useState<Highlight | undefined>(undefined)
+  const [focusedHighlight, setFocusedHighlight] = useState<
+    Highlight | undefined
+  >(undefined)
 
   const [selectionData, setSelectionData] = useSelection(highlightLocations)
 
-  const [labelsTarget, setLabelsTarget] =
-    useState<Highlight | undefined>(undefined)
+  const [labelsTarget, setLabelsTarget] = useState<Highlight | undefined>(
+    undefined
+  )
 
   const windowDimensions = useGetWindowDimensions()
 
@@ -537,6 +539,10 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
     }
   }
 
+  useEffect(() => {
+    setFocusedHighlight(undefined)
+  }, [selectionData])
+
   const dispatchHighlightMessage = (actionID: string) => {
     if (props.isAppleAppEmbed) {
       window?.webkit?.messageHandlers.highlightAction?.postMessage({
@@ -672,7 +678,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         dispatchHighlightMessage('noteCreated')
       } else {
         try {
-          await createHighlightCallback()
+          await createHighlightCallback(event.annotation)
           dispatchHighlightMessage('noteCreated')
         } catch (error) {
           dispatchHighlightError('saveAnnotation', error)

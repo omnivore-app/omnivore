@@ -61,6 +61,7 @@
       Form {
         TextField("Add Link", text: $newLinkURL)
           .keyboardType(.URL)
+          .autocorrectionDisabled(true)
           .textFieldStyle(StandardTextFieldStyle())
           .focused($focusedField, equals: .addLinkEditor)
 

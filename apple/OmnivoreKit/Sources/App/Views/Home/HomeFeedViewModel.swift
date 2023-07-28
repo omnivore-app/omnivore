@@ -37,6 +37,9 @@ import Views
 
   @Published var listConfig: LibraryListConfig
 
+  @Published var showSnackbar = false
+  @Published var snackbarOperation: SnackbarOperation?
+
   var cursor: String?
 
   // These are used to make sure we handle search result
@@ -314,9 +317,14 @@ import Views
     setItems(dataService.viewContext, fetchedResultsController.fetchedObjects ?? [])
   }
 
+  func snackbar(_ message: String, undoAction: SnackbarUndoAction? = nil) {
+    snackbarOperation = SnackbarOperation(message: message, undoAction: undoAction)
+    showSnackbar = true
+  }
+
   func setLinkArchived(dataService: DataService, objectID: NSManagedObjectID, archived: Bool) {
     dataService.archiveLink(objectID: objectID, archived: archived)
-    Snackbar.show(message: archived ? "Link archived" : "Link moved to Inbox")
+    snackbar(archived ? "Link archived" : "Link moved to Inbox")
   }
 
   func removeLink(dataService: DataService, objectID: NSManagedObjectID) {
@@ -326,9 +334,9 @@ import Views
   func recoverItem(dataService: DataService, itemID: String) {
     Task {
       if await dataService.recoverItem(itemID: itemID) {
-        Snackbar.show(message: "Item recovered")
+        snackbar("Item recovered")
       } else {
-        Snackbar.show(message: "Error. Check trash to recover.")
+        snackbar("Error. Check trash to recover.")
       }
     }
   }
@@ -398,7 +406,7 @@ import Views
       )
 
       if let message = successMessage {
-        Snackbar.show(message: message)
+        snackbar(message)
       }
     } catch {
       NSNotification.operationFailed(message: "Failed to snooze")

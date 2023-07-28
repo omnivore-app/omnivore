@@ -38,6 +38,7 @@ public struct LibraryItemCard: View {
     }
     .padding(.bottom, 5)
     .draggableItem(item: item)
+    .dynamicTypeSize(.xSmall ... .accessibility1)
   }
 
   var isFullyRead: Bool {
@@ -126,22 +127,22 @@ public struct LibraryItemCard: View {
     AnyView(HStack {
       let fgcolor = Color.isDarkMode ? Color.themeDarkWhiteGray : Color.themeMiddleGray
       Text("\(estimatedReadingTime)")
-        .font(Font.system(size: 11, weight: .medium))
+        .font(.caption2).fontWeight(.medium)
         .foregroundColor(fgcolor)
 
         +
         Text("\(readingProgress)")
-        .font(Font.system(size: 11, weight: .medium))
+        .font(.caption2).fontWeight(.medium)
         .foregroundColor(isPartiallyRead ? Color.appGreenSuccess : fgcolor)
 
         +
         Text("\(highlightsText)")
-        .font(Font.system(size: 11, weight: .medium))
+        .font(.caption2).fontWeight(.medium)
         .foregroundColor(fgcolor)
 
         +
         Text("\(notesText)")
-        .font(Font.system(size: 11, weight: .medium))
+        .font(.caption2).fontWeight(.medium)
         .foregroundColor(fgcolor)
     }
     .frame(maxWidth: .infinity, alignment: .leading))
@@ -183,7 +184,7 @@ public struct LibraryItemCard: View {
 
   var byLine: some View {
     Text(bylineStr)
-      .font(Font.system(size: 11, weight: .regular))
+      .font(.caption2)
       .foregroundColor(Color.isDarkMode ? Color.themeLightGray : Color.themeLightestGray)
       .frame(maxWidth: .infinity, alignment: .leading)
       .lineLimit(1)
@@ -192,9 +193,10 @@ public struct LibraryItemCard: View {
   public var articleInfo: some View {
     VStack(alignment: .leading, spacing: 5) {
       readInfo
+        .dynamicTypeSize(.xSmall ... .medium)
 
       Text(item.unwrappedTitle)
-        .font(Font.system(size: 14, weight: .semibold))
+        .font(.body).fontWeight(.semibold)
         .lineSpacing(1.25)
         .foregroundColor(.appGrayTextContrast)
         .fixedSize(horizontal: false, vertical: true)
