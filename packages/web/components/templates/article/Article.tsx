@@ -223,7 +223,7 @@ export function Article(props: ArticleProps): JSX.Element {
     <>
       <link
         rel="stylesheet"
-        href={`https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/${highlightTheme}.min.css`}
+        href={`/static/highlightjs/${highlightTheme}.min.css`}
       />
       <Box
         ref={articleContentRef}
