@@ -223,7 +223,7 @@ export const searchHighlights = async (
       ],
     }
 
-    logger.info('searching highlights in elastic', JSON.stringify(searchBody))
+    logger.info('searching highlights in elastic', searchBody)
 
     const response = await client.search<SearchResponse<Page>>({
       index: INDEX_ALIAS,

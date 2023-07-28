@@ -169,7 +169,7 @@ export default function Rss(): JSX.Element {
                 </StyledText>
               }
               onClick={() => {
-                router.push(`/home?q=rss:"${subscription.url}"`)
+                router.push(`/home?q=in:inbox rss:"${subscription.url}"`)
               }}
             />
           )

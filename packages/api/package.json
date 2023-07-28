@@ -59,6 +59,7 @@
     "express": "^4.17.1",
     "express-http-context2": "^1.0.0",
     "express-rate-limit": "^6.3.0",
+    "fast-safe-stringify": "^2.1.1",
     "firebase-admin": "^11.5.0",
     "googleapis": "^105.0.0",
     "graphql": "^15.3.0",
