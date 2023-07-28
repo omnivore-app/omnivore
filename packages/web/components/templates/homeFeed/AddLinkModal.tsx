@@ -101,7 +101,7 @@ export function AddLinkModal(props: AddLinkModalProps): JSX.Element {
               }}
             >
               <FormInput
-                type="text"
+                type="url"
                 value={link}
                 autoFocus
                 placeholder="https://example.com"
