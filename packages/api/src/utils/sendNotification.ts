@@ -59,9 +59,9 @@ export const sendMulticastPushNotifications = async (
       },
     })
 
-    logger.info('sending multicast message: ', JSON.stringify(message))
+    logger.info('sending multicast message: ', message)
     const res = await getMessaging().sendMulticast(message)
-    logger.info('send notification result: ', JSON.stringify(res.responses))
+    logger.info('send notification result: ', res.responses)
 
     return res
   } catch (err) {

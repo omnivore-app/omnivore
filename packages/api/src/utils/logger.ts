@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 import { LoggingWinston } from '@google-cloud/logging-winston'
+import jsonStringify from 'fast-safe-stringify'
 import { cloneDeep, isArray, isObject, isString, truncate } from 'lodash'
 import { DateTime } from 'luxon'
 import {
@@ -83,7 +84,9 @@ function localConfig(id: string): ConsoleTransportOptions {
         const { timestamp, message, level, ...meta } = info
 
         return `[${id}@${info.timestamp}] ${info.message}${
-          Object.keys(meta).length ? '\n' + JSON.stringify(meta, null, 4) : ''
+          Object.keys(meta).length
+            ? '\n' + jsonStringify(meta, undefined, 4)
+            : ''
         }`
       })
     ),
@@ -120,7 +123,7 @@ const truncateObjectDeep = (object: any, length: number): any => {
 
 class GcpLoggingTransport extends LoggingWinston {
   log(info: any, callback: (err: Error | null, apiResponse?: any) => void) {
-    const sizeInfo = JSON.stringify(info).length
+    const sizeInfo = jsonStringify(info).length
     if (sizeInfo > 250000) {
       info = truncateObjectDeep(info, 5000) as never // the max length for string values is 5000
     }

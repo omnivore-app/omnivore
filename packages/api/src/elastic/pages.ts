@@ -421,7 +421,7 @@ export const createPage = async (
 
     return page.id
   } catch (e) {
-    logger.error('failed to create a page in elastic', JSON.stringify(e))
+    logger.error('failed to create a page in elastic', e)
     return undefined
   }
 }
@@ -665,7 +665,7 @@ export const searchPages = async (
       })
       .build()
 
-    logger.info('searching pages in elastic', JSON.stringify(body))
+    logger.info('searching pages in elastic', body)
     const response = await client.search<SearchResponse<Page>, BuiltQuery>({
       index: INDEX_ALIAS,
       body,
@@ -904,7 +904,7 @@ export const updatePages = async (
     .rawOption('script', updatedScript)
     .build()
 
-  logger.info('updating pages in elastic', JSON.stringify(searchBody))
+  logger.info('updating pages in elastic', searchBody)
 
   try {
     const { body } = await client.updateByQuery({

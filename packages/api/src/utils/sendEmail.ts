@@ -45,7 +45,7 @@ export const sendEmail = async (msg: MailDataRequired): Promise<boolean> => {
   } catch (error) {
     const err = asSendGridError(error)
     if (err) {
-      logger.error('sendgrid error:', JSON.stringify(err.response?.body))
+      logger.error('sendgrid error:', err.response?.body)
     } else {
       logger.error('error sending email', error)
     }
