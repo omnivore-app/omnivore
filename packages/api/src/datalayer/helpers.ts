@@ -11,7 +11,7 @@ import { snakeCase } from 'snake-case'
 import { buildLogger } from '../utils/logger'
 import { SetClaimsRole } from '../utils/dictionary'
 
-const logger = buildLogger('datalayer')
+export const logger = buildLogger('datalayer')
 
 export const setClaims = async (
   tx: Knex.Transaction,

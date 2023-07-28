@@ -4,6 +4,7 @@ import { StatusType } from '../../../datalayer/user/model'
 import { getUserByEmail } from '../../../services/create_user'
 import { sendConfirmationEmail } from '../../../services/send_emails'
 import { comparePassword } from '../../../utils/auth'
+import { logger } from '../../../utils/logger'
 import { decodeAppleToken } from '../apple_auth'
 import {
   AuthProvider,
@@ -31,7 +32,7 @@ export async function createMobileSignInResponse(
 
     throw new Error(`Missing or unsupported provider ${provider}`)
   } catch (e) {
-    console.log('createMobileSignInResponse error', e)
+    logger.error('createMobileSignInResponse error', e)
     return authFailedPayload
   }
 }
@@ -74,7 +75,7 @@ export async function createMobileEmailSignInResponse(
       json: mobileAuthPayload,
     }
   } catch (e) {
-    console.log('createMobileEmailSignInResponse failed for user', {
+    logger.error('createMobileEmailSignInResponse failed for user', {
       email,
       error: e,
     })
@@ -117,7 +118,7 @@ async function createAuthResponsePayload(
       json: mobileAuthPayload,
     }
   } catch (e) {
-    console.log('createAuthResponsePayload error', {
+    logger.error('createAuthResponsePayload error', {
       error: e,
       email: decodedTokenResult.email,
     })

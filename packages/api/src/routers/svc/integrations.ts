@@ -13,7 +13,7 @@ import { getRepository } from '../../entity/utils'
 import { Claims } from '../../resolvers/types'
 import { getIntegrationService } from '../../services/integrations'
 import { getClaimsByToken } from '../../utils/auth'
-import { buildLogger } from '../../utils/logger'
+import { logger } from '../../utils/logger'
 import { DateFilter } from '../../utils/search'
 import { createGCSFile } from '../../utils/uploads'
 
@@ -31,8 +31,6 @@ interface ImportEvent {
 
 const isImportEvent = (event: any): event is ImportEvent =>
   'integrationId' in event
-
-const logger = buildLogger('app.dispatch')
 
 export function integrationsServiceRouter() {
   const router = express.Router()

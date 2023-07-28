@@ -3,7 +3,6 @@ import { BuiltQuery, ESBuilder, esBuilder } from 'elastic-ts'
 import { EntityType } from '../datalayer/pubsub'
 import { BulkActionType } from '../generated/graphql'
 import { wordsCount } from '../utils/helpers'
-import { buildLogger } from '../utils/logger'
 import {
   DateFilter,
   FieldFilter,
@@ -16,7 +15,7 @@ import {
   SortBy,
   SortOrder,
 } from '../utils/search'
-import { client, INDEX_ALIAS } from './index'
+import { client, INDEX_ALIAS, logger } from './index'
 import {
   ArticleSavingRequestStatus,
   Label,
@@ -27,8 +26,6 @@ import {
   ParamSet,
   SearchResponse,
 } from './types'
-
-const logger = buildLogger('elasticsearch')
 
 const appendQuery = (builder: ESBuilder, query: string): ESBuilder => {
   interface Field {

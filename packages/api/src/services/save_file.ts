@@ -1,6 +1,7 @@
 import { Knex } from 'knex'
 import { PubsubClient } from '../datalayer/pubsub'
 import { UserData } from '../datalayer/user/model'
+import { updatePage } from '../elastic/pages'
 import { homePageURL } from '../env'
 import {
   ArticleSavingRequestStatus,
@@ -9,9 +10,9 @@ import {
   SaveResult,
 } from '../generated/graphql'
 import { DataModels } from '../resolvers/types'
-import { createLabels } from './labels'
-import { updatePage } from '../elastic/pages'
+import { logger } from '../utils/logger'
 import { getStorageFileDetails } from '../utils/uploads'
+import { createLabels } from './labels'
 
 type SaveContext = {
   pubsub: PubsubClient
@@ -28,7 +29,7 @@ export const saveFile = async (
   saver: UserData,
   input: SaveFileInput
 ): Promise<SaveResult> => {
-  console.log('saving file with input', input)
+  logger.info('saving file with input', input)
   const pageId = input.clientRequestId
   const uploadFile = await ctx.models.uploadFile.getWhere({
     id: input.uploadFileId,
@@ -70,7 +71,7 @@ export const saveFile = async (
       ctx
     )
     if (!updated) {
-      console.log('error updating page', pageId)
+      logger.info('error updating page', pageId)
       return {
         errorCodes: [SaveErrorCode.Unknown],
       }

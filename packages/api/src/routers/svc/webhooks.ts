@@ -1,14 +1,12 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+import axios, { Method } from 'axios'
 import express from 'express'
 import { readPushSubscription } from '../../datalayer/pubsub'
 import { getRepository } from '../../entity/utils'
 import { Webhook } from '../../entity/webhook'
-import axios, { Method } from 'axios'
-import { buildLogger } from '../../utils/logger'
-
-const logger = buildLogger('app.dispatch')
+import { logger } from '../../utils/logger'
 
 export function webhooksServiceRouter() {
   const router = express.Router()
@@ -68,14 +66,22 @@ export function webhooksServiceRouter() {
         })
 
         logger.info('triggering webhook', url)
-        await axios.request({
-          url,
-          method,
-          headers: {
-            'Content-Type': webhook.contentType,
-          },
-          data: body,
-        })
+        try {
+          await axios.request({
+            url,
+            method,
+            headers: {
+              'Content-Type': webhook.contentType,
+            },
+            data: body,
+          })
+        } catch (error) {
+          if (axios.isAxiosError(error)) {
+            logger.error(error.response)
+          } else {
+            logger.error(error)
+          }
+        }
       }
 
       res.status(200).send('OK')

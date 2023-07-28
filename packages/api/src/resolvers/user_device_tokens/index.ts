@@ -1,4 +1,7 @@
-import { authorized } from '../../utils/helpers'
+import { DatabaseError } from 'pg'
+import { QueryFailedError } from 'typeorm'
+import { UserDeviceToken } from '../../entity/user_device_tokens'
+import { env } from '../../env'
 import {
   DeviceToken,
   DeviceTokensError,
@@ -9,8 +12,6 @@ import {
   SetDeviceTokenErrorCode,
   SetDeviceTokenSuccess,
 } from '../../generated/graphql'
-import { analytics } from '../../utils/analytics'
-import { env } from '../../env'
 import {
   createDeviceToken,
   deleteDeviceToken,
@@ -18,9 +19,8 @@ import {
   getDeviceTokenByToken,
   getDeviceTokensByUserId,
 } from '../../services/user_device_tokens'
-import { UserDeviceToken } from '../../entity/user_device_tokens'
-import { QueryFailedError } from 'typeorm'
-import { DatabaseError } from 'pg'
+import { analytics } from '../../utils/analytics'
+import { authorized } from '../../utils/helpers'
 
 const PG_UNIQUE_CONSTRAINT_VIOLATION = '23505'
 
@@ -29,12 +29,12 @@ export const setDeviceTokenResolver = authorized<
   SetDeviceTokenError,
   MutationSetDeviceTokenArgs
 >(async (_parent, { input }, { claims: { uid }, log }) => {
-  console.log('setDeviceTokenResolver', input)
+  log.info('setDeviceTokenResolver', input)
 
   const { id, token } = input
 
   if (!id && !token) {
-    console.log('id or token is required')
+    log.info('id or token is required')
 
     return {
       errorCodes: [SetDeviceTokenErrorCode.BadRequest],
@@ -140,7 +140,7 @@ export const deviceTokensResolver = authorized<
     })
 
     const deviceTokens = await getDeviceTokensByUserId(uid)
-    console.log('deviceTokens', deviceTokens)
+    log.info('deviceTokens', deviceTokens)
 
     return {
       deviceTokens: deviceTokens.map(deviceTokenToData),

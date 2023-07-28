@@ -22,12 +22,10 @@ import {
   validatedDate,
   wordsCount,
 } from '../utils/helpers'
-import { buildLogger } from '../utils/logger'
+import { logger } from '../utils/logger'
 import { parsePreparedContent } from '../utils/parser'
 import { createPageSaveRequest } from './create_page_save_request'
 import { createLabels } from './labels'
-
-const logger = buildLogger('app.dispatch')
 
 type SaveContext = {
   pubsub: PubsubClient

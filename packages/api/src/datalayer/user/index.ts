@@ -12,7 +12,12 @@ import {
 } from './model'
 import DataModel, { DataModelError, MAX_RECORDS_LIMIT } from '../model'
 import { Knex } from 'knex'
-import { ENABLE_DB_REQUEST_LOGGING, globalCounter, logMethod } from '../helpers'
+import {
+  ENABLE_DB_REQUEST_LOGGING,
+  globalCounter,
+  logMethod,
+  logger,
+} from '../helpers'
 import { Table } from '../../utils/dictionary'
 import DataLoader from 'dataloader'
 import { Partialize } from '../../util'
@@ -57,11 +62,11 @@ class UserModel extends DataModel<UserData, CreateSet, UpdateSet> {
           }
           const result = keys.map((key) => keyMap[key])
           if (result.length !== keys.length) {
-            console.error('DataModel error: count mismatch ', keys, result)
+            logger.error('DataModel error: count mismatch ', keys, result)
           }
           return result
         } catch (e) {
-          console.error('DataModel error: ', e)
+          logger.error('DataModel error: ', e)
           throw e
         }
       },

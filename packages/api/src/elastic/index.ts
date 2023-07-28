@@ -1,6 +1,7 @@
-import { env } from '../env'
 import { Client } from '@elastic/elasticsearch'
 import { readFileSync } from 'fs'
+import { env } from '../env'
+import { buildLogger } from '../utils/logger'
 
 export const INDEX_ALIAS = 'pages_alias'
 export const client = new Client({
@@ -13,6 +14,7 @@ export const client = new Client({
   },
 })
 const INDEX_NAME = 'pages'
+export const logger = buildLogger('elasticsearch')
 
 const createIndex = async (): Promise<void> => {
   // read index settings from file
@@ -31,22 +33,22 @@ const createIndex = async (): Promise<void> => {
 export const initElasticsearch = async (): Promise<void> => {
   try {
     const response = await client.info()
-    console.log('elastic info: ', response)
+    logger.info('elastic info: ', response)
 
     // check if index exists
     const { body: indexExists } = await client.indices.exists({
       index: INDEX_ALIAS,
     })
     if (!indexExists) {
-      console.log('creating index...')
+      logger.info('creating index...')
       await createIndex()
 
-      console.log('refreshing index...')
+      logger.info('refreshing index...')
       await refreshIndex()
     }
-    console.log('elastic client is ready')
+    logger.info('elastic client is ready')
   } catch (e) {
-    console.error('failed to init elasticsearch', e)
+    logger.error('failed to init elasticsearch', e)
     throw e
   }
 }
@@ -56,9 +58,9 @@ export const refreshIndex = async (): Promise<void> => {
     const { body } = await client.indices.refresh({
       index: INDEX_ALIAS,
     })
-    console.log('elastic refresh: ', body)
+    logger.info('elastic refresh: ', body)
   } catch (e) {
-    console.error('failed to refresh elastic index', e)
+    logger.error('failed to refresh elastic index', e)
     throw e
   }
 }

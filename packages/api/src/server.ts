@@ -51,7 +51,11 @@ import { userRouter } from './routers/user_router'
 import { sentryConfig } from './sentry'
 import { getClaimsByToken, getTokenByRequest } from './utils/auth'
 import { corsConfig } from './utils/corsConfig'
-import { buildLogger, buildLoggerTransport } from './utils/logger'
+import {
+  buildLogger,
+  buildLoggerTransport,
+  CustomTypeOrmLogger,
+} from './utils/logger'
 
 const PORT = process.env.PORT || 4000
 
@@ -80,6 +84,7 @@ export const AppDataSource = new DataSource({
   entities: [__dirname + '/entity/**/*{.js,.ts}'],
   subscribers: [__dirname + '/events/**/*{.js,.ts}'],
   namingStrategy: new SnakeNamingStrategy(),
+  logger: new CustomTypeOrmLogger(),
 })
 
 export const createApp = (): {

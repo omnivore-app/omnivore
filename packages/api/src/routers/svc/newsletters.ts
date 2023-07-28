@@ -16,9 +16,7 @@ import {
 import { saveUrlFromEmail } from '../../services/save_url'
 import { getSubscriptionByNameAndUserId } from '../../services/subscriptions'
 import { isUrl } from '../../utils/helpers'
-import { buildLogger } from '../../utils/logger'
-
-const logger = buildLogger('app.dispatch')
+import { logger } from '../../utils/logger'
 
 interface SetConfirmationCodeMessage {
   emailAddress: string

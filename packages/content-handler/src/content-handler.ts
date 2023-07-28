@@ -160,7 +160,7 @@ export abstract class ContentHandler {
     html,
     headers,
   }: NewsletterInput): Promise<NewsletterResult> {
-    console.log('handleNewsletter', from, to, subject, headers, from)
+    console.log('handleNewsletter', from, to, subject, headers)
 
     if (!from || !html || !subject || !to) {
       console.log('invalid newsletter email')

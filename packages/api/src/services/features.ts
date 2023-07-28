@@ -1,8 +1,9 @@
+import * as jwt from 'jsonwebtoken'
+import { IsNull, Not } from 'typeorm'
 import { Feature } from '../entity/feature'
 import { getRepository } from '../entity/utils'
-import * as jwt from 'jsonwebtoken'
 import { env } from '../env'
-import { IsNull, Not } from 'typeorm'
+import { logger } from '../utils/logger'
 
 export enum FeatureName {
   UltraRealisticVoice = 'ultra-realistic-voice',
@@ -33,7 +34,7 @@ const optInUltraRealisticVoice = async (uid: string): Promise<Feature> => {
   })
   if (feature) {
     // already opted in
-    console.log('already opted in')
+    logger.info('already opted in')
     return feature
   }
 
@@ -45,7 +46,7 @@ const optInUltraRealisticVoice = async (uid: string): Promise<Feature> => {
 
   let grantedAt: Date | null = new Date()
   if (count >= 1000) {
-    console.log('feature limit reached')
+    logger.info('feature limit reached')
     grantedAt = null
   }
 

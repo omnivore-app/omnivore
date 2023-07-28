@@ -5,9 +5,7 @@ import { Subscription } from '../../entity/subscription'
 import { getRepository } from '../../entity/utils'
 import { SubscriptionStatus, SubscriptionType } from '../../generated/graphql'
 import { enqueueRssFeedFetch } from '../../utils/createTask'
-import { buildLogger } from '../../utils/logger'
-
-const logger = buildLogger('app.dispatch')
+import { logger } from '../../utils/logger'
 
 export function rssFeedRouter() {
   const router = express.Router()

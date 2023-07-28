@@ -8,8 +8,8 @@ import { env } from '../env'
 import { ContentReader } from '../generated/graphql'
 import { analytics } from '../utils/analytics'
 import { isBase64Image } from '../utils/helpers'
+import { logger } from '../utils/logger'
 import { fetchFavicon } from '../utils/parser'
-import { sendMulticastPushNotifications } from '../utils/sendNotification'
 import { addLabelToPage } from './labels'
 import { SaveContext, saveEmail, SaveEmailInput } from './save_email'
 import { saveSubscription } from './subscriptions'
@@ -46,7 +46,7 @@ export const saveNewsletterEmail = async (
   })
 
   if (!data.content) {
-    console.log('newsletter not created, no content:', data.email)
+    logger.info('newsletter not created, no content:', data.email)
     return false
   }
 
@@ -64,7 +64,7 @@ export const saveNewsletterEmail = async (
   }
   const page = await saveEmail(saveCtx, input)
   if (!page) {
-    console.log('newsletter not created:', input.title)
+    logger.info('newsletter not created:', input.title)
 
     return false
   }
@@ -86,19 +86,19 @@ export const saveNewsletterEmail = async (
     unsubscribeHttpUrl: data.unsubHttpUrl,
     icon,
   })
-  console.log('subscription saved', subscriptionId)
+  logger.info('subscription saved', subscriptionId)
 
   // adds newsletters label to page
   const result = await addLabelToPage(saveCtx, page.id, {
     name: 'Newsletter',
     color: '#07D2D1',
   })
-  console.log('newsletter label added:', result)
+  logger.info('newsletter label added:', result)
 
   // sends push notification
   const deviceTokens = await getDeviceTokensByUserId(newsletterEmail.user.id)
   if (!deviceTokens) {
-    console.log('Device tokens not set:', newsletterEmail.user.id)
+    logger.info('Device tokens not set:', newsletterEmail.user.id)
     return true
   }
 
