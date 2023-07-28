@@ -141,6 +141,14 @@ export const savePage = async (
       url: articleToSave.url,
     })
     if (existingPage) {
+      // we don't want to update an rss feed page if rss-feeder is tring to re-save it
+      if (existingPage.rssFeedUrl === input.rssFeedUrl) {
+        return {
+          clientRequestId: pageId,
+          url: `${homePageURL()}/${saver.username}/${slug}`,
+        }
+      }
+
       pageId = existingPage.id
       slug = existingPage.slug
       if (
