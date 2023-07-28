@@ -76,11 +76,7 @@ function AppArticleEmbedContent(
     return (
       <Box>
         <Script async src="/static/scripts/mathJaxConfiguration.js" />
-        <Script
-          async
-          id="MathJax-script"
-          src="/public/static/tex-mml-chtml.js"
-        />
+        <Script async id="MathJax-script" src="/static/tex-mml-chtml.js" />
         <VStack
           alignment="center"
           distribution="center"

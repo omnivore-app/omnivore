@@ -396,11 +396,11 @@ export default function Home(): JSX.Element {
         description: article?.description ?? '',
       }}
     >
-      <Script async src="/public/static/mathjax/mathJaxConfiguration.js" />
+      <Script async src="/static/mathjax/mathJaxConfiguration.js" />
       <Script
         async
         id="MathJax-script"
-        src="/public/static/mathjax/tex-mml-chtml.js"
+        src="/static/mathjax/tex-mml-chtml.js"
       />
       <Toaster />
 
