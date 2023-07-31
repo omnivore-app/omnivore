@@ -40,9 +40,9 @@ private enum AppEnvironmentUserDefaultKey: String {
 
 public extension AppEnvironment {
   static func setCustom(serverBaseURL: String, webAppBaseURL: String, ttsBaseURL: String) {
-    UserDefaults.standard.set(serverBaseURL, forKey: AppEnvironmentUserDefaultKey.serverBaseURL.rawValue)
-    UserDefaults.standard.set(webAppBaseURL, forKey: AppEnvironmentUserDefaultKey.webAppBaseURL.rawValue)
-    UserDefaults.standard.set(ttsBaseURL, forKey: AppEnvironmentUserDefaultKey.ttsBaseURL.rawValue)
+    UserDefaults.standard.set(serverBaseURL.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines), forKey: AppEnvironmentUserDefaultKey.serverBaseURL.rawValue)
+    UserDefaults.standard.set(webAppBaseURL.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines), forKey: AppEnvironmentUserDefaultKey.webAppBaseURL.rawValue)
+    UserDefaults.standard.set(ttsBaseURL.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines), forKey: AppEnvironmentUserDefaultKey.ttsBaseURL.rawValue)
   }
 
   var graphqlPath: String {

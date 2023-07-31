@@ -39,16 +39,22 @@
         Section("API Server Base URL") {
           TextField("URL", text: $apiServerAddress, prompt: Text("https://api-prod.omnivore.app"))
             .keyboardType(.URL)
+            .autocorrectionDisabled(true)
+            .textInputAutocapitalization(.never)
         }
 
         Section("Web Server URL") {
           TextField("URL", text: $webServerAddress, prompt: Text("https://omnivore.app"))
             .keyboardType(.URL)
+            .autocorrectionDisabled(true)
+            .textInputAutocapitalization(.never)
         }
 
         Section("Text-to-speech Server URL") {
           TextField("URL", text: $ttsServerAddress, prompt: Text("https://tts.omnivore.app"))
             .keyboardType(.URL)
+            .autocorrectionDisabled(true)
+            .textInputAutocapitalization(.never)
         }
 
         Section {
