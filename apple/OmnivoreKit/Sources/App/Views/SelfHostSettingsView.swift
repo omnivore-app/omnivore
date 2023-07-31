@@ -10,9 +10,9 @@
   }
 
   struct SelfHostSettingsView: View {
-    @State var apiServerAddress = ""
-    @State var webServerAddress = ""
-    @State var ttsServerAddress = ""
+    @State var apiServerAddress = UserDefaults.standard.string(forKey: AppEnvironmentUserDefaultKey.serverBaseURL.rawValue) ?? ""
+    @State var webServerAddress = UserDefaults.standard.string(forKey: AppEnvironmentUserDefaultKey.webAppBaseURL.rawValue) ?? ""
+    @State var ttsServerAddress = UserDefaults.standard.string(forKey: AppEnvironmentUserDefaultKey.ttsBaseURL.rawValue) ?? ""
 
     @State var showConfirmAlert = false
 

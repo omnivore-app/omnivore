@@ -32,7 +32,7 @@ private let devWebURL = "https://web-dev.omnivore.app"
 private let demoWebURL = "https://demo.omnivore.app"
 private let prodWebURL = "https://omnivore.app"
 
-private enum AppEnvironmentUserDefaultKey: String {
+public enum AppEnvironmentUserDefaultKey: String {
   case serverBaseURL = "AppEnvironment_serverBaseURL"
   case webAppBaseURL = "AppEnvironment_webAppBaseURL"
   case ttsBaseURL = "AppEnvironment_ttsBaseURL"
@@ -40,9 +40,18 @@ private enum AppEnvironmentUserDefaultKey: String {
 
 public extension AppEnvironment {
   static func setCustom(serverBaseURL: String, webAppBaseURL: String, ttsBaseURL: String) {
-    UserDefaults.standard.set(serverBaseURL.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines), forKey: AppEnvironmentUserDefaultKey.serverBaseURL.rawValue)
-    UserDefaults.standard.set(webAppBaseURL.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines), forKey: AppEnvironmentUserDefaultKey.webAppBaseURL.rawValue)
-    UserDefaults.standard.set(ttsBaseURL.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines), forKey: AppEnvironmentUserDefaultKey.ttsBaseURL.rawValue)
+    UserDefaults.standard.set(
+      serverBaseURL.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines),
+      forKey: AppEnvironmentUserDefaultKey.serverBaseURL.rawValue
+    )
+    UserDefaults.standard.set(
+      webAppBaseURL.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines),
+      forKey: AppEnvironmentUserDefaultKey.webAppBaseURL.rawValue
+    )
+    UserDefaults.standard.set(
+      ttsBaseURL.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines),
+      forKey: AppEnvironmentUserDefaultKey.ttsBaseURL.rawValue
+    )
   }
 
   var graphqlPath: String {
