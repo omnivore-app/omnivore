@@ -69,7 +69,7 @@ export const AuthorInfoStyle = {
   overflow: 'hidden',
   height: '21px',
   color: '$thTextSubtle3',
-  fontSize: '13px',
+  fontSize: '12px',
   fontWeight: '400',
   fontFamily: '$display',
 }

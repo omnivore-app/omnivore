@@ -180,6 +180,7 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
           minHeight: '35px',
           pt: '15px',
           px: '15px',
+          color: '$grayText',
         }}
         distribution="start"
       >
