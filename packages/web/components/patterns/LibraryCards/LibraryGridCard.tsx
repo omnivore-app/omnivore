@@ -73,6 +73,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
       offset({
         mainAxis: -25,
       }),
+
       size(),
     ],
     placement: 'top-end',
@@ -100,7 +101,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
         borderColor: '$thBorderColor',
         cursor: 'pointer',
         '@media (max-width: 930px)': {
-          m: '0px',
+          m: '15px',
           width: 'calc(100% - 30px)',
         },
       }}
@@ -120,7 +121,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
           {!isTouchScreenDevice() && (
             <Box
               ref={refs.setFloating}
-              style={floatingStyles}
+              style={{ ...floatingStyles, zIndex: 10 }}
               {...getFloatingProps()}
             >
               <LibraryHoverActions
@@ -159,21 +160,56 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
   }, [setIsChecked, isChecked])
 
   return (
-    <VStack css={{ p: '0px', m: '0px' }}>
-      <CoverImage
-        src={props.item.image}
-        alt="Link Preview Image"
-        width="100%"
-        height={100}
-        css={{
-          borderRadius: '0px',
-          borderTopLeftRadius: '5px',
-          borderTopRightRadius: '5px',
-        }}
-        onError={(e) => {
-          ;(e.target as HTMLElement).style.display = 'none'
-        }}
-      />
+    <VStack css={{ p: '0px', m: '0px', width: '100%' }}>
+      <Box css={{ position: 'relative', width: '100%' }}>
+        <CoverImage
+          src={props.item.image}
+          alt="Link Preview Image"
+          width="100%"
+          height={100}
+          css={{
+            borderRadius: '0px',
+            borderTopLeftRadius: '5px',
+            borderTopRightRadius: '5px',
+          }}
+          onError={(e) => {
+            ;(e.target as HTMLElement).style.display = 'none'
+          }}
+        />
+        {/* {props.inMultiSelect ? (
+        <SpanBox css={{ marginLeft: 'auto' }}>
+          <CardCheckbox
+            isChecked={props.isChecked}
+            handleChanged={handleCheckChanged}
+          />
+        </SpanBox>
+      ) : ( */}
+        <Box
+          css={{
+            ...MenuStyle,
+            position: 'absolute',
+            top: 0,
+            right: 0,
+            m: '10px',
+            visibility: menuOpen ? 'visible' : 'hidden',
+            '@media (hover: none)': {
+              visibility: 'unset',
+            },
+          }}
+        >
+          <CardMenu
+            item={props.item}
+            viewer={props.viewer}
+            onOpenChange={(open) => setMenuOpen(open)}
+            actionHandler={props.handleAction}
+            triggerElement={
+              <DotsThree size={25} weight="bold" color="#ADADAD" />
+            }
+          />
+        </Box>
+      </Box>
+
+      {/* )} */}
       <HStack
         css={{
           ...MetaStyle,
@@ -185,34 +221,6 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
         distribution="start"
       >
         <LibraryItemMetadata item={props.item} />
-        {props.inMultiSelect ? (
-          <SpanBox css={{ marginLeft: 'auto' }}>
-            <CardCheckbox
-              isChecked={props.isChecked}
-              handleChanged={handleCheckChanged}
-            />
-          </SpanBox>
-        ) : (
-          <Box
-            css={{
-              ...MenuStyle,
-              visibility: menuOpen ? 'visible' : 'hidden',
-              '@media (hover: none)': {
-                visibility: 'unset',
-              },
-            }}
-          >
-            <CardMenu
-              item={props.item}
-              viewer={props.viewer}
-              onOpenChange={(open) => setMenuOpen(open)}
-              actionHandler={props.handleAction}
-              triggerElement={
-                <DotsThree size={25} weight="bold" color="#ADADAD" />
-              }
-            />
-          </Box>
-        )}
       </HStack>
 
       <VStack
