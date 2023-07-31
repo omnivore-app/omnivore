@@ -88,8 +88,8 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
       ref={refs.setReference}
       {...getReferenceProps()}
       css={{
-        pl: '20px',
-        padding: '15px',
+        pl: '0px',
+        padding: '0px',
         width: '320px',
         height: '100%',
         minHeight: '270px',
@@ -100,7 +100,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
         borderColor: '$thBorderColor',
         cursor: 'pointer',
         '@media (max-width: 930px)': {
-          m: '15px',
+          m: '0px',
           width: 'calc(100% - 30px)',
         },
       }}
@@ -159,11 +159,27 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
   }, [setIsChecked, isChecked])
 
   return (
-    <>
+    <VStack css={{ p: '0px', m: '0px' }}>
+      <CoverImage
+        src={props.item.image}
+        alt="Link Preview Image"
+        width="100%"
+        height={100}
+        css={{
+          borderRadius: '0px',
+          borderTopLeftRadius: '5px',
+          borderTopRightRadius: '5px',
+        }}
+        onError={(e) => {
+          ;(e.target as HTMLElement).style.display = 'none'
+        }}
+      />
       <HStack
         css={{
           ...MetaStyle,
           minHeight: '35px',
+          pt: '15px',
+          px: '15px',
         }}
         distribution="start"
       >
@@ -201,7 +217,7 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
       <VStack
         alignment="start"
         distribution="start"
-        css={{ height: '100%', width: '100%' }}
+        css={{ height: '100%', width: '100%', px: '15px', pt: '10px' }}
       >
         <Box
           css={{
@@ -211,32 +227,16 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
         >
           {props.item.title}
         </Box>
-        <Box css={DescriptionStyle}>{props.item.description}</Box>
         <SpanBox
           css={{
             ...AuthorInfoStyle,
-            mt: '10px',
+            mt: '0px',
+            mb: '20px',
           }}
         >
           {props.item.author}
           {props.item.author && originText && ' | '}
           <SpanBox css={{ textDecoration: 'underline' }}>{originText}</SpanBox>
-        </SpanBox>
-        <SpanBox
-          css={{
-            pt: '20px',
-            pr: '10px',
-            pb: '20px',
-            width: '100%',
-            m: '0px',
-          }}
-        >
-          <ProgressBar
-            fillPercentage={props.item.readingProgressPercent}
-            fillColor="$thProgressFg"
-            backgroundColor="$thBorderSubtle"
-            borderRadius="5px"
-          />
         </SpanBox>
 
         <HStack
@@ -254,31 +254,8 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
               <LabelChip key={index} text={name || ''} color={color} />
             ))}
           </HStack>
-          <VStack
-            css={{
-              width: '80px',
-              height: '100%',
-              marginLeft: 'auto',
-              flexGrow: '1',
-            }}
-            alignment="end"
-            distribution="end"
-          >
-            {props.item.image && (
-              <CoverImage
-                src={props.item.image}
-                alt="Link Preview Image"
-                width={50}
-                height={50}
-                css={{ borderRadius: '8px' }}
-                onError={(e) => {
-                  ;(e.target as HTMLElement).style.display = 'none'
-                }}
-              />
-            )}
-          </VStack>
         </HStack>
       </VStack>
-    </>
+    </VStack>
   )
 }
