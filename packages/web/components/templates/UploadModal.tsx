@@ -19,6 +19,7 @@ import {
   UploadImportFileType,
   uploadImportFileRequestMutation,
 } from '../../lib/networking/mutations/uploadImportFileMutation'
+import Papa from 'papaparse'
 
 const DragnDropContainer = styled('div', {
   width: '100%',
@@ -85,6 +86,13 @@ type UploadingFile = {
   status: 'inprogress' | 'success' | 'error'
   openUrl: string | undefined
   contentType: string
+  message?: string
+}
+
+type UploadInfo = {
+  uploadSignedUrl?: string
+  requestId?: string
+  message?: string
 }
 
 export function UploadModal(props: UploadModalProps): JSX.Element {
@@ -111,21 +119,56 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
     [dropzoneRef]
   )
 
-  const uploadSignedUrlForFile = async (file: UploadingFile) => {
+  const uploadSignedUrlForFile = async (
+    file: UploadingFile
+  ): Promise<UploadInfo> => {
     switch (file.contentType) {
       case 'text/csv': {
+        const { urlCount, invalidCount } = (await new Promise((resolve) => {
+          let urlCount = 0
+          let invalidCount = 0
+
+          Papa.parse(file.file, {
+            step: function (row, parser) {
+              console.log('row: ', row)
+              if (Array.isArray(row.data)) {
+                try {
+                  if (row.data[0].trim().length < 1) {
+                    return
+                  }
+
+                  const url = new URL(row.data[0])
+                  urlCount = urlCount + 1
+                } catch (err) {
+                  invalidCount = invalidCount + 1
+                }
+              }
+            },
+            complete: (results) => {
+              resolve({ urlCount, invalidCount })
+            },
+          })
+        })) as { urlCount: number; invalidCount: number }
         const result = await uploadImportFileRequestMutation(
           UploadImportFileType.URL_LIST,
           file.contentType
         )
-        return [result?.uploadSignedUrl, undefined]
+        return {
+          uploadSignedUrl: result?.uploadSignedUrl,
+          message:
+            invalidCount > 0
+              ? `Importing ${urlCount} URLs (${invalidCount} invalid)`
+              : `Importing ${urlCount} URLs`,
+        }
       }
       case 'application/zip': {
         const result = await uploadImportFileRequestMutation(
           UploadImportFileType.MATTER,
           file.contentType
         )
-        return [result?.uploadSignedUrl, undefined]
+        return {
+          uploadSignedUrl: result?.uploadSignedUrl,
+        }
       }
       case 'application/pdf':
       case 'application/epub+zip': {
@@ -136,10 +179,13 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
           contentType: file.contentType,
           createPageEntry: true,
         })
-        return [request?.uploadSignedUrl, request?.createdPageId]
+        return {
+          uploadSignedUrl: request?.uploadSignedUrl,
+          requestId: request?.createdPageId,
+        }
       }
     }
-    return [undefined, undefined]
+    return {}
   }
 
   const handleAcceptedFiles = useCallback(
@@ -166,17 +212,15 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
         for (const file of addedFiles) {
           try {
             console.log('using content type: ', file.file.type)
-            const [uploadSignedUrl, requestId] = await uploadSignedUrlForFile(
-              file
-            )
-            if (!uploadSignedUrl) {
+            const uploadInfo = await uploadSignedUrlForFile(file)
+            if (!uploadInfo.uploadSignedUrl) {
               showErrorToast('No upload URL available')
               return
             }
 
             const uploadResult = await axios.request({
               method: 'PUT',
-              url: uploadSignedUrl,
+              url: uploadInfo.uploadSignedUrl,
               data: file.file,
               withCredentials: false,
               headers: {
@@ -196,7 +240,10 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
 
             file.progress = 100
             file.status = 'success'
-            file.openUrl = requestId ? `/article/sr/${requestId}` : undefined
+            file.openUrl = uploadInfo.requestId
+              ? `/article/sr/${uploadInfo.requestId}`
+              : undefined
+            file.message = uploadInfo.message
 
             setUploadFiles([...allFiles])
           } catch (error) {
@@ -316,7 +363,6 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
                   </DragnDropStyle>
                   <VStack css={{ width: '100%', mt: '25px', gap: '5px' }}>
                     {uploadFiles.map((file) => {
-                      console.log('fileL ', file.name, file)
                       return (
                         <HStack
                           key={file.id}
@@ -355,7 +401,9 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
                                 <a href={file.openUrl}>Read Now</a>
                               )}
                               {file.status == 'success' && !file.openUrl && (
-                                <span>Your import has started</span>
+                                <span>
+                                  {file.message || 'Your import has started'}
+                                </span>
                               )}
                               {file.status == 'error' && (
                                 <SpanBox css={{ color: 'red' }}>
