@@ -6,7 +6,6 @@ const ContentSecurityPolicy = `
   form-action 'self' ${process.env.NEXT_PUBLIC_SERVER_BASE_URL} https://getpocket.com/auth/authorize https://intercom.help https://api-iam.intercom.io https://api-iam.eu.intercom.io https://api-iam.au.intercom.io;
   frame-ancestors 'none';
   frame-src self accounts.google.com platform.twitter.com www.youtube.com www.youtube-nocookie.com;
-  manifest-src 'self';
   script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com https://app.intercom.io https://widget.intercom.io https://js.intercomcdn.com https://platform.twitter.com https://cdn.jsdelivr.net https://cdn.segment.com;
   style-src 'self' 'unsafe-inline' accounts.google.com ;
   img-src 'self' blob: data: https:;
