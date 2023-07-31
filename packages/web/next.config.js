@@ -39,19 +39,19 @@ const moduleExports = {
       destination: `https://api-${process.env.NEXT_PUBLIC_APP_ENV}.omnivore.app/api/mobile-auth/:path*`,
     },
   ],
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'Content-Security-Policy',
-            value: ContentSecurityPolicy.replace(/\s{2,}/g, ' ').trim(),
-          },
-        ],
-      },
-    ]
-  },
+  // async headers() {
+  //   return [
+  //     {
+  //       source: '/(.*)',
+  //       headers: [
+  //         {
+  //           key: 'Content-Security-Policy',
+  //           value: ContentSecurityPolicy.replace(/\s{2,}/g, ' ').trim(),
+  //         },
+  //       ],
+  //     },
+  //   ]
+  // },
   async redirects() {
     return [
       {
