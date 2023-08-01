@@ -17,7 +17,7 @@ export class ListViewIcon extends React.Component<IconProps> {
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        <g clipPath="url(#clip0_4720_16462)">
+        <g>
           <path
             d="M14.2261 5.89258H22.5594"
             stroke={color}
@@ -61,16 +61,6 @@ export class ListViewIcon extends React.Component<IconProps> {
             strokeLinejoin="round"
           />
         </g>
-        <defs>
-          <clipPath id="clip0_4720_16462">
-            <rect
-              width="25"
-              height="25"
-              fill={color}
-              transform="translate(0.68457 0.683594)"
-            />
-          </clipPath>
-        </defs>
       </svg>
     )
   }

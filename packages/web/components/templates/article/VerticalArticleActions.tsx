@@ -37,6 +37,7 @@ export function VerticalArticleActionsMenu(
         }}
       >
         <Button
+          title="Edit labels (l)"
           style="articleActionIcon"
           onClick={() => props.articleActionHandler('setLabels')}
           css={{
@@ -51,6 +52,7 @@ export function VerticalArticleActionsMenu(
         </Button>
 
         <Button
+          title="Open Notebook (t)"
           style="articleActionIcon"
           onClick={() => props.articleActionHandler('showHighlights')}
           css={{
@@ -61,18 +63,14 @@ export function VerticalArticleActionsMenu(
             },
           }}
         >
-          <TooltipWrapped
-            tooltipContent="Open Notebook (t)"
-            tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
-          >
-            <NotebookIcon
-              size={24}
-              color={theme.colors.thHighContrast.toString()}
-            />
-          </TooltipWrapped>
+          <NotebookIcon
+            size={24}
+            color={theme.colors.thHighContrast.toString()}
+          />
         </Button>
 
         <Button
+          title="Edit Info (i)"
           style="articleActionIcon"
           onClick={() => props.articleActionHandler('showEditModal')}
           css={{
@@ -83,18 +81,14 @@ export function VerticalArticleActionsMenu(
             },
           }}
         >
-          <TooltipWrapped
-            tooltipContent="Edit Info (i)"
-            tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
-          >
-            <EditInfoIcon
-              size={24}
-              color={theme.colors.thHighContrast.toString()}
-            />
-          </TooltipWrapped>
+          <EditInfoIcon
+            size={24}
+            color={theme.colors.thHighContrast.toString()}
+          />
         </Button>
 
         <Button
+          title="Remove (#)"
           style="articleActionIcon"
           onClick={() => {
             props.articleActionHandler('delete')
@@ -107,19 +101,12 @@ export function VerticalArticleActionsMenu(
             },
           }}
         >
-          <TooltipWrapped
-            tooltipContent="Remove (#)"
-            tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
-          >
-            <TrashIcon
-              size={24}
-              color={theme.colors.thHighContrast.toString()}
-            />
-          </TooltipWrapped>
+          <TrashIcon size={24} color={theme.colors.thHighContrast.toString()} />
         </Button>
 
         {!props.article?.isArchived ? (
           <Button
+            title="Archive (e)"
             style="articleActionIcon"
             onClick={() => props.articleActionHandler('archive')}
             css={{
@@ -130,18 +117,14 @@ export function VerticalArticleActionsMenu(
               },
             }}
           >
-            <TooltipWrapped
-              tooltipContent="Archive (e)"
-              tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
-            >
-              <ArchiveIcon
-                size={24}
-                color={theme.colors.thHighContrast.toString()}
-              />
-            </TooltipWrapped>
+            <ArchiveIcon
+              size={24}
+              color={theme.colors.thHighContrast.toString()}
+            />
           </Button>
         ) : (
           <Button
+            title="Unarchive (e)"
             style="articleActionIcon"
             onClick={() => props.articleActionHandler('unarchive')}
             css={{
@@ -152,18 +135,14 @@ export function VerticalArticleActionsMenu(
               },
             }}
           >
-            <TooltipWrapped
-              tooltipContent="Unarchive (e)"
-              tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
-            >
-              <UnarchiveIcon
-                size={24}
-                color={theme.colors.thHighContrast.toString()}
-              />
-            </TooltipWrapped>
+            <UnarchiveIcon
+              size={24}
+              color={theme.colors.thHighContrast.toString()}
+            />
           </Button>
         )}
         <Button
+          title="Edit Info (i)"
           style="articleActionIcon"
           onClick={() => props.articleActionHandler('editDisplaySettings')}
           css={{
@@ -171,15 +150,10 @@ export function VerticalArticleActionsMenu(
             alignItems: 'center',
           }}
         >
-          <TooltipWrapped
-            tooltipContent="Edit Info (i)"
-            tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
-          >
-            <ReaderSettingsIcon
-              size={24}
-              color={theme.colors.thHighContrast.toString()}
-            />
-          </TooltipWrapped>
+          <ReaderSettingsIcon
+            size={24}
+            color={theme.colors.thHighContrast.toString()}
+          />
         </Button>
 
         <ReaderDropdownMenu

@@ -17,7 +17,7 @@ export class LabelIcon extends React.Component<IconProps> {
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        <g clipPath="url(#clip0_4720_16410)">
+        <g>
           <path
             d="M9.09098 10.2786C9.66628 10.2786 10.1326 9.81228 10.1326 9.23698C10.1326 8.66168 9.66628 8.19531 9.09098 8.19531C8.51569 8.19531 8.04932 8.66168 8.04932 9.23698C8.04932 9.81228 8.51569 10.2786 9.09098 10.2786Z"
             fill={color}
@@ -34,16 +34,6 @@ export class LabelIcon extends React.Component<IconProps> {
             strokeLinejoin="round"
           />
         </g>
-        <defs>
-          <clipPath id="clip0_4720_16410">
-            <rect
-              width="25"
-              height="25"
-              fill={color}
-              transform="translate(0.236816 0.382812)"
-            />
-          </clipPath>
-        </defs>
       </svg>
     )
   }

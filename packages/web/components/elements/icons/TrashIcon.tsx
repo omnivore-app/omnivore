@@ -17,7 +17,7 @@ export class TrashIcon extends React.Component<IconProps> {
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        <g clipPath="url(#clip0_4720_16444)">
+        <g>
           <path
             d="M4.40332 7.67383H21.07"
             stroke={color}
@@ -54,16 +54,6 @@ export class TrashIcon extends React.Component<IconProps> {
             strokeLinejoin="round"
           />
         </g>
-        <defs>
-          <clipPath id="clip0_4720_16444">
-            <rect
-              width="25"
-              height="25"
-              fill={color}
-              transform="translate(0.236816 0.382812)"
-            />
-          </clipPath>
-        </defs>
       </svg>
     )
   }

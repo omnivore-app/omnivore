@@ -17,7 +17,7 @@ export class UnarchiveIcon extends React.Component<IconProps> {
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        <g clipPath="url(#clip0_4720_16399)">
+        <g>
           <path
             d="M8.56992 4.54883H20.0283C20.5808 4.54883 21.1107 4.76832 21.5014 5.15902C21.8921 5.54972 22.1116 6.07963 22.1116 6.63216C22.1116 7.1847 21.8921 7.7146 21.5014 8.1053C21.1107 8.496 20.5808 8.71549 20.0283 8.71549H12.7366M8.56992 8.71549H5.44493C4.96862 8.71578 4.5066 8.55284 4.13584 8.25383C3.76509 7.95483 3.50798 7.5378 3.40737 7.07225C3.30675 6.60669 3.3687 6.12071 3.5829 5.69529C3.79709 5.26986 4.15059 4.93068 4.58451 4.73424"
             stroke={color}
@@ -47,16 +47,6 @@ export class UnarchiveIcon extends React.Component<IconProps> {
             strokeLinejoin="round"
           />
         </g>
-        <defs>
-          <clipPath id="clip0_4720_16399">
-            <rect
-              width="25"
-              height="25"
-              fill="white"
-              transform="translate(0.236816 0.382812)"
-            />
-          </clipPath>
-        </defs>
       </svg>
     )
   }

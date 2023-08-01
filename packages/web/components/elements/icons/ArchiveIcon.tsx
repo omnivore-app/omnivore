@@ -17,7 +17,7 @@ export class ArchiveIcon extends React.Component<IconProps> {
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        <g clipPath="url(#clip0_4720_16388)">
+        <g>
           <path
             d="M3.36182 6.63216C3.36182 6.07963 3.58131 5.54972 3.97201 5.15902C4.36271 4.76832 4.89262 4.54883 5.44515 4.54883H20.0285C20.581 4.54883 21.1109 4.76832 21.5016 5.15902C21.8923 5.54972 22.1118 6.07963 22.1118 6.63216C22.1118 7.1847 21.8923 7.7146 21.5016 8.1053C21.1109 8.496 20.581 8.71549 20.0285 8.71549H5.44515C4.89262 8.71549 4.36271 8.496 3.97201 8.1053C3.58131 7.7146 3.36182 7.1847 3.36182 6.63216Z"
             stroke={color}
@@ -40,16 +40,6 @@ export class ArchiveIcon extends React.Component<IconProps> {
             strokeLinejoin="round"
           />
         </g>
-        <defs>
-          <clipPath id="clip0_4720_16388">
-            <rect
-              width="25"
-              height="25"
-              fill={color}
-              transform="translate(0.236816 0.382812)"
-            />
-          </clipPath>
-        </defs>
       </svg>
     )
   }

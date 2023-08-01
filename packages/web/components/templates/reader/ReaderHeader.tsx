@@ -105,17 +105,16 @@ function ControlButtonBox(props: ReaderHeaderProps): JSX.Element {
         }}
       >
         <Button
+          title="Reader Preferences (d)"
           style="articleActionIcon"
           onClick={() => {
             props.showDisplaySettingsModal(true)
           }}
         >
-          <TooltipWrapped tooltipContent="Reader Preferences (d)">
-            <ReaderSettingsIcon
-              size={25}
-              color={theme.colors.thHighContrast.toString()}
-            />
-          </TooltipWrapped>
+          <ReaderSettingsIcon
+            size={25}
+            color={theme.colors.thHighContrast.toString()}
+          />
         </Button>
         <PrimaryDropdown showThemeSection={false}>
           <CircleUtilityMenuIcon

@@ -17,7 +17,7 @@ export class ReaderSettingsIcon extends React.Component<IconProps> {
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        <g clipPath="url(#clip0_4720_16436)">
+        <g>
           <path
             d="M3.36182 7.67513V5.5918H16.9035V7.67513"
             stroke={color}
@@ -61,16 +61,6 @@ export class ReaderSettingsIcon extends React.Component<IconProps> {
             strokeLinejoin="round"
           />
         </g>
-        <defs>
-          <clipPath id="clip0_4720_16436">
-            <rect
-              width="25"
-              height="25"
-              fill={color}
-              transform="translate(0.236816 0.382812)"
-            />
-          </clipPath>
-        </defs>
       </svg>
     )
   }

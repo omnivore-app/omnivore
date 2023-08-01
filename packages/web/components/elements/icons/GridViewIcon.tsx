@@ -17,7 +17,7 @@ export class GridViewIcon extends React.Component<IconProps> {
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        <g clipPath="url(#clip0_4765_15475)">
+        <g>
           <path
             d="M4.1665 5.20768C4.1665 4.93142 4.27625 4.66646 4.4716 4.47111C4.66695 4.27576 4.9319 4.16602 5.20817 4.16602H9.37484C9.6511 4.16602 9.91606 4.27576 10.1114 4.47111C10.3068 4.66646 10.4165 4.93142 10.4165 5.20768V9.37435C10.4165 9.65062 10.3068 9.91557 10.1114 10.1109C9.91606 10.3063 9.6511 10.416 9.37484 10.416H5.20817C4.9319 10.416 4.66695 10.3063 4.4716 10.1109C4.27625 9.91557 4.1665 9.65062 4.1665 9.37435V5.20768Z"
             stroke={color}
@@ -47,11 +47,6 @@ export class GridViewIcon extends React.Component<IconProps> {
             strokeLinejoin="round"
           />
         </g>
-        <defs>
-          <clipPath id="clip0_4765_15475">
-            <rect width="25" height="25" fill="white" />
-          </clipPath>
-        </defs>
       </svg>
     )
   }
