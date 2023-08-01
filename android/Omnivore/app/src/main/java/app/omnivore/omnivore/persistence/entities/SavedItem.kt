@@ -178,7 +178,7 @@ interface SavedItemDao {
 
             "GROUP BY SavedItem.savedItemId "
   )
-  suspend fun getById(savedItemId: String): SavedItemWithLabelsAndHighlights?
+  fun getById(savedItemId: String): SavedItemWithLabelsAndHighlights?
 
   @Transaction
   @Query(

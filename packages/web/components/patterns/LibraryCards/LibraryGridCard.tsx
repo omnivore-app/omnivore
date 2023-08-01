@@ -268,7 +268,7 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
         }}
         distribution="start"
       >
-        <LibraryItemMetadata item={props.item} />
+        <LibraryItemMetadata item={props.item} showProgress={true} />
       </HStack>
 
       <VStack

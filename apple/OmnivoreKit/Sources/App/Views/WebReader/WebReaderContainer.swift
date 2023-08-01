@@ -276,6 +276,14 @@ struct WebReaderContainerView: View {
       #endif
 
       Button(
+        action: { showLabelsModal = true },
+        label: {
+          Image.label
+        }
+      )
+      .padding(.trailing, 4)
+
+      Button(
         action: { showNotebookView = true },
         label: {
           Image.notebook
