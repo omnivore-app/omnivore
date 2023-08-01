@@ -134,17 +134,17 @@ export function LibraryItemMetadata(
             Math.round((props.item.wordsCount ?? 0) / 235)
           )} min read`
         : null}
+      {highlightCount > 0
+        ? `  • ${highlightCount} highlight${highlightCount > 1 ? 's' : ''}`
+        : null}
       {(props.showProgress && props.item.readingProgressPercent) ?? 0 > 0 ? (
         <>
-          {`  • `}
+          {` | `}
           <SpanBox css={{ color: '#55B938' }}>
             {`${Math.round(props.item.readingProgressPercent)}%`}
           </SpanBox>
         </>
       ) : null}
-      {highlightCount > 0
-        ? `  • ${highlightCount} highlight${highlightCount > 1 ? 's' : ''}`
-        : null}
     </Box>
   )
 }
