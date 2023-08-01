@@ -235,12 +235,12 @@ export const subscribeResolver = authorized<
       // validate rss feed
       const feed = await parser.parseURL(input.url)
 
-      // limit number of rss subscriptions to 20
+      // limit number of rss subscriptions to 50
       const newSubscriptions = (await AppDataSource.query(
         `insert into omnivore.subscriptions (name, url, description, type, user_id, icon) 
         select $1, $2, $3, $4, $5, $6 from omnivore.subscriptions 
         where user_id = $5 and type = 'RSS' and status = 'ACTIVE' 
-        having count(*) < 20 
+        having count(*) < 50 
         returning *;`,
         [
           feed.title,
