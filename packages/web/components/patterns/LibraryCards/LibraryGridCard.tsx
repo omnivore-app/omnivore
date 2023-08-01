@@ -29,7 +29,6 @@ import {
 import { CardMenu } from '../CardMenu'
 import { DotsThree } from 'phosphor-react'
 import { isTouchScreenDevice } from '../../../lib/deviceType'
-import objectToHash from '../../../lib/highlights/objectToHash'
 
 dayjs.extend(relativeTime)
 
@@ -200,9 +199,11 @@ const GridImage = (props: GridImageProps): JSX.Element => {
   ) : (
     <CoverImage
       src={props.src}
-      alt={props.title}
       width="100%"
       height={100}
+      css={{
+        bg: '$thBackground',
+      }}
       onError={(e) => {
         setDisplayFallback(true)
       }}
