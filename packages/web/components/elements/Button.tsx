@@ -262,7 +262,7 @@ export const Button = styled('button', {
         cursor: 'pointer',
         padding: '4px',
         height: '100%',
-        pt: '6px',
+        pt: '5px',
         minWidth: '25px',
 
         '&:hover': {

@@ -545,7 +545,7 @@ export const getArticlesResolver = authorized<
     return {
       node: {
         ...a,
-        image: a.image && createImageProxyUrl(a.image, 260, 260),
+        image: a.image && createImageProxyUrl(a.image, 320, 320),
         isArchived: !!a.archivedAt,
       },
       cursor: endCursor,
@@ -953,7 +953,7 @@ export const searchResolver = authorized<
     return {
       node: {
         ...r,
-        image: r.image && createImageProxyUrl(r.image, 260, 260),
+        image: r.image && createImageProxyUrl(r.image, 320, 320),
         isArchived: !!r.archivedAt,
         contentReader: contentReaderForPage(r.pageType, r.uploadFileId),
         originalArticleUrl: r.url,
@@ -1051,7 +1051,7 @@ export const updatesSinceResolver = authorized<
       return {
         node: {
           ...p,
-          image: p.image && createImageProxyUrl(p.image, 260, 260),
+          image: p.image && createImageProxyUrl(p.image, 320, 320),
           isArchived: !!p.archivedAt,
           contentReader: contentReaderForPage(p.pageType, p.uploadFileId),
         } as SearchItem,

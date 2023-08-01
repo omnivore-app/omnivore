@@ -14,7 +14,7 @@ import { nanoid } from 'nanoid'
 import { deleteHighlightMutation } from '../../../lib/networking/mutations/deleteHighlightMutation'
 import { HighlightViewItem } from './HighlightViewItem'
 import { ConfirmationModal } from '../../patterns/ConfirmationModal'
-import { TrashIcon } from '../../elements/images/TrashIcon'
+import { TrashIcon } from '../../elements/icons/TrashIcon'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { SetHighlightLabelsModalPresenter } from './SetLabelsModalPresenter'
@@ -60,8 +60,9 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
   const [noteText, setNoteText] = useState<string>('')
   const [showConfirmDeleteHighlightId, setShowConfirmDeleteHighlightId] =
     useState<undefined | string>(undefined)
-  const [labelsTarget, setLabelsTarget] =
-    useState<Highlight | undefined>(undefined)
+  const [labelsTarget, setLabelsTarget] = useState<Highlight | undefined>(
+    undefined
+  )
   const noteState = useRef<NoteState>({
     isCreating: false,
     note: undefined,
@@ -347,7 +348,7 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
           icon={
             <TrashIcon
               size={40}
-              strokeColor={theme.colors.grayTextContrast.toString()}
+              color={theme.colors.grayTextContrast.toString()}
             />
           }
         />

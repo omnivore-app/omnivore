@@ -1,12 +1,13 @@
 import { HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
-import { DotsThreeOutline, TextAa } from 'phosphor-react'
 import { PrimaryDropdown } from '../PrimaryDropdown'
 import { TooltipWrapped } from '../../elements/Tooltip'
 import { LogoBox } from '../../elements/LogoBox'
 import { ReactNode } from 'react'
 import { HEADER_HEIGHT } from '../homeFeed/HeaderSpacer'
 import { theme } from '../../tokens/stitches.config'
+import { ReaderSettingsIcon } from '../../elements/icons/ReaderSettingsIcon'
+import { CircleUtilityMenuIcon } from '../../elements/icons/CircleUtilityMenuIcon'
 
 type ReaderHeaderProps = {
   alwaysDisplayToolbar: boolean
@@ -104,17 +105,19 @@ function ControlButtonBox(props: ReaderHeaderProps): JSX.Element {
         }}
       >
         <Button
+          title="Reader Preferences (d)"
           style="articleActionIcon"
           onClick={() => {
             props.showDisplaySettingsModal(true)
           }}
         >
-          <TooltipWrapped tooltipContent="Reader Preferences (d)">
-            <TextAa size={25} color={theme.colors.thHighContrast.toString()} />
-          </TooltipWrapped>
+          <ReaderSettingsIcon
+            size={25}
+            color={theme.colors.thHighContrast.toString()}
+          />
         </Button>
         <PrimaryDropdown showThemeSection={false}>
-          <DotsThreeOutline
+          <CircleUtilityMenuIcon
             size={25}
             color={theme.colors.thHighContrast.toString()}
           />

@@ -6,15 +6,10 @@ import { searchBarCommands } from '../../../lib/keyboardShortcuts/navigationShor
 import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { Button, IconButton } from '../../elements/Button'
 import {
-  ArchiveBox,
   CaretDown,
   FunnelSimple,
-  ListBullets,
   MagnifyingGlass,
   Prohibit,
-  SquaresFour,
-  Tag,
-  TrashSimple,
   X,
 } from 'phosphor-react'
 import { LayoutType } from './HomeFeedContainer'
@@ -28,6 +23,11 @@ import { BulkAction } from '../../../lib/networking/mutations/bulkActionMutation
 import { ConfirmationModal } from '../../patterns/ConfirmationModal'
 import { AddBulkLabelsModal } from '../article/AddBulkLabelsModal'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
+import { ArchiveIcon } from '../../elements/icons/ArchiveIcon'
+import { TrashIcon } from '../../elements/icons/TrashIcon'
+import { LabelIcon } from '../../elements/icons/LabelIcon'
+import { ListViewIcon } from '../../elements/icons/ListViewIcon'
+import { GridViewIcon } from '../../elements/icons/GridViewIcon'
 
 export type MultiSelectMode = 'off' | 'none' | 'some' | 'visible' | 'search'
 
@@ -392,9 +392,8 @@ function MultiSelectControlButtonBox(
           e.preventDefault()
         }}
       >
-        <ArchiveBox
-          width={20}
-          height={20}
+        <ArchiveIcon
+          size={20}
           color={theme.colors.thTextContrast2.toString()}
         />
         <SpanBox css={{ '@lgDown': { display: 'none' } }}>Archive</SpanBox>
@@ -406,11 +405,7 @@ function MultiSelectControlButtonBox(
           e.preventDefault()
         }}
       >
-        <Tag
-          width={20}
-          height={20}
-          color={theme.colors.thTextContrast2.toString()}
-        />
+        <LabelIcon size={20} color={theme.colors.thTextContrast2.toString()} />
         <SpanBox css={{ '@lgDown': { display: 'none' } }}>Add Labels</SpanBox>
       </Button>
       <Button
@@ -420,11 +415,7 @@ function MultiSelectControlButtonBox(
           e.preventDefault()
         }}
       >
-        <TrashSimple
-          width={20}
-          height={20}
-          color={theme.colors.thTextContrast2.toString()}
-        />
+        <TrashIcon size={20} color={theme.colors.thTextContrast2.toString()} />
         <SpanBox css={{ '@lgDown': { display: 'none' } }}>Delete</SpanBox>
       </Button>
       <Button
@@ -487,19 +478,9 @@ function SearchControlButtonBox(
         }}
       >
         {props.layout == 'GRID_LAYOUT' ? (
-          <ListBullets
-            width={30}
-            height={30}
-            weight="light"
-            color={'#898989'}
-          />
+          <ListViewIcon size={30} color={'#898989'} />
         ) : (
-          <SquaresFour
-            width={30}
-            height={30}
-            weight="light"
-            color={'#898989'}
-          />
+          <GridViewIcon size={30} color={'#898989'} />
         )}
       </Button>
       <PrimaryDropdown
