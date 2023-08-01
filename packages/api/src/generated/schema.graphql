@@ -2353,6 +2353,7 @@ input UpdateSubscriptionInput {
   id: ID!
   lastFetchedAt: Date
   name: String
+  status: SubscriptionStatus
 }
 
 union UpdateSubscriptionResult = UpdateSubscriptionError | UpdateSubscriptionSuccess

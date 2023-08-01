@@ -2511,6 +2511,7 @@ const schema = gql`
     name: String
     description: String
     lastFetchedAt: Date
+    status: SubscriptionStatus
   }
 
   union UpdateSubscriptionResult =

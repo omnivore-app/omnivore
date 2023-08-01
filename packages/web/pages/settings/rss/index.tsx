@@ -15,6 +15,7 @@ import { formattedDateTime } from '../../../lib/dateFormatting'
 import { unsubscribeMutation } from '../../../lib/networking/mutations/unsubscribeMutation'
 import { updateSubscriptionMutation } from '../../../lib/networking/mutations/updateSubscriptionMutation'
 import {
+  SubscriptionStatus,
   SubscriptionType,
   useGetSubscriptionsQuery,
 } from '../../../lib/networking/queries/useGetSubscriptionsQuery'
@@ -30,6 +31,8 @@ export default function Rss(): JSX.Element {
   const [onDeleteId, setOnDeleteId] = useState<string>('')
   const [onEditId, setOnEditId] = useState('')
   const [onEditName, setOnEditName] = useState('')
+  const [onPauseId, setOnPauseId] = useState('')
+  const [onEditStatus, setOnEditStatus] = useState<SubscriptionStatus>()
 
   async function updateSubscription(): Promise<void> {
     const result = await updateSubscriptionMutation({
@@ -57,6 +60,19 @@ export default function Rss(): JSX.Element {
       showSuccessToast('RSS feed unsubscribed', { position: 'bottom-right' })
     } else {
       showErrorToast('Failed to unsubscribe', { position: 'bottom-right' })
+    }
+    revalidate()
+  }
+
+  async function onPause(): Promise<void> {
+    const result = await updateSubscriptionMutation({
+      id: onPauseId,
+      status: onEditStatus,
+    })
+    if (result) {
+      showSuccessToast('RSS feed paused', { position: 'bottom-right' })
+    } else {
+      showErrorToast('Failed to pause', { position: 'bottom-right' })
     }
     revalidate()
   }
@@ -152,7 +168,18 @@ export default function Rss(): JSX.Element {
                 console.log('onDelete triggered: ', subscription.id)
                 setOnDeleteId(subscription.id)
               }}
+              onEdit={() => {
+                setOnEditStatus(
+                  subscription.status == 'UNSUBSCRIBED'
+                    ? 'ACTIVE'
+                    : 'UNSUBSCRIBED'
+                )
+                setOnPauseId(subscription.id)
+              }}
               deleteTitle="Delete"
+              editTitle={
+                subscription.status === 'UNSUBSCRIBED' ? 'Unpause' : 'Pause'
+              }
               sublineElement={
                 <StyledText
                   css={{
@@ -186,6 +213,23 @@ export default function Rss(): JSX.Element {
             setOnDeleteId('')
           }}
           onOpenChange={() => setOnDeleteId('')}
+        />
+      )}
+
+      {onPauseId && (
+        <ConfirmationModal
+          message={
+            'RSS feed will be paused/unpaused. You can revert it at any time.'
+          }
+          onAccept={async () => {
+            setOnPauseId('')
+            setOnEditStatus(undefined)
+            await onPause()
+          }}
+          onOpenChange={() => {
+            setOnPauseId('')
+            setOnEditStatus(undefined)
+          }}
         />
       )}
     </SettingsTable>

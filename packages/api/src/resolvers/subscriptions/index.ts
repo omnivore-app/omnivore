@@ -71,7 +71,10 @@ export const subscriptionsResolver = authorized<
       .leftJoinAndSelect('subscription.newsletterEmail', 'newsletterEmail')
       .where({
         user: { id: uid },
-        status: SubscriptionStatus.Active,
+        status:
+          subscriptionType == SubscriptionType.Newsletter
+            ? SubscriptionStatus.Active
+            : undefined, // only return active subscriptions for newsletter
         type: subscriptionType || SubscriptionType.Newsletter, // default to newsletter
       })
       .orderBy('subscription.' + sortBy, sortOrder)
@@ -315,7 +318,6 @@ export const updateSubscriptionResolver = authorized<
     const subscription = await getRepository(Subscription).findOneBy({
       id: input.id,
       user: { id: uid },
-      status: SubscriptionStatus.Active,
     })
     if (!subscription) {
       log.info('subscription not found')
@@ -332,6 +334,7 @@ export const updateSubscriptionResolver = authorized<
       lastFetchedAt: input.lastFetchedAt
         ? new Date(input.lastFetchedAt)
         : undefined,
+      status: input.status || undefined,
     })
 
     return {
