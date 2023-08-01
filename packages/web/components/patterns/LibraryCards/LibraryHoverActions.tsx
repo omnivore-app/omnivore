@@ -60,6 +60,7 @@ export const LibraryHoverActions = (props: LibraryHoverActionsProps) => {
       }}
     >
       <Button
+        title="View Notebook (t)"
         style="hoverActionIcon"
         onClick={(event) => {
           props.handleAction('open-notebook')
@@ -70,11 +71,12 @@ export const LibraryHoverActions = (props: LibraryHoverActionsProps) => {
         }}
       >
         <NotebookIcon
-          size={19}
+          size={21}
           color={theme.colors.thNotebookSubtle.toString()}
         />
       </Button>
       <Button
+        title="Archive (e)"
         style="hoverActionIcon"
         onClick={(event) => {
           const action = props.item.isArchived ? 'unarchive' : 'archive'
@@ -84,33 +86,35 @@ export const LibraryHoverActions = (props: LibraryHoverActionsProps) => {
       >
         {props.item.isArchived ? (
           <UnarchiveIcon
-            size={18}
+            size={21}
             color={theme.colors.thNotebookSubtle.toString()}
           />
         ) : (
           <ArchiveIcon
-            size={18}
+            size={21}
             color={theme.colors.thNotebookSubtle.toString()}
           />
         )}
       </Button>
       <Button
+        title="Remove (#)"
         style="hoverActionIcon"
         onClick={(event) => {
           props.handleAction('delete')
           event.preventDefault()
         }}
       >
-        <TrashIcon size={18} color={theme.colors.thNotebookSubtle.toString()} />
+        <TrashIcon size={21} color={theme.colors.thNotebookSubtle.toString()} />
       </Button>
       <Button
+        title="Edit labels (l)"
         style="hoverActionIcon"
         onClick={(event) => {
           props.handleAction('set-labels')
           event.preventDefault()
         }}
       >
-        <LabelIcon size={18} color={theme.colors.thNotebookSubtle.toString()} />
+        <LabelIcon size={21} color={theme.colors.thNotebookSubtle.toString()} />
       </Button>
       <CardMenu
         item={props.item}
