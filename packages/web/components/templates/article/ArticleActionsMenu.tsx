@@ -7,6 +7,12 @@ import { TooltipWrapped } from '../../elements/Tooltip'
 import { styled, theme } from '../../tokens/stitches.config'
 import { ReaderSettings } from '../../../lib/hooks/useReaderSettings'
 import { useRef } from 'react'
+import { ArchiveIcon } from '../../elements/icons/ArchiveIcon'
+import { NotebookIcon } from '../../elements/icons/NotebookIcon'
+import { TrashIcon } from '../../elements/icons/TrashIcon'
+import { LabelIcon } from '../../elements/icons/LabelIcon'
+import { EditInfoIcon } from '../../elements/icons/EditInfoIcon'
+import { UnarchiveIcon } from '../../elements/icons/UnarchiveIcon'
 
 export type ArticleActionsMenuLayout = 'top' | 'side'
 
@@ -69,7 +75,7 @@ export function ArticleActionsMenu(
                   tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
                 >
                   <SpanBox ref={displaySettingsButtonRef}>
-                    <Tag
+                    <LabelIcon
                       size={24}
                       color={theme.colors.thHighContrast.toString()}
                     />
@@ -87,7 +93,10 @@ export function ArticleActionsMenu(
                 },
               }}
             >
-              <Tag size={24} color={theme.colors.thHighContrast.toString()} />
+              <LabelIcon
+                size={24}
+                color={theme.colors.thHighContrast.toString()}
+              />
             </Button>
           )}
         </SpanBox>
@@ -103,7 +112,7 @@ export function ArticleActionsMenu(
             },
           }}
         >
-          <Tag size={24} color={theme.colors.thHighContrast.toString()} />
+          <LabelIcon size={24} color={theme.colors.thHighContrast.toString()} />
         </Button>
 
         <Button
@@ -118,7 +127,7 @@ export function ArticleActionsMenu(
             tooltipContent="View Notebook (t)"
             tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
           >
-            <Notebook
+            <NotebookIcon
               size={24}
               color={theme.colors.thHighContrast.toString()}
             />
@@ -140,7 +149,10 @@ export function ArticleActionsMenu(
             tooltipContent="Edit Info (i)"
             tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
           >
-            <Info size={24} color={theme.colors.thHighContrast.toString()} />
+            <EditInfoIcon
+              size={24}
+              color={theme.colors.thHighContrast.toString()}
+            />
           </TooltipWrapped>
         </Button>
 
@@ -163,7 +175,10 @@ export function ArticleActionsMenu(
             tooltipContent="Remove (#)"
             tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
           >
-            <Trash size={24} color={theme.colors.thHighContrast.toString()} />
+            <TrashIcon
+              size={24}
+              color={theme.colors.thHighContrast.toString()}
+            />
           </TooltipWrapped>
         </Button>
 
@@ -180,7 +195,7 @@ export function ArticleActionsMenu(
               tooltipContent="Archive (e)"
               tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
             >
-              <ArchiveBox
+              <ArchiveIcon
                 size={24}
                 color={theme.colors.thHighContrast.toString()}
               />
@@ -195,7 +210,10 @@ export function ArticleActionsMenu(
               tooltipContent="Unarchive (u)"
               tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
             >
-              <Tray size={24} color={theme.colors.thHighContrast.toString()} />
+              <UnarchiveIcon
+                size={24}
+                color={theme.colors.thHighContrast.toString()}
+              />
             </TooltipWrapped>
           </Button>
         )}

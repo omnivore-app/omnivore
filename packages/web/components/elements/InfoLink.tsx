@@ -2,6 +2,7 @@ import { Info } from 'phosphor-react'
 import { VStack } from '../elements/LayoutPrimitives'
 import { theme } from '../tokens/stitches.config'
 import { TooltipWrapped } from './Tooltip'
+import { EditInfoIcon } from './icons/EditInfoIcon'
 
 type InfoLinkProps = {
   href: string
@@ -29,7 +30,7 @@ export function InfoLink(props: InfoLinkProps): JSX.Element {
           style={TooltipStyle}
           arrowStyles={{ fill: '#F9D354' }}
         >
-          <Info size={24} color={theme.colors.grayText.toString()} />
+          <EditInfoIcon size={24} color={theme.colors.grayText.toString()} />
         </TooltipWrapped>
       </a>
     </VStack>

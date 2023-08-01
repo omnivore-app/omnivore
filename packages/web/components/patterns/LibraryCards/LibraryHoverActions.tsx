@@ -14,6 +14,11 @@ import {
 } from 'phosphor-react'
 import { CardMenu } from '../CardMenu'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
+import { ArchiveIcon } from '../../elements/icons/ArchiveIcon'
+import { NotebookIcon } from '../../elements/icons/NotebookIcon'
+import { TrashIcon } from '../../elements/icons/TrashIcon'
+import { LabelIcon } from '../../elements/icons/LabelIcon'
+import { UnarchiveIcon } from '../../elements/icons/UnarchiveIcon'
 
 type LibraryHoverActionsProps = {
   viewer: UserBasicData
@@ -26,6 +31,8 @@ type LibraryHoverActionsProps = {
 
 export const LibraryHoverActions = (props: LibraryHoverActionsProps) => {
   const [menuOpen, setMenuOpen] = useState(false)
+
+  console.log(' props.isHovered || menuOpen', props.isHovered, menuOpen)
 
   return (
     <Box
@@ -45,7 +52,7 @@ export const LibraryHoverActions = (props: LibraryHoverActionsProps) => {
 
         gap: '5px',
         px: '5px',
-        visibility: props.isHovered || menuOpen ? 'unset' : 'hidden',
+        visibility: props.isHovered || menuOpen ? 'visible' : 'hidden',
         '&:hover': {
           boxShadow:
             '0 1px 3px 0 rgba(0, 0, 0, 0.1),0 1px 2px 0 rgba(0, 0, 0, 0.06);',
@@ -58,8 +65,14 @@ export const LibraryHoverActions = (props: LibraryHoverActionsProps) => {
           props.handleAction('open-notebook')
           event.preventDefault()
         }}
+        css={{
+          visibility: props.isHovered || menuOpen ? 'visible' : 'hidden',
+        }}
       >
-        <Notebook size={19} color={theme.colors.thNotebookSubtle.toString()} />
+        <NotebookIcon
+          size={19}
+          color={theme.colors.thNotebookSubtle.toString()}
+        />
       </Button>
       <Button
         style="hoverActionIcon"
@@ -70,9 +83,12 @@ export const LibraryHoverActions = (props: LibraryHoverActionsProps) => {
         }}
       >
         {props.item.isArchived ? (
-          <Tray size={18} color={theme.colors.thNotebookSubtle.toString()} />
+          <UnarchiveIcon
+            size={18}
+            color={theme.colors.thNotebookSubtle.toString()}
+          />
         ) : (
-          <ArchiveBox
+          <ArchiveIcon
             size={18}
             color={theme.colors.thNotebookSubtle.toString()}
           />
@@ -85,7 +101,7 @@ export const LibraryHoverActions = (props: LibraryHoverActionsProps) => {
           event.preventDefault()
         }}
       >
-        <Trash size={18} color={theme.colors.thNotebookSubtle.toString()} />
+        <TrashIcon size={18} color={theme.colors.thNotebookSubtle.toString()} />
       </Button>
       <Button
         style="hoverActionIcon"
@@ -94,7 +110,7 @@ export const LibraryHoverActions = (props: LibraryHoverActionsProps) => {
           event.preventDefault()
         }}
       >
-        <Tag size={18} color={theme.colors.thNotebookSubtle.toString()} />
+        <LabelIcon size={18} color={theme.colors.thNotebookSubtle.toString()} />
       </Button>
       <CardMenu
         item={props.item}

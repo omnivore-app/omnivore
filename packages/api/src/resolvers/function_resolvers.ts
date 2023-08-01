@@ -502,7 +502,7 @@ export const functionResolvers = {
       )
     },
     image(article: { image?: string }): string | undefined {
-      return article.image && createImageProxyUrl(article.image, 260, 260)
+      return article.image && createImageProxyUrl(article.image, 320, 320)
     },
     wordsCount(article: { wordsCount?: number; content?: string }) {
       if (article.wordsCount) return article.wordsCount

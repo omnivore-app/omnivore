@@ -1,19 +1,18 @@
-import {
-  ArchiveBox,
-  DotsThreeOutline,
-  Info,
-  TextAa,
-  Trash,
-  Tray,
-  Notebook,
-  Tag,
-} from 'phosphor-react'
+import { Tray } from 'phosphor-react'
 import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
 import { Button } from '../../elements/Button'
 import { HStack } from '../../elements/LayoutPrimitives'
 import { TooltipWrapped } from '../../elements/Tooltip'
 import { theme } from '../../tokens/stitches.config'
 import { ReaderDropdownMenu } from '../../patterns/ReaderDropdownMenu'
+import { ArchiveIcon } from '../../elements/icons/ArchiveIcon'
+import { NotebookIcon } from '../../elements/icons/NotebookIcon'
+import { TrashIcon } from '../../elements/icons/TrashIcon'
+import { LabelIcon } from '../../elements/icons/LabelIcon'
+import { EditInfoIcon } from '../../elements/icons/EditInfoIcon'
+import { ReaderSettingsIcon } from '../../elements/icons/ReaderSettingsIcon'
+import { CircleUtilityMenuIcon } from '../../elements/icons/CircleUtilityMenuIcon'
+import { UnarchiveIcon } from '../../elements/icons/UnarchiveIcon'
 
 export type ArticleActionsMenuLayout = 'top' | 'side'
 
@@ -48,7 +47,7 @@ export function VerticalArticleActionsMenu(
             },
           }}
         >
-          <Tag size={24} color={theme.colors.thHighContrast.toString()} />
+          <LabelIcon size={24} color={theme.colors.thHighContrast.toString()} />
         </Button>
 
         <Button
@@ -66,7 +65,7 @@ export function VerticalArticleActionsMenu(
             tooltipContent="Open Notebook (t)"
             tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
           >
-            <Notebook
+            <NotebookIcon
               size={24}
               color={theme.colors.thHighContrast.toString()}
             />
@@ -88,7 +87,10 @@ export function VerticalArticleActionsMenu(
             tooltipContent="Edit Info (i)"
             tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
           >
-            <Info size={24} color={theme.colors.thHighContrast.toString()} />
+            <EditInfoIcon
+              size={24}
+              color={theme.colors.thHighContrast.toString()}
+            />
           </TooltipWrapped>
         </Button>
 
@@ -109,7 +111,10 @@ export function VerticalArticleActionsMenu(
             tooltipContent="Remove (#)"
             tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
           >
-            <Trash size={24} color={theme.colors.thHighContrast.toString()} />
+            <TrashIcon
+              size={24}
+              color={theme.colors.thHighContrast.toString()}
+            />
           </TooltipWrapped>
         </Button>
 
@@ -129,7 +134,7 @@ export function VerticalArticleActionsMenu(
               tooltipContent="Archive (e)"
               tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
             >
-              <ArchiveBox
+              <ArchiveIcon
                 size={24}
                 color={theme.colors.thHighContrast.toString()}
               />
@@ -151,7 +156,10 @@ export function VerticalArticleActionsMenu(
               tooltipContent="Unarchive (e)"
               tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
             >
-              <Tray size={24} color={theme.colors.thHighContrast.toString()} />
+              <UnarchiveIcon
+                size={24}
+                color={theme.colors.thHighContrast.toString()}
+              />
             </TooltipWrapped>
           </Button>
         )}
@@ -167,13 +175,16 @@ export function VerticalArticleActionsMenu(
             tooltipContent="Edit Info (i)"
             tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
           >
-            <TextAa size={24} color={theme.colors.thHighContrast.toString()} />
+            <ReaderSettingsIcon
+              size={24}
+              color={theme.colors.thHighContrast.toString()}
+            />
           </TooltipWrapped>
         </Button>
 
         <ReaderDropdownMenu
           triggerElement={
-            <DotsThreeOutline
+            <CircleUtilityMenuIcon
               size={24}
               color={theme.colors.thHighContrast.toString()}
             />

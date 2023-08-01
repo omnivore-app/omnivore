@@ -160,8 +160,6 @@ const Fallback = (props: FallbackProps): JSX.Element => {
   const idx = (Math.abs(hashCode(props.title)) % Colors.length) - 1
   const color = Colors[idx]
 
-  console.log('idx: ', idx, 'color', color, Colors.length)
-
   return (
     <Box
       css={{
