@@ -112,14 +112,12 @@ async function fetchSource(url, callbackFn) {
       '--disk-cache-size=33554432',
       '--enable-features=SharedArrayBuffer',
       '--hide-scrollbars',
-      '--ignore-gpu-blocklist',
-      '--in-process-gpu',
+      '--disable-gpu'
       '--mute-audio',
       '--no-default-browser-check',
       '--no-pings',
       '--no-sandbox',
       '--no-zygote',
-      '--use-gl=swiftshader',
       '--window-size=1920,1080',
     ],
     defaultViewport: {
