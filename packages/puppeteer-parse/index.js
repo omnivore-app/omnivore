@@ -117,13 +117,14 @@ const getBrowserPromise = (async () => {
       '--disk-cache-size=33554432',
       '--enable-features=SharedArrayBuffer',
       '--hide-scrollbars',
-      '--disable-gpu'
+      '--disable-gpu',
       '--mute-audio',
       '--no-default-browser-check',
       '--no-pings',
       '--no-sandbox',
       '--no-zygote',
       '--window-size=1920,1080',
+      '--disable-extensions',
     ].filter((item) => !!item),
     defaultViewport: {
       deviceScaleFactor: 1,
