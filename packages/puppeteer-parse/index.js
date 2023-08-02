@@ -126,7 +126,6 @@ const getBrowserPromise = (async () => {
       '--no-zygote',
       '--use-gl=swiftshader',
       '--window-size=1920,1080',
-      process.env.LAUNCH_HEADLESS ? '--single-process' : '--start-maximized',
     ].filter((item) => !!item),
     defaultViewport: {
       deviceScaleFactor: 1,

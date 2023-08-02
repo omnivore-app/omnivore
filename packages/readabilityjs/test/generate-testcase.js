@@ -121,7 +121,6 @@ async function fetchSource(url, callbackFn) {
       '--no-zygote',
       '--use-gl=swiftshader',
       '--window-size=1920,1080',
-      process.env.LAUNCH_HEADLESS ? '--single-process' : '--start-maximized',
     ],
     defaultViewport: {
       deviceScaleFactor: 1,
