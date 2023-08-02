@@ -8,7 +8,7 @@ import { ConfirmationModal } from '../../../components/patterns/ConfirmationModa
 import {
   EmptySettingsRow,
   SettingsTable,
-  SettingsTableRow,
+  SettingsTableRow
 } from '../../../components/templates/settings/SettingsTable'
 import { theme } from '../../../components/tokens/stitches.config'
 import { formattedDateTime } from '../../../lib/dateFormatting'
@@ -17,7 +17,7 @@ import { updateSubscriptionMutation } from '../../../lib/networking/mutations/up
 import {
   SubscriptionStatus,
   SubscriptionType,
-  useGetSubscriptionsQuery,
+  useGetSubscriptionsQuery
 } from '../../../lib/networking/queries/useGetSubscriptionsQuery'
 import { applyStoredTheme } from '../../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
@@ -64,15 +64,23 @@ export default function Rss(): JSX.Element {
     revalidate()
   }
 
-  async function onPause(): Promise<void> {
+  async function onPause(
+    id: string,
+    status: SubscriptionStatus = 'UNSUBSCRIBED'
+  ): Promise<void> {
     const result = await updateSubscriptionMutation({
-      id: onPauseId,
-      status: onEditStatus,
+      id,
+      status,
     })
+
+    const action = status == 'UNSUBSCRIBED' ? 'pause' : 'resume'
+
     if (result) {
-      showSuccessToast('RSS feed paused', { position: 'bottom-right' })
+      showSuccessToast(`RSS feed ${action}d`, {
+        position: 'bottom-right',
+      })
     } else {
-      showErrorToast('Failed to pause', { position: 'bottom-right' })
+      showErrorToast(`Failed to ${action}`, { position: 'bottom-right' })
     }
     revalidate()
   }
@@ -170,16 +178,12 @@ export default function Rss(): JSX.Element {
               }}
               onEdit={() => {
                 setOnEditStatus(
-                  subscription.status == 'UNSUBSCRIBED'
-                    ? 'ACTIVE'
-                    : 'UNSUBSCRIBED'
+                  subscription.status == 'ACTIVE' ? 'UNSUBSCRIBED' : 'ACTIVE'
                 )
                 setOnPauseId(subscription.id)
               }}
               deleteTitle="Delete"
-              editTitle={
-                subscription.status === 'UNSUBSCRIBED' ? 'Unpause' : 'Pause'
-              }
+              editTitle={subscription.status === 'ACTIVE' ? 'Pause' : 'Resume'}
               sublineElement={
                 <StyledText
                   css={{
@@ -198,6 +202,15 @@ export default function Rss(): JSX.Element {
               onClick={() => {
                 router.push(`/home?q=in:inbox rss:"${subscription.url}"`)
               }}
+              extraElement={
+                <StyledText
+                  css={{
+                    fontSize: '12px',
+                  }}
+                >
+                  {subscription.status === 'ACTIVE' ? 'Active' : 'Paused'}
+                </StyledText>
+              }
             />
           )
         })
@@ -218,13 +231,15 @@ export default function Rss(): JSX.Element {
 
       {onPauseId && (
         <ConfirmationModal
-          message={
-            'RSS feed will be paused/unpaused. You can revert it at any time.'
-          }
+          message={`RSS feed will be ${
+            onEditStatus === 'UNSUBSCRIBED' ? 'paused' : 'resumed'
+          }. You can ${
+            onEditStatus === 'UNSUBSCRIBED' ? 'resume' : 'pause'
+          } it at any time.`}
           onAccept={async () => {
+            await onPause(onPauseId, onEditStatus)
             setOnPauseId('')
             setOnEditStatus(undefined)
-            await onPause()
           }}
           onOpenChange={() => {
             setOnPauseId('')
