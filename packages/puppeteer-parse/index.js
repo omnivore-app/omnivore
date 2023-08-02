@@ -101,7 +101,7 @@ const enableJavascriptForUrl = (url) => {
 
 // launch Puppeteer
 const getBrowserPromise = (async () => {
-  console.log("starting with proxy url", process.env.PROXY_URL)
+  console.log("starting puppeteer browser")
   return puppeteer.launch({
     args: [
       '--allow-running-insecure-content',
@@ -126,8 +126,16 @@ const getBrowserPromise = (async () => {
       '--no-zygote',
       '--use-gl=swiftshader',
       '--window-size=1920,1080',
+      process.env.LAUNCH_HEADLESS ? '--single-process' : '--start-maximized',
     ].filter((item) => !!item),
-    defaultViewport: { height: 1080, width: 1920 },
+    defaultViewport: {
+      deviceScaleFactor: 1,
+      hasTouch: false,
+      height: 1080,
+      isLandscape: true,
+      isMobile: false,
+      width: 1920
+    },
     executablePath: process.env.CHROMIUM_PATH,
     headless: !!process.env.LAUNCH_HEADLESS,
     timeout: 120000, // 2 minutes

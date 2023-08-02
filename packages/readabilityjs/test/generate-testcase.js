@@ -6,8 +6,17 @@ var prettyPrint = require("./utils").prettyPrint;
 var htmltidy = require("htmltidy2").tidy;
 
 var { Readability, isProbablyReaderable } = require("../index");
-const puppeteer = require('puppeteer');
 const { parseHTML } = require("linkedom");
+
+const puppeteer = require('puppeteer-extra');
+
+// Add stealth plugin to hide puppeteer usage
+const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+puppeteer.use(StealthPlugin());
+
+// Add adblocker plugin to block all ads and trackers (saves bandwidth)
+const AdblockerPlugin = require('puppeteer-extra-plugin-adblocker');
+puppeteer.use(AdblockerPlugin({ blockTrackers: true }));
 
 var testcaseRoot = path.join(__dirname, "test-pages");
 
@@ -89,9 +98,41 @@ async function fetchSource(url, callbackFn) {
   }
 
   const browser = await puppeteer.launch({
+    args: [
+      '--allow-running-insecure-content',
+      '--autoplay-policy=user-gesture-required',
+      '--disable-component-update',
+      '--disable-domain-reliability',
+      '--disable-features=AudioServiceOutOfProcess,IsolateOrigins,site-per-process',
+      '--disable-print-preview',
+      '--disable-setuid-sandbox',
+      '--disable-site-isolation-trials',
+      '--disable-speech-api',
+      '--disable-web-security',
+      '--disk-cache-size=33554432',
+      '--enable-features=SharedArrayBuffer',
+      '--hide-scrollbars',
+      '--ignore-gpu-blocklist',
+      '--in-process-gpu',
+      '--mute-audio',
+      '--no-default-browser-check',
+      '--no-pings',
+      '--no-sandbox',
+      '--no-zygote',
+      '--use-gl=swiftshader',
+      '--window-size=1920,1080',
+      process.env.LAUNCH_HEADLESS ? '--single-process' : '--start-maximized',
+    ],
+    defaultViewport: {
+      deviceScaleFactor: 1,
+      hasTouch: false,
+      height: 1080,
+      isLandscape: true,
+      isMobile: false,
+      width: 1920
+    },
     headless: true,
-    defaultViewport: { height: 1080, width: 1920 },
-    args: ['--no-sandbox'],
+    executablePath: process.env.CHROMIUM_PATH || '/opt/homebrew/bin/chromium',
   });
 
   const page = await browser.newPage();
