@@ -348,7 +348,9 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     default: styles.maxWidthPercentage
       ? `${styles.maxWidthPercentage}%`
       : 1024 - styles.margin,
-    small: styles.maxWidthPercentage ? `${styles.maxWidthPercentage}%` : `${120 - Math.round((styles.margin * 10) / 100)}%`,
+    small: styles.maxWidthPercentage
+      ? `${styles.maxWidthPercentage}%`
+      : `${120 - Math.round((styles.margin * 10) / 100)}%`,
   }
 
   const recommendationsWithNotes = useMemo(() => {

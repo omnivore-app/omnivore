@@ -38,7 +38,6 @@ export function LibraryHighlightGridCard(
         showErrorToast('Error navigating to highlight')
         return
       }
-      console.log('pushing user: ', props.viewer, 'slug: ', props.item.slug)
       router.push(
         {
           pathname: '/[username]/[slug]',

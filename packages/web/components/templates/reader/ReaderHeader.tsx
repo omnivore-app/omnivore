@@ -36,7 +36,7 @@ export function ReaderHeader(props: ReaderHeaderProps): JSX.Element {
             ? '1px solid $thBorderColor'
             : '1px solid transparent',
           '@xlgDown': {
-            bg: '$readerMargin',
+            bg: '$readerBg',
             pointerEvents: 'unset',
             borderBottom: '1px solid $thBorderColor',
           },

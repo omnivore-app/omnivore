@@ -91,7 +91,6 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
   )
 
   const createNote = useCallback((text: string) => {
-    console.log('creating note: ', newNoteId, noteState.current.isCreating)
     noteState.current.isCreating = true
     noteState.current.createStarted = new Date()
     ;(async () => {

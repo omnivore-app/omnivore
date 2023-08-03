@@ -1,8 +1,8 @@
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { useMemo } from 'react'
+import { ChangeEvent, useMemo } from 'react'
 import { LibraryItemNode } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
-import { Box, SpanBox } from '../../elements/LayoutPrimitives'
+import { Box, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 
 dayjs.extend(relativeTime)
 
@@ -25,7 +25,7 @@ export const MenuStyle = {
 export const MetaStyle = {
   width: '100%',
   color: '$thTextSubtle3',
-  fontSize: '13px',
+  fontSize: '12px',
   fontWeight: '400',
   fontFamily: '$display',
 }
@@ -34,7 +34,7 @@ export const TitleStyle = {
   color: '$thTextContrast2',
   fontSize: '16px',
   fontWeight: '700',
-  lineHeight: '1.25',
+  lineHeight: '1',
   fontFamily: '$display',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
@@ -67,11 +67,11 @@ export const AuthorInfoStyle = {
   whiteSpace: 'nowrap',
   maxWidth: '240px',
   overflow: 'hidden',
-  height: '21px',
   color: '$thTextSubtle3',
   fontSize: '12px',
   fontWeight: '400',
   fontFamily: '$display',
+  lineHeight: '1',
 }
 
 export const timeAgo = (date: string | undefined): string => {
@@ -134,14 +134,6 @@ export function LibraryItemMetadata(
             Math.round((props.item.wordsCount ?? 0) / 235)
           )} min read`
         : null}
-      {(props.showProgress && props.item.readingProgressPercent) ?? 0 > 0 ? (
-        <>
-          {`  • `}
-          <SpanBox css={{ color: '#55B938' }}>
-            {`${Math.round(props.item.readingProgressPercent)}%`}
-          </SpanBox>
-        </>
-      ) : null}
       {highlightCount > 0
         ? `  • ${highlightCount} highlight${highlightCount > 1 ? 's' : ''}`
         : null}
@@ -156,10 +148,19 @@ type CardCheckBoxProps = {
 
 export function CardCheckbox(props: CardCheckBoxProps): JSX.Element {
   return (
-    <input
-      type="checkbox"
-      checked={props.isChecked}
-      onChange={props.handleChanged}
-    ></input>
+    <form
+      // This prevents us from propogating up the the <a element on cards
+      onClick={(event) => {
+        event.stopPropagation()
+      }}
+    >
+      <input
+        type="checkbox"
+        checked={props.isChecked}
+        onChange={(event) => {
+          props.handleChanged()
+        }}
+      ></input>
+    </form>
   )
 }

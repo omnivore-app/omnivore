@@ -32,8 +32,6 @@ type LibraryHoverActionsProps = {
 export const LibraryHoverActions = (props: LibraryHoverActionsProps) => {
   const [menuOpen, setMenuOpen] = useState(false)
 
-  console.log(' props.isHovered || menuOpen', props.isHovered, menuOpen)
-
   return (
     <Box
       css={{

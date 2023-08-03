@@ -297,7 +297,6 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       const { target, pageX, pageY } = event
 
       if (!target || (target as Node)?.nodeType !== Node.ELEMENT_NODE) {
-        console.log(' -- returning early from page tap')
         return
       }
 
@@ -375,7 +374,6 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           highlightIdAttribute
         )
         const highlight = highlights.find(($0) => $0.id === id)
-        console.log('double tapped highlight: ', highlight)
         setFocusedHighlight(highlight)
 
         openNoteModal({
@@ -387,8 +385,6 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           highlightNoteIdAttribute
         )
         const highlight = highlights.find(($0) => $0.id === id)
-        console.log('double tapped highlight with note: ', highlight)
-
         setFocusedHighlight(highlight)
 
         openNoteModal({

@@ -1,311 +1,34 @@
-import { Box, VStack, HStack, SpanBox } from '../../elements/LayoutPrimitives'
-import { LabelChip } from '../../elements/LabelChip'
-import type { LinkedItemCardProps } from './CardTypes'
-import { CoverImage } from '../../elements/CoverImage'
-import dayjs from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
-import { useCallback, useState } from 'react'
-import Link from 'next/link'
-import {
-  AuthorInfoStyle,
-  CardCheckbox,
-  LibraryItemMetadata,
-  MetaStyle,
-  siteName,
-  TitleStyle,
-  MenuStyle,
-} from './LibraryCardStyles'
-import { sortedLabels } from '../../../lib/labelsSort'
-import { LibraryHoverActions } from './LibraryHoverActions'
-import {
-  useHover,
-  useFloating,
-  useInteractions,
-  size,
-  offset,
-  autoUpdate,
-} from '@floating-ui/react'
-import { CardMenu } from '../CardMenu'
-import { DotsThree } from 'phosphor-react'
-import { isTouchScreenDevice } from '../../../lib/deviceType'
-import { ProgressBarOverlay } from './LibraryListCard'
-import { FallbackImage } from './FallbackImage'
+import { VStack } from '../../elements/LayoutPrimitives'
 
-dayjs.extend(relativeTime)
-
-export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
-  const [isHovered, setIsHovered] = useState(false)
-  const [isOpen, setIsOpen] = useState(false)
-
-  const { refs, floatingStyles, context } = useFloating({
-    open: isOpen,
-    onOpenChange: setIsOpen,
-    middleware: [
-      offset({
-        mainAxis: -25,
-      }),
-
-      size(),
-    ],
-    placement: 'top-end',
-    whileElementsMounted: autoUpdate,
-  })
-
-  const hover = useHover(context)
-
-  const { getReferenceProps, getFloatingProps } = useInteractions([hover])
-
-  return (
-    <VStack
-      ref={refs.setReference}
-      {...getReferenceProps()}
-      css={{
-        pl: '0px',
-        padding: '0px',
-        width: '320px',
-        height: '100%',
-        minHeight: '270px',
-        background: 'white',
-        borderRadius: '5px',
-        borderWidth: '1px',
-        borderStyle: 'solid',
-        overflow: 'hidden',
-        borderColor: '$thBorderColor',
-        cursor: 'pointer',
-        '@media (max-width: 930px)': {
-          m: '15px',
-          width: 'calc(100% - 30px)',
-        },
-      }}
-      alignment="start"
-      distribution="start"
-      onMouseEnter={() => {
-        setIsHovered(true)
-      }}
-      onMouseLeave={() => {
-        setIsHovered(false)
-      }}
-    >
-      {!isTouchScreenDevice() && (
-        <Box
-          ref={refs.setFloating}
-          style={{ ...floatingStyles, zIndex: 10 }}
-          {...getFloatingProps()}
-        >
-          <LibraryHoverActions
-            item={props.item}
-            viewer={props.viewer}
-            handleAction={props.handleAction}
-            isHovered={isHovered ?? false}
-          />
-        </Box>
-      )}
-      <Link
-        href={`${props.viewer.profile.username}/${props.item.slug}`}
-        passHref
-      >
-        <a
-          href={`${props.viewer.profile.username}/${props.item.slug}`}
-          style={{ textDecoration: 'unset', width: '100%', height: '100%' }}
-          tabIndex={-1}
-        >
-          <LibraryGridCardContent {...props} isHovered={isHovered} />
-        </a>
-      </Link>
-    </VStack>
-  )
-}
-
-type FallbackProps = {
+type FallbackImageProps = {
   title: string
+  width: string
+  height: string
+  fontSize: string
 }
 
-const Fallback = (props: FallbackProps): JSX.Element => {
+export const FallbackImage = (props: FallbackImageProps): JSX.Element => {
   const idx = (Math.abs(hashCode(props.title)) % Colors.length) - 1
   const color = Colors[idx]
 
   return (
-    <Box
+    <VStack
+      distribution="center"
+      alignment="center"
       css={{
-        position: 'relative',
-        width: '100%',
-        height: '100px',
+        // position: 'relative',
+        width: props.width,
+        height: props.height,
         backgroundColor: color.colors[1],
         color: color.colors[0],
-        fontSize: '128px',
+        fontSize: props.fontSize,
         fontWeight: 'bold',
         fontFamily: '$display',
         overflow: 'hidden',
+        borderRadius: '4px',
       }}
     >
-      <SpanBox
-        css={{
-          position: 'absolute',
-          top: '-58px',
-          left: '40px',
-        }}
-      >
-        {props.title.substring(0, 1).toLocaleUpperCase()}
-      </SpanBox>
-    </Box>
-  )
-}
-
-type GridImageProps = {
-  src?: string
-  title?: string
-  readingProgress?: number
-}
-
-const GridImage = (props: GridImageProps): JSX.Element => {
-  const [displayFallback, setDisplayFallback] = useState(props.src == undefined)
-
-  return (
-    <>
-      {(props.readingProgress ?? 0) > 0 && (
-        <ProgressBarOverlay
-          width="100%"
-          top={95}
-          value={props.readingProgress ?? 0}
-          bottomRadius={'0px'}
-        />
-      )}
-      {displayFallback ? (
-        <FallbackImage
-          title={props.title ?? 'Omnivore Fallback'}
-          width="100%"
-          height="100px"
-          fontSize="128px"
-        />
-      ) : (
-        <CoverImage
-          src={props.src}
-          width="100%"
-          height={100}
-          css={{
-            bg: '$thBackground',
-          }}
-          onError={(e) => {
-            setDisplayFallback(true)
-          }}
-        />
-      )}
-    </>
-  )
-}
-
-const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
-  const { isChecked, setIsChecked, item } = props
-  const [menuOpen, setMenuOpen] = useState(false)
-  const originText = siteName(props.item.originalArticleUrl, props.item.url)
-
-  const handleCheckChanged = useCallback(() => {
-    const newValue = !isChecked
-    setIsChecked(item.id, newValue)
-  }, [setIsChecked, isChecked, props])
-
-  return (
-    <VStack css={{ p: '0px', m: '0px', width: '100%' }}>
-      <Box css={{ position: 'relative', width: '100%' }}>
-        <GridImage
-          src={props.item.image}
-          title={props.item.title}
-          readingProgress={item.readingProgressPercent}
-        />
-        <SpanBox
-          css={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            m: '10px',
-            lineHeight: '1',
-          }}
-        >
-          <CardCheckbox
-            isChecked={isChecked}
-            handleChanged={handleCheckChanged}
-          />
-        </SpanBox>
-        <Box
-          css={{
-            ...MenuStyle,
-            position: 'absolute',
-            top: 0,
-            right: 0,
-            m: '5px',
-            visibility: menuOpen ? 'visible' : 'hidden',
-            '@media (hover: none)': {
-              visibility: 'unset',
-            },
-          }}
-        >
-          <CardMenu
-            item={props.item}
-            viewer={props.viewer}
-            onOpenChange={(open) => setMenuOpen(open)}
-            actionHandler={props.handleAction}
-            triggerElement={
-              <DotsThree size={25} weight="bold" color="#ADADAD" />
-            }
-          />
-        </Box>
-      </Box>
-
-      <HStack
-        css={{
-          ...MetaStyle,
-          minHeight: '35px',
-          pt: '15px',
-          px: '15px',
-          color: '$grayText',
-        }}
-        distribution="start"
-      >
-        <LibraryItemMetadata item={props.item} showProgress={true} />
-      </HStack>
-
-      <VStack
-        alignment="start"
-        distribution="start"
-        css={{ height: '100%', width: '100%', px: '15px', pt: '10px' }}
-      >
-        <Box
-          css={{
-            ...TitleStyle,
-            height: '42px',
-          }}
-        >
-          {props.item.title}
-        </Box>
-        <SpanBox
-          css={{
-            ...AuthorInfoStyle,
-            mt: '0px',
-            mb: '20px',
-          }}
-        >
-          {props.item.author}
-          {props.item.author && originText && ' | '}
-          <SpanBox css={{ textDecoration: 'underline' }}>{originText}</SpanBox>
-        </SpanBox>
-
-        <HStack
-          distribution="start"
-          alignment="start"
-          css={{ width: '100%', minHeight: '50px', pb: '10px' }}
-        >
-          <HStack
-            css={{
-              display: 'block',
-              minHeight: '35px',
-            }}
-          >
-            {sortedLabels(props.item.labels).map(({ name, color }, index) => (
-              <LabelChip key={index} text={name || ''} color={color} />
-            ))}
-          </HStack>
-        </HStack>
-      </VStack>
+      {props.title.substring(0, 1).toLocaleUpperCase()}
     </VStack>
   )
 }
