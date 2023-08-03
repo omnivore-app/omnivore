@@ -58,8 +58,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility kotlin_version
-        targetCompatibility kotlin_version
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
     kotlinOptions {
         jvmTarget = '1.8'
@@ -76,32 +76,31 @@ android {
         }
     }
     namespace 'app.omnivore.omnivore'
-    kapt {
-        generateStubs = true
-    }
 }
 
 dependencies {
-    def nav_version = '2.6.0'
+    def nav_version = "2.5.3"
 
-    implementation 'androidx.core:core-ktx:1.10.1'
+    implementation 'androidx.core:core-ktx:1.9.0'
     implementation "androidx.compose.ui:ui:$compose_version"
     implementation "androidx.compose.material:material:$compose_version"
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
     implementation "androidx.compose.material:material-icons-extended:$compose_version"
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
-    implementation 'androidx.activity:activity-compose:1.7.2'
-//    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.gms:play-services-base:18.2.0'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
+    implementation 'androidx.activity:activity-compose:1.6.1'
+    implementation 'androidx.appcompat:appcompat:1.5.1'
+    implementation 'com.google.android.gms:play-services-base:18.1.0'
 
     implementation "androidx.navigation:navigation-compose:$nav_version"
 
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.4'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
+
+    // Jetpack Lifecycle deps
 
     // ViewModel
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
@@ -109,7 +108,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycle_version")
     // LiveData
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version")
-    implementation('androidx.compose.runtime:runtime-livedata:1.4.3')
+    implementation("androidx.compose.runtime:runtime-livedata:1.3.2")
 
     // Saved state module for ViewModel
     implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:$lifecycle_version")
@@ -121,8 +120,8 @@ dependencies {
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
 
     // coroutines
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4'
 
     implementation "androidx.security:security-crypto:1.0.0"
     implementation "androidx.datastore:datastore-preferences:1.0.0"
@@ -133,20 +132,20 @@ dependencies {
 
     implementation 'com.apollographql.apollo3:apollo-runtime:3.7.2'
 
-    implementation 'androidx.compose.material3:material3:1.2.0-alpha04'
-    implementation 'androidx.compose.material3:material3-window-size-class:1.2.0-alpha04'
+    implementation 'androidx.compose.material3:material3:1.1.0-alpha03'
+    implementation 'androidx.compose.material3:material3-window-size-class:1.1.0-alpha03'
 
-    implementation 'com.google.android.gms:play-services-auth:20.6.0'
+    implementation 'com.google.android.gms:play-services-auth:20.4.0'
     implementation "com.google.accompanist:accompanist-systemuicontroller:0.25.1"
     implementation "com.google.accompanist:accompanist-flowlayout:0.25.1"
 
-    implementation 'io.coil-kt:coil-compose:2.4.0'
+    implementation 'io.coil-kt:coil-compose:2.2.0'
 
-    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'com.google.code.gson:gson:2.8.9'
     implementation 'com.pspdfkit:pspdfkit:8.4.1'
 
-    implementation 'com.segment.analytics.kotlin:android:1.13.0'
-    implementation 'io.intercom.android:intercom-sdk:15.1.4'
+    implementation 'com.segment.analytics.kotlin:android:1.10.0'
+    implementation 'io.intercom.android:intercom-sdk:15.1.0'
 
     // Room Deps
     implementation "androidx.room:room-runtime:$room_version"
@@ -155,7 +154,7 @@ dependencies {
     kapt "androidx.room:room-compiler:$room_version"
 
     implementation 'com.github.jeziellago:compose-markdown:0.3.3'
-    implementation 'io.github.dokar3:chiptextfield:0.4.8'
+    implementation "io.github.dokar3:chiptextfield:0.4.7"
 }
 
 apollo {
