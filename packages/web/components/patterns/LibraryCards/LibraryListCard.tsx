@@ -11,7 +11,6 @@ import {
   siteName,
   TitleStyle,
   MenuStyle,
-  Fallback,
 } from './LibraryCardStyles'
 import { sortedLabels } from '../../../lib/labelsSort'
 import { LIBRARY_LEFT_MENU_WIDTH } from '../../templates/homeFeed/LibraryFilterMenu'

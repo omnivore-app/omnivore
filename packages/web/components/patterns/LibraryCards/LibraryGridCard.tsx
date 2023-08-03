@@ -4,12 +4,11 @@ import type { LinkedItemCardProps } from './CardTypes'
 import { CoverImage } from '../../elements/CoverImage'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { ChangeEvent, useCallback, useState } from 'react'
+import { useCallback, useState } from 'react'
 import Link from 'next/link'
 import {
   AuthorInfoStyle,
   CardCheckbox,
-  DescriptionStyle,
   LibraryItemMetadata,
   MetaStyle,
   siteName,
