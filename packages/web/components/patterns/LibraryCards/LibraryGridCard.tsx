@@ -219,7 +219,6 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
       <HStack
         css={{
           ...MetaStyle,
-          minHeight: '35px',
           pt: '15px',
           px: '15px',
         }}
@@ -231,7 +230,7 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
       <VStack
         alignment="start"
         distribution="start"
-        css={{ height: '100%', width: '100%', px: '15px', pt: '10px' }}
+        css={{ height: '100%', width: '100%', px: '15px', pt: '5px' }}
       >
         <Box
           css={{
@@ -244,8 +243,8 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
         <SpanBox
           css={{
             ...AuthorInfoStyle,
-            mt: '0px',
-            mb: '20px',
+            mt: '5px',
+            mb: '10px',
           }}
         >
           {props.item.author}
@@ -262,6 +261,7 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
             css={{
               display: 'block',
               minHeight: '35px',
+              marginLeft: '-2px', // offset because the chips have margin
             }}
           >
             {sortedLabels(props.item.labels).map(({ name, color }, index) => (
