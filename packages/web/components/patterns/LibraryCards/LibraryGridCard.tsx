@@ -116,41 +116,6 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
   )
 }
 
-type FallbackProps = {
-  title: string
-}
-
-const Fallback = (props: FallbackProps): JSX.Element => {
-  const idx = (Math.abs(hashCode(props.title)) % Colors.length) - 1
-  const color = Colors[idx]
-
-  return (
-    <Box
-      css={{
-        position: 'relative',
-        width: '100%',
-        height: '100px',
-        backgroundColor: color.colors[1],
-        color: color.colors[0],
-        fontSize: '128px',
-        fontWeight: 'bold',
-        fontFamily: '$display',
-        overflow: 'hidden',
-      }}
-    >
-      <SpanBox
-        css={{
-          position: 'absolute',
-          top: '-58px',
-          left: '40px',
-        }}
-      >
-        {props.title.substring(0, 1).toLocaleUpperCase()}
-      </SpanBox>
-    </Box>
-  )
-}
-
 type GridImageProps = {
   src?: string
   title?: string
@@ -272,6 +237,8 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
         <Box
           css={{
             ...TitleStyle,
+            maxLines: 2,
+            lineHeight: 1.25,
             height: '42px',
           }}
         >
