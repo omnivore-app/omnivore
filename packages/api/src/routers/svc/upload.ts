@@ -2,14 +2,12 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import express from 'express'
-import { readPushSubscription } from '../../datalayer/pubsub'
-import { uploadToBucket } from '../../utils/uploads'
-import { v4 as uuidv4 } from 'uuid'
-import { env } from '../../env'
 import { DateTime } from 'luxon'
-import { buildLogger } from '../../utils/logger'
-
-const logger = buildLogger('app.dispatch')
+import { v4 as uuidv4 } from 'uuid'
+import { readPushSubscription } from '../../datalayer/pubsub'
+import { env } from '../../env'
+import { logger } from '../../utils/logger'
+import { uploadToBucket } from '../../utils/uploads'
 
 export function uploadServiceRouter() {
   const router = express.Router()

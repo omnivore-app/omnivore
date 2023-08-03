@@ -12,6 +12,7 @@ import { updateReceivedEmail } from '../../services/received_emails'
 import { analytics } from '../../utils/analytics'
 import { getClaimsByToken } from '../../utils/auth'
 import { generateSlug } from '../../utils/helpers'
+import { logger } from '../../utils/logger'
 import {
   generateUploadFilePathName,
   generateUploadSignedUrl,
@@ -24,7 +25,7 @@ export function emailAttachmentRouter() {
 
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   router.post('/upload', async (req, res) => {
-    console.log('email-attachment/upload')
+    logger.info('email-attachment/upload')
 
     const { email, fileName, contentType } = req.body as {
       email: string
@@ -79,14 +80,14 @@ export function emailAttachmentRouter() {
         res.status(400).send('BAD REQUEST')
       }
     } catch (err) {
-      console.error(err)
+      logger.error(err)
       return res.status(500).send('INTERNAL_SERVER_ERROR')
     }
   })
 
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   router.post('/create-article', async (req, res) => {
-    console.log('email-attachment/create-article')
+    logger.info('email-attachment/create-article')
 
     const { email, uploadFileId, subject, receivedEmailId } = req.body as {
       email: string
@@ -176,7 +177,7 @@ export function emailAttachmentRouter() {
 
       res.send({ id: pageId })
     } catch (err) {
-      console.log(err)
+      logger.info(err)
       res.status(500).send(err)
     }
   })

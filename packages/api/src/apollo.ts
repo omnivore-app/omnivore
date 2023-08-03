@@ -4,30 +4,29 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/require-await */
+import { makeExecutableSchema } from '@graphql-tools/schema'
+import * as Sentry from '@sentry/node'
 import { ContextFunction } from 'apollo-server-core'
-import { ClaimsToSet, ResolverContext } from './resolvers/types'
-import { SetClaimsRole } from './utils/dictionary'
-import { Knex } from 'knex'
+import { ApolloServer } from 'apollo-server-express'
 import { ExpressContext } from 'apollo-server-express/dist/ApolloServer'
 import * as jwt from 'jsonwebtoken'
-import { kx } from './datalayer/knex_config'
-import { tracer } from './tracing'
-import { env } from './env'
+import { Knex } from 'knex'
 import { promisify } from 'util'
-import { buildLogger } from './utils/logger'
-import { ApolloServer } from 'apollo-server-express'
-import { makeExecutableSchema } from '@graphql-tools/schema'
-import typeDefs from './schema'
-import { sanitizeDirectiveTransformer } from './directives'
-import { functionResolvers } from './resolvers/function_resolvers'
-import ScalarResolvers from './scalars'
-import * as Sentry from '@sentry/node'
+import { kx } from './datalayer/knex_config'
 import { createPubSubClient } from './datalayer/pubsub'
+import { sanitizeDirectiveTransformer } from './directives'
+import { env } from './env'
+import { functionResolvers } from './resolvers/function_resolvers'
+import { ClaimsToSet, ResolverContext } from './resolvers/types'
+import ScalarResolvers from './scalars'
+import typeDefs from './schema'
 import { initModels } from './server'
+import { tracer } from './tracing'
 import { getClaimsByToken, setAuthInCookie } from './utils/auth'
+import { SetClaimsRole } from './utils/dictionary'
+import { logger } from './utils/logger'
 
 const signToken = promisify(jwt.sign)
-const logger = buildLogger('app.dispatch')
 const pubsub = createPubSubClient()
 
 const resolvers = {

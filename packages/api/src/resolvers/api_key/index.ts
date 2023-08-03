@@ -1,3 +1,7 @@
+import { ApiKey } from '../../entity/api_key'
+import { User } from '../../entity/user'
+import { getRepository } from '../../entity/utils'
+import { env } from '../../env'
 import {
   ApiKeysError,
   ApiKeysErrorCode,
@@ -12,12 +16,8 @@ import {
   RevokeApiKeySuccess,
 } from '../../generated/graphql'
 import { analytics } from '../../utils/analytics'
-import { env } from '../../env'
-import { authorized } from '../../utils/helpers'
-import { getRepository } from '../../entity/utils'
-import { User } from '../../entity/user'
-import { ApiKey } from '../../entity/api_key'
 import { generateApiKey, hashApiKey } from '../../utils/auth'
+import { authorized } from '../../utils/helpers'
 
 export const apiKeysResolver = authorized<ApiKeysSuccess, ApiKeysError>(
   async (_, __, { claims: { uid }, log }) => {
@@ -103,7 +103,7 @@ export const generateApiKeyResolver = authorized<
       },
     }
   } catch (error) {
-    console.error(error)
+    log.error(error)
 
     return { errorCodes: [GenerateApiKeyErrorCode.BadRequest] }
   }

@@ -1,17 +1,18 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+import axios, { Method } from 'axios'
 import express from 'express'
 import { readPushSubscription } from '../../datalayer/pubsub'
 import { getRepository } from '../../entity/utils'
 import { Webhook } from '../../entity/webhook'
-import axios, { Method } from 'axios'
+import { logger } from '../../utils/logger'
 
 export function webhooksServiceRouter() {
   const router = express.Router()
 
   router.post('/trigger/:action', async (req, res) => {
-    console.log('trigger webhook of action', req.params.action)
+    logger.info('trigger webhook of action', req.params.action)
     const { message: msgStr, expired } = readPushSubscription(req)
 
     if (!msgStr) {
@@ -20,7 +21,7 @@ export function webhooksServiceRouter() {
     }
 
     if (expired) {
-      console.log('discarding expired message')
+      logger.info('discarding expired message')
       res.status(200).send('Expired')
       return
     }
@@ -29,7 +30,7 @@ export function webhooksServiceRouter() {
       const data = JSON.parse(msgStr)
       const { userId, type } = data
       if (!userId || !type) {
-        console.log('No userId or type found in message')
+        logger.info('No userId or type found in message')
         res.status(400).send('Bad Request')
         return
       }
@@ -44,7 +45,7 @@ export function webhooksServiceRouter() {
         .getMany()
 
       if (webhooks.length <= 0) {
-        console.log(
+        logger.info(
           'No active webhook found for user',
           userId,
           'and eventType',
@@ -64,20 +65,28 @@ export function webhooksServiceRouter() {
           [type]: data,
         })
 
-        console.log('triggering webhook', url)
-        await axios.request({
-          url,
-          method,
-          headers: {
-            'Content-Type': webhook.contentType,
-          },
-          data: body,
-        })
+        logger.info('triggering webhook', url)
+        try {
+          await axios.request({
+            url,
+            method,
+            headers: {
+              'Content-Type': webhook.contentType,
+            },
+            data: body,
+          })
+        } catch (error) {
+          if (axios.isAxiosError(error)) {
+            logger.error(error.response)
+          } else {
+            logger.error(error)
+          }
+        }
       }
 
       res.status(200).send('OK')
     } catch (err) {
-      console.log('trigger webhook failed', err)
+      logger.info('trigger webhook failed', err)
       res.status(500).send(err)
     }
   })

@@ -7,12 +7,12 @@
 
 import Foundation
 
-public func showInSnackbar(_ message: String) {
-  let nname = Notification.Name("OperationSuccess")
+public func showInLibrarySnackbar(_ message: String) {
+  let nname = Notification.Name("LibrarySnackBar")
   NotificationCenter.default.post(name: nname, object: nil, userInfo: ["message": message])
 }
 
-public func showErrorInSnackbar(_ message: String) {
-  let nname = Notification.Name("OperationFailure")
+public func showInReaderSnackbar(_ message: String) {
+  let nname = Notification.Name("ReaderSnackBar")
   NotificationCenter.default.post(name: nname, object: nil, userInfo: ["message": message])
 }

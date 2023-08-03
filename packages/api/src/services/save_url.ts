@@ -4,6 +4,7 @@ import { User } from '../entity/user'
 import { getRepository } from '../entity/utils'
 import { homePageURL } from '../env'
 import { SaveErrorCode, SaveResult, SaveUrlInput } from '../generated/graphql'
+import { logger } from '../utils/logger'
 import { createPageSaveRequest } from './create_page_save_request'
 import { createLabels } from './labels'
 
@@ -45,7 +46,7 @@ export const saveUrl = async (
       }`,
     }
   } catch (error) {
-    console.log('error enqueuing request', error)
+    logger.info('error enqueuing request', error)
     return {
       __typename: 'SaveError',
       errorCodes: [SaveErrorCode.Unknown],

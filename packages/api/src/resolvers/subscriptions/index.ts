@@ -34,7 +34,10 @@ import { authorized } from '../../utils/helpers'
 
 type PartialSubscription = Omit<Subscription, 'newsletterEmail'>
 
-const parser = new Parser()
+const parser = new Parser({
+  timeout: 30000, // 30 seconds
+  maxRedirects: 5,
+})
 
 export type SubscriptionsSuccessPartial = Merge<
   SubscriptionsSuccess,
@@ -44,49 +47,61 @@ export const subscriptionsResolver = authorized<
   SubscriptionsSuccessPartial,
   SubscriptionsError,
   QuerySubscriptionsArgs
->(async (_obj, { sort, type: subscriptionType }, { claims: { uid }, log }) => {
-  log.info('subscriptionsResolver')
+>(
+  async (
+    _obj,
+    { sort, type = SubscriptionType.Newsletter }, // default to newsletter
+    { claims: { uid }, log }
+  ) => {
+    log.info('subscriptionsResolver')
 
-  analytics.track({
-    userId: uid,
-    event: 'subscriptions',
-    properties: {
-      env: env.server.apiEnv,
-    },
-  })
+    analytics.track({
+      userId: uid,
+      event: 'subscriptions',
+      properties: {
+        env: env.server.apiEnv,
+      },
+    })
 
-  try {
-    const sortBy =
-      sort?.by === SortBy.UpdatedTime ? 'lastFetchedAt' : 'createdAt'
-    const sortOrder = sort?.order === SortOrder.Ascending ? 'ASC' : 'DESC'
-    const user = await getRepository(User).findOneBy({ id: uid })
-    if (!user) {
+    try {
+      const sortBy =
+        sort?.by === SortBy.UpdatedTime ? 'lastFetchedAt' : 'createdAt'
+      const sortOrder = sort?.order === SortOrder.Ascending ? 'ASC' : 'DESC'
+      const user = await getRepository(User).findOneBy({ id: uid })
+      if (!user) {
+        return {
+          errorCodes: [SubscriptionsErrorCode.Unauthorized],
+        }
+      }
+
+      const queryBuilder = getRepository(Subscription)
+        .createQueryBuilder('subscription')
+        .leftJoinAndSelect('subscription.newsletterEmail', 'newsletterEmail')
+        .where({
+          user: { id: uid },
+          type,
+        })
+
+      // only return active subscriptions for newsletter
+      if (type === SubscriptionType.Newsletter) {
+        queryBuilder.andWhere({ status: SubscriptionStatus.Active })
+      }
+
+      const subscriptions = await queryBuilder
+        .orderBy('subscription.' + sortBy, sortOrder)
+        .getMany()
+
       return {
-        errorCodes: [SubscriptionsErrorCode.Unauthorized],
+        subscriptions,
+      }
+    } catch (error) {
+      log.error(error)
+      return {
+        errorCodes: [SubscriptionsErrorCode.BadRequest],
       }
     }
-
-    const subscriptions = await getRepository(Subscription)
-      .createQueryBuilder('subscription')
-      .leftJoinAndSelect('subscription.newsletterEmail', 'newsletterEmail')
-      .where({
-        user: { id: uid },
-        status: SubscriptionStatus.Active,
-        type: subscriptionType || SubscriptionType.Newsletter, // default to newsletter
-      })
-      .orderBy('subscription.' + sortBy, sortOrder)
-      .getMany()
-
-    return {
-      subscriptions,
-    }
-  } catch (error) {
-    log.error(error)
-    return {
-      errorCodes: [SubscriptionsErrorCode.BadRequest],
-    }
   }
-})
+)
 
 export type UnsubscribeSuccessPartial = Merge<
   UnsubscribeSuccess,
@@ -235,12 +250,12 @@ export const subscribeResolver = authorized<
       // validate rss feed
       const feed = await parser.parseURL(input.url)
 
-      // limit number of rss subscriptions to 20
+      // limit number of rss subscriptions to 50
       const newSubscriptions = (await AppDataSource.query(
         `insert into omnivore.subscriptions (name, url, description, type, user_id, icon) 
         select $1, $2, $3, $4, $5, $6 from omnivore.subscriptions 
         where user_id = $5 and type = 'RSS' and status = 'ACTIVE' 
-        having count(*) < 20 
+        having count(*) < 50 
         returning *;`,
         [
           feed.title,
@@ -315,7 +330,6 @@ export const updateSubscriptionResolver = authorized<
     const subscription = await getRepository(Subscription).findOneBy({
       id: input.id,
       user: { id: uid },
-      status: SubscriptionStatus.Active,
     })
     if (!subscription) {
       log.info('subscription not found')
@@ -332,6 +346,7 @@ export const updateSubscriptionResolver = authorized<
       lastFetchedAt: input.lastFetchedAt
         ? new Date(input.lastFetchedAt)
         : undefined,
+      status: input.status || undefined,
     })
 
     return {

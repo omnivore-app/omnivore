@@ -203,6 +203,12 @@ function Labels(props: LibraryFilterMenuProps): JSX.Element {
     initialValue: false,
   })
 
+  const sortedLabels = useMemo(() => {
+    return labels.sort((left: Label, right: Label) =>
+      left.name.localeCompare(right.name)
+    )
+  }, [labels])
+
   return (
     <MenuPanel
       title="Labels"
@@ -212,7 +218,7 @@ function Labels(props: LibraryFilterMenuProps): JSX.Element {
         window.location.href = '/settings/labels'
       }}
     >
-      {labels.slice(0, viewAll ? undefined : 4).map((item) => {
+      {sortedLabels.slice(0, viewAll ? undefined : 4).map((item) => {
         return <LabelButton key={item.id} label={item} {...props} />
       })}
       <ViewAllButton state={viewAll} setState={setViewAll} />

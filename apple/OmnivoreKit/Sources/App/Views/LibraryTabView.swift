@@ -51,39 +51,37 @@ struct LibraryTabView: View {
         ) {
           EmptyView()
         }
-//        TabView(selection: $selection) {
-//          BriefingView(
-//            articleId: "98e017a3-79d5-4049-97bc-ff170153792a"
-//          )
-//          .tabItem {
-//            Label {
-//              Text("Your Briefing")
-//            } icon: {
-//              Image.tabBriefing.padding(.trailing, 5)
-//            }
-//          }.tag(0)
+        //        TabView(selection: $selection) {
+        //          BriefingView(
+        //            articleId: "98e017a3-79d5-4049-97bc-ff170153792a"
+        //          )
+        //          .tabItem {
+        //            Label {
+        //              Text("Your Briefing")
+        //            } icon: {
+        //              Image.tabBriefing.padding(.trailing, 5)
+        //            }
+        //          }.tag(0)
 
         HomeView(viewModel: libraryViewModel)
-//            .tabItem {
-//              Label {
-//                Text("Library")
-//              } icon: {
-//                Image.tabLibrary
-//              }
-//            }.tag(1)
+        //            .tabItem {
+        //              Label {
+        //                Text("Library")
+        //              } icon: {
+        //                Image.tabLibrary
+        //              }
+        //            }.tag(1)
 
-//          HomeView(viewModel: highlightsViewModel)
-//            .tabItem {
-//              Label {
-//                Text("Highlights")
-//              } icon: {
-//                Image.tabHighlights
-//              }
-//            }.tag(2)
-//        }
+        //          HomeView(viewModel: highlightsViewModel)
+        //            .tabItem {
+        //              Label {
+        //                Text("Highlights")
+        //              } icon: {
+        //                Image.tabHighlights
+        //              }
+        //            }.tag(2)
+        //        }
       }
     }
-    .navigationViewStyle(.stack)
-    .navigationBarTitleDisplayMode(.inline)
   }
 }

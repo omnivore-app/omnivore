@@ -9,6 +9,7 @@ import {
   validatedDate,
   wordsCount,
 } from '../utils/helpers'
+import { logger } from '../utils/logger'
 import {
   FAKE_URL_PREFIX,
   parsePreparedContent,
@@ -91,14 +92,14 @@ export const saveEmail = async (
   })
   if (page) {
     const result = await updatePage(page.id, { archivedAt: null }, ctx)
-    console.log('updated page from email', result)
+    logger.info('updated page from email', result)
 
     return page
   }
 
   const pageId = await createPage(articleToSave, ctx)
   if (!pageId) {
-    console.log('failed to create new page')
+    logger.info('failed to create new page')
 
     return undefined
   }
@@ -110,9 +111,9 @@ export const saveEmail = async (
       slug,
       articleToSave.content
     )
-    console.debug('Created thumbnail task', taskId)
+    logger.info('Created thumbnail task', taskId)
   } catch (e) {
-    console.log('Failed to create thumbnail task', e)
+    logger.error('Failed to create thumbnail task', e)
   }
 
   articleToSave.id = pageId

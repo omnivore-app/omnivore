@@ -3,13 +3,13 @@ import {
   EventSubscriber,
   InsertEvent,
 } from 'typeorm'
-
-import { Profile } from '../../entity/profile'
-import { IntercomClient } from '../../utils/intercom'
 import { createPubSubClient } from '../../datalayer/pubsub'
+import { Profile } from '../../entity/profile'
 import { env } from '../../env'
-import { analytics } from '../../utils/analytics'
 import { addPopularReadsForNewUser } from '../../services/popular_reads'
+import { analytics } from '../../utils/analytics'
+import { IntercomClient } from '../../utils/intercom'
+import { logger } from '../../utils/logger'
 
 @EventSubscriber()
 export class CreateIntercomAccount
@@ -56,7 +56,7 @@ export class IdentifySegmentUser implements EntitySubscriberInterface<Profile> {
         },
       })
     } catch (error) {
-      console.log('error in sign up', error)
+      logger.info('error in sign up', error)
     }
     return Promise.resolve()
   }

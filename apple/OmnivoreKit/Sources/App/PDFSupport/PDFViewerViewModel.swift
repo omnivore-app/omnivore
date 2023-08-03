@@ -2,15 +2,24 @@ import Foundation
 import Models
 import Services
 import Utils
+// import Views
 
 final class PDFViewerViewModel: ObservableObject {
   @Published var errorMessage: String?
   @Published var readerView: Bool = false
 
+  @Published var showSnackbar: Bool = false
+  var snackbarMessage: String?
+
   let pdfItem: PDFItem
 
   init(pdfItem: PDFItem) {
     self.pdfItem = pdfItem
+  }
+
+  func snackbar(message: String) {
+    snackbarMessage = message
+    showSnackbar = true
   }
 
   func loadHighlightPatches(completion onComplete: @escaping ([String]) -> Void) {
@@ -73,19 +82,6 @@ final class PDFViewerViewModel: ObservableObject {
       readingProgress: percent,
       anchorIndex: anchorIndex
     )
-  }
-
-  func highlightShareURL(dataService: DataService, shortId: String) -> URL? {
-    let baseURL = dataService.appEnvironment.serverBaseURL
-    var components = URLComponents(url: baseURL, resolvingAgainstBaseURL: false)
-
-    if let username = dataService.currentViewer?.username {
-      components?.path = "/\(username)/\(pdfItem.slug)/highlights/\(shortId)"
-    } else {
-      return nil
-    }
-
-    return components?.url
   }
 
   func downloadPDF(dataService: DataService) async -> URL? {

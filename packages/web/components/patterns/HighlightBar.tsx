@@ -7,6 +7,8 @@ import { Button } from '../elements/Button'
 import { HStack, Box } from '../elements/LayoutPrimitives'
 import { PenWithColorIcon } from '../elements/images/PenWithColorIcon'
 import { Note, Tag, Trash, Copy } from 'phosphor-react'
+import { TrashIcon } from '../elements/icons/TrashIcon'
+import { LabelIcon } from '../elements/icons/LabelIcon'
 
 type PageCoordinates = {
   pageX: number
@@ -134,7 +136,10 @@ function BarContent(props: HighlightBarProps): JSX.Element {
             text="Delete"
             title="Remove Highlight"
             iconElement={
-              <Trash size={20} color={theme.colors.omnivoreRed.toString()} />
+              <TrashIcon
+                size={20}
+                color={theme.colors.omnivoreRed.toString()}
+              />
             }
             onClick={() => props.handleButtonClick('delete')}
           />
@@ -143,7 +148,7 @@ function BarContent(props: HighlightBarProps): JSX.Element {
             text="Labels"
             title="Set Labels"
             iconElement={
-              <Tag size={20} color={theme.colors.readerFont.toString()} />
+              <LabelIcon size={20} color={theme.colors.readerFont.toString()} />
             }
             onClick={() => props.handleButtonClick('setHighlightLabels')}
           />

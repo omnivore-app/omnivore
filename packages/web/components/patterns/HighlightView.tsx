@@ -73,7 +73,6 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
   const hover = useHover(context)
 
   const { getReferenceProps, getFloatingProps } = useInteractions([hover])
-
   const highlightAlpha = isDark ? 1.0 : 0.35
 
   return (

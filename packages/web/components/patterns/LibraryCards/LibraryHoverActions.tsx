@@ -14,6 +14,11 @@ import {
 } from 'phosphor-react'
 import { CardMenu } from '../CardMenu'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
+import { ArchiveIcon } from '../../elements/icons/ArchiveIcon'
+import { NotebookIcon } from '../../elements/icons/NotebookIcon'
+import { TrashIcon } from '../../elements/icons/TrashIcon'
+import { LabelIcon } from '../../elements/icons/LabelIcon'
+import { UnarchiveIcon } from '../../elements/icons/UnarchiveIcon'
 
 type LibraryHoverActionsProps = {
   viewer: UserBasicData
@@ -45,7 +50,7 @@ export const LibraryHoverActions = (props: LibraryHoverActionsProps) => {
 
         gap: '5px',
         px: '5px',
-        visibility: props.isHovered || menuOpen ? 'unset' : 'hidden',
+        visibility: props.isHovered || menuOpen ? 'visible' : 'hidden',
         '&:hover': {
           boxShadow:
             '0 1px 3px 0 rgba(0, 0, 0, 0.1),0 1px 2px 0 rgba(0, 0, 0, 0.06);',
@@ -53,15 +58,23 @@ export const LibraryHoverActions = (props: LibraryHoverActionsProps) => {
       }}
     >
       <Button
+        title="View Notebook (t)"
         style="hoverActionIcon"
         onClick={(event) => {
           props.handleAction('open-notebook')
           event.preventDefault()
         }}
+        css={{
+          visibility: props.isHovered || menuOpen ? 'visible' : 'hidden',
+        }}
       >
-        <Notebook size={19} color={theme.colors.thNotebookSubtle.toString()} />
+        <NotebookIcon
+          size={21}
+          color={theme.colors.thNotebookSubtle.toString()}
+        />
       </Button>
       <Button
+        title="Archive (e)"
         style="hoverActionIcon"
         onClick={(event) => {
           const action = props.item.isArchived ? 'unarchive' : 'archive'
@@ -70,31 +83,36 @@ export const LibraryHoverActions = (props: LibraryHoverActionsProps) => {
         }}
       >
         {props.item.isArchived ? (
-          <Tray size={18} color={theme.colors.thNotebookSubtle.toString()} />
+          <UnarchiveIcon
+            size={21}
+            color={theme.colors.thNotebookSubtle.toString()}
+          />
         ) : (
-          <ArchiveBox
-            size={18}
+          <ArchiveIcon
+            size={21}
             color={theme.colors.thNotebookSubtle.toString()}
           />
         )}
       </Button>
       <Button
+        title="Remove (#)"
         style="hoverActionIcon"
         onClick={(event) => {
           props.handleAction('delete')
           event.preventDefault()
         }}
       >
-        <Trash size={18} color={theme.colors.thNotebookSubtle.toString()} />
+        <TrashIcon size={21} color={theme.colors.thNotebookSubtle.toString()} />
       </Button>
       <Button
+        title="Edit labels (l)"
         style="hoverActionIcon"
         onClick={(event) => {
           props.handleAction('set-labels')
           event.preventDefault()
         }}
       >
-        <Tag size={18} color={theme.colors.thNotebookSubtle.toString()} />
+        <LabelIcon size={21} color={theme.colors.thNotebookSubtle.toString()} />
       </Button>
       <CardMenu
         item={props.item}

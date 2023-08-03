@@ -1,14 +1,14 @@
 import { Merge } from '../../util'
 import { authorized } from '../../utils/helpers'
 import {
-  CreateReactionSuccess,
   CreateReactionError,
-  MutationCreateReactionArgs,
   CreateReactionErrorCode,
-  Reaction,
-  DeleteReactionErrorCode,
+  CreateReactionSuccess,
   DeleteReactionError,
+  DeleteReactionErrorCode,
+  MutationCreateReactionArgs,
   MutationDeleteReactionArgs,
+  Reaction,
 } from './../../generated/graphql'
 
 export type PartialReaction = Omit<Reaction, 'user'>
@@ -93,7 +93,7 @@ export const createReactionResolver = authorized<
       reaction: reaction as PartialReaction,
     }
   } catch (err) {
-    console.log(err)
+    log.info(err)
     return {
       errorCodes: [CreateReactionErrorCode.NotFound],
     }

@@ -4,9 +4,9 @@ import {
   EventSubscriber,
   InsertEvent,
 } from 'typeorm'
-
 import { ContentDisplayReport } from '../../entity/reports/content_display_report'
 import { env } from '../../env'
+import { logger } from '../../utils/logger'
 import { sendEmail } from '../../utils/sendEmail'
 
 @EventSubscriber()
@@ -23,7 +23,7 @@ export class ContentDisplayReportSubscriber
                     ${report.user.id} for URL: ${report.originalUrl}
                     ${report.reportComment}`
 
-    console.log(message)
+    logger.info(message)
 
     if (!env.dev.isLocal) {
       // If we are in the local environment, just log a message, otherwise email the report

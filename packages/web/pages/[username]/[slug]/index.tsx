@@ -396,11 +396,11 @@ export default function Home(): JSX.Element {
         description: article?.description ?? '',
       }}
     >
-      <Script async src="/static/scripts/mathJaxConfiguration.js" />
+      <Script async src="/static/mathjax/mathJaxConfiguration.js" />
       <Script
         async
         id="MathJax-script"
-        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+        src="/static/mathjax/tex-mml-chtml.js"
       />
       <Toaster />
 
@@ -462,7 +462,7 @@ export default function Home(): JSX.Element {
           css={{
             width: '100%',
             height: '100%',
-            background: '$readerMargin',
+            background: '$readerBg',
             overflow: 'scroll',
             paddingTop: '80px',
             '@media print': {
@@ -511,7 +511,7 @@ export default function Home(): JSX.Element {
           css={{
             width: '100%',
             height: '100%',
-            background: '$readerMargin',
+            background: '$readerBg',
             overflow: 'scroll',
             paddingTop: '80px',
           }}

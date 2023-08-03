@@ -22,6 +22,7 @@ import {
   validatedDate,
   wordsCount,
 } from '../utils/helpers'
+import { logger } from '../utils/logger'
 import { parsePreparedContent } from '../utils/parser'
 import { createPageSaveRequest } from './create_page_save_request'
 import { createLabels } from './labels'
@@ -140,6 +141,17 @@ export const savePage = async (
       url: articleToSave.url,
     })
     if (existingPage) {
+      // we don't want to update an rss feed page if rss-feeder is tring to re-save it
+      if (
+        existingPage.rssFeedUrl &&
+        existingPage.rssFeedUrl === input.rssFeedUrl
+      ) {
+        return {
+          clientRequestId: pageId,
+          url: `${homePageURL()}/${saver.username}/${slug}`,
+        }
+      }
+
       pageId = existingPage.id
       slug = existingPage.slug
       if (
@@ -179,9 +191,9 @@ export const savePage = async (
       slug,
       articleToSave.content
     )
-    console.debug('Created thumbnail task', taskId)
+    logger.info('Created thumbnail task', taskId)
   } catch (e) {
-    console.log('Failed to create thumbnail task', e)
+    logger.error('Failed to create thumbnail task', e)
   }
 
   if (parseResult.highlightData) {

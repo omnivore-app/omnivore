@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { ArticleSavingRequestStatus } from '../../elastic/types'
 import { env } from '../../env'
+import { logger } from '../../utils/logger'
 import {
   IntegrationService,
   RetrievedResult,
@@ -73,7 +74,11 @@ export class PocketIntegration extends IntegrationService {
       )
       return response.data.access_token
     } catch (error) {
-      console.log('error validating pocket token', error)
+      if (axios.isAxiosError(error)) {
+        logger.error(error.response)
+      } else {
+        logger.error(error)
+      }
       return null
     }
   }
@@ -83,7 +88,7 @@ export class PocketIntegration extends IntegrationService {
     since: number, // unix timestamp in seconds
     count = 100,
     offset = 0
-  ): Promise<PocketResponse> => {
+  ): Promise<PocketResponse | null> => {
     const url = `${this.POCKET_API_URL}/get`
     try {
       const response = await axios.post<PocketResponse>(
@@ -102,11 +107,16 @@ export class PocketIntegration extends IntegrationService {
           headers: this.headers,
         }
       )
-      console.debug('pocket data', response.data)
+
       return response.data
     } catch (error) {
-      console.log('error retrieving pocket data', error)
-      throw new Error('Error retrieving pocket data')
+      if (axios.isAxiosError(error)) {
+        logger.error(error.response)
+      } else {
+        logger.error(error)
+      }
+
+      return null
     }
   }
 
@@ -122,6 +132,10 @@ export class PocketIntegration extends IntegrationService {
       count,
       offset
     )
+    if (!pocketData) {
+      throw new Error('Error retrieving pocket data')
+    }
+
     const pocketItems = Object.values(pocketData.list)
     const statusToState: Record<string, ArticleSavingRequestStatus> = {
       '0': ArticleSavingRequestStatus.Succeeded,

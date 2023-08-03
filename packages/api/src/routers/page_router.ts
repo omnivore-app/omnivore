@@ -27,13 +27,11 @@ import {
   titleForFilePath,
   validateUuid,
 } from '../utils/helpers'
-import { buildLogger } from '../utils/logger'
+import { logger } from '../utils/logger'
 import {
   generateUploadFilePathName,
   generateUploadSignedUrl,
 } from '../utils/uploads'
-
-const logger = buildLogger('app.dispatch')
 
 export function pageRouter() {
   const router = express.Router()
@@ -50,7 +48,7 @@ export function pageRouter() {
     // Get the content type from the query params
     const { url, clientRequestId } = req.query
     const contentType = req.headers['content-type']
-    console.log(
+    logger.info(
       'contentType',
       contentType,
       'url',
@@ -64,7 +62,7 @@ export function pageRouter() {
       !isString(contentType) ||
       !isString(clientRequestId)
     ) {
-      console.log(
+      logger.info(
         'creating page from pdf failed',
         url,
         contentType,
@@ -74,7 +72,7 @@ export function pageRouter() {
     }
 
     if (!validateUuid(clientRequestId)) {
-      console.log('creating page from pdf failed  invalid uuid')
+      logger.info('creating page from pdf failed  invalid uuid')
       return res.status(400).send({ errorCode: 'BAD_DATA' })
     }
 
@@ -110,7 +108,7 @@ export function pageRouter() {
     })
 
     if (page) {
-      console.log('updating page')
+      logger.info('updating page')
       await updatePage(
         page.id,
         {
@@ -120,7 +118,7 @@ export function pageRouter() {
         ctx
       )
     } else {
-      console.log('creating page')
+      logger.info('creating page')
       const pageId = await createPage(
         {
           url: signedUrl,
@@ -145,7 +143,7 @@ export function pageRouter() {
       }
     }
 
-    console.log('redirecting to signed URL', signedUrl)
+    logger.info('redirecting to signed URL', signedUrl)
     return res.redirect(signedUrl)
   })
 

@@ -1,6 +1,6 @@
 import { errors } from '@elastic/elasticsearch'
 import { EntityType } from '../datalayer/pubsub'
-import { client, INDEX_ALIAS } from './index'
+import { client, INDEX_ALIAS, logger } from './index'
 import { Label, PageContext } from './types'
 
 export const addLabelInPage = async (
@@ -46,10 +46,10 @@ export const addLabelInPage = async (
       e instanceof errors.ResponseError &&
       e.message === 'document_missing_exception'
     ) {
-      console.log('page has been deleted', pageId)
+      logger.info('page has been deleted', pageId)
       return false
     }
-    console.error('failed to add a label in elastic', e)
+    logger.error('failed to add a label in elastic', e)
     return false
   }
 }
@@ -95,10 +95,10 @@ export const updateLabelsInPage = async (
       e instanceof errors.ResponseError &&
       e.message === 'document_missing_exception'
     ) {
-      console.log('page has been deleted', pageId)
+      logger.info('page has been deleted', pageId)
       return false
     }
-    console.error('failed to update labels in elastic', e)
+    logger.error('failed to update labels in elastic', e)
     return false
   }
 }
@@ -174,7 +174,7 @@ export const deleteLabel = async (
 
     return true
   } catch (e) {
-    console.error('failed to delete a label in elastic', e)
+    logger.error('failed to delete a label in elastic', e)
     return false
   }
 }
@@ -264,7 +264,7 @@ export const updateLabel = async (
 
     return true
   } catch (e) {
-    console.error('failed to update label in elastic', e)
+    logger.error('failed to update label in elastic', e)
 
     return false
   }
@@ -324,10 +324,10 @@ export const setLabelsForHighlight = async (
       e instanceof errors.ResponseError &&
       e.message === 'document_missing_exception'
     ) {
-      console.log('highlight has been deleted', highlightId)
+      logger.info('highlight has been deleted', highlightId)
       return false
     }
-    console.error('failed to set labels for highlight in elastic', e)
+    logger.error('failed to set labels for highlight in elastic', e)
     return false
   }
 }

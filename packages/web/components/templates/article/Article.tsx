@@ -192,7 +192,6 @@ export function Article(props: ArticleProps): JSX.Element {
       const img = element as HTMLImageElement
       const width = Number(img.getAttribute('data-omnivore-width'))
       const height = Number(img.getAttribute('data-omnivore-height'))
-      console.log('width and height: ', width, height)
 
       if (!isNaN(width) && !isNaN(height) && width < 100 && height < 100) {
         img.style.setProperty('width', `${width}px`)
@@ -223,7 +222,7 @@ export function Article(props: ArticleProps): JSX.Element {
     <>
       <link
         rel="stylesheet"
-        href={`https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/${highlightTheme}.min.css`}
+        href={`/static/highlightjs/${highlightTheme}.min.css`}
       />
       <Box
         ref={articleContentRef}

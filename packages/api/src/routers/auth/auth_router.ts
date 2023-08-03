@@ -7,52 +7,50 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/require-await */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import {
-  generateGoogleLoginURL,
-  googleAuth,
-  handleGoogleWebAuth,
-  validateGoogleUser,
-} from './google_auth'
-
+import axios from 'axios'
+import cors from 'cors'
 import type { Request, Response } from 'express'
 import express from 'express'
-import axios from 'axios'
-import { env } from '../../env'
+import * as jwt from 'jsonwebtoken'
 import url from 'url'
+import { promisify } from 'util'
 import { kx } from '../../datalayer/knex_config'
 import UserModel from '../../datalayer/user'
-import { buildLogger } from '../../utils/logger'
-import { promisify } from 'util'
-import * as jwt from 'jsonwebtoken'
-import { LoginErrorCode, SignupErrorCode } from '../../generated/graphql'
-import { handleAppleWebAuth } from './apple_auth'
-import type { AuthProvider } from './auth_types'
-import { createMobileAccountCreationResponse } from './mobile/account_creation'
-import { corsConfig } from '../../utils/corsConfig'
-import cors from 'cors'
-
 import {
   RegistrationType,
   StatusType,
   UserData,
 } from '../../datalayer/user/model'
+import { User } from '../../entity/user'
+import { getRepository, setClaims } from '../../entity/utils'
+import { env } from '../../env'
+import { LoginErrorCode, SignupErrorCode } from '../../generated/graphql'
+import { isErrorWithCode } from '../../resolvers'
+import { AppDataSource } from '../../server'
+import { createUser, getUserByEmail } from '../../services/create_user'
+import {
+  sendConfirmationEmail,
+  sendPasswordResetEmail,
+} from '../../services/send_emails'
 import {
   comparePassword,
   getClaimsByToken,
   hashPassword,
   setAuthInCookie,
 } from '../../utils/auth'
-import { createUser, getUserByEmail } from '../../services/create_user'
-import { isErrorWithCode } from '../../resolvers'
-import { AppDataSource } from '../../server'
-import { getRepository, setClaims } from '../../entity/utils'
-import { User } from '../../entity/user'
-import {
-  sendConfirmationEmail,
-  sendPasswordResetEmail,
-} from '../../services/send_emails'
-import { createWebAuthToken } from './jwt_helpers'
+import { corsConfig } from '../../utils/corsConfig'
+import { logger } from '../../utils/logger'
 import { createSsoToken, ssoRedirectURL } from '../../utils/sso'
+import { handleAppleWebAuth } from './apple_auth'
+import type { AuthProvider } from './auth_types'
+import {
+  generateGoogleLoginURL,
+  googleAuth,
+  handleGoogleWebAuth,
+  validateGoogleUser,
+} from './google_auth'
+import { createWebAuthToken } from './jwt_helpers'
+import { createMobileAccountCreationResponse } from './mobile/account_creation'
 
 export interface SignupRequest {
   email: string
@@ -63,7 +61,6 @@ export interface SignupRequest {
   pictureUrl?: string
 }
 
-const logger = buildLogger('app.dispatch')
 const signToken = promisify(jwt.sign)
 
 const cookieParams = {
@@ -345,7 +342,7 @@ export function authRouter() {
           const state = JSON.parse((req.query?.state || '') as string)
           redirectUri = state?.redirect_uri
         } catch (err) {
-          console.warn(
+          logger.warn(
             'handleSuccessfulLogin: failed to parse redirect query state param',
             err
           )

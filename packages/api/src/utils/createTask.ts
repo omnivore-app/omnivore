@@ -15,13 +15,19 @@ import {
 import { signFeatureToken } from '../services/features'
 import { generateVerificationToken, OmnivoreAuthorizationHeader } from './auth'
 import { CreateTaskError } from './errors'
-import { buildLogger } from './logger'
+import { logger } from './logger'
 import View = google.cloud.tasks.v2.Task.View
-
-const logger = buildLogger('app.dispatch')
 
 // Instantiates a client.
 const client = new CloudTasksClient()
+
+const logError = (error: Error): void => {
+  if (axios.isAxiosError(error)) {
+    logger.error(error.response)
+  } else {
+    logger.error(error)
+  }
+}
 
 const createHttpTaskWithToken = async ({
   project = process.env.GOOGLE_CLOUD_PROJECT,
@@ -149,13 +155,13 @@ export const createAppEngineTask = async ({
     }
   }
 
-  console.log('Sending task:')
-  console.log(task)
+  logger.info('Sending task:')
+  logger.info(task)
   // Send create task request.
   const request = { parent: parent, task: task }
   const [response] = await client.createTask(request)
   const name = response.name
-  console.log(`Created task ${name}`)
+  logger.info(`Created task ${name}`)
 
   return name
 }
@@ -245,7 +251,7 @@ export const enqueueParseRequest = async ({
     // Calling the handler function directly.
     setTimeout(() => {
       axios.post(env.queue.contentFetchUrl, payload).catch((error) => {
-        console.error(error)
+        logError(error)
         logger.warning(
           `Error occurred while requesting local puppeteer-parse function\nPlease, ensure your function is set up properly and running using "yarn start" from the "/pkg/gcf/puppeteer-parse" folder`
         )
@@ -399,7 +405,7 @@ export const enqueueTextToSpeech = async ({
     // Calling the handler function directly.
     setTimeout(() => {
       axios.post(taskHandlerUrl, payload).catch((error) => {
-        logger.error(error)
+        logError(error)
       })
     }, 0)
     return ''
@@ -450,7 +456,7 @@ export const enqueueRecommendation = async (
           headers,
         })
         .catch((error) => {
-          logger.error(error)
+          logError(error)
         })
     }, 0)
     return ''
@@ -494,7 +500,7 @@ export const enqueueImportFromIntegration = async (
           headers,
         })
         .catch((error) => {
-          console.error(error)
+          logError(error)
         })
     }, 0)
     return nanoid()
@@ -543,7 +549,7 @@ export const enqueueThumbnailTask = async (
           headers,
         })
         .catch((error) => {
-          console.error(error)
+          logError(error)
         })
     }, 0)
     return ''
@@ -590,7 +596,7 @@ export const enqueueRssFeedFetch = async (
           headers,
         })
         .catch((error) => {
-          console.error(error)
+          logError(error)
         })
     }, 0)
     return nanoid()

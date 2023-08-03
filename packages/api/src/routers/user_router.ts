@@ -7,10 +7,8 @@ import { getRepository } from '../entity/utils'
 import { env } from '../env'
 import { getClaimsByToken, getTokenByRequest } from '../utils/auth'
 import { corsConfig } from '../utils/corsConfig'
-import { buildLogger } from '../utils/logger'
+import { logger } from '../utils/logger'
 import { sendEmail } from '../utils/sendEmail'
-
-const logger = buildLogger('app.dispatch')
 
 export function userRouter() {
   const router = express.Router()
@@ -37,7 +35,7 @@ export function userRouter() {
       subject?: string
     }
     if (!subject || !body || !from) {
-      console.log(subject, body, from)
+      logger.error('Bad Request', subject, body, from)
       res.status(400).send('Bad Request')
       return
     }

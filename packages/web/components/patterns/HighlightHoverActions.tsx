@@ -18,6 +18,8 @@ import {
 import { UserBasicData } from '../../lib/networking/queries/useGetViewerQuery'
 import { Highlight } from '../../lib/networking/fragments/highlightFragment'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
+import { TrashIcon } from '../elements/icons/TrashIcon'
+import { LabelIcon } from '../elements/icons/LabelIcon'
 
 type HighlightHoverActionsProps = {
   viewer: UserBasicData
@@ -50,7 +52,7 @@ export const HighlightHoverActions = (props: HighlightHoverActionsProps) => {
 
         gap: '5px',
         px: '5px',
-        visibility: props.isHovered || menuOpen ? 'unset' : 'hidden',
+        visibility: props.isHovered || menuOpen ? 'visible' : 'hidden',
         '&:hover': {
           boxShadow:
             '0 1px 3px 0 rgba(0, 0, 0, 0.1),0 1px 2px 0 rgba(0, 0, 0, 0.06);',
@@ -88,7 +90,7 @@ export const HighlightHoverActions = (props: HighlightHoverActionsProps) => {
           event.preventDefault()
         }}
       >
-        <Tag size={18} color={theme.colors.thNotebookSubtle.toString()} />
+        <LabelIcon size={18} color={theme.colors.thNotebookSubtle.toString()} />
       </Button>
       <Button
         style="hoverActionIcon"
@@ -106,7 +108,7 @@ export const HighlightHoverActions = (props: HighlightHoverActionsProps) => {
           event.preventDefault()
         }}
       >
-        <Trash size={18} color={theme.colors.thNotebookSubtle.toString()} />
+        <TrashIcon size={18} color={theme.colors.thNotebookSubtle.toString()} />
       </Button>
     </Box>
   )
