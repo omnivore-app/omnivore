@@ -33,36 +33,6 @@ import { FallbackImage } from './FallbackImage'
 
 dayjs.extend(relativeTime)
 
-type ProgressBarProps = {
-  fillPercentage: number
-  fillColor: string
-  backgroundColor: string
-  borderRadius: string
-}
-
-export function ProgressBar(props: ProgressBarProps): JSX.Element {
-  return (
-    <Box
-      css={{
-        height: '4px',
-        width: '100%',
-        borderRadius: '$1',
-        overflow: 'hidden',
-        backgroundColor: props.backgroundColor,
-      }}
-    >
-      <Box
-        css={{
-          height: '100%',
-          width: `${props.fillPercentage}%`,
-          backgroundColor: props.fillColor,
-          borderRadius: props.borderRadius,
-        }}
-      />
-    </Box>
-  )
-}
-
 export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
   const [isHovered, setIsHovered] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
