@@ -89,7 +89,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
       {!isTouchScreenDevice() && (
         <Box
           ref={refs.setFloating}
-          style={{ ...floatingStyles, zIndex: 10 }}
+          style={{ ...floatingStyles, zIndex: 3 }}
           {...getFloatingProps()}
         >
           <LibraryHoverActions
@@ -222,7 +222,6 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
           minHeight: '35px',
           pt: '15px',
           px: '15px',
-          color: '$grayText',
         }}
         distribution="start"
       >
@@ -237,8 +236,6 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
         <Box
           css={{
             ...TitleStyle,
-            maxLines: 2,
-            lineHeight: 1.25,
             height: '42px',
           }}
         >

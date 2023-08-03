@@ -24,17 +24,24 @@ export const MenuStyle = {
 
 export const MetaStyle = {
   width: '100%',
-  color: '$thTextSubtle3',
+  color: '$thTextSubtle2',
   fontSize: '12px',
-  fontWeight: '400',
+  fontWeight: '500',
   fontFamily: '$display',
+  maxLines: 1,
+  textOverflow: 'ellipsis',
+  wordBreak: 'break-word',
+  lineHeight: 1.1,
+  overflowX: 'hidden',
+  overflowY: 'visible',
 }
 
 export const TitleStyle = {
   color: '$thTextContrast2',
   fontSize: '16px',
   fontWeight: '700',
-  lineHeight: '1',
+  maxLines: 2,
+  lineHeight: '1.25',
   fontFamily: '$display',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
@@ -66,8 +73,7 @@ export const AuthorInfoStyle = {
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
   maxWidth: '240px',
-  overflow: 'hidden',
-  color: '$thTextSubtle3',
+  color: '$thNotebookSubtle',
   fontSize: '12px',
   fontWeight: '400',
   fontFamily: '$display',

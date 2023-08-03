@@ -576,12 +576,13 @@ function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
         distribution={props.multiSelectMode !== 'off' ? 'center' : 'start'}
         css={{
           gap: '10px',
+          width: '95%',
           '@mdDown': {
+            width: props.multiSelectMode !== 'off' ? '100%' : '95%',
             display: props.multiSelectMode !== 'off' ? 'flex' : 'none',
           },
-          width: '95%',
           '@media (min-width: 930px)': {
-            width: '660px',
+            width: props.layout == 'GRID_LAYOUT' ? '660px' : '640px',
           },
           '@media (min-width: 1280px)': {
             width: '1000px',
@@ -599,9 +600,6 @@ function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
               display: 'flex',
               gap: '2px',
               alignItems: 'center',
-              '@mdDown': {
-                mx: '20px',
-              },
             }}
           >
             <SpanBox
