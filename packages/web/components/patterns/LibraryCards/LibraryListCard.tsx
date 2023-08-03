@@ -273,10 +273,6 @@ export function LibraryListCardContent(
         <HStack
           css={{
             ...MetaStyle,
-            lineHeight: 1.1,
-            color: '$grayText',
-            overflowX: 'hidden',
-            overflowY: 'visible',
           }}
           distribution="start"
         >
@@ -289,9 +285,6 @@ export function LibraryListCardContent(
             css={{
               ...AuthorInfoStyle,
               maxWidth: '90%',
-
-              overflowX: 'hidden',
-              overflowY: 'visible',
             }}
           >
             {props.item.author}
