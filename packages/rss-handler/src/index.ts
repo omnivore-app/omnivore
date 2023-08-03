@@ -119,7 +119,7 @@ Sentry.GCPFunction.init({
 const signToken = promisify(jwt.sign)
 const parser = new Parser({
   customFields: {
-    item: [['link', 'links', { keepArray: true }]],
+    item: [['link', 'links', { keepArray: true }], 'published', 'updated'],
   },
 })
 
@@ -192,6 +192,9 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
 
       // save each item in the feed
       for (const item of feed.items) {
+        // use published or updated if isoDate is not available for atom feeds
+        item.isoDate =
+          item.isoDate || (item.published as string) || (item.updated as string)
         console.log('Processing feed item', item.links, item.isoDate)
 
         if (!item.links || item.links.length === 0) {
