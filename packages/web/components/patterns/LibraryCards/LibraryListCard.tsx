@@ -100,7 +100,7 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
       {!isTouchScreenDevice() && (
         <Box
           ref={refs.setFloating}
-          style={floatingStyles}
+          style={{ ...floatingStyles, zIndex: 3 }}
           {...getFloatingProps()}
         >
           <LibraryHoverActions
