@@ -1032,7 +1032,6 @@ function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element {
                     viewer={props.viewer}
                     layout="GRID_LAYOUT"
                     multiSelectMode={props.multiSelectMode}
-                    setMultiSelectMode={props.setMultiSelectMode}
                     isChecked={false}
                     // eslint-disable-next-line @typescript-eslint/no-empty-function
                     setIsChecked={() => {}}
