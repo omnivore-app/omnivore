@@ -34,7 +34,9 @@ import { authorized } from '../../utils/helpers'
 
 type PartialSubscription = Omit<Subscription, 'newsletterEmail'>
 
-const parser = new Parser()
+const parser = new Parser({
+  timeout: 5000, // 5 seconds
+})
 
 export type SubscriptionsSuccessPartial = Merge<
   SubscriptionsSuccess,
