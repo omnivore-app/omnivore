@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import Utils
 
 public enum Theme: String, CaseIterable {
   case system = "System"

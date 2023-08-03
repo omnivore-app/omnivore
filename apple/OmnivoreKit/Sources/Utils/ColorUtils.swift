@@ -101,7 +101,7 @@ public extension Color {
 
   static var isDarkMode: Bool {
     #if os(iOS)
-      ThemeManager.currentTheme.isDark || UITraitCollection.current.userInterfaceStyle == .dark
+      UITraitCollection.current.userInterfaceStyle == .dark
     #else
       NSApp.effectiveAppearance.name == NSAppearance.Name.darkAqua
     #endif
