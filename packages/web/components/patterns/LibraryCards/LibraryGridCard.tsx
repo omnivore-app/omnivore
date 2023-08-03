@@ -237,8 +237,6 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
         <Box
           css={{
             ...TitleStyle,
-            maxLines: 2,
-            lineHeight: 1.25,
             height: '42px',
           }}
         >

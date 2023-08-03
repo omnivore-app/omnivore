@@ -60,8 +60,7 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
       css={{
         px: '20px',
         pl: '10px',
-        pt: '20px',
-        pb: '20px',
+        py: '15px',
         height: '100%',
         cursor: 'pointer',
         gap: '10px',
