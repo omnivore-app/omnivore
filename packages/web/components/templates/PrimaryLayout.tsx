@@ -11,7 +11,6 @@ import { logoutMutation } from '../../lib/networking/mutations/logoutMutation'
 import { setupAnalytics } from '../../lib/analytics'
 import { primaryCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
 import { applyStoredTheme } from '../../lib/themeUpdater'
-import { theme } from '../tokens/stitches.config'
 
 type PrimaryLayoutProps = {
   children: ReactNode
