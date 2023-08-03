@@ -230,7 +230,7 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
       <VStack
         alignment="start"
         distribution="start"
-        css={{ height: '100%', width: '100%', px: '15px', pt: '10px' }}
+        css={{ height: '100%', width: '100%', px: '15px', pt: '5px' }}
       >
         <Box
           css={{
@@ -243,7 +243,7 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
         <SpanBox
           css={{
             ...AuthorInfoStyle,
-            mt: '10px',
+            mt: '5px',
             mb: '10px',
           }}
         >
