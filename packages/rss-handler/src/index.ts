@@ -12,13 +12,8 @@ interface RssFeedRequest {
   lastFetchedAt: number // unix timestamp in milliseconds
 }
 
-interface RssFeedItemLink {
-  $: {
-    rel?: string
-    href: string
-    type?: string
-  }
-}
+// link can be a string or an object
+type RssFeedItemLink = string | { $: { rel?: string; href: string } }
 
 function isRssFeedRequest(body: any): body is RssFeedRequest {
   return (
@@ -134,6 +129,11 @@ const getLink = (links: RssFeedItemLink[]) => {
   const sortedLinks: string[] = []
 
   links.forEach((link) => {
+    // if link is a string, it is the href
+    if (typeof link === 'string') {
+      return sortedLinks.push(link)
+    }
+
     if (link.$.rel === 'via') {
       sortedLinks[0] = link.$.href
     }
