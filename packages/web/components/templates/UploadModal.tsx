@@ -130,7 +130,6 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
 
           Papa.parse(file.file, {
             step: function (row, parser) {
-              console.log('row: ', row)
               if (Array.isArray(row.data)) {
                 try {
                   if (row.data[0].trim().length < 1) {
@@ -211,7 +210,6 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
       ;(async () => {
         for (const file of addedFiles) {
           try {
-            console.log('using content type: ', file.file.type)
             const uploadInfo = await uploadSignedUrlForFile(file)
             if (!uploadInfo.uploadSignedUrl) {
               showErrorToast('No upload URL available')

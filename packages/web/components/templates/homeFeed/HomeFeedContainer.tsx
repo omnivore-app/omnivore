@@ -84,11 +84,13 @@ export function HomeFeedContainer(): JSX.Element {
 
   const gridContainerRef = useRef<HTMLDivElement>(null)
 
-  const [labelsTarget, setLabelsTarget] =
-    useState<LibraryItem | undefined>(undefined)
+  const [labelsTarget, setLabelsTarget] = useState<LibraryItem | undefined>(
+    undefined
+  )
 
-  const [notebookTarget, setNotebookTarget] =
-    useState<LibraryItem | undefined>(undefined)
+  const [notebookTarget, setNotebookTarget] = useState<LibraryItem | undefined>(
+    undefined
+  )
 
   const [showAddLinkModal, setShowAddLinkModal] = useState(false)
   const [showEditTitleModal, setShowEditTitleModal] = useState(false)
@@ -372,15 +374,12 @@ export function HomeFeedContainer(): JSX.Element {
   const [multiSelectMode, setMultiSelectMode] = useState<MultiSelectMode>('off')
 
   const selectActiveArticle = useCallback(() => {
-    console.log('selecting article: ', activeItem)
     if (activeItem) {
       if (multiSelectMode === 'off') {
-        console.log('setting ')
         setMultiSelectMode('some')
       }
       const itemId = activeItem.node.id
       const isChecked = itemIsChecked(itemId)
-      console.log('setting is checked: ', isChecked, itemId)
       setIsChecked(itemId, !isChecked)
     }
   }, [activeItem, multiSelectMode, checkedItems])
@@ -493,7 +492,6 @@ export function HomeFeedContainer(): JSX.Element {
           handleCardAction('set-labels', activeItem)
           break
         case 'openNotebook':
-          console.log('openNotebook: ', notebookTarget)
           handleCardAction('open-notebook', activeItem)
           break
         case 'sortDescending':
@@ -553,7 +551,6 @@ export function HomeFeedContainer(): JSX.Element {
       name: 'Mark item as read',
       shortcut: ['m', 'r'],
       perform: () => {
-        console.log('mark read action')
         handleCardAction('mark-read', activeItem)
       },
     }),
@@ -612,8 +609,16 @@ export function HomeFeedContainer(): JSX.Element {
         checkedItems.splice(checkedItems.indexOf(itemId), 1)
         setCheckedItems([...checkedItems])
       }
+
+      if (set && multiSelectMode == 'off') {
+        setMultiSelectMode('some')
+      }
+
+      if (checkedItems.length < 1) {
+        setMultiSelectMode('off')
+      }
     },
-    [checkedItems]
+    [checkedItems, multiSelectMode, setMultiSelectMode]
   )
 
   useEffect(() => {
@@ -806,10 +811,12 @@ type HomeFeedContentProps = {
     item: LibraryItem | undefined
   ) => Promise<void>
 
-  multiSelectMode: MultiSelectMode
   setIsChecked: (itemId: string, set: boolean) => void
   itemIsChecked: (itemId: string) => boolean
+
+  multiSelectMode: MultiSelectMode
   setMultiSelectMode: (mode: MultiSelectMode) => void
+
   numItemsSelected: number
 
   performMultiSelectAction: (action: BulkAction, labelIds?: string[]) => void
@@ -861,7 +868,6 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
           setShowAddLinkModal={props.setShowAddLinkModal}
           searchTerm={props.searchTerm}
           applySearchQuery={(searchQuery: string) => {
-            console.log('searching with searchQuery: ', searchQuery)
             props.applySearchQuery(searchQuery)
           }}
           showFilterMenu={showFilterMenu}
@@ -880,7 +886,6 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
           <LibraryItemsLayout
             viewer={viewerData?.me}
             layout={layout}
-            inMultiSelect={props.multiSelectMode !== 'off'}
             isChecked={props.itemIsChecked}
             {...props}
           />
@@ -897,7 +902,9 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
 type LibraryItemsLayoutProps = {
   layout: LayoutType
   viewer?: UserBasicData
-  inMultiSelect: boolean
+
+  multiSelectMode: MultiSelectMode
+  setMultiSelectMode: (mode: MultiSelectMode) => void
 
   isChecked: (itemId: string) => boolean
   setIsChecked: (itemId: string, set: boolean) => void
@@ -970,7 +977,7 @@ function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element {
               setLinkToUnsubscribe={props.setLinkToUnsubscribe}
               setShowRemoveLinkConfirmation={setShowRemoveLinkConfirmation}
               actionHandler={props.actionHandler}
-              inMultiSelect={props.inMultiSelect}
+              multiSelectMode={props.multiSelectMode}
             />
           )}
           <HStack
@@ -1024,7 +1031,8 @@ function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element {
                     item={props.linkToRemove?.node}
                     viewer={props.viewer}
                     layout="GRID_LAYOUT"
-                    inMultiSelect={false}
+                    multiSelectMode={props.multiSelectMode}
+                    setMultiSelectMode={props.setMultiSelectMode}
                     isChecked={false}
                     // eslint-disable-next-line @typescript-eslint/no-empty-function
                     setIsChecked={() => {}}
@@ -1095,9 +1103,9 @@ type LibraryItemsProps = {
   setLinkToUnsubscribe: (set: LibraryItem | undefined) => void
   setShowRemoveLinkConfirmation: (show: true) => void
 
-  inMultiSelect: boolean
   isChecked: (itemId: string) => boolean
   setIsChecked: (itemId: string, set: boolean) => void
+  multiSelectMode: MultiSelectMode
 
   actionHandler: (
     action: LinkedItemCardAction,
@@ -1186,7 +1194,7 @@ function LibraryItems(props: LibraryItemsProps): JSX.Element {
               viewer={props.viewer}
               isChecked={props.isChecked(linkedItem.node.id)}
               setIsChecked={props.setIsChecked}
-              inMultiSelect={props.inMultiSelect}
+              multiSelectMode={props.multiSelectMode}
               handleAction={(action: LinkedItemCardAction) => {
                 if (action === 'delete') {
                   props.setShowRemoveLinkConfirmation(true)

@@ -6,7 +6,7 @@ const ContentSecurityPolicy = `
   font-src 'self' data: cdn.jsdelivr.net https://js.intercomcdn.com https://fonts.intercomcdn.com;
   form-action 'self' ${process.env.NEXT_PUBLIC_SERVER_BASE_URL} https://getpocket.com/auth/authorize https://intercom.help https://api-iam.intercom.io https://api-iam.eu.intercom.io https://api-iam.au.intercom.io;
   frame-ancestors 'none';
-  frame-src self accounts.google.com platform.twitter.com www.youtube.com www.youtube-nocookie.com;
+  frame-src 'self' accounts.google.com platform.twitter.com www.youtube.com www.youtube-nocookie.com;
   manifest-src 'self';
   script-src 'self' 'unsafe-inline' 'unsafe-eval' accounts.google.com widget.intercom.io js.intercomcdn.com platform.twitter.com cdnjs.cloudflare.com cdn.jsdelivr.net cdn.segment.com;
   style-src 'self' 'unsafe-inline' accounts.google.com cdnjs.cloudflare.com;

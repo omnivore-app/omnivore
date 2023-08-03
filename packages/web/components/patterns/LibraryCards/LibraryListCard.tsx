@@ -11,6 +11,7 @@ import {
   siteName,
   TitleStyle,
   MenuStyle,
+  Fallback,
 } from './LibraryCardStyles'
 import { sortedLabels } from '../../../lib/labelsSort'
 import { LIBRARY_LEFT_MENU_WIDTH } from '../../templates/homeFeed/LibraryFilterMenu'
@@ -26,6 +27,10 @@ import {
 import { CardMenu } from '../CardMenu'
 import { DotsThree } from 'phosphor-react'
 import { isTouchScreenDevice } from '../../../lib/deviceType'
+import { CoverImage } from '../../elements/CoverImage'
+import { ProgressBar } from '../../elements/ProgressBar'
+import { theme } from '../../tokens/stitches.config'
+import { FallbackImage } from './FallbackImage'
 
 export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
   const [isHovered, setIsHovered] = useState(false)
@@ -55,6 +60,7 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
       {...getReferenceProps()}
       css={{
         px: '20px',
+        pl: '10px',
         pt: '20px',
         pb: '20px',
         height: '100%',
@@ -92,39 +98,109 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
         setIsHovered(false)
       }}
     >
-      {props.inMultiSelect ? (
-        <LibraryListCardContent {...props} isHovered={isHovered} />
-      ) : (
-        <>
-          {!isTouchScreenDevice() && (
-            <Box
-              ref={refs.setFloating}
-              style={floatingStyles}
-              {...getFloatingProps()}
-            >
-              <LibraryHoverActions
-                item={props.item}
-                viewer={props.viewer}
-                handleAction={props.handleAction}
-                isHovered={isHovered ?? false}
-              />
-            </Box>
-          )}
-          <Link
-            href={`${props.viewer.profile.username}/${props.item.slug}`}
-            passHref
-          >
-            <a
-              href={`${props.viewer.profile.username}/${props.item.slug}`}
-              style={{ textDecoration: 'unset', width: '100%', height: '100%' }}
-              tabIndex={-1}
-            >
-              <LibraryListCardContent {...props} isHovered={isHovered} />
-            </a>
-          </Link>
-        </>
+      {!isTouchScreenDevice() && (
+        <Box
+          ref={refs.setFloating}
+          style={floatingStyles}
+          {...getFloatingProps()}
+        >
+          <LibraryHoverActions
+            item={props.item}
+            viewer={props.viewer}
+            handleAction={props.handleAction}
+            isHovered={isHovered ?? false}
+          />
+        </Box>
       )}
+      <Link
+        href={`${props.viewer.profile.username}/${props.item.slug}`}
+        passHref
+      >
+        <a
+          href={`${props.viewer.profile.username}/${props.item.slug}`}
+          style={{ textDecoration: 'unset', width: '100%', height: '100%' }}
+          tabIndex={-1}
+        >
+          <LibraryListCardContent {...props} isHovered={isHovered} />
+        </a>
+      </Link>
     </VStack>
+  )
+}
+
+type ProgressBarOverlayProps = {
+  top: number
+  width: string
+  value: number
+  bottomRadius: string
+}
+
+export const ProgressBarOverlay = (
+  props: ProgressBarOverlayProps
+): JSX.Element => {
+  return (
+    <Box
+      css={{
+        position: 'absolute',
+        width: props.width,
+        top: props.top,
+        borderBottomLeftRadius: props.bottomRadius,
+        borderBottomRightRadius: props.bottomRadius,
+        overflow: 'clip',
+        zIndex: 20,
+      }}
+    >
+      <ProgressBar
+        fillPercentage={props.value}
+        fillColor={theme.colors.thProgressFg.toString()}
+        backgroundColor="rgba(217, 217, 217, 0.65)"
+        borderRadius={'2px'}
+      />
+    </Box>
+  )
+}
+
+type ListImageProps = {
+  src?: string
+  title?: string
+  readingProgress?: number
+}
+
+const ListImage = (props: ListImageProps): JSX.Element => {
+  const [displayFallback, setDisplayFallback] = useState(props.src == undefined)
+
+  return (
+    <>
+      {(props.readingProgress ?? 0) > 0 && (
+        <ProgressBarOverlay
+          width="55px"
+          top={50}
+          bottomRadius="4px"
+          value={props.readingProgress ?? 0}
+        />
+      )}
+      {displayFallback ? (
+        <FallbackImage
+          title={props.title ?? 'Omnivore Fallback'}
+          width="55px"
+          height="55px"
+          fontSize="36pt"
+        />
+      ) : (
+        <CoverImage
+          src={props.src}
+          width={55}
+          height={55}
+          css={{
+            bg: '$thBackground',
+            borderRadius: '4px',
+          }}
+          onError={() => {
+            setDisplayFallback(true)
+          }}
+        />
+      )}
+    </>
   )
 }
 
@@ -140,57 +216,96 @@ export function LibraryListCardContent(
   }, [isChecked, setIsChecked, item])
 
   return (
-    <>
-      <HStack css={MetaStyle} distribution="start">
-        <LibraryItemMetadata item={props.item} showProgress={true} />
-        {props.inMultiSelect ? (
-          <SpanBox css={{ marginLeft: 'auto' }}>
-            <CardCheckbox
-              isChecked={props.isChecked}
-              handleChanged={handleCheckChanged}
-            />
-          </SpanBox>
-        ) : (
-          <Box
-            css={{
-              ...MenuStyle,
-              visibility: menuOpen ? 'visible' : 'hidden',
-              '@media (hover: none)': {
-                visibility: 'unset',
-              },
-            }}
-          >
-            <CardMenu
-              item={props.item}
-              viewer={props.viewer}
-              onOpenChange={(open) => setMenuOpen(open)}
-              actionHandler={props.handleAction}
-              triggerElement={
-                <DotsThree size={25} weight="bold" color="#ADADAD" />
-              }
-            />
-          </Box>
-        )}
-      </HStack>
+    <HStack css={{ gap: '15px', width: '100%' }}>
+      <SpanBox
+        css={{
+          display: 'flex',
+          m: '0px',
+          mt: '0px',
+          p: '0px',
+          ml: '4px',
+          lineHeight: '1',
+          '> input': {
+            p: '0px',
+            m: '0px',
+          },
+        }}
+      >
+        <CardCheckbox
+          isChecked={props.isChecked}
+          handleChanged={handleCheckChanged}
+        />
+      </SpanBox>
+      <Box css={{ position: 'relative', width: '55px' }}>
+        <ListImage
+          src={props.item.image}
+          title={props.item.title}
+          readingProgress={item.readingProgressPercent}
+        />
+
+        <Box
+          css={{
+            ...MenuStyle,
+            position: 'absolute',
+            top: 0,
+            right: 0,
+            m: '5px',
+            visibility: menuOpen ? 'visible' : 'hidden',
+            '@media (hover: none)': {
+              visibility: 'unset',
+            },
+          }}
+        >
+          <CardMenu
+            item={props.item}
+            viewer={props.viewer}
+            onOpenChange={(open) => setMenuOpen(open)}
+            actionHandler={props.handleAction}
+            triggerElement={
+              <DotsThree size={25} weight="bold" color="#ADADAD" />
+            }
+          />
+        </Box>
+      </Box>
       <VStack
         alignment="start"
         distribution="start"
-        css={{ height: '100%', width: '100%' }}
+        css={{ height: '100%', width: '100%', lineHeight: 1, gap: '5px' }}
       >
-        <Box css={{ ...TitleStyle, fontSize: '18px', width: '80%' }}>
-          {props.item.title}
-        </Box>
-        <SpanBox
+        <VStack
+          alignment="start"
+          distribution="center"
           css={{
-            mt: '5px',
-            ...AuthorInfoStyle,
-            maxWidth: '90%',
+            height: '55px',
+            width: '100%',
+            justifyContent: 'space-between',
           }}
         >
-          {props.item.author}
-          {props.item.author && originText && ' | '}
-          <SpanBox css={{ textDecoration: 'underline' }}>{originText}</SpanBox>
-        </SpanBox>
+          <HStack
+            css={{
+              ...MetaStyle,
+              color: '$grayText',
+            }}
+            distribution="start"
+          >
+            <LibraryItemMetadata item={props.item} showProgress={true} />
+          </HStack>
+
+          <Box css={{ ...TitleStyle, width: '80%' }}>{props.item.title}</Box>
+          <SpanBox
+            css={{
+              ...AuthorInfoStyle,
+              maxWidth: '90%',
+              minHeight: '12px',
+            }}
+          >
+            {props.item.author}
+            {props.item.author && originText && ' | '}
+            <SpanBox css={{ textDecoration: 'underline' }}>
+              {originText}
+            </SpanBox>
+          </SpanBox>
+        </VStack>
 
         <HStack
           distribution="start"
@@ -209,6 +324,6 @@ export function LibraryListCardContent(
           </HStack>
         </HStack>
       </VStack>
-    </>
+    </HStack>
   )
 }

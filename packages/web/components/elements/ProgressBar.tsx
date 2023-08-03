@@ -11,9 +11,8 @@ export function ProgressBar(props: ProgressBarProps): JSX.Element {
   return (
     <Box
       css={{
-        height: '4px',
+        height: '5px',
         width: '100%',
-        borderRadius: '$1',
         overflow: 'hidden',
         backgroundColor: props.backgroundColor,
       }}
@@ -23,7 +22,6 @@ export function ProgressBar(props: ProgressBarProps): JSX.Element {
           height: '100%',
           width: `${props.fillPercentage}%`,
           backgroundColor: props.fillColor,
-          borderRadius: props.borderRadius,
         }}
       />
     </Box>
