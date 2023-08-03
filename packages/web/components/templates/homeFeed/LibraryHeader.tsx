@@ -582,7 +582,7 @@ function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
             display: props.multiSelectMode !== 'off' ? 'flex' : 'none',
           },
           '@media (min-width: 930px)': {
-            width: '660px',
+            width: props.layout == 'GRID_LAYOUT' ? '660px' : '640px',
           },
           '@media (min-width: 1280px)': {
             width: '1000px',

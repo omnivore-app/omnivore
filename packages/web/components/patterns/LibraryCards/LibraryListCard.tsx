@@ -270,31 +270,28 @@ export function LibraryListCardContent(
         distribution="start"
         css={{ height: '100%', width: '100%', lineHeight: 1, gap: '5px' }}
       >
-        <VStack
-          alignment="start"
-          distribution="center"
+        <HStack
           css={{
-            height: '55px',
-            width: '100%',
-            justifyContent: 'space-between',
+            ...MetaStyle,
+            lineHeight: 1.1,
+            color: '$grayText',
+            overflowX: 'hidden',
+            overflowY: 'visible',
           }}
+          distribution="start"
         >
-          <HStack
-            css={{
-              ...MetaStyle,
-              color: '$grayText',
-            }}
-            distribution="start"
-          >
-            <LibraryItemMetadata item={props.item} showProgress={true} />
-          </HStack>
+          <LibraryItemMetadata item={props.item} showProgress={true} />
+        </HStack>
 
-          <Box css={{ ...TitleStyle, width: '80%' }}>{props.item.title}</Box>
+        <Box css={{ ...TitleStyle, width: '80%' }}>{props.item.title}</Box>
+        {(props.item.author?.length ?? 0 + originText.length) > 0 && (
           <SpanBox
             css={{
               ...AuthorInfoStyle,
               maxWidth: '90%',
-              minHeight: '12px',
+
+              overflowX: 'hidden',
+              overflowY: 'visible',
             }}
           >
             {props.item.author}
@@ -303,7 +300,7 @@ export function LibraryListCardContent(
               {originText}
             </SpanBox>
           </SpanBox>
-        </VStack>
+        )}
 
         <HStack
           distribution="start"

@@ -244,6 +244,7 @@ export const Button = styled('button', {
         '&:hover': {
           opacity: 0.7,
         },
+        '&:focus': { outline: 'none' },
       },
       articleActionIcon: {
         bg: 'transparent',

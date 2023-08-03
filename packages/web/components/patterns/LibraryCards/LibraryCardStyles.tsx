@@ -28,6 +28,10 @@ export const MetaStyle = {
   fontSize: '12px',
   fontWeight: '400',
   fontFamily: '$display',
+  maxLines: 1,
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  wordBreak: 'break-word',
 }
 
 export const TitleStyle = {
@@ -67,7 +71,6 @@ export const AuthorInfoStyle = {
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
   maxWidth: '240px',
-  overflow: 'hidden',
   color: '$thTextSubtle3',
   fontSize: '12px',
   fontWeight: '400',
