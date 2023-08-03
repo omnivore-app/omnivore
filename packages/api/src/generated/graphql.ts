@@ -3031,6 +3031,7 @@ export type UpdateSubscriptionInput = {
   id: Scalars['ID'];
   lastFetchedAt?: InputMaybe<Scalars['Date']>;
   name?: InputMaybe<Scalars['String']>;
+  status?: InputMaybe<SubscriptionStatus>;
 };
 
 export type UpdateSubscriptionResult = UpdateSubscriptionError | UpdateSubscriptionSuccess;
