@@ -13,9 +13,11 @@ interface RssFeedRequest {
 }
 
 interface RssFeedItemLink {
-  rel?: string
-  href: string
-  type?: string
+  $: {
+    rel?: string
+    href: string
+    type?: string
+  }
 }
 
 function isRssFeedRequest(body: any): body is RssFeedRequest {
@@ -132,14 +134,14 @@ const getLink = (links: RssFeedItemLink[]) => {
   const sortedLinks: string[] = []
 
   links.forEach((link) => {
-    if (link.rel === 'via') {
-      sortedLinks[0] = link.href
+    if (link.$.rel === 'via') {
+      sortedLinks[0] = link.$.href
     }
-    if (link.rel === 'self' || !link.rel) {
-      sortedLinks[1] = link.href
+    if (link.$.rel === 'self' || !link.$.rel) {
+      sortedLinks[1] = link.$.href
     }
-    if (link.rel === 'alternate') {
-      sortedLinks[2] = link.href
+    if (link.$.rel === 'alternate') {
+      sortedLinks[2] = link.$.href
     }
   })
 
@@ -202,6 +204,8 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
           console.log('Invalid feed item links', item.links)
           continue
         }
+
+        console.log('Fetching feed item', item.link)
 
         const publishedAt = item.isoDate ? new Date(item.isoDate) : new Date()
         // remember the last valid item
