@@ -9,7 +9,7 @@ type FallbackImageProps = {
 
 export const FallbackImage = (props: FallbackImageProps): JSX.Element => {
   console.log('checking title: ', props.title)
-  const idx = (Math.abs(hashCode(props.title)) % Colors.length) - 1
+  const idx = Math.abs(hashCode(props.title)) % (Colors.length - 1)
   console.log('title', props.title, 'idx: ', idx)
   const color = Colors[idx]
   console.log('color:', color)
