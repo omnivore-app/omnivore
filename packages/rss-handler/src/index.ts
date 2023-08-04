@@ -123,7 +123,7 @@ const parser = new Parser({
   },
 })
 
-// get link following the order of preference: via, self, alternate
+// get link following the order of preference: via, alternate, self
 const getLink = (links: RssFeedItemLink[]) => {
   // sort links by preference
   const sortedLinks: string[] = []
@@ -137,10 +137,10 @@ const getLink = (links: RssFeedItemLink[]) => {
     if (link.$.rel === 'via') {
       sortedLinks[0] = link.$.href
     }
-    if (link.$.rel === 'self' || !link.$.rel) {
+    if (link.$.rel === 'alternate') {
       sortedLinks[1] = link.$.href
     }
-    if (link.$.rel === 'alternate') {
+    if (link.$.rel === 'self' || !link.$.rel) {
       sortedLinks[2] = link.$.href
     }
   })

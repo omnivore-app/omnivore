@@ -30,10 +30,12 @@ import { DotsThree } from 'phosphor-react'
 import { isTouchScreenDevice } from '../../../lib/deviceType'
 import { ProgressBarOverlay } from './LibraryListCard'
 import { FallbackImage } from './FallbackImage'
+import { useRouter } from 'next/router'
 
 dayjs.extend(relativeTime)
 
 export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
+  const router = useRouter()
   const [isHovered, setIsHovered] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
 
@@ -85,6 +87,17 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
       onMouseLeave={() => {
         setIsHovered(false)
       }}
+      onClick={(event) => {
+        console.log('click event: ', event)
+        if (event.metaKey || event.ctrlKey) {
+          window.open(
+            `/${props.viewer.profile.username}/${props.item.slug}`,
+            '_blank'
+          )
+        } else {
+          router.push(`/${props.viewer.profile.username}/${props.item.slug}`)
+        }
+      }}
     >
       {!isTouchScreenDevice() && (
         <Box
@@ -100,7 +113,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
           />
         </Box>
       )}
-      <Link
+      {/* <Link
         href={`${props.viewer.profile.username}/${props.item.slug}`}
         passHref
       >
@@ -108,10 +121,10 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
           href={`${props.viewer.profile.username}/${props.item.slug}`}
           style={{ textDecoration: 'unset', width: '100%', height: '100%' }}
           tabIndex={-1}
-        >
-          <LibraryGridCardContent {...props} isHovered={isHovered} />
-        </a>
-      </Link>
+        > */}
+      <LibraryGridCardContent {...props} isHovered={isHovered} />
+      {/* </a>
+      </Link> */}
     </VStack>
   )
 }
@@ -249,7 +262,7 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
         >
           {props.item.author}
           {props.item.author && originText && ' | '}
-          <SpanBox css={{ textDecoration: 'underline' }}>{originText}</SpanBox>
+          {originText}
         </SpanBox>
 
         <HStack

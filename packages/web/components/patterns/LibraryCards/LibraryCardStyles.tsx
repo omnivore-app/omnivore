@@ -32,8 +32,6 @@ export const MetaStyle = {
   textOverflow: 'ellipsis',
   wordBreak: 'break-word',
   lineHeight: 1.1,
-  overflowX: 'hidden',
-  overflowY: 'visible',
 }
 
 export const TitleStyle = {
@@ -51,33 +49,18 @@ export const TitleStyle = {
   '-webkit-box-orient': 'vertical',
 }
 
-export const DescriptionStyle = {
-  color: '$thTextSubtle',
-  pt: '10px',
-  fontSize: '13px',
-  fontWeight: '400',
-  lineHeight: '140%',
-  fontFamily: '$display',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  display: '-webkit-box',
-  '-webkit-line-clamp': '2',
-  '-webkit-box-orient': 'vertical',
-  height: '45px',
-  alignItems: 'start',
-  maxWidth: '-webkit-fill-available',
-}
-
 export const AuthorInfoStyle = {
   maxLines: '1',
-  textOverflow: 'ellipsis',
-  whiteSpace: 'nowrap',
   maxWidth: '240px',
   color: '$thNotebookSubtle',
   fontSize: '12px',
   fontWeight: '400',
   fontFamily: '$display',
   lineHeight: '1',
+  wordWrap: 'break-word',
+  whiteSpace: 'nowrap',
+  overflowX: 'hidden',
+  textOverflow: 'ellipsis',
 }
 
 export const timeAgo = (date: string | undefined): string => {
@@ -165,6 +148,7 @@ export function CardCheckbox(props: CardCheckBoxProps): JSX.Element {
         checked={props.isChecked}
         onChange={(event) => {
           props.handleChanged()
+          event.stopPropagation()
         }}
       ></input>
     </form>

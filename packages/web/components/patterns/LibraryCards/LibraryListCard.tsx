@@ -30,8 +30,10 @@ import { CoverImage } from '../../elements/CoverImage'
 import { ProgressBar } from '../../elements/ProgressBar'
 import { theme } from '../../tokens/stitches.config'
 import { FallbackImage } from './FallbackImage'
+import { useRouter } from 'next/router'
 
 export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
+  const router = useRouter()
   const [isHovered, setIsHovered] = useState(false)
 
   const [isOpen, setIsOpen] = useState(false)
@@ -95,6 +97,17 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
       onMouseLeave={() => {
         setIsHovered(false)
       }}
+      onClick={(event) => {
+        console.log('click event: ', event)
+        if (event.metaKey || event.ctrlKey) {
+          window.open(
+            `/${props.viewer.profile.username}/${props.item.slug}`,
+            '_blank'
+          )
+        } else {
+          router.push(`/${props.viewer.profile.username}/${props.item.slug}`)
+        }
+      }}
     >
       {!isTouchScreenDevice() && (
         <Box
@@ -110,18 +123,7 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
           />
         </Box>
       )}
-      <Link
-        href={`${props.viewer.profile.username}/${props.item.slug}`}
-        passHref
-      >
-        <a
-          href={`${props.viewer.profile.username}/${props.item.slug}`}
-          style={{ textDecoration: 'unset', width: '100%', height: '100%' }}
-          tabIndex={-1}
-        >
-          <LibraryListCardContent {...props} isHovered={isHovered} />
-        </a>
-      </Link>
+      <LibraryListCardContent {...props} isHovered={isHovered} />
     </VStack>
   )
 }
@@ -279,19 +281,16 @@ export function LibraryListCardContent(
           <LibraryItemMetadata item={props.item} showProgress={true} />
         </HStack>
 
-        <Box css={{ ...TitleStyle, width: '80%' }}>{props.item.title}</Box>
+        <Box css={{ ...TitleStyle }}>{props.item.title}</Box>
         {(props.item.author?.length ?? 0 + originText.length) > 0 && (
           <SpanBox
             css={{
               ...AuthorInfoStyle,
-              maxWidth: '90%',
             }}
           >
             {props.item.author}
             {props.item.author && originText && ' | '}
-            <SpanBox css={{ textDecoration: 'underline' }}>
-              {originText}
-            </SpanBox>
+            {originText}
           </SpanBox>
         )}
 

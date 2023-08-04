@@ -32,7 +32,7 @@ export default function AddRssFeed(): JSX.Element {
 
   const subscribe = useCallback(async () => {
     if (!feedUrl) {
-      setErrorMessage('Please enter a valid RSS feed URL')
+      setErrorMessage('Please enter a valid feed URL')
       return
     }
 
@@ -41,7 +41,7 @@ export default function AddRssFeed(): JSX.Element {
     try {
       normailizedUrl = new URL(feedUrl).toString()
     } catch (e) {
-      setErrorMessage('Please enter a valid RSS feed URL')
+      setErrorMessage('Please enter a valid feed URL')
       return
     }
 
@@ -54,17 +54,17 @@ export default function AddRssFeed(): JSX.Element {
       const errorMessage = formatMessage({
         id: `error.${result.subscribe.errorCodes[0]}`,
       })
-      setErrorMessage(`There was an error adding new RSS feed: ${errorMessage}`)
+      setErrorMessage(`There was an error adding new feed: ${errorMessage}`)
       return
     }
 
-    router.push(`/settings/rss`)
-    showSuccessToast('New RSS feed has been added.')
+    router.push(`/settings/feeds`)
+    showSuccessToast('New feed has been added.')
   }, [feedUrl, router])
 
   return (
     <>
-      <PageMetaData title="Add new RSS Feed" path="/settings/rss/add" />
+      <PageMetaData title="Add new Feed" path="/settings/feeds/add" />
       <SettingsLayout>
         <VStack
           distribution={'start'}
@@ -85,14 +85,14 @@ export default function AddRssFeed(): JSX.Element {
               pr: '$1',
             }}
           >
-            <Header>Add new RSS Feed</Header>
+            <Header>Add new Feed</Header>
           </HStack>
 
           <FormInput
             type="url"
             key="feedUrl"
             value={feedUrl}
-            placeholder={'Enter the RSS feed URL here'}
+            placeholder={'Enter the feed URL here'}
             onChange={(e) => {
               setErrorMessage(undefined)
               setFeedUrl(e.target.value)
@@ -128,7 +128,7 @@ export default function AddRssFeed(): JSX.Element {
               style="ctaGray"
               css={{}}
               onClick={async () => {
-                router.push('/settings/rss')
+                router.push('/settings/feeds')
               }}
             >
               Back
@@ -136,7 +136,7 @@ export default function AddRssFeed(): JSX.Element {
           </HStack>
         </VStack>
       </SettingsLayout>
-      <div data-testid="settings-rss-subscribe-page-tag" />
+      <div data-testid="settings-feeds-subscribe-page-tag" />
     </>
   )
 }
