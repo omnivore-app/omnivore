@@ -50,14 +50,14 @@ export default function Rss(): JSX.Element {
       return
     }
 
-    showSuccessToast('RSS feed updated', { position: 'bottom-right' })
+    showSuccessToast('Feed updated', { position: 'bottom-right' })
     revalidate()
   }
 
   async function onDelete(id: string): Promise<void> {
     const result = await unsubscribeMutation('', id)
     if (result) {
-      showSuccessToast('RSS feed unsubscribed', { position: 'bottom-right' })
+      showSuccessToast('Feed unsubscribed', { position: 'bottom-right' })
     } else {
       showErrorToast('Failed to unsubscribe', { position: 'bottom-right' })
     }
@@ -76,7 +76,7 @@ export default function Rss(): JSX.Element {
     const action = status == 'UNSUBSCRIBED' ? 'pause' : 'resume'
 
     if (result) {
-      showSuccessToast(`RSS feed ${action}d`, {
+      showSuccessToast(`Feed ${action}d`, {
         position: 'bottom-right',
       })
     } else {
@@ -89,17 +89,17 @@ export default function Rss(): JSX.Element {
 
   return (
     <SettingsTable
-      pageId={'rss'}
-      pageInfoLink={''} // TODO: https://docs.omnivore.app/integrations/rss.html
-      headerTitle={'Subscribed RSS feeds'}
-      createTitle={'Add RSS feed'}
+      pageId={'feeds'}
+      pageInfoLink={''} // TODO: https://docs.omnivore.app/settings/feeds.html
+      headerTitle={'Subscribed feeds'}
+      createTitle={'Add feed'}
       createAction={() => {
-        router.push('/settings/rss/add')
+        router.push('/settings/feeds/add')
       }}
     >
       {subscriptions.length === 0 ? (
         <EmptySettingsRow
-          text={isValidating ? '-' : 'No RSS feeds subscribed'}
+          text={isValidating ? '-' : 'No feeds subscribed'}
         />
       ) : (
         subscriptions.map((subscription, i) => {
@@ -219,7 +219,7 @@ export default function Rss(): JSX.Element {
       {onDeleteId && (
         <ConfirmationModal
           message={
-            'RSS feed will be unsubscribed. This action cannot be undone.'
+            'Feed will be unsubscribed. This action cannot be undone.'
           }
           onAccept={async () => {
             await onDelete(onDeleteId)
@@ -231,7 +231,7 @@ export default function Rss(): JSX.Element {
 
       {onPauseId && (
         <ConfirmationModal
-          message={`RSS feed will be ${
+          message={`Feed will be ${
             onEditStatus === 'UNSUBSCRIBED' ? 'paused' : 'resumed'
           }. You can ${
             onEditStatus === 'UNSUBSCRIBED' ? 'resume' : 'pause'
