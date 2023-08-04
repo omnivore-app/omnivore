@@ -171,7 +171,7 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
 
   return (
     <VStack css={{ p: '0px', m: '0px', width: '100%' }}>
-      <Box css={{ position: 'relative', width: '100%' }}>
+      <Box css={{ position: 'relative', width: '100%', height: '100px' }}>
         <GridImage
           src={props.item.image}
           title={props.item.title}
@@ -219,7 +219,7 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
       <HStack
         css={{
           ...MetaStyle,
-          pt: '15px',
+          mt: '15px',
           px: '15px',
         }}
         distribution="start"
@@ -230,12 +230,12 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
       <VStack
         alignment="start"
         distribution="start"
-        css={{ height: '100%', width: '100%', px: '15px', pt: '5px' }}
+        css={{ height: '100%', width: '100%', px: '15px' }}
       >
         <Box
           css={{
             ...TitleStyle,
-            height: '42px',
+            mt: '10px',
           }}
         >
           {props.item.title}
@@ -244,7 +244,7 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
           css={{
             ...AuthorInfoStyle,
             mt: '5px',
-            mb: '10px',
+            mb: '20px',
           }}
         >
           {props.item.author}

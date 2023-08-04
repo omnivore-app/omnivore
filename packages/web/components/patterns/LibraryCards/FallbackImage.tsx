@@ -7,20 +7,30 @@ type FallbackImageProps = {
   fontSize: string
 }
 
-export const FallbackImage = (props: FallbackImageProps): JSX.Element => {
-  const idx = (Math.abs(hashCode(props.title)) % Colors.length) - 1
-  const color = Colors[idx]
+const colorsForStr = (str: string): string[] => {
+  try {
+    const idx = Math.abs(hashCode(str)) % (Colors.length - 1)
+    const color = Colors[idx]
+    if (color.colors[0] && color.colors[1]) {
+      return color.colors
+    }
+  } catch (err) {
+    console.log('error creating colors for', str)
+  }
+  return Colors[0].colors
+}
 
+export const FallbackImage = (props: FallbackImageProps): JSX.Element => {
+  const colors = colorsForStr(props.title)
   return (
     <VStack
       distribution="center"
       alignment="center"
       css={{
-        // position: 'relative',
         width: props.width,
         height: props.height,
-        backgroundColor: color.colors[1],
-        color: color.colors[0],
+        backgroundColor: colors[1],
+        color: colors[0],
         fontSize: props.fontSize,
         fontWeight: 'bold',
         fontFamily: '$display',
