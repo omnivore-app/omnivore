@@ -63,6 +63,7 @@ export const LibraryHoverActions = (props: LibraryHoverActionsProps) => {
         onClick={(event) => {
           props.handleAction('open-notebook')
           event.preventDefault()
+          event.stopPropagation()
         }}
         css={{
           visibility: props.isHovered || menuOpen ? 'visible' : 'hidden',
@@ -80,6 +81,7 @@ export const LibraryHoverActions = (props: LibraryHoverActionsProps) => {
           const action = props.item.isArchived ? 'unarchive' : 'archive'
           props.handleAction(action)
           event.preventDefault()
+          event.stopPropagation()
         }}
       >
         {props.item.isArchived ? (
@@ -100,6 +102,7 @@ export const LibraryHoverActions = (props: LibraryHoverActionsProps) => {
         onClick={(event) => {
           props.handleAction('delete')
           event.preventDefault()
+          event.stopPropagation()
         }}
       >
         <TrashIcon size={21} color={theme.colors.thNotebookSubtle.toString()} />
@@ -110,6 +113,7 @@ export const LibraryHoverActions = (props: LibraryHoverActionsProps) => {
         onClick={(event) => {
           props.handleAction('set-labels')
           event.preventDefault()
+          event.stopPropagation()
         }}
       >
         <LabelIcon size={21} color={theme.colors.thNotebookSubtle.toString()} />
