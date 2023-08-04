@@ -147,7 +147,7 @@ export const ProgressBarOverlay = (
         borderBottomLeftRadius: props.bottomRadius,
         borderBottomRightRadius: props.bottomRadius,
         overflow: 'clip',
-        zIndex: 3,
+        zIndex: 2,
       }}
     >
       <ProgressBar
