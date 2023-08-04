@@ -261,7 +261,6 @@ export function LibraryListCardContent(
             top: -10,
             right: -10,
             m: '5px',
-            bg: 'red',
             visibility: menuOpen ? 'visible' : 'hidden',
             '@media (hover: none)': {
               visibility: 'unset',
