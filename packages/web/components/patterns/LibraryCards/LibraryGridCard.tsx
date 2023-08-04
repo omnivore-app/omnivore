@@ -249,7 +249,7 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
         >
           {props.item.author}
           {props.item.author && originText && ' | '}
-          <SpanBox css={{ textDecoration: 'underline' }}>{originText}</SpanBox>
+          {originText}
         </SpanBox>
 
         <HStack

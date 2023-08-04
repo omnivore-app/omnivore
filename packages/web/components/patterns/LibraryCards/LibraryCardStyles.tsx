@@ -70,14 +70,16 @@ export const DescriptionStyle = {
 
 export const AuthorInfoStyle = {
   maxLines: '1',
-  textOverflow: 'ellipsis',
-  whiteSpace: 'nowrap',
   maxWidth: '240px',
   color: '$thNotebookSubtle',
   fontSize: '12px',
   fontWeight: '400',
   fontFamily: '$display',
   lineHeight: '1',
+  wordWrap: 'break-word',
+  whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
 }
 
 export const timeAgo = (date: string | undefined): string => {

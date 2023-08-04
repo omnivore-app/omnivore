@@ -279,19 +279,16 @@ export function LibraryListCardContent(
           <LibraryItemMetadata item={props.item} showProgress={true} />
         </HStack>
 
-        <Box css={{ ...TitleStyle, width: '80%' }}>{props.item.title}</Box>
+        <Box css={{ ...TitleStyle }}>{props.item.title}</Box>
         {(props.item.author?.length ?? 0 + originText.length) > 0 && (
           <SpanBox
             css={{
               ...AuthorInfoStyle,
-              maxWidth: '90%',
             }}
           >
             {props.item.author}
             {props.item.author && originText && ' | '}
-            <SpanBox css={{ textDecoration: 'underline' }}>
-              {originText}
-            </SpanBox>
+            {originText}
           </SpanBox>
         )}
 
