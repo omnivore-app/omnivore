@@ -952,7 +952,11 @@ function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element {
         {props.isValidating && props.items.length == 0 && <TopBarProgress />}
         <div
           onDragEnter={(event) => {
-            setShowUploadModal(true)
+            if (
+              event.dataTransfer.types.find((t) => t.toLowerCase() == 'files')
+            ) {
+              setShowUploadModal(true)
+            }
           }}
           style={{ height: '100%', width: '100%' }}
         >
