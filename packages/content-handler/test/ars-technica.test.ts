@@ -49,8 +49,6 @@ describe('Testing parsing multi-page articles from arstechnica.', () => {
       'https://arstechnica.com/article/'
     )
 
-    console.log(response.dom?.querySelectorAll('nav.page-numbers'));
-    // This should not exist
     expect(orignalArticle?.querySelector('nav.page-numbers')).not.to.be.null
     expect(response.dom?.querySelectorAll('nav.page-numbers').length).to.equal(0);
   })
