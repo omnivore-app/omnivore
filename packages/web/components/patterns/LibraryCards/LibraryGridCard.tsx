@@ -94,7 +94,6 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
             `/${props.viewer.profile.username}/${props.item.slug}`,
             '_blank'
           )
-          window.focus()
         } else {
           router.push(`/${props.viewer.profile.username}/${props.item.slug}`)
         }
