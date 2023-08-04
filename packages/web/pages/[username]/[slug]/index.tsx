@@ -27,7 +27,11 @@ import { ArticleActionsMenu } from '../../../components/templates/article/Articl
 import { setLinkArchivedMutation } from '../../../lib/networking/mutations/setLinkArchivedMutation'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { useSWRConfig } from 'swr'
-import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
+import {
+  showErrorToast,
+  showSuccessToast,
+  showSuccessToastWithUndo,
+} from '../../../lib/toastHelpers'
 import { SetLabelsModal } from '../../../components/templates/article/SetLabelsModal'
 import { DisplaySettingsModal } from '../../../components/templates/article/DisplaySettingsModal'
 import { useReaderSettings } from '../../../lib/hooks/useReaderSettings'
@@ -41,6 +45,8 @@ import { VerticalArticleActionsMenu } from '../../../components/templates/articl
 import { PdfHeaderSpacer } from '../../../components/templates/article/PdfHeaderSpacer'
 import { EpubContainerProps } from '../../../components/templates/article/EpubContainer'
 import { useSetPageLabels } from '../../../lib/hooks/useSetPageLabels'
+import { updatePageMutation } from '../../../lib/networking/mutations/updatePageMutation'
+import { State } from '../../../lib/networking/fragments/articleFragment'
 
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
   () => import('./../../../components/templates/article/PdfArticleContainer'),
@@ -138,7 +144,7 @@ export default function Home(): JSX.Element {
           }
           break
         case 'delete':
-          readerSettings.setShowDeleteConfirmation(true)
+          await deleteCurrentItem()
           break
         case 'openOriginalArticle':
           const url = article?.url
@@ -206,10 +212,23 @@ export default function Home(): JSX.Element {
 
   const deleteCurrentItem = useCallback(async () => {
     if (article) {
-      removeItemFromCache(cache, mutate, article.id)
-      await deleteLinkMutation(article.id).then((res) => {
+      const pageId = article.id
+
+      removeItemFromCache(cache, mutate, pageId)
+      await deleteLinkMutation(pageId).then((res) => {
         if (res) {
-          showSuccessToast('Page deleted', { position: 'bottom-right' })
+          showSuccessToastWithUndo('Page deleted', async () => {
+            const result = await updatePageMutation({
+              pageId: pageId,
+              state: State.SUCCEEDED,
+            })
+            document.dispatchEvent(new Event('revalidateLibrary'))
+            if (result) {
+              showSuccessToast('Page recovered')
+            } else {
+              showErrorToast('Error recovering page, check your deleted items')
+            }
+          })
         } else {
           // todo: revalidate or put back in cache?
           showErrorToast('Error deleting page', { position: 'bottom-right' })

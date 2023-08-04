@@ -1,14 +1,7 @@
 import { Action, createAction, useKBar, useRegisterActions } from 'kbar'
 import debounce from 'lodash/debounce'
 import { useRouter } from 'next/router'
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useReducer,
-  useRef,
-  useState,
-} from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Toaster } from 'react-hot-toast'
 import TopBarProgress from 'react-topbar-progress-indicator'
 import { useFetchMore } from '../../../lib/hooks/useFetchMoreScroll'
@@ -48,10 +41,13 @@ import { LibraryHeader, MultiSelectMode } from './LibraryHeader'
 import { UploadModal } from '../UploadModal'
 import { BulkAction } from '../../../lib/networking/mutations/bulkActionMutation'
 import { bulkActionMutation } from '../../../lib/networking/mutations/bulkActionMutation'
-import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
+import {
+  showErrorToast,
+  showSuccessToast,
+  showSuccessToastWithUndo,
+} from '../../../lib/toastHelpers'
 import { SetPageLabelsModalPresenter } from '../article/SetLabelsModalPresenter'
 import { NotebookPresenter } from '../article/NotebookPresenter'
-import { Highlight } from '../../../lib/networking/fragments/highlightFragment'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 export type LibraryMode = 'reads' | 'highlights'
@@ -109,6 +105,19 @@ export function HomeFeedContainer(): JSX.Element {
     performActionOnItem,
     mutate,
   } = useGetLibraryItemsQuery(queryInputs)
+
+  useEffect(() => {
+    const handleRevalidate = () => {
+      ;(async () => {
+        console.log('revalidating library')
+        await mutate()
+      })()
+    }
+    document.addEventListener('revalidateLibrary', handleRevalidate)
+    return () => {
+      document.removeEventListener('revalidateLibrary', handleRevalidate)
+    }
+  }, [mutate])
 
   useEffect(() => {
     if (queryValue.startsWith('#')) {
@@ -1199,10 +1208,7 @@ function LibraryItems(props: LibraryItemsProps): JSX.Element {
               setIsChecked={props.setIsChecked}
               multiSelectMode={props.multiSelectMode}
               handleAction={(action: LinkedItemCardAction) => {
-                if (action === 'delete') {
-                  props.setShowRemoveLinkConfirmation(true)
-                  props.setLinkToRemove(linkedItem)
-                } else if (action === 'editTitle') {
+                if (action === 'editTitle') {
                   props.setShowEditTitleModal(true)
                   props.setLinkToEdit(linkedItem)
                 } else if (action == 'unsubscribe') {
