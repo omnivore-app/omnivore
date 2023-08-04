@@ -27,7 +27,6 @@ export const FallbackImage = (props: FallbackImageProps): JSX.Element => {
       distribution="center"
       alignment="center"
       css={{
-        // position: 'relative',
         width: props.width,
         height: props.height,
         backgroundColor: colors[1],
