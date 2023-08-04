@@ -242,13 +242,24 @@ export function LibraryListCardContent(
           title={props.item.title}
           readingProgress={item.readingProgressPercent}
         />
-
+      </Box>
+      <VStack
+        alignment="start"
+        distribution="start"
+        css={{
+          height: '100%',
+          width: '100%',
+          lineHeight: 1,
+          gap: '5px',
+          position: 'relative',
+        }}
+      >
         <Box
           css={{
             ...MenuStyle,
             position: 'absolute',
-            top: 0,
-            right: 0,
+            top: -10,
+            right: -10,
             m: '5px',
             visibility: menuOpen ? 'visible' : 'hidden',
             '@media (hover: none)': {
@@ -266,12 +277,6 @@ export function LibraryListCardContent(
             }
           />
         </Box>
-      </Box>
-      <VStack
-        alignment="start"
-        distribution="start"
-        css={{ height: '100%', width: '100%', lineHeight: 1, gap: '5px' }}
-      >
         <HStack
           css={{
             ...MetaStyle,
