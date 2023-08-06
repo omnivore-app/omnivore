@@ -1,15 +1,16 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from "react"
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { theme } from '../../tokens/stitches.config'
 import { FormInput } from '../../elements/FormElements'
 import { searchBarCommands } from '../../../lib/keyboardShortcuts/navigationShortcuts'
 import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
+import { locale, timeZone } from '../../../lib/dateFormatting'
 import { Button, IconButton } from '../../elements/Button'
 import {
-  CaretDown,
   FunnelSimple,
   MagnifyingGlass,
   Prohibit,
+  Plus,
   X,
 } from 'phosphor-react'
 import { LayoutType } from './HomeFeedContainer'
@@ -52,6 +53,8 @@ type LibraryHeaderProps = {
   setMultiSelectMode: (mode: MultiSelectMode) => void
 
   performMultiSelectAction: (action: BulkAction, labelIds?: string[]) => void
+
+  handleLinkSubmission: (link: string, timezone: string, locale:string) => Promise<void>,
 }
 
 export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
@@ -110,6 +113,7 @@ function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
         searchTerm={props.searchTerm}
         applySearchQuery={props.applySearchQuery}
         allowSelectMultiple={props.allowSelectMultiple}
+        handleLinkSubmission={props.handleLinkSubmission}
       />
     </HStack>
   )
@@ -148,6 +152,7 @@ function SmallHeaderLayout(props: LibraryHeaderProps): JSX.Element {
         <>
           {props.multiSelectMode === 'off' && <MenuHeaderButton {...props} />}
           <ControlButtonBox
+            handleLinkSubmission={props.handleLinkSubmission}
             layout={props.layout}
             updateLayout={props.updateLayout}
             setShowInlineSearch={setShowInlineSearch}
@@ -215,16 +220,24 @@ export type SearchBoxProps = {
 
   compact?: boolean
   onClose?: () => void
+  handleLinkSubmission: (link: string, timezone: string, locale:string) => Promise<void>,
 }
 
 export function SearchBox(props: SearchBoxProps): JSX.Element {
   const inputRef = useRef<HTMLInputElement | null>(null)
   const [focused, setFocused] = useState(false)
   const [searchTerm, setSearchTerm] = useState(props.searchTerm ?? '')
+  const [isAddAction, setIsAddAction] = useState(false);
+  const IS_URL_REGEX = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
+
 
   useEffect(() => {
     setSearchTerm(props.searchTerm ?? '')
   }, [props.searchTerm])
+
+  useEffect(() => {
+    setIsAddAction(IS_URL_REGEX.test(searchTerm))
+  }, [searchTerm, props.searchTerm])
 
   useKeyboardShortcuts(
     searchBarCommands((action) => {
@@ -272,15 +285,36 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
             e.preventDefault()
           }}
         >
-          <MagnifyingGlass
-            size={props.compact ? 15 : 20}
-            color={theme.colors.graySolid.toString()}
-          />
+          {
+            (() => {
+              if (isAddAction) {
+                return <Plus
+                  size={props.compact ? 15 : 20}
+                  color={theme.colors.graySolid.toString()}
+                />
+            }
+
+              return <MagnifyingGlass
+                size={props.compact ? 15 : 20}
+                color={theme.colors.graySolid.toString()}
+              />
+          })()
+          }
+
         </HStack>
         <form
-          onSubmit={(event) => {
+          onSubmit={async (event) => {
             event.preventDefault()
-            props.applySearchQuery(searchTerm || '')
+
+            if (!isAddAction) {
+              props.applySearchQuery(searchTerm || '')
+            } else {
+                await props.handleLinkSubmission(searchTerm, timeZone, locale)
+                setSearchTerm(props.searchTerm ?? "")
+                // This will technically (albeit kinda hackily) refresh and add the link
+                // I would prefer, though, for this to actually be handled better.
+                props.applySearchQuery(props.searchTerm ?? "")
+            }
             inputRef.current?.blur()
             if (props.onClose) {
               props.onClose()
@@ -376,6 +410,8 @@ type ControlButtonBoxProps = {
 
   searchTerm: string | undefined
   applySearchQuery: (searchQuery: string) => void
+
+  handleLinkSubmission: (link: string, timezone: string, locale:string) => Promise<void>,
 }
 
 function MultiSelectControls(props: ControlButtonBoxProps): JSX.Element {

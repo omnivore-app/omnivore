@@ -1,4 +1,7 @@
 import { Action, createAction, useKBar, useRegisterActions } from 'kbar'
+import {
+  articleQuery,
+} from "../../../lib/networking/queries/useGetArticleQuery"
 import debounce from 'lodash/debounce'
 import { useRouter } from 'next/router'
 import {
@@ -9,7 +12,7 @@ import {
   useRef,
   useState,
 } from 'react'
-import { Toaster } from 'react-hot-toast'
+import toast, { Toaster } from 'react-hot-toast'
 import TopBarProgress from 'react-topbar-progress-indicator'
 import { useFetchMore } from '../../../lib/hooks/useFetchMoreScroll'
 import { usePersistedState } from '../../../lib/hooks/usePersistedState'
@@ -51,7 +54,7 @@ import { bulkActionMutation } from '../../../lib/networking/mutations/bulkAction
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { SetPageLabelsModalPresenter } from '../article/SetLabelsModalPresenter'
 import { NotebookPresenter } from '../article/NotebookPresenter'
-import { Highlight } from '../../../lib/networking/fragments/highlightFragment'
+import { saveUrlMutation } from "../../../lib/networking/mutations/saveUrlMutation"
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 export type LibraryMode = 'reads' | 'highlights'
@@ -68,6 +71,8 @@ const fetchSearchResults = async (query: string, cb: any) => {
 const debouncedFetchSearchResults = debounce((query, cb) => {
   fetchSearchResults(query, cb)
 }, 300)
+
+const TIMEOUT_DELAYS = [500, 750, 1000, 2000, 5000];
 
 export function HomeFeedContainer(): JSX.Element {
   const { viewerData } = useGetViewerQuery()
@@ -97,6 +102,7 @@ export function HomeFeedContainer(): JSX.Element {
   const [linkToRemove, setLinkToRemove] = useState<LibraryItem>()
   const [linkToEdit, setLinkToEdit] = useState<LibraryItem>()
   const [linkToUnsubscribe, setLinkToUnsubscribe] = useState<LibraryItem>()
+  const [savedLink, setSavedLink] = useState<string>();
 
   const [queryInputs, setQueryInputs] =
     useState<LibraryItemsQueryInput>(defaultQuery)
@@ -170,6 +176,42 @@ export function HomeFeedContainer(): JSX.Element {
       }) || []
     return items
   }, [itemsPages, performActionOnItem])
+
+  useEffect(() => {
+    let startIdx = 1;
+    if (savedLink) {
+      const seeIfUpdated = async() => {
+        if (startIdx > 5) {
+          return
+        }
+
+        const item = getItem(savedLink);
+        const username = viewerData?.me?.profile.username;
+        if (item) {
+          const link = await articleQuery({ username, slug: item.node.slug, includeFriendsHighlights: false })
+
+          if (link && link.state != "PROCESSING") {
+            const updatedArticle = { ...item };
+            updatedArticle.node = {...item.node, ...link }
+            performActionOnItem('update-item', updatedArticle);
+            return;
+          }
+
+          if (!item.isLoading) {
+            performActionOnItem('update-item', { ...item, isLoading: true });
+          }
+          console.log(`Trying to get the metadata of item ${item.node.slug}... Retry ${startIdx} of 5`);
+          setTimeout(seeIfUpdated, TIMEOUT_DELAYS[startIdx++])
+        }
+
+        // If the item was not found, this suggests that we are not in the right search view. So we can bail early.
+      }
+
+      setTimeout(seeIfUpdated, TIMEOUT_DELAYS[0]);
+      setSavedLink(undefined);
+    }
+
+  }, [itemsPages])
 
   const handleFetchMore = useCallback(() => {
     if (isValidating || !hasMore) {
@@ -269,6 +311,13 @@ export function HomeFeedContainer(): JSX.Element {
   const getItem = useCallback(
     (itemId) => {
       return libraryItems.find((item) => item.node.id === itemId)
+    },
+    [libraryItems]
+  )
+
+  const getItemByUrl = useCallback(
+    (url: string) => {
+      return libraryItems.find(it => it.node.url === url);
     },
     [libraryItems]
   )
@@ -706,6 +755,42 @@ export function HomeFeedContainer(): JSX.Element {
     [itemsPages, multiSelectMode, checkedItems]
   )
 
+  const queryUntilSavedOrTimeout = async (url: string, tries : number | undefined = 5)=> {
+    return;
+  }
+
+  const handleLinkSubmission =
+    async (link: string, timezone: string, locale: string) => {
+      const result = await saveUrlMutation(link, timezone, locale)
+      if (result) {
+        toast(
+          () => (
+            <Box>
+              Link Saved
+              <span style={{ padding: '16px' }} />
+              <Button
+                style="ctaDarkYellow"
+                autoFocus
+                onClick={() => {
+                  window.location.href = `/article?url=${encodeURIComponent(
+                    link
+                  )}`
+                }}
+              >
+                Read Now
+              </Button>
+            </Box>
+          ),
+          { position: 'bottom-right' }
+        )
+        const id = result.url?.match(/[^/]+$/)?.[0] ?? "";
+        performActionOnItem('refresh', undefined as unknown as any)
+        setSavedLink(id);
+      } else {
+        showErrorToast('Error saving link', { position: 'bottom-right' })
+      }
+    };
+
   return (
     <HomeFeedGrid
       items={libraryItems}
@@ -720,6 +805,7 @@ export function HomeFeedContainer(): JSX.Element {
       gridContainerRef={gridContainerRef}
       mode={mode}
       setMode={setMode}
+      handleLinkSubmission={handleLinkSubmission}
       applySearchQuery={(searchQuery: string) => {
         setQueryInputs({
           ...queryInputs,
@@ -811,6 +897,8 @@ type HomeFeedContentProps = {
     item: LibraryItem | undefined
   ) => Promise<void>
 
+  handleLinkSubmission: (link: string, timezone: string, locale:string) => Promise<void>,
+
   setIsChecked: (itemId: string, set: boolean) => void
   itemIsChecked: (itemId: string) => boolean
 
@@ -853,6 +941,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
         applySearchQuery={(searchQuery: string) => {
           props.applySearchQuery(searchQuery)
         }}
+        handleLinkSubmission={props.handleLinkSubmission}
         allowSelectMultiple={props.mode !== 'highlights'}
         alwaysShowHeader={props.mode == 'highlights'}
         showFilterMenu={showFilterMenu}
@@ -892,7 +981,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
         )}
 
         {props.showAddLinkModal && (
-          <AddLinkModal onOpenChange={() => props.setShowAddLinkModal(false)} />
+          <AddLinkModal handleLinkSubmission={props.handleLinkSubmission} onOpenChange={() => props.setShowAddLinkModal(false)} />
         )}
       </HStack>
     </VStack>

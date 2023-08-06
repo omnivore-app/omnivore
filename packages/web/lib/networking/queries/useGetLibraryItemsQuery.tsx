@@ -60,6 +60,7 @@ export type LibraryItems = {
 export type LibraryItem = {
   cursor: string
   node: LibraryItemNode
+  isLoading?: boolean | undefined
 }
 
 export type LibraryItemNode = {
