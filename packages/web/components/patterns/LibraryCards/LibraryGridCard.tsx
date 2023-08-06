@@ -5,7 +5,6 @@ import { CoverImage } from '../../elements/CoverImage'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useCallback, useState } from 'react'
-import Link from 'next/link'
 import {
   AuthorInfoStyle,
   CardCheckbox,
@@ -28,7 +27,7 @@ import {
 import { CardMenu } from '../CardMenu'
 import { DotsThree } from 'phosphor-react'
 import { isTouchScreenDevice } from '../../../lib/deviceType'
-import { ProgressBarOverlay } from './LibraryListCard'
+import { LoadingBarOverlay, ProgressBarOverlay } from "./LibraryListCard"
 import { FallbackImage } from './FallbackImage'
 import { useRouter } from 'next/router'
 
@@ -88,7 +87,6 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
         setIsHovered(false)
       }}
       onClick={(event) => {
-        console.log('click event: ', event)
         if (event.metaKey || event.ctrlKey) {
           window.open(
             `/${props.viewer.profile.username}/${props.item.slug}`,
@@ -133,6 +131,7 @@ type GridImageProps = {
   src?: string
   title?: string
   readingProgress?: number
+  isLoading?: boolean
 }
 
 const GridImage = (props: GridImageProps): JSX.Element => {
@@ -140,7 +139,17 @@ const GridImage = (props: GridImageProps): JSX.Element => {
 
   return (
     <>
-      {(props.readingProgress ?? 0) > 0 && (
+      {
+        props.isLoading && (
+          <LoadingBarOverlay
+            width="100%"
+            top={95}
+            bottomRadius={'0px'}
+            fillColor={"rgba(60, 179, 113, 1)"}
+          />
+        )
+      }
+      {(props.readingProgress ?? 0) > 0 && !props.isLoading && (
         <ProgressBarOverlay
           width="100%"
           top={95}
@@ -189,6 +198,7 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
           src={props.item.image}
           title={props.item.title}
           readingProgress={item.readingProgressPercent}
+          isLoading={props.isLoading}
         />
         <SpanBox
           css={{

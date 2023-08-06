@@ -72,7 +72,8 @@ const debouncedFetchSearchResults = debounce((query, cb) => {
   fetchSearchResults(query, cb)
 }, 300)
 
-const TIMEOUT_DELAYS = [500, 750, 1000, 2000, 5000];
+// We set a relatively high delay for the refresh.
+const TIMEOUT_DELAYS = [1000, 3000, 4000, 5000, 10000];
 
 export function HomeFeedContainer(): JSX.Element {
   const { viewerData } = useGetViewerQuery()
@@ -142,10 +143,11 @@ export function HomeFeedContainer(): JSX.Element {
   useEffect(() => {
     if (!router.isReady) return
     const q = router.query['q']
-    let qs = ''
+    let qs = 'in:inbox' // Default to in:inbox search term.
     if (q && typeof q === 'string') {
       qs = q
     }
+
     if (qs !== (queryInputs.searchQuery || '')) {
       setQueryInputs({ ...queryInputs, searchQuery: qs })
       performActionOnItem('refresh', undefined as unknown as any)
@@ -172,7 +174,7 @@ export function HomeFeedContainer(): JSX.Element {
   const libraryItems = useMemo(() => {
     const items =
       itemsPages?.flatMap((ad) => {
-        return ad.search.edges
+        return ad.search.edges.map(it => ({ ...it, isLoading: it.node.state === 'PROCESSING'}));
       }) || []
     return items
   }, [itemsPages, performActionOnItem])
@@ -186,13 +188,16 @@ export function HomeFeedContainer(): JSX.Element {
         }
 
         const item = getItem(savedLink);
-        const username = viewerData?.me?.profile.username;
+        const username = viewerData?.me?.profile.username
+
         if (item) {
           const link = await articleQuery({ username, slug: item.node.slug, includeFriendsHighlights: false })
 
           if (link && link.state != "PROCESSING") {
             const updatedArticle = { ...item };
             updatedArticle.node = {...item.node, ...link }
+            updatedArticle.isLoading = false;
+            console.log('updating')
             performActionOnItem('update-item', updatedArticle);
             return;
           }
@@ -206,9 +211,8 @@ export function HomeFeedContainer(): JSX.Element {
 
         // If the item was not found, this suggests that we are not in the right search view. So we can bail early.
       }
-
-      setTimeout(seeIfUpdated, TIMEOUT_DELAYS[0]);
       setSavedLink(undefined);
+      setTimeout(seeIfUpdated, TIMEOUT_DELAYS[0]);
     }
 
   }, [itemsPages])
@@ -311,13 +315,6 @@ export function HomeFeedContainer(): JSX.Element {
   const getItem = useCallback(
     (itemId) => {
       return libraryItems.find((item) => item.node.id === itemId)
-    },
-    [libraryItems]
-  )
-
-  const getItemByUrl = useCallback(
-    (url: string) => {
-      return libraryItems.find(it => it.node.url === url);
     },
     [libraryItems]
   )
@@ -754,10 +751,6 @@ export function HomeFeedContainer(): JSX.Element {
     },
     [itemsPages, multiSelectMode, checkedItems]
   )
-
-  const queryUntilSavedOrTimeout = async (url: string, tries : number | undefined = 5)=> {
-    return;
-  }
 
   const handleLinkSubmission =
     async (link: string, timezone: string, locale: string) => {
@@ -1283,6 +1276,7 @@ function LibraryItems(props: LibraryItemsProps): JSX.Element {
             <LinkedItemCard
               layout={props.layout}
               item={linkedItem.node}
+              isLoading={linkedItem.isLoading}
               viewer={props.viewer}
               isChecked={props.isChecked(linkedItem.node.id)}
               setIsChecked={props.setIsChecked}
