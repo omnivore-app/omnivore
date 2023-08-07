@@ -67,7 +67,7 @@ const moduleExports = {
         permanent: true,
       },
       {
-        source: '/settings/rss/',
+        source: '/settings/rss',
         destination: '/settings/feeds',
         permanent: true,
       },
