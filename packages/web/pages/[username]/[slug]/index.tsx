@@ -272,8 +272,6 @@ export default function Home(): JSX.Element {
         perform: () => {
           if (
             readerSettings.showSetLabelsModal ||
-            readerSettings.showDeleteConfirmation ||
-            readerSettings.showDeleteConfirmation ||
             readerSettings.showEditDisplaySettingsModal
           ) {
             return
@@ -567,13 +565,6 @@ export default function Home(): JSX.Element {
           onOpenChange={() => {
             readerSettings.setShowEditDisplaySettingsModal(false)
           }}
-        />
-      )}
-      {readerSettings.showDeleteConfirmation && (
-        <ConfirmationModal
-          message={'Are you sure you want to delete this page?'}
-          onAccept={deleteCurrentItem}
-          onOpenChange={() => readerSettings.setShowDeleteConfirmation(false)}
         />
       )}
       {article && showEditModal && (
