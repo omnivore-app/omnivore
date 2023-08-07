@@ -1,41 +1,55 @@
-import { Action, createAction, useKBar, useRegisterActions } from "kbar"
-import { articleQuery } from "../../../lib/networking/queries/useGetArticleQuery"
-import debounce from "lodash/debounce"
-import { useRouter } from "next/router"
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { Action, createAction, useKBar, useRegisterActions } from 'kbar'
+import debounce from 'lodash/debounce'
+import { useRouter } from 'next/router'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import toast, { Toaster } from "react-hot-toast"
-import TopBarProgress from "react-topbar-progress-indicator"
-import { useFetchMore } from "../../../lib/hooks/useFetchMoreScroll"
-import { usePersistedState } from "../../../lib/hooks/usePersistedState"
-import { libraryListCommands } from "../../../lib/keyboardShortcuts/navigationShortcuts"
-import { useKeyboardShortcuts } from "../../../lib/keyboardShortcuts/useKeyboardShortcuts"
-import { PageType, State } from "../../../lib/networking/fragments/articleFragment"
+import TopBarProgress from 'react-topbar-progress-indicator'
+import { useFetchMore } from '../../../lib/hooks/useFetchMoreScroll'
+import { usePersistedState } from '../../../lib/hooks/usePersistedState'
+import { libraryListCommands } from '../../../lib/keyboardShortcuts/navigationShortcuts'
+import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
+import {
+  PageType,
+  State,
+} from '../../../lib/networking/fragments/articleFragment'
 import {
   SearchItem,
   TypeaheadSearchItemsData,
-  typeaheadSearchQuery
-} from "../../../lib/networking/queries/typeaheadSearch"
-import type { LibraryItem, LibraryItemsQueryInput } from "../../../lib/networking/queries/useGetLibraryItemsQuery"
-import { useGetLibraryItemsQuery } from "../../../lib/networking/queries/useGetLibraryItemsQuery"
-import { useGetViewerQuery, UserBasicData } from "../../../lib/networking/queries/useGetViewerQuery"
-import { Button } from "../../elements/Button"
-import { StyledText } from "../../elements/StyledText"
-import { ConfirmationModal } from "../../patterns/ConfirmationModal"
-import { LinkedItemCardAction } from "../../patterns/LibraryCards/CardTypes"
-import { LinkedItemCard } from "../../patterns/LibraryCards/LinkedItemCard"
-import { Box, HStack, VStack } from "./../../elements/LayoutPrimitives"
-import { AddLinkModal } from "./AddLinkModal"
-import { EditLibraryItemModal } from "./EditItemModals"
-import { EmptyLibrary } from "./EmptyLibrary"
-import { HighlightItemsLayout } from "./HighlightsLayout"
-import { LibraryFilterMenu } from "./LibraryFilterMenu"
-import { LibraryHeader, MultiSelectMode } from "./LibraryHeader"
-import { UploadModal } from "../UploadModal"
-import { BulkAction, bulkActionMutation } from "../../../lib/networking/mutations/bulkActionMutation"
-import { showErrorToast, showSuccessToast } from "../../../lib/toastHelpers"
-import { SetPageLabelsModalPresenter } from "../article/SetLabelsModalPresenter"
-import { NotebookPresenter } from "../article/NotebookPresenter"
+  typeaheadSearchQuery,
+} from '../../../lib/networking/queries/typeaheadSearch'
+import type {
+  LibraryItem,
+  LibraryItemsQueryInput,
+} from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+import { useGetLibraryItemsQuery } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+import {
+  useGetViewerQuery,
+  UserBasicData,
+} from '../../../lib/networking/queries/useGetViewerQuery'
+import { Button } from '../../elements/Button'
+import { StyledText } from '../../elements/StyledText'
+import { ConfirmationModal } from '../../patterns/ConfirmationModal'
+import { LinkedItemCardAction } from '../../patterns/LibraryCards/CardTypes'
+import { LinkedItemCard } from '../../patterns/LibraryCards/LinkedItemCard'
+import { Box, HStack, VStack } from './../../elements/LayoutPrimitives'
+import { AddLinkModal } from './AddLinkModal'
+import { EditLibraryItemModal } from './EditItemModals'
+import { EmptyLibrary } from './EmptyLibrary'
+import { HighlightItemsLayout } from './HighlightsLayout'
+import { LibraryFilterMenu } from './LibraryFilterMenu'
+import { LibraryHeader, MultiSelectMode } from './LibraryHeader'
+import { UploadModal } from '../UploadModal'
+import { BulkAction } from '../../../lib/networking/mutations/bulkActionMutation'
+import { bulkActionMutation } from '../../../lib/networking/mutations/bulkActionMutation'
+import {
+  showErrorToast,
+  showSuccessToast,
+  showSuccessToastWithUndo,
+} from '../../../lib/toastHelpers'
+import { SetPageLabelsModalPresenter } from '../article/SetLabelsModalPresenter'
+import { NotebookPresenter } from '../article/NotebookPresenter'
 import { saveUrlMutation } from "../../../lib/networking/mutations/saveUrlMutation"
+import { articleQuery } from "../../../lib/networking/queries/useGetArticleQuery"
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 export type LibraryMode = 'reads' | 'highlights'
@@ -83,7 +97,6 @@ export function HomeFeedContainer(): JSX.Element {
 
   const [showAddLinkModal, setShowAddLinkModal] = useState(false)
   const [showEditTitleModal, setShowEditTitleModal] = useState(false)
-  const [linkToRemove, setLinkToRemove] = useState<LibraryItem>()
   const [linkToEdit, setLinkToEdit] = useState<LibraryItem>()
   const [linkToUnsubscribe, setLinkToUnsubscribe] = useState<LibraryItem>()
 
@@ -98,6 +111,19 @@ export function HomeFeedContainer(): JSX.Element {
     performActionOnItem,
     mutate,
   } = useGetLibraryItemsQuery(queryInputs)
+
+  useEffect(() => {
+    const handleRevalidate = () => {
+      ;(async () => {
+        console.log('revalidating library')
+        await mutate()
+      })()
+    }
+    document.addEventListener('revalidateLibrary', handleRevalidate)
+    return () => {
+      document.removeEventListener('revalidateLibrary', handleRevalidate)
+    }
+  }, [mutate])
 
   useEffect(() => {
     if (queryValue.startsWith('#')) {
@@ -404,8 +430,8 @@ export function HomeFeedContainer(): JSX.Element {
   }
 
   const modalTargetItem = useMemo(() => {
-    return labelsTarget || linkToEdit || linkToRemove || linkToUnsubscribe
-  }, [labelsTarget, linkToEdit, linkToRemove, linkToUnsubscribe])
+    return labelsTarget || linkToEdit || linkToUnsubscribe
+  }, [labelsTarget, linkToEdit, linkToUnsubscribe])
 
   const [checkedItems, setCheckedItems] = useState<string[]>([])
   const [multiSelectMode, setMultiSelectMode] = useState<MultiSelectMode>('off')
@@ -827,8 +853,6 @@ export function HomeFeedContainer(): JSX.Element {
       setActiveItem={(item: LibraryItem) => {
         activateCard(item.node.id)
       }}
-      linkToRemove={linkToRemove}
-      setLinkToRemove={setLinkToRemove}
       linkToEdit={linkToEdit}
       setLinkToEdit={setLinkToEdit}
       linkToUnsubscribe={linkToUnsubscribe}
@@ -865,8 +889,6 @@ type HomeFeedContentProps = {
   setShowEditTitleModal: (show: boolean) => void
   setActiveItem: (item: LibraryItem) => void
 
-  linkToRemove: LibraryItem | undefined
-  setLinkToRemove: (set: LibraryItem | undefined) => void
   linkToEdit: LibraryItem | undefined
   setLinkToEdit: (set: LibraryItem | undefined) => void
   linkToUnsubscribe: LibraryItem | undefined
@@ -983,22 +1005,10 @@ type LibraryItemsLayoutProps = {
 } & HomeFeedContentProps
 
 function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element {
-  const [showRemoveLinkConfirmation, setShowRemoveLinkConfirmation] =
-    useState(false)
   const [showUnsubscribeConfirmation, setShowUnsubscribeConfirmation] =
     useState(false)
   const [showUploadModal, setShowUploadModal] = useState(false)
   const [, updateState] = useState({})
-
-  const removeItem = () => {
-    if (!props.linkToRemove) {
-      return
-    }
-
-    props.actionHandler('delete', props.linkToRemove)
-    props.setLinkToRemove(undefined)
-    setShowRemoveLinkConfirmation(false)
-  }
 
   const unsubscribe = () => {
     if (!props.linkToUnsubscribe) {
@@ -1049,9 +1059,7 @@ function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element {
               setShowEditTitleModal={props.setShowEditTitleModal}
               setLinkToEdit={props.setLinkToEdit}
               setShowUnsubscribeConfirmation={setShowUnsubscribeConfirmation}
-              setLinkToRemove={props.setLinkToRemove}
               setLinkToUnsubscribe={props.setLinkToUnsubscribe}
-              setShowRemoveLinkConfirmation={setShowRemoveLinkConfirmation}
               actionHandler={props.actionHandler}
               multiSelectMode={props.multiSelectMode}
             />
@@ -1084,43 +1092,6 @@ function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element {
           }
           onOpenChange={() => props.setShowEditTitleModal(false)}
           item={props.linkToEdit as LibraryItem}
-        />
-      )}
-      {showRemoveLinkConfirmation && (
-        <ConfirmationModal
-          richMessage={
-            <VStack alignment="center" distribution="center">
-              <StyledText style="modalTitle" css={{ margin: '0px 8px' }}>
-                Are you sure you want to delete this item? All associated notes
-                and highlights will be deleted.
-              </StyledText>
-              {props.linkToRemove?.node && props.viewer && (
-                <Box
-                  css={{
-                    transform: 'scale(0.6)',
-                    opacity: 0.8,
-                    pointerEvents: 'none',
-                    filter: 'grayscale(1)',
-                  }}
-                >
-                  <LinkedItemCard
-                    item={props.linkToRemove?.node}
-                    viewer={props.viewer}
-                    layout="GRID_LAYOUT"
-                    multiSelectMode={props.multiSelectMode}
-                    isChecked={false}
-                    // eslint-disable-next-line @typescript-eslint/no-empty-function
-                    setIsChecked={() => {}}
-                    // eslint-disable-next-line @typescript-eslint/no-empty-function
-                    handleAction={() => {}}
-                  />
-                </Box>
-              )}
-            </VStack>
-          }
-          onAccept={removeItem}
-          acceptButtonLabel="Delete Item"
-          onOpenChange={() => setShowRemoveLinkConfirmation(false)}
         />
       )}
       {showUnsubscribeConfirmation && (
@@ -1174,9 +1145,7 @@ type LibraryItemsProps = {
   setShowEditTitleModal: (show: boolean) => void
   setLinkToEdit: (set: LibraryItem | undefined) => void
   setShowUnsubscribeConfirmation: (show: true) => void
-  setLinkToRemove: (set: LibraryItem | undefined) => void
   setLinkToUnsubscribe: (set: LibraryItem | undefined) => void
-  setShowRemoveLinkConfirmation: (show: true) => void
 
   isChecked: (itemId: string) => boolean
   setIsChecked: (itemId: string, set: boolean) => void
@@ -1272,10 +1241,7 @@ function LibraryItems(props: LibraryItemsProps): JSX.Element {
               setIsChecked={props.setIsChecked}
               multiSelectMode={props.multiSelectMode}
               handleAction={(action: LinkedItemCardAction) => {
-                if (action === 'delete') {
-                  props.setShowRemoveLinkConfirmation(true)
-                  props.setLinkToRemove(linkedItem)
-                } else if (action === 'editTitle') {
+                if (action === 'editTitle') {
                   props.setShowEditTitleModal(true)
                   props.setLinkToEdit(linkedItem)
                 } else if (action == 'unsubscribe') {

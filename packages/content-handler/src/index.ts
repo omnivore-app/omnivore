@@ -37,6 +37,7 @@ import { WeixinQqHandler } from './websites/weixin-qq-handler'
 import { WikipediaHandler } from './websites/wikipedia-handler'
 import { YoutubeHandler } from './websites/youtube-handler'
 import { TheAtlanticHandler } from './websites/the-atlantic-handler'
+import { ArsTechnicaHandler } from './websites/ars-technica-handler'
 
 const validateUrlString = (url: string): boolean => {
   const u = new URL(url)
@@ -57,6 +58,7 @@ const validateUrlString = (url: string): boolean => {
 }
 
 const contentHandlers: ContentHandler[] = [
+  new ArsTechnicaHandler(),
   new TheAtlanticHandler(),
   new AppleNewsHandler(),
   new BloombergHandler(),

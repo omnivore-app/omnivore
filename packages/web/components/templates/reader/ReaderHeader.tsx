@@ -32,13 +32,10 @@ export function ReaderHeader(props: ReaderHeaderProps): JSX.Element {
           height: HEADER_HEIGHT,
           display: props.alwaysDisplayToolbar ? 'flex' : 'transparent',
           pointerEvents: props.alwaysDisplayToolbar ? 'unset' : 'none',
-          borderBottom: props.alwaysDisplayToolbar
-            ? '1px solid $thBorderColor'
-            : '1px solid transparent',
+          borderBottom: '1px solid transparent',
           '@xlgDown': {
             bg: '$readerBg',
             pointerEvents: 'unset',
-            borderBottom: '1px solid $thBorderColor',
           },
           '@mdDown': {
             bg: '$readerBg',

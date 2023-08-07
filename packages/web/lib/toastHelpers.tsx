@@ -2,6 +2,7 @@ import { toast, ToastOptions } from 'react-hot-toast'
 import { CheckCircle, WarningCircle, X } from 'phosphor-react'
 import { Box, HStack } from '../components/elements/LayoutPrimitives'
 import { styled } from '@stitches/react'
+import { Button } from '../components/elements/Button'
 
 const toastStyles = {
   minWidth: 265,
@@ -67,10 +68,64 @@ const showToast = (
   )
 }
 
+const showToastWithUndo = (
+  message: string,
+  background: string,
+  undoAction: () => Promise<void>,
+  options?: ToastOptions
+) => {
+  return toast(
+    ({ id }) => (
+      <FullWidthContainer alignment="center">
+        <CheckCircle size={24} color="white" />
+        <MessageContainer>{message}</MessageContainer>
+        <HStack distribution="end" css={{ marginLeft: 16 }}>
+          <Button
+            style="ctaLightGray"
+            onClick={(event) => {
+              event.preventDefault()
+
+              toast.dismiss(id)
+              ;(async () => {
+                await undoAction()
+              })()
+            }}
+          >
+            Undo
+          </Button>
+        </HStack>
+      </FullWidthContainer>
+    ),
+    {
+      style: {
+        ...toastStyles,
+        background: background,
+      },
+      duration: 3500,
+      ...options,
+    }
+  )
+}
+
 export const showSuccessToast = (message: string, options?: ToastOptions) => {
-  return showToast(message, '#55B938', 'success', options)
+  return showToast(message, '#55B938', 'success', {
+    position: 'bottom-right',
+    ...options,
+  })
 }
 
 export const showErrorToast = (message: string, options?: ToastOptions) => {
-  return showToast(message, '#cc0000', 'error', options)
+  return showToast(message, '#cc0000', 'error', {
+    position: 'bottom-right',
+    ...options,
+  })
+}
+
+export const showSuccessToastWithUndo = (
+  message: string,
+  undoAction: () => Promise<void>
+) => {
+  return showToastWithUndo(message, '#55B938', undoAction, {
+    position: 'bottom-right',
+  })
 }
