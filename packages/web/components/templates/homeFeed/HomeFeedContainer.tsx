@@ -90,7 +90,6 @@ export function HomeFeedContainer(): JSX.Element {
 
   const [showAddLinkModal, setShowAddLinkModal] = useState(false)
   const [showEditTitleModal, setShowEditTitleModal] = useState(false)
-  const [linkToRemove, setLinkToRemove] = useState<LibraryItem>()
   const [linkToEdit, setLinkToEdit] = useState<LibraryItem>()
   const [linkToUnsubscribe, setLinkToUnsubscribe] = useState<LibraryItem>()
 
@@ -376,8 +375,8 @@ export function HomeFeedContainer(): JSX.Element {
   }
 
   const modalTargetItem = useMemo(() => {
-    return labelsTarget || linkToEdit || linkToRemove || linkToUnsubscribe
-  }, [labelsTarget, linkToEdit, linkToRemove, linkToUnsubscribe])
+    return labelsTarget || linkToEdit || linkToUnsubscribe
+  }, [labelsTarget, linkToEdit, linkToUnsubscribe])
 
   const [checkedItems, setCheckedItems] = useState<string[]>([])
   const [multiSelectMode, setMultiSelectMode] = useState<MultiSelectMode>('off')
@@ -767,8 +766,6 @@ export function HomeFeedContainer(): JSX.Element {
       setActiveItem={(item: LibraryItem) => {
         activateCard(item.node.id)
       }}
-      linkToRemove={linkToRemove}
-      setLinkToRemove={setLinkToRemove}
       linkToEdit={linkToEdit}
       setLinkToEdit={setLinkToEdit}
       linkToUnsubscribe={linkToUnsubscribe}
@@ -805,8 +802,6 @@ type HomeFeedContentProps = {
   setShowEditTitleModal: (show: boolean) => void
   setActiveItem: (item: LibraryItem) => void
 
-  linkToRemove: LibraryItem | undefined
-  setLinkToRemove: (set: LibraryItem | undefined) => void
   linkToEdit: LibraryItem | undefined
   setLinkToEdit: (set: LibraryItem | undefined) => void
   linkToUnsubscribe: LibraryItem | undefined
@@ -920,22 +915,10 @@ type LibraryItemsLayoutProps = {
 } & HomeFeedContentProps
 
 function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element {
-  const [showRemoveLinkConfirmation, setShowRemoveLinkConfirmation] =
-    useState(false)
   const [showUnsubscribeConfirmation, setShowUnsubscribeConfirmation] =
     useState(false)
   const [showUploadModal, setShowUploadModal] = useState(false)
   const [, updateState] = useState({})
-
-  const removeItem = () => {
-    if (!props.linkToRemove) {
-      return
-    }
-
-    props.actionHandler('delete', props.linkToRemove)
-    props.setLinkToRemove(undefined)
-    setShowRemoveLinkConfirmation(false)
-  }
 
   const unsubscribe = () => {
     if (!props.linkToUnsubscribe) {
@@ -986,9 +969,7 @@ function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element {
               setShowEditTitleModal={props.setShowEditTitleModal}
               setLinkToEdit={props.setLinkToEdit}
               setShowUnsubscribeConfirmation={setShowUnsubscribeConfirmation}
-              setLinkToRemove={props.setLinkToRemove}
               setLinkToUnsubscribe={props.setLinkToUnsubscribe}
-              setShowRemoveLinkConfirmation={setShowRemoveLinkConfirmation}
               actionHandler={props.actionHandler}
               multiSelectMode={props.multiSelectMode}
             />
@@ -1021,43 +1002,6 @@ function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element {
           }
           onOpenChange={() => props.setShowEditTitleModal(false)}
           item={props.linkToEdit as LibraryItem}
-        />
-      )}
-      {showRemoveLinkConfirmation && (
-        <ConfirmationModal
-          richMessage={
-            <VStack alignment="center" distribution="center">
-              <StyledText style="modalTitle" css={{ margin: '0px 8px' }}>
-                Are you sure you want to delete this item? All associated notes
-                and highlights will be deleted.
-              </StyledText>
-              {props.linkToRemove?.node && props.viewer && (
-                <Box
-                  css={{
-                    transform: 'scale(0.6)',
-                    opacity: 0.8,
-                    pointerEvents: 'none',
-                    filter: 'grayscale(1)',
-                  }}
-                >
-                  <LinkedItemCard
-                    item={props.linkToRemove?.node}
-                    viewer={props.viewer}
-                    layout="GRID_LAYOUT"
-                    multiSelectMode={props.multiSelectMode}
-                    isChecked={false}
-                    // eslint-disable-next-line @typescript-eslint/no-empty-function
-                    setIsChecked={() => {}}
-                    // eslint-disable-next-line @typescript-eslint/no-empty-function
-                    handleAction={() => {}}
-                  />
-                </Box>
-              )}
-            </VStack>
-          }
-          onAccept={removeItem}
-          acceptButtonLabel="Delete Item"
-          onOpenChange={() => setShowRemoveLinkConfirmation(false)}
         />
       )}
       {showUnsubscribeConfirmation && (
@@ -1111,9 +1055,7 @@ type LibraryItemsProps = {
   setShowEditTitleModal: (show: boolean) => void
   setLinkToEdit: (set: LibraryItem | undefined) => void
   setShowUnsubscribeConfirmation: (show: true) => void
-  setLinkToRemove: (set: LibraryItem | undefined) => void
   setLinkToUnsubscribe: (set: LibraryItem | undefined) => void
-  setShowRemoveLinkConfirmation: (show: true) => void
 
   isChecked: (itemId: string) => boolean
   setIsChecked: (itemId: string, set: boolean) => void
