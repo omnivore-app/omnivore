@@ -346,7 +346,7 @@ export const thumbnailHandler = Sentry.GCPFunction.wrapHttpFunction(
       if (page.image) {
         console.log('thumbnail already set')
         // pre-cache thumbnail first if exists
-        const imageProxyUrl = createImageProxyUrl(page.image)
+        const imageProxyUrl = createImageProxyUrl(page.image, 320, 320)
         await fetchImage(imageProxyUrl)
       }
 
