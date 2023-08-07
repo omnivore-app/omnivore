@@ -181,6 +181,7 @@ export function HomeFeedContainer(): JSX.Element {
 
   useEffect(() => {
     let startIdx = 1;
+    let timeout : NodeJS.Timeout | undefined;
     if (savedLink) {
       const seeIfUpdated = async() => {
         if (startIdx > 5) {
@@ -206,15 +207,18 @@ export function HomeFeedContainer(): JSX.Element {
             performActionOnItem('update-item', { ...item, isLoading: true });
           }
           console.log(`Trying to get the metadata of item ${item.node.slug}... Retry ${startIdx} of 5`);
-          setTimeout(seeIfUpdated, TIMEOUT_DELAYS[startIdx++])
+          timeout = setTimeout(seeIfUpdated, TIMEOUT_DELAYS[startIdx++])
         }
 
         // If the item was not found, this suggests that we are not in the right search view. So we can bail early.
       }
       setSavedLink(undefined);
-      setTimeout(seeIfUpdated, TIMEOUT_DELAYS[0]);
+      timeout = setTimeout(seeIfUpdated, TIMEOUT_DELAYS[0]);
     }
 
+    return () => {
+      clearTimeout(timeout);
+    }
   }, [itemsPages])
 
   const handleFetchMore = useCallback(() => {
