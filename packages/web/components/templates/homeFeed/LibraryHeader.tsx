@@ -230,7 +230,6 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
   const [isAddAction, setIsAddAction] = useState(false);
   const IS_URL_REGEX = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
 
-
   useEffect(() => {
     setSearchTerm(props.searchTerm ?? '')
   }, [props.searchTerm])
@@ -311,8 +310,6 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
             } else {
                 await props.handleLinkSubmission(searchTerm, timeZone, locale)
                 setSearchTerm(props.searchTerm ?? "")
-                // This will technically (albeit kinda hackily) refresh and add the link
-                // I would prefer, though, for this to actually be handled better.
                 props.applySearchQuery(props.searchTerm ?? "")
             }
             inputRef.current?.blur()
