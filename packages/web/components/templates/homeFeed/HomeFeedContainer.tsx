@@ -86,7 +86,6 @@ export function HomeFeedContainer(): JSX.Element {
   const [linkToRemove, setLinkToRemove] = useState<LibraryItem>()
   const [linkToEdit, setLinkToEdit] = useState<LibraryItem>()
   const [linkToUnsubscribe, setLinkToUnsubscribe] = useState<LibraryItem>()
-  const updatingLinks = useRef<Set<string>>(new Set<string>())
 
   const [queryInputs, setQueryInputs] =
     useState<LibraryItemsQueryInput>(defaultQuery)
@@ -165,23 +164,19 @@ export function HomeFeedContainer(): JSX.Element {
 
   useEffect(() => {
     const timeout : NodeJS.Timeout[] = []
-    const itemsToUpdate = libraryItems
-      .filter(it => it.isLoading && !updatingLinks.current.has(it.node.slug));
 
     const items =
-      itemsPages?.flatMap((ad) => {
+      (itemsPages?.flatMap((ad) => {
         return ad.search.edges.map(it => ({ ...it, isLoading: it.node.state === 'PROCESSING'}));
-      }) || []
+      }) || [])
+        .filter(it => it.isLoading);
 
     items.map(async (item) => {
       let startIdx = 0;
-      updatingLinks.current.add(item.node.slug)
 
       const seeIfUpdated = async () => {
         if (startIdx > TIMEOUT_DELAYS.length) {
           item.node.state = State.FAILED;
-          performActionOnItem('update-item', item);
-
           return
         }
 
@@ -196,7 +191,6 @@ export function HomeFeedContainer(): JSX.Element {
             updatedArticle.node = { ...item.node, ...link }
             updatedArticle.isLoading = false;
             console.log(`Updating Metadata of ${item.node.slug}.`)
-            updatingLinks.current.delete(item.node.slug)
             performActionOnItem('update-item', updatedArticle);
             return;
           }
