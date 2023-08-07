@@ -15,11 +15,9 @@ export type ReaderSettings = {
   setMarginWidth: (newMarginWidth: number) => void
 
   showSetLabelsModal: boolean
-  showDeleteConfirmation: boolean
   showEditDisplaySettingsModal: boolean
 
   setShowSetLabelsModal: (showSetLabelsModal: boolean) => void
-  setShowDeleteConfirmation: (showDeleteConfirmation: boolean) => void
   setShowEditDisplaySettingsModal: (
     showEditDisplaySettingsModal: boolean
   ) => void
@@ -70,7 +68,6 @@ export const useReaderSettings = (): ReaderSettings => {
   const [showSetLabelsModal, setShowSetLabelsModal] = useState(false)
   const [showEditDisplaySettingsModal, setShowEditDisplaySettingsModal] =
     useState(false)
-  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
 
   const updateFontSize = useCallback(
     (newFontSize: number) => {
@@ -209,12 +206,10 @@ export const useReaderSettings = (): ReaderSettings => {
     setFontSize,
     setLineHeight,
     setMarginWidth,
-    showDeleteConfirmation,
     showSetLabelsModal,
     showEditDisplaySettingsModal,
     setShowSetLabelsModal,
     setShowEditDisplaySettingsModal,
-    setShowDeleteConfirmation,
     actionHandler,
     setFontFamily,
     fontFamily,

@@ -1,15 +1,20 @@
 import { gql } from 'graphql-request'
 import useSWRInfinite from 'swr/infinite'
 import { gqlFetcher } from '../networkHelpers'
-import type { PageType, State } from '../fragments/articleFragment'
+import { PageType, State } from '../fragments/articleFragment'
 import { ContentReader } from '../fragments/articleFragment'
 import { setLinkArchivedMutation } from '../mutations/setLinkArchivedMutation'
 import { deleteLinkMutation } from '../mutations/deleteLinkMutation'
 import { unsubscribeMutation } from '../mutations/unsubscribeMutation'
 import { articleReadingProgressMutation } from '../mutations/articleReadingProgressMutation'
 import { Label } from './../fragments/labelFragment'
-import { showErrorToast, showSuccessToast } from '../../toastHelpers'
+import {
+  showErrorToast,
+  showSuccessToast,
+  showSuccessToastWithUndo,
+} from '../../toastHelpers'
 import { Highlight, highlightFragment } from '../fragments/highlightFragment'
+import { updatePageMutation } from '../mutations/updatePageMutation'
 
 export interface ReadableItem {
   id: string
@@ -343,9 +348,26 @@ export function useGetLibraryItemsQuery({
         break
       case 'delete':
         updateData(undefined)
-        deleteLinkMutation(item.node.id).then((res) => {
+
+        const pageId = item.node.id
+        deleteLinkMutation(pageId).then((res) => {
           if (res) {
-            showSuccessToast('Link removed', { position: 'bottom-right' })
+            showSuccessToastWithUndo('Page deleted', async () => {
+              const result = await updatePageMutation({
+                pageId: pageId,
+                state: State.SUCCEEDED,
+              })
+
+              mutate()
+
+              if (result) {
+                showSuccessToast('Page recovered')
+              } else {
+                showErrorToast(
+                  'Error recovering page, check your deleted items'
+                )
+              }
+            })
           } else {
             showErrorToast('Error removing link', { position: 'bottom-right' })
           }
