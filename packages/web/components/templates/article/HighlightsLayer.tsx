@@ -479,9 +479,12 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           if (textToCopy) {
             try {
               await navigator.clipboard.writeText(textToCopy)
-              showSuccessToast('Highlight copied', {
-                position: 'bottom-right',
-              })
+              showSuccessToast(
+                focusedHighlight ? 'Highlight copied' : 'Text copied',
+                {
+                  position: 'bottom-right',
+                }
+              )
             } catch (error) {
               showErrorToast('Error copying highlight, permission denied.', {
                 position: 'bottom-right',
