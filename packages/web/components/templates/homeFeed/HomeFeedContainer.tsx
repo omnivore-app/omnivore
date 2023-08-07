@@ -1,59 +1,40 @@
-import { Action, createAction, useKBar, useRegisterActions } from 'kbar'
-import {
-  articleQuery,
-} from "../../../lib/networking/queries/useGetArticleQuery"
-import debounce from 'lodash/debounce'
-import { useRouter } from 'next/router'
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useReducer,
-  useRef,
-  useState,
-} from 'react'
-import toast, { Toaster } from 'react-hot-toast'
-import TopBarProgress from 'react-topbar-progress-indicator'
-import { useFetchMore } from '../../../lib/hooks/useFetchMoreScroll'
-import { usePersistedState } from '../../../lib/hooks/usePersistedState'
-import { libraryListCommands } from '../../../lib/keyboardShortcuts/navigationShortcuts'
-import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
-import {
-  PageType,
-  State,
-} from '../../../lib/networking/fragments/articleFragment'
+import { Action, createAction, useKBar, useRegisterActions } from "kbar"
+import { articleQuery } from "../../../lib/networking/queries/useGetArticleQuery"
+import debounce from "lodash/debounce"
+import { useRouter } from "next/router"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import toast, { Toaster } from "react-hot-toast"
+import TopBarProgress from "react-topbar-progress-indicator"
+import { useFetchMore } from "../../../lib/hooks/useFetchMoreScroll"
+import { usePersistedState } from "../../../lib/hooks/usePersistedState"
+import { libraryListCommands } from "../../../lib/keyboardShortcuts/navigationShortcuts"
+import { useKeyboardShortcuts } from "../../../lib/keyboardShortcuts/useKeyboardShortcuts"
+import { PageType, State } from "../../../lib/networking/fragments/articleFragment"
 import {
   SearchItem,
   TypeaheadSearchItemsData,
-  typeaheadSearchQuery,
-} from '../../../lib/networking/queries/typeaheadSearch'
-import type {
-  LibraryItem,
-  LibraryItemsQueryInput,
-} from '../../../lib/networking/queries/useGetLibraryItemsQuery'
-import { useGetLibraryItemsQuery } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
-import {
-  useGetViewerQuery,
-  UserBasicData,
-} from '../../../lib/networking/queries/useGetViewerQuery'
-import { Button } from '../../elements/Button'
-import { StyledText } from '../../elements/StyledText'
-import { ConfirmationModal } from '../../patterns/ConfirmationModal'
-import { LinkedItemCardAction } from '../../patterns/LibraryCards/CardTypes'
-import { LinkedItemCard } from '../../patterns/LibraryCards/LinkedItemCard'
-import { Box, HStack, VStack } from './../../elements/LayoutPrimitives'
-import { AddLinkModal } from './AddLinkModal'
-import { EditLibraryItemModal } from './EditItemModals'
-import { EmptyLibrary } from './EmptyLibrary'
-import { HighlightItemsLayout } from './HighlightsLayout'
-import { LibraryFilterMenu } from './LibraryFilterMenu'
-import { LibraryHeader, MultiSelectMode } from './LibraryHeader'
-import { UploadModal } from '../UploadModal'
-import { BulkAction } from '../../../lib/networking/mutations/bulkActionMutation'
-import { bulkActionMutation } from '../../../lib/networking/mutations/bulkActionMutation'
-import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
-import { SetPageLabelsModalPresenter } from '../article/SetLabelsModalPresenter'
-import { NotebookPresenter } from '../article/NotebookPresenter'
+  typeaheadSearchQuery
+} from "../../../lib/networking/queries/typeaheadSearch"
+import type { LibraryItem, LibraryItemsQueryInput } from "../../../lib/networking/queries/useGetLibraryItemsQuery"
+import { useGetLibraryItemsQuery } from "../../../lib/networking/queries/useGetLibraryItemsQuery"
+import { useGetViewerQuery, UserBasicData } from "../../../lib/networking/queries/useGetViewerQuery"
+import { Button } from "../../elements/Button"
+import { StyledText } from "../../elements/StyledText"
+import { ConfirmationModal } from "../../patterns/ConfirmationModal"
+import { LinkedItemCardAction } from "../../patterns/LibraryCards/CardTypes"
+import { LinkedItemCard } from "../../patterns/LibraryCards/LinkedItemCard"
+import { Box, HStack, VStack } from "./../../elements/LayoutPrimitives"
+import { AddLinkModal } from "./AddLinkModal"
+import { EditLibraryItemModal } from "./EditItemModals"
+import { EmptyLibrary } from "./EmptyLibrary"
+import { HighlightItemsLayout } from "./HighlightsLayout"
+import { LibraryFilterMenu } from "./LibraryFilterMenu"
+import { LibraryHeader, MultiSelectMode } from "./LibraryHeader"
+import { UploadModal } from "../UploadModal"
+import { BulkAction, bulkActionMutation } from "../../../lib/networking/mutations/bulkActionMutation"
+import { showErrorToast, showSuccessToast } from "../../../lib/toastHelpers"
+import { SetPageLabelsModalPresenter } from "../article/SetLabelsModalPresenter"
+import { NotebookPresenter } from "../article/NotebookPresenter"
 import { saveUrlMutation } from "../../../lib/networking/mutations/saveUrlMutation"
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
@@ -72,8 +53,10 @@ const debouncedFetchSearchResults = debounce((query, cb) => {
   fetchSearchResults(query, cb)
 }, 300)
 
-// We set a relatively high delay for the refresh.
-const TIMEOUT_DELAYS = [1000, 3000, 4000, 5000, 10000];
+// We set a relatively high delay for the refresh at the end, as it's likely there's an issue
+// in processing. We give it the best attempt to be able to resolve, but if it doesn't we set
+// the state as Failed. On refresh it will try again if the backend sends "PROCESSING"
+const TIMEOUT_DELAYS = [1000, 2000, 2500, 3500, 5000, 10000, 60000];
 
 export function HomeFeedContainer(): JSX.Element {
   const { viewerData } = useGetViewerQuery()
@@ -103,7 +86,7 @@ export function HomeFeedContainer(): JSX.Element {
   const [linkToRemove, setLinkToRemove] = useState<LibraryItem>()
   const [linkToEdit, setLinkToEdit] = useState<LibraryItem>()
   const [linkToUnsubscribe, setLinkToUnsubscribe] = useState<LibraryItem>()
-  const [savedLink, setSavedLink] = useState<string>();
+  const updatingLinks = useRef<Set<string>>(new Set<string>())
 
   const [queryInputs, setQueryInputs] =
     useState<LibraryItemsQueryInput>(defaultQuery)
@@ -171,6 +154,7 @@ export function HomeFeedContainer(): JSX.Element {
     return itemsPages[itemsPages.length - 1].search.pageInfo.hasNextPage
   }, [itemsPages])
 
+
   const libraryItems = useMemo(() => {
     const items =
       itemsPages?.flatMap((ad) => {
@@ -180,44 +164,53 @@ export function HomeFeedContainer(): JSX.Element {
   }, [itemsPages, performActionOnItem])
 
   useEffect(() => {
-    let startIdx = 1;
-    let timeout : NodeJS.Timeout | undefined;
-    if (savedLink) {
-      const seeIfUpdated = async() => {
-        if (startIdx > 5) {
+    const timeout : NodeJS.Timeout[] = []
+    const itemsToUpdate = libraryItems
+      .filter(it => it.isLoading && !updatingLinks.current.has(it.node.slug));
+
+    const items =
+      itemsPages?.flatMap((ad) => {
+        return ad.search.edges.map(it => ({ ...it, isLoading: it.node.state === 'PROCESSING'}));
+      }) || []
+
+    items.map(async (item) => {
+      let startIdx = 0;
+      updatingLinks.current.add(item.node.slug)
+
+      const seeIfUpdated = async () => {
+        if (startIdx > TIMEOUT_DELAYS.length) {
+          item.node.state = State.FAILED;
+          performActionOnItem('update-item', item);
+
           return
         }
 
-        const item = getItem(savedLink);
         const username = viewerData?.me?.profile.username
+        const itemsToUpdate = libraryItems.filter(it => it.isLoading);
 
-        if (item) {
+        if (itemsToUpdate.length > 0) {
           const link = await articleQuery({ username, slug: item.node.slug, includeFriendsHighlights: false })
 
           if (link && link.state != "PROCESSING") {
             const updatedArticle = { ...item };
-            updatedArticle.node = {...item.node, ...link }
+            updatedArticle.node = { ...item.node, ...link }
             updatedArticle.isLoading = false;
-            console.log('updating')
+            console.log(`Updating Metadata of ${item.node.slug}.`)
+            updatingLinks.current.delete(item.node.slug)
             performActionOnItem('update-item', updatedArticle);
             return;
           }
 
-          if (!item.isLoading) {
-            performActionOnItem('update-item', { ...item, isLoading: true });
-          }
           console.log(`Trying to get the metadata of item ${item.node.slug}... Retry ${startIdx} of 5`);
-          timeout = setTimeout(seeIfUpdated, TIMEOUT_DELAYS[startIdx++])
+          timeout.push(setTimeout(seeIfUpdated, TIMEOUT_DELAYS[startIdx++]))
         }
-
-        // If the item was not found, this suggests that we are not in the right search view. So we can bail early.
       }
-      setSavedLink(undefined);
-      timeout = setTimeout(seeIfUpdated, TIMEOUT_DELAYS[0]);
-    }
+
+      await seeIfUpdated();
+    });
 
     return () => {
-      clearTimeout(timeout);
+      timeout.forEach(clearTimeout);
     }
   }, [itemsPages])
 
@@ -782,7 +775,6 @@ export function HomeFeedContainer(): JSX.Element {
         )
         const id = result.url?.match(/[^/]+$/)?.[0] ?? "";
         performActionOnItem('refresh', undefined as unknown as any)
-        setSavedLink(id);
       } else {
         showErrorToast('Error saving link', { position: 'bottom-right' })
       }

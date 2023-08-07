@@ -217,7 +217,7 @@ const ListImage = (props: ListImageProps): JSX.Element => {
         />
       )
       }
-      {(props.readingProgress ?? 0) > 0 && (
+      {(props.readingProgress ?? 0) > 0 && !props.isLoading && (
         <ProgressBarOverlay
           width="55px"
           top={50}

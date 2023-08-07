@@ -12,9 +12,8 @@ type AnimationStatus = {
   position: number,
   transition: string
 }
+
 export function LoadingBar(props: LoadingBarProps): JSX.Element {
-  // OK So, what we want to do is.
-  // We have two boxes.
   const [leftOne, setLeftOne] = useState({ position: 0, transition: 'left 0.5s linear' })
   const [leftTwo, setLeftTwo] = useState({ position: -100, transition: 'left 0.5s linear' })
 
