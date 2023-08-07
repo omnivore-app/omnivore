@@ -31,6 +31,7 @@ type SaveContext = {
   pubsub: PubsubClient
   models: DataModels
   uid: string
+  refresh?: boolean
 }
 
 type SaverUserData = {
