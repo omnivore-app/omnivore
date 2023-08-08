@@ -9,7 +9,7 @@ import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery
 import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { useGetArticleQuery } from '../../../lib/networking/queries/useGetArticleQuery'
 import { highlightsAsMarkdown } from '../homeFeed/HighlightItem'
-import { showSuccessToast } from '../../../lib/toastHelpers'
+import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 
 type NotebookHeaderProps = {
   viewer: UserBasicData
@@ -30,10 +30,16 @@ export const NotebookHeader = (props: NotebookHeaderProps) => {
       const markdown = highlightsAsMarkdown(
         articleData?.article.article.highlights
       )
-      ;(async () => {
-        await navigator.clipboard.writeText(markdown)
-        showSuccessToast('Highlights and notes copied')
-      })()
+      if (markdown.length > 1) {
+        ;(async () => {
+          await navigator.clipboard.writeText(markdown)
+          showSuccessToast('Highlights and notes copied')
+        })()
+      } else {
+        showSuccessToast('Nothing to export')
+      }
+    } else {
+      showErrorToast('Could not copy highlights')
     }
   }, [articleData])
 
