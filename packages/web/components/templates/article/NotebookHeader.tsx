@@ -1,28 +1,41 @@
-import { useCallback } from 'react'
-import { Highlight } from '../../../lib/networking/fragments/highlightFragment'
-import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
-import {
-  UserBasicData,
-  useGetViewerQuery,
-} from '../../../lib/networking/queries/useGetViewerQuery'
-import { CloseButton } from '../../elements/CloseButton'
-import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
 import { HStack } from '../../elements/LayoutPrimitives'
-import { MenuTrigger } from '../../elements/MenuTrigger'
 import { StyledText } from '../../elements/StyledText'
-import { NotebookModal } from './NotebookModal'
 import { Sidebar } from 'phosphor-react'
 import { theme } from '../../tokens/stitches.config'
 import { Button } from '../../elements/Button'
+import { ExportIcon } from '../../elements/icons/ExportIcon'
+import { useCallback, useMemo } from 'react'
+import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
+import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+import { useGetArticleQuery } from '../../../lib/networking/queries/useGetArticleQuery'
+import { highlightsAsMarkdown } from '../homeFeed/HighlightItem'
+import { showSuccessToast } from '../../../lib/toastHelpers'
 
 type NotebookHeaderProps = {
+  viewer: UserBasicData
+  item: ReadableItem
+
   setShowNotebook: (set: boolean) => void
 }
 
 export const NotebookHeader = (props: NotebookHeaderProps) => {
-  const handleClose = useCallback(() => {
-    props.setShowNotebook(false)
-  }, [props])
+  const { articleData } = useGetArticleQuery({
+    slug: props.item.slug,
+    username: props.viewer.profile.username,
+    includeFriendsHighlights: false,
+  })
+
+  const exportHighlights = useCallback(() => {
+    if (articleData?.article.article.highlights) {
+      const markdown = highlightsAsMarkdown(
+        articleData?.article.article.highlights
+      )
+      ;(async () => {
+        await navigator.clipboard.writeText(markdown)
+        showSuccessToast('Highlights and notes copied')
+      })()
+    }
+  }, [articleData])
 
   return (
     <HStack
@@ -68,6 +81,19 @@ export const NotebookHeader = (props: NotebookHeaderProps) => {
             title="Delete Article Note"
           />
         </Dropdown> */}
+
+        <Button
+          style="plainIcon"
+          onClick={(event) => {
+            exportHighlights()
+            event.preventDefault()
+          }}
+        >
+          <ExportIcon
+            size={25}
+            color={theme.colors.thNotebookSubtle.toString()}
+          />
+        </Button>
         <Button style="plainIcon" onClick={() => props.setShowNotebook(false)}>
           <Sidebar size={25} color={theme.colors.thNotebookSubtle.toString()} />
         </Button>

@@ -34,7 +34,11 @@ export const NotebookPresenter = (props: NotebookPresenterProps) => {
       }}
     >
       <>
-        <NotebookHeader setShowNotebook={props.setOpen} />
+        <NotebookHeader
+          viewer={props.viewer}
+          item={props.item}
+          setShowNotebook={props.setOpen}
+        />
         <NotebookContent
           viewer={props.viewer}
           item={props.item}
