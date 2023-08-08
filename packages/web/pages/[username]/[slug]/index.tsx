@@ -195,6 +195,7 @@ export default function Home(): JSX.Element {
     return () => {
       document.removeEventListener('archive', archive)
       document.removeEventListener('mark-read', markRead)
+      document.removeEventListener('delete', deletePage)
       document.removeEventListener('openOriginalArticle', openOriginalArticle)
     }
   }, [actionHandler])
@@ -213,7 +214,6 @@ export default function Home(): JSX.Element {
   const deleteCurrentItem = useCallback(async () => {
     if (article) {
       const pageId = article.id
-
       removeItemFromCache(cache, mutate, pageId)
       await deleteLinkMutation(pageId).then((res) => {
         if (res) {
