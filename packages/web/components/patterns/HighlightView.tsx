@@ -1,5 +1,5 @@
 /* eslint-disable react/no-children-prop */
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import type { Highlight } from '../../lib/networking/fragments/highlightFragment'
 import { LabelChip } from '../elements/LabelChip'
 import {
@@ -14,7 +14,6 @@ import { HighlightViewNote } from './HighlightNotes'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { isDarkTheme } from '../../lib/themeUpdater'
-import { HighlightsMenu } from '../templates/homeFeed/HighlightItem'
 import { ReadableItem } from '../../lib/networking/queries/useGetLibraryItemsQuery'
 import { UserBasicData } from '../../lib/networking/queries/useGetViewerQuery'
 import {
@@ -25,7 +24,6 @@ import {
   useHover,
   useInteractions,
 } from '@floating-ui/react'
-import { LibraryHoverActions } from './LibraryCards/LibraryHoverActions'
 import { HighlightHoverActions } from './HighlightHoverActions'
 
 type HighlightViewProps = {
@@ -54,7 +52,6 @@ const StyledQuote = styled(Blockquote, {
 export function HighlightView(props: HighlightViewProps): JSX.Element {
   const isDark = isDarkTheme()
   const [noteMode, setNoteMode] = useState<'preview' | 'edit'>('preview')
-  const [isHovered, setIsHovered] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
 
   const { refs, floatingStyles, context } = useFloating({
@@ -73,7 +70,7 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
   const hover = useHover(context)
 
   const { getReferenceProps, getFloatingProps } = useInteractions([hover])
-  const highlightAlpha = isDark ? 1.0 : 0.35
+  const highlightAlpha = isDark ? 0.5 : 0.35
 
   return (
     <VStack
@@ -112,13 +109,25 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
         <StyledQuote>
           <SpanBox
             css={{
-              '*': {
-                m: '0px',
+              '> *': {
+                display: 'inline',
+                padding: '2px',
                 backgroundColor: `rgba(var(--colors-highlightBackground), ${highlightAlpha})`,
                 boxShadow: `3px 0 0 rgba(var(--colors-highlightBackground), ${highlightAlpha}), -3px 0 0 rgba(var(--colors-highlightBackground), ${highlightAlpha})`,
                 boxDecorationBreak: 'clone',
                 borderRadius: '2px',
               },
+              '> ul': {
+                display: 'block',
+                boxShadow: 'unset',
+                backgroundColor: 'unset',
+              },
+              // '> ul li span': {
+              //   backgroundColor: `rgba(var(--colors-highlightBackground), ${highlightAlpha})`,
+              //   boxShadow: `3px 0 0 rgba(var(--colors-highlightBackground), ${highlightAlpha}), -3px 0 0 rgba(var(--colors-highlightBackground), ${highlightAlpha})`,
+              //   boxDecorationBreak: 'clone',
+              //   borderRadius: '2px',
+              // },
               fontSize: '15px',
               lineHeight: 1.5,
               color: '$thTextSubtle2',
@@ -130,10 +139,37 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
               },
             }}
           >
-            <ReactMarkdown
+            <p>
+              Expertise Laptops, desktops and computer and PC gaming accessories
+              including keyboards, mice and controllers, cameras, action cameras
+              and drones Credentials
+            </p>
+            <ul>
+              <li>
+                <span>
+                  More than two decades experience writing about PCs and
+                  accessories, and 15 years writing about cameras of all kinds.
+                </span>
+              </li>
+            </ul>
+            <p>
+              Apple's MacBook Air is the company's lightest, thinnest and most
+              affordable laptop. The Air is regularly{' '}
+              <a href="https://www.cnet.com/tech/computing/best-laptop/">
+                our top recommendation
+              </a>{' '}
+              for anyone in need of a solid, reliable everyday laptop. And when
+              Apple released the{' '}
+              <a href="https://www.cnet.com/tech/computing/macbook-air-m1-hands-on-big-changes-from-apple-silicon-and-big-sur/">
+                2020 MacBook Air with its first-gen M1
+              </a>{' '}
+              system-on-chip, the performance was as impressive as its design
+              for the $999 price.
+            </p>
+            {/* <ReactMarkdown
               children={props.highlight.quote ?? ''}
               remarkPlugins={[remarkGfm]}
-            />
+            /> */}
           </SpanBox>
         </StyledQuote>
         <Box css={{ display: 'block', pt: '5px' }}>
