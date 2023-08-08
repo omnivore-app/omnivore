@@ -31,7 +31,7 @@ export const MetaStyle = {
   maxLines: 1,
   textOverflow: 'ellipsis',
   wordBreak: 'break-word',
-  lineHeight: 1.1,
+  lineHeight: 1.25,
 }
 
 export const TitleStyle = {
@@ -56,10 +56,10 @@ export const AuthorInfoStyle = {
   fontSize: '12px',
   fontWeight: '400',
   fontFamily: '$display',
-  lineHeight: '1',
+  lineHeight: 1.25,
   wordWrap: 'break-word',
   whiteSpace: 'nowrap',
-  overflowX: 'hidden',
+  overflow: 'hidden',
   textOverflow: 'ellipsis',
 }
 
