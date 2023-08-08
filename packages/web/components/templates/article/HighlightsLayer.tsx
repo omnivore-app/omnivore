@@ -776,7 +776,11 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         }}
       >
         <>
-          <NotebookHeader setShowNotebook={props.setShowHighlightsModal} />
+          <NotebookHeader
+            viewer={props.viewer}
+            item={props.item}
+            setShowNotebook={props.setShowHighlightsModal}
+          />
           <NotebookContent
             viewer={props.viewer}
             item={props.item}
