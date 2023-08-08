@@ -39,6 +39,7 @@ export const optInFeatureResolver = authorized<
         errorCodes: [OptInFeatureErrorCode.NotFound],
       }
     }
+    log.info('Opted in to a feature', optIn)
 
     const token = signFeatureToken(optIn, claims.uid)
 

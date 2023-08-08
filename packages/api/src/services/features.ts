@@ -3,6 +3,7 @@ import { IsNull, Not } from 'typeorm'
 import { Feature } from '../entity/feature'
 import { getRepository } from '../entity/utils'
 import { env } from '../env'
+import { AppDataSource } from '../server'
 import { logger } from '../utils/logger'
 
 export enum FeatureName {
@@ -29,6 +30,7 @@ const optInUltraRealisticVoice = async (uid: string): Promise<Feature> => {
     where: {
       user: { id: uid },
       name: FeatureName.UltraRealisticVoice,
+      grantedAt: Not(IsNull()),
     },
     relations: ['user'],
   })
@@ -39,22 +41,31 @@ const optInUltraRealisticVoice = async (uid: string): Promise<Feature> => {
   }
 
   // opt in to feature for the first 1000 users
-  const count = await getRepository(Feature).countBy({
-    name: FeatureName.UltraRealisticVoice,
-    grantedAt: Not(IsNull()),
-  })
+  const newFeatures = (await AppDataSource.query(
+    `insert into omnivore.features (user_id, name, granted_at) 
+    select $1, $2, $3 from omnivore.features 
+    where name = $2 and granted_at is not null 
+    having count(*) < 1000 
+    on conflict (user_id, name) 
+    do update set granted_at = $3 
+    returning *, granted_at as "grantedAt", created_at as "createdAt", updated_at as "updatedAt";`,
+    [uid, FeatureName.UltraRealisticVoice, new Date()]
+  )) as Feature[]
 
-  let grantedAt: Date | null = new Date()
-  if (count >= 1000) {
-    logger.info('feature limit reached')
-    grantedAt = null
+  // if no new features were created then user has exceeded max users
+  if (newFeatures.length === 0) {
+    logger.info('exceeded max users')
+
+    return getRepository(Feature).save({
+      user: { id: uid },
+      name: FeatureName.UltraRealisticVoice,
+      grantedAt: null,
+    })
   }
 
-  return getRepository(Feature).save({
-    user: { id: uid },
-    name: FeatureName.UltraRealisticVoice,
-    grantedAt,
-  })
+  logger.info('opted in', { uid, feature: newFeatures[0] })
+
+  return newFeatures[0]
 }
 
 export const signFeatureToken = (
@@ -64,6 +75,8 @@ export const signFeatureToken = (
   },
   userId: string
 ): string => {
+  logger.info('signing feature token', { grantedAt: feature.grantedAt })
+
   return jwt.sign(
     {
       uid: userId,
