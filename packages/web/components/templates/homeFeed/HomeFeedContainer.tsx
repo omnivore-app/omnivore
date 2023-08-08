@@ -2,7 +2,7 @@ import { Action, createAction, useKBar, useRegisterActions } from 'kbar'
 import debounce from 'lodash/debounce'
 import { useRouter } from 'next/router'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Toaster } from 'react-hot-toast'
+import toast, { Toaster } from "react-hot-toast"
 import TopBarProgress from 'react-topbar-progress-indicator'
 import { useFetchMore } from '../../../lib/hooks/useFetchMoreScroll'
 import { usePersistedState } from '../../../lib/hooks/usePersistedState'
@@ -48,6 +48,8 @@ import {
 } from '../../../lib/toastHelpers'
 import { SetPageLabelsModalPresenter } from '../article/SetLabelsModalPresenter'
 import { NotebookPresenter } from '../article/NotebookPresenter'
+import { saveUrlMutation } from "../../../lib/networking/mutations/saveUrlMutation"
+import { articleQuery } from "../../../lib/networking/queries/useGetArticleQuery"
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 export type LibraryMode = 'reads' | 'highlights'
@@ -64,6 +66,11 @@ const fetchSearchResults = async (query: string, cb: any) => {
 const debouncedFetchSearchResults = debounce((query, cb) => {
   fetchSearchResults(query, cb)
 }, 300)
+
+// We set a relatively high delay for the refresh at the end, as it's likely there's an issue
+// in processing. We give it the best attempt to be able to resolve, but if it doesn't we set
+// the state as Failed. On refresh it will try again if the backend sends "PROCESSING"
+const TIMEOUT_DELAYS = [1000, 2000, 2500, 3500, 5000, 10000, 60000];
 
 export function HomeFeedContainer(): JSX.Element {
   const { viewerData } = useGetViewerQuery()
@@ -144,10 +151,11 @@ export function HomeFeedContainer(): JSX.Element {
   useEffect(() => {
     if (!router.isReady) return
     const q = router.query['q']
-    let qs = ''
+    let qs = 'in:inbox' // Default to in:inbox search term.
     if (q && typeof q === 'string') {
       qs = q
     }
+
     if (qs !== (queryInputs.searchQuery || '')) {
       setQueryInputs({ ...queryInputs, searchQuery: qs })
       performActionOnItem('refresh', undefined as unknown as any)
@@ -171,13 +179,60 @@ export function HomeFeedContainer(): JSX.Element {
     return itemsPages[itemsPages.length - 1].search.pageInfo.hasNextPage
   }, [itemsPages])
 
+
   const libraryItems = useMemo(() => {
     const items =
       itemsPages?.flatMap((ad) => {
-        return ad.search.edges
+        return ad.search.edges.map(it => ({ ...it, isLoading: it.node.state === 'PROCESSING'}));
       }) || []
     return items
   }, [itemsPages, performActionOnItem])
+
+  useEffect(() => {
+    const timeout : NodeJS.Timeout[] = []
+
+    const items =
+      (itemsPages?.flatMap((ad) => {
+        return ad.search.edges.map(it => ({ ...it, isLoading: it.node.state === 'PROCESSING'}));
+      }) || [])
+        .filter(it => it.isLoading);
+
+    items.map(async (item) => {
+      let startIdx = 0;
+
+      const seeIfUpdated = async () => {
+        if (startIdx > TIMEOUT_DELAYS.length) {
+          item.node.state = State.FAILED;
+          return
+        }
+
+        const username = viewerData?.me?.profile.username
+        const itemsToUpdate = libraryItems.filter(it => it.isLoading);
+
+        if (itemsToUpdate.length > 0) {
+          const link = await articleQuery({ username, slug: item.node.slug, includeFriendsHighlights: false })
+
+          if (link && link.state != "PROCESSING") {
+            const updatedArticle = { ...item };
+            updatedArticle.node = { ...item.node, ...link }
+            updatedArticle.isLoading = false;
+            console.log(`Updating Metadata of ${item.node.slug}.`)
+            performActionOnItem('update-item', updatedArticle);
+            return;
+          }
+
+          console.log(`Trying to get the metadata of item ${item.node.slug}... Retry ${startIdx} of 5`);
+          timeout.push(setTimeout(seeIfUpdated, TIMEOUT_DELAYS[startIdx++]))
+        }
+      }
+
+      await seeIfUpdated();
+    });
+
+    return () => {
+      timeout.forEach(clearTimeout);
+    }
+  }, [itemsPages])
 
   const handleFetchMore = useCallback(() => {
     if (isValidating || !hasMore) {
@@ -714,6 +769,37 @@ export function HomeFeedContainer(): JSX.Element {
     [itemsPages, multiSelectMode, checkedItems]
   )
 
+  const handleLinkSubmission =
+    async (link: string, timezone: string, locale: string) => {
+      const result = await saveUrlMutation(link, timezone, locale)
+      if (result) {
+        toast(
+          () => (
+            <Box>
+              Link Saved
+              <span style={{ padding: '16px' }} />
+              <Button
+                style="ctaDarkYellow"
+                autoFocus
+                onClick={() => {
+                  window.location.href = `/article?url=${encodeURIComponent(
+                    link
+                  )}`
+                }}
+              >
+                Read Now
+              </Button>
+            </Box>
+          ),
+          { position: 'bottom-right' }
+        )
+        const id = result.url?.match(/[^/]+$/)?.[0] ?? "";
+        performActionOnItem('refresh', undefined as unknown as any)
+      } else {
+        showErrorToast('Error saving link', { position: 'bottom-right' })
+      }
+    };
+
   return (
     <HomeFeedGrid
       items={libraryItems}
@@ -728,6 +814,7 @@ export function HomeFeedContainer(): JSX.Element {
       gridContainerRef={gridContainerRef}
       mode={mode}
       setMode={setMode}
+      handleLinkSubmission={handleLinkSubmission}
       applySearchQuery={(searchQuery: string) => {
         setQueryInputs({
           ...queryInputs,
@@ -815,6 +902,8 @@ type HomeFeedContentProps = {
     item: LibraryItem | undefined
   ) => Promise<void>
 
+  handleLinkSubmission: (link: string, timezone: string, locale:string) => Promise<void>,
+
   setIsChecked: (itemId: string, set: boolean) => void
   itemIsChecked: (itemId: string) => boolean
 
@@ -857,6 +946,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
         applySearchQuery={(searchQuery: string) => {
           props.applySearchQuery(searchQuery)
         }}
+        handleLinkSubmission={props.handleLinkSubmission}
         allowSelectMultiple={props.mode !== 'highlights'}
         alwaysShowHeader={props.mode == 'highlights'}
         showFilterMenu={showFilterMenu}
@@ -896,7 +986,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
         )}
 
         {props.showAddLinkModal && (
-          <AddLinkModal onOpenChange={() => props.setShowAddLinkModal(false)} />
+          <AddLinkModal handleLinkSubmission={props.handleLinkSubmission} onOpenChange={() => props.setShowAddLinkModal(false)} />
         )}
       </HStack>
     </VStack>
@@ -1145,6 +1235,7 @@ function LibraryItems(props: LibraryItemsProps): JSX.Element {
             <LinkedItemCard
               layout={props.layout}
               item={linkedItem.node}
+              isLoading={linkedItem.isLoading}
               viewer={props.viewer}
               isChecked={props.isChecked(linkedItem.node.id)}
               setIsChecked={props.setIsChecked}
