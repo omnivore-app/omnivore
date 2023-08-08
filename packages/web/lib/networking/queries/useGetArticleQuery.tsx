@@ -1,6 +1,6 @@
 import { gql } from 'graphql-request'
 import useSWRImmutable, { Cache } from 'swr'
-import { makeGqlFetcher, RequestContext, ssrFetcher } from '../networkHelpers'
+import { gqlFetcher, makeGqlFetcher, RequestContext, ssrFetcher } from "../networkHelpers"
 import {
   articleFragment,
   ContentReader,
@@ -135,15 +135,15 @@ export function useGetArticleQuery({
 }
 
 export async function articleQuery(
-  context: RequestContext,
   input: ArticleQueryInput
-): Promise<ArticleAttributes> {
-  const result = (await ssrFetcher(context, query, input)) as ArticleData
+): Promise<ArticleAttributes | undefined> {
+
+  const result = (await gqlFetcher(query, input)) as ArticleData
   if (result.article) {
     return result.article.article
   }
 
-  return Promise.reject()
+  return undefined
 }
 
 export const cacheArticle = (

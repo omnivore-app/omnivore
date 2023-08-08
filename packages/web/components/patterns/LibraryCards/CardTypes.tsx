@@ -30,4 +30,5 @@ export type LinkedItemCardProps = {
   multiSelectMode: MultiSelectMode
 
   isHovered?: boolean
+  isLoading?: boolean
 }

@@ -16,41 +16,11 @@ import {
 
 type AddLinkModalProps = {
   onOpenChange: (open: boolean) => void
+  handleLinkSubmission: (link: string, timezone: string, locale:string) => Promise<void>,
 }
 
 export function AddLinkModal(props: AddLinkModalProps): JSX.Element {
   const [link, setLink] = useState('')
-
-  const handleLinkSubmission = useCallback(
-    async (link: string, timezone: string, locale: string) => {
-      const result = await saveUrlMutation(link, timezone, locale)
-      if (result) {
-        toast(
-          () => (
-            <Box>
-              Link Saved
-              <span style={{ padding: '16px' }} />
-              <Button
-                style="ctaDarkYellow"
-                autoFocus
-                onClick={() => {
-                  window.location.href = `/article?url=${encodeURIComponent(
-                    link
-                  )}`
-                }}
-              >
-                Read Now
-              </Button>
-            </Box>
-          ),
-          { position: 'bottom-right' }
-        )
-      } else {
-        showErrorToast('Error saving link', { position: 'bottom-right' })
-      }
-    },
-    [link]
-  )
 
   const validateLink = useCallback(
     (link: string) => {
@@ -81,7 +51,7 @@ export function AddLinkModal(props: AddLinkModalProps): JSX.Element {
           <ModalTitleBar title="Add Link" onOpenChange={props.onOpenChange} />
           <Box css={{ width: '100%', py: '16px' }}>
             <form
-              onSubmit={(event) => {
+              onSubmit={async (event) => {
                 event.preventDefault()
 
                 let submitLink = link
@@ -96,7 +66,7 @@ export function AddLinkModal(props: AddLinkModalProps): JSX.Element {
                   setLink(newLink)
                   submitLink = newLink
                 }
-                handleLinkSubmission(submitLink, timeZone, locale)
+                await props.handleLinkSubmission(submitLink, timeZone, locale)
                 props.onOpenChange(false)
               }}
             >
