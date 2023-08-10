@@ -1,4 +1,3 @@
-import { authorized } from '../../utils/helpers'
 import {
   MutationOptInFeatureArgs,
   OptInFeatureError,
@@ -10,6 +9,7 @@ import {
   optInFeature,
   signFeatureToken,
 } from '../../services/features'
+import { authorized } from '../../utils/helpers'
 
 export const optInFeatureResolver = authorized<
   OptInFeatureSuccess,
@@ -33,19 +33,19 @@ export const optInFeatureResolver = authorized<
       }
     }
 
-    const optIn = await optInFeature(featureName, claims.uid)
-    if (!optIn) {
+    const optedInFeature = await optInFeature(featureName, claims.uid)
+    if (!optedInFeature) {
       return {
         errorCodes: [OptInFeatureErrorCode.NotFound],
       }
     }
-    log.info('Opted in to a feature', optIn)
+    log.info('Opted in to a feature', optedInFeature)
 
-    const token = signFeatureToken(optIn, claims.uid)
+    const token = signFeatureToken(optedInFeature, claims.uid)
 
     return {
       feature: {
-        ...optIn,
+        ...optedInFeature,
         token,
       },
     }

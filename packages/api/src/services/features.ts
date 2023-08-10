@@ -42,7 +42,7 @@ const optInUltraRealisticVoice = async (uid: string): Promise<Feature> => {
 
   const MAX_USERS = 1500
   // opt in to feature for the first 1500 users
-  const newFeatures = (await AppDataSource.query(
+  const optedInFeatures = (await AppDataSource.query(
     `insert into omnivore.features (user_id, name, granted_at) 
     select $1, $2, $3 from omnivore.features 
     where name = $2 and granted_at is not null 
@@ -54,19 +54,30 @@ const optInUltraRealisticVoice = async (uid: string): Promise<Feature> => {
   )) as Feature[]
 
   // if no new features were created then user has exceeded max users
-  if (newFeatures.length === 0) {
+  if (optedInFeatures.length === 0) {
     logger.info('exceeded max users')
 
-    return getRepository(Feature).save({
+    // create/update an opt-in record with null grantedAt
+    const optInRecord = {
       user: { id: uid },
       name: FeatureName.UltraRealisticVoice,
       grantedAt: null,
-    })
+    }
+    const result = await getRepository(Feature).upsert(optInRecord, [
+      'user',
+      'name',
+    ])
+    if (result.generatedMaps.length === 0) {
+      throw new Error('failed to update opt-in record')
+    }
+
+    logger.info('opt-in record updated', result.generatedMaps)
+    return { ...optInRecord, ...(result.generatedMaps[0] as Feature) }
   }
 
-  logger.info('opted in', { uid, feature: newFeatures[0] })
+  logger.info('opted in', { uid, feature: optedInFeatures[0] })
 
-  return newFeatures[0]
+  return optedInFeatures[0]
 }
 
 export const signFeatureToken = (
@@ -76,7 +87,7 @@ export const signFeatureToken = (
   },
   userId: string
 ): string => {
-  logger.info('signing feature token', { grantedAt: feature.grantedAt })
+  logger.info('signing feature token', feature)
 
   return jwt.sign(
     {
