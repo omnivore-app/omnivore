@@ -275,6 +275,13 @@ export function Article(props: ArticleProps): JSX.Element {
         close={() => setLightboxOpen(false)}
         slides={imageSrcs}
         plugins={[Fullscreen, Download, Zoom]}
+        controller={{ closeOnPullDown: true }}
+        carousel={{
+          finite: true,
+        }}
+        zoom={{
+          maxZoomPixelRatio: 3,
+        }}
       />
     </>
   )
