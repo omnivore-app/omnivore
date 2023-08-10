@@ -296,9 +296,6 @@ export function Article(props: ArticleProps): JSX.Element {
           slides={imageSrcs}
           plugins={lightboxPlugins}
           controller={{ closeOnPullDown: true, closeOnBackdropClick: true }}
-          carousel={{
-            finite: true,
-          }}
           zoom={{
             maxZoomPixelRatio: 3,
           }}
