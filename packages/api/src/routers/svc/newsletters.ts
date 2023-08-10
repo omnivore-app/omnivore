@@ -160,7 +160,7 @@ export function newsletterServiceRouter() {
 
       res.status(200).send('newsletter created')
     } catch (e) {
-      logger.info(e)
+      logger.error(e)
       if (e instanceof SyntaxError) {
         // when message is not a valid json string
         res.status(400).send(e)
