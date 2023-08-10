@@ -125,6 +125,7 @@ export class ReadwiseIntegration extends IntegrationService {
             Authorization: `Token ${token}`,
             ContentType: 'application/json',
           },
+          timeout: 10000, // 10 seconds
         }
       )
       return response.status === 200

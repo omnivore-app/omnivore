@@ -145,12 +145,11 @@ export function integrationsServiceRouter() {
 
           const synced = await integrationService.export(integration, pages)
           if (!synced) {
-            logger.info('failed to sync pages', {
+            logger.error('failed to sync pages', {
               pageIds,
               integrationId: integration.id,
             })
-            res.status(400).send('Failed to sync')
-            return
+            return res.status(400).send('Failed to sync')
           }
         }
         // delete task name if completed
