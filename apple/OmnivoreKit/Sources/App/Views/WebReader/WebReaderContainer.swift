@@ -110,6 +110,12 @@ struct WebReaderContainerView: View {
         showBottomBar = navBarVisible
         showNavBarActionID = UUID()
       }
+    case "dismissNavBars":
+      withAnimation {
+        navBarVisible = false
+        showBottomBar = false
+        showNavBarActionID = UUID()
+      }
     default:
       break
     }

@@ -1,4 +1,4 @@
-import { Box } from '../../elements/LayoutPrimitives'
+import { Box, SpanBox } from '../../elements/LayoutPrimitives'
 import {
   getTopOmnivoreAnchorElement,
   parseDomTree,
@@ -7,7 +7,7 @@ import {
   ScrollOffsetChangeset,
   useScrollWatcher,
 } from '../../../lib/hooks/useScrollWatcher'
-import { MutableRefObject, useEffect, useRef, useState } from 'react'
+import { MutableRefObject, useEffect, useMemo, useRef, useState } from 'react'
 import { isDarkTheme } from '../../../lib/themeUpdater'
 import { ArticleMutations } from '../../../lib/articleActions'
 import { Lightbox, SlideImage } from 'yet-another-react-lightbox'
@@ -15,6 +15,7 @@ import 'yet-another-react-lightbox/styles.css'
 import Download from 'yet-another-react-lightbox/plugins/download'
 import Fullscreen from 'yet-another-react-lightbox/plugins/fullscreen'
 import Zoom from 'yet-another-react-lightbox/plugins/zoom'
+import Counter from 'yet-another-react-lightbox/plugins/counter'
 
 import loadjs from 'loadjs'
 
@@ -26,6 +27,7 @@ export type ArticleProps = {
   initialReadingProgressTop?: number
   highlightHref: MutableRefObject<string | null>
   articleMutations: ArticleMutations
+  isAppleAppEmbed: boolean
 }
 
 export function Article(props: ArticleProps): JSX.Element {
@@ -244,13 +246,26 @@ export function Article(props: ArticleProps): JSX.Element {
         setlightBoxIndex(idx)
         setLightboxOpen(true)
         event.preventDefault()
+        event.stopPropagation()
       }
-      console.log('updated image: ', img)
     })
-
-    console.log('set srcs: ', srcs)
-    console.log('setting srcs: ', srcs)
   }, [props.content])
+
+  useEffect(() => {
+    if (lightboxOpen) {
+      window?.webkit?.messageHandlers.highlightAction?.postMessage({
+        actionID: 'dismissNavBars',
+      })
+    }
+  }, [lightboxOpen])
+
+  const lightboxPlugins = useMemo(() => {
+    if (props.isAppleAppEmbed) {
+      return [Fullscreen, Counter, Zoom]
+    } else {
+      return [Fullscreen, Download, Counter, Zoom]
+    }
+  }, [props])
 
   return (
     <>
@@ -269,20 +284,26 @@ export function Article(props: ArticleProps): JSX.Element {
           __html: props.content,
         }}
       />
-      <Lightbox
-        open={lightboxOpen}
-        index={lightboxIndex}
-        close={() => setLightboxOpen(false)}
-        slides={imageSrcs}
-        plugins={[Fullscreen, Download, Zoom]}
-        controller={{ closeOnPullDown: true }}
-        carousel={{
-          finite: true,
+      <SpanBox
+        onClick={(event) => {
+          event.stopPropagation()
         }}
-        zoom={{
-          maxZoomPixelRatio: 3,
-        }}
-      />
+      >
+        <Lightbox
+          open={lightboxOpen}
+          index={lightboxIndex}
+          close={() => setLightboxOpen(false)}
+          slides={imageSrcs}
+          plugins={lightboxPlugins}
+          controller={{ closeOnPullDown: true, closeOnBackdropClick: true }}
+          zoom={{
+            maxZoomPixelRatio: 3,
+          }}
+          render={{
+            buttonZoom: () => undefined,
+          }}
+        />
+      </SpanBox>
     </>
   )
 }

@@ -452,6 +452,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           initialAnchorIndex={props.article.readingProgressAnchorIndex}
           initialReadingProgressTop={props.article.readingProgressTopPercent}
           articleMutations={props.articleMutations}
+          isAppleAppEmbed={props.isAppleAppEmbed}
         />
         <Button
           style="ghost"
