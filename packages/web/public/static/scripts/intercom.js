@@ -18,6 +18,8 @@
     }
     w.Intercom = i
     var l = function () {
+      console.log(' running intercom onload script ')
+
       var s = d.createElement('script')
       s.type = 'text/javascript'
       s.async = true
