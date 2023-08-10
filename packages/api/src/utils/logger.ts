@@ -99,7 +99,7 @@ const truncateObjectDeep = (object: any, length: number): any => {
 
   const truncateDeep = (obj: any, level: number): any => {
     // reach maximum call stack size
-    if (level >= 6) {
+    if (level >= 5) {
       return obj
     }
 
