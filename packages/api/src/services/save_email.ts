@@ -106,12 +106,8 @@ export const saveEmail = async (
 
   // create a task to update thumbnail and pre-cache all images
   try {
-    const taskId = await enqueueThumbnailTask(
-      ctx.uid,
-      slug,
-      articleToSave.content
-    )
-    logger.info('Created thumbnail task', taskId)
+    const taskId = await enqueueThumbnailTask(ctx.uid, slug)
+    logger.info('Created thumbnail task', { taskId })
   } catch (e) {
     logger.error('Failed to create thumbnail task', e)
   }

@@ -32,7 +32,6 @@ interface UpdatePageResponse {
 
 interface ThumbnailRequest {
   slug: string
-  content: string
 }
 
 interface ImageSize {
@@ -188,7 +187,7 @@ const updatePageMutation = async (
 }
 
 const isThumbnailRequest = (body: any): body is ThumbnailRequest => {
-  return 'slug' in body && 'content' in body
+  return 'slug' in body
 }
 
 const fetchImage = async (url: string): Promise<AxiosResponse | null> => {
@@ -201,7 +200,7 @@ const fetchImage = async (url: string): Promise<AxiosResponse | null> => {
       maxContentLength: 20000000, // 20mb
     })
   } catch (e) {
-    console.error(e)
+    console.log('fetch image error', e)
     return null
   }
 }
@@ -334,7 +333,7 @@ export const thumbnailHandler = Sentry.GCPFunction.wrapHttpFunction(
       return res.status(400).send('BAD_REQUEST')
     }
 
-    const { slug, content } = req.body
+    const { slug } = req.body
 
     try {
       const page = await articleQuery(uid, slug)
@@ -352,7 +351,7 @@ export const thumbnailHandler = Sentry.GCPFunction.wrapHttpFunction(
 
       console.log('pre-caching all images...')
       // pre-cache all images in the content and get their sizes
-      const imageSizes = await fetchAllImageSizes(content)
+      const imageSizes = await fetchAllImageSizes(page.content)
       // find thumbnail from all images if thumbnail not set
       if (!page.image && imageSizes.length > 0) {
         console.log('finding thumbnail...')
