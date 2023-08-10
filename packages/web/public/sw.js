@@ -180,11 +180,8 @@
   })
 
   globalApi.addEventListener('fetch', (ev) => {
-    try {
-      console.log('request type: ', ev.request)
-      //      if (requestUrl.startsWith(currentOrigin)
-    } catch (err) {
-      console.log('fetch request error: ', err)
+    if (ev.request.destination === 'script') {
+      return
     }
 
     const handler = handleFetchRequest(ev)
