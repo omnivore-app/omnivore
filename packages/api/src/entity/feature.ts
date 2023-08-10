@@ -5,11 +5,13 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Unique,
   UpdateDateColumn,
 } from 'typeorm'
 import { User } from './user'
 
 @Entity({ name: 'features' })
+@Unique(['user', 'name'])
 export class Feature {
   @PrimaryGeneratedColumn('uuid')
   id!: string
