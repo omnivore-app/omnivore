@@ -179,8 +179,15 @@
     ev.waitUntil(handler)
   })
 
-  // globalApi.addEventListener('fetch', (ev) => {
-  //   const handler = handleFetchRequest(ev)
-  //   ev.respondWith(handler)
-  // })
+  globalApi.addEventListener('fetch', (ev) => {
+    try {
+      console.log('request type: ', ev.request)
+      //      if (requestUrl.startsWith(currentOrigin)
+    } catch (err) {
+      console.log('fetch request error: ', err)
+    }
+
+    const handler = handleFetchRequest(ev)
+    ev.respondWith(handler)
+  })
 })()
