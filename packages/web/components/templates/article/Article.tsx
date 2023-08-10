@@ -10,6 +10,8 @@ import {
 import { MutableRefObject, useEffect, useRef, useState } from 'react'
 import { isDarkTheme } from '../../../lib/themeUpdater'
 import { ArticleMutations } from '../../../lib/articleActions'
+import { Lightbox, SlideImage } from 'yet-another-react-lightbox'
+import 'yet-another-react-lightbox/styles.css'
 
 import loadjs from 'loadjs'
 
@@ -38,6 +40,10 @@ export function Article(props: ArticleProps): JSX.Element {
   const clampToPercent = (float: number) => {
     return Math.floor(Math.max(0, Math.min(100, float)))
   }
+
+  const [lightboxOpen, setLightboxOpen] = useState(false)
+  const [imageSrcs, setImageSrcs] = useState<SlideImage[]>([])
+  const [lightboxIndex, setlightBoxIndex] = useState(0)
 
   useEffect(() => {
     ;(async () => {
@@ -216,6 +222,31 @@ export function Article(props: ArticleProps): JSX.Element {
         }
       }
     })
+
+    const allImages = Array.from(
+      document.querySelectorAll('img[data-omnivore-anchor-idx]')
+    )
+
+    const srcs = allImages.map((img) => {
+      return {
+        src: img.getAttribute('src') || '',
+      }
+    })
+    setImageSrcs(srcs)
+
+    allImages.forEach((element, idx) => {
+      const img = element as HTMLImageElement
+      img.style.cursor = 'zoom-in'
+      img.onclick = (event) => {
+        setlightBoxIndex(idx)
+        setLightboxOpen(true)
+        event.preventDefault()
+      }
+      console.log('updated image: ', img)
+    })
+
+    console.log('set srcs: ', srcs)
+    console.log('setting srcs: ', srcs)
   }, [props.content])
 
   return (
@@ -234,6 +265,12 @@ export function Article(props: ArticleProps): JSX.Element {
         dangerouslySetInnerHTML={{
           __html: props.content,
         }}
+      />
+      <Lightbox
+        open={lightboxOpen}
+        index={lightboxIndex}
+        close={() => setLightboxOpen(false)}
+        slides={imageSrcs}
       />
     </>
   )
