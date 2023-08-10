@@ -9006,7 +9006,7 @@
   dependencies:
     "@types/node" "*"
 
-"@types/urlsafe-base64@^1.0.28":
+"@types/urlsafe-base64@^1.0.0", "@types/urlsafe-base64@^1.0.28":
   version "1.0.28"
   resolved "https://registry.yarnpkg.com/@types/urlsafe-base64/-/urlsafe-base64-1.0.28.tgz#2cf2098518e98c730a7e00de79a455e0269a3f4d"
   integrity sha512-TG5dKbqx75FUTXfiARIPvLvMCImVYJbKM+Fvy9HgpxkunHnMHNAn78xpvcZxIbPITyRzf0b2Gl8fnd1Ja3p1eQ==
