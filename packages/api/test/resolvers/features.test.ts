@@ -61,7 +61,7 @@ describe('features resolvers', () => {
       clock.restore()
     })
 
-    context('when user is the first 1000 users', () => {
+    context('when user is the first 1500 users', () => {
       after(async () => {
         // reset feature
         await getRepository(Feature).delete({
@@ -94,12 +94,12 @@ describe('features resolvers', () => {
       })
     })
 
-    context('when user is not the first 1000 users', () => {
+    context('when user is not the first 1500 users', () => {
       let users: User[]
 
       before(async () => {
-        // create 1000 opt-in users
-        const usersToSave = Array.from(Array(1000).keys()).map((i) => {
+        // create 1500 opt-in users
+        const usersToSave = Array.from(Array(1500).keys()).map((i) => {
           return {
             name: `opt-in-user-${i}`,
             source: 'GOOGLE',
