@@ -28,6 +28,7 @@ import {
 } from './types'
 
 const MAX_CONTENT_LENGTH = 10 * 1024 * 1024 // 10MB
+const CONTENT_LENGTH_ERROR = 'Your page content is too large to be saved.'
 
 const appendQuery = (builder: ESBuilder, query: string): ESBuilder => {
   interface Field {
@@ -413,8 +414,7 @@ export const createPage = async (
         contentLength: page.content.length,
       })
 
-      page.content = 'Your page content is too large to be saved.'
-      page.state = ArticleSavingRequestStatus.Failed
+      page.content = CONTENT_LENGTH_ERROR
     }
 
     const { body } = await client.index({
@@ -445,15 +445,13 @@ export const updatePage = async (
   ctx: PageContext
 ): Promise<boolean> => {
   try {
-    // max 10MB
     if (page.content && page.content.length > MAX_CONTENT_LENGTH) {
       logger.info('page content is too large', {
         pageId: page.id,
         contentLength: page.content.length,
       })
 
-      page.content = 'Your page content is too large to be saved.'
-      page.state = ArticleSavingRequestStatus.Failed
+      page.content = CONTENT_LENGTH_ERROR
     }
 
     await client.update({
