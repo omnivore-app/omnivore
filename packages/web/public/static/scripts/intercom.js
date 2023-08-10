@@ -1,10 +1,13 @@
 ;(function () {
   var w = window
   var ic = w.Intercom
+  console.log('running the intercom script, checking if we are injected: ', ic)
+
   if (typeof ic === 'function') {
     ic('reattach_activator')
     ic('update', w.intercomSettings)
   } else {
+    console.log('injecting the intercom widget')
     var d = document
     var i = function () {
       i.c(arguments)
