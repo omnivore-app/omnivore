@@ -179,8 +179,8 @@
     ev.waitUntil(handler)
   })
 
-  globalApi.addEventListener('fetch', (ev) => {
-    const handler = handleFetchRequest(ev)
-    ev.respondWith(handler)
-  })
+  // globalApi.addEventListener('fetch', (ev) => {
+  //   const handler = handleFetchRequest(ev)
+  //   ev.respondWith(handler)
+  // })
 })()
