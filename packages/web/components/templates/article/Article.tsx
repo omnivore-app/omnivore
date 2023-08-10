@@ -12,6 +12,9 @@ import { isDarkTheme } from '../../../lib/themeUpdater'
 import { ArticleMutations } from '../../../lib/articleActions'
 import { Lightbox, SlideImage } from 'yet-another-react-lightbox'
 import 'yet-another-react-lightbox/styles.css'
+import Download from 'yet-another-react-lightbox/plugins/download'
+import Fullscreen from 'yet-another-react-lightbox/plugins/fullscreen'
+import Zoom from 'yet-another-react-lightbox/plugins/zoom'
 
 import loadjs from 'loadjs'
 
@@ -271,6 +274,7 @@ export function Article(props: ArticleProps): JSX.Element {
         index={lightboxIndex}
         close={() => setLightboxOpen(false)}
         slides={imageSrcs}
+        plugins={[Fullscreen, Download, Zoom]}
       />
     </>
   )
