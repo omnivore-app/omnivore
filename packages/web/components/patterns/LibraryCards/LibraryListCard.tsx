@@ -99,7 +99,6 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
         setIsHovered(false)
       }}
       onClick={(event) => {
-        console.log('click event: ', event)
         if (event.metaKey || event.ctrlKey) {
           window.open(
             `/${props.viewer.profile.username}/${props.item.slug}`,
