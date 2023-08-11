@@ -88,7 +88,7 @@ export function newsletterServiceRouter() {
 
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   router.post('/create', async (req, res) => {
-    logger.info('create newsletter in the')
+    logger.info('create newsletter in the library')
 
     try {
       const { message, expired } = readPushSubscription(req)
