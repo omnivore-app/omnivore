@@ -16,6 +16,7 @@ import { MenuTrigger } from '../../elements/MenuTrigger'
 import { StyledText } from '../../elements/StyledText'
 import {
   MetaStyle,
+  TitleStyle,
   timeAgo,
 } from '../../patterns/LibraryCards/LibraryCardStyles'
 import { LibraryHighlightGridCard } from '../../patterns/LibraryCards/LibraryHighlightGridCard'
@@ -23,6 +24,7 @@ import { NotebookContent } from '../article/Notebook'
 import { EmptyHighlights } from './EmptyHighlights'
 import { HEADER_HEIGHT } from './HeaderSpacer'
 import { highlightsAsMarkdown } from './HighlightItem'
+import Link from 'next/link'
 
 type HighlightItemsLayoutProps = {
   items: LibraryItem[]
@@ -34,8 +36,9 @@ type HighlightItemsLayoutProps = {
 export function HighlightItemsLayout(
   props: HighlightItemsLayoutProps
 ): JSX.Element {
-  const [currentItem, setCurrentItem] =
-    useState<LibraryItem | undefined>(undefined)
+  const [currentItem, setCurrentItem] = useState<LibraryItem | undefined>(
+    undefined
+  )
 
   const listReducer = (
     state: LibraryItem[],
@@ -402,35 +405,67 @@ function HighlightList(props: HighlightListProps): JSX.Element {
       css={{
         m: '20px',
         flexGrow: '1',
-        height: '100%',
         minWidth: '425px',
         maxWidth: '625px',
         width: '100%',
         justifyContent: 'flex-start',
       }}
       distribution="start"
-      alignment="center"
+      alignment="start"
     >
-      <HStack
+      <VStack
         css={{
           width: '100%',
           height: '100%',
+          bg: '$thLibrarySearchbox',
         }}
-        alignment="start"
-        distribution="end"
       >
-        <Dropdown triggerElement={<MenuTrigger />}>
-          <DropdownOption
-            onSelect={() => {
-              exportHighlights()
+        <HStack
+          css={{
+            width: '100%',
+            pt: '55px',
+          }}
+          alignment="start"
+          distribution="end"
+        >
+          <Box
+            css={{
+              color: '$thTextContrast2',
+              fontSize: '16px',
+              fontWeight: '700',
+              maxLines: 2,
+              lineHeight: 1.25,
+              fontFamily: '$display',
+              width: '100%',
+              px: '20px',
+              cursor: 'pointer',
+              '&:hover': {
+                textDecoration: 'underline',
+              },
             }}
-            title="Export"
-          />
-        </Dropdown>
-      </HStack>
-      <HStack
-        css={{ width: '100%', height: '100%', bg: '$thLibrarySearchbox' }}
-      >
+            onClick={(event) => {
+              viewInReader(props.item.node.id)
+              event.preventDefault()
+            }}
+          >
+            {props.item.node.title}
+          </Box>
+          <Box
+            css={{
+              ml: 'auto',
+            }}
+          >
+            <Dropdown triggerElement={<MenuTrigger />}>
+              <DropdownOption
+                onSelect={() => {
+                  exportHighlights()
+                }}
+                title="Export"
+              />
+            </Dropdown>
+          </Box>
+        </HStack>
+
         {props.viewer && (
           <NotebookContent
             viewer={props.viewer}
@@ -438,147 +473,9 @@ function HighlightList(props: HighlightListProps): JSX.Element {
             viewInReader={viewInReader}
           />
         )}
-      </HStack>
+      </VStack>
     </VStack>
   )
-
-  // return (
-  //   <HStack
-  //     css={{
-  //       m: '20px',
-  //       height: '100%',
-  //       flexGrow: '1',
-  //     }}
-  //     distribution="center"
-  //     alignment="start"
-  //   >
-  //     <VStack
-  //       css={{
-  //         width: '425px',
-  //         borderRadius: '6px',
-  //       }}
-  //       alignment="start"
-  //       distribution="start"
-  //     >
-  //       <HStack
-  //         css={{
-  //           width: '100%',
-  //           pt: '25px',
-  //           borderBottom: '1px solid $thBorderColor',
-  //         }}
-  //         alignment="center"
-  //         distribution="center"
-  //       >
-  //         <StyledText
-  //           css={{
-  //             fontWeight: '600',
-  //             fontSize: '15px',
-  //             fontFamily: '$display',
-  //             width: '100%',
-  //             color: 'thTextContrast2',
-  //           }}
-  //         >
-  //           NOTEBOOK
-  //         </StyledText>
-  //         <Dropdown triggerElement={<MenuTrigger />}>
-  //           <DropdownOption
-  //             onSelect={() => {
-  //               exportHighlights()
-  //             }}
-  //             title="Export"
-  //           />
-  //         </Dropdown>
-  //       </HStack>
-
-  //       <HStack
-  //         css={{
-  //           width: '100%',
-  //           pt: '25px',
-  //           borderBottom: '1px solid $thBorderColor',
-  //         }}
-  //         alignment="center"
-  //         distribution="center"
-  //       >
-  //         <StyledText
-  //           css={{
-  //             fontWeight: '600',
-  //             fontSize: '15px',
-  //             fontFamily: '$display',
-  //             width: '100%',
-  //             color: 'thTextContrast2',
-  //           }}
-  //         >
-  //           NOTE
-  //         </StyledText>
-  //       </HStack>
-  //       <HighlightNoteBox
-  //         sizeMode="normal"
-  //         mode={notesEditMode}
-  //         setEditMode={setNotesEditMode}
-  //         text={note?.annotation}
-  //         placeHolder="Add notes to this document..."
-  //         saveText={(highlight) => {
-  //           console.log('saving text', highlight)
-  //         }}
-  //       />
-  //       <SpanBox css={{ mt: '10px', mb: '25px' }} />
-
-  //       {sortedHighlights && (
-  //         <>
-  //           <HStack
-  //             css={{
-  //               width: '100%',
-  //               pt: '25px',
-  //               borderBottom: '1px solid $thBorderColor',
-  //             }}
-  //             alignment="center"
-  //             distribution="center"
-  //           >
-  //             <StyledText
-  //               css={{
-  //                 fontWeight: '600',
-  //                 fontSize: '15px',
-  //                 fontFamily: '$display',
-  //                 width: '100%',
-  //                 color: 'thTextContrast2',
-  //               }}
-  //             >
-  //               HIGHLIGHTS
-  //             </StyledText>
-  //           </HStack>
-  //           <VStack
-  //             css={{ width: '100%', mt: '20px' }}
-  //             distribution="start"
-  //             alignment="start"
-  //           >
-  //             {sortedHighlights.map((highlight) => (
-  //               <>
-  //                 <HighlightViewItem
-  //                   key={highlight.id}
-  //                   highlight={highlight}
-  //                   updateHighlight={(highlight) => {
-  //                     console.log('updated highlight: ', highlight)
-  //                   }}
-
-  //                   deleteHighlightAction={(highlight) => {
-  //                     console.log('deleting: ', highlight)
-  //                   }}
-
-  //                   setSetLabelsTarget: (highlight: Highlight) => void
-  //                   setShowConfirmDeleteHighlightId: (id: string | undefined) => void
-
-  //                 />
-  //                 <SpanBox css={{ mt: '10px', mb: '25px' }} />
-  //               </>
-  //             ))}
-  //             <Box css={{ height: '100px' }} />
-  //           </VStack>
-  //           <SpanBox css={{ mt: '10px', mb: '25px' }} />
-  //         </>
-  //       )}
-  //     </VStack>
-  //   </HStack>
-  // )
 }
 
 type HighlightCountChipProps = {

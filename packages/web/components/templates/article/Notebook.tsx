@@ -310,8 +310,9 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
         )}
         <Box
           css={{
+            flexGrow: 1,
             width: '100%',
-            height: '320px',
+            minHeight: '320px',
           }}
         ></Box>
       </VStack>
