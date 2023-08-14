@@ -38,9 +38,13 @@ export function EmailSignup(): JSX.Element {
 
   const handleUsernameChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>): void => {
-      setUsername(event.target.value)
+      const {
+        target: { value },
+      } = event
+
+      setUsername(value)
       setTimeout(() => {
-        setDebouncedUsername(event.target.value)
+        setDebouncedUsername(value)
       }, 400)
     },
     []
@@ -87,6 +91,7 @@ export function EmailSignup(): JSX.Element {
           <SpanBox css={{ width: '100%' }}>
             <FormLabel className="required">Password</FormLabel>
             <BorderedFormInput
+              autoComplete="off"
               key="password"
               type="password"
               name="password"

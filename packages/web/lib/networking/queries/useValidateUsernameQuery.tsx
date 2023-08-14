@@ -29,7 +29,7 @@ export function useValidateUsernameQuery({
   }
 
   // Try to figure out why the username is invalid
-  const usernameErrorMessage = validationErrorMessage(username.toLowerCase())
+  const usernameErrorMessage = validationErrorMessage(username)
   if (usernameErrorMessage) {
     return {
       isUsernameValid: false,
@@ -50,6 +50,10 @@ function validationErrorMessage(username: string): string | undefined {
 
   if (username.length < 3) {
     return 'Username should contain at least three characters'
+  }
+
+  if (username !== username.toLocaleLowerCase()) {
+    return 'Username should not contain upper case letters'
   }
 
   if (username.length > 15) {

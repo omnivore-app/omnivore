@@ -169,21 +169,21 @@ const RESERVED_NAMES = new Set([
 ])
 
 export const validateUsername = (username: string): boolean => {
-  const lowerCasedUsername = username.toLowerCase()
-  if (RESERVED_NAMES.has(lowerCasedUsername)) {
+  if (username !== username.toLocaleLowerCase()) {
     return false
   }
 
-  if (lowerCasedUsername.length < 4 || lowerCasedUsername.length > 15) {
+  if (RESERVED_NAMES.has(username)) {
     return false
   }
 
-  if (
-    lowerCasedUsername.includes('omnivore') ||
-    lowerCasedUsername.includes('admin')
-  ) {
+  if (username.length < 4 || username.length > 15) {
     return false
   }
 
-  return REGEX_POLICY.test(lowerCasedUsername)
+  if (username.includes('omnivore') || username.includes('admin')) {
+    return false
+  }
+
+  return REGEX_POLICY.test(username)
 }

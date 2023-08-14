@@ -101,20 +101,19 @@ export const updateUserProfileResolver = authorized<
       }
     }
 
-    const lowerCasedUsername = username?.toLowerCase()
-    if (lowerCasedUsername) {
+    if (username) {
+      if (!validateUsername(username)) {
+        return {
+          errorCodes: [UpdateUserProfileErrorCode.BadUsername],
+        }
+      }
+
       const existingUser = await models.user.getWhere({
-        username: lowerCasedUsername,
+        username,
       })
       if (existingUser?.id) {
         return {
           errorCodes: [UpdateUserProfileErrorCode.UsernameExists],
-        }
-      }
-
-      if (!validateUsername(lowerCasedUsername)) {
-        return {
-          errorCodes: [UpdateUserProfileErrorCode.BadUsername],
         }
       }
     }
@@ -123,7 +122,7 @@ export const updateUserProfileResolver = authorized<
       models.user.updateProfile(
         userId,
         {
-          username: lowerCasedUsername,
+          username,
           picture_url: pictureUrl,
         },
         tx
@@ -171,12 +170,11 @@ export const validateUsernameResolver: ResolverFn<
   WithDataSourcesContext,
   QueryValidateUsernameArgs
 > = async (_obj, { username }, { models }) => {
-  const lowerCasedUsername = username.toLowerCase()
-  if (!validateUsername(lowerCasedUsername)) {
+  if (!validateUsername(username)) {
     return false
   }
 
-  return !(await models.user.exists({ username: lowerCasedUsername }))
+  return !(await models.user.exists({ username }))
 }
 
 export const googleSignupResolver: ResolverFn<
