@@ -38,6 +38,7 @@
     "axios": "^1.2.0",
     "color2k": "^2.0.0",
     "cookie": "^0.5.0",
+    "csv-file-validator": "^2.1.0",
     "dayjs": "^1.11.7",
     "diff-match-patch": "^1.0.5",
     "epubjs": "^0.3.93",

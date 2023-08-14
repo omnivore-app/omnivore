@@ -1,28 +1,18 @@
-import { ChangeEvent, useCallback, useMemo, useState } from 'react'
-import { Toaster } from 'react-hot-toast'
-
-import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
-import { applyStoredTheme } from '../../../lib/themeUpdater'
-
-import {
-  Box,
-  HStack,
-  VStack,
-} from '../../../components/elements/LayoutPrimitives'
-
 import 'antd/dist/antd.compact.css'
+import CSVFileValidator, { ValidatorConfig } from 'csv-file-validator'
+import { ChangeEvent, useState } from 'react'
+import { SyncLoader } from 'react-spinners'
+import { Button } from '../../../components/elements/Button'
+import { FormLabel } from '../../../components/elements/FormElements'
+import { HStack, VStack } from '../../../components/elements/LayoutPrimitives'
 import { StyledText } from '../../../components/elements/StyledText'
 import { ProfileLayout } from '../../../components/templates/ProfileLayout'
+import { theme } from '../../../components/tokens/stitches.config'
 import {
   uploadImportFileRequestMutation,
   UploadImportFileType,
 } from '../../../lib/networking/mutations/uploadImportFileMutation'
-import { Button } from '../../../components/elements/Button'
-import { FormLabel } from '../../../components/elements/FormElements'
-import { Loader } from '../../../components/templates/SavingRequest'
-
-import { SyncLoader } from 'react-spinners'
-import { theme } from '../../../components/tokens/stitches.config'
+import { applyStoredTheme } from '../../../lib/themeUpdater'
 
 type UploadState = 'none' | 'uploading' | 'completed'
 
@@ -33,6 +23,71 @@ export default function ImportUploader(): JSX.Element {
   const [file, setFile] = useState<File>()
   const [type, setType] = useState<UploadImportFileType>()
   const [uploadState, setUploadState] = useState<UploadState>('none')
+
+  const isUrlValid = (url: string | number | boolean) => {
+    if (typeof url !== 'string') {
+      return false
+    }
+
+    try {
+      new URL(url)
+      return true
+    } catch (e) {
+      return false
+    }
+  }
+
+  const isStateValid = (state: string | number | boolean) => {
+    if (typeof state !== 'string') {
+      return false
+    }
+
+    const validStates = ['SUCCEEDED', 'ARCHIVED']
+    return validStates.includes(state.toUpperCase())
+  }
+
+  const csvConfig: ValidatorConfig = {
+    headers: [
+      {
+        name: 'url',
+        inputName: 'url',
+        required: true,
+        unique: true,
+        validate: function (url) {
+          return isUrlValid(url)
+        },
+      },
+      {
+        name: 'state',
+        inputName: 'state',
+        required: false,
+        optional: true,
+        validate: function (state) {
+          return isStateValid(state)
+        },
+      },
+      {
+        name: 'labels',
+        inputName: 'labels',
+        required: false,
+        optional: true,
+        isArray: true,
+      },
+      {
+        name: 'saved_at',
+        inputName: 'saved_at',
+        required: false,
+        optional: true,
+      },
+      {
+        name: 'published_at',
+        inputName: 'published_at',
+        required: false,
+        optional: true,
+      },
+    ],
+    isHeaderNameOptional: true,
+  }
 
   const onFinish = (values: unknown) => {
     console.log(values)
@@ -58,6 +113,23 @@ export default function ImportUploader(): JSX.Element {
     setUploadState('uploading')
 
     try {
+      if (type == UploadImportFileType.URL_LIST) {
+        // validate csv file
+        try {
+          const csvData = await CSVFileValidator(file, csvConfig)
+          if (csvData.inValidData.length > 0) {
+            setErrorMessage(csvData.inValidData[0].message)
+            setUploadState('none')
+            return
+          }
+        } catch (error) {
+          console.log(error)
+          setErrorMessage('Invalid CSV file.')
+          setUploadState('none')
+          return
+        }
+      }
+
       const result = await uploadImportFileRequestMutation(type, 'text/csv')
 
       if (result && result.uploadSignedUrl) {

@@ -12734,6 +12734,15 @@ csstype@^3.0.2, csstype@^3.0.4:
   resolved "https://registry.yarnpkg.com/csstype/-/csstype-3.0.8.tgz#d2266a792729fb227cd216fb572f43728e1ad340"
   integrity sha512-jXKhWqXPmlUeoQnF/EhTtTl4C9SnrxSH/jZUih3jmO6lBKr99rP3/+FmrMj4EFpOXzMtXHAZkd3x0E6h6Fgflw==
 
+csv-file-validator@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/csv-file-validator/-/csv-file-validator-2.1.0.tgz#fc83e1e05835d7f03d03f8cce6235938e4cef32e"
+  integrity sha512-SzBtdw0eZaCIJQYwCsD9uCK6pnbeArS3sJ036kbv56aAyQ7L2v0UmynWgFwclVIPSp74C6ZLd8kxgEHFnhq98w==
+  dependencies:
+    famulus "^2.2.3"
+    lodash "^4.17.21"
+    papaparse "^5.3.2"
+
 csv-stringify@*, csv-stringify@^6.4.0:
   version "6.4.0"
   resolved "https://registry.yarnpkg.com/csv-stringify/-/csv-stringify-6.4.0.tgz#6d006dca9194700e44f9fbc541bee8bbbd4f459c"
@@ -14614,6 +14623,13 @@ extsprintf@^1.2.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/extsprintf/-/extsprintf-1.4.0.tgz#e2689f8f356fad62cca65a3a91c5df5f9551692f"
   integrity sha1-4mifjzVvrWLMplo6kcXfX5VRaS8=
+
+famulus@^2.2.3:
+  version "2.2.3"
+  resolved "https://registry.yarnpkg.com/famulus/-/famulus-2.2.3.tgz#b895c67930d0a0055257e2c1933ab9522dd694a5"
+  integrity sha512-tEh0NlWBtXSu1t/uY1eN7DQbXXcezPUp2/q25Scbc0h+Wivu9GHcdVnzlOqhD6hetpaj9CMhRm5InSQscM7FWQ==
+  dependencies:
+    lodash "^4.17.20"
 
 fast-deep-equal@^3.1.1, fast-deep-equal@^3.1.3:
   version "3.1.3"
@@ -22080,7 +22096,7 @@ pako@~1.0.2, pako@~1.0.5:
   resolved "https://registry.yarnpkg.com/pako/-/pako-1.0.11.tgz#6c9599d340d54dfd3946380252a35705a6b992bf"
   integrity sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==
 
-papaparse@^5.4.1:
+papaparse@^5.3.2, papaparse@^5.4.1:
   version "5.4.1"
   resolved "https://registry.yarnpkg.com/papaparse/-/papaparse-5.4.1.tgz#f45c0f871853578bd3a30f92d96fdcfb6ebea127"
   integrity sha512-HipMsgJkZu8br23pW15uvo6sib6wne/4woLZPlFf3rpDyMe9ywEXUsuD7+6K9PRkJlVT51j/sCOYDKGGS3ZJrw==
