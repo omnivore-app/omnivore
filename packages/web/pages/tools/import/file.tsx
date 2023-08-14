@@ -209,6 +209,7 @@ export default function ImportUploader(): JSX.Element {
                     type="file"
                     onChange={onTypeChange}
                     disabled={uploadState == 'uploading'}
+                    accept=".csv"
                   />
                   {/* <Box>{file && `${file.name}`}</Box> */}
                 </HStack>
