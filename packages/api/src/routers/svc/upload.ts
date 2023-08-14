@@ -13,18 +13,18 @@ export function uploadServiceRouter() {
   const router = express.Router()
 
   router.post('/:folder', async (req, res) => {
-    const { message: msgStr, expired } = readPushSubscription(req)
-
-    if (!msgStr) {
-      return res.status(400).send('Bad Request')
-    }
-
-    if (expired) {
-      logger.info('discarding expired message')
-      return res.status(200).send('Expired')
-    }
-
     try {
+      const { message: msgStr, expired } = readPushSubscription(req)
+
+      if (!msgStr) {
+        return res.status(400).send('Bad Request')
+      }
+
+      if (expired) {
+        logger.info('discarding expired message')
+        return res.status(200).send('Expired')
+      }
+
       const data: { userId: string; type: string } = JSON.parse(msgStr)
       if (!data.userId || !data.type) {
         logger.info('No userId or type found in message')

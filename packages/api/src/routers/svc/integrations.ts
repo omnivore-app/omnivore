@@ -40,20 +40,19 @@ export function integrationsServiceRouter() {
       action: req.params.action,
       integrationName: req.params.integrationName,
     })
-    const { message: msgStr, expired } = readPushSubscription(req)
-
-    if (!msgStr) {
-      res.status(400).send('Bad Request')
-      return
-    }
-
-    if (expired) {
-      logger.info('discarding expired message')
-      res.status(200).send('Expired')
-      return
-    }
 
     try {
+      const { message: msgStr, expired } = readPushSubscription(req)
+
+      if (!msgStr) {
+        return res.status(400).send('Bad Request')
+      }
+
+      if (expired) {
+        logger.info('discarding expired message')
+        return res.status(200).send('Expired')
+      }
+
       const data: Message = JSON.parse(msgStr)
       const userId = data.userId
       const type = data.type
@@ -118,8 +117,7 @@ export function integrationsServiceRouter() {
             integrationId: integration.id,
             pageId: page.id,
           })
-          res.status(400).send('Failed to sync')
-          return
+          return res.status(400).send('Failed to sync')
         }
       } else if (action === 'SYNC_ALL') {
         // sync all pages of the user

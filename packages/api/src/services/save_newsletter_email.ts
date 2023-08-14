@@ -93,7 +93,8 @@ export const saveNewsletterEmail = async (
     name: 'Newsletter',
     color: '#07D2D1',
   })
-  logger.info('newsletter label added:', result)
+
+  logger.info('newsletter label added', { result })
 
   // sends push notification
   const deviceTokens = await getDeviceTokensByUserId(newsletterEmail.user.id)

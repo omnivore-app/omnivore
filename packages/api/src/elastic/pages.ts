@@ -27,7 +27,7 @@ import {
   SearchResponse,
 } from './types'
 
-const MAX_CONTENT_LENGTH = 10 * 1024 * 1024 // 10MB
+const MAX_CONTENT_LENGTH = 5 * 1024 * 1024 // 5MB and 10MB for both content and originalHtml
 const CONTENT_LENGTH_ERROR = 'Your page content is too large to be saved.'
 
 const appendQuery = (builder: ESBuilder, query: string): ESBuilder => {
@@ -407,7 +407,6 @@ export const createPage = async (
   ctx: PageContext
 ): Promise<string | undefined> => {
   try {
-    // max 10MB
     if (page.content.length > MAX_CONTENT_LENGTH) {
       logger.info('page content is too large', {
         pageId: page.id,
