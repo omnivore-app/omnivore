@@ -70,6 +70,7 @@ export class PocketIntegration extends IntegrationService {
         },
         {
           headers: this.headers,
+          timeout: 5000, // 5 seconds
         }
       )
       return response.data.access_token
@@ -105,6 +106,7 @@ export class PocketIntegration extends IntegrationService {
         },
         {
           headers: this.headers,
+          timeout: 10000, // 10 seconds
         }
       )
 

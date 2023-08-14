@@ -233,7 +233,7 @@ export function integrationsServiceRouter() {
         })
         // stringify the data and pipe it to the write_stream
         const stringifier = stringify({
-          header: false,
+          header: true,
           columns: ['url', 'state', 'labels'],
         })
         stringifier.pipe(writeStream)
