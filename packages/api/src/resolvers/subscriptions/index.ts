@@ -247,6 +247,7 @@ export const subscribeResolver = authorized<
 
     // create new rss subscription
     if (input.url) {
+      const MAX_RSS_SUBSCRIPTIONS = 150
       // validate rss feed
       const feed = await parser.parseURL(input.url)
 
@@ -255,7 +256,7 @@ export const subscribeResolver = authorized<
         `insert into omnivore.subscriptions (name, url, description, type, user_id, icon) 
         select $1, $2, $3, $4, $5, $6 from omnivore.subscriptions 
         where user_id = $5 and type = 'RSS' and status = 'ACTIVE' 
-        having count(*) < 50 
+        having count(*) < $7 
         returning *;`,
         [
           feed.title,
@@ -264,6 +265,7 @@ export const subscribeResolver = authorized<
           SubscriptionType.Rss,
           uid,
           feed.image?.url || null,
+          MAX_RSS_SUBSCRIPTIONS,
         ]
       )) as Subscription[]
 
