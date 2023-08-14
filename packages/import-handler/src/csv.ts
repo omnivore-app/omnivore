@@ -5,7 +5,7 @@
 
 import { parse } from '@fast-csv/parse'
 import { Stream } from 'stream'
-import { ImportContext } from '.'
+import { ArticleSavingRequestStatus, ImportContext } from '.'
 import { createMetrics, ImportStatus, updateMetrics } from './metrics'
 
 const parseLabels = (labels: string): string[] => {
@@ -24,17 +24,33 @@ const parseLabels = (labels: string): string[] => {
   }
 }
 
+const parseState = (state: string): ArticleSavingRequestStatus => {
+  const validStates = ['SUCCEEDED', 'ARCHIVED']
+  // validate state
+  if (!validStates.includes(state.toUpperCase())) {
+    throw new Error('invalid state')
+  }
+
+  return state as ArticleSavingRequestStatus
+}
+
 export const importCsv = async (ctx: ImportContext, stream: Stream) => {
   // create metrics in redis
   await createMetrics(ctx.redisClient, ctx.userId, ctx.taskId, 'csv-importer')
 
-  const parser = parse()
+  const parser = parse({
+    headers: true,
+    discardUnmappedColumns: true,
+    objectMode: true,
+    ignoreEmpty: true,
+    trim: true,
+  })
   stream.pipe(parser)
   for await (const row of parser) {
     try {
-      const url = new URL(row[0])
-      const state = row.length > 1 && row[1] ? row[1] : undefined
-      const labels = row.length > 2 ? parseLabels(row[2]) : undefined
+      const url = new URL(row['url'])
+      const state = row['state'] ? parseState(row['state']) : undefined
+      const labels = row['labels'] ? parseLabels(row['labels']) : undefined
 
       // update total counter
       await updateMetrics(
