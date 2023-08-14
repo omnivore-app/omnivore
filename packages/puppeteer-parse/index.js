@@ -142,13 +142,14 @@ const getBrowserPromise = (async () => {
 
 const uploadToSignedUrl = async ({ id, uploadSignedUrl }, contentType, contentObjUrl) => {
   try {
-    const stream = await axios.get(contentObjUrl, { responseType: 'stream' });
+    const stream = await axios.get(contentObjUrl, { responseType: 'stream', timeout: REQUEST_TIMEOUT });
     return axios.put(uploadSignedUrl, stream.data, {
       headers: {
         'Content-Type': contentType,
       },
       maxBodyLength: 1000000000,
       maxContentLength: 100000000,
+      timeout: REQUEST_TIMEOUT,
     });
   } catch (error) {
     console.error('error uploading to signed url', error.message);
