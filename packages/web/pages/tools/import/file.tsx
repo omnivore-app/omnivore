@@ -86,7 +86,6 @@ export default function ImportUploader(): JSX.Element {
         optional: true,
       },
     ],
-    isHeaderNameOptional: true,
   }
 
   const onFinish = (values: unknown) => {
