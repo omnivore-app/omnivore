@@ -1,5 +1,5 @@
 import 'antd/dist/antd.compact.css'
-import CSVFileValidator, { ValidatorConfig } from 'csv-file-validator'
+import { ValidatorConfig } from 'csv-file-validator'
 import { ChangeEvent, useState } from 'react'
 import { SyncLoader } from 'react-spinners'
 import { Button } from '../../../components/elements/Button'
@@ -13,6 +13,7 @@ import {
   UploadImportFileType,
 } from '../../../lib/networking/mutations/uploadImportFileMutation'
 import { applyStoredTheme } from '../../../lib/themeUpdater'
+import { validateCsvFile } from '../../../utils/csvValidator'
 
 type UploadState = 'none' | 'uploading' | 'completed'
 
@@ -115,7 +116,7 @@ export default function ImportUploader(): JSX.Element {
       if (type == UploadImportFileType.URL_LIST) {
         // validate csv file
         try {
-          const csvData = await CSVFileValidator(file, csvConfig)
+          const csvData = await validateCsvFile(file)
           if (csvData.inValidData.length > 0) {
             setErrorMessage(csvData.inValidData[0].message)
             setUploadState('none')
