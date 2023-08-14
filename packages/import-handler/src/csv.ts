@@ -34,6 +34,15 @@ const parseState = (state: string): ArticleSavingRequestStatus => {
   return state as ArticleSavingRequestStatus
 }
 
+const parseDate = (date: string): Date => {
+  const parsedDate = new Date(date)
+  if (isNaN(parsedDate.getTime())) {
+    throw new Error('invalid date')
+  }
+
+  return parsedDate
+}
+
 export const importCsv = async (ctx: ImportContext, stream: Stream) => {
   // create metrics in redis
   await createMetrics(ctx.redisClient, ctx.userId, ctx.taskId, 'csv-importer')
@@ -51,6 +60,10 @@ export const importCsv = async (ctx: ImportContext, stream: Stream) => {
       const url = new URL(row['url'])
       const state = row['state'] ? parseState(row['state']) : undefined
       const labels = row['labels'] ? parseLabels(row['labels']) : undefined
+      const savedAt = row['saved_at'] ? parseDate(row['saved_at']) : undefined
+      const publishedAt = row['published_at']
+        ? parseDate(row['published_at'])
+        : undefined
 
       // update total counter
       await updateMetrics(
@@ -60,7 +73,7 @@ export const importCsv = async (ctx: ImportContext, stream: Stream) => {
         ImportStatus.TOTAL
       )
 
-      await ctx.urlHandler(ctx, url, state, labels)
+      await ctx.urlHandler(ctx, url, state, labels, savedAt, publishedAt)
 
       ctx.countImported += 1
       // update started counter
@@ -77,7 +90,7 @@ export const importCsv = async (ctx: ImportContext, stream: Stream) => {
         break
       }
     } catch (error) {
-      console.log('invalid url', row, error)
+      console.log('invalid data', row, error)
 
       ctx.countFailed += 1
       // update invalid counter
