@@ -56,7 +56,9 @@ const enableJavascriptForUrl = (url) => {
 };
 
 function generateTestcase(slug) {
-  const options = {};
+  const options = {
+    debug,
+  };
   if (slug.startsWith("newsletters/")) {
     // keep the newsletter content in tables
     options.keepTables = true;
@@ -289,7 +291,6 @@ async function runReadability(source, destPath, metadataDestPath, options) {
   try {
     // Use linkedom for isProbablyReaderable because it supports querySelectorAll
     var dom = parseHTML(source).document;
-    console.log('dom', parseHTML(source).innerHTML)
     readerable = isProbablyReaderable(dom);
     // We pass `caption` as a class to check that passing in extra classes works,
     // given that it appears in some of the test documents.

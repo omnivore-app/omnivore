@@ -194,6 +194,9 @@ Readability.prototype = {
     hashUrl: /^#.+/,
     srcsetUrl: /(\S+)(\s+[\d.]+[xw])?(\s*(?:,|$))/g,
     b64DataUrl: /^data:\s*([^\s;,]+)\s*;\s*base64\s*,/i,
+    // Commas as used in Latin, Sindhi, Chinese and various other scripts.
+    // see: https://en.wikipedia.org/wiki/Comma#Comma_variants
+    commas: /\u002C|\u060C|\uFE50|\uFE10|\uFE11|\u2E41|\u2E34|\u2E32|\uFF0C/g,
     // See: https://schema.org/Article
     jsonLdArticleTypes: /^Article|AdvertiserContentArticle|NewsArticle|AnalysisNewsArticle|AskPublicNewsArticle|BackgroundNewsArticle|OpinionNewsArticle|ReportageNewsArticle|ReviewNewsArticle|Report|SatiricalArticle|ScholarlyArticle|MedicalScholarlyArticle|SocialMediaPosting|BlogPosting|LiveBlogPosting|DiscussionForumPosting|TechArticle|APIReference$/,
     DATES_REGEXPS: [
@@ -1326,8 +1329,8 @@ Readability.prototype = {
         // Add a point for the paragraph itself as a base.
         contentScore += 1;
 
-        // Add points for any commas (including those in CJK language) within this paragraph.
-        contentScore += innerText.split(/[,，、]/g).length;
+        // Add points for any commas within this paragraph.
+        contentScore += innerText.split(this.REGEXPS.commas).length;
 
         // For every 100 characters in this paragraph, add another point. Up to 3 points.
         contentScore += Math.min(Math.floor(innerText.length / 100), 3);
@@ -1487,7 +1490,7 @@ Readability.prototype = {
       if (isPaging)
         articleContent.id = "readability-content";
 
-      var siblingScoreThreshold = Math.max(10, (topCandidate.readability && topCandidate.readability.contentScore || 0) * 0.2);
+      var siblingScoreThreshold = Math.max(10, (topCandidate.readability?.contentScore || 0) * 0.2);
       // Keep potential top candidate's parent node to try to get text direction of it later.
       parentOfTopCandidate = topCandidate.parentNode;
       var siblings = parentOfTopCandidate.children;
