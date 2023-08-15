@@ -54,10 +54,11 @@ struct LabelsView: View {
       action: { viewModel.showCreateLabelModal = true },
       label: {
         HStack {
+          let trimmedLabelName = viewModel.labelSearchFilter.trimmingCharacters(in: .whitespacesAndNewlines)
           Image(systemName: "tag").foregroundColor(.blue)
           Text(
             viewModel.labelSearchFilter.count > 0 ?
-              "Create: \"\(viewModel.labelSearchFilter)\" label" :
+              "Create: \"\(trimmedLabelName)\" label" :
               LocalText.createLabelMessage
           ).foregroundColor(.blue)
             .font(Font.system(size: 14))

@@ -299,7 +299,7 @@ export const isUrl = (str: string): boolean => {
     validateUrl(str)
     return true
   } catch {
-    logger.error('not an url', str)
+    logger.info('not an url', { url: str })
     return false
   }
 }

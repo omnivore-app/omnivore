@@ -1,2 +1,3 @@
-"https://test.url/path01",,"[Random]"
-"https://test.url/path02",ARCHIVED,"[Random]"
+url,state,labels,saved_at,published_at
+"https://test.url/path01",,"[Random]",,
+"https://test.url/path02",ARCHIVED,"[Random]",,

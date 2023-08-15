@@ -41,7 +41,9 @@ export type UrlHandler = (
   ctx: ImportContext,
   url: URL,
   state?: ArticleSavingRequestStatus,
-  labels?: string[]
+  labels?: string[],
+  savedAt?: Date,
+  publishedAt?: Date
 ) => Promise<void>
 export type ContentHandler = (
   ctx: ImportContext,
@@ -98,7 +100,9 @@ const importURL = async (
   source: string,
   taskId: string,
   state?: ArticleSavingRequestStatus,
-  labels?: string[]
+  labels?: string[],
+  savedAt?: Date,
+  publishedAt?: Date
 ): Promise<string | undefined> => {
   return createCloudTask(CONTENT_FETCH_URL, {
     userId,
@@ -110,6 +114,8 @@ const importURL = async (
       return { name: l }
     }),
     taskId,
+    savedAt,
+    publishedAt,
   })
 }
 
@@ -181,7 +187,9 @@ const urlHandler = async (
   ctx: ImportContext,
   url: URL,
   state?: ArticleSavingRequestStatus,
-  labels?: string[]
+  labels?: string[],
+  savedAt?: Date,
+  publishedAt?: Date
 ): Promise<void> => {
   try {
     // Imports are stored in the format imports/<user id>/<type>-<uuid>.csv

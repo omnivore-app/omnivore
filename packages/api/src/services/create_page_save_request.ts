@@ -33,6 +33,8 @@ interface PageSaveRequest {
   user?: User | null
   locale?: string
   timezone?: string
+  savedAt?: Date
+  publishedAt?: Date
 }
 
 const SAVING_CONTENT = 'Your link is being saved...'
@@ -86,6 +88,8 @@ export const createPageSaveRequest = async ({
   user,
   locale,
   timezone,
+  savedAt,
+  publishedAt,
 }: PageSaveRequest): Promise<ArticleSavingRequest> => {
   try {
     validateUrl(url)
@@ -138,7 +142,8 @@ export const createPageSaveRequest = async ({
       url,
       state: ArticleSavingRequestStatus.Processing,
       createdAt: new Date(),
-      savedAt: new Date(),
+      savedAt: savedAt || new Date(),
+      publishedAt,
       archivedAt,
       labels,
     }
@@ -177,6 +182,9 @@ export const createPageSaveRequest = async ({
     labels: labelsInput,
     locale,
     timezone,
+    // unix timestamp
+    savedAt: savedAt?.getTime(),
+    publishedAt: publishedAt?.getTime(),
   })
 
   return pageToArticleSavingRequest(user, page)

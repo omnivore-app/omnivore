@@ -21,7 +21,7 @@ import View = google.cloud.tasks.v2.Task.View
 // Instantiates a client.
 const client = new CloudTasksClient()
 
-const logError = (error: Error): void => {
+const logError = (error: any): void => {
   if (axios.isAxiosError(error)) {
     logger.error(error.response)
   } else {
@@ -102,7 +102,12 @@ const createHttpTaskWithToken = async ({
       : null,
   }
 
-  return client.createTask({ parent, task })
+  try {
+    return client.createTask({ parent, task })
+  } catch (error) {
+    logError(error)
+    return null
+  }
 }
 
 export const createAppEngineTask = async ({
@@ -224,6 +229,8 @@ export const enqueueParseRequest = async ({
   labels,
   locale,
   timezone,
+  savedAt,
+  publishedAt,
 }: {
   url: string
   userId: string
@@ -234,6 +241,8 @@ export const enqueueParseRequest = async ({
   labels?: CreateLabelInput[]
   locale?: string
   timezone?: string
+  savedAt?: number // unix timestamp
+  publishedAt?: number // unix timestamp
 }): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT } = process.env
   const payload = {
@@ -244,6 +253,8 @@ export const enqueueParseRequest = async ({
     labels,
     locale,
     timezone,
+    savedAt,
+    publishedAt,
   }
 
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment
@@ -526,14 +537,12 @@ export const enqueueImportFromIntegration = async (
 
 export const enqueueThumbnailTask = async (
   userId: string,
-  slug: string,
-  content: string
+  slug: string
 ): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT } = process.env
   const payload = {
     userId,
     slug,
-    content,
   }
 
   const headers = {

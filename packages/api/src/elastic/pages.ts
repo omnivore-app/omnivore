@@ -27,6 +27,9 @@ import {
   SearchResponse,
 } from './types'
 
+const MAX_CONTENT_LENGTH = 5 * 1024 * 1024 // 5MB and 10MB for both content and originalHtml
+const CONTENT_LENGTH_ERROR = 'Your page content is too large to be saved.'
+
 const appendQuery = (builder: ESBuilder, query: string): ESBuilder => {
   interface Field {
     field: string
@@ -404,13 +407,22 @@ export const createPage = async (
   ctx: PageContext
 ): Promise<string | undefined> => {
   try {
+    if (page.content.length > MAX_CONTENT_LENGTH) {
+      logger.info('page content is too large', {
+        pageId: page.id,
+        contentLength: page.content.length,
+      })
+
+      page.content = CONTENT_LENGTH_ERROR
+    }
+
     const { body } = await client.index({
       id: page.id || undefined,
       index: INDEX_ALIAS,
       body: {
         ...page,
         updatedAt: new Date(),
-        savedAt: new Date(),
+        savedAt: page.savedAt || new Date(),
         wordsCount: page.wordsCount ?? wordsCount(page.content),
       },
       refresh: 'wait_for', // wait for the index to be refreshed before returning
@@ -432,6 +444,15 @@ export const updatePage = async (
   ctx: PageContext
 ): Promise<boolean> => {
   try {
+    if (page.content && page.content.length > MAX_CONTENT_LENGTH) {
+      logger.info('page content is too large', {
+        pageId: page.id,
+        contentLength: page.content.length,
+      })
+
+      page.content = CONTENT_LENGTH_ERROR
+    }
+
     await client.update({
       index: INDEX_ALIAS,
       id,
@@ -519,6 +540,7 @@ export const getPageByParam = async <K extends keyof ParamSet>(
     const { body } = await client.search<SearchResponse<Page>>({
       index: INDEX_ALIAS,
       body: builder.build(),
+      track_total_hits: true,
     })
 
     if (body.hits.total.value === 0) {

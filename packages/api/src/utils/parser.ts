@@ -505,9 +505,9 @@ export const fetchFavicon = async (
     return `https://api.faviconkit.com/${domain}/128`
   } catch (e) {
     if (axios.isAxiosError(e)) {
-      logger.error('failed to get favicon:', e.response?.status)
+      logger.info('failed to get favicon', e.response)
     } else {
-      logger.error('failed to get favicon:', e)
+      logger.info('failed to get favicon', e)
     }
     return undefined
   }

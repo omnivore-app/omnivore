@@ -210,8 +210,6 @@ const main = async (): Promise<void> => {
     logger.notice(`🚀 Server ready at ${apollo.graphqlPath}`)
   })
 
-  listener.timeout = 1000 * 60 * 10 // 10 minutes
-
   // Avoid keepalive timeout-related connection drops manifesting in user-facing 502s.
   // See here: https://cloud.google.com/load-balancing/docs/https#timeouts_and_retries
   // and: https://cloud.google.com/appengine/docs/standard/nodejs/how-instances-are-managed#timeout
@@ -219,6 +217,7 @@ const main = async (): Promise<void> => {
   listener.keepAliveTimeout = 630 * 1000 // 30s more than the 10min keepalive used by appengine.
   // And a workaround for node.js bug: https://github.com/nodejs/node/issues/27363
   listener.headersTimeout = 640 * 1000 // 10s more than above
+  listener.timeout = 640 * 1000 // match headersTimeout
 }
 
 // only call main if the file was called from the CLI and wasn't required from another module

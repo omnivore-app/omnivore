@@ -84,8 +84,9 @@ import Views
   func createLabel(dataService: DataService, name: String, color: Color, description: String?) {
     isLoading = true
 
+    let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
     guard let labelObjectID = try? dataService.createLabel(
-      name: name,
+      name: trimmedName,
       color: color.hex ?? "",
       description: description
     ) else {

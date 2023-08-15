@@ -1,5 +1,17 @@
-import { useRef, useCallback, useState } from 'react'
+import * as Progress from '@radix-ui/react-progress'
+import { styled } from '@stitches/react'
+import axios from 'axios'
+import { File } from 'phosphor-react'
+import { useCallback, useRef, useState } from 'react'
+import Dropzone, { DropEvent, DropzoneRef, FileRejection } from 'react-dropzone'
 import { v4 as uuidv4 } from 'uuid'
+import { uploadFileRequestMutation } from '../../lib/networking/mutations/uploadFileMutation'
+import {
+  uploadImportFileRequestMutation,
+  UploadImportFileType,
+} from '../../lib/networking/mutations/uploadImportFileMutation'
+import { showErrorToast } from '../../lib/toastHelpers'
+import { validateCsvFile } from '../../utils/csvValidator'
 import { Box, HStack, SpanBox, VStack } from '../elements/LayoutPrimitives'
 import {
   ModalContent,
@@ -7,19 +19,7 @@ import {
   ModalRoot,
   ModalTitleBar,
 } from '../elements/ModalPrimitives'
-import { styled } from '@stitches/react'
-import Dropzone, { DropEvent, DropzoneRef, FileRejection } from 'react-dropzone'
-import * as Progress from '@radix-ui/react-progress'
 import { theme } from '../tokens/stitches.config'
-import { uploadFileRequestMutation } from '../../lib/networking/mutations/uploadFileMutation'
-import axios from 'axios'
-import { File } from 'phosphor-react'
-import { showErrorToast } from '../../lib/toastHelpers'
-import {
-  UploadImportFileType,
-  uploadImportFileRequestMutation,
-} from '../../lib/networking/mutations/uploadImportFileMutation'
-import Papa from 'papaparse'
 
 const DragnDropContainer = styled('div', {
   width: '100%',
@@ -124,40 +124,33 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
   ): Promise<UploadInfo> => {
     switch (file.contentType) {
       case 'text/csv': {
-        const { urlCount, invalidCount } = (await new Promise((resolve) => {
-          let urlCount = 0
-          let invalidCount = 0
+        let urlCount = 0
+        try {
+          const csvData = await validateCsvFile(file.file)
+          urlCount = csvData.data.length
+          if (csvData.inValidData.length > 0) {
+            return {
+              message: csvData.inValidData[0].message,
+            }
+          }
+          if (urlCount === 0) {
+            return {
+              message: 'No URLs found in CSV file.',
+            }
+          }
+        } catch (error) {
+          return {
+            message: 'Invalid CSV file.',
+          }
+        }
 
-          Papa.parse(file.file, {
-            step: function (row, parser) {
-              if (Array.isArray(row.data)) {
-                try {
-                  if (row.data[0].trim().length < 1) {
-                    return
-                  }
-
-                  const url = new URL(row.data[0])
-                  urlCount = urlCount + 1
-                } catch (err) {
-                  invalidCount = invalidCount + 1
-                }
-              }
-            },
-            complete: (results) => {
-              resolve({ urlCount, invalidCount })
-            },
-          })
-        })) as { urlCount: number; invalidCount: number }
         const result = await uploadImportFileRequestMutation(
           UploadImportFileType.URL_LIST,
           file.contentType
         )
         return {
           uploadSignedUrl: result?.uploadSignedUrl,
-          message:
-            invalidCount > 0
-              ? `Importing ${urlCount} URLs (${invalidCount} invalid)`
-              : `Importing ${urlCount} URLs`,
+          message: `Importing ${urlCount} URLs`,
         }
       }
       case 'application/zip': {
@@ -212,7 +205,9 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
           try {
             const uploadInfo = await uploadSignedUrlForFile(file)
             if (!uploadInfo.uploadSignedUrl) {
-              showErrorToast('No upload URL available')
+              const message = uploadInfo.message || 'No upload URL available'
+              // close after 5 seconds
+              showErrorToast(message, { duration: 5000 })
               return
             }
 

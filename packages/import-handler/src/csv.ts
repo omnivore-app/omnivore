@@ -5,7 +5,7 @@
 
 import { parse } from '@fast-csv/parse'
 import { Stream } from 'stream'
-import { ImportContext } from '.'
+import { ArticleSavingRequestStatus, ImportContext } from '.'
 import { createMetrics, ImportStatus, updateMetrics } from './metrics'
 
 const parseLabels = (labels: string): string[] => {
@@ -24,17 +24,46 @@ const parseLabels = (labels: string): string[] => {
   }
 }
 
+const parseState = (state: string): ArticleSavingRequestStatus => {
+  const validStates = ['SUCCEEDED', 'ARCHIVED']
+  // validate state
+  if (!validStates.includes(state.toUpperCase())) {
+    throw new Error('invalid state')
+  }
+
+  return state as ArticleSavingRequestStatus
+}
+
+const parseDate = (date: string): Date => {
+  const parsedDate = new Date(date)
+  if (isNaN(parsedDate.getTime())) {
+    throw new Error('invalid date')
+  }
+
+  return parsedDate
+}
+
 export const importCsv = async (ctx: ImportContext, stream: Stream) => {
   // create metrics in redis
   await createMetrics(ctx.redisClient, ctx.userId, ctx.taskId, 'csv-importer')
 
-  const parser = parse()
+  const parser = parse({
+    headers: true,
+    discardUnmappedColumns: true,
+    objectMode: true,
+    ignoreEmpty: true,
+    trim: true,
+  })
   stream.pipe(parser)
   for await (const row of parser) {
     try {
-      const url = new URL(row[0])
-      const state = row.length > 1 && row[1] ? row[1] : undefined
-      const labels = row.length > 2 ? parseLabels(row[2]) : undefined
+      const url = new URL(row['url'])
+      const state = row['state'] ? parseState(row['state']) : undefined
+      const labels = row['labels'] ? parseLabels(row['labels']) : undefined
+      const savedAt = row['saved_at'] ? parseDate(row['saved_at']) : undefined
+      const publishedAt = row['published_at']
+        ? parseDate(row['published_at'])
+        : undefined
 
       // update total counter
       await updateMetrics(
@@ -44,7 +73,7 @@ export const importCsv = async (ctx: ImportContext, stream: Stream) => {
         ImportStatus.TOTAL
       )
 
-      await ctx.urlHandler(ctx, url, state, labels)
+      await ctx.urlHandler(ctx, url, state, labels, savedAt, publishedAt)
 
       ctx.countImported += 1
       // update started counter
@@ -61,7 +90,7 @@ export const importCsv = async (ctx: ImportContext, stream: Stream) => {
         break
       }
     } catch (error) {
-      console.log('invalid url', row, error)
+      console.log('invalid data', row, error)
 
       ctx.countFailed += 1
       // update invalid counter

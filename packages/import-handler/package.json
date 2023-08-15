@@ -36,8 +36,8 @@
   "dependencies": {
     "@fast-csv/parse": "^4.3.6",
     "@google-cloud/functions-framework": "3.1.2",
-    "@google-cloud/storage": "^5.18.1",
-    "@google-cloud/tasks": "^3.0.5",
+    "@google-cloud/storage": "^7.0.1",
+    "@google-cloud/tasks": "^4.0.0",
     "@omnivore/readability": "1.0.0",
     "@sentry/serverless": "^7.30.0",
     "@types/express": "^4.17.13",
