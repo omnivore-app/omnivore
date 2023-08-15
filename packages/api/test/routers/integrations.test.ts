@@ -26,14 +26,16 @@ import { createTestUser, deleteTestIntegrations, deleteTestUser } from '../db'
 import { MockBucket } from '../mock_storage'
 import { createTestElasticPage, request } from '../util'
 
+const MOCK_USERNAME = 'fakeuser'
+
 describe('Integrations routers', () => {
   const baseUrl = '/svc/pubsub/integrations'
   let token: string
   let user: User
   let authToken: string
-
+  s
   before(async () => {
-    user = await createTestUser('fakeUser')
+    user = await createTestUser(MOCK_USERNAME)
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })

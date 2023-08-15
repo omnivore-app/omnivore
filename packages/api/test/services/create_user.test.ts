@@ -51,10 +51,10 @@ describe('create user', () => {
       const userFollowing = await getUserFollowing(user)
       const adminUserFollowers = await getUserFollowers(adminUser)
       const adminUserFollowing = await getUserFollowing(adminUser)
-      expect(userFollowers.map(u => u.id)).to.eql(admninIds)
-      expect(userFollowing.map(u => u.id)).to.eql(admninIds)
-      expect(adminUserFollowers.map(u => u.id)).to.eql(userIds)
-      expect(adminUserFollowing.map(u => u.id)).to.eql(userIds)
+      expect(userFollowers.map((u) => u.id)).to.eql(admninIds)
+      expect(userFollowing.map((u) => u.id)).to.eql(admninIds)
+      expect(adminUserFollowers.map((u) => u.id)).to.eql(userIds)
+      expect(adminUserFollowing.map((u) => u.id)).to.eql(userIds)
     })
 
     it('creates profile when user exists but profile not', async () => {
@@ -77,7 +77,7 @@ describe('create user', () => {
   })
 
   context('create a user with pending confirmation', () => {
-    const name = 'pendingUser'
+    const name = 'pendinguser'
     let fake: (msg: MailDataRequired) => Promise<boolean>
 
     context('when email sends successfully', () => {

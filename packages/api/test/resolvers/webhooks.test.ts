@@ -7,13 +7,15 @@ import { WebhookEvent } from '../../src/generated/graphql'
 import { Webhook } from '../../src/entity/webhook'
 import { getRepository } from '../../src/entity/utils'
 
+const MOCK_USERNAME = 'fakeuser'
+
 describe('Webhooks API', () => {
   let user: User
   let authToken: string
 
   before(async () => {
     // create test user and login
-    user = await createTestUser('fakeUser')
+    user = await createTestUser(MOCK_USERNAME)
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })

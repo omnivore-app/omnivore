@@ -13,6 +13,8 @@ import 'mocha'
 import { User } from '../../src/entity/user'
 import { getRepository } from '../../src/entity/utils'
 
+const MOCK_USERNAME = 'fakeuser'
+
 describe('Device tokens API', () => {
   let authToken: string
   let deviceToken: UserDeviceToken
@@ -20,7 +22,7 @@ describe('Device tokens API', () => {
 
   before(async () => {
     // create test user and login
-    user = await createTestUser('fakeUser')
+    user = await createTestUser(MOCK_USERNAME)
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })

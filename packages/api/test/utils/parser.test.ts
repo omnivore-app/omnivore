@@ -14,6 +14,8 @@ import chaiAsPromised from 'chai-as-promised'
 import { User } from '../../src/entity/user'
 import { createTestUser, deleteTestUser } from '../db'
 
+const MOCK_USERNAME = 'fakeuser'
+
 chai.use(chaiAsPromised)
 
 const load = (path: string): string => {
@@ -108,7 +110,7 @@ describe('isProbablyArticle', () => {
   let user: User
 
   before(async () => {
-    user = await createTestUser('fakeUser')
+    user = await createTestUser(MOCK_USERNAME)
   })
 
   after(async () => {

@@ -13,6 +13,8 @@ import { SaveContext } from '../../src/services/save_email'
 import { saveNewsletterEmail } from '../../src/services/save_newsletter_email'
 import { createTestUser, deleteTestUser } from '../db'
 
+const MOCK_USERNAME = 'fakeuser'
+
 describe('saveNewsletterEmail', () => {
   const fakeContent = 'fake content'
   const title = 'fake title'
@@ -26,7 +28,7 @@ describe('saveNewsletterEmail', () => {
   let receivedEmail: ReceivedEmail
 
   before(async () => {
-    user = await createTestUser('fakeUser')
+    user = await createTestUser(MOCK_USERNAME)
     newsletterEmail = await createNewsletterEmail(user.id)
     ctx = {
       pubsub: createPubSubClient(),

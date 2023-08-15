@@ -15,6 +15,8 @@ import * as sendEmail from '../../src/utils/sendEmail'
 import { createTestSubscription, createTestUser, deleteTestUser } from '../db'
 import { graphqlRequest, request } from '../util'
 
+const MOCK_USERNAME = 'fakeuser'
+
 chai.use(sinonChai)
 
 describe('Subscriptions API', () => {
@@ -24,7 +26,7 @@ describe('Subscriptions API', () => {
 
   before(async () => {
     // create test user and login
-    user = await createTestUser('fakeUser')
+    user = await createTestUser(MOCK_USERNAME)
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })

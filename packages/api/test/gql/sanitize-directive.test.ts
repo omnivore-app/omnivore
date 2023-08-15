@@ -33,7 +33,7 @@ describe('Sanitize Directive', () => {
         mutation {
           updateUser(
             input: {
-              name: "fakeUser"
+              name: "fakeuser"
               bio: "${bio}"
             }
           ) {

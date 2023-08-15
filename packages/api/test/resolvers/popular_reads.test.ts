@@ -5,6 +5,8 @@ import { User } from '../../src/entity/user'
 import { createTestUser, deleteTestUser } from '../db'
 import { graphqlRequest, request } from '../util'
 
+const MOCK_USERNAME = 'fakeuser'
+
 describe('PopularReads API', () => {
   let user: User
   let authToken: string
@@ -26,7 +28,7 @@ describe('PopularReads API', () => {
 
   before(async () => {
     // create test user and login
-    user = await createTestUser('fakeUser')
+    user = await createTestUser(MOCK_USERNAME)
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })

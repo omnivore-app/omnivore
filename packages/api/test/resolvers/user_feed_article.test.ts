@@ -14,8 +14,9 @@ import 'mocha'
 import { getRepository } from '../../src/entity/utils'
 import { User } from '../../src/entity/user'
 
+const MOCK_USERNAME = 'fakeuser'
+
 describe('User feed article API', () => {
-  const existingUsername = 'fakeUser'
   let user: User
   let authToken: string
   let page: Page
@@ -24,7 +25,7 @@ describe('User feed article API', () => {
 
   before(async () => {
     // create test user and login
-    user = await createTestUser(existingUsername)
+    user = await createTestUser(MOCK_USERNAME)
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
@@ -90,7 +91,7 @@ describe('User feed article API', () => {
 
     context('when article not exists', () => {
       before(() => {
-        username = existingUsername
+        username = MOCK_USERNAME
         slug = 'notExists'
       })
 
@@ -104,7 +105,7 @@ describe('User feed article API', () => {
 
     context('when article exists but not shared', () => {
       before(() => {
-        username = existingUsername
+        username = MOCK_USERNAME
         slug = link.slug
       })
 
@@ -118,7 +119,7 @@ describe('User feed article API', () => {
 
     context('when article exists but highlight not exists', () => {
       before(() => {
-        username = existingUsername
+        username = MOCK_USERNAME
         slug = link.slug
         selectedHighlightId = 'NotExists'
       })
@@ -133,7 +134,7 @@ describe('User feed article API', () => {
 
     context('when highlight exists but not shared', () => {
       before(() => {
-        username = existingUsername
+        username = MOCK_USERNAME
         slug = link.slug
         selectedHighlightId = highlight.id || 'some-highlight-id'
       })
@@ -148,7 +149,7 @@ describe('User feed article API', () => {
 
     context('when article exists and shared', () => {
       before(async () => {
-        username = existingUsername
+        username = MOCK_USERNAME
         slug = link.slug
         selectedHighlightId = ''
         await getRepository(Link).update(link.id, {

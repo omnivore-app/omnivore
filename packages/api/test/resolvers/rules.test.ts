@@ -6,15 +6,15 @@ import { createTestUser, deleteTestUser } from '../db'
 import { getRepository } from '../../src/entity/utils'
 import { Rule, RuleAction, RuleActionType } from '../../src/entity/rule'
 
-describe('Rules Resolver', () => {
-  const username = 'fakeUser'
+const MOCK_USERNAME = 'fakeuser'
 
+describe('Rules Resolver', () => {
   let user: User
   let authToken: string
 
   before(async () => {
     // create test user and login
-    user = await createTestUser(username)
+    user = await createTestUser(MOCK_USERNAME)
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })

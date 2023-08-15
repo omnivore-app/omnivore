@@ -10,13 +10,15 @@ import sinon, { SinonFakeTimers } from 'sinon'
 import { env } from '../../src/env'
 import { Like } from 'typeorm'
 
+const MOCK_USERNAME = 'loginuser'
+
 xdescribe('features resolvers', () => {
   let loginUser: User
   let authToken: string
 
   before(async () => {
     // create test user and login
-    loginUser = await createTestUser('loginUser')
+    loginUser = await createTestUser(MOCK_USERNAME)
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: loginUser.email })

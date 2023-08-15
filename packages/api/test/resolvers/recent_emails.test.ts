@@ -9,6 +9,8 @@ import { NewsletterEmail } from '../../src/entity/newsletter_email'
 import sinon from 'sinon'
 import * as sendEmail from '../../src/utils/sendEmail'
 
+const MOCK_USERNAME = 'fakeuser'
+
 describe('Recent Emails Resolver', () => {
   const recentEmailsQuery = `
   query {
@@ -30,8 +32,6 @@ describe('Recent Emails Resolver', () => {
   }
 `
   let recentEmails: ReceivedEmail[]
-  const username = 'fakeUser'
-
   let user: User
   let authToken: string
   let newsletterEmail: NewsletterEmail
@@ -39,7 +39,7 @@ describe('Recent Emails Resolver', () => {
 
   before(async () => {
     // create test user and login
-    user = await createTestUser(username)
+    user = await createTestUser(MOCK_USERNAME)
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })

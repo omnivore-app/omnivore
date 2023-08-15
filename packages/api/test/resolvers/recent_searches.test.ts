@@ -8,6 +8,8 @@ import { createPubSubClient } from '../../src/datalayer/pubsub'
 import { getRepository } from '../../src/entity/utils'
 import { SearchHistory } from '../../src/entity/search_history'
 
+const MOCK_USERNAME = 'fakeuser'
+
 describe('recent_searches resolver', () => {
   let user: User
   let authToken: string
@@ -15,7 +17,7 @@ describe('recent_searches resolver', () => {
 
   before(async () => {
     // create fake user and login
-    user = await createTestUser('fakeUser')
+    user = await createTestUser(MOCK_USERNAME)
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })

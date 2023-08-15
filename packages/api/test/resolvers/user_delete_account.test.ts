@@ -7,6 +7,8 @@ import { User } from '../../src/entity/user'
 import chaiString from 'chai-string'
 import { DeleteAccountErrorCode } from '../../src/generated/graphql'
 
+const MOCK_USERNAME = 'newfakeuser'
+
 chai.use(chaiString)
 
 const deleteAccountRequest = async (authToken: string, userId: string) => {
@@ -33,7 +35,7 @@ describe('the deleteAccount API', () => {
 
   before(async () => {
     // create test user and login
-    user = await createTestUser('newFakeUser')
+    user = await createTestUser(MOCK_USERNAME)
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })

@@ -22,6 +22,8 @@ import { DateTime } from 'luxon'
 import 'mocha'
 import { Page } from '../../src/elastic/types'
 
+const MOCK_USERNAME = 'fakeuser'
+
 describe('Reminders API', () => {
   let authToken: string
   let page: Page
@@ -30,7 +32,7 @@ describe('Reminders API', () => {
 
   before(async () => {
     // create test user and login
-    user = await createTestUser('fakeUser')
+    user = await createTestUser(MOCK_USERNAME)
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })

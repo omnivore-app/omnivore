@@ -8,6 +8,8 @@ import { User } from '../../src/entity/user'
 import sinon from 'sinon'
 import * as createTask from '../../src/utils/createTask'
 
+const MOCK_USERNAME = 'fakeuser'
+
 describe('/article/save API', () => {
   let user: User
   let authToken: string
@@ -19,7 +21,7 @@ describe('/article/save API', () => {
 
   before(async () => {
     // create test user and login
-    user = await createTestUser('fakeUser')
+    user = await createTestUser(MOCK_USERNAME)
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })

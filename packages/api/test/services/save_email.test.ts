@@ -7,6 +7,8 @@ import { getPageByParam } from '../../src/elastic/pages'
 import nock from 'nock'
 import { User } from '../../src/entity/user'
 
+const MOCK_USERNAME = 'fakeuser'
+
 describe('saveEmail', () => {
   const fakeContent = 'fake content'
   let user: User
@@ -14,7 +16,7 @@ describe('saveEmail', () => {
 
   before(async () => {
     // create test user
-    user = await createTestUser('fakeUser')
+    user = await createTestUser(MOCK_USERNAME)
     scope = nock('https://blog.omnivore.app')
       .get('/fake-url')
       .reply(200)

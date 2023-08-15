@@ -9,9 +9,10 @@ import { User } from '../../src/entity/user'
 import { hashPassword } from '../../src/utils/auth'
 import 'mocha'
 
+const MOCK_USERNAME = 'newfakeuser'
+
 describe('User API', () => {
   const correctPassword = 'fakePassword'
-  const anotherUsername = 'newFakeUser'
 
   let authToken: string
   let user: User
@@ -28,7 +29,7 @@ describe('User API', () => {
     authToken = res.body.authToken
 
     //  create new fake user
-    anotherUser = await createTestUser(anotherUsername)
+    anotherUser = await createTestUser(MOCK_USERNAME)
   })
 
   after(async () => {

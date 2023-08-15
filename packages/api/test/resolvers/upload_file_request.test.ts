@@ -9,6 +9,8 @@ import { PageContext } from '../../src/elastic/types'
 import { createPubSubClient } from '../../src/datalayer/pubsub'
 import { deletePage, getPageById } from '../../src/elastic/pages'
 
+const MOCK_USERNAME = 'fakeuser'
+
 chai.use(chaiString)
 
 // INPUT
@@ -52,7 +54,7 @@ describe('uploadFileRequest API', () => {
 
   before(async () => {
     // create test user and login
-    user = await createTestUser('fakeUser')
+    user = await createTestUser(MOCK_USERNAME)
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })

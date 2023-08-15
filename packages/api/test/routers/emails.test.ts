@@ -15,6 +15,8 @@ import { getRepository } from '../../src/entity/utils'
 import { ReceivedEmail } from '../../src/entity/received_email'
 import * as jwt from 'jsonwebtoken'
 
+const MOCK_USERNAME = 'fakeuser'
+
 describe('Emails Router', () => {
   const newsletterEmail = 'fakeUser@omnivore.app'
   const from = 'fake from'
@@ -28,7 +30,7 @@ describe('Emails Router', () => {
 
   before(async () => {
     // create test user and login
-    user = await createTestUser('fakeUser')
+    user = await createTestUser(MOCK_USERNAME)
 
     await createTestNewsletterEmail(user, newsletterEmail)
     token = process.env.PUBSUB_VERIFICATION_TOKEN!

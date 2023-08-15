@@ -10,6 +10,8 @@ import * as jwt from 'jsonwebtoken'
 import { expect } from 'chai'
 import { getPageById } from '../../src/elastic/pages'
 
+const MOCK_USERNAME = 'fakeuser'
+
 describe('PDF attachments Router', () => {
   const newsletterEmail = 'fakeEmail@omnivore.app'
 
@@ -18,7 +20,7 @@ describe('PDF attachments Router', () => {
 
   before(async () => {
     // create test user and login
-    user = await createTestUser('fakeUser')
+    user = await createTestUser(MOCK_USERNAME)
 
     await createTestNewsletterEmail(user, newsletterEmail)
     authToken = jwt.sign(newsletterEmail, process.env.JWT_SECRET || '')

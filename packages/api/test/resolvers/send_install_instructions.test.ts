@@ -3,13 +3,15 @@ import { graphqlRequest, request } from '../util'
 import 'mocha'
 import { User } from '../../src/entity/user'
 
+const MOCK_USERNAME = 'fakeuser'
+
 describe('Send Install Instructions API', () => {
   let authToken: string
   let user: User
 
   before(async () => {
     // create test user and login
-    user = await createTestUser('fakeUser')
+    user = await createTestUser(MOCK_USERNAME)
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })

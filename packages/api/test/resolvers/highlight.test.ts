@@ -14,6 +14,8 @@ import { createPubSubClient } from '../../src/datalayer/pubsub'
 import { HighlightType, PageContext } from '../../src/elastic/types'
 import { deletePage, updatePage } from '../../src/elastic/pages'
 
+const MOCK_USERNAME = 'fakeuser'
+
 chai.use(chaiString)
 
 const createHighlightQuery = (
@@ -147,7 +149,7 @@ describe('Highlights API', () => {
 
   before(async () => {
     // create test user and login
-    user = await createTestUser('fakeUser')
+    user = await createTestUser(MOCK_USERNAME)
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })

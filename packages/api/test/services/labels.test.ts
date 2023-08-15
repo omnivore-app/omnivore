@@ -14,6 +14,8 @@ import { labelsLoader } from '../../src/services/labels'
 import { getRepository } from '../../src/entity/utils'
 import { User } from '../../src/entity/user'
 
+const MOCK_USERNAME = 'fakeuser'
+
 describe('batch get labels from linkIds', () => {
   let user: User
   let labels: Label[] = []
@@ -21,7 +23,7 @@ describe('batch get labels from linkIds', () => {
 
   before(async () => {
     // create test user
-    user = await createTestUser('fakeUser')
+    user = await createTestUser(MOCK_USERNAME)
 
     // Create some test links
     const page = await createTestPage()

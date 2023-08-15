@@ -13,6 +13,8 @@ import { ReportType } from '../../src/generated/graphql'
 import { createTestElasticPage } from '../util'
 import { Page } from '../../src/elastic/types'
 
+const MOCK_USERNAME = 'fakecontentuser'
+
 chai.use(sinonChai)
 
 describe('saveContentDisplayReport', () => {
@@ -20,7 +22,7 @@ describe('saveContentDisplayReport', () => {
   let page: Page
 
   before(async () => {
-    user = await createTestUser('fakeContentUser')
+    user = await createTestUser(MOCK_USERNAME)
     page = await createTestElasticPage(user.id)
   })
 

@@ -7,6 +7,8 @@ import { ContentDisplayReport } from '../../src/entity/reports/content_display_r
 import { expect } from 'chai'
 import { getRepository } from '../../src/entity/utils'
 
+const MOCK_USERNAME = 'fakeuser'
+
 describe('Report API', () => {
   let user: User
   let authToken: string
@@ -14,7 +16,7 @@ describe('Report API', () => {
 
   before(async () => {
     // create test user and login
-    user = await createTestUser('fakeUser')
+    user = await createTestUser(MOCK_USERNAME)
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })

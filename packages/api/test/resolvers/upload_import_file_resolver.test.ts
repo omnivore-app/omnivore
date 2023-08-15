@@ -6,6 +6,8 @@ import 'mocha'
 import { User } from '../../src/entity/user'
 import chaiString from 'chai-string'
 
+const MOCK_USERNAME = 'fakeuser'
+
 chai.use(chaiString)
 
 const uploadImportFile = async (
@@ -34,7 +36,7 @@ describe('uploadImportFile API', () => {
 
   before(async () => {
     // create test user and login
-    user = await createTestUser('fakeUser')
+    user = await createTestUser(MOCK_USERNAME)
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })

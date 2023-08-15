@@ -12,13 +12,15 @@ import sinonChai from 'sinon-chai'
 
 chai.use(sinonChai)
 
+const MOCK_USERNAME = 'loginuser'
+
 describe('Integrations resolvers', () => {
   let loginUser: User
   let authToken: string
 
   before(async () => {
     // create test user and login
-    loginUser = await createTestUser('loginUser')
+    loginUser = await createTestUser(MOCK_USERNAME)
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: loginUser.email })
@@ -161,7 +163,7 @@ describe('Integrations resolvers', () => {
           let otherUser: User
 
           before(async () => {
-            otherUser = await createTestUser('otherUser')
+            otherUser = await createTestUser(MOCK_USERNAME)
             existingIntegration = await getRepository(Integration).save({
               user: { id: otherUser.id },
               name: 'READWISE',

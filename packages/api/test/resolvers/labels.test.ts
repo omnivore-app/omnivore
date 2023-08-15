@@ -29,6 +29,8 @@ import {
 } from '../../src/elastic/highlights'
 import { refreshIndex } from '../../src/elastic'
 
+const MOCK_USERNAME = 'fakeuser'
+
 describe('Labels API', () => {
   let user: User
   let authToken: string
@@ -36,7 +38,7 @@ describe('Labels API', () => {
 
   before(async () => {
     // create test user and login
-    user = await createTestUser('fakeUser')
+    user = await createTestUser(MOCK_USERNAME)
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })

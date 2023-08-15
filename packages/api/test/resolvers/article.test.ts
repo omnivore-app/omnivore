@@ -43,6 +43,8 @@ import {
 
 chai.use(chaiString)
 
+const MOCK_USERNAME = 'fakeuser'
+
 const archiveLink = async (authToken: string, linkId: string) => {
   const query = `
   mutation {
@@ -380,7 +382,7 @@ describe('Article API', () => {
 
   before(async () => {
     // create test user and login
-    user = await createTestUser('fakeUser')
+    user = await createTestUser(MOCK_USERNAME)
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
@@ -572,9 +574,9 @@ describe('Article API', () => {
 
   describe('SavePage', () => {
     let query = ''
-    let title = 'Example Title'
+    const title = 'Example Title'
     let url = 'https://blog.omnivore.app'
-    let originalContent = '<div>Example Content</div>'
+    const originalContent = '<div>Example Content</div>'
 
     beforeEach(() => {
       query = savePageQuery(url, title, originalContent)
@@ -588,7 +590,10 @@ describe('Article API', () => {
       it('should return a slugged url', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
         expect(res.body.data.savePage.url).to.startsWith(
-          'http://localhost:3000/fakeUser/example-title-'
+          `http://localhost:3000/${MOCK_USERNAME}/${title
+            .toLocaleLowerCase()
+            .split(' ')
+            .join('-')}`
         )
       })
     })
@@ -685,7 +690,7 @@ describe('Article API', () => {
       it('should return a slugged url', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
         expect(res.body.data.saveUrl.url).to.startsWith(
-          'http://localhost:3000/fakeUser/links/'
+          `http://localhost:3000/${MOCK_USERNAME}/links/`
         )
       })
     })
@@ -901,7 +906,7 @@ describe('Article API', () => {
       it('should return the new url', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
         expect(res.body.data.saveFile.url).to.startsWith(
-          'http://localhost:3000/fakeUser/links'
+          `http://localhost:3000/${MOCK_USERNAME}/links`
         )
       })
     })

@@ -7,6 +7,8 @@ import { Webhook } from '../../src/entity/webhook'
 import { expect } from 'chai'
 import nock from 'nock'
 
+const MOCK_USERNAME = 'fakeuser'
+
 describe('Webhooks Router', () => {
   const token = process.env.PUBSUB_VERIFICATION_TOKEN || ''
   const webhookBaseUrl = 'https://localhost:3000'
@@ -17,7 +19,7 @@ describe('Webhooks Router', () => {
 
   before(async () => {
     // create test user and login
-    user = await createTestUser('fakeUser')
+    user = await createTestUser(MOCK_USERNAME)
     await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })

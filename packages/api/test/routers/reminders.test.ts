@@ -12,6 +12,8 @@ import { Reminder } from '../../src/entity/reminder'
 import { expect } from 'chai'
 import 'mocha'
 
+const MOCK_USERNAME = 'fakeuser'
+
 describe('Reminders Router', () => {
   let authToken: string
   let user: User
@@ -19,7 +21,7 @@ describe('Reminders Router', () => {
 
   before(async () => {
     // create test user and login
-    user = await createTestUser('fakeUser')
+    user = await createTestUser(MOCK_USERNAME)
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })

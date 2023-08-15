@@ -296,7 +296,7 @@ describe('auth router', () => {
 
     before(async () => {
       sinon.replace(util, 'sendEmail', sinon.fake.resolves(true))
-      user = await createTestUser('pendingUser', undefined, 'password', true)
+      user = await createTestUser('pendinguser', undefined, 'password', true)
     })
 
     after(async () => {
