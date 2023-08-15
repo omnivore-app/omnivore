@@ -80,7 +80,7 @@ export const createTestUser = async (
     provider: 'GOOGLE',
     sourceUserId: 'fake-user-id-' + name,
     email: `${name}@omnivore.app`,
-    username: name,
+    username: name.toLocaleLowerCase(),
     bio: `i am ${name}`,
     name: name,
     inviteCode: invite,
@@ -236,7 +236,13 @@ export const deleteTestIntegrations = async (
 export const updateTestUser = async (userId: string, update: Partial<User>) => {
   await AppDataSource.transaction(async (t) => {
     await setClaims(t, userId)
-    await t.getRepository(User).update(userId, update)
+    await t.getRepository(User).update(userId, {
+      ...update,
+      ...(update.profile?.username && {
+        ...update.profile,
+        username: update.profile.username.toLocaleLowerCase(),
+      }),
+    })
   })
 }
 
