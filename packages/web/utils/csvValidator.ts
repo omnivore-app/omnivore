@@ -39,6 +39,9 @@ const csvConfig: ValidatorConfig = {
       required: false,
       optional: true,
       validate: function (state) {
+        if (!state) {
+          return true
+        }
         return isStateValid(state)
       },
     },
