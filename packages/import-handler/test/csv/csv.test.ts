@@ -56,18 +56,24 @@ describe('Test csv importer', () => {
         url: URL
         state?: ArticleSavingRequestStatus
         labels?: string[]
+        savedAt?: Date
+        publishedAt?: Date
       }[] = []
       const stream = fs.createReadStream('./test/csv/data/complex.csv')
       stub.urlHandler = (
         ctx: ImportContext,
         url,
         state,
-        labels
+        labels,
+        savedAt,
+        publishedAt
       ): Promise<void> => {
         results.push({
           url,
           state,
           labels,
+          savedAt,
+          publishedAt,
         })
         return Promise.resolve()
       }
@@ -80,16 +86,22 @@ describe('Test csv importer', () => {
           url: new URL('https://omnivore.app'),
           state: 'ARCHIVED',
           labels: ['test'],
+          savedAt: undefined,
+          publishedAt: undefined,
         },
         {
           url: new URL('https://google.com'),
-          state: 'SUCCEEDED',
           labels: ['test', 'development'],
+          state: undefined,
+          savedAt: undefined,
+          publishedAt: undefined,
         },
         {
           url: new URL('https://test.com'),
           state: 'SUCCEEDED',
           labels: ['test', 'development'],
+          savedAt: new Date(1692093633000),
+          publishedAt: new Date(1692093633000),
         },
       ])
     })

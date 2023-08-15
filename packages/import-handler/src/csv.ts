@@ -35,7 +35,8 @@ const parseState = (state: string): ArticleSavingRequestStatus => {
 }
 
 const parseDate = (date: string): Date => {
-  const parsedDate = new Date(date)
+  // date is unix timestamp in milliseconds
+  const parsedDate = new Date(parseInt(date, 10))
   if (isNaN(parsedDate.getTime())) {
     throw new Error('invalid date')
   }
