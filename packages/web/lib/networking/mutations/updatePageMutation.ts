@@ -1,13 +1,15 @@
 import { gql } from 'graphql-request'
 import { gqlFetcher } from '../networkHelpers'
+import { State } from '../fragments/articleFragment'
 
 export type UpdatePageInput = {
   pageId: string
-  title: string
+  title?: string
   byline?: string | undefined
-  description: string
+  description?: string
   savedAt?: string
   publishedAt?: string
+  state?: State
 }
 
 export async function updatePageMutation(

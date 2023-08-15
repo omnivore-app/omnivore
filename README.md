@@ -31,7 +31,8 @@ Every single part is fully open source! Fork it, extend it, or deploy it to your
 
 We also have a free hosted version of Omnivore at [omnivore.app](https://omnivore.app/) -- try it now!
 
-<img width="981" alt="omnivore-readme-screenshot" src="https://user-images.githubusercontent.com/75189/153696698-9e4f1bdd-5954-465b-8ab0-b4eacc60f779.png">
+<img width="981" alt="web-screenshot-listview" src="https://github.com/omnivore-app/omnivore/assets/75189/df7c797a-4255-42f4-a686-ad94866cb580">
+
 
 ## Join us on Discord! :speech_balloon:
 

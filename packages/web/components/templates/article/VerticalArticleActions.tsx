@@ -1,19 +1,18 @@
-import {
-  ArchiveBox,
-  DotsThreeOutline,
-  Info,
-  TextAa,
-  Trash,
-  Tray,
-  Notebook,
-  Tag,
-} from 'phosphor-react'
+import { Tray } from 'phosphor-react'
 import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
 import { Button } from '../../elements/Button'
 import { HStack } from '../../elements/LayoutPrimitives'
 import { TooltipWrapped } from '../../elements/Tooltip'
 import { theme } from '../../tokens/stitches.config'
 import { ReaderDropdownMenu } from '../../patterns/ReaderDropdownMenu'
+import { ArchiveIcon } from '../../elements/icons/ArchiveIcon'
+import { NotebookIcon } from '../../elements/icons/NotebookIcon'
+import { TrashIcon } from '../../elements/icons/TrashIcon'
+import { LabelIcon } from '../../elements/icons/LabelIcon'
+import { EditInfoIcon } from '../../elements/icons/EditInfoIcon'
+import { ReaderSettingsIcon } from '../../elements/icons/ReaderSettingsIcon'
+import { CircleUtilityMenuIcon } from '../../elements/icons/CircleUtilityMenuIcon'
+import { UnarchiveIcon } from '../../elements/icons/UnarchiveIcon'
 
 export type ArticleActionsMenuLayout = 'top' | 'side'
 
@@ -38,6 +37,7 @@ export function VerticalArticleActionsMenu(
         }}
       >
         <Button
+          title="Edit labels (l)"
           style="articleActionIcon"
           onClick={() => props.articleActionHandler('setLabels')}
           css={{
@@ -48,10 +48,11 @@ export function VerticalArticleActionsMenu(
             },
           }}
         >
-          <Tag size={24} color={theme.colors.thHighContrast.toString()} />
+          <LabelIcon size={24} color={theme.colors.thHighContrast.toString()} />
         </Button>
 
         <Button
+          title="Open Notebook (t)"
           style="articleActionIcon"
           onClick={() => props.articleActionHandler('showHighlights')}
           css={{
@@ -62,18 +63,14 @@ export function VerticalArticleActionsMenu(
             },
           }}
         >
-          <TooltipWrapped
-            tooltipContent="Open Notebook (t)"
-            tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
-          >
-            <Notebook
-              size={24}
-              color={theme.colors.thHighContrast.toString()}
-            />
-          </TooltipWrapped>
+          <NotebookIcon
+            size={24}
+            color={theme.colors.thHighContrast.toString()}
+          />
         </Button>
 
         <Button
+          title="Edit Info (i)"
           style="articleActionIcon"
           onClick={() => props.articleActionHandler('showEditModal')}
           css={{
@@ -84,15 +81,14 @@ export function VerticalArticleActionsMenu(
             },
           }}
         >
-          <TooltipWrapped
-            tooltipContent="Edit Info (i)"
-            tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
-          >
-            <Info size={24} color={theme.colors.thHighContrast.toString()} />
-          </TooltipWrapped>
+          <EditInfoIcon
+            size={24}
+            color={theme.colors.thHighContrast.toString()}
+          />
         </Button>
 
         <Button
+          title="Remove (#)"
           style="articleActionIcon"
           onClick={() => {
             props.articleActionHandler('delete')
@@ -105,16 +101,12 @@ export function VerticalArticleActionsMenu(
             },
           }}
         >
-          <TooltipWrapped
-            tooltipContent="Remove (#)"
-            tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
-          >
-            <Trash size={24} color={theme.colors.thHighContrast.toString()} />
-          </TooltipWrapped>
+          <TrashIcon size={24} color={theme.colors.thHighContrast.toString()} />
         </Button>
 
         {!props.article?.isArchived ? (
           <Button
+            title="Archive (e)"
             style="articleActionIcon"
             onClick={() => props.articleActionHandler('archive')}
             css={{
@@ -125,18 +117,14 @@ export function VerticalArticleActionsMenu(
               },
             }}
           >
-            <TooltipWrapped
-              tooltipContent="Archive (e)"
-              tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
-            >
-              <ArchiveBox
-                size={24}
-                color={theme.colors.thHighContrast.toString()}
-              />
-            </TooltipWrapped>
+            <ArchiveIcon
+              size={24}
+              color={theme.colors.thHighContrast.toString()}
+            />
           </Button>
         ) : (
           <Button
+            title="Unarchive (e)"
             style="articleActionIcon"
             onClick={() => props.articleActionHandler('unarchive')}
             css={{
@@ -147,15 +135,14 @@ export function VerticalArticleActionsMenu(
               },
             }}
           >
-            <TooltipWrapped
-              tooltipContent="Unarchive (e)"
-              tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
-            >
-              <Tray size={24} color={theme.colors.thHighContrast.toString()} />
-            </TooltipWrapped>
+            <UnarchiveIcon
+              size={24}
+              color={theme.colors.thHighContrast.toString()}
+            />
           </Button>
         )}
         <Button
+          title="Edit Info (i)"
           style="articleActionIcon"
           onClick={() => props.articleActionHandler('editDisplaySettings')}
           css={{
@@ -163,17 +150,15 @@ export function VerticalArticleActionsMenu(
             alignItems: 'center',
           }}
         >
-          <TooltipWrapped
-            tooltipContent="Edit Info (i)"
-            tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
-          >
-            <TextAa size={24} color={theme.colors.thHighContrast.toString()} />
-          </TooltipWrapped>
+          <ReaderSettingsIcon
+            size={24}
+            color={theme.colors.thHighContrast.toString()}
+          />
         </Button>
 
         <ReaderDropdownMenu
           triggerElement={
-            <DotsThreeOutline
+            <CircleUtilityMenuIcon
               size={24}
               color={theme.colors.thHighContrast.toString()}
             />

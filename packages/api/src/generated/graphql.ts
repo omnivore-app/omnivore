@@ -2285,6 +2285,8 @@ export type SaveUrlInput = {
   clientRequestId: Scalars['ID'];
   labels?: InputMaybe<Array<CreateLabelInput>>;
   locale?: InputMaybe<Scalars['String']>;
+  publishedAt?: InputMaybe<Scalars['Date']>;
+  savedAt?: InputMaybe<Scalars['Date']>;
   source: Scalars['String'];
   state?: InputMaybe<ArticleSavingRequestStatus>;
   timezone?: InputMaybe<Scalars['String']>;
@@ -3031,6 +3033,7 @@ export type UpdateSubscriptionInput = {
   id: Scalars['ID'];
   lastFetchedAt?: InputMaybe<Scalars['Date']>;
   name?: InputMaybe<Scalars['String']>;
+  status?: InputMaybe<SubscriptionStatus>;
 };
 
 export type UpdateSubscriptionResult = UpdateSubscriptionError | UpdateSubscriptionSuccess;

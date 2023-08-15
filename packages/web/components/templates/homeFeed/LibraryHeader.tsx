@@ -1,20 +1,16 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from "react"
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { theme } from '../../tokens/stitches.config'
 import { FormInput } from '../../elements/FormElements'
 import { searchBarCommands } from '../../../lib/keyboardShortcuts/navigationShortcuts'
 import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
+import { locale, timeZone } from '../../../lib/dateFormatting'
 import { Button, IconButton } from '../../elements/Button'
 import {
-  ArchiveBox,
-  CaretDown,
   FunnelSimple,
-  ListBullets,
   MagnifyingGlass,
   Prohibit,
-  SquaresFour,
-  Tag,
-  TrashSimple,
+  Plus,
   X,
 } from 'phosphor-react'
 import { LayoutType } from './HomeFeedContainer'
@@ -28,6 +24,12 @@ import { BulkAction } from '../../../lib/networking/mutations/bulkActionMutation
 import { ConfirmationModal } from '../../patterns/ConfirmationModal'
 import { AddBulkLabelsModal } from '../article/AddBulkLabelsModal'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
+import { ArchiveIcon } from '../../elements/icons/ArchiveIcon'
+import { TrashIcon } from '../../elements/icons/TrashIcon'
+import { LabelIcon } from '../../elements/icons/LabelIcon'
+import { ListViewIcon } from '../../elements/icons/ListViewIcon'
+import { GridViewIcon } from '../../elements/icons/GridViewIcon'
+import { CaretDownIcon } from '../../elements/icons/CaretDownIcon'
 
 export type MultiSelectMode = 'off' | 'none' | 'some' | 'visible' | 'search'
 
@@ -51,6 +53,8 @@ type LibraryHeaderProps = {
   setMultiSelectMode: (mode: MultiSelectMode) => void
 
   performMultiSelectAction: (action: BulkAction, labelIds?: string[]) => void
+
+  handleLinkSubmission: (link: string, timezone: string, locale:string) => Promise<void>,
 }
 
 export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
@@ -109,6 +113,7 @@ function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
         searchTerm={props.searchTerm}
         applySearchQuery={props.applySearchQuery}
         allowSelectMultiple={props.allowSelectMultiple}
+        handleLinkSubmission={props.handleLinkSubmission}
       />
     </HStack>
   )
@@ -147,6 +152,7 @@ function SmallHeaderLayout(props: LibraryHeaderProps): JSX.Element {
         <>
           {props.multiSelectMode === 'off' && <MenuHeaderButton {...props} />}
           <ControlButtonBox
+            handleLinkSubmission={props.handleLinkSubmission}
             layout={props.layout}
             updateLayout={props.updateLayout}
             setShowInlineSearch={setShowInlineSearch}
@@ -214,16 +220,23 @@ export type SearchBoxProps = {
 
   compact?: boolean
   onClose?: () => void
+  handleLinkSubmission: (link: string, timezone: string, locale:string) => Promise<void>,
 }
 
 export function SearchBox(props: SearchBoxProps): JSX.Element {
   const inputRef = useRef<HTMLInputElement | null>(null)
   const [focused, setFocused] = useState(false)
   const [searchTerm, setSearchTerm] = useState(props.searchTerm ?? '')
+  const [isAddAction, setIsAddAction] = useState(false);
+  const IS_URL_REGEX = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
 
   useEffect(() => {
     setSearchTerm(props.searchTerm ?? '')
   }, [props.searchTerm])
+
+  useEffect(() => {
+    setIsAddAction(IS_URL_REGEX.test(searchTerm))
+  }, [searchTerm, props.searchTerm])
 
   useKeyboardShortcuts(
     searchBarCommands((action) => {
@@ -271,15 +284,34 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
             e.preventDefault()
           }}
         >
-          <MagnifyingGlass
-            size={props.compact ? 15 : 20}
-            color={theme.colors.graySolid.toString()}
-          />
+          {
+            (() => {
+              if (isAddAction) {
+                return <Plus
+                  size={props.compact ? 15 : 20}
+                  color={theme.colors.graySolid.toString()}
+                />
+            }
+
+              return <MagnifyingGlass
+                size={props.compact ? 15 : 20}
+                color={theme.colors.graySolid.toString()}
+              />
+          })()
+          }
+
         </HStack>
         <form
-          onSubmit={(event) => {
+          onSubmit={async (event) => {
             event.preventDefault()
-            props.applySearchQuery(searchTerm || '')
+
+            if (!isAddAction) {
+              props.applySearchQuery(searchTerm || '')
+            } else {
+                await props.handleLinkSubmission(searchTerm, timeZone, locale)
+                setSearchTerm(props.searchTerm ?? "")
+                props.applySearchQuery(props.searchTerm ?? "")
+            }
             inputRef.current?.blur()
             if (props.onClose) {
               props.onClose()
@@ -375,11 +407,11 @@ type ControlButtonBoxProps = {
 
   searchTerm: string | undefined
   applySearchQuery: (searchQuery: string) => void
+
+  handleLinkSubmission: (link: string, timezone: string, locale:string) => Promise<void>,
 }
 
-function MultiSelectControlButtonBox(
-  props: ControlButtonBoxProps
-): JSX.Element {
+function MultiSelectControls(props: ControlButtonBoxProps): JSX.Element {
   const [showConfirmDelete, setShowConfirmDelete] = useState(false)
   const [showLabelsModal, setShowLabelsModal] = useState(false)
 
@@ -392,9 +424,8 @@ function MultiSelectControlButtonBox(
           e.preventDefault()
         }}
       >
-        <ArchiveBox
-          width={20}
-          height={20}
+        <ArchiveIcon
+          size={20}
           color={theme.colors.thTextContrast2.toString()}
         />
         <SpanBox css={{ '@lgDown': { display: 'none' } }}>Archive</SpanBox>
@@ -406,11 +437,7 @@ function MultiSelectControlButtonBox(
           e.preventDefault()
         }}
       >
-        <Tag
-          width={20}
-          height={20}
-          color={theme.colors.thTextContrast2.toString()}
-        />
+        <LabelIcon size={20} color={theme.colors.thTextContrast2.toString()} />
         <SpanBox css={{ '@lgDown': { display: 'none' } }}>Add Labels</SpanBox>
       </Button>
       <Button
@@ -420,11 +447,7 @@ function MultiSelectControlButtonBox(
           e.preventDefault()
         }}
       >
-        <TrashSimple
-          width={20}
-          height={20}
-          color={theme.colors.thTextContrast2.toString()}
-        />
+        <TrashIcon size={20} color={theme.colors.thTextContrast2.toString()} />
         <SpanBox css={{ '@lgDown': { display: 'none' } }}>Delete</SpanBox>
       </Button>
       <Button
@@ -487,19 +510,9 @@ function SearchControlButtonBox(
         }}
       >
         {props.layout == 'GRID_LAYOUT' ? (
-          <ListBullets
-            width={30}
-            height={30}
-            weight="light"
-            color={'#898989'}
-          />
+          <ListViewIcon size={30} color={'#898989'} />
         ) : (
-          <SquaresFour
-            width={30}
-            height={30}
-            weight="light"
-            color={'#898989'}
-          />
+          <GridViewIcon size={30} color={'#898989'} />
         )}
       </Button>
       <PrimaryDropdown
@@ -517,7 +530,7 @@ function SearchControlButtonBox(
   )
 }
 
-function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
+const MuliSelectControl = (props: ControlButtonBoxProps): JSX.Element => {
   const [isChecked, setIsChecked] = useState(false)
 
   useEffect(() => {
@@ -527,18 +540,82 @@ function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
   }, [props.multiSelectMode])
 
   return (
+    <Box
+      css={{
+        display: 'flex',
+        padding: '10px',
+        height: '38px',
+        maxWidth: '521px',
+        bg: '$thLibrarySearchbox',
+        borderRadius: '6px',
+
+        boxShadow: '0px 1px 2px 0px rgba(0, 0, 0, 0.05);',
+        '@mdDown': {
+          mx: '5px',
+        },
+      }}
+    >
+      <SpanBox
+        css={{
+          flex: 1,
+          display: 'flex',
+          gap: '5px',
+          alignItems: 'center',
+        }}
+      >
+        <CardCheckbox
+          isChecked={isChecked}
+          handleChanged={() => {
+            const newValue = !isChecked
+            props.setMultiSelectMode(newValue ? 'visible' : 'off')
+            setIsChecked(newValue)
+          }}
+        />
+        <SpanBox css={{ display: 'flex', pb: '2px' }}>
+          <Dropdown
+            triggerElement={
+              <CaretDownIcon
+                size={9}
+                color={theme.colors.graySolid.toString()}
+              />
+            }
+          >
+            <DropdownOption
+              onSelect={() => {
+                setIsChecked(true)
+                props.setMultiSelectMode('visible')
+              }}
+              title="All"
+            />
+            {/* <DropdownOption
+              onSelect={() => {
+                setIsChecked(true)
+                props.setMultiSelectMode('search')
+              }}
+              title="All matching search"
+            /> */}
+          </Dropdown>
+        </SpanBox>
+      </SpanBox>
+    </Box>
+  )
+}
+
+function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
+  return (
     <>
       <HStack
         alignment="center"
         distribution={props.multiSelectMode !== 'off' ? 'center' : 'start'}
         css={{
           gap: '10px',
+          width: '95%',
           '@mdDown': {
+            width: props.multiSelectMode !== 'off' ? '100%' : '95%',
             display: props.multiSelectMode !== 'off' ? 'flex' : 'none',
           },
-          width: '95%',
           '@media (min-width: 930px)': {
-            width: '640px',
+            width: props.layout == 'GRID_LAYOUT' ? '660px' : '640px',
           },
           '@media (min-width: 1280px)': {
             width: '1000px',
@@ -548,6 +625,7 @@ function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
           },
         }}
       >
+        <MuliSelectControl {...props} />
         {props.multiSelectMode !== 'off' && (
           <SpanBox
             css={{
@@ -555,47 +633,11 @@ function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
               display: 'flex',
               gap: '2px',
               alignItems: 'center',
-              '@mdDown': {
-                mx: '20px',
-              },
             }}
           >
-            <CardCheckbox
-              isChecked={isChecked}
-              handleChanged={() => {
-                const newValue = !isChecked
-                props.setMultiSelectMode(newValue ? 'visible' : 'none')
-                setIsChecked(newValue)
-              }}
-            />
-            <SpanBox css={{ pt: '2px' }}>
-              <Dropdown
-                triggerElement={
-                  <CaretDown
-                    size={15}
-                    color={theme.colors.graySolid.toString()}
-                    weight="fill"
-                  />
-                }
-              >
-                <DropdownOption
-                  onSelect={() => {
-                    setIsChecked(true)
-                    props.setMultiSelectMode('visible')
-                  }}
-                  title="All"
-                />
-                <DropdownOption
-                  onSelect={() => {
-                    setIsChecked(true)
-                    props.setMultiSelectMode('search')
-                  }}
-                  title="All matching search"
-                />
-              </Dropdown>
-            </SpanBox>
             <SpanBox
               css={{
+                color: '#55B938',
                 paddingLeft: '5px',
                 fontSize: '12px',
                 fontWeight: '600',
@@ -607,7 +649,9 @@ function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
             >
               {props.numItemsSelected}{' '}
               <SpanBox
-                css={{ '@media (max-width: 1280px)': { display: 'none' } }}
+                css={{
+                  '@media (max-width: 1280px)': { display: 'none' },
+                }}
               >
                 selected
               </SpanBox>
@@ -616,7 +660,7 @@ function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
         )}
         {props.multiSelectMode !== 'off' ? (
           <>
-            <MultiSelectControlButtonBox {...props} />
+            <MultiSelectControls {...props} />
             <SpanBox css={{ flex: 1 }}></SpanBox>
           </>
         ) : (

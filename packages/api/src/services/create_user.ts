@@ -8,6 +8,7 @@ import { getRepository } from '../entity/utils'
 import { SignupErrorCode } from '../generated/graphql'
 import { AuthProvider } from '../routers/auth/auth_types'
 import { AppDataSource } from '../server'
+import { logger } from '../utils/logger'
 import { validateUsername } from '../utils/usernamePolicy'
 import { sendConfirmationEmail } from './send_emails'
 
@@ -103,13 +104,13 @@ const validateInvite = async (
   invite: Invite
 ): Promise<boolean> => {
   if (invite.expirationTime < new Date()) {
-    console.log('rejecting invite, expired', invite)
+    logger.info('rejecting invite, expired', invite)
     return false
   }
   const membershipRepo = entityManager.getRepository(GroupMembership)
   const numMembers = await membershipRepo.countBy({ invite: { id: invite.id } })
   if (numMembers >= invite.maxMembers) {
-    console.log('rejecting invite, too many users', invite, numMembers)
+    logger.info('rejecting invite, too many users', invite, numMembers)
     return false
   }
   return true

@@ -24,6 +24,7 @@ import { setLinkArchived } from '../../services/archive_link'
 import { analytics } from '../../utils/analytics'
 import { deleteTask, enqueueReminder } from '../../utils/createTask'
 import { authorized } from '../../utils/helpers'
+import { logger } from '../../utils/logger'
 import { DataModels } from '../types'
 
 const validScheduleTime = (str: string): Date | undefined => {
@@ -99,7 +100,7 @@ export const createReminderResolver = authorized<
     }
 
     const taskName = await groupReminders(scheduledTime, uid, models)
-    console.log('scheduled task name', taskName)
+    log.info('scheduled task name', taskName)
 
     // insert reminder to db
     const reminder = await models.reminder.create({
@@ -111,7 +112,7 @@ export const createReminderResolver = authorized<
       remindAt: scheduledTime,
       elasticPageId: pageId,
     })
-    console.log('created reminder', reminder)
+    log.info('created reminder', reminder)
 
     return {
       reminder: {
@@ -122,7 +123,7 @@ export const createReminderResolver = authorized<
       },
     }
   } catch (e) {
-    console.log('error creating reminder', e)
+    log.info('error creating reminder', e)
 
     return {
       errorCodes: [CreateReminderErrorCode.BadRequest],
@@ -138,7 +139,7 @@ const archivePage = async (uid: string, page: Page) => {
   try {
     await setLinkArchived(uid, page.id, true)
   } catch (e) {
-    console.log('error archiving link', e)
+    logger.info('error archiving link', e)
   }
 }
 

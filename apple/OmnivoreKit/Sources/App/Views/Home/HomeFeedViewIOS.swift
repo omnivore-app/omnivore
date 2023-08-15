@@ -81,7 +81,7 @@ struct AnimatingCellHeight: AnimatableModifier {
           loadItems(isRefresh: true)
         }
         .sheet(item: $viewModel.itemUnderLabelEdit) { item in
-          ApplyLabelsView(mode: .item(item), isSearchFocused: false, onSave: nil)
+          ApplyLabelsView(mode: .item(item), onSave: nil)
         }
         .sheet(item: $viewModel.itemUnderTitleEdit) { item in
           LinkedItemMetadataEditView(item: item)
@@ -150,11 +150,12 @@ struct AnimatingCellHeight: AnimatableModifier {
                   Label(LocalText.genericProfile, systemImage: "person.circle")
                 })
                 Button(action: { addLinkPresented = true }, label: {
-                  Label("Add Link", systemImage: "plus.square")
+                  Label("Add Link", systemImage: "plus.circle")
                 })
               }, label: {
                 Image.utilityMenu
               })
+                .foregroundColor(.appGrayTextContrast)
             } else {
               EmptyView()
             }
@@ -241,9 +242,6 @@ struct AnimatingCellHeight: AnimatableModifier {
     @Binding var prefersListLayout: Bool
     @ObservedObject var viewModel: HomeFeedViewModel
 
-    @State var showSnackbar = false
-    @State var snackbarOperation: SnackbarOperation?
-
     var body: some View {
       VStack(spacing: 0) {
         if prefersListLayout || !enableGrid {
@@ -260,9 +258,9 @@ struct AnimatingCellHeight: AnimatableModifier {
           self.viewModel.negatedLabels = $1
         }
       }
-      .popup(isPresented: $showSnackbar) {
-        if let operation = snackbarOperation {
-          Snackbar(isShowing: $showSnackbar, operation: operation)
+      .popup(isPresented: $viewModel.showSnackbar) {
+        if let operation = viewModel.snackbarOperation {
+          Snackbar(isShowing: $viewModel.showSnackbar, operation: operation)
         } else {
           EmptyView()
         }
@@ -272,19 +270,15 @@ struct AnimatingCellHeight: AnimatableModifier {
           .autohideIn(2)
           .position(.bottom)
           .animation(.spring())
-          .closeOnTapOutside(true)
+          .isOpaque(false)
       }
-      .onReceive(NSNotification.operationSuccessPublisher) { notification in
-        if let message = notification.userInfo?["message"] as? String {
-          snackbarOperation = SnackbarOperation(message: message,
-                                                undoAction: notification.userInfo?["undoAction"] as? SnackbarUndoAction)
-          showSnackbar = true
-        }
-      }
-      .onReceive(NSNotification.operationFailedPublisher) { notification in
-        if let message = notification.userInfo?["message"] as? String {
-          showSnackbar = true
-          snackbarOperation = SnackbarOperation(message: message, undoAction: nil)
+      .onReceive(NSNotification.librarySnackBarPublisher) { notification in
+        if !viewModel.showSnackbar {
+          if let message = notification.userInfo?["message"] as? String {
+            viewModel.snackbarOperation = SnackbarOperation(message: message,
+                                                            undoAction: notification.userInfo?["undoAction"] as? SnackbarUndoAction)
+            viewModel.showSnackbar = true
+          }
         }
       }
     }
@@ -354,6 +348,7 @@ struct AnimatingCellHeight: AnimatableModifier {
         }
         .listRowSeparator(.hidden)
       }
+      .dynamicTypeSize(.small ... .accessibility1)
     }
 
     func menuItems(for item: LinkedItem) -> some View {
@@ -438,7 +433,8 @@ struct AnimatingCellHeight: AnimatableModifier {
           VStack {
             LinearGradient(gradient: Gradient(colors: [.black.opacity(0.06), .systemGray6]),
                            startPoint: .top, endPoint: .bottom)
-              .frame(maxWidth: .infinity, maxHeight: 6)
+              .frame(maxWidth: .infinity, maxHeight: 3)
+              .opacity(0.4)
 
             Spacer()
           }

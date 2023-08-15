@@ -43,13 +43,14 @@ public struct Snackbar: View {
       }
       .frame(maxWidth: 380)
       .frame(height: 44)
-      .padding(.horizontal, 15)
+      .padding(.horizontal, 10)
       .background(self.colorScheme == .light ? Color.black : Color.white)
       .cornerRadius(5)
       .clipped()
 
       Spacer(minLength: 20)
     }
+    .padding(.horizontal, 10)
     .background(Color.clear)
     .frame(height: 44 + 22)
   }

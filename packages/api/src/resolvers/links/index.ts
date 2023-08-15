@@ -18,15 +18,10 @@ export const updateLinkShareInfoResolver = authorized<
   UpdateLinkShareInfoSuccess,
   UpdateLinkShareInfoError,
   MutationUpdateLinkShareInfoArgs
->(async (_obj, args, { models, claims, authTrx }) => {
+>(async (_obj, args, { models, claims, authTrx, log }) => {
   const { title, description } = args.input
 
-  console.log(
-    'updateLinkShareInfoResolver',
-    args.input.linkId,
-    title,
-    description
-  )
+  log.info('updateLinkShareInfoResolver', args.input.linkId, title, description)
 
   // TEMP: because the old API uses articles instead of Links, we are actually
   // getting an article ID here and need to map it to a link ID. When the API
@@ -62,8 +57,8 @@ export const setLinkArchivedResolver = authorized<
   ArchiveLinkSuccess,
   ArchiveLinkError,
   MutationSetLinkArchivedArgs
->(async (_obj, args, { claims, pubsub }) => {
-  console.log('setLinkArchivedResolver', args.input.linkId)
+>(async (_obj, args, { claims, pubsub, log }) => {
+  log.info('setLinkArchivedResolver', args.input.linkId)
 
   analytics.track({
     userId: claims.uid,

@@ -20,7 +20,12 @@ import {
   SortOrder,
   SortParams,
 } from '../../generated/graphql'
-import { ENABLE_DB_REQUEST_LOGGING, globalCounter, logMethod } from '../helpers'
+import {
+  ENABLE_DB_REQUEST_LOGGING,
+  globalCounter,
+  logMethod,
+  logger,
+} from '../helpers'
 import DataLoader from 'dataloader'
 import { ArticleData } from '../article/model'
 import { InFilter, LabelFilter, ReadFilter } from '../../utils/search'
@@ -147,11 +152,11 @@ class UserArticleModel extends DataModel<
           // logger.debug('\n\n\n\n\nResult for userId_articleId_load', { keys, result });
 
           if (result.length !== keys.length) {
-            console.error('DataModel error: count mismatch ', keys, result)
+            logger.error('DataModel error: count mismatch ', keys, result)
           }
           return result
         } catch (e) {
-          console.error('DataModel error: ', e)
+          logger.error('DataModel error: ', e)
           throw e
         }
       },
@@ -201,11 +206,11 @@ class UserArticleModel extends DataModel<
           // logger.debug('\n\n\n\n\nResult for userArticleId_stats_load', { keys, result });
 
           if (result.length !== keys.length) {
-            console.error('DataModel error: count mismatch ', keys, result)
+            logger.error('DataModel error: count mismatch ', keys, result)
           }
           return result
         } catch (e) {
-          console.error('DataModel error: ', e)
+          logger.error('DataModel error: ', e)
           throw e
         }
       },

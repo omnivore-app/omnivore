@@ -8,6 +8,7 @@ import { ApiKey } from '../entity/api_key'
 import { getRepository } from '../entity/utils'
 import { env } from '../env'
 import { Claims, ClaimsToSet } from '../resolvers/types'
+import { logger } from './logger'
 
 export const OmnivoreAuthorizationHeader = 'Omnivore-Authorization'
 
@@ -81,7 +82,7 @@ export const getClaimsByToken = async (
       e instanceof jwt.JsonWebTokenError &&
       !(e instanceof jwt.TokenExpiredError)
     ) {
-      console.log(`not a jwt token, checking api key`, { token })
+      logger.info(`not a jwt token, checking api key`, { token })
       return claimsFromApiKey(token)
     }
 

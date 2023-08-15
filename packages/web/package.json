@@ -38,6 +38,7 @@
     "axios": "^1.2.0",
     "color2k": "^2.0.0",
     "cookie": "^0.5.0",
+    "csv-file-validator": "^2.1.0",
     "dayjs": "^1.11.7",
     "diff-match-patch": "^1.0.5",
     "epubjs": "^0.3.93",
@@ -49,6 +50,7 @@
     "nanoid": "^3.1.29",
     "next": "^12.1.0",
     "node-html-markdown": "^1.3.0",
+    "papaparse": "^5.4.1",
     "phosphor-react": "^1.4.0",
     "pspdfkit": "^2022.2.3",
     "react": "^17.0.2",
@@ -67,7 +69,8 @@
     "react-topbar-progress-indicator": "^4.1.1",
     "remark-gfm": "^3.0.1",
     "swr": "^1.0.1",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "yet-another-react-lightbox": "^3.12.0"
   },
   "devDependencies": {
     "@babel/core": "^7.17.5",
@@ -89,6 +92,7 @@
     "@types/loadjs": "^4.0.1",
     "@types/lodash.debounce": "^4.0.6",
     "@types/markdown-it": "^12.2.3",
+    "@types/papaparse": "^5.3.7",
     "@types/react": "17.0.2",
     "@types/react-color": "^3.0.6",
     "@types/react-dom": "^17.0.2",

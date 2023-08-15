@@ -13,7 +13,7 @@ import { getRepository } from '../../entity/utils'
 import { Claims } from '../../resolvers/types'
 import { getIntegrationService } from '../../services/integrations'
 import { getClaimsByToken } from '../../utils/auth'
-import { buildLogger } from '../../utils/logger'
+import { logger } from '../../utils/logger'
 import { DateFilter } from '../../utils/search'
 import { createGCSFile } from '../../utils/uploads'
 
@@ -32,8 +32,6 @@ interface ImportEvent {
 const isImportEvent = (event: any): event is ImportEvent =>
   'integrationId' in event
 
-const logger = buildLogger('app.dispatch')
-
 export function integrationsServiceRouter() {
   const router = express.Router()
 
@@ -42,20 +40,19 @@ export function integrationsServiceRouter() {
       action: req.params.action,
       integrationName: req.params.integrationName,
     })
-    const { message: msgStr, expired } = readPushSubscription(req)
-
-    if (!msgStr) {
-      res.status(400).send('Bad Request')
-      return
-    }
-
-    if (expired) {
-      logger.info('discarding expired message')
-      res.status(200).send('Expired')
-      return
-    }
 
     try {
+      const { message: msgStr, expired } = readPushSubscription(req)
+
+      if (!msgStr) {
+        return res.status(400).send('Bad Request')
+      }
+
+      if (expired) {
+        logger.info('discarding expired message')
+        return res.status(200).send('Expired')
+      }
+
       const data: Message = JSON.parse(msgStr)
       const userId = data.userId
       const type = data.type
@@ -120,8 +117,7 @@ export function integrationsServiceRouter() {
             integrationId: integration.id,
             pageId: page.id,
           })
-          res.status(400).send('Failed to sync')
-          return
+          return res.status(400).send('Failed to sync')
         }
       } else if (action === 'SYNC_ALL') {
         // sync all pages of the user
@@ -147,12 +143,11 @@ export function integrationsServiceRouter() {
 
           const synced = await integrationService.export(integration, pages)
           if (!synced) {
-            logger.info('failed to sync pages', {
+            logger.error('failed to sync pages', {
               pageIds,
               integrationId: integration.id,
             })
-            res.status(400).send('Failed to sync')
-            return
+            return res.status(400).send('Failed to sync')
           }
         }
         // delete task name if completed
@@ -238,7 +233,7 @@ export function integrationsServiceRouter() {
         })
         // stringify the data and pipe it to the write_stream
         const stringifier = stringify({
-          header: false,
+          header: true,
           columns: ['url', 'state', 'labels'],
         })
         stringifier.pipe(writeStream)

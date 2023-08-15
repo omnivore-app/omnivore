@@ -1,5 +1,5 @@
 /* eslint-disable react/no-children-prop */
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import type { Highlight } from '../../lib/networking/fragments/highlightFragment'
 import { LabelChip } from '../elements/LabelChip'
 import {
@@ -14,7 +14,6 @@ import { HighlightViewNote } from './HighlightNotes'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { isDarkTheme } from '../../lib/themeUpdater'
-import { HighlightsMenu } from '../templates/homeFeed/HighlightItem'
 import { ReadableItem } from '../../lib/networking/queries/useGetLibraryItemsQuery'
 import { UserBasicData } from '../../lib/networking/queries/useGetViewerQuery'
 import {
@@ -25,7 +24,6 @@ import {
   useHover,
   useInteractions,
 } from '@floating-ui/react'
-import { LibraryHoverActions } from './LibraryCards/LibraryHoverActions'
 import { HighlightHoverActions } from './HighlightHoverActions'
 
 type HighlightViewProps = {
@@ -54,7 +52,6 @@ const StyledQuote = styled(Blockquote, {
 export function HighlightView(props: HighlightViewProps): JSX.Element {
   const isDark = isDarkTheme()
   const [noteMode, setNoteMode] = useState<'preview' | 'edit'>('preview')
-  const [isHovered, setIsHovered] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
 
   const { refs, floatingStyles, context } = useFloating({
@@ -73,8 +70,7 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
   const hover = useHover(context)
 
   const { getReferenceProps, getFloatingProps } = useInteractions([hover])
-
-  const highlightAlpha = isDark ? 1.0 : 0.35
+  const highlightAlpha = isDark ? 0.5 : 0.35
 
   return (
     <VStack
@@ -113,12 +109,18 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
         <StyledQuote>
           <SpanBox
             css={{
-              '*': {
-                m: '0px',
+              '> *': {
+                display: 'inline',
+                padding: '2px',
                 backgroundColor: `rgba(var(--colors-highlightBackground), ${highlightAlpha})`,
                 boxShadow: `3px 0 0 rgba(var(--colors-highlightBackground), ${highlightAlpha}), -3px 0 0 rgba(var(--colors-highlightBackground), ${highlightAlpha})`,
                 boxDecorationBreak: 'clone',
                 borderRadius: '2px',
+              },
+              '> ul': {
+                display: 'block',
+                boxShadow: 'unset',
+                backgroundColor: 'unset',
               },
               fontSize: '15px',
               lineHeight: 1.5,

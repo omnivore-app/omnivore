@@ -1,4 +1,7 @@
-import { authorized } from '../../utils/helpers'
+import { NewsletterEmail } from '../../entity/newsletter_email'
+import { User } from '../../entity/user'
+import { getRepository } from '../../entity/utils'
+import { env } from '../../env'
 import {
   CreateNewsletterEmailError,
   CreateNewsletterEmailErrorCode,
@@ -16,18 +19,15 @@ import {
   deleteNewsletterEmail,
   getNewsletterEmails,
 } from '../../services/newsletters'
-import { NewsletterEmail } from '../../entity/newsletter_email'
-import { analytics } from '../../utils/analytics'
-import { env } from '../../env'
-import { User } from '../../entity/user'
 import { unsubscribeAll } from '../../services/subscriptions'
-import { getRepository } from '../../entity/utils'
+import { analytics } from '../../utils/analytics'
+import { authorized } from '../../utils/helpers'
 
 export const createNewsletterEmailResolver = authorized<
   CreateNewsletterEmailSuccess,
   CreateNewsletterEmailError
->(async (_parent, _args, { claims }) => {
-  console.log('createNewsletterEmailResolver')
+>(async (_parent, _args, { claims, log }) => {
+  log.info('createNewsletterEmailResolver')
   analytics.track({
     userId: claims.uid,
     event: 'newsletter_email_address_created',
@@ -46,7 +46,7 @@ export const createNewsletterEmailResolver = authorized<
       },
     }
   } catch (e) {
-    console.log(e)
+    log.info(e)
 
     return {
       errorCodes: [CreateNewsletterEmailErrorCode.BadRequest],
@@ -57,8 +57,8 @@ export const createNewsletterEmailResolver = authorized<
 export const newsletterEmailsResolver = authorized<
   NewsletterEmailsSuccess,
   NewsletterEmailsError
->(async (_parent, _args, { claims }) => {
-  console.log('newsletterEmailsResolver')
+>(async (_parent, _args, { claims, log }) => {
+  log.info('newsletterEmailsResolver')
 
   try {
     const user = await getRepository(User).findOneBy({
@@ -79,7 +79,7 @@ export const newsletterEmailsResolver = authorized<
       })),
     }
   } catch (e) {
-    console.log(e)
+    log.info(e)
 
     return {
       errorCodes: [NewsletterEmailsErrorCode.BadRequest],
@@ -91,8 +91,8 @@ export const deleteNewsletterEmailResolver = authorized<
   DeleteNewsletterEmailSuccess,
   DeleteNewsletterEmailError,
   MutationDeleteNewsletterEmailArgs
->(async (_parent, args, { claims }) => {
-  console.log('deleteNewsletterEmailResolver')
+>(async (_parent, args, { claims, log }) => {
+  log.info('deleteNewsletterEmailResolver')
   analytics.track({
     userId: claims.uid,
     event: 'newsletter_email_address_deleted',
@@ -139,7 +139,7 @@ export const deleteNewsletterEmailResolver = authorized<
       }
     }
   } catch (e) {
-    console.log(e)
+    log.info(e)
 
     return {
       errorCodes: [DeleteNewsletterEmailErrorCode.BadRequest],

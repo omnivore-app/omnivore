@@ -1,3 +1,8 @@
+import * as jwt from 'jsonwebtoken'
+import { deletePagesByParam } from '../../elastic/pages'
+import { User as UserEntity } from '../../entity/user'
+import { setClaims } from '../../entity/utils'
+import { env } from '../../env'
 import {
   DeleteAccountError,
   DeleteAccountErrorCode,
@@ -28,16 +33,11 @@ import {
   UsersError,
   UsersSuccess,
 } from '../../generated/graphql'
-import { WithDataSourcesContext } from '../types'
-import { authorized, userDataToUser } from '../../utils/helpers'
-import { env } from '../../env'
-import { validateUsername } from '../../utils/usernamePolicy'
-import * as jwt from 'jsonwebtoken'
-import { createUser } from '../../services/create_user'
-import { deletePagesByParam } from '../../elastic/pages'
-import { setClaims } from '../../entity/utils'
-import { User as UserEntity } from '../../entity/user'
 import { AppDataSource } from '../../server'
+import { createUser } from '../../services/create_user'
+import { authorized, userDataToUser } from '../../utils/helpers'
+import { validateUsername } from '../../utils/usernamePolicy'
+import { WithDataSourcesContext } from '../types'
 
 export const updateUserResolver = authorized<
   UpdateUserSuccess,
@@ -182,7 +182,7 @@ export const googleSignupResolver: ResolverFn<
   Record<string, unknown>,
   WithDataSourcesContext,
   MutationGoogleSignupArgs
-> = async (_obj, { input }, { setAuth }) => {
+> = async (_obj, { input }, { setAuth, log }) => {
   const { email, username, name, bio, sourceUserId, pictureUrl, secret } = input
   const lowerCasedUsername = username.toLowerCase()
 
@@ -209,7 +209,7 @@ export const googleSignupResolver: ResolverFn<
       me: userDataToUser({ ...user, profile: { ...profile, private: false } }),
     }
   } catch (err) {
-    console.log('error signing up with google', err)
+    log.info('error signing up with google', err)
     if (isErrorWithCode(err)) {
       return { errorCodes: [err.errorCode as SignupErrorCode] }
     }
@@ -222,12 +222,12 @@ export const logOutResolver: ResolverFn<
   unknown,
   WithDataSourcesContext,
   unknown
-> = (_, __, { clearAuth }) => {
+> = (_, __, { clearAuth, log }) => {
   try {
     clearAuth()
     return { message: 'User successfully logged out' }
   } catch (error) {
-    console.error(error)
+    log.error(error)
     return { errorCodes: [LogOutErrorCode.LogOutFailed] }
   }
 }

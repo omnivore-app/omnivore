@@ -508,7 +508,11 @@ export default function PdfArticleContainer(
         }}
       >
         <>
-          <NotebookHeader setShowNotebook={props.setShowHighlightsModal} />
+          <NotebookHeader
+            viewer={props.viewer}
+            item={props.article}
+            setShowNotebook={props.setShowHighlightsModal}
+          />
           <NotebookContent
             viewer={props.viewer}
             item={props.article}

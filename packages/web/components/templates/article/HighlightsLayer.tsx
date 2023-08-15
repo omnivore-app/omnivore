@@ -78,13 +78,15 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   const focusedHighlightMousePos = useRef({ pageX: 0, pageY: 0 })
 
   const [currentHighlightIdx, setCurrentHighlightIdx] = useState(0)
-  const [focusedHighlight, setFocusedHighlight] =
-    useState<Highlight | undefined>(undefined)
+  const [focusedHighlight, setFocusedHighlight] = useState<
+    Highlight | undefined
+  >(undefined)
 
   const [selectionData, setSelectionData] = useSelection(highlightLocations)
 
-  const [labelsTarget, setLabelsTarget] =
-    useState<Highlight | undefined>(undefined)
+  const [labelsTarget, setLabelsTarget] = useState<Highlight | undefined>(
+    undefined
+  )
 
   const windowDimensions = useGetWindowDimensions()
 
@@ -295,7 +297,6 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       const { target, pageX, pageY } = event
 
       if (!target || (target as Node)?.nodeType !== Node.ELEMENT_NODE) {
-        console.log(' -- returning early from page tap')
         return
       }
 
@@ -373,7 +374,6 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           highlightIdAttribute
         )
         const highlight = highlights.find(($0) => $0.id === id)
-        console.log('double tapped highlight: ', highlight)
         setFocusedHighlight(highlight)
 
         openNoteModal({
@@ -385,8 +385,6 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           highlightNoteIdAttribute
         )
         const highlight = highlights.find(($0) => $0.id === id)
-        console.log('double tapped highlight with note: ', highlight)
-
         setFocusedHighlight(highlight)
 
         openNoteModal({
@@ -481,9 +479,12 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           if (textToCopy) {
             try {
               await navigator.clipboard.writeText(textToCopy)
-              showSuccessToast('Highlight copied', {
-                position: 'bottom-right',
-              })
+              showSuccessToast(
+                focusedHighlight ? 'Highlight copied' : 'Text copied',
+                {
+                  position: 'bottom-right',
+                }
+              )
             } catch (error) {
               showErrorToast('Error copying highlight, permission denied.', {
                 position: 'bottom-right',
@@ -536,6 +537,10 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       })
     }
   }
+
+  useEffect(() => {
+    setFocusedHighlight(undefined)
+  }, [selectionData])
 
   const dispatchHighlightMessage = (actionID: string) => {
     if (props.isAppleAppEmbed) {
@@ -672,7 +677,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         dispatchHighlightMessage('noteCreated')
       } else {
         try {
-          await createHighlightCallback()
+          await createHighlightCallback(event.annotation)
           dispatchHighlightMessage('noteCreated')
         } catch (error) {
           dispatchHighlightError('saveAnnotation', error)
@@ -771,7 +776,11 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         }}
       >
         <>
-          <NotebookHeader setShowNotebook={props.setShowHighlightsModal} />
+          <NotebookHeader
+            viewer={props.viewer}
+            item={props.item}
+            setShowNotebook={props.setShowHighlightsModal}
+          />
           <NotebookContent
             viewer={props.viewer}
             item={props.item}

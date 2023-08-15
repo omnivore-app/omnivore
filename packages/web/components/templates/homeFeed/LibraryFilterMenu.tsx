@@ -45,6 +45,7 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
             width: '100%',
             transition: 'visibility 0s, top 150ms',
           },
+          zIndex: 3,
         }}
       >
         <Box
@@ -203,6 +204,12 @@ function Labels(props: LibraryFilterMenuProps): JSX.Element {
     initialValue: false,
   })
 
+  const sortedLabels = useMemo(() => {
+    return labels.sort((left: Label, right: Label) =>
+      left.name.localeCompare(right.name)
+    )
+  }, [labels])
+
   return (
     <MenuPanel
       title="Labels"
@@ -212,7 +219,7 @@ function Labels(props: LibraryFilterMenuProps): JSX.Element {
         window.location.href = '/settings/labels'
       }}
     >
-      {labels.slice(0, viewAll ? undefined : 4).map((item) => {
+      {sortedLabels.slice(0, viewAll ? undefined : 4).map((item) => {
         return <LabelButton key={item.id} label={item} {...props} />
       })}
       <ViewAllButton state={viewAll} setState={setViewAll} />

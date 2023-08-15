@@ -19,6 +19,7 @@ import {
 } from '../generated/graphql'
 import { userDataToUser, validatedDate, wordsCount } from '../utils/helpers'
 import { createImageProxyUrl } from '../utils/imageproxy'
+import { logger } from '../utils/logger'
 import {
   contentReaderForPage,
   generateDownloadSignedUrl,
@@ -317,7 +318,7 @@ export const functionResolvers = {
       if (a && a.image) {
         a.image = createImageProxyUrl(a.image, 0, 180)
       } else {
-        console.log(
+        logger.info(
           'error getting article for feedItem',
           feedArticle.userId,
           feedArticle.articleId
@@ -501,7 +502,7 @@ export const functionResolvers = {
       )
     },
     image(article: { image?: string }): string | undefined {
-      return article.image && createImageProxyUrl(article.image, 260, 260)
+      return article.image && createImageProxyUrl(article.image, 320, 320)
     },
     wordsCount(article: { wordsCount?: number; content?: string }) {
       if (article.wordsCount) return article.wordsCount

@@ -12,6 +12,9 @@ interface RssFeedRequest {
   lastFetchedAt: number // unix timestamp in milliseconds
 }
 
+// link can be a string or an object
+type RssFeedItemLink = string | { $: { rel?: string; href: string } }
+
 function isRssFeedRequest(body: any): body is RssFeedRequest {
   return (
     'subscriptionId' in body && 'feedUrl' in body && 'lastFetchedAt' in body
@@ -114,7 +117,37 @@ Sentry.GCPFunction.init({
 })
 
 const signToken = promisify(jwt.sign)
-const parser = new Parser()
+const parser = new Parser({
+  customFields: {
+    item: [['link', 'links', { keepArray: true }], 'published', 'updated'],
+  },
+})
+
+// get link following the order of preference: via, alternate, self
+const getLink = (links: RssFeedItemLink[]) => {
+  // sort links by preference
+  const sortedLinks: string[] = []
+
+  links.forEach((link) => {
+    // if link is a string, it is the href
+    if (typeof link === 'string') {
+      return sortedLinks.push(link)
+    }
+
+    if (link.$.rel === 'via') {
+      sortedLinks[0] = link.$.href
+    }
+    if (link.$.rel === 'alternate') {
+      sortedLinks[1] = link.$.href
+    }
+    if (link.$.rel === 'self' || !link.$.rel) {
+      sortedLinks[2] = link.$.href
+    }
+  })
+
+  // return the first link that is not undefined
+  return sortedLinks.find((link) => !!link)
+}
 
 export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
   async (req, res) => {
@@ -159,12 +192,23 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
 
       // save each item in the feed
       for (const item of feed.items) {
-        console.log('Processing feed item', item.link, item.isoDate)
+        // use published or updated if isoDate is not available for atom feeds
+        item.isoDate =
+          item.isoDate || (item.published as string) || (item.updated as string)
+        console.log('Processing feed item', item.links, item.isoDate)
 
-        if (!item.link) {
+        if (!item.links || item.links.length === 0) {
           console.log('Invalid feed item', item)
           continue
         }
+
+        item.link = getLink(item.links as RssFeedItemLink[])
+        if (!item.link) {
+          console.log('Invalid feed item links', item.links)
+          continue
+        }
+
+        console.log('Fetching feed item', item.link)
 
         const publishedAt = item.isoDate ? new Date(item.isoDate) : new Date()
         // remember the last valid item

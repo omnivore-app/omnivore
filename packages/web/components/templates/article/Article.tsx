@@ -1,4 +1,4 @@
-import { Box } from '../../elements/LayoutPrimitives'
+import { Box, SpanBox } from '../../elements/LayoutPrimitives'
 import {
   getTopOmnivoreAnchorElement,
   parseDomTree,
@@ -7,9 +7,15 @@ import {
   ScrollOffsetChangeset,
   useScrollWatcher,
 } from '../../../lib/hooks/useScrollWatcher'
-import { MutableRefObject, useEffect, useRef, useState } from 'react'
+import { MutableRefObject, useEffect, useMemo, useRef, useState } from 'react'
 import { isDarkTheme } from '../../../lib/themeUpdater'
 import { ArticleMutations } from '../../../lib/articleActions'
+import { Lightbox, SlideImage } from 'yet-another-react-lightbox'
+import 'yet-another-react-lightbox/styles.css'
+import Download from 'yet-another-react-lightbox/plugins/download'
+import Fullscreen from 'yet-another-react-lightbox/plugins/fullscreen'
+import Zoom from 'yet-another-react-lightbox/plugins/zoom'
+import Counter from 'yet-another-react-lightbox/plugins/counter'
 
 import loadjs from 'loadjs'
 
@@ -21,6 +27,7 @@ export type ArticleProps = {
   initialReadingProgressTop?: number
   highlightHref: MutableRefObject<string | null>
   articleMutations: ArticleMutations
+  isAppleAppEmbed: boolean
 }
 
 export function Article(props: ArticleProps): JSX.Element {
@@ -38,6 +45,10 @@ export function Article(props: ArticleProps): JSX.Element {
   const clampToPercent = (float: number) => {
     return Math.floor(Math.max(0, Math.min(100, float)))
   }
+
+  const [lightboxOpen, setLightboxOpen] = useState(false)
+  const [imageSrcs, setImageSrcs] = useState<SlideImage[]>([])
+  const [lightboxIndex, setlightBoxIndex] = useState(0)
 
   useEffect(() => {
     ;(async () => {
@@ -192,7 +203,6 @@ export function Article(props: ArticleProps): JSX.Element {
       const img = element as HTMLImageElement
       const width = Number(img.getAttribute('data-omnivore-width'))
       const height = Number(img.getAttribute('data-omnivore-height'))
-      console.log('width and height: ', width, height)
 
       if (!isNaN(width) && !isNaN(height) && width < 100 && height < 100) {
         img.style.setProperty('width', `${width}px`)
@@ -217,13 +227,51 @@ export function Article(props: ArticleProps): JSX.Element {
         }
       }
     })
+
+    const allImages = Array.from(
+      document.querySelectorAll('img[data-omnivore-anchor-idx]')
+    )
+
+    const srcs = allImages.map((img) => {
+      return {
+        src: img.getAttribute('src') || '',
+      }
+    })
+    setImageSrcs(srcs)
+
+    allImages.forEach((element, idx) => {
+      const img = element as HTMLImageElement
+      img.style.cursor = 'zoom-in'
+      img.onclick = (event) => {
+        setlightBoxIndex(idx)
+        setLightboxOpen(true)
+        event.preventDefault()
+        event.stopPropagation()
+      }
+    })
   }, [props.content])
+
+  useEffect(() => {
+    if (lightboxOpen) {
+      window?.webkit?.messageHandlers.highlightAction?.postMessage({
+        actionID: 'dismissNavBars',
+      })
+    }
+  }, [lightboxOpen])
+
+  const lightboxPlugins = useMemo(() => {
+    if (props.isAppleAppEmbed) {
+      return [Fullscreen, Counter, Zoom]
+    } else {
+      return [Fullscreen, Download, Counter, Zoom]
+    }
+  }, [props])
 
   return (
     <>
       <link
         rel="stylesheet"
-        href={`https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/${highlightTheme}.min.css`}
+        href={`/static/highlightjs/${highlightTheme}.min.css`}
       />
       <Box
         ref={articleContentRef}
@@ -236,6 +284,26 @@ export function Article(props: ArticleProps): JSX.Element {
           __html: props.content,
         }}
       />
+      <SpanBox
+        onClick={(event) => {
+          event.stopPropagation()
+        }}
+      >
+        <Lightbox
+          open={lightboxOpen}
+          index={lightboxIndex}
+          close={() => setLightboxOpen(false)}
+          slides={imageSrcs}
+          plugins={lightboxPlugins}
+          controller={{ closeOnPullDown: true, closeOnBackdropClick: true }}
+          zoom={{
+            maxZoomPixelRatio: 3,
+          }}
+          render={{
+            buttonZoom: () => undefined,
+          }}
+        />
+      </SpanBox>
     </>
   )
 }

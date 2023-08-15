@@ -574,6 +574,8 @@ const schema = gql`
     labels: [CreateLabelInput!]
     locale: String
     timezone: String
+    savedAt: Date
+    publishedAt: Date
   }
 
   union SaveResult = SaveSuccess | SaveError
@@ -2511,6 +2513,7 @@ const schema = gql`
     name: String
     description: String
     lastFetchedAt: Date
+    status: SubscriptionStatus
   }
 
   union UpdateSubscriptionResult =

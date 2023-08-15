@@ -12,6 +12,7 @@ import { initModels } from '../../server'
 import { getPagesWithReminder, PageReminder } from '../../services/reminders'
 import { getDeviceTokensByUserId } from '../../services/user_device_tokens'
 import { analytics } from '../../utils/analytics'
+import { logger } from '../../utils/logger'
 import { sendEmail } from '../../utils/sendEmail'
 import { sendMulticastPushNotifications } from '../../utils/sendNotification'
 
@@ -28,7 +29,7 @@ export function remindersServiceRouter() {
 
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   router.post('/trigger', async (req, res) => {
-    console.log('reminders/trigger')
+    logger.info('reminders/trigger')
 
     const { userId, scheduleTime } = req.body as {
       userId?: string
@@ -56,7 +57,7 @@ export function remindersServiceRouter() {
 
       const user = await models.user.get(userId)
       if (!user || !user.email) {
-        console.log('user not found', userId)
+        logger.info('user not found', userId)
         res.status(400).send('User Not Found')
         return
       }
@@ -64,12 +65,12 @@ export function remindersServiceRouter() {
       const pageReminders = await getPagesWithReminder(userId, remindAt)
 
       if (!pageReminders) {
-        console.log('pages with reminders not found', userId, scheduleTime)
+        logger.info('pages with reminders not found', userId, scheduleTime)
         res.status(200).send('Reminders Not Found')
         return
       }
 
-      console.log('page with reminders:', pageReminders)
+      logger.info('page with reminders:', pageReminders)
 
       const [pagesToNotify, pagesToUnarchive] = getPagesToNotifyAndUnarchive(
         pageReminders,
@@ -81,7 +82,7 @@ export function remindersServiceRouter() {
       if (pagesToNotify.length > 0) {
         // we have configured Sendgrid to send a template
         if (!process.env.SENDGRID_REMINDER_TEMPLATE_ID) {
-          console.log('Sendgrid reminder email template_id not set')
+          logger.info('Sendgrid reminder email template_id not set')
 
           await updateRemindersStatus(
             models,
@@ -99,7 +100,7 @@ export function remindersServiceRouter() {
           articles: pagesToNotify,
         }
 
-        console.log('dynamic template data:', dynamicTemplateData)
+        logger.info('dynamic template data:', dynamicTemplateData)
 
         await sendEmail({
           from: env.sender.message,
@@ -116,7 +117,7 @@ export function remindersServiceRouter() {
         }
 
         if (!deviceTokens) {
-          console.log('Device tokens not set:', userId)
+          logger.info('Device tokens not set:', userId)
 
           res.status(400).send('Device token Not Found')
           return
@@ -126,7 +127,7 @@ export function remindersServiceRouter() {
       await updateRemindersStatus(models, userId, pagesToUnarchive, remindAt)
       res.status(200).send('Reminders triggered')
     } catch (e) {
-      console.log(e)
+      logger.info(e)
       res.status(500).send(e)
     }
   })

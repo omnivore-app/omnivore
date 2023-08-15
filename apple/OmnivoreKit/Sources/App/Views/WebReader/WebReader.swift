@@ -7,6 +7,7 @@ import WebKit
 @MainActor
 struct WebReader: PlatformViewRepresentable {
   let item: LinkedItem
+  let viewModel: WebReaderViewModel
   let articleContent: ArticleContent
   let openLinkAction: (URL) -> Void
   let tapHandler: () -> Void
@@ -100,7 +101,7 @@ struct WebReader: PlatformViewRepresentable {
       do {
         try (webView as? OmnivoreWebView)?.dispatchEvent(.saveAnnotation(annotation: annotation))
       } catch {
-        showInSnackbar("Error saving note.")
+        showInLibrarySnackbar("Error saving note.")
       }
     }
 

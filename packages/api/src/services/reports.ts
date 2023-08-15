@@ -1,8 +1,9 @@
-import { ReportItemInput, ReportType } from '../generated/graphql'
-import { ContentDisplayReport } from '../entity/reports/content_display_report'
-import { AbuseReport } from '../entity/reports/abuse_report'
 import { getPageById } from '../elastic/pages'
+import { AbuseReport } from '../entity/reports/abuse_report'
+import { ContentDisplayReport } from '../entity/reports/content_display_report'
 import { getRepository } from '../entity/utils'
+import { ReportItemInput, ReportType } from '../generated/graphql'
+import { logger } from '../utils/logger'
 
 export const saveContentDisplayReport = async (
   uid: string,
@@ -13,7 +14,7 @@ export const saveContentDisplayReport = async (
   const page = await getPageById(input.pageId)
 
   if (!page) {
-    console.log('unable to submit report, page not found', input)
+    logger.info('unable to submit report, page not found', input)
     return false
   }
 
@@ -41,12 +42,12 @@ export const saveAbuseReport = async (
   const page = await getPageById(input.pageId)
 
   if (!page) {
-    console.log('unable to submit report, page not found', input)
+    logger.info('unable to submit report, page not found', input)
     return false
   }
 
   if (!input.sharedBy) {
-    console.log('unable to submit report, sharedBy not found', input)
+    logger.info('unable to submit report, sharedBy not found', input)
     return false
   }
 

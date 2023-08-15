@@ -1,12 +1,13 @@
 import { google, oauth2_v2 as oauthV2 } from 'googleapis'
-import url from 'url'
-import { env, homePageURL } from '../../env'
 import { OAuth2Client } from 'googleapis-common'
-import { DecodeTokenResult } from './auth_types'
-import { LoginErrorCode } from '../../generated/graphql'
+import url from 'url'
 import UserModel from '../../datalayer/user'
-import { createWebAuthToken, createPendingUserToken } from './jwt_helpers'
-import { ssoRedirectURL, createSsoToken } from '../../utils/sso'
+import { env, homePageURL } from '../../env'
+import { LoginErrorCode } from '../../generated/graphql'
+import { logger } from '../../utils/logger'
+import { createSsoToken, ssoRedirectURL } from '../../utils/sso'
+import { DecodeTokenResult } from './auth_types'
+import { createPendingUserToken, createWebAuthToken } from './jwt_helpers'
 
 export const googleAuthMobile = (): OAuth2Client =>
   new google.auth.OAuth2(env.google.auth.clientId, env.google.auth.secret)
@@ -80,7 +81,7 @@ export async function decodeGoogleToken(
     const sourceUserId = loginTicket.getUserId() || undefined
     return { email, sourceUserId }
   } catch (e) {
-    console.log('decodeGoogleToken error', e)
+    logger.info('decodeGoogleToken error', e)
     return { errorCode: 500 }
   }
 }
@@ -134,7 +135,7 @@ export async function handleGoogleWebAuth(
     const userId = user?.id
 
     if (!userId || !user?.profile) {
-      console.log(
+      logger.info(
         'user or profile does not exist:',
         sourceUserId,
         'GOOGLE',
@@ -171,7 +172,7 @@ export async function handleGoogleWebAuth(
       return { redirectURL: authFailedRedirect }
     }
   } catch (e) {
-    console.log('handleGoogleWebAuth error', e)
+    logger.info('handleGoogleWebAuth error', e)
     return { redirectURL: authFailedRedirect }
   }
 }

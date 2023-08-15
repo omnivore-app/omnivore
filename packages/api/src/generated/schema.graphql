@@ -1664,6 +1664,8 @@ input SaveUrlInput {
   clientRequestId: ID!
   labels: [CreateLabelInput!]
   locale: String
+  publishedAt: Date
+  savedAt: Date
   source: String!
   state: ArticleSavingRequestStatus
   timezone: String
@@ -2353,6 +2355,7 @@ input UpdateSubscriptionInput {
   id: ID!
   lastFetchedAt: Date
   name: String
+  status: SubscriptionStatus
 }
 
 union UpdateSubscriptionResult = UpdateSubscriptionError | UpdateSubscriptionSuccess

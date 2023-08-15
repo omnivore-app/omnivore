@@ -280,8 +280,8 @@ const darkThemeSpec = {
     thLibrarySelectionColor: '#3D3D3D',
 
     thNotebookSubtle: '#898989',
-    thNotebookBorder: '#898989',
-    thNotebookBackground: '#3B3938',
+    thNotebookBorder: '#3D3D3D',
+    thNotebookBackground: '#2F2F2F',
     thNotebookTextBackground: '#3D3D3D',
     thNotebookHighContrast: '#2A2A2A',
 

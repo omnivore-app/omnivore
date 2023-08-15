@@ -4,6 +4,7 @@
 import express from 'express'
 import { readPushSubscription } from '../../datalayer/pubsub'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
+import { logger } from '../../utils/logger'
 
 interface CreateLinkRequestMessage {
   url: string
@@ -14,9 +15,9 @@ export function linkServiceRouter() {
   const router = express.Router()
 
   router.post('/create', async (req, res) => {
-    console.log('create link req', req.query, req.body)
+    logger.info('create link req', req.query, req.body)
     const { message: msgStr, expired } = readPushSubscription(req)
-    console.log('read pubsub message', msgStr, 'has expired', expired)
+    logger.info('read pubsub message', msgStr, 'has expired', expired)
 
     if (!msgStr) {
       res.status(400).send('Bad Request')
@@ -24,14 +25,14 @@ export function linkServiceRouter() {
     }
 
     if (expired) {
-      console.log('discarding expired message')
+      logger.info('discarding expired message')
       res.status(200).send('Expired')
       return
     }
 
     const data = JSON.parse(msgStr)
     if (!('url' in data) || !('userId' in data)) {
-      console.log('No file url or userId found in message')
+      logger.info('No file url or userId found in message')
       res.status(400).send('Bad Request')
       return
     }
@@ -42,11 +43,11 @@ export function linkServiceRouter() {
         userId: msg.userId,
         url: msg.url,
       })
-      console.log('create link request', request)
+      logger.info('create link request', request)
 
       res.status(200).send(request)
     } catch (err) {
-      console.log('create link failed', err)
+      logger.info('create link failed', err)
       res.status(500).send(err)
     }
   })

@@ -5,7 +5,7 @@ buildscript {
         hilt_version = '2.44.2'
         gradle_plugin_version = '7.4.2'
         room_version = '2.4.3'
-        kotlin_version = '1.9.0'
+        kotlin_version = '1.7.10'
     }
 
     dependencies {
