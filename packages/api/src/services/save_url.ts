@@ -28,8 +28,8 @@ export const saveUrl = async (
       : undefined
 
     const pageSaveRequest = await createPageSaveRequest({
+      ...input,
       userId: ctx.uid,
-      url: input.url,
       pubsub: ctx.pubsub,
       articleSavingRequestId: input.clientRequestId,
       archivedAt,
@@ -37,6 +37,8 @@ export const saveUrl = async (
       user,
       locale: input.locale || undefined,
       timezone: input.timezone || undefined,
+      savedAt: input.savedAt ? new Date(input.savedAt) : undefined,
+      publishedAt: input.publishedAt ? new Date(input.publishedAt) : undefined,
     })
 
     return {

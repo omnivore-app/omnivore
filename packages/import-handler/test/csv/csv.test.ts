@@ -135,7 +135,7 @@ describe('Test csv importer', () => {
       expect(importedLabels).to.eql([
         ['Label1', 'Label2', 'Label 3', 'Label 4'],
         [],
-        [],
+        undefined,
       ])
     })
   })

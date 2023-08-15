@@ -422,7 +422,7 @@ export const createPage = async (
       body: {
         ...page,
         updatedAt: new Date(),
-        savedAt: new Date(),
+        savedAt: page.savedAt || new Date(),
         wordsCount: page.wordsCount ?? wordsCount(page.content),
       },
       refresh: 'wait_for', // wait for the index to be refreshed before returning
