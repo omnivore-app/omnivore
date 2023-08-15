@@ -52,7 +52,6 @@ export default function ImportUploader(): JSX.Element {
         // validate csv file
         try {
           const csvData = await validateCsvFile(file)
-          console.log(csvData.data)
           if (csvData.inValidData.length > 0) {
             setErrorMessage(csvData.inValidData[0].message)
             setUploadState('none')
